@@ -46,12 +46,12 @@ void UiBuilder::openHorizontalBox(const char* label) const {
     intf->openHorizontalBox(label);
 }
 
-void UiBuilder::create_small_rackknob(const char *id) const {
-    intf->create_small_rackknob(id);
-}
-
 void UiBuilder::create_small_rackknob(const char *id, const char *label) const {
-    intf->create_small_rackknob(id, label);
+    if (label) {
+	intf->create_small_rackknob(id, label);
+    } else {
+	intf->create_small_rackknob(id);
+    }
 }
 
 void UiBuilder::create_selector(const char *id) const {
@@ -133,74 +133,68 @@ const char *pb_main_expose =                 "main_expose";
  ** register GUI parameter to save/load them within the settigs file
  */
 
-inline void registerNonMidiParam(const char*a, float*c, bool d,
-                                 float std = 0, float lower = 0, float upper = 1) {
-    parameter_map.insert(new FloatParameter(a, "", Parameter::None, d, *c, std,
-                                            lower, upper, 0, false));
-}
-
-void GuiVariables::register_gui_parameter() {
-    registerNonMidiParam("ui.main_xorg",           &main_xorg, true, 300, 0, 10000);
-    registerNonMidiParam("ui.main_yorg",           &main_yorg, true, 300, 0, 10000);
+void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
+    pmap.reg_non_midi_par("ui.main_xorg",           &main_xorg, true, 300, 0, 10000);
+    pmap.reg_non_midi_par("ui.main_yorg",           &main_yorg, true, 300, 0, 10000);
 
     // unused!! for file format compatibility
-    ParameterGroups& group = get_group_table();
+    gx_engine::ParameterGroups& group = gx_engine::get_group_table();
     group.insert("MultiBandFilter", "");
     group.insert("eq", "");
     static bool dialogbox[3];
-    registerNonMidiParam("eq.dialog",              &dialogbox[0],  false);
-    registerNonMidiParam("MultiBandFilter.dialog", &dialogbox[1],  false);
-    registerNonMidiParam("midi_out.dialog",        &dialogbox[2], false);
+    pmap.reg_non_midi_par("eq.dialog",              &dialogbox[0],  false);
+    pmap.reg_non_midi_par("MultiBandFilter.dialog", &dialogbox[1],  false);
+    pmap.reg_non_midi_par("midi_out.dialog",        &dialogbox[2], false);
     static float viv;
-    registerNonMidiParam("system.waveview",          &viv, false);
-    parameter_map.insert(new SwitchParameter("system.select_tube", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube2", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube3", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube4", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube5", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube6", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube7", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube8", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube9", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube10", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube11", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube12", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube13", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube14", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube15", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube16", true));
-    parameter_map.insert(new SwitchParameter("system.select_tube17", true));
+    pmap.reg_non_midi_par("system.waveview",          &viv, false);
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube2", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube3", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube4", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube5", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube6", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube7", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube8", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube9", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube10", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube11", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube12", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube13", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube14", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube15", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube16", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube17", true));
     //---
     static bool dialog[29];
-    gx_gui::registerNonMidiParam("IR.dialog", &dialog[0], false);
-    gx_gui::registerNonMidiParam("amp.tonestack.dialog", &dialog[1], false);
-    gx_gui::registerNonMidiParam("ampmodul.dialog", &dialog[2], false);
-    gx_gui::registerNonMidiParam("biquad.dialog", &dialog[3], false);
-    gx_gui::registerNonMidiParam("cab.dialog", &dialog[4], false);
-    gx_gui::registerNonMidiParam("chorus.dialog", &dialog[5], false);
-    gx_gui::registerNonMidiParam("chorus_mono.dialog", &dialog[6], false);
-    gx_gui::registerNonMidiParam("compressor.dialog", &dialog[7], false);
-    gx_gui::registerNonMidiParam("crybaby.dialog", &dialog[8], false);
-    gx_gui::registerNonMidiParam("delay.dialog", &dialog[9], false);
-    gx_gui::registerNonMidiParam("echo.dialog", &dialog[10], false);
-    gx_gui::registerNonMidiParam("eqs.dialog", &dialog[11], false);
-    gx_gui::registerNonMidiParam("feedback.dialog", &dialog[12], false);
-    gx_gui::registerNonMidiParam("flanger.dialog", &dialog[13], false);
-    gx_gui::registerNonMidiParam("flanger_mono.dialog", &dialog[14], false);
-    gx_gui::registerNonMidiParam("freeverb.dialog", &dialog[15], false);
-    gx_gui::registerNonMidiParam("gx_distortion.dialog", &dialog[16], false);
-    gx_gui::registerNonMidiParam("jconv.dialog", &dialog[17], false);
-    gx_gui::registerNonMidiParam("low_highpass.dialog", &dialog[18], false);
-    gx_gui::registerNonMidiParam("moog.dialog", &dialog[19], false);
-    gx_gui::registerNonMidiParam("oscilloscope.dialog", &dialog[20], false);
-    gx_gui::registerNonMidiParam("overdrive.dialog", &dialog[21], false);
-    gx_gui::registerNonMidiParam("phaser.dialog", &dialog[22], false);
-    gx_gui::registerNonMidiParam("phaser_mono.dialog", &dialog[23], false);
-    gx_gui::registerNonMidiParam("stereodelay.dialog", &dialog[24], false);
-    gx_gui::registerNonMidiParam("stereoecho.dialog", &dialog[25], false);
-    gx_gui::registerNonMidiParam("stereoverb.dialog", &dialog[26], false);
-    gx_gui::registerNonMidiParam("tonemodul.dialog", &dialog[27], false);
-    gx_gui::registerNonMidiParam("tremolo.dialog", &dialog[28], false);
+    pmap.reg_non_midi_par("IR.dialog", &dialog[0], false);
+    pmap.reg_non_midi_par("amp.tonestack.dialog", &dialog[1], false);
+    pmap.reg_non_midi_par("ampmodul.dialog", &dialog[2], false);
+    pmap.reg_non_midi_par("biquad.dialog", &dialog[3], false);
+    pmap.reg_non_midi_par("cab.dialog", &dialog[4], false);
+    pmap.reg_non_midi_par("chorus.dialog", &dialog[5], false);
+    pmap.reg_non_midi_par("chorus_mono.dialog", &dialog[6], false);
+    pmap.reg_non_midi_par("compressor.dialog", &dialog[7], false);
+    pmap.reg_non_midi_par("crybaby.dialog", &dialog[8], false);
+    pmap.reg_non_midi_par("delay.dialog", &dialog[9], false);
+    pmap.reg_non_midi_par("echo.dialog", &dialog[10], false);
+    pmap.reg_non_midi_par("eqs.dialog", &dialog[11], false);
+    pmap.reg_non_midi_par("feedback.dialog", &dialog[12], false);
+    pmap.reg_non_midi_par("flanger.dialog", &dialog[13], false);
+    pmap.reg_non_midi_par("flanger_mono.dialog", &dialog[14], false);
+    pmap.reg_non_midi_par("freeverb.dialog", &dialog[15], false);
+    pmap.reg_non_midi_par("gx_distortion.dialog", &dialog[16], false);
+    pmap.reg_non_midi_par("jconv.dialog", &dialog[17], false);
+    pmap.reg_non_midi_par("low_highpass.dialog", &dialog[18], false);
+    pmap.reg_non_midi_par("moog.dialog", &dialog[19], false);
+    pmap.reg_non_midi_par("oscilloscope.dialog", &dialog[20], false);
+    pmap.reg_non_midi_par("overdrive.dialog", &dialog[21], false);
+    pmap.reg_non_midi_par("phaser.dialog", &dialog[22], false);
+    pmap.reg_non_midi_par("phaser_mono.dialog", &dialog[23], false);
+    pmap.reg_non_midi_par("stereodelay.dialog", &dialog[24], false);
+    pmap.reg_non_midi_par("stereoecho.dialog", &dialog[25], false);
+    pmap.reg_non_midi_par("stereoverb.dialog", &dialog[26], false);
+    pmap.reg_non_midi_par("tonemodul.dialog", &dialog[27], false);
+    pmap.reg_non_midi_par("tremolo.dialog", &dialog[28], false);
     // end unused
 
     show_patch_info = 0;
@@ -245,9 +239,9 @@ string fformat(float value, float step) {
 gboolean button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data) {
     if (event->button != 2)
         return FALSE;
-    if (controller_map.get_config_mode())
+    if (gx_engine::controller_map.get_config_mode())
         return TRUE;
-    new gx_main_midi::MidiConnect(event, *reinterpret_cast<Parameter*>(data));
+    new gx_main_midi::MidiConnect(event, *reinterpret_cast<gx_engine::Parameter*>(data));
     return TRUE;
 }
 
@@ -261,11 +255,11 @@ GlobalWidgets gw;
 
 /* set initial window position*/
 int gx_set_mx_oriantation() {
-    return gx_gui::guivar.main_xorg;
+    return guivar.main_xorg;
 }
 
 int gx_set_my_oriantation() {
-    return gx_gui::guivar.main_yorg;
+    return guivar.main_yorg;
 }
 
 void GxMainInterface::save_window_position() {
@@ -322,7 +316,7 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
       jack(engine_),
       mainmenu(*this, options),
       toplevel_box(false, 4),
-      gx_settings(options, jack, engine.convolver, midi_std_ctr, controller_map, engine),
+      gx_settings(options, jack, engine.convolver, gx_engine::midi_std_ctr, gx_engine::controller_map, engine, gx_engine::parameter_map),
       report_xrun(jack),
       RBox(0) {
     mainmenu.setup(*this);
@@ -350,7 +344,7 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 	sigc::ptr_fun(gx_jconv::gx_reload_jcgui));
     fLoggingWindow.signal_delete_event().connect(
 	sigc::mem_fun(*this, &GxMainInterface::on_logger_delete_event));
-    controller_map.signal_new_program().connect(
+    gx_engine::controller_map.signal_new_program().connect(
 	sigc::mem_fun(*this, &GxMainInterface::do_program_change));
     engine.convolver.jcset.signal_file_changed().connect(
 	sigc::mem_fun(*this, &GxMainInterface::set_convolver_filename));
@@ -451,10 +445,10 @@ void GxMainInterface::on_settings_selection_changed() {
     }
     fWindow.set_title(title);
     if (gx_settings.get_current_source() == gx_system::GxSettingsBase::preset) {
-	gx_gui::guivar.show_patch_info =
+	guivar.show_patch_info =
 	    gx_settings.get_preset_index(gx_settings.get_current_name())+1;
     } else {
-	gx_gui::guivar.show_patch_info = 0;
+	guivar.show_patch_info = 0;
     }
 }
 
@@ -1282,8 +1276,8 @@ void GxMainInterface::openHorizontalhideBox1(const char* label) {
 /* add mono effect to the mono rack, increase mono effect counter*/
 void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch,
                                     const char *expose_funk, GtkWidget* box) {
-    Parameter& param_dialog = parameter_map[id_dialog];
-    Parameter& param_switch = parameter_map[id_switch];
+    gx_engine::Parameter& param_dialog = gx_engine::parameter_map[id_dialog];
+    gx_engine::Parameter& param_switch = gx_engine::parameter_map[id_switch];
     GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
     guivar.mono_plugs++;
     gtk_box_pack_end(GTK_BOX(box), GTK_WIDGET(bbox->box.gobj()), false, false, 0);
@@ -1316,8 +1310,8 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 /* add stereo effect to the stereo rack, increase stereo effect counter*/
 void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch,
                                      const char *expose_funk, GtkWidget* box) {
-    Parameter& param_dialog = parameter_map[id_dialog];
-    Parameter& param_switch = parameter_map[id_switch];
+    gx_engine::Parameter& param_dialog = gx_engine::parameter_map[id_dialog];
+    gx_engine::Parameter& param_switch = gx_engine::parameter_map[id_switch];
     GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
 
     guivar.stereo_plugs++;
@@ -1771,10 +1765,10 @@ struct uiValueDisplay : public gx_ui::GxUiItemFloat {
 
 void GxMainInterface::addCheckButton(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!parameter_map.hasId(id)) {
+    if (!gx_engine::parameter_map.hasId(id)) {
         return;
     }
-    const FloatParameter &p = parameter_map[id].getFloat();
+    const gx_engine::FloatParameter &p = gx_engine::parameter_map[id].getFloat();
     if (label.empty()) {
         label = p.l_name();
     }
@@ -1783,10 +1777,10 @@ void GxMainInterface::addCheckButton(string id, const char* label_) {
 
 void GxMainInterface::addNumEntry(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!parameter_map.hasId(id)) {
+    if (!gx_engine::parameter_map.hasId(id)) {
         return;
     }
-    const FloatParameter &p = parameter_map[id].getFloat();
+    const gx_engine::FloatParameter &p = gx_engine::parameter_map[id].getFloat();
     if (label.empty()) {
         label = p.l_name();
     }
@@ -1795,10 +1789,10 @@ void GxMainInterface::addNumEntry(string id, const char* label_) {
 
 void GxMainInterface::addMToggleButton(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!parameter_map.hasId(id)) {
+    if (!gx_engine::parameter_map.hasId(id)) {
         return;
     }
-    const BoolParameter &p = parameter_map[id].getBool();
+    const gx_engine::BoolParameter &p = gx_engine::parameter_map[id].getBool();
     if (label.empty()) {
         label = p.l_name();
     }
@@ -1934,13 +1928,13 @@ uiTuner::uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui)
       wheel(),
       refpitch(),
       refpitch_param("ui.tuner_reference_pitch", "?Tuner Reference Pitch",
-		     gx_gui::Parameter::Continuous, false, refpitch,
+		     gx_engine::Parameter::Continuous, false, refpitch,
 		     440, 427, 453, 0.1, false), // half tone steps: 415..467
       adjust(refpitch_param.std_value, refpitch_param.lower, refpitch_param.upper,
 	     refpitch_param.step, 10*refpitch_param.step, 0),
       adapt(a) {
     fTuner.set_scale(1.1);
-    parameter_map.insert(&refpitch_param);
+    gx_engine::parameter_map.insert(&refpitch_param);
     wheel.set_value_position(Gtk::POS_RIGHT);
     wheel.set_adjustment(adjust);
     wheel.set_tooltip_text(_("reference pitch (standard: 440Hz)"));
@@ -2265,7 +2259,7 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
       // amp menu
       amp_menu_label(_("_Tube "), true),
       amp_menu(),
-      amp_radio_menu(&ui, parameter_map["tube.select"].getUInt()),
+      amp_radio_menu(&ui, gx_engine::parameter_map["tube.select"].getUInt()),
 
       // options menu
       options_menu_label(_("_Options"), true),
@@ -2377,6 +2371,7 @@ void MainMenu::addEngineMenu(GxMainInterface& intf) {
 	"activate", intf.fAccelGroup, GDK_i, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
     engine_midi_item.signal_activate().connect(
         sigc::bind(sigc::ptr_fun(gx_main_midi::MidiControllerTable::toggle),
+		   sigc::ref(gx_engine::parameter_map),
 		   sigc::ref(engine_midi_item)));
     engine_menu.append(engine_midi_item);
 
@@ -2548,7 +2543,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
                                GDK_b, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
     fShowToolBar.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_toolbar_activate));
-    fShowToolBar.set_parameter(new SwitchParameter("system.show_toolbar"));
+    fShowToolBar.set_parameter(new gx_engine::SwitchParameter("system.show_toolbar"));
     plugin_menu.append(fShowToolBar);
 
     /*-- Create mono rack check menu item under Options submenu --*/
@@ -2556,7 +2551,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
                                GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
     fShowRRack.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_rrack_activate));
-    fShowRRack.set_parameter(new SwitchParameter("system.show_rrack"));
+    fShowRRack.set_parameter(new gx_engine::SwitchParameter("system.show_rrack"));
     plugin_menu.append(fShowRRack);
 
     plugin_menu.append(*manage(new Gtk::SeparatorMenuItem));
@@ -2566,7 +2561,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
 			      GDK_m, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
     fShowRack.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_rack_activate));
-    fShowRack.set_parameter(new SwitchParameter("system.show_rack"));
+    fShowRack.set_parameter(new gx_engine::SwitchParameter("system.show_rack"));
     plugin_menu.append(fShowRack);
 
     /*-- Create mono plugin menu soket item under Options submenu --*/
@@ -2576,7 +2571,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
     plugin_menu.append(*manage(new Gtk::SeparatorMenuItem));
 
     /*-- create midi out menu  --*/
-    fShowMidiOut.set_parameter(new SwitchParameter("ui.midi_out"));
+    fShowMidiOut.set_parameter(new gx_engine::SwitchParameter("ui.midi_out"));
     fShowMidiOut.add_accelerator("activate", intf.fAccelGroup,
 				 GDK_a, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
     fShowMidiOut.signal_activate().connect(
@@ -2588,7 +2583,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
                                GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
     fShowSRack.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_srack_activate));
-    fShowSRack.set_parameter(new SwitchParameter("system.show_Srack"));
+    fShowSRack.set_parameter(new gx_engine::SwitchParameter("system.show_Srack"));
     plugin_menu.append(fShowSRack);
 
     /*-- Create stereo plugin menu soket item under Options submenu --*/
@@ -2605,7 +2600,7 @@ static void set_tooltips(bool v) {
 }
 
 void reset_all_parameters() {
-    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); ++i) {
+    for (gx_engine::ParamMap::iterator i = gx_engine::parameter_map.begin(); i != gx_engine::parameter_map.end(); ++i) {
         i->second->set_std_value();
     }
 }
@@ -2626,7 +2621,7 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
                                GDK_t, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowTuner.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_tuner_activate));
-    fShowTuner.set_parameter(new SwitchParameter("system.show_tuner"));
+    fShowTuner.set_parameter(new gx_engine::SwitchParameter("system.show_tuner"));
     options_menu.append(fShowTuner);
 
     /*-- Create skin menu under Options submenu--*/
@@ -2636,7 +2631,7 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
 			      GDK_k, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fSetMouse.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::set_mouse_mode));
-    fSetMouse.set_parameter(new SwitchParameter("system.set_mouse"));
+    fSetMouse.set_parameter(new gx_engine::SwitchParameter("system.set_mouse"));
     options_menu.append(fSetMouse);
 
     /*-- Create logbox check menu item under Options submenu --*/
@@ -2646,10 +2641,10 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
     fShowLogger.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_log_activate));
     options_menu.append(fShowLogger);
-    fShowLogger.set_parameter(new SwitchParameter("system.show_logger"));
+    fShowLogger.set_parameter(new gx_engine::SwitchParameter("system.show_logger"));
 
     /*-- Create menu item to control tooltip display --*/
-    SwitchParameter *p = new SwitchParameter("system.show_tooltips");
+    gx_engine::SwitchParameter *p = new gx_engine::SwitchParameter("system.show_tooltips");
     fShowTooltips.set_parameter(p);
     fShowTooltips.set_active(true);
     p->signal_changed().connect(ptr_fun(set_tooltips));
@@ -2657,7 +2652,7 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
 
     /*-- create option for saving midi controller settings in presets --*/
     options_menu.append(fMidiInPreset);
-    fMidiInPreset.set_parameter(new SwitchParameter("system.midi_in_preset"));
+    fMidiInPreset.set_parameter(new gx_engine::SwitchParameter("system.midi_in_preset"));
 
     /*-- create option for resetting gx_head settings --*/
     options_reset_all.signal_activate().connect(
@@ -2817,7 +2812,7 @@ inline int TubeKeys::operator()() {
     return -1;
 }
 
-GxUiRadioMenu::GxUiRadioMenu(gx_ui::GxUI* ui, UIntParameter& param_):
+GxUiRadioMenu::GxUiRadioMenu(gx_ui::GxUI* ui, gx_engine::UIntParameter& param_):
     gx_ui::GxUiItemUInt(ui, &param_.value),
     param(param_) {
 }
@@ -2969,7 +2964,7 @@ bool GxMainInterface::connect_jack(bool v) {
 	gx_system::gx_print_error(_("main"), _("can't disconnect jack"));
 	return false;
     }
-    if (!gx_gui::gx_start_jack_dialog()) {
+    if (!gx_start_jack_dialog()) {
 	gx_system::gx_print_warning(_("main"), string(_("Ignoring jackd ...")));
 	return false;
     }
@@ -3021,7 +3016,7 @@ void GxMainInterface::set_jack_buffer_size(jack_nframes_t buf_size) {
 
     // if user still wants to be given a choice, let's trigger dialog
     if (!gx_engine::audio.fwarn)
-        change_latency = (GxJackLatencyChange)gx_gui::gx_wait_latency_warn();
+        change_latency = (GxJackLatencyChange)gx_wait_latency_warn();
 
     // let's see
     if (change_latency == kChangeLatency) {

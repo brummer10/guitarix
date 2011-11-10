@@ -29,68 +29,45 @@
 namespace gx_engine {
 
 void MidiVariables::register_parameter(const ParamReg& reg) {
-    gx_gui::registerNonMidiParam("midi_out.midistat",        &midistat, false);
-    gx_gui::registerNonMidiParam("midi_out.midistat1",       &midistat1, false);
-    gx_gui::registerNonMidiParam("midi_out.midistat2",       &midistat2, false);
-    gx_gui::registerNonMidiParam("midi_out.midistat3",       &midistat3, false);
+    reg.registerNonMidiVar("midi_out.midistat",  &midistat,  false);
+    reg.registerNonMidiVar("midi_out.midistat1", &midistat1, false);
+    reg.registerNonMidiVar("midi_out.midistat2", &midistat2, false);
+    reg.registerNonMidiVar("midi_out.midistat3", &midistat3, false);
 
-    gx_gui::registerParam("midi_out.channel_1.velocity", "velocity", &fslider26,
-                           64.f, 0.f, 127.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_1.volume", "volume", &fslider46,
-                           64.f, 0.f, 127.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_1.autogain", "autogain", &fautogain);
-    gx_gui::registerParam("midi_out.channel_1.channel", "channel 1", &fslider30,
-                           0.f, 0.f, 16.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_1.program", "program", &fslider31,
-                           0.f, 0.f, 248.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_1.oktave", "oktave", &fslider29,
-                           0.f, -2.f, 2.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_1.sensity", "sensity", &fslider27,
-                           20.f, 1.f, 500.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_1.auto_pitch", "auto pitch", &fpitch);
+    reg.registerVar("midi_out.channel_1.velocity", "velocity", "S", "", &fslider26, 64, 0, 127, 1);
+    reg.registerVar("midi_out.channel_1.volume", "volume", "S", "", &fslider46, 64, 0, 127, 1);
+    reg.registerVar("midi_out.channel_1.autogain", "autogain", "B", "", &fautogain);
+    reg.registerVar("midi_out.channel_1.channel", "channel 1", "S", "", &fslider30, 0, 0, 16, 1);
+    reg.registerVar("midi_out.channel_1.program", "program", "S", "", &fslider31, 0, 0, 248, 1);
+    reg.registerVar("midi_out.channel_1.oktave", "oktave", "S", "", &fslider29, 0, -2, 2, 1);
+    reg.registerVar("midi_out.channel_1.sensity", "sensity", "S", "", &fslider27, 20, 1, 500, 1);
+    reg.registerVar("midi_out.channel_1.auto_pitch", "auto pitch", "B", "", &fpitch);
 
-    gx_gui::registerParam("midi_out.channel_2.on_off", "on/off", &fcheckbox10, 0);
-    gx_gui::registerParam("midi_out.channel_2.velocity", "velocity", &fslider32,
-                           64.f, 0.f, 127.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_2.volume", "volume", &fslider47,
-                           64.f, 0.f, 127.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_2.autogain", "autogain", &fautogain1);
-    gx_gui::registerParam("midi_out.channel_2.channel", "channel 2", &fslider35,
-                           0.f, 0.f, 16.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_2.program", "program", &fslider36,
-                           0.f, 0.f, 248.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_2.oktave", "oktave", &fslider34,
-                           0.f, -2.f, 2.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_2.sensity", "sensity", &fslider33,
-                           20.f, 1.f, 500.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_2.auto_pitch", "auto pitch", &fpitch1);
+    reg.registerVar("midi_out.channel_2.on_off", "on/off", "B", "", &fcheckbox10, 0);
+    reg.registerVar("midi_out.channel_2.velocity", "velocity", "S", "", &fslider32, 64, 0, 127, 1);
+    reg.registerVar("midi_out.channel_2.volume", "volume", "S", "", &fslider47, 64, 0, 127, 1);
+    reg.registerVar("midi_out.channel_2.autogain", "autogain", "B", "", &fautogain1);
+    reg.registerVar("midi_out.channel_2.channel", "channel 2", "S", "", &fslider35, 0, 0, 16, 1);
+    reg.registerVar("midi_out.channel_2.program", "program", "S", "", &fslider36, 0, 0, 248, 1);
+    reg.registerVar("midi_out.channel_2.oktave", "oktave", "S", "", &fslider34, 0, -2, 2, 1);
+    reg.registerVar("midi_out.channel_2.sensity", "sensity", "S", "", &fslider33, 20, 1, 500, 1);
+    reg.registerVar("midi_out.channel_2.auto_pitch", "auto pitch", "B", "", &fpitch1);
 
-    gx_gui::registerParam("midi_out.channel_3.on_off", "on/off", &fcheckbox11, 0);
-    gx_gui::registerParam("midi_out.channel_3.velocity", "velocity", &fslider40,
-                           64.f, 0.f, 127.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_3.volume", "volume", &fslider48,
-                           64.f, 0.f, 127.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_3.autogain", "autogain", &fautogain2);
-    gx_gui::registerParam("midi_out.channel_3.channel", "channel 3", &fslider44,
-                           0.f, 0.f, 16.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_3.program", "program", &fslider43,
-                           0.f, 0.f, 248.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_3.oktave", "oktave", &fslider42,
-                           0.f, -2.f, 2.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_3.sensity", "sensity", &fslider41,
-                           20.f, 1.f, 500.f, 1.f);
-    gx_gui::registerParam("midi_out.channel_3.auto_pitch", "auto pitch", &fpitch2);
+    reg.registerVar("midi_out.channel_3.on_off", "on/off", "B", "", &fcheckbox11, 0);
+    reg.registerVar("midi_out.channel_3.velocity", "velocity", "S", "", &fslider40, 64, 0, 127, 1);
+    reg.registerVar("midi_out.channel_3.volume", "volume", "S", "", &fslider48, 64, 0, 127, 1);
+    reg.registerVar("midi_out.channel_3.autogain", "autogain", "B", "", &fautogain2);
+    reg.registerVar("midi_out.channel_3.channel", "channel 3", "S", "", &fslider44, 0, 0, 16, 1);
+    reg.registerVar("midi_out.channel_3.program", "program", "S", "", &fslider43, 0, 0, 248, 1);
+    reg.registerVar("midi_out.channel_3.oktave", "oktave", "S", "", &fslider42, 0, -2, 2, 1);
+    reg.registerVar("midi_out.channel_3.sensity", "sensity", "S", "", &fslider41, 20, 1, 500, 1);
+    reg.registerVar("midi_out.channel_3.auto_pitch", "auto pitch", "B", "", &fpitch2);
 
-    gx_gui::registerParam("beat_detector.stepper", "stepper", &fslider39,
-                           1.f, 1.f, 32.f, 1.f);
-    gx_gui::registerParam("beat_detector.note_off", "note off", &fslider37,
-                           2.f, 1.f, 127.f, 1.f);
-    gx_gui::registerParam("beat_detector.atack_gain", "atack gain", &fslider45,
-                           5.f, 1.f, 127.f, 1.f);
-    gx_gui::registerParam("beat_detector.beat_gain", "beat gain", &fslider38,
-                           1.f, 0.0f, 127.f, 1.f);
-    gx_gui::registerParam("beat_detector.midi_gain", "midi gain", &midi_gain,
-                           0.f, -40.f, 60.f, 1.f);
+    reg.registerVar("beat_detector.stepper", "stepper", "S", "", &fslider39, 1, 1, 32, 1);
+    reg.registerVar("beat_detector.note_off", "note off", "S", "", &fslider37, 2, 1, 127, 1);
+    reg.registerVar("beat_detector.atack_gain", "atack gain", "S", "", &fslider45, 5, 1, 127, 1);
+    reg.registerVar("beat_detector.beat_gain", "beat gain", "S", "", &fslider38, 1, 0.0f, 127, 1);
+    reg.registerVar("beat_detector.midi_gain", "midi gain", "S", "", &midi_gain, 0, -40, 60, 1);
 }
 
 void MidiVariables::init(int samplingFreq) {

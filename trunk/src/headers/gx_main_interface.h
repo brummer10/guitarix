@@ -86,7 +86,7 @@ class GuiVariables {
     int                 main_yorg;
     string              skin;
 
-    void register_gui_parameter();
+    void register_gui_parameter(gx_engine::ParamMap& pmap);
 };
 
 extern GuiVariables guivar;
@@ -116,15 +116,15 @@ void gx_start_stop_jconv(GtkWidget*, gpointer);
 /* ---- linking menu items and parameter ---- */
 class MenuCheckItem: public Gtk::CheckMenuItem {
  private:
-    SwitchParameter* param;
+    gx_engine::SwitchParameter* param;
     void on_my_activate();
  public:
     // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
     MenuCheckItem(): Gtk::CheckMenuItem("", true), param() {}
     MenuCheckItem(const char *label): Gtk::CheckMenuItem(label, true), param() {}
-    void set_parameter(SwitchParameter *p);
-    void add_parameter(SwitchParameter *p);
-    SwitchParameter * get_parameter();
+    void set_parameter(gx_engine::SwitchParameter *p);
+    void add_parameter(gx_engine::SwitchParameter *p);
+    gx_engine::SwitchParameter * get_parameter();
 };
 
 class MenuCheckItemUiBool: public Gtk::CheckMenuItem, gx_ui::GxUiItemBool {
@@ -141,26 +141,26 @@ class MenuCheckItemUiBool: public Gtk::CheckMenuItem, gx_ui::GxUiItemBool {
 /* ---- linking menu items and parameter ---- */
 class RadioCheckItem: public Gtk::RadioMenuItem {
  private:
-    SwitchParameter* param;
+    gx_engine::SwitchParameter* param;
     void on_my_toggled();
  public:
     // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
     RadioCheckItem(Gtk::RadioMenuItem::Group& group, const char *label=""):
 	Gtk::RadioMenuItem(group, label, true), param() {}
-    void set_parameter(SwitchParameter *p);
-    SwitchParameter * get_parameter();
+    void set_parameter(gx_engine::SwitchParameter *p);
+    gx_engine::SwitchParameter * get_parameter();
 };
 
 /****************************************************************/
 
 class ToggleCheckButton: public Gtk::ToggleButton {
  private:
-    SwitchParameter* param;
+    gx_engine::SwitchParameter* param;
     void on_my_toggled();
  public:
     Gtk::Label m_label;
-    void set_parameter(SwitchParameter *p);
-    SwitchParameter * get_parameter();
+    void set_parameter(gx_engine::SwitchParameter *p);
+    gx_engine::SwitchParameter * get_parameter();
     ToggleCheckButton();
     ~ToggleCheckButton();
 };
@@ -184,7 +184,7 @@ class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
     virtual void reflectZone();
  public:
     static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
-    UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, bool show_value);
+    UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value);
     virtual ~UiRegler();
     GtkWidget *get_widget() { return GTK_WIDGET(m_regler->gobj()); }
 };
@@ -194,7 +194,7 @@ class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
 class UiSelector {
  protected:
     Gxw::Selector m_selector;
-    void init(Parameter& param);
+    void init(gx_engine::Parameter& param);
  public:
     UiSelector();
     static GtkWidget* create(gx_ui::GxUI& ui, string id, const char *widget_name);
@@ -208,7 +208,7 @@ class UiSelectorFloat: public UiSelector, gx_ui::GxUiItemFloat, protected Gtk::A
     virtual void reflectZone();
     void on_value_changed();
  public:
-    UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param);
+    UiSelectorFloat(gx_ui::GxUI& ui, gx_engine::FloatParameter &param);
 };
 
 /****************************************************************/
@@ -218,7 +218,7 @@ class UiSelectorInt: public UiSelector, gx_ui::GxUiItemInt, protected Gtk::Adjus
     virtual void reflectZone();
     void on_value_changed();
  public:
-    UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param);
+    UiSelectorInt(gx_ui::GxUI& ui, gx_engine::IntParameter &param);
 };
 
 /****************************************************************/
@@ -231,7 +231,7 @@ class UiReglerWithCaption: public UiRegler {
     static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
     static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
                              Glib::ustring label, bool show_value);
-    UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+    UiReglerWithCaption(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
                         Glib::ustring label, bool show_value);
     GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
@@ -246,7 +246,7 @@ class UiRackReglerWithCaption: public UiRegler {
     static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
     static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
                              Glib::ustring label);
-    UiRackReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+    UiRackReglerWithCaption(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
                             Glib::ustring label);
     GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
@@ -261,7 +261,7 @@ class UiRackRegler: public UiRegler {
     static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
     static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
                              Glib::ustring label);
-    UiRackRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+    UiRackRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
                  Glib::ustring label);
     GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
@@ -272,10 +272,10 @@ class UiSwitch: public Gxw::Switch {
  public:
     explicit UiSwitch(const char *sw_type);
     GtkWidget *get_widget() { return GTK_WIDGET(gobj());}
-    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param);
+    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, gx_engine::Parameter &param);
     static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, string id) {
-        if (!parameter_map.hasId(id)) return 0;
-        return new_switch(ui, sw_type, parameter_map[id]);
+        if (!gx_engine::parameter_map.hasId(id)) return 0;
+        return new_switch(ui, sw_type, gx_engine::parameter_map[id]);
     }
     static GtkWidget *create(gx_ui::GxUI& ui, const char *sw_type, string id) {
         return new_switch(ui, sw_type, id)->get_widget();}
@@ -288,7 +288,7 @@ class UiSwitchFloat: public UiSwitch, gx_ui::GxUiItemFloat {
     void on_toggled();
     virtual void reflectZone();
  public:
-    UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParameter &param);
+    UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, gx_engine::FloatParameter &param);
 };
 
 /****************************************************************/
@@ -298,7 +298,7 @@ class UiSwitchBool: public UiSwitch, gx_ui::GxUiItemBool {
     void on_toggled();
     virtual void reflectZone();
  public:
-    UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &param);
+    UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, gx_engine::BoolParameter &param);
 };
 
 /****************************************************************/
@@ -314,7 +314,7 @@ class UiSwitchWithCaption {
                              Gtk::PositionType pos);
     static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
                              Glib::ustring label, Gtk::PositionType pos);
-    UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param,
+    UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, gx_engine::Parameter &param,
                         Glib::ustring label, Gtk::PositionType pos);
     ~UiSwitchWithCaption();
     GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
@@ -327,7 +327,7 @@ class UiCabSwitch: public UiSwitchWithCaption {
     void on_switch_toggled();
  public:
     static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
-    UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
+    UiCabSwitch(gx_ui::GxUI &ui, gx_engine::Parameter &param, Glib::ustring label);
 };
 
 /****************************************************************/
@@ -337,7 +337,7 @@ class UiContrastSwitch: public UiSwitchWithCaption {
     void on_switch_toggled();
  public:
     static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
-    UiContrastSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
+    UiContrastSwitch(gx_ui::GxUI &ui, gx_engine::Parameter &param, Glib::ustring label);
 };
 
 /****************************************************************/
@@ -349,7 +349,7 @@ struct uiTuner : public Gtk::Alignment, private gx_ui::GxUiItemFloat {
     Gtk::EventBox eBox;
     Gxw::Wheel wheel;
     float refpitch;
-    gx_gui::FloatParameter refpitch_param;
+    gx_engine::FloatParameter refpitch_param;
     Gtk::Adjustment adjust;
     gx_engine::TunerAdapter& adapt;
     void freq_changed();
@@ -411,11 +411,11 @@ class GxUiRadioMenu: public gx_ui::GxUiItemUInt {
 private:
     vector<Gtk::RadioMenuItem*> items;
     Gtk::RadioButtonGroup group;
-    UIntParameter& param;
+    gx_engine::UIntParameter& param;
     virtual void reflectZone();
     void on_activate(int i);
 public:
-    GxUiRadioMenu(gx_ui::GxUI* ui, UIntParameter& param);
+    GxUiRadioMenu(gx_ui::GxUI* ui, gx_engine::UIntParameter& param);
     virtual ~GxUiRadioMenu();
     void setup(Gtk::MenuShell& menucont, Glib::RefPtr<Gtk::AccelGroup>& ag);
 };
@@ -963,7 +963,7 @@ string fformat(float value, float step);
 #ifndef NDEBUG
 // debug_check
 inline void check_zone(GtkWidget *w, void *zone) {
-    if (!parameter_map.hasZone(zone)) {
+    if (!gx_engine::parameter_map.hasZone(zone)) {
         gchar *p;
         gtk_widget_path(w, NULL, &p, NULL);
         cerr << "zone not found in definition of widget: "
@@ -971,7 +971,7 @@ inline void check_zone(GtkWidget *w, void *zone) {
         g_free(p);
         assert(false);
     }
-    parameter_map[zone].setUsed();
+    gx_engine::parameter_map[zone].setUsed();
 }
 #endif
 
@@ -980,7 +980,7 @@ inline void check_zone(GtkWidget *w, void *zone) {
 inline void connect_midi_controller(GtkWidget *w, void *zone) {
     debug_check(check_zone, w, zone);
     g_signal_connect(w, "button_press_event", G_CALLBACK(button_press_cb),
-                    (gpointer)&parameter_map[zone]);
+                    (gpointer)&gx_engine::parameter_map[zone]);
 }
 
 /****************************************************************/

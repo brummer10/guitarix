@@ -373,7 +373,7 @@ int ModuleSelectorFromList::register_parameter(const ParamReg &param) {
     }
     p[size].value_id = 0;
     p[size].value_label = 0;
-    param.registerUEnumVar(select_id, select_name, "S", "", p, &selector, 0, false);
+    param.registerUEnumVar(select_id, select_name, "S", "", p, &selector, 0);
     return 0;
 }
 
@@ -543,9 +543,9 @@ GxEngineState ModuleSequencer::get_state() {
     }
 }
 
-void ModuleSequencer::registerParameter(gx_gui::ParameterGroups& groups)
+void ModuleSequencer::registerParameter(ParamMap& param, ParameterGroups& groups)
 {
-    pluginlist.registerParameter(groups);
+    pluginlist.registerParameter(param, groups);
 }
 
 void ModuleSequencer::get_sched_priority(int &policy_, int &priority_, int prio_dim) { 
@@ -640,7 +640,7 @@ static const char* ampstack_groups[] = {
     0
 };
 
-GxEngine::GxEngine(const string& plugin_dir, gx_gui::ParameterGroups& groups)
+GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups)
     : ModuleSequencer(),
       resamp(),
       // ModuleSelector's
@@ -678,7 +678,7 @@ GxEngine::GxEngine(const string& plugin_dir, gx_gui::ParameterGroups& groups)
     add_selector(tonestack);
     add_selector(tuner);
 
-    registerParameter(groups);
+    registerParameter(param, groups);
 
 #ifndef NDEBUG
     pluginlist.printlist();

@@ -28,7 +28,7 @@
 
 #include "engine.h"               // NOLINT
 
-namespace gx_gui {
+namespace gx_engine {
 
 /****************************************************************
  ** Global Variables
@@ -37,9 +37,6 @@ namespace gx_gui {
 /* Midi */
 MidiStandardControllers midi_std_ctr; // map ctrl num -> standard name
 MidiControllerList controller_map; // map ctrl num -> controlled parameters
-
-/* Parameters */
-ParamMap parameter_map; // map id -> parameter, zone -> parameter
 
 
 /****************************************************************
@@ -184,17 +181,17 @@ void MidiController::writeJSON(gx_system::JsonWriter& jw) const {
     jw.end_array();
 }
 
-MidiController *MidiController::readJSON(gx_system::JsonParser& jp) {
+MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pmap) {
     jp.next(gx_system::JsonParser::begin_array);
     jp.next(gx_system::JsonParser::value_string);
     string id = jp.current_value();
-    if (!parameter_map.hasId(id)) {
+    if (!pmap.hasId(id)) {
         gx_system::gx_print_warning(_("Midi controller settings"),
                                     _("unknown parameter: ") + id);
         while (jp.next() != gx_system::JsonParser::end_array);
         return 0;
     }
-    Parameter& param = parameter_map[id];
+    Parameter& param = pmap[id];
     float lower = 0, upper = 0;
     bool bad = false;
     bool chg = false;
@@ -360,14 +357,14 @@ void MidiControllerList::writeJSON(gx_system::JsonWriter& w) {
     w.end_array(true);
 }
 
-void MidiControllerList::readJSON(gx_system::JsonParser& jp, controller_array& m) {
+void MidiControllerList::readJSON(gx_system::JsonParser& jp, ParamMap& param, controller_array& m) {
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
         jp.next(gx_system::JsonParser::value_number);
         midi_controller_list& l = m[jp.current_value_int()];
         jp.next(gx_system::JsonParser::begin_array);
         while (jp.peek() != gx_system::JsonParser::end_array) {
-            MidiController *p = MidiController::readJSON(jp);
+            MidiController *p = MidiController::readJSON(jp, param);
             if (p) {
                 l.push_front(*p);
             }
@@ -548,9 +545,6 @@ void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all
     if (p1->used != p2->used) {
 	printf("%s[%s]: used different: %d / %d\n", title, p1->_id.c_str(), p1->used, p2->used);
     }
-    if (p1->experimental != p2->experimental) {
-	printf("%s[%s]: experimental different: %d / %d\n", title, p1->_id.c_str(), p1->experimental, p2->experimental);
-    }
     if (p1->c_type != p2->c_type) {
 	printf("%s[%s]: c_type different: %d / %d\n", title, p1->_id.c_str(), p1->c_type, p2->c_type);
     }
@@ -675,8 +669,8 @@ float FloatParameter::getStepAsFloat() const {
 /* FloatEnumParameter */
 
 FloatEnumParameter::FloatEnumParameter(string id, string name, const value_pair* vn, bool preset,
-                                       float &v, int sv, bool ctrl, bool exp):
-    FloatParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), 1, ctrl, exp),
+                                       float &v, int sv, bool ctrl):
+    FloatParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), 1, ctrl),
     value_names(vn) {}
 
 const value_pair *FloatEnumParameter::getValueNames() const {
@@ -768,8 +762,8 @@ float IntParameter::getUpperAsFloat() const {
 /* EnumParameter */
 
 EnumParameter::EnumParameter(string id, string name, const value_pair* vn, bool preset,
-                             int &v, int sv, bool ctrl, bool exp):
-    IntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl, exp),
+                             int &v, int sv, bool ctrl):
+    IntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl),
     value_names(vn) {}
 
 const value_pair *EnumParameter::getValueNames() const {
@@ -860,8 +854,8 @@ float UIntParameter::getUpperAsFloat() const {
 /* UEnumParameter */
 
 UEnumParameter::UEnumParameter(string id, string name, const value_pair* vn, bool preset,
-                             unsigned int &v, unsigned int sv, bool ctrl, bool exp):
-    UIntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl, exp),
+                             unsigned int &v, unsigned int sv, bool ctrl):
+    UIntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl),
     value_names(vn) {}
 
 const value_pair *UEnumParameter::getValueNames() const {

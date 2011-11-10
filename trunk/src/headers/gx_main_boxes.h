@@ -181,7 +181,7 @@ class GxDialogButtonBox {
  public:
     Gtk::HBox box;
     UiSwitchBool show_dialog;
-    GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog);
+    GxDialogButtonBox(gx_ui::GxUI& ui, gx_engine::Parameter& param_dialog);
 };
 
 /****************************************************************/
@@ -207,8 +207,8 @@ class GxDialogWindowBox {
     ToggleCheckButtonUiBool m_tcb;
     Gtk::Window m_regler_tooltip_window;
     GxDialogWindowBox(gx_ui::GxUI& ui,
-        const char *expose_funk, Parameter& param_dialog,
-        Parameter& param_switch, Gtk::ToggleButton& button,
+        const char *expose_funk, gx_engine::Parameter& param_dialog,
+        gx_engine::Parameter& param_switch, Gtk::ToggleButton& button,
         GtkWidget * Caller);
     ~GxDialogWindowBox();
 };

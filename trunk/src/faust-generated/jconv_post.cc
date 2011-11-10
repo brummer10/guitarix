@@ -2,24 +2,40 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace jconv_post {
-static FAUSTFLOAT 	fslider0;
-static int 	IOTA;
-static double 	fVec0[65536];
-static FAUSTFLOAT 	fslider1;
-static double 	fConst0;
-static double 	fRec0[2];
-static FAUSTFLOAT 	fslider2;
-static double 	fRec1[2];
-static FAUSTFLOAT 	fslider3;
-static double 	fRec2[2];
+class Dsp {
+private:
+FAUSTFLOAT 	fslider0;
+int 	IOTA;
+double 	fVec0[65536];
+FAUSTFLOAT 	fslider1;
+double 	fConst0;
+double 	fRec0[2];
+FAUSTFLOAT 	fslider2;
+double 	fRec1[2];
+FAUSTFLOAT 	fslider3;
+double 	fRec2[2];
 FAUSTFLOAT 	fslider4;
 FAUSTFLOAT	*fslider4_;
 #define fslider4 (*fslider4_)
-static double 	fRec3[2];
-static double 	fVec1[65536];
-static int	fSamplingFreq;
+double 	fRec3[2];
+double 	fVec1[65536];
+    int fSamplingFreq;
+public:
+    void clear_state_f();
+    void init(unsigned int samplingFreq);
+    void compute(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1);
+    int register_par(const ParamReg& reg);
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state_f(PluginDef* = 0)
+
+Dsp::Dsp() {
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<65536; i++) fVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
@@ -29,7 +45,8 @@ static void clear_state_f(PluginDef* = 0)
 	for (int i=0; i<65536; i++) fVec1[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
@@ -37,7 +54,9 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	clear_state_f();
 }
 
-void compute(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1)
+
+
+inline void Dsp::compute(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1)
 {
 	double 	fSlow0 = (0.01 * fslider0);
 	double 	fSlow1 = (1 - fSlow0);
@@ -71,7 +90,8 @@ void compute(int count, float *input0, float *input1, float *input2, float *inpu
 	}
 }
 
-static int register_params(const ParamReg& reg)
+
+int Dsp::register_par(const ParamReg& reg)
 {
 #undef fslider4
 	fslider4_ = reg.registerVar("amp.balance",N_("Balance"),"SA","",&fslider4, 0.0, -1.0, 1.0, 0.1);
@@ -81,5 +101,8 @@ static int register_params(const ParamReg& reg)
 	reg.registerVar("jconv.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
+
+
+
 
 } // end namespace jconv_post

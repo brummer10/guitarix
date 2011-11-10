@@ -95,7 +95,7 @@ public:
     int add(PluginDef **p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int check_version(PluginDef *p);
-    void registerParameter(gx_gui::ParameterGroups& groups);
+    void registerParameter(gx_engine::ParamMap& param, gx_engine::ParameterGroups& groups);
     void append_rack(UiBuilder& ui);
     void ordered_mono_list(list<Plugin*>& mono, int mode);
     void ordered_stereo_list(list<Plugin*>& stereo, int mode);

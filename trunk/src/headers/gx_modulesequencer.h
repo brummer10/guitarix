@@ -339,7 +339,7 @@ public:
     void clear_stateflag(StateFlag flag);
     void set_state(GxEngineState state);
     GxEngineState get_state();
-    void registerParameter(gx_gui::ParameterGroups& groups);
+    void registerParameter(ParamMap& param, ParameterGroups& groups);
 };
 
 } /* end of gx_engine namespace */

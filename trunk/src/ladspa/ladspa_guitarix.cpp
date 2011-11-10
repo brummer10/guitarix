@@ -14,14 +14,15 @@
 class StateIO: public gx_system::AbstractStateIO {
 public:
     gx_engine::GxJConvSettings jcset;
-    StateIO();
+    gx_engine::ParamMap& param;
+    StateIO(gx_engine::ParamMap& param);
     ~StateIO();
     void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_state();
     void write_state(gx_system::JsonWriter &jw, bool preserve_preset);
 };
 
-StateIO::StateIO() {}
+StateIO::StateIO(gx_engine::ParamMap& param_): param(param_) {}
 StateIO::~StateIO() {}
 
 void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&) {
@@ -35,16 +36,16 @@ void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFil
 		    jp.next(gx_system::JsonParser::begin_object);
 		    do {
 			jp.next(gx_system::JsonParser::value_key);
-			if (!gx_gui::parameter_map.hasId(jp.current_value())) {
+			if (!param.hasId(jp.current_value())) {
 			    gx_system::gx_print_warning(
 				_("recall settings"),
 				_("unknown parameter: ")+jp.current_value());
 			    jp.skip_object();
 			    continue;
 			}
-			gx_gui::Parameter& param = gx_gui::parameter_map[jp.current_value()];
-			param.readJSON_value(jp);
-			param.setJSON_value();
+			gx_engine::Parameter& p = param[jp.current_value()];
+			p.readJSON_value(jp);
+			p.setJSON_value();
 		    } while (jp.peek() == gx_system::JsonParser::value_key);
 		    jp.next(gx_system::JsonParser::end_object);
 		} else if (jp.current_value() == "jconv") {
@@ -78,14 +79,14 @@ private:
     StateIO state_io;
     gx_engine::GxEngine& engine;
 public:
-    LadspaSettings(string sfname, gx_engine::GxEngine&);
+    LadspaSettings(string sfname, gx_engine::ParamMap& param, gx_engine::GxEngine&);
     ~LadspaSettings();
     void load();
 };
 
-LadspaSettings::LadspaSettings(string sfname, gx_engine::GxEngine& engine_)
+LadspaSettings::LadspaSettings(string sfname, gx_engine::ParamMap& param, gx_engine::GxEngine& engine_)
     : GxSettingsBase(engine_),
-      state_io(),
+      state_io(param),
       engine(engine_) {
     set_io(&state_io, 0);
     set_statefilename(sfname);
@@ -109,6 +110,7 @@ private:
     unsigned long SampleCount;   
     LADSPA_Data * input_buffer;
     LADSPA_Data * output_buffer;
+    gx_engine::ParamMap param;
     gx_engine::GxEngine engine;
     LadspaSettings settings;
 public:
@@ -124,8 +126,9 @@ LadspaGuitarix::LadspaGuitarix(unsigned long sr)
       SampleCount(),
       input_buffer(),
       output_buffer(),
-      engine("", gx_gui::get_group_table()),
-      settings(string(getenv("HOME"))+"/.gx_head/gx_head_rc", engine) {
+      param(),
+      engine("", param, gx_engine::get_group_table()),
+      settings(string(getenv("HOME"))+"/.gx_head/gx_head_rc", param, engine) {
     jack_status_t jackstat; // connecting to jack is just a hack for testing
     jack_client_t *client = jack_client_open("guitarix-test", JackNoStartServer, &jackstat);
     if (client) {
@@ -153,7 +156,6 @@ void UiBuilder::load(gx_engine::Plugin*) {}
 void UiBuilder::load_glade(char const*) const {}
 
 
-/* Run a delay line instance for a block of SampleCount samples. */
 void LadspaGuitarix::runGuitarix(LADSPA_Handle Instance, unsigned long SampleCount) {
     LadspaGuitarix& self = *static_cast<LadspaGuitarix*>(Instance);
     if (SampleCount != self.SampleCount) {
@@ -181,8 +183,6 @@ static void log_terminal(const string& msg, gx_system::GxMsgType tp, bool plugge
     cerr << t << " " << msg << endl;
 }
 
-static LadspaGuitarix *instance = 0;
-
 /* Construct a new plugin instance. */
 LADSPA_Handle instantiateGuitarix(
     const LADSPA_Descriptor * Descriptor, unsigned long SampleRate) {
@@ -192,23 +192,18 @@ LADSPA_Handle instantiateGuitarix(
 	    sigc::ptr_fun(log_terminal));
 	seen = true;
     }
-    if (instance) {
-    	return instance;
-    }
-    instance = new LadspaGuitarix(SampleRate);
-    return instance;
+    return new LadspaGuitarix(SampleRate);
 }
 
 /*****************************************************************************/
 
-/* Throw away a simple delay line. */
 void cleanupGuitarix(LADSPA_Handle Instance) {
-    //delete static_cast<LadspaGuitarix*>(Instance);
+    delete static_cast<LadspaGuitarix*>(Instance);
 }
 
 /*****************************************************************************/
 
-#define GUITARIX_INPUT   0
+#define GUITARIX_INPUT  0
 #define GUITARIX_OUTPUT 1
 
 /* Connect a port to a data location. */

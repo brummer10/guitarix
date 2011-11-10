@@ -42,11 +42,11 @@ void ToggleCheckButton::on_my_toggled() {
     param->set(get_active());
 }
 
-SwitchParameter* ToggleCheckButton::get_parameter() {
+gx_engine::SwitchParameter* ToggleCheckButton::get_parameter() {
     return param;
 }
 
-void ToggleCheckButton::set_parameter(SwitchParameter *p) {
+void ToggleCheckButton::set_parameter(gx_engine::SwitchParameter *p) {
     param = p;
     p->signal_changed().connect(sigc::mem_fun(*this, &ToggleCheckButton::set_active));
     signal_toggled().connect(
@@ -214,7 +214,7 @@ GxMoveBox::GxMoveBox(const gx_ui::GxUI& ui) {
 /****************************************************************/
 
 
-GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog)
+GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, gx_engine::Parameter& param_dialog)
     : box(false, 0),
     show_dialog(ui, sw_button, param_dialog.getBool()) {
     box.set_border_width(0);
@@ -230,7 +230,7 @@ void GxDialogWindowBox::on_dialog_menu_activate() {
     if (!menuitem.get_active()) {
         string group = group_id;
         group += ".on_off";
-        parameter_map[group].set_std_value();
+        gx_engine::parameter_map[group].set_std_value();
     }
 }
 
@@ -243,8 +243,8 @@ GxDialogWindowBox::~GxDialogWindowBox() {
 }
 
 GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk,
-                                     Parameter& param_dialog,
-                                     Parameter& param_switch,
+                                     gx_engine::Parameter& param_dialog,
+                                     gx_engine::Parameter& param_switch,
                                      Gtk::ToggleButton& button, GtkWidget * Caller)
     : box(false, 0),
       unit_on_off(UiSwitch::new_switch(ui, sw_led, param_switch)),
@@ -473,14 +473,14 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, const char *pb_2, Glib::ustring titl, 
     fOrdervRack.set_label(mtitle);
     gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     gui.mainmenu.plugin_menu.append(fOrdervRack);
-    fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v", false, false));
+    fOrdervRack.set_parameter(new gx_engine::SwitchParameter("system.order_rack_v", false, false));
     fOrdervRack.show();
 
     mtitle = _("Order Rack Horizontally");
     fOrderhRack.set_label(mtitle);
     gui.mainmenu.plugin_menu.append(fOrderhRack);
     fOrderhRack.set_active(false);
-    fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h", false, false));
+    fOrderhRack.set_parameter(new gx_engine::SwitchParameter("system.order_rack_h", false, false));
     fOrderhRack.show();
 
     paintbox1.show();

@@ -29,33 +29,13 @@
 namespace gx_engine {
 
 /****************************************************************
- ** registering of audio variables
- */
-
-inline void registerNonMidiParam(const char*a, float*c, bool d, float std = 0,
-                                 float lower = 0, float upper = 1) {
-    gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a, "", gx_gui::Parameter::None,
-                                 d, *c, std, lower, upper, false, false));
-}
-
-inline void registerNonMidiParam(const char*a, int*c, bool d, int std, int lower, int upper) {
-    gx_gui::parameter_map.insert(new gx_gui::IntParameter(a, "", gx_gui::Parameter::None,
-							  d, *c, std, lower, upper, false, false));
-}
-
-
-inline void registerNonMidiParam(const char*a, bool*c, bool d, float std = false) {
-    gx_gui::parameter_map.insert(new gx_gui::BoolParameter(a, "", gx_gui::Parameter::None,
-                                 d, *c, std, false, false));
-}
-
-/****************************************************************
  ** register audio variables to paramtable
  */
 
-void AudioVariables::register_parameter() {
+void AudioVariables::register_parameter(ParamMap& pmap) {
     // user interface options
-    registerNonMidiParam("ui.latency_nowarn",        &fwarn, false, false);
-    registerNonMidiParam("ui.skin",                  &fskin, false, 0, 0, 100);
+    pmap.reg_non_midi_par("ui.latency_nowarn", &fwarn, false, false);
+    pmap.reg_non_midi_par("ui.skin",           &fskin, false, 0, 0, 100);
 }
+
 } /* end of gx_engine namespace */

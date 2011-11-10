@@ -34,12 +34,14 @@ namespace gx_preset {
  ** class PresetIO
  */
 
-PresetIO::PresetIO(gx_gui::MidiControllerList& mctrl_,
+PresetIO::PresetIO(gx_engine::MidiControllerList& mctrl_,
 		   gx_engine::ConvolverAdapter& cvr_,
+		   gx_engine::ParamMap& param_,
 		   const gx_system::CmdlineOptions& opt_)
     : gx_system::AbstractPresetIO(),
       mctrl(mctrl_),
       convolver(cvr_),
+      param(param_),
       opt(opt_),
       plist(),
       m(0),
@@ -57,7 +59,7 @@ void PresetIO::clear() {
 }
 
 bool PresetIO::midi_in_preset() {
-    return gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get();
+    return param["system.midi_in_preset"].getSwitch().get();
 }
 
 void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {
@@ -66,13 +68,13 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 }
 
 void PresetIO::fixup_parameters(const gx_system::SettingsFileHeader& head) {
-    assert(gx_gui::parameter_map.hasId("jconv.wet_dry"));
+    assert(param.hasId("jconv.wet_dry"));
     if (head.is_current()) {
         return;
     }
     if (head.get_major() == 1 && head.get_minor() < 2) {
-        if (gx_gui::parameter_map.hasId("jconv.wet_dry")) {
-            gx_gui::Parameter& p = gx_gui::parameter_map["jconv.wet_dry"];
+        if (param.hasId("jconv.wet_dry")) {
+            gx_engine::Parameter& p = param["jconv.wet_dry"];
             if (p.isFloat()) {
                 p.getFloat().convert_from_range(-1, 1);
             }
@@ -84,38 +86,38 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
     jp.next(gx_system::JsonParser::begin_object);
     do {
         jp.next(gx_system::JsonParser::value_key);
-        if (!gx_gui::parameter_map.hasId(jp.current_value())) {
+        if (!param.hasId(jp.current_value())) {
             gx_system::gx_print_warning(
 		_("recall settings"),
 		_("unknown parameter: ")+jp.current_value());
             jp.skip_object();
             continue;
         }
-        gx_gui::Parameter& param = gx_gui::parameter_map[jp.current_value()];
-        if (!preset and param.isInPreset()) {
+        gx_engine::Parameter& p = param[jp.current_value()];
+        if (!preset and p.isInPreset()) {
             gx_system::gx_print_warning(
 		_("recall settings"),
-		_("preset-parameter ")+param.id()+_(" in settings"));
+		_("preset-parameter ")+p.id()+_(" in settings"));
             jp.skip_object();
             continue;
-        } else if (preset and !param.isInPreset()) {
+        } else if (preset and !p.isInPreset()) {
             gx_system::gx_print_warning(
 		_("recall settings"),
-		_("non preset-parameter ")+param.id()+_(" in preset"));
+		_("non preset-parameter ")+p.id()+_(" in preset"));
             jp.skip_object();
             continue;
         }
-        param.readJSON_value(jp);
-        plist.push_back(&param);
+        p.readJSON_value(jp);
+        plist.push_back(&p);
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
 }
 
 void PresetIO::write_parameters(gx_system::JsonWriter &w, bool preset) {
     w.begin_object(true);
-    for (gx_gui::ParamMap::iterator i = gx_gui::parameter_map.begin();
-                                   i != gx_gui::parameter_map.end(); ++i) {
-        gx_gui::Parameter *param = i->second;
+    for (gx_engine::ParamMap::iterator i = param.begin();
+                                   i != param.end(); ++i) {
+        gx_engine::Parameter *param = i->second;
         if ((preset and param->isInPreset()) or(!preset and !param->isInPreset())) {
             param->writeJSON(w);
             w.newline();
@@ -139,9 +141,9 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
 	    jcset.readJSON(jp, opt.get_IR_pathlist());
         } else if (jp.current_value() == "midi_controller") {
             if (use_midi) {
-                m = new gx_gui::MidiControllerList::controller_array
-                               (gx_gui::MidiControllerList::controller_array_size);
-                mctrl.readJSON(jp, *m);
+                m = new gx_engine::MidiControllerList::controller_array
+		    (gx_engine::MidiControllerList::controller_array_size);
+                mctrl.readJSON(jp, param, *m);
                 if (has_midi) {
                     *has_midi = true;
                 }
@@ -162,7 +164,7 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
 
 void PresetIO::commit_preset() {
     convolver.jcset = jcset;
-    for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); ++i) {
+    for (gx_engine::paramlist::iterator i = plist.begin(); i != plist.end(); ++i) {
         (*i)->setJSON_value();
     }
     if (m) {
@@ -191,7 +193,7 @@ void PresetIO::write_preset(gx_system::JsonWriter& jw) {
 
 void PresetIO::copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head,
 		    gx_system::JsonWriter &jw) {
-    gx_gui::parameter_map.set_init_values();
+    param.set_init_values();
     bool has_midi;
     clear();
     read_intern(jp, &has_midi, head);
@@ -204,10 +206,10 @@ void PresetIO::copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
  ** class StateIO
  */
 
-StateIO::StateIO(gx_gui::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-		 gx_gui::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack_,
-		 const gx_system::CmdlineOptions& opt_)
-    : PresetIO(mctrl, cvr, opt_),
+StateIO::StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
+		 gx_engine::ParamMap& param, gx_engine::MidiStandardControllers& mstdctr,
+		 gx_jack::GxJack& jack_, const gx_system::CmdlineOptions& opt_)
+    : PresetIO(mctrl, cvr, param, opt_),
       midi_std_control(mstdctr),
       jack(jack_) {
 }
@@ -224,9 +226,9 @@ void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFil
 	} else if (jp.current_value() == "current_preset") {
 	    read_intern(jp, 0, head);
 	} else if (jp.current_value() == "midi_controller") {
-	    m = new gx_gui::MidiControllerList::controller_array
-		(gx_gui::MidiControllerList::controller_array_size);
-	    mctrl.readJSON(jp, *m);
+	    m = new gx_engine::MidiControllerList::controller_array
+		(gx_engine::MidiControllerList::controller_array_size);
+	    mctrl.readJSON(jp, param, *m);
 	} else if (jp.current_value() == "midi_ctrl_names") {
 	    midi_std_control.readJSON(jp);
 	} else if (jp.current_value() == "jack_connections") {
@@ -249,10 +251,10 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
     write_parameters(jw, false);
 
     jw.write("midi_controller");
-    gx_gui::controller_map.writeJSON(jw);
+    gx_engine::controller_map.writeJSON(jw);
 
     jw.write("midi_ctrl_names");
-    gx_gui::midi_std_ctr.writeJSON(jw);
+    gx_engine::midi_std_ctr.writeJSON(jw);
 
     if (!no_preset) {
 	jw.write("current_preset");
@@ -283,12 +285,12 @@ const char *factory_settings[][2] = { // FIXME in json file
 };
 
 GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, gx_engine::ConvolverAdapter& cvr,
-		       gx_gui::MidiStandardControllers& mstdctr, gx_gui::MidiControllerList& mctrl,
-		       gx_engine::ModuleSequencer& seq_)
+		       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl,
+		       gx_engine::ModuleSequencer& seq_, gx_engine::ParamMap& param)
     : sigc::trackable(),
       GxSettingsBase(seq_),
-      preset_io(mctrl, cvr, opt),
-      state_io(mctrl, cvr, mstdctr, jack_, opt),
+      preset_io(mctrl, cvr, param, opt),
+      state_io(mctrl, cvr, param, mstdctr, jack_, opt),
       presetfile_parameter("system.current_preset_file"),
       state_loaded(false),
       no_autosave(false),
@@ -297,9 +299,9 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       preset_parameter("system.current_preset", "?", current_name, ""),
       factory_parameter("system.current_factory", "?", current_factory, "") {
     set_io(&state_io, &preset_io);
-    gx_gui::parameter_map.insert(&presetfile_parameter);
-    gx_gui::parameter_map.insert(&preset_parameter);
-    gx_gui::parameter_map.insert(&factory_parameter);
+    param.insert(&presetfile_parameter);
+    param.insert(&preset_parameter);
+    param.insert(&factory_parameter);
     statefile.set_filename(make_default_state_filename());
     for (const char *(*p)[2] = factory_settings; (*p)[0]; ++p) {
 	Factory *f = new Factory((*p)[0]);

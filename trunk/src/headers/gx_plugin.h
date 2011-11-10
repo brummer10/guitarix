@@ -29,7 +29,7 @@
 
 // forward declarations (need not be resolved for plugin definition)
 namespace gx_gui { class GxMainInterface; }
-namespace gx_engine { class PluginList; class Plugin; }
+namespace gx_engine { class PluginList; class Plugin; class ParamMap; }
 class PluginDef;
 
 /*
@@ -54,8 +54,7 @@ public:
     // the check_parameter function in dsp2cc identifies these
     // functions by the prefix create_ so please stick to this
     // prefix or change the checker
-    void create_small_rackknob(const char *id) const;
-    void create_small_rackknob(const char *id, const char *label) const;
+    void create_small_rackknob(const char *id, const char *label = 0) const;
     void create_selector(const char *id) const;
     //FIXME add missing functions
 };
@@ -70,22 +69,26 @@ struct value_pair {
 };
 
 class ParamReg {
+private:
+    gx_engine::ParamMap *pmap;
 public:
     PluginDef *plugin;
     float *registerVar(const char* id, const char* name, const char* tp,
 		       const char* tooltip, float* var, float val = 0,
-		       float low = 0, float up = 0, float step = 0,
-		       bool exp = false) const;
+		       float low = 0, float up = 0, float step = 0) const;
+    void registerVar(const char* id, const char* name, const char* tp,
+		     const char* tooltip, bool* var, bool val = 0) const;
+    void registerNonMidiVar(const char * id, bool*var, bool preset) const;
     void registerEnumVar(const char *id, const char* name, const char* tp,
 			 const char* tooltip, const value_pair* values, float *var, float val,
-			 float low = 0, float up = 0, float step = 1,
-			 bool exp = false) const;
+			 float low = 0, float up = 0, float step = 1) const;
+    void registerEnumVar(const char *id, const char* name, const char* tp,
+			 const char* tooltip, const value_pair* values, int *var, int val) const;
     void registerUEnumVar(const char *id, const char* name, const char* tp,
 			  const char* tooltip, const value_pair* values,
-			  unsigned int *var, unsigned int std = 0,
-			  bool exp = false) const;
+			  unsigned int *var, unsigned int std = 0) const;
 public:
-    ParamReg(PluginDef *p): plugin(p) {}
+    ParamReg(gx_engine::ParamMap* pm, PluginDef *p): pmap(pm), plugin(p) {}
 };
 
 /*
@@ -122,7 +125,7 @@ enum {
 };
 
 #define PLUGINDEF_VERMAJOR_MASK 0xff00
-#define PLUGINDEF_VERSION       0x0200
+#define PLUGINDEF_VERSION       0x0300
 
 struct PluginDef {
     int version;	 // = PLUGINDEF_VERSION

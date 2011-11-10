@@ -19,7 +19,7 @@
  *
  *    This file is part of the guitarix GUI main class
  *    Note: this header file depends on gx_parameter.h 
- *    and make use of the gx_gui namespace
+ *    and make use of the gx_engine namespace
  * 
  * ----------------------------------------------------------------------------
  */
@@ -53,6 +53,7 @@ class MidiControllerTable: public sigc::trackable {
     GtkTreeSelection *selection;
     GtkListStore *store;
     Gtk::CheckMenuItem& menuitem;
+    gx_engine::ParamMap& param;
     static void response_cb(GtkWidget *widget, gint response_id, gpointer data);
     static void edited_cb(GtkCellRendererText *renderer, gchar *path,
                           gchar *new_text, gpointer data);
@@ -60,10 +61,10 @@ class MidiControllerTable: public sigc::trackable {
     static void toggleButtonSetSwitch(GtkWidget *w, gpointer data);
     void set(bool v);
     void load();
-    explicit MidiControllerTable(Gtk::CheckMenuItem& item);
+    explicit MidiControllerTable(gx_engine::ParamMap& param, Gtk::CheckMenuItem& item);
     ~MidiControllerTable();
  public:
-    static void toggle(Gtk::CheckMenuItem& item);
+    static void toggle(gx_engine::ParamMap& param, Gtk::CheckMenuItem& item);
 };
 
 /*****************************************************************
@@ -73,7 +74,7 @@ class MidiControllerTable: public sigc::trackable {
 class MidiConnect {
  private:
     enum { RESPONSE_DELETE = 1 };
-    gx_gui::Parameter &param;
+    gx_engine::Parameter &param;
     GtkAdjustment* adj_lower;
     GtkAdjustment* adj_upper;
     GtkWidget* dialog;
@@ -83,7 +84,7 @@ class MidiConnect {
     static string ctr_desc(int ctr);
     static const char *ctl_to_str(int n);
  public:
-    MidiConnect(GdkEventButton *event, gx_gui::Parameter& param);
+    MidiConnect(GdkEventButton *event, gx_engine::Parameter& param);
     static void midi_response_cb(GtkWidget *widget, gint response_id, gpointer data);
     static void midi_destroy_cb(GtkWidget *widget, gpointer data);
     static gboolean check_midi_cb(gpointer);

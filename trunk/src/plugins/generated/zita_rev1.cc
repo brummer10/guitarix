@@ -7,122 +7,168 @@
 
 namespace pluginlib {
 namespace zita_rev1 {
-static FAUSTFLOAT 	fslider0;
-static int 	iConst0;
-static double 	fConst1;
-static double 	fConst2;
-static FAUSTFLOAT 	fslider1;
-static double 	fConst3;
-static FAUSTFLOAT 	fslider2;
-static double 	fConst4;
-static double 	fRec13[2];
-static FAUSTFLOAT 	fslider3;
-static double 	fRec12[2];
-static int 	IOTA;
-static double 	fVec0[8192];
-static double 	fConst5;
-static int 	iConst6;
-static double 	fVec1[8192];
-static FAUSTFLOAT 	fslider4;
-static double 	fConst7;
-static double 	fVec2[2048];
-static int 	iConst8;
-static double 	fRec10[2];
-static double 	fConst9;
-static double 	fConst10;
-static double 	fRec17[2];
-static double 	fRec16[2];
-static double 	fVec3[8192];
-static double 	fConst11;
-static int 	iConst12;
-static double 	fVec4[1024];
-static int 	iConst13;
-static double 	fRec14[2];
-static double 	fConst14;
-static double 	fConst15;
-static double 	fRec21[2];
-static double 	fRec20[2];
-static double 	fVec5[8192];
-static double 	fConst16;
-static int 	iConst17;
-static double 	fVec6[2048];
-static int 	iConst18;
-static double 	fRec18[2];
-static double 	fConst19;
-static double 	fConst20;
-static double 	fRec25[2];
-static double 	fRec24[2];
-static double 	fVec7[8192];
-static double 	fConst21;
-static int 	iConst22;
-static double 	fVec8[1024];
-static int 	iConst23;
-static double 	fRec22[2];
-static double 	fConst24;
-static double 	fConst25;
-static double 	fRec29[2];
-static double 	fRec28[2];
-static double 	fVec9[16384];
-static double 	fConst26;
-static int 	iConst27;
-static double 	fVec10[8192];
-static double 	fVec11[2048];
-static int 	iConst28;
-static double 	fRec26[2];
-static double 	fConst29;
-static double 	fConst30;
-static double 	fRec33[2];
-static double 	fRec32[2];
-static double 	fVec12[8192];
-static double 	fConst31;
-static int 	iConst32;
-static double 	fVec13[2048];
-static int 	iConst33;
-static double 	fRec30[2];
-static double 	fConst34;
-static double 	fConst35;
-static double 	fRec37[2];
-static double 	fRec36[2];
-static double 	fVec14[16384];
-static double 	fConst36;
-static int 	iConst37;
-static double 	fVec15[2048];
-static int 	iConst38;
-static double 	fRec34[2];
-static double 	fConst39;
-static double 	fConst40;
-static double 	fRec41[2];
-static double 	fRec40[2];
-static double 	fVec16[16384];
-static double 	fConst41;
-static int 	iConst42;
-static double 	fVec17[1024];
-static int 	iConst43;
-static double 	fRec38[2];
-static double 	fRec2[3];
-static double 	fRec3[3];
-static double 	fRec4[3];
-static double 	fRec5[3];
-static double 	fRec6[3];
-static double 	fRec7[3];
-static double 	fRec8[3];
-static double 	fRec9[3];
-static FAUSTFLOAT 	fslider5;
-static double 	fConst44;
-static FAUSTFLOAT 	fslider6;
-static double 	fRec1[3];
-static FAUSTFLOAT 	fslider7;
-static FAUSTFLOAT 	fslider8;
-static double 	fRec0[3];
-static FAUSTFLOAT 	fslider9;
-static double 	fRec42[2];
-static FAUSTFLOAT 	fslider10;
-static double 	fRec43[2];
-static double 	fRec45[3];
-static double 	fRec44[3];
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+FAUSTFLOAT 	fslider0;
+int 	iConst0;
+double 	fConst1;
+double 	fConst2;
+FAUSTFLOAT 	fslider1;
+double 	fConst3;
+FAUSTFLOAT 	fslider2;
+double 	fConst4;
+double 	fRec13[2];
+FAUSTFLOAT 	fslider3;
+double 	fRec12[2];
+int 	IOTA;
+double 	fVec0[8192];
+double 	fConst5;
+int 	iConst6;
+double 	fVec1[8192];
+FAUSTFLOAT 	fslider4;
+double 	fConst7;
+double 	fVec2[2048];
+int 	iConst8;
+double 	fRec10[2];
+double 	fConst9;
+double 	fConst10;
+double 	fRec17[2];
+double 	fRec16[2];
+double 	fVec3[8192];
+double 	fConst11;
+int 	iConst12;
+double 	fVec4[1024];
+int 	iConst13;
+double 	fRec14[2];
+double 	fConst14;
+double 	fConst15;
+double 	fRec21[2];
+double 	fRec20[2];
+double 	fVec5[8192];
+double 	fConst16;
+int 	iConst17;
+double 	fVec6[2048];
+int 	iConst18;
+double 	fRec18[2];
+double 	fConst19;
+double 	fConst20;
+double 	fRec25[2];
+double 	fRec24[2];
+double 	fVec7[8192];
+double 	fConst21;
+int 	iConst22;
+double 	fVec8[1024];
+int 	iConst23;
+double 	fRec22[2];
+double 	fConst24;
+double 	fConst25;
+double 	fRec29[2];
+double 	fRec28[2];
+double 	fVec9[16384];
+double 	fConst26;
+int 	iConst27;
+double 	fVec10[8192];
+double 	fVec11[2048];
+int 	iConst28;
+double 	fRec26[2];
+double 	fConst29;
+double 	fConst30;
+double 	fRec33[2];
+double 	fRec32[2];
+double 	fVec12[8192];
+double 	fConst31;
+int 	iConst32;
+double 	fVec13[2048];
+int 	iConst33;
+double 	fRec30[2];
+double 	fConst34;
+double 	fConst35;
+double 	fRec37[2];
+double 	fRec36[2];
+double 	fVec14[16384];
+double 	fConst36;
+int 	iConst37;
+double 	fVec15[2048];
+int 	iConst38;
+double 	fRec34[2];
+double 	fConst39;
+double 	fConst40;
+double 	fRec41[2];
+double 	fRec40[2];
+double 	fVec16[16384];
+double 	fConst41;
+int 	iConst42;
+double 	fVec17[1024];
+int 	iConst43;
+double 	fRec38[2];
+double 	fRec2[3];
+double 	fRec3[3];
+double 	fRec4[3];
+double 	fRec5[3];
+double 	fRec6[3];
+double 	fRec7[3];
+double 	fRec8[3];
+double 	fRec9[3];
+FAUSTFLOAT 	fslider5;
+double 	fConst44;
+FAUSTFLOAT 	fslider6;
+double 	fRec1[3];
+FAUSTFLOAT 	fslider7;
+FAUSTFLOAT 	fslider8;
+double 	fRec0[3];
+FAUSTFLOAT 	fslider9;
+double 	fRec42[2];
+FAUSTFLOAT 	fslider10;
+double 	fRec43[2];
+double 	fRec45[3];
+double 	fRec44[3];
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *input1, float *output0, float *output1);
+    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    int load_ui_f(const UiBuilder& b);
+    static const char *glade_def;
+    static int load_ui_f_static(const UiBuilder& b);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state_f(PluginDef* = 0)
+
+static const char* parm_groups[] = {
+	"equalizer2", N_("RM Peaking Equalizer 2"),
+	"equalizer1", N_("RM Peaking Equalizer 1"),
+	"output", N_("Output"),
+	"input", N_("Input"),
+	"decay_times", N_("Decay Times in Bands"),
+	0
+	};
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "zita_rev1";
+    name = N_("Zita Rev1");
+    groups = parm_groups;
+    mono_audio = 0;
+    stereo_audio = compute_static;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = load_ui_f_static;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) fRec13[i] = 0;
 	for (int i=0; i<2; i++) fRec12[i] = 0;
@@ -182,7 +228,12 @@ static void clear_state_f(PluginDef* = 0)
 	for (int i=0; i<3; i++) fRec44[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
@@ -234,7 +285,13 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = exp((fConst2 / fSlow0));
@@ -472,7 +529,12 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("zita_rev1.output.level",N_("Level"),"S",N_("Output scale factor"),&fslider10, 0.0, -7e+01, 4e+01, 0.1);
 	reg.registerVar("zita_rev1.equalizer2.eq2_freq",N_("Freq"),"S",N_("Center-frequency of second-order Regalia-Mitra peaking equalizer section 2"),&fslider7, 315.0, 4e+01, 2.5e+03, 1.0);
@@ -488,7 +550,13 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-static const char *glade_def = "\
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
   <requires lib=\"gtk+\" version=\"2.20\"/>\n\
@@ -1097,38 +1165,24 @@ static const char *glade_def = "\
 </interface>\n\
 ";
 
-static int load_ui(const UiBuilder& b) {
+int Dsp::load_ui_f(const UiBuilder& b)
+{
     b.load_glade(glade_def);
     return 0;
 }
 
-static const char* parm_groups[] = {
-	"equalizer2", N_("RM Peaking Equalizer 2"),
-	"equalizer1", N_("RM Peaking Equalizer 1"),
-	"output", N_("Output"),
-	"input", N_("Input"),
-	"decay_times", N_("Decay Times in Bands"),
-	0
-	};
-
-PluginDef plugindef = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "zita_rev1",  // id
-    N_("Zita Rev1"),  // name
-    parm_groups,  // groups
-    0,  // mono_audio
-    compute,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    load_ui,   // load_ui
-    clear_state_f,  // clear_state
-    0, // delete_instance
-};
+int Dsp::load_ui_f_static(const UiBuilder& b)
+{
+    return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+}
 
 PluginDef *plugin() {
-    return &plugindef;
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
 }
 
 } // end namespace zita_rev1

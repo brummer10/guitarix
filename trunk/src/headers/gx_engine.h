@@ -41,7 +41,7 @@ public:
     //FIXME:
     float filebutton;
 
-    void register_parameter();
+    void register_parameter(ParamMap& pmap);
 };
 
 extern AudioVariables audio;
@@ -98,7 +98,7 @@ public:
     CabinetConvolver cabinet;
     ContrastConvolver contrast;
 public:
-    GxEngine(const string& plugin_dir, gx_gui::ParameterGroups& groups);
+    GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups);
     ~GxEngine();
     void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
 };

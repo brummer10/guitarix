@@ -33,11 +33,12 @@ namespace gx_preset {
 
 class PresetIO: public gx_system::AbstractPresetIO {
 private:
-    gx_gui::MidiControllerList& mctrl;
+    gx_engine::MidiControllerList& mctrl;
     gx_engine::ConvolverAdapter& convolver;
+    gx_engine::ParamMap& param;
     const gx_system::CmdlineOptions& opt;
-    gx_gui::paramlist plist;
-    gx_gui::MidiControllerList::controller_array *m;
+    gx_engine::paramlist plist;
+    gx_engine::MidiControllerList::controller_array *m;
     gx_engine::GxJConvSettings jcset;
     void read_parameters(gx_system::JsonParser &jp, bool preset);
     void write_parameters(gx_system::JsonWriter &w, bool preset);
@@ -48,8 +49,8 @@ private:
     void write_intern(gx_system::JsonWriter &w, bool write_midi);
     friend class StateIO;
 public:
-    PresetIO(gx_gui::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-	     const gx_system::CmdlineOptions& opt);
+    PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
+	     gx_engine::ParamMap& param, const gx_system::CmdlineOptions& opt);
     ~PresetIO();
     void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_preset();
@@ -59,12 +60,12 @@ public:
 
 class StateIO: public gx_system::AbstractStateIO, private PresetIO {
 private:
-    gx_gui::MidiStandardControllers& midi_std_control;
+    gx_engine::MidiStandardControllers& midi_std_control;
     gx_jack::GxJack& jack;
 public:
-    StateIO(gx_gui::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-	    gx_gui::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack,
-	    const gx_system::CmdlineOptions& opt);
+    StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
+	    gx_engine::ParamMap& param, gx_engine::MidiStandardControllers& mstdctr,
+	    gx_jack::GxJack& jack, const gx_system::CmdlineOptions& opt);
     ~StateIO();
     void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_state();
@@ -75,13 +76,13 @@ class GxSettings: public sigc::trackable, public gx_system::GxSettingsBase {
 private:
     gx_preset::PresetIO   preset_io;
     gx_preset::StateIO    state_io;
-    gx_gui::FileParameter presetfile_parameter;
+    gx_engine::FileParameter presetfile_parameter;
     bool                  state_loaded;
     bool                  no_autosave;
     gx_jack::GxJack&      jack;
     gx_system::CmdlineOptions& options;
-    gx_gui::StringParameter preset_parameter;
-    gx_gui::StringParameter factory_parameter;
+    gx_engine::StringParameter preset_parameter;
+    gx_engine::StringParameter factory_parameter;
     static GxSettings *instance;//FIXME
     void presetfile_changed();
     void exit_handler(bool otherthread);
@@ -93,8 +94,8 @@ private:
     static string get_default_presetfile(gx_system::CmdlineOptions& opt);
 public:
     GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack, gx_engine::ConvolverAdapter& cvr,
-	       gx_gui::MidiStandardControllers& mstdctr, gx_gui::MidiControllerList& mctrl,
-	       gx_engine::ModuleSequencer& seq);
+	       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl,
+	       gx_engine::ModuleSequencer& seq, gx_engine::ParamMap& param);
     ~GxSettings();
     string get_displayname();
     static void check_settings_dir(gx_system::CmdlineOptions& opt);

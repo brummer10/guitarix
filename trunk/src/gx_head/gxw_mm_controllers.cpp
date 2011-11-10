@@ -95,7 +95,7 @@ void UiRegler::reflectZone() {
 }
 
 static bool hasId(string id) {
-    if (!parameter_map.hasId(id)) {
+    if (!gx_engine::parameter_map.hasId(id)) {
 	printf("not found: %s\n", id.c_str());
         return false;
     }
@@ -106,10 +106,10 @@ GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, boo
     if (!hasId(id)) {
         return 0;
     }
-    return (new UiRegler(ui, parameter_map[id].getFloat(), regler, show_value))->get_widget();
+    return (new UiRegler(ui, gx_engine::parameter_map[id].getFloat(), regler, show_value))->get_widget();
 }
 
-UiRegler::UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, bool show_value):
+UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value):
     gx_ui::GxUiItemFloat(&ui, &param.value),
     Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0),
     m_regler(regler) {
@@ -148,7 +148,7 @@ void UiSelectorInt::on_value_changed() {
 }
 
 GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id, const char *widget_name) {
-    Parameter& p = parameter_map[id];
+    gx_engine::Parameter& p = gx_engine::parameter_map[id];
     UiSelector *s;
     if (p.isFloat()) {
         s = new UiSelectorFloat(ui, p.getFloat());
@@ -161,7 +161,7 @@ GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id, const char *widget_nam
     return s->get_widget();
 }
 
-void UiSelector::init(Parameter& param) {
+void UiSelector::init(gx_engine::Parameter& param) {
     m_selector.cp_set_var(param.id());
     Gtk::TreeModelColumn<Glib::ustring> label;
     Gtk::TreeModelColumnRecord rec;
@@ -173,7 +173,7 @@ void UiSelector::init(Parameter& param) {
     m_selector.set_model(ls);
 }
 
-UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param)
+UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, gx_engine::FloatParameter &param)
     : gx_ui::GxUiItemFloat(&ui, &param.value),
     Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0) {
     m_selector.set_adjustment(*this);
@@ -195,7 +195,7 @@ void UiSelectorInt::reflectZone() {
     set_value(v);
 }
 
-UiSelectorInt::UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param)
+UiSelectorInt::UiSelectorInt(gx_ui::GxUI& ui, gx_engine::IntParameter &param)
     : gx_ui::GxUiItemInt(&ui, &param.value),
     Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0) {
     m_selector.set_adjustment(*this);
@@ -210,7 +210,7 @@ GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
     if (!hasId(id)) {
         return 0;
     }
-    return create(ui, regler, id, parameter_map[id].l_name(), show_value);
+    return create(ui, regler, id, gx_engine::parameter_map[id].l_name(), show_value);
 }
 
 GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
@@ -218,14 +218,14 @@ GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
     if (!hasId(id)) {
         return 0;
     }
-    return (new UiReglerWithCaption(ui, parameter_map[id].getFloat(), regler, label, show_value))->get_widget();
+    return (new UiReglerWithCaption(ui, gx_engine::parameter_map[id].getFloat(), regler, label, show_value))->get_widget();
 }
 
 GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id) {
     if (!hasId(id)) {
         return 0;
     }
-    return create(ui, regler, id, parameter_map[id].l_name());
+    return create(ui, regler, id, gx_engine::parameter_map[id].l_name());
 }
 
 GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
@@ -233,7 +233,7 @@ GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
     if (!hasId(id)) {
         return 0;
     }
-    return (new UiRackReglerWithCaption(ui, parameter_map[id].getFloat(), regler,
+    return (new UiRackReglerWithCaption(ui, gx_engine::parameter_map[id].getFloat(), regler,
             label))->get_widget();
 }
 
@@ -241,7 +241,7 @@ GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id)
     if (!hasId(id)) {
         return 0;
     }
-    return create(ui, regler, id, parameter_map[id].l_name());
+    return create(ui, regler, id, gx_engine::parameter_map[id].l_name());
 }
 
 GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
@@ -249,10 +249,10 @@ GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
     if (!hasId(id)) {
         return 0;
     }
-    return (new UiRackRegler(ui, parameter_map[id].getFloat(), regler, label))->get_widget();
+    return (new UiRackRegler(ui, gx_engine::parameter_map[id].getFloat(), regler, label))->get_widget();
 }
 UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui,
-                    FloatParameter &param, Gxw::Regler *regler,
+                    gx_engine::FloatParameter &param, Gxw::Regler *regler,
                     Glib::ustring label, bool show_value)
     : UiRegler(ui, param, regler, show_value) {
     m_label.set_text(label);
@@ -265,7 +265,7 @@ UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui,
 }
 
 UiRackReglerWithCaption::UiRackReglerWithCaption(gx_ui::GxUI &ui,
-                         FloatParameter &param, Gxw::Regler *regler,
+                         gx_engine::FloatParameter &param, Gxw::Regler *regler,
                          Glib::ustring label)
     : UiRegler(ui, param, regler, true) {
     m_label.set_text(label);
@@ -277,7 +277,7 @@ UiRackReglerWithCaption::UiRackReglerWithCaption(gx_ui::GxUI &ui,
     m_box.show_all();
 }
 
-UiRackRegler::UiRackRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+UiRackRegler::UiRackRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
     Glib::ustring label)
     : UiRegler(ui, param, regler, true) {
     m_box.set_name(param.id());
@@ -293,7 +293,7 @@ UiSwitch::UiSwitch(const char *sw_type):
     Switch(sw_type) {
 }
 
-UiSwitch *UiSwitch::new_switch(gx_ui::GxUI& ui, const char* sw_type, Parameter& param) {
+UiSwitch *UiSwitch::new_switch(gx_ui::GxUI& ui, const char* sw_type, gx_engine::Parameter& param) {
     if (param.isFloat()) {
         return new UiSwitchFloat(ui, sw_type, param.getFloat());
     } else {
@@ -311,7 +311,7 @@ void UiSwitchFloat::reflectZone() {
     set_active(v != 0.0);
 }
 
-UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParameter &param)
+UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, gx_engine::FloatParameter &param)
     : UiSwitch(sw_type),
     gx_ui::GxUiItemFloat(&ui, &param.value) {
     param.set_std_value();
@@ -335,7 +335,7 @@ void UiSwitchBool::reflectZone() {
     set_active(v);
 }
 
-UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &param)
+UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, gx_engine::BoolParameter &param)
     : UiSwitch(sw_type),
     gx_ui::GxUiItemBool(&ui, &param.value) {
     param.set_std_value();
@@ -356,7 +356,7 @@ GtkWidget* UiSwitchWithCaption::create(
     if (!hasId(id)) {
         return 0;
     }
-    return create(ui, sw_type, id, parameter_map[id].l_name(), pos);
+    return create(ui, sw_type, id, gx_engine::parameter_map[id].l_name(), pos);
 }
 
 GtkWidget* UiSwitchWithCaption::create(
@@ -365,12 +365,12 @@ GtkWidget* UiSwitchWithCaption::create(
     if (!hasId(id)) {
         return 0;
     }
-    return (new UiSwitchWithCaption(ui, sw_type, parameter_map[id],
+    return (new UiSwitchWithCaption(ui, sw_type, gx_engine::parameter_map[id],
                                     label, pos))->get_widget();
 }
 
 UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui,
-                                         const char *sw_type, Parameter &param,
+                                         const char *sw_type, gx_engine::Parameter &param,
                                          Glib::ustring label, Gtk::PositionType pos):
     m_switch(UiSwitch::new_switch(ui, sw_type, param)) {
     m_label.set_text(label);
@@ -466,18 +466,18 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
         if (v.empty()) {
             continue;
         }
-        if (!gx_gui::parameter_map.hasId(v)) {
+        if (!gx_engine::parameter_map.hasId(v)) {
             gx_system::gx_print_warning("load dialog",
                 (boost::format("Parameter variable %1% not found") % v).str());
             continue;
         }
-        gx_gui::Parameter& p = gx_gui::parameter_map[v];
+        gx_engine::Parameter& p = gx_engine::parameter_map[v];
         if (!p.desc().empty()) {
             Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(
 		gettext(p.desc().c_str()));
         }
         if (p.isFloat()) {
-            gx_gui::FloatParameter &fp = p.getFloat();
+            gx_engine::FloatParameter &fp = p.getFloat();
             w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
             w->cp_set_value(fp.value);
             Glib::RefPtr<Gtk::Range> r = Glib::RefPtr<Gtk::Range>::cast_dynamic(w);
@@ -500,7 +500,7 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
                 gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.value);
             }
         } else if (p.isBool()) {
-            gx_gui::BoolParameter &fp = p.getBool();
+            gx_engine::BoolParameter &fp = p.getBool();
             w->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
             w->cp_set_value(fp.value);
 	    Glib::RefPtr<Gtk::ToggleButton> t =

@@ -153,12 +153,12 @@ struct GxUiCallbackItemFloat : public GxUiItemFloat {
  */
 
 template <class T>
-class UiSignal: public gx_ui::GxUiItemV<T> {
+class UiSignal: public GxUiItemV<T> {
 private:
     virtual void reflectZone();
 public:
-    UiSignal(gx_ui::GxUI* ui, T *v): gx_ui::GxUiItemV<T>(ui, v) {};
-    static UiSignal* create(gx_ui::GxUI* ui, const char *id);
+    UiSignal(GxUI* ui, T *v): GxUiItemV<T>(ui, v) {};
+    static UiSignal* create(GxUI* ui, gx_engine::ParamMap& param, const char *id);
     ~UiSignal();
     sigc::signal<void, T> changed;
 };
@@ -169,20 +169,20 @@ UiSignal<T>::~UiSignal() {
 
 template<class T>
 void UiSignal<T>::reflectZone() {
-    T v = *gx_ui::GxUiItemV<T>::fZone;
-    gx_ui::GxUiItemV<T>::fCache = v;
+    T v = *GxUiItemV<T>::fZone;
+    GxUiItemV<T>::fCache = v;
     changed(v);
 }
 
 template<class T>
-UiSignal<T>* UiSignal<T>::create(gx_ui::GxUI* ui, const char *id) {
-    if (!gx_gui::parameter_map.hasId(id)) {
+UiSignal<T>* UiSignal<T>::create(GxUI* ui, gx_engine::ParamMap& param, const char *id) {
+    if (!param.hasId(id)) {
 	printf("%s not found!!!\n", id);
 	return 0;
     }
-    gx_gui::ParameterV<T>* p = dynamic_cast<gx_gui::ParameterV<T>*>(&gx_gui::parameter_map[id]);
+    gx_engine::ParameterV<T>* p = dynamic_cast<gx_engine::ParameterV<T>*>(&param[id]);
     if (!p) {
-	printf("%s has wrong type [%s/%s]!!\n", id, typeid(gx_gui::parameter_map[id]).name(), typeid(gx_gui::ParameterV<T>).name());
+	printf("%s has wrong type [%s/%s]!!\n", id, typeid(param[id]).name(), typeid(gx_engine::ParameterV<T>).name());
 	return 0;
     }
     return new UiSignal(ui, &p->value);

@@ -2,35 +2,52 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace cabinet_impulse_former {
+class Dsp {
+private:
 FAUSTFLOAT 	fslider0;
 FAUSTFLOAT	*fslider0_;
 #define fslider0 (*fslider0_)
-static int 	iConst0;
-static double 	fConst1;
-static double 	fConst2;
-static double 	fConst3;
+int 	iConst0;
+double 	fConst1;
+double 	fConst2;
+double 	fConst3;
 FAUSTFLOAT 	fslider1;
 FAUSTFLOAT	*fslider1_;
 #define fslider1 (*fslider1_)
-static double 	fConst4;
-static double 	fConst5;
-static double 	fConst6;
-static double 	fVec0[3];
-static double 	fRec1[3];
-static double 	fRec0[3];
+double 	fConst4;
+double 	fConst5;
+double 	fConst6;
+double 	fVec0[3];
+double 	fRec1[3];
+double 	fRec0[3];
 FAUSTFLOAT 	fslider2;
 FAUSTFLOAT	*fslider2_;
 #define fslider2 (*fslider2_)
-static int	fSamplingFreq;
+    int fSamplingFreq;
+public:
+    void clear_state_f();
+    void init(unsigned int samplingFreq);
+    void compute(int count, float *input0, float *output0);
+    int register_par(const ParamReg& reg);
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state_f(PluginDef* = 0)
+
+Dsp::Dsp() {
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<3; i++) fVec0[i] = 0;
 	for (int i=0; i<3; i++) fRec1[i] = 0;
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
@@ -43,7 +60,9 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	clear_state_f();
 }
 
-void compute(int count, float *input0, float *output0)
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = pow(10,(0.025 * fslider0));
 	double 	fSlow1 = (1 + fSlow0);
@@ -83,7 +102,8 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+
+int Dsp::register_par(const ParamReg& reg)
 {
 #undef fslider2
 	fslider2_ = reg.registerVar("cab.Level","","SA","",&fslider2, 1.0, 0.5, 5.0, 0.5);
@@ -93,5 +113,8 @@ static int register_params(const ParamReg& reg)
 	fslider0_ = reg.registerVar("cab.treble",N_("treble"),"SA","",&fslider0, 0.0, -1e+01, 1e+01, 0.5);
 	return 0;
 }
+
+
+
 
 } // end namespace cabinet_impulse_former

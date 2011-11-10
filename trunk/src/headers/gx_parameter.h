@@ -30,7 +30,7 @@
 
 namespace gx_system { class JsonWriter; class JsonParser; }
 
-namespace gx_gui {
+namespace gx_engine {
 
 #ifndef NDEBUG
 #define debug_check(func, ...) func(__VA_ARGS__)
@@ -108,21 +108,18 @@ class Parameter {
     bool save_in_preset : 1;
     bool controllable : 1;
     bool used : 1; // debug
-    bool experimental : 1; // experimental faust code, suppress warnings
 
  public:
     Parameter(string id, string name, value_type vtp, ctrl_type ctp, bool preset,
-              bool ctrl, bool exp = false):
+              bool ctrl):
         _id(id),
         _name(name),
-        _group(param_group(id, exp)),
+        _group(param_group(id)),
         v_type(vtp),
         c_type(ctp),
         save_in_preset(preset),
         controllable(ctrl),
-        used(false),
-        experimental(exp)
-        {}
+        used(false) {}
     virtual ~Parameter();
 
 #ifndef NDEBUG
@@ -142,7 +139,6 @@ class Parameter {
     ctrl_type getControlType() const { return c_type; }
     bool isControllable() const { return controllable; }
     bool isInPreset() const { return save_in_preset; }
-    bool isExperimental() const { return experimental; }
     const string& id() const { return _id; }
     const string& group() const { return _group; }
     string l_group() const { return gettext(_group.c_str()); }
@@ -182,7 +178,7 @@ void compare_parameter(const char* title, Parameter* p1,
 
 /****************************************************************/
 
-typedef list<gx_gui::Parameter*> paramlist;
+typedef list<Parameter*> paramlist;
 
 /****************************************************************/
 
@@ -211,8 +207,8 @@ public:
     virtual float getUpperAsFloat() const;
     virtual float getStepAsFloat() const;
     ParameterV(string id, string name, ctrl_type ctp, bool preset,
-	       float &v, float sv, float lv, float uv, float tv, bool ctrl, bool exp = false):
-	Parameter(id, name, tp_float, ctp, preset, ctrl, exp), value(v), std_value(sv), lower(lv),
+	       float &v, float sv, float lv, float uv, float tv, bool ctrl):
+	Parameter(id, name, tp_float, ctp, preset, ctrl), value(v), std_value(sv), lower(lv),
 	upper(uv), step(tv) {}
 #ifndef NDEBUG
     friend void compare_parameter(const char* title, Parameter* p1,
@@ -231,7 +227,7 @@ class FloatEnumParameter: public FloatParameter {
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
     FloatEnumParameter(string id, string name, const value_pair* vn, bool preset, float &v,
-                       int sv, bool ctrl, bool exp = false);
+                       int sv, bool ctrl);
 };
 
 /****************************************************************/
@@ -255,8 +251,8 @@ class ParameterV<int>: public Parameter {
     virtual float getLowerAsFloat() const;
     virtual float getUpperAsFloat() const;
     ParameterV(string id, string name, ctrl_type ctp, bool preset,
-	       int &v, int sv, int lv, int uv, bool ctrl, bool exp = false):
-	Parameter(id, name, tp_int, ctp, preset, ctrl, exp),
+	       int &v, int sv, int lv, int uv, bool ctrl):
+	Parameter(id, name, tp_int, ctp, preset, ctrl),
         value(v), std_value(sv), lower(lv), upper(uv)
         {}
 };
@@ -271,7 +267,7 @@ class EnumParameter: public IntParameter {
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
     EnumParameter(string id, string name, const value_pair* vn, bool preset, int &v,
-                  int sv, bool ctrl, bool exp = false);
+                  int sv, bool ctrl);
 };
 
 /****************************************************************/
@@ -296,8 +292,8 @@ class ParameterV<unsigned int>: public Parameter {
     virtual float getUpperAsFloat() const;
     ParameterV(string id, string name, ctrl_type ctp, bool preset,
 	       unsigned int &v, unsigned int sv, unsigned int lv,
-	       unsigned int uv, bool ctrl, bool exp = false):
-        Parameter(id, name, tp_int, ctp, preset, ctrl, exp),
+	       unsigned int uv, bool ctrl):
+        Parameter(id, name, tp_int, ctp, preset, ctrl),
         value(v), std_value(sv), lower(lv), upper(uv)
         {}
 };
@@ -312,7 +308,7 @@ class UEnumParameter: public UIntParameter {
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
     UEnumParameter(string id, string name, const value_pair* vn, bool preset, unsigned int &v,
-                  unsigned int sv, bool ctrl, bool exp = false);
+                  unsigned int sv, bool ctrl);
 };
 
 /****************************************************************/
@@ -332,8 +328,8 @@ class ParameterV<bool>: public Parameter {
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
     ParameterV(string id, string name, ctrl_type ctp, bool preset,
-                  bool &v, bool sv, bool ctrl, bool exp = false):
-        Parameter(id, name, tp_bool, ctp, preset, ctrl, exp),
+                  bool &v, bool sv, bool ctrl):
+        Parameter(id, name, tp_bool, ctp, preset, ctrl),
         value(v), std_value(sv)
         {}
 };
@@ -415,7 +411,7 @@ class ParameterV<string>: public Parameter {
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
     ParameterV(string id, string name, string &v, string sv):
-        Parameter(id, name, tp_bool, None, false, false, false),
+        Parameter(id, name, tp_bool, None, false, false),
         value(v), std_value(sv)
         {}
 };
@@ -496,49 +492,45 @@ class ParamMap {
     }
     void insert(Parameter* param);
     void set_init_values();
+    inline void reg_par(const char *a, const char *b, float *c, float std,
+			      float lower, float upper, float step) {
+	insert(new FloatParameter(a, b, Parameter::Continuous, true, *c, std, lower, upper, step, true));
+    }
+    inline void reg_par(const char *a, const char *b, float *c, float std = 0) {
+	insert(new FloatParameter(a, b, Parameter::Switch, true, *c, std, 0, 1, 1, true));
+    }
+    inline void reg_par(const char *a, const char *b, bool *c, bool d = false) {
+	insert(new BoolParameter(a, b, Parameter::Switch, true, *c, d, true));
+    }
+    inline void reg_enum_par(const char *a, const char *b, const value_pair *vl, int *c,
+			     int std = 0) {
+	insert(new EnumParameter(a, b, vl, true, *c, std, true));
+    }
+    inline void reg_enum_par(const char *a, const char *b, const value_pair *vl, float *c,
+			     int std = 0) {
+	insert(new FloatEnumParameter(a, b, vl, true, *c, std, true));
+    }
+    inline void reg_uenum_par(const char *a, const char *b, const value_pair *vl, unsigned int *c,
+			      unsigned int std = 0) {
+	insert(new UEnumParameter(a, b, vl, true, *c, std, true));
+    }
+    inline void reg_non_midi_par(const char *a, bool *c, bool preset, bool std = false) {
+	insert(new BoolParameter(a, "", Parameter::None, preset, *c, std, false));
+    }
+    inline void reg_non_midi_par(const char *a, int *c, bool preset, int std, int lower, int upper) {
+	insert(new IntParameter(a, "", Parameter::None, preset, *c, std, lower, upper, false));
+    }
+    inline void reg_non_midi_par(const char *id, float *val, bool preset,
+				 float std = 0, float lower = 0, float upper = 1, float step = 0) {
+	insert(new FloatParameter(id, "", Parameter::None, preset, *val, std, lower, upper, step, false));
+}
+
 #ifndef NDEBUG
     void dump();
 #endif
 };
 
 extern ParamMap parameter_map; // map id -> parameter, zone -> parameter
-
-/****************************************************************/
-
-inline void registerParam(const char*a, const char*b, float*c, float std,
-                          float lower, float upper, float step) {
-    parameter_map.insert(new FloatParameter(a, b, Parameter::Continuous, true, *c, std,
-                         lower, upper, step, true));
-}
-
-inline void registerParam(const char*a, const char*b, float*c, float std = 0) {
-    parameter_map.insert(new FloatParameter(a, b, Parameter::Switch, true, *c, std,
-                         0, 1, 1, true));
-}
-
-inline void registerParam(const char*a, const char*b, bool*c, bool d = false, bool exp = false) {
-    parameter_map.insert(new BoolParameter(a, b, Parameter::Switch, true, *c, d, true, exp));
-}
-
-inline void registerEnumParam(const char*a, const char*b, const value_pair* vl, int*c, int std = 0,
-                              bool exp = false) {
-    gx_gui::parameter_map.insert(new gx_gui::EnumParameter(a, b, vl, true, *c, std,
-                                 true, exp)); // false == no_midi_var
-}
-
-inline void registerUEnumParam(const char*a, const char*b, const value_pair* vl, unsigned int*c, unsigned int std = 0,
-                              bool exp = false) {
-    gx_gui::parameter_map.insert(new gx_gui::UEnumParameter(a, b, vl, true, *c, std,
-                                 true, exp)); // false == no_midi_var
-}
-
-inline void registerNonMidiParam(const char*a, bool*c, bool d, bool std = false) {
-    parameter_map.insert(new BoolParameter(a, "", Parameter::None, d, *c, std, false, false));
-}
-
-inline void registerNonMidiParam(const char*a, int*c, bool d, int std, int lower, int upper) {
-    parameter_map.insert(new IntParameter(a, "", Parameter::None, d, *c, std, lower, upper, false, false));
-}
 
 /****************************************************************
  **
@@ -597,7 +589,7 @@ class MidiController {
     }
     bool hasParameter(const Parameter& p) const { return param == p; }
     Parameter& getParameter() const { return param; }
-    static MidiController* readJSON(gx_system::JsonParser&);
+    static MidiController* readJSON(gx_system::JsonParser&, ParamMap& param);
     void set(int n) { param.set(n, 127, _lower, _upper); }
     void writeJSON(gx_system::JsonWriter& jw) const;
 };
@@ -637,7 +629,7 @@ class MidiControllerList {
     void modifyCurrent(Parameter& param, float lower, float upper);
     int param2controller(Parameter& param, const MidiController** p);
     void writeJSON(gx_system::JsonWriter& jw);
-    void readJSON(gx_system::JsonParser& jp, controller_array& m);
+    void readJSON(gx_system::JsonParser& jp, ParamMap& param, controller_array& m);
     void set_controller_array(const controller_array& m);
     void remove_controlled_parameters(paramlist& plist, const controller_array *m);
     sigc::signal<void>& signal_changed() { return changed; }

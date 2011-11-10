@@ -182,11 +182,10 @@ void PosixSignals::signal_helper_thread() {
 
 
 /****************************************************************
- ** main()
+ ** class ErrorPopup
+ ** show UI popup for kError messages
  */
 
-
-// show UI popup for kError messages
 class ErrorPopup {
 private:
     string msg;
@@ -259,7 +258,16 @@ void ErrorPopup::show_msg() {
     dialog->show();
 }
 
-/* --------- Guitarix main ---------- */
+
+/****************************************************************
+ ** main()
+ */
+
+namespace gx_engine {
+//FIXME should not be global but needed for UI atm.
+ParamMap parameter_map;
+}
+
 int main(int argc, char *argv[]) {
 #ifdef DISABLE_NLS
 // break
@@ -293,13 +301,13 @@ int main(int argc, char *argv[]) {
 
 	PosixSignals posixsig; // catch unix signals in special thread
 	gx_engine::GxEngine engine(
-	    options.get_plugin_dir(), gx_gui::get_group_table());
+	    options.get_plugin_dir(), gx_engine::parameter_map, gx_engine::get_group_table());
 
 	// ------ initialize parameter list ------
-	gx_engine::audio.register_parameter();
-	gx_gui::guivar.register_gui_parameter();
+	gx_engine::audio.register_parameter(gx_engine::parameter_map);
+	gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
 
-	gx_gui::parameter_map.set_init_values();
+	gx_engine::parameter_map.set_init_values();
 
 	// ------ time measurement (debug) ------
 #ifndef NDEBUG

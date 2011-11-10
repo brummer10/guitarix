@@ -129,7 +129,7 @@ def build(bld):
         bld.new_task_gen(
             source = sources,
             proc = "../tools/dsp2cc",
-            proc_args = arg+["--init-type=no-init"],
+            proc_args = arg+["--init-type=no-init-instance"],
             )
         bld.new_task_gen(
             source = sources_plugin,

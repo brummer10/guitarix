@@ -43,7 +43,7 @@ void MidiControllerTable::response_cb(GtkWidget *widget, gint response_id, gpoin
                                     reinterpret_cast<GtkTreePath*>(p->data));
             const char* id;
             gtk_tree_model_get(GTK_TREE_MODEL(model), &iter, 7, &id, -1);
-            gx_gui::controller_map.deleteParameter(gx_gui::parameter_map[id], true);
+            gx_engine::controller_map.deleteParameter(m.param[id], true);
             gtk_tree_path_free(reinterpret_cast<GtkTreePath*>(p->data));
         }
         g_list_free(list);
@@ -64,9 +64,9 @@ void  MidiControllerTable::edited_cb(
     gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(store), &iter, path);
     int ctrl;
     gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &ctrl, -1);
-    gx_gui::midi_std_ctr.replace(ctrl, new_text);
+    gx_engine::midi_std_ctr.replace(ctrl, new_text);
     bool valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
-    const char *name = gx_gui::midi_std_ctr[ctrl].c_str();
+    const char *name = gx_engine::midi_std_ctr[ctrl].c_str();
     while (valid) {
         int n;
         gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &n, -1);
@@ -78,7 +78,7 @@ void  MidiControllerTable::edited_cb(
 }
 
 void MidiControllerTable::toggleButtonSetSwitch(GtkWidget *w, gpointer data) {
-    gx_gui::SwitchParameter *p = (gx_gui::SwitchParameter*)data;
+    gx_engine::SwitchParameter *p = (gx_engine::SwitchParameter*)data;
     p->set(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w)));
 }
 
@@ -89,22 +89,22 @@ void MidiControllerTable::set(bool v) {
 void MidiControllerTable::load() {
     GtkTreeIter iter;
     gtk_list_store_clear(store);
-    for (int i = 0; i < gx_gui::controller_map.size(); i++) {
-        gx_gui::midi_controller_list& cl = gx_gui::controller_map[i];
-        for (gx_gui::midi_controller_list::iterator j = cl.begin(); j != cl.end(); ++j) {
-            gx_gui::Parameter& p = j->getParameter();
+    for (int i = 0; i < gx_engine::controller_map.size(); i++) {
+        gx_engine::midi_controller_list& cl = gx_engine::controller_map[i];
+        for (gx_engine::midi_controller_list::iterator j = cl.begin(); j != cl.end(); ++j) {
+            gx_engine::Parameter& p = j->getParameter();
             string low, up;
             const char *tp;
             float step = p.getStepAsFloat();
-            if (p.getControlType() == gx_gui::Parameter::Continuous) {
+            if (p.getControlType() == gx_engine::Parameter::Continuous) {
                 tp = "Scale";
                 low = gx_gui::fformat(j->lower(), step);
                 up = gx_gui::fformat(j->upper(), step);
-            } else if (p.getControlType() == gx_gui::Parameter::Enum) {
+            } else if (p.getControlType() == gx_engine::Parameter::Enum) {
                 tp = "Select";
                 low = gx_gui::fformat(j->lower(), step);
                 up = gx_gui::fformat(j->upper(), step);
-            } else if (p.getControlType() == gx_gui::Parameter::Switch) {
+            } else if (p.getControlType() == gx_engine::Parameter::Switch) {
                 tp = "Switch";
                 low = up = "";
             } else {
@@ -114,7 +114,7 @@ void MidiControllerTable::load() {
             gtk_list_store_append(store, &iter);
             gtk_list_store_set(store, &iter,
                                0, i,
-                               1, gx_gui::midi_std_ctr[i].c_str(),
+                               1, gx_engine::midi_std_ctr[i].c_str(),
                                2, p.l_group().c_str(),
                                3, p.l_name().c_str(),
                                4, tp,
@@ -126,14 +126,14 @@ void MidiControllerTable::load() {
     }
 }
 
-void MidiControllerTable::toggle(Gtk::CheckMenuItem& item) {
+void MidiControllerTable::toggle(gx_engine::ParamMap& param, Gtk::CheckMenuItem& item) {
     if (!item.get_active()) {
         if (window) {
             gtk_widget_destroy(window);
         }
     } else {
         if (!window) {
-            new MidiControllerTable(item);
+            new MidiControllerTable(param, item);
         }
     }
 }
@@ -143,8 +143,9 @@ MidiControllerTable::~MidiControllerTable() {
     menuitem.unreference();
 }
 
-MidiControllerTable::MidiControllerTable(Gtk::CheckMenuItem& item)
-    : menuitem(item) {
+MidiControllerTable::MidiControllerTable(gx_engine::ParamMap& param_, Gtk::CheckMenuItem& item)
+    : menuitem(item),
+      param(param_) {
     item.reference();
 
     GtkBuilder * builder = gtk_builder_new();
@@ -152,11 +153,11 @@ MidiControllerTable::MidiControllerTable(Gtk::CheckMenuItem& item)
     store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
     togglebutton = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "save_controller"));
 
-    gx_gui::SwitchParameter& param = gx_gui::parameter_map["system.midi_in_preset"].getSwitch();
-    gtk_toggle_button_set_active(togglebutton, param.get());
-    param.signal_changed().connect(sigc::mem_fun(*this, &MidiControllerTable::set));
+    gx_engine::SwitchParameter& p = param["system.midi_in_preset"].getSwitch();
+    gtk_toggle_button_set_active(togglebutton, p.get());
+    p.signal_changed().connect(sigc::mem_fun(*this, &MidiControllerTable::set));
     g_signal_connect(GTK_OBJECT(togglebutton), "toggled",
-                     G_CALLBACK(toggleButtonSetSwitch), (gpointer)&param);
+                     G_CALLBACK(toggleButtonSetSwitch), (gpointer)&p);
     g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
                      G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
     g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox2"),"expose-event",
@@ -178,7 +179,7 @@ MidiControllerTable::MidiControllerTable(Gtk::CheckMenuItem& item)
 
     gtk_widget_show(window);
     g_object_unref(G_OBJECT(builder));
-    gx_gui::controller_map.signal_changed().connect(sigc::mem_fun(*this, &MidiControllerTable::load));
+    gx_engine::controller_map.signal_changed().connect(sigc::mem_fun(*this, &MidiControllerTable::load));
 }
 
 
@@ -188,7 +189,7 @@ MidiControllerTable::MidiControllerTable(Gtk::CheckMenuItem& item)
 
 
 string MidiConnect::ctr_desc(int ctr) {
-    string p = gx_gui::midi_std_ctr[ctr];
+    string p = gx_engine::midi_std_ctr[ctr];
     if (p.empty())
         return p;
     return "(" + p + ")";
@@ -199,19 +200,19 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
     MidiConnect* m = reinterpret_cast<MidiConnect*>(data);
     switch (response_id) {
     case GTK_RESPONSE_OK:
-        if (m->param.getControlType() == gx_gui::Parameter::Continuous ||
-            m->param.getControlType() == gx_gui::Parameter::Enum) {
+        if (m->param.getControlType() == gx_engine::Parameter::Continuous ||
+            m->param.getControlType() == gx_engine::Parameter::Enum) {
             assert(m->adj_lower);
             assert(m->adj_upper);
             float lower = gtk_adjustment_get_value(m->adj_lower);
             float upper = gtk_adjustment_get_value(m->adj_upper);
-            gx_gui::controller_map.modifyCurrent(m->param, lower, upper);
+            gx_engine::controller_map.modifyCurrent(m->param, lower, upper);
         } else {
-            gx_gui::controller_map.modifyCurrent(m->param, 0, 0);
+            gx_engine::controller_map.modifyCurrent(m->param, 0, 0);
         }
         break;
     case RESPONSE_DELETE:
-        gx_gui::controller_map.deleteParameter(m->param);
+        gx_engine::controller_map.deleteParameter(m->param);
         break;
     }
     gtk_widget_destroy(m->dialog);
@@ -219,7 +220,7 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
 
 void MidiConnect::midi_destroy_cb(GtkWidget *widget, gpointer data) {
     MidiConnect *m = reinterpret_cast<MidiConnect*>(data);
-    gx_gui::controller_map.set_config_mode(false);
+    gx_engine::controller_map.set_config_mode(false);
     delete m;
 }
 
@@ -234,9 +235,9 @@ const char* MidiConnect::ctl_to_str(int n) {
 
 gboolean MidiConnect::check_midi_cb(gpointer data) {
     MidiConnect *m = reinterpret_cast<MidiConnect*>(data);
-    if (!gx_gui::controller_map.get_config_mode())
+    if (!gx_engine::controller_map.get_config_mode())
         return FALSE;
-    int ctl = gx_gui::controller_map.get_current_control();
+    int ctl = gx_engine::controller_map.get_current_control();
     if (m->current_control == ctl)
         return TRUE;
     m->current_control = ctl;
@@ -277,7 +278,7 @@ void MidiConnect::changed_text_handler(GtkEditable *editable, gpointer data) {
             gtk_dialog_set_default_response(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK);
         }
         gtk_label_set_text(GTK_LABEL(m->label_desc), ctr_desc(n).c_str());
-        gx_gui::controller_map.set_current_control(n);
+        gx_engine::controller_map.set_current_control(n);
         m->current_control = n;
         return;
     }
@@ -287,7 +288,7 @@ void MidiConnect::changed_text_handler(GtkEditable *editable, gpointer data) {
 }
 
 
-MidiConnect::MidiConnect(GdkEventButton *event, gx_gui::Parameter &param)
+MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param)
     : param(param),
     current_control(-1) {
     GtkBuilder * builder = gtk_builder_new();
@@ -298,10 +299,10 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_gui::Parameter &param)
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
     gtk_widget_modify_font(zn, style->font_desc);
     gtk_label_set_text(GTK_LABEL(zn), (param.l_group() + ": " + param.l_name()).c_str());
-    const gx_gui::MidiController *pctrl;
-    int nctl = gx_gui::controller_map.param2controller(param, &pctrl);
-    if (param.getControlType() == gx_gui::Parameter::Continuous ||
-        param.getControlType() == gx_gui::Parameter::Enum) {
+    const gx_engine::MidiController *pctrl;
+    int nctl = gx_engine::controller_map.param2controller(param, &pctrl);
+    if (param.getControlType() == gx_engine::Parameter::Continuous ||
+        param.getControlType() == gx_engine::Parameter::Enum) {
         float lower = param.getLowerAsFloat();
         float upper = param.getUpperAsFloat();
         float step = param.getStepAsFloat();
@@ -336,7 +337,7 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_gui::Parameter &param)
         gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
         gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
     }
-    gx_gui::controller_map.set_config_mode(true, nctl);
+    gx_engine::controller_map.set_config_mode(true, nctl);
     check_midi_cb(this);
     gtk_widget_show(dialog);
     g_timeout_add(40, check_midi_cb, this);

@@ -22,87 +22,84 @@
 #include "engine.h"
 
 /****************************************************************
- ** regparam
+ ** class ParamReg
  */
 
-static float *register_var(const char* id, const char* name, const char* tp,
-			   const char* tooltip, float* var, float val,
-			   float low, float up, float step, bool exp) {
+float *ParamReg::registerVar(const char* id, const char* name, const char* tp,
+			     const char* tooltip, float* var, float val,
+			     float low, float up, float step) const {
     if (!name[0]) {
 	assert(strrchr(id, '.'));
 	name = strrchr(id, '.')+1;
     }
     int n = strlen(tp);
     if (n && tp[n-1] == 'A') {
-	if (gx_gui::parameter_map.hasId(id)) {
-	    gx_gui::Parameter& p = gx_gui::parameter_map[id];
+	if (pmap->hasId(id)) {
+	    gx_engine::Parameter& p = (*pmap)[id];
 #ifndef NDEBUG
-	    gx_gui::FloatParameter p2(
-		id, name, gx_gui::Parameter::Continuous, true,
-		p.getFloat().value, val, low, up, step, true, exp);
-	    gx_gui::compare_parameter("Alias Parameter", &p, &p2);
+	    gx_engine::FloatParameter p2(
+		id, name, gx_engine::Parameter::Continuous, true,
+		p.getFloat().value, val, low, up, step, true);
+	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
 #endif
 	    return &p.getFloat().value;
 	}
     }
-    gx_gui::Parameter *p = new gx_gui::FloatParameter(
-        id, name, gx_gui::Parameter::Continuous, true, *var, val,
-	low, up, step, true, exp);
+    gx_engine::Parameter *p = new gx_engine::FloatParameter(
+        id, name, gx_engine::Parameter::Continuous, true, *var, val,
+	low, up, step, true);
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
     }
-    gx_gui::parameter_map.insert(p);
+    pmap->insert(p);
     return var;
 }
 
-static void register_enum_var(
-    const char *id, const char* name, const char* tp,
-    const char* tooltip, const value_pair* values,
-    float *var, float val, float low, float up, float step, bool exp) {
+void ParamReg::registerVar(const char* id, const char* name, const char* tp,
+			   const char* tooltip, bool* var, bool val) const {
+    gx_engine::Parameter *p = new gx_engine::BoolParameter(
+        id, name, gx_engine::Parameter::Switch, true, *var, val, true);
+    if (tooltip && tooltip[0]) {
+        p->set_desc(tooltip);
+    }
+    pmap->insert(p);
+}
+
+void ParamReg::registerEnumVar(const char *id, const char* name, const char* tp,
+			       const char* tooltip, const value_pair* values, float *var,
+			       float val, float low, float up, float step) const {
     if (!name[0]) {
         assert(strrchr(id, '.'));
         name = strrchr(id, '.')+1;
     }
     assert(low == 0.0 && step == 1.0);
-    gx_gui::FloatEnumParameter *p = new gx_gui::FloatEnumParameter(
-        id, name, values, true, *var,
-        static_cast<int>(round(val)), true, exp); // false == no_midi_var
-    assert(up == p->upper); // calculated by constructor
-    gx_gui::parameter_map.insert(p);
+    pmap->reg_enum_par(id, name, values, var, val);
 }
 
-static void register_uenum_var(
-    const char *id, const char* name, const char* tp,
-    const char* tooltip, const value_pair* values,
-    unsigned int *var, unsigned int std, bool exp) {
+void ParamReg::registerEnumVar(const char *id, const char* name, const char* tp,
+			       const char* tooltip, const value_pair* values,
+			       int *var, int val) const {
     if (!name[0]) {
         assert(strrchr(id, '.'));
         name = strrchr(id, '.')+1;
     }
-    gx_gui::UEnumParameter *p = new gx_gui::UEnumParameter(
-        id, name, values, true, *var, std, true, exp);
-    gx_gui::parameter_map.insert(p);
+    pmap->reg_enum_par(id, name, values, var, val);
 }
 
-float *ParamReg::registerVar(const char* id, const char* name, const char* tp,
-			     const char* tooltip, float* var, float val,
-			     float low, float up, float step, bool exp) const
-{
-    return register_var(id, name, tp, tooltip, var, val, low, up, step, exp);
-}
-
-void ParamReg::registerEnumVar(const char *id, const char* name, const char* tp,
-			       const char* tooltip, const value_pair* values, float *var,
-			       float val, float low, float up, float step, bool exp) const {
-    register_enum_var(id, name, tp, tooltip, values, var,
-		      val, low, up, step, exp);
+void ParamReg::registerNonMidiVar(const char * id, bool*var, bool preset) const {
+    pmap->reg_non_midi_par(id, var, preset);
 }
 
 void ParamReg::registerUEnumVar(const char *id, const char* name, const char* tp,
 				const char* tooltip, const value_pair* values,
-				unsigned int *var, unsigned int std, bool exp) const {
-    register_uenum_var(id, name, tp, tooltip, values, var,
-		       std, exp);
+				unsigned int *var, unsigned int std) const {
+    if (!name[0]) {
+        assert(strrchr(id, '.'));
+        name = strrchr(id, '.')+1;
+    }
+    gx_engine::UEnumParameter *p = new gx_engine::UEnumParameter(
+        id, name, values, true, *var, std, true);
+    pmap->insert(p);
 }
 
 
@@ -112,35 +109,38 @@ namespace gx_engine {
  ** class Plugin
  */
 
-Plugin::Plugin(PluginDef *pl):
-  box_visible(false),
-  on_off(false),
-  position(0),
-  effect_post_pre(1),
-  pdef(pl) {}
+Plugin::Plugin(PluginDef *pl)
+    : box_visible(false),
+      on_off(false),
+      position(0),
+      effect_post_pre(1),
+      pdef(pl) {
+}
 
 /****************************************************************
  ** class PluginList
  */
 
 PluginList::PluginList(gx_ui::GxUI& ui_, ModuleSequencer& seq_)
-    : seq(seq_), ui(ui_)
-{
+    : seq(seq_), ui(ui_) {
     plugin_pos[PLUGIN_POS_START]       = -1000;
     plugin_pos[PLUGIN_POS_RACK]        = 1;
     plugin_pos[PLUGIN_POS_END]         = 1000;
     plugin_pos[PLUGIN_POS_RACK_STEREO] = 1;
 };
 
-PluginList::~PluginList()
-{
-    for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); ++p) {
-	if (!(p->second->pdef->flags & PGNI_NOT_OWN)) {
-	    delete p->second;
-	}
-    }
+PluginList::~PluginList() {
     for (list<gx_ui::GxUiItem*>::iterator i = rackchanger.begin(); i != rackchanger.end(); ++i) {
 	delete(*i);
+    }
+    for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); ++p) {
+	PluginDef *pdef = p->second->pdef;
+	if (!(pdef->flags & PGNI_NOT_OWN)) {
+	    if (pdef->delete_instance) {
+		pdef->delete_instance(pdef);
+	    }
+	    delete p->second;
+	}
     }
 }
 
@@ -246,7 +246,7 @@ int PluginList::load_from_path(const string& path, PluginPos pos) {
 }
 
 int PluginList::check_version(PluginDef *p) {
-    if ((p->version & PLUGINDEF_VERMAJOR_MASK) > (PLUGINDEF_VERSION & PLUGINDEF_VERMAJOR_MASK)) {
+    if ((p->version & PLUGINDEF_VERMAJOR_MASK) != (PLUGINDEF_VERSION & PLUGINDEF_VERMAJOR_MASK)) {
 	gx_system::gx_print_error(
 	    _("Plugin Loader"),
 	    boost::format(_("Plugin '%1%' has wrong version %2$#4x (current version: %3$#4x)"))
@@ -380,7 +380,7 @@ void RackChangerUiItem<T>::reflectZone() {
     pluginlist.seq.set_rack_changed();
 }
 
-void PluginList::registerParameter(gx_gui::ParameterGroups& groups) {
+void PluginList::registerParameter(ParamMap& param, ParameterGroups& groups) {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	PluginDef *pd = p->second->pdef;
 	groups.insert(pd->id, tr_name(pd->name));
@@ -406,16 +406,16 @@ void PluginList::registerParameter(gx_gui::ParameterGroups& groups) {
 	PluginDef *pd = pl->pdef;
 	if (pd->load_ui || (pd->flags & PGN_GUI)) {
 	    string s = pd->id;
-	    gx_gui::registerParam((s+".on_off").c_str(),N_("on/off"), &pl->on_off, 0);
+	    param.reg_par((s+".on_off").c_str(),N_("on/off"), &pl->on_off, 0);
 	    new RackChangerUiItem<bool>(*this, &pl->on_off);
 	    if (pd->flags & PGNI_DYN_POSITION) {
 		// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
-		gx_gui::parameter_map.insert(
-		    new gx_gui::BoolParameter(
-			string("ui.")+pd->name, "", gx_gui::Parameter::None,
+		param.insert(
+		    new BoolParameter(
+			string("ui.")+pd->name, "", Parameter::None,
 			true, pl->box_visible, false, false));
-		gx_gui::registerNonMidiParam((s+".position").c_str(), &(pl->position), true,
-					     pl->position, 1, 999);
+		param.reg_non_midi_par((s+".position").c_str(), &(pl->position), true,
+				       pl->position, 1, 999);
 		if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
 		    if (pd->flags & PGN_PRE) {
 			pl->effect_post_pre = 1;
@@ -423,15 +423,15 @@ void PluginList::registerParameter(gx_gui::ParameterGroups& groups) {
 			pl->effect_post_pre = 0;
 		    } else {
 			static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
-			gx_gui::registerUEnumParam((s+".pp").c_str(), "select", post_pre,
-						   &(pl->effect_post_pre), 0);
+			param.reg_uenum_par((s+".pp").c_str(), "select", post_pre,
+					    &(pl->effect_post_pre), 0);
 			new RackChangerUiItem<unsigned int>(*this, &pl->effect_post_pre);
 		    }
 		}
 	    }
 	}
 	if (pd->register_params) {
-	    pd->register_params(ParamReg(pd));
+	    pd->register_params(ParamReg(&param, pd));
 	}
     }
 }

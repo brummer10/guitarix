@@ -21,7 +21,7 @@ def build(bld):
             arg = ["-double"]
         else:
             arg = ["-float"]
-        arg += ["--init-type=plugin"]
+        arg += ["--init-type=plugin-instance"]
         bld(name = "dsp2cc sharedlib",
             source = sources,
             proc = "../tools/dsp2cc",

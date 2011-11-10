@@ -798,19 +798,19 @@ void MenuCheckItem::on_my_activate() {
     param->set(get_active());
 }
 
-SwitchParameter* MenuCheckItem::get_parameter() {
+gx_engine::SwitchParameter* MenuCheckItem::get_parameter() {
     return param;
 }
 
-void MenuCheckItem::set_parameter(SwitchParameter *p) {
+void MenuCheckItem::set_parameter(gx_engine::SwitchParameter *p) {
     param = p;
-    parameter_map.insert(p);
+    gx_engine::parameter_map.insert(p);
     p->signal_changed().connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
     signal_activate().connect(
         sigc::mem_fun(*this, &MenuCheckItem::on_my_activate));
 }
 
-void MenuCheckItem::add_parameter(SwitchParameter *p) {
+void MenuCheckItem::add_parameter(gx_engine::SwitchParameter *p) {
     param = p;
     p->signal_changed().connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
     signal_activate().connect(
@@ -821,13 +821,13 @@ void RadioCheckItem::on_my_toggled() {
     param->set(get_active());
 }
 
-SwitchParameter* RadioCheckItem::get_parameter() {
+gx_engine::SwitchParameter* RadioCheckItem::get_parameter() {
     return param;
 }
 
-void RadioCheckItem::set_parameter(SwitchParameter *p) {
+void RadioCheckItem::set_parameter(gx_engine::SwitchParameter *p) {
     param = p;
-    parameter_map.insert(p);
+    gx_engine::parameter_map.insert(p);
     p->signal_changed().connect(sigc::mem_fun(*this, &RadioCheckItem::set_active));
     signal_activate().connect(
         sigc::mem_fun(*this, &RadioCheckItem::on_my_toggled));
@@ -1060,7 +1060,7 @@ void gx_show_about() {
 
 void gx_reset_effects(GtkWidget *widget, gpointer data ) {
     string pos(".position");
-    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); ++i) {
+    for (gx_engine::ParamMap::iterator i = gx_engine::parameter_map.begin(); i != gx_engine::parameter_map.end(); ++i) {
         string id = i->first;
         if (id.size() > pos.size() &&
             id.compare(id.size()-pos.size(), pos.size(), pos) == 0) {
@@ -1073,7 +1073,7 @@ void gx_reset_effects(GtkWidget *widget, gpointer data ) {
 void gx_reset_units(Glib::ustring group_id) {
     group_id += ".";
     string on_off = group_id + "on_off";
-    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); ++i) {
+    for (gx_engine::ParamMap::iterator i = gx_engine::parameter_map.begin(); i != gx_engine::parameter_map.end(); ++i) {
         if (i->first.compare(0, group_id.size(), group_id) == 0) {
             if (i->second->isControllable()) {
                 string id = i->first;
@@ -1333,7 +1333,7 @@ void gx_midi_out(Gtk::CheckMenuItem& menuitem) {
     } else {
         //gx_engine::turnOffMidi();//FIXME
         string group = "midi_out.on_off";
-        parameter_map[group].set_std_value();
+        gx_engine::parameter_map[group].set_std_value();
     }
     first =false;
     GxMainInterface::get_instance().engine.set_rack_changed();
