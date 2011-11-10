@@ -996,6 +996,7 @@ void GxMainInterface::openEventBox(const char* label) {
     box->m_box.set_size_request(600, 182); // main window size
     box->m_box.set_border_width(2);
     box->m_eventbox.set_name("main_window");
+    box->m_eventbox.set_app_paintable();
     pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
     box->m_hbox.show_all();
 }
