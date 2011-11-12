@@ -2698,6 +2698,7 @@ void MainMenu::addAboutMenu(GxMainInterface& intf) {
     about_help_item.add_accelerator(
 	"activate", intf.fAccelGroup,
 	GDK_h, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    about_help_item.signal_activate().connect(sigc::ptr_fun(gx_show_help));
     about_menu.append(about_help_item);
 }
 

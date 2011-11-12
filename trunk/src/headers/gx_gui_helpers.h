@@ -156,6 +156,7 @@ void gx_show_extended_settings(GtkWidget*, gpointer);
 void gx_reset_units(Glib::ustring group_id);
 void gx_reset_effects(GtkWidget*, gpointer);
 void gx_show_about();
+void gx_show_help();
 
 void gx_show_menu_settings(GtkWidget*, gpointer);
 void gx_user_disable_latency_warn(GtkWidget*, gpointer);

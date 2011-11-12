@@ -1028,6 +1028,19 @@ void gx_patch() {
     gtk_widget_show_all(gw.patch_info);
 }
 
+void gx_show_help() {
+    GError *error = NULL;
+    gtk_show_uri(gdk_screen_get_default(), "http://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Main_Page",
+    gtk_get_current_event_time(), &error);
+    if (error)
+    {
+        gx_system::gx_print_error("guitarix help",
+				  _("failed to load online help   "));
+        g_error_free(error);
+    } 
+
+}
+
 // ----menu funktion about
 void gx_show_about() {
     static string about;
