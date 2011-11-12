@@ -1329,9 +1329,11 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
     string s;
 
     guint accel_key = GDK_r  + guivar.stereo_plugs;
-    bdialog->menuitem.add_accelerator(
-	"activate", fAccelGroup, accel_key,
-	Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
+    if (accel_key <= GDK_z) {
+	bdialog->menuitem.add_accelerator(
+	    "activate", fAccelGroup, accel_key,
+	    Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
+    }
     mainmenu.plugin_stereo_menu.append(bdialog->menuitem);
     bdialog->menuitem.show();
     //bdialog->menuitem.set_parameter(new SwitchParameter(p, true, false));
