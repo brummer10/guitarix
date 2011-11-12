@@ -2,80 +2,85 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 #include "valve.h"
+
 namespace gx_ampmodul {
+
 class Dsp: public PluginDef {
 private:
-FAUSTFLOAT 	fslider0;
-double 	fRec0[6];
-FAUSTFLOAT 	fslider1;
-FAUSTFLOAT 	fslider2;
-int 	iConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fConst3;
-FAUSTFLOAT 	fslider3;
-double 	fRec4[2];
-double 	fConst4;
-double 	fConst5;
-double 	fConst6;
-FAUSTFLOAT 	fslider4;
-double 	fRec8[2];
-FAUSTFLOAT 	fslider5;
-double 	fRec12[2];
-double 	fConst7;
-double 	fConst8;
-double 	fConst9;
-double 	fConst10;
-double 	fRec13[2];
-double 	fRec11[3];
-double 	fConst11;
-double 	fConst12;
-double 	fRec10[2];
-double 	fConst13;
-double 	fRec9[2];
-double 	fConst14;
-double 	fConst15;
-double 	fConst16;
-double 	fConst17;
-double 	fRec14[2];
-double 	fRec7[3];
-double 	fRec6[2];
-double 	fRec5[2];
-double 	fConst18;
-double 	fConst19;
-double 	fConst20;
-double 	fConst21;
-double 	fRec15[2];
-double 	fRec3[3];
-double 	fRec2[2];
-double 	fRec1[6];
-double 	fRec16[6];
-double 	fRec26[2];
-double 	fRec25[3];
-double 	fRec24[2];
-double 	fRec23[2];
-double 	fRec27[2];
-double 	fRec22[3];
-double 	fRec21[2];
-double 	fRec20[2];
-double 	fRec28[2];
-double 	fRec19[3];
-double 	fRec18[2];
-double 	fRec17[6];
-    int fSamplingFreq;
-    void clear_state_f();
-    static void clear_state_f_static(PluginDef*);
-    void init(unsigned int samplingFreq);
-    static void init_static(unsigned int samplingFreq, PluginDef*);
-    void compute(int count, float *input0, float *input1, float *output0, float *output1);
-    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
-    int register_par(const ParamReg& reg);
-    static int register_params_static(const ParamReg& reg);
-    static void del_instance(PluginDef *p);
+	int fSamplingFreq;
+	FAUSTFLOAT 	fslider0;
+	double 	fRec0[6];
+	FAUSTFLOAT 	fslider1;
+	FAUSTFLOAT 	fslider2;
+	int 	iConst0;
+	double 	fConst1;
+	double 	fConst2;
+	double 	fConst3;
+	FAUSTFLOAT 	fslider3;
+	double 	fRec4[2];
+	double 	fConst4;
+	double 	fConst5;
+	double 	fConst6;
+	FAUSTFLOAT 	fslider4;
+	double 	fRec8[2];
+	FAUSTFLOAT 	fslider5;
+	double 	fRec12[2];
+	double 	fConst7;
+	double 	fConst8;
+	double 	fConst9;
+	double 	fConst10;
+	double 	fRec13[2];
+	double 	fRec11[3];
+	double 	fConst11;
+	double 	fConst12;
+	double 	fRec10[2];
+	double 	fConst13;
+	double 	fRec9[2];
+	double 	fConst14;
+	double 	fConst15;
+	double 	fConst16;
+	double 	fConst17;
+	double 	fRec14[2];
+	double 	fRec7[3];
+	double 	fRec6[2];
+	double 	fRec5[2];
+	double 	fConst18;
+	double 	fConst19;
+	double 	fConst20;
+	double 	fConst21;
+	double 	fRec15[2];
+	double 	fRec3[3];
+	double 	fRec2[2];
+	double 	fRec1[6];
+	double 	fRec16[6];
+	double 	fRec26[2];
+	double 	fRec25[3];
+	double 	fRec24[2];
+	double 	fRec23[2];
+	double 	fRec27[2];
+	double 	fRec22[3];
+	double 	fRec21[2];
+	double 	fRec20[2];
+	double 	fRec28[2];
+	double 	fRec19[3];
+	double 	fRec18[2];
+	double 	fRec17[6];
+	void clear_state_f();
+	void init(unsigned int samplingFreq);
+	void compute(int count, float *input0, float *input1, float *output0, float *output1);
+	int register_par(const ParamReg& reg);
+
+	static void clear_state_f_static(PluginDef*);
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+
 public:
-    Dsp();
-    ~Dsp();
+	Dsp();
+	~Dsp();
 };
+
 
 
 static const char* parm_groups[] = {
@@ -84,24 +89,26 @@ static const char* parm_groups[] = {
 	0
 	};
 
-Dsp::Dsp(): PluginDef() {
-    version = PLUGINDEF_VERSION;
-    flags = 0;
-    id = "ampmodul";
-    name = N_("Postamp");
-    groups = parm_groups;
-    mono_audio = 0;
-    stereo_audio = compute_static;
-    set_samplerate = init_static;
-    activate_plugin = 0;
-    register_params = register_params_static;
-    load_ui = 0;
-    clear_state = clear_state_f_static;
-    delete_instance = del_instance;
+Dsp::Dsp()
+	: PluginDef() {
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "ampmodul";
+	name = N_("Postamp");
+	groups = parm_groups;
+	mono_audio = 0;
+	stereo_audio = compute_static;
+	set_samplerate = init_static;
+	activate_plugin = 0;
+	register_params = register_params_static;
+	load_ui = 0;
+	clear_state = clear_state_f_static;
+	delete_instance = del_instance;
 }
 
 Dsp::~Dsp() {
 }
+
 inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<6; i++) fRec0[i] = 0;
@@ -137,7 +144,7 @@ inline void Dsp::clear_state_f()
 
 void Dsp::clear_state_f_static(PluginDef *p)
 {
-    static_cast<Dsp*>(p)->clear_state_f();
+	static_cast<Dsp*>(p)->clear_state_f();
 }
 
 inline void Dsp::init(unsigned int samplingFreq)
@@ -170,9 +177,8 @@ inline void Dsp::init(unsigned int samplingFreq)
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(samplingFreq);
 }
-
 
 inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
@@ -253,7 +259,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 
 void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
 }
 
 int Dsp::register_par(const ParamReg& reg)
@@ -269,17 +275,16 @@ int Dsp::register_par(const ParamReg& reg)
 
 int Dsp::register_params_static(const ParamReg& reg)
 {
-    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
-
 PluginDef *plugin() {
-    return new Dsp();
+	return new Dsp();
 }
 
 void Dsp::del_instance(PluginDef *p)
 {
-    delete static_cast<Dsp*>(p);
+	delete static_cast<Dsp*>(p);
 }
 
 } // end namespace gx_ampmodul

@@ -33,6 +33,7 @@ def build(bld):
     for fn in sources:
         src = [fn] + bsources
         ladspa_plugin = bld(
+            #features='cxx cprogram',
             features='cxx cshlib',
             includes = ['../headers', '..', '../../libgxwmm', '../../libgxw',
                         '../gx_head', '../zita-convolver'],

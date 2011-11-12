@@ -13,15 +13,24 @@ def dsp2cc(task):
     src = task.inputs[0].srcpath(task.env)
     o = task.outputs[0]
     dst = o.bldpath(task.env)
-    
     cpy = os.path.join(o.parent.srcpath(task.env)+task.gen_dir_suffix,o.file())
-    lst = [task.proc,"-o",dst] + task.proc_args + [src]
+    lst = [task.proc, "-o", dst]
+    if len(task.outputs) == 2:
+        o_h = task.outputs[1]
+        dst_h = o_h.bldpath(task.env)
+        cpy_h = os.path.join(o_h.parent.srcpath(task.env)+task.gen_dir_suffix,o_h.file())
+        lst += ["-H", dst_h]
+    else:
+        cpy_h = None
+    lst += task.proc_args + [src]
     Logs.debug("runner: system command -> %s" % " ".join(lst))
     ret = Utils.exec_command(lst,shell=False)
     if ret != 0:
         return ret
     try:
         shutil.copy2(dst, cpy)
+        if cpy_h:
+            shutil.copy2(dst_h, cpy_h)
     except (OSError, IOError), e:
         Logs.error("runner: cannot copy file -> %s" % e)
         return e.errno
@@ -87,4 +96,7 @@ def dsp_file(self, node):
     parent = node.parent
     o = node.change_ext('.cc')
     tsk.set_outputs(o)
+    if getattr(self, "separate_header", False):
+        o = node.change_ext('.h')
+        tsk.set_outputs(o)
     self.bld.add_manual_dependency(node,self.bld.bldnode.find_resource(self.proc))

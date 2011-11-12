@@ -5,7 +5,7 @@ Documentation for Guitarix Developers
 3. Thread architecture
 4. Parameters (for DSP algorithms etc.)
 5. Integration of faust code
-
+6. LADSPA
 
 1. Measurement of DSP processing times
 ----------------------------------------------------------------
@@ -95,3 +95,8 @@ control at the expense of being a bit more faust version dependent).
 Faust dsp files are in src/faust, the generated files get copied to
 src/faust-cc for distribution so the program can be build later even
 if faust is not installed (or no compatible version).
+
+6. LADSPA
+----------------------------------------------------------------
+
+Guitarix has been allocated the range 4061 - 4099 for LADSPA UniqueID's.

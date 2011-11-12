@@ -16,11 +16,11 @@ lib_sources = [ # put in static library linked with guitarix
 
 def build(bld):
     if bld.env['FAUST']:
-        float_arg = ["-s","40000","-float"]
+        float_arg = ["-s","40000","--float"]
         if bld.env['FAUST_DOUBLE']:
-            arg = ["-double"]
+            arg = ["--double"]
         else:
-            arg = ["-float"]
+            arg = ["--float"]
         arg += ["--init-type=plugin-instance"]
         bld(name = "dsp2cc sharedlib",
             source = sources,
@@ -72,6 +72,7 @@ def build(bld):
         bld(name = "create plugin .so",
             features = ['cxx', 'cshlib'],
             type = 'cshlib',
+            cxxflags = ["-fvisibility=hidden"],
             includes = ["../headers"],
             source = [s.replace(".dsp",".cc")],
             target = s.replace(".dsp",""),
@@ -80,6 +81,7 @@ def build(bld):
         bld(name = "create plugin .so",
             features = ['cxx', 'cshlib'],
             type = 'cshlib',
+            cxxflags = ["-fvisibility=hidden"],
             includes = ["../headers"],
             source = csources,
             target = s.replace(".cc",""),

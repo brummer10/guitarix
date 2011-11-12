@@ -1,37 +1,8 @@
 // generated from file '../src/faust/cabinet_impulse_former.dsp' by dsp2cc:
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
+
 namespace cabinet_impulse_former {
-class Dsp {
-private:
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT	*fslider0_;
-#define fslider0 (*fslider0_)
-int 	iConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fConst3;
-FAUSTFLOAT 	fslider1;
-FAUSTFLOAT	*fslider1_;
-#define fslider1 (*fslider1_)
-double 	fConst4;
-double 	fConst5;
-double 	fConst6;
-double 	fVec0[3];
-double 	fRec1[3];
-double 	fRec0[3];
-FAUSTFLOAT 	fslider2;
-FAUSTFLOAT	*fslider2_;
-#define fslider2 (*fslider2_)
-    int fSamplingFreq;
-public:
-    void clear_state_f();
-    void init(unsigned int samplingFreq);
-    void compute(int count, float *input0, float *output0);
-    int register_par(const ParamReg& reg);
-    Dsp();
-    ~Dsp();
-};
 
 
 Dsp::Dsp() {
@@ -39,13 +10,13 @@ Dsp::Dsp() {
 
 Dsp::~Dsp() {
 }
+
 inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<3; i++) fVec0[i] = 0;
 	for (int i=0; i<3; i++) fRec1[i] = 0;
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
-
 
 inline void Dsp::init(unsigned int samplingFreq)
 {
@@ -60,10 +31,11 @@ inline void Dsp::init(unsigned int samplingFreq)
 	clear_state_f();
 }
 
-
-
 inline void Dsp::compute(int count, float *input0, float *output0)
 {
+#define fslider0 (*fslider0_)
+#define fslider1 (*fslider1_)
+#define fslider2 (*fslider2_)
 	double 	fSlow0 = pow(10,(0.025 * fslider0));
 	double 	fSlow1 = (1 + fSlow0);
 	double 	fSlow2 = (fConst2 * fSlow1);
@@ -100,21 +72,17 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
 		fVec0[2] = fVec0[1]; fVec0[1] = fVec0[0];
 	}
+#undef fslider0
+#undef fslider1
+#undef fslider2
 }
-
 
 int Dsp::register_par(const ParamReg& reg)
 {
-#undef fslider2
 	fslider2_ = reg.registerVar("cab.Level","","SA","",&fslider2, 1.0, 0.5, 5.0, 0.5);
-#undef fslider1
 	fslider1_ = reg.registerVar("cab.bass",N_("bass"),"SA","",&fslider1, 0.0, -1e+01, 1e+01, 0.5);
-#undef fslider0
 	fslider0_ = reg.registerVar("cab.treble",N_("treble"),"SA","",&fslider0, 0.0, -1e+01, 1e+01, 0.5);
 	return 0;
 }
-
-
-
 
 } // end namespace cabinet_impulse_former

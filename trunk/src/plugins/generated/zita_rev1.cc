@@ -1,144 +1,147 @@
 // generated from file '../src/plugins/zita_rev1.dsp' by dsp2cc:
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
-
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
 
 namespace pluginlib {
 namespace zita_rev1 {
+
 class Dsp: public PluginDef {
 private:
-FAUSTFLOAT 	fslider0;
-int 	iConst0;
-double 	fConst1;
-double 	fConst2;
-FAUSTFLOAT 	fslider1;
-double 	fConst3;
-FAUSTFLOAT 	fslider2;
-double 	fConst4;
-double 	fRec13[2];
-FAUSTFLOAT 	fslider3;
-double 	fRec12[2];
-int 	IOTA;
-double 	fVec0[8192];
-double 	fConst5;
-int 	iConst6;
-double 	fVec1[8192];
-FAUSTFLOAT 	fslider4;
-double 	fConst7;
-double 	fVec2[2048];
-int 	iConst8;
-double 	fRec10[2];
-double 	fConst9;
-double 	fConst10;
-double 	fRec17[2];
-double 	fRec16[2];
-double 	fVec3[8192];
-double 	fConst11;
-int 	iConst12;
-double 	fVec4[1024];
-int 	iConst13;
-double 	fRec14[2];
-double 	fConst14;
-double 	fConst15;
-double 	fRec21[2];
-double 	fRec20[2];
-double 	fVec5[8192];
-double 	fConst16;
-int 	iConst17;
-double 	fVec6[2048];
-int 	iConst18;
-double 	fRec18[2];
-double 	fConst19;
-double 	fConst20;
-double 	fRec25[2];
-double 	fRec24[2];
-double 	fVec7[8192];
-double 	fConst21;
-int 	iConst22;
-double 	fVec8[1024];
-int 	iConst23;
-double 	fRec22[2];
-double 	fConst24;
-double 	fConst25;
-double 	fRec29[2];
-double 	fRec28[2];
-double 	fVec9[16384];
-double 	fConst26;
-int 	iConst27;
-double 	fVec10[8192];
-double 	fVec11[2048];
-int 	iConst28;
-double 	fRec26[2];
-double 	fConst29;
-double 	fConst30;
-double 	fRec33[2];
-double 	fRec32[2];
-double 	fVec12[8192];
-double 	fConst31;
-int 	iConst32;
-double 	fVec13[2048];
-int 	iConst33;
-double 	fRec30[2];
-double 	fConst34;
-double 	fConst35;
-double 	fRec37[2];
-double 	fRec36[2];
-double 	fVec14[16384];
-double 	fConst36;
-int 	iConst37;
-double 	fVec15[2048];
-int 	iConst38;
-double 	fRec34[2];
-double 	fConst39;
-double 	fConst40;
-double 	fRec41[2];
-double 	fRec40[2];
-double 	fVec16[16384];
-double 	fConst41;
-int 	iConst42;
-double 	fVec17[1024];
-int 	iConst43;
-double 	fRec38[2];
-double 	fRec2[3];
-double 	fRec3[3];
-double 	fRec4[3];
-double 	fRec5[3];
-double 	fRec6[3];
-double 	fRec7[3];
-double 	fRec8[3];
-double 	fRec9[3];
-FAUSTFLOAT 	fslider5;
-double 	fConst44;
-FAUSTFLOAT 	fslider6;
-double 	fRec1[3];
-FAUSTFLOAT 	fslider7;
-FAUSTFLOAT 	fslider8;
-double 	fRec0[3];
-FAUSTFLOAT 	fslider9;
-double 	fRec42[2];
-FAUSTFLOAT 	fslider10;
-double 	fRec43[2];
-double 	fRec45[3];
-double 	fRec44[3];
-    int fSamplingFreq;
-    void clear_state_f();
-    static void clear_state_f_static(PluginDef*);
-    void init(unsigned int samplingFreq);
-    static void init_static(unsigned int samplingFreq, PluginDef*);
-    void compute(int count, float *input0, float *input1, float *output0, float *output1);
-    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
-    int register_par(const ParamReg& reg);
-    static int register_params_static(const ParamReg& reg);
-    int load_ui_f(const UiBuilder& b);
-    static const char *glade_def;
-    static int load_ui_f_static(const UiBuilder& b);
-    static void del_instance(PluginDef *p);
+	int fSamplingFreq;
+	FAUSTFLOAT 	fslider0;
+	int 	iConst0;
+	double 	fConst1;
+	double 	fConst2;
+	FAUSTFLOAT 	fslider1;
+	double 	fConst3;
+	FAUSTFLOAT 	fslider2;
+	double 	fConst4;
+	double 	fRec13[2];
+	FAUSTFLOAT 	fslider3;
+	double 	fRec12[2];
+	int 	IOTA;
+	double 	fVec0[8192];
+	double 	fConst5;
+	int 	iConst6;
+	double 	fVec1[8192];
+	FAUSTFLOAT 	fslider4;
+	double 	fConst7;
+	double 	fVec2[2048];
+	int 	iConst8;
+	double 	fRec10[2];
+	double 	fConst9;
+	double 	fConst10;
+	double 	fRec17[2];
+	double 	fRec16[2];
+	double 	fVec3[8192];
+	double 	fConst11;
+	int 	iConst12;
+	double 	fVec4[1024];
+	int 	iConst13;
+	double 	fRec14[2];
+	double 	fConst14;
+	double 	fConst15;
+	double 	fRec21[2];
+	double 	fRec20[2];
+	double 	fVec5[8192];
+	double 	fConst16;
+	int 	iConst17;
+	double 	fVec6[2048];
+	int 	iConst18;
+	double 	fRec18[2];
+	double 	fConst19;
+	double 	fConst20;
+	double 	fRec25[2];
+	double 	fRec24[2];
+	double 	fVec7[8192];
+	double 	fConst21;
+	int 	iConst22;
+	double 	fVec8[1024];
+	int 	iConst23;
+	double 	fRec22[2];
+	double 	fConst24;
+	double 	fConst25;
+	double 	fRec29[2];
+	double 	fRec28[2];
+	double 	fVec9[16384];
+	double 	fConst26;
+	int 	iConst27;
+	double 	fVec10[8192];
+	double 	fVec11[2048];
+	int 	iConst28;
+	double 	fRec26[2];
+	double 	fConst29;
+	double 	fConst30;
+	double 	fRec33[2];
+	double 	fRec32[2];
+	double 	fVec12[8192];
+	double 	fConst31;
+	int 	iConst32;
+	double 	fVec13[2048];
+	int 	iConst33;
+	double 	fRec30[2];
+	double 	fConst34;
+	double 	fConst35;
+	double 	fRec37[2];
+	double 	fRec36[2];
+	double 	fVec14[16384];
+	double 	fConst36;
+	int 	iConst37;
+	double 	fVec15[2048];
+	int 	iConst38;
+	double 	fRec34[2];
+	double 	fConst39;
+	double 	fConst40;
+	double 	fRec41[2];
+	double 	fRec40[2];
+	double 	fVec16[16384];
+	double 	fConst41;
+	int 	iConst42;
+	double 	fVec17[1024];
+	int 	iConst43;
+	double 	fRec38[2];
+	double 	fRec2[3];
+	double 	fRec3[3];
+	double 	fRec4[3];
+	double 	fRec5[3];
+	double 	fRec6[3];
+	double 	fRec7[3];
+	double 	fRec8[3];
+	double 	fRec9[3];
+	FAUSTFLOAT 	fslider5;
+	double 	fConst44;
+	FAUSTFLOAT 	fslider6;
+	double 	fRec1[3];
+	FAUSTFLOAT 	fslider7;
+	FAUSTFLOAT 	fslider8;
+	double 	fRec0[3];
+	FAUSTFLOAT 	fslider9;
+	double 	fRec42[2];
+	FAUSTFLOAT 	fslider10;
+	double 	fRec43[2];
+	double 	fRec45[3];
+	double 	fRec44[3];
+	void clear_state_f();
+	int load_ui_f(const UiBuilder& b);
+	static const char *glade_def;
+	void init(unsigned int samplingFreq);
+	void compute(int count, float *input0, float *input1, float *output0, float *output1);
+	int register_par(const ParamReg& reg);
+
+	static void clear_state_f_static(PluginDef*);
+	static int load_ui_f_static(const UiBuilder& b);
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+
 public:
-    Dsp();
-    ~Dsp();
+	Dsp();
+	~Dsp();
 };
+
 
 
 static const char* parm_groups[] = {
@@ -150,24 +153,26 @@ static const char* parm_groups[] = {
 	0
 	};
 
-Dsp::Dsp(): PluginDef() {
-    version = PLUGINDEF_VERSION;
-    flags = 0;
-    id = "zita_rev1";
-    name = N_("Zita Rev1");
-    groups = parm_groups;
-    mono_audio = 0;
-    stereo_audio = compute_static;
-    set_samplerate = init_static;
-    activate_plugin = 0;
-    register_params = register_params_static;
-    load_ui = load_ui_f_static;
-    clear_state = clear_state_f_static;
-    delete_instance = del_instance;
+Dsp::Dsp()
+	: PluginDef() {
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "zita_rev1";
+	name = N_("Zita Rev1");
+	groups = parm_groups;
+	mono_audio = 0;
+	stereo_audio = compute_static;
+	set_samplerate = init_static;
+	activate_plugin = 0;
+	register_params = register_params_static;
+	load_ui = load_ui_f_static;
+	clear_state = clear_state_f_static;
+	delete_instance = del_instance;
 }
 
 Dsp::~Dsp() {
 }
+
 inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) fRec13[i] = 0;
@@ -230,7 +235,7 @@ inline void Dsp::clear_state_f()
 
 void Dsp::clear_state_f_static(PluginDef *p)
 {
-    static_cast<Dsp*>(p)->clear_state_f();
+	static_cast<Dsp*>(p)->clear_state_f();
 }
 
 inline void Dsp::init(unsigned int samplingFreq)
@@ -287,9 +292,8 @@ inline void Dsp::init(unsigned int samplingFreq)
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(samplingFreq);
 }
-
 
 inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
@@ -531,7 +535,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 
 void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
 }
 
 int Dsp::register_par(const ParamReg& reg)
@@ -552,9 +556,8 @@ int Dsp::register_par(const ParamReg& reg)
 
 int Dsp::register_params_static(const ParamReg& reg)
 {
-    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
-
 
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
@@ -1167,22 +1170,22 @@ const char *Dsp::glade_def = "\
 
 int Dsp::load_ui_f(const UiBuilder& b)
 {
-    b.load_glade(glade_def);
-    return 0;
+	b.load_glade(glade_def);
+	return 0;
 }
 
 int Dsp::load_ui_f_static(const UiBuilder& b)
 {
-    return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
 }
 
 PluginDef *plugin() {
-    return new Dsp();
+	return new Dsp();
 }
 
 void Dsp::del_instance(PluginDef *p)
 {
-    delete static_cast<Dsp*>(p);
+	delete static_cast<Dsp*>(p);
 }
 
 } // end namespace zita_rev1

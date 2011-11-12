@@ -291,11 +291,9 @@ class GxJConvSettings: boost::noncopyable {
  ** class ConvolverAdapter
  */
 
-// FIXME: separate header and implementation and include header,
-// change pointer to member
-namespace jconv_post { class Dsp; }
-namespace cabinet_impulse_former { class Dsp; }
-namespace presence_level { class Dsp; }
+#include "faust/jconv_post.h"
+#include "faust/cabinet_impulse_former.h"
+#include "faust/presence_level.h"
 
 class ConvolverAdapter: PluginDef {
 private:
@@ -303,7 +301,7 @@ private:
     boost::mutex activate_mutex;
     ModuleSequencer& engine;
     bool activated;
-    jconv_post::Dsp *jc;
+    jconv_post::Dsp jc_post;
     // wrapper for the rack order function pointers
     static void convolver(int count, float *input0, float *input1,
 			  float *output0, float *output1, PluginDef*);
@@ -363,7 +361,7 @@ private:
     float treble;
     float sum;
     value_pair *cab_names;
-    cabinet_impulse_former::Dsp *impf;
+    cabinet_impulse_former::Dsp impf;
     inline void compensate_cab(int count, float *input0, float *output0);
     static void run_cab_conf(int count, float *input, float *output, PluginDef*);
     static int register_cab(const ParamReg& reg);
@@ -388,7 +386,7 @@ class ContrastConvolver: public BaseConvolver {
 private:
     float level;
     float sum;
-    presence_level::Dsp *presl;
+    presence_level::Dsp presl;
     // wrapper for the rack order function pointers
     inline void compensate_con(int count, float *input0, float *output0);
     static void run_contrast(int count, float *input, float *output, PluginDef*);

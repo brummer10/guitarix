@@ -1,38 +1,44 @@
 // generated from file '../src/faust/softclip.dsp' by dsp2cc:
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
+
 namespace softclip {
+
 class Dsp: public PluginDef {
 private:
-FAUSTFLOAT 	fslider0;
-    int fSamplingFreq;
-    void init(unsigned int samplingFreq);
-    static void init_static(unsigned int samplingFreq, PluginDef*);
-    void compute(int count, float *input0, float *output0);
-    static void compute_static(int count, float *input0, float *output0, PluginDef*);
-    int register_par(const ParamReg& reg);
-    static int register_params_static(const ParamReg& reg);
-    static void del_instance(PluginDef *p);
+	int fSamplingFreq;
+	FAUSTFLOAT 	fslider0;
+	void init(unsigned int samplingFreq);
+	void compute(int count, float *input0, float *output0);
+	int register_par(const ParamReg& reg);
+
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count, float *input0, float *output0, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+
 public:
-    Dsp();
-    ~Dsp();
+	Dsp();
+	~Dsp();
 };
 
 
-Dsp::Dsp(): PluginDef() {
-    version = PLUGINDEF_VERSION;
-    flags = 0;
-    id = "amp.clip";
-    name = "?softclip";
-    groups = 0;
-    mono_audio = compute_static;
-    stereo_audio = 0;
-    set_samplerate = init_static;
-    activate_plugin = 0;
-    register_params = register_params_static;
-    load_ui = 0;
-    clear_state = 0;
-    delete_instance = del_instance;
+
+Dsp::Dsp()
+	: PluginDef() {
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "amp.clip";
+	name = "?softclip";
+	groups = 0;
+	mono_audio = compute_static;
+	stereo_audio = 0;
+	set_samplerate = init_static;
+	activate_plugin = 0;
+	register_params = register_params_static;
+	load_ui = 0;
+	clear_state = 0;
+	delete_instance = del_instance;
 }
 
 Dsp::~Dsp() {
@@ -45,9 +51,8 @@ inline void Dsp::init(unsigned int samplingFreq)
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(samplingFreq);
 }
-
 
 inline void Dsp::compute(int count, float *input0, float *output0)
 {
@@ -62,7 +67,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 
 void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->compute(count, input0, output0);
+	static_cast<Dsp*>(p)->compute(count, input0, output0);
 }
 
 int Dsp::register_par(const ParamReg& reg)
@@ -73,17 +78,16 @@ int Dsp::register_par(const ParamReg& reg)
 
 int Dsp::register_params_static(const ParamReg& reg)
 {
-    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
-
 PluginDef *plugin() {
-    return new Dsp();
+	return new Dsp();
 }
 
 void Dsp::del_instance(PluginDef *p)
 {
-    delete static_cast<Dsp*>(p);
+	delete static_cast<Dsp*>(p);
 }
 
 } // end namespace softclip

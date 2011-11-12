@@ -500,7 +500,7 @@ ConvolverAdapter::ConvolverAdapter(ModuleSequencer& engine_)
       activate_mutex(),
       engine(engine_),
       activated(false),
-      jc(new jconv_post::Dsp),
+      jc_post(),
       plugin(),
       jcset() {
     version = PLUGINDEF_VERSION;
@@ -518,7 +518,6 @@ ConvolverAdapter::ConvolverAdapter(ModuleSequencer& engine_)
 }
 
 ConvolverAdapter::~ConvolverAdapter() {
-    delete jc;
 }
 
 void ConvolverAdapter::change_buffersize(unsigned int size) {
@@ -533,11 +532,6 @@ void ConvolverAdapter::change_buffersize(unsigned int size) {
     } else {
 	conv.set_buffersize(size);
     }
-}
-
-static gboolean conv_error_message(gpointer data) {
-    gx_system::gx_print_error("Convolver", "overload");
-    return false;
 }
 
 void ConvolverAdapter::restart() {
@@ -599,16 +593,16 @@ void ConvolverAdapter::convolver(int count, float *input0, float *input1,
         float conv_out1[count];
         if (!self.conv.compute(count, output0, output1, conv_out0, conv_out1)) {
             *GxJConvSettings::checkbutton7 = 0;
-            g_idle_add(conv_error_message, gpointer(NULL));
+	    gx_system::gx_print_error("Convolver", "overload");
         } else {
-            self.jc->compute(count, output0, output1,
-			     conv_out0, conv_out1, output0, output1);
+            self.jc_post.compute(count, output0, output1,
+			    conv_out0, conv_out1, output0, output1);
         }
     }
 }
 
 int ConvolverAdapter::convolver_register(const ParamReg& reg) {
-    return static_cast<ConvolverAdapter*>(reg.plugin)->jc->register_par(reg);
+    return static_cast<ConvolverAdapter*>(reg.plugin)->jc_post.register_par(reg);
 }
 
 void ConvolverAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {
@@ -617,14 +611,14 @@ void ConvolverAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {
     if (self.activated) {
 	self.conv.stop();
 	self.conv.set_samplerate(samplingFreq);
-	self.jc->init(samplingFreq);
+	self.jc_post.init(samplingFreq);
 	while (self.conv.is_runnable()) {
 	    self.conv.checkstate();
 	}
 	self.conv_start();
     } else {
 	self.conv.set_samplerate(samplingFreq);
-	self.jc->init(samplingFreq);
+	self.jc_post.init(samplingFreq);
     }
 }
 
@@ -635,11 +629,15 @@ int ConvolverAdapter::activate(bool start, PluginDef *p) {
 	return 0;
     }
     if (start) {
+	if (!self.jc_post.activate(true)) {
+	    return -1;
+	}
 	if (!self.conv_start()) {
 	    return -1;
 	}
     } else {
 	self.conv.stop();
+	self.jc_post.activate(false);
     }
     self.activated = start;
     return 0;
@@ -772,7 +770,7 @@ CabinetConvolver::CabinetConvolver(ModuleSequencer& engine, gx_resample::BufferR
     treble(0),
     sum(no_sum),
     cab_names(new value_pair[cab_table_size+1]),
-    impf(new cabinet_impulse_former::Dsp) {
+    impf() {
     for (unsigned int i = 0; i < cab_table_size; ++i) {
 	CabEntry& cab = getCabEntry(i);
 	cab_names[i].value_id = cab.value_id;
@@ -787,7 +785,6 @@ CabinetConvolver::CabinetConvolver(ModuleSequencer& engine, gx_resample::BufferR
 }
 
 CabinetConvolver::~CabinetConvolver() {
-    delete impf;
     delete cab_names;
 }
 
@@ -806,9 +803,9 @@ bool CabinetConvolver::start(bool force) {
 	conv.stop();
         update_cabinet();
 	update_sum();
-	impf->init(cab.ir_sr);
+	impf.init(cab.ir_sr);
 	float cab_irdata_c[cab.ir_count];
-	impf->compute(cab.ir_count,cab.ir_data,cab_irdata_c);
+	impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
 	while (!conv.checkstate());
 	if (!conv.configure(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
 	    return false;
@@ -826,25 +823,20 @@ bool CabinetConvolver::start(bool force) {
 bool CabinetConvolver::update() {
     CabDesc& cab = *getCabEntry(cabinet).data;
     float cab_irdata_c[cab.ir_count];
-    impf->compute(cab.ir_count,cab.ir_data,cab_irdata_c);
+    impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
     return conv.update(cab.ir_count, cab_irdata_c, cab.ir_sr);
 }
 
 // reduce gain to compensate the increased gain by the cabinet
 inline void CabinetConvolver::compensate_cab(int count, float *input0, float *output0) {
-    double fSlow0 = (0.0010000000000000009 * pow(10, (0.05 * (-level*2.0))));
+    double fSlow0 = 0.001 * pow(10, -0.1 * level);
     static double fRec0[2] = {0, 0};
     for (int i = 0; i < count; i++) {
         fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-        output0[i] = (FAUSTFLOAT)(static_cast<double>(input0[i]) * fRec0[0]);
+        output0[i] = input0[i] * fRec0[0];
         // post processing
         fRec0[1] = fRec0[0];
     }
-}
-
-static gboolean cab_error_message(gpointer data) {
-    gx_system::gx_print_error("Convolver", "cabinet overload");
-    return false;
 }
 
 // wraper for the rack order function pointers
@@ -852,7 +844,7 @@ void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, Pl
     CabinetConvolver& self = *static_cast<CabinetConvolver*>(p);
     self.compensate_cab(count, output0, output0);
     if (!self.conv.compute(count, output0)) {
-        g_idle_add(cab_error_message, gpointer(NULL));
+	gx_system::gx_print_error("Convolver", "cabinet overload");
         self.current_cab = -1;
     }
 }
@@ -863,7 +855,7 @@ int CabinetConvolver::register_cab(const ParamReg& reg) {
     reg.registerVar("cab.Level", "",  "S", "", &cab.level,  1.0, 0.5, 5.0, 0.5);
     reg.registerVar("cab.bass", "",   "S", "", &cab.bass,   0.0, -10.0, 10.0, 0.5);
     reg.registerVar("cab.treble", "", "S", "", &cab.treble, 0.0, -10.0, 10.0, 0.5);
-    cab.impf->register_par(reg);
+    cab.impf.register_par(reg);
     return 0;
 }
 
@@ -878,7 +870,7 @@ ContrastConvolver::ContrastConvolver(ModuleSequencer& engine, gx_resample::Buffe
     BaseConvolver(engine, resamp),
     level(0),
     sum(no_sum),
-    presl(new presence_level::Dsp) {
+    presl() {
     id = "con";
     name = N_("Contrast convolver");
     mono_audio = run_contrast;
@@ -886,16 +878,15 @@ ContrastConvolver::ContrastConvolver(ModuleSequencer& engine, gx_resample::Buffe
 }
 
 ContrastConvolver::~ContrastConvolver() {
-    delete presl;
 }
 
 bool ContrastConvolver::start(bool force) {
     if (sum_changed() || force) {
 	conv.stop();
 	update_sum();
-	presl->init(contrast_ir_desc.ir_sr);
+	presl.init(contrast_ir_desc.ir_sr);
 	float contrast_irdata_c[contrast_ir_desc.ir_count];
-	presl->compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
+	presl.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
 	while (!conv.checkstate());
 	if (!conv.configure(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
 	    return false;
@@ -925,13 +916,8 @@ inline void ContrastConvolver::compensate_con(int count, float *input0, float *o
 int ContrastConvolver::register_con(const ParamReg& reg) {
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(reg.plugin);
     reg.registerVar("con.Level", "",  "S", "", &self.level,  1.0, 0.5, 5.0, 0.5);
-    self.presl->register_par(reg);
+    self.presl.register_par(reg);
     return 0;
-}
-
-static gboolean contrast_error_message(gpointer data) {
-    gx_system::gx_print_error("Convolver", "presence overload");
-    return false;
 }
 
 // wraper for the presence function
@@ -939,7 +925,7 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(p);
     self.compensate_con(count, output0, output0);
     if (!self.conv.compute(count, output0)) {
-        g_idle_add(contrast_error_message, gpointer(NULL));
+	gx_system::gx_print_error("Convolver", "presence overload");
         self.sum = no_sum;
     }
 }

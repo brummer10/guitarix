@@ -26,9 +26,12 @@ def build(bld):
         'sloop.dsp', ##float
         ]
 
+    sources_float = [
+        'jconv_post.dsp',
+        ]
+
     sources = [
         'presence_level.dsp',
-        'jconv_post.dsp',
         'cabinet_impulse_former.dsp',
         ]
 
@@ -121,15 +124,22 @@ def build(bld):
         ]
 
     if bld.env['FAUST']:
-        float_arg = ["-s","40000","-float"]
+        float_arg = ["-s","40000","--float"]
         if bld.env['FAUST_DOUBLE']:
-            arg = ["-double"]
+            arg = ["--double"]
         else:
-            arg = ["-float"]
+            arg = ["--float"]
         bld.new_task_gen(
             source = sources,
             proc = "../tools/dsp2cc",
+            separate_header = True,
             proc_args = arg+["--init-type=no-init-instance"],
+            )
+        bld.new_task_gen(
+            source = sources_float,
+            proc = "../tools/dsp2cc",
+            separate_header = True,
+            proc_args = float_arg+["--init-type=no-init-instance"],
             )
         bld.new_task_gen(
             source = sources_plugin,

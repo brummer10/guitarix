@@ -1,74 +1,81 @@
 // generated from file '../src/faust/chorus_mono.dsp' by dsp2cc:
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
+
 namespace chorus_mono {
+
 class Dsp: public PluginDef {
 private:
-class SIG0 {
-  private:
-	int 	fSamplingFreq;
-	int 	iRec1[2];
-  public:
-	int getNumInputs() 	{ return 0; }
-	int getNumOutputs() 	{ return 1; }
-	void init(int samplingFreq) {
-		fSamplingFreq = samplingFreq;
-		for (int i=0; i<2; i++) iRec1[i] = 0;
-	}
-	void fill (int count, double output[]) {
-		for (int i=0; i<count; i++) {
-			iRec1[0] = (1 + iRec1[1]);
-			output[i] = sin((9.587379924285257e-05 * (iRec1[0] - 1)));
-			// post processing
-			iRec1[1] = iRec1[0];
+	int fSamplingFreq;
+	class SIG0 {
+	  private:
+		int 	fSamplingFreq;
+		int 	iRec1[2];
+	  public:
+		int getNumInputs() 	{ return 0; }
+		int getNumOutputs() 	{ return 1; }
+		void init(int samplingFreq) {
+			fSamplingFreq = samplingFreq;
+			for (int i=0; i<2; i++) iRec1[i] = 0;
 		}
-	}
-};
-FAUSTFLOAT 	fslider0;
-int 	IOTA;
-double 	fVec0[65536];
-FAUSTFLOAT 	fslider1;
-int 	iConst0;
-double 	fConst1;
-double 	fRec0[2];
-static double 	ftbl0[65536];
-double 	fConst2;
-FAUSTFLOAT 	fslider2;
-    int fSamplingFreq;
-    void clear_state_f();
-    static void clear_state_f_static(PluginDef*);
-    void init(unsigned int samplingFreq);
-    static void init_static(unsigned int samplingFreq, PluginDef*);
-    void compute(int count, float *input0, float *output0);
-    static void compute_static(int count, float *input0, float *output0, PluginDef*);
-    int register_par(const ParamReg& reg);
-    static int register_params_static(const ParamReg& reg);
-    static void del_instance(PluginDef *p);
+		void fill (int count, double output[]) {
+			for (int i=0; i<count; i++) {
+				iRec1[0] = (1 + iRec1[1]);
+				output[i] = sin((9.587379924285257e-05 * (iRec1[0] - 1)));
+				// post processing
+				iRec1[1] = iRec1[0];
+			}
+		}
+	};
+			FAUSTFLOAT 	fslider0;
+	int 	IOTA;
+	double 	fVec0[65536];
+	FAUSTFLOAT 	fslider1;
+	int 	iConst0;
+	double 	fConst1;
+	double 	fRec0[2];
+	static double 	ftbl0[65536];
+	double 	fConst2;
+	FAUSTFLOAT 	fslider2;
+	void clear_state_f();
+	void init(unsigned int samplingFreq);
+	void compute(int count, float *input0, float *output0);
+	int register_par(const ParamReg& reg);
+
+	static void clear_state_f_static(PluginDef*);
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count, float *input0, float *output0, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+
 public:
-    Dsp();
-    ~Dsp();
+	Dsp();
+	~Dsp();
 };
+
 
 double Dsp::ftbl0[65536];
 
-Dsp::Dsp(): PluginDef() {
-    version = PLUGINDEF_VERSION;
-    flags = 0;
-    id = "chorus_mono";
-    name = N_("Chorus Mono");
-    groups = 0;
-    mono_audio = compute_static;
-    stereo_audio = 0;
-    set_samplerate = init_static;
-    activate_plugin = 0;
-    register_params = register_params_static;
-    load_ui = 0;
-    clear_state = clear_state_f_static;
-    delete_instance = del_instance;
+Dsp::Dsp()
+	: PluginDef() {
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "chorus_mono";
+	name = N_("Chorus Mono");
+	groups = 0;
+	mono_audio = compute_static;
+	stereo_audio = 0;
+	set_samplerate = init_static;
+	activate_plugin = 0;
+	register_params = register_params_static;
+	load_ui = 0;
+	clear_state = clear_state_f_static;
+	delete_instance = del_instance;
 }
 
 Dsp::~Dsp() {
 }
+
 inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<65536; i++) fVec0[i] = 0;
@@ -77,7 +84,7 @@ inline void Dsp::clear_state_f()
 
 void Dsp::clear_state_f_static(PluginDef *p)
 {
-    static_cast<Dsp*>(p)->clear_state_f();
+	static_cast<Dsp*>(p)->clear_state_f();
 }
 
 inline void Dsp::init(unsigned int samplingFreq)
@@ -95,9 +102,8 @@ inline void Dsp::init(unsigned int samplingFreq)
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(samplingFreq);
 }
-
 
 inline void Dsp::compute(int count, float *input0, float *output0)
 {
@@ -126,7 +132,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 
 void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->compute(count, input0, output0);
+	static_cast<Dsp*>(p)->compute(count, input0, output0);
 }
 
 int Dsp::register_par(const ParamReg& reg)
@@ -139,17 +145,16 @@ int Dsp::register_par(const ParamReg& reg)
 
 int Dsp::register_params_static(const ParamReg& reg)
 {
-    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
-
 PluginDef *plugin() {
-    return new Dsp();
+	return new Dsp();
 }
 
 void Dsp::del_instance(PluginDef *p)
 {
-    delete static_cast<Dsp*>(p);
+	delete static_cast<Dsp*>(p);
 }
 
 } // end namespace chorus_mono

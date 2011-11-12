@@ -1,64 +1,68 @@
 // generated from file '../src/faust/tonestack_default.dsp' by dsp2cc:
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
+
 namespace tonestack_default {
+
 class Dsp: public PluginDef {
 private:
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT	*fslider0_;
-#define fslider0 (*fslider0_)
-FAUSTFLOAT 	fslider1;
-FAUSTFLOAT	*fslider1_;
-#define fslider1 (*fslider1_)
-int 	iConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fConst3;
-double 	fConst4;
-double 	fConst5;
-double 	fConst6;
-FAUSTFLOAT 	fslider2;
-FAUSTFLOAT	*fslider2_;
-#define fslider2 (*fslider2_)
-double 	fVec0[3];
-double 	fRec3[3];
-double 	fRec2[3];
-double 	fRec1[3];
-double 	fRec0[3];
-    int fSamplingFreq;
-    void clear_state_f();
-    static void clear_state_f_static(PluginDef*);
-    void init(unsigned int samplingFreq);
-    static void init_static(unsigned int samplingFreq, PluginDef*);
-    void compute(int count, float *input0, float *output0);
-    static void compute_static(int count, float *input0, float *output0, PluginDef*);
-    int register_par(const ParamReg& reg);
-    static int register_params_static(const ParamReg& reg);
-    static void del_instance(PluginDef *p);
+	int fSamplingFreq;
+	FAUSTFLOAT 	fslider0;
+	FAUSTFLOAT	*fslider0_;
+	FAUSTFLOAT 	fslider1;
+	FAUSTFLOAT	*fslider1_;
+	int 	iConst0;
+	double 	fConst1;
+	double 	fConst2;
+	double 	fConst3;
+	double 	fConst4;
+	double 	fConst5;
+	double 	fConst6;
+	FAUSTFLOAT 	fslider2;
+	FAUSTFLOAT	*fslider2_;
+	double 	fVec0[3];
+	double 	fRec3[3];
+	double 	fRec2[3];
+	double 	fRec1[3];
+	double 	fRec0[3];
+	void clear_state_f();
+	void init(unsigned int samplingFreq);
+	void compute(int count, float *input0, float *output0);
+	int register_par(const ParamReg& reg);
+
+	static void clear_state_f_static(PluginDef*);
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count, float *input0, float *output0, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+
 public:
-    Dsp();
-    ~Dsp();
+	Dsp();
+	~Dsp();
 };
 
 
-Dsp::Dsp(): PluginDef() {
-    version = PLUGINDEF_VERSION;
-    flags = 0;
-    id = "default";
-    name = N_("default");
-    groups = 0;
-    mono_audio = compute_static;
-    stereo_audio = 0;
-    set_samplerate = init_static;
-    activate_plugin = 0;
-    register_params = register_params_static;
-    load_ui = 0;
-    clear_state = clear_state_f_static;
-    delete_instance = del_instance;
+
+Dsp::Dsp()
+	: PluginDef() {
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "default";
+	name = N_("default");
+	groups = 0;
+	mono_audio = compute_static;
+	stereo_audio = 0;
+	set_samplerate = init_static;
+	activate_plugin = 0;
+	register_params = register_params_static;
+	load_ui = 0;
+	clear_state = clear_state_f_static;
+	delete_instance = del_instance;
 }
 
 Dsp::~Dsp() {
 }
+
 inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<3; i++) fVec0[i] = 0;
@@ -70,7 +74,7 @@ inline void Dsp::clear_state_f()
 
 void Dsp::clear_state_f_static(PluginDef *p)
 {
-    static_cast<Dsp*>(p)->clear_state_f();
+	static_cast<Dsp*>(p)->clear_state_f();
 }
 
 inline void Dsp::init(unsigned int samplingFreq)
@@ -88,12 +92,14 @@ inline void Dsp::init(unsigned int samplingFreq)
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(samplingFreq);
 }
-
 
 inline void Dsp::compute(int count, float *input0, float *output0)
 {
+#define fslider0 (*fslider0_)
+#define fslider1 (*fslider1_)
+#define fslider2 (*fslider2_)
 	double 	fSlow0 = (fslider0 - 0.5);
 	double 	fSlow1 = (10 * fSlow0);
 	double 	fSlow2 = pow(10,(0.025 * ((20 * (fslider1 - 0.5)) - fSlow1)));
@@ -159,37 +165,36 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec3[2] = fRec3[1]; fRec3[1] = fRec3[0];
 		fVec0[2] = fVec0[1]; fVec0[1] = fVec0[0];
 	}
+#undef fslider0
+#undef fslider1
+#undef fslider2
 }
 
 void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->compute(count, input0, output0);
+	static_cast<Dsp*>(p)->compute(count, input0, output0);
 }
 
 int Dsp::register_par(const ParamReg& reg)
 {
-#undef fslider2
 	fslider2_ = reg.registerVar("amp.tonestack.Bass","","SA","",&fslider2, 0.5, 0.0, 1.0, 0.01);
-#undef fslider1
 	fslider1_ = reg.registerVar("amp.tonestack.Treble","","SA","",&fslider1, 0.5, 0.0, 1.0, 0.01);
-#undef fslider0
 	fslider0_ = reg.registerVar("amp.tonestack.Middle","","SA","",&fslider0, 0.5, 0.0, 1.0, 0.01);
 	return 0;
 }
 
 int Dsp::register_params_static(const ParamReg& reg)
 {
-    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
-
 PluginDef *plugin() {
-    return new Dsp();
+	return new Dsp();
 }
 
 void Dsp::del_instance(PluginDef *p)
 {
-    delete static_cast<Dsp*>(p);
+	delete static_cast<Dsp*>(p);
 }
 
 } // end namespace tonestack_default

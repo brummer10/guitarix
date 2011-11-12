@@ -27,7 +27,6 @@ class UIDefs(object):
             d["N_tooltip"] = wrap_N_("%(tooltip)s" % self)
             if "alias" in d:
                 assert "enum" not in d
-                fp.write('#undef %(variable)s\n' % d)
                 fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
             elif "enum" in d:
                 def value_pair(s):
@@ -133,7 +132,7 @@ class Parser(object):
         return [l[n:] for l in cp]
 
     def get_section_list(self):
-        return "includes", "var-decl", "var-init", "var-free", "ui", "compute"
+        return "includes", "var-decl", "alias-defines", "alias-undefines", "var-init", "var-free", "ui", "compute"
 
     def getIO(self, s):
         e = r"\s*virtual int getNum%sputs\(\)\s*{\s*return\s*(\d+);\s*}" % s
@@ -321,6 +320,8 @@ class Parser(object):
         array_matcher = re.compile(r"(int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
         static_matcher = re.compile(r"static (int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
         out = []
+        out_defines = []
+        out_undefines = []
         for l in lines:
             m = param_matcher(l);
             if m:
@@ -331,7 +332,9 @@ class Parser(object):
                     #     % (var, self.ui.get(var, "id")))
                     out.append(l)
                     out.append('FAUSTFLOAT\t*%s_;\n' % var)
-                    l = '#define %s (*%s_)\n' % (var, var)
+                    out_defines.append('#define %s (*%s_)\n' % (var, var))
+                    out_undefines.append('#undef %s\n' % var)
+                    continue
             m = static_matcher(l);
             if m:
                 self.staticlist.append((m.group(2), m.group(1), m.group(3)))
@@ -346,7 +349,7 @@ class Parser(object):
             if l.startswith(("int","float","double","FAUSTFLOAT")):
                 l = "%(static)s" + l
             out.append(l)
-        return out
+        return out, out_defines, out_undefines
 
     def add_var_alloc(self):
         l = []
@@ -387,7 +390,7 @@ class Parser(object):
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
-        s["var-decl"] = self.change_var_decl(var_decl)
+        s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl)
         s["var-init"] = s["var-init"]
         s["var-alloc"] = self.add_var_alloc()
         s["var-free"] = self.add_var_free()
@@ -616,112 +619,123 @@ PluginDef *plugin() {
 %(end_extra_namespace)s\
 """
 
-#FIXME: sort excessive #if's when output changed anyhow..
 template_plugin_instance = """\
 // generated from file '%(filepath)s' by dsp2cc:
 // %(headline)s
+
+#if %(has_separate_header)s
+#define FAUSTFLOAT float
+#else
 #if %(has_standalone_header)s
-
-
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
 #endif
-
 %(includes)s\
+#endif
+
 %(start_extra_namespace)s\
 namespace %(namespace)s {
+
 #if %(has_plugindef)s
 class Dsp: public PluginDef {
 #else
 class Dsp {
 #endif
 private:
-#if %(has_activate)s
-    bool mem_allocated;
-#endif
+	int fSamplingFreq;
 %(var_decl)s\
-    int fSamplingFreq;
-#if %(has_plugindef)s
-#else
+#if %(has_activate)s
+	bool mem_allocated;
+	void mem_alloc();
+	void mem_free();
+#endif
+#ifnot %(has_plugindef)s
+
 public:
 #endif
 #if %(has_state)s
-    void clear_state_f();
-#if %(has_plugindef)s
-    static void clear_state_f_static(PluginDef*);
-#endif
-#endif
-    void init(unsigned int samplingFreq);
-#if %(has_plugindef)s
-    static void init_static(unsigned int samplingFreq, PluginDef*);
+	void clear_state_f();
 #endif
 #if %(has_activate)s
-    void mem_alloc();
-    void mem_free();
-    int activate(bool start);
-#if %(has_plugindef)s
-    static int activate_static(bool start, PluginDef*);
-#endif
-#endif
-    void compute(int count%(compute_args)s);
-#if %(has_plugindef)s
-    static void compute_static(int count%(compute_args)s, PluginDef*);
-#endif
-    int register_par(const ParamReg& reg);
-#if %(has_plugindef)s
-    static int register_params_static(const ParamReg& reg);
+	int activate(bool start);
 #endif
 #if %(has_cc_ui)s
-    int load_ui_f(const UiBuilder& b);
-#if %(has_plugindef)s
-    static int load_ui_f_static(const UiBuilder& b);
-#endif
+	int load_ui_f(const UiBuilder& b);
 #endif
 #if %(has_glade_ui)s
-    int load_ui_f(const UiBuilder& b);
-    static const char *glade_def;
-#if %(has_plugindef)s
-    static int load_ui_f_static(const UiBuilder& b);
+	int load_ui_f(const UiBuilder& b);
+	static const char *glade_def;
 #endif
-#endif
+	void init(unsigned int samplingFreq);
+	void compute(int count%(compute_args)s);
+	int register_par(const ParamReg& reg);
 #if %(has_plugindef)s
-    static void del_instance(PluginDef *p);
+
+#if %(has_state)s
+	static void clear_state_f_static(PluginDef*);
+#endif
+#if %(has_activate)s
+	static int activate_static(bool start, PluginDef*);
+#endif
+#if %(has_cc_ui)s
+	static int load_ui_f_static(const UiBuilder& b);
+#endif
+#if %(has_glade_ui)s
+	static int load_ui_f_static(const UiBuilder& b);
+#endif
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count%(compute_args)s, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+
 public:
 #endif
-    Dsp();
-    ~Dsp();
+	Dsp();
+	~Dsp();
 };
+
+#if %(has_separate_header)s
+} // end namespace %(namespace)s
+%(end_extra_namespace)s\
+#impl
+// generated from file '%(filepath)s' by dsp2cc:
+// %(headline)s
+
+#if %(has_standalone_header)s
+#include "gx_faust_support.h"
+#include "gx_plugin.h"
+#include "%(header_name)s"
+#endif
+%(includes)s\
+
+%(start_extra_namespace)s\
+namespace %(namespace)s {
+#endif
 
 %(static_decl)s\
 %(groups_define)s\
 
+Dsp::Dsp()%(dsp_initlist)s {
 #if %(has_plugindef)s
-Dsp::Dsp(): PluginDef() {
-#else
-Dsp::Dsp() {
-#endif
-#if %(has_activate)s
-    mem_allocated = false;
-#endif
-#if %(has_plugindef)s
-    version = PLUGINDEF_VERSION;
-    flags = 0;
-    id = "%(plugin_id)s";
-    name = %(plugin_name)s;
-    groups = %(groups_p)s;
-    mono_audio = %(mono_compute_p)s;
-    stereo_audio = %(stereo_compute_p)s;
-    set_samplerate = init_static;
-    activate_plugin = %(activate_p)s;
-    register_params = register_params_static;
-    load_ui = %(load_ui_p)s;
-    clear_state = %(clear_state_p)s;
-    delete_instance = del_instance;
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "%(plugin_id)s";
+	name = %(plugin_name)s;
+	groups = %(groups_p)s;
+	mono_audio = %(mono_compute_p)s;
+	stereo_audio = %(stereo_compute_p)s;
+	set_samplerate = init_static;
+	activate_plugin = %(activate_p)s;
+	register_params = register_params_static;
+	load_ui = %(load_ui_p)s;
+	clear_state = %(clear_state_p)s;
+	delete_instance = del_instance;
 #endif
 }
 
 Dsp::~Dsp() {
 }
+
 #if %(has_state)s
 inline void Dsp::clear_state_f()
 {
@@ -731,11 +745,11 @@ inline void Dsp::clear_state_f()
 #if %(has_plugindef)s
 void Dsp::clear_state_f_static(PluginDef *p)
 {
-    static_cast<Dsp*>(p)->clear_state_f();
+	static_cast<Dsp*>(p)->clear_state_f();
 }
-#endif
-#endif
 
+#endif
+#endif
 inline void Dsp::init(unsigned int samplingFreq)
 {
 %(init_body)s\
@@ -747,10 +761,10 @@ inline void Dsp::init(unsigned int samplingFreq)
 #if %(has_plugindef)s
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(samplingFreq);
 }
-#endif
 
+#endif
 #if %(has_activate)s
 void Dsp::mem_alloc()
 {
@@ -766,38 +780,40 @@ void Dsp::mem_free()
 
 int Dsp::activate(bool start)
 {
-    if (start) {
-        if (!mem_allocated) {
-            mem_alloc();
-            clear_state_f();
-        }
-    } else if (!mem_allocated) {
-        mem_free();
-    }
-    return 0;
+	if (start) {
+		if (!mem_allocated) {
+			mem_alloc();
+			clear_state_f();
+		}
+	} else if (!mem_allocated) {
+		mem_free();
+	}
+	return 0;
 }
 
 #if %(has_plugindef)s
 int Dsp::activate_static(bool start, PluginDef *p)
 {
-    return static_cast<Dsp*>(p)->activate(start);
+	return static_cast<Dsp*>(p)->activate(start);
 }
-#endif
-#endif
 
+#endif
+#endif
 inline void Dsp::compute(int count%(compute_args)s)
 {
+%(defines)s\
 %(compute_body)s\
 	}
+%(undefines)s\
 }
 
 #if %(has_plugindef)s
 void Dsp::compute_static(int count%(compute_args)s, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->compute(count%(compute_call_args)s);
+	static_cast<Dsp*>(p)->compute(count%(compute_call_args)s);
 }
-#endif
 
+#endif
 int Dsp::register_par(const ParamReg& reg)
 {
 %(register_body)s\
@@ -807,10 +823,10 @@ int Dsp::register_par(const ParamReg& reg)
 #if %(has_plugindef)s
 int Dsp::register_params_static(const ParamReg& reg)
 {
-    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
-#endif
 
+#endif
 #if %(has_cc_ui)s
 inline int Dsp::load_ui_f(const UiBuilder& b)
 {
@@ -820,40 +836,40 @@ inline int Dsp::load_ui_f(const UiBuilder& b)
 #if %(has_plugindef)s
 int Dsp::load_ui_f_static(const UiBuilder& b)
 {
-    return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
 }
+
 #endif
 #endif
 #if %(has_glade_ui)s
-
 const char *Dsp::glade_def = "\\
 %(glade_ui)s";
 
 int Dsp::load_ui_f(const UiBuilder& b)
 {
-    b.load_glade(glade_def);
-    return 0;
+	b.load_glade(glade_def);
+	return 0;
 }
 
 #if %(has_plugindef)s
 int Dsp::load_ui_f_static(const UiBuilder& b)
 {
-    return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
 }
-#endif
-#endif
 
+#endif
+#endif
 #if %(has_plugindef)s
 PluginDef *plugin() {
-    return new Dsp();
+	return new Dsp();
 }
 
 void Dsp::del_instance(PluginDef *p)
 {
-    delete static_cast<Dsp*>(p);
+	delete static_cast<Dsp*>(p);
 }
-#endif
 
+#endif
 } // end namespace %(namespace)s
 %(end_extra_namespace)s\
 """
@@ -951,16 +967,32 @@ class Output(object):
             return True, s.getvalue(), False, ""
         if ret == 2:
             return False, "", True, s.getvalue()
-        assert(False)
+        assert False, str(ret)
 
-    def write_plugin(self, fp):
+    def dsp_initlist(self, has_plugindef):
+        if has_plugindef:
+            l = ["PluginDef()"]
+        else:
+            l = []
+        if self.has_activate:
+            for v, t, s in self.parser.memlist:
+                l.append("%s(0)" % v)
+            l.append("mem_allocated(false)")
+        if not l:
+            return ""
+        return "\n\t: " + ",\n\t  ".join(l)
+
+    def write_plugin(self, fp, fp_head, h_name):
         if self.options.init_type == "plugin":
             dd = dict(static = "static ", cls = "")
             ds = ""
+            indent = 0
         else:
             dd = dict(static = "", cls = "Dsp::")
             ds = "_static"
+            indent = 1
         plugin_standalone = self.options.template_type in ("staticlib", "sharedlib")
+        has_plugindef = self.options.init_type in ("plugin", "plugin-instance")
         in_namespace = self.options.in_namespace
         compute_args = ("".join([", float *input%d" % i for i in range(self.parser.getNumInputs())])
                         + "".join([", float *output%d" % i for i in range(self.parser.getNumOutputs())]))
@@ -987,18 +1019,21 @@ class Output(object):
             has_standalone_header = plugin_standalone,
             includes = self.parser_sect("includes"),
             namespace = self.parser.modname,
-            var_decl = self.parser_sect("var-decl") % dd,
+            var_decl = self.parser_sect("var-decl", indent=indent) % dd,
             static_decl = static_decl,
             has_activate = self.has_activate,
             state_init = self.state_init,
             has_state = self.state_init != "",
             has_state_no_activate = self.state_init != "" and not self.has_activate,
             init_body = self.parser_sect("var-init", 1, filt=self.parser.ui.var_filter(1)),
+            dsp_initlist = self.dsp_initlist(has_plugindef),
             var_alloc = self.parser_sect("var-alloc", 1),
             var_free = self.parser_sect("var-free", 1),
             compute_args = compute_args,
             compute_call_args = compute_call_args,
+            defines = self.parser_sect("alias-defines", 0),
             compute_body = self.parser_sect("compute", 1),
+            undefines = self.parser_sect("alias-undefines", 0),
             register_body = self.parser_ui("reg."),
             has_cc_ui = has_cc_ui,
             has_glade_ui = has_glade_ui,
@@ -1013,20 +1048,25 @@ class Output(object):
             activate_p = "activate"+ds if self.has_activate else "0",
             load_ui_p = "load_ui_f"+ds if has_cc_ui or has_glade_ui else "0",
             clear_state_p = "clear_state_f"+ds if self.state_init else "0",
-            has_plugindef = self.options.init_type in ("plugin", "plugin-instance"),
+            has_plugindef = has_plugindef,
+            has_separate_header = fp_head is not None,
+            header_name = h_name,
             ))
         s.seek(0)
         depth = 0  # conditional nesting depth
         truelevel = 0  # last depth where all nested conditions where true
+        impl_seen = False
         for lno, l in enumerate(s):
-            if l.startswith("#if "):
+            if l.startswith("#if"):
                 if l.endswith("True\n"):
+                    cond = True
+                elif l.endswith("False\n"):
+                    cond = False
+                else:
+                    assert False, "%d: %s" % (lno+1, l)
+                if l.startswith("#ifnot ") != cond:
                     if truelevel == depth:
                         truelevel += 1
-                elif l.endswith("False\n"):
-                    pass
-                else:
-                    assert(False)
                 depth += 1
                 continue
             elif l == "#else\n":
@@ -1044,14 +1084,20 @@ class Output(object):
                     truelevel -= 1
                 depth -= 1
                 continue
+            if l == "#impl\n":
+                impl_seen = True
+                continue
             if truelevel == depth:
-                fp.write(l)
+                if fp_head and not impl_seen:
+                    fp_head.write(l)
+                else:
+                    fp.write(l)
         if depth:
             raise SystemExit("template EOF: unbalanced #if / #endif")
 
-    def write(self, fp):
+    def write(self, fp, fp_head, h_name):
         if self.options.init_type in ("plugin", "plugin-instance", "no-init-instance"):
-            self.write_plugin(fp)
+            self.write_plugin(fp, fp_head, h_name)
             return
         #FIXME: cleanup when write_plugin can generate code for all types of plugins
         self.write_head(fp)
@@ -1092,7 +1138,9 @@ class Output(object):
             fp.write(", PluginDef *)\n{\n")
         else:
             fp.write(")\n{\n")
+        self.parser.write(fp, "alias-defines", 0)
         self.parser.write(fp, "compute", 1)
+        self.parser.write(fp, "alias-undefines", 0)
         fp.write("\t}\n}\n\n")
         if self.options.init_type == "ctor":
             fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
@@ -1117,9 +1165,11 @@ def main():
     op = OptionParser(usage="usage: %prog [options] <faust-dsp-file>")
     op.add_option("-o", "--output", dest="oname",
                   help="write c++ code to FILE", metavar="FILE")
-    op.add_option("-d", "--double", dest="faust", action="append",
+    op.add_option("-H", "--header-output", dest="hname",
+                  help="write separate c++ header to FILE", metavar="FILE")
+    op.add_option("-d", "--double", dest="faust", action="store_true", default=False,
                   help="additional faust options, build with double precision") 
-    op.add_option("-f", "--float", dest="faustf", action="append",
+    op.add_option("-f", "--float", dest="faustf", action="store_true", default=False,
                   help="additional faust options, build with single precision")
     op.add_option("-s", "--memory-threshold", dest="memory_threshold",
                   default=0, type="int",
@@ -1131,7 +1181,7 @@ def main():
     op.add_option("-t", "--template-type", dest="template_type", action="store",
                   default="embed",
                   help="template for code generation: %s" % ", ".join(template_opts))
-    op.add_option("-N", "--in-namespace", action="store",
+    op.add_option("-N", "--in-namespace", action="store", metavar="NAMESPACE",
                   help="put definitions inside an extra namespace")
     options, args = op.parse_args()
     if options.init_type not in init_opts:
@@ -1160,10 +1210,18 @@ def main():
             print e
         raise SystemExit, 1
     if options.oname:
-        outp = file(options.oname,"w")
+        outp = file(options.oname, "w")
     else:
         outp = sys.stdout
-    Output(parser, fname, options).write(outp)
+    if options.hname:
+        h_outp = file(options.hname, "w")
+        h_name = os.path.basename(options.hname)
+    else:
+        h_outp = h_name = None
+    Output(parser, fname, options).write(outp, h_outp, h_name)
+    outp.close()
+    if h_outp:
+        h_outp.close()
 
 if __name__ == "__main__":
     main()

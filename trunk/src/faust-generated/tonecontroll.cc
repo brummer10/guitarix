@@ -1,103 +1,110 @@
 // generated from file '../src/faust/tonecontroll.dsp' by dsp2cc:
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
+
 namespace tonecontroll {
+
 class Dsp: public PluginDef {
 private:
-int 	iConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fConst3;
-double 	fConst4;
-double 	fConst5;
-double 	fConst6;
-double 	fConst7;
-double 	fConst8;
-double 	fConst9;
-double 	fConst10;
-double 	fConst11;
-double 	fConst12;
-double 	fConst13;
-double 	fConst14;
-double 	fConst15;
-double 	fConst16;
-double 	fConst17;
-double 	fVec0[2];
-double 	fConst18;
-double 	fRec3[2];
-double 	fRec2[3];
-double 	fVec1[2];
-double 	fConst19;
-double 	fConst20;
-double 	fRec1[2];
-double 	fRec0[3];
-double 	fConst21;
-FAUSTFLOAT 	fslider0;
-double 	fRec4[2];
-double 	fRec6[2];
-double 	fRec5[3];
-FAUSTFLOAT 	fslider1;
-double 	fRec7[2];
-double 	fConst22;
-double 	fConst23;
-double 	fConst24;
-double 	fRec10[2];
-double 	fRec9[3];
-double 	fConst25;
-double 	fRec8[3];
-FAUSTFLOAT 	fslider2;
-double 	fRec11[2];
-double 	fConst26;
-double 	fConst27;
-double 	fRec12[2];
-FAUSTFLOAT 	fslider3;
-FAUSTFLOAT 	fcheckbox0;
-double 	fVec2[2];
-double 	fRec16[2];
-double 	fRec15[3];
-double 	fVec3[2];
-double 	fRec14[2];
-double 	fRec13[3];
-double 	fRec18[2];
-double 	fRec17[3];
-double 	fRec21[2];
-double 	fRec20[3];
-double 	fRec19[3];
-double 	fRec22[2];
-    int fSamplingFreq;
-    void clear_state_f();
-    static void clear_state_f_static(PluginDef*);
-    void init(unsigned int samplingFreq);
-    static void init_static(unsigned int samplingFreq, PluginDef*);
-    void compute(int count, float *input0, float *input1, float *output0, float *output1);
-    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
-    int register_par(const ParamReg& reg);
-    static int register_params_static(const ParamReg& reg);
-    static void del_instance(PluginDef *p);
+	int fSamplingFreq;
+	int 	iConst0;
+	double 	fConst1;
+	double 	fConst2;
+	double 	fConst3;
+	double 	fConst4;
+	double 	fConst5;
+	double 	fConst6;
+	double 	fConst7;
+	double 	fConst8;
+	double 	fConst9;
+	double 	fConst10;
+	double 	fConst11;
+	double 	fConst12;
+	double 	fConst13;
+	double 	fConst14;
+	double 	fConst15;
+	double 	fConst16;
+	double 	fConst17;
+	double 	fVec0[2];
+	double 	fConst18;
+	double 	fRec3[2];
+	double 	fRec2[3];
+	double 	fVec1[2];
+	double 	fConst19;
+	double 	fConst20;
+	double 	fRec1[2];
+	double 	fRec0[3];
+	double 	fConst21;
+	FAUSTFLOAT 	fslider0;
+	double 	fRec4[2];
+	double 	fRec6[2];
+	double 	fRec5[3];
+	FAUSTFLOAT 	fslider1;
+	double 	fRec7[2];
+	double 	fConst22;
+	double 	fConst23;
+	double 	fConst24;
+	double 	fRec10[2];
+	double 	fRec9[3];
+	double 	fConst25;
+	double 	fRec8[3];
+	FAUSTFLOAT 	fslider2;
+	double 	fRec11[2];
+	double 	fConst26;
+	double 	fConst27;
+	double 	fRec12[2];
+	FAUSTFLOAT 	fslider3;
+	FAUSTFLOAT 	fcheckbox0;
+	double 	fVec2[2];
+	double 	fRec16[2];
+	double 	fRec15[3];
+	double 	fVec3[2];
+	double 	fRec14[2];
+	double 	fRec13[3];
+	double 	fRec18[2];
+	double 	fRec17[3];
+	double 	fRec21[2];
+	double 	fRec20[3];
+	double 	fRec19[3];
+	double 	fRec22[2];
+	void clear_state_f();
+	void init(unsigned int samplingFreq);
+	void compute(int count, float *input0, float *input1, float *output0, float *output1);
+	int register_par(const ParamReg& reg);
+
+	static void clear_state_f_static(PluginDef*);
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+
 public:
-    Dsp();
-    ~Dsp();
+	Dsp();
+	~Dsp();
 };
 
 
-Dsp::Dsp(): PluginDef() {
-    version = PLUGINDEF_VERSION;
-    flags = 0;
-    id = "tonemodul";
-    name = N_("3 Band EQ");
-    groups = 0;
-    mono_audio = 0;
-    stereo_audio = compute_static;
-    set_samplerate = init_static;
-    activate_plugin = 0;
-    register_params = register_params_static;
-    load_ui = 0;
-    clear_state = clear_state_f_static;
-    delete_instance = del_instance;
+
+Dsp::Dsp()
+	: PluginDef() {
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "tonemodul";
+	name = N_("3 Band EQ");
+	groups = 0;
+	mono_audio = 0;
+	stereo_audio = compute_static;
+	set_samplerate = init_static;
+	activate_plugin = 0;
+	register_params = register_params_static;
+	load_ui = 0;
+	clear_state = clear_state_f_static;
+	delete_instance = del_instance;
 }
 
 Dsp::~Dsp() {
 }
+
 inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) fVec0[i] = 0;
@@ -131,7 +138,7 @@ inline void Dsp::clear_state_f()
 
 void Dsp::clear_state_f_static(PluginDef *p)
 {
-    static_cast<Dsp*>(p)->clear_state_f();
+	static_cast<Dsp*>(p)->clear_state_f();
 }
 
 inline void Dsp::init(unsigned int samplingFreq)
@@ -170,9 +177,8 @@ inline void Dsp::init(unsigned int samplingFreq)
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(samplingFreq);
 }
-
 
 inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
@@ -261,7 +267,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 
 void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
 }
 
 int Dsp::register_par(const ParamReg& reg)
@@ -276,17 +282,16 @@ int Dsp::register_par(const ParamReg& reg)
 
 int Dsp::register_params_static(const ParamReg& reg)
 {
-    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
-
 PluginDef *plugin() {
-    return new Dsp();
+	return new Dsp();
 }
 
 void Dsp::del_instance(PluginDef *p)
 {
-    delete static_cast<Dsp*>(p);
+	delete static_cast<Dsp*>(p);
 }
 
 } // end namespace tonecontroll

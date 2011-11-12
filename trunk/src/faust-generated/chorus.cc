@@ -1,82 +1,91 @@
 // generated from file '../src/faust/chorus.dsp' by dsp2cc:
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
+
 namespace chorus {
+
 class Dsp: public PluginDef {
 private:
-    bool mem_allocated;
-class SIG0 {
-  private:
-	int 	fSamplingFreq;
-	int 	iRec1[2];
-  public:
-	int getNumInputs() 	{ return 0; }
-	int getNumOutputs() 	{ return 1; }
-	void init(int samplingFreq) {
-		fSamplingFreq = samplingFreq;
-		for (int i=0; i<2; i++) iRec1[i] = 0;
-	}
-	void fill (int count, float output[]) {
-		for (int i=0; i<count; i++) {
-			iRec1[0] = (1 + iRec1[1]);
-			output[i] = sinf((9.587379924285257e-05f * (iRec1[0] - 1)));
-			// post processing
-			iRec1[1] = iRec1[0];
+	int fSamplingFreq;
+	class SIG0 {
+	  private:
+		int 	fSamplingFreq;
+		int 	iRec1[2];
+	  public:
+		int getNumInputs() 	{ return 0; }
+		int getNumOutputs() 	{ return 1; }
+		void init(int samplingFreq) {
+			fSamplingFreq = samplingFreq;
+			for (int i=0; i<2; i++) iRec1[i] = 0;
 		}
-	}
-};
-int 	IOTA;
-float *fVec0;
-FAUSTFLOAT 	fslider0;
-int 	iConst0;
-float 	fConst1;
-float 	fRec0[2];
-static float 	ftbl0[65536];
-FAUSTFLOAT 	fslider1;
-FAUSTFLOAT 	fslider2;
-float 	fConst2;
-FAUSTFLOAT 	fslider3;
-float *fVec1;
-    int fSamplingFreq;
-    void clear_state_f();
-    static void clear_state_f_static(PluginDef*);
-    void init(unsigned int samplingFreq);
-    static void init_static(unsigned int samplingFreq, PluginDef*);
-    void mem_alloc();
-    void mem_free();
-    int activate(bool start);
-    static int activate_static(bool start, PluginDef*);
-    void compute(int count, float *input0, float *input1, float *output0, float *output1);
-    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
-    int register_par(const ParamReg& reg);
-    static int register_params_static(const ParamReg& reg);
-    static void del_instance(PluginDef *p);
+		void fill (int count, float output[]) {
+			for (int i=0; i<count; i++) {
+				iRec1[0] = (1 + iRec1[1]);
+				output[i] = sinf((9.587379924285257e-05f * (iRec1[0] - 1)));
+				// post processing
+				iRec1[1] = iRec1[0];
+			}
+		}
+	};
+			int 	IOTA;
+	float *fVec0;
+	FAUSTFLOAT 	fslider0;
+	int 	iConst0;
+	float 	fConst1;
+	float 	fRec0[2];
+	static float 	ftbl0[65536];
+	FAUSTFLOAT 	fslider1;
+	FAUSTFLOAT 	fslider2;
+	float 	fConst2;
+	FAUSTFLOAT 	fslider3;
+	float *fVec1;
+	bool mem_allocated;
+	void mem_alloc();
+	void mem_free();
+	void clear_state_f();
+	int activate(bool start);
+	void init(unsigned int samplingFreq);
+	void compute(int count, float *input0, float *input1, float *output0, float *output1);
+	int register_par(const ParamReg& reg);
+
+	static void clear_state_f_static(PluginDef*);
+	static int activate_static(bool start, PluginDef*);
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+
 public:
-    Dsp();
-    ~Dsp();
+	Dsp();
+	~Dsp();
 };
+
 
 float Dsp::ftbl0[65536];
 
-Dsp::Dsp(): PluginDef() {
-    mem_allocated = false;
-    version = PLUGINDEF_VERSION;
-    flags = 0;
-    id = "chorus";
-    name = N_("Chorus");
-    groups = 0;
-    mono_audio = 0;
-    stereo_audio = compute_static;
-    set_samplerate = init_static;
-    activate_plugin = activate_static;
-    register_params = register_params_static;
-    load_ui = 0;
-    clear_state = clear_state_f_static;
-    delete_instance = del_instance;
+Dsp::Dsp()
+	: PluginDef(),
+	  fVec0(0),
+	  fVec1(0),
+	  mem_allocated(false) {
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "chorus";
+	name = N_("Chorus");
+	groups = 0;
+	mono_audio = 0;
+	stereo_audio = compute_static;
+	set_samplerate = init_static;
+	activate_plugin = activate_static;
+	register_params = register_params_static;
+	load_ui = 0;
+	clear_state = clear_state_f_static;
+	delete_instance = del_instance;
 }
 
 Dsp::~Dsp() {
 }
+
 inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<65536; i++) fVec0[i] = 0;
@@ -86,7 +95,7 @@ inline void Dsp::clear_state_f()
 
 void Dsp::clear_state_f_static(PluginDef *p)
 {
-    static_cast<Dsp*>(p)->clear_state_f();
+	static_cast<Dsp*>(p)->clear_state_f();
 }
 
 inline void Dsp::init(unsigned int samplingFreq)
@@ -103,7 +112,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
 void Dsp::mem_alloc()
@@ -122,20 +131,20 @@ void Dsp::mem_free()
 
 int Dsp::activate(bool start)
 {
-    if (start) {
-        if (!mem_allocated) {
-            mem_alloc();
-            clear_state_f();
-        }
-    } else if (!mem_allocated) {
-        mem_free();
-    }
-    return 0;
+	if (start) {
+		if (!mem_allocated) {
+			mem_alloc();
+			clear_state_f();
+		}
+	} else if (!mem_allocated) {
+		mem_free();
+	}
+	return 0;
 }
 
 int Dsp::activate_static(bool start, PluginDef *p)
 {
-    return static_cast<Dsp*>(p)->activate(start);
+	return static_cast<Dsp*>(p)->activate(start);
 }
 
 inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
@@ -174,7 +183,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 
 void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
 {
-    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
 }
 
 int Dsp::register_par(const ParamReg& reg)
@@ -188,17 +197,16 @@ int Dsp::register_par(const ParamReg& reg)
 
 int Dsp::register_params_static(const ParamReg& reg)
 {
-    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
-
 PluginDef *plugin() {
-    return new Dsp();
+	return new Dsp();
 }
 
 void Dsp::del_instance(PluginDef *p)
 {
-    delete static_cast<Dsp*>(p);
+	delete static_cast<Dsp*>(p);
 }
 
 } // end namespace chorus
