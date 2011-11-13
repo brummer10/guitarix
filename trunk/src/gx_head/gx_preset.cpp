@@ -141,8 +141,7 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
 	    jcset.readJSON(jp, opt.get_IR_pathlist());
         } else if (jp.current_value() == "midi_controller") {
             if (use_midi) {
-                m = new gx_engine::MidiControllerList::controller_array
-		    (gx_engine::MidiControllerList::controller_array_size);
+                m = gx_engine::MidiControllerList::create_controller_array();
                 mctrl.readJSON(jp, param, *m);
                 if (has_midi) {
                     *has_midi = true;
@@ -226,8 +225,7 @@ void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFil
 	} else if (jp.current_value() == "current_preset") {
 	    read_intern(jp, 0, head);
 	} else if (jp.current_value() == "midi_controller") {
-	    m = new gx_engine::MidiControllerList::controller_array
-		(gx_engine::MidiControllerList::controller_array_size);
+	    m = gx_engine::MidiControllerList::create_controller_array();
 	    mctrl.readJSON(jp, param, *m);
 	} else if (jp.current_value() == "midi_ctrl_names") {
 	    midi_std_control.readJSON(jp);

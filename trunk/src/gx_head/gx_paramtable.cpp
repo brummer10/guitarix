@@ -609,17 +609,17 @@ void *FloatParameter::zone() {
     return &value;
 }
 
-void FloatParameter::set(int n, int high, float llimit, float ulimit) {
+void FloatParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Continuous:
         assert(n >= 0 && n <= high);
-        value = llimit + (static_cast<float>(n) / (high)) * (ulimit - llimit);
+        value = llimit + (n / high) * (ulimit - llimit);
         break;
     case Switch:
         value = (2*n > high ? 1.0 : 0.0);
         break;
     case Enum:
-        value = lower + min(static_cast<float>(n), upper-lower);
+        value = lower + min(n, upper-lower);
         break;
     default:
         assert(false);
@@ -712,13 +712,13 @@ void *IntParameter::zone() {
     return &value;
 }
 
-void IntParameter::set(int n, int high, float llimit, float ulimit) {
+void IntParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Continuous:
         assert(false); // not implemented
         break;
     case Switch:
-        value = (2*n > high ? 1065353216 : 0); // FIXME float/int problem
+	assert(false); // not implemented
         break;
     case Enum:
         assert(false); // not implemented
@@ -804,13 +804,13 @@ void *UIntParameter::zone() {
     return &value;
 }
 
-void UIntParameter::set(int n, int high, float llimit, float ulimit) {
+void UIntParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Continuous:
         assert(false); // not implemented
         break;
     case Switch:
-        value = (2*n > high ? 65535 : 0); // FIXME float/int problem
+	assert(false); // not implemented
         break;
     case Enum:
         assert(false); // not implemented
@@ -897,7 +897,7 @@ void *BoolParameter::zone() {
     return &value;
 }
 
-void BoolParameter::set(int n, int high, float llimit, float ulimit) {
+void BoolParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Switch:
         value = (2*n > high);
@@ -943,7 +943,7 @@ void SwitchParameter::set_std_value() {
     set(std_value);
 }
 
-void SwitchParameter::set(int n, int high, float llimit, float ulimit) {
+void SwitchParameter::set(float n, float high, float llimit, float ulimit) {
     assert(false);
 }
 
@@ -1001,7 +1001,7 @@ void *FileParameter::zone() {
     return &value;
 }
 
-void FileParameter::set(int n, int high, float llimit, float ulimit) {
+void FileParameter::set(float n, float high, float llimit, float ulimit) {
     assert(false);
 }
 
@@ -1065,7 +1065,7 @@ void *StringParameter::zone() {
     return &value;
 }
 
-void StringParameter::set(int n, int high, float llimit, float ulimit) {
+void StringParameter::set(float n, float high, float llimit, float ulimit) {
     assert(false);
 }
 

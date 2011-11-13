@@ -670,7 +670,9 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
     load_static_plugins();
 
     // loaded from shared libs
-    pluginlist.load_from_path(plugin_dir, PLUGIN_POS_RACK);
+    if (!plugin_dir.empty()) {
+	pluginlist.load_from_path(plugin_dir, PLUGIN_POS_RACK);
+    }
 
     // selector objects to switch "alternative" modules
     add_selector(ampstack);

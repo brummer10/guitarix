@@ -150,7 +150,7 @@ class Parameter {
     bool operator==(const Parameter& p) const { return &p == this; }
     virtual void *zone() = 0;
     virtual void set_std_value() = 0;
-    virtual void set(int n, int high, float llimit, float ulimit) = 0;
+    virtual void set(float n, float high, float llimit, float ulimit) = 0;
     virtual void writeJSON(gx_system::JsonWriter& jw) = 0;
     virtual void readJSON_value(gx_system::JsonParser& jp) = 0;
     virtual void setJSON_value() = 0;
@@ -198,7 +198,7 @@ public:
     void convert_from_range(float low, float up);
     virtual void *zone();
     virtual void set_std_value();
-    virtual void set(int n, int high, float llimit, float ulimit);
+    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual void setJSON_value();
@@ -243,7 +243,7 @@ class ParameterV<int>: public Parameter {
     void set(int val) const { value = min(max(val, lower), upper); }
     virtual void *zone();
     virtual void set_std_value();
-    virtual void set(int n, int high, float llimit, float ulimit);
+    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual void setJSON_value();
@@ -283,7 +283,7 @@ class ParameterV<unsigned int>: public Parameter {
     void set(unsigned int val) const { value = min(max(val, lower), upper); }
     virtual void *zone();
     virtual void set_std_value();
-    virtual void set(int n, int high, float llimit, float ulimit);
+    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual void setJSON_value();
@@ -323,7 +323,7 @@ class ParameterV<bool>: public Parameter {
     void set(bool val) const { value = val; }
     virtual void *zone();
     virtual void set_std_value();
-    virtual void set(int n, int high, float llimit, float ulimit);
+    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
@@ -348,7 +348,7 @@ class SwitchParameter: public Parameter {
     bool get() const { return value; }
     virtual void *zone();
     virtual void set_std_value();
-    virtual void set(int n, int high, float llimit, float ulimit);
+    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual void setJSON_value();
@@ -372,7 +372,7 @@ class FileParameter: public Parameter {
     const Glib::RefPtr<Gio::File>& get() const { return value; }
     virtual void *zone();
     virtual void set_std_value();
-    virtual void set(int n, int high, float llimit, float ulimit);
+    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual void setJSON_value();
@@ -406,7 +406,7 @@ class ParameterV<string>: public Parameter {
     void set(string val) const { value = val; }
     virtual void *zone();
     virtual void set_std_value();
-    virtual void set(int n, int high, float llimit, float ulimit);
+    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
@@ -591,6 +591,7 @@ class MidiController {
     Parameter& getParameter() const { return param; }
     static MidiController* readJSON(gx_system::JsonParser&, ParamMap& param);
     void set(int n) { param.set(n, 127, _lower, _upper); }
+    void set(float v, float high) { param.set(v, high, _lower, _upper); }
     void writeJSON(gx_system::JsonWriter& jw) const;
 };
 
@@ -629,7 +630,9 @@ class MidiControllerList {
     void modifyCurrent(Parameter& param, float lower, float upper);
     int param2controller(Parameter& param, const MidiController** p);
     void writeJSON(gx_system::JsonWriter& jw);
-    void readJSON(gx_system::JsonParser& jp, ParamMap& param, controller_array& m);
+    static void readJSON(gx_system::JsonParser& jp, ParamMap& param, controller_array& m);
+    static controller_array* create_controller_array() {
+	return new controller_array(controller_array_size); }
     void set_controller_array(const controller_array& m);
     void remove_controlled_parameters(paramlist& plist, const controller_array *m);
     sigc::signal<void>& signal_changed() { return changed; }
