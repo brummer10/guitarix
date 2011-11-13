@@ -3,16 +3,28 @@ function compile() {
   rm -f "$2".so
   faust -a pythonmodule.cpp -o faustwrap.cpp "$1"
   cython --cplus "$2".pyx
-  inc="-I../src/gx_head -I../src/headers"
-  g++ -shared -fno-strict-aliasing -fwrapv -O2 -Wall -fPIC $inc -I/usr/include/python2.7 -lrt "$2".cpp -o "$2".so
+  inc="-I../src/gx_head -I../src/headers -I/usr/include/python2.7"
+  opt="-fno-strict-aliasing -fwrapv -O2 -shared -fPIC"
+  opt="$opt -Wall -Wno-unused-but-set-variable -Wno-unused-function"
+  g++ $opt $inc "$2".cpp -o "$2".so -lrt
   rm -f faustwrap.cpp $2.cpp
+  echo "created $2.so"
 }
 
-[ "$1" = "" ] && { echo "usage: $0 <dsp-file>"; exit 1; }
+[ "$1" = "" ] && {
+  echo "usage: ./build-module <dsp-file> [<module-name>]"
+  exit 1
+}
+[ "$(dirname "$0")" != "." ] && {
+  echo 'error: please make "tools" your working directory'
+  exit 1
+}
 if [ "$2" = "" ]; then
-  bname=faustmod
-else
   bname="$(basename "$1" .dsp)"
+else
+  bname="$2"
+fi
+if [ "$bname" != faustmod ]; then
   trap 'rm -f "$bname".pyx' EXIT
   ln -s faustmod.pyx "$bname".pyx
 fi

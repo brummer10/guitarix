@@ -52,7 +52,8 @@ Files in this directory:
 
 Emacs support:
 
-File ".dirlocals.el" in the trunk root:
+File ".dirlocals.el" in the trunk root (replace "~/guitarix/trunk"
+with your path to guitarix svn trunk):
 ----------------------------------
 ;;; Directory Local Variables
 ;;; See Info node `(emacs) Directory Variables' for more information.

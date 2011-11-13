@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+""" faust dsp component wrapped in a python class
+"""
 import numpy as np
 cimport numpy as np
 from cython.operator cimport dereference as deref, preincrement as inc
@@ -75,6 +77,26 @@ cdef inline double ts_diff(timespec ts1, timespec ts2):
     return df * 1e9 + (ts1.tv_nsec - ts2.tv_nsec)
 
 cdef class dsp(object):
+    """python class wrapping a faust component
+
+    use keys() to list parameter names
+
+    use get_range to query the allowed parameter range
+
+    use parameter names as index to get/set the value
+        parameters are initialized with their default value
+
+    use num_inputs / num_outputs to find out about channel cound
+
+    use init to set the sampling rate (don't forget!)
+
+    use compute to run the dsp algorithm
+
+    use property default_size to set the output size of compute
+        or call with an array with requested size
+
+    use nanosec_per_sample to get the last execution time
+    """
     cdef mydsp *Cdsp
     cdef CMDUI *interface
     cdef dict Cparameter
@@ -100,19 +122,24 @@ cdef class dsp(object):
         del self.interface
 
     property nanosec_per_sample:
+        "time in nanoseconds measured for last compute call"
         def __get__(self):
             return self.time_per_sample
 
     property default_size:
+        "default output size of compute call without arguments"
         def __get__(self):
             return self.defsize
         def __set__(self, int n):
             self.defsize = n
 
     def keys(self):
+        "returns list of dsp parameter names"
         return self.Cparameter.keys()
 
     def get_range(self, key):
+        """argument: parameter name
+        returns: allowed range tuple (lower, upper)"""
         return self.Cparameter[key]
 
     def __getitem__(self, char* pname):
@@ -132,17 +159,33 @@ cdef class dsp(object):
         deref(p).second.fZone[0] = pval
 
     property num_inputs:
+        "number of input channels"
         def __get__(self):
             return self.Cdsp.getNumInputs()
 
     property num_outputs:
+        "number of output channels"
         def __get__(self):
             return self.Cdsp.getNumOutputs()
 
     def init(self, int samplingRate):
+        """argument: sample rate
+        must be called before calling compute"""
         self.Cdsp.init(samplingRate)
 
     def compute(self, np.ndarray inp = None):
+        """execute dsp algorithm
+
+        argument: 2-dim float32 numpy array with at least num_inputs rows
+        returns: numpy float32 array with num_outputs rows
+
+        when num_inputs == 0 the output will be size default_size (can be set)
+        or call with an array of requested size
+
+        when num_inputs == 1 you can use a 1-dim array
+
+        specify type when creating an array, e.g. zeros(200, dtype=float32)
+        """
         cdef int ni = self.Cdsp.getNumInputs()
         cdef int count
         if ni == 0 and inp is None:

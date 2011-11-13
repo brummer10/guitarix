@@ -2,7 +2,9 @@
 [ "$1" = "" ] && { echo "usage: freq-plot <faust dsp file> {options}"; exit 1; }
 [ -r "$1" ] || { echo "can't read input file $1"; exit 1; }
 set -e
-inp="$1"
+dir="$(dirname "$1")"
+inp="$(basename "$1")"
+cd "$dir"
 shift
 tmpdir=/tmp/freq-plot.$$
 trap "rm -rf $tmpdir" EXIT
