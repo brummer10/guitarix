@@ -196,6 +196,16 @@ void ProcessingChainBase::release() {
     to_release.clear();
 }
 
+#ifndef NDEBUG
+void ProcessingChainBase::print_chain_state(const char *title) {
+    int val;
+    sem_getvalue(&sync_sem, &val);
+    printf("%s latch = %d, sync_sem = %d, stopped = %d, ramp_mode = %d\n",
+	   title, latch, val, stopped, ramp_mode);
+}
+#endif
+
+
 /****************************************************************
  ** MonoModuleChain, StereoModuleChain
  */
@@ -529,6 +539,14 @@ void ModuleSequencer::set_state(GxEngineState state) {
     audio_mode = newmode;
     set_rack_changed();
 }
+
+#ifndef NDEBUG
+void ModuleSequencer::print_engine_state() {
+    printf("stateflags = %d, audio_mode = %d\n", stateflags, audio_mode);
+    mono_chain.print_chain_state("mono  :");
+    stereo_chain.print_chain_state("stereo:");
+}
+#endif
 
 GxEngineState ModuleSequencer::get_state() {
     if (audio_mode & PGN_MODE_NORMAL) {

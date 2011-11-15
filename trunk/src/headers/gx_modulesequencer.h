@@ -103,7 +103,10 @@ public:
     void start_ramp_up();
     void start_ramp_down();
     inline void set_down_dead() { set_ramp_mode(ramp_mode_down_dead); }
-    inline void set_stopped(bool v);
+    void set_stopped(bool v);
+#ifndef NDEBUG
+    void print_chain_state(const char *title);
+#endif
 };
 
 
@@ -340,6 +343,9 @@ public:
     void set_state(GxEngineState state);
     GxEngineState get_state();
     void registerParameter(ParamMap& param, ParameterGroups& groups);
+#ifndef NDEBUG
+    void print_engine_state();
+#endif
 };
 
 } /* end of gx_engine namespace */

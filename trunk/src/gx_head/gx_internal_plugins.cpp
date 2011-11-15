@@ -535,7 +535,7 @@ void ConvolverAdapter::change_buffersize(unsigned int size) {
 }
 
 void ConvolverAdapter::restart() {
-    if (!*GxJConvSettings::checkbutton7) {
+    if (!plugin.on_off) {
         return;
     }
     conv.stop();
@@ -554,7 +554,7 @@ void ConvolverAdapter::restart() {
     int policy, priority;
     engine.get_sched_priority(policy, priority);
     if (!rc || !conv.start(policy, priority)) {
-        *GxJConvSettings::checkbutton7 = 0;
+        plugin.on_off = false;
     }
 }
 
@@ -562,7 +562,7 @@ bool ConvolverAdapter::conv_start() {
     string path = jcset.getFullIRPath();
     if (path.empty()) {
         gx_system::gx_print_warning(_("convolver"), _("no impulseresponse file"));
-        *GxJConvSettings::checkbutton7 = 0;
+        plugin.on_off = false;
         return false;
     }
     while (!conv.checkstate());
@@ -592,7 +592,7 @@ void ConvolverAdapter::convolver(int count, float *input0, float *input1,
         float conv_out0[count];
         float conv_out1[count];
         if (!self.conv.compute(count, output0, output1, conv_out0, conv_out1)) {
-            *GxJConvSettings::checkbutton7 = 0;
+            self.plugin.on_off = false;
 	    gx_system::gx_print_error("Convolver", "overload");
         } else {
             self.jc_post.compute(count, output0, output1,

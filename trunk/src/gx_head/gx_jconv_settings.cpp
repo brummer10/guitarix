@@ -587,8 +587,8 @@ void IRWindow::set_favorite_from_menu(Glib::ustring fname) {
     new_file(fname);
     bool gain_cor = convolver.jcset.getGainCor();
     convolver.jcset.setGainCor(gain_cor);
-    if (!*gx_engine::GxJConvSettings::checkbutton7) {
-        *gx_engine::GxJConvSettings::checkbutton7 = 1;
+    if (!convolver.plugin.on_off) {
+        convolver.plugin.on_off = true;
         return;
     }
     save_state();
@@ -601,8 +601,8 @@ void IRWindow::set_favorite_from_menu_in(Glib::ustring fname) {
     convolver.jcset.setFullIRPath(fname);
     new_file(fname);
     g_idle_add(enumerate, NULL);
-    if (!*gx_engine::GxJConvSettings::checkbutton7) {
-        *gx_engine::GxJConvSettings::checkbutton7 = 1;
+    if (!convolver.plugin.on_off) {
+        convolver.plugin.on_off = true;
         return;
     }
     save_state();
@@ -841,8 +841,8 @@ void IRWindow::on_ms_length_changed() {
 }
 
 void IRWindow::on_apply_button_clicked() {
-    if (!*gx_engine::GxJConvSettings::checkbutton7) {
-        *gx_engine::GxJConvSettings::checkbutton7 = 1;
+    if (!convolver.plugin.on_off) {
+        convolver.plugin.on_off = true;
         return;
     }
     if (save_state()) {

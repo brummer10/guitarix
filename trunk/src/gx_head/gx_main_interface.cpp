@@ -1849,7 +1849,7 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat {
                                       ( g_list_nth_data(child_list, 2));
 		    gx_engine::GxJConvSettings& jcset = GxMainInterface::get_instance().engine.convolver.jcset;
 
-                    if (*gx_engine::GxJConvSettings::checkbutton7 == 1) {
+                    if (*gx_engine::GxJConvSettings::checkbutton7) {
                         snprintf(s, sizeof(s), _("convolve %s"), jcset.getIRFile().c_str());
                         gtk_label_set_text(GTK_LABEL(pchild), s);
                     } else {

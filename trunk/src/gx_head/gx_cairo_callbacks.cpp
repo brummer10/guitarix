@@ -268,7 +268,7 @@ gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
 	cairo_pattern_t*pat = cairo_pattern_create_linear (x0, y0+50,x0, y0);
     cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
-    if(*gx_engine::GxJConvSettings::checkbutton7 == 1) {
+    if(*gx_engine::GxJConvSettings::checkbutton7) {
         cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0.8, 0, 0.8);
         cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.8, 0.05, 0.6);
         cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0.8, 0.2, 0.4);

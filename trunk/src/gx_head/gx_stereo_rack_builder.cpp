@@ -576,7 +576,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                                     addJConvButton(_("setup"), &gx_engine::audio.filebutton);
                                     
                                     addJToggleButton(_("run"),
-                                                         gx_engine::GxJConvSettings::checkbutton7);
+						     &engine.convolver.plugin.on_off);
                                     openSpaceBox("");
                                     closeBox();
                                 }
