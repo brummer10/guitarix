@@ -153,7 +153,7 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 	    do {
 		jp.next(gx_system::JsonParser::value_key);
 		if (!param.hasId(jp.current_value())) {
-#if 1   // lots of warnings
+#if 0   // lots of warnings
 		    gx_system::gx_print_warning(
 			_("recall settings"),
 			_("unknown parameter: ")+jp.current_value());
@@ -354,6 +354,7 @@ protected:
     ControlParameter& control_parameter;
     LadspaSettings settings;
     void check_preset();
+    int get_buffersize_from_port();
     bool prepare_run(unsigned long sz, int *bufsz);
     void activate(int *policy, int *prio);
     void load(int num) { settings.load(num); }
@@ -396,19 +397,27 @@ void LadspaGuitarix::check_preset() {
     PresetLoader::preset_change();
 }
 
+int LadspaGuitarix::get_buffersize_from_port() {
+    if (!buffersize_port) {
+	return 0;
+    }
+    int sz = round(*buffersize_port);
+    if (sz <= 0) {
+	return 0;
+    }
+    sz = 1 << g_bit_storage(sz-1);
+    sz = min(max(sz, static_cast<int>(Convproc::MINQUANT)),
+	     static_cast<int>(Convproc::MAXQUANT));
+    return sz;
+}
+
 bool LadspaGuitarix::prepare_run(unsigned long SampleCount, int *bufsz) {
     pthread_t tid = pthread_self();
     if (!pthread_equal(tid, last_thread_id)) {
 	last_thread_id = tid;
 	AVOIDDENORMALS;
     }
-    int bufsize = *buffersize_port;
-    if (bufsize <= 0) {
-	bufsize = 0;
-    } else {
-	bufsize = min(max(bufsize, static_cast<int>(Convproc::MINQUANT)),
-		      static_cast<int>(Convproc::MAXQUANT));
-    }
+    int bufsize = get_buffersize_from_port();
     bool ret = false;
     if (bufsize > 0) {
 	if (bufsize != buffersize) {
@@ -438,16 +447,7 @@ void LadspaGuitarix::activate(int *policy, int *prio) {
 	*policy = SCHED_OTHER;
 	*prio = 0;
     }
-    buffersize = 0;
-    if (buffersize_port) {
-	buffersize = *buffersize_port;
-	if (buffersize <= 0) {
-	    buffersize = 0;
-	} else {
-	    buffersize = min(max(buffersize, static_cast<int>(Convproc::MINQUANT)),
-			     static_cast<int>(Convproc::MAXQUANT));
-	}
-    }
+    buffersize = get_buffersize_from_port();
     if (preset_num != next_preset_num) {
 	preset_num = next_preset_num;
 	load(preset_num);
@@ -461,7 +461,7 @@ LadspaGuitarix::PresetLoader *LadspaGuitarix::PresetLoader::instance = 0;
 LadspaGuitarix::PresetLoader::PresetLoader()
     : ladspa_instances(),
       instance_mutex(),
-      mainloop(Glib::MainLoop::create()),
+      mainloop(Glib::MainLoop::create(Glib::MainContext::create())),
       new_preset() {
 }
 
@@ -563,6 +563,7 @@ public:
     virtual void set_samplerate(unsigned int samplerate);
     bool prepare_module_lists();
     void commit_module_lists();
+    void set_buffersize(int n) { printf("BZ: %d\n", n); EngineControl::set_buffersize(n); }
 };
 
 void MonoEngine::wait_ramp_down_finished() {
@@ -780,13 +781,6 @@ void MonoEngine::load_static_plugins() {
 
 
 /****************************************************************
- ** class ReBuffer
- */
-
-
-
-
-/****************************************************************
  ** class LadspaGuitarixMono
  */
 
@@ -879,14 +873,12 @@ const LADSPA_Descriptor *LadspaGuitarixMono::ladspa_descriptor() {
 }
 
 void LadspaGuitarixMono::activateGuitarix(LADSPA_Handle Instance) {
-    printf("MAs\n");
     LadspaGuitarixMono& self = *static_cast<LadspaGuitarixMono*>(Instance);
     int policy, prio;
     self.activate(&policy, &prio);
     self.engine.init(self.SampleRate, self.buffersize, policy, prio);
     self.engine.mono_chain.set_stopped(false);
     self.engine.mono_chain.start_ramp_up();
-    printf("MAe\n");
 }
 
 void LadspaGuitarixMono::runGuitarix(LADSPA_Handle Instance, unsigned long SampleCount) {
@@ -1041,7 +1033,7 @@ LadspaGuitarixMono::LADSPA::LADSPA()
 	LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE |
 	LADSPA_HINT_INTEGER | LADSPA_HINT_DEFAULT_0;
     prangehint[GUITARIX_PRESET].LowerBound = 0;
-    prangehint[GUITARIX_PRESET].LowerBound = 99;
+    prangehint[GUITARIX_PRESET].UpperBound = 99;
 
     pdesc[GUITARIX_BUFFERSIZE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
     pnames[GUITARIX_BUFFERSIZE] = "Buffersize";
@@ -1545,7 +1537,7 @@ LadspaGuitarixStereo::LADSPA::LADSPA()
 	LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE |
 	LADSPA_HINT_INTEGER | LADSPA_HINT_DEFAULT_0;
     prangehint[GUITARIX_PRESET].LowerBound = 0;
-    prangehint[GUITARIX_PRESET].LowerBound = 99;
+    prangehint[GUITARIX_PRESET].UpperBound = 99;
 
     pdesc[GUITARIX_BUFFERSIZE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
     pnames[GUITARIX_BUFFERSIZE] = "Buffersize";
