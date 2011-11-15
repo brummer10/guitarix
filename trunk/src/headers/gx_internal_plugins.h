@@ -299,7 +299,7 @@ class ConvolverAdapter: PluginDef {
 private:
     GxConvolver conv;
     boost::mutex activate_mutex;
-    ModuleSequencer& engine;
+    EngineControl& engine;
     bool activated;
     jconv_post::Dsp jc_post;
     // wrapper for the rack order function pointers
@@ -313,12 +313,13 @@ public:
     Plugin plugin;
     GxJConvSettings jcset;
 public:
-    ConvolverAdapter(ModuleSequencer& engine);
+    ConvolverAdapter(EngineControl& engine);
     ~ConvolverAdapter();
     void restart();
     bool conv_start();
     inline sigc::signal<void>& signal_file_changed() { return jcset.signal_file_changed(); }
     inline const string& getIRFile() const { return jcset.getIRFile(); }
+    inline void set_sync(bool val) { conv.set_sync(val); }
 };
 
 
@@ -331,7 +332,7 @@ class BaseConvolver: protected PluginDef {
 protected:
     GxSimpleConvolver conv;
     boost::mutex activate_mutex;
-    ModuleSequencer& engine;
+    EngineControl& engine;
     bool activated;
     static void init(unsigned int samplingFreq, PluginDef *p);
     static int activate(bool start, PluginDef *pdef);
@@ -342,10 +343,11 @@ protected:
 public:
     Plugin plugin;
 public:
-    BaseConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp);
+    BaseConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp);
     virtual ~BaseConvolver();
     virtual bool start(bool force = false) = 0;
     inline void conv_stop() { conv.stop(); }
+    inline void set_sync(bool val) { conv.set_sync(val); }
 };
 
 /****************************************************************
@@ -367,7 +369,7 @@ private:
     static int register_cab(const ParamReg& reg);
     bool update();
 public:
-    CabinetConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp);
+    CabinetConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp);
     ~CabinetConvolver();
     bool start(bool force = false);
     bool cabinet_changed() { return current_cab != cabinet; }
@@ -393,7 +395,7 @@ private:
     static int register_con(const ParamReg& reg);
     inline void update_sum() { sum = level; }
 public:
-    ContrastConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp);
+    ContrastConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp);
     ~ContrastConvolver();
     inline bool sum_changed() { return abs(sum - level) > 0.01; }
     bool start(bool force = false);

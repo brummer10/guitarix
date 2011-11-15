@@ -31,177 +31,6 @@
 namespace gx_engine {
 
 /****************************************************************
- ** MonoMute, StereoMute, MaxLevel
- */
-
-MonoMute::MonoMute()
-    : PluginDef() {
-    version = PLUGINDEF_VERSION;
-    id = "monomute";
-    name = "?monomute";
-    mono_audio = process;
-}
-
-void MonoMute::process(int count, float *input, float *output, PluginDef*) {
-    (void)memset(output, 0, count*sizeof(float));
-}
-
-StereoMute::StereoMute()
-    : PluginDef() {
-    version = PLUGINDEF_VERSION;
-    id = "stereomute";
-    name = "?stereomute";
-    stereo_audio = process;
-}
-
-void StereoMute::process(int count, float *input0, float *input1,
-			 float *output0, float *output1, PluginDef*) {
-    (void)memset(output0, 0, count*sizeof(float));
-    (void)memset(output1, 0, count*sizeof(float));
-}
-
-MaxLevel::MaxLevel()
-    : PluginDef() {
-    version = PLUGINDEF_VERSION;
-    flags = PGN_SNOOP;
-    id = "maxlevel";
-    name = "?maxlevel";
-    stereo_audio = process;
-    activate_plugin = activate;
-}
-
-float MaxLevel::maxlevel[2] = {0};
-
-void MaxLevel::process(int count, float *input1, float *input2, float*, float*, PluginDef*) {
-    const float *data[2] = {input1, input2};
-    for (int c = 0; c < 2; c++) {
-        float level = 0;
-        for (int i = 0; i < count; i++) {
-            float t = abs(data[c][i]);
-            if (level < t) {
-                level = t;
-            }
-        }
-        maxlevel[c] = max(maxlevel[c], level);
-    }
-}
-
-int MaxLevel::activate(bool start, PluginDef *plugin) {
-    if (!start) {
-	reset();
-    }
-    return 0;
-}
-
-
-/****************************************************************
- ** class TunerAdapter
- */
-
-TunerAdapter::TunerAdapter(ModuleSequencer& engine_)
-    : ModuleSelector(engine_),
-      PluginDef(),
-      pitch_tracker(),
-      state(),
-      engine(engine_),
-      dep_plugin(),
-      plugin() {
-    version = PLUGINDEF_VERSION;
-    flags = PGN_SNOOP;
-    id = "tuner";
-    name = "?tuner";
-    mono_audio = feed_tuner;
-    set_samplerate = init;
-    register_params = regparam;
-    plugin.pdef = this;
-}
-
-void TunerAdapter::init(unsigned int samplingFreq, PluginDef *plugin) {
-    TunerAdapter& self = *static_cast<TunerAdapter*>(plugin);
-    int priority, policy;
-    // zita-convoler uses 5 levels, so substract 6
-    self.engine.get_sched_priority(policy, priority, 6);
-    self.pitch_tracker.init(policy, priority, samplingFreq);
-}
-
-void TunerAdapter::set_and_check(int use, bool on) {
-    if (on) {
-	state |= use;
-    } else {
-	state &= ~use;
-    }
-    plugin.on_off = state;
-}
-
-void TunerAdapter::feed_tuner(int count, float* input, float*, PluginDef* plugin) {
-    static_cast<TunerAdapter*>(plugin)->pitch_tracker.add(count, input);
-}
-
-int TunerAdapter::regparam(const ParamReg& reg) {
-    static_cast<TunerAdapter*>(reg.plugin)->plugin.on_off = false;
-    return 0;
-}
-
-void TunerAdapter::set_module() {
-    used_by_midi(dep_plugin->on_off);
-}
-
-
-/****************************************************************
- ** class MidiAudioBuffer
- */
-
-static const char *midi_out_groups[] = {
-	"channel_1", N_("Midi Out 1"), 
-	"channel_2", N_("Midi Out 2"),
-	"channel_3", N_("Midi Out 3"),
-	".beat_detector",      N_("Beat Detector"),
-	0
-    };
-
-MidiAudioBuffer::MidiAudioBuffer(TunerAdapter& t)
-    : PluginDef(),
-      midi(),
-      tuner(t),
-      jack(0),
-      plugin() {
-    version = PLUGINDEF_VERSION;
-    flags = PGN_SNOOP;
-    id = "midi_out";
-    name = N_("Midi Out");
-    groups = midi_out_groups;
-    mono_audio = fill_buffer;
-    set_samplerate = init;
-    register_params = regparam;
-    plugin.pdef = this;
-}
-
-void MidiAudioBuffer::fill_buffer(int count, float *input, float*,
-				  PluginDef *plugin) {
-    MidiAudioBuffer& self = *static_cast<MidiAudioBuffer*>(plugin);
-    if (!self.jack) {
-	return;
-    }
-    void *buf = self.jack->get_midi_buffer(count);
-    if (buf) {
-	self.midi.process_midi(count, input, buf, self.jack->get_jcpu_load(),
-			       self.tuner.get_freq(), self.tuner.get_note());
-    }
-}
-
-void MidiAudioBuffer::init(unsigned int samplingFreq, PluginDef *plugin) {
-    MidiAudioBuffer& self = *static_cast<MidiAudioBuffer*>(plugin);
-    self.midi.init(samplingFreq);
-}
-
-int MidiAudioBuffer::regparam(const ParamReg& reg) {
-    MidiAudioBuffer& self = *static_cast<MidiAudioBuffer*>(reg.plugin);
-    self.midi.register_parameter(reg);
-    return 0;
-}
-
-
-/****************************************************************
  **  class NoiseGate
  */
 
@@ -267,60 +96,6 @@ int NoiseGate::outputgate_activate(bool start, PluginDef *pdef) {
 	off = !inputlevel.on_off;
     }
     return 0;
-}
-
-
-/****************************************************************
- ** class OscilloscopeAdapter
- */
-
-OscilloscopeAdapter::OscilloscopeAdapter(
-    gx_ui::GxUI *ui, ModuleSequencer& engine)
-    : PluginDef(),
-      plugin(),
-      activation(),
-      size_change(),
-      post_pre_signal(ui, &plugin.effect_post_pre),
-      visible(ui, &plugin.box_visible)
-{
-    assert(buffer == 0);
-    version = PLUGINDEF_VERSION;
-    flags = PGN_SNOOP;
-    id = "oscilloscope";
-    name = N_("Oscilloscope");
-    mono_audio = fill_buffer;
-    activate_plugin = activate;
-    plugin.pdef = this;
-    engine.buffersize_change.connect(
-	sigc::mem_fun(*this, &OscilloscopeAdapter::change_buffersize));
-}
-
-void OscilloscopeAdapter::change_buffersize(unsigned int size_) {
-    //FIXME waveview display needs mutex
-    size_change(0);
-    float *b = buffer;
-    buffer = new float[size_];
-    size = size_;
-    clear_buffer();
-    size_change(size_);
-    delete b;
-}
-
-float* OscilloscopeAdapter::buffer = 0;
-unsigned int OscilloscopeAdapter::size = 0;
-
-// rt process function
-void OscilloscopeAdapter::fill_buffer(int count, float *input0, float *output0, PluginDef*) {
-    assert(count == static_cast<int>(size));
-    (void)memcpy(buffer, output0, sizeof(float)*count);
-}
-
-int OscilloscopeAdapter::activate(bool start, PluginDef *plugin) {
-    return static_cast<OscilloscopeAdapter*>(plugin)->activation(start);
-}
-
-void OscilloscopeAdapter::clear_buffer() {
-    memset(buffer, 0, size*sizeof(float));
 }
 
 
@@ -494,7 +269,7 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
 
 #include "faust/jconv_post.cc"
 
-ConvolverAdapter::ConvolverAdapter(ModuleSequencer& engine_)
+ConvolverAdapter::ConvolverAdapter(EngineControl& engine_)
     : PluginDef(),
       conv(),
       activate_mutex(),
@@ -512,7 +287,7 @@ ConvolverAdapter::ConvolverAdapter(ModuleSequencer& engine_)
     register_params = convolver_register;
     //FIXME: add clear_state
     plugin = this;
-    engine.buffersize_change.connect(
+    engine.signal_buffersize_change().connect(
 	sigc::mem_fun(*this, &ConvolverAdapter::change_buffersize));
     GxJConvSettings::checkbutton7 = &plugin.on_off;
 }
@@ -649,7 +424,7 @@ int ConvolverAdapter::activate(bool start, PluginDef *p) {
  */
 
 
-BaseConvolver::BaseConvolver(ModuleSequencer& engine_, gx_resample::BufferResampler& resamp)
+BaseConvolver::BaseConvolver(EngineControl& engine_, gx_resample::BufferResampler& resamp)
     : PluginDef(),
       conv(resamp),
       activate_mutex(),
@@ -660,7 +435,7 @@ BaseConvolver::BaseConvolver(ModuleSequencer& engine_, gx_resample::BufferResamp
     set_samplerate = init;
     activate_plugin = activate;
     plugin = this;
-    engine.buffersize_change.connect(
+    engine.signal_buffersize_change().connect(
 	sigc::mem_fun(*this, &BaseConvolver::change_buffersize));
 }
 
@@ -761,7 +536,7 @@ static const float no_sum = 1e10;
 
 #include "faust/cabinet_impulse_former.cc"
 
-CabinetConvolver::CabinetConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp):
+CabinetConvolver::CabinetConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp):
     BaseConvolver(engine, resamp),
     current_cab(-1),
     level(0),
@@ -866,7 +641,7 @@ int CabinetConvolver::register_cab(const ParamReg& reg) {
 
 #include "faust/presence_level.cc"
 
-ContrastConvolver::ContrastConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp):
+ContrastConvolver::ContrastConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp):
     BaseConvolver(engine, resamp),
     level(0),
     sum(no_sum),

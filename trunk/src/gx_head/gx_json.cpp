@@ -840,7 +840,7 @@ bool PresetFile::rename(const string& name, string newname) {
 AbstractStateIO::~AbstractStateIO() {}
 AbstractPresetIO::~AbstractPresetIO() {}
 
-GxSettingsBase::GxSettingsBase(gx_engine::ModuleSequencer& seq_)
+GxSettingsBase::GxSettingsBase(gx_engine::EngineControl& seq_)
     : state_io(),
       preset_io(),
       statefile(),

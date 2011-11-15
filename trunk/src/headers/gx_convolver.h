@@ -94,23 +94,25 @@ private:
 class GxConvolverBase: protected Convproc {
 protected:
     volatile bool ready;
+    bool sync;
     void adjust_values(unsigned int audio_size, unsigned int& count, unsigned int& offset,
                        unsigned int& delay, unsigned int& ldelay, unsigned int& length,
                        unsigned int& size, unsigned int& bufsize);
     unsigned int buffersize;
     unsigned int samplerate;
-    GxConvolverBase(): ready(false), buffersize(), samplerate() {}
+    GxConvolverBase(): ready(false), sync(false), buffersize(), samplerate() {}
     ~GxConvolverBase();
 public:
-    void set_buffersize(unsigned int sz) { buffersize = sz; }
-    unsigned int get_buffersize() { return buffersize; }
-    void set_samplerate(unsigned int sr) { samplerate = sr; }
+    inline void set_buffersize(unsigned int sz) { buffersize = sz; }
+    inline unsigned int get_buffersize() { return buffersize; }
+    inline void set_samplerate(unsigned int sr) { samplerate = sr; }
     bool checkstate();
     using Convproc::state;
-    void set_not_runnable()   { ready = false; }
-    bool is_runnable()        { return ready; }
+    inline void set_not_runnable()   { ready = false; }
+    inline bool is_runnable()        { return ready; }
     bool start(int policy, int priority);
-    void stop()               { stop_process(); }
+    inline void stop()               { stop_process(); }
+    inline void set_sync(bool val)   { sync = val; }
 };
 
 class GxConvolver: public GxConvolverBase {

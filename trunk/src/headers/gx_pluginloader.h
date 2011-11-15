@@ -60,7 +60,7 @@ enum PluginPos { // where to add a plugin (per processing chain)
     PLUGIN_POS_END		// keep last one
 };
 
-class ModuleSequencer;
+class EngineControl;
 
 typedef PluginDef *(*plugindef_creator)();
 
@@ -74,7 +74,7 @@ private:
 	PLUGIN_POS_COUNT		// keep last one
     };
     pluginmap pmap;
-    ModuleSequencer& seq;
+    EngineControl& seq;
     gx_ui::GxUI& ui;
     list<gx_ui::GxUiItem*> rackchanger;
     int plugin_pos[PLUGIN_POS_COUNT];
@@ -82,7 +82,7 @@ private:
     int add_module(Plugin *pl, PluginPos pos, int flags);
 public:
     class iterator;
-    PluginList(gx_ui::GxUI& ui, ModuleSequencer& seq);
+    PluginList(gx_ui::GxUI& ui, EngineControl& seq);
     ~PluginList();
     Plugin *lookup_plugin(const char *id);
     void set_samplerate(int samplerate); // call set_samplerate of all plugins

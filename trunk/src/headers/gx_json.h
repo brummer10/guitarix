@@ -268,7 +268,7 @@ protected:
     Source             current_source;
     string             current_factory;
     string             current_name;
-    gx_engine::ModuleSequencer& seq;
+    gx_engine::EngineControl& seq;
     sigc::signal<void> selection_changed;
     sigc::signal<void> presetlist_changed;
     void clear_factory();
@@ -285,7 +285,7 @@ public:
 	return selection_changed; }
     inline sigc::signal<void>& signal_presetlist_changed() {
 	return presetlist_changed; }
-    GxSettingsBase(gx_engine::ModuleSequencer& seq_);
+    GxSettingsBase(gx_engine::EngineControl& seq_);
     ~GxSettingsBase();
     Source get_current_source() { return current_source; }
     const string& get_current_factory() { return current_factory; }

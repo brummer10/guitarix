@@ -11,6 +11,8 @@ def build(bld):
         'gx_json.cpp',
         'gx_faust_plugins.cpp',
         'gx_internal_plugins.cpp',
+        'gx_internal_ui_plugins.cpp',
+        'gx_midi_plugin.cpp',
         'gx_engine_audio.cpp',
         'gx_paramtable.cpp',
         'gx_ui.cpp',

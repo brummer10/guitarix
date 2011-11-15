@@ -28,9 +28,9 @@ namespace gx_engine {
 
 class ModuleSelector {
 protected:
-    ModuleSequencer& seq;
+    EngineControl& seq;
 public:
-    ModuleSelector(ModuleSequencer& seq_)
+    ModuleSelector(EngineControl& seq_)
 	: seq(seq_) {}
     virtual ~ModuleSelector() {}
     virtual void set_module() = 0;
@@ -238,8 +238,46 @@ public:
 class StereoModuleChain: public ThreadSafeChainPointer<stereochain_data> {
 public:
     StereoModuleChain(): ThreadSafeChainPointer<stereochain_data>() {}
-    void process(int count, float *input, float *output1, float *output2);
+    void process(int count, float *input1, float *input2, float *output1, float *output2);
     inline void print() { printlist("Stereo", modules); }
+};
+
+
+/****************************************************************
+ ** class EngineControl
+ */
+
+class EngineControl {
+protected:
+    list<ModuleSelector*> selectors; // selectors that modify the on/off state of
+				     // modules at start of reconfiguration
+    bool rack_changed;  // triggers reconfiguration of module chains
+    gx_ui::GxUI ui;
+    int policy;         // jack realtime policy,
+    int priority;       // and priority, for internal modules
+    // signal anyone who needs to be synchronously notified
+    // BE CAREFUL: executed by RT thread (though not concurrent with audio
+    // modules, and timing requirements are relaxed)
+    sigc::signal<void, unsigned int> buffersize_change;
+    sigc::signal<void, unsigned int> samplerate_change;
+public:
+    PluginList pluginlist;  
+    EngineControl();
+    ~EngineControl();
+    void init(unsigned int samplerate, unsigned int buffersize,
+	      int policy, int priority);
+    virtual void wait_ramp_down_finished() = 0;
+    virtual bool update_module_lists() = 0;
+    virtual void start_ramp_up() = 0;
+    virtual void start_ramp_down() = 0;
+    virtual void set_samplerate(unsigned int samplerate);
+    void set_buffersize(unsigned int buffersize);
+    void set_rack_changed() { rack_changed = true; }
+    void clear_rack_changed() { rack_changed = false; }
+    sigc::signal<void, unsigned int>& signal_buffersize_change() { return buffersize_change; }
+    void add_selector(ModuleSelector& sel);
+    void registerParameter(ParamMap& param, ParameterGroups& groups);
+    void get_sched_priority(int &policy, int &priority, int prio_dim = 0);
 };
 
 
@@ -254,19 +292,12 @@ enum GxEngineState {  // engine states set by user (ModuleSequencer set_state/ge
 };
 
 
-class ModuleSequencer {
-
+class ModuleSequencer: public EngineControl {
 protected:
-    list<ModuleSelector*> selectors; // selectors that modify the on/off state of
-				     // modules at start of reconfiguration
-    bool rack_changed;  // triggers reconfiguration of module chains
     int audio_mode;     // GxEngineState coded as PGN_MODE_XX flags
-    int policy;         // jack realtime policy,
-    int priority;       // and priority, for internal modules
-    gx_ui::GxUI ui;
-
+    boost::mutex stateflags_mutex;
+    int stateflags;
 public:
-    PluginList pluginlist;  
     MonoModuleChain mono_chain;  // active modules (amp chain, input to insert output)
     StereoModuleChain stereo_chain;  // active stereo modules (effect chain, after insert input)
     enum StateFlag {  // engine is off if one of these flags is set
@@ -274,39 +305,18 @@ public:
 	SF_JACK_RECONFIG = 0x02,  // jack buffersize reconfiguration in progress
 	SF_INITIALIZING  = 0x04,  // jack or engine not ready
     };
-    boost::mutex stateflags_mutex;
-    int stateflags;
-
-    // signal anyone who needs to be synchronously notified
-    // BE CAREFUL: executed by RT thread (though not concurrent with audio
-    // modules, and timing requirements are relaxed)
-    sigc::signal<void, unsigned int> buffersize_change;
-    sigc::signal<void, unsigned int> samplerate_change;
-
 public:
     ModuleSequencer();
     ~ModuleSequencer();
-    void init(unsigned int samplerate, unsigned int buffersize,
-	      int policy, int priority);
-    void get_sched_priority(int &policy, int &priority, int prio_dim = 0);
-    void set_samplerate(unsigned int samplerate);
-    void set_buffersize(unsigned int buffersize);
+    sigc::signal<void, unsigned int>& signal_samplerate_change() { return samplerate_change; }
     void clear_module_states() {
 	mono_chain.clear_module_states();
 	stereo_chain.clear_module_states();
     }
-    void start_ramp_up() {
-	mono_chain.start_ramp_up();
-	stereo_chain.start_ramp_up();
-    }
-    void start_ramp_down() {
-	mono_chain.start_ramp_down();
-	stereo_chain.start_ramp_down();
-    }
-    void wait_ramp_down_finished() {
-	mono_chain.wait_ramp_down_finished();
-	stereo_chain.wait_ramp_down_finished();
-    }
+    virtual void set_samplerate(unsigned int samplerate);
+    virtual void start_ramp_up();
+    virtual void start_ramp_down();
+    virtual void wait_ramp_down_finished();
     void ramp_down() {
 	start_ramp_down();
 	wait_ramp_down_finished();
@@ -315,18 +325,9 @@ public:
 	mono_chain.set_down_dead();
 	stereo_chain.set_down_dead();
     }
-    void add_selector(ModuleSelector& sel);
     bool prepare_module_lists();
     void commit_module_lists();
-    void set_rack_changed() { rack_changed = true; }
-    void clear_rack_changed() { rack_changed = false; }
-    bool update_module_lists() {
-	if (prepare_module_lists()) {
-	    commit_module_lists();
-	    return true;
-	}
-	return false;
-    }
+    virtual bool update_module_lists();
     inline void check_module_lists() {
 	if (mono_chain.check_release()) {
 	    mono_chain.release();
@@ -342,7 +343,6 @@ public:
     void clear_stateflag(StateFlag flag);
     void set_state(GxEngineState state);
     GxEngineState get_state();
-    void registerParameter(ParamMap& param, ParameterGroups& groups);
 #ifndef NDEBUG
     void print_engine_state();
 #endif

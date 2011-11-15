@@ -121,7 +121,7 @@ Plugin::Plugin(PluginDef *pl)
  ** class PluginList
  */
 
-PluginList::PluginList(gx_ui::GxUI& ui_, ModuleSequencer& seq_)
+PluginList::PluginList(gx_ui::GxUI& ui_, EngineControl& seq_)
     : seq(seq_), ui(ui_) {
     plugin_pos[PLUGIN_POS_START]       = -1000;
     plugin_pos[PLUGIN_POS_RACK]        = 1;

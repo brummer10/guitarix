@@ -378,7 +378,7 @@ bool GxConvolver::compute(int count, float* input1, float *input2, float *output
     memcpy(inpdata(0), input1, count * sizeof(float));
     memcpy(inpdata(1), input2, count * sizeof(float));
 
-    int flags = process();
+    int flags = process(sync);
 
     memcpy(output1, outdata(0), count * sizeof(float));
     memcpy(output2, outdata(1), count * sizeof(float));
@@ -467,7 +467,7 @@ bool GxSimpleConvolver::compute(int count, float* input, float *output) {
     }
     memcpy(inpdata(0), input, count * sizeof(float));
 
-    int flags = process();
+    int flags = process(sync);
 
     memcpy(output, outdata(0), count * sizeof(float));
     return flags == 0;

@@ -526,9 +526,9 @@ int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
     if (!self.is_jack_exit()) {
         AVOIDDENORMALS;
         // gx_head DSP computing
+	float *ibuf = get_float_buf(self.ports.insert_in.port, nframes);
 	self.engine.stereo_chain.process(
-	    nframes,
-	    get_float_buf(self.ports.insert_in.port, nframes),
+	    nframes, ibuf, ibuf,
 	    get_float_buf(self.ports.output1.port, nframes),
 	    get_float_buf(self.ports.output2.port, nframes));
     }
@@ -659,7 +659,7 @@ int GxJack::gx_jack_srate_callback(jack_nframes_t samplerate, void* arg) {
     }
     self.engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     self.jack_sr = samplerate;
-    self.engine.samplerate_change(samplerate);
+    self.engine.signal_samplerate_change()(samplerate);
     self.engine.clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     return 0;
 }
@@ -673,7 +673,7 @@ int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
     }
     self.engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     self.jack_bs = nframes;
-    self.engine.buffersize_change(nframes);
+    self.engine.signal_buffersize_change()(nframes);
     self.engine.clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     self.buffersize_change();
     return 0;
