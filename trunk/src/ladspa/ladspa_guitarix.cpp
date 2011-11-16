@@ -393,7 +393,7 @@ void LadspaGuitarix::check_preset() {
     if (next_preset_num == num) {
 	return;
     }
-    g_atomic_pointer_set(&next_preset_num, num);
+    g_atomic_int_set(&next_preset_num, num);
     PresetLoader::preset_change();
 }
 
@@ -488,7 +488,7 @@ void LadspaGuitarix::PresetLoader::load_presets() {
     boost::mutex::scoped_lock lock(instance_mutex);
     for (list<LadspaGuitarix*>::iterator i = ladspa_instances.begin(); i != ladspa_instances.end(); ++i) {
 	LadspaGuitarix& lg = **i;
-	int num = g_atomic_int_get(&(lg.next_preset_num));
+	int num = g_atomic_int_get(&lg.next_preset_num);
 	if (num == lg.preset_num) {
 	    continue;
 	}
@@ -563,7 +563,6 @@ public:
     virtual void set_samplerate(unsigned int samplerate);
     bool prepare_module_lists();
     void commit_module_lists();
-    void set_buffersize(int n) { printf("BZ: %d\n", n); EngineControl::set_buffersize(n); }
 };
 
 void MonoEngine::wait_ramp_down_finished() {
