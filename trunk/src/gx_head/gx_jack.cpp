@@ -659,7 +659,7 @@ int GxJack::gx_jack_srate_callback(jack_nframes_t samplerate, void* arg) {
     }
     self.engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     self.jack_sr = samplerate;
-    self.engine.signal_samplerate_change()(samplerate);
+    self.engine.set_samplerate(samplerate);
     self.engine.clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     return 0;
 }
@@ -673,7 +673,7 @@ int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
     }
     self.engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     self.jack_bs = nframes;
-    self.engine.signal_buffersize_change()(nframes);
+    self.engine.set_buffersize(nframes);
     self.engine.clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     self.buffersize_change();
     return 0;
@@ -738,7 +738,7 @@ int GxJack::return_last_session_event() {
 	session_callback_seen += 1;
 	jack_session_reply(client, event);
 	jack_session_event_free(event);
-	g_atomic_pointer_set(&session_event, 0);
+	gx_system::atomic_set_0(&session_event);
     }
     return session_callback_seen;
 }
@@ -749,7 +749,7 @@ int GxJack::return_last_session_event_ins() {
 	session_callback_seen -= 1;
 	jack_session_reply(client_insert, event);
 	jack_session_event_free(event);
-	g_atomic_pointer_set(&session_event_ins, 0);
+	gx_system::atomic_set_0(&session_event_ins);
     }
     return session_callback_seen;
 }
@@ -774,8 +774,8 @@ string GxJack::get_uuid_insert() {
 
 void GxJack::gx_jack_session_callback(jack_session_event_t *event, void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
-    if (!g_atomic_pointer_compare_and_exchange(
-	    reinterpret_cast<void* volatile*>(&self.session_event), 0, event)) {
+    jack_session_event_t *np = 0;
+    if (!gx_system::atomic_compare_and_exchange(&self.session_event, np, event)) {
 	gx_system::gx_print_error("jack","last session not cleared");
 	return;
     }
@@ -784,8 +784,8 @@ void GxJack::gx_jack_session_callback(jack_session_event_t *event, void *arg) {
 
 void GxJack::gx_jack_session_callback_ins(jack_session_event_t *event, void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
-    if (!g_atomic_pointer_compare_and_exchange(
-	    reinterpret_cast<void* volatile*>(&self.session_event_ins), 0, event)) {
+    jack_session_event_t *np = 0;
+    if (!gx_system::atomic_compare_and_exchange(&self.session_event_ins, np, event)) {
 	gx_system::gx_print_error("jack","last session not cleared");
 	return;
     }

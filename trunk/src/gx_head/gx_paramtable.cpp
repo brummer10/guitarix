@@ -268,8 +268,8 @@ MidiControllerList::MidiControllerList()
 void MidiControllerList::on_pgm_chg() {
     int pgm;
     do {
-	pgm = g_atomic_int_get(&program_change);
-    } while (!g_atomic_int_compare_and_exchange(&program_change, pgm, -1));
+	pgm = gx_system::atomic_get(program_change);
+    } while (!gx_system::atomic_compare_and_exchange(&program_change, pgm, -1));
     new_program(pgm);
 }
 
@@ -422,7 +422,7 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf) {
     for (i = 0; i < event_count; i++) {
         jack_midi_event_get(&in_event, midi_input_port_buf, i);
         if ((in_event.buffer[0] & 0xf0) == 0xc0) {  // program change on any midi channel
-            g_atomic_int_set(&program_change, in_event.buffer[1]);
+            gx_system::atomic_set(&program_change, in_event.buffer[1]);
             pgm_chg();
         } else if ((in_event.buffer[0] & 0xf0) == 0xb0) {   // controller
             set_ctr_val(in_event.buffer[1], in_event.buffer[2]);

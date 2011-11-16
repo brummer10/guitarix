@@ -81,7 +81,7 @@ void MeasureThreadsafe::print(bool verbose) {
     } else {
         pn = m;
     }
-    g_atomic_pointer_set(&pmeasure, pn);
+    atomic_set(&pmeasure, pn);
     p->print(verbose);
     p->reset();
 }

@@ -3,6 +3,9 @@
 #include <ladspa.h>
 #include <iostream>
 
+#include <jack/jack.h>
+#include <jack/thread.h>
+
 #include "engine.h"
 
 #include "gx_faust_plugins.h"
@@ -339,15 +342,15 @@ private:
     };
 protected:
     friend class PresetLoader;
-    unsigned long SampleRate;
-    int buffersize;
     pthread_t last_thread_id;
+    int jack_bs;
+    int jack_prio;
     int preset_num;
     int next_preset_num;
-    int priority;
     LADSPA_Data * preset_num_port;
+    LADSPA_Data * no_buffer_port;
     LADSPA_Data * buffersize_port;
-    LADSPA_Data * rt_mode_port;
+    LADSPA_Data * no_rt_mode_port;
     LADSPA_Data * priority_port;
     LADSPA_Data * latency_port;
     ParamMap param;
@@ -355,22 +358,23 @@ protected:
     LadspaSettings settings;
     void check_preset();
     int get_buffersize_from_port();
-    bool prepare_run(unsigned long sz, int *bufsz);
-    void activate(int *policy, int *prio);
-    void load(int num) { settings.load(num); }
-    LadspaGuitarix(unsigned long sr, EngineControl& engine, ControlParameter& cp);
+    void prepare_run();
+    unsigned int activate(int *policy, int *prio);
+    void load();
+    LadspaGuitarix(EngineControl& engine, ControlParameter& cp);
     ~LadspaGuitarix();
 };
 
-LadspaGuitarix::LadspaGuitarix(unsigned long sr, EngineControl& engine, ControlParameter& cp)
-    : SampleRate(sr),
-      buffersize(0),
-      last_thread_id(),
+LadspaGuitarix::LadspaGuitarix(EngineControl& engine, ControlParameter& cp)
+    : last_thread_id(),
+      jack_bs(),
+      jack_prio(),
       preset_num(-1),  // force load
       next_preset_num(0),
-      priority(1),
       preset_num_port(),
+      no_buffer_port(),
       buffersize_port(),
+      no_rt_mode_port(),
       priority_port(),
       latency_port(),
       param(),
@@ -393,8 +397,17 @@ void LadspaGuitarix::check_preset() {
     if (next_preset_num == num) {
 	return;
     }
-    g_atomic_int_set(&next_preset_num, num);
+    gx_system::atomic_set(&next_preset_num, num);
     PresetLoader::preset_change();
+}
+
+void LadspaGuitarix::load() {
+    int num = gx_system::atomic_get(next_preset_num);
+    if (num == preset_num) {
+	return;
+    }
+    preset_num = num;
+    settings.load(num);
 }
 
 int LadspaGuitarix::get_buffersize_from_port() {
@@ -411,47 +424,55 @@ int LadspaGuitarix::get_buffersize_from_port() {
     return sz;
 }
 
-bool LadspaGuitarix::prepare_run(unsigned long SampleCount, int *bufsz) {
+void LadspaGuitarix::prepare_run() {
     pthread_t tid = pthread_self();
     if (!pthread_equal(tid, last_thread_id)) {
 	last_thread_id = tid;
 	AVOIDDENORMALS;
     }
-    int bufsize = get_buffersize_from_port();
-    bool ret = false;
-    if (bufsize > 0) {
-	if (bufsize != buffersize) {
-	    ret = true;
-	    buffersize = bufsize;
-	}
-    } else if (static_cast<unsigned long>(buffersize) != SampleCount) {
-	ret = true;
-	buffersize = SampleCount;
-    }
     check_preset();
     control_parameter.get_values();
-    *bufsz = bufsize;
-    return ret;
 }
 
-void LadspaGuitarix::activate(int *policy, int *prio) {
-    if (rt_mode_port && *rt_mode_port <= 0) {
-	priority = -1;
-    } else if (priority_port) {
-	priority = *priority_port;
-    }
-    if (priority >= 0) {
-	*policy = SCHED_FIFO;
-	*prio = priority;
-    } else {
+unsigned int LadspaGuitarix::activate(int *policy, int *prio) {
+    if (no_rt_mode_port && *no_rt_mode_port > 0) {
 	*policy = SCHED_OTHER;
 	*prio = 0;
+    } else {
+	*policy = SCHED_FIFO;
+	if (priority_port) {
+	    *prio = round(*priority_port);
+	}
     }
-    buffersize = get_buffersize_from_port();
-    if (preset_num != next_preset_num) {
-	preset_num = next_preset_num;
-	load(preset_num);
+    int bufsize;
+    if (no_buffer_port && *no_buffer_port > 0) {
+	bufsize = 0;
+	*latency_port = 0;
+    } else {
+	bufsize = get_buffersize_from_port();
+	if (jack_bs == 0) {
+	    jack_status_t jackstat;
+	    jack_client_t *client = jack_client_open("guitarix-test", JackNoStartServer, &jackstat);
+	    if (client) {
+		jack_bs = jack_get_buffer_size(client);
+		jack_prio = jack_client_real_time_priority(client);
+		jack_client_close(client);
+	    } else {
+		jack_bs = jack_prio = -1;
+	    }
+	}
+	if (jack_bs > 0 && (!bufsize || bufsize > jack_bs)) {
+	    bufsize = jack_bs;
+	}
+	if (!bufsize) {
+	    bufsize = 64;
+	}
+	if (!*prio && jack_prio > 0) {
+	    *prio = jack_prio;
+	}
+ 	*latency_port = bufsize-1;
     }
+    return bufsize;
 }
 
 sem_t LadspaGuitarix::PresetLoader::created_sem;
@@ -487,13 +508,7 @@ void LadspaGuitarix::PresetLoader::run_mainloop() {
 void LadspaGuitarix::PresetLoader::load_presets() {
     boost::mutex::scoped_lock lock(instance_mutex);
     for (list<LadspaGuitarix*>::iterator i = ladspa_instances.begin(); i != ladspa_instances.end(); ++i) {
-	LadspaGuitarix& lg = **i;
-	int num = g_atomic_int_get(&lg.next_preset_num);
-	if (num == lg.preset_num) {
-	    continue;
-	}
-	lg.preset_num = num;
-	lg.load(num);
+	(*i)->load();
     }
 }
 
@@ -543,6 +558,8 @@ class MonoEngine: public EngineControl {
 private:
     gx_resample::BufferResampler resamp;
     void load_static_plugins();
+    void sr_changed(unsigned int);
+    void bs_changed(unsigned int);
 public:
     MonoModuleChain mono_chain;  // active modules (amp chain, input to insert output)
     // ModuleSelector's
@@ -723,12 +740,25 @@ MonoEngine::MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroup
 
     registerParameter(param, groups);
 
+    signal_samplerate_change().connect(
+	sigc::mem_fun(*this, &MonoEngine::sr_changed));
+    signal_buffersize_change().connect(
+	sigc::mem_fun(*this, &MonoEngine::bs_changed));
+
 #ifndef NDEBUG
     pluginlist.printlist();
 #endif
 }
 
 MonoEngine::~MonoEngine() {
+}
+
+void MonoEngine::sr_changed(unsigned int sr) {
+    samplerate = sr;
+}
+
+void MonoEngine::bs_changed(unsigned int bs) {
+    buffersize = bs;
 }
 
 void MonoEngine::load_static_plugins() {
@@ -792,8 +822,9 @@ private:
 	GUITARIX_PRESET,
 	GUITARIX_PARAM,
 	GUITARIX_PARAM_COUNT = 5,
-	GUITARIX_BUFFERSIZE = GUITARIX_PARAM + GUITARIX_PARAM_COUNT,
-	GUITARIX_RT_MODE,
+	GUITARIX_NO_BUFFER = GUITARIX_PARAM + GUITARIX_PARAM_COUNT,
+	GUITARIX_BUFFERSIZE,
+	GUITARIX_NO_RT_MODE,
 	GUITARIX_PRIORITY,
 	GUITARIX_LATENCY,
 	PORT_COUNT
@@ -832,7 +863,9 @@ private:
 	LADSPA_Data *get_input() { return in_buffer; }
 	LADSPA_Data *get_output() { return out_buffer; }
 	bool put();
-	void set(int bufsize, int cnt, LADSPA_Data *input_buffer, LADSPA_Data *output_buffer);
+	void set_bufsize(int bufsize);
+	int get_bufsize() { return buffer_size; }
+	void set(int cnt, LADSPA_Data *input_buffer, LADSPA_Data *output_buffer);
     };
 
     ReBuffer rebuffer;
@@ -854,13 +887,14 @@ public:
 };
 
 LadspaGuitarixMono::LadspaGuitarixMono(unsigned long sr)
-    : LadspaGuitarix(sr, engine, control_parameter),
+    : LadspaGuitarix(engine, control_parameter),
       rebuffer(),
       control_parameter(GUITARIX_PARAM_COUNT),
       input_buffer(),
       output_buffer(),
       engine("", param, get_group_table()) {
     param.set_init_values();
+    engine.set_samplerate(sr);
 }
 
 LadspaGuitarixMono::~LadspaGuitarixMono() {
@@ -873,31 +907,34 @@ const LADSPA_Descriptor *LadspaGuitarixMono::ladspa_descriptor() {
 
 void LadspaGuitarixMono::activateGuitarix(LADSPA_Handle Instance) {
     LadspaGuitarixMono& self = *static_cast<LadspaGuitarixMono*>(Instance);
-    int policy, prio;
-    self.activate(&policy, &prio);
-    self.engine.init(self.SampleRate, self.buffersize, policy, prio);
+    int policy, prio, bufsize;
+    bufsize = self.activate(&policy, &prio);
+    self.rebuffer.set_bufsize(bufsize);
+    self.engine.set_buffersize(bufsize);
+    gx_system::gx_print_info(
+	"amp activate",
+	boost::format("instance %1%, SR %2%, BS %3%, prio %4%")
+	% Instance % self.engine.get_samplerate() % bufsize % prio);
+    self.engine.init(self.engine.get_samplerate(), bufsize, policy, prio);
+    self.engine.mono_chain.set_stopped(true);
+    self.load();
     self.engine.mono_chain.set_stopped(false);
     self.engine.mono_chain.start_ramp_up();
 }
 
 void LadspaGuitarixMono::runGuitarix(LADSPA_Handle Instance, unsigned long SampleCount) {
     LadspaGuitarixMono& self = *static_cast<LadspaGuitarixMono*>(Instance);
-    int bufsize;
-    if (self.prepare_run(SampleCount, &bufsize)) {
-	self.engine.set_buffersize(self.buffersize);
-    }
-    if (bufsize) {
-	self.rebuffer.set(bufsize, SampleCount, self.input_buffer, self.output_buffer);
+    self.prepare_run();
+    if (self.rebuffer.get_bufsize()) {
+	self.rebuffer.set(SampleCount, self.input_buffer, self.output_buffer);
 	while (self.rebuffer.put()) {
 	    self.engine.mono_chain.process(
 		self.rebuffer.get_count(), self.rebuffer.get_input(),
 		self.rebuffer.get_output());
 	}
-	*self.latency_port = bufsize-1;
     } else {
 	self.engine.mono_chain.process(
 	    SampleCount, self.input_buffer, self.output_buffer);
-	*self.latency_port = 0;
     }
     self.engine.mono_chain.post_rt_finished();
 }
@@ -915,11 +952,14 @@ void LadspaGuitarixMono::connectPortToGuitarix(
     case GUITARIX_PRESET:
 	self->preset_num_port = DataLocation;
 	break;
+    case GUITARIX_NO_BUFFER:
+	self->no_buffer_port = DataLocation;
+	break;
     case GUITARIX_BUFFERSIZE:
 	self->buffersize_port = DataLocation;
 	break;
-    case GUITARIX_RT_MODE:
-	self->rt_mode_port = DataLocation;
+    case GUITARIX_NO_RT_MODE:
+	self->no_rt_mode_port = DataLocation;
 	break;
     case GUITARIX_PRIORITY:
 	self->priority_port = DataLocation;
@@ -961,8 +1001,7 @@ LadspaGuitarixMono::ReBuffer::~ReBuffer() {
     delete[] out_buffer;
 }
 
-void LadspaGuitarixMono::ReBuffer::set(
-    int bufsize, int cnt, LADSPA_Data *input_buffer, LADSPA_Data *output_buffer) {
+void LadspaGuitarixMono::ReBuffer::set_bufsize(int bufsize) {
     if (bufsize) {
 	if (bufsize != buffer_size) {
 	    delete[] in_buffer;
@@ -981,6 +1020,10 @@ void LadspaGuitarixMono::ReBuffer::set(
 	out_buffer = 0;
 	buffer_size = 0;
     }
+}
+
+void LadspaGuitarixMono::ReBuffer::set(
+    int cnt, LADSPA_Data *input_buffer, LADSPA_Data *output_buffer) {
     in_block_index = 0;
     out_block_index = 0;
     block_size = cnt;
@@ -1034,6 +1077,11 @@ LadspaGuitarixMono::LADSPA::LADSPA()
     prangehint[GUITARIX_PRESET].LowerBound = 0;
     prangehint[GUITARIX_PRESET].UpperBound = 99;
 
+    pdesc[GUITARIX_NO_BUFFER] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+    pnames[GUITARIX_NO_BUFFER] = "No Buffer";
+    prangehint[GUITARIX_NO_BUFFER].HintDescriptor =
+	LADSPA_HINT_TOGGLED | LADSPA_HINT_DEFAULT_0;
+
     pdesc[GUITARIX_BUFFERSIZE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
     pnames[GUITARIX_BUFFERSIZE] = "Buffersize";
     prangehint[GUITARIX_BUFFERSIZE].HintDescriptor =
@@ -1042,16 +1090,16 @@ LadspaGuitarixMono::LADSPA::LADSPA()
     prangehint[GUITARIX_BUFFERSIZE].LowerBound = 0;
     prangehint[GUITARIX_BUFFERSIZE].UpperBound = Convproc::MAXQUANT;
 
-    pdesc[GUITARIX_RT_MODE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-    pnames[GUITARIX_RT_MODE] = "RT Mode";
-    prangehint[GUITARIX_RT_MODE].HintDescriptor =
-	LADSPA_HINT_TOGGLED | LADSPA_HINT_DEFAULT_1;
+    pdesc[GUITARIX_NO_RT_MODE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+    pnames[GUITARIX_NO_RT_MODE] = "Non-RT Mode";
+    prangehint[GUITARIX_NO_RT_MODE].HintDescriptor =
+	LADSPA_HINT_TOGGLED | LADSPA_HINT_DEFAULT_0;
 
     pdesc[GUITARIX_PRIORITY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
     pnames[GUITARIX_PRIORITY] = "RT Priority";
     prangehint[GUITARIX_PRIORITY].HintDescriptor =
 	LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE |
-	LADSPA_HINT_INTEGER | LADSPA_HINT_DEFAULT_1;
+	LADSPA_HINT_INTEGER | LADSPA_HINT_DEFAULT_0;
     prangehint[GUITARIX_PRIORITY].LowerBound = 0;
     prangehint[GUITARIX_PRIORITY].UpperBound = 99;
 
@@ -1061,7 +1109,7 @@ LadspaGuitarixMono::LADSPA::LADSPA()
 
     for (int i = 0; i < GUITARIX_PARAM_COUNT; ++i) {
 	pdesc[GUITARIX_PARAM+i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	pnames[GUITARIX_PARAM+i] = strdup(("parameter " + gx_system::to_string(i)).c_str());
+	pnames[GUITARIX_PARAM+i] = strdup(("parameter " + gx_system::to_string(i+1)).c_str());
 	prangehint[GUITARIX_PARAM+i].HintDescriptor =
 	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE |
 	    LADSPA_HINT_DEFAULT_NONE;
@@ -1244,8 +1292,9 @@ private:
 	GUITARIX_PRESET,
 	GUITARIX_PARAM,
 	GUITARIX_PARAM_COUNT = 5,
-	GUITARIX_BUFFERSIZE = GUITARIX_PARAM + GUITARIX_PARAM_COUNT,
-	GUITARIX_RT_MODE,
+	GUITARIX_NO_BUFFER = GUITARIX_PARAM + GUITARIX_PARAM_COUNT,
+	GUITARIX_BUFFERSIZE,
+	GUITARIX_NO_RT_MODE,
 	GUITARIX_PRIORITY,
 	GUITARIX_LATENCY,
 	PORT_COUNT
@@ -1292,7 +1341,9 @@ private:
 	LADSPA_Data *get_output1() { return out_buffer1; }
 	LADSPA_Data *get_output2() { return out_buffer2; }
 	bool put();
-	void set(int bufsize, int cnt, LADSPA_Data *input_buffer1, LADSPA_Data *input_buffer2,
+	void set_bufsize(int bufsize);
+	int get_bufsize() { return buffer_size; }
+	void set(int cnt, LADSPA_Data *input_buffer1, LADSPA_Data *input_buffer2,
 		 LADSPA_Data *output_buffer1, LADSPA_Data *output_buffer2);
     };
 
@@ -1317,7 +1368,7 @@ public:
 };
 
 LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
-    : LadspaGuitarix(sr, engine, control_parameter),
+    : LadspaGuitarix(engine, control_parameter),
       rebuffer(),
       control_parameter(GUITARIX_PARAM_COUNT),
       input_buffer1(),
@@ -1326,6 +1377,7 @@ LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
       output_buffer2(),
       engine("", param, get_group_table()) {
     param.set_init_values();
+    engine.set_samplerate(sr);
 }
 
 LadspaGuitarixStereo::~LadspaGuitarixStereo() {
@@ -1338,36 +1390,36 @@ const LADSPA_Descriptor *LadspaGuitarixStereo::ladspa_descriptor() {
 
 void LadspaGuitarixStereo::activateGuitarix(LADSPA_Handle Instance) {
     LadspaGuitarixStereo& self = *static_cast<LadspaGuitarixStereo*>(Instance);
-    int policy, prio;
-    self.activate(&policy, &prio);
-    self.engine.init(self.SampleRate, self.buffersize, policy, prio);
-    self.check_preset();
+    int policy, prio, bufsize;
+    bufsize = self.activate(&policy, &prio);
+    self.rebuffer.set_bufsize(bufsize);
+    self.engine.set_buffersize(bufsize);
+    gx_system::gx_print_info(
+	"ladspa fx activate",
+	boost::format("instance %1%, samplerate %2%, buffer %3%, priority %4%")
+	% Instance % self.engine.get_samplerate() % bufsize % prio);
+    self.engine.init(self.engine.get_samplerate(), bufsize, policy, prio);
+    self.engine.stereo_chain.set_stopped(true);
+    self.load();
     self.engine.stereo_chain.set_stopped(false);
     self.engine.stereo_chain.start_ramp_up();
 }
 
 void LadspaGuitarixStereo::runGuitarix(LADSPA_Handle Instance, unsigned long SampleCount) {
     LadspaGuitarixStereo& self = *static_cast<LadspaGuitarixStereo*>(Instance);
-    int bufsize;
-    if (self.prepare_run(SampleCount, &bufsize)) {
-	self.engine.set_buffersize(self.buffersize);
-    }
-    if (bufsize) {
-	bufsize = min(max(bufsize, static_cast<int>(Convproc::MINQUANT)),
-		      static_cast<int>(Convproc::MAXQUANT));
-	self.rebuffer.set(bufsize, SampleCount, self.input_buffer1, self.input_buffer2,
+    self.prepare_run();
+    if (self.rebuffer.get_bufsize()) {
+	self.rebuffer.set(SampleCount, self.input_buffer1, self.input_buffer2,
 			  self.output_buffer1, self.output_buffer2);
 	while (self.rebuffer.put()) {
 	    self.engine.stereo_chain.process(
 		self.rebuffer.get_count(), self.rebuffer.get_input1(), self.rebuffer.get_input2(),
 		self.rebuffer.get_output1(), self.rebuffer.get_output2());
 	}
-	*self.latency_port = bufsize-1;
     } else {
 	self.engine.stereo_chain.process(
 	    SampleCount, self.input_buffer1, self.input_buffer2,
 	    self.output_buffer1, self.output_buffer2);
-	*self.latency_port = 0;
     }
     self.engine.stereo_chain.post_rt_finished();
 }
@@ -1391,11 +1443,14 @@ void LadspaGuitarixStereo::connectPortToGuitarix(
     case GUITARIX_PRESET:
 	self->preset_num_port = DataLocation;
 	break;
+    case GUITARIX_NO_BUFFER:
+	self->no_buffer_port = DataLocation;
+	break;
     case GUITARIX_BUFFERSIZE:
 	self->buffersize_port = DataLocation;
 	break;
-    case GUITARIX_RT_MODE:
-	self->rt_mode_port = DataLocation;
+    case GUITARIX_NO_RT_MODE:
+	self->no_rt_mode_port = DataLocation;
 	break;
     case GUITARIX_PRIORITY:
 	self->priority_port = DataLocation;
@@ -1443,9 +1498,7 @@ LadspaGuitarixStereo::ReBuffer::~ReBuffer() {
     delete[] out_buffer2;
 }
 
-void LadspaGuitarixStereo::ReBuffer::set(
-    int bufsize, int cnt, LADSPA_Data *input_buffer1, LADSPA_Data *input_buffer2,
-    LADSPA_Data *output_buffer1, LADSPA_Data *output_buffer2) {
+void LadspaGuitarixStereo::ReBuffer::set_bufsize(int bufsize) {
     if (bufsize) {
 	if (bufsize != buffer_size) {
 	    delete[] in_buffer1;
@@ -1473,6 +1526,11 @@ void LadspaGuitarixStereo::ReBuffer::set(
 	out_buffer2 = 0;
 	buffer_size = 0;
     }
+}
+
+void LadspaGuitarixStereo::ReBuffer::set(
+    int cnt, LADSPA_Data *input_buffer1, LADSPA_Data *input_buffer2,
+    LADSPA_Data *output_buffer1, LADSPA_Data *output_buffer2) {
     in_block_index = 0;
     out_block_index = 0;
     block_size = cnt;
@@ -1538,6 +1596,11 @@ LadspaGuitarixStereo::LADSPA::LADSPA()
     prangehint[GUITARIX_PRESET].LowerBound = 0;
     prangehint[GUITARIX_PRESET].UpperBound = 99;
 
+    pdesc[GUITARIX_NO_BUFFER] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+    pnames[GUITARIX_NO_BUFFER] = "No Buffer";
+    prangehint[GUITARIX_NO_BUFFER].HintDescriptor =
+	LADSPA_HINT_TOGGLED | LADSPA_HINT_DEFAULT_0;
+
     pdesc[GUITARIX_BUFFERSIZE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
     pnames[GUITARIX_BUFFERSIZE] = "Buffersize";
     prangehint[GUITARIX_BUFFERSIZE].HintDescriptor =
@@ -1546,16 +1609,16 @@ LadspaGuitarixStereo::LADSPA::LADSPA()
     prangehint[GUITARIX_BUFFERSIZE].LowerBound = 0;
     prangehint[GUITARIX_BUFFERSIZE].UpperBound = Convproc::MAXQUANT;
 
-    pdesc[GUITARIX_RT_MODE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-    pnames[GUITARIX_RT_MODE] = "RT Mode";
-    prangehint[GUITARIX_RT_MODE].HintDescriptor =
-	LADSPA_HINT_TOGGLED | LADSPA_HINT_DEFAULT_1;
+    pdesc[GUITARIX_NO_RT_MODE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+    pnames[GUITARIX_NO_RT_MODE] = "Non-RT Mode";
+    prangehint[GUITARIX_NO_RT_MODE].HintDescriptor =
+	LADSPA_HINT_TOGGLED | LADSPA_HINT_DEFAULT_0;
 
     pdesc[GUITARIX_PRIORITY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
     pnames[GUITARIX_PRIORITY] = "RT Priority";
     prangehint[GUITARIX_PRIORITY].HintDescriptor =
 	LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE |
-	LADSPA_HINT_INTEGER | LADSPA_HINT_DEFAULT_1;
+	LADSPA_HINT_INTEGER | LADSPA_HINT_DEFAULT_0;
     prangehint[GUITARIX_PRIORITY].LowerBound = 0;
     prangehint[GUITARIX_PRIORITY].UpperBound = 99;
 
@@ -1565,7 +1628,7 @@ LadspaGuitarixStereo::LADSPA::LADSPA()
 
     for (int i = 0; i < GUITARIX_PARAM_COUNT; ++i) {
 	pdesc[GUITARIX_PARAM+i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	pnames[GUITARIX_PARAM+i] = strdup(("parameter " + gx_system::to_string(i)).c_str());
+	pnames[GUITARIX_PARAM+i] = strdup(("parameter " + gx_system::to_string(i+1)).c_str());
 	prangehint[GUITARIX_PARAM+i].HintDescriptor =
 	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE |
 	    LADSPA_HINT_DEFAULT_NONE;
@@ -1574,7 +1637,7 @@ LadspaGuitarixStereo::LADSPA::LADSPA()
     }
 
     UniqueID = 4070;
-    Label = "guitari fx";
+    Label = "guitarix fx";
     Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
     Name = "Guitarix Fx";
     Maker = "Guitarix Team";
@@ -1633,26 +1696,35 @@ const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) {
 
 /****************************************************************
  ** test driver
+ ** defined when not building as shared lib
  */
 
-#if 0
+#ifndef PIC
 int main() {
-    const LADSPA_Descriptor * ladspa = ladspa_descriptor(1);
-    LADSPA_Handle hand = ladspa->instantiate(ladspa, 48000);
-    //printf("%p\n", hand);
     int count = 64;
-    LADSPA_Data input1[count], input2[count], output1[count], output2[count];
-    ladspa->connect_port(hand, 0, input1);
-    ladspa->connect_port(hand, 1, input2);
-    ladspa->connect_port(hand, 2, output1);
-    ladspa->connect_port(hand, 3, output2);
-    LADSPA_Data data[ladspa->PortCount-4];
-    for (unsigned int i = 4; i < ladspa->PortCount; i++) {
-	data[i-4] = 0;
-	ladspa->connect_port(hand, i, data+i-4);
+    LADSPA_Data input[2][count], output[2][count];
+    int in_idx = 0, out_idx = 0;
+    const LADSPA_Descriptor * ladspa = ladspa_descriptor(0);
+    LADSPA_Handle hand = ladspa->instantiate(ladspa, 48000);
+    LADSPA_Data data[ladspa->PortCount];
+    for (unsigned int i = 0; i < ladspa->PortCount; i++) {
+	if (ladspa->PortDescriptors[i] & LADSPA_PORT_AUDIO) {
+	    if (ladspa->PortDescriptors[i] & LADSPA_PORT_INPUT) {
+		ladspa->connect_port(hand, i, input[in_idx++]);
+	    } else {
+		ladspa->connect_port(hand, i, output[out_idx++]);
+	    }
+	} else {
+	    if (LADSPA_IS_HINT_DEFAULT_1(ladspa->PortRangeHints[i].HintDescriptor)) {
+		data[i] = 1;
+	    } else {
+		data[i] = 0;
+	    }
+	    ladspa->connect_port(hand, i, data+i);
+	}
     }
     ladspa->activate(hand);
-    for (int n = 0; n < 10000; n++) {
+    for (int n = 0; n < 100; n++) {
 	ladspa->run(hand, count);
     }
     ladspa->cleanup(hand);

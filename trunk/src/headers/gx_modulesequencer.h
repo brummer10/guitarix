@@ -57,16 +57,16 @@ protected:
     int steps_down;		// RT; >= 1
     volatile bool latch; // RT; set between commit and end of rt cycle
     list<Plugin*> modules;
-    inline void set_ramp_value(int n) { g_atomic_int_set(&ramp_value, n); } // RT
-    inline void set_ramp_mode(RampMode n) { g_atomic_int_set(&ramp_mode, n); } // RT
+    inline void set_ramp_value(int n) { gx_system::atomic_set(&ramp_value, n); } // RT
+    inline void set_ramp_mode(RampMode n) { gx_system::atomic_set(&ramp_mode, n); } // RT
     void try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv); // RT
 public:
     bool next_commit_needs_ramp;
     ProcessingChainBase();
     inline RampMode get_ramp_mode() {
-      return static_cast<RampMode>(g_atomic_int_get(&ramp_mode)); // RT
+	return static_cast<RampMode>(gx_system::atomic_get(ramp_mode)); // RT
     }
-    inline int get_ramp_value() { return g_atomic_int_get(&ramp_value); } // RT
+    inline int get_ramp_value() { return gx_system::atomic_get(ramp_value); } // RT
     void set_samplerate(int samplerate);
     bool set_plugin_list(const list<Plugin*> &p);
     void clear_module_states();
@@ -126,7 +126,7 @@ private:
     inline F get_audio(PluginDef *p);
 protected:
     F *processing_pointer; // RT
-    inline F* get_rt_chain() { return reinterpret_cast<F*>(g_atomic_pointer_get(&processing_pointer)); } // RT
+    inline F* get_rt_chain() { return gx_system::atomic_get(processing_pointer); } // RT
 public:
     ThreadSafeChainPointer();
     ~ThreadSafeChainPointer();
@@ -218,7 +218,7 @@ void ThreadSafeChainPointer<F>::commit(bool clear) {
 	current_pointer[active_counter++] = f;
     }
     current_pointer[active_counter].func = 0;
-    g_atomic_pointer_set(&processing_pointer, current_pointer);
+    gx_system::atomic_set(&processing_pointer, current_pointer);
     latch = true;
     current_index = (current_index+1) % 2;
     current_pointer = rack_order_ptr[current_index];
@@ -260,6 +260,8 @@ protected:
     // modules, and timing requirements are relaxed)
     sigc::signal<void, unsigned int> buffersize_change;
     sigc::signal<void, unsigned int> samplerate_change;
+    unsigned int buffersize;
+    unsigned int samplerate;
 public:
     PluginList pluginlist;  
     EngineControl();
@@ -270,11 +272,14 @@ public:
     virtual bool update_module_lists() = 0;
     virtual void start_ramp_up() = 0;
     virtual void start_ramp_down() = 0;
-    virtual void set_samplerate(unsigned int samplerate);
-    void set_buffersize(unsigned int buffersize);
+    void set_samplerate(unsigned int samplerate_);
+    unsigned int get_samplerate() { return samplerate; }
+    void set_buffersize(unsigned int buffersize_);
+    unsigned int get_buffersize() { return buffersize; }
     void set_rack_changed() { rack_changed = true; }
     void clear_rack_changed() { rack_changed = false; }
     sigc::signal<void, unsigned int>& signal_buffersize_change() { return buffersize_change; }
+    sigc::signal<void, unsigned int>& signal_samplerate_change() { return samplerate_change; }
     void add_selector(ModuleSelector& sel);
     void registerParameter(ParamMap& param, ParameterGroups& groups);
     void get_sched_priority(int &policy, int &priority, int prio_dim = 0);
@@ -308,7 +313,6 @@ public:
 public:
     ModuleSequencer();
     ~ModuleSequencer();
-    sigc::signal<void, unsigned int>& signal_samplerate_change() { return samplerate_change; }
     void clear_module_states() {
 	mono_chain.clear_module_states();
 	stereo_chain.clear_module_states();

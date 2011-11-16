@@ -303,7 +303,9 @@ void ConvolverAdapter::change_buffersize(unsigned int size) {
 	    conv.checkstate();
 	}
 	conv.set_buffersize(size);
-	conv_start();
+	if (size) {
+	    conv_start();
+	}
     } else {
 	conv.set_buffersize(size);
     }
@@ -400,6 +402,11 @@ void ConvolverAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {
 int ConvolverAdapter::activate(bool start, PluginDef *p) {
     ConvolverAdapter& self = *static_cast<ConvolverAdapter*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
+    if (start) {
+	if (!self.conv.get_buffersize()) {
+	    start = false;
+	}
+    }
     if (start == self.activated) {
 	return 0;
     }
@@ -446,7 +453,11 @@ void BaseConvolver::change_buffersize(unsigned int bufsize) {
     boost::mutex::scoped_lock lock(activate_mutex);
     conv.set_buffersize(bufsize);
     if (activated) {
-	start(true);
+	if (!bufsize) {
+	    conv_stop();
+	} else {
+	    start(true);
+	}
     }
 }
 
@@ -462,6 +473,11 @@ void BaseConvolver::init(unsigned int samplingFreq, PluginDef *p) {
 int BaseConvolver::activate(bool start, PluginDef *p) {
     BaseConvolver& self = *static_cast<BaseConvolver*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
+    if (start) {
+	if (!self.conv.get_buffersize()) {
+	    start = false;
+	}
+    }
     if (start == self.activated) {
 	return 0;
     }

@@ -7,10 +7,6 @@ def configure(conf):
     pass
 
 def build(bld):
-    sources = [
-        'ladspa_guitarix.cpp',
-        ]
-
     bsources = [
         '../gx_head/gx_json.cpp',
         '../gx_head/gx_faust_plugins.cpp',
@@ -24,22 +20,21 @@ def build(bld):
         '../gx_head/gx_pluginloader.cpp',
         '../zita-convolver/zita-convolver.cc',
         '../zita-resampler/zita-resampler.cc',
-        '../plugins/zita_rev1.cc',
+        '../plugins/zita_rev1.cc',  ## lib can't be used (-fPIC)
         ]
     
-    for fn in sources:
-        src = [fn] + bsources
-        ladspa_plugin = bld(
-            #features='cxx cprogram',
-            features='cxx cshlib',
-            includes = ['../headers', '..', '../../libgxwmm', '../../libgxw',
-                        '../gx_head', '../zita-convolver'],
-            uselib = ['GLIBMM','GIOMM','FFTW3','SNDFILE','JACK','BOOST_THREAD'],
-            #uselib_local = ["plugins"],
-            target   = fn.replace(".cpp",""),
-            source   = src,
-            #install_path = '${LADSPADIR}',
-            install_path = None,
-            chmod = 0755,
-            )
-        ladspa_plugin.env['shlib_PATTERN'] = '%s.so'
+    src = ['ladspa_guitarix.cpp'] + bsources
+    ladspa_plugin = bld(
+        #features='cxx cprogram',  ## for debugging
+        features='cxx cshlib',
+        includes = ['../headers', '..', '../../libgxwmm', '../../libgxw',
+                    '../gx_head', '../zita-convolver'],
+        uselib = ['GLIBMM','GIOMM','FFTW3','SNDFILE','JACK','BOOST_THREAD'],
+        #uselib_local = ["plugins"], ## needs -fPIC
+        target   = 'ladspa_guitarix',
+        source   = src,
+        install_path = '${LADSPADIR}',
+        chmod = 0755,
+        )
+    ladspa_plugin.env['shlib_PATTERN'] = '%s.so'
+    bld.install_files('${SHAREDIR}/ladspa/rdf', 'guitarix_amp.rdf')

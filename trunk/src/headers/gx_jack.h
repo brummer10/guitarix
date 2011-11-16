@@ -68,9 +68,9 @@ private:
     jack_ringbuffer_t *ring;
     bool send_changes;
     int overflow;  // should be bool but gives compiler error
-    void set_overflow() { g_atomic_int_set(&overflow, true); }
-    void clear_overflow()  { g_atomic_int_set(&overflow, false); }
-    bool is_overflow() { return g_atomic_int_get(&overflow); }
+    void set_overflow() { gx_system::atomic_set(&overflow, true); }
+    void clear_overflow()  { gx_system::atomic_set(&overflow, false); }
+    bool is_overflow() { return gx_system::atomic_get(overflow); }
 public:
     Glib::Dispatcher new_data;
     Glib::Dispatcher portchange;
@@ -202,10 +202,10 @@ public:
 
 #ifdef HAVE_JACK_SESSION
     jack_session_event_t *get_last_session_event() {
-	return static_cast<jack_session_event_t *>g_atomic_pointer_get(&session_event);
+	return gx_system::atomic_get(session_event);
     }
     jack_session_event_t *get_last_session_event_ins() {
-	return static_cast<jack_session_event_t *>g_atomic_pointer_get(&session_event_ins);
+	return gx_system::atomic_get(session_event_ins);
     }
     int                 return_last_session_event();
     int                 return_last_session_event_ins();

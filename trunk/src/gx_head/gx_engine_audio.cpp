@@ -65,7 +65,11 @@ void ProcessingChainBase::set_stopped(bool v) {
 }
 
 void ProcessingChainBase::start_ramp_up() {
+    RampMode rm = get_ramp_mode();
     if (!stopped) {
+	if (rm != ramp_mode_down_dead && rm != ramp_mode_down) {
+	    return;
+	}
 	set_ramp_value(0);
 	set_ramp_mode(ramp_mode_up_dead);
     }
@@ -73,7 +77,7 @@ void ProcessingChainBase::start_ramp_up() {
 
 void ProcessingChainBase::start_ramp_down() {
     RampMode rm = get_ramp_mode();
-    if (rm == ramp_mode_down_dead or rm == ramp_mode_down) {
+    if (rm == ramp_mode_down_dead || rm == ramp_mode_down) {
 	return;
     }
     int rv = min(steps_down,get_ramp_value());
@@ -87,12 +91,12 @@ void ProcessingChainBase::start_ramp_down() {
 
 void ProcessingChainBase::try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv) {
     if (oldmode != newmode) {
-	if (!g_atomic_int_compare_and_exchange(&ramp_mode, oldmode, newmode)) {
+	if (!gx_system::atomic_compare_and_exchange(&ramp_mode, oldmode, newmode)) {
 	    return;
 	}
     }
     if (oldrv != newrv) {
-	if (!g_atomic_int_compare_and_exchange(&ramp_value, oldrv, newrv)) {
+	if (!gx_system::atomic_compare_and_exchange(&ramp_value, oldrv, newrv)) {
 	    return;
 	}
     }
@@ -455,21 +459,38 @@ void EngineControl::get_sched_priority(int &policy_, int &priority_, int prio_di
     }
 }
 
-void EngineControl::init(unsigned int samplerate, unsigned int buffersize,
-			   int policy_, int priority_) {
-    set_buffersize(buffersize);
-    set_samplerate(samplerate);
-    policy = policy_;
-    priority = priority_;
+void EngineControl::set_samplerate(unsigned int samplerate_) {
+    if (samplerate == samplerate_) {
+	return;
+    }
+    samplerate = samplerate_;
+    pluginlist.set_samplerate(samplerate);
+    samplerate_change(samplerate);
 }
 
-void EngineControl::set_buffersize(unsigned int buffersize) {
+void EngineControl::set_buffersize(unsigned int buffersize_) {
+    if (buffersize == buffersize_) {
+	return;
+    }
+    buffersize = buffersize_;
     buffersize_change(buffersize);
 }
 
-void EngineControl::set_samplerate(unsigned int samplerate) {
-    pluginlist.set_samplerate(samplerate);
-    samplerate_change(samplerate);
+void EngineControl::init(unsigned int samplerate_, unsigned int buffersize_,
+			 int policy_, int priority_) {
+    if (policy_ != policy || priority_ != priority) {
+	policy = policy_;
+	priority = priority_;
+	set_buffersize(buffersize_);
+	set_samplerate(samplerate_);
+	return;
+    }
+    if (buffersize_ != buffersize) {
+	set_buffersize(buffersize_);
+    }
+    if (samplerate_ != samplerate) {
+	set_samplerate(samplerate_);
+    }
 }
 
 

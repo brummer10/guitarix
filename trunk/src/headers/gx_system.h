@@ -34,6 +34,43 @@
 namespace gx_system {
 
 /****************************************************************
+ ** "atomic" value access
+ */
+
+inline void atomic_set(volatile int* p, int v) {
+    g_atomic_int_set(p, v);
+}
+
+inline int atomic_get(volatile int& p) {
+    return g_atomic_int_get(&p);
+}
+
+inline bool atomic_compare_and_exchange(volatile int *p, int oldv, int newv) {
+    return g_atomic_int_compare_and_exchange(p, oldv, newv);
+}
+
+template <class T>
+inline void atomic_set(T **p, T *v) {
+    g_atomic_pointer_set(p, v);
+}
+
+template <class T>
+inline void atomic_set_0(T **p) {
+    g_atomic_pointer_set(p, 0);
+}
+
+template <class T>
+inline T *atomic_get(T*& p) {
+    return static_cast<T*>(g_atomic_pointer_get(&p));
+}
+
+template <class T>
+inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv) {
+    return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
+}
+
+
+/****************************************************************
  ** Measuring times
  */
 
@@ -133,7 +170,7 @@ class MeasureThreadsafe {
  private:
     Measure *pmeasure;
     Measure m[2];
-    inline Measure *access() { return reinterpret_cast<Measure*>(g_atomic_pointer_get(&pmeasure)); }
+    inline Measure *access() { return atomic_get(pmeasure); }
  public:
     MeasureThreadsafe(): pmeasure(m) {}
     inline void start() { access()->start_process(); }
