@@ -12,7 +12,7 @@
 
   <ladspa:SimulatorPlugin rdf:about="&ladspa;4069">
     <dc:creator>Guitarix Team</dc:creator>
-    <dc:title>Guitarix</dc:title>
+    <dc:title>Guitarix Amp</dc:title>
     <ladspa:hasPort>
       <ladspa:AudioInputPort rdf:about="&ladspa;4069.1" ladspa:hasLabel="Input" />
     </ladspa:hasPort>
@@ -101,7 +101,7 @@
 
   <ladspa:SimulatorPlugin rdf:about="&ladspa;4070">
     <dc:creator>Guitarix Team</dc:creator>
-    <dc:title>Guitarix Fx</dc:title>
+    <dc:title>Guitarix Stereo Fx</dc:title>
     <ladspa:hasPort>
       <ladspa:AudioInputPort rdf:about="&ladspa;4070.1" ladspa:hasLabel="Input1" />
     </ladspa:hasPort>

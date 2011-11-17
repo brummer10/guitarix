@@ -202,6 +202,7 @@ private:
     };
     string filename;
     ifstream *is;
+    time_t mtime;
     SettingsFileHeader header;
     vector<Position> entries;
     void open();
@@ -211,6 +212,7 @@ public:
     void reopen() { if (!is) open(); }
     void open(const string& fname);
     bool fail() { reopen(); return is->fail(); }
+    void ensure_is_current();
     const string& get_filename() { return filename; }
     const SettingsFileHeader& get_header();
     int size() const { return entries.size(); }

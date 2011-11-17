@@ -21,6 +21,7 @@
 /* system header files */
 #include <semaphore.h>
 #include <cmath>
+#include <ctime>
 #include <sstream>
 #include <fstream>
 #include <string>

@@ -284,6 +284,7 @@ void LadspaSettings::load(int num) {
     if (num == 0) {
 	gx_system::GxSettingsBase::load(state,"","");
     } else if (idx_in_preset(num-1)) {
+	presetfile.ensure_is_current();
 	load_preset_by_idx(num-1);
     } else {
 	gx_system::gx_print_error("preset loader", boost::format("no preset number %1%") % num);
@@ -1118,9 +1119,9 @@ LadspaGuitarixMono::LADSPA::LADSPA()
     }
 
     UniqueID = 4069;
-    Label = "guitarix";
+    Label = "guitarix-amp";
     Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
-    Name = "Guitarix";
+    Name = "Guitarix Amp";
     Maker = "Guitarix Team";
     Copyright = "GPL";
     PortCount = PORT_COUNT;
@@ -1395,7 +1396,7 @@ void LadspaGuitarixStereo::activateGuitarix(LADSPA_Handle Instance) {
     self.rebuffer.set_bufsize(bufsize);
     self.engine.set_buffersize(bufsize);
     gx_system::gx_print_info(
-	"ladspa fx activate",
+	"fx activate",
 	boost::format("instance %1%, samplerate %2%, buffer %3%, priority %4%")
 	% Instance % self.engine.get_samplerate() % bufsize % prio);
     self.engine.init(self.engine.get_samplerate(), bufsize, policy, prio);
@@ -1637,9 +1638,9 @@ LadspaGuitarixStereo::LADSPA::LADSPA()
     }
 
     UniqueID = 4070;
-    Label = "guitarix fx";
+    Label = "guitarix-fx";
     Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
-    Name = "Guitarix Fx";
+    Name = "Guitarix Stereo Fx";
     Maker = "Guitarix Team";
     Copyright = "GPL";
     PortCount = PORT_COUNT;

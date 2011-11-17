@@ -1,4 +1,4 @@
-Hello, 
+Hello,
 
 Guitarix is a simple mono amplifier to be used in a 'JACKified'
 environment, i.e. a system using the JACK Audio Connection Kit, a
@@ -10,11 +10,9 @@ available here:
 Guitarix provides one JACK input port and two JACK output ports. It is 
 designed to produce nice trash/metal/rock/blues guitar sounds. Controls 
 for bass, treble, gain, compressor, preamp, balance, distortion, freeverb, 
-crybaby (wah) and echo are available. A fixed resonator is used when 
-distortion is disabled. To modify the sound 'pressure', you can use the 
-feedback and feedforward sliders.
+crybaby (wah) and echo are available.
 
-Guitarix includes an experimental tuner and a JACK MIDI output port
+Guitarix includes a tuner and an experimental JACK MIDI output port
 with 3 channels. They are fed by a mix from a pitch tracker and a
 beat detector. You can pitch the octave (2 octaves up or down), choose the
 MIDI channel, the MIDI program, the velocity and the sensitiviy, which
@@ -27,8 +25,8 @@ channels.
 
 ---- Build environment
 
-As of version 0.04.5-1, guitarix uses 'waf' for the build environment.
-The simplest and fastest way to build guitarix is given below:
+Guitarix uses 'waf' for the build environment. The simplest and
+fastest way to build guitarix is given below:
 
   cd guitarix_source_directory
   ./waf configure
@@ -51,9 +49,12 @@ Thus, guitarix will be installed in /usr/bin.
 To compile and run properly guitarix needs the following extra
 packages (runtime binaries/libraries and development packages):
 
-  GTK+-2.0 >= 2.12.0 
+  GTK+-2.0 >= 2.20
   libsndfile  >= 1.0.17
-  JACK (jackd, libjack, and their development packages) >= 0.109.1
+  JACK (jackd, libjack, and their development packages) >= 0.116.2
+  gtkmm-2.4 >= 2.24
+  fftw3f >= 3.1.2
+  ladspa-sdk
 
 By the way, most package managers usually list development packages as 
 'packagename-dev', e.g. libsndfile-dev.
@@ -241,7 +242,7 @@ is not running.
 The user can choose to activate JACK or exit guitarix.  Note that the
 supported methods for starting JACK are (by preference order):
 
-1- QJackCtl --start
+1- qjackctl --start
 2- Use of $HOME/.jackdrc
 
 Guitarix does not support jackdbus or any JACK start method other than
@@ -285,24 +286,6 @@ If jack_capture is to record into the OGG format, you also need the
 vorbis-tools package for encoding to OGG:
 
 	http://vorbistools.sourceforge.net/
-
-=> jconv
-
-Guitarix can also use the excellent jconv convolution engine developed by 
-Fons Adriaensen, available here: 
-
-	http://www.kokkinizita.net/linuxaudio/index.html 
-
-Jconv can be configured from guitarix. However, due to design
-restrictions jconv can only be configured when not running. Despite
-this restriction, it is possible to save guitarix presets with
-particular jconv settings. The user can recall these presets from the
-main Load Preset menu item.
-
-Note: When trying to load an impulse response WAV file (aka an IR file), 
-guitarix will check for spaces in the filename and remove them if present.
-You can also resample the file to the sample rate used by JACK. Finally, 
-as for jack_capture, guitarix will run even if jconv is not installed.
 
 
 ===========================================

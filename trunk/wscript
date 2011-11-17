@@ -104,18 +104,17 @@ def set_options(opt):
                     help='build with included local zita-convolver libary (Default NO)')
 
 
-    comp.add_option('--no_ladspa',
+    comp.add_option('--no-ladspa',
                     action='store_const',
                     default=False,
                     const=True,
-                    help='dont build ladspa plugins (Default yes)')
+                    help="don't build ladspa plugins (Default yes)")
 
-    comp.add_option('--experimental-ladspa',
+    comp.add_option('--no-new-ladspa',
                     action='store_const',
                     default=False,
                     const=True,
-                    help=('build with experimental ladspa plugin'
-                          ' (in src/ladsp, will not be installed'))
+                    help=("don't build with new ladspa plugins"))
 
     faust = opt.add_option_group("Faust-Compiler")
 
@@ -475,7 +474,7 @@ def configure(conf):
     conf.check_cfg(package='gtkmm-2.4', atleast_version='2.20', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
     conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
-    if not opt.no_ladspa or opt.experimental_ladspa:
+    if not opt.no_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
 
     check_boost(conf)
@@ -511,7 +510,7 @@ def configure(conf):
     conf.define('BIN_NAME', APPNAME)
     conf.define('BIN_NAME1', APPNAME1)
 
-    conf.env['EXP_LADSPA'] = opt.experimental_ladspa
+    conf.env['NEW_LADSPA'] = not opt.no_ladspa and not opt.no_new_ladspa
     conf.env['LADSPA'] = not opt.no_ladspa
     if not opt.no_ladspa:
         if opt.ladspadir:
@@ -564,7 +563,7 @@ def configure(conf):
         display_msg("CPU version" , "%s" % cpu_model, "CYAN")
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
     display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
-    display_feature("Use faust", conf.env['FAUST'])
+    display_feature("Use prebuild faust files", not conf.env['FAUST'])
     if not opt.faust_float:
         display_msg("Use faust precision", "double", 'CYAN')
     else:
@@ -575,11 +574,11 @@ def configure(conf):
 
 
     display_feature("build ladspa plugins", conf.env['LADSPA'])
-    display_feature("Python Library Wrapper", conf.env['GX_PYTHON_WRAPPER'])
-    display_feature("re-generate C++ Library Wrapper", not conf.env['USE_GENERATED_CPP'])
-    display_feature("Build with shared lib", conf.env['GX_LIB_SHARED'])
+    display_feature("skip Python Library Wrapper", not conf.env['GX_PYTHON_WRAPPER'])
+    display_feature("use prebuild C++ Library Wrapper", conf.env['USE_GENERATED_CPP'])
+    display_feature("skip building shared lib", not conf.env['GX_LIB_SHARED'])
     display_feature("Localization  (intltool)", conf.env['ENABLE_NLS'])
-    display_feature("Build support for glade", conf.env['GX_GLADE_SUPPORT'])
+    display_feature("skip glade support", not conf.env['GX_GLADE_SUPPORT'])
     if conf.env['GX_GLADE_SUPPORT']:
         display_msg("glade catalog dir", conf.env['GLADE_CATALOG_DIR'], 'CYAN')
         display_msg("glade modules dir", conf.env['GLADE_MODULES_DIR'], 'CYAN')
@@ -592,7 +591,7 @@ def configure(conf):
     display_msg("Guitarix builder directory", conf.env['GX_BUILDER_DIR'], 'CYAN')
     display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
     if conf.env['g++']:
-       error_msg("ERROR       !!! Compiler version is to old !!!")
+       error_msg("ERROR       !!! Compiler version is too old !!!")
 
     print_msg("")
 
@@ -627,7 +626,7 @@ def build(bld):
 
     pa = bld.env['GX_SOUND_DIR1']
     bld.add_subdirs('src/gx_head')
-    if bld.env["EXP_LADSPA"]:
+    if bld.env["NEW_LADSPA"]:
         bld.add_subdirs('src/ladspa')
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)

@@ -25,9 +25,9 @@
 
 #include "engine.h"               // NOLINT
 
+#include <sys/stat.h>
+
 namespace gx_system {
-
-
 
 /****************************************************************
  ** JsonWriter
@@ -619,6 +619,7 @@ JsonWriter *StateFile::create_writer(bool *preserve_preset) {
 PresetFile::PresetFile()
     : filename(),
       is(0),
+      mtime(),
       header(),
       entries() {
 }
@@ -628,6 +629,12 @@ void PresetFile::open() {
     entries.clear();
     if (filename.empty()) {
 	return;
+    }
+    struct stat st;
+    if (stat(filename.c_str(), &st) == 0) {
+	mtime = st.st_mtime;
+    } else {
+	mtime = 0;
     }
     is = new ifstream(filename.c_str());
     JsonParser jp(is);
@@ -651,6 +658,22 @@ void PresetFile::open() {
     }
     jp.next(JsonParser::end_array);
     jp.next(JsonParser::end_token);
+}
+
+void PresetFile::ensure_is_current() {
+    if (filename.empty() || !mtime) {
+	return;
+    }
+    struct stat st;
+    if (stat(filename.c_str(), &st) == 0) {
+	if (st.st_mtime == mtime) {
+	    return;
+	}
+    } else {
+	mtime = 0;
+    }
+    delete is;
+    is = 0;
 }
 
 void PresetFile::open(const string& fname) {
