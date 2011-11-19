@@ -1674,6 +1674,7 @@ LadspaGuitarixStereo::LADSPA::~LADSPA() {
  */
 
 /* Return a descriptor of the requested plugin type. */
+extern "C" __attribute__ ((visibility ("default")))
 const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) {
     Glib::init();
     if (!Glib::thread_supported()) {

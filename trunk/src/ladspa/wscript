@@ -31,6 +31,7 @@ def build(bld):
                     '../gx_head', '../zita-convolver'],
         uselib = ['GLIBMM','GIOMM','FFTW3','SNDFILE','JACK','BOOST_THREAD'],
         #uselib_local = ["plugins"], ## needs -fPIC
+        cxxflags = ["-fvisibility=hidden"],
         target   = 'ladspa_guitarix',
         source   = src,
         install_path = '${LADSPADIR}',

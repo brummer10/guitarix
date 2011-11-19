@@ -28,6 +28,7 @@
       </properties>
     </glade-widget-class>
     <glade-widget-class title="Meter Scale" name="GxMeterScale" generic-name="gxmeterscale" />
+    <glade-widget-class title="Level Slider" name="GxLEVELSlider" generic-name="gxlevelslider" />
     <glade-widget-class title="Value Display" name="GxValueDisplay" generic-name="gxvaluedisplay" />
   </glade-widget-classes>
 
@@ -49,6 +50,7 @@
     <glade-widget-class-ref name="GxSmallKnob"/>
     <glade-widget-class-ref name="GxPaintBox"/>
     <glade-widget-class-ref name="GxMeterScale"/>
+    <glade-widget-class-ref name="GxLEVELSlider"/>
     <glade-widget-class-ref name="GxValueDisplay"/>
   </glade-widget-group>
 

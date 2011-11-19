@@ -61,43 +61,11 @@ static void gx_level_slider_size_request (GtkWidget *widget, GtkRequisition *req
 	g_object_unref(pb);
 }
 
-inline double log_meter (GtkWidget *widget)
-{
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	double db = adj->value;
-	gfloat def = 0.0f; /* Meter deflection %age */
-
-	if (db < -70.0f) {
-		def = 0.0f;
-	} else if (db < -60.0f) {
-		def = (db + 70.0f) * 0.25f;
-	} else if (db < -50.0f) {
-		def = (db + 60.0f) * 0.5f + 2.5f;
-	} else if (db < -40.0f) {
-		def = (db + 50.0f) * 0.75f + 7.5f;
-	} else if (db < -30.0f) {
-		def = (db + 40.0f) * 1.5f + 15.0f;
-	} else if (db < -20.0f) {
-		def = (db + 30.0f) * 2.0f + 30.0f;
-	} else if (db < 6.0f) {
-		def = (db + 20.0f) * 2.5f + 50.0f;
-	} else {
-		def = 115.0f;
-	}
-
-	/* 115 is the deflection %age that would be
-	   when db=6.0. this is an arbitrary
-	   endpoint for our scaling.
-	*/
-
-	return def/115.0f;
-}
-
-
 static void level_slider_expose(
 	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image)
 {
-	sliderstate =rect->height* log_meter (widget);
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	sliderstate = rect->height * log_meter(adj->value);
 	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
 	                image, 0, (gint)sliderstate, rect->x, rect->y,
 	                rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);

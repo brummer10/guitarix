@@ -19,6 +19,7 @@
 
 #include "GxPaintBox.h"
 #include "GxGradient.h"
+#include "GxLevelSlider.h"
 #include <gtk/gtkprivate.h>
 #include <gtk/gtk.h>
 #include <cmath>
@@ -396,7 +397,7 @@ static void set_box_color(GtkWidget *wi, cairo_pattern_t *pat)
 }
 
 //----- paint boxes with cairo -----
-static gboolean amp_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	cr = gdk_cairo_create(wi->window);
@@ -444,10 +445,9 @@ static gboolean amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	cairo_pattern_t *pat;
@@ -506,10 +506,9 @@ static gboolean conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean upper_widget_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void upper_widget_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	cairo_pattern_t *pat;
@@ -546,11 +545,9 @@ static gboolean upper_widget_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
-
 }
 
-static gboolean rectangle_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void rectangle_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -582,10 +579,9 @@ static gboolean rectangle_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean led_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void led_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -614,10 +610,9 @@ static gboolean led_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -648,10 +643,9 @@ static gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean convolver_icon_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void convolver_icon_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo black arc to given widget */
@@ -698,10 +692,9 @@ static gboolean convolver_icon_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void eq_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	//float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
     cairo_t *cr;
@@ -760,10 +753,9 @@ static gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean zac_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void zac_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -790,10 +782,9 @@ static gboolean zac_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean AmpBox_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void AmpBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -837,7 +828,6 @@ static gboolean AmpBox_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 /*
 static void set_rack_color(const gchar * title, cairo_pattern_t *pat)
@@ -948,7 +938,7 @@ static void set_rack_color(const gchar * title, cairo_pattern_t *pat)
 	
 }
 */
-static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	cairo_text_extents_t extents;
@@ -1015,10 +1005,9 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean crybaby_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void crybaby_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	cairo_text_extents_t extents;
@@ -1114,10 +1103,9 @@ static gboolean crybaby_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean ir_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void ir_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	cairo_text_extents_t extents;
@@ -1213,10 +1201,9 @@ static gboolean ir_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean compressor_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void compressor_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	cairo_text_extents_t extents;
@@ -1316,10 +1303,9 @@ static gboolean compressor_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean seq_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void seq_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	cairo_text_extents_t extents;
@@ -1417,10 +1403,9 @@ static gboolean seq_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean lhfilter_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void lhfilter_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -1470,10 +1455,9 @@ static gboolean lhfilter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	g_object_unref(frame);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	GdkPixbuf *_image, *stock_image;
 	cairo_t *cr;
@@ -1530,10 +1514,9 @@ static gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	g_object_unref(_image);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void vbox_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -1565,10 +1548,9 @@ static gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void filter_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	GdkPixbuf *_image, *stock_image;
 	cairo_t *cr;
@@ -1625,10 +1607,9 @@ static gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_destroy(cr);
 	g_object_unref(_image);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean plug_box_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void plug_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -1685,11 +1666,10 @@ static gboolean plug_box_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
 
-static gboolean info_box_expose_base(
+static void info_box_expose_base(
 	GtkWidget *wi, GdkEventExpose *ev,
 	void (*set_grad)(GtkWidget*,cairo_pattern_t*))
 {
@@ -1759,7 +1739,6 @@ static gboolean info_box_expose_base(
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
 static void set_grad_info_on(GtkWidget *wi, cairo_pattern_t *pat)
@@ -1769,18 +1748,18 @@ static void set_grad_info_on(GtkWidget *wi, cairo_pattern_t *pat)
 	cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0.8, 0.2, 0.4);
 }
 
-static gboolean info_box_expose_on(GtkWidget *wi, GdkEventExpose *ev)
+static void info_box_expose_on(GtkWidget *wi, GdkEventExpose *ev)
 {
-	return info_box_expose_base(wi, ev, set_grad_info_on);
+	info_box_expose_base(wi, ev, set_grad_info_on);
 }
 
-static gboolean info_box_expose_off(GtkWidget *wi, GdkEventExpose *ev)
+static void info_box_expose_off(GtkWidget *wi, GdkEventExpose *ev)
 {
-	return info_box_expose_base(wi, ev, set_skin_color);
+	info_box_expose_base(wi, ev, set_skin_color);
 }
 
 
-static gboolean slooper_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void slooper_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -1829,10 +1808,9 @@ static gboolean slooper_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
-	return FALSE;
 }
 
-static gboolean gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	GxPaintBoxClass *klass =  GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi));
 	
@@ -1933,10 +1911,9 @@ static gboolean gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 	                x0, y0, rect_width,rect_height,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
 	
-	return FALSE;
 }
 
-static gboolean gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	GxPaintBoxClass *klass =  GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi));
 	cairo_t *cr;
@@ -2066,10 +2043,9 @@ static gboolean gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);                
-	return FALSE;
 }
 
-static gboolean main_expose(GtkWidget *wi, GdkEventExpose *ev)
+static void main_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	
 	cairo_t *cr;
@@ -2095,8 +2071,78 @@ static gboolean main_expose(GtkWidget *wi, GdkEventExpose *ev)
 	                main_image, 0, 0,
 	                x0, y0, w,h,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
-	return FALSE;
 }
+
+static void level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+	cairo_set_font_size (cr, 7.0);
+
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+2;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-4;
+
+	int  db_points[] = { -50, -40, -30, -20, -10, -3, 0, 4 };
+	char  buf[32];
+
+	cairo_rectangle (cr, x0,y0,rect_width,rect_height+2);
+	cairo_set_source_rgb (cr, 0, 0, 0);
+	cairo_fill (cr);
+
+	cairo_pattern_t*pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+		//cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0.1, 0.1, 0.2);
+	cairo_pattern_add_color_stop_rgb (pat, 0.3, 0.06, 0.06, 0.07);
+	cairo_pattern_add_color_stop_rgb (pat, 1, 0.03, 0.03, 0.03);
+	cairo_set_source (cr, pat);
+	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
+	cairo_fill_preserve (cr);
+	
+	pat = cairo_pattern_create_linear (x0, 0, x0+rect_width, 0);
+	cairo_pattern_add_color_stop_rgba (pat, 0.3, 0.01, 0.01, 0.02, 0.3);
+	cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.6, 0.6, 0.7, 0.5);
+	cairo_pattern_add_color_stop_rgba (pat, 0.7, 0.01, 0.01, 0.01, 0.3);
+	cairo_set_source (cr, pat);
+	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
+	cairo_fill (cr);
+
+	for (unsigned int i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i)
+	{
+		float fraction = log_meter(db_points[i]);
+		cairo_set_source_rgb (cr, 0.12*i, 1, 0.1);
+
+		cairo_move_to (cr, x0+rect_width*0.2,y0+rect_height - (rect_height * fraction));
+		cairo_line_to (cr, x0+rect_width*0.8 ,y0+rect_height -  (rect_height * fraction));
+		if (i<6)
+		{
+			snprintf (buf, sizeof (buf), "%d", db_points[i]);
+			cairo_move_to (cr, x0+rect_width*0.32,y0+rect_height - (rect_height * fraction));
+		}
+		else
+		{
+			snprintf (buf, sizeof (buf), " %d", db_points[i]);
+			cairo_move_to (cr, x0+rect_width*0.34,y0+rect_height - (rect_height * fraction));
+		}
+		cairo_show_text (cr, buf);
+	}
+
+	cairo_set_source_rgb (cr, 0.4, 0.8, 0.4);
+	cairo_set_line_width (cr, 0.5);
+	cairo_stroke (cr);
+
+	cairo_pattern_destroy (pat);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+}
+
 static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 {
 	if (strcmp(paint_func, "amp_expose") == 0) {
@@ -2151,6 +2197,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = ir_expose;
 	} else if (strcmp(paint_func, "main_expose") == 0) {
 		paint_box->expose_func = main_expose;
+	} else if (strcmp(paint_func, "level_meter_expose") == 0) {
+	    paint_box->expose_func = level_meter_expose;
 	} else {
 		paint_box->expose_func = 0;
 	}

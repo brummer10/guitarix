@@ -467,6 +467,9 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
             continue;
         }
         if (!gx_engine::parameter_map.hasId(v)) {
+	    Glib::RefPtr<Gtk::Widget> wd = Glib::RefPtr<Gtk::Widget>::cast_dynamic(w);
+	    wd->set_sensitive(0);
+            wd->set_tooltip_text(v);
             gx_system::gx_print_warning("load dialog",
                 (boost::format("Parameter variable %1% not found") % v).str());
             continue;
@@ -511,6 +514,21 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
             if (fp.isControllable()) {
                 gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.value);
             }
+	} else if (p.isInt()) {
+            gx_engine::IntParameter &fp = p.getInt();
+	    Glib::RefPtr<Gxw::Selector> t =
+		Glib::RefPtr<Gxw::Selector>::cast_dynamic(w);
+	    if (t) {
+		Gtk::TreeModelColumn<Glib::ustring> label;
+		Gtk::TreeModelColumnRecord rec;
+		rec.add(label);
+		Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+		for (const value_pair *p = fp.getValueNames(); p->value_id; ++p) {
+		    ls->append()->set_value(0, Glib::ustring(fp.value_label(*p)));
+		}
+		t->set_model(ls);
+		t->cp_set_value(fp.value);
+	    }
         } else {
             gx_system::gx_print_warning("load dialog",
                       (boost::format("Parameter variable %1%: type not handled") % v).str());

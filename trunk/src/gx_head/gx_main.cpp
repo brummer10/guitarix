@@ -263,6 +263,50 @@ void ErrorPopup::show_msg() {
  ** main()
  */
 
+#ifndef NDEBUG
+namespace Glib { namespace Container_Helpers {
+template <>
+struct TypeTraits<GObject*> {
+    typedef GObject *CppType;
+    typedef GObject *CType;
+    typedef GObject *CTypeNonConst;
+
+    static CType to_c_type(CppType item) { return item; }
+    static CppType to_cpp_type(CType item) { return item; }
+    static void release_c_type(CType) {}
+};
+}} // end namespace Glib::Container_Helpers
+
+int debug_display_glade(const string& fname, const string& rcfile) {
+    gx_ui::GxUI ui;
+    float refpitch;
+    gx_engine::parameter_map.insert(
+	new gx_engine::FloatParameter(
+	    "ui.tuner_reference_pitch", "?Tuner Reference Pitch",
+	    gx_engine::Parameter::Continuous, false, refpitch,
+	    440, 427, 453, 0.1, false)); // half tone steps: 415..467
+    gx_engine::parameter_map.set_init_values();
+    Glib::RefPtr<Gtk::Builder> bld = gx_gui::load_builder_from_file(fname, ui);
+    Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
+	gtk_builder_get_objects(bld->gobj()), Glib::OWNERSHIP_DEEP);
+    Gtk::Window *w = 0;
+    for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); ++i) {
+	if (g_type_is_a(G_OBJECT_TYPE(*i), GTK_TYPE_WINDOW)) {
+	    w = Glib::wrap(GTK_WINDOW(*i));
+	}
+    }
+    if (!w) {
+	printf("can't open %s\n", fname.c_str());
+	return 1;
+    }
+    gx_ui::GxUI::updateAllGuis(true);
+    gtk_rc_parse(rcfile.c_str());
+    gtk_rc_reset_styles(gtk_settings_get_default());
+    Gtk::Main::run(*w);
+    return 0;
+}
+#endif
+
 namespace gx_engine {
 //FIXME should not be global but needed for UI atm.
 ParamMap parameter_map;
@@ -312,8 +356,16 @@ int main(int argc, char *argv[]) {
 	// ------ time measurement (debug) ------
 #ifndef NDEBUG
 	gx_system::add_time_measurement();
-#endif
 
+	if (argc > 1) {
+	    if (!options.get_rcset().empty()) {
+		gx_gui::gx_actualize_skin_index(options.skin, options.get_rcset());
+	    }
+	    string rcfile = options.get_style_filepath(
+		"gx_head_" + options.skin.skin_list[gx_engine::audio.fskin] + ".rc");
+	    return debug_display_glade(argv[1], rcfile);
+	}
+#endif
 	// ----------------------- init GTK interface----------------------
 
 	gx_gui::GxMainInterface gui(engine, options);

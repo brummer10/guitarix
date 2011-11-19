@@ -121,6 +121,7 @@ void gx_toggle_image_set_base_name(GxToggleImage *toggle_image, const char *base
 {
 	g_free(toggle_image->base_name);
 	toggle_image->base_name = g_strdup(base_name ? base_name : "");
+	gtk_widget_queue_resize(GTK_WIDGET(toggle_image));
 	g_object_notify(G_OBJECT(toggle_image), "base-name");
 }
 

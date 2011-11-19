@@ -85,6 +85,7 @@ def build(bld):
             includes = ["../headers"],
             source = csources,
             target = s.replace(".cc",""),
+            install_path = None, # for now...
             )
     
 

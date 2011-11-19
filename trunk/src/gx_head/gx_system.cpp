@@ -388,10 +388,12 @@ void CmdlineOptions::process(int argc, char** argv) {
              << endl;
         exit(0);
     }
+#ifdef NDEBUG
     if (argc > 1) {
 	throw gx_system::GxFatalError(
 	    string("unknown argument on command line: ")+argv[1]);
     }
+#endif
     if (clear && !rcset.empty()) {
 	throw Glib::OptionError(
 	    Glib::OptionError::BAD_VALUE,

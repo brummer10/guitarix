@@ -400,9 +400,13 @@ public:
 	if (imprate != samplerate) {
 	    vec = resamp.process(imprate, *count, impresp, samplerate, count);
 	    if (!vec) {
-		gx_system::gx_print_error(
-		    "convolver",
-		    boost::format("failed to resample %1% -> %2%") % imprate % samplerate);
+		boost::format msg = boost::format("failed to resample %1% -> %2%") % imprate % samplerate;
+		if (samplerate) {
+		    gx_system::gx_print_error("convolver", msg);
+		} else {
+		    // not need for extra error when no samplerate (probably not connected to jack)
+		    gx_system::gx_print_warning("convolver", msg);
+		}
 		return 0;
 	    }
 	    return vec;

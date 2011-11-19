@@ -191,7 +191,7 @@ bool* PluginList::on_off_var(const char *id) {
 }
 
 int PluginList::load_library(const string& path, PluginPos pos) {
-    void* handle = dlopen(path.c_str(), RTLD_NOW);
+    void* handle = dlopen(path.c_str(), RTLD_LOCAL|RTLD_NOW);
     if (!handle) {
 	gx_system::gx_print_error(
 	    _("Plugin Loader"),
@@ -202,7 +202,7 @@ int PluginList::load_library(const string& path, PluginPos pos) {
     plugin_inifunc get_gx_plugins = (plugin_inifunc) dlsym(handle, "get_gx_plugins");
     const char *dlsym_error = dlerror();
     if (dlsym_error) {
-	gx_system::gx_print_warning(
+	gx_system::gx_print_error(
 	    _("Plugin Loader"),
 	    boost::format(_("Cannot load symbol 'get_gx_plugins': %1%")) % dlsym_error);
         dlclose(handle);

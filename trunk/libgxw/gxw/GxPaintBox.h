@@ -39,7 +39,7 @@ struct _GxPaintBox {
 	GtkBox box;
 
 	gchar *paint_func;
-	gboolean (*expose_func)(GtkWidget*, GdkEventExpose*);
+	void (*expose_func)(GtkWidget*, GdkEventExpose*);
 
 	guint GSEAL (border_width) : 16;
 	GList *GSEAL (children);

@@ -98,7 +98,7 @@ static void gx_tuner_class_init(GxTunerClass *klass)
 			P_("The frequency for which tuning is displayed"),
 			400.0, 500.0, 440.0, GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property(
-		gobject_class, PROP_REFERENCE_PITCH, g_param_spec_double (
+		gobject_class, PROP_SCALE, g_param_spec_double (
 			"scale", P_("Image Scale"),
 			P_("scale the tuner area to make it bigger or smaller"),
 			0.5, 2.0, 1.0, GParamFlags(GTK_PARAM_READWRITE)));

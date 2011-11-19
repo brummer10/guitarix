@@ -33,6 +33,7 @@
 #include <string>             // NOLINT
 #include <gtkmm/menushell.h>
 #include <gtkmm/separatormenuitem.h>
+#include <gxw/GxPaintBox.h>
 
 /****************************************************************
  ** UiBuilder implementation
@@ -127,7 +128,7 @@ const char *pb_RackBox_expose =              "RackBox_expose";
 const char *pb_gxrack_expose =               "gxrack_expose";
 const char *pb_eq_expose =                   "eq_expose";
 const char *pb_main_expose =                 "main_expose";
-
+const char *pb_level_meter_expose =          "level_meter_expose";
 
 /****************************************************************
  ** register GUI parameter to save/load them within the settigs file
@@ -651,7 +652,12 @@ bool GxMainInterface::on_logger_delete_event(GdkEventAny*) {
 /* create level meter*/
 void GxMainInterface::openLevelMeterBox(const char* label) {
     GtkWidget* box1 = addWidget(label, gtk_alignment_new(0.5, 0.5, 0, 0));
-    GtkWidget* box = gtk_hbox_new(FALSE, 0);
+    gtk_alignment_set_padding(GTK_ALIGNMENT(box1), 0, 0, 0, 6);
+    GtkWidget* box = gx_paint_box_new(FALSE, 0);
+    GValue func = {0};
+    g_value_init(&func, G_TYPE_STRING);
+    g_value_set_string(&func, "level_meter_expose");
+    g_object_set_property(G_OBJECT(box), "paint-func", &func);
     gtk_container_add(GTK_CONTAINER(box1), box);
 
     gint boxheight = 125;
@@ -661,9 +667,6 @@ void GxMainInterface::openLevelMeterBox(const char* label) {
     gtk_box_set_spacing(GTK_BOX(box), 1);
 
     gtk_widget_set_size_request(GTK_WIDGET(box), boxwidth, boxheight);
-    g_signal_connect(box, "expose-event", G_CALLBACK(gx_cairo::level_meter_expose), NULL);
-    g_signal_connect(GTK_CONTAINER(box), "check-resize",
-                     G_CALLBACK(gx_cairo::level_meter_expose), NULL);
 
     // width of meter
     int width    = 8;

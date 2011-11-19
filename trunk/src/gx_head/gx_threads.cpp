@@ -29,6 +29,7 @@
 #include <cstring>          // NOLINT
 #include <algorithm>        // NOLINT
 #include <gtkmm/main.h>
+#include <gxw/GxLevelSlider.h>
 
 namespace gx_threads {
 

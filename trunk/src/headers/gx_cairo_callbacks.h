@@ -28,7 +28,6 @@
 namespace gx_cairo
 {
 // forwarddeclaration
-gboolean level_meter_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean conv_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);

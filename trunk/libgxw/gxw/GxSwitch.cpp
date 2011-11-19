@@ -31,6 +31,7 @@ enum {
 	PROP_VAR_ID = 1,
 	PROP_LABEL_REF,
 	PROP_BASE_NAME,
+	PROP_IMAGE,
 };
 
 static void gx_control_parameter_interface_init (GxControlParameterIface *iface);
@@ -46,6 +47,7 @@ static void gx_switch_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static gboolean gx_switch_expose(GtkWidget *widget, GdkEventExpose *event);
 static gboolean gx_switch_scroll_event(GtkWidget *widget, GdkEventScroll *event);
+static void gx_switch_style_set(GtkWidget *widget, GtkStyle *previous_style);
 
 static void
 gx_switch_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step)
@@ -87,6 +89,7 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 	widget_class->expose_event = gx_switch_expose;
 	widget_class->scroll_event = gx_switch_scroll_event;
 	object_class->destroy = gx_switch_destroy;
+	widget_class->style_set = gx_switch_style_set;
 
 	g_object_class_install_property(
 		gobject_class, PROP_LABEL_REF,
@@ -103,6 +106,7 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 		                    "",
 		                    GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
+	g_object_class_override_property(gobject_class, PROP_IMAGE, "image");
 }
 
 /*
@@ -315,6 +319,12 @@ static void gx_switch_destroy(GtkObject *object)
 	GTK_OBJECT_CLASS(gx_switch_parent_class)->destroy (object);
 }
 
+/****************************************************************
+ */
+static void gx_switch_style_set(GtkWidget *widget, GtkStyle *previous_style) {
+    GTK_WIDGET_CLASS(gx_switch_parent_class)->style_set(widget, previous_style);
+    gtk_widget_queue_resize(widget); // glade-gtk2 bug?
+}
 
 /****************************************************************
  */
@@ -371,6 +381,7 @@ void gx_switch_set_base_name(GxSwitch *swtch, const char *base_name)
 		                     GTK_WIDGET(g_object_new(GX_TYPE_TOGGLE_IMAGE, "base-name",
 		                                             base_name, NULL)));
 	}
+	gtk_widget_queue_resize(GTK_WIDGET(swtch));
 	g_object_notify(G_OBJECT(swtch), "base-name");
 }
 
@@ -404,6 +415,8 @@ gx_switch_set_property (GObject *object, guint prop_id, const GValue *value,
 	case PROP_BASE_NAME:
 		gx_switch_set_base_name(swtch, g_value_get_string(value));
 		break;
+	case PROP_IMAGE:
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -432,6 +445,9 @@ gx_switch_get_property(GObject *object, guint prop_id, GValue *value,
 		}
 		break;
 	}
+	case PROP_IMAGE:
+		g_value_set_object(value, 0);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;

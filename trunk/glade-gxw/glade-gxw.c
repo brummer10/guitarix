@@ -59,6 +59,7 @@ GType gx_paint_func_get_type(void)
 			{23, "seq_expose", "seq_expose" },
 			{24, "ir_expose", "ir_expose" },
 			{25, "main_expose", "main_expose" },
+			{26, "level_meter_expose", "level_meter_expose" },
 			{ 0, NULL, NULL }
 		};
 		etype = g_enum_register_static (g_intern_static_string ("GxPaintFunc"), values);
