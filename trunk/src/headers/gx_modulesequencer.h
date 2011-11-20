@@ -70,36 +70,18 @@ public:
     void set_samplerate(int samplerate);
     bool set_plugin_list(const list<Plugin*> &p);
     void clear_module_states();
-    void post_rt_finished() { // RT
+    inline void post_rt_finished() { // RT
 	int val;
 	latch = false;
 	if (sem_getvalue(&sync_sem, &val) == 0 && val == 0) {
 	    sem_post(&sync_sem);
 	}
     }
-    void wait_rt_finished() {
-	if (stopped) {
-	    return;
-	}
-	while (sem_wait(&sync_sem) == EINTR);
-    }
-    inline void wait_latch() {
-	if (latch) {
-	    wait_rt_finished();
-	}
-    }
-    inline bool check_release() {
-	return !to_release.empty();
-    }
+    bool wait_rt_finished();
+    void wait_latch();
+    inline bool check_release() { return !to_release.empty(); }
     void release();
-    void wait_ramp_down_finished() {
-	if (stopped) {
-	    return;
-	}
-	while (ramp_mode == ramp_mode_down) {
-	    wait_rt_finished();
-	}
-    }
+    void wait_ramp_down_finished();
     void start_ramp_up();
     void start_ramp_down();
     inline void set_down_dead() { set_ramp_mode(ramp_mode_down_dead); }

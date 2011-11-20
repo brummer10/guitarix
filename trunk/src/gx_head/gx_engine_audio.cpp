@@ -64,6 +64,52 @@ void ProcessingChainBase::set_stopped(bool v) {
     }
 }
 
+bool ProcessingChainBase::wait_rt_finished() {
+    if (stopped) {
+	return true;
+    }
+    timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    const long ns_in_sec = 1000000000;
+    ts.tv_nsec += ns_in_sec / 10;
+    if (ts.tv_nsec >= ns_in_sec) {
+	ts.tv_nsec -= ns_in_sec;
+	ts.tv_sec += 1;
+    }
+    while (sem_timedwait(&sync_sem, &ts) == -1) {
+	if (errno == EINTR) {
+	    continue;
+	}
+	if (errno == ETIMEDOUT) {
+	    gx_system::gx_print_warning("sem_timedwait", "timeout");
+	    return false;
+	}
+	gx_system::gx_print_error("sem_timedwait", "unknown error");
+	break;
+    }
+    return true;
+}
+
+void ProcessingChainBase::wait_latch() {
+    if (!latch) {
+	return;
+    }
+    if (!wait_rt_finished()) {
+	latch = false; // timeout; emergency measure for ladspa plugin...
+    }
+}
+
+void ProcessingChainBase::wait_ramp_down_finished() {
+    if (stopped) {
+	return;
+    }
+    while (ramp_mode == ramp_mode_down) {
+	if (!wait_rt_finished()) {
+	    break;
+	}
+    }
+}
+
 void ProcessingChainBase::start_ramp_up() {
     RampMode rm = get_ramp_mode();
     if (!stopped) {
@@ -188,9 +234,7 @@ void ProcessingChainBase::clear_module_states() {
 }
 
 void ProcessingChainBase::release() {
-    if (latch) {
-	wait_rt_finished();
-    }
+    wait_latch();
     for (list<Plugin*>::const_iterator p = to_release.begin(); p != to_release.end(); ++p) {
 	(*p)->pdef->activate_plugin(false, (*p)->pdef);
     }

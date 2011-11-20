@@ -517,7 +517,7 @@ void LadspaGuitarix::PresetLoader::create() {
     assert(instance == 0);
     sem_init(&created_sem, 0, 0);
     thread = Glib::Thread::create(sigc::ptr_fun(run_mainloop), true);
-    while (sem_wait(&created_sem) == EINTR);
+    while (sem_wait(&created_sem) == -1 && errno == EINTR);
     assert(instance);
 }
 
@@ -1010,7 +1010,7 @@ void LadspaGuitarixMono::ReBuffer::set_bufsize(int bufsize) {
 	    delete[] out_buffer;
 	    out_buffer = new LADSPA_Data[bufsize];
 	    buffer_size = bufsize;
-	    memset(out_buffer, 0, sizeof(out_buffer));
+	    memset(out_buffer, 0, bufsize * sizeof(out_buffer[0]));
 	    in_buffer_index = 0;
 	    out_buffer_index = 1;
 	}
@@ -1511,8 +1511,8 @@ void LadspaGuitarixStereo::ReBuffer::set_bufsize(int bufsize) {
 	    delete[] out_buffer2;
 	    out_buffer2 = new LADSPA_Data[bufsize];
 	    buffer_size = bufsize;
-	    memset(out_buffer1, 0, sizeof(out_buffer1));
-	    memset(out_buffer2, 0, sizeof(out_buffer2));
+	    memset(out_buffer1, 0, bufsize * sizeof(out_buffer1[0]));
+	    memset(out_buffer2, 0, bufsize * sizeof(out_buffer2[0]));
 	    in_buffer_index = 0;
 	    out_buffer_index = 1;
 	}
@@ -1542,7 +1542,7 @@ void LadspaGuitarixStereo::ReBuffer::set(
 }
 
 bool LadspaGuitarixStereo::ReBuffer::put() {
-    int n = min(buffer_size-out_buffer_index, block_size-in_block_index);
+    int n = min(buffer_size-out_buffer_index, block_size-out_block_index);
     if (n) {
 	// copy values from out buffer
 	copy(out_block1+out_block_index, out_block2+out_block_index,
@@ -1552,13 +1552,14 @@ bool LadspaGuitarixStereo::ReBuffer::put() {
     }
     n = min(buffer_size - in_buffer_index, block_size - in_block_index);
     if (n) {
-	// copy value to in buffer
+	// copy values to in buffer
 	copy(in_buffer1+in_buffer_index, in_buffer2+in_buffer_index,
 	     in_block1+in_block_index, in_block2+in_block_index, n);
 	in_buffer_index += n;
 	in_block_index += n;
     }
     if (in_buffer_index == buffer_size) {
+	// had enough input data left to fill buffer -> process
 	in_buffer_index = 0;
 	out_buffer_index = 0;
 	return true;
@@ -1680,10 +1681,14 @@ const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) {
     if (!Glib::thread_supported()) {
 	Glib::thread_init();
     }
-    gx_system::Logger& log(gx_system::Logger::get_logger());
-    if (log.signal_message().empty()) {
-	log.signal_message().connect(sigc::ptr_fun(log_terminal));
-	log.unplug_queue();
+    static bool inited = 0;
+    if (!inited) {
+	inited = 1;
+	gx_system::Logger& log(gx_system::Logger::get_logger());
+	if (log.signal_message().empty()) {
+	    log.signal_message().connect(sigc::ptr_fun(log_terminal));
+	    log.unplug_queue();
+	}
     }
     switch (Index) {
     case 0:
@@ -1721,6 +1726,9 @@ int main() {
 		data[i] = 1;
 	    } else {
 		data[i] = 0;
+	    }
+	    if (strcmp(ladspa->PortNames[i], "Buffersize") == 0) {
+		//data[i] = 256;
 	    }
 	    ladspa->connect_port(hand, i, data+i);
 	}
