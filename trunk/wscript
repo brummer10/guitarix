@@ -26,7 +26,6 @@ use_2to3 = True
 # used by waf dist and waf build
 VERSION='0.21.0svn'
 APPNAME='guitarix'
-APPNAME1='guitarix'
 
 good_faust_versions = ['0.9.43']
 
@@ -452,7 +451,7 @@ def configure(conf):
     else:
         nls = 'no '
         conf.define ('DISABLE_NLS', 1)
-    conf.define ('GETTEXT_PACKAGE', APPNAME1)
+    conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
     # compiler
@@ -488,11 +487,11 @@ def configure(conf):
     conf.check(header_name='jack/session.h', define_name='HAVE_JACK_SESSION')
 
     # defines for compilation
-    conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','skins')))
-    conf.define('GX_STYLE_DIR1', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head','skins')))
-    conf.define('GX_SOUND_DIR1', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head','sounds')))
-    conf.define('GX_BUILDER_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','builder')))
-    conf.define('GX_BUILDER_DIR1', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head','builder')))
+    gxsharedir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head'))
+    conf.define('GX_STYLE_DIR', os.path.join(gxsharedir,'skins'))
+    conf.define('GX_FACTORY_DIR', os.path.join(gxsharedir,'factorysettings'))
+    conf.define('GX_SOUND_DIR', os.path.join(gxsharedir,'sounds'))
+    conf.define('GX_BUILDER_DIR', os.path.join(gxsharedir,'builder'))
     conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
     conf.define('GX_VERSION', VERSION)
@@ -508,7 +507,6 @@ def configure(conf):
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
-    conf.define('BIN_NAME1', APPNAME1)
 
     conf.env['NEW_LADSPA'] = not opt.no_ladspa and not opt.no_new_ladspa
     conf.env['LADSPA'] = not opt.no_ladspa
@@ -587,8 +585,7 @@ def configure(conf):
     
     if not opt.no_ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
-    display_msg("Guitarix style directory", conf.env['GX_STYLE_DIR'], 'CYAN')
-    display_msg("Guitarix builder directory", conf.env['GX_BUILDER_DIR'], 'CYAN')
+    display_msg("Guitarix shared files directory", gxsharedir, 'CYAN')
     display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
     if conf.env['g++']:
        error_msg("ERROR       !!! Compiler version is too old !!!")
@@ -608,7 +605,7 @@ def build(bld):
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_po')
         obj.podir = 'po'
-        obj.appname = APPNAME1
+        obj.appname = APPNAME
 
     # process subfolders from here
     if bld.env["LADSPA"]:
@@ -624,17 +621,18 @@ def build(bld):
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')
 
-    pa = bld.env['GX_SOUND_DIR1']
+    pa = bld.env['GX_SOUND_DIR']
     bld.add_subdirs('src/gx_head')
     if bld.env["NEW_LADSPA"]:
         bld.add_subdirs('src/ladspa')
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
-    bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)
-    bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/dlp_ae_rc', chmod=0664)
-    bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/zettberlin_rc', chmod=0664)
-    bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/autoandimat_rc', chmod=0664)
-    bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/jp_n_o_s_rc', chmod=0664)
-    bld.install_files(bld.env['GX_SOUND_DIR1'], './IR/greathall.wav', chmod=0664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/funkmuscle_rc', chmod=0664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dlp_ae_rc', chmod=0664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/zettberlin_rc', chmod=0664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/autoandimat_rc', chmod=0664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jp_n_o_s_rc', chmod=0664)
+    bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0664)
 
     gen_desktop = bld(features  = "intltool_in",
         podir     = "po",

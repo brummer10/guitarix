@@ -81,8 +81,8 @@ def build(bld):
         uselib = uselib,
         uselib_local = uselib_local,
         libpath = libpath,
-        target = bld.env['BIN_NAME1'],
+        target = bld.env['BIN_NAME'],
         chmod = 0755,
         install_path = bld.env['BINDIR'],
         )
-    bld.install_files(bld.env['GX_BUILDER_DIR1'], builder_files, chmod=0644)
+    bld.install_files(bld.env['GX_BUILDER_DIR'], builder_files, chmod=0644)

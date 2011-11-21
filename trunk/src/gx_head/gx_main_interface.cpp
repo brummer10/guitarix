@@ -2215,12 +2215,6 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
       // factory settings submenu
       preset_factory_settings_label(_("Factory Settings"), true),
       preset_factory_settings_menu(),
-      factory_funkmuscle_label("funkmuscle", true),
-      factory_zettberlin_label("zettberlin", true),
-      factory_autoandimat_label("autoandimat", true),
-      factory_StudioDave_label("StudioDave", true),
-      factory_JP_label("JP", true),
-      factory_sub_menu(),
       // !factory settings submenu
       //---
       preset_patch_info_item(_("P_atch Info"), true),
@@ -2414,17 +2408,6 @@ void MainMenu::addPresetMenu(GxMainInterface& intf) {
 
     preset_menu.append(preset_factory_settings_label);
     preset_factory_settings_label.set_submenu(preset_factory_settings_menu);
-
-    preset_factory_settings_menu.append(factory_funkmuscle_label);
-    factory_funkmuscle_label.set_submenu(factory_sub_menu[0]);
-    preset_factory_settings_menu.append(factory_zettberlin_label);
-    factory_zettberlin_label.set_submenu(factory_sub_menu[1]);
-    preset_factory_settings_menu.append(factory_autoandimat_label);
-    factory_autoandimat_label.set_submenu(factory_sub_menu[2]);
-    preset_factory_settings_menu.append(factory_StudioDave_label);
-    factory_StudioDave_label.set_submenu(factory_sub_menu[3]);
-    preset_factory_settings_menu.append(factory_JP_label);
-    factory_JP_label.set_submenu(factory_sub_menu[4]);
 
     /*-- add New Preset saving under Save Presets menu */
     preset_submenu[1].append(preset_save_new);

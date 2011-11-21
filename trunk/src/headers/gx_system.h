@@ -245,6 +245,7 @@ private:
     string load_file;
     string builder_dir;
     string style_dir;
+    string factory_dir;
     string pixmap_dir;
     string user_dir;
     string plugin_dir;
@@ -268,8 +269,7 @@ public:
     string get_pixmap_filepath(const string& basename) const { return pixmap_dir + basename; }
     string get_builder_filepath(const string& basename) const { return builder_dir + basename; }
     string get_user_filepath(const string& basename) const { return user_dir + basename; }
-    string get_factory_filepath(const string& basename) const {
-	return get_style_filepath(basename); } //FIXME should be changed
+    string get_factory_filepath(const string& basename) const { return factory_dir + basename; }
     const string& get_user_dir() const { return user_dir; }
     const string& get_plugin_dir() const { return plugin_dir; }
     const string& get_sys_IR_dir() const { return sys_IR_dir; }

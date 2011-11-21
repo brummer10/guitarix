@@ -32,10 +32,6 @@
 #define LOAD_PRESET_LIST   (0)
 #define SAVE_PRESET_LIST   (1)
 #define RENAME_PRESET_LIST (2)
-// #define DELETE_PRESET_LIST (3)
-
-// number of factory preset lists
-#define GX_NUM_OF_FACTORY_PRESET (5)
 
 namespace gx_preset {
 
@@ -75,24 +71,21 @@ class GxPreset {
     void                  gx_recall_settings_file();
     void                  gx_cleanup_preset_name(Glib::ustring& presname);
     void                  gx_refresh_preset_menus();
-    void                  gx_load_factory_file(int i);
+    void                  gx_append_factory_file(const string& name, Gtk::Menu& menu);
     bool                  gx_nth_preset(unsigned char pgm);
 
     Gtk::MenuItem* const  gx_get_preset_item_from_name(int, const string&);
-    //GtkWidget*            ffpresmenu[GX_NUM_OF_FACTORY_PRESET];
     GtkWidget*            fpresmenu;
-    //GtkWidget*            presmenu[GX_NUM_OF_PRESET_LISTS];
     GtkWidget*            presMenu[GX_NUM_OF_PRESET_LISTS];
 
  private:
     string                old_preset_name;
     static bool gx_build_preset_list();
     static int gx_get_single_preset_menu_pos(const string& presname, const gint lindex);
-    static void gx_load_factory_preset(Gtk::MenuItem *menuitem, int load_preset);
-    vector<string>        fplist[GX_NUM_OF_FACTORY_PRESET];
-    vector<Gtk::MenuItem*>  fpm_list[GX_NUM_OF_FACTORY_PRESET];
-    vector<string>        plist;
-    vector<Gtk::MenuItem*>  pm_list[GX_NUM_OF_PRESET_LISTS];
+    static void gx_load_factory_preset(
+	const string& factory_name, const string& preset_name);
+    vector<string>        plist;  // name list of loadable presets
+    vector<Gtk::MenuItem*> pm_list[GX_NUM_OF_PRESET_LISTS];
 };
 
 extern GxPreset gxpreset;

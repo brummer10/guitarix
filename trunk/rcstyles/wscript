@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import Build
-
 gxstyle_files = [
     'gx12b.png',
     'gx14b.png',
@@ -44,5 +42,5 @@ def configure(conf):
     pass
 
 def build(bld):
-    bld.install_files(bld.env['GX_STYLE_DIR1'], gxstyle_files, chmod=0644)
+    bld.install_files(bld.env['GX_STYLE_DIR'], gxstyle_files, chmod=0644)
     

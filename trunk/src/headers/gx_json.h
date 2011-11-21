@@ -292,8 +292,6 @@ public:
     Source get_current_source() { return current_source; }
     const string& get_current_factory() { return current_factory; }
     const string& get_current_name() { return current_name; }
-    const string& get_factory(unsigned int idx) { //FIXME fix usage and remove
-	return factory_presets.at(idx)->name; }
     void set_statefilename(const string& fn) { statefile.set_filename(fn); }
     void save_to_state(bool preserve_preset=false);
     void save_to_current_preset() {

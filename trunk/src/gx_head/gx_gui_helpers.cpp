@@ -472,37 +472,13 @@ void GxPreset::gx_save_preset(const char* presname, bool expand_menu) {
     gx_system::gx_print_info(_("Preset Saving"), string(_("saved preset ")) + string(presname));
 }
 
-///------factory presets--------///
-static bool gx_load_preset_from_factory(const char* presname, int i) {
-    GxSettings& gxs = GxSettings::get_instance();
-    gxs.load(GxSettings::factory,presname,gxs.get_factory(i));
-    return true;
-}
-
 // ----menu funktion load preset from factory
-void GxPreset::gx_load_factory_preset(Gtk::MenuItem *menuitem, int load_preset) {
+void GxPreset::gx_load_factory_preset(
+    const string& factory_name, const string& preset_name) {
+
     gx_gui::guivar.show_patch_info -= 9999;
-    // retrieve preset name
-    vector<Gtk::MenuItem*>::iterator it = gxpreset.fpm_list[load_preset].begin();
-    vector<string>::iterator its = gxpreset.fplist[load_preset].begin();
-    for (it = gxpreset.fpm_list[load_preset].begin(); it != gxpreset.fpm_list[load_preset].end(); ++it) {
-        if (menuitem == *it)
-            break;
-        ++its;
-    }
-
-    string preset_name = *its;
-    // recall preset by name
-    // Note: the UI does not know anything about gx_head's directory stuff
-    // Need to pass it on
-    bool preset_ok = gx_load_preset_from_factory(preset_name.c_str(), load_preset);
-
-    // check audio.result
-    if (!preset_ok) {
-        gx_system::gx_print_error(
-	    _("Preset Loading"), string(_("Could not load preset ")) + preset_name);
-        return;
-    }
+    GxSettings& gxs = GxSettings::get_instance();
+    gxs.load(GxSettings::factory, preset_name, factory_name);
     gx_gui::guivar.show_patch_info = -1;
     // print out info
     gx_system::gx_print_info(
@@ -510,31 +486,15 @@ void GxPreset::gx_load_factory_preset(Gtk::MenuItem *menuitem, int load_preset) 
 }
 
 // load the factory preset file
-void GxPreset::gx_load_factory_file(int i) {
-    // initialize list
-    fplist[i].clear();
-    // initialize menu pointer list
-    fpm_list[i].clear();
-
-    GxSettings& gxs = GxSettings::get_instance();
-    gxs.fill_factory_preset_names(gxs.get_factory(i), fplist[i]);
-
-    vector<string>::iterator it;
-    for (it = fplist[i].begin() ; it != fplist[i].end(); ++it) {
-        // menu
-	gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
-	Gtk::Menu& menu = gui.mainmenu.factory_sub_menu[i];
-        vector<Gtk::MenuItem*>::iterator its;
-        // create item
-        string presna = *it;
-	Gtk::MenuItem *menuitem = manage(new Gtk::MenuItem(presna, true));
-	menuitem->signal_activate().connect(
-	    sigc::bind(sigc::ptr_fun(gx_load_factory_preset), menuitem, i));
-	menu.append(*menuitem);
-        its = fpm_list[i].end();
-        // add a pointer to the menuitem to the preset menu list
-        fpm_list[i].insert(its, menuitem);
+void GxPreset::gx_append_factory_file(const string& name, Gtk::Menu& menu) {
+    vector<string> fp;
+    GxSettings::get_instance().fill_factory_preset_names(name, fp);
+    for (vector<string>::iterator it = fp.begin() ; it != fp.end(); ++it) {
+	Gtk::MenuItem *menuitem = new Gtk::MenuItem(*it, true);
         menuitem->show();
+	menuitem->signal_activate().connect(
+	    sigc::bind(sigc::ptr_fun(gx_load_factory_preset), name, *it));
+	menu.append(*manage(menuitem));
     }
 }
 

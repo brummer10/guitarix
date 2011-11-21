@@ -173,7 +173,7 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 	    if (convolver) {
 		gx_system::PathList sl;
 		sl.add(string(getenv("HOME"))+"/.gx_head"); //FIXME
-		sl.add(GX_SOUND_DIR1);
+		sl.add(GX_SOUND_DIR);
 		jcset = GxJConvSettings();
 		jcset.readJSON(jp, sl);
 	    } else {

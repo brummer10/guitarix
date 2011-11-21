@@ -301,16 +301,7 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
     param.insert(&preset_parameter);
     param.insert(&factory_parameter);
     statefile.set_filename(make_default_state_filename());
-    for (const char *(*p)[2] = factory_settings; (*p)[0]; ++p) {
-	Factory *f = new Factory((*p)[0]);
-	factory_presets.push_back(f);
-	string path = opt.get_factory_filepath((*p)[1]);
-	try {
-	    f->setting.open(path);
-	} catch (gx_system::JsonException& e) {
-	    gx_system::gx_print_error(path.c_str(), _("not found or parse error"));
-	}
-    }
+    parse_factory_list();
     check_convert_presetfile();
     presetfile_parameter.set_standard(get_default_presetfile(opt));
     instance = this; //FIXME
@@ -327,6 +318,36 @@ GxSettings *GxSettings::instance = 0;//FIXME
 GxSettings::~GxSettings() {
     instance = 0;
     auto_save_state();
+}
+
+void GxSettings::parse_factory_list() {
+    ifstream is(options.get_factory_filepath("dirlist.js").c_str());
+    if (is.fail()) {
+	gx_system::gx_print_error(_("Presets"), _("factory preset list not found"));
+	return;
+    }
+    gx_system::JsonParser jp(&is);
+    jp.next(gx_system::JsonParser::begin_array);
+    while (jp.peek() != gx_system::JsonParser::end_array) {
+	jp.next(gx_system::JsonParser::begin_array);
+	jp.next(gx_system::JsonParser::value_string);
+	string name = jp.current_value();
+	jp.next(gx_system::JsonParser::value_string);
+	string path = options.get_factory_filepath(jp.current_value());
+	Factory *f = new Factory(name);
+	try {
+	    f->setting.open(path);
+	    factory_presets.push_back(f);
+	} catch (gx_system::JsonException& e) {
+	    delete f;
+	    gx_system::gx_print_error(path.c_str(), _("not found or parse error"));
+	}
+	jp.next(gx_system::JsonParser::end_array);
+    }
+    jp.next(gx_system::JsonParser::end_array);
+    jp.next(gx_system::JsonParser::end_token);
+    jp.close();
+    is.close();
 }
 
 void GxSettings::check_convert_presetfile() {

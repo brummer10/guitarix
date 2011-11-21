@@ -91,6 +91,7 @@ private:
     string make_default_state_filename();
     string make_std_preset_filename();
     void check_convert_presetfile();
+    void parse_factory_list();
     static string get_default_presetfile(gx_system::CmdlineOptions& opt);
 public:
     GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack, gx_engine::ConvolverAdapter& cvr,

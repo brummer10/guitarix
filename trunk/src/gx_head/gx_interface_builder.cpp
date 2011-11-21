@@ -316,8 +316,19 @@ void GxMainInterface::setup() {
     if (!connect_jack(true)) {
 	gx_settings.load(gx_system::GxSettingsBase::state);
     }
-    for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++) {
-	gx_preset::gxpreset.gx_load_factory_file(i);
+    vector<string> l;
+    gx_settings.fill_factory_names(l);
+    for (vector<string>::iterator i = l.begin(); i != l.end(); ++i) {
+	Gtk::MenuItem *mi = new Gtk::MenuItem(*i);
+	Gtk::Menu *menu = new Gtk::Menu();
+	gx_preset::gxpreset.gx_append_factory_file(*i, *menu);
+	mi->set_submenu(*manage(menu));
+	mainmenu.preset_factory_settings_menu.append(*manage(mi));
+    }
+    if (l.empty()) {
+	mainmenu.preset_factory_settings_label.set_sensitive(false);
+    } else {
+	mainmenu.preset_factory_settings_menu.show_all();
     }
     gx_preset::gxpreset.gx_refresh_preset_menus();
     gx_jconv::gx_load_jcgui();

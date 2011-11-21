@@ -494,12 +494,6 @@ public:
     Gtk::Menu          preset_submenu[GX_NUM_OF_PRESET_LISTS];
     Gtk::MenuItem      preset_factory_settings_label;
     Gtk::Menu          preset_factory_settings_menu;
-    Gtk::MenuItem      factory_funkmuscle_label;
-    Gtk::MenuItem      factory_zettberlin_label;
-    Gtk::MenuItem      factory_autoandimat_label;
-    Gtk::MenuItem      factory_StudioDave_label;
-    Gtk::MenuItem      factory_JP_label;
-    Gtk::Menu          factory_sub_menu[5];
 
     // preset more menu
     Gtk::MenuItem      preset_patch_info_item;

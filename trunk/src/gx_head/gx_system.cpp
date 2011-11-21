@@ -197,12 +197,13 @@ CmdlineOptions::CmdlineOptions()
       jack_uuid(),
       jack_uuid2(),
       load_file(shellvar("GUITARIX_LOAD_FILE")),
-      builder_dir(GX_BUILDER_DIR1),
-      style_dir(GX_STYLE_DIR1),
+      builder_dir(GX_BUILDER_DIR),
+      style_dir(GX_STYLE_DIR),
+      factory_dir(GX_FACTORY_DIR),
       pixmap_dir(GX_PIXMAPS_DIR),
       user_dir(),
       plugin_dir(),
-      sys_IR_dir(GX_SOUND_DIR1),
+      sys_IR_dir(GX_SOUND_DIR),
       IR_pathlist(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
       lterminal(false),
@@ -406,6 +407,7 @@ void CmdlineOptions::process(int argc, char** argv) {
 
     make_ending_slash(builder_dir);
     make_ending_slash(style_dir);
+    make_ending_slash(factory_dir);
     make_ending_slash(pixmap_dir);
     make_ending_slash(user_dir);
     make_ending_slash(plugin_dir);
