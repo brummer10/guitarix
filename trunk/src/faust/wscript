@@ -67,9 +67,11 @@ def build(bld):
         'stereoverb.dsp',
         'softclip.dsp',
         'gx_ampout.dsp',
+        'gx_ampout_ladspa.dsp',
         'noise_shaper.dsp',
         'bassbooster.dsp',
         'gx_outputlevel.dsp',
+        'gx_outputlevel_ladspa.dsp',
         'gxfeed.dsp',
 
         # tone stacks

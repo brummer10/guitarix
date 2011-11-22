@@ -44,6 +44,7 @@ def build(bld):
         uselib = uselib,
         #uselib_local = ["plugins"], ## needs -fPIC
         cxxflags = ["-fvisibility=hidden"],
+        defines = ["LADSPA_SO"],
         target   = 'ladspa_guitarix',
         source   = src,
         install_path = '${LADSPADIR}',

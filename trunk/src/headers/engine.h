@@ -40,6 +40,10 @@
 /* waf generated defines */
 #include "../config.h"
 
+#ifdef LADSPA_SO
+#define gettext(x) dgettext(GETTEXT_PACKAGE, x)
+#endif
+
 using namespace std;
 
 /* guitarix declarations */

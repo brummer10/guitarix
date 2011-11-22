@@ -863,6 +863,7 @@ bool PresetFile::rename(const string& name, string newname) {
 AbstractStateIO::~AbstractStateIO() {}
 AbstractPresetIO::~AbstractPresetIO() {}
 
+// seq_ may not yet be initialized, only use address!
 GxSettingsBase::GxSettingsBase(gx_engine::EngineControl& seq_)
     : state_io(),
       preset_io(),
