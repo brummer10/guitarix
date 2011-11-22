@@ -18,18 +18,30 @@ def build(bld):
         '../gx_head/gx_resampler.cpp',
         '../gx_head/gx_system.cpp',
         '../gx_head/gx_pluginloader.cpp',
-        '../zita-convolver/zita-convolver.cc',
-        '../zita-resampler/zita-resampler.cc',
         '../plugins/zita_rev1.cc',  ## lib can't be used (-fPIC)
         ]
     
     src = ['ladspa_guitarix.cpp'] + bsources
+    incl = ['../headers', '..', '../gx_head','../../libgxwmm','../../libgxw']
+    lib = ['dl']
+    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
+              'GLIBMM', 'GIOMM', 'FFTW3', 'BOOST_THREAD']
+    if bld.env['ZITA_CONVOLVER']:
+        uselib.append('ZITA_CONVOLVER')
+    else:
+        src.append('../zita-convolver/zita-convolver.cc')
+        incl.append('../zita-convolver');
+    if bld.env['ZITA_RESAMPLER']:
+        uselib.append('ZITA_RESAMPLER')
+    else:
+        src.append('../zita-resampler/zita-resampler.cc')
+        incl.append('../zita-resampler')
     ladspa_plugin = bld(
         #features='cxx cprogram',  ## for debugging
         features='cxx cshlib',
-        includes = ['../headers', '..', '../../libgxwmm', '../../libgxw',
-                    '../gx_head', '../zita-convolver'],
-        uselib = ['GLIBMM','GIOMM','FFTW3','SNDFILE','JACK','BOOST_THREAD'],
+        includes = incl,
+        lib = lib,
+        uselib = uselib,
         #uselib_local = ["plugins"], ## needs -fPIC
         cxxflags = ["-fvisibility=hidden"],
         target   = 'ladspa_guitarix',
