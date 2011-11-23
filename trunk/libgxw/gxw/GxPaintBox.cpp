@@ -636,7 +636,7 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
     
     static int spf;
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-    if(spf == 1) {
+    if(spf == 6) {
         GdkPixbuf * stock_image =
             gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
     
@@ -992,7 +992,7 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 
     static int spf;
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-    if(spf == 1) {
+    if(spf == 6) {
         GdkPixbuf * stock_image =
             gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
         

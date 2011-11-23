@@ -16,6 +16,7 @@ gxstyle_files = [
     'gx_head_gx3-dezert.rc',
     'gx_head_gx4-black.rc',
     'gx_head_gx5-gree.rc',
+    'gx_head_gx6-blue.rc',
     'gx-dezert_18.png',
     'gx_dezert_12b.png',
     'gx_dezert_14b.png',
@@ -36,6 +37,7 @@ gxstyle_files = [
     'cairo2.jpg',
     'black1.png',
     'black2.png',
+    'gx_steal.png',
     ]
 
 def configure(conf):
