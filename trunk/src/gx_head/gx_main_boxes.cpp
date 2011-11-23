@@ -420,7 +420,7 @@ void GxScrollBox::on_rack_reorder_vertical() {
                 GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
                 parent = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
                 gtk_container_add(GTK_CONTAINER(parent), gx_gui::gw.rack_tool_bar);
-                gtk_container_add(GTK_CONTAINER(parent), gx_gui::gw.tuner_widget);
+                gtk_box_pack_end(GTK_BOX(GTK_CONTAINER(parent)), GTK_WIDGET(gx_gui::gw.tuner_widget), false, false, 0);
                 gtk_widget_unref(gx_gui::gw.rack_tool_bar);
                 gtk_widget_unref(gx_gui::gw.tuner_widget);
                 g_list_free(child_list);
@@ -534,6 +534,37 @@ GxToolBox::GxToolBox(gx_ui::GxUI& ui,
     window.add(paintbox1);
     window.signal_button_press_event().connect(
         sigc::mem_fun(*this, &GxToolBox::on_button_pressed));
+    paintbox1.show();
+    box.show();
+    m_scrolled_window.show();
+    rbox.show();
+}
+
+/****************************************************************/
+
+bool GxTunerBox::on_window_delete_event(GdkEventAny*, gpointer d) {
+    gtk_check_menu_item_set_active(
+                GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
+                );
+    return false;
+}
+
+GxTunerBox::GxTunerBox(gx_ui::GxUI& ui,
+    const char *pb_2, Glib::ustring titl, GtkWidget * d)
+    : rbox(false, 24),
+    m_regler_tunertip_window(Gtk::WINDOW_POPUP) {
+    Glib::ustring title = titl;
+    paintbox1.set_border_width(18);
+    paintbox.set_border_width(24);
+    paintbox1.property_paint_func() = pb_2;
+    paintbox.property_paint_func() = pb_rectangle_skin_color_expose;
+    window.signal_delete_event().connect(
+         sigc::bind<gpointer>(sigc::mem_fun(*this, &GxTunerBox::on_window_delete_event), d));
+    box.add(rbox);
+    paintbox1.add(m_scrolled_window);
+    m_scrolled_window.add(paintbox);
+    paintbox.add(box);
+    window.add(paintbox1);
     paintbox1.show();
     box.show();
     m_scrolled_window.show();

@@ -281,6 +281,24 @@ class GxToolBox {
 
 /****************************************************************/
 
+class GxTunerBox {
+ private:
+    bool on_window_delete_event(GdkEventAny* event, gpointer d );
+ public:
+    Gtk::VBox window;
+    Gtk::VBox    m_scrolled_window;
+    Gtk::HBox box;
+    Gtk::HBox box1;
+    Gxw::PaintBox paintbox;
+    Gxw::PaintBox paintbox1;
+    Gtk::VBox rbox;
+    Gtk::Window m_regler_tunertip_window;
+    GxTunerBox(gx_ui::GxUI& ui,
+        const char *pb_2, Glib::ustring titl, GtkWidget * d);
+    ~GxTunerBox();
+};
+
+/****************************************************************/
 }/* end of gx_gui namespace */
 
 #endif  // SRC_HEADERS_GX_MAIN_BOXES_H_

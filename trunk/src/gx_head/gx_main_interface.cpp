@@ -1370,7 +1370,7 @@ void GxMainInterface::openToolBar(const char* label) {
     box->m_tmono_rack.set_tooltip_text(_("Show mono rack"));
     box->m_tstereo_rack.set_tooltip_text(_("Show stereo rack"));
     box->box1.show_all();
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
+    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), true, true, 0);
     pushBox(kBoxMode, GTK_WIDGET(tBox));
 }
 
@@ -1696,23 +1696,23 @@ void MenuCheckItemUiBool::on_my_activate() {
     modifyZone(get_active());
 }
 
-struct uiCheckButton : public gx_ui::GxUiItemFloat {
+struct uiCheckButton : public gx_ui::GxUiItemBool {
     GtkToggleButton* fButton;
-    uiCheckButton(gx_ui::GxUI* ui, float* zone, GtkToggleButton* b)
-                 : gx_ui::GxUiItemFloat(ui, zone), fButton(b) {}
+    uiCheckButton(gx_ui::GxUI* ui, bool* zone, GtkToggleButton* b)
+                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {}
     static void toggled(GtkWidget *widget, gpointer data) {
-            float    v = (GTK_TOGGLE_BUTTON(widget)->active) ? 1.0 : 0.0;
-            ((gx_ui::GxUiItemFloat*)data)->modifyZone(v);
+            ((gx_ui::GxUiItemBool*)data)->modifyZone(GTK_TOGGLE_BUTTON(widget)->active);
         }
 
     virtual void reflectZone() {
-            float     v = *fZone;
+            bool v = *fZone;
             fCache = v;
-            gtk_toggle_button_set_active(fButton, v > 0.0);
+            gtk_toggle_button_set_active(fButton, v);
         }
 };
 
-void GxMainInterface::addCheckButton(const char* label, float* zone) {
+void GxMainInterface::addCheckButton(const char* label, bool* zone) {
+
     GdkColor   colorRed;
     GdkColor   colorOwn;
     GdkColor   colorba;
@@ -1774,7 +1774,7 @@ void GxMainInterface::addCheckButton(string id, const char* label_) {
     if (!gx_engine::parameter_map.hasId(id)) {
         return;
     }
-    const gx_engine::FloatParameter &p = gx_engine::parameter_map[id].getFloat();
+    const gx_engine::BoolParameter &p = gx_engine::parameter_map[id].getBool();
     if (label.empty()) {
         label = p.l_name();
     }
@@ -1973,11 +1973,11 @@ void uiTuner::on_value_changed() {
 }
 
 void GxMainInterface::addNumDisplay() {
-    GxToolBox *box =  new GxToolBox(*this,
+    GxTunerBox *box =  new GxTunerBox(*this,
         pb_gxrack_expose, _("tuner"), GTK_WIDGET(mainmenu.fShowTuner.gobj()));
     box->rbox.add(fTuner);
     // box->window.set_size_request(200,140);
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
+    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), false, false, 0);
 
     gw.tuner_widget = GTK_WIDGET(box->window.gobj());
 

@@ -58,6 +58,8 @@ struct _GxPaintBoxClass {
 	GdkPixbuf *gxr_image;
 	const gchar *stock_id;
 	const gchar *main_image_id;
+    const gchar *widget_id;
+    const gchar *widget_id2;
 };
 
 

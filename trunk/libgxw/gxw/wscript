@@ -49,6 +49,8 @@ def build_stock_images(bld):
         "guitar.png",
         "gxhead.png",
         "gxhead_face.png",
+        "gxplate.png",
+        "gxplate2.png",
         ]
 
     bld(name = "img2c",

@@ -744,7 +744,7 @@ public:
     void addJToggleButton(const char* label, bool* zone);
     void addPToggleButton(const char* label);
     void addMToggleButton(const char* label, bool* zone);
-    void addCheckButton(const char* label, float* zone);
+    void addCheckButton(const char* label, bool* zone);
     void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
     void addNumDisplay();
     void addLiveWaveDisplay(const char* label);

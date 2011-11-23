@@ -174,7 +174,7 @@ void MidiVariables::process_midi(int len, float *audiodata, void *midi_port_buf,
 
 	    if (rms >= (Beat_is + fTemps38)) {
 		// Beat_is = rms;
-		Beat_is += static_cast<int>(rms*0.1);
+		Beat_is += rms*0.1;
 		send+=step;
 		if (fcheckbox10 ) send1+=step;
 		if (fcheckbox11 ) send2+=step;
@@ -199,7 +199,7 @@ void MidiVariables::process_midi(int len, float *audiodata, void *midi_port_buf,
 	    }
 
 	    if (send > iTemps27) {     // 20
-		if (static_cast<int>(fautogain) == 1) {
+		if (fautogain) {
 		    iTemps46 = static_cast<int>(beat0);
 		    if ( iTemps46 < 0) iTemps46 = 0;
 		    else if ( iTemps46 > 127) iTemps46 = 127;
@@ -221,7 +221,7 @@ void MidiVariables::process_midi(int len, float *audiodata, void *midi_port_buf,
 		}
 
 		noten = preNote + iTemps29;
-		send = 0;
+		send = 1;
 		midistat = true;
 		midistat1 = true;
 
@@ -282,7 +282,7 @@ void MidiVariables::process_midi(int len, float *audiodata, void *midi_port_buf,
 		}
 
 		if (send1 > iTemps33) {
-		    if (static_cast<int>(fautogain1) == 1) {
+		    if (fautogain1) {
 			iTemps47 = static_cast<int>(beat0);
 			if ( iTemps47 < 0) iTemps47 = 0;
 			else if ( iTemps47 > 127) iTemps47 = 127;
@@ -305,7 +305,7 @@ void MidiVariables::process_midi(int len, float *audiodata, void *midi_port_buf,
 		    }
 
 		    noten1 = preNote + iTemps34;
-		    send1 = 0;
+		    send1 = 1;
 		    midistat = true;
 		    midistat2 = true;
 		    if ((noten1 >= 0)&&(noten1 <= 127)) {
@@ -366,7 +366,7 @@ void MidiVariables::process_midi(int len, float *audiodata, void *midi_port_buf,
 		}
 
 		if (send2 > iTemps41) {   // 20
-		    if (static_cast<int>(fautogain2) == 1) {
+		    if (fautogain2) {
 			iTemps48 = static_cast<int>(beat0);
 			if ( iTemps48 < 0) iTemps48 = 0;
 			else if ( iTemps48 > 127) iTemps48 = 127;
@@ -401,7 +401,7 @@ void MidiVariables::process_midi(int len, float *audiodata, void *midi_port_buf,
 		    }
 
 		    noten2 = preNote + iTemps42;
-		    send2 = 0;
+		    send2 = 1;
 		    midistat = true;
 		    midistat3 = true;
 
@@ -438,48 +438,57 @@ void MidiVariables::process_midi(int len, float *audiodata, void *midi_port_buf,
 	    // end if playmidi = 1
 	} else {
 	    if (weg > iTemps37 || jcpu_load > 64.0) {
-		send = send1 = send2 = 0;
+        
 		Beat_is = static_cast<int>(fTemps45);
 		if (weg <  iTemps37a) {   // 5.0
-		    midistat = true;
-		    midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
+            if (send) {
+                send = 0;
+                midistat = true;
+                midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
 
-		    if (midi_send) {
-			// velocity
-			midi_send[2] = static_cast<int>(iTemps26);
-			// fix me all notes off
-			midi_send[1] = 123;
-			// controller
-			midi_send[0] = 0xB0 | static_cast<int>(iTemps30);
+                if (midi_send) {
+                // velocity
+                midi_send[2] = static_cast<int>(iTemps26);
+                // fix me all notes off
+                midi_send[1] = 123;
+                // controller
+                midi_send[0] = 0xB0 | static_cast<int>(iTemps30);
 		    }
+        }
 
 		    if (fcheckbox10) {
-			midistat = true;
-			midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                if (send1) {
+                    send1 = 0;
+                    midistat = true;
+                    midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
 
-			if (midi_send1) {
-			    // velocity
-			    midi_send1[2] = static_cast<int>(iTemps32);
-			    // fix me all notes off
-			    midi_send1[1] = 123;
-			    // controller
-			    midi_send1[0] = 0xB0 |  static_cast<int>(iTemps35);
-			}
-		    }
+                    if (midi_send1) {
+                        // velocity
+                        midi_send1[2] = static_cast<int>(iTemps32);
+                        // fix me all notes off
+                        midi_send1[1] = 123;
+                        // controller
+                        midi_send1[0] = 0xB0 |  static_cast<int>(iTemps35);
+                    }
+                }
+            }
 
 		    if (fcheckbox11) {
-			midistat = true;
-			midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                if (send2) {
+                    send2 = 0;
+                    midistat = true;
+                    midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
 
-			if (midi_send2) {
-			    // velocity
-			    midi_send2[2] = static_cast<int>(iTemps40);
-			    // fix me all notes off
-			    midi_send2[1] =  123;
-			    // controller
-			    midi_send2[0] = 0xB0 | static_cast<int>(iTemps44);
-			}
-		    }
+                    if (midi_send2) {
+                        // velocity
+                        midi_send2[2] = static_cast<int>(iTemps40);
+                        // fix me all notes off
+                        midi_send2[1] =  123;
+                        // controller
+                        midi_send2[0] = 0xB0 | static_cast<int>(iTemps44);
+                    }
+                }
+            }
 		    midistat = midistat1 = midistat2 = midistat3 = false;
 		}
 	    }

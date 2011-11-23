@@ -58,6 +58,8 @@ static image_entry image_data[] = {
 	{ "gxhead", pb_gxhead },
 	{ "gxhead_face", pb_gxhead_face },
 	{ "main_image", pb_gxhead },
+    { "gxplate", pb_gxplate },
+    { "gxplate2", pb_gxplate2 },
 	{ NULL, NULL },
 };
 

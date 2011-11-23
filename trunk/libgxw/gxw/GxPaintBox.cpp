@@ -52,6 +52,9 @@ G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_HBOX)
 
 #define get_stock_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->stock_id)
 #define get_main_image_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->main_image_id)
+#define get_widget_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id)
+#define get_widget_id2(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id2)
+
 
 static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 {
@@ -65,6 +68,8 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 	widget_class->expose_event = gx_paint_box_expose;
 	klass->stock_id = "gxhead";
 	klass->main_image_id = "main_image";
+    klass->widget_id = "gxplate";
+    klass->widget_id2 = "gxplate2";
 	g_object_class_install_property(
 		gobject_class, PROP_PAINT_FUNC,
 		g_param_spec_string("paint-func",
@@ -615,6 +620,7 @@ static void led_expose(GtkWidget *wi, GdkEventExpose *ev)
 static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
+    cairo_pattern_t*pat;
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 	GdkRegion *region;
@@ -627,14 +633,38 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double y0      = wi->allocation.y+1;
 	double rect_width  = wi->allocation.width-2;
 	double rect_height = wi->allocation.height-2;
+    
+    static int spf;
+	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    if(spf == 1) {
+        GdkPixbuf * stock_image =
+            gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
+    
+        guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
+        gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
+        gint width = gdk_pixbuf_get_width (stock_image);
+        gint height = gdk_pixbuf_get_height (stock_image);
+        cairo_surface_t *s_image =
+            cairo_image_surface_create_for_data
+            (pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
 
-	cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_fill (cr);
+        pat = cairo_pattern_create_for_surface(s_image);
+        cairo_set_source (cr, pat);
+        cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+        
+        cairo_rectangle(cr,x0+2,y0+2,rect_width-4,rect_height-4);
+        cairo_fill(cr);
+        g_object_unref(stock_image);
+        cairo_surface_destroy(s_image);
+        
+    } else {
+        cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
+        cairo_set_source_rgb (cr, 0, 0, 0);
+        cairo_fill (cr);
+    }
 
-	cairo_pattern_t*pat =
-	cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
-		//cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+    //cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
 	set_skin_color(wi, pat);
 	cairo_set_source (cr, pat);
 	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
@@ -942,6 +972,8 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	cairo_text_extents_t extents;
+    cairo_pattern_t*pat;
+
 
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
@@ -957,8 +989,30 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double rect_width  = wi->allocation.width;
 	double rect_height = wi->allocation.height;
 	double x,y;
-	
-	
+
+    static int spf;
+	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    if(spf == 1) {
+        GdkPixbuf * stock_image =
+            gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
+        
+        guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
+        gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
+        gint width = gdk_pixbuf_get_width (stock_image);
+        gint height = gdk_pixbuf_get_height (stock_image);
+        cairo_surface_t *s_image = cairo_image_surface_create_for_data (pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
+
+        pat = cairo_pattern_create_for_surface(s_image);
+        cairo_set_source (cr, pat);
+        cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+        
+        cairo_rectangle(cr,x0+4,y0+4,rect_width-8,rect_height-8);
+        cairo_fill(cr);
+        g_object_unref(stock_image);
+        cairo_surface_destroy(s_image);
+    }
+
+
 	cairo_select_font_face (cr, "URW Chancery L", CAIRO_FONT_SLANT_NORMAL,
                                CAIRO_FONT_WEIGHT_BOLD);
 	cairo_set_font_size (cr, rect_width/12);
@@ -978,7 +1032,7 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_stroke (cr);
     
 	cairo_rectangle (cr, x0+4,y0+4,rect_width-8,rect_height-8);
-	cairo_pattern_t*pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+	pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
 	//set_rack_color(title, pat);
 	set_box_color(wi, pat);
 	//cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.2, 0.8);
@@ -2071,6 +2125,10 @@ static void main_expose(GtkWidget *wi, GdkEventExpose *ev)
 	                main_image, 0, 0,
 	                x0, y0, w,h,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
+
+    g_object_unref(main_image);
+    cairo_destroy(cr);
+	gdk_region_destroy (region);   
 }
 
 static void level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
