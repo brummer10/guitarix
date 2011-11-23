@@ -228,6 +228,8 @@ static void gx_tuner_get_property(GObject *object, guint prop_id,
 static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 {
 	static const char* note[12] = {"A ","A#","B ","C ","C#","D ","D#","E ","F ","F#","G ","G#"};
+    static const char* octave[9] = {"0","1","2","3","4","4","6","7"," "};
+    static int indicate_oc = 0;
 	GxTuner *tuner = GX_TUNER(widget);
 	cairo_t *cr;
 
@@ -238,21 +240,49 @@ static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 	cairo_set_source_surface(cr, tuner->surface_tuner, x0, y0);
 	cairo_scale(cr, tuner->scale, tuner->scale);
 	cairo_paint (cr);
+
 	float scale = -0.5;
 	if (tuner->freq) {
 		float fvis = 12 * log2f(tuner->freq/tuner->reference_pitch);
+        float pitch_add = tuner->reference_pitch - 440.00;
 		int vis = int(round(fvis));
 		scale = (fvis-vis) / 2;
 		vis = vis % 12;
 		if (vis < 0) {
 			vis += 12;
 		}
+        if (fabsf(scale) < 0.1) {
+            if (tuner->freq < 31.78 && tuner->freq >0.0) {
+                indicate_oc = 0;
+            } else if (tuner->freq < 63.57 +pitch_add) {
+                indicate_oc = 1;
+            } else if (tuner->freq < 127.14 +pitch_add) {
+                indicate_oc = 2;
+            } else if (tuner->freq < 254.28 +pitch_add) {
+                indicate_oc = 3;
+            } else if (tuner->freq < 509.44 +pitch_add) {
+                indicate_oc = 4;
+            } else if (tuner->freq < 1017.35 +pitch_add) {
+                indicate_oc = 5;
+            } else if (tuner->freq < 2034.26 +pitch_add) {
+                indicate_oc = 6;
+            } else if (tuner->freq < 4068.54 +pitch_add) {
+                indicate_oc = 7;
+            } else {
+                indicate_oc = 8;
+            }
+        }else {
+            indicate_oc = 8;
+        }
 
 		// display note
-		cairo_set_source_rgba(cr, scale*scale*4, 1-(scale*scale*4), 0.2,1-(scale*scale*4));
+		cairo_set_source_rgba(cr, fabsf(scale)*2+(fabsf(pitch_add)*0.1), 1-(scale*scale*4+(fabsf(pitch_add)*0.1)), 0.2,1-(fabsf(scale)*2));
 		cairo_set_font_size(cr, 18.0);
 		cairo_move_to(cr,x0+50 -9 , y0+30 +9 );
 		cairo_show_text(cr, note[vis]);
+        cairo_set_font_size(cr, 8.0);
+        cairo_move_to(cr,x0+54  , y0+30 +16 );
+        cairo_show_text(cr, octave[indicate_oc]);
 	}
 
 	// display frequency
