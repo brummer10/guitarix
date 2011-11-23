@@ -314,7 +314,7 @@ void GxMainInterface::setup() {
 
     debug_check(all_midi_params_assigned);
     if (!connect_jack(true)) {
-	gx_settings.load(gx_system::GxSettingsBase::state);
+	gx_settings.loadstate();
     }
     vector<string> l;
     gx_settings.fill_factory_names(l);

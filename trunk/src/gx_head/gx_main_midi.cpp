@@ -174,8 +174,8 @@ MidiControllerTable::MidiControllerTable(gx_engine::ParamMap& param_, Gtk::Check
     g_signal_connect(G_OBJECT(gtk_builder_get_object(builder, "cellrenderertext2")),
                      "edited", G_CALLBACK(edited_cb), store);
 
-    gtk_window_add_accel_group(GTK_WINDOW(window),
-                               gx_gui::GxMainInterface::get_instance().fAccelGroup->gobj());
+    //gtk_window_add_accel_group(GTK_WINDOW(window),
+    //                           gx_gui::GxMainInterface::get_instance().fAccelGroup->gobj());
 
     gtk_widget_show(window);
     g_object_unref(G_OBJECT(builder));

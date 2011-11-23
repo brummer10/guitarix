@@ -918,7 +918,7 @@ public:
 
 LadspaGuitarixMono::LadspaGuitarixMono(unsigned long sr)
     : LadspaGuitarix(engine, control_parameter),
-      engine("", param, get_group_table()),
+      engine(string(getenv("HOME"))+"/.gx_head", param, get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),
@@ -1416,7 +1416,7 @@ public:
 
 LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
     : LadspaGuitarix(engine, control_parameter),
-      engine("", param, get_group_table()),
+      engine(string(getenv("HOME"))+"/.gx_head", param, get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),
