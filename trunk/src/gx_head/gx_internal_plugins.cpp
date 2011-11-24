@@ -411,7 +411,8 @@ int ConvolverAdapter::activate(bool start, PluginDef *p) {
 	return 0;
     }
     if (start) {
-	if (!self.jc_post.activate(true)) {
+	if (self.jc_post.activate(true) != 0) {
+	    gx_system::gx_print_error(_("convolver"), "jconv post activate error?!");
 	    return -1;
 	}
 	if (!self.conv_start()) {
