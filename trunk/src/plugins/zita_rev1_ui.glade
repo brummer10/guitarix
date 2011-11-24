@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.20"/>
   <!-- interface-requires gxwidgets 0.0 -->
+  <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
@@ -136,19 +136,41 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GxWheel" id="gxsmallknob2">
+                              <object class="GxMiniSlider" id="gxminislider1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.decay_times.lf_x</property>
+                                <property name="show_value">False</property>
                                 <property name="label_ref">label2</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkAlignment" id="alignment6">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="xscale">0</property>
+                                <property name="yscale">0</property>
+                                <child>
+                                  <object class="GxValueDisplay" id="gxvaluedisplay1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="round_digits">0</property>
+                                    <property name="var_id">zita_rev1.decay_times.lf_x</property>
+                                  </object>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="pack_type">end</property>
-                                <property name="position">1</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
@@ -197,6 +219,26 @@
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkAlignment" id="alignment7">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="xscale">0</property>
+                            <property name="yscale">0.69999998807907104</property>
+                            <child>
+                              <object class="GtkVSeparator" id="vseparator1">
+                                <property name="width_request">10</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkVBox" id="vbox11">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -231,7 +273,7 @@
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">3</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                       </object>

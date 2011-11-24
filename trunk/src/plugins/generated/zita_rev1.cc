@@ -562,8 +562,8 @@ int Dsp::register_params_static(const ParamReg& reg)
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
-  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
   <!-- interface-requires gxwidgets 0.0 -->\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
   <!-- interface-naming-policy project-wide -->\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
@@ -698,19 +698,41 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <object class=\"GxWheel\" id=\"gxsmallknob2\">\n\
+                              <object class=\"GxMiniSlider\" id=\"gxminislider1\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">True</property>\n\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.decay_times.lf_x</property>\n\
+                                <property name=\"show_value\">False</property>\n\
                                 <property name=\"label_ref\">label2</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkAlignment\" id=\"alignment6\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"xscale\">0</property>\n\
+                                <property name=\"yscale\">0</property>\n\
+                                <child>\n\
+                                  <object class=\"GxValueDisplay\" id=\"gxvaluedisplay1\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"round_digits\">0</property>\n\
+                                    <property name=\"var_id\">zita_rev1.decay_times.lf_x</property>\n\
+                                  </object>\n\
+                                </child>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">False</property>\n\
                                 <property name=\"fill\">True</property>\n\
-                                <property name=\"pack_type\">end</property>\n\
-                                <property name=\"position\">1</property>\n\
+                                <property name=\"position\">2</property>\n\
                               </packing>\n\
                             </child>\n\
                           </object>\n\
@@ -759,6 +781,26 @@ const char *Dsp::glade_def = "\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
+                          <object class=\"GtkAlignment\" id=\"alignment7\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"xscale\">0</property>\n\
+                            <property name=\"yscale\">0.69999998807907104</property>\n\
+                            <child>\n\
+                              <object class=\"GtkVSeparator\" id=\"vseparator1\">\n\
+                                <property name=\"width_request\">10</property>\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                              </object>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">3</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
                           <object class=\"GtkVBox\" id=\"vbox11\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
@@ -793,7 +835,7 @@ const char *Dsp::glade_def = "\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
                             <property name=\"fill\">True</property>\n\
-                            <property name=\"position\">3</property>\n\
+                            <property name=\"position\">4</property>\n\
                           </packing>\n\
                         </child>\n\
                       </object>\n\
