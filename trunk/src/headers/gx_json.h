@@ -164,17 +164,19 @@ class StateFile {
 private:
     string filename;
     istream *is;
+    time_t mtime;
     SettingsFileHeader header;
     void open();
 public:
     StateFile()
-	: filename(), is(0), header() {}
+	: filename(), is(0), mtime(), header() {}
     ~StateFile() { delete is; }
     void set_filename(const string& fn) { filename = fn; }
     const SettingsFileHeader& get_header() const { return header; }
     string get_filename() const { return filename; }
     gx_system::JsonParser *create_reader();
     gx_system::JsonWriter *create_writer(bool *preserve_preset);
+    void ensure_is_current();
 };
 
 class PresetTransformer: public gx_system::JsonWriter {

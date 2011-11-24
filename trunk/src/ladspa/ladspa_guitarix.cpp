@@ -307,6 +307,7 @@ LadspaSettings::~LadspaSettings() {
 
 void LadspaSettings::load(int num) {
     if (num == 0) {
+	statefile.ensure_is_current();
 	gx_system::GxSettingsBase::load(state,"","");
     } else if (idx_in_preset(num-1)) {
 	presetfile.ensure_is_current();
@@ -335,7 +336,18 @@ static void log_terminal(const string& msg, gx_system::GxMsgType tp, bool plugge
 }
 
 void UiBuilder::load(Plugin*) {}
+__attribute__ ((visibility ("default")))
 void UiBuilder::load_glade(char const*) const {}
+__attribute__ ((visibility ("default")))
+void UiBuilder::openVerticalBox(const char* label) const {}
+__attribute__ ((visibility ("default")))
+void UiBuilder::openHorizontalBox(const char* label) const {}
+__attribute__ ((visibility ("default")))
+void UiBuilder::closeBox() const {}
+__attribute__ ((visibility ("default")))
+void UiBuilder::create_small_rackknob(const char *id, const char *label) const {}
+__attribute__ ((visibility ("default")))
+void UiBuilder::create_selector(const char *id) const {}
 
 
 /****************************************************************
@@ -368,6 +380,7 @@ private:
     };
 protected:
     friend class PresetLoader;
+    friend class LibMonitor;
     pthread_t last_thread_id;
     int jack_bs;
     int jack_prio;
@@ -387,12 +400,14 @@ protected:
     void prepare_run();
     unsigned int activate(int *policy, int *prio);
     void load();
-    LadspaGuitarix(EngineControl& engine, ControlParameter& cp);
+    LadspaGuitarix(EngineControl& engine, ConvolverAdapter* convolver,
+		   ControlParameter& cp);
     ~LadspaGuitarix();
 };
 
 // engine and cp not yet initialized, only use address!
-LadspaGuitarix::LadspaGuitarix(EngineControl& engine, ControlParameter& cp)
+LadspaGuitarix::LadspaGuitarix(
+    EngineControl& engine, ConvolverAdapter* convolver, ControlParameter& cp)
     : last_thread_id(),
       jack_bs(),
       jack_prio(),
@@ -408,7 +423,7 @@ LadspaGuitarix::LadspaGuitarix(EngineControl& engine, ControlParameter& cp)
       control_parameter(cp),
       settings(string(getenv("HOME"))+"/.gx_head/gx_head_rc",
 	       string(getenv("HOME"))+"/.gx_head/gx_headpre_rc",
-	       param, engine, 0, cp) {
+	       param, engine, convolver, cp) {
     PresetLoader::add_instance(this);
 }
 
@@ -516,12 +531,27 @@ LadspaGuitarix::PresetLoader::PresetLoader()
 LadspaGuitarix::PresetLoader::~PresetLoader() {
 }
 
+class LibMonitor {
+public:
+    ~LibMonitor();
+};
+
+static LibMonitor lib_monitor;
+
+LibMonitor::~LibMonitor() {
+    LadspaGuitarix::PresetLoader::destroy();
+}
+
 void LadspaGuitarix::PresetLoader::destroy() {
-    assert(instance != 0);
+    if (!instance) {
+	return;
+    }
     instance->mainloop->quit();
-    instance = 0;
     thread->join();
     thread = 0;
+    // just to be sure, but should happen in other thread
+    delete instance;
+    instance = 0;
 }
 
 void LadspaGuitarix::PresetLoader::run_mainloop() {
@@ -530,6 +560,7 @@ void LadspaGuitarix::PresetLoader::run_mainloop() {
     sem_post(&instance->created_sem);
     instance->mainloop->run();
     delete instance;
+    instance = 0;
 }
 
 void LadspaGuitarix::PresetLoader::load_presets() {
@@ -917,8 +948,8 @@ public:
 };
 
 LadspaGuitarixMono::LadspaGuitarixMono(unsigned long sr)
-    : LadspaGuitarix(engine, control_parameter),
-      engine(string(getenv("HOME"))+"/.gx_head", param, get_group_table()),
+    : LadspaGuitarix(engine, 0, control_parameter),
+      engine(string(getenv("HOME"))+"/.gx_head/", param, get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),
@@ -1415,8 +1446,8 @@ public:
 };
 
 LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
-    : LadspaGuitarix(engine, control_parameter),
-      engine(string(getenv("HOME"))+"/.gx_head", param, get_group_table()),
+    : LadspaGuitarix(engine, &engine.convolver, control_parameter),
+      engine(string(getenv("HOME"))+"/.gx_head/", param, get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),

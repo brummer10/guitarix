@@ -496,6 +496,12 @@ JsonParser *StateFile::create_reader() {
     if (is) {
 	is->seekg(0);
     } else {
+	struct stat st;
+	if (stat(filename.c_str(), &st) == 0) {
+	    mtime = st.st_mtime;
+	} else {
+	    mtime = 0;
+	}
 	is = new ifstream(filename.c_str());
     }
     JsonReader *jp = new JsonReader(is);
@@ -513,6 +519,23 @@ JsonParser *StateFile::create_reader() {
     }
     return jp;
 }
+
+void StateFile::ensure_is_current() {
+    if (filename.empty() || !mtime) {
+	return;
+    }
+    struct stat st;
+    if (stat(filename.c_str(), &st) == 0) {
+	if (st.st_mtime == mtime) {
+	    return;
+	}
+    } else {
+	mtime = 0;
+    }
+    delete is;
+    is = 0;
+}
+
 
 class ModifyState: public JsonWriter {
 private:
@@ -626,6 +649,7 @@ PresetFile::PresetFile()
 
 void PresetFile::open() {
     delete is;
+    is = 0;
     entries.clear();
     if (filename.empty()) {
 	return;
