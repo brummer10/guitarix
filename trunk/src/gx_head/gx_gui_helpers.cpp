@@ -1439,7 +1439,7 @@ gint gx_choice_dialog_with_text_entry(
 
     g_signal_connect_swapped(button1, "clicked",  G_CALLBACK(func), gtk_entry);
     g_signal_connect(GTK_DIALOG(dialog)->vbox, "expose-event",
-                     G_CALLBACK(gx_cairo::info_box_expose), NULL);
+                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
 
     gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);

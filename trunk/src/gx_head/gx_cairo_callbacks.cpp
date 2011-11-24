@@ -98,7 +98,8 @@ gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer
 	cairo_pattern_t*pat =
 	cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
 		//cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	gx_skin_color(pat);
+	cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
+    cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
 	cairo_set_source (cr, pat);
 	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
 	cairo_fill (cr);
