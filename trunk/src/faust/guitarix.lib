@@ -80,6 +80,8 @@ TB_6DJ8_68k   = fconstant(int TUBE_TABLE_6DJ8_68k,   "valve.h");
 TB_6DJ8_250k  = fconstant(int TUBE_TABLE_6DJ8_250k,  "valve.h");
 TB_12AT7_68k  = fconstant(int TUBE_TABLE_12AT7_68k,  "valve.h");
 TB_12AT7_250k = fconstant(int TUBE_TABLE_12AT7_250k, "valve.h");
+TB_6C16_68k   = fconstant(int TUBE_TABLE_6C16_68k,   "valve.h");
+TB_6C16_250k  = fconstant(int TUBE_TABLE_6C16_250k,  "valve.h");
 
 tubestageF(tb,vplus,divider,fck,Rk,Vk0) = tube : hpf with {
     lpfk = lowpass1(fck);

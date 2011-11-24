@@ -45,6 +45,7 @@ namespace gx_amps {
 #include "faust/gxamp15.cc"
 #include "faust/gxamp16.cc"
 #include "faust/gxamp17.cc"
+#include "faust/gxamp18.cc"
 #include "faust/gx_ampmodul.cc"
 }
 

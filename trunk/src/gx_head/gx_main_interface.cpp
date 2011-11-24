@@ -165,6 +165,7 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
     gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube15", true));
     gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube16", true));
     gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube17", true));
+    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube18", true));
     //---
     static bool dialog[29];
     pmap.reg_non_midi_par("IR.dialog", &dialog[0], false);
@@ -1331,7 +1332,7 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
     p +=title;
     string s;
 
-    guint accel_key = GDK_r  + guivar.stereo_plugs;
+    guint accel_key = GDK_t  + guivar.stereo_plugs;
     if (accel_key <= GDK_z) {
 	bdialog->menuitem.add_accelerator(
 	    "activate", fAccelGroup, accel_key,
@@ -2209,7 +2210,7 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
       preset_menu(),
       preset_load_item(_("_Load Preset..."), true),
       preset_save_item(_("_Save Preset..."), true),
-      preset_save_new(_("New _Preset"), true),
+      preset_save_new(_("_New Preset"), true),
       preset_rename_item(_("_Rename Preset..."), true),
       preset_submenu(),
       // factory settings submenu
@@ -2217,7 +2218,7 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
       preset_factory_settings_menu(),
       // !factory settings submenu
       //---
-      preset_patch_info_item(_("P_atch Info"), true),
+      preset_patch_info_item(_("Patch Inf_o"), true),
       //---
       preset_load_file_item(_("Load Preset-_file"), true),
       preset_export_file_item(_("E_xport Preset-file"), true),
@@ -2243,13 +2244,13 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
       fShowToolBar(_("Show Plugin _Bar")),
       fShowRRack(_("Show _Rack")),
       //---
-      fShowRack(_("Show Mono _Rack")),
+      fShowRack(_("Show _Mono Rack")),
       plugin_mono_plugins(_("_Mono Plugins"), true),
       plugin_mono_menu(),
       fShowMidiOut(_("MIDI out")),
 
       //---
-      fShowSRack(_("Show _Stereo Rack")),
+      fShowSRack(_("Show St_ereo Rack")),
       plugin_stereo_plugins(_("_Stereo Plugins"), true),
       //---
       rack_order_group(),
@@ -2368,7 +2369,7 @@ void MainMenu::addEngineMenu(GxMainInterface& intf) {
 
     /*-- create Midi Controller Table menu item --*/
     engine_midi_item.add_accelerator(
-	"activate", intf.fAccelGroup, GDK_i, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	"activate", intf.fAccelGroup, GDK_i, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     engine_midi_item.signal_activate().connect(
         sigc::bind(sigc::ptr_fun(gx_main_midi::MidiControllerTable::toggle),
 		   sigc::ref(gx_engine::parameter_map),
@@ -2414,7 +2415,7 @@ void MainMenu::addPresetMenu(GxMainInterface& intf) {
     preset_save_new.signal_activate().connect(
 	sigc::ptr_fun(gx_preset::gxpreset.gx_save_newpreset_dialog));
     preset_save_new.add_accelerator(
-	"activate", intf.fAccelGroup, GDK_p, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+	"activate", intf.fAccelGroup, GDK_n, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
 
     preset_submenu[1].append(*manage(new Gtk::SeparatorMenuItem()));
     /* ------------------- */
@@ -2423,7 +2424,7 @@ void MainMenu::addPresetMenu(GxMainInterface& intf) {
 
     preset_menu.append(preset_patch_info_item);
     preset_patch_info_item.add_accelerator(
-	"activate", intf.fAccelGroup, GDK_a, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	"activate", intf.fAccelGroup, GDK_o, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     preset_patch_info_item.signal_activate().connect(
 	sigc::ptr_fun(gx_patch));
 
@@ -2431,14 +2432,14 @@ void MainMenu::addPresetMenu(GxMainInterface& intf) {
 
     preset_menu.append(preset_load_file_item);
     preset_load_file_item.add_accelerator(
-	"activate", intf.fAccelGroup, GDK_f, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	"activate", intf.fAccelGroup, GDK_f, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     preset_load_file_item.signal_activate().connect(
 	sigc::ptr_fun(gx_preset::gxpreset.gx_load_preset_file));
 
     /*-- Create save as presetfile menu--*/
     preset_menu.append(preset_export_file_item);
     preset_export_file_item.add_accelerator(
-	"activate", intf.fAccelGroup, GDK_x, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	"activate", intf.fAccelGroup, GDK_x, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     preset_export_file_item.signal_activate().connect(
 	sigc::ptr_fun(gx_preset::gxpreset.gx_save_preset_file));
 
@@ -2529,7 +2530,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
     plugin_menu_label.set_submenu(plugin_menu);
 
     fShowToolBar.add_accelerator("activate", intf.fAccelGroup,
-                               GDK_b, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+                               GDK_b, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowToolBar.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_toolbar_activate));
     fShowToolBar.set_parameter(new gx_engine::SwitchParameter("system.show_toolbar"));
@@ -2537,7 +2538,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
 
     /*-- Create mono rack check menu item under Options submenu --*/
     fShowRRack.add_accelerator("activate", intf.fAccelGroup,
-                               GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+                               GDK_r, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowRRack.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_rrack_activate));
     fShowRRack.set_parameter(new gx_engine::SwitchParameter("system.show_rrack"));
@@ -2547,7 +2548,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
 
     /*-- Create mono rack check menu item under Options submenu --*/
     fShowRack.add_accelerator("activate", intf.fAccelGroup,
-			      GDK_m, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+			      GDK_m, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowRack.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_rack_activate));
     fShowRack.set_parameter(new gx_engine::SwitchParameter("system.show_rack"));
@@ -2569,7 +2570,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
 
     /*-- Create stereo rack check menu item under Options submenu --*/
     fShowSRack.add_accelerator("activate", intf.fAccelGroup,
-                               GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+                               GDK_e, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowSRack.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_srack_activate));
     fShowSRack.set_parameter(new gx_engine::SwitchParameter("system.show_Srack"));
@@ -2695,14 +2696,14 @@ void MainMenu::addJackServerMenu(GxMainInterface& intf) {
     /*-- Create Jack Connection toggle button --*/
     jack_connect_item.add_accelerator(
 	"activate", intf.fAccelGroup,
-	GDK_c, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	GDK_c, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     jack_connect_item.signal_activate().connect(
 	sigc::mem_fun(intf, &GxMainInterface::gx_jack_connection));
     engine_menu.append(jack_connect_item);
 
     /*-- create Jack Ports menu item --*/
     portmap_item.add_accelerator(
-	"activate", intf.fAccelGroup, GDK_p, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	"activate", intf.fAccelGroup, GDK_p, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     portmap_item.signal_activate().connect(
 	sigc::mem_fun(intf, &GxMainInterface::on_portmap_activate));
     portmap_item.show();
@@ -2788,11 +2789,11 @@ public:
 };
 
 unsigned int TubeKeys::keysep[] = {
-    GDK_v, GDK_u, GDK_q, GDK_e, 0,
-    GDK_w, 0,
-    GDK_n, GDK_d, GDK_q, GDK_t, 0,
-    GDK_z, GDK_y, GDK_k, GDK_o, 0,
-    GDK_h, GDK_j, GDK_l, GDK_g
+    GDK_a, GDK_b, GDK_c, GDK_d, GDK_e, 0,
+    GDK_f, 0,
+    GDK_g, GDK_h, GDK_i, GDK_j, 0,
+    GDK_k, GDK_l, GDK_m, GDK_o, 0,
+    GDK_o, GDK_p, GDK_q, GDK_r
 };
 
 inline int TubeKeys::operator()() {

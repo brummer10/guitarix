@@ -5,6 +5,7 @@ tables=(
   "12AT7 triode 12AT7.cc"
   #"6V6 triode 6V6.cc"
   "6DJ8 triode 6DJ8.cc"
+  "6C16 triode 6C16.cc"
 )
 for f in "${tables[@]}"; do
   set -- $f

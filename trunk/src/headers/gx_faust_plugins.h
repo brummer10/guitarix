@@ -45,6 +45,7 @@ declare(gxamp7)
 declare(gxamp8)
 declare(gxamp16)
 declare(gxamp6)
+declare(gxamp18)
 declare(gx_ampmodul)
 }
 

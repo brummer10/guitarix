@@ -57,8 +57,9 @@ style "gx_head_blue-paintbox"
 {
   GxPaintBox::skin-gradient = {
     { 0, 19661, 19661, 19661, 52428 }, # 0, 0.3, 0.3, 0.3 , 0.8
-	{ 32768, 830, 830, 830, 52428 }, # 0.5, 0.15, 0.15, 0.15, 0.8
-	{ 65536, 554, 554, 554, 52428 }} # 1, 0.1, 0.1, 0.1, 0.8
+	{ 22768, 80, 83, 80, 52428 }, # 0.5, 0.15, 0.15, 0.15, 0.8
+    { 52428, 8, 8, 80, 52428 }, # 0.5, 0.15, 0.15, 0.15, 0.8
+	{ 65536, 4, 4, 4, 62428 }} # 1, 0.1, 0.1, 0.1, 0.8
 	
   GxPaintBox::box-gradient = {
     { 65536, 0, 0, 13107, 52428 }, # 1, 0, 0, 0.2, 0.8
@@ -266,7 +267,7 @@ style "gx_head_blue-v_black"
 
 style "gx_head_blue-b_black"
 {
-  fg[NORMAL] = 	{ 0., 0., 0. }
+  fg[NORMAL] ="#1a1a1a"
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
@@ -312,7 +313,7 @@ widget "*.effekt_label" style:highest "gx_head_blue-v_black"
 widget "*.value_label" style:highest "gx_head_blue-l_black"
 widget "*.beffekt_label" style:highest "gx_head_blue-b_black"
 widget "*.rack_label" style:highest "gx_head_blue-rack"
-widget "*.rack_effect_label" style:highest "gx_head_blue-rack"
+widget "*.rack_effect_label" style:highest "gx_head_blue-b_black"
 widget "*.rack_slider" style:highest "gx_head_blue_rack_slider"
 widget "*.rack_regler" style:highest "gx_head_blue_rack_slider"
 
