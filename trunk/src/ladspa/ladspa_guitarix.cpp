@@ -80,7 +80,7 @@ void ControlParameter::log_assignment(int ctlr, int var, const midi_controller_l
     }
     gx_system::gx_print_info(
 	_("assign parameter"),
-	boost::format(_("controller %1% -> Parameter %2% [%3%]")) % ctlr % var % s);
+	boost::format(_("%1% -> controller %2% [%3%]")) % var % ctlr % s);
 }
 
 void ControlParameter::set_array(MidiControllerList::controller_array *m) {
