@@ -525,6 +525,22 @@ GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w) {
     return w;
 }
 
+void GxMainInterface::create_selector(string id, const char *widget_name) {
+    gx_engine::Parameter& p = gx_engine::parameter_map[id];
+    UiSelectorBase *s;
+    if (p.isFloat()) {
+        s = new UiSelector<float>(*this, p.getFloat());
+    } else if (p.isInt()) {
+        s = new UiSelector<int>(*this, p.getInt());
+    } else {
+        s = new UiSelector<unsigned int>(*this, p.getUInt());
+    }
+    if (widget_name) {
+	s->set_name(widget_name);
+    }
+    addwidget(s->get_widget());
+}
+
 
 /****************************************************************
  ** class TextLoggingBox

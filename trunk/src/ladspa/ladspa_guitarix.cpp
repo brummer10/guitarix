@@ -734,6 +734,7 @@ static plugindef_creator builtin_amp_plugins[] = {
     gx_amps::gxamp3::plugin,
     gx_amps::gxamp14::plugin,
     gx_amps::gxamp10::plugin,
+    gx_amps::gxamp18::plugin,
 
     gx_amps::gxamp2::plugin,
 
@@ -1099,21 +1100,22 @@ void LadspaGuitarixMono::ReBuffer::set(
 }
 
 bool LadspaGuitarixMono::ReBuffer::put() {
-    int n = min(buffer_size-out_buffer_index, block_size-in_block_index);
+    int n = min(buffer_size - in_buffer_index, block_size - in_block_index);
+    if (n) {
+	// copy values to in buffer
+	copy(in_buffer+in_buffer_index, in_block+in_block_index, n);
+	in_buffer_index += n;
+	in_block_index += n;
+    }
+    n = min(buffer_size-out_buffer_index, block_size-out_block_index);
     if (n) {
 	// copy values from out buffer
 	copy(out_block+out_block_index, out_buffer+out_buffer_index, n);
 	out_block_index += n;
 	out_buffer_index += n;
     }
-    n = min(buffer_size - in_buffer_index, block_size - in_block_index);
-    if (n) {
-	// copy value to in buffer
-	copy(in_buffer+in_buffer_index, in_block+in_block_index, n);
-	in_buffer_index += n;
-	in_block_index += n;
-    }
     if (in_buffer_index == buffer_size) {
+	// had enough input data left to fill buffer -> process
 	in_buffer_index = 0;
 	out_buffer_index = 0;
 	return true;
@@ -1476,7 +1478,7 @@ void LadspaGuitarixStereo::activateGuitarix(LADSPA_Handle Instance) {
     self.engine.set_buffersize(bufsize);
     gx_system::gx_print_info(
 	"fx activate",
-	boost::format("instance %1%, samplerate %2%, buffer %3%, priority %4%")
+	boost::format("instance %1%, SR %2%, BS %3%, prio %4%")
 	% Instance % self.engine.get_samplerate() % bufsize % prio);
     self.engine.init(self.engine.get_samplerate(), bufsize, policy, prio);
     self.engine.stereo_chain.set_stopped(true);
@@ -1625,21 +1627,21 @@ void LadspaGuitarixStereo::ReBuffer::set(
 }
 
 bool LadspaGuitarixStereo::ReBuffer::put() {
-    int n = min(buffer_size-out_buffer_index, block_size-out_block_index);
-    if (n) {
-	// copy values from out buffer
-	copy(out_block1+out_block_index, out_block2+out_block_index,
-	     out_buffer1+out_buffer_index, out_buffer2+out_buffer_index, n);
-	out_block_index += n;
-	out_buffer_index += n;
-    }
-    n = min(buffer_size - in_buffer_index, block_size - in_block_index);
+    int n = min(buffer_size - in_buffer_index, block_size - in_block_index);
     if (n) {
 	// copy values to in buffer
 	copy(in_buffer1+in_buffer_index, in_buffer2+in_buffer_index,
 	     in_block1+in_block_index, in_block2+in_block_index, n);
 	in_buffer_index += n;
 	in_block_index += n;
+    }
+    n = min(buffer_size-out_buffer_index, block_size-out_block_index);
+    if (n) {
+	// copy values from out buffer
+	copy(out_block1+out_block_index, out_block2+out_block_index,
+	     out_buffer1+out_buffer_index, out_buffer2+out_buffer_index, n);
+	out_block_index += n;
+	out_buffer_index += n;
     }
     if (in_buffer_index == buffer_size) {
 	// had enough input data left to fill buffer -> process
@@ -1801,7 +1803,7 @@ const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) {
 
 #ifndef PIC
 int main() {
-    int count = 64;
+    const int count = 64;
     LADSPA_Data input[2][count], output[2][count];
     int in_idx = 0, out_idx = 0;
     const LADSPA_Descriptor * ladspa = ladspa_descriptor(0);

@@ -191,34 +191,23 @@ class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
 
 /****************************************************************/
 
-class UiSelector {
- protected:
+class UiSelectorBase {
+protected:
     Gxw::Selector m_selector;
-    void init(gx_engine::Parameter& param);
- public:
-    UiSelector();
-    static GtkWidget* create(gx_ui::GxUI& ui, string id, const char *widget_name);
+public:
+    UiSelectorBase(gx_engine::Parameter& param);
+    void set_name(Glib::ustring n) { m_selector.set_name(n); }
     GtkWidget *get_widget() { return GTK_WIDGET(m_selector.gobj()); }
 };
 
-/****************************************************************/
-
-class UiSelectorFloat: public UiSelector, gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
- protected:
+template <class T>
+class UiSelector: public UiSelectorBase, private gx_ui::GxUiItemV<T>, protected Gtk::Adjustment {
+private:
     virtual void reflectZone();
     void on_value_changed();
- public:
-    UiSelectorFloat(gx_ui::GxUI& ui, gx_engine::FloatParameter &param);
-};
-
-/****************************************************************/
-
-class UiSelectorInt: public UiSelector, gx_ui::GxUiItemInt, protected Gtk::Adjustment {
- protected:
-    virtual void reflectZone();
-    void on_value_changed();
- public:
-    UiSelectorInt(gx_ui::GxUI& ui, gx_engine::IntParameter &param);
+public:
+    UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<T> &param);
+    ~UiSelector();
 };
 
 /****************************************************************/
@@ -890,10 +879,7 @@ public:
     void create_simple_spin_value(string id) {
             addwidget(UiRegler::create(*this, new Gxw::SimpleValueDisplay(), id, true));
         }
-
-    void create_selector(string id, const char *widget_name=0) {
-	addwidget(UiSelector::create(*this, id, widget_name));
-        }
+    void create_selector(string id, const char *widget_name=0);
     void create_switch_no_caption(const char *sw_type, string id) {
             addwidget(UiSwitch::create(*this, sw_type, id));
         }

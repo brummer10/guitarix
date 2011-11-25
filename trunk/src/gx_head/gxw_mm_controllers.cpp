@@ -135,33 +135,9 @@ UiRegler::~UiRegler() {
     delete m_regler;
 }
 
-UiSelector::UiSelector() {
+UiSelectorBase::UiSelectorBase(gx_engine::Parameter& param)
+    : m_selector() {
     m_selector.show();
-}
-
-void UiSelectorFloat::on_value_changed() {
-    modifyZone(get_value());
-}
-
-void UiSelectorInt::on_value_changed() {
-    modifyZone((int)get_value());
-}
-
-GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id, const char *widget_name) {
-    gx_engine::Parameter& p = gx_engine::parameter_map[id];
-    UiSelector *s;
-    if (p.isFloat()) {
-        s = new UiSelectorFloat(ui, p.getFloat());
-    } else {
-        s = new UiSelectorInt(ui, p.getInt());
-    }
-    if (widget_name) {
-	s->m_selector.set_name(widget_name);
-    }
-    return s->get_widget();
-}
-
-void UiSelector::init(gx_engine::Parameter& param) {
     m_selector.cp_set_var(param.id());
     Gtk::TreeModelColumn<Glib::ustring> label;
     Gtk::TreeModelColumnRecord rec;
@@ -171,38 +147,51 @@ void UiSelector::init(gx_engine::Parameter& param) {
         ls->append()->set_value(0, Glib::ustring(param.value_label(*p)));
     }
     m_selector.set_model(ls);
-}
-
-UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, gx_engine::FloatParameter &param)
-    : gx_ui::GxUiItemFloat(&ui, &param.value),
-    Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0) {
-    m_selector.set_adjustment(*this);
-    init(param);
     m_selector.get_accessible()->set_description (param.id().c_str());
     m_selector.get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
+}
+
+template <>
+UiSelector<float>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<float> &param)
+    : UiSelectorBase(param),
+      gx_ui::GxUiItemV<float>(&ui, &param.value),
+      Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0) {
+    m_selector.set_adjustment(*this);
+    connect_midi_controller(GTK_WIDGET(m_selector.gobj()), gx_ui::GxUiItemV<float>::fZone);
+}
+
+template <>
+UiSelector<int>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<int> &param)
+    : UiSelectorBase(param),
+      gx_ui::GxUiItemV<int>(&ui, &param.value),
+      Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0) {
+    m_selector.set_adjustment(*this);
     connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
 }
 
-void UiSelectorFloat::reflectZone() {
-    float v = *fZone;
-    fCache = v;
-    set_value(v);
-}
-
-void UiSelectorInt::reflectZone() {
-    int v = *fZone;
-    fCache = v;
-    set_value(v);
-}
-
-UiSelectorInt::UiSelectorInt(gx_ui::GxUI& ui, gx_engine::IntParameter &param)
-    : gx_ui::GxUiItemInt(&ui, &param.value),
-    Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0) {
+template <>
+UiSelector<unsigned int>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<unsigned int> &param)
+    : UiSelectorBase(param),
+      gx_ui::GxUiItemV<unsigned int>(&ui, &param.value),
+      Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0) {
     m_selector.set_adjustment(*this);
-    init(param);
-    m_selector.get_accessible()->set_description (param.id().c_str());
-    m_selector.get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
     connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
+}
+
+template <class T>
+UiSelector<T>::~UiSelector() {
+}
+
+template <class T>
+void UiSelector<T>::on_value_changed() {
+    modifyZone(get_value());
+}
+
+template <class T>
+void UiSelector<T>::reflectZone() {
+    T v = *gx_ui::GxUiItemV<T>::fZone;
+    gx_ui::GxUiItemV<T>::fCache = v;
+    set_value(v);
 }
 
 GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,

@@ -127,6 +127,7 @@ class Parameter {
     void setUsed() { used = true; }
     friend void compare_parameter(const char* title, Parameter* p1,
 				  Parameter* p2, bool all);
+    void dump() { printf("P: %s vt=%d ct=%d c=%d\n", _id.c_str(), v_type, c_type, controllable); }
 #endif
 
     bool isFloat() const { return v_type == tp_float; }
@@ -293,7 +294,7 @@ class ParameterV<unsigned int>: public Parameter {
     ParameterV(string id, string name, ctrl_type ctp, bool preset,
 	       unsigned int &v, unsigned int sv, unsigned int lv,
 	       unsigned int uv, bool ctrl):
-        Parameter(id, name, tp_int, ctp, preset, ctrl),
+        Parameter(id, name, tp_uint, ctp, preset, ctrl),
         value(v), std_value(sv), lower(lv), upper(uv)
         {}
 };
@@ -411,7 +412,7 @@ class ParameterV<string>: public Parameter {
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
     ParameterV(string id, string name, string &v, string sv):
-        Parameter(id, name, tp_bool, None, false, false),
+        Parameter(id, name, tp_string, None, false, false),
         value(v), std_value(sv)
         {}
 };
@@ -429,7 +430,7 @@ inline IntParameter &Parameter::getInt() {
 }
 
 inline UIntParameter &Parameter::getUInt() {
-    assert(isInt());
+    assert(isUInt());
     return static_cast<UIntParameter&>(*this);
 }
 

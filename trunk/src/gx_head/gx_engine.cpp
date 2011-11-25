@@ -88,7 +88,7 @@ static plugindef_creator builtin_amp_plugins[] = {
     gx_amps::gxamp14::plugin,
     gx_amps::gxamp10::plugin,
     gx_amps::gxamp18::plugin,
-    
+
     gx_amps::gxamp2::plugin,
 
     gx_amps::gxamp9::plugin,

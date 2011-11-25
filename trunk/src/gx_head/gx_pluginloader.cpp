@@ -25,6 +25,13 @@
  ** class ParamReg
  */
 
+#ifdef LADSPA_SO
+#define EXPORT_FUNC __attribute__ ((visibility ("default")))
+#else
+#define EXPORT_FUNC
+#endif
+
+EXPORT_FUNC
 float *ParamReg::registerVar(const char* id, const char* name, const char* tp,
 			     const char* tooltip, float* var, float val,
 			     float low, float up, float step) const {
@@ -55,6 +62,7 @@ float *ParamReg::registerVar(const char* id, const char* name, const char* tp,
     return var;
 }
 
+EXPORT_FUNC
 void ParamReg::registerVar(const char* id, const char* name, const char* tp,
 			   const char* tooltip, bool* var, bool val) const {
     gx_engine::Parameter *p = new gx_engine::BoolParameter(
@@ -65,6 +73,7 @@ void ParamReg::registerVar(const char* id, const char* name, const char* tp,
     pmap->insert(p);
 }
 
+EXPORT_FUNC
 void ParamReg::registerEnumVar(const char *id, const char* name, const char* tp,
 			       const char* tooltip, const value_pair* values, float *var,
 			       float val, float low, float up, float step) const {
@@ -76,6 +85,7 @@ void ParamReg::registerEnumVar(const char *id, const char* name, const char* tp,
     pmap->reg_enum_par(id, name, values, var, val);
 }
 
+EXPORT_FUNC
 void ParamReg::registerEnumVar(const char *id, const char* name, const char* tp,
 			       const char* tooltip, const value_pair* values,
 			       int *var, int val) const {
@@ -86,10 +96,12 @@ void ParamReg::registerEnumVar(const char *id, const char* name, const char* tp,
     pmap->reg_enum_par(id, name, values, var, val);
 }
 
+EXPORT_FUNC
 void ParamReg::registerNonMidiVar(const char * id, bool*var, bool preset) const {
     pmap->reg_non_midi_par(id, var, preset);
 }
 
+EXPORT_FUNC
 void ParamReg::registerUEnumVar(const char *id, const char* name, const char* tp,
 				const char* tooltip, const value_pair* values,
 				unsigned int *var, unsigned int std) const {

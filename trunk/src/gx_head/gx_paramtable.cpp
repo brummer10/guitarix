@@ -721,7 +721,7 @@ void IntParameter::set(float n, float high, float llimit, float ulimit) {
 	assert(false); // not implemented
         break;
     case Enum:
-        assert(false); // not implemented
+        value = lower + min(static_cast<int>(n), upper-lower);
         break;
     default:
         assert(false);
@@ -813,7 +813,7 @@ void UIntParameter::set(float n, float high, float llimit, float ulimit) {
 	assert(false); // not implemented
         break;
     case Enum:
-        assert(false); // not implemented
+        value = lower + min(static_cast<unsigned int>(n), upper-lower);
         break;
     default:
         assert(false);
@@ -1133,7 +1133,7 @@ void ParamMap::check_p(const char *p) {
 void ParamMap::dump() {
     printf("parameter map dump\n");
     for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
-        printf("P: %s\n", i->second->id().c_str());
+	i->second->dump();
     }
     printf("---------------------\n");
 }
