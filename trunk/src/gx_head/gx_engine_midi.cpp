@@ -36,32 +36,32 @@ void MidiVariables::register_parameter(const ParamReg& reg) {
 
     reg.registerVar("midi_out.channel_1.velocity", "velocity", "S", "", &fslider26, 64, 0, 127, 1);
     reg.registerVar("midi_out.channel_1.volume", "volume", "S", "", &fslider46, 64, 0, 127, 1);
-    reg.registerVar("midi_out.channel_1.autogain", "autogain", "B", "", &fautogain);
+    reg.registerBoolVar("midi_out.channel_1.autogain", "autogain", "B", "", &fautogain, false);
     reg.registerVar("midi_out.channel_1.channel", "channel 1", "S", "", &fslider30, 0, 0, 16, 1);
     reg.registerVar("midi_out.channel_1.program", "program", "S", "", &fslider31, 0, 0, 248, 1);
     reg.registerVar("midi_out.channel_1.oktave", "oktave", "S", "", &fslider29, 0, -2, 2, 1);
     reg.registerVar("midi_out.channel_1.sensity", "sensity", "S", "", &fslider27, 20, 1, 500, 1);
-    reg.registerVar("midi_out.channel_1.auto_pitch", "auto pitch", "B", "", &fpitch);
+    reg.registerBoolVar("midi_out.channel_1.auto_pitch", "auto pitch", "B", "", &fpitch, false);
 
-    reg.registerVar("midi_out.channel_2.on_off", "on/off", "B", "", &fcheckbox10, 0);
+    reg.registerBoolVar("midi_out.channel_2.on_off", "on/off", "B", "", &fcheckbox10, false);
     reg.registerVar("midi_out.channel_2.velocity", "velocity", "S", "", &fslider32, 64, 0, 127, 1);
     reg.registerVar("midi_out.channel_2.volume", "volume", "S", "", &fslider47, 64, 0, 127, 1);
-    reg.registerVar("midi_out.channel_2.autogain", "autogain", "B", "", &fautogain1);
+    reg.registerBoolVar("midi_out.channel_2.autogain", "autogain", "B", "", &fautogain1, false);
     reg.registerVar("midi_out.channel_2.channel", "channel 2", "S", "", &fslider35, 0, 0, 16, 1);
     reg.registerVar("midi_out.channel_2.program", "program", "S", "", &fslider36, 0, 0, 248, 1);
     reg.registerVar("midi_out.channel_2.oktave", "oktave", "S", "", &fslider34, 0, -2, 2, 1);
     reg.registerVar("midi_out.channel_2.sensity", "sensity", "S", "", &fslider33, 20, 1, 500, 1);
-    reg.registerVar("midi_out.channel_2.auto_pitch", "auto pitch", "B", "", &fpitch1);
+    reg.registerBoolVar("midi_out.channel_2.auto_pitch", "auto pitch", "B", "", &fpitch1, false);
 
-    reg.registerVar("midi_out.channel_3.on_off", "on/off", "B", "", &fcheckbox11, 0);
+    reg.registerBoolVar("midi_out.channel_3.on_off", "on/off", "B", "", &fcheckbox11, false);
     reg.registerVar("midi_out.channel_3.velocity", "velocity", "S", "", &fslider40, 64, 0, 127, 1);
     reg.registerVar("midi_out.channel_3.volume", "volume", "S", "", &fslider48, 64, 0, 127, 1);
-    reg.registerVar("midi_out.channel_3.autogain", "autogain", "B", "", &fautogain2);
+    reg.registerBoolVar("midi_out.channel_3.autogain", "autogain", "B", "", &fautogain2, false);
     reg.registerVar("midi_out.channel_3.channel", "channel 3", "S", "", &fslider44, 0, 0, 16, 1);
     reg.registerVar("midi_out.channel_3.program", "program", "S", "", &fslider43, 0, 0, 248, 1);
     reg.registerVar("midi_out.channel_3.oktave", "oktave", "S", "", &fslider42, 0, -2, 2, 1);
     reg.registerVar("midi_out.channel_3.sensity", "sensity", "S", "", &fslider41, 20, 1, 500, 1);
-    reg.registerVar("midi_out.channel_3.auto_pitch", "auto pitch", "B", "", &fpitch2);
+    reg.registerBoolVar("midi_out.channel_3.auto_pitch", "auto pitch", "B", "", &fpitch2, false);
 
     reg.registerVar("beat_detector.stepper", "stepper", "S", "", &fslider39, 1, 1, 32, 1);
     reg.registerVar("beat_detector.note_off", "note off", "S", "", &fslider37, 2, 1, 127, 1);

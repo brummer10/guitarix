@@ -35,64 +35,6 @@
 #include <gtkmm/separatormenuitem.h>
 #include <gxw/GxPaintBox.h>
 
-/****************************************************************
- ** UiBuilder implementation
- */
-
-void ::UiBuilder::openVerticalBox(const char* label) const {
-    intf->openVerticalBox(label);
-}
-
-void UiBuilder::openHorizontalBox(const char* label) const {
-    intf->openHorizontalBox(label);
-}
-
-void UiBuilder::create_small_rackknob(const char *id, const char *label) const {
-    if (label) {
-	intf->create_small_rackknob(id, label);
-    } else {
-	intf->create_small_rackknob(id);
-    }
-}
-
-void UiBuilder::create_selector(const char *id) const {
-    intf->create_selector(id, "");
-}
-
-void UiBuilder::closeBox() const {
-    intf->closeBox();
-}
-
-void UiBuilder::load_glade(const char *data) const {
-    intf->loadRackFromGladeData(data);
-}
-
-void UiBuilder::load(gx_engine::Plugin *p) {
-    PluginDef *pd = p->pdef;
-    if (!pd->load_ui) {
-	return;
-    }
-    plugin = pd;
-    string s = pd->id;
-    string id_on_off = s + ".on_off";
-    string id_dialog = string("ui.") + pd->name;
-    const char *name = pd->name;
-    if (name && name[0]) {
-	name = gettext(name);
-    }
-    if (pd->flags & PGN_STEREO) {
-	intf->openStereoRackBox(name, &(p->position), id_on_off.c_str(), id_dialog.c_str());
-	pd->load_ui(*this);
-	intf->closeStereoRackBox();
-    } else {
-	string id_pre_post = s+".pp";
-	intf->openMonoRackBox(name, &(p->position), id_on_off.c_str(), id_pre_post.c_str(), id_dialog.c_str());
-	pd->load_ui(*this);
-	intf->closeMonoRackBox();
-    }
-}
-
-
 namespace gx_gui {
 
 GuiVariables guivar;
@@ -129,6 +71,76 @@ const char *pb_gxrack_expose =               "gxrack_expose";
 const char *pb_eq_expose =                   "eq_expose";
 const char *pb_main_expose =                 "main_expose";
 const char *pb_level_meter_expose =          "level_meter_expose";
+
+/****************************************************************
+ ** UiBuilder implementation
+ */
+
+GxMainInterface *UiBuilderImpl::intf = 0;
+
+UiBuilderImpl::UiBuilderImpl(GxMainInterface *i)
+    : UiBuilderBase() {
+    intf = i;
+    openVerticalBox = openVerticalBox_;
+    openHorizontalBox = openHorizontalBox_;
+    closeBox = closeBox_;
+    load_glade = load_glade_;
+    create_small_rackknob = create_small_rackknob_;
+    create_selector = create_selector_;
+};
+
+void UiBuilderImpl::openVerticalBox_(const char* label) {
+    intf->openVerticalBox(label);
+}
+
+void UiBuilderImpl::openHorizontalBox_(const char* label) {
+    intf->openHorizontalBox(label);
+}
+
+void UiBuilderImpl::create_small_rackknob_(const char *id, const char *label) {
+    if (label) {
+	intf->create_small_rackknob(id, label);
+    } else {
+	intf->create_small_rackknob(id);
+    }
+}
+
+void UiBuilderImpl::create_selector_(const char *id) {
+    intf->create_selector(id, "");
+}
+
+void UiBuilderImpl::closeBox_() {
+    intf->closeBox();
+}
+
+void UiBuilderImpl::load_glade_(const char *data) {
+    intf->loadRackFromGladeData(data);
+}
+
+void UiBuilderImpl::load(gx_engine::Plugin *p) {
+    PluginDef *pd = p->pdef;
+    if (!pd->load_ui) {
+	return;
+    }
+    plugin = pd;
+    string s = pd->id;
+    string id_on_off = s + ".on_off";
+    string id_dialog = string("ui.") + pd->name;
+    const char *name = pd->name;
+    if (name && name[0]) {
+	name = gettext(name);
+    }
+    if (pd->flags & PGN_STEREO) {
+	intf->openStereoRackBox(name, &(p->position), id_on_off.c_str(), id_dialog.c_str());
+	pd->load_ui(*this);
+	intf->closeStereoRackBox();
+    } else {
+	string id_pre_post = s+".pp";
+	intf->openMonoRackBox(name, &(p->position), id_on_off.c_str(), id_pre_post.c_str(), id_dialog.c_str());
+	pd->load_ui(*this);
+	intf->closeMonoRackBox();
+    }
+}
 
 /****************************************************************
  ** register GUI parameter to save/load them within the settigs file

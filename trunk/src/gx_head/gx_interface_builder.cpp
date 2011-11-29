@@ -309,7 +309,7 @@ void GxMainInterface::setup() {
     // add a Patch Info widget
     openPatchInfoBox(&gx_gui::guivar.show_patch_info);
 
-    UiBuilder builder(this);
+    UiBuilderImpl builder(this);
     engine.pluginlist.append_rack(builder);
 
     debug_check(all_midi_params_assigned);

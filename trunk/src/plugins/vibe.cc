@@ -393,7 +393,7 @@ int Vibe::registerparam(const ParamReg& reg) {
     reg.registerVar("univibe.width",N_("Width"),"S","",&self.fwidth, 0.0, 0, 127/90.0, 0.1);
     reg.registerVar("univibe.freq",N_("Tempo"),"S", "",&self.lfo.Pfreq, 40, 1, 600, 0.1);
     reg.registerVar("univibe.randomness",N_("Rnd"),"S","",&self.lfo.Prandomness, 0, 0, 1, 0.01);
-    reg.registerUEnumVar("univibe.lfo_type",N_("LFO Type"),"B","",lfo_types,&self.lfo.PLFOtype);
+    reg.registerUEnumVar("univibe.lfo_type",N_("LFO Type"),"B","",lfo_types,&self.lfo.PLFOtype,0);
     reg.registerVar("univibe.stereo",N_("St.df"),"S","",&self.lfo.Pstereo,0.25,-0.5,0.5,0.01);
     reg.registerVar("univibe.panning",N_("Pan"),"S","",&self.Ppanning,0,0,2,0.01);
     reg.registerVar("univibe.wet_dry",N_("Wet/Dry"),"S","",&self.wet_dry,1,0,1,0.01);
@@ -409,19 +409,19 @@ int Vibe::uiloader(const UiBuilder& b) {
 	b.openHorizontalBox("");
 	{
 	    b.create_selector("univibe.lfo_type");
-	    b.create_small_rackknob("univibe.freq");
-	    b.create_small_rackknob("univibe.depth");
-	    b.create_small_rackknob("univibe.width");
-	    b.create_small_rackknob("univibe.randomness");
+	    b.create_small_rackknob("univibe.freq",0);
+	    b.create_small_rackknob("univibe.depth",0);
+	    b.create_small_rackknob("univibe.width",0);
+	    b.create_small_rackknob("univibe.randomness",0);
 	}
 	b.closeBox();
 	b.openHorizontalBox("");
 	{
-	    b.create_small_rackknob("univibe.fb");
-	    b.create_small_rackknob("univibe.stereo");
-	    b.create_small_rackknob("univibe.panning");
-	    b.create_small_rackknob("univibe.lrcross");
-	    b.create_small_rackknob("univibe.wet_dry");
+	    b.create_small_rackknob("univibe.fb",0);
+	    b.create_small_rackknob("univibe.stereo",0);
+	    b.create_small_rackknob("univibe.panning",0);
+	    b.create_small_rackknob("univibe.lrcross",0);
+	    b.create_small_rackknob("univibe.wet_dry",0);
 	}
 	b.closeBox();
     }

@@ -50,6 +50,15 @@ public:
 };
 
 /****************************************************************
+ ** class UiBuilderBase
+ */
+
+class UiBuilderBase: public UiBuilder {
+public:
+    virtual void load(Plugin *p) = 0;
+};
+
+/****************************************************************
  ** class PluginList
  ** container of plugins for all processing chains
  */
@@ -96,7 +105,7 @@ public:
     int add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int check_version(PluginDef *p);
     void registerParameter(gx_engine::ParamMap& param, gx_engine::ParameterGroups& groups);
-    void append_rack(UiBuilder& ui);
+    void append_rack(UiBuilderBase& ui);
     void ordered_mono_list(list<Plugin*>& mono, int mode);
     void ordered_stereo_list(list<Plugin*>& stereo, int mode);
 #ifndef NDEBUG

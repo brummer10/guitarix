@@ -465,6 +465,10 @@ def configure(conf):
         conf.check_cfg(package='jack', atleast_version='0.116.2', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     except ConfigurationError:
         conf.check_cfg(package='jack', atleast_version='1.9.2', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+    # jack_session support
+    code = "#include <jack/session.h>\nint main(){return JackSessionID != 0;}"
+    conf.check_cxx(fragment=code, msg="Checking for jack session support", define_name='HAVE_JACK_SESSION')
+
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.20', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
@@ -483,8 +487,6 @@ def configure(conf):
 
     # directory
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
-    # jack_session support
-    conf.check(header_name='jack/session.h', define_name='HAVE_JACK_SESSION')
 
     # defines for compilation
     gxsharedir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head'))

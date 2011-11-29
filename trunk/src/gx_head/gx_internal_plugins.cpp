@@ -643,7 +643,7 @@ void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, Pl
 
 int CabinetConvolver::register_cab(const ParamReg& reg) {
     CabinetConvolver& cab = *static_cast<CabinetConvolver*>(reg.plugin);
-    reg.registerEnumVar("cab.select", "select", "B", "", cab.cab_names, &cab.cabinet, 0);
+    reg.registerIEnumVar("cab.select", "select", "B", "", cab.cab_names, &cab.cabinet, 0);
     reg.registerVar("cab.Level", "",  "S", "", &cab.level,  1.0, 0.5, 5.0, 0.5);
     reg.registerVar("cab.bass", "",   "S", "", &cab.bass,   0.0, -10.0, 10.0, 0.5);
     reg.registerVar("cab.treble", "", "S", "", &cab.treble, 0.0, -10.0, 10.0, 0.5);

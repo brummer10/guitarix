@@ -335,21 +335,6 @@ static void log_terminal(const string& msg, gx_system::GxMsgType tp, bool plugge
     }
 }
 
-void UiBuilder::load(Plugin*) {}
-__attribute__ ((visibility ("default")))
-void UiBuilder::load_glade(char const*) const {}
-__attribute__ ((visibility ("default")))
-void UiBuilder::openVerticalBox(const char* label) const {}
-__attribute__ ((visibility ("default")))
-void UiBuilder::openHorizontalBox(const char* label) const {}
-__attribute__ ((visibility ("default")))
-void UiBuilder::closeBox() const {}
-__attribute__ ((visibility ("default")))
-void UiBuilder::create_small_rackknob(const char *id, const char *label) const {}
-__attribute__ ((visibility ("default")))
-void UiBuilder::create_selector(const char *id) const {}
-
-
 /****************************************************************
  ** class LadspaGuitarix
  */
@@ -401,13 +386,29 @@ protected:
     unsigned int activate(int *policy, int *prio);
     void load();
     LadspaGuitarix(EngineControl& engine, ConvolverAdapter* convolver,
-		   ControlParameter& cp);
+		   ControlParameter& cp, const char *envvar);
     ~LadspaGuitarix();
 };
 
+static string get_statefile() {
+    return string(getenv("HOME")) + "/.gx_head/gx_head_rc";
+}
+
+static string get_presetfile(const char *envvar) {
+    const char *path = getenv(envvar);
+    if (path && path[0]) {
+	return path;
+    }
+    path = getenv("LADSPA_GUITARIX_PRESET");
+    if (path && path[0]) {
+	return path;
+    }
+    return string(getenv("HOME")) + "/.gx_head/gx_headpre_rc";
+}
+
 // engine and cp not yet initialized, only use address!
 LadspaGuitarix::LadspaGuitarix(
-    EngineControl& engine, ConvolverAdapter* convolver, ControlParameter& cp)
+    EngineControl& engine, ConvolverAdapter* convolver, ControlParameter& cp, const char *envvar)
     : last_thread_id(),
       jack_bs(),
       jack_prio(),
@@ -421,9 +422,7 @@ LadspaGuitarix::LadspaGuitarix(
       latency_port(),
       param(),
       control_parameter(cp),
-      settings(string(getenv("HOME"))+"/.gx_head/gx_head_rc",
-	       string(getenv("HOME"))+"/.gx_head/gx_headpre_rc",
-	       param, engine, convolver, cp) {
+      settings(get_statefile(), get_presetfile(envvar), param, engine, convolver, cp) {
     PresetLoader::add_instance(this);
 }
 
@@ -949,7 +948,7 @@ public:
 };
 
 LadspaGuitarixMono::LadspaGuitarixMono(unsigned long sr)
-    : LadspaGuitarix(engine, 0, control_parameter),
+    : LadspaGuitarix(engine, 0, control_parameter, "LADSPA_GUITARIX_MONO_PRESET"),
       engine(string(getenv("HOME"))+"/.gx_head/", param, get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
@@ -1448,7 +1447,7 @@ public:
 };
 
 LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
-    : LadspaGuitarix(engine, &engine.convolver, control_parameter),
+    : LadspaGuitarix(engine, &engine.convolver, control_parameter, "LADSPA_GUITARIX_STEREO_PRESET"),
       engine(string(getenv("HOME"))+"/.gx_head/", param, get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
