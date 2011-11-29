@@ -1,0 +1,8 @@
+#! /bin/bash
+set -e
+cd "$(dirname $0)"
+pyinc="-I /usr/include/python2.7"
+pl=pluginloader
+cython --cplus $pl.pyx
+g++ -g $pyinc -I ../src/headers -shared -fPIC $pl.cpp -lrt -o $pl.so
+rm $pl.cpp

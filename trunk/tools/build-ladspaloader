@@ -1,0 +1,8 @@
+#! /bin/bash
+set -e
+cd "$(dirname $0)"
+pyinc="-I /usr/include/python2.7"
+pl=ladspaloader
+cython $pl.pyx
+gcc -g $pyinc -I ../src/headers -shared -fPIC $pl.c -lrt -o $pl.so
+rm $pl.c
