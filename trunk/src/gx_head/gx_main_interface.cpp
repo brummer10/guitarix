@@ -2612,6 +2612,11 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
     plugin_menu.append(*manage(new Gtk::SeparatorMenuItem));
 }
 
+static void set_mouse(bool v) {
+    GxMainInterface& gui = GxMainInterface::get_instance();
+    gui.mainmenu.fSetMouse.set_active(v);
+}
+
 static void set_tooltips(bool v) {
     gtk_settings_set_long_property(
         gtk_settings_get_default(), "gtk-enable-tooltips", v,
@@ -2650,7 +2655,10 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
 			      GDK_k, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fSetMouse.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::set_mouse_mode));
-    fSetMouse.set_parameter(new gx_engine::SwitchParameter("system.set_mouse"));
+    gx_engine::SwitchParameter *pa = new gx_engine::SwitchParameter("system.set_mouse");
+    fSetMouse.set_parameter(pa);
+    fSetMouse.set_active(true);
+    pa->signal_changed().connect(ptr_fun(set_mouse));
     options_menu.append(fSetMouse);
 
     /*-- Create logbox check menu item under Options submenu --*/

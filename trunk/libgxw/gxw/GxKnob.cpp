@@ -178,7 +178,7 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 	
 }
 
-static gboolean jump_to_mouse = TRUE;
+static gboolean jump_to_mouse = FALSE;
 
 void gx_set_knob_jump_to_mouse(gboolean value)
 {

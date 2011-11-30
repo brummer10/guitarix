@@ -86,7 +86,7 @@ static gboolean gx_eq_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
-static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
+static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
@@ -106,12 +106,22 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y,
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, event, &ret);
 		return FALSE;
 	}
-	gint height = image_rect.height - slider_height;
-	int  slidery = image_rect.y + slider_height;
-	double pos = adj->upper - ((y - slidery)/height)* (adj->upper - adj->lower);
-	gboolean handled;
-	g_signal_emit(widget, GX_REGLER_CLASS(G_OBJECT_GET_CLASS(widget))->change_value_id,
-	              0, GTK_SCROLL_JUMP, pos, &handled);
+    static double last_y = 2e20;
+    
+	double slidery = image_rect.height;
+	double posy = slidery - y + image_rect.y; 
+	double value;
+	if (!drag) {
+		last_y = posy;
+		return TRUE;
+	}
+    double sc = 0.02;
+    if (state & GDK_CONTROL_MASK) {
+        sc = 0.002;
+    }
+	value = (posy - last_y) * sc;
+	last_y = posy;
+	gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
 	g_object_unref(pb);
 	return TRUE;
 }
@@ -123,7 +133,7 @@ static gboolean gx_eq_slider_button_press (GtkWidget *widget, GdkEventButton *ev
 		return FALSE;
 	}
 	gtk_widget_grab_focus(widget);
-	if (slider_set_from_pointer(widget, event->x, event->y, FALSE, event->button, event)) {
+	if (slider_set_from_pointer(widget, event->state, event->x, event->y, FALSE, event->button, event)) {
 		gtk_grab_add(widget);
 	}
 	return FALSE;
@@ -136,7 +146,7 @@ static gboolean gx_eq_slider_pointer_motion(GtkWidget *widget, GdkEventMotion *e
 		return FALSE;
 	}
 	gdk_event_request_motions (event);
-	slider_set_from_pointer(widget, event->x, event->y, TRUE, 0, NULL);
+	slider_set_from_pointer(widget, event->state, event->x, event->y, TRUE, 0, NULL);
 	return FALSE;
 }
 

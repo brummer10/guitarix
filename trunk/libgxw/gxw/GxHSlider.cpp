@@ -150,7 +150,7 @@ static gboolean gx_hslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 	return TRUE;
 }
 
-static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
+static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
 {
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
 	gint slider_width;
@@ -169,13 +169,24 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y,
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, event, &ret);
 		return FALSE;
 	}
-	gint width = image_rect.width - slider_width;
-	gint off = image_rect.x + slider_width/2;
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	double pos = adj->lower + ((x - off)/width)* (adj->upper - adj->lower);
-	gboolean handled;
-	g_signal_emit(widget, GX_REGLER_CLASS(G_OBJECT_GET_CLASS(widget))->change_value_id,
-	              0, GTK_SCROLL_JUMP, pos, &handled);
+    
+    static double last_x = 2e20;
+    GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	double sliderx = image_rect.width;
+	double posx = sliderx - x + image_rect.x; 
+	double value;
+	if (!drag) {
+		last_x = posx;
+		return TRUE;
+	}
+    double sc = 0.02;
+    if (state & GDK_CONTROL_MASK) {
+        sc = 0.002;
+    }
+	value = (posx - last_x) * sc;
+	last_x = posx;
+	gtk_range_set_value(GTK_RANGE(widget), adj->value - value * (adj->upper - adj->lower));
+    
 	g_object_unref(pb);
 	return TRUE;
 }
@@ -187,7 +198,7 @@ static gboolean gx_hslider_button_press (GtkWidget *widget, GdkEventButton *even
 		return FALSE;
 	}
 	gtk_widget_grab_focus(widget);
-	if (slider_set_from_pointer(widget, event->x, event->y, FALSE, event->button, event)) {
+	if (slider_set_from_pointer(widget, event->state, event->x, event->y, FALSE, event->button, event)) {
 		gtk_grab_add(widget);
 	}
 	return FALSE;
@@ -200,7 +211,7 @@ static gboolean gx_hslider_pointer_motion(GtkWidget *widget, GdkEventMotion *eve
 		return FALSE;
 	}
 	gdk_event_request_motions (event);
-	slider_set_from_pointer(widget, event->x, event->y, TRUE, 0, NULL);
+	slider_set_from_pointer(widget, event->state, event->x, event->y, TRUE, 0, NULL);
 	return FALSE;
 }
 
