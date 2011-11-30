@@ -21,6 +21,14 @@ Files in this directory:
    build python modules directly from faust sources (e.g. for
    analytical processing). Uses faustmod.pyx
 
+ - build-pluginloader, pluginloader.pyx, pluginloader.h
+   build a python module pluginloader.so which loads Guitarix
+   plugins
+
+ - build-ladspaloader, ladspaloader.pyx
+   build a python module ladspaloader.so which loads LADSPA
+   plugins
+
  - tubestage.dsp
    faust module as test case for build-module (core tube stage
    copied from the faust directory)

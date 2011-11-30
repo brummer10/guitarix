@@ -24,9 +24,6 @@ namespace Gxw {
 
 class Knob: public Gxw::Regler {
 	_CLASS_GTKOBJECT(Knob,GxKnob,GX_KNOB,Gxw::Regler,GxRegler)
-	public:
-	static void set_jump_to_mouse(bool value);
-	static bool get_jump_to_mouse();
 	protected:
 	_CTOR_DEFAULT
 };

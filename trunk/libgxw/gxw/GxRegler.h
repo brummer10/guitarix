@@ -69,6 +69,8 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
                               GdkRectangle *value_rect);
 void _gx_regler_display_value(GxRegler *regler, GdkRectangle *value_rect);
 void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *value_rect);
+gboolean _gx_regler_check_display_popup(GxRegler *regler, GdkRectangle *image_rect,
+					GdkRectangle *value_rect, GdkEventButton *event);
 __attribute__((noinline))gboolean _approx_in_rectangle(gdouble x, gdouble y, GdkRectangle *rect);
 
 void gx_regler_set_show_value(GxRegler *regler, gboolean value);

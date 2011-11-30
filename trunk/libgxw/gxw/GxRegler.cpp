@@ -845,6 +845,34 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 	}
 }
 
+gboolean _gx_regler_check_display_popup(GxRegler *regler, GdkRectangle *image_rect,
+					GdkRectangle *value_rect, GdkEventButton *event)
+{
+	// check if value entry popup requested
+	gdouble x = event->x + GTK_WIDGET(regler)->allocation.x;
+	gdouble y = event->y + GTK_WIDGET(regler)->allocation.y;
+	GdkRectangle *rect = NULL;
+	if (image_rect && _approx_in_rectangle(x, y, image_rect)) {
+		if (event->button == 3) {
+			rect = image_rect;
+		}
+	} else if (value_rect && _approx_in_rectangle(x, y, value_rect)) {
+		if (event->button == 1 || event->button == 3) {
+			rect = value_rect;
+		} else {
+			return TRUE;
+		}
+	} else {
+		return TRUE;
+	}
+	if (rect) {
+		gboolean ret;
+		g_signal_emit_by_name(regler, "value-entry", rect, event, &ret);
+		return TRUE;
+	}
+	return FALSE;
+}
+
 static gchar* _gx_regler_format_value(GxRegler *regler, gdouble value)
 {
 	gchar *fmt = NULL;

@@ -88,15 +88,48 @@ static gboolean gx_level_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
+static double log_meter_inv(double def)
+{
+    def *= 115.0;
+    if (def <= 0.0) {
+        return -70.0;
+	}
+    if (def <= 2.5) {
+        return def/0.25 - 70;
+	}
+    if (def <= 7.5) {
+        return (def-2.5)/0.5 - 60;
+	}
+    if (def <= 15.0) {
+        return (def-7.5)/0.75 - 50;
+	}
+    if (def <= 30.0) {
+        return (def-15.0)/1.5 - 40;
+	}
+    if (def <= 50.0) {
+        return (def-30.0)/2.0 - 30;
+	}
+    if (def <= 115) {
+        return (def-50.0)/2.5 - 20;
+	}
+    return 6.0;
+}
+
+static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
+{
+	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	r->width = gdk_pixbuf_get_width(pb);
+	r->height = gdk_pixbuf_get_height(pb);
+	g_object_unref(pb);
+}
+
 static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
 {
 	GdkRectangle image_rect, value_rect;
 	gint slider_height;
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	image_rect.width = gdk_pixbuf_get_width(pb);
-	image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
-	g_object_unref(pb);
+	get_width_height(widget, &image_rect);
+	image_rect.height = (image_rect.height + slider_height) / 2;
 	x += widget->allocation.x;
 	y += widget->allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
@@ -116,6 +149,9 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
 	double value;
 	if (!drag) {
 		last_y = posy;
+		if (event && event->type == GDK_2BUTTON_PRESS) {
+		    gtk_range_set_value(GTK_RANGE(widget), log_meter_inv(posy/image_rect.height));
+		}
 		return TRUE;
 	}
     double sc = 0.005;

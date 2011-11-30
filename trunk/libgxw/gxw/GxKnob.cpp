@@ -109,7 +109,7 @@ void _gx_knob_draw_arc(GtkWidget *widget, GdkRectangle *rect, gdouble knobstate,
 	g_object_unref(line);
 }
 
-static const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
+static const double scale_zero = 40 * (M_PI/180); // defines "dead zone" for knobs
 
 void _gx_knob_draw_indicator(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobstate)
 {
@@ -178,34 +178,21 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 	
 }
 
-static gboolean jump_to_mouse = FALSE;
-
-void gx_set_knob_jump_to_mouse(gboolean value)
+static void get_image_dimensions(GtkWidget *widget, GdkPixbuf *pb, 
+								 GdkRectangle *rect, gint *frame_count) 
 {
-	jump_to_mouse = value;
-}
-
-gboolean gx_get_knob_jump_to_mouse()
-{
-	return jump_to_mouse;
-}
-
-static void get_image_dimensions (GtkWidget *widget, GdkPixbuf *pb, 
-										GdkRectangle *rect, gint *frame_count) 
-{
-	gtk_widget_style_get (widget, "framecount",
-							frame_count, NULL);
+	gtk_widget_style_get(widget, "framecount",
+						 frame_count, NULL);
 
 	rect->width  = gdk_pixbuf_get_width(pb);
 	rect->height = gdk_pixbuf_get_height(pb);
 	
-	if (*frame_count >1)
+	if (*frame_count >1) {
 		rect->width = (rect->width / *frame_count);
-		
+	}
 	if (*frame_count == 0) {// rc directs to assume square frames
 		*frame_count = rect->width / rect->height;
 		rect->width = rect->height;
-		
 	}
 }
 
@@ -213,37 +200,21 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
                                 gboolean drag, int state, int button, GdkEventButton *event)
 {
 	int fcount;
-	int linearmode = ((state & GDK_CONTROL_MASK) == 0) ^ jump_to_mouse;
+	bool finemode = ((state & (GDK_CONTROL_MASK|GDK_SHIFT_MASK)) != 0);
 	GdkRectangle image_rect, value_rect;
 	
 	GxKnob *knob = GX_KNOB(widget);
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, icon, GtkIconSize(-1), NULL);
 	GxKnobPrivate *priv = knob->priv;
 	
-    get_image_dimensions (widget, pb, &image_rect, &fcount); 
+	get_image_dimensions (widget, pb, &image_rect, &fcount); 
 	
 	g_object_unref(pb);
 	x += widget->allocation.x;
 	y += widget->allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 	if (!drag) {
-		GdkRectangle *rect = NULL;
-		if (_approx_in_rectangle(x, y, &image_rect)) {
-			if (button == 3) {
-				rect = &image_rect;
-			}
-		} else if (_approx_in_rectangle(x, y, &value_rect)) {
-			if (button == 1 || button == 3) {
-				rect = &value_rect;
-			} else {
-				return FALSE;
-			}
-		} else {
-			return FALSE;
-		}
-		if (rect) {
-			gboolean ret;
-			g_signal_emit_by_name(GX_REGLER(widget), "value-entry", rect, event, &ret);
+		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {
 			return FALSE;
 		}
 	}
@@ -254,16 +225,16 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	double posy = radius - y + image_rect.y; // y axis top -> bottom
 	double value;
 	if (!drag) {
-		if (linearmode) {
+		if (event && event->type == GDK_2BUTTON_PRESS) {
+			last_y = 2e20;
+		} else {
 			last_y = posy;
 			return TRUE;
-		} else {
-			last_y = 2e20;
 		}
 	}
 	if (last_y < 1e20) { // in drag started in linear mode
 		const double scaling = 0.005;
-		double scal = (linearmode ? scaling : scaling*0.1);
+		double scal = (finemode ? scaling*0.1 : scaling);
 		value = (posy - last_y) * scal;
 		last_y = posy;
 		gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));

@@ -86,43 +86,47 @@ static gboolean gx_eq_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
+static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
+{
+	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	r->width = gdk_pixbuf_get_width(pb);
+	r->height = gdk_pixbuf_get_height(pb);
+	g_object_unref(pb);
+}
+
 static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
 {
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
 	gint slider_height;
 	GdkRectangle image_rect, value_rect;
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
-	image_rect.width = gdk_pixbuf_get_width(pb);
-	image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
+	get_width_height(widget, &image_rect);
+	image_rect.height = (image_rect.height + slider_height) / 2;
 	x += widget->allocation.x;
 	y += widget->allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	if (!drag && !_approx_in_rectangle(x, y, &image_rect)) {
-		return FALSE;
-	}
-	if (button == 3) {
-		gboolean ret;
-		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, event, &ret);
-		return FALSE;
-	}
-    static double last_y = 2e20;
-    
-	double slidery = image_rect.height;
-	double posy = slidery - y + image_rect.y; 
-	double value;
 	if (!drag) {
-		last_y = posy;
-		return TRUE;
+		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {
+			return FALSE;
+		}
 	}
-    double sc = 0.02;
-    if (state & GDK_CONTROL_MASK) {
-        sc = 0.002;
-    }
-	value = (posy - last_y) * sc;
-	last_y = posy;
-	gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
-	g_object_unref(pb);
+	gint height = image_rect.height - slider_height;
+	gint off =  image_rect.y + slider_height/2;
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+    static double last_y = 2e20;
+	if (!drag) {
+		last_y = y;
+		if (event && event->type == GDK_2BUTTON_PRESS) {
+		    double value = adj->upper - ((y-off) / height) * (adj->upper - adj->lower);
+			gtk_range_set_value(GTK_RANGE(widget), value);
+		}
+	} else {
+		double value = ((last_y - y) / height) * (adj->upper - adj->lower);
+		if (state & (GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+			value *= 0.1;
+		}
+		last_y = y;
+		gtk_range_set_value(GTK_RANGE(widget), adj->value + value);
+	}
 	return TRUE;
 }
 

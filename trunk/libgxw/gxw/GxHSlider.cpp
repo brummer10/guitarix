@@ -32,6 +32,7 @@ static gboolean gx_hslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 G_DEFINE_TYPE(GxHSlider, gx_hslider, GX_TYPE_REGLER);
 
 #define get_stock_id(widget) (GX_HSLIDER_CLASS(GTK_OBJECT_GET_CLASS(widget))->stock_id)
+#define get_mouse_scale_factor(widget) (GX_HSLIDER_CLASS(GTK_OBJECT_GET_CLASS(widget))->mouse_scale_factor)
 
 static void gx_hslider_class_init(GxHSliderClass *klass)
 {
@@ -44,6 +45,7 @@ static void gx_hslider_class_init(GxHSliderClass *klass)
 	widget_class->enter_notify_event = gx_hslider_enter_in;
 	widget_class->leave_notify_event = gx_hslider_leave_out;
 	klass->stock_id = "hslider";
+	klass->mouse_scale_factor = 1.0;
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_int("slider-width",P_("size of slider"),
@@ -86,33 +88,52 @@ static void hslider_expose(
 
 static const gdouble sat = 70.0;
 
-static gboolean gx_hslider_expose(GtkWidget *widget, GdkEventExpose *event)
+static void gx_hslider_get_positions(
+	GtkWidget *widget, GdkPixbuf *pb, gdouble *sliderstate,
+	gint *slider_width, GdkRectangle *image_rect, GdkRectangle *value_rect)
 {
-	g_assert(GX_IS_HSLIDER(widget));
-	gint slider_width;
-	GdkRectangle image_rect, value_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	gtk_widget_style_get(widget, "slider-width", &slider_width, NULL);
-	image_rect.width = gdk_pixbuf_get_width(pb) - slider_width;
-	image_rect.height = gdk_pixbuf_get_height(pb);
-	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.width-slider_width);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	hslider_expose(widget, &image_rect, sliderstate, pb, sat, gtk_widget_has_focus(widget), TRUE);
+	gboolean pb_free = FALSE;
+	if (!pb) {
+		pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+		pb_free = TRUE;
+	}
+	gtk_widget_style_get(widget, "slider-width", slider_width, NULL);
+	image_rect->width = gdk_pixbuf_get_width(pb) - *slider_width;
+	image_rect->height = gdk_pixbuf_get_height(pb);
+	gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect->width-*slider_width);
+	_gx_regler_get_positions(GX_REGLER(widget), image_rect, value_rect);
 	switch (GX_REGLER(widget)->value_position) {
 	case GTK_POS_LEFT:
 	case GTK_POS_RIGHT:
 		break;
 	case GTK_POS_TOP:
 	case GTK_POS_BOTTOM:
-		value_rect.x = image_rect.x + (int)sliderstate - (value_rect.width - slider_width)/2;
-		if (value_rect.x + value_rect.width > widget->allocation.x + widget->allocation.width) {
-			value_rect.x = widget->allocation.x + widget->allocation.width - value_rect.width;
+		value_rect->x = image_rect->x + (int)slstate - (value_rect->width - *slider_width)/2;
+		if (value_rect->x + value_rect->width > widget->allocation.x + widget->allocation.width) {
+			value_rect->x = widget->allocation.x + widget->allocation.width - value_rect->width;
 		}
-		if (value_rect.x < widget->allocation.x) {
-			value_rect.x = widget->allocation.x;
+		if (value_rect->x < widget->allocation.x) {
+			value_rect->x = widget->allocation.x;
 		}
 		break;
 	}
+	if (sliderstate) {
+		*sliderstate = slstate;
+	}
+	if (pb_free) {
+		g_object_unref(pb);
+	}
+}
+
+static gboolean gx_hslider_expose(GtkWidget *widget, GdkEventExpose *event)
+{
+	g_assert(GX_IS_HSLIDER(widget));
+	gint slider_width;
+	GdkRectangle image_rect, value_rect;
+	gdouble sliderstate;
+	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	gx_hslider_get_positions(widget, pb, &sliderstate, &slider_width, &image_rect, &value_rect);
+	hslider_expose(widget, &image_rect, sliderstate, pb, sat, gtk_widget_has_focus(widget), TRUE);
 	_gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
 	g_object_unref(pb);
 	return FALSE;
@@ -152,42 +173,35 @@ static gboolean gx_hslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 
 static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
 {
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
 	gint slider_width;
-	gtk_widget_style_get(widget, "slider-width", &slider_width, NULL);
-	GdkRectangle image_rect;
-	image_rect.width = gdk_pixbuf_get_width(pb) - slider_width;
-	image_rect.height = gdk_pixbuf_get_height(pb);
+	GdkRectangle image_rect, value_rect;
+	gx_hslider_get_positions(widget, NULL, NULL, &slider_width, &image_rect, &value_rect);
 	x += widget->allocation.x;
 	y += widget->allocation.y;
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
-	if (!drag && !_approx_in_rectangle(x, y, &image_rect)) {
-		return FALSE;
-	}
-	if (button == 3) {
-		gboolean ret;
-		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, event, &ret);
-		return FALSE;
-	}
-    
-    static double last_x = 2e20;
-    GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	double sliderx = image_rect.width;
-	double posx = sliderx - x + image_rect.x; 
-	double value;
 	if (!drag) {
-		last_x = posx;
-		return TRUE;
+		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {
+			return FALSE;
+		}
 	}
-    double sc = 0.02;
-    if (state & GDK_CONTROL_MASK) {
-        sc = 0.002;
-    }
-	value = (posx - last_x) * sc;
-	last_x = posx;
-	gtk_range_set_value(GTK_RANGE(widget), adj->value - value * (adj->upper - adj->lower));
-    
-	g_object_unref(pb);
+	gint width = image_rect.width - slider_width;
+	gint off =  image_rect.x + slider_width/2;
+    GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+    static double last_x = 2e20;
+	if (!drag) {
+		last_x = x;
+		if (event && event->type == GDK_2BUTTON_PRESS) {
+		    double value = adj->lower + ((x - off) / width) * (adj->upper - adj->lower);
+		    gtk_range_set_value(GTK_RANGE(widget), value);
+		}
+	} else {
+		double value = ((x - last_x) / width) * (adj->upper - adj->lower);
+		value *= get_mouse_scale_factor(widget);
+		if (state & (GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+			value *= 0.1;
+		}
+		last_x = x;
+		gtk_range_set_value(GTK_RANGE(widget), adj->value + value);
+	}
 	return TRUE;
 }
 

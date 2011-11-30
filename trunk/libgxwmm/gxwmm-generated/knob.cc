@@ -24,17 +24,6 @@
 
 #include <gxw/GxKnob.h>
 
-void Gxw::Knob::set_jump_to_mouse(bool value)
-{
-	gx_set_knob_jump_to_mouse(value);
-}
-
-bool Gxw::Knob::get_jump_to_mouse()
-{
-	return gx_get_knob_jump_to_mouse();
-}
-
-
 namespace
 {
 } // anonymous namespace

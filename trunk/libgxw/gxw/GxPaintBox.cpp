@@ -644,7 +644,7 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
     x0+=1;
     y0+=1;
     
-    static int spf;
+    int spf;
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
     if(spf == 6) {
         GdkPixbuf * stock_image =
@@ -1034,9 +1034,9 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double rect_height = wi->allocation.height;
 	double x,y;
 
-    static int spf;
+    int spf;
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-    if(spf == 6) {
+    if (spf == 6) {
         GdkPixbuf * stock_image =
             gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
         
@@ -1916,13 +1916,13 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gint y0      = wi->allocation.y+1;
 	gint rect_width  = wi->allocation.width-2;
 	gint rect_height = wi->allocation.height-3;
-	
+
 	static int nf = 0;
 	static double ne_w1 = 0.;
-	static int spf;
-	
+	int spf;
+
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-	
+
 	if (nf != spf || ne_w1 != rect_width*rect_height || !(GDK_IS_PIXBUF (klass-> gxh_image))) {
 		ne_w1 = rect_width*rect_height;
 		nf = spf;
@@ -2154,11 +2154,11 @@ static void main_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
-	static int w,h;
+	int w,h;
 	
-	gtk_widget_style_get(GTK_WIDGET(wi), "width", &w, NULL);
+	gtk_widget_style_get(GTK_WIDGET(wi), "width", &w, NULL); // FIXME
 	gtk_widget_style_get(GTK_WIDGET(wi), "height", &h, NULL);
-	gtk_widget_set_size_request (GTK_WIDGET (wi),w,h);
+	//gtk_widget_set_size_request (GTK_WIDGET (wi),w,h);
 	gint x0      = wi->allocation.x;
 	gint y0      = wi->allocation.y;
 	

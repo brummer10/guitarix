@@ -27,15 +27,13 @@ static void gx_mini_slider_class_init(GxMiniSliderClass *klass)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 	klass->parent_class.stock_id = "minislider";
+	klass->parent_class.mouse_scale_factor = 0.4;
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_int("slider-width",P_("size of slider"),
 		                   P_("Width of movable part of vslider"),
 		                 0, 100, 6, GParamFlags(GTK_PARAM_READABLE)));
 }
-
-static const gdouble sat = 70.0;
-
 
 static void gx_mini_slider_init(GxMiniSlider *mini_slider)
 {

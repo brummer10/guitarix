@@ -41,6 +41,7 @@ struct _GxHSlider {
 struct _GxHSliderClass {
 	GxReglerClass parent_class;
 	const gchar *stock_id;
+	gfloat mouse_scale_factor;
 };
 
 GType gx_hslider_get_type(void);

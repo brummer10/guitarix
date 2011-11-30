@@ -2134,11 +2134,6 @@ void GxMainInterface::addLiveWaveDisplay(const char* label) {
     gtk_widget_hide(e_box);
 }
 
-/* set knobs in linear or radial mode*/
-void GxMainInterface::set_mouse_mode() {
-    Gxw::Knob::set_jump_to_mouse(!mainmenu.fSetMouse.get_active());
-}
-
 /* --------- menu function triggering engine on/off/bypass --------- */
 void GxMainInterface::toggle_engine_bypass() {
     switch (engine.get_state()) {
@@ -2270,16 +2265,16 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
       // plugin menu
       plugin_menu_label(_("P_lugins"), true),
       plugin_menu(),
-      fShowToolBar(_("Show Plugin _Bar")),
-      fShowRRack(_("Show _Rack")),
+      fShowToolBar(_("Show Plugin _Bar"),"system.show_toolbar"),
+      fShowRRack(_("Show _Rack"),"system.show_rrack"),
       //---
-      fShowRack(_("Show _Mono Rack")),
+      fShowRack(_("Show _Mono Rack"),"system.show_rack"),
       plugin_mono_plugins(_("_Mono Plugins"), true),
       plugin_mono_menu(),
-      fShowMidiOut(_("MIDI out")),
+      fShowMidiOut(_("MIDI out"),"ui.midi_out"),
 
       //---
-      fShowSRack(_("Show St_ereo Rack")),
+      fShowSRack(_("Show St_ereo Rack"),"system.show_Srack"),
       plugin_stereo_plugins(_("_Stereo Plugins"), true),
       //---
       rack_order_group(),
@@ -2295,16 +2290,15 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
       options_menu_label(_("_Options"), true),
       options_menu(),
       options_meterbridge(_("_Meterbridge"), true),
-      fShowTuner(_("_Tuner")),
+      fShowTuner(_("_Tuner"),"system.show_tuner"),
       // skin submenu
       skin_menu_label(_("_Skin..."), true),
       skin_menu(),
       skingroup(),
       // !skin submenu
-      fSetMouse(_("Set _Knobs Linear")),
-      fShowLogger(_("Show _Logging Box")),
-      fShowTooltips(_("Show _Tooltips")),
-      fMidiInPreset(_("Include MIDI in _presets")),
+      fShowLogger(_("Show _Logging Box"),"system.show_logger"),
+      fShowTooltips(_("Show _Tooltips"),"system.show_tooltips",true),
+      fMidiInPreset(_("Include MIDI in _presets"),"system.midi_in_preset"),
       options_reset_all(_("Reset _All Parameters"), true),
 
 
@@ -2562,7 +2556,6 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
                                GDK_b, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowToolBar.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_toolbar_activate));
-    fShowToolBar.set_parameter(new gx_engine::SwitchParameter("system.show_toolbar"));
     plugin_menu.append(fShowToolBar);
 
     /*-- Create mono rack check menu item under Options submenu --*/
@@ -2570,7 +2563,6 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
                                GDK_r, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowRRack.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_rrack_activate));
-    fShowRRack.set_parameter(new gx_engine::SwitchParameter("system.show_rrack"));
     plugin_menu.append(fShowRRack);
 
     plugin_menu.append(*manage(new Gtk::SeparatorMenuItem));
@@ -2580,7 +2572,6 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
 			      GDK_m, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowRack.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_rack_activate));
-    fShowRack.set_parameter(new gx_engine::SwitchParameter("system.show_rack"));
     plugin_menu.append(fShowRack);
 
     /*-- Create mono plugin menu soket item under Options submenu --*/
@@ -2590,7 +2581,6 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
     plugin_menu.append(*manage(new Gtk::SeparatorMenuItem));
 
     /*-- create midi out menu  --*/
-    fShowMidiOut.set_parameter(new gx_engine::SwitchParameter("ui.midi_out"));
     fShowMidiOut.add_accelerator("activate", intf.fAccelGroup,
 				 GDK_a, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
     fShowMidiOut.signal_activate().connect(
@@ -2602,7 +2592,6 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
                                GDK_e, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowSRack.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_srack_activate));
-    fShowSRack.set_parameter(new gx_engine::SwitchParameter("system.show_Srack"));
     plugin_menu.append(fShowSRack);
 
     /*-- Create stereo plugin menu soket item under Options submenu --*/
@@ -2610,11 +2599,6 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
     plugin_stereo_plugins.set_submenu(plugin_stereo_menu);
 
     plugin_menu.append(*manage(new Gtk::SeparatorMenuItem));
-}
-
-static void set_mouse(bool v) {
-    GxMainInterface& gui = GxMainInterface::get_instance();
-    gui.mainmenu.fSetMouse.set_active(v);
 }
 
 static void set_tooltips(bool v) {
@@ -2645,21 +2629,10 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
                                GDK_t, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowTuner.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_tuner_activate));
-    fShowTuner.set_parameter(new gx_engine::SwitchParameter("system.show_tuner"));
     options_menu.append(fShowTuner);
 
     /*-- Create skin menu under Options submenu--*/
     addGuiSkinMenu(intf);
-
-    fSetMouse.add_accelerator("activate", intf.fAccelGroup,
-			      GDK_k, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
-    fSetMouse.signal_activate().connect(
-        sigc::mem_fun(intf, &GxMainInterface::set_mouse_mode));
-    gx_engine::SwitchParameter *pa = new gx_engine::SwitchParameter("system.set_mouse");
-    fSetMouse.set_parameter(pa);
-    fSetMouse.set_active(true);
-    pa->signal_changed().connect(ptr_fun(set_mouse));
-    options_menu.append(fSetMouse);
 
     /*-- Create logbox check menu item under Options submenu --*/
     fShowLogger.set_label(_("Show _Logging Box"));
@@ -2668,18 +2641,15 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
     fShowLogger.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_log_activate));
     options_menu.append(fShowLogger);
-    fShowLogger.set_parameter(new gx_engine::SwitchParameter("system.show_logger"));
 
     /*-- Create menu item to control tooltip display --*/
-    gx_engine::SwitchParameter *p = new gx_engine::SwitchParameter("system.show_tooltips");
-    fShowTooltips.set_parameter(p);
-    fShowTooltips.set_active(true);
-    p->signal_changed().connect(ptr_fun(set_tooltips));
+    fShowTooltips.signal_activate().connect(
+	sigc::compose(sigc::ptr_fun(set_tooltips),
+		      sigc::mem_fun(fShowTooltips, &MenuCheckItem::get_active)));
     options_menu.append(fShowTooltips);
 
     /*-- create option for saving midi controller settings in presets --*/
     options_menu.append(fMidiInPreset);
-    fMidiInPreset.set_parameter(new gx_engine::SwitchParameter("system.midi_in_preset"));
 
     /*-- create option for resetting gx_head settings --*/
     options_reset_all.signal_activate().connect(

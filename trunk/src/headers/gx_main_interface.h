@@ -138,6 +138,7 @@ class MenuCheckItem: public Gtk::CheckMenuItem {
     // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
     MenuCheckItem(): Gtk::CheckMenuItem("", true), param() {}
     MenuCheckItem(const char *label): Gtk::CheckMenuItem(label, true), param() {}
+    MenuCheckItem(const char *label, const char *id, bool sv = false);
     void set_parameter(gx_engine::SwitchParameter *p);
     void add_parameter(gx_engine::SwitchParameter *p);
     gx_engine::SwitchParameter * get_parameter();
@@ -544,7 +545,6 @@ public:
     Gtk::MenuItem      skin_menu_label;
     Gtk::Menu          skin_menu;
     Gtk::RadioMenuItem::Group skingroup;
-    MenuCheckItem      fSetMouse;
     MenuCheckItem      fShowLogger;
     MenuCheckItem      fShowTooltips;
     MenuCheckItem      fMidiInPreset;
@@ -616,7 +616,6 @@ private:
     void                  on_srack_activate();
     void                  on_toolbar_activate();
     void                  on_tube_activate();
-    void                  set_mouse_mode();
     void                  on_show_oscilloscope(bool);
     bool                  on_refresh_oscilloscope();
     void                  on_oscilloscope_post_pre(int post_pre);

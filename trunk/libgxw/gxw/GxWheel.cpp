@@ -156,7 +156,7 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 	GxWheel *wheel = GX_WHEEL(widget);
 	GxWheelPrivate *priv = wheel->priv;
 	gint fcount;
-    get_image_dimensions (widget, wb, &image_rect, &fcount); 
+	get_image_dimensions (widget, wb, &image_rect, &fcount); 
 	x += widget->allocation.x;
 	y += widget->allocation.y;
 	
@@ -186,6 +186,11 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 	double value;
 	if (!drag) {
 		priv->last_x = x;
+		if (event && event->type == GDK_2BUTTON_PRESS) {
+		    const int frame = 5;
+		    value = adj->lower + ((x - (image_rect.x+frame)) * (adj->upper - adj->lower)) / (image_rect.width-2*frame);
+		    gtk_range_set_value(GTK_RANGE(widget), value);
+		}
 		return TRUE;
 	}
 	int mode = ((state & GDK_CONTROL_MASK) == 0);

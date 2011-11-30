@@ -144,6 +144,11 @@ static gboolean wheel_vertical_set_from_pointer(GtkWidget *widget, gdouble x, gd
     double value;
     if (!drag) {
         priv->last_x = y;
+	if (event && event->type == GDK_2BUTTON_PRESS) {
+	    const int frame = 5;
+	    value = adj->lower + ((y - (image_rect.y+frame)) * (adj->upper - adj->lower)) / (image_rect.height-2*frame);
+	    gtk_range_set_value(GTK_RANGE(widget), value);
+	}
         return TRUE;
     }
     int mode = ((state & GDK_CONTROL_MASK) == 0);

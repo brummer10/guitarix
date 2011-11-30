@@ -44,6 +44,7 @@ struct _GxLEVELSliderClass {
 
 inline double log_meter (double db)
 {
+	// keep log_meter_inv in sync when changing anying!
 	gfloat def = 0.0f; /* Meter deflection %age */
 
 	if (db < -70.0f) {

@@ -754,6 +754,12 @@ namespace gx_gui {
 
 /* ----- Menu check item signaled from parameter ------ */
 
+MenuCheckItem::MenuCheckItem(const char *label, const char *id, bool sv)
+  : Gtk::CheckMenuItem(label, true),
+    param() {
+    set_parameter(new gx_engine::SwitchParameter(id, false, sv));
+}
+
 void MenuCheckItem::on_my_activate() {
     param->set(get_active());
 }
@@ -766,6 +772,7 @@ void MenuCheckItem::set_parameter(gx_engine::SwitchParameter *p) {
     param = p;
     gx_engine::parameter_map.insert(p);
     p->signal_changed().connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
+    set_active(p->get());
     signal_activate().connect(
         sigc::mem_fun(*this, &MenuCheckItem::on_my_activate));
 }
