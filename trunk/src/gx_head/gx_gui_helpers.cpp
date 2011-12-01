@@ -1095,6 +1095,8 @@ gboolean gx_set_default_ssize(gpointer data) {
 // ----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
     gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
+    GtkAllocation alloc;
+    gtk_widget_get_allocation (GTK_WIDGET(gui.RBox), &alloc);
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
 
         GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
@@ -1112,17 +1114,20 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
             if (gui.fWindow.get_resizable())
                 gui.fWindow.set_resizable(false);
             gtk_widget_show(GTK_WIDGET(vbox));
-
-            gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
-                if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
-                                        (NULL, guivar.g_threads[7]) == NULL)
-                    guivar.g_threads[7] = g_timeout_add_full(
-			G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,
-			gpointer(gui.fWindow.gobj()), NULL);
-                if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
-                                        (NULL, guivar.g_threads[6]) == NULL)
-                    guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
-                                   gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
+            if (GDK_IS_WINDOW (gui.RBox->window)) {
+                gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, alloc.height);
+            } else {
+                gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
+            }
+            if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
+                                    (NULL, guivar.g_threads[7]) == NULL)
+                guivar.g_threads[7] = g_timeout_add_full(
+                    G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,
+                    gpointer(gui.fWindow.gobj()), NULL);
+            if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
+                                    (NULL, guivar.g_threads[6]) == NULL)
+                guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+                               gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
         }
     } else {
         GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
@@ -1141,16 +1146,20 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
                 gui.fWindow.set_resizable(false);
             gtk_widget_show(GTK_WIDGET(vbox));
 
-            gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
-                if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
+            if (GDK_IS_WINDOW (gui.RBox->window)) {
+                gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, alloc.height);
+            } else {
+                gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
+            }    
+            if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
                                         (NULL, guivar.g_threads[7]) == NULL)
-                    guivar.g_threads[7] = g_timeout_add_full(
-			G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,
-			gpointer(gui.fWindow.gobj()), NULL);
-                if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
-                                        (NULL, guivar.g_threads[6]) == NULL)
-                    guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
-                                   gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
+            guivar.g_threads[7] = g_timeout_add_full(
+                G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,
+                gpointer(gui.fWindow.gobj()), NULL);
+            if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
+                                    (NULL, guivar.g_threads[6]) == NULL)
+                guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+                               gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
         }
     }
 }
