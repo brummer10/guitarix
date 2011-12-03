@@ -648,7 +648,7 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
     if(spf == 6) {
         GdkPixbuf * stock_image =
-            gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
+            gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
     
         guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
         gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
@@ -1038,7 +1038,7 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
     if (spf == 6) {
         GdkPixbuf * stock_image =
-            gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
+            gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
         
         guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
         gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);

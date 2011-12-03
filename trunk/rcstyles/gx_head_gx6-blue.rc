@@ -55,13 +55,13 @@ class "*GxToggleImage" style "gx2_head_skin_switch_icons"
 
 style "gx_head_blue-paintbox"
 {
-  GxPaintBox::skin-gradient = {
+  GxPaintBox::box-gradient = {
     { 0, 19661, 19661, 19661, 52428 }, # 0, 0.3, 0.3, 0.3 , 0.8
 	{ 22768, 80, 83, 80, 52428 }, # 0.5, 0.15, 0.15, 0.15, 0.8
     { 52428, 8, 8, 80, 52428 }, # 0.5, 0.15, 0.15, 0.15, 0.8
 	{ 65536, 4, 4, 4, 62428 }} # 1, 0.1, 0.1, 0.1, 0.8
 	
-  GxPaintBox::box-gradient = {
+  GxPaintBox::skin-gradient = {
     { 65536, 0, 0, 13107, 52428 }, # 1, 0, 0, 0.2, 0.8
 	{ 52428, 0, 0, 0, 52428 }, # 0.8, 0, 0, 0, 0.8
 	{ 13107, 0, 0, 13107, 13107 }} # 0.2, 0, 0, 0.2, 0.2 
@@ -267,7 +267,7 @@ style "gx_head_blue-v_black"
 
 style "gx_head_blue-b_black"
 {
-  fg[NORMAL] ="#1a1a1a"
+  fg[NORMAL] = "#e2dcdc"
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
@@ -277,7 +277,7 @@ style "gx_head_blue-b_black"
 
 style "gx_head_blue-rack"
 {
-  fg[NORMAL] = 	{ 0., 0., 0. }
+  fg[NORMAL] = "#e2dcdc"
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
