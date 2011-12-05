@@ -470,6 +470,8 @@ EngineControl::EngineControl()
       priority(),
       buffersize_change(),
       samplerate_change(),
+      buffersize(0),
+      samplerate(0),
       pluginlist(ui,*this) {
 }
 
@@ -570,6 +572,9 @@ void ModuleSequencer::wait_ramp_down_finished() {
 }
 
 bool ModuleSequencer::update_module_lists() {
+    if (!get_buffersize() || !get_samplerate()) {
+	return false;
+    }
     if (prepare_module_lists()) {
 	commit_module_lists();
 	return true;

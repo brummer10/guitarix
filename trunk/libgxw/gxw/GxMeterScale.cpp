@@ -180,6 +180,7 @@ static void gx_meter_scale_destroy(GtkObject *object)
 {
 	GxMeterScale *meter_scale = GX_METER_SCALE(object);
 	gx_meter_scale_clear_marks(meter_scale);
+	GTK_OBJECT_CLASS(gx_meter_scale_parent_class)->destroy(object);
 }
 
 static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)

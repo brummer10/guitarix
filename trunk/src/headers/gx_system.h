@@ -383,19 +383,8 @@ public:
  ** misc function declarations
  */
 
-bool  gx_start_jack();
-int   gx_system_call(const char*,
-                     const char*,
-                     const bool devnull = false,
-                     const bool escape  = false);
-int   gx_system_call(const char*,
-                     const string&,
-                     const bool devnull = false,
-                     const bool escape  = false);
-int   gx_system_call(const string&,
-                     const char*,
-                     const bool devnull = false,
-                     const bool escape  = false);
+bool gx_start_jack();
+int  gx_system_call(const string&, bool devnull = false, bool escape = false);
 
 template <class T>
 inline string to_string(const T& t) {

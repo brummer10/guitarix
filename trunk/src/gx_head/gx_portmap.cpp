@@ -545,16 +545,17 @@ void PortMapWindow::load_all() {
 }
 
 PortMapWindow* PortMapWindow::create(gx_jack::GxJack& jack, gx_ui::GxUI& ui, Glib::RefPtr<Gtk::AccelGroup> ag) {
-    Glib::RefPtr<Gtk::Builder> bld = gx_gui::load_builder_from_file("ports.glade", ui);
+    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
+	gx_system::get_options().get_builder_filepath("ports.glade"), &ui);
     return new PortMapWindow(bld, jack, ag);
 }
 
-PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& jack_, Glib::RefPtr<Gtk::AccelGroup> ag)
+PortMapWindow::PortMapWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_jack::GxJack& jack_, Glib::RefPtr<Gtk::AccelGroup> ag)
     : portsection(),
       excluded_clients(),
       jack(jack_),
       monitored_expander_child(0) {
-    bld->get_widget("PortMapWindow", window);
+    bld->get_toplevel("PortMapWindow", window);
     monitored_expander_child = 0;
 
     // order of first 2 entries is important (check load())
@@ -566,15 +567,15 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
     // no need to set, its transient window
     //window->set_icon(Glib::wrap(GDK_PIXBUF(gx_gui::gw.ib),true));
     Gtk::Widget *b;
-    bld->get_widget("button1",b);
+    bld->find_widget("button1",b);
     assert(b);
     b->set_name("rack_button");
     Gtk::VBox *vbox1;
-    bld->get_widget("dialog-vbox1", vbox1);
+    bld->find_widget("dialog-vbox1", vbox1);
     vbox1->signal_expose_event().connect(
 	sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox1->gobj()),sigc::_1,(void*)0),false);
     Gtk::VBox *vbox2;
-    bld->get_widget("dialog-vbox2", vbox2);
+    bld->find_widget("dialog-vbox2", vbox2);
     vbox2->signal_expose_event().connect(
 	sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox2->gobj()),sigc::_1,(void*)0),false);
     vbox1->set_redraw_on_allocate(true);
@@ -583,10 +584,10 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
         portsection[i].port_attr = &gx_head_ports[i];
         char name[30];
         snprintf(name, sizeof(name), "scrolledwindow%d", i+1);
-	bld->get_widget(name, portsection[i].scrolled_window);
+	bld->find_widget(name, portsection[i].scrolled_window);
         snprintf(name, sizeof(name), "treeview%d", i+1);
 	Gtk::TreeView *view;
-	bld->get_widget(name, view);
+	bld->find_widget(name, view);
 	Gtk::TreeViewColumn *col = view->get_column(0);
 	// get_first_cell_renderer is decprecated, but only available after gtkmm 2.20
     // --> we can also use view->get_column_cell_renderer(0) instead 
@@ -596,22 +597,22 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
 	portsection[i].treestore = Gtk::TreeStore::create(columns);
 	view->set_model(portsection[i].treestore);
         //snprintf(name, sizeof(name), "treestore%d", i+1);
-        //bld->get_widget(name, portsection[i].treestore);
+        //bld->find_widget(name, portsection[i].treestore);
         //snprintf(name, sizeof(name), "cellrenderertoggle%d", i+1);
 	//Gtk::CellRendererToggle *tg;
-	//bld->get_widget(name, tg);
+	//bld->find_widget(name, tg);
 	cell->signal_toggled().connect(
 	    sigc::bind<PortSection&>(
 		sigc::mem_fun(*this, &PortMapWindow::on_cell_toggle),portsection[i]));
         snprintf(name, sizeof(name), "expander%d", i+1);
-	//bld->get_widget(name, portsection[i].expander);
+	//bld->find_widget(name, portsection[i].expander);
         if (portsection[i].expander) {
 	    portsection[i].expander->property_expanded().signal_changed().connect(
 		sigc::bind<Gtk::Expander&>(
 		    sigc::mem_fun(*this, &PortMapWindow::on_expander),
 		    *portsection[i].expander));
             snprintf(name, sizeof(name), "port%d", i+1);
-            bld->get_widget(name, portsection[i].label);
+            bld->find_widget(name, portsection[i].label);
         }
     }
 

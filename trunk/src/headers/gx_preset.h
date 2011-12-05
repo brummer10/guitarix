@@ -76,13 +76,13 @@ class GxSettings: public sigc::trackable, public gx_system::GxSettingsBase {
 private:
     gx_preset::PresetIO   preset_io;
     gx_preset::StateIO    state_io;
-    gx_engine::FileParameter presetfile_parameter;
+    gx_engine::FileParameter& presetfile_parameter;
     bool                  state_loaded;
     bool                  no_autosave;
     gx_jack::GxJack&      jack;
     gx_system::CmdlineOptions& options;
-    gx_engine::StringParameter preset_parameter;
-    gx_engine::StringParameter factory_parameter;
+    gx_engine::StringParameter& preset_parameter;
+    gx_engine::StringParameter& factory_parameter;
     static GxSettings *instance;//FIXME
     void presetfile_changed();
     void exit_handler(bool otherthread);

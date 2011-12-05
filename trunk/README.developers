@@ -73,7 +73,7 @@ All parameters have a unique string id. Its a path notation of group,
 subgroup(s) and name separated by ".".
 
 There is a base type (Parameter) and a central registry
-(parameter_map) for all parameters. Parameters have a user-visible
+(ParamMap) for all parameters. Parameters have a user-visible
 group and name (e.g. when you set the midi controller for a
 parameter) and a description, and can be defined in faust dsp code.
 

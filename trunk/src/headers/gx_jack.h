@@ -152,7 +152,7 @@ class GxJack: public sigc::trackable {
     float               last_xrun;
     void write_jack_port_connections(
 	gx_system::JsonWriter& w, const char *key, const PortConnection& pc);
-    bool                gx_jack_init();
+    bool                gx_jack_init(bool startserver);
     void                gx_jack_init_port_connection();
     void                gx_jack_callbacks();
     void                gx_jack_cleanup();
@@ -176,7 +176,7 @@ public:
     void                set_jack_down(bool v) { jack_is_down = v; }
     void                set_jack_exit(bool v) { jack_is_exit = v; }
 
-    bool                gx_jack_connection(bool connect);
+    bool                gx_jack_connection(bool connect, bool startserver);
     float               get_last_xrun() { return last_xrun; }
     void*               get_midi_buffer(jack_nframes_t nframes);
 

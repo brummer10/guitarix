@@ -111,7 +111,7 @@ MidiStandardControllers::MidiStandardControllers() {
     }
 }
 
-void MidiStandardControllers::replace(int ctr, string name) {
+void MidiStandardControllers::replace(int ctr, const string& name) {
     map<int, modstring>::iterator i = m.find(ctr);
     if (name.empty()) {
         if (i != m.end()) {
@@ -170,13 +170,13 @@ void MidiStandardControllers::readJSON(gx_system::JsonParser& jp) {
 
 void MidiController::writeJSON(gx_system::JsonWriter& jw) const {
     jw.begin_array();
-    jw.write(param.id());
-    if (param.getControlType() == Parameter::Continuous ||
-        param.getControlType() == Parameter::Enum) {
+    jw.write(param->id());
+    if (param->getControlType() == Parameter::Continuous ||
+        param->getControlType() == Parameter::Enum) {
         jw.write(_lower);
         jw.write(_upper);
     } else {
-        assert(param.getControlType() == Parameter::Switch);
+        assert(param->getControlType() == Parameter::Switch);
     }
     jw.end_array();
 }
@@ -191,17 +191,17 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
         while (jp.next() != gx_system::JsonParser::end_array);
         return 0;
     }
-    Parameter& param = pmap[id];
+    Parameter& pm = pmap[id];
     float lower = 0, upper = 0;
     bool bad = false;
     bool chg = false;
-    if (param.getControlType() == Parameter::Continuous ||
-        param.getControlType() == Parameter::Enum) {
+    if (pm.getControlType() == Parameter::Continuous ||
+        pm.getControlType() == Parameter::Enum) {
         if (jp.peek() != gx_system::JsonParser::end_array) {
             float pmin, pmax;
-            if (param.hasRange()) {
-                pmin = param.getLowerAsFloat();
-                pmax = param.getUpperAsFloat();
+            if (pm.hasRange()) {
+                pmin = pm.getLowerAsFloat();
+                pmax = pm.getUpperAsFloat();
             } else {
                 bad = true;
                 pmin = pmax = 0;
@@ -228,7 +228,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
             bad = true;
         }
     } else {
-        if (param.getControlType() != Parameter::Switch) {
+        if (pm.getControlType() != Parameter::Switch) {
             bad = true;
         }
     }
@@ -244,7 +244,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
             _("recall MIDI state"),
             _("Parameter range outside bounds, changed: ") + id);
     }
-    return new MidiController(param, lower, upper);
+    return new MidiController(pm, lower, upper);
 }
 
 
@@ -450,7 +450,7 @@ ParameterGroups::~ParameterGroups() {
 }
 
 #ifndef NDEBUG
-void ParameterGroups::group_exists(string id) {
+void ParameterGroups::group_exists(const string& id) {
     if (groups.find(id) == groups.end()) {
 	gx_system::gx_print_error("Debug Check", "Group does not exist: " + id);
     } else {
@@ -458,7 +458,7 @@ void ParameterGroups::group_exists(string id) {
     }
 }
 
-void ParameterGroups::group_is_new(string id) {
+void ParameterGroups::group_is_new(const string& id) {
     if (groups.find(id) != groups.end()) {
 	gx_system::gx_print_error("Debug Check", "Group already exists: " + id);
     }
@@ -477,7 +477,7 @@ ParameterGroups& get_group_table() {
     return groups;
 }
 
-string param_group(string id, bool nowarn) {
+string param_group(const string& id, bool nowarn) {
     static ParameterGroups& groups = get_group_table();
     const string& group_id = id.substr(0, id.find_last_of("."));
     if (nowarn) {
@@ -555,8 +555,8 @@ void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all
     if (p1->isFloat()) {
 	FloatParameter& f1 = p1->getFloat();
 	FloatParameter& f2 = p2->getFloat();
-	if (&f1.value != &f2.value) {
-	    printf("%s[%s]: value address different: %p / %p\n", title, p1->_id.c_str(), &f1.value, &f2.value);
+	if (f1.value != f2.value) {
+	    printf("%s[%s]: value address different: %p / %p\n", title, p1->_id.c_str(), f1.value, f2.value);
 	}
 	if (f1.lower != f2.lower) {
 	    printf("%s[%s]: float lower different: %g / %g\n", title, p1->_id.c_str(), f1.lower, f2.lower);
@@ -572,7 +572,7 @@ void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all
 	}
 	if (all) {
 	    if (f1.value != f2.value) {
-		printf("%s[%s]: float value different: %g / %g\n", title, p1->_id.c_str(), f1.value, f2.value);
+		printf("%s[%s]: float value different: %g / %g\n", title, p1->_id.c_str(), *f1.value, *f2.value);
 	    }
 	    if (f1.json_value != f2.json_value) {
 		printf("%s[%s]: float json value different: %g / %g\n", title, p1->_id.c_str(), f1.json_value, f2.json_value);
@@ -600,26 +600,33 @@ void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all
 	assert(false);
 	return;
     }
+    assert(false);
 }
 #endif
 
 /* FloatParameter */
 
+FloatParameter::~ParameterV() {
+    if (own_var) {
+	delete value;
+    }
+}
+
 void *FloatParameter::zone() {
-    return &value;
+    return value;
 }
 
 void FloatParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Continuous:
         assert(n >= 0 && n <= high);
-        value = llimit + (n / high) * (ulimit - llimit);
+        *value = llimit + (n / high) * (ulimit - llimit);
         break;
     case Switch:
-        value = (2*n > high ? 1.0 : 0.0);
+        *value = (2*n > high ? 1.0 : 0.0);
         break;
     case Enum:
-        value = lower + min(n, upper-lower);
+        *value = lower + min(n, upper-lower);
         break;
     default:
         assert(false);
@@ -628,12 +635,12 @@ void FloatParameter::set(float n, float high, float llimit, float ulimit) {
 }
 
 void FloatParameter::set_std_value() {
-    value = std_value;
+    *value = std_value;
 }
 
 void FloatParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value);
+    jw.write(*value);
 }
 
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -668,8 +675,8 @@ float FloatParameter::getStepAsFloat() const {
 
 /* FloatEnumParameter */
 
-FloatEnumParameter::FloatEnumParameter(string id, string name, const value_pair* vn, bool preset,
-                                       float &v, int sv, bool ctrl):
+FloatEnumParameter::FloatEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset,
+                                       float *v, int sv, bool ctrl):
     FloatParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), 1, ctrl),
     value_names(vn) {}
 
@@ -679,7 +686,7 @@ const value_pair *FloatEnumParameter::getValueNames() const {
 
 void FloatEnumParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value_names[static_cast<int>(round(value))].value_id);
+    jw.write(value_names[static_cast<int>(round(*value))].value_id);
 }
 
 void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -708,8 +715,19 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
 
 /* IntParameter */
 
+IntParameter::~ParameterV() {
+    if (own_var) {
+	delete value;
+    }
+}
+
 void *IntParameter::zone() {
-    return &value;
+    return value;
+}
+
+int IntParameter::idx_from_id(string v_id) {
+    assert(false);
+    return 0;
 }
 
 void IntParameter::set(float n, float high, float llimit, float ulimit) {
@@ -721,7 +739,7 @@ void IntParameter::set(float n, float high, float llimit, float ulimit) {
 	assert(false); // not implemented
         break;
     case Enum:
-        value = lower + min(static_cast<int>(n), upper-lower);
+        *value = lower + min(static_cast<int>(n), upper-lower);
         break;
     default:
         assert(false);
@@ -730,12 +748,12 @@ void IntParameter::set(float n, float high, float llimit, float ulimit) {
 }
 
 void IntParameter::set_std_value() {
-    value = std_value;
+    *value = std_value;
 }
 
 void IntParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value);
+    jw.write(*value);
 }
 
 void IntParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -761,8 +779,8 @@ float IntParameter::getUpperAsFloat() const {
 
 /* EnumParameter */
 
-EnumParameter::EnumParameter(string id, string name, const value_pair* vn, bool preset,
-                             int &v, int sv, bool ctrl):
+EnumParameter::EnumParameter(const string& id, const string& name, const value_pair* vn, bool preset,
+                             int *v, int sv, bool ctrl):
     IntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl),
     value_names(vn) {}
 
@@ -770,9 +788,19 @@ const value_pair *EnumParameter::getValueNames() const {
     return value_names;
 }
 
+int EnumParameter::idx_from_id(string v_id) {
+    int n = 0;
+    for (; n <= upper; n++) {
+        if (v_id == value_names[n].value_id) {
+            return n;
+        }
+    }
+    return -1;
+}
+
 void EnumParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value_names[value].value_id);
+    jw.write(value_names[*value].value_id);
 }
 
 void EnumParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -783,13 +811,8 @@ void EnumParameter::readJSON_value(gx_system::JsonParser& jp) {
         return;
     }
     jp.check_expect(gx_system::JsonParser::value_string);
-    int n = 0;
-    for (; n <= upper; n++) {
-        if (jp.current_value() == value_names[n].value_id) {
-            break;
-        }
-    }
-    if (n > upper) {
+    int n = idx_from_id(jp.current_value());
+    if (n < 0) {
         gx_system::gx_print_warning(
             _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
                                % _id % jp.current_value()).str());
@@ -800,8 +823,14 @@ void EnumParameter::readJSON_value(gx_system::JsonParser& jp) {
 
 /* unsigned IntParameter */
 
+UIntParameter::~ParameterV() {
+    if (own_var) {
+	delete value;
+    }
+}
+
 void *UIntParameter::zone() {
-    return &value;
+    return value;
 }
 
 void UIntParameter::set(float n, float high, float llimit, float ulimit) {
@@ -813,7 +842,7 @@ void UIntParameter::set(float n, float high, float llimit, float ulimit) {
 	assert(false); // not implemented
         break;
     case Enum:
-        value = lower + min(static_cast<unsigned int>(n), upper-lower);
+        *value = lower + min(static_cast<unsigned int>(n), upper-lower);
         break;
     default:
         assert(false);
@@ -822,12 +851,12 @@ void UIntParameter::set(float n, float high, float llimit, float ulimit) {
 }
 
 void UIntParameter::set_std_value() {
-    value = std_value;
+    *value = std_value;
 }
 
 void UIntParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value);
+    jw.write(*value);
 }
 
 void UIntParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -853,8 +882,8 @@ float UIntParameter::getUpperAsFloat() const {
 
 /* UEnumParameter */
 
-UEnumParameter::UEnumParameter(string id, string name, const value_pair* vn, bool preset,
-                             unsigned int &v, unsigned int sv, bool ctrl):
+UEnumParameter::UEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset,
+                             unsigned int *v, unsigned int sv, bool ctrl):
     UIntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl),
     value_names(vn) {}
 
@@ -864,7 +893,7 @@ const value_pair *UEnumParameter::getValueNames() const {
 
 void UEnumParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value_names[value].value_id);
+    jw.write(value_names[*value].value_id);
 }
 
 void UEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -893,14 +922,20 @@ void UEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
 
 /* BoolParameter */
 
+BoolParameter::~ParameterV() {
+    if (own_var) {
+	delete value;
+    }
+}
+
 void *BoolParameter::zone() {
-    return &value;
+    return value;
 }
 
 void BoolParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Switch:
-        value = (2*n > high);
+        *value = (2*n > high);
     default:
         assert(false);
         break;
@@ -908,12 +943,12 @@ void BoolParameter::set(float n, float high, float llimit, float ulimit) {
 }
 
 void BoolParameter::set_std_value() {
-    value = std_value;
+    *value = std_value;
 }
 
 void BoolParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value);
+    jw.write(*value);
 }
 
 void BoolParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -1061,8 +1096,14 @@ void FileParameter::copy(const string& destination) {
 
 /* StringParameter */
 
+StringParameter::~ParameterV() {
+    if (own_var) {
+	delete value;
+    }
+}
+
 void *StringParameter::zone() {
-    return &value;
+    return value;
 }
 
 void StringParameter::set(float n, float high, float llimit, float ulimit) {
@@ -1070,12 +1111,12 @@ void StringParameter::set(float n, float high, float llimit, float ulimit) {
 }
 
 void StringParameter::set_std_value() {
-    value = std_value;
+    *value = std_value;
 }
 
 void StringParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value);
+    jw.write(*value);
 }
 
 void StringParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -1098,6 +1139,9 @@ ParamMap::ParamMap()
 }
 
 ParamMap::~ParamMap() {
+    for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
+	delete i->second;
+    }
 }
 
 #ifndef NDEBUG
@@ -1118,7 +1162,7 @@ void ParamMap::check_addr(const void *p) {
         cerr << "zone not found: " << p << endl;
     }
 }
-void ParamMap::check_id(string id) {
+void ParamMap::check_id(const string& id) {
     if (!hasId(id)) {
         cerr << "string-id not found: " << id << endl;
     }

@@ -75,30 +75,25 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
 #ifndef NDEBUG
 	    gx_engine::FloatParameter p2(
 		id, name, gx_engine::Parameter::Continuous, true,
-		p.getFloat().value, val, low, up, step, true);
+		&p.getFloat().get_value(), val, low, up, step, true);
 	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
 #endif
-	    return &p.getFloat().value;
+	    return &p.getFloat().get_value();
 	}
     }
-    gx_engine::Parameter *p = new gx_engine::FloatParameter(
-        id, name, gx_engine::Parameter::Continuous, true, *var, val,
-	low, up, step, true);
+    gx_engine::Parameter *p = pmap->reg_par(id, name, var, val, low, up, step);
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
     }
-    pmap->insert(p);
     return var;
 }
 
 void ParamRegImpl::registerBoolVar_(const char* id, const char* name, const char* tp,
 			   const char* tooltip, bool* var, bool val) {
-    gx_engine::Parameter *p = new gx_engine::BoolParameter(
-        id, name, gx_engine::Parameter::Switch, true, *var, val, true);
+    gx_engine::Parameter *p = pmap->reg_par(id, name, var, val);
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
     }
-    pmap->insert(p);
 }
 
 void ParamRegImpl::registerEnumVar_(const char *id, const char* name, const char* tp,
@@ -133,9 +128,7 @@ void ParamRegImpl::registerUEnumVar_(const char *id, const char* name, const cha
         assert(strrchr(id, '.'));
         name = strrchr(id, '.')+1;
     }
-    gx_engine::UEnumParameter *p = new gx_engine::UEnumParameter(
-        id, name, values, true, *var, std, true);
-    pmap->insert(p);
+    pmap->reg_uenum_par(id, name, values, var, std);
 }
 
 
@@ -445,11 +438,8 @@ void PluginList::registerParameter(ParamMap& param, ParameterGroups& groups) {
 	    new RackChangerUiItem<bool>(*this, &pl->on_off);
 	    if (pd->flags & PGNI_DYN_POSITION) {
 		// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
-		param.insert(
-		    new BoolParameter(
-			string("ui.")+pd->name, "", Parameter::None,
-			true, pl->box_visible, false, false));
-		param.reg_non_midi_par((s+".position").c_str(), &(pl->position), true,
+		param.reg_non_midi_par(string("ui.")+pd->name, &pl->box_visible, true);
+		param.reg_non_midi_par((s+".position").c_str(), &pl->position, true,
 				       pl->position, 1, 999);
 		if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
 		    if (pd->flags & PGN_PRE) {

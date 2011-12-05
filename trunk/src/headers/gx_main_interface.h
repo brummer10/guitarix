@@ -129,71 +129,6 @@ void gx_start_stop_jconv(GtkWidget*, gpointer);
 
 /****************************************************************/
 
-/* ---- linking menu items and parameter ---- */
-class MenuCheckItem: public Gtk::CheckMenuItem {
- private:
-    gx_engine::SwitchParameter* param;
-    void on_my_activate();
- public:
-    // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-    MenuCheckItem(): Gtk::CheckMenuItem("", true), param() {}
-    MenuCheckItem(const char *label): Gtk::CheckMenuItem(label, true), param() {}
-    MenuCheckItem(const char *label, const char *id, bool sv = false);
-    void set_parameter(gx_engine::SwitchParameter *p);
-    void add_parameter(gx_engine::SwitchParameter *p);
-    gx_engine::SwitchParameter * get_parameter();
-};
-
-class MenuCheckItemUiBool: public Gtk::CheckMenuItem, gx_ui::GxUiItemBool {
- private:
-    virtual void reflectZone();
-    void on_my_activate();
- public:
-    // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-    MenuCheckItemUiBool(gx_ui::GxUI* ui, bool* zone);
-};
-
-/****************************************************************/
-
-/* ---- linking menu items and parameter ---- */
-class RadioCheckItem: public Gtk::RadioMenuItem {
- private:
-    gx_engine::SwitchParameter* param;
-    void on_my_toggled();
- public:
-    // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-    RadioCheckItem(Gtk::RadioMenuItem::Group& group, const char *label=""):
-	Gtk::RadioMenuItem(group, label, true), param() {}
-    void set_parameter(gx_engine::SwitchParameter *p);
-    gx_engine::SwitchParameter * get_parameter();
-};
-
-/****************************************************************/
-
-class ToggleCheckButton: public Gtk::ToggleButton {
- private:
-    gx_engine::SwitchParameter* param;
-    void on_my_toggled();
- public:
-    Gtk::Label m_label;
-    void set_parameter(gx_engine::SwitchParameter *p);
-    gx_engine::SwitchParameter * get_parameter();
-    ToggleCheckButton();
-    ~ToggleCheckButton();
-};
-
-class ToggleCheckButtonUiBool: public Gtk::ToggleButton, gx_ui::GxUiItemBool {
- private:
-    virtual void reflectZone();
-    void on_my_toggled();
- public:
-    Gtk::Label m_label;
-    ToggleCheckButtonUiBool(gx_ui::GxUI* ui, bool* zone);
-    ~ToggleCheckButtonUiBool();
-};
-
-/****************************************************************/
-
 class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
  protected:
     Gxw::Regler *m_regler;
@@ -274,80 +209,6 @@ class UiRackRegler: public UiRegler {
 
 /****************************************************************/
 
-class UiSwitch: public Gxw::Switch {
- public:
-    explicit UiSwitch(const char *sw_type);
-    GtkWidget *get_widget() { return GTK_WIDGET(gobj());}
-    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, gx_engine::Parameter &param);
-    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, string id) {
-        if (!gx_engine::parameter_map.hasId(id)) return 0;
-        return new_switch(ui, sw_type, gx_engine::parameter_map[id]);
-    }
-    static GtkWidget *create(gx_ui::GxUI& ui, const char *sw_type, string id) {
-        return new_switch(ui, sw_type, id)->get_widget();}
-};
-
-/****************************************************************/
-
-class UiSwitchFloat: public UiSwitch, gx_ui::GxUiItemFloat {
- protected:
-    void on_toggled();
-    virtual void reflectZone();
- public:
-    UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, gx_engine::FloatParameter &param);
-};
-
-/****************************************************************/
-
-class UiSwitchBool: public UiSwitch, gx_ui::GxUiItemBool {
- protected:
-    void on_toggled();
-    virtual void reflectZone();
- public:
-    UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, gx_engine::BoolParameter &param);
-};
-
-/****************************************************************/
-
-class UiSwitchWithCaption {
- private:
-    Gtk::Label m_label;
-    Gtk::Box *m_box;
- protected:
-    UiSwitch *m_switch;
- public:
-    static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
-                             Gtk::PositionType pos);
-    static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
-                             Glib::ustring label, Gtk::PositionType pos);
-    UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, gx_engine::Parameter &param,
-                        Glib::ustring label, Gtk::PositionType pos);
-    ~UiSwitchWithCaption();
-    GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
-};
-
-/****************************************************************/
-
-class UiCabSwitch: public UiSwitchWithCaption {
- private:
-    void on_switch_toggled();
- public:
-    static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
-    UiCabSwitch(gx_ui::GxUI &ui, gx_engine::Parameter &param, Glib::ustring label);
-};
-
-/****************************************************************/
-
-class UiContrastSwitch: public UiSwitchWithCaption {
- private:
-    void on_switch_toggled();
- public:
-    static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
-    UiContrastSwitch(gx_ui::GxUI &ui, gx_engine::Parameter &param, Glib::ustring label);
-};
-
-/****************************************************************/
-
 struct uiTuner : public Gtk::Alignment, private gx_ui::GxUiItemFloat {
  private:
     Gxw::Tuner fTuner;
@@ -355,14 +216,13 @@ struct uiTuner : public Gtk::Alignment, private gx_ui::GxUiItemFloat {
     Gtk::EventBox eBox;
     Gxw::Wheel wheel;
     float refpitch;
-    gx_engine::FloatParameter refpitch_param;
     Gtk::Adjustment adjust;
     gx_engine::TunerAdapter& adapt;
     void freq_changed();
     void reflectZone();
     void on_value_changed();
  public:
-    uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui);
+    uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui, gx_engine::ParamMap& pmap);
 };
 
 /****************************************************************/
@@ -425,6 +285,36 @@ public:
     virtual ~GxUiRadioMenu();
     void setup(Gtk::MenuShell& menucont, Glib::RefPtr<Gtk::AccelGroup>& ag);
 };
+
+
+/****************************************************************
+ ** class SelectJackControlPgm
+ */
+
+class SelectJackControlPgm: public Gtk::Window {
+private:
+    Gtk::Label  *description;
+    Gtk::Entry  *customstarter;
+    Gtk::ComboBox *startercombo;
+    Gtk::CheckButton *dontask;
+    gx_engine::IntParameter& starter;
+    gx_engine::StringParameter& starter_cmd;
+    gx_engine::SwitchParameter& ask;
+    sigc::signal<void> close;
+    void on_starter_changed();
+    void on_ok_button();
+    void on_cancel_button();
+    bool on_delete_event(GdkEventAny* event);
+    static SelectJackControlPgm* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::ParamMap& pmap) {
+	return new SelectJackControlPgm(cobject, bld, pmap);
+    }
+    SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::ParamMap& pmap);
+public:
+    ~SelectJackControlPgm();
+    static SelectJackControlPgm* create(gx_ui::GxUI *ui, gx_system::CmdlineOptions& opt, gx_engine::ParamMap& pmap);
+    sigc::signal<void>& signal_close() { return close; }
+};
+
 
 /****************************************************************
  ** class TextLoggingBox
@@ -545,6 +435,7 @@ public:
     Gtk::MenuItem      skin_menu_label;
     Gtk::Menu          skin_menu;
     Gtk::RadioMenuItem::Group skingroup;
+    Gtk::MenuItem      select_jack_cmd;
     MenuCheckItem      fShowLogger;
     MenuCheckItem      fShowTooltips;
     MenuCheckItem      fMidiInPreset;
@@ -567,7 +458,7 @@ public:
 
     void addJackServerMenu(GxMainInterface& intf);
 
-    MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options);
+    MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     void setup(GxMainInterface& intf);
 };
 
@@ -578,12 +469,14 @@ private:
 public://FIXME
     Gtk::Window           fWindow;
     gx_system::CmdlineOptions& options;
+    gx_engine::ParamMap&  pmap;
     // for key acclerators
     Glib::RefPtr<Gtk::AccelGroup> fAccelGroup;
     void portmap_connection_changed(string port1, string port2, bool conn);
 private:
     bool                  in_session;
     gx_portmap::PortMapWindow* portmap_window;
+    SelectJackControlPgm *select_jack_control;
     void                  on_portmap_activate();
     void                  on_portmap_response(int);
     /* engine status and switch */
@@ -627,12 +520,16 @@ private:
     void                  jack_connection_change();
     void                  save_window_position();
     void                  refresh_latency_menu();
-    bool                  connect_jack(bool v);
+    bool                  start_jack();
+    void                  connect_jack(bool v);
     void                  gx_jack_connection();
     bool                  survive_jack_shutdown();
     void                  set_jack_buffer_size(jack_nframes_t buf_size);
     void                  set_convolver_filename();
     void                  set_in_session();
+    void                  gx_midi_out();
+    void                  on_select_jack_control();
+    void                  delete_select_jack_control();
     Gtk::Label            convolver_filename_label; //FIXME
     int                   fTop;
     GtkWidget*            fBox[stackSize];
@@ -680,7 +577,7 @@ public:
     static const gboolean homogene = FALSE;
 
 public:
-    explicit GxMainInterface(gx_engine::GxEngine&, gx_system::CmdlineOptions& options);
+    explicit GxMainInterface(gx_engine::GxEngine&, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~GxMainInterface();
     static GxMainInterface& get_instance() { assert(instance); return *instance; }
     bool is_in_session() { return in_session; }
@@ -981,9 +878,6 @@ inline void connect_midi_controller(GtkWidget *w, void *zone) {
 /****************************************************************/
 
 void conv_restart();
-
-Glib::RefPtr<Gtk::Builder> load_builder_from_file(Glib::ustring name, gx_ui::GxUI& ui);
-Glib::RefPtr<Gtk::Builder> load_builder_from_data(const char *xmldesc, gx_ui::GxUI& ui);
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */

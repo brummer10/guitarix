@@ -82,7 +82,7 @@ private:
     void load(int sect, jack_port_t*);
     void load_all();
     int sort_func(const Gtk::TreeIter& a, const Gtk::TreeIter& b);
-    explicit PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& jack, Glib::RefPtr<Gtk::AccelGroup> ag);
+    explicit PortMapWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_jack::GxJack& jack, Glib::RefPtr<Gtk::AccelGroup> ag);
     Gtk::Dialog *window;
     void client_removed(string name);
     void port_changed(string name, const char *tp, int flags, bool reg);

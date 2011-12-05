@@ -336,6 +336,9 @@ void ConvolverAdapter::restart() {
 }
 
 bool ConvolverAdapter::conv_start() {
+    if (!conv.get_buffersize() || !conv.get_samplerate()) {
+	return false;
+    }
     string path = jcset.getFullIRPath();
     if (path.empty()) {
         gx_system::gx_print_warning(_("convolver"), _("no impulseresponse file"));
@@ -403,13 +406,15 @@ int ConvolverAdapter::activate(bool start, PluginDef *p) {
     ConvolverAdapter& self = *static_cast<ConvolverAdapter*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (start) {
-	if (!self.conv.get_buffersize()) {
-	    start = false;
+	if (self.activated && self.conv.is_runnable()) {
+	    return 0;
+	}
+    } else {
+	if (!self.activated) {
+	    return 0;
 	}
     }
-    if (start == self.activated) {
-	return 0;
-    }
+    self.activated = start;
     if (start) {
 	if (self.jc_post.activate(true) != 0) {
 	    gx_system::gx_print_error(_("convolver"), "jconv post activate error?!");
@@ -422,7 +427,6 @@ int ConvolverAdapter::activate(bool start, PluginDef *p) {
 	self.conv.stop();
 	self.jc_post.activate(false);
     }
-    self.activated = start;
     return 0;
 }
 

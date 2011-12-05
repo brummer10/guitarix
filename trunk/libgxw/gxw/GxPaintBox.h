@@ -40,15 +40,7 @@ struct _GxPaintBox {
 
 	gchar *paint_func;
 	void (*expose_func)(GtkWidget*, GdkEventExpose*);
-
-	guint GSEAL (border_width) : 16;
-	GList *GSEAL (children);
-	gint16 GSEAL (spacing);
-	guint GSEAL (homogeneous) : 1;
 	guint GSEAL (icon_set) : 16;
-	guint GSEAL (width) : 16;
-	guint GSEAL (height) : 16;
-
 };
 
 struct _GxPaintBoxClass {
@@ -58,29 +50,13 @@ struct _GxPaintBoxClass {
 	GdkPixbuf *gxr_image;
 	const gchar *stock_id;
 	const gchar *main_image_id;
-    const gchar *widget_id;
-    const gchar *widget_id2;
+	const gchar *widget_id;
+	const gchar *widget_id2;
 };
 
-
 GType gx_paint_box_get_type(void) G_GNUC_CONST;
-GtkWidget *gx_paint_box_new(gboolean homogeneous, gint spacing);
-
-void gx_box_pack_start (GxPaintBox *box, GtkWidget *child,
-	gboolean expand, gboolean fill, guint padding);
-                                         
-void gx_box_pack_end (GxPaintBox *box, GtkWidget *child,
-	gboolean expand, gboolean fill, guint padding);
-
-void gx_box_set_border_width (GxPaintBox *container, guint border_width);
-
-void gx_box_add (GxPaintBox *container, GtkWidget *widget);
-
-void gx_box_remove (GxPaintBox *container, GtkWidget *widget);
-
-GList*   gx_box_get_children(GxPaintBox *container);
-
-
+//GtkWidget *gx_paint_box_new(GtkOrientation orientation, gboolean homogeneous, gint spacing);
+GtkWidget *gx_paint_box_new(GtkOrientation orientation, gboolean homogeneous, gint spacing);
 
 G_END_DECLS
 

@@ -168,9 +168,9 @@ void GxJack::write_connections(gx_system::JsonWriter& w) {
  */
 
 // ----- pop up a dialog for starting jack
-bool GxJack::gx_jack_init() {
+bool GxJack::gx_jack_init(bool startserver) {
     AVOIDDENORMALS;
-    int jackopt = JackNoStartServer;
+    int jackopt = (startserver ? JackNullOption : JackNoStartServer);
     gx_system::CmdlineOptions& opt = gx_system::get_options();
     client_instance = opt.get_jack_instancename();
     if (client_instance.empty()) {
@@ -306,12 +306,12 @@ void GxJack::gx_jack_cleanup() {
 }
 
 // ---- Jack server connection / disconnection
-bool GxJack::gx_jack_connection(bool connect) {
+bool GxJack::gx_jack_connection(bool connect, bool startserver) {
     if (connect) {
 	if (client) {
 	    return true;
 	}
-	if (!gx_jack_init()) {
+	if (!gx_jack_init(startserver)) {
 	    return false;
 	}
 	engine.clear_stateflag(gx_engine::GxEngine::SF_INITIALIZING);

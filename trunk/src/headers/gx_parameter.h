@@ -50,21 +50,21 @@ class ParameterGroups {
 
 #ifndef NDEBUG
     map<string, bool> used;
-    void group_exists(string id);
-    void group_is_new(string id);
-    friend string param_group(string id, bool nowarn);
+    void group_exists(const string& id);
+    void group_is_new(const string& id);
+    friend string param_group(const string& id, bool nowarn);
 #endif
 
  public:
     ParameterGroups();
     ~ParameterGroups();
 
-    inline string get(string id) { return groups[id]; }
-    inline string operator[](string id) {
+    inline string get(const string& id) { return groups[id]; }
+    inline string operator[](const string& id) {
             debug_check(group_exists, id);
             return groups[id];
         }
-    inline void insert(string id, string group) {
+    inline void insert(const string& id, const string& group) {
             debug_check(group_is_new, id);
             groups.insert(pair<string, string>(id, group));
         }
@@ -75,7 +75,7 @@ class ParameterGroups {
 
 
 ParameterGroups& get_group_table();
-string param_group(string id, bool nowarn = false);
+string param_group(const string& id, bool nowarn = false);
 
 /****************************************************************
  ** Parameter
@@ -91,15 +91,16 @@ typedef ParameterV<string> StringParameter;
 
 class FloatEnumParameter;
 class EnumParameter;
+class UEnumParameter;
 class SwitchParameter;
 class FileParameter;
 
 /****************************************************************/
 
-class Parameter {
- public:
+class Parameter: boost::noncopyable {
+public:
     enum ctrl_type { None, Continuous, Switch, Enum };
- protected:
+protected:
     enum value_type { tp_float, tp_int, tp_uint, tp_bool, tp_switch, tp_file, tp_string };
     string _id;
     string _name, _group, _desc;
@@ -107,10 +108,11 @@ class Parameter {
     enum ctrl_type c_type : 3;
     bool save_in_preset : 1;
     bool controllable : 1;
+    bool own_var : 1;
     bool used : 1; // debug
 
- public:
-    Parameter(string id, string name, value_type vtp, ctrl_type ctp, bool preset,
+public:
+    Parameter(const string& id, const string& name, value_type vtp, ctrl_type ctp, bool preset,
               bool ctrl):
         _id(id),
         _name(name),
@@ -119,6 +121,7 @@ class Parameter {
         c_type(ctp),
         save_in_preset(preset),
         controllable(ctrl),
+	own_var(false),
         used(false) {}
     virtual ~Parameter();
 
@@ -146,7 +149,7 @@ class Parameter {
     const string& name() const { return _name; }
     string l_name() const { return gettext(_name.c_str()); }
     const string& desc() const { return _desc; }
-    void set_desc(string desc) { _desc = desc; }
+    void set_desc(const string& desc) { _desc = desc; }
     string l_desc() const { return gettext(_desc.c_str()); }
     bool operator==(const Parameter& p) const { return &p == this; }
     virtual void *zone() = 0;
@@ -165,7 +168,9 @@ class Parameter {
     }
     FloatParameter& getFloat();
     IntParameter& getInt();
+    EnumParameter& getEnum();
     UIntParameter& getUInt();
+    UEnumParameter& getUEnum();
     BoolParameter& getBool();
     SwitchParameter& getSwitch();
     FileParameter &getFile();
@@ -191,11 +196,12 @@ template<>
 class ParameterV<float>: public Parameter {
 protected:
     float json_value;
+    float *value;
 public:
-    float &value;
     float std_value;
     float lower, upper, step;
-    void set(float val) const { value = min(max(val, lower), upper); }
+    void set(float val) const { *value = min(max(val, lower), upper); }
+    float &get_value() const { return *value; }
     void convert_from_range(float low, float up);
     virtual void *zone();
     virtual void set_std_value();
@@ -207,14 +213,17 @@ public:
     virtual float getLowerAsFloat() const;
     virtual float getUpperAsFloat() const;
     virtual float getStepAsFloat() const;
-    ParameterV(string id, string name, ctrl_type ctp, bool preset,
-	       float &v, float sv, float lv, float uv, float tv, bool ctrl):
-	Parameter(id, name, tp_float, ctp, preset, ctrl), value(v), std_value(sv), lower(lv),
-	upper(uv), step(tv) {}
+    ParameterV(const string& id, const string& name, ctrl_type ctp, bool preset,
+	       float *v, float sv, float lv, float uv, float tv, bool ctrl):
+	Parameter(id, name, tp_float, ctp, preset, ctrl),
+	value(v ? v : new float()), std_value(sv),lower(lv),upper(uv),step(tv) {
+	own_var = !v;
+    }
 #ifndef NDEBUG
     friend void compare_parameter(const char* title, Parameter* p1,
 				  Parameter* p2, bool all);
 #endif
+    ~ParameterV();
 };
 
 
@@ -227,7 +236,7 @@ class FloatEnumParameter: public FloatParameter {
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
-    FloatEnumParameter(string id, string name, const value_pair* vn, bool preset, float &v,
+    FloatEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset, float *v,
                        int sv, bool ctrl);
 };
 
@@ -235,13 +244,14 @@ class FloatEnumParameter: public FloatParameter {
 
 template<>
 class ParameterV<int>: public Parameter {
- protected:
+protected:
     int json_value;
- public:
-    int &value;
+    int *value;
+public:
     int std_value;
     int lower, upper;
-    void set(int val) const { value = min(max(val, lower), upper); }
+    void set(int val) const { *value = min(max(val, lower), upper); }
+    int &get_value() const { return *value; }
     virtual void *zone();
     virtual void set_std_value();
     virtual void set(float n, float high, float llimit, float ulimit);
@@ -251,11 +261,14 @@ class ParameterV<int>: public Parameter {
     virtual bool hasRange() const;
     virtual float getLowerAsFloat() const;
     virtual float getUpperAsFloat() const;
-    ParameterV(string id, string name, ctrl_type ctp, bool preset,
-	       int &v, int sv, int lv, int uv, bool ctrl):
+    virtual int idx_from_id(string v_id);
+    ParameterV(const string& id, const string& name, ctrl_type ctp, bool preset,
+	       int *v, int sv, int lv, int uv, bool ctrl):
 	Parameter(id, name, tp_int, ctp, preset, ctrl),
-        value(v), std_value(sv), lower(lv), upper(uv)
-        {}
+        value(v ? v : new int()), std_value(sv), lower(lv), upper(uv) {
+	own_var = !v;
+    }
+    ~ParameterV();
 };
 
 /****************************************************************/
@@ -267,7 +280,9 @@ class EnumParameter: public IntParameter {
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
-    EnumParameter(string id, string name, const value_pair* vn, bool preset, int &v,
+    virtual int idx_from_id(string v_id);
+    const value_pair& get_pair() { return getValueNames()[get_value()]; }
+    EnumParameter(const string& id, const string& name, const value_pair* vn, bool preset, int *v,
                   int sv, bool ctrl);
 };
 
@@ -275,13 +290,14 @@ class EnumParameter: public IntParameter {
 
 template<>
 class ParameterV<unsigned int>: public Parameter {
- protected:
+protected:
     unsigned int json_value;
- public:
-    unsigned int &value;
+    unsigned int *value;
+public:
     unsigned int std_value;
     unsigned int lower, upper;
-    void set(unsigned int val) const { value = min(max(val, lower), upper); }
+    void set(unsigned int val) const { *value = min(max(val, lower), upper); }
+    unsigned int &get_value() const { return *value; }
     virtual void *zone();
     virtual void set_std_value();
     virtual void set(float n, float high, float llimit, float ulimit);
@@ -291,24 +307,27 @@ class ParameterV<unsigned int>: public Parameter {
     virtual bool hasRange() const;
     virtual float getLowerAsFloat() const;
     virtual float getUpperAsFloat() const;
-    ParameterV(string id, string name, ctrl_type ctp, bool preset,
-	       unsigned int &v, unsigned int sv, unsigned int lv,
+    ParameterV(const string& id, const string& name, ctrl_type ctp, bool preset,
+	       unsigned int *v, unsigned int sv, unsigned int lv,
 	       unsigned int uv, bool ctrl):
         Parameter(id, name, tp_uint, ctp, preset, ctrl),
-        value(v), std_value(sv), lower(lv), upper(uv)
-        {}
+        value(v ? v : new unsigned int()), std_value(sv), lower(lv), upper(uv) {
+	own_var = !v;
+    }
+    ~ParameterV();
 };
 
 /****************************************************************/
 
 class UEnumParameter: public UIntParameter {
- private:
+private:
     const value_pair* value_names;
- public:
+public:
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
-    UEnumParameter(string id, string name, const value_pair* vn, bool preset, unsigned int &v,
+    const value_pair& get_pair() { return getValueNames()[get_value()]; }
+    UEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset, unsigned int *v,
                   unsigned int sv, bool ctrl);
 };
 
@@ -316,34 +335,38 @@ class UEnumParameter: public UIntParameter {
 
 template<>
 class ParameterV<bool>: public Parameter {
- private:
+private:
     bool json_value;
- public:
-    bool &value;
+    bool *value;
+public:
     bool std_value;
-    void set(bool val) const { value = val; }
+    void set(bool val) const { *value = val; }
+public:
     virtual void *zone();
     virtual void set_std_value();
+    bool &get_value() const { return *value; }
     virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
-    ParameterV(string id, string name, ctrl_type ctp, bool preset,
-                  bool &v, bool sv, bool ctrl):
+    ParameterV(const string& id, const string& name, ctrl_type ctp, bool preset,
+                  bool *v, bool sv, bool ctrl):
         Parameter(id, name, tp_bool, ctp, preset, ctrl),
-        value(v), std_value(sv)
-        {}
+        value(v ? v : new bool()), std_value(sv) {
+	own_var = !v;
+    }
+    ~ParameterV();
 };
 
 /****************************************************************/
 
 class SwitchParameter: public Parameter {
- private:
+private:
     bool value;
     bool std_value;
     bool json_value;
     sigc::signal<void, bool> changed;
- public:
+public:
     sigc::signal<void, bool>& signal_changed() { return changed; }
     void set(bool val);
     bool get() const { return value; }
@@ -353,7 +376,7 @@ class SwitchParameter: public Parameter {
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual void setJSON_value();
-    SwitchParameter(string id, bool preset = false, bool sv = false):
+    SwitchParameter(const string& id, bool preset = false, bool sv = false):
         Parameter(id, "", tp_switch, Switch, preset, false),
         value(sv), std_value(sv), json_value(), changed() {}
 };
@@ -361,12 +384,12 @@ class SwitchParameter: public Parameter {
 /****************************************************************/
 
 class FileParameter: public Parameter {
- private:
+private:
     Glib::RefPtr<Gio::File> value;
     Glib::RefPtr<Gio::File> std_value;
     Glib::RefPtr<Gio::File> json_value;
     sigc::signal<void> changed;
- public:
+public:
     sigc::signal<void>& signal_changed() { return changed; }
     void set(const Glib::RefPtr<Gio::File>& val);
     void set_path(const string& path);
@@ -377,11 +400,11 @@ class FileParameter: public Parameter {
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual void setJSON_value();
-    FileParameter(string id, string filename, bool preset = false):
+    FileParameter(const string& id, const string& filename, bool preset = false):
         Parameter(id, "", tp_file, None, preset, false),
         value(Gio::File::create_for_path(filename)),
         std_value(value->dup()) {}
-    FileParameter(string id, bool preset = false):
+    FileParameter(const string& id, bool preset = false):
         Parameter(id, "", tp_file, None, preset, false),
         value(0),
         std_value(0) {}
@@ -399,22 +422,26 @@ class FileParameter: public Parameter {
 
 template<>
 class ParameterV<string>: public Parameter {
- private:
+private:
     string json_value;
- public:
-    string &value;
+    string *value;
+public:
     string std_value;
-    void set(string val) const { value = val; }
+public:
+    void set(const string& val) const { *value = val; }
+    string &get_value() const { return *value; }
     virtual void *zone();
     virtual void set_std_value();
     virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
-    ParameterV(string id, string name, string &v, string sv):
-        Parameter(id, name, tp_string, None, false, false),
-        value(v), std_value(sv)
-        {}
+    ParameterV(const string& id, const string& name, string *v, const string& sv)
+	: Parameter(id, name, tp_string, None, false, false),
+	  value(v ? v : new string), std_value(sv) {
+	own_var = !v;
+    }
+    ~ParameterV();
 };
 
 /****************************************************************/
@@ -429,9 +456,21 @@ inline IntParameter &Parameter::getInt() {
     return static_cast<IntParameter&>(*this);
 }
 
+inline EnumParameter &Parameter::getEnum() {
+    EnumParameter *p = dynamic_cast<EnumParameter*>(this);
+    assert(p);
+    return *p;
+}
+
 inline UIntParameter &Parameter::getUInt() {
     assert(isUInt());
     return static_cast<UIntParameter&>(*this);
+}
+
+inline UEnumParameter &Parameter::getUEnum() {
+    UEnumParameter *p = dynamic_cast<UEnumParameter*>(this);
+    assert(p);
+    return *p;
 }
 
 inline BoolParameter &Parameter::getBool() {
@@ -458,32 +497,33 @@ inline StringParameter &Parameter::getString() {
  ** ParamMap
  */
 
-class ParamMap {
+class ParamMap: boost::noncopyable {
  private:
     map<string, Parameter*> id_map;
     map<const void*, Parameter*> addr_map;
 #ifndef NDEBUG
     void unique_zone(Parameter* param);
     void unique_id(Parameter* param);
-    void check_id(string id);
+    void check_id(const string& id);
     void check_p(const char *p);
     void check_addr(const void *p);
 #endif
+    void insert(Parameter* param); // private so we can make sure parameters are owned
 
  public:
     ParamMap();
     ~ParamMap();
-    typedef map<string, Parameter*>::iterator iterator;
-    iterator begin() { return id_map.begin(); }
-    iterator end() { return id_map.end(); }
+    typedef map<string, Parameter*>::const_iterator iterator;
+    iterator begin() const { return id_map.begin(); }
+    iterator end() const { return id_map.end(); }
     bool hasZone(const void *p) const { return addr_map.find(p) != addr_map.end(); }
-    bool hasId(string id) const { return id_map.find(id) != id_map.end(); }
+    bool hasId(const string& id) const { return id_map.find(id) != id_map.end(); }
     bool hasId(const char *p) const { return id_map.find(p) != id_map.end(); }
     Parameter& operator[](const void *p) {
         debug_check(check_addr, p);
         return *addr_map[p];
     }
-    Parameter& operator[](string id) {
+    Parameter& operator[](const string& id) {
         debug_check(check_id, id);
         return *id_map[id];
     }
@@ -491,40 +531,86 @@ class ParamMap {
         debug_check(check_p, p);
         return *id_map[p];
     }
-    void insert(Parameter* param);
     void set_init_values();
-    inline void reg_par(const char *a, const char *b, float *c, float std,
-			      float lower, float upper, float step) {
-	insert(new FloatParameter(a, b, Parameter::Continuous, true, *c, std, lower, upper, step, true));
+    inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std,
+				   float lower, float upper, float step) {
+	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, true, var, std, lower, upper, step, true);
+	insert(p);
+	return p;
     }
-    inline void reg_par(const char *a, const char *b, float *c, float std = 0) {
-	insert(new FloatParameter(a, b, Parameter::Switch, true, *c, std, 0, 1, 1, true));
+    inline FloatParameter *reg_par_non_preset(
+	const string& id, const string& name, float *var, float std, float lower, float upper, float step) {
+	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, false, var, std, lower, upper, step, false);
+	insert(p);
+	return p;
     }
-    inline void reg_par(const char *a, const char *b, bool *c, bool d = false) {
-	insert(new BoolParameter(a, b, Parameter::Switch, true, *c, d, true));
+    inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std = 0) {
+	FloatParameter *p = new FloatParameter(id, name, Parameter::Switch, true, var, std, 0, 1, 1, true);
+	insert(p);
+	return p;
     }
-    inline void reg_enum_par(const char *a, const char *b, const value_pair *vl, int *c,
-			     int std = 0) {
-	insert(new EnumParameter(a, b, vl, true, *c, std, true));
+    inline BoolParameter *reg_par(const string& id, const string& name, bool *var, bool std = false) {
+	BoolParameter * p = new BoolParameter(id, name, Parameter::Switch, true, var, std, true);
+	insert(p);
+	return p;
     }
-    inline void reg_enum_par(const char *a, const char *b, const value_pair *vl, float *c,
-			     int std = 0) {
-	insert(new FloatEnumParameter(a, b, vl, true, *c, std, true));
+    inline EnumParameter *reg_enum_par(const string& id, const string& name,
+				       const value_pair *vl, int *var, int std = 0) {
+	EnumParameter *p = new EnumParameter(id, name, vl, true, var, std, true);
+	insert(p);
+	return p;
     }
-    inline void reg_uenum_par(const char *a, const char *b, const value_pair *vl, unsigned int *c,
-			      unsigned int std = 0) {
-	insert(new UEnumParameter(a, b, vl, true, *c, std, true));
+    inline EnumParameter *reg_non_midi_enum_par(
+	const string& id, const string& name, const value_pair *vl,
+	int *var, bool preset, int std = 0) {
+	EnumParameter *p = new EnumParameter(id, name, vl, preset, var, std, false);
+	insert(p);
+	return p;
     }
-    inline void reg_non_midi_par(const char *a, bool *c, bool preset, bool std = false) {
-	insert(new BoolParameter(a, "", Parameter::None, preset, *c, std, false));
+    inline FloatEnumParameter *reg_enum_par(const string& id, const string& name,
+					    const value_pair *vl, float *var,
+					    int std = 0) {
+	FloatEnumParameter *p = new FloatEnumParameter(id, name, vl, true, var, std, true);
+	insert(p);
+	return p;
     }
-    inline void reg_non_midi_par(const char *a, int *c, bool preset, int std, int lower, int upper) {
-	insert(new IntParameter(a, "", Parameter::None, preset, *c, std, lower, upper, false));
+    inline UEnumParameter *reg_uenum_par(const string& id, const string& name, const value_pair *vl,
+					 unsigned int *var, unsigned int std = 0) {
+	UEnumParameter *p = new UEnumParameter(id, name, vl, true, var, std, true);
+	insert(p);
+	return p;
     }
-    inline void reg_non_midi_par(const char *id, float *val, bool preset,
+    inline BoolParameter *reg_non_midi_par(const string& id, bool *var, bool preset, bool std = false) {
+	BoolParameter *p = new BoolParameter(id, "", Parameter::None, preset, var, std, false);
+	insert(p);
+	return p;
+    }
+    inline IntParameter *reg_non_midi_par(const string& id, int *var, bool preset, int std, int lower, int upper) {
+	IntParameter *p = new IntParameter(id, "", Parameter::None, preset, var, std, lower, upper, false);
+	insert(p);
+	return p;
+    }
+    inline FloatParameter *reg_non_midi_par(const string& id, float *val, bool preset,
 				 float std = 0, float lower = 0, float upper = 1, float step = 0) {
-	insert(new FloatParameter(id, "", Parameter::None, preset, *val, std, lower, upper, step, false));
-}
+	FloatParameter *p = new FloatParameter(id, "", Parameter::None, preset, val, std, lower, upper, step, false);
+	insert(p);
+	return p;
+    }
+    inline SwitchParameter *reg_switch(const string& id, bool preset = false, bool sv = false) {
+	SwitchParameter *p = new SwitchParameter(id, preset, sv);
+	insert(p);
+	return p;
+    }
+    inline FileParameter *reg_filepar(const string& id, bool preset = false) {
+	FileParameter *p = new FileParameter(id, preset);
+	insert(p);
+	return p;
+    }
+    inline StringParameter *reg_string(const string& id, const string& name, string *var, const string& sv) {
+	StringParameter *p = new StringParameter(id, name, var, sv);
+	insert(p);
+	return p;
+    }
 
 #ifndef NDEBUG
     void dump();
@@ -552,7 +638,7 @@ class MidiStandardControllers {
         string name;
         bool modified;
         const char *std;
-        modstring(string n, bool m, const char* s): name(n), modified(m), std(s) {}
+        modstring(const string& n, bool m, const char* s): name(n), modified(m), std(s) {}
         explicit modstring(const char* n): name(n), modified(false), std(n) {}
         modstring(): name(""), modified(false), std(0) {}
     };
@@ -561,7 +647,7 @@ class MidiStandardControllers {
  public:
     MidiStandardControllers();
     const string operator[](int ctr) { return m[ctr].name; }
-    void replace(int ctr, string name);
+    void replace(int ctr, const string& name);
     void writeJSON(gx_system::JsonWriter& jw) const;
     void readJSON(gx_system::JsonParser& jp);
 };
@@ -575,24 +661,18 @@ extern MidiStandardControllers midi_std_ctr; // map ctrl num -> standard name
 
 class MidiController {
  private:
-    Parameter &param;
+    Parameter *param;
     float _lower, _upper;
  public:
-    MidiController(Parameter &p, float l, float u):
-        param(p), _lower(l), _upper(u) {}
+    MidiController(Parameter& p, float l, float u):
+        param(&p), _lower(l), _upper(u) {}
     float lower() const { return _lower; }
     float upper() const { return _upper; }
-    MidiController& operator = (MidiController m) {
-        param = m.param;
-        _lower = m._lower;
-        _upper = m._upper;
-	return *this;
-    }
-    bool hasParameter(const Parameter& p) const { return param == p; }
-    Parameter& getParameter() const { return param; }
+    bool hasParameter(const Parameter& p) const { return *param == p; }
+    Parameter& getParameter() const { return *param; }
     static MidiController* readJSON(gx_system::JsonParser&, ParamMap& param);
-    void set(int n) { param.set(n, 127, _lower, _upper); }
-    void set(float v, float high) { param.set(v, high, _lower, _upper); }
+    void set(int n) { param->set(n, 127, _lower, _upper); }
+    void set(float v, float high) { param->set(v, high, _lower, _upper); }
     void writeJSON(gx_system::JsonWriter& jw) const;
 };
 

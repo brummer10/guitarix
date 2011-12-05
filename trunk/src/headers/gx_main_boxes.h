@@ -32,14 +32,6 @@
 #ifndef SRC_HEADERS_GX_MAIN_BOXES_H_
 #define SRC_HEADERS_GX_MAIN_BOXES_H_
 
-#ifndef SRC_HEADERS_GX_UI_H_
-#include "./gx_ui.h"
-#endif
-
-#ifndef SRC_HEADERS_GX_MAIN_INTERFACE_H_
-#include "./gx_main_interface.h"
-#endif
-
 #include <gtkmm/liststore.h>
 #include <gtkmm/window.h>
 #include <gtkmm/frame.h>
@@ -51,8 +43,149 @@
 #include <gxwmm/paintbox.h>
 #include <gtkmm/radiomenuitem.h>
 #include <gtkmm/paned.h>
+#include <gxwmm/switch.h>
 
 namespace gx_gui {
+
+/****************************************************************/
+
+/* ---- linking menu items and parameter ---- */
+class MenuCheckItem: public Gtk::CheckMenuItem {
+ private:
+    gx_engine::SwitchParameter* param;
+    void on_my_activate();
+ public:
+    // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
+    MenuCheckItem(): Gtk::CheckMenuItem("", true), param() {}
+    MenuCheckItem(const char *label): Gtk::CheckMenuItem(label, true), param() {}
+    MenuCheckItem(const char *label, gx_engine::ParamMap& pmap, const char *id, bool sv = false);
+    void set_parameter(gx_engine::SwitchParameter *p);
+    void add_parameter(gx_engine::SwitchParameter *p);
+    gx_engine::SwitchParameter * get_parameter();
+};
+
+class MenuCheckItemUiBool: public Gtk::CheckMenuItem, gx_ui::GxUiItemBool {
+ private:
+    virtual void reflectZone();
+    void on_my_activate();
+ public:
+    // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
+    MenuCheckItemUiBool(gx_ui::GxUI* ui, bool* zone);
+};
+
+/****************************************************************/
+
+/* ---- linking menu items and parameter ---- */
+class RadioCheckItem: public Gtk::RadioMenuItem {
+ private:
+    gx_engine::SwitchParameter* param;
+    void on_my_toggled();
+ public:
+    // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
+    RadioCheckItem(Gtk::RadioMenuItem::Group& group, const char *label=""):
+	Gtk::RadioMenuItem(group, label, true), param() {}
+    void set_parameter(gx_engine::SwitchParameter *p);
+    gx_engine::SwitchParameter * get_parameter();
+};
+
+/****************************************************************/
+
+class UiSwitch: public Gxw::Switch {
+ public:
+    explicit UiSwitch(const char *sw_type);
+    GtkWidget *get_widget() { return GTK_WIDGET(gobj());}
+    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, gx_engine::Parameter &param);
+    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, string id) {
+        if (!gx_engine::parameter_map.hasId(id)) return 0;
+        return new_switch(ui, sw_type, gx_engine::parameter_map[id]);
+    }
+    static GtkWidget *create(gx_ui::GxUI& ui, const char *sw_type, string id) {
+        return new_switch(ui, sw_type, id)->get_widget();}
+};
+
+/****************************************************************/
+
+class UiSwitchFloat: public UiSwitch, gx_ui::GxUiItemFloat {
+ protected:
+    void on_toggled();
+    virtual void reflectZone();
+ public:
+    UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, gx_engine::FloatParameter &param);
+};
+
+/****************************************************************/
+
+class UiSwitchBool: public UiSwitch, gx_ui::GxUiItemBool {
+ protected:
+    void on_toggled();
+    virtual void reflectZone();
+ public:
+    UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, gx_engine::BoolParameter &param);
+};
+
+/****************************************************************/
+
+class UiSwitchWithCaption {
+ private:
+    Gtk::Label m_label;
+    Gtk::Box *m_box;
+ protected:
+    UiSwitch *m_switch;
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
+                             Gtk::PositionType pos);
+    static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
+                             Glib::ustring label, Gtk::PositionType pos);
+    UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, gx_engine::Parameter &param,
+                        Glib::ustring label, Gtk::PositionType pos);
+    ~UiSwitchWithCaption();
+    GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
+};
+
+/****************************************************************/
+
+class UiCabSwitch: public UiSwitchWithCaption {
+ private:
+    void on_switch_toggled();
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
+    UiCabSwitch(gx_ui::GxUI &ui, gx_engine::Parameter &param, Glib::ustring label);
+};
+
+/****************************************************************/
+
+class UiContrastSwitch: public UiSwitchWithCaption {
+ private:
+    void on_switch_toggled();
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
+    UiContrastSwitch(gx_ui::GxUI &ui, gx_engine::Parameter &param, Glib::ustring label);
+};
+
+/****************************************************************/
+
+class ToggleCheckButton: public Gtk::ToggleButton {
+ private:
+    gx_engine::SwitchParameter* param;
+    void on_my_toggled();
+ public:
+    Gtk::Label m_label;
+    void set_parameter(gx_engine::SwitchParameter *p);
+    gx_engine::SwitchParameter * get_parameter();
+    ToggleCheckButton();
+    ~ToggleCheckButton();
+};
+
+class ToggleCheckButtonUiBool: public Gtk::ToggleButton, gx_ui::GxUiItemBool {
+ private:
+    virtual void reflectZone();
+    void on_my_toggled();
+ public:
+    Gtk::Label m_label;
+    ToggleCheckButtonUiBool(gx_ui::GxUI* ui, bool* zone);
+    ~ToggleCheckButtonUiBool();
+};
+
 /****************************************************************/
 
 class GxTBox {
@@ -252,8 +385,8 @@ class GxScrollBox {
     Gtk::VBox vbox;
     RadioCheckItem& fOrdervRack;
     RadioCheckItem& fOrderhRack;
-    GxScrollBox(gx_ui::GxUI& ui, const char *pb_2, Glib::ustring titl,
-		GtkWidget * d, RadioCheckItem& fOrdervRack, RadioCheckItem& fOrderhRack);
+    GxScrollBox(gx_ui::GxUI& ui, const char *pb_2, Glib::ustring titl, gx_engine::ParamMap& pmap,
+		GtkWidget *d, RadioCheckItem& fOrdervRack, RadioCheckItem& fOrderhRack);
     ~GxScrollBox();
 };
 

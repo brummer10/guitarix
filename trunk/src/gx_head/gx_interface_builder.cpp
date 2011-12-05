@@ -34,8 +34,8 @@ namespace gx_gui {
 
 #ifndef NDEBUG
 // debug_check
-inline void all_midi_params_assigned() {
-    for (gx_engine::ParamMap::iterator i = gx_engine::parameter_map.begin(); i != gx_engine::parameter_map.end(); ++i) {
+inline void all_midi_params_assigned(gx_engine::ParamMap& pmap) {
+    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
         if (i->second->isControllable() && !i->second->isUsed())
             gx_system::gx_print_error("Debug Check",
                                       "midi-parameter not assigned in ui: " + i->first);
@@ -312,10 +312,9 @@ void GxMainInterface::setup() {
     UiBuilderImpl builder(this);
     engine.pluginlist.append_rack(builder);
 
-    debug_check(all_midi_params_assigned);
-    if (!connect_jack(true)) {
-	gx_settings.loadstate();
-    }
+    debug_check(all_midi_params_assigned, pmap);
+    gx_settings.loadstate();
+    connect_jack(true);
     vector<string> l;
     gx_settings.fill_factory_names(l);
     for (vector<string>::iterator i = l.begin(); i != l.end(); ++i) {

@@ -116,44 +116,14 @@ GType PaintBox::get_base_type()
 }
 
 
-PaintBox::PaintBox()
+PaintBox::PaintBox(Gtk::Orientation orientation, bool homogeneous, int spacing)
 :
   // Mark this class as non-derived to allow C++ vfuncs to be skipped.
   Glib::ObjectBase(0),
-  Gtk::Box(Glib::ConstructParams(paintbox_class_.init()))
+  Gtk::Box(Glib::ConstructParams(paintbox_class_.init(), "orientation", ((GtkOrientation)(orientation)), "homogeneous", static_cast<int>(homogeneous), "spacing", spacing, static_cast<char*>(0)))
 {
   
 
-}
-
-void PaintBox::pack_start(Gtk::Widget& child, gboolean expand, gboolean fill, guint padding)
-{
-gx_box_pack_start(gobj(), (child).gobj(), expand, fill, padding); 
-}
-
-void PaintBox::pack_end(Gtk::Widget& child, gboolean expand, gboolean fill, guint padding)
-{
-gx_box_pack_end(gobj(), (child).gobj(), expand, fill, padding); 
-}
-
-void PaintBox::set_border_width(guint border_width)
-{
-gx_box_set_border_width(gobj(), border_width); 
-}
-
-void PaintBox::add(Gtk::Widget& child)
-{
-gx_box_add(gobj(), (child).gobj()); 
-}
-
-void PaintBox::remove(Gtk::Widget& child)
-{
-gx_box_remove(gobj(), (child).gobj()); 
-}
-
-GList* PaintBox::get_children()
-{
-  return gx_box_get_children(gobj());
 }
 
 
@@ -182,34 +152,6 @@ Glib::PropertyProxy<guint> PaintBox::property_icon_set()
 Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_icon_set() const
 {
   return Glib::PropertyProxy_ReadOnly<guint>(this, "icon-set");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy<guint> PaintBox::property_width() 
-{
-  return Glib::PropertyProxy<guint>(this, "width");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_width() const
-{
-  return Glib::PropertyProxy_ReadOnly<guint>(this, "width");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy<guint> PaintBox::property_height() 
-{
-  return Glib::PropertyProxy<guint>(this, "height");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_height() const
-{
-  return Glib::PropertyProxy_ReadOnly<guint>(this, "height");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 

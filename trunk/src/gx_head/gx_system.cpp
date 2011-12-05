@@ -593,12 +593,12 @@ GxExit& GxExit::get_instance() {
 // ----start jack if possible
 bool gx_start_jack() {
     // first, let's try via qjackctl
-    if (gx_system::gx_system_call("which", "qjackctl", true) == SYSTEM_OK) {
-        if (gx_system::gx_system_call("qjackctl", "--start", true, true) == SYSTEM_OK) {
+    if (gx_system::gx_system_call("which qjackctl", true) == SYSTEM_OK) {
+        if (gx_system::gx_system_call("qjackctl --start", true, true) == SYSTEM_OK) {
             sleep(5);
 
             // let's check it is really running
-            if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
+            if (gx_system::gx_system_call("pgrep jackd", true) == SYSTEM_OK) {
                 return true;
             }
         }
@@ -606,7 +606,7 @@ bool gx_start_jack() {
 
     // qjackctl not found or not started, let's try .jackdrc
     string jackdrc = "$HOME/.jackdrc";
-    if (gx_system::gx_system_call("ls", jackdrc.c_str(), true, false) == SYSTEM_OK) {
+    if (gx_system::gx_system_call("ls " + jackdrc, true, false) == SYSTEM_OK) {
         // open it
         jackdrc = string(getenv("HOME")) + string("/") + ".jackdrc";
         string cmdline = "";
@@ -620,12 +620,12 @@ bool gx_start_jack() {
 
         // launch jackd
         if (!cmdline.empty())
-            if (gx_system::gx_system_call(cmdline.c_str(), "", true, true) == SYSTEM_OK) {
+            if (gx_system::gx_system_call(cmdline, true, true) == SYSTEM_OK) {
 
                 sleep(2);
 
                 // let's check it is really running
-                if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
+                if (gx_system::gx_system_call("pgrep jackd", true) == SYSTEM_OK) {
                     return true;
                 }
             }
@@ -635,13 +635,10 @@ bool gx_start_jack() {
 }
 
 // ---- gx_head system function
-int gx_system_call(const char* name1,
-                   const char* name2,
+int gx_system_call(const string& cmd,
                    const bool  devnull,
                    const bool  escape) {
-    string str(name1);
-    str.append(" ");
-    str.append(name2);
+    string str = cmd;
 
     if (devnull)
         str.append(" 1>/dev/null 2>&1");
@@ -658,22 +655,6 @@ int gx_system_call(const char* name1,
     int rc = system(str.c_str());
     sigprocmask(SIG_BLOCK, &waitset, NULL);
     return rc;
-}
-
-// polymorph1
-int gx_system_call(const char*   name1,
-                   const string& name2,
-                   const bool  devnull,
-                   const bool  escape) {
-    return gx_system_call(name1, name2.c_str(), devnull, escape);
-}
-
-// polymorph3
-int gx_system_call(const string& name1,
-                   const char*   name2,
-                   const bool  devnull,
-                   const bool  escape) {
-    return gx_system_call(name1.c_str(), name2, devnull, escape);
 }
 
 } /* end of gx_system namespace */

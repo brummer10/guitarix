@@ -123,7 +123,7 @@ GxPaintBox::~GxPaintBox() {}
 GxPaintBox::GxPaintBox(gx_ui::GxUI& ui, const char *expose_funk)
     : m_box(false, 0) {
     m_paintbox.property_paint_func() = expose_funk;
-    m_paintbox.add(m_box);
+    m_paintbox.pack_start(m_box);
 }
 /****************************************************************/
 
@@ -163,7 +163,7 @@ GxMidiBox::GxMidiBox(gx_ui::GxUI& ui, const char *expose_funk)
     m_bbox.pack_end(*unit_on_off, false, false);
     m_paintbox.property_paint_func() = expose_funk;
     m_eventbox.add(m_paintbox);
-    m_paintbox.add(m_box);
+    m_paintbox.pack_start(m_box);
     m_eventbox.set_border_width(0);
     m_eventbox.set_name("black_box");
     m_box.set_homogeneous(false);
@@ -235,7 +235,7 @@ void GxDialogWindowBox::on_dialog_menu_activate() {
 }
 
 void GxDialogWindowBox::on_reset_button_pressed() {
-    gx_reset_units(group_id);
+    gx_reset_units(gx_engine::parameter_map, group_id);
 }
 
 GxDialogWindowBox::~GxDialogWindowBox() {
@@ -248,8 +248,8 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk,
                                      Gtk::ToggleButton& button, GtkWidget * Caller)
     : box(false, 0),
       unit_on_off(UiSwitch::new_switch(ui, sw_led, param_switch)),
-      menuitem(&ui, &param_dialog.getBool().value),
-      m_tcb(&ui, &param_dialog.getBool().value),
+      menuitem(&ui, &param_dialog.getBool().get_value()),
+      m_tcb(&ui, &param_dialog.getBool().get_value()),
       m_regler_tooltip_window(Gtk::WINDOW_POPUP)  {
     group_id = param_switch.id().substr(0, param_switch.id().find_last_of("."));
     Glib::ustring title = param_switch.l_group();
@@ -276,7 +276,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk,
     box4.pack_start(box6, false, false, 0);
     box4.pack_start(box, true, true, 0);
     box4.pack_end(box5, false, false, 0);
-    paintbox.add(box4);
+    paintbox.pack_start(box4);
     paintbox.set_tooltip_text(title.c_str());
     m_tcb.m_label.set_text(title.c_str());
     menuitem.signal_activate().connect(
@@ -438,8 +438,8 @@ void GxScrollBox::on_rack_reorder_vertical() {
     }
 }
 
-GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, const char *pb_2, Glib::ustring titl, GtkWidget * d,
-			 RadioCheckItem& fOrdervRack_, RadioCheckItem& fOrderhRack_)
+GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, const char *pb_2, Glib::ustring titl, gx_engine::ParamMap& pmap,
+			 GtkWidget *d, RadioCheckItem& fOrdervRack_, RadioCheckItem& fOrderhRack_)
     : window(Gtk::WINDOW_TOPLEVEL),
       rbox(false, 4),
       fOrdervRack(fOrdervRack_),
@@ -457,8 +457,8 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, const char *pb_2, Glib::ustring titl, 
     paintbox1.property_paint_func() = pb_2;
     window.signal_delete_event().connect(
          sigc::bind<gpointer>(sigc::mem_fun(*this, &GxScrollBox::on_window_delete_event), d));
-    paintbox1.add(m_scrolled_window);
-    paintbox1.add(m_scrolled_window2);
+    paintbox1.pack_start(m_scrolled_window);
+    paintbox1.pack_start(m_scrolled_window2);
     m_scrolled_window.add(box);
     m_scrolled_window2.add(vbox);
     window.add(paintbox1);
@@ -473,14 +473,14 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, const char *pb_2, Glib::ustring titl, 
     fOrdervRack.set_label(mtitle);
     gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     gui.mainmenu.plugin_menu.append(fOrdervRack);
-    fOrdervRack.set_parameter(new gx_engine::SwitchParameter("system.order_rack_v", false, false));
+    fOrdervRack.set_parameter(pmap.reg_switch("system.order_rack_v", false, false));
     fOrdervRack.show();
 
     mtitle = _("Order Rack Horizontally");
     fOrderhRack.set_label(mtitle);
     gui.mainmenu.plugin_menu.append(fOrderhRack);
     fOrderhRack.set_active(false);
-    fOrderhRack.set_parameter(new gx_engine::SwitchParameter("system.order_rack_h", false, false));
+    fOrderhRack.set_parameter(pmap.reg_switch("system.order_rack_h", false, false));
     fOrderhRack.show();
 
     paintbox1.show();
@@ -528,9 +528,9 @@ GxToolBox::GxToolBox(gx_ui::GxUI& ui,
     window.signal_delete_event().connect(
          sigc::bind<gpointer>(sigc::mem_fun(*this, &GxToolBox::on_window_delete_event), d));
     box.add(rbox);
-    paintbox1.add(m_scrolled_window);
+    paintbox1.pack_start(m_scrolled_window);
     m_scrolled_window.add(paintbox);
-    paintbox.add(box);
+    paintbox.pack_start(box);
     window.add(paintbox1);
     window.signal_button_press_event().connect(
         sigc::mem_fun(*this, &GxToolBox::on_button_pressed));
@@ -561,9 +561,9 @@ GxTunerBox::GxTunerBox(gx_ui::GxUI& ui,
     window.signal_delete_event().connect(
          sigc::bind<gpointer>(sigc::mem_fun(*this, &GxTunerBox::on_window_delete_event), d));
     box.add(rbox);
-    paintbox1.add(m_scrolled_window);
+    paintbox1.pack_start(m_scrolled_window);
     m_scrolled_window.add(paintbox);
-    paintbox.add(box);
+    paintbox.pack_start(box);
     window.add(paintbox1);
     paintbox1.show();
     box.show();

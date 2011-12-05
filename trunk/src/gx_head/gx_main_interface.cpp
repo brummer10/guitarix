@@ -160,24 +160,24 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
     pmap.reg_non_midi_par("midi_out.dialog",        &dialogbox[2], false);
     static float viv;
     pmap.reg_non_midi_par("system.waveview",          &viv, false);
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube2", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube3", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube4", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube5", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube6", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube7", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube8", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube9", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube10", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube11", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube12", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube13", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube14", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube15", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube16", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube17", true));
-    gx_engine::parameter_map.insert(new gx_engine::SwitchParameter("system.select_tube18", true));
+    pmap.reg_switch("system.select_tube", true);
+    pmap.reg_switch("system.select_tube2", true);
+    pmap.reg_switch("system.select_tube3", true);
+    pmap.reg_switch("system.select_tube4", true);
+    pmap.reg_switch("system.select_tube5", true);
+    pmap.reg_switch("system.select_tube6", true);
+    pmap.reg_switch("system.select_tube7", true);
+    pmap.reg_switch("system.select_tube8", true);
+    pmap.reg_switch("system.select_tube9", true);
+    pmap.reg_switch("system.select_tube10", true);
+    pmap.reg_switch("system.select_tube11", true);
+    pmap.reg_switch("system.select_tube12", true);
+    pmap.reg_switch("system.select_tube13", true);
+    pmap.reg_switch("system.select_tube14", true);
+    pmap.reg_switch("system.select_tube15", true);
+    pmap.reg_switch("system.select_tube16", true);
+    pmap.reg_switch("system.select_tube17", true);
+    pmap.reg_switch("system.select_tube18", true);
     //---
     static bool dialog[29];
     pmap.reg_non_midi_par("IR.dialog", &dialog[0], false);
@@ -210,6 +210,16 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
     pmap.reg_non_midi_par("tonemodul.dialog", &dialog[27], false);
     pmap.reg_non_midi_par("tremolo.dialog", &dialog[28], false);
     // end unused
+
+    static value_pair starter[] = {
+	{ "other", "other" },
+	{ "qjackctl", "qjackctl" },
+	{ "autostart", "autostart" },
+    };
+    gx_engine::parameter_map.reg_non_midi_enum_par(
+	"ui.jack_starter_idx", "", starter, static_cast<int*>(0), false, 1);
+    gx_engine::parameter_map.reg_switch("ui.ask_for_jack_starter", false, true);
+    gx_engine::parameter_map.reg_string("ui.jack_starter", "", 0, "");
 
     show_patch_info = 0;
 
@@ -303,14 +313,16 @@ static void gx_pixmap_check(gx_system::CmdlineOptions& opt) {
 GxMainInterface* GxMainInterface::instance = 0;
 
 /* create main window*/
-GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_)
+GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
     : sigc::trackable(),
       gx_ui::GxUI(),
       fWindow(Gtk::WINDOW_TOPLEVEL),
       options(options_),
+      pmap(pmap_),
       fAccelGroup(fWindow.get_accel_group()),
       in_session(false),
       portmap_window(0),
+      select_jack_control(0),
       fTop(0),
       fBox(),
       rBox(0),
@@ -322,15 +334,15 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
       fStopped(false),
       fLoggingWindow(_("Logging Window")),
       fLevelMeters(),
-      fTuner(engine_.tuner, *this),
+      fTuner(engine_.tuner, *this, pmap_),
       fWaveView(),
       fSignalLevelBar(0),
       fJackLatencyItem(),
       engine(engine_),
       jack(engine_),
-      mainmenu(*this, options),
+      mainmenu(*this, options, pmap_),
       toplevel_box(false, 4),
-      gx_settings(options, jack, engine.convolver, gx_engine::midi_std_ctr, gx_engine::controller_map, engine, gx_engine::parameter_map),
+      gx_settings(options, jack, engine.convolver, gx_engine::midi_std_ctr, gx_engine::controller_map, engine, pmap_),
       report_xrun(jack),
       RBox(0) {
     mainmenu.setup(*this);
@@ -488,6 +500,116 @@ void GxMainInterface::jack_connection_change() {
 }
 
 /****************************************************************
+ ** class SelectJackControlPgm
+ */
+
+SelectJackControlPgm::SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::ParamMap& pmap)
+    : Gtk::Window(cobject),
+      description(),
+      customstarter(),
+      startercombo(),
+      dontask(),
+      starter(pmap["ui.jack_starter_idx"].getInt()),
+      starter_cmd(pmap["ui.jack_starter"].getString()),
+      ask(pmap["ui.ask_for_jack_starter"].getSwitch()),
+      close() {
+    signal_delete_event().connect(sigc::mem_fun(*this, &SelectJackControlPgm::on_delete_event));
+    bld->find_widget("description", description);
+    bld->find_widget("customstarter", customstarter);
+    customstarter->set_text(starter_cmd.get_value());
+    bld->find_widget("startercombo", startercombo);
+    const char *v_id = starter.getValueNames()[starter.get_value()].value_id;
+    int n = 0;
+    Glib::RefPtr<Gtk::TreeModel> model = startercombo->get_model();
+    for (Gtk::TreeIter i = model->children().begin(); i; ++i, ++n) {
+	Glib::ustring s;
+	i->get_value(1, s);
+	if (s == v_id) {
+	    startercombo->set_active(n);
+	}
+    }
+    startercombo->signal_changed().connect(sigc::mem_fun(*this, &SelectJackControlPgm::on_starter_changed));
+    bld->find_widget("dontask", dontask);
+    dontask->set_active(!ask.get());
+    Gtk::Button *button;
+    bld->find_widget("ok_button", button);
+    button->signal_clicked().connect(
+	sigc::mem_fun(*this, &SelectJackControlPgm::on_ok_button));
+    bld->find_widget("cancel_button", button);
+    button->signal_clicked().connect(
+	sigc::mem_fun(*this, &SelectJackControlPgm::on_cancel_button));
+    on_starter_changed();
+}
+
+SelectJackControlPgm::~SelectJackControlPgm() {
+}
+
+//static
+SelectJackControlPgm* SelectJackControlPgm::create(gx_ui::GxUI *ui, gx_system::CmdlineOptions& opt, gx_engine::ParamMap& pmap) {
+    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_file(opt.get_builder_filepath("jackstarter.glade"), ui);
+    SelectJackControlPgm *w;
+    bld->get_toplevel_derived("selectjackstarter", w,
+			    sigc::bind(sigc::ptr_fun(SelectJackControlPgm::create_from_builder), bld, sigc::ref(pmap)));
+    return w;
+}
+
+bool SelectJackControlPgm::on_delete_event(GdkEventAny* event) {
+    close();
+    return true;
+}
+
+void SelectJackControlPgm::on_starter_changed() {
+    Gtk::TreeModel::iterator i = startercombo->get_active();
+    if (!i) {
+	return;
+    }
+    Glib::ustring s;
+    i->get_value(2,s);
+    description->set_markup(s);
+    i->get_value(1, s);
+    if (s == "other") {
+	customstarter->show();
+    } else {
+	customstarter->hide();
+    }
+}
+
+void SelectJackControlPgm::on_ok_button() {
+    starter_cmd.set(customstarter->get_text());
+    Glib::ustring s;
+    startercombo->get_active()->get_value(1, s);
+    int n = starter.idx_from_id(s);
+    if (n >= 0) {
+	starter.set(n);
+    } else {
+	gx_system::gx_print_error("load error", "starter id not found");
+    }
+    ask.set(!dontask->get_active());
+    close();
+}
+
+void SelectJackControlPgm::on_cancel_button() {
+    close();
+}
+
+void GxMainInterface::on_select_jack_control() {
+    if (select_jack_control) {
+	select_jack_control->present();
+    } else {
+	select_jack_control = SelectJackControlPgm::create(this, options, pmap);
+	select_jack_control->signal_close().connect(
+	    sigc::mem_fun(*this, &GxMainInterface::delete_select_jack_control));
+	select_jack_control->set_transient_for(fWindow);
+	select_jack_control->show();
+    }
+}
+
+void GxMainInterface::delete_select_jack_control() {
+    delete select_jack_control;
+    select_jack_control = 0;
+}
+
+/****************************************************************
  ** virtual GUI discriptions
  */
 
@@ -538,7 +660,7 @@ GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w) {
 }
 
 void GxMainInterface::create_selector(string id, const char *widget_name) {
-    gx_engine::Parameter& p = gx_engine::parameter_map[id];
+    gx_engine::Parameter& p = pmap[id];
     UiSelectorBase *s;
     if (p.isFloat()) {
         s = new UiSelector<float>(*this, p.getFloat());
@@ -682,7 +804,7 @@ bool GxMainInterface::on_logger_delete_event(GdkEventAny*) {
 void GxMainInterface::openLevelMeterBox(const char* label) {
     GtkWidget* box1 = addWidget(label, gtk_alignment_new(0.5, 0.5, 0, 0));
     gtk_alignment_set_padding(GTK_ALIGNMENT(box1), 0, 0, 0, 6);
-    GtkWidget* box = gx_paint_box_new(FALSE, 0);
+    GtkWidget* box = gx_paint_box_new(GTK_ORIENTATION_HORIZONTAL, FALSE, 0);
     GValue func = {0};
     g_value_init(&func, G_TYPE_STRING);
     g_value_set_string(&func, "level_meter_expose");
@@ -871,6 +993,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 	}
 	GxMainInterface::get_instance().engine.set_rack_changed();
     }
+#if DEADCODE
     // resize the effect box
     static void resize(GtkWidget *widget, gpointer data) {
             GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
@@ -901,6 +1024,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
                 gtk_widget_set_size_request(parent, width*5, -1);
             }
         }
+#endif
 
     // save order for neigbor box
     static void clicked(GtkWidget *widget, gpointer   data) {
@@ -1309,8 +1433,8 @@ void GxMainInterface::openHorizontalhideBox1(const char* label) {
 /* add mono effect to the mono rack, increase mono effect counter*/
 void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch,
                                     const char *expose_funk, GtkWidget* box) {
-    gx_engine::Parameter& param_dialog = gx_engine::parameter_map[id_dialog];
-    gx_engine::Parameter& param_switch = gx_engine::parameter_map[id_switch];
+    gx_engine::Parameter& param_dialog = pmap[id_dialog];
+    gx_engine::Parameter& param_switch = pmap[id_switch];
     GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
     guivar.mono_plugs++;
     gtk_box_pack_end(GTK_BOX(box), GTK_WIDGET(bbox->box.gobj()), false, false, 0);
@@ -1343,8 +1467,8 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 /* add stereo effect to the stereo rack, increase stereo effect counter*/
 void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch,
                                      const char *expose_funk, GtkWidget* box) {
-    gx_engine::Parameter& param_dialog = gx_engine::parameter_map[id_dialog];
-    gx_engine::Parameter& param_switch = gx_engine::parameter_map[id_switch];
+    gx_engine::Parameter& param_dialog = pmap[id_dialog];
+    gx_engine::Parameter& param_switch = pmap[id_switch];
     GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
 
     guivar.stereo_plugs++;
@@ -1419,7 +1543,7 @@ void GxMainInterface::openPlugBox(const char* label) {
 /* the main rack widget for all racks*/
 void GxMainInterface::openScrollBox(const char* label) {
     GxScrollBox *scrollbox =  new GxScrollBox(
-	*this, pb_gxrack_expose, label, GTK_WIDGET(mainmenu.fShowRack.gobj()),
+	*this, pb_gxrack_expose, label, pmap, GTK_WIDGET(mainmenu.fShowRack.gobj()),
 	mainmenu.fOrdervRack, mainmenu.fOrderhRack);
     scrollbox->box.pack_start(scrollbox->rbox, true, true, 0);
     // scrollbox->box.pack_start(scrollbox->vbox, false, false, 0);
@@ -1502,16 +1626,13 @@ void GxMainInterface::closeMonoRackBox() {
 }
 
 void GxMainInterface::loadRackFromGladeData(const char *xmldesc) {
-    Glib::RefPtr<Gtk::Builder> bld = load_builder_from_data(xmldesc, *this);
+    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_string(xmldesc, this, "rackbox");
     Gtk::Widget* w = 0;
-    bld->get_widget("rackbox", w);
+    bld->find_widget("rackbox", w);
     if (!w) {
         gx_system::gx_print_error("load_ui Error", "can't find widget 'rackbox'");
 	return;
     }
-    Gtk::Container *c = w->get_parent();
-    c->remove(*w);
-    delete c;
     addWidget("", w->gobj());
 }
 
@@ -1800,38 +1921,38 @@ struct uiValueDisplay : public gx_ui::GxUiItemFloat {
 
 void GxMainInterface::addCheckButton(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!gx_engine::parameter_map.hasId(id)) {
+    if (!pmap.hasId(id)) {
         return;
     }
-    const gx_engine::BoolParameter &p = gx_engine::parameter_map[id].getBool();
+    const gx_engine::BoolParameter &p = pmap[id].getBool();
     if (label.empty()) {
         label = p.l_name();
     }
-    addCheckButton(label.c_str(), &p.value);
+    addCheckButton(label.c_str(), &p.get_value());
 }
 
 void GxMainInterface::addNumEntry(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!gx_engine::parameter_map.hasId(id)) {
+    if (!pmap.hasId(id)) {
         return;
     }
-    const gx_engine::FloatParameter &p = gx_engine::parameter_map[id].getFloat();
+    const gx_engine::FloatParameter &p = pmap[id].getFloat();
     if (label.empty()) {
         label = p.l_name();
     }
-    addNumEntry(label.c_str(), &p.value, p.std_value, p.lower, p.upper, p.step);
+    addNumEntry(label.c_str(), &p.get_value(), p.std_value, p.lower, p.upper, p.step);
 }
 
 void GxMainInterface::addMToggleButton(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!gx_engine::parameter_map.hasId(id)) {
+    if (!pmap.hasId(id)) {
         return;
     }
-    const gx_engine::BoolParameter &p = gx_engine::parameter_map[id].getBool();
+    const gx_engine::BoolParameter &p = pmap[id].getBool();
     if (label.empty()) {
         label = p.l_name();
     }
-    addMToggleButton(label.c_str(), &p.value);
+    addMToggleButton(label.c_str(), &p.get_value());
 }
 
 // -------------------------- gtk widgets -----------------------------------
@@ -1954,7 +2075,7 @@ void GxMainInterface::openPatchInfoBox(float* zone) {
 
 // ------------------------------ Num Display -----------------------------------
 
-uiTuner::uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui)
+uiTuner::uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui, gx_engine::ParamMap& pmap)
     : Gtk::Alignment(0.5, 0.5, 0, 0),
       gx_ui::GxUiItemFloat(&ui, &refpitch),
       fTuner(),
@@ -1962,14 +2083,12 @@ uiTuner::uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui)
       eBox(),
       wheel(),
       refpitch(),
-      refpitch_param("ui.tuner_reference_pitch", "?Tuner Reference Pitch",
-		     gx_engine::Parameter::Continuous, false, refpitch,
-		     440, 427, 453, 0.1, false), // half tone steps: 415..467
-      adjust(refpitch_param.std_value, refpitch_param.lower, refpitch_param.upper,
-	     refpitch_param.step, 10*refpitch_param.step, 0),
+      adjust(440, 427, 453, 0.1, 1.0, 0), // half tone steps: 415..467
       adapt(a) {
+    pmap.reg_par_non_preset(
+	"ui.tuner_reference_pitch", "?Tuner Reference Pitch",
+	&refpitch, adjust.get_value(), adjust.get_lower(), adjust.get_upper(), adjust.get_step_increment());
     fTuner.set_scale(1.1);
-    gx_engine::parameter_map.insert(&refpitch_param);
     wheel.set_value_position(Gtk::POS_RIGHT);
     wheel.set_adjustment(adjust);
     wheel.set_tooltip_text(_("reference pitch (standard: 440Hz)"));
@@ -2195,7 +2314,7 @@ void GxMainInterface::refresh_engine_status_display() {
 
 
 //----------------------------- main menu ----------------------------
-MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
+MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap)
     : Gtk::HBox(),
       menucont(),
       menupix(),
@@ -2265,16 +2384,16 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
       // plugin menu
       plugin_menu_label(_("P_lugins"), true),
       plugin_menu(),
-      fShowToolBar(_("Show Plugin _Bar"),"system.show_toolbar"),
-      fShowRRack(_("Show _Rack"),"system.show_rrack"),
+      fShowToolBar(_("Show Plugin _Bar"),pmap,"system.show_toolbar"),
+      fShowRRack(_("Show _Rack"),pmap,"system.show_rrack"),
       //---
-      fShowRack(_("Show _Mono Rack"),"system.show_rack"),
+      fShowRack(_("Show _Mono Rack"),pmap,"system.show_rack"),
       plugin_mono_plugins(_("_Mono Plugins"), true),
       plugin_mono_menu(),
-      fShowMidiOut(_("MIDI out"),"ui.midi_out"),
+      fShowMidiOut(_("MIDI out"),pmap,"ui.midi_out"),
 
       //---
-      fShowSRack(_("Show St_ereo Rack"),"system.show_Srack"),
+      fShowSRack(_("Show St_ereo Rack"),pmap,"system.show_Srack"),
       plugin_stereo_plugins(_("_Stereo Plugins"), true),
       //---
       rack_order_group(),
@@ -2284,21 +2403,22 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
       // amp menu
       amp_menu_label(_("_Tube "), true),
       amp_menu(),
-      amp_radio_menu(&ui, gx_engine::parameter_map["tube.select"].getUInt()),
+      amp_radio_menu(&ui, pmap["tube.select"].getUInt()),
 
       // options menu
       options_menu_label(_("_Options"), true),
       options_menu(),
       options_meterbridge(_("_Meterbridge"), true),
-      fShowTuner(_("_Tuner"),"system.show_tuner"),
+      fShowTuner(_("_Tuner"),pmap,"system.show_tuner"),
       // skin submenu
       skin_menu_label(_("_Skin..."), true),
       skin_menu(),
       skingroup(),
       // !skin submenu
-      fShowLogger(_("Show _Logging Box"),"system.show_logger"),
-      fShowTooltips(_("Show _Tooltips"),"system.show_tooltips",true),
-      fMidiInPreset(_("Include MIDI in _presets"),"system.midi_in_preset"),
+      select_jack_cmd("_Jack Startup Control",true),
+      fShowLogger(_("Show _Logging Box"),pmap,"system.show_logger"),
+      fShowTooltips(_("Show _Tooltips"),pmap,"system.show_tooltips",true),
+      fMidiInPreset(_("Include MIDI in _presets"),pmap,"system.midi_in_preset"),
       options_reset_all(_("Reset _All Parameters"), true),
 
 
@@ -2395,7 +2515,7 @@ void MainMenu::addEngineMenu(GxMainInterface& intf) {
 	"activate", intf.fAccelGroup, GDK_i, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     engine_midi_item.signal_activate().connect(
         sigc::bind(sigc::ptr_fun(gx_main_midi::MidiControllerTable::toggle),
-		   sigc::ref(gx_engine::parameter_map),
+		   sigc::ref(intf.pmap),
 		   sigc::ref(engine_midi_item)));
     engine_menu.append(engine_midi_item);
 
@@ -2584,7 +2704,7 @@ void MainMenu::addPluginMenu(GxMainInterface& intf) {
     fShowMidiOut.add_accelerator("activate", intf.fAccelGroup,
 				 GDK_a, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
     fShowMidiOut.signal_activate().connect(
-	sigc::bind(sigc::ptr_fun(gx_midi_out), sigc::ref(fShowMidiOut)));
+	sigc::mem_fun(intf, &GxMainInterface::gx_midi_out));
     plugin_mono_menu.append(fShowMidiOut);
 
     /*-- Create stereo rack check menu item under Options submenu --*/
@@ -2605,12 +2725,6 @@ static void set_tooltips(bool v) {
     gtk_settings_set_long_property(
         gtk_settings_get_default(), "gtk-enable-tooltips", v,
         "gx_head menu-option");
-}
-
-void reset_all_parameters() {
-    for (gx_engine::ParamMap::iterator i = gx_engine::parameter_map.begin(); i != gx_engine::parameter_map.end(); ++i) {
-        i->second->set_std_value();
-    }
 }
 
 void MainMenu::addOptionMenu(GxMainInterface& intf) {
@@ -2634,8 +2748,13 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
     /*-- Create skin menu under Options submenu--*/
     addGuiSkinMenu(intf);
 
+    select_jack_cmd.add_accelerator("activate", intf.fAccelGroup,
+				    GDK_j, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    select_jack_cmd.signal_activate().connect(
+	sigc::mem_fun(intf, &GxMainInterface::on_select_jack_control));
+    options_menu.append(select_jack_cmd);
+
     /*-- Create logbox check menu item under Options submenu --*/
-    fShowLogger.set_label(_("Show _Logging Box"));
     fShowLogger.add_accelerator("activate", intf.fAccelGroup,
                                GDK_l, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowLogger.signal_activate().connect(
@@ -2653,7 +2772,7 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
 
     /*-- create option for resetting gx_head settings --*/
     options_reset_all.signal_activate().connect(
-	sigc::ptr_fun(reset_all_parameters));
+	sigc::mem_fun(intf.pmap, &gx_engine::ParamMap::set_init_values));
     options_menu.append(options_reset_all);
 }
 
@@ -2811,7 +2930,7 @@ inline int TubeKeys::operator()() {
 }
 
 GxUiRadioMenu::GxUiRadioMenu(gx_ui::GxUI* ui, gx_engine::UIntParameter& param_):
-    gx_ui::GxUiItemUInt(ui, &param_.value),
+    gx_ui::GxUiItemUInt(ui, &param_.get_value()),
     param(param_) {
 }
 
@@ -2954,29 +3073,26 @@ void GxMainInterface::refresh_latency_menu() {
     }
 }
 
-bool GxMainInterface::connect_jack(bool v) {
-    if (jack.gx_jack_connection(v)) {
-	return true;
+bool GxMainInterface::start_jack() {
+    gx_engine::EnumParameter& jack_starter = pmap["ui.jack_starter_idx"].getEnum();
+    string v_id = jack_starter.get_pair().value_id;
+    if (v_id == "autostart") {
+	return jack.gx_jack_connection(true, true);
     }
-    if (!v) {
-	gx_system::gx_print_error(_("main"), _("can't disconnect jack"));
-	return false;
-    }
-    if (!gx_start_jack_dialog()) {
-	gx_system::gx_print_warning(_("main"), string(_("Ignoring jackd ...")));
-	return false;
-    }
-    for (int i = 0; i < 5; i++) {
-	usleep(500000);
-	if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
-	    break;
+    string cmd;
+    if (v_id == "other") {
+	cmd = pmap["ui.jack_starter"].getString().get_value();
+	if (cmd.empty()) {
+	    return true;
 	}
+    } else if (v_id == "qjackctl") {
+	cmd = "qjackctl --start";
+    } else {
+	assert(false);
     }
-    gx_system::gx_print_warning(_("Jack Init"),
-				_("jackd OK, trying to be a gxjack.client"));
+    gx_system::gx_system_call(cmd, true, true);
     for (int i = 0; i < 10; i++) {
-	if (jack.gx_jack_connection(true)) {
-	    sleep(4);
+	if (jack.gx_jack_connection(true,false)) {
 	    return true;
 	}
 	usleep(500000);
@@ -2985,6 +3101,27 @@ bool GxMainInterface::connect_jack(bool v) {
 	_("main"),
 	string(_("I really tried to get jack up and running, sorry ... ")));
     return false;
+}
+
+void GxMainInterface::connect_jack(bool v) {
+    if (jack.gx_jack_connection(v, false)) {
+	return;
+    }
+    if (!v) {
+	gx_system::gx_print_error(_("main"), _("can't disconnect jack"));
+	return;
+    }
+    bool ask = pmap["ui.ask_for_jack_starter"].getSwitch().get();
+    if (!ask) {
+	if (start_jack()) {
+	    return;
+	}
+    }
+    if (!gx_start_jack_dialog()) {
+	gx_system::gx_print_warning(_("main"), string(_("Ignoring jackd ...")));
+	return;
+    }
+    start_jack();
 }
 
 // ----jack latency change
@@ -3108,11 +3245,7 @@ int GxMainInterface::on_oscilloscope_activate(bool start) {
 // ---- show main GUI thread and more
 void GxMainInterface::run() {
     if (!jack.is_jack_exit()) {
-	//ad, 2011-11-01: window display over network zombified jack client when
-	//                convolver is active (why??), moved start into idle function
-	Glib::signal_idle().connect_once(
-	    sigc::bind(sigc::mem_fun(engine, &gx_engine::GxEngine::clear_stateflag),
-		       gx_engine::ModuleSequencer::SF_INITIALIZING));
+	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
     }
     /* timeout in milliseconds */
     guivar.g_threads[0] = g_timeout_add(40, gx_threads::gx_update_all_gui, 0);

@@ -289,17 +289,14 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       GxSettingsBase(seq_),
       preset_io(mctrl, cvr, param, opt),
       state_io(mctrl, cvr, param, mstdctr, jack_, opt),
-      presetfile_parameter("system.current_preset_file"),
+      presetfile_parameter(*param.reg_filepar("system.current_preset_file")),
       state_loaded(false),
       no_autosave(false),
       jack(jack_),
       options(opt),
-      preset_parameter("system.current_preset", "?", current_name, ""),
-      factory_parameter("system.current_factory", "?", current_factory, "") {
+      preset_parameter(*param.reg_string("system.current_preset", "?", &current_name, "")),
+      factory_parameter(*param.reg_string("system.current_factory", "?", &current_factory, "")) {
     set_io(&state_io, &preset_io);
-    param.insert(&presetfile_parameter);
-    param.insert(&preset_parameter);
-    param.insert(&factory_parameter);
     statefile.set_filename(make_default_state_filename());
     parse_factory_list();
     check_convert_presetfile();
@@ -392,6 +389,7 @@ string GxSettings::get_displayname() {
 void GxSettings::jack_client_changed() {
     string fn = make_state_filename();
     if (state_loaded && fn == statefile.get_filename()) {
+	selection_changed();
 	return;
     }
     if (!state_loaded && (access(fn.c_str(), R_OK|W_OK)) != 0) {

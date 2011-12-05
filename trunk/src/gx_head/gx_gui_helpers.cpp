@@ -32,6 +32,7 @@
 #include <iostream>        // NOLINT
 #include <gdk/gdkkeysyms.h>            // NOLINT
 #include <gtkmm/filechooserdialog.h>   // NOLINT
+#include <gxw/GxControlParameter.h>      // NOLINT
 
 
 namespace gx_preset {
@@ -754,10 +755,10 @@ namespace gx_gui {
 
 /* ----- Menu check item signaled from parameter ------ */
 
-MenuCheckItem::MenuCheckItem(const char *label, const char *id, bool sv)
+MenuCheckItem::MenuCheckItem(const char *label, gx_engine::ParamMap& pmap, const char *id, bool sv)
   : Gtk::CheckMenuItem(label, true),
     param() {
-    set_parameter(new gx_engine::SwitchParameter(id, false, sv));
+    set_parameter(pmap.reg_switch(id, false, sv));
 }
 
 void MenuCheckItem::on_my_activate() {
@@ -770,7 +771,6 @@ gx_engine::SwitchParameter* MenuCheckItem::get_parameter() {
 
 void MenuCheckItem::set_parameter(gx_engine::SwitchParameter *p) {
     param = p;
-    gx_engine::parameter_map.insert(p);
     p->signal_changed().connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
     set_active(p->get());
     signal_activate().connect(
@@ -794,7 +794,6 @@ gx_engine::SwitchParameter* RadioCheckItem::get_parameter() {
 
 void RadioCheckItem::set_parameter(gx_engine::SwitchParameter *p) {
     param = p;
-    gx_engine::parameter_map.insert(p);
     p->signal_changed().connect(sigc::mem_fun(*this, &RadioCheckItem::set_active));
     signal_activate().connect(
         sigc::mem_fun(*this, &RadioCheckItem::on_my_toggled));
@@ -862,7 +861,7 @@ bool gx_start_jack_dialog() {
 
     default:
     case GTK_RESPONSE_YES:
-        retstat = gx_system::gx_start_jack();
+        retstat = true; //gx_system::gx_start_jack();
         break;
     }
 
@@ -873,7 +872,7 @@ bool gx_start_jack_dialog() {
 /* -------------- for thread that checks jackd liveliness -------------- */
 bool GxMainInterface::survive_jack_shutdown() {
     // return if jack is not down
-    if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
+    if (gx_system::gx_system_call("pgrep jackd", true) == SYSTEM_OK) {
         if (jack.is_jack_down()) {
         sleep(2);
 	    jack.set_jack_down(false);
@@ -1038,22 +1037,11 @@ void gx_show_about() {
 }
 
 
-void gx_reset_effects(GtkWidget *widget, gpointer data ) {
-    string pos(".position");
-    for (gx_engine::ParamMap::iterator i = gx_engine::parameter_map.begin(); i != gx_engine::parameter_map.end(); ++i) {
-        string id = i->first;
-        if (id.size() > pos.size() &&
-            id.compare(id.size()-pos.size(), pos.size(), pos) == 0) {
-            i->second->set_std_value();
-        }
-    }
-}
-
 // reset the extended sliders to default settings
-void gx_reset_units(Glib::ustring group_id) {
+void gx_reset_units(gx_engine::ParamMap& pmap, Glib::ustring group_id) {
     group_id += ".";
     string on_off = group_id + "on_off";
-    for (gx_engine::ParamMap::iterator i = gx_engine::parameter_map.begin(); i != gx_engine::parameter_map.end(); ++i) {
+    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
         if (i->first.compare(0, group_id.size(), group_id) == 0) {
             if (i->second->isControllable()) {
                 string id = i->first;
@@ -1308,24 +1296,23 @@ void GxMainInterface::on_tuner_activate() {
 }
 
 // ---- menu function gx_midi_out
-void gx_midi_out(Gtk::CheckMenuItem& menuitem) {
+void GxMainInterface::gx_midi_out() {
     GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(gw.midibox));
     GtkWidget *child = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
     g_list_free(child_list);
-    gx_show_extended_settings(GTK_WIDGET(menuitem.gobj()), (gpointer) child);
+    gx_show_extended_settings(GTK_WIDGET(mainmenu.fShowMidiOut.gobj()), (gpointer) child);
     static bool first = true;
-    if (menuitem.get_active()) {
+    if (mainmenu.fShowMidiOut.get_active()) {
         if (first) {
 	    guivar.refresh_size = 0;
 	}
         //gx_engine::turnOnMidi();//FIXME
     } else {
         //gx_engine::turnOffMidi();//FIXME
-        string group = "midi_out.on_off";
-        gx_engine::parameter_map[group].set_std_value();
+        pmap["midi_out.on_off"].set_std_value();
     }
     first =false;
-    GxMainInterface::get_instance().engine.set_rack_changed();
+    engine.set_rack_changed();
 }
 
 // ----- hide the extendend settings slider
@@ -1621,5 +1608,245 @@ gboolean gx_delete_event(GtkWidget *widget, gpointer   data ) {
     gtk_range_set_value(GTK_RANGE(widget), 0);
     return TRUE;
 }
+
+
+/****************************************************************
+ ** class GxBuilder
+ */
+
+// GList(GObject*) helper class must be defined in other namespace
+} // end namespace gx_gui
+namespace Glib { namespace Container_Helpers {
+template <>
+struct TypeTraits<GObject*> {
+    typedef GObject *CppType;
+    typedef GObject *CType;
+    typedef GObject *CTypeNonConst;
+
+    static CType to_c_type(CppType item) { return item; }
+    static CppType to_cpp_type(CType item) { return item; }
+    static void release_c_type(CType) {}
+};
+}} namespace gx_gui {
+
+//static
+Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
+    const std::string& filename, gx_ui::GxUI* ui, const char* object_id) {
+    Glib::RefPtr<GxBuilder> builder = GxBuilder::create();
+    try {
+	if (object_id) {
+	    builder->add_from_file(filename, object_id);
+	} else {
+	    builder->add_from_file(filename);
+	}
+    } catch(const Glib::FileError& ex) {
+        gx_system::gx_print_fatal("FileError", ex.what());
+    } catch(const Gtk::BuilderError& ex) {
+        gx_system::gx_print_fatal("Builder Error", ex.what());
+    }
+    if (ui) {
+	builder->fixup_controlparameters(*ui);
+    }
+    return builder;
+}
+
+//static
+Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
+    const std::string& filename, gx_ui::GxUI* ui, const Glib::StringArrayHandle& object_ids) {
+    Glib::RefPtr<GxBuilder> builder = GxBuilder::create();
+    try {
+	builder->add_from_file(filename, object_ids);
+    } catch(const Glib::FileError& ex) {
+        gx_system::gx_print_fatal("FileError", ex.what());
+    } catch(const Gtk::BuilderError& ex) {
+        gx_system::gx_print_fatal("Builder Error", ex.what());
+    }
+    if (ui) {
+	builder->fixup_controlparameters(*ui);
+    }
+    return builder;
+}
+
+//static
+Glib::RefPtr<GxBuilder> GxBuilder::create_from_string(
+    const Glib::ustring& buffer, gx_ui::GxUI* ui, const char* object_id) {
+    Glib::RefPtr<GxBuilder> builder = GxBuilder::create();
+    try {
+	if (object_id) {
+	    builder->add_from_string(buffer, object_id);
+	} else {
+	    builder->add_from_string(buffer);
+	}
+    } catch(const Gtk::BuilderError& ex) {
+        gx_system::gx_print_fatal("Builder Error", ex.what());
+    }
+    if (ui) {
+	builder->fixup_controlparameters(*ui);
+    }
+    return builder;
+}
+
+//static
+Glib::RefPtr<GxBuilder> GxBuilder::create_from_string(
+    const Glib::ustring& buffer, gx_ui::GxUI* ui, const Glib::StringArrayHandle& object_ids) {
+    Glib::RefPtr<GxBuilder> builder = GxBuilder::create();
+    try {
+	builder->add_from_string(buffer, object_ids);
+    } catch(const Gtk::BuilderError& ex) {
+        gx_system::gx_print_fatal("Builder Error", ex.what());
+    }
+    if (ui) {
+	builder->fixup_controlparameters(*ui);
+    }
+    return builder;
+}
+
+Gtk::Window *GxBuilder::get_first_window() {
+    Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
+	gtk_builder_get_objects(gobj()), Glib::OWNERSHIP_DEEP);
+    for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); ++i) {
+	if (g_type_is_a(G_OBJECT_TYPE(*i), GTK_TYPE_WINDOW)) {
+	    return Glib::wrap(GTK_WINDOW(*i), false);
+	}
+    }
+    assert(false);
+}
+
+Gtk::Widget* GxBuilder::get_widget_checked(const Glib::ustring& name, GType type, bool take_ref) {
+    GtkWidget *cobject = get_cwidget(name);
+    if(!cobject) {
+	g_critical("gtkmm: GxBuilder: widget `%s' was not found in the GtkBuilder file, or the specified part of it.", 
+		   name.c_str());
+	return 0;
+    }
+    if(!g_type_is_a(G_OBJECT_TYPE(cobject), type)) {
+	g_critical("gtkmm: widget `%s' (in GtkBuilder file) is of type `%s' but `%s' was expected",
+		   name.c_str(), G_OBJECT_TYPE_NAME(cobject), g_type_name(type));
+	return 0;
+    }
+    return Glib::wrap (GTK_WIDGET (cobject), take_ref);
+}
+
+/*
+ ** GxBuilder::fixup_controlparameters + helper classes
+ */
+
+template<class T>
+class uiToggle: public gx_ui::GxUiItemV<T> {
+protected:
+    Glib::RefPtr<Gtk::ToggleButton> button;
+    void on_button_toggled();
+    virtual void reflectZone();
+public:
+    uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, T *zone);
+};
+
+template<class T>
+uiToggle<T>::uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, T *zone)
+    : gx_ui::GxUiItemV<T>(&ui, zone), button(b) {
+    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggle<T>::on_button_toggled));
+}
+
+template<class T>
+void uiToggle<T>::on_button_toggled() {
+    gx_ui::GxUiItemV<T>::modifyZone(button->get_active());
+}
+
+template<class T>
+void uiToggle<T>::reflectZone() {
+    T v = *gx_ui::GxUiItemV<T>::fZone;
+    gx_ui::GxUiItemV<T>::fCache = v;
+    button->set_active(v);
+}
+
+void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
+    Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
+        gtk_builder_get_objects(gobj()), Glib::OWNERSHIP_DEEP);
+    for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); ++i) {
+	if (g_type_is_a(G_OBJECT_TYPE(*i), GTK_TYPE_WIDGET)) {
+	    const char *id = gtk_buildable_get_name(GTK_BUILDABLE(*i));
+	    const char *p = g_strstr_len(id, -1, ":");
+	    if (p) {
+		gtk_widget_set_name(GTK_WIDGET(*i), p+1);
+	    }
+	}
+        if (!g_type_is_a(G_OBJECT_TYPE(*i), GX_TYPE_CONTROL_PARAMETER)) {
+            continue;
+        }
+        Glib::RefPtr<Gxw::ControlParameter> w = Glib::wrap(GX_CONTROL_PARAMETER(*i), true);
+        Glib::ustring v = w->cp_get_var();
+        if (v.empty()) {
+            continue;
+        }
+        if (!gx_engine::parameter_map.hasId(v)) {
+	    Glib::RefPtr<Gtk::Widget> wd = Glib::RefPtr<Gtk::Widget>::cast_dynamic(w);
+	    wd->set_sensitive(0);
+            wd->set_tooltip_text(v);
+            gx_system::gx_print_warning("load dialog",
+                (boost::format("Parameter variable %1% not found") % v).str());
+            continue;
+        }
+        gx_engine::Parameter& p = gx_engine::parameter_map[v];
+        if (!p.desc().empty()) {
+            Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(
+		gettext(p.desc().c_str()));
+        }
+        if (p.isFloat()) {
+            gx_engine::FloatParameter &fp = p.getFloat();
+            w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
+            w->cp_set_value(fp.get_value());
+            Glib::RefPtr<Gtk::Range> r = Glib::RefPtr<Gtk::Range>::cast_dynamic(w);
+            if (r) {
+                Gtk::Adjustment *adj = r->get_adjustment();
+                gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.get_value(), adj->gobj());
+                adj->signal_value_changed().connect(
+                    sigc::bind<GtkAdjustment*>(
+                        sigc::bind<gpointer>(
+                            sigc::ptr_fun(gx_gui::uiAdjustment::changed),
+                                         (gpointer)c), adj->gobj()));
+            } else {
+                Glib::RefPtr<Gtk::ToggleButton> t =
+                    Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
+                if (t) {
+                    new uiToggle<float>(ui, t, &fp.get_value());
+                }
+            }
+            if (fp.isControllable()) {
+                gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.get_value());
+            }
+        } else if (p.isBool()) {
+            gx_engine::BoolParameter &fp = p.getBool();
+            w->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
+            w->cp_set_value(fp.get_value());
+	    Glib::RefPtr<Gtk::ToggleButton> t =
+		Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
+	    if (t) {
+		new uiToggle<bool>(ui, t, &fp.get_value());
+	    }
+            if (fp.isControllable()) {
+                gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.get_value());
+            }
+	} else if (p.isInt()) {
+            gx_engine::IntParameter &fp = p.getInt();
+	    Glib::RefPtr<Gxw::Selector> t =
+		Glib::RefPtr<Gxw::Selector>::cast_dynamic(w);
+	    if (t) {
+		Gtk::TreeModelColumn<Glib::ustring> label;
+		Gtk::TreeModelColumnRecord rec;
+		rec.add(label);
+		Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+		for (const value_pair *p = fp.getValueNames(); p->value_id; ++p) {
+		    ls->append()->set_value(0, Glib::ustring(fp.value_label(*p)));
+		}
+		t->set_model(ls);
+		t->cp_set_value(fp.get_value());
+	    }
+        } else {
+            gx_system::gx_print_warning("load dialog",
+                      (boost::format("Parameter variable %1%: type not handled") % v).str());
+        }
+    }
+}
+
 } /* end of gx_gui namespace */
 

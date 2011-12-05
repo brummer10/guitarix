@@ -48,7 +48,7 @@ namespace gx_jconv {
 
 class IRWindow: public sigc::trackable {
  private:
-    Glib::RefPtr<Gtk::Builder> builder;
+    Glib::RefPtr<gx_gui::GxBuilder> builder;
     Glib::ustring filename;
     double ms; // samples per millisecond
     float *audio_buffer;
@@ -142,9 +142,8 @@ class IRWindow: public sigc::trackable {
 
  protected:
     void init_connect();
-    IRWindow(const Glib::RefPtr<Gtk::Builder>& builder, gx_engine::ConvolverAdapter &convolver);
+    IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::ConvolverAdapter &convolver);
     ~IRWindow();
-    friend class Gtk::Builder;
     friend void gx_show_jconv_dialog_gui(_GtkWidget*, void*);
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -187,7 +186,8 @@ void IRWindow::create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver_) 
     if (instance) {
         return;
     }
-    Glib::RefPtr<Gtk::Builder> bld = gx_gui::load_builder_from_file("iredit.glade", ui);
+    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
+	gx_system::get_options().get_builder_filepath("iredit.glade"), &ui);
     instance = new IRWindow(bld, convolver_);
 }
 
@@ -196,11 +196,11 @@ void IRWindow::create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver_) 
  */
 
 void IRWindow::init_connect() {
-    builder->get_widget("vbox11", wboxcombo);
+    builder->find_widget("vbox11", wboxcombo);
     wboxcombo->add(*wcombo);
     wboxcombo->show_all();
 
-    builder->get_widget("iredit", wIredit);
+    builder->find_widget("iredit", wIredit);
     wIredit->signal_delay_changed().connect(sigc::mem_fun(*this,
                                             &IRWindow::on_delay_changed));
     wIredit->signal_offset_changed().connect(sigc::mem_fun(*this,
@@ -212,108 +212,108 @@ void IRWindow::init_connect() {
     wIredit->signal_scale_min_reached().connect(sigc::mem_fun(*this,
                                                 &IRWindow::on_min_scale_reached));
 
-    builder->get_widget("left", wLeft);
+    builder->find_widget("left", wLeft);
     wLeft->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_left));
-    builder->get_widget("right", wRight);
+    builder->find_widget("right", wRight);
     wRight->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_right));
-    builder->get_widget("sum", wSum);
+    builder->find_widget("sum", wSum);
     wSum->set_active(true);
     wSum->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_sum));
 
-    builder->get_widget("log", wLog);
+    builder->find_widget("log", wLog);
     wLog->set_active(true);
-    builder->get_widget("linear", wLinear);
+    builder->find_widget("linear", wLinear);
     wLinear->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_linear));
 
-    builder->get_widget("delay", wDelay);
+    builder->find_widget("delay", wDelay);
     wDelay->signal_value_changed().connect(sigc::mem_fun(*this,
                                            &IRWindow::on_m_delay_changed));
-    builder->get_widget("offset", wOffset);
+    builder->find_widget("offset", wOffset);
     wOffset->signal_value_changed().connect(sigc::mem_fun(*this,
                                             &IRWindow::on_m_offset_changed));
-    builder->get_widget("irlength", wLength);
+    builder->find_widget("irlength", wLength);
     wLength->signal_value_changed().connect(sigc::mem_fun(*this,
                                             &IRWindow::on_m_length_changed));
-    builder->get_widget("delay_ms", wDelay_ms);
+    builder->find_widget("delay_ms", wDelay_ms);
     wDelay_ms->signal_value_changed().connect(sigc::mem_fun(*this,
                                               &IRWindow::on_ms_delay_changed));
-    builder->get_widget("offset_ms", wOffset_ms);
+    builder->find_widget("offset_ms", wOffset_ms);
     wOffset_ms->signal_value_changed().connect(sigc::mem_fun(*this,
                                                &IRWindow::on_ms_offset_changed));
-    builder->get_widget("irlength_ms", wLength_ms);
+    builder->find_widget("irlength_ms", wLength_ms);
     wLength_ms->signal_value_changed().connect(sigc::mem_fun(*this,
                                                &IRWindow::on_ms_length_changed));
 
-    builder->get_widget("delay_delta", wDelay_delta);
+    builder->find_widget("delay_delta", wDelay_delta);
     wDelay_delta->signal_format_value().connect(sigc::mem_fun(*this,
                                                 &IRWindow::on_delay_delta_format_value));
 
-    builder->get_widget("home", wHome);
+    builder->find_widget("home", wHome);
     wHome->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_home));
-    builder->get_widget("jump_zoom_mark", wJump_zoom_mark);
+    builder->find_widget("jump_zoom_mark", wJump_zoom_mark);
     wJump_zoom_mark->signal_clicked().connect(sigc::mem_fun(*this,
                                               &IRWindow::on_jump_zoom_mark));
-    builder->get_widget("incr", wIncr);
+    builder->find_widget("incr", wIncr);
     wIncr->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_incr));
-    builder->get_widget("decr", wDecr);
+    builder->find_widget("decr", wDecr);
     wDecr->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_decr));
 
-    builder->get_widget("add_button", wadd);
-    builder->get_widget("ablabel", wladd);
+    builder->find_widget("add_button", wadd);
+    builder->find_widget("ablabel", wladd);
     wladd->set_name("beffekt_label");
     wadd->set_name("rack_button");
     wadd->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_add_button_clicked));
 
-    builder->get_widget("list_button", wshow);
-    builder->get_widget("sflabel", wlshow);
+    builder->find_widget("list_button", wshow);
+    builder->find_widget("sflabel", wlshow);
     wlshow->set_name("beffekt_label");
     wshow->set_name("rack_button");
     wshow->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_show_button_clicked_in));
     
-    builder->get_widget("remove_button", wremove);
-    builder->get_widget("relabel", wlremove);
+    builder->find_widget("remove_button", wremove);
+    builder->find_widget("relabel", wlremove);
     wlremove->set_name("beffekt_label");
     wremove->set_name("rack_button");
     wremove->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_remove_button_clicked));
 
-    builder->get_widget("remove_list_button", wremoveall);
-    builder->get_widget("rllabel", wlremoveall);
+    builder->find_widget("remove_list_button", wremoveall);
+    builder->find_widget("rllabel", wlremoveall);
     wlremoveall->set_name("beffekt_label");
     wremoveall->set_name("rack_button");
     wremoveall->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_remove_all_button_clicked));
 
-    builder->get_widget("reset_button", wReset);
+    builder->find_widget("reset_button", wReset);
     wReset->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_reset_clicked));
-    builder->get_widget("open_button", wOpen);
+    builder->find_widget("open_button", wOpen);
     wOpen->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_open));
 
-    builder->get_widget("apply_button", wApply);
+    builder->find_widget("apply_button", wApply);
     wApply->signal_clicked().connect(sigc::mem_fun(*this,
                                      &IRWindow::on_apply_button_clicked));
 
-    builder->get_widget("cancel_button", wCancel);
+    builder->find_widget("cancel_button", wCancel);
     wCancel->signal_clicked().connect(sigc::mem_fun(*this,
                                       &IRWindow::on_cancel_button_clicked));
-    builder->get_widget("ok_button", wOk);
+    builder->find_widget("ok_button", wOk);
     wOk->signal_clicked().connect(sigc::mem_fun(*this,
                                   &IRWindow::on_ok_button_clicked));
 
-    builder->get_widget("gain_button", wGain_correction);
+    builder->find_widget("gain_button", wGain_correction);
     wGain_correction->signal_toggled().connect(sigc::mem_fun(*this,
                                                &IRWindow::on_gain_button_toggled));
 
-    builder->get_widget("length", wSamples);
-    builder->get_widget("samplerate", wSampleRate);
-    builder->get_widget("format", wFormat);
-    builder->get_widget("filename", wFilename);
+    builder->find_widget("length", wSamples);
+    builder->find_widget("samplerate", wSampleRate);
+    builder->find_widget("format", wFormat);
+    builder->find_widget("filename", wFilename);
 
-    builder->get_widget("channelbox", wChannelbox);
+    builder->find_widget("channelbox", wChannelbox);
 
     Gtk::Button* button;
-    builder->get_widget("help_button", button);
+    builder->find_widget("help_button", button);
     button->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_help_clicked));
-    builder->get_widget("HelpIR", wHelp);
-    builder->get_widget("close_irhelp", button);
+    builder->find_widget("HelpIR", wHelp);
+    builder->find_widget("close_irhelp", button);
     button->signal_clicked().connect(sigc::mem_fun(wHelp, &Gtk::Widget::hide));
 }
 
@@ -321,12 +321,12 @@ void IRWindow::set_GainCor() {
     wGain_correction->set_active(convolver.jcset.getGainCor());
 }
 
-IRWindow::IRWindow(const Glib::RefPtr<Gtk::Builder>& bld, gx_engine::ConvolverAdapter& convolver_)
+IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::ConvolverAdapter& convolver_)
     : builder(bld), filename(), ms(0.0), audio_buffer(0),
       audio_size(0), audio_chan(0), convolver(convolver_), gtk_window(0),
       //skipped all gtk widget pointers, will be set in init_connect()
       wcombo(), wboxcombo(), treeview(), model(), columns(), menucont(0) {
-    bld->get_widget("DisplayIR", gtk_window);
+    bld->get_toplevel("DisplayIR", gtk_window);
     // setup the TreeView
     treeview = new Gtk::TreeView;
     model = Gtk::TreeStore::create(columns);
@@ -349,6 +349,7 @@ IRWindow::IRWindow(const Glib::RefPtr<Gtk::Builder>& bld, gx_engine::ConvolverAd
 }
 
 IRWindow::~IRWindow() {
+    delete gtk_window;
     delete audio_buffer;
     delete treeview;
     delete wcombo;
@@ -737,7 +738,7 @@ void IRWindow::on_reset_clicked() {
     wIredit->set_offset(0);
     wIredit->set_delay(0);
     wIredit->set_length(audio_size);
-    gx_gui::gx_reset_units("jconv");
+    gx_gui::gx_reset_units(gx_engine::parameter_map, "jconv");
 }
 
 Glib::ustring IRWindow::on_delay_delta_format_value(double v) {

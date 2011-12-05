@@ -46,6 +46,7 @@ def build(bld):
         'midi.glade',
         'ports.glade',
         'iredit.glade',
+        'jackstarter.glade',
         ]
 
     sources = sources_engine + sources_gui

@@ -92,25 +92,8 @@ protected:
 private:
 
 	public:
-	PaintBox();
-	
-  void pack_start(Gtk::Widget& child, gboolean expand, gboolean fill, guint padding);
-                                         
-    
-  void pack_end(Gtk::Widget& child, gboolean expand, gboolean fill, guint padding);
-                                         
-    
-  void set_border_width(guint border_width);
-    
-    
-  void add(Gtk::Widget& child);
-    
-    
-  void remove(Gtk::Widget& child);
-    
-    
-  GList* get_children();
-    
+	  explicit PaintBox(Gtk::Orientation orientation =  Gtk::ORIENTATION_HORIZONTAL, bool homogeneous =  false, int spacing =  0);
+
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** Type of paint function for background.
    *
@@ -149,46 +132,6 @@ private:
    * the value of the property changes.
    */
   Glib::PropertyProxy_ReadOnly<guint> property_icon_set() const;
-#endif //#GLIBMM_PROPERTIES_ENABLED
-
-	#ifdef GLIBMM_PROPERTIES_ENABLED
-/** size.width request for paintbox.
-   *
-   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
-   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
-   * the value of the property changes.
-   */
-  Glib::PropertyProxy<guint> property_width() ;
-#endif //#GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-/** size.width request for paintbox.
-   *
-   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
-   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
-   * the value of the property changes.
-   */
-  Glib::PropertyProxy_ReadOnly<guint> property_width() const;
-#endif //#GLIBMM_PROPERTIES_ENABLED
-
-	#ifdef GLIBMM_PROPERTIES_ENABLED
-/** size.height request for paintbox.
-   *
-   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
-   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
-   * the value of the property changes.
-   */
-  Glib::PropertyProxy<guint> property_height() ;
-#endif //#GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-/** size.height request for paintbox.
-   *
-   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
-   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
-   * the value of the property changes.
-   */
-  Glib::PropertyProxy_ReadOnly<guint> property_height() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 

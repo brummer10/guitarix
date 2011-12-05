@@ -106,6 +106,7 @@ public:
     inline void set_buffersize(unsigned int sz) { buffersize = sz; }
     inline unsigned int get_buffersize() { return buffersize; }
     inline void set_samplerate(unsigned int sr) { samplerate = sr; }
+    inline unsigned int get_samplerate() { return samplerate; }
     bool checkstate();
     using Convproc::state;
     inline void set_not_runnable()   { ready = false; }

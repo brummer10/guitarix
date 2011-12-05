@@ -21,6 +21,6 @@ DL_EXPORT(void) initgxw(void)
 	gxw_add_constants(m, "");
 
 	if (PyErr_Occurred ()) {
-		Py_FatalError ("can't initialise module hello_widget");
+		Py_FatalError ("can't initialise module gxw");
 	}
 }

@@ -32,12 +32,7 @@
 
 enum {
 	PROP_PAINT_FUNC = 1,
-	PROP_BORDER_WIDTH = 2,
-	PROP_SPACING = 3,
-	PROP_HOMOGENEOUS = 4,
-	PROP_ICON_SET = 5,
-	PROP_WIDTH = 6,
-	PROP_HEIGHT = 7,
+	PROP_ICON_SET = 2,
 };
 
 static void gx_paint_box_destroy(GtkObject *object);
@@ -48,7 +43,7 @@ static void gx_paint_box_get_property(
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event);
 static void gx_paint_box_style_set (GtkWidget *widget, GtkStyle  *previous_style);
 
-G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_HBOX)
+G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
 
 #define get_stock_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->stock_id)
 #define get_main_image_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->main_image_id)
@@ -118,15 +113,6 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 						 G_MAXINT,
 						 0,
 		                 GParamFlags(GTK_PARAM_READABLE)));
-	g_object_class_install_property(
-		gobject_class,PROP_WIDTH,
-	    g_param_spec_int ("width",
-						 P_("Width"),
-						 P_("size.width request for paintbox"),
-						 0,
-						 G_MAXINT,
-						 0,
-						 GParamFlags(GTK_PARAM_READWRITE)));
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_int("width",
@@ -136,15 +122,6 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 						 G_MAXINT,
 						 0,
 		                 GParamFlags(GTK_PARAM_READABLE)));
-	g_object_class_install_property(
-		gobject_class,PROP_HEIGHT,
-	    g_param_spec_int ("height",
-						 P_("Height"),
-						 P_("size.height request for paintbox"),
-						 0,
-						 G_MAXINT,
-						 0,
-						 GParamFlags(GTK_PARAM_READWRITE)));
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_int("height",
@@ -209,6 +186,7 @@ static void gx_paint_box_destroy(GtkObject *object)
 	if (G_IS_OBJECT(GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi))-> gxr_image)) {
 		g_object_unref(GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi))->gxr_image);
 	}
+	GTK_OBJECT_CLASS(gx_paint_box_parent_class)->destroy(object);
 }
 
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event)
@@ -226,18 +204,6 @@ static void set_icon(GxPaintBox *paint_box, int value)
 	gtk_widget_style_get(GTK_WIDGET(paint_box), "icon-set", &spf, NULL);
 	 paint_box->icon_set = spf;
 }
-static void set_width(GxPaintBox *paint_box, int value)
-{
-	int spf;
-	gtk_widget_style_get(GTK_WIDGET(paint_box), "width", &spf, NULL);
-	 paint_box->width = spf;
-}
-static void set_height(GxPaintBox *paint_box, int value)
-{
-	int spf;
-	gtk_widget_style_get(GTK_WIDGET(paint_box), "height", &spf, NULL);
-	 paint_box->height = spf;
-}
 static void gx_paint_box_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
@@ -246,23 +212,8 @@ static void gx_paint_box_set_property(
 	case PROP_PAINT_FUNC:
 		set_paint_func(paint_box, g_value_get_string(value));
 		break;
-	case PROP_BORDER_WIDTH:
-		gtk_container_set_border_width (GTK_CONTAINER(paint_box), g_value_get_uint (value));
-		break;
-	case PROP_SPACING:
-		gtk_box_set_spacing (GTK_BOX(paint_box), g_value_get_int (value));
-		break;
-	case PROP_HOMOGENEOUS:
-		gtk_box_set_homogeneous (GTK_BOX(paint_box), g_value_get_boolean (value));
-		break;
 	case PROP_ICON_SET:
 		set_icon(paint_box, g_value_get_int(value));
-		break;
-	case PROP_WIDTH:
-		set_width(paint_box, g_value_get_int(value));
-		break;
-	case PROP_HEIGHT:
-		set_height(paint_box, g_value_get_int(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -277,23 +228,8 @@ static void gx_paint_box_get_property(
 	case PROP_PAINT_FUNC:
 		g_value_set_string(value, GX_PAINT_BOX(object)->paint_func);
 		break;
-	case PROP_BORDER_WIDTH:
-		g_value_set_uint (value, GX_PAINT_BOX(object)->border_width);
-		break;
-	case PROP_SPACING:
-		g_value_set_int (value, GX_PAINT_BOX(object)->spacing);
-		break;
-	case PROP_HOMOGENEOUS:
-		g_value_set_boolean (value, GX_PAINT_BOX(object)->homogeneous);
-		break;
 	case PROP_ICON_SET:
 		g_value_set_int (value, GX_PAINT_BOX(object)->icon_set);
-		break;
-	case PROP_WIDTH:
-		g_value_set_int (value, GX_PAINT_BOX(object)->width);
-		break;
-	case PROP_HEIGHT:
-		g_value_set_int (value, GX_PAINT_BOX(object)->height);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -301,43 +237,12 @@ static void gx_paint_box_get_property(
 	}
 }
 
-void gx_box_pack_start (GxPaintBox *box, GtkWidget *child, 
-	gboolean expand, gboolean fill, guint padding)
-{
-	gtk_box_pack_start (GTK_BOX(box), child, expand, fill, padding);
-}
-
-void gx_box_pack_end (GxPaintBox *box, GtkWidget *child,
-	gboolean expand, gboolean fill, guint padding)
-{
-	gtk_box_pack_end (GTK_BOX(box), child, expand, fill, padding);
-}
-
-void gx_box_add (GxPaintBox *container, GtkWidget *widget)
-{
-	gtk_container_add (GTK_CONTAINER(container), widget);
-}
-
-void gx_box_remove (GxPaintBox *container,GtkWidget *widget)
-{
-	gtk_container_remove (GTK_CONTAINER(container), widget);
-}
-
-void gx_box_set_border_width (GxPaintBox *container, guint border_width)
-{
-	gtk_container_set_border_width (GTK_CONTAINER(container), border_width);
-}
-
-GList*  gx_box_get_children(GxPaintBox *container)
-{
-	return gtk_container_get_children (GTK_CONTAINER(container));
-}
-
-GtkWidget *gx_paint_box_new (gboolean homogeneous, gint spacing)
+GtkWidget *gx_paint_box_new (GtkOrientation orientation, gboolean homogeneous, gint spacing)
 {
 	return (GtkWidget*)g_object_new(
 		GX_TYPE_PAINT_BOX,
-		"spacing", spacing,
+		"orientation", orientation,
+		"spacing",     spacing,
 		"homogeneous", homogeneous ? TRUE : FALSE,
 		NULL);
 }
@@ -770,7 +675,6 @@ static void convolver_icon_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static void eq_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
-	//float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
     cairo_t *cr;
     cairo_text_extents_t extents;
 	/* create a cairo context */
