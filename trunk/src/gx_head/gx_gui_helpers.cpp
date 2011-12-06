@@ -1054,20 +1054,29 @@ void gx_reset_units(gx_engine::ParamMap& pmap, Glib::ustring group_id) {
 }
 
 gboolean gx_set_resizeable(gpointer data) {
-    if (!gtk_window_get_resizable(GTK_WINDOW(data)))
+    if (!gtk_window_get_resizable(GTK_WINDOW(data)) &&
+      GDK_IS_WINDOW (GTK_WIDGET(data)->window)) {
         gtk_window_set_resizable(GTK_WINDOW(data), TRUE);
-    return false;
+        return false;
+    } else {
+        return true;
+    }
 }
 
 gboolean gx_set_sresizeable(gpointer data) {
-    if (!gtk_window_get_resizable(GTK_WINDOW(data)))
+    if (!gtk_window_get_resizable(GTK_WINDOW(data)) &&
+      GDK_IS_WINDOW (GTK_WIDGET(data)->window))
         gtk_window_set_resizable(GTK_WINDOW(data), FALSE);
     return false;
 }
 
 gboolean gx_set_default(gpointer data) {
-    gtk_widget_set_size_request(GTK_WIDGET(data), -1, -1);
-    return false;
+    if(GDK_IS_WINDOW (GTK_WIDGET(data)->window)) {
+        gtk_widget_set_size_request(GTK_WIDGET(data), -1, -1);
+        return false;
+    } else {
+        return true;
+    }
 }
 
 gboolean gx_set_default_size(gpointer data) {
