@@ -592,7 +592,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
                     <child>\n\
-                      <object class=\"GtkLabel\" id=\"label1\">\n\
+                      <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
                         <property name=\"label\">label</property>\n\
@@ -610,7 +610,7 @@ const char *Dsp::glade_def = "\
                         <property name=\"receives_default\">True</property>\n\
                         <property name=\"round_digits\">0</property>\n\
                         <property name=\"var_id\">zita_rev1.input.in_delay</property>\n\
-                        <property name=\"label_ref\">label1</property>\n\
+                        <property name=\"label_ref\">label1:rack_label</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"expand\">False</property>\n\
@@ -648,7 +648,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label3\">\n\
+                              <object class=\"GtkLabel\" id=\"label3:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -666,7 +666,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.decay_times.low_rt60</property>\n\
-                                <property name=\"label_ref\">label3</property>\n\
+                                <property name=\"label_ref\">label3:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
@@ -686,7 +686,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label2\">\n\
+                              <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -705,7 +705,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.decay_times.lf_x</property>\n\
                                 <property name=\"show_value\">False</property>\n\
-                                <property name=\"label_ref\">label2</property>\n\
+                                <property name=\"label_ref\">label2:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
@@ -747,7 +747,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label4\">\n\
+                              <object class=\"GtkLabel\" id=\"label4:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -765,7 +765,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.decay_times.mid_rt60</property>\n\
-                                <property name=\"label_ref\">label4</property>\n\
+                                <property name=\"label_ref\">label4:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
@@ -805,7 +805,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label5\">\n\
+                              <object class=\"GtkLabel\" id=\"label5:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -823,7 +823,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.decay_times.hf_damping</property>\n\
-                                <property name=\"label_ref\">label5</property>\n\
+                                <property name=\"label_ref\">label5:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
@@ -888,7 +888,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label6\">\n\
+                              <object class=\"GtkLabel\" id=\"label6:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -906,7 +906,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.equalizer1.eq1_freq</property>\n\
-                                <property name=\"label_ref\">label6</property>\n\
+                                <property name=\"label_ref\">label6:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
@@ -926,7 +926,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label7\">\n\
+                              <object class=\"GtkLabel\" id=\"label7:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -944,7 +944,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.equalizer1.eq1_level</property>\n\
-                                <property name=\"label_ref\">label7</property>\n\
+                                <property name=\"label_ref\">label7:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
@@ -998,7 +998,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label8\">\n\
+                              <object class=\"GtkLabel\" id=\"label8:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -1016,7 +1016,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.equalizer2.eq2_freq</property>\n\
-                                <property name=\"label_ref\">label8</property>\n\
+                                <property name=\"label_ref\">label8:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
@@ -1036,7 +1036,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label9\">\n\
+                              <object class=\"GtkLabel\" id=\"label9:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -1054,7 +1054,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.equalizer2.eq2_level</property>\n\
-                                <property name=\"label_ref\">label9</property>\n\
+                                <property name=\"label_ref\">label9:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
@@ -1107,7 +1107,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label10\">\n\
+                              <object class=\"GtkLabel\" id=\"label10:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -1125,7 +1125,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.output.dry_wet_mix</property>\n\
-                                <property name=\"label_ref\">label10</property>\n\
+                                <property name=\"label_ref\">label10:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
@@ -1145,7 +1145,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkLabel\" id=\"label11\">\n\
+                              <object class=\"GtkLabel\" id=\"label11:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"label\">label</property>\n\
@@ -1163,7 +1163,7 @@ const char *Dsp::glade_def = "\
                                 <property name=\"receives_default\">True</property>\n\
                                 <property name=\"round_digits\">0</property>\n\
                                 <property name=\"var_id\">zita_rev1.output.level</property>\n\
-                                <property name=\"label_ref\">label11</property>\n\
+                                <property name=\"label_ref\">label11:rack_label</property>\n\
                               </object>\n\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\

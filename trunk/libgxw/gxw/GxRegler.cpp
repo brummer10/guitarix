@@ -67,6 +67,7 @@ static void gx_regler_class_init(GxReglerClass *klass);
 static void gx_regler_init(GxRegler *regler);
 static void gx_control_parameter_interface_init (GxControlParameterIface *iface);
 static void gx_regler_finalize(GObject*);
+static void gx_regler_size_allocate (GtkWidget *widget, GtkAllocation *allocation);
 static void gx_regler_style_set (GtkWidget *widget, GtkStyle  *previous_style);
 static void gx_regler_destroy(GtkObject *object);
 static void gx_regler_set_property(
@@ -319,6 +320,7 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	widget_class->style_set = gx_regler_style_set;
 	widget_class->button_release_event = gx_regler_button_release;
 	widget_class->scroll_event = gx_regler_scroll;
+	widget_class->size_allocate = gx_regler_size_allocate;
 
 	range_class->value_changed = gx_regler_value_changed;
 	range_class->change_value = gx_regler_change_value;
@@ -536,6 +538,17 @@ static void gx_regler_finalize(GObject *object)
 		g_object_unref(regler->value_layout);
 	}
 	G_OBJECT_CLASS(gx_regler_parent_class)->finalize(object);
+}
+
+static void gx_regler_size_allocate(GtkWidget *widget, GtkAllocation *allocation)
+{
+	widget->allocation = *allocation;
+	if (gtk_widget_get_realized(widget))
+		gdk_window_move_resize(GTK_RANGE(widget)->event_window,
+							   widget->allocation.x,
+							   widget->allocation.y,
+							   widget->allocation.width,
+							   widget->allocation.height);
 }
 
 static void step_back(GtkRange *range)

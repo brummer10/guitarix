@@ -1174,12 +1174,66 @@ void ParamMap::check_p(const char *p) {
     }
 }
 
-void ParamMap::dump() {
-    printf("parameter map dump\n");
-    for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
-	i->second->dump();
+void ParamMap::dump(const string& fmt) {
+    gx_system::JsonWriter *p = 0;
+    gx_system::JsonWriter jw;
+    if (fmt == "json") {
+	jw.set_stream(&cout);
+	p = &jw;
+	jw.begin_array();
+	jw.newline();
+    } else {
+	printf("parameter map dump\n");
     }
-    printf("---------------------\n");
+    for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
+	i->second->dump(p);
+    }
+    if (p) {
+	jw.end_array();
+	jw.close();
+    } else {
+	printf("---------------------\n");
+    }
+}
+
+void Parameter::dump(gx_system::JsonWriter *jw) {
+    if (jw) {
+	jw->begin_array();
+	jw->write(id());
+	jw->write(l_group());
+	jw->write(l_name());
+	switch (v_type) {
+	case tp_float:  jw->write("f"); jw->write(getFloat().get_value());     break;
+	case tp_int:    jw->write("i"); jw->write(getInt().get_value());       break;
+	case tp_uint:   jw->write("u"); jw->write(getUInt().get_value());      break;
+	case tp_bool:   jw->write("b"); jw->write(getBool().get_value());      break;
+	case tp_switch: jw->write("s"); jw->write(getSwitch().get());          break;
+	case tp_file:   jw->write("F"); jw->write(getFile().get_parse_name()); break;
+	case tp_string: jw->write("S"); jw->write(getString().get_value());    break;
+	default: assert(false);
+	}
+	jw->write(getLowerAsFloat());
+	jw->write(getUpperAsFloat());
+	jw->write(getStepAsFloat());
+	const value_pair *vn = getValueNames();
+	if (vn) {
+	    jw->begin_array();
+	    for (int n = 0; ; ++n) {
+		if (!vn[n].value_id) {
+		    break;
+		}
+		jw->begin_array();
+		jw->write(vn[n].value_id);
+		jw->write(vn[n].value_label ? vn[n].value_label : vn[n].value_id);
+		jw->end_array();
+	    }
+	    jw->end_array();
+	}
+	jw->end_array();
+	jw->newline();
+    } else {
+	printf("P: %s vt=%d ct=%d c=%d\n", _id.c_str(), v_type, c_type, controllable);
+    }
 }
 #endif
 

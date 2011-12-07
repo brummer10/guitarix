@@ -65,14 +65,14 @@ class JsonWriter {
     void write(int i, bool nl = false);
     void write(unsigned int i, bool nl = false);
     void write(const char* p, bool nl = false);
-    void write(string s, bool nl = false) { write(s.c_str(), nl); }
-    void write_lit(string s, bool nl = false);
+    void write(const string& s, bool nl = false) { write(s.c_str(), nl); }
+    void write_lit(const string& s, bool nl = false);
     void begin_object(bool nl = false);
     void end_object(bool nl = false);
     void begin_array(bool nl = false);
     void end_array(bool nl = false);
     void write_key(const char* p, bool nl = false);
-    void write_key(string p, bool nl = false);
+    void write_key(const string& p, bool nl = false);
     void newline() { snl(true); }
 };
 

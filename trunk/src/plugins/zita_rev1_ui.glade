@@ -30,7 +30,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkLabel" id="label1">
+                      <object class="GtkLabel" id="label1:rack_label">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label">label</property>
@@ -48,7 +48,7 @@
                         <property name="receives_default">True</property>
                         <property name="round_digits">0</property>
                         <property name="var_id">zita_rev1.input.in_delay</property>
-                        <property name="label_ref">label1</property>
+                        <property name="label_ref">label1:rack_label</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -86,7 +86,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label3">
+                              <object class="GtkLabel" id="label3:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -104,7 +104,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.decay_times.low_rt60</property>
-                                <property name="label_ref">label3</property>
+                                <property name="label_ref">label3:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -124,7 +124,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label2">
+                              <object class="GtkLabel" id="label2:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -143,7 +143,7 @@
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.decay_times.lf_x</property>
                                 <property name="show_value">False</property>
-                                <property name="label_ref">label2</property>
+                                <property name="label_ref">label2:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -185,7 +185,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label4">
+                              <object class="GtkLabel" id="label4:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -203,7 +203,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.decay_times.mid_rt60</property>
-                                <property name="label_ref">label4</property>
+                                <property name="label_ref">label4:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -243,7 +243,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label5">
+                              <object class="GtkLabel" id="label5:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -261,7 +261,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.decay_times.hf_damping</property>
-                                <property name="label_ref">label5</property>
+                                <property name="label_ref">label5:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -326,7 +326,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label6">
+                              <object class="GtkLabel" id="label6:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -344,7 +344,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.equalizer1.eq1_freq</property>
-                                <property name="label_ref">label6</property>
+                                <property name="label_ref">label6:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -364,7 +364,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label7">
+                              <object class="GtkLabel" id="label7:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -382,7 +382,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.equalizer1.eq1_level</property>
-                                <property name="label_ref">label7</property>
+                                <property name="label_ref">label7:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -436,7 +436,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label8">
+                              <object class="GtkLabel" id="label8:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -454,7 +454,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.equalizer2.eq2_freq</property>
-                                <property name="label_ref">label8</property>
+                                <property name="label_ref">label8:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -474,7 +474,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label9">
+                              <object class="GtkLabel" id="label9:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -492,7 +492,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.equalizer2.eq2_level</property>
-                                <property name="label_ref">label9</property>
+                                <property name="label_ref">label9:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -545,7 +545,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label10">
+                              <object class="GtkLabel" id="label10:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -563,7 +563,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.output.dry_wet_mix</property>
-                                <property name="label_ref">label10</property>
+                                <property name="label_ref">label10:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -583,7 +583,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkLabel" id="label11">
+                              <object class="GtkLabel" id="label11:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label">label</property>
@@ -601,7 +601,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="round_digits">0</property>
                                 <property name="var_id">zita_rev1.output.level</property>
-                                <property name="label_ref">label11</property>
+                                <property name="label_ref">label11:rack_label</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>

@@ -25,22 +25,24 @@
 G_BEGIN_DECLS
 
 #define GX_TYPE_LEVEL_SLIDER          (gx_level_slider_get_type())
-#define GX_LEVEL_SLIDER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_LEVEL_SLIDER, GxLEVELSlider))
-#define GX_LEVEL_SLIDER_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_LEVEL_SLIDER, GxLEVELSliderClass))
+#define GX_LEVEL_SLIDER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_LEVEL_SLIDER, GxLevelSlider))
+#define GX_LEVEL_SLIDER_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_LEVEL_SLIDER, GxLevelSliderClass))
 #define GX_IS_LEVEL_SLIDER(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_LEVEL_SLIDER))
 #define GX_IS_LEVEL_SLIDER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_LEVEL_SLIDER))
-#define GX_LEVEL_SLIDER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_LEVEL_SLIDER, GxLEVELSliderClass))
+#define GX_LEVEL_SLIDER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_LEVEL_SLIDER, GxLevelSliderClass))
 
-typedef struct _GxLEVELSlider GxLEVELSlider;
-typedef struct _GxLEVELSliderClass GxLEVELSliderClass;
+typedef struct _GxLevelSlider GxLevelSlider;
+typedef struct _GxLevelSliderClass GxLevelSliderClass;
 
-struct _GxLEVELSlider {
+struct _GxLevelSlider {
 	GxVSlider parent;
 };
 
-struct _GxLEVELSliderClass {
+struct _GxLevelSliderClass {
 	GxVSliderClass parent_class;
 };
+
+GType gx_level_slider_get_type(void);
 
 inline double log_meter (double db)
 {
@@ -72,8 +74,6 @@ inline double log_meter (double db)
 
 	return def/115.0f;
 }
-
-GType gx_level_slider_get_type(void);
 
 G_END_DECLS
 

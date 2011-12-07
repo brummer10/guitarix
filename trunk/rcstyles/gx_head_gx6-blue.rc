@@ -501,4 +501,4 @@ style "gx_head_blue-rack-group"
   font_name = "sans Bold 8"
 }
 widget "*.MonoBox.*GtkLabel" style:highest "gx_head_blue-rack"
-widget "*.*GtkFrame.gtkmm__GtkLabel" style:highest "gx_head_blue-rack-group"
+widget "*.*GtkFrame.*GtkLabel" style:highest "gx_head_blue-rack-group"

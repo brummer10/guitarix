@@ -500,4 +500,4 @@ style "gx_head-rack-group"
   font_name = "sans Bold 8"
 }
 widget "*.MonoBox.*GtkLabel" style:highest "gx_head-rack"
-widget "*.*GtkFrame.gtkmm__GtkLabel" style:highest "gx_head-rack-group"
+widget "*.*GtkFrame.*GtkLabel" style:highest "gx_head-rack-group"

@@ -312,8 +312,21 @@ void GxMainInterface::setup() {
     UiBuilderImpl builder(this);
     engine.pluginlist.append_rack(builder);
 
+#ifndef NDEBUG
     debug_check(all_midi_params_assigned, pmap);
+    const char *dbgfmt = getenv("GUITARIX_DEBUG_PARAMETER");
+    if (dbgfmt) {
+	pmap.set_init_values();
+	pmap.dump(dbgfmt);
+    }
+#endif
+
     gx_settings.loadstate();
+    if (!options.get_rcset().empty()) {
+	gx_gui::gx_actualize_skin_index(options.skin, options.get_rcset());
+    }
+    gx_gui::gx_update_skin_menu_item(gx_engine::audio.fskin);
+    gx_gui::gx_update_skin(gx_engine::audio.fskin, "");
     connect_jack(true);
     vector<string> l;
     gx_settings.fill_factory_names(l);

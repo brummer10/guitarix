@@ -130,7 +130,7 @@ public:
     void setUsed() { used = true; }
     friend void compare_parameter(const char* title, Parameter* p1,
 				  Parameter* p2, bool all);
-    void dump() { printf("P: %s vt=%d ct=%d c=%d\n", _id.c_str(), v_type, c_type, controllable); }
+    void dump(gx_system::JsonWriter *jw);
 #endif
 
     bool isFloat() const { return v_type == tp_float; }
@@ -613,7 +613,7 @@ class ParamMap: boost::noncopyable {
     }
 
 #ifndef NDEBUG
-    void dump();
+    void dump(const string& fmt);
 #endif
 };
 

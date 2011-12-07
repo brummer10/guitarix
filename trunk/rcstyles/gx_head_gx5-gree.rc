@@ -523,4 +523,4 @@ fg[SELECTED] = { 0.8, 0.8, 0.8 }
 font_name = "sans Bold 8"
 }
 widget "*.MonoBox.*GtkLabel" style:highest "gx5_head-rack"
-widget "*.*GtkFrame.gtkmm__GtkLabel" style:highest "gx5_head-rack-group"
+widget "*.*GtkFrame.*GtkLabel" style:highest "gx5_head-rack-group"

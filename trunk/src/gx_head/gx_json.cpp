@@ -105,7 +105,7 @@ void JsonWriter::write(unsigned int i, bool nl) {
     snl(nl);
 }
 
-void JsonWriter::write_lit(string s, bool nl) {
+void JsonWriter::write_lit(const string& s, bool nl) {
     komma();
     *os << s;
     snl(nl);
@@ -167,7 +167,7 @@ void JsonWriter::write_key(const char* p, bool nl) {
     first = true;
 }
 
-void JsonWriter::write_key(string p, bool nl) {
+void JsonWriter::write_key(const string& p, bool nl) {
     write(p, nl);
     *os << ": ";
     first = true;

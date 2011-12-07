@@ -29,9 +29,9 @@ static void gx_level_slider_size_request (GtkWidget *widget, GtkRequisition *req
 static gboolean gx_level_slider_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_level_slider_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
 
-G_DEFINE_TYPE(GxLEVELSlider, gx_level_slider, GX_TYPE_VSLIDER);
+G_DEFINE_TYPE(GxLevelSlider, gx_level_slider, GX_TYPE_VSLIDER);
 
-static void gx_level_slider_class_init(GxLEVELSliderClass *klass)
+static void gx_level_slider_class_init(GxLevelSliderClass *klass)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
@@ -189,7 +189,7 @@ static gboolean gx_level_slider_pointer_motion(GtkWidget *widget, GdkEventMotion
 }
 
 
-static void gx_level_slider_init(GxLEVELSlider *level_slider)
+static void gx_level_slider_init(GxLevelSlider *level_slider)
 {
 	gtk_widget_set_name (GTK_WIDGET(level_slider),"rack_slider");
 }

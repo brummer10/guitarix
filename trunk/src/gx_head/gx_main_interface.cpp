@@ -215,6 +215,7 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
 	{ "other", "other" },
 	{ "qjackctl", "qjackctl" },
 	{ "autostart", "autostart" },
+	{0}
     };
     gx_engine::parameter_map.reg_non_midi_enum_par(
 	"ui.jack_starter_idx", "", starter, static_cast<int*>(0), false, 1);
@@ -3217,12 +3218,6 @@ void GxMainInterface::show() {
     gint mainyorg = gx_set_my_oriantation();
     fWindow.move(mainxorg, mainyorg);
     gtk_widget_show(fBox[0]);
-    // ----- set the last used skin when no cmd is given
-    if (gx_engine::audio.fskin) {
-	gx_update_skin_menu_item(gx_engine::audio.fskin);
-    } else {
-	gx_update_skin(gx_engine::audio.fskin, "");
-    }
     fWindow.show();
 }
 

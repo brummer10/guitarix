@@ -30,9 +30,11 @@
 #include <gxw/GxIREdit.h>
 #include <gxw/GxRadioButton.h>
 #include <gxw/GxWheel.h>
+#include <gxw/GxWheelVertical.h>
 #include <gxw/GxKnob.h>
 #include <gxw/GxBigKnob.h>
 #include <gxw/GxSmallKnob.h>
+#include <gxw/GxSmallKnobR.h>
 #include <gxw/GxHSlider.h>
 #include <gxw/GxMiniSlider.h>
 #include <gxw/GxVSlider.h>

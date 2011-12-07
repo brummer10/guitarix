@@ -345,12 +345,6 @@ int main(int argc, char *argv[]) {
 
 	gx_gui::GxMainInterface gui(engine, options, gx_engine::parameter_map);
 	gui.setup();
-	// ---------------------- initialize jack gxjack.client ------------------
-	/*-- set rc file overwrite it with export--*/
-	if (!options.get_rcset().empty()) {
-	    gx_gui::gx_actualize_skin_index(options.skin, options.get_rcset());
-	}
-
 	// ----------------------- run GTK main loop ----------------------
 	gx_ui::GxUI::updateAllGuis(true);
 	gui.show();

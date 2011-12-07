@@ -24,7 +24,7 @@
 
 G_BEGIN_DECLS
 
-#define GX_TYPE_SMALL_KNOB_R          (gx_small_knob_get_type())
+#define GX_TYPE_SMALL_KNOB_R          (gx_small_knob_r_get_type())
 #define GX_SMALL_KNOB_R(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_SMALL_KNOB_R, GxSmallKnobR))
 #define GX_SMALL_KNOB_R_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_SMALL_KNOB_R, GxSmallKnobRClass))
 #define GX_IS_SMALL_KNOB_R(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_SMALL_KNOB_R))
