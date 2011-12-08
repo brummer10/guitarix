@@ -1268,14 +1268,16 @@ void GxMainInterface::on_toolbar_activate() {
         if (fWindow.get_resizable())
             fWindow.set_resizable(false);
         gtk_widget_hide(gw.rack_tool_bar);
-    }
-    if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
-            guivar.g_threads[7] = g_timeout_add_full(
-		G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
-		gpointer(fWindow.gobj()), NULL);
-    if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
+    
+        if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
+                guivar.g_threads[7] = g_timeout_add_full(
+            G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
+            gpointer(fWindow.gobj()), NULL);
+    
+        if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
             guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
+    }
 }
 
 // ----menu function gx_tuner
@@ -1294,14 +1296,16 @@ void GxMainInterface::on_tuner_activate() {
             fWindow.set_resizable(false);
         fTuner.hide();
         gtk_widget_hide(gw.tuner_widget);
-    }
-    if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
+    
+        if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
             guivar.g_threads[7] = g_timeout_add_full(
-		G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
-		gpointer(fWindow.gobj()), NULL);
-    if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
+              G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
+              gpointer(fWindow.gobj()), NULL);
+    
+        if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
             guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
+    }
 }
 
 // ---- menu function gx_midi_out

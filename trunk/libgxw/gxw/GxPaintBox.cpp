@@ -551,7 +551,7 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
     
     int spf;
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-    if(spf == 6) {
+    if(spf == 6 || spf == 7) {
         GdkPixbuf * stock_image =
             gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
     
@@ -918,10 +918,13 @@ static void set_rack_color(const gchar * title, cairo_pattern_t *pat)
 */
 static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
+    int spf;
+	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    if(spf == 7) return;
+    
 	cairo_t *cr;
 	cairo_text_extents_t extents;
     cairo_pattern_t*pat;
-
 
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
@@ -938,8 +941,6 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double rect_height = wi->allocation.height;
 	double x,y;
 
-    int spf;
-	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
     if (spf == 6) {
         GdkPixbuf * stock_image =
             gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);

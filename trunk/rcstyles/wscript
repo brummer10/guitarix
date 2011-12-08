@@ -17,6 +17,7 @@ gxstyle_files = [
     'gx_head_gx4-black.rc',
     'gx_head_gx5-gree.rc',
     'gx_head_gx6-blue.rc',
+    'gx_head_gx7-blues.rc',
     'gx-dezert_18.png',
     'gx_dezert_12b.png',
     'gx_dezert_14b.png',
