@@ -6,15 +6,14 @@ lines of C code :-D)
 
 usage:
 
-start guitarix with gtkparasite from the directory where this module
-is located:
+start guitarix with gtkparasite:
 
-$ GTK_MODULES=gtkparasite ../build/default/src/gx_head/guitarix
+$ GTK_MODULES=gtkparasite PYTHONPATH=<gx tool dir> ../build/default/src/gx_head/guitarix
 
 Then shift the divider at the bottom of the gtkparasite window up to
 enlarge the console and load this module:
 
->>> import os, sys; sys.path.append(os.getcwd()); import psup; from psup import *
+>>> from psup import *
 
 You can use the python help: e.g. help(psup) or help(pstyle) and of
 course "pydoc psup" from the command line.
@@ -34,6 +33,8 @@ widgets. The last printed line is the command you can use with
 copy-and-paste to view the differing attributes with pstyle(). You
 need to change the widget name if it's not called w.
 
+ls_style() print all registered style properties.
+
 To reload the module if you did some changes while gtkparasite is
 running:
 
@@ -41,8 +42,11 @@ running:
 """
 from itertools import chain, izip
 from pprint import pprint
+import gtk
 from gtk import (STATE_NORMAL, STATE_ACTIVE, STATE_PRELIGHT,
                  STATE_SELECTED, STATE_INSENSITIVE)
+from gtk import widget_class_list_style_properties
+import psup # self import for easy reload
 
 def print_table(rows, enum=False, reverse=False):
     """print table of rows, formatted with optimal column width
@@ -73,6 +77,21 @@ def print_table(rows, enum=False, reverse=False):
     for row in lines:
         print fmt % tuple(chain.from_iterable(izip(m, row)))
 
+def ls_style(widget):
+    """print all style properties of widget"""
+    l = []
+    for p in widget_class_list_style_properties(widget):
+        n = p.name
+        v = widget.style_get_property(n)
+        if isinstance(v, gtk.Border):
+            v = "Border(left=%d,right=%d,top=%d,bottom=%d)" % (v.left, v.right, v.top, v.bottom)
+        elif isinstance(v, str):
+            v = repr(v)
+        elif isinstance(v, float):
+            v = "%g" % v
+        l.append((n, v))
+    print_table(l)
+
 def pstyle(widget, *args):
     """tabulate a list of styles for the widget hierarchy
     use any number or "xs_XX(..)"- or "x_XX"-accessors as args after widget
@@ -88,7 +107,7 @@ def pstyle(widget, *args):
     """
     l = []
     while True:
-        s = widget.get_style()
+        s = widget.style
         l.append([widget.get_name()] + [f(s) for f in args])
         widget = widget.get_parent()
         if not widget:
@@ -106,8 +125,8 @@ def pstyle(widget, *args):
     print_table(l2, enum=True, reverse=True)
 
 def diffstyle(w1, w2):
-    s1 = w1.get_style()
-    s2 = w2.get_style()
+    s1 = w1.style
+    s2 = w2.style
     g = globals()
     d = []
     l = []
@@ -128,7 +147,8 @@ def diffstyle(w1, w2):
         else:
             pdiff(f, v)
     print_table(l)
-    print "pstyle(w,%s)" % ",".join(d)
+    if l:
+        print "pstyle(w,%s)" % ",".join(d)
 
 for _v in "fg", "bg", "light", "dark", "mid", "text", "base", "text_aa":
     exec ("def xs_%(fld)s(state):\n"

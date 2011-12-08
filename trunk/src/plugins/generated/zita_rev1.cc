@@ -562,8 +562,8 @@ int Dsp::register_params_static(const ParamReg& reg)
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
   <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
   <!-- interface-naming-policy project-wide -->\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
@@ -868,6 +868,7 @@ const char *Dsp::glade_def = "\
           <object class=\"GtkHBox\" id=\"hbox1\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">2</property>\n\
             <child>\n\
               <object class=\"GtkFrame\" id=\"frame1\">\n\
                 <property name=\"visible\">True</property>\n\
@@ -918,6 +919,7 @@ const char *Dsp::glade_def = "\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
                             <property name=\"fill\">True</property>\n\
+                            <property name=\"padding\">2</property>\n\
                             <property name=\"position\">0</property>\n\
                           </packing>\n\
                         </child>\n\
@@ -956,6 +958,7 @@ const char *Dsp::glade_def = "\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
                             <property name=\"fill\">True</property>\n\
+                            <property name=\"padding\">2</property>\n\
                             <property name=\"position\">1</property>\n\
                           </packing>\n\
                         </child>\n\
@@ -988,7 +991,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkAlignment\" id=\"alignment2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
-                    <property name=\"left_padding\">12</property>\n\
+                    <property name=\"left_padding\">2</property>\n\
                     <child>\n\
                       <object class=\"GtkHBox\" id=\"hbox4\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -1028,6 +1031,7 @@ const char *Dsp::glade_def = "\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
                             <property name=\"fill\">True</property>\n\
+                            <property name=\"padding\">2</property>\n\
                             <property name=\"position\">0</property>\n\
                           </packing>\n\
                         </child>\n\
@@ -1066,6 +1070,7 @@ const char *Dsp::glade_def = "\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
                             <property name=\"fill\">True</property>\n\
+                            <property name=\"padding\">2</property>\n\
                             <property name=\"position\">1</property>\n\
                           </packing>\n\
                         </child>\n\
@@ -1097,7 +1102,9 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkAlignment\" id=\"alignment3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
-                    <property name=\"left_padding\">12</property>\n\
+                    <property name=\"bottom_padding\">2</property>\n\
+                    <property name=\"left_padding\">2</property>\n\
+                    <property name=\"right_padding\">2</property>\n\
                     <child>\n\
                       <object class=\"GtkHBox\" id=\"hbox5\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -1137,6 +1144,7 @@ const char *Dsp::glade_def = "\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
                             <property name=\"fill\">True</property>\n\
+                            <property name=\"padding\">2</property>\n\
                             <property name=\"position\">0</property>\n\
                           </packing>\n\
                         </child>\n\
@@ -1175,6 +1183,7 @@ const char *Dsp::glade_def = "\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
                             <property name=\"fill\">True</property>\n\
+                            <property name=\"padding\">2</property>\n\
                             <property name=\"position\">1</property>\n\
                           </packing>\n\
                         </child>\n\

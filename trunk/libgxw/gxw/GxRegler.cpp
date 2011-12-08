@@ -898,6 +898,21 @@ static gchar* _gx_regler_format_value(GxRegler *regler, gdouble value)
 	}
 }
 
+static const GtkBorder default_value_border = { 6, 6, 3, 3 };
+
+static void get_value_border(GtkWidget *widget, GtkBorder *value_border)
+{
+	GtkBorder *tmp_border;
+
+	gtk_widget_style_get(widget, "value-border", &tmp_border, NULL);
+	if (tmp_border) {
+		*value_border = *tmp_border;
+		gtk_border_free(tmp_border);
+	} else {
+		*value_border = default_value_border;
+    }
+}
+
 void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
 {
 	if (!regler->show_value) {
@@ -923,13 +938,17 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 		return;
 	}
 	cairo_t *cr = gdk_cairo_create(GTK_WIDGET(regler)->window);
-	double x0 = rect->x + 1;
-	double y0 = rect->y + 1;
-	double rect_width  =  rect->width - 2;
-	double rect_height =  rect->height - 2;
-	gint border_width = 8;
+	GtkBorder border;
+	get_value_border(GTK_WIDGET(regler), &border);
+	gint inset = max(0, min(2, min(min(border.left-4, border.right-4), min(border.top-1, border.bottom-1))));
+	gint frm = inset < 2 ? 0 : 1;
+	double x0 = rect->x + frm;
+	double y0 = rect->y + frm;
+	double rect_width  =  rect->width - 2 * frm;
+	double rect_height =  rect->height - 2 * frm;
+	gint border_width = 2;
 
-    cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+    cairo_rectangle (cr, rect->x,rect->y,rect->width,rect->height);
     cairo_set_source_rgba(cr, 0, 0, 0, 0.4);
     cairo_fill (cr);
 
@@ -938,21 +957,23 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
     cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
     cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
     cairo_set_source (cr, pat);
-    cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
+    cairo_rectangle (cr, x0+inset,y0+inset,rect_width-2*inset,rect_height-2*inset);
     cairo_fill (cr);
 
-    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+rect_width-3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
-    cairo_line_to(cr, x0+2, y0+rect_height-2);
-    cairo_stroke(cr);
+	// line on right and bottom side
+	cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+	cairo_set_line_width(cr, 2.0);
+	cairo_move_to(cr,x0+rect_width-1-inset, y0+1+inset);
+	cairo_line_to(cr, x0+rect_width-1-inset, y0+rect_height-inset);
+	cairo_line_to(cr, x0+inset, y0+rect_height-inset);
+	cairo_stroke(cr);
 
+	// line on left and top side
     cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
     cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+3, y0+rect_height-1);
-    cairo_line_to(cr, x0+3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+3);
+    cairo_move_to(cr,x0+1+inset, y0+rect_height-inset+1);
+    cairo_line_to(cr, x0+1+inset, y0+1+inset);
+    cairo_line_to(cr, x0+rect_width-1-inset, y0+1+inset);
     cairo_stroke(cr);
 
 	gchar *txt;
@@ -964,27 +985,12 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
     g_free(txt);
     PangoRectangle logical_rect;
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
-    gdouble off = border_width + (rect->width - 2*border_width
-                                  - logical_rect.width) * regler->value_xalign;
+    gdouble off = border_width + border.left + regler->value_xalign *
+		(rect->width - logical_rect.width - (2*border_width + border.left + border.right));
     cairo_move_to(cr, x0-1+off, y0+3);
     pango_cairo_show_layout(cr, l);
 
 	cairo_destroy(cr);
-}
-
-static const GtkBorder default_value_border = { 6, 6, 3, 3 };
-
-static void get_value_border(GtkWidget *widget, GtkBorder *value_border)
-{
-	GtkBorder *tmp_border;
-
-	gtk_widget_style_get(widget, "value-border", &tmp_border, NULL);
-	if (tmp_border) {
-		*value_border = *tmp_border;
-		gtk_border_free(tmp_border);
-	} else {
-		*value_border = default_value_border;
-    }
 }
 
 void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
@@ -993,10 +999,9 @@ void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 	if (regler->show_value) {
 		PangoRectangle logical_rect1, logical_rect2;
 		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
-		gint value_spacing;
-		ensure_digits(regler);
 		GtkBorder border;
 		get_value_border(GTK_WIDGET(regler), &border);
+		gint value_spacing;
 		gtk_widget_style_get(GTK_WIDGET(regler), "value-spacing", &value_spacing, NULL);
 		gchar *txt;
 		ensure_digits(regler);
