@@ -37,17 +37,15 @@ typedef struct _GxPaintBoxClass GxPaintBoxClass;
 
 struct _GxPaintBox {
 	GtkBox box;
-
 	gchar *paint_func;
 	void (*expose_func)(GtkWidget*, GdkEventExpose*);
-	guint GSEAL (icon_set) : 16;
+	GdkPixbuf *gxh_image;
+	GdkPixbuf *gxr_image;
+	guint GSEAL(icon_set);
 };
 
 struct _GxPaintBoxClass {
 	GtkBoxClass parent_class;
-
-	GdkPixbuf *gxh_image;
-	GdkPixbuf *gxr_image;
 	const gchar *stock_id;
 	const gchar *main_image_id;
 	const gchar *widget_id;

@@ -167,9 +167,12 @@ static void gx_paint_box_style_set(GtkWidget *widget, GtkStyle  *previous_style)
 
 static void gx_paint_box_init (GxPaintBox *paint_box)
 {
-	paint_box->paint_func = g_strdup("");
 	gtk_widget_set_redraw_on_allocate(GTK_WIDGET(paint_box), TRUE);
+	paint_box->paint_func = g_strdup("");
 	set_paint_func(paint_box, NULL);
+	paint_box->gxh_image = NULL;
+	paint_box->gxr_image = NULL;
+	paint_box->icon_set = 0;
 }
 
 static void gx_paint_box_destroy(GtkObject *object)
@@ -179,13 +182,14 @@ static void gx_paint_box_destroy(GtkObject *object)
 		g_free(paint_box->paint_func);
 		paint_box->paint_func = NULL;
 	}
-	GtkWidget *wi = GTK_WIDGET( g_object_new (GX_TYPE_PAINT_BOX, NULL ));
-	if (G_IS_OBJECT(GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi))-> gxh_image)) {
-		g_object_unref(GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi))->gxh_image);
+	if (G_IS_OBJECT(paint_box->gxh_image)) {
+		g_object_unref(paint_box->gxh_image);
 	}
-	if (G_IS_OBJECT(GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi))-> gxr_image)) {
-		g_object_unref(GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi))->gxr_image);
+	paint_box->gxh_image = NULL;
+	if (G_IS_OBJECT(paint_box->gxr_image)) {
+		g_object_unref(paint_box->gxr_image);
 	}
+	paint_box->gxr_image = NULL;
 	GTK_OBJECT_CLASS(gx_paint_box_parent_class)->destroy(object);
 }
 
@@ -551,6 +555,11 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
     
     int spf;
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+
+	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
+	cairo_paint(cr);
+	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
     if(spf == 6 || spf == 7) {
         GdkPixbuf * stock_image =
             gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
@@ -594,7 +603,6 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
         cairo_set_source_rgb (cr, 0, 0, 0);
         cairo_fill (cr);
     }
-
 	pat = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
     //cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
 	set_skin_color(wi, pat);
@@ -618,7 +626,6 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
     
 	//cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
 	cairo_fill (cr);
-
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
@@ -1815,7 +1822,7 @@ static void slooper_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
-	GxPaintBoxClass *klass =  GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi));
+	GxPaintBox *paintbox =  GX_PAINT_BOX(wi);
 	
 	gint x0      = wi->allocation.x+1;
 	gint y0      = wi->allocation.y+1;
@@ -1828,73 +1835,73 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
 
-	if (nf != spf || ne_w1 != rect_width*rect_height || !(GDK_IS_PIXBUF (klass-> gxh_image))) {
+	if (nf != spf || ne_w1 != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox-> gxh_image))) {
 		ne_w1 = rect_width*rect_height;
 		nf = spf;
-		if (G_IS_OBJECT(klass-> gxh_image)) {
-			g_object_unref(klass->gxh_image);
+		if (G_IS_OBJECT(paintbox-> gxh_image)) {
+			g_object_unref(paintbox->gxh_image);
 		}
 		GdkPixbuf  *stock_image, *frame;
 		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
 		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
 		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
 		
-		klass->gxh_image = gdk_pixbuf_scale_simple(
+		paintbox->gxh_image = gdk_pixbuf_scale_simple(
 			stock_image, rect_width, rect_height, GDK_INTERP_NEAREST);
 		// upper border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,24,0,gdk_pixbuf_get_width(stock_image)-48,12);
 		gdk_pixbuf_scale (
-			frame, klass->gxh_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
+			frame, paintbox->gxh_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
 		// under border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,24,gdk_pixbuf_get_height(stock_image)-12,
 			gdk_pixbuf_get_width(stock_image)-48,12);
 		gdk_pixbuf_scale (
-			frame,klass->gxh_image,0,gdk_pixbuf_get_height(klass->gxh_image)-12,
-			rect_width,12,0,gdk_pixbuf_get_height(klass->gxh_image)-12,
+			frame,paintbox->gxh_image,0,gdk_pixbuf_get_height(paintbox->gxh_image)-12,
+			rect_width,12,0,gdk_pixbuf_get_height(paintbox->gxh_image)-12,
 			scalew,1,GDK_INTERP_BILINEAR);
 		// left border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,24,12,gdk_pixbuf_get_height(stock_image)-48);	
 		gdk_pixbuf_scale(
-			frame, klass->gxh_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
+			frame, paintbox->gxh_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
 		// right border	
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-12,
 			24,12,gdk_pixbuf_get_height(stock_image)-48);
 		gdk_pixbuf_scale(
-			frame,klass->gxh_image,gdk_pixbuf_get_width(klass->gxh_image)-12,
-			12,12,rect_height-24,gdk_pixbuf_get_width(klass->gxh_image)-12,
+			frame,paintbox->gxh_image,gdk_pixbuf_get_width(paintbox->gxh_image)-12,
+			12,12,rect_height-24,gdk_pixbuf_get_width(paintbox->gxh_image)-12,
 			0,1,scaleh,GDK_INTERP_BILINEAR);
 		//left upper corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,0,20,20);
 		gdk_pixbuf_scale (
-			frame, klass->gxh_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
+			frame, paintbox->gxh_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
 		//right upper corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-20,0,20,20);
 		gdk_pixbuf_scale (
-			frame, klass->gxh_image,gdk_pixbuf_get_width(klass->gxh_image)-20,
-			0,20,20,gdk_pixbuf_get_width(klass->gxh_image)-20,0,1,1,
+			frame, paintbox->gxh_image,gdk_pixbuf_get_width(paintbox->gxh_image)-20,
+			0,20,20,gdk_pixbuf_get_width(paintbox->gxh_image)-20,0,1,1,
 			GDK_INTERP_BILINEAR);
 		//left under corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,gdk_pixbuf_get_height(stock_image)-20,20,20);
 		gdk_pixbuf_scale (
-			frame, klass->gxh_image,0,gdk_pixbuf_get_height(klass->gxh_image)-20,
-			20,20,0,gdk_pixbuf_get_height(klass->gxh_image)-20,1,1,
+			frame, paintbox->gxh_image,0,gdk_pixbuf_get_height(paintbox->gxh_image)-20,
+			20,20,0,gdk_pixbuf_get_height(paintbox->gxh_image)-20,1,1,
 			GDK_INTERP_BILINEAR);
 		//right under corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-20,
 			gdk_pixbuf_get_height(stock_image)-20,20,20);
 		gdk_pixbuf_scale (
-			frame, klass->gxh_image,gdk_pixbuf_get_width(klass->gxh_image)-20,
-			gdk_pixbuf_get_height(klass->gxh_image)-20,
-			20,20,gdk_pixbuf_get_width(klass->gxh_image)-20,
-			gdk_pixbuf_get_height(klass->gxh_image)-20,1,1,
+			frame, paintbox->gxh_image,gdk_pixbuf_get_width(paintbox->gxh_image)-20,
+			gdk_pixbuf_get_height(paintbox->gxh_image)-20,
+			20,20,gdk_pixbuf_get_width(paintbox->gxh_image)-20,
+			gdk_pixbuf_get_height(paintbox->gxh_image)-20,1,1,
 			GDK_INTERP_BILINEAR);
 				
 		// base 
@@ -1902,7 +1909,7 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 			stock_image,24,24,gdk_pixbuf_get_width(stock_image)-68,
 			gdk_pixbuf_get_height(stock_image)-48);
 		gdk_pixbuf_scale (
-			frame, klass->gxh_image,12,12,rect_width-24,rect_height-24,
+			frame, paintbox->gxh_image,12,12,rect_width-24,rect_height-24,
 			12,12,scalew,scaleh,GDK_INTERP_TILES);
 		//g_object_unref(_image);
 		g_object_unref(stock_image);
@@ -1910,7 +1917,7 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 	}
 	// draw to display
 	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-	                klass->gxh_image, 0, 0,
+	                paintbox->gxh_image, 0, 0,
 	                x0, y0, rect_width,rect_height,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
 	
@@ -1918,8 +1925,13 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
-	GxPaintBoxClass *klass =  GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi));
+	gint rect_width  = wi->allocation.width-2;
+	gint rect_height = wi->allocation.height-3;
+	if (rect_width <= 0 || rect_height <= 0) {
+	    return;
+	}
 	cairo_t *cr;
+	GxPaintBox *paintbox = GX_PAINT_BOX(wi);
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 	GdkRegion *region;
@@ -1930,76 +1942,74 @@ static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 	
 	gint x0      = wi->allocation.x+1;
 	gint y0      = wi->allocation.y+1;
-	gint rect_width  = wi->allocation.width-2;
-	gint rect_height = wi->allocation.height-3;
-	
+
 	static double ne_w = 0.;
-	if (ne_w != rect_width*rect_height || !(GDK_IS_PIXBUF (klass-> gxr_image))) {
+	if (ne_w != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
 		ne_w = rect_width*rect_height;
-		if (G_IS_OBJECT(klass-> gxr_image)) {
-			g_object_unref(klass->gxr_image);
+		if (G_IS_OBJECT(paintbox-> gxr_image)) {
+			g_object_unref(paintbox->gxr_image);
 		}
 		GdkPixbuf  *stock_image, *frame;
 		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
 		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
 		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
 		
-		klass->gxr_image = gdk_pixbuf_scale_simple(
+		paintbox->gxr_image = gdk_pixbuf_scale_simple(
 			stock_image, rect_width, rect_height, GDK_INTERP_NEAREST);
 		// upper border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,24,0,gdk_pixbuf_get_width(stock_image)-48,12);
 		gdk_pixbuf_scale (
-			frame, klass->gxr_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
+			frame, paintbox->gxr_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
 		// under border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,24,gdk_pixbuf_get_height(stock_image)-12,
 			gdk_pixbuf_get_width(stock_image)-48,12);
 		gdk_pixbuf_scale (
-			frame,klass->gxr_image,0,gdk_pixbuf_get_height(klass->gxr_image)-12,
-			rect_width,12,0,gdk_pixbuf_get_height(klass->gxr_image)-12,
+			frame,paintbox->gxr_image,0,gdk_pixbuf_get_height(paintbox->gxr_image)-12,
+			rect_width,12,0,gdk_pixbuf_get_height(paintbox->gxr_image)-12,
 			scalew,1,GDK_INTERP_BILINEAR);
 		// left border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,24,12,gdk_pixbuf_get_height(stock_image)-48);
 		gdk_pixbuf_scale(
-			frame, klass->gxr_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
+			frame, paintbox->gxr_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
 		// right border	
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-12,
 			24,12,gdk_pixbuf_get_height(stock_image)-48);
 		gdk_pixbuf_scale(
-			frame,klass->gxr_image,gdk_pixbuf_get_width(klass->gxr_image)-12,
-			12,12,rect_height-24,gdk_pixbuf_get_width(klass->gxr_image)-12,
+			frame,paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-12,
+			12,12,rect_height-24,gdk_pixbuf_get_width(paintbox->gxr_image)-12,
 			0,1,scaleh,GDK_INTERP_BILINEAR);
 		//left upper corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,0,20,20);
 		gdk_pixbuf_scale (
-			frame, klass->gxr_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
+			frame, paintbox->gxr_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
 		//right upper corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-20,0,20,20);
 		gdk_pixbuf_scale (
-			frame, klass->gxr_image,gdk_pixbuf_get_width(klass->gxr_image)-20,
-			0,20,20,gdk_pixbuf_get_width(klass->gxr_image)-20,0,1,1,
+			frame, paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
+			0,20,20,gdk_pixbuf_get_width(paintbox->gxr_image)-20,0,1,1,
 			GDK_INTERP_BILINEAR);
 		//left under corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,gdk_pixbuf_get_height(stock_image)-20,20,20);
 		gdk_pixbuf_scale (
-			frame, klass->gxr_image,0,gdk_pixbuf_get_height(klass->gxr_image)-20,
-			20,20,0,gdk_pixbuf_get_height(klass->gxr_image)-20,1,1,
+			frame, paintbox->gxr_image,0,gdk_pixbuf_get_height(paintbox->gxr_image)-20,
+			20,20,0,gdk_pixbuf_get_height(paintbox->gxr_image)-20,1,1,
 			GDK_INTERP_BILINEAR);
 		//right under corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-20,
 			gdk_pixbuf_get_height(stock_image)-20,20,20);
 		gdk_pixbuf_scale (
-			frame, klass->gxr_image,gdk_pixbuf_get_width(klass->gxr_image)-20,
-			gdk_pixbuf_get_height(klass->gxr_image)-20,
-			20,20,gdk_pixbuf_get_width(klass->gxr_image)-20,
-			gdk_pixbuf_get_height(klass->gxr_image)-20,1,1,
+			frame, paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
+			gdk_pixbuf_get_height(paintbox->gxr_image)-20,
+			20,20,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
+			gdk_pixbuf_get_height(paintbox->gxr_image)-20,1,1,
 			GDK_INTERP_BILINEAR);
 		g_object_unref(stock_image);
 		g_object_unref(frame);
@@ -2007,10 +2017,10 @@ static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 	
 	// draw to display
 	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-	                klass->gxr_image, 0, 0,
+	                paintbox->gxr_image, 0, 0,
 	                x0, y0, rect_width,rect_height,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
-	                
+
 	// base 
 	x0      += 12;
 	y0      += 12;
