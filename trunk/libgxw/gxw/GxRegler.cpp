@@ -350,6 +350,13 @@ static void gx_regler_class_init(GxReglerClass *klass)
 
 	gtk_widget_class_install_style_property(
 		widget_class,
+		g_param_spec_boolean("show-value",
+		                     P_("show value"),
+		                     P_("display the value"),
+		                     TRUE,
+		                     GParamFlags(GTK_PARAM_READABLE)));
+	gtk_widget_class_install_style_property(
+		widget_class,
 		g_param_spec_int("value-spacing",P_("Value spacing"),
 		                 P_("Distance of value display"),
 		                 0, 100, 5, GParamFlags(GTK_PARAM_READABLE)));
@@ -810,7 +817,9 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 	gint y = widget->allocation.y;
 	gint width = image_rect->width;
 	gint height =  image_rect->height;
-	if (regler->show_value) {
+	gboolean show_value;
+	gtk_widget_style_get(widget, "show-value", &show_value, NULL);
+	if (regler->show_value && show_value) {
 		GxReglerPrivate *priv = regler->priv;
 		gint text_width = priv->value_req.width;
 		gint text_height = priv->value_req.height;
@@ -918,6 +927,11 @@ void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
 	if (!regler->show_value) {
 		return;
 	}
+	gboolean show_value;
+	gtk_widget_style_get(GTK_WIDGET(regler), "show-value", &show_value, NULL);
+	if (!show_value) {
+		return;
+	}
     GtkWidget *widget = GTK_WIDGET(regler);
     PangoLayout *l = regler->value_layout;
     PangoRectangle logical_rect;
@@ -935,6 +949,11 @@ void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
 void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 {
 	if (!regler->show_value) {
+		return;
+	}
+	gboolean show_value;
+	gtk_widget_style_get(GTK_WIDGET(regler), "show-value", &show_value, NULL);
+	if (!show_value) {
 		return;
 	}
 	cairo_t *cr = gdk_cairo_create(GTK_WIDGET(regler)->window);
@@ -995,45 +1014,51 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 
 void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 {
+	if (!regler->show_value) {
+		return;
+	}
+	gboolean show_value;
+	gtk_widget_style_get(GTK_WIDGET(regler), "show-value", &show_value, NULL);
+	if (!show_value) {
+		return;
+	}
 	gx_regler_ensure_layout(regler);
-	if (regler->show_value) {
-		PangoRectangle logical_rect1, logical_rect2;
-		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
-		GtkBorder border;
-		get_value_border(GTK_WIDGET(regler), &border);
-		gint value_spacing;
-		gtk_widget_style_get(GTK_WIDGET(regler), "value-spacing", &value_spacing, NULL);
-		gchar *txt;
-		ensure_digits(regler);
-		txt = _gx_regler_format_value(regler, gtk_adjustment_get_lower(adj));
-		pango_layout_set_text(regler->value_layout, txt, -1);
-		g_free(txt);
-		pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect1);
-		txt = _gx_regler_format_value(regler, gtk_adjustment_get_upper(adj));
-		pango_layout_set_text(regler->value_layout, txt, -1);
-		g_free(txt);
-		pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect2);
-		gint height = max(logical_rect1.height,logical_rect2.height) + border.top + border.bottom;
-		gint width = max(logical_rect1.width,logical_rect2.width) + border.left + border.right;
-		GxReglerPrivate *priv = regler->priv;
-		priv->value_req.width = width;
-		priv->value_req.height = height;
-		switch (regler->value_position) {
-		case GTK_POS_LEFT:
-		case GTK_POS_RIGHT:
-			requisition->width += width + value_spacing;
-			if (height > requisition->height) {
-				requisition->height = height;
-			}
-			break;
-		case GTK_POS_TOP:
-		case GTK_POS_BOTTOM:
-			requisition->height += height + value_spacing;
-			if (width > requisition->width) {
-				requisition->width = width;
-			}
-			break;
+	PangoRectangle logical_rect1, logical_rect2;
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
+	GtkBorder border;
+	get_value_border(GTK_WIDGET(regler), &border);
+	gint value_spacing;
+	gtk_widget_style_get(GTK_WIDGET(regler), "value-spacing", &value_spacing, NULL);
+	gchar *txt;
+	ensure_digits(regler);
+	txt = _gx_regler_format_value(regler, gtk_adjustment_get_lower(adj));
+	pango_layout_set_text(regler->value_layout, txt, -1);
+	g_free(txt);
+	pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect1);
+	txt = _gx_regler_format_value(regler, gtk_adjustment_get_upper(adj));
+	pango_layout_set_text(regler->value_layout, txt, -1);
+	g_free(txt);
+	pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect2);
+	gint height = max(logical_rect1.height,logical_rect2.height) + border.top + border.bottom;
+	gint width = max(logical_rect1.width,logical_rect2.width) + border.left + border.right;
+	GxReglerPrivate *priv = regler->priv;
+	priv->value_req.width = width;
+	priv->value_req.height = height;
+	switch (regler->value_position) {
+	case GTK_POS_LEFT:
+	case GTK_POS_RIGHT:
+		requisition->width += width + value_spacing;
+		if (height > requisition->height) {
+			requisition->height = height;
 		}
+		break;
+	case GTK_POS_TOP:
+	case GTK_POS_BOTTOM:
+		requisition->height += height + value_spacing;
+		if (width > requisition->width) {
+			requisition->width = width;
+		}
+		break;
 	}
 }
 
