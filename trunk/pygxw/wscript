@@ -79,6 +79,7 @@ def build(bld):
                "GxMeterScale.h",
                "GxGradient.h",
                "GxValueDisplay.h",
+               "GxRackTuner.h",
                ]
     bld(name = "h2defs",
         target = "gxw.defs",

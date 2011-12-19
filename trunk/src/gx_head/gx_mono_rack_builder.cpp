@@ -32,6 +32,97 @@
 
 namespace gx_gui {
 
+class RackTunerBox: public sigc::trackable {
+private:
+    static struct TuningTab {
+	const char *name;
+	const char* key;
+	bool flat;
+	int notes[6];
+    } tuning_tab[3];
+    Gxw::RackTuner tuner;
+    float scale_lim;
+    int streaming;
+    int tuning_mode;
+    int current_mode;
+    GxMainInterface& intf;
+    void freq_poll();
+    void on_off(bool v);
+public:
+    RackTunerBox(GxMainInterface& intf);
+};
+
+RackTunerBox::TuningTab RackTunerBox::tuning_tab[] = {
+    { "Standard",    "E",  false, {40, 45, 50, 55, 59, 64}},
+    { "Standard/Es", "Es", true,  {39, 44, 49, 54, 58, 63}},
+    { "Open E",      "E",  false, {40, 47, 52, 56, 59, 64}},
+};
+
+RackTunerBox::RackTunerBox(GxMainInterface& intf_)
+    : tuner(),
+      scale_lim(3.0),
+      streaming(false),
+      tuning_mode(0),
+      current_mode(0),
+      intf(intf_) {
+    gx_engine::get_group_table().insert("racktuner", "Rack Tuner");
+    static bool tuner_ui;
+    intf.pmap.reg_non_midi_par("ui.racktuner", &tuner_ui, true);
+    static const value_pair streaming_labels[] = {{"scale"}, {"stream"}, {0}};
+    intf.pmap.reg_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, &streaming, 1);
+    static const value_pair tuning_labels[] = {{"(Chromatic)"},{"Standard"}, {"Standard/Es"}, {"Open E"}, {0}};
+    intf.pmap.reg_enum_par("racktuner.tuning", "Tuning", tuning_labels, &tuning_mode, 0);
+    intf.pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0);
+    //tuner.set_scale(1.5);
+    tuner.signal_frequency_poll().connect(
+	sigc::mem_fun(*this, &RackTunerBox::freq_poll));
+    intf.mainmenu.fShowTuner.signal_activate().connect(
+	sigc::compose(
+	    sigc::mem_fun(*this, &RackTunerBox::on_off),
+	    sigc::mem_fun(intf.mainmenu.fShowTuner, &MenuCheckItem::get_active)));
+    tuner.show();
+    static int pos = 1;
+    intf.openMonoRackBox("RackTuner", &pos, "tuner.on_off", NULL, "ui.racktuner");
+    {
+	intf.openVerticalBox("");
+	{
+	    intf.addwidget(GTK_WIDGET(tuner.gobj()));
+	    intf.openHorizontalBox("");
+	    {
+		intf.create_selector("racktuner.tuning");
+		intf.create_selector("racktuner.streaming");
+		intf.create_minislider("racktuner.scale_lim");
+	    }
+	    intf.closeBox();
+	}
+	intf.closeBox();
+    }
+    intf.closeMonoRackBox();
+}
+
+void RackTunerBox::freq_poll() {
+    tuner.set_freq(intf.engine.tuner.get_freq());
+    tuner.set_scale_lim(scale_lim/100);
+    tuner.set_streaming(streaming);
+    if (tuning_mode != current_mode) {
+	current_mode = tuning_mode;
+	tuner.clear_notes();
+	if (current_mode > 0) {
+	    tuner.set_display_flat(tuning_tab[current_mode-1].flat);
+	    for (int i = 0; i < 6; ++i) {
+		tuner.push_note(tuning_tab[current_mode-1].notes[i]);
+	    }
+	} else {
+	    tuner.set_display_flat(false);
+	}
+    }
+}
+
+void RackTunerBox::on_off(bool v) {
+    tuner.set_sensitive(v);
+}
+
+
 void GxMainInterface::gx_build_mono_rack() {
     /** This is the fixed box on top of the mono rack, it include fixed effect modules
      * witch can't move (make no sense to move them arround). Right now it is the noisegate,
@@ -113,6 +204,7 @@ void GxMainInterface::gx_build_mono_rack() {
             closeBox();
         }
         closeBox();
+	static RackTunerBox racktuner(*this);
 
         /** The moveable mono effects. Main box of a mono effect modul is the HorizontalOrderBox
          * witch present the move buttons. Inside the HorizontalOrderBox we need a DialogBox witch

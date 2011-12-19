@@ -460,6 +460,7 @@ def configure(conf):
         conf.check_tool('gcov')
     if opt.python_wrapper or opt.glade_support:
         conf.check_tool('compiler_cc')
+    conf.env['shlib_LINKFLAGS'].append("-fPIC") # error in waf 1.5.18?
     # needed libaries
     try:
         conf.check_cfg(package='jack', atleast_version='0.116.2', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)

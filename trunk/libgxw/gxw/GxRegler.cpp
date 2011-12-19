@@ -47,7 +47,6 @@ struct _GxReglerPrivate
 
 enum {
   VALUE_ENTRY,
-  VALUES_ENTRY,
   FORMAT_VALUE,
   LAST_SIGNAL
 };

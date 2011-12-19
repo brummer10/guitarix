@@ -1080,17 +1080,19 @@ GtkWidget *GxMainInterface::openHorizontalOrderBox(const char* label, int* posit
     uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(box->m_button.gobj()));
 
     g_signal_connect(GTK_OBJECT(box->m_button.gobj()), "pressed",
-                      G_CALLBACK(uiOrderButton::pressed_right), (gpointer) c);
+                     G_CALLBACK(uiOrderButton::pressed_right), (gpointer) c);
     g_signal_connect(GTK_OBJECT(box->m_button1.gobj()), "pressed",
-                      G_CALLBACK(uiOrderButton::pressed_left), (gpointer) c);
+                     G_CALLBACK(uiOrderButton::pressed_left), (gpointer) c);
     g_signal_connect(GTK_OBJECT(box->m_button.gobj()), "clicked",
-                      G_CALLBACK(uiOrderButton::clicked), (gpointer) c);
+                     G_CALLBACK(uiOrderButton::clicked), (gpointer) c);
     g_signal_connect(GTK_OBJECT(box->m_button1.gobj()), "clicked",
-                      G_CALLBACK(uiOrderButton::clicked), (gpointer) c);
+                     G_CALLBACK(uiOrderButton::clicked), (gpointer) c);
     gtk_box_pack_start(GTK_BOX(rBox), GTK_WIDGET(box->m_paintbox.gobj()), expand, false, 0);
     GValue  pos = {0};
     g_value_init(&pos, G_TYPE_INT);
     g_value_set_int(&pos, *posit);
+    gtk_container_child_set_property(GTK_CONTAINER(rBox),
+				     GTK_WIDGET(box->m_paintbox.gobj()), "position", &pos);
     string tooltip = _("Move ");
     tooltip += label;
     tooltip += _(" up");
@@ -1103,8 +1105,6 @@ GtkWidget *GxMainInterface::openHorizontalOrderBox(const char* label, int* posit
     box->m_button.set_tooltip_text(tooltip);
     box->m_button.get_accessible()->set_description(tooltip);
     box->m_button.get_accessible()->set_name(label);
-    gtk_container_child_set_property(GTK_CONTAINER(rBox),
-                                     GTK_WIDGET(box->m_paintbox.gobj()), "position", &pos);
     GtkWidget* mainbox = GTK_WIDGET(box->m_paintbox.gobj());
     pushBox(kBoxMode, mainbox);
     return mainbox;
@@ -1613,7 +1613,9 @@ void GxMainInterface::openMonoRackBox(const char* label, int* posit, const char 
     openHorizontalBox("");
     openPaintBox1("");
     create_switch_no_caption(sw_switchit, id_on_off);
-    create_selector(id_pre_post);
+    if (id_pre_post) {
+	create_selector(id_pre_post);
+    }
     closeBox();
     openDialogBox(id_dialog, id_on_off, "RackBox_expose", box);
 }

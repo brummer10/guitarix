@@ -336,8 +336,8 @@ void PitchTracker::run() {
                 m_fftwBufferTime[k] = 0.0;
             }
         }
-
-        int maxAutocorrIndex = findsubMaximum(m_fftwBufferTime, count, 0.6);
+	const float thres = 0.99; // was 0.6
+        int maxAutocorrIndex = findsubMaximum(m_fftwBufferTime, count, thres);
 
         float x = 0.0;
         if (maxAutocorrIndex >= 0) {

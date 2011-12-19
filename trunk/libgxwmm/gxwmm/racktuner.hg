@@ -1,0 +1,54 @@
+/*
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include <gxwmm/tuner.h>
+_DEFS(gxwmm,gxw)
+_PINCLUDE(gxwmm/private/tuner_p.h)
+
+namespace Gxw {
+
+class RackTuner: public Gxw::Tuner {
+	_CLASS_GTKOBJECT(RackTuner,GxRackTuner,GX_RACK_TUNER,Gxw::Tuner,GxTuner)
+	public:
+	_CTOR_DEFAULT
+	_WRAP_METHOD(void set_freq(double), gx_rack_tuner_set_freq)
+	_WRAP_METHOD(void set_scale_lim(double), gx_rack_tuner_set_scale_lim)
+	_WRAP_METHOD(double get_scale_lim(), gx_rack_tuner_get_scale_lim)
+	_WRAP_METHOD(void set_speed(double), gx_rack_tuner_set_speed)
+	_WRAP_METHOD(double get_speed(), gx_rack_tuner_get_speed)
+	_WRAP_METHOD(void set_streaming(bool), gx_rack_tuner_set_streaming)
+	_WRAP_METHOD(bool get_streaming(), gx_rack_tuner_get_streaming)
+	_WRAP_METHOD(void set_display_flat(bool), gx_rack_tuner_set_display_flat)
+	_WRAP_METHOD(bool get_display_flat(), gx_rack_tuner_get_display_flat)
+	_WRAP_METHOD(void set_timestep(int), gx_rack_tuner_set_timestep)
+	_WRAP_METHOD(int get_timestep(), gx_rack_tuner_get_timestep)
+	_WRAP_METHOD(void set_limit_timestep(int), gx_rack_tuner_set_limit_timestep)
+	_WRAP_METHOD(int get_limit_timestep(), gx_rack_tuner_get_limit_timestep)
+	_WRAP_METHOD(void clear_notes(), gx_rack_tuner_clear_notes)
+	_WRAP_METHOD(void push_note(int), gx_rack_tuner_push_note)
+	_WRAP_SIGNAL(void frequency_poll(), "frequency-poll")
+	_WRAP_PROPERTY(freq, double)
+	_WRAP_PROPERTY(scale_lim, double)
+	_WRAP_PROPERTY(speed, double)
+	_WRAP_PROPERTY(display_flat, bool)
+	_WRAP_PROPERTY(streaming, bool)
+	_WRAP_PROPERTY(timestep, int)
+	_WRAP_PROPERTY(limit_timestep, int)
+};
+
+} // namespace Gxw

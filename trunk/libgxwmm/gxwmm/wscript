@@ -102,6 +102,7 @@ def header2defs(task):
 
 def build_generate_wrapper(bld):
     header = ["GxTuner.h",
+              "GxRackTuner.h",
               "GxFastMeter.h",
               "GxWaveView.h",
               "GxRegler.h",
@@ -178,6 +179,7 @@ def build(bld):
         "smallknob.hg",
         "smallknobr.hg",
         "tuner.hg",
+        "racktuner.hg",
         "fastmeter.hg",
         "waveview.hg",
         "selector.hg",

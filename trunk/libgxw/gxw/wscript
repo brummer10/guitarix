@@ -89,6 +89,7 @@ def build(bld):
         'GxGradient.cpp',
         'GxValueDisplay.cpp',
         'GxSimpleValueDisplay.cpp',
+        'GxRackTuner.cpp',
         ]
     build_stock_images(bld)
     if bld.env["GX_LIB_STATIC"]:

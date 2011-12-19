@@ -1723,6 +1723,7 @@ Gtk::Window *GxBuilder::get_first_window() {
 	}
     }
     assert(false);
+    return 0;
 }
 
 Gtk::Widget* GxBuilder::get_widget_checked(const Glib::ustring& name, GType type, bool take_ref) {

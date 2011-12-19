@@ -6,6 +6,7 @@
     <glade-widget-class title="Selector" name="GxSelector" generic-name="gxselector" />
     <glade-widget-class title="Fast Meter" name="GxFastMeter" generic-name="gxfastmeter" />
     <glade-widget-class title="Tuner" name="GxTuner" generic-name="gxtuner" />
+    <glade-widget-class title="Rack Tuner" name="GxRackTuner" generic-name="gxracktuner" />
     <glade-widget-class title="Wave View" name="GxWaveView" generic-name="gxwaveview" />
     <glade-widget-class title="IR Edit" name="GxIREdit" generic-name="gxiredit" />
     <glade-widget-class title="Radio Button" name="GxRadioButton" generic-name="gxradiobutton" />
@@ -39,6 +40,7 @@
     <glade-widget-class-ref name="GxFastMeter"/>
     <glade-widget-class-ref name="GxWaveView"/>
     <glade-widget-class-ref name="GxTuner"/>
+    <glade-widget-class-ref name="GxRackTuner"/>
     <glade-widget-class-ref name="GxIREdit"/>
     <glade-widget-class-ref name="GxRadioButton"/>
     <glade-widget-class-ref name="GxToggleImage"/>

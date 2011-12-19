@@ -45,6 +45,7 @@
 #include <gxwmm/simplevaluedisplay.h>
 #include <gxwmm/fastmeter.h>
 #include <gxwmm/tuner.h>
+#include <gxwmm/racktuner.h>
 #include <gxwmm/waveview.h>
 #include <gtkmm/box.h>
 #include <gtkmm/alignment.h>

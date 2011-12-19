@@ -57,28 +57,7 @@ static const double dash_ind[] = {
 	100.0					/* skip */
 };
 
-GType gx_tuner_get_type(void)
-{
-	static GType tuner_type = 0;
-
-	if (!tuner_type) {
-		const GTypeInfo tuner_info = {
-			sizeof (GxTunerClass),
-			NULL,				/* base_class_init */
-			NULL,				/* base_class_finalize */
-			(GClassInitFunc) gx_tuner_class_init,
-			NULL,				/* class_finalize */
-			NULL,				/* class_data */
-			sizeof (GxTuner),
-			0,					/* n_preallocs */
-			(GInstanceInitFunc) gx_tuner_init,
-			NULL,				/* value_table */
-		};
-		tuner_type = g_type_register_static(
-			GTK_TYPE_DRAWING_AREA, "GxTuner", &tuner_info, (GTypeFlags)0);
-	}
-	return tuner_type;
-}
+G_DEFINE_TYPE(GxTuner, gx_tuner, GTK_TYPE_DRAWING_AREA);
 
 static void gx_tuner_class_init(GxTunerClass *klass)
 {
@@ -136,6 +115,7 @@ static void gx_tuner_init (GxTuner *tuner)
 static void gx_tuner_finalize(GObject *object)
 {
 	tuner_surface_finalize(GX_TUNER(object));
+	G_OBJECT_CLASS(gx_tuner_parent_class)->finalize(object);
 }
 
 void gx_tuner_set_freq(GxTuner *tuner, double freq)

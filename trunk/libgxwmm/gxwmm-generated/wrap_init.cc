@@ -23,6 +23,7 @@
 #include "meterscale.h"
 #include "minislider.h"
 #include "paintbox.h"
+#include "racktuner.h"
 #include "radiobutton.h"
 #include "regler.h"
 #include "selector.h"
@@ -53,6 +54,7 @@ GType gx_level_slider_get_type(void);
 GType gx_meter_scale_get_type(void);
 GType gx_mini_slider_get_type(void);
 GType gx_paint_box_get_type(void);
+GType gx_rack_tuner_get_type(void);
 GType gx_radio_button_get_type(void);
 GType gx_regler_get_type(void);
 GType gx_selector_get_type(void);
@@ -85,6 +87,7 @@ namespace Gxw {  class LevelSlider_Class { public: static Glib::ObjectBase* wrap
 namespace Gxw {  class MeterScale_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class MiniSlider_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class PaintBox_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
+namespace Gxw {  class RackTuner_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class RadioButton_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Regler_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Selector_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
@@ -117,6 +120,7 @@ void wrap_init()
   Glib::wrap_register(gx_meter_scale_get_type(), &Gxw::MeterScale_Class::wrap_new);
   Glib::wrap_register(gx_mini_slider_get_type(), &Gxw::MiniSlider_Class::wrap_new);
   Glib::wrap_register(gx_paint_box_get_type(), &Gxw::PaintBox_Class::wrap_new);
+  Glib::wrap_register(gx_rack_tuner_get_type(), &Gxw::RackTuner_Class::wrap_new);
   Glib::wrap_register(gx_radio_button_get_type(), &Gxw::RadioButton_Class::wrap_new);
   Glib::wrap_register(gx_regler_get_type(), &Gxw::Regler_Class::wrap_new);
   Glib::wrap_register(gx_selector_get_type(), &Gxw::Selector_Class::wrap_new);
@@ -143,6 +147,7 @@ void wrap_init()
   Gxw::MeterScale::get_type();
   Gxw::MiniSlider::get_type();
   Gxw::PaintBox::get_type();
+  Gxw::RackTuner::get_type();
   Gxw::RadioButton::get_type();
   Gxw::Regler::get_type();
   Gxw::Selector::get_type();

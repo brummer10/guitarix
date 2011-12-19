@@ -20,6 +20,7 @@
 #define __GXW_H__
 
 #include <gxw/GxTuner.h>
+#include <gxw/GxRackTuner.h>
 #include <gxw/GxFastMeter.h>
 #include <gxw/GxWaveView.h>
 #include <gxw/GxRegler.h>
