@@ -459,7 +459,7 @@ static void gx_rack_tuner_state_changed(GtkWidget *widget, GtkStateType oldstate
 static gboolean gx_rack_tuner_show_in_limit(gpointer data)
 {
 	GxRackTuner *tuner = GX_RACK_TUNER(data);
-	if (!tuner->in_limit || tuner->pos >= tuner->led_count/2-1) {
+	if (!tuner->in_limit || tuner->pos >= tuner->led_count/2-2) {
 		tuner->in_limit_id = 0;
 		return FALSE;
 	}
@@ -690,7 +690,7 @@ static gboolean gx_rack_tuner_configure_event(GtkWidget *widget, GdkEventConfigu
 	tuner->width = (tuner->led_count-1) * led_spacing + led_width;
 	tuner->padding = (swidth - tuner->width) / 2;
 	if (tuner->streaming && tuner->in_limit && !tuner->in_limit_id) {
-		tuner->pos = tuner->led_count/2-1;
+		tuner->pos = tuner->led_count/2-2;
 	}
 	if (tuner->parent.surface_tuner) {
 		cairo_surface_destroy(tuner->parent.surface_tuner);
