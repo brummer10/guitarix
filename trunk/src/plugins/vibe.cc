@@ -404,6 +404,11 @@ int Vibe::registerparam(const ParamReg& reg) {
 }
 
 int Vibe::uiloader(const UiBuilder& b) {
+    b.openHorizontalhideBox("");
+    {
+        b.create_master_slider("univibe.wet_dry",0);
+    }
+    b.closeBox();
     b.openVerticalBox("");
     {
 	b.openHorizontalBox("");

@@ -216,6 +216,22 @@ GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
     }
     return (new UiRackRegler(ui, gx_engine::parameter_map[id].getFloat(), regler, label))->get_widget();
 }
+
+GtkWidget* UiRackMasterRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
+                                string id, Glib::ustring label) {
+    if (!hasId(id)) {
+        return 0;
+    }
+    return (new UiRackMasterRegler(ui, gx_engine::parameter_map[id].getFloat(), regler, label))->get_widget();
+}
+
+GtkWidget* UiRackMasterRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id) {
+    if (!hasId(id)) {
+        return 0;
+    }
+    return create(ui, regler, id, gx_engine::parameter_map[id].l_name());
+}
+
 UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui,
                     gx_engine::FloatParameter &param, Gxw::Regler *regler,
                     Glib::ustring label, bool show_value)
@@ -251,6 +267,21 @@ UiRackRegler::UiRackRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gx
     m_regler->get_accessible()->set_description (param.id().c_str());
     m_regler->get_accessible()->set_name (param.id().substr(
               param.id().find_last_of(".")+1).c_str());
+    m_box.show_all();
+}
+
+UiRackMasterRegler::UiRackMasterRegler(gx_ui::GxUI &ui,
+                         gx_engine::FloatParameter &param, Gxw::Regler *regler,
+                         Glib::ustring label)
+    : UiRegler(ui, param, regler, false) {
+    m_label.set_text(label);
+    m_label.set_name("rack_label");
+    m_label.set_size_request(-1,12);
+    m_box.set_name(param.id());
+    m_box.set_spacing(4);
+    m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
+    m_box.pack_start(m_label, Gtk::PACK_SHRINK);
+    set_accessible(GTK_WIDGET(m_regler->gobj()),m_label.gobj());
     m_box.show_all();
 }
 

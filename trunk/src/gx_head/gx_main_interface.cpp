@@ -83,14 +83,20 @@ UiBuilderImpl::UiBuilderImpl(GxMainInterface *i)
     intf = i;
     openVerticalBox = openVerticalBox_;
     openHorizontalBox = openHorizontalBox_;
+    openHorizontalhideBox = openHorizontalhideBox_;
     closeBox = closeBox_;
     load_glade = load_glade_;
+    create_master_slider = create_master_slider_;
     create_small_rackknob = create_small_rackknob_;
     create_selector = create_selector_;
 };
 
 void UiBuilderImpl::openVerticalBox_(const char* label) {
     intf->openVerticalBox(label);
+}
+
+void UiBuilderImpl::openHorizontalhideBox_(const char* label) {
+    intf->openHorizontalhideBox(label);
 }
 
 void UiBuilderImpl::openHorizontalBox_(const char* label) {
@@ -102,6 +108,14 @@ void UiBuilderImpl::create_small_rackknob_(const char *id, const char *label) {
 	intf->create_small_rackknob(id, label);
     } else {
 	intf->create_small_rackknob(id);
+    }
+}
+
+void UiBuilderImpl::create_master_slider_(const char *id, const char *label) {
+    if (label) {
+	intf->create_master_slider(id, label);
+    } else {
+	intf->create_master_slider(id);
     }
 }
 
@@ -888,7 +902,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 	    return;
 	}
 	child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-	GtkWidget *obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+	GtkWidget *obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
 	g_list_free(child_list);
 	child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
 	GtkWidget *obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
@@ -896,24 +910,25 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 
 	gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per +1);
 	((gx_ui::GxUiItemInt*)data)->modifyZone(per+1);
-	/*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
-	  GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
+	  /*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
+      GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
 	  string name = gtk_widget_get_name(plug);
-	  fprintf(stderr, " %i %s .pressed right\n",per,name.c_str()); */
+	  fprintf(stderr, " %i %s .pressed right\n",per,name.c_str());
+      g_list_free(child_list); */
 	if (GTK_IS_BUTTON(obibi)) {
 	    gtk_button_clicked(GTK_BUTTON(obibi));
 	} else {
 	    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
-	    // name = gtk_widget_get_name(obib);
-	    // fprintf(stderr, " %i %s .next child right\n",per,name.c_str());
+	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
+       /* name = gtk_widget_get_name(obib);
+	     fprintf(stderr, " %i %s .next child right\n",per,name.c_str());*/
 	    if (!GDK_IS_WINDOW(obib->window)|| !gtk_widget_is_drawable(obib)) {
-		// fprintf(stderr, " %i %s.hidden\n",per,name.c_str());
+		/*fprintf(stderr, " %i %s.hidden\n",per,name.c_str());*/
 		move = 1;
 	    } else {
 		move = 0;
 	    }
-	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 3));
+	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 4));
 	    g_list_free(child_list);
 
 	    if (GTK_IS_CONTAINER(obib)) {
@@ -960,37 +975,38 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 
 	gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per -1);
 	((gx_ui::GxUiItemInt*)data)->modifyZone(per-1);
-	/*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
-	  GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
+	  /*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
+	  GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,2);
 	  string name = gtk_widget_get_name(plug);
 	  fprintf(stderr, " %i %s .pressed left\n",per,name.c_str()); */
 	if (GTK_IS_BUTTON(obibi)) {
 	    gtk_button_clicked(GTK_BUTTON(obibi));
 	} else {
 	    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
-	    // name = gtk_widget_get_name(obib);
-	    // fprintf(stderr, " %i %s .next child left\n",per,name.c_str());
+	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
+	     //name = gtk_widget_get_name(obib);
+	     //fprintf(stderr, " %i %s .next child left\n",per,name.c_str());
 	    if (!GDK_IS_WINDOW(obib->window)|| !gtk_widget_is_drawable(obib)) {
-		// fprintf(stderr, " %i %s.hidden\n",per,name.c_str());
+		 //fprintf(stderr, " %i %s.hidden\n",per,name.c_str());
 		move =1;
 	    } else {
 		move= 0;
 	    }
-	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 3));
+	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 4));
+        
 	    g_list_free(child_list);
 		
 	    if (GTK_IS_CONTAINER(obib)) {
 		child_list = gtk_container_get_children(GTK_CONTAINER(obib));
 		obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
 		g_list_free(child_list);
-		if (GTK_IS_BUTTON(obibi)) {
-		    gtk_button_clicked(GTK_BUTTON(obibi));
-		    if (move) {
-			gtk_button_pressed(GTK_BUTTON(widget));
-		    }
-		}
-	    }
+            if (GTK_IS_BUTTON(obibi)) {
+                gtk_button_clicked(GTK_BUTTON(obibi));
+                if (move) {
+                gtk_button_pressed(GTK_BUTTON(widget));
+                }
+            }
+        }
 	}
 	GxMainInterface::get_instance().engine.set_rack_changed();
     }
@@ -1076,7 +1092,11 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 
 // ----- boxes to move inside a other box (mono effects)
 GtkWidget *GxMainInterface::openHorizontalOrderBox(const char* label, int* posit) {
-    GxMoveBox * box =  new GxMoveBox(*this);
+    string p = label;
+    p +=".s_h";
+    gx_engine::Parameter& param_switch = pmap[p];
+    //gx_engine::SwitchParameter* param_switch = new gx_engine::SwitchParameter(p, true, false);
+    GxMoveBox * box =  new GxMoveBox(*this, param_switch);
     uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(box->m_button.gobj()));
 
     g_signal_connect(GTK_OBJECT(box->m_button.gobj()), "pressed",
@@ -1105,6 +1125,13 @@ GtkWidget *GxMainInterface::openHorizontalOrderBox(const char* label, int* posit
     box->m_button.set_tooltip_text(tooltip);
     box->m_button.get_accessible()->set_description(tooltip);
     box->m_button.get_accessible()->set_name(label);
+    tooltip = _("show/hide ");
+    tooltip += label;
+    tooltip += _(" controller");
+    box->m_button2.set_tooltip_text(tooltip);
+    box->m_button2.get_accessible()->set_description(tooltip);
+    box->m_button2.get_accessible()->set_name(label);
+    
     GtkWidget* mainbox = GTK_WIDGET(box->m_paintbox.gobj());
     pushBox(kBoxMode, mainbox);
     return mainbox;
@@ -1112,7 +1139,11 @@ GtkWidget *GxMainInterface::openHorizontalOrderBox(const char* label, int* posit
 
 // ----- boxes to move inside a other box (stereo effects)
 GtkWidget* GxMainInterface::openHorizontalRestetBox(const char* label, int* posit) {
-    GxMoveBox * box =  new GxMoveBox(*this);
+    string p = label;
+    p +=".s_h";
+    gx_engine::Parameter& param_switch = pmap[p];
+    //gx_engine::SwitchParameter* param_switch = new gx_engine::SwitchParameter(p, true, false);
+    GxMoveBox * box =  new GxMoveBox(*this, param_switch);
     uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(box->m_button.gobj()));
 
     g_signal_connect(GTK_OBJECT(box->m_button.gobj()), "pressed",
@@ -1247,6 +1278,24 @@ void GxMainInterface::openVerticalBox(const char* label) {
     }
 }
 
+void GxMainInterface::openVerticalHideBox(const char* label) {
+    string s = label;
+    
+    static bool hs = true;
+    gx_engine::get_group_table().insert(s, s);
+    s +=".s_h";
+    pmap.reg_non_midi_par(s, &hs, false);
+    gx_engine::Parameter& param_switch = pmap[s];
+    GxVHideBox * box =  new GxVHideBox(*this, param_switch);
+    box->m_box.set_homogeneous(false);
+    box->m_box.set_spacing(0);
+    box->m_box.set_border_width(4);
+    //gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), false, fill, 0);
+    box->m_box.show_all();
+    pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+    
+}
+
 void GxMainInterface::openSetLabelBox() {
     Gtk::VBox *box =  new Gtk::VBox();
     box->set_homogeneous(false);
@@ -1342,6 +1391,7 @@ void GxMainInterface::openPaintBox1(const char* label) {
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(0);
     box->m_box.set_border_width(0);
+    box->m_box.set_size_request(60, -1);
     box->m_box.show_all();
     gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), expand, fill, 0);
     pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
@@ -1387,7 +1437,7 @@ void GxMainInterface::openVerticalMidiBox(const char* label) {
     gw.midibox = GTK_WIDGET(box->m_eventbox.gobj());
     // gtk_container_add (GTK_CONTAINER(rBox), gw.midibox);
     gtk_box_pack_end(GTK_BOX(rBox), GTK_WIDGET(gw.midibox) , false, false, 0);
-    gtk_widget_show(gw.midibox);
+    gtk_widget_show_all(gw.midibox);
     pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
     gtk_widget_hide(gw.midibox);
 
@@ -1414,7 +1464,7 @@ void GxMainInterface::openHorizontalhideBox(const char* label) {
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(0);
     box->m_box.set_border_width(0);
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()) , false, false, 0);
+    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()) , false, false, 5);
     pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
     box->m_box.hide();
     if (label[0] != 0) box->m_box.show();
@@ -1463,6 +1513,7 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
     tooltip +=title;
     dialog->m_tcb.set_tooltip_text(tooltip.c_str());
     dialog->box1.show_all();
+    dialog->paintbox.show_all();
 }
 
 /* add stereo effect to the stereo rack, increase stereo effect counter*/
@@ -1502,6 +1553,7 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
     tooltip +=title;
     bdialog->m_tcb.set_tooltip_text(tooltip.c_str());
     bdialog->box1.show_all();
+    bdialog->paintbox.show_all();
     // gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->m_tcb.gobj()) , false, false, 0);
 }
 
@@ -1577,20 +1629,17 @@ void GxMainInterface::openStereoRackBox(const char* label, int* posit, const cha
 				      const char *id_dialog) {
     fBox[++fTop] = fStereoRackContainer;
     fMode[fTop] = kBoxMode;
-    GtkWidget* box = openHorizontalRestetBox(label, posit);
+    string group = id_on_off;
+    string group_id = group.substr(0, group.find_last_of("."));
+    GtkWidget* box = openHorizontalRestetBox(group_id.c_str(), posit);
+    openHorizontalhideBox("");
+    create_switch_no_caption(sw_minitoggle, id_on_off);
+    closeBox();
     openVerticalBox(label);
     openHorizontalTableBox("");
     openPaintBox1("");
     openHorizontalBox("");
-    openSpaceBox("");
-    closeBox();
-    openFrameBox("");
-    closeBox();
     create_switch_no_caption(sw_switchit, id_on_off);
-    openSpaceBox("");
-    closeBox();
-    openFrameBox("");
-    closeBox();
     closeBox();
     closeBox();
     opensDialogBox(id_dialog, id_on_off, "RackBox_expose", box);
@@ -1608,7 +1657,12 @@ void GxMainInterface::openMonoRackBox(const char* label, int* posit, const char 
 				      const char *id_pre_post, const char *id_dialog) {
     fBox[++fTop] = fMonoRackContainer;
     fMode[fTop] = kBoxMode;
-    GtkWidget* box = openHorizontalOrderBox(label, posit);
+    string group = id_on_off;
+    string group_id = group.substr(0, group.find_last_of("."));
+    GtkWidget* box = openHorizontalOrderBox(group_id.c_str(), posit);
+    openHorizontalhideBox("");
+    create_switch_no_caption(sw_minitoggle, id_on_off);
+    closeBox();
     openVerticalBox(label);
     openHorizontalBox("");
     openPaintBox1("");
@@ -1617,6 +1671,7 @@ void GxMainInterface::openMonoRackBox(const char* label, int* posit, const char 
 	create_selector(id_pre_post);
     }
     closeBox();
+    
     openDialogBox(id_dialog, id_on_off, "RackBox_expose", box);
 }
 
@@ -1734,6 +1789,27 @@ void GxMainInterface::addJConvFavButton(const char* label) {
                       G_CALLBACK(gx_jconv::gx_show_fav),
                       (gpointer) NULL);
 }
+
+void GxMainInterface::addSmallJConvFavButton(const char* label) {
+    
+    GtkWidget*     button = gtk_button_new();
+    gtk_widget_set_name(button, "smallbutton");
+    GtkWidget*     lab = gtk_label_new(label);
+    GtkStyle *style = gtk_widget_get_style(lab);
+    pango_font_description_set_size(style->font_desc, 7*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+    gtk_widget_modify_font(lab, style->font_desc);
+    gtk_container_add(GTK_CONTAINER(button), lab);
+    //gtk_widget_set_size_request(GTK_WIDGET(button),-1,14);
+    gtk_widget_set_name(lab, "rack_label");
+    addWidget(label, button);
+    gtk_widget_show(lab);
+
+    g_signal_connect(GTK_OBJECT(button), "clicked",
+                      G_CALLBACK(gx_jconv::gx_show_fav),
+                      (gpointer) NULL);
+}
+
 // ---------------------------    Toggle Buttons ---------------------------
 
 struct uiToggleButton : public gx_ui::GxUiItemBool {
@@ -2135,14 +2211,19 @@ void GxMainInterface::addNumDisplay() {
 
     GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(gw.rack_tool_bar));
     GtkWidget *box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    g_list_free(child_list);
     child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
     box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    g_list_free(child_list);
     child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
     box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    g_list_free(child_list);
     child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
     box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    g_list_free(child_list);
     child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
     box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    g_list_free(child_list);
     child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
     box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
     g_list_free(child_list);
@@ -2252,8 +2333,8 @@ void GxMainInterface::addLiveWaveDisplay(const char* label) {
     fWaveView.property_text_pos_left() = 1.5;
     fWaveView.property_text_pos_right() = 77;
     fWaveView.set_multiplicator(150., 250.);
-    gtk_widget_show(box);
-    gtk_widget_hide(e_box);
+    gtk_widget_show_all(box);
+    //gtk_widget_hide(e_box);
 }
 
 /* --------- menu function triggering engine on/off/bypass --------- */

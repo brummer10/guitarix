@@ -1097,7 +1097,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
 
         GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
-        gtk_widget_show_all(GTK_WIDGET(plug));
+        gtk_widget_show(GTK_WIDGET(plug));
         GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
         GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
         vbox = gtk_widget_get_parent(GTK_WIDGET(box1));

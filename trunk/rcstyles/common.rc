@@ -39,6 +39,18 @@ style "guitarix_switch"
   }
 }
 
+style "guitarix_small_button"
+{
+  GtkButton::inner-border = {0, 0, 0, 0}
+  GtkButton::default-border = {0, 0, 0, 0}
+  GtkButton::focus-line-width = 0
+  GtkButton::focus-padding = 0
+  GtkButton::interior-focus = 0
+  GtkButton::inner-spacing = 0
+  GtkButton::child-displacement-x = 0
+  GtkButton::child-displacement-y = 0
+}
+
 style "guitarix_selector"
 {
   #cairo_set_source_rgba(cr, 0.4, 1, 0.2, 0.8)
@@ -88,6 +100,7 @@ style "guitarix_iredit"
   GxIREdit::gain-line-color = { 0, 60000, 0, 65535 }
 }
 
+widget "*.smallbutton" style:highest "guitarix_small_button"
 widget "*.effekt_label" style:highest "guitarix_caption"
 widget "*.filter_box.*.effekt_label" style:highest "guitarix_bold_label"
 class "*GxRegler" style:highest "guitarix_regler"

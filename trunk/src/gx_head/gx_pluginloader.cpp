@@ -138,6 +138,7 @@ void ParamRegImpl::registerUEnumVar_(const char *id, const char* name, const cha
 
 Plugin::Plugin(PluginDef *pl)
     : box_visible(false),
+      plug_visible(true),
       on_off(false),
       position(0),
       effect_post_pre(1),
@@ -439,6 +440,7 @@ void PluginList::registerParameter(ParamMap& param, ParameterGroups& groups) {
 	    if (pd->flags & PGNI_DYN_POSITION) {
 		// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
 		param.reg_non_midi_par(string("ui.")+pd->name, &pl->box_visible, true);
+        param.reg_non_midi_par((s+".s_h").c_str(), &pl->plug_visible, false);
 		param.reg_non_midi_par((s+".position").c_str(), &pl->position, true,
 				       pl->position, 1, 999);
 		if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {

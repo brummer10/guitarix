@@ -208,6 +208,18 @@ class GxVBox {
 
 /****************************************************************/
 
+class GxVHideBox {
+ public:
+    Gxw::PaintBox m_box;
+    Gtk::Fixed m_fixed;
+    ToggleCheckButtonUiBool m_tcb;
+    void on_hide_button_pressed();
+    GxVHideBox(gx_ui::GxUI& ui, gx_engine::Parameter& param_switch);
+    virtual ~GxVHideBox();
+};
+
+/****************************************************************/
+
 class GxHBox {
  public:
     Gtk::HBox m_box;
@@ -304,7 +316,9 @@ class GxMoveBox {
     Gxw::PaintBox m_paintbox;
     Gtk::Button m_button;
     Gtk::Button m_button1;
-    explicit GxMoveBox(const gx_ui::GxUI& ui);
+    ToggleCheckButtonUiBool m_button2;
+    void on_hide_button_pressed();
+    GxMoveBox(gx_ui::GxUI& ui, gx_engine::Parameter& param_switch);
     virtual ~GxMoveBox();
 };
 

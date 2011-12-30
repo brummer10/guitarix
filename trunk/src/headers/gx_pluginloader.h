@@ -40,6 +40,7 @@ enum {			       // additional flags for PluginDef (used internally)
 class Plugin {
 public:
     bool box_visible;		// In Rack: UI Interface Box visible
+    bool plug_visible;		// In Box: UI Interface Box visible
     bool on_off;		// Audio Processing
     int position;		// Position in Rack / Audio Processing Chain
     unsigned int effect_post_pre; // pre/post amp position (post = 0)

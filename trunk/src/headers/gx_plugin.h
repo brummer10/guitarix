@@ -38,12 +38,14 @@ struct UiBuilder {
     PluginDef *plugin;
     void (*openVerticalBox)(const char* label);
     void (*openHorizontalBox)(const char* label);
+    void (*openHorizontalhideBox)(const char* label);
     void (*closeBox)();
     void (*load_glade)(const char *data);
     // methods creating UI elements connected to parameter_id's.
     // the check_parameter function in dsp2cc identifies these
     // functions by the prefix create_ so please stick to this
     // prefix or change the checker
+    void (*create_master_slider)(const char *id, const char *label);
     void (*create_small_rackknob)(const char *id, const char *label);
     void (*create_selector)(const char *id);
     //FIXME add missing functions

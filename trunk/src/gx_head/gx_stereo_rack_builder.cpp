@@ -52,6 +52,9 @@ void GxMainInterface::gx_build_stereo_rack() {
         // ----- chorus
         openStereoRackBox(_("chorus"), pl.pos_var("chorus"), "chorus.on_off", "ui.Chorus");
         {
+            openHorizontalhideBox("");
+            create_master_slider("chorus.level", _("  level  "));
+            closeBox();
             openHorizontalBox("");
             {
                 create_small_rackknobr("chorus.level", _("  level  "));
@@ -65,6 +68,9 @@ void GxMainInterface::gx_build_stereo_rack() {
         // flanger
         openStereoRackBox(_("flanger"), pl.pos_var("flanger"), "flanger.on_off", "ui.Flanger");
         {
+            openHorizontalhideBox("");
+            create_master_slider("flanger.level", _("  level  "));
+            closeBox();
             openHorizontalBox("");
             {
                 openHorizontalBox("");
@@ -115,6 +121,9 @@ void GxMainInterface::gx_build_stereo_rack() {
         // phaser
         openStereoRackBox(_("phaser"), pl.pos_var("phaser"), "phaser.on_off", "ui.Phaser");
         {
+            openHorizontalhideBox("");
+            create_master_slider("phaser.level", _("  level "));
+            closeBox();
             openHorizontalBox("");
             {
                 openHorizontalBox("");
@@ -168,6 +177,8 @@ void GxMainInterface::gx_build_stereo_rack() {
         // stereo delay
         openStereoRackBox(_("delay"), pl.pos_var("stereodelay"), "stereodelay.on_off", "ui.Stereo Delay");
         {
+            openHorizontalhideBox("");
+            closeBox();
             openHorizontalBox("");
             {
                 create_small_rackknob("stereodelay.l_gain", _("left gain"));
@@ -191,6 +202,8 @@ void GxMainInterface::gx_build_stereo_rack() {
         // echo
         openStereoRackBox(_("echo"), pl.pos_var("stereoecho"), "stereoecho.on_off", "ui.Stereo Echo");
         {
+            openHorizontalhideBox("");
+            closeBox();
             openHorizontalBox("");
             {
                 create_small_rackknob("stereoecho.percent_l", _("left %"));
@@ -204,6 +217,9 @@ void GxMainInterface::gx_build_stereo_rack() {
         // moog filter
         openStereoRackBox(_("moog"), pl.pos_var("moog"), "moog.on_off", "ui.Moog Filter");
         {
+            openHorizontalhideBox("");
+            create_master_slider("moog.Q", _("            Q            "));
+            closeBox();
             openHorizontalTableBox("");
             {
                 create_small_rackknob("moog.Q", _("            Q            "));
@@ -215,6 +231,9 @@ void GxMainInterface::gx_build_stereo_rack() {
         // postamp
         openStereoRackBox(_("amp"), pl.pos_var("ampmodul"), "ampmodul.on_off", "ui.Postamp");
         {
+            openHorizontalhideBox("");
+                create_master_slider("ampmodul.level", _("level"));
+            closeBox();
             openHorizontalBox("");
             {
                 openSpaceBox("");
@@ -234,6 +253,8 @@ void GxMainInterface::gx_build_stereo_rack() {
         // 3 band eq
         openStereoRackBox(_("tone"), pl.pos_var("tonemodul"), "tonemodul.on_off", "ui.3 Band EQ");
         {
+            openHorizontalhideBox("");
+            closeBox();
             openHorizontalBox("");
             {
                 create_small_rackknob("tonemodul.Bass", _("bass"));
@@ -250,6 +271,12 @@ void GxMainInterface::gx_build_stereo_rack() {
         
         openStereoRackBox(_("convolver"), pl.pos_var("jconv"), "jconv.on_off", "ui.Convolver");
         {
+            openHorizontalhideBox("");
+                create_master_slider("jconv.gain", _("gain"));
+                openSpaceBox("");
+                closeBox();
+                addSmallJConvFavButton(_("favourites"));
+            closeBox();
             openHorizontalBox("");
             {
                 openVerticalBox("");
@@ -302,6 +329,9 @@ void GxMainInterface::gx_build_stereo_rack() {
         //stereoverb
         openStereoRackBox(_("stereoverb"), pl.pos_var("stereoverb"), "stereoverb.on_off", "ui.Stereo Verb");
         {
+            openHorizontalhideBox("");
+            create_master_slider("stereoverb.RoomSize", _("RoomSize"));
+            closeBox();
             openHorizontalBox("");
             {
                 create_small_rackknobr("stereoverb.RoomSize", _("RoomSize"));

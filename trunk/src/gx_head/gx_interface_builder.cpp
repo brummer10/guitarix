@@ -58,7 +58,7 @@ void GxMainInterface::setup() {
 
                 openToolBar(_("Plugins"));
                 {
-		    create_ptoggle_button("presets");
+                    create_ptoggle_button("presets");
                 }
                 closeBox();
                 addNumDisplay();

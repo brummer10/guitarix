@@ -563,6 +563,11 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 	double dist = 20;
 	double tri0 = center-15-dist;
 	double tri1 = center+15+dist;
+    cairo_pattern_t* pat = cairo_pattern_create_linear (0, 0,center, 0);
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
+    cairo_pattern_add_color_stop_rgb (pat, 1, 0.1, 0.8, 0.1);
+    cairo_pattern_add_color_stop_rgb (pat, 0.7, 0.8, 0.8, 0.1);
+    cairo_pattern_add_color_stop_rgb (pat, 0, 1, 0.1, 0.1);
 	if (paint_bg) {
 		cairo_set_source_rgb(cr, 0, 0, 0);
 		cairo_paint(cr);
@@ -577,8 +582,11 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 		return;
 	}
 	if (tuner->streaming) {
+        
+        cairo_set_source (cr, pat);
 		if (tuner->in_limit) {
-			cairo_set_source_rgb(cr,1, 0, 0);
+			//cairo_set_source_rgb(cr,1, 0, 0);
+            
 			int n = tuner->led_count/2-tuner->pos;
 			if (n > 4) {
 				n = 4;
@@ -588,10 +596,11 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 				cairo_rectangle(cr,tuner->padding+(tuner->led_count-1-i-tuner->pos)*led_spacing, led_y0, led_width, led_height);
 			}
 			cairo_fill(cr);
+            
 		} else {
 			// led display: 2 .. tuner->led_count/8+1
 			int lim = 1+int(1+(fabs(tuner->scale_val)-tuner->scale_lim)*tuner->led_count/4.0);
-			cairo_set_source_rgb(cr,1, 0, 0);
+			//cairo_set_source_rgb(cr,1, 0, 0);
 			if (fabs(tuner->scale_val) >= tuner->scale_lim) {
 				for (int i = 0; i < tuner->led_count; ++i) {
 					int j = int(tuner->led_count+i-tuner->pos) % (tuner->led_count/2);
@@ -616,6 +625,7 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 		double sz = 2 * tuner->width * tuner->scale_lim;
 		cairo_rectangle(cr,tuner->padding+s*(tuner->width-sz), led_y0, sz, led_height);
 		cairo_set_source_rgb(cr,1, 0, 0);
+        cairo_set_source (cr, pat);
 		cairo_fill(cr);
 		if (fabs(tuner->scale_val) < 0.4) {
 			cairo_set_source_rgb(cr,1, 1, 0);
@@ -680,6 +690,7 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 	cairo_move_to(
 		cr, width/tuner->parent.scale-pad-ex.width-10, tri_y0-ex.y_bearing);
 	cairo_show_text(cr,buf);
+    cairo_pattern_destroy(pat);
 }
 
 static gboolean gx_rack_tuner_configure_event(GtkWidget *widget, GdkEventConfigure *ev)

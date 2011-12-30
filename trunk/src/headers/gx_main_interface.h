@@ -67,7 +67,9 @@ private:
     static GxMainInterface *intf;
     static void openVerticalBox_(const char* label);
     static void openHorizontalBox_(const char* label);
+    static void openHorizontalhideBox_(const char* label);
     static void create_small_rackknob_(const char *id, const char *label);
+    static void create_master_slider_(const char *id, const char *label);
     static void create_selector_(const char *id);
     static void closeBox_();
     static void load_glade_(const char *data);
@@ -189,6 +191,20 @@ class UiRackReglerWithCaption: public UiRegler {
     static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
                              Glib::ustring label);
     UiRackReglerWithCaption(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
+                            Glib::ustring label);
+    GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
+};
+/****************************************************************/
+
+class UiRackMasterRegler: public UiRegler {
+ private:
+    Gtk::Label m_label;
+    Gtk::HBox m_box;
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
+    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
+                             Glib::ustring label);
+    UiRackMasterRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
                             Glib::ustring label);
     GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
@@ -604,6 +620,7 @@ public:
     void openHorizontalhideBox(const char* label = "");
     void openHorizontalhideBox1(const char* label = "");
     void openVerticalBox(const char* label = "");
+    void openVerticalHideBox(const char* label = "");
     void openVerticalBox1(const char* label = "");
     void openFlipLabelBox(const char* = "");
     void openSetLabelBox();
@@ -642,6 +659,7 @@ public:
     // -- active widgets
     void addJConvButton(const char* label, float* zone);
     void addJConvFavButton(const char* label);
+    void addSmallJConvFavButton(const char* label);
     void addToggleButton(const char* label, float* zone);
     void addJToggleButton(const char* label, bool* zone);
     void addPToggleButton(const char* label);
@@ -735,6 +753,14 @@ public:
     void create_hslider(string id, Glib::ustring(label)) {
             addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, label, true));
         }
+
+    void create_master_slider(string id) {
+            addwidget(UiRackMasterRegler::create(*this, new Gxw::HSlider(), id));
+        }
+    void create_master_slider(string id, Glib::ustring(label)) {
+            addwidget(UiRackMasterRegler::create(*this, new Gxw::HSlider(), id, label));
+        }
+
     void create_minislider(string id) {
             addwidget(UiRegler::create(*this, new Gxw::MiniSlider(), id, false));
         }

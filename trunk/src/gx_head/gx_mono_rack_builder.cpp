@@ -38,7 +38,7 @@ private:
 	const char *name;
 	const char* key;
 	bool flat;
-	int notes[6];
+    int notes[6];
     } tuning_tab[3];
     Gxw::RackTuner tuner;
     float scale_lim;
@@ -67,12 +67,14 @@ RackTunerBox::RackTunerBox(GxMainInterface& intf_)
       intf(intf_) {
     gx_engine::get_group_table().insert("racktuner", "Rack Tuner");
     static bool tuner_ui;
+    static bool s_h;
     intf.pmap.reg_non_midi_par("ui.racktuner", &tuner_ui, true);
     static const value_pair streaming_labels[] = {{"scale"}, {"stream"}, {0}};
     intf.pmap.reg_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, &streaming, 1);
     static const value_pair tuning_labels[] = {{"(Chromatic)"},{"Standard"}, {"Standard/Es"}, {"Open E"}, {0}};
     intf.pmap.reg_enum_par("racktuner.tuning", "Tuning", tuning_labels, &tuning_mode, 0);
     intf.pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0);
+    intf.pmap.reg_non_midi_par("tuner.s_h", &s_h, true);
     //tuner.set_scale(1.5);
     tuner.signal_frequency_poll().connect(
 	sigc::mem_fun(*this, &RackTunerBox::freq_poll));
@@ -84,18 +86,24 @@ RackTunerBox::RackTunerBox(GxMainInterface& intf_)
     static int pos = 1;
     intf.openMonoRackBox("RackTuner", &pos, "tuner.on_off", NULL, "ui.racktuner");
     {
-	intf.openVerticalBox("");
-	{
-	    intf.addwidget(GTK_WIDGET(tuner.gobj()));
-	    intf.openHorizontalBox("");
-	    {
-		intf.create_selector("racktuner.tuning");
-		intf.create_selector("racktuner.streaming");
-		intf.create_minislider("racktuner.scale_lim");
-	    }
-	    intf.closeBox();
-	}
-	intf.closeBox();
+        intf.openHorizontalhideBox("");
+        intf.closeBox();
+        intf.openVerticalBox("");
+        {
+            intf.openpaintampBox("");
+            {
+                intf.addwidget(GTK_WIDGET(tuner.gobj()));
+            }
+            intf.closeBox();
+            intf.openHorizontalBox("");
+            {
+            intf.create_selector("racktuner.tuning");
+            intf.create_selector("racktuner.streaming");
+            intf.create_minislider("racktuner.scale_lim");
+            }
+            intf.closeBox();
+        }
+        intf.closeBox();
     }
     intf.closeMonoRackBox();
 }
@@ -133,9 +141,9 @@ void GxMainInterface::gx_build_mono_rack() {
     gx_engine::PluginList& pl = engine.pluginlist;
     fMonoRackContainer = fBox[fTop];
     {
-        openVerticalBox("");
+        openVerticalHideBox("mp");
         {
-            openPaintBox("");
+            openHorizontalBox("");
             {
                 openVerticalBox(" noise gate      ");
                 {
@@ -213,6 +221,8 @@ void GxMainInterface::gx_build_mono_rack() {
         // low high pass filter
         openMonoRackBox(_("l/h/filter"), pl.pos_var("low_highpass"), "low_highpass.on_off","low_highpass.pp","ui.low high pass");
         {
+            openHorizontalhideBox("");
+            closeBox();
             openHorizontalBox("");
             {
                 openHorizontalBox("");
@@ -238,6 +248,8 @@ void GxMainInterface::gx_build_mono_rack() {
         // EQ
         openMonoRackBox(_("EQ"), pl.pos_var("eqs"), "eqs.on_off", "eqs.pp","ui.Scaleable EQ");
         {
+            openHorizontalhideBox("");
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalTableBox("");
@@ -289,6 +301,9 @@ void GxMainInterface::gx_build_mono_rack() {
         // ----- crybaby
         openMonoRackBox(_("crybaby"), pl.pos_var("crybaby"), "crybaby.on_off", "crybaby.pp", "ui.Crybaby");
         {
+            openHorizontalhideBox("");
+            create_master_slider("crybaby.level", _("  level  "));
+            closeBox();
             openHorizontalBox("");
             {
                 openSpaceBox("");
@@ -314,6 +329,9 @@ void GxMainInterface::gx_build_mono_rack() {
         // ----- distortion
         openMonoRackBox(_("distortion"), pl.pos_var("gx_distortion"), "gx_distortion.on_off", "gx_distortion.pp", "ui.Multi Band Distortion");
         {
+            openHorizontalhideBox("");
+            create_master_slider("gx_distortion.drive", _("drive"));
+            closeBox();
             openHorizontalBox("");
             {
                 openVerticalBox("");
@@ -395,6 +413,9 @@ void GxMainInterface::gx_build_mono_rack() {
         // ----- IR
         openMonoRackBox(_("IR"), pl.pos_var("IR"), "IR.on_off", "IR.pp" ,"ui.ImpulseResponse");
         {
+            openHorizontalhideBox("");
+            create_master_slider("IR.peak", _(" peak "));
+            closeBox();
             openVerticalBox1("");
             {
                 openHorizontalBox("");
@@ -421,6 +442,9 @@ void GxMainInterface::gx_build_mono_rack() {
         // ----- the compressor
         openMonoRackBox(_("Compr."), pl.pos_var("compressor"), "compressor.on_off", "compressor.pp", "ui.Compressor");
         {
+            openHorizontalhideBox("");
+            create_master_slider("compressor.ratio", _("ratio"));
+            closeBox();
             openHorizontalTableBox("");
             {
                 create_small_rackknob("compressor.knee", _("knee"));
@@ -437,6 +461,9 @@ void GxMainInterface::gx_build_mono_rack() {
         // -----overdrive
         openMonoRackBox(_("overdrive"), pl.pos_var("overdrive"), "overdrive.on_off", "overdrive.pp", "ui.Overdrive");
         {
+            openHorizontalhideBox("");
+            create_master_slider("overdrive.drive", _("  drive "));
+            closeBox();
             openHorizontalTableBox("");
             {
                 openSpaceBox("");
@@ -452,6 +479,9 @@ void GxMainInterface::gx_build_mono_rack() {
         // ----- echo
         openMonoRackBox(_("echo"), pl.pos_var("echo"), "echo.on_off", "echo.pp", "ui.Echo");
         {
+            openHorizontalhideBox("");
+            create_master_slider("echo.percent", _("    %    "));
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalTableBox("");
@@ -468,6 +498,9 @@ void GxMainInterface::gx_build_mono_rack() {
         // -----delay
         openMonoRackBox(_("delay"), pl.pos_var("delay"), "delay.on_off", "delay.pp", "ui.Delay");
         {
+            openHorizontalhideBox("");
+            create_master_slider("delay.delay", _(" delay "));
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalTableBox("");
@@ -484,6 +517,11 @@ void GxMainInterface::gx_build_mono_rack() {
         // ----- freeverb
         openMonoRackBox(_("freeverb"), pl.pos_var("freeverb"), "freeverb.on_off", "freeverb.pp", "ui.Freeverb");
         {
+            openHorizontalhideBox("");
+            create_master_slider("freeverb.RoomSize", _("RoomSize"));
+            closeBox();
+            openHorizontalBox("");
+            {
             openFrameBox("");
             closeBox();
             openFrameBox("");
@@ -499,12 +537,16 @@ void GxMainInterface::gx_build_mono_rack() {
             closeBox();
             openFrameBox("");
             closeBox();
+            }
+            closeBox();
         }
         closeMonoRackBox();
 
         // -----osc
-        openMonoRackBox(_("oscilloscope"), pl.pos_var("oscilloscope"), "oscilloscope.on_off", "oscilloscope.pp", "ui.Oscilloscope");
+        openMonoRackBox(_("osc"), pl.pos_var("oscilloscope"), "oscilloscope.on_off", "oscilloscope.pp", "ui.Oscilloscope");
         {
+            openHorizontalhideBox("");
+            closeBox();
             openVerticalBox("");
             {
                 openFrameBox("");
@@ -527,6 +569,9 @@ void GxMainInterface::gx_build_mono_rack() {
 
         openMonoRackBox(_("biquad"), pl.pos_var("biquad"), "biquad.on_off", "biquad.pp", "ui.BiQuad Filter");
         {
+            openHorizontalhideBox("");
+            create_master_slider("biquad.Freq", _("Freq"));
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalBox("");
@@ -541,6 +586,9 @@ void GxMainInterface::gx_build_mono_rack() {
 
         openMonoRackBox(_("tremolo"), pl.pos_var("tremolo"), "tremolo.on_off", "tremolo.pp", "ui.Tremolo");
         {
+            openHorizontalhideBox("");
+            create_master_slider("tremolo.freq", _("Freq"));
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalBox("");
@@ -572,6 +620,9 @@ void GxMainInterface::gx_build_mono_rack() {
 
         openMonoRackBox(_("phaser"), pl.pos_var("phaser"), "phaser_mono.on_off", "phaser_mono.pp", "ui.Phaser Mono");
         {
+            openHorizontalhideBox("");
+            create_master_slider("phaser_mono.level", _("level"));
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalBox("");
@@ -588,6 +639,9 @@ void GxMainInterface::gx_build_mono_rack() {
 
         openMonoRackBox(_("chorus"), pl.pos_var("chorus"), "chorus_mono.on_off", "chorus_mono.pp", "ui.Chorus Mono");
         {
+            openHorizontalhideBox("");
+            create_master_slider("chorus_mono.level", _("level"));
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalBox("");
@@ -604,6 +658,9 @@ void GxMainInterface::gx_build_mono_rack() {
 
         openMonoRackBox(_("flanger"), pl.pos_var("flanger_mono"), "flanger_mono.on_off", "flanger_mono.pp", "ui.Flanger Mono");
         {
+            openHorizontalhideBox("");
+            create_master_slider("flanger_mono.level", _("level"));
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalBox("");
@@ -620,6 +677,9 @@ void GxMainInterface::gx_build_mono_rack() {
 
         openMonoRackBox(_("feedback"), pl.pos_var("feedback"), "feedback.on_off", "feedback.pp", "ui.Feedback");
         {
+            openHorizontalhideBox("");
+            create_master_slider("feedback.feedback",  _("feedback"));
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalBox("");
@@ -635,6 +695,9 @@ void GxMainInterface::gx_build_mono_rack() {
 
         openMonoRackBox(_("tonestack"), pl.pos_var("amp.tonestack"), "amp.tonestack.on_off", "amp.tonestack.pp", "ui.Tonestack");
         {
+            openHorizontalhideBox("");
+            create_selector("amp.tonestack.select");
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalBox("");
@@ -655,6 +718,9 @@ void GxMainInterface::gx_build_mono_rack() {
 
         openMonoRackBox(_("cabinet"), pl.pos_var("cab"), "cab.on_off", "cab.pp", "ui.Cabinet");
         {
+            openHorizontalhideBox("");
+            create_selector("cab.select");
+            closeBox();
             openVerticalBox("");
             {
                 openHorizontalBox("");
@@ -672,6 +738,8 @@ void GxMainInterface::gx_build_mono_rack() {
 
         openVerticalMidiBox(_("  MIDI out  "));
         {
+            openHorizontalhideBox("");
+            closeBox();
             openHorizontalBox("");
             {
                 openVerticalBox(_("  MIDI out  "));

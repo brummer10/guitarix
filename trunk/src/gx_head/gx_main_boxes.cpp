@@ -181,10 +181,156 @@ GxNotebookBox::GxNotebookBox(const gx_ui::GxUI& ui) {
 }
 /****************************************************************/
 
+GxVHideBox::~GxVHideBox() {}
+
+void GxVHideBox::on_hide_button_pressed() {
+    GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(m_box.gobj()));
+    GtkWidget* child = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    g_list_free(child_list);
+    
+    GxMainInterface& gui = GxMainInterface::get_instance();
+    GtkAllocation alloc;
+    gtk_widget_get_allocation (GTK_WIDGET(gui.RBox), &alloc);
+    GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(m_box.gobj()));
+    GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
+    GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+    vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+    box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+    vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+    
+    if(m_tcb.get_active()) {
+        gtk_widget_hide(GTK_WIDGET(child));
+    } else {
+        gtk_widget_show(GTK_WIDGET(child));
+    }
+
+    gtk_widget_hide(GTK_WIDGET(vbox));
+    if (gui.fWindow.get_resizable())
+        gui.fWindow.set_resizable(false);
+    gtk_widget_show(GTK_WIDGET(vbox));
+
+    if (GDK_IS_WINDOW (gui.RBox->window)) {
+        gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, alloc.height);
+    } else {
+        gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
+    }
+    if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
+                            (NULL, guivar.g_threads[7]) == NULL)
+        guivar.g_threads[7] = g_timeout_add_full(
+            G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
+            gpointer(gui.fWindow.gobj()), NULL);
+    if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
+                            (NULL, guivar.g_threads[6]) == NULL)
+        guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+                       gx_set_default, gpointer(gui.RBox), NULL);
+}
+
+GxVHideBox::GxVHideBox(gx_ui::GxUI& ui, gx_engine::Parameter& param_switch) 
+    : m_tcb(&ui, &param_switch.getBool().get_value()) {
+    m_box.property_paint_func() = "rectangle_skin_color_expose";
+    m_fixed.set_size_request(25, 25);
+    m_fixed.put(m_tcb, 2, 4);
+    m_tcb.m_label.set_text("¤");
+    m_tcb.set_size_request(20, 15);
+    m_box.pack_end(m_fixed, false, false, 0);
+    
+    m_tcb.signal_toggled().connect(
+        sigc::mem_fun(*this, &GxVHideBox::on_hide_button_pressed));
+}
+/****************************************************************/
+
 GxMoveBox::~GxMoveBox() {
 }
 
-GxMoveBox::GxMoveBox(const gx_ui::GxUI& ui) {
+void GxMoveBox::on_hide_button_pressed() {
+    GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(m_paintbox.gobj()));
+    GtkWidget* child2 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    GtkWidget* parent = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+    GtkWidget* parent1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
+    g_list_free(child_list);
+    child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
+    GtkWidget* childname = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    GtkWidget* child = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+    g_list_free(child_list);
+    child_list =  gtk_container_get_children(GTK_CONTAINER(parent1));
+    GtkWidget* child1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    g_list_free(child_list);
+    child_list =  gtk_container_get_children(GTK_CONTAINER(child1));
+    GtkWidget* child4 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    child1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+    GtkWidget* child5 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
+    
+    g_list_free(child_list);
+    child_list =  gtk_container_get_children(GTK_CONTAINER(child1));
+    GtkWidget* child3 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    child1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+    g_list_free(child_list);
+    
+    if(!GTK_IS_WIDGET(child1)) {
+        child_list =  gtk_container_get_children(GTK_CONTAINER(child3));
+        child3 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+        child1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+        g_list_free(child_list);
+    }
+    
+    GxMainInterface& gui = GxMainInterface::get_instance();
+    GtkAllocation alloc;
+    gtk_widget_get_allocation (GTK_WIDGET(gui.RBox), &alloc);
+    GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(m_paintbox.gobj()));
+    GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
+    GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+    vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+    box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+    vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+
+    if(m_button2.get_active()) {
+        gtk_widget_hide(GTK_WIDGET(child));  // switch
+        gtk_widget_show(GTK_WIDGET(child2)); // sw_minitoggle
+        gtk_widget_show(GTK_WIDGET(child3)); // master controller
+        gtk_widget_hide(GTK_WIDGET(child1)); // paintbox
+        gtk_widget_hide(GTK_WIDGET(child4)); // resetbutton
+        gtk_widget_hide(GTK_WIDGET(child5)); // resetbutton
+        gtk_widget_set_size_request(GTK_WIDGET(childname), 80, -1);
+        m_fixed.set_size_request(65, 25);
+        gtk_fixed_move(GTK_FIXED(m_fixed.gobj()),GTK_WIDGET(m_button1.gobj()),2, 4);
+        gtk_fixed_move(GTK_FIXED(m_fixed.gobj()),GTK_WIDGET(m_button2.gobj()),22, 4);
+        gtk_fixed_move(GTK_FIXED(m_fixed.gobj()),GTK_WIDGET(m_button.gobj()),37, 4);
+    } else {
+        gtk_widget_show(GTK_WIDGET(child));
+        gtk_widget_hide(GTK_WIDGET(child2));
+        gtk_widget_hide(GTK_WIDGET(child3));
+        gtk_widget_show(GTK_WIDGET(child1));
+        gtk_widget_show(GTK_WIDGET(child4));
+        gtk_widget_show(GTK_WIDGET(child5));
+        gtk_widget_set_size_request(GTK_WIDGET(childname), -1, -1);
+        m_fixed.set_size_request(25, -1);
+        gtk_fixed_move(GTK_FIXED(m_fixed.gobj()),GTK_WIDGET(m_button1.gobj()),2, 5);
+        gtk_fixed_move(GTK_FIXED(m_fixed.gobj()),GTK_WIDGET(m_button2.gobj()),2, 20);
+        gtk_fixed_move(GTK_FIXED(m_fixed.gobj()),GTK_WIDGET(m_button.gobj()),2, 35);
+    }
+    gtk_widget_hide(GTK_WIDGET(vbox));
+    if (gui.fWindow.get_resizable())
+        gui.fWindow.set_resizable(false);
+    gtk_widget_show(GTK_WIDGET(vbox));
+
+    if (GDK_IS_WINDOW (gui.RBox->window)) {
+        gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, alloc.height);
+    } else {
+        gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
+    }
+    if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
+                            (NULL, guivar.g_threads[7]) == NULL)
+        guivar.g_threads[7] = g_timeout_add_full(
+            G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
+            gpointer(gui.fWindow.gobj()), NULL);
+    if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
+                            (NULL, guivar.g_threads[6]) == NULL)
+        guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+                       gx_set_default, gpointer(gui.RBox), NULL);
+}
+
+GxMoveBox::GxMoveBox(gx_ui::GxUI& ui, gx_engine::Parameter& param_switch)
+    :m_button2(&ui, &param_switch.getBool().get_value()) {
     m_paintbox.property_paint_func() = "rectangle_skin_color_expose";
     m_label.set_text("▼");
     m_label.set_name("rack_slider");
@@ -196,6 +342,9 @@ GxMoveBox::GxMoveBox(const gx_ui::GxUI& ui) {
     m_button1.add(m_label1);
     m_button1.set_size_request(20, 15);
     m_button1.set_name("effect_reset");
+    m_button2.m_label.set_text("¤");
+    m_button2.set_size_request(20, 15);
+    //m_button2.set_name("effect_reset");
     GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(m_label.gobj()));
     pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -203,12 +352,15 @@ GxMoveBox::GxMoveBox(const gx_ui::GxUI& ui) {
     gtk_widget_modify_font(GTK_WIDGET(m_label1.gobj()), style->font_desc);
     m_fixed.set_size_request(25, -1);
     m_fixed.put(m_button1, 2, 5);
-    m_fixed.put(m_button, 2, 20);
+    m_fixed.put(m_button, 2, 35);
+    m_fixed.put(m_button2, 2, 20);
     m_paintbox.pack_end(m_fixed, false, false, 0 );
     m_fixed.show_all();
     m_paintbox.set_border_width(4);
     m_paintbox.property_spacing() = 0;
     m_paintbox.property_homogeneous() = false;
+    m_button2.signal_toggled().connect(
+        sigc::mem_fun(*this, &GxMoveBox::on_hide_button_pressed));
 }
 
 /****************************************************************/

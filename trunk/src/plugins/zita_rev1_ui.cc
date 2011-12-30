@@ -1,4 +1,9 @@
 int load_ui(const UiBuilder& b) {
+    b.openHorizontalhideBox("");
+    {
+        b.create_master_slider("zita_rev1.output.level");
+    }
+    b.closeBox();
     b.openVerticalBox("");
     {
 	b.openHorizontalBox("");
