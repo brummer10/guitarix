@@ -118,7 +118,6 @@ class GlobalWidgets {
     /* global GUI widgets */
     GtkWidget*          midibox;
     GtkWidget*          patch_info;
-    GtkWidget*          tuner_widget;
     GtkWidget*          rack_widget;
     GtkWidget*          srack_widget;
     GtkWidget*          rack_tool_bar;
@@ -222,24 +221,6 @@ class UiRackRegler: public UiRegler {
     UiRackRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
                  Glib::ustring label);
     GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
-};
-
-/****************************************************************/
-
-struct uiTuner : public Gtk::Alignment, private gx_ui::GxUiItemFloat {
- private:
-    Gxw::Tuner fTuner;
-    Gtk::Fixed fBox;
-    Gtk::EventBox eBox;
-    Gxw::Wheel wheel;
-    float refpitch;
-    Gtk::Adjustment adjust;
-    gx_engine::TunerAdapter& adapt;
-    void freq_changed();
-    void reflectZone();
-    void on_value_changed();
- public:
-    uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui, gx_engine::ParamMap& pmap);
 };
 
 /****************************************************************/
@@ -449,6 +430,7 @@ public:
     Gtk::Menu          options_menu;
     Gtk::CheckMenuItem options_meterbridge;
     MenuCheckItem      fShowTuner;
+    MenuCheckItem      fShowValue;
     Gtk::MenuItem      skin_menu_label;
     Gtk::Menu          skin_menu;
     Gtk::RadioMenuItem::Group skingroup;
@@ -518,8 +500,8 @@ private:
 
     void                  do_program_change(int);
     bool                  on_meter_button_release(GdkEventButton* ev);
-    void                  on_tuner_activate();
     void                  gx_show_menu_settings(GtkWidget *widget, gpointer data);
+    void                  on_value_activate();
     void                  on_log_activate();
     void                  on_rack_activate();
     void                  on_rrack_activate();
@@ -561,7 +543,6 @@ private:
     bool                  on_logger_delete_event(GdkEventAny*);
 
     Gxw::FastMeter        fLevelMeters[2];
-    uiTuner               fTuner;
     Gxw::WaveView         fWaveView;
 
     GtkWidget*            fSignalLevelBar;
@@ -630,6 +611,7 @@ public:
     void opensDialogBox(const char *id_dialog, const char *id_switch);
     void openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk, GtkWidget *box);
     void opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk, GtkWidget *box);
+    void openRackTunerBox(const char *id_dialog, const char *id_switch, const char *expose_funk, GtkWidget *box);
     void openPatchInfoBox(float* zone);
     void openWarningBox(const char* label, float* zone);
     void openEventBox(const char* label = "");
@@ -653,6 +635,8 @@ public:
     void closeStereoRackBox();
     void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
     void closeMonoRackBox();
+    void openTunerRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
+    void closeTunerRackBox();
     void loadRackFromGladeData(const char *xmldesc);
     void closeBox();
 
@@ -666,7 +650,6 @@ public:
     void addMToggleButton(const char* label, bool* zone);
     void addCheckButton(const char* label, bool* zone);
     void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
-    void addNumDisplay();
     void addLiveWaveDisplay(const char* label);
     void addStatusDisplay(const char* label, bool* zone );
     // void addselector(const char* label, float* zone,int maxv, const char* []);

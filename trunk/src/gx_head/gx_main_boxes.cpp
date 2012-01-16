@@ -437,6 +437,82 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk,
 
 /****************************************************************/
 
+void GxTunerRackBox::on_dialog_menu_activate() {
+    gx_show_extended_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
+   // GxMainInterface& gui = GxMainInterface::get_instance();
+   // bool tuner_on = menuitem.get_active();
+   // gui.engine.tuner.used_for_display(tuner_on);
+   // gui.engine.set_rack_changed();
+    if (!menuitem.get_active()) {
+        string group = group_id;
+        group += ".on_off";
+        gx_engine::parameter_map[group].set_std_value();
+    }
+}
+
+void GxTunerRackBox::on_toggled() {
+    //gx_show_extended_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
+    GxMainInterface& gui = GxMainInterface::get_instance();
+    bool tuner_on = unit_on_off->get_active();
+    gui.engine.tuner.used_for_display(tuner_on);
+    gui.engine.set_rack_changed();
+    gui.mainmenu.fShowTuner.set_active(tuner_on);
+   // menuitem.set_active(tuner_on);
+}
+
+void GxTunerRackBox::on_reset_button_pressed() {
+    gx_reset_units(gx_engine::parameter_map, group_id);
+}
+
+GxTunerRackBox::~GxTunerRackBox() {
+    delete unit_on_off;
+}
+
+GxTunerRackBox::GxTunerRackBox(gx_ui::GxUI& ui, const char *expose_funk,
+                                     gx_engine::Parameter& param_dialog,
+                                     gx_engine::Parameter& param_switch,
+                                     Gtk::ToggleButton& button, GtkWidget * Caller)
+    : box(false, 0),
+      unit_on_off(UiSwitch::new_switch(ui, sw_led, param_switch)),
+      menuitem(&ui, &param_dialog.getBool().get_value()),
+      m_tcb(&ui, &param_dialog.getBool().get_value()),
+      m_regler_tooltip_window(Gtk::WINDOW_POPUP)  {
+    group_id = param_switch.id().substr(0, param_switch.id().find_last_of("."));
+    Glib::ustring title = param_switch.l_group();
+    box1.pack_end(*unit_on_off, false, false);
+    box.set_border_width(2);
+    box4.set_spacing(2);
+    box4.set_border_width(2);
+    box5.set_border_width(4);
+    box6.set_border_width(4);
+    paintbox.property_paint_func() = expose_funk;
+    paintbox.set_name(title);
+    reset_button.set_name("effect_reset");
+    reset_button1.set_name("effect_reset");
+    box5.add(reset_button);
+    box6.add(reset_button1);
+    box5.set_size_request(15, -1);
+    box6.set_size_request(15, -1);
+    reset_button.signal_pressed().connect(
+        sigc::mem_fun(*this, &GxTunerRackBox::on_reset_button_pressed));
+    reset_button1.signal_pressed().connect(
+        sigc::mem_fun(*this, &GxTunerRackBox::on_reset_button_pressed));
+    reset_button.set_tooltip_text(_("Reset Button, press to reset settings"));
+    reset_button1.set_tooltip_text(_("Reset Button, press to reset settings"));
+    box4.pack_start(box6, false, false, 0);
+    box4.pack_start(box, true, true, 0);
+    box4.pack_end(box5, false, false, 0);
+    paintbox.pack_start(box4);
+    paintbox.set_tooltip_text(title.c_str());
+    m_tcb.m_label.set_text(title.c_str());
+    unit_on_off->signal_toggled().connect(
+        sigc::mem_fun(*this, &GxTunerRackBox::on_toggled));
+    menuitem.signal_activate().connect(
+        sigc::mem_fun(*this, &GxTunerRackBox::on_dialog_menu_activate));
+}
+
+/****************************************************************/
+
 bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d) {
     gtk_check_menu_item_set_active(
                 GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
@@ -513,9 +589,7 @@ void GxScrollBox::on_rack_reorder_horizontal() {
 
             if (strcmp(gtk_widget_get_name(parent), "gtkmm__GtkVBox") == 0) {
                 gtk_widget_ref(gx_gui::gw.rack_tool_bar);
-                gtk_widget_ref(gx_gui::gw.tuner_widget);
                 gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.rack_tool_bar);
-                gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.tuner_widget);
                 parent = gtk_widget_get_parent(GTK_WIDGET(parent));
                 GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
                 parent = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
@@ -523,11 +597,9 @@ void GxScrollBox::on_rack_reorder_horizontal() {
                 parent = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
                 child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
                 parent = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
-                gtk_container_add(GTK_CONTAINER(parent), gx_gui::gw.tuner_widget);
                 parent = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
                 gtk_container_add(GTK_CONTAINER(parent), gx_gui::gw.rack_tool_bar);
                 gtk_widget_unref(gx_gui::gw.rack_tool_bar);
-                gtk_widget_unref(gx_gui::gw.tuner_widget);
                 g_list_free(child_list);
             }
 
@@ -562,19 +634,14 @@ void GxScrollBox::on_rack_reorder_vertical() {
 
             if (strcmp(gtk_widget_get_name(parent), "gtkmm__GtkHBox") == 0) {
                 gtk_widget_ref(gx_gui::gw.rack_tool_bar);
-                gtk_widget_ref(gx_gui::gw.tuner_widget);
                 gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.rack_tool_bar);
-                parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.tuner_widget));
-                gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.tuner_widget);
                 parent = gtk_widget_get_parent(GTK_WIDGET(parent));
                 parent = gtk_widget_get_parent(GTK_WIDGET(parent));
                 parent = gtk_widget_get_parent(GTK_WIDGET(parent));
                 GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
                 parent = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
                 gtk_container_add(GTK_CONTAINER(parent), gx_gui::gw.rack_tool_bar);
-                gtk_box_pack_end(GTK_BOX(GTK_CONTAINER(parent)), GTK_WIDGET(gx_gui::gw.tuner_widget), false, false, 0);
                 gtk_widget_unref(gx_gui::gw.rack_tool_bar);
-                gtk_widget_unref(gx_gui::gw.tuner_widget);
                 g_list_free(child_list);
             }
 
@@ -692,36 +759,6 @@ GxToolBox::GxToolBox(gx_ui::GxUI& ui,
     rbox.show();
 }
 
-/****************************************************************/
-
-bool GxTunerBox::on_window_delete_event(GdkEventAny*, gpointer d) {
-    gtk_check_menu_item_set_active(
-                GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
-                );
-    return false;
-}
-
-GxTunerBox::GxTunerBox(gx_ui::GxUI& ui,
-    const char *pb_2, Glib::ustring titl, GtkWidget * d)
-    : rbox(false, 24),
-    m_regler_tunertip_window(Gtk::WINDOW_POPUP) {
-    Glib::ustring title = titl;
-    paintbox1.set_border_width(18);
-    paintbox.set_border_width(24);
-    paintbox1.property_paint_func() = pb_2;
-    paintbox.property_paint_func() = pb_rectangle_skin_color_expose;
-    window.signal_delete_event().connect(
-         sigc::bind<gpointer>(sigc::mem_fun(*this, &GxTunerBox::on_window_delete_event), d));
-    box.add(rbox);
-    paintbox1.pack_start(m_scrolled_window);
-    m_scrolled_window.add(paintbox);
-    paintbox.pack_start(box);
-    window.add(paintbox1);
-    paintbox1.show();
-    box.show();
-    m_scrolled_window.show();
-    rbox.show();
-}
 /****************************************************************/
 }
 

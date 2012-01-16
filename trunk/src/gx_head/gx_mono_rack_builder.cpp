@@ -43,11 +43,14 @@ private:
     Gxw::RackTuner tuner;
     float scale_lim;
     int streaming;
+    float refpitch;
     int tuning_mode;
     int current_mode;
+    bool tuner_ui;
     GxMainInterface& intf;
     void freq_poll();
     void on_off(bool v);
+    bool set_active();
 public:
     RackTunerBox(GxMainInterface& intf);
 };
@@ -62,11 +65,12 @@ RackTunerBox::RackTunerBox(GxMainInterface& intf_)
     : tuner(),
       scale_lim(3.0),
       streaming(false),
+      refpitch(),
       tuning_mode(0),
       current_mode(0),
+      tuner_ui(false),
       intf(intf_) {
     gx_engine::get_group_table().insert("racktuner", "Rack Tuner");
-    static bool tuner_ui;
     static bool s_h;
     intf.pmap.reg_non_midi_par("ui.racktuner", &tuner_ui, true);
     static const value_pair streaming_labels[] = {{"scale"}, {"stream"}, {0}};
@@ -75,6 +79,9 @@ RackTunerBox::RackTunerBox(GxMainInterface& intf_)
     intf.pmap.reg_enum_par("racktuner.tuning", "Tuning", tuning_labels, &tuning_mode, 0);
     intf.pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0);
     intf.pmap.reg_non_midi_par("tuner.s_h", &s_h, true);
+    intf.pmap.reg_par_non_preset(
+	"ui.tuner_reference_pitch", "?Tuner Reference Pitch",
+	&refpitch, 440, 427, 453, 0.1);
     //tuner.set_scale(1.5);
     tuner.signal_frequency_poll().connect(
 	sigc::mem_fun(*this, &RackTunerBox::freq_poll));
@@ -84,7 +91,7 @@ RackTunerBox::RackTunerBox(GxMainInterface& intf_)
 	    sigc::mem_fun(intf.mainmenu.fShowTuner, &MenuCheckItem::get_active)));
     tuner.show();
     static int pos = 1;
-    intf.openMonoRackBox("RackTuner", &pos, "tuner.on_off", NULL, "ui.racktuner");
+    intf.openTunerRackBox("RackTuner", &pos, "tuner.on_off", NULL, "ui.racktuner");
     {
         intf.openHorizontalhideBox("");
         intf.closeBox();
@@ -99,6 +106,7 @@ RackTunerBox::RackTunerBox(GxMainInterface& intf_)
             {
             intf.create_selector("racktuner.tuning");
             intf.create_selector("racktuner.streaming");
+            intf.create_spin_value("ui.tuner_reference_pitch");
             intf.create_minislider("racktuner.scale_lim");
             }
             intf.closeBox();

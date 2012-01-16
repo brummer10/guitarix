@@ -349,7 +349,7 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
       fStopped(false),
       fLoggingWindow(_("Logging Window")),
       fLevelMeters(),
-      fTuner(engine_.tuner, *this, pmap_),
+     // fTuner(engine_.tuner, *this, pmap_),
       fWaveView(),
       fSignalLevelBar(0),
       fJackLatencyItem(),
@@ -1516,6 +1516,41 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
     dialog->paintbox.show_all();
 }
 
+/* add tuner to the mono rack, increase mono effect counter*/
+void GxMainInterface::openRackTunerBox(const char *id_dialog, const char *id_switch,
+                                    const char *expose_funk, GtkWidget* box) {
+    gx_engine::Parameter& param_dialog = pmap[id_dialog];
+    gx_engine::Parameter& param_switch = pmap[id_switch];
+    GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
+    guivar.mono_plugs++;
+    gtk_box_pack_end(GTK_BOX(box), GTK_WIDGET(bbox->box.gobj()), false, false, 0);
+    GxTunerRackBox *dialog = new GxTunerRackBox(*this, expose_funk, param_dialog,
+                                param_switch, bbox->show_dialog, gw.rack_widget);
+    gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(dialog->paintbox.gobj()) , true, fill, 0);
+    pushBox(kBoxMode, GTK_WIDGET(dialog->box.gobj()));
+
+    const gchar * title = gtk_widget_get_name(GTK_WIDGET(dialog->paintbox.gobj()));
+    string p = "ui.";
+    p +=title;
+    dialog->menuitem.set_label(title);
+    guint accel_key = GDK_a + guivar.mono_plugs;
+    dialog->menuitem.add_accelerator(
+	"activate", fAccelGroup, accel_key,
+	Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  // FIXME MOD1_MASK
+    mainmenu.plugin_mono_menu.append(dialog->menuitem);
+    dialog->menuitem.show();
+    //dialog->menuitem.set_parameter(new SwitchParameter(p, true, false));
+
+    //dialog->m_tcb.set_parameter(&param_dialog);
+    gtk_box_pack_start(GTK_BOX(tBox), GTK_WIDGET(dialog->box1.gobj()) , false, false, 0);
+    dialog->box1.pack_start(dialog->m_tcb, true, true);
+    string tooltip = "Show ";
+    tooltip +=title;
+    dialog->m_tcb.set_tooltip_text(tooltip.c_str());
+    dialog->box1.show_all();
+    dialog->paintbox.show_all();
+}
+
 /* add stereo effect to the stereo rack, increase stereo effect counter*/
 void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch,
                                      const char *expose_funk, GtkWidget* box) {
@@ -1682,6 +1717,37 @@ void GxMainInterface::closeMonoRackBox() {
     closeBox();
     --fTop;
 }
+
+void GxMainInterface::openTunerRackBox(const char* label, int* posit, const char *id_on_off,
+				      const char *id_pre_post, const char *id_dialog) {
+    fBox[++fTop] = fMonoRackContainer;
+    fMode[fTop] = kBoxMode;
+    string group = id_on_off;
+    string group_id = group.substr(0, group.find_last_of("."));
+    GtkWidget* box = openHorizontalOrderBox(group_id.c_str(), posit);
+    openHorizontalhideBox("");
+    create_switch_no_caption(sw_minitoggle, id_on_off);
+    closeBox();
+    openVerticalBox(label);
+    openHorizontalBox("");
+    openPaintBox1("");
+    create_switch_no_caption(sw_switchit, id_on_off);
+    if (id_pre_post) {
+	create_selector(id_pre_post);
+    }
+    closeBox();
+    
+    openRackTunerBox(id_dialog, id_on_off, "RackBox_expose", box);
+}
+
+void GxMainInterface::closeTunerRackBox() {
+    closeBox();
+    closeBox();
+    closeBox();
+    closeBox();
+    --fTop;
+}
+
 
 void GxMainInterface::loadRackFromGladeData(const char *xmldesc) {
     Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_string(xmldesc, this, "rackbox");
@@ -2152,89 +2218,6 @@ void GxMainInterface::openPatchInfoBox(float* zone) {
     gtk_widget_hide(gw.patch_info);
 }
 
-// ------------------------------ Num Display -----------------------------------
-
-uiTuner::uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui, gx_engine::ParamMap& pmap)
-    : Gtk::Alignment(0.5, 0.5, 0, 0),
-      gx_ui::GxUiItemFloat(&ui, &refpitch),
-      fTuner(),
-      fBox(),
-      eBox(),
-      wheel(),
-      refpitch(),
-      adjust(440, 427, 453, 0.1, 1.0, 0), // half tone steps: 415..467
-      adapt(a) {
-    pmap.reg_par_non_preset(
-	"ui.tuner_reference_pitch", "?Tuner Reference Pitch",
-	&refpitch, adjust.get_value(), adjust.get_lower(), adjust.get_upper(), adjust.get_step_increment());
-    fTuner.set_scale(1.1);
-    wheel.set_value_position(Gtk::POS_RIGHT);
-    wheel.set_adjustment(adjust);
-    wheel.set_tooltip_text(_("reference pitch (standard: 440Hz)"));
-    eBox.add(wheel);
-    eBox.modify_bg (Gtk::STATE_NORMAL, Gdk::Color ("black"));
-    fBox.put(fTuner, 0, 0);
-    fBox.put(eBox, 4, 75);
-    add(fBox);
-    adapt.signal_freq_changed().connect(
-	sigc::mem_fun(*this, &uiTuner::freq_changed));
-    adjust.signal_value_changed().connect(
-	sigc::mem_fun(*this, &uiTuner::on_value_changed));
-    show_all();
-}
-
-void uiTuner::freq_changed() {
-    fTuner.set_freq(adapt.get_freq());
-}
-
-void uiTuner::reflectZone() {
-    float v = *fZone;
-    fCache = v;
-    fTuner.set_reference_pitch(v);
-    adjust.set_value(v);
-}
-
-void uiTuner::on_value_changed() {
-    float v = adjust.get_value();
-    modifyZone(v);
-    fTuner.set_reference_pitch(v);
-}
-
-void GxMainInterface::addNumDisplay() {
-    GxTunerBox *box =  new GxTunerBox(*this,
-        pb_gxrack_expose, _("tuner"), GTK_WIDGET(mainmenu.fShowTuner.gobj()));
-    box->rbox.add(fTuner);
-    // box->window.set_size_request(200,140);
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), false, false, 0);
-
-    gw.tuner_widget = GTK_WIDGET(box->window.gobj());
-
-    GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(gw.rack_tool_bar));
-    GtkWidget *box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    g_list_free(child_list);
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    g_list_free(child_list);
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    g_list_free(child_list);
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    g_list_free(child_list);
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    g_list_free(child_list);
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    g_list_free(child_list);
-
-    GxTBox * tbox1 =  new GxTBox(*this);
-    tbox1->m_tcb.set_parameter(mainmenu.fShowTuner.get_parameter());
-    tbox1->m_tcb.m_label.set_text(_("tuner"));
-    tbox1->m_tcb.set_tooltip_text(_("Show tuner"));
-    gtk_container_add(GTK_CONTAINER(box1), GTK_WIDGET(tbox1->m_tcb.gobj()));
-}
-
 /* status icons in the main menu bar*/
 struct uiStatusDisplay : public gx_ui::GxUiItemBool {
     GtkLabel* fLabel;
@@ -2494,6 +2477,7 @@ MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options, gx
       options_menu(),
       options_meterbridge(_("_Meterbridge"), true),
       fShowTuner(_("_Tuner"),pmap,"system.show_tuner"),
+      fShowValue(_("Hide _Values"),pmap,"system.show_value"),
       // skin submenu
       skin_menu_label(_("_Skin..."), true),
       skin_menu(),
@@ -2822,13 +2806,6 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
 		   sigc::ref(options_meterbridge)));
     options_menu.append(options_meterbridge);
 
-    /*-- Create tuner check menu item under Options submenu --*/
-    fShowTuner.add_accelerator("activate", intf.fAccelGroup,
-                               GDK_t, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
-    fShowTuner.signal_activate().connect(
-        sigc::mem_fun(intf, &GxMainInterface::on_tuner_activate));
-    options_menu.append(fShowTuner);
-
     /*-- Create skin menu under Options submenu--*/
     addGuiSkinMenu(intf);
 
@@ -2844,6 +2821,13 @@ void MainMenu::addOptionMenu(GxMainInterface& intf) {
     fShowLogger.signal_activate().connect(
         sigc::mem_fun(intf, &GxMainInterface::on_log_activate));
     options_menu.append(fShowLogger);
+    
+    /*-- Create logbox check menu item under Options submenu --*/
+    fShowValue.add_accelerator("activate", intf.fAccelGroup,
+                               GDK_v, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    fShowValue.signal_activate().connect(
+        sigc::mem_fun(intf, &GxMainInterface::on_value_activate));
+    options_menu.append(fShowValue);
 
     /*-- Create menu item to control tooltip display --*/
     fShowTooltips.signal_activate().connect(

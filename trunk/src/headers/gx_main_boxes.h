@@ -426,26 +426,39 @@ class GxToolBox {
     ~GxToolBox();
 };
 
+
 /****************************************************************/
 
-class GxTunerBox {
+class GxTunerRackBox {
  private:
-    bool on_window_delete_event(GdkEventAny* event, gpointer d );
+    void on_dialog_button_toggled();
+    void on_reset_button_pressed();
+    void on_dialog_menu_activate();
+    void on_toggled();
+    bool on_window_delete_event(GdkEventAny* event);
+    string group_id;
  public:
-    Gtk::VBox window;
-    Gtk::VBox    m_scrolled_window;
     Gtk::HBox box;
     Gtk::HBox box1;
     Gxw::PaintBox paintbox;
-    Gxw::PaintBox paintbox1;
-    Gtk::VBox rbox;
-    Gtk::Window m_regler_tunertip_window;
-    GxTunerBox(gx_ui::GxUI& ui,
-        const char *pb_2, Glib::ustring titl, GtkWidget * d);
-    ~GxTunerBox();
+    Gtk::HBox box4;
+    Gtk::HBox box5;
+    Gtk::HBox box6;
+    UiSwitch* unit_on_off;
+    MenuCheckItemUiBool menuitem;
+    Gtk::Button reset_button;
+    Gtk::Button reset_button1;
+    ToggleCheckButtonUiBool m_tcb;
+    Gtk::Window m_regler_tooltip_window;
+    GxTunerRackBox(gx_ui::GxUI& ui,
+        const char *expose_funk, gx_engine::Parameter& param_dialog,
+        gx_engine::Parameter& param_switch, Gtk::ToggleButton& button,
+        GtkWidget * Caller);
+    ~GxTunerRackBox();
 };
 
 /****************************************************************/
+
 }/* end of gx_gui namespace */
 
 #endif  // SRC_HEADERS_GX_MAIN_BOXES_H_

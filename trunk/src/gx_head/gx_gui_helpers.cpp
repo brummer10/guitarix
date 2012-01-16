@@ -1089,6 +1089,7 @@ gboolean gx_set_default_ssize(gpointer data) {
     return false;
 }
 
+
 // ----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
     gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
@@ -1280,34 +1281,6 @@ void GxMainInterface::on_toolbar_activate() {
     }
 }
 
-// ----menu function gx_tuner
-void GxMainInterface::on_tuner_activate() {
-    bool tuner_on = mainmenu.fShowTuner.get_active();
-    engine.tuner.used_for_display(tuner_on);
-    engine.set_rack_changed();
-    if (tuner_on) {
-        gtk_widget_show_all(gw.tuner_widget);
-        fTuner.show();
-    } else {
-        GtkAllocation my_size;
-        gtk_widget_get_allocation(GTK_WIDGET(RBox), &my_size);
-        gtk_widget_set_size_request(GTK_WIDGET(RBox), -1, my_size.height);
-        if (fWindow.get_resizable())
-            fWindow.set_resizable(false);
-        fTuner.hide();
-        gtk_widget_hide(gw.tuner_widget);
-    
-        if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
-            guivar.g_threads[7] = g_timeout_add_full(
-              G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
-              gpointer(fWindow.gobj()), NULL);
-    
-        if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
-            guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
-                           gx_set_default, gpointer(RBox), NULL);
-    }
-}
-
 // ---- menu function gx_midi_out
 void GxMainInterface::gx_midi_out() {
     GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(gw.midibox));
@@ -1345,6 +1318,29 @@ void GxMainInterface::gx_hide_extended_settings() {
 // ----- systray menu
 void GxMainInterface::gx_systray_menu(guint button, guint32 activate_time) {
     mainmenu.engine_menu.popup(2, gtk_get_current_event_time());
+}
+
+// ----- hide / show values in controller
+void GxMainInterface::on_value_activate() {
+    if (mainmenu.fShowValue.get_active()) {
+        gtk_rc_parse_string(
+        "style \"ShowValue\"\n"
+         "{\n"
+         "  GxRegler::show-value = 0\n"
+         "}\n"
+         "class \"*GxRegler*\" style:highest \"ShowValue\"");
+    
+        gtk_rc_reset_styles(gtk_settings_get_default()) ;
+    } else {
+        gtk_rc_parse_string(
+        "style \"ShowValue\"\n"
+         "{\n"
+         "  GxRegler::show-value = 1\n"
+         "}\n"
+         "class \"*GxRegler*\" style:highest \"ShowValue\"");
+    
+        gtk_rc_reset_styles(gtk_settings_get_default()) ; 
+    }
 }
 
 // ---- choice dialog without text entry
