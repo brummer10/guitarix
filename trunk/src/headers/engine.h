@@ -35,6 +35,7 @@
 #include <glibmm/i18n.h>     // NOLINT
 #include <glibmm/optioncontext.h>   // NOLINT
 #include <glibmm/dispatcher.h>
+#include <glibmm/miscutils.h>
 #include <giomm/file.h>
 
 /* waf generated defines */

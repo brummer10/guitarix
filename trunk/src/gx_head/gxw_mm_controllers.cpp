@@ -160,7 +160,7 @@ UiSelector<T>::~UiSelector() {
 
 template <class T>
 void UiSelector<T>::on_value_changed() {
-    modifyZone(get_value());
+    this->modifyZone(get_value());
 }
 
 template <class T>

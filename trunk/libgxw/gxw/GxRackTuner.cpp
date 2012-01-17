@@ -515,9 +515,14 @@ static gboolean gx_rack_tuner_freq_poll_handler(gpointer data)
 static void gx_rack_tuner_triangle(GxRackTuner *tuner, cairo_t *cr, double posx, double posy, double width, double height)
 {
 	double h2 = height/2.0;
-	cairo_move_to(cr, posx, posy-h2);
-	cairo_line_to(cr, posx, posy+h2);
-	cairo_line_to(cr, posx+width, posy);
+    cairo_move_to(cr, posx, posy-h2);
+    if (width > 0) {
+        cairo_curve_to(cr,posx, posy-h2, posx+10, posy, posx, posy+h2);
+    } else {
+        cairo_curve_to(cr,posx, posy-h2, posx-10, posy, posx, posy+h2);
+    }
+    cairo_curve_to(cr,posx, posy+h2, posx+width/2, posy+h2, posx+width, posy);
+    cairo_curve_to(cr, posx+width, posy, posx+width/2, posy-h2, posx, posy-h2);
 	cairo_fill(cr);
 }
 

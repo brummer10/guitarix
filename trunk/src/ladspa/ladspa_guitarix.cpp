@@ -3,6 +3,9 @@
 #include <ladspa.h>
 #include <iostream>
 
+#include <glibmm/init.h>
+#include <glibmm/thread.h>
+
 #include <jack/jack.h>
 #include <jack/thread.h>
 
