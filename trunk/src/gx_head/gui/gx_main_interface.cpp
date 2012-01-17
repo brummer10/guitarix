@@ -2986,7 +2986,7 @@ unsigned int TubeKeys::keysep[] = {
     GDK_a, GDK_b, GDK_c, GDK_d, GDK_e, 0,
     GDK_f, 0,
     GDK_g, GDK_h, GDK_i, GDK_j, 0,
-    GDK_k, GDK_l, GDK_m, GDK_o, 0,
+    GDK_k, GDK_l, GDK_m, GDK_n, 0,
     GDK_o, GDK_p, GDK_q, GDK_r
 };
 

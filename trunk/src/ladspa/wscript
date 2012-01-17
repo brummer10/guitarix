@@ -8,21 +8,21 @@ def configure(conf):
 
 def build(bld):
     bsources = [
-        '../gx_head/gx_json.cpp',
-        '../gx_head/gx_faust_plugins.cpp',
-        '../gx_head/gx_internal_plugins.cpp',
-        '../gx_head/gx_engine_audio.cpp',
-        '../gx_head/gx_paramtable.cpp',
-        '../gx_head/gx_ui.cpp',
-        '../gx_head/gx_convolver.cpp',
-        '../gx_head/gx_resampler.cpp',
-        '../gx_head/gx_system.cpp',
-        '../gx_head/gx_pluginloader.cpp',
+        '../gx_head/engine/gx_json.cpp',
+        '../gx_head/engine/gx_faust_plugins.cpp',
+        '../gx_head/engine/gx_internal_plugins.cpp',
+        '../gx_head/engine/gx_engine_audio.cpp',
+        '../gx_head/engine/gx_paramtable.cpp',
+        '../gx_head/engine/gx_ui.cpp',
+        '../gx_head/engine/gx_convolver.cpp',
+        '../gx_head/engine/gx_resampler.cpp',
+        '../gx_head/engine/gx_system.cpp',
+        '../gx_head/engine/gx_pluginloader.cpp',
         '../plugins/zita_rev1.cc',  ## lib can't be used (-fPIC)
         ]
     
     src = ['ladspa_guitarix.cpp'] + bsources
-    incl = ['../headers', '..', '../gx_head','../../libgxwmm','../../libgxw']
+    incl = ['../headers', '..','../gx_head/engine','../../libgxwmm','../../libgxw']
     lib = ['dl']
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
               'GLIBMM', 'GIOMM', 'FFTW3', 'BOOST_THREAD']

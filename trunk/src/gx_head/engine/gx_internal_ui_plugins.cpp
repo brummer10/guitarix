@@ -108,7 +108,7 @@ TunerAdapter::TunerAdapter(ModuleSequencer& engine_)
     version = PLUGINDEF_VERSION;
     flags = PGN_SNOOP;
     id = "tuner";
-    name = "racktuner";
+    name = "Rack Tuner";
     mono_audio = feed_tuner;
     set_samplerate = init;
     register_params = regparam;
