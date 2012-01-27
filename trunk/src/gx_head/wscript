@@ -68,8 +68,9 @@ def build(bld):
     if bld.env['ZITA_RESAMPLER']:
         uselib.append('ZITA_RESAMPLER')
     else:
-        sources.append('../zita-resampler/zita-resampler.cc')
-        incl.append('../zita-resampler')
+        sources.append('../zita-resampler-1.1.0/resampler.cc')
+        sources.append('../zita-resampler-1.1.0/resampler-table.cc')
+        incl.append('../zita-resampler-1.1.0')
     if bld.env["HAVE_PLUGINLIB"]:
         uselib_local += ["plugins"]
     if bld.env["GX_LIB_SHARED"]:

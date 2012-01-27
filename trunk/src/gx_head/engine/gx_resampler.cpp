@@ -80,7 +80,7 @@ float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp,
 		return 0;
 	}
 	// pre-fill with k/2-1 zeros
-	int k = filtlen();
+	int k = inpsize();
 	inp_count = k/2-1;
 	inp_data = 0;
 	out_count = 1; // must be at least 1 to get going
@@ -88,9 +88,13 @@ float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp,
 	if (Resampler::process() != 0) {
 		return 0;
 	}
-	inp_count = ilen;
-	int nout = out_count = (ilen * ratio_b() + ratio_a() - 1) / ratio_a();
-	inp_data = input;
+    inp_count = ilen;
+    // calculate output buffer size over the sample rates
+	double ratio = 
+        ceil((static_cast<double>(fs_outp)/static_cast<double>(fs_inp))*1000.)/1000.;
+    int nout = out_count = ilen * ratio;
+	//nout = out_count = (ilen * ratio_b() + ratio_a() - 1) / ratio_a();
+    inp_data = input;
 	float *p = out_data = new float[out_count];
 	if (Resampler::process() != 0) {
 		delete p;
@@ -123,7 +127,8 @@ bool StreamingResampler::setup(int srcRate, int dstRate, int nchan)
 	}
 	assert(inp_count == 0);
 	assert(out_count == 1);
-	return true;
+    ratio = ceil((static_cast<double>(dstRate)/static_cast<double>(srcRate))*1000.)/1000.;
+    return true;
 }
 
 int StreamingResampler::process(int count, float *input, float *output)

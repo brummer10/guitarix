@@ -371,6 +371,7 @@ def check_zita_convolver(opt, conf):
             fragment=code,
             lib="zita-convolver",
             uselib_store='ZITA_CONVOLVER',
+            msg='Checking for zita-convolver >= %d.0' % expected_zita_convolver_version,
             errmsg="version %d not found, using ours" % expected_zita_convolver_version,
             define_name="ZITA_CONVOLVER")
 
@@ -378,12 +379,21 @@ def check_zita_resampler(opt, conf):
     if opt.includeresampler:
         conf.env['ZITA_RESAMPLER'] = False
     else:
+        expected_zita_resampler_version = 1
+        code="""
+        #include <zita-resampler/resampler.h>
+        #include <zita-resampler/resampler-table.h>
+        #if ZITA_RESAMPLER_MAJOR_VERSION != %d
+        #error
+        #endif
+        int main(){ return 0; }
+        """ % expected_zita_resampler_version
         conf.check_cxx(
+            fragment=code,
             lib='zita-resampler',
             uselib_store='ZITA_RESAMPLER',
-            msg='Checking for zita-resampler',
-            header_name='zita-resampler.h',
-            errmsg="fixed version not found, using ours",
+            msg='Checking for zita-resampler >= %d.0' % expected_zita_resampler_version,
+            errmsg="version %d not found, using ours" % expected_zita_resampler_version,
             define_name="ZITA_RESAMPLER")
 
 # Taken from Geany's wscript, modified to support LINGUAS variable

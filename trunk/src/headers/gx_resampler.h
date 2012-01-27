@@ -25,7 +25,7 @@
 #ifndef SRC_HEADERS_GX_RESAMPLER_H_
 #define SRC_HEADERS_GX_RESAMPLER_H_
 
-#include <zita-resampler.h>
+#include <zita-resampler/resampler.h>
 
 namespace gx_resample {
 
@@ -48,9 +48,11 @@ class BufferResampler: Resampler {
 };
 
 class StreamingResampler: Resampler {
+ private:
+    double ratio;
  public:
     bool setup(int srcRate, int dstRate, int nchan);
-    int get_max_out_size(int i_size) { return (i_size * ratio_b()) / ratio_a() + 1; }
+    int get_max_out_size(int i_size) { return (i_size * ratio); }
     int process(int count, float *input, float *output);
     int flush(float *output); // check source for max. output size
 };
