@@ -41,6 +41,7 @@
 
 #include "gx_threads.h"
 #include "gx_gui_helpers.h"
+#include "gx_preset_options.h"
 #include "gx_jconv_settings.h"
 #include "gx_portmap.h"
 #include "gx_main_midi.h"

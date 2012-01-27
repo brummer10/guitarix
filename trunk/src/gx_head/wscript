@@ -26,6 +26,10 @@ def build(bld):
         ]
 
     sources_gui = [
+        './gui/gx_main_menu.cpp',
+        './gui/gx_jack_options.cpp',
+        './gui/gx_preset_options.cpp',
+        './gui/gx_ui_builder.cpp',
         './gui/gx_gui_helpers.cpp',
         './gui/gx_main_interface.cpp',
         './gui/gx_child_process.cpp',

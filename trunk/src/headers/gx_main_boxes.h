@@ -409,7 +409,6 @@ class GxScrollBox {
 class GxToolBox {
  private:
     bool on_window_delete_event(GdkEventAny* event, gpointer d );
-    bool on_button_pressed(GdkEventButton* event);
  public:
     Gtk::VBox window;
     Gtk::ScrolledWindow    m_scrolled_window;

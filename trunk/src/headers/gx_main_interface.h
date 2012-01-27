@@ -479,24 +479,13 @@ private:
     void                  on_portmap_activate();
     void                  on_portmap_response(int);
     /* engine status and switch */
-    void refresh_engine_status_display();
-    void toggle_engine_switch();
-    void toggle_engine_bypass();
-    void sync_engine_switch();
+    void                  refresh_engine_status_display();
+    void                  toggle_engine_switch();
+    void                  toggle_engine_bypass();
+    void                  sync_engine_switch();
 
     void                  gx_systray_menu(guint button, guint32 activate_time);
     void                  gx_hide_extended_settings();
-
-    void                  addMainMenu();
-    void                  addEngineMenu();
-    void                  addJackServerMenu();
-    void                  addPresetMenu();
-    void                  addExtraPresetMenu();
-    void                  addPluginMenu();
-    void                  addAmpMenu();
-    void                  addOptionMenu();
-    void                  addGuiSkinMenu();
-    void                  addAboutMenu();
 
     void                  do_program_change(int);
     bool                  on_meter_button_release(GdkEventButton* ev);
@@ -570,9 +559,9 @@ public:
 
     GtkWidget*            RBox;
 
-    static const gboolean expand   = TRUE;
-    static const gboolean fill     = TRUE;
-    static const gboolean homogene = FALSE;
+    static const          gboolean expand   = TRUE;
+    static const          gboolean fill     = TRUE;
+    static const          gboolean homogene = FALSE;
 
 public:
     explicit GxMainInterface(gx_engine::GxEngine&, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
@@ -859,6 +848,12 @@ int gx_set_my_oriantation();
 
 int precision(double n);
 string fformat(float value, float step);
+
+/* jack client and port mapping functions */
+bool gx_start_jack_dialog();
+
+GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname);
+
 
 /****************************************************************/
 
