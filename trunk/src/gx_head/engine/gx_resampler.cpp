@@ -35,17 +35,17 @@ void SimpleResampler::setup(int sampleRate, unsigned int fact)
 	const int qual = 16; // resulting in a total delay of 2*qual (0.7ms @44100)
 	// upsampler
 	r_up.setup(sampleRate, sampleRate*fact, 1, qual);
-	// k == filtlen() == 2 * qual
+	// k == inpsize() == 2 * qual
 	// pre-fill with k-1 zeros
-	r_up.inp_count = r_up.filtlen() - 1;
+	r_up.inp_count = r_up.inpsize() - 1;
 	r_up.out_count = 1;
 	r_up.inp_data = r_up.out_data = 0;
 	r_up.process();
 	// downsampler
 	r_down.setup(sampleRate*fact, sampleRate, 1, qual);
-	// k == filtlen() == 2 * qual * fact
+	// k == inpsize() == 2 * qual * fact
 	// pre-fill with k-1 zeros
-	r_down.inp_count = r_down.filtlen() - 1;
+	r_down.inp_count = r_down.inpsize() - 1;
 	r_down.out_count = 1;
 	r_down.inp_data = r_down.out_data = 0;
 	r_down.process();
@@ -90,9 +90,8 @@ float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp,
 	}
     inp_count = ilen;
     // calculate output buffer size over the sample rates
-	double ratio = 
-        ceil((static_cast<double>(fs_outp)/static_cast<double>(fs_inp))*1000.)/1000.;
-    int nout = out_count = ilen * ratio;
+	double ratio = static_cast<double>(fs_outp)/fs_inp;
+    int nout = out_count = static_cast<int>(ilen * ratio) + 1;
 	//nout = out_count = (ilen * ratio_b() + ratio_a() - 1) / ratio_a();
     inp_data = input;
 	float *p = out_data = new float[out_count];
@@ -118,7 +117,7 @@ bool StreamingResampler::setup(int srcRate, int dstRate, int nchan)
 	if (Resampler::setup(srcRate, dstRate, nchan, qual) != 0) {
 		return false;
 	}
-	inp_count = filtlen()/2-1;
+	inp_count = inpsize()/2-1;
 	inp_data = 0;
 	out_count = 1; // must be at least 1 to get going
 	out_data = 0;
@@ -127,7 +126,7 @@ bool StreamingResampler::setup(int srcRate, int dstRate, int nchan)
 	}
 	assert(inp_count == 0);
 	assert(out_count == 1);
-    ratio = ceil((static_cast<double>(dstRate)/static_cast<double>(srcRate))*1000.)/1000.;
+    ratio = static_cast<double>(dstRate)/srcRate;
     return true;
 }
 
@@ -150,7 +149,7 @@ int StreamingResampler::flush(float *output)
 	// srcRate > dstRate:  ~ 2 * qual
 	// srcRate < dstRate:  ~ 2 * qual * dstRate/srcRate
 	inp_data = 0;
-	inp_count = filtlen()/2;
+	inp_count = inpsize()/2;
 	out_data = output;
 	int olen = out_count = get_max_out_size(inp_count);
 	if (Resampler::process() != 0) {
