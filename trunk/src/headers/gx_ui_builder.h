@@ -119,5 +119,26 @@ public:
 	assert(!widget->get_parent());
     }
 };
+
+class GxMainInterface;
+
+class UiBuilderImpl: public gx_engine::UiBuilderBase {
+private:
+    static GxMainInterface *intf;
+    static void openVerticalBox_(const char* label);
+    static void openHorizontalBox_(const char* label);
+    static void openHorizontalhideBox_(const char* label);
+    static void create_small_rackknob_(const char *id, const char *label);
+    static void create_master_slider_(const char *id, const char *label);
+    static void create_selector_(const char *id);
+    static void closeBox_();
+    static void load_glade_(const char *data);
+    void load(gx_engine::Plugin *p);
+public:
+    UiBuilderImpl(GxMainInterface *i);
+};
+
+GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname);
+
 } /* end of gx_gui namespace */
 #endif  // SRC_HEADERS_GX_UI_BUILDER_H_

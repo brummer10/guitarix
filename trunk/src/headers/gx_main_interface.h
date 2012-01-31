@@ -61,22 +61,8 @@
 namespace gx_gui {
 
 class GxMainInterface;
-
-class UiBuilderImpl: public gx_engine::UiBuilderBase {
-private:
-    static GxMainInterface *intf;
-    static void openVerticalBox_(const char* label);
-    static void openHorizontalBox_(const char* label);
-    static void openHorizontalhideBox_(const char* label);
-    static void create_small_rackknob_(const char *id, const char *label);
-    static void create_master_slider_(const char *id, const char *label);
-    static void create_selector_(const char *id);
-    static void closeBox_();
-    static void load_glade_(const char *data);
-    void load(gx_engine::Plugin *p);
-public:
-    UiBuilderImpl(GxMainInterface *i);
-};
+class UiBuilderImpl;
+class SelectJackControlPgm;
 
 /****************************************************************
  **
@@ -283,36 +269,6 @@ public:
     virtual ~GxUiRadioMenu();
     void setup(Gtk::MenuShell& menucont, Glib::RefPtr<Gtk::AccelGroup>& ag);
 };
-
-
-/****************************************************************
- ** class SelectJackControlPgm
- */
-
-class SelectJackControlPgm: public Gtk::Window {
-private:
-    Gtk::Label  *description;
-    Gtk::Entry  *customstarter;
-    Gtk::ComboBox *startercombo;
-    Gtk::CheckButton *dontask;
-    gx_engine::IntParameter& starter;
-    gx_engine::StringParameter& starter_cmd;
-    gx_engine::SwitchParameter& ask;
-    sigc::signal<void> close;
-    void on_starter_changed();
-    void on_ok_button();
-    void on_cancel_button();
-    bool on_delete_event(GdkEventAny* event);
-    static SelectJackControlPgm* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::ParamMap& pmap) {
-	return new SelectJackControlPgm(cobject, bld, pmap);
-    }
-    SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::ParamMap& pmap);
-public:
-    ~SelectJackControlPgm();
-    static SelectJackControlPgm* create(gx_ui::GxUI *ui, gx_system::CmdlineOptions& opt, gx_engine::ParamMap& pmap);
-    sigc::signal<void>& signal_close() { return close; }
-};
-
 
 /****************************************************************
  ** class TextLoggingBox
@@ -848,12 +804,6 @@ int gx_set_my_oriantation();
 
 int precision(double n);
 string fformat(float value, float step);
-
-/* jack client and port mapping functions */
-bool gx_start_jack_dialog();
-
-GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname);
-
 
 /****************************************************************/
 
