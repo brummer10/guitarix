@@ -257,6 +257,38 @@ void ErrorPopup::show_msg() {
     dialog->show();
 }
 
+/****************************************************************
+ ** class GxSplashBox
+ ** show splash screen at start up
+ */
+
+class GxSplashBox {
+ private:
+    Gtk::Window m_window;
+    Gtk::HBox m_paintbox;
+ public:
+    explicit GxSplashBox();
+    ~GxSplashBox();
+};
+GxSplashBox::~GxSplashBox() {}
+
+GxSplashBox::GxSplashBox()
+    : m_window(Gtk::WINDOW_TOPLEVEL),
+    m_paintbox(false, 0) {
+    m_paintbox. set_redraw_on_allocate(true);
+    m_paintbox.set_app_paintable();
+    m_paintbox.signal_expose_event().connect(
+	sigc::group(&gx_cairo::splash_expose,GTK_WIDGET(m_paintbox.gobj()),sigc::_1,(void*)0),false);
+    m_window.add(m_paintbox);
+    m_window.set_decorated(false);
+    m_window.set_opacity(0.0);
+    m_window.set_type_hint(Gdk::WINDOW_TYPE_HINT_SPLASHSCREEN);
+    m_window.set_position(Gtk::WIN_POS_CENTER );
+    m_window.set_default_size(240,60);
+    m_window.show_all();
+    while(Gtk::Main::events_pending())
+        Gtk::Main::iteration(false); 
+}
 
 /****************************************************************
  ** main()
@@ -307,6 +339,7 @@ int main(int argc, char *argv[]) {
 
 	gx_system::CmdlineOptions options;
 	Gtk::Main main(argc, argv, options);
+    GxSplashBox * box =  new GxSplashBox();
 
 	gx_system::GxExit::get_instance().signal_msg().connect(
 	    sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
@@ -348,6 +381,7 @@ int main(int argc, char *argv[]) {
 	// ----------------------- run GTK main loop ----------------------
 	gx_ui::GxUI::updateAllGuis(true);
 	gui.show();
+    delete box;
 	gui.run();
     } catch (const Glib::OptionError &e) {
 	cerr << e.what() << endl;
