@@ -1,6 +1,0 @@
-#! /bin/dash
-dir="`dirname "$0"`"
-export GLADE_CATALOG_PATH="$dir/../lib"
-export GLADE_MODULE_PATH="$dir/../build/default/lib"
-export LD_LIBRARY_PATH="$GLADE_MODULE_PATH"
-exec glade "$@"
