@@ -28,6 +28,30 @@
 
 namespace gx_resample {
 
+// copyed gcd from (zita) resampler.cc to get ratio_a and ratio_b for
+// calculate the correct buffer size resulting from resample
+static unsigned int gcd (unsigned int a, unsigned int b)
+{
+    if (a == 0) return b;
+    if (b == 0) return a;
+    while (1)
+    {
+	if (a > b)
+	{
+	    a = a % b;
+	    if (a == 0) return b;
+	    if (a == 1) return 1;
+	}
+	else
+	{
+	    b = b % a;
+	    if (b == 0) return a;
+	    if (b == 1) return 1;
+	}
+    }    
+    return 1; 
+}
+
 void SimpleResampler::setup(int sampleRate, unsigned int fact)
 {
 	assert(fact <= MAX_UPSAMPLE);
@@ -75,6 +99,10 @@ void SimpleResampler::down(int count, float *input, float *output)
 
 float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp, int *olen)
 {
+    int d = gcd(fs_inp, fs_outp);
+    int ratio_a = fs_inp / d;
+    int ratio_b = fs_outp / d;
+    
 	const int qual = 32;
 	if (setup(fs_inp, fs_outp, 1, qual) != 0) {
 		return 0;
@@ -89,10 +117,7 @@ float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp,
 		return 0;
 	}
     inp_count = ilen;
-    // calculate output buffer size over the sample rates
-	double ratio = static_cast<double>(fs_outp)/fs_inp;
-    int nout = out_count = static_cast<int>(ilen * ratio) + 1;
-	//nout = out_count = (ilen * ratio_b() + ratio_a() - 1) / ratio_a();
+	int nout = out_count = (ilen * ratio_b + ratio_a - 1) / ratio_a;
     inp_data = input;
 	float *p = out_data = new float[out_count];
 	if (Resampler::process() != 0) {
@@ -113,6 +138,10 @@ float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp,
 
 bool StreamingResampler::setup(int srcRate, int dstRate, int nchan)
 {
+    int d = gcd(srcRate, dstRate);
+    ratio_a = srcRate / d;
+    ratio_b = dstRate / d;
+    
 	const int qual = 32;
 	if (Resampler::setup(srcRate, dstRate, nchan, qual) != 0) {
 		return false;
@@ -126,7 +155,6 @@ bool StreamingResampler::setup(int srcRate, int dstRate, int nchan)
 	}
 	assert(inp_count == 0);
 	assert(out_count == 1);
-    ratio = static_cast<double>(dstRate)/srcRate;
     return true;
 }
 

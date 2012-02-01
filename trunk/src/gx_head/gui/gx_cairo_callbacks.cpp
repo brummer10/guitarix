@@ -630,7 +630,7 @@ gboolean splash_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_fill (cr);
     cairo_move_to(cr,40, 45);
 	cairo_text_path (cr,"loading . . .");
-	cairo_set_font_size (cr, 24);
+	cairo_set_font_size (cr, 14);
 	cairo_set_line_width(cr, 1.0);
 	cairo_set_source_rgb (cr, 0., 0., 0.);
     cairo_stroke (cr);

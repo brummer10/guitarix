@@ -395,6 +395,7 @@ void IRWindow::file_changed(Glib::ustring filename, int rate, int length,
         on_length_changed(length, rate);
         s_length = (boost::format("%1%") % length).str();
         s_rate = (boost::format("%1%") % rate).str();
+        save_state();
     }
     wSamples->set_text(s_length);
     wSampleRate->set_text(s_rate);
@@ -846,9 +847,17 @@ void IRWindow::on_apply_button_clicked() {
         convolver.plugin.on_off = true;
         return;
     }
-    if (save_state()) {
+    /* assuming users only press apply when they have change settings
+     * we could remove the depence on settings change here
+     * therefore we could save_state() as soon file_changed()
+     * to avoid that the covolver get feed with wrong settings
+     * and produce garbage output.
+     * Otherwise the convolver simply restart also when no changes have 
+     * happen, witch isn't a problem.  Comment ? --> remove this comment */
+    //if (save_state()) {
+        save_state();
         convolver.restart();
-    }
+    //}
 }
 
 void IRWindow::destroy_self() {

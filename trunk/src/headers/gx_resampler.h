@@ -49,10 +49,11 @@ class BufferResampler: Resampler {
 
 class StreamingResampler: Resampler {
  private:
-    double ratio;
+    int ratio_a;
+    int ratio_b;
  public:
     bool setup(int srcRate, int dstRate, int nchan);
-    int get_max_out_size(int i_size) { return static_cast<int>(i_size * ratio)+1; }
+    int get_max_out_size(int i_size) { return (i_size * ratio_b) / ratio_a + 1; }
     int process(int count, float *input, float *output);
     int flush(float *output); // check source for max. output size
 };

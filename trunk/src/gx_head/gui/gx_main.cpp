@@ -278,7 +278,8 @@ GxSplashBox::GxSplashBox()
     m_paintbox. set_redraw_on_allocate(true);
     m_paintbox.set_app_paintable();
     m_paintbox.signal_expose_event().connect(
-	sigc::group(&gx_cairo::splash_expose,GTK_WIDGET(m_paintbox.gobj()),sigc::_1,(void*)0),false);
+        sigc::group(&gx_cairo::splash_expose,GTK_WIDGET(m_paintbox.gobj()),
+        sigc::_1,(void*)0),false);
     m_window.add(m_paintbox);
     m_window.set_decorated(false);
     m_window.set_opacity(0.0);
@@ -339,7 +340,7 @@ int main(int argc, char *argv[]) {
 
 	gx_system::CmdlineOptions options;
 	Gtk::Main main(argc, argv, options);
-    GxSplashBox * box =  new GxSplashBox();
+    GxSplashBox * Splash =  new GxSplashBox();
 
 	gx_system::GxExit::get_instance().signal_msg().connect(
 	    sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
@@ -381,7 +382,7 @@ int main(int argc, char *argv[]) {
 	// ----------------------- run GTK main loop ----------------------
 	gx_ui::GxUI::updateAllGuis(true);
 	gui.show();
-    delete box;
+    delete Splash;
 	gui.run();
     } catch (const Glib::OptionError &e) {
 	cerr << e.what() << endl;
