@@ -50,10 +50,10 @@ private:
 	double 	fRec8[3];
 	FAUSTFLOAT 	fslider2;
 	double 	fRec11[2];
+	FAUSTFLOAT 	fslider3;
 	double 	fConst26;
 	double 	fConst27;
 	double 	fRec12[2];
-	FAUSTFLOAT 	fslider3;
 	FAUSTFLOAT 	fcheckbox0;
 	double 	fVec2[2];
 	double 	fRec16[2];
@@ -171,7 +171,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst24 = (0 - fConst12);
 	fConst25 = (2 * (0 - fConst10));
 	fConst26 = exp((0 - (2e+02 / iConst0)));
-	fConst27 = exp((0 - (0.1 / iConst0)));
+	fConst27 = exp((0 - (0.2 / iConst0)));
 	clear_state_f();
 }
 
@@ -186,7 +186,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * fslider1)));
 	double 	fSlow2 = (0.0010000000000000009 * pow(10,(0.05 * fslider2)));
 	double 	fSlow3 = fslider3;
-	double 	fSlow4 = (5 * fSlow3);
+	double 	fSlow4 = (5.0 * fSlow3);
 	int 	iSlow5 = int(fcheckbox0);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
@@ -210,8 +210,8 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		double fTemp4 = max(1, fabs(fTemp3));
 		double fTemp5 = ((fConst27 * (fRec12[1] >= fTemp4)) + (fConst26 * (fRec12[1] < fTemp4)));
 		fRec12[0] = ((fTemp4 * (0 - (fTemp5 - 1))) + (fRec12[1] * fTemp5));
-		double fTemp6 = max(0, (fSlow4 + (20 * log10(fRec12[0]))));
-		double fTemp7 = (0.5 * min(1, max(0, (0.09522902580706599 * fTemp6))));
+		double fTemp6 = max(0, ((20 * log10(fRec12[0])) + fSlow4));
+		double fTemp7 = (2.0 * min(1, max(0, (0.09522902580706599 * fTemp6))));
 		output0[i] = (FAUSTFLOAT)((iSlow5)?(fTemp3 * pow(10,(0.05 * (fSlow3 + ((fTemp6 * (0 - fTemp7)) / (1 + fTemp7)))))):fTemp3);
 		double fTemp8 = (double)input1[i];
 		fVec2[0] = fTemp8;
@@ -231,8 +231,8 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		double fTemp12 = max(1, fabs(fTemp11));
 		double fTemp13 = ((fConst27 * (fRec22[1] >= fTemp12)) + (fConst26 * (fRec22[1] < fTemp12)));
 		fRec22[0] = ((fTemp12 * (0 - (fTemp13 - 1))) + (fRec22[1] * fTemp13));
-		double fTemp14 = max(0, (fSlow4 + (20 * log10(fRec22[0]))));
-		double fTemp15 = (0.5 * min(1, max(0, (0.09522902580706599 * fTemp14))));
+		double fTemp14 = max(0, ((20 * log10(fRec22[0])) + fSlow4));
+		double fTemp15 = (2.0 * min(1, max(0, (0.09522902580706599 * fTemp14))));
 		output1[i] = (FAUSTFLOAT)((iSlow5)?(fTemp11 * pow(10,(0.05 * (fSlow3 + ((fTemp14 * (0 - fTemp15)) / (1 + fTemp15)))))):fTemp11);
 		// post processing
 		fRec22[1] = fRec22[0];
@@ -273,7 +273,7 @@ void Dsp::compute_static(int count, float *input0, float *input1, float *output0
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("tonemodul.Treble","","S","",&fslider2, 0.0, -5.0, 5.0, 0.01);
-	reg.registerVar("tonemodul.sharper",N_("sharper"),"S","",&fslider3, 1.0, 1.0, 1e+01, 1.0);
+	reg.registerVar("tonemodul.sharper",N_("sharper"),"S","",&fslider3, -2.0, -2.5, 5.0, 0.1);
 	reg.registerVar("tonemodul.ON","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("tonemodul.Bass","","S","",&fslider1, 0.0, -5.0, 5.0, 0.01);
 	reg.registerVar("tonemodul.Middle","","S","",&fslider0, 0.0, -5.0, 5.0, 0.01);

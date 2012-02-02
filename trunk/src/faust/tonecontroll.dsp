@@ -116,9 +116,33 @@ l = vslider("Bass", 0., -5., 5, 0.01): db2linear : smoothi(0.999) ;
 
 
 //tstack = component("tonestack.dsp");
+sharp = vslider("sharper[name:sharper]", -2, -2.5, 5, 0.1);
+press = -5. * sharp;
 
+attack  = 0.005;
+release = 5.0;
+knee    = 10.5;
+ratio   = 3.0;
 
-comp = BP( component("noise_shaper.dsp"));
+env = abs : max(1);
+
+compress(env) = level * (1-r)/r
+with {
+	level = env : h ~ _ : linear2db : (_ - press ) : max(0)
+	with {
+		h(x,y)  = f*x+(1-f)*y with { f = (x<y)*ga+(x>=y)*gr; };
+		ga      = exp(-1/(SR*attack));
+		gr      = exp(-1/(SR*release));
+	};
+	p = level/(knee+eps) : max(0) : min(1) with { eps = 0.001; };
+	r = 1 - p + p * ratio;
+};
+
+comp1(x) = g(x) * x
+with {
+	g = env : compress + sharp : db2linear;
+};
+comp = BP( comp1);
 
 
 
