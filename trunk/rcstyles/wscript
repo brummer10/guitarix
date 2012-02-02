@@ -39,6 +39,7 @@ gxstyle_files = [
     'black1.png',
     'black2.png',
     'gx_steal.png',
+    'stereo.png',
     ]
 
 def configure(conf):

@@ -296,22 +296,25 @@ GxSplashBox::GxSplashBox()
  */
 
 #ifndef NDEBUG
+void start_main(gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
 
-int debug_display_glade(const string& fname, const string& rcfile) {
-    gx_ui::GxUI ui;
-    float refpitch;
-    gx_engine::parameter_map.reg_par_non_preset(
-	"ui.tuner_reference_pitch", "?Tuner Reference Pitch",
-	&refpitch, 440, 427, 453, 0.1); // half tone steps: 415..467
+int debug_display_glade(gx_system::CmdlineOptions& options, const string& fname, const string& rcfile) {
     gx_engine::parameter_map.set_init_values();
-    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &ui);
-    Gtk::Window *w = bld->get_first_window();
-    w = bld->get_first_window();
+    Gtk::Window *w = 0;
+    if (!fname.empty()) {
+	gx_ui::GxUI ui;
+	Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &ui);
+	w = bld->get_first_window();
+    }
     gx_ui::GxUI::updateAllGuis(true);
     gtk_rc_parse(rcfile.c_str());
     gtk_rc_reset_styles(gtk_settings_get_default());
-    Gtk::Main::run(*w);
-    delete w;
+    if (w) {
+	Gtk::Main::run(*w);
+	delete w;
+    } else {
+	start_main(options, gx_engine::parameter_map);
+    }
     return 0;
 }
 #endif
@@ -372,7 +375,7 @@ int main(int argc, char *argv[]) {
 	    }
 	    string rcfile = options.get_style_filepath(
 		"gx_head_" + options.skin.skin_list[gx_engine::audio.fskin] + ".rc");
-	    return debug_display_glade(argv[1], rcfile);
+	    return debug_display_glade(options, argv[1], rcfile);
 	}
 #endif
 	// ----------------------- init GTK interface----------------------
