@@ -1,0 +1,7 @@
+*.o
+*.pyc
+*~
+trunk/build/
+trunk/po/LINGUAS
+trunk/.lock-wscript
+.dir-locals.el
