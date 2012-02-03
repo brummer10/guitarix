@@ -579,37 +579,28 @@ static image_entry image_data[] = {
 	{ NULL, NULL },
 };
 
-gboolean splash_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
-{
-	GdkPixbuf *stock_image;
-	cairo_t *cr;
-	cr = gdk_cairo_create(wi->window);
-	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
-	gdk_region_intersect (region, ev->region);
-	gdk_cairo_region (cr, region);
-	cairo_clip (cr);
+static void render (GtkWidget *wi, cairo_t* cr) {
 
-	gint x0      = wi->allocation.x;
-	gint y0      = wi->allocation.y;
-	gint rect_width  = wi->allocation.width;
-	gint rect_height = wi->allocation.height;
-    
-    cairo_rectangle (cr, x0,y0,rect_width,rect_height);
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_fill (cr);
-    
+    // get widget dimension
+    double rect_width  = wi->allocation.width-4.;
+	double rect_height = wi->allocation.height-4.;
+    double x0      = wi->allocation.x+2.;
+	double y0      = wi->allocation.y+2.;
+
+    // set transparent operator
+    cairo_set_source_rgba (cr, 1.0f, 1.0f, 1.0f, 0.0f);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_paint (cr);
+
+    // get image
+    GdkPixbuf *stock_image;
     image_entry *p = image_data;
     stock_image = gdk_pixbuf_new_from_inline(
-					-1,p->icon_data , FALSE, NULL);
+                -1,p->icon_data , FALSE, NULL);
 
-	cairo_pattern_t*pat;
-
-	double radius = 38.;
-	if (rect_width<38) radius = rect_width;
-	else if (rect_height<38) radius = rect_height;
+    // draw background
+    double radius = 38.;
 	double x1,y1;
-
 	x1=x0+rect_width;
 	y1=y0+rect_height;
 
@@ -622,28 +613,70 @@ gboolean splash_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_line_to (cr, x0 + radius, y1);
 	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
 	cairo_close_path (cr);
+
+    cairo_pattern_t*pat;
 	pat = cairo_pattern_create_linear (0, y0, 0, y1);
-	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.3, 0.8);
-	cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.5, 0.5, 0.5, 0.6);
-	cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.2, 0.4);
+	cairo_pattern_add_color_stop_rgb (pat, 1, 0, 0, 0.23);
+	cairo_pattern_add_color_stop_rgb (pat, 0.5, 0.35, 0.35, 0.35);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0.12, 0.12, 0.12);
 	cairo_set_source (cr, pat);
-	cairo_fill (cr);
-    cairo_move_to(cr,40, 45);
+	cairo_fill_preserve (cr);
+    cairo_set_line_width(cr, 2.0);
+	cairo_set_source_rgb (cr, 0., 0., 0.);
+    cairo_stroke (cr);
+    // add text
+    cairo_move_to(cr,40., 45.);
 	cairo_text_path (cr,"loading . . .");
 	cairo_set_font_size (cr, 14);
 	cairo_set_line_width(cr, 1.0);
 	cairo_set_source_rgb (cr, 0., 0., 0.);
     cairo_stroke (cr);
-	cairo_pattern_destroy (pat);
-	cairo_destroy(cr);
-
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+    // draw image
+    gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 	                stock_image, 0, 0,
-	                x0+20, y0+10, -1,-1,
+	                x0+20, y0+5, -1,-1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
+    
+    g_object_unref(stock_image);
 
-	g_object_unref(stock_image);
-	gdk_region_destroy (region);
+}
+
+void make_transparency(GtkWidget* wi) {
+
+    // get widget dimension
+    gint rect_width  = wi->allocation.width;
+	gint rect_height = wi->allocation.height;
+
+    // make Image to fake transparency
+	static GdkBitmap* ShapeBitmap = NULL;
+	static cairo_t* cr = NULL;
+
+	ShapeBitmap = gdk_pixmap_new(NULL, rect_width, rect_height, 1);
+	if (ShapeBitmap) {
+		cr = gdk_cairo_create (ShapeBitmap);
+		if (cairo_status (cr) == CAIRO_STATUS_SUCCESS) {
+			render (wi, cr);
+			cairo_destroy (cr);
+            gtk_widget_shape_combine_mask (wi, NULL, 0, 0);
+            gtk_widget_shape_combine_mask (wi, ShapeBitmap, 0, 0);
+		}
+		g_object_unref(ShapeBitmap);
+	}
+}
+
+gboolean splash_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+{
+    cairo_t* cr = NULL;
+	cr = gdk_cairo_create (wi->window);
+	if (!cr) return FALSE;
+
+    static bool ms = true;
+    if(ms) {
+        make_transparency(wi);
+        ms = false;
+    }
+    render (wi, cr);
+	cairo_destroy (cr);
     return FALSE;
 }
 
