@@ -53,6 +53,9 @@ def build(bld):
         './builder/iredit.glade',
         './builder/jackstarter.glade',
         './builder/mainpanel.glade',
+        './builder/crybaby_ui.glade',
+        './builder/tonestack_ui.glade',
+        './builder/tremolo_ui.glade',
         ]
 
     sources = sources_engine + sources_gui
