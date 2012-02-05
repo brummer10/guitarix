@@ -128,7 +128,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
 	  builtin_tonestack_plugins, "amp.tonestack.select",
 	  _("select"), 0, PGN_POST_PRE),
       ampstack(
-	  *this, ui, "ampstack", "?Tube", builtin_amp_plugins,
+	  *this, ui, "ampstack", _("Amp"), builtin_amp_plugins,
 	  "tube.select", _("select"), ampstack_groups),
       // internal audio modules
       noisegate(),

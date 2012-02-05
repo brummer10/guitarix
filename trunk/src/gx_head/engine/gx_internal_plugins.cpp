@@ -581,7 +581,7 @@ CabinetConvolver::CabinetConvolver(EngineControl& engine, gx_resample::BufferRes
 }
 
 CabinetConvolver::~CabinetConvolver() {
-    delete cab_names;
+    delete[] cab_names;
 }
 
 bool CabinetConvolver::conv_update() {
