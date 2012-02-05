@@ -172,15 +172,15 @@ PluginList::~PluginList() {
     }
 }
 
-Plugin *PluginList::find_plugin(const char *id) {
-    pluginmap::iterator p = pmap.find(id);
+Plugin *PluginList::find_plugin(const char *id) const {
+    pluginmap::const_iterator p = pmap.find(id);
     if (p == pmap.end()) {
 	return 0;
     }
     return p->second;
 }
 
-Plugin *PluginList::lookup_plugin(const char *id) {
+Plugin *PluginList::lookup_plugin(const char *id) const {
     Plugin *p = find_plugin(id);
     if (!p) {
 	gx_system::gx_print_fatal(

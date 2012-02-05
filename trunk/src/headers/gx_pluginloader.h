@@ -88,13 +88,13 @@ private:
     gx_ui::GxUI& ui;
     list<gx_ui::GxUiItem*> rackchanger;
     int plugin_pos[PLUGIN_POS_COUNT];
-    Plugin *find_plugin(const char *id);
+    Plugin *find_plugin(const char *id) const;
     int add_module(Plugin *pl, PluginPos pos, int flags);
 public:
     class iterator;
     PluginList(gx_ui::GxUI& ui, EngineControl& seq);
     ~PluginList();
-    Plugin *lookup_plugin(const char *id);
+    Plugin *lookup_plugin(const char *id) const;
     void set_samplerate(int samplerate); // call set_samplerate of all plugins
     int* pos_var(const char *id);     // return the position of the plugin
     bool* on_off_var(const char *id); // return the on/off switch variable of the plugin
