@@ -239,8 +239,28 @@ Gtk::Window *GxBuilder::get_first_window() {
     return 0;
 }
 
-Gtk::Widget* GxBuilder::get_widget_checked(const Glib::ustring& name, GType type, bool take_ref) {
-    GtkWidget *cobject = get_cwidget(name);
+GObject* GxBuilder::get_cobject(const Glib::ustring& name)
+{
+    GObject *cobject = gtk_builder_get_object (gobj(), name.c_str());
+    if(!cobject) {
+	g_critical("gtkmm: object `%s' not found in GtkBuilder file.", name.c_str());
+	return 0;
+    }
+
+#if 0
+    if (!GTK_IS_WIDGET(cobject))  {
+	g_critical("gtkmm: object `%s' (type=`%s') (in GtkBuilder file) is not a widget type.",
+		   name.c_str(), G_OBJECT_TYPE_NAME(cobject));
+	/* TODO: Unref/sink it? */
+	return 0;
+    }
+#endif
+
+  return cobject;
+}
+
+Gtk::Object* GxBuilder::get_widget_checked(const Glib::ustring& name, GType type, bool take_ref) {
+    GObject *cobject = get_cobject(name);
     if(!cobject) {
 	g_critical("gtkmm: GxBuilder: widget `%s' was not found in the GtkBuilder file, or the specified part of it.", 
 		   name.c_str());
@@ -251,7 +271,7 @@ Gtk::Widget* GxBuilder::get_widget_checked(const Glib::ustring& name, GType type
 		   name.c_str(), G_OBJECT_TYPE_NAME(cobject), g_type_name(type));
 	return 0;
     }
-    return Glib::wrap (GTK_WIDGET (cobject), take_ref);
+    return Glib::wrap (GTK_OBJECT(cobject), take_ref);
 }
 
 /*

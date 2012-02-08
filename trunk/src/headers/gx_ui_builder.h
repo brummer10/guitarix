@@ -59,8 +59,9 @@ private:
     static Glib::RefPtr<GxBuilder> create_from_string(const Glib::ustring& buffer, const char* object_id);
     static Glib::RefPtr<GxBuilder> create_from_string(const Glib::ustring& buffer, const Glib::ustring& object_id);
     static Glib::RefPtr<GxBuilder> create_from_string(const Glib::ustring& buffer, const Glib::StringArrayHandle& object_ids);
+    GObject* get_cobject(const Glib::ustring& name);
 protected:
-    Gtk::Widget* get_widget_checked(const Glib::ustring& name, GType type, bool take_ref);
+    Gtk::Object* get_widget_checked(const Glib::ustring& name, GType type, bool take_ref);
 public:
     static inline Glib::RefPtr<GxBuilder> create() { return Glib::RefPtr<GxBuilder>(new GxBuilder()); }
 
@@ -85,6 +86,25 @@ public:
 	assert(widget);
     }
 
+    template <class T_Widget, class F> inline
+    void find_widget_derived(const Glib::ustring& name, T_Widget*& widget, F f) {
+	widget = 0;
+	typedef typename T_Widget::BaseObjectType cwidget_type;
+	cwidget_type* pCWidget = (cwidget_type*)get_cobject(name);
+	if(!pCWidget) {
+	    return;
+	}
+	Glib::ObjectBase* pObjectBase = ObjectBase::_get_current_wrapper((GObject*)pCWidget);
+	if (pObjectBase) {
+	    widget = dynamic_cast<T_Widget*>( Glib::wrap((GtkWidget*)pCWidget) );
+	    if (!widget) {
+		g_critical("GxBuilder::get_widget_derived(): dynamic_cast<> failed. An existing C++ instance, of a different type, seems to exist.");      
+	    }
+	} else {
+	    widget = f(pCWidget);
+	}
+    }
+
     template <class T_Widget> inline
     void get_toplevel(const Glib::ustring& name, T_Widget*& widget) {
 	widget = 0;
@@ -100,7 +120,7 @@ public:
     void get_toplevel_derived(const Glib::ustring& name, T_Widget*& widget, F f) {
 	widget = 0;
 	typedef typename T_Widget::BaseObjectType cwidget_type;
-	cwidget_type* pCWidget = (cwidget_type*)get_cwidget(name);
+	cwidget_type* pCWidget = (cwidget_type*)get_cobject(name);
 	if(!pCWidget) {
 	    return;
 	}
