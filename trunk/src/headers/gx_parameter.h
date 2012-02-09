@@ -87,7 +87,7 @@ typedef ParameterV<float> FloatParameter;
 typedef ParameterV<int> IntParameter;
 typedef ParameterV<unsigned int> UIntParameter;
 typedef ParameterV<bool> BoolParameter;
-typedef ParameterV<string> StringParameter;
+typedef ParameterV<Glib::ustring> StringParameter;
 
 class FloatEnumParameter;
 class EnumParameter;
@@ -421,24 +421,24 @@ public:
 /****************************************************************/
 
 template<>
-class ParameterV<string>: public Parameter {
+class ParameterV<Glib::ustring>: public Parameter {
 private:
-    string json_value;
-    string *value;
+    Glib::ustring json_value;
+    Glib::ustring *value;
 public:
-    string std_value;
+    Glib::ustring std_value;
 public:
-    void set(const string& val) const { *value = val; }
-    string &get_value() const { return *value; }
+    void set(const Glib::ustring& val) const { *value = val; }
+    Glib::ustring &get_value() const { return *value; }
     virtual void *zone();
     virtual void set_std_value();
     virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
-    ParameterV(const string& id, const string& name, string *v, const string& sv)
+    ParameterV(const string& id, const string& name, Glib::ustring *v, const Glib::ustring& sv)
 	: Parameter(id, name, tp_string, None, false, false),
-	  value(v ? v : new string), std_value(sv) {
+	  value(v ? v : new Glib::ustring), std_value(sv) {
 	own_var = !v;
     }
     ~ParameterV();
@@ -606,7 +606,14 @@ class ParamMap: boost::noncopyable {
 	insert(p);
 	return p;
     }
+#if 0
     inline StringParameter *reg_string(const string& id, const string& name, string *var, const string& sv) {
+	StringParameter *p = new StringParameter(id, name, var, sv);
+	insert(p);
+	return p;
+    }
+#endif
+    inline StringParameter *reg_string(const string& id, const string& name, Glib::ustring *var, const string& sv) {
 	StringParameter *p = new StringParameter(id, name, var, sv);
 	insert(p);
 	return p;

@@ -187,7 +187,7 @@ void PosixSignals::signal_helper_thread() {
 
 class ErrorPopup {
 private:
-    string msg;
+    Glib::ustring msg;
     bool active;
     Gtk::MessageDialog *dialog;
     void show_msg();
@@ -195,7 +195,7 @@ private:
 public:
     ErrorPopup();
     ~ErrorPopup();
-    void on_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
+    void on_message(const Glib::ustring& msg, gx_system::GxMsgType tp, bool plugged);
 };
 
 ErrorPopup::ErrorPopup()
@@ -208,18 +208,21 @@ ErrorPopup::~ErrorPopup() {
     delete dialog;
 }
 
-void ErrorPopup::on_message(const string& msg_, gx_system::GxMsgType tp, bool plugged) {
+void ErrorPopup::on_message(const Glib::ustring& msg_, gx_system::GxMsgType tp, bool plugged) {
     if (plugged) {
 	return;
     }
     if (tp == gx_system::kError) {
-	msg = "";//"\n \n \n";
-	msg += msg_;
 	if (active) {
+	    msg += "\n" + msg_;
+	    if (msg.size() > 1000) {
+		msg.substr(msg.size()-1000);
+	    }
 	    if (dialog) {
 		dialog->set_message(msg);
 	    }
 	} else {
+	    msg = msg_;
 	    active = true;
 	    show_msg();
 	}
@@ -294,7 +297,8 @@ GxSplashBox::GxSplashBox()
 #ifndef NDEBUG
 void start_main(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
 
-int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, const string& fname, const string& rcfile) {
+int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
+                        gx_engine::ParamMap& pmap, const string& fname, const string& rcfile) {
     gx_engine::parameter_map.set_init_values();
     Gtk::Window *w = 0;
     if (!fname.empty()) {
@@ -309,7 +313,7 @@ int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& 
 	Gtk::Main::run(*w);
 	delete w;
     } else {
-	start_main(engine, options, gx_engine::parameter_map);
+	start_main(engine, options, pmap);
     }
     return 0;
 }
@@ -339,7 +343,7 @@ int main(int argc, char *argv[]) {
 
 	gx_system::CmdlineOptions options;
 	Gtk::Main main(argc, argv, options);
-    GxSplashBox * Splash =  new GxSplashBox();
+	GxSplashBox * Splash =  new GxSplashBox();
 
 	gx_system::GxExit::get_instance().signal_msg().connect(
 	    sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
@@ -371,7 +375,7 @@ int main(int argc, char *argv[]) {
 	    }
 	    string rcfile = options.get_style_filepath(
 		"gx_head_" + options.skin.skin_list[gx_engine::audio.fskin] + ".rc");
-	    return debug_display_glade(engine, options, argv[1], rcfile);
+	    return debug_display_glade(engine, options, gx_engine::parameter_map, argv[1], rcfile);
 	}
 #endif
 	// ----------------------- init GTK interface----------------------

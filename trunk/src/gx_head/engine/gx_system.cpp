@@ -202,6 +202,8 @@ CmdlineOptions::CmdlineOptions()
       factory_dir(GX_FACTORY_DIR),
       pixmap_dir(GX_PIXMAPS_DIR),
       user_dir(),
+      old_user_dir(),
+      preset_dir(),
       plugin_dir(),
       sys_IR_dir(GX_SOUND_DIR),
       IR_pathlist(),
@@ -212,8 +214,16 @@ CmdlineOptions::CmdlineOptions()
     if (!home) {
 	throw GxFatalError(_("no HOME environment variable"));
     }
-    user_dir = string(home) + "/.gx_head/";
+    old_user_dir = string(home) + "/.gx_head/";
+#ifdef OLDUSERDIR
+    user_dir = old_user_dir;
     plugin_dir = user_dir;
+    preset_dir = user_dir;
+#else
+    user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
+    plugin_dir = Glib::build_filename(user_dir, "plugins");
+    preset_dir = Glib::build_filename(user_dir, "banks");
+#endif
     const char *tmp = getenv("GUITARIX2JACK_OUTPUTS1");
     if (tmp && *tmp) {
 	jack_outputs.push_back(tmp);
@@ -410,6 +420,7 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(factory_dir);
     make_ending_slash(pixmap_dir);
     make_ending_slash(user_dir);
+    make_ending_slash(preset_dir);
     make_ending_slash(plugin_dir);
     make_ending_slash(sys_IR_dir);
 

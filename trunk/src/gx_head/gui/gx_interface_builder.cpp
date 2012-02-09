@@ -327,9 +327,9 @@ void GxMainInterface::setup() {
     gx_gui::gx_update_skin_menu_item(gx_engine::audio.fskin);
     gx_gui::gx_update_skin(gx_engine::audio.fskin, "");
     connect_jack(true);
-    vector<string> l;
+    vector<Glib::ustring> l;
     gx_settings.fill_factory_names(l);
-    for (vector<string>::iterator i = l.begin(); i != l.end(); ++i) {
+    for (vector<Glib::ustring>::iterator i = l.begin(); i != l.end(); ++i) {
 	Gtk::MenuItem *mi = new Gtk::MenuItem(*i);
 	Gtk::Menu *menu = new Gtk::Menu();
 	gx_preset::gxpreset.gx_append_factory_file(*i, *menu);

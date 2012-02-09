@@ -226,6 +226,8 @@ public:
  ** CmdlineParser
  */
 
+#define OLDUSERDIR
+
 class CmdlineOptions: public Glib::OptionContext, boost::noncopyable {
 private:
     Glib::OptionGroup main_group;
@@ -248,6 +250,8 @@ private:
     string factory_dir;
     string pixmap_dir;
     string user_dir;
+    string old_user_dir;
+    string preset_dir;
     string plugin_dir;
     string sys_IR_dir;
     PathList IR_pathlist;
@@ -269,9 +273,13 @@ public:
     string get_pixmap_filepath(const string& basename) const { return pixmap_dir + basename; }
     string get_builder_filepath(const string& basename) const { return builder_dir + basename; }
     string get_user_filepath(const string& basename) const { return user_dir + basename; }
+    string get_preset_filepath(const string& basename) const { return preset_dir + basename; }
     string get_factory_filepath(const string& basename) const { return factory_dir + basename; }
     const string& get_user_dir() const { return user_dir; }
+    const string& get_old_user_dir() const { return old_user_dir; }
     const string& get_plugin_dir() const { return plugin_dir; }
+    const string& get_preset_dir() const { return preset_dir; }
+    const string& get_factory_dir() const { return factory_dir; }
     const string& get_sys_IR_dir() const { return sys_IR_dir; }
     const Glib::ustring& get_rcset() const { return rcset; }
     const string& get_loadfile() const { return load_file; }

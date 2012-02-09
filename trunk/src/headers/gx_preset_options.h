@@ -46,9 +46,9 @@ class GxPreset {
  private:
     typedef void (*callback_with_menuitem)(Gtk::MenuItem*);
     string                gx_get_accel_path(int lindex);
-    void                  gx_add_preset_to_menus(const string&);
+    void                  gx_add_preset_to_menus(const Glib::ustring&);
     void                  gx_save_preset(const gchar*, bool);
-    void                  gx_add_single_preset_menu_item(const string&,
+    void                  gx_add_single_preset_menu_item(const Glib::ustring&,
                                                          const gint,
                                                          callback_with_menuitem);
  public:
@@ -74,20 +74,20 @@ class GxPreset {
     void                  gx_recall_settings_file();
     void                  gx_cleanup_preset_name(Glib::ustring& presname);
     void                  gx_refresh_preset_menus();
-    void                  gx_append_factory_file(const string& name, Gtk::Menu& menu);
+    void                  gx_append_factory_file(const Glib::ustring& name, Gtk::Menu& menu);
     bool                  gx_nth_preset(unsigned char pgm);
 
-    Gtk::MenuItem* const  gx_get_preset_item_from_name(int, const string&);
+    Gtk::MenuItem* const  gx_get_preset_item_from_name(int, const Glib::ustring&);
     GtkWidget*            fpresmenu;
     GtkWidget*            presMenu[GX_NUM_OF_PRESET_LISTS];
 
  private:
     string                old_preset_name;
     static bool gx_build_preset_list();
-    static int gx_get_single_preset_menu_pos(const string& presname, const gint lindex);
+    static int gx_get_single_preset_menu_pos(const Glib::ustring& presname, const gint lindex);
     static void gx_load_factory_preset(
-	const string& factory_name, const string& preset_name);
-    vector<string>        plist;  // name list of loadable presets
+	const Glib::ustring& factory_name, const Glib::ustring& preset_name);
+    vector<Glib::ustring>        plist;  // name list of loadable presets
     vector<Gtk::MenuItem*> pm_list[GX_NUM_OF_PRESET_LISTS];
 };
 

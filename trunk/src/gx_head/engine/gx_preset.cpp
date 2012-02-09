@@ -270,17 +270,15 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
  ** GxSettings
  */
 
+#ifdef OLDUSERDIR
 static const char *std_presetname_postfix = "pre_rc";
+#else
+static const char *std_presetname_postfix = ".gx";
+static const char *scratchpad_name = N_("Scratchpad");
+static const char *scratchpad_file = "scratchpad";
+#endif
 static const char *statename_postfix = "_rc";
-
-const char *factory_settings[][2] = { // FIXME in json file
-    {"funkmuscle", "funkmuscle_rc"},
-    {"zettberlin", "zettberlin_rc"},
-    {"autoandimat", "autoandimat_rc"},
-    {"StudioDave", "dlp_ae_rc"},
-    {"JP", "jp_n_o_s_rc"},
-    {0}
-};
+static const char *bank_list = "banklist.js";
 
 GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, gx_engine::ConvolverAdapter& cvr,
 		       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl,
@@ -299,6 +297,7 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
     set_io(&state_io, &preset_io);
     statefile.set_filename(make_default_state_filename());
     parse_factory_list();
+    banks.parse(opt.get_user_filepath(bank_list), opt.get_preset_dir(), opt.get_factory_dir());
     check_convert_presetfile();
     presetfile_parameter.set_standard(get_default_presetfile(opt));
     instance = this; //FIXME
@@ -432,19 +431,27 @@ string GxSettings::make_state_filename() {
 	jack.get_instancename() + statename_postfix);
 }
 
-void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
-    string user_dir = opt.get_user_dir();
-    if (access((user_dir+".").c_str(), R_OK|W_OK|X_OK) != 0) {
+bool GxSettings::check_create_config_dir(const Glib::ustring& dir) {
+    if (access((Glib::build_filename(dir, ".")).c_str(), R_OK|W_OK|X_OK) != 0) {
 	if (errno != ENOENT) {
 	    throw gx_system::GxFatalError(
 		boost::format(_("no read/write access in guitarix config dir '%1%'"))
-		% user_dir);
+		% dir);
 	}
-	if (mkdir(user_dir.c_str(), 0777) != 0) {
+	if (mkdir(dir.c_str(), 0777) != 0) {
 	    throw gx_system::GxFatalError(
 		boost::format(_("can't create guitarix config dir '%1%'"))
-		% user_dir);
+		% dir);
 	}
+	return true;
+    }
+    return false;
+}
+
+#ifdef OLDUSERDIR
+
+void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
+    if (check_create_config_dir(opt.get_user_dir())) {
 	// need to create so that old guitarix
 	// versions (< 0.20) don't delete confing
 	ofstream f(opt.get_user_filepath("version-0.03.3").c_str());
@@ -453,7 +460,7 @@ void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
 	if (!f.good()) {
 	    throw gx_system::GxFatalError(
 		boost::format(_("can't create file in '%1%' !!??"))
-		% user_dir);
+		% opt.get_user_dir());
 	}
     }
     string tfile = get_default_presetfile(opt);
@@ -465,10 +472,76 @@ void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
 	}
 	if (!gx_system::SettingsFileHeader::make_empty_settingsfile(tfile)) {
 	    throw gx_system::GxFatalError(
-		boost::format(_("can't create file in '%1%' !!??")) % user_dir);
+		boost::format(_("can't create file in '%1%' !!??"))
+		% opt.get_user_dir());
 	}
     }
 }
+
+#else
+
+void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
+    if (check_create_config_dir(opt.get_user_dir())) {
+	check_create_config_dir(opt.get_preset_dir());
+	check_create_config_dir(opt.get_plugin_dir());
+	std::string fname = gx_jack::GxJack::get_default_instancename() + statename_postfix;
+	if (access(Glib::build_filename(opt.get_old_user_dir(), fname).c_str(), R_OK) == 0) {
+	    Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(
+		Glib::build_filename(opt.get_old_user_dir(), fname));
+	    try {
+		f->copy(Gio::File::create_for_path(opt.get_user_filepath(fname)));
+	    } catch (Gio::Error& e) {
+		gx_system::gx_print_error(e.what().c_str(), _("can't copy to new config dir"));
+	    }
+	}
+	fname = Glib::build_filename(
+	    opt.get_old_user_dir(),
+	    gx_jack::GxJack::get_default_instancename() + "pre_rc");
+	if (access(fname.c_str(), R_OK) == 0) {
+	    printf("%s %s\n", fname.c_str(), opt.get_preset_filepath("oldpresets.gx").c_str());
+	    Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(fname);
+	    try {
+		f->copy(Gio::File::create_for_path(opt.get_preset_filepath("oldpresets.gx")));
+	    } catch (Gio::Error& e) {
+		gx_system::gx_print_error(e.what().c_str(), _("can't copy to new config preset dir"));
+	    }
+	}
+    } else {
+	check_create_config_dir(opt.get_preset_dir());
+	check_create_config_dir(opt.get_plugin_dir());
+    }
+    std::string fname = opt.get_preset_filepath(scratchpad_file);
+    if (access(fname.c_str(), R_OK) != 0) {
+	if (!gx_system::SettingsFileHeader::make_empty_settingsfile(fname)) {
+	    throw gx_system::GxFatalError(
+		boost::format(_("can't create file in '%1%' !!??")) % opt.get_preset_dir());
+	}
+    }
+    fname = opt.get_user_filepath(bank_list);
+    if (access(fname.c_str(), R_OK) != 0) {
+	ofstream f(fname.c_str());
+	if (!f.good()) {
+	    throw gx_system::GxFatalError(
+		boost::format(_("can't create '%1%' in directory '%2%'"))
+		% bank_list % opt.get_user_dir());
+	}
+	gx_system::JsonWriter jw(&f);
+	jw.begin_array(true);
+	jw.begin_array();
+	jw.write(scratchpad_name); // name
+	jw.write(scratchpad_file); // filename
+	jw.write(gx_system::PresetFile::PRESET_SCRATCH); // type
+	jw.write(0); // flags
+	gx_system::SettingsFileHeader::write_major_minor_version(jw); // version
+	jw.write(0); // mtime
+	jw.end_array(true);
+	jw.end_array(true);
+	jw.close();
+	f.close();
+    }
+}
+
+#endif
 
 void GxSettings::load(Source src, const string& name, const string& factory) {
     GxSettingsBase::load(src, name, factory);

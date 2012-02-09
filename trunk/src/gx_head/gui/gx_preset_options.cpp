@@ -86,7 +86,7 @@ bool GxPreset::gx_build_preset_list() {
 }
 
 // ----------- add new preset to menus
-void GxPreset::gx_add_preset_to_menus(const string& presname) {
+void GxPreset::gx_add_preset_to_menus(const Glib::ustring& presname) {
     static callback_with_menuitem preset_action_func[] = {
         gxpreset.gx_load_preset,
         gxpreset.gx_save_oldpreset,
@@ -99,7 +99,7 @@ void GxPreset::gx_add_preset_to_menus(const string& presname) {
 
 // ---- add a single preset to a given preset menu
 void GxPreset::gx_add_single_preset_menu_item(
-    const string& presname, const gint lindex, callback_with_menuitem func) {
+    const Glib::ustring& presname, const gint lindex, callback_with_menuitem func) {
     // menu
     gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     Gtk::Menu& menu = gui.mainmenu.preset_submenu[lindex];
@@ -113,7 +113,7 @@ void GxPreset::gx_add_single_preset_menu_item(
     pos += 1;
 
     // add small mnemonic
-    string name = gx_system::to_string(pos) + "  " + presname;
+    Glib::ustring name = gx_system::to_string(pos) + "  " + presname;
     if (pos <= 9) {
 	name = "_" + name;
     }
@@ -153,8 +153,8 @@ void GxPreset::gx_add_single_preset_menu_item(
 
 
 // ----- get the preset number by name from preset list
-int GxPreset::gx_get_single_preset_menu_pos(const string& presname, const gint lindex) {
-    vector<string>::iterator its;
+int GxPreset::gx_get_single_preset_menu_pos(const Glib::ustring& presname, const gint lindex) {
+    vector<Glib::ustring>::iterator its;
     int pos = 0;
     for (its = gxpreset.plist.begin(); its != gxpreset.plist.end(); ++its) {
         ++pos;
@@ -165,8 +165,8 @@ int GxPreset::gx_get_single_preset_menu_pos(const string& presname, const gint l
 }
 
 // ----- get pointer to the menuitem
-Gtk::MenuItem* const GxPreset::gx_get_preset_item_from_name(int lindex, const string& name) {
-    vector<string>::iterator its;
+Gtk::MenuItem* const GxPreset::gx_get_preset_item_from_name(int lindex, const Glib::ustring& name) {
+    vector<Glib::ustring>::iterator its;
     vector<Gtk::MenuItem*>::iterator it = pm_list[lindex].begin();
     int pos = 0;
     for (its = plist.begin(); its != plist.end(); ++its) {
@@ -193,7 +193,7 @@ void GxPreset::gx_refresh_preset_menus() {
 	GxSettings::get_instance().set_std_presetfile();
         gx_build_preset_list();
     }
-    vector<string>::iterator its;
+    vector<Glib::ustring>::iterator its;
     for (its = plist.begin() ; its != plist.end(); ++its) {
         gx_add_preset_to_menus(*its);
     }
@@ -434,7 +434,7 @@ void GxPreset::gx_load_preset(Gtk::MenuItem *menuitem) {
 
     // retrieve preset name
     vector<Gtk::MenuItem*>::iterator it = gxpreset.pm_list[LOAD_PRESET_LIST].begin();
-    vector<string>::iterator its = gxpreset.plist.begin();
+    vector<Glib::ustring>::iterator its = gxpreset.plist.begin();
     for (it = gxpreset.pm_list[LOAD_PRESET_LIST].begin(); it != gxpreset.pm_list[LOAD_PRESET_LIST].end(); ++it) {
         if (menuitem == *it)
             break;
@@ -474,7 +474,7 @@ void GxPreset::gx_save_preset(const char* presname, bool expand_menu) {
 
 // ----menu funktion load preset from factory
 void GxPreset::gx_load_factory_preset(
-    const string& factory_name, const string& preset_name) {
+    const Glib::ustring& factory_name, const Glib::ustring& preset_name) {
 
     gx_gui::guivar.show_patch_info -= 9999;
     GxSettings& gxs = GxSettings::get_instance();
@@ -486,10 +486,10 @@ void GxPreset::gx_load_factory_preset(
 }
 
 // load the factory preset file
-void GxPreset::gx_append_factory_file(const string& name, Gtk::Menu& menu) {
-    vector<string> fp;
+void GxPreset::gx_append_factory_file(const Glib::ustring& name, Gtk::Menu& menu) {
+    vector<Glib::ustring> fp;
     GxSettings::get_instance().fill_factory_preset_names(name, fp);
-    for (vector<string>::iterator it = fp.begin() ; it != fp.end(); ++it) {
+    for (vector<Glib::ustring>::iterator it = fp.begin() ; it != fp.end(); ++it) {
 	Gtk::MenuItem *menuitem = new Gtk::MenuItem(*it, true);
         menuitem->show();
 	menuitem->signal_activate().connect(
@@ -586,7 +586,7 @@ void GxPreset::gx_save_active_preset() {
 // ----menu funktion save
 void GxPreset::gx_save_oldpreset(Gtk::MenuItem* menuitem) {
     string presname;
-    vector<string>::iterator its = gxpreset.plist.begin();
+    vector<Glib::ustring>::iterator its = gxpreset.plist.begin();
 
     vector<Gtk::MenuItem*>::iterator it;
 
@@ -622,7 +622,7 @@ void GxPreset::gx_save_newpreset(GtkEntry* entry) {
     gxpreset.gx_cleanup_preset_name(presname);
 
     // is the name alrady taken ?
-    vector<string>::iterator its;
+    vector<Glib::ustring>::iterator its;
     vector<Gtk::MenuItem*>::iterator it = gxpreset.pm_list[SAVE_PRESET_LIST].begin();
 
     for (its = gxpreset.plist.begin(); its != gxpreset.plist.end(); ++its) {
@@ -715,7 +715,7 @@ void GxPreset::gx_rename_preset(GtkEntry* entry) {
 
 // ----preset renaming dialog
 void GxPreset::gx_rename_preset_dialog(Gtk::MenuItem *menuitem) {
-    vector<string>::iterator its = gxpreset.plist.begin();
+    vector<Glib::ustring>::iterator its = gxpreset.plist.begin();
     vector<Gtk::MenuItem*>::iterator it = gxpreset.pm_list[RENAME_PRESET_LIST].begin();
     for (it = gxpreset.pm_list[RENAME_PRESET_LIST].begin(); it != gxpreset.pm_list[RENAME_PRESET_LIST].end(); ++it) {
         if ( menuitem == *it)
@@ -723,7 +723,7 @@ void GxPreset::gx_rename_preset_dialog(Gtk::MenuItem *menuitem) {
         ++its;
     }
 
-    static string title;
+    static Glib::ustring title;
     if (menuitem) {
         title = _("Renaming preset ");
         title += *its;
