@@ -4,4 +4,5 @@
 trunk/build/
 trunk/po/LINGUAS
 trunk/.lock-wscript
+trunk/TAGS
 .dir-locals.el
