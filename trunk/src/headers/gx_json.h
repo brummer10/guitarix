@@ -150,6 +150,7 @@ public:
 	: file_major(), file_minor(), file_gx_version() {}
     void read(gx_system::JsonParser&);
     static void write(gx_system::JsonWriter&);
+    void set_to_current() { file_major = major; file_minor = minor; file_gx_version = gx_version; }
     int get_major() const { return file_major; }
     int get_minor() const { return file_minor; }
     string get_revision() const { return file_gx_version; }
@@ -158,9 +159,12 @@ public:
     bool is_current() const { return !is_major_diff() && !is_minor_diff(); }
     bool is_equal() const { return is_current() && gx_version == file_gx_version; }
     string display() const { ostringstream s; s << file_major << "." << file_minor << "." << file_gx_version; return s.str(); }
+    Glib::ustring version_string() const { return Glib::ustring::compose("%1.%2", file_major, file_minor); }
+    inline Glib::ustring current_version_string() const { return Glib::ustring::compose("%1.%2", major, minor); }
     static bool make_empty_settingsfile(const string& name);
-    static void write_major_minor_version(JsonWriter& jp, int majv=major, int minv=minor);
-    void read_major_minor_version(JsonParser& jp);
+    static void write_current_major_minor(JsonWriter& jw);
+    void write_major_minor(JsonWriter& jw);
+    void read_major_minor(JsonParser& jp);
 };
 
 class StateFile {
@@ -200,6 +204,7 @@ public:
 enum {
     PRESET_FLAG_VERSIONDIFF = 1,
     PRESET_FLAG_READONLY = 2,
+    PRESET_FLAG_INVALID = 4,
 };
 
 class PresetFile : boost::noncopyable {
@@ -224,18 +229,23 @@ protected:
     void open();
 public:
     typedef std::vector<Position>::iterator iterator;
-    PresetFile(const Glib::ustring& name, const std::string& path, int tp, int flags, SettingsFileHeader header, time_t mtime);
     PresetFile();
     ~PresetFile() { delete is; }
+    bool open_file(const Glib::ustring& name, const std::string& path, int tp, int flags);
+    bool create_file(const Glib::ustring& name, const std::string& path, int tp, int flags);
+    bool set_factory(const Glib::ustring& name_, const std::string& path);
+    bool readJSON(const std::string& dirpath, JsonParser &jp);
+    void writeJSON(JsonWriter& jw);
     void reopen() { if (!is) open(); }
     void open(const std::string& fname);
-    bool fail() { reopen(); return is->fail(); }
-    void ensure_is_current();
-    const std::string& get_filename() { return filename; }
+    bool fail();
+    bool ensure_is_current();
+    void check_flags();
+    const std::string& get_filename() const { return filename; }
     const SettingsFileHeader& get_header();
     int size() const { return entries.size(); }
     void fill_names(vector<Glib::ustring>&);
-    Glib::ustring get_name(int n);
+    const Glib::ustring& get_name(int n);
     int get_index(const Glib::ustring& name);
     gx_system::JsonParser *create_reader(int n);
     gx_system::JsonParser *create_reader(const Glib::ustring& name) {
@@ -254,11 +264,14 @@ public:
     void reorder(const std::list<Glib::ustring>& namelist);
     int get_flags() const { return flags; }
     void set_flags(int f) { flags = f; }
+    void set_flag(int flag, bool v) { flags = (flags & ~flag) | (v ? flag : 0); }
     int get_type() const { return tp; }
     const Glib::ustring& get_name() const { return name; }
-    void set_name(Glib::ustring n) { name = n; }
-    iterator begin() { return entries.begin(); }
+    bool set_name(const Glib::ustring& n, const std::string& newfile);
+    bool remove_file();
+    iterator begin();
     iterator end() { return entries.end(); }
+    bool is_mutable() { return (tp == PRESET_SCRATCH || tp == PRESET_FILE) && !flags; }
 };
 
 class AbstractStateIO {
@@ -283,10 +296,11 @@ private:
     typedef std::list<PresetFile*> bl_type;
     bl_type banklist;
     std::string filepath;
+    time_t mtime;
     std::string preset_dir;
     void parse_factory_list(const std::string& path);
-    void parse_bank_list();
-    void add_nosave(PresetFile* f) { banklist.push_back(f); }
+    void parse_bank_list(bl_type::iterator pos);
+    void collect_lost_banks();
 public:
     class iterator {
     private:
@@ -300,6 +314,7 @@ public:
     };
     PresetBanks();
     ~PresetBanks();
+    bool check_reparse();
     void parse(const std::string& bank_path, const std::string& preset_dir,
 	       const std::string& factory_path);
     PresetFile* get_file(const Glib::ustring& bank) const;
@@ -307,10 +322,17 @@ public:
     iterator end() { return iterator(banklist.end()); }
     bool remove(const Glib::ustring& bank);
     void save();
-    void add(PresetFile* f) { add_nosave(f); save(); }
+    void insert(PresetFile* f) { banklist.push_front(f); save(); }
     bool has_entry(const Glib::ustring& bank) const { return get_file(bank) != 0; }
-    bool rename(const Glib::ustring& oldname, const Glib::ustring& newname);
+    bool has_file(const std::string& file) const;
+    bool rename(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
     void reorder(const std::vector<Glib::ustring>& neworder);
+    static std::string encode_filename(const std::string& s);
+    static std::string decode_filename(const std::string& s);
+    static void make_valid_utf8(Glib::ustring& s);
+    static std::string add_preset_postfix(const std::string& filename);
+    static bool strip_preset_postfix(std::string& name);
+    void make_bank_unique(Glib::ustring& name, std::string *file = 0);
 };
 
 class GxSettingsBase {
@@ -378,6 +400,7 @@ public:
     bool setting_is_factory() { return current_source == factory; }
     bool idx_in_preset(int idx) { return idx >= 0 && idx < presetfile.size(); }
     void load_preset_by_idx(int idx) { load(preset, presetfile.get_name(idx), ""); }
+    bool convert_preset(PresetFile& pf);
 };
 
 } /* end of gx_system namespace */

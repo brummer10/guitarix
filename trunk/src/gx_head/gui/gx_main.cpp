@@ -354,7 +354,17 @@ int main(int argc, char *argv[]) {
 	options.process(argc, argv);
 
 	// ---------------- Check for working user directory  -------------
-	gx_preset::GxSettings::check_settings_dir(options);
+	if (gx_preset::GxSettings::check_settings_dir(options)) {
+	    Gtk::MessageDialog dialog(
+		_("old config directory found (.gx_head)."
+		  " state file and standard presets file have been copied to"
+		  " the new directory (.config/guitarix).\n"
+		  " Additional old preset files can be imported into the"
+		  " new bank scheme by mouse drag and drop with a file"
+		  " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
+	    dialog.set_title("Guitarix");
+	    dialog.run();
+	}
 
 	PosixSignals posixsig; // catch unix signals in special thread
 	gx_engine::GxEngine engine(

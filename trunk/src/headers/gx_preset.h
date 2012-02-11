@@ -101,7 +101,7 @@ public:
 	       gx_engine::ModuleSequencer& seq, gx_engine::ParamMap& param);
     ~GxSettings();
     string get_displayname();
-    static void check_settings_dir(gx_system::CmdlineOptions& opt);
+    static bool check_settings_dir(gx_system::CmdlineOptions& opt);
     void load(Source src, const string& name = "", const string& factory = "");
     void loadstate();
     void disable_autosave(bool v) { no_autosave = v; }

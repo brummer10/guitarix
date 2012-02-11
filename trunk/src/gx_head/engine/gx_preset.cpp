@@ -270,12 +270,9 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
  ** GxSettings
  */
 
-#ifdef OLDUSERDIR
-static const char *std_presetname_postfix = "pre_rc";
-#else
-static const char *std_presetname_postfix = ".gx";
+#ifndef OLDUSERDIR
 static const char *scratchpad_name = N_("Scratchpad");
-static const char *scratchpad_file = "scratchpad";
+static const char *scratchpad_file = "scratchpad.gx";
 #endif
 static const char *statename_postfix = "_rc";
 static const char *bank_list = "banklist.js";
@@ -406,13 +403,18 @@ void GxSettings::jack_client_changed() {
 }
 
 string GxSettings::get_default_presetfile(gx_system::CmdlineOptions& opt) {
+#ifdef OLDUSERDIR
     return opt.get_user_filepath(
-	gx_jack::GxJack::get_default_instancename() + std_presetname_postfix);
+	gx_system::PresetBanks::add_preset_postfix(
+	    gx_jack::GxJack::get_default_instancename()));
+#else
+    return opt.get_preset_filepath(scratchpad_file);
+#endif
 }
 
 string GxSettings::make_std_preset_filename() {
     return options.get_user_filepath(
-	jack.get_instancename() + std_presetname_postfix);
+	gx_system::PresetBanks::add_preset_postfix(jack.get_instancename()));
 }
 
 string GxSettings::make_default_state_filename() {
@@ -450,7 +452,7 @@ bool GxSettings::check_create_config_dir(const Glib::ustring& dir) {
 
 #ifdef OLDUSERDIR
 
-void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
+bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
     if (check_create_config_dir(opt.get_user_dir())) {
 	// need to create so that old guitarix
 	// versions (< 0.20) don't delete confing
@@ -476,16 +478,20 @@ void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
 		% opt.get_user_dir());
 	}
     }
+    return false;
 }
 
 #else
 
-void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
+bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
+    bool copied_from_old = false;
+    std::string oldpreset;
     if (check_create_config_dir(opt.get_user_dir())) {
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
 	std::string fname = gx_jack::GxJack::get_default_instancename() + statename_postfix;
 	if (access(Glib::build_filename(opt.get_old_user_dir(), fname).c_str(), R_OK) == 0) {
+	    copied_from_old = true;
 	    Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(
 		Glib::build_filename(opt.get_old_user_dir(), fname));
 	    try {
@@ -498,12 +504,13 @@ void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
 	    opt.get_old_user_dir(),
 	    gx_jack::GxJack::get_default_instancename() + "pre_rc");
 	if (access(fname.c_str(), R_OK) == 0) {
-	    printf("%s %s\n", fname.c_str(), opt.get_preset_filepath("oldpresets.gx").c_str());
 	    Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(fname);
+	    oldpreset = opt.get_preset_filepath("oldpresets.gx");
 	    try {
-		f->copy(Gio::File::create_for_path(opt.get_preset_filepath("oldpresets.gx")));
+		f->copy(Gio::File::create_for_path(oldpreset));
 	    } catch (Gio::Error& e) {
 		gx_system::gx_print_error(e.what().c_str(), _("can't copy to new config preset dir"));
+		oldpreset = "";
 	    }
 	}
     } else {
@@ -525,20 +532,19 @@ void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
 		boost::format(_("can't create '%1%' in directory '%2%'"))
 		% bank_list % opt.get_user_dir());
 	}
+	gx_system::PresetFile pre;
+	pre.open_file(scratchpad_name, opt.get_preset_filepath(scratchpad_file), gx_system::PresetFile::PRESET_SCRATCH, 0);
 	gx_system::JsonWriter jw(&f);
 	jw.begin_array(true);
-	jw.begin_array();
-	jw.write(scratchpad_name); // name
-	jw.write(scratchpad_file); // filename
-	jw.write(gx_system::PresetFile::PRESET_SCRATCH); // type
-	jw.write(0); // flags
-	gx_system::SettingsFileHeader::write_major_minor_version(jw); // version
-	jw.write(0); // mtime
-	jw.end_array(true);
+	pre.writeJSON(jw);
+	if (!oldpreset.empty() && pre.open_file("copied presets", oldpreset, gx_system::PresetFile::PRESET_FILE, 0)) {
+	    pre.writeJSON(jw);
+	}
 	jw.end_array(true);
 	jw.close();
 	f.close();
     }
+    return copied_from_old;
 }
 
 #endif

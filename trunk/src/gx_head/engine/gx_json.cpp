@@ -29,6 +29,20 @@
 
 namespace gx_system {
 
+bool check_mtime(const std::string& filename, time_t& mtime) {
+    struct stat st;
+    if (stat(filename.c_str(), &st) != 0) {
+	mtime = 0;
+	return false;
+    }
+    time_t t = max(st.st_mtime, st.st_ctime);
+    if (t == mtime) {
+	return true;
+    }
+    mtime = t;
+    return false;
+}
+
 /****************************************************************
  ** JsonWriter
  */
@@ -453,14 +467,21 @@ void SettingsFileHeader::write(JsonWriter& jw) {
     jw.end_array(true);
 }
 
-void SettingsFileHeader::write_major_minor_version(JsonWriter& jw, int majv, int minv) {
+void SettingsFileHeader::write_current_major_minor(JsonWriter& jw) {
     jw.begin_array();
-    jw.write(majv);
-    jw.write(minv);
+    jw.write(major);
+    jw.write(minor);
     jw.end_array();
 }
 
-void SettingsFileHeader::read_major_minor_version(JsonParser& jp) {
+void SettingsFileHeader::write_major_minor(JsonWriter& jw) {
+    jw.begin_array();
+    jw.write(file_major);
+    jw.write(file_minor);
+    jw.end_array();
+}
+
+void SettingsFileHeader::read_major_minor(JsonParser& jp) {
     jp.next(JsonParser::begin_array);
     jp.next(JsonParser::value_number);
     file_major = jp.current_value_int();
@@ -512,12 +533,7 @@ JsonParser *StateFile::create_reader() {
     if (is) {
 	is->seekg(0);
     } else {
-	struct stat st;
-	if (stat(filename.c_str(), &st) == 0) {
-	    mtime = st.st_mtime;
-	} else {
-	    mtime = 0;
-	}
+	check_mtime(filename, mtime);
 	is = new ifstream(filename.c_str());
     }
     JsonReader *jp = new JsonReader(is);
@@ -540,13 +556,8 @@ void StateFile::ensure_is_current() {
     if (filename.empty() || !mtime) {
 	return;
     }
-    struct stat st;
-    if (stat(filename.c_str(), &st) == 0) {
-	if (st.st_mtime == mtime) {
-	    return;
-	}
-    } else {
-	mtime = 0;
+    if (check_mtime(filename, mtime)) {
+	return;
     }
     delete is;
     is = 0;
@@ -666,15 +677,110 @@ PresetFile::PresetFile()
       flags() {
 }
 
-PresetFile::PresetFile(const Glib::ustring& name_, const std::string& path, int tp_, int flags_, SettingsFileHeader header_, time_t mtime_)
-    : filename(path),
-      is(0),
-      mtime(mtime_),
-      header(header_),
-      entries(),
-      name(name_),
-      tp(tp_),
-      flags(flags_) {
+bool PresetFile::set_factory(const Glib::ustring& name_, const std::string& path) {
+    check_mtime(path, mtime);
+    if (mtime == 0) {
+	gx_system::gx_print_error(
+	    _("open factory preset"),
+	    boost::format(_("couldn't open %1%")) % path);
+	return false;
+    }
+    name = name_;
+    filename = path;
+    tp = PRESET_FACTORY;
+    flags = 0;
+    header.set_to_current();
+    return true;
+}
+
+bool PresetFile::fail() {
+    try {
+	reopen();
+    } catch (gx_system::JsonException& e) {
+	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	return true;
+    }
+    return is->fail();
+}
+
+bool PresetFile::open_file(const Glib::ustring& name_, const std::string& path, int tp_, int flags_) {
+    name = name_;
+    filename = path;
+    tp = tp_;
+    flags = flags_;
+    if (fail()) {
+	set_flag(PRESET_FLAG_INVALID, true);
+	return false;
+    }
+    set_flag(PRESET_FLAG_INVALID, false);
+    check_flags();
+    return true;
+}
+
+bool PresetFile::create_file(const Glib::ustring& name_, const std::string& path, int tp_, int flags_) {
+    name = name_;
+    filename = path;
+    tp = tp_;
+    flags = flags_;
+    bool res = SettingsFileHeader::make_empty_settingsfile(path);
+    if (res) {
+	header.set_to_current();
+	check_mtime(path, mtime);
+    } else {
+	gx_system::gx_print_error(
+	    _("create preset bank"),
+	    boost::format(_("couldn't create %1%")) % path);
+    }
+    return res;
+}
+
+void PresetFile::check_flags() {
+    set_flag(PRESET_FLAG_READONLY, access(filename.c_str(), W_OK) != 0);
+    set_flag(PRESET_FLAG_VERSIONDIFF, !header.is_current());
+}
+
+bool PresetFile::readJSON(const std::string& dirpath, JsonParser &jp) {
+    jp.next(gx_system::JsonParser::begin_array);
+    jp.next(gx_system::JsonParser::value_string);
+    name = jp.current_value();
+    jp.next(gx_system::JsonParser::value_string);
+    filename = Glib::build_filename(dirpath, jp.current_value());
+    jp.next(gx_system::JsonParser::value_number);
+    tp = jp.current_value_int();
+    jp.next(gx_system::JsonParser::value_number);
+    flags = jp.current_value_int();
+    header.read_major_minor(jp);
+    jp.next(gx_system::JsonParser::value_number);
+    mtime = jp.current_value_int();
+    jp.next(gx_system::JsonParser::end_array);
+    if (!check_mtime(filename, mtime)) {
+	if (mtime == 0) {
+	    gx_system::gx_print_error(filename.c_str(), _("not found"));
+	    return false;
+	}
+	try {
+	    open();
+	} catch (gx_system::JsonException& e) {
+	    set_flag(PRESET_FLAG_INVALID, true);
+	    gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	    return false;
+	}
+	set_flag(PRESET_FLAG_INVALID, false);
+	check_flags();
+    }
+    return true;
+}
+
+void PresetFile::writeJSON(JsonWriter& jw) {
+    assert(tp == PRESET_FILE || tp == PRESET_SCRATCH);
+    jw.begin_array();
+    jw.write(name);
+    jw.write(Gio::File::create_for_path(filename)->get_basename());
+    jw.write(tp);
+    jw.write(flags);
+    header.write_major_minor(jw);
+    jw.write(static_cast<int>(mtime));
+    jw.end_array(true);
 }
 
 void PresetFile::open() {
@@ -684,12 +790,7 @@ void PresetFile::open() {
     if (filename.empty()) {
 	return;
     }
-    struct stat st;
-    if (stat(filename.c_str(), &st) == 0) {
-	mtime = st.st_mtime;
-    } else {
-	mtime = 0;
-    }
+    check_mtime(filename, mtime);
     is = new ifstream(filename.c_str());
     JsonParser jp(is);
     jp.next(JsonParser::begin_array);
@@ -714,20 +815,16 @@ void PresetFile::open() {
     jp.next(JsonParser::end_token);
 }
 
-void PresetFile::ensure_is_current() {
-    if (filename.empty() || !mtime) {
-	return;
+bool PresetFile::ensure_is_current() {
+    if (filename.empty() || check_mtime(filename, mtime)) {
+	return true;
     }
-    struct stat st;
-    if (stat(filename.c_str(), &st) == 0) {
-	if (st.st_mtime == mtime) {
-	    return;
-	}
-    } else {
-	mtime = 0;
+    if (!mtime) {
+	return true;
     }
     delete is;
     is = 0;
+    return false;
 }
 
 void PresetFile::open(const std::string& fname) {
@@ -747,7 +844,7 @@ void PresetFile::fill_names(vector<Glib::ustring>& l) {
     }
 }
 
-Glib::ustring PresetFile::get_name(int n) {
+const Glib::ustring& PresetFile::get_name(int n) {
     reopen();
     return entries.at(n).name;
 }
@@ -909,6 +1006,39 @@ bool PresetFile::rename(const Glib::ustring& name, Glib::ustring newname) {
     return true;
 }
 
+bool PresetFile::set_name(const Glib::ustring& n, const std::string& newfile) {
+    if (!Gio::File::create_for_path(filename)->move(Gio::File::create_for_path(newfile))) {
+	gx_print_error(_("rename bank"),
+		       boost::format(_("couldn't move to %1%")) % newfile);
+	return false;
+    }
+    name = n;
+    filename = newfile;
+    return true;
+}
+
+bool PresetFile::remove_file() {
+    if (!Gio::File::create_for_path(filename)->remove()) {
+	gx_print_error(_("remove bank"),
+		       boost::format(_("couldn't remove %1%")) % filename);
+	return false;
+    }
+    filename = "";
+    return true;
+}
+
+PresetFile::iterator PresetFile::begin() {
+    if (flags & PRESET_FLAG_INVALID) {
+	return entries.end();
+    }
+    try {
+	reopen();
+    } catch (gx_system::JsonException& e) {
+	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+    }
+    return entries.begin();
+}
+
 void PresetFile::append(const Glib::ustring& name) {
     //entries.push_back(name);
 }
@@ -933,8 +1063,14 @@ void PresetFile::reorder(const std::list<Glib::ustring>& settingslist) {
  ** class PresetBanks
  */
 
+#ifdef OLDUSERDIR
+static const char *std_presetname_postfix = "pre_rc";
+#else
+static const char *std_presetname_postfix = ".gx";
+#endif
+
 PresetBanks::PresetBanks()
-    : banklist(), filepath(), preset_dir() {
+    : banklist(), filepath(), mtime(), preset_dir() {
 }
 
 PresetBanks::~PresetBanks() {
@@ -943,42 +1079,225 @@ PresetBanks::~PresetBanks() {
     }
 }
 
-void PresetBanks::parse(
-    const std::string& bank_path, const std::string& preset_dir_,
-    const std::string& factory_dir) {
+bool PresetBanks::check_reparse() {
+    if (check_mtime(filepath, mtime)) {
+	bool reload = false;
+	for (iterator i = begin(); i != end(); ++i) {
+	    int tp = i->get_type();
+	    if (tp == PresetFile::PRESET_FILE || tp == PresetFile::PRESET_SCRATCH) {
+		if (!i->ensure_is_current()) {
+		    printf("%s\n", i->get_name().c_str());
+		    try {
+			i->reopen();
+			i->set_flag(PRESET_FLAG_INVALID, false);
+		    } catch (gx_system::JsonException& e) {
+			i->set_flag(PRESET_FLAG_INVALID, true);
+			// no message, we already know the error
+		    }
+		    i->check_flags();
+		    reload = true;
+		}
+	    }
+	}
+	return reload;
+    }
+    for (bl_type::iterator i = banklist.begin(); i != banklist.end();) {
+	int tp = (*i)->get_type();
+	if (tp == PresetFile::PRESET_FILE || tp == PresetFile::PRESET_SCRATCH) {
+	    bl_type::iterator j = i;
+	    ++i;
+	    delete *j;
+	    banklist.erase(j);
+	} else {
+	    ++i;
+	}
+    }
+    parse_bank_list(banklist.begin());
+    return true;
+}
+
+void PresetBanks::parse(const std::string& bank_path, const std::string& preset_dir_,
+			const std::string& factory_dir) {
     filepath = bank_path;
     preset_dir = preset_dir_;
+    banklist.clear();
 #ifndef OLDUSERDIR
-    parse_bank_list();
+    parse_bank_list(banklist.end());
+    collect_lost_banks();
 #endif
     parse_factory_list(factory_dir);
 }
 
-void PresetBanks::save() {
-    ofstream f(filepath.c_str());
-    if (!f.good()) {
-	gx_system::gx_print_error(
-	    _("Presets"),
-	    boost::format(_("can't create '%1%'")) % filepath);
+inline bool check_char(unsigned char c) {
+    static const char *badchars = "/%?*<>\\:#&$'\"(){}[]~;`|";
+    if (c < 32) {
+	return false;
     }
-    gx_system::JsonWriter jw(&f);
+    for (const char *p = badchars; *p; p++) {
+	if (c == *p) {
+	    return false;
+	}
+    }
+    return true;
+}
+
+std::string PresetBanks::encode_filename(const std::string& s) {
+   std::string res;
+   res.reserve(s.size());
+   for (unsigned int i = 0; i < s.size(); i++) {
+      unsigned char c = s[i];
+      if (!check_char(c)) {
+	 res.append(1, '%');
+	 static const unsigned char code[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+	 res.append(1, code[c / 16]);
+	 res.append(1, code[c % 16]);
+      } else {
+	 res.append(1, c);
+      }
+   }
+   return res;
+}
+
+static bool dct(unsigned char c, int &n) {
+   if (c < '0') {
+      return false;
+   }
+   if (c <= '9') {
+      n = c - '0';
+      return true;
+   }
+   if (c < 'a') {
+      return false;
+   }
+   if (c <= 'f') {
+      n = c - 'a';
+      return true;
+   }
+   return false;
+}
+
+std::string PresetBanks::decode_filename(const std::string& s) {
+   std::string res;
+   res.reserve(s.size());
+   for (unsigned int i = 0; i < s.size(); i++) {
+      unsigned char c = s[i];
+      if (c == '%') {
+	 int n1, n2;
+	 if (s.size() - i < 3 || !dct(s[i+1],n1) || !dct(s[i+2],n2)) {
+	    // error, don't do any decoding
+	    return s;
+	 }
+	 res.push_back(n1*16 + n2);
+	 i += 2;
+      } else {
+	 res.push_back(c);
+      }
+   }
+   return res;
+}
+
+void PresetBanks::make_valid_utf8(Glib::ustring& s) {
+   Glib::ustring::iterator i;
+   while (!s.validate(i)) {
+       Glib::ustring::iterator j = i;
+       s.replace(i,++j,1,'?');
+   }
+   if (s.empty()) {
+       s = "?";
+   }
+}
+
+std::string PresetBanks::add_preset_postfix(const std::string& filename) {
+    return filename + std_presetname_postfix;
+}
+
+bool PresetBanks::strip_preset_postfix(std::string& name) {
+    if (name.compare(name.size()-3, 3, std_presetname_postfix) != 0) {
+	return false;
+    }
+    name = name.substr(0, name.size()-3);
+    return true;
+}
+
+void PresetBanks::make_bank_unique(Glib::ustring& name, std::string *file) {
+    int n = 1;
+    Glib::ustring t = name;
+    while (true) {
+	if (file) {
+	    *file = add_preset_postfix(Glib::build_filename(preset_dir, encode_filename(name)));
+	}
+	if (!has_entry(name)) {
+	    if (!file || !Gio::File::create_for_path(*file)->query_exists()) {
+		return;
+	    }
+	}
+	name = t + "-" + gx_system::to_string(n);
+	n += 1;
+    }
+}
+
+bool PresetBanks::has_file(const std::string& file) const {
+    for (bl_type::const_iterator i = banklist.begin(); i != banklist.end(); ++i) {
+	if ((*i)->get_filename() == file) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+void PresetBanks::collect_lost_banks() {
+    Glib::RefPtr<Gio::FileEnumerator> en = Gio::File::create_for_path(
+	preset_dir)->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME);
+    while (true) {
+	Glib::RefPtr<Gio::FileInfo> fi = en->next_file();
+	if (!fi) {
+	    break;
+	}
+	std::string n = fi->get_name();
+	if (n.size() <= 3 || n.substr(n.size()-3) != std_presetname_postfix) {
+	    continue;
+	}
+	std::string path = Glib::build_filename(preset_dir, n);
+	if (has_file(path)) {
+	    continue;
+	}
+	strip_preset_postfix(n);
+	Glib::ustring nm = decode_filename(n);
+	make_valid_utf8(nm);
+	make_bank_unique(nm);
+	PresetFile *f = new PresetFile();
+	f->open_file(nm, path, PresetFile::PRESET_FILE, 0);
+	insert(f);
+    }
+}
+
+
+void PresetBanks::save() {
+    std::string tmpfile = filepath + "_tmp";
+    ofstream os(tmpfile.c_str());
+    gx_system::JsonWriter jw(&os);
     jw.begin_array(true);
     for (iterator i = begin(); i != end(); ++i) {
 	int tp = i->get_type();
 	if (tp == PresetFile::PRESET_FILE || tp == PresetFile::PRESET_SCRATCH) {
-	    jw.begin_array();
-	    jw.write(i->get_name());
-	    jw.write(i->get_filename());
-	    jw.write(tp);
-	    jw.write(i->get_flags());
-	    gx_system::SettingsFileHeader::write_major_minor_version(jw); //version FIXME
-	    jw.write(0); // mtime FIXME
-	    jw.end_array(true);
+	    i->writeJSON(jw);
 	}
     }
     jw.end_array(true);
     jw.close();
-    f.close();
+    os.close();
+    if (!os.good()) {
+	gx_print_error(_("save banklist"),
+		       boost::format(_("couldn't write %1%")) % tmpfile);
+    } else {
+	int rc = ::rename(tmpfile.c_str(), filepath.c_str());
+	if (rc != 0) {
+	    gx_print_error(_("save banklist"),
+			   boost::format(_("couldn't rename %1% to %2%"))
+			   % tmpfile % filepath);
+	}
+    }
+    check_mtime(filepath, mtime);
 }
 
 void PresetBanks::parse_factory_list(const std::string& path) {
@@ -988,31 +1307,36 @@ void PresetBanks::parse_factory_list(const std::string& path) {
 	return;
     }
     gx_system::JsonParser jp(&is);
-    jp.next(gx_system::JsonParser::begin_array);
-    while (jp.peek() != gx_system::JsonParser::end_array) {
+    PresetFile *f = 0;
+    try {
 	jp.next(gx_system::JsonParser::begin_array);
-	jp.next(gx_system::JsonParser::value_string);
-	string name = jp.current_value();
-	jp.next(gx_system::JsonParser::value_string);
-	string fname = Glib::build_filename(path, jp.current_value());
-	PresetFile *f = new PresetFile(name, fname, PresetFile::PRESET_FACTORY, 0, SettingsFileHeader(), 0);
-	try {
-	    f->open(fname);
-	    add_nosave(f);
-	} catch (gx_system::JsonException& e) {
-	    delete f;
-	    gx_system::gx_print_error(fname.c_str(), _("not found or parse error"));
+	while (jp.peek() != gx_system::JsonParser::end_array) {
+	    jp.next(gx_system::JsonParser::begin_array);
+	    jp.next(gx_system::JsonParser::value_string);
+	    string name = jp.current_value();
+	    jp.next(gx_system::JsonParser::value_string);
+	    string fname = Glib::build_filename(path, jp.current_value());
+	    PresetFile *f = new PresetFile();
+	    try {
+		f->set_factory(name, fname);
+		banklist.push_back(f);
+	    } catch (gx_system::JsonException& e) {
+		delete f;
+		gx_system::gx_print_error(fname.c_str(), _("not found or parse error"));
+	    }
+	    f = 0;
+	    jp.next(gx_system::JsonParser::end_array);
 	}
 	jp.next(gx_system::JsonParser::end_array);
+	jp.next(gx_system::JsonParser::end_token);
+    } catch (gx_system::JsonException& e) {
+	delete f;
     }
-    jp.next(gx_system::JsonParser::end_array);
-    jp.next(gx_system::JsonParser::end_token);
     jp.close();
     is.close();
 }
 
-void PresetBanks::parse_bank_list() {
-    //FIXME catch errors
+void PresetBanks::parse_bank_list(bl_type::iterator pos) {
     ifstream is(filepath.c_str());
     if (is.fail()) {
 	gx_system::gx_print_error(
@@ -1020,37 +1344,28 @@ void PresetBanks::parse_bank_list() {
 	return;
     }
     gx_system::JsonParser jp(&is);
-    jp.next(gx_system::JsonParser::begin_array);
-    while (jp.peek() != gx_system::JsonParser::end_array) {
+    PresetFile *f = 0;
+    try {
 	jp.next(gx_system::JsonParser::begin_array);
-	jp.next(gx_system::JsonParser::value_string);
-	Glib::ustring name = jp.current_value();
-	jp.next(gx_system::JsonParser::value_string);
-	string path = Glib::build_filename(preset_dir, jp.current_value());
-	jp.next(gx_system::JsonParser::value_number);
-	int tp = jp.current_value_int();
-	jp.next(gx_system::JsonParser::value_number);
-	int flags = jp.current_value_int();
-	gx_system::SettingsFileHeader head;
-	head.read_major_minor_version(jp);
-	if (!head.is_current()) {
-	    flags |= PRESET_FLAG_VERSIONDIFF;
-	}
-	jp.next(gx_system::JsonParser::value_number);
-	time_t mtime = jp.current_value_int();
-	PresetFile *f = new PresetFile(name, path, tp, flags, head, mtime);
-	try {
-	    add_nosave(f);
-	} catch (gx_system::JsonException& e) {
-	    delete f;
-	    gx_system::gx_print_error(path.c_str(), _("not found or parse error"));
+	while (jp.peek() != gx_system::JsonParser::end_array) {
+	    f = new PresetFile();
+	    if (!f->readJSON(preset_dir, jp)) {
+		delete f;
+	    } else {
+		banklist.insert(pos, f);
+		//append_nosave(f);
+	    }
+	    f = 0;
 	}
 	jp.next(gx_system::JsonParser::end_array);
+	jp.next(gx_system::JsonParser::end_token);
+    } catch (gx_system::JsonException& e) {
+	delete f;
+	gx_system::gx_print_error(filepath.c_str(), _("parse error"));
     }
-    jp.next(gx_system::JsonParser::end_array);
-    jp.next(gx_system::JsonParser::end_token);
     jp.close();
     is.close();
+    check_mtime(filepath, mtime);
 }
 
 PresetFile *PresetBanks::get_file(const Glib::ustring& bank) const {
@@ -1062,12 +1377,14 @@ PresetFile *PresetBanks::get_file(const Glib::ustring& bank) const {
     return 0;
 }
 
-bool PresetBanks::rename(const Glib::ustring& oldname, const Glib::ustring& newname) {
+bool PresetBanks::rename(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile) {
     PresetFile *f = get_file(oldname);
     if (!f) {
 	return false;
     }
-    f->set_name(newname);
+    if (!f->set_name(newname, newfile)) {
+	return false;
+    }
     save();
     return true;
 }
@@ -1077,8 +1394,10 @@ bool PresetBanks::remove(const Glib::ustring& bank) {
     if (!f) {
 	return false;
     }
+    if (!f->remove_file()) {
+	return false;
+    }
     banklist.remove(f);
-    //FIXME: delete file
     delete f;
     save();
     return true;
@@ -1345,22 +1664,30 @@ bool GxSettingsBase::clear_preset() {
     return rv;
 }
 
-void GxSettingsBase::convert_presetfile() {
+bool GxSettingsBase::convert_preset(PresetFile& pf) {
     PresetTransformer *jw = 0;
+    bool res = true;
     try {
-	jw = presetfile.create_transformer();
+	jw = pf.create_transformer();
 	while (jw->jp.peek() != JsonParser::end_array) {
 	    jw->jp.next(JsonParser::value_string);
 	    jw->write(jw->jp.current_value());
 	    preset_io->copy_preset(jw->jp, jw->header, *jw);
 	}
+	pf.set_flag(PRESET_FLAG_VERSIONDIFF, false);
     } catch(JsonException& e) {
 	gx_print_warning(
 	    _("convert presetfile"),
 	    boost::format(_("parse error in %1%"))
-	    % presetfile.get_filename());
+	    % pf.get_filename());
+	res = false;
     }
     delete jw;
+    return res;
+}
+
+void GxSettingsBase::convert_presetfile() {
+    convert_preset(presetfile);
     try {
 	JsonParser *jp = statefile.create_reader();
 	state_io->read_state(*jp, statefile.get_header());
