@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  * Copyright (C) 2011 Pete Shorthose
@@ -395,6 +394,14 @@ JsonParser::token JsonParser::next(token expect) {
     return cur_tok;
 }
 
+void JsonParser::set_streampos(streampos pos) {
+    is->seekg(pos);
+    depth = 0;
+    cur_tok = no_token;
+    nl = false;
+    next_depth = 0;
+    next_tok = no_token;
+}
 
 void JsonParser::copy_object(JsonWriter& jw) {
     int curdepth = depth;
@@ -859,9 +866,13 @@ int PresetFile::get_index(const Glib::ustring& name) {
     return -1;
 }
 
-JsonParser *PresetFile::create_reader(int n) {
+JsonParser *PresetFile::create_reader(int n, JsonParser *jp) {
     reopen();
-    JsonParser *jp = new JsonParser(is);
+    if (jp) {
+	jp->set_stream(is);
+    } else {
+	jp = new JsonParser(is);
+    }
     jp->set_streampos(entries.at(n).pos);
     return jp;
 }
@@ -889,14 +900,18 @@ PresetTransformer::~PresetTransformer() {
     close();
 }
 
-void PresetTransformer::close() {
+void PresetTransformer::abort() {
     if (is_closed()) {
 	return;
     }
-    if (!is->fail()) {
-	jp.next(JsonParser::end_array);
-	jp.next(JsonParser::end_token);
-    }
+    JsonWriter::close();
+    delete is;
+    is = 0;
+    os.close();
+    remove(tmpfile.c_str());
+}
+
+void PresetTransformer::close_nocheck() {
     end_array(true);
     JsonWriter::close();
     delete is;
@@ -915,11 +930,23 @@ void PresetTransformer::close() {
     }
 }
 
+void PresetTransformer::close() {
+    if (is_closed()) {
+	return;
+    }
+    if (!is->fail()) {
+	jp.next(JsonParser::end_array);
+	jp.next(JsonParser::end_token);
+    }
+    close_nocheck();
+}
+
 class ModifyPreset: public PresetTransformer {
 public:
     ModifyPreset(string filename, istream* is, const Glib::ustring& presname);
     ~ModifyPreset();
     void close();
+    void copy_object();
 };
 
 ModifyPreset::~ModifyPreset() {
@@ -955,6 +982,10 @@ void ModifyPreset::close() {
     PresetTransformer::close();
 }
 
+void ModifyPreset::copy_object() {
+    jp.copy_object(*this);
+}
+
 JsonWriter *PresetFile::create_writer(const Glib::ustring& name) {
     reopen();
     ModifyPreset *jw = new ModifyPreset(filename, is, name);
@@ -964,6 +995,14 @@ JsonWriter *PresetFile::create_writer(const Glib::ustring& name) {
 	    jw->jp.skip_object(); // we are replacing a setting
 	}
     }
+    is = 0;
+    return jw;
+}
+
+JsonWriter *PresetFile::create_writer_at(const Glib::ustring& pos, const Glib::ustring& name) {
+    reopen();
+    ModifyPreset *jw = new ModifyPreset(filename, is, pos);
+    jw->write(name);
     is = 0;
     return jw;
 }
@@ -1039,25 +1078,6 @@ PresetFile::iterator PresetFile::begin() {
     return entries.begin();
 }
 
-void PresetFile::append(const Glib::ustring& name) {
-    //entries.push_back(name);
-}
-
-void PresetFile::insert_before(const Glib::ustring& nm, const Glib::ustring& newentry) {
-    //settings.insert(std::find(settings.begin(), settings.end(), nm), newentry);
-}
-
-void PresetFile::insert_after(const Glib::ustring& nm, const Glib::ustring& newentry) {
-    //std::list<Glib::ustring>::iterator i = std::find(settings.begin(), settings.end(), nm);
-    //settings.insert(++i, newentry);
-}
-
-void PresetFile::reorder(const std::list<Glib::ustring>& settingslist) {
-    //print "PD", namelist
-    //assert len(namelist) == len(self.settings)
-    //settings = settingslist;
-}
-
 
 /****************************************************************
  ** class PresetBanks
@@ -1086,7 +1106,6 @@ bool PresetBanks::check_reparse() {
 	    int tp = i->get_type();
 	    if (tp == PresetFile::PRESET_FILE || tp == PresetFile::PRESET_SCRATCH) {
 		if (!i->ensure_is_current()) {
-		    printf("%s\n", i->get_name().c_str());
 		    try {
 			i->reopen();
 			i->set_flag(PRESET_FLAG_INVALID, false);
@@ -1353,7 +1372,6 @@ void PresetBanks::parse_bank_list(bl_type::iterator pos) {
 		delete f;
 	    } else {
 		banklist.insert(pos, f);
-		//append_nosave(f);
 	    }
 	    f = 0;
 	}
@@ -1514,6 +1532,20 @@ void GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
     }
 }
 
+void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
+    if (pf) {
+	current_source = factory;
+	current_factory = pf->get_name();
+	current_name = name;
+	loadsetting(pf, name);
+    } else {
+	current_source = state;
+	current_factory = "";
+	current_name = "";
+    }
+    selection_changed();
+}
+
 void GxSettingsBase::loadstate() {
     current_source = state;
     current_factory = current_name = "";
@@ -1602,17 +1634,50 @@ void GxSettingsBase::save_to_state(bool preserve_preset) {
     }
 }
 
-void GxSettingsBase::save_to_preset(const Glib::ustring& name) {
-    bool newentry = (presetfile.get_index(name) < 0);
+void GxSettingsBase::insert_before(PresetFile& pf, const Glib::ustring& pos, const Glib::ustring& name) {
     JsonWriter *jw = 0;
     try {
-	jw = presetfile.create_writer(name);
+	jw = pf.create_writer_at(pos, name);
+	preset_io->write_preset(*jw);
+	jw->write(pos);
+	dynamic_cast<ModifyPreset*>(jw)->copy_object();
+    } catch(JsonException& e) {
+	gx_print_warning(
+	    _("save preset"),
+	    boost::format(_("parse error in %1%"))
+	    % pf.get_filename());
+    }
+    delete jw;
+    presetlist_changed();
+    if (current_source != preset
+	|| (current_source == preset && current_name != name)) {
+	current_source = preset;
+	current_name = name;
+	current_factory = pf.get_name();
+	selection_changed();
+    }
+}
+
+void GxSettingsBase::insert_after(PresetFile& pf, const Glib::ustring& pos, const Glib::ustring& name) {
+    int i = pf.get_index(name) + 1;
+    if (i >= pf.size()) {
+	save(pf, name);
+    } else {
+	insert_before(pf, pf.get_name(i), name);
+    }
+}
+
+void GxSettingsBase::save(PresetFile& pf, const Glib::ustring& name) {
+    bool newentry = (pf.get_index(name) < 0);
+    JsonWriter *jw = 0;
+    try {
+	jw = pf.create_writer(name);
 	preset_io->write_preset(*jw);
     } catch(JsonException& e) {
 	gx_print_warning(
 	    _("save preset"),
 	    boost::format(_("parse error in %1%"))
-	    % presetfile.get_filename());
+	    % pf.get_filename());
     }
     delete jw;
     if (newentry) {
@@ -1622,9 +1687,35 @@ void GxSettingsBase::save_to_preset(const Glib::ustring& name) {
 	|| (current_source == preset && current_name != name)) {
 	current_source = preset;
 	current_name = name;
-	current_factory = "";
+	current_factory = pf.get_name();
 	selection_changed();
     }
+}
+
+void GxSettingsBase::save_to_preset(const Glib::ustring& name) {
+    save(presetfile, name);
+}
+
+void GxSettingsBase::reorder_preset(PresetFile& pf, const std::vector<Glib::ustring>& neworder) {
+    PresetTransformer *jw = 0;
+    try {
+	jw = pf.create_transformer();
+	for (std::vector<Glib::ustring>::const_iterator i = neworder.begin(); i != neworder.end(); ++i) {
+	    //JsonParser *jp = pf.create_reader(*i, &jw->jp);
+	    JsonParser *jp = pf.create_reader(*i);
+	    jw->write(*i);
+	    jp->copy_object(*jw);
+	    delete jp;
+	}
+	jw->close_nocheck();
+    } catch(JsonException& e) {
+	gx_print_error(
+	    _("reorder presetfile"),
+	    boost::format(_("parse error in %1%"))
+	    % pf.get_filename());
+	jw->abort();
+    }
+    delete jw;
 }
 
 bool GxSettingsBase::rename_preset(const Glib::ustring& name, const Glib::ustring& newname) {
@@ -1646,16 +1737,23 @@ bool GxSettingsBase::rename_preset(const Glib::ustring& name, const Glib::ustrin
     return rv;
 }
 
-void GxSettingsBase::erase_preset(const Glib::ustring& name) {
+void GxSettingsBase::erase_preset(PresetFile& pf, const Glib::ustring& name) {
     try {
-	presetfile.erase(name);
+	pf.erase(name);
     } catch(JsonException& e) {
 	gx_print_warning(
 	    _("delete preset"),
 	    boost::format(_("parse error in %1%"))
-	    % presetfile.get_filename());
+	    % pf.get_filename());
+    }
+    if (pf.get_name() == current_factory && name == current_name) {
+	set_source_to_state();
     }
     presetlist_changed();
+}
+
+void GxSettingsBase::erase_preset(const Glib::ustring& name) {
+    erase_preset(presetfile, name);
 }
 
 bool GxSettingsBase::clear_preset() {
@@ -1665,6 +1763,12 @@ bool GxSettingsBase::clear_preset() {
 }
 
 bool GxSettingsBase::convert_preset(PresetFile& pf) {
+    seq.start_ramp_down();
+    bool preset_preset = false;
+    JsonWriter *sw = statefile.create_writer(&preset_preset);
+    state_io->write_state(*sw, preset_preset);
+    delete sw;
+    seq.wait_ramp_down_finished();
     PresetTransformer *jw = 0;
     bool res = true;
     try {
@@ -1683,6 +1787,11 @@ bool GxSettingsBase::convert_preset(PresetFile& pf) {
 	res = false;
     }
     delete jw;
+    JsonParser *sp = statefile.create_reader();
+    state_io->read_state(*sp, statefile.get_header());
+    state_io->commit_state();
+    delete sp;
+    seq.start_ramp_up();
     return res;
 }
 

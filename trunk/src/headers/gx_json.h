@@ -91,7 +91,7 @@ class JsonParser {
     token next(token expect = no_token);
     token peek() { return next_tok; }
     streampos get_streampos() { return next_pos + streamoff(-1); }
-    void set_streampos(streampos pos) { is->seekg(pos); }
+    void set_streampos(streampos pos);
     void check_expect(token expect) { if (cur_tok != expect) throw_unexpected(expect); }
     inline string current_value() const { return str; }
     int current_value_int() { return atoi(str.c_str()); }
@@ -148,8 +148,8 @@ public:
     static const string gx_version; // = GX_VERSION
     SettingsFileHeader()
 	: file_major(), file_minor(), file_gx_version() {}
-    void read(gx_system::JsonParser&);
-    static void write(gx_system::JsonWriter&);
+    void read(JsonParser&);
+    static void write(JsonWriter&);
     void set_to_current() { file_major = major; file_minor = minor; file_gx_version = gx_version; }
     int get_major() const { return file_major; }
     int get_minor() const { return file_minor; }
@@ -181,12 +181,12 @@ public:
     void set_filename(const string& fn) { filename = fn; }
     const SettingsFileHeader& get_header() const { return header; }
     string get_filename() const { return filename; }
-    gx_system::JsonParser *create_reader();
-    gx_system::JsonWriter *create_writer(bool *preserve_preset);
+    JsonParser *create_reader();
+    JsonWriter *create_writer(bool *preserve_preset);
     void ensure_is_current();
 };
 
-class PresetTransformer: public gx_system::JsonWriter {
+class PresetTransformer: public JsonWriter {
 private:
     string filename;
     string tmpfile;
@@ -197,6 +197,8 @@ public:
     JsonParser jp;
     SettingsFileHeader header;
     void close();
+    void close_nocheck();
+    void abort();
     PresetTransformer(string filename, istream* is);
     ~PresetTransformer();
 };
@@ -247,12 +249,13 @@ public:
     void fill_names(vector<Glib::ustring>&);
     const Glib::ustring& get_name(int n);
     int get_index(const Glib::ustring& name);
-    gx_system::JsonParser *create_reader(int n);
-    gx_system::JsonParser *create_reader(const Glib::ustring& name) {
-	return create_reader(get_index(name)); }
-    gx_system::JsonWriter *create_writer(int n) {
+    JsonParser *create_reader(int n, JsonParser *jp=0);
+    JsonParser *create_reader(const Glib::ustring& name, JsonParser *jp=0) {
+	return create_reader(get_index(name), jp); }
+    JsonWriter *create_writer(int n) {
 	return create_writer(get_name(n)); }
-    gx_system::JsonWriter *create_writer(const Glib::ustring& name);
+    JsonWriter *create_writer(const Glib::ustring& name);
+    JsonWriter *create_writer_at(const Glib::ustring& pos, const Glib::ustring& name);
     PresetTransformer *create_transformer();
     bool clear();
     bool erase(const Glib::ustring& name);
@@ -261,7 +264,6 @@ public:
     void append(const Glib::ustring& name);
     void insert_before(const Glib::ustring& nm, const Glib::ustring& newentry);
     void insert_after(const Glib::ustring& nm, const Glib::ustring& newentry);
-    void reorder(const std::list<Glib::ustring>& namelist);
     int get_flags() const { return flags; }
     void set_flags(int f) { flags = f; }
     void set_flag(int flag, bool v) { flags = (flags & ~flag) | (v ? flag : 0); }
@@ -277,18 +279,18 @@ public:
 class AbstractStateIO {
 public:
     virtual ~AbstractStateIO();
-    virtual void read_state(gx_system::JsonParser&,const SettingsFileHeader&) = 0;
+    virtual void read_state(JsonParser&,const SettingsFileHeader&) = 0;
     virtual void commit_state() = 0;
-    virtual void write_state(gx_system::JsonWriter&, bool) = 0;
+    virtual void write_state(JsonWriter&, bool) = 0;
 };
 
 class AbstractPresetIO {
 public:
     virtual ~AbstractPresetIO();
-    virtual void read_preset(gx_system::JsonParser&,const SettingsFileHeader&) = 0;
+    virtual void read_preset(JsonParser&,const SettingsFileHeader&) = 0;
     virtual void commit_preset() = 0;
-    virtual void write_preset(gx_system::JsonWriter&) = 0;
-    virtual void copy_preset(gx_system::JsonParser&,const SettingsFileHeader&,gx_system::JsonWriter&) = 0;
+    virtual void write_preset(JsonWriter&) = 0;
+    virtual void copy_preset(JsonParser&,const SettingsFileHeader&,JsonWriter&) = 0;
 };
 
 class PresetBanks {
@@ -401,6 +403,12 @@ public:
     bool idx_in_preset(int idx) { return idx >= 0 && idx < presetfile.size(); }
     void load_preset_by_idx(int idx) { load(preset, presetfile.get_name(idx), ""); }
     bool convert_preset(PresetFile& pf);
+    void reorder_preset(PresetFile& pf, const std::vector<Glib::ustring>& neworder);
+    void erase_preset(PresetFile& pf, const Glib::ustring& name);
+    void save(PresetFile& pf, const Glib::ustring& name);
+    void insert_before(PresetFile& pf, const Glib::ustring& pos, const Glib::ustring& name);
+    void insert_after(PresetFile& pf, const Glib::ustring& pos, const Glib::ustring& name);
+    void load_preset(PresetFile *pf, const Glib::ustring& name);
 };
 
 } /* end of gx_system namespace */
