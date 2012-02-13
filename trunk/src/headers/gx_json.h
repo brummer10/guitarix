@@ -406,8 +406,9 @@ public:
     void reorder_preset(PresetFile& pf, const std::vector<Glib::ustring>& neworder);
     void erase_preset(PresetFile& pf, const Glib::ustring& name);
     void save(PresetFile& pf, const Glib::ustring& name);
-    void insert_before(PresetFile& pf, const Glib::ustring& pos, const Glib::ustring& name);
-    void insert_after(PresetFile& pf, const Glib::ustring& pos, const Glib::ustring& name);
+    void append(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& name);
+    void insert_before(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
+    void insert_after(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
     void load_preset(PresetFile *pf, const Glib::ustring& name);
 };
 

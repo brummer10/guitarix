@@ -22,156 +22,16 @@
  * ----------------------------------------------------------------------------
  */
 
+/*
 #include <gtkmm.h>
 #include <gxwmm.h>
 using namespace std;
 #include <engine.h>
 #include <gx_ui.h>
 #include <gx_ui_builder.h>
-
-/****************************************************************
- ** class PresetWindow
- */
-
-class PresetStore: public Gtk::ListStore {
-public:
-    class PresetModelColumns : public Gtk::TreeModel::ColumnRecord {
-    public:
-	Gtk::TreeModelColumn<Glib::ustring> name;
-	Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > edit_pb;
-	Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > del_pb;
-
-	PresetModelColumns() { add(name); add(edit_pb); add(del_pb); }
-    } col;
-public:
-    PresetStore();
-    virtual bool row_draggable_vfunc(const TreeModel::Path& path) const;
-};
-
-class TargetModelColumns : public Gtk::TreeModel::ColumnRecord {
-public:
-    Gtk::TreeModelColumn<Glib::ustring> name;
-    TargetModelColumns() { add(name); }
-};
-
-class BankModelColumns : public Gtk::TreeModel::ColumnRecord {
-public:
-    Gtk::TreeModelColumn<Glib::ustring> name;
-    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > type_pb;
-    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > edit_pb;
-    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > del_pb;
-    Gtk::TreeModelColumn<int> tp;
-    BankModelColumns() { add(name); add(type_pb); add(edit_pb); add(del_pb); add(tp); }
-};
-
-class MyTreeView: public Gtk::TreeView {
-private:
-    MyTreeView(BaseObjectType* cobject): Gtk::TreeView(cobject) {}
-public:
-    static MyTreeView *create_from_builder(BaseObjectType* cobject) { return new MyTreeView(cobject); }
-    //virtual bool on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
-    using Gtk::TreeView::on_drag_motion;
-};
-
-class PresetWindow {
-private:
-    gx_preset::GxSettings& gx_settings;
-    Glib::RefPtr<Gtk::ActionGroup> actiongroup;
-    int paned_child_height;
-    bool in_edit;
-    Gtk::TreeModel::iterator edit_iter;
-    Glib::RefPtr<Gdk::Pixbuf> pb_edit;
-    Glib::RefPtr<Gdk::Pixbuf> pb_del;
-    Glib::RefPtr<Gdk::Pixbuf> pb_scratch;
-    Glib::RefPtr<Gdk::Pixbuf> pb_versiondiff;
-    Glib::RefPtr<Gdk::Pixbuf> pb_readonly;
-    Glib::RefPtr<Gdk::Pixbuf> pb_factory;
-    Glib::RefPtr<PresetStore> pstore;
-    TargetModelColumns target_col;
-    BankModelColumns bank_col;
-    sigc::connection bank_row_del_conn;
-    sigc::connection preset_row_del_conn;
-    int vpaned_pos;
-    int vpaned_step;
-    int vpaned_target;
-    bool animate;
-    const gx_system::CmdlineOptions& options;
-    bool in_current_preset;
-
-    // widget pointers (keep last)
-    Gtk::Button *close_preset;
-    Gtk::Button *save_preset;
-    Gtk::Button *new_preset_bank;
-    Gtk::ToggleButton *organize_presets;
-    MyTreeView *bank_treeview;
-    Gtk::CellRendererText *bank_cellrenderer;
-    MyTreeView *preset_treeview;
-    Gtk::CellRendererText *preset_cellrenderer;
-    Gtk::ComboBox *banks_combobox;
-    MyTreeView *presets_target_treeview;
-    Gtk::Label *preset_title;
-    Gtk::ScrolledWindow *presets_target_scrolledbox;
-    Gtk::TreeViewColumn *bank_column_edit;
-    Gtk::TreeViewColumn *bank_column_delete;
-    Gtk::TreeViewColumn *preset_column_edit;
-    Gtk::TreeViewColumn *preset_column_delete;
-    Gtk::VPaned *main_vpaned;
-    Gtk::ScrolledWindow *preset_scrolledbox;
-    Gtk::Entry *preset_status;
-private:
-    void load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld);
-    void target_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
-    bool on_target_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
-    Glib::ustring get_combo_selection();
-    void reload_combo();
-    void on_preset_combo_changed();
-    void reload_target();
-    bool select_func(const Glib::RefPtr<Gtk::TreeModel>& model, const Gtk::TreePath& path, bool path_currently_selected);
-    void highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter);
-    void text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter);
-    void on_editing_started(const Gtk::CellEditable* edit, const Glib::ustring& path, Glib::RefPtr<Gtk::TreeModel>& model);
-    bool edit_cell(Gtk::TreeModel::Path pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell);
-    void reset_edit(Gtk::TreeViewColumn& col);
-    void on_edit_canceled(Gtk::TreeViewColumn *col);
-    void start_edit(const Gtk::TreeModel::Path& pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell);
-    Gtk::TreeModel::Row get_current_bank_row();
-    Glib::ustring get_current_bank();
-    bool run_message_dialog(Gtk::Widget& w, const Glib::ustring& msg);
-    bool on_bank_button_release(GdkEventButton *ev);
-    void on_bank_edited(const Glib::ustring& path, const Glib::ustring& newtext, Gtk::TreeView* w);
-    bool is_row_separator(const Glib::RefPtr<Gtk::TreeModel>& model, const Gtk::TreeModel::iterator& iter);
-    void on_new_bank();
-    void on_preset_save();
-    bool on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
-    void on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
-    void on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
-    void on_bank_changed();
-    bool on_bank_query_tooltip(int x, int y, bool kb_tooltip, Glib::RefPtr<Gtk::Tooltip> tooltip);
-    void reload_banks(const Glib::ustring& sel_bank);
-    void set_presets();
-    void on_bank_reordered(const Gtk::TreeModel::Path& path);
-    bool on_preset_button_release(GdkEventButton *ev);
-    bool on_preset_button_press(GdkEventButton *ev);
-    void on_preset_edited(const Glib::ustring& path, const Glib::ustring& newtext);
-    void on_cursor_changed();
-    void on_preset_changed();
-    void preset_changed();
-    bool on_preset_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
-    void on_preset_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
-    void on_preset_reordered(const Gtk::TreeModel::Path& path);
-    void autosize();
-    void on_organize();
-    void on_presets_close();
-    bool animate_preset_show();
-    bool animate_preset_hide();
-    void show_selected_preset();
-    void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f);
-public:
-    PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
-		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup> actiongroup);
-    ~PresetWindow();
-    void on_preset_select(bool v);
-};
+*/
+#include <guitarix.h>
+#include <gx_preset_window.h> //FIXME
 
 
 /****************************************************************
@@ -215,40 +75,49 @@ public:
     void display_tuner(bool v);
 };
 
+
 /****************************************************************
  ** class PluginUI
  */
+
+class MainWindow;
+class RackBox;
 
 enum PluginType {
     PLUGIN_TYPE_MONO,
     PLUGIN_TYPE_STEREO,
 };
 
-class PluginUI {
+class PluginUI: public gx_ui::GxUiItem {
+private:
+    virtual void reflectZone();
+    virtual bool hasChanged();
 public:
     gx_engine::Plugin *plugin;
     Glib::ustring fname;
     Glib::ustring tooltip;
+    const char *shortname;
 
     // data for ToolPalette entry
     Glib::RefPtr<Gdk::Pixbuf> icon;
     Gtk::ToolItemGroup *group;
     Gtk::ToolItem *toolitem;
 
-    PluginUI(const gx_engine::PluginList& pl, const char* id_,
+    MainWindow& main;
+    RackBox *rackbox;
+
+    PluginUI(MainWindow& main, const gx_engine::PluginList& pl, const char* id_,
 	     const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
     PluginType get_type() const {
 	return (plugin->pdef->flags & PGN_STEREO) ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO;
     }
     const char *get_id() const { return plugin->pdef->id; }
     const char *get_name() const { return plugin->pdef->name; }
+    void display(bool v);
+    void display_new();
+    inline bool is_displayed();
 };
 
-PluginUI::PluginUI(const gx_engine::PluginList& pl, const char *name,
-		   const Glib::ustring& fname_, const Glib::ustring& tooltip_)
-    : plugin(pl.lookup_plugin(name)), fname(fname_), tooltip(tooltip_),
-      icon(), group(), toolitem() {
-}
 
 /****************************************************************
  ** class DragIcon
@@ -267,17 +136,17 @@ public:
     ~DragIcon();
 };
 
+
 /****************************************************************
  ** class RackBox, class MiniRackBox
  */
 
-class MainWindow;
 class MiniRackBox;
 
 class RackBox: public Gtk::VBox {
 private:
     static Glib::RefPtr<Gtk::SizeGroup> szg;
-    const PluginUI& plugin;
+    PluginUI& plugin;
     MainWindow& main;
     bool vis;
     bool config_mode;
@@ -297,7 +166,7 @@ private:
     Gxw::PaintBox box;
 private:
     static void set_paintbox(Gxw::PaintBox& pb, PluginType tp);
-    static Gtk::Widget *make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options);
+    static Gtk::Widget *make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort=false);
     static Gtk::Widget *make_bar(int left=4, int right=4, bool sens=false);
     void init_dnd();
     void enable_drag(bool v);
@@ -308,7 +177,6 @@ private:
     void on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
     void on_my_drag_data_delete(const Glib::RefPtr<Gdk::DragContext>& context);
     void vis_switch(Gtk::Widget& a, Gtk::Widget& b);
-    void on_expand(bool mini);
     Gtk::Button *make_expand_button(bool expand);
     void on_preset_popup_destroy(Gtk::Menu *w);
     void preset_popup();
@@ -316,9 +184,8 @@ private:
     Gtk::HBox *make_full_box(gx_system::CmdlineOptions& options);
     Gtk::VBox *switcher_vbox(gx_system::CmdlineOptions& options);
     bool has_delete() const { return delete_button; }
-    void on_kill();
 public:
-    RackBox(const PluginUI& plugin, MainWindow& main, Gtk::Widget* bare=0);
+    RackBox(PluginUI& plugin, MainWindow& main, Gtk::Widget* bare=0);
     static Gtk::Widget *create_drag_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);
     bool can_compress() { return compress; }
     friend class MiniRackBox;
@@ -345,6 +212,9 @@ public:
     void set_config_mode(bool mode);
 };
 
+inline bool PluginUI::is_displayed() {
+    return rackbox && rackbox->is_visible();
+}
 
 /****************************************************************
  ** class RackContainer
@@ -394,8 +264,42 @@ public:
 
 
 /****************************************************************
+ ** class StackBoxBuilderNew
+ */
+
+class StackBoxBuilderNew: public gx_gui::StackBoxBuilder {
+private:
+    int                  fTop;
+    GtkWidget*           fBox[stackSize];
+    int                  fMode[stackSize];
+    gx_engine::GxEngine& engine;
+    gx_engine::ParamMap& pmap;
+    gx_gui::MainMenu&    mainmenu;
+    Gxw::WaveView&       fWaveView;
+    Gtk::Label&          convolver_filename_label;
+private:
+    virtual void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
+    virtual void closeMonoRackBox();
+    virtual void openStereoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_dialog);
+    virtual void closeStereoRackBox();
+    virtual void openVerticalMidiBox(const char* label = "");
+public:
+    StackBoxBuilderNew(gx_engine::GxEngine& engine_, gx_engine::ParamMap& pmap_, gx_gui::MainMenu &mainmenu_,
+		       Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_);
+    Gtk::Widget *get_box(const std::string& name);
+};
+
+
+/****************************************************************
  ** class MainWindow
  */
+
+struct PluginDesc {
+    Glib::ustring group;
+    std::vector<PluginUI*> *plugins;
+    PluginDesc(const Glib::ustring& g, std::vector<PluginUI*> *p)
+	: group(g), plugins(p) {}
+};
 
 class Freezer {
 private:
@@ -439,6 +343,10 @@ private:
     PluginUI mainamp_plugin;
     Liveplay *live_play;
     PresetWindow *preset_window;
+    gx_gui::MainMenu mainmenu;
+    Gxw::WaveView fWaveView;
+    Gtk::Label convolver_filename_label;
+    StackBoxBuilderNew boxbuilder;
 
     // Widget pointers
     Gxw::PaintBox *tunerbox;
@@ -499,7 +407,7 @@ private:
     void on_dir_changed(Glib::RefPtr<Gtk::RadioAction> act);
     void on_configure_event(GdkEventConfigure *ev);
     void clear_box(Gtk::Container& box);
-    void add_rackbox_internal(const PluginUI& plugin, Gtk::Widget *widget, bool mini=false, int pos=-1, bool animate=false, Gtk::Widget *bare=0);
+    RackBox *add_rackbox_internal(PluginUI& plugin, Gtk::Widget *widget, bool mini=false, int pos=-1, bool animate=false, Gtk::Widget *bare=0);
     void on_show_values();
     Glib::RefPtr<Gtk::UIManager> create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
     void add_toolitem(PluginUI& pl, Gtk::ToolItemGroup *gw);
@@ -508,16 +416,19 @@ private:
     void on_ti_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context, const PluginUI& plugin);
     void on_ti_drag_end(const Glib::RefPtr<Gdk::DragContext>& context);
     void on_ti_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp, const char *effect_id);
-    void hide_effect(const std::string& name);
     void on_ti_drag_data_delete(const Glib::RefPtr<Gdk::DragContext>& context, const char *effect_id);
     bool on_ti_button_press(GdkEventButton *ev, const char *effect_id);
     void on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, int info, int timestamp);
+    void fill_pluginlist();
+    void add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
+    bool update_all_gui();
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();
+    void hide_effect(const std::string& name);
     bool check_if_animate(RackContainer& rb) const;
     RackContainer& get_monorackcontainer() { return monorackcontainer; }
-    void add_rackbox(const PluginUI& pl, bool mini=false, int pos=-1, bool animate=false);
+    RackBox *add_rackbox(PluginUI& pl, bool mini=false, int pos=-1, bool animate=false);
     bool check_if_rack_container_size_animate(const RackContainer& rackcontainer) const;
     void add_icon(const std::string& name);
     PluginUI *get_plugin(const std::string& name) { return plugin_dict[name]; }
@@ -530,1093 +441,6 @@ public:
  ** Implementation
  **
  ****************************************************************/
-
-void child_set_property(Gtk::Container& container, Gtk::Widget& child, const char *property_name, bool value) {
-    GValue v = {0};
-    g_value_init(&v, G_TYPE_BOOLEAN);
-    g_value_set_boolean(&v, value);
-    gtk_container_child_set_property(container.gobj(), child.gobj(), property_name, &v);
-}
-
-/****************************************************************
- ** class PresetWindow
- */
-
-PresetStore::PresetStore(): Gtk::ListStore(PresetModelColumns())
-{}
-
-bool PresetStore::row_draggable_vfunc(const TreeModel::Path& path) const {
-    Gtk::TreeModel::const_iterator i = const_cast<PresetStore*>(this)->get_iter(path); // Bug in Gtkmm: no get_iter() const
-    Glib::ustring s(i->get_value(col.name));
-    if (s.empty()) {
-	return false;
-    } else {
-	return true;
-    }
-}
-
-
-PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings_, const gx_system::CmdlineOptions& options_,
-			   Glib::RefPtr<Gtk::ActionGroup> actiongroup_)
-    : gx_settings(gx_settings_),
-      actiongroup(actiongroup_),
-      paned_child_height(200),
-      in_edit(false),
-      edit_iter(),
-      pb_edit(),
-      pb_del(),
-      pb_scratch(),
-      pb_versiondiff(),
-      pb_readonly(),
-      pb_factory(),
-      pstore(new PresetStore),
-      target_col(),
-      bank_col(),
-      bank_row_del_conn(),
-      preset_row_del_conn(),
-      vpaned_pos(),
-      vpaned_step(),
-      vpaned_target(),
-      animate(true),
-      options(options_),
-      in_current_preset(false)
-      // widget pointers not initialized
-{
-    load_widget_pointers(bld);
-    Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("ClosePresetsAction");
-    actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_presets_close));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(close_preset->gobj()), act->gobj());
-    act = Gtk::Action::create("NewBankAction");
-    actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_new_bank));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(new_preset_bank->gobj()), act->gobj());
-    act = Gtk::Action::create("SaveAction");
-    act->set_sensitive(false);
-    actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_preset_save));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(save_preset->gobj()), act->gobj());
-    Glib::RefPtr<Gtk::ToggleAction> actt = Gtk::ToggleAction::create("OrganizeAction");
-    actiongroup->add(actt, sigc::mem_fun(*this, &PresetWindow::on_organize));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(organize_presets->gobj()), GTK_ACTION(actt->gobj()));
-
-    bank_treeview->set_model(Gtk::ListStore::create(bank_col));
-    bank_treeview->get_selection()->set_select_function(
-	sigc::mem_fun(*this, &PresetWindow::select_func));
-    bank_treeview->set_has_tooltip(true);
-    bank_treeview->signal_query_tooltip().connect(
-	sigc::mem_fun(*this, &PresetWindow::on_bank_query_tooltip));
-    pb_edit = bank_treeview->render_icon(Gtk::Stock::EDIT, Gtk::ICON_SIZE_MENU);
-    pb_del = bank_treeview->render_icon(Gtk::Stock::DELETE, Gtk::ICON_SIZE_MENU);
-    pb_scratch = Gdk::Pixbuf::create_from_file(options.get_style_filepath("scratch.png"));
-    pb_versiondiff = Gdk::Pixbuf::create_from_file(options.get_style_filepath("versiondiff.png"));
-    pb_readonly = Gdk::Pixbuf::create_from_file(options.get_style_filepath("readonly.png"));
-    pb_factory = Gdk::Pixbuf::create_from_file(options.get_style_filepath("factory.png"));
-    bank_treeview->set_row_separator_func(sigc::mem_fun(*this, &PresetWindow::is_row_separator));
-    bank_cellrenderer->signal_edited().connect(
-	sigc::bind(sigc::mem_fun(*this, &PresetWindow::on_bank_edited), bank_treeview));
-    bank_cellrenderer->signal_editing_canceled().connect(
-	sigc::bind(sigc::mem_fun(*this, &PresetWindow::on_edit_canceled), bank_treeview->get_column(1)));
-    bank_cellrenderer->signal_editing_started().connect(
-	sigc::bind(sigc::mem_fun(*this, &PresetWindow::on_editing_started), bank_treeview->get_model()));
-    Gtk::TreeViewColumn *col = bank_treeview->get_column(1);
-    col->set_cell_data_func(**col->get_cell_renderers().begin(), sigc::mem_fun(*this, &PresetWindow::highlight_current_bank));
-
-    std::vector<Gtk::TargetEntry> listTargets;
-    listTargets.push_back(Gtk::TargetEntry("GTK_TREE_MODEL_ROW", Gtk::TARGET_SAME_WIDGET, 0));
-    listTargets.push_back(Gtk::TargetEntry("text/uri-list", Gtk::TARGET_OTHER_APP, 1));
-    bank_treeview->enable_model_drag_source(listTargets, Gdk::BUTTON1_MASK, Gdk::ACTION_COPY);
-    bank_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_drag_motion), false);
-    bank_treeview->enable_model_drag_dest(listTargets, Gdk::ACTION_COPY);
-    bank_treeview->signal_drag_data_received().connect(
-	sigc::mem_fun(*this, &PresetWindow::on_bank_drag_data_received));
-    bank_treeview->signal_drag_data_get().connect(
-	sigc::mem_fun(*this, &PresetWindow::on_bank_drag_data_get));
-    Glib::RefPtr<Gtk::TreeSelection> sel = bank_treeview->get_selection();
-    sel->set_mode(Gtk::SELECTION_BROWSE);
-    sel->signal_changed().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_changed));
-    bank_treeview->signal_button_release_event().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_button_release), true);
-    Glib::RefPtr<Gtk::TreeModel> ls = bank_treeview->get_model();
-    bank_row_del_conn = ls->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_reordered));
-
-    preset_treeview->set_model(pstore);
-    std::vector<Gtk::TargetEntry> listTargets2;
-    listTargets2.push_back(Gtk::TargetEntry("GTK_TREE_MODEL_ROW", Gtk::TARGET_SAME_WIDGET, 0));
-    listTargets2.push_back(Gtk::TargetEntry("application/x-guitarix-preset", Gtk::TARGET_SAME_APP, 1));
-    preset_treeview->enable_model_drag_source(listTargets2, Gdk::BUTTON1_MASK, Gdk::ACTION_COPY|Gdk::ACTION_MOVE);
-    preset_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_drag_motion), false);
-    preset_treeview->signal_drag_data_get().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_drag_data_get));
-    preset_treeview->signal_button_press_event().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_button_press));
-    preset_treeview->signal_button_release_event().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_button_release), true);
-    preset_row_del_conn = preset_treeview->get_model()->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_reordered));
-    preset_treeview->get_selection()->set_mode(Gtk::SELECTION_BROWSE);
-    preset_treeview->get_selection()->set_select_function(
-	sigc::mem_fun(*this, &PresetWindow::select_func));
-    preset_treeview->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_changed));
-    preset_treeview->signal_cursor_changed().connect(sigc::mem_fun(*this, &PresetWindow::on_cursor_changed));
-    preset_cellrenderer->signal_edited().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_edited));
-    preset_cellrenderer->signal_editing_canceled().connect(
-	sigc::bind(sigc::mem_fun(*this, &PresetWindow::on_edit_canceled), preset_treeview->get_column(0)));
-    preset_cellrenderer->signal_editing_started().connect(
-	sigc::bind(sigc::mem_fun(*this, &PresetWindow::on_editing_started), preset_treeview->get_model()));
-    preset_treeview->get_column(0)->set_cell_data_func(*preset_cellrenderer, sigc::mem_fun(*this, &PresetWindow::text_func));
-    banks_combobox->signal_changed().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_combo_changed));
-    presets_target_treeview->get_selection()->set_mode(Gtk::SELECTION_NONE);
-    std::vector<Gtk::TargetEntry> listTargets3;
-    listTargets3.push_back(Gtk::TargetEntry("application/x-guitarix-preset", Gtk::TARGET_SAME_APP, 0));
-    presets_target_treeview->enable_model_drag_dest(listTargets3, Gdk::ACTION_COPY);
-    presets_target_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_target_drag_motion), false);
-    presets_target_treeview->signal_drag_data_received().connect(sigc::mem_fun(*this, &PresetWindow::target_drag_data_received));
-    gx_settings.signal_selection_changed().connect(
-	sigc::mem_fun(*this, &PresetWindow::show_selected_preset));
-    set_presets();
-}
-
-PresetWindow::~PresetWindow() {
-}
-
-void PresetWindow::load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld) {
-    bld->find_widget("close_preset", close_preset);
-    bld->find_widget("save_preset", save_preset);
-    bld->find_widget("new_preset_bank", new_preset_bank);
-    bld->find_widget("organize_presets", organize_presets);
-    bld->find_widget_derived("bank_treeview", bank_treeview, sigc::ptr_fun(MyTreeView::create_from_builder));
-    bld->find_widget("bank_cellrenderer", bank_cellrenderer);
-    bld->find_widget_derived("preset_treeview", preset_treeview, sigc::ptr_fun(MyTreeView::create_from_builder));
-    bld->find_widget("preset_cellrenderer", preset_cellrenderer);
-    bld->find_widget("banks_combobox", banks_combobox);
-    bld->find_widget_derived("presets_target_treeview", presets_target_treeview, sigc::ptr_fun(MyTreeView::create_from_builder));
-    bld->find_widget("preset_title", preset_title);
-    bld->find_widget("presets_target_scrolledbox", presets_target_scrolledbox);
-    bld->find_widget("bank_column_edit", bank_column_edit);
-    bld->find_widget("bank_column_delete", bank_column_delete);
-    bld->find_widget("preset_column_edit", preset_column_edit);
-    bld->find_widget("preset_column_delete", preset_column_delete);
-    bld->find_widget("main_vpaned", main_vpaned);
-    bld->find_widget("preset_scrolledbox", preset_scrolledbox);
-    bld->find_widget("preset_status", preset_status);
-}
-
-static bool preset_button_press_idle(Gtk::Widget& w) {
-    w.grab_focus();
-    return false;
-}
-
-bool PresetWindow::on_bank_query_tooltip(int x, int y, bool kb_tooltip, Glib::RefPtr<Gtk::Tooltip> tooltip) {
-    Gtk::TreeIter it;
-    if (!bank_treeview->get_tooltip_context_iter(x, y, kb_tooltip, it)) {
-	return false;
-    }
-    int tp = it->get_value(bank_col.tp);
-    if (tp == gx_system::PresetFile::PRESET_SEP) {
-	return false;
-    }
-    Gtk::TreeModel::Path pt;
-    Gtk::TreeViewColumn *col;
-    int dx, dy;
-    if (!bank_treeview->get_path_at_pos(x, y, pt, col, dx, dy)) {
-	col = 0;
-    }
-    Glib::ustring nm = it->get_value(bank_col.name);
-    if (nm.empty()) {
-	return false;
-    }
-    gx_system::PresetFile *f = gx_settings.banks.get_file(nm);
-    if (col == bank_treeview->get_column(0) || col == bank_treeview->get_column(1)) {
-	if (tp == gx_system::PresetFile::PRESET_FILE) {
-	    if (f->get_flags() & gx_system::PRESET_FLAG_INVALID) {
-		tooltip->set_text(_("damaged bank file; click to delete"));
-	    } else if (f->get_flags() & gx_system::PRESET_FLAG_VERSIONDIFF) {
-		tooltip->set_text(
-		    Glib::ustring::compose(_("wrong format version (is %1, need %2)\nclick to convert"),
-					   f->get_header().version_string(),
-					   f->get_header().current_version_string()));
-	    } else if (f->get_flags() & gx_system::PRESET_FLAG_READONLY) {
-		tooltip->set_text(_("readonly bank, click to change to read-write"));
-	    } else if (col == bank_treeview->get_column(0)){
-		tooltip->set_text(_("click to set to readonly"));
-	    } else {
-		return false;
-	    }
-	} else if (tp == gx_system::PresetFile::PRESET_FACTORY) {
-	    tooltip->set_text(_("predefined factory preset bank"));
-	} else if (tp == gx_system::PresetFile::PRESET_SCRATCH) {
-	    tooltip->set_text(_("scratch preset bank: changes will be persistent (without explicit saving)"));
-	} else {
-	    return false;
-	}
-    } else if (col == bank_treeview->get_column(2)) {
-	if (f->get_flags()) {
-	    return false;
-	}
-	tooltip->set_text(_("click to edit the bank name"));
-    } else if (col == bank_treeview->get_column(3)) {
-	if (f->get_flags()) {
-	    return false;
-	}
-	tooltip->set_text(_("click to delete the bank"));
-    } else {
-	return false;
-    }
-    bank_treeview->set_tooltip_cell(tooltip, &pt, col, 0);
-    return true;
-}
-
-bool PresetWindow::on_preset_button_press(GdkEventButton *ev) {
-    Glib::signal_idle().connect(sigc::bind(sigc::ptr_fun(preset_button_press_idle), sigc::ref(*preset_treeview)));
-    return false;
-}
-
-
-void PresetWindow::on_preset_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp) {
-    if (selection.get_target() == "application/x-guitarix-preset") {
-	Gtk::TreeModel::Path path;
-	Gtk::TreeViewColumn *focus_column;
-	preset_treeview->get_cursor(path, focus_column);
-	Glib::ustring data = pstore->get_iter(path)->get_value(pstore->col.name);
-	selection.set("application/x-guitarix-preset", data);
-    }
-}
-
-void PresetWindow::on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp) {
-    if (selection.get_target() == "text/uri-list") {
-	Gtk::TreeModel::Path path;
-	Gtk::TreeViewColumn *focus_column;
-	bank_treeview->get_cursor(path, focus_column);
-	std::vector<std::string> uris;
-	uris.push_back(
-	    Gio::File::create_for_path(
-		gx_settings.banks.get_file(
-		    bank_treeview->get_model()->get_iter(path)->get_value(bank_col.name)
-		    )->get_filename()
-		)->get_uri());
-	selection.set_uris(uris);
-    }
-}
-
-void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp) {
-    //FIXME move from external doesn't work (only copy)
-    if (info != 1) {
-	context->drag_finish(false, false, gtk_get_current_event_time());
-	return;
-    }
-    bool is_move = context->get_selected_action() == Gdk::ACTION_MOVE;
-    bool success = false;
-    std::vector<Glib::ustring> uris = data.get_uris();
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
-    for (std::vector<Glib::ustring>::iterator i = uris.begin(); i != uris.end(); ++i) {
-	Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(*i);
-	std::string filename = rem->get_basename();
-	gx_settings.banks.strip_preset_postfix(filename);
-	Glib::ustring name = gx_settings.banks.decode_filename(filename);
-	gx_settings.banks.make_valid_utf8(name);
-	gx_settings.banks.make_bank_unique(name, &filename);
-	Glib::RefPtr<Gio::File> dest = Gio::File::create_for_path(filename);
-	try {
-	    rem->copy(dest);
-	} catch (Gio::Error& e) {
-	    gx_system::gx_print_error(e.what().c_str(), _("can't copy to config dir"));
-	    is_move = false;
-	    continue;
-	}
-	gx_system::PresetFile *f = new gx_system::PresetFile();
-	if (f->open_file(name, filename, gx_system::PresetFile::PRESET_FILE, 0)) {
-	    gx_settings.banks.insert(f);
-	    Gtk::TreeIter i = ls->prepend();
-	    set_row_for_presetfile(i,f);
-	    success = true;
-	} else {
-	    delete f;
-	    dest->remove();
-	    is_move = false;
-	}
-    }
-    context->drag_finish(success, is_move, gtk_get_current_event_time());
-}
-
-Glib::ustring PresetWindow::get_combo_selection() {
-    Gtk::TreeIter idx = banks_combobox->get_active();
-    if (!idx) {
-	return "";
-    }
-    return idx->get_value(target_col.name);
-}
-
-/*
- ** dnd target
- */
-
-void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp) {
-    Glib::ustring bank = get_combo_selection();
-    if (bank.empty()) {
-	presets_target_treeview->signal_drag_data_received().emission_stop();
-	return;
-    }
-    gx_system::PresetFile& fl = *gx_settings.banks.get_file(bank);
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(presets_target_treeview->get_model());
-    Glib::ustring nm = data.get_data_as_string();
-    Glib::ustring t = nm;
-    int n = 1;
-    while (fl.has_entry(nm)) {
-	nm = t + "-" + gx_system::to_string(n);
-	n += 1;
-    }
-    Gtk::TreeModel::Path pt;
-    Gtk::TreeViewDropPosition dst;
-    if (!presets_target_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
-	ls->append()->set_value(target_col.name, nm);
-	gx_settings.save(fl, nm);
-    } else {
-	Gtk::TreeIter it = ls->get_iter(pt);
-	if (dst == Gtk::TREE_VIEW_DROP_BEFORE || dst == Gtk::TREE_VIEW_DROP_INTO_OR_BEFORE) {
-	    ls->insert(it)->set_value(target_col.name, nm);
-	    gx_settings.insert_before(fl, it->get_value(target_col.name), nm);
-	} else { // gtk.TREE_VIEW_DROP_INTO_OR_AFTER, gtk.TREE_VIEW_DROP_AFTER
-	    ls->insert_after(it)->set_value(target_col.name, nm);
-	    gx_settings.insert_after(fl, it->get_value(target_col.name), nm);
-	}
-    }
-    if (context->get_action() == Gdk::ACTION_MOVE) {
-	Gtk::TreeModel::Path pt;
-	Gtk::TreeViewColumn *col;
-	preset_treeview->get_cursor(pt, col);
-	Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
-	preset_row_del_conn.block();
-	ls->erase(ls->get_iter(pt));
-	preset_row_del_conn.unblock();
-	gx_settings.erase_preset(*gx_settings.banks.get_file(get_current_bank()), nm);
-    }
-    on_bank_changed(); // if preset list == target list
-}
-
-bool PresetWindow::on_target_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
-    Gtk::Widget *source_widget = Gtk::Widget::drag_get_source_widget(context);
-    if (source_widget != preset_treeview || get_combo_selection().empty()) {
-	context->drag_status((Gdk::DragAction)0, timestamp);
-	return true;
-    }
-    presets_target_treeview->on_drag_motion(context, x, y, timestamp);
-    Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
-    int tp = it->get_value(bank_col.tp);
-    Glib::ustring nm = it->get_value(bank_col.name);
-    if ((tp != gx_system::PresetFile::PRESET_SCRATCH && tp != gx_system::PresetFile::PRESET_FILE) || gx_settings.banks.get_file(nm)->get_flags() ||
-	get_combo_selection() == nm) {
-	context->drag_status(Gdk::ACTION_COPY, timestamp);
-    }
-    return true;
-}
-
-void PresetWindow::reload_combo() {
-    Glib::ustring old = get_combo_selection();
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(banks_combobox->get_model());
-    ls->clear();
-    int n = 0;
-    int nn = -1;
-    for (gx_system::PresetBanks::iterator i = gx_settings.banks.begin(); i != gx_settings.banks.end(); ++i) {
-	int tp = i->get_type();
-	if (tp != gx_system::PresetFile::PRESET_FILE && tp != gx_system::PresetFile::PRESET_SCRATCH) {
-	    continue;
-	}
-	if (i->get_flags()) {
-	    continue;
-	}
-	Glib::ustring s = i->get_name();
-	ls->append()->set_value(bank_col.name, s);
-	if (s == old) {
-	    nn = n;
-	}
-	n += 1;
-    }
-    banks_combobox->set_active(nn);
-}
-
-void PresetWindow::on_preset_combo_changed() {
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(presets_target_treeview->get_model());
-    ls->clear();
-    Glib::ustring nm = get_combo_selection();
-    if (nm.empty()) {
-	return;
-    }
-    gx_system::PresetFile& f = *gx_settings.banks.get_file(nm);
-    for (gx_system::PresetFile::iterator i = f.begin(); i != f.end(); ++i) {
-	ls->append()->set_value(bank_col.name, i->name);
-    }
-}
-
-void PresetWindow::reload_target() {
-    on_preset_combo_changed();
-}
-
-/*
- ** name edit
- */
-
-bool PresetWindow::select_func(const Glib::RefPtr<Gtk::TreeModel>& model, const Gtk::TreePath& path, bool path_currently_selected) {
-    Glib::ustring s = model->get_iter(path)->get_value(bank_col.name);
-    if (s.empty()) {
-	return false;
-    }
-    return true;
-}
-
-void PresetWindow::on_editing_started(const Gtk::CellEditable* edit, const Glib::ustring& path, Glib::RefPtr<Gtk::TreeModel>& model) {
-    Glib::ustring s = model->get_iter(path)->get_value(bank_col.name);
-    if (s.empty()) {
-	dynamic_cast<Gtk::Entry*>(const_cast<Gtk::CellEditable*>(edit))->set_text("");
-    }
-}
-
-bool PresetWindow::edit_cell(const Gtk::TreeModel::Path pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell) {
-    dynamic_cast<Gtk::CellRendererText*>(&cell)->property_editable().set_value(true);
-    col.get_tree_view()->set_cursor(pt, col, true);
-    return false;
-}
-
-void PresetWindow::reset_edit(Gtk::TreeViewColumn& col) {
-    if (edit_iter) {
-	Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(col.get_tree_view()->get_model());
-	ls->erase(edit_iter);
-	edit_iter = ls->children().end();
-    }
-    Gtk::CellRendererText& cell = *dynamic_cast<Gtk::CellRendererText*>(col.get_first_cell());
-    cell.property_editable().set_value(false);
-    col.set_min_width(0);
-    col.queue_resize();
-    in_edit = false;
-}
-
-void PresetWindow::on_edit_canceled(Gtk::TreeViewColumn *col) {
-    reset_edit(*col);
-}
-
-void PresetWindow::start_edit(const Gtk::TreeModel::Path& pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell) {
-    col.set_min_width(100);
-    Glib::signal_idle().connect(
-	sigc::bind(sigc::mem_fun(*this, &PresetWindow::edit_cell),
-		   pt, sigc::ref(col), sigc::ref(cell)));
-}
-
-/*
- ** list of banks
- */
-
-void PresetWindow::highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter) {
-    Glib::ustring t = iter->get_value(bank_col.name);
-    Gtk::CellRendererText *tc = dynamic_cast<Gtk::CellRendererText*>(cell);
-    if (t == gx_settings.get_current_factory()) {
-	tc->property_foreground().set_value("#f00");
-    } else{
-	tc->property_foreground_set().set_value(false);
-    }
-}
-
-Gtk::TreeModel::Row PresetWindow::get_current_bank_row() {
-    Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
-    if (it) {
-	return *it;
-    } else {
-	return Gtk::TreeModel::Row();
-    }
-}
-
-Glib::ustring PresetWindow::get_current_bank() {
-    Gtk::TreeModel::Row row = get_current_bank_row();
-    if (!row) {
-	return "";
-    }
-    return row[bank_col.name];
-}
-
-bool PresetWindow::run_message_dialog(Gtk::Widget& w, const Glib::ustring& msg) {
-    Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(w.get_toplevel()), msg, false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
-    d.set_position(Gtk::WIN_POS_MOUSE);
-    return d.run() == Gtk::RESPONSE_OK;
-}
-
-bool PresetWindow::on_bank_button_release(GdkEventButton *ev) {
-    // edit bank name / delete bank
-    Gtk::TreeModel::Path pt;
-    Gtk::TreeViewColumn *col;
-    int dx, dy;
-    if (!bank_treeview->get_path_at_pos(ev->x, ev->y, pt, col, dx, dy)) {
-	return false;
-    }
-    Gtk::TreeModel::Path path;
-    Gtk::TreeViewColumn *focus_column;
-    bank_treeview->get_cursor(path, focus_column);
-    if (col != focus_column || pt != path) {
-	return false;
-    }
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
-    Gtk::TreeModel::iterator it = ls->get_iter(pt);
-    Glib::ustring nm = it->get_value(bank_col.name);
-    int tp = it->get_value(bank_col.tp);
-    if (col == bank_treeview->get_column(0)) {
-	if (tp == gx_system::PresetFile::PRESET_SCRATCH || tp == gx_system::PresetFile::PRESET_FILE) {
-	    int flags = gx_settings.banks.get_file(nm)->get_flags();
-	    gx_system::PresetFile *f = gx_settings.banks.get_file(nm);
-	    if (flags == 0 && tp == gx_system::PresetFile::PRESET_FILE) {
-		/*if (run_message_dialog(*bank_treeview, "set bank " + nm + " to readonly?")) {*/
-		f->set_flag(gx_system::PRESET_FLAG_READONLY, true);
-		gx_settings.banks.save();
-		reload_banks(nm);
-	    } else if (flags == gx_system::PRESET_FLAG_VERSIONDIFF) {
-		if (run_message_dialog(*bank_treeview, "convert bank " + nm + " to new version?")) {
-		    if (gx_settings.convert_preset(*f)) {
-			reload_banks(nm);
-		    }
-		}
-	    } else if (flags == gx_system::PRESET_FLAG_READONLY) {
-		/*if (run_message_dialog(*bank_treeview, "set bank " + nm + " to read/write?")) {*/
-		f->set_flag(gx_system::PRESET_FLAG_READONLY, false);
-		gx_settings.banks.save();
-		reload_banks(nm);
-	    } else if (flags == (gx_system::PRESET_FLAG_READONLY | gx_system::PRESET_FLAG_VERSIONDIFF)) {
-		if (run_message_dialog(*bank_treeview, "convert readonly bank " + nm + " to new version?")) {
-		    if (gx_settings.convert_preset(*f)) {
-			reload_banks(nm);
-		    }
-		}
-	    } else if (flags & gx_system::PRESET_FLAG_INVALID) {
-		if (run_message_dialog(
-			*bank_treeview, "delete damaged bank " + nm + "?"
-			" Export it before deleting and ask in the"
-			" guitarix online forum if you want to try to repair it!")) {
-		    gx_settings.banks.remove(nm);
-		    reload_banks(nm);
-		}
-	    }
-	}
-	return false;
-    }
-    if (tp != gx_system::PresetFile::PRESET_FILE || gx_settings.banks.get_file(nm)->get_flags()) {
-	return false;
-    }
-    if (col == bank_treeview->get_column(2)) {
-	col = bank_treeview->get_column(1);
-	start_edit(pt, *col, *col->get_first_cell());
-    } else if (col == bank_treeview->get_column(3)) {
-	Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(bank_treeview->get_toplevel()), "delete bank " + nm + "?", false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
-	d.set_position(Gtk::WIN_POS_MOUSE);
-	if (d.run() == Gtk::RESPONSE_OK) {
-	    bank_row_del_conn.block();
-	    ls->erase(it);
-	    bank_row_del_conn.unblock();
-	    gx_settings.banks.remove(nm);
-	    reload_combo();
-	    if (nm == gx_settings.get_current_factory()) {
-		gx_settings.set_source_to_state();
-		save_preset->set_sensitive(false);
-	    }
-	}
-    }
-    return false;
-}
-
-static void strip(Glib::ustring& s) {
-    size_t n = s.find_first_not_of(' ');
-    if (n == Glib::ustring::npos) {
-	s.erase();
-	return;
-    }
-    if (n != 0) {
-	s.erase(0, n);
-    }
-    s.erase(s.find_last_not_of(' ')+1);
-}
-
-void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring& newtext, Gtk::TreeView* w) {
-    Gtk::TreeIter sel = w->get_model()->get_iter(path);
-    Glib::ustring oldname = sel->get_value(bank_col.name);
-    Glib::ustring newname = newtext;
-    strip(newname);
-    if (newname.empty() || newname == oldname) {
-	Gtk::TreeViewColumn *p = w->get_column(1);
-	reset_edit(*p);
-	return;
-    }
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(banks_combobox->get_model());
-    std::string newfile;
-    gx_settings.banks.make_bank_unique(newname, &newfile);
-    if (edit_iter) {
-	ls->prepend()->set_value(target_col.name, newname);
-	edit_iter = ls->children().end();
-	gx_system::PresetFile *f = new gx_system::PresetFile();
-	if (f->create_file(newname, newfile, gx_system::PresetFile::PRESET_FILE, 0)) {
-	    gx_settings.banks.insert(f);
-	    set_row_for_presetfile(sel,f);
-	} else {
-	    delete f;
-	}
-    } else {
-	Gtk::TreeNodeChildren ch = ls->children();
-	for (Gtk::TreeIter it = ch.begin(); it != ch.end(); ++it) {
-	    if (it->get_value(bank_col.name) == oldname) {
-		it->set_value(bank_col.name, newname);
-	    }
-	}
-	gx_settings.banks.rename(oldname, newname, newfile);
-	if (oldname == gx_settings.get_current_factory()) {
-	    //current_bank = newname; FIXME
-	}
-	sel->set_value(bank_col.name, newname);
-    }
-    w->get_selection()->select(sel);
-    Gtk::TreeViewColumn *p = w->get_column(1);
-    reset_edit(*p);
-}
-
-bool PresetWindow::is_row_separator(const Glib::RefPtr<Gtk::TreeModel>& model, const Gtk::TreeModel::iterator& iter) {
-    return iter->get_value(bank_col.tp) == gx_system::PresetFile::PRESET_SEP;
-}
-
-void PresetWindow::on_new_bank() {
-    Glib::RefPtr<Gtk::ListStore> m = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
-    edit_iter = m->prepend();
-    edit_iter->set_value(bank_col.tp, static_cast<int>(gx_system::PresetFile::PRESET_FILE));
-    in_edit = true;
-    start_edit(m->get_path(edit_iter), *bank_treeview->get_column(1), *bank_cellrenderer);
-}
-
-bool PresetWindow::on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
-    Gtk::Widget *source_widget = Gtk::Widget::drag_get_source_widget(context);
-    if (!source_widget) {
-	// URI from other application
-	Gdk::DragAction a;
-	if (context->get_suggested_action() == Gdk::ACTION_MOVE) {
-	    a = context->get_suggested_action();
-	} else {
-	    a = Gdk::ACTION_COPY;
-	}
-	context->drag_status(a, timestamp);
-    } else if (source_widget != bank_treeview) {
-	// other window
-	context->drag_status((Gdk::DragAction)0, timestamp);
-    } else {
-	// reorder
-	Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
-	if (!it) {
-	    return true;
-	}
-	int tp = it->get_value(bank_col.tp);
-	if (tp != gx_system::PresetFile::PRESET_SCRATCH && tp != gx_system::PresetFile::PRESET_FILE) {
-	    context->drag_status((Gdk::DragAction)0, timestamp);
-	    return true;
-	}
-	Gtk::TreeModel::Path pt;
-	Gtk::TreeViewDropPosition dst;
-	if (bank_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
-	    tp = bank_treeview->get_model()->get_iter(pt)->get_value(bank_col.tp);
-	    if (tp != gx_system::PresetFile::PRESET_SCRATCH && tp != gx_system::PresetFile::PRESET_FILE) {
-		context->drag_status((Gdk::DragAction)0, timestamp);
-		return true;
-	    }
-	}
-	bank_treeview->on_drag_motion(context, x, y, timestamp);
-	context->drag_status(Gdk::ACTION_MOVE, timestamp);
-    }
-    return true;
-}
-
-void PresetWindow::on_bank_changed() {
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
-    preset_row_del_conn.block();
-    ls->clear();
-    preset_row_del_conn.unblock();
-    Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
-    if (!it) {
-	in_current_preset = false;
-	return;
-    }
-    Glib::ustring nm = it->get_value(bank_col.name);
-    preset_title->set_text(nm);
-    Glib::ustring cp;
-    if (nm == gx_settings.get_current_factory()) {
-	in_current_preset = true;
-	cp = gx_settings.get_current_name();
-    } else {
-	in_current_preset = false;
-    }
-    Gtk::TreeIter i;
-    gx_system::PresetFile& ll = *gx_settings.banks.get_file(nm);
-    bool modifiable = ll.is_mutable();
-    for (gx_system::PresetFile::iterator s = ll.begin(); s != ll.end(); ++s) {
-	i = ls->append();
-	if (modifiable) {
-	    i->set_value(pstore->col.name, s->name);
-	    i->set_value(pstore->col.edit_pb, pb_edit);
-	    i->set_value(pstore->col.del_pb, pb_del);
-	} else {
-	    i->set_value(pstore->col.name, s->name);
-	}
-	if (s->name == cp) {
-	    preset_treeview->get_selection()->select(i);
-	}
-    }
-    if (modifiable) {
-	i = ls->append();
-    }
-}
-
-void PresetWindow::set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f) {
-    i->set_value(bank_col.name, f->get_name());
-    if (f->get_flags() & gx_system::PRESET_FLAG_INVALID) {
-	i->set_value(bank_col.type_pb, pb_del);
-    } else if (f->get_flags() & gx_system::PRESET_FLAG_VERSIONDIFF) {
-	i->set_value(bank_col.type_pb, pb_versiondiff);
-    } else if (f->get_flags() & gx_system::PRESET_FLAG_READONLY) {
-	i->set_value(bank_col.type_pb, pb_readonly);
-    }
-    int tp = f->get_type();
-    i->set_value(bank_col.tp, tp);
-    if (tp == gx_system::PresetFile::PRESET_SCRATCH) {
-	i->set_value(bank_col.type_pb, pb_scratch);
-    } else if (tp == gx_system::PresetFile::PRESET_FACTORY) {
-	i->set_value(bank_col.type_pb, pb_factory);
-    }
-    if (f->is_mutable()) {
-	i->set_value(bank_col.edit_pb, pb_edit);
-	i->set_value(bank_col.del_pb, pb_del);
-    }
-}
-
-void PresetWindow::reload_banks(const Glib::ustring& sel_bank) {
-    Glib::RefPtr<Gtk::ListStore> ls3 = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
-    preset_row_del_conn.block();
-    ls3->clear();
-    preset_row_del_conn.unblock();
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
-    bank_row_del_conn.block();
-    ls->clear();
-    bank_row_del_conn.unblock();
-    Gtk::TreeIter i;
-    int in_factory = false;
-    for (gx_system::PresetBanks::iterator v = gx_settings.banks.begin(); v != gx_settings.banks.end(); ++v) {
-	if (!in_factory && v->get_type() == gx_system::PresetFile::PRESET_FACTORY) {
-	    i = ls->append();
-	    i->set_value(bank_col.tp, static_cast<int>(gx_system::PresetFile::PRESET_SEP));
-	    in_factory = true;
-	}
-	i = ls->append();
-	set_row_for_presetfile(i, *v);
-	if (v->get_name() == sel_bank) {
-	    bank_treeview->get_selection()->select(i);
-	}
-    }
-    reload_combo();
-}
-
-void PresetWindow::set_presets() {
-    reload_banks(gx_settings.get_current_factory());
-}
-
-void PresetWindow::on_bank_reordered(const Gtk::TreeModel::Path& path) {
-    Glib::RefPtr<Gtk::TreeModel> ls = bank_treeview->get_model();
-    Gtk::TreeModel::Children ch = ls->children();
-    std::vector<Glib::ustring> l;
-    for (Gtk::TreeIter i = ch.begin(); i != ch.end(); ++i) {
-	int tp = i->get_value(bank_col.tp);
-	Glib::ustring nm = i->get_value(bank_col.name);
-	if (!nm.empty() && (tp == gx_system::PresetFile::PRESET_SCRATCH || tp == gx_system::PresetFile::PRESET_FILE)) {
-	    l.push_back(nm);
-	}
-    }
-    gx_settings.banks.reorder(l);
-}
-
-/*
- ** list of presets
- */
-
-void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter) {
-    Glib::ustring t = iter->get_value(pstore->col.name);
-    if (t.empty() && !cell->property_editing().get_value()) {
-	t = "<new>";
-    }
-    cell->set_property("text", t);
-    Gtk::CellRendererText *tc = dynamic_cast<Gtk::CellRendererText*>(cell);
-    if (in_current_preset && t == gx_settings.get_current_name()) {
-	tc->property_foreground().set_value("#f00");
-    } else{
-	tc->property_foreground_set().set_value(false);
-    }
-}
-
-bool PresetWindow::on_preset_button_release(GdkEventButton *ev) {
-    Gtk::TreeModel::Path pt;
-    Gtk::TreeViewColumn *col;
-    int dx, dy;
-    if (!preset_treeview->get_path_at_pos(ev->x, ev->y, pt, col, dx, dy)) {
-	return false;
-    }
-    Gtk::TreeModel::Path path;
-    Gtk::TreeViewColumn *focus_column;
-    preset_treeview->get_cursor(path, focus_column);
-    if (col != focus_column || pt != path) {
-	return false;
-    }
-    Gtk::TreeModel::Row bank_row = get_current_bank_row();
-    int tp = bank_row[bank_col.tp];
-    if ((tp != gx_system::PresetFile::PRESET_SCRATCH && tp != gx_system::PresetFile::PRESET_FILE) || gx_settings.banks.get_file(bank_row[bank_col.name])->get_flags()) {
-	return false;
-    }
-    if (col == preset_treeview->get_column(1)) {
-	col = preset_treeview->get_column(0);
-	start_edit(pt, *col, *col->get_first_cell());
-    } else if (col == preset_treeview->get_column(2)) {
-	Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
-	Glib::ustring nm = ls->get_iter(pt)->get_value(pstore->col.name);
-	Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(preset_treeview->get_toplevel()), Glib::ustring::compose("delete preset %1?", nm), false,
-			     Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
-	d.set_position(Gtk::WIN_POS_MOUSE);
-	if (d.run() == Gtk::RESPONSE_OK) {
-	    preset_row_del_conn.block();
-	    ls->erase(ls->get_iter(pt));
-	    preset_row_del_conn.unblock();
-	    gx_settings.erase_preset(*gx_settings.banks.get_file(bank_row[bank_col.name]), nm);
-	    reload_target();
-	}
-    }
-    return false;
-}
-
-void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustring& newtext) {
-    Glib::ustring newname = newtext;
-    strip(newname);
-    if (newname.empty()) {
-	reset_edit(*preset_treeview->get_column(0));
-	return;
-    }
-    gx_system::PresetFile& fl = *gx_settings.banks.get_file(get_current_bank());
-    Glib::ustring t = newname;
-    int n = 1;
-    while (fl.has_entry(newname)) {
-	newname = Glib::ustring::compose("%1-%2", t, n);
-	n += 1;
-    }
-    Glib::RefPtr<Gtk::ListStore> m = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
-    Gtk::TreeRow row = *m->get_iter(path);
-    t = row[pstore->col.name];
-    if (t.empty()) {
-	m->append();
-	gx_settings.save(fl, newname);
-    } else {
-	fl.rename(t, newname);
-	if (gx_settings.get_current_factory() == get_current_bank() && gx_settings.get_current_name() == row[pstore->col.name]) {
-	    //current_preset = newname; FIXME
-	}
-    }
-    row[pstore->col.name] = newname;
-    row[pstore->col.edit_pb] = pb_edit;
-    row[pstore->col.del_pb] = pb_del;
-    preset_treeview->get_selection()->select(m->get_iter(path));
-    reload_target();
-    reset_edit(*preset_treeview->get_column(0));
-}
-
-void PresetWindow::on_cursor_changed() {
-    if (in_edit) {
-	return;
-    }
-    Gtk::TreeModel::Path path;
-    Gtk::TreeViewColumn *focus_column;
-    preset_treeview->get_cursor(path, focus_column);
-    Glib::RefPtr<Gtk::TreeModel> ls = preset_treeview->get_model();
-    if (!ls->get_iter(path)->get_value(pstore->col.name).empty()) {
-	return;
-    }
-    in_edit = true;
-    start_edit(path, *preset_treeview->get_column(0), *preset_cellrenderer);
-}
-
-void PresetWindow::on_preset_changed() {
-    if (!Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("OrganizeAction"))->get_active()) {
-	preset_changed();
-    }
-}
-
-bool PresetWindow::on_preset_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
-    Gtk::Widget *source_widget = Gtk::Widget::drag_get_source_widget(context);
-    if (source_widget == preset_treeview) {
-	preset_treeview->on_drag_motion(context, x, y, timestamp);
-	Gtk::TreeModel::Path pt;
-	Gtk::TreeViewDropPosition dst;
-	if (preset_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
-	    if (dst == Gtk::TREE_VIEW_DROP_BEFORE ||
-		(dst == Gtk::TREE_VIEW_DROP_AFTER &&
-		 !preset_treeview->get_model()->get_iter(pt)->get_value(pstore->col.name).empty())) {
-		context->drag_status(Gdk::ACTION_MOVE, timestamp);
-		return true;
-	    }
-	}
-    }
-    context->drag_status((Gdk::DragAction)0, timestamp);
-    return true;
-}
-
-void PresetWindow::on_preset_reordered(const Gtk::TreeModel::Path& path) {
-    // save changed order to file
-    Glib::RefPtr<Gtk::TreeModel> ls = preset_treeview->get_model();
-    Gtk::TreeModel::Children ch = ls->children();
-    std::vector<Glib::ustring> l;
-    for (Gtk::TreeIter i = ch.begin(); i != ch.end(); ++i) {
-	Glib::ustring s = i->get_value(pstore->col.name);
-	if (!s.empty()) {
-	    l.push_back(s);
-	}
-    }
-    gx_settings.reorder_preset(*gx_settings.banks.get_file(get_current_bank()), l);
-    reload_target();
-}
-
-void PresetWindow::autosize() {
-    bank_treeview->columns_autosize();
-    preset_treeview->columns_autosize();
-}
-
-void PresetWindow::on_organize() {
-    bool v = organize_presets->get_active();
-    bank_column_edit->set_visible(v);
-    bank_column_delete->set_visible(v);
-    preset_column_edit->set_visible(v);
-    preset_column_delete->set_visible(v);
-    save_preset->set_sensitive(!v); // FIXME -> SaveAction
-    Glib::RefPtr<Gtk::TreeSelection> sel = preset_treeview->get_selection();
-    if (v) {
-	sel->set_mode(Gtk::SELECTION_NONE);
-	banks_combobox->set_active(-1);
-	banks_combobox->show();
-	presets_target_scrolledbox->show();
-    } else {
-	sel->set_mode(Gtk::SELECTION_BROWSE);
-	banks_combobox->hide();
-	presets_target_scrolledbox->hide();
-    }
-    autosize();
-}
-
-void PresetWindow::on_presets_close() {
-    Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("PresetsAction"))->set_active(false); // FIXME
-}
-
-/*
- ** preset window
- */
-
-bool PresetWindow::animate_preset_show() {
-    vpaned_pos -= vpaned_step;
-    if (vpaned_pos <= vpaned_target) {
-	main_vpaned->set_position(vpaned_target);
-	child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
-	return false;
-    }
-    main_vpaned->set_position(vpaned_pos);
-    return true;
-}
-
-bool PresetWindow::animate_preset_hide() {
-    vpaned_pos += vpaned_step;
-    if (vpaned_pos >= vpaned_target) {
-	preset_scrolledbox->hide();
-	return false;
-    }
-    main_vpaned->set_position(vpaned_pos);
-    return true;
-}
-
-void PresetWindow::preset_changed() {
-    Glib::ustring bank;
-    Glib::ustring name;
-    if (in_current_preset) {
-	Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
-	if (it) {
-	    bank = it->get_value(bank_col.name);
-	    it = preset_treeview->get_selection()->get_selected();
-	    if (it) {
-		name = it->get_value(pstore->col.name);
-	    }
-	}
-    }
-    bool is_scratch = false;
-    gx_system::PresetFile *cpf = gx_settings.banks.get_file(gx_settings.get_current_factory());
-    if (!gx_settings.get_current_factory().empty()) {
-	// check if scratch preset hasn't just been deleted
-	if (cpf && cpf->has_entry(gx_settings.get_current_name())) {
-	    is_scratch = (cpf->get_type() == gx_system::PresetFile::PRESET_SCRATCH);
-	}
-    }
-    if (is_scratch) {
-	gx_settings.save(*cpf, gx_settings.get_current_name());
-	if (bank == gx_settings.get_current_factory() && name == gx_settings.get_current_name()) {
-	    // no reload necessary
-	    return;
-	}
-    }
-    if (bank.empty() || name.empty()) {
-	gx_settings.set_source_to_state();
-	return;
-    }
-    cpf = gx_settings.banks.get_file(bank);
-    gx_settings.load_preset(cpf, name);
-    save_preset->set_sensitive(cpf && cpf->is_mutable());
-}
-
-void PresetWindow::show_selected_preset() {
-    Glib::ustring t;
-    printf("SS\n");
-    if (gx_settings.get_current_source() != gx_system::GxSettingsBase::state) {
-	t = gx_settings.get_current_factory() + " / " + gx_settings.get_current_name();
-    }
-    preset_status->set_text(t);
-}
-
-void PresetWindow::on_preset_save() {
-    if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state || gx_settings.get_current_factory().empty()) {
-	return;
-    }
-    gx_system::PresetFile *pf = gx_settings.banks.get_file(gx_settings.get_current_factory());
-    if (!pf->is_mutable()) {
-	return;
-    }
-    gx_settings.save(*pf, gx_settings.get_current_name());
-}
-
-void PresetWindow::on_preset_select(bool v) {
-    if (v) {
-	Glib::RefPtr<Gtk::TreeSelection> sel = bank_treeview->get_selection();
-	Gtk::TreeIter it = sel->get_selected();
-	if (gx_settings.banks.check_reparse()) {
-	    Glib::ustring sel_bank;
-	    if (it) {
-		sel_bank = it->get_value(bank_col.name);
-	    }
-	    reload_banks(sel_bank);
-	}
-	autosize();
-	vpaned_pos = main_vpaned->get_allocation().get_height();
-	vpaned_target = vpaned_pos - paned_child_height;
-	if (animate) {
-	    main_vpaned->set_position(vpaned_pos);
-	    vpaned_step = paned_child_height / 5;
-	    preset_scrolledbox->show();
-	    animate_preset_show();
-	    Glib::signal_timeout().connect(sigc::mem_fun(*this, &PresetWindow::animate_preset_show), 20);
-	} else {
-	    main_vpaned->set_position(vpaned_target);
-	    child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
-	    preset_scrolledbox->show();
-	}
-    } else {
-	vpaned_target = main_vpaned->get_allocation().get_height();
-	if (animate) {
-	    vpaned_pos = main_vpaned->get_position();
-	    paned_child_height = vpaned_target - vpaned_pos;
-	    vpaned_step = paned_child_height / 5;
-	    child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", true);
-	    Glib::signal_timeout().connect(sigc::mem_fun(*this, &PresetWindow::animate_preset_hide), 20);
-	} else {
-	    preset_scrolledbox->hide();
-	}
-	Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("OrganizeAction"))->set_active(false);
-    }
-}
 
 /****************************************************************
  ** class Liveplay
@@ -1827,6 +651,47 @@ void Liveplay::add_midi_elements(gx_engine::MidiControllerList& controller) {
     midictrl_table->show_all();
 }
 
+
+/****************************************************************
+ ** class PluginUI
+ */
+
+PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const char *name,
+		   const Glib::ustring& fname_, const Glib::ustring& tooltip_)
+    : GxUiItem(), plugin(pl.lookup_plugin(name)), fname(fname_),
+      tooltip(tooltip_), shortname(), icon(), group(), toolitem(), main(main_), rackbox() {
+}
+
+bool PluginUI::hasChanged() {
+    return plugin->box_visible != is_displayed();
+}
+
+void PluginUI::reflectZone() {
+    display(plugin->box_visible);
+}
+
+void PluginUI::display(bool v) {
+    plugin->box_visible = v;
+    if (v) {
+	if (!rackbox) {
+	    rackbox = main.add_rackbox(*this, false, -1, true);
+	} else {
+	    rackbox->show();
+	}
+	main.hide_effect(get_id());
+    } else {
+	if (rackbox) {
+	    rackbox->hide();
+	    main.add_icon(get_id());
+	}
+    }
+}
+
+void PluginUI::display_new() {
+    display(true);
+    rackbox->swtch(false);
+}
+
 /****************************************************************
  ** class DragIcon
  */
@@ -1949,7 +814,7 @@ Gtk::Widget *MiniRackBox::make_delete_button(RackBox& rb) {
 	Gtk::Button *b = new Gtk::Button();
 	b->set_focus_on_click(false);
 	b->add(*manage(l));
-	b->signal_clicked().connect(sigc::mem_fun(rb, &RackBox::on_kill));
+	b->signal_clicked().connect(sigc::bind(sigc::mem_fun(rb.plugin, &PluginUI::display), false));
 	w = b;
     } else {
 	w = new Gtk::Alignment();
@@ -2038,8 +903,17 @@ void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_border_width(4);
 }
 
-Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options) {
-    Gtk::Label *effect_label = new Gtk::Label(plugin.get_name());
+Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort) {
+    const char *effect_name;
+    if (useshort) {
+	effect_name = plugin.shortname;
+	if (!effect_name) {
+	    effect_name = plugin.get_name();
+	}
+    } else {
+	effect_name = plugin.get_name();
+    }
+    Gtk::Label *effect_label = new Gtk::Label(effect_name);
     effect_label->set_alignment(0, 0.5);
     effect_label->set_name("rack_effect_label");
     Pango::FontDescription font_desc = effect_label->get_style()->get_font();
@@ -2104,7 +978,7 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     return pb;
 }
 
-RackBox::RackBox(const PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
+RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     : Gtk::VBox(), plugin(plugin_), main(tl), vis(true), config_mode(false), anim_tag(),
       compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), on_off_action(Gtk::ToggleAction::create()), minibox(0),
       fbox(0), target(), anim_height(0), drag_icon(), target_height(0), preset_index(-1), presets(),
@@ -2237,13 +1111,7 @@ void RackBox::on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
 }
 
 void RackBox::on_my_drag_data_delete(const Glib::RefPtr<Gdk::DragContext>& context) {
-    on_kill();
-}
-
-void RackBox::on_kill() {
-    main.add_icon(plugin.get_id());
-    on_off_action->set_active(false);
-    delete this;
+    plugin.display(false);
 }
 
 void RackBox::vis_switch(Gtk::Widget& a, Gtk::Widget& b) {
@@ -2252,26 +1120,27 @@ void RackBox::vis_switch(Gtk::Widget& a, Gtk::Widget& b) {
 }
 
 void RackBox::swtch(bool mini) {
-    if (mini) {
-	vis_switch(*fbox, mbox);
+    if (config_mode) {
+	vis = mini;
     } else {
-	vis_switch(mbox, *fbox);
+	if (mini) {
+	    vis_switch(*fbox, mbox);
+	} else {
+	    vis_switch(mbox, *fbox);
+	}
     }
 }
 
-void RackBox::on_expand(bool mini) {
-    swtch(mini);
-}
-
 void RackBox::set_config_mode(bool mode) {
-    config_mode = mode;
     minibox->set_config_mode(mode);
     if (mode) {
 	vis = fbox->get_visible();
 	if (vis) {
 	    swtch(true);
 	}
+	config_mode = true;
     } else {
+	config_mode = false;
 	if (vis) {
 	    swtch(false);
 	}
@@ -2293,7 +1162,7 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
     b->add(*manage(l));
     b->set_size_request(20, 15);
     b->set_name("effect_reset");
-    b->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &RackBox::on_expand), !expand));
+    b->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &RackBox::swtch), !expand));
     return b;
 }
 
@@ -2353,7 +1222,7 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
 
 Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
     Gtk::VBox *vbox = new Gtk::VBox();
-    Gtk::Widget *effect_label = make_label(plugin, options);
+    Gtk::Widget *effect_label = make_label(plugin, options, true);
     vbox->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
     Gtk::HBox *hbox = new Gtk::HBox();
     vbox->pack_start(*manage(hbox));
@@ -2415,11 +1284,10 @@ bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
 	width = a.get_width();
 	height = a.get_height();
     } else {
+        int depth;
+        get_window()->get_geometry(x, y, width, height, depth);
 	x = 0;
 	y = 0;
-	Glib::RefPtr<Gdk::Window> w = get_window();
-	width = w->get_width();
-	height = w->get_height();
     }
     if (y0 < 0) {
 	get_style()->paint_shadow(
@@ -2532,7 +1400,7 @@ void RackContainer::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& 
     find_index(x, y, &i, &ind);
     std::string dtype = data.get_data_type();
     if (dtype == "application/x-gtk-tool-palette-item-mono" || dtype == "application/x-gtk-tool-palette-item-stereo") {
-	main.add_rackbox(*main.get_plugin(data.get_data_as_string()), false, i, true);
+	main.get_plugin(data.get_data_as_string())->display_new();
     } else {
 	reorder(data.get_data_as_string(), i);
 	context->drag_status(Gdk::ACTION_COPY, timestamp);
@@ -2634,6 +1502,88 @@ bool RackContainer::empty() const {
     return get_children().empty();
 }
 
+
+/****************************************************************
+ ** class StackBoxBuilderNew
+ */
+
+StackBoxBuilderNew::StackBoxBuilderNew(
+    gx_engine::GxEngine& engine_, gx_engine::ParamMap& pmap_, gx_gui::MainMenu &mainmenu_,
+    Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_)
+    : StackBoxBuilder(fTop, fBox, engine_, pmap_, fMode, mainmenu_, fWaveView_, convolver_filename_label_),
+      engine(engine_), pmap(pmap_), mainmenu(mainmenu_), fWaveView(fWaveView_),
+      convolver_filename_label(convolver_filename_label_) {
+}
+
+void StackBoxBuilderNew::openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog) {
+}
+
+void StackBoxBuilderNew::closeMonoRackBox() {
+}
+
+void StackBoxBuilderNew::openStereoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_dialog) {
+}
+
+void StackBoxBuilderNew::closeStereoRackBox() {
+}
+
+void StackBoxBuilderNew::openVerticalMidiBox(const char* label) {
+    openVerticalBox(label);
+}
+
+Gtk::Widget *StackBoxBuilderNew::get_box(const std::string& name) {
+    struct  {
+	const char *name;
+	void (StackBoxBuilder::*func)();
+    } mapping[] = {
+	// mono
+	{ "ampdetail", &StackBoxBuilder::make_rackbox_ampdetail },
+	{ "overdrive", &StackBoxBuilder::make_rackbox_overdrive },
+	{ "echo", &StackBoxBuilder::make_rackbox_echo },
+	{ "delay", &StackBoxBuilder::make_rackbox_delay },
+	{ "freeverb", &StackBoxBuilder::make_rackbox_freeverb },
+	{ "oscilloscope", &StackBoxBuilder::make_rackbox_oscilloscope },
+	{ "low_highpass", &StackBoxBuilder::make_rackbox_low_highpass },
+	{ "eqs", &StackBoxBuilder::make_rackbox_eqs },
+	{ "crybaby", &StackBoxBuilder::make_rackbox_crybaby },
+	{ "gx_distortion", &StackBoxBuilder::make_rackbox_gx_distortion },
+	{ "IR", &StackBoxBuilder::make_rackbox_IR },
+	{ "compressor", &StackBoxBuilder::make_rackbox_compressor },
+	{ "biquad", &StackBoxBuilder::make_rackbox_biquad },
+	{ "tremolo", &StackBoxBuilder::make_rackbox_tremolo },
+	{ "phaser_mono", &StackBoxBuilder::make_rackbox_phaser_mono },
+	{ "chorus_mono", &StackBoxBuilder::make_rackbox_chorus_mono },
+	{ "flanger_mono", &StackBoxBuilder::make_rackbox_flanger_mono },
+	{ "feedback", &StackBoxBuilder::make_rackbox_feedback },
+	{ "amp_tonestack", &StackBoxBuilder::make_rackbox_amp_tonestack },
+	{ "cab", &StackBoxBuilder::make_rackbox_cab },
+	{ "midi_out", &StackBoxBuilder::make_rackbox_midi_out },
+	// stereo
+	{ "chorus", &StackBoxBuilder::make_rackbox_chorus },
+	{ "flanger", &StackBoxBuilder::make_rackbox_flanger },
+	{ "phaser", &StackBoxBuilder::make_rackbox_phaser },
+	{ "stereodelay", &StackBoxBuilder::make_rackbox_stereodelay },
+	{ "stereoecho", &StackBoxBuilder::make_rackbox_stereoecho },
+	{ "moog", &StackBoxBuilder::make_rackbox_moog },
+	{ "ampmodul", &StackBoxBuilder::make_rackbox_ampmodul },
+	{ "tonemodul", &StackBoxBuilder::make_rackbox_tonemodul },
+	{ "jconv", &StackBoxBuilder::make_rackbox_jconv },
+	{ "stereoverb", &StackBoxBuilder::make_rackbox_stereoverb }
+    };
+    for (unsigned int i = 0; i <= sizeof(mapping) / sizeof(mapping[0]); ++i) {
+	if (name == mapping[i].name) {
+	    Gtk::Widget *w = new Gtk::VBox;
+	    w->show();
+	    fTop = 0;
+	    fBox[fTop] = GTK_WIDGET(w->gobj());
+	    fMode[fTop] = kBoxMode;
+	    (this->*mapping[i].func)();
+	    assert(fTop == 0);
+	    return w;
+	}
+    }
+    return 0;
+}
 
 /****************************************************************
  ** class Freezer
@@ -2986,7 +1936,7 @@ void MainWindow::on_configure_event(GdkEventConfigure *ev) {
     }
 }
 
-void MainWindow::add_rackbox_internal(const PluginUI& plugin, Gtk::Widget *widget, bool mini, int pos, bool animate, Gtk::Widget *bare) {
+RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *widget, bool mini, int pos, bool animate, Gtk::Widget *bare) {
     RackBox *r = new RackBox(plugin, *this, bare);
     if (mini) {
 	r->swtch(true);
@@ -3003,6 +1953,7 @@ void MainWindow::add_rackbox_internal(const PluginUI& plugin, Gtk::Widget *widge
     if (animate) {
 	r->animate_insert();
     }
+    return r;
 }
 
 Gtk::Widget *load_rack_ui(const std::string& fname, gx_ui::GxUI& ui) {
@@ -3013,12 +1964,14 @@ Gtk::Widget *load_rack_ui(const std::string& fname, gx_ui::GxUI& ui) {
     return w;
 }
 
-void MainWindow::add_rackbox(const PluginUI& pl, bool mini, int pos, bool animate) {
+RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate) {
     Gtk::Widget *widget = 0;
     if (!pl.fname.empty()) {
 	widget = load_rack_ui(pl.fname, ui);
+    } else {
+	widget = boxbuilder.get_box(pl.get_id());
     }
-    add_rackbox_internal(pl, widget, mini, pos, animate);
+    return add_rackbox_internal(pl, widget, mini, pos, animate);
 }
 
 bool MainWindow::check_if_rack_container_size_animate(const RackContainer& rackcontainer) const {
@@ -3126,8 +2079,7 @@ void MainWindow::on_ti_drag_data_delete(const Glib::RefPtr<Gdk::DragContext>& co
 
 bool MainWindow::on_ti_button_press(GdkEventButton *ev, const char *effect_id) {
     if (ev->type == GDK_2BUTTON_PRESS) {
-	add_rackbox(*get_plugin(effect_id), false, -1, true);
-	hide_effect(effect_id);
+	get_plugin(effect_id)->display_new();
 	return true;
     }
     return false;
@@ -3259,75 +2211,6 @@ void MainWindow::clear_box(Gtk::Container& box) {
     }
 }
 
-struct PluginDesc {
-    Glib::ustring group;
-    std::vector<PluginUI*> *plugins;
-    PluginDesc(const Glib::ustring& g, std::vector<PluginUI*> *p)
-	: group(g), plugins(p) {}
-};
-
-std::vector<PluginDesc*>& get_pluginlist(const gx_engine::PluginList& pl, gx_system::CmdlineOptions& options) {
-    //FIXME free list
-    static std::vector<PluginDesc*> l;
-    std::vector<PluginUI*> *p;
-
-    p = new std::vector<PluginUI*>;
-    p->push_back(new PluginUI(pl, "low_highpass"));
-    p->push_back(new PluginUI(pl, "eqs"));
-    p->push_back(new PluginUI(pl, "IR"));
-    p->push_back(new PluginUI(pl, "biquad"));
-    p->push_back(new PluginUI(pl, "feedback"));
-    p->push_back(new PluginUI(pl, "amp.tonestack", options.get_builder_filepath("tonestack_ui.glade")));
-    p->push_back(new PluginUI(pl, "cab"));
-    p->push_back(new PluginUI(pl, "moog"));
-    p->push_back(new PluginUI(pl, "tonemodul"));
-    l.push_back(new PluginDesc("Tone control", p));
-
-    p = new std::vector<PluginUI*>;
-    p->push_back(new PluginUI(pl, "gx_distortion"));
-    p->push_back(new PluginUI(pl, "overdrive"));
-    p->push_back(new PluginUI(pl, "ampmodul"));
-    l.push_back(new PluginDesc("Distortion", p));
-
-    p = new std::vector<PluginUI*>;
-    p->push_back(new PluginUI(pl, "freeverb"));
-    p->push_back(new PluginUI(pl, "jconv"));
-    p->push_back(new PluginUI(pl, "stereoverb"));
-    p->push_back(new PluginUI(pl, "zita_rev1", options.get_builder_filepath("zita_rev1_ui.glade"), "High Quality Reverb"));
-    l.push_back(new PluginDesc("Reverb", p));
-
-    p = new std::vector<PluginUI*>;
-    p->push_back(new PluginUI(pl, "echo"));
-    p->push_back(new PluginUI(pl, "delay"));
-    p->push_back(new PluginUI(pl, "stereodelay"));
-    p->push_back(new PluginUI(pl, "stereoecho"));
-    l.push_back(new PluginDesc("Echo / Delay", p));
-
-    p = new std::vector<PluginUI*>;
-    p->push_back(new PluginUI(pl, "tremolo", options.get_builder_filepath("tremolo_ui.glade")));
-    p->push_back(new PluginUI(pl, "phaser_mono"));
-    p->push_back(new PluginUI(pl, "chorus_mono"));
-    p->push_back(new PluginUI(pl, "flanger_mono"));
-    p->push_back(new PluginUI(pl, "chorus"));
-    p->push_back(new PluginUI(pl, "flanger"));
-    p->push_back(new PluginUI(pl, "phaser"));
-    //p->push_back(new PluginUI(pl, PLUGIN_TYPE_STEREO, "univibe"));
-    l.push_back(new PluginDesc("Modulation", p));
-
-    p = new std::vector<PluginUI*>;
-    p->push_back(new PluginUI(pl, "crybaby", options.get_builder_filepath("crybaby_ui.glade")));
-    //p->push_back(new PluginUI(pl, PLUGIN_TYPE_MONO, "crybaby2"));
-    p->push_back(new PluginUI(pl, "compressor"));
-    l.push_back(new PluginDesc("Guitar Effects", p));
-
-    p = new std::vector<PluginUI*>;
-    p->push_back(new PluginUI(pl, "oscilloscope"));
-    p->push_back(new PluginUI(pl, "midi_out"));
-    l.push_back(new PluginDesc("Misc", p));
-
-    return l;
-}
-
 void make_icons(std::map<std::string, PluginUI*>& plugin_dict, gx_system::CmdlineOptions& options) {
     Gtk::OffscreenWindow w;
     Glib::RefPtr<Gdk::Screen> screen = w.get_screen();
@@ -3360,13 +2243,110 @@ void make_icons(std::map<std::string, PluginUI*>& plugin_dict, gx_system::Cmdlin
     //w.destroy();
 }
 
+void MainWindow::add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
+    PluginUI *pui = new PluginUI(*this, engine.pluginlist, id, fname, tooltip);
+    ui.registerZone(&pui->plugin->box_visible, pui);
+    p->push_back(pui);
+}
+
+void MainWindow::fill_pluginlist() {
+    std::vector<PluginDesc*> l;
+    std::vector<PluginUI*> *p;
+
+    p = new std::vector<PluginUI*>;
+    add_plugin(p, "low_highpass");
+    add_plugin(p, "eqs");
+    add_plugin(p, "IR");
+    add_plugin(p, "biquad");
+    add_plugin(p, "feedback");
+    add_plugin(p, "amp.tonestack", options.get_builder_filepath("tonestack_ui.glade"));
+    add_plugin(p, "cab");
+    add_plugin(p, "moog");
+    add_plugin(p, "tonemodul");
+    l.push_back(new PluginDesc("Tone control", p));
+
+    p = new std::vector<PluginUI*>;
+    add_plugin(p, "gx_distortion");
+    add_plugin(p, "overdrive");
+    add_plugin(p, "ampmodul");
+    l.push_back(new PluginDesc("Distortion", p));
+
+    p = new std::vector<PluginUI*>;
+    add_plugin(p, "freeverb");
+    add_plugin(p, "jconv");
+    add_plugin(p, "stereoverb");
+    add_plugin(p, "zita_rev1", options.get_builder_filepath("zita_rev1_ui.glade"), "High Quality Reverb");
+    l.push_back(new PluginDesc("Reverb", p));
+
+    p = new std::vector<PluginUI*>;
+    add_plugin(p, "echo");
+    add_plugin(p, "delay");
+    add_plugin(p, "stereodelay");
+    add_plugin(p, "stereoecho");
+    l.push_back(new PluginDesc("Echo / Delay", p));
+
+    p = new std::vector<PluginUI*>;
+    add_plugin(p, "tremolo", options.get_builder_filepath("tremolo_ui.glade"));
+    add_plugin(p, "phaser_mono");
+    add_plugin(p, "chorus_mono");
+    add_plugin(p, "flanger_mono");
+    add_plugin(p, "chorus");
+    add_plugin(p, "flanger");
+    add_plugin(p, "phaser");
+    //add_plugin(p_TYPE_STEREO, "univibe");
+    l.push_back(new PluginDesc("Modulation", p));
+
+    p = new std::vector<PluginUI*>;
+    add_plugin(p, "crybaby", options.get_builder_filepath("crybaby_ui.glade"));
+    //add_plugin(p, PLUGIN_TYPE_MONO, "crybaby2");
+    add_plugin(p, "compressor");
+    l.push_back(new PluginDesc("Guitar Effects", p));
+
+    p = new std::vector<PluginUI*>;
+    add_plugin(p, "oscilloscope");
+    add_plugin(p, "midi_out");
+    l.push_back(new PluginDesc("Misc", p));
+
+    for (std::vector<PluginDesc*>::iterator i = l.begin(); i != l.end(); ++i) {
+	for (std::vector<PluginUI*>::iterator v = (*i)->plugins->begin(); v != (*i)->plugins->end(); ++v) {
+	    PluginUI *pui = *v;
+	    plugin_dict[pui->get_id()] = pui;
+	}
+    }
+    make_icons(plugin_dict, options);
+    bool collapse = false;
+    for (std::vector<PluginDesc*>::iterator i = l.begin(); i != l.end(); ++i) {
+	Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup((*i)->group);
+	gw->set_collapsed(collapse);
+	collapse = true;
+	for (std::vector<PluginUI*>::iterator v = (*i)->plugins->begin(); v != (*i)->plugins->end(); ++v) {
+	    add_toolitem(**v, gw);
+	}
+	effects_toolpalette->add(*manage(gw));
+	effects_toolpalette->set_exclusive(*gw, true);
+	effects_toolpalette->set_expand(*gw, true);
+    }
+}
+
+/* Update all user items reflecting zone z */
+bool MainWindow::update_all_gui() {
+    // the general Gui update handler
+    gx_ui::GxUI::updateAllGuis();
+    engine.check_module_lists();
+    return true;
+}
+
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
     : sigc::trackable(), window_height(0), freezer(), bld(), oldpos(0), scrl_size_x(-1), scrl_size_y(-1),
       monorackcontainer(PLUGIN_TYPE_MONO, *this), stereorackcontainer(PLUGIN_TYPE_STEREO, *this),
       pre_act(false), is_visible(false), drag_icon(0), plugin_dict(), actiongroup(), uimanager(),
       ui(), options(options_), pmap(pmap_), engine(engine_), jack(engine),
       gx_settings(options, jack, engine.convolver, gx_engine::midi_std_ctr, gx_engine::controller_map, engine, pmap_),
-      mainamp_plugin(engine.pluginlist, "ampstack"), live_play(), preset_window() {
+      mainamp_plugin(*this, engine.pluginlist, "ampstack"), live_play(), preset_window(),
+      mainmenu(ui, options_, pmap_),
+      fWaveView(),
+      convolver_filename_label(),
+      boxbuilder(engine_, pmap_, mainmenu, fWaveView, convolver_filename_label) {
     /*
     ** max window size is work area reduce by arbitrary amount to
     ** make it visually more appealing and to account for the unknown
@@ -3407,14 +2387,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     stereorackcontainerH->pack_start(stereorackcontainer, Gtk::PACK_EXPAND_WIDGET);
     monocontainer->pack_start(monorackcontainer, Gtk::PACK_EXPAND_WIDGET);
 
-    std::vector<PluginDesc*>& pluginlist = get_pluginlist(engine.pluginlist, options);
-    for (std::vector<PluginDesc*>::iterator l = pluginlist.begin(); l != pluginlist.end(); ++l) {
-	for (std::vector<PluginUI*>::iterator v = (*l)->plugins->begin(); v != (*l)->plugins->end(); ++v) {
-	    PluginUI *pui = *v;
-	    plugin_dict[pui->get_id()] = pui;
-	}
-    }
-    make_icons(plugin_dict, options);
+    fill_pluginlist();
+    plugin_dict["gx_distortion"]->shortname = _("Distortion");
 
     // connect signal
     window->signal_configure_event().connect_notify(sigc::mem_fun(*this, &MainWindow::on_configure_event));
@@ -3444,32 +2418,24 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-stereo", Gtk::TARGET_SAME_APP, 2));
     effects_toolpalette->drag_dest_set(listTargets, Gtk::DEST_DEFAULT_ALL, Gdk::ACTION_MOVE);
     effects_toolpalette->signal_drag_data_received().connect(sigc::mem_fun(*this, &MainWindow::on_tp_drag_data_received));
-    bool collapse = false;
-    for (std::vector<PluginDesc*>::iterator l = pluginlist.begin(); l != pluginlist.end(); ++l) {
-	Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup((*l)->group);
-	gw->set_collapsed(collapse);
-	collapse = true;
-	for (std::vector<PluginUI*>::iterator v = (*l)->plugins->begin(); v != (*l)->plugins->end(); ++v) {
-	    add_toolitem(**v, gw);
-	}
-	effects_toolpalette->add(*manage(gw));
-	effects_toolpalette->set_exclusive(*gw, true);
-	effects_toolpalette->set_expand(*gw, true);
-    }
     effects_toolpalette->show_all();
 
     plugin_dict[mainamp_plugin.get_id()] = &mainamp_plugin;
     add_rackbox_internal(mainamp_plugin, 0, false, -1, false, amp_background);
-    /*
-    for pl in rack_plugins:
-	self.add_rackbox(pl)
-	self.hide_effect(pl)
-    */
     window->signal_visibility_notify_event().connect(sigc::mem_fun(*this, &MainWindow::on_visibility_notify));
+    gx_settings.loadstate();
+    gx_ui::GxUI::updateAllGuis(true);
+    Glib::signal_timeout().connect(mem_fun(*this, &MainWindow::update_all_gui), 40);
     window->show();
 }
 
 MainWindow::~MainWindow() {
+    for (std::map<std::string, PluginUI*>::iterator i = plugin_dict.begin(); i != plugin_dict.end(); ++i) {
+	ui.unregisterZone(&i->second->plugin->box_visible, i->second);
+	if (i->second != &mainamp_plugin) {
+	    delete i->second;
+	}
+    }
     delete live_play;
     delete preset_window;
     delete window;

@@ -164,23 +164,30 @@ public:
     void init(int samplingFreq);
     void process_midi(int len, float *audiodata, void *midi_port_buf, float jcpu_load,
 		      float fConsta4, float fConsta1t);
-    bool *get_midistat_pointer() { return &midistat; }
+    bool get_midistat() { return midistat; }
 };
 
 
 class MidiAudioBuffer: PluginDef {
+public:
+    enum Load { load_off = -1, load_normal = 0, load_over = 1 };
 private:
     MidiVariables midi;
     gx_engine::TunerAdapter& tuner;
     gx_jack::GxJack* jack;
+    Load jack_overload;
+    Glib::Dispatcher overload_change;
     static void fill_buffer(int count, float *input0, float *output0, PluginDef*);
     static int regparam(const ParamReg& reg);
     static void init(unsigned int samplingFreq, PluginDef *plugin);
+    static int activate(bool start, PluginDef *plugin);
 public:
     Plugin plugin;
     MidiAudioBuffer(TunerAdapter& t);
     void set_jack(gx_jack::GxJack* jack_) { jack = jack_; }
-    bool *get_midistat_pointer() { return midi.get_midistat_pointer(); }
+    bool get_midistat() { return midi.get_midistat(); }
+    Load jack_load_status() { return jack_overload; }
+    Glib::Dispatcher& signal_jack_load_change() { return overload_change; }
 };
 
 

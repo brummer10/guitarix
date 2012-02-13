@@ -50,5 +50,6 @@
 #include "gx_main_boxes.h"
 #include "gx_child_process.h"
 #include "gx_main_interface.h"
+#include "gx_stackbox_builder.h"
 
 #endif  // SRC_HEADERS_GUITARIX_H_

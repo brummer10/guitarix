@@ -46,6 +46,8 @@ MidiAudioBuffer::MidiAudioBuffer(TunerAdapter& t)
       midi(),
       tuner(t),
       jack(0),
+      jack_overload(load_off),
+      overload_change(),
       plugin() {
     version = PLUGINDEF_VERSION;
     flags = PGN_SNOOP;
@@ -54,8 +56,16 @@ MidiAudioBuffer::MidiAudioBuffer(TunerAdapter& t)
     groups = midi_out_groups;
     mono_audio = fill_buffer;
     set_samplerate = init;
+    activate_plugin = activate;
     register_params = regparam;
     plugin.pdef = this;
+}
+
+int MidiAudioBuffer::activate(bool start, PluginDef *plugin) {
+    MidiAudioBuffer& self = *static_cast<MidiAudioBuffer*>(plugin);
+    self.jack_overload = start ? load_normal : load_off;
+    self.overload_change();
+    return 0;
 }
 
 void MidiAudioBuffer::fill_buffer(int count, float *input, float*,
@@ -66,7 +76,13 @@ void MidiAudioBuffer::fill_buffer(int count, float *input, float*,
     }
     void *buf = self.jack->get_midi_buffer(count);
     if (buf) {
-	self.midi.process_midi(count, input, buf, self.jack->get_jcpu_load(),
+	float load = self.jack->get_jcpu_load();
+	Load ol = (load < 65.0 ? load_normal : load_over);
+	if (self.jack_overload != ol) {
+	    self.jack_overload = ol;
+	    self.overload_change();
+	}
+	self.midi.process_midi(count, input, buf, load,
 			       self.tuner.get_freq(), self.tuner.get_note());
     }
 }

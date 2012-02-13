@@ -63,6 +63,7 @@ namespace gx_gui {
 class GxMainInterface;
 class UiBuilderImpl;
 class SelectJackControlPgm;
+class StackBoxBuilderOld;
 
 /****************************************************************
  **
@@ -219,6 +220,57 @@ public:
     Gtk::Button button;
     PToggleButton(const char* label);
     GtkWidget *get_widget() { return GTK_WIDGET(button.gobj()); }
+};
+
+/****************************************************************/
+
+struct uiCheckButton : public gx_ui::GxUiItemBool {
+    GtkToggleButton* fButton;
+    uiCheckButton(gx_ui::GxUI* ui, bool* zone, GtkToggleButton* b)
+                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {}
+    static void toggled(GtkWidget *widget, gpointer data) {
+            ((gx_ui::GxUiItemBool*)data)->modifyZone(GTK_TOGGLE_BUTTON(widget)->active);
+        }
+
+    virtual void reflectZone() {
+            bool v = *fZone;
+            fCache = v;
+            gtk_toggle_button_set_active(fButton, v);
+        }
+};
+
+/****************************************************************/
+
+struct uiToggleButton : public gx_ui::GxUiItemBool {
+    GtkToggleButton* fButton;
+    uiToggleButton(gx_ui::GxUI* ui, bool* zone, GtkToggleButton* b)
+                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {}
+    static void toggled(GtkWidget *widget, gpointer data);
+    virtual void reflectZone();
+};
+
+/****************************************************************/
+
+// --------------------------- reorder effect chain button ---------------------------
+struct uiOrderButton : public gx_ui::GxUiItemInt {
+    GtkButton*     fButton;
+    uiOrderButton(gx_ui::GxUI* ui, int* zone, GtkButton* b)
+                   : gx_ui::GxUiItemInt(ui, zone), fButton(b) {}
+    static void pressed_right(GtkWidget *widget, gpointer   data);
+    static void pressed_left(GtkWidget *widget, gpointer data);
+    static void clicked(GtkWidget *widget, gpointer   data);
+    virtual void reflectZone();
+};
+
+/****************************************************************/
+
+struct uiButton : public gx_ui::GxUiItemFloat {
+    GtkButton*     fButton;
+    uiButton(gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItemFloat(ui, zone),
+             fButton(b) {}
+    static void pressed(GtkWidget *widget, gpointer   data);
+    static void released(GtkWidget *widget, gpointer   data);
+    virtual void reflectZone();
 };
 
 /****************************************************************/
@@ -453,6 +505,7 @@ private:
     void                  on_srack_activate();
     void                  on_toolbar_activate();
     void                  on_tube_activate();
+    void                  overload_status_changed();
     void                  on_show_oscilloscope(bool);
     bool                  on_refresh_oscilloscope();
     void                  on_oscilloscope_post_pre(int post_pre);
@@ -497,6 +550,27 @@ private:
 
     GtkWidget*            addWidget(const char* label, GtkWidget* w);
     virtual void          pushBox(int mode, GtkWidget* w);
+    void make_rackbox_ampdetail();
+    void make_rackbox_low_highpass();
+    void make_rackbox_eqs();
+    void make_rackbox_crybaby();
+    void make_rackbox_gx_distortion();
+    void make_rackbox_IR();
+    void make_rackbox_compressor();
+    void make_rackbox_overdrive();
+    void make_rackbox_echo();
+    void make_rackbox_delay();
+    void make_rackbox_freeverb();
+    void make_rackbox_oscilloscope();
+    void make_rackbox_biquad();
+    void make_rackbox_tremolo();
+    void make_rackbox_phaser_mono();
+    void make_rackbox_chorus_mono();
+    void make_rackbox_flanger_mono();
+    void make_rackbox_feedback();
+    void make_rackbox_amp_tonestack();
+    void make_rackbox_cab();
+    void make_rackbox_midi_out();
 public :
     Glib::RefPtr<Gdk::Pixbuf> gw_ib;
     Glib::RefPtr<Gdk::Pixbuf> gw_ibm;
@@ -536,8 +610,8 @@ public:
         }
 
     // -- layout groups
-    void gx_build_mono_rack();
-    void gx_build_stereo_rack();
+    void gx_build_mono_rack(StackBoxBuilderOld& bb);
+    void gx_build_stereo_rack(StackBoxBuilderOld& bb);
     GtkWidget* openHorizontalOrderBox(const char* label, int* posit);
     void openHorizontalTableBox(const char* label);
     GtkWidget* openHorizontalRestetBox(const char* label, int* posit);
@@ -791,7 +865,27 @@ extern const char *sw_pbutton;
 extern const char *sw_rbutton;
 
 
+extern const char *pb_amp_expose;
+extern const char *pb_conv_widget_expose;
+extern const char *pb_upper_widget_expose;
+extern const char *pb_rectangle_expose;
 extern const char *pb_rectangle_skin_color_expose;
+extern const char *pb_convolver_icon_expose;
+extern const char *pb_AmpBox_expose;
+extern const char *pb_tribal_box_expose;
+extern const char *pb_vbox_expose;
+extern const char *pb_filter_box_expose;
+extern const char *pb_plug_box_expose;
+extern const char *pb_info_box_expose_on;
+extern const char *pb_info_box_expose_off;
+extern const char *pb_slooper_expose;
+extern const char *pb_zac_expose;
+extern const char *pb_gxhead_expose;
+extern const char *pb_RackBox_expose;
+extern const char *pb_gxrack_expose;
+extern const char *pb_eq_expose;
+extern const char *pb_main_expose;
+extern const char *pb_level_meter_expose;
 
 gboolean button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
 

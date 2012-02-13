@@ -332,6 +332,8 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 	sigc::mem_fun(*this, &GxMainInterface::gx_hide_extended_settings));
     status_icon->signal_popup_menu().connect(
 	sigc::mem_fun(*this, &GxMainInterface::gx_systray_menu));
+    engine.midiaudiobuffer.signal_jack_load_change().connect(
+	sigc::mem_fun(*this, &GxMainInterface::overload_status_changed));
 
     /*---------------- create boxes ----------------*/
 
@@ -669,192 +671,187 @@ void GxMainInterface::openLevelMeterBox(const char* label) {
  ** reorder EffectBox in effect chain
  */
 
-// --------------------------- reorder effect chain button ---------------------------
-struct uiOrderButton : public gx_ui::GxUiItemInt {
-    GtkButton*     fButton;
-    uiOrderButton(gx_ui::GxUI* ui, int* zone, GtkButton* b)
-                   : gx_ui::GxUiItemInt(ui, zone), fButton(b) {}
-
-    // box move to the right
-    static void pressed_right(GtkWidget *widget, gpointer   data) {
-	GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
-	GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
-	GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
-	if (!GTK_IS_CONTAINER(parent)) {
-	    return;
-	}
-	GValue  pos = {0};
-	g_value_init(&pos, G_TYPE_INT);
-	static int move = 0;
-	gtk_container_child_get_property(GTK_CONTAINER(parent),
-					 GTK_WIDGET(box), "position", &pos);
-	GList* child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
-	guint max_client = g_list_length(child_list)-1;
-	guint per = g_value_get_int(&pos);
-	if (per >= max_client-1) {
-	    g_list_free(child_list);
-	    return;
-	}
-	GtkWidget *obi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, per+1));
-	g_list_free(child_list);
-	if (!GTK_IS_CONTAINER(obi)) {
-	    return;
-	}
-	child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-	GtkWidget *obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
-	g_list_free(child_list);
-	child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
-	GtkWidget *obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-	g_list_free(child_list);
-
-	gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per +1);
-	((gx_ui::GxUiItemInt*)data)->modifyZone(per+1);
-	  /*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
-      GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
-	  string name = gtk_widget_get_name(plug);
-	  fprintf(stderr, " %i %s .pressed right\n",per,name.c_str());
-      g_list_free(child_list); */
-	if (GTK_IS_BUTTON(obibi)) {
-	    gtk_button_clicked(GTK_BUTTON(obibi));
-	} else {
-	    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
-       /* name = gtk_widget_get_name(obib);
-	     fprintf(stderr, " %i %s .next child right\n",per,name.c_str());*/
-	    if (!GDK_IS_WINDOW(obib->window)|| !gtk_widget_is_drawable(obib)) {
-		/*fprintf(stderr, " %i %s.hidden\n",per,name.c_str());*/
-		move = 1;
-	    } else {
-		move = 0;
-	    }
-	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 4));
-	    g_list_free(child_list);
-
-	    if (GTK_IS_CONTAINER(obib)) {
-		child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
-		obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-		g_list_free(child_list);
-		if (GTK_IS_BUTTON(obibi)) {
-		    gtk_button_clicked(GTK_BUTTON(obibi));
-		    if (move) gtk_button_pressed(GTK_BUTTON(widget));
-		}
-	    }
-	}
-	GxMainInterface::get_instance().engine.set_rack_changed();
+// box move to the right
+void uiOrderButton::pressed_right(GtkWidget *widget, gpointer   data) {
+    GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
+    GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
+    GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
+    if (!GTK_IS_CONTAINER(parent)) {
+	return;
     }
-    // box move to the left
-    static void pressed_left(GtkWidget *widget, gpointer data) {
-        GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
-        GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
-        GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
-        if (!GTK_IS_CONTAINER(parent)) {
-            return;
-        }
-        GValue  pos = {0};
-        g_value_init(&pos, G_TYPE_INT);
-        static int move = 0;
-        gtk_container_child_get_property(GTK_CONTAINER(parent),
-                                         GTK_WIDGET(box), "position", &pos);
-        guint per = g_value_get_int(&pos);
-        if (per <= 1) {
-	    return;
-	}
-	GList* child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
-	GtkWidget *obi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, per-1));
+    GValue  pos = {0};
+    g_value_init(&pos, G_TYPE_INT);
+    static int move = 0;
+    gtk_container_child_get_property(GTK_CONTAINER(parent),
+				     GTK_WIDGET(box), "position", &pos);
+    GList* child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
+    guint max_client = g_list_length(child_list)-1;
+    guint per = g_value_get_int(&pos);
+    if (per >= max_client-1) {
 	g_list_free(child_list);
-	if (!GTK_IS_CONTAINER(obi)) {
-	    return;
-	}
+	return;
+    }
+    GtkWidget *obi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, per+1));
+    g_list_free(child_list);
+    if (!GTK_IS_CONTAINER(obi)) {
+	return;
+    }
+    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
+    GtkWidget *obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
+    g_list_free(child_list);
+    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
+    GtkWidget *obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
+    g_list_free(child_list);
+
+    gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per +1);
+    ((gx_ui::GxUiItemInt*)data)->modifyZone(per+1);
+    /*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
+      GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
+      string name = gtk_widget_get_name(plug);
+      fprintf(stderr, " %i %s .pressed right\n",per,name.c_str());
+      g_list_free(child_list); */
+    if (GTK_IS_BUTTON(obibi)) {
+	gtk_button_clicked(GTK_BUTTON(obibi));
+    } else {
 	child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-	GtkWidget *obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
-	g_list_free(child_list);
-	child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
-	GtkWidget *obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+	obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
+	/* name = gtk_widget_get_name(obib);
+	   fprintf(stderr, " %i %s .next child right\n",per,name.c_str());*/
+	if (!GDK_IS_WINDOW(obib->window)|| !gtk_widget_is_drawable(obib)) {
+	    /*fprintf(stderr, " %i %s.hidden\n",per,name.c_str());*/
+	    move = 1;
+	} else {
+	    move = 0;
+	}
+	obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 4));
 	g_list_free(child_list);
 
-	gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per -1);
-	((gx_ui::GxUiItemInt*)data)->modifyZone(per-1);
-	  /*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
-	  GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,2);
-	  string name = gtk_widget_get_name(plug);
-	  fprintf(stderr, " %i %s .pressed left\n",per,name.c_str()); */
-	if (GTK_IS_BUTTON(obibi)) {
-	    gtk_button_clicked(GTK_BUTTON(obibi));
-	} else {
-	    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
-	     //name = gtk_widget_get_name(obib);
-	     //fprintf(stderr, " %i %s .next child left\n",per,name.c_str());
-	    if (!GDK_IS_WINDOW(obib->window)|| !gtk_widget_is_drawable(obib)) {
-		 //fprintf(stderr, " %i %s.hidden\n",per,name.c_str());
-		move =1;
-	    } else {
-		move= 0;
-	    }
-	    obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 4));
-        
+	if (GTK_IS_CONTAINER(obib)) {
+	    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
+	    obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
 	    g_list_free(child_list);
+	    if (GTK_IS_BUTTON(obibi)) {
+		gtk_button_clicked(GTK_BUTTON(obibi));
+		if (move) gtk_button_pressed(GTK_BUTTON(widget));
+	    }
+	}
+    }
+    GxMainInterface::get_instance().engine.set_rack_changed();
+}
+
+// box move to the left
+void uiOrderButton::pressed_left(GtkWidget *widget, gpointer data) {
+    GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
+    GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
+    GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
+    if (!GTK_IS_CONTAINER(parent)) {
+	return;
+    }
+    GValue  pos = {0};
+    g_value_init(&pos, G_TYPE_INT);
+    static int move = 0;
+    gtk_container_child_get_property(GTK_CONTAINER(parent),
+				     GTK_WIDGET(box), "position", &pos);
+    guint per = g_value_get_int(&pos);
+    if (per <= 1) {
+	return;
+    }
+    GList* child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
+    GtkWidget *obi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, per-1));
+    g_list_free(child_list);
+    if (!GTK_IS_CONTAINER(obi)) {
+	return;
+    }
+    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
+    GtkWidget *obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+    g_list_free(child_list);
+    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
+    GtkWidget *obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+    g_list_free(child_list);
+
+    gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per -1);
+    ((gx_ui::GxUiItemInt*)data)->modifyZone(per-1);
+    /*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
+      GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,2);
+      string name = gtk_widget_get_name(plug);
+      fprintf(stderr, " %i %s .pressed left\n",per,name.c_str()); */
+    if (GTK_IS_BUTTON(obibi)) {
+	gtk_button_clicked(GTK_BUTTON(obibi));
+    } else {
+	child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
+	obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 2));
+	//name = gtk_widget_get_name(obib);
+	//fprintf(stderr, " %i %s .next child left\n",per,name.c_str());
+	if (!GDK_IS_WINDOW(obib->window)|| !gtk_widget_is_drawable(obib)) {
+	    //fprintf(stderr, " %i %s.hidden\n",per,name.c_str());
+	    move =1;
+	} else {
+	    move= 0;
+	}
+	obib = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 4));
+        
+	g_list_free(child_list);
 		
-	    if (GTK_IS_CONTAINER(obib)) {
-		child_list = gtk_container_get_children(GTK_CONTAINER(obib));
-		obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
-		g_list_free(child_list);
+	if (GTK_IS_CONTAINER(obib)) {
+	    child_list = gtk_container_get_children(GTK_CONTAINER(obib));
+	    obibi = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 1));
+	    g_list_free(child_list);
             if (GTK_IS_BUTTON(obibi)) {
                 gtk_button_clicked(GTK_BUTTON(obibi));
                 if (move) {
-                gtk_button_pressed(GTK_BUTTON(widget));
+		    gtk_button_pressed(GTK_BUTTON(widget));
                 }
             }
         }
-	}
-	GxMainInterface::get_instance().engine.set_rack_changed();
     }
+    GxMainInterface::get_instance().engine.set_rack_changed();
+}
 
-    // save order for neigbor box
-    static void clicked(GtkWidget *widget, gpointer   data) {
-	GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
-	GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
-	GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
-	if (GTK_IS_CONTAINER(parent)) {
-	    GValue  pos = {0};
-	    g_value_init(&pos, G_TYPE_INT);
+// save order for neigbor box
+void uiOrderButton::clicked(GtkWidget *widget, gpointer   data) {
+    GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
+    GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
+    GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
+    if (GTK_IS_CONTAINER(parent)) {
+	GValue  pos = {0};
+	g_value_init(&pos, G_TYPE_INT);
 
-	    gtk_container_child_get_property(GTK_CONTAINER(parent),
-					     GTK_WIDGET(box), "position", &pos);
-	    guint per = g_value_get_int(&pos);
-	    gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per);
-	    if (GDK_IS_WINDOW (box->window))
-		gdk_window_invalidate_rect(box->window, NULL, true);
+	gtk_container_child_get_property(GTK_CONTAINER(parent),
+					 GTK_WIDGET(box), "position", &pos);
+	guint per = g_value_get_int(&pos);
+	gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per);
+	if (GDK_IS_WINDOW (box->window))
+	    gdk_window_invalidate_rect(box->window, NULL, true);
 
-	    ((gx_ui::GxUiItemInt*)data)->modifyZone(per);
-	    /*GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(box));
-	      GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
-	      const gchar *name = gtk_widget_get_name(plug);
-	      fprintf(stderr, " %i %s .clicked\n",per,name); 
+	((gx_ui::GxUiItemInt*)data)->modifyZone(per);
+	/*GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(box));
+	  GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
+	  const gchar *name = gtk_widget_get_name(plug);
+	  fprintf(stderr, " %i %s .clicked\n",per,name); 
                 
-	      g_list_free(child_list);*/
-	}
+	  g_list_free(child_list);*/
     }
-    // set the init order
-    virtual void reflectZone() {
+}
 
-            int v = *fZone;
-            fCache = v;
-            GValue  pos = {0};
+// set the init order
+void uiOrderButton::reflectZone() {
 
-            g_value_init(&pos, G_TYPE_INT);
-            g_value_set_int(&pos, v);
-            GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(fButton));
-            GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(box1));
-            GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(box));
-            if (GTK_IS_CONTAINER(parent)) {
-                gtk_container_child_set_property(GTK_CONTAINER(parent),
-                                                 GTK_WIDGET(box), "position", &pos);
-                guint per = g_value_get_int(&pos);
-                gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per);
-            }
-        }
-};
+    int v = *fZone;
+    fCache = v;
+    GValue  pos = {0};
+
+    g_value_init(&pos, G_TYPE_INT);
+    g_value_set_int(&pos, v);
+    GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(fButton));
+    GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(box1));
+    GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(box));
+    if (GTK_IS_CONTAINER(parent)) {
+	gtk_container_child_set_property(GTK_CONTAINER(parent),
+					 GTK_WIDGET(box), "position", &pos);
+	guint per = g_value_get_int(&pos);
+	gtk_box_reorder_child(GTK_BOX(parent), GTK_WIDGET(box), per);
+    }
+}
 
 
 // ----- boxes to move inside a other box (mono effects)
@@ -1537,30 +1534,25 @@ void GxMainInterface::loadRackFromGladeData(const char *xmldesc) {
  ** Control widgets
  */
 
-struct uiButton : public gx_ui::GxUiItemFloat {
-    GtkButton*     fButton;
-    uiButton(gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItemFloat(ui, zone),
-             fButton(b) {}
-    static void pressed(GtkWidget *widget, gpointer   data) {
-            gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*)data;
-            c->modifyZone(1.0);
-        }
+void uiButton::pressed(GtkWidget *widget, gpointer   data) {
+    gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*)data;
+    c->modifyZone(1.0);
+}
 
-    static void released(GtkWidget *widget, gpointer   data) {
-            gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*) data;
-            c->modifyZone(0.0);
-        }
+void uiButton::released(GtkWidget *widget, gpointer   data) {
+    gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*) data;
+    c->modifyZone(0.0);
+}
 
-    virtual void reflectZone() {
-            float     v = *fZone;
-            fCache = v;
-            if (v > 0.0) {
-                gtk_button_pressed(fButton);
-            } else {
-                gtk_button_released(fButton);
-            }
-        }
-};
+void uiButton::reflectZone() {
+    float v = *fZone;
+    fCache = v;
+    if (v > 0.0) {
+	gtk_button_pressed(fButton);
+    } else {
+	gtk_button_released(fButton);
+    }
+}
 
 void GxMainInterface::addJConvButton(const char* label, float* zone) {
     *zone = 0.0;
@@ -1626,20 +1618,15 @@ void GxMainInterface::addSmallJConvFavButton(const char* label) {
 
 // ---------------------------    Toggle Buttons ---------------------------
 
-struct uiToggleButton : public gx_ui::GxUiItemBool {
-    GtkToggleButton* fButton;
-    uiToggleButton(gx_ui::GxUI* ui, bool* zone, GtkToggleButton* b)
-                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {}
-    static void toggled(GtkWidget *widget, gpointer data) {
-            ((gx_ui::GxUiItemBool*)data)->modifyZone(GTK_TOGGLE_BUTTON(widget)->active);
-        }
+void uiToggleButton::toggled(GtkWidget *widget, gpointer data) {
+    ((gx_ui::GxUiItemBool*)data)->modifyZone(GTK_TOGGLE_BUTTON(widget)->active);
+}
 
-    virtual void reflectZone() {
-            bool v = *fZone;
-            fCache = v;
-            gtk_toggle_button_set_active(fButton, v);
-        }
-};
+void uiToggleButton::reflectZone() {
+    bool v = *fZone;
+    fCache = v;
+    gtk_toggle_button_set_active(fButton, v);
+}
 
 void GxMainInterface::addMToggleButton(const char* label, bool* zone) {
     GdkColor colorRed;
@@ -1721,21 +1708,6 @@ void GxMainInterface::addJToggleButton(const char* label, bool* zone) {
 }
 
 // ---------------------------    Check Button ---------------------------
-
-struct uiCheckButton : public gx_ui::GxUiItemBool {
-    GtkToggleButton* fButton;
-    uiCheckButton(gx_ui::GxUI* ui, bool* zone, GtkToggleButton* b)
-                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {}
-    static void toggled(GtkWidget *widget, gpointer data) {
-            ((gx_ui::GxUiItemBool*)data)->modifyZone(GTK_TOGGLE_BUTTON(widget)->active);
-        }
-
-    virtual void reflectZone() {
-            bool v = *fZone;
-            fCache = v;
-            gtk_toggle_button_set_active(fButton, v);
-        }
-};
 
 void GxMainInterface::addCheckButton(const char* label, bool* zone) {
 
@@ -1955,49 +1927,6 @@ void GxMainInterface::openPatchInfoBox(float* zone) {
 }
 
 /****************************************************************
- ** status icons in the main menu bar
- */
-
-struct uiStatusDisplay : public gx_ui::GxUiItemBool {
-    GtkLabel* fLabel;
-
-    uiStatusDisplay(gx_ui::GxUI* ui, bool* zone, GtkLabel* label)
-        : gx_ui::GxUiItemBool(ui, zone), fLabel(label) {}
-
-    virtual void reflectZone() {
-	bool v = *fZone;
-	fCache = v;
-	GxMainInterface& gui = GxMainInterface::get_instance();
-	if (gui.engine.midiaudiobuffer.plugin.on_off) {
-	    if (GxMainInterface::get_instance().jack.get_jcpu_load() < 65.0) {
-		if (v) {
-		    gtk_status_icon_set_from_pixbuf(gui.status_icon->gobj(),
-						    gui.gw_ibm->gobj());
-		} else {
-		    gtk_status_icon_set_from_pixbuf(gui.status_icon->gobj(),
-						    gui.gw_ib->gobj());
-		}
-	    } else {
-		gtk_status_icon_set_from_pixbuf(gui.status_icon->gobj(),
-						gui.gw_ibr->gobj());
-	    }
-	} else {
-	    gtk_status_icon_set_from_pixbuf(gui.status_icon->gobj(),
-					    gui.gw_ib->gobj());
-	}
-    }
-};
-
-void GxMainInterface::addStatusDisplay(const char* label, bool* zone ) {
-    GtkWidget* lw = gtk_label_new("");
-    new uiStatusDisplay(this, zone, GTK_LABEL(lw));
-    openFrameBox(label);
-    addWidget(label, lw);
-    closeBox();
-    gtk_widget_hide(lw);
-}
-
-/****************************************************************
  ** oscilloscope handling
  */
 
@@ -2090,6 +2019,27 @@ void GxMainInterface::addLiveWaveDisplay(const char* label) {
     gtk_widget_show_all(box);
     //gtk_widget_hide(e_box);
 }
+
+void GxMainInterface::overload_status_changed() {
+    switch (engine.midiaudiobuffer.jack_load_status()) {
+    case gx_engine::MidiAudioBuffer::load_off:
+	status_icon->set(gw_ib);
+	break;
+    case gx_engine::MidiAudioBuffer::load_normal:
+	if (engine.midiaudiobuffer.get_midistat()) {
+	    status_icon->set(gw_ibm);
+	} else {
+	    status_icon->set(gw_ib);
+	}
+	break;
+    case gx_engine::MidiAudioBuffer::load_over:
+	status_icon->set(gw_ibr);
+	break;
+    default:
+	assert(false);
+    }
+}
+
 
 /****************************************************************
  ** menu function triggering engine on/off/bypass

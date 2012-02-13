@@ -45,6 +45,9 @@ inline void all_midi_params_assigned(gx_engine::ParamMap& pmap) {
 
 /* -------- user interface builder ---------- */
 void GxMainInterface::setup() {
+    static StackBoxBuilderOld bb(
+	fTop, fBox, engine, pmap, fMonoRackContainer, fStereoRackContainer, rBox,
+	sBox, tBox, fMode, mainmenu, fWaveView, fAccelGroup, convolver_filename_label);
 
     // ----- the main box, all visible widgets are a child of this box
     openVerticalBox("");
@@ -288,13 +291,13 @@ void GxMainInterface::setup() {
                 {
                     openPlugBox(_("Mono Rack"));
                     {
-                        gx_build_mono_rack();
+                        gx_build_mono_rack(bb);
                     }
                     closeBox();
 
                     openAmpBox(_("Stereo Rack"));
                     {
-                        gx_build_stereo_rack();
+                        gx_build_stereo_rack(bb);
                     }
                     closeBox();
                 }

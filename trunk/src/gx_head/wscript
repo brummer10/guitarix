@@ -26,7 +26,9 @@ def build(bld):
         ]
 
     sources_gui = [
+        './gui/gx_stackbox_builder.cpp',
         './gui/gx_main_window.cpp',
+        './gui/gx_preset_window.cpp',
         './gui/gx_main_menu.cpp',
         './gui/gx_jack_options.cpp',
         './gui/gx_preset_options.cpp',

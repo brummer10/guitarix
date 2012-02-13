@@ -299,7 +299,7 @@ void start_main(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
 
 int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
                         gx_engine::ParamMap& pmap, const string& fname, const string& rcfile) {
-    pmap.reg_switch("system.midi_in_preset", false, false);
+    //pmap.reg_switch("system.midi_in_preset", false, false);
     pmap.set_init_values();
     Gtk::Window *w = 0;
     if (!fname.empty()) {
@@ -386,6 +386,7 @@ int main(int argc, char *argv[]) {
 	    }
 	    string rcfile = options.get_style_filepath(
 		"gx_head_" + options.skin.skin_list[gx_engine::audio.fskin] + ".rc");
+	    delete Splash;
 	    return debug_display_glade(engine, options, gx_engine::parameter_map, argv[1], rcfile);
 	}
 #endif
@@ -396,7 +397,7 @@ int main(int argc, char *argv[]) {
 	// ----------------------- run GTK main loop ----------------------
 	gx_ui::GxUI::updateAllGuis(true);
 	gui.show();
-    delete Splash;
+	delete Splash;
 	gui.run();
     } catch (const Glib::OptionError &e) {
 	cerr << e.what() << endl;

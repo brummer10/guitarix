@@ -1537,12 +1537,16 @@ void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
 	current_source = factory;
 	current_factory = pf->get_name();
 	current_name = name;
+	seq.start_ramp_down();
 	loadsetting(pf, name);
     } else {
 	current_source = state;
 	current_factory = "";
 	current_name = "";
     }
+    seq.start_ramp_up();
+    gx_ui::GxUI::updateAllGuis();
+    seq.clear_rack_changed();
     selection_changed();
 }
 
@@ -1634,11 +1638,31 @@ void GxSettingsBase::save_to_state(bool preserve_preset) {
     }
 }
 
-void GxSettingsBase::insert_before(PresetFile& pf, const Glib::ustring& pos, const Glib::ustring& name) {
+void GxSettingsBase::append(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& name) {
     JsonWriter *jw = 0;
+    JsonParser *jp = 0;
     try {
-	jw = pf.create_writer_at(pos, name);
-	preset_io->write_preset(*jw);
+	jp = pf.create_reader(src);
+	jw = pftgt.create_writer(name);
+	jp->copy_object(*jw);
+    } catch(JsonException& e) {
+	gx_print_warning(
+	    _("save preset"),
+	    boost::format(_("parse error in %1%"))
+	    % pf.get_filename());
+    }
+    delete jp;
+    delete jw;
+    presetlist_changed();
+}
+
+void GxSettingsBase::insert_before(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name) {
+    JsonWriter *jw = 0;
+    JsonParser *jp = 0;
+    try {
+	jp = pf.create_reader(src);
+	jw = pftgt.create_writer_at(pos, name);
+	jp->copy_object(*jw);
 	jw->write(pos);
 	dynamic_cast<ModifyPreset*>(jw)->copy_object();
     } catch(JsonException& e) {
@@ -1647,23 +1671,17 @@ void GxSettingsBase::insert_before(PresetFile& pf, const Glib::ustring& pos, con
 	    boost::format(_("parse error in %1%"))
 	    % pf.get_filename());
     }
+    delete jp;
     delete jw;
     presetlist_changed();
-    if (current_source != preset
-	|| (current_source == preset && current_name != name)) {
-	current_source = preset;
-	current_name = name;
-	current_factory = pf.get_name();
-	selection_changed();
-    }
 }
 
-void GxSettingsBase::insert_after(PresetFile& pf, const Glib::ustring& pos, const Glib::ustring& name) {
-    int i = pf.get_index(name) + 1;
-    if (i >= pf.size()) {
-	save(pf, name);
+void GxSettingsBase::insert_after(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name) {
+    int i = pftgt.get_index(name) + 1;
+    if (i >= pftgt.size()) {
+	append(pf, src, pftgt, name);
     } else {
-	insert_before(pf, pf.get_name(i), name);
+	insert_before(pf, src, pftgt, pftgt.get_name(i), name);
     }
 }
 

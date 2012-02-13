@@ -707,7 +707,9 @@ GxUiRadioMenu::~GxUiRadioMenu() {
 void GxUiRadioMenu::reflectZone() {
     int v = *fZone;
     fCache = v;
-    items[v]->set_active(true);
+    if (v < static_cast<int>(items.size())) {
+	items[v]->set_active(true);
+    }
 }
 
 void GxUiRadioMenu::on_activate(int i) {
