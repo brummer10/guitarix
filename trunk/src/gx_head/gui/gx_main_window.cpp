@@ -164,6 +164,8 @@ private:
     int preset_index;
     std::vector<Glib::ustring> presets;
     Gxw::PaintBox box;
+    int position;
+    unsigned int effect_post_pre;
 private:
     static void set_paintbox(Gxw::PaintBox& pb, PluginType tp);
     static Gtk::Widget *make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort=false);
@@ -184,6 +186,7 @@ private:
     Gtk::HBox *make_full_box(gx_system::CmdlineOptions& options);
     Gtk::VBox *switcher_vbox(gx_system::CmdlineOptions& options);
     bool has_delete() const { return delete_button; }
+    friend bool rackboxes_less(RackBox *a, RackBox *b);
 public:
     RackBox(PluginUI& plugin, MainWindow& main, Gtk::Widget* bare=0);
     static Gtk::Widget *create_drag_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);
@@ -195,6 +198,13 @@ public:
     void pack(Gtk::Widget& child);
     void animate_insert();
     static Gtk::Widget *create_icon_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);
+    void setOrder(int pos, unsigned int post_pre) {
+	position = plugin.plugin->position = pos;
+	effect_post_pre = plugin.plugin->effect_post_pre = post_pre;
+    }
+    void storeOrder() { position = plugin.plugin->position; effect_post_pre = plugin.plugin->effect_post_pre; }
+    bool hasOrderDiff() { return plugin.plugin->position != position || plugin.plugin->effect_post_pre != effect_post_pre; }
+    int position_weight() { return plugin.plugin->position_weight(); }
 };
 
 class MiniRackBox: public Gtk::HBox {
@@ -240,17 +250,20 @@ private:
     virtual void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     virtual void on_add(Widget* ch);
     void reorder(const std::string& name, int pos);
+    void renumber();
 public:
+    typedef Glib::ListHandle<const RackBox*> rackbox_const_list;
+    typedef Glib::ListHandle<RackBox*> rackbox_list;
     RackContainer(PluginType tp, MainWindow& main);
-    Glib::ListHandle<RackBox*> get_children() {
+    rackbox_list get_children() {
 	Glib::ListHandle<Widget*> l = Gtk::VBox::get_children();
 	void *p = &l;
-	return *reinterpret_cast<Glib::ListHandle<RackBox*>*>(p);
+	return *reinterpret_cast<rackbox_list*>(p);
     }
-    Glib::ListHandle<const RackBox*> get_children() const {
+    rackbox_const_list get_children() const {
 	Glib::ListHandle<const Widget*> l = Gtk::VBox::get_children();
 	void *p = &l;
-	return *reinterpret_cast<Glib::ListHandle<const RackBox*>*>(p);
+	return *reinterpret_cast<rackbox_const_list*>(p);
     }
     bool check_if_animate(const RackBox& rackbox);
     void show_entries();
@@ -260,6 +273,7 @@ public:
     void set_config_mode(bool mode);
     bool empty() const;
     void add(RackBox& r, int pos=-1);
+    void check_order();
 };
 
 
@@ -663,11 +677,24 @@ PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const cha
 }
 
 bool PluginUI::hasChanged() {
-    return plugin->box_visible != is_displayed();
+    if (plugin->box_visible != is_displayed()) {
+	return true;
+    }
+    if (!rackbox) {
+	return false;
+    }
+    return rackbox->hasOrderDiff();
 }
 
 void PluginUI::reflectZone() {
-    display(plugin->box_visible);
+    if (plugin->box_visible != is_displayed()) {
+	display(plugin->box_visible);
+    }
+    if (rackbox) {
+	if (rackbox->hasOrderDiff()) {
+	    dynamic_cast<RackContainer*>(rackbox->get_parent())->check_order();
+	}
+    }
 }
 
 void PluginUI::display(bool v) {
@@ -982,7 +1009,7 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     : Gtk::VBox(), plugin(plugin_), main(tl), vis(true), config_mode(false), anim_tag(),
       compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), on_off_action(Gtk::ToggleAction::create()), minibox(0),
       fbox(0), target(), anim_height(0), drag_icon(), target_height(0), preset_index(-1), presets(),
-      box(Gtk::ORIENTATION_HORIZONTAL, 2) {
+      box(Gtk::ORIENTATION_HORIZONTAL, 2), position(), effect_post_pre() {
     if (!szg) {
 	szg = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
     }
@@ -1445,6 +1472,7 @@ void RackContainer::reorder(const std::string& name, int pos) {
 	return;
     }
     reorder_child(*r, pos);
+    renumber();
 }
 
 void RackContainer::on_add(Widget *ch) {
@@ -1502,6 +1530,47 @@ bool RackContainer::empty() const {
     return get_children().empty();
 }
 
+bool rackboxes_less(RackBox *a, RackBox *b) {
+    return a->position_weight() < b->position_weight();
+}
+
+void RackContainer::check_order() {
+    int last_weight = -1;
+    bool in_order = true;
+    rackbox_list l = get_children();
+    for (rackbox_list::iterator c = l.begin(); c != l.end(); ++c) {
+	if (in_order) {
+	    int w = (*c)->position_weight();
+	    if (w < last_weight) {
+		in_order = false;
+	    }
+	    last_weight = w;
+	}
+	(*c)->storeOrder();
+    }
+    if (!in_order) {
+	std::vector<RackBox*> ol = get_children();
+	std::sort(ol.begin(), ol.end(), rackboxes_less);
+	int n = 0;
+	for (std::vector<RackBox*>::iterator i = ol.begin(); i != ol.end(); ++i) {
+	    reorder_child(**i, n++);
+	}
+    }
+}
+
+void RackContainer::renumber() {
+    rackbox_list l = get_children();
+    int pos = 0;
+    unsigned int post_pre = 1;
+    for (rackbox_list::iterator c = l.begin(); c != l.end(); ++c, ++pos) {
+	if (strcmp((*c)->get_id(), "ampstack") == 0) { // FIXME
+	    pos = 0;
+	    post_pre = 0;
+	    continue;
+	}
+	(*c)->setOrder(pos, post_pre);
+    }
+}
 
 /****************************************************************
  ** class StackBoxBuilderNew
@@ -2246,6 +2315,8 @@ void make_icons(std::map<std::string, PluginUI*>& plugin_dict, gx_system::Cmdlin
 void MainWindow::add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
     PluginUI *pui = new PluginUI(*this, engine.pluginlist, id, fname, tooltip);
     ui.registerZone(&pui->plugin->box_visible, pui);
+    ui.registerZone(&pui->plugin->position, pui);
+    ui.registerZone(&pui->plugin->effect_post_pre, pui);
     p->push_back(pui);
 }
 
@@ -2432,6 +2503,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 MainWindow::~MainWindow() {
     for (std::map<std::string, PluginUI*>::iterator i = plugin_dict.begin(); i != plugin_dict.end(); ++i) {
 	ui.unregisterZone(&i->second->plugin->box_visible, i->second);
+	ui.unregisterZone(&i->second->plugin->position, i->second);
+	ui.unregisterZone(&i->second->plugin->effect_post_pre, i->second);
 	if (i->second != &mainamp_plugin) {
 	    delete i->second;
 	}
