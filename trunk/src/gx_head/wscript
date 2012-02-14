@@ -56,7 +56,7 @@ def build(bld):
         './builder/jackstarter.glade',
         './builder/mainpanel.glade',
         './builder/crybaby_ui.glade',
-        './builder/tonestack_ui.glade',
+        './builder/amp.tonestack_ui.glade',
         './builder/tremolo_ui.glade',
         ]
 

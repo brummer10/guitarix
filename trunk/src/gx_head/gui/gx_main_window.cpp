@@ -125,6 +125,7 @@ public:
 
 class DragIcon {
 private:
+    enum { gradient_length = 40 };
     Gtk::Window *window;
     Glib::RefPtr<Gdk::Pixbuf> drag_icon_pixbuf;
 private:
@@ -142,6 +143,7 @@ public:
  */
 
 class MiniRackBox;
+class RackContainer;
 
 class RackBox: public Gtk::VBox {
 private:
@@ -159,17 +161,20 @@ private:
     Gtk::Widget *fbox;
     std::string target;
     int anim_height;
+    int anim_step;
     DragIcon *drag_icon;
     int target_height;
     int preset_index;
     std::vector<Glib::ustring> presets;
     Gxw::PaintBox box;
+    int box_visible;
     int position;
     unsigned int effect_post_pre;
 private:
     static void set_paintbox(Gxw::PaintBox& pb, PluginType tp);
     static Gtk::Widget *make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort=false);
     static Gtk::Widget *make_bar(int left=4, int right=4, bool sens=false);
+    Gtk::Widget *wrap_bar(int left=4, int right=4, bool sens=false);
     void init_dnd();
     void enable_drag(bool v);
     bool animate_vanish();
@@ -190,6 +195,7 @@ private:
 public:
     RackBox(PluginUI& plugin, MainWindow& main, Gtk::Widget* bare=0);
     static Gtk::Widget *create_drag_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);
+    RackContainer *get_parent();
     bool can_compress() { return compress; }
     friend class MiniRackBox;
     const char *get_id() const { return plugin.get_id(); }
@@ -205,6 +211,8 @@ public:
     void storeOrder() { position = plugin.plugin->position; effect_post_pre = plugin.plugin->effect_post_pre; }
     bool hasOrderDiff() { return plugin.plugin->position != position || plugin.plugin->effect_post_pre != effect_post_pre; }
     int position_weight() { return plugin.plugin->position_weight(); }
+    bool is_displayed() { return box_visible; }
+    void display(bool v);
 };
 
 class MiniRackBox: public Gtk::HBox {
@@ -223,7 +231,7 @@ public:
 };
 
 inline bool PluginUI::is_displayed() {
-    return rackbox && rackbox->is_visible();
+    return rackbox && rackbox->is_displayed();
 }
 
 /****************************************************************
@@ -240,6 +248,7 @@ private:
     int switch_level;
     std::vector<std::string> targets;
     sigc::connection highlight_connection;
+    sigc::connection autoscroll_connection;
 private:
     bool drag_highlight_expose(GdkEventExpose *event, int y0);
     void find_index(int x, int y, int* len, int *ypos);
@@ -251,6 +260,7 @@ private:
     virtual void on_add(Widget* ch);
     void reorder(const std::string& name, int pos);
     void renumber();
+    bool scroll_timeout();
 public:
     typedef Glib::ListHandle<const RackBox*> rackbox_const_list;
     typedef Glib::ListHandle<RackBox*> rackbox_list;
@@ -274,6 +284,7 @@ public:
     bool empty() const;
     void add(RackBox& r, int pos=-1);
     void check_order();
+    void ensure_visible(RackBox& child);
 };
 
 
@@ -291,6 +302,7 @@ private:
     gx_gui::MainMenu&    mainmenu;
     Gxw::WaveView&       fWaveView;
     Gtk::Label&          convolver_filename_label;
+    Gtk::VBox           *widget;
 private:
     virtual void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
     virtual void closeMonoRackBox();
@@ -301,6 +313,8 @@ public:
     StackBoxBuilderNew(gx_engine::GxEngine& engine_, gx_engine::ParamMap& pmap_, gx_gui::MainMenu &mainmenu_,
 		       Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_);
     Gtk::Widget *get_box(const std::string& name);
+    void prepare();
+    Gtk::Widget *fetch();
 };
 
 
@@ -692,23 +706,27 @@ void PluginUI::reflectZone() {
     }
     if (rackbox) {
 	if (rackbox->hasOrderDiff()) {
-	    dynamic_cast<RackContainer*>(rackbox->get_parent())->check_order();
+	    rackbox->get_parent()->check_order();
 	}
     }
 }
 
 void PluginUI::display(bool v) {
+    // this function hides the rackbox. It could also destroy it (or
+    // some other function could do it, e.g. when unloading a module),
+    // but currently there are too man memory leaks in the stackbased
+    // builder.
     plugin->box_visible = v;
     if (v) {
 	if (!rackbox) {
 	    rackbox = main.add_rackbox(*this, false, -1, true);
 	} else {
-	    rackbox->show();
+	    rackbox->display(true);
 	}
 	main.hide_effect(get_id());
     } else {
 	if (rackbox) {
-	    rackbox->hide();
+	    rackbox->display(false);
 	    main.add_icon(get_id());
 	}
     }
@@ -756,7 +774,7 @@ DragIcon::DragIcon(const PluginUI& plugin, Glib::RefPtr<Gdk::DragContext> contex
     int w = drag_icon_pixbuf->get_width();
     int h = drag_icon_pixbuf->get_height();
     int h2 = (h/2)-2;
-    int w2 = std::min(w, xoff) - 4;
+    int w2 = std::min(w, max(0, xoff-gradient_length/2)) - 4;
     if (window) {
 	window->set_size_request(w, h);
 	window->signal_expose_event().connect(sigc::mem_fun(*this, &DragIcon::icon_expose_event));
@@ -809,11 +827,10 @@ bool DragIcon::window_expose_event(GdkEventExpose *event, Gtk::OffscreenWindow& 
     Cairo::RefPtr<Cairo::Surface> x_surf = cr->get_target();
     int w = gdk_window_get_width(event->window);
     int h = gdk_window_get_height(event->window);
-    int dp = 40;
-    Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(w, 0, w-dp, 0);
+    Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(w, 0, w-gradient_length, 0);
     grad->add_color_stop_rgba(0, 1, 1, 1, 1);
     grad->add_color_stop_rgba(1, 1, 1, 1, 0);
-    cr->rectangle(w-dp, 0, dp, h);
+    cr->rectangle(w-gradient_length, 0, gradient_length, h);
     cr->mask(grad);
     Cairo::RefPtr<Cairo::ImageSurface> i_surf = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
     Cairo::RefPtr<Cairo::Context> crt = Cairo::Context::create(i_surf);
@@ -860,7 +877,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, const Glib::RefPtr<Gtk::Action>& action, g
     Gtk::HBox *box = new Gtk::HBox();
     evbox.add(*manage(box));
     Gxw::Switch *swtch = new Gxw::Switch("minitoggle");
-    swtch->cp_set_var("eqs.on_off");
+    swtch->cp_set_var(Glib::ustring(rb.plugin.get_id())+".on_off"); //FIXME
     //swtch->set_related_action(action);
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(swtch->gobj()), action->gobj());
     Gtk::Alignment *al = new Gtk::Alignment(0.5,0.5);
@@ -870,7 +887,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, const Glib::RefPtr<Gtk::Action>& action, g
     Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
     szg_label->add_widget(*manage(effect_label));
     al = new Gtk::Alignment();
-    al->add(*manage(RackBox::make_bar()));
+    al->add(*manage(rb.wrap_bar()));
     box->pack_start(*manage(al), Gtk::PACK_SHRINK);
     box->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
     Gxw::HSlider *sl = new Gxw::HSlider();
@@ -893,7 +910,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, const Glib::RefPtr<Gtk::Action>& action, g
     hb->pack_start(*manage(mb_delete_button), Gtk::PACK_SHRINK);
     al->set_padding(1, 0, 4, 4);
     pack_end(*manage(al), Gtk::PACK_SHRINK);
-    box->pack_end(*manage(RackBox::make_bar(8)), Gtk::PACK_SHRINK);
+    box->pack_end(*manage(rb.wrap_bar(8)), Gtk::PACK_SHRINK);
     preset_button = rb.make_preset_button();
     box->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
     show_all();
@@ -970,6 +987,21 @@ Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
     return al;
 }
 
+Gtk::Widget *RackBox::wrap_bar(int left, int right, bool sens) {
+    Gtk::EventBox *ev = new Gtk::EventBox;
+    ev->set_visible_window(false);
+    ev->set_above_child(true);
+    ev->add(*manage(make_bar(left, right, sens)));
+    ev->signal_drag_begin().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_begin));
+    ev->signal_drag_end().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_end));
+    ev->signal_drag_data_get().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_data_get));
+    ev->signal_drag_data_delete().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_data_delete));
+    std::vector<Gtk::TargetEntry> listTargets;
+    listTargets.push_back(Gtk::TargetEntry(target, Gtk::TARGET_SAME_APP, 0));
+    ev->drag_source_set(listTargets, Gdk::BUTTON1_MASK, Gdk::ACTION_MOVE);
+    return ev;
+}
+
 Gtk::Widget *RackBox::create_icon_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options) {
     Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
     RackBox::set_paintbox(*pb, plugin.get_type());
@@ -989,7 +1021,7 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
 	pb->property_paint_func().set_value("zac_expose");
     }
     Gxw::Switch *swtch = new Gxw::Switch("minitoggle");
-    swtch->cp_set_var("eqs.on_off");
+    swtch->set_active(plugin.plugin->on_off);
     RackBox::szg->add_widget(*swtch);
     pb->pack_start(*manage(swtch), Gtk::PACK_SHRINK);
     Gtk::Widget *effect_label = RackBox::make_label(plugin, options);
@@ -1005,11 +1037,20 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     return pb;
 }
 
+void RackBox::display(bool v) {
+    box_visible = v;
+    if (v) {
+	show();
+    } else {
+	hide();
+    }
+}
+
 RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     : Gtk::VBox(), plugin(plugin_), main(tl), vis(true), config_mode(false), anim_tag(),
       compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), on_off_action(Gtk::ToggleAction::create()), minibox(0),
-      fbox(0), target(), anim_height(0), drag_icon(), target_height(0), preset_index(-1), presets(),
-      box(Gtk::ORIENTATION_HORIZONTAL, 2), position(), effect_post_pre() {
+      fbox(0), target(), anim_height(0), anim_step(), drag_icon(), target_height(0), preset_index(-1), presets(),
+      box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), position(), effect_post_pre() {
     if (!szg) {
 	szg = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
     }
@@ -1019,6 +1060,7 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
 	delete_button = false;
     }
     set_paintbox(mbox, plugin.get_type());
+    init_dnd();
     minibox = new MiniRackBox(*this, on_off_action, tl.get_options());
     mbox.pack_start(*manage(minibox));
     pack_start(mbox, Gtk::PACK_SHRINK);
@@ -1034,7 +1076,6 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
 	pack_start(*manage(pb), Gtk::PACK_SHRINK);
 	fbox = pb;
     }
-    init_dnd();
     show();
 }
 
@@ -1065,7 +1106,7 @@ void RackBox::enable_drag(bool v) {
 }
 
 bool RackBox::animate_vanish() {
-    anim_height -= 7;
+    anim_height -= anim_step;
     if (anim_height <= 0) {
 	hide();
 	set_size_request(-1,-1);
@@ -1077,11 +1118,15 @@ bool RackBox::animate_vanish() {
     }
 }
 
+RackContainer *RackBox::get_parent() {
+    return dynamic_cast<RackContainer*>(Gtk::VBox::get_parent());
+}
+
 void RackBox::on_my_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context) {
     int x, y;
     get_pointer(x, y);
     drag_icon = new DragIcon(plugin, context, main.get_options(), x);
-    if (!dynamic_cast<RackContainer*>(get_parent())->check_if_animate(*this)) { //FIXME
+    if (!get_parent()->check_if_animate(*this)) {
 	hide();
     } else {
 	if (anim_tag.connected()) {
@@ -1091,25 +1136,29 @@ void RackBox::on_my_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context) {
 	    show();
 	}
 	anim_height = size_request().height;
+	anim_step = anim_height / 5;
 	anim_tag = Glib::signal_timeout().connect(sigc::mem_fun(*this, &RackBox::animate_vanish), 20);
     }
 }
 
 bool RackBox::animate_create() {
-    anim_height += 7;
+    bool ret = true;
+    anim_height += anim_step;
     if (anim_height >= target_height) {
 	set_size_request(-1,-1);
 	//anim_tag.disconnect(); //FIXME
-	return false;
+	ret = false;
     } else {
 	set_size_request(-1, anim_height);
-	return true;
     }
+    get_parent()->ensure_visible(*this);
+    return ret;
 }
 
 void RackBox::animate_insert() {
-    if (!dynamic_cast<RackContainer*>(get_parent())->check_if_animate(*this)) { //FIXME
+    if (!get_parent()->check_if_animate(*this)) {
 	show();
+	get_parent()->ensure_visible(*this);
     } else {
 	if (anim_tag.connected()) {
 	    hide();
@@ -1121,6 +1170,7 @@ void RackBox::animate_insert() {
 	set_size_request(-1,0);
 	show();
 	anim_height = 0;
+	anim_step = target_height / 5;
 	anim_tag = Glib::signal_timeout().connect(mem_fun(*this, &RackBox::animate_create), 20);
     }
 }
@@ -1219,7 +1269,6 @@ Gtk::Button *RackBox::make_preset_button() {
     p->set_can_default(false);
     p->set_can_focus(false);
     p->set_size_request(18,18);
-    //presets = ["setting %d" % (i+1) for i in range(3)]
     p->signal_clicked().connect(mem_fun(*this, &RackBox::preset_popup));
     return p;
 }
@@ -1242,7 +1291,7 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     al->add(*manage(vbox));
     al->set_padding(1, 0, 0, 4);
     bx->pack_end(*manage(al), Gtk::PACK_SHRINK);
-    bx->pack_end(*manage(make_bar(4, 8)), Gtk::PACK_SHRINK);
+    bx->pack_end(*manage(wrap_bar(4, 8)), Gtk::PACK_SHRINK);
     bx->show_all();
     return bx;
 }
@@ -1257,10 +1306,10 @@ Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
     hbox->pack_start(*manage(hbox2), Gtk::PACK_SHRINK);
     Gtk::VBox *vbox2 = new Gtk::VBox();
     hbox2->pack_start(*manage(vbox2));
-    hbox2->pack_start(*manage(make_bar()), Gtk::PACK_SHRINK);
+    hbox2->pack_start(*manage(wrap_bar()), Gtk::PACK_SHRINK);
     Gxw::Switch *swtch = new Gxw::Switch("switchit");
     szg->add_widget(*swtch);
-    swtch->cp_set_var("eqs.on_off");
+    swtch->cp_set_var(Glib::ustring(plugin.get_id())+".on_off"); //FIXME
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(swtch->gobj()), GTK_ACTION(on_off_action->gobj()));
     Gtk::Alignment *al = new Gtk::Alignment(0.5,0.5);
     al->add(*manage(swtch));
@@ -1275,7 +1324,7 @@ Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
 
 RackContainer::RackContainer(PluginType tp_, MainWindow& main_)
     : Gtk::VBox(), tp(tp_), main(main_), config_mode(false), in_drag(-2), child_count(0), switch_level(1), targets(),
-      highlight_connection() {
+      highlight_connection(), autoscroll_connection() {
     if (tp == PLUGIN_TYPE_MONO) {
 	targets.push_back("application/x-guitarix-mono");
 	targets.push_back("application/x-guitarix-mono-s");
@@ -1378,7 +1427,7 @@ void RackContainer::find_index(int x, int y, int* len, int *ypos) {
 
 void RackContainer::on_my_remove(Gtk::Widget *ch) {
     child_count -= 1;
-    //assert self.child_count >= 0
+    assert(child_count >= 0);
     if (child_count == 0 && tp == PLUGIN_TYPE_MONO && main.show_plugin_bar_action->get_active()) {
 	main.get_monorackcontainer().set_size_request(-1, 20);
     }
@@ -1411,6 +1460,53 @@ bool RackContainer::on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context
     highlight_connection = signal_expose_event().connect(sigc::bind(sigc::mem_fun(*this, &RackContainer::drag_highlight_expose), ind), true);
     queue_draw();
     in_drag = ind;
+    if (!autoscroll_connection.connected()) {
+	autoscroll_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &RackContainer::scroll_timeout), 50);
+    }
+    return true;
+}
+
+void RackContainer::ensure_visible(RackBox& child) {
+    Gtk::Allocation alloc = child.get_allocation();
+    Gtk::Viewport *p = dynamic_cast<Gtk::Viewport*>(get_ancestor(GTK_TYPE_VIEWPORT));
+    p->get_vadjustment()->clamp_page(alloc.get_y(), alloc.get_y()+alloc.get_height());
+}
+
+bool RackContainer::scroll_timeout() {
+    Gtk::Viewport *p = dynamic_cast<Gtk::Viewport*>(get_ancestor(GTK_TYPE_VIEWPORT));
+    Gtk::Adjustment *a = p->get_vadjustment();
+    double off = a->get_value();
+    Gtk::Allocation alloc = get_allocation();
+    int tl = off - alloc.get_y();
+    int bl = tl + p->get_allocation().get_height();
+    int x, y;
+    get_pointer(x, y);
+    const double scroll_edge_size = 60.0;
+    const int step_size = 20;
+    double diff = y - tl - scroll_edge_size;
+    if (diff > 0) {
+	diff = y + scroll_edge_size - bl;
+	if (diff < 0) {
+	    return true;
+	}
+	diff = max(0.0, min(scroll_edge_size, diff));
+    } else {
+	diff = max(-scroll_edge_size, min(0.0, diff));
+    }
+    off += step_size * diff/scroll_edge_size;
+    if (off < alloc.get_y()) {
+	if (diff < 0) {
+	    off = alloc.get_y();
+	}
+    } else {
+	int t = alloc.get_y() + alloc.get_height()- a->get_page_size();
+	if (off > t) {
+	    if (diff > 0) {
+		off = t;
+	    }
+	}
+    }
+    a->set_value(off);
     return true;
 }
 
@@ -1420,6 +1516,7 @@ void RackContainer::on_drag_leave(const Glib::RefPtr<Gdk::DragContext>& context,
 	queue_draw();
 	in_drag = -2;
     }
+    autoscroll_connection.disconnect();
 }
 
 void RackContainer::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp) {
@@ -1467,8 +1564,8 @@ void RackContainer::reorder(const std::string& name, int pos) {
 	}
 	++i;
     }
+    assert(r);
     if (!r) {
-	//FIXME errormessage
 	return;
     }
     reorder_child(*r, pos);
@@ -1581,7 +1678,7 @@ StackBoxBuilderNew::StackBoxBuilderNew(
     Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_)
     : StackBoxBuilder(fTop, fBox, engine_, pmap_, fMode, mainmenu_, fWaveView_, convolver_filename_label_),
       engine(engine_), pmap(pmap_), mainmenu(mainmenu_), fWaveView(fWaveView_),
-      convolver_filename_label(convolver_filename_label_) {
+      convolver_filename_label(convolver_filename_label_), widget() {
 }
 
 void StackBoxBuilderNew::openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog) {
@@ -1600,6 +1697,19 @@ void StackBoxBuilderNew::openVerticalMidiBox(const char* label) {
     openVerticalBox(label);
 }
 
+void StackBoxBuilderNew::prepare() {
+    fTop = 0;
+    widget = new Gtk::VBox();
+    widget->show();
+    fBox[fTop] = GTK_WIDGET(widget->gobj());
+    fMode[fTop] = kBoxMode;
+}
+
+Gtk::Widget *StackBoxBuilderNew::fetch() {
+    assert(fTop == 0);
+    return widget;
+}
+
 Gtk::Widget *StackBoxBuilderNew::get_box(const std::string& name) {
     struct  {
 	const char *name;
@@ -1614,17 +1724,17 @@ Gtk::Widget *StackBoxBuilderNew::get_box(const std::string& name) {
 	{ "oscilloscope", &StackBoxBuilder::make_rackbox_oscilloscope },
 	{ "low_highpass", &StackBoxBuilder::make_rackbox_low_highpass },
 	{ "eqs", &StackBoxBuilder::make_rackbox_eqs },
-	{ "crybaby", &StackBoxBuilder::make_rackbox_crybaby },
+	//{ "crybaby", &StackBoxBuilder::make_rackbox_crybaby },
 	{ "gx_distortion", &StackBoxBuilder::make_rackbox_gx_distortion },
 	{ "IR", &StackBoxBuilder::make_rackbox_IR },
 	{ "compressor", &StackBoxBuilder::make_rackbox_compressor },
 	{ "biquad", &StackBoxBuilder::make_rackbox_biquad },
-	{ "tremolo", &StackBoxBuilder::make_rackbox_tremolo },
+	//{ "tremolo", &StackBoxBuilder::make_rackbox_tremolo },
 	{ "phaser_mono", &StackBoxBuilder::make_rackbox_phaser_mono },
 	{ "chorus_mono", &StackBoxBuilder::make_rackbox_chorus_mono },
 	{ "flanger_mono", &StackBoxBuilder::make_rackbox_flanger_mono },
 	{ "feedback", &StackBoxBuilder::make_rackbox_feedback },
-	{ "amp_tonestack", &StackBoxBuilder::make_rackbox_amp_tonestack },
+	//{ "amp.tonestack", &StackBoxBuilder::make_rackbox_amp_tonestack },
 	{ "cab", &StackBoxBuilder::make_rackbox_cab },
 	{ "midi_out", &StackBoxBuilder::make_rackbox_midi_out },
 	// stereo
@@ -1639,16 +1749,11 @@ Gtk::Widget *StackBoxBuilderNew::get_box(const std::string& name) {
 	{ "jconv", &StackBoxBuilder::make_rackbox_jconv },
 	{ "stereoverb", &StackBoxBuilder::make_rackbox_stereoverb }
     };
-    for (unsigned int i = 0; i <= sizeof(mapping) / sizeof(mapping[0]); ++i) {
+    for (unsigned int i = 0; i < sizeof(mapping) / sizeof(mapping[0]); ++i) {
 	if (name == mapping[i].name) {
-	    Gtk::Widget *w = new Gtk::VBox;
-	    w->show();
-	    fTop = 0;
-	    fBox[fTop] = GTK_WIDGET(w->gobj());
-	    fMode[fTop] = kBoxMode;
+	    prepare();
 	    (this->*mapping[i].func)();
-	    assert(fTop == 0);
-	    return w;
+	    return fetch();
 	}
     }
     return 0;
@@ -1673,7 +1778,6 @@ void Freezer::freeze(Gtk::Window *w, int width, int height) {
     size_x = width;
     size_y = height;
     window = w;
-    //self.tag = None
     Glib::RefPtr<Gdk::Window> win = window->get_window();
     if (win) {
 	win->freeze_updates();
@@ -1692,8 +1796,11 @@ void Freezer::freeze_and_size_request(Gtk::Window *w, int width, int height) {
 }
 
 bool Freezer::thaw_timeout() {
-    //print "TM", self.size  // FIXME do logging
-    //self.tag = None
+#ifndef NDEBUG
+    gx_system::gx_print_error("freezer", "timeout");
+#else
+    gx_system::gx_print_warning("freezer", "timeout");
+#endif
     if (size_y != -1) {
 	window->set_size_request(-1,-1);
     }
@@ -1712,9 +1819,6 @@ void Freezer::thaw() {
 	return;
     }
     tag.disconnect();
-    //glib.source_remove(self.tag)
-    //self.tag = None
-    //self.size = None
     size_x = size_y = -1;
     Glib::RefPtr<Gdk::Window> win = window->get_window();
     window = 0;
@@ -1728,7 +1832,6 @@ bool Freezer::check_thaw(int width, int height) {
     if (size_x == -1) {
 	return true;
     }
-    //print self.size, (width, height), self.widget.window.get_state()
     Glib::RefPtr<Gdk::Window> win = window->get_window();
     if (!win) {
 	return false;
@@ -1878,7 +1981,6 @@ void MainWindow::on_show_rack() {
 	main_vpaned->set_position(0);
 	int wd;
 	window->get_size(wd, window_height);
-	//#print "##", self.window_height
 	w->hide();
 	monoampcontainer->hide();
 	monorackcontainer.hide_entries();
@@ -1947,7 +2049,6 @@ void MainWindow::on_show_plugin_bar() {
     update_scrolled_window(*vrack_scrolledbox);
     update_scrolled_window(*stereorackbox);
     maybe_shrink_horizontally();
-    //show_size_request(self.window)
 }
 
 void MainWindow::move_widget(Gtk::Widget& w, Gtk::Box& b1, Gtk::Box& b2) {
@@ -1997,7 +2098,6 @@ void MainWindow::on_dir_changed(Glib::RefPtr<Gtk::RadioAction> act) {
 }
 
 void MainWindow::on_configure_event(GdkEventConfigure *ev) {
-    // print ev.x, ev.y, ev.width, ev.height
     if (freezer.check_thaw(ev->width, ev->height)) {
 	if (is_variable_size()) {
 	    window_height = ev->height;
@@ -2025,6 +2125,31 @@ RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *widget,
     return r;
 }
 
+class UiBuilderImplNew: public gx_gui::UiBuilderImpl {
+public:
+    virtual bool load(gx_engine::Plugin *p);
+    UiBuilderImplNew(StackBoxBuilderNew *i);
+};
+
+UiBuilderImplNew::UiBuilderImplNew(StackBoxBuilderNew *i)
+    : gx_gui::UiBuilderImpl(i) {
+}
+
+bool UiBuilderImplNew::load(gx_engine::Plugin *p) {
+    PluginDef *pd = p->pdef;
+    if (!pd->load_ui) {
+	return false;
+    }
+    plugin = pd;
+    dynamic_cast<StackBoxBuilderNew*>(intf)->prepare();
+    if (pd->flags & PGN_STEREO) {
+	pd->load_ui(*this);
+    } else {
+	pd->load_ui(*this);
+    }
+    return true;
+}
+
 Gtk::Widget *load_rack_ui(const std::string& fname, gx_ui::GxUI& ui) {
     const char *id_list[] = {"rackbox", 0};
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
@@ -2035,10 +2160,24 @@ Gtk::Widget *load_rack_ui(const std::string& fname, gx_ui::GxUI& ui) {
 
 RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate) {
     Gtk::Widget *widget = 0;
-    if (!pl.fname.empty()) {
+    if (!widget && !pl.fname.empty()) {
 	widget = load_rack_ui(pl.fname, ui);
-    } else {
+    }
+    if (!widget) {
 	widget = boxbuilder.get_box(pl.get_id());
+    }
+    if (!widget) {
+	UiBuilderImplNew builder(&boxbuilder);
+	if (builder.load(pl.plugin)) {
+	    widget = boxbuilder.fetch();
+	}
+    }
+    if (!widget) {
+	std::string gladefile = options.get_builder_filepath(
+	    std::string(pl.get_id())+"_ui.glade");
+	if (access(gladefile.c_str(), R_OK) == 0) {
+	    widget = load_rack_ui(gladefile, ui);
+	}
     }
     return add_rackbox_internal(pl, widget, mini, pos, animate);
 }
@@ -2057,7 +2196,7 @@ void MainWindow::add_icon(const std::string& name) {
 
 void MainWindow::on_show_values() {
     std::string s =
-	"style \"ShowValue\n\" {\n"
+	"style \"ShowValue\" {\n"
 	"  GxRegler::show-value = " + gx_system::to_string(show_values_action->get_active()) + "\n"
 	"}\n"
 	"class \"*GxRegler*\" style:highest \"ShowValue\"\n";
@@ -2330,7 +2469,7 @@ void MainWindow::fill_pluginlist() {
     add_plugin(p, "IR");
     add_plugin(p, "biquad");
     add_plugin(p, "feedback");
-    add_plugin(p, "amp.tonestack", options.get_builder_filepath("tonestack_ui.glade"));
+    add_plugin(p, "amp.tonestack");
     add_plugin(p, "cab");
     add_plugin(p, "moog");
     add_plugin(p, "tonemodul");
@@ -2346,7 +2485,7 @@ void MainWindow::fill_pluginlist() {
     add_plugin(p, "freeverb");
     add_plugin(p, "jconv");
     add_plugin(p, "stereoverb");
-    add_plugin(p, "zita_rev1", options.get_builder_filepath("zita_rev1_ui.glade"), "High Quality Reverb");
+    add_plugin(p, "zita_rev1", "", "High Quality Reverb");
     l.push_back(new PluginDesc("Reverb", p));
 
     p = new std::vector<PluginUI*>;
@@ -2357,7 +2496,7 @@ void MainWindow::fill_pluginlist() {
     l.push_back(new PluginDesc("Echo / Delay", p));
 
     p = new std::vector<PluginUI*>;
-    add_plugin(p, "tremolo", options.get_builder_filepath("tremolo_ui.glade"));
+    add_plugin(p, "tremolo");
     add_plugin(p, "phaser_mono");
     add_plugin(p, "chorus_mono");
     add_plugin(p, "flanger_mono");
@@ -2368,7 +2507,7 @@ void MainWindow::fill_pluginlist() {
     l.push_back(new PluginDesc("Modulation", p));
 
     p = new std::vector<PluginUI*>;
-    add_plugin(p, "crybaby", options.get_builder_filepath("crybaby_ui.glade"));
+    add_plugin(p, "crybaby");
     //add_plugin(p, PLUGIN_TYPE_MONO, "crybaby2");
     add_plugin(p, "compressor");
     l.push_back(new PluginDesc("Guitar Effects", p));

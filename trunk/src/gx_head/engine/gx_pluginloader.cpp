@@ -466,7 +466,7 @@ void PluginList::registerParameter(ParamMap& param, ParameterGroups& groups) {
 
 void PluginList::append_rack(UiBuilderBase& ui) {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
-	ui.load((p->second));
+	ui.load(p->second);
     }
 }
 

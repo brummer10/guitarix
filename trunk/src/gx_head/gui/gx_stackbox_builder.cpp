@@ -22,6 +22,17 @@ StackBoxBuilder::StackBoxBuilder(
 StackBoxBuilder::~StackBoxBuilder() {
 }
 
+void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
+    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_string(xmldesc, this, "rackbox");
+    Gtk::Widget* w = 0;
+    bld->find_widget("rackbox", w);
+    if (!w) {
+        gx_system::gx_print_error("load_ui Error", "can't find widget 'rackbox'");
+	return;
+    }
+    addWidget("", w->gobj());
+}
+
 void StackBoxBuilder::pushBox(int mode, GtkWidget* w) {
     ++fTop;
     assert(fTop < stackSize);

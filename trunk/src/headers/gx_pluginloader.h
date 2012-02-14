@@ -56,7 +56,7 @@ public:
 
 class UiBuilderBase: public UiBuilder {
 public:
-    virtual void load(Plugin *p) = 0;
+    virtual bool load(Plugin *p) = 0;
 };
 
 /****************************************************************
@@ -91,7 +91,6 @@ private:
     Plugin *find_plugin(const char *id) const;
     int add_module(Plugin *pl, PluginPos pos, int flags);
 public:
-    class iterator;
     PluginList(gx_ui::GxUI& ui, EngineControl& seq);
     ~PluginList();
     Plugin *lookup_plugin(const char *id) const;

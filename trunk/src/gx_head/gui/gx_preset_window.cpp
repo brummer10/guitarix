@@ -289,7 +289,6 @@ void PresetWindow::on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& c
 void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp) {
     //FIXME move from external doesn't work (only copy)
     if (info != 1) {
-	context->drag_finish(false, false, gtk_get_current_event_time());
 	return;
     }
     bool is_move = context->get_selected_action() == Gdk::ACTION_MOVE;
@@ -456,6 +455,8 @@ void PresetWindow::on_editing_started(const Gtk::CellEditable* edit, const Glib:
     Glib::ustring s = model->get_iter(path)->get_value(bank_col.name);
     if (s.empty()) {
 	dynamic_cast<Gtk::Entry*>(const_cast<Gtk::CellEditable*>(edit))->set_text("");
+    } else {
+	dynamic_cast<Gtk::Entry*>(const_cast<Gtk::CellEditable*>(edit))->set_text(s);
     }
 }
 
@@ -501,6 +502,13 @@ void PresetWindow::highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::Tr
     } else{
 	tc->property_foreground_set().set_value(false);
     }
+    int n = *bank_treeview->get_model()->get_path(iter).begin();
+    if (n > 26) {
+	t = "    " + t;
+    } else {
+	t = Glib::ustring::compose("%1:  %2", char('A'+n), t);
+    }
+    cell->set_property("text", t);
 }
 
 Gtk::TreeModel::Row PresetWindow::get_current_bank_row() {
@@ -839,6 +847,13 @@ void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iter
     Glib::ustring t = iter->get_value(pstore->col.name);
     if (t.empty() && !cell->property_editing().get_value()) {
 	t = "<new>";
+    } else {
+	int n = *preset_treeview->get_model()->get_path(iter).begin();
+	if (n > 9) {
+	    t = "    " + t;
+	} else {
+	    t = Glib::ustring::compose("%1:  %2", n+1, t);
+	}
     }
     cell->set_property("text", t);
     Gtk::CellRendererText *tc = dynamic_cast<Gtk::CellRendererText*>(cell);

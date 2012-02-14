@@ -311,7 +311,7 @@ void GxMainInterface::setup() {
     // add a Patch Info widget
     openPatchInfoBox(&gx_gui::guivar.show_patch_info);
 
-    UiBuilderImpl builder(this);
+    UiBuilderImpl builder(&bb);
     engine.pluginlist.append_rack(builder);
 
 #ifndef NDEBUG

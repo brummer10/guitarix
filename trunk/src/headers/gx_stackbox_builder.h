@@ -18,6 +18,7 @@ protected:
     static const          gboolean expand   = true;
     static const          gboolean fill     = true;
     static const          gboolean homogene = false;
+    void loadRackFromGladeData(const char *xmldesc);
 protected:
     virtual void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog) = 0;
     virtual void closeMonoRackBox() = 0;
@@ -106,6 +107,7 @@ public:
 	gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize], MainMenu &mainmenu_,
 	Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_);
     ~StackBoxBuilder();
+    friend class UiBuilderImpl;
     // mono
     void make_rackbox_ampdetail();
     void make_rackbox_overdrive();

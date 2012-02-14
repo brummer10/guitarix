@@ -140,11 +140,11 @@ public:
     }
 };
 
-class GxMainInterface;
+class StackBoxBuilder;
 
 class UiBuilderImpl: public gx_engine::UiBuilderBase {
-private:
-    static GxMainInterface *intf;
+protected:
+    static StackBoxBuilder *intf;
     static void openVerticalBox_(const char* label);
     static void openHorizontalBox_(const char* label);
     static void openHorizontalhideBox_(const char* label);
@@ -153,9 +153,9 @@ private:
     static void create_selector_(const char *id);
     static void closeBox_();
     static void load_glade_(const char *data);
-    void load(gx_engine::Plugin *p);
+    virtual bool load(gx_engine::Plugin *p);
 public:
-    UiBuilderImpl(GxMainInterface *i);
+    UiBuilderImpl(StackBoxBuilder *i);
 };
 
 GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname);

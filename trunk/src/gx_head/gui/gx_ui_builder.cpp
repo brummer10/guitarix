@@ -56,9 +56,9 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
  ** UiBuilder implementation
  */
 
-GxMainInterface *UiBuilderImpl::intf = 0;
+StackBoxBuilder *UiBuilderImpl::intf = 0;
 
-UiBuilderImpl::UiBuilderImpl(GxMainInterface *i)
+UiBuilderImpl::UiBuilderImpl(StackBoxBuilder *i)
     : UiBuilderBase() {
     intf = i;
     openVerticalBox = openVerticalBox_;
@@ -111,10 +111,10 @@ void UiBuilderImpl::load_glade_(const char *data) {
     intf->loadRackFromGladeData(data);
 }
 
-void UiBuilderImpl::load(gx_engine::Plugin *p) {
+bool UiBuilderImpl::load(gx_engine::Plugin *p) {
     PluginDef *pd = p->pdef;
     if (!pd->load_ui) {
-	return;
+	return false;
     }
     plugin = pd;
     string s = pd->id;
@@ -134,6 +134,7 @@ void UiBuilderImpl::load(gx_engine::Plugin *p) {
 	pd->load_ui(*this);
 	intf->closeMonoRackBox();
     }
+    return true;
 }
 } /* end of gx_gui namespace */
 
@@ -373,8 +374,7 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
             if (fp.isControllable()) {
                 gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.get_value());
             }
-	} else if (p.isInt()) {
-            gx_engine::IntParameter &fp = p.getInt();
+	} else if (p.isInt() || p.isUInt()) {
 	    Glib::RefPtr<Gxw::Selector> t =
 		Glib::RefPtr<Gxw::Selector>::cast_dynamic(w);
 	    if (t) {
@@ -382,11 +382,17 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
 		Gtk::TreeModelColumnRecord rec;
 		rec.add(label);
 		Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
-		for (const value_pair *p = fp.getValueNames(); p->value_id; ++p) {
-		    ls->append()->set_value(0, Glib::ustring(fp.value_label(*p)));
+		for (const value_pair *vp = p.getValueNames(); vp->value_id; ++vp) {
+		    ls->append()->set_value(0, Glib::ustring(p.value_label(*vp)));
 		}
 		t->set_model(ls);
-		t->cp_set_value(fp.get_value());
+		int val;
+		if (p.isInt()) {
+		    val = p.getInt().get_value();
+		} else {
+		    val = p.getUInt().get_value();
+		}
+		t->cp_set_value(val);
 	    }
         } else {
             gx_system::gx_print_warning("load dialog",
