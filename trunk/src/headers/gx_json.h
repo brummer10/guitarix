@@ -236,10 +236,11 @@ public:
     bool open_file(const Glib::ustring& name, const std::string& path, int tp, int flags);
     bool create_file(const Glib::ustring& name, const std::string& path, int tp, int flags);
     bool set_factory(const Glib::ustring& name_, const std::string& path);
-    bool readJSON(const std::string& dirpath, JsonParser &jp);
+    bool readJSON(const std::string& dirpath, JsonParser &jp, bool *mtime_diff);
     void writeJSON(JsonWriter& jw);
     void reopen() { if (!is) open(); }
     void open(const std::string& fname);
+    void close() { delete is; is = 0; }
     bool fail();
     bool ensure_is_current();
     void check_flags();
@@ -249,9 +250,9 @@ public:
     void fill_names(vector<Glib::ustring>&);
     const Glib::ustring& get_name(int n);
     int get_index(const Glib::ustring& name);
-    JsonParser *create_reader(int n, JsonParser *jp=0);
-    JsonParser *create_reader(const Glib::ustring& name, JsonParser *jp=0) {
-	return create_reader(get_index(name), jp); }
+    JsonParser *create_reader(int n);
+    JsonParser *create_reader(const Glib::ustring& name) {
+	return create_reader(get_index(name)); }
     JsonWriter *create_writer(int n) {
 	return create_writer(get_name(n)); }
     JsonWriter *create_writer(const Glib::ustring& name);

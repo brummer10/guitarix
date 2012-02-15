@@ -746,7 +746,7 @@ void PresetFile::check_flags() {
     set_flag(PRESET_FLAG_VERSIONDIFF, !header.is_current());
 }
 
-bool PresetFile::readJSON(const std::string& dirpath, JsonParser &jp) {
+bool PresetFile::readJSON(const std::string& dirpath, JsonParser &jp, bool *mtime_diff) {
     jp.next(gx_system::JsonParser::begin_array);
     jp.next(gx_system::JsonParser::value_string);
     name = jp.current_value();
@@ -761,6 +761,7 @@ bool PresetFile::readJSON(const std::string& dirpath, JsonParser &jp) {
     mtime = jp.current_value_int();
     jp.next(gx_system::JsonParser::end_array);
     if (!check_mtime(filename, mtime)) {
+	*mtime_diff = true;
 	if (mtime == 0) {
 	    gx_system::gx_print_error(filename.c_str(), _("not found"));
 	    return false;
@@ -791,8 +792,7 @@ void PresetFile::writeJSON(JsonWriter& jw) {
 }
 
 void PresetFile::open() {
-    delete is;
-    is = 0;
+    close();
     entries.clear();
     if (filename.empty()) {
 	return;
@@ -829,8 +829,7 @@ bool PresetFile::ensure_is_current() {
     if (!mtime) {
 	return true;
     }
-    delete is;
-    is = 0;
+    close();
     return false;
 }
 
@@ -866,13 +865,9 @@ int PresetFile::get_index(const Glib::ustring& name) {
     return -1;
 }
 
-JsonParser *PresetFile::create_reader(int n, JsonParser *jp) {
+JsonParser *PresetFile::create_reader(int n) {
     reopen();
-    if (jp) {
-	jp->set_stream(is);
-    } else {
-	jp = new JsonParser(is);
-    }
+    JsonParser *jp = new JsonParser(is);
     jp->set_streampos(entries.at(n).pos);
     return jp;
 }
@@ -1337,8 +1332,11 @@ void PresetBanks::parse_factory_list(const std::string& path) {
 	    string fname = Glib::build_filename(path, jp.current_value());
 	    PresetFile *f = new PresetFile();
 	    try {
-		f->set_factory(name, fname);
-		banklist.push_back(f);
+		if (f->set_factory(name, fname)) {
+		    banklist.push_back(f);
+		} else {
+		    delete f;
+		}
 	    } catch (gx_system::JsonException& e) {
 		delete f;
 		gx_system::gx_print_error(fname.c_str(), _("not found or parse error"));
@@ -1363,12 +1361,13 @@ void PresetBanks::parse_bank_list(bl_type::iterator pos) {
 	return;
     }
     gx_system::JsonParser jp(&is);
+    bool mtime_diff = false;
     PresetFile *f = 0;
     try {
 	jp.next(gx_system::JsonParser::begin_array);
 	while (jp.peek() != gx_system::JsonParser::end_array) {
 	    f = new PresetFile();
-	    if (!f->readJSON(preset_dir, jp)) {
+	    if (!f->readJSON(preset_dir, jp, &mtime_diff)) {
 		delete f;
 	    } else {
 		banklist.insert(pos, f);
@@ -1383,7 +1382,11 @@ void PresetBanks::parse_bank_list(bl_type::iterator pos) {
     }
     jp.close();
     is.close();
-    check_mtime(filepath, mtime);
+    if (mtime_diff) {
+	save();
+    } else {
+	check_mtime(filepath, mtime);
+    }
 }
 
 PresetFile *PresetBanks::get_file(const Glib::ustring& bank) const {
@@ -1677,7 +1680,7 @@ void GxSettingsBase::insert_before(PresetFile& pf, const Glib::ustring& src, Pre
 }
 
 void GxSettingsBase::insert_after(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name) {
-    int i = pftgt.get_index(name) + 1;
+    int i = pftgt.get_index(pos) + 1;
     if (i >= pftgt.size()) {
 	append(pf, src, pftgt, name);
     } else {
@@ -1719,7 +1722,6 @@ void GxSettingsBase::reorder_preset(PresetFile& pf, const std::vector<Glib::ustr
     try {
 	jw = pf.create_transformer();
 	for (std::vector<Glib::ustring>::const_iterator i = neworder.begin(); i != neworder.end(); ++i) {
-	    //JsonParser *jp = pf.create_reader(*i, &jw->jp);
 	    JsonParser *jp = pf.create_reader(*i);
 	    jw->write(*i);
 	    jp->copy_object(*jw);
@@ -1734,6 +1736,7 @@ void GxSettingsBase::reorder_preset(PresetFile& pf, const std::vector<Glib::ustr
 	jw->abort();
     }
     delete jw;
+    pf.close();
 }
 
 bool GxSettingsBase::rename_preset(const Glib::ustring& name, const Glib::ustring& newname) {

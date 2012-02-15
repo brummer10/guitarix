@@ -114,7 +114,7 @@ public:
     const char *get_id() const { return plugin->pdef->id; }
     const char *get_name() const { return plugin->pdef->name; }
     void display(bool v);
-    void display_new();
+    void display_new(bool unordered = false);
     inline bool is_displayed();
 };
 
@@ -142,12 +142,16 @@ public:
  ** class RackBox, class MiniRackBox
  */
 
+//#define USE_SZG   // use a SizeGroup instead of predefined width for Gxw::Switch("switchit")
+
 class MiniRackBox;
 class RackContainer;
 
 class RackBox: public Gtk::VBox {
 private:
+#ifdef USE_SZG
     static Glib::RefPtr<Gtk::SizeGroup> szg;
+#endif
     PluginUI& plugin;
     MainWindow& main;
     bool vis;
@@ -156,7 +160,6 @@ private:
     bool compress;
     bool delete_button;
     Gxw::PaintBox mbox;
-    Glib::RefPtr<Gtk::ToggleAction> on_off_action;
     MiniRackBox* minibox;
     Gtk::Widget *fbox;
     std::string target;
@@ -170,6 +173,8 @@ private:
     int box_visible;
     int position;
     unsigned int effect_post_pre;
+    Gxw::Switch *on_off_switch;
+    gx_gui::uiToggle<bool> toggle_on_off;
 private:
     static void set_paintbox(Gxw::PaintBox& pb, PluginType tp);
     static Gtk::Widget *make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort=false);
@@ -223,10 +228,12 @@ private:
     Gtk::Button *mb_expand_button;
     Gtk::Widget *mb_delete_button;
     Gtk::Button *preset_button;
+    Gxw::Switch *on_off_switch;
+    gx_gui::uiToggle<bool> toggle_on_off;
 private:
     Gtk::Widget *make_delete_button(RackBox& rb);
 public:
-    MiniRackBox(RackBox& rb, const Glib::RefPtr<Gtk::Action>& action, gx_system::CmdlineOptions& options);
+    MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options);
     void set_config_mode(bool mode);
 };
 
@@ -258,7 +265,6 @@ private:
     virtual void on_drag_leave(const Glib::RefPtr<Gdk::DragContext>& context, guint timestamp);
     virtual void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     virtual void on_add(Widget* ch);
-    void reorder(const std::string& name, int pos);
     void renumber();
     bool scroll_timeout();
 public:
@@ -285,6 +291,7 @@ public:
     void add(RackBox& r, int pos=-1);
     void check_order();
     void ensure_visible(RackBox& child);
+    void reorder(const std::string& name, int pos);
 };
 
 
@@ -462,6 +469,7 @@ public:
     PluginUI *get_plugin(const std::string& name) { return plugin_dict[name]; }
     void run() { Gtk::Main::run(*window); }
     gx_system::CmdlineOptions& get_options() { return options; }
+    gx_ui::GxUI& get_ui() { return ui; }
 };
 
 /****************************************************************
@@ -732,8 +740,11 @@ void PluginUI::display(bool v) {
     }
 }
 
-void PluginUI::display_new() {
+void PluginUI::display_new(bool unordered) {
     display(true);
+    if (!unordered) {
+	rackbox->get_parent()->reorder(get_id(), -1);
+    }
     rackbox->swtch(false);
 }
 
@@ -867,8 +878,15 @@ Gtk::Widget *MiniRackBox::make_delete_button(RackBox& rb) {
     return w;
 }
 
-MiniRackBox::MiniRackBox(RackBox& rb, const Glib::RefPtr<Gtk::Action>& action, gx_system::CmdlineOptions& options)
-    : Gtk::HBox(), evbox(), mconbox(false, 4), mb_expand_button(), mb_delete_button(), preset_button() {
+MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
+    : Gtk::HBox(),
+      evbox(),
+      mconbox(false, 4),
+      mb_expand_button(),
+      mb_delete_button(),
+      preset_button(),
+      on_off_switch(new Gxw::Switch("minitoggle")),
+      toggle_on_off(rb.main.get_ui(), *on_off_switch, &rb.plugin.plugin->on_off) {
     if (!szg_label) {
 	szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
     }
@@ -876,17 +894,17 @@ MiniRackBox::MiniRackBox(RackBox& rb, const Glib::RefPtr<Gtk::Action>& action, g
     add(evbox);
     Gtk::HBox *box = new Gtk::HBox();
     evbox.add(*manage(box));
-    Gxw::Switch *swtch = new Gxw::Switch("minitoggle");
-    swtch->cp_set_var(Glib::ustring(rb.plugin.get_id())+".on_off"); //FIXME
-    //swtch->set_related_action(action);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(swtch->gobj()), action->gobj());
-    Gtk::Alignment *al = new Gtk::Alignment(0.5,0.5);
-    al->add(*manage(swtch));
+    Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 0.0, 0.0);
+    al->add(*on_off_switch);
+#ifdef USE_SZG
     RackBox::szg->add_widget(*al);
+#else
+    al->set_size_request(35, -1);
+#endif
     box->pack_start(*manage(al), Gtk::PACK_SHRINK);
     Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
     szg_label->add_widget(*manage(effect_label));
-    al = new Gtk::Alignment();
+    al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->add(*manage(rb.wrap_bar()));
     box->pack_start(*manage(al), Gtk::PACK_SHRINK);
     box->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
@@ -897,10 +915,10 @@ MiniRackBox::MiniRackBox(RackBox& rb, const Glib::RefPtr<Gtk::Action>& action, g
     Gtk::Label *l = new Gtk::Label("depth");
     l->set_name("rack_label");
     l->set_size_request(-1,18);
-    l->set_alignment(0,1.0);
+    l->set_alignment(0.0, 1.0);
     mconbox.pack_start(*manage(l), Gtk::PACK_SHRINK, 4);
     box->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET, 20);
-    al = new Gtk::Alignment();
+    al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     Gtk::HBox *hb = new Gtk::HBox();
     al->add(*manage(hb));
     mb_expand_button = rb.make_expand_button(true);
@@ -939,7 +957,9 @@ void MiniRackBox::set_config_mode(bool mode) {
  ** class RackBox
  */
 
+#ifdef USE_SZG
 Glib::RefPtr<Gtk::SizeGroup> RackBox::szg;
+#endif
 
 void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
@@ -1006,7 +1026,7 @@ Gtk::Widget *RackBox::create_icon_widget(const PluginUI& plugin, gx_system::Cmdl
     Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
     RackBox::set_paintbox(*pb, plugin.get_type());
     Gtk::Widget *effect_label = RackBox::make_label(plugin, options);
-    Gtk::Alignment *al = new Gtk::Alignment();
+    Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 1.0, 1.0);
     al->set_padding(0,2,2,0);
     al->add(*manage(effect_label));
     pb->pack_start(*manage(al), Gtk::PACK_SHRINK);
@@ -1022,15 +1042,19 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     }
     Gxw::Switch *swtch = new Gxw::Switch("minitoggle");
     swtch->set_active(plugin.plugin->on_off);
+#ifdef USE_SZG
     RackBox::szg->add_widget(*swtch);
+#else
+    swtch->set_size_request(35, -1);
+#endif
     pb->pack_start(*manage(swtch), Gtk::PACK_SHRINK);
     Gtk::Widget *effect_label = RackBox::make_label(plugin, options);
-    Gtk::Alignment *al = new Gtk::Alignment();
+    Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->set_padding(0,0,4,20);
     al->add(*manage(RackBox::make_bar(4, 4, true))); // FIXME: fix style and remove sens parameter
     pb->pack_start(*manage(al), Gtk::PACK_SHRINK);
     pb->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
-    al = new Gtk::Alignment();
+    al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->set_size_request(50,-1);
     pb->pack_start(*manage(al), Gtk::PACK_SHRINK);
     pb->show_all();
@@ -1048,12 +1072,15 @@ void RackBox::display(bool v) {
 
 RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     : Gtk::VBox(), plugin(plugin_), main(tl), vis(true), config_mode(false), anim_tag(),
-      compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), on_off_action(Gtk::ToggleAction::create()), minibox(0),
+      compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), minibox(0),
       fbox(0), target(), anim_height(0), anim_step(), drag_icon(), target_height(0), preset_index(-1), presets(),
-      box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), position(), effect_post_pre() {
+      box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), position(), effect_post_pre(), on_off_switch(new Gxw::Switch("switchit")),
+      toggle_on_off(tl.get_ui(), *on_off_switch, &plugin.plugin->on_off) {
+#ifdef USE_SZG
     if (!szg) {
 	szg = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
     }
+#endif
     //FIXME fill presets
     if (bare) {
 	compress = false;
@@ -1061,7 +1088,7 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     }
     set_paintbox(mbox, plugin.get_type());
     init_dnd();
-    minibox = new MiniRackBox(*this, on_off_action, tl.get_options());
+    minibox = new MiniRackBox(*this, tl.get_options());
     mbox.pack_start(*manage(minibox));
     pack_start(mbox, Gtk::PACK_SHRINK);
     if (bare) {
@@ -1198,7 +1225,7 @@ void RackBox::vis_switch(Gtk::Widget& a, Gtk::Widget& b) {
 
 void RackBox::swtch(bool mini) {
     if (config_mode) {
-	vis = mini;
+	vis = !mini;
     } else {
 	if (mini) {
 	    vis_switch(*fbox, mbox);
@@ -1287,7 +1314,7 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     Gtk::VBox *vbox = new Gtk::VBox();
     vbox->pack_start(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
     vbox->pack_start(*manage(make_preset_button()), Gtk::PACK_EXPAND_PADDING);
-    Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 1.0, 0.7);
+    Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.7);
     al->add(*manage(vbox));
     al->set_padding(1, 0, 0, 4);
     bx->pack_end(*manage(al), Gtk::PACK_SHRINK);
@@ -1307,12 +1334,11 @@ Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
     Gtk::VBox *vbox2 = new Gtk::VBox();
     hbox2->pack_start(*manage(vbox2));
     hbox2->pack_start(*manage(wrap_bar()), Gtk::PACK_SHRINK);
-    Gxw::Switch *swtch = new Gxw::Switch("switchit");
-    szg->add_widget(*swtch);
-    swtch->cp_set_var(Glib::ustring(plugin.get_id())+".on_off"); //FIXME
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(swtch->gobj()), GTK_ACTION(on_off_action->gobj()));
-    Gtk::Alignment *al = new Gtk::Alignment(0.5,0.5);
-    al->add(*manage(swtch));
+#ifdef USE_SZG
+    szg->add_widget(on_off_switch);
+#endif
+    Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 0.0, 0.0);
+    al->add(*on_off_switch);
     vbox2->pack_start(*manage(al));
     return vbox;
 }
@@ -1428,6 +1454,7 @@ void RackContainer::find_index(int x, int y, int* len, int *ypos) {
 void RackContainer::on_my_remove(Gtk::Widget *ch) {
     child_count -= 1;
     assert(child_count >= 0);
+    renumber();
     if (child_count == 0 && tp == PLUGIN_TYPE_MONO && main.show_plugin_bar_action->get_active()) {
 	main.get_monorackcontainer().set_size_request(-1, 20);
     }
@@ -1524,11 +1551,9 @@ void RackContainer::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& 
     find_index(x, y, &i, &ind);
     std::string dtype = data.get_data_type();
     if (dtype == "application/x-gtk-tool-palette-item-mono" || dtype == "application/x-gtk-tool-palette-item-stereo") {
-	main.get_plugin(data.get_data_as_string())->display_new();
-    } else {
-	reorder(data.get_data_as_string(), i);
-	context->drag_status(Gdk::ACTION_COPY, timestamp);
+	main.get_plugin(data.get_data_as_string())->display_new(true);
     }
+    reorder(data.get_data_as_string(), i);
 }
 
 void RackContainer::show_entries() {
@@ -1556,9 +1581,6 @@ void RackContainer::reorder(const std::string& name, int pos) {
 	    if (pos > i) {
 		pos -= 1;
 	    }
-	    if (i == pos) {
-		return;
-	    }
 	    r = *v;
 	    break;
 	}
@@ -1583,6 +1605,7 @@ void RackContainer::add(RackBox& r, int pos) {
     if (config_mode) {
 	r.set_config_mode(true);
     }
+    renumber();
 }
 
 void RackContainer::set_config_mode(bool mode) {

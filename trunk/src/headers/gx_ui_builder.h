@@ -27,6 +27,41 @@
 
 namespace gx_gui {
 
+template<class T>
+class uiToggle: public gx_ui::GxUiItemV<T> {
+protected:
+    Glib::RefPtr<Gtk::ToggleButton> button;
+    void on_button_toggled();
+    virtual void reflectZone();
+public:
+    uiToggle(gx_ui::GxUI& ui, Gtk::ToggleButton& b, T *zone);
+    uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton> b, T *zone);
+};
+
+template<class T>
+uiToggle<T>::uiToggle(gx_ui::GxUI& ui, Gtk::ToggleButton& b, T *zone)
+    : gx_ui::GxUiItemV<T>(&ui, zone), button(&b) {
+    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggle<T>::on_button_toggled));
+}
+
+template<class T>
+uiToggle<T>::uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton> b, T *zone)
+    : gx_ui::GxUiItemV<T>(&ui, zone), button(b) {
+    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggle<T>::on_button_toggled));
+}
+
+template<class T>
+void uiToggle<T>::on_button_toggled() {
+    gx_ui::GxUiItemV<T>::modifyZone(button->get_active());
+}
+
+template<class T>
+void uiToggle<T>::reflectZone() {
+    T v = *gx_ui::GxUiItemV<T>::fZone;
+    gx_ui::GxUiItemV<T>::fCache = v;
+    button->set_active(v);
+}
+
 /****************************************************************
  ** class GxBuilder
  **

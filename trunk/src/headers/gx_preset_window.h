@@ -146,6 +146,7 @@ private:
     void on_bank_reordered(const Gtk::TreeModel::Path& path);
     bool on_preset_button_release(GdkEventButton *ev);
     bool on_preset_button_press(GdkEventButton *ev);
+    void on_preset_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column);
     void on_preset_edited(const Glib::ustring& path, const Glib::ustring& newtext);
     void on_cursor_changed();
     void on_preset_changed();

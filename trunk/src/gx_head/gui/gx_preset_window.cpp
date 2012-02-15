@@ -130,14 +130,9 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSet
     bank_row_del_conn = ls->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_reordered));
 
     preset_treeview->set_model(pstore);
-    /**/
-    std::vector<Gtk::TargetEntry> listTargets2;
-    listTargets2.push_back(Gtk::TargetEntry("GTK_TREE_MODEL_ROW", Gtk::TARGET_SAME_WIDGET, 0));
-    listTargets2.push_back(Gtk::TargetEntry("application/x-guitarix-preset", Gtk::TARGET_SAME_APP, 1));
-    preset_treeview->enable_model_drag_source(listTargets2, Gdk::BUTTON1_MASK, Gdk::ACTION_COPY|Gdk::ACTION_MOVE);
-    /**/
     preset_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_drag_motion), false);
     preset_treeview->signal_drag_data_get().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_drag_data_get));
+    preset_treeview->signal_row_activated().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_row_activated));
     preset_treeview->signal_button_press_event().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_button_press));
     preset_treeview->signal_button_release_event().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_button_release), true);
     preset_row_del_conn = preset_treeview->get_model()->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_reordered));
@@ -158,7 +153,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSet
     listTargets3.push_back(Gtk::TargetEntry("application/x-guitarix-preset", Gtk::TARGET_SAME_APP, 0));
     presets_target_treeview->enable_model_drag_dest(listTargets3, Gdk::ACTION_COPY);
     presets_target_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_target_drag_motion), false);
-    presets_target_treeview->signal_drag_data_received().connect(sigc::mem_fun(*this, &PresetWindow::target_drag_data_received));
+    presets_target_treeview->signal_drag_data_received().connect_notify(sigc::mem_fun(*this, &PresetWindow::target_drag_data_received));
     gx_settings.signal_selection_changed().connect(
 	sigc::mem_fun(*this, &PresetWindow::show_selected_preset));
     set_presets();
@@ -254,8 +249,14 @@ bool PresetWindow::on_bank_query_tooltip(int x, int y, bool kb_tooltip, Glib::Re
     return true;
 }
 
+void PresetWindow::on_preset_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column) {
+    on_presets_close();
+}
+
 bool PresetWindow::on_preset_button_press(GdkEventButton *ev) {
-    Glib::signal_idle().connect(sigc::bind(sigc::ptr_fun(preset_button_press_idle), sigc::ref(*preset_treeview)));
+    if (ev->type == GDK_BUTTON_PRESS) {
+	Glib::signal_idle().connect(sigc::bind(sigc::ptr_fun(preset_button_press_idle), sigc::ref(*preset_treeview)));
+    }
     return false;
 }
 
@@ -287,7 +288,6 @@ void PresetWindow::on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& c
 }
 
 void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp) {
-    //FIXME move from external doesn't work (only copy)
     if (info != 1) {
 	return;
     }
@@ -315,14 +315,27 @@ void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContex
 	    gx_settings.banks.insert(f);
 	    Gtk::TreeIter i = ls->prepend();
 	    set_row_for_presetfile(i,f);
+	    bank_treeview->set_cursor(ls->get_path(i));
+	    bank_treeview->get_selection()->select(i);
 	    success = true;
 	} else {
 	    delete f;
-	    dest->remove();
+	    try {
+		dest->remove();
+	    } catch (Gio::Error& e) {
+		gx_system::gx_print_error(e.what().c_str(), _("can't remove copied file!?"));
+	    }
 	    is_move = false;
 	}
+	if (is_move) {
+	    try {
+		rem->remove();
+	    } catch (Gio::Error& e) {
+		gx_system::gx_print_error(e.what().c_str(), _("can't move; file has been copied"));
+	    }
+	}
     }
-    context->drag_finish(success, is_move, gtk_get_current_event_time());
+    context->drag_finish(success, false, gtk_get_current_event_time());
 }
 
 Glib::ustring PresetWindow::get_combo_selection() {
@@ -352,12 +365,13 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
 	dstnm = srcnm + "-" + gx_system::to_string(n);
 	n += 1;
     }
-    gx_system::PresetFile& pf = *gx_settings.banks.get_file(get_current_bank());
+    Glib::ustring src_bank = get_current_bank();
+    gx_system::PresetFile& pf = *gx_settings.banks.get_file(src_bank);
     Gtk::TreeModel::Path pt;
     Gtk::TreeViewDropPosition dst;
     if (!presets_target_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
 	ls->append()->set_value(target_col.name, dstnm);
-	gx_settings.append(fl, srcnm, pf, dstnm);
+	gx_settings.append(pf, srcnm, fl, dstnm);
     } else {
 	Gtk::TreeIter it = ls->get_iter(pt);
 	if (dst == Gtk::TREE_VIEW_DROP_BEFORE || dst == Gtk::TREE_VIEW_DROP_INTO_OR_BEFORE) {
@@ -378,7 +392,9 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
 	preset_row_del_conn.unblock();
 	gx_settings.erase_preset(pf, srcnm);
     }
-    on_bank_changed(); // if preset list == target list
+    if (src_bank == bank) {
+	on_bank_changed();
+    }
 }
 
 bool PresetWindow::on_target_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
@@ -740,29 +756,25 @@ void PresetWindow::on_bank_changed() {
     }
     Gtk::TreeIter i;
     gx_system::PresetFile& ll = *gx_settings.banks.get_file(nm);
-#if 0  //FIXME
     if ((ll.get_flags() & gx_system::PRESET_FLAG_VERSIONDIFF) ||
 	((ll.get_flags() & gx_system::PRESET_FLAG_READONLY) &&
 	 !Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("OrganizeAction"))->get_active())) {
 	preset_treeview->unset_rows_drag_source();
     } else {
-	//preset_treeview->unset_rows_drag_source();
+	preset_treeview->unset_rows_drag_source(); //FIXME: needed?
+	preset_treeview->set_reorderable(true);
 	std::vector<Gtk::TargetEntry> listTargets2;
 	listTargets2.push_back(Gtk::TargetEntry("GTK_TREE_MODEL_ROW", Gtk::TARGET_SAME_WIDGET, 0));
 	listTargets2.push_back(Gtk::TargetEntry("application/x-guitarix-preset", Gtk::TARGET_SAME_APP, 1));
 	preset_treeview->enable_model_drag_source(listTargets2, Gdk::BUTTON1_MASK, Gdk::ACTION_COPY|Gdk::ACTION_MOVE);
-	preset_treeview->set_reorderable(true);
     }
-#endif
     bool modifiable = ll.is_mutable();
     for (gx_system::PresetFile::iterator s = ll.begin(); s != ll.end(); ++s) {
 	i = ls->append();
+	i->set_value(pstore->col.name, s->name);
 	if (modifiable) {
-	    i->set_value(pstore->col.name, s->name);
 	    i->set_value(pstore->col.edit_pb, pb_edit);
 	    i->set_value(pstore->col.del_pb, pb_del);
-	} else {
-	    i->set_value(pstore->col.name, s->name);
 	}
 	if (s->name == cp) {
 	    preset_treeview->get_selection()->select(i);
@@ -788,8 +800,7 @@ void PresetWindow::set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile
 	i->set_value(bank_col.type_pb, pb_scratch);
     } else if (tp == gx_system::PresetFile::PRESET_FACTORY) {
 	i->set_value(bank_col.type_pb, pb_factory);
-    }
-    if (f->is_mutable()) {
+    } else if (f->is_mutable() || f->get_flags() & gx_system::PRESET_FLAG_VERSIONDIFF) {
 	i->set_value(bank_col.edit_pb, pb_edit);
 	i->set_value(bank_col.del_pb, pb_del);
     }
