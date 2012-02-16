@@ -335,7 +335,7 @@ void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContex
 	    }
 	}
     }
-    context->drag_finish(success, false, gtk_get_current_event_time());
+    context->drag_finish(success, false, timestamp);
 }
 
 Glib::ustring PresetWindow::get_combo_selection() {
@@ -855,7 +855,8 @@ void PresetWindow::on_bank_reordered(const Gtk::TreeModel::Path& path) {
  */
 
 void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter) {
-    Glib::ustring t = iter->get_value(pstore->col.name);
+    Glib::ustring val = iter->get_value(pstore->col.name);
+    Glib::ustring t = val;
     if (t.empty() && !cell->property_editing().get_value()) {
 	t = "<new>";
     } else {
@@ -868,7 +869,7 @@ void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iter
     }
     cell->set_property("text", t);
     Gtk::CellRendererText *tc = dynamic_cast<Gtk::CellRendererText*>(cell);
-    if (in_current_preset && t == gx_settings.get_current_name()) {
+    if (in_current_preset && val == gx_settings.get_current_name()) {
 	tc->property_foreground().set_value("#f00");
     } else{
 	tc->property_foreground_set().set_value(false);

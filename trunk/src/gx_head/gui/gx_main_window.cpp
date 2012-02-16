@@ -38,15 +38,17 @@ using namespace std;
  ** class Liveplay
  */
 
-class Liveplay {
+class Liveplay: public sigc::trackable {
 private:
     Glib::RefPtr<gx_gui::GxBuilder> bld;
+    gx_engine::GxEngine &engine;
     gx_preset::GxSettings& gx_settings;
     gx_ui::GxUI ui;
     bool use_composite;
     Gtk::Adjustment brightness_adj;
     Gtk::Adjustment background_adj;
-
+    sigc::connection key_timeout;
+    Glib::ustring last_bank_key;
     //
     Gtk::Window *window;
     Gtk::Image *bypass_image;
@@ -67,8 +69,25 @@ private:
     bool transparent_expose(GdkEventExpose *event);
     bool window_expose_event(GdkEventExpose* event);
     void on_realize();
+    void on_engine_state_change(gx_engine::GxEngineState state);
+    void on_selection_changed();
+    static bool do_action(
+	GtkAccelGroup *accel_group, GObject *acceleratable,
+	guint keyval, GdkModifierType modifier, GtkAction* act);
+    static bool on_keyboard_preset_select(
+	GtkAccelGroup *accel_group, GObject *acceleratable,
+	guint keyval, GdkModifierType modifier, Liveplay& self);
+    void process_bank_key(int idx);
+    void process_preset_key(int idx);
+    void display_empty(const Glib::ustring& s);
+    static bool on_keyboard_toggle_mute(
+	GtkAccelGroup *accel_group, GObject *acceleratable,
+	guint keyval, GdkModifierType modifier, Liveplay& self);
+    static bool on_keyboard_arrows(
+	GtkAccelGroup *accel_group, GObject *acceleratable,
+	guint keyval, GdkModifierType modifier, Liveplay& self);
 public:
-    Liveplay(const gx_system::CmdlineOptions& options, gx_preset::GxSettings& gx_settings,
+    Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine, gx_preset::GxSettings& gx_settings,
 	     const std::string& fname, Glib::RefPtr<Gtk::ActionGroup> actiongroup);
     ~Liveplay();
     void on_live_play(Glib::RefPtr<Gtk::ToggleAction> act);
@@ -482,17 +501,102 @@ public:
  ** class Liveplay
  */
 
-gboolean do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
-	    guint keyval, GdkModifierType modifier,
-	    GtkAction* act) {
+bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
+			 guint keyval, GdkModifierType modifier,
+			 GtkAction* act) {
     gtk_action_activate(act);
     return true;
 }
 
-Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_preset::GxSettings& gx_settings_,
+void Liveplay::display_empty(const Glib::ustring& s) {
+    liveplay_preset->set_text(s);
+    key_timeout = Glib::signal_timeout().connect(
+	sigc::bind_return(sigc::mem_fun(*this, &Liveplay::on_selection_changed), false), 400);
+}
+
+void Liveplay::process_preset_key(int idx) {
+    if (last_bank_key.empty()) {
+	if (gx_settings.get_current_source() != gx_system::GxSettingsBase::factory) {
+	    display_empty(Glib::ustring::compose("?? / %1", idx+1));
+	    return;
+	}
+	last_bank_key = gx_settings.get_current_factory();
+    }
+    gx_system::PresetFile *f = gx_settings.banks.get_file(last_bank_key);
+    if (idx >= f->size()) {
+	display_empty(Glib::ustring::compose("%1 / %2?", last_bank_key, idx+1));
+    } else {
+	gx_settings.load_preset(f, f->get_name(idx));
+    }
+}
+
+void Liveplay::process_bank_key(int idx) {
+    last_bank_key = gx_settings.banks.get_name(idx);
+    if (last_bank_key.empty()) {
+	display_empty("-- / --");
+	return;
+    }
+    liveplay_preset->set_text(Glib::ustring::compose("%1 /", last_bank_key));
+    key_timeout = Glib::signal_timeout().connect(
+	sigc::bind_return(sigc::mem_fun(*this, &Liveplay::on_selection_changed), false), 2000);
+}
+
+bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *acceleratable,
+					 guint keyval, GdkModifierType modifier, Liveplay& self) {
+    if (self.key_timeout.connected()) {
+	self.key_timeout.disconnect();
+    }
+    int idx = keyval - GDK_KEY_1;
+    if (idx >= 0 && idx <= 9) {
+	self.process_preset_key(idx);
+	return true;
+    }
+    idx = keyval - GDK_KEY_a;
+    if (idx >= 0 && idx <= (GDK_KEY_z - GDK_KEY_a)) {
+	self.process_bank_key(idx);
+	return true;
+    }
+    return false;
+}
+
+bool Liveplay::on_keyboard_toggle_mute(GtkAccelGroup *accel_group, GObject *acceleratable,
+				       guint keyval, GdkModifierType modifier, Liveplay& self) {
+    self.engine.set_state(self.engine.get_state() == gx_engine::kEngineOff ?
+		     gx_engine::kEngineOn
+		     : gx_engine::kEngineOff);
+    return true;
+}
+
+bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *acceleratable,
+				       guint keyval, GdkModifierType modifier, Liveplay& self) {
+    if (keyval == GDK_KEY_Left || keyval == GDK_KEY_Right) {
+	Gtk::Adjustment *a = self.brightness_slider->get_adjustment();
+	double val = a->get_value();
+	double step = a->get_step_increment();
+	if (keyval == GDK_KEY_Left) {
+	    val -= step;
+	} else {
+	    val += step;
+	}
+	a->set_value(val);
+    } else {
+	Gtk::Adjustment *a = self.background_slider->get_adjustment();
+	double val = a->get_value();
+	double step = a->get_step_increment();
+	if (keyval == GDK_KEY_Down) {
+	    val -= step;
+	} else {
+	    val += step;
+	}
+	a->set_value(val);
+    }
+    return true;
+}
+
+Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
 		   const std::string& fname, Glib::RefPtr<Gtk::ActionGroup> actiongroup)
-    : bld(), gx_settings(gx_settings_), ui(), use_composite(),
-      brightness_adj(1,0.5,1,0.01,0.1), background_adj(0,0,1,0.01,0.1),
+    : bld(), engine(engine_), gx_settings(gx_settings_), ui(), use_composite(),
+      brightness_adj(1,0.5,1,0.01,0.1), background_adj(0,0,1,0.01,0.1), key_timeout(),
       window() {
     const char *id_list[] = {"LivePlay", 0};
     bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
@@ -536,6 +640,7 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_preset::GxSettin
 	sigc::mem_fun(*this, &Liveplay::transparent_expose));
     window->signal_delete_event().connect(
 	sigc::mem_fun(*this, &Liveplay::on_delete));
+
     Glib::RefPtr<Gtk::Action> act = actiongroup->get_action("LiveplayAction");
     gtk_activatable_set_related_action(
 	GTK_ACTIVATABLE(liveplay_exit->gobj()),
@@ -545,29 +650,75 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_preset::GxSettin
     gtk_accel_group_connect_by_path(ag->gobj(), act->get_accel_path().c_str(), cl);
     cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Escape, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+
     act = actiongroup->get_action("TunerAction");
     cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
     gtk_accel_group_connect_by_path(ag->gobj(), act->get_accel_path().c_str(), cl);
+    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_Return, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+
     act = actiongroup->get_action("QuitAction");
     cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
     gtk_accel_group_connect_by_path(ag->gobj(), act->get_accel_path().c_str(), cl);
+
+    cl = g_cclosure_new(G_CALLBACK(on_keyboard_toggle_mute), (gpointer)this, 0);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_space, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+
+    cl = g_cclosure_new(G_CALLBACK(on_keyboard_arrows), (gpointer)this, 0);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_Left, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
+    cl = g_cclosure_new(G_CALLBACK(on_keyboard_arrows), (gpointer)this, 0);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_Right, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
+    cl = g_cclosure_new(G_CALLBACK(on_keyboard_arrows), (gpointer)this, 0);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_Up, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
+    cl = g_cclosure_new(G_CALLBACK(on_keyboard_arrows), (gpointer)this, 0);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_Down, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
+
+    for (int n = GDK_KEY_1; n <= GDK_KEY_9; ++n) {
+	cl = g_cclosure_new(G_CALLBACK(on_keyboard_preset_select), (gpointer)this, 0);
+	gtk_accel_group_connect(ag->gobj(), n, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+    }
+    for (int n = GDK_KEY_A; n <= GDK_KEY_Z; ++n) {
+	cl = g_cclosure_new(G_CALLBACK(on_keyboard_preset_select), (gpointer)this, 0);
+	gtk_accel_group_connect(ag->gobj(), n, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+    }
+    
     window->add_accel_group(ag);
+
+    engine.signal_state_change().connect(
+	sigc::mem_fun(*this, &Liveplay::on_engine_state_change));
+    gx_settings.signal_selection_changed().connect(
+	sigc::mem_fun(*this, &Liveplay::on_selection_changed));
+
+    on_engine_state_change(engine.get_state());
+    on_selection_changed();
 }
 
 Liveplay::~Liveplay() {
     delete window;
 }
 
+void Liveplay::on_engine_state_change(gx_engine::GxEngineState state) {
+    switch (state) {
+    case gx_engine::kEngineOff:    bypass_image->hide(); mute_image->show(); break;
+    case gx_engine::kEngineOn:     bypass_image->hide(); mute_image->hide(); break;
+    case gx_engine::kEngineBypass: bypass_image->show(); mute_image->hide(); break;
+    }
+}
+
+void Liveplay::on_selection_changed() {
+    last_bank_key.clear();
+    Glib::ustring s;
+    if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state) {
+	s = "----";
+    } else {
+	s = Glib::ustring::compose(
+	    "%1 / %2", gx_settings.get_current_factory(), gx_settings.get_current_name());
+    }
+    liveplay_preset->set_text(s);
+}
+
 void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
     if (act->get_active()) {
-	Glib::ustring s;
-	if (true) {//!preset_window.current_bank) {
-	    s = "----";
-	} else {
-	    //s = "%s / %s" % (self.preset_window.current_bank,
-	    //		     self.preset_window.current_preset)
-	}
-	liveplay_preset->set_text(s);
 	window->fullscreen();
 	add_midi_elements(gx_engine::controller_map);
 	window->show();
@@ -619,44 +770,6 @@ void Liveplay::on_realize() {
     liveplay_canvas->get_window()->set_composited(true);
 }
 
-#if 0
-    for (int i = 0; i < gx_engine::controller_map.size(); i++) {
-        gx_engine::midi_controller_list& cl = gx_engine::controller_map[i];
-        for (gx_engine::midi_controller_list::iterator j = cl.begin(); j != cl.end(); ++j) {
-            gx_engine::Parameter& p = j->getParameter();
-            string low, up;
-            const char *tp;
-            float step = p.getStepAsFloat();
-            if (p.getControlType() == gx_engine::Parameter::Continuous) {
-                tp = "Scale";
-                low = gx_gui::fformat(j->lower(), step);
-                up = gx_gui::fformat(j->upper(), step);
-            } else if (p.getControlType() == gx_engine::Parameter::Enum) {
-                tp = "Select";
-                low = gx_gui::fformat(j->lower(), step);
-                up = gx_gui::fformat(j->upper(), step);
-            } else if (p.getControlType() == gx_engine::Parameter::Switch) {
-                tp = "Switch";
-                low = up = "";
-            } else {
-                tp = "??";
-                assert(false);
-            }
-            gtk_list_store_append(store, &iter);
-            gtk_list_store_set(store, &iter,
-                               0, i,
-                               1, gx_engine::midi_std_ctr[i].c_str(),
-                               2, p.l_group().c_str(),
-                               3, p.l_name().c_str(),
-                               4, tp,
-                               5, low.c_str(),
-                               6, up.c_str(),
-                               7, p.id().c_str(),
-                               -1);
-        }
-    }
-#endif
-
 void Liveplay::add_midi_elements(gx_engine::MidiControllerList& controller) {
     printf("%d\n", controller.size());
     int left = 0;
@@ -669,10 +782,15 @@ void Liveplay::add_midi_elements(gx_engine::MidiControllerList& controller) {
 	    continue;
 	}
 	std::string v = gx_engine::midi_std_ctr[i];
-	printf("%s\n", v.c_str());
+	cout << v << ": " << endl;
+        for (gx_engine::midi_controller_list::iterator j = cl.begin(); j != cl.end(); ++j) {
+            gx_engine::Parameter& p = j->getParameter();
+	    cout << Glib::ustring::compose(" %1/%2", p.l_group(), p.l_name());
+	}
+	cout << endl;
 	Gtk::ProgressBar *b = new Gtk::ProgressBar();
 	b->set_size_request(300, 50);
-	b->set_fraction(0.4);
+	b->set_fraction(cl.begin()->get());
 	b->set_text(v);
 	midictrl_table->attach(*manage(b), left, left+1, top, top+1);
 	top += 1;
@@ -699,7 +817,7 @@ PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const cha
 }
 
 bool PluginUI::hasChanged() {
-    if (plugin->box_visible != is_displayed()) {
+    if ((plugin->box_visible || plugin->on_off) != is_displayed()) {
 	return true;
     }
     if (!rackbox) {
@@ -709,7 +827,7 @@ bool PluginUI::hasChanged() {
 }
 
 void PluginUI::reflectZone() {
-    if (plugin->box_visible != is_displayed()) {
+    if ((plugin->box_visible || plugin->on_off) != is_displayed()) {
 	display(plugin->box_visible);
     }
     if (rackbox) {
@@ -1207,7 +1325,9 @@ void RackBox::on_my_drag_end(const Glib::RefPtr<Gdk::DragContext>& context) {
 	delete drag_icon;
 	drag_icon = 0;
     }
-    animate_insert();
+    if (box_visible) {
+	animate_insert();
+    }
 }
 
 void RackBox::on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp) {
@@ -1215,7 +1335,7 @@ void RackBox::on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
 }
 
 void RackBox::on_my_drag_data_delete(const Glib::RefPtr<Gdk::DragContext>& context) {
-    plugin.display(false);
+    //plugin.display(false);
 }
 
 void RackBox::vis_switch(Gtk::Widget& a, Gtk::Widget& b) {
@@ -2317,8 +2437,11 @@ bool MainWindow::on_ti_button_press(GdkEventButton *ev, const char *effect_id) {
 }
 
 void MainWindow::on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, int info, int timestamp) {
-    add_icon(data.get_data_as_string());
-    get_plugin(data.get_data_as_string())->group->set_collapsed(false);
+    Glib::ustring id = data.get_data_as_string();
+    PluginUI *p = get_plugin(id);
+    p->display(false);
+    add_icon(id);
+    p->group->set_collapsed(false);
 }
 
 const char *menudef =
@@ -2634,7 +2757,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(compress_button->gobj()), GTK_ACTION(compress_action->gobj()));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(expand_button->gobj()), GTK_ACTION(expand_action->gobj()));
 
-    live_play = new Liveplay(options, gx_settings, options.get_builder_filepath("mainpanel.glade"), actiongroup);
+    live_play = new Liveplay(options, engine, gx_settings, options.get_builder_filepath("mainpanel.glade"), actiongroup);
     preset_window = new PresetWindow(bld, gx_settings, options, actiongroup);
 
 

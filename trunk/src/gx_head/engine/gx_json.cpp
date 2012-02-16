@@ -822,6 +822,15 @@ void PresetFile::open() {
     jp.next(JsonParser::end_token);
 }
 
+int PresetFile::size() {
+    try {
+	reopen();
+    } catch (gx_system::JsonException& e) {
+	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+    }
+    return entries.size();
+}
+
 bool PresetFile::ensure_is_current() {
     if (filename.empty() || check_mtime(filename, mtime)) {
 	return true;
@@ -1440,6 +1449,15 @@ void PresetBanks::reorder(const std::vector<Glib::ustring>& neworder) {
 	}
     }
     save();
+}
+
+Glib::ustring PresetBanks::get_name(int n) {
+    for (iterator i = begin(); i != end(); ++i, --n) {
+	if (n == 0) {
+	    return i->get_name();
+	}
+    }
+    return "";
 }
 
 

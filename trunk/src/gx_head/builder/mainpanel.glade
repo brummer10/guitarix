@@ -552,7 +552,7 @@
                   <object class="GtkToggleButton" id="liveplay_exit:barbutton">
                     <property name="label" translatable="yes">Exit</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can_focus">False</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
                   </object>
@@ -745,7 +745,7 @@
                     <child>
                       <object class="GxHSlider" id="background_slider">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="can_focus">False</property>
                         <property name="receives_default">True</property>
                         <property name="round_digits">0</property>
                         <property name="show_value">False</property>
@@ -784,7 +784,7 @@
                     <child>
                       <object class="GxHSlider" id="brightness_slider">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="can_focus">False</property>
                         <property name="receives_default">True</property>
                         <property name="round_digits">0</property>
                         <property name="show_value">False</property>
@@ -2204,6 +2204,12 @@
       </object>
     </child>
   </object>
+  <object class="GtkListStore" id="bank_combo_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkListStore" id="bank_liststore">
     <columns>
       <!-- column-name gchararray1 -->
@@ -2216,12 +2222,6 @@
       <column type="GdkPixbuf"/>
       <!-- column-name gint1 -->
       <column type="gint"/>
-    </columns>
-  </object>
-  <object class="GtkListStore" id="bank_combo_liststore">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkListStore" id="target_liststore">

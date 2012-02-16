@@ -284,6 +284,7 @@ protected:
     int audio_mode;     // GxEngineState coded as PGN_MODE_XX flags
     boost::mutex stateflags_mutex;
     int stateflags;
+    sigc::signal<void, GxEngineState> state_change;
 public:
     MonoModuleChain mono_chain;  // active modules (amp chain, input to insert output)
     StereoModuleChain stereo_chain;  // active stereo modules (effect chain, after insert input)
@@ -329,6 +330,7 @@ public:
     void clear_stateflag(StateFlag flag);
     void set_state(GxEngineState state);
     GxEngineState get_state();
+    sigc::signal<void, GxEngineState>& signal_state_change() { return state_change; }
 #ifndef NDEBUG
     void print_engine_state();
 #endif

@@ -549,6 +549,7 @@ ModuleSequencer::ModuleSequencer()
       audio_mode(PGN_MODE_NORMAL),
       stateflags_mutex(),
       stateflags(SF_INITIALIZING),
+      state_change(),
       mono_chain(),
       stereo_chain() {
 }
@@ -668,6 +669,7 @@ void ModuleSequencer::set_state(GxEngineState state) {
     }
     audio_mode = newmode;
     set_rack_changed();
+    state_change(state);
 }
 
 #ifndef NDEBUG

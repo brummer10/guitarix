@@ -670,15 +670,17 @@ class MidiController {
  private:
     Parameter *param;
     float _lower, _upper;
+    float last_midi_control_value;
  public:
     MidiController(Parameter& p, float l, float u):
-        param(&p), _lower(l), _upper(u) {}
+        param(&p), _lower(l), _upper(u), last_midi_control_value(0) {}
     float lower() const { return _lower; }
     float upper() const { return _upper; }
     bool hasParameter(const Parameter& p) const { return *param == p; }
     Parameter& getParameter() const { return *param; }
     static MidiController* readJSON(gx_system::JsonParser&, ParamMap& param);
-    void set(int n) { param->set(n, 127, _lower, _upper); }
+    void set(int n) { last_midi_control_value = n/127.0; param->set(n, 127, _lower, _upper); }
+    int get() { return last_midi_control_value; }
     void set(float v, float high) { param->set(v, high, _lower, _upper); }
     void writeJSON(gx_system::JsonWriter& jw) const;
 };
@@ -698,7 +700,6 @@ class MidiControllerList {
     controller_array       map;
     bool                   midi_config_mode;
     int                    last_midi_control;
-    int                    last_midi_control_value;
     volatile gint          program_change;
     sem_t                  program_change_sem;
     Glib::Dispatcher       pgm_chg;

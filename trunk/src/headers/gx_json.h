@@ -246,7 +246,7 @@ public:
     void check_flags();
     const std::string& get_filename() const { return filename; }
     const SettingsFileHeader& get_header();
-    int size() const { return entries.size(); }
+    int size();
     void fill_names(vector<Glib::ustring>&);
     const Glib::ustring& get_name(int n);
     int get_index(const Glib::ustring& name);
@@ -325,6 +325,8 @@ public:
     iterator end() { return iterator(banklist.end()); }
     bool remove(const Glib::ustring& bank);
     void save();
+    int size() { return banklist.size(); }
+    Glib::ustring get_name(int n);
     void insert(PresetFile* f) { banklist.push_front(f); save(); }
     bool has_entry(const Glib::ustring& bank) const { return get_file(bank) != 0; }
     bool has_file(const std::string& file) const;

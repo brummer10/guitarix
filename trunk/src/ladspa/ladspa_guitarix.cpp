@@ -312,11 +312,13 @@ void LadspaSettings::load(int num) {
     if (num == 0) {
 	statefile.ensure_is_current();
 	gx_system::GxSettingsBase::load(state,"","");
-    } else if (idx_in_preset(num-1)) {
-	presetfile.ensure_is_current();
-	load_preset_by_idx(num-1);
     } else {
-	gx_system::gx_print_error("preset loader", boost::format("no preset number %1%") % num);
+	presetfile.ensure_is_current();
+	if (idx_in_preset(num-1)) {
+	    load_preset_by_idx(num-1);
+	} else {
+	    gx_system::gx_print_error("preset loader", boost::format("no preset number %1%") % num);
+	}
     }
 }
 

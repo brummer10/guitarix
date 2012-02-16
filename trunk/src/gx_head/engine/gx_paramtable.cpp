@@ -256,7 +256,6 @@ MidiControllerList::MidiControllerList()
     : map(controller_array_size),
       midi_config_mode(false),
       last_midi_control(-1),
-      last_midi_control_value(),
       program_change(-1),
       program_change_sem(),
       pgm_chg(),
@@ -333,7 +332,6 @@ void MidiControllerList::modifyCurrent(Parameter &param,
 void MidiControllerList::set_ctr_val(int ctr, int val) {
     if (midi_config_mode) {
         last_midi_control = ctr;
-        last_midi_control_value = val;
     } else {
         midi_controller_list& ctr_list = map[ctr];
         for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i)

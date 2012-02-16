@@ -162,9 +162,6 @@ void StackBoxBuilder::addJToggleButton(const char* label, bool* zone) {
 
     g_signal_connect(GTK_OBJECT(button), "toggled",
                      G_CALLBACK(uiToggleButton::toggled), (gpointer) c);
-
-    g_signal_connect(GTK_OBJECT(button), "toggled",
-                     G_CALLBACK(gx_start_stop_jconv), (gpointer)c); //FIXME
     connect_midi_controller(button, zone);
 }
 
