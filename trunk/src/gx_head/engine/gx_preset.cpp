@@ -562,12 +562,7 @@ void GxSettings::loadstate() {
 }
 
 void GxSettings::presetfile_changed() {
-    try {
-	change_preset_file(presetfile_parameter.get_path());
-    } catch(gx_system::JsonException& e) {
-	gx_system::gx_print_error(
-	    presetfile_parameter.get_path().c_str(), e.what());
-    }
+    change_preset_file(presetfile_parameter.get_path());
 }
 
 bool GxSettings::set_preset_file(const string& newfile) {

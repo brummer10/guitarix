@@ -1495,17 +1495,22 @@ void GxSettingsBase::clear_factory() {
 }
 
 void GxSettingsBase::change_preset_file(const std::string& newfile) {
-    if (presetfile.get_filename() == newfile) {
-	presetfile.reopen();
-    } else {
-	presetfile.open(newfile);
-	if (current_source == preset) {
-	    current_source = state;
-	    current_name = "";
-	    selection_changed();
+    try {
+	if (presetfile.get_filename() == newfile) {
+	    presetfile.reopen();
+	} else {
+	    presetfile.open(newfile);
+	    if (current_source == preset) {
+		current_source = state;
+		current_name = "";
+		selection_changed();
+	    }
 	}
+	presetlist_changed();
+    } catch(gx_system::JsonException& e) {
+	gx_system::gx_print_error(
+	    newfile.c_str(), e.what());
     }
-    presetlist_changed();
 }
 
 PresetFile* GxSettingsBase::get_factory(const Glib::ustring& name) const {
