@@ -140,6 +140,10 @@ public:
 	}
     }
 
+    bool has_object(const Glib::ustring& name) {
+	return gtk_builder_get_object(gobj(), name.c_str()) != 0;
+    }
+
     template <class T_Widget> inline
     void get_toplevel(const Glib::ustring& name, T_Widget*& widget) {
 	widget = 0;

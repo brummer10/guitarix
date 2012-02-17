@@ -11,9 +11,11 @@ protected:
     gx_engine::GxEngine&  engine;
     gx_engine::ParamMap&  pmap;
     int                   (&fMode)[stackSize];
-    MainMenu              &mainmenu;  // crash if before GxSettings though not clear why
-    Gxw::WaveView         &fWaveView;
-    Gtk::Label            &convolver_filename_label;
+    MainMenu&             mainmenu;  // crash if before GxSettings though not clear why
+    Gxw::WaveView&        fWaveView;
+    Gtk::Label&           convolver_filename_label;
+    gx_ui::GxUI&          ui;
+    Glib::RefPtr<Gdk::Pixbuf> window_icon;
 
     static const          gboolean expand   = true;
     static const          gboolean fill     = true;
@@ -81,10 +83,10 @@ protected:
     void addNumEntry(string id, const char* label = 0);
     void addMToggleButton(string id, const char* label = 0);
     void addStatusDisplay(const char* label, bool* zone );
-    void addSmallJConvFavButton(const char* label);
+    void addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void openSetLabelBox();
-    void addJConvFavButton(const char* label);
-    void addJConvButton(const char* label, float* zone);
+    void addJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
+    void addJConvButton(const char* label, float* zone, gx_jconv::IRWindow *irw);
     void addJToggleButton(const char* label, bool* zone);
 protected:
     // functions used indirectly
@@ -105,7 +107,8 @@ public:
     StackBoxBuilder(
 	int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
 	gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize], MainMenu &mainmenu_,
-	Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_);
+	Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui,
+	Glib::RefPtr<Gdk::Pixbuf> window_icon);
     ~StackBoxBuilder();
     friend class UiBuilderImpl;
     // mono
@@ -168,7 +171,7 @@ public:
 	gx_engine::ParamMap& pmap_, GtkWidget* fMonoRackContainer_, GtkWidget* fStereoRackContainer_, GtkWidget*& rBox_, GtkWidget*& sBox_,
 	GtkWidget*& tBox_, int (&fMode_)[stackSize], MainMenu &mainmenu_,
 	Gxw::WaveView &fWaveView_, Glib::RefPtr<Gtk::AccelGroup> fAccelGroup_,
-	Gtk::Label &convolver_filename_label_);
+	Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui, Glib::RefPtr<Gdk::Pixbuf> window_icon);
 };
 
 } // end namespace gx_gui

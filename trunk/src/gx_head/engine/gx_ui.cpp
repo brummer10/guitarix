@@ -64,7 +64,7 @@ void GxUI::updateAllGuis(bool force) {
 }
 
 // Update all user items not up to date
-inline void GxUI::updateAllZones(bool force) {
+void GxUI::updateAllZones(bool force) {
     for (zmap::iterator m = fZoneMap.begin(); m != fZoneMap.end(); ++m) {
         clist*	l = m->second;
         for (clist::iterator c = l->begin(); c != l->end(); ++c) {

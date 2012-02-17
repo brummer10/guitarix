@@ -13,10 +13,11 @@ namespace gx_gui {
 StackBoxBuilder::StackBoxBuilder(
     int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
     gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize], MainMenu &mainmenu_,
-    Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_)
+    Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
     : gx_ui::GxUI(), fTop(fTop_), fBox(fBox_), engine(engine_), pmap(pmap_),
       fMode(fMode_), mainmenu(mainmenu_), fWaveView(fWaveView_),
-      convolver_filename_label(convolver_filename_label_) {
+      convolver_filename_label(convolver_filename_label_), ui(ui_),
+      window_icon(window_icon_) {
 }
 
 StackBoxBuilder::~StackBoxBuilder() {
@@ -56,24 +57,20 @@ GtkWidget* StackBoxBuilder::addWidget(const char* label, GtkWidget* w) {
     return w;
 }
 
-void StackBoxBuilder::addSmallJConvFavButton(const char* label) {
-    
-    GtkWidget*     button = gtk_button_new();
-    gtk_widget_set_name(button, "smallbutton");
-    GtkWidget*     lab = gtk_label_new(label);
-    GtkStyle *style = gtk_widget_get_style(lab);
-    pango_font_description_set_size(style->font_desc, 7*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-    gtk_widget_modify_font(lab, style->font_desc);
-    gtk_container_add(GTK_CONTAINER(button), lab);
-    //gtk_widget_set_size_request(GTK_WIDGET(button),-1,14);
-    gtk_widget_set_name(lab, "rack_label");
-    addWidget(label, button);
-    gtk_widget_show(lab);
-
-    g_signal_connect(GTK_OBJECT(button), "clicked",
-                      G_CALLBACK(gx_jconv::gx_show_fav),
-                      (gpointer) NULL);
+void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw) {
+    Gtk::Button *button = new Gtk::Button();
+    button->set_name("smallbutton");
+    Gtk::Label *lab = new Gtk::Label(label);
+    Pango::FontDescription font = lab->get_style()->get_font();
+    font.set_size(7*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_NORMAL);
+    lab->modify_font(font);
+    button->add(*manage(lab));
+    lab->set_name("rack_label");
+    addWidget(label, GTK_WIDGET(button->gobj()));
+    lab->show();
+    button->signal_clicked().connect(
+	sigc::mem_fun(*irw, &gx_jconv::IRWindow::on_show_button_clicked));
 }
 
 void StackBoxBuilder::openSetLabelBox() {
@@ -92,46 +89,36 @@ void StackBoxBuilder::openSetLabelBox() {
     pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
 }
 
-void StackBoxBuilder::addJConvFavButton(const char* label) {
-    
-    GtkWidget*     button = gtk_button_new();
-
-    GtkWidget*     lab = gtk_label_new(label);
-    GtkStyle *style = gtk_widget_get_style(lab);
-    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-    gtk_widget_modify_font(lab, style->font_desc);
-    gtk_container_add(GTK_CONTAINER(button), lab);
-
-    gtk_widget_set_name(lab, "beffekt_label");
-    addWidget(label, button);
-    gtk_widget_show(lab);
-
-    
-    g_signal_connect(GTK_OBJECT(button), "clicked",
-                      G_CALLBACK(gx_jconv::gx_show_fav),
-                      (gpointer) NULL);
+void StackBoxBuilder::addJConvFavButton(const char* label, gx_jconv::IRWindow *irw) {
+    Gtk::Button *button = new Gtk::Button();
+    Gtk::Label *lab = new Gtk::Label(label);
+    Pango::FontDescription font = lab->get_style()->get_font();
+    font.set_size(10*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_NORMAL);
+    lab->modify_font(font);
+    button->add(*manage(lab));
+    lab->set_name("beffekt_label");
+    addWidget(label, GTK_WIDGET(button->gobj()));
+    lab->show();
+    button->signal_clicked().connect(
+	sigc::mem_fun(*irw, &gx_jconv::IRWindow::on_show_button_clicked));
 }
 
-void StackBoxBuilder::addJConvButton(const char* label, float* zone) {
+void StackBoxBuilder::addJConvButton(const char* label, float* zone, gx_jconv::IRWindow *irw) {
     *zone = 0.0;
-    GtkWidget*     button = gtk_button_new();
-
-    GtkWidget*     lab = gtk_label_new(label);
-    GtkStyle *style = gtk_widget_get_style(lab);
-    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-    gtk_widget_modify_font(lab, style->font_desc);
-    gtk_container_add(GTK_CONTAINER(button), lab);
-
-    gtk_widget_set_name(lab, "beffekt_label");
-    addWidget(label, button);
-    gtk_widget_show(lab);
-
-    uiButton* c = new uiButton(this, zone, GTK_BUTTON(button));
-    g_signal_connect(GTK_OBJECT(button), "clicked",
-                      G_CALLBACK(gx_jconv::gx_show_jconv_dialog_gui),
-                      (gpointer) c);
+    Gtk::Button *button = new Gtk::Button();
+    Gtk::Label *lab = new Gtk::Label(label);
+    Pango::FontDescription font = lab->get_style()->get_font();
+    font.set_size(10*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_NORMAL);
+    lab->modify_font(font);
+    button->add(*manage(lab));
+    lab->set_name("beffekt_label");
+    addWidget(label, GTK_WIDGET(button->gobj()));
+    lab->show();
+    new uiButton(this, zone, button->gobj()); //FIXME
+    button->signal_clicked().connect(
+	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
 }
 
 void StackBoxBuilder::addJToggleButton(const char* label, bool* zone) {
@@ -548,8 +535,8 @@ StackBoxBuilderOld::StackBoxBuilderOld(
     gx_engine::ParamMap& pmap_, GtkWidget* fMonoRackContainer_, GtkWidget* fStereoRackContainer_,
     GtkWidget*& rBox_, GtkWidget*& sBox_, GtkWidget*& tBox_, int (&fMode_)[stackSize],
     MainMenu &mainmenu_, Gxw::WaveView &fWaveView_, Glib::RefPtr<Gtk::AccelGroup> fAccelGroup_,
-    Gtk::Label &convolver_filename_label_)
-    : StackBoxBuilder(fTop_, fBox_, engine_, pmap_, fMode_, mainmenu_, fWaveView_, convolver_filename_label_),
+    Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
+    : StackBoxBuilder(fTop_, fBox_, engine_, pmap_, fMode_, mainmenu_, fWaveView_, convolver_filename_label_, ui_, window_icon_),
       rBox(rBox_), sBox(sBox_), tBox(tBox_), fAccelGroup(fAccelGroup_),
       fMonoRackContainer(fMonoRackContainer_), fStereoRackContainer(fStereoRackContainer_) {
 }

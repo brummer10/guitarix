@@ -218,7 +218,7 @@ void StackBoxBuilder::make_rackbox_moog() {
     openStereoRackBox(_("moog"), engine.pluginlist.pos_var("moog"), "moog.on_off", "ui.Moog Filter");
     {
 	openHorizontalhideBox("");
-	create_master_slider("moog.Q", _("            Q            "));
+	create_master_slider("moog.Q", _("Q"));
 	closeBox();
 	openHorizontalTableBox("");
 	{
@@ -277,13 +277,14 @@ void StackBoxBuilder::make_rackbox_tonemodul() {
 }
 
 void StackBoxBuilder::make_rackbox_jconv() {
+    gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.convolver, window_icon);
     openStereoRackBox(_("convolver"), engine.pluginlist.pos_var("jconv"), "jconv.on_off", "ui.Convolver");
     {
 	openHorizontalhideBox("");
 	create_master_slider("jconv.gain", _("gain"));
 	openSpaceBox("");
 	closeBox();
-	addSmallJConvFavButton(_("favourites"));
+	addSmallJConvFavButton(_("favourites"), irw);
 	closeBox();
 	openHorizontalBox("");
 	{
@@ -323,8 +324,8 @@ void StackBoxBuilder::make_rackbox_jconv() {
 	    {
 		openSpaceBox("");
 		closeBox();
-		addJConvFavButton(_("favourites"));
-		addJConvButton(_("setup"), &gx_engine::audio.filebutton);
+		addJConvFavButton(_("favourites"), irw);
+		addJConvButton(_("setup"), &gx_engine::audio.filebutton, irw);
 		addJToggleButton(_("run"), &engine.convolver.plugin.on_off);
 		openSpaceBox("");
 		closeBox();
