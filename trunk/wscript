@@ -152,12 +152,6 @@ def set_options(opt):
     opt.recurse('glade-gxw')
 
     opt.tool_options('compiler_cc') # for pygxw and glade-gxw
-    opt.add_option('--no-pkg',
-                   action='store_const',
-                   default=False,
-                   const=True,
-                   help=("don't include debian directory in tarfile"
-                         " (option only for command 'dist')"))
 
 
 ################################################################
@@ -692,36 +686,51 @@ def update_pot(ctx):
     "extract all text for localization into po/untitled.pot"
     Utils.exec_command("cd po && intltool-update -p")
 
+dir_prefix = "guitarix"
+tar_prefix = "guitarix2"
+tar_ext = ".tar.bz2"
+
 def dist(ctx):
     "makes a tarball for redistributing the sources"
-    try:
-        import pysvn
-    except ImportError:
-        raise Utils.WafError("you need to install pysvn to use the dist command"
-                             " (debian package python-svn)")
-    version = Utils.g_module.VERSION
-    import Options
-    if Options.options.no_pkg:
-        version += '-nopkg'
-    Scripting.dist(version=version)
+    d = dict(v=VERSION, d=dir_prefix, p=tar_prefix, e=tar_ext)
+    if Utils.exec_command("git show-ref --verify --quiet --tags refs/tags/V%(v)s" % d) != 0:
+        raise Utils.WafError(
+            "tag 'V%(v)s' not found: please create revision tag" % d)
+    Utils.exec_command(
+        "git archive --prefix=%(d)s-%(v)s/ refs/tags/V%(v)s ."
+        " | bzip2 > %(p)s-%(v)s%(e)s" % d)
 
-def copytree(src,dst,build_dir):
-    "replacement for the standard copytree implicitely used by dist"
-    import pysvn
-    import Options
-    no_pkg = Options.options.no_pkg
-    entries = pysvn.Client().info2(".")
-    os.mkdir(dst)
-    for srcname, info in entries:
-        if srcname == ".":
-            continue
-        if no_pkg and srcname.startswith("debian"):
-            continue
-        dstname=os.path.join(dst,srcname)
-        if os.path.isdir(srcname):
-            os.mkdir(dstname)
+def distcheck(ctx):
+    '''checks if the sources compile (tarball from 'dist')'''
+    import tempfile, tarfile
+    waf = os.path.abspath(sys.argv[0])
+    d = dict(v=VERSION, d=dir_prefix, p=tar_prefix, e=tar_ext)
+    tarball = "%(p)s-%(v)s%(e)s" % d
+    path = "%(d)s-%(v)s" % d
+    if os.path.exists(path):
+        try:
+            raw_input("%s exists, press enter to remove (stop with Ctrl-C)\n" % path)
+        except KeyboardInterrupt:
+            print
+            raise Utils.WafError('distcheck cancelled')
+            return
         else:
-            shutil.copy2(srcname,dstname)
-
-# There doesn't seem to be a hook so just patch it in
-Scripting.copytree = copytree
+            print "removing %s" % path
+        shutil.rmtree(path)
+    print "creating tarball and extracting files into %s" % path
+    dist(ctx)
+    t = tarfile.open(tarball)
+    for x in t:
+        t.extract(x)
+    t.close()
+    build_path = path
+    instdir = tempfile.mkdtemp('.inst', path)
+    cmdargs = [waf,'configure','build','install','uninstall','--destdir='+instdir]
+    print 'starting "%s"' % (" ".join(cmdargs))
+    print
+    ret = Utils.pproc.Popen(cmdargs, cwd=build_path).wait()
+    if ret:
+        raise Utils.WafError('distcheck failed with code %i'%ret)
+    if os.path.exists(instdir):
+        raise Utils.WafError('distcheck succeeded, but files were left in %s'%instdir)
+    shutil.rmtree(path)
