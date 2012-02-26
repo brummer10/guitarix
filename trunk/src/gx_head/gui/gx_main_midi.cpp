@@ -47,7 +47,7 @@ void MidiControllerTable::response_cb(GtkWidget *widget, gint response_id, gpoin
             gtk_tree_path_free(reinterpret_cast<GtkTreePath*>(p->data));
         }
         g_list_free(list);
-        m.load();
+	gx_engine::controller_map.signal_changed()();
         return;
     }
     m.menuitem.set_active(false);

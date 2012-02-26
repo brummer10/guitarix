@@ -267,6 +267,212 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
 
 
 /****************************************************************
+ ** class PluginPresetList
+ */
+
+PluginPresetList::PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap_)
+    : Glib::Object(), filename(fname), pmap(pmap_), is(), jp(&is) {
+}
+
+Glib::RefPtr<PluginPresetList> PluginPresetList::create(const std::string& fname, gx_engine::ParamMap& pmap) {
+    return Glib::RefPtr<PluginPresetList>(new PluginPresetList(fname, pmap));
+}
+
+bool PluginPresetList::start() {
+    is.close();
+    is.open(filename.c_str());
+    jp.set_streampos(0);
+    if (is.fail()) {
+	return false;
+    }
+    try {
+	jp.next(gx_system::JsonParser::begin_array);
+	jp.next(gx_system::JsonParser::value_string);
+	if (jp.current_value() != "gx_plugin_version") {
+	    throw gx_system::JsonException("invalid gx_plugin file header");
+	}
+	jp.next(gx_system::JsonParser::value_number);
+    } catch (gx_system::JsonException& e) {
+	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	return false;
+    }
+    return true;
+}
+
+bool PluginPresetList::next(Glib::ustring& name, bool *is_set) {
+    try {
+	if (jp.peek() == gx_system::JsonParser::end_array) {
+	    name = "";
+	    if (is_set) {
+		*is_set = false;
+	    }
+	    return false;
+	}
+	jp.next(gx_system::JsonParser::value_string);
+	name = jp.current_value();
+	if (is_set) {
+	    jp.next(gx_system::JsonParser::begin_object);
+	    *is_set = true;
+	    while (jp.peek() != gx_system::JsonParser::end_object) {
+		jp.next(gx_system::JsonParser::value_key);
+		gx_engine::Parameter& p = pmap[jp.current_value()];
+		p.readJSON_value(jp);
+		if (!p.compareJSON_value()) {
+		    *is_set = false;
+		}
+	    }
+	    jp.next(gx_system::JsonParser::end_object);
+	} else {
+	    jp.skip_object();
+	}
+    } catch (gx_system::JsonException& e) {
+	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	return false;
+    }
+    return true;
+}
+
+void PluginPresetList::set(const Glib::ustring& name) {
+    gx_engine::paramlist plist;
+    if (!start()) {
+	return;
+    }
+    try {
+	while (jp.peek() != gx_system::JsonParser::end_array) {
+	    jp.next(gx_system::JsonParser::value_string);
+	    if (jp.current_value() != name) {
+		jp.skip_object();
+	    } else {
+		jp.next(gx_system::JsonParser::begin_object);
+		while (jp.peek() != gx_system::JsonParser::end_object) {
+		    jp.next(gx_system::JsonParser::value_key);
+		    gx_engine::Parameter& p = pmap[jp.current_value()];
+		    p.readJSON_value(jp);
+		    plist.push_back(&p);
+		}
+		jp.next(gx_system::JsonParser::end_object);
+	    }
+	}
+	jp.next(gx_system::JsonParser::end_array);
+	jp.next(gx_system::JsonParser::end_token);
+    } catch (gx_system::JsonException& e) {
+	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	return;
+    }
+    gx_engine::controller_map.remove_controlled_parameters(plist, 0);
+    for (gx_engine::paramlist::iterator i = plist.begin(); i != plist.end(); ++i) {
+        (*i)->setJSON_value();
+    }
+}
+
+static const int GX_PLUGIN_VERSION = 1;
+
+void PluginPresetList::write_values(gx_system::JsonWriter& jw, std::string id) {
+    //FIXME
+    id += ".";
+    string on_off = id + "on_off";
+    string pp = id + "pp";
+    jw.begin_object(true);
+    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
+	if (i->first.compare(0, id.size(), id) == 0) {
+	    if (i->second->isControllable()) {
+		if (i->first != on_off && i->first != pp) {
+		    i->second->writeJSON(jw);
+		    jw.newline();
+		}
+	    }
+	}
+    }
+    jw.end_object(true);
+}
+
+void PluginPresetList::save(const Glib::ustring& name, const std::string& id) {
+    try {
+	std::string tmpfile(filename + "_tmp");
+	ofstream os(tmpfile.c_str());
+	gx_system::JsonWriter jw(&os);
+	jw.begin_array();
+	jw.write("gx_plugin_version");
+	jw.write(GX_PLUGIN_VERSION, true);
+	bool found = false;
+	if (start()) {
+	    while (jp.peek() != gx_system::JsonParser::end_array) {
+		jp.next(gx_system::JsonParser::value_string);
+		jw.write(jp.current_value());
+		if (jp.current_value() == name) {
+		    found = true;
+		    write_values(jw, id);
+		    jp.skip_object();
+		} else {
+		    jp.copy_object(jw);
+		}
+	    }
+	}
+	if (!found) {
+	    jw.write(name);
+	    write_values(jw, id);
+	}
+	jw.end_array(true);
+	jw.close();
+	os.close();
+	if (!os.good()) {
+	    gx_system::gx_print_error(_("save plugin preset"),
+				      boost::format(_("couldn't write %1%")) % tmpfile);
+	    return;
+	}
+	int rc = rename(tmpfile.c_str(), filename.c_str());
+	if (rc != 0) {
+	    gx_system::gx_print_error(_("save plugin preset"),
+				      boost::format(_("couldn't rename %1% to %2%"))
+				      % tmpfile % filename);
+	}
+    } catch (gx_system::JsonException& e) {
+	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+    }
+}
+
+void PluginPresetList::remove(const Glib::ustring& name) {
+    try {
+	std::string tmpfile(filename + "_tmp");
+	ofstream os(tmpfile.c_str());
+	gx_system::JsonWriter jw(&os);
+	jw.begin_array();
+	jw.write("gx_plugin_version");
+	jw.write(GX_PLUGIN_VERSION, true);
+	if (start()) {
+	    while (jp.peek() != gx_system::JsonParser::end_array) {
+		jp.next(gx_system::JsonParser::value_string);
+		if (jp.current_value() == name) {
+		    jp.skip_object();
+		} else {
+		    jw.write(jp.current_value());
+		    jp.copy_object(jw);
+		}
+	    }
+	    jp.next(gx_system::JsonParser::end_array);
+	    jp.next(gx_system::JsonParser::end_token);
+	}
+	jw.end_array(true);
+	jw.close();
+	os.close();
+	if (!os.good()) {
+	    gx_system::gx_print_error(_("save plugin preset"),
+				      boost::format(_("couldn't write %1%")) % tmpfile);
+	    return;
+	}
+	int rc = rename(tmpfile.c_str(), filename.c_str());
+	if (rc != 0) {
+	    gx_system::gx_print_error(_("save plugin preset"),
+				      boost::format(_("couldn't rename %1% to %2%"))
+				      % tmpfile % filename);
+	}
+    } catch (gx_system::JsonException& e) {
+	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+    }
+}
+
+
+/****************************************************************
  ** GxSettings
  */
 
@@ -279,9 +485,10 @@ static const char *bank_list = "banklist.js";
 
 GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, gx_engine::ConvolverAdapter& cvr,
 		       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl,
-		       gx_engine::ModuleSequencer& seq_, gx_engine::ParamMap& param)
+		       gx_engine::ModuleSequencer& seq_, gx_engine::ParamMap& param_)
     : sigc::trackable(),
       GxSettingsBase(seq_),
+      param(param_),
       preset_io(mctrl, cvr, param, opt),
       state_io(mctrl, cvr, param, mstdctr, jack_, opt),
       presetfile_parameter(*param.reg_filepar("system.current_preset_file")),
@@ -489,6 +696,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
     if (check_create_config_dir(opt.get_user_dir())) {
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
+	check_create_config_dir(opt.get_pluginpreset_dir());
 	std::string fname = gx_jack::GxJack::get_default_instancename() + statename_postfix;
 	if (access(Glib::build_filename(opt.get_old_user_dir(), fname).c_str(), R_OK) == 0) {
 	    copied_from_old = true;
@@ -516,6 +724,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
     } else {
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
+	check_create_config_dir(opt.get_pluginpreset_dir());
     }
     std::string fname = opt.get_preset_filepath(scratchpad_file);
     if (access(fname.c_str(), R_OK) != 0) {
@@ -573,6 +782,10 @@ bool GxSettings::set_preset_file(const string& newfile) {
 	return false;
     }
     return true;
+}
+
+Glib::RefPtr<PluginPresetList> GxSettings::load_plugin_preset_list(const Glib::ustring& id) {
+    return PluginPresetList::create(options.get_pluginpreset_filepath(id), param);
 }
 
 /* ----------------------------------------------------------------*/

@@ -382,7 +382,8 @@ void GxDialogWindowBox::on_dialog_menu_activate() {
     if (!menuitem.get_active()) {
         string group = group_id;
         group += ".on_off";
-        gx_engine::parameter_map[group].set_std_value();
+        gx_engine::parameter_map[group].stdJSON_value();
+        gx_engine::parameter_map[group].setJSON_value();
     }
 }
 
@@ -446,7 +447,8 @@ void GxTunerRackBox::on_dialog_menu_activate() {
     if (!menuitem.get_active()) {
         string group = group_id;
         group += ".on_off";
-        gx_engine::parameter_map[group].set_std_value();
+        gx_engine::parameter_map[group].stdJSON_value();
+        gx_engine::parameter_map[group].setJSON_value();
     }
 }
 

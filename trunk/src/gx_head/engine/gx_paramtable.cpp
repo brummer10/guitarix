@@ -257,7 +257,6 @@ MidiControllerList::MidiControllerList()
       midi_config_mode(false),
       last_midi_control(-1),
       program_change(-1),
-      program_change_sem(),
       pgm_chg(),
       changed(),
       new_program() {
@@ -632,8 +631,8 @@ void FloatParameter::set(float n, float high, float llimit, float ulimit) {
     }
 }
 
-void FloatParameter::set_std_value() {
-    *value = std_value;
+void FloatParameter::stdJSON_value() {
+    json_value = std_value;
 }
 
 void FloatParameter::writeJSON(gx_system::JsonWriter& jw) {
@@ -644,6 +643,10 @@ void FloatParameter::writeJSON(gx_system::JsonWriter& jw) {
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_float();
+}
+
+bool FloatParameter::compareJSON_value() {
+    return json_value == *value;
 }
 
 void FloatParameter::setJSON_value() {
@@ -745,8 +748,8 @@ void IntParameter::set(float n, float high, float llimit, float ulimit) {
     }
 }
 
-void IntParameter::set_std_value() {
-    *value = std_value;
+void IntParameter::stdJSON_value() {
+    json_value = std_value;
 }
 
 void IntParameter::writeJSON(gx_system::JsonWriter& jw) {
@@ -757,6 +760,10 @@ void IntParameter::writeJSON(gx_system::JsonWriter& jw) {
 void IntParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_int();
+}
+
+bool IntParameter::compareJSON_value() {
+    return json_value == *value;
 }
 
 void IntParameter::setJSON_value() {
@@ -848,8 +855,8 @@ void UIntParameter::set(float n, float high, float llimit, float ulimit) {
     }
 }
 
-void UIntParameter::set_std_value() {
-    *value = std_value;
+void UIntParameter::stdJSON_value() {
+    json_value = std_value;
 }
 
 void UIntParameter::writeJSON(gx_system::JsonWriter& jw) {
@@ -860,6 +867,10 @@ void UIntParameter::writeJSON(gx_system::JsonWriter& jw) {
 void UIntParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_uint();
+}
+
+bool UIntParameter::compareJSON_value() {
+    return json_value == *value;
 }
 
 void UIntParameter::setJSON_value() {
@@ -940,8 +951,8 @@ void BoolParameter::set(float n, float high, float llimit, float ulimit) {
     }
 }
 
-void BoolParameter::set_std_value() {
-    *value = std_value;
+void BoolParameter::stdJSON_value() {
+    json_value = std_value;
 }
 
 void BoolParameter::writeJSON(gx_system::JsonWriter& jw) {
@@ -952,6 +963,10 @@ void BoolParameter::writeJSON(gx_system::JsonWriter& jw) {
 void BoolParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_int();
+}
+
+bool BoolParameter::compareJSON_value() {
+    return json_value == *value;
 }
 
 void BoolParameter::setJSON_value() {
@@ -972,8 +987,8 @@ void *SwitchParameter::zone() {
     return &value;
 }
 
-void SwitchParameter::set_std_value() {
-    set(std_value);
+void SwitchParameter::stdJSON_value() {
+    json_value = std_value;
 }
 
 void SwitchParameter::set(float n, float high, float llimit, float ulimit) {
@@ -988,6 +1003,10 @@ void SwitchParameter::writeJSON(gx_system::JsonWriter& jw) {
 void SwitchParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_int();
+}
+
+bool SwitchParameter::compareJSON_value() {
+    return json_value == value;
 }
 
 void SwitchParameter::setJSON_value() {
@@ -1022,11 +1041,8 @@ void FileParameter::set_standard(const string& filename) {
     }
 }
 
-void FileParameter::set_std_value() {
-    if (is_equal(std_value)) {
-	return;
-    }
-    set(std_value->dup());
+void FileParameter::stdJSON_value() {
+    json_value = std_value->dup();
     changed();
 }
 
@@ -1046,6 +1062,10 @@ void FileParameter::writeJSON(gx_system::JsonWriter& jw) {
 void FileParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_string);
     json_value = Gio::File::create_for_path(jp.current_value());
+}
+
+bool FileParameter::compareJSON_value() {
+    return json_value->get_path() == value->get_path(); //FIXME
 }
 
 void FileParameter::setJSON_value() {
@@ -1108,8 +1128,8 @@ void StringParameter::set(float n, float high, float llimit, float ulimit) {
     assert(false);
 }
 
-void StringParameter::set_std_value() {
-    *value = std_value;
+void StringParameter::stdJSON_value() {
+    json_value = std_value;
 }
 
 void StringParameter::writeJSON(gx_system::JsonWriter& jw) {
@@ -1120,6 +1140,10 @@ void StringParameter::writeJSON(gx_system::JsonWriter& jw) {
 void StringParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_string);
     json_value = jp.current_value();
+}
+
+bool StringParameter::compareJSON_value() {
+    return json_value == *value;
 }
 
 void StringParameter::setJSON_value() {
@@ -1244,7 +1268,8 @@ void ParamMap::insert(Parameter* param) {
 
 void ParamMap::set_init_values() {
     for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
-        i->second->set_std_value();
+        i->second->stdJSON_value();
+	i->second->setJSON_value();
     }
 }
 } // namespace gx_gui

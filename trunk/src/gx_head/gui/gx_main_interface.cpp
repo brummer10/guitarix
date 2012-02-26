@@ -2560,7 +2560,8 @@ void GxMainInterface::gx_midi_out() {
         //gx_engine::turnOnMidi();//FIXME
     } else {
         //gx_engine::turnOffMidi();//FIXME
-        pmap["midi_out.on_off"].set_std_value();
+        pmap["midi_out.on_off"].stdJSON_value();
+        pmap["midi_out.on_off"].setJSON_value();
     }
     first =false;
     engine.set_rack_changed();

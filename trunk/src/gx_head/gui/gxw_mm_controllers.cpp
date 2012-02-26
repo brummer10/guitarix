@@ -310,7 +310,8 @@ void UiSwitchFloat::reflectZone() {
 UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, gx_engine::FloatParameter &param)
     : UiSwitch(sw_type),
       gx_ui::GxUiItemFloat(&ui, &param.get_value()) {
-    param.set_std_value();
+    param.stdJSON_value();
+    param.setJSON_value();
     set_active(param.get_value() != 0.0);
     cp_set_var(param.id());
     this->set_tooltip_text(param.id().substr( param.id().find_last_of(".")+1).c_str());
@@ -334,7 +335,8 @@ void UiSwitchBool::reflectZone() {
 UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, gx_engine::BoolParameter &param)
     : UiSwitch(sw_type),
       gx_ui::GxUiItemBool(&ui, &param.get_value()) {
-    param.set_std_value();
+    param.stdJSON_value();
+    param.setJSON_value();
     set_active(param.get_value());
     cp_set_var(param.id());
     char s[64];

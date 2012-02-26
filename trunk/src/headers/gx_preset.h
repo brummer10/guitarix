@@ -72,8 +72,26 @@ public:
     void write_state(gx_system::JsonWriter &jw, bool preserve_preset);
 };
 
+class PluginPresetList: public Glib::Object {
+private:
+    std::string filename;
+    gx_engine::ParamMap& pmap;
+    ifstream is;
+    gx_system::JsonParser jp;
+    PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap);
+public:
+    static Glib::RefPtr<PluginPresetList> create(const std::string& fname, gx_engine::ParamMap& pmap);
+    bool start();
+    bool next(Glib::ustring& name, bool *is_set = 0);
+    void set(const Glib::ustring& name);
+    void write_values(gx_system::JsonWriter& jw, std::string id);
+    void save(const Glib::ustring& name, const std::string& id);
+    void remove(const Glib::ustring& name);
+};
+
 class GxSettings: public sigc::trackable, public gx_system::GxSettingsBase {
 private:
+    gx_engine::ParamMap&  param;
     gx_preset::PresetIO   preset_io;
     gx_preset::StateIO    state_io;
     gx_engine::FileParameter& presetfile_parameter;
@@ -107,12 +125,13 @@ public:
     void disable_autosave(bool v) { no_autosave = v; }
     void auto_save_state();
     static GxSettings& get_instance() { assert(instance); return *instance; }
-    void set_std_presetfile() { presetfile_parameter.set_std_value(); }
+    void set_std_presetfile() { presetfile_parameter.stdJSON_value(); presetfile_parameter.setJSON_value(); }
     string get_preset_filename() { return presetfile_parameter.get_path(); }
     bool set_preset_file(const string& newfile);
     string get_preset_dirname() { return presetfile_parameter.get_directory_path(); }
     void copy_preset_file(const string& destination) { presetfile_parameter.copy(destination); }
     sigc::signal<void>& signal_presetfile_changed() { return presetfile_parameter.signal_changed(); }
+    Glib::RefPtr<PluginPresetList> load_plugin_preset_list(const Glib::ustring& id);
 };
 
 /* --------------------------------------------------------------------- */

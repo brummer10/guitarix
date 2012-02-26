@@ -58,6 +58,8 @@ def build(bld):
         './builder/crybaby_ui.glade',
         './builder/amp.tonestack_ui.glade',
         './builder/tremolo_ui.glade',
+        './builder/pluginpreset_inputwindow.glade',
+        './builder/pluginpreset_listwindow.glade',
         ]
 
     sources = sources_engine + sources_gui

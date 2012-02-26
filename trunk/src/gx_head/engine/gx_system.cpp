@@ -204,6 +204,7 @@ CmdlineOptions::CmdlineOptions()
       user_dir(),
       old_user_dir(),
       preset_dir(),
+      pluginpreset_dir(),
       plugin_dir(),
       sys_IR_dir(GX_SOUND_DIR),
       IR_pathlist(),
@@ -219,10 +220,12 @@ CmdlineOptions::CmdlineOptions()
     user_dir = old_user_dir;
     plugin_dir = user_dir;
     preset_dir = user_dir;
+    pluginpreset_dir = user_dir;
 #else
     user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
     plugin_dir = Glib::build_filename(user_dir, "plugins");
     preset_dir = Glib::build_filename(user_dir, "banks");
+    pluginpreset_dir = Glib::build_filename(user_dir, "pluginpresets");
 #endif
     const char *tmp = getenv("GUITARIX2JACK_OUTPUTS1");
     if (tmp && *tmp) {
@@ -421,6 +424,7 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(pixmap_dir);
     make_ending_slash(user_dir);
     make_ending_slash(preset_dir);
+    make_ending_slash(pluginpreset_dir);
     make_ending_slash(plugin_dir);
     make_ending_slash(sys_IR_dir);
 

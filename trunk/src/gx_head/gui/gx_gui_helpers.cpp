@@ -99,12 +99,14 @@ void gx_show_about() {
 void gx_reset_units(gx_engine::ParamMap& pmap, Glib::ustring group_id) {
     group_id += ".";
     string on_off = group_id + "on_off";
+    string pp = group_id + "pp";
     for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
         if (i->first.compare(0, group_id.size(), group_id) == 0) {
             if (i->second->isControllable()) {
                 string id = i->first;
-                if (i->first != on_off) {
-                    i->second->set_std_value();
+                if (i->first != on_off && i->first != pp) {
+                    i->second->stdJSON_value();
+                    i->second->setJSON_value();
                 }
             }
         }

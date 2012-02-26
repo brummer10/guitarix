@@ -122,34 +122,32 @@ void StackBoxBuilder::addJConvButton(const char* label, float* zone, gx_jconv::I
 }
 
 void StackBoxBuilder::addJToggleButton(const char* label, bool* zone) {
-    GdkColor colorRed;
-    GdkColor colorOwn;
-    gdk_color_parse("#58b45e", &colorRed);
-    gdk_color_parse("#7f7f7f", &colorOwn);
+    Gdk::Color colorRed("#58b45e");
+    Gdk::Color colorOwn("#7f7f7f");
 
     *zone = 0;
-
-    GtkWidget*     button = gtk_toggle_button_new();
-    GtkWidget*     lab = gtk_label_new(label);
-    gtk_widget_set_name(lab, "beffekt_label");
-    GtkStyle *style = gtk_widget_get_style(lab);
-
-    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-    gtk_widget_modify_font(lab, style->font_desc);
-    gtk_container_add(GTK_CONTAINER(button), lab);
-    addWidget(label, button);
-    gtk_widget_show(lab);
+    Gtk::ToggleButton* button = new Gtk::ToggleButton();
+    Gtk::Label* lab = new Gtk::Label(label);
+    lab->set_name("beffekt_label");
+    Pango::FontDescription font = lab->get_style()->get_font();
+    font.set_size(10*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_BOLD);
+    lab->modify_font(font);
+    button->add(*manage(lab));
+    addWidget(label, GTK_WIDGET(button->gobj()));
+    lab->show();
 
     uiToggleButton* c =
-        new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
+        new uiToggleButton(this, zone, button->gobj());
 
-    gtk_widget_modify_bg(button, GTK_STATE_NORMAL, &colorOwn);
-    gtk_widget_modify_bg(button, GTK_STATE_ACTIVE, &colorRed);
+    button->modify_bg(Gtk::STATE_NORMAL, colorOwn);
+    button->modify_bg(Gtk::STATE_ACTIVE, colorRed);
 
-    g_signal_connect(GTK_OBJECT(button), "toggled",
+    g_signal_connect(GTK_OBJECT(button->gobj()), "toggled",
                      G_CALLBACK(uiToggleButton::toggled), (gpointer) c);
-    connect_midi_controller(button, zone);
+    button->signal_toggled().connect(
+	sigc::mem_fun(engine, &gx_engine::GxEngine::set_rack_changed));
+    connect_midi_controller(GTK_WIDGET(button->gobj()), zone);
 }
 
 void StackBoxBuilder::create_selector(string id, const char *widget_name) {

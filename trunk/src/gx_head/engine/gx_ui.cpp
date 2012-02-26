@@ -38,6 +38,9 @@ GxUI::GxUI() {
 
 GxUI::~GxUI() {
     fGuiList.remove(this);
+    for (zmap::iterator i = fZoneMap.begin(); i != fZoneMap.end(); ++i) {
+	delete i->second;
+    }
 }
 
 // -- registerZone(z,c) : zone management
