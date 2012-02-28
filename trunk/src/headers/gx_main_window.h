@@ -606,8 +606,8 @@ private:
     void on_miditable_toggle();
     void on_portmap_activate();
     void on_portmap_response(int);
-    void connect_jack(bool v);
-    bool start_jack();
+    bool connect_jack(bool v);
+    int start_jack();
     void add_skin_menu();
     void change_skin(Glib::RefPtr<Gtk::RadioAction> action);
     void change_skin_idx(unsigned int idx);

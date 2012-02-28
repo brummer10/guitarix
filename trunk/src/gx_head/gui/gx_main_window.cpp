@@ -2700,7 +2700,10 @@ void MainWindow::on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& 
 }
 
 void MainWindow::jack_connection() {
-    connect_jack(jackserverconnection_action->get_active());
+    bool v = jackserverconnection_action->get_active();
+    if (!connect_jack(v)) {
+	jackserverconnection_action->set_active(!v);
+    }
 }
 
 void MainWindow::on_portmap_response(int) {
@@ -3347,17 +3350,21 @@ bool MainWindow::update_all_gui() {
     return true;
 }
 
-bool MainWindow::start_jack() {
+// start_jack() returns:
+// 1:  success
+// 0:  fail
+// -1: no start command configured
+int MainWindow::start_jack() {
     gx_engine::EnumParameter& jack_starter = pmap["ui.jack_starter_idx"].getEnum();
     string v_id = jack_starter.get_pair().value_id;
     if (v_id == "autostart") {
-	return jack.gx_jack_connection(true, true);
+	return jack.gx_jack_connection(true, true) ? 1 : 0;
     }
     string cmd;
     if (v_id == "other") {
 	cmd = pmap["ui.jack_starter"].getString().get_value();
 	if (cmd.empty()) {
-	    return true;
+	    return -1;
 	}
     } else if (v_id == "qjackctl") {
 	cmd = "qjackctl --start";
@@ -3367,39 +3374,42 @@ bool MainWindow::start_jack() {
     gx_system::gx_system_call(cmd, true, true);
     for (int i = 0; i < 10; i++) {
 	if (jack.gx_jack_connection(true,false)) {
-	    return true;
+	    return 1;
 	}
 	usleep(500000);
     }
     gx_system::gx_print_error(
 	_("main"),
 	string(_("I really tried to get jack up and running, sorry ... ")));
-    return false;
+    return 0;
 }
 
-void MainWindow::connect_jack(bool v) {
+bool MainWindow::connect_jack(bool v) {
     if (jack.gx_jack_connection(v, false)) {
-	return;
+	return true;
     }
     if (!v) {
 	gx_system::gx_print_error(_("main"), _("can't disconnect jack"));
-	return;
+	return false;
     }
     bool ask = pmap["ui.ask_for_jack_starter"].getSwitch().get();
     if (!ask) {
-	if (start_jack()) {
-	    return;
+	switch (start_jack()) {
+	case 1: return true;   // connected
+	case -1: return false; // no starter, do nothing
+	default: break;        // failed, ask user
 	}
     }
     if (!gx_gui::gx_start_jack_dialog(gx_head_icon)) {
 	gx_system::gx_print_warning(_("main"), string(_("Ignoring jackd ...")));
-	return;
+	return false;
     }
-    start_jack();
+    return start_jack() == 1;
 }
 
 void MainWindow::on_jack_client_changed() {
     bool v = (jack.client != 0);
+    jackserverconnection_action->set_active(v);
     if (v) {
 	window->set_title(jack.get_instancename());
     } else {

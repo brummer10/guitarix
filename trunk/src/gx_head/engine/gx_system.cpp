@@ -598,50 +598,6 @@ GxExit& GxExit::get_instance() {
  ** misc functions
  */
 
-// ----start jack if possible
-bool gx_start_jack() {
-    // first, let's try via qjackctl
-    if (gx_system::gx_system_call("which qjackctl", true) == SYSTEM_OK) {
-        if (gx_system::gx_system_call("qjackctl --start", true, true) == SYSTEM_OK) {
-            sleep(5);
-
-            // let's check it is really running
-            if (gx_system::gx_system_call("pgrep jackd", true) == SYSTEM_OK) {
-                return true;
-            }
-        }
-    }
-
-    // qjackctl not found or not started, let's try .jackdrc
-    string jackdrc = "$HOME/.jackdrc";
-    if (gx_system::gx_system_call("ls " + jackdrc, true, false) == SYSTEM_OK) {
-        // open it
-        jackdrc = string(getenv("HOME")) + string("/") + ".jackdrc";
-        string cmdline = "";
-
-        ifstream f(jackdrc.c_str());
-        if (f.good()) {
-            // should contain only one command line
-            getline(f, cmdline);
-            f.close();
-        }
-
-        // launch jackd
-        if (!cmdline.empty())
-            if (gx_system::gx_system_call(cmdline, true, true) == SYSTEM_OK) {
-
-                sleep(2);
-
-                // let's check it is really running
-                if (gx_system::gx_system_call("pgrep jackd", true) == SYSTEM_OK) {
-                    return true;
-                }
-            }
-    }
-
-    return false;
-}
-
 // ---- gx_head system function
 int gx_system_call(const string& cmd,
                    const bool  devnull,

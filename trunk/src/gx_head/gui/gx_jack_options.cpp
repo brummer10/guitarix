@@ -191,7 +191,7 @@ bool gx_start_jack_dialog(Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
 
     default:
     case GTK_RESPONSE_YES:
-        retstat = true; //gx_system::gx_start_jack();
+        retstat = true;
         break;
     }
 
