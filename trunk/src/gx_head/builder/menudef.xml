@@ -1,0 +1,48 @@
+<ui>
+  <menubar>
+    <menu action="EngineMenu">
+      <menuitem action="EngineMute" />
+      <menuitem action="EngineBypass" />
+      <separator/>
+      <menuitem action="JackServerConnection" />
+      <menuitem action="JackPorts" />
+      <menu action="JackLatency" />
+      <separator/>
+      <menuitem action="MidiController" />
+      <separator/>
+      <menuitem action="Quit" />
+    </menu>
+    <menu action="PresetsMenu">
+      <menuitem action="Presets" />
+    </menu>
+    <menu action="PluginsMenu">
+      <menuitem action="ShowPluginBar" />
+      <menuitem action="RackConfig" />
+      <menuitem action="ShowRack" />
+      <menu action="MonoPlugins"/>
+      <menu action="StereoPlugins"/>
+      <menuitem action="Compress" />
+      <menuitem action="Expand" />
+      <menuitem action="RackV" />
+      <menuitem action="RackH" />
+    </menu>
+    <menu action="TubeMenu">
+    </menu>
+    <menu action="OptionsMenu">
+      <menuitem action="Liveplay" />
+      <menuitem action="Meterbridge"/>
+      <menuitem action="Tuner" />
+      <menuitem action="ShowValues" />
+      <menu action="SkinMenu"/>
+      <menuitem action="JackStartup" />
+      <menuitem action="LoggingBox" />
+      <menuitem action="ShowTooltips" />
+      <menuitem action="MidiInPresets" />
+      <menuitem action="ResetAll" />
+    </menu>
+    <menu action="AboutMenu">
+      <menuitem action="About"/>
+      <menuitem action="Help"/>
+    </menu>
+  </menubar>
+</ui>

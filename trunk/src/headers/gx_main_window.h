@@ -100,6 +100,9 @@ class PluginUI: public gx_ui::GxUiItem {
 private:
     virtual void reflectZone();
     virtual bool hasChanged();
+    Gtk::UIManager::ui_merge_id merge_id;
+    Glib::RefPtr<Gtk::ToggleAction> action;
+    void on_action_toggled();
 public:
     gx_engine::Plugin *plugin;
     Glib::ustring fname;
@@ -124,6 +127,8 @@ public:
     void display(bool v, bool animate);
     void display_new(bool unordered = false);
     inline bool is_displayed();
+    void set_ui_merge_id(Gtk::UIManager::ui_merge_id id) { merge_id = id; }
+    void set_action(Glib::RefPtr<Gtk::ToggleAction>& act);
 };
 
 

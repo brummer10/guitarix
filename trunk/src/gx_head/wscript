@@ -60,6 +60,7 @@ def build(bld):
         './builder/tremolo_ui.glade',
         './builder/pluginpreset_inputwindow.glade',
         './builder/pluginpreset_listwindow.glade',
+        './builder/menudef.xml',
         ]
 
     sources = sources_engine + sources_gui

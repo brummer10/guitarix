@@ -630,7 +630,7 @@ void Liveplay::add_midi_elements() {
 
 PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const char *name,
 		   const Glib::ustring& fname_, const Glib::ustring& tooltip_)
-    : GxUiItem(), plugin(pl.lookup_plugin(name)), fname(fname_),
+    : GxUiItem(), merge_id(0), action(), plugin(pl.lookup_plugin(name)), fname(fname_),
       tooltip(tooltip_), shortname(), icon(), group(), toolitem(), main(main_), rackbox() {
 }
 
@@ -658,6 +658,21 @@ void PluginUI::reflectZone() {
 	if (rackbox->hasOrderDiff()) {
 	    rackbox->get_parent()->check_order();
 	}
+    }
+    action->set_active(plugin->box_visible);
+}
+
+void PluginUI::set_action(Glib::RefPtr<Gtk::ToggleAction>& act)
+{
+    action = act;
+    action->signal_toggled().connect(sigc::mem_fun(*this, &PluginUI::on_action_toggled));
+}
+
+void PluginUI::on_action_toggled() {
+    if (action->get_active()) {
+	display_new();
+    } else {
+	display(false, true);
     }
 }
 
@@ -2684,54 +2699,6 @@ void MainWindow::on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& 
     p->group->set_collapsed(false);
 }
 
-const char *menudef =
-    "<ui>\n"
-    "  <menubar>\n"
-    "    <menu action=\"EngineMenu\">\n"
-    "      <menuitem action=\"EngineMute\" />\n"
-    "      <menuitem action=\"EngineBypass\" />\n"
-    "      <separator/>\n"
-    "      <menuitem action=\"JackServerConnection\" />\n"
-    "      <menuitem action=\"JackPorts\" />\n"
-    "      <menu action=\"JackLatency\" />\n"
-    "      <separator/>\n"
-    "      <menuitem action=\"MidiController\" />\n"
-    "      <separator/>\n"
-    "      <menuitem action=\"Quit\" />\n"
-    "    </menu>\n"
-    "    <menu action=\"PresetsMenu\">\n"
-    "      <menuitem action=\"Presets\" />\n"
-    "    </menu>\n"
-    "    <menu action=\"PluginsMenu\">\n"
-    "      <menuitem action=\"ShowPluginBar\" />\n"
-    "      <menuitem action=\"ShowRack\" />\n"
-    "      <menuitem action=\"Compress\" />\n"
-    "      <menuitem action=\"Expand\" />\n"
-    "      <menuitem action=\"RackV\" />\n"
-    "      <menuitem action=\"RackH\" />\n"
-    "      <menuitem action=\"RackConfig\" />\n"
-    "    </menu>\n"
-    "    <menu action=\"TubeMenu\">\n"
-    "    </menu>\n"
-    "    <menu action=\"OptionsMenu\">\n"
-    "      <menuitem action=\"Liveplay\" />\n"
-    "      <menuitem action=\"Meterbridge\"/>\n"
-    "      <menuitem action=\"Tuner\" />\n"
-    "      <menuitem action=\"ShowValues\" />\n"
-    "      <menu action=\"SkinMenu\"/>\n"
-    "      <menuitem action=\"JackStartup\" />\n"
-    "      <menuitem action=\"LoggingBox\" />\n"
-    "      <menuitem action=\"ShowTooltips\" />\n"
-    "      <menuitem action=\"MidiInPresets\" />\n"
-    "      <menuitem action=\"ResetAll\" />\n"
-    "    </menu>\n"
-    "    <menu action=\"AboutMenu\">\n"
-    "      <menuitem action=\"About\"/>\n"
-    "      <menuitem action=\"Help\"/>\n"
-    "    </menu>\n"
-    "  </menubar>\n"
-    "</ui>\n";
-
 void MainWindow::jack_connection() {
     connect_jack(jackserverconnection_action->get_active());
 }
@@ -3059,6 +3026,8 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
     actiongroup->add(Gtk::Action::create("JackLatency","_Latency"));
     actiongroup->add(Gtk::Action::create("PresetsMenu","_Presets"));
     actiongroup->add(Gtk::Action::create("PluginsMenu","P_lugins"));
+    actiongroup->add(Gtk::Action::create("MonoPlugins","_Mono Plugins"));
+    actiongroup->add(Gtk::Action::create("StereoPlugins","_Stereo Plugins"));
     actiongroup->add(Gtk::Action::create("TubeMenu","_Tube"));
     actiongroup->add(Gtk::Action::create("OptionsMenu","_Options"));
     actiongroup->add(Gtk::Action::create("SkinMenu", _("_Skin...")));
@@ -3163,7 +3132,7 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
 
     // Add the actiongroup to the uimanager
     uimanager->insert_action_group(actiongroup);
-    uimanager->add_ui_from_string(menudef);
+    uimanager->add_ui_from_file(options.get_builder_filepath("menudef.xml"));
 
     add_skin_menu();
     add_latency_menu();
@@ -3318,10 +3287,31 @@ void MainWindow::fill_pluginlist() {
     add_plugin(p, "midi_out");
     l.push_back(new PluginDesc("Misc", p));
 
+    Glib::ustring ui_template =
+	"<menubar><menu action=\"PluginsMenu\"><menu action=\"%1Plugins\"><menu action=\"%2\">"
+	"<menuitem action=\"%3\"/>"
+	"</menu></menu></menu></menubar>";
+    int key = GDK_a;
     for (std::vector<PluginDesc*>::iterator i = l.begin(); i != l.end(); ++i) {
+	int idx = 0;
 	for (std::vector<PluginUI*>::iterator v = (*i)->plugins->begin(); v != (*i)->plugins->end(); ++v) {
 	    PluginUI *pui = *v;
 	    plugin_dict[pui->get_id()] = pui;
+	    const char *tp = (pui->get_type() == PLUGIN_TYPE_MONO ? "Mono" : "Stereo");
+	    Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", (*i)->group);
+	    Glib::ustring actionname = Glib::ustring::compose("Plugin_%1", pui->get_id());
+	    pui->set_ui_merge_id(uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, tp, groupname, actionname)));
+	    if (idx++ == 0) {
+		actiongroup->add(Gtk::Action::create(groupname, (*i)->group));
+	    }
+	    Glib::RefPtr<Gtk::ToggleAction> act = Gtk::ToggleAction::create(actionname, pui->get_name());
+	    if (key <= GDK_z) {
+		actiongroup->add(act, Gtk::AccelKey(gx_system::to_string((char)key)));
+		++key;
+	    } else {
+		actiongroup->add(act);
+	    }
+	    pui->set_action(act);
 	}
     }
     make_icons(plugin_dict, options);
