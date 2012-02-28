@@ -1128,7 +1128,7 @@ void PresetWindow::on_preset_select(bool v) {
 	autosize();
 	vpaned_pos = main_vpaned->get_allocation().get_height();
 	vpaned_target = vpaned_pos - paned_child_height;
-	if (animate) {
+	if (animate && main_vpaned->get_mapped()) {
 	    main_vpaned->set_position(vpaned_pos);
 	    vpaned_step = paned_child_height / 5;
 	    preset_scrolledbox->show();
@@ -1141,7 +1141,7 @@ void PresetWindow::on_preset_select(bool v) {
 	}
     } else {
 	vpaned_target = main_vpaned->get_allocation().get_height();
-	if (animate) {
+	if (animate && main_vpaned->get_mapped()) {
 	    vpaned_pos = main_vpaned->get_position();
 	    paned_child_height = vpaned_target - vpaned_pos;
 	    vpaned_step = paned_child_height / 5;

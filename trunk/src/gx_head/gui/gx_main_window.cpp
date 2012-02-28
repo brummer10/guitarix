@@ -648,6 +648,7 @@ bool PluginUI::hasChanged() {
 }
 
 void PluginUI::reflectZone() {
+    action->set_active(plugin->box_visible);
     if ((plugin->box_visible || plugin->on_off) != is_displayed()) {
 	display(plugin->box_visible, false);
     }
@@ -669,6 +670,9 @@ void PluginUI::set_action(Glib::RefPtr<Gtk::ToggleAction>& act)
 }
 
 void PluginUI::on_action_toggled() {
+    if ((plugin->box_visible || plugin->on_off) != is_displayed()) {
+	return; // call triggered by reflectZone
+    }
     if (action->get_active()) {
 	display_new();
     } else {
