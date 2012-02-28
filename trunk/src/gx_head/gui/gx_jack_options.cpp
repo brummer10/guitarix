@@ -150,7 +150,7 @@ void ReportXrun::run() {
  */
 
 // ----- pop up a dialog for starting jack
-bool gx_start_jack_dialog() {
+bool gx_start_jack_dialog(Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
     // --- run dialog and check response
     const guint nchoices    = 3;
 
@@ -174,7 +174,8 @@ bool gx_start_jack_dialog() {
             nchoices,
             labels,
             responses,
-            GTK_RESPONSE_YES);
+            GTK_RESPONSE_YES,
+	    gw_ib);
 
     // we are cancelling
     bool retstat = false;

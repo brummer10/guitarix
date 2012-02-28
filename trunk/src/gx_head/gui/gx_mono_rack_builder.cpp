@@ -19,7 +19,6 @@
 *
 *    This file is a part ofthe gx_head interface builder
 *    and build the mono effect rack,
-*    it's a part of the class GxMainInterface
 *
 * ----------------------------------------------------------------------------
 */
@@ -31,7 +30,7 @@
 // -------- the gx_head user interface build instruktions
 
 namespace gx_gui {
-
+#if 0
 class RackTunerBox: public sigc::trackable {
 private:
     static struct TuningTab {
@@ -212,6 +211,7 @@ void StackBoxBuilder::make_rackbox_ampdetail() {
     }
     closeBox();
 }
+#endif
 
 void StackBoxBuilder::make_rackbox_low_highpass() {
     // low high pass filter
@@ -1068,6 +1068,7 @@ void StackBoxBuilder::make_rackbox_midi_out() {
     closeBox();
 }
 
+#if 0
 void GxMainInterface::gx_build_mono_rack(StackBoxBuilderOld& bb) {
     /** This is the fixed box on top of the mono rack, it include fixed effect modules
      * witch can't move (make no sense to move them arround). Right now it is the noisegate,
@@ -1107,4 +1108,5 @@ void GxMainInterface::gx_build_mono_rack(StackBoxBuilderOld& bb) {
     }
     closeBox();
 }  // close mono rack
+#endif
 } // end namespace gx_gui

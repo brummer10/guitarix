@@ -31,22 +31,6 @@ namespace gx_engine {
 
 /* -- guitarix main engine -- */
 
-/****************************************************************/
-
-class AudioVariables {
-public:
-    bool fwarn;
-    int fskin;
-
-    //FIXME:
-    float filebutton;
-
-    void register_parameter(ParamMap& pmap);
-};
-
-extern AudioVariables audio;
-
-
 /****************************************************************
  ** class ModuleSelectorFromList
  */

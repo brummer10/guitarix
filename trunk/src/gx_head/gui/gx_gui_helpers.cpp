@@ -46,10 +46,12 @@ void show_error_msg(const string& msg) {
     dialog.run();
 }
 
+#if 0
 // ----menu function patch info widget
 void gx_patch() {
     gtk_widget_show_all(gw.patch_info);
 }
+#endif
 
 // ----menu funktion help
 void gx_show_help() {
@@ -162,7 +164,7 @@ gboolean gx_set_default_ssize(gpointer data) {
 /****************************************************************
  ** effect box handling
  */
-
+#if 0
 // ----- show / hide effect boxes
 void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
     gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
@@ -234,7 +236,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
         }
     }
 }
-
+#endif
 // ----- show / hide effect boxes
 void gx_show_menu_settings(GtkWidget *widget, gpointer data) {
     // done by the button allready
@@ -251,11 +253,11 @@ gint gx_nchoice_dialog_without_entry(
     const guint nchoice,
     const char* label[],
     const gint  resp[],
-    const gint default_response) {
-    GxMainInterface& gui = GxMainInterface::get_instance();
+    const gint default_response,
+    Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
     GtkWidget* dialog   = gtk_dialog_new();
     GtkWidget* text_label = gtk_label_new(msg);
-    GtkWidget* image   = gtk_image_new_from_pixbuf(gui.gw_ib->gobj());
+    GtkWidget* image   = gtk_image_new_from_pixbuf(gw_ib->gobj());
 
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), text_label);
 
@@ -305,7 +307,8 @@ gint gx_choice_dialog_without_entry(
     const char* label2,
     const gint resp1,
     const gint resp2,
-    const gint default_response) {
+    const gint default_response,
+    Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
 
     const guint nchoice     = 2;
     const char* labels[]    = {label1, label2};
@@ -317,7 +320,8 @@ gint gx_choice_dialog_without_entry(
         nchoice,
         labels,
         responses,
-        default_response);
+        default_response,
+	gw_ib);
 }
 
 // ---- get text entry from dialog
@@ -439,7 +443,7 @@ int gx_message_popup(const char* msg) {
 /****************************************************************
  ** skin handling
  */
-
+#if 0
 // ---- retrive skin array index from skin name
 void gx_actualize_skin_index(gx_system::SkinHandling& skin, const string& skin_name) {
     for (guint s = 0; s < skin.skin_list.size(); s++) {
@@ -461,13 +465,12 @@ void  gx_change_skin(Gtk::RadioMenuItem& item, int idx) {
 }
 
 // ----- cycling through skin
-void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg) {
-    GxMainInterface& gui = GxMainInterface::get_instance();
+void  gx_cycle_through_skin(gx_system::CmdlineOptions& options) {
     gint idx = gx_engine::audio.fskin + 1;
-    idx %= gui.options.skin.skin_list.size();
+    idx %= options.skin.skin_list.size();
 
     // did it work ? if yes, update current skin
-    if (gx_update_skin(idx, "gx_cycle_through_skin"))
+    if (gx_update_skin(options, idx, "gx_cycle_through_skin"))
         gx_engine::audio.fskin = idx;
 
     // update menu item state
@@ -485,17 +488,16 @@ void  gx_update_skin_menu_item(const int index) {
 }
 
 // ---- skin changer, used internally frm callbacks
-bool gx_update_skin(const gint idx, const char* calling_func) {
-    GxMainInterface& gui = GxMainInterface::get_instance();
+bool gx_update_skin(gx_system::CmdlineOptions& options, const gint idx, const char* calling_func) {
     // check skin validity
-    if (idx < 0 || idx >= (gint)gui.options.skin.skin_list.size()) {
+    if (idx < 0 || idx >= (gint)options.skin.skin_list.size()) {
         gx_system::gx_print_warning(calling_func,
                 _("skin index out of range, keeping actual skin"));
         return false;
     }
 
-    string rcfile = gui.options.get_style_filepath(
-	"gx_head_" + gui.options.skin.skin_list[idx] + ".rc");
+    string rcfile = options.get_style_filepath(
+	"gx_head_" + options.skin.skin_list[idx] + ".rc");
     gtk_rc_parse(rcfile.c_str());
     gtk_rc_reset_styles(gtk_settings_get_default());
 
@@ -503,6 +505,8 @@ bool gx_update_skin(const gint idx, const char* calling_func) {
 
     return true;
 }
+#endif
+
 } // end namespace gx_gui
 
 

@@ -32,8 +32,8 @@ gboolean gx_hide_eq(GtkWidget *widget, gpointer   data );
 
 /* guitarix skin related functions */
 void gx_change_skin(Gtk::RadioMenuItem& item, int idx);
-void gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
-bool gx_update_skin(const gint idx, const char* calling_func);
+void gx_cycle_through_skin(gx_system::CmdlineOptions& options, GtkWidget *widget, gpointer arg);
+bool gx_update_skin(gx_system::CmdlineOptions& options, const gint idx, const char* calling_func);
 void gx_update_skin_menu_item(const int);
 void gx_actualize_skin_index(gx_system::SkinHandling& skin, const string& skin_name);
 
@@ -48,7 +48,8 @@ gint gx_choice_dialog_with_text_entry(
     const gint  resp1,
     const gint  resp2,
     const gint  default_response,
-    GCallback   func
+    GCallback   func,
+    Glib::RefPtr<Gdk::Pixbuf> gw_ib
     );
 
 gint gx_choice_dialog_without_entry(
@@ -58,7 +59,8 @@ gint gx_choice_dialog_without_entry(
     const char* label2,
     const gint  resp1,
     const gint  resp2,
-    const gint  default_response
+    const gint  default_response,
+    Glib::RefPtr<Gdk::Pixbuf> gw_ib
     );
 
 gint gx_nchoice_dialog_without_entry(
@@ -67,7 +69,8 @@ gint gx_nchoice_dialog_without_entry(
     const guint nchoice,
     const char* label[],
     const gint  resp[],
-    const gint  default_response
+    const gint  default_response,
+    Glib::RefPtr<Gdk::Pixbuf> gw_ib
     );
 
 /* extra GUI helpers */

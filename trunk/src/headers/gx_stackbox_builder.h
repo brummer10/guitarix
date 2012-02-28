@@ -4,6 +4,16 @@
 
 namespace gx_gui {
 
+struct uiToggleButton : public gx_ui::GxUiItemBool {
+    Gtk::ToggleButton* fButton;
+    uiToggleButton(gx_ui::GxUI* ui, bool* zone, Gtk::ToggleButton* b)
+                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {}
+    void toggled();
+    virtual void reflectZone();
+};
+
+/****************************************************************/
+
 class StackBoxBuilder: public gx_ui::GxUI {
 protected:
     int&                  fTop;
@@ -11,7 +21,7 @@ protected:
     gx_engine::GxEngine&  engine;
     gx_engine::ParamMap&  pmap;
     int                   (&fMode)[stackSize];
-    MainMenu&             mainmenu;  // crash if before GxSettings though not clear why
+    //MainMenu&             mainmenu;  // crash if before GxSettings though not clear why
     Gxw::WaveView&        fWaveView;
     Gtk::Label&           convolver_filename_label;
     gx_ui::GxUI&          ui;
@@ -106,7 +116,7 @@ protected:
 public:
     StackBoxBuilder(
 	int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
-	gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize], MainMenu &mainmenu_,
+	gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize],
 	Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui,
 	Glib::RefPtr<Gdk::Pixbuf> window_icon);
     ~StackBoxBuilder();
@@ -144,34 +154,6 @@ public:
     void make_rackbox_tonemodul();
     void make_rackbox_jconv();
     void make_rackbox_stereoverb();
-};
-
-class StackBoxBuilderOld: public StackBoxBuilder {
-private:
-    GtkWidget*&           rBox;
-    GtkWidget*&           sBox;
-    GtkWidget*&           tBox;
-    Glib::RefPtr<Gtk::AccelGroup> fAccelGroup;
-    GtkWidget*            fMonoRackContainer;
-    GtkWidget*            fStereoRackContainer;
-private:
-    virtual void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
-    virtual void closeMonoRackBox();
-    virtual void openStereoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_dialog);
-    virtual void closeStereoRackBox();
-    virtual void openVerticalMidiBox(const char* label = "");
-    GtkWidget* openHorizontalRestetBox(const char* label, int* posit);
-    void opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk, GtkWidget *box);
-    void openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk, GtkWidget *box);
-    GtkWidget* openHorizontalOrderBox(const char* label, int* posit);
-    void openPaintBox1(const char* label = "");
-public:
-    StackBoxBuilderOld(
-	int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
-	gx_engine::ParamMap& pmap_, GtkWidget* fMonoRackContainer_, GtkWidget* fStereoRackContainer_, GtkWidget*& rBox_, GtkWidget*& sBox_,
-	GtkWidget*& tBox_, int (&fMode_)[stackSize], MainMenu &mainmenu_,
-	Gxw::WaveView &fWaveView_, Glib::RefPtr<Gtk::AccelGroup> fAccelGroup_,
-	Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui, Glib::RefPtr<Gdk::Pixbuf> window_icon);
 };
 
 } // end namespace gx_gui

@@ -180,7 +180,7 @@ GxNotebookBox::GxNotebookBox(const gx_ui::GxUI& ui) {
     m_box.set_name("tab_rack");
 }
 /****************************************************************/
-
+#if 0
 GxVHideBox::~GxVHideBox() {}
 
 void GxVHideBox::on_hide_button_pressed() {
@@ -237,8 +237,10 @@ GxVHideBox::GxVHideBox(gx_ui::GxUI& ui, gx_engine::Parameter& param_switch)
     m_tcb.signal_toggled().connect(
         sigc::mem_fun(*this, &GxVHideBox::on_hide_button_pressed));
 }
-/****************************************************************/
+#endif
 
+/****************************************************************/
+#if 0
 GxMoveBox::~GxMoveBox() {
 }
 
@@ -362,7 +364,7 @@ GxMoveBox::GxMoveBox(gx_ui::GxUI& ui, gx_engine::Parameter& param_switch)
     m_button2.signal_toggled().connect(
         sigc::mem_fun(*this, &GxMoveBox::on_hide_button_pressed));
 }
-
+#endif
 /****************************************************************/
 
 
@@ -375,7 +377,7 @@ GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, gx_engine::Parameter& para
 
 
 /****************************************************************/
-
+#if 0
 void GxDialogWindowBox::on_dialog_menu_activate() {
     gx_show_extended_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
 
@@ -435,9 +437,10 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk,
     menuitem.signal_activate().connect(
         sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_menu_activate));
 }
+#endif
 
 /****************************************************************/
-
+#if 0
 void GxTunerRackBox::on_dialog_menu_activate() {
     gx_show_extended_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
    // GxMainInterface& gui = GxMainInterface::get_instance();
@@ -512,9 +515,11 @@ GxTunerRackBox::GxTunerRackBox(gx_ui::GxUI& ui, const char *expose_funk,
     menuitem.signal_activate().connect(
         sigc::mem_fun(*this, &GxTunerRackBox::on_dialog_menu_activate));
 }
+#endif
 
 /****************************************************************/
 
+#if 0
 bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d) {
     gtk_check_menu_item_set_active(
                 GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
@@ -553,9 +558,10 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
     box.show();
     rbox.show();
 }
+#endif
 
 /****************************************************************/
-
+#if 0
 bool GxScrollBox::on_window_delete_event(GdkEventAny*, gpointer d) {
     gtk_check_menu_item_set_active(
                 GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
@@ -710,7 +716,7 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, const char *pb_2, Glib::ustring titl, 
     // m_scrolled_window2.show();
     rbox.show();
 }
-
+#endif
 /****************************************************************/
 
 bool GxToolBox::on_window_delete_event(GdkEventAny*, gpointer d) {

@@ -50,7 +50,7 @@ void MidiControllerTable::response_cb(GtkWidget *widget, gint response_id, gpoin
 	gx_engine::controller_map.signal_changed()();
         return;
     }
-    m.menuitem.set_active(false);
+    m.menuaction->set_active(false);
 }
 
 void MidiControllerTable::destroy_cb(GtkWidget*, gpointer data) {
@@ -126,8 +126,8 @@ void MidiControllerTable::load() {
     }
 }
 
-void MidiControllerTable::toggle(gx_engine::ParamMap& param, Gtk::CheckMenuItem& item) {
-    if (!item.get_active()) {
+void MidiControllerTable::toggle(gx_engine::ParamMap& param, Glib::RefPtr<Gtk::ToggleAction> item) {
+    if (!item->get_active()) {
         if (window) {
             gtk_widget_destroy(window);
         }
@@ -140,13 +140,11 @@ void MidiControllerTable::toggle(gx_engine::ParamMap& param, Gtk::CheckMenuItem&
 
 MidiControllerTable::~MidiControllerTable() {
     window = NULL;
-    menuitem.unreference();
 }
 
-MidiControllerTable::MidiControllerTable(gx_engine::ParamMap& param_, Gtk::CheckMenuItem& item)
-    : menuitem(item),
+MidiControllerTable::MidiControllerTable(gx_engine::ParamMap& param_, Glib::RefPtr<Gtk::ToggleAction> item)
+    : menuaction(item),
       param(param_) {
-    item.reference();
 
     GtkBuilder * builder = gtk_builder_new();
     window = gx_gui::load_toplevel(builder, "midi.glade", "MidiControllerTable");

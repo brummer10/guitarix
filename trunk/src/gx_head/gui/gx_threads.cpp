@@ -32,7 +32,7 @@
 #include <gxw/GxLevelSlider.h>
 
 namespace gx_threads {
-
+#if 0
 /* ----------------- refresh GX level display function ---------------- */
 gboolean gx_refresh_meter_level(gpointer args) {
     if (gx_gui::GxMainInterface::get_instance().jack.client) {
@@ -69,14 +69,16 @@ gboolean gx_refresh_meter_level(gpointer args) {
 gboolean gx_update_all_gui(gpointer) {
     // the general Gui update handler
     gx_ui::GxUI::updateAllGuis();
-    gx_gui::GxMainInterface::get_instance().engine.check_module_lists();
+    //gx_gui::GxMainInterface::get_instance().engine.check_module_lists(); FIXME
     return TRUE;
 }
 
+#if 0
 static gboolean conv_restart(gpointer data) {
     gx_gui::GxMainInterface::get_instance().engine.cabinet.start();
     return false;
 }
+#endif
 
 void cab_conv_restart() {
     if (gx_gui::guivar.g_threads[5] == 0 || g_main_context_find_source_by_id(NULL, gx_gui::guivar.g_threads[5]) == NULL) {
@@ -117,6 +119,6 @@ gboolean gx_check_cab_state(gpointer) {
     }
     return TRUE;
 }
-
+#endif
 /** ----------- -------------------------------- ------------------  **/
 }

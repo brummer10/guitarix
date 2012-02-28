@@ -395,6 +395,7 @@ UiSwitchWithCaption::~UiSwitchWithCaption() {
     delete m_box;
 }
 
+#if 0
 void PToggleButton::on_clicked() {
     gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     gui.mainmenu.preset_submenu[0].popup(2, gtk_get_current_event_time());
@@ -412,5 +413,6 @@ PToggleButton::PToggleButton(const char* label):
     button.signal_clicked().connect(
 	sigc::mem_fun(*this, &PToggleButton::on_clicked));
 }
+#endif
 
 }/* end of gx_gui namespace */

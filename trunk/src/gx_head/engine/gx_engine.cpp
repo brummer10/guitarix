@@ -32,17 +32,6 @@
 namespace gx_engine {
 
 /****************************************************************
- ** register audio variables to paramtable
- */
-
-void AudioVariables::register_parameter(ParamMap& pmap) {
-    // user interface options
-    pmap.reg_non_midi_par("ui.latency_nowarn", &fwarn, false, false);
-    pmap.reg_non_midi_par("ui.skin",           &fskin, false, 0, 0, 100);
-}
-
-
-/****************************************************************
  ** class GxEngine
  */
 

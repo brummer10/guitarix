@@ -6,16 +6,230 @@
 
 namespace gx_gui {
 
+GuiVariables guivar;
+// Stock Items for Gxw::Switch
+
+const char *sw_led =             "led";
+const char *sw_switch =          "switch";
+const char *sw_switchit =        "switchit";
+const char *sw_minitoggle =      "minitoggle";
+const char *sw_button =          "button";
+const char *sw_pbutton =         "pbutton";
+const char *sw_rbutton =         "rbutton";
+
+// Paint Functions for Gxw::PaintBox
+
+const char *pb_amp_expose =                  "amp_expose";
+const char *pb_conv_widget_expose =          "conv_widget_expose";
+const char *pb_upper_widget_expose =         "upper_widget_expose";
+const char *pb_rectangle_expose =            "rectangle_expose";
+const char *pb_rectangle_skin_color_expose = "rectangle_skin_color_expose";
+const char *pb_convolver_icon_expose =       "convolver_icon_expose";
+const char *pb_AmpBox_expose =               "AmpBox_expose";
+const char *pb_tribal_box_expose =           "tribal_box_expose";
+const char *pb_vbox_expose =                 "vbox_expose";
+const char *pb_filter_box_expose =           "filter_box_expose";
+const char *pb_plug_box_expose =             "plug_box_expose";
+const char *pb_info_box_expose_on =          "info_box_expose_on";
+const char *pb_info_box_expose_off =         "info_box_expose_off";
+const char *pb_slooper_expose =              "slooper_expose";
+const char *pb_zac_expose =                  "zac_expose";
+const char *pb_gxhead_expose =               "gxhead_expose";
+const char *pb_RackBox_expose =              "RackBox_expose";
+const char *pb_gxrack_expose =               "gxrack_expose";
+const char *pb_eq_expose =                   "eq_expose";
+const char *pb_main_expose =                 "main_expose";
+const char *pb_level_meter_expose =          "level_meter_expose";
+
+
+int precision(double n) {
+    if (n < 0.009999)
+        return 3;
+    else if (n < 0.099999)
+        return 2;
+    else if (n < 0.999999)
+        return 1;
+    else
+        return 0;
+}
+
+string fformat(float value, float step) {
+    ostringstream buf;
+    buf << fixed << setprecision(precision(step)) << value;
+    return buf.str();
+}
+
+void uiToggleButton::toggled() {
+    modifyZone(fButton->get_active());
+}
+
+void uiToggleButton::reflectZone() {
+    bool v = *fZone;
+    fCache = v;
+    fButton->set_active(v);
+}
+
+struct uiButton : public gx_ui::GxUiItemFloat {
+    GtkButton*     fButton;
+    uiButton(gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItemFloat(ui, zone),
+             fButton(b) {}
+    static void pressed(GtkWidget *widget, gpointer   data);
+    static void released(GtkWidget *widget, gpointer   data);
+    virtual void reflectZone();
+};
+
+void uiButton::pressed(GtkWidget *widget, gpointer   data) {
+    gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*)data;
+    c->modifyZone(1.0);
+}
+
+void uiButton::released(GtkWidget *widget, gpointer   data) {
+    gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*) data;
+    c->modifyZone(0.0);
+}
+
+void uiButton::reflectZone() {
+    float v = *fZone;
+    fCache = v;
+    if (v > 0.0) {
+	gtk_button_pressed(fButton);
+    } else {
+	gtk_button_released(fButton);
+    }
+}
+
+gboolean button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data) {
+    if (event->button != 2)
+        return FALSE;
+    if (gx_engine::controller_map.get_config_mode())
+        return TRUE;
+    new gx_main_midi::MidiConnect(event, *reinterpret_cast<gx_engine::Parameter*>(data));
+    return TRUE;
+}
+
+void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
+    static bool s_h;
+    pmap.reg_non_midi_par("tuner.s_h", &s_h, true);
+
+/*
+ui.tuner_reference_pitch not found
+W [08:58:25]  load dialog  ***  Parameter variable system.show_tuner not found
+W [08:58:25]  load dialog  ***  Parameter variable racktuner.tuning not found
+W [08:58:25]  load dialog  ***  Parameter variable racktuner.streaming not found
+W [08:58:26]  recall settings  ***  unknown parameter: mp.s_h
+W [08:58:26]  recall settings  ***  unknown parameter: system.midi_in_preset
+W [08:58:26]  recall settings  ***  unknown parameter: system.order_rack_h
+W [08:58:26]  recall settings  ***  unknown parameter: system.order_rack_v
+W [08:58:26]  recall settings  ***  unknown parameter: system.show_Srack
+W [08:58:26]  recall settings  ***  unknown parameter: system.show_logger
+W [08:58:26]  recall settings  ***  unknown parameter: system.show_rack
+W [08:58:26]  recall settings  ***  unknown parameter: system.show_rrack
+W [08:58:26]  recall settings  ***  unknown parameter: system.show_toolbar
+W [08:58:26]  recall settings  ***  unknown parameter: system.show_tooltips
+W [08:58:26]  recall settings  ***  unknown parameter: system.show_tuner
+W [08:58:26]  recall settings  ***  unknown parameter: ui.midi_out
+W [08:58:26]  recall settings  ***  unknown parameter: ui.tuner_reference_pitch
+*/
+//
+    pmap.reg_non_midi_par("ui.main_xorg",           &main_xorg, true, 300, 0, 10000);
+    pmap.reg_non_midi_par("ui.main_yorg",           &main_yorg, true, 300, 0, 10000);
+
+    // unused!! for file format compatibility
+    gx_engine::ParameterGroups& group = gx_engine::get_group_table();
+    group.insert("MultiBandFilter", "");
+    group.insert("eq", "");
+    static bool dialogbox[3];
+    pmap.reg_non_midi_par("eq.dialog",              &dialogbox[0],  false);
+    pmap.reg_non_midi_par("MultiBandFilter.dialog", &dialogbox[1],  false);
+    pmap.reg_non_midi_par("midi_out.dialog",        &dialogbox[2], false);
+    static float viv;
+    pmap.reg_non_midi_par("system.waveview",          &viv, false);
+    pmap.reg_switch("system.select_tube", true);
+    pmap.reg_switch("system.select_tube2", true);
+    pmap.reg_switch("system.select_tube3", true);
+    pmap.reg_switch("system.select_tube4", true);
+    pmap.reg_switch("system.select_tube5", true);
+    pmap.reg_switch("system.select_tube6", true);
+    pmap.reg_switch("system.select_tube7", true);
+    pmap.reg_switch("system.select_tube8", true);
+    pmap.reg_switch("system.select_tube9", true);
+    pmap.reg_switch("system.select_tube10", true);
+    pmap.reg_switch("system.select_tube11", true);
+    pmap.reg_switch("system.select_tube12", true);
+    pmap.reg_switch("system.select_tube13", true);
+    pmap.reg_switch("system.select_tube14", true);
+    pmap.reg_switch("system.select_tube15", true);
+    pmap.reg_switch("system.select_tube16", true);
+    pmap.reg_switch("system.select_tube17", true);
+    pmap.reg_switch("system.select_tube18", true);
+    //---
+    static bool dialog[29];
+    pmap.reg_non_midi_par("IR.dialog", &dialog[0], false);
+    pmap.reg_non_midi_par("amp.tonestack.dialog", &dialog[1], false);
+    pmap.reg_non_midi_par("ampmodul.dialog", &dialog[2], false);
+    pmap.reg_non_midi_par("biquad.dialog", &dialog[3], false);
+    pmap.reg_non_midi_par("cab.dialog", &dialog[4], false);
+    pmap.reg_non_midi_par("chorus.dialog", &dialog[5], false);
+    pmap.reg_non_midi_par("chorus_mono.dialog", &dialog[6], false);
+    pmap.reg_non_midi_par("compressor.dialog", &dialog[7], false);
+    pmap.reg_non_midi_par("crybaby.dialog", &dialog[8], false);
+    pmap.reg_non_midi_par("delay.dialog", &dialog[9], false);
+    pmap.reg_non_midi_par("echo.dialog", &dialog[10], false);
+    pmap.reg_non_midi_par("eqs.dialog", &dialog[11], false);
+    pmap.reg_non_midi_par("feedback.dialog", &dialog[12], false);
+    pmap.reg_non_midi_par("flanger.dialog", &dialog[13], false);
+    pmap.reg_non_midi_par("flanger_mono.dialog", &dialog[14], false);
+    pmap.reg_non_midi_par("freeverb.dialog", &dialog[15], false);
+    pmap.reg_non_midi_par("gx_distortion.dialog", &dialog[16], false);
+    pmap.reg_non_midi_par("jconv.dialog", &dialog[17], false);
+    pmap.reg_non_midi_par("low_highpass.dialog", &dialog[18], false);
+    pmap.reg_non_midi_par("moog.dialog", &dialog[19], false);
+    pmap.reg_non_midi_par("oscilloscope.dialog", &dialog[20], false);
+    pmap.reg_non_midi_par("overdrive.dialog", &dialog[21], false);
+    pmap.reg_non_midi_par("phaser.dialog", &dialog[22], false);
+    pmap.reg_non_midi_par("phaser_mono.dialog", &dialog[23], false);
+    pmap.reg_non_midi_par("stereodelay.dialog", &dialog[24], false);
+    pmap.reg_non_midi_par("stereoecho.dialog", &dialog[25], false);
+    pmap.reg_non_midi_par("stereoverb.dialog", &dialog[26], false);
+    pmap.reg_non_midi_par("tonemodul.dialog", &dialog[27], false);
+    pmap.reg_non_midi_par("tremolo.dialog", &dialog[28], false);
+    // end unused
+
+    static value_pair starter[] = {
+	{ "other", "other" },
+	{ "qjackctl", "qjackctl" },
+	{ "autostart", "autostart" },
+	{0}
+    };
+    gx_engine::parameter_map.reg_non_midi_enum_par(
+	"ui.jack_starter_idx", "", starter, static_cast<int*>(0), false, 1);
+    gx_engine::parameter_map.reg_switch("ui.ask_for_jack_starter", false, true);
+    gx_engine::parameter_map.reg_string("ui.jack_starter", "", 0, "");
+
+    show_patch_info = 0;
+
+    /* rack handlig */
+    mono_plugs = 1;
+    stereo_plugs = 1;
+    refresh_size = 0;
+
+    for (unsigned int i = 0; i < sizeof(g_threads)/sizeof(g_threads[0]); i++) g_threads[i] = 0;
+
+    /* for level display */
+    meter_falloff = 27; // in dB/sec.
+    meter_display_timeout = 60; // in millisec
+}
+
 /****************************************************************
  ** class StackBoxBuilder
  */
 
 StackBoxBuilder::StackBoxBuilder(
     int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
-    gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize], MainMenu &mainmenu_,
+    gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize],
     Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
     : gx_ui::GxUI(), fTop(fTop_), fBox(fBox_), engine(engine_), pmap(pmap_),
-      fMode(fMode_), mainmenu(mainmenu_), fWaveView(fWaveView_),
+      fMode(fMode_), fWaveView(fWaveView_),
       convolver_filename_label(convolver_filename_label_), ui(ui_),
       window_icon(window_icon_) {
 }
@@ -137,14 +351,13 @@ void StackBoxBuilder::addJToggleButton(const char* label, bool* zone) {
     addWidget(label, GTK_WIDGET(button->gobj()));
     lab->show();
 
-    uiToggleButton* c =
-        new uiToggleButton(this, zone, button->gobj());
+    uiToggleButton* c = new uiToggleButton(this, zone, button); // FIXME
 
     button->modify_bg(Gtk::STATE_NORMAL, colorOwn);
     button->modify_bg(Gtk::STATE_ACTIVE, colorRed);
 
-    g_signal_connect(GTK_OBJECT(button->gobj()), "toggled",
-                     G_CALLBACK(uiToggleButton::toggled), (gpointer) c);
+    button->signal_toggled().connect(
+	sigc::mem_fun(*c, &uiToggleButton::toggled));
     button->signal_toggled().connect(
 	sigc::mem_fun(engine, &gx_engine::GxEngine::set_rack_changed));
     connect_midi_controller(GTK_WIDGET(button->gobj()), zone);
@@ -292,44 +505,41 @@ void StackBoxBuilder::addNumEntry(string id, const char* label_) {
 }
 
 void StackBoxBuilder::addMToggleButton(const char* label, bool* zone) {
-    GdkColor colorRed;
-    GdkColor colorOwn;
-    GdkColor colorwn;
-    gdk_color_parse("#58b45e", &colorRed);
-    gdk_color_parse("#000000", &colorwn);
-    gdk_color_parse("#7f7f7f", &colorOwn);
+    Gdk::Color colorRed("#58b45e");
+    Gdk::Color colorOwn("#7f7f7f");
+    Gdk::Color colorwn("#000000");
     *zone = 0;
-    GtkWidget*     button = gtk_toggle_button_new();
-    GtkWidget*     lab = gtk_label_new(label);
-    GtkStyle *style = gtk_widget_get_style(lab);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-    gtk_widget_modify_font(lab, style->font_desc);
-    gtk_container_add(GTK_CONTAINER(button), lab);
-    gtk_widget_set_size_request(GTK_WIDGET(button), 70, 20);
-    GtkWidget * box = gtk_hbox_new(homogene, 4);
-    GtkWidget * box1 = gtk_vbox_new(homogene, 4);
-    gtk_container_set_border_width(GTK_CONTAINER(box), 0);
-    gtk_container_set_border_width(GTK_CONTAINER(box1), 0);
-    gtk_container_add(GTK_CONTAINER(box), box1);
-    GtkWidget * box2 = gtk_vbox_new(homogene, 4);
-    gtk_container_set_border_width(GTK_CONTAINER(box2), 0);
-    gtk_widget_set_size_request(GTK_WIDGET(box2), 6, 20);
-    gtk_container_add(GTK_CONTAINER(box), button);
-    gtk_container_add(GTK_CONTAINER(box), box2);
-    gtk_widget_set_size_request(GTK_WIDGET(box1), 6, 20);
-    gtk_widget_show(button);
-    gtk_widget_show(box1);
-    gtk_widget_show(box2);
-    gtk_widget_show(lab);
-    gtk_widget_show(box);
-    gtk_container_add(GTK_CONTAINER(fBox[fTop]), box);
-    uiToggleButton* c = new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
-    gtk_widget_modify_bg(button, GTK_STATE_NORMAL, &colorOwn);
-    gtk_widget_modify_bg(button, GTK_STATE_ACTIVE, &colorRed);
-    gtk_widget_set_name(lab, "rack_label");
-    g_signal_connect(GTK_OBJECT(button), "toggled",
-                     G_CALLBACK(uiToggleButton::toggled), (gpointer) c);
-    connect_midi_controller(button, zone);
+    Gtk::ToggleButton* button = new Gtk::ToggleButton();
+    Gtk::Label* lab = new Gtk::Label(label);
+    Pango::FontDescription font = lab->get_style()->get_font();
+    font.set_weight(Pango::WEIGHT_BOLD);
+    lab->modify_font(font);
+    button->add(*manage(lab));
+    button->set_size_request(70, 20);
+    Gtk::Box* box = new Gtk::HBox(homogene, 4);
+    Gtk::Box* box1 = new Gtk::VBox(homogene, 4);
+    box->set_border_width(0);
+    box1->set_border_width(0);
+    box->add(*manage(box1));
+    Gtk::Box* box2 = new Gtk::VBox(homogene, 4);
+    box2->set_border_width(0);
+    box2->set_size_request(6, 20);
+    box->add(*manage(button));
+    box->add(*manage(box2));
+    box1->set_size_request(6, 20);
+    button->show();
+    box1->show();
+    box2->show();
+    lab->show();
+    box->show();
+    gtk_container_add(GTK_CONTAINER(fBox[fTop]), GTK_WIDGET(manage(box)->gobj()));
+    uiToggleButton* c = new uiToggleButton(this, zone, button); // FIXME
+    button->modify_bg(Gtk::STATE_NORMAL, colorOwn);
+    button->modify_bg(Gtk::STATE_ACTIVE, colorRed);
+    lab->set_name("rack_label");
+    button->signal_toggled().connect(
+	sigc::mem_fun(*c, &uiToggleButton::toggled));
+    connect_midi_controller(GTK_WIDGET(button->gobj()), zone);
 }
 
 void StackBoxBuilder::addMToggleButton(string id, const char* label_) {
@@ -383,6 +593,7 @@ void StackBoxBuilder::openHorizontalhideBox(const char* label) {
     if (label[0] != 0) box->m_box.show();
 }
 
+#if 0
 void StackBoxBuilder::openVerticalHideBox(const char* label) {
     string s = label;
     
@@ -400,6 +611,7 @@ void StackBoxBuilder::openVerticalHideBox(const char* label) {
     pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
     
 }
+#endif
 
 void StackBoxBuilder::openHorizontalTableBox(const char* label) {
     GxHBox * box =  new GxHBox(*this);
@@ -522,280 +734,6 @@ void StackBoxBuilder::openFrameBox(const char* label) {
     } else {
         pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
     }
-}
-
-/****************************************************************
- ** class StackBoxBuilderOld
- */
-
-StackBoxBuilderOld::StackBoxBuilderOld(
-    int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
-    gx_engine::ParamMap& pmap_, GtkWidget* fMonoRackContainer_, GtkWidget* fStereoRackContainer_,
-    GtkWidget*& rBox_, GtkWidget*& sBox_, GtkWidget*& tBox_, int (&fMode_)[stackSize],
-    MainMenu &mainmenu_, Gxw::WaveView &fWaveView_, Glib::RefPtr<Gtk::AccelGroup> fAccelGroup_,
-    Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
-    : StackBoxBuilder(fTop_, fBox_, engine_, pmap_, fMode_, mainmenu_, fWaveView_, convolver_filename_label_, ui_, window_icon_),
-      rBox(rBox_), sBox(sBox_), tBox(tBox_), fAccelGroup(fAccelGroup_),
-      fMonoRackContainer(fMonoRackContainer_), fStereoRackContainer(fStereoRackContainer_) {
-}
-
-/****************************************************************
- ** class StackBoxBuilderOld
- */
-
-void StackBoxBuilderOld::openMonoRackBox(const char* label, int* posit, const char *id_on_off,
-				      const char *id_pre_post, const char *id_dialog) {
-    fBox[++fTop] = fMonoRackContainer;
-    fMode[fTop] = kBoxMode;
-    string group = id_on_off;
-    string group_id = group.substr(0, group.find_last_of("."));
-    GtkWidget* box = openHorizontalOrderBox(group_id.c_str(), posit);
-    openHorizontalhideBox("");
-    create_switch_no_caption(sw_minitoggle, id_on_off);
-    closeBox();
-    openVerticalBox(label);
-    openHorizontalBox("");
-    openPaintBox1("");
-    create_switch_no_caption(sw_switchit, id_on_off);
-    if (id_pre_post) {
-	create_selector(id_pre_post);
-    }
-    closeBox();
-    
-    openDialogBox(id_dialog, id_on_off, "RackBox_expose", box);
-}
-
-void StackBoxBuilderOld::closeMonoRackBox() {
-    closeBox();
-    closeBox();
-    closeBox();
-    closeBox();
-    --fTop;
-}
-
-void StackBoxBuilderOld::openStereoRackBox(const char* label, int* posit, const char *id_on_off,
-				      const char *id_dialog) {
-    fBox[++fTop] = fStereoRackContainer;
-    fMode[fTop] = kBoxMode;
-    string group = id_on_off;
-    string group_id = group.substr(0, group.find_last_of("."));
-    GtkWidget* box = openHorizontalRestetBox(group_id.c_str(), posit);
-    openHorizontalhideBox("");
-    create_switch_no_caption(sw_minitoggle, id_on_off);
-    closeBox();
-    openVerticalBox(label);
-    openHorizontalTableBox("");
-    openPaintBox1("");
-    openHorizontalBox("");
-    create_switch_no_caption(sw_switchit, id_on_off);
-    closeBox();
-    closeBox();
-    opensDialogBox(id_dialog, id_on_off, "RackBox_expose", box);
-}
-
-void StackBoxBuilderOld::closeStereoRackBox() {
-    closeBox();
-    closeBox();
-    closeBox();
-    closeBox();
-    --fTop;
-}
-
-GtkWidget* StackBoxBuilderOld::openHorizontalRestetBox(const char* label, int* posit) {
-    string p = label;
-    p +=".s_h";
-    gx_engine::Parameter& param_switch = pmap[p];
-    //gx_engine::SwitchParameter* param_switch = new gx_engine::SwitchParameter(p, true, false);
-    GxMoveBox * box =  new GxMoveBox(*this, param_switch);
-    uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(box->m_button.gobj()));
-
-    g_signal_connect(GTK_OBJECT(box->m_button.gobj()), "pressed",
-                      G_CALLBACK(uiOrderButton::pressed_right), (gpointer) c);
-    g_signal_connect(GTK_OBJECT(box->m_button1.gobj()), "pressed",
-                      G_CALLBACK(uiOrderButton::pressed_left), (gpointer) c);
-    g_signal_connect(GTK_OBJECT(box->m_button.gobj()), "clicked",
-                      G_CALLBACK(uiOrderButton::clicked), (gpointer) c);
-    g_signal_connect(GTK_OBJECT(box->m_button1.gobj()), "clicked",
-                      G_CALLBACK(uiOrderButton::clicked), (gpointer) c);
-    gtk_box_pack_start(GTK_BOX(sBox), GTK_WIDGET(box->m_paintbox.gobj()), expand, false, 0);
-    GValue  pos = {0};
-    g_value_init(&pos, G_TYPE_INT);
-    g_value_set_int(&pos, *posit);
-    string tooltip = _("Move ");
-    tooltip += label;
-    tooltip += _(" up");
-    box->m_button1.set_tooltip_text(tooltip);
-    box->m_button1.get_accessible()->set_description(tooltip);
-    box->m_button1.get_accessible()->set_name(label);
-    tooltip = _("Move ");
-    tooltip += label;
-    tooltip += _(" down");
-    box->m_button.set_tooltip_text(tooltip);
-    box->m_button.get_accessible()->set_description(tooltip);
-    box->m_button.get_accessible()->set_name(label);
-    gtk_container_child_set_property(GTK_CONTAINER(sBox),
-                                     GTK_WIDGET(box->m_paintbox.gobj()), "position", &pos);
-    GtkWidget* mainbox = GTK_WIDGET(box->m_paintbox.gobj());
-    pushBox(kBoxMode, mainbox);
-    return mainbox;
-}
-
-void StackBoxBuilderOld::opensDialogBox(const char *id_dialog, const char *id_switch,
-                                     const char *expose_funk, GtkWidget* box) {
-    gx_engine::Parameter& param_dialog = pmap[id_dialog];
-    gx_engine::Parameter& param_switch = pmap[id_switch];
-    GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
-
-    guivar.stereo_plugs++;
-    gtk_box_pack_end(GTK_BOX(box), GTK_WIDGET(bbox->box.gobj()), false, false, 0);
-    GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, expose_funk, param_dialog,
-                                 param_switch, bbox->show_dialog, gw.srack_widget);
-    gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(bdialog->paintbox.gobj()) , true, fill, 0);
-    pushBox(kBoxMode, GTK_WIDGET(bdialog->box.gobj()));
-
-    const gchar * title = gtk_widget_get_name(GTK_WIDGET(bdialog->paintbox.gobj()));
-    bdialog->menuitem.set_label(title);
-    string p = "ui.";
-    p +=title;
-    string s;
-
-    guint accel_key = GDK_t  + guivar.stereo_plugs;
-    if (accel_key <= GDK_z) {
-	bdialog->menuitem.add_accelerator(
-	    "activate", fAccelGroup, accel_key,
-	    Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
-    }
-    mainmenu.plugin_stereo_menu.append(bdialog->menuitem);
-    bdialog->menuitem.show();
-    //bdialog->menuitem.set_parameter(new SwitchParameter(p, true, false));
-
-    //bdialog->m_tcb.set_parameter(&param_dialog);
-    gtk_box_pack_start(GTK_BOX(tBox), GTK_WIDGET(bdialog->box1.gobj()) , false, false, 0);
-    bdialog->box1.pack_start(bdialog->m_tcb, true, true);
-    string tooltip = "Show ";
-    tooltip +=title;
-    bdialog->m_tcb.set_tooltip_text(tooltip.c_str());
-    bdialog->box1.show_all();
-    bdialog->paintbox.show_all();
-    // gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->m_tcb.gobj()) , false, false, 0);
-}
-
-void StackBoxBuilderOld::openDialogBox(const char *id_dialog, const char *id_switch,
-                                    const char *expose_funk, GtkWidget* box) {
-    gx_engine::Parameter& param_dialog = pmap[id_dialog];
-    gx_engine::Parameter& param_switch = pmap[id_switch];
-    GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
-    guivar.mono_plugs++;
-    gtk_box_pack_end(GTK_BOX(box), GTK_WIDGET(bbox->box.gobj()), false, false, 0);
-    GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, expose_funk, param_dialog,
-                                param_switch, bbox->show_dialog, gw.rack_widget);
-    gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(dialog->paintbox.gobj()) , true, fill, 0);
-    pushBox(kBoxMode, GTK_WIDGET(dialog->box.gobj()));
-
-    const gchar * title = gtk_widget_get_name(GTK_WIDGET(dialog->paintbox.gobj()));
-    string p = "ui.";
-    p +=title;
-    dialog->menuitem.set_label(title);
-    guint accel_key = GDK_a + guivar.mono_plugs;
-    dialog->menuitem.add_accelerator(
-	"activate", fAccelGroup, accel_key,
-	Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  // FIXME MOD1_MASK
-    mainmenu.plugin_mono_menu.append(dialog->menuitem);
-    dialog->menuitem.show();
-    //dialog->menuitem.set_parameter(new SwitchParameter(p, true, false));
-
-    //dialog->m_tcb.set_parameter(&param_dialog);
-    gtk_box_pack_start(GTK_BOX(tBox), GTK_WIDGET(dialog->box1.gobj()) , false, false, 0);
-    dialog->box1.pack_start(dialog->m_tcb, true, true);
-    string tooltip = "Show ";
-    tooltip +=title;
-    dialog->m_tcb.set_tooltip_text(tooltip.c_str());
-    dialog->box1.show_all();
-    dialog->paintbox.show_all();
-}
-
-GtkWidget *StackBoxBuilderOld::openHorizontalOrderBox(const char* label, int* posit) {
-    string p = label;
-    p +=".s_h";
-    gx_engine::Parameter& param_switch = pmap[p];
-    //gx_engine::SwitchParameter* param_switch = new gx_engine::SwitchParameter(p, true, false);
-    GxMoveBox * box =  new GxMoveBox(*this, param_switch);
-    uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(box->m_button.gobj()));
-
-    g_signal_connect(GTK_OBJECT(box->m_button.gobj()), "pressed",
-                     G_CALLBACK(uiOrderButton::pressed_right), (gpointer) c);
-    g_signal_connect(GTK_OBJECT(box->m_button1.gobj()), "pressed",
-                     G_CALLBACK(uiOrderButton::pressed_left), (gpointer) c);
-    g_signal_connect(GTK_OBJECT(box->m_button.gobj()), "clicked",
-                     G_CALLBACK(uiOrderButton::clicked), (gpointer) c);
-    g_signal_connect(GTK_OBJECT(box->m_button1.gobj()), "clicked",
-                     G_CALLBACK(uiOrderButton::clicked), (gpointer) c);
-    gtk_box_pack_start(GTK_BOX(rBox), GTK_WIDGET(box->m_paintbox.gobj()), expand, false, 0);
-    GValue  pos = {0};
-    g_value_init(&pos, G_TYPE_INT);
-    g_value_set_int(&pos, *posit);
-    gtk_container_child_set_property(GTK_CONTAINER(rBox),
-				     GTK_WIDGET(box->m_paintbox.gobj()), "position", &pos);
-    string tooltip = _("Move ");
-    tooltip += label;
-    tooltip += _(" up");
-    box->m_button1.set_tooltip_text(tooltip);
-    box->m_button1.get_accessible()->set_description(tooltip);
-    box->m_button1.get_accessible()->set_name(label);
-    tooltip = _("Move ");
-    tooltip += label;
-    tooltip += _(" down");
-    box->m_button.set_tooltip_text(tooltip);
-    box->m_button.get_accessible()->set_description(tooltip);
-    box->m_button.get_accessible()->set_name(label);
-    tooltip = _("show/hide ");
-    tooltip += label;
-    tooltip += _(" controller");
-    box->m_button2.set_tooltip_text(tooltip);
-    box->m_button2.get_accessible()->set_description(tooltip);
-    box->m_button2.get_accessible()->set_name(label);
-    
-    GtkWidget* mainbox = GTK_WIDGET(box->m_paintbox.gobj());
-    pushBox(kBoxMode, mainbox);
-    return mainbox;
-}
-
-void StackBoxBuilderOld::openPaintBox1(const char* label) {
-    GxVBox * box =  new GxVBox(*this);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
-    box->m_box.set_size_request(60, -1);
-    box->m_box.show_all();
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), expand, fill, 0);
-    pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
-}
-
-void StackBoxBuilderOld::openVerticalMidiBox(const char* label) {
-    GxMidiBox * box =  new GxMidiBox(*this, pb_eq_expose);
-    gw.midibox = GTK_WIDGET(box->m_eventbox.gobj());
-    // gtk_container_add (GTK_CONTAINER(rBox), gw.midibox);
-    gtk_box_pack_end(GTK_BOX(rBox), GTK_WIDGET(gw.midibox) , false, false, 0);
-    gtk_widget_show_all(gw.midibox);
-    pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
-    gtk_widget_hide(gw.midibox);
-
-    GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(gw.rack_tool_bar));
-    GtkWidget *box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
-    box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
-    g_list_free(child_list);
-    box->m_tcb.set_parameter(mainmenu.fShowMidiOut.get_parameter());
-    box->m_tcb.m_label.set_text(_("MIDI out"));
-    gtk_container_add(GTK_CONTAINER(box1), GTK_WIDGET(box->m_bbox.gobj()));
 }
 
 } // end namespace gx_gui

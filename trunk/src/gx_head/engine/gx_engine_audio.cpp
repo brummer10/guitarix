@@ -28,8 +28,6 @@
 
 namespace gx_engine {
 
-AudioVariables audio;
-
 /****************************************************************
  ** class ProcessingChainBase
  */

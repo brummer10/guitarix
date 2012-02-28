@@ -22,7 +22,6 @@
  */
 
 #include <guitarix.h>
-#include <gx_preset_window.h> //FIXME
 
 void child_set_property(Gtk::Container& container, Gtk::Widget& child, const char *property_name, bool value) {
     GValue v = {0};

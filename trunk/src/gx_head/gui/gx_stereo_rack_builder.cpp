@@ -325,7 +325,8 @@ void StackBoxBuilder::make_rackbox_jconv() {
 		openSpaceBox("");
 		closeBox();
 		addJConvFavButton(_("favourites"), irw);
-		addJConvButton(_("setup"), &gx_engine::audio.filebutton, irw);
+		static float filebutton; //FIXME
+		addJConvButton(_("setup"), &filebutton, irw);
 		addJToggleButton(_("run"), &engine.convolver.plugin.on_off);
 		openSpaceBox("");
 		closeBox();
@@ -355,6 +356,7 @@ void StackBoxBuilder::make_rackbox_stereoverb() {
     closeStereoRackBox();
 }
 
+#if 0
 void GxMainInterface::gx_build_stereo_rack(StackBoxBuilderOld& bb) {
     openHorizontalTableBox("");
     fStereoRackContainer = fBox[fTop];
@@ -389,4 +391,6 @@ void GxMainInterface::gx_build_stereo_rack(StackBoxBuilderOld& bb) {
     }
     closeBox();
 }   // close stereo rack
+#endif
+
 }  // end namespace gx_gui

@@ -323,13 +323,12 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
                     sigc::bind<GtkAdjustment*>(
                         sigc::bind<gpointer>(
                             sigc::ptr_fun(gx_gui::uiAdjustment::changed),
-                                         (gpointer)c), adj->gobj()));
+			    (gpointer)c), adj->gobj()));
             } else {
-                Glib::RefPtr<Gtk::ToggleButton> t =
-                    Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
-                if (t) {
-                    new uiToggle<float>(ui, t, &fp.get_value());
-                }
+                Gtk::ToggleButton* t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
+		if (t) {
+		    new uiToggle<float>(ui, t, &fp.get_value());
+		}
             }
             if (fp.isControllable()) {
                 gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.get_value());
@@ -338,8 +337,7 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
             gx_engine::BoolParameter &fp = p.getBool();
             w->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
             w->cp_set_value(fp.get_value());
-	    Glib::RefPtr<Gtk::ToggleButton> t =
-		Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
+	    Gtk::ToggleButton *t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
 	    if (t) {
 		new uiToggle<bool>(ui, t, &fp.get_value());
 	    }

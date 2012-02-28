@@ -51,5 +51,7 @@
 #include "gx_main_interface.h"
 #include "gx_jconv_settings.h"
 #include "gx_stackbox_builder.h"
+#include "gx_preset_window.h"
+#include "gx_main_window.h"
 
 #endif  // SRC_HEADERS_GUITARIX_H_

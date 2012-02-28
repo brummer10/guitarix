@@ -60,6 +60,6 @@ public:
 };
 
 /* jack client and port mapping functions */
-bool gx_start_jack_dialog();
+bool gx_start_jack_dialog(Glib::RefPtr<Gdk::Pixbuf> gw_ib);
 } // end namespace gx_gui
 #endif // SRC_HEADERS_GX_JACK_OPTIONS_H_

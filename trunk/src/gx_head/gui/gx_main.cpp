@@ -104,7 +104,7 @@ void PosixSignals::quit_slot() {
 void PosixSignals::gx_ladi_handler() {
     gx_system::gx_print_warning(
 	_("signal_handler"), _("signal USR1 received, save settings"));
-    gx_gui::GxMainInterface::get_instance().gx_settings.auto_save_state();
+    gx_preset::GxSettings::get_instance().auto_save_state();
 }
 
 
@@ -295,26 +295,20 @@ GxSplashBox::GxSplashBox()
  */
 
 #ifndef NDEBUG
-void start_main(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
-
 int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
-                        gx_engine::ParamMap& pmap, const string& fname, const string& rcfile) {
+                        gx_engine::ParamMap& pmap, const string& fname) {
     //pmap.reg_switch("system.midi_in_preset", false, false);
     pmap.set_init_values();
     Gtk::Window *w = 0;
-    if (!fname.empty()) {
-	gx_ui::GxUI ui;
-	Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &ui);
-	w = bld->get_first_window();
-    }
+    gx_ui::GxUI ui;
+    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &ui);
+    w = bld->get_first_window();
     gx_ui::GxUI::updateAllGuis(true);
-    gtk_rc_parse(rcfile.c_str());
-    gtk_rc_reset_styles(gtk_settings_get_default());
+    //gtk_rc_parse(rcfile.c_str());
+    //gtk_rc_reset_styles(gtk_settings_get_default());
     if (w) {
 	Gtk::Main::run(*w);
 	delete w;
-    } else {
-	start_main(engine, options, pmap);
     }
     return 0;
 }
@@ -372,7 +366,6 @@ int main(int argc, char *argv[]) {
 	    options.get_plugin_dir(), gx_engine::parameter_map, gx_engine::get_group_table());
 
 	// ------ initialize parameter list ------
-	gx_engine::audio.register_parameter(gx_engine::parameter_map);
 	gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
 	gx_engine::parameter_map.set_init_values();
 
@@ -381,22 +374,23 @@ int main(int argc, char *argv[]) {
 	gx_system::add_time_measurement();
 
 	if (argc > 1) {
+#if 0
 	    if (!options.get_rcset().empty()) {
 		gx_gui::gx_actualize_skin_index(options.skin, options.get_rcset());
 	    }
-	    string rcfile = options.get_style_filepath(
-		"gx_head_" + options.skin.skin_list[gx_engine::audio.fskin] + ".rc");
+#endif
 	    delete Splash;
-	    return debug_display_glade(engine, options, gx_engine::parameter_map, argv[1], rcfile);
+	    return debug_display_glade(engine, options, gx_engine::parameter_map, argv[1]);
 	}
 #endif
 	// ----------------------- init GTK interface----------------------
 
-	gx_gui::GxMainInterface gui(engine, options, gx_engine::parameter_map);
-	gui.setup();
+	MainWindow gui(engine, options, gx_engine::parameter_map);
+	//gx_gui::GxMainInterface gui(engine, options, gx_engine::parameter_map);
+	//gui.setup();
 	// ----------------------- run GTK main loop ----------------------
 	gx_ui::GxUI::updateAllGuis(true);
-	gui.show();
+	//gui.show();
 	delete Splash;
 	gui.run();
     } catch (const Glib::OptionError &e) {

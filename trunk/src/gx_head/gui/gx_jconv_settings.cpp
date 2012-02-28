@@ -746,6 +746,7 @@ void IRWindow::reload_and_show() {
 /****************************************************************
  ** Interface to rest of program
  */
+#if 0
 void gx_load_jcgui() {
     gx_gui::GxMainInterface& mwin = gx_gui::GxMainInterface::get_instance();
     IRWindow::create(mwin, mwin.engine.convolver, mwin.gw_ib);
@@ -770,5 +771,6 @@ void gx_save_jcgui() {
 void gx_show_fav() {
     IRWindow::show_fav();
 }
+#endif
 
 } // namespace gx_jconv

@@ -241,16 +241,6 @@ struct uiCheckButton : public gx_ui::GxUiItemBool {
 
 /****************************************************************/
 
-struct uiToggleButton : public gx_ui::GxUiItemBool {
-    GtkToggleButton* fButton;
-    uiToggleButton(gx_ui::GxUI* ui, bool* zone, GtkToggleButton* b)
-                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {}
-    static void toggled(GtkWidget *widget, gpointer data);
-    virtual void reflectZone();
-};
-
-/****************************************************************/
-
 // --------------------------- reorder effect chain button ---------------------------
 struct uiOrderButton : public gx_ui::GxUiItemInt {
     GtkButton*     fButton;
@@ -263,7 +253,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 };
 
 /****************************************************************/
-
+#if 0
 struct uiButton : public gx_ui::GxUiItemFloat {
     GtkButton*     fButton;
     uiButton(gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItemFloat(ui, zone),
@@ -272,7 +262,7 @@ struct uiButton : public gx_ui::GxUiItemFloat {
     static void released(GtkWidget *widget, gpointer   data);
     virtual void reflectZone();
 };
-
+#endif
 /****************************************************************/
 
 class ReportXrun {
@@ -596,7 +586,7 @@ public:
 public:
     explicit GxMainInterface(gx_engine::GxEngine&, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~GxMainInterface();
-    static GxMainInterface& get_instance() { assert(instance); return *instance; }
+    //static GxMainInterface& get_instance() { assert(instance); return *instance; }
     bool is_in_session() { return in_session; }
 
     Gtk::RadioMenuItem* const getJackLatencyItem(const jack_nframes_t bufsize) const;

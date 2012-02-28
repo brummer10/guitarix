@@ -1283,6 +1283,7 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
     dialog->paintbox.show_all();
 }
 
+#if 0
 /* add tuner to the mono rack, increase mono effect counter*/
 void GxMainInterface::openRackTunerBox(const char *id_dialog, const char *id_switch,
                                     const char *expose_funk, GtkWidget* box) {
@@ -1317,6 +1318,7 @@ void GxMainInterface::openRackTunerBox(const char *id_dialog, const char *id_swi
     dialog->box1.show_all();
     dialog->paintbox.show_all();
 }
+#endif
 
 /* add stereo effect to the stereo rack, increase stereo effect counter*/
 void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch,
@@ -1485,6 +1487,7 @@ void GxMainInterface::closeMonoRackBox() {
     --fTop;
 }
 
+#if 0
 void GxMainInterface::openTunerRackBox(const char* label, int* posit, const char *id_on_off,
 				      const char *id_pre_post, const char *id_dialog) {
     fBox[++fTop] = fMonoRackContainer;
@@ -1514,6 +1517,7 @@ void GxMainInterface::closeTunerRackBox() {
     closeBox();
     --fTop;
 }
+#endif
 
 /****************************************************************
  ** Control widgets

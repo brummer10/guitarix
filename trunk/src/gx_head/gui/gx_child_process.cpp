@@ -340,14 +340,13 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data) {
 
 //-------------------- meterbridge --------------------------
 
-Meterbridge::Meterbridge(GxChild *p, Gtk::CheckMenuItem& i)
-    : item(i) {
-    item.reference();
+Meterbridge::Meterbridge(GxChild *p, Glib::RefPtr<Gtk::ToggleAction>& a)
+    : action(a) {
     p->terminated.connect(sigc::mem_fun(*this, &Meterbridge::terminated));
 }
 
 void Meterbridge::terminated(bool pgm_found) {
-    item.set_active(false);
+    action->set_active(false);
     if (pgm_found) {
         gx_system::gx_print_info("Meterbridge", "meterbridge terminated");
     } else {
@@ -357,7 +356,6 @@ void Meterbridge::terminated(bool pgm_found) {
             " meterbridge is not installed! "
             );
     }
-    item.unreference();
     delete this;
 }
 
@@ -365,9 +363,9 @@ void Meterbridge::stop() {
     childprocs.kill("meterbridge");
 }
 
-void Meterbridge::start_stop(Gtk::CheckMenuItem &menuitem) {
+void Meterbridge::start_stop(Glib::RefPtr<Gtk::ToggleAction>& action, gx_jack::GxJack& jack) {
     // no need to do all this if jack is not running
-    if (!gx_gui::GxMainInterface::get_instance().jack.client) {
+    if (!jack.client) {
         (void)gx_gui::gx_message_popup(
             "  WARNING [Meterbridge]\n\n  "
             "  Reconnect to Jack server first (Shift+C)"
@@ -376,22 +374,22 @@ void Meterbridge::start_stop(Gtk::CheckMenuItem &menuitem) {
     }
 
     const char *app_name = "meterbridge";
-    if (menuitem.get_active()) {
+    if (action->get_active()) {
         if (childprocs.find(app_name)) {
             return;
         }
-        string s = gx_gui::GxMainInterface::get_instance().jack.get_instancename() + "_" + app_name;
+        string s = jack.get_instancename() + "_" + app_name;
         const char * const args[] = {
             app_name, "-n", s.c_str(), "-t", "sco", "-c", "3",
-            (gx_gui::GxMainInterface::get_instance().jack.client_name+":in_0").c_str(),
-            (gx_gui::GxMainInterface::get_instance().jack.client_name+":out_0").c_str(),
-            (gx_gui::GxMainInterface::get_instance().jack.client_insert_name+":in_0").c_str(),
-            (gx_gui::GxMainInterface::get_instance().jack.client_insert_name+":out_0").c_str(),
-            (gx_gui::GxMainInterface::get_instance().jack.client_insert_name+":out_1").c_str(),
+            (jack.client_name+":in_0").c_str(),
+            (jack.client_name+":out_0").c_str(),
+            (jack.client_insert_name+":in_0").c_str(),
+            (jack.client_insert_name+":out_0").c_str(),
+            (jack.client_insert_name+":out_1").c_str(),
             0 };
         GxChild *meterbridge = childprocs.launch(app_name, args, SIGTERM);
         if (meterbridge) {
-            new Meterbridge(meterbridge, menuitem);
+            new Meterbridge(meterbridge, action);
         } else {
             gx_gui::gx_message_popup(
                 "  "
@@ -400,7 +398,7 @@ void Meterbridge::start_stop(Gtk::CheckMenuItem &menuitem) {
                 );
             gx_system::gx_print_error("Meterbridge",
                            string("meterbridge could not be launched (fork failed)!"));
-            menuitem.set_active(false);
+            action->set_active(false);
         }
     } else {  // -- deactivate meterbridge
         childprocs.kill(app_name);

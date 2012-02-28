@@ -374,7 +374,7 @@ private:
 public:
     sigc::signal<void, bool>& signal_changed() { return changed; }
     void set(bool val);
-    bool get() const { return value; }
+    const bool& get() const { return value; }
     virtual void *zone();
     virtual void stdJSON_value();
     virtual void set(float n, float high, float llimit, float ulimit);
