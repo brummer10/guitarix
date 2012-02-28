@@ -2896,7 +2896,10 @@ void MainWindow::add_latency_menu() {
 }
 
 void MainWindow::set_latency() {
-    latency_action->set_current_value(jack.get_jack_bs());
+    jack_nframes_t n = jack.get_jack_bs();
+    if (n > 0) {
+	latency_action->set_current_value(n);
+    }
 }
 
 void gx_show_help() {
@@ -3023,7 +3026,8 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
     uimanager = Gtk::UIManager::create();
     // Create actions
     actiongroup->add(Gtk::Action::create("EngineMenu","_Engine"));
-    actiongroup->add(Gtk::Action::create("JackLatency","_Latency"));
+    jack_latency_menu_action = Gtk::Action::create("JackLatency","_Latency");
+    actiongroup->add(jack_latency_menu_action);
     actiongroup->add(Gtk::Action::create("PresetsMenu","_Presets"));
     actiongroup->add(Gtk::Action::create("PluginsMenu","P_lugins"));
     actiongroup->add(Gtk::Action::create("MonoPlugins","_Mono Plugins"));
@@ -3389,7 +3393,19 @@ void MainWindow::connect_jack(bool v) {
 }
 
 void MainWindow::on_jack_client_changed() {
-    window->set_title(jack.get_instancename());
+    bool v = (jack.client != 0);
+    if (v) {
+	window->set_title(jack.get_instancename());
+    } else {
+	window->set_title("("+jack.get_instancename()+")");
+    }
+    jack_latency_menu_action->set_sensitive(v);
+    engine_mute_action->set_sensitive(v);
+    engine_bypass_action->set_sensitive(v);
+    if (!v) {
+	engine_mute_action->set_active(false);
+	engine_bypass_action->set_active(false);
+    }
 }
 
 void MainWindow::do_program_change(int pgm) {

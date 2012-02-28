@@ -542,6 +542,7 @@ private:
     Gxw::PaintBox *amp_background;
 public:
     // Actions
+    Glib::RefPtr<Gtk::Action> jack_latency_menu_action;
     Glib::RefPtr<Gtk::Action> compress_action;
     Glib::RefPtr<Gtk::Action> expand_action;
     // ToggleActions

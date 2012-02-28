@@ -303,6 +303,7 @@ void GxJack::gx_jack_cleanup() {
     client = 0;
     jack_client_close(client_insert);
     client_insert = 0;
+    client_change();
 }
 
 // ---- Jack server connection / disconnection
@@ -702,6 +703,7 @@ void GxJack::shutdown_callback_client_insert(void *arg) {
     if (self.client) {
 	jack_client_close(self.client);
 	self.client = 0;
+	self.client_change();
     }
     self.gx_jack_shutdown_callback();
 }
