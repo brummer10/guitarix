@@ -2729,7 +2729,9 @@ void MainWindow::on_miditable_toggle() {
 }
 
 void MainWindow::change_skin(Glib::RefPtr<Gtk::RadioAction> action) {
-    change_skin_idx(action->get_current_value());
+    unsigned int n = action->get_current_value();
+    skin_changed.modifyZone(n);
+    change_skin_idx(n);
 }
 
 void MainWindow::change_skin_idx(unsigned int idx) {
@@ -2740,6 +2742,7 @@ void MainWindow::change_skin_idx(unsigned int idx) {
     gtk_rc_reset_styles(gtk_settings_get_default());
     skin_action->set_current_value(idx);
     skin = idx;
+    make_icons();
 }
 
 void MainWindow::add_skin_menu() {
@@ -3193,7 +3196,7 @@ void MainWindow::clear_box(Gtk::Container& box) {
     }
 }
 
-void make_icons(std::map<std::string, PluginUI*>& plugin_dict, gx_system::CmdlineOptions& options) {
+void MainWindow::make_icons() {
     Gtk::OffscreenWindow w;
     Glib::RefPtr<Gdk::Screen> screen = w.get_screen();
     Glib::RefPtr<Gdk::Colormap> rgba = screen->get_rgba_colormap();
@@ -3220,6 +3223,9 @@ void make_icons(std::map<std::string, PluginUI*>& plugin_dict, gx_system::Cmdlin
 	}
         //w.get_window()->process_updates(true);
 	i->first->icon = w.get_pixbuf();
+	if (i->first->toolitem) {
+	    dynamic_cast<Gtk::Image*>(i->first->toolitem->get_child())->set(i->first->icon);
+	}
         i->second->hide();
     }
     //w.destroy();
@@ -3318,7 +3324,7 @@ void MainWindow::fill_pluginlist() {
 	    pui->set_action(act);
 	}
     }
-    make_icons(plugin_dict, options);
+    make_icons();
     bool collapse = false;
     for (std::vector<PluginDesc*>::iterator i = l.begin(); i != l.end(); ++i) {
 	Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup((*i)->group);
@@ -3484,9 +3490,6 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     stereorackcontainerH->pack_start(stereorackcontainer, Gtk::PACK_EXPAND_WIDGET);
     monocontainer->pack_start(monorackcontainer, Gtk::PACK_EXPAND_WIDGET);
 
-    fill_pluginlist();
-    plugin_dict["gx_distortion"]->shortname = _("Distortion");
-
     // connect signal
     window->signal_configure_event().connect_notify(sigc::mem_fun(*this, &MainWindow::on_configure_event));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(show_rack_button->gobj()), GTK_ACTION(show_rack_action->gobj()));
@@ -3513,10 +3516,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-stereo", Gtk::TARGET_SAME_APP, 2));
     effects_toolpalette->drag_dest_set(listTargets, Gtk::DEST_DEFAULT_ALL, Gdk::ACTION_MOVE);
     effects_toolpalette->signal_drag_data_received().connect(sigc::mem_fun(*this, &MainWindow::on_tp_drag_data_received));
-    effects_toolpalette->show_all();
 
-    plugin_dict[mainamp_plugin.get_id()] = &mainamp_plugin;
-    add_rackbox_internal(mainamp_plugin, 0, 0, false, -1, false, amp_background);
     window->signal_visibility_notify_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_visibility_notify));
     skin_changed.changed.connect(
@@ -3525,6 +3525,13 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	sigc::mem_fun(*this, &MainWindow::set_latency));
     gx_settings.loadstate();
     gx_ui::GxUI::updateAllGuis(true);
+
+    fill_pluginlist();
+    plugin_dict["gx_distortion"]->shortname = _("Distortion");
+    plugin_dict[mainamp_plugin.get_id()] = &mainamp_plugin;
+    add_rackbox_internal(mainamp_plugin, 0, 0, false, -1, false, amp_background);
+    effects_toolpalette->show_all();
+
     Glib::signal_timeout().connect(
 	sigc::mem_fun(*this, &MainWindow::update_all_gui), 40);
     jack.signal_client_change().connect(

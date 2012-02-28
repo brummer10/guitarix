@@ -600,6 +600,7 @@ private:
     void on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, int info, int timestamp);
     void fill_pluginlist();
     void add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
+    void make_icons();
     bool update_all_gui();
     void jack_connection();
     void on_miditable_toggle();
