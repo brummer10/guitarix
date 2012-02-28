@@ -2093,6 +2093,23 @@ bool Freezer::check_thaw(int width, int height) {
  ** class MainWindow
  */
 
+template <class Param>
+UiToggleAction<Param>::UiToggleAction(
+    gx_ui::GxUI& ui_, Param& para, const Glib::ustring& name, const Glib::ustring& icon_name,
+    const Glib::ustring& label, const Glib::ustring& tooltip,
+    bool is_active)
+    : Gtk::ToggleAction(name, icon_name, label, tooltip, is_active),
+      gx_ui::GxUiItem(),
+      param(para),
+      ui(ui_) {
+    ui.registerZone(param.zone(), this);
+      }
+
+template <class Param>
+UiToggleAction<Param>::~UiToggleAction() {
+    ui.unregisterZone(param.zone(), this);
+}
+
 template <>
 bool UiToggleAction<gx_engine::SwitchParameter>::hasChanged() {
     return param.get() != get_active();
@@ -2118,6 +2135,38 @@ void UiToggleAction<Param>::reflectZone() {
     set_active(param.get_value());
 }
 
+template <class Param>
+UiRadioAction<Param>::UiRadioAction(
+    gx_ui::GxUI& ui_, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
+    const Glib::ustring& label, const Glib::ustring& tooltip)
+    : Gtk::RadioAction(group, name, icon_name, label, tooltip),
+      gx_ui::GxUiItem(),
+      param(para),
+      ui(ui_) {
+    ui.registerZone(param.zone(), this);
+      }
+
+template <class Param>
+UiRadioAction<Param>::~UiRadioAction() {
+    ui.unregisterZone(param.zone(), this);
+}
+
+template <>
+bool UiRadioAction<gx_engine::SwitchParameter>::hasChanged() {
+    return param.get() != get_current_value();
+}
+
+template <>
+void UiRadioAction<gx_engine::SwitchParameter>::reflectZone() {
+    printf("%d %d\n", get_current_value(), param.get());
+    set_current_value(param.get());
+}
+
+template <class Param>
+void UiRadioAction<Param>::on_changed(const Glib::RefPtr<Gtk::RadioAction>& act) {
+    param.set(get_current_value());
+}
+
 float GuiParameter::scale_lim = 0;
 int GuiParameter::streaming = 0;
 float GuiParameter::refpitch = 0;
@@ -2139,6 +2188,7 @@ GuiParameter::GuiParameter(gx_engine::ParamMap& pmap) {
     show_plugin_bar = pmap.reg_switch("system.show_toolbar");
     presets = pmap.reg_switch("system.show_presets");
     show_rack = pmap.reg_switch("system.show_rack");
+    order_rack_v = pmap.reg_switch("system.order_rack_v", false, true);
     tuner = pmap.reg_non_midi_par("system.show_tuner", &tuner_var, false);
     show_values = pmap.reg_switch("system.show_value");
     show_tooltips = pmap.reg_switch("system.show_tooltips");
@@ -2230,7 +2280,8 @@ bool MainWindow::is_variable_size() {
 }
 
 void MainWindow::maybe_change_resizable() {
-    if (window->get_window()->get_state() != 0) {
+    Glib::RefPtr<Gdk::Window> w = window->get_window();
+    if (w && w->get_state() != 0) {
 	return;
     }
     if (!is_variable_size() && window->get_resizable()) {
@@ -3058,28 +3109,28 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
 		     sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
 
     // create UiToggleActions
-    show_plugin_bar_action = UiSwitchToggleAction::create(*para.show_plugin_bar, "ShowPluginBar","Show _Plugin Bar","",true);
+    show_plugin_bar_action = UiSwitchToggleAction::create(ui, *para.show_plugin_bar, "ShowPluginBar","Show _Plugin Bar","",true);
     actiongroup->add(show_plugin_bar_action, Gtk::AccelKey("<Control>b"), sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
 
-    presets_action = UiSwitchToggleAction::create(*para.presets, "Presets","_Preset Selection");
+    presets_action = UiSwitchToggleAction::create(ui, *para.presets, "Presets","_Preset Selection");
     actiongroup->add(presets_action, Gtk::AccelKey("<control>p"), sigc::mem_fun(*this, &MainWindow::on_preset_action));
 
-    show_rack_action = UiSwitchToggleAction::create(*para.show_rack, "ShowRack","Show _Rack","",true);
+    show_rack_action = UiSwitchToggleAction::create(ui, *para.show_rack, "ShowRack","Show _Rack","",true);
     actiongroup->add(show_rack_action, Gtk::AccelKey("<Control>r"),sigc::mem_fun(*this, &MainWindow::on_show_rack));
 
-    tuner_action = UiBoolToggleAction::create(*para.tuner, "Tuner","_Tuner","",true);
+    tuner_action = UiBoolToggleAction::create(ui, *para.tuner, "Tuner","_Tuner","",true);
     actiongroup->add(tuner_action,Gtk::AccelKey("<Control>t"),sigc::mem_fun(*this, &MainWindow::on_show_tuner));
 
-    show_values_action = UiSwitchToggleAction::create(*para.show_values, "ShowValues","_Show Values");
+    show_values_action = UiSwitchToggleAction::create(ui, *para.show_values, "ShowValues","_Show Values");
     actiongroup->add(show_values_action, Gtk::AccelKey("<Control>s"), sigc::mem_fun(*this, &MainWindow::on_show_values));
 
-    tooltips_action = UiSwitchToggleAction::create(*para.show_tooltips, "ShowTooltips", _("Show _Tooltips"));
+    tooltips_action = UiSwitchToggleAction::create(ui, *para.show_tooltips, "ShowTooltips", _("Show _Tooltips"));
     actiongroup->add(
 	tooltips_action,
 	sigc::compose(sigc::ptr_fun(set_tooltips),
 		      sigc::mem_fun(tooltips_action.operator->(), &UiSwitchToggleAction::get_active)));
 
-    midi_in_presets_action = UiSwitchToggleAction::create(*para.midi_in_presets, "MidiInPresets", _("Include MIDI in _presets"));
+    midi_in_presets_action = UiSwitchToggleAction::create(ui, *para.midi_in_presets, "MidiInPresets", _("Include MIDI in _presets"));
     actiongroup->add(midi_in_presets_action);
 
     // create ToggleActions
@@ -3129,7 +3180,8 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
 
     // Create some RadioActions
     Gtk::RadioButtonGroup dg;
-    rackv_action = Gtk::RadioAction::create(dg, "RackV", "Order Rack Vertically");
+    rackv_action = UiSwitchRadioAction::create(
+	ui, *para.order_rack_v, dg, "RackV", "Order Rack Vertically");
     rackv_action->property_value().set_value(0);
     actiongroup->add(rackv_action, Gtk::AccelKey("<Control>v"));
 

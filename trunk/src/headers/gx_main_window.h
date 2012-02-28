@@ -399,29 +399,54 @@ public:
 };
 
 template <class Param>
-class UiToggleAction: public Gtk::ToggleAction {
+class UiToggleAction: public Gtk::ToggleAction, public gx_ui::GxUiItem {
 private:
     Param& param;
+    gx_ui::GxUI& ui;
     virtual void on_toggled();
     virtual void reflectZone();
     virtual bool hasChanged();
 protected:
     UiToggleAction(
-	Param& para, const Glib::ustring& name, const Glib::ustring& icon_name,
+	gx_ui::GxUI& ui_, Param& para, const Glib::ustring& name, const Glib::ustring& icon_name,
 	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring(),
-	bool is_active=false)
-	: Gtk::ToggleAction(name, icon_name, label, tooltip, is_active), param(para) {}
+	bool is_active=false);
+    ~UiToggleAction();
 public:
     static Glib::RefPtr<UiToggleAction> create(
-	Param& para, const Glib::ustring& name, const Glib::ustring& label=Glib::ustring(),
+	gx_ui::GxUI& ui, Param& para, const Glib::ustring& name, const Glib::ustring& label=Glib::ustring(),
 	const Glib::ustring& tooltip=Glib::ustring(), bool is_active=false) {
 	return Glib::RefPtr<UiToggleAction>(
-	    new UiToggleAction(para, name, Glib::ustring(), label, tooltip, is_active));
+	    new UiToggleAction(ui, para, name, Glib::ustring(), label, tooltip, is_active));
     }
 };
 
 typedef UiToggleAction<gx_engine::SwitchParameter> UiSwitchToggleAction;
 typedef UiToggleAction<gx_engine::BoolParameter> UiBoolToggleAction;
+
+template <class Param>
+class UiRadioAction: public Gtk::RadioAction, public gx_ui::GxUiItem {
+private:
+    Param& param;
+    gx_ui::GxUI& ui;
+    virtual void on_changed(const Glib::RefPtr<Gtk::RadioAction>& act);
+    virtual void reflectZone();
+    virtual bool hasChanged();
+protected:
+    UiRadioAction(
+	gx_ui::GxUI& ui_, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
+	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring());
+    ~UiRadioAction();
+public:
+    static Glib::RefPtr<UiRadioAction> create(
+	gx_ui::GxUI& ui, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name,
+	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring()) {
+	return Glib::RefPtr<UiRadioAction>(
+	    new UiRadioAction(ui, para, group, name, Glib::ustring(), label, tooltip));
+    }
+};
+
+typedef UiRadioAction<gx_engine::SwitchParameter> UiSwitchRadioAction;
 
 class GuiParameter {
 private:
@@ -444,6 +469,7 @@ public:
     gx_engine::SwitchParameter *show_plugin_bar;
     gx_engine::SwitchParameter *presets;
     gx_engine::SwitchParameter *show_rack;
+    gx_engine::SwitchParameter *order_rack_v;
     gx_engine::BoolParameter *tuner;
     gx_engine::SwitchParameter *show_values;
     gx_engine::SwitchParameter *show_tooltips;
@@ -565,7 +591,7 @@ public:
     Glib::RefPtr<UiSwitchToggleAction> tooltips_action;
     Glib::RefPtr<UiSwitchToggleAction> midi_in_presets_action;
     // RadioActions
-    Glib::RefPtr<Gtk::RadioAction> rackv_action;
+    Glib::RefPtr<UiSwitchRadioAction> rackv_action;
     Glib::RefPtr<Gtk::RadioAction> rackh_action;
 private:
     void load_widget_pointers();
