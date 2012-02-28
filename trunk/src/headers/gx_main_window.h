@@ -28,10 +28,10 @@
 
 class Liveplay: public sigc::trackable {
 private:
+    gx_ui::GxUI ui;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     gx_engine::GxEngine &engine;
     gx_preset::GxSettings& gx_settings;
-    gx_ui::GxUI ui;
     bool use_composite;
     Gtk::Adjustment brightness_adj;
     Gtk::Adjustment background_adj;
@@ -447,13 +447,30 @@ public:
     GuiParameter(gx_engine::ParamMap& pmap);
 };
 
+/****************************************************************
+ ** GxUiRadioMenu
+ ** adds the values of an UEnumParameter as Gtk::RadioMenuItem's
+ ** to a Gtk::MenuShell
+ */
+
+class GxUiRadioMenu: public gx_ui::GxUiItemUInt {
+private:
+    Glib::RefPtr<Gtk::RadioAction> action;
+    gx_engine::UIntParameter& param;
+    virtual void reflectZone();
+    void on_changed(Glib::RefPtr<Gtk::RadioAction> act);
+public:
+    GxUiRadioMenu(gx_ui::GxUI* ui, gx_engine::UIntParameter& param);
+    void setup(const Glib::ustring& prefix, const Glib::ustring& postfix,
+	       Glib::RefPtr<Gtk::UIManager>& uimanager, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
+};
 
 class MainWindow: public sigc::trackable {
 private:
+    gx_ui::GxUI ui;
+    Glib::RefPtr<gx_gui::GxBuilder> bld;
     int window_height;
     Freezer freezer;
-    Glib::RefPtr<gx_gui::GxBuilder> bld;
-    gx_ui::GxUI ui;
     std::map<std::string, PluginUI*> plugin_dict;
     int oldpos;
     int scrl_size_x;
@@ -484,6 +501,7 @@ private:
     gx_ui::UiSignal<int> skin_changed;
     gx_gui::SelectJackControlPgm *select_jack_control;
     TextLoggingBox fLoggingWindow;
+    GxUiRadioMenu amp_radio_menu;
     //
     Glib::RefPtr<Gtk::RadioAction> skin_action;
     Glib::RefPtr<Gtk::RadioAction> latency_action;

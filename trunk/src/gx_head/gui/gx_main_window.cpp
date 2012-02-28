@@ -143,6 +143,140 @@ void TextLoggingBox::show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool 
 }
 
 /****************************************************************
+ ** KeyFinder
+ ** finds next unused Key in a GtkAccelGroup
+ */
+
+class KeyFinder {
+private:
+    typedef list<GtkAccelKey> accel_list;
+    unsigned int next_key;
+    accel_list l;
+    static gboolean add_keys_to_list(GtkAccelKey *key, GClosure *cl, gpointer data);
+public:
+    KeyFinder(Glib::RefPtr<Gtk::AccelGroup> group);
+    ~KeyFinder();
+    int operator()();
+};
+
+/****************************************************************
+ ** KeyFinder
+ ** finds next unused Key in a GtkAccelGroup
+ */
+
+KeyFinder::KeyFinder(Glib::RefPtr<Gtk::AccelGroup> group) {
+    next_key = GDK_a;
+    gtk_accel_group_find(group->gobj(), add_keys_to_list, static_cast<gpointer>(&l));
+}
+
+KeyFinder::~KeyFinder() {
+}
+
+gboolean KeyFinder::add_keys_to_list(GtkAccelKey *key, GClosure *cl, gpointer data) {
+    accel_list* l = (accel_list*)data;
+    if (key->accel_mods == GDK_SHIFT_MASK) {
+	l->push_back(*key);
+    }
+    return false;
+}
+
+int KeyFinder::operator()() {
+    while (next_key <= GDK_z) {
+	bool found = false;
+	for (accel_list::iterator i = l.begin(); i != l.end(); ++i) {
+	    if (next_key == i->accel_key) {
+		found = true;
+		break;
+	    }
+	}
+	if (!found) {
+	    return next_key++;
+	}
+	next_key++;
+    }
+    return -1;
+}
+
+/****************************************************************
+ ** GxUiRadioMenu
+ ** adds the values of an UEnumParameter as Gtk::RadioMenuItem's
+ ** to a Gtk::MenuShell
+ */
+
+class TubeKeys {
+private:
+    static unsigned int keysep[];
+    unsigned int ks;
+public:
+    TubeKeys(): ks(0) {};
+    int operator()();
+};
+
+unsigned int TubeKeys::keysep[] = {
+    GDK_a, GDK_b, GDK_c, GDK_d, GDK_e, 0,
+    GDK_f, 0,
+    GDK_g, GDK_h, GDK_i, GDK_j, 0,
+    GDK_k, GDK_l, GDK_m, GDK_n, 0,
+    GDK_o, GDK_p, GDK_q, GDK_r
+};
+
+inline int TubeKeys::operator()() {
+    if (ks < sizeof(keysep)/sizeof(keysep[0])) {
+	return keysep[ks++];
+    }
+    return -1;
+}
+
+GxUiRadioMenu::GxUiRadioMenu(gx_ui::GxUI* ui, gx_engine::UIntParameter& param_):
+    gx_ui::GxUiItemUInt(ui, &param_.get_value()),
+    param(param_) {
+}
+
+void GxUiRadioMenu::setup(const Glib::ustring& prefix, const Glib::ustring& postfix,
+			  Glib::RefPtr<Gtk::UIManager>& uimanager, Glib::RefPtr<Gtk::ActionGroup>& actiongroup) {
+    int i, c;
+    const value_pair *p;
+    TubeKeys next_key;
+    //KeyFinder next_key(ag); // uncomment to find out which keys are free...
+    Glib::ustring s = prefix;
+    Gtk::RadioButtonGroup group;
+    for (p = param.getValueNames(), i = 0; p->value_id; p++, i++) {
+	c = next_key();
+	if (c == 0) {
+	    s += "<separator/>";
+	    c = next_key();
+	}
+	Glib::ustring actname = Glib::ustring::compose("Enum_%1.%2", param.id(), p->value_id);
+	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
+	Glib::RefPtr<Gtk::RadioAction> act = Gtk::RadioAction::create(group, actname, param.value_label(*p));
+	act->property_value().set_value(param.lower+i);
+	if (c > 0) {
+	    actiongroup->add(act, Gtk::AccelKey(Glib::ustring::compose("<shift>%1", (char)c)));
+	} else {
+	    actiongroup->add(act);
+	}
+	if (i == 0) {
+	    act->signal_changed().connect(
+		sigc::mem_fun(*this, &GxUiRadioMenu::on_changed));
+	    action = act;
+	}
+    }
+    s.append(postfix);
+    uimanager->add_ui_from_string(s);
+}
+
+void GxUiRadioMenu::reflectZone() {
+    int v = *fZone;
+    fCache = v;
+    action->set_current_value(v);
+}
+
+void GxUiRadioMenu::on_changed(Glib::RefPtr<Gtk::RadioAction> act) {
+    param.set(act->get_current_value());
+}
+
+
+/****************************************************************
  ** class Liveplay
  */
 
@@ -240,7 +374,7 @@ bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *accelerat
 
 Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
 		   const std::string& fname, Glib::RefPtr<Gtk::ActionGroup> actiongroup)
-    : bld(), engine(engine_), gx_settings(gx_settings_), ui(), use_composite(),
+    : ui(), bld(), engine(engine_), gx_settings(gx_settings_), use_composite(),
       brightness_adj(1,0.5,1,0.01,0.1), background_adj(0,0,1,0.01,0.1), key_timeout(),
       last_bank_key(), midi_conn(), window() {
     const char *id_list[] = {"LivePlay", 0};
@@ -3033,6 +3167,7 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
 
     add_skin_menu();
     add_latency_menu();
+    amp_radio_menu.setup("<menubar><menu action=\"TubeMenu\">","</menu></menubar>",uimanager,actiongroup);
 }
 
 int get_current_workarea_height_from_desktop(GdkWindow *root) {
@@ -3286,7 +3421,7 @@ void MainWindow::do_program_change(int pgm) {
 }
 
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
-    : sigc::trackable(), window_height(0), freezer(), bld(), ui(), plugin_dict(), oldpos(0), scrl_size_x(-1), scrl_size_y(-1),
+    : sigc::trackable(), ui(), bld(), window_height(0), freezer(), plugin_dict(), oldpos(0), scrl_size_x(-1), scrl_size_y(-1),
       monorackcontainer(PLUGIN_TYPE_MONO, *this), stereorackcontainer(PLUGIN_TYPE_STEREO, *this),
       pre_act(false), is_visible(false), drag_icon(0), actiongroup(), uimanager(),
       options(options_), pmap(pmap_), engine(engine_), jack(engine),
@@ -3297,7 +3432,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
       boxbuilder(engine_, pmap_, fWaveView, convolver_filename_label, ui, gx_head_icon),
       portmap_window(0), accel_group(), skin_changed(&ui, &skin),
-      select_jack_control(0), fLoggingWindow(_("Logging Window")) {
+      select_jack_control(0), fLoggingWindow(_("Logging Window")),
+      amp_radio_menu(&ui, pmap["tube.select"].getUInt()) {
     engine.set_jack(&jack);
     /*
     ** max window size is work area reduce by arbitrary amount to

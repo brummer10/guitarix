@@ -154,7 +154,9 @@ struct TypeTraits<GObject*> {
     static CppType to_cpp_type(CType item) { return item; }
     static void release_c_type(CType) {}
 };
-}} namespace gx_gui {
+}}
+
+namespace gx_gui {
 
 //static
 Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
@@ -279,6 +281,43 @@ Gtk::Object* GxBuilder::get_widget_checked(const Glib::ustring& name, GType type
  ** GxBuilder::fixup_controlparameters + helper classes
  */
 
+template<class T>
+class uiSelector: public gx_ui::GxUiItemV<T> {
+protected:
+    Gtk::Range *rng;
+    void on_value_changed();
+    virtual void reflectZone();
+public:
+    uiSelector(gx_ui::GxUI& ui, Gtk::Range *rng, T* zone);
+};
+
+template<class T>
+uiSelector<T>::uiSelector(gx_ui::GxUI& ui, Gtk::Range *rng_, T* zone)
+    : gx_ui::GxUiItemV<T>(&ui, zone), rng(rng_) {
+    rng->signal_value_changed().connect(
+	sigc::mem_fun(*this, &uiSelector<T>::on_value_changed));
+}
+
+template<class T>
+void uiSelector<T>::on_value_changed() {
+    modifyZone(static_cast<T>(rng->get_value()));
+}
+
+template<class T>
+void uiSelector<T>::reflectZone() {
+    T v = *gx_ui::GxUiItemV<T>::fZone;
+    gx_ui::GxUiItemV<T>::fCache = v;
+    rng->set_value(v);
+}
+
+static void widget_destroyed(gpointer data) {
+    delete static_cast<gx_ui::GxUiItem*>(data);
+}
+
+static void destroy_with_widget(Glib::Object *t, gx_ui::GxUiItem *p) {
+    t->set_data("GxUiItem", p, widget_destroyed);
+}
+
 void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
     Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
         gtk_builder_get_objects(gobj()), Glib::OWNERSHIP_DEEP);
@@ -319,6 +358,7 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
             if (r) {
                 Gtk::Adjustment *adj = r->get_adjustment();
                 gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.get_value(), adj->gobj());
+		destroy_with_widget(r.operator->(), c);
                 adj->signal_value_changed().connect(
                     sigc::bind<GtkAdjustment*>(
                         sigc::bind<gpointer>(
@@ -327,7 +367,7 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
             } else {
                 Gtk::ToggleButton* t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
 		if (t) {
-		    new uiToggle<float>(ui, t, &fp.get_value());
+		    destroy_with_widget(t, new uiToggle<float>(ui, t, &fp.get_value()));
 		}
             }
             if (fp.isControllable()) {
@@ -339,14 +379,13 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
             w->cp_set_value(fp.get_value());
 	    Gtk::ToggleButton *t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
 	    if (t) {
-		new uiToggle<bool>(ui, t, &fp.get_value());
+		destroy_with_widget(t, new uiToggle<bool>(ui, t, &fp.get_value()));
 	    }
             if (fp.isControllable()) {
                 gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.get_value());
             }
 	} else if (p.isInt() || p.isUInt()) {
-	    Glib::RefPtr<Gxw::Selector> t =
-		Glib::RefPtr<Gxw::Selector>::cast_dynamic(w);
+	    Gxw::Selector *t = dynamic_cast<Gxw::Selector*>(w.operator->());
 	    if (t) {
 		Gtk::TreeModelColumn<Glib::ustring> label;
 		Gtk::TreeModelColumnRecord rec;
@@ -356,13 +395,15 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
 		    ls->append()->set_value(0, Glib::ustring(p.value_label(*vp)));
 		}
 		t->set_model(ls);
-		int val;
 		if (p.isInt()) {
-		    val = p.getInt().get_value();
+		    int& val = p.getInt().get_value();
+		    destroy_with_widget(t, new uiSelector<int>(ui, t, &val));
+		    t->cp_set_value(val);
 		} else {
-		    val = p.getUInt().get_value();
+		    unsigned int& val = p.getUInt().get_value();
+		    destroy_with_widget(t, new uiSelector<unsigned int>(ui, t, &val));
+		    t->cp_set_value(val);
 		}
-		t->cp_set_value(val);
 	    }
         } else {
             gx_system::gx_print_warning("load dialog",
