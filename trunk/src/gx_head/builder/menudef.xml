@@ -19,10 +19,13 @@
       <menuitem action="ShowPluginBar" />
       <menuitem action="RackConfig" />
       <menuitem action="ShowRack" />
+      <separator/>
       <menu action="MonoPlugins"/>
       <menu action="StereoPlugins"/>
+      <separator/>
       <menuitem action="Compress" />
       <menuitem action="Expand" />
+      <separator/>
       <menuitem action="RackV" />
       <menuitem action="RackH" />
     </menu>
