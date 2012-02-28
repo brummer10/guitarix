@@ -628,6 +628,13 @@ string GxSettings::make_default_state_filename() {
     if (!options.get_loadfile().empty()) {
 	return options.get_loadfile();
     }
+    std::string s = options.get_jack_instancename();
+    if (!s.empty()) {
+	s = options.get_user_filepath(s + statename_postfix);
+	if (access(s.c_str(), R_OK|W_OK) == 0) {
+	    return s;
+	}
+    }
     return options.get_user_filepath(
 	jack.get_default_instancename() + statename_postfix);
 }
