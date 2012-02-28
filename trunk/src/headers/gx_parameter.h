@@ -614,13 +614,6 @@ class ParamMap: boost::noncopyable {
 	insert(p);
 	return p;
     }
-#if 0
-    inline StringParameter *reg_string(const string& id, const string& name, string *var, const string& sv) {
-	StringParameter *p = new StringParameter(id, name, var, sv);
-	insert(p);
-	return p;
-    }
-#endif
     inline StringParameter *reg_string(const string& id, const string& name, Glib::ustring *var, const string& sv) {
 	StringParameter *p = new StringParameter(id, name, var, sv);
 	insert(p);

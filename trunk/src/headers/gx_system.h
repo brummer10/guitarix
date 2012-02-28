@@ -226,8 +226,6 @@ public:
  ** CmdlineParser
  */
 
-//#define OLDUSERDIR
-
 class CmdlineOptions: public Glib::OptionContext, boost::noncopyable {
 private:
     Glib::OptionGroup main_group;

@@ -476,10 +476,8 @@ void PluginPresetList::remove(const Glib::ustring& name) {
  ** GxSettings
  */
 
-#ifndef OLDUSERDIR
 static const char *scratchpad_name = N_("Scratchpad");
 static const char *scratchpad_file = "scratchpad.gx";
-#endif
 static const char *statename_postfix = "_rc";
 static const char *bank_list = "banklist.js";
 
@@ -491,75 +489,27 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       param(param_),
       preset_io(mctrl, cvr, param, opt),
       state_io(mctrl, cvr, param, mstdctr, jack_, opt),
-      presetfile_parameter(*param.reg_filepar("system.current_preset_file")),
       state_loaded(false),
       no_autosave(false),
       jack(jack_),
       options(opt),
       preset_parameter(*param.reg_string("system.current_preset", "?", &current_name, "")),
-      factory_parameter(*param.reg_string("system.current_factory", "?", &current_factory, "")) {
+      bank_parameter(*param.reg_string("system.current_bank", "?", &current_bank, "")) {
     set_io(&state_io, &preset_io);
     statefile.set_filename(make_default_state_filename());
-    parse_factory_list();
     banks.parse(opt.get_user_filepath(bank_list), opt.get_preset_dir(), opt.get_factory_dir());
-    check_convert_presetfile();
-    presetfile_parameter.set_standard(get_default_presetfile(opt));
-    instance = this; //FIXME
+    instance = this;
     gx_system::GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxSettings::exit_handler));
     jack.signal_client_change().connect(
 	sigc::mem_fun(*this, &GxSettings::jack_client_changed));
-    presetfile_parameter.signal_changed().connect(
-	sigc::mem_fun(*this, &GxSettings::presetfile_changed));
 }
 
-GxSettings *GxSettings::instance = 0;//FIXME
+GxSettings *GxSettings::instance = 0;
 
 GxSettings::~GxSettings() {
     instance = 0;
     auto_save_state();
-}
-
-void GxSettings::parse_factory_list() {
-    ifstream is(options.get_factory_filepath("dirlist.js").c_str());
-    if (is.fail()) {
-	gx_system::gx_print_error(_("Presets"), _("factory preset list not found"));
-	return;
-    }
-    gx_system::JsonParser jp(&is);
-    jp.next(gx_system::JsonParser::begin_array);
-    while (jp.peek() != gx_system::JsonParser::end_array) {
-	jp.next(gx_system::JsonParser::begin_array);
-	jp.next(gx_system::JsonParser::value_string);
-	string name = jp.current_value();
-	jp.next(gx_system::JsonParser::value_string);
-	string path = options.get_factory_filepath(jp.current_value());
-	Factory *f = new Factory(name);
-	try {
-	    f->setting.open(path);
-	    factory_presets.push_back(f);
-	} catch (gx_system::JsonException& e) {
-	    delete f;
-	    gx_system::gx_print_error(path.c_str(), _("not found or parse error"));
-	}
-	jp.next(gx_system::JsonParser::end_array);
-    }
-    jp.next(gx_system::JsonParser::end_array);
-    jp.next(gx_system::JsonParser::end_token);
-    jp.close();
-    is.close();
-}
-
-void GxSettings::check_convert_presetfile() {
-    try {
-	presetfile.open(get_default_presetfile(options));
-    } catch(gx_system::JsonException& e) {
-	gx_system::gx_print_error(presetfile.get_filename().c_str(), _("parse error"));
-	return;
-    }
-    if (!presetfile.get_header().is_current()) {
-	convert_presetfile();
-    }
 }
 
 void GxSettings::auto_save_state() {
@@ -575,31 +525,17 @@ void GxSettings::exit_handler(bool otherthread) {
     auto_save_state();
 }
 
-string GxSettings::get_displayname() {
-    if (current_source == factory) {
-	return "[" + current_factory + "] - " + current_name;
-    } else if (current_source == preset) {
-	if (presetfile_parameter.is_standard()) {
-	    return current_name;
-	} else {
-	    return presetfile_parameter.get_display_name() + " - " + current_name;
-	}
-    } else {
-	return "";
-    }
-}
-
 void GxSettings::jack_client_changed() {
     string fn = make_state_filename();
     if (state_loaded && fn == statefile.get_filename()) {
 	selection_changed();
 	return;
     }
-    if (!state_loaded && (access(fn.c_str(), R_OK|W_OK)) != 0) {
+    if (!state_loaded && access(fn.c_str(), R_OK|W_OK) != 0) {
 	string defname = make_default_state_filename();
 	if (access(defname.c_str(), R_OK) == 0) {
 	    statefile.set_filename(defname);
-	    load(state);
+	    loadsetting(0, "");
 	    jack.clear_insert_connections();
 	}
     }
@@ -607,21 +543,6 @@ void GxSettings::jack_client_changed() {
     if (current_source == state) {
 	loadstate();
     }
-}
-
-string GxSettings::get_default_presetfile(gx_system::CmdlineOptions& opt) {
-#ifdef OLDUSERDIR
-    return opt.get_user_filepath(
-	gx_system::PresetBanks::add_preset_postfix(
-	    gx_jack::GxJack::get_default_instancename()));
-#else
-    return opt.get_preset_filepath(scratchpad_file);
-#endif
-}
-
-string GxSettings::make_std_preset_filename() {
-    return options.get_user_filepath(
-	gx_system::PresetBanks::add_preset_postfix(jack.get_instancename()));
 }
 
 string GxSettings::make_default_state_filename() {
@@ -663,39 +584,6 @@ bool GxSettings::check_create_config_dir(const Glib::ustring& dir) {
     }
     return false;
 }
-
-#ifdef OLDUSERDIR
-
-bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
-    if (check_create_config_dir(opt.get_user_dir())) {
-	// need to create so that old guitarix
-	// versions (< 0.20) don't delete confing
-	ofstream f(opt.get_user_filepath("version-0.03.3").c_str());
-	f << string("gx_head-") + GX_VERSION << endl;
-	f.close();
-	if (!f.good()) {
-	    throw gx_system::GxFatalError(
-		boost::format(_("can't create file in '%1%' !!??"))
-		% opt.get_user_dir());
-	}
-    }
-    string tfile = get_default_presetfile(opt);
-    if (access(tfile.c_str(), R_OK|W_OK) != 0) {
-	if (errno != ENOENT) {
-	    throw gx_system::GxFatalError(
-		boost::format(_("no read/write access to guitarix preset file '%1%'"))
-		% tfile);
-	}
-	if (!gx_system::SettingsFileHeader::make_empty_settingsfile(tfile)) {
-	    throw gx_system::GxFatalError(
-		boost::format(_("can't create file in '%1%' !!??"))
-		% opt.get_user_dir());
-	}
-    }
-    return false;
-}
-
-#else
 
 bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
     bool copied_from_old = false;
@@ -763,32 +651,9 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
     return copied_from_old;
 }
 
-#endif
-
-void GxSettings::load(Source src, const string& name, const string& factory) {
-    GxSettingsBase::load(src, name, factory);
-    if (src == state) {
-	state_loaded = true;
-    }
-}
-
 void GxSettings::loadstate() {
     GxSettingsBase::loadstate();
     state_loaded = true;
-}
-
-void GxSettings::presetfile_changed() {
-    change_preset_file(presetfile_parameter.get_path());
-}
-
-bool GxSettings::set_preset_file(const string& newfile) {
-    string oldfile = presetfile_parameter.get_path();
-    presetfile_parameter.set_path(newfile);
-    if (presetfile_fail()) {
-	presetfile_parameter.set_path(oldfile);
-	return false;
-    }
-    return true;
 }
 
 Glib::RefPtr<PluginPresetList> GxSettings::load_plugin_preset_list(const Glib::ustring& id) {

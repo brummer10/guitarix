@@ -1068,45 +1068,4 @@ void StackBoxBuilder::make_rackbox_midi_out() {
     closeBox();
 }
 
-#if 0
-void GxMainInterface::gx_build_mono_rack(StackBoxBuilderOld& bb) {
-    /** This is the fixed box on top of the mono rack, it include fixed effect modules
-     * witch can't move (make no sense to move them arround). Right now it is the noisegate,
-     * and the noisesharper, witch are fixed at the beginning of the process callback, and the
-     * mono level out and the clipper, witch are fixed at the end of the mono callback.
-     **/
-    openHorizontalTableBox("");
-    fMonoRackContainer = fBox[fTop];
-    {
-	bb.make_rackbox_ampdetail();
-	static RackTunerBox racktuner(*this);
-
-        /** The moveable mono effects. Main box of a mono effect modul is the HorizontalOrderBox
-         * witch present the move buttons. Inside the HorizontalOrderBox we need a DialogBox witch
-         * register the effect to a counter and insert a menu entry as well a button to the toolbar
-         **/
-	bb.make_rackbox_low_highpass();
-	bb.make_rackbox_eqs();
-	bb.make_rackbox_crybaby();
-	bb.make_rackbox_gx_distortion();
-	bb.make_rackbox_IR();
-	bb.make_rackbox_compressor();
-	bb.make_rackbox_overdrive();
-	bb.make_rackbox_echo();
-	bb.make_rackbox_delay();
-	bb.make_rackbox_freeverb();
-	bb.make_rackbox_oscilloscope();
-	bb.make_rackbox_biquad();
-	bb.make_rackbox_tremolo();
-	bb.make_rackbox_phaser_mono();
-	bb.make_rackbox_chorus_mono();
-	bb.make_rackbox_flanger_mono();
-	bb.make_rackbox_feedback();
-	bb.make_rackbox_amp_tonestack();
-	bb.make_rackbox_cab();
-	bb.make_rackbox_midi_out();
-    }
-    closeBox();
-}  // close mono rack
-#endif
 } // end namespace gx_gui

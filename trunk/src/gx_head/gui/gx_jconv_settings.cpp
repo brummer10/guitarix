@@ -743,34 +743,4 @@ void IRWindow::reload_and_show() {
     gtk_window->show();
 }
 
-/****************************************************************
- ** Interface to rest of program
- */
-#if 0
-void gx_load_jcgui() {
-    gx_gui::GxMainInterface& mwin = gx_gui::GxMainInterface::get_instance();
-    IRWindow::create(mwin, mwin.engine.convolver, mwin.gw_ib);
-    //IRWindow::reload();
-}
-
-void gx_show_jconv_dialog_gui(_GtkWidget*, void*) {
-    gx_gui::GxMainInterface& mwin = gx_gui::GxMainInterface::get_instance();
-    IRWindow::create(mwin, mwin.engine.convolver, mwin.gw_ib);
-    IRWindow::reload();
-    IRWindow::show_window();
-}
-
-void gx_reload_jcgui() {
-    IRWindow::reload();
-}
-
-void gx_save_jcgui() {
-    IRWindow::save();
-}
-
-void gx_show_fav() {
-    IRWindow::show_fav();
-}
-#endif
-
 } // namespace gx_jconv

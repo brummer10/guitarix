@@ -512,7 +512,7 @@ void PresetWindow::start_edit(const Gtk::TreeModel::Path& pt, Gtk::TreeViewColum
 void PresetWindow::highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter) {
     Glib::ustring t = iter->get_value(bank_col.name);
     Gtk::CellRendererText *tc = dynamic_cast<Gtk::CellRendererText*>(cell);
-    if (t == gx_settings.get_current_factory()) {
+    if (t == gx_settings.get_current_bank()) {
 	tc->property_foreground().set_value("#f00");
     } else{
 	tc->property_foreground_set().set_value(false);
@@ -620,7 +620,7 @@ bool PresetWindow::on_bank_button_release(GdkEventButton *ev) {
 	    bank_row_del_conn.unblock();
 	    gx_settings.banks.remove(nm);
 	    reload_combo();
-	    if (nm == gx_settings.get_current_factory()) {
+	    if (nm == gx_settings.get_current_bank()) {
 		gx_settings.set_source_to_state();
 		save_preset->set_sensitive(false);
 	    }
@@ -672,7 +672,7 @@ void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring
 	    }
 	}
 	gx_settings.banks.rename(oldname, newname, newfile);
-	if (oldname == gx_settings.get_current_factory()) {
+	if (oldname == gx_settings.get_current_bank()) {
 	    //current_bank = newname; FIXME
 	}
 	sel->set_value(bank_col.name, newname);
@@ -747,7 +747,7 @@ void PresetWindow::on_bank_changed() {
     Glib::ustring nm = it->get_value(bank_col.name);
     preset_title->set_text(nm);
     Glib::ustring cp;
-    if (nm == gx_settings.get_current_factory()) {
+    if (nm == gx_settings.get_current_bank()) {
 	in_current_preset = true;
 	cp = gx_settings.get_current_name();
     } else {
@@ -832,7 +832,7 @@ void PresetWindow::reload_banks(const Glib::ustring& sel_bank) {
 }
 
 void PresetWindow::set_presets() {
-    reload_banks(gx_settings.get_current_factory());
+    reload_banks(gx_settings.get_current_bank());
 }
 
 void PresetWindow::on_bank_reordered(const Gtk::TreeModel::Path& path) {
@@ -935,7 +935,7 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
 	gx_settings.save(fl, newname);
     } else {
 	fl.rename(t, newname);
-	if (gx_settings.get_current_factory() == get_current_bank() && gx_settings.get_current_name() == row[pstore->col.name]) {
+	if (gx_settings.get_current_bank() == get_current_bank() && gx_settings.get_current_name() == row[pstore->col.name]) {
 	    //current_preset = newname; FIXME
 	}
     }
@@ -1076,15 +1076,15 @@ void PresetWindow::preset_changed() {
     name = it->get_value(pstore->col.name);
     bool is_scratch = false;
     gx_system::PresetFile *cpf = 0;
-    if (!gx_settings.get_current_factory().empty()) {
-	cpf = gx_settings.banks.get_file(gx_settings.get_current_factory());
+    if (!gx_settings.get_current_bank().empty()) {
+	cpf = gx_settings.banks.get_file(gx_settings.get_current_bank());
 	if (cpf->has_entry(gx_settings.get_current_name())) {
 	    is_scratch = (cpf->get_type() == gx_system::PresetFile::PRESET_SCRATCH);
 	}
     }
     if (is_scratch) {
 	gx_settings.save(*cpf, gx_settings.get_current_name());
-	if (bank == gx_settings.get_current_factory() && name == gx_settings.get_current_name()) {
+	if (bank == gx_settings.get_current_bank() && name == gx_settings.get_current_name()) {
 	    // no reload necessary
 	    return;
 	}
@@ -1098,16 +1098,16 @@ void PresetWindow::preset_changed() {
 void PresetWindow::show_selected_preset() {
     Glib::ustring t;
     if (gx_settings.get_current_source() != gx_system::GxSettingsBase::state) {
-	t = gx_settings.get_current_factory() + " / " + gx_settings.get_current_name();
+	t = gx_settings.get_current_bank() + " / " + gx_settings.get_current_name();
     }
     preset_status->set_text(t);
 }
 
 void PresetWindow::on_preset_save() {
-    if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state || gx_settings.get_current_factory().empty()) {
+    if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state || gx_settings.get_current_bank().empty()) {
 	return;
     }
-    gx_system::PresetFile *pf = gx_settings.banks.get_file(gx_settings.get_current_factory());
+    gx_system::PresetFile *pf = gx_settings.banks.get_file(gx_settings.get_current_bank());
     if (!pf->is_mutable()) {
 	return;
     }

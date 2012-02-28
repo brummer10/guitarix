@@ -1087,11 +1087,7 @@ PresetFile::iterator PresetFile::begin() {
  ** class PresetBanks
  */
 
-#ifdef OLDUSERDIR
-static const char *std_presetname_postfix = "pre_rc";
-#else
 static const char *std_presetname_postfix = ".gx";
-#endif
 
 PresetBanks::PresetBanks()
     : banklist(), filepath(), mtime(), preset_dir() {
@@ -1144,10 +1140,8 @@ void PresetBanks::parse(const std::string& bank_path, const std::string& preset_
     filepath = bank_path;
     preset_dir = preset_dir_;
     banklist.clear();
-#ifndef OLDUSERDIR
     parse_bank_list(banklist.end());
     collect_lost_banks();
-#endif
     parse_factory_list(factory_dir);
 }
 
@@ -1474,10 +1468,8 @@ GxSettingsBase::GxSettingsBase(gx_engine::EngineControl& seq_)
       preset_io(),
       statefile(),
       banks(),
-      presetfile(),
-      factory_presets(),
       current_source(state),
-      current_factory(),
+      current_bank(),
       current_name(),
       seq(seq_),
       selection_changed(),
@@ -1485,41 +1477,6 @@ GxSettingsBase::GxSettingsBase(gx_engine::EngineControl& seq_)
 }
 
 GxSettingsBase::~GxSettingsBase() {
-    clear_factory();
-}
-
-void GxSettingsBase::clear_factory() {
-    for (unsigned int i = 0; i < factory_presets.size(); i++) {
-	delete factory_presets[i];
-    }
-}
-
-void GxSettingsBase::change_preset_file(const std::string& newfile) {
-    try {
-	if (presetfile.get_filename() == newfile) {
-	    presetfile.reopen();
-	} else {
-	    presetfile.open(newfile);
-	    if (current_source == preset) {
-		current_source = state;
-		current_name = "";
-		selection_changed();
-	    }
-	}
-	presetlist_changed();
-    } catch(gx_system::JsonException& e) {
-	gx_system::gx_print_error(
-	    newfile.c_str(), e.what());
-    }
-}
-
-PresetFile* GxSettingsBase::get_factory(const Glib::ustring& name) const {
-    for (unsigned int i = 0; i < factory_presets.size(); i++) {
-	if (name == factory_presets[i]->name) {
-	    return &factory_presets[i]->setting;
-	}
-    }
-    return 0;
 }
 
 void GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
@@ -1561,13 +1518,13 @@ void GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
 void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
     if (pf) {
 	current_source = factory;
-	current_factory = pf->get_name();
+	current_bank = pf->get_name();
 	current_name = name;
 	seq.start_ramp_down();
 	loadsetting(pf, name);
     } else {
 	current_source = state;
-	current_factory = "";
+	current_bank = "";
 	current_name = "";
     }
     seq.start_ramp_up();
@@ -1578,70 +1535,10 @@ void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
 
 void GxSettingsBase::loadstate() {
     current_source = state;
-    current_factory = current_name = "";
+    current_bank = current_name = "";
     seq.start_ramp_down();
     loadsetting(0, current_name);
-    PresetFile *p = 0;
-    if (!current_factory.empty()) {
-	p = get_factory(current_factory);
-	if (p && p->get_index(current_name) >= 0) {
-	    current_source = factory;
-	} else {
-	    current_factory = current_name = "";
-	}
-    } else if (!current_name.empty()) {
-	if (presetfile.get_index(current_name) >= 0) {
-	    p = &presetfile;
-	    current_source = preset;
-	    current_factory = "";
-	}
-    }
-    if (p) {
-	loadsetting(p, current_name);
-    }
     seq.start_ramp_up();
-    gx_ui::GxUI::updateAllGuis();
-    seq.clear_rack_changed();
-    selection_changed();
-}
-
-void GxSettingsBase::load(Source src, const Glib::ustring& name, const Glib::ustring& factoryname) {
-    PresetFile *p = 0;
-    switch (src) {
-    case preset:
-	if (presetfile.get_index(name) < 0) {
-	    return;
-	}
-	p = &presetfile;
-	current_source = src;
-	current_name = name;
-	current_factory = "";
-	break;
-    case factory:
-	p = get_factory(factoryname);
-	if (!p) {
-	    return;
-	}
-	if (p->get_index(name) < 0) {
-	    return;
-	}
-	current_source = src;
-	current_name = name;
-	current_factory = factoryname;
-	break;
-    case state:
-    default:
-	current_source = state;
-	current_factory = current_name = "";
-	break;
-    }
-    seq.start_ramp_down();
-    loadsetting(p, name);
-    seq.start_ramp_up();
-    if (current_source == state) {
-	// might have changed because we read all state file sections
-	current_factory = current_name = "";
-    }
     gx_ui::GxUI::updateAllGuis();
     seq.clear_rack_changed();
     selection_changed();
@@ -1649,7 +1546,7 @@ void GxSettingsBase::load(Source src, const Glib::ustring& name, const Glib::ust
 
 void GxSettingsBase::set_source_to_state() {
     current_source = state;
-    current_factory = current_name = "";
+    current_bank = current_name = "";
     selection_changed();
 }
 
@@ -1731,13 +1628,9 @@ void GxSettingsBase::save(PresetFile& pf, const Glib::ustring& name) {
 	|| (current_source == preset && current_name != name)) {
 	current_source = preset;
 	current_name = name;
-	current_factory = pf.get_name();
+	current_bank = pf.get_name();
 	selection_changed();
     }
-}
-
-void GxSettingsBase::save_to_preset(const Glib::ustring& name) {
-    save(presetfile, name);
 }
 
 void GxSettingsBase::reorder_preset(PresetFile& pf, const std::vector<Glib::ustring>& neworder) {
@@ -1762,25 +1655,6 @@ void GxSettingsBase::reorder_preset(PresetFile& pf, const std::vector<Glib::ustr
     pf.close();
 }
 
-bool GxSettingsBase::rename_preset(const Glib::ustring& name, const Glib::ustring& newname) {
-    bool rv = false;
-    try {
-	rv = presetfile.rename(name, newname);
-    } catch(JsonException& e) {
-	gx_print_warning(
-	    _("rename preset"),
-	    boost::format(_("parse error in %1%"))
-	    % presetfile.get_filename());
-	rv = false;
-    }
-    if (rv && current_source == preset && current_name == name) {
-	current_name = newname;
-	selection_changed();
-    }
-    presetlist_changed();
-    return rv;
-}
-
 void GxSettingsBase::erase_preset(PresetFile& pf, const Glib::ustring& name) {
     try {
 	pf.erase(name);
@@ -1790,20 +1664,10 @@ void GxSettingsBase::erase_preset(PresetFile& pf, const Glib::ustring& name) {
 	    boost::format(_("parse error in %1%"))
 	    % pf.get_filename());
     }
-    if (pf.get_name() == current_factory && name == current_name) {
+    if (pf.get_name() == current_bank && name == current_name) {
 	set_source_to_state();
     }
     presetlist_changed();
-}
-
-void GxSettingsBase::erase_preset(const Glib::ustring& name) {
-    erase_preset(presetfile, name);
-}
-
-bool GxSettingsBase::clear_preset() {
-    bool rv = presetfile.clear();
-    presetlist_changed();
-    return rv;
 }
 
 bool GxSettingsBase::convert_preset(PresetFile& pf) {
@@ -1837,34 +1701,6 @@ bool GxSettingsBase::convert_preset(PresetFile& pf) {
     delete sp;
     seq.start_ramp_up();
     return res;
-}
-
-void GxSettingsBase::convert_presetfile() {
-    convert_preset(presetfile);
-    try {
-	JsonParser *jp = statefile.create_reader();
-	state_io->read_state(*jp, statefile.get_header());
-	state_io->commit_state();
-	delete jp;
-    } catch(JsonException& e) {
-	// state file error will be reported elsewhere
-    }
-}
-
-void GxSettingsBase::fill_factory_names(vector<Glib::ustring>& l) const
-{
-    for (unsigned int i = 0; i < factory_presets.size(); i++) {
-	l.push_back(factory_presets[i]->name);
-    }
-}
-
-void GxSettingsBase::fill_factory_preset_names(const Glib::ustring& fact, vector<Glib::ustring>& l) const
-{
-    PresetFile* p = get_factory(fact);
-    assert(p);
-    if (p) {
-	p->fill_names(l);
-    }
 }
 
 } /* end of gx_system namespace */

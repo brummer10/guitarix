@@ -216,17 +216,10 @@ CmdlineOptions::CmdlineOptions()
 	throw GxFatalError(_("no HOME environment variable"));
     }
     old_user_dir = string(home) + "/.gx_head/";
-#ifdef OLDUSERDIR
-    user_dir = old_user_dir;
-    plugin_dir = user_dir;
-    preset_dir = user_dir;
-    pluginpreset_dir = user_dir;
-#else
     user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
     plugin_dir = Glib::build_filename(user_dir, "plugins");
     preset_dir = Glib::build_filename(user_dir, "banks");
     pluginpreset_dir = Glib::build_filename(user_dir, "pluginpresets");
-#endif
     const char *tmp = getenv("GUITARIX2JACK_OUTPUTS1");
     if (tmp && *tmp) {
 	jack_outputs.push_back(tmp);

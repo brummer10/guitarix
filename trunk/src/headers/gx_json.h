@@ -348,33 +348,20 @@ public:
 	factory,
     };
 protected:
-    class Factory {
-    public:
-	Glib::ustring     name;
-	PresetFile setting;
-	Factory(Glib::ustring n): name(n), setting() {}
-    };
     AbstractStateIO*   state_io;
     AbstractPresetIO*  preset_io;
     StateFile          statefile;
     PresetBanks        banks;
-    PresetFile         presetfile;
-    vector<Factory*>   factory_presets;
     Source             current_source;
-    Glib::ustring      current_factory;
+    Glib::ustring      current_bank;
     Glib::ustring      current_name;
     gx_engine::EngineControl& seq;
     sigc::signal<void> selection_changed;
     sigc::signal<void> presetlist_changed;
-    void clear_factory();
-    PresetFile* get_factory(const Glib::ustring& name) const;
     void loadsetting(PresetFile *p, const Glib::ustring& name);
 protected:
-    void load(Source src, const Glib::ustring& name, const Glib::ustring& factory);
     void loadstate();
     void set_io(AbstractStateIO* st, AbstractPresetIO* pr) { state_io = st; preset_io = pr; }
-    void convert_presetfile();
-    void change_preset_file(const std::string& newfile);
 public:
     inline sigc::signal<void>& signal_selection_changed() {
 	return selection_changed; }
@@ -383,28 +370,14 @@ public:
     GxSettingsBase(gx_engine::EngineControl& seq_);
     ~GxSettingsBase();
     Source get_current_source() { return current_source; }
-    const Glib::ustring& get_current_factory() { return current_factory; }
+    const Glib::ustring& get_current_bank() { return current_bank; }
     const Glib::ustring& get_current_name() { return current_name; }
     void set_statefilename(const std::string& fn) { statefile.set_filename(fn); }
     void save_to_state(bool preserve_preset=false);
-    void save_to_current_preset() {
-	if (current_source == preset) save_to_preset(current_name); }
-    void save_to_preset(const Glib::ustring& name);
     void set_source_to_state();
-    int get_preset_index(const Glib::ustring& name) {	return presetfile.get_index(name); }
-    bool rename_preset(const Glib::ustring& name, const Glib::ustring& newname);
-    void erase_current_preset() {
-	if (current_source == preset) erase_preset(current_name); }
     void erase_preset(const Glib::ustring& name);
-    bool presetfile_fail() { return presetfile.fail(); }
-    bool clear_preset();
-    void fill_preset_names(vector<Glib::ustring>& l) {  presetfile.fill_names(l); }
-    void fill_factory_names(vector<Glib::ustring>& l) const;
-    void fill_factory_preset_names(const Glib::ustring& fact, vector<Glib::ustring>& l) const;
     bool setting_is_preset() { return current_source == preset; }
     bool setting_is_factory() { return current_source == factory; }
-    bool idx_in_preset(int idx) { return idx >= 0 && idx < presetfile.size(); }
-    void load_preset_by_idx(int idx) { load(preset, presetfile.get_name(idx), ""); }
     bool convert_preset(PresetFile& pf);
     void reorder_preset(PresetFile& pf, const std::vector<Glib::ustring>& neworder);
     void erase_preset(PresetFile& pf, const Glib::ustring& name);

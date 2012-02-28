@@ -299,7 +299,7 @@ void Liveplay::process_preset_key(int idx) {
 	    display_empty(Glib::ustring::compose("?? / %1", idx+1));
 	    return;
 	}
-	last_bank_key = gx_settings.get_current_factory();
+	last_bank_key = gx_settings.get_current_bank();
     }
     gx_system::PresetFile *f = gx_settings.banks.get_file(last_bank_key);
     if (idx >= f->size()) {
@@ -491,7 +491,7 @@ void Liveplay::on_selection_changed() {
 	s = "----";
     } else {
 	s = Glib::ustring::compose(
-	    "%1 / %2", gx_settings.get_current_factory(), gx_settings.get_current_name());
+	    "%1 / %2", gx_settings.get_current_bank(), gx_settings.get_current_name());
     }
     liveplay_preset->set_text(s);
 }
@@ -2750,7 +2750,7 @@ void MainWindow::add_skin_menu() {
     for (vector<string>::iterator i = options.skin.skin_list.begin();
 	 i != options.skin.skin_list.end();
 	 ++i) {
-	Glib::ustring name = i->substr(4);
+	Glib::ustring name = *i;
 	Glib::ustring actname = Glib::ustring::compose("ChangeSkin_%1", name);
 	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
 	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(sg, actname, name);
@@ -3393,7 +3393,7 @@ void MainWindow::on_jack_client_changed() {
 }
 
 void MainWindow::do_program_change(int pgm) {
-    Glib::ustring bank = gx_settings.get_current_factory();
+    Glib::ustring bank = gx_settings.get_current_bank();
     bool in_preset = !bank.empty();
     gx_system::PresetFile *f;
     if (in_preset) {

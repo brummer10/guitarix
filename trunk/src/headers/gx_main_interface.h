@@ -253,18 +253,6 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 };
 
 /****************************************************************/
-#if 0
-struct uiButton : public gx_ui::GxUiItemFloat {
-    GtkButton*     fButton;
-    uiButton(gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItemFloat(ui, zone),
-             fButton(b) {}
-    static void pressed(GtkWidget *widget, gpointer   data);
-    static void released(GtkWidget *widget, gpointer   data);
-    virtual void reflectZone();
-};
-#endif
-/****************************************************************/
-
 class ReportXrun {
 private:
     gx_jack::GxJack& jack;

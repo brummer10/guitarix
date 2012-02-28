@@ -593,26 +593,6 @@ void StackBoxBuilder::openHorizontalhideBox(const char* label) {
     if (label[0] != 0) box->m_box.show();
 }
 
-#if 0
-void StackBoxBuilder::openVerticalHideBox(const char* label) {
-    string s = label;
-    
-    static bool hs = true;
-    gx_engine::get_group_table().insert(s, s);
-    s +=".s_h";
-    pmap.reg_non_midi_par(s, &hs, false);
-    gx_engine::Parameter& param_switch = pmap[s];
-    GxVHideBox * box =  new GxVHideBox(*this, param_switch);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(4);
-    //gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), false, fill, 0);
-    box->m_box.show_all();
-    pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
-    
-}
-#endif
-
 void StackBoxBuilder::openHorizontalTableBox(const char* label) {
     GxHBox * box =  new GxHBox(*this);
     box->m_box.set_homogeneous(false);

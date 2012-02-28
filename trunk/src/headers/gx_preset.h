@@ -25,6 +25,8 @@
 #ifndef SRC_HEADERS_GX_PRESET_H_
 #define SRC_HEADERS_GX_PRESET_H_
 
+class PosixSignals;
+
 namespace gx_preset {
 
 /****************************************************************
@@ -94,43 +96,29 @@ private:
     gx_engine::ParamMap&  param;
     gx_preset::PresetIO   preset_io;
     gx_preset::StateIO    state_io;
-    gx_engine::FileParameter& presetfile_parameter;
     bool                  state_loaded;
     bool                  no_autosave;
     gx_jack::GxJack&      jack;
     gx_system::CmdlineOptions& options;
     gx_engine::StringParameter& preset_parameter;
-    gx_engine::StringParameter& factory_parameter;
-    static GxSettings *instance;//FIXME
-    void presetfile_changed();
+    gx_engine::StringParameter& bank_parameter;
     void exit_handler(bool otherthread);
     void jack_client_changed();
     string make_state_filename();
     string make_default_state_filename();
-    string make_std_preset_filename();
-    void check_convert_presetfile();
-    void parse_factory_list();
     static bool check_create_config_dir(const Glib::ustring& dir);
-    static string get_default_presetfile(gx_system::CmdlineOptions& opt);
+    static GxSettings *instance;
+    friend class ::PosixSignals;
 public:
     using GxSettingsBase::banks;
     GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack, gx_engine::ConvolverAdapter& cvr,
 	       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl,
 	       gx_engine::ModuleSequencer& seq, gx_engine::ParamMap& param);
     ~GxSettings();
-    string get_displayname();
     static bool check_settings_dir(gx_system::CmdlineOptions& opt);
-    void load(Source src, const string& name = "", const string& factory = "");
     void loadstate();
     void disable_autosave(bool v) { no_autosave = v; }
     void auto_save_state();
-    static GxSettings& get_instance() { assert(instance); return *instance; }
-    void set_std_presetfile() { presetfile_parameter.stdJSON_value(); presetfile_parameter.setJSON_value(); }
-    string get_preset_filename() { return presetfile_parameter.get_path(); }
-    bool set_preset_file(const string& newfile);
-    string get_preset_dirname() { return presetfile_parameter.get_directory_path(); }
-    void copy_preset_file(const string& destination) { presetfile_parameter.copy(destination); }
-    sigc::signal<void>& signal_presetfile_changed() { return presetfile_parameter.signal_changed(); }
     Glib::RefPtr<PluginPresetList> load_plugin_preset_list(const Glib::ustring& id);
 };
 

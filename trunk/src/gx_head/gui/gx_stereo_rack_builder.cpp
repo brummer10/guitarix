@@ -356,41 +356,4 @@ void StackBoxBuilder::make_rackbox_stereoverb() {
     closeStereoRackBox();
 }
 
-#if 0
-void GxMainInterface::gx_build_stereo_rack(StackBoxBuilderOld& bb) {
-    openHorizontalTableBox("");
-    fStereoRackContainer = fBox[fTop];
-    {
-        // add controllers without show them
-        openHorizontalhideBox("");
-        {
-            create_small_rackknob("jconv.balance");
-            create_small_rackknob("jconv.diff_delay");
-            create_small_rackknob("jconv.gain");
-            create_small_rackknob("jconv.wet_dry");
-            create_hslider("amp.balance", "balance");
-        }
-        closeBox();
-
-	bb.make_rackbox_chorus();
-	bb.make_rackbox_flanger();
-	bb.make_rackbox_phaser();
-	bb.make_rackbox_stereodelay();
-	bb.make_rackbox_stereoecho();
-	bb.make_rackbox_moog();
-	bb.make_rackbox_ampmodul();
-	bb.make_rackbox_tonemodul();
-	bb.make_rackbox_jconv();
-	bb.make_rackbox_stereoverb();
-        
-        openHorizontalhideBox1("");
-        {
-            create_hslider("amp.balance", "balance");
-        }
-        closeBox();
-    }
-    closeBox();
-}   // close stereo rack
-#endif
-
 }  // end namespace gx_gui

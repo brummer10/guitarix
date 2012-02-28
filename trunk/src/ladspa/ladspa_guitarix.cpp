@@ -287,12 +287,67 @@ class LadspaSettings: public gx_system::GxSettingsBase {
 private:
     PresetIO preset_io;
     StateIO state_io;
+    void change_preset_file(const std::string& newfile);
+    void load(Source src, const Glib::ustring& name);
 public:
+    gx_system::PresetFile presetfile;
     LadspaSettings(string sfname, string presname,
 		   ParamMap& param, EngineControl&, ConvolverAdapter*, ControlParameter&);
     ~LadspaSettings();
     void load(int num);
+    bool idx_in_preset(int idx) { return idx >= 0 && idx < presetfile.size(); }
+    void load_preset_by_idx(int idx) { load(preset, presetfile.get_name(idx)); }
 };
+
+void LadspaSettings::load(Source src, const Glib::ustring& name) {
+    gx_system::PresetFile *p = 0;
+    switch (src) {
+    case preset:
+    case factory:
+	if (presetfile.get_index(name) < 0) {
+	    return;
+	}
+	p = &presetfile;
+	current_source = src;
+	current_name = name;
+	current_bank = "";
+	break;
+    case state:
+    default:
+	current_source = state;
+	current_bank = current_name = "";
+	break;
+    }
+    seq.start_ramp_down();
+    loadsetting(p, name);
+    seq.start_ramp_up();
+    if (current_source == state) {
+	// might have changed because we read all state file sections
+	current_bank = current_name = "";
+    }
+    gx_ui::GxUI::updateAllGuis();
+    seq.clear_rack_changed();
+    selection_changed();
+}
+
+void LadspaSettings::change_preset_file(const std::string& newfile) {
+    try {
+	if (presetfile.get_filename() == newfile) {
+	    presetfile.reopen();
+	} else {
+	    presetfile.open(newfile);
+	    if (current_source == preset) {
+		current_source = state;
+		current_name = "";
+		selection_changed();
+	    }
+	}
+	presetlist_changed();
+    } catch(gx_system::JsonException& e) {
+	gx_system::gx_print_error(
+	    newfile.c_str(), e.what());
+    }
+}
 
 // seq and cp not yet initialized, only use address!
 LadspaSettings::LadspaSettings(string sfname, string presname, ParamMap& param,
@@ -311,7 +366,7 @@ LadspaSettings::~LadspaSettings() {
 void LadspaSettings::load(int num) {
     if (num == 0) {
 	statefile.ensure_is_current();
-	gx_system::GxSettingsBase::load(state,"","");
+	load(state,"");
     } else {
 	presetfile.ensure_is_current();
 	if (idx_in_preset(num-1)) {

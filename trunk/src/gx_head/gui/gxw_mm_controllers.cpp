@@ -395,24 +395,4 @@ UiSwitchWithCaption::~UiSwitchWithCaption() {
     delete m_box;
 }
 
-#if 0
-void PToggleButton::on_clicked() {
-    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
-    gui.mainmenu.preset_submenu[0].popup(2, gtk_get_current_event_time());
-}
-
-PToggleButton::PToggleButton(const char* label):
-    m_label(label) {
-    Pango::FontDescription font = m_label.get_style()->get_font();
-    font.set_size(8*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_BOLD);
-    m_label.modify_font(font);
-    m_label.set_name("beffekt_label");
-    m_label.show();
-    button.add(m_label);
-    button.signal_clicked().connect(
-	sigc::mem_fun(*this, &PToggleButton::on_clicked));
-}
-#endif
-
 }/* end of gx_gui namespace */
