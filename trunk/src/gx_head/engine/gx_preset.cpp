@@ -514,7 +514,7 @@ GxSettings::~GxSettings() {
 
 void GxSettings::auto_save_state() {
     if (state_loaded && !no_autosave) {
-	save_to_state(current_source != state);
+	save_to_state();
     }
 }
 
