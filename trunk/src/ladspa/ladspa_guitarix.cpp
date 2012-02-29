@@ -195,7 +195,7 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
         } else if (jp.current_value() == "jconv") {
 	    if (convolver) {
 		gx_system::PathList sl;
-		sl.add(string(getenv("HOME"))+"/.gx_head"); //FIXME
+		sl.add(Glib::build_filename(Glib::get_user_config_dir(), "guitarix")); //FIXME
 		sl.add(GX_SOUND_DIR);
 		jcset = GxJConvSettings();
 		jcset.readJSON(jp, sl);
@@ -451,7 +451,7 @@ protected:
 };
 
 static string get_statefile() {
-    return string(getenv("HOME")) + "/.gx_head/gx_head_rc";
+    return Glib::build_filename(Glib::get_user_config_dir(), "guitarix/gx_head_rc");
 }
 
 static string get_presetfile(const char *envvar) {
@@ -463,7 +463,7 @@ static string get_presetfile(const char *envvar) {
     if (path && path[0]) {
 	return path;
     }
-    return string(getenv("HOME")) + "/.gx_head/gx_headpre_rc";
+    return Glib::build_filename(Glib::get_user_config_dir(), "guitarix/scratchpad.gx");
 }
 
 // engine and cp not yet initialized, only use address!
@@ -1009,7 +1009,7 @@ public:
 
 LadspaGuitarixMono::LadspaGuitarixMono(unsigned long sr)
     : LadspaGuitarix(engine, 0, control_parameter, "LADSPA_GUITARIX_MONO_PRESET"),
-      engine(string(getenv("HOME"))+"/.gx_head/", param, get_group_table()),
+      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins"), param, get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),
@@ -1508,7 +1508,7 @@ public:
 
 LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
     : LadspaGuitarix(engine, &engine.convolver, control_parameter, "LADSPA_GUITARIX_STEREO_PRESET"),
-      engine(string(getenv("HOME"))+"/.gx_head/", param, get_group_table()),
+      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins"), param, get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),
