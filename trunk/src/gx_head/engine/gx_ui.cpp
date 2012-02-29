@@ -30,9 +30,11 @@
 
 namespace gx_ui {
 list<GxUI*> GxUI::fGuiList;
+bool GxUI::in_updateAll = false;
 
 // constructor
-GxUI::GxUI() {
+GxUI::GxUI()
+    : in_update(false), fZoneMap() {
     fGuiList.push_back(this);
 }
 
@@ -60,14 +62,23 @@ void GxUI::unregisterZone(void* z, GxUiItem* c) {
 }
 
 void GxUI::updateAllGuis(bool force) {
+    if (in_updateAll) {
+	return;
+    }
+    in_updateAll = true;
     list<GxUI*>::iterator g;
     for (g = fGuiList.begin(); g != fGuiList.end(); ++g) {
         (*g)->updateAllZones(force);
     }
+    in_updateAll = false;
 }
 
 // Update all user items not up to date
 void GxUI::updateAllZones(bool force) {
+    if (in_update) {
+	return;
+    }
+    in_update = true;
     for (zmap::iterator m = fZoneMap.begin(); m != fZoneMap.end(); ++m) {
         clist*	l = m->second;
         for (clist::iterator c = l->begin(); c != l->end(); ++c) {
@@ -76,6 +87,7 @@ void GxUI::updateAllZones(bool force) {
 	    }
         }
     }
+    in_update = false;
 }
 
 /* ---------------- GxUiItem stuff --------------- */

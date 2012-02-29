@@ -59,6 +59,8 @@ class GxUI {
 
  private:
     static list<GxUI*>    fGuiList;
+    static bool in_updateAll;
+    bool        in_update;
     zmap        fZoneMap;
  public:
     GxUI();
