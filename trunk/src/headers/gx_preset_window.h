@@ -114,6 +114,7 @@ private:
     Gtk::VPaned *main_vpaned;
     Gtk::ScrolledWindow *preset_scrolledbox;
     Gtk::Entry *preset_status;
+    Glib::RefPtr<Gtk::AccelGroup> accel_group;
 private:
     void load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld);
     void target_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
@@ -166,7 +167,8 @@ private:
     void display_paned(bool show_preset);
 public:
     PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
-		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup> actiongroup);
+		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup>& actiongroup,
+		 Glib::RefPtr<Gtk::AccelGroup>& accel_group);
     ~PresetWindow();
     void on_preset_select(bool v);
 };

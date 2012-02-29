@@ -51,7 +51,7 @@ bool PresetStore::row_draggable_vfunc(const TreeModel::Path& path) const {
 int PresetWindow::paned_child_height = 0;
 
 PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings_,
-			   const gx_system::CmdlineOptions& options_, Glib::RefPtr<Gtk::ActionGroup> actiongroup_)
+			   const gx_system::CmdlineOptions& options_, Glib::RefPtr<Gtk::ActionGroup>& actiongroup_, Glib::RefPtr<Gtk::AccelGroup>& accel_group_)
     : gx_settings(gx_settings_),
       actiongroup(actiongroup_),
       paned_child_height_param(pmap.reg_non_midi_par("system.preset_window_height", &paned_child_height, false, 200, 0, 99999)),
@@ -74,7 +74,8 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
       animate(true),
       options(options_),
       in_current_preset(false),
-      on_map_conn()
+      on_map_conn(),
+      accel_group(accel_group_)
       /* widget pointers not initialized */ {
     load_widget_pointers(bld);
     Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("ClosePresetsAction");
@@ -477,6 +478,7 @@ void PresetWindow::on_editing_started(const Gtk::CellEditable* edit, const Glib:
     } else {
 	dynamic_cast<Gtk::Entry*>(const_cast<Gtk::CellEditable*>(edit))->set_text(s);
     }
+    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->remove_accel_group(accel_group);
 }
 
 bool PresetWindow::edit_cell(const Gtk::TreeModel::Path pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell) {
@@ -496,6 +498,7 @@ void PresetWindow::reset_edit(Gtk::TreeViewColumn& col) {
     col.set_min_width(0);
     col.queue_resize();
     in_edit = false;
+    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->add_accel_group(accel_group);
 }
 
 void PresetWindow::on_edit_canceled(Gtk::TreeViewColumn *col) {

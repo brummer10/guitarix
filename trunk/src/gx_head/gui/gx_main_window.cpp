@@ -3606,7 +3606,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(expand_button->gobj()), GTK_ACTION(expand_action->gobj()));
 
     live_play = new Liveplay(options, engine, gx_settings, options.get_builder_filepath("mainpanel.glade"), actiongroup);
-    preset_window = new PresetWindow(pmap, bld, gx_settings, options, actiongroup);
+    preset_window = new PresetWindow(pmap, bld, gx_settings, options, actiongroup, accel_group);
 
     tuner_action->set_active(false);
     show_plugin_bar_action->set_active(false);
