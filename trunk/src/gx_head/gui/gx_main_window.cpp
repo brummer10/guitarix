@@ -2162,7 +2162,6 @@ bool UiRadioAction<gx_engine::SwitchParameter>::hasChanged() {
 
 template <>
 void UiRadioAction<gx_engine::SwitchParameter>::reflectZone() {
-    printf("%d %d\n", get_current_value(), param.get());
     set_current_value(param.get());
 }
 
@@ -2177,6 +2176,11 @@ float GuiParameter::refpitch = 0;
 int GuiParameter::tuning_mode = 0;
 bool GuiParameter::tuner_ui = false;
 bool GuiParameter::tuner_var = false;
+int GuiParameter::mainwin_x = -1;
+int GuiParameter::mainwin_y = -1;
+int GuiParameter::mainwin_width = -1;
+int GuiParameter::mainwin_height = -1;
+
 const value_pair GuiParameter::streaming_labels[] = {{"scale"}, {"stream"}, {0}};
 const value_pair GuiParameter::tuning_labels[] = {{"(Chromatic)"},{"Standard"}, {"Standard/Es"}, {"Open E"}, {0}};
 
@@ -2197,6 +2201,10 @@ GuiParameter::GuiParameter(gx_engine::ParamMap& pmap) {
     show_values = pmap.reg_switch("system.show_value");
     show_tooltips = pmap.reg_switch("system.show_tooltips");
     midi_in_presets = pmap.reg_switch("system.midi_in_preset");
+    mainwin_x_param = pmap.reg_non_midi_par("system.mainwin_x", &mainwin_x, false, -1, -1, 99999);
+    mainwin_y_param = pmap.reg_non_midi_par("system.mainwin_y", &mainwin_y, false, -1, -1, 99999);
+    mainwin_width_param = pmap.reg_non_midi_par("system.mainwin_width", &mainwin_width, false, -1, -1, 99999);
+    mainwin_height_param = pmap.reg_non_midi_par("system.mainwin_height", &mainwin_height, false, -1, -1, 99999);
 }
 
 void update_scrolled_window(Gtk::ScrolledWindow& w) {
@@ -3083,6 +3091,18 @@ void MainWindow::on_log_activate() {
     }
 }
 
+void MainWindow::on_engine_toggled() {
+    gx_engine::GxEngineState s;
+    if (engine_mute_action->get_active()) {
+	s = gx_engine::kEngineOff;
+    } else if (engine_bypass_action->get_active()) {
+	s = gx_engine::kEngineBypass;
+    } else {
+	s = gx_engine::kEngineOn;
+    }
+    engine.set_state(s);
+}
+
 void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const GuiParameter& para) {
     uimanager = Gtk::UIManager::create();
     // Create actions
@@ -3177,10 +3197,13 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
 
     // engine
     engine_mute_action = Gtk::ToggleAction::create("EngineMute", "Engine _Mute");
-    actiongroup->add(engine_mute_action, Gtk::AccelKey("space"));
+    actiongroup->add(
+	engine_mute_action, Gtk::AccelKey("space"),
+	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
     engine_bypass_action = Gtk::ToggleAction::create("EngineBypass", "Engine _Bypass");
-    actiongroup->add(engine_bypass_action, Gtk::AccelKey("b"));
-
+    actiongroup->add(
+	engine_bypass_action, Gtk::AccelKey("b"),
+	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
 
     // Create some RadioActions
     Gtk::RadioButtonGroup dg;
@@ -3480,6 +3503,22 @@ void MainWindow::on_jack_client_changed() {
     }
 }
 
+void MainWindow::on_engine_state_change(gx_engine::GxEngineState state) {
+    switch (state) {
+    case gx_engine::kEngineOff:
+	engine_mute_action->set_active(true);
+	break;
+    case gx_engine::kEngineOn:
+	engine_mute_action->set_active(false);
+	engine_bypass_action->set_active(false);
+	break;
+    case gx_engine::kEngineBypass:
+	engine_mute_action->set_active(false);
+	engine_bypass_action->set_active(true);
+	break;
+    }
+}
+
 void MainWindow::do_program_change(int pgm) {
     Glib::ustring bank = gx_settings.get_current_bank();
     bool in_preset = !bank.empty();
@@ -3567,7 +3606,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(expand_button->gobj()), GTK_ACTION(expand_action->gobj()));
 
     live_play = new Liveplay(options, engine, gx_settings, options.get_builder_filepath("mainpanel.glade"), actiongroup);
-    preset_window = new PresetWindow(bld, gx_settings, options, actiongroup);
+    preset_window = new PresetWindow(pmap, bld, gx_settings, options, actiongroup);
 
     tuner_action->set_active(false);
     show_plugin_bar_action->set_active(false);
@@ -3589,6 +3628,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	sigc::mem_fun(*this, &MainWindow::change_skin_idx));
     jack.signal_buffersize_change().connect(
 	sigc::mem_fun(*this, &MainWindow::set_latency));
+    pmap.set_init_values();
     gx_settings.loadstate();
     gx_ui::GxUI::updateAllGuis(true);
 
@@ -3598,6 +3638,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     add_rackbox_internal(mainamp_plugin, 0, 0, false, -1, false, amp_background);
     effects_toolpalette->show_all();
 
+    engine.signal_state_change().connect(
+	sigc::mem_fun(*this, &MainWindow::on_engine_state_change));
     Glib::signal_timeout().connect(
 	sigc::mem_fun(*this, &MainWindow::update_all_gui), 40);
     jack.signal_client_change().connect(
@@ -3609,10 +3651,18 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
     }
     set_latency();
+    if (para.mainwin_width > 0) {
+	window->resize(para.mainwin_width, para.mainwin_height);
+    }
+    if (para.mainwin_x > 0) {
+	window->move(para.mainwin_x, para.mainwin_y);
+    }
     window->show();
 }
 
 MainWindow::~MainWindow() {
+    window->get_size(GuiParameter::mainwin_width, GuiParameter::mainwin_height);
+    window->get_window()->get_root_origin(GuiParameter::mainwin_x, GuiParameter::mainwin_y);
     for (std::map<std::string, PluginUI*>::iterator i = plugin_dict.begin(); i != plugin_dict.end(); ++i) {
 	ui.unregisterZone(&i->second->plugin->box_visible, i->second);
 	ui.unregisterZone(&i->second->plugin->position, i->second);

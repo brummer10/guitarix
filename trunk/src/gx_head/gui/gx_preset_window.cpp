@@ -48,11 +48,13 @@ bool PresetStore::row_draggable_vfunc(const TreeModel::Path& path) const {
 }
 
 
-PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings_, const gx_system::CmdlineOptions& options_,
-			   Glib::RefPtr<Gtk::ActionGroup> actiongroup_)
+int PresetWindow::paned_child_height = 0;
+
+PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings_,
+			   const gx_system::CmdlineOptions& options_, Glib::RefPtr<Gtk::ActionGroup> actiongroup_)
     : gx_settings(gx_settings_),
       actiongroup(actiongroup_),
-      paned_child_height(200),
+      paned_child_height_param(pmap.reg_non_midi_par("system.preset_window_height", &paned_child_height, false, 200, 0, 99999)),
       in_edit(false),
       edit_iter(),
       pb_edit(),
@@ -159,6 +161,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSet
 }
 
 PresetWindow::~PresetWindow() {
+    paned_child_height = main_vpaned->get_allocation().get_height() - main_vpaned->get_position();
 }
 
 void PresetWindow::load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld) {
@@ -746,10 +749,8 @@ void PresetWindow::on_bank_changed() {
     }
     Glib::ustring nm = it->get_value(bank_col.name);
     preset_title->set_text(nm);
-    Glib::ustring cp;
     if (nm == gx_settings.get_current_bank()) {
 	in_current_preset = true;
-	cp = gx_settings.get_current_name();
     } else {
 	in_current_preset = false;
     }
@@ -774,9 +775,6 @@ void PresetWindow::on_bank_changed() {
 	if (modifiable) {
 	    i->set_value(pstore->col.edit_pb, pb_edit);
 	    i->set_value(pstore->col.del_pb, pb_del);
-	}
-	if (s->name == cp) {
-	    preset_treeview->get_selection()->select(i);
 	}
     }
     if (modifiable) {
@@ -1114,6 +1112,14 @@ void PresetWindow::on_preset_save() {
     gx_settings.save(*pf, gx_settings.get_current_name());
 }
 
+void PresetWindow::display_paned() {
+    vpaned_pos = main_vpaned->get_allocation().get_height();
+    vpaned_target = vpaned_pos - paned_child_height;
+    main_vpaned->set_position(vpaned_target);
+    child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
+    preset_scrolledbox->show();
+}
+
 void PresetWindow::on_preset_select(bool v) {
     if (v) {
 	Glib::RefPtr<Gtk::TreeSelection> sel = bank_treeview->get_selection();
@@ -1126,18 +1132,19 @@ void PresetWindow::on_preset_select(bool v) {
 	    reload_banks(sel_bank);
 	}
 	autosize();
-	vpaned_pos = main_vpaned->get_allocation().get_height();
-	vpaned_target = vpaned_pos - paned_child_height;
-	if (animate && main_vpaned->get_mapped()) {
+	if (!main_vpaned->get_mapped()) {
+	    main_vpaned->get_toplevel()->signal_map().connect(
+		sigc::mem_fun(*this, &PresetWindow::display_paned));
+	} else if (animate) {
+	    vpaned_pos = main_vpaned->get_allocation().get_height();
+	    vpaned_target = vpaned_pos - paned_child_height;
 	    main_vpaned->set_position(vpaned_pos);
 	    vpaned_step = paned_child_height / 5;
 	    preset_scrolledbox->show();
 	    animate_preset_show();
 	    Glib::signal_timeout().connect(sigc::mem_fun(*this, &PresetWindow::animate_preset_show), 20);
 	} else {
-	    main_vpaned->set_position(vpaned_target);
-	    child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
-	    preset_scrolledbox->show();
+	    display_paned();
 	}
     } else {
 	vpaned_target = main_vpaned->get_allocation().get_height();

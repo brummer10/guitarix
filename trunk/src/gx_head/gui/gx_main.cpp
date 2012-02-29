@@ -299,7 +299,6 @@ GxSplashBox::GxSplashBox()
 #ifndef NDEBUG
 int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
                         gx_engine::ParamMap& pmap, const string& fname) {
-    //pmap.reg_switch("system.midi_in_preset", false, false);
     pmap.set_init_values();
     if (!options.get_rcset().empty()) {
 	std::string rcfile = options.get_style_filepath("gx_head_"+options.get_rcset()+".rc");
@@ -372,7 +371,6 @@ int main(int argc, char *argv[]) {
 
 	// ------ initialize parameter list ------
 	gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
-	gx_engine::parameter_map.set_init_values();
 
 	// ------ time measurement (debug) ------
 #ifndef NDEBUG
@@ -384,13 +382,10 @@ int main(int argc, char *argv[]) {
 	}
 #endif
 	// ----------------------- init GTK interface----------------------
-
 	MainWindow gui(engine, options, gx_engine::parameter_map);
-	//gx_gui::GxMainInterface gui(engine, options, gx_engine::parameter_map);
-	//gui.setup();
+
 	// ----------------------- run GTK main loop ----------------------
 	gx_ui::GxUI::updateAllGuis(true);
-	//gui.show();
 	delete Splash;
 	gui.run();
     } catch (const Glib::OptionError &e) {

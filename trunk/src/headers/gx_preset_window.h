@@ -71,7 +71,8 @@ class PresetWindow {
 private:
     gx_preset::GxSettings& gx_settings;
     Glib::RefPtr<Gtk::ActionGroup> actiongroup;
-    int paned_child_height;
+    static int paned_child_height;
+    gx_engine::IntParameter *paned_child_height_param;
     bool in_edit;
     Gtk::TreeModel::iterator edit_iter;
     Glib::RefPtr<Gdk::Pixbuf> pb_edit;
@@ -161,8 +162,9 @@ private:
     bool animate_preset_hide();
     void show_selected_preset();
     void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f);
+    void display_paned();
 public:
-    PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
+    PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
 		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup> actiongroup);
     ~PresetWindow();
     void on_preset_select(bool v);

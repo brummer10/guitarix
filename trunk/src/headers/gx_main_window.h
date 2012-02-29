@@ -448,19 +448,21 @@ public:
 
 typedef UiRadioAction<gx_engine::SwitchParameter> UiSwitchRadioAction;
 
-class GuiParameter {
-private:
+struct GuiParameter {
     // rack tuner
     static float scale_lim;
     static int streaming;
     static float refpitch;
     static int tuning_mode;
-    //static int current_mode;
     static bool tuner_ui;
     static const value_pair streaming_labels[];
     static const value_pair tuning_labels[];
     static bool tuner_var;
-public:
+    static int mainwin_x;
+    static int mainwin_y;
+    static int mainwin_width;
+    static int mainwin_height;
+
     gx_engine::BoolParameter *ui_racktuner;
     gx_engine::EnumParameter *racktuner_streaming;
     gx_engine::EnumParameter *racktuner_tuning;
@@ -474,7 +476,11 @@ public:
     gx_engine::SwitchParameter *show_values;
     gx_engine::SwitchParameter *show_tooltips;
     gx_engine::SwitchParameter *midi_in_presets;
-public:
+    gx_engine::IntParameter *mainwin_x_param;
+    gx_engine::IntParameter *mainwin_y_param;
+    gx_engine::IntParameter *mainwin_width_param;
+    gx_engine::IntParameter *mainwin_height_param;
+
     GuiParameter(gx_engine::ParamMap& pmap);
 };
 
@@ -647,6 +653,8 @@ private:
     void delete_select_jack_control();
     void on_log_activate();
     void do_program_change(int pgm);
+    void on_engine_toggled();
+    void on_engine_state_change(gx_engine::GxEngineState state);
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();
