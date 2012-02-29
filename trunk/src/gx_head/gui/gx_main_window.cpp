@@ -631,36 +631,47 @@ void Liveplay::add_midi_elements() {
 PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const char *name,
 		   const Glib::ustring& fname_, const Glib::ustring& tooltip_)
     : GxUiItem(), merge_id(0), action(), plugin(pl.lookup_plugin(name)), fname(fname_),
-      tooltip(tooltip_), shortname(), icon(), group(), toolitem(), main(main_), rackbox() {
+      tooltip(tooltip_), shortname(), icon(), group(), toolitem(), main(main_), rackbox(),
+      hidden(false), compressed(false) {
 }
 
 bool PluginUI::hasChanged() {
     if ((plugin->box_visible || plugin->on_off) != is_displayed()) {
+	if (plugin->on_off) {
+	    // when loading from old preset files make sure plugins
+	    // are visible if they are switched on
+	    plugin->box_visible = true;
+	}
 	return true;
     }
-    if (!rackbox) {
+    if (!plugin->box_visible) {
 	return false;
     }
     if (plugin->plug_visible != rackbox->get_plug_visible()) {
 	return true;
     }
+    if (main.is_loading()) {
+	return false;
+    }
     return rackbox->hasOrderDiff();
 }
 
 void PluginUI::reflectZone() {
-    action->set_active(plugin->box_visible);
-    if ((plugin->box_visible || plugin->on_off) != is_displayed()) {
+    if (!hasChanged()) {
+	return;
+    }
+    if (plugin->box_visible != is_displayed()) {
+	action->set_active(plugin->box_visible);
 	display(plugin->box_visible, false);
     }
-    if (rackbox) {
+    if (plugin->box_visible) {
 	if (plugin->plug_visible != rackbox->get_plug_visible()) {
 	    rackbox->swtch(plugin->plug_visible);
 	}
-	if (rackbox->hasOrderDiff()) {
+	if (!main.is_loading() && rackbox->hasOrderDiff()) {
 	    rackbox->get_parent()->check_order();
 	}
     }
-    action->set_active(plugin->box_visible);
 }
 
 void PluginUI::set_action(Glib::RefPtr<Gtk::ToggleAction>& act)
@@ -670,7 +681,7 @@ void PluginUI::set_action(Glib::RefPtr<Gtk::ToggleAction>& act)
 }
 
 void PluginUI::on_action_toggled() {
-    if ((plugin->box_visible || plugin->on_off) != is_displayed()) {
+    if (plugin->box_visible != is_displayed()) {
 	return; // call triggered by reflectZone
     }
     if (action->get_active()) {
@@ -691,6 +702,12 @@ void PluginUI::display(bool v, bool animate) {
 	    rackbox = main.add_rackbox(*this, false, -1, animate);
 	} else {
 	    rackbox->display(true, animate);
+	}
+	if (compressed) {
+	    rackbox->swtch(true);
+	}
+	if (hidden) {
+	    rackbox->hide();
 	}
 	main.hide_effect(get_id());
     } else {
@@ -1645,9 +1662,11 @@ void RackContainer::find_index(int x, int y, int* len, int *ypos) {
 void RackContainer::on_my_remove(Gtk::Widget *ch) {
     child_count -= 1;
     assert(child_count >= 0);
-    renumber();
     if (child_count == 0 && tp == PLUGIN_TYPE_MONO && main.show_plugin_bar_action->get_active()) {
 	main.get_monorackcontainer().set_size_request(-1, 20);
+    }
+    if (!main.is_loading()) {
+	renumber();
     }
 }
 
@@ -1748,17 +1767,23 @@ void RackContainer::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& 
 }
 
 void RackContainer::show_entries() {
-    Glib::ListHandle<RackBox*> l = get_children();
-    for (Glib::ListHandle<RackBox*>::iterator ch = l.begin(); ch != l.end(); ++ch) {
-	(*ch)->show();
+    for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
+	i->second->hidden = false;
+	RackBox *r = i->second->rackbox;
+	if (r) {
+	    r->show();
+	}
     }
 }
 
 void RackContainer::hide_entries() {
-    Glib::ListHandle<RackBox*> l = get_children();
-    for (Glib::ListHandle<RackBox*>::iterator ch = l.begin(); ch != l.end(); ++ch) {
-	if ((*ch)->can_compress()) {
-	    (*ch)->hide();
+    for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
+	i->second->hidden = true;
+	RackBox *r = i->second->rackbox;
+	if (r) {
+	    if (r->can_compress()) {
+		r->hide();
+	    }
 	}
     }
 }
@@ -1792,6 +1817,9 @@ void RackContainer::on_add(Widget *ch) {
 void RackContainer::add(RackBox& r, int pos) {
     pack_start(r, Gtk::PACK_SHRINK);
     ++child_count;
+    if (main.is_loading()) {
+	return;
+    }
     reorder_child(r, pos);
     if (config_mode) {
 	r.set_config_mode(true);
@@ -1820,19 +1848,25 @@ bool RackContainer::check_if_animate(const RackBox& rackbox) {
 }
 
 void RackContainer::compress_all() {
-    std::vector<RackBox*> l = get_children();
-    for (std::vector<RackBox*>::iterator c = l.begin(); c != l.end(); ++c) {
-	if ((*c)->can_compress()) {
-	    (*c)->swtch(true);
+    for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
+	i->second->compressed = true;
+	RackBox *r = i->second->rackbox;
+	if (r) {
+	    if (r->can_compress()) {
+		r->swtch(true);
+	    }
 	}
     }
 }
 
 void RackContainer::expand_all() {
-    std::vector<RackBox*> l = get_children();
-    for (std::vector<RackBox*>::iterator c = l.begin(); c != l.end(); ++c) {
-	if ((*c)->can_compress()) {
-	    (*c)->swtch(false);
+    for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
+	i->second->compressed = false;
+	RackBox *r = i->second->rackbox;
+	if (r) {
+	    if (r->can_compress()) {
+		r->swtch(false);
+	    }
 	}
     }
 }
@@ -2193,14 +2227,14 @@ GuiParameter::GuiParameter(gx_engine::ParamMap& pmap) {
     ui_tuner_reference_pitch = pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch",
 						       &refpitch, 440, 427, 453, 0.1);
 
-    show_plugin_bar = pmap.reg_switch("system.show_toolbar");
-    presets = pmap.reg_switch("system.show_presets");
-    show_rack = pmap.reg_switch("system.show_rack");
+    show_plugin_bar = pmap.reg_switch("system.show_toolbar", false, false);
+    presets = pmap.reg_switch("system.show_presets", false, false);
+    show_rack = pmap.reg_switch("system.show_rack", false, true);
     order_rack_v = pmap.reg_switch("system.order_rack_v", false, true);
     tuner = pmap.reg_non_midi_par("system.show_tuner", &tuner_var, false);
-    show_values = pmap.reg_switch("system.show_value");
-    show_tooltips = pmap.reg_switch("system.show_tooltips");
-    midi_in_presets = pmap.reg_switch("system.midi_in_preset");
+    show_values = pmap.reg_switch("system.show_value", false, true);
+    show_tooltips = pmap.reg_switch("system.show_tooltips", false, true);
+    midi_in_presets = pmap.reg_switch("system.midi_in_preset", false, false);
     mainwin_x_param = pmap.reg_non_midi_par("system.mainwin_x", &mainwin_x, false, -1, -1, 99999);
     mainwin_y_param = pmap.reg_non_midi_par("system.mainwin_y", &mainwin_y, false, -1, -1, 99999);
     mainwin_width_param = pmap.reg_non_midi_par("system.mainwin_width", &mainwin_width, false, -1, -1, 99999);
@@ -2218,7 +2252,7 @@ void update_scrolled_window(Gtk::ScrolledWindow& w) {
 ** moving / hiding / showing parts of the UI
 */
 
-int MainWindow::skin;
+int MainWindow::skin = -1;
 bool MainWindow::no_warn_latency;
 
 void MainWindow::maybe_shrink_horizontally() {
@@ -2324,7 +2358,8 @@ void MainWindow::on_show_rack() {
 	monorackcontainer.show_entries();
 	vrack_scrolledbox->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
 	vrack_scrolledbox->set_size_request(scrl_size_x, scrl_size_y);
-	if (window->get_window()->get_state() == 0) {
+	Glib::RefPtr<Gdk::Window> win = window->get_window();
+	if (!win || win->get_state() == 0) {
 	    Gtk::Requisition req;
 	    window->size_request(req);
 	    req.height = max(req.height, window_height);
@@ -2477,13 +2512,7 @@ void MainWindow::on_show_plugin_bar() {
 void MainWindow::on_show_plugin_bar() {
     bool v = show_plugin_bar_action->get_active();
     show_rack_action->set_sensitive(!v);
-    //presets_action->set_sensitive(!v);
     if (v) {
-	pre_act = false;//presets_action->get_active();
-	if (pre_act) {
-	    preset_scrolledbox->hide();
-	    presets_action->set_active(false);
-	}
 	show_rack_action->set_active(true);
 	effects_frame_paintbox->show();
 	if (get_dir() == 0) {
@@ -2618,6 +2647,15 @@ void load_rack_ui(const std::string& fname, gx_ui::GxUI& ui, Gtk::Widget*& mainw
     }
 }
 
+PluginDict::~PluginDict() {
+    for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
+	ui.unregisterZone(&i->second->plugin->box_visible, i->second);
+	ui.unregisterZone(&i->second->plugin->position, i->second);
+	ui.unregisterZone(&i->second->plugin->effect_post_pre, i->second);
+	delete i->second;
+    }
+}
+
 RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate) {
     Gtk::Widget *mainwidget = 0;
     Gtk::Widget *miniwidget = 0;
@@ -2677,7 +2715,12 @@ void MainWindow::on_preset_action() {
 	while (Gtk::Main::events_pending()) {
 	    Gtk::Main::iteration();
 	}
-	window->get_window()->move_resize(x, y, req.width, max(req.height, window_height));
+	if (window->get_mapped()) {
+	    window->get_window()->move_resize(x, y, req.width, max(req.height, window_height));
+	} else {
+	    window->resize(req.width, max(req.height, window_height));
+	    window->move(x, y);
+	}
     }
 }
 
@@ -2797,17 +2840,15 @@ void MainWindow::on_miditable_toggle() {
 void MainWindow::change_skin(Glib::RefPtr<Gtk::RadioAction> action) {
     unsigned int n = action->get_current_value();
     skin_changed.modifyZone(n);
-    change_skin_idx(n);
+    set_new_skin(n);
 }
 
-void MainWindow::change_skin_idx(unsigned int idx) {
+void MainWindow::set_new_skin(unsigned int idx) {
     assert(idx < options.skin.skin_list.size());
     string rcfile = options.get_style_filepath(
 	"gx_head_" + options.skin.skin_list[idx] + ".rc");
     gtk_rc_parse(rcfile.c_str());
     gtk_rc_reset_styles(gtk_settings_get_default());
-    skin_action->set_current_value(idx);
-    skin = idx;
     make_icons();
 }
 
@@ -3406,7 +3447,6 @@ void MainWindow::fill_pluginlist() {
 	    pui->set_action(act);
 	}
     }
-    make_icons();
     bool collapse = false;
     for (std::vector<PluginDesc*>::iterator i = l.begin(); i != l.end(); ++i) {
 	Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup((*i)->group);
@@ -3538,12 +3578,12 @@ void MainWindow::do_program_change(int pgm) {
 }
 
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
-    : sigc::trackable(), ui(), bld(), window_height(0), freezer(), plugin_dict(), oldpos(0), scrl_size_x(-1), scrl_size_y(-1),
+    : sigc::trackable(), ui(), bld(), window_height(0), freezer(), plugin_dict(ui), oldpos(0), scrl_size_x(-1), scrl_size_y(-1),
       monorackcontainer(PLUGIN_TYPE_MONO, *this), stereorackcontainer(PLUGIN_TYPE_STEREO, *this),
       pre_act(false), is_visible(false), drag_icon(0), actiongroup(), uimanager(),
       options(options_), pmap(pmap_), engine(engine_), jack(engine),
       gx_settings(options, jack, engine.convolver, gx_engine::midi_std_ctr, gx_engine::controller_map, engine, pmap_),
-      mainamp_plugin(*this, engine.pluginlist, "ampstack"), live_play(), preset_window(),
+      live_play(), preset_window(),
       fWaveView(),
       convolver_filename_label(),
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
@@ -3624,53 +3664,60 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 
     window->signal_visibility_notify_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_visibility_notify));
-    skin_changed.changed.connect(
-	sigc::mem_fun(*this, &MainWindow::change_skin_idx));
     jack.signal_buffersize_change().connect(
 	sigc::mem_fun(*this, &MainWindow::set_latency));
-    pmap.set_init_values();
-    gx_settings.loadstate();
-    gx_ui::GxUI::updateAllGuis(true);
-
-    fill_pluginlist();
-    plugin_dict["gx_distortion"]->shortname = _("Distortion");
-    plugin_dict[mainamp_plugin.get_id()] = &mainamp_plugin;
-    add_rackbox_internal(mainamp_plugin, 0, 0, false, -1, false, amp_background);
-    effects_toolpalette->show_all();
-
     engine.signal_state_change().connect(
 	sigc::mem_fun(*this, &MainWindow::on_engine_state_change));
-    Glib::signal_timeout().connect(
-	sigc::mem_fun(*this, &MainWindow::update_all_gui), 40);
     jack.signal_client_change().connect(
 	sigc::mem_fun(*this, &MainWindow::on_jack_client_changed));
     gx_engine::controller_map.signal_new_program().connect(
 	sigc::mem_fun(*this, &MainWindow::do_program_change));
+    gx_settings.signal_selection_changed().connect(
+	sigc::mem_fun(monorackcontainer, &RackContainer::check_order));
+    gx_settings.signal_selection_changed().connect(
+	sigc::mem_fun(stereorackcontainer, &RackContainer::check_order));
+
+    fill_pluginlist();
+    plugin_dict["gx_distortion"]->shortname = _("Distortion");
+    PluginUI *mainamp_plugin = new PluginUI(*this, engine.pluginlist, "ampstack");
+    plugin_dict["ampstack"] = mainamp_plugin;
+    add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
+    effects_toolpalette->show_all();
+
+    pmap.set_init_values();
+    gx_ui::GxUI::updateAllGuis(true);
+    gx_settings.loadstate();
+
     connect_jack(true);
     if (!jack.is_jack_exit()) {
 	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
     }
     set_latency();
+
+    if (skin_action->get_current_value() != skin) {
+	skin_action->set_current_value(skin);
+    } else {
+	set_new_skin(skin);
+    }
+    skin_changed.changed.connect(
+	sigc::mem_fun(skin_action.operator->(), &Gtk::RadioAction::set_current_value));
+
     if (para.mainwin_width > 0) {
 	window->resize(para.mainwin_width, para.mainwin_height);
     }
     if (para.mainwin_x > 0) {
 	window->move(para.mainwin_x, para.mainwin_y);
     }
+
     window->show();
+
+    Glib::signal_timeout().connect(
+	sigc::mem_fun(*this, &MainWindow::update_all_gui), 40);
 }
 
 MainWindow::~MainWindow() {
     window->get_size(GuiParameter::mainwin_width, GuiParameter::mainwin_height);
     window->get_window()->get_root_origin(GuiParameter::mainwin_x, GuiParameter::mainwin_y);
-    for (std::map<std::string, PluginUI*>::iterator i = plugin_dict.begin(); i != plugin_dict.end(); ++i) {
-	ui.unregisterZone(&i->second->plugin->box_visible, i->second);
-	ui.unregisterZone(&i->second->plugin->position, i->second);
-	ui.unregisterZone(&i->second->plugin->effect_post_pre, i->second);
-	if (i->second != &mainamp_plugin) {
-	    delete i->second;
-	}
-    }
     delete live_play;
     delete preset_window;
     delete window;

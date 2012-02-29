@@ -52,7 +52,8 @@ int PresetWindow::paned_child_height = 0;
 
 PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings_,
 			   const gx_system::CmdlineOptions& options_, Glib::RefPtr<Gtk::ActionGroup>& actiongroup_, Glib::RefPtr<Gtk::AccelGroup>& accel_group_)
-    : gx_settings(gx_settings_),
+    : sigc::trackable(),
+      gx_settings(gx_settings_),
       actiongroup(actiongroup_),
       paned_child_height_param(pmap.reg_non_midi_par("system.preset_window_height", &paned_child_height, false, 200, 0, 99999)),
       in_edit(false),
@@ -1162,7 +1163,7 @@ void PresetWindow::on_preset_select(bool v) {
 	}
     } else {
 	vpaned_target = main_vpaned->get_allocation().get_height();
-	if (animate && main_vpaned->get_mapped()) {
+	if (animate && main_vpaned->get_mapped() && Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("ShowRack"))->get_active()) { //FIXME
 	    vpaned_pos = main_vpaned->get_position();
 	    paned_child_height = vpaned_target - vpaned_pos;
 	    vpaned_step = paned_child_height / 5;

@@ -385,7 +385,6 @@ int main(int argc, char *argv[]) {
 	MainWindow gui(engine, options, gx_engine::parameter_map);
 
 	// ----------------------- run GTK main loop ----------------------
-	gx_ui::GxUI::updateAllGuis(true);
 	delete Splash;
 	gui.run();
     } catch (const Glib::OptionError &e) {

@@ -67,7 +67,7 @@ public:
     using Gtk::TreeView::on_drag_motion;
 };
 
-class PresetWindow {
+class PresetWindow: public sigc::trackable {
 private:
     gx_preset::GxSettings& gx_settings;
     Glib::RefPtr<Gtk::ActionGroup> actiongroup;

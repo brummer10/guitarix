@@ -116,6 +116,8 @@ public:
 
     MainWindow& main;
     RackBox *rackbox;
+    bool hidden;
+    bool compressed;
 
     PluginUI(MainWindow& main, const gx_engine::PluginList& pl, const char* id_,
 	     const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
@@ -502,13 +504,22 @@ public:
 	       Glib::RefPtr<Gtk::UIManager>& uimanager, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
 };
 
+class PluginDict: public std::map<std::string, PluginUI*> {
+private:
+    gx_ui::GxUI& ui;
+public:
+    typedef std::map<std::string, PluginUI*>::iterator iterator;
+    PluginDict(gx_ui::GxUI& ui_): std::map<std::string, PluginUI*>(), ui(ui_) {}
+    ~PluginDict();
+};
+
 class MainWindow: public sigc::trackable {
 private:
     gx_ui::GxUI ui;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     int window_height;
     Freezer freezer;
-    std::map<std::string, PluginUI*> plugin_dict;
+    PluginDict plugin_dict;
     int oldpos;
     int scrl_size_x;
     int scrl_size_y;
@@ -524,7 +535,6 @@ private:
     gx_engine::GxEngine&  engine;
     gx_jack::GxJack       jack;
     gx_preset::GxSettings gx_settings;
-    PluginUI mainamp_plugin;
     Liveplay *live_play;
     PresetWindow *preset_window;
     Gxw::WaveView fWaveView;
@@ -642,7 +652,6 @@ private:
     int start_jack();
     void add_skin_menu();
     void change_skin(Glib::RefPtr<Gtk::RadioAction> action);
-    void change_skin_idx(unsigned int idx);
     void on_jack_client_changed();
     void add_latency_menu();
     void change_latency(Glib::RefPtr<Gtk::RadioAction> action);
@@ -655,6 +664,7 @@ private:
     void do_program_change(int pgm);
     void on_engine_toggled();
     void on_engine_state_change(gx_engine::GxEngineState state);
+    void set_new_skin(unsigned int idx);
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();
@@ -665,9 +675,12 @@ public:
     bool check_if_rack_container_size_animate(const RackContainer& rackcontainer) const;
     void add_icon(const std::string& name);
     PluginUI *get_plugin(const std::string& name) { return plugin_dict[name]; }
+    PluginDict::iterator plugins_begin() { return plugin_dict.begin(); }
+    PluginDict::iterator plugins_end() { return plugin_dict.end(); }
     void run() { Gtk::Main::run(*window); }
     gx_system::CmdlineOptions& get_options() { return options; }
     gx_ui::GxUI& get_ui() { return ui; }
     Glib::RefPtr<gx_preset::PluginPresetList> load_plugin_preset_list(const Glib::ustring& id) { return gx_settings.load_plugin_preset_list(id); }
     gx_engine::ParamMap& get_parametermap() { return pmap; }
+    bool is_loading() { return gx_settings.is_loading(); }
 };
