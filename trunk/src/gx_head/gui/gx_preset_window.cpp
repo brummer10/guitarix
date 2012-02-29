@@ -73,9 +73,9 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
       vpaned_target(),
       animate(true),
       options(options_),
-      in_current_preset(false)
-      // widget pointers not initialized
-{
+      in_current_preset(false),
+      on_map_conn()
+      /* widget pointers not initialized */ {
     load_widget_pointers(bld);
     Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("ClosePresetsAction");
     actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_presets_close));
@@ -136,7 +136,7 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
     preset_treeview->signal_row_activated().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_row_activated));
     preset_treeview->signal_button_press_event().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_button_press));
     preset_treeview->signal_button_release_event().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_button_release), true);
-    preset_row_del_conn = preset_treeview->get_model()->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_reordered));
+    preset_row_del_conn = pstore->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_reordered));
     preset_treeview->get_selection()->set_mode(Gtk::SELECTION_BROWSE);
     preset_treeview->get_selection()->set_select_function(
 	sigc::mem_fun(*this, &PresetWindow::select_func));
@@ -146,7 +146,9 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
     preset_cellrenderer->signal_editing_canceled().connect(
 	sigc::bind(sigc::mem_fun(*this, &PresetWindow::on_edit_canceled), preset_treeview->get_column(0)));
     preset_cellrenderer->signal_editing_started().connect(
-	sigc::bind(sigc::mem_fun(*this, &PresetWindow::on_editing_started), preset_treeview->get_model()));
+	sigc::bind(
+	    sigc::mem_fun(*this, &PresetWindow::on_editing_started),
+	    Glib::RefPtr<Gtk::TreeModel>::cast_static(pstore)));
     preset_treeview->get_column(0)->set_cell_data_func(*preset_cellrenderer, sigc::mem_fun(*this, &PresetWindow::text_func));
     banks_combobox->signal_changed().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_combo_changed));
     presets_target_treeview->get_selection()->set_mode(Gtk::SELECTION_NONE);
@@ -388,9 +390,8 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
 	Gtk::TreeModel::Path pt;
 	Gtk::TreeViewColumn *col;
 	preset_treeview->get_cursor(pt, col);
-	Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
 	preset_row_del_conn.block();
-	ls->erase(ls->get_iter(pt));
+	pstore->erase(pstore->get_iter(pt));
 	preset_row_del_conn.unblock();
 	gx_settings.erase_preset(pf, srcnm);
     }
@@ -529,21 +530,12 @@ void PresetWindow::highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::Tr
     cell->set_property("text", t);
 }
 
-Gtk::TreeModel::Row PresetWindow::get_current_bank_row() {
-    Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
-    if (it) {
-	return *it;
-    } else {
-	return Gtk::TreeModel::Row();
-    }
-}
-
 Glib::ustring PresetWindow::get_current_bank() {
-    Gtk::TreeModel::Row row = get_current_bank_row();
-    if (!row) {
+    Gtk::TreeIter it = get_current_bank_iter();
+    if (!it) {
 	return "";
     }
-    return row[bank_col.name];
+    return it->get_value(bank_col.name);
 }
 
 bool PresetWindow::run_message_dialog(Gtk::Widget& w, const Glib::ustring& msg) {
@@ -738,9 +730,8 @@ bool PresetWindow::on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& con
 }
 
 void PresetWindow::on_bank_changed() {
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
     preset_row_del_conn.block();
-    ls->clear();
+    pstore->clear();
     preset_row_del_conn.unblock();
     Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
     if (!it) {
@@ -749,11 +740,7 @@ void PresetWindow::on_bank_changed() {
     }
     Glib::ustring nm = it->get_value(bank_col.name);
     preset_title->set_text(nm);
-    if (nm == gx_settings.get_current_bank()) {
-	in_current_preset = true;
-    } else {
-	in_current_preset = false;
-    }
+    in_current_preset = (nm == gx_settings.get_current_bank());
     Gtk::TreeIter i;
     gx_system::PresetFile& ll = *gx_settings.banks.get_file(nm);
     if ((ll.get_flags() & gx_system::PRESET_FLAG_VERSIONDIFF) ||
@@ -770,15 +757,20 @@ void PresetWindow::on_bank_changed() {
     }
     bool modifiable = ll.is_mutable();
     for (gx_system::PresetFile::iterator s = ll.begin(); s != ll.end(); ++s) {
-	i = ls->append();
+	i = pstore->append();
 	i->set_value(pstore->col.name, s->name);
 	if (modifiable) {
 	    i->set_value(pstore->col.edit_pb, pb_edit);
 	    i->set_value(pstore->col.del_pb, pb_del);
 	}
+	if (in_current_preset && s->name == gx_settings.get_current_name()) {
+	    if (preset_treeview->get_mapped()) {
+		preset_treeview->scroll_to_row(pstore->get_path(i));
+	    }
+	}
     }
     if (modifiable) {
-	i = ls->append();
+	i = pstore->append();
     }
 }
 
@@ -804,9 +796,8 @@ void PresetWindow::set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile
 }
 
 void PresetWindow::reload_banks(const Glib::ustring& sel_bank) {
-    Glib::RefPtr<Gtk::ListStore> ls3 = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
     preset_row_del_conn.block();
-    ls3->clear();
+    pstore->clear();
     preset_row_del_conn.unblock();
     Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
     bank_row_del_conn.block();
@@ -857,7 +848,7 @@ void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iter
     if (t.empty() && !cell->property_editing().get_value()) {
 	t = "<new>";
     } else {
-	int n = *preset_treeview->get_model()->get_path(iter).begin();
+	int n = *pstore->get_path(iter).begin();
 	if (n > 9) {
 	    t = "    " + t;
 	} else {
@@ -886,25 +877,24 @@ bool PresetWindow::on_preset_button_release(GdkEventButton *ev) {
     if (col != focus_column || pt != path) {
 	return false;
     }
-    Gtk::TreeModel::Row bank_row = get_current_bank_row();
-    int tp = bank_row[bank_col.tp];
-    if ((tp != gx_system::PresetFile::PRESET_SCRATCH && tp != gx_system::PresetFile::PRESET_FILE) || gx_settings.banks.get_file(bank_row[bank_col.name])->get_flags()) {
+    Gtk::TreeIter bank_iter = get_current_bank_iter();
+    int tp = bank_iter->get_value(bank_col.tp);
+    if ((tp != gx_system::PresetFile::PRESET_SCRATCH && tp != gx_system::PresetFile::PRESET_FILE) || gx_settings.banks.get_file(bank_iter->get_value(bank_col.name))->get_flags()) {
 	return false;
     }
     if (col == preset_treeview->get_column(1)) {
 	col = preset_treeview->get_column(0);
 	start_edit(pt, *col, *col->get_first_cell_renderer());
     } else if (col == preset_treeview->get_column(2)) {
-	Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
-	Glib::ustring nm = ls->get_iter(pt)->get_value(pstore->col.name);
+	Glib::ustring nm = pstore->get_iter(pt)->get_value(pstore->col.name);
 	Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(preset_treeview->get_toplevel()), Glib::ustring::compose("delete preset %1?", nm), false,
 			     Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
 	d.set_position(Gtk::WIN_POS_MOUSE);
 	if (d.run() == Gtk::RESPONSE_OK) {
 	    preset_row_del_conn.block();
-	    ls->erase(ls->get_iter(pt));
+	    pstore->erase(pstore->get_iter(pt));
 	    preset_row_del_conn.unblock();
-	    gx_settings.erase_preset(*gx_settings.banks.get_file(bank_row[bank_col.name]), nm);
+	    gx_settings.erase_preset(*gx_settings.banks.get_file(bank_iter->get_value(bank_col.name)), nm);
 	    reload_target();
 	}
     }
@@ -925,22 +915,21 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
 	newname = Glib::ustring::compose("%1-%2", t, n);
 	n += 1;
     }
-    Glib::RefPtr<Gtk::ListStore> m = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(preset_treeview->get_model());
-    Gtk::TreeRow row = *m->get_iter(path);
-    t = row[pstore->col.name];
+    Gtk::TreeIter it = pstore->get_iter(path);
+    t = it->get_value(pstore->col.name);
     if (t.empty()) {
-	m->append();
+	pstore->append();
 	gx_settings.save(fl, newname);
     } else {
 	fl.rename(t, newname);
-	if (gx_settings.get_current_bank() == get_current_bank() && gx_settings.get_current_name() == row[pstore->col.name]) {
+	if (gx_settings.get_current_bank() == get_current_bank() && gx_settings.get_current_name() == it->get_value(pstore->col.name)) {
 	    //current_preset = newname; FIXME
 	}
     }
-    row[pstore->col.name] = newname;
-    row[pstore->col.edit_pb] = pb_edit;
-    row[pstore->col.del_pb] = pb_del;
-    preset_treeview->get_selection()->select(m->get_iter(path));
+    it->set_value(pstore->col.name, newname);
+    it->set_value(pstore->col.edit_pb, pb_edit);
+    it->set_value(pstore->col.del_pb, pb_del);
+    preset_treeview->get_selection()->select(pstore->get_iter(path));
     reload_target();
     reset_edit(*preset_treeview->get_column(0));
 }
@@ -952,8 +941,7 @@ void PresetWindow::on_cursor_changed() {
     Gtk::TreeModel::Path path;
     Gtk::TreeViewColumn *focus_column;
     preset_treeview->get_cursor(path, focus_column);
-    Glib::RefPtr<Gtk::TreeModel> ls = preset_treeview->get_model();
-    if (!ls->get_iter(path)->get_value(pstore->col.name).empty()) {
+    if (!pstore->get_iter(path)->get_value(pstore->col.name).empty()) {
 	return;
     }
     in_edit = true;
@@ -977,7 +965,7 @@ bool PresetWindow::on_preset_drag_motion(const Glib::RefPtr<Gdk::DragContext>& c
 	    if (preset_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
 		if (dst == Gtk::TREE_VIEW_DROP_BEFORE ||
 		    (dst == Gtk::TREE_VIEW_DROP_AFTER &&
-		     !preset_treeview->get_model()->get_iter(pt)->get_value(pstore->col.name).empty())) {
+		     !pstore->get_iter(pt)->get_value(pstore->col.name).empty())) {
 		    context->drag_status(Gdk::ACTION_MOVE, timestamp);
 		    return true;
 		}
@@ -990,8 +978,7 @@ bool PresetWindow::on_preset_drag_motion(const Glib::RefPtr<Gdk::DragContext>& c
 
 void PresetWindow::on_preset_reordered(const Gtk::TreeModel::Path& path) {
     // save changed order to file
-    Glib::RefPtr<Gtk::TreeModel> ls = preset_treeview->get_model();
-    Gtk::TreeModel::Children ch = ls->children();
+    Gtk::TreeModel::Children ch = pstore->children();
     std::vector<Glib::ustring> l;
     for (Gtk::TreeIter i = ch.begin(); i != ch.end(); ++i) {
 	Glib::ustring s = i->get_value(pstore->col.name);
@@ -1112,29 +1099,53 @@ void PresetWindow::on_preset_save() {
     gx_settings.save(*pf, gx_settings.get_current_name());
 }
 
-void PresetWindow::display_paned() {
+void PresetWindow::display_paned(bool show_preset) {
     vpaned_pos = main_vpaned->get_allocation().get_height();
     vpaned_target = vpaned_pos - paned_child_height;
     main_vpaned->set_position(vpaned_target);
     child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
     preset_scrolledbox->show();
+    if (!show_preset || !in_current_preset) {
+	return;
+    }
+    // make the current entry in the preset list window
+    // visible (in case it's outside the displayed range).
+    // apparently only works after the window is mapped
+    // and some size calculations are done, so put it into
+    // an idle handler.
+    Gtk::TreeNodeChildren ch = pstore->children();
+    for (Gtk::TreeIter it = ch.begin(); it != ch.end(); ++it) {
+	if (it->get_value(pstore->col.name) == gx_settings.get_current_name()) {
+	    Glib::signal_idle().connect_once(
+		sigc::bind(
+		    sigc::mem_fun1(*preset_treeview, &MyTreeView::scroll_to_row),
+		    pstore->get_path(it)));
+	    return;
+	}
+    }
+    if (on_map_conn.connected()) {
+	on_map_conn.disconnect();
+    }
 }
 
 void PresetWindow::on_preset_select(bool v) {
     if (v) {
-	Glib::RefPtr<Gtk::TreeSelection> sel = bank_treeview->get_selection();
-	Gtk::TreeIter it = sel->get_selected();
 	if (gx_settings.banks.check_reparse()) {
-	    Glib::ustring sel_bank;
-	    if (it) {
-		sel_bank = it->get_value(bank_col.name);
+	    set_presets();
+	} else if (!get_current_bank_iter()) {
+	    Glib::ustring bank = gx_settings.get_current_bank();
+	    if (!bank.empty()) {
+		reload_banks(bank);
 	    }
-	    reload_banks(sel_bank);
 	}
 	autosize();
 	if (!main_vpaned->get_mapped()) {
-	    main_vpaned->get_toplevel()->signal_map().connect(
-		sigc::mem_fun(*this, &PresetWindow::display_paned));
+	    // don't have widget height to calculate paned separator
+	    // position before window is mapped
+	    on_map_conn = main_vpaned->get_toplevel()->signal_map().connect(
+		sigc::bind(
+		    sigc::mem_fun(*this, &PresetWindow::display_paned),
+		    true));
 	} else if (animate) {
 	    vpaned_pos = main_vpaned->get_allocation().get_height();
 	    vpaned_target = vpaned_pos - paned_child_height;
@@ -1144,7 +1155,7 @@ void PresetWindow::on_preset_select(bool v) {
 	    animate_preset_show();
 	    Glib::signal_timeout().connect(sigc::mem_fun(*this, &PresetWindow::animate_preset_show), 20);
 	} else {
-	    display_paned();
+	    display_paned(false);
 	}
     } else {
 	vpaned_target = main_vpaned->get_allocation().get_height();

@@ -92,6 +92,7 @@ private:
     bool animate;
     const gx_system::CmdlineOptions& options;
     bool in_current_preset;
+    sigc::connection on_map_conn;
 
     // widget pointers (keep last)
     Gtk::Button *close_preset;
@@ -129,7 +130,7 @@ private:
     void reset_edit(Gtk::TreeViewColumn& col);
     void on_edit_canceled(Gtk::TreeViewColumn *col);
     void start_edit(const Gtk::TreeModel::Path& pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell);
-    Gtk::TreeModel::Row get_current_bank_row();
+    Gtk::TreeIter get_current_bank_iter() { return bank_treeview->get_selection()->get_selected(); }
     Glib::ustring get_current_bank();
     bool run_message_dialog(Gtk::Widget& w, const Glib::ustring& msg);
     bool on_bank_button_release(GdkEventButton *ev);
@@ -162,7 +163,7 @@ private:
     bool animate_preset_hide();
     void show_selected_preset();
     void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f);
-    void display_paned();
+    void display_paned(bool show_preset);
 public:
     PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
 		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup> actiongroup);

@@ -1541,6 +1541,9 @@ void GxSettingsBase::loadstate() {
     seq.start_ramp_up();
     gx_ui::GxUI::updateAllGuis();
     seq.clear_rack_changed();
+    if (!current_bank.empty()) {
+	current_source = preset;
+    }
     selection_changed();
 }
 
