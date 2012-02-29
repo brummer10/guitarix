@@ -1528,7 +1528,9 @@ void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
 	current_name = "";
     }
     seq.start_ramp_up();
+    in_load = true;
     gx_ui::GxUI::updateAllGuis();
+    in_load = false;
     seq.clear_rack_changed();
     selection_changed();
 }
@@ -1539,7 +1541,9 @@ void GxSettingsBase::loadstate() {
     seq.start_ramp_down();
     loadsetting(0, current_name);
     seq.start_ramp_up();
+    in_load = true;
     gx_ui::GxUI::updateAllGuis();
+    in_load = false;
     seq.clear_rack_changed();
     if (!current_bank.empty()) {
 	current_source = preset;
