@@ -23,6 +23,7 @@
  */
 
 #include <guitarix.h>
+#include <gxw/GxLevelSlider.h>
 
 /****************************************************************
  ** class TextLoggingBox
@@ -1622,45 +1623,40 @@ bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
 }
 
 struct childpos {
-    int y0, y1;
-    Gtk::Widget *child;
-    childpos(int y0_, int y1_, Gtk::Widget* ch): y0(y0_), y1(y1_), child(ch) {}
+    int y0, y1, pos;
+    childpos(int y0_, int y1_, int pos_): y0(y0_), y1(y1_), pos(pos_) {}
     bool operator<(const childpos& p) { return y0 < p.y0; }
 };
 
 void RackContainer::find_index(int x, int y, int* len, int *ypos) {
     std::list<childpos> l;
     std::vector<RackBox*> children = get_children();
+    int mpos = -1;
     for (std::vector<RackBox*>::iterator ch = children.begin(); ch != children.end(); ++ch) {
-	Gtk::Allocation a = (*ch)->get_allocation();
-	int ht;
+	++mpos;
 	if (!(*ch)->get_visible()) {
-	    ht = 0;
-	} else {
-	    ht = a.get_height();
+	    continue;
 	}
-	l.push_back(childpos(a.get_y(), a.get_y()+ht, (*ch)));
+	Gtk::Allocation a = (*ch)->get_allocation();
+	l.push_back(childpos(a.get_y(), a.get_y()+a.get_height(), mpos));
     }
     if (l.empty()) {
 	*len = -1;
 	*ypos = -1;
 	return;
     }
-    l.sort();
     Gtk::Allocation a0 = get_allocation();
     y += a0.get_y();
     int sy = l.begin()->y0;
-    int i = 0;
     for (std::list<childpos>::iterator cp = l.begin(); cp != l.end(); ++cp) {
 	if (y < (cp->y0 + cp->y1) / 2) {
-	    *len = i;
+	    *len = cp->pos;
 	    *ypos = (cp->y0+sy)/2;
 	    return;
 	}
 	sy = cp->y1;
-	++i;
     }
-    *len = l.size();
+    *len = mpos+1;
     *ypos = sy;
 }
 
@@ -2321,6 +2317,12 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("tuner_reference_pitch", tuner_reference_pitch);
     bld->find_widget("tuner_tuning", tuner_tuning);
     bld->find_widget("racktuner", racktuner);
+    bld->find_widget("ampdetail_compress:effect_reset", ampdetail_compress);
+    bld->find_widget("ampdetail_expand:effect_reset", ampdetail_expand);
+    bld->find_widget("ampdetail_mini", ampdetail_mini);
+    bld->find_widget("ampdetail_normal", ampdetail_normal);
+    bld->find_widget("fastmeterL", fastmeter[0]);
+    bld->find_widget("fastmeterR", fastmeter[1]);
 }
 
 bool MainWindow::is_variable_size() {
@@ -2387,11 +2389,13 @@ void MainWindow::on_show_rack() {
 void MainWindow::on_compress_all() {
     monorackcontainer.compress_all();
     stereorackcontainer.compress_all();
+    on_ampdetail_switch(true);
 }
 
 void MainWindow::on_expand_all() {
     monorackcontainer.expand_all();
     stereorackcontainer.expand_all();
+    on_ampdetail_switch(false);
 }
 
 void MainWindow::on_rack_configuration() {
@@ -3555,13 +3559,16 @@ void MainWindow::on_jack_client_changed() {
     if (!window) {
 	return;
     }
+
     bool v = (jack.client != 0);
     jackserverconnection_action->set_active(v);
+    Glib::ustring s = "Guitarix: ";
     if (v) {
-	window->set_title(jack.get_instancename());
+	s += jack.get_instancename();
     } else {
-	window->set_title("("+jack.get_instancename()+")");
+	s += "("+jack.get_instancename()+")";
     }
+    window->set_title(s);
     jack_latency_menu_action->set_sensitive(v);
     engine_mute_action->set_sensitive(v);
     engine_bypass_action->set_sensitive(v);
@@ -3674,6 +3681,163 @@ static void toggle_action(Glib::RefPtr<Gtk::ToggleAction> act) {
     act->set_active(!act->get_active());
 }
 
+void MainWindow::on_ampdetail_switch(bool compress) {
+    if (compress) {
+	ampdetail_normal->hide();
+	ampdetail_mini->show();
+    } else {
+	ampdetail_mini->hide();
+	ampdetail_normal->show();
+    }
+    pmap["ui.mp_s_h"].getBool().set(compress);
+}
+
+/****************************************************************
+ ** oscilloscope handling
+ */
+
+void MainWindow::on_show_oscilloscope(bool v) {
+    if (v) {
+	// FIXME G_PRIORITY_DEFAULT_IDLE??
+	Glib::signal_timeout().connect(
+	    sigc::mem_fun(*this, &MainWindow::on_refresh_oscilloscope), 60); 
+    }
+}
+
+void MainWindow::set_waveview_buffer(unsigned int size) {
+    fWaveView.set_frame(engine.oscilloscope.get_buffer(), size);
+}
+
+void MainWindow::on_oscilloscope_post_pre(int post_pre) {
+    printf("PP %d\n", post_pre);
+    if (post_pre) {
+        fWaveView.set_multiplicator(150.,250.);
+    } else {
+        fWaveView.set_multiplicator(20.,60.);
+    }
+}
+
+int MainWindow::on_oscilloscope_activate(bool start) {
+    if (!start) {
+	engine.oscilloscope.clear_buffer();
+	fWaveView.queue_draw();
+    }
+    return 0;
+}
+
+bool MainWindow::on_refresh_oscilloscope() {
+    static struct  {
+        int load, frames;
+        jack_nframes_t bsize;
+        bool rt;
+    } oc;
+    int load = static_cast<int>(round(jack.get_jcpu_load()));
+    if (!oc.bsize || oc.load != load) {
+        oc.load = load;
+        fWaveView.set_text(
+            (boost::format(_("dsp load  %1% %%")) % oc.load).str().c_str(),
+            Gtk::CORNER_TOP_LEFT);
+    }
+    int frames = jack.get_time_is()/100000;
+    if (!oc.bsize || oc.frames != frames) {
+        oc.frames = frames;
+        fWaveView.set_text(
+            (boost::format(_("ht frames %1%")) % oc.frames).str().c_str(),
+            Gtk::CORNER_BOTTOM_LEFT);
+    }
+    bool is_rt = jack.get_is_rt();
+    if (!oc.bsize || oc.rt != is_rt) {
+        oc.rt = is_rt;
+        fWaveView.set_text(
+            oc.rt ? _("RT mode  yes ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
+            Gtk::CORNER_BOTTOM_RIGHT);
+    }
+    if (!oc.bsize || oc.bsize != jack.get_jack_bs()) {
+        oc.bsize = jack.get_jack_bs();
+        fWaveView.set_text(
+            (boost::format(_("latency    %1%")) % oc.bsize).str().c_str(),
+            Gtk::CORNER_TOP_RIGHT);
+    }
+    fWaveView.queue_draw();
+    return engine.oscilloscope.plugin.box_visible;
+}
+
+bool MainWindow::refresh_meter_level() {
+    if (!jack.client) {
+	return true;
+    }
+    const float falloff = gx_gui::guivar.meter_falloff *
+	gx_gui::guivar.meter_display_timeout * 0.001;
+
+    // Note: removed RMS calculation, we will only focus on max peaks
+    static float old_peak_db[2] = {-INFINITY, -INFINITY};
+
+    // fill up from engine buffers
+    gx_engine::MaxLevel& m = engine.maxlevel;
+    for (int c = 0; c < 2; c++) {
+	// update meters (consider falloff as well)
+	// calculate peak dB and translate into meter
+	float peak_db = -INFINITY;
+	if (m.get(c) > 0) {
+	    peak_db = gx_threads::power2db(m.get(c));
+	}
+	// retrieve old meter value and consider falloff
+	if (peak_db < old_peak_db[c]) {
+	    peak_db = max(peak_db, old_peak_db[c] - falloff);
+	}
+	fastmeter[c]->set(log_meter(peak_db));
+	old_peak_db[c] = peak_db;
+    }
+    m.reset();
+    return true;
+}
+
+void MainWindow::cab_conv_restart() {
+    if (!cab_conv_conn.connected()) {
+	cab_conv_conn = Glib::signal_timeout().connect(
+	    sigc::bind_return(
+		sigc::bind(
+		    sigc::mem_fun(engine.cabinet, &gx_engine::CabinetConvolver::start),
+		    false),
+		false),
+	    0, Glib::PRIORITY_HIGH_IDLE + 10);
+    } else {
+        gx_system::gx_print_warning(_("Cabinet Loading"), string(_(" cab thread is bussy")));
+    }
+}
+
+void MainWindow::contrast_conv_restart() {
+    if (!contrast_conv_conn.connected()) {
+	contrast_conv_conn = Glib::signal_timeout().connect(
+	    sigc::bind_return(
+		sigc::bind(
+		    sigc::mem_fun(engine.contrast, &gx_engine::ContrastConvolver::start),
+		    false),
+		false),
+	    0, Glib::PRIORITY_HIGH_IDLE + 10);
+    } else {
+        gx_system::gx_print_warning(_("Presence Loading"), string(_(" presence thread is bussy")));
+    }
+}
+
+bool MainWindow::check_cab_state() {
+    if (engine.cabinet.plugin.on_off) {
+	if (engine.cabinet.cabinet_changed()) {
+            engine.cabinet.conv_stop();
+            cab_conv_restart();
+	} else if (engine.cabinet.sum_changed()) {
+	    engine.cabinet.conv_update();
+        }
+    }
+    if (engine.contrast.plugin.on_off) {
+        if (engine.contrast.sum_changed()) {
+            engine.contrast.conv_stop();
+            contrast_conv_restart();
+        }
+    }
+    return true;
+}
+
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
     : sigc::trackable(), ui(), bld(), window_height(0), freezer(), plugin_dict(ui), oldpos(0), scrl_size_x(-1), scrl_size_y(-1),
       monorackcontainer(PLUGIN_TYPE_MONO, *this), stereorackcontainer(PLUGIN_TYPE_STEREO, *this),
@@ -3688,7 +3852,9 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       portmap_window(0), accel_group(), skin_changed(&ui, &skin),
       select_jack_control(0), fLoggingWindow(_("Logging Window")),
       amp_radio_menu(&ui, pmap["tube.select"].getUInt()),
-      mute_changed(&ui, &pmap.reg_par("engine.mute", "Mute", 0, false)->get_value()) {
+      mute_changed(&ui, &pmap.reg_par("engine.mute", "Mute", 0, false)->get_value()),
+      ampdetail_sh(&ui, &pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false)->get_value()),
+      contrast_conv_conn(), cab_conv_conn() {
     engine.set_jack(&jack);
     /*
     ** max window size is work area reduce by arbitrary amount to
@@ -3759,6 +3925,27 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 		loggingbox_action),
 	    true));
 
+    ampdetail_compress->signal_clicked().connect(
+	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), true));
+    ampdetail_expand->signal_clicked().connect(
+	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), false));
+    ampdetail_sh.changed.connect(
+	sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch));
+
+    engine.oscilloscope.post_pre_signal.changed.connect(
+	sigc::mem_fun(*this, &MainWindow::on_oscilloscope_post_pre));
+    engine.oscilloscope.visible.changed.connect(
+	sigc::mem_fun(*this, &MainWindow::on_show_oscilloscope));
+    engine.oscilloscope.activation.connect(
+	sigc::mem_fun(*this, &MainWindow::on_oscilloscope_activate));
+    engine.oscilloscope.size_change.connect(
+	sigc::mem_fun(*this, &MainWindow::set_waveview_buffer));
+
+    Glib::signal_timeout().connect(
+	sigc::mem_fun(*this, &MainWindow::refresh_meter_level), gx_gui::guivar.meter_display_timeout);
+    Glib::signal_timeout().connect(
+	sigc::mem_fun(*this, &MainWindow::check_cab_state), 200);
+	
     // create rack
     stereorackcontainerH->pack_start(stereorackcontainer, Gtk::PACK_EXPAND_WIDGET);
     monocontainer->pack_start(monorackcontainer, Gtk::PACK_EXPAND_WIDGET);
@@ -3834,7 +4021,9 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     // state file, which means that the jack starter options are read from the
     // standard state file (gx_head_rc or similar if -n is used)
     gx_settings.loadstate();
-    connect_jack(true);
+    if (!connect_jack(true)) {
+	jack.signal_client_change()();
+    }
 	
     if (!jack.is_jack_exit()) {
 	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
@@ -3852,8 +4041,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	sigc::mem_fun(skin_action.operator->(), &Gtk::RadioAction::set_current_value));
 
     // set window position (make this optional??)
-    if (para.mainwin_width > 0) {
-	window->resize(para.mainwin_width, para.mainwin_height);
+    if (para.mainwin_height > 0) {
+	window->set_default_size(-1, para.mainwin_height);
     }
     if (para.mainwin_x > 0) {
 	window->move(para.mainwin_x, para.mainwin_y);

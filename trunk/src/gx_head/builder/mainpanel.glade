@@ -477,7 +477,7 @@
                 <property name="spacing">1</property>
                 <property name="paint_func">level_meter_expose</property>
                 <child>
-                  <object class="GxFastMeter" id="gxfastmeter1">
+                  <object class="GxFastMeter" id="fastmeterL">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="hold">0</property>
@@ -505,7 +505,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GxFastMeter" id="gxfastmeter2">
+                  <object class="GxFastMeter" id="fastmeterR">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="hold">0</property>
@@ -1043,7 +1043,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="hscrollbar_policy">never</property>
-                        <property name="vscrollbar_policy">automatic</property>
                         <child>
                           <object class="GtkViewport" id="viewport2">
                             <property name="visible">True</property>
@@ -1067,7 +1066,53 @@
                                             <property name="orientation">vertical</property>
                                             <property name="paint_func">rectangle_skin_color_expose</property>
                                             <child>
-                                              <object class="GtkAlignment" id="alignment7">
+                                              <object class="GtkHBox" id="ampdetail_mini">
+                                                <property name="can_focus">False</property>
+                                                <child>
+                                                  <object class="GtkVBox" id="vbox2">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <child>
+                                                      <object class="GtkButton" id="ampdetail_expand:effect_reset">
+                                                        <property name="width_request">20</property>
+                                                        <property name="height_request">15</property>
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="receives_default">True</property>
+                                                        <property name="use_action_appearance">False</property>
+                                                        <child>
+                                                          <object class="GtkLabel" id="label6:rack_slider">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="label" translatable="yes">▶</property>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">False</property>
+                                                        <property name="padding">4</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="padding">8</property>
+                                                    <property name="pack_type">end</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkAlignment" id="ampdetail_normal">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="top_padding">4</property>
@@ -1414,13 +1459,49 @@
                                                         <property name="position">3</property>
                                                       </packing>
                                                     </child>
+                                                    <child>
+                                                      <object class="GtkVBox" id="vbox1">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <child>
+                                                          <object class="GtkButton" id="ampdetail_compress:effect_reset">
+                                                            <property name="width_request">20</property>
+                                                            <property name="height_request">15</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">True</property>
+                                                            <property name="use_action_appearance">False</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label7:rack_slider">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="label" translatable="yes">▼</property>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="padding">1</property>
+                                                            <property name="position">0</property>
+                                                          </packing>
+                                                        </child>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">False</property>
+                                                        <property name="padding">4</property>
+                                                        <property name="pack_type">end</property>
+                                                        <property name="position">4</property>
+                                                      </packing>
+                                                    </child>
                                                   </object>
                                                 </child>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
                                                 <property name="fill">True</property>
-                                                <property name="position">0</property>
+                                                <property name="position">1</property>
                                               </packing>
                                             </child>
                                           </object>
@@ -1740,7 +1821,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="hscrollbar_policy">never</property>
-                        <property name="vscrollbar_policy">automatic</property>
                         <child>
                           <object class="GtkViewport" id="viewport1">
                             <property name="visible">True</property>

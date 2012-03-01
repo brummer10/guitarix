@@ -554,6 +554,9 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_jack_connected;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_jack_disconnected;
     gx_ui::UiSignal<bool> mute_changed;
+    gx_ui::UiSignal<bool> ampdetail_sh;
+    sigc::connection contrast_conv_conn;
+    sigc::connection cab_conv_conn;
     //
     Glib::RefPtr<Gtk::RadioAction> skin_action;
     Glib::RefPtr<Gtk::RadioAction> latency_action;
@@ -592,6 +595,11 @@ private:
     Gxw::Wheel *tuner_reference_pitch;
     Gxw::Selector *tuner_tuning;
     Gxw::RackTuner *racktuner;
+    Gtk::Button *ampdetail_compress;
+    Gtk::Button *ampdetail_expand;
+    Gtk::Widget *ampdetail_mini;
+    Gtk::Widget *ampdetail_normal;
+    Gxw::FastMeter *fastmeter[2];
 public:
     // Actions
     Glib::RefPtr<Gtk::Action> jack_latency_menu_action;
@@ -680,6 +688,16 @@ private:
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);
     void on_msg_level_changed();
+    void on_ampdetail_switch(bool compress);
+    void on_show_oscilloscope(bool v);
+    void set_waveview_buffer(unsigned int size);
+    void on_oscilloscope_post_pre(int post_pre);
+    int on_oscilloscope_activate(bool start);
+    bool on_refresh_oscilloscope();
+    bool refresh_meter_level();
+    bool check_cab_state();
+    void cab_conv_restart();
+    void contrast_conv_restart();
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();
