@@ -3747,23 +3747,31 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 
     pmap.set_init_values();
     gx_ui::GxUI::updateAllGuis(true);
-    //gx_settings.loadstate();
 
+    // state must be loaded before starting jack because connect_jack() uses
+    // some settings. If the jack client name changes (from the predefined value)
+    // on connect the jack client-change signal will trigger the load of another
+    // state file, which means that the jack starter options are read from the
+    // standard state file (gx_head_rc or similar if -n is used)
+    gx_settings.loadstate();
     connect_jack(true);
-    //engine.update_module_lists();
+	
     if (!jack.is_jack_exit()) {
 	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
     }
     set_latency();
 
+    // we set the skin at this late point to avoid calling make_icons more
+    // than once
     if (skin_action->get_current_value() != skin) {
-	skin_action->set_current_value(skin);
+	skin_action->set_current_value(skin); // will call set_new_skin()
     } else {
 	set_new_skin(skin);
     }
     skin_changed.changed.connect(
 	sigc::mem_fun(skin_action.operator->(), &Gtk::RadioAction::set_current_value));
 
+    // set window position (make this optional??)
     if (para.mainwin_width > 0) {
 	window->resize(para.mainwin_width, para.mainwin_height);
     }
