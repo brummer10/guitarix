@@ -2156,11 +2156,25 @@
               </packing>
             </child>
             <child>
-              <object class="GtkImage" id="status_image">
+              <object class="GtkEventBox" id="eventbox2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xpad">8</property>
-                <property name="stock">gtk-missing-image</property>
+                <child>
+                  <object class="GtkImage" id="status_image">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Engine status: click to toggle muting
+
+  green:   running
+  yellow:   bypassed
+  red:       muted
+
+click with middle mouse button to connect
+to midi controller</property>
+                    <property name="xpad">8</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -2169,10 +2183,21 @@
               </packing>
             </child>
             <child>
-              <object class="GtkImage" id="jackd_image">
+              <object class="GtkEventBox" id="eventbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="stock">gtk-missing-image</property>
+                <child>
+                  <object class="GtkImage" id="jackd_image">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">jack connection status: click to toggle
+
+  connected:     green
+  disconnected: red
+</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -2181,11 +2206,23 @@
               </packing>
             </child>
             <child>
-              <object class="GtkImage" id="logstate_image">
+              <object class="GtkEventBox" id="eventbox3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xpad">8</property>
-                <property name="stock">gtk-missing-image</property>
+                <child>
+                  <object class="GtkImage" id="logstate_image">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">status of event log since last view:
+
+  green:     ok
+  yellow:     warnings
+  red:         errors occurred
+</property>
+                    <property name="xpad">8</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>

@@ -413,6 +413,8 @@ private:
     static tab_table tagdefs[gx_system::kMessageTypeCount];
     Glib::RefPtr<Gtk::TextTag> tags[gx_system::kMessageTypeCount];
     int highest_unseen_msg_level;
+    sigc::signal<void> msg_level_changed;
+private:
     void set_color();
     bool on_delete_event();
     void set_expander_color(const char *color);
@@ -420,6 +422,8 @@ private:
 public:
     TextLoggingBox(const char* label);
     ~TextLoggingBox();
+    int get_unseen_msg_level() { return highest_unseen_msg_level; }
+    sigc::signal<void>& signal_msg_level_changed() { return msg_level_changed; }
 };
 
 
@@ -453,14 +457,8 @@ public:
 
 struct GuiParameter {
     // rack tuner
-    static float scale_lim;
-    static int streaming;
-    static float refpitch;
-    static int tuning_mode;
-    static bool tuner_ui;
     static const value_pair streaming_labels[];
     static const value_pair tuning_labels[];
-    static bool tuner_var;
     static int mainwin_x;
     static int mainwin_y;
     static int mainwin_width;
@@ -550,6 +548,12 @@ private:
     gx_gui::SelectJackControlPgm *select_jack_control;
     TextLoggingBox fLoggingWindow;
     GxUiRadioMenu amp_radio_menu;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_on;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_off;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_bypass;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_jack_connected;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_jack_disconnected;
+    gx_ui::UiSignal<bool> mute_changed;
     //
     Glib::RefPtr<Gtk::RadioAction> skin_action;
     Glib::RefPtr<Gtk::RadioAction> latency_action;
@@ -674,6 +678,8 @@ private:
     void set_new_skin(unsigned int idx);
     void set_tuning(Gxw::RackTuner& tuner);
     void setup_tuner(Gxw::RackTuner& tuner);
+    bool on_toggle_mute(GdkEventButton* ev);
+    void on_msg_level_changed();
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();

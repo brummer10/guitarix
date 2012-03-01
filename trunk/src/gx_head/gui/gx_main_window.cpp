@@ -40,7 +40,8 @@ TextLoggingBox::TextLoggingBox(const char* label)
       scrollbox(),
       frame(label),
       tbox(),
-      highest_unseen_msg_level(-1) {
+      highest_unseen_msg_level(-1),
+      msg_level_changed() {
 
     set_size_request(600, -1);
     set_decorated(true);
@@ -98,6 +99,7 @@ void TextLoggingBox::set_color() {
         set_expander_color("#ffffff");
     } else {
         highest_unseen_msg_level = -1;
+	msg_level_changed();
     }
 }
 
@@ -139,6 +141,7 @@ void TextLoggingBox::show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool 
     if (msgtype > highest_unseen_msg_level) {
         set_expander_color(tagdefs[msgtype].tag_color);
         highest_unseen_msg_level = msgtype;
+	msg_level_changed();
     }
 }
 
@@ -2206,12 +2209,6 @@ void UiRadioAction<Param>::on_changed(const Glib::RefPtr<Gtk::RadioAction>& act)
     param.set(get_current_value());
 }
 
-float GuiParameter::scale_lim = 0;
-int GuiParameter::streaming = 0;
-float GuiParameter::refpitch = 0;
-int GuiParameter::tuning_mode = 0;
-bool GuiParameter::tuner_ui = false;
-bool GuiParameter::tuner_var = false;
 int GuiParameter::mainwin_x = -1;
 int GuiParameter::mainwin_y = -1;
 int GuiParameter::mainwin_width = -1;
@@ -2222,18 +2219,18 @@ const value_pair GuiParameter::tuning_labels[] = {{"(Chromatic)"},{"Standard"}, 
 
 GuiParameter::GuiParameter(gx_engine::ParamMap& pmap) {
     gx_engine::get_group_table().insert("racktuner", "Rack Tuner");
-    ui_racktuner = pmap.reg_par("ui.racktuner", "Tuner", &tuner_ui, true);
-    racktuner_streaming = pmap.reg_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, &streaming, 1);
-    racktuner_tuning = pmap.reg_enum_par("racktuner.tuning", "Tuning", tuning_labels, &tuning_mode, 0);
-    racktuner_scale_lim = pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0);
+    ui_racktuner = pmap.reg_par("ui.racktuner", "Tuner", 0, true);
+    racktuner_streaming = pmap.reg_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, (int*)0, 1);
+    racktuner_tuning = pmap.reg_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, 0);
+    racktuner_scale_lim = pmap.reg_par("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
     ui_tuner_reference_pitch = pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch",
-						       &refpitch, 440, 427, 453, 0.1);
+						       0, 440, 427, 453, 0.1);
 
     show_plugin_bar = pmap.reg_switch("system.show_toolbar", false, false);
     presets = pmap.reg_switch("system.show_presets", false, false);
     show_rack = pmap.reg_switch("system.show_rack", false, true);
     order_rack_v = pmap.reg_switch("system.order_rack_v", false, true);
-    tuner = pmap.reg_non_midi_par("system.show_tuner", &tuner_var, false);
+    tuner = pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false);
     show_values = pmap.reg_switch("system.show_value", false, true);
     show_tooltips = pmap.reg_switch("system.show_tooltips", false, true);
     midi_in_presets = pmap.reg_switch("system.midi_in_preset", false, false);
@@ -3151,7 +3148,10 @@ void MainWindow::on_engine_toggled() {
 
 void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const GuiParameter& para) {
     uimanager = Gtk::UIManager::create();
-    // Create actions
+
+    /*
+    ** Menu actions
+    */
     actiongroup->add(Gtk::Action::create("EngineMenu","_Engine"));
     jack_latency_menu_action = Gtk::Action::create("JackLatency","_Latency");
     actiongroup->add(jack_latency_menu_action);
@@ -3164,52 +3164,9 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
     actiongroup->add(Gtk::Action::create("SkinMenu", _("_Skin...")));
     actiongroup->add(Gtk::Action::create("AboutMenu","_About"));
 
-    actiongroup->add(Gtk::Action::create("Quit","_Quit"),Gtk::AccelKey("<Control>q"),sigc::ptr_fun(Gtk::Main::quit));
-    compress_action = Gtk::Action::create("Compress","_Compress all");
-    actiongroup->add(compress_action,Gtk::AccelKey("<control>c"),sigc::mem_fun(*this, &MainWindow::on_compress_all));
-    expand_action = Gtk::Action::create("Expand","E_xpand all");
-    actiongroup->add(expand_action, Gtk::AccelKey("<control>e"),sigc::mem_fun(*this, &MainWindow::on_expand_all));
-    actiongroup->add(Gtk::Action::create("About", _("_About")),
-		     Gtk::AccelKey("<control>a"),
-		     sigc::ptr_fun(gx_show_about));
-    actiongroup->add(Gtk::Action::create("Help", _("_Help")),
-		     Gtk::AccelKey("<control>h"),
-		     sigc::ptr_fun(gx_show_help));
-    actiongroup->add(Gtk::ToggleAction::create("ResetAll", _("Reset _All Parameters")),
-		     sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
-
-    // create UiToggleActions
-    show_plugin_bar_action = UiSwitchToggleAction::create(ui, *para.show_plugin_bar, "ShowPluginBar","Show _Plugin Bar","",true);
-    actiongroup->add(show_plugin_bar_action, Gtk::AccelKey("<Control>b"), sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
-
-    presets_action = UiSwitchToggleAction::create(ui, *para.presets, "Presets","_Preset Selection");
-    actiongroup->add(presets_action, Gtk::AccelKey("<control>p"), sigc::mem_fun(*this, &MainWindow::on_preset_action));
-
-    show_rack_action = UiSwitchToggleAction::create(ui, *para.show_rack, "ShowRack","Show _Rack","",true);
-    actiongroup->add(show_rack_action, Gtk::AccelKey("<Control>r"),sigc::mem_fun(*this, &MainWindow::on_show_rack));
-
-    tuner_action = UiBoolToggleAction::create(ui, *para.tuner, "Tuner","_Tuner","",true);
-    actiongroup->add(tuner_action,Gtk::AccelKey("<Control>t"),sigc::mem_fun(*this, &MainWindow::on_show_tuner));
-
-    show_values_action = UiSwitchToggleAction::create(ui, *para.show_values, "ShowValues","_Show Values");
-    actiongroup->add(show_values_action, Gtk::AccelKey("<Control>s"), sigc::mem_fun(*this, &MainWindow::on_show_values));
-
-    tooltips_action = UiSwitchToggleAction::create(ui, *para.show_tooltips, "ShowTooltips", _("Show _Tooltips"));
-    actiongroup->add(
-	tooltips_action,
-	sigc::compose(sigc::ptr_fun(set_tooltips),
-		      sigc::mem_fun(tooltips_action.operator->(), &UiSwitchToggleAction::get_active)));
-
-    midi_in_presets_action = UiSwitchToggleAction::create(ui, *para.midi_in_presets, "MidiInPresets", _("Include MIDI in _presets"));
-    actiongroup->add(midi_in_presets_action);
-
-    // create ToggleActions
-    rack_config_action = Gtk::ToggleAction::create("RackConfig", "R_ack Configuration");
-    actiongroup->add(rack_config_action, Gtk::AccelKey("<control>a"), sigc::mem_fun(*this, &MainWindow::on_rack_configuration));
-
-    live_play_action = Gtk::ToggleAction::create("Liveplay","_Live Display");
-    actiongroup->add(live_play_action, Gtk::AccelKey("<Control>l"),sigc::mem_fun(*this, &MainWindow::on_live_play));
-
+    /*
+    ** engine actions
+    */
     jackserverconnection_action = Gtk::ToggleAction::create("JackServerConnection", "Jack Server _Connection");
     actiongroup->add(
 	jackserverconnection_action, Gtk::AccelKey("<control>c"),
@@ -3225,50 +3182,113 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
 	midicontroller_action, Gtk::AccelKey("<control>i"),
         sigc::mem_fun(*this, &MainWindow::on_miditable_toggle));
 
-    meterbridge_action = Gtk::ToggleAction::create("Meterbridge", _("_Meterbridge"));
+    engine_mute_action = Gtk::ToggleAction::create("EngineMute", "Engine _Mute");
     actiongroup->add(
-	meterbridge_action, Gtk::AccelKey("<alt>m"),
-	sigc::bind(sigc::ptr_fun(gx_child_process::Meterbridge::start_stop),
-		   sigc::ref(meterbridge_action), sigc::ref(jack)));
+	engine_mute_action, Gtk::AccelKey("space"),
+	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
 
-    jackstartup_action = Gtk::ToggleAction::create("JackStartup", _("_Jack Startup Control"));
+    engine_bypass_action = Gtk::ToggleAction::create("EngineBypass", "Engine _Bypass");
     actiongroup->add(
-	jackstartup_action, Gtk::AccelKey("<control>j"),
-	sigc::mem_fun(*this, &MainWindow::on_select_jack_control));
+	engine_bypass_action, Gtk::AccelKey("b"),
+	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
+
+    actiongroup->add(Gtk::Action::create("Quit","_Quit"),Gtk::AccelKey("<Control>q"),sigc::ptr_fun(Gtk::Main::quit));
+
+    /*
+    ** actions to open other (sub)windows
+    */
+    presets_action = UiSwitchToggleAction::create(ui, *para.presets, "Presets","_Preset Selection");
+    actiongroup->add(presets_action, Gtk::AccelKey("<control>p"), sigc::mem_fun(*this, &MainWindow::on_preset_action));
+
+    show_plugin_bar_action = UiSwitchToggleAction::create(ui, *para.show_plugin_bar, "ShowPluginBar","Show _Plugin Bar","",true);
+    actiongroup->add(show_plugin_bar_action, Gtk::AccelKey("<Control>b"), sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
+
+    show_rack_action = UiSwitchToggleAction::create(ui, *para.show_rack, "ShowRack","Show _Rack","",true);
+    actiongroup->add(show_rack_action, Gtk::AccelKey("<Control>r"),sigc::mem_fun(*this, &MainWindow::on_show_rack));
 
     loggingbox_action = Gtk::ToggleAction::create("LoggingBox", _("Show _Logging Box"));
     actiongroup->add(
 	loggingbox_action, Gtk::AccelKey("<control>l"),
         sigc::mem_fun(*this, &MainWindow::on_log_activate));
 
-    // engine
-    engine_mute_action = Gtk::ToggleAction::create("EngineMute", "Engine _Mute");
-    actiongroup->add(
-	engine_mute_action, Gtk::AccelKey("space"),
-	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
-    engine_bypass_action = Gtk::ToggleAction::create("EngineBypass", "Engine _Bypass");
-    actiongroup->add(
-	engine_bypass_action, Gtk::AccelKey("b"),
-	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
+    live_play_action = Gtk::ToggleAction::create("Liveplay","_Live Display");
+    actiongroup->add(live_play_action, Gtk::AccelKey("<Control>l"),sigc::mem_fun(*this, &MainWindow::on_live_play));
 
-    // Create some RadioActions
+    meterbridge_action = Gtk::ToggleAction::create("Meterbridge", _("_Meterbridge"));
+    actiongroup->add(
+	meterbridge_action, Gtk::AccelKey("<alt>m"),
+	sigc::bind(sigc::ptr_fun(gx_child_process::Meterbridge::start_stop),
+		   sigc::ref(meterbridge_action), sigc::ref(jack)));
+
+    /*
+    ** rack actions
+    */
+    tuner_action = UiBoolToggleAction::create(ui, *para.tuner, "Tuner","_Tuner","",true);
+    actiongroup->add(tuner_action,Gtk::AccelKey("<Control>t"),sigc::mem_fun(*this, &MainWindow::on_show_tuner));
+
+    rack_config_action = Gtk::ToggleAction::create("RackConfig", "R_ack Configuration");
+    actiongroup->add(rack_config_action, Gtk::AccelKey("<control>a"), sigc::mem_fun(*this, &MainWindow::on_rack_configuration));
+
+    compress_action = Gtk::Action::create("Compress","_Compress all");
+    actiongroup->add(compress_action,Gtk::AccelKey("<control>c"),sigc::mem_fun(*this, &MainWindow::on_compress_all));
+
+    expand_action = Gtk::Action::create("Expand","E_xpand all");
+    actiongroup->add(expand_action, Gtk::AccelKey("<control>e"),sigc::mem_fun(*this, &MainWindow::on_expand_all));
+
+    // rack order radio buttons
     Gtk::RadioButtonGroup dg;
     rackv_action = UiSwitchRadioAction::create(
 	ui, *para.order_rack_v, dg, "RackV", "Order Rack Vertically");
     rackv_action->property_value().set_value(0);
     actiongroup->add(rackv_action, Gtk::AccelKey("<Control>v"));
-
+    // horizontal
     rackh_action = Gtk::RadioAction::create(dg, "RackH", "Order Rack Horizontally");
     rackh_action->property_value().set_value(1);
     actiongroup->add(rackh_action, Gtk::AccelKey("<Control>h"));
-
+    // vertical
     rackh_action->set_active(true);
     rackv_action->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::on_dir_changed));
 
+    /*
+    ** option actions
+    */
+    show_values_action = UiSwitchToggleAction::create(ui, *para.show_values, "ShowValues","_Show Values");
+    actiongroup->add(show_values_action, Gtk::AccelKey("<Control>s"), sigc::mem_fun(*this, &MainWindow::on_show_values));
+
+    tooltips_action = UiSwitchToggleAction::create(ui, *para.show_tooltips, "ShowTooltips", _("Show _Tooltips"));
+    actiongroup->add(
+	tooltips_action,
+	sigc::compose(sigc::ptr_fun(set_tooltips),
+		      sigc::mem_fun(tooltips_action.operator->(), &UiSwitchToggleAction::get_active)));
+
+    midi_in_presets_action = UiSwitchToggleAction::create(ui, *para.midi_in_presets, "MidiInPresets", _("Include MIDI in _presets"));
+    actiongroup->add(midi_in_presets_action);
+
+    jackstartup_action = Gtk::ToggleAction::create("JackStartup", _("_Jack Startup Control"));
+    actiongroup->add(
+	jackstartup_action, Gtk::AccelKey("<control>j"),
+	sigc::mem_fun(*this, &MainWindow::on_select_jack_control));
+
+    actiongroup->add(Gtk::ToggleAction::create("ResetAll", _("Reset _All Parameters")),
+		     sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
+
+    /*
+    ** Help and About
+    */
+    actiongroup->add(Gtk::Action::create("Help", _("_Help")),
+		     Gtk::AccelKey("<control>h"),
+		     sigc::ptr_fun(gx_show_help));
+    actiongroup->add(Gtk::Action::create("About", _("_About")),
+		     Gtk::AccelKey("<control>a"),
+		     sigc::ptr_fun(gx_show_about));
+
+    //
     // Add the actiongroup to the uimanager
+    //
     uimanager->insert_action_group(actiongroup);
     uimanager->add_ui_from_file(options.get_builder_filepath("menudef.xml"));
 
+    // add dynamic submenues
     add_skin_menu();
     add_latency_menu();
     amp_radio_menu.setup("<menubar><menu action=\"TubeMenu\">","</menu></menubar>",uimanager,actiongroup);
@@ -3545,9 +3565,11 @@ void MainWindow::on_jack_client_changed() {
     jack_latency_menu_action->set_sensitive(v);
     engine_mute_action->set_sensitive(v);
     engine_bypass_action->set_sensitive(v);
+    status_image->set_sensitive(v);
     if (!v) {
-	engine_mute_action->set_active(false);
-	engine_bypass_action->set_active(false);
+	jackd_image->set(pixbuf_jack_disconnected);
+    } else {
+	jackd_image->set(pixbuf_jack_connected);
     }
 }
 
@@ -3555,14 +3577,17 @@ void MainWindow::on_engine_state_change(gx_engine::GxEngineState state) {
     switch (state) {
     case gx_engine::kEngineOff:
 	engine_mute_action->set_active(true);
+	status_image->set(pixbuf_off);
 	break;
     case gx_engine::kEngineOn:
 	engine_mute_action->set_active(false);
 	engine_bypass_action->set_active(false);
+	status_image->set(pixbuf_on);
 	break;
     case gx_engine::kEngineBypass:
 	engine_mute_action->set_active(false);
 	engine_bypass_action->set_active(true);
+	status_image->set(pixbuf_bypass);
 	break;
     }
 }
@@ -3625,6 +3650,30 @@ void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::set_tuning), sigc::ref(tuner)));
 }
 
+bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
+    if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
+	if (engine.get_state() == gx_engine::kEngineOff) {
+	    engine.set_state(gx_engine::kEngineOn);
+	} else {
+	    engine.set_state(gx_engine::kEngineOff);
+	}
+    }
+    return true;
+}
+
+void MainWindow::on_msg_level_changed() {
+    //FIXME use better icons...
+    switch (fLoggingWindow.get_unseen_msg_level()) {
+    case gx_system::kWarning: logstate_image->set(pixbuf_bypass); break;
+    case gx_system::kError:   logstate_image->set(pixbuf_off); break;
+    default:                  logstate_image->set(pixbuf_on); break;
+    }
+}
+
+static void toggle_action(Glib::RefPtr<Gtk::ToggleAction> act) {
+    act->set_active(!act->get_active());
+}
+
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
     : sigc::trackable(), ui(), bld(), window_height(0), freezer(), plugin_dict(ui), oldpos(0), scrl_size_x(-1), scrl_size_y(-1),
       monorackcontainer(PLUGIN_TYPE_MONO, *this), stereorackcontainer(PLUGIN_TYPE_STEREO, *this),
@@ -3638,7 +3687,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       boxbuilder(engine_, pmap_, fWaveView, convolver_filename_label, ui, gx_head_icon),
       portmap_window(0), accel_group(), skin_changed(&ui, &skin),
       select_jack_control(0), fLoggingWindow(_("Logging Window")),
-      amp_radio_menu(&ui, pmap["tube.select"].getUInt()) {
+      amp_radio_menu(&ui, pmap["tube.select"].getUInt()),
+      mute_changed(&ui, &pmap.reg_par("engine.mute", "Mute", 0, false)->get_value()) {
     engine.set_jack(&jack);
     /*
     ** max window size is work area reduce by arbitrary amount to
@@ -3653,6 +3703,13 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     //gtk_rc_parse(options.get_style_filepath(style_fname));
     //gtk.rc_parse_string(styledef % style_dir);
 
+    // load pixbufs
+    pixbuf_on = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_on.png"));
+    pixbuf_off = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_off.png"));
+    pixbuf_bypass = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_bypass.png"));
+    pixbuf_jack_connected = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_on.png"));
+    pixbuf_jack_disconnected = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_off.png"));
+
     GuiParameter para(pmap);
 
     // load builder def
@@ -3663,9 +3720,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     window->get_default_size(width, height);
     window->set_default_size(width, window_height);
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
-    status_image->set(options.get_pixmap_filepath("gx_on.png"));
-    jackd_image->set(options.get_pixmap_filepath("jackd_off.png"));
-    logstate_image->set(options.get_pixmap_filepath("gx_off.png"));
+
     // remove child labels from boxes used for demo:
     clear_box(*monocontainer);
     clear_box(*stereorackcontainerH);
@@ -3678,6 +3733,31 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     menubox->pack_start(*menubar);
     window->add_accel_group(uimanager->get_accel_group());
     accel_group = uimanager->get_accel_group(); //window->get_accel_group(); //FIXME
+
+    status_image->set(pixbuf_on);
+    gx_engine::BoolParameter& par = pmap["engine.mute"].getBool();
+    par.setSavable(false);
+    gx_gui::connect_midi_controller(GTK_WIDGET(status_image->get_parent()->gobj()), &par.get_value());
+    status_image->get_parent()->signal_button_press_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_toggle_mute));
+
+    jackd_image->set(pixbuf_jack_disconnected);
+    jackd_image->get_parent()->signal_button_press_event().connect(
+	sigc::bind_return(
+	    sigc::group(
+		sigc::ptr_fun(toggle_action),
+		jackserverconnection_action),
+	    true));
+
+    fLoggingWindow.signal_msg_level_changed().connect(
+	sigc::mem_fun(*this, &MainWindow::on_msg_level_changed));
+    on_msg_level_changed();
+    logstate_image->get_parent()->signal_button_press_event().connect(
+	sigc::bind_return(
+	    sigc::group(
+		sigc::ptr_fun(toggle_action),
+		loggingbox_action),
+	    true));
 
     // create rack
     stereorackcontainerH->pack_start(stereorackcontainer, Gtk::PACK_EXPAND_WIDGET);
