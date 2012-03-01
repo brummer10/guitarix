@@ -100,6 +100,7 @@ int MaxLevel::activate(bool start, PluginDef *plugin) {
 TunerAdapter::TunerAdapter(ModuleSequencer& engine_)
     : ModuleSelector(engine_),
       PluginDef(),
+      trackable(),
       pitch_tracker(),
       state(),
       engine(engine_),

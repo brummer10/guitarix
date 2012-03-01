@@ -66,7 +66,7 @@ public:
  ** class TunerAdapter
  */
 
-class TunerAdapter: public ModuleSelector, private PluginDef {
+class TunerAdapter: public ModuleSelector, private PluginDef, public sigc::trackable {
 private:
     static void feed_tuner(int count, float *input, float *output, PluginDef*);
     static int regparam(const ParamReg& reg);
@@ -74,13 +74,14 @@ private:
     PitchTracker pitch_tracker;
     int state;
     ModuleSequencer& engine;
-    enum { tuner_use = 0x01, midi_use = 0x02 };
+    enum { tuner_use = 0x01, livetuner_use = 0x02, midi_use = 0x04 };
     void set_and_check(int use, bool on);
     Plugin* dep_plugin;
 public:
     Plugin plugin;
     TunerAdapter(ModuleSequencer& engine);
     void used_for_display(bool on) { set_and_check(tuner_use, on); }
+    void used_for_livedisplay(bool on) { set_and_check(livetuner_use, on); }
     void used_by_midi(bool on) { set_and_check(midi_use, on); }
     void set_dep_module(Plugin* dep) { dep_plugin = dep; }
     void set_module();
