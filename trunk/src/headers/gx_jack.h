@@ -145,7 +145,8 @@ class GxJack: public sigc::trackable {
     sigc::signal<void,string,string,bool> connection_changed;
     Glib::Dispatcher    buffersize_change;
 
-    Glib::Dispatcher    client_change;
+    Glib::Dispatcher    client_change_rt;
+    sigc::signal<void>  client_change;
     string              client_instance;
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
@@ -194,7 +195,7 @@ public:
     bool                is_jack_down() { return jack_is_down; }
     Glib::Dispatcher    connection;
     bool                is_jack_exit() { return jack_is_exit; }
-    Glib::Dispatcher&   signal_client_change() { return client_change; }
+    sigc::signal<void>& signal_client_change() { return client_change; }
     sigc::signal<void,string,string,bool>& signal_connection_changed() { return connection_changed; }
     Glib::Dispatcher&   signal_portchange() { return connection_queue.portchange; }
     Glib::Dispatcher&   signal_buffersize_change() { return buffersize_change; }

@@ -65,6 +65,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       connection_queue(),
       connection_changed(),
       buffersize_change(),
+      client_change_rt(),
       client_change(),
       client_instance(),
       jack_sr(),
@@ -81,6 +82,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       shutdown(),
       connection() {
     connection_queue.new_data.connect(sigc::mem_fun(*this, &GxJack::fetch_connection_data));
+    client_change_rt.connect(client_change);
     gx_system::GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxJack::cleanup_slot));
 }
@@ -689,7 +691,10 @@ void GxJack::gx_jack_shutdown_callback() {
 
 void GxJack::shutdown_callback_client(void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
-    self.client = 0;
+    if (self.client) {
+	self.client = 0;
+	self.client_change_rt();
+    }
     if (self.client_insert) {
 	jack_client_close(self.client_insert);
 	self.client_insert = 0;
@@ -703,7 +708,7 @@ void GxJack::shutdown_callback_client_insert(void *arg) {
     if (self.client) {
 	jack_client_close(self.client);
 	self.client = 0;
-	self.client_change();
+	self.client_change_rt();
     }
     self.gx_jack_shutdown_callback();
 }
