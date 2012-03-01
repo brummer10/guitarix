@@ -434,6 +434,7 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf) {
 ParameterGroups::ParameterGroups() {
     insert("system", N_("System"));
     insert("ui", N_("User Interface"));
+    insert("engine", N_("Audio Engine"));
 }
 
 ParameterGroups::~ParameterGroups() {
