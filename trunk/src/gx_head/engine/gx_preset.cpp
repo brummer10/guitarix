@@ -540,9 +540,7 @@ void GxSettings::jack_client_changed() {
 	}
     }
     statefile.set_filename(fn);
-    if (current_source == state) {
-	loadstate();
-    }
+    loadstate();
 }
 
 string GxSettings::make_default_state_filename() {
