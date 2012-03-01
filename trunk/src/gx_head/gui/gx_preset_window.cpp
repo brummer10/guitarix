@@ -81,7 +81,8 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
     load_widget_pointers(bld);
     Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("ClosePresetsAction");
     actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_presets_close));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(close_preset->gobj()), act->gobj());
+    //gtk_activatable_set_related_action(GTK_ACTIVATABLE(close_preset->gobj()), act->gobj());
+    close_preset->hide(); // disable (maybe remove later)
     act = Gtk::Action::create("NewBankAction");
     actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_new_bank));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(new_preset_bank->gobj()), act->gobj());
@@ -1022,7 +1023,7 @@ void PresetWindow::on_organize() {
 }
 
 void PresetWindow::on_presets_close() {
-    Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("PresetsAction"))->set_active(false); // FIXME
+    Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Presets"))->set_active(false); // FIXME
 }
 
 /*
@@ -1143,6 +1144,10 @@ void PresetWindow::on_preset_select(bool v) {
 	    }
 	}
 	autosize();
+	Gtk::TreeIter it = get_current_bank_iter();
+	if (it) {
+	    bank_treeview->scroll_to_row(bank_treeview->get_model()->get_path(it));
+	}
 	if (!main_vpaned->get_mapped()) {
 	    // don't have widget height to calculate paned separator
 	    // position before window is mapped
