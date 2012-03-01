@@ -333,13 +333,11 @@ void StackBoxBuilder::addLiveWaveDisplay(const char* label) {
     GtkWidget * box1      = gtk_vbox_new(false, 0);
     GtkWidget * box2      = gtk_vbox_new(false, 0);
     GtkWidget * e_box =  gtk_event_box_new();
-    // gtk_container_set_border_width (GTK_CONTAINER(e_box),2);
     g_signal_connect(box, "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
     gtk_widget_set_size_request(box, 303, 82);
     gtk_widget_set_size_request(e_box, 284, 54);
     gtk_container_set_border_width(GTK_CONTAINER(box), 12);
     gtk_container_add(GTK_CONTAINER(e_box), GTK_WIDGET(fWaveView.gobj()));
-    // gtk_container_add(GTK_CONTAINER(box),e_box );
     gtk_box_pack_start(GTK_BOX(box), box1, true, true, 0);
     gtk_box_pack_start(GTK_BOX(box), e_box, false, false, 0);
     gtk_box_pack_start(GTK_BOX(box), box2, true, true, 0);
@@ -347,9 +345,8 @@ void StackBoxBuilder::addLiveWaveDisplay(const char* label) {
     fWaveView.hide(); // was show()'n by addWidget
     fWaveView.property_text_pos_left() = 1.5;
     fWaveView.property_text_pos_right() = 77;
-    fWaveView.set_multiplicator(150., 250.);
+    // multiplicator is already set by signal handler
     gtk_widget_show_all(box);
-    //gtk_widget_hide(e_box);
 }
 
 void StackBoxBuilder::openVerticalBox1(const char* label) {
