@@ -1479,7 +1479,7 @@ GxSettingsBase::GxSettingsBase(gx_engine::EngineControl& seq_)
 GxSettingsBase::~GxSettingsBase() {
 }
 
-void GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
+bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
     try {
 	if (p) {
 	    JsonParser *jp = p->create_reader(name);
@@ -1500,7 +1500,7 @@ void GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
 		_("loaded state"),
 		boost::format(_("from file %1%")) % statefile.get_filename());
 	}
-	seq.update_module_lists();
+	return seq.update_module_lists();
     } catch(JsonException& e) {
 	if (p) {
 	    gx_print_error(
@@ -1512,26 +1512,37 @@ void GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
 		boost::format(_("error loading state from file %1%"))
 		% statefile.get_filename());
 	}
+	return false;
     }
 }
 
 void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
-    if (pf) {
-	current_source = factory;
-	current_bank = pf->get_name();
-	current_name = name;
-	seq.start_ramp_down();
-	loadsetting(pf, name);
-    } else {
-	current_source = state;
-	current_bank = "";
-	current_name = "";
+    if (!pf) {
+	if (current_source != state) {
+	    current_source = state;
+	    current_bank = "";
+	    current_name = "";
+	    selection_changed();
+	}
+	return;
     }
+    current_source = factory;
+    current_bank = pf->get_name();
+    current_name = name;
+    seq.start_ramp_down();
+    bool modules_changed = loadsetting(pf, name);
     seq.start_ramp_up();
     in_load = true;
     gx_ui::GxUI::updateAllGuis();
     in_load = false;
-    seq.clear_rack_changed();
+    // if no modules changed either there was no change (then
+    // rack_changed should not be set anyhow) or the modules
+    // could not be installed because jack is not initialized.
+    // In that case there is still a rack change left to be
+    // done
+    if (modules_changed) {
+	seq.clear_rack_changed();
+    }
     selection_changed();
 }
 
@@ -1539,12 +1550,14 @@ void GxSettingsBase::loadstate() {
     current_source = state;
     current_bank = current_name = "";
     seq.start_ramp_down();
-    loadsetting(0, current_name);
+    bool modules_changed = loadsetting(0, current_name);
     seq.start_ramp_up();
     in_load = true;
     gx_ui::GxUI::updateAllGuis();
     in_load = false;
-    seq.clear_rack_changed();
+    if (modules_changed) { // see comment in load_preset()
+	seq.clear_rack_changed();
+    }
     if (!current_bank.empty()) {
 	current_source = preset;
     }

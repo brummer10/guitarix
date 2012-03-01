@@ -359,7 +359,7 @@ protected:
     sigc::signal<void> selection_changed;
     sigc::signal<void> presetlist_changed;
     bool               in_load;
-    void loadsetting(PresetFile *p, const Glib::ustring& name);
+    bool loadsetting(PresetFile *p, const Glib::ustring& name);
 protected:
     void loadstate();
     void set_io(AbstractStateIO* st, AbstractPresetIO* pr) { state_io = st; preset_io = pr; }
