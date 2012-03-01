@@ -109,6 +109,7 @@ protected:
     bool save_in_preset : 1;
     bool controllable : 1;
     bool own_var : 1;
+    bool do_not_save : 1;
     bool used : 1; // debug
 
 public:
@@ -122,6 +123,7 @@ public:
         save_in_preset(preset),
         controllable(ctrl),
 	own_var(false),
+	do_not_save(false),
         used(false) {}
     virtual ~Parameter();
 
@@ -143,6 +145,8 @@ public:
     ctrl_type getControlType() const { return c_type; }
     bool isControllable() const { return controllable; }
     bool isInPreset() const { return save_in_preset; }
+    bool isSavable() const { return !do_not_save; }
+    void setSavable(bool v) { do_not_save = !v; }
     const string& id() const { return _id; }
     const string& group() const { return _group; }
     string l_group() const { return gettext(_group.c_str()); }
