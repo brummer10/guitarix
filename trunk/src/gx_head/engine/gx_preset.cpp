@@ -118,6 +118,9 @@ void PresetIO::write_parameters(gx_system::JsonWriter &w, bool preset) {
     for (gx_engine::ParamMap::iterator i = param.begin();
                                    i != param.end(); ++i) {
         gx_engine::Parameter *param = i->second;
+	if (!param->isSavable()) {
+	    continue;
+	}
         if ((preset and param->isInPreset()) or(!preset and !param->isInPreset())) {
             param->writeJSON(w);
             w.newline();
