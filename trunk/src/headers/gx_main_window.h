@@ -22,6 +22,56 @@
  * ----------------------------------------------------------------------------
  */
 
+template <class Param>
+class UiToggleAction: public Gtk::ToggleAction, public gx_ui::GxUiItem {
+private:
+    Param& param;
+    gx_ui::GxUI& ui;
+    virtual void on_toggled();
+    virtual void reflectZone();
+    virtual bool hasChanged();
+protected:
+    UiToggleAction(
+	gx_ui::GxUI& ui_, Param& para, const Glib::ustring& name, const Glib::ustring& icon_name,
+	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring(),
+	bool is_active=false);
+    ~UiToggleAction();
+public:
+    static Glib::RefPtr<UiToggleAction> create(
+	gx_ui::GxUI& ui, Param& para, const Glib::ustring& name, const Glib::ustring& label=Glib::ustring(),
+	const Glib::ustring& tooltip=Glib::ustring(), bool is_active=false) {
+	return Glib::RefPtr<UiToggleAction>(
+	    new UiToggleAction(ui, para, name, Glib::ustring(), label, tooltip, is_active));
+    }
+};
+
+typedef UiToggleAction<gx_engine::SwitchParameter> UiSwitchToggleAction;
+typedef UiToggleAction<gx_engine::BoolParameter> UiBoolToggleAction;
+
+template <class Param>
+class UiRadioAction: public Gtk::RadioAction, public gx_ui::GxUiItem {
+private:
+    Param& param;
+    gx_ui::GxUI& ui;
+    virtual void on_changed(const Glib::RefPtr<Gtk::RadioAction>& act);
+    virtual void reflectZone();
+    virtual bool hasChanged();
+protected:
+    UiRadioAction(
+	gx_ui::GxUI& ui_, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
+	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring());
+    ~UiRadioAction();
+public:
+    static Glib::RefPtr<UiRadioAction> create(
+	gx_ui::GxUI& ui, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name,
+	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring()) {
+	return Glib::RefPtr<UiRadioAction>(
+	    new UiRadioAction(ui, para, group, name, Glib::ustring(), label, tooltip));
+    }
+};
+
+typedef UiRadioAction<gx_engine::SwitchParameter> UiSwitchRadioAction;
+
 /****************************************************************
  ** class Liveplay
  */
@@ -77,10 +127,11 @@ private:
 	guint keyval, GdkModifierType modifier, Liveplay& self);
 public:
     Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine, gx_preset::GxSettings& gx_settings,
-	     const std::string& fname, Glib::RefPtr<Gtk::ActionGroup> actiongroup);
+	     const std::string& fname, Glib::RefPtr<Gtk::ActionGroup>& actiongroup, Glib::RefPtr<UiBoolToggleAction>& livetuner_action);
     ~Liveplay();
     void on_live_play(Glib::RefPtr<Gtk::ToggleAction> act);
     void display_tuner(bool v);
+    Gxw::RackTuner& get_tuner() { return *tuner; }
 };
 
 
@@ -400,56 +451,6 @@ public:
     bool check_thaw(int width, int height);
 };
 
-template <class Param>
-class UiToggleAction: public Gtk::ToggleAction, public gx_ui::GxUiItem {
-private:
-    Param& param;
-    gx_ui::GxUI& ui;
-    virtual void on_toggled();
-    virtual void reflectZone();
-    virtual bool hasChanged();
-protected:
-    UiToggleAction(
-	gx_ui::GxUI& ui_, Param& para, const Glib::ustring& name, const Glib::ustring& icon_name,
-	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring(),
-	bool is_active=false);
-    ~UiToggleAction();
-public:
-    static Glib::RefPtr<UiToggleAction> create(
-	gx_ui::GxUI& ui, Param& para, const Glib::ustring& name, const Glib::ustring& label=Glib::ustring(),
-	const Glib::ustring& tooltip=Glib::ustring(), bool is_active=false) {
-	return Glib::RefPtr<UiToggleAction>(
-	    new UiToggleAction(ui, para, name, Glib::ustring(), label, tooltip, is_active));
-    }
-};
-
-typedef UiToggleAction<gx_engine::SwitchParameter> UiSwitchToggleAction;
-typedef UiToggleAction<gx_engine::BoolParameter> UiBoolToggleAction;
-
-template <class Param>
-class UiRadioAction: public Gtk::RadioAction, public gx_ui::GxUiItem {
-private:
-    Param& param;
-    gx_ui::GxUI& ui;
-    virtual void on_changed(const Glib::RefPtr<Gtk::RadioAction>& act);
-    virtual void reflectZone();
-    virtual bool hasChanged();
-protected:
-    UiRadioAction(
-	gx_ui::GxUI& ui_, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
-	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring());
-    ~UiRadioAction();
-public:
-    static Glib::RefPtr<UiRadioAction> create(
-	gx_ui::GxUI& ui, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name,
-	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring()) {
-	return Glib::RefPtr<UiRadioAction>(
-	    new UiRadioAction(ui, para, group, name, Glib::ustring(), label, tooltip));
-    }
-};
-
-typedef UiRadioAction<gx_engine::SwitchParameter> UiSwitchRadioAction;
-
 struct GuiParameter {
     // rack tuner
     static float scale_lim;
@@ -582,6 +583,11 @@ private:
     Gtk::Button *expand_button;
     Gtk::ToolPalette *effects_toolpalette;
     Gxw::PaintBox *amp_background;
+    Gxw::Switch *tuner_on_off;
+    Gxw::Selector *tuner_mode;
+    Gxw::Wheel *tuner_reference_pitch;
+    Gxw::Selector *tuner_tuning;
+    Gxw::RackTuner *racktuner;
 public:
     // Actions
     Glib::RefPtr<Gtk::Action> jack_latency_menu_action;
@@ -603,6 +609,7 @@ public:
     Glib::RefPtr<UiSwitchToggleAction> presets_action;
     Glib::RefPtr<UiSwitchToggleAction> show_rack_action;
     Glib::RefPtr<UiBoolToggleAction> tuner_action;
+    Glib::RefPtr<UiBoolToggleAction> livetuner_action;
     Glib::RefPtr<UiSwitchToggleAction> show_values_action;
     Glib::RefPtr<UiSwitchToggleAction> tooltips_action;
     Glib::RefPtr<UiSwitchToggleAction> midi_in_presets_action;
@@ -665,6 +672,8 @@ private:
     void on_engine_toggled();
     void on_engine_state_change(gx_engine::GxEngineState state);
     void set_new_skin(unsigned int idx);
+    void set_tuning(Gxw::RackTuner& tuner);
+    void setup_tuner(Gxw::RackTuner& tuner);
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();

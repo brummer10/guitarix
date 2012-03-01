@@ -373,7 +373,7 @@ bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *accelerat
 }
 
 Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
-		   const std::string& fname, Glib::RefPtr<Gtk::ActionGroup> actiongroup)
+		   const std::string& fname, Glib::RefPtr<Gtk::ActionGroup>& actiongroup, Glib::RefPtr<UiBoolToggleAction>& livetuner_action)
     : ui(), bld(), engine(engine_), gx_settings(gx_settings_), use_composite(),
       brightness_adj(1,0.5,1,0.01,0.1), background_adj(0,0,1,0.01,0.1), key_timeout(),
       last_bank_key(), midi_conn(), window() {
@@ -430,10 +430,12 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine
     cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Escape, (GdkModifierType)0, (GtkAccelFlags)0, cl);
 
-    act = actiongroup->get_action("Tuner");
-    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
-    gtk_accel_group_connect_by_path(ag->gobj(), act->get_accel_path().c_str(), cl);
-    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
+    actiongroup->add(
+	livetuner_action,
+	sigc::compose(
+	    sigc::mem_fun(*this, &Liveplay::display_tuner),
+	    sigc::mem_fun(livetuner_action.operator->(), &Gtk::ToggleAction::get_active)));
+    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(livetuner_action->gobj()), 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Return, (GdkModifierType)0, (GtkAccelFlags)0, cl);
 
     act = actiongroup->get_action("Quit");
@@ -2220,7 +2222,7 @@ const value_pair GuiParameter::tuning_labels[] = {{"(Chromatic)"},{"Standard"}, 
 
 GuiParameter::GuiParameter(gx_engine::ParamMap& pmap) {
     gx_engine::get_group_table().insert("racktuner", "Rack Tuner");
-    ui_racktuner = pmap.reg_non_midi_par("ui.racktuner", &tuner_ui, true);
+    ui_racktuner = pmap.reg_par("ui.racktuner", "Tuner", &tuner_ui, true);
     racktuner_streaming = pmap.reg_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, &streaming, 1);
     racktuner_tuning = pmap.reg_enum_par("racktuner.tuning", "Tuning", tuning_labels, &tuning_mode, 0);
     racktuner_scale_lim = pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0);
@@ -2285,13 +2287,11 @@ void MainWindow::on_show_tuner() {
     } else {
 	tunerbox->hide();
     }
-    live_play->display_tuner(v);
     update_scrolled_window(*vrack_scrolledbox);
 }
 
 void MainWindow::load_widget_pointers() {
     bld->get_toplevel("MainWindow", window);
-    bld->find_widget("tunerbox", tunerbox);
     bld->find_widget("tunerbox", tunerbox);
     bld->find_widget("vrack_scrolledbox", vrack_scrolledbox);
     bld->find_widget("stereorackcontainerH", stereorackcontainerH);
@@ -2319,6 +2319,11 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("expand:barbutton", expand_button);
     bld->find_widget("effects_toolpalette", effects_toolpalette);
     bld->find_widget("amp_background:ampbox", amp_background);
+    bld->find_widget("tuner_on_off", tuner_on_off);
+    bld->find_widget("tuner_mode", tuner_mode);
+    bld->find_widget("tuner_reference_pitch", tuner_reference_pitch);
+    bld->find_widget("tuner_tuning", tuner_tuning);
+    bld->find_widget("racktuner", racktuner);
 }
 
 bool MainWindow::is_variable_size() {
@@ -3527,6 +3532,9 @@ bool MainWindow::connect_jack(bool v) {
 }
 
 void MainWindow::on_jack_client_changed() {
+    if (!window) {
+	return;
+    }
     bool v = (jack.client != 0);
     jackserverconnection_action->set_active(v);
     if (v) {
@@ -3570,11 +3578,51 @@ void MainWindow::do_program_change(int pgm) {
     if (in_preset) {
 	gx_settings.load_preset(f, f->get_name(pgm));
 	if (engine.get_state() == gx_engine::kEngineBypass) {
-	    //toggle_engine_bypass(); FIXME
+	    engine.set_state(gx_engine::kEngineOn);
 	}
     } else if (engine.get_state() == gx_engine::kEngineOn) {
-	//toggle_engine_bypass(); FIXME
+	engine.set_state(gx_engine::kEngineBypass);
     }
+}
+
+void MainWindow::set_tuning(Gxw::RackTuner& tuner) {
+    static struct TuningTab {
+	const char *name;
+	const char* key;
+	bool flat;
+	int notes[6];
+    } tuning_tab[] = {
+	{ "Standard",    "E",  false, {40, 45, 50, 55, 59, 64}},
+	{ "Standard/Es", "Es", true,  {39, 44, 49, 54, 58, 63}},
+	{ "Open E",      "E",  false, {40, 47, 52, 56, 59, 64}},
+    };
+    int mode = tuner_tuning->get_value();
+    tuner.clear_notes();
+    if (mode > 0) {
+	tuner.set_display_flat(tuning_tab[mode-1].flat);
+	for (int i = 0; i < 6; ++i) {
+	    tuner.push_note(tuning_tab[mode-1].notes[i]);
+	}
+    } else {
+	tuner.set_display_flat(false);
+    }
+}
+
+void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
+    tuner.signal_frequency_poll().connect(
+	sigc::compose(
+	    sigc::mem_fun(tuner, &Gxw::RackTuner::set_freq),
+	    sigc::mem_fun(engine.tuner, &gx_engine::TunerAdapter::get_freq)));
+    tuner_mode->signal_value_changed().connect(
+	sigc::compose(
+	    sigc::mem_fun(tuner, &Gxw::RackTuner::set_streaming),
+	    sigc::mem_fun(*tuner_mode, &Gxw::Selector::get_value)));
+    tuner_reference_pitch->signal_value_changed().connect(
+	sigc::compose(
+	    sigc::mem_fun(tuner, &Gxw::RackTuner::set_reference_pitch),
+	    sigc::mem_fun(*tuner_reference_pitch, &Gxw::Wheel::get_value)));
+    tuner_tuning->signal_value_changed().connect(
+	sigc::bind(sigc::mem_fun(*this, &MainWindow::set_tuning), sigc::ref(tuner)));
 }
 
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
@@ -3645,7 +3693,20 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(compress_button->gobj()), GTK_ACTION(compress_action->gobj()));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(expand_button->gobj()), GTK_ACTION(expand_action->gobj()));
 
-    live_play = new Liveplay(options, engine, gx_settings, options.get_builder_filepath("mainpanel.glade"), actiongroup);
+    setup_tuner(*racktuner);
+    tuner_on_off->signal_toggled().connect(
+	sigc::compose(
+	    sigc::mem_fun(*racktuner, &Gxw::RackTuner::set_sensitive),
+	    sigc::mem_fun(*tuner_on_off, &Gxw::Switch::get_active)));
+    racktuner->signal_poll_status_changed().connect(
+	sigc::mem_fun(engine.tuner, &gx_engine::TunerAdapter::used_for_display));
+
+    livetuner_action = UiBoolToggleAction::create(ui, *para.ui_racktuner, "LiveTuner", "??", "", false);
+    live_play = new Liveplay(options, engine, gx_settings, options.get_builder_filepath("mainpanel.glade"), actiongroup, livetuner_action);
+    setup_tuner(live_play->get_tuner());
+    live_play->get_tuner().signal_poll_status_changed().connect(
+	sigc::mem_fun(engine.tuner, &gx_engine::TunerAdapter::used_for_livedisplay));
+
     preset_window = new PresetWindow(pmap, bld, gx_settings, options, actiongroup, accel_group);
 
     tuner_action->set_active(false);
@@ -3686,9 +3747,10 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 
     pmap.set_init_values();
     gx_ui::GxUI::updateAllGuis(true);
-    gx_settings.loadstate();
+    //gx_settings.loadstate();
 
     connect_jack(true);
+    //engine.update_module_lists();
     if (!jack.is_jack_exit()) {
 	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
     }
@@ -3716,9 +3778,16 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 }
 
 MainWindow::~MainWindow() {
+    engine.start_ramp_down();
+
     window->get_size(GuiParameter::mainwin_width, GuiParameter::mainwin_height);
     window->get_window()->get_root_origin(GuiParameter::mainwin_x, GuiParameter::mainwin_y);
     delete live_play;
     delete preset_window;
     delete window;
+    window = 0;
+
+    engine.wait_ramp_down_finished();
+    engine.set_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
+    engine.set_jack(0);
 }

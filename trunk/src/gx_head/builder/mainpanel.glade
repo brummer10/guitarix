@@ -1472,13 +1472,13 @@
                                                             <property name="xscale">0</property>
                                                             <property name="yscale">0</property>
                                                             <child>
-                                                            <object class="GxSwitch" id="gxswitch7">
+                                                            <object class="GxSwitch" id="tuner_on_off">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <property name="relief">none</property>
-                                                            <property name="var_id">system.show_tuner</property>
+                                                            <property name="var_id">ui.racktuner</property>
                                                             <property name="base_name">switchit</property>
                                                             </object>
                                                             </child>
@@ -1544,7 +1544,7 @@
                                                         <property name="can_focus">False</property>
                                                         <property name="spacing">2</property>
                                                         <child>
-                                                          <object class="GxRackTuner" id="gxracktuner1">
+                                                          <object class="GxRackTuner" id="racktuner">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="freq">330</property>
@@ -1562,7 +1562,7 @@
                                                             <property name="can_focus">False</property>
                                                             <property name="spacing">10</property>
                                                             <child>
-                                                            <object class="GxSelector" id="gxselector1">
+                                                            <object class="GxSelector" id="tuner_tuning">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
@@ -1576,7 +1576,7 @@
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GxSelector" id="gxselector2">
+                                                            <object class="GxSelector" id="tuner_mode">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
@@ -1590,7 +1590,7 @@
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GxWheel" id="gxwheel1">
+                                                            <object class="GxWheel" id="tuner_reference_pitch">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
