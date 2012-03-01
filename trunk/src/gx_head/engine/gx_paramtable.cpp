@@ -945,6 +945,7 @@ void BoolParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Switch:
         *value = (2*n > high);
+	break;
     default:
         assert(false);
         break;
