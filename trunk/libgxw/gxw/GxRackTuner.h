@@ -68,11 +68,13 @@ struct _GxRackTunerClass
 {
 	GtkDrawingAreaClass parent_class;
 	void (*frequency_poll)(GxRackTuner *tuner);
+	void (*poll_status_changed)(GxRackTuner *tuner, gboolean status);
 };
 
 
 GType gx_rack_tuner_get_type();
 
+gboolean gx_rack_tuner_get_poll_status(GxRackTuner *tuner);
 void gx_rack_tuner_set_freq(GxRackTuner *tuner, double freq);
 void gx_rack_tuner_set_scale_lim(GxRackTuner *tuner, double scale_lim);
 double gx_rack_tuner_get_scale_lim(GxRackTuner *tuner);

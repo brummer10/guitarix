@@ -26,6 +26,7 @@ class RackTuner: public Gxw::Tuner {
 	_CLASS_GTKOBJECT(RackTuner,GxRackTuner,GX_RACK_TUNER,Gxw::Tuner,GxTuner)
 	public:
 	_CTOR_DEFAULT
+	_WRAP_METHOD(bool get_poll_status(), gx_rack_tuner_get_poll_status)
 	_WRAP_METHOD(void set_freq(double), gx_rack_tuner_set_freq)
 	_WRAP_METHOD(void set_scale_lim(double), gx_rack_tuner_set_scale_lim)
 	_WRAP_METHOD(double get_scale_lim(), gx_rack_tuner_get_scale_lim)
@@ -42,6 +43,7 @@ class RackTuner: public Gxw::Tuner {
 	_WRAP_METHOD(void clear_notes(), gx_rack_tuner_clear_notes)
 	_WRAP_METHOD(void push_note(int), gx_rack_tuner_push_note)
 	_WRAP_SIGNAL(void frequency_poll(), "frequency-poll")
+	_WRAP_SIGNAL(void poll_status_changed(bool), "poll-status-changed")
 	_WRAP_PROPERTY(freq, double)
 	_WRAP_PROPERTY(scale_lim, double)
 	_WRAP_PROPERTY(speed, double)

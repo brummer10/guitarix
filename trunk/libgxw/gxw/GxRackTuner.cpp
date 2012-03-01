@@ -37,6 +37,7 @@ enum {
 
 enum {
 	FREQUENCY_POLL,
+	POLL_STATUS_CHANGED,
 	LAST_SIGNAL
 };
 
@@ -44,7 +45,7 @@ static guint signals[LAST_SIGNAL];
 
 static void gx_rack_tuner_class_init (GxRackTunerClass *klass);
 static void gx_rack_tuner_init(GxRackTuner *tuner);
-static void gx_rack_tuner_finalize(GObject *object);
+static void gx_rack_tuner_destroy(GtkObject *object);
 static void gx_rack_tuner_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_rack_tuner_get_property(
@@ -73,10 +74,11 @@ static gboolean gx_rack_tuner_expose_event(GtkWidget*, GdkEventExpose*);
 static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+	GtkObjectClass *object_class = GTK_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-	gobject_class->finalize = gx_rack_tuner_finalize;
 	gobject_class->set_property = gx_rack_tuner_set_property;
 	gobject_class->get_property = gx_rack_tuner_get_property;
+	object_class->destroy = gx_rack_tuner_destroy;
 	widget_class->expose_event = gx_rack_tuner_expose_event;
 	widget_class->size_request = gx_rack_tuner_size_request;
 	widget_class->map = gx_rack_tuner_map;
@@ -85,6 +87,7 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 	widget_class->state_changed = gx_rack_tuner_state_changed;
 	widget_class->configure_event = gx_rack_tuner_configure_event;
 	klass->frequency_poll = 0;
+	klass->poll_status_changed = 0;
 
 	// properties
 	g_object_class_install_property(
@@ -131,6 +134,14 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 		             NULL, NULL,
 		             gtk_marshal_VOID__VOID,
 		             G_TYPE_NONE, 0);
+	signals[POLL_STATUS_CHANGED] =
+		g_signal_new(I_("poll-status-changed"),
+			     G_OBJECT_CLASS_TYPE (klass),
+		             GSignalFlags(G_SIGNAL_RUN_LAST),
+		             G_STRUCT_OFFSET (GxRackTunerClass, poll_status_changed),
+		             NULL, NULL,
+		             gtk_marshal_VOID__BOOLEAN,
+		             G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
 }
 
 static const char *note_sharp[] = {"F#","G","G#","A","A#","B","C","C#","D","D#","E","F"};
@@ -169,10 +180,10 @@ static void gx_rack_tuner_init (GxRackTuner *tuner)
 	gtk_widget_add_events(GTK_WIDGET(tuner), GDK_BUTTON_MOTION_MASK|GDK_VISIBILITY_NOTIFY_MASK);
 }
 
-static void gx_rack_tuner_finalize(GObject *object)
+static void gx_rack_tuner_destroy(GtkObject *object)
 {
 	gx_rack_tuner_remove_handler(GX_RACK_TUNER(object));
-	G_OBJECT_CLASS(gx_rack_tuner_parent_class)->finalize(object);
+	GTK_OBJECT_CLASS(gx_rack_tuner_parent_class)->destroy(object);
 }
 
 void gx_rack_tuner_set_freq(GxRackTuner *tuner, double freq)
@@ -405,11 +416,16 @@ static void gx_rack_tuner_calc(GxRackTuner *tuner)
 	}
 }
 
+gboolean gx_rack_tuner_get_poll_status(GxRackTuner *tuner) {
+	return (tuner->freqpoll_id != 0);
+}
+
 static void gx_rack_tuner_remove_handler(GxRackTuner *tuner)
 {
 	if (tuner->freqpoll_id) {
 		g_source_remove(tuner->freqpoll_id);
 		tuner->freqpoll_id = 0;
+		g_signal_emit_by_name(tuner, "poll-status-changed", FALSE);
 	}
 	if (tuner->in_limit_id) {
 		g_source_remove(tuner->in_limit_id);
@@ -423,6 +439,7 @@ static void gx_rack_tuner_check_poll(GxRackTuner *tuner)
 		if (!tuner->freqpoll_id) {
 			tuner->freqpoll_id = gdk_threads_add_timeout(
 				tuner->timestep, gx_rack_tuner_freq_poll_handler, tuner);
+			g_signal_emit_by_name(tuner, "poll-status-changed", TRUE);
 		}
 	} else {
 		gx_rack_tuner_remove_handler(tuner);

@@ -37,6 +37,7 @@ protected:
   //These will call the *_impl member methods, which will then call the existing default signal callbacks, if any.
   //You could prevent the original default signal handlers being called by overriding the *_impl method.
   static void frequency_poll_callback(GxRackTuner* self);
+  static void poll_status_changed_callback(GxRackTuner* self, gboolean p0);
 
   //Callbacks (virtual functions):
 };

@@ -36,6 +36,39 @@ static const Glib::SignalProxyInfo RackTuner_signal_frequency_poll_info =
 };
 
 
+static void RackTuner_signal_poll_status_changed_callback(GxRackTuner* self, gboolean p0,void* data)
+{
+  using namespace Gxw;
+  typedef sigc::slot< void,bool > SlotType;
+
+  // Do not try to call a signal on a disassociated wrapper.
+  if(Glib::ObjectBase::_get_current_wrapper((GObject*) self))
+  {
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    try
+    {
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+      if(sigc::slot_base *const slot = Glib::SignalProxyNormal::data_to_slot(data))
+        (*static_cast<SlotType*>(slot))(p0
+);
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    }
+    catch(...)
+    {
+      Glib::exception_handlers_invoke();
+    }
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+  }
+}
+
+static const Glib::SignalProxyInfo RackTuner_signal_poll_status_changed_info =
+{
+  "poll-status-changed",
+  (GCallback) &RackTuner_signal_poll_status_changed_callback,
+  (GCallback) &RackTuner_signal_poll_status_changed_callback
+};
+
+
 } // anonymous namespace
 
 
@@ -84,6 +117,7 @@ void RackTuner_Class::class_init_function(void* g_class, void* class_data)
 
 
   klass->frequency_poll = &frequency_poll_callback;
+  klass->poll_status_changed = &poll_status_changed_callback;
 }
 
 
@@ -126,6 +160,47 @@ void RackTuner_Class::frequency_poll_callback(GxRackTuner* self)
   // Call the original underlying C function:
   if(base && base->frequency_poll)
     (*base->frequency_poll)(self);
+}
+void RackTuner_Class::poll_status_changed_callback(GxRackTuner* self, gboolean p0)
+{
+  Glib::ObjectBase *const obj_base = static_cast<Glib::ObjectBase*>(
+      Glib::ObjectBase::_get_current_wrapper((GObject*)self));
+
+  // Non-gtkmmproc-generated custom classes implicitly call the default
+  // Glib::ObjectBase constructor, which sets is_derived_. But gtkmmproc-
+  // generated classes can use this optimisation, which avoids the unnecessary
+  // parameter conversions if there is no possibility of the virtual function
+  // being overridden:
+  if(obj_base && obj_base->is_derived_())
+  {
+    CppObjectType *const obj = dynamic_cast<CppObjectType* const>(obj_base);
+    if(obj) // This can be NULL during destruction.
+    {
+      #ifdef GLIBMM_EXCEPTIONS_ENABLED
+      try // Trap C++ exceptions which would normally be lost because this is a C callback.
+      {
+      #endif //GLIBMM_EXCEPTIONS_ENABLED
+        // Call the virtual member method, which derived classes might override.
+        obj->on_poll_status_changed(p0
+);
+        return;
+      #ifdef GLIBMM_EXCEPTIONS_ENABLED
+      }
+      catch(...)
+      {
+        Glib::exception_handlers_invoke();
+      }
+      #endif //GLIBMM_EXCEPTIONS_ENABLED
+    }
+  }
+
+  BaseClassType *const base = static_cast<BaseClassType*>(
+        g_type_class_peek_parent(G_OBJECT_GET_CLASS(self)) // Get the parent class of the object class (The original underlying C class).
+    );
+
+  // Call the original underlying C function:
+  if(base && base->poll_status_changed)
+    (*base->poll_status_changed)(self, p0);
 }
 
 
@@ -177,6 +252,11 @@ RackTuner::RackTuner()
 {
   
 
+}
+
+bool RackTuner::get_poll_status()
+{
+  return gx_rack_tuner_get_poll_status(gobj());
 }
 
 void RackTuner::set_freq(double p1)
@@ -258,6 +338,12 @@ gx_rack_tuner_push_note(gobj(), p1);
 Glib::SignalProxy0< void > RackTuner::signal_frequency_poll()
 {
   return Glib::SignalProxy0< void >(this, &RackTuner_signal_frequency_poll_info);
+}
+
+
+Glib::SignalProxy1< void,bool > RackTuner::signal_poll_status_changed()
+{
+  return Glib::SignalProxy1< void,bool >(this, &RackTuner_signal_poll_status_changed_info);
 }
 
 
@@ -368,6 +454,15 @@ void Gxw::RackTuner::on_frequency_poll()
 
   if(base && base->frequency_poll)
     (*base->frequency_poll)(gobj());
+}
+void Gxw::RackTuner::on_poll_status_changed(bool p1)
+{
+  BaseClassType *const base = static_cast<BaseClassType*>(
+      g_type_class_peek_parent(G_OBJECT_GET_CLASS(gobject_)) // Get the parent class of the object class (The original underlying C class).
+  );
+
+  if(base && base->poll_status_changed)
+    (*base->poll_status_changed)(gobj(),static_cast<int>(p1));
 }
 
 

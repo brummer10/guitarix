@@ -88,12 +88,15 @@ protected:
 
   //Default Signal Handlers::
   virtual void on_frequency_poll();
+  virtual void on_poll_status_changed(bool p1);
 
 
 private:
 
 	public:
 	RackTuner();
+	
+  bool get_poll_status();
 	
   void set_freq(double p1);
 	
@@ -131,6 +134,14 @@ private:
    */
 
   Glib::SignalProxy0< void > signal_frequency_poll();
+
+	
+  /**
+   * @par Prototype:
+   * <tt>void on_my_%poll_status_changed(bool p1)</tt>
+   */
+
+  Glib::SignalProxy1< void,bool > signal_poll_status_changed();
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** The frequency for which tuning is displayed.
