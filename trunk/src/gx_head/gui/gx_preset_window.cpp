@@ -83,7 +83,6 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
     actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_new_bank));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(new_preset_bank->gobj()), act->gobj());
     act = Gtk::Action::create("Save", _("Save changes"));
-    act->set_sensitive(false);
     actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_preset_save));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(save_preset->gobj()), act->gobj());
     Glib::RefPtr<Gtk::ToggleAction> actt = Gtk::ToggleAction::create("Organize", _("Organize"));
@@ -261,7 +260,11 @@ bool PresetWindow::on_bank_query_tooltip(int x, int y, bool kb_tooltip, Glib::Re
 }
 
 void PresetWindow::on_preset_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column) {
+    bool in_organize = Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Organize"))->get_active();
     on_presets_close();
+    if (in_organize) {
+	preset_treeview->get_selection()->select(path);
+    }
 }
 
 bool PresetWindow::on_preset_button_press(GdkEventButton *ev) {
@@ -626,7 +629,7 @@ bool PresetWindow::on_bank_button_release(GdkEventButton *ev) {
 	    reload_combo();
 	    if (nm == gx_settings.get_current_bank()) {
 		gx_settings.set_source_to_state();
-		save_preset->set_sensitive(false);
+		actiongroup->get_action("Save")->set_sensitive(false);
 	    }
 	}
     }
@@ -1010,18 +1013,23 @@ void PresetWindow::on_organize() {
     bank_column_delete->set_visible(v);
     preset_column_edit->set_visible(v);
     preset_column_delete->set_visible(v);
-    save_preset->set_sensitive(!v); // FIXME -> Save action
     Glib::RefPtr<Gtk::TreeSelection> sel = preset_treeview->get_selection();
     if (v) {
-	Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Organize"))->set_active(true);
+	Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Presets"))->set_active(true);
 	sel->set_mode(Gtk::SELECTION_NONE);
 	banks_combobox->set_active(-1);
 	banks_combobox->show();
 	presets_target_scrolledbox->show();
+	actiongroup->get_action("Save")->set_sensitive(false);
     } else {
 	sel->set_mode(Gtk::SELECTION_BROWSE);
 	banks_combobox->hide();
 	presets_target_scrolledbox->hide();
+	if (gx_settings.setting_is_preset()) {
+	    if (gx_settings.banks.get_file(gx_settings.get_current_bank())->is_mutable()) {
+		actiongroup->get_action("Save")->set_sensitive(true);
+	    }
+	}
     }
     on_bank_changed(); // reload for DnD adjustment of readonly banks
     autosize();
@@ -1087,7 +1095,7 @@ void PresetWindow::preset_changed() {
     in_current_preset = true;
     cpf = gx_settings.banks.get_file(bank);
     gx_settings.load_preset(cpf, name);
-    save_preset->set_sensitive(cpf && cpf->is_mutable());
+    actiongroup->get_action("Save")->set_sensitive(cpf && cpf->is_mutable());
 }
 
 void PresetWindow::show_selected_preset() {
