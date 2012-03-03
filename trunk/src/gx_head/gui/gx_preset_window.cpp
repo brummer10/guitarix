@@ -938,9 +938,9 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
     it->set_value(pstore->col.name, newname);
     it->set_value(pstore->col.edit_pb, pb_edit);
     it->set_value(pstore->col.del_pb, pb_del);
-    preset_treeview->get_selection()->select(pstore->get_iter(path));
     reload_target();
     reset_edit(*preset_treeview->get_column(0));
+    set_presets();
 }
 
 void PresetWindow::on_cursor_changed() {
