@@ -411,19 +411,18 @@ private:
     };
     Gtk::HBox box;
     Gtk::ScrolledWindow scrollbox;
-    Gtk::Expander frame;
     Gtk::TextView tbox;
     static tab_table tagdefs[gx_system::kMessageTypeCount];
     Glib::RefPtr<Gtk::TextTag> tags[gx_system::kMessageTypeCount];
     int highest_unseen_msg_level;
     sigc::signal<void> msg_level_changed;
 private:
-    void set_color();
     bool on_delete_event();
-    void set_expander_color(const char *color);
     void show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool plugged);
+    virtual void on_show();
+    virtual void on_hide();
 public:
-    TextLoggingBox(const char* label);
+    TextLoggingBox();
     ~TextLoggingBox();
     int get_unseen_msg_level() { return highest_unseen_msg_level; }
     sigc::signal<void>& signal_msg_level_changed() { return msg_level_changed; }
@@ -560,6 +559,9 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_bypass;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_jack_connected;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_jack_disconnected;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_grey;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_yellow;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_red;
     gx_ui::UiSignal<bool> mute_changed;
     gx_ui::UiSignal<bool> ampdetail_sh;
     sigc::connection contrast_conv_conn;

@@ -36,15 +36,14 @@ TextLoggingBox::tab_table TextLoggingBox::tagdefs[] = {
     {"colerr", "#ff0000"},
 };
 
-TextLoggingBox::TextLoggingBox(const char* label)
+TextLoggingBox::TextLoggingBox()
     : box(),
       scrollbox(),
-      frame(label),
       tbox(),
       highest_unseen_msg_level(-1),
       msg_level_changed() {
 
-    set_size_request(600, -1);
+    set_default_size(600, 200);
     set_decorated(true);
     set_resizable(true);
     set_gravity(Gdk::GRAVITY_SOUTH);
@@ -55,10 +54,7 @@ TextLoggingBox::TextLoggingBox(const char* label)
     box.set_border_width(0);
     scrollbox.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
 
-    frame.add(box);
-    add(frame);
-    frame.show();
-    frame.set_expanded(true);
+    add(box);
 
     tbox.set_wrap_mode(Gtk::WRAP_WORD_CHAR);
     tbox.set_border_width(0);
@@ -80,9 +76,7 @@ TextLoggingBox::TextLoggingBox(const char* label)
     scrollbox.add(tbox);
     tbox.show();
     scrollbox.show();
-    tbox.set_size_request(-1, 100);
-    frame.property_expanded().signal_changed().connect(
-	sigc::mem_fun(*this, &TextLoggingBox::set_color));
+    tbox.set_size_request(-1, 50);
     box.show();
     gx_system::Logger::get_logger().signal_message().connect(
 	sigc::mem_fun(*this, &TextLoggingBox::show_msg));
@@ -92,24 +86,14 @@ TextLoggingBox::TextLoggingBox(const char* label)
 TextLoggingBox::~TextLoggingBox() {
 }
 
-/* loging box handling*/
-void TextLoggingBox::set_color() {
-    if (!frame.get_expanded()) {
-        // expander will be opened
-        highest_unseen_msg_level = gx_system::kMessageTypeCount;
-        set_expander_color("#ffffff");
-    } else {
-        highest_unseen_msg_level = -1;
-	msg_level_changed();
-    }
+void TextLoggingBox::on_show() {
+    highest_unseen_msg_level = gx_system::kMessageTypeCount;
+    Gtk::Window::on_show();
 }
 
-void TextLoggingBox::set_expander_color(const char *color) {
-    if (!frame.get_expanded()) {
-	Gdk::Color c(color);
-        frame.modify_fg(Gtk::STATE_NORMAL, c);
-        frame.get_label_widget()->modify_fg(Gtk::STATE_NORMAL, c);
-    }
+void TextLoggingBox::on_hide() {
+    highest_unseen_msg_level = -1;
+    Gtk::Window::on_hide();
 }
 
 void TextLoggingBox::show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool plugged) {
@@ -140,7 +124,6 @@ void TextLoggingBox::show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool 
 
     // modify expander bg color is closed
     if (msgtype > highest_unseen_msg_level) {
-        set_expander_color(tagdefs[msgtype].tag_color);
         highest_unseen_msg_level = msgtype;
 	msg_level_changed();
     }
@@ -3204,6 +3187,7 @@ void MainWindow::on_log_activate() {
         window->get_position(rxorg, ryorg);
         fLoggingWindow.move(rxorg+5, ryorg+272);
         fLoggingWindow.show_all();
+	on_msg_level_changed();
     } else {
         fLoggingWindow.hide();
     }
@@ -3762,9 +3746,9 @@ bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
 void MainWindow::on_msg_level_changed() {
     //FIXME use better icons...
     switch (fLoggingWindow.get_unseen_msg_level()) {
-    case gx_system::kWarning: logstate_image->set(pixbuf_bypass); break;
-    case gx_system::kError:   logstate_image->set(pixbuf_off); break;
-    default:                  logstate_image->set(pixbuf_on); break;
+    case gx_system::kWarning: logstate_image->set(pixbuf_log_yellow); break;
+    case gx_system::kError:   logstate_image->set(pixbuf_log_red); break;
+    default:                  logstate_image->set(pixbuf_log_grey); break;
     }
 }
 
@@ -4107,13 +4091,16 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       accel_group(),
       skin_changed(&ui, &skin),
       select_jack_control(0),
-      fLoggingWindow(_("Logging Window")),
+      fLoggingWindow(),
       amp_radio_menu(&ui, pmap["tube.select"].getUInt()),
       pixbuf_on(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_on.png"))),
       pixbuf_off(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_off.png"))),
       pixbuf_bypass(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_bypass.png"))),
       pixbuf_jack_connected(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_on.png"))),
       pixbuf_jack_disconnected(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_off.png"))),
+      pixbuf_log_grey(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_grey.png"))),
+      pixbuf_log_yellow(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_yellow.png"))),
+      pixbuf_log_red(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_red.png"))),
       mute_changed(&ui, &pmap.reg_par("engine.mute", "Mute", 0, false)->get_value()),
       ampdetail_sh(&ui, &pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false)->get_value()),
       contrast_conv_conn(),
@@ -4206,6 +4193,10 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     fLoggingWindow.set_icon(gx_head_icon);
     fLoggingWindow.signal_msg_level_changed().connect(
 	sigc::mem_fun(*this, &MainWindow::on_msg_level_changed));
+    fLoggingWindow.signal_hide().connect(
+	sigc::bind(
+	    sigc::mem_fun(loggingbox_action.operator->(), &Gtk::ToggleAction::set_active),
+	    false));
     on_msg_level_changed();
     logstate_image->get_parent()->signal_button_press_event().connect(
 	sigc::bind_return(

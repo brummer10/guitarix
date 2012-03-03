@@ -2319,8 +2319,8 @@ to midi controller</property>
                     <property name="can_focus">False</property>
                     <property name="tooltip_text" translatable="yes">status of event log since last view:
 
-  green:     ok
-  yellow:     warnings
+  grey:       ok
+  yellow:   warnings
   red:         errors occurred
 </property>
                     <property name="xpad">8</property>

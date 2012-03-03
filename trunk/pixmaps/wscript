@@ -13,6 +13,9 @@ pixmap_files += ' gx_bypass.png'
 pixmap_files += ' gx_head.png' 
 pixmap_files += ' gx_head-midi.png'
 pixmap_files += ' gx_head-warn.png'
+pixmap_files += ' gx_log_grey.png'
+pixmap_files += ' gx_log_yellow.png'
+pixmap_files += ' gx_log_red.png'
 
 def configure(conf):
     pass
