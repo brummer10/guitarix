@@ -324,19 +324,21 @@ private:
     int child_count;
     int switch_level;
     std::vector<std::string> targets;
+    std::vector<std::string> othertargets;
     sigc::connection highlight_connection;
     sigc::connection autoscroll_connection;
 private:
     bool drag_highlight_expose(GdkEventExpose *event, int y0);
     void find_index(int x, int y, int* len, int *ypos);
     void on_my_remove(Gtk::Widget*);
-    bool check_targets(const std::vector<std::string>& targets);
+    bool check_targets(const std::vector<std::string>& tgts1, const std::vector<std::string>& tgts2);
     virtual bool on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
     virtual void on_drag_leave(const Glib::RefPtr<Gdk::DragContext>& context, guint timestamp);
     virtual void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     virtual void on_add(Widget* ch);
     void renumber();
     bool scroll_timeout();
+    bool scrollother_timeout();
 public:
     typedef Glib::ListHandle<const RackBox*> rackbox_const_list;
     typedef Glib::ListHandle<RackBox*> rackbox_list;
@@ -357,11 +359,13 @@ public:
     void compress_all();
     void expand_all();
     void set_config_mode(bool mode);
-    bool empty() const;
+    bool empty() const { return child_count == 0; }
     void add(RackBox& r, int pos=-1);
     void check_order();
     void ensure_visible(RackBox& child);
     void reorder(const std::string& name, int pos);
+    void increment();
+    void decrement();
 };
 
 
@@ -376,7 +380,6 @@ private:
     int                  fMode[stackSize];
     gx_engine::GxEngine& engine;
     gx_engine::ParamMap& pmap;
-    //gx_gui::MainMenu&    mainmenu; //FIXME
     Gxw::WaveView&       fWaveView;
     Gtk::Label&          convolver_filename_label;
     Gtk::VBox           *widget;
@@ -557,6 +560,11 @@ private:
     gx_ui::UiSignal<bool> ampdetail_sh;
     sigc::connection contrast_conv_conn;
     sigc::connection cab_conv_conn;
+    gx_gui::ReportXrun report_xrun;
+    bool in_session;
+    Glib::RefPtr<Gtk::StatusIcon> status_icon;
+    Glib::RefPtr<Gdk::Pixbuf> gx_head_midi;
+    Glib::RefPtr<Gdk::Pixbuf> gx_head_warn;
     //
     Glib::RefPtr<Gtk::RadioAction> skin_action;
     Glib::RefPtr<Gtk::RadioAction> latency_action;
@@ -641,7 +649,7 @@ private:
     void on_show_plugin_bar();
     void on_rack_configuration();
     void move_widget(Gtk::Widget& w, Gtk::Box& b1, Gtk::Box& b2);
-    int get_dir() const;
+    int rackbox_stacked_vertical() const;
     static void change_expand(Gtk::Widget& w, bool value);
     void on_dir_changed(Glib::RefPtr<Gtk::RadioAction> act);
     void on_configure_event(GdkEventConfigure *ev);
@@ -660,7 +668,6 @@ private:
     bool on_ti_button_press(GdkEventButton *ev, const char *effect_id);
     void on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, int info, int timestamp);
     void fill_pluginlist();
-    void add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
     void make_icons();
     bool update_all_gui();
     void jack_connection();
@@ -698,6 +705,16 @@ private:
     bool check_cab_state();
     void cab_conv_restart();
     void contrast_conv_restart();
+    bool survive_jack_shutdown();
+    void gx_jack_is_down();
+    void jack_session_event();
+    void jack_session_event_ins();
+    void set_in_session();
+    void hide_extended_settings();
+    void systray_menu(guint button, guint32 activate_time);
+    void overload_status_changed();
+    bool on_window_state_changed(GdkEventWindowState* event);
+    bool on_meter_button_release(GdkEventButton* ev);
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();
@@ -710,10 +727,14 @@ public:
     PluginUI *get_plugin(const std::string& name) { return plugin_dict[name]; }
     PluginDict::iterator plugins_begin() { return plugin_dict.begin(); }
     PluginDict::iterator plugins_end() { return plugin_dict.end(); }
-    void run() { Gtk::Main::run(*window); }
+    void run();
     gx_system::CmdlineOptions& get_options() { return options; }
     gx_ui::GxUI& get_ui() { return ui; }
     Glib::RefPtr<gx_preset::PluginPresetList> load_plugin_preset_list(const Glib::ustring& id) { return gx_settings.load_plugin_preset_list(id); }
     gx_engine::ParamMap& get_parametermap() { return pmap; }
     bool is_loading() { return gx_settings.is_loading(); }
+    void add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
+    void set_rackbox_expansion();
+    double stop_at_stereo_bottom(double off, double step_size, double pagesize);
+    double stop_at_mono_top(double off, double step_size);
 };

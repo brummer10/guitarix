@@ -1526,7 +1526,7 @@ void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
 	}
 	return;
     }
-    current_source = factory;
+    current_source = preset;
     current_bank = pf->get_name();
     current_name = name;
     seq.start_ramp_down();

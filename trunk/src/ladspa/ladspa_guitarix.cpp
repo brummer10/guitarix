@@ -303,7 +303,6 @@ void LadspaSettings::load(Source src, const Glib::ustring& name) {
     gx_system::PresetFile *p = 0;
     switch (src) {
     case preset:
-    case factory:
 	if (presetfile.get_index(name) < 0) {
 	    return;
 	}

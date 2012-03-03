@@ -1113,11 +1113,19 @@ void PresetWindow::display_paned(bool show_preset) {
     if (!show_preset || !in_current_preset) {
 	return;
     }
+    on_map_conn.disconnect();
     // make the current entry in the preset list window
     // visible (in case it's outside the displayed range).
     // apparently only works after the window is mapped
     // and some size calculations are done, so put it into
     // an idle handler.
+    Gtk::TreeIter it = get_current_bank_iter();
+    if (it) {
+	Glib::signal_idle().connect_once(
+	    sigc::bind(
+		sigc::mem_fun1(bank_treeview, &MyTreeView::scroll_to_row),
+		bank_treeview->get_model()->get_path(it)));
+    }
     Gtk::TreeNodeChildren ch = pstore->children();
     for (Gtk::TreeIter it = ch.begin(); it != ch.end(); ++it) {
 	if (it->get_value(pstore->col.name) == gx_settings.get_current_name()) {
@@ -1125,11 +1133,8 @@ void PresetWindow::display_paned(bool show_preset) {
 		sigc::bind(
 		    sigc::mem_fun1(*preset_treeview, &MyTreeView::scroll_to_row),
 		    pstore->get_path(it)));
-	    return;
+	    break;
 	}
-    }
-    if (on_map_conn.connected()) {
-	on_map_conn.disconnect();
     }
 }
 
@@ -1145,7 +1150,7 @@ void PresetWindow::on_preset_select(bool v) {
 	}
 	autosize();
 	Gtk::TreeIter it = get_current_bank_iter();
-	if (it) {
+	if (it && main_vpaned->get_mapped()) {
 	    bank_treeview->scroll_to_row(bank_treeview->get_model()->get_path(it));
 	}
 	if (!main_vpaned->get_mapped()) {

@@ -345,7 +345,6 @@ public:
     enum Source {
 	state,
 	preset,
-	factory,
     };
 protected:
     AbstractStateIO*   state_io;
@@ -378,7 +377,6 @@ public:
     void set_source_to_state();
     void erase_preset(const Glib::ustring& name);
     bool setting_is_preset() { return current_source == preset; }
-    bool setting_is_factory() { return current_source == factory; }
     bool convert_preset(PresetFile& pf);
     void reorder_preset(PresetFile& pf, const std::vector<Glib::ustring>& neworder);
     void erase_preset(PresetFile& pf, const Glib::ustring& name);

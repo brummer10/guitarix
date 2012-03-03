@@ -299,7 +299,7 @@ void Liveplay::display_empty(const Glib::ustring& s) {
 
 void Liveplay::process_preset_key(int idx) {
     if (last_bank_key.empty()) {
-	if (gx_settings.get_current_source() != gx_system::GxSettingsBase::factory) {
+	if (!gx_settings.setting_is_preset()) {
 	    display_empty(Glib::ustring::compose("?? / %1", idx+1));
 	    return;
 	}
@@ -1202,6 +1202,7 @@ void RackBox::display(bool v, bool animate) {
 	} else {
 	    show();
 	}
+	get_parent()->increment();
     } else {
 	plugin.plugin->on_off = false;
 	if (animate) {
@@ -1209,6 +1210,7 @@ void RackBox::display(bool v, bool animate) {
 	} else {
 	    hide();
 	}
+	get_parent()->decrement();
     }
 }
 
@@ -1562,18 +1564,34 @@ Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
  ** class RackContainer
  */
 
+static const int min_containersize = 40;
+
 RackContainer::RackContainer(PluginType tp_, MainWindow& main_)
-    : Gtk::VBox(), tp(tp_), main(main_), config_mode(false), in_drag(-2), child_count(0), switch_level(1), targets(),
-      highlight_connection(), autoscroll_connection() {
+    : Gtk::VBox(),
+      tp(tp_),
+      main(main_),
+      config_mode(false),
+      in_drag(-2),
+      child_count(0),
+      switch_level(1),
+      targets(),
+      othertargets(),
+      highlight_connection(),
+      autoscroll_connection() {
+    std::vector<std::string> *pm, *ps;
     if (tp == PLUGIN_TYPE_MONO) {
-	targets.push_back("application/x-guitarix-mono");
-	targets.push_back("application/x-guitarix-mono-s");
-	targets.push_back("application/x-gtk-tool-palette-item-mono");
+	pm = &targets;
+	ps = &othertargets;
     } else {
-	targets.push_back("application/x-guitarix-stereo");
-	targets.push_back("application/x-guitarix-stereo-s");
-	targets.push_back("application/x-gtk-tool-palette-item-stereo");
+	ps = &targets;
+	pm = &othertargets;
     }
+    pm->push_back("application/x-guitarix-mono");
+    pm->push_back("application/x-guitarix-mono-s");
+    pm->push_back("application/x-gtk-tool-palette-item-mono");
+    ps->push_back("application/x-guitarix-stereo");
+    ps->push_back("application/x-guitarix-stereo-s");
+    ps->push_back("application/x-gtk-tool-palette-item-stereo");
     std::vector<Gtk::TargetEntry> listTargets;
     listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-mono", Gtk::TARGET_SAME_APP, 0));
     listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-mono-s", Gtk::TARGET_SAME_APP, 1));
@@ -1583,6 +1601,7 @@ RackContainer::RackContainer(PluginType tp_, MainWindow& main_)
     listTargets.push_back(Gtk::TargetEntry("application/x-gtk-tool-palette-item-stereo", Gtk::TARGET_SAME_APP, 5));
     drag_dest_set(listTargets, Gtk::DEST_DEFAULT_DROP, Gdk::ACTION_MOVE);
     signal_remove().connect(sigc::mem_fun(*this, &RackContainer::on_my_remove));
+    set_size_request(-1, min_containersize);
     show_all();
 }
 
@@ -1661,20 +1680,16 @@ void RackContainer::find_index(int x, int y, int* len, int *ypos) {
 }
 
 void RackContainer::on_my_remove(Gtk::Widget *ch) {
-    child_count -= 1;
-    assert(child_count >= 0);
-    if (child_count == 0 && tp == PLUGIN_TYPE_MONO && main.show_plugin_bar_action->get_active()) {
-	main.get_monorackcontainer().set_size_request(-1, 20);
-    }
+    decrement();
     if (!main.is_loading()) {
 	renumber();
     }
 }
 
-bool RackContainer::check_targets(const std::vector<std::string>& tgts) {
-    for (std::vector<std::string>::iterator t = targets.begin(); t != targets.end(); ++t) {
-	for (std::vector<std::string>::const_iterator t2 = tgts.begin(); t2 != tgts.end(); ++t2) {
-	    if (*t == *t2) {
+bool RackContainer::check_targets(const std::vector<std::string>& tgts1, const std::vector<std::string>& tgts2) {
+    for (std::vector<std::string>::const_iterator t1 = tgts1.begin(); t1 != tgts1.end(); ++t1) {
+	for (std::vector<std::string>::const_iterator t2 = tgts2.begin(); t2 != tgts2.end(); ++t2) {
+	    if (*t1 == *t2) {
 		return true;
 	    }
 	}
@@ -1683,7 +1698,16 @@ bool RackContainer::check_targets(const std::vector<std::string>& tgts) {
 }
 
 bool RackContainer::on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
-    if (!check_targets(context->get_targets())) {
+    const std::vector<std::string>& tg = context->get_targets();
+    if (!check_targets(tg, targets)) {
+	if (check_targets(tg, othertargets)) {
+	    if (!autoscroll_connection.connected()) {
+		autoscroll_connection = Glib::signal_timeout().connect(
+		    sigc::mem_fun(*this, &RackContainer::scrollother_timeout), 50);
+	    }
+	    context->drag_status(Gdk::DragAction(0), timestamp);
+	    return true;
+	}
 	return false;
     }
     context->drag_status(Gdk::ACTION_MOVE, timestamp);
@@ -1710,39 +1734,73 @@ void RackContainer::ensure_visible(RackBox& child) {
     p->get_vadjustment()->clamp_page(alloc.get_y(), alloc.get_y()+alloc.get_height());
 }
 
+static const double scroll_edge_size = 60.0;
+static const int step_size = 20;
+
+bool RackContainer::scrollother_timeout() {
+    Gtk::Viewport *p = dynamic_cast<Gtk::Viewport*>(get_ancestor(GTK_TYPE_VIEWPORT));
+    Gtk::Adjustment *a = p->get_vadjustment();
+    double off = a->get_value();
+    Gtk::Allocation alloc = get_allocation();
+    int x, y;
+    get_pointer(x, y);
+    y -= alloc.get_height();
+    double step;
+    if (y < -scroll_edge_size) {
+	step = step_size;
+    } else {
+	step = step_size * exp(-(y+scroll_edge_size)/(1.0*scroll_edge_size));
+	if (step < 1.5) {
+	    return false;
+	}
+    }
+    if (tp == PLUGIN_TYPE_MONO) {
+	off = main.stop_at_stereo_bottom(off, step_size, a->get_page_size());
+    } else {
+	printf("%g ", off);
+	off = main.stop_at_mono_top(off, step_size);
+	printf("%g\n", off);
+    }
+    if (off < a->get_lower()) {
+	off = a->get_lower();
+    }
+    if (off > a->get_upper() - a->get_page_size()) {
+	off = a->get_upper() - a->get_page_size();
+    }
+    a->set_value(off);
+    return true;
+}
+
 bool RackContainer::scroll_timeout() {
     Gtk::Viewport *p = dynamic_cast<Gtk::Viewport*>(get_ancestor(GTK_TYPE_VIEWPORT));
     Gtk::Adjustment *a = p->get_vadjustment();
     double off = a->get_value();
     Gtk::Allocation alloc = get_allocation();
-    int tl = off - alloc.get_y();
-    int bl = tl + p->get_allocation().get_height();
     int x, y;
     get_pointer(x, y);
-    const double scroll_edge_size = 60.0;
-    const int step_size = 20;
-    double diff = y - tl - scroll_edge_size;
-    if (diff > 0) {
-	diff = y + scroll_edge_size - bl;
-	if (diff < 0) {
+    double sez = scroll_edge_size;
+    if (sez > a->get_page_size() / 3) {
+	sez = a->get_page_size() / 3;
+    }
+    double yw = y + alloc.get_y() - off;
+    double step;
+    if (yw <= sez) {
+	step = step_size * (sez-yw) / sez;
+	off = max(double(alloc.get_y()), off-step);
+    } else {
+	yw = a->get_page_size() - yw;
+	if (yw <= sez) {
+	    step = step_size * (sez-yw) / sez;
+	    off = min(alloc.get_y()+alloc.get_height()-a->get_page_size(), off+step);
+	} else {
 	    return true;
 	}
-	diff = max(0.0, min(scroll_edge_size, diff));
-    } else {
-	diff = max(-scroll_edge_size, min(0.0, diff));
     }
-    off += step_size * diff/scroll_edge_size;
-    if (off < alloc.get_y()) {
-	if (diff < 0) {
-	    off = alloc.get_y();
-	}
-    } else {
-	int t = alloc.get_y() + alloc.get_height()- a->get_page_size();
-	if (off > t) {
-	    if (diff > 0) {
-		off = t;
-	    }
-	}
+    if (off < a->get_lower()) {
+	off = a->get_lower();
+    }
+    if (off > a->get_upper() - a->get_page_size()) {
+	off = a->get_upper() - a->get_page_size();
     }
     a->set_value(off);
     return true;
@@ -1817,7 +1875,7 @@ void RackContainer::on_add(Widget *ch) {
 
 void RackContainer::add(RackBox& r, int pos) {
     pack_start(r, Gtk::PACK_SHRINK);
-    ++child_count;
+    increment();
     if (main.is_loading()) {
 	return;
     }
@@ -1826,6 +1884,21 @@ void RackContainer::add(RackBox& r, int pos) {
 	r.set_config_mode(true);
     }
     renumber();
+}
+
+void RackContainer::increment() {
+    ++child_count;
+    if (child_count == 1) {
+	set_size_request(-1, -1);
+    }
+}
+
+void RackContainer::decrement() {
+    --child_count;
+    assert(child_count >= 0);
+    if (child_count == 0) {
+	set_size_request(-1, min_containersize);
+    }
 }
 
 void RackContainer::set_config_mode(bool mode) {
@@ -1870,10 +1943,6 @@ void RackContainer::expand_all() {
 	    }
 	}
     }
-}
-
-bool RackContainer::empty() const {
-    return get_children().empty();
 }
 
 bool rackboxes_less(RackBox *a, RackBox *b) {
@@ -2343,8 +2412,7 @@ void MainWindow::maybe_change_resizable() {
 
 void MainWindow::on_show_rack() {
     Gtk::Widget *w;
-    if (get_dir() == 0) {
-	// vertically
+    if (rackbox_stacked_vertical()) {
 	w = stereorackcontainerV;
     } else {
 	w = stereorackbox;
@@ -2422,41 +2490,24 @@ void MainWindow::on_rack_configuration() {
 	upper_rackbox->hide();
 	Gtk::Requisition req2;
 	effects_frame_paintbox->size_request(req2);
-	if (get_dir() == 0) {
-	    // vertically
-	    int width;
-	    if (plugin_bar) {
-		width = req.width;
+	int width = req.width;
+	if (!plugin_bar) {
+	    if (rackbox_stacked_vertical()) {
+		width -= req2.width;
 	    } else {
-		width = req.width-req2.width;
+		width -= req2.width/2;
 	    }
-	    monobox->set_size_request(width,-1);
-	    if (stereorackcontainer.empty()) {
-		change_expand(*monobox, true);
-	    } else if (monorackcontainer.empty()) {
-		monorackcontainer.set_size_request(-1, 20);
-	    }
-	} else {
-	    int width;
-	    if (plugin_bar) {
-		width = req.width;
-	    } else {
-		width = req.width-req2.width/2;
-	    }
-	    monobox->set_size_request(width,-1);
-	    change_expand(*monobox, true);
 	}
+	monobox->set_size_request(width,-1);
     } else {
 	if (pre_act) {
 	    presets_action->set_active(true);
 	}
-	monobox->set_size_request(-1,-1);
 	if (!plugin_bar) {
 	    effects_frame_paintbox->hide();
 	}
 	upper_rackbox->show();
-	change_expand(*monobox, false);
-	monorackcontainer.set_size_request(-1, -1);
+	monobox->set_size_request(-1,-1);
     }
     if (!plugin_bar) {
 	update_scrolled_window(*vrack_scrolledbox);
@@ -2465,85 +2516,17 @@ void MainWindow::on_rack_configuration() {
     }
 }
 
-#if 0
-void MainWindow::on_show_plugin_bar() {
-    bool v = show_plugin_bar_action->get_active();
-    show_rack_action->set_sensitive(!v);
-    tuner_action->set_sensitive(!v);
-    presets_action->set_sensitive(!v);
-    compress_action->set_sensitive(!v);
-    expand_action->set_sensitive(!v);
-    Gtk::Requisition req;
-    monobox->size_request(req);
-    stereorackcontainer.set_config_mode(v);
-    monorackcontainer.set_config_mode(v);
-    if (v) {
-	pre_act = presets_action->get_active();
-	if (pre_act) {
-	    preset_scrolledbox->hide();
-	    presets_action->set_active(false);
-	}
-	show_rack_action->set_active(true);
-	effects_frame_paintbox->show();
-	upper_rackbox->hide();
-	Gtk::Requisition req2;
-	effects_frame_paintbox->size_request(req2);
-	if (get_dir() == 0) {
-	    // vertically
-	    monobox->set_size_request(req.width-req2.width,-1);
-	    if (stereorackcontainer.empty()) {
-		change_expand(*monobox, true);
-	    } else if (monorackcontainer.empty()) {
-		monorackcontainer.set_size_request(-1, 20);
-	    }
-	} else {
-	    monobox->set_size_request(req.width-req2.width/2,-1);
-	    change_expand(*monobox, true);
-	}
-    } else {
-	if (pre_act) {
-	    presets_action->set_active(true);
-	}
-	monobox->set_size_request(-1,-1);
-	effects_frame_paintbox->hide();
-	upper_rackbox->show();
-	change_expand(*monobox, false);
-	monorackcontainer.set_size_request(-1, -1);
-    }
-    update_scrolled_window(*vrack_scrolledbox);
-    update_scrolled_window(*stereorackbox);
-    maybe_shrink_horizontally();
-}
-#else
 void MainWindow::on_show_plugin_bar() {
     bool v = show_plugin_bar_action->get_active();
     show_rack_action->set_sensitive(!v);
     if (v) {
 	show_rack_action->set_active(true);
-	effects_frame_paintbox->show();
-	if (get_dir() == 0) {
-	    // vertically
-	    if (stereorackcontainer.empty()) {
-		change_expand(*monobox, true);
-	    } else if (monorackcontainer.empty()) {
-		monorackcontainer.set_size_request(-1, 20);
-	    }
-	} else {
-	    change_expand(*monobox, true);
-	}
-    } else {
-	if (pre_act) {
-	    presets_action->set_active(true);
-	}
-	effects_frame_paintbox->hide();
-	change_expand(*monobox, false);
-	monorackcontainer.set_size_request(-1, -1);
     }
+    effects_frame_paintbox->set_visible(v);
     update_scrolled_window(*vrack_scrolledbox);
     update_scrolled_window(*stereorackbox);
     maybe_shrink_horizontally();
 }
-#endif
 
 void MainWindow::move_widget(Gtk::Widget& w, Gtk::Box& b1, Gtk::Box& b2) {
     // reparent does not always work when child is hidden
@@ -2555,8 +2538,8 @@ void MainWindow::move_widget(Gtk::Widget& w, Gtk::Box& b1, Gtk::Box& b2) {
     b2.show();
 }
 
-int MainWindow::get_dir() const {
-    return rackv_action->get_current_value();
+int MainWindow::rackbox_stacked_vertical() const {
+    return rackv_action->get_current_value() == 0;
 }
 
 void MainWindow::change_expand(Gtk::Widget& w, bool value) {
@@ -2568,25 +2551,32 @@ void MainWindow::change_expand(Gtk::Widget& w, bool value) {
     gtk_box_set_child_packing(p->gobj(), w.gobj(), value, fill, padding, pack_type);
 }
 
+double MainWindow::stop_at_stereo_bottom(double off, double step_size, double pagesize) {
+    Gtk::Allocation alloc = stereorackcontainer.get_allocation();
+    double lim = alloc.get_y() + alloc.get_height() - pagesize;
+    if (off >= lim) {
+	return off;
+    }
+    return min(off+step_size, lim);
+}
+
+double MainWindow::stop_at_mono_top(double off, double step_size) {
+    Gtk::Allocation alloc = monorackcontainer.get_allocation();
+    printf(" [%d] ", alloc.get_y());
+    if (off < alloc.get_y()) {
+	return off;
+    }
+    return max(off-step_size, double(alloc.get_y()));
+}
+
 void MainWindow::on_dir_changed(Glib::RefPtr<Gtk::RadioAction> act) {
     if (act->get_current_value()) {
 	// horizontally
 	move_widget(stereorackcontainer, *stereorackcontainerV, *stereorackcontainerH);
-	change_expand(*monobox, true);
 	stereorackbox->show();
     } else {
 	move_widget(stereorackcontainer, *stereorackcontainerH, *stereorackcontainerV);
 	stereorackbox->hide();
-	if (show_plugin_bar_action->get_active()) {
-	    change_expand(*monobox, stereorackcontainer.empty());
-	    if (monorackcontainer.empty()) {
-		monorackcontainer.set_size_request(-1, 20);
-	    }
-	} else {
-	    if (!stereorackcontainer.empty()) {
-		change_expand(*monobox, false);
-	    }
-	}
 	maybe_shrink_horizontally();
     }
 }
@@ -2608,7 +2598,6 @@ RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwid
     r->pack(mainwidget, miniwidget);
     if (plugin.get_type() == PLUGIN_TYPE_MONO) {
 	monorackcontainer.add(*manage(r), pos);
-	monorackcontainer.set_size_request(-1, -1);
     } else {
 	stereorackcontainer.add(*manage(r), pos);
     }
@@ -2619,16 +2608,30 @@ RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwid
 }
 
 class UiBuilderImplNew: public gx_gui::UiBuilderImpl {
+private:
+    MainWindow& main;
+    std::vector<PluginUI*> *pluginlist;
 public:
     virtual bool load(gx_engine::Plugin *p);
-    UiBuilderImplNew(StackBoxBuilderNew *i);
+    bool load_unit(PluginUI &pl);
+    UiBuilderImplNew(MainWindow *i, gx_gui::StackBoxBuilder *b, std::vector<PluginUI*> *pl=0);
 };
 
-UiBuilderImplNew::UiBuilderImplNew(StackBoxBuilderNew *i)
-    : gx_gui::UiBuilderImpl(i) {
+UiBuilderImplNew::UiBuilderImplNew(MainWindow *i, gx_gui::StackBoxBuilder *b, std::vector<PluginUI*> *pl)
+    : gx_gui::UiBuilderImpl(b), main(*i), pluginlist(pl) {
 }
 
 bool UiBuilderImplNew::load(gx_engine::Plugin *p) {
+    PluginDef *pd = p->pdef;
+    if (!pd->load_ui) {
+	return false;
+    }
+    main.add_plugin(pluginlist, pd->id, "", "");
+    return true;
+}
+
+bool UiBuilderImplNew::load_unit(PluginUI &pl) {
+    gx_engine::Plugin *p = pl.plugin;
     PluginDef *pd = p->pdef;
     if (!pd->load_ui) {
 	return false;
@@ -2672,8 +2675,8 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
 	boxbuilder.get_box(pl.get_id(), mainwidget, miniwidget);
     }
     if (!mainwidget) {
-	UiBuilderImplNew builder(&boxbuilder);
-	if (builder.load(pl.plugin)) {
+	UiBuilderImplNew builder(this, &boxbuilder);
+	if (builder.load_unit(pl)) {
 	    boxbuilder.fetch(mainwidget, miniwidget);
 	}
     }
@@ -2688,7 +2691,8 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
 }
 
 bool MainWindow::check_if_rack_container_size_animate(const RackContainer& rackcontainer) const {
-    if (&rackcontainer == &monorackcontainer && get_dir() == 0 && !stereorackcontainer.empty()) {
+    return true;
+    if (&rackcontainer == &monorackcontainer && rackbox_stacked_vertical() && !stereorackcontainer.empty()) {
 	// non-empty stereo box below
 	return true;
     }
@@ -2696,7 +2700,8 @@ bool MainWindow::check_if_rack_container_size_animate(const RackContainer& rackc
 }
 
 void MainWindow::add_icon(const std::string& name) {
-    plugin_dict[name]->toolitem->show();
+    PluginUI *p = plugin_dict[name];
+    p->toolitem->show();
 }
 
 void MainWindow::on_show_values() {
@@ -3380,10 +3385,14 @@ void MainWindow::make_icons() {
 	}
         i->second->hide();
     }
-    //w.destroy();
 }
 
 void MainWindow::add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
+    gx_engine::Plugin *pl = engine.pluginlist.lookup_plugin(id);
+    if (pl->pdef->flags & gx_engine::PGNI_UI_REG) {
+	return;
+    }
+    pl->pdef->flags |= gx_engine::PGNI_UI_REG;
     PluginUI *pui = new PluginUI(*this, engine.pluginlist, id, fname, tooltip);
     ui.registerZone(&pui->plugin->box_visible, pui);
     ui.registerZone(&pui->plugin->position, pui);
@@ -3449,6 +3458,13 @@ void MainWindow::fill_pluginlist() {
     add_plugin(p, "midi_out");
     l.push_back(new PluginDesc("Misc", p));
 
+    p = new std::vector<PluginUI*>;
+    UiBuilderImplNew builder(this, &boxbuilder, p);
+    engine.pluginlist.append_rack(builder);
+    if (p->size()) {
+	l.push_back(new PluginDesc("External", p));
+    }
+
     Glib::ustring ui_template =
 	"<menubar><menu action=\"PluginsMenu\"><menu action=\"%1Plugins\"><menu action=\"%2\">"
 	"<menuitem action=\"%3\"/>"
@@ -3487,6 +3503,8 @@ void MainWindow::fill_pluginlist() {
 	effects_toolpalette->add(*manage(gw));
 	effects_toolpalette->set_exclusive(*gw, true);
 	effects_toolpalette->set_expand(*gw, true);
+	delete (*i)->plugins;
+	delete *i;
     }
 }
 
@@ -3561,6 +3579,9 @@ void MainWindow::on_jack_client_changed() {
     }
 
     bool v = (jack.client != 0);
+    if (!v) {
+        gx_child_process::Meterbridge::stop(); //FIXME
+    }
     jackserverconnection_action->set_active(v);
     Glib::ustring s = "Guitarix: ";
     if (v) {
@@ -3709,7 +3730,6 @@ void MainWindow::set_waveview_buffer(unsigned int size) {
 }
 
 void MainWindow::on_oscilloscope_post_pre(int post_pre) {
-    printf("PP %d\n", post_pre);
     if (post_pre) {
         fWaveView.set_multiplicator(150.,250.);
     } else {
@@ -3770,11 +3790,11 @@ bool MainWindow::refresh_meter_level() {
 	gx_gui::guivar.meter_display_timeout * 0.001;
 
     // Note: removed RMS calculation, we will only focus on max peaks
-    static float old_peak_db[2] = {-INFINITY, -INFINITY};
+    static float old_peak_db[sizeof(fastmeter)/sizeof(fastmeter[0])] = {-INFINITY, -INFINITY};
 
     // fill up from engine buffers
     gx_engine::MaxLevel& m = engine.maxlevel;
-    for (int c = 0; c < 2; c++) {
+    for (unsigned int c = 0; c < sizeof(fastmeter)/sizeof(fastmeter[0]); c++) {
 	// update meters (consider falloff as well)
 	// calculate peak dB and translate into meter
 	float peak_db = -INFINITY;
@@ -3838,24 +3858,207 @@ bool MainWindow::check_cab_state() {
     return true;
 }
 
+bool MainWindow::survive_jack_shutdown() {
+    // return if jack is not down
+    if (gx_system::gx_system_call("pgrep jackd", true) == SYSTEM_OK) {
+        if (jack.is_jack_down()) {
+        sleep(2);
+	    jack.set_jack_down(false);
+	}
+	// let's make sure we get out of here
+	gx_system::gx_print_warning("Jack Shutdown",
+				    _("jack has bumped us out!!   "));
+	jackserverconnection_action->set_active(true);
+	// run only one time whem jackd is running
+	return false;
+    } else if (!jack.is_jack_down()) {
+        // refresh some stuff. Note that it can be executed
+        // more than once, no harm here
+        jackserverconnection_action->set_active(false);
+        jack.set_jack_down(true);
+	gx_system::gx_print_error("Jack Shutdown",
+				  _("jack has bumped us out!!   "));
+    }
+    // run as long jackd is down
+    return true;
+}
+
+void MainWindow::gx_jack_is_down() {
+    jackserverconnection_action->set_active(false);
+    Glib::signal_timeout().connect(
+	sigc::mem_fun(*this, &MainWindow::survive_jack_shutdown),
+	200, Glib::PRIORITY_LOW);
+}
+
+#ifdef HAVE_JACK_SESSION
+void MainWindow::jack_session_event() {
+    const char *statefile = "gx_head.state";
+    jack_session_event_t *event = jack.get_last_session_event();
+    set_in_session();
+    gx_settings.set_statefilename(string(event->session_dir) + statefile);
+    gx_settings.save_to_state();
+
+#ifndef NDEBUG
+    string cmd(options.get_path_to_program());
+#else
+    string cmd("guitarix");
+#endif
+    cmd += " -U ";
+    cmd += event->client_uuid;
+    cmd += " -A ";
+    cmd += jack.get_uuid_insert();
+    cmd += " -f ${SESSION_DIR}";
+    cmd += statefile; // no space after SESSION_DIR
+    event->command_line = strdup(cmd.c_str());
+
+    JackSessionEventType tp = event->type;
+    if (jack.return_last_session_event() == 0) {
+	if (tp == JackSessionSaveAndQuit) {
+	    gx_system::GxExit::get_instance().exit_program("** session exit **");
+	}
+    }
+}
+
+void MainWindow::jack_session_event_ins() {
+    jack_session_event_t *event = jack.get_last_session_event_ins();
+    set_in_session();
+    event->command_line = strdup("true ${SESSION_DIR}");
+    JackSessionEventType tp = event->type;
+    if (jack.return_last_session_event_ins() == 0) {
+	if (tp == JackSessionSaveAndQuit) {
+	    gx_system::GxExit::get_instance().exit_program("** session exit **");
+	}
+    }
+}
+#endif
+
+void MainWindow::set_in_session() {
+    if (!in_session) {
+	in_session = true;
+	// it seems in a session we generally don't know
+	// where to save and from where to recall data
+	// it's all controlled by the session manager
+	gx_settings.disable_autosave(true);
+    }
+}
+
+void MainWindow::systray_menu(guint button, guint32 activate_time) {
+    Gtk::Menu *menu = dynamic_cast<Gtk::MenuItem*>(uimanager->get_widget("/menubar/EngineMenu"))->get_submenu();
+    menu->popup(2, gtk_get_current_event_time());
+}
+
+void MainWindow::overload_status_changed() {
+    switch (engine.midiaudiobuffer.jack_load_status()) {
+    case gx_engine::MidiAudioBuffer::load_off:
+	status_icon->set(gx_head_icon);
+	break;
+    case gx_engine::MidiAudioBuffer::load_normal:
+	if (engine.midiaudiobuffer.get_midistat()) {
+	    status_icon->set(gx_head_midi);
+	} else {
+	    status_icon->set(gx_head_icon);
+	}
+	break;
+    case gx_engine::MidiAudioBuffer::load_over:
+	status_icon->set(gx_head_warn);
+	break;
+    default:
+	assert(false);
+    }
+}
+
+bool MainWindow::on_window_state_changed(GdkEventWindowState* event) {
+    if (event->changed_mask & event->new_window_state & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) {
+	window->get_window()->get_root_origin(GuiParameter::mainwin_x, GuiParameter::mainwin_y);
+    }
+    return false;
+}
+
+void MainWindow::hide_extended_settings() {
+    if (window->get_window()->get_state()
+        & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) {
+        window->move(GuiParameter::mainwin_x, GuiParameter::mainwin_y);
+        window->present();
+    } else {
+        //window->hide();
+        window->iconify();
+    }
+}
+
+void MainWindow::run() {
+    window->show();
+    Gtk::Main::run();
+}
+
+bool MainWindow::on_meter_button_release(GdkEventButton* ev) {
+    if (ev->button == 1) {
+        for (unsigned int i = 0; i < sizeof(fastmeter)/sizeof(fastmeter[0]); i++) {
+            fastmeter[i]->clear();
+        }
+        return true;
+    }
+    return false;
+}
+
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
-    : sigc::trackable(), ui(), bld(), window_height(0), freezer(), plugin_dict(ui), oldpos(0), scrl_size_x(-1), scrl_size_y(-1),
-      monorackcontainer(PLUGIN_TYPE_MONO, *this), stereorackcontainer(PLUGIN_TYPE_STEREO, *this),
-      pre_act(false), is_visible(false), drag_icon(0), actiongroup(), uimanager(),
-      options(options_), pmap(pmap_), engine(engine_), jack(engine),
+    : sigc::trackable(),
+      ui(),
+      bld(),
+      window_height(0),
+      freezer(),
+      plugin_dict(ui),
+      oldpos(0),
+      scrl_size_x(-1),
+      scrl_size_y(-1),
+      monorackcontainer(PLUGIN_TYPE_MONO, *this),
+      stereorackcontainer(PLUGIN_TYPE_STEREO, *this),
+      pre_act(false),
+      is_visible(false),
+      drag_icon(0),
+      actiongroup(),
+      uimanager(),
+      options(options_),
+      pmap(pmap_),
+      engine(engine_),
+      jack(engine),
       gx_settings(options, jack, engine.convolver, gx_engine::midi_std_ctr, gx_engine::controller_map, engine, pmap_),
-      live_play(), preset_window(),
+      live_play(),
+      preset_window(),
       fWaveView(),
       convolver_filename_label(),
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
       boxbuilder(engine_, pmap_, fWaveView, convolver_filename_label, ui, gx_head_icon),
-      portmap_window(0), accel_group(), skin_changed(&ui, &skin),
-      select_jack_control(0), fLoggingWindow(_("Logging Window")),
+      portmap_window(0),
+      accel_group(),
+      skin_changed(&ui, &skin),
+      select_jack_control(0),
+      fLoggingWindow(_("Logging Window")),
       amp_radio_menu(&ui, pmap["tube.select"].getUInt()),
+      pixbuf_on(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_on.png"))),
+      pixbuf_off(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_off.png"))),
+      pixbuf_bypass(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_bypass.png"))),
+      pixbuf_jack_connected(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_on.png"))),
+      pixbuf_jack_disconnected(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_off.png"))),
       mute_changed(&ui, &pmap.reg_par("engine.mute", "Mute", 0, false)->get_value()),
       ampdetail_sh(&ui, &pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false)->get_value()),
-      contrast_conv_conn(), cab_conv_conn() {
+      contrast_conv_conn(),
+      cab_conv_conn(),
+      report_xrun(jack),
+      in_session(false),
+      status_icon(Gtk::StatusIcon::create(gx_head_icon)),
+      gx_head_midi(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-midi.png"))),
+      gx_head_warn(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-warn.png"))) {
     engine.set_jack(&jack);
+    jack.xrun.connect(sigc::mem_fun(report_xrun, &gx_gui::ReportXrun::run));
+#ifdef HAVE_JACK_SESSION
+    jack.session.connect(sigc::mem_fun(*this, &MainWindow::jack_session_event));
+    jack.session_ins.connect(sigc::mem_fun(*this, &MainWindow::jack_session_event_ins));
+    if (!options.get_jack_uuid().empty()) {
+	set_in_session();
+    }
+#endif
+    jack.shutdown.connect(sigc::mem_fun(*this, &MainWindow::gx_jack_is_down));
+
     /*
     ** max window size is work area reduce by arbitrary amount to
     ** make it visually more appealing and to account for the unknown
@@ -3869,23 +4072,30 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     //gtk_rc_parse(options.get_style_filepath(style_fname));
     //gtk.rc_parse_string(styledef % style_dir);
 
-    // load pixbufs
-    pixbuf_on = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_on.png"));
-    pixbuf_off = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_off.png"));
-    pixbuf_bypass = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_bypass.png"));
-    pixbuf_jack_connected = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_on.png"));
-    pixbuf_jack_disconnected = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_off.png"));
 
     GuiParameter para(pmap);
+    const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore", "bank_combo_liststore", 0 };
+    bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &ui, id_list);
 
-    // load builder def
-    const char *id_list[] = {"MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore", "bank_combo_liststore", 0};
-    bld = gx_gui::GxBuilder::create_from_file(options.get_builder_filepath("mainpanel.glade"), &ui, id_list);
     load_widget_pointers();
     int width, height;
     window->get_default_size(width, height);
     window->set_default_size(width, window_height);
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
+
+    window->signal_window_state_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_window_state_changed));
+    window->signal_delete_event().connect(
+	sigc::bind_return(
+	    sigc::hide(
+		sigc::ptr_fun(Gtk::Main::quit)),
+	    true));
+
+    for (unsigned int i = 0; i < sizeof(fastmeter)/sizeof(fastmeter[0]); ++i) {
+        fastmeter[i]->signal_button_release_event().connect(
+            sigc::mem_fun(*this, &MainWindow::on_meter_button_release));
+        fastmeter[i]->set_tooltip_text(_("gx_head output"));
+    }
 
     // remove child labels from boxes used for demo:
     clear_box(*monocontainer);
@@ -3896,6 +4106,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     actiongroup = Gtk::ActionGroup::create("Main");
     create_menu(actiongroup, para);
     Gtk::Widget *menubar = uimanager->get_widget("/menubar");
+
     menubox->pack_start(*menubar);
     window->add_accel_group(uimanager->get_accel_group());
     accel_group = uimanager->get_accel_group(); //window->get_accel_group(); //FIXME
@@ -3915,6 +4126,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 		jackserverconnection_action),
 	    true));
 
+    fLoggingWindow.set_transient_for(*window);
+    fLoggingWindow.set_icon(gx_head_icon);
     fLoggingWindow.signal_msg_level_changed().connect(
 	sigc::mem_fun(*this, &MainWindow::on_msg_level_changed));
     on_msg_level_changed();
@@ -3989,6 +4202,15 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-stereo", Gtk::TARGET_SAME_APP, 2));
     effects_toolpalette->drag_dest_set(listTargets, Gtk::DEST_DEFAULT_ALL, Gdk::ACTION_MOVE);
     effects_toolpalette->signal_drag_data_received().connect(sigc::mem_fun(*this, &MainWindow::on_tp_drag_data_received));
+
+    /*---------------- status icon ----------------*/
+    window->set_icon(gx_head_icon);
+    status_icon->signal_activate().connect(
+	sigc::mem_fun(*this, &MainWindow::hide_extended_settings));
+    status_icon->signal_popup_menu().connect(
+	sigc::mem_fun(*this, &MainWindow::systray_menu));
+    engine.midiaudiobuffer.signal_jack_load_change().connect(
+	sigc::mem_fun(*this, &MainWindow::overload_status_changed));
 
     window->signal_visibility_notify_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_visibility_notify));

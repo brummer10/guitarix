@@ -163,7 +163,7 @@ StackBoxBuilder::StackBoxBuilder(
     int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
     gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize],
     Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
-    : gx_ui::GxUI(), fTop(fTop_), fBox(fBox_), engine(engine_), pmap(pmap_),
+    : fTop(fTop_), fBox(fBox_), engine(engine_), pmap(pmap_),
       fMode(fMode_), fWaveView(fWaveView_),
       convolver_filename_label(convolver_filename_label_), ui(ui_),
       window_icon(window_icon_) {
@@ -173,7 +173,7 @@ StackBoxBuilder::~StackBoxBuilder() {
 }
 
 void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
-    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_string(xmldesc, this, "rackbox");
+    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_string(xmldesc, &ui, "rackbox");
     Gtk::Widget* w = 0;
     bld->find_widget("rackbox", w);
     if (!w) {
@@ -265,7 +265,7 @@ void StackBoxBuilder::addJConvButton(const char* label, float* zone, gx_jconv::I
     lab->set_name("beffekt_label");
     addWidget(label, GTK_WIDGET(button->gobj()));
     lab->show();
-    new uiButton(this, zone, button->gobj()); //FIXME
+    new uiButton(&ui, zone, button->gobj()); //FIXME
     button->signal_clicked().connect(
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
 }
@@ -286,7 +286,7 @@ void StackBoxBuilder::addJToggleButton(const char* label, bool* zone) {
     addWidget(label, GTK_WIDGET(button->gobj()));
     lab->show();
 
-    uiToggleButton* c = new uiToggleButton(this, zone, button); // FIXME
+    uiToggleButton* c = new uiToggleButton(&ui, zone, button); // FIXME
 
     button->modify_bg(Gtk::STATE_NORMAL, colorOwn);
     button->modify_bg(Gtk::STATE_ACTIVE, colorRed);
@@ -302,11 +302,11 @@ void StackBoxBuilder::create_selector(string id, const char *widget_name) {
     gx_engine::Parameter& p = pmap[id];
     UiSelectorBase *s;
     if (p.isFloat()) {
-        s = new UiSelector<float>(*this, p.getFloat());
+        s = new UiSelector<float>(ui, p.getFloat());
     } else if (p.isInt()) {
-        s = new UiSelector<int>(*this, p.getInt());
+        s = new UiSelector<int>(ui, p.getInt());
     } else {
-        s = new UiSelector<unsigned int>(*this, p.getUInt());
+        s = new UiSelector<unsigned int>(ui, p.getUInt());
     }
     if (widget_name) {
 	s->set_name(widget_name);
@@ -315,7 +315,7 @@ void StackBoxBuilder::create_selector(string id, const char *widget_name) {
 }
 
 void StackBoxBuilder::openSpaceBox(const char* label) {
-    GxVBox * box =  new GxVBox(*this);
+    GxVBox * box =  new GxVBox(ui);
     box->m_box.set_homogeneous(true);
     box->m_box.set_spacing(2);
     box->m_box.set_border_width(4);
@@ -350,7 +350,7 @@ void StackBoxBuilder::addLiveWaveDisplay(const char* label) {
 }
 
 void StackBoxBuilder::openVerticalBox1(const char* label) {
-    GxVBox * box =  new GxVBox(*this);
+    GxVBox * box =  new GxVBox(ui);
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(0);
     box->m_box.set_border_width(0);
@@ -369,18 +369,18 @@ void StackBoxBuilder::openVerticalBox1(const char* label) {
 }
 
 void StackBoxBuilder::openFlipLabelBox(const char* label) {
-    GxVBox * box =  new GxVBox(*this);
+    GxVBox * box =  new GxVBox(ui);
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(0);
     box->m_box.set_border_width(0);
 
     if (fMode[fTop] != kTabMode && label[0] != 0) {
-        GxVBox * vbox =  new GxVBox(*this);
+        GxVBox * vbox =  new GxVBox(ui);
         vbox->m_box.set_homogeneous(false);
         vbox->m_box.set_spacing(0);
         vbox->m_box.set_border_width(0);
 
-        GxHBox * hbox =  new GxHBox(*this);
+        GxHBox * hbox =  new GxHBox(ui);
         hbox->m_box.set_homogeneous(false);
         hbox->m_box.set_spacing(0);
         hbox->m_box.set_border_width(0);
@@ -411,7 +411,7 @@ void StackBoxBuilder::addNumEntry(const char* label, float* zone, float init, fl
                                   float max, float step) {
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    uiAdjustment* c = new uiAdjustment(&ui, zone, GTK_ADJUSTMENT(adj));
     g_signal_connect(GTK_OBJECT(adj), "value-changed",
                       G_CALLBACK(uiAdjustment::changed), (gpointer) c);
     GtkWidget* spinner = gtk_spin_button_new(GTK_ADJUSTMENT(adj), step, precision(step));
@@ -465,7 +465,7 @@ void StackBoxBuilder::addMToggleButton(const char* label, bool* zone) {
     lab->show();
     box->show();
     gtk_container_add(GTK_CONTAINER(fBox[fTop]), GTK_WIDGET(manage(box)->gobj()));
-    uiToggleButton* c = new uiToggleButton(this, zone, button); // FIXME
+    uiToggleButton* c = new uiToggleButton(&ui, zone, button); // FIXME
     button->modify_bg(Gtk::STATE_NORMAL, colorOwn);
     button->modify_bg(Gtk::STATE_ACTIVE, colorRed);
     lab->set_name("rack_label");
@@ -506,7 +506,7 @@ void StackBoxBuilder::addCheckButton(const char* label, bool* zone) {
     pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
     gtk_widget_modify_font(lab, style->font_desc);
-    uiCheckButton* c = new uiCheckButton(this, zone, GTK_TOGGLE_BUTTON(button));
+    uiCheckButton* c = new uiCheckButton(&ui, zone, GTK_TOGGLE_BUTTON(button));
     g_signal_connect(GTK_OBJECT(button), "toggled",
                       G_CALLBACK(uiCheckButton::toggled), (gpointer) c);
     connect_midi_controller(button, zone);
@@ -514,7 +514,7 @@ void StackBoxBuilder::addCheckButton(const char* label, bool* zone) {
 }
 
 void StackBoxBuilder::openHorizontalhideBox(const char* label) {
-    GxHBox * box =  new GxHBox(*this);
+    GxHBox * box =  new GxHBox(ui);
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(0);
     box->m_box.set_border_width(0);
@@ -526,7 +526,7 @@ void StackBoxBuilder::openHorizontalhideBox(const char* label) {
 }
 
 void StackBoxBuilder::openHorizontalTableBox(const char* label) {
-    GxHBox * box =  new GxHBox(*this);
+    GxHBox * box =  new GxHBox(ui);
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(0);
     box->m_box.set_border_width(0);
@@ -545,7 +545,7 @@ void StackBoxBuilder::openHorizontalTableBox(const char* label) {
 }
 
 void StackBoxBuilder::openPaintBox2(const char* label) {
-    GxEventBox * box =  new GxEventBox(*this);
+    GxEventBox * box =  new GxEventBox(ui);
     box->m_eventbox.set_name(label);
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(0);
@@ -556,12 +556,12 @@ void StackBoxBuilder::openPaintBox2(const char* label) {
 }
 
 void StackBoxBuilder::openTabBox(const char* label) {
-    GxNotebookBox * box =  new GxNotebookBox(*this);
+    GxNotebookBox * box =  new GxNotebookBox(ui);
     pushBox(kTabMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
 }
 
 void StackBoxBuilder::openpaintampBox(const char* label) {
-    GxPaintBox * box =  new GxPaintBox(*this, pb_RackBox_expose);
+    GxPaintBox * box =  new GxPaintBox(ui, pb_RackBox_expose);
     box->m_box.set_border_width(4);
     box->m_paintbox.set_name(label);
     box->m_paintbox.set_tooltip_text(label);
@@ -588,7 +588,7 @@ void StackBoxBuilder::closeBox() {
 }
 
 void StackBoxBuilder::openHorizontalBox(const char* label) {
-    GxHBox * box =  new GxHBox(*this);
+    GxHBox * box =  new GxHBox(ui);
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(0);
     box->m_box.set_border_width(0);
@@ -607,7 +607,7 @@ void StackBoxBuilder::openHorizontalBox(const char* label) {
 }
 
 void StackBoxBuilder::openVerticalBox(const char* label) {
-    GxVBox * box =  new GxVBox(*this);
+    GxVBox * box =  new GxVBox(ui);
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(0);
     box->m_box.set_border_width(0);
@@ -630,7 +630,7 @@ void StackBoxBuilder::openVerticalBox(const char* label) {
 }
 
 void StackBoxBuilder::openFrameBox(const char* label) {
-    GxHBox * box =  new GxHBox(*this);
+    GxHBox * box =  new GxHBox(ui);
     box->m_box.set_homogeneous(false);
     box->m_box.set_spacing(2);
     box->m_box.set_border_width(2);

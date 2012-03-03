@@ -245,6 +245,7 @@ int PluginList::load_library(const string& path, PluginPos pos) {
     for (int i = 0; i < n; i++) {
 	if (!add(&p[i], pos)) {
 	    cnt++;
+	    gx_system::gx_print_info(_("Plugin Loader"), Glib::ustring::compose("loaded[%1]: %2", path, p[i].id));
 	}
     }
     return cnt;

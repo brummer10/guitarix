@@ -64,6 +64,12 @@ bool PresetIO::midi_in_preset() {
 
 void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {
     clear();
+    for (gx_engine::ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
+ 	if (i->second->isInPreset()) {
+	    i->second->stdJSON_value();
+	    plist.push_back(i->second);
+	}
+    }
     read_intern(jp, 0, head);
 }
 
@@ -108,7 +114,6 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
             continue;
         }
         p.readJSON_value(jp);
-        plist.push_back(&p);
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
 }
@@ -221,6 +226,10 @@ StateIO::~StateIO() {
 
 void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {
     clear();
+    for (gx_engine::ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
+	i->second->stdJSON_value();
+	plist.push_back(i->second);
+    }
     do {
 	jp.next(gx_system::JsonParser::value_string);
 	if (jp.current_value() == "settings") {
@@ -654,6 +663,16 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
 
 void GxSettings::loadstate() {
     GxSettingsBase::loadstate();
+    if (current_source == preset) {
+	gx_system::PresetFile *pf = banks.get_file(current_bank);
+	if (pf && pf->get_type() == gx_system::PresetFile::PRESET_SCRATCH) {
+	    /* make sure we see the content of the scratchpad,
+	    ** not the state file (in case someone changed the
+	    ** scratchpad while working with a different state file)
+	    */
+	    load_preset(pf, current_name);
+	}
+    }
     state_loaded = true;
 }
 
