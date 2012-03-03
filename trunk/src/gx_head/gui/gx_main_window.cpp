@@ -3975,13 +3975,14 @@ bool MainWindow::on_window_state_changed(GdkEventWindowState* event) {
 }
 
 void MainWindow::hide_extended_settings() {
-    if (window->get_window()->get_state()
-        & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) {
+    if (!is_visible ||
+	(window->get_window()->get_state()
+	 & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
         window->move(GuiParameter::mainwin_x, GuiParameter::mainwin_y);
         window->present();
     } else {
-        //window->hide();
-        window->iconify();
+        window->hide();
+        //window->iconify();
     }
 }
 
