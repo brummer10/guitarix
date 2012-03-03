@@ -680,10 +680,7 @@ void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring
 		it->set_value(bank_col.name, newname);
 	    }
 	}
-	gx_settings.banks.rename(oldname, newname, newfile);
-	if (oldname == gx_settings.get_current_bank()) {
-	    //current_bank = newname; FIXME
-	}
+	gx_settings.rename_bank(oldname, newname, newfile);
 	sel->set_value(bank_col.name, newname);
     }
     w->get_selection()->select(sel);

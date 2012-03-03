@@ -1723,4 +1723,15 @@ bool GxSettingsBase::convert_preset(PresetFile& pf) {
     return res;
 }
 
+bool GxSettingsBase::rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile) {
+    if (!banks.rename(oldname, newname, newfile)) {
+	return false;
+    }
+    if (setting_is_preset() && oldname == current_bank) {
+	current_bank = newname;
+	selection_changed();
+    }
+    return true;
+}
+
 } /* end of gx_system namespace */
