@@ -89,12 +89,12 @@ private:
     int vpaned_pos;
     int vpaned_step;
     int vpaned_target;
-    bool animate;
     const gx_system::CmdlineOptions& options;
     bool in_current_preset;
     sigc::connection on_map_conn;
     Glib::RefPtr<Gtk::AccelGroup> accel_group;
     sigc::connection reload_on_change_conn;
+    Glib::RefPtr<Gtk::ToggleAction> animations_action;
 
     // widget pointers (keep last)
     Gtk::Button *close_preset;
@@ -164,6 +164,7 @@ private:
     bool animate_preset_hide();
     void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f);
     void display_paned(bool show_preset);
+    bool use_animations() { return animations_action->get_active(); }
 public:
     PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
 		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);

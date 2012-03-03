@@ -1910,6 +1910,9 @@ void RackContainer::set_config_mode(bool mode) {
 }
 
 bool RackContainer::check_if_animate(const RackBox& rackbox) {
+    if (!main.use_animations()) {
+	return false;
+    }
     std::vector<RackBox*> l = get_children();
     if (l.empty()) {
 	return true;
@@ -2373,6 +2376,7 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("logstate_image", logstate_image);
     bld->find_widget("menubox", menubox);
     bld->find_widget("show_rack:barbutton", show_rack_button);
+    bld->find_widget("config_mode:barbutton", config_mode_button);
     bld->find_widget("liveplay:barbutton", liveplay_button);
     bld->find_widget("tuner:barbutton", tuner_button);
     bld->find_widget("effects:barbutton", effects_button);
@@ -2481,6 +2485,7 @@ void MainWindow::on_show_rack() {
     bool v = show_rack_action->get_active();
     rackv_action->set_sensitive(v);
     rackh_action->set_sensitive(v);
+    rackcontainer->set_border_width(v ? 18 : 0); //FIXME (just experimental)
     if (v) {
 	window_height = max(window_height, window->size_request().height);
 	//main_vpaned->child_set_property(amp_toplevel_box, "resize", true);
@@ -2752,7 +2757,7 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
 }
 
 bool MainWindow::check_if_rack_container_size_animate(const RackContainer& rackcontainer) const {
-    return true;
+    return true; // FIXME
     if (&rackcontainer == &monorackcontainer && rackbox_stacked_vertical() && !stereorackcontainer.empty()) {
 	// non-empty stereo box below
 	return true;
@@ -3342,6 +3347,9 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
 
     actiongroup->add(Gtk::ToggleAction::create("ResetAll", _("Reset _All Parameters")),
 		     sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
+
+    animations_action = Gtk::ToggleAction::create("Animations", _("Use Animations"),"",true);
+    actiongroup->add(animations_action);
 
     /*
     ** Help and About
@@ -4237,6 +4245,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     // connect signal
     window->signal_configure_event().connect_notify(sigc::mem_fun(*this, &MainWindow::on_configure_event));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(show_rack_button->gobj()), GTK_ACTION(show_rack_action->gobj()));
+    gtk_activatable_set_related_action(GTK_ACTIVATABLE(config_mode_button->gobj()), GTK_ACTION(rack_config_action->gobj()));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(liveplay_button->gobj()),GTK_ACTION(live_play_action->gobj()));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(tuner_button->gobj()),GTK_ACTION(tuner_action->gobj()));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(effects_button->gobj()), GTK_ACTION(show_plugin_bar_action->gobj()));

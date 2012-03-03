@@ -72,12 +72,12 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
       vpaned_pos(),
       vpaned_step(),
       vpaned_target(),
-      animate(true),
       options(options_),
       in_current_preset(false),
       on_map_conn(),
       accel_group(),
-      reload_on_change_conn()
+      reload_on_change_conn(),
+      animations_action() //FIXME
       /* widget pointers not initialized */ {
     load_widget_pointers(bld);
     Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("NewBank");
@@ -172,6 +172,7 @@ PresetWindow::~PresetWindow() {
 
 void PresetWindow::set_accel_group(Glib::RefPtr<Gtk::AccelGroup>& accel_group_) {
     accel_group = accel_group_;
+    animations_action = Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Animations")); //FIXME
 }
 
 void PresetWindow::load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld) {
@@ -1160,7 +1161,7 @@ void PresetWindow::on_preset_select(bool v) {
 	}
 	autosize();
 	Gtk::TreeIter it = get_current_bank_iter();
-	if (it && animate && is_mapped) {
+	if (it && use_animations() && is_mapped) {
 	    bank_treeview->scroll_to_row(bank_treeview->get_model()->get_path(it));
 	}
 	if (!is_mapped) {
@@ -1170,7 +1171,7 @@ void PresetWindow::on_preset_select(bool v) {
 		sigc::bind(
 		    sigc::mem_fun(*this, &PresetWindow::display_paned),
 		    true));
-	} else if (animate) {
+	} else if (use_animations()) {
 	    vpaned_pos = main_vpaned->get_allocation().get_height();
 	    vpaned_target = vpaned_pos - paned_child_height;
 	    main_vpaned->set_position(vpaned_pos);
@@ -1183,7 +1184,7 @@ void PresetWindow::on_preset_select(bool v) {
 	}
     } else {
 	vpaned_target = main_vpaned->get_allocation().get_height();
-	if (animate && is_mapped && Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("ShowRack"))->get_active()) { //FIXME
+	if (use_animations() && is_mapped && Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("ShowRack"))->get_active()) { //FIXME
 	    vpaned_pos = main_vpaned->get_position();
 	    paned_child_height = vpaned_target - vpaned_pos;
 	    vpaned_step = paned_child_height / 5;

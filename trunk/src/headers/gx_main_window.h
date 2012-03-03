@@ -594,6 +594,7 @@ private:
     Gtk::Window *window;
     Gtk::HBox *menubox;
     Gtk::ToggleButton *show_rack_button;
+    Gtk::ToggleButton *config_mode_button;
     Gtk::ToggleButton *liveplay_button;
     Gtk::ToggleButton *tuner_button;
     Gtk::ToggleButton *effects_button;
@@ -629,6 +630,7 @@ public:
     Glib::RefPtr<Gtk::ToggleAction> meterbridge_action;
     Glib::RefPtr<Gtk::ToggleAction> jackstartup_action;
     Glib::RefPtr<Gtk::ToggleAction> loggingbox_action;
+    Glib::RefPtr<Gtk::ToggleAction> animations_action;
     // UiToggleActions
     Glib::RefPtr<UiSwitchToggleAction> show_plugin_bar_action;
     Glib::RefPtr<UiSwitchToggleAction> presets_action;
@@ -744,4 +746,5 @@ public:
     void set_rackbox_expansion();
     double stop_at_stereo_bottom(double off, double step_size, double pagesize);
     double stop_at_mono_top(double off, double step_size);
+    bool use_animations() { return animations_action->get_active(); }
 };
