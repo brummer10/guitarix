@@ -167,8 +167,8 @@ private:
     void display_paned(bool show_preset);
 public:
     PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
-		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup>& actiongroup,
-		 Glib::RefPtr<Gtk::AccelGroup>& accel_group);
+		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
     ~PresetWindow();
     void on_preset_select(bool v);
+    void set_accel_group(Glib::RefPtr<Gtk::AccelGroup>& accel_group_);
 };

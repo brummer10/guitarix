@@ -4105,12 +4105,13 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 
     // create menu
     actiongroup = Gtk::ActionGroup::create("Main");
+    preset_window = new PresetWindow(pmap, bld, gx_settings, options, actiongroup);
     create_menu(actiongroup, para);
     Gtk::Widget *menubar = uimanager->get_widget("/menubar");
-
+    accel_group = uimanager->get_accel_group(); //window->get_accel_group(); //FIXME
+    preset_window->set_accel_group(accel_group);
     menubox->pack_start(*menubar);
     window->add_accel_group(uimanager->get_accel_group());
-    accel_group = uimanager->get_accel_group(); //window->get_accel_group(); //FIXME
 
     status_image->set(pixbuf_on);
     gx_engine::BoolParameter& par = pmap["engine.mute"].getBool();
@@ -4187,8 +4188,6 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     setup_tuner(live_play->get_tuner());
     live_play->get_tuner().signal_poll_status_changed().connect(
 	sigc::mem_fun(engine.tuner, &gx_engine::TunerAdapter::used_for_livedisplay));
-
-    preset_window = new PresetWindow(pmap, bld, gx_settings, options, actiongroup, accel_group);
 
     tuner_action->set_active(false);
     show_plugin_bar_action->set_active(false);
