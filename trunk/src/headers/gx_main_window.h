@@ -531,6 +531,10 @@ private:
     bool is_visible;
     DragIcon *drag_icon;
     Glib::RefPtr<Gtk::ActionGroup> actiongroup;
+    Glib::ustring preset_list_menu_bank;
+    Gtk::UIManager::ui_merge_id preset_list_merge_id;
+    Glib::RefPtr<Gtk::ActionGroup> preset_list_actiongroup;
+    Glib::RefPtr<Gtk::RadioAction> select_preset_action;
     Glib::RefPtr<Gtk::UIManager> uimanager;
     gx_system::CmdlineOptions& options;
     gx_engine::ParamMap&  pmap;
@@ -608,6 +612,7 @@ private:
     Gtk::Widget *ampdetail_mini;
     Gtk::Widget *ampdetail_normal;
     Gxw::FastMeter *fastmeter[2];
+    Gtk::Entry *preset_status;
 public:
     // Actions
     Glib::RefPtr<Gtk::Action> jack_latency_menu_action;
@@ -715,6 +720,8 @@ private:
     void overload_status_changed();
     bool on_window_state_changed(GdkEventWindowState* event);
     bool on_meter_button_release(GdkEventButton* ev);
+    void show_selected_preset();
+    void on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act);
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();

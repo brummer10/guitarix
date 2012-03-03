@@ -76,7 +76,8 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
       options(options_),
       in_current_preset(false),
       on_map_conn(),
-      accel_group()
+      accel_group(),
+      reload_on_change_conn()
       /* widget pointers not initialized */ {
     load_widget_pointers(bld);
     Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("NewBank");
@@ -159,9 +160,8 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
     presets_target_treeview->enable_model_drag_dest(listTargets3, Gdk::ACTION_COPY);
     presets_target_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_target_drag_motion), false);
     presets_target_treeview->signal_drag_data_received().connect_notify(sigc::mem_fun(*this, &PresetWindow::target_drag_data_received));
-    gx_settings.signal_selection_changed().connect(
-	sigc::mem_fun(*this, &PresetWindow::show_selected_preset));
-    set_presets();
+    reload_on_change_conn = gx_settings.signal_selection_changed().connect(
+	sigc::mem_fun(*this, &PresetWindow::set_presets));
 }
 
 PresetWindow::~PresetWindow() {
@@ -193,7 +193,6 @@ void PresetWindow::load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld) {
     bld->find_widget("preset_column_delete", preset_column_delete);
     bld->find_widget("main_vpaned", main_vpaned);
     bld->find_widget("preset_scrolledbox", preset_scrolledbox);
-    bld->find_widget("preset_status", preset_status);
 }
 
 static bool preset_button_press_idle(Gtk::Widget& w) {
@@ -860,7 +859,7 @@ void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iter
 	t = "<new>";
     } else {
 	int n = *pstore->get_path(iter).begin();
-	if (n > 9) {
+	if (n >= 9) {
 	    t = "    " + t;
 	} else {
 	    t = Glib::ustring::compose("%1:  %2", n+1, t);
@@ -1097,16 +1096,10 @@ void PresetWindow::preset_changed() {
     }
     in_current_preset = true;
     cpf = gx_settings.banks.get_file(bank);
+    reload_on_change_conn.block();
     gx_settings.load_preset(cpf, name);
+    reload_on_change_conn.unblock();
     actiongroup->get_action("Save")->set_sensitive(cpf && cpf->is_mutable());
-}
-
-void PresetWindow::show_selected_preset() {
-    Glib::ustring t;
-    if (gx_settings.get_current_source() != gx_system::GxSettingsBase::state) {
-	t = gx_settings.get_current_bank() + " / " + gx_settings.get_current_name();
-    }
-    preset_status->set_text(t);
 }
 
 void PresetWindow::on_preset_save() {

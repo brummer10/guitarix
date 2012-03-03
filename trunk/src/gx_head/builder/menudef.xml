@@ -16,6 +16,7 @@
       <menuitem action="Presets" />
       <menuitem action="Organize" />
       <menuitem action="Save" />
+      <menu action="PresetListMenu" />
     </menu>
     <menu action="PluginsMenu">
       <menuitem action="ShowPluginBar" />

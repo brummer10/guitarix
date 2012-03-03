@@ -371,6 +371,7 @@ public:
     ~GxSettingsBase();
     Source get_current_source() { return current_source; }
     const Glib::ustring& get_current_bank() { return current_bank; }
+    PresetFile *get_current_bank_file() { return setting_is_preset() ? banks.get_file(current_bank) : 0; }
     const Glib::ustring& get_current_name() { return current_name; }
     void set_statefilename(const std::string& fn) { statefile.set_filename(fn); }
     void save_to_state(bool preserve_preset=false);

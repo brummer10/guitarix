@@ -93,6 +93,8 @@ private:
     const gx_system::CmdlineOptions& options;
     bool in_current_preset;
     sigc::connection on_map_conn;
+    Glib::RefPtr<Gtk::AccelGroup> accel_group;
+    sigc::connection reload_on_change_conn;
 
     // widget pointers (keep last)
     Gtk::Button *close_preset;
@@ -113,8 +115,6 @@ private:
     Gtk::TreeViewColumn *preset_column_delete;
     Gtk::VPaned *main_vpaned;
     Gtk::ScrolledWindow *preset_scrolledbox;
-    Gtk::Entry *preset_status;
-    Glib::RefPtr<Gtk::AccelGroup> accel_group;
 private:
     void load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld);
     void target_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
@@ -162,7 +162,6 @@ private:
     void on_presets_close();
     bool animate_preset_show();
     bool animate_preset_hide();
-    void show_selected_preset();
     void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f);
     void display_paned(bool show_preset);
 public:

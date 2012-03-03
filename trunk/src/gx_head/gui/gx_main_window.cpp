@@ -2392,6 +2392,67 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("ampdetail_normal", ampdetail_normal);
     bld->find_widget("fastmeterL", fastmeter[0]);
     bld->find_widget("fastmeterR", fastmeter[1]);
+    bld->find_widget("preset_status", preset_status);
+}
+
+void MainWindow::on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act) {
+    gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
+    gx_settings.load_preset(pf, pf->get_name(act->get_current_value()));
+}
+
+void MainWindow::show_selected_preset() {
+    Glib::ustring t;
+    if (gx_settings.get_current_source() != gx_system::GxSettingsBase::state) {
+	t = gx_settings.get_current_bank() + " / " + gx_settings.get_current_name();
+    }
+    preset_status->set_text(t);
+    if (!preset_list_menu_bank.empty()) {
+	if (gx_settings.setting_is_preset() && preset_list_menu_bank == gx_settings.get_current_bank()) {
+	    select_preset_action->set_current_value(
+		gx_settings.get_current_bank_file()->get_index(
+		    gx_settings.get_current_name()));
+	    return;
+	}
+	if (preset_list_merge_id) {
+	    uimanager->remove_ui(preset_list_merge_id);
+	    uimanager->remove_action_group(preset_list_actiongroup);
+	}
+    }
+    if (!gx_settings.setting_is_preset()) {
+	preset_list_menu_bank.clear();
+	preset_list_merge_id = 0;
+	preset_list_actiongroup.reset();
+	return;
+    }
+    preset_list_actiongroup = Gtk::ActionGroup::create("PresetList");
+    preset_list_menu_bank = gx_settings.get_current_bank();
+    Glib::ustring s = "<menubar><menu action=\"PresetsMenu\"><menu action=\"PresetListMenu\">";
+    gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
+    Gtk::RadioButtonGroup pg;
+    int idx = 0;
+    char c = '1';
+    for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i) {
+	Glib::ustring actname = "PresetList_" + i->name;
+	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(pg, actname, i->name);
+	if (c <= '9') {
+	    preset_list_actiongroup->add(action, Gtk::AccelKey(Glib::ustring::compose("%1", (char)c++)));
+	} else {
+	    preset_list_actiongroup->add(action);
+	}
+	if (idx == 0) {
+	    select_preset_action = action;
+	}
+	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
+	action->property_value().set_value(idx++);
+    }
+    s += "</menu></menu></menubar>";
+    uimanager->insert_action_group(preset_list_actiongroup);
+    preset_list_merge_id = uimanager->add_ui_from_string(s);
+    select_preset_action->set_current_value(
+	pf->get_index(gx_settings.get_current_name()));
+    select_preset_action->signal_changed().connect(
+	sigc::mem_fun(*this, &MainWindow::on_select_preset));
+    dynamic_cast<Gtk::MenuItem*>(uimanager->get_widget("/menubar/PresetsMenu/PresetListMenu"))->set_label(_("_Bank: ")+preset_list_menu_bank);
 }
 
 bool MainWindow::is_variable_size() {
@@ -3165,6 +3226,7 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
     jack_latency_menu_action = Gtk::Action::create("JackLatency","_Latency");
     actiongroup->add(jack_latency_menu_action);
     actiongroup->add(Gtk::Action::create("PresetsMenu","_Presets"));
+    actiongroup->add(Gtk::Action::create("PresetListMenu","--"));
     actiongroup->add(Gtk::Action::create("PluginsMenu","P_lugins"));
     actiongroup->add(Gtk::Action::create("MonoPlugins","_Mono Plugins"));
     actiongroup->add(Gtk::Action::create("StereoPlugins","_Stereo Plugins"));
@@ -4017,6 +4079,10 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       is_visible(false),
       drag_icon(0),
       actiongroup(),
+      preset_list_menu_bank(),
+      preset_list_merge_id(0),
+      preset_list_actiongroup(),
+      select_preset_action(),
       uimanager(),
       options(options_),
       pmap(pmap_),
@@ -4161,6 +4227,9 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     Glib::signal_timeout().connect(
 	sigc::mem_fun(*this, &MainWindow::check_cab_state), 200);
 	
+    gx_settings.signal_selection_changed().connect(
+	sigc::mem_fun(*this, &MainWindow::show_selected_preset));
+
     // create rack
     stereorackcontainerH->pack_start(stereorackcontainer, Gtk::PACK_EXPAND_WIDGET);
     monocontainer->pack_start(monorackcontainer, Gtk::PACK_EXPAND_WIDGET);
