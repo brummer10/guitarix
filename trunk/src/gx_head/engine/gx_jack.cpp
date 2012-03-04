@@ -221,18 +221,19 @@ bool GxJack::gx_jack_init(bool startserver) {
 #endif
 
     if (client == 0) {
-	if (jackstat & JackServerFailed) {
-	    return false;
-	} else if ((jackstat & JackServerError) && (jackopt & JackUseExactName)) {
-	    gx_system::gx_print_fatal(
-		_("Jack Init"),
-		boost::format(_("can't get requested jack instance name '%1%'"))
-		% client_instance);
-	} else {
-	    gx_system::gx_print_fatal(
-		_("Jack Init"),
-		_("unknown jack server communication error"));
+	if (!(jackstat & JackServerFailed)) {
+	    if ((jackstat & JackServerError) && (jackopt & JackUseExactName)) {
+		gx_system::gx_print_error(
+		    _("Jack Init"),
+		    boost::format(_("can't get requested jack instance name '%1%'"))
+		    % client_instance);
+	    } else {
+		gx_system::gx_print_error(
+		    _("Jack Init"),
+		    _("unknown jack server communication error"));
+	    }
 	}
+	return false;
     }
 
     // ----------------------------------
