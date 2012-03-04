@@ -108,28 +108,6 @@ gboolean button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data
 }
 
 void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
-    static bool s_h;
-    pmap.reg_non_midi_par("tuner.s_h", &s_h, true);
-
-/*
-ui.tuner_reference_pitch not found
-W [08:58:25]  load dialog  ***  Parameter variable system.show_tuner not found
-W [08:58:25]  load dialog  ***  Parameter variable racktuner.tuning not found
-W [08:58:25]  load dialog  ***  Parameter variable racktuner.streaming not found
-W [08:58:26]  recall settings  ***  unknown parameter: mp.s_h
-W [08:58:26]  recall settings  ***  unknown parameter: system.midi_in_preset
-W [08:58:26]  recall settings  ***  unknown parameter: system.order_rack_h
-W [08:58:26]  recall settings  ***  unknown parameter: system.order_rack_v
-W [08:58:26]  recall settings  ***  unknown parameter: system.show_Srack
-W [08:58:26]  recall settings  ***  unknown parameter: system.show_logger
-W [08:58:26]  recall settings  ***  unknown parameter: system.show_rack
-W [08:58:26]  recall settings  ***  unknown parameter: system.show_rrack
-W [08:58:26]  recall settings  ***  unknown parameter: system.show_toolbar
-W [08:58:26]  recall settings  ***  unknown parameter: system.show_tooltips
-W [08:58:26]  recall settings  ***  unknown parameter: system.show_tuner
-W [08:58:26]  recall settings  ***  unknown parameter: ui.midi_out
-W [08:58:26]  recall settings  ***  unknown parameter: ui.tuner_reference_pitch
-*/
     static value_pair starter[] = {
 	{ "other", "other" },
 	{ "qjackctl", "qjackctl" },
@@ -140,15 +118,6 @@ W [08:58:26]  recall settings  ***  unknown parameter: ui.tuner_reference_pitch
 	"ui.jack_starter_idx", "", starter, static_cast<int*>(0), false, 1);
     gx_engine::parameter_map.reg_switch("ui.ask_for_jack_starter", false, true);
     gx_engine::parameter_map.reg_string("ui.jack_starter", "", 0, "");
-
-    show_patch_info = 0;
-
-    /* rack handlig */
-    mono_plugs = 1;
-    stereo_plugs = 1;
-    refresh_size = 0;
-
-    for (unsigned int i = 0; i < sizeof(g_threads)/sizeof(g_threads[0]); i++) g_threads[i] = 0;
 
     /* for level display */
     meter_falloff = 27; // in dB/sec.

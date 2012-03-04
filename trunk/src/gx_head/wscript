@@ -61,6 +61,7 @@ def build(bld):
         './builder/pluginpreset_inputwindow.glade',
         './builder/pluginpreset_listwindow.glade',
         './builder/menudef.xml',
+        './builder/accels_rc',
         ]
 
     sources = sources_engine + sources_gui
