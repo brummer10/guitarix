@@ -153,7 +153,6 @@ private:
     void on_preset_edited(const Glib::ustring& path, const Glib::ustring& newtext);
     void on_cursor_changed();
     void on_preset_changed();
-    void preset_changed();
     bool on_preset_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
     void on_preset_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
     void on_preset_reordered(const Gtk::TreeModel::Path& path);
@@ -165,6 +164,7 @@ private:
     void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f);
     void display_paned(bool show_preset);
     bool use_animations() { return animations_action->get_active(); }
+    void on_selection_changed();
 public:
     PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
 		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);

@@ -161,12 +161,20 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
     presets_target_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_target_drag_motion), false);
     presets_target_treeview->signal_drag_data_received().connect_notify(sigc::mem_fun(*this, &PresetWindow::target_drag_data_received));
     reload_on_change_conn = gx_settings.signal_selection_changed().connect(
-	sigc::mem_fun(*this, &PresetWindow::set_presets));
+	sigc::mem_fun(*this, &PresetWindow::on_selection_changed));
 }
 
 PresetWindow::~PresetWindow() {
     if (Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Presets"))->get_active()) {
 	paned_child_height = main_vpaned->get_allocation().get_height() - main_vpaned->get_position();
+    }
+}
+
+void PresetWindow::on_selection_changed() {
+    set_presets();
+    if (gx_settings.setting_is_preset()) {
+	actiongroup->get_action("Save")->set_sensitive(
+	    gx_settings.get_current_bank_file()->is_mutable());
     }
 }
 
@@ -959,12 +967,6 @@ void PresetWindow::on_cursor_changed() {
     start_edit(path, *preset_treeview->get_column(0), *preset_cellrenderer);
 }
 
-void PresetWindow::on_preset_changed() {
-    if (!Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Organize"))->get_active()) {
-	preset_changed();
-    }
-}
-
 bool PresetWindow::on_preset_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
     if (Gtk::Widget::drag_get_source_widget(context) == preset_treeview) {
 	Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
@@ -1067,7 +1069,10 @@ bool PresetWindow::animate_preset_hide() {
     return true;
 }
 
-void PresetWindow::preset_changed() {
+void PresetWindow::on_preset_changed() {
+    if (Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Organize"))->get_active()) {
+	return;
+    }
     Glib::ustring bank;
     Glib::ustring name;
     Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
