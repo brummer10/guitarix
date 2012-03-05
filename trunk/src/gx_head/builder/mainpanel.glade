@@ -575,7 +575,6 @@
                   <object class="GxRackTuner" id="liveplay_tuner">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="freq">0</property>
                     <property name="scale">4</property>
                     <property name="streaming">True</property>
                   </object>
@@ -1636,7 +1635,7 @@
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <object class="GtkAlignment" id="alignment9">
+                                                  <object class="GtkAlignment" id="alignment9:RackTuner">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <property name="top_padding">4</property>
@@ -1652,7 +1651,6 @@
                                                           <object class="GxRackTuner" id="racktuner">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="freq">0</property>
                                                             <property name="streaming">True</property>
                                                           </object>
                                                           <packing>
