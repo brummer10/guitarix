@@ -130,6 +130,7 @@ void TextLoggingBox::show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool 
     }
 }
 
+#if false // unused
 /****************************************************************
  ** KeyFinder
  ** finds next unused Key in a GtkAccelGroup
@@ -179,6 +180,7 @@ int KeyFinder::operator()() {
     }
     return -1;
 }
+#endif
 
 /****************************************************************
  ** GxUiRadioMenu
@@ -220,7 +222,6 @@ void GxUiRadioMenu::setup(const Glib::ustring& prefix, const Glib::ustring& post
     int i, c;
     const value_pair *p;
     TubeKeys next_key;
-    //KeyFinder next_key(ag); // uncomment to find out which keys are free...
     Glib::ustring s = prefix;
     Gtk::RadioButtonGroup group;
     for (p = param.getValueNames(), i = 0; p->value_id; p++, i++) {
@@ -309,6 +310,11 @@ bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *ac
 	self.key_timeout.disconnect();
     }
     int idx = keyval - GDK_KEY_1;
+    if (idx >= 0 && idx <= 9) {
+	self.process_preset_key(idx);
+	return true;
+    }
+    idx = keyval - GDK_KEY_KP_1;
     if (idx >= 0 && idx <= 9) {
 	self.process_preset_key(idx);
 	return true;
@@ -438,6 +444,10 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Down, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
 
     for (int n = GDK_KEY_1; n <= GDK_KEY_9; ++n) {
+	cl = g_cclosure_new(G_CALLBACK(on_keyboard_preset_select), (gpointer)this, 0);
+	gtk_accel_group_connect(ag->gobj(), n, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+    }
+    for (int n = GDK_KEY_KP_1; n <= GDK_KEY_KP_9; ++n) {
 	cl = g_cclosure_new(G_CALLBACK(on_keyboard_preset_select), (gpointer)this, 0);
 	gtk_accel_group_connect(ag->gobj(), n, (GdkModifierType)0, (GtkAccelFlags)0, cl);
     }
