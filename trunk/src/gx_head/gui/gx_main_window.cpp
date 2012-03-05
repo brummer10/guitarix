@@ -1736,9 +1736,7 @@ bool RackContainer::scrollother_timeout() {
     if (tp == PLUGIN_TYPE_MONO) {
 	off = main.stop_at_stereo_bottom(off, step_size, a->get_page_size());
     } else {
-	printf("%g ", off);
 	off = main.stop_at_mono_top(off, step_size);
-	printf("%g\n", off);
     }
     if (off < a->get_lower()) {
 	off = a->get_lower();
@@ -2265,8 +2263,8 @@ const value_pair GuiParameter::streaming_labels[] = {{"scale"}, {"stream"}, {0}}
 const value_pair GuiParameter::tuning_labels[] = {{"(Chromatic)"},{"Standard"}, {"Standard/Es"}, {"Open E"}, {0}};
 
 GuiParameter::GuiParameter(gx_engine::ParamMap& pmap) {
-    gx_engine::get_group_table().insert("racktuner", "Rack Tuner");
-    ui_racktuner = pmap.reg_non_midi_par("ui.racktuner", (bool*)0, false, true);
+    gx_engine::get_group_table().insert("racktuner", N_("Rack Tuner"));
+    ui_racktuner = pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false);
     racktuner_streaming = pmap.reg_non_midi_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, (int*)0, false, 1);
     racktuner_tuning = pmap.reg_non_midi_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, false, 0);
     racktuner_scale_lim = pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
@@ -2278,6 +2276,7 @@ GuiParameter::GuiParameter(gx_engine::ParamMap& pmap) {
     show_rack = pmap.reg_switch("system.show_rack", false, true);
     order_rack_v = pmap.reg_switch("system.order_rack_v", false, true);
     tuner = pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false);
+    animations = pmap.reg_non_midi_par("system.animations", (bool*)0, false, true);
     show_values = pmap.reg_switch("system.show_value", false, true);
     show_tooltips = pmap.reg_switch("system.show_tooltips", false, true);
     midi_in_presets = pmap.reg_switch("system.midi_in_preset", false, false);
@@ -2607,7 +2606,6 @@ double MainWindow::stop_at_stereo_bottom(double off, double step_size, double pa
 
 double MainWindow::stop_at_mono_top(double off, double step_size) {
     Gtk::Allocation alloc = monorackcontainer.get_allocation();
-    printf(" [%d] ", alloc.get_y());
     if (off < alloc.get_y()) {
 	return off;
     }
@@ -2766,16 +2764,16 @@ void MainWindow::on_preset_action() {
     if (v && !show_rack_action->get_active()) {
 	Gtk::Requisition req;
 	window->size_request(req);
-	int x, y;
-	window->get_position(x, y);
-	while (Gtk::Main::events_pending()) {
+	int h = max(req.height, window_height);
+	window->set_size_request(-1, h);
+	while (true) {
 	    Gtk::Main::iteration();
-	}
-	if (window->get_mapped()) {
-	    window->get_window()->move_resize(x, y, req.width, max(req.height, window_height));
-	} else {
-	    window->resize(req.width, max(req.height, window_height));
-	    window->move(x, y);
+	    int w1, h1;
+	    window->get_size(w1, h1);
+	    if (h1 >= h) {
+		window->set_size_request(-1, -1);
+		break;
+	    }
 	}
     }
 }
@@ -3338,7 +3336,7 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
     actiongroup->add(Gtk::ToggleAction::create("ResetAll", _("Reset _All Parameters")),
 		     sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
 
-    animations_action = Gtk::ToggleAction::create("Animations", _("Use Animations"),"",true);
+    animations_action = UiBoolToggleAction::create(ui, *para.animations, "Animations", _("Use Animations"),"",true);
     actiongroup->add(animations_action);
 
     /*

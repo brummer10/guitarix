@@ -77,7 +77,7 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
       on_map_conn(),
       accel_group(),
       reload_on_change_conn(),
-      animations_action() //FIXME
+      animations_action()
       /* widget pointers not initialized */ {
     load_widget_pointers(bld);
     Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("NewBank");
@@ -180,7 +180,8 @@ void PresetWindow::on_selection_changed() {
 
 void PresetWindow::set_accel_group(Glib::RefPtr<Gtk::AccelGroup>& accel_group_) {
     accel_group = accel_group_;
-    animations_action = Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Animations")); //FIXME
+    animations_action = Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(
+	actiongroup->get_action("Animations")); //FIXME
 }
 
 void PresetWindow::load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld) {
@@ -1155,6 +1156,7 @@ void PresetWindow::display_paned(bool show_preset) {
 
 void PresetWindow::on_preset_select(bool v) {
     bool is_mapped = main_vpaned->get_toplevel()->get_mapped();
+    bool rack_visible = Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("ShowRack"))->get_active(); //FIXME
     if (v) {
 	if (gx_settings.banks.check_reparse()) {
 	    set_presets();
@@ -1176,7 +1178,7 @@ void PresetWindow::on_preset_select(bool v) {
 		sigc::bind(
 		    sigc::mem_fun(*this, &PresetWindow::display_paned),
 		    true));
-	} else if (use_animations()) {
+	} else if (use_animations() && rack_visible) {
 	    vpaned_pos = main_vpaned->get_allocation().get_height();
 	    vpaned_target = vpaned_pos - paned_child_height;
 	    main_vpaned->set_position(vpaned_pos);
@@ -1189,9 +1191,9 @@ void PresetWindow::on_preset_select(bool v) {
 	}
     } else {
 	vpaned_target = main_vpaned->get_allocation().get_height();
-	if (use_animations() && is_mapped && Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("ShowRack"))->get_active()) { //FIXME
-	    vpaned_pos = main_vpaned->get_position();
-	    paned_child_height = vpaned_target - vpaned_pos;
+	vpaned_pos = main_vpaned->get_position();
+	paned_child_height = vpaned_target - vpaned_pos;
+	if (use_animations() && is_mapped && rack_visible) {
 	    vpaned_step = paned_child_height / 5;
 	    child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", true);
 	    Glib::signal_timeout().connect(sigc::mem_fun(*this, &PresetWindow::animate_preset_hide), 20);

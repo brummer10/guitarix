@@ -479,6 +479,7 @@ struct GuiParameter {
     gx_engine::SwitchParameter *show_values;
     gx_engine::SwitchParameter *show_tooltips;
     gx_engine::SwitchParameter *midi_in_presets;
+    gx_engine::BoolParameter *animations;
     gx_engine::IntParameter *mainwin_x_param;
     gx_engine::IntParameter *mainwin_y_param;
     gx_engine::IntParameter *mainwin_width_param;

@@ -561,8 +561,8 @@ class ParamMap: boost::noncopyable {
 	insert(p);
 	return p;
     }
-    inline BoolParameter *reg_par(const string& id, const string& name, bool *var, bool std = false) {
-	BoolParameter * p = new BoolParameter(id, name, Parameter::Switch, true, var, std, true);
+    inline BoolParameter *reg_par(const string& id, const string& name, bool *var, bool std=false, bool preset=true) {
+	BoolParameter * p = new BoolParameter(id, name, Parameter::Switch, preset, var, std, true);
 	insert(p);
 	return p;
     }
