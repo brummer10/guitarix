@@ -2280,6 +2280,7 @@ GuiParameter::GuiParameter(gx_engine::ParamMap& pmap) {
     racktuner_scale_lim = pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
     ui_tuner_reference_pitch = pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch",
 						       0, 440, 427, 453, 0.1);
+    //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
 
     show_plugin_bar = pmap.reg_switch("system.show_toolbar", false, false);
     presets = pmap.reg_switch("system.show_presets", false, false);
@@ -3089,49 +3090,6 @@ void gx_show_help() {
 
 }
 
-// ---- popup warning
-int gx_message_popup(const char* msg) {
-    // check msg validity
-    if (!msg) {
-        gx_system::gx_print_warning("Message Popup",
-                         string(_("warning message does not exist")));
-        return -1;
-    }
-
-    // build popup window
-    GtkWidget *about;
-    GtkWidget *label;
-    GtkWidget *ok_button;
-
-    about = gtk_dialog_new();
-    ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
-
-    label = gtk_label_new(msg);
-
-    GtkStyle *style = gtk_widget_get_style(label);
-
-    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-
-    gtk_widget_modify_font(label, style->font_desc);
-
-    gtk_label_set_selectable(GTK_LABEL(label), TRUE);
-
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->vbox), label);
-
-    GTK_BOX(GTK_DIALOG(about)->action_area)->spacing = 3;
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->action_area), ok_button);
-
-    g_signal_connect_swapped(ok_button, "clicked",
-                              G_CALLBACK(gtk_widget_destroy), about);
-
-    g_signal_connect(GTK_DIALOG(about)->vbox, "expose-event", G_CALLBACK(gx_cairo::start_box_expose), NULL);
-    gtk_widget_set_redraw_on_allocate(GTK_WIDGET(GTK_DIALOG(about)->vbox),true);
-    gtk_widget_show(ok_button);
-    gtk_widget_show(label);
-    return gtk_dialog_run (GTK_DIALOG(about));
-}
-
 // ----menu funktion about
 void gx_show_about() {
     static string about;
@@ -3158,7 +3116,7 @@ void gx_show_about() {
             "\n  home: http://guitarix.sourceforge.net/\n");
     }
 
-    gx_message_popup(about.c_str());
+    gx_gui::gx_message_popup(about.c_str());
 }
 
 static void set_tooltips(bool v) {
@@ -3877,6 +3835,12 @@ bool MainWindow::on_refresh_oscilloscope() {
     return engine.oscilloscope.plugin.box_visible;
 }
 
+/* --------- calculate power (percent) to decibel -------- */
+// Note: could use fast_log10 (see ardour code) to make it faster
+inline float power2db(float power) {
+    return  20.*log10(power);
+}
+
 bool MainWindow::refresh_meter_level() {
     if (!jack.client) {
 	return true;
@@ -3894,7 +3858,7 @@ bool MainWindow::refresh_meter_level() {
 	// calculate peak dB and translate into meter
 	float peak_db = -INFINITY;
 	if (m.get(c) > 0) {
-	    peak_db = gx_threads::power2db(m.get(c));
+	    peak_db = power2db(m.get(c));
 	}
 	// retrieve old meter value and consider falloff
 	if (peak_db < old_peak_db[c]) {

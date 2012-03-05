@@ -14,6 +14,11 @@ struct uiToggleButton : public gx_ui::GxUiItemBool {
 
 /****************************************************************/
 
+#define stackSize 256
+#define kSingleMode 0
+#define kBoxMode 1
+#define kTabMode 2
+
 class StackBoxBuilder {
 protected:
     int&                  fTop;

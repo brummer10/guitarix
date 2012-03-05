@@ -180,13 +180,5 @@ public:
     static IRWindow* get_window() {return instance;}
 };
 
-/* GUI stuff  */
-void gx_load_jcgui();
-void gx_reload_jcgui();
-void gx_save_jcgui();
-void gx_show_jconv_dialog_gui(GtkWidget *, gpointer);
-void gx_show_fav();
-
-/* main class */
 } /* end of gx_jconv namespace*/
 #endif  // SRC_HEADERS_GX_JCONV_SETTINGS_H_

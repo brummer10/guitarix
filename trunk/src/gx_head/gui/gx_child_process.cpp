@@ -152,6 +152,8 @@ GxChildProcs childprocs;
  ** Menu Callbacks
  */
 
+#if false // unused
+
 //----------------------- jack_capture settings ---------------------------
 JackCaptureGui::JackCaptureGui(GxChild *p, GtkCheckMenuItem *i)
                                : item(i) {
@@ -204,7 +206,6 @@ void JackCaptureGui::start_stop(GtkCheckMenuItem *menuitem, gpointer) {
 
 //---------------------------- Jack Capture -------------------------------
 
-#if 0 // unused
 JackCapture::JackCapture(GxChild *p, GtkToggleButton *b)
     : button(b) {
     gtk_widget_ref(GTK_WIDGET(button));

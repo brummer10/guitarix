@@ -39,11 +39,9 @@
 
 #include "gx_cairo_callbacks.h"
 
-#include "gx_threads.h"
 #include "gx_gui_helpers.h"
 #include "gx_ui_builder.h"
 #include "gx_jack_options.h"
-#include "gx_preset_options.h"
 #include "gx_portmap.h"
 #include "gx_main_midi.h"
 #include "gx_main_boxes.h"

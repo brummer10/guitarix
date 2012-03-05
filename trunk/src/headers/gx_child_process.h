@@ -70,6 +70,7 @@ void gx_sigchld_handler();
  ** classes for UI callbacks
  */
 
+#if false  // unused
 class JackCaptureGui: public sigc::trackable {
  private:
     GtkCheckMenuItem *item;
@@ -90,6 +91,7 @@ class JackCapture: public sigc::trackable {
     static void start_stop(GtkWidget *widget, gpointer data);
     static void stop();
 };
+#endif
 
 class Meterbridge: public sigc::trackable {
  private:
