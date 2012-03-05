@@ -130,7 +130,10 @@ void TunerAdapter::set_and_check(int use, bool on) {
     } else {
 	state &= ~use;
     }
-    plugin.on_off = state;
+    if (plugin.on_off != bool(state)) {
+	plugin.on_off = bool(state);
+	engine.set_rack_changed();
+    }
 }
 
 void TunerAdapter::feed_tuner(int count, float* input, float*, PluginDef* plugin) {

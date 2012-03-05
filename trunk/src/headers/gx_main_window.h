@@ -72,6 +72,22 @@ public:
 
 typedef UiRadioAction<gx_engine::SwitchParameter> UiSwitchRadioAction;
 
+class Liveplay;
+
+class TunerSwitcher {
+private:
+    Liveplay& lp;
+    sigc::connection switcher_conn;
+    sigc::connection timeout_conn;
+    int current_note;
+private:
+    bool on_note_timeout();
+    void on_tuner_freq_changed();
+public:
+    TunerSwitcher(Liveplay& lp);
+    void toggle();
+};
+
 /****************************************************************
  ** class Liveplay
  */
@@ -89,6 +105,7 @@ private:
     Glib::ustring last_bank_key;
     sigc::connection midi_conn;
     Gtk::Window *window;
+    TunerSwitcher tuner_switcher;
     //
     Gtk::Image *bypass_image;
     Gtk::Image *mute_image;
@@ -116,15 +133,22 @@ private:
     static bool on_keyboard_preset_select(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
-    void process_bank_key(int idx);
-    void process_preset_key(int idx);
+    bool process_bank_key(int idx);
+    bool process_preset_key(int idx);
     void display_empty(const Glib::ustring& s);
     static bool on_keyboard_toggle_mute(
+	GtkAccelGroup *accel_group, GObject *acceleratable,
+	guint keyval, GdkModifierType modifier, Liveplay& self);
+    static bool on_keyboard_toggle_bypass(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
     static bool on_keyboard_arrows(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
+    static bool on_keyboard_mode_switch(
+	GtkAccelGroup *accel_group, GObject *acceleratable,
+	guint keyval, GdkModifierType modifier, Liveplay& self);
+    friend class TunerSwitcher;
 public:
     Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine, gx_preset::GxSettings& gx_settings,
 	     const std::string& fname, Glib::RefPtr<Gtk::ActionGroup>& actiongroup, Glib::RefPtr<UiBoolToggleAction>& livetuner_action);

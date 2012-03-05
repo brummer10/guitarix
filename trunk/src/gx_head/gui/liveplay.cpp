@@ -24,6 +24,65 @@
 #include <guitarix.h>
 
 /****************************************************************
+ ** class TunerSwitcher
+ */
+
+TunerSwitcher::TunerSwitcher(Liveplay &lp_)
+    : lp(lp_), switcher_conn(), timeout_conn(), current_note(1000) {
+}
+
+bool TunerSwitcher::on_note_timeout() {
+    if (-24 < current_note && current_note < -10) {
+	lp.process_bank_key(current_note - (-24));
+    } else if (current_note >= -10 && current_note <= 7) {
+	if (lp.process_preset_key(current_note - (-10))) {
+	    toggle();
+	}
+    }
+    return false;
+}
+
+void TunerSwitcher::on_tuner_freq_changed() {
+    struct timeval tv;
+    gettimeofday(&tv, 0);
+    const float precision = 0.3;
+    float note = lp.engine.tuner.get_note();
+    if (abs(current_note - note) < precision) {
+	return;
+    }
+    if (timeout_conn.connected()) {
+	timeout_conn.disconnect();
+    }
+    float n = round(note);
+    if (abs(note - n) < precision) {
+	current_note = n;
+	if (current_note != 1000) {
+	    timeout_conn = Glib::signal_timeout().connect(
+		sigc::mem_fun(this, &TunerSwitcher::on_note_timeout),
+		400);
+	}
+    } else {
+	current_note = 1000;
+    }
+}
+
+void TunerSwitcher::toggle() {
+    if (switcher_conn.connected()) {
+	lp.engine.start_ramp_up();
+	switcher_conn.disconnect();
+	timeout_conn.disconnect();
+	lp.engine.tuner.used_for_switching(false);
+	lp.liveplay_preset->set_state(Gtk::STATE_NORMAL);
+    } else {
+	lp.engine.start_ramp_down(); // FIXME mute input instead
+	lp.liveplay_preset->set_state(Gtk::STATE_SELECTED);
+	lp.engine.tuner.used_for_switching(true);
+	switcher_conn = lp.engine.tuner.signal_freq_changed().connect(
+	    sigc::mem_fun(this, &TunerSwitcher::on_tuner_freq_changed));
+    }
+}
+
+/****************************************************************
  ** class Liveplay
  */
 
@@ -37,34 +96,37 @@ bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
 void Liveplay::display_empty(const Glib::ustring& s) {
     liveplay_preset->set_text(s);
     key_timeout = Glib::signal_timeout().connect(
-	sigc::bind_return(sigc::mem_fun(*this, &Liveplay::on_selection_changed), false), 400);
+	sigc::bind_return(sigc::mem_fun(this, &Liveplay::on_selection_changed), false), 400);
 }
 
-void Liveplay::process_preset_key(int idx) {
+bool Liveplay::process_preset_key(int idx) {
     if (last_bank_key.empty()) {
 	if (!gx_settings.setting_is_preset()) {
 	    display_empty(Glib::ustring::compose("?? / %1", idx+1));
-	    return;
+	    return false;
 	}
 	last_bank_key = gx_settings.get_current_bank();
     }
     gx_system::PresetFile *f = gx_settings.banks.get_file(last_bank_key);
     if (idx >= f->size()) {
 	display_empty(Glib::ustring::compose("%1 / %2?", last_bank_key, idx+1));
+	return false;
     } else {
 	gx_settings.load_preset(f, f->get_name(idx));
+	return true;
     }
 }
 
-void Liveplay::process_bank_key(int idx) {
+bool Liveplay::process_bank_key(int idx) {
     last_bank_key = gx_settings.banks.get_name(idx);
     if (last_bank_key.empty()) {
 	display_empty("-- / --");
-	return;
+	return false;
     }
     liveplay_preset->set_text(Glib::ustring::compose("%1 /", last_bank_key));
     key_timeout = Glib::signal_timeout().connect(
-	sigc::bind_return(sigc::mem_fun(*this, &Liveplay::on_selection_changed), false), 2000);
+	sigc::bind_return(sigc::mem_fun(this, &Liveplay::on_selection_changed), false), 2000);
+    return true;
 }
 
 bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *acceleratable,
@@ -98,6 +160,20 @@ bool Liveplay::on_keyboard_toggle_mute(GtkAccelGroup *accel_group, GObject *acce
     return true;
 }
 
+bool Liveplay::on_keyboard_toggle_bypass(GtkAccelGroup *accel_group, GObject *acceleratable,
+				       guint keyval, GdkModifierType modifier, Liveplay& self) {
+    self.engine.set_state(self.engine.get_state() == gx_engine::kEngineBypass ?
+		     gx_engine::kEngineOn
+		     : gx_engine::kEngineBypass);
+    return true;
+}
+
+bool Liveplay::on_keyboard_mode_switch(GtkAccelGroup *accel_group, GObject *acceleratable,
+				       guint keyval, GdkModifierType modifier, Liveplay& self) {
+    self.tuner_switcher.toggle();
+    return true;
+}
+
 bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *acceleratable,
 				       guint keyval, GdkModifierType modifier, Liveplay& self) {
     if (keyval == GDK_KEY_Left || keyval == GDK_KEY_Right) {
@@ -126,9 +202,18 @@ bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *accelerat
 
 Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
 		   const std::string& fname, Glib::RefPtr<Gtk::ActionGroup>& actiongroup, Glib::RefPtr<UiBoolToggleAction>& livetuner_action)
-    : ui(), bld(), engine(engine_), gx_settings(gx_settings_), use_composite(),
-      brightness_adj(1,0.5,1,0.01,0.1), background_adj(0,0,1,0.01,0.1), key_timeout(),
-      last_bank_key(), midi_conn(), window() {
+    : ui(),
+      bld(),
+      engine(engine_),
+      gx_settings(gx_settings_),
+      use_composite(),
+      brightness_adj(1,0.5,1,0.01,0.1),
+      background_adj(0,0,1,0.01,0.1),
+      key_timeout(),
+      last_bank_key(),
+      midi_conn(),
+      window(),
+      tuner_switcher(*this) {
     const char *id_list[] = {"LivePlay", 0};
     bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
     bld->get_toplevel("LivePlay", window);
@@ -152,25 +237,25 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine
     mute_image->set(pb);
     use_composite = window->get_display()->supports_composite();
     if (use_composite) {
-	brightness_adj.signal_value_changed().connect(sigc::mem_fun(*this, &Liveplay::on_brightness_changed));
+	brightness_adj.signal_value_changed().connect(sigc::mem_fun(this, &Liveplay::on_brightness_changed));
 	brightness_slider->set_adjustment(brightness_adj);
-	liveplay_canvas->signal_realize().connect(sigc::mem_fun(*this, &Liveplay::on_realize));
+	liveplay_canvas->signal_realize().connect(sigc::mem_fun(this, &Liveplay::on_realize));
 	window->signal_expose_event().connect(
-	    sigc::mem_fun(*this, &Liveplay::window_expose_event), true);
+	    sigc::mem_fun(this, &Liveplay::window_expose_event), true);
     } else {
 	brightness_box->hide();
     }
     background_adj.signal_value_changed().connect(
-	sigc::mem_fun(*this, &Liveplay::on_background_changed));
+	sigc::mem_fun(this, &Liveplay::on_background_changed));
     background_slider->set_adjustment(background_adj);
     Glib::RefPtr<Gdk::Screen> screen = liveplay_canvas->get_screen();
     Glib::RefPtr<Gdk::Colormap> rgba = screen->get_rgba_colormap();
     liveplay_canvas->set_colormap(rgba);
     liveplay_canvas->set_app_paintable(true);
     liveplay_canvas->signal_expose_event().connect(
-	sigc::mem_fun(*this, &Liveplay::transparent_expose));
+	sigc::mem_fun(this, &Liveplay::transparent_expose));
     window->signal_delete_event().connect(
-	sigc::mem_fun(*this, &Liveplay::on_delete));
+	sigc::mem_fun(this, &Liveplay::on_delete));
 
     Glib::RefPtr<Gtk::Action> act = actiongroup->get_action("Liveplay");
     gtk_activatable_set_related_action(
@@ -185,7 +270,7 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine
     actiongroup->add(
 	livetuner_action,
 	sigc::compose(
-	    sigc::mem_fun(*this, &Liveplay::display_tuner),
+	    sigc::mem_fun(this, &Liveplay::display_tuner),
 	    sigc::mem_fun(livetuner_action.operator->(), &Gtk::ToggleAction::get_active)));
     cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(livetuner_action->gobj()), 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Return, (GdkModifierType)0, (GtkAccelFlags)0, cl);
@@ -195,7 +280,10 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine
     gtk_accel_group_connect_by_path(ag->gobj(), act->get_accel_path().c_str(), cl);
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_toggle_mute), (gpointer)this, 0);
-    gtk_accel_group_connect(ag->gobj(), GDK_KEY_space, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_M, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+
+    cl = g_cclosure_new(G_CALLBACK(on_keyboard_toggle_bypass), (gpointer)this, 0);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_B, (GdkModifierType)0, (GtkAccelFlags)0, cl);
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_arrows), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Left, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
@@ -218,13 +306,16 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine
 	cl = g_cclosure_new(G_CALLBACK(on_keyboard_preset_select), (gpointer)this, 0);
 	gtk_accel_group_connect(ag->gobj(), n, (GdkModifierType)0, (GtkAccelFlags)0, cl);
     }
+
+    cl = g_cclosure_new(G_CALLBACK(on_keyboard_mode_switch), (gpointer)this, 0);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_space, (GdkModifierType)0, (GtkAccelFlags)0, cl);
     
     window->add_accel_group(ag);
 
     engine.signal_state_change().connect(
-	sigc::mem_fun(*this, &Liveplay::on_engine_state_change));
+	sigc::mem_fun(this, &Liveplay::on_engine_state_change));
     gx_settings.signal_selection_changed().connect(
-	sigc::mem_fun(*this, &Liveplay::on_selection_changed));
+	sigc::mem_fun(this, &Liveplay::on_selection_changed));
 
     on_engine_state_change(engine.get_state());
     on_selection_changed();
@@ -256,9 +347,9 @@ void Liveplay::on_selection_changed() {
 
 void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
     if (act->get_active()) {
-	window->fullscreen();
+	//window->fullscreen();
 	midi_conn = gx_engine::controller_map.signal_changed().connect(
-	    sigc::mem_fun(*this, &Liveplay::add_midi_elements));
+	    sigc::mem_fun(this, &Liveplay::add_midi_elements));
 	add_midi_elements();
 	window->show();
     } else {

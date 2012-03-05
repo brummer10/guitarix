@@ -74,12 +74,13 @@ private:
     PitchTracker pitch_tracker;
     int state;
     ModuleSequencer& engine;
-    enum { tuner_use = 0x01, livetuner_use = 0x02, midi_use = 0x04 };
+    enum { tuner_use = 0x01, livetuner_use = 0x02, switcher_use = 0x04, midi_use = 0x08 };
     void set_and_check(int use, bool on);
     Plugin* dep_plugin;
 public:
     Plugin plugin;
     TunerAdapter(ModuleSequencer& engine);
+    void used_for_switching(bool on) { set_and_check(switcher_use, on); }
     void used_for_display(bool on) { set_and_check(tuner_use, on); }
     void used_for_livedisplay(bool on) { set_and_check(livetuner_use, on); }
     void used_by_midi(bool on) { set_and_check(midi_use, on); }
