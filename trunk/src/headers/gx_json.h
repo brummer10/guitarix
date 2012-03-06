@@ -321,6 +321,7 @@ public:
     void parse(const std::string& bank_path, const std::string& preset_dir,
 	       const std::string& factory_path);
     PresetFile* get_file(const Glib::ustring& bank) const;
+    int get_index(const Glib::ustring& bank) const;
     iterator begin() { return iterator(banklist.begin()); }
     iterator end() { return iterator(banklist.end()); }
     bool remove(const Glib::ustring& bank);

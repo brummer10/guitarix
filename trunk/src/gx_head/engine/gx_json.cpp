@@ -1401,6 +1401,17 @@ PresetFile *PresetBanks::get_file(const Glib::ustring& bank) const {
     return 0;
 }
 
+int PresetBanks::get_index(const Glib::ustring& bank) const {
+    int n = 0;
+    for (bl_type::const_iterator i = banklist.begin(); i != banklist.end(); ++i) {
+	if ((*i)->get_name() == bank) {
+	    return n;
+	}
+	n += 1;
+    }
+    return -1;
+}
+
 bool PresetBanks::rename(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile) {
     PresetFile *f = get_file(oldname);
     if (!f) {
