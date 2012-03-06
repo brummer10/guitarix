@@ -204,9 +204,10 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
             assert(m->adj_upper);
             float lower = gtk_adjustment_get_value(m->adj_lower);
             float upper = gtk_adjustment_get_value(m->adj_upper);
-            gx_engine::controller_map.modifyCurrent(m->param, lower, upper);
+            gx_engine::controller_map.modifyCurrent(m->param, lower, upper, false);
         } else {
-            gx_engine::controller_map.modifyCurrent(m->param, 0, 0);
+	    bool toggle = gtk_toggle_button_get_active(m->use_toggle);
+            gx_engine::controller_map.modifyCurrent(m->param, 0, 0, toggle);
         }
         break;
     case RESPONSE_DELETE:
@@ -286,11 +287,14 @@ void MidiConnect::changed_text_handler(GtkEditable *editable, gpointer data) {
 }
 
 
-MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param)
-    : param(param),
-    current_control(-1) {
+MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_)
+    : param(param_),
+      current_control(-1),
+      adj_lower(),
+      adj_upper() {
     GtkBuilder * builder = gtk_builder_new();
     dialog = gx_gui::load_toplevel(builder, "midi.glade", "MidiConnect");
+    use_toggle = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "use_toggle"));
     GtkWidget *zn = GTK_WIDGET(gtk_builder_get_object(builder, "zone_name"));
     GtkStyle *style = gtk_widget_get_style(zn);
     pango_font_description_set_size(style->font_desc, 12*PANGO_SCALE);
@@ -326,10 +330,11 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param)
             gtk_adjustment_set_value(adj_lower, pctrl->lower());
             gtk_adjustment_set_value(adj_upper, pctrl->upper());
         }
+        gtk_widget_hide(GTK_WIDGET(use_toggle));
     } else {
-        adj_lower = adj_upper = 0;
         gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_label")));
         gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_box")));
+	gtk_toggle_button_set_active(use_toggle, pctrl->is_toggle());
     }
     entry_new = GTK_WIDGET(gtk_builder_get_object(builder, "new"));
     label_desc = GTK_WIDGET(gtk_builder_get_object(builder, "new_desc"));
@@ -350,7 +355,6 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param)
     gtk_widget_show(dialog);
     g_timeout_add(40, check_midi_cb, this);
     g_object_unref(G_OBJECT(builder));
-    return;
 }
 } // end namespace
 

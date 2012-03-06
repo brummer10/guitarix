@@ -177,6 +177,7 @@ void MidiController::writeJSON(gx_system::JsonWriter& jw) const {
         jw.write(_upper);
     } else {
         assert(param->getControlType() == Parameter::Switch);
+	jw.write(toggle);
     }
     jw.end_array();
 }
@@ -193,46 +194,64 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
     }
     Parameter& pm = pmap[id];
     float lower = 0, upper = 0;
+    bool toggle = false;
     bool bad = false;
     bool chg = false;
     if (pm.getControlType() == Parameter::Continuous ||
         pm.getControlType() == Parameter::Enum) {
-        if (jp.peek() != gx_system::JsonParser::end_array) {
-            float pmin, pmax;
-            if (pm.hasRange()) {
-                pmin = pm.getLowerAsFloat();
-                pmax = pm.getUpperAsFloat();
-            } else {
-                bad = true;
-                pmin = pmax = 0;
-            }
-            jp.next(gx_system::JsonParser::value_number);
-            lower = jp.current_value_float();
-            jp.next(gx_system::JsonParser::value_number);
-            upper = jp.current_value_float();
-            if (lower > pmax) {
-                lower = pmax;
-                chg = true;
-            } else if (lower < pmin) {
-                lower = pmin;
-                chg = true;
-            }
-            if (upper > pmax) {
-                upper = pmax;
-                chg = true;
-            } else if (upper < pmin) {
-                upper = pmin;
-                chg = true;
-            }
-        } else {
-            bad = true;
-        }
+        if (jp.peek() == gx_system::JsonParser::value_number) {
+	    jp.next(gx_system::JsonParser::value_number);
+	    if (jp.peek() == gx_system::JsonParser::value_number) {
+		// two numbers -> range
+		float pmin, pmax;
+		if (pm.hasRange()) {
+		    pmin = pm.getLowerAsFloat();
+		    pmax = pm.getUpperAsFloat();
+		} else {
+		    bad = true;
+		    pmin = pmax = 0;
+		}
+		lower = jp.current_value_float();
+		jp.next(gx_system::JsonParser::value_number);
+		upper = jp.current_value_float();
+		if (lower > pmax) {
+		    lower = pmax;
+		    chg = true;
+		} else if (lower < pmin) {
+		    lower = pmin;
+		    chg = true;
+		}
+		if (upper > pmax) {
+		    upper = pmax;
+		    chg = true;
+		} else if (upper < pmin) {
+		    upper = pmin;
+		    chg = true;
+		}
+	    } else {
+		// just one number -> switch (new format)
+		bad = true;
+	    }
+	} else {
+	    // no number -> switch (old format)
+	    bad = true;
+	}
+    } else if (pm.getControlType() == Parameter::Switch) {
+	if (jp.peek() == gx_system::JsonParser::value_number) {
+	    jp.next(gx_system::JsonParser::value_number);
+	    if (jp.peek() == gx_system::JsonParser::value_number) {
+		// two numbers -> range
+		bad = true;
+	    } else {
+		toggle = jp.current_value_int();
+	    }
+	}
     } else {
-        if (pm.getControlType() != Parameter::Switch) {
-            bad = true;
-        }
+	// bad control type
+	bad = true;
     }
-    while (jp.next() != gx_system::JsonParser::end_array); // be tolerant
+    assert(jp.peek() == gx_system::JsonParser::end_array);
+    while (jp.next() != gx_system::JsonParser::end_array); // be tolerant (non-debug mode)
     if (bad) {
         gx_system::gx_print_warning(
             _("recall MIDI state"),
@@ -244,9 +263,27 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
             _("recall MIDI state"),
             _("Parameter range outside bounds, changed: ") + id);
     }
-    return new MidiController(pm, lower, upper);
+    return new MidiController(pm, lower, upper, toggle);
 }
 
+void MidiController::set(int n) {
+    float v = n/127.0;
+    if (toggle) {
+	bool s_o = (last_midi_control_value != 0);
+	bool s_n = (2*n > 127);
+	last_midi_control_value = float(s_n);
+	if (!s_o && s_n) {
+	    if (param->on_off_value()) {
+		param->set(0, 127, _lower, _upper);
+	    } else {
+		param->set(127, 127, _lower, _upper);
+	    }
+	}
+    } else {
+	last_midi_control_value = v;
+	param->set(n, 127, _lower, _upper);
+    }
+}
 
 /****************************************************************
  ** class MidiControllerList
@@ -317,14 +354,14 @@ void MidiControllerList::deleteParameter(Parameter& p, bool quiet) {
 }
 
 void MidiControllerList::modifyCurrent(Parameter &param,
-                                       float lower, float upper) {
+                                       float lower, float upper, bool toggle) {
     assert(midi_config_mode == true); // keep rt thread away from table
     // maximal one controller for a zone allowed
     deleteParameter(param);
     if (last_midi_control == -1)
         return;
     // add zone to controller
-    map[last_midi_control].push_front(MidiController(param, lower, upper));
+    map[last_midi_control].push_front(MidiController(param, lower, upper, toggle));
     changed();
 }
 
@@ -614,6 +651,10 @@ void *FloatParameter::zone() {
     return value;
 }
 
+bool FloatParameter::on_off_value() {
+    return *value != 0;
+}
+
 void FloatParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Continuous:
@@ -732,6 +773,10 @@ int IntParameter::idx_from_id(string v_id) {
     return 0;
 }
 
+bool IntParameter::on_off_value() {
+    return *value != 0;
+}
+
 void IntParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Continuous:
@@ -839,6 +884,9 @@ void *UIntParameter::zone() {
     return value;
 }
 
+bool UIntParameter::on_off_value() {
+    return *value != 0;
+}
 void UIntParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Continuous:
@@ -942,6 +990,10 @@ void *BoolParameter::zone() {
     return value;
 }
 
+bool BoolParameter::on_off_value() {
+    return *value;
+}
+
 void BoolParameter::set(float n, float high, float llimit, float ulimit) {
     switch (c_type) {
     case Switch:
@@ -991,6 +1043,10 @@ void *SwitchParameter::zone() {
 
 void SwitchParameter::stdJSON_value() {
     json_value = std_value;
+}
+
+bool SwitchParameter::on_off_value() {
+    return value;
 }
 
 void SwitchParameter::set(float n, float high, float llimit, float ulimit) {
@@ -1050,6 +1106,10 @@ void FileParameter::stdJSON_value() {
 
 void *FileParameter::zone() {
     return &value;
+}
+
+bool FileParameter::on_off_value() {
+    return bool(value);
 }
 
 void FileParameter::set(float n, float high, float llimit, float ulimit) {
@@ -1124,6 +1184,10 @@ StringParameter::~ParameterV() {
 
 void *StringParameter::zone() {
     return value;
+}
+
+bool StringParameter::on_off_value() {
+    return !value->empty();
 }
 
 void StringParameter::set(float n, float high, float llimit, float ulimit) {
