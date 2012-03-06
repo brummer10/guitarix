@@ -75,12 +75,14 @@ class MidiConnect {
  private:
     enum { RESPONSE_DELETE = 1 };
     gx_engine::Parameter &param;
+    int current_control;
     GtkAdjustment* adj_lower;
     GtkAdjustment* adj_upper;
+    GtkToggleButton *use_toggle;
+    //
     GtkWidget* dialog;
     GtkWidget* entry_new;
     GtkWidget* label_desc;
-    int current_control;
     static string ctr_desc(int ctr);
     static const char *ctl_to_str(int n);
  public:

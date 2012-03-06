@@ -39,6 +39,8 @@ TextLoggingBox::tab_table TextLoggingBox::tagdefs[] = {
 
 TextLoggingBox::TextLoggingBox()
     : box(),
+      ok_button(Gtk::Stock::OK),
+      buttonbox(),
       scrollbox(),
       tbox(),
       highest_unseen_msg_level(-1),
@@ -51,6 +53,7 @@ TextLoggingBox::TextLoggingBox()
     set_keep_below(false);
     set_title(_("Logging Window"));
     set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
+    set_border_width(4);
 
     box.set_border_width(0);
     scrollbox.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
@@ -74,17 +77,31 @@ TextLoggingBox::TextLoggingBox()
     }
 
     box.add(scrollbox);
+    box.pack_end(buttonbox, Gtk::PACK_SHRINK);
+    buttonbox.set_layout(Gtk::BUTTONBOX_END);
+    buttonbox.add(ok_button);
+    buttonbox.set_border_width(4);
+    ok_button.set_can_default();
+    ok_button.grab_default();
+    ok_button.signal_clicked().connect(sigc::mem_fun(this, &TextLoggingBox::hide));
+    //signal_activate().connect(sigc::mem_fun(this, &TextLoggingBox::hide));
     scrollbox.add(tbox);
-    tbox.show();
-    scrollbox.show();
     tbox.set_size_request(-1, 50);
-    box.show();
+    box.show_all();
     gx_system::Logger::get_logger().signal_message().connect(
 	sigc::mem_fun(*this, &TextLoggingBox::show_msg));
     gx_system::Logger::get_logger().unplug_queue();
 }
 
 TextLoggingBox::~TextLoggingBox() {
+}
+
+bool TextLoggingBox::on_key_press_event(GdkEventKey *event) {
+    if (event->keyval == GDK_KEY_Escape && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+	hide();
+	return true;
+    }
+    return Gtk::Window::on_key_press_event(event);
 }
 
 void TextLoggingBox::on_show() {
@@ -854,18 +871,12 @@ bool UiBuilderImplNew::load(gx_engine::Plugin *p) {
 }
 
 bool UiBuilderImplNew::load_unit(PluginUI &pl) {
-    gx_engine::Plugin *p = pl.plugin;
-    PluginDef *pd = p->pdef;
+    PluginDef *pd = pl.plugin->pdef;
     if (!pd->load_ui) {
 	return false;
     }
-    plugin = pd;
     dynamic_cast<StackBoxBuilderNew*>(intf)->prepare();
-    if (pd->flags & PGN_STEREO) {
-	pd->load_ui(*this);
-    } else {
-	pd->load_ui(*this);
-    }
+    pd->load_ui(*this);
     return true;
 }
 
@@ -1336,6 +1347,12 @@ void MainWindow::on_engine_toggled() {
     engine.set_state(s);
 }
 
+void MainWindow::set_switcher_controller() {
+    if (!gx_engine::controller_map.get_config_mode()) {
+	new gx_main_midi::MidiConnect(0, pmap["ui.live_play_switcher"]);
+    }
+}
+
 void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const GuiParameter& para) {
     uimanager = Gtk::UIManager::create();
 
@@ -1475,6 +1492,10 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
 
     animations_action = UiBoolToggleAction::create(ui, *para.animations, "Animations", _("Use Animations"),"",true);
     actiongroup->add(animations_action);
+
+    pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
+    actiongroup->add(Gtk::Action::create("SetPresetSwitcher", _("Liveplay Midi Switch")),
+		     sigc::mem_fun(this, &MainWindow::set_switcher_controller));
 
     /*
     ** Help and About
