@@ -70,6 +70,7 @@ class TunerAdapter: public ModuleSelector, private PluginDef, public sigc::track
 private:
     static void feed_tuner(int count, float *input, float *output, PluginDef*);
     static int regparam(const ParamReg& reg);
+    static int activate(bool start, PluginDef *plugin);
     static void init(unsigned int samplingFreq, PluginDef *plugin);
     PitchTracker pitch_tracker;
     int state;

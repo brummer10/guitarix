@@ -112,6 +112,7 @@ TunerAdapter::TunerAdapter(ModuleSequencer& engine_)
     name = "Rack Tuner";
     mono_audio = feed_tuner;
     set_samplerate = init;
+    activate_plugin = activate;
     register_params = regparam;
     plugin.pdef = this;
 }
@@ -134,6 +135,16 @@ void TunerAdapter::set_and_check(int use, bool on) {
 	plugin.on_off = bool(state);
 	engine.set_rack_changed();
     }
+    if (use == switcher_use) {
+	pitch_tracker.set_fast_note_detection(on);
+    }
+}
+
+int TunerAdapter::activate(bool start, PluginDef *plugin) {
+    if (start) {
+	static_cast<TunerAdapter*>(plugin)->pitch_tracker.reset();
+    }
+    return 0;
 }
 
 void TunerAdapter::feed_tuner(int count, float* input, float*, PluginDef* plugin) {
