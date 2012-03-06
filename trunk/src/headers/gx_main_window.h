@@ -76,16 +76,27 @@ class Liveplay;
 
 class TunerSwitcher {
 private:
+    enum SwitcherState { normal_mode, wait_start, listening, wait_stop };
     Liveplay& lp;
     sigc::connection switcher_conn;
     sigc::connection timeout_conn;
     int current_note;
+    SwitcherState state;
+    gx_engine::GxEngineState old_engine_state;
+    int last_bank_idx;
+    int last_preset_idx;
 private:
+    void set_state(SwitcherState newstate);
     bool on_note_timeout();
+    bool on_state_timeout();
     void on_tuner_freq_changed();
+    void try_load_preset();
+    bool display_bank_key(int idx);
+    bool display_preset_key(int idx);
 public:
     TunerSwitcher(Liveplay& lp);
     void toggle();
+    void reset();
 };
 
 /****************************************************************
@@ -543,7 +554,7 @@ class MainWindow: public sigc::trackable {
 private:
     gx_ui::GxUI ui;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
-    int window_height;
+    static int window_height;
     Freezer freezer;
     PluginDict plugin_dict;
     int oldpos;

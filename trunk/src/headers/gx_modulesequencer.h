@@ -273,7 +273,7 @@ public:
  */
 
 enum GxEngineState {  // engine states set by user (ModuleSequencer set_state/get_state)
-    kEngineOff    = 0,  // mute, no output (by tuner or something might run)
+    kEngineOff    = 0,  // mute, no output (but tuner or something might run)
     kEngineOn     = 1,  // normal operation
     kEngineBypass = 2   // just some balance or level control
 };

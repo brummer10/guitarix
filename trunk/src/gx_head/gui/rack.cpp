@@ -1380,13 +1380,13 @@ void RackContainer::on_add(Widget *ch) {
 void RackContainer::add(RackBox& r, int pos) {
     pack_start(r, Gtk::PACK_SHRINK);
     increment();
+    if (config_mode) {
+	r.set_config_mode(true);
+    }
     if (main.is_loading()) {
 	return;
     }
     reorder_child(r, pos);
-    if (config_mode) {
-	r.set_config_mode(true);
-    }
     renumber();
 }
 

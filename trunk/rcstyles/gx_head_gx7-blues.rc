@@ -513,6 +513,9 @@ widget "*.ampdetails.*.*GxWheel" style:highest "always-show-value"
 
 style "justahack"
 {
-  fg[SELECTED] = {0.0, 1.0, 0.0 }
+  fg[NORMAL] = {1.0, 1.0, 1.0 }
+  fg[PRELIGHT] = {0.2, 1.0, 0.2 }
+  fg[SELECTED] = {1.0, 0.0, 0.0 }
+  fg[INSENSITIVE] = {0.4, 0.1, 0.1 }
 }
 widget "gtkmm__GtkWindow.gtkmm__GtkEventBox.gtkmm__GxPaintBox.gtkmm__GtkLabel" style:highest "justahack"

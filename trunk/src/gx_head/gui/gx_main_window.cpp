@@ -645,6 +645,7 @@ void MainWindow::on_show_rack() {
     rackv_action->set_sensitive(v);
     rackh_action->set_sensitive(v);
     rackcontainer->set_border_width(v ? 18 : 0); //FIXME (just experimental)
+    stereorackcontainer.set_visible(v);
     if (v) {
 	window_height = max(window_height, window->size_request().height);
 	//main_vpaned->child_set_property(amp_toplevel_box, "resize", true);
@@ -663,11 +664,10 @@ void MainWindow::on_show_rack() {
 	    freezer.freeze_and_size_request(window, req.width, req.height);
 	}
     } else {
+	show_plugin_bar_action->set_active(false);
 	oldpos = main_vpaned->get_position();
 	child_set_property(*main_vpaned, *amp_toplevel_box, "resize", false);
 	main_vpaned->set_position(0);
-	int wd;
-	window->get_size(wd, window_height);
 	w->hide();
 	monoampcontainer->hide();
 	monorackcontainer.hide_entries();
@@ -696,9 +696,9 @@ void MainWindow::on_rack_configuration() {
     show_plugin_bar_action->set_sensitive(!v);
     show_rack_action->set_sensitive(!v);
     tuner_action->set_sensitive(!v);
-    presets_action->set_sensitive(!v);
     compress_action->set_sensitive(!v);
     expand_action->set_sensitive(!v);
+    live_play_action->set_sensitive(!v);
     Gtk::Requisition req;
     monobox->size_request(req);
     stereorackcontainer.set_config_mode(v);
@@ -743,7 +743,6 @@ void MainWindow::on_rack_configuration() {
 
 void MainWindow::on_show_plugin_bar() {
     bool v = show_plugin_bar_action->get_active();
-    show_rack_action->set_sensitive(!v);
     if (v) {
 	show_rack_action->set_active(true);
     }
@@ -2230,11 +2229,12 @@ bool MainWindow::on_meter_button_release(GdkEventButton* ev) {
     return false;
 }
 
+int MainWindow::window_height = 0;
+
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
     : sigc::trackable(),
       ui(),
       bld(),
-      window_height(0),
       freezer(),
       plugin_dict(ui),
       oldpos(0),
@@ -2298,28 +2298,12 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 
     Gtk::AccelMap::load(options.get_builder_filepath("accels_rc"));
 
-    /*
-    ** max window size is work area reduce by arbitrary amount to
-    ** make it visually more appealing and to account for the unknown
-    ** frame size (difficult to find out, would have to query the
-    ** window mananger)
-    */
-    //window_height = std::min(600, get_current_workarea_height()-50);
-    window_height = get_current_workarea_height() - 80;
-
-    //self.pmap = ParamMap(param_fname)
-    //gtk_rc_parse(options.get_style_filepath(style_fname));
-    //gtk.rc_parse_string(styledef % style_dir);
-
-
     GuiParameter para(pmap);
+    pmap.reg_non_midi_par("system.mainwin_rack_height", &window_height, false, get_current_workarea_height() - 80, 1, 99999);
+
     const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore", "bank_combo_liststore", 0 };
     bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &ui, id_list);
-
     load_widget_pointers();
-    int width, height;
-    window->get_default_size(width, height);
-    window->set_default_size(width, window_height);
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
 
     window->signal_window_state_event().connect(
@@ -2507,6 +2491,10 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     }
     skin_changed.changed.connect(
 	sigc::mem_fun(skin_action.operator->(), &Gtk::RadioAction::set_current_value));
+
+    int width, height;
+    window->get_default_size(width, height);
+    window->set_default_size(width, window_height);
 
     // set window position (make this optional??)
     if (para.mainwin_height > 0) {
