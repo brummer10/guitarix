@@ -571,34 +571,35 @@ const char *Dsp::glade_def = "\
     <property name=\"default_width\">0</property>\n\
     <property name=\"default_height\">0</property>\n\
     <child>\n\
-      <object class=\"GtkVBox\" id=\"rackbox\">\n\
+      <object class=\"GtkVBox\" id=\"vbox12\">\n\
         <property name=\"visible\">True</property>\n\
         <property name=\"can_focus\">False</property>\n\
         <property name=\"spacing\">10</property>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"hbox7\">\n\
+          <object class=\"GtkHBox\" id=\"minibox\">\n\
+            <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">5</property>\n\
             <child>\n\
               <object class=\"GxHSlider\" id=\"gxhslider1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">True</property>\n\
                 <property name=\"receives_default\">True</property>\n\
                 <property name=\"round_digits\">0</property>\n\
-                <property name=\"var_id\">zita_rev1.output.level</property>\n\
+                <property name=\"var_id\">zita_rev1.output.dry_wet_mix</property>\n\
                 <property name=\"show_value\">False</property>\n\
                 <property name=\"value_position\">right</property>\n\
                 <property name=\"value_xalign\">0.52000000000000002</property>\n\
-                <property name=\"label_ref\">label11:rack_label</property>\n\
+                <property name=\"label_ref\">label12:rack_label</property>\n\
               </object>\n\
               <packing>\n\
                 <property name=\"expand\">False</property>\n\
                 <property name=\"fill\">False</property>\n\
-                <property name=\"padding\">5</property>\n\
                 <property name=\"position\">0</property>\n\
               </packing>\n\
             </child>\n\
             <child>\n\
-              <object class=\"GtkLabel\" id=\"label1\">\n\
+              <object class=\"GtkLabel\" id=\"label12:rack_label\">\n\
                 <property name=\"height_request\">12</property>\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
@@ -611,9 +612,6 @@ const char *Dsp::glade_def = "\
                 <property name=\"position\">1</property>\n\
               </packing>\n\
             </child>\n\
-            <child>\n\
-              <placeholder/>\n\
-            </child>\n\
           </object>\n\
           <packing>\n\
             <property name=\"expand\">True</property>\n\
@@ -622,7 +620,7 @@ const char *Dsp::glade_def = "\
           </packing>\n\
         </child>\n\
         <child>\n\
-          <object class=\"GtkVBox\" id=\"vbox12\">\n\
+          <object class=\"GtkVBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <child>\n\

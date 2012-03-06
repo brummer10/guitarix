@@ -142,8 +142,13 @@ StackBoxBuilder::~StackBoxBuilder() {
 }
 
 void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
-    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_string(xmldesc, &ui, "rackbox");
-    Gtk::Widget* w = 0;
+    const char *ids[] = { "rackbox", "minibox", 0 };
+    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_string(xmldesc, &ui, ids);
+    Gtk::Widget* w;
+    bld->find_widget("minibox", w);
+    if (w) {
+	addWidget("", w->gobj());
+    }
     bld->find_widget("rackbox", w);
     if (!w) {
         gx_system::gx_print_error("load_ui Error", "can't find widget 'rackbox'");

@@ -85,7 +85,7 @@ void TunerSwitcher::try_load_preset() {
 void TunerSwitcher::set_state(SwitcherState newstate) {
     switch (newstate) {
     case normal_mode:
-	assert(state == wait_stop);
+	lp.liveplay_preset->set_sensitive(true);
 	lp.liveplay_preset->set_state(Gtk::STATE_NORMAL);
 	break;
     case wait_start:
@@ -93,6 +93,9 @@ void TunerSwitcher::set_state(SwitcherState newstate) {
 	lp.liveplay_preset->set_sensitive(false);
 	break;
     case listening:
+	if (state == listening) {
+	    return;
+	}
 	assert(state == wait_start || state == wait_stop);
 	if (state == wait_start) {
 	    lp.liveplay_preset->set_sensitive(true);
@@ -180,20 +183,11 @@ void TunerSwitcher::on_tuner_freq_changed() {
     }
 }
 
-void TunerSwitcher::reset() {
-    if (switcher_conn.connected()) {
-	switcher_conn.disconnect();
-	timeout_conn.disconnect();
-	lp.engine.tuner.used_for_switching(false);
-	set_state(normal_mode);
-	lp.engine.set_state(old_engine_state);
+void TunerSwitcher::set_active(bool v) {
+    if (get_active() == v) {
+	return;
     }
-}
-
-void TunerSwitcher::toggle() {
-    if (switcher_conn.connected()) {
-	reset();
-    } else {
+    if (v) {
 	bool running = lp.engine.tuner.plugin.on_off;
 	lp.engine.tuner.used_for_switching(true);
 	state = wait_start;
@@ -205,8 +199,15 @@ void TunerSwitcher::toggle() {
 	if (running) {
 	    on_tuner_freq_changed();
 	}
+    } else {
+	switcher_conn.disconnect();
+	timeout_conn.disconnect();
+	lp.engine.tuner.used_for_switching(false);
+	set_state(normal_mode);
+	lp.engine.set_state(old_engine_state);
     }
 }
+
 
 /****************************************************************
  ** class Liveplay
@@ -301,6 +302,16 @@ bool Liveplay::on_keyboard_mode_switch(GtkAccelGroup *accel_group, GObject *acce
     return true;
 }
 
+void Liveplay::on_switcher_toggled(bool v) {
+    if (true) {
+	tuner_switcher.set_active(v);
+    } else {
+	if (v) {
+	    tuner_switcher.toggle();
+	}
+    }
+}
+
 bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *acceleratable,
 				       guint keyval, GdkModifierType modifier, Liveplay& self) {
     if (keyval == GDK_KEY_Left || keyval == GDK_KEY_Right) {
@@ -340,7 +351,8 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine
       last_bank_key(),
       midi_conn(),
       window(),
-      tuner_switcher(*this) {
+      tuner_switcher(*this),
+      switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()) { //FIXME
     const char *id_list[] = {"LivePlay", 0};
     bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
     bld->get_toplevel("LivePlay", window);
@@ -436,6 +448,7 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_mode_switch), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_space, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+    switcher_signal.changed.connect(sigc::mem_fun(this, &Liveplay::on_switcher_toggled));
     
     window->add_accel_group(ag);
 
@@ -486,7 +499,7 @@ void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
 	    key_timeout.disconnect();
 	    on_selection_changed();
 	}
-	tuner_switcher.reset();
+	tuner_switcher.set_active(false);
 	window->hide();
     }
 }

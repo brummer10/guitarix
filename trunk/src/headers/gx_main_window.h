@@ -95,8 +95,9 @@ private:
     bool display_preset_key(int idx);
 public:
     TunerSwitcher(Liveplay& lp);
-    void toggle();
-    void reset();
+    bool get_active() { return switcher_conn.connected(); }
+    void set_active(bool v);
+    void toggle() { set_active(!get_active()); }
 };
 
 /****************************************************************
@@ -117,6 +118,7 @@ private:
     sigc::connection midi_conn;
     Gtk::Window *window;
     TunerSwitcher tuner_switcher;
+    gx_ui::UiSignal<bool> switcher_signal;
     //
     Gtk::Image *bypass_image;
     Gtk::Image *mute_image;
@@ -159,6 +161,7 @@ private:
     static bool on_keyboard_mode_switch(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
+    void on_switcher_toggled(bool v);
     friend class TunerSwitcher;
 public:
     Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine, gx_preset::GxSettings& gx_settings,
@@ -765,6 +768,7 @@ private:
     bool on_meter_button_release(GdkEventButton* ev);
     void show_selected_preset();
     void on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act);
+    void set_switcher_controller();
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();
