@@ -33,17 +33,12 @@
 namespace gx_engine {
 
 // downsampling factor
-const int DOWNSAMPLE = 2;
-// Value of the threshold above which
-// the processing is activated.
-const float SIGNAL_THRESHOLD_ON = 0.001;
-// Value of the threshold below which
-// the input audio signal is deactivated.
-const float SIGNAL_THRESHOLD_OFF = 0.0009;
-// Time between frequency estimates (in seconds)
-const float TRACKER_PERIOD = 0.1;
+static const int DOWNSAMPLE = 2;
+static const float SIGNAL_THRESHOLD_ON = 0.001;
+static const float SIGNAL_THRESHOLD_OFF = 0.0009;
+static const float TRACKER_PERIOD = 0.1;
 // The size of the read buffer
-const int FFT_SIZE = 2048;
+static const int FFT_SIZE = 2048;
 
 
 void *PitchTracker::static_run(void *p) {
@@ -58,7 +53,10 @@ PitchTracker::PitchTracker()
       m_pthr(0),
       resamp(),
       m_sampleRate(),
-      m_freq(),
+      m_freq(-1),
+      signal_threshold_on(SIGNAL_THRESHOLD_ON),
+      signal_threshold_off(SIGNAL_THRESHOLD_OFF),
+      tracker_period(TRACKER_PERIOD),
       m_buffersize(),
       m_fftSize(),
       m_buffer(new float[FFT_SIZE]),
@@ -96,6 +94,17 @@ PitchTracker::~PitchTracker() {
     delete[] m_buffer;
 }
 
+void PitchTracker::set_fast_note_detection(bool v) {
+    if (v) {
+	signal_threshold_on = SIGNAL_THRESHOLD_ON * 5;
+	signal_threshold_off = SIGNAL_THRESHOLD_OFF * 5;
+	tracker_period = TRACKER_PERIOD / 10;
+    } else {
+	signal_threshold_on = SIGNAL_THRESHOLD_ON;
+	signal_threshold_off = SIGNAL_THRESHOLD_OFF;
+	tracker_period = TRACKER_PERIOD;
+    }
+}
 
 bool PitchTracker::setParameters(int priority, int policy, int sampleRate, int buffersize) {
     assert(buffersize <= FFT_SIZE);
@@ -158,6 +167,13 @@ void PitchTracker::init(int priority, int policy, unsigned int samplerate) {
     setParameters(priority, policy, samplerate, FFT_SIZE);
 }
 
+void PitchTracker::reset() {
+    tick = 0;
+    m_bufferIndex = 0;
+    resamp.reset();
+    m_freq = -1;
+}
+
 void PitchTracker::add(int count, float* input) {
     if (error) {
         return;
@@ -178,7 +194,7 @@ void PitchTracker::add(int count, float* input) {
             break;
         }
     }
-    if (++tick * count >= m_sampleRate * DOWNSAMPLE * TRACKER_PERIOD) {
+    if (++tick * count >= m_sampleRate * DOWNSAMPLE * tracker_period) {
         if (busy) {
             return;
         }
@@ -299,7 +315,7 @@ void PitchTracker::run() {
         for (int k = 0; k < m_buffersize; ++k) {
             sum += fabs(m_input[k]);
         }
-        float threshold = (m_audioLevel ? SIGNAL_THRESHOLD_OFF : SIGNAL_THRESHOLD_ON);
+        float threshold = (m_audioLevel ? signal_threshold_off : signal_threshold_on);
         m_audioLevel = (sum / m_buffersize >= threshold);
         if ( m_audioLevel == false ) {
 	    if (m_freq != 0) {
@@ -358,7 +374,7 @@ void PitchTracker::run() {
 }
 
 float PitchTracker::get_estimated_note() {
-    return m_freq == 0.0 ? 1000.0 : 12 * log2f(2.272727e-03f * m_freq);
+    return m_freq <= 0.0 ? 1000.0 : 12 * log2f(2.272727e-03f * m_freq);
 }
 
 }

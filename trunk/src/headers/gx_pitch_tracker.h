@@ -37,6 +37,8 @@ class PitchTracker {
     float           get_estimated_freq() { return m_freq; }
     float           get_estimated_note();
     void            stop_thread();
+    void            reset();
+    void            set_fast_note_detection(bool v);
     Glib::Dispatcher new_freq;
  private:
     bool            setParameters(int priority, int policy, int sampleRate, int fftSize );
@@ -52,6 +54,14 @@ class PitchTracker {
     Resampler       resamp;
     int             m_sampleRate;
     float           m_freq;
+    // Value of the threshold above which
+    // the processing is activated.
+    float           signal_threshold_on;
+    // Value of the threshold below which
+    // the input audio signal is deactivated.
+    float           signal_threshold_off;
+    // Time between frequency estimates (in seconds)
+    float           tracker_period;
     // number of samples in input buffer
     int             m_buffersize;
     // Size of the FFT window.
