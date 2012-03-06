@@ -34,7 +34,7 @@ class PitchTracker {
     ~PitchTracker();
     void            init(int priority, int policy, unsigned int samplerate);
     void            add(int count, float *input);
-    float           get_estimated_freq() { return m_freq; }
+    float           get_estimated_freq() { return m_freq < 0 ? 0 : m_freq; }
     float           get_estimated_note();
     void            stop_thread();
     void            reset();

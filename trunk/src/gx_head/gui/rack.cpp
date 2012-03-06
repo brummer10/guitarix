@@ -326,8 +326,10 @@ bool DragIcon::window_expose_event(GdkEventExpose *event, Gtk::OffscreenWindow& 
 	widget.propagate_expose(*child, event);
     }
     Cairo::RefPtr<Cairo::Surface> x_surf = cr->get_target();
-    int w = gdk_window_get_width(event->window);
-    int h = gdk_window_get_height(event->window);
+    //int w = gdk_window_get_width(event->window);  gtk 2.24
+    //int h = gdk_window_get_height(event->window);
+    int w, h;
+    gdk_drawable_get_size(event->window, &w, &h);
     Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(w, 0, w-gradient_length, 0);
     grad->add_color_stop_rgba(0, 1, 1, 1, 1);
     grad->add_color_stop_rgba(1, 1, 1, 1, 0);

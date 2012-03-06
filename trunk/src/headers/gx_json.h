@@ -160,7 +160,7 @@ public:
     bool is_equal() const { return is_current() && gx_version == file_gx_version; }
     string display() const { ostringstream s; s << file_major << "." << file_minor << "." << file_gx_version; return s.str(); }
     Glib::ustring version_string() const { return Glib::ustring::compose("%1.%2", file_major, file_minor); }
-    inline Glib::ustring current_version_string() const { return Glib::ustring::compose("%1.%2", major, minor); }
+    inline Glib::ustring current_version_string() const { return Glib::ustring::compose("%1.%2", int(major), int(minor)); }
     static bool make_empty_settingsfile(const string& name);
     static void write_current_major_minor(JsonWriter& jw);
     void write_major_minor(JsonWriter& jw);

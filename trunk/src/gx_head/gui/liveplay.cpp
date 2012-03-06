@@ -28,14 +28,24 @@
  */
 
 static const int no_note = 1000;
+static const int bad_note = 1002;
 
 inline bool is_no_note(float n) {
-    return n > no_note - 1;
+    return abs(n - no_note) < 1;
 }
 
 TunerSwitcher::TunerSwitcher(Liveplay &lp_)
-    : lp(lp_), switcher_conn(), timeout_conn(), current_note(),
-      state(normal_mode), old_engine_state(), last_bank_idx(), last_preset_idx() {
+    : lp(lp_),
+      switcher_conn(),
+      timeout_conn(),
+      current_note(),
+      state(normal_mode),
+      old_engine_state(),
+      new_engine_state(),
+      old_tuner_active(),
+      new_tuner_active(),
+      last_bank_idx(),
+      last_preset_idx() {
 }
 
 bool TunerSwitcher::display_bank_key(int idx) {
@@ -67,35 +77,45 @@ bool TunerSwitcher::display_preset_key(int idx) {
 
 void TunerSwitcher::try_load_preset() {
     if (state == wait_stop) {
-	Glib::ustring bank = lp.gx_settings.banks.get_name(last_bank_idx);
-	if (!bank.empty()) {
-	    gx_system::PresetFile *f = lp.gx_settings.banks.get_file(bank);
-	    if (last_preset_idx < f->size()) {
-		Glib::ustring preset = f->get_name(last_preset_idx);
-		if (preset != lp.gx_settings.get_current_name() || bank != lp.gx_settings.get_current_bank()) {
-		    lp.gx_settings.load_preset(f, preset);
-		    return;
+	switch (last_bank_idx) {
+	case mute_on:    new_engine_state = gx_engine::kEngineOff;    break;
+	case mute_off:   new_engine_state = gx_engine::kEngineOn;     break;
+	case bypass_on:  new_engine_state = gx_engine::kEngineBypass; break;
+	case bypass_off: new_engine_state = gx_engine::kEngineOn;     break;
+	case tuner_on:   new_tuner_active = true;  break;
+	case tuner_off:  new_tuner_active = false; break;
+	default:
+	    Glib::ustring bank = lp.gx_settings.banks.get_name(last_bank_idx);
+	    if (!bank.empty()) {
+		gx_system::PresetFile *f = lp.gx_settings.banks.get_file(bank);
+		if (last_preset_idx < f->size()) {
+		    Glib::ustring preset = f->get_name(last_preset_idx);
+		    if (preset != lp.gx_settings.get_current_name() || bank != lp.gx_settings.get_current_bank()) {
+			lp.gx_settings.load_preset(f, preset);
+			return;
+		    }
 		}
 	    }
+	    break;
 	}
     }
     lp.on_selection_changed();
 }
 
 void TunerSwitcher::set_state(SwitcherState newstate) {
+    if (state == newstate) {
+	return;
+    }
     switch (newstate) {
     case normal_mode:
 	lp.liveplay_preset->set_sensitive(true);
 	lp.liveplay_preset->set_state(Gtk::STATE_NORMAL);
 	break;
     case wait_start:
-	assert(state = normal_mode);
+	assert(state == normal_mode);
 	lp.liveplay_preset->set_sensitive(false);
 	break;
     case listening:
-	if (state == listening) {
-	    return;
-	}
 	assert(state == wait_start || state == wait_stop);
 	if (state == wait_start) {
 	    lp.liveplay_preset->set_sensitive(true);
@@ -122,6 +142,33 @@ bool TunerSwitcher::on_note_timeout() {
 	} else {
 	    set_state(listening);
 	}
+    } else if (current_note == -25) {
+	if (old_engine_state != gx_engine::kEngineOff) {
+	    lp.liveplay_preset->set_text("MUTE");
+	    last_bank_idx = mute_on;
+	} else {
+	    lp.liveplay_preset->set_text("UNMUTE");
+	    last_bank_idx = mute_off;
+	}
+	set_state(wait_stop);
+    } else if (current_note == -26) {
+	if (old_engine_state != gx_engine::kEngineBypass) {
+	    lp.liveplay_preset->set_text("BYPASS");
+	    last_bank_idx = bypass_on;
+	} else {
+	    lp.liveplay_preset->set_text("BYPASS OFF");
+	    last_bank_idx = bypass_off;
+	}
+	set_state(wait_stop);
+    } else if (current_note < 26) {
+	if (!old_tuner_active) {
+	    lp.liveplay_preset->set_text("TUNER ON");
+	    last_bank_idx = tuner_on;
+	} else {
+	    lp.liveplay_preset->set_text("TUNER OFF");
+	    last_bank_idx = tuner_off;
+	}
+	set_state(wait_stop);
     }
     return false;
 }
@@ -135,7 +182,7 @@ bool TunerSwitcher::on_state_timeout() {
     } else {
 	assert(state == wait_stop);
 	try_load_preset();
-	toggle();
+	set_active(false);
     }
     return false;
 }
@@ -155,8 +202,15 @@ void TunerSwitcher::on_tuner_freq_changed() {
 	    timeout_conn.disconnect();
 	}
 	return;
-    } else if (state == wait_stop) {
+    }
+    if (abs(current_note - note) < precision) {
+	return;
+    }
+    if (state == wait_stop) {
 	if (is_no_note(note)) {
+	    if (!is_no_note(current_note)) {
+		timeout_conn.disconnect();
+	    }
 	    if (!timeout_conn.connected()) {
 		current_note = no_note;
 		timeout_conn = Glib::signal_timeout().connect(
@@ -165,9 +219,6 @@ void TunerSwitcher::on_tuner_freq_changed() {
 	    }
 	    return;
 	}
-    }
-    if (abs(current_note - note) < precision) {
-	return;
     }
     timeout_conn.disconnect();
     float n = round(note);
@@ -179,7 +230,7 @@ void TunerSwitcher::on_tuner_freq_changed() {
 		40);
 	}
     } else {
-	current_note = no_note;
+	current_note = bad_note;
     }
 }
 
@@ -191,8 +242,10 @@ void TunerSwitcher::set_active(bool v) {
 	bool running = lp.engine.tuner.plugin.on_off;
 	lp.engine.tuner.used_for_switching(true);
 	state = wait_start;
-	old_engine_state = lp.engine.get_state();
+	new_engine_state = old_engine_state = lp.engine.get_state();
 	lp.engine.set_state(gx_engine::kEngineOff);
+	new_tuner_active = old_tuner_active = lp.livetuner_action->get_active();
+	lp.livetuner_action->set_active(false);
 	lp.liveplay_preset->set_sensitive(false);
 	switcher_conn = lp.engine.tuner.signal_freq_changed().connect(
 	    sigc::mem_fun(this, &TunerSwitcher::on_tuner_freq_changed));
@@ -204,7 +257,8 @@ void TunerSwitcher::set_active(bool v) {
 	timeout_conn.disconnect();
 	lp.engine.tuner.used_for_switching(false);
 	set_state(normal_mode);
-	lp.engine.set_state(old_engine_state);
+	lp.engine.set_state(new_engine_state);
+	lp.livetuner_action->set_active(new_tuner_active);
     }
 }
 
@@ -303,7 +357,7 @@ bool Liveplay::on_keyboard_mode_switch(GtkAccelGroup *accel_group, GObject *acce
 }
 
 void Liveplay::on_switcher_toggled(bool v) {
-    if (true) {
+    if (false) {
 	tuner_switcher.set_active(v);
     } else {
 	if (v) {
@@ -338,8 +392,10 @@ bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *accelerat
     return true;
 }
 
-Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
-		   const std::string& fname, Glib::RefPtr<Gtk::ActionGroup>& actiongroup, Glib::RefPtr<UiBoolToggleAction>& livetuner_action)
+Liveplay::Liveplay(
+    const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
+    const std::string& fname, Glib::RefPtr<Gtk::ActionGroup>& actiongroup,
+    Glib::RefPtr<UiBoolToggleAction>& livetuner_action_)
     : ui(),
       bld(),
       engine(engine_),
@@ -352,7 +408,8 @@ Liveplay::Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine
       midi_conn(),
       window(),
       tuner_switcher(*this),
-      switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()) { //FIXME
+      switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()), //FIXME
+      livetuner_action(livetuner_action_) {
     const char *id_list[] = {"LivePlay", 0};
     bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
     bld->get_toplevel("LivePlay", window);
@@ -507,7 +564,8 @@ void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
 bool Liveplay::window_expose_event(GdkEventExpose *event) {
     Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
     Gtk::Allocation a = liveplay_canvas->get_allocation();
-    gdk_cairo_set_source_window(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y());
+    //gdk_cairo_set_source_window(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y()); gtk 2.24
+    gdk_cairo_set_source_pixmap(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y());
     Gdk::Region region(a);
     region.intersect(Glib::wrap(event->region, true));
     Gdk::Cairo::add_region_to_path(cr, region);

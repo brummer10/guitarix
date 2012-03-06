@@ -141,7 +141,7 @@ void TunerAdapter::set_and_check(int use, bool on) {
 }
 
 int TunerAdapter::activate(bool start, PluginDef *plugin) {
-    if (start) {
+    if (!start) {
 	static_cast<TunerAdapter*>(plugin)->pitch_tracker.reset();
     }
     return 0;

@@ -319,9 +319,9 @@ void PitchTracker::run() {
         m_audioLevel = (sum / m_buffersize >= threshold);
         if ( m_audioLevel == false ) {
 	    if (m_freq != 0) {
+		m_freq = 0;
 		new_freq();
 	    }
-	    m_freq = 0;
             continue;
         }
 
@@ -367,9 +367,9 @@ void PitchTracker::run() {
             }
         }
 	if (m_freq != x) {
-		new_freq();
-	    }
-	m_freq = x;
+	    m_freq = x;
+	    new_freq();
+	}
     }
 }
 

@@ -77,12 +77,23 @@ class Liveplay;
 class TunerSwitcher {
 private:
     enum SwitcherState { normal_mode, wait_start, listening, wait_stop };
+    enum SwitcherActions {
+	mute_on    = -1,
+	mute_off   = -2,
+	bypass_on  = -3,
+	bypass_off = -4,
+	tuner_on   = -5,
+	tuner_off  = -6,
+    };
     Liveplay& lp;
     sigc::connection switcher_conn;
     sigc::connection timeout_conn;
     int current_note;
     SwitcherState state;
     gx_engine::GxEngineState old_engine_state;
+    gx_engine::GxEngineState new_engine_state;
+    bool old_tuner_active;
+    bool new_tuner_active;
     int last_bank_idx;
     int last_preset_idx;
 private:
@@ -119,6 +130,7 @@ private:
     Gtk::Window *window;
     TunerSwitcher tuner_switcher;
     gx_ui::UiSignal<bool> switcher_signal;
+    Glib::RefPtr<UiBoolToggleAction>& livetuner_action;
     //
     Gtk::Image *bypass_image;
     Gtk::Image *mute_image;
