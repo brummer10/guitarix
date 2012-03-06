@@ -13,8 +13,7 @@ style "gx_dezert_skin_icons"
   stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
   stock["smallknobr"] = {{"tactile_knob_medium_151f.png"}}
   
-  GxPaintBox::icon-set =1
-  stock["gxhead"] = {{"gxhead.png"}}
+
 }
 
 class "*GxKnob" style "gx_dezert_skin_icons"
@@ -73,7 +72,8 @@ GxPaintBox::skin-gradient = {
   GxPaintBox::width =600
   GxPaintBox::height =180
   stock["main_image"] = {{"gx-dezert_18.png"}}
-  stock["gxhead"] = {{"gxhead.png"}}
+  stock["gxhead"] = {{"gx-dezert_18.png"}}
+  GxPaintBox::icon-set =3
 }
 class "*GxPaintBox" style "gx_dezert-paintbox"
 

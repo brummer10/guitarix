@@ -415,6 +415,16 @@ file = "cairo1.jpg"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
+image
+{
+function = BOX
+recolorable = TRUE
+state = INSENSITIVE
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
 }
 fg[NORMAL] = { 0.9, 0.9, 0.9 }
 fg[ACTIVE] = { 0.7, 0.7, 0.7 }
