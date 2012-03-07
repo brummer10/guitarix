@@ -526,8 +526,17 @@ GxSettings::~GxSettings() {
 }
 
 void GxSettings::auto_save_state() {
-    if (state_loaded && !no_autosave) {
-	save_to_state();
+    if (state_loaded) {
+	if (setting_is_preset()) {
+	    gx_system::PresetFile *pf = get_current_bank_file();
+	    if (pf->get_type() == gx_system::PresetFile::PRESET_SCRATCH &&
+		!pf->get_flags()) {
+		save(*pf, current_name);
+	    }
+	}
+	if (!no_autosave) {
+	    save_to_state();
+	}
     }
 }
 
