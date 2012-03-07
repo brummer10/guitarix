@@ -509,7 +509,8 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       bank_parameter(*param.reg_string("system.current_bank", "?", &current_bank, "")) {
     set_io(&state_io, &preset_io);
     statefile.set_filename(make_default_state_filename());
-    banks.parse(opt.get_user_filepath(bank_list), opt.get_preset_dir(), opt.get_factory_dir());
+    banks.parse(opt.get_user_filepath(bank_list), opt.get_preset_dir(), opt.get_factory_dir(),
+		scratchpad_name, scratchpad_file);
     instance = this;
     gx_system::GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxSettings::exit_handler));
@@ -595,9 +596,15 @@ bool GxSettings::check_create_config_dir(const Glib::ustring& dir) {
     return false;
 }
 
-bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
+void GxSettings::create_default_scratch_preset() {
+    save(*banks.get_file(scratchpad_name), "livebuffer1");
+}
+
+//static
+bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_new_preset) {
     bool copied_from_old = false;
     std::string oldpreset;
+    *need_new_preset = false;
     if (check_create_config_dir(opt.get_user_dir())) {
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
@@ -637,6 +644,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {
 	    throw gx_system::GxFatalError(
 		boost::format(_("can't create file in '%1%' !!??")) % opt.get_preset_dir());
 	}
+	*need_new_preset = true;
     }
     fname = opt.get_user_filepath(bank_list);
     if (access(fname.c_str(), R_OK) != 0) {

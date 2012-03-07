@@ -353,7 +353,8 @@ int main(int argc, char *argv[]) {
 	options.process(argc, argv);
 
 	// ---------------- Check for working user directory  -------------
-	if (gx_preset::GxSettings::check_settings_dir(options)) {
+	bool need_new_preset;
+	if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
 	    Gtk::MessageDialog dialog(
 		_("old config directory found (.gx_head)."
 		  " state file and standard presets file have been copied to"
@@ -383,7 +384,9 @@ int main(int argc, char *argv[]) {
 #endif
 	// ----------------------- init GTK interface----------------------
 	MainWindow gui(engine, options, gx_engine::parameter_map);
-
+	if (need_new_preset) {
+	    gui.create_default_scratch_preset();
+	}
 	// ----------------------- run GTK main loop ----------------------
 	delete Splash;
 	gui.run();

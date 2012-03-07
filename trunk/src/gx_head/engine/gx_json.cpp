@@ -865,7 +865,12 @@ const Glib::ustring& PresetFile::get_name(int n) {
 }
 
 int PresetFile::get_index(const Glib::ustring& name) {
-    reopen();
+    try {
+	reopen();
+    } catch (gx_system::JsonException& e) {
+	// will be reported elsewhere
+	return -1;
+    }
     for (int i = 0; i < size(); i++) {
 	if (name == entries[i].name) {
 	    return i;
@@ -1136,12 +1141,13 @@ bool PresetBanks::check_reparse() {
 }
 
 void PresetBanks::parse(const std::string& bank_path, const std::string& preset_dir_,
-			const std::string& factory_dir) {
+			const std::string& factory_dir, const char* scratchpad_name,
+			const char* scratchpad_file) {
     filepath = bank_path;
     preset_dir = preset_dir_;
     banklist.clear();
     parse_bank_list(banklist.end());
-    collect_lost_banks();
+    collect_lost_banks(scratchpad_name, scratchpad_file);
     parse_factory_list(factory_dir);
 }
 
@@ -1262,7 +1268,7 @@ bool PresetBanks::has_file(const std::string& file) const {
     return false;
 }
 
-void PresetBanks::collect_lost_banks() {
+void PresetBanks::collect_lost_banks(const char* scratchpad_name, const char* scratchpad_file) {
     Glib::RefPtr<Gio::FileEnumerator> en = Gio::File::create_for_path(
 	preset_dir)->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME);
     while (true) {
@@ -1278,12 +1284,18 @@ void PresetBanks::collect_lost_banks() {
 	if (has_file(path)) {
 	    continue;
 	}
-	strip_preset_postfix(n);
-	Glib::ustring nm = decode_filename(n);
-	make_valid_utf8(nm);
-	make_bank_unique(nm);
 	PresetFile *f = new PresetFile();
-	f->open_file(nm, path, PresetFile::PRESET_FILE, 0);
+	if (n == scratchpad_file) {
+	    Glib::ustring nm = scratchpad_name;
+	    make_bank_unique(nm);
+	    f->open_file(nm, path, PresetFile::PRESET_SCRATCH, 0);
+	} else {
+	    strip_preset_postfix(n);
+	    Glib::ustring nm = decode_filename(n);
+	    make_valid_utf8(nm);
+	    make_bank_unique(nm);
+	    f->open_file(nm, path, PresetFile::PRESET_FILE, 0);
+	}
 	insert(f);
     }
 }

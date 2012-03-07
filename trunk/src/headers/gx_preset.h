@@ -115,11 +115,12 @@ public:
 	       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl,
 	       gx_engine::ModuleSequencer& seq, gx_engine::ParamMap& param);
     ~GxSettings();
-    static bool check_settings_dir(gx_system::CmdlineOptions& opt);
+    static bool check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_new_preset);
     void loadstate();
     void disable_autosave(bool v) { no_autosave = v; }
     void auto_save_state();
     Glib::RefPtr<PluginPresetList> load_plugin_preset_list(const Glib::ustring& id);
+    void create_default_scratch_preset();
 };
 
 /* --------------------------------------------------------------------- */

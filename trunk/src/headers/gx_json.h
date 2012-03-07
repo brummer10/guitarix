@@ -303,7 +303,7 @@ private:
     std::string preset_dir;
     void parse_factory_list(const std::string& path);
     void parse_bank_list(bl_type::iterator pos);
-    void collect_lost_banks();
+    void collect_lost_banks(const char* scratchpad_name, const char* scratchpad_file);
 public:
     class iterator {
     private:
@@ -319,7 +319,7 @@ public:
     ~PresetBanks();
     bool check_reparse();
     void parse(const std::string& bank_path, const std::string& preset_dir,
-	       const std::string& factory_path);
+	       const std::string& factory_path, const char* scratchpad_name, const char* scratchpad_file);
     PresetFile* get_file(const Glib::ustring& bank) const;
     int get_index(const Glib::ustring& bank) const;
     iterator begin() { return iterator(banklist.begin()); }
