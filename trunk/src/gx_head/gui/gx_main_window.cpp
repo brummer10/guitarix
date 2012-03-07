@@ -343,6 +343,10 @@ void Freezer::thaw() {
     if (!win) {
 	return;
     }
+    if (!work.empty()) {
+	Glib::signal_idle().connect_once(work);
+	work.disconnect();
+    }
     win->thaw_updates();
 }
 
@@ -470,9 +474,9 @@ GuiParameter::GuiParameter(gx_engine::ParamMap& pmap) {
     //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
 
     show_plugin_bar = pmap.reg_switch("system.show_toolbar", false, false);
-    presets = pmap.reg_switch("system.show_presets", false, false);
-    show_rack = pmap.reg_switch("system.show_rack", false, true);
-    order_rack_v = pmap.reg_switch("system.order_rack_v", false, true);
+    presets = pmap.reg_switch("system.show_presets", false, true);
+    show_rack = pmap.reg_switch("system.show_rack", false, false);
+    order_rack_v = pmap.reg_switch("system.order_rack_h", false, false);
     tuner = pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false);
     animations = pmap.reg_non_midi_par("system.animations", (bool*)0, false, true);
     show_values = pmap.reg_switch("system.show_value", false, true);
@@ -498,7 +502,7 @@ void update_scrolled_window(Gtk::ScrolledWindow& w) {
 int MainWindow::skin = -1;
 bool MainWindow::no_warn_latency;
 
-void MainWindow::maybe_shrink_horizontally() {
+void MainWindow::maybe_shrink_horizontally(bool preset_no_rack) {
     Glib::RefPtr<Gdk::Window> w = window->get_window();
     if (!w) {
 	return;
@@ -515,7 +519,12 @@ void MainWindow::maybe_shrink_horizontally() {
     geom.min_width = req.width;
     geom.min_height = req.height;
     w->set_geometry_hints(geom, Gdk::HINT_MIN_SIZE);
-    w->move_resize(x, y, req.width, std::max(req.height, window_height));
+    if (preset_no_rack) {
+	req.height += preset_window_height - preset_scrolledbox->size_request().height;
+    } else {
+	req.height = std::max(req.height, window_height);
+    }
+    w->move_resize(x, y, req.width, req.height);
     if (!state) {
 	freezer.freeze_until_width_update(window, req.width);
     }
@@ -546,12 +555,14 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("monobox", monobox);
     bld->find_widget("upper_rackbox", upper_rackbox);
     bld->find_widget("preset_scrolledbox", preset_scrolledbox);
+    bld->find_widget("preset_box_no_rack", preset_box_no_rack);
     bld->find_widget("effects_frame_paintbox", effects_frame_paintbox);
     bld->find_widget("status_image", status_image);
     bld->find_widget("jackd_image", jackd_image);
     bld->find_widget("logstate_image", logstate_image);
     bld->find_widget("menubox", menubox);
     bld->find_widget("show_rack:barbutton", show_rack_button);
+    bld->find_widget("rack_order_h:barbutton", rack_order_h_button);
     bld->find_widget("config_mode:barbutton", config_mode_button);
     bld->find_widget("liveplay:barbutton", liveplay_button);
     bld->find_widget("tuner:barbutton", tuner_button);
@@ -588,9 +599,10 @@ void MainWindow::show_selected_preset() {
     preset_status->set_text(t);
     if (!preset_list_menu_bank.empty()) {
 	if (gx_settings.setting_is_preset() && preset_list_menu_bank == gx_settings.get_current_bank()) {
-	    select_preset_action->set_current_value(
-		gx_settings.get_current_bank_file()->get_index(
-		    gx_settings.get_current_name()));
+	    int i = gx_settings.get_current_bank_file()->get_index(gx_settings.get_current_name());
+	    if (i >= 0 && select_preset_action) {
+		select_preset_action->set_current_value(i);
+	    }
 	    return;
 	}
 	if (preset_list_merge_id) {
@@ -604,13 +616,17 @@ void MainWindow::show_selected_preset() {
 	preset_list_actiongroup.reset();
 	return;
     }
+    gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
+    if (!pf) {
+	return;
+    }
     preset_list_actiongroup = Gtk::ActionGroup::create("PresetList");
     preset_list_menu_bank = gx_settings.get_current_bank();
     Glib::ustring s = "<menubar><menu action=\"PresetsMenu\"><menu action=\"PresetListMenu\">";
-    gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
     Gtk::RadioButtonGroup pg;
     int idx = 0;
     char c = '1';
+    select_preset_action.reset();
     for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i) {
 	Glib::ustring actname = "PresetList_" + i->name;
 	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(pg, actname, i->name);
@@ -628,10 +644,14 @@ void MainWindow::show_selected_preset() {
     s += "</menu></menu></menubar>";
     uimanager->insert_action_group(preset_list_actiongroup);
     preset_list_merge_id = uimanager->add_ui_from_string(s);
-    select_preset_action->set_current_value(
-	pf->get_index(gx_settings.get_current_name()));
-    select_preset_action->signal_changed().connect(
-	sigc::mem_fun(*this, &MainWindow::on_select_preset));
+    int i = pf->get_index(gx_settings.get_current_name());
+    if (select_preset_action) {
+	if (i >= 0) {
+	    select_preset_action->set_current_value(i);
+	}
+	select_preset_action->signal_changed().connect(
+	    sigc::mem_fun(*this, &MainWindow::on_select_preset));
+    }
     dynamic_cast<Gtk::MenuItem*>(uimanager->get_widget("/menubar/PresetsMenu/PresetListMenu"))->set_label(_("_Bank: ")+preset_list_menu_bank);
 }
 
@@ -651,6 +671,11 @@ void MainWindow::maybe_change_resizable() {
     }
 }
 
+void MainWindow::set_vpaned_handle() {
+    int pos = main_vpaned->get_allocation().get_height() - preset_window_height - main_vpaned->get_handle_window()->get_height();
+    main_vpaned->set_position(pos);
+}
+
 void MainWindow::on_show_rack() {
     Gtk::Widget *w;
     if (rackbox_stacked_vertical()) {
@@ -663,35 +688,62 @@ void MainWindow::on_show_rack() {
     rackh_action->set_sensitive(v);
     rackcontainer->set_border_width(v ? 18 : 0); //FIXME (just experimental)
     stereorackcontainer.set_visible(v);
+    rack_order_h_button->set_visible(v);
+    compress_button->set_visible(v);
+    expand_button->set_visible(v);
+    if (presets_action->get_active()) {
+	preset_window_height = preset_scrolledbox->get_allocation().get_height();
+    }
     if (v) {
 	window_height = max(window_height, window->size_request().height);
 	//main_vpaned->child_set_property(amp_toplevel_box, "resize", true);
-	child_set_property(*main_vpaned, *amp_toplevel_box, "resize", true);
+	//child_set_property(*main_vpaned, *amp_toplevel_box, "resize", true);
 	main_vpaned->set_position(oldpos);
 	w->show();
 	monoampcontainer->show();
 	monorackcontainer.show_entries();
 	vrack_scrolledbox->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
 	vrack_scrolledbox->set_size_request(scrl_size_x, scrl_size_y);
+	if (preset_scrolledbox->get_parent() != main_vpaned) {
+	    preset_box_no_rack->remove(*preset_scrolledbox);
+	    main_vpaned->add(*preset_scrolledbox);
+	    change_expand(*preset_box_no_rack, false);
+	    change_expand(*main_vpaned, true);
+	}
+	child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
 	Glib::RefPtr<Gdk::Window> win = window->get_window();
 	if (!win || win->get_state() == 0) {
 	    Gtk::Requisition req;
 	    window->size_request(req);
 	    req.height = max(req.height, window_height);
 	    freezer.freeze_and_size_request(window, req.width, req.height);
+	    if (win && presets_action->get_active()) {
+		freezer.set_slot(sigc::mem_fun(this, &MainWindow::set_vpaned_handle));
+	    }
 	}
     } else {
 	show_plugin_bar_action->set_active(false);
 	oldpos = main_vpaned->get_position();
-	child_set_property(*main_vpaned, *amp_toplevel_box, "resize", false);
-	main_vpaned->set_position(0);
+	//child_set_property(*main_vpaned, *amp_toplevel_box, "resize", false);
+	//main_vpaned->set_position(-1);
 	w->hide();
 	monoampcontainer->hide();
 	monorackcontainer.hide_entries();
+	if (preset_scrolledbox->get_parent() == main_vpaned) {
+	    main_vpaned->remove(*preset_scrolledbox);
+	    preset_box_no_rack->add(*preset_scrolledbox);
+	    change_expand(*main_vpaned, false);
+	    change_expand(*preset_box_no_rack, true);
+	}
+	preset_box_no_rack->set_visible(presets_action->get_active());
 	vrack_scrolledbox->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_NEVER);
 	vrack_scrolledbox->get_size_request(scrl_size_x, scrl_size_y);
 	vrack_scrolledbox->set_size_request(-1,-1);
-	maybe_shrink_horizontally();
+	if (presets_action->get_active()) {
+	    maybe_shrink_horizontally(true);
+	} else {
+	    maybe_shrink_horizontally();
+	}
     }
     maybe_change_resizable();
 }
@@ -724,7 +776,6 @@ void MainWindow::on_rack_configuration() {
     if (v) {
 	pre_act = presets_action->get_active();
 	if (pre_act) {
-	    preset_scrolledbox->hide();
 	    presets_action->set_active(false);
 	}
 	show_rack_action->set_active(true);
@@ -742,14 +793,14 @@ void MainWindow::on_rack_configuration() {
 	}
 	monobox->set_size_request(width,-1);
     } else {
-	if (pre_act) {
-	    presets_action->set_active(true);
-	}
 	if (!plugin_bar) {
 	    effects_frame_paintbox->hide();
 	}
 	upper_rackbox->show();
 	monobox->set_size_request(-1,-1);
+	if (pre_act) {
+	    presets_action->set_active(true);
+	}
     }
     if (!plugin_bar) {
 	update_scrolled_window(*vrack_scrolledbox);
@@ -764,9 +815,11 @@ void MainWindow::on_show_plugin_bar() {
 	show_rack_action->set_active(true);
     }
     effects_frame_paintbox->set_visible(v);
-    update_scrolled_window(*vrack_scrolledbox);
-    update_scrolled_window(*stereorackbox);
-    maybe_shrink_horizontally();
+    if (!v) {
+	//update_scrolled_window(*vrack_scrolledbox);
+	//update_scrolled_window(*stereorackbox);
+	maybe_shrink_horizontally();
+    }
 }
 
 void MainWindow::move_widget(Gtk::Widget& w, Gtk::Box& b1, Gtk::Box& b2) {
@@ -789,7 +842,7 @@ void MainWindow::change_expand(Gtk::Widget& w, bool value) {
     unsigned int padding;
     GtkPackType pack_type;
     gtk_box_query_child_packing(p->gobj(), w.gobj(), &expand, &fill, &padding, &pack_type);
-    gtk_box_set_child_packing(p->gobj(), w.gobj(), value, fill, padding, pack_type);
+    gtk_box_set_child_packing(p->gobj(), w.gobj(), value, value, padding, pack_type);
 }
 
 double MainWindow::stop_at_stereo_bottom(double off, double step_size, double pagesize) {
@@ -813,9 +866,11 @@ void MainWindow::on_dir_changed(Glib::RefPtr<Gtk::RadioAction> act) {
     if (act->get_current_value()) {
 	// horizontally
 	move_widget(stereorackcontainer, *stereorackcontainerV, *stereorackcontainerH);
+	change_expand(*monobox, true);
 	stereorackbox->show();
     } else {
 	move_widget(stereorackcontainer, *stereorackcontainerH, *stereorackcontainerV);
+	change_expand(*monobox, false);
 	stereorackbox->hide();
 	maybe_shrink_horizontally();
     }
@@ -823,7 +878,7 @@ void MainWindow::on_dir_changed(Glib::RefPtr<Gtk::RadioAction> act) {
 
 void MainWindow::on_configure_event(GdkEventConfigure *ev) {
     if (freezer.check_thaw(ev->width, ev->height)) {
-	if (is_variable_size()) {
+	if (show_rack_action->get_active()) {
 	    window_height = ev->height;
 	}
     }
@@ -949,24 +1004,21 @@ void MainWindow::on_show_values() {
 }
 
 void MainWindow::on_preset_action() {
-    maybe_change_resizable();
     bool v = presets_action->get_active();
-    preset_window->on_preset_select(v);
+    if (!v && preset_scrolledbox->get_mapped()) {
+	preset_window_height = preset_scrolledbox->get_allocation().get_height();
+    }
+    maybe_change_resizable();
     if (v && !show_rack_action->get_active()) {
-	Gtk::Requisition req;
-	window->size_request(req);
-	int h = max(req.height, window_height);
-	window->set_size_request(-1, h);
-	while (true) {
-	    Gtk::Main::iteration();
-	    int w1, h1;
-	    window->get_size(w1, h1);
-	    if (h1 >= h) {
-		window->set_size_request(-1, -1);
-		break;
-	    }
+	Glib::RefPtr<Gdk::Window> win = window->get_window();
+	if (!win || win->get_state() == 0) {
+	    Gtk::Requisition req;
+	    window->size_request(req);
+	    freezer.freeze_and_size_request(window, req.width, req.height+preset_window_height);
 	}
     }
+    preset_box_no_rack->set_visible(v);
+    preset_window->on_preset_select(v, use_animations() && show_rack_action->get_active(), preset_window_height);
 }
 
 /*
@@ -1517,6 +1569,7 @@ void MainWindow::create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const 
     amp_radio_menu.setup("<menubar><menu action=\"TubeMenu\">","</menu></menubar>",uimanager,actiongroup);
 }
 
+#if false // unused
 int get_current_workarea_height_from_desktop(GdkWindow *root) {
     // use "xprop -root" to view desktop properties
     GdkAtom actual_type, atom_cardinal;
@@ -1559,6 +1612,7 @@ int get_current_workarea_height() {
     gdk_window_get_geometry(root, &x, &y, &width, &height, &depth);
     return height;
 }
+#endif
 
 void MainWindow::clear_box(Gtk::Container& box) {
     std::vector<Gtk::Widget*> l = box.get_children();
@@ -2251,6 +2305,7 @@ bool MainWindow::on_meter_button_release(GdkEventButton* ev) {
 }
 
 int MainWindow::window_height = 0;
+int MainWindow::preset_window_height = 0;
 
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_, gx_engine::ParamMap& pmap_)
     : sigc::trackable(),
@@ -2320,7 +2375,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     Gtk::AccelMap::load(options.get_builder_filepath("accels_rc"));
 
     GuiParameter para(pmap);
-    pmap.reg_non_midi_par("system.mainwin_rack_height", &window_height, false, get_current_workarea_height() - 80, 1, 99999);
+    pmap.reg_non_midi_par("system.mainwin_rack_height", &window_height, false, 500, 1, 99999);
+    pmap.reg_non_midi_par("system.preset_window_height", &preset_window_height, false, 200, 0, 99999);
 
     const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore", "bank_combo_liststore", 0 };
     bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &ui, id_list);
@@ -2345,6 +2401,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     clear_box(*monocontainer);
     clear_box(*stereorackcontainerH);
     clear_box(*stereorackcontainerV);
+    clear_box(*preset_box_no_rack);
 
     // create menu
     actiongroup = Gtk::ActionGroup::create("Main");
@@ -2418,6 +2475,15 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     // connect signal
     window->signal_configure_event().connect_notify(sigc::mem_fun(*this, &MainWindow::on_configure_event));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(show_rack_button->gobj()), GTK_ACTION(show_rack_action->gobj()));
+    rack_order_h_button->signal_toggled().connect(
+	sigc::compose(
+	    sigc::mem_fun(rackh_action.operator->(), &Gtk::RadioAction::set_current_value),
+	    sigc::mem_fun(rack_order_h_button, &Gtk::ToggleButton::get_active)));
+    rackh_action->signal_changed().connect(
+	sigc::hide(
+	    sigc::compose(
+		sigc::mem_fun(rack_order_h_button, &Gtk::ToggleButton::set_active),
+		sigc::mem_fun(rackh_action.operator->(), &Gtk::RadioAction::get_current_value))));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(config_mode_button->gobj()), GTK_ACTION(rack_config_action->gobj()));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(liveplay_button->gobj()),GTK_ACTION(live_play_action->gobj()));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(tuner_button->gobj()),GTK_ACTION(tuner_action->gobj()));
@@ -2545,6 +2611,10 @@ MainWindow::~MainWindow() {
 
     window->get_size(GuiParameter::mainwin_width, GuiParameter::mainwin_height);
     window->get_window()->get_root_origin(GuiParameter::mainwin_x, GuiParameter::mainwin_y);
+    if (presets_action->get_active()) {
+	preset_window_height = preset_scrolledbox->get_allocation().get_height();
+    }
+
     delete live_play;
     delete preset_window;
     delete window;

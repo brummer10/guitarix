@@ -499,11 +499,13 @@ private:
     sigc::connection tag;
     int size_x;
     int size_y;
+    sigc::slot<void> work;
 public:
     Freezer();
     ~Freezer();
     void freeze(Gtk::Window *w, int width, int height);
     void freeze_until_width_update(Gtk::Window *w, int width) { freeze(w, width, -1); }
+    void set_slot(sigc::slot<void> w) { work = w; }
     void freeze_and_size_request(Gtk::Window *w, int width, int height);
     bool thaw_timeout();
     void thaw();
@@ -573,6 +575,7 @@ private:
     gx_ui::GxUI ui;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     static int window_height;
+    static int preset_window_height;
     Freezer freezer;
     PluginDict plugin_dict;
     int oldpos;
@@ -643,6 +646,7 @@ private:
     Gtk::VBox *monobox;
     Gtk::VBox *upper_rackbox;
     Gtk::ScrolledWindow *preset_scrolledbox;
+    Gtk::Box *preset_box_no_rack;
     Gxw::PaintBox *effects_frame_paintbox;
     Gtk::Image *status_image;
     Gtk::Image *jackd_image;
@@ -650,6 +654,7 @@ private:
     Gtk::Window *window;
     Gtk::HBox *menubox;
     Gtk::ToggleButton *show_rack_button;
+    Gtk::ToggleButton *rack_order_h_button;
     Gtk::ToggleButton *config_mode_button;
     Gtk::ToggleButton *liveplay_button;
     Gtk::ToggleButton *tuner_button;
@@ -701,7 +706,7 @@ public:
     Glib::RefPtr<Gtk::RadioAction> rackh_action;
 private:
     void load_widget_pointers();
-    void maybe_shrink_horizontally();
+    void maybe_shrink_horizontally(bool preset_no_rack=false);
     void on_show_tuner();
     bool is_variable_size();
     void maybe_change_resizable(void);
@@ -781,6 +786,7 @@ private:
     void show_selected_preset();
     void on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act);
     void set_switcher_controller();
+    void set_vpaned_handle();
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();
@@ -804,4 +810,5 @@ public:
     double stop_at_stereo_bottom(double off, double step_size, double pagesize);
     double stop_at_mono_top(double off, double step_size);
     bool use_animations() { return animations_action->get_active(); }
+    void create_default_scratch_preset() { gx_settings.create_default_scratch_preset(); }
 };

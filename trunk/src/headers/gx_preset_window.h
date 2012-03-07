@@ -71,8 +71,6 @@ class PresetWindow: public sigc::trackable {
 private:
     gx_preset::GxSettings& gx_settings;
     Glib::RefPtr<Gtk::ActionGroup> actiongroup;
-    static int paned_child_height;
-    gx_engine::IntParameter *paned_child_height_param;
     bool in_edit;
     Gtk::TreeModel::iterator edit_iter;
     Glib::RefPtr<Gdk::Pixbuf> pb_edit;
@@ -94,7 +92,6 @@ private:
     sigc::connection on_map_conn;
     Glib::RefPtr<Gtk::AccelGroup> accel_group;
     sigc::connection reload_on_change_conn;
-    Glib::RefPtr<Gtk::ToggleAction> animations_action;
 
     // widget pointers (keep last)
     Gtk::Button *close_preset;
@@ -162,13 +159,12 @@ private:
     bool animate_preset_show();
     bool animate_preset_hide();
     void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f);
-    void display_paned(bool show_preset);
-    bool use_animations() { return animations_action->get_active(); }
+    void display_paned(bool show_preset, int paned_child_height);
     void on_selection_changed();
 public:
     PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
 		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
     ~PresetWindow();
-    void on_preset_select(bool v);
+    void on_preset_select(bool v, bool animated, int preset_window_height);
     void set_accel_group(Glib::RefPtr<Gtk::AccelGroup>& accel_group_);
 };
