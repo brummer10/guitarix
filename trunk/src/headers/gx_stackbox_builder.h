@@ -36,6 +36,7 @@ protected:
     static const          gboolean fill     = true;
     static const          gboolean homogene = false;
     void loadRackFromGladeData(const char *xmldesc);
+    void set_convolver_filename();
 protected:
     virtual void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog) = 0;
     virtual void closeMonoRackBox() = 0;

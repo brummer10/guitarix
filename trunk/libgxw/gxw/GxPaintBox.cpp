@@ -1906,7 +1906,7 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 				
 		// base 
 		frame = gdk_pixbuf_new_subpixbuf(
-			stock_image,24,24,gdk_pixbuf_get_width(stock_image)-68,
+			stock_image,32,24,gdk_pixbuf_get_width(stock_image)-68,
 			gdk_pixbuf_get_height(stock_image)-48);
 		gdk_pixbuf_scale (
 			frame, paintbox->gxh_image,12,12,rect_width-24,rect_height-24,

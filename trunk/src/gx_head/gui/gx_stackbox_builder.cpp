@@ -196,6 +196,10 @@ void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWind
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::on_show_button_clicked));
 }
 
+void StackBoxBuilder::set_convolver_filename() {
+    convolver_filename_label.set_label(engine.convolver.getIRFile());
+}
+
 void StackBoxBuilder::openSetLabelBox() {
     Gtk::VBox *box =  new Gtk::VBox();
     box->set_homogeneous(false);
@@ -208,6 +212,9 @@ void StackBoxBuilder::openSetLabelBox() {
     convolver_filename_label.modify_font(font);
     box->pack_start(convolver_filename_label, false, false, 0);
     box->show_all();
+    convolver_filename_label.set_label(engine.convolver.getIRFile());
+    engine.convolver.jcset.signal_file_changed().connect(
+	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_filename));
     gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->gobj()), false, fill, 0);
     pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
 }
