@@ -646,6 +646,9 @@ void MainWindow::show_selected_preset() {
     Glib::ustring t;
     if (gx_settings.setting_is_preset()) {
 	t = gx_settings.get_current_bank() + " / " + gx_settings.get_current_name();
+	if (preset_list_menu_bank != gx_settings.get_current_bank()) {
+	    rebuild_preset_menu();
+	}	    
 	gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
 	if (pf) {
 	    int i = pf->get_index(gx_settings.get_current_name());

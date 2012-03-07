@@ -917,9 +917,11 @@ bool PresetWindow::on_preset_button_release(GdkEventButton *ev) {
 }
 
 void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustring& newtext) {
+    Gtk::TreeIter it = pstore->get_iter(path);
+    Glib::ustring oldname = it->get_value(pstore->col.name);
     Glib::ustring newname = newtext;
     strip(newname);
-    if (newname.empty()) {
+    if (newname.empty() || newname == oldname) {
 	reset_edit(*preset_treeview->get_column(0));
 	return;
     }
@@ -930,16 +932,14 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
 	newname = Glib::ustring::compose("%1-%2", t, n);
 	n += 1;
     }
-    Gtk::TreeIter it = pstore->get_iter(path);
-    t = it->get_value(pstore->col.name);
     it->set_value(pstore->col.name, newname);
     it->set_value(pstore->col.edit_pb, pb_edit);
     it->set_value(pstore->col.del_pb, pb_del);
-    if (t.empty()) {
+    if (oldname.empty()) {
 	pstore->append();
 	gx_settings.save(fl, newname);
     } else {
-	gx_settings.rename_preset(fl, t, newname);
+	gx_settings.rename_preset(fl, oldname, newname);
     }
     reload_target();
     reset_edit(*preset_treeview->get_column(0));
