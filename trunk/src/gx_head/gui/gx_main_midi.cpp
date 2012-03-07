@@ -334,7 +334,9 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_)
     } else {
         gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_label")));
         gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_box")));
-	gtk_toggle_button_set_active(use_toggle, pctrl->is_toggle());
+        if (nctl != -1) {
+	    gtk_toggle_button_set_active(use_toggle, pctrl->is_toggle());
+	}
     }
     entry_new = GTK_WIDGET(gtk_builder_get_object(builder, "new"));
     label_desc = GTK_WIDGET(gtk_builder_get_object(builder, "new_desc"));

@@ -316,7 +316,7 @@ void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContex
     if (info != 1) {
 	return;
     }
-    bool is_move = context->get_selected_action() == Gdk::ACTION_MOVE;
+    bool is_move = context->get_selected_action() == Gdk::ACTION_MOVE;  //FIXME gtk 2.22
     bool success = false;
     std::vector<Glib::ustring> uris = data.get_uris();
     Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
@@ -502,7 +502,7 @@ void PresetWindow::on_editing_started(const Gtk::CellEditable* edit, const Glib:
 }
 
 bool PresetWindow::edit_cell(const Gtk::TreeModel::Path pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell) {
-    dynamic_cast<Gtk::CellRendererText*>(&cell)->property_editable().set_value(true);
+    dynamic_cast<Gtk::CellRendererText*>(&cell)->property_editable().set_value(true);  //FIXME gtk 2.24?
     col.get_tree_view()->set_cursor(pt, col, true);
     return false;
 }

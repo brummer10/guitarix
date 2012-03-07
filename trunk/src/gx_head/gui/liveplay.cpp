@@ -177,8 +177,12 @@ bool TunerSwitcher::on_state_timeout() {
     if (state == wait_start) {
 	set_state(listening);
 	current_note = no_note;
-	last_bank_idx = lp.gx_settings.banks.get_index(lp.gx_settings.get_current_bank());
-	last_preset_idx = lp.gx_settings.get_current_bank_file()->get_index(lp.gx_settings.get_current_name());
+	if (lp.gx_settings.get_current_source() == gx_preset::GxSettings::preset) {
+	    last_bank_idx = lp.gx_settings.banks.get_index(lp.gx_settings.get_current_bank());
+	    last_preset_idx = lp.gx_settings.get_current_bank_file()->get_index(lp.gx_settings.get_current_name());
+	} else {
+	    last_bank_idx = last_preset_idx = 0; //FIXME
+	}
     } else {
 	assert(state == wait_stop);
 	try_load_preset();
@@ -565,7 +569,7 @@ bool Liveplay::window_expose_event(GdkEventExpose *event) {
     Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
     Gtk::Allocation a = liveplay_canvas->get_allocation();
     //gdk_cairo_set_source_window(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y()); gtk 2.24
-    gdk_cairo_set_source_pixmap(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y());
+    gdk_cairo_set_source_pixmap(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y()); //FIXME does it work??
     Gdk::Region region(a);
     region.intersect(Glib::wrap(event->region, true));
     Gdk::Cairo::add_region_to_path(cr, region);
