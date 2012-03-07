@@ -1528,6 +1528,10 @@ bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
 }
 
 void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
+    if (!pf->has_entry(name)) {
+	gx_print_error(_("open preset"), Glib::ustring::compose("bank %1 does not contain preset %2", pf->get_name(), name));
+	pf = 0;
+    }
     if (!pf) {
 	if (current_source != state) {
 	    current_source = state;
@@ -1740,6 +1744,17 @@ bool GxSettingsBase::rename_bank(const Glib::ustring& oldname, const Glib::ustri
     }
     if (setting_is_preset() && oldname == current_bank) {
 	current_bank = newname;
+	selection_changed();
+    }
+    return true;
+}
+
+bool GxSettingsBase::rename_preset(PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname) {
+    if (!pf.rename(oldname, newname)) {
+	return false;
+    }
+    if (setting_is_preset() && current_bank == pf.get_name() && current_name == oldname) {
+	current_name = newname;
 	selection_changed();
     }
     return true;

@@ -937,18 +937,15 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
     }
     Gtk::TreeIter it = pstore->get_iter(path);
     t = it->get_value(pstore->col.name);
+    it->set_value(pstore->col.name, newname);
+    it->set_value(pstore->col.edit_pb, pb_edit);
+    it->set_value(pstore->col.del_pb, pb_del);
     if (t.empty()) {
 	pstore->append();
 	gx_settings.save(fl, newname);
     } else {
-	fl.rename(t, newname);
-	if (gx_settings.get_current_bank() == get_current_bank() && gx_settings.get_current_name() == it->get_value(pstore->col.name)) {
-	    //current_preset = newname; FIXME
-	}
+	gx_settings.rename_preset(fl, t, newname);
     }
-    it->set_value(pstore->col.name, newname);
-    it->set_value(pstore->col.edit_pb, pb_edit);
-    it->set_value(pstore->col.del_pb, pb_del);
     reload_target();
     reset_edit(*preset_treeview->get_column(0));
     set_presets();

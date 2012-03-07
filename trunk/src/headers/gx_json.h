@@ -389,6 +389,7 @@ public:
     void load_preset(PresetFile *pf, const Glib::ustring& name);
     bool is_loading() { return in_load; }
     bool rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
+    bool rename_preset(PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
 };
 
 } /* end of gx_system namespace */
