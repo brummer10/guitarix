@@ -591,29 +591,16 @@ void MainWindow::on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act) {
     gx_settings.load_preset(pf, pf->get_name(act->get_current_value()));
 }
 
-void MainWindow::show_selected_preset() {
-    Glib::ustring t;
-    if (gx_settings.get_current_source() != gx_system::GxSettingsBase::state) {
-	t = gx_settings.get_current_bank() + " / " + gx_settings.get_current_name();
-    }
-    preset_status->set_text(t);
-    if (!preset_list_menu_bank.empty()) {
-	if (gx_settings.setting_is_preset() && preset_list_menu_bank == gx_settings.get_current_bank()) {
-	    int i = gx_settings.get_current_bank_file()->get_index(gx_settings.get_current_name());
-	    if (i >= 0 && select_preset_action) {
-		select_preset_action->set_current_value(i);
-	    }
-	    return;
-	}
-	if (preset_list_merge_id) {
-	    uimanager->remove_ui(preset_list_merge_id);
-	    uimanager->remove_action_group(preset_list_actiongroup);
-	}
-    }
-    if (!gx_settings.setting_is_preset()) {
+void MainWindow::rebuild_preset_menu() {
+    if (preset_list_merge_id) {
+	uimanager->remove_ui(preset_list_merge_id);
+	uimanager->remove_action_group(preset_list_actiongroup);
 	preset_list_menu_bank.clear();
 	preset_list_merge_id = 0;
+	select_preset_action.reset();
 	preset_list_actiongroup.reset();
+    }
+    if (!gx_settings.setting_is_preset()) {
 	return;
     }
     gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
@@ -653,6 +640,21 @@ void MainWindow::show_selected_preset() {
 	    sigc::mem_fun(*this, &MainWindow::on_select_preset));
     }
     dynamic_cast<Gtk::MenuItem*>(uimanager->get_widget("/menubar/PresetsMenu/PresetListMenu"))->set_label(_("_Bank: ")+preset_list_menu_bank);
+}
+
+void MainWindow::show_selected_preset() {
+    Glib::ustring t;
+    if (gx_settings.setting_is_preset()) {
+	t = gx_settings.get_current_bank() + " / " + gx_settings.get_current_name();
+	gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
+	if (pf) {
+	    int i = pf->get_index(gx_settings.get_current_name());
+	    if (i >= 0 && select_preset_action) {
+		select_preset_action->set_current_value(i);
+	    }
+	}
+    }
+    preset_status->set_text(t);
 }
 
 bool MainWindow::is_variable_size() {
@@ -2467,6 +2469,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	
     gx_settings.signal_selection_changed().connect(
 	sigc::mem_fun(*this, &MainWindow::show_selected_preset));
+    gx_settings.signal_presetlist_changed().connect(
+	sigc::mem_fun(*this, &MainWindow::rebuild_preset_menu));
 
     // create rack
     stereorackcontainerH->pack_start(stereorackcontainer, Gtk::PACK_EXPAND_WIDGET);

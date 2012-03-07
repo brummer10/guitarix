@@ -787,6 +787,7 @@ private:
     void on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act);
     void set_switcher_controller();
     void set_vpaned_handle();
+    void rebuild_preset_menu();
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
     ~MainWindow();

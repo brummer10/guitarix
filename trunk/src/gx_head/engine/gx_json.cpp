@@ -1588,6 +1588,7 @@ void GxSettingsBase::loadstate() {
     if (!current_bank.empty()) {
 	current_source = preset;
     }
+    presetlist_changed();
     selection_changed();
 }
 
@@ -1605,6 +1606,7 @@ void GxSettingsBase::save_to_state(bool preserve_preset) {
     delete jw;
     if (!preserve_preset && current_source != state) {
 	set_source_to_state();
+	presetlist_changed();
     }
 }
 
@@ -1676,6 +1678,7 @@ void GxSettingsBase::save(PresetFile& pf, const Glib::ustring& name) {
 	current_source = preset;
 	current_name = name;
 	current_bank = pf.get_name();
+	presetlist_changed();
 	selection_changed();
     }
 }
@@ -1700,6 +1703,7 @@ void GxSettingsBase::reorder_preset(PresetFile& pf, const std::vector<Glib::ustr
     }
     delete jw;
     pf.close();
+    presetlist_changed();
 }
 
 void GxSettingsBase::erase_preset(PresetFile& pf, const Glib::ustring& name) {
@@ -1756,6 +1760,7 @@ bool GxSettingsBase::rename_bank(const Glib::ustring& oldname, const Glib::ustri
     }
     if (setting_is_preset() && oldname == current_bank) {
 	current_bank = newname;
+	presetlist_changed();
 	selection_changed();
     }
     return true;
@@ -1765,9 +1770,12 @@ bool GxSettingsBase::rename_preset(PresetFile& pf, const Glib::ustring& oldname,
     if (!pf.rename(oldname, newname)) {
 	return false;
     }
-    if (setting_is_preset() && current_bank == pf.get_name() && current_name == oldname) {
-	current_name = newname;
-	selection_changed();
+    if (setting_is_preset() && current_bank == pf.get_name()) {
+	presetlist_changed();
+	if (current_name == oldname) {
+	    current_name = newname;
+	    selection_changed();
+	}
     }
     return true;
 }
