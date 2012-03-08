@@ -64,6 +64,13 @@ void gx_reset_units(gx_engine::ParamMap& pmap, Glib::ustring group_id) {
     }
 }
 
+void child_set_property(Gtk::Container& container, Gtk::Widget& child, const char *property_name, bool value) {
+    GValue v = {0};
+    g_value_init(&v, G_TYPE_BOOLEAN);
+    g_value_set_boolean(&v, value);
+    gtk_container_child_set_property(container.gobj(), child.gobj(), property_name, &v);
+}
+
 /****************************************************************
  ** message boxes
  */
@@ -116,6 +123,9 @@ gint gx_nchoice_dialog_without_entry(
 
     gtk_widget_show(text_label);
     gtk_widget_show(image);
+
+    gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
+
     // --- run dialog and check response
     gint response = gtk_dialog_run(GTK_DIALOG(dialog));
     return response;
