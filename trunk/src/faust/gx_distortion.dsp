@@ -109,7 +109,7 @@ filterbankN(lfreqs) = filterbankn(3,lfreqs);
 //----------distortion---------
 
 //-distortion
-drivelevel      = vslider("level", 0.01, 0, 0.5, 0.01);
+drivelevel      = vslider("level", 0.0, 0, 0.5, 0.01);
 drivegain1      = vslider("gain", 2, -10, 10, 0.1)-10 : db2linear : smoothi(0.999);
 low_gain      	= vslider("low_gain", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
 high_gain      	= vslider("high_gain", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);

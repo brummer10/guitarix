@@ -348,7 +348,7 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("gx_distortion.split_low_freq","","S","",&fentry0, 2.5e+02, 2e+01, 6e+02, 1e+01);
 	reg.registerVar("gx_distortion.split_high_freq","","S","",&fentry2, 1.25e+03, 1.25e+03, 1.2e+04, 1e+01);
 	reg.registerVar("gx_distortion.middle_l_gain","","S","",&fslider7, 1e+01, -1e+01, 2e+01, 0.1);
-	reg.registerVar("gx_distortion.level","","S","",&fslider6, 0.01, 0.0, 0.5, 0.01);
+	reg.registerVar("gx_distortion.level","","S","",&fslider6, 0.0, 0.0, 0.5, 0.01);
 	reg.registerVar("gx_distortion.drive","","S","",&fslider5, 0.64, 0.0, 1.0, 0.01);
 	reg.registerVar("gx_distortion.middle_l_drive","","S","",&fslider4, 1.0, 0.0, 1.0, 0.01);
 	reg.registerVar("gx_distortion.vibrato","","S","",&fslider3, 1.0, 0.0, 1.0, 0.01);
