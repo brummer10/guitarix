@@ -267,9 +267,7 @@ void ErrorPopup::show_msg() {
  ** show splash screen at start up
  */
 
-class GxSplashBox {
- private:
-    Gtk::Window m_window;
+class GxSplashBox: public Gtk::Window {
  public:
     explicit GxSplashBox();
     ~GxSplashBox();
@@ -277,17 +275,17 @@ class GxSplashBox {
 GxSplashBox::~GxSplashBox() {}
 
 GxSplashBox::GxSplashBox()
-    : m_window(Gtk::WINDOW_TOPLEVEL) {
-    m_window. set_redraw_on_allocate(true);
-    m_window.set_app_paintable();
-    m_window.signal_expose_event().connect(
-        sigc::group(&gx_cairo::splash_expose,GTK_WIDGET(m_window.gobj()),
-        sigc::_1,(void*)0),false);
-    m_window.set_decorated(false);
-    m_window.set_type_hint(Gdk::WINDOW_TYPE_HINT_SPLASHSCREEN);
-    m_window.set_position(Gtk::WIN_POS_CENTER );
-    m_window.set_default_size(280,80);
-    m_window.show_all();
+    : Gtk::Window(Gtk::WINDOW_TOPLEVEL) {
+    set_redraw_on_allocate(true);
+    set_app_paintable();
+    signal_expose_event().connect(
+        sigc::group(&gx_cairo::splash_expose, GTK_WIDGET(gobj()),
+		    sigc::_1, (void*)0), false);
+    set_decorated(false);
+    set_type_hint(Gdk::WINDOW_TYPE_HINT_SPLASHSCREEN);
+    set_position(Gtk::WIN_POS_CENTER );
+    set_default_size(280,80);
+    show_all();
     while(Gtk::Main::events_pending())
         Gtk::Main::iteration(false); 
 }
@@ -383,7 +381,7 @@ int main(int argc, char *argv[]) {
 	}
 #endif
 	// ----------------------- init GTK interface----------------------
-	MainWindow gui(engine, options, gx_engine::parameter_map);
+	MainWindow gui(engine, options, gx_engine::parameter_map, Splash);
 	if (need_new_preset) {
 	    gui.create_default_scratch_preset();
 	}

@@ -790,7 +790,6 @@ bool RackBox::animate_vanish() {
     if (anim_height <= 0) {
 	hide();
 	set_size_request(-1,-1);
-	//anim_tag.disconnect(); //FIXME
 	return false;
     } else {
 	set_size_request(-1, anim_height);
@@ -830,7 +829,6 @@ bool RackBox::animate_create() {
     anim_height += anim_step;
     if (anim_height >= target_height) {
 	set_size_request(-1,-1);
-	//anim_tag.disconnect(); //FIXME
 	ret = false;
     } else {
 	set_size_request(-1, anim_height);
@@ -1413,21 +1411,6 @@ void RackContainer::set_config_mode(bool mode) {
     for (std::vector<RackBox*>::iterator c = l.begin(); c != l.end(); ++c) {
 	(*c)->set_config_mode(mode);
     }
-}
-
-bool RackContainer::check_if_animate(const RackBox& rackbox) {
-    if (!main.use_animations()) {
-	return false;
-    }
-    std::vector<RackBox*> l = get_children();
-    if (l.empty()) {
-	return true;
-    }
-    if (l[l.size()-1] != &rackbox) {
-	return true;
-    }
-    // is last child
-    return main.check_if_rack_container_size_animate(*this);
 }
 
 void RackContainer::compress_all() {

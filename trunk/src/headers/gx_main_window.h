@@ -121,6 +121,7 @@ private:
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     gx_engine::GxEngine &engine;
     gx_preset::GxSettings& gx_settings;
+    const GxActions& actions;
     bool use_composite;
     Gtk::Adjustment brightness_adj;
     Gtk::Adjustment background_adj;
@@ -130,7 +131,6 @@ private:
     Gtk::Window *window;
     TunerSwitcher tuner_switcher;
     gx_ui::UiSignal<bool> switcher_signal;
-    Glib::RefPtr<UiBoolToggleAction>& livetuner_action;
     //
     Gtk::Image *bypass_image;
     Gtk::Image *mute_image;
@@ -177,7 +177,7 @@ private:
     friend class TunerSwitcher;
 public:
     Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine, gx_preset::GxSettings& gx_settings,
-	     const std::string& fname, Glib::RefPtr<Gtk::ActionGroup>& actiongroup, Glib::RefPtr<UiBoolToggleAction>& livetuner_action);
+	     const std::string& fname, const GxActions& actions);
     ~Liveplay();
     void on_live_play(Glib::RefPtr<Gtk::ToggleAction> act);
     void display_tuner(bool v);
@@ -403,7 +403,7 @@ public:
 	void *p = &l;
 	return *reinterpret_cast<rackbox_const_list*>(p);
     }
-    bool check_if_animate(const RackBox& rackbox);
+    inline bool check_if_animate(const RackBox& rackbox);
     void show_entries();
     void hide_entries();
     void compress_all();
@@ -512,37 +512,6 @@ public:
     bool check_thaw(int width, int height);
 };
 
-struct GuiParameter {
-    // rack tuner
-    static const value_pair streaming_labels[];
-    static const value_pair tuning_labels[];
-    static int mainwin_x;
-    static int mainwin_y;
-    static int mainwin_width;
-    static int mainwin_height;
-
-    gx_engine::BoolParameter *ui_racktuner;
-    gx_engine::EnumParameter *racktuner_streaming;
-    gx_engine::EnumParameter *racktuner_tuning;
-    gx_engine::FloatParameter *racktuner_scale_lim;
-    gx_engine::FloatParameter *ui_tuner_reference_pitch;
-    gx_engine::SwitchParameter *show_plugin_bar;
-    gx_engine::SwitchParameter *presets;
-    gx_engine::SwitchParameter *show_rack;
-    gx_engine::SwitchParameter *order_rack_v;
-    gx_engine::BoolParameter *tuner;
-    gx_engine::SwitchParameter *show_values;
-    gx_engine::SwitchParameter *show_tooltips;
-    gx_engine::SwitchParameter *midi_in_presets;
-    gx_engine::BoolParameter *animations;
-    gx_engine::IntParameter *mainwin_x_param;
-    gx_engine::IntParameter *mainwin_y_param;
-    gx_engine::IntParameter *mainwin_width_param;
-    gx_engine::IntParameter *mainwin_height_param;
-
-    GuiParameter(gx_engine::ParamMap& pmap);
-};
-
 /****************************************************************
  ** GxUiRadioMenu
  ** adds the values of an UEnumParameter as Gtk::RadioMenuItem's
@@ -570,10 +539,54 @@ public:
     ~PluginDict();
 };
 
+struct GxActions {
+    // Main Window
+    Glib::RefPtr<Gtk::ActionGroup> group;
+    Glib::RefPtr<Gtk::AccelGroup> accels;
+
+    Glib::RefPtr<Gtk::Action> quit;
+    Glib::RefPtr<Gtk::Action> compress;
+    Glib::RefPtr<Gtk::Action> expand;
+    Glib::RefPtr<Gtk::Action> jack_latency_menu;
+
+    Glib::RefPtr<Gtk::ToggleAction> rack_config;
+    Glib::RefPtr<Gtk::ToggleAction> live_play;
+    Glib::RefPtr<Gtk::ToggleAction> engine_mute;
+    Glib::RefPtr<Gtk::ToggleAction> engine_bypass;
+    Glib::RefPtr<Gtk::ToggleAction> jackserverconnection;
+    Glib::RefPtr<Gtk::ToggleAction> jackports;
+    Glib::RefPtr<Gtk::ToggleAction> midicontroller;
+    Glib::RefPtr<Gtk::ToggleAction> meterbridge;
+    Glib::RefPtr<Gtk::ToggleAction> jackstartup;
+    Glib::RefPtr<Gtk::ToggleAction> loggingbox;
+    Glib::RefPtr<Gtk::ToggleAction> animations;
+
+    Glib::RefPtr<UiSwitchToggleAction> show_plugin_bar;
+    Glib::RefPtr<UiSwitchToggleAction> presets;
+    Glib::RefPtr<UiSwitchToggleAction> show_rack;
+    Glib::RefPtr<UiBoolToggleAction> tuner;
+    Glib::RefPtr<UiBoolToggleAction> livetuner;
+    Glib::RefPtr<UiSwitchToggleAction> show_values;
+    Glib::RefPtr<UiSwitchToggleAction> tooltips;
+    Glib::RefPtr<UiSwitchToggleAction> midi_in_presets;
+    Glib::RefPtr<UiSwitchToggleAction> rackh;
+
+    Glib::RefPtr<Gtk::RadioAction> skin;
+    Glib::RefPtr<Gtk::RadioAction> latency;
+
+    // preset window
+    Glib::RefPtr<Gtk::Action> new_bank;
+    Glib::RefPtr<Gtk::Action> save_changes;
+    Glib::RefPtr<Gtk::ToggleAction> organize;
+};
+
 class MainWindow: public sigc::trackable {
 private:
     gx_ui::GxUI ui;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
+    static int mainwin_x;
+    static int mainwin_y;
+    static int mainwin_height;
     static int window_height;
     static int preset_window_height;
     Freezer freezer;
@@ -586,7 +599,6 @@ private:
     int pre_act;
     bool is_visible;
     DragIcon *drag_icon;
-    Glib::RefPtr<Gtk::ActionGroup> actiongroup;
     Glib::ustring preset_list_menu_bank;
     Gtk::UIManager::ui_merge_id preset_list_merge_id;
     Glib::RefPtr<Gtk::ActionGroup> preset_list_actiongroup;
@@ -604,7 +616,6 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> gx_head_icon;
     StackBoxBuilderNew boxbuilder;
     gx_portmap::PortMapWindow* portmap_window;
-    Glib::RefPtr<Gtk::AccelGroup> accel_group;
     static int skin;
     static bool no_warn_latency;
     gx_ui::UiSignal<int> skin_changed;
@@ -628,9 +639,7 @@ private:
     Glib::RefPtr<Gtk::StatusIcon> status_icon;
     Glib::RefPtr<Gdk::Pixbuf> gx_head_midi;
     Glib::RefPtr<Gdk::Pixbuf> gx_head_warn;
-    //
-    Glib::RefPtr<Gtk::RadioAction> skin_action;
-    Glib::RefPtr<Gtk::RadioAction> latency_action;
+    GxActions actions;
 
     // Widget pointers
     Gxw::PaintBox *tunerbox;
@@ -675,35 +684,7 @@ private:
     Gtk::Widget *ampdetail_normal;
     Gxw::FastMeter *fastmeter[2];
     Gtk::Entry *preset_status;
-public:
-    // Actions
-    Glib::RefPtr<Gtk::Action> jack_latency_menu_action;
-    Glib::RefPtr<Gtk::Action> compress_action;
-    Glib::RefPtr<Gtk::Action> expand_action;
-    // ToggleActions
-    Glib::RefPtr<Gtk::ToggleAction> rack_config_action;
-    Glib::RefPtr<Gtk::ToggleAction> live_play_action;
-    Glib::RefPtr<Gtk::ToggleAction> engine_mute_action;
-    Glib::RefPtr<Gtk::ToggleAction> engine_bypass_action;
-    Glib::RefPtr<Gtk::ToggleAction> jackserverconnection_action;
-    Glib::RefPtr<Gtk::ToggleAction> jackports_action;
-    Glib::RefPtr<Gtk::ToggleAction> midicontroller_action;
-    Glib::RefPtr<Gtk::ToggleAction> meterbridge_action;
-    Glib::RefPtr<Gtk::ToggleAction> jackstartup_action;
-    Glib::RefPtr<Gtk::ToggleAction> loggingbox_action;
-    Glib::RefPtr<Gtk::ToggleAction> animations_action;
-    // UiToggleActions
-    Glib::RefPtr<UiSwitchToggleAction> show_plugin_bar_action;
-    Glib::RefPtr<UiSwitchToggleAction> presets_action;
-    Glib::RefPtr<UiSwitchToggleAction> show_rack_action;
-    Glib::RefPtr<UiBoolToggleAction> tuner_action;
-    Glib::RefPtr<UiBoolToggleAction> livetuner_action;
-    Glib::RefPtr<UiSwitchToggleAction> show_values_action;
-    Glib::RefPtr<UiSwitchToggleAction> tooltips_action;
-    Glib::RefPtr<UiSwitchToggleAction> midi_in_presets_action;
-    // RadioActions
-    Glib::RefPtr<UiSwitchRadioAction> rackv_action;
-    Glib::RefPtr<Gtk::RadioAction> rackh_action;
+
 private:
     void load_widget_pointers();
     void maybe_shrink_horizontally(bool preset_no_rack=false);
@@ -719,13 +700,13 @@ private:
     void move_widget(Gtk::Widget& w, Gtk::Box& b1, Gtk::Box& b2);
     int rackbox_stacked_vertical() const;
     static void change_expand(Gtk::Widget& w, bool value);
-    void on_dir_changed(Glib::RefPtr<Gtk::RadioAction> act);
+    void on_dir_changed();
     void on_configure_event(GdkEventConfigure *ev);
     void clear_box(Gtk::Container& box);
     RackBox *add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwidget, Gtk::Widget *miniwidget,
 				  bool mini=false, int pos=-1, bool animate=false, Gtk::Widget *bare=0);
     void on_show_values();
-    void create_menu(Glib::RefPtr<Gtk::ActionGroup>& actiongroup, const GuiParameter& para);
+    void create_actions();
     void add_toolitem(PluginUI& pl, Gtk::ToolItemGroup *gw);
     bool on_visibility_notify(GdkEventVisibility *ev);
     void on_live_play();
@@ -742,7 +723,7 @@ private:
     void on_miditable_toggle();
     void on_portmap_activate();
     void on_portmap_response(int);
-    bool connect_jack(bool v);
+    bool connect_jack(bool v, Gtk::Window *splash = 0);
     int start_jack();
     void add_skin_menu();
     void change_skin(Glib::RefPtr<Gtk::RadioAction> action);
@@ -789,13 +770,12 @@ private:
     void set_vpaned_handle();
     void rebuild_preset_menu();
 public:
-    MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options, gx_engine::ParamMap& pmap);
+    MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
+	       gx_engine::ParamMap& pmap, Gtk::Window *splash);
     ~MainWindow();
     void hide_effect(const std::string& name);
-    bool check_if_animate(RackContainer& rb) const;
     RackContainer& get_monorackcontainer() { return monorackcontainer; }
     RackBox *add_rackbox(PluginUI& pl, bool mini=false, int pos=-1, bool animate=false);
-    bool check_if_rack_container_size_animate(const RackContainer& rackcontainer) const;
     void add_icon(const std::string& name);
     PluginUI *get_plugin(const std::string& name) { return plugin_dict[name]; }
     PluginDict::iterator plugins_begin() { return plugin_dict.begin(); }
@@ -810,6 +790,8 @@ public:
     void set_rackbox_expansion();
     double stop_at_stereo_bottom(double off, double step_size, double pagesize);
     double stop_at_mono_top(double off, double step_size);
-    bool use_animations() { return animations_action->get_active(); }
+    bool use_animations() { return actions.animations->get_active(); }
     void create_default_scratch_preset() { gx_settings.create_default_scratch_preset(); }
 };
+
+inline bool RackContainer::check_if_animate(const RackBox& rackbox) { return main.use_animations(); }

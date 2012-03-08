@@ -248,8 +248,8 @@ void TunerSwitcher::set_active(bool v) {
 	state = wait_start;
 	new_engine_state = old_engine_state = lp.engine.get_state();
 	lp.engine.set_state(gx_engine::kEngineOff);
-	new_tuner_active = old_tuner_active = lp.livetuner_action->get_active();
-	lp.livetuner_action->set_active(false);
+	new_tuner_active = old_tuner_active = lp.actions.livetuner->get_active();
+	lp.actions.livetuner->set_active(false);
 	lp.liveplay_preset->set_sensitive(false);
 	switcher_conn = lp.engine.tuner.signal_freq_changed().connect(
 	    sigc::mem_fun(this, &TunerSwitcher::on_tuner_freq_changed));
@@ -262,7 +262,7 @@ void TunerSwitcher::set_active(bool v) {
 	lp.engine.tuner.used_for_switching(false);
 	set_state(normal_mode);
 	lp.engine.set_state(new_engine_state);
-	lp.livetuner_action->set_active(new_tuner_active);
+	lp.actions.livetuner->set_active(new_tuner_active);
     }
 }
 
@@ -398,12 +398,12 @@ bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *accelerat
 
 Liveplay::Liveplay(
     const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
-    const std::string& fname, Glib::RefPtr<Gtk::ActionGroup>& actiongroup,
-    Glib::RefPtr<UiBoolToggleAction>& livetuner_action_)
+    const std::string& fname, const GxActions& actions_)
     : ui(),
       bld(),
       engine(engine_),
       gx_settings(gx_settings_),
+      actions(actions_),
       use_composite(),
       brightness_adj(1,0.5,1,0.01,0.1),
       background_adj(0,0,1,0.01,0.1),
@@ -412,8 +412,7 @@ Liveplay::Liveplay(
       midi_conn(),
       window(),
       tuner_switcher(*this),
-      switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()), //FIXME
-      livetuner_action(livetuner_action_) {
+      switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()) { //FIXME
     const char *id_list[] = {"LivePlay", 0};
     bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
     bld->get_toplevel("LivePlay", window);
@@ -457,27 +456,24 @@ Liveplay::Liveplay(
     window->signal_delete_event().connect(
 	sigc::mem_fun(this, &Liveplay::on_delete));
 
-    Glib::RefPtr<Gtk::Action> act = actiongroup->get_action("Liveplay");
     gtk_activatable_set_related_action(
-	GTK_ACTIVATABLE(liveplay_exit->gobj()),
-	act->gobj());
+	GTK_ACTIVATABLE(liveplay_exit->gobj()), GTK_ACTION(actions.live_play->gobj()));
     Glib::RefPtr<Gtk::AccelGroup> ag = Gtk::AccelGroup::create();
-    GClosure *cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
-    gtk_accel_group_connect_by_path(ag->gobj(), act->get_accel_path().c_str(), cl);
-    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
+    GClosure *cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.live_play->gobj()), 0);
+    gtk_accel_group_connect_by_path(ag->gobj(), actions.live_play->get_accel_path().c_str(), cl);
+    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.live_play->gobj()), 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Escape, (GdkModifierType)0, (GtkAccelFlags)0, cl);
 
-    actiongroup->add(
-	livetuner_action,
+    actions.group->add(
+	actions.livetuner,
 	sigc::compose(
 	    sigc::mem_fun(this, &Liveplay::display_tuner),
-	    sigc::mem_fun(livetuner_action.operator->(), &Gtk::ToggleAction::get_active)));
-    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(livetuner_action->gobj()), 0);
+	    sigc::mem_fun(actions.livetuner.operator->(), &Gtk::ToggleAction::get_active)));
+    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.livetuner->gobj()), 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Return, (GdkModifierType)0, (GtkAccelFlags)0, cl);
 
-    act = actiongroup->get_action("Quit");
-    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(act->gobj()), 0);
-    gtk_accel_group_connect_by_path(ag->gobj(), act->get_accel_path().c_str(), cl);
+    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.quit->gobj()), 0);
+    gtk_accel_group_connect_by_path(ag->gobj(), actions.quit->get_accel_path().c_str(), cl);
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_toggle_mute), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_M, (GdkModifierType)0, (GtkAccelFlags)0, cl);

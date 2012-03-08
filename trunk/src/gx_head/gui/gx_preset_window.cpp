@@ -23,13 +23,6 @@
 
 #include <guitarix.h>
 
-void child_set_property(Gtk::Container& container, Gtk::Widget& child, const char *property_name, bool value) {
-    GValue v = {0};
-    g_value_init(&v, G_TYPE_BOOLEAN);
-    g_value_set_boolean(&v, value);
-    gtk_container_child_set_property(container.gobj(), child.gobj(), property_name, &v);
-}
-
 /****************************************************************
  ** class PresetWindow
  */
@@ -48,11 +41,11 @@ bool PresetStore::row_draggable_vfunc(const TreeModel::Path& path) const {
 }
 
 
-PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings_,
-			   const gx_system::CmdlineOptions& options_, Glib::RefPtr<Gtk::ActionGroup>& actiongroup_)
+PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings_,
+			   const gx_system::CmdlineOptions& options_, GxActions& actions_)
     : sigc::trackable(),
       gx_settings(gx_settings_),
-      actiongroup(actiongroup_),
+      actions(actions_),
       in_edit(false),
       edit_iter(),
       pb_edit(),
@@ -72,19 +65,18 @@ PresetWindow::PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBui
       options(options_),
       in_current_preset(false),
       on_map_conn(),
-      accel_group(),
       reload_on_change_conn()
       /* widget pointers not initialized */ {
     load_widget_pointers(bld);
-    Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("NewBank");
-    actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_new_bank));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(new_preset_bank->gobj()), act->gobj());
-    act = Gtk::Action::create("Save", _("Save changes"));
-    actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_preset_save));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(save_preset->gobj()), act->gobj());
-    Glib::RefPtr<Gtk::ToggleAction> actt = Gtk::ToggleAction::create("Organize", _("Organize"));
-    actiongroup->add(actt, sigc::mem_fun(*this, &PresetWindow::on_organize));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(organize_presets->gobj()), GTK_ACTION(actt->gobj()));
+    actions.new_bank = Gtk::Action::create("NewBank");
+    actions.group->add(actions.new_bank, sigc::mem_fun(*this, &PresetWindow::on_new_bank));
+    gtk_activatable_set_related_action(GTK_ACTIVATABLE(new_preset_bank->gobj()), actions.new_bank->gobj());
+    actions.save_changes = Gtk::Action::create("Save", _("Save changes"));
+    actions.group->add(actions.save_changes, sigc::mem_fun(*this, &PresetWindow::on_preset_save));
+    gtk_activatable_set_related_action(GTK_ACTIVATABLE(save_preset->gobj()), actions.save_changes->gobj());
+    actions.organize = Gtk::ToggleAction::create("Organize", _("Organize"));
+    actions.group->add(actions.organize, sigc::mem_fun(*this, &PresetWindow::on_organize));
+    gtk_activatable_set_related_action(GTK_ACTIVATABLE(organize_presets->gobj()), GTK_ACTION(actions.organize->gobj()));
     //act = Gtk::Action::create("ClosePresetsAction");
     //actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_presets_close));
     //gtk_activatable_set_related_action(GTK_ACTIVATABLE(close_preset->gobj()), act->gobj());
@@ -172,11 +164,7 @@ void PresetWindow::on_selection_changed() {
 	    s = true;
 	}
     }
-    actiongroup->get_action("Save")->set_sensitive(s);
-}
-
-void PresetWindow::set_accel_group(Glib::RefPtr<Gtk::AccelGroup>& accel_group_) {
-    accel_group = accel_group_;
+    actions.save_changes->set_sensitive(s);
 }
 
 void PresetWindow::load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld) {
@@ -266,7 +254,7 @@ bool PresetWindow::on_bank_query_tooltip(int x, int y, bool kb_tooltip, Glib::Re
 }
 
 void PresetWindow::on_preset_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column) {
-    bool in_organize = Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Organize"))->get_active();
+    bool in_organize = actions.organize->get_active();
     on_presets_close();
     if (in_organize) {
 	preset_treeview->get_selection()->select(path);
@@ -493,7 +481,7 @@ void PresetWindow::on_editing_started(const Gtk::CellEditable* edit, const Glib:
     } else {
 	dynamic_cast<Gtk::Entry*>(const_cast<Gtk::CellEditable*>(edit))->set_text(s);
     }
-    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->remove_accel_group(accel_group);
+    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->remove_accel_group(actions.accels);
 }
 
 bool PresetWindow::edit_cell(const Gtk::TreeModel::Path pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell) {
@@ -513,7 +501,7 @@ void PresetWindow::reset_edit(Gtk::TreeViewColumn& col) {
     col.set_min_width(0);
     col.queue_resize();
     in_edit = false;
-    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->add_accel_group(accel_group);
+    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->add_accel_group(actions.accels);
 }
 
 void PresetWindow::on_edit_canceled(Gtk::TreeViewColumn *col) {
@@ -635,7 +623,7 @@ bool PresetWindow::on_bank_button_release(GdkEventButton *ev) {
 	    reload_combo();
 	    if (nm == gx_settings.get_current_bank()) {
 		gx_settings.set_source_to_state();
-		actiongroup->get_action("Save")->set_sensitive(false);
+		actions.save_changes->set_sensitive(false);
 	    }
 	}
     }
@@ -759,8 +747,7 @@ void PresetWindow::on_bank_changed() {
     Gtk::TreeIter i;
     gx_system::PresetFile& ll = *gx_settings.banks.get_file(nm);
     if ((ll.get_flags() & gx_system::PRESET_FLAG_VERSIONDIFF) ||
-	((ll.get_flags() & gx_system::PRESET_FLAG_READONLY) &&
-	 !Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Organize"))->get_active())) {
+	((ll.get_flags() & gx_system::PRESET_FLAG_READONLY) && !actions.organize->get_active())) {
 	preset_treeview->unset_rows_drag_source();
     } else {
 	preset_treeview->unset_rows_drag_source(); //FIXME: needed?
@@ -1011,19 +998,19 @@ void PresetWindow::on_organize() {
     preset_column_delete->set_visible(v);
     Glib::RefPtr<Gtk::TreeSelection> sel = preset_treeview->get_selection();
     if (v) {
-	Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Presets"))->set_active(true);
+	actions.presets->set_active(true);
 	sel->set_mode(Gtk::SELECTION_NONE);
 	banks_combobox->set_active(-1);
 	banks_combobox->show();
 	presets_target_scrolledbox->show();
-	actiongroup->get_action("Save")->set_sensitive(false);
+	actions.save_changes->set_sensitive(false);
     } else {
 	sel->set_mode(Gtk::SELECTION_BROWSE);
 	banks_combobox->hide();
 	presets_target_scrolledbox->hide();
 	if (gx_settings.setting_is_preset()) {
 	    if (gx_settings.banks.get_file(gx_settings.get_current_bank())->is_mutable()) {
-		actiongroup->get_action("Save")->set_sensitive(true);
+		actions.save_changes->set_sensitive(true);
 	    }
 	}
     }
@@ -1032,7 +1019,7 @@ void PresetWindow::on_organize() {
 }
 
 void PresetWindow::on_presets_close() {
-    Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Presets"))->set_active(false); // FIXME
+    actions.presets->set_active(false); // FIXME
 }
 
 /*
@@ -1043,7 +1030,7 @@ bool PresetWindow::animate_preset_show() {
     vpaned_pos -= vpaned_step;
     if (vpaned_pos <= vpaned_target) {
 	main_vpaned->set_position(vpaned_target);
-	child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
+	gx_gui::child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
 	Gtk::TreeIter it = get_current_bank_iter();
 	if (it) {
 	    bank_treeview->scroll_to_row(bank_treeview->get_model()->get_path(it));
@@ -1065,7 +1052,7 @@ bool PresetWindow::animate_preset_hide() {
 }
 
 void PresetWindow::on_preset_changed() {
-    if (Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Organize"))->get_active()) {
+    if (actions.organize->get_active()) {
 	return;
     }
     Glib::ustring bank;
@@ -1100,7 +1087,7 @@ void PresetWindow::on_preset_changed() {
     reload_on_change_conn.block();
     gx_settings.load_preset(cpf, name);
     reload_on_change_conn.unblock();
-    actiongroup->get_action("Save")->set_sensitive(cpf && cpf->is_mutable());
+    actions.save_changes->set_sensitive(cpf && cpf->is_mutable());
 }
 
 void PresetWindow::on_preset_save() {
@@ -1119,7 +1106,7 @@ void PresetWindow::display_paned(bool show_preset, int paned_child_height) {
 	vpaned_pos = main_vpaned->get_allocation().get_height();
 	vpaned_target = vpaned_pos - paned_child_height - main_vpaned->get_handle_window()->get_height();
 	main_vpaned->set_position(vpaned_target);
-	child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
+	gx_gui::child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
     }
     preset_scrolledbox->show();
     if (!show_preset || !in_current_preset) {
@@ -1151,8 +1138,9 @@ void PresetWindow::display_paned(bool show_preset, int paned_child_height) {
 }
 
 void PresetWindow::on_preset_select(bool v, bool animated, int paned_child_height) {
+    on_map_conn.disconnect();
     bool is_mapped = main_vpaned->get_toplevel()->get_mapped();
-    bool rack_visible = Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("ShowRack"))->get_active(); //FIXME
+    bool rack_visible = actions.show_rack->get_active();
     if (v) {
 	if (gx_settings.banks.check_reparse()) {
 	    set_presets();
@@ -1175,6 +1163,7 @@ void PresetWindow::on_preset_select(bool v, bool animated, int paned_child_heigh
 		    sigc::mem_fun(*this, &PresetWindow::display_paned),
 		    true, paned_child_height));
 	} else if (animated && rack_visible) {
+	    gx_gui::child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", true);
 	    vpaned_pos = main_vpaned->get_allocation().get_height();
 	    vpaned_target = vpaned_pos - paned_child_height - main_vpaned->get_handle_window()->get_height();
 	    main_vpaned->set_position(vpaned_pos);
@@ -1188,14 +1177,13 @@ void PresetWindow::on_preset_select(bool v, bool animated, int paned_child_heigh
     } else {
 	vpaned_target = main_vpaned->get_allocation().get_height();
 	vpaned_pos = main_vpaned->get_position();
-	//paned_child_height = vpaned_target - vpaned_pos;
 	if (animated && is_mapped && rack_visible) {
 	    vpaned_step = paned_child_height / 5;
-	    child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", true);
+	    gx_gui::child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", true);
 	    Glib::signal_timeout().connect(sigc::mem_fun(*this, &PresetWindow::animate_preset_hide), 20);
 	} else {
 	    preset_scrolledbox->hide();
 	}
-	Glib::RefPtr<Gtk::ToggleAction>::cast_dynamic(actiongroup->get_action("Organize"))->set_active(false);
+	actions.organize->set_active(false);
     }
 }

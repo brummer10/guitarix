@@ -21,8 +21,6 @@
  * ----------------------------------------------------------------------------
  */
 
-extern void child_set_property(Gtk::Container& container, Gtk::Widget& child, const char *property_name, bool value);
-
 /****************************************************************
  ** class PresetWindow
  */
@@ -67,10 +65,12 @@ public:
     using Gtk::TreeView::on_drag_motion;
 };
 
+class GxActions;
+
 class PresetWindow: public sigc::trackable {
 private:
     gx_preset::GxSettings& gx_settings;
-    Glib::RefPtr<Gtk::ActionGroup> actiongroup;
+    GxActions& actions;
     bool in_edit;
     Gtk::TreeModel::iterator edit_iter;
     Glib::RefPtr<Gdk::Pixbuf> pb_edit;
@@ -90,7 +90,6 @@ private:
     const gx_system::CmdlineOptions& options;
     bool in_current_preset;
     sigc::connection on_map_conn;
-    Glib::RefPtr<Gtk::AccelGroup> accel_group;
     sigc::connection reload_on_change_conn;
 
     // widget pointers (keep last)
@@ -162,9 +161,8 @@ private:
     void display_paned(bool show_preset, int paned_child_height);
     void on_selection_changed();
 public:
-    PresetWindow(gx_engine::ParamMap& pmap, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
-		 const gx_system::CmdlineOptions& options, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
+    PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
+		 const gx_system::CmdlineOptions& options, GxActions& actions);
     ~PresetWindow();
     void on_preset_select(bool v, bool animated, int preset_window_height);
-    void set_accel_group(Glib::RefPtr<Gtk::AccelGroup>& accel_group_);
 };
