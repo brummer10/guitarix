@@ -294,6 +294,7 @@ public:
 template<class T>
 uiSelector<T>::uiSelector(gx_ui::GxUI& ui, Gtk::Range *rng_, T* zone)
     : gx_ui::GxUiItemV<T>(&ui, zone), rng(rng_) {
+    rng->set_value(*zone);
     rng->signal_value_changed().connect(
 	sigc::mem_fun(*this, &uiSelector<T>::on_value_changed));
 }

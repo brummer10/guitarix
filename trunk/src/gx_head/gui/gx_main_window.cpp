@@ -390,9 +390,11 @@ UiToggleAction<Param>::UiToggleAction(
     : Gtk::ToggleAction(name, icon_name, label, tooltip, is_active),
       gx_ui::GxUiItem(),
       param(para),
-      ui(ui_) {
+      ui(ui_)
+{
     ui.registerZone(param.zone(), this);
-      }
+    reflectZone();
+}
 
 template <class Param>
 UiToggleAction<Param>::~UiToggleAction() {
@@ -431,9 +433,11 @@ UiRadioAction<Param>::UiRadioAction(
     : Gtk::RadioAction(group, name, icon_name, label, tooltip),
       gx_ui::GxUiItem(),
       param(para),
-      ui(ui_) {
+      ui(ui_)
+{
     ui.registerZone(param.zone(), this);
-      }
+    reflectZone();
+}
 
 template <class Param>
 UiRadioAction<Param>::~UiRadioAction() {
@@ -1421,12 +1425,12 @@ void MainWindow::create_actions() {
 		     sigc::mem_fun(*this, &MainWindow::on_preset_action));
 
     actions.show_plugin_bar = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_toolbar", false, false), "ShowPluginBar",_("Show Plugin _Bar"),"",true);
+	ui, *pmap.reg_switch("system.show_toolbar", false, false), "ShowPluginBar",_("Show Plugin _Bar"));
     actions.group->add(actions.show_plugin_bar,
 		     sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
 
     actions.show_rack = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_rack", false, false), "ShowRack",_("Show _Rack"),"",true);
+	ui, *pmap.reg_switch("system.show_rack", false, false), "ShowRack",_("Show _Rack"));
     actions.group->add(actions.show_rack,
 		     sigc::mem_fun(*this, &MainWindow::on_show_rack));
 
@@ -1446,13 +1450,13 @@ void MainWindow::create_actions() {
 		   sigc::ref(actions.meterbridge), sigc::ref(jack)));
 
     actions.livetuner = UiBoolToggleAction::create(
-	ui, *pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false), "LiveTuner", "??", "", false);
+	ui, *pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false), "LiveTuner", "??");
 
     /*
     ** rack actions
     */
     actions.tuner = UiBoolToggleAction::create(
-	ui, *pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false), "Tuner",_("_Tuner"),"",true);
+	ui, *pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false), "Tuner",_("_Tuner"));
     actions.group->add(actions.tuner,
 		     sigc::mem_fun(*this, &MainWindow::on_show_tuner));
 
@@ -1469,7 +1473,7 @@ void MainWindow::create_actions() {
 		     sigc::mem_fun(*this, &MainWindow::on_expand_all));
 
     actions.rackh = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.order_rack_h", false, false), "RackH", _("Order Rack Horizontally"), "", true);
+	ui, *pmap.reg_switch("system.order_rack_h", false, false), "RackH", _("Order Rack Horizontally"));
     actions.group->add(actions.rackh,
 		     sigc::mem_fun(*this, &MainWindow::on_dir_changed));
 
@@ -1477,12 +1481,12 @@ void MainWindow::create_actions() {
     ** option actions
     */
     actions.show_values = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_value", false, false), "ShowValues",_("_Show Values"), "", true);
+	ui, *pmap.reg_switch("system.show_value", false, false), "ShowValues",_("_Show Values"));
     actions.group->add(actions.show_values,
 		     sigc::mem_fun(*this, &MainWindow::on_show_values));
 
     actions.tooltips = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_tooltips", false, true), "ShowTooltips", _("Show _Tooltips"));
+	ui, *pmap.reg_switch("system.show_tooltips", false, true), "ShowTooltips", _("Show _Tooltips"), "", true);
     actions.group->add(
 	actions.tooltips,
 	sigc::compose(sigc::ptr_fun(set_tooltips),
@@ -1492,13 +1496,13 @@ void MainWindow::create_actions() {
 	ui, *pmap.reg_switch("system.midi_in_preset", false, false), "MidiInPresets", _("Include MIDI in _presets"));
     actions.group->add(actions.midi_in_presets);
 
-    actions.jackstartup = Gtk::ToggleAction::create("JackStartup", _("_Jack Startup Control"));
+    actions.jackstartup = Gtk::Action::create("JackStartup", _("_Jack Startup Control"));
     actions.group->add(
 	actions.jackstartup,
 	sigc::mem_fun(*this, &MainWindow::on_select_jack_control));
 
-    actions.group->add(Gtk::ToggleAction::create("ResetAll", _("Reset _All Parameters")),
-		     sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
+    actions.group->add(Gtk::Action::create("ResetAll", _("Reset _All Parameters")),
+		       sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
 
     actions.animations = UiBoolToggleAction::create(
 	ui, *pmap.reg_non_midi_par("system.animations", (bool*)0, false, true), "Animations", _("Use Animations"),"",true);
@@ -2325,8 +2329,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     pmap.reg_non_midi_par("system.mainwin_x", &mainwin_x, false, -1, -1, 99999);
     pmap.reg_non_midi_par("system.mainwin_y", &mainwin_y, false, -1, -1, 99999);
     pmap.reg_non_midi_par("system.mainwin_height", &mainwin_height, false, -1, -1, 99999);
-    pmap.reg_non_midi_par("system.mainwin_rack_height", &window_height, false, 500, 1, 99999);
-    pmap.reg_non_midi_par("system.preset_window_height", &preset_window_height, false, 200, 0, 99999);
+    pmap.reg_non_midi_par("system.mainwin_rack_height", &window_height, false, 600, 1, 99999);
+    pmap.reg_non_midi_par("system.preset_window_height", &preset_window_height, false, 150, 0, 99999);
 
     // rack tuner
     gx_engine::get_group_table().insert("racktuner", N_("Rack Tuner"));
@@ -2353,7 +2357,6 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore", "bank_combo_liststore", 0 };
     bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &ui, id_list);
     load_widget_pointers();
-    stereorackcontainerV->hide();
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
 
     // remove marker labels from boxes (used in glade to make display clearer)
@@ -2405,7 +2408,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	sigc::mem_fun(*this, &MainWindow::systray_menu));
 
     // add rack container
-    stereorackcontainerH->pack_start(stereorackcontainer, Gtk::PACK_EXPAND_WIDGET);
+    stereorackcontainerV->pack_start(stereorackcontainer, Gtk::PACK_EXPAND_WIDGET);
     monocontainer->pack_start(monorackcontainer, Gtk::PACK_EXPAND_WIDGET);
 
     /*
@@ -2589,6 +2592,11 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     ** at this point all parameters should be defined
     */
     pmap.set_init_values();
+
+    // call some action functions to sync state
+    // with settings defined in create_actions()
+    on_show_rack();
+    on_show_values();
 
     /*
     ** Jack client connection and subsequent initalizations

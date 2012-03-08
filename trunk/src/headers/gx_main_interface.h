@@ -174,7 +174,9 @@ class UiRackRegler: public UiRegler {
 struct uiCheckButton : public gx_ui::GxUiItemBool {
     GtkToggleButton* fButton;
     uiCheckButton(gx_ui::GxUI* ui, bool* zone, GtkToggleButton* b)
-                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {}
+                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {
+            gtk_toggle_button_set_active(fButton, *zone);
+    }
     static void toggled(GtkWidget *widget, gpointer data) {
             ((gx_ui::GxUiItemBool*)data)->modifyZone(GTK_TOGGLE_BUTTON(widget)->active);
         }
@@ -204,7 +206,9 @@ public:
 struct uiAdjustment : public gx_ui::GxUiItemFloat {
     GtkAdjustment* fAdj;
     uiAdjustment(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) :
-                 gx_ui::GxUiItemFloat(ui, zone), fAdj(adj) {}
+                 gx_ui::GxUiItemFloat(ui, zone), fAdj(adj) {
+	gtk_adjustment_set_value(fAdj, *zone);
+}
     static void changed(GtkAdjustment *adj, gpointer data) {
             float    v = adj->value;
             ((gx_ui::GxUiItemFloat*)data)->modifyZone(v);

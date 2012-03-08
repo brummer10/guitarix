@@ -548,6 +548,7 @@ struct GxActions {
     Glib::RefPtr<Gtk::Action> compress;
     Glib::RefPtr<Gtk::Action> expand;
     Glib::RefPtr<Gtk::Action> jack_latency_menu;
+    Glib::RefPtr<Gtk::Action> jackstartup;
 
     Glib::RefPtr<Gtk::ToggleAction> rack_config;
     Glib::RefPtr<Gtk::ToggleAction> live_play;
@@ -557,7 +558,6 @@ struct GxActions {
     Glib::RefPtr<Gtk::ToggleAction> jackports;
     Glib::RefPtr<Gtk::ToggleAction> midicontroller;
     Glib::RefPtr<Gtk::ToggleAction> meterbridge;
-    Glib::RefPtr<Gtk::ToggleAction> jackstartup;
     Glib::RefPtr<Gtk::ToggleAction> loggingbox;
     Glib::RefPtr<Gtk::ToggleAction> animations;
 

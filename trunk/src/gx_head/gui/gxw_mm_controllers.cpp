@@ -101,6 +101,7 @@ UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regle
     m_regler->set_tooltip_text(tip);
     m_regler->cp_set_var(param.id());
     m_regler->set_adjustment(*this);
+    set_value(param.get_value());
     m_regler->show();
     m_regler->get_accessible()->set_description (param.id().c_str());
     m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
@@ -133,6 +134,7 @@ UiSelector<float>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<float> &par
       gx_ui::GxUiItemV<float>(&ui, &param.get_value()),
       Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0) {
     m_selector.set_adjustment(*this);
+    set_value(param.get_value());
     connect_midi_controller(GTK_WIDGET(m_selector.gobj()), gx_ui::GxUiItemV<float>::fZone);
 }
 
@@ -142,6 +144,7 @@ UiSelector<int>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<int> &param)
       gx_ui::GxUiItemV<int>(&ui, &param.get_value()),
       Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0) {
     m_selector.set_adjustment(*this);
+    set_value(param.get_value());
     connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
 }
 
@@ -151,6 +154,7 @@ UiSelector<unsigned int>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<unsi
       gx_ui::GxUiItemV<unsigned int>(&ui, &param.get_value()),
       Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0) {
     m_selector.set_adjustment(*this);
+    set_value(param.get_value());
     connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
 }
 

@@ -110,7 +110,7 @@ typedef GxUiItemV<bool> GxUiItemBool;
 
 template<class T>
 GxUiItemV<T>::GxUiItemV(GxUI* ui, T* zone)
-  : fGUI(ui), fZone(zone) {
+    : fGUI(ui), fZone(zone), fCache(*zone) {
     ui->registerZone(zone, this);
 }
 

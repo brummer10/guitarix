@@ -40,6 +40,7 @@ public:
 template<class T>
 uiToggle<T>::uiToggle(gx_ui::GxUI& ui, Gtk::ToggleButton *b, T *zone)
     : gx_ui::GxUiItemV<T>(&ui, zone), button(b) {
+    button->set_active(*zone);
     button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggle<T>::on_button_toggled));
 }
 
