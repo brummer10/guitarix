@@ -2339,6 +2339,11 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
 
     /*
+    ** create actions and some parameters
+    */
+    create_actions();
+
+    /*
     ** load key accelerator table and glade window definition
     **
     ** at this point all parameters that are used in the main window glade file must be defined
@@ -2350,13 +2355,32 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     load_widget_pointers();
     stereorackcontainerV->hide();
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
-    window->set_icon(gx_head_icon);
 
     // remove marker labels from boxes (used in glade to make display clearer)
     clear_box(*monocontainer);
     clear_box(*stereorackcontainerH);
     clear_box(*stereorackcontainerV);
     clear_box(*preset_box_no_rack);
+
+    // preset window also creates some actions
+    preset_window = new PresetWindow(bld, gx_settings, options, actions);
+
+    // create uimanager and load menu
+    uimanager = Gtk::UIManager::create();
+    uimanager->insert_action_group(actions.group);
+    uimanager->add_ui_from_file(options.get_builder_filepath("menudef.xml"));
+
+    // add dynamic submenus
+    add_skin_menu();
+    add_latency_menu();
+    amp_radio_menu.setup("<menubar><menu action=\"TubeMenu\">","</menu></menubar>",uimanager,actions.group);
+
+    // add menubar, accelgroup and icon to main window
+    Gtk::Widget *menubar = uimanager->get_widget("/menubar");
+    actions.accels = uimanager->get_accel_group();
+    menubox->pack_start(*menubar);
+    window->add_accel_group(actions.accels);
+    window->set_icon(gx_head_icon);
 
     /*
     ** connect main window signals
@@ -2501,29 +2525,6 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     gx_gui::connect_midi_controller(GTK_WIDGET(status_image->get_parent()->gobj()), &par.get_value());
     status_image->get_parent()->signal_button_press_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_toggle_mute));
-
-    /*
-    ** create actions and menubar
-    */
-    create_actions();
-    // preset window also creates some actions
-    preset_window = new PresetWindow(bld, gx_settings, options, actions);
-
-    // create uimanager and load menu
-    uimanager = Gtk::UIManager::create();
-    uimanager->insert_action_group(actions.group);
-    uimanager->add_ui_from_file(options.get_builder_filepath("menudef.xml"));
-
-    // add dynamic submenus
-    add_skin_menu();
-    add_latency_menu();
-    amp_radio_menu.setup("<menubar><menu action=\"TubeMenu\">","</menu></menubar>",uimanager,actions.group);
-
-    // add menubar and accelgroup to main window
-    Gtk::Widget *menubar = uimanager->get_widget("/menubar");
-    actions.accels = uimanager->get_accel_group();
-    menubox->pack_start(*menubar);
-    window->add_accel_group(actions.accels);
 
     /*
     ** connect buttons with actions
