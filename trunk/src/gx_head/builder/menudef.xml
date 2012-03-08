@@ -29,7 +29,6 @@
       <menuitem action="Compress" />
       <menuitem action="Expand" />
       <separator/>
-      <menuitem action="RackV" />
       <menuitem action="RackH" />
     </menu>
     <menu action="TubeMenu">

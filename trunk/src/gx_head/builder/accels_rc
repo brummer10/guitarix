@@ -36,7 +36,6 @@
 (gtk_accel_path "<Actions>/Main/Quit" "<Control>q")
 (gtk_accel_path "<Actions>/Main/RackConfig" "<Control>a")
 (gtk_accel_path "<Actions>/Main/RackH" "<Control>h")
-(gtk_accel_path "<Actions>/Main/RackV" "<Control>v")
 (gtk_accel_path "<Actions>/Main/ResetAll" "")
 (gtk_accel_path "<Actions>/Main/Save" "")
 (gtk_accel_path "<Actions>/Main/ShowPluginBar" "<Control>b")
