@@ -819,7 +819,7 @@
   </object>
   <object class="GtkWindow" id="MainWindow">
     <property name="can_focus">False</property>
-    <property name="default_height">600</property>
+    <property name="default_height">450</property>
     <child>
       <object class="GtkVBox" id="vbox4">
         <property name="visible">True</property>
@@ -2291,7 +2291,8 @@
             <child>
               <object class="GtkEntry" id="preset_status">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can_focus">False</property>
+                <property name="editable">False</property>
                 <property name="invisible_char">●</property>
                 <property name="invisible_char_set">True</property>
                 <property name="primary_icon_activatable">False</property>
