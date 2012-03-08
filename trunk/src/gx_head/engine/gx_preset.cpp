@@ -509,7 +509,7 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       bank_parameter(*param.reg_string("system.current_bank", "?", &current_bank, "")) {
     set_io(&state_io, &preset_io);
     statefile.set_filename(make_default_state_filename());
-    banks.parse(opt.get_user_filepath(bank_list), opt.get_preset_dir(), opt.get_factory_dir(),
+    banks.parse(opt.get_preset_filepath(bank_list), opt.get_preset_dir(), opt.get_factory_dir(),
 		scratchpad_name, scratchpad_file);
     instance = this;
     gx_system::GxExit::get_instance().signal_exit().connect(
@@ -655,13 +655,13 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	}
 	*need_new_preset = true;
     }
-    fname = opt.get_user_filepath(bank_list);
+    fname = opt.get_preset_filepath(bank_list);
     if (access(fname.c_str(), R_OK) != 0) {
 	ofstream f(fname.c_str());
 	if (!f.good()) {
 	    throw gx_system::GxFatalError(
 		boost::format(_("can't create '%1%' in directory '%2%'"))
-		% bank_list % opt.get_user_dir());
+		% bank_list % opt.get_preset_dir());
 	}
 	gx_system::PresetFile pre;
 	pre.open_file(scratchpad_name, opt.get_preset_filepath(scratchpad_file), gx_system::PresetFile::PRESET_SCRATCH, 0);
