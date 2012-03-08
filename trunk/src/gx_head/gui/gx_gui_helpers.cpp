@@ -43,6 +43,7 @@ void show_error_msg(const string& msg) {
     Gtk::MessageDialog dialog(
 	msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
     dialog.set_title("gx_head");
+    dialog.set_keep_above();
     dialog.run();
 }
 

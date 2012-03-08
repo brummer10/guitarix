@@ -1770,10 +1770,11 @@ bool MainWindow::update_all_gui() {
 // 0:  fail
 // -1: no start command configured
 int MainWindow::start_jack() {
+    int wait_after_connect = 0;
     gx_engine::EnumParameter& jack_starter = pmap["ui.jack_starter_idx"].getEnum();
     string v_id = jack_starter.get_pair().value_id;
     if (v_id == "autostart") {
-	return jack.gx_jack_connection(true, true) ? 1 : 0;
+	return jack.gx_jack_connection(true, true, wait_after_connect) ? 1 : 0;
     }
     string cmd;
     if (v_id == "other") {
@@ -1782,13 +1783,14 @@ int MainWindow::start_jack() {
 	    return -1;
 	}
     } else if (v_id == "qjackctl") {
+	wait_after_connect = 500000;
 	cmd = "qjackctl --start";
     } else {
 	assert(false);
     }
     gx_system::gx_system_call(cmd, true, true);
     for (int i = 0; i < 10; i++) {
-	if (jack.gx_jack_connection(true,false)) {
+	if (jack.gx_jack_connection(true,false,wait_after_connect)) {
 	    return 1;
 	}
 	usleep(500000);
@@ -1800,7 +1802,7 @@ int MainWindow::start_jack() {
 }
 
 bool MainWindow::connect_jack(bool v, Gtk::Window *splash) {
-    if (jack.gx_jack_connection(v, false)) {
+    if (jack.gx_jack_connection(v, false, 0)) {
 	return true;
     }
     if (!v) {
