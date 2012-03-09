@@ -537,6 +537,13 @@ static int get_upper(const value_pair *vn) {
     }
 }
 
+void Parameter::range_warning(float value, float lower, float upper) {
+    gx_system::gx_print_warning(
+	_("parameter load"),
+	Glib::ustring::compose(_("parameter %1: value %2 out of range [%3, %4]"),
+			       _id, value, lower, upper));
+}
+
 bool Parameter::hasRange() const {
     return false;
 }
@@ -685,6 +692,9 @@ void FloatParameter::writeJSON(gx_system::JsonWriter& jw) {
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_float();
+    if (json_value < lower || json_value > upper) {
+	range_warning(json_value, lower, upper);
+    }
 }
 
 bool FloatParameter::compareJSON_value() {
@@ -806,6 +816,9 @@ void IntParameter::writeJSON(gx_system::JsonWriter& jw) {
 void IntParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_int();
+    if (json_value < lower || json_value > upper) {
+	range_warning(json_value, lower, upper);
+    }
 }
 
 bool IntParameter::compareJSON_value() {
@@ -916,6 +929,9 @@ void UIntParameter::writeJSON(gx_system::JsonWriter& jw) {
 void UIntParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_uint();
+    if (json_value < lower || json_value > upper) {
+	range_warning(json_value, lower, upper);
+    }
 }
 
 bool UIntParameter::compareJSON_value() {
@@ -1016,6 +1032,9 @@ void BoolParameter::writeJSON(gx_system::JsonWriter& jw) {
 
 void BoolParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
+    if (jp.current_value_int() < 0 || jp.current_value_int() > 1) {
+	range_warning(json_value, 0, 1);
+    }
     json_value = jp.current_value_int();
 }
 
@@ -1060,6 +1079,9 @@ void SwitchParameter::writeJSON(gx_system::JsonWriter& jw) {
 
 void SwitchParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
+    if (jp.current_value_int() < 0 || jp.current_value_int() > 1) {
+	range_warning(json_value, 0, 1);
+    }
     json_value = jp.current_value_int();
 }
 

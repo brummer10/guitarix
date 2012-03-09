@@ -111,7 +111,8 @@ protected:
     bool own_var : 1;
     bool do_not_save : 1;
     bool used : 1; // debug
-
+protected:
+    void range_warning(float value, float lower, float upper);
 public:
     Parameter(const string& id, const string& name, value_type vtp, ctrl_type ctp, bool preset,
               bool ctrl):
