@@ -105,7 +105,11 @@ void MidiControllerTable::load() {
                 low = gx_gui::fformat(j->lower(), step);
                 up = gx_gui::fformat(j->upper(), step);
             } else if (p.getControlType() == gx_engine::Parameter::Switch) {
-                tp = "Switch";
+		if (j->is_toggle()) {
+		    tp = "Toggle";
+		} else {
+		    tp = "Switch";
+		}
                 low = up = "";
             } else {
                 tp = "??";
