@@ -603,6 +603,7 @@ private:
     Gtk::UIManager::ui_merge_id preset_list_merge_id;
     Glib::RefPtr<Gtk::ActionGroup> preset_list_actiongroup;
     Glib::RefPtr<Gtk::RadioAction> select_preset_action;
+    sigc::connection select_preset_action_conn;
     Glib::RefPtr<Gtk::UIManager> uimanager;
     gx_system::CmdlineOptions& options;
     gx_engine::ParamMap&  pmap;
@@ -769,6 +770,7 @@ private:
     void set_switcher_controller();
     void set_vpaned_handle();
     void rebuild_preset_menu();
+    void reflect_in_preset_menu();
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
 	       gx_engine::ParamMap& pmap, Gtk::Window *splash);

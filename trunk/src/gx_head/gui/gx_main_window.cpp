@@ -559,6 +559,23 @@ void MainWindow::on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act) {
     gx_settings.load_preset(pf, pf->get_name(act->get_current_value()));
 }
 
+void MainWindow::reflect_in_preset_menu() {
+    if (!select_preset_action) {
+	return;
+    }
+    gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
+    if (!pf) {
+	return;
+    }
+    int i = pf->get_index(gx_settings.get_current_name());
+    if (i < 0) {
+	return;
+    }
+    select_preset_action_conn.block();
+    select_preset_action->set_current_value(i);
+    select_preset_action_conn.unblock();
+}
+
 void MainWindow::rebuild_preset_menu() {
     if (preset_list_merge_id) {
 	uimanager->remove_ui(preset_list_merge_id);
@@ -581,7 +598,6 @@ void MainWindow::rebuild_preset_menu() {
     Gtk::RadioButtonGroup pg;
     int idx = 0;
     char c = '1';
-    select_preset_action.reset();
     for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i) {
 	Glib::ustring actname = "PresetList_" + i->name;
 	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(pg, actname, i->name);
@@ -604,7 +620,7 @@ void MainWindow::rebuild_preset_menu() {
 	if (i >= 0) {
 	    select_preset_action->set_current_value(i);
 	}
-	select_preset_action->signal_changed().connect(
+	select_preset_action_conn = select_preset_action->signal_changed().connect(
 	    sigc::mem_fun(*this, &MainWindow::on_select_preset));
     }
     dynamic_cast<Gtk::MenuItem*>(uimanager->get_widget("/menubar/PresetsMenu/PresetListMenu"))->set_label(_("_Bank: ")+preset_list_menu_bank);
@@ -617,13 +633,7 @@ void MainWindow::show_selected_preset() {
 	if (preset_list_menu_bank != gx_settings.get_current_bank()) {
 	    rebuild_preset_menu();
 	}	    
-	gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
-	if (pf) {
-	    int i = pf->get_index(gx_settings.get_current_name());
-	    if (i >= 0 && select_preset_action) {
-		select_preset_action->set_current_value(i);
-	    }
-	}
+	reflect_in_preset_menu();
     }
     preset_status->set_text(t);
 }
@@ -2287,6 +2297,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       preset_list_merge_id(0),
       preset_list_actiongroup(),
       select_preset_action(),
+      select_preset_action_conn(),
       uimanager(),
       options(options_),
       pmap(pmap_),
