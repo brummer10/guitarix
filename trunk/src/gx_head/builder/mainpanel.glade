@@ -590,7 +590,23 @@
               <object class="GtkLabel" id="liveplay_preset">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">label</property>
+                <property name="label" translatable="yes">Bank</property>
+                <attributes>
+                  <attribute name="size" value="50000"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="liveplay_bank">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Preset</property>
+                <property name="justify">center</property>
                 <attributes>
                   <attribute name="size" value="50000"/>
                 </attributes>
@@ -598,7 +614,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">False</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child>
@@ -640,7 +656,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">3</property>
+                <property name="position">4</property>
               </packing>
             </child>
             <child>
@@ -718,7 +734,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">4</property>
+                <property name="position">5</property>
               </packing>
             </child>
             <child>
@@ -809,7 +825,7 @@
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="pack_type">end</property>
-                <property name="position">5</property>
+                <property name="position">6</property>
               </packing>
             </child>
           </object>

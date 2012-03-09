@@ -52,10 +52,10 @@ bool TunerSwitcher::display_bank_key(int idx) {
     last_bank_idx = idx;
     Glib::ustring bank = lp.gx_settings.banks.get_name(idx);
     if (bank.empty()) {
-	lp.liveplay_preset->set_text("-- / --");
+	lp.display("--", "--");
 	return false;
     }
-    lp.liveplay_preset->set_text(Glib::ustring::compose("%1 /", bank));
+    lp.display(bank, "");
     return true;
 }
 
@@ -63,15 +63,15 @@ bool TunerSwitcher::display_preset_key(int idx) {
     last_preset_idx = idx;
     Glib::ustring bank = lp.gx_settings.banks.get_name(last_bank_idx);
     if (bank.empty()) {
-	lp.liveplay_preset->set_text(Glib::ustring::compose("?? / %1", idx+1));
+	lp.display("??", gx_system::to_string(idx+1));
 	return false;
     }
     gx_system::PresetFile *f = lp.gx_settings.banks.get_file(bank);
     if (idx >= f->size()) {
-	lp.liveplay_preset->set_text(Glib::ustring::compose("%1 / %2?", bank, idx+1));
+	lp.display(bank, gx_system::to_string(idx+1));
 	return false;
     }
-    lp.liveplay_preset->set_text(Glib::ustring::compose("%1 / %2", bank, f->get_name(idx)));
+    lp.display(bank, f->get_name(idx));
     return true;
 }
 
@@ -106,30 +106,30 @@ void TunerSwitcher::set_state(SwitcherState newstate) {
     if (state == newstate) {
 	return;
     }
-    switch (newstate) {
+    state = newstate;
+    bool sens = true;
+    Gtk::StateType st = Gtk::STATE_NORMAL;
+    switch (state) {
     case normal_mode:
-	lp.liveplay_preset->set_sensitive(true);
-	lp.liveplay_preset->set_state(Gtk::STATE_NORMAL);
 	break;
     case wait_start:
-	assert(state == normal_mode);
-	lp.liveplay_preset->set_sensitive(false);
+	sens = false;
+	st = Gtk::STATE_SELECTED;
 	break;
     case listening:
-	assert(state == wait_start || state == wait_stop);
-	if (state == wait_start) {
-	    lp.liveplay_preset->set_sensitive(true);
-	}
-	lp.liveplay_preset->set_state(Gtk::STATE_SELECTED);
+	st = Gtk::STATE_SELECTED;
 	break;
     case wait_stop:
-	assert(state == listening);
-	lp.liveplay_preset->set_state(Gtk::STATE_PRELIGHT);
+	st = Gtk::STATE_PRELIGHT;
 	break;
     default:
 	assert(false);
+	break;
     }
-    state = newstate;
+    lp.liveplay_bank->set_sensitive(sens);
+    lp.liveplay_bank->set_state(st);
+    lp.liveplay_preset->set_sensitive(sens);
+    lp.liveplay_preset->set_state(st);
 }
 
 bool TunerSwitcher::on_note_timeout() {
@@ -144,28 +144,28 @@ bool TunerSwitcher::on_note_timeout() {
 	}
     } else if (current_note == -25) {
 	if (old_engine_state != gx_engine::kEngineOff) {
-	    lp.liveplay_preset->set_text("MUTE");
+	    lp.display("", "MUTE");
 	    last_bank_idx = mute_on;
 	} else {
-	    lp.liveplay_preset->set_text("UNMUTE");
+	    lp.display("", "UNMUTE");
 	    last_bank_idx = mute_off;
 	}
 	set_state(wait_stop);
     } else if (current_note == -26) {
 	if (old_engine_state != gx_engine::kEngineBypass) {
-	    lp.liveplay_preset->set_text("BYPASS");
+	    lp.display("", "BYPASS");
 	    last_bank_idx = bypass_on;
 	} else {
-	    lp.liveplay_preset->set_text("BYPASS OFF");
+	    lp.display("", "BYPASS OFF");
 	    last_bank_idx = bypass_off;
 	}
 	set_state(wait_stop);
     } else if (current_note < 26) {
 	if (!old_tuner_active) {
-	    lp.liveplay_preset->set_text("TUNER ON");
+	    lp.display("", "TUNER ON");
 	    last_bank_idx = tuner_on;
 	} else {
-	    lp.liveplay_preset->set_text("TUNER OFF");
+	    lp.display("", "TUNER OFF");
 	    last_bank_idx = tuner_off;
 	}
 	set_state(wait_stop);
@@ -271,6 +271,11 @@ void TunerSwitcher::set_active(bool v) {
  ** class Liveplay
  */
 
+void Liveplay::display(const Glib::ustring& bank, const Glib::ustring& preset) {
+    liveplay_bank->set_text(bank);
+    liveplay_preset->set_text(preset);
+}
+
 bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
 			 guint keyval, GdkModifierType modifier,
 			 GtkAction* act) {
@@ -278,8 +283,8 @@ bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
     return true;
 }
 
-void Liveplay::display_empty(const Glib::ustring& s) {
-    liveplay_preset->set_text(s);
+void Liveplay::display_empty(const Glib::ustring& bank, const Glib::ustring& preset) {
+    display(bank, preset);
     key_timeout = Glib::signal_timeout().connect(
 	sigc::bind_return(sigc::mem_fun(this, &Liveplay::on_selection_changed), false), 400);
 }
@@ -288,14 +293,14 @@ bool Liveplay::process_preset_key(int idx) {
     key_timeout.disconnect();
     if (last_bank_key.empty()) {
 	if (!gx_settings.setting_is_preset()) {
-	    display_empty(Glib::ustring::compose("?? / %1", idx+1));
+	    display_empty("??", gx_system::to_string(idx+1));
 	    return false;
 	}
 	last_bank_key = gx_settings.get_current_bank();
     }
     gx_system::PresetFile *f = gx_settings.banks.get_file(last_bank_key);
     if (idx >= f->size()) {
-	display_empty(Glib::ustring::compose("%1 / %2?", last_bank_key, idx+1));
+	display_empty(last_bank_key, gx_system::to_string(idx+1)+"?");
 	return false;
     } else {
 	gx_settings.load_preset(f, f->get_name(idx));
@@ -307,10 +312,10 @@ bool Liveplay::process_bank_key(int idx) {
     key_timeout.disconnect();
     last_bank_key = gx_settings.banks.get_name(idx);
     if (last_bank_key.empty()) {
-	display_empty("-- / --");
+	display_empty("--", "--");
 	return false;
     }
-    liveplay_preset->set_text(Glib::ustring::compose("%1 /", last_bank_key));
+    display(last_bank_key, "");
     key_timeout = Glib::signal_timeout().connect(
 	sigc::bind_return(sigc::mem_fun(this, &Liveplay::on_selection_changed), false), 2000);
     return true;
@@ -334,7 +339,7 @@ bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *ac
 	return true;
     }
     self.key_timeout.disconnect();
-    self.display_empty("?? / ??");
+    self.display_empty("??", "??");
     return true;
 }
 
@@ -418,6 +423,7 @@ Liveplay::Liveplay(
     bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
     bld->get_toplevel("LivePlay", window);
 
+    bld->find_widget("liveplay_bank", liveplay_bank);
     bld->find_widget("liveplay_preset", liveplay_preset);
     bld->find_widget("liveplay_bypass_image", bypass_image);
     bld->find_widget("liveplay_mute_image", mute_image);
@@ -555,14 +561,11 @@ void Liveplay::on_engine_state_change(gx_engine::GxEngineState state) {
 
 void Liveplay::on_selection_changed() {
     last_bank_key.clear();
-    Glib::ustring s;
     if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state) {
-	s = "----";
+	display("----","");
     } else {
-	s = Glib::ustring::compose(
-	    "%1 / %2", gx_settings.get_current_bank(), gx_settings.get_current_name());
+	display(gx_settings.get_current_bank(), gx_settings.get_current_name());
     }
-    liveplay_preset->set_text(s);
 }
 
 void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {

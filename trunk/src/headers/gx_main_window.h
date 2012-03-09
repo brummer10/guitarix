@@ -135,6 +135,7 @@ private:
     //
     Gtk::Image *bypass_image;
     Gtk::Image *mute_image;
+    Gtk::Label *liveplay_bank;
     Gtk::Label *liveplay_preset;
     Gtk::Widget *liveplay_canvas;
     Gxw::HSlider *brightness_slider;
@@ -161,7 +162,7 @@ private:
 	guint keyval, GdkModifierType modifier, Liveplay& self);
     bool process_bank_key(int idx);
     bool process_preset_key(int idx);
-    void display_empty(const Glib::ustring& s);
+    void display_empty(const Glib::ustring& bank, const Glib::ustring& preset);
     static bool on_keyboard_toggle_mute(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
@@ -176,6 +177,7 @@ private:
 	guint keyval, GdkModifierType modifier, Liveplay& self);
     void on_switcher_toggled(bool v);
     bool pointer_motion(GdkEventMotion* event);
+    void display(const Glib::ustring& bank, const Glib::ustring& preset);
     friend class TunerSwitcher;
 public:
     Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine, gx_preset::GxSettings& gx_settings,
