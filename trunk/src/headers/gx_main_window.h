@@ -131,6 +131,7 @@ private:
     Gtk::Window *window;
     TunerSwitcher tuner_switcher;
     gx_ui::UiSignal<bool> switcher_signal;
+    sigc::connection mouse_hide_conn;
     //
     Gtk::Image *bypass_image;
     Gtk::Image *mute_image;
@@ -174,6 +175,7 @@ private:
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
     void on_switcher_toggled(bool v);
+    bool pointer_motion(GdkEventMotion* event);
     friend class TunerSwitcher;
 public:
     Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine, gx_preset::GxSettings& gx_settings,

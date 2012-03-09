@@ -412,7 +412,8 @@ Liveplay::Liveplay(
       midi_conn(),
       window(),
       tuner_switcher(*this),
-      switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()) { //FIXME
+      switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()), //FIXME
+      mouse_hide_conn() {
     const char *id_list[] = {"LivePlay", 0};
     bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
     bld->get_toplevel("LivePlay", window);
@@ -455,6 +456,9 @@ Liveplay::Liveplay(
 	sigc::mem_fun(this, &Liveplay::transparent_expose));
     window->signal_delete_event().connect(
 	sigc::mem_fun(this, &Liveplay::on_delete));
+    window->add_events(Gdk::POINTER_MOTION_HINT_MASK|Gdk::POINTER_MOTION_MASK);
+    window->signal_motion_notify_event().connect(
+	sigc::mem_fun(*this, &Liveplay::pointer_motion));
 
     gtk_activatable_set_related_action(
 	GTK_ACTIVATABLE(liveplay_exit->gobj()), GTK_ACTION(actions.live_play->gobj()));
@@ -520,6 +524,25 @@ Liveplay::Liveplay(
 
 Liveplay::~Liveplay() {
     delete window;
+}
+
+bool Liveplay::pointer_motion(GdkEventMotion* event) {
+    if (event) {
+	gdk_event_request_motions(event);
+    }
+    if (mouse_hide_conn.connected()) {
+	mouse_hide_conn.disconnect();
+    } else {
+	window->get_window()->set_cursor();
+    }
+    mouse_hide_conn = Glib::signal_timeout().connect_seconds(
+	sigc::bind_return(
+	    sigc::bind(
+		sigc::mem_fun1(window->get_window().operator->(), &Gdk::Window::set_cursor),
+		Gdk::Cursor(Gdk::BLANK_CURSOR)),
+	    false),
+	5);
+    return false;
 }
 
 void Liveplay::on_engine_state_change(gx_engine::GxEngineState state) {
