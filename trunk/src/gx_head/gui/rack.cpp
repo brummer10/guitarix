@@ -1448,7 +1448,7 @@ void RackContainer::check_order() {
     for (rackbox_list::iterator c = l.begin(); c != l.end(); ++c) {
 	if (in_order) {
 	    int w = (*c)->position_weight();
-	    if (w < last_weight) {
+	    if (w <= last_weight) {
 		in_order = false;
 	    }
 	    last_weight = w;
@@ -1462,6 +1462,7 @@ void RackContainer::check_order() {
 	for (std::vector<RackBox*>::iterator i = ol.begin(); i != ol.end(); ++i) {
 	    reorder_child(**i, n++);
 	}
+	renumber();
     }
 }
 
