@@ -319,6 +319,86 @@ static void destroy_with_widget(Glib::Object *t, gx_ui::GxUiItem *p) {
     t->set_data("GxUiItem", p, widget_destroyed);
 }
 
+static void make_switch_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
+    w->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
+    Gtk::ToggleButton *t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
+    if (p.isFloat()) {
+	gx_engine::FloatParameter &fp = p.getFloat();
+	w->cp_set_value(fp.get_value());
+	if (t) {
+	    destroy_with_widget(t, new uiToggle<float>(ui, t, &fp.get_value()));
+	}
+    } else if (p.isBool()) {
+	gx_engine::BoolParameter &fp = p.getBool();
+	w->cp_set_value(fp.get_value());
+	if (t) {
+	    destroy_with_widget(t, new uiToggle<bool>(ui, t, &fp.get_value()));
+	}
+    } else {
+	gx_system::gx_print_warning(
+	    "load dialog",
+	    Glib::ustring::compose("Switch Parameter variable %1: type not handled", p.id()));
+    }
+}
+
+static void make_continuous_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
+    Glib::RefPtr<Gtk::Range> r = Glib::RefPtr<Gtk::Range>::cast_dynamic(w);
+    if (!r) {
+	make_switch_controller(ui, w, p);
+	return;
+    }
+    if (!p.isFloat()) {
+	gx_system::gx_print_warning(
+	    "load dialog",
+	    Glib::ustring::compose("Continuous Parameter variable %1: type not handled", p.id()));
+	return;
+    }
+    gx_engine::FloatParameter &fp = p.getFloat();
+    w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
+    w->cp_set_value(fp.get_value());
+    Gtk::Adjustment *adj = r->get_adjustment();
+    gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.get_value(), adj->gobj());
+    destroy_with_widget(r.operator->(), c);
+    adj->signal_value_changed().connect(
+	sigc::bind<GtkAdjustment*>(
+	    sigc::bind<gpointer>(
+		sigc::ptr_fun(gx_gui::uiAdjustment::changed),
+		(gpointer)c), adj->gobj()));
+}
+
+static void make_enum_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
+    Gxw::Selector *t = dynamic_cast<Gxw::Selector*>(w.operator->());
+    if (!t) {
+	make_continuous_controller(ui, w, p);
+	return;
+    }
+    Gtk::TreeModelColumn<Glib::ustring> label;
+    Gtk::TreeModelColumnRecord rec;
+    rec.add(label);
+    Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+    for (const value_pair *vp = p.getValueNames(); vp->value_id; ++vp) {
+	ls->append()->set_value(0, Glib::ustring(p.value_label(*vp)));
+    }
+    t->set_model(ls);
+    if (p.isInt()) {
+	int& val = p.getInt().get_value();
+	destroy_with_widget(t, new uiSelector<int>(ui, t, &val));
+	t->cp_set_value(val);
+    } else if (p.isUInt()) {
+	unsigned int& val = p.getUInt().get_value();
+	destroy_with_widget(t, new uiSelector<unsigned int>(ui, t, &val));
+	t->cp_set_value(val);
+    } else if (p.isFloat()) {
+	float& val = p.getFloat().get_value();
+	destroy_with_widget(t, new uiSelector<float>(ui, t, &val));
+	t->cp_set_value(val);
+    } else {
+	gx_system::gx_print_warning(
+	    "load dialog",
+	    Glib::ustring::compose("Enum Parameter variable %1: type not handled", p.id()));
+    }
+}
+
 void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
     Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
         gtk_builder_get_objects(gobj()), Glib::OWNERSHIP_DEEP);
@@ -342,8 +422,9 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
 	    Glib::RefPtr<Gtk::Widget> wd = Glib::RefPtr<Gtk::Widget>::cast_dynamic(w);
 	    wd->set_sensitive(0);
             wd->set_tooltip_text(v);
-            gx_system::gx_print_warning("load dialog",
-                (boost::format("Parameter variable %1% not found") % v).str());
+            gx_system::gx_print_warning(
+		"load dialog",
+		(boost::format("Parameter variable %1% not found") % v).str());
             continue;
         }
         gx_engine::Parameter& p = gx_engine::parameter_map[v];
@@ -351,65 +432,16 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
             Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(
 		gettext(p.desc().c_str()));
         }
-        if (p.isFloat()) {
-            gx_engine::FloatParameter &fp = p.getFloat();
-            w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
-            w->cp_set_value(fp.get_value());
-            Glib::RefPtr<Gtk::Range> r = Glib::RefPtr<Gtk::Range>::cast_dynamic(w);
-            if (r) {
-                Gtk::Adjustment *adj = r->get_adjustment();
-                gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.get_value(), adj->gobj());
-		destroy_with_widget(r.operator->(), c);
-                adj->signal_value_changed().connect(
-                    sigc::bind<GtkAdjustment*>(
-                        sigc::bind<gpointer>(
-                            sigc::ptr_fun(gx_gui::uiAdjustment::changed),
-			    (gpointer)c), adj->gobj()));
-            } else {
-                Gtk::ToggleButton* t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
-		if (t) {
-		    destroy_with_widget(t, new uiToggle<float>(ui, t, &fp.get_value()));
-		}
-            }
-            if (fp.isControllable()) {
-                gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.get_value());
-            }
-        } else if (p.isBool()) {
-            gx_engine::BoolParameter &fp = p.getBool();
-            w->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
-            w->cp_set_value(fp.get_value());
-	    Gtk::ToggleButton *t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
-	    if (t) {
-		destroy_with_widget(t, new uiToggle<bool>(ui, t, &fp.get_value()));
-	    }
-            if (fp.isControllable()) {
-                gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.get_value());
-            }
-	} else if (p.isInt() || p.isUInt()) {
-	    Gxw::Selector *t = dynamic_cast<Gxw::Selector*>(w.operator->());
-	    if (t) {
-		Gtk::TreeModelColumn<Glib::ustring> label;
-		Gtk::TreeModelColumnRecord rec;
-		rec.add(label);
-		Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
-		for (const value_pair *vp = p.getValueNames(); vp->value_id; ++vp) {
-		    ls->append()->set_value(0, Glib::ustring(p.value_label(*vp)));
-		}
-		t->set_model(ls);
-		if (p.isInt()) {
-		    int& val = p.getInt().get_value();
-		    destroy_with_widget(t, new uiSelector<int>(ui, t, &val));
-		    t->cp_set_value(val);
-		} else {
-		    unsigned int& val = p.getUInt().get_value();
-		    destroy_with_widget(t, new uiSelector<unsigned int>(ui, t, &val));
-		    t->cp_set_value(val);
-		}
-	    }
-        } else {
-            gx_system::gx_print_warning("load dialog",
-                      (boost::format("Parameter variable %1%: type not handled") % v).str());
+	switch (p.getControlType()) {
+	case gx_engine::Parameter::None:       assert(false); break;
+	case gx_engine::Parameter::Continuous: make_continuous_controller(ui, w, p); break;
+	case gx_engine::Parameter::Switch:     make_switch_controller(ui, w, p); break;
+	case gx_engine::Parameter::Enum:       make_enum_controller(ui, w, p); break;
+	default:         assert(false); break;
         }
+	if (p.isControllable()) {
+	    gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), p.zone());
+	}
     }
 }
 
