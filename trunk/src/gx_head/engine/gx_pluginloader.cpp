@@ -443,7 +443,7 @@ void PluginList::registerParameter(ParamMap& param, ParameterGroups& groups) {
 		param.reg_non_midi_par(string("ui.")+pd->name, &pl->box_visible, true);
 		param.reg_non_midi_par(s+".s_h", &pl->plug_visible, false);
 		param.reg_non_midi_par(s+".position", &pl->position, true,
-				       pl->position, 1, 999);
+				       pl->position, 0, 999);
 		if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
 		    if (pd->flags & PGN_PRE) {
 			pl->effect_post_pre = 1;
