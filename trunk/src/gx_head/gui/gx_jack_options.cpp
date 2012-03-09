@@ -86,6 +86,14 @@ SelectJackControlPgm* SelectJackControlPgm::create(gx_ui::GxUI *ui, gx_system::C
     return w;
 }
 
+bool SelectJackControlPgm::on_key_press_event(GdkEventKey *event) {
+    if (event->keyval == GDK_KEY_Escape && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+	close();
+	return true;
+    }
+    return Gtk::Window::on_key_press_event(event);
+}
+
 bool SelectJackControlPgm::on_delete_event(GdkEventAny* event) {
     close();
     return true;
@@ -166,11 +174,14 @@ bool gx_start_jack_dialog(Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
         gx_gui::gx_nchoice_dialog_without_entry(
             _(" Jack Starter "),
             _("\n                            WARNING                    \n\n"
-            "   The jack server is not currently running\n"
-            "   You can choose to activate it or terminate gx_head   \n\n"
-            "       1) activate jack   \n"
-            "       2) ignore jack, start gx_head anyway   \n"
-            "       3) exit gx_head   \n"),
+	      "   The jack server is not currently running\n"
+	      "   You can choose to activate it or terminate gx_head   \n\n"
+	      "       1) activate jack   \n"
+	      "       2) ignore jack, start gx_head anyway   \n"
+	      "       3) exit gx_head   \n"
+	      "\n"
+	      "   use options menu \"jack startup control\" to\n"
+	      "   set a jack start program\n"),
             nchoices,
             labels,
             responses,

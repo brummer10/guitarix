@@ -49,6 +49,7 @@ private:
     void on_ok_button();
     void on_cancel_button();
     bool on_delete_event(GdkEventAny* event);
+    bool on_key_press_event(GdkEventKey *event);
     static SelectJackControlPgm* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::ParamMap& pmap) {
 	return new SelectJackControlPgm(cobject, bld, pmap);
     }
