@@ -113,8 +113,6 @@ gint gx_nchoice_dialog_without_entry(
 
         gdk_color_parse("#555555", &colorBlack);
         gtk_widget_modify_bg(button, GTK_STATE_NORMAL, &colorBlack);
-
-        g_signal_connect_swapped(button, "clicked",  G_CALLBACK(gtk_widget_destroy), dialog);
     }
 
     // set default
@@ -129,6 +127,7 @@ gint gx_nchoice_dialog_without_entry(
 
     // --- run dialog and check response
     gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
     return response;
 }
 
