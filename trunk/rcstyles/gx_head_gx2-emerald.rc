@@ -62,7 +62,7 @@ GxPaintBox::skin-gradient = {
 	{ 52428, 0, 0, 0, 52428 }, # 0.8, 0, 0, 0, 0.8
 	{ 13107, 0, 0, 13107, 13107 }} # 0.2, 0, 0, 0.2, 0.2 
 	
-GxPaintBox::icon-set =5
+GxPaintBox::icon-set =2
 GxPaintBox::width =600
 GxPaintBox::height =180
 
