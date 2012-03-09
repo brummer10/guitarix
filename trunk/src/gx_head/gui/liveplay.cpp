@@ -476,10 +476,10 @@ Liveplay::Liveplay(
     gtk_accel_group_connect_by_path(ag->gobj(), actions.quit->get_accel_path().c_str(), cl);
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_toggle_mute), (gpointer)this, 0);
-    gtk_accel_group_connect(ag->gobj(), GDK_KEY_M, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_M, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_toggle_bypass), (gpointer)this, 0);
-    gtk_accel_group_connect(ag->gobj(), GDK_KEY_B, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+    gtk_accel_group_connect(ag->gobj(), GDK_KEY_B, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_arrows), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Left, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
