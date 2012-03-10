@@ -2636,6 +2636,10 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     // with settings defined in create_actions()
     on_show_rack();
     on_show_values();
+    // somehow need to load a style or window might open too wide
+    gtk_rc_parse(
+	(options.get_style_filepath(
+	    "gx_head_" + options.skin.skin_list[0] + ".rc")).c_str());
 
     /*
     ** Jack client connection and subsequent initalizations
