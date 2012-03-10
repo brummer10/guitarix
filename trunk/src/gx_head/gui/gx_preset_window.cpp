@@ -299,7 +299,11 @@ void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContex
     if (info != 1) {
 	return;
     }
-    bool is_move = context->get_selected_action() == Gdk::ACTION_MOVE;  //FIXME gtk 2.22
+#if false  //gtk 2.22
+    bool is_move = context->get_selected_action() == Gdk::ACTION_MOVE;
+#else
+    bool is_move = context->gobj()->action == GDK_ACTION_MOVE;
+#endif
     bool success = false;
     std::vector<Glib::ustring> uris = data.get_uris();
     Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
@@ -485,7 +489,7 @@ void PresetWindow::on_editing_started(const Gtk::CellEditable* edit, const Glib:
 }
 
 bool PresetWindow::edit_cell(const Gtk::TreeModel::Path pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell) {
-    dynamic_cast<Gtk::CellRendererText*>(&cell)->property_editable().set_value(true);  //FIXME gtk 2.24?
+    dynamic_cast<Gtk::CellRendererText*>(&cell)->property_editable().set_value(true);
     col.get_tree_view()->set_cursor(pt, col, true);
     return false;
 }
@@ -847,7 +851,14 @@ void PresetWindow::on_bank_reordered(const Gtk::TreeModel::Path& path) {
 void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter) {
     Glib::ustring val = iter->get_value(pstore->col.name);
     Glib::ustring t = val;
+#if false // gtk 2.24
     if (t.empty() && !cell->property_editing().get_value()) {
+    } //to make indent happy (remove)
+#else
+    gboolean editing;
+    g_object_get(cell->gobj(), "editing", &editing, NULL);
+    if (t.empty() && !editing) {
+#endif
 	t = "<new>";
     } else {
 	int n = *pstore->get_path(iter).begin();
