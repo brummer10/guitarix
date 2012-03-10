@@ -675,6 +675,7 @@ void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring
 	} else {
 	    delete f;
 	}
+	w->get_selection()->select(sel);
     } else {
 	Gtk::TreeNodeChildren ch = ls->children();
 	for (Gtk::TreeIter it = ch.begin(); it != ch.end(); ++it) {
@@ -683,9 +684,8 @@ void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring
 	    }
 	}
 	gx_settings.rename_bank(oldname, newname, newfile);
-	sel->set_value(bank_col.name, newname);
+	w->get_model()->get_iter(path)->set_value(bank_col.name, newname);
     }
-    w->get_selection()->select(sel);
     Gtk::TreeViewColumn *p = w->get_column(1);
     reset_edit(*p);
 }
@@ -947,7 +947,6 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
     }
     reload_target();
     reset_edit(*preset_treeview->get_column(0));
-    set_presets();
 }
 
 void PresetWindow::on_cursor_changed() {
