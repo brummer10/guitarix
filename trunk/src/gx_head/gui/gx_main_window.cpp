@@ -555,8 +555,7 @@ void MainWindow::load_widget_pointers() {
 }
 
 void MainWindow::on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act) {
-    gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
-    gx_settings.load_preset(pf, pf->get_name(act->get_current_value()));
+    keyswitch.process_preset_key(act->get_current_value());
 }
 
 void MainWindow::reflect_in_preset_menu() {
@@ -627,6 +626,7 @@ void MainWindow::rebuild_preset_menu() {
 }
 
 void MainWindow::show_selected_preset() {
+    keyswitch.deactivate();
     Glib::ustring t;
     if (gx_settings.setting_is_preset()) {
 	t = gx_settings.get_current_bank() + " / " + gx_settings.get_current_name();
@@ -1630,6 +1630,7 @@ void MainWindow::add_plugin(std::vector<PluginUI*> *p, const char *id, const Gli
     p->push_back(pui);
 }
 
+#ifdef accel_keys_for_plugins
 struct accel_search {
     unsigned int key;
     bool res;
@@ -1659,6 +1660,7 @@ static bool accel_map_next_key(unsigned int *accel_key) {
     }
     return false;
 }
+#endif
 
 void MainWindow::fill_pluginlist() {
     std::vector<PluginDesc*> l;
@@ -1729,7 +1731,9 @@ void MainWindow::fill_pluginlist() {
 	"<menubar><menu action=\"PluginsMenu\"><menu action=\"%1Plugins\"><menu action=\"%2\">"
 	"<menuitem action=\"%3\"/>"
 	"</menu></menu></menu></menubar>";
+#ifdef accel_keys_for_plugins
     unsigned int key = GDK_a;
+#endif
     for (std::vector<PluginDesc*>::iterator i = l.begin(); i != l.end(); ++i) {
 	int idx = 0;
 	for (std::vector<PluginUI*>::iterator v = (*i)->plugins->begin(); v != (*i)->plugins->end(); ++v) {
@@ -1744,10 +1748,12 @@ void MainWindow::fill_pluginlist() {
 	    }
 	    Glib::RefPtr<Gtk::ToggleAction> act = Gtk::ToggleAction::create(actionname, pui->get_name());
 	    actions.group->add(act);
+#ifdef accel_keys_for_plugins
 	    if (accel_map_next_key(&key)) {
 		Gtk::AccelMap::add_entry(act->get_accel_path(), key, Gdk::ModifierType(0));
 		++key;
 	    }
+#endif
 	    pui->set_action(act);
 	}
     }
@@ -2270,6 +2276,23 @@ bool MainWindow::on_meter_button_release(GdkEventButton* ev) {
     return false;
 }
 
+void MainWindow::display_preset_msg(const Glib::ustring& bank, const Glib::ustring& preset) {
+    preset_status->set_text(bank + " / " + preset);
+}
+
+bool MainWindow::on_key_press_event(GdkEventKey *event) {
+    // FIXME: lockout on text entry
+    if (event->keyval >= GDK_KEY_1 && event->keyval <= GDK_KEY_9 && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+	keyswitch.process_preset_key(event->keyval - GDK_KEY_1);
+	return true;
+    }
+    else if (event->keyval >= GDK_KEY_a && event->keyval <= GDK_KEY_z && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+	keyswitch.process_bank_key(event->keyval - GDK_KEY_a);
+	return true;
+    }
+    return false;
+}
+
 int MainWindow::skin = -1;
 bool MainWindow::no_warn_latency = false;
 int MainWindow::mainwin_x = -1;
@@ -2332,7 +2355,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       status_icon(Gtk::StatusIcon::create(gx_head_icon)),
       gx_head_midi(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-midi.png"))),
       gx_head_warn(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-warn.png"))),
-      actions() {
+      actions(),
+      keyswitch(gx_settings, sigc::mem_fun(this, &MainWindow::display_preset_msg)) {
 
     /*
     ** setup parameters
@@ -2411,6 +2435,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     window->signal_configure_event().connect_notify(sigc::mem_fun(*this, &MainWindow::on_configure_event));
     window->signal_visibility_notify_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_visibility_notify));
+    window->signal_key_press_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_key_press_event));
 
     /*
     ** status icon signal connections

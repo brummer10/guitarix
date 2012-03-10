@@ -525,13 +525,19 @@ void PresetWindow::start_edit(const Gtk::TreeModel::Path& pt, Gtk::TreeViewColum
 
 void PresetWindow::highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter) {
     Glib::ustring t = iter->get_value(bank_col.name);
+    if (t.empty()) {
+	return;
+    }
     Gtk::CellRendererText *tc = dynamic_cast<Gtk::CellRendererText*>(cell);
     if (gx_settings.setting_is_preset() && t == gx_settings.get_current_bank()) {
 	tc->property_foreground().set_value("#f00");
     } else{
 	tc->property_foreground_set().set_value(false);
     }
-    int n = *bank_treeview->get_model()->get_path(iter).begin();
+    int n = gx_settings.banks.size() - *bank_treeview->get_model()->get_path(iter).begin();
+    if (!(gx_settings.banks.get_file(t)->get_type() & gx_system::PresetFile::PRESET_FACTORY)) {
+	n -= 1;
+    }
     if (n > 26) {
 	t = "    " + t;
     } else {
@@ -860,7 +866,7 @@ void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iter
     if (t.empty() && !editing) {
 #endif
 	t = "<new>";
-    } else {
+    } else if (in_current_preset) {
 	int n = *pstore->get_path(iter).begin();
 	if (n >= 9) {
 	    t = "    " + t;

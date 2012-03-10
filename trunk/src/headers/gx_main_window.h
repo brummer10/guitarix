@@ -72,9 +72,14 @@ public:
 
 typedef UiRadioAction<gx_engine::SwitchParameter> UiSwitchRadioAction;
 
+
+/****************************************************************
+ ** class KeySwitcher
+ */
+
 class Liveplay;
 
-class TunerSwitcher {
+class TunerSwitcher: public sigc::trackable {
 private:
     enum SwitcherState { normal_mode, wait_start, listening, wait_stop };
     enum SwitcherActions {
@@ -111,6 +116,31 @@ public:
     void toggle() { set_active(!get_active()); }
 };
 
+
+/****************************************************************
+ ** class KeySwitcher
+ */
+
+class KeySwitcher: public sigc::trackable {
+private:
+    gx_preset::GxSettings& gx_settings;
+    sigc::slot<void, const Glib::ustring&, const Glib::ustring&> display;
+    sigc::connection key_timeout;
+    Glib::ustring last_bank_key;
+private:
+    void display_empty(const Glib::ustring& bank, const Glib::ustring& preset);
+    bool display_current();
+public:
+    KeySwitcher(gx_preset::GxSettings& gx_settings_,
+		sigc::slot<void, const Glib::ustring&, const Glib::ustring&> display_)
+	: gx_settings(gx_settings_), display(display_) {}
+    bool process_bank_key(int idx);
+    bool process_preset_key(int idx);
+    void display_key_error();
+    void deactivate();
+};
+
+
 /****************************************************************
  ** class Liveplay
  */
@@ -125,8 +155,7 @@ private:
     bool use_composite;
     Gtk::Adjustment brightness_adj;
     Gtk::Adjustment background_adj;
-    sigc::connection key_timeout;
-    Glib::ustring last_bank_key;
+    KeySwitcher keyswitch;
     sigc::connection midi_conn;
     Gtk::Window *window;
     TunerSwitcher tuner_switcher;
@@ -160,9 +189,6 @@ private:
     static bool on_keyboard_preset_select(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
-    bool process_bank_key(int idx);
-    bool process_preset_key(int idx);
-    void display_empty(const Glib::ustring& bank, const Glib::ustring& preset);
     static bool on_keyboard_toggle_mute(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
@@ -645,6 +671,7 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> gx_head_midi;
     Glib::RefPtr<Gdk::Pixbuf> gx_head_warn;
     GxActions actions;
+    KeySwitcher keyswitch;
 
     // Widget pointers
     Gxw::PaintBox *tunerbox;
@@ -775,6 +802,8 @@ private:
     void set_vpaned_handle();
     void rebuild_preset_menu();
     void reflect_in_preset_menu();
+    bool on_key_press_event(GdkEventKey *event);
+    void display_preset_msg(const Glib::ustring& bank, const Glib::ustring& preset);
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
 	       gx_engine::ParamMap& pmap, Gtk::Window *splash);

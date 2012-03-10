@@ -49,8 +49,8 @@ TunerSwitcher::TunerSwitcher(Liveplay &lp_)
 }
 
 bool TunerSwitcher::display_bank_key(int idx) {
-    last_bank_idx = idx;
-    Glib::ustring bank = lp.gx_settings.banks.get_name(idx);
+    last_bank_idx = lp.gx_settings.banks.size() - idx - 1;
+    Glib::ustring bank = lp.gx_settings.banks.get_name(last_bank_idx);
     if (bank.empty()) {
 	lp.display("--", "--");
 	return false;
@@ -268,28 +268,39 @@ void TunerSwitcher::set_active(bool v) {
 
 
 /****************************************************************
- ** class Liveplay
+ ** class KeySwitcher
  */
 
-void Liveplay::display(const Glib::ustring& bank, const Glib::ustring& preset) {
-    liveplay_bank->set_text(bank);
-    liveplay_preset->set_text(preset);
+void KeySwitcher::deactivate() {
+    last_bank_key.clear();
+    if (key_timeout.connected()) {
+	key_timeout.disconnect();
+	display_current();
+    }
 }
 
-bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
-			 guint keyval, GdkModifierType modifier,
-			 GtkAction* act) {
-    gtk_action_activate(act);
-    return true;
+void KeySwitcher::display_key_error() {
+    display_empty("??", "??");
 }
 
-void Liveplay::display_empty(const Glib::ustring& bank, const Glib::ustring& preset) {
+void KeySwitcher::display_empty(const Glib::ustring& bank, const Glib::ustring& preset) {
     display(bank, preset);
+    key_timeout.disconnect();
     key_timeout = Glib::signal_timeout().connect(
-	sigc::bind_return(sigc::mem_fun(this, &Liveplay::on_selection_changed), false), 400);
+	sigc::mem_fun(this, &KeySwitcher::display_current), 400);
 }
 
-bool Liveplay::process_preset_key(int idx) {
+bool KeySwitcher::display_current() {
+    last_bank_key.clear();
+    if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state) {
+	display("----","");
+    } else {
+	display(gx_settings.get_current_bank(), gx_settings.get_current_name());
+    }
+    return false;
+}
+
+bool KeySwitcher::process_preset_key(int idx) {
     key_timeout.disconnect();
     if (last_bank_key.empty()) {
 	if (!gx_settings.setting_is_preset()) {
@@ -308,16 +319,33 @@ bool Liveplay::process_preset_key(int idx) {
     }
 }
 
-bool Liveplay::process_bank_key(int idx) {
+bool KeySwitcher::process_bank_key(int idx) {
     key_timeout.disconnect();
-    last_bank_key = gx_settings.banks.get_name(idx);
+    last_bank_key = gx_settings.banks.get_name(gx_settings.banks.size() - idx - 1);
     if (last_bank_key.empty()) {
 	display_empty("--", "--");
 	return false;
     }
     display(last_bank_key, "");
     key_timeout = Glib::signal_timeout().connect(
-	sigc::bind_return(sigc::mem_fun(this, &Liveplay::on_selection_changed), false), 2000);
+	sigc::mem_fun(this, &KeySwitcher::display_current), 2000);
+    return true;
+}
+
+
+/****************************************************************
+ ** class Liveplay
+ */
+
+void Liveplay::display(const Glib::ustring& bank, const Glib::ustring& preset) {
+    liveplay_bank->set_text(bank);
+    liveplay_preset->set_text(preset);
+}
+
+bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
+			 guint keyval, GdkModifierType modifier,
+			 GtkAction* act) {
+    gtk_action_activate(act);
     return true;
 }
 
@@ -325,21 +353,20 @@ bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *ac
 					 guint keyval, GdkModifierType modifier, Liveplay& self) {
     int idx = keyval - GDK_KEY_1;
     if (idx >= 0 && idx <= 9) {
-	self.process_preset_key(idx);
+	self.keyswitch.process_preset_key(idx);
 	return true;
     }
     idx = keyval - GDK_KEY_KP_1;
     if (idx >= 0 && idx <= 9) {
-	self.process_preset_key(idx);
+	self.keyswitch.process_preset_key(idx);
 	return true;
     }
     idx = keyval - GDK_KEY_a;
     if (idx >= 0 && idx <= (GDK_KEY_z - GDK_KEY_a)) {
-	self.process_bank_key(idx);
+	self.keyswitch.process_bank_key(idx);
 	return true;
     }
-    self.key_timeout.disconnect();
-    self.display_empty("??", "??");
+    self.keyswitch.display_key_error();
     return true;
 }
 
@@ -412,8 +439,7 @@ Liveplay::Liveplay(
       use_composite(),
       brightness_adj(1,0.5,1,0.01,0.1),
       background_adj(0,0,1,0.01,0.1),
-      key_timeout(),
-      last_bank_key(),
+      keyswitch(gx_settings_, sigc::mem_fun(this, &Liveplay::display)),
       midi_conn(),
       window(),
       tuner_switcher(*this),
@@ -560,7 +586,7 @@ void Liveplay::on_engine_state_change(gx_engine::GxEngineState state) {
 }
 
 void Liveplay::on_selection_changed() {
-    last_bank_key.clear();
+    keyswitch.deactivate();
     if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state) {
 	display("----","");
     } else {
@@ -577,11 +603,7 @@ void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
 	window->show();
     } else {
 	midi_conn.disconnect();
-	last_bank_key.clear();
-	if (key_timeout.connected()) {
-	    key_timeout.disconnect();
-	    on_selection_changed();
-	}
+	keyswitch.deactivate();
 	tuner_switcher.set_active(false);
 	window->hide();
     }
