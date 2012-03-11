@@ -703,6 +703,9 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
 }
 
 void RackBox::display(bool v, bool animate) {
+    if (box_visible == v) {
+	return;
+    }
     box_visible = v;
     if (v) {
 	if (animate) {
