@@ -868,10 +868,10 @@ void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iter
 	t = "<new>";
     } else if (in_current_preset) {
 	int n = *pstore->get_path(iter).begin();
-	if (n >= 9) {
+	if (n > 9) {
 	    t = "    " + t;
 	} else {
-	    t = Glib::ustring::compose("%1:  %2", n+1, t);
+	    t = Glib::ustring::compose("%1:  %2", (n == 9 ? 0 : n+1), t);
 	}
     }
     cell->set_property("text", t);

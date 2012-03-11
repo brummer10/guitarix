@@ -363,19 +363,20 @@ bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
 
 bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *acceleratable,
 					 guint keyval, GdkModifierType modifier, Liveplay& self) {
-    int idx = keyval - GDK_KEY_1;
-    if (idx >= 0 && idx <= 9) {
-	self.keyswitch.process_preset_key(idx);
+    if (keyval == GDK_KEY_0 || keyval == GDK_KEY_KP_0) {
+	self.keyswitch.process_preset_key(9);
 	return true;
     }
-    idx = keyval - GDK_KEY_KP_1;
-    if (idx >= 0 && idx <= 9) {
-	self.keyswitch.process_preset_key(idx);
+    if (keyval >= GDK_KEY_1 && keyval <= GDK_KEY_9) {
+	self.keyswitch.process_preset_key(keyval - GDK_KEY_1);
 	return true;
     }
-    idx = keyval - GDK_KEY_a;
-    if (idx >= 0 && idx <= (GDK_KEY_z - GDK_KEY_a)) {
-	self.keyswitch.process_bank_key(idx);
+    if (keyval >= GDK_KEY_KP_1 && keyval <= GDK_KEY_KP_9) {
+	self.keyswitch.process_preset_key(keyval >= GDK_KEY_KP_1);
+	return true;
+    }
+    if (keyval >= GDK_KEY_a && keyval <= GDK_KEY_z) {
+	self.keyswitch.process_bank_key(keyval - GDK_KEY_a);
 	return true;
     }
     self.keyswitch.display_key_error();
@@ -538,11 +539,11 @@ Liveplay::Liveplay(
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_arrows), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Down, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
 
-    for (int n = GDK_KEY_1; n <= GDK_KEY_9; ++n) {
+    for (int n = GDK_KEY_0; n <= GDK_KEY_9; ++n) {
 	cl = g_cclosure_new(G_CALLBACK(on_keyboard_preset_select), (gpointer)this, 0);
 	gtk_accel_group_connect(ag->gobj(), n, (GdkModifierType)0, (GtkAccelFlags)0, cl);
     }
-    for (int n = GDK_KEY_KP_1; n <= GDK_KEY_KP_9; ++n) {
+    for (int n = GDK_KEY_KP_0; n <= GDK_KEY_KP_9; ++n) {
 	cl = g_cclosure_new(G_CALLBACK(on_keyboard_preset_select), (gpointer)this, 0);
 	gtk_accel_group_connect(ag->gobj(), n, (GdkModifierType)0, (GtkAccelFlags)0, cl);
     }
