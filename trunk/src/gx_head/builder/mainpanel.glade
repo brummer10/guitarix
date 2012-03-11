@@ -587,7 +587,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="liveplay_preset">
+              <object class="GtkLabel" id="liveplay_bank">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Bank</property>
@@ -602,7 +602,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="liveplay_bank">
+              <object class="GtkLabel" id="liveplay_preset">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Preset</property>
