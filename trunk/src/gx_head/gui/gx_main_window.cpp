@@ -655,7 +655,9 @@ void MainWindow::maybe_change_resizable() {
 }
 
 void MainWindow::set_vpaned_handle() {
-    int pos = main_vpaned->get_allocation().get_height() - preset_window_height - main_vpaned->get_handle_window()->get_height();
+    int w, h;
+    main_vpaned->get_handle_window()->get_size(w, h);
+    int pos = main_vpaned->get_allocation().get_height() - preset_window_height - h;
     main_vpaned->set_position(pos);
 }
 
