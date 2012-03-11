@@ -554,25 +554,8 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("preset_status", preset_status);
 }
 
-void MainWindow::on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act) {
-    keyswitch.process_preset_key(act->get_current_value());
-}
-
-void MainWindow::reflect_in_preset_menu() {
-    if (!select_preset_action) {
-	return;
-    }
-    gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
-    if (!pf) {
-	return;
-    }
-    int i = pf->get_index(gx_settings.get_current_name());
-    if (i < 0) {
-	return;
-    }
-    select_preset_action_conn.block();
-    select_preset_action->set_current_value(i);
-    select_preset_action_conn.unblock();
+void MainWindow::on_select_preset(int idx) {
+    keyswitch.process_preset_key(idx);
 }
 
 void MainWindow::rebuild_preset_menu() {
@@ -581,7 +564,6 @@ void MainWindow::rebuild_preset_menu() {
 	uimanager->remove_action_group(preset_list_actiongroup);
 	preset_list_menu_bank.clear();
 	preset_list_merge_id = 0;
-	select_preset_action.reset();
 	preset_list_actiongroup.reset();
     }
     if (!gx_settings.setting_is_preset()) {
@@ -594,34 +576,24 @@ void MainWindow::rebuild_preset_menu() {
     preset_list_actiongroup = Gtk::ActionGroup::create("PresetList");
     preset_list_menu_bank = gx_settings.get_current_bank();
     Glib::ustring s = "<menubar><menu action=\"PresetsMenu\"><menu action=\"PresetListMenu\">";
-    Gtk::RadioButtonGroup pg;
     int idx = 0;
-    char c = '1';
-    for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i) {
+    for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
 	Glib::ustring actname = "PresetList_" + i->name;
-	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(pg, actname, i->name);
-	if (c <= '9') {
-	    preset_list_actiongroup->add(action, Gtk::AccelKey(Glib::ustring::compose("%1", (char)c++)));
+	Glib::RefPtr<Gtk::Action> action = Gtk::Action::create(actname, i->name);
+	if (idx <= 9) {
+	    char c = (idx == 9 ? '0' : '1'+idx);
+	    preset_list_actiongroup->add(
+		action, Gtk::AccelKey(Glib::ustring::compose("%1", c)),
+		sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
 	} else {
-	    preset_list_actiongroup->add(action);
-	}
-	if (idx == 0) {
-	    select_preset_action = action;
+	    preset_list_actiongroup->add(
+		action, sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
 	}
 	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
-	action->property_value().set_value(idx++);
     }
     s += "</menu></menu></menubar>";
     uimanager->insert_action_group(preset_list_actiongroup);
     preset_list_merge_id = uimanager->add_ui_from_string(s);
-    int i = pf->get_index(gx_settings.get_current_name());
-    if (select_preset_action) {
-	if (i >= 0) {
-	    select_preset_action->set_current_value(i);
-	}
-	select_preset_action_conn = select_preset_action->signal_changed().connect(
-	    sigc::mem_fun(*this, &MainWindow::on_select_preset));
-    }
     dynamic_cast<Gtk::MenuItem*>(uimanager->get_widget("/menubar/PresetsMenu/PresetListMenu"))->set_label(_("_Bank: ")+preset_list_menu_bank);
 }
 
@@ -633,7 +605,6 @@ void MainWindow::show_selected_preset() {
 	if (preset_list_menu_bank != gx_settings.get_current_bank()) {
 	    rebuild_preset_menu();
 	}	    
-	reflect_in_preset_menu();
     }
     preset_status->set_text(t);
 }
@@ -2283,9 +2254,8 @@ void MainWindow::display_preset_msg(const Glib::ustring& bank, const Glib::ustri
 }
 
 bool MainWindow::on_key_press_event(GdkEventKey *event) {
-    // FIXME: lockout on text entry
-    if (event->keyval >= GDK_KEY_1 && event->keyval <= GDK_KEY_9 && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
-	keyswitch.process_preset_key(event->keyval - GDK_KEY_1);
+    if (event->keyval >= GDK_KEY_0 && event->keyval <= GDK_KEY_9 && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+	keyswitch.process_preset_key(event->keyval == GDK_KEY_0 ? 9 : event->keyval - GDK_KEY_1);
 	return true;
     }
     else if (event->keyval >= GDK_KEY_a && event->keyval <= GDK_KEY_z && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
@@ -2321,8 +2291,6 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       preset_list_menu_bank(),
       preset_list_merge_id(0),
       preset_list_actiongroup(),
-      select_preset_action(),
-      select_preset_action_conn(),
       uimanager(),
       options(options_),
       pmap(pmap_),

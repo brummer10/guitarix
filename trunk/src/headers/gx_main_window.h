@@ -634,8 +634,6 @@ private:
     Glib::ustring preset_list_menu_bank;
     Gtk::UIManager::ui_merge_id preset_list_merge_id;
     Glib::RefPtr<Gtk::ActionGroup> preset_list_actiongroup;
-    Glib::RefPtr<Gtk::RadioAction> select_preset_action;
-    sigc::connection select_preset_action_conn;
     Glib::RefPtr<Gtk::UIManager> uimanager;
     gx_system::CmdlineOptions& options;
     gx_engine::ParamMap&  pmap;
@@ -799,11 +797,10 @@ private:
     bool on_window_state_changed(GdkEventWindowState* event);
     bool on_meter_button_release(GdkEventButton* ev);
     void show_selected_preset();
-    void on_select_preset(const Glib::RefPtr<Gtk::RadioAction>& act);
+    void on_select_preset(int idx);
     void set_switcher_controller();
     void set_vpaned_handle();
     void rebuild_preset_menu();
-    void reflect_in_preset_menu();
     bool on_key_press_event(GdkEventKey *event);
     void display_preset_msg(const Glib::ustring& bank, const Glib::ustring& preset);
 public:
