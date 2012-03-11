@@ -286,8 +286,20 @@ void KeySwitcher::display_key_error() {
 void KeySwitcher::display_empty(const Glib::ustring& bank, const Glib::ustring& preset) {
     display(bank, preset);
     key_timeout.disconnect();
+    if (last_bank_key.empty()) {
+	key_timeout = Glib::signal_timeout().connect(
+	    sigc::mem_fun(this, &KeySwitcher::display_current), 400);
+    } else {
+	key_timeout = Glib::signal_timeout().connect(
+	    sigc::mem_fun(this, &KeySwitcher::display_selected_bank), 400);
+    }
+}
+
+bool KeySwitcher::display_selected_bank() {
+    display(last_bank_key, "");
     key_timeout = Glib::signal_timeout().connect(
-	sigc::mem_fun(this, &KeySwitcher::display_current), 400);
+	sigc::mem_fun(this, &KeySwitcher::display_current), 2000);
+    return false;
 }
 
 bool KeySwitcher::display_current() {
@@ -302,16 +314,17 @@ bool KeySwitcher::display_current() {
 
 bool KeySwitcher::process_preset_key(int idx) {
     key_timeout.disconnect();
-    if (last_bank_key.empty()) {
+    Glib::ustring bank = last_bank_key;
+    if (bank.empty()) {
 	if (!gx_settings.setting_is_preset()) {
 	    display_empty("??", gx_system::to_string(idx+1));
 	    return false;
 	}
-	last_bank_key = gx_settings.get_current_bank();
+	bank = gx_settings.get_current_bank();
     }
-    gx_system::PresetFile *f = gx_settings.banks.get_file(last_bank_key);
+    gx_system::PresetFile *f = gx_settings.banks.get_file(bank);
     if (idx >= f->size()) {
-	display_empty(last_bank_key, gx_system::to_string(idx+1)+"?");
+	display_empty(bank, gx_system::to_string(idx+1)+"?");
 	return false;
     } else {
 	gx_settings.load_preset(f, f->get_name(idx));
@@ -321,14 +334,13 @@ bool KeySwitcher::process_preset_key(int idx) {
 
 bool KeySwitcher::process_bank_key(int idx) {
     key_timeout.disconnect();
-    last_bank_key = gx_settings.banks.get_name(gx_settings.banks.size() - idx - 1);
-    if (last_bank_key.empty()) {
+    Glib::ustring bank = gx_settings.banks.get_name(gx_settings.banks.size() - idx - 1);
+    if (bank.empty()) {
 	display_empty("--", "--");
 	return false;
     }
-    display(last_bank_key, "");
-    key_timeout = Glib::signal_timeout().connect(
-	sigc::mem_fun(this, &KeySwitcher::display_current), 2000);
+    last_bank_key = bank;
+    display_selected_bank();
     return true;
 }
 

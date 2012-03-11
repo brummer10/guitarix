@@ -74,7 +74,7 @@ typedef UiRadioAction<gx_engine::SwitchParameter> UiSwitchRadioAction;
 
 
 /****************************************************************
- ** class KeySwitcher
+ ** class TunerSwitcher
  */
 
 class Liveplay;
@@ -129,6 +129,7 @@ private:
     Glib::ustring last_bank_key;
 private:
     void display_empty(const Glib::ustring& bank, const Glib::ustring& preset);
+    bool display_selected_bank();
     bool display_current();
 public:
     KeySwitcher(gx_preset::GxSettings& gx_settings_,
