@@ -333,6 +333,7 @@ private:
     void on_my_drag_end(const Glib::RefPtr<Gdk::DragContext>& context);
     void on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
     void vis_switch(Gtk::Widget& a, Gtk::Widget& b);
+    void set_visibility(bool v);
     Gtk::Button *make_expand_button(bool expand);
     void on_preset_popup_destroy(Gtk::Menu *w);
     void set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Glib::ustring name);
@@ -366,7 +367,7 @@ public:
     int position_weight() { return plugin.plugin->position_weight(); }
     bool is_displayed() { return box_visible; }
     void display(bool v, bool animate);
-    bool get_plug_visible() { return !fbox->get_visible(); }
+    bool get_plug_visible() { return !vis; }
 };
 
 class MiniRackBox: public Gtk::HBox {

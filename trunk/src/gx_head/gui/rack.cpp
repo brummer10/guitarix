@@ -792,6 +792,7 @@ bool RackBox::animate_vanish() {
     anim_height -= anim_step;
     if (anim_height <= 0) {
 	hide();
+	set_visibility(true);
 	set_size_request(-1,-1);
 	return false;
     } else {
@@ -811,6 +812,8 @@ void RackBox::animate_remove() {
 	    show();
 	}
 	anim_height = size_request().height;
+	set_size_request(-1, anim_height);
+	set_visibility(false);
 	anim_step = anim_height / 5;
 	anim_tag = Glib::signal_timeout().connect(sigc::mem_fun(*this, &RackBox::animate_vanish), 20);
     }
@@ -831,6 +834,7 @@ bool RackBox::animate_create() {
     bool ret = true;
     anim_height += anim_step;
     if (anim_height >= target_height) {
+	set_visibility(true);
 	set_size_request(-1,-1);
 	ret = false;
     } else {
@@ -852,6 +856,7 @@ void RackBox::animate_insert() {
 	}
 	target_height = size_request().height;
 	set_size_request(-1,0);
+	set_visibility(false);
 	show();
 	anim_height = 0;
 	anim_step = target_height / 5;
@@ -878,11 +883,18 @@ void RackBox::vis_switch(Gtk::Widget& a, Gtk::Widget& b) {
     b.show();
 }
 
+void RackBox::set_visibility(bool v) {
+    if (config_mode || !vis) {
+	mbox.set_visible(v);
+    } else {
+	fbox->set_visible(v);
+    }
+}
+
 void RackBox::swtch(bool mini) {
     plugin.plugin->plug_visible = mini;
-    if (config_mode) {
-	vis = !mini;
-    } else {
+    vis = !mini;
+    if (!config_mode) {
 	if (mini) {
 	    vis_switch(*fbox, mbox);
 	} else {
@@ -892,17 +904,13 @@ void RackBox::swtch(bool mini) {
 }
 
 void RackBox::set_config_mode(bool mode) {
+    config_mode = mode;
     minibox->set_config_mode(mode);
-    if (mode) {
-	vis = fbox->get_visible();
-	if (vis) {
-	    swtch(true);
-	}
-	config_mode = true;
-    } else {
-	config_mode = false;
-	if (vis) {
-	    swtch(false);
+    if (vis) {
+	if (mode) {
+	    vis_switch(*fbox, mbox);
+	} else {
+	    vis_switch(mbox, *fbox);
 	}
     }
     enable_drag(mode);
