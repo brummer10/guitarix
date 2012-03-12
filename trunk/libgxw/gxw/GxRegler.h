@@ -54,8 +54,6 @@ struct _GxRegler
 
 struct _GxReglerClass {
 	GtkRangeClass parent_class;
-	guint change_value_id;
-	gboolean (*values_entry)(GxRegler *regler, GdkRectangle *rect);
 	gboolean (*value_entry)(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
 	gchar* (*format_value)(GxRegler *regler, gdouble value);
 };
