@@ -908,6 +908,7 @@ void load_rack_ui(const std::string& fname, gx_ui::GxUI& ui, Gtk::Widget*& mainw
 
 PluginDict::~PluginDict() {
     for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
+	i->second->plugin->pdef->flags &= ~gx_engine::PGNI_UI_REG;
 	ui.unregisterZone(&i->second->plugin->box_visible, i->second);
 	ui.unregisterZone(&i->second->plugin->position, i->second);
 	ui.unregisterZone(&i->second->plugin->effect_post_pre, i->second);
