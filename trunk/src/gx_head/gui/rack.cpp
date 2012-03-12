@@ -794,6 +794,7 @@ bool RackBox::animate_vanish() {
 	hide();
 	set_visibility(true);
 	set_size_request(-1,-1);
+	get_parent()->resize_finished();
 	return false;
     } else {
 	set_size_request(-1, anim_height);

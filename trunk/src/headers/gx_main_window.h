@@ -448,6 +448,7 @@ public:
     void reorder(const std::string& name, int pos);
     void increment();
     void decrement();
+    inline void resize_finished();
 };
 
 
@@ -826,6 +827,8 @@ public:
     double stop_at_mono_top(double off, double step_size);
     bool use_animations() { return actions.animations->get_active(); }
     void create_default_scratch_preset() { gx_settings.create_default_scratch_preset(); }
+    void resize_finished(RackContainer *ch);
 };
 
 inline bool RackContainer::check_if_animate(const RackBox& rackbox) { return main.use_animations(); }
+inline void RackContainer::resize_finished() { main.resize_finished(this); }

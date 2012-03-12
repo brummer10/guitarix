@@ -838,6 +838,13 @@ void MainWindow::on_configure_event(GdkEventConfigure *ev) {
     }
 }
 
+void MainWindow::resize_finished(RackContainer *ch)
+{
+    if (ch == &monorackcontainer && !actions.rackh->get_active()) {
+	stereorackcontainer.queue_draw();
+    }
+}
+
 RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwidget, Gtk::Widget *miniwidget,
 					  bool mini, int pos, bool animate, Gtk::Widget *bare) {
     RackBox *r = new RackBox(plugin, *this, bare);
