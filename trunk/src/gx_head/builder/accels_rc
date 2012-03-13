@@ -4,7 +4,7 @@
 (gtk_accel_path "<Actions>/Main/AboutMenu" "")
 (gtk_accel_path "<Actions>/Main/Animations" "")
 (gtk_accel_path "<Actions>/Main/Compress" "<Control>m")
-(gtk_accel_path "<Actions>/Main/EngineBypass" "b")
+(gtk_accel_path "<Actions>/Main/EngineBypass" "<control>y")
 (gtk_accel_path "<Actions>/Main/EngineMenu" "")
 (gtk_accel_path "<Actions>/Main/EngineMute" "space")
 (gtk_accel_path "<Actions>/Main/Expand" "<Control>e")
