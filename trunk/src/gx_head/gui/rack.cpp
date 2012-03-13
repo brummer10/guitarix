@@ -118,7 +118,10 @@ void PluginUI::display(bool v, bool animate) {
 }
 
 void PluginUI::display_new(bool unordered) {
-    rackbox->swtch(false);
+    if (rackbox) {
+	rackbox->swtch(false);
+    }
+    compressed = false;
     display(true, true);
     if (!unordered) {
 	rackbox->get_parent()->reorder(get_id(), -1);
