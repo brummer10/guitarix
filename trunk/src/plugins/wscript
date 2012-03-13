@@ -5,6 +5,7 @@ import os
 
 csources = [ # generate .so files from c sources that can be loaded by guitarix
     "vibe.cc",
+    "abgate.cc",
     ]
 
 sources = [ # generate .so files that can be loaded by guitarix
@@ -83,7 +84,7 @@ def build(bld):
             type = 'cshlib',
             cxxflags = ["-fvisibility=hidden"],
             includes = ["../headers"],
-            source = csources,
+            source = s,
             target = s.replace(".cc",""),
             install_path = None, # for now...
             )
