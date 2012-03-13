@@ -152,7 +152,9 @@ class GxJack: public sigc::trackable {
     jack_nframes_t      jack_bs;   // jack buffer size
     float               last_xrun;
     void write_jack_port_connections(
-	gx_system::JsonWriter& w, const char *key, const PortConnection& pc);
+	gx_system::JsonWriter& w, const char *key, const PortConnection& pc, bool replace=false);
+    std::string make_clientvar(const std::string& s);
+    std::string replace_clientvar(const std::string& s);
     bool                gx_jack_init(bool startserver, int wait_after_connect);
     void                gx_jack_init_port_connection();
     void                gx_jack_callbacks();
@@ -183,7 +185,6 @@ public:
 
     void                read_connections(gx_system::JsonParser& jp);
     void                write_connections(gx_system::JsonWriter& w);
-    void                clear_insert_connections();
     static string       get_default_instancename();
     const string&       get_instancename() { return client_instance; }
     string              client_name;

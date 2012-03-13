@@ -558,7 +558,6 @@ void GxSettings::jack_client_changed() {
 	if (access(defname.c_str(), R_OK) == 0) {
 	    statefile.set_filename(defname);
 	    loadsetting(0, "");
-	    jack.clear_insert_connections();
 	}
     }
     statefile.set_filename(fn);

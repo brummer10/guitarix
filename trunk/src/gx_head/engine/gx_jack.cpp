@@ -133,14 +133,18 @@ void GxJack::read_connections(gx_system::JsonParser& jp) {
 }
 
 void GxJack::write_jack_port_connections(
-    gx_system::JsonWriter& w, const char *key, const PortConnection& pc) {
+    gx_system::JsonWriter& w, const char *key, const PortConnection& pc, bool replace) {
     w.write_key(key);
     w.begin_array();
     if (client) {
 	const char** pl = jack_port_get_connections(pc.port);
 	if (pl) {
 	    for (const char **p = pl; *p; p++) {
-		w.write(*p);
+		if (replace) {
+		    w.write(make_clientvar(*p));
+		} else {
+		    w.write(*p);
+		}
 	    }
 	    free(pl);
 	}
@@ -159,8 +163,8 @@ void GxJack::write_connections(gx_system::JsonWriter& w) {
     write_jack_port_connections(w, "output2", ports.output2);
     write_jack_port_connections(w, "midi_input", ports.midi_input);
     write_jack_port_connections(w, "midi_output", ports.midi_output);
-    write_jack_port_connections(w, "insert_out", ports.insert_out);
-    write_jack_port_connections(w, "insert_in", ports.insert_in);
+    write_jack_port_connections(w, "insert_out", ports.insert_out, true);
+    write_jack_port_connections(w, "insert_in", ports.insert_in, true);
     w.end_object(true);
 }
 
@@ -338,6 +342,30 @@ bool GxJack::gx_jack_connection(bool connect, bool startserver, int wait_after_c
  ** port connections
  */
 
+std::string GxJack::make_clientvar(const std::string& s) {
+    std::size_t n = s.find(':');
+    if (n == s.npos) {
+	return s; // no ':' in jack port name??
+    }
+    if (s.compare(0, n, client_name) == 0) {
+	return "%A" + s.substr(n);
+    }
+    if (s.compare(0, n, client_insert_name) == 0) {
+	return "%F" + s.substr(n);
+    }
+    return s;
+}
+
+std::string GxJack::replace_clientvar(const std::string& s) {
+    if (s.compare(0, 3, "%A:") == 0) {
+	return client_name + s.substr(2);
+    }
+    if (s.compare(0, 3, "%F:") == 0) {
+	return client_insert_name + s.substr(2);
+    }
+    return s;
+}
+
 // ----- connect ports if we know them
 void GxJack::gx_jack_init_port_connection() {
     gx_system::CmdlineOptions& opt = gx_system::get_options();
@@ -397,7 +425,7 @@ void GxJack::gx_jack_init_port_connection() {
     list<string>& lins_out = ports.insert_out.conn;
     bool ifound = false, ofound = false;
     for (list<string>::iterator i = lins_in.begin(); i != lins_in.end(); ++i) {
-        int rc = jack_connect(client_insert, i->c_str(),
+        int rc = jack_connect(client_insert, replace_clientvar(*i).c_str(),
                               jack_port_name(ports.insert_in.port));
         if (rc == 0 || rc == EEXIST) {
             ifound = true;
@@ -405,8 +433,10 @@ void GxJack::gx_jack_init_port_connection() {
     }
     jack_port_t* port_a = jack_port_by_name(client, jack_port_name(ports.insert_out.port));
     for (list<string>::iterator i = lins_out.begin(); i != lins_out.end(); ++i) {
-	if (!jack_port_connected_to(port_a, i->c_str())) {
-	    int rc = jack_connect(client, jack_port_name(ports.insert_out.port), i->c_str());
+	std::string port = replace_clientvar(*i);
+	if (!jack_port_connected_to(port_a, port.c_str())) {
+	    int rc = jack_connect(client, jack_port_name(ports.insert_out.port),
+				  port.c_str());
 	    if (rc == 0 || rc == EEXIST) {
 		ofound = true;
 	    }
@@ -420,10 +450,6 @@ void GxJack::gx_jack_init_port_connection() {
     }
 }
 
-void GxJack::clear_insert_connections() {
-    ports.insert_in.conn.clear();
-    ports.insert_out.conn.clear();
-}
 
 /****************************************************************
  ** callback installation and port registration
