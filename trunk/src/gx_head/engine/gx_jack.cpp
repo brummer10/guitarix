@@ -184,8 +184,6 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
     } else {
 	jackopt |= JackUseExactName;
     }
-    client_name =        client_instance + jack_amp_postfix;
-    client_insert_name = client_instance + jack_fx_postfix;
 
     set_jack_down(false);
     set_jack_exit(true);
@@ -193,6 +191,8 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
 
     //ports = JackPorts(); //FIXME
 
+    client_name = client_instance + jack_amp_postfix;
+    client_insert_name = client_instance + jack_fx_postfix;
     jack_status_t jackstat;
 #ifdef HAVE_JACK_SESSION
     // try to open jack gxjack.client
@@ -203,31 +203,43 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
     } else {
         client = jack_client_open(client_name.c_str(), JackOptions(jackopt), &jackstat);
     }
+#else
+    client = jack_client_open(client_name.c_str(), JackOptions(jackopt), &jackstat);
+#endif
     // ----- only start the insert gxjack.client when the amp gxjack.client is true
     if (client) {
+	// it is maybe not the 1st gx_head instance ?
+	// session handler can change name without setting JackNameNotUnique in return status; jack bug??
+	// this code depends on jackd only appending a suffix to make a client name unique
+	std::string name = jack_get_client_name(client);
+	std::string generated_suffix = name.substr(client_name.size());
+	std::string base = name.substr(0, client_name.size()-strlen(jack_amp_postfix));
+	client_instance = base + generated_suffix;
+	client_name = name;
+	client_insert_name = base + jack_fx_postfix + generated_suffix;
+#ifdef HAVE_JACK_SESSION
         if (!opt.get_jack_uuid2().empty()) {
             client_insert = jack_client_open(
 		client_insert_name.c_str(),
-		JackOptions(jackopt | JackSessionID),
+		JackOptions(jackopt | JackSessionID | JackUseExactName),
 		&jackstat, opt.get_jack_uuid2().c_str());
         } else {
-            client_insert = jack_client_open(client_insert_name.c_str(),
-					     JackOptions(jackopt), &jackstat);
+            client_insert = jack_client_open(
+		client_insert_name.c_str(),
+		JackOptions(jackopt | JackUseExactName), &jackstat);
         }
-    }
 #else
-    client = jack_client_open(client_name.c_str(), JackOptions(jackopt), &jackstat);
-     // ----- only start the insert gxjack.client when the amp gxjack.client is true
-    if (client) {
-        client_insert = jack_client_open(client_insert_name.c_str(),
-					 JackOptions(jackopt), &jackstat);
-    }
+        client_insert = jack_client_open(
+	    client_insert_name.c_str(),
+	    JackOptions(jackopt | JackUseExactName), &jackstat);
 #endif
-
-    if (wait_after_connect) {
-	usleep(wait_after_connect);
+	if (!client_insert) {
+	    jack_client_close(client);
+	    client = 0;
+	}
     }
-    if (client == 0) {
+
+    if (!client) {
 	if (!(jackstat & JackServerFailed)) {
 	    if ((jackstat & JackServerError) && (jackopt & JackUseExactName)) {
 		gx_system::gx_print_error(
@@ -246,15 +258,8 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
     // ----------------------------------
     set_jack_down(false);
 
-    // it is maybe not the 1st gx_head instance ?
-    // session handler can change name without setting JackNameNotUnique; jack bug??
-    if ((jackstat & JackNameNotUnique) || !opt.get_jack_uuid().empty()) {
-	string name = jack_get_client_name(client);
-        client_instance =
-	    name.substr(0, client_name.size()-strlen(jack_amp_postfix))
-	    + name.substr(client_name.size());
-	client_name = name;
-        client_insert_name = jack_get_client_name(client_insert);
+    if (wait_after_connect) {
+	usleep(wait_after_connect);
     }
     jack_sr = jack_get_sample_rate(client); // jack sample rate
     gx_system::gx_print_info(
@@ -262,14 +267,13 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
 	boost::format(_("The jack sample rate is %1%/sec")) % jack_sr);
 
     jack_bs = jack_get_buffer_size(client); // jack buffer size
-
     gx_system::gx_print_info(
 	_("Jack init"),
 	boost::format(_("The jack buffer size is %1%/frames ... "))
 	% jack_bs);
 
     gx_jack_callbacks();
-    client_change();
+    client_change(); // might load port connection definitions
     if (opt.get_jack_uuid().empty()) {
 	// when not loaded by session manager
 	gx_jack_init_port_connection();
