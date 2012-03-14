@@ -25,6 +25,20 @@
 
 /****************************************************************
  ** class PluginUI
+ **
+ ** This class represents a rack unit. It refers to an engine
+ ** plugin. The user interface in the rack is loaded on demand.
+ **
+ ** It is responsible for reflecting any changes done to display
+ ** parameter variables (box_visible, flat/expanded format, ordering).
+ **
+ ** Registering with an GxUI is done in PluginDict.
+ **
+ ** When a preset load is in progress re-ordering is blocked.
+ ** MainWindow connects RackContainer::check_order() to
+ ** GxSettings::signal_selection_changed so that ordering will be done
+ ** when the load is finished.
+ **
  */
 
 PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const char *name,
@@ -32,6 +46,23 @@ PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const cha
     : GxUiItem(), merge_id(0), action(), plugin(pl.lookup_plugin(name)), fname(fname_),
       tooltip(tooltip_), shortname(), icon(), group(), toolitem(), main(main_), rackbox(),
       hidden(false), compressed(false) {
+    gx_ui::GxUI& ui = main.get_ui();
+    ui.registerZone(&plugin->box_visible, this);
+    ui.registerZone(&plugin->position, this);
+    ui.registerZone(&plugin->effect_post_pre, this);
+    plugin->pdef->flags |= gx_engine::PGNI_UI_REG;
+}
+
+PluginUI::~PluginUI() {
+    plugin->pdef->flags &= ~gx_engine::PGNI_UI_REG;
+    gx_ui::GxUI& ui = main.get_ui();
+    ui.unregisterZone(&plugin->box_visible, this);
+    ui.unregisterZone(&plugin->position, this);
+    ui.unregisterZone(&plugin->effect_post_pre, this);
+}
+
+bool PluginUI::is_registered(gx_engine::PluginList& pl, const char *name) {
+    return pl.lookup_plugin(name)->pdef->flags & gx_engine::PGNI_UI_REG;
 }
 
 bool PluginUI::hasChanged() {
@@ -60,7 +91,9 @@ void PluginUI::reflectZone() {
 	return;
     }
     if (plugin->box_visible != is_displayed()) {
-	action->set_active(plugin->box_visible);
+	if (action) {
+	    action->set_active(plugin->box_visible);
+	}
 	display(plugin->box_visible, false);
     }
     if (plugin->box_visible) {
@@ -127,6 +160,17 @@ void PluginUI::display_new(bool unordered) {
 	rackbox->get_parent()->reorder(get_id(), -1);
     }
 }
+
+/****************************************************************
+ ** class PluginDict
+ */
+
+PluginDict::~PluginDict() {
+    for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
+	delete i->second;
+    }
+}
+
 
 /****************************************************************
  ** class StackBoxBuilderNew

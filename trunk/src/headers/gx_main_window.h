@@ -253,6 +253,7 @@ public:
 
     PluginUI(MainWindow& main, const gx_engine::PluginList& pl, const char* id_,
 	     const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
+    ~PluginUI();
     PluginType get_type() const {
 	return (plugin->pdef->flags & PGN_STEREO) ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO;
     }
@@ -263,6 +264,25 @@ public:
     inline bool is_displayed();
     void set_ui_merge_id(Gtk::UIManager::ui_merge_id id) { merge_id = id; }
     void set_action(Glib::RefPtr<Gtk::ToggleAction>& act);
+    static bool is_registered(gx_engine::PluginList& pl, const char *name);
+};
+
+
+/****************************************************************
+ ** class PluginDict
+ */
+
+class PluginDict: private std::map<std::string, PluginUI*> {
+private:
+    gx_ui::GxUI& ui;
+public:
+    typedef std::map<std::string, PluginUI*>::iterator iterator;
+    PluginDict(gx_ui::GxUI& ui_): std::map<std::string, PluginUI*>(), ui(ui_) {}
+    ~PluginDict();
+    void add(PluginUI *p) { insert(pair<std::string, PluginUI*>(p->get_id(), p)); }
+    PluginUI *operator[](const std::string& s) { return find(s)->second; }
+    using std::map<std::string, PluginUI*>::begin;
+    using std::map<std::string, PluginUI*>::end;
 };
 
 
@@ -519,13 +539,6 @@ public:
  ** class MainWindow
  */
 
-struct PluginDesc {
-    Glib::ustring group;
-    std::vector<PluginUI*> *plugins;
-    PluginDesc(const Glib::ustring& g, std::vector<PluginUI*> *p)
-	: group(g), plugins(p) {}
-};
-
 class Freezer {
 private:
     Gtk::Window *window;
@@ -545,6 +558,7 @@ public:
     bool check_thaw(int width, int height);
 };
 
+
 /****************************************************************
  ** GxUiRadioMenu
  ** adds the values of an UEnumParameter as Gtk::RadioMenuItem's
@@ -563,14 +577,6 @@ public:
 	       Glib::RefPtr<Gtk::UIManager>& uimanager, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
 };
 
-class PluginDict: public std::map<std::string, PluginUI*> {
-private:
-    gx_ui::GxUI& ui;
-public:
-    typedef std::map<std::string, PluginUI*>::iterator iterator;
-    PluginDict(gx_ui::GxUI& ui_): std::map<std::string, PluginUI*>(), ui(ui_) {}
-    ~PluginDict();
-};
 
 struct GxActions {
     // Main Window

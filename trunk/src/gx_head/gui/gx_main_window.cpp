@@ -906,16 +906,6 @@ void load_rack_ui(const std::string& fname, gx_ui::GxUI& ui, Gtk::Widget*& mainw
     }
 }
 
-PluginDict::~PluginDict() {
-    for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
-	i->second->plugin->pdef->flags &= ~gx_engine::PGNI_UI_REG;
-	ui.unregisterZone(&i->second->plugin->box_visible, i->second);
-	ui.unregisterZone(&i->second->plugin->position, i->second);
-	ui.unregisterZone(&i->second->plugin->effect_post_pre, i->second);
-	delete i->second;
-    }
-}
-
 RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate) {
     Gtk::Widget *mainwidget = 0;
     Gtk::Widget *miniwidget = 0;
@@ -1032,7 +1022,10 @@ void MainWindow::on_ti_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& conte
 }
 
 void MainWindow::hide_effect(const std::string& name) {
-    plugin_dict[name]->toolitem->hide();
+    Gtk::ToolItem *toolitem = plugin_dict[name]->toolitem;
+    if (toolitem) {
+	toolitem->hide();
+    }
 }
 
 void MainWindow::on_ti_drag_data_delete(const Glib::RefPtr<Gdk::DragContext>& context, const char *effect_id) {
@@ -1599,16 +1592,10 @@ void MainWindow::make_icons() {
 }
 
 void MainWindow::add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
-    gx_engine::Plugin *pl = engine.pluginlist.lookup_plugin(id);
-    if (pl->pdef->flags & gx_engine::PGNI_UI_REG) {
+    if (PluginUI::is_registered(engine.pluginlist, id)) {
 	return;
     }
-    pl->pdef->flags |= gx_engine::PGNI_UI_REG;
-    PluginUI *pui = new PluginUI(*this, engine.pluginlist, id, fname, tooltip);
-    ui.registerZone(&pui->plugin->box_visible, pui);
-    ui.registerZone(&pui->plugin->position, pui);
-    ui.registerZone(&pui->plugin->effect_post_pre, pui);
-    p->push_back(pui);
+    p->push_back(new PluginUI(*this, engine.pluginlist, id, fname, tooltip));
 }
 
 #ifdef accel_keys_for_plugins
@@ -1642,6 +1629,13 @@ static bool accel_map_next_key(unsigned int *accel_key) {
     return false;
 }
 #endif
+
+struct PluginDesc {
+    Glib::ustring group;
+    std::vector<PluginUI*> *plugins;
+    PluginDesc(const Glib::ustring& g, std::vector<PluginUI*> *p)
+	: group(g), plugins(p) {}
+};
 
 void MainWindow::fill_pluginlist() {
     std::vector<PluginDesc*> l;
@@ -1719,7 +1713,7 @@ void MainWindow::fill_pluginlist() {
 	int idx = 0;
 	for (std::vector<PluginUI*>::iterator v = (*i)->plugins->begin(); v != (*i)->plugins->end(); ++v) {
 	    PluginUI *pui = *v;
-	    plugin_dict[pui->get_id()] = pui;
+	    plugin_dict.add(pui);
 	    const char *tp = (pui->get_type() == PLUGIN_TYPE_MONO ? "Mono" : "Stereo");
 	    Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", (*i)->group);
 	    Glib::ustring actionname = Glib::ustring::compose("Plugin_%1", pui->get_id());
@@ -2601,8 +2595,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     fill_pluginlist();
     plugin_dict["gx_distortion"]->shortname = _("Distortion");
     PluginUI *mainamp_plugin = new PluginUI(*this, engine.pluginlist, "ampstack");
-    plugin_dict["ampstack"] = mainamp_plugin;
-    add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
+    plugin_dict.add(mainamp_plugin);
+    mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     effects_toolpalette->show_all();
 
     /*
