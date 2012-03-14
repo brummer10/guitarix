@@ -303,8 +303,6 @@ public:
     void setpanning();
 
 private:
-    int Pfb;
-    int Plrcross;
     float Ppanning;
   
     float fwidth;
@@ -399,7 +397,7 @@ int Vibe::registerparam(const ParamReg& reg) {
     reg.registerVar("univibe.wet_dry",N_("Wet/Dry"),"S","",&self.wet_dry,1,0,1,0.01);
     reg.registerVar("univibe.fb",N_("Fb"),"S","",&self.fb,0,-1,1,0.01);
     reg.registerVar("univibe.depth",N_("Depth"),"S","",&self.fdepth,1,0,1,0.01);
-    reg.registerVar("univibe.lrcross",N_("L/R.Cr"),"S","",&self.flrcross,0,-2,0,0.01);
+    reg.registerVar("univibe.lrcross",N_("L/R.Cr"),"S","",&self.flrcross,0,-1,1,0.01);
     return 0;
 }
 
@@ -603,9 +601,16 @@ void Vibe::out(int count, float *smpsl, float *smpsr, float * efxoutl, float * e
 	fbr = fb*ocvolt;
 	outr = rpanning*input;  
 
-	float dry_wet = 1.0 - wet_dry;
-	efxoutl[i] = wet_dry * (outl*fcross + outr*flrcross) + dry_wet * smpsl[i];
-	efxoutr[i] = wet_dry * (outr*fcross + outl*flrcross) + dry_wet * smpsr[i];
+	float v1, v2;
+	if (wet_dry < 0.5) {
+	    v1 = 1.0;
+	    v2 = wet_dry * 2;
+	} else {
+	    v1 = (1 - wet_dry) * 2;
+	    v2 = 1.0;
+	}
+	efxoutl[i] = v1 * (outl*fcross + outr*flrcross) + v2 * smpsl[i];
+	efxoutr[i] = v1 * (outr*fcross + outl*flrcross) + v2 * smpsr[i];
     };
 };
 
@@ -786,37 +791,6 @@ void Vibe::setpanning () {
     lpanning *= 1.3f;
     rpanning *= 1.3f; 
 };
-
-#if 0
-void Vibe::setpreset (int npreset) {
-    const int PRESET_SIZE = 10;
-    const int NUM_PRESETS = 8;
-    int presets[NUM_PRESETS][PRESET_SIZE] = {
-	//Classic
-	{35, 120, 10, 0, 64, 64, 64, 64, 3, 64},
-	//Stereo Classic
-	{35, 120, 10, 0, 48, 64, 64, 64, 3, 64},
-	//Wide Vibe
-	{127, 80, 10, 0, 0, 64, 64, 64, 0, 64},
-	//Classic Chorus
-	{35, 360, 10, 0, 48, 64, 0, 64, 3, 64},   
-	//Vibe Chorus
-	{75, 330, 10, 0, 50, 64, 0, 64, 17, 64},
-	//Lush Chorus
-	{55, 260, 10, 0, 64, 70, 0, 49, 20, 48},  
-	//Sick Phaser
-	{110, 75, 10, 0, 32, 64, 64, 14, 0, 30},
-	//Warble
-	{127, 360, 10, 0, 0, 64, 0, 0, 0, 37}
-    };
-
-    if( npreset < NUM_PRESETS) {
-	for (int n = 0; n < PRESET_SIZE; n++) {
-	    //changepar (n, presets[npreset][n]);
-	}
-    }
-};
-#endif
 
 extern "C" __attribute__ ((visibility ("default"))) int
 get_gx_plugins(int *count, PluginDef **pplugin)
