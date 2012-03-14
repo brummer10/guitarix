@@ -35,12 +35,12 @@ PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const cha
 }
 
 bool PluginUI::hasChanged() {
-    if ((plugin->box_visible || plugin->on_off) != is_displayed()) {
-	if (plugin->on_off) {
-	    // when loading from old preset files make sure plugins
-	    // are visible if they are switched on
-	    plugin->box_visible = true;
-	}
+    if (plugin->on_off) {
+	// when loading from old preset files make sure plugins
+	// are visible if they are switched on
+	plugin->box_visible = true;
+    }
+    if (plugin->box_visible != is_displayed()) {
 	return true;
     }
     if (!plugin->box_visible) {
