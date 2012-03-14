@@ -1196,7 +1196,7 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 		g_signal_connect(dialog, "button-press-event", G_CALLBACK(dialog_button_press_event), dialog);
 		g_signal_connect(spinner, "key-press-event", G_CALLBACK(dialog_key_press_before), dialog);
 		g_signal_connect_after(spinner, "key-press-event", G_CALLBACK(dialog_key_press_event), dialog);
-		g_signal_connect(spinner, "activate", G_CALLBACK(hide_dialog), dialog);
+		g_signal_connect_swapped(spinner, "activate", G_CALLBACK(hide_dialog), dialog);
 		g_signal_connect(dialog, "grab-broken-event", G_CALLBACK(dialog_grab_broken), dialog);
 		g_signal_connect(dialog, "map-event", G_CALLBACK(map_check), GTK_WIDGET(regler));
 		gtk_widget_realize(GTK_WIDGET(dialog));
