@@ -1024,44 +1024,36 @@ void RackBox::remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) 
     delete w;
 }
 
+bool RackBox::add_plugin_preset_list(Glib::RefPtr<gx_preset::PluginPresetList> l, Gtk::Menu& m) {
+    if (!l->start()) {
+	return false;
+    }
+    bool found_presets = false;
+    Glib::ustring name;
+    bool is_set;
+    while (l->next(name, &is_set)) {
+	found_presets = true;
+	Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(name);
+	if (is_set) {
+	    c->set_active(true);
+	}
+	c->signal_activate().connect(
+	    sigc::bind(sigc::mem_fun(*this, &RackBox::set_plugin_preset), l, name));
+	m.append(*manage(c));
+    }
+    return found_presets;
+}
+
 void RackBox::preset_popup() {
     Gtk::Menu *m = new Gtk::Menu();
-    Glib::RefPtr<gx_preset::PluginPresetList> l = main.load_plugin_preset_list(plugin.get_id());
-    bool found_presets = false;
-    if (l->start()) {
-	Glib::ustring name;
-	bool is_set;
-	while (l->next(name, &is_set)) {
-	    found_presets = true;
-	    Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(name);
-	    if (is_set) {
-		c->set_active(true);
-	    }
-	    c->signal_activate().connect(
-		sigc::bind(sigc::mem_fun(*this, &RackBox::set_plugin_preset), l, name));
-	    m->append(*manage(c));
-	}
+    Glib::RefPtr<gx_preset::PluginPresetList> l = main.load_plugin_preset_list(plugin.get_id(), false);
+    bool found_presets = add_plugin_preset_list(l, *m);
+    if (found_presets) {
+	m->append(*manage(new Gtk::SeparatorMenuItem()));
     }
+    add_plugin_preset_list(main.load_plugin_preset_list(plugin.get_id(), true), *m);
     Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(_("standard"));
-    std::string s = std::string(plugin.get_id()) + ".";
-    string on_off = s + "on_off";
-    string pp = s + "pp";
-    bool is_std = true;
-    gx_engine::ParamMap& pmap = main.get_parametermap();
-    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
-	if (i->first.compare(0, s.size(), s) == 0) {
-	    if (i->second->isControllable()) {
-		if (i->first != on_off && i->first != pp) {
-		    i->second->stdJSON_value();
-		    if (!i->second->compareJSON_value()) {
-			is_std = false;
-			break;
-		    }
-		}
-	    }
-	}
-    }
-    if (is_std) {
+    if (main.get_parametermap().unit_has_std_values(plugin.get_id())) {
 	c->set_active(true);
     }
     c->signal_activate().connect(

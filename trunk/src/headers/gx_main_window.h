@@ -363,6 +363,7 @@ private:
     void set_plugin_std_preset();
     void save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
     void remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
+    bool add_plugin_preset_list(Glib::RefPtr<gx_preset::PluginPresetList> l, Gtk::Menu& m);
     void preset_popup();
     Gtk::Button *make_preset_button();
     Gtk::HBox *make_full_box(gx_system::CmdlineOptions& options);
@@ -826,7 +827,9 @@ public:
     void run();
     gx_system::CmdlineOptions& get_options() { return options; }
     gx_ui::GxUI& get_ui() { return ui; }
-    Glib::RefPtr<gx_preset::PluginPresetList> load_plugin_preset_list(const Glib::ustring& id) { return gx_settings.load_plugin_preset_list(id); }
+    Glib::RefPtr<gx_preset::PluginPresetList> load_plugin_preset_list(
+	const Glib::ustring& id, bool factory) {
+	return gx_settings.load_plugin_preset_list(id, factory); }
     gx_engine::ParamMap& get_parametermap() { return pmap; }
     bool is_loading() { return gx_settings.is_loading(); }
     void add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");

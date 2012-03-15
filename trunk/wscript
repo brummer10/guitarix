@@ -639,6 +639,7 @@ def build(bld):
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/zettberlin_rc', chmod=0664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/autoandimat_rc', chmod=0664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jp_n_o_s_rc', chmod=0664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe', chmod=0664)
     bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0664)
 
     gen_desktop = bld(features  = "intltool_in",

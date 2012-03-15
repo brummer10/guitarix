@@ -692,8 +692,12 @@ void GxSettings::loadstate() {
     state_loaded = true;
 }
 
-Glib::RefPtr<PluginPresetList> GxSettings::load_plugin_preset_list(const Glib::ustring& id) {
-    return PluginPresetList::create(options.get_pluginpreset_filepath(id), param);
+Glib::RefPtr<PluginPresetList> GxSettings::load_plugin_preset_list(const Glib::ustring& id, bool factory) {
+    if (factory) {
+	return PluginPresetList::create(options.get_factory_filepath(id), param);
+    } else {
+	return PluginPresetList::create(options.get_pluginpreset_filepath(id), param);
+    }
 }
 
 /* ----------------------------------------------------------------*/
