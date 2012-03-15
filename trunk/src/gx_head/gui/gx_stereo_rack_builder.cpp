@@ -38,7 +38,7 @@ void StackBoxBuilder::make_rackbox_chorus() {
     openStereoRackBox(_("chorus"), engine.pluginlist.pos_var("chorus"), "chorus.on_off", "ui.Chorus");
     {
 	openHorizontalhideBox("");
-	create_master_slider("chorus.level", _("  level  "));
+	create_master_slider("chorus.level", _("level"));
 	closeBox();
 	openHorizontalBox("");
 	{
@@ -57,7 +57,7 @@ void StackBoxBuilder::make_rackbox_flanger() {
     openStereoRackBox(_("flanger"), engine.pluginlist.pos_var("flanger"), "flanger.on_off", "ui.Flanger");
     {
 	openHorizontalhideBox("");
-	create_master_slider("flanger.level", _("  level  "));
+	create_master_slider("flanger.level", _("level"));
 	closeBox();
 	openHorizontalBox("");
 	{
@@ -113,7 +113,7 @@ void StackBoxBuilder::make_rackbox_phaser() {
     openStereoRackBox(_("phaser"), engine.pluginlist.pos_var("phaser"), "phaser.on_off", "ui.Phaser");
     {
 	openHorizontalhideBox("");
-	create_master_slider("phaser.level", _("  level "));
+	create_master_slider("phaser.level", _("level"));
 	closeBox();
 	openHorizontalBox("");
 	{

@@ -240,7 +240,7 @@ void StackBoxBuilder::make_rackbox_IR() {
     openMonoRackBox(_("IR"), engine.pluginlist.pos_var("IR"), "IR.on_off", "IR.pp" ,"ui.ImpulseResponse");
     {
 	openHorizontalhideBox("");
-	create_master_slider("IR.peak", _(" peak "));
+	create_master_slider("IR.peak", _("peak"));
 	closeBox();
 	openVerticalBox1("");
 	{
@@ -294,7 +294,7 @@ void StackBoxBuilder::make_rackbox_overdrive() {
     openMonoRackBox(_("overdrive"), engine.pluginlist.pos_var("overdrive"), "overdrive.on_off", "overdrive.pp", "ui.Overdrive");
     {
 	openHorizontalhideBox("");
-	create_master_slider("overdrive.drive", _("  drive "));
+	create_master_slider("overdrive.drive", _("drive"));
 	closeBox();
 	openHorizontalTableBox("");
 	{
@@ -315,7 +315,7 @@ void StackBoxBuilder::make_rackbox_echo() {
     openMonoRackBox(_("echo"), engine.pluginlist.pos_var("echo"), "echo.on_off", "echo.pp", "ui.Echo");
     {
 	openHorizontalhideBox("");
-	create_master_slider("echo.percent", _("    %    "));
+	create_master_slider("echo.percent", _("%"));
 	closeBox();
 	openVerticalBox("");
 	{
