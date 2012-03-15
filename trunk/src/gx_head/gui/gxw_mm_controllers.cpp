@@ -278,7 +278,7 @@ UiRackMasterRegler::UiRackMasterRegler(gx_ui::GxUI &ui,
                          gx_engine::FloatParameter &param, Gxw::Regler *regler,
                          Glib::ustring label)
     : UiRegler(ui, param, regler, false) {
-    m_label.set_text(label);
+    m_label.set_text(label+" "); //FIXME: font bug, add space to avoid cut off on the right
     m_label.set_name("rack_label");
     m_label.set_size_request(-1,12);
     m_box.set_name(param.id());
