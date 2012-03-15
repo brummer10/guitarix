@@ -661,13 +661,13 @@
             </child>
             <child>
               <object class="GtkAlignment" id="alignment12">
+                <property name="height_request">180</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xscale">0</property>
                 <property name="yscale">0</property>
                 <child>
                   <object class="GtkTable" id="liveplay_midictrl_table">
-                    <property name="height_request">180</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="n_rows">6</property>
