@@ -165,7 +165,6 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
         }
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
-    mctrl.remove_controlled_parameters(plist, m);
     fixup_parameters(head);
 }
 
@@ -178,6 +177,7 @@ void PresetIO::commit_preset() {
         mctrl.set_controller_array(*m);
     }
     clear();
+    gx_engine::controller_map.update_from_controllers();
 }
 
 void PresetIO::write_intern(gx_system::JsonWriter &w, bool write_midi) {

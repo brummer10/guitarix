@@ -686,20 +686,17 @@ class MidiController {
  private:
     Parameter *param;
     float _lower, _upper;
-    float last_midi_control_value;
     bool toggle;
  public:
     MidiController(Parameter& p, float l, float u, bool t=false):
-        param(&p), _lower(l), _upper(u), last_midi_control_value(0), toggle(t) {}
+        param(&p), _lower(l), _upper(u), toggle(t) {}
     float lower() const { return _lower; }
     float upper() const { return _upper; }
     bool is_toggle() const { return toggle; }
     bool hasParameter(const Parameter& p) const { return *param == p; }
     Parameter& getParameter() const { return *param; }
     static MidiController* readJSON(gx_system::JsonParser&, ParamMap& param);
-    void set(int n);
-    float get() { return last_midi_control_value; }
-    void *get_zone() { return &last_midi_control_value; }
+    void set_midi(int n, int last_value);
     void set(float v, float high) { param->set(v, high, _lower, _upper); }
     void writeJSON(gx_system::JsonWriter& jw) const;
 };
@@ -717,6 +714,7 @@ class MidiControllerList {
     enum { controller_array_size = 128 };
  private:
     controller_array       map;
+    static int             last_midi_control_value[controller_array_size];
     bool                   midi_config_mode;
     int                    last_midi_control;
     volatile gint          program_change;
@@ -740,11 +738,16 @@ class MidiControllerList {
     static void readJSON(gx_system::JsonParser& jp, ParamMap& param, controller_array& m);
     static controller_array* create_controller_array() {
 	return new controller_array(controller_array_size); }
+    static int get_last_midi_control_value(unsigned int n) { assert(n < controller_array_size); return last_midi_control_value[n]; }
+    static void set_last_midi_control_value(unsigned int n, int v) { assert(n < controller_array_size); last_midi_control_value[n] = v; }
+    static void *get_midi_control_zone(unsigned int n) { assert(n < controller_array_size); return &last_midi_control_value[n]; }
     void set_controller_array(const controller_array& m);
     void remove_controlled_parameters(paramlist& plist, const controller_array *m);
     sigc::signal<void>& signal_changed() { return changed; }
     sigc::signal<void,int>& signal_new_program() { return new_program; }
     void compute_midi_in(void* midi_input_port_buf);
+    void update_from_controller(int ctr);
+    void update_from_controllers();
 };
 
 extern MidiControllerList controller_map; // map ctrl num -> controlled parameters

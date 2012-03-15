@@ -266,12 +266,10 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
     return new MidiController(pm, lower, upper, toggle);
 }
 
-void MidiController::set(int n) {
-    float v = n/127.0;
+void MidiController::set_midi(int n, int last_value) {
     if (toggle) {
-	bool s_o = (last_midi_control_value != 0);
+	bool s_o = (2*last_value > 127);
 	bool s_n = (2*n > 127);
-	last_midi_control_value = float(s_n);
 	if (!s_o && s_n) {
 	    if (param->on_off_value()) {
 		param->set(0, 127, _lower, _upper);
@@ -280,7 +278,6 @@ void MidiController::set(int n) {
 	    }
 	}
     } else {
-	last_midi_control_value = v;
 	param->set(n, 127, _lower, _upper);
     }
 }
@@ -288,6 +285,8 @@ void MidiController::set(int n) {
 /****************************************************************
  ** class MidiControllerList
  */
+
+int MidiControllerList::last_midi_control_value[controller_array_size];
 
 MidiControllerList::MidiControllerList()
     : map(controller_array_size),
@@ -297,7 +296,26 @@ MidiControllerList::MidiControllerList()
       pgm_chg(),
       changed(),
       new_program() {
+    for (int i = 0; i < controller_array_size; ++i) {
+	last_midi_control_value[i] = -1;
+    }
     pgm_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_pgm_chg));
+}
+
+void MidiControllerList::update_from_controller(int n) {
+    midi_controller_list& cl = map[n];
+    int v = get_last_midi_control_value(n);
+    if (v >= 0) {
+	for (midi_controller_list::iterator i = cl.begin(); i != cl.end(); ++i) {
+	    i->set_midi(v, v);
+	}
+    }
+}
+
+void MidiControllerList::update_from_controllers() {
+    for (unsigned int n = 0; n < map.size(); n++) {
+	update_from_controller(n);
+    }
 }
 
 void MidiControllerList::on_pgm_chg() {
@@ -362,6 +380,7 @@ void MidiControllerList::modifyCurrent(Parameter &param,
         return;
     // add zone to controller
     map[last_midi_control].push_front(MidiController(param, lower, upper, toggle));
+    update_from_controller(last_midi_control);
     changed();
 }
 
@@ -371,8 +390,9 @@ void MidiControllerList::set_ctr_val(int ctr, int val) {
     } else {
         midi_controller_list& ctr_list = map[ctr];
         for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i)
-            i->set(val);
+            i->set_midi(val, get_last_midi_control_value(ctr));
     }
+    MidiControllerList::set_last_midi_control_value(ctr, val);
 }
 
 void MidiControllerList::writeJSON(gx_system::JsonWriter& w) {

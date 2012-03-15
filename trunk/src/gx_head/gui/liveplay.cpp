@@ -669,39 +669,50 @@ void Liveplay::on_realize() {
 class MidiControllerDisplay: public Gtk::ProgressBar, public gx_ui::GxUiItem {
 private:
     gx_ui::GxUI& ui;
-    gx_engine::MidiController& controller;
+    unsigned int ctr;
+    const gx_engine::midi_controller_list& controller;
 private:
     virtual void reflectZone();
     virtual bool hasChanged();
 public:
-    MidiControllerDisplay(gx_ui::GxUI& ui, gx_engine::MidiController& ctr, const Glib::ustring& name);
+    MidiControllerDisplay(gx_ui::GxUI& ui, unsigned int n, const gx_engine::midi_controller_list& ctrl, const Glib::ustring& name);
     ~MidiControllerDisplay();
 };
 
-MidiControllerDisplay::MidiControllerDisplay(gx_ui::GxUI& ui_, gx_engine::MidiController& ctr, const Glib::ustring& name)
-    : Gtk::ProgressBar(), gx_ui::GxUiItem(), ui(ui_), controller(ctr) {
-    ui.registerZone(controller.get_zone(), this);
+MidiControllerDisplay::MidiControllerDisplay(gx_ui::GxUI& ui_, unsigned int n, const gx_engine::midi_controller_list& ctrl, const Glib::ustring& name)
+    : Gtk::ProgressBar(), gx_ui::GxUiItem(), ui(ui_), ctr(n), controller(ctrl) {
+    ui.registerZone(gx_engine::MidiControllerList::get_midi_control_zone(ctr), this);
     set_size_request(300, 50);
     set_text(name);
     reflectZone();
 }
 
 MidiControllerDisplay::~MidiControllerDisplay() {
-    ui.unregisterZone(controller.get_zone(), this);
+    ui.unregisterZone(gx_engine::MidiControllerList::get_midi_control_zone(ctr), this);
 }
 
 bool MidiControllerDisplay::hasChanged() {
-    return get_fraction() != controller.get();
+    int v = gx_engine::MidiControllerList::get_last_midi_control_value(ctr);
+    if (v >= 0) {
+	return get_fraction() != v / 127.0;
+    }
+    if (get_sensitive()) {
+	set_sensitive(false);
+    }
+    return false;
 }
 
 void MidiControllerDisplay::reflectZone() {
-    set_fraction(controller.get());
+    int v = gx_engine::MidiControllerList::get_last_midi_control_value(ctr);
+    if (v >= 0) {
+	set_fraction(v / 127.0);
+    }
 }
 
 void Liveplay::add_midi_elements() {
     int left = 0;
     int top = 0;
-    int top_max = 6;
+    int top_max = 3;
     int left_max = 3;
     Gtk::Table::TableList& tl = midictrl_table->children();
     tl.erase(tl.begin(), tl.end());
@@ -712,19 +723,15 @@ void Liveplay::add_midi_elements() {
 	}
 	std::string v = gx_engine::midi_std_ctr[i];
 	if (v.empty()) {
-	    v = Glib::ustring::compose("controller %1", i);
+	    v = Glib::ustring::compose("%1: ", i);
 	}
-#if 0
-	cout << v << ": " << endl;
         for (gx_engine::midi_controller_list::iterator j = cl.begin(); j != cl.end(); ++j) {
             gx_engine::Parameter& p = j->getParameter();
-	    cout << Glib::ustring::compose(" %1/%2", p.l_group(), p.l_name());
+	    v += Glib::ustring::compose(" %1/%2", p.l_group(), p.l_name());
 	}
-	cout << endl;
-#endif
 	midictrl_table->attach(
-	    *manage(new MidiControllerDisplay(ui, *cl.begin(), v)),
-	    left, left+1, top, top+1);
+	    *manage(new MidiControllerDisplay(ui, i, cl, v)),
+	    left, left+1, top, top+1, Gtk::AttachOptions(0));
 	top += 1;
 	if (top >= top_max) {
 	    top = 0;
