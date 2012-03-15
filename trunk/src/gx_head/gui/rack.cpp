@@ -696,11 +696,26 @@ Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
     return al;
 }
 
+bool RackBox::on_my_leave_out(GdkEventCrossing *focus) {
+    Glib::RefPtr<Gdk::Window> window = this->get_window();
+    window->set_cursor(); 
+    return true;
+}
+
+bool RackBox::on_my_enter_in(GdkEventCrossing *focus) {
+    Glib::RefPtr<Gdk::Window> window = this->get_window();
+    Gdk::Cursor cursor(Gdk::HAND1);
+    window->set_cursor(cursor); 
+    return true;
+}
+
 Gtk::Widget *RackBox::wrap_bar(int left, int right, bool sens) {
     Gtk::EventBox *ev = new Gtk::EventBox;
     ev->set_visible_window(false);
     ev->set_above_child(true);
     ev->add(*manage(make_bar(left, right, sens)));
+    ev->signal_leave_notify_event().connect(sigc::mem_fun(*this, &RackBox::on_my_leave_out));
+    ev->signal_enter_notify_event().connect(sigc::mem_fun(*this, &RackBox::on_my_enter_in));
     ev->signal_drag_begin().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_begin));
     ev->signal_drag_end().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_end));
     ev->signal_drag_data_get().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_data_get));

@@ -351,6 +351,8 @@ private:
     void animate_remove();
     void on_my_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context);
     bool animate_create();
+    bool on_my_leave_out(GdkEventCrossing *focus);
+    bool on_my_enter_in(GdkEventCrossing *focus);
     void on_my_drag_end(const Glib::RefPtr<Gdk::DragContext>& context);
     void on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
     void vis_switch(Gtk::Widget& a, Gtk::Widget& b);
