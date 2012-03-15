@@ -177,7 +177,7 @@ bool TunerSwitcher::on_state_timeout() {
     if (state == wait_start) {
 	set_state(listening);
 	current_note = no_note;
-	if (lp.gx_settings.get_current_source() == gx_preset::GxSettings::preset) {
+	if (lp.gx_settings.setting_is_preset()) {
 	    last_bank_idx = lp.gx_settings.banks.get_index(lp.gx_settings.get_current_bank());
 	    last_preset_idx = lp.gx_settings.get_current_bank_file()->get_index(lp.gx_settings.get_current_name());
 	} else {
@@ -304,7 +304,7 @@ bool KeySwitcher::display_selected_bank() {
 
 bool KeySwitcher::display_current() {
     last_bank_key.clear();
-    if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state) {
+    if (!gx_settings.setting_is_preset()) {
 	display("----","");
     } else {
 	display(gx_settings.get_current_bank(), gx_settings.get_current_name());
@@ -600,7 +600,7 @@ void Liveplay::on_engine_state_change(gx_engine::GxEngineState state) {
 
 void Liveplay::on_selection_changed() {
     keyswitch.deactivate();
-    if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state) {
+    if (!gx_settings.setting_is_preset()) {
 	display("----","");
     } else {
 	display(gx_settings.get_current_bank(), gx_settings.get_current_name());

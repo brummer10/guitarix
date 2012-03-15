@@ -285,6 +285,11 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool preserve_preset) {}
 
 class LadspaSettings: public gx_system::GxSettingsBase {
 private:
+    enum Source {
+	state,
+	preset,
+    };
+    Source current_source;
     PresetIO preset_io;
     StateIO state_io;
     void change_preset_file(const std::string& newfile);
@@ -352,6 +357,7 @@ void LadspaSettings::change_preset_file(const std::string& newfile) {
 LadspaSettings::LadspaSettings(string sfname, string presname, ParamMap& param,
 			       EngineControl& seq, ConvolverAdapter* convolver, ControlParameter& cp)
     : GxSettingsBase(seq),
+      current_source(state),
       preset_io(param, convolver, cp),
       state_io(param, convolver, cp) {
     set_io(&state_io, &preset_io);

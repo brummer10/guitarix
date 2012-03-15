@@ -342,17 +342,11 @@ public:
 };
 
 class GxSettingsBase {
-public:
-    enum Source {
-	state,
-	preset,
-    };
 protected:
     AbstractStateIO*   state_io;
     AbstractPresetIO*  preset_io;
     StateFile          statefile;
     PresetBanks        banks;
-    Source             current_source;
     Glib::ustring      current_bank;
     Glib::ustring      current_name;
     gx_engine::EngineControl& seq;
@@ -370,7 +364,6 @@ public:
 	return presetlist_changed; }
     GxSettingsBase(gx_engine::EngineControl& seq_);
     ~GxSettingsBase();
-    Source get_current_source() { return current_source; }
     const Glib::ustring& get_current_bank() { return current_bank; }
     PresetFile *get_current_bank_file() { return setting_is_preset() ? banks.get_file(current_bank) : 0; }
     const Glib::ustring& get_current_name() { return current_name; }
@@ -378,7 +371,7 @@ public:
     void save_to_state(bool preserve_preset=false);
     void set_source_to_state();
     void erase_preset(const Glib::ustring& name);
-    bool setting_is_preset() { return current_source == preset; }
+    bool setting_is_preset() { return !current_bank.empty(); }
     bool convert_preset(PresetFile& pf);
     void reorder_preset(PresetFile& pf, const std::vector<Glib::ustring>& neworder);
     void erase_preset(PresetFile& pf, const Glib::ustring& name);

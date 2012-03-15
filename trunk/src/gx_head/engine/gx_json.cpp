@@ -1491,7 +1491,6 @@ GxSettingsBase::GxSettingsBase(gx_engine::EngineControl& seq_)
       preset_io(),
       statefile(),
       banks(),
-      current_source(state),
       current_bank(),
       current_name(),
       seq(seq_),
@@ -1545,15 +1544,13 @@ void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
 	pf = 0;
     }
     if (!pf) {
-	if (current_source != state) {
-	    current_source = state;
+	if (setting_is_preset()) {
 	    current_bank = "";
 	    current_name = "";
 	    selection_changed();
 	}
 	return;
     }
-    current_source = preset;
     current_bank = pf->get_name();
     current_name = name;
     seq.start_ramp_down();
@@ -1574,7 +1571,6 @@ void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
 }
 
 void GxSettingsBase::loadstate() {
-    current_source = state;
     current_bank = current_name = "";
     seq.start_ramp_down();
     bool modules_changed = loadsetting(0, current_name);
@@ -1585,15 +1581,11 @@ void GxSettingsBase::loadstate() {
     if (modules_changed) { // see comment in load_preset()
 	seq.clear_rack_changed();
     }
-    if (!current_bank.empty()) {
-	current_source = preset;
-    }
     presetlist_changed();
     selection_changed();
 }
 
 void GxSettingsBase::set_source_to_state() {
-    current_source = state;
     current_bank = current_name = "";
     selection_changed();
 }
@@ -1604,7 +1596,7 @@ void GxSettingsBase::save_to_state(bool preserve_preset) {
     JsonWriter *jw = statefile.create_writer(&preserve_preset);
     state_io->write_state(*jw, preserve_preset);
     delete jw;
-    if (!preserve_preset && current_source != state) {
+    if (!preserve_preset && setting_is_preset()) {
 	set_source_to_state();
 	presetlist_changed();
     }
@@ -1673,9 +1665,8 @@ void GxSettingsBase::save(PresetFile& pf, const Glib::ustring& name) {
     if (newentry) {
 	presetlist_changed();
     }
-    if (current_source != preset
-	|| (current_source == preset && current_name != name)) {
-	current_source = preset;
+    if (!setting_is_preset()
+	|| (setting_is_preset() && current_name != name)) {
 	current_name = name;
 	current_bank = pf.get_name();
 	presetlist_changed();

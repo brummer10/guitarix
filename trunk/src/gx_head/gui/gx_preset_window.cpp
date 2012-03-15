@@ -1107,7 +1107,7 @@ void PresetWindow::on_preset_changed() {
 }
 
 void PresetWindow::on_preset_save() {
-    if (gx_settings.get_current_source() == gx_system::GxSettingsBase::state || gx_settings.get_current_bank().empty()) {
+    if (!gx_settings.setting_is_preset()) {
 	return;
     }
     gx_system::PresetFile *pf = gx_settings.banks.get_file(gx_settings.get_current_bank());

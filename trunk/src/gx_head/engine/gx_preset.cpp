@@ -679,7 +679,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 
 void GxSettings::loadstate() {
     GxSettingsBase::loadstate();
-    if (current_source == preset) {
+    if (setting_is_preset()) {
 	gx_system::PresetFile *pf = banks.get_file(current_bank);
 	if (pf && pf->get_type() == gx_system::PresetFile::PRESET_SCRATCH) {
 	    /* make sure we see the content of the scratchpad,
