@@ -131,12 +131,9 @@ void PluginUI::display(bool v, bool animate) {
     plugin->box_visible = v;
     if (v) {
 	if (!rackbox) {
-	    rackbox = main.add_rackbox(*this, false, -1, animate);
+	    rackbox = main.add_rackbox(*this, compressed, -1, animate);
 	} else {
 	    rackbox->display(true, animate);
-	}
-	if (compressed) {
-	    rackbox->swtch(true);
 	}
 	if (hidden) {
 	    rackbox->hide();
@@ -151,10 +148,7 @@ void PluginUI::display(bool v, bool animate) {
 }
 
 void PluginUI::display_new(bool unordered) {
-    if (rackbox) {
-	rackbox->swtch(false);
-    }
-    compressed = false;
+    plugin->plug_visible = false;
     display(true, true);
     if (!unordered) {
 	rackbox->get_parent()->reorder(get_id(), -1);
@@ -788,7 +782,7 @@ void RackBox::display(bool v, bool animate) {
 }
 
 RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
-    : Gtk::VBox(), plugin(plugin_), main(tl), vis(true), config_mode(false), anim_tag(),
+    : Gtk::VBox(), plugin(plugin_), main(tl), config_mode(false), anim_tag(),
       compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), minibox(0),
       fbox(0), target(), anim_height(0), anim_step(), drag_icon(), target_height(0),
       box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), position(), effect_post_pre(), on_off_switch("switchit"),
@@ -947,7 +941,7 @@ void RackBox::vis_switch(Gtk::Widget& a, Gtk::Widget& b) {
 }
 
 void RackBox::set_visibility(bool v) {
-    if (config_mode || !vis) {
+    if (config_mode || get_plug_visible()) {
 	mbox.set_visible(v);
     } else {
 	fbox->set_visible(v);
@@ -956,7 +950,7 @@ void RackBox::set_visibility(bool v) {
 
 void RackBox::swtch(bool mini) {
     plugin.plugin->plug_visible = mini;
-    vis = !mini;
+    plugin.compressed = mini;
     if (!config_mode) {
 	if (mini) {
 	    vis_switch(*fbox, mbox);
@@ -969,7 +963,7 @@ void RackBox::swtch(bool mini) {
 void RackBox::set_config_mode(bool mode) {
     config_mode = mode;
     minibox->set_config_mode(mode);
-    if (vis) {
+    if (!get_plug_visible()) {
 	if (mode) {
 	    vis_switch(*fbox, mbox);
 	} else {
@@ -1481,7 +1475,7 @@ void RackContainer::set_config_mode(bool mode) {
 
 void RackContainer::compress_all() {
     for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
-	i->second->compressed = true;
+	i->second->plugin->plug_visible = i->second->compressed = true;
 	RackBox *r = i->second->rackbox;
 	if (r) {
 	    if (r->can_compress()) {
@@ -1493,7 +1487,7 @@ void RackContainer::compress_all() {
 
 void RackContainer::expand_all() {
     for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
-	i->second->compressed = false;
+	i->second->plugin->plug_visible = i->second->compressed = false;
 	RackBox *r = i->second->rackbox;
 	if (r) {
 	    if (r->can_compress()) {

@@ -321,7 +321,6 @@ private:
 #endif
     PluginUI& plugin;
     MainWindow& main;
-    bool vis;
     bool config_mode;
     sigc::connection anim_tag;
     bool compress;
@@ -391,7 +390,7 @@ public:
     int position_weight() { return plugin.plugin->position_weight(); }
     bool is_displayed() { return box_visible; }
     void display(bool v, bool animate);
-    bool get_plug_visible() { return !vis; }
+    bool get_plug_visible() { return plugin.compressed; }
 };
 
 class MiniRackBox: public Gtk::HBox {
