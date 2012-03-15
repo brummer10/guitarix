@@ -1006,7 +1006,7 @@ void RackBox::set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Gli
 }
 
 void RackBox::set_plugin_std_preset() {
-    gx_gui::gx_reset_units(main.get_parametermap(), plugin.get_id());
+    main.get_parametermap().reset_unit(plugin.get_id());
 }
 
 void RackBox::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {

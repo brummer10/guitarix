@@ -38,7 +38,6 @@ gint gx_nchoice_dialog_without_entry(
     );
 
 /* extra GUI helpers */
-void gx_reset_units(gx_engine::ParamMap& pmap, Glib::ustring group_id);
 int  gx_message_popup(const char*);
 void show_error_msg(const string& msg);
 void child_set_property(Gtk::Container& container, Gtk::Widget& child, const char *property_name, bool value);

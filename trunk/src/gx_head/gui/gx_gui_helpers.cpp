@@ -47,24 +47,6 @@ void show_error_msg(const string& msg) {
     dialog.run();
 }
 
-// reset all parameters to default settings
-void gx_reset_units(gx_engine::ParamMap& pmap, Glib::ustring group_id) {
-    group_id += ".";
-    string on_off = group_id + "on_off";
-    string pp = group_id + "pp";
-    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
-        if (i->first.compare(0, group_id.size(), group_id) == 0) {
-            if (i->second->isControllable()) {
-                string id = i->first;
-                if (i->first != on_off && i->first != pp) {
-                    i->second->stdJSON_value();
-                    i->second->setJSON_value();
-                }
-            }
-        }
-    }
-}
-
 void child_set_property(Gtk::Container& container, Gtk::Widget& child, const char *property_name, bool value) {
     GValue v = {0};
     g_value_init(&v, G_TYPE_BOOLEAN);

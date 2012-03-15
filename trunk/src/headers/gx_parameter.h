@@ -553,6 +553,8 @@ class ParamMap: boost::noncopyable {
         return *id_map[p];
     }
     void set_init_values();
+    void reset_unit(Glib::ustring group_id);
+    bool unit_has_std_values(Glib::ustring group_id);
     inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std,
 				   float lower, float upper, float step) {
 	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, true, var, std, lower, upper, step, true);

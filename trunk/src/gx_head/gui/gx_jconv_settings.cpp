@@ -588,7 +588,7 @@ void IRWindow::on_reset_clicked() {
     wIredit->set_offset(0);
     wIredit->set_delay(0);
     wIredit->set_length(audio_size);
-    gx_gui::gx_reset_units(gx_engine::parameter_map, "jconv");
+    gx_engine::parameter_map.reset_unit("jconv");
 }
 
 Glib::ustring IRWindow::on_delay_delta_format_value(double v) {

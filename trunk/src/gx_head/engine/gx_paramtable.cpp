@@ -1360,5 +1360,43 @@ void ParamMap::set_init_values() {
 	i->second->setJSON_value();
     }
 }
-} // namespace gx_gui
 
+bool ParamMap::unit_has_std_values(Glib::ustring group_id) {
+    group_id += ".";
+    std::string on_off = group_id + "on_off";
+    std::string pp = group_id + "pp";
+    for (iterator i = begin(); i != end(); ++i) {
+	if (i->first.compare(0, group_id.size(), group_id) == 0) {
+	    if (i->second->isControllable()) {
+		if (i->first != on_off && i->first != pp) {
+		    i->second->stdJSON_value();
+		    if (!i->second->compareJSON_value()) {
+			return false;
+			break;
+		    }
+		}
+	    }
+	}
+    }
+    return true;
+}
+
+// reset all parameters to default settings
+void ParamMap::reset_unit(Glib::ustring group_id) {
+    group_id += ".";
+    std::string on_off = group_id + "on_off";
+    std::string pp = group_id + "pp";
+    for (iterator i = begin(); i != end(); ++i) {
+        if (i->first.compare(0, group_id.size(), group_id) == 0) {
+            if (i->second->isControllable()) {
+                string id = i->first;
+                if (i->first != on_off && i->first != pp) {
+                    i->second->stdJSON_value();
+                    i->second->setJSON_value();
+                }
+            }
+        }
+    }
+}
+
+} // namespace gx_gui
