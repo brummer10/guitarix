@@ -59,11 +59,11 @@ Gate::Gate():
 
 int Gate::registerparam(const ParamReg& reg) {
     Gate& self = *static_cast<Gate*>(reg.plugin);
-    reg.registerVar("abgate.threshold", N_("Threshold"), "S", "", &self.threshold, -70, -70, 12, 1);
-    reg.registerVar("abgate.attack", N_("Attack"), "S", "", &self.attack, 30, 0.1, 500, 0.1);
-    reg.registerVar("abgate.hold", N_("Hold"), "S", "", &self.hold, 500, 5, 3000, 0.1);
-    reg.registerVar("abgate.decay", N_("Decay"), "S", "", &self.decay, 1000, 5, 4000, 0.1);
-    reg.registerVar("abgate.gaterange", N_("Range"), "S", "", &self.range, -90, -90, -20, 1);
+    reg.registerVar("abgate.threshold", N_("Threshold"), "S", N_("threshold (dB) value\nput it just above the noise level"), &self.threshold, -70, -70, 12, 1);
+    reg.registerVar("abgate.attack", N_("Attack"), "S", N_("time (ms) until gate opens (sensitivity)"), &self.attack, 4, 0.1, 500, 0.1);
+    reg.registerVar("abgate.hold", N_("Hold"), "S", N_("time (ms) to keep open when input is below threshold"), &self.hold, 5, 5, 3000, 0.1);
+    reg.registerVar("abgate.decay", N_("Decay"), "S", "duration (ms) of shutting gate down", &self.decay, 50, 5, 4000, 0.1);
+    reg.registerVar("abgate.gaterange", N_("Range"), "S", N_("damping (dB) when the gate is closed"), &self.range, -30, -90, -20, 1);
     return 0;
 }
 
