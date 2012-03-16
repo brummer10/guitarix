@@ -30,7 +30,6 @@
 
 #include <cstdlib>
 #include <cmath>
-#include <cstdio>
 #include "gx_plugin.h"
 
 #define DENORMAL_GUARD 1e-18f   // Make it smaller until CPU problem re-appears
@@ -88,10 +87,6 @@ EffectLFO::EffectLFO() {
     PERIOD = 0;
     xl = 0.0;
     xr = 0.0;
-    Pfreq = 40.0;
-    Prandomness = 0.0;
-    PLFOtype = 0;
-    Pstereo = 0.25;
 
     a = 10.0f;
     b = 28.0f;
@@ -134,9 +129,6 @@ void EffectLFO::updateparams() {
 	lfornd = 0.0;
     } else if (lfornd > 1.0) {
 	lfornd = 1.0;
-    }
-    if (PLFOtype > 9) {
-	PLFOtype = 0;		//this has to be updated if more lfo's are added
     }
     lfotype = PLFOtype;
 
@@ -354,7 +346,7 @@ Vibe::Vibe()
     : PluginDef() {
     version = PLUGINDEF_VERSION;
     id = "univibe";
-    name = N_("UniVibe");
+    name = N_("Vibe");
     stereo_audio = process;
     set_samplerate = init;
     register_params = registerparam;
@@ -382,22 +374,21 @@ int Vibe::registerparam(const ParamReg& reg) {
 	{"zigzig",           N_("ZigZag") },
 	{"modulated_square", N_("M. Sqare") },
 	{"modulated_saw",    N_("M.Saw") },
-	{"fractal",          N_("L. Fractal") },
-	{"fractal_xy",       N_("L. Fractal XY") },
-	{"s_h_random",       N_("S/H Random") },
+	//{"fractal",          N_("L. Fractal") },
+	//{"fractal_xy",       N_("L. Fractal XY") },
+	//{"s_h_random",       N_("S/H Random") },
 	{0,0}
     };
-    // Pwidth -> fwidth
-    reg.registerVar("univibe.width",N_("Width"),"S","",&self.fwidth, 0.0, 0, 127/90.0, 0.1);
-    reg.registerVar("univibe.freq",N_("Tempo"),"S", "",&self.lfo.Pfreq, 40, 1, 600, 0.1);
-    reg.registerVar("univibe.randomness",N_("Rnd"),"S","",&self.lfo.Prandomness, 0, 0, 1, 0.01);
+    reg.registerVar("univibe.freq",N_("Tempo"),"S", N_("LFO frequency (Hz)"),&self.lfo.Pfreq, 40, 1, 600, 0.1);
     reg.registerUEnumVar("univibe.lfo_type",N_("LFO Type"),"B","",lfo_types,&self.lfo.PLFOtype,0);
-    reg.registerVar("univibe.stereo",N_("St.df"),"S","",&self.lfo.Pstereo,0.25,-0.5,0.5,0.01);
-    reg.registerVar("univibe.panning",N_("Pan"),"S","",&self.Ppanning,0,0,2,0.01);
-    reg.registerVar("univibe.wet_dry",N_("Wet/Dry"),"S","",&self.wet_dry,1,0,1,0.01);
-    reg.registerVar("univibe.fb",N_("Fb"),"S","",&self.fb,0,-1,1,0.01);
-    reg.registerVar("univibe.depth",N_("Depth"),"S","",&self.fdepth,1,0,1,0.01);
-    reg.registerVar("univibe.lrcross",N_("L/R.Cr"),"S","",&self.flrcross,0,-1,1,0.01);
+    reg.registerVar("univibe.width",N_("Width"),"S",N_("LFO amplitude"),&self.fwidth, 0.7, 0, 127/90.0, 0.1);
+    reg.registerVar("univibe.depth",N_("Depth"),"S",N_("DC level in LFO"),&self.fdepth,1,0,1,0.01);
+    reg.registerVar("univibe.randomness",N_("Rnd"),"S",N_("randomness of LFO"),&self.lfo.Prandomness, 0, 0, 1, 0.01);
+    reg.registerVar("univibe.stereo",N_("St.df"),"S",N_("LFO phase shift between left and right channels"),&self.lfo.Pstereo,0.25,-0.5,0.5,0.01);
+    reg.registerVar("univibe.panning",N_("Pan"),"S",N_("panning of output (left / right)"),&self.Ppanning,0,-1,1,0.01);
+    reg.registerVar("univibe.wet_dry",N_("Wet/Dry"),"S",N_("output mix (signal / effect)"),&self.wet_dry,1,0,1,0.01);
+    reg.registerVar("univibe.fb",N_("Fb"),"S",N_("sound modification by feedback"),&self.fb,0,-1,1,0.01);
+    reg.registerVar("univibe.lrcross",N_("L/R.Cr"),"S",N_("left/right channel crossing"),&self.flrcross,0,-1,1,0.01);
     return 0;
 }
 
@@ -450,8 +441,8 @@ void Vibe::out(int count, float *smpsl, float *smpsr, float * efxoutl, float * e
   
     lfo.effectlfoout (&lfol, &lfor);
 
-    lfol = fdepth + lfol*fwidth;
-    lfor = fdepth + lfor*fwidth;   
+    lfol = 1 - fdepth + lfol*fwidth;
+    lfor = 1 - fdepth + lfor*fwidth;   
   
     if (lfol > 1.0f) {
 	lfol = 1.0f;
@@ -609,8 +600,8 @@ void Vibe::out(int count, float *smpsl, float *smpsr, float * efxoutl, float * e
 	    v1 = (1 - wet_dry) * 2;
 	    v2 = 1.0;
 	}
-	efxoutl[i] = v1 * (outl*fcross + outr*flrcross) + v2 * smpsl[i];
-	efxoutr[i] = v1 * (outr*fcross + outl*flrcross) + v2 * smpsr[i];
+	efxoutl[i] = v2 * (outl*fcross + outr*flrcross) + v1 * smpsl[i];
+	efxoutr[i] = v2 * (outr*fcross + outl*flrcross) + v1 * smpsr[i];
     };
 };
 
@@ -638,10 +629,8 @@ void Vibe::init_vibes(unsigned int samplerate) {
     ilampTC = 1.0f - lampTC;
     lstep = 0.0f;
     rstep = 0.0f;
-    Ppanning = 1.0f;
     lpanning = 1.0f;
     rpanning = 1.0f;
-    fdepth = 1.0f;  
     oldgl = 0.0f;
     oldgr = 0.0f;
     gl = 0.0f;
@@ -782,7 +771,7 @@ void Vibe::modulate(float ldrl, float ldrr) {
 };
 
 void Vibe::setpanning () {
-    rpanning = Ppanning;
+    rpanning = Ppanning+1;
     lpanning = 2.0f - rpanning;
     lpanning = 10.0f * powf(lpanning, 4);
     rpanning = 10.0f * powf(rpanning, 4);

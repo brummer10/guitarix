@@ -5,10 +5,10 @@
     "univibe.randomness": 0.0787402,
     "univibe.lfo_type": 0,
     "univibe.stereo": 0,
-    "univibe.panning": 1,
-    "univibe.wet_dry": 0.503937,
+    "univibe.panning": 0,
+    "univibe.wet_dry": 0.496063,
     "univibe.fb": 0,
-    "univibe.depth": 0.023622,
+    "univibe.depth": 0.976378,
     "univibe.lrcross": 0,
   }
   "Stereo Classic", {
@@ -17,10 +17,10 @@
     "univibe.randomness": 0.0787402,
     "univibe.lfo_type": 0,
     "univibe.stereo": -0.125,
-    "univibe.panning": 1,
-    "univibe.wet_dry": 0.503937,
+    "univibe.panning": 0,
+    "univibe.wet_dry": 0.496063,
     "univibe.fb": 0,
-    "univibe.depth": 0.023622,
+    "univibe.depth": 0.976378,
     "univibe.lrcross": 0,
   }
   "Wide Vibe", {
@@ -29,10 +29,10 @@
     "univibe.randomness": 0.0787402,
     "univibe.lfo_type": 0,
     "univibe.stereo": -0.5,
-    "univibe.panning": 1,
-    "univibe.wet_dry": 0.503937,
+    "univibe.panning": 0,
+    "univibe.wet_dry": 0.496063,
     "univibe.fb": 0,
-    "univibe.depth": 0,
+    "univibe.depth": 1,
     "univibe.lrcross": 0,
   }
   "Classic Chorus", {
@@ -41,10 +41,10 @@
     "univibe.randomness": 0.0787402,
     "univibe.lfo_type": 0,
     "univibe.stereo": -0.125,
-    "univibe.panning": 1,
-    "univibe.wet_dry": 0,
+    "univibe.panning": 0,
+    "univibe.wet_dry": 1,
     "univibe.fb": 0,
-    "univibe.depth": 0.023622,
+    "univibe.depth": 0.976378,
     "univibe.lrcross": 0,
   }
   "Vibe Chorus", {
@@ -53,10 +53,10 @@
     "univibe.randomness": 0.0787402,
     "univibe.lfo_type": 0,
     "univibe.stereo": -0.109375,
-    "univibe.panning": 1,
-    "univibe.wet_dry": 0,
+    "univibe.panning": 0,
+    "univibe.wet_dry": 1,
     "univibe.fb": 0,
-    "univibe.depth": 0.133858,
+    "univibe.depth": 0.866142,
     "univibe.lrcross": 0,
   }
   "Lush Chorus", {
@@ -65,10 +65,10 @@
     "univibe.randomness": 0.0787402,
     "univibe.lfo_type": 0,
     "univibe.stereo": 0,
-    "univibe.panning": 1.09375,
-    "univibe.wet_dry": 0,
+    "univibe.panning": 0.09375,
+    "univibe.wet_dry": 1,
     "univibe.fb": -0.230769,
-    "univibe.depth": 0.15748,
+    "univibe.depth": 0.84252,
     "univibe.lrcross": -0.25,
   }
   "Sick Phaser", {
@@ -77,10 +77,10 @@
     "univibe.randomness": 0.0787402,
     "univibe.lfo_type": 0,
     "univibe.stereo": -0.25,
-    "univibe.panning": 1,
-    "univibe.wet_dry": 0.503937,
+    "univibe.panning": 0,
+    "univibe.wet_dry": 0.496063,
     "univibe.fb": -0.769231,
-    "univibe.depth": 0,
+    "univibe.depth": 1,
     "univibe.lrcross": -0.53125,
   }
   "Warble", {
@@ -89,10 +89,10 @@
     "univibe.randomness": 0.0787402,
     "univibe.lfo_type": 0,
     "univibe.stereo": -0.5,
-    "univibe.panning": 1,
-    "univibe.wet_dry": 0,
+    "univibe.panning": 0,
+    "univibe.wet_dry": 1,
     "univibe.fb": -0.984615,
-    "univibe.depth": 0,
+    "univibe.depth": 1,
     "univibe.lrcross": -0.421875,
   }
 ]
