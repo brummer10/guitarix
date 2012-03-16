@@ -2379,7 +2379,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     */
     Gtk::AccelMap::load(options.get_builder_filepath("accels_rc"));
 
-    const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore", "bank_combo_liststore", 0 };
+    const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore",
+			      "bank_combo_liststore", "ampdetail_sizegroup", 0 };
     bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &ui, id_list);
     load_widget_pointers();
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool

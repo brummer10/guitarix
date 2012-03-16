@@ -2427,6 +2427,12 @@ to midi controller</property>
       <column type="gint"/>
     </columns>
   </object>
+  <object class="GtkSizeGroup" id="ampdetail_sizegroup">
+    <widgets>
+      <widget name="ampdetail_mini"/>
+      <widget name="ampdetail_normal"/>
+    </widgets>
+  </object>
   <object class="GtkListStore" id="target_liststore">
     <columns>
       <!-- column-name gchararray1 -->
