@@ -31,7 +31,6 @@ class Gate: public PluginDef {
 private:
     int state;
     int holding;
-    float input_db;
     float gate;
     float sample_rate;
     //
@@ -47,7 +46,6 @@ public:
 Gate::Gate():
     state(CLOSED),
     holding(0),
-    input_db(0),
     gate(0),
     sample_rate(0) {
     version = PLUGINDEF_VERSION;
@@ -78,12 +76,12 @@ void Gate::process(int count, float *input, float *output, PluginDef *plugin) {
     float range_coef = self.range > -90 ? pow(10, self.range * 0.05) : 0;
     float attack_coef = 1000 / (self.attack * self.sample_rate);
     float decay_coef = 1000 / (self.decay * self.sample_rate);
+    float thres = std::pow(10.0, self.threshold / 20);
     for (int i = 0; i < count; ++i) {
-	// Counting input dB
-	self.input_db = 20 * log10(std::abs(input[i]));
+	float input_abs = std::abs(input[i]);
 	switch (self.state){
 	case CLOSED:
-	    if (self.input_db >= self.threshold) {
+	    if (input_abs >= thres) {
 		self.state = ATTACK;
 	    }
 	    break;
@@ -98,7 +96,7 @@ void Gate::process(int count, float *input, float *output, PluginDef *plugin) {
 	    break;
 	case OPENED:
 	    if (self.holding <= 0) {
-		if (self.input_db < self.threshold) {
+		if (input_abs < thres) {
 		    self.state = DECAY;
 		}
 	    }
@@ -108,7 +106,7 @@ void Gate::process(int count, float *input, float *output, PluginDef *plugin) {
 	    break;
 	case DECAY:
 	    self.gate -= decay_coef;
-	    if (self.input_db >= self.threshold) {
+	    if (input_abs >= thres) {
 		self.state = ATTACK;
 	    } else if (self.gate <= 0) {
 		self.gate = 0;
