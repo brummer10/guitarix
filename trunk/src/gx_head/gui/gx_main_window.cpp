@@ -1697,7 +1697,7 @@ void MainWindow::fill_pluginlist() {
     add_plugin(p, "chorus");
     add_plugin(p, "flanger");
     add_plugin(p, "phaser");
-    //add_plugin(p_TYPE_STEREO, "univibe");
+    add_plugin(p, "univibe");
     l.push_back(new PluginDesc("Modulation", p));
 
     p = new std::vector<PluginUI*>;
@@ -1707,6 +1707,7 @@ void MainWindow::fill_pluginlist() {
     l.push_back(new PluginDesc("Guitar Effects", p));
 
     p = new std::vector<PluginUI*>;
+    add_plugin(p, "abgate");
     add_plugin(p, "oscilloscope");
     add_plugin(p, "midi_out");
     l.push_back(new PluginDesc("Misc", p));

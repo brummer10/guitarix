@@ -4,11 +4,14 @@
 import os
 
 csources = [ # generate .so files from c sources that can be loaded by guitarix
-    "vibe.cc",
-    "abgate.cc",
     ]
 
 sources = [ # generate .so files that can be loaded by guitarix
+    ]
+
+lib_csources = [ # put in static library linked with guitarix
+    "vibe.cc",
+    "abgate.cc",
     ]
 
 lib_sources = [ # put in static library linked with guitarix
@@ -56,7 +59,7 @@ def build(bld):
         f.write("}\n")
         f.close()
     bld(name = "pluginlib.h",
-        source = lib_sources,
+        source = lib_sources+lib_csources,
         rule = run,
         target = "pluginlib.h",
         )
@@ -66,7 +69,7 @@ def build(bld):
     if have_pluginlib:
         bld(features = ['cxx', 'cstaticlib'],
             includes = ["../headers"],
-            source = [s.replace(".dsp",".cc") for s in lib_sources],
+            source = [s.replace(".dsp",".cc") for s in lib_sources]+lib_csources,
             target = "plugins", # (also defines name of task)
             )
     for s in sources:

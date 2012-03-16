@@ -32,6 +32,9 @@
 #include <cmath>
 #include "gx_plugin.h"
 
+namespace pluginlib {
+namespace vibe {
+
 #define DENORMAL_GUARD 1e-18f   // Make it smaller until CPU problem re-appears
 #define RND (rand()/(RAND_MAX+1.0))
 #define D_PI (2*M_PI)
@@ -781,11 +784,26 @@ void Vibe::setpanning () {
     rpanning *= 1.3f; 
 };
 
+
+#if true
+
+PluginDef *plugin() {
+    static Vibe vibe;
+    return &vibe;
+}
+
+#else
+
 extern "C" __attribute__ ((visibility ("default"))) int
 get_gx_plugins(int *count, PluginDef **pplugin)
 {
-    static Vibe vibe;
+    static pluginlib::vibe::Vibe vibe;
     *count = 1;
     *pplugin = &vibe;
     return 0;
 }
+
+#endif
+
+} // end namespace vibe
+} // end namespace pluginlib

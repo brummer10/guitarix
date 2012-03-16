@@ -20,6 +20,9 @@
 #include "gx_plugin.h"
 #include <cmath>
 
+namespace pluginlib {
+namespace abgate {
+
 #define N_(x) (x)
 
 #define CLOSED 1
@@ -138,6 +141,16 @@ int Gate::uiloader(const UiBuilder& b) {
     return 0;
 }
 
+
+#if true
+
+PluginDef *plugin() {
+    static Gate gate;
+    return &gate;
+}
+
+#else
+
 extern "C" __attribute__ ((visibility ("default"))) int
 get_gx_plugins(int *count, PluginDef **pplugin)
 {
@@ -146,3 +159,8 @@ get_gx_plugins(int *count, PluginDef **pplugin)
     *pplugin = &gate;
     return 0;
 }
+
+#endif
+
+} // end namespace abgate
+} // end namespace pluginlib
