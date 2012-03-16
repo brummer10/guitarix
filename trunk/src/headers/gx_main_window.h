@@ -402,6 +402,8 @@ private:
     Gtk::Widget *mb_delete_button;
     Gtk::Button *preset_button;
     Gxw::Switch on_off_switch;
+    bool on_my_leave_out(GdkEventCrossing *focus);
+    bool on_my_enter_in(GdkEventCrossing *focus);
     gx_gui::uiToggle<bool> toggle_on_off;
 private:
     Gtk::Widget *make_delete_button(RackBox& rb);
@@ -727,6 +729,8 @@ private:
     Gtk::Entry *preset_status;
 
 private:
+    bool on_my_leave_out(GdkEventCrossing *focus);
+    bool on_my_enter_in(GdkEventCrossing *focus);
     void load_widget_pointers();
     void maybe_shrink_horizontally(bool preset_no_rack=false);
     void on_show_tuner();

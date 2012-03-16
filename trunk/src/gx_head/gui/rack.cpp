@@ -411,6 +411,23 @@ Gtk::Widget *MiniRackBox::make_delete_button(RackBox& rb) {
     return w;
 }
 
+bool MiniRackBox::on_my_leave_out(GdkEventCrossing *focus) {
+    if (!mconbox.get_visible()) {
+        Glib::RefPtr<Gdk::Window> window = this->get_window();
+        window->set_cursor();
+    }
+    return true;
+}
+
+bool MiniRackBox::on_my_enter_in(GdkEventCrossing *focus) {
+    if (!mconbox.get_visible()) {
+        Glib::RefPtr<Gdk::Window> window = this->get_window();
+        Gdk::Cursor cursor(Gdk::HAND1);
+        window->set_cursor(cursor);
+    }
+    return true;
+}
+
 MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
     : Gtk::HBox(),
       evbox(),
@@ -427,6 +444,8 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
 	szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
     }
     evbox.set_visible_window(false);
+    evbox.signal_leave_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_leave_out));
+    evbox.signal_enter_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_enter_in));
     add(evbox);
     Gtk::HBox *box = new Gtk::HBox();
     evbox.add(*manage(box));

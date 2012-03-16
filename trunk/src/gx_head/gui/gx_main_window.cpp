@@ -968,6 +968,19 @@ void MainWindow::on_preset_action() {
 ** UI initialization
 */
 
+bool MainWindow::on_my_leave_out(GdkEventCrossing *focus) {
+    Glib::RefPtr<Gdk::Window> wind = window->get_window();
+    wind->set_cursor(); 
+    return true;
+}
+
+bool MainWindow::on_my_enter_in(GdkEventCrossing *focus) {
+    Glib::RefPtr<Gdk::Window> wind = window->get_window();
+    Gdk::Cursor cursor(Gdk::HAND1);
+    wind->set_cursor(cursor); 
+    return true;
+}
+
 void MainWindow::add_toolitem(PluginUI& pl, Gtk::ToolItemGroup *gw) {
     Gtk::ToolItem *tb = new Gtk::ToolItem();
     tb->set_use_drag_window(true);
@@ -975,6 +988,9 @@ void MainWindow::add_toolitem(PluginUI& pl, Gtk::ToolItemGroup *gw) {
     tb->signal_drag_end().connect(sigc::mem_fun(*this, &MainWindow::on_ti_drag_end));
     tb->signal_drag_data_delete().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ti_drag_data_delete), pl.get_id()));
     tb->signal_button_press_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ti_button_press), pl.get_id()));
+    tb->add_events(Gdk::ENTER_NOTIFY_MASK|Gdk::LEAVE_NOTIFY_MASK);
+    tb->signal_leave_notify_event().connect(sigc::mem_fun(*this, &MainWindow::on_my_leave_out));
+    tb->signal_enter_notify_event().connect(sigc::mem_fun(*this, &MainWindow::on_my_enter_in));
     std::vector<Gtk::TargetEntry> listTargets;
     if (pl.get_type() == PLUGIN_TYPE_MONO) {
 	listTargets.push_back(Gtk::TargetEntry("application/x-gtk-tool-palette-item-mono", Gtk::TARGET_SAME_APP, 0));
