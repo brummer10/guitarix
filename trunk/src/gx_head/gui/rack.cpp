@@ -992,6 +992,14 @@ void RackBox::set_config_mode(bool mode) {
     enable_drag(mode);
 }
 
+void RackBox::do_expand() {
+    swtch(false);
+    Glib::signal_idle().connect_once(
+	sigc::bind(
+	    sigc::mem_fun(get_parent(), &RackContainer::ensure_visible),
+	    sigc::ref(*this)));
+}
+
 Gtk::Button *RackBox::make_expand_button(bool expand) {
     Glib::ustring t;
     if (expand) {
@@ -1006,7 +1014,13 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
     b->add(*manage(l));
     b->set_size_request(20, 15);
     b->set_name("effect_reset");
-    b->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &RackBox::swtch), !expand));
+    if (expand) {
+	b->signal_clicked().connect(
+	    sigc::mem_fun(*this, &RackBox::do_expand));
+    } else {
+	b->signal_clicked().connect(
+	    sigc::bind(sigc::mem_fun(*this, &RackBox::swtch), true));
+    }
     return b;
 }
 

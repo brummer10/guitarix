@@ -368,6 +368,7 @@ private:
     Gtk::HBox *make_full_box(gx_system::CmdlineOptions& options);
     Gtk::VBox *switcher_vbox(gx_system::CmdlineOptions& options);
     bool has_delete() const { return delete_button; }
+    void do_expand();
     friend bool rackboxes_less(RackBox *a, RackBox *b);
 public:
     RackBox(PluginUI& plugin, MainWindow& main, Gtk::Widget* bare=0);
