@@ -105,9 +105,10 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSet
     col->set_cell_data_func(**col->get_cell_renderers().begin(), sigc::mem_fun(*this, &PresetWindow::highlight_current_bank));
 
     std::vector<Gtk::TargetEntry> listTargets;
-    listTargets.push_back(Gtk::TargetEntry("GTK_TREE_MODEL_ROW", Gtk::TARGET_SAME_WIDGET, 0));
-    listTargets.push_back(Gtk::TargetEntry("text/uri-list", Gtk::TARGET_OTHER_APP, 1));
+    listTargets.push_back(Gtk::TargetEntry("GTK_TREE_MODEL_ROW", Gtk::TARGET_SAME_WIDGET, MODELROW_TARGET));
+    listTargets.push_back(Gtk::TargetEntry("text/uri-list", Gtk::TARGET_OTHER_APP, URILIST_TARGET));
     bank_treeview->enable_model_drag_source(listTargets, Gdk::BUTTON1_MASK, Gdk::ACTION_COPY);
+    bank_treeview->drag_source_add_text_targets(); // sets info == 0 (TEXT_TARGETS)
     bank_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_drag_motion), false);
     bank_treeview->enable_model_drag_dest(listTargets, Gdk::ACTION_COPY);
     bank_treeview->signal_drag_data_received().connect(
@@ -280,23 +281,27 @@ void PresetWindow::on_preset_drag_data_get(const Glib::RefPtr<Gdk::DragContext>&
 }
 
 void PresetWindow::on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp) {
-    if (selection.get_target() == "text/uri-list") {
-	Gtk::TreeModel::Path path;
-	Gtk::TreeViewColumn *focus_column;
-	bank_treeview->get_cursor(path, focus_column);
+    if (info != URILIST_TARGET && info != TEXT_TARGETS) {
+	return;
+    }
+    Gtk::TreeModel::Path path;
+    Gtk::TreeViewColumn *focus_column;
+    bank_treeview->get_cursor(path, focus_column);
+    Glib::RefPtr<Gio::File> f =
+	Gio::File::create_for_path(
+	    gx_settings.banks.get_file(
+		bank_treeview->get_model()->get_iter(path)->get_value(bank_col.name))->get_filename());
+    if (info == TEXT_TARGETS) {
+	selection.set_text(f->get_path());
+    } else {
 	std::vector<std::string> uris;
-	uris.push_back(
-	    Gio::File::create_for_path(
-		gx_settings.banks.get_file(
-		    bank_treeview->get_model()->get_iter(path)->get_value(bank_col.name)
-		    )->get_filename()
-		)->get_uri());
+	uris.push_back(f->get_uri());
 	selection.set_uris(uris);
     }
 }
 
 void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp) {
-    if (info != 1) {
+    if (info != URILIST_TARGET) {
 	return;
     }
 #if false  //gtk 2.22

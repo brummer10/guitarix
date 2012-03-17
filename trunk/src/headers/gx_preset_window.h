@@ -69,6 +69,11 @@ class GxActions;
 
 class PresetWindow: public sigc::trackable {
 private:
+    enum {
+	TEXT_TARGETS = 0,
+	MODELROW_TARGET = 1,
+	URILIST_TARGET = 2,
+    };
     gx_preset::GxSettings& gx_settings;
     GxActions& actions;
     bool in_edit;
