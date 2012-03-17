@@ -253,7 +253,6 @@ void StackBoxBuilder::addJToggleButton(const char* label, bool* zone) {
     Gdk::Color colorRed("#58b45e");
     Gdk::Color colorOwn("#7f7f7f");
 
-    *zone = 0;
     Gtk::ToggleButton* button = new Gtk::ToggleButton();
     Gtk::Label* lab = new Gtk::Label(label);
     lab->set_name("beffekt_label");
