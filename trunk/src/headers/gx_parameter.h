@@ -227,6 +227,7 @@ public:
 	Parameter(id, name, tp_float, ctp, preset, ctrl),
 	value(v ? v : new float()), std_value(sv),lower(lv),upper(uv),step(tv) {
 	own_var = !v;
+	*value = sv;
     }
 #ifndef NDEBUG
     friend void compare_parameter(const char* title, Parameter* p1,
@@ -278,6 +279,7 @@ public:
 	Parameter(id, name, tp_int, ctp, preset, ctrl),
         value(v ? v : new int()), std_value(sv), lower(lv), upper(uv) {
 	own_var = !v;
+	*value = sv;
     }
     ~ParameterV();
 };
@@ -326,6 +328,7 @@ public:
         Parameter(id, name, tp_uint, ctp, preset, ctrl),
         value(v ? v : new unsigned int()), std_value(sv), lower(lv), upper(uv) {
 	own_var = !v;
+	*value = sv;
     }
     ~ParameterV();
 };
@@ -369,6 +372,7 @@ public:
         Parameter(id, name, tp_bool, ctp, preset, ctrl),
         value(v ? v : new bool()), std_value(sv) {
 	own_var = !v;
+	*value = sv;
     }
     ~ParameterV();
 };
