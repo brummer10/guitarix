@@ -1204,6 +1204,7 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 		gtk_spin_button_configure(
 			GTK_SPIN_BUTTON(spinner), GTK_ADJUSTMENT(adj), adj->step_increment,
 			GTK_RANGE(regler)->round_digits);
+		gtk_editable_select_region(GTK_EDITABLE(spinner), 0, -1);
 	}
 	GtkRequisition rq;
 	gtk_widget_get_requisition(dialog, &rq);
