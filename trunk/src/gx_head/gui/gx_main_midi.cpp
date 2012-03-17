@@ -305,15 +305,14 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_)
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
     gtk_widget_modify_font(zn, style->font_desc);
     gtk_label_set_text(GTK_LABEL(zn), (param.l_group() + ": " + param.l_name()).c_str());
+    gtk_widget_set_tooltip_text(zn, (_("Parameter ID: ")+param.id()).c_str());
     zn = GTK_WIDGET(gtk_builder_get_object(builder, "desc_box"));
-    if (zn) {
-	if (param.desc().empty()) {
-	    gtk_widget_hide(zn);
-	} else {
-	    GtkWidget *desc = GTK_WIDGET(gtk_builder_get_object(builder, "desc"));
-	    gtk_label_set_text(GTK_LABEL(desc), param.l_desc().c_str());
-	    gtk_widget_show(zn);
-	}
+    if (param.desc().empty()) {
+	gtk_widget_hide(zn);
+    } else {
+	GtkWidget *desc = GTK_WIDGET(gtk_builder_get_object(builder, "desc"));
+	gtk_label_set_text(GTK_LABEL(desc), param.l_desc().c_str());
+	gtk_widget_show(zn);
     }
     const gx_engine::MidiController *pctrl;
     int nctl = gx_engine::controller_map.param2controller(param, &pctrl);
