@@ -234,8 +234,7 @@ void StackBoxBuilder::addJConvFavButton(const char* label, gx_jconv::IRWindow *i
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::on_show_button_clicked));
 }
 
-void StackBoxBuilder::addJConvButton(const char* label, float* zone, gx_jconv::IRWindow *irw) {
-    *zone = 0.0;
+void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw) {
     Gtk::Button *button = new Gtk::Button();
     Gtk::Label *lab = new Gtk::Label(label);
     Pango::FontDescription font = lab->get_style()->get_font();
@@ -246,7 +245,6 @@ void StackBoxBuilder::addJConvButton(const char* label, float* zone, gx_jconv::I
     lab->set_name("beffekt_label");
     addWidget(label, GTK_WIDGET(button->gobj()));
     lab->show();
-    new uiButton(&ui, zone, button->gobj()); //FIXME
     button->signal_clicked().connect(
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
 }

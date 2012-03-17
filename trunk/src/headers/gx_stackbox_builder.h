@@ -102,7 +102,7 @@ protected:
     void addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void openSetLabelBox();
     void addJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
-    void addJConvButton(const char* label, float* zone, gx_jconv::IRWindow *irw);
+    void addJConvButton(const char* label, gx_jconv::IRWindow *irw);
     void addJToggleButton(const char* label, bool* zone);
 protected:
     // functions used indirectly

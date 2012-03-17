@@ -325,8 +325,7 @@ void StackBoxBuilder::make_rackbox_jconv() {
 		openSpaceBox("");
 		closeBox();
 		addJConvFavButton(_("favourites"), irw);
-		static float filebutton; //FIXME
-		addJConvButton(_("setup"), &filebutton, irw);
+		addJConvButton(_("setup"), irw);
 		addJToggleButton(_("run"), &engine.convolver.plugin.on_off);
 		openSpaceBox("");
 		closeBox();
