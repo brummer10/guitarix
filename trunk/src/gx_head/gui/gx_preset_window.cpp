@@ -1125,7 +1125,9 @@ void PresetWindow::on_preset_save() {
 void PresetWindow::display_paned(bool show_preset, int paned_child_height) {
     if (preset_scrolledbox->get_parent() == main_vpaned) {
 	vpaned_pos = main_vpaned->get_allocation().get_height();
-	vpaned_target = vpaned_pos - paned_child_height - main_vpaned->get_handle_window()->get_height();
+	int w, h;
+	main_vpaned->get_handle_window()->get_size(w, h);
+	vpaned_target = vpaned_pos - paned_child_height - h;
 	main_vpaned->set_position(vpaned_target);
 	gx_gui::child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
     }
@@ -1186,7 +1188,9 @@ void PresetWindow::on_preset_select(bool v, bool animated, int paned_child_heigh
 	} else if (animated && rack_visible) {
 	    gx_gui::child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", true);
 	    vpaned_pos = main_vpaned->get_allocation().get_height();
-	    vpaned_target = vpaned_pos - paned_child_height - main_vpaned->get_handle_window()->get_height();
+	    int w, h;
+	    main_vpaned->get_handle_window()->get_size(w, h);
+	    vpaned_target = vpaned_pos - paned_child_height - h;
 	    main_vpaned->set_position(vpaned_pos);
 	    vpaned_step = paned_child_height / 5;
 	    preset_scrolledbox->show();
