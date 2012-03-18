@@ -1085,20 +1085,11 @@ static void gx_regler_set_value (GtkWidget *widget, int dir_down)
  ** mouse button pressed set value
  */
 
-static void hide_dialog(GtkWidget *dialog)
-{
-	gdk_keyboard_ungrab(GDK_CURRENT_TIME);
-	GdkWindow *window = gtk_widget_get_window(dialog);
-	gdk_display_pointer_ungrab(gdk_drawable_get_display(window), GDK_CURRENT_TIME);
-	gtk_grab_remove(dialog);
-	gtk_widget_hide(dialog);
-}
-
 static gboolean dialog_button_press_event(
 	GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
 	if (event->type == GDK_BUTTON_PRESS || event->type == GDK_2BUTTON_PRESS) {
-		hide_dialog(GTK_WIDGET(data));
+		gtk_widget_destroy(GTK_WIDGET(data));
 	}
 	return TRUE;
 }
@@ -1118,9 +1109,7 @@ static gboolean dialog_key_press_event(
 	if (event->is_modifier) {
 		return FALSE;
 	}
-	if (GTK_IS_WIDGET(data)) {
-		hide_dialog(GTK_WIDGET(data));
-	}
+	gtk_widget_destroy(GTK_WIDGET(data));
 	return FALSE;
 }
 
@@ -1130,9 +1119,7 @@ static gboolean dialog_key_press_before(
 	if (event->keyval == GDK_Escape) {
 		// spinbutton to current adjustment value
 		gtk_adjustment_value_changed(GTK_SPIN_BUTTON(widget)->adjustment);
-		if (GTK_IS_WIDGET(data)) {
-			hide_dialog(GTK_WIDGET(data));
-		}
+		gtk_widget_destroy(GTK_WIDGET(data));
 		return TRUE;
 	}
 	return FALSE;
@@ -1141,9 +1128,7 @@ static gboolean dialog_key_press_before(
 static gboolean dialog_grab_broken(
 	GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-	if (GTK_IS_WIDGET(data)) {
-		hide_dialog(GTK_WIDGET(data));
-	}
+	gtk_widget_destroy(GTK_WIDGET(data));
 	return FALSE;
 }
 
@@ -1160,18 +1145,22 @@ static gboolean map_check(
 	                      NULL, c, GDK_CURRENT_TIME);
 	gdk_cursor_unref(c);
 	if (rc != GDK_GRAB_SUCCESS) {
-		hide_dialog(dialog);
+		gtk_widget_destroy(dialog);
 		return TRUE;
 	}
 	rc = gdk_keyboard_grab(window, TRUE, GDK_CURRENT_TIME);
 	if (rc != GDK_GRAB_SUCCESS) {
 		gdk_display_pointer_ungrab(gdk_drawable_get_display(window),
 		                           GDK_CURRENT_TIME);
-		hide_dialog(dialog);
+		gtk_widget_destroy(dialog);
 		return TRUE;
 	}
 	gtk_grab_add(dialog);
 	return FALSE;
+}
+
+static void gx_regler_relay_value(GtkAdjustment *src, GtkAdjustment *dst) {
+    gtk_adjustment_set_value(dst, gtk_adjustment_get_value(src));
 }
 
 static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
@@ -1180,32 +1169,30 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 		return FALSE;
 	}
 	g_assert(GX_IS_REGLER(regler));
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
+	GtkAdjustment *dst_adj = gtk_range_get_adjustment(GTK_RANGE(regler));
+	GtkWidget *dialog = gtk_window_new(GTK_WINDOW_POPUP);
+	gtk_widget_add_events(dialog, GDK_BUTTON_PRESS_MASK|GDK_BUTTON_MOTION_MASK);
 	ensure_digits(regler);
-	static GtkWidget *dialog = 0;
-	static GtkWidget *spinner = 0;
-	if (!dialog) {
-		dialog = gtk_window_new(GTK_WINDOW_POPUP);
-		gtk_widget_add_events(dialog, GDK_BUTTON_PRESS_MASK|GDK_BUTTON_MOTION_MASK);
-		spinner = gtk_spin_button_new(
-			GTK_ADJUSTMENT(adj), adj->step_increment,
-			GTK_RANGE(regler)->round_digits);
-		gtk_widget_show(spinner);
-		gtk_container_add (GTK_CONTAINER(dialog), spinner);
-		g_signal_connect(spinner, "button-press-event", G_CALLBACK(spinner_button_press_event), NULL);
-		g_signal_connect(dialog, "button-press-event", G_CALLBACK(dialog_button_press_event), dialog);
-		g_signal_connect(spinner, "key-press-event", G_CALLBACK(dialog_key_press_before), dialog);
-		g_signal_connect_after(spinner, "key-press-event", G_CALLBACK(dialog_key_press_event), dialog);
-		g_signal_connect_swapped(spinner, "activate", G_CALLBACK(hide_dialog), dialog);
-		g_signal_connect(dialog, "grab-broken-event", G_CALLBACK(dialog_grab_broken), dialog);
-		g_signal_connect(dialog, "map-event", G_CALLBACK(map_check), GTK_WIDGET(regler));
-		gtk_widget_realize(GTK_WIDGET(dialog));
-	} else {
-		gtk_spin_button_configure(
-			GTK_SPIN_BUTTON(spinner), GTK_ADJUSTMENT(adj), adj->step_increment,
-			GTK_RANGE(regler)->round_digits);
-		gtk_editable_select_region(GTK_EDITABLE(spinner), 0, -1);
-	}
+	GtkAdjustment *src_adj = GTK_ADJUSTMENT(
+		gtk_adjustment_new(
+			dst_adj->value, dst_adj->lower, dst_adj->upper,
+			dst_adj->step_increment, dst_adj->page_increment, dst_adj->page_size));
+	GtkWidget *spinner = gtk_spin_button_new(
+		src_adj, src_adj->step_increment, GTK_RANGE(regler)->round_digits);
+	g_signal_connect(src_adj, "value-changed", G_CALLBACK(gx_regler_relay_value), dst_adj);
+	gtk_container_add(GTK_CONTAINER(dialog), spinner);
+
+	g_signal_connect(spinner, "button-press-event", G_CALLBACK(spinner_button_press_event), NULL);
+	g_signal_connect(dialog, "button-press-event", G_CALLBACK(dialog_button_press_event), dialog);
+	g_signal_connect(spinner, "key-press-event", G_CALLBACK(dialog_key_press_before), dialog);
+	g_signal_connect_after(spinner, "key-press-event", G_CALLBACK(dialog_key_press_event), dialog);
+	g_signal_connect_object(spinner, "activate", G_CALLBACK(gtk_widget_destroy),
+				dialog, (GConnectFlags)(G_CONNECT_AFTER|G_CONNECT_SWAPPED));
+	g_signal_connect(dialog, "grab-broken-event", G_CALLBACK(dialog_grab_broken), dialog);
+	g_signal_connect(dialog, "map-event", G_CALLBACK(map_check), GTK_WIDGET(regler));
+
+	gtk_widget_show(spinner);
+	gtk_widget_realize(GTK_WIDGET(dialog));
 	GtkRequisition rq;
 	gtk_widget_get_requisition(dialog, &rq);
 	gint xorg, yorg;
