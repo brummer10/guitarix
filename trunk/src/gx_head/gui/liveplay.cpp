@@ -372,7 +372,7 @@ bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *ac
 	return true;
     }
     if (keyval >= GDK_KEY_KP_1 && keyval <= GDK_KEY_KP_9) {
-	self.keyswitch.process_preset_key(keyval >= GDK_KEY_KP_1);
+	self.keyswitch.process_preset_key(keyval - GDK_KEY_KP_1);
 	return true;
     }
     if (keyval >= GDK_KEY_a && keyval <= GDK_KEY_z) {

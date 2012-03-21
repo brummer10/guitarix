@@ -2328,11 +2328,18 @@ void MainWindow::display_preset_msg(const Glib::ustring& bank, const Glib::ustri
 }
 
 bool MainWindow::on_key_press_event(GdkEventKey *event) {
-    if (event->keyval >= GDK_KEY_0 && event->keyval <= GDK_KEY_9 && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+    if ((event->state & Gtk::AccelGroup::get_default_mod_mask()) != 0) {
+	return false;
+    }
+    if (event->keyval >= GDK_KEY_0 && event->keyval <= GDK_KEY_9) {
 	keyswitch.process_preset_key(event->keyval == GDK_KEY_0 ? 9 : event->keyval - GDK_KEY_1);
 	return true;
     }
-    else if (event->keyval >= GDK_KEY_a && event->keyval <= GDK_KEY_z && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+    if (event->keyval >= GDK_KEY_KP_0 && event->keyval <= GDK_KEY_KP_9) {
+	keyswitch.process_preset_key(event->keyval == GDK_KEY_KP_0 ? 9 : event->keyval - GDK_KEY_KP_1);
+	return true;
+    }
+    if (event->keyval >= GDK_KEY_a && event->keyval <= GDK_KEY_z) {
 	keyswitch.process_bank_key(event->keyval - GDK_KEY_a);
 	return true;
     }
