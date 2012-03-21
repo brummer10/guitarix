@@ -164,7 +164,6 @@
       "midi_out.channel_3.velocity": 64,
       "midi_out.channel_3.volume": 64,
       "midi_out.on_off": 0,
-      "midi_out.position": 1,
       "moog.Q": 1,
       "moog.fr": 3000,
       "moog.on_off": 0,
@@ -204,9 +203,6 @@
       "stereoecho.position": 5,
       "stereoecho.time_l": 1,
       "stereoecho.time_r": 1,
-      "system.select_tube": 0,
-      "system.select_tube2": 0,
-      "system.select_tube3": 1,
       "tube.select": "6V6",
       "ui.Chorus": 1,
       "ui.Compressor": 1,
@@ -225,8 +221,6 @@
       "ui.Stereo Delay": 0,
       "ui.Stereo Echo": 0,
       "ui.low high pass": 0,
-      "ui.main_xorg": 300,
-      "ui.main_yorg": 300
     },
     "jconv": {
       "jconv.IRFile": "greathall.wav",
@@ -402,7 +396,6 @@
       "midi_out.channel_3.velocity": 64,
       "midi_out.channel_3.volume": 64,
       "midi_out.on_off": 0,
-      "midi_out.position": 1,
       "moog.Q": 1,
       "moog.fr": 3000,
       "moog.on_off": 0,
@@ -442,9 +435,6 @@
       "stereoecho.position": 5,
       "stereoecho.time_l": 1,
       "stereoecho.time_r": 1,
-      "system.select_tube": 0,
-      "system.select_tube2": 1,
-      "system.select_tube3": 0,
       "tube.select": "12AU7",
       "ui.Chorus": 1,
       "ui.Compressor": 0,
@@ -463,8 +453,6 @@
       "ui.Stereo Delay": 0,
       "ui.Stereo Echo": 0,
       "ui.low high pass": 0,
-      "ui.main_xorg": 300,
-      "ui.main_yorg": 300
     },
     "jconv": {
       "jconv.IRFile": "greathall.wav",
