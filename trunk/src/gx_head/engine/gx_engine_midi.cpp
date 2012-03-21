@@ -29,10 +29,10 @@
 namespace gx_engine {
 
 void MidiVariables::register_parameter(const ParamReg& reg) {
-    reg.registerNonMidiVar("midi_out.midistat",  &midistat,  false);
-    reg.registerNonMidiVar("midi_out.midistat1", &midistat1, false);
-    reg.registerNonMidiVar("midi_out.midistat2", &midistat2, false);
-    reg.registerNonMidiVar("midi_out.midistat3", &midistat3, false);
+    reg.registerNonMidiVar("midi_out.midistat",  &midistat,  false, true);
+    reg.registerNonMidiVar("midi_out.midistat1", &midistat1, false, true);
+    reg.registerNonMidiVar("midi_out.midistat2", &midistat2, false, true);
+    reg.registerNonMidiVar("midi_out.midistat3", &midistat3, false, true);
 
     reg.registerVar("midi_out.channel_1.velocity", "velocity", "S", "", &fslider26, 64, 0, 127, 1);
     reg.registerVar("midi_out.channel_1.volume", "volume", "S", "", &fslider46, 64, 0, 127, 1);

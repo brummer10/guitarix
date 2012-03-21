@@ -35,7 +35,7 @@ private:
 			       float low, float up, float step);
     static void registerBoolVar_(const char* id, const char* name, const char* tp,
 				 const char* tooltip, bool* var, bool val);
-    static void registerNonMidiVar_(const char * id, bool*var, bool preset);
+    static void registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave);
     static void registerEnumVar_(const char *id, const char* name, const char* tp,
 				 const char* tooltip, const value_pair* values, float *var, float val,
 				 float low, float up, float step);
@@ -117,8 +117,11 @@ void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const cha
     pmap->reg_enum_par(id, name, values, var, val);
 }
 
-void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset) {
-    pmap->reg_non_midi_par(id, var, preset);
+void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave) {
+    BoolParameter *p = pmap->reg_non_midi_par(id, var, preset);
+    if (nosave) {
+	p->setSavable(false);
+    }
 }
 
 void ParamRegImpl::registerUEnumVar_(const char *id, const char* name, const char* tp,
