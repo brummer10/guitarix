@@ -108,6 +108,7 @@ enum {
     PGN_MODE_NORMAL = 0x100, // plugin is active in normal mode (default)
     PGN_MODE_BYPASS = 0x200, // plugin is active in bypass mode
     PGN_MODE_MUTE   = 0x400, // plugin is active in mute mode
+    PGN_FIXED_GUI   = 0x800, // user cannot hide plugin GUI
     // For additional flags see struct Plugin
 };
 

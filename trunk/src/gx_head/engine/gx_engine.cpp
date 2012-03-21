@@ -162,20 +162,20 @@ void GxEngine::load_static_plugins() {
 
     pl.add(&tuner.plugin,                         PLUGIN_POS_START, PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);
     pl.add(&midiaudiobuffer.plugin,               PLUGIN_POS_START, PGN_GUI|PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS);
-    pl.add(&noisegate.inputlevel,                 PLUGIN_POS_START, PGN_GUI|PGN_PRE);
-    pl.add(gx_effects::noise_shaper::plugin(),    PLUGIN_POS_START, PGN_GUI|PGN_PRE);
+    pl.add(&noisegate.inputlevel,                 PLUGIN_POS_START, PGN_GUI|PGN_FIXED_GUI|PGN_PRE);
+    pl.add(gx_effects::noise_shaper::plugin(),    PLUGIN_POS_START, PGN_GUI|PGN_FIXED_GUI|PGN_PRE);
 
     // rack pre mono modules inserted here
 
     pl.add(builtin_amp_plugins,                   PLUGIN_POS_START, PGN_ALTERNATIVE|PGN_POST);
     pl.add(&ampstack.plugin,                      PLUGIN_POS_START, PGN_POST);
-    pl.add(gx_effects::softclip::plugin(),        PLUGIN_POS_START, PGN_GUI|PGN_POST);
+    pl.add(gx_effects::softclip::plugin(),        PLUGIN_POS_START, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
 
     // rack post mono modules inserted here
 
-    pl.add(gx_effects::bassbooster::plugin(),     PLUGIN_POS_END, PGN_GUI|PGN_POST);
-    pl.add(gx_effects::gx_ampout::plugin(),       PLUGIN_POS_END, PGN_GUI|PGN_POST);
-    pl.add(&contrast.plugin,                      PLUGIN_POS_END, PGN_GUI|PGN_POST);
+    pl.add(gx_effects::bassbooster::plugin(),     PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
+    pl.add(gx_effects::gx_ampout::plugin(),       PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
+    pl.add(&contrast.plugin,                      PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
     pl.add(&noisegate.outputgate,                 PLUGIN_POS_END, PGN_POST);
     pl.add(&monomute,                             PLUGIN_POS_END, PGN_POST|PGN_MODE_MUTE);
 

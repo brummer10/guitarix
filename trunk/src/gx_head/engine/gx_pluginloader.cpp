@@ -441,10 +441,12 @@ void PluginList::registerParameter(ParamMap& param, ParameterGroups& groups) {
 	    string s = pd->id;
 	    param.reg_par((s+".on_off").c_str(),N_("on/off"), &pl->on_off, 0);
 	    new RackChangerUiItem<bool>(*this, &pl->on_off);
-	    if (pd->flags & PGNI_DYN_POSITION) {
-		// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
+	    if (pd->flags & PGNI_DYN_POSITION || !(pd->flags & PGN_FIXED_GUI)) {
 		param.reg_non_midi_par(string("ui.")+pd->name, &pl->box_visible, true);
 		param.reg_non_midi_par(s+".s_h", &pl->plug_visible, false);
+	    }
+	    if (pd->flags & PGNI_DYN_POSITION) {
+		// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
 		param.reg_non_midi_par(s+".position", &pl->position, true,
 				       pl->position, 0, 999);
 		if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
