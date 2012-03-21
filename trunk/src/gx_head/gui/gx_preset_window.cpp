@@ -71,10 +71,10 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSet
     actions.new_bank = Gtk::Action::create("NewBank");
     actions.group->add(actions.new_bank, sigc::mem_fun(*this, &PresetWindow::on_new_bank));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(new_preset_bank->gobj()), actions.new_bank->gobj());
-    actions.save_changes = Gtk::Action::create("Save", _("Save changes"));
+    actions.save_changes = Gtk::Action::create("Save", _("_Save changes"));
     actions.group->add(actions.save_changes, sigc::mem_fun(*this, &PresetWindow::on_preset_save));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(save_preset->gobj()), actions.save_changes->gobj());
-    actions.organize = Gtk::ToggleAction::create("Organize", _("Organize"));
+    actions.organize = Gtk::ToggleAction::create("Organize", _("_Organize"));
     actions.group->add(actions.organize, sigc::mem_fun(*this, &PresetWindow::on_organize));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(organize_presets->gobj()), GTK_ACTION(actions.organize->gobj()));
     //act = Gtk::Action::create("ClosePresetsAction");
