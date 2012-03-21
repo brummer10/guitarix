@@ -608,7 +608,7 @@ class ParamMap: boost::noncopyable {
 	return p;
     }
     inline BoolParameter *reg_non_midi_par(const string& id, bool *var, bool preset, bool std = false) {
-	BoolParameter *p = new BoolParameter(id, "", Parameter::None, preset, var, std, false);
+	BoolParameter *p = new BoolParameter(id, "", Parameter::Switch, preset, var, std, false);
 	insert(p);
 	return p;
     }

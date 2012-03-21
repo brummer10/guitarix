@@ -357,12 +357,6 @@ private:
     void vis_switch(Gtk::Widget& a, Gtk::Widget& b);
     void set_visibility(bool v);
     Gtk::Button *make_expand_button(bool expand);
-    void on_preset_popup_destroy(Gtk::Menu *w);
-    void set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Glib::ustring name);
-    void set_plugin_std_preset();
-    void save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
-    void remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
-    bool add_plugin_preset_list(Glib::RefPtr<gx_preset::PluginPresetList> l, Gtk::Menu& m);
     void preset_popup();
     Gtk::Button *make_preset_button();
     Gtk::HBox *make_full_box(gx_system::CmdlineOptions& options);
@@ -565,6 +559,28 @@ public:
 
 
 /****************************************************************
+ ** class PluginPresetPopup
+ */
+
+class PluginPresetPopup: public Gtk::Menu {
+private:
+    const std::string id;
+    gx_engine::ParamMap& pmap;
+    const gx_system::CmdlineOptions& options;
+    const gx_preset::GxSettings& gx_settings;
+    virtual void on_selection_done();
+    void set_plugin_std_preset();
+    static void set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Glib::ustring name);
+    bool add_plugin_preset_list(Glib::RefPtr<gx_preset::PluginPresetList> l);
+    void save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
+    void remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
+public:
+    PluginPresetPopup(const std::string& id, gx_engine::ParamMap& pmap,
+		      const gx_system::CmdlineOptions& options, const gx_preset::GxSettings& gx_settings);
+};
+
+
+/****************************************************************
  ** GxUiRadioMenu
  ** adds the values of an UEnumParameter as Gtk::RadioMenuItem's
  ** to a Gtk::MenuShell
@@ -610,6 +626,8 @@ struct GxActions {
     Glib::RefPtr<UiSwitchToggleAction> show_rack;
     Glib::RefPtr<UiBoolToggleAction> tuner;
     Glib::RefPtr<UiBoolToggleAction> livetuner;
+    Glib::RefPtr<UiBoolToggleAction> midi_out;
+    Glib::RefPtr<UiBoolToggleAction> midi_out_plug;
     Glib::RefPtr<UiSwitchToggleAction> show_values;
     Glib::RefPtr<UiSwitchToggleAction> tooltips;
     Glib::RefPtr<UiSwitchToggleAction> midi_in_presets;
@@ -728,6 +746,19 @@ private:
     Gtk::Widget *ampdetail_normal;
     Gxw::FastMeter *fastmeter[2];
     Gtk::Entry *preset_status;
+    Gtk::Container *midi_out_box;
+    Gtk::Container *midi_out_normal;
+    Gtk::Container *midi_out_mini;
+    Gtk::Button *midi_out_compress;
+    Gtk::Button *midi_out_expand;
+    Gtk::Button *midi_out_presets_mini;
+    Gtk::Button *midi_out_presets_normal;
+    Gtk::RadioButton *channel1_button;
+    Gtk::Container *channel1_box;
+    Gtk::RadioButton *channel2_button;
+    Gtk::Container *channel2_box;
+    Gtk::RadioButton *channel3_button;
+    Gtk::Container *channel3_box;
 
 private:
     bool on_my_leave_out(GdkEventCrossing *focus);
@@ -817,6 +848,9 @@ private:
     void rebuild_preset_menu();
     bool on_key_press_event(GdkEventKey *event);
     void display_preset_msg(const Glib::ustring& bank, const Glib::ustring& preset);
+    void on_show_midi_out();
+    void on_show_midi_out_plug();
+    void on_midi_out_channel_toggled(Gtk::RadioButton *rb, Gtk::Container *c);
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
 	       gx_engine::ParamMap& pmap, Gtk::Window *splash);
@@ -831,9 +865,7 @@ public:
     void run();
     gx_system::CmdlineOptions& get_options() { return options; }
     gx_ui::GxUI& get_ui() { return ui; }
-    Glib::RefPtr<gx_preset::PluginPresetList> load_plugin_preset_list(
-	const Glib::ustring& id, bool factory) {
-	return gx_settings.load_plugin_preset_list(id, factory); }
+    void plugin_preset_popup(const std::string& id);
     gx_engine::ParamMap& get_parametermap() { return pmap; }
     bool is_loading() { return gx_settings.is_loading(); }
     void add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");

@@ -126,7 +126,7 @@ void PluginUI::on_action_toggled() {
 void PluginUI::display(bool v, bool animate) {
     // this function hides the rackbox. It could also destroy it (or
     // some other function could do it, e.g. when unloading a module),
-    // but currently there are too man memory leaks in the stackbased
+    // but currently there are too many memory leaks in the stack based
     // builder.
     plugin->box_visible = v;
     if (v) {
@@ -505,8 +505,9 @@ void MiniRackBox::set_config_mode(bool mode) {
     }
 }
 
+
 /****************************************************************
- ** class RackBox
+ ** class PluginPresetPopup
  */
 
 /*
@@ -654,10 +655,100 @@ void PluginPresetListWindow::run() {
     Gtk::Main::run(*this);
 }
 
-
 /*
-** RackBox
+** PluginPresetPopup
 */
+
+void PluginPresetPopup::set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Glib::ustring name) {
+    l->set(name);
+}
+
+void PluginPresetPopup::set_plugin_std_preset() {
+    pmap.reset_unit(id);
+}
+
+void PluginPresetPopup::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
+    InputWindow *w = InputWindow::create(options);
+    w->run();
+    if (!w->get_name().empty()) {
+	l->save(w->get_name(), id);
+    }
+    delete w;
+}
+
+void PluginPresetPopup::remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
+    PluginPresetListWindow *w = PluginPresetListWindow::create(options, l);
+    w->run();
+    delete w;
+}
+
+bool PluginPresetPopup::add_plugin_preset_list(Glib::RefPtr<gx_preset::PluginPresetList> l) {
+    if (!l->start()) {
+	return false;
+    }
+    bool found_presets = false;
+    Glib::ustring name;
+    bool is_set;
+    while (l->next(name, &is_set)) {
+	found_presets = true;
+	Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(name);
+	if (is_set) {
+	    c->set_active(true);
+	}
+	c->signal_activate().connect(
+	    sigc::bind(sigc::ptr_fun(set_plugin_preset), l, name));
+	append(*manage(c));
+    }
+    return found_presets;
+}
+
+static bool delete_plugin_preset_popup(PluginPresetPopup *p) {
+    delete p;
+    return false;
+}
+
+void PluginPresetPopup::on_selection_done() {
+    Glib::signal_idle().connect(
+	sigc::bind(
+	    sigc::ptr_fun(delete_plugin_preset_popup),
+	    this));
+}
+
+PluginPresetPopup::PluginPresetPopup(const std::string& id_, gx_engine::ParamMap& pmap_,
+				     const gx_system::CmdlineOptions& options_, const gx_preset::GxSettings& gx_settings_)
+    : Gtk::Menu(), id(id_), pmap(pmap_), options(options_), gx_settings(gx_settings_) {
+    Glib::RefPtr<gx_preset::PluginPresetList> l = gx_settings.load_plugin_preset_list(id, false);
+    bool found_presets = add_plugin_preset_list(l);
+    if (found_presets) {
+	append(*manage(new Gtk::SeparatorMenuItem()));
+    }
+    add_plugin_preset_list(gx_settings.load_plugin_preset_list(id, true));
+    Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(_("standard"));
+    if (pmap.unit_has_std_values(id)) {
+	c->set_active(true);
+    }
+    c->signal_activate().connect(
+	sigc::mem_fun(this, &PluginPresetPopup::set_plugin_std_preset));
+    append(*manage(c));
+    append(*manage(new Gtk::SeparatorMenuItem()));
+    Gtk::MenuItem *mi = new Gtk::MenuItem(_("save..."));
+    append(*manage(mi));
+    mi->signal_activate().connect(
+	sigc::bind(sigc::mem_fun(this, &PluginPresetPopup::save_plugin_preset),l));
+    if (found_presets) {
+	mi = new Gtk::MenuItem(_("remove..."));
+	append(*manage(mi));
+	mi->signal_activate().connect(
+	    sigc::bind(sigc::mem_fun(this, &PluginPresetPopup::remove_plugin_preset),l));
+    }
+    show_all();
+    popup(1, gtk_get_current_event_time());
+}
+
+
+/****************************************************************
+ ** class RackBox
+ */
 
 #ifdef USE_SZG
 Glib::RefPtr<Gtk::SizeGroup> RackBox::szg;
@@ -1024,82 +1115,8 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
     return b;
 }
 
-void RackBox::on_preset_popup_destroy(Gtk::Menu *w) {
-    delete w;
-}
-
-void RackBox::set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Glib::ustring name) {
-    l->set(name);
-}
-
-void RackBox::set_plugin_std_preset() {
-    main.get_parametermap().reset_unit(plugin.get_id());
-}
-
-void RackBox::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    InputWindow *w = InputWindow::create(main.get_options());
-    w->run();
-    if (!w->get_name().empty()) {
-	l->save(w->get_name(), plugin.get_id());
-    }
-    delete w;
-}
-
-void RackBox::remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    PluginPresetListWindow *w = PluginPresetListWindow::create(main.get_options(), l);
-    w->run();
-    delete w;
-}
-
-bool RackBox::add_plugin_preset_list(Glib::RefPtr<gx_preset::PluginPresetList> l, Gtk::Menu& m) {
-    if (!l->start()) {
-	return false;
-    }
-    bool found_presets = false;
-    Glib::ustring name;
-    bool is_set;
-    while (l->next(name, &is_set)) {
-	found_presets = true;
-	Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(name);
-	if (is_set) {
-	    c->set_active(true);
-	}
-	c->signal_activate().connect(
-	    sigc::bind(sigc::mem_fun(*this, &RackBox::set_plugin_preset), l, name));
-	m.append(*manage(c));
-    }
-    return found_presets;
-}
-
 void RackBox::preset_popup() {
-    Gtk::Menu *m = new Gtk::Menu();
-    Glib::RefPtr<gx_preset::PluginPresetList> l = main.load_plugin_preset_list(plugin.get_id(), false);
-    bool found_presets = add_plugin_preset_list(l, *m);
-    if (found_presets) {
-	m->append(*manage(new Gtk::SeparatorMenuItem()));
-    }
-    add_plugin_preset_list(main.load_plugin_preset_list(plugin.get_id(), true), *m);
-    Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(_("standard"));
-    if (main.get_parametermap().unit_has_std_values(plugin.get_id())) {
-	c->set_active(true);
-    }
-    c->signal_activate().connect(
-	sigc::mem_fun(*this, &RackBox::set_plugin_std_preset));
-    m->append(*manage(c));
-    m->append(*manage(new Gtk::SeparatorMenuItem()));
-    Gtk::MenuItem *mi = new Gtk::MenuItem(_("save..."));
-    m->append(*manage(mi));
-    mi->signal_activate().connect(
-	sigc::bind(sigc::mem_fun(*this, &RackBox::save_plugin_preset),l));
-    if (found_presets) {
-	mi = new Gtk::MenuItem(_("remove..."));
-	m->append(*manage(mi));
-	mi->signal_activate().connect(
-	    sigc::bind(sigc::mem_fun(*this, &RackBox::remove_plugin_preset),l));
-    }
-    m->signal_selection_done().connect(sigc::bind(sigc::mem_fun(*this, &RackBox::on_preset_popup_destroy), m));
-    m->show_all();
-    m->popup(1, gtk_get_current_event_time());
+    main.plugin_preset_popup(get_id());
 }
 
 Gtk::Button *RackBox::make_preset_button() {

@@ -37,7 +37,7 @@ static const char *midi_out_groups[] = {
 	"channel_1", N_("Midi Out 1"), 
 	"channel_2", N_("Midi Out 2"),
 	"channel_3", N_("Midi Out 3"),
-	".beat_detector",      N_("Beat Detector"),
+	"beat_detector", N_("Beat Detector"),
 	0
     };
 

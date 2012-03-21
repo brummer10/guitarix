@@ -119,7 +119,7 @@ public:
     void loadstate();
     void disable_autosave(bool v) { no_autosave = v; }
     void auto_save_state();
-    Glib::RefPtr<PluginPresetList> load_plugin_preset_list(const Glib::ustring& id, bool factory);
+    Glib::RefPtr<PluginPresetList> load_plugin_preset_list(const Glib::ustring& id, bool factory) const;
     void create_default_scratch_preset();
 };
 

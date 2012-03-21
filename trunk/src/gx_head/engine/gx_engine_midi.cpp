@@ -63,11 +63,11 @@ void MidiVariables::register_parameter(const ParamReg& reg) {
     reg.registerVar("midi_out.channel_3.sensity", "sensity", "S", "", &fslider41, 20, 1, 500, 1);
     reg.registerBoolVar("midi_out.channel_3.auto_pitch", "auto pitch", "B", "", &fpitch2, false);
 
-    reg.registerVar("beat_detector.stepper", "stepper", "S", "", &fslider39, 1, 1, 32, 1);
-    reg.registerVar("beat_detector.note_off", "note off", "S", "", &fslider37, 2, 1, 127, 1);
-    reg.registerVar("beat_detector.atack_gain", "atack gain", "S", "", &fslider45, 5, 1, 127, 1);
-    reg.registerVar("beat_detector.beat_gain", "beat gain", "S", "", &fslider38, 1, 0.0f, 127, 1);
-    reg.registerVar("beat_detector.midi_gain", "midi gain", "S", "", &midi_gain, 0, -40, 60, 1);
+    reg.registerVar("midi_out.beat_detector.stepper", "stepper", "S", "", &fslider39, 1, 1, 32, 1);
+    reg.registerVar("midi_out.beat_detector.note_off", "note off", "S", "", &fslider37, 2, 1, 127, 1);
+    reg.registerVar("midi_out.beat_detector.atack_gain", "atack gain", "S", "", &fslider45, 5, 1, 127, 1);
+    reg.registerVar("midi_out.beat_detector.beat_gain", "beat gain", "S", "", &fslider38, 1, 0.0f, 127, 1);
+    reg.registerVar("midi_out.beat_detector.midi_gain", "midi gain", "S", "", &midi_gain, 0, -40, 60, 1);
 }
 
 void MidiVariables::init(int samplingFreq) {

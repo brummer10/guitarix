@@ -88,32 +88,55 @@ void PresetIO::fixup_parameters(const gx_system::SettingsFileHeader& head) {
     }
 }
 
+static std::string replaced_id(const std::string& s) {
+    const char *old_new[][2] = {
+	{ "beat_detector.stepper", "midi_out.beat_detector.stepper" },
+	{ "beat_detector.note_off", "midi_out.beat_detector.note_off" },
+	{ "beat_detector.atack_gain", "midi_out.beat_detector.atack_gain" },
+	{ "beat_detector.beat_gain", "midi_out.beat_detector.beat_gain" },
+	{ "beat_detector.midi_gain", "midi_out.beat_detector.midi_gain" },
+	{0}
+    };
+    for (const char *(*p)[2] = old_new; (*p)[0]; ++p) {
+	if (s == (*p)[0]) {
+	    return (*p)[1];
+	}
+    }
+    return "";
+}
+
 void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
     jp.next(gx_system::JsonParser::begin_object);
     do {
         jp.next(gx_system::JsonParser::value_key);
+        gx_engine::Parameter *p;
         if (!param.hasId(jp.current_value())) {
+	    std::string s = replaced_id(jp.current_value());
+	    if (s.empty()) {
+		gx_system::gx_print_warning(
+		    _("recall settings"),
+		    _("unknown parameter: ")+jp.current_value());
+		jp.skip_object();
+		continue;
+	    }
+	    p = &param[s];
+	} else {
+	    p = &param[jp.current_value()];
+	}
+        if (!preset and p->isInPreset()) {
             gx_system::gx_print_warning(
 		_("recall settings"),
-		_("unknown parameter: ")+jp.current_value());
+		_("preset-parameter ")+p->id()+_(" in settings"));
+            jp.skip_object();
+            continue;
+        } else if (preset and !p->isInPreset()) {
+            gx_system::gx_print_warning(
+		_("recall settings"),
+		_("non preset-parameter ")+p->id()+_(" in preset"));
             jp.skip_object();
             continue;
         }
-        gx_engine::Parameter& p = param[jp.current_value()];
-        if (!preset and p.isInPreset()) {
-            gx_system::gx_print_warning(
-		_("recall settings"),
-		_("preset-parameter ")+p.id()+_(" in settings"));
-            jp.skip_object();
-            continue;
-        } else if (preset and !p.isInPreset()) {
-            gx_system::gx_print_warning(
-		_("recall settings"),
-		_("non preset-parameter ")+p.id()+_(" in preset"));
-            jp.skip_object();
-            continue;
-        }
-        p.readJSON_value(jp);
+        p->readJSON_value(jp);
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
 }
@@ -692,7 +715,7 @@ void GxSettings::loadstate() {
     state_loaded = true;
 }
 
-Glib::RefPtr<PluginPresetList> GxSettings::load_plugin_preset_list(const Glib::ustring& id, bool factory) {
+Glib::RefPtr<PluginPresetList> GxSettings::load_plugin_preset_list(const Glib::ustring& id, bool factory) const {
     if (factory) {
 	return PluginPresetList::create(options.get_factory_filepath(id), param);
     } else {

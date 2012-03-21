@@ -552,6 +552,19 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("fastmeterL", fastmeter[0]);
     bld->find_widget("fastmeterR", fastmeter[1]);
     bld->find_widget("preset_status", preset_status);
+    bld->find_widget("midi_out_box", midi_out_box);
+    bld->find_widget("midi_out_normal", midi_out_normal);
+    bld->find_widget("midi_out_mini", midi_out_mini);
+    bld->find_widget("midi_out_compress:effect_reset", midi_out_compress);
+    bld->find_widget("midi_out_expand:effect_reset", midi_out_expand);
+    bld->find_widget("midi_out_presets_mini", midi_out_presets_mini);
+    bld->find_widget("midi_out_presets_normal", midi_out_presets_normal);
+    bld->find_widget("channel1_button", channel1_button);
+    bld->find_widget("channel1_box", channel1_box);
+    bld->find_widget("channel2_button", channel2_button);
+    bld->find_widget("channel2_box", channel2_box);
+    bld->find_widget("channel3_button", channel3_button);
+    bld->find_widget("channel3_box", channel3_box);
 }
 
 void MainWindow::on_select_preset(int idx) {
@@ -650,9 +663,8 @@ void MainWindow::on_show_rack() {
 	preset_window_height = preset_scrolledbox->get_allocation().get_height();
     }
     if (v) {
+	midi_out_box->set_visible(actions.midi_out->get_active());
 	window_height = max(window_height, window->size_request().height);
-	//main_vpaned->child_set_property(amp_toplevel_box, "resize", true);
-	//child_set_property(*main_vpaned, *amp_toplevel_box, "resize", true);
 	main_vpaned->set_position(oldpos);
 	w->show();
 	monoampcontainer->show();
@@ -676,10 +688,11 @@ void MainWindow::on_show_rack() {
 	    }
 	}
     } else {
+	if (actions.midi_out->get_active()) {
+	    midi_out_box->set_visible(false);
+	}
 	actions.show_plugin_bar->set_active(false);
 	oldpos = main_vpaned->get_position();
-	//child_set_property(*main_vpaned, *amp_toplevel_box, "resize", false);
-	//main_vpaned->set_position(-1);
 	w->hide();
 	monoampcontainer->hide();
 	monorackcontainer.hide_entries();
@@ -706,12 +719,14 @@ void MainWindow::on_compress_all() {
     monorackcontainer.compress_all();
     stereorackcontainer.compress_all();
     on_ampdetail_switch(true);
+    actions.midi_out_plug->set_active(true);
 }
 
 void MainWindow::on_expand_all() {
     monorackcontainer.expand_all();
     stereorackcontainer.expand_all();
     on_ampdetail_switch(false);
+    actions.midi_out_plug->set_active(false);
 }
 
 void MainWindow::on_rack_configuration() {
@@ -1367,6 +1382,30 @@ void MainWindow::set_switcher_controller() {
     }
 }
 
+void MainWindow::on_show_midi_out() {
+    if (actions.midi_out->get_active()) {
+	actions.show_rack->set_active(true);
+	midi_out_box->set_visible(true);
+    } else {
+	midi_out_box->set_visible(false);
+	engine.midiaudiobuffer.plugin.on_off = false;
+    }
+}
+
+void MainWindow::on_show_midi_out_plug() {
+    if (actions.midi_out_plug->get_active()) {
+	midi_out_normal->hide();
+	midi_out_mini->show();
+    } else {
+	midi_out_mini->hide();
+	midi_out_normal->show();
+    }
+}
+
+void MainWindow::on_midi_out_channel_toggled(Gtk::RadioButton *rb, Gtk::Container *c) {
+    c->set_visible(rb->get_active());
+}
+
 void MainWindow::create_actions() {
     actions.group = Gtk::ActionGroup::create("Main");
     /*
@@ -1451,6 +1490,18 @@ void MainWindow::create_actions() {
 
     actions.livetuner = UiBoolToggleAction::create(
 	ui, *pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false), "LiveTuner", "??");
+
+    actions.midi_out = UiBoolToggleAction::create(
+	ui, gx_engine::parameter_map["ui.Midi Out"].getBool(), "MidiOut", _("M_idi Out"));
+    actions.group->add(
+	actions.midi_out,
+	sigc::mem_fun(this, &MainWindow::on_show_midi_out));
+
+    actions.midi_out_plug = UiBoolToggleAction::create(
+	ui, gx_engine::parameter_map["midi_out.s_h"].getBool(), "MidiOutSH", "??");
+    actions.group->add(
+	actions.midi_out_plug,
+	sigc::mem_fun(this, &MainWindow::on_show_midi_out_plug));
 
     /*
     ** rack actions
@@ -1565,6 +1616,10 @@ int get_current_workarea_height() {
     return height;
 }
 #endif
+
+void MainWindow::plugin_preset_popup(const std::string& id) {
+    new PluginPresetPopup(id, pmap, options, gx_settings);
+}
 
 void MainWindow::clear_box(Gtk::Container& box) {
     std::vector<Gtk::Widget*> l = box.get_children();
@@ -1709,7 +1764,7 @@ void MainWindow::fill_pluginlist() {
     p = new std::vector<PluginUI*>;
     add_plugin(p, "abgate");
     add_plugin(p, "oscilloscope");
-    add_plugin(p, "midi_out");
+    //add_plugin(p, "midi_out");
     l.push_back(new PluginDesc("Misc", p));
 
     p = new std::vector<PluginUI*>;
@@ -2547,6 +2602,38 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), false));
     ampdetail_sh.changed.connect(
 	sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch));
+
+    /*
+    ** midi out signal connections
+    */
+    midi_out_compress->signal_clicked().connect(
+	sigc::bind(
+	    sigc::mem_fun(actions.midi_out_plug.operator->(), &Gtk::ToggleAction::set_active),
+	    true));
+    midi_out_expand->signal_clicked().connect(
+	sigc::bind(
+	    sigc::mem_fun(actions.midi_out_plug.operator->(), &Gtk::ToggleAction::set_active),
+	    false));
+    midi_out_presets_mini->signal_clicked().connect(
+	sigc::bind(
+	    sigc::mem_fun(this, &MainWindow::plugin_preset_popup),
+	    "midi_out"));
+    midi_out_presets_normal->signal_clicked().connect(
+	sigc::bind(
+	    sigc::mem_fun(this, &MainWindow::plugin_preset_popup),
+	    "midi_out"));
+    channel1_button->signal_toggled().connect(
+	sigc::bind(
+	    sigc::mem_fun(this, &MainWindow::on_midi_out_channel_toggled),
+	    channel1_button, channel1_box));
+    channel2_button->signal_toggled().connect(
+	sigc::bind(
+	    sigc::mem_fun(this, &MainWindow::on_midi_out_channel_toggled),
+	    channel2_button, channel2_box));
+    channel3_button->signal_toggled().connect(
+	sigc::bind(
+	    sigc::mem_fun(this, &MainWindow::on_midi_out_channel_toggled),
+	    channel3_button, channel3_box));
 
     /*
     ** init status image widget
