@@ -210,6 +210,9 @@ CmdlineOptions::CmdlineOptions()
       IR_pathlist(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
       lterminal(false),
+#ifndef NDEBUG
+      dump_parameter(false),
+#endif
       skin(style_dir) {
     const char* home = getenv("HOME");
     if (!home) {
@@ -323,6 +326,13 @@ CmdlineOptions::CmdlineOptions()
     opt_log_terminal.set_long_name("log-terminal");
     opt_log_terminal.set_description(_("print log on terminal"));
     optgroup_debug.add_entry(opt_log_terminal, lterminal);
+#ifndef NDEBUG
+    Glib::OptionEntry opt_dump_parameter;
+    opt_dump_parameter.set_short_name('d');
+    opt_dump_parameter.set_long_name("dump-parameter");
+    opt_dump_parameter.set_description(_("dump parameter table in json format"));
+    optgroup_debug.add_entry(opt_dump_parameter, dump_parameter);
+#endif
 
     // collecting all option groups
     add_group(optgroup_style);

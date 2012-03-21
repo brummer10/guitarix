@@ -388,6 +388,11 @@ int main(int argc, char *argv[]) {
 	// ----------------------- run GTK main loop ----------------------
 	delete Splash;
 	gui.run();
+#ifndef NDEBUG
+	if (options.dump_parameter) {
+	    gx_engine::parameter_map.dump("json");
+	}
+#endif
     } catch (const Glib::OptionError &e) {
 	cerr << e.what() << endl;
 	cerr << _("use \"guitarix -h\" to get a help text") << endl;

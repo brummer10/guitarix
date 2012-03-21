@@ -262,6 +262,9 @@ private:
     friend CmdlineOptions& get_options();
 
 public:
+#ifndef NDEBUG
+    bool dump_parameter;
+#endif
     SkinHandling skin;
 public:
     CmdlineOptions();
