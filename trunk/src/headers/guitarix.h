@@ -33,6 +33,7 @@
 #define SRC_HEADERS_GUITARIX_H_
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include <gtkmm.h>
 
 #include "engine.h"

@@ -24,17 +24,6 @@
 
 #include "guitarix.h"      //  NOLINT
 
-#include <unistd.h>        //  NOLINT
-
-#include <cstring>         //  NOLINT
-#include <algorithm>       //  NOLINT
-#include <string>          //  NOLINT
-#include <iostream>        // NOLINT
-//#include <gdk/gdkkeysyms.h>            // NOLINT
-//#include <gtkmm/filechooserdialog.h>   // NOLINT
-#include <gxw/GxControlParameter.h>      // NOLINT
-
-
 /* --------------------------- gx_gui namespace ------------------------ */
 namespace gx_gui {
 

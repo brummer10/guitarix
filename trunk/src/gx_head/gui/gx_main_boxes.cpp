@@ -24,8 +24,6 @@
 
 #include "guitarix.h"           // NOLINT
 
-
-#include <gdk/gdkkeysyms.h>     // NOLINT
 #include <glibmm/i18n.h>        // NOLINT
 
 #include <iomanip>              // NOLINT
