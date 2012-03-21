@@ -1473,7 +1473,7 @@ void MainWindow::create_actions() {
 		     sigc::mem_fun(*this, &MainWindow::on_expand_all));
 
     actions.rackh = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.order_rack_h", false, false), "RackH", _("Order Rack Horizontally"));
+	ui, *pmap.reg_switch("system.order_rack_h", false, false), "RackH", _("Order Rack _Horizontally"));
     actions.group->add(actions.rackh,
 		     sigc::mem_fun(*this, &MainWindow::on_dir_changed));
 
@@ -1481,7 +1481,7 @@ void MainWindow::create_actions() {
     ** option actions
     */
     actions.show_values = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_value", false, false), "ShowValues",_("_Show Values"));
+	ui, *pmap.reg_switch("system.show_value", false, false), "ShowValues",_("_Show _Values"));
     actions.group->add(actions.show_values,
 		     sigc::mem_fun(*this, &MainWindow::on_show_values));
 
@@ -1505,11 +1505,11 @@ void MainWindow::create_actions() {
 		       sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
 
     actions.animations = UiBoolToggleAction::create(
-	ui, *pmap.reg_non_midi_par("system.animations", (bool*)0, false, true), "Animations", _("Use Animations"),"",true);
+	ui, *pmap.reg_non_midi_par("system.animations", (bool*)0, false, true), "Animations", _("_Use Animations"),"",true);
     actions.group->add(actions.animations);
 
     pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
-    actions.group->add(Gtk::Action::create("SetPresetSwitcher", _("Liveplay Midi Switch")),
+    actions.group->add(Gtk::Action::create("SetPresetSwitcher", _("L_iveplay Midi Switch")),
 		     sigc::mem_fun(this, &MainWindow::set_switcher_controller));
 
     /*
