@@ -2180,8 +2180,8 @@ msgid "Cannot open library: %1%"
 msgstr "ne peut ouvrir la librairie : %1%"
 
 #: ../src/gx_head/gx_pluginloader.cpp:235
-msgid "Cannot load symbol 'get_gx_plugins': %1%"
-msgstr "ne peux charger le symbole 'get_gx_plugins' : %1%"
+msgid "Cannot load symbol 'get_gx_plugin': %1%"
+msgstr "ne peux charger le symbole 'get_gx_plugin' : %1%"
 
 #: ../src/gx_head/gx_pluginloader.cpp:259
 msgid "Error opening '%1%'"

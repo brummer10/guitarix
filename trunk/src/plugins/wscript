@@ -9,8 +9,8 @@ csources = [ # generate .so files from c sources that can be loaded by guitarix
 sources = [ # generate .so files that can be loaded by guitarix
     ]
 
-lib_csources = [ # put in static library linked with guitarix
-    "vibe.cc",
+lib_csource_defs = [ # put in static library linked with guitarix
+    ["vibe.cc", ("plugin_mono", "plugin_stereo")],
     "abgate.cc",
     ]
 
@@ -47,19 +47,24 @@ def build(bld):
                 source = gdir + s,
                 target = s,
             )
+    lib_csources = [v if isinstance(v, basestring) else v[0] for v in lib_csource_defs]
+    lib_dict = dict([v for v in lib_csource_defs if not isinstance(v, basestring)])
     def run(task):
         l = []
-        for i in task.inputs:
-            s = ("namespace %s { PluginDef *plugin(); }\n"
-                 % os.path.splitext(os.path.basename(i.name))[0])
-            l.append(s)
+        for fname in lib_sources+lib_csources:
+            name = os.path.splitext(fname)[0]
+            if fname in lib_dict:
+                for pname in lib_dict[fname]:
+                    l.append("namespace %s { PluginDef *%s(); }\n" % (name, pname))
+            else:
+                l.append("namespace %s { PluginDef *plugin(); }\n" % name)
         f = file(task.outputs[0].bldpath(task.env),"w")
         f.write('#include "gx_plugin.h"\n\nnamespace pluginlib {\n')
         f.write("".join(l))
         f.write("}\n")
         f.close()
     bld(name = "pluginlib.h",
-        source = lib_sources+lib_csources,
+        source = "wscript",
         rule = run,
         target = "pluginlib.h",
         )

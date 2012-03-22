@@ -113,7 +113,7 @@ enum {
 };
 
 #define PLUGINDEF_VERMAJOR_MASK 0xff00
-#define PLUGINDEF_VERSION       0x0300
+#define PLUGINDEF_VERSION       0x0400
 
 struct PluginDef {
     int version;	 // = PLUGINDEF_VERSION
@@ -139,8 +139,8 @@ struct PluginDef {
 };
 
 // shared libraries with plugin modules must define
-// a function "get_gx_plugins" of type plugin_inifunc
+// a function "get_gx_plugin" of type plugin_inifunc
 // return != 0 for error
-extern "C" typedef int (*plugin_inifunc)(int *count, PluginDef **p);
+extern "C" typedef int (*plugin_inifunc)(unsigned int idx, PluginDef **p);
 
 #endif /* !_GX_PLUGIN_H */

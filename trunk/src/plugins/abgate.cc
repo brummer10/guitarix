@@ -44,6 +44,7 @@ public:
     static void process(int count, float *input, float *output, PluginDef *plugin);
     static int registerparam(const ParamReg& reg);
     static int uiloader(const UiBuilder& builder);
+    static void del_instance(PluginDef *plugin);
 };
 
 Gate::Gate():
@@ -58,6 +59,7 @@ Gate::Gate():
     set_samplerate = init;
     register_params = registerparam;
     load_ui = uiloader;
+    delete_instance = del_instance;
 }
 
 int Gate::registerparam(const ParamReg& reg) {
@@ -141,23 +143,31 @@ int Gate::uiloader(const UiBuilder& b) {
     return 0;
 }
 
+void Gate::del_instance(PluginDef *p)
+{
+    delete static_cast<Gate*>(p);
+}
+
 
 #if true
 
 PluginDef *plugin() {
-    static Gate gate;
-    return &gate;
+    return new Gate;
 }
 
 #else
 
 extern "C" __attribute__ ((visibility ("default"))) int
-get_gx_plugins(int *count, PluginDef **pplugin)
+get_gx_plugin(unsigned int idx, PluginDef **pplugin)
 {
-    static Gate gate;
-    *count = 1;
-    *pplugin = &gate;
-    return 0;
+    const int count = 1;
+    if (!pplugin) {
+	return count;
+    }
+    switch (idx) {
+    case 0: *pplugin = new Gate; return count;
+    default: *pplugin = 0; return -1;
+    }
 }
 
 #endif

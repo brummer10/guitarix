@@ -907,6 +907,7 @@ bool UiBuilderImplNew::load_unit(PluginUI &pl) {
 	return false;
     }
     dynamic_cast<StackBoxBuilderNew*>(intf)->prepare();
+    plugin = pd;
     pd->load_ui(*this);
     return true;
 }
@@ -1746,13 +1747,14 @@ void MainWindow::fill_pluginlist() {
 
     p = new std::vector<PluginUI*>;
     add_plugin(p, "tremolo");
-    add_plugin(p, "phaser_mono");
     add_plugin(p, "chorus_mono");
     add_plugin(p, "flanger_mono");
+    add_plugin(p, "univibe_mono");
+    add_plugin(p, "phaser_mono");
     add_plugin(p, "chorus");
     add_plugin(p, "flanger");
-    add_plugin(p, "phaser");
     add_plugin(p, "univibe");
+    add_plugin(p, "phaser");
     l.push_back(new PluginDesc("Modulation", p));
 
     p = new std::vector<PluginUI*>;

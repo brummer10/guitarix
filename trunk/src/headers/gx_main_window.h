@@ -484,7 +484,7 @@ private:
     gx_engine::ParamMap& pmap;
     Gxw::WaveView&       fWaveView;
     Gtk::Label&          convolver_filename_label;
-    Gtk::VBox           *widget;
+    Gtk::HBox           *widget;
 private:
     virtual void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
     virtual void closeMonoRackBox();

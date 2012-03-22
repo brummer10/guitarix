@@ -1718,7 +1718,7 @@ msgid "Cannot open library: %1%"
 msgstr ""
 
 #: ../src/gx_head/gx_pluginloader.cpp:207
-msgid "Cannot load symbol 'get_gx_plugins': %1%"
+msgid "Cannot load symbol 'get_gx_plugin': %1%"
 msgstr ""
 
 #: ../src/gx_head/gx_pluginloader.cpp:231

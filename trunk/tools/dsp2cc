@@ -486,11 +486,16 @@ plugin_standalone_header = """
 
 plugin_standalone_footer = """
 extern "C" __attribute__ ((visibility ("default"))) int
-get_gx_plugins(int *count, PluginDef **pplugin)
+get_gx_plugin(unsigned int idx, PluginDef **pplugin)
 {
-    *count = 1;
+    if (!pplugin) {
+        return 1;
+    }
+    if (idx > 0) {
+        return -1;
+    }
     *pplugin = &plugin;
-    return 0;
+    return 1;
 }
 """
 

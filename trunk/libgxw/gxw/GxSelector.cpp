@@ -345,6 +345,7 @@ static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, Gd
 		gboolean found;
 		char *s;
 		m = GTK_MENU(gtk_menu_new());
+		//gtk_menu_set_reserve_toggle_size(m, false);  // for narrow menus
 		gtk_widget_set_name(GTK_WIDGET(m), "selector-value-popup");
 		g_signal_connect(m, "selection-done", G_CALLBACK(selection_done), selector);
 		found = gtk_tree_model_get_iter_first(selector->model, &iter);

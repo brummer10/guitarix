@@ -403,11 +403,12 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
     Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
         gtk_builder_get_objects(gobj()), Glib::OWNERSHIP_DEEP);
     for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); ++i) {
+	const char *wname = 0;
 	if (g_type_is_a(G_OBJECT_TYPE(*i), GTK_TYPE_WIDGET)) {
 	    const char *id = gtk_buildable_get_name(GTK_BUILDABLE(*i));
-	    const char *p = g_strstr_len(id, -1, ":");
-	    if (p) {
-		gtk_widget_set_name(GTK_WIDGET(*i), p+1);
+	    wname = g_strstr_len(id, -1, ":");
+	    if (wname) {
+		gtk_widget_set_name(GTK_WIDGET(*i), wname+1);
 	    }
 	}
         if (!g_type_is_a(G_OBJECT_TYPE(*i), GX_TYPE_CONTROL_PARAMETER)) {
@@ -418,6 +419,9 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
         if (v.empty()) {
             continue;
         }
+	if (!wname) {
+	    Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_name(v);
+	}
         if (!gx_engine::parameter_map.hasId(v)) {
 	    Glib::RefPtr<Gtk::Widget> wd = Glib::RefPtr<Gtk::Widget>::cast_dynamic(w);
 	    wd->set_sensitive(0);

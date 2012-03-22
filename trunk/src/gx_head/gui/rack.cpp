@@ -197,7 +197,7 @@ void StackBoxBuilderNew::openVerticalMidiBox(const char* label) {
 
 void StackBoxBuilderNew::prepare() {
     fTop = 0;
-    widget = new Gtk::VBox();
+    widget = new Gtk::HBox();
     widget->show();
     fBox[fTop] = GTK_WIDGET(widget->gobj());
     fMode[fTop] = kBoxMode;

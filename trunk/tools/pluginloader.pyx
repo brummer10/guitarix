@@ -88,16 +88,19 @@ cdef class Plugin:
         self.handle = dlopen(path, RTLD_LOCAL|RTLD_NOW)
         if not self.handle:
             raise RuntimeError("Cannot open library: %s [%s]" % (path, dlerror()))
-        cdef plugin_inifunc get_gx_plugins = <plugin_inifunc>dlsym(self.handle, "get_gx_plugins")
+        cdef plugin_inifunc get_gx_plugin = <plugin_inifunc>dlsym(self.handle, "get_gx_plugin")
         cdef char *dlsym_error = dlerror()
         if dlsym_error:
             dlclose(self.handle)
             self.handle = <void*>0
-            raise RuntimeError("Cannot load symbol 'get_gx_plugins': %s" % dlsym_error)
-        if not n:
-            raise RuntimeError("no plugin found")
-        if get_gx_plugins(&n, &self.p) != 0:
+            raise RuntimeError("Cannot load symbol 'get_gx_plugin': %s" % dlsym_error)
+        n = get_gx_plugin(0, 0)
+        if n < 0:
             raise RuntimeError("error loading plugins")
+        if n == 0:
+            raise RuntimeError("no plugin found")
+        if get_gx_plugin(0, &self.p) < 0:
+            raise RuntimeError("plugin loader error")
         cdef ParamRegImpl *pr
         cdef variter i
         d = {}

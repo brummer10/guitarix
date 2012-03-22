@@ -230,22 +230,25 @@ int PluginList::load_library(const string& path, PluginPos pos) {
         return -1;
     }
     dlerror();    // reset errors
-    plugin_inifunc get_gx_plugins = (plugin_inifunc) dlsym(handle, "get_gx_plugins");
+    plugin_inifunc get_gx_plugin = (plugin_inifunc) dlsym(handle, "get_gx_plugin");
     const char *dlsym_error = dlerror();
     if (dlsym_error) {
 	gx_system::gx_print_error(
 	    _("Plugin Loader"),
-	    boost::format(_("Cannot load symbol 'get_gx_plugins': %1%")) % dlsym_error);
+	    boost::format(_("Cannot load symbol 'get_gx_plugin': %1%")) % dlsym_error);
         dlclose(handle);
         return -1;
     }
-    PluginDef *p;
-    int n;
-    if (get_gx_plugins(&n, &p)) {
+    int n = get_gx_plugin(0, 0);
+    if (n <= 0) {
 	return -1;
     }
     int cnt = 0;
     for (int i = 0; i < n; i++) {
+	PluginDef *p;
+	if (get_gx_plugin(i, &p) < 0) {
+	    continue;
+	}
 	if (!add(&p[i], pos)) {
 	    cnt++;
 	    gx_system::gx_print_info(_("Plugin Loader"), Glib::ustring::compose("loaded[%1]: %2", path, p[i].id));
