@@ -263,6 +263,7 @@ void TunerSwitcher::set_active(bool v) {
 	set_state(normal_mode);
 	lp.engine.set_state(new_engine_state);
 	lp.actions.livetuner->set_active(new_tuner_active);
+	lp.on_selection_changed();
     }
 }
 
