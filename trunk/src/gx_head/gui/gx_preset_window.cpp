@@ -1097,8 +1097,8 @@ void PresetWindow::on_preset_changed() {
 	}
     }
     if (is_scratch) {
-	gx_settings.save(*cpf, gx_settings.get_current_name());
 	if (bank == gx_settings.get_current_bank() && name == gx_settings.get_current_name()) {
+	    gx_settings.save(*cpf, gx_settings.get_current_name());
 	    // no reload necessary
 	    return;
 	}
