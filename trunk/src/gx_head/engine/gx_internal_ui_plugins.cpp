@@ -157,7 +157,9 @@ int TunerAdapter::regparam(const ParamReg& reg) {
 }
 
 void TunerAdapter::set_module() {
-    used_by_midi(dep_plugin->on_off);
+    if (dep_plugin) {
+	used_by_midi(dep_plugin->on_off);
+    }
 }
 
 

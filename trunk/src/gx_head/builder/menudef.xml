@@ -25,7 +25,7 @@
       <menuitem action="RackH" />
       <separator/>
       <menuitem action="Tuner" />
-      <menuitem action="MidiOut" />
+      <!-- <menuitem action="MidiOut" /> -->
       <menu action="MonoPlugins"/>
       <menu action="StereoPlugins"/>
       <separator/>

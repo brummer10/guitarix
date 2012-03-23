@@ -1384,6 +1384,7 @@ void MainWindow::set_switcher_controller() {
 }
 
 void MainWindow::on_show_midi_out() {
+#ifdef USE_MIDI_OUT
     if (actions.midi_out->get_active()) {
 	actions.show_rack->set_active(true);
 	midi_out_box->set_visible(true);
@@ -1391,6 +1392,7 @@ void MainWindow::on_show_midi_out() {
 	midi_out_box->set_visible(false);
 	engine.midiaudiobuffer.plugin.on_off = false;
     }
+#endif
 }
 
 void MainWindow::on_show_midi_out_plug() {

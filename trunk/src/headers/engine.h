@@ -41,6 +41,14 @@
 /* waf generated defines */
 #include "../config.h"
 
+// define USE_MIDI_OUT to create a midi output port and
+// make the MidiAudioBuffer plugin activatable
+// for the UI:
+// - menudef.xml: make action MidiOut visible (its commented out)
+// - ports.glade: set scrolledwindow5 and label12 to visible
+//
+//#define USE_MIDI_OUT
+
 #ifdef LADSPA_SO
 #define gettext(x) dgettext(GETTEXT_PACKAGE, x)
 #endif

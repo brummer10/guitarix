@@ -130,7 +130,9 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
       convolver(*this),
       cabinet(*this, resamp),
       contrast(*this, resamp) {
+#ifdef USE_MIDI_OUT
     tuner.set_dep_module(&midiaudiobuffer.plugin);
+#endif
 
     load_static_plugins();
 

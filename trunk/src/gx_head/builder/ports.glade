@@ -1,94 +1,54 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 2.12 -->
+  <requires lib="gtk+" version="2.16"/>
   <!-- interface-requires gxwidgets 0.0 -->
   <!-- interface-naming-policy project-wide -->
-  <object class="GtkTreeStore" id="treestore2">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore3">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore4">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore5">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore1">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore6">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore7">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
   <object class="GtkDialog" id="PortMapWindow">
+    <property name="can_focus">False</property>
     <property name="title" translatable="yes">guitarix port connections</property>
     <property name="default_width">320</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkButton" id="button1">
+                <property name="label">gtk-close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
         <child>
           <object class="GxPaintBox" id="gxpaintbox1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="border_width">15</property>
             <property name="paint_func">gxrack_expose</property>
             <child>
               <object class="GtkVBox" id="dialog-vbox2">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="spacing">2</property>
                 <child>
                   <object class="GtkNotebook" id="notebook1">
@@ -98,6 +58,7 @@
                     <child>
                       <object class="GtkTable" id="table1">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="n_rows">2</property>
                         <property name="n_columns">3</property>
                         <property name="column_spacing">10</property>
@@ -248,6 +209,7 @@
                         <child>
                           <object class="GtkLabel" id="label8">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">50</property>
                             <property name="label" translatable="yes">&lt;b&gt;_Input&lt;/b&gt;</property>
@@ -263,6 +225,7 @@
                         <child>
                           <object class="GtkLabel" id="label9">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">50</property>
                             <property name="label" translatable="yes">&lt;b&gt;Output _1&lt;/b&gt;</property>
@@ -280,6 +243,7 @@
                         <child>
                           <object class="GtkLabel" id="label10">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">50</property>
                             <property name="label" translatable="yes">&lt;b&gt;Output _2&lt;/b&gt;</property>
@@ -299,6 +263,7 @@
                     <child type="tab">
                       <object class="GtkLabel" id="label6">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="xpad">20</property>
                         <property name="label" translatable="yes">&lt;b&gt;_Audio&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
@@ -311,6 +276,7 @@
                     <child>
                       <object class="GtkTable" id="table3">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="n_rows">2</property>
                         <property name="n_columns">2</property>
                         <property name="column_spacing">10</property>
@@ -412,6 +378,7 @@
                         <child>
                           <object class="GtkLabel" id="label15">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">50</property>
                             <property name="label" translatable="yes">&lt;b&gt;_Output&lt;/b&gt;</property>
@@ -427,6 +394,7 @@
                         <child>
                           <object class="GtkLabel" id="label14">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">50</property>
                             <property name="label" translatable="yes">&lt;b&gt;_Input&lt;/b&gt;</property>
@@ -449,6 +417,7 @@
                     <child type="tab">
                       <object class="GtkLabel" id="label13">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">&lt;b&gt;I_nsert&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                         <property name="use_underline">True</property>
@@ -461,6 +430,7 @@
                     <child>
                       <object class="GtkTable" id="table2">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="n_rows">2</property>
                         <property name="n_columns">2</property>
                         <property name="column_spacing">10</property>
@@ -514,7 +484,6 @@
                         <child>
                           <object class="GtkScrolledWindow" id="scrolledwindow5">
                             <property name="height_request">150</property>
-                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="hscrollbar_policy">never</property>
                             <property name="vscrollbar_policy">automatic</property>
@@ -563,6 +532,7 @@
                         <child>
                           <object class="GtkLabel" id="label11">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">50</property>
                             <property name="label" translatable="yes">&lt;b&gt;_Input (Control)&lt;/b&gt;</property>
@@ -577,7 +547,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel" id="label12">
-                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">50</property>
                             <property name="label" translatable="yes">&lt;b&gt;_Output&lt;/b&gt;</property>
@@ -600,6 +570,7 @@
                     <child type="tab">
                       <object class="GtkLabel" id="label7">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="xpad">20</property>
                         <property name="label" translatable="yes">&lt;b&gt;_Midi&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
@@ -612,40 +583,23 @@
                     </child>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">2</property>
-          </packing>
-        </child>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
-            <child>
-              <object class="GtkButton" id="button1">
-                <property name="label">gtk-close</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
           </packing>
         </child>
       </object>
@@ -653,5 +607,75 @@
     <action-widgets>
       <action-widget response="0">button1</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkTreeStore" id="treestore1">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore2">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore3">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore4">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore5">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore6">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore7">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
   </object>
 </interface>

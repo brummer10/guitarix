@@ -136,7 +136,7 @@ void GxJack::write_jack_port_connections(
     gx_system::JsonWriter& w, const char *key, const PortConnection& pc, bool replace) {
     w.write_key(key);
     w.begin_array();
-    if (client) {
+    if (client && pc.port) {
 	const char** pl = jack_port_get_connections(pc.port);
 	if (pl) {
 	    for (const char **p = pl; *p; p++) {
@@ -309,7 +309,9 @@ void GxJack::gx_jack_cleanup() {
     jack_port_unregister(client, ports.input.port);
     jack_port_unregister(client, ports.midi_input.port);
     jack_port_unregister(client, ports.insert_out.port);
+#ifdef USE_MIDI_OUT
     jack_port_unregister(client, ports.midi_output.port);
+#endif
     jack_port_unregister(client_insert, ports.insert_in.port);
     jack_port_unregister(client_insert, ports.output1.port);
     jack_port_unregister(client_insert, ports.output2.port);
@@ -418,11 +420,13 @@ void GxJack::gx_jack_init_port_connection() {
 	}
     }
 
+#ifdef USE_MIDI_OUT
     // autoconnect midi output port
     list<string>& lmo = ports.midi_output.conn;
     for (list<string>::iterator i = lmo.begin(); i != lmo.end(); ++i) {
         jack_connect(client, jack_port_name(ports.midi_output.port), i->c_str());
     }
+#endif
 
     // autoconnect to insert ports
     list<string>& lins_in = ports.insert_in.conn;
@@ -483,8 +487,12 @@ void GxJack::gx_jack_callbacks() {
 	client, "midi_in_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
     ports.insert_out.port = jack_port_register(
 	client, "out_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+#ifdef USE_MIDI_OUT
     ports.midi_output.port = jack_port_register(
 	client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+#else
+    ports.midi_output.port = 0;
+#endif
 
     // register ports for gx_amp_fx
     ports.insert_in.port = jack_port_register(

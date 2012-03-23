@@ -62,10 +62,14 @@ MidiAudioBuffer::MidiAudioBuffer(TunerAdapter& t)
 }
 
 int MidiAudioBuffer::activate(bool start, PluginDef *plugin) {
+#ifdef USE_MIDI_OUT
     MidiAudioBuffer& self = *static_cast<MidiAudioBuffer*>(plugin);
     self.jack_overload = start ? load_normal : load_off;
     self.overload_change();
     return 0;
+#else
+    return -1;
+#endif
 }
 
 void MidiAudioBuffer::fill_buffer(int count, float *input, float*,

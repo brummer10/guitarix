@@ -191,7 +191,10 @@ void ThreadSafeChainPointer<F>::commit(bool clear) {
     for (list<Plugin*>::const_iterator p = modules.begin(); p != modules.end(); p++) {
 	PluginDef* pd = (*p)->pdef;
 	if (pd->activate_plugin) {
-	    pd->activate_plugin(true, pd);
+	    if (pd->activate_plugin(true, pd) != 0) {
+		(*p)->on_off = false;
+		continue;
+	    }
 	} else if (pd->clear_state && clear) {
 	    pd->clear_state(pd);
 	}
