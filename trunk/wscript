@@ -24,7 +24,7 @@ blddir = 'build'
 use_2to3 = True
 
 # used by waf dist and waf build
-VERSION='0.22beta1'
+VERSION='0.22beta1-git'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.43']
