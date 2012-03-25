@@ -445,14 +445,14 @@ public:
     typedef Glib::ListHandle<RackBox*> rackbox_list;
     RackContainer(PluginType tp, MainWindow& main);
     rackbox_list get_children() {
-	Glib::ListHandle<Widget*> l = Gtk::VBox::get_children();
-	void *p = &l;
-	return *reinterpret_cast<rackbox_list*>(p);
+	return rackbox_list(
+	    gtk_container_get_children(GTK_CONTAINER(gobj())),
+	    Glib::OWNERSHIP_SHALLOW);
     }
     rackbox_const_list get_children() const {
-	Glib::ListHandle<const Widget*> l = Gtk::VBox::get_children();
-	void *p = &l;
-	return *reinterpret_cast<rackbox_const_list*>(p);
+	return rackbox_const_list(
+	    gtk_container_get_children(const_cast<GtkContainer*>(GTK_CONTAINER(gobj()))),
+	    Glib::OWNERSHIP_SHALLOW);
     }
     inline bool check_if_animate(const RackBox& rackbox);
     void show_entries();
