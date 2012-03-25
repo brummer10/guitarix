@@ -2715,11 +2715,6 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     effects_toolpalette->show_all();
 
-    /*
-    ** at this point all parameters should be defined
-    */
-    pmap.set_init_values();
-
     // call some action functions to sync state
     // with settings defined in create_actions()
     on_show_rack();
