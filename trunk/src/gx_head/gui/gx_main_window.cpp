@@ -2756,7 +2756,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	sigc::mem_fun(actions.skin.operator->(), &Gtk::RadioAction::set_current_value));
 
     if (mainwin_height > 0) {  // initially use the default set in mainpanel.glade
-	window->set_default_size(-1, mainwin_height);
+	window->set_default_size(-1, min(window_height, mainwin_height));
     }
 
     // set window position (make this optional??)
