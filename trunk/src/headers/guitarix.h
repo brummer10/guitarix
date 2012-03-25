@@ -34,6 +34,36 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+
+#ifndef GDK_KEY_0
+// 
+// compatibility definitions for gdkkeysyms.h before the change in gtk git on 2010-09-08
+// can be removed at some point
+// list created with:
+// tools/search_all GDK_KEY | sed -n 's/\(GDK_KEY_[a-zA-Z0-9_]*\)/\n\1\n/gp' | sort -u \
+//   | awk '/GDK_KEY/{v=$0; sub("GDK_KEY_", "GDK_", v); print "#define " $0 " " v}'
+//
+#define GDK_KEY_0 GDK_0
+#define GDK_KEY_1 GDK_1
+#define GDK_KEY_9 GDK_9
+#define GDK_KEY_a GDK_a
+#define GDK_KEY_A GDK_A
+#define GDK_KEY_B GDK_B
+#define GDK_KEY_Down GDK_Down
+#define GDK_KEY_Escape GDK_Escape
+#define GDK_KEY_KP_0 GDK_KP_0
+#define GDK_KEY_KP_1 GDK_KP_1
+#define GDK_KEY_KP_9 GDK_KP_9
+#define GDK_KEY_Left GDK_Left
+#define GDK_KEY_M GDK_M
+#define GDK_KEY_Return GDK_Return
+#define GDK_KEY_Right GDK_Right
+#define GDK_KEY_space GDK_space
+#define GDK_KEY_Up GDK_Up
+#define GDK_KEY_z GDK_z
+#define GDK_KEY_Z GDK_Z
+#endif
+
 #include <gtkmm.h>
 
 #include "engine.h"
