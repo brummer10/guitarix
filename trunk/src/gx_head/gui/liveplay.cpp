@@ -144,28 +144,28 @@ bool TunerSwitcher::on_note_timeout() {
 	}
     } else if (current_note == -25) {
 	if (old_engine_state != gx_engine::kEngineOff) {
-	    lp.display("", "MUTE");
+	    lp.display("", _("MUTE"));
 	    last_bank_idx = mute_on;
 	} else {
-	    lp.display("", "UNMUTE");
+	    lp.display("", _("UNMUTE"));
 	    last_bank_idx = mute_off;
 	}
 	set_state(wait_stop);
     } else if (current_note == -26) {
 	if (old_engine_state != gx_engine::kEngineBypass) {
-	    lp.display("", "BYPASS");
+	    lp.display("", _("BYPASS"));
 	    last_bank_idx = bypass_on;
 	} else {
-	    lp.display("", "BYPASS OFF");
+	    lp.display("", _("BYPASS OFF"));
 	    last_bank_idx = bypass_off;
 	}
 	set_state(wait_stop);
     } else if (current_note < 26) {
 	if (!old_tuner_active) {
-	    lp.display("", "TUNER ON");
+	    lp.display("", _("TUNER ON"));
 	    last_bank_idx = tuner_on;
 	} else {
-	    lp.display("", "TUNER OFF");
+	    lp.display("", _("TUNER OFF"));
 	    last_bank_idx = tuner_off;
 	}
 	set_state(wait_stop);
