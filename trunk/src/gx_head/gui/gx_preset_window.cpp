@@ -1161,6 +1161,12 @@ void PresetWindow::display_paned(bool show_preset, int paned_child_height) {
 }
 
 void PresetWindow::on_preset_select(bool v, bool animated, int paned_child_height) {
+    static bool first_time = true;
+    if (first_time) {
+	//FIXME needed to fix first time display height, not clear why
+	paned_child_height += 1;
+	first_time = false;
+    }
     on_map_conn.disconnect();
     bool is_mapped = main_vpaned->get_toplevel()->get_mapped();
     bool rack_visible = actions.show_rack->get_active();
