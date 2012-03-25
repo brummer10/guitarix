@@ -36,13 +36,13 @@
 #include <gdk/gdkkeysyms.h>
 
 #ifndef GDK_KEY_0
-// 
-// compatibility definitions for gdkkeysyms.h before the change in gtk git on 2010-09-08
-// can be removed at some point
-// list created with:
-// tools/search_all GDK_KEY | sed -n 's/\(GDK_KEY_[a-zA-Z0-9_]*\)/\n\1\n/gp' | sort -u \
-//   | awk '/GDK_KEY/{v=$0; sub("GDK_KEY_", "GDK_", v); print "#define " $0 " " v}'
-//
+/* 
+** compatibility definitions for gdkkeysyms.h before the change in gtk git on 2010-09-08
+** can be removed at some point
+** list created with:
+** tools/search_all GDK_KEY | sed -n 's/\(GDK_KEY_[a-zA-Z0-9_]*\)/\n\1\n/gp' | sort -u \
+**   | awk '/GDK_KEY/{v=$0; sub("GDK_KEY_", "GDK_", v); print "#define " $0 " " v}'
+*/
 #define GDK_KEY_0 GDK_0
 #define GDK_KEY_1 GDK_1
 #define GDK_KEY_9 GDK_9
