@@ -63,7 +63,7 @@ cdef extern from "gx_plugin.h":
         process_stereo_audio stereo_audio
         inifunc set_samplerate
         activatefunc activate_plugin
-    ctypedef int (*plugin_inifunc)(int *count, PluginDef **p)
+    ctypedef int (*plugin_inifunc)(unsigned int idx, PluginDef **p)
 
 cdef extern from "pluginloader.h":
     pass
@@ -94,7 +94,7 @@ cdef class Plugin:
             dlclose(self.handle)
             self.handle = <void*>0
             raise RuntimeError("Cannot load symbol 'get_gx_plugin': %s" % dlsym_error)
-        n = get_gx_plugin(0, 0)
+        n = get_gx_plugin(0, <PluginDef**>0)
         if n < 0:
             raise RuntimeError("error loading plugins")
         if n == 0:

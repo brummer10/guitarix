@@ -9,7 +9,7 @@ struct Var {
     float low;
     float up;
     Var(const char *_id, const char *_name, float *_var, float _val, float _low, float _up)
-	: id(_id), name(_name), var(_var), val(_val), low(_low), up(_up) {}
+	: id(_id), name(_name), var(_var), val(_val), low(_low), up(_up) { *var = val; }
 };
 
 class VarMap: public std::map<std::string,Var*> {
@@ -34,7 +34,7 @@ private:
 			       float low, float up, float step);
     static void registerBoolVar_(const char* id, const char* name, const char* tp,
 				 const char* tooltip, bool* var, bool val);
-    static void registerNonMidiVar_(const char * id, bool*var, bool preset);
+    static void registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave);
     static void registerEnumVar_(const char *id, const char* name, const char* tp,
 				 const char* tooltip, const value_pair* values, float *var, float val,
 				 float low, float up, float step);
@@ -74,7 +74,7 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
 
 void ParamRegImpl::registerBoolVar_(const char* id, const char* name, const char* tp,
 				    const char* tooltip, bool* var, bool val) {}
-void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset) {}
+void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave) {}
 void ParamRegImpl::registerEnumVar_(const char *id, const char* name, const char* tp,
 				   const char* tooltip, const value_pair* values, float *var, float val,
 				   float low, float up, float step) {}

@@ -203,11 +203,11 @@ cdef class dsp(object):
             if not (inp.ndim == 2 and inp.shape[1] >= ni):
                 raise ValueError("need 2-dim array with at least %d rows" % ni)
         cdef floatp *ina = <floatp*>alloca(ni*sizeof(floatp))
-        cdef floatp basep = <floatp>inp.data
         cdef int i, n
-        n = inp.strides[0]
-        for i in range(ni):
-            ina[i] = <floatp>(inp.data+i*n)
+        if inp is not None:
+            n = inp.strides[0]
+            for i in range(ni):
+                ina[i] = <floatp>(inp.data+i*n)
         cdef int no = self.Cdsp.getNumOutputs()
         cdef floatp *oa = <floatp*>alloca(no*sizeof(floatp))
         cdef np.ndarray o
@@ -215,6 +215,7 @@ cdef class dsp(object):
             o = np.empty(count,dtype=np.float32)
         else:
             o = np.empty((no,count),dtype=np.float32)
+        n = o.strides[0]
         for i in range(no):
             oa[i] = <floatp>(o.data + i*n)
         cdef timespec t0, t1
