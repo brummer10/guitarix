@@ -1,7 +1,8 @@
 #! /bin/bash
 function compile() {
+  set -e
   rm -f "$2".so
-  faust -a pythonmodule.cpp -o faustwrap.cpp "$1"
+  faust $faustargs -a pythonmodule.cpp -o faustwrap.cpp "$1"
   cython --cplus "$2".pyx
   inc="-I../src/gx_head -I../src/headers -I/usr/include/python2.7"
   opt="-fno-strict-aliasing -fwrapv -O2 -shared -fPIC"
@@ -11,13 +12,18 @@ function compile() {
   echo "created $2.so"
 }
 
+faustargs="-double"
 [ "$1" = "" ] && {
-  echo "usage: ./build-module <dsp-file> [<module-name>]"
+  echo "usage: ./build-module [-single] <dsp-file> [<module-name>]"
   exit 1
 }
 [ "$(dirname "$0")" != "." ] && {
   echo 'error: please make "tools" your working directory'
   exit 1
+}
+[ "$1" = "-single" ] && {
+  faustargs=""
+  shift
 }
 if [ "$2" = "" ]; then
   bname="$(basename "$1" .dsp)"
