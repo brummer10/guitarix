@@ -21,13 +21,19 @@ cdef extern from "time.h":
     int clock_gettime(clockid_t clk_id, timespec *tp)
 
 cdef extern from "gx_plugin.h":
+    cdef struct value_pair:
+        char *value_id
+        char *value_label
+    ctypedef value_pair* const_value_pair_ptr "const value_pair*"
     cppclass Var:
         char *id
         char *name
         float *var
+        float *uvar
         float val
         float low
         float up
+        value_pair *values
     cppclass string:
         char *c_str()
     cppclass pair:
@@ -112,8 +118,8 @@ cdef class Plugin:
             while i != self.varmap[0].end():
                 d[deref(i).second[0].id] = (
                     deref(i).second[0].name, deref(i).second[0].val,
-                    deref(i).second[0].low, deref(i).second[0].up)
-                deref(i).second[0].var[0] = deref(i).second[0].val;
+                    deref(i).second[0].low, deref(i).second[0].up,
+                    self.get_vp_list(deref(i).second))
                 inc(i)
         self.d = d
         self.time_per_sample = 0
@@ -131,6 +137,15 @@ cdef class Plugin:
         returns: name, stdval, lower, upper"""
         return self.d[key]
 
+    cdef get_vp_list(self, Var *p):
+        cdef const_value_pair_ptr vp = p.values
+        if not vp:
+            return []
+        l = []
+        for i in range(int(p.up)+1):
+            l.append((vp[i].value_id, vp[i].value_label))
+        return l
+
     def get_range(self, key):
         f = self.d[key]
         return (f[2], f[3])
@@ -139,7 +154,11 @@ cdef class Plugin:
         cdef variter p = self.varmap[0].find(pname)
         if p == self.varmap[0].end():
             raise KeyError("not found: %s" % pname)
-        return deref(p).second.var[0]
+        if deref(p).second.var:
+            return deref(p).second.var[0]
+        if deref(p).second.uvar:
+            return deref(p).second.uvar[0]
+        assert(False)
 
     def __setitem__(self, char* pname, float pval):
         cdef variter p = self.varmap[0].find(pname)
@@ -149,7 +168,12 @@ cdef class Plugin:
             pval = deref(p).second[0].low
         if pval > deref(p).second[0].up:
             pval = deref(p).second[0].up
-        deref(p).second[0].var[0] = pval
+        if deref(p).second[0].var:
+            deref(p).second[0].var[0] = pval
+        elif deref(p).second[0].uvar:
+            deref(p).second[0].uvar[0] = pval
+        else:
+            assert(False)
 
     def init(self, int samplingRate):
         """argument: sample rate

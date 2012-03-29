@@ -5,11 +5,15 @@ struct Var {
     const char *id;
     const char *name;
     float *var;
+    unsigned int *uvar;
     float val;
     float low;
     float up;
+    const value_pair *values;
     Var(const char *_id, const char *_name, float *_var, float _val, float _low, float _up)
-	: id(_id), name(_name), var(_var), val(_val), low(_low), up(_up) { *var = val; }
+	: id(_id), name(_name), var(_var), uvar(0), val(_val), low(_low), up(_up), values(0) { *var = val; }
+    Var(const char *_id, const char *_name, unsigned int *_uvar, int _val, int _low, int _up, const value_pair *_values)
+	: id(_id), name(_name), var(0), uvar(_uvar), val(_val), low(_low), up(_up), values(_values) { *uvar = _val; }
 };
 
 class VarMap: public std::map<std::string,Var*> {
@@ -73,13 +77,29 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
 }
 
 void ParamRegImpl::registerBoolVar_(const char* id, const char* name, const char* tp,
-				    const char* tooltip, bool* var, bool val) {}
-void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave) {}
+				    const char* tooltip, bool* var, bool val) {
+    assert(false);
+}
+
+void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave) {
+    assert(false);
+}
+
 void ParamRegImpl::registerEnumVar_(const char *id, const char* name, const char* tp,
 				   const char* tooltip, const value_pair* values, float *var, float val,
-				   float low, float up, float step) {}
+				   float low, float up, float step) {
+    assert(false);
+}
+
 void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const char* tp,
-				   const char* tooltip, const value_pair* values, int *var, int val) {}
+				   const char* tooltip, const value_pair* values, int *var, int val) {
+    assert(false);
+}
+
 void ParamRegImpl::registerUEnumVar_(const char *id, const char* name, const char* tp,
 				     const char* tooltip, const value_pair* values,
-				     unsigned int *var, unsigned int std) {}
+				     unsigned int *var, unsigned int std) {
+    int up = -1;
+    for (const value_pair* p = values; p->value_id; ++p, ++up);
+    vars->insert(std::pair<std::string,Var*>(id, new Var(id,name,var,std,0,up,values)));
+}
