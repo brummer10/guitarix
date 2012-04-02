@@ -339,3 +339,12 @@ crybaby_ctrl = environment {
 balance_ctrl = environment {
     bal = vslider(".amp.balance[name:Balance][alias]", 0, -1, 1, 0.1) : smoothi(0.999);
 };
+
+vibe_lfo_ctrl = environment {
+    freq = vslider(".univibe.freq[name:Tempo][tooltip:LFO frequency (Hz)][alias]", 6, 0.1, 10, 0.1) * 16;
+    phase = vslider(".univibe.stereo[name:St.df][tooltip:LFO phase shift between left and right channels][alias]", 0, -0.5, 0.5, 0.01) * 2 * PI;
+};
+
+vibe_mono_lfo_ctrl = environment {
+    freq = vslider(".univibe_mono.freq[name:Tempo][tooltip:LFO frequency (Hz)][alias]", 6, 0.1, 10, 0.1) * 16;
+};

@@ -35,6 +35,13 @@ def build(bld):
         'cabinet_impulse_former.dsp',
         ]
 
+    sources_static = [
+        'vibe_mono_lfo_triangle.dsp',
+        'vibe_mono_lfo_sine.dsp',
+        'vibe_lfo_triangle.dsp',
+        'vibe_lfo_sine.dsp',
+        ]
+
     sources_plugin_float = [
         'echo.dsp',
         'delay.dsp',
@@ -143,6 +150,11 @@ def build(bld):
             proc = "../tools/dsp2cc",
             separate_header = True,
             proc_args = float_arg+["--init-type=no-init-instance"],
+            )
+        bld.new_task_gen(
+            source = sources_static,
+            proc = "../tools/dsp2cc",
+            proc_args = arg+["--init-type=no-init"],
             )
         bld.new_task_gen(
             source = sources_plugin,
