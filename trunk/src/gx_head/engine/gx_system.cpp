@@ -36,16 +36,20 @@ namespace gx_system {
 
 #ifndef NDEBUG
 
-/* return time difference in ns, fail if > sec (doesn't fit int 32 bit int) */
-int Measure::ts_diff(struct timespec ts1, struct timespec ts2) {
-    time_t df = ts1.tv_sec - ts2.tv_sec;
-    if (abs(df) > 2) {
-        return -1; // failed
-    }
-    return df * 1000000000 + (ts1.tv_nsec - ts2.tv_nsec);
+void Measure::reset() {
+    period.reset();
+    duration.reset();
+    duration1.reset();
+    duration2.reset();
+    FPUStatus1 = 0;
+    FPUStatus2 = 0;
+    MXStatus1 = 0;
+    MXStatus2 = 0;
 }
 
 void Measure::print_accum(const Accum& accum, const char* prefix, bool verbose, int total) const {
+    streamsize prec = cout.precision();
+    ios_base::fmtflags flags = cout.flags();
     cout << prefix << "mean: " << fixed << setprecision(4) << ns2ms(accum.mean());
     if (total > 0) {
         cout << " (" << setprecision(2) << 100.0*accum.mean()/static_cast<float>(total) << "%)";
@@ -60,6 +64,45 @@ void Measure::print_accum(const Accum& accum, const char* prefix, bool verbose, 
              << ", n: " << accum.count();
     }
     cout << endl;
+    cout.precision(prec);
+    cout.flags(flags);
+}
+
+static void print_status(const char *title, unsigned int status) {
+    Glib::ustring s;
+    if (status & FPU_SW_INVALID_EXCEPTION_MASK) {
+	if (!s.empty()) {
+	    s += ",";
+	}
+	s += "invalid";
+    }
+    if (status & FPU_SW_DENORMAL_EXCEPTION_MASK) {
+	if (!s.empty()) {
+	    s += ",";
+	}
+	s += "denormal";
+    }
+    if (status & FPU_SW_ZERODIVIDE_EXCEPTION_MASK) {
+	if (!s.empty()) {
+	    s += ",";
+	}
+	s += "zerodivide";
+    }
+    if (status & FPU_SW_OVERFLOW_EXCEPTION_MASK) {
+	if (!s.empty()) {
+	    s += ",";
+	}
+	s += "overflow";
+    }
+    if (status & FPU_SW_UNDERFLOW_EXCEPTION_MASK) {
+	if (!s.empty()) {
+	    s += ",";
+	}
+	s += "underflow";
+    }
+    if (!s.empty()) {
+	cout << title << s << endl;
+    }
 }
 
 void Measure::print(bool verbose) const {
@@ -71,6 +114,12 @@ void Measure::print(bool verbose) const {
     } else {
         print_accum(duration, "duration  ", false, period.mean());
     }
+    print_status("FPU status: ", FPUStatus1 | FPUStatus2);
+    print_status("MX status: ", MXStatus1 | MXStatus2);
+}
+
+MeasureThreadsafe::MeasureThreadsafe()
+    : m(), pmeasure(m), t1s(), t1e(), t2s(), t1old(), FPUStatus(), MXStatus() {
 }
 
 void MeasureThreadsafe::print(bool verbose) {
@@ -88,12 +137,6 @@ void MeasureThreadsafe::print(bool verbose) {
 
 MeasureThreadsafe measure;
 
-static int print_measures(gpointer data) {
-    bool verbose = GPOINTER_TO_INT(data);
-    measure.print(verbose);
-    return TRUE;
-}
-
 void add_time_measurement() {
     char *p = getenv("GUITARIX_MEASURE");
     if (!p) {
@@ -103,7 +146,13 @@ void add_time_measurement() {
     if (strcmp(p, "1") == 0) {
         verbose = true;
     }
-    g_timeout_add(1000, print_measures, (gpointer)verbose);
+    Glib::signal_timeout().connect(
+	sigc::bind_return(
+	    sigc::bind(
+		sigc::mem_fun(measure, &MeasureThreadsafe::print),
+		verbose),
+	    true),
+	1000);
 }
 
 #endif
@@ -503,12 +552,21 @@ void Logger::write_queued() {
     // quick copy list
     msgmutex.lock();
     list<logmsg> l = msglist;
-    msglist.clear();
+    if (!queue_all_msgs) {
+	msglist.clear();
+    }
     msgmutex.unlock();
 
     // feed throught the handler(s)
     for (list<logmsg>::iterator i = l.begin(); i != l.end(); ++i) {
-	handlers(i->msg, i->msgtype, i->plugged);
+	if (queue_all_msgs) {
+	    if (!i->plugged) {
+		handlers(i->msg, i->msgtype, i->plugged);
+		i->plugged = true;
+	    }
+	} else {
+	    handlers(i->msg, i->msgtype, i->plugged);
+	}
     }
 }
 

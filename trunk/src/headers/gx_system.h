@@ -25,6 +25,43 @@
 #ifndef SRC_HEADERS_GX_SYSTEM_H_
 #define SRC_HEADERS_GX_SYSTEM_H_
 
+#ifndef NDEBUG
+#include <fenv.h>
+// x87 fpu
+inline void clear_fpu_status_bits() { __asm__ ("fnclex"); }
+inline unsigned int getx87cr() {
+    unsigned int fpu_control __attribute__ ((__mode__ (__HI__)));
+    __asm__("fnstcw %0" : "=m" (*&fpu_control));
+    return fpu_control;
+}
+inline void setx87cr(unsigned int fpu_control) {
+    __asm__("fldcw %0"  : "=m" (*&fpu_control));
+}
+inline unsigned int getx87sr() {
+    unsigned int fpu_status __attribute__ ((__mode__ (__HI__)));
+    __asm__("fnstsw %0" : "=m" (*&fpu_status));
+	return fpu_status;
+}
+
+// SIMD, gcc with Intel Core 2 Duo uses SSE2(4)
+inline unsigned int getmxcsr() {
+    unsigned int mx_status;
+    __asm__("stmxcsr %0" : "=m" (*&mx_status));
+    return mx_status;
+}
+inline void setmxcsr(unsigned int mx_status) {
+    __asm__("ldmxcsr %0" : "=m" (*&mx_status));
+}
+inline void clear_mx_status_bits() {
+    setmxcsr(getmxcsr() & ~0x1f);
+}
+#define FPU_SW_INVALID_EXCEPTION_MASK    (0x0001)
+#define FPU_SW_DENORMAL_EXCEPTION_MASK   (0x0002)
+#define FPU_SW_ZERODIVIDE_EXCEPTION_MASK (0x0004)
+#define FPU_SW_OVERFLOW_EXCEPTION_MASK   (0x0008)
+#define FPU_SW_UNDERFLOW_EXCEPTION_MASK  (0x0010)
+#endif
+
 /* constant defines */
 #define ASCII_START (48)
 #define GDK_NO_MOD_MASK (GdkModifierType)0
@@ -109,76 +146,81 @@ inline void Accum::add(int diff) {
 }
 
 
-class Measure {
- private:
+struct Measure {
     Accum period;
     Accum duration;
     Accum duration1;
     Accum duration2;
-    timespec t1;
-    timespec t2;
-    static int ts_diff(struct timespec ts1, struct timespec ts2);
+    unsigned int FPUStatus1;
+    unsigned int MXStatus1;
+    unsigned int FPUStatus2;
+    unsigned int MXStatus2;
     inline float ns2ms(int n) const { return n * 1e-6; }
-
- public:
-    inline void reset() {
-        period.reset();
-        duration.reset();
-        duration1.reset();
-        duration2.reset();
-        t1.tv_sec = 0;
-        t1.tv_nsec = 0;
-        t2.tv_sec = 0;
-        t2.tv_nsec = 0;
-    }
+    void reset();
     Measure() { reset(); }
-    void start_process();
-    void pause_process();
-    void cont_process();
-    void stop_process();
     void print_accum(const Accum& accum, const char* prefix, bool verbose, int total = 0) const;
     void print(bool verbose) const;
 };
 
-inline void Measure::start_process() {
-    timespec n;
-    clock_gettime(CLOCK_MONOTONIC, &n);
-    if (!(t1.tv_sec == 0 and t1.tv_nsec == 0)) {
-        period.add(ts_diff(n, t1));
-    }
-    t1 = n;
-}
-
-inline void Measure::pause_process() {
-    timespec n;
-    clock_gettime(CLOCK_MONOTONIC, &n);
-    duration1.add(ts_diff(n, t1));
-}
-
-inline void Measure::cont_process() {
-    clock_gettime(CLOCK_MONOTONIC, &t2);
-}
-
-inline void Measure::stop_process() {
-    timespec n;
-    clock_gettime(CLOCK_MONOTONIC, &n);
-    duration2.add(ts_diff(n, t2));
-    duration.add(ts_diff(n, t1));
-}
-
 class MeasureThreadsafe {
  private:
-    Measure *pmeasure;
     Measure m[2];
+    Measure *pmeasure;
+    timespec t1s;
+    timespec t1e;
+    timespec t2s;
+    timespec t1old;
+    unsigned int FPUStatus;
+    unsigned int MXStatus;
     inline Measure *access() { return atomic_get(pmeasure); }
+    inline int ts_diff(const timespec& ts1, const timespec& ts2);
  public:
-    MeasureThreadsafe(): pmeasure(m) {}
-    inline void start() { access()->start_process(); }
-    inline void pause() { access()->pause_process(); }
-    inline void cont() { access()->cont_process(); }
-    inline void stop() { access()->stop_process(); }
+    MeasureThreadsafe();
+    inline void start() {
+	clear_fpu_status_bits();
+	clear_mx_status_bits();
+	clock_gettime(CLOCK_MONOTONIC, &t1s);
+    }
+    inline void pause() {
+	clock_gettime(CLOCK_MONOTONIC, &t1e);
+	FPUStatus = getx87sr();
+	MXStatus = getmxcsr();
+    }
+    inline void cont() {
+	clear_fpu_status_bits();
+	clear_mx_status_bits();
+	clock_gettime(CLOCK_MONOTONIC, &t2s);
+    }
+    inline void stop();
     void print(bool verbose = false);
 };
+
+/* return time difference in ns, fail if > sec (doesn't fit int 32 bit int) */
+inline int MeasureThreadsafe::ts_diff(const timespec& ts1, const timespec& ts2) {
+    time_t df = ts1.tv_sec - ts2.tv_sec;
+    if (abs(df) > 2) {
+        return -1; // failed
+    }
+    return df * 1000000000 + (ts1.tv_nsec - ts2.tv_nsec);
+}
+
+
+inline void MeasureThreadsafe::stop() {
+    Measure& m = *access();
+    timespec n;
+    clock_gettime(CLOCK_MONOTONIC, &n);
+    m.FPUStatus2 |= getx87sr();
+    m.MXStatus2 |= getmxcsr();
+    m.FPUStatus1 |= FPUStatus;
+    m.MXStatus1 |= MXStatus;
+    if (!(t1old.tv_sec == 0 && t1old.tv_nsec == 0)) {
+        m.period.add(ts_diff(t1s, t1old));
+    }
+    t1old = t1s;
+    m.duration1.add(ts_diff(t1e, t1s));
+    m.duration2.add(ts_diff(n, t2s));
+    m.duration.add(ts_diff(n, t1s));
+}
 
 extern MeasureThreadsafe measure;
 
