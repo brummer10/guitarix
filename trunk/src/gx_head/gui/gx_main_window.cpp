@@ -282,7 +282,7 @@ void GxUiRadioMenu::on_changed(Glib::RefPtr<Gtk::RadioAction> act) {
  */
 
 Freezer::Freezer()
-    : window(0), tag(), size_x(-1), size_y(-1) {
+    : window(0), tag(), need_thaw(false), size_x(-1), size_y(-1) {
 }
 
 Freezer::~Freezer() {
@@ -297,10 +297,14 @@ void Freezer::freeze(Gtk::Window *w, int width, int height) {
     size_y = height;
     window = w;
     Glib::RefPtr<Gdk::Window> win = window->get_window();
+    int tm = 500;
     if (win) {
+	need_thaw = true;
 	win->freeze_updates();
-	tag = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Freezer::thaw_timeout), 500);
+    } else {
+	tm = 1500;
     }
+    tag = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Freezer::thaw_timeout), tm);
 }
 
 void Freezer::freeze_and_size_request(Gtk::Window *w, int width, int height) {
@@ -328,7 +332,9 @@ bool Freezer::thaw_timeout() {
     if (!win) {
 	return false;
     }
-    win->thaw_updates();
+    if (need_thaw) {
+	win->thaw_updates();
+    }
     return false;
 }
 
@@ -347,7 +353,9 @@ void Freezer::thaw() {
 	Glib::signal_idle().connect_once(work);
 	work.disconnect();
     }
-    win->thaw_updates();
+    if (need_thaw) {
+	win->thaw_updates();
+    }
 }
 
 bool Freezer::check_thaw(int width, int height) {
@@ -355,10 +363,7 @@ bool Freezer::check_thaw(int width, int height) {
 	return true;
     }
     Glib::RefPtr<Gdk::Window> win = window->get_window();
-    if (!win) {
-	return false;
-    }
-    if (win->get_state()) {
+    if (win && win->get_state()) {
 	thaw();
 	return true;
     }

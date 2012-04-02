@@ -542,6 +542,7 @@ class Freezer {
 private:
     Gtk::Window *window;
     sigc::connection tag;
+    bool need_thaw;
     int size_x;
     int size_y;
     sigc::slot<void> work;
