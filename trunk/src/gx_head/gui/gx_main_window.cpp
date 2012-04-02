@@ -2740,11 +2740,6 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     }
     set_latency(); // make sure latency menu is updated
 	
-    if (!jack.is_jack_exit()) {
-	// unblock sound engine
-	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
-    }
-
     // we set the skin at this late point to avoid calling make_icons more
     // than once
     if (actions.skin->get_current_value() != skin) {

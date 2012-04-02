@@ -331,6 +331,7 @@ bool GxJack::gx_jack_connection(bool connect, bool startserver, int wait_after_c
 	if (!gx_jack_init(startserver, wait_after_connect)) {
 	    return false;
 	}
+	engine.check_module_lists();
 	engine.clear_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
     } else {
 	if (!client) {
