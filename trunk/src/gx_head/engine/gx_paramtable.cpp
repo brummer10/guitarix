@@ -587,57 +587,90 @@ const value_pair *Parameter::getValueNames() const {
 #ifndef NDEBUG
 void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all) {
     if (p1->_id != p2->_id) {
-	printf("%s: Different ID's: %s / %s\n", title, p1->_id.c_str(), p2->_id.c_str());
+	gx_system::gx_print_warning(
+	    title, Glib::ustring::compose("Different ID's: %2 / %3",
+					  p1->_id, p2->_id));
     }
     if (p1->_name != p2->_name) {
-	printf("%s[%s]: Different name: %s / %s\n", title, p1->_id.c_str(), p1->_name.c_str(), p2->_name.c_str());
+	gx_system::gx_print_warning(
+	    title, Glib::ustring::compose("[%1]: Different name: %2 / %3",
+					  p1->_id, p1->_name, p2->_name));
     }
     if (p1->_group != p2->_group) {
-	printf("%s[%s]: Different group: %s / %s\n", title, p1->_id.c_str(), p1->_group.c_str(), p2->_group.c_str());
+	gx_system::gx_print_warning(
+	    title, Glib::ustring::compose("[%1]: Different group: %2 / %3",
+					  p1->_id, p1->_group, p2->_group));
     }
     if (p1->_desc != p2->_desc) {
-	printf("%s[%s]: Different desc: %s / %s\n", title, p1->_id.c_str(), p1->_desc.c_str(), p2->_desc.c_str());
+	gx_system::gx_print_warning(
+	    title, Glib::ustring::compose("[%1]: Different desc: %2 / %3",
+					  p1->_id, p1->_desc, p2->_desc));
     }
     if (p1->save_in_preset != p2->save_in_preset) {
-	printf("%s[%s]: save_in_preset different: %d / %d\n", title, p1->_id.c_str(), p1->save_in_preset, p2->save_in_preset);
+	gx_system::gx_print_warning(
+	    title, Glib::ustring::compose("[%1]: save_in_preset different: %2 / %3",
+					  p1->_id, p1->save_in_preset, p2->save_in_preset));
     }
     if (p1->controllable != p2->controllable) {
-	printf("%s[%s]: controllable different: %d / %d\n", title, p1->_id.c_str(), p1->controllable, p2->controllable);
+	gx_system::gx_print_warning(
+	    title, Glib::ustring::compose("[%1]: controllable different: %2 / %3",
+					  p1->_id, p1->controllable, p2->controllable));
     }
     if (p1->used != p2->used) {
-	printf("%s[%s]: used different: %d / %d\n", title, p1->_id.c_str(), p1->used, p2->used);
+	gx_system::gx_print_warning(
+	    title, Glib::ustring::compose("[%1]: used different: %2 / %3",
+					  p1->_id, p1->used, p2->used));
     }
     if (p1->c_type != p2->c_type) {
-	printf("%s[%s]: c_type different: %d / %d\n", title, p1->_id.c_str(), p1->c_type, p2->c_type);
+	gx_system::gx_print_warning(
+	    title, Glib::ustring::compose("[%1]: c_type different: %2 / %3",
+					  p1->_id, p1->c_type, p2->c_type));
     }
     if (p1->v_type != p2->v_type) {
-	printf("%s[%s]: v_type different: %d / %d\n", title, p1->_id.c_str(), p1->v_type, p2->v_type);
+	gx_system::gx_print_warning(
+	    title, Glib::ustring::compose("[%1]: v_type different: %2 / %3",
+					  p1->_id, p1->v_type, p2->v_type));
 	return;
     }
     if (p1->isFloat()) {
 	FloatParameter& f1 = p1->getFloat();
 	FloatParameter& f2 = p2->getFloat();
 	if (f1.value != f2.value) {
-	    printf("%s[%s]: value address different: %p / %p\n", title, p1->_id.c_str(), f1.value, f2.value);
+	    gx_system::gx_print_warning(
+		title, Glib::ustring::compose("[%1]: value address different: %2 / %3",
+					      p1->_id, f1.value, f2.value));
 	}
 	if (f1.lower != f2.lower) {
-	    printf("%s[%s]: float lower different: %g / %g\n", title, p1->_id.c_str(), f1.lower, f2.lower);
+	    gx_system::gx_print_warning(
+
+		title, Glib::ustring::compose("[%1]: float lower different: %2 / %3",
+					      p1->_id, f1.lower, f2.lower));
 	}
 	if (f1.upper != f2.upper) {
-	    printf("%s[%s]: float upper different: %g / %g\n", title, p1->_id.c_str(), f1.upper, f2.upper);
+	    gx_system::gx_print_warning(
+		title, Glib::ustring::compose("[%1]: float upper different: %2 / %3",
+					      p1->_id, f1.upper, f2.upper));
 	}
 	if (f1.step != f2.step) {
-	    printf("%s[%s]: float step different: %g / %g\n", title, p1->_id.c_str(), f1.step, f2.step);
+	    gx_system::gx_print_warning(
+		title, Glib::ustring::compose("[%1]: float step different: %2 / %3",
+					      p1->_id, f1.step, f2.step));
 	}
 	if (f1.std_value != f2.std_value) {
-	    printf("%s[%s]: float std value different: %g / %g\n", title, p1->_id.c_str(), f1.std_value, f2.std_value);
+	    gx_system::gx_print_warning(
+		title, Glib::ustring::compose("[%1]: float std value different: %2 / %3",
+					      p1->_id, f1.std_value, f2.std_value));
 	}
 	if (all) {
 	    if (f1.value != f2.value) {
-		printf("%s[%s]: float value different: %g / %g\n", title, p1->_id.c_str(), *f1.value, *f2.value);
+		gx_system::gx_print_warning(
+		    title, Glib::ustring::compose("[%1]: float value different: %2 / %3",
+						  p1->_id, *f1.value, *f2.value));
 	    }
 	    if (f1.json_value != f2.json_value) {
-		printf("%s[%s]: float json value different: %g / %g\n", title, p1->_id.c_str(), f1.json_value, f2.json_value);
+		gx_system::gx_print_warning(
+		    title, Glib::ustring::compose("[%1]: float json value different: %2 / %3",
+						  p1->_id, f1.json_value, f2.json_value));
 	    }
 	}
 	return;

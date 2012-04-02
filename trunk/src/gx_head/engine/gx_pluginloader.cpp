@@ -76,6 +76,7 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
 	    gx_engine::FloatParameter p2(
 		id, name, gx_engine::Parameter::Continuous, true,
 		&p.getFloat().get_value(), val, low, up, step, true);
+	    p2.set_desc(tooltip);
 	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
 #endif
 	    return &p.getFloat().get_value();
