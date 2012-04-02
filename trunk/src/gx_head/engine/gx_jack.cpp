@@ -545,8 +545,6 @@ int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
     gx_system::measure_start();
     GxJack& self = *static_cast<GxJack*>(arg);
     if (!self.is_jack_exit()) {
-        AVOIDDENORMALS;
-
         // gx_head DSP computing
 	self.engine.mono_chain.process(
 	    nframes,
@@ -570,7 +568,6 @@ int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
     gx_system::measure_cont();
     if (!self.is_jack_exit()) {
-        AVOIDDENORMALS;
         // gx_head DSP computing
 	float *ibuf = get_float_buf(self.ports.insert_in.port, nframes);
 	self.engine.stereo_chain.process(
