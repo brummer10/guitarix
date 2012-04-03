@@ -112,3 +112,23 @@ class "*GxSelector" style:highest "guitarix_selector"
 class "*GxFastMeter" style:highest "guitarix_fastmeter"
 class "*GxIREdit" style:highest "guitarix_iredit"
 class "*GxSimpleValueDisplay" style:highest "guitarix_value_display"
+
+
+style "always-show-value"
+{
+  GxRegler::show-value = 1
+}
+
+widget "*.ui.tuner_reference_pitch" style:highest "always-show-value"
+widget "*.amp.out_amp" style:highest "always-show-value"
+widget "*.midi_out.channel_?.channel" style:highest "always-show-value"
+widget "*.midi_out.channel_?.program" style:highest "always-show-value"
+
+style "justahack"
+{
+  fg[NORMAL] = {1.0, 1.0, 1.0 }
+  fg[PRELIGHT] = {0.2, 1.0, 0.2 }
+  fg[SELECTED] = {1.0, 0.0, 0.0 }
+  fg[INSENSITIVE] = {0.4, 0.1, 0.1 }
+}
+widget "gtkmm__GtkWindow.gtkmm__GtkEventBox.gtkmm__GxPaintBox.gtkmm__GtkLabel" style:highest "justahack"
