@@ -154,8 +154,8 @@ private:
     gx_preset::GxSettings& gx_settings;
     const GxActions& actions;
     bool use_composite;
-    Gtk::Adjustment brightness_adj;
-    Gtk::Adjustment background_adj;
+    Gtk::Adjustment *brightness_adj;
+    Gtk::Adjustment *background_adj;
     KeySwitcher keyswitch;
     sigc::connection midi_conn;
     Gtk::Window *window;

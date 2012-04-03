@@ -442,6 +442,29 @@ bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *accelerat
     return true;
 }
 
+class MyPaintBox: public Gxw::PaintBox {
+private:
+    Gtk::Adjustment *background_adj;
+    MyPaintBox(BaseObjectType* cobject, Gtk::Adjustment *background_adj_)
+	: Gxw::PaintBox(cobject), background_adj(background_adj_) {}
+public:
+    static MyPaintBox *create_from_builder(BaseObjectType* cobject, Gtk::Adjustment *background_adj) {
+	return new MyPaintBox(cobject, background_adj); }
+    virtual bool on_expose_event(GdkEventExpose *event);
+};
+
+bool MyPaintBox::on_expose_event(GdkEventExpose *event) {
+    call_paint_func(event);
+    Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
+    gdk_cairo_region(cr->cobj(), event->region);
+    cr->clip();
+    cr->set_source_rgba(0.0, 0.0, 0.0, 1-background_adj->get_value());
+    cr->paint();
+    foreach(sigc::bind(sigc::mem_fun(this, &MyPaintBox::propagate_expose), event));
+    return true;
+}
+
+
 Liveplay::Liveplay(
     const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
     const std::string& fname, const GxActions& actions_)
@@ -451,8 +474,8 @@ Liveplay::Liveplay(
       gx_settings(gx_settings_),
       actions(actions_),
       use_composite(),
-      brightness_adj(1,0.5,1,0.01,0.1),
-      background_adj(0,0,1,0.01,0.1),
+      brightness_adj(),
+      background_adj(),
       keyswitch(gx_settings_, sigc::mem_fun(this, &Liveplay::display)),
       midi_conn(),
       window(),
@@ -474,6 +497,14 @@ Liveplay::Liveplay(
     bld->find_widget("liveplay_exit:barbutton", liveplay_exit);
     bld->find_widget("liveplay_tuner", tuner);
     bld->find_widget("liveplay_midictrl_table", midictrl_table);
+    brightness_adj = brightness_slider->get_adjustment();
+    background_adj = background_slider->get_adjustment();
+    MyPaintBox *liveplay_paintbox;
+    bld->find_widget_derived(
+	"liveplay_paintbox", liveplay_paintbox,
+	sigc::bind(
+	    sigc::ptr_fun(MyPaintBox::create_from_builder),
+	    background_adj));
 
     Glib::RefPtr<Gdk::Pixbuf> pb = Gdk::Pixbuf::create_from_file(
 	options.get_style_filepath("bypass.svg"), 300, 150);
@@ -483,23 +514,19 @@ Liveplay::Liveplay(
     mute_image->set(pb);
     use_composite = window->get_display()->supports_composite();
     if (use_composite) {
-	brightness_adj.signal_value_changed().connect(sigc::mem_fun(this, &Liveplay::on_brightness_changed));
-	brightness_slider->set_adjustment(brightness_adj);
+	brightness_adj->signal_value_changed().connect(sigc::mem_fun(this, &Liveplay::on_brightness_changed));
 	liveplay_canvas->signal_realize().connect(sigc::mem_fun(this, &Liveplay::on_realize));
 	window->signal_expose_event().connect(
 	    sigc::mem_fun(this, &Liveplay::window_expose_event), true);
     } else {
 	brightness_box->hide();
     }
-    background_adj.signal_value_changed().connect(
+    background_adj->signal_value_changed().connect(
 	sigc::mem_fun(this, &Liveplay::on_background_changed));
-    background_slider->set_adjustment(background_adj);
     Glib::RefPtr<Gdk::Screen> screen = liveplay_canvas->get_screen();
     Glib::RefPtr<Gdk::Colormap> rgba = screen->get_rgba_colormap();
     liveplay_canvas->set_colormap(rgba);
     liveplay_canvas->set_app_paintable(true);
-    liveplay_canvas->signal_expose_event().connect(
-	sigc::mem_fun(this, &Liveplay::transparent_expose));
     window->signal_delete_event().connect(
 	sigc::mem_fun(this, &Liveplay::on_delete));
     window->add_events(Gdk::POINTER_MOTION_HINT_MASK|Gdk::POINTER_MOTION_MASK);
@@ -626,15 +653,16 @@ void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
 bool Liveplay::window_expose_event(GdkEventExpose *event) {
     Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
     Gtk::Allocation a = liveplay_canvas->get_allocation();
-    //gdk_cairo_set_source_window(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y()); gtk 2.24
-    gdk_cairo_set_source_pixmap(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y()); //FIXME does it work??
     Gdk::Region region(a);
     region.intersect(Glib::wrap(event->region, true));
     Gdk::Cairo::add_region_to_path(cr, region);
     cr->clip();
-
-    cr->set_operator(Cairo::OPERATOR_OVER);
-    cr->paint_with_alpha(pow(brightness_adj.get_value(),2.2));
+    cr->set_operator(Cairo::OPERATOR_SOURCE);
+    cr->set_source_rgb(0,0,0);
+    cr->paint();
+    //gdk_cairo_set_source_window(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y()); gtk 2.24
+    gdk_cairo_set_source_pixmap(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y());
+    cr->paint_with_alpha(pow(brightness_adj->get_value(),2.2));
     return false;
 }
 
@@ -649,14 +677,6 @@ void Liveplay::on_brightness_changed() {
 
 void Liveplay::on_background_changed() {
     window->queue_draw();
-}
-
-bool Liveplay::transparent_expose(GdkEventExpose *event) {
-    Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
-    gdk_cairo_region(cr->cobj(), event->region);
-    cr->set_source_rgba(0.0, 1.0, 0.0, pow(background_adj.get_value(),2.2));
-    cr->fill();
-    return false;
 }
 
 void Liveplay::display_tuner(bool v) {

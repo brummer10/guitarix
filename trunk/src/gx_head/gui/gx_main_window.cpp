@@ -1570,6 +1570,8 @@ void MainWindow::create_actions() {
     pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
     actions.group->add(Gtk::Action::create("SetPresetSwitcher", _("L_iveplay Midi Switch")),
 		     sigc::mem_fun(this, &MainWindow::set_switcher_controller));
+    pmap.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
+    pmap.reg_par_non_preset("ui.liveplay_background", "?liveplay_background", 0, 0.0, 0.0, 1.0, 0.01);
 
     /*
     ** Help and About
