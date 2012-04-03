@@ -4,7 +4,8 @@
 #define _GXWMM_VALUEDISPLAY_H
 
 
-#include <glibmm.h>
+#include <glibmm/ustring.h>
+#include <sigc++/sigc++.h>
 
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert

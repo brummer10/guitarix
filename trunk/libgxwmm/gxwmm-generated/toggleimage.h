@@ -4,7 +4,8 @@
 #define _GXWMM_TOGGLEIMAGE_H
 
 
-#include <glibmm.h>
+#include <glibmm/ustring.h>
+#include <sigc++/sigc++.h>
 
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
@@ -104,7 +105,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<Glib::ustring> property_base_name() ;
+  Glib::PropertyProxy< Glib::ustring > property_base_name() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -114,7 +115,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<Glib::ustring> property_base_name() const;
+  Glib::PropertyProxy_ReadOnly< Glib::ustring > property_base_name() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 

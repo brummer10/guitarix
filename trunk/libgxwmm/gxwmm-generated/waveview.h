@@ -4,7 +4,8 @@
 #define _GXWMM_WAVEVIEW_H
 
 
-#include <glibmm.h>
+#include <glibmm/ustring.h>
+#include <sigc++/sigc++.h>
 
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
@@ -106,7 +107,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<Glib::ustring> property_text_top_left() ;
+  Glib::PropertyProxy< Glib::ustring > property_text_top_left() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -116,7 +117,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<Glib::ustring> property_text_top_left() const;
+  Glib::PropertyProxy_ReadOnly< Glib::ustring > property_text_top_left() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -126,7 +127,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<Glib::ustring> property_text_top_right() ;
+  Glib::PropertyProxy< Glib::ustring > property_text_top_right() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -136,7 +137,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<Glib::ustring> property_text_top_right() const;
+  Glib::PropertyProxy_ReadOnly< Glib::ustring > property_text_top_right() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -146,7 +147,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<Glib::ustring> property_text_bottom_left() ;
+  Glib::PropertyProxy< Glib::ustring > property_text_bottom_left() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -156,7 +157,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<Glib::ustring> property_text_bottom_left() const;
+  Glib::PropertyProxy_ReadOnly< Glib::ustring > property_text_bottom_left() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -166,7 +167,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<Glib::ustring> property_text_bottom_right() ;
+  Glib::PropertyProxy< Glib::ustring > property_text_bottom_right() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -176,7 +177,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<Glib::ustring> property_text_bottom_right() const;
+  Glib::PropertyProxy_ReadOnly< Glib::ustring > property_text_bottom_right() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -186,7 +187,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<double> property_text_pos_left() ;
+  Glib::PropertyProxy< double > property_text_pos_left() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -196,7 +197,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<double> property_text_pos_left() const;
+  Glib::PropertyProxy_ReadOnly< double > property_text_pos_left() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -206,7 +207,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<double> property_text_pos_right() ;
+  Glib::PropertyProxy< double > property_text_pos_right() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -216,7 +217,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<double> property_text_pos_right() const;
+  Glib::PropertyProxy_ReadOnly< double > property_text_pos_right() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 

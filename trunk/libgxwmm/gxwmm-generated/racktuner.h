@@ -4,7 +4,8 @@
 #define _GXWMM_RACKTUNER_H
 
 
-#include <glibmm.h>
+#include <glibmm/ustring.h>
+#include <sigc++/sigc++.h>
 
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
@@ -87,7 +88,9 @@ protected:
   //GTK+ Virtual Functions (override these to change behaviour):
 
   //Default Signal Handlers::
+  /// This is a default handler for the signal signal_frequency_poll().
   virtual void on_frequency_poll();
+  /// This is a default handler for the signal signal_poll_status_changed().
   virtual void on_poll_status_changed(bool p1);
 
 
@@ -128,17 +131,19 @@ private:
 	
   void push_note(int p1);
 	
-  /**
-   * @par Prototype:
+/**
+   * @par Slot Prototype:
    * <tt>void on_my_%frequency_poll()</tt>
+   *
    */
 
   Glib::SignalProxy0< void > signal_frequency_poll();
 
 	
-  /**
-   * @par Prototype:
+/**
+   * @par Slot Prototype:
    * <tt>void on_my_%poll_status_changed(bool p1)</tt>
+   *
    */
 
   Glib::SignalProxy1< void,bool > signal_poll_status_changed();
@@ -150,7 +155,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<double> property_freq() ;
+  Glib::PropertyProxy< double > property_freq() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -160,7 +165,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<double> property_freq() const;
+  Glib::PropertyProxy_ReadOnly< double > property_freq() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -170,7 +175,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<double> property_scale_lim() ;
+  Glib::PropertyProxy< double > property_scale_lim() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -180,7 +185,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<double> property_scale_lim() const;
+  Glib::PropertyProxy_ReadOnly< double > property_scale_lim() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -190,7 +195,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<double> property_speed() ;
+  Glib::PropertyProxy< double > property_speed() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -200,7 +205,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<double> property_speed() const;
+  Glib::PropertyProxy_ReadOnly< double > property_speed() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -210,7 +215,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<bool> property_display_flat() ;
+  Glib::PropertyProxy< bool > property_display_flat() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -220,7 +225,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<bool> property_display_flat() const;
+  Glib::PropertyProxy_ReadOnly< bool > property_display_flat() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -230,7 +235,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<bool> property_streaming() ;
+  Glib::PropertyProxy< bool > property_streaming() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -240,7 +245,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<bool> property_streaming() const;
+  Glib::PropertyProxy_ReadOnly< bool > property_streaming() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -250,7 +255,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<int> property_timestep() ;
+  Glib::PropertyProxy< int > property_timestep() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -260,7 +265,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<int> property_timestep() const;
+  Glib::PropertyProxy_ReadOnly< int > property_timestep() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -270,7 +275,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<int> property_limit_timestep() ;
+  Glib::PropertyProxy< int > property_limit_timestep() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -280,7 +285,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<int> property_limit_timestep() const;
+  Glib::PropertyProxy_ReadOnly< int > property_limit_timestep() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 

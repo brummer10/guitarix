@@ -4,7 +4,8 @@
 #define _GXWMM_REGLER_H
 
 
-#include <glibmm.h>
+#include <glibmm/ustring.h>
+#include <sigc++/sigc++.h>
 
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
@@ -90,7 +91,9 @@ protected:
   //GTK+ Virtual Functions (override these to change behaviour):
 
   //Default Signal Handlers::
+  /// This is a default handler for the signal signal_value_entry().
   virtual bool on_value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2);
+  /// This is a default handler for the signal signal_format_value().
   virtual Glib::ustring on_format_value(double value);
 
 
@@ -111,9 +114,10 @@ private:
 	
   Gtk::PositionType get_value_position();
 	
-  /**
-   * @par Prototype:
+/**
+   * @par Slot Prototype:
    * <tt>bool on_my_%value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2)</tt>
+   *
    */
 
   Glib::SignalProxy2< bool,const Gdk::Rectangle&,GdkEventButton* > signal_value_entry();
@@ -125,7 +129,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<Gtk::Label> property_label_ref() ;
+  Glib::PropertyProxy< Gtk::Label > property_label_ref() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -135,7 +139,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<Gtk::Label> property_label_ref() const;
+  Glib::PropertyProxy_ReadOnly< Gtk::Label > property_label_ref() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -145,7 +149,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<bool> property_show_value() ;
+  Glib::PropertyProxy< bool > property_show_value() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -155,7 +159,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<bool> property_show_value() const;
+  Glib::PropertyProxy_ReadOnly< bool > property_show_value() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -165,7 +169,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<double> property_value_xalign() ;
+  Glib::PropertyProxy< double > property_value_xalign() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -175,7 +179,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<double> property_value_xalign() const;
+  Glib::PropertyProxy_ReadOnly< double > property_value_xalign() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -185,7 +189,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<int> property_digits() const;
+  Glib::PropertyProxy_ReadOnly< int > property_digits() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 
@@ -196,7 +200,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<Gtk::PositionType> property_value_position() ;
+  Glib::PropertyProxy< Gtk::PositionType > property_value_position() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -206,13 +210,14 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<Gtk::PositionType> property_value_position() const;
+  Glib::PropertyProxy_ReadOnly< Gtk::PositionType > property_value_position() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 
-  /**
-   * @par Prototype:
+/**
+   * @par Slot Prototype:
    * <tt>Glib::ustring on_my_%format_value(double value)</tt>
+   *
    */
 
   Glib::SignalProxy1< Glib::ustring,double > signal_format_value();

@@ -4,7 +4,8 @@
 #define _GXWMM_METERSCALE_H
 
 
-#include <glibmm.h>
+#include <glibmm/ustring.h>
+#include <sigc++/sigc++.h>
 
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
@@ -138,7 +139,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<TickPosition> property_tick_pos() ;
+  Glib::PropertyProxy< TickPosition > property_tick_pos() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
@@ -148,7 +149,7 @@ private:
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<TickPosition> property_tick_pos() const;
+  Glib::PropertyProxy_ReadOnly< TickPosition > property_tick_pos() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 
