@@ -134,6 +134,14 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 
 }
 
+void gx_paint_box_call_paint_func(GxPaintBox *paint_box, GdkEventExpose *event)
+{
+	g_return_if_fail(GX_IS_PAINT_BOX(paint_box));
+	if (paint_box->expose_func) {
+		paint_box->expose_func(GTK_WIDGET(paint_box), event);
+	}
+}
+
 static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func);
 
 static void set_paint_func(GxPaintBox *paint_box, const gchar *paint_func)
@@ -202,12 +210,14 @@ static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event)
 	GTK_WIDGET_CLASS(GTK_OBJECT_CLASS(gx_paint_box_parent_class))->expose_event(widget, event);
 	return FALSE;
 }
+
 static void set_icon(GxPaintBox *paint_box, int value)
 {
 	int spf;
 	gtk_widget_style_get(GTK_WIDGET(paint_box), "icon-set", &spf, NULL);
 	 paint_box->icon_set = spf;
 }
+
 static void gx_paint_box_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {

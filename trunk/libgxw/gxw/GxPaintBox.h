@@ -53,6 +53,9 @@ struct _GxPaintBoxClass {
 };
 
 GType gx_paint_box_get_type(void) G_GNUC_CONST;
+
+void gx_paint_box_call_paint_func(GxPaintBox *paint_box, GdkEventExpose *event);
+
 GtkWidget *gx_paint_box_new(GtkOrientation orientation, gboolean homogeneous, gint spacing);
 
 G_END_DECLS
