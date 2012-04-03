@@ -2715,6 +2715,24 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     */
     fill_pluginlist();
     plugin_dict["gx_distortion"]->shortname = _("Distortion");
+    plugin_dict["stereodelay"]->shortname = _("Delay");
+    plugin_dict["stereoecho"]->shortname = _("Echo");
+    plugin_dict["stereoverb"]->shortname = _("Verb");
+    plugin_dict["phaser_mono"]->shortname = _("Phaser");
+    plugin_dict["flanger_mono"]->shortname = _("Flanger");
+    plugin_dict["chorus_mono"]->shortname = _("Chorus");
+    plugin_dict["univibe_mono"]->shortname = _("Vibe");
+    plugin_dict["IR"]->shortname = _("IR");
+    plugin_dict["low_highpass"]->shortname = _("L/H/Filter");
+    plugin_dict["eqs"]->shortname = _("EQ");
+    plugin_dict["compressor"]->shortname = _("Compr.");
+    plugin_dict["biquad"]->shortname = _("BiQuad");
+    plugin_dict["moog"]->shortname = _("Moog");
+    plugin_dict["ampmodul"]->shortname = _("Amp");
+    plugin_dict["tonemodul"]->shortname = _("Tone");
+    plugin_dict["oscilloscope"]->shortname = _("Osc");
+    plugin_dict["jconv"]->shortname = _("Conv.");
+    plugin_dict["zita_rev1"]->shortname = _("Zita R1");
     PluginUI *mainamp_plugin = new PluginUI(*this, engine.pluginlist, "ampstack");
     plugin_dict.add(mainamp_plugin);
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);

@@ -1165,7 +1165,7 @@ Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
     hbox->pack_start(*manage(hbox2), Gtk::PACK_SHRINK);
     Gtk::VBox *vbox2 = new Gtk::VBox();
     hbox2->pack_start(*manage(vbox2));
-    hbox2->pack_start(*manage(wrap_bar()), Gtk::PACK_SHRINK);
+    hbox2->pack_start(*manage(wrap_bar(4,13)), Gtk::PACK_SHRINK);
 #ifdef USE_SZG
     szg->add_widget(&on_off_switch);
 #endif
