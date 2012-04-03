@@ -1073,7 +1073,7 @@ void RackBox::swtch(bool mini) {
 void RackBox::set_config_mode(bool mode) {
     config_mode = mode;
     minibox->set_config_mode(mode);
-    if (!get_plug_visible()) {
+    if (!get_plug_visible() || !can_compress()) {
 	if (mode) {
 	    vis_switch(*fbox, mbox);
 	} else {
