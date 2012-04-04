@@ -168,7 +168,7 @@ def build(bld):
             )
     else:
         gdir = "../faust-generated/"
-        for s in sources + sources_float + sources_plugin_float + sources_plugin:
+        for s in sources + sources_static + sources_float + sources_plugin_float + sources_plugin:
             s = s.replace(".dsp",".cc")
             bld(name = "copy-faust-cc",
                 rule = "cp ${SRC} ${TGT}",
