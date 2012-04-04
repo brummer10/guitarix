@@ -345,7 +345,8 @@ void Vibe::out(int PERIOD, float *smpsl, float *smpsr, float * efxoutl, float * 
     // from rakarrack out()
 
     int i,j;
-    float lfol, lfor, xl, xr;
+    float lfol = 0, lfor = 0; // initialize to make stupid compiler happy
+    float xl, xr;
     float  fxl=0.0f;
     float  fxr=0.0f;
     //float vbe,vin;
