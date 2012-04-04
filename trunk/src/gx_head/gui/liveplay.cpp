@@ -680,7 +680,15 @@ void Liveplay::on_background_changed() {
 }
 
 void Liveplay::display_tuner(bool v) {
-    tuner->set_sensitive(v);
+    //tuner->set_sensitive(v);
+    Gtk::Widget *p = tuner->get_parent();
+    if (!v) {
+	Gtk::Requisition r;
+	p->size_request(r);
+	p->set_size_request(r.width, r.height);
+	p->queue_draw(); // bug in GxRackTuner? sometimes still visible when tuner was active
+    }
+    tuner->set_visible(v);
 }
 
 void Liveplay::on_realize() {
