@@ -75,22 +75,22 @@ void IRWindow::init_connect() {
     builder->find_widget("linear", wLinear);
     wLinear->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_linear));
 
-    builder->find_widget("delay", wDelay);
+    builder->find_widget("delay:show_always", wDelay);
     wDelay->signal_value_changed().connect(sigc::mem_fun(*this,
                                            &IRWindow::on_m_delay_changed));
-    builder->find_widget("offset", wOffset);
+    builder->find_widget("offset:show_always", wOffset);
     wOffset->signal_value_changed().connect(sigc::mem_fun(*this,
                                             &IRWindow::on_m_offset_changed));
-    builder->find_widget("irlength", wLength);
+    builder->find_widget("irlength:show_always", wLength);
     wLength->signal_value_changed().connect(sigc::mem_fun(*this,
                                             &IRWindow::on_m_length_changed));
-    builder->find_widget("delay_ms", wDelay_ms);
+    builder->find_widget("delay_ms:show_always", wDelay_ms);
     wDelay_ms->signal_value_changed().connect(sigc::mem_fun(*this,
                                               &IRWindow::on_ms_delay_changed));
-    builder->find_widget("offset_ms", wOffset_ms);
+    builder->find_widget("offset_ms:show_always", wOffset_ms);
     wOffset_ms->signal_value_changed().connect(sigc::mem_fun(*this,
                                                &IRWindow::on_ms_offset_changed));
-    builder->find_widget("irlength_ms", wLength_ms);
+    builder->find_widget("irlength_ms:show_always", wLength_ms);
     wLength_ms->signal_value_changed().connect(sigc::mem_fun(*this,
                                                &IRWindow::on_ms_length_changed));
 

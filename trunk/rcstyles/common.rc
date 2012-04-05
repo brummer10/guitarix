@@ -121,6 +121,7 @@ style "always-show-value"
 
 widget "*.ui.tuner_reference_pitch" style:highest "always-show-value"
 widget "*.amp.out_amp" style:highest "always-show-value"
+widget "*.show_always" style:highest "always-show-value"
 widget "*.midi_out.channel_?.channel" style:highest "always-show-value"
 widget "*.midi_out.channel_?.program" style:highest "always-show-value"
 
