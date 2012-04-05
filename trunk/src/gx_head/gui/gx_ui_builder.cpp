@@ -301,7 +301,7 @@ uiSelector<T>::uiSelector(gx_ui::GxUI& ui, Gtk::Range *rng_, T* zone)
 
 template<class T>
 void uiSelector<T>::on_value_changed() {
-    modifyZone(static_cast<T>(rng->get_value()));
+    this->modifyZone(static_cast<T>(rng->get_value()));
 }
 
 template<class T>
