@@ -302,7 +302,7 @@ void Freezer::freeze(Gtk::Window *w, int width, int height) {
 	need_thaw = true;
 	win->freeze_updates();
     } else {
-	tm = 1500;
+	tm = 2000;
     }
     tag = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Freezer::thaw_timeout), tm);
 }
