@@ -4,6 +4,11 @@
 
 include "common.rc"
 
+style "guitarix_iredit"
+{
+  text[NORMAL] = { 0.60, 0.60, 0.60 }
+}
+
 style "gx_head_blue_skin_icons"
 {
   stock["bigknob"] = {{"tactile_knob_large_151f.png"}}

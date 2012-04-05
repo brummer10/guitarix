@@ -6,6 +6,10 @@
 
 include "common.rc"
 
+style "guitarix_iredit"
+{
+  text[NORMAL] = { 0.2, 0.4, 0.5 }
+}
 
 style "gx_dezert_skin_icons"
 {
