@@ -534,7 +534,7 @@ void LadspaGuitarix::prepare_run() {
     pthread_t tid = pthread_self();
     if (!pthread_equal(tid, last_thread_id)) {
 	last_thread_id = tid;
-	AVOIDDENORMALS;
+	AVOIDDENORMALS();
     }
     check_preset();
     control_parameter.get_values();

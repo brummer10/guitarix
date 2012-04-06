@@ -175,7 +175,7 @@ void GxJack::write_connections(gx_system::JsonWriter& w) {
 
 // ----- pop up a dialog for starting jack
 bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
-    AVOIDDENORMALS;
+    AVOIDDENORMALS();
     int jackopt = (startserver ? JackNullOption : JackNoStartServer);
     gx_system::CmdlineOptions& opt = gx_system::get_options();
     client_instance = opt.get_jack_instancename();

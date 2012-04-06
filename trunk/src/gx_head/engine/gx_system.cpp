@@ -69,32 +69,38 @@ void Measure::print_accum(const Accum& accum, const char* prefix, bool verbose, 
 }
 
 static void print_status(const char *title, unsigned int status) {
+    // print list of names for active bits in "status"
+    // bits for mmx and x87 have different symbolic names in
+    // header files but are actually identical so that this function
+    // can be used for both types status word
     Glib::ustring s;
-    if (status & FPU_SW_INVALID_EXCEPTION_MASK) {
+    if (status & FE_INVALID) {
 	if (!s.empty()) {
 	    s += ",";
 	}
 	s += "invalid";
     }
-    if (status & FPU_SW_DENORMAL_EXCEPTION_MASK) {
+#ifdef FE_DENORM
+    if (status & FE_DENORM) {
 	if (!s.empty()) {
 	    s += ",";
 	}
 	s += "denormal";
     }
-    if (status & FPU_SW_ZERODIVIDE_EXCEPTION_MASK) {
+#endif
+    if (status & FE_DIVBYZERO) {
 	if (!s.empty()) {
 	    s += ",";
 	}
 	s += "zerodivide";
     }
-    if (status & FPU_SW_OVERFLOW_EXCEPTION_MASK) {
+    if (status & FE_OVERFLOW) {
 	if (!s.empty()) {
 	    s += ",";
 	}
 	s += "overflow";
     }
-    if (status & FPU_SW_UNDERFLOW_EXCEPTION_MASK) {
+    if (status & FE_UNDERFLOW) {
 	if (!s.empty()) {
 	    s += ",";
 	}

@@ -27,40 +27,48 @@
 
 #ifndef NDEBUG
 #include <fenv.h>
-// x87 fpu
+
+#ifdef __i386__
+#define FE_DENORM __FE_DENORM
 inline void clear_fpu_status_bits() { __asm__ ("fnclex"); }
-inline unsigned int getx87cr() {
-    unsigned int fpu_control __attribute__ ((__mode__ (__HI__)));
-    __asm__("fnstcw %0" : "=m" (*&fpu_control));
-    return fpu_control;
-}
-inline void setx87cr(unsigned int fpu_control) {
-    __asm__("fldcw %0"  : "=m" (*&fpu_control));
-}
-inline unsigned int getx87sr() {
+inline unsigned int get_fpu_status_bits() {
     unsigned int fpu_status __attribute__ ((__mode__ (__HI__)));
     __asm__("fnstsw %0" : "=m" (*&fpu_status));
 	return fpu_status;
 }
+#else
+inline void clear_fpu_status_bits() { feclearexcept(FE_ALL_EXCEPT); }
+inline unsigned int get_fpu_status_bits() {
+    fexcept_t flagp;
+    int ret = fegetexceptflag(&flagp, FE_ALL_EXCEPT);
+    assert(ret == 0);
+    return flagp;
+}
+#endif //__i386__
 
-// SIMD, gcc with Intel Core 2 Duo uses SSE2(4)
-inline unsigned int getmxcsr() {
-    unsigned int mx_status;
-    __asm__("stmxcsr %0" : "=m" (*&mx_status));
-    return mx_status;
+#ifdef __SSE__
+
+/* On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
+   flags to avoid costly denormals */
+#ifdef __SSE3__
+#include <pmmintrin.h>
+inline void AVOIDDENORMALS() {
+    _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+    _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 }
-inline void setmxcsr(unsigned int mx_status) {
-    __asm__("ldmxcsr %0" : "=m" (*&mx_status));
-}
-inline void clear_mx_status_bits() {
-    setmxcsr(getmxcsr() & ~0x1f);
-}
-#define FPU_SW_INVALID_EXCEPTION_MASK    (0x0001)
-#define FPU_SW_DENORMAL_EXCEPTION_MASK   (0x0002)
-#define FPU_SW_ZERODIVIDE_EXCEPTION_MASK (0x0004)
-#define FPU_SW_OVERFLOW_EXCEPTION_MASK   (0x0008)
-#define FPU_SW_UNDERFLOW_EXCEPTION_MASK  (0x0010)
-#endif
+#else
+#include <xmmintrin.h>
+inline void AVOIDDENORMALS() { _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON); }
+#endif //__SSE3__
+
+#else
+
+inline void _MM_SET_EXCEPTION_STATE(unsigned int __mask) {}
+inline unsigned int _MM_GET_EXCEPTION_STATE(void) { return 0; }
+inline void AVOIDDENORMALS() {}
+
+#endif //__SSE__
+#endif // !NDEBUG
 
 /* constant defines */
 #define ASCII_START (48)
@@ -178,17 +186,17 @@ class MeasureThreadsafe {
     MeasureThreadsafe();
     inline void start() {
 	clear_fpu_status_bits();
-	clear_mx_status_bits();
+	_MM_SET_EXCEPTION_STATE(0);
 	clock_gettime(CLOCK_MONOTONIC, &t1s);
     }
     inline void pause() {
 	clock_gettime(CLOCK_MONOTONIC, &t1e);
-	FPUStatus = getx87sr();
-	MXStatus = getmxcsr();
+	FPUStatus = get_fpu_status_bits();
+	MXStatus = _MM_GET_EXCEPTION_STATE();
     }
     inline void cont() {
 	clear_fpu_status_bits();
-	clear_mx_status_bits();
+	_MM_SET_EXCEPTION_STATE(0);
 	clock_gettime(CLOCK_MONOTONIC, &t2s);
     }
     inline void stop();
@@ -209,8 +217,8 @@ inline void MeasureThreadsafe::stop() {
     Measure& m = *access();
     timespec n;
     clock_gettime(CLOCK_MONOTONIC, &n);
-    m.FPUStatus2 |= getx87sr();
-    m.MXStatus2 |= getmxcsr();
+    m.FPUStatus2 |= get_fpu_status_bits();
+    m.MXStatus2 |= _MM_GET_EXCEPTION_STATE();
     m.FPUStatus1 |= FPUStatus;
     m.MXStatus1 |= MXStatus;
     if (!(t1old.tv_sec == 0 && t1old.tv_nsec == 0)) {

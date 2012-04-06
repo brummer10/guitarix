@@ -25,19 +25,6 @@
 #ifndef SRC_HEADERS_GX_JACK_H_
 #define SRC_HEADERS_GX_JACK_H_
 
-/* On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
-   flags to avoid costly denormals */
-#ifdef __SSE__
-#include <xmmintrin.h>
-#ifdef __SSE2__
-#define AVOIDDENORMALS _mm_setcsr(_mm_getcsr() | 0x8040)
-#else
-#define AVOIDDENORMALS _mm_setcsr(_mm_getcsr() | 0x8000)
-#endif
-#else
-#define AVOIDDENORMALS
-#endif
-
 #include <jack/jack.h>          // NOLINT
 #include <jack/midiport.h>
 #include <jack/ringbuffer.h>
