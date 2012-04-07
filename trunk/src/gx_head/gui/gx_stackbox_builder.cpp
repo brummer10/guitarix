@@ -131,10 +131,11 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
 StackBoxBuilder::StackBoxBuilder(
     int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
     gx_preset::GxSettings& gx_settings_, int (&fMode_)[stackSize],
-    Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
+    Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_,
+    Glib::RefPtr<Gdk::Pixbuf> window_icon_)
     : fTop(fTop_), fBox(fBox_), engine(engine_), gx_settings(gx_settings_),
       fMode(fMode_), fWaveView(fWaveView_),
-      convolver_filename_label(convolver_filename_label_), ui(ui_),
+      convolver_filename_label(convolver_filename_label_), ui(ui_), accels(),
       window_icon(window_icon_) {
 }
 

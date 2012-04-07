@@ -495,6 +495,7 @@ public:
     StackBoxBuilderNew(gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
 		       Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui,
 		       Glib::RefPtr<Gdk::Pixbuf> window_icon);
+    void set_accelgroup(Glib::RefPtr<Gtk::AccelGroup> accels_) { accels = accels_; }
     void get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
     void prepare();
     void fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox);

@@ -2520,6 +2520,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     menubox->pack_start(*menubar);
     window->add_accel_group(actions.accels);
     window->set_icon(gx_head_icon);
+    boxbuilder.set_accelgroup(actions.accels);
 
     /*
     ** connect main window signals

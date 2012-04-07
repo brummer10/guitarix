@@ -277,7 +277,7 @@ void StackBoxBuilder::make_rackbox_tonemodul() {
 }
 
 void StackBoxBuilder::make_rackbox_jconv() {
-    gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.convolver, window_icon, gx_settings);
+    gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.convolver, window_icon, gx_settings, accels);
     openStereoRackBox(_("convolver"), engine.pluginlist.pos_var("jconv"), "jconv.on_off", "ui.Convolver");
     {
 	openHorizontalhideBox("");

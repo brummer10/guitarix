@@ -33,11 +33,12 @@ namespace gx_jconv {
 IRWindow *IRWindow::instance = 0;
 
 IRWindow *IRWindow::create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver,
-			   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings) {
+			   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
+			   Glib::RefPtr<Gtk::AccelGroup> accels) {
     if (!instance) {
 	Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
 	    gx_system::get_options().get_builder_filepath("iredit.glade"), &ui);
-	instance = new IRWindow(bld, convolver, icon, gx_settings);
+	instance = new IRWindow(bld, convolver, icon, gx_settings, accels);
     }
     return instance;
 }
@@ -155,7 +156,8 @@ void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
 }
 
 IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::ConvolverAdapter& convolver_,
-		   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings)
+		   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
+		   Glib::RefPtr<Gtk::AccelGroup> accels)
     : builder(bld),
       filename(),
       ms(0.0),
@@ -172,6 +174,7 @@ IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::Convol
 
     init_connect(gx_settings);
     gtk_window->set_icon(icon);
+    gtk_window->add_accel_group(accels);
     convolver.signal_settings_changed().connect(
 	sigc::mem_fun(this, &IRWindow::load_state));
 

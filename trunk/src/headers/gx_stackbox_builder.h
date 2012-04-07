@@ -26,10 +26,10 @@ protected:
     gx_engine::GxEngine&  engine;
     const gx_preset::GxSettings& gx_settings;
     int                   (&fMode)[stackSize];
-    //MainMenu&             mainmenu;  // crash if before GxSettings though not clear why
     Gxw::WaveView&        fWaveView;
     Gtk::Label&           convolver_filename_label;
     gx_ui::GxUI&          ui;
+    Glib::RefPtr<Gtk::AccelGroup> accels;
     Glib::RefPtr<Gdk::Pixbuf> window_icon;
 
     static const          gboolean expand   = true;

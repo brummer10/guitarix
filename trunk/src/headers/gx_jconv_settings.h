@@ -136,7 +136,8 @@ class IRWindow: public sigc::trackable {
  protected:
     void init_connect(const gx_preset::GxSettings& gx_settings);
     IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::ConvolverAdapter &convolver,
-	     Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings);
+	     Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
+	     Glib::RefPtr<Gtk::AccelGroup> accels);
     ~IRWindow();
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -150,8 +151,9 @@ class IRWindow: public sigc::trackable {
     void on_combo_changed();
 public:
     void reload_and_show();
-    static IRWindow *create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver_,
-			    Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& settings_);
+    static IRWindow *create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver,
+			    Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& settings,
+			    Glib::RefPtr<Gtk::AccelGroup> accels);
     friend class JConvPopup;
 };
 

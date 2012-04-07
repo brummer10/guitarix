@@ -178,7 +178,8 @@ StackBoxBuilderNew::StackBoxBuilderNew(
     gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
     Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_,
     Glib::RefPtr<Gdk::Pixbuf> window_icon)
-    : StackBoxBuilder(fTop, fBox, engine_, gx_settings_, fMode, fWaveView_, convolver_filename_label_, ui_, window_icon),
+    : StackBoxBuilder(fTop, fBox, engine_, gx_settings_, fMode, fWaveView_,
+		      convolver_filename_label_, ui_, window_icon),
       engine(engine_), gx_settings(gx_settings_), fWaveView(fWaveView_),
       convolver_filename_label(convolver_filename_label_), widget() {
 }
