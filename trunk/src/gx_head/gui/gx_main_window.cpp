@@ -297,14 +297,27 @@ void Freezer::freeze(Gtk::Window *w, int width, int height) {
     size_y = height;
     window = w;
     Glib::RefPtr<Gdk::Window> win = window->get_window();
-    int tm = 500;
     if (win) {
 	need_thaw = true;
 	win->freeze_updates();
-    } else {
-	tm = 2000;
     }
-    tag = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Freezer::thaw_timeout), tm);
+}
+
+void Freezer::set_slot(sigc::slot<void> w) {
+    if (size_x == -1) {
+	w();
+    } else {
+	work = w;
+    }
+}
+
+void Freezer::freeze_until_width_update(Gtk::Window *w, int width) {
+    int wd, ht;
+    w->get_size(wd, ht);
+    if (wd == width) {
+	return;
+    }
+    freeze(w, width, -1);
 }
 
 void Freezer::freeze_and_size_request(Gtk::Window *w, int width, int height) {
@@ -326,23 +339,11 @@ bool Freezer::thaw_timeout() {
     if (size_y != -1) {
 	window->set_size_request(-1,-1);
     }
-    size_x = size_y = -1;
-    Glib::RefPtr<Gdk::Window> win = window->get_window();
-    window = 0;
-    if (!win) {
-	return false;
-    }
-    if (need_thaw) {
-	win->thaw_updates();
-    }
+    do_thaw();
     return false;
 }
 
-void Freezer::thaw() {
-    if (!tag.connected()) {
-	return;
-    }
-    tag.disconnect();
+void Freezer::do_thaw() {
     size_x = size_y = -1;
     Glib::RefPtr<Gdk::Window> win = window->get_window();
     window = 0;
@@ -355,6 +356,13 @@ void Freezer::thaw() {
     }
     if (need_thaw) {
 	win->thaw_updates();
+    }
+}
+
+void Freezer::thaw() {
+    if (size_x != -1) {
+	tag.disconnect();
+	do_thaw();
     }
 }
 
@@ -378,6 +386,9 @@ bool Freezer::check_thaw(int width, int height) {
 	window->set_size_request(-1,-1);
 	thaw();
 	return true;
+    }
+    if (!tag.connected()) {
+	tag = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Freezer::thaw_timeout), 500);
     }
     return false;
 }

@@ -546,15 +546,17 @@ private:
     int size_x;
     int size_y;
     sigc::slot<void> work;
+private:
+    void do_thaw();
+    bool thaw_timeout();
+    void freeze(Gtk::Window *w, int width, int height);
+    void thaw();
 public:
     Freezer();
     ~Freezer();
-    void freeze(Gtk::Window *w, int width, int height);
-    void freeze_until_width_update(Gtk::Window *w, int width) { freeze(w, width, -1); }
-    void set_slot(sigc::slot<void> w) { work = w; }
+    void freeze_until_width_update(Gtk::Window *w, int width);
+    void set_slot(sigc::slot<void> w);
     void freeze_and_size_request(Gtk::Window *w, int width, int height);
-    bool thaw_timeout();
-    void thaw();
     bool check_thaw(int width, int height);
 };
 
