@@ -373,7 +373,7 @@ static void ir_edit_reconfigure(GxIREdit *ir_edit)
 	ir_edit->scale_height = -ir_edit->graph_y/(ir_edit->max_y-ir_edit->min_y);
 	if (ir_edit->data) {
 		if (!ir_edit->scale) {
-			ir_edit_set_default_scale(ir_edit);
+			gx_ir_edit_home(ir_edit);
 		} else {
 			next_regular_tick(ir_edit, ir_edit->label_width*ir_edit->scale/ir_edit->fs);
 			ir_edit_precalc(ir_edit);
@@ -476,9 +476,10 @@ static void ir_edit_reset(GxIREdit *ir_edit)
 	ir_edit->scroll_center = 0;
 	ir_edit_set_scale(ir_edit, 0.0, -1);
 	// output parameters
-	ir_edit_set_cutoff_low(ir_edit, 0);
 	ir_edit->cutoff_high = 0;
 	ir_edit->offset = 0;
+	ir_edit_set_cutoff_low(ir_edit, 0);
+	g_free(ir_edit->gains);
 	ir_edit->gains = NULL;
 	ir_edit->gains_len = 0;
 }
@@ -1440,16 +1441,25 @@ static void ir_edit_set_fs(GxIREdit *ir_edit, int fs)
 	}
 	ir_edit->fs = fs;
 	g_object_notify(G_OBJECT(ir_edit),"fs");
-	g_signal_emit_by_name(ir_edit,"delay-changed", ir_edit->cutoff_low, fs);
-	g_signal_emit_by_name(ir_edit,"offset-changed", ir_edit->cutoff_low, fs);
-	g_signal_emit_by_name(ir_edit,"length-changed", ir_edit->cutoff_high - ir_edit->cutoff_low, fs);
+	g_signal_emit_by_name(ir_edit,"delay-changed", max(0, ir_edit->offset+ir_edit->cutoff_low), fs);
+	int off = max(ir_edit->cutoff_low,-ir_edit->offset);
+	g_signal_emit_by_name(ir_edit,"offset-changed", off, fs);
+	g_signal_emit_by_name(ir_edit,"length-changed", ir_edit->cutoff_high - off, fs);
 }
 
 static void ir_edit_prepare_data(GxIREdit *ir_edit)
 {
 	int i;
-	g_free(ir_edit->data);
-	ir_edit->data = (float*)g_malloc(ir_edit->odata_len*sizeof(float));
+	if (ir_edit->odata_len) {
+		g_free(ir_edit->data);
+		ir_edit->data = (float*)g_malloc(ir_edit->odata_len*sizeof(float));
+	} else {
+		if (ir_edit->data) {
+			gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
+		}
+		g_free(ir_edit->data);
+		ir_edit->data = NULL;
+	}
 	if (ir_edit->linear) {
 		if (ir_edit->chan < 0) {
 			for (i = 0; i < ir_edit->odata_len; i++) {
@@ -1679,13 +1689,18 @@ void gx_ir_edit_set_state(
 	g_assert(GX_IS_IR_EDIT(ir_edit));
 	ir_edit_reset(ir_edit);
 	gx_ir_edit_set_ir_data(ir_edit, data, chan, data_len, samplerate);
-	ir_edit_set_cutoff_low(ir_edit, cutoff_low);
 	ir_edit->cutoff_high = cutoff_high;
 	ir_edit->offset = offset;
-	gx_ir_edit_set_gain(ir_edit, gains, gains_len);
+	ir_edit_set_cutoff_low(ir_edit, cutoff_low);
+	if (gains_len) {
+	    gx_ir_edit_set_gain(ir_edit, gains, gains_len);
+	}
 	ir_edit_prepare_data(ir_edit);
 	ir_edit_configure_axes(ir_edit);
 	gx_ir_edit_home(ir_edit);
+	g_signal_emit_by_name(ir_edit,"delay-changed", ir_edit->offset+ir_edit->cutoff_low, ir_edit->fs);
+	g_signal_emit_by_name(ir_edit,"offset-changed", ir_edit->cutoff_low, ir_edit->fs);
+	g_signal_emit_by_name(ir_edit,"length-changed", ir_edit->cutoff_high - ir_edit->cutoff_low, ir_edit->fs);
 }
 
 void gx_ir_edit_home(GxIREdit *ir_edit)
