@@ -61,6 +61,10 @@ PluginUI::~PluginUI() {
     ui.unregisterZone(&plugin->effect_post_pre, this);
 }
 
+void PluginUI::on_plugin_preset_popup() {
+    main.plugin_preset_popup(get_id());
+}
+
 bool PluginUI::is_registered(gx_engine::PluginList& pl, const char *name) {
     return pl.lookup_plugin(name)->pdef->flags & gx_engine::PGNI_UI_REG;
 }
@@ -171,11 +175,11 @@ PluginDict::~PluginDict() {
  */
 
 StackBoxBuilderNew::StackBoxBuilderNew(
-    gx_engine::GxEngine& engine_, gx_engine::ParamMap& pmap_,
+    gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
     Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_,
     Glib::RefPtr<Gdk::Pixbuf> window_icon)
-    : StackBoxBuilder(fTop, fBox, engine_, pmap_, fMode, fWaveView_, convolver_filename_label_, ui_, window_icon),
-      engine(engine_), pmap(pmap_), fWaveView(fWaveView_),
+    : StackBoxBuilder(fTop, fBox, engine_, gx_settings_, fMode, fWaveView_, convolver_filename_label_, ui_, window_icon),
+      engine(engine_), gx_settings(gx_settings_), fWaveView(fWaveView_),
       convolver_filename_label(convolver_filename_label_), widget() {
 }
 
@@ -520,28 +524,30 @@ private:
     void on_cancel();
     void on_ok(Gtk::Entry *e);
     virtual bool on_key_press_event(GdkEventKey *event);
-    static InputWindow* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld);
-    InputWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld);
+    static InputWindow* create_from_builder(
+	BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, const Glib::ustring& save_name_default);
+    InputWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, const Glib::ustring& save_name_default);
 public:
     ~InputWindow();
-    static InputWindow *create(const gx_system::CmdlineOptions& options);
+    static InputWindow *create(const gx_system::CmdlineOptions& options, const Glib::ustring& save_name_default);
     void run();
     Glib::ustring& get_name() { return name; }
 };
 
-InputWindow *InputWindow::create_from_builder(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld) {
-    return new InputWindow(cobject, bld);
+InputWindow *InputWindow::create_from_builder(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld,
+					      const Glib::ustring& save_name_default) {
+    return new InputWindow(cobject, bld, save_name_default);
 }
 
 InputWindow::~InputWindow() {
 }
 
-InputWindow *InputWindow::create(const gx_system::CmdlineOptions& options) {
+InputWindow *InputWindow::create(const gx_system::CmdlineOptions& options, const Glib::ustring& save_name_default) {
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(options.get_builder_filepath("pluginpreset_inputwindow.glade"));
     InputWindow *w;
     bld->get_toplevel_derived(
 	"PluginPresetInputWindow", w,
-	sigc::bind(sigc::ptr_fun(InputWindow::create_from_builder),bld));
+	sigc::bind(sigc::ptr_fun(InputWindow::create_from_builder), bld, save_name_default));
     return w;
 }
 
@@ -558,7 +564,8 @@ void InputWindow::on_ok(Gtk::Entry *e) {
     hide();
 }
 
-InputWindow::InputWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld)
+InputWindow::InputWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld,
+			 const Glib::ustring& save_name_default)
     : Gtk::Window(cobject), name() {
     Gtk::Button *b;
     bld->find_widget("cancelbutton", b);
@@ -567,6 +574,8 @@ InputWindow::InputWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder
     bld->find_widget("okbutton", b);
     Gtk::Entry *e;
     bld->find_widget("entry", e);
+    e->set_text(save_name_default);
+    e->select_region(0, -1);
     b->signal_clicked().connect(
 	sigc::bind(sigc::mem_fun(*this, &InputWindow::on_ok), e));
 }
@@ -682,11 +691,11 @@ void PluginPresetPopup::set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetLi
 }
 
 void PluginPresetPopup::set_plugin_std_preset() {
-    pmap.reset_unit(id);
+    gx_settings.get_param().reset_unit(id);
 }
 
 void PluginPresetPopup::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    InputWindow *w = InputWindow::create(options);
+    InputWindow *w = InputWindow::create(gx_settings.get_options(), save_name_default);
     w->run();
     if (!w->get_name().empty()) {
 	l->save(w->get_name(), id);
@@ -695,7 +704,7 @@ void PluginPresetPopup::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetL
 }
 
 void PluginPresetPopup::remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    PluginPresetListWindow *w = PluginPresetListWindow::create(options, l);
+    PluginPresetListWindow *w = PluginPresetListWindow::create(gx_settings.get_options(), l);
     w->run();
     delete w;
 }
@@ -732,9 +741,9 @@ void PluginPresetPopup::on_selection_done() {
 	    this));
 }
 
-PluginPresetPopup::PluginPresetPopup(const std::string& id_, gx_engine::ParamMap& pmap_,
-				     const gx_system::CmdlineOptions& options_, const gx_preset::GxSettings& gx_settings_)
-    : Gtk::Menu(), id(id_), pmap(pmap_), options(options_), gx_settings(gx_settings_) {
+PluginPresetPopup::PluginPresetPopup(const std::string& id_, const gx_preset::GxSettings& gx_settings_,
+				     const Glib::ustring& save_name_default_)
+  : Gtk::Menu(), id(id_), gx_settings(gx_settings_), save_name_default(save_name_default_) {
     Glib::RefPtr<gx_preset::PluginPresetList> l = gx_settings.load_plugin_preset_list(id, false);
     bool found_presets = add_plugin_preset_list(l);
     if (found_presets) {
@@ -742,7 +751,7 @@ PluginPresetPopup::PluginPresetPopup(const std::string& id_, gx_engine::ParamMap
     }
     add_plugin_preset_list(gx_settings.load_plugin_preset_list(id, true));
     Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(_("standard"));
-    if (pmap.unit_has_std_values(id)) {
+    if (gx_settings.get_param().unit_has_std_values(id)) {
 	c->set_active(true);
     }
     c->signal_activate().connect(
@@ -1133,16 +1142,13 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
     return b;
 }
 
-void RackBox::preset_popup() {
-    main.plugin_preset_popup(get_id());
-}
-
 Gtk::Button *RackBox::make_preset_button() {
     Gtk::Button *p = new Gtk::Button("p");
     p->set_can_default(false);
     p->set_can_focus(false);
     p->set_size_request(18,18);
-    p->signal_clicked().connect(mem_fun(*this, &RackBox::preset_popup));
+    p->signal_clicked().connect(
+	sigc::mem_fun(plugin, &PluginUI::on_plugin_preset_popup));
     return p;
 }
 

@@ -277,14 +277,18 @@ void StackBoxBuilder::make_rackbox_tonemodul() {
 }
 
 void StackBoxBuilder::make_rackbox_jconv() {
-    gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.convolver, window_icon);
+    gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.convolver, window_icon, gx_settings);
     openStereoRackBox(_("convolver"), engine.pluginlist.pos_var("jconv"), "jconv.on_off", "ui.Convolver");
     {
 	openHorizontalhideBox("");
-	create_master_slider("jconv.gain", _("gain"));
-	openSpaceBox("");
-	closeBox();
-	addSmallJConvFavButton(_("favourites"), irw);
+	{
+	    create_master_slider("jconv.gain", _("gain"));
+	    openSpaceBox("");
+	    closeBox();
+	    openSpaceBox("");
+	    closeBox();
+	    addSmallJConvFavButton(_("setup"), irw);
+	}
 	closeBox();
 	openHorizontalBox("");
 	{
@@ -312,23 +316,11 @@ void StackBoxBuilder::make_rackbox_jconv() {
                     create_small_rackknobr("jconv.wet_dry", _("dry/wet"));
                     openSpaceBox("");
                     closeBox();
+		    addJConvButton(_("setup"), irw);
                     openSpaceBox("");
                     closeBox();
                 }
                 closeBox();
-	    }
-	    closeBox();
-	    openSpaceBox("");
-	    closeBox();
-	    openVerticalBox("");
-	    {
-		openSpaceBox("");
-		closeBox();
-		addJConvFavButton(_("favourites"), irw);
-		addJConvButton(_("setup"), irw);
-		addJToggleButton(_("run"), &engine.convolver.plugin.on_off);
-		openSpaceBox("");
-		closeBox();
 	    }
 	    closeBox();
 	}

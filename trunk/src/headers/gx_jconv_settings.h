@@ -41,6 +41,8 @@
 
 #include <string>
 
+class MainWindow;
+
 namespace gx_jconv {
 
 /****************************************************************
@@ -57,6 +59,7 @@ class IRWindow: public sigc::trackable {
     int audio_chan;
     gx_engine::ConvolverAdapter& convolver;
     Gtk::Window* gtk_window;
+    sigc::connection autogain_conn;
     static IRWindow *instance;
 
     // helper functions
@@ -67,18 +70,13 @@ class IRWindow: public sigc::trackable {
     }
     void file_changed(Glib::ustring filename, int rate, int length,
                       int channels, Glib::ustring format);
-    bool load_data(Glib::ustring filename);
+    static Gainline gain0;
+    bool load_data(Glib::ustring filename, int offset = 0, int delay = 0, int length = 0, const Gainline& gain = gain0);
     void load_state();
     bool save_state();
     void set_GainCor();
     double calc_normalized_gain(int offset, int length, const Gainline& points);
     void destroy_self();
-
-    // favorites list
-    void remove_double_entry();
-    void remove_favorite_from_menu(Glib::ustring fname);
-    void set_favorite_from_menu(Glib::ustring fname);
-    void set_favorite_from_menu_in(Glib::ustring fname);
 
     // signal functions and widget pointers
     void on_window_hide();
@@ -124,13 +122,6 @@ class IRWindow: public sigc::trackable {
     void on_cancel_button_clicked();
     void on_ok_button_clicked();
     
-    Gtk::Button *wadd, *wshow, *wremove, *wremoveall;
-    Gtk::Label *wladd, *wlshow, *wlremove, *wlremoveall;
-    void on_add_button_clicked();
-    void on_show_button_clicked_in();
-    void on_remove_button_clicked();
-    void on_remove_all_button_clicked();
-
     Gtk::ToggleButton *wGain_correction;
     void on_gain_button_toggled();
 
@@ -140,12 +131,14 @@ class IRWindow: public sigc::trackable {
     void on_help_clicked();
     Gtk::Window *wHelp;
 
+    void on_preset_popup_clicked(const gx_preset::GxSettings& gx_settings);
+    void on_enumerate();
+
  protected:
-    void init_connect();
+    void init_connect(const gx_preset::GxSettings& gx_settings);
     IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::ConvolverAdapter &convolver,
-	     Glib::RefPtr<Gdk::Pixbuf> icon);
+	     Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings);
     ~IRWindow();
-    friend void gx_show_jconv_dialog_gui(_GtkWidget*, void*);
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
      public:
@@ -153,31 +146,14 @@ class IRWindow: public sigc::trackable {
         Gtk::TreeModelColumn<Glib::ustring> name;
     };
     Gtk::ComboBox *wcombo;
-    Gtk::HBox *wboxcombo;
-    Gtk::TreeView *treeview;
-    Glib::RefPtr<Gtk::TreeStore> model;
     ModelColumns columns;
-    void on_remove_tree();
+    Glib::RefPtr<Gtk::TreeStore> model;
     void on_combo_changed();
-    Gtk::Menu *menucont;
-    void on_menucont_hide();
-    void make_popup_menu(void (IRWindow::*action)(Glib::ustring));
 public:
-    void on_enumerate();
     void reload_and_show();
-    void on_show_button_clicked();
     static IRWindow *create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver_,
-			    Glib::RefPtr<Gdk::Pixbuf> icon);
-    static void reload() { if (instance) instance->load_state(); }
-    static void show_fav() { if (instance) instance->on_show_button_clicked(); }
-    static void new_file(Glib::ustring filename) {if (instance) instance->load_data(filename);}
-    static bool save() {
-        if (instance) return instance->save_state();
-        else
-            return false;
-    }
-    static void show_window() { if (instance) instance->gtk_window->show(); }
-    static IRWindow* get_window() {return instance;}
+			    Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& settings_);
+    friend class JConvPopup;
 };
 
 } /* end of gx_jconv namespace*/

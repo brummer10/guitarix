@@ -24,7 +24,7 @@ protected:
     int&                  fTop;
     GtkWidget*            (&fBox)[stackSize];
     gx_engine::GxEngine&  engine;
-    gx_engine::ParamMap&  pmap;
+    const gx_preset::GxSettings& gx_settings;
     int                   (&fMode)[stackSize];
     //MainMenu&             mainmenu;  // crash if before GxSettings though not clear why
     Gxw::WaveView&        fWaveView;
@@ -122,7 +122,7 @@ protected:
 public:
     StackBoxBuilder(
 	int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
-	gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize],
+	gx_preset::GxSettings& gx_settings_, int (&fMode_)[stackSize],
 	Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui,
 	Glib::RefPtr<Gdk::Pixbuf> window_icon);
     ~StackBoxBuilder();

@@ -105,7 +105,7 @@ static const char* ampstack_groups[] = {
     0
 };
 
-GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups)
+GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::CmdlineOptions& options)
     : ModuleSequencer(),
       resamp(),
       // ModuleSelector's
@@ -127,7 +127,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
       midiaudiobuffer(tuner),
       maxlevel(),
       oscilloscope(&ui, *this),
-      convolver(*this),
+      convolver(*this, param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
       cabinet(*this, resamp),
       contrast(*this, resamp) {
 #ifdef USE_MIDI_OUT

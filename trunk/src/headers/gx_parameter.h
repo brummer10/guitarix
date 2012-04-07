@@ -101,7 +101,7 @@ class Parameter: boost::noncopyable {
 public:
     enum ctrl_type { None, Continuous, Switch, Enum };
 protected:
-    enum value_type { tp_float, tp_int, tp_uint, tp_bool, tp_switch, tp_file, tp_string };
+    enum value_type { tp_float, tp_int, tp_uint, tp_bool, tp_switch, tp_file, tp_string, tp_special };
     string _id;
     string _name, _group, _desc;
     enum value_type v_type : 3;
@@ -461,13 +461,14 @@ public:
     virtual bool compareJSON_value();
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
-    ParameterV(const string& id, const string& name, Glib::ustring *v, const Glib::ustring& sv)
-	: Parameter(id, name, tp_string, None, false, false),
+    ParameterV(const string& id, const string& name, Glib::ustring *v, const Glib::ustring& sv, bool preset = false)
+	: Parameter(id, name, tp_string, None, preset, false),
 	  value(v ? v : new Glib::ustring), std_value(sv) {
 	own_var = !v;
     }
     ~ParameterV();
 };
+
 
 /****************************************************************/
 
@@ -536,6 +537,7 @@ class ParamMap: boost::noncopyable {
     void insert(Parameter* param); // private so we can make sure parameters are owned
 
  public:
+    template<class T> friend class ParameterV;
     ParamMap();
     ~ParamMap();
     typedef map<string, Parameter*>::const_iterator iterator;
@@ -633,8 +635,8 @@ class ParamMap: boost::noncopyable {
 	insert(p);
 	return p;
     }
-    inline StringParameter *reg_string(const string& id, const string& name, Glib::ustring *var, const string& sv) {
-	StringParameter *p = new StringParameter(id, name, var, sv);
+    inline StringParameter *reg_string(const string& id, const string& name, Glib::ustring *var, const string& sv, bool preset=false) {
+	StringParameter *p = new StringParameter(id, name, var, sv, preset);
 	insert(p);
 	return p;
     }

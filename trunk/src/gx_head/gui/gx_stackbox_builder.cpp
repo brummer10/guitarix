@@ -130,9 +130,9 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
 
 StackBoxBuilder::StackBoxBuilder(
     int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
-    gx_engine::ParamMap& pmap_, int (&fMode_)[stackSize],
+    gx_preset::GxSettings& gx_settings_, int (&fMode_)[stackSize],
     Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
-    : fTop(fTop_), fBox(fBox_), engine(engine_), pmap(pmap_),
+    : fTop(fTop_), fBox(fBox_), engine(engine_), gx_settings(gx_settings_),
       fMode(fMode_), fWaveView(fWaveView_),
       convolver_filename_label(convolver_filename_label_), ui(ui_),
       window_icon(window_icon_) {
@@ -190,10 +190,11 @@ void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWind
     lab->modify_font(font);
     button->add(*manage(lab));
     lab->set_name("rack_label");
+    lab->set_padding(5,0);
     addWidget(label, GTK_WIDGET(button->gobj()));
     lab->show();
     button->signal_clicked().connect(
-	sigc::mem_fun(*irw, &gx_jconv::IRWindow::on_show_button_clicked));
+	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
 }
 
 void StackBoxBuilder::set_convolver_filename() {
@@ -213,29 +214,15 @@ void StackBoxBuilder::openSetLabelBox() {
     box->pack_start(convolver_filename_label, false, false, 0);
     box->show_all();
     convolver_filename_label.set_label(engine.convolver.getIRFile());
-    engine.convolver.jcset.signal_file_changed().connect(
+    engine.convolver.signal_settings_changed().connect(
 	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_filename));
     gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->gobj()), false, fill, 0);
     pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
 }
-
-void StackBoxBuilder::addJConvFavButton(const char* label, gx_jconv::IRWindow *irw) {
-    Gtk::Button *button = new Gtk::Button();
-    Gtk::Label *lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style()->get_font();
-    font.set_size(10*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_NORMAL);
-    lab->modify_font(font);
-    button->add(*manage(lab));
-    lab->set_name("beffekt_label");
-    addWidget(label, GTK_WIDGET(button->gobj()));
-    lab->show();
-    button->signal_clicked().connect(
-	sigc::mem_fun(*irw, &gx_jconv::IRWindow::on_show_button_clicked));
-}
-
 void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw) {
     Gtk::Button *button = new Gtk::Button();
+    button->set_can_default(false);
+    button->set_can_focus(false);
     Gtk::Label *lab = new Gtk::Label(label);
     Pango::FontDescription font = lab->get_style()->get_font();
     font.set_size(10*Pango::SCALE);
@@ -243,41 +230,16 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
     lab->modify_font(font);
     button->add(*manage(lab));
     lab->set_name("beffekt_label");
-    addWidget(label, GTK_WIDGET(button->gobj()));
-    lab->show();
+    Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
+    al->add(*manage(button));
+    al->show_all();
+    addWidget(label, GTK_WIDGET(al->gobj()));
     button->signal_clicked().connect(
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
 }
 
-void StackBoxBuilder::addJToggleButton(const char* label, bool* zone) {
-    Gdk::Color colorRed("#58b45e");
-    Gdk::Color colorOwn("#7f7f7f");
-
-    Gtk::ToggleButton* button = new Gtk::ToggleButton();
-    Gtk::Label* lab = new Gtk::Label(label);
-    lab->set_name("beffekt_label");
-    Pango::FontDescription font = lab->get_style()->get_font();
-    font.set_size(10*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_BOLD);
-    lab->modify_font(font);
-    button->add(*manage(lab));
-    addWidget(label, GTK_WIDGET(button->gobj()));
-    lab->show();
-
-    uiToggleButton* c = new uiToggleButton(&ui, zone, button); // FIXME
-
-    button->modify_bg(Gtk::STATE_NORMAL, colorOwn);
-    button->modify_bg(Gtk::STATE_ACTIVE, colorRed);
-
-    button->signal_toggled().connect(
-	sigc::mem_fun(*c, &uiToggleButton::toggled));
-    button->signal_toggled().connect(
-	sigc::mem_fun(engine, &gx_engine::GxEngine::set_rack_changed));
-    connect_midi_controller(GTK_WIDGET(button->gobj()), zone);
-}
-
 void StackBoxBuilder::create_selector(string id, const char *widget_name) {
-    gx_engine::Parameter& p = pmap[id];
+    gx_engine::Parameter& p = gx_settings.get_param()[id];
     UiSelectorBase *s;
     if (p.isFloat()) {
         s = new UiSelector<float>(ui, p.getFloat());
@@ -404,10 +366,10 @@ void StackBoxBuilder::addNumEntry(const char* label, float* zone, float init, fl
 
 void StackBoxBuilder::addNumEntry(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!pmap.hasId(id)) {
+    if (!gx_settings.get_param().hasId(id)) {
         return;
     }
-    const gx_engine::FloatParameter &p = pmap[id].getFloat();
+    const gx_engine::FloatParameter &p = gx_settings.get_param()[id].getFloat();
     if (label.empty()) {
         label = p.l_name();
     }
@@ -454,10 +416,10 @@ void StackBoxBuilder::addMToggleButton(const char* label, bool* zone) {
 
 void StackBoxBuilder::addMToggleButton(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!pmap.hasId(id)) {
+    if (!gx_settings.get_param().hasId(id)) {
         return;
     }
-    const gx_engine::BoolParameter &p = pmap[id].getBool();
+    const gx_engine::BoolParameter &p = gx_settings.get_param()[id].getBool();
     if (label.empty()) {
         label = p.l_name();
     }
@@ -550,10 +512,10 @@ void StackBoxBuilder::openpaintampBox(const char* label) {
 
 void StackBoxBuilder::addCheckButton(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!pmap.hasId(id)) {
+    if (!gx_settings.get_param().hasId(id)) {
         return;
     }
-    const gx_engine::BoolParameter &p = pmap[id].getBool();
+    const gx_engine::BoolParameter &p = gx_settings.get_param()[id].getBool();
     if (label.empty()) {
         label = p.l_name();
     }

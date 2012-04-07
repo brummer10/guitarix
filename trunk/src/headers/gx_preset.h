@@ -41,7 +41,7 @@ private:
     const gx_system::CmdlineOptions& opt;
     gx_engine::paramlist plist;
     gx_engine::MidiControllerList::controller_array *m;
-    gx_engine::GxJConvSettings jcset;
+    gx_engine::GxJConvSettings *jcset;
     void read_parameters(gx_system::JsonParser &jp, bool preset);
     void write_parameters(gx_system::JsonWriter &w, bool preset);
     void clear();
@@ -115,6 +115,8 @@ public:
 	       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl,
 	       gx_engine::ModuleSequencer& seq, gx_engine::ParamMap& param);
     ~GxSettings();
+    inline gx_engine::ParamMap&  get_param() const { return param; }
+    inline gx_system::CmdlineOptions& get_options() const { return options; }
     static bool check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_new_preset);
     void loadstate();
     void disable_autosave(bool v) { no_autosave = v; }

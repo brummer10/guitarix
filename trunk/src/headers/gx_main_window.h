@@ -253,7 +253,7 @@ public:
 
     PluginUI(MainWindow& main, const gx_engine::PluginList& pl, const char* id_,
 	     const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
-    ~PluginUI();
+    virtual ~PluginUI();
     PluginType get_type() const {
 	return (plugin->pdef->flags & PGN_STEREO) ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO;
     }
@@ -265,6 +265,7 @@ public:
     void set_ui_merge_id(Gtk::UIManager::ui_merge_id id) { merge_id = id; }
     void set_action(Glib::RefPtr<Gtk::ToggleAction>& act);
     static bool is_registered(gx_engine::PluginList& pl, const char *name);
+    virtual void on_plugin_preset_popup();
 };
 
 
@@ -357,7 +358,6 @@ private:
     void vis_switch(Gtk::Widget& a, Gtk::Widget& b);
     void set_visibility(bool v);
     Gtk::Button *make_expand_button(bool expand);
-    void preset_popup();
     Gtk::Button *make_preset_button();
     Gtk::HBox *make_full_box(gx_system::CmdlineOptions& options);
     Gtk::VBox *switcher_vbox(gx_system::CmdlineOptions& options);
@@ -481,7 +481,7 @@ private:
     GtkWidget*           fBox[stackSize];
     int                  fMode[stackSize];
     gx_engine::GxEngine& engine;
-    gx_engine::ParamMap& pmap;
+    gx_preset::GxSettings& gx_settings;
     Gxw::WaveView&       fWaveView;
     Gtk::Label&          convolver_filename_label;
     Gtk::HBox           *widget;
@@ -492,7 +492,7 @@ private:
     virtual void closeStereoRackBox();
     virtual void openVerticalMidiBox(const char* label = "");
 public:
-    StackBoxBuilderNew(gx_engine::GxEngine& engine_, gx_engine::ParamMap& pmap_,
+    StackBoxBuilderNew(gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
 		       Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui,
 		       Glib::RefPtr<Gdk::Pixbuf> window_icon);
     void get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
@@ -568,18 +568,18 @@ public:
 class PluginPresetPopup: public Gtk::Menu {
 private:
     const std::string id;
-    gx_engine::ParamMap& pmap;
-    const gx_system::CmdlineOptions& options;
     const gx_preset::GxSettings& gx_settings;
-    virtual void on_selection_done();
+    const Glib::ustring save_name_default;
     void set_plugin_std_preset();
     static void set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Glib::ustring name);
     bool add_plugin_preset_list(Glib::RefPtr<gx_preset::PluginPresetList> l);
     void save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
     void remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
+protected:
+    virtual void on_selection_done();
 public:
-    PluginPresetPopup(const std::string& id, gx_engine::ParamMap& pmap,
-		      const gx_system::CmdlineOptions& options, const gx_preset::GxSettings& gx_settings);
+    PluginPresetPopup(const std::string& id, const gx_preset::GxSettings& gx_settings,
+		      const Glib::ustring& save_name_default = "");
 };
 
 
@@ -869,7 +869,9 @@ public:
     gx_system::CmdlineOptions& get_options() { return options; }
     gx_ui::GxUI& get_ui() { return ui; }
     void plugin_preset_popup(const std::string& id);
+    void plugin_preset_popup(const std::string& id, const Glib::ustring& name);
     gx_engine::ParamMap& get_parametermap() { return pmap; }
+    gx_engine::GxEngine& get_engine() { return engine; }
     bool is_loading() { return gx_settings.is_loading(); }
     void add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
     void set_rackbox_expansion();

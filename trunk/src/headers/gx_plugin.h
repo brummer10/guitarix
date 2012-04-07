@@ -66,7 +66,7 @@ struct ParamReg {
 			  const char* tooltip, float* var, float val,
 			  float low, float up, float step);
     void (*registerBoolVar)(const char* id, const char* name, const char* tp,
-			const char* tooltip, bool* var, bool val);
+			    const char* tooltip, bool* var, bool val);
     void (*registerNonMidiVar)(const char * id, bool*var, bool preset, bool nosave);
     void (*registerEnumVar)(const char *id, const char* name, const char* tp,
 			    const char* tooltip, const value_pair* values, float *var, float val,

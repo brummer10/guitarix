@@ -132,7 +132,7 @@ void ControlParameter::get_values() {
 
 class PresetIO: public gx_system::AbstractPresetIO {
 private:
-    GxJConvSettings jcset;
+    GxJConvSettings *jcset;
     ParamMap& param;
     paramlist plist;
     MidiControllerList::controller_array *midi_list;
@@ -151,7 +151,7 @@ public:
 
 // cp not yet initialized, only use address!
 PresetIO::PresetIO(ParamMap& param_, ConvolverAdapter* convolver_, ControlParameter& cp)
-    : jcset(),
+    : jcset(0),
       param(param_),
       plist(),
       midi_list(0),
@@ -167,6 +167,8 @@ void PresetIO::clear() {
     plist.clear();
     delete midi_list;
     midi_list = 0;
+    delete jcset;
+    jcset = 0;
 }
 
 void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {
@@ -197,8 +199,8 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 		gx_system::PathList sl;
 		sl.add(Glib::build_filename(Glib::get_user_config_dir(), "guitarix")); //FIXME
 		sl.add(GX_SOUND_DIR);
-		jcset = GxJConvSettings();
-		jcset.readJSON(jp, sl);
+		jcset = new GxJConvSettings();
+		jcset->readJSON(jp, sl);
 	    } else {
 		jp.skip_object();
 	    }
@@ -215,8 +217,8 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 }
 
 void PresetIO::commit_preset() {
-    if (convolver) {
-	convolver->jcset = jcset;
+    if (convolver && jcset) {
+	convolver->set(*jcset);
     }
     for (gx_engine::paramlist::iterator i = plist.begin(); i != plist.end(); ++i) {
         (*i)->setJSON_value();
@@ -1303,7 +1305,7 @@ public:
     StereoModuleChain stereo_chain;
     ConvolverAdapter convolver;
 public:
-    StereoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups);
+    StereoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::PathList& pathlist);
     ~StereoEngine();
     virtual void wait_ramp_down_finished();
     virtual bool update_module_lists();
@@ -1367,10 +1369,10 @@ void StereoEngine::set_samplerate(unsigned int samplerate) {
     EngineControl::set_samplerate(samplerate);
 }
 
-StereoEngine::StereoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups)
+StereoEngine::StereoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::PathList& pathlist)
     : EngineControl(),
       // internal audio modules
-      convolver(*this) {
+      convolver(*this, param, pathlist, "") {
 
     convolver.set_sync(true);
 
@@ -1424,6 +1426,14 @@ void StereoEngine::load_static_plugins() {
 /****************************************************************
  ** class LadspaGuitarixStereo
  */
+
+class LadspaPathList: public gx_system::PathList {
+public:
+    inline LadspaPathList() {
+	add(Glib::build_filename(Glib::get_user_config_dir(), "guitarix")); //FIXME
+	add(GX_SOUND_DIR);
+    };
+};
 
 class LadspaGuitarixStereo: LadspaGuitarix {
 private:
@@ -1492,6 +1502,7 @@ private:
 		 LADSPA_Data *output_buffer1, LADSPA_Data *output_buffer2);
     };
 
+    LadspaPathList pathlist;
     StereoEngine engine;
     ControlParameter control_parameter;
     ReBuffer rebuffer;
@@ -1516,7 +1527,8 @@ public:
 
 LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
     : LadspaGuitarix(engine, &engine.convolver, control_parameter, "LADSPA_GUITARIX_STEREO_PRESET"),
-      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins"), param, get_group_table()),
+      pathlist(),
+      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins"), param, get_group_table(), pathlist),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),

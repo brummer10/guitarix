@@ -242,11 +242,11 @@ public:
  ** class GxJConvSettings
  */
 
-class GxJConvSettings: boost::noncopyable {
+class GxJConvSettings {
  private:
     // main jconv setting
-    string          fIRFile;
-    string          fIRDir;
+    std::string     fIRFile;
+    std::string     fIRDir;
 
     float           fGain;       // jconv gain
     guint           fOffset;     // offset in IR where to start comvolution
@@ -254,28 +254,26 @@ class GxJConvSettings: boost::noncopyable {
     guint           fDelay;      // delay when to apply reverb
     Gainline        gainline;
     bool            fGainCor;
-    sigc::signal<void> file_changed;
     void read_gainline(gx_system::JsonParser& jp);
-    void read_favorites(gx_system::JsonParser& jp);
-    inline void setIRFile(string name)            { fIRFile = name; }
     inline void setIRDir(string name)             { fIRDir = name; }
-
+    friend class ConvolverAdapter;
+    friend class ParameterV<GxJConvSettings>;
  public:
     GxJConvSettings();
     GxJConvSettings& operator=(GxJConvSettings const& jcset);
-
+    bool operator==(const GxJConvSettings& jcset) const;
     // getters and setters
-    inline const string& getIRFile() const               { return fIRFile; }
-    string getFullIRPath() const;
+    inline const std::string& getIRFile() const   { return fIRFile; }
+    std::string getFullIRPath() const;
     inline float           getGain() const        { return fGain; }
     inline guint           getOffset() const      { return fOffset; }
     inline guint           getLength() const      { return fLength; }
     inline guint           getDelay() const       { return fDelay; }
     inline bool            getGainCor() const     { return fGainCor; }
     inline const Gainline& getGainline() const    { return gainline; }
-    inline const string& getIRDir() const         { return fIRDir; }
+    const std::string& getIRDir() const           { return fIRDir; }
     void setFullIRPath(string name);
-
+    inline void setIRFile(string name)            { fIRFile = name; }
     inline void setGain(float gain)               { fGain       = gain; }
     inline void setGainCor(bool gain)             { fGainCor    = gain; }
     inline void setOffset(guint offs)             { fOffset     = offs; }
@@ -284,17 +282,39 @@ class GxJConvSettings: boost::noncopyable {
     inline void setGainline(const Gainline& gain) { gainline    = gain; }
 
  public:
-
-    // checkbutton state
-    static bool* checkbutton7;
-    list<Glib::ustring> faflist;
-    typedef list<Glib::ustring>::iterator faf_iterator;
     void readJSON(gx_system::JsonParser& jp,
 		  const gx_system::PathList& search_path);
     void writeJSON(gx_system::JsonWriter& w,
 		   const gx_system::PathList& search_path);
-    inline sigc::signal<void>& signal_file_changed() { return file_changed; }
 };
+
+class ConvolverAdapter;
+
+template<>
+class ParameterV<GxJConvSettings>: public Parameter {
+private:
+    GxJConvSettings json_value;
+    GxJConvSettings *value;
+    GxJConvSettings std_value;
+    ConvolverAdapter &conv;
+public:
+    ParameterV(const string& id, ConvolverAdapter &conv_, GxJConvSettings *v);
+    ~ParameterV();
+    static ParameterV<GxJConvSettings> *insert_param(
+	ParamMap &pmap, const string& id, ConvolverAdapter &conv, GxJConvSettings *v);
+    bool set(const GxJConvSettings& val) const;
+    const GxJConvSettings& get_value() const { return *value; }
+    virtual void *zone();
+    virtual void stdJSON_value();
+    virtual bool on_off_value();
+    virtual void set(float n, float high, float llimit, float ulimit);
+    virtual void writeJSON(gx_system::JsonWriter& jw);
+    virtual bool compareJSON_value();
+    virtual void setJSON_value();
+    virtual void readJSON_value(gx_system::JsonParser& jp);
+};
+
+typedef ParameterV<GxJConvSettings> JConvParameter;
 
 
 /****************************************************************
@@ -310,6 +330,9 @@ private:
     GxConvolver conv;
     boost::mutex activate_mutex;
     EngineControl& engine;
+    ParamMap& param;
+    const gx_system::PathList& pathlist;
+    std::string sys_ir_dir;
     bool activated;
     jconv_post::Dsp jc_post;
     // wrapper for the rack order function pointers
@@ -319,17 +342,26 @@ private:
     static int convolver_register(const ParamReg& reg);
     static void convolver_init(unsigned int samplingFreq, PluginDef *pdef);
     void change_buffersize(unsigned int size);
+    sigc::signal<void> settings_changed;
+    GxJConvSettings jcset;
+    JConvParameter *jcp;
 public:
     Plugin plugin;
-    GxJConvSettings jcset;
 public:
-    ConvolverAdapter(EngineControl& engine);
+    ConvolverAdapter(EngineControl& engine, ParamMap& param, const gx_system::PathList& pathlist, const std::string& sys_ir_dir);
     ~ConvolverAdapter();
     void restart();
     bool conv_start();
-    inline sigc::signal<void>& signal_file_changed() { return jcset.signal_file_changed(); }
-    inline const string& getIRFile() const { return jcset.getIRFile(); }
+    inline sigc::signal<void>& signal_settings_changed() { return settings_changed; }
+    inline const std::string& getIRFile() const { return jcset.getIRFile(); }
     inline void set_sync(bool val) { conv.set_sync(val); }
+    inline std::string getFullIRPath() const { return jcset.getFullIRPath(); }
+    inline const std::string& getIRDir() const { return jcset.getIRDir(); }
+    bool set(const GxJConvSettings& jcset) const { return jcp->set(jcset); }
+    const GxJConvSettings& get_jcset() const { return jcset; }
+    const gx_system::PathList& get_pathlist() const { return pathlist; }
+    const std::string& get_sys_IR_dir() const { return sys_ir_dir; }
+    ParamMap& get_parameter_map() const { return param; }
 };
 
 

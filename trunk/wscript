@@ -502,7 +502,10 @@ def configure(conf):
     conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
     conf.define('GX_VERSION', VERSION)
-   
+    # make sure the file is installed in sys IR dir and sample count is correct
+    conf.define('GX_STD_IR_FILE', "greathall.wav");
+    conf.define('GX_STD_IR_LEN', 112561);
+
     if conf.env.DEST_CPU=='x86_64': 
         conf.define('OS_64_BIT', 1)
     else:

@@ -103,23 +103,18 @@ int NoiseGate::outputgate_activate(bool start, PluginDef *pdef) {
  ** class GxJConvSettings
  */
 
-bool* GxJConvSettings::checkbutton7 = 0;
-
 GxJConvSettings::GxJConvSettings()
-    : fIRFile(""),
-      fIRDir(getenv("HOME")),
-      fGain(0.2),
+    : fIRFile(),
+      fIRDir(),
+      fGain(0),
       fOffset(0),
       fLength(0),
       fDelay(0),
       gainline(),
-      fGainCor(1),
-      file_changed(),
-      faflist() {
+      fGainCor(true) {
 }
 
 GxJConvSettings& GxJConvSettings::operator=(GxJConvSettings const& jcset) {
-    bool changed = (fIRFile != jcset.fIRFile || fIRDir != jcset.fIRDir);
     fIRFile = jcset.fIRFile;
     fIRDir = jcset.fIRDir;
     fGain = jcset.fGain;
@@ -128,15 +123,10 @@ GxJConvSettings& GxJConvSettings::operator=(GxJConvSettings const& jcset) {
     fDelay = jcset.fDelay;
     gainline = jcset.gainline;
     fGainCor = jcset.fGainCor;
-    // don't assign file_changed
-    faflist = jcset.faflist;
-    if (changed) {
-	file_changed();
-    }
     return *this;
 }
 
-string GxJConvSettings::getFullIRPath() const {
+std::string GxJConvSettings::getFullIRPath() const {
     if (fIRFile.empty()) {
         return fIRFile;
     } else {
@@ -147,7 +137,6 @@ string GxJConvSettings::getFullIRPath() const {
 void GxJConvSettings::setFullIRPath(string name) {
     fIRDir = Glib::path_get_dirname(name);
     fIRFile= Glib::path_get_basename(name);
-    file_changed();
 }
 
 void GxJConvSettings::writeJSON(gx_system::JsonWriter& w,
@@ -180,18 +169,26 @@ void GxJConvSettings::writeJSON(gx_system::JsonWriter& w,
         w.end_array();
     }
     w.end_array(true);
-    
-   // w.end_object(true);
-    w.write_key("jconv.favorits");
-    w.begin_array(true);
-    bool end = true;
-    for (faf_iterator its = faflist.begin(); its != faflist.end(); ++its) {
-        w.begin_array();
-        w.write(*its);
-        w.end_array(end);
-    }
-    w.end_array(true);
     w.end_object(true);
+}
+
+bool GxJConvSettings::operator==(const GxJConvSettings& jcset) const {
+    if (fIRFile != jcset.fIRFile || fIRDir != jcset.fIRDir) {
+	return false;
+    }
+    if (fOffset != jcset.fOffset || fLength != jcset.fLength || fDelay != jcset.fDelay) {
+	return false;
+    }
+    if (fGainCor != jcset.fGainCor) {
+	return false;
+    }
+    if (fGainCor && abs(fGain - jcset.fGain) > 1e-4 * (fGain + jcset.fGain)) {
+	return false;
+    }
+    if (gainline == jcset.gainline) {
+	return false;
+    }
+    return true;
 }
 
 void GxJConvSettings::read_gainline(gx_system::JsonParser& jp) {
@@ -206,17 +203,6 @@ void GxJConvSettings::read_gainline(gx_system::JsonParser& jp) {
         p.g = jp.current_value_float();
         jp.next(gx_system::JsonParser::end_array);
         gainline.push_back(p);
-    }
-    jp.next(gx_system::JsonParser::end_array);
-}
-
-void GxJConvSettings::read_favorites(gx_system::JsonParser& jp) {
-    jp.next(gx_system::JsonParser::begin_array);
-    while (jp.peek() == gx_system::JsonParser::begin_array) {
-        jp.next();
-        jp.next(gx_system::JsonParser::value_string);
-        jp.next(gx_system::JsonParser::end_array);
-        faflist.push_back(jp.current_value());
     }
     jp.next(gx_system::JsonParser::end_array);
 }
@@ -250,7 +236,7 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
         } else if (jp.current_value() == "jconv.gainline") {
             read_gainline(jp);
         } else if (jp.current_value() == "jconv.favorits") {
-            read_favorites(jp);
+            jp.skip_object();
         } else {
             gx_system::gx_print_warning("jconv settings", "unknown key: " + jp.current_value());
             jp.skip_object();
@@ -264,20 +250,101 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
 
 
 /****************************************************************
+ ** class JConvParameter
+ */
+
+ParameterV<GxJConvSettings>::ParameterV(const string& id, ConvolverAdapter &conv_, GxJConvSettings *v)
+    : Parameter(id, "", tp_special, None, true, false),
+      json_value(),
+      value(v ? v : new GxJConvSettings),
+      std_value(),
+      conv(conv_) {
+    own_var = !v;
+    std_value.setFullIRPath(Glib::build_filename(conv.get_sys_IR_dir(), GX_STD_IR_FILE));
+    std_value.fLength = GX_STD_IR_LEN;
+    static gain_points g[2] = {{0, 0}, {GX_STD_IR_LEN-1, 0}};
+    std_value.gainline = Gainline(g, sizeof(g) / sizeof(g[0]));
+}
+
+JConvParameter *JConvParameter::insert_param(
+    ParamMap &pmap, const string& id, ConvolverAdapter &conv, GxJConvSettings *v) {
+    JConvParameter *p = new JConvParameter(id, conv, v);
+    pmap.insert(p);
+    return p;
+}
+
+JConvParameter::~ParameterV() {
+    if (own_var) {
+	delete value;
+    }
+}
+
+void *JConvParameter::zone() {
+    return value;
+}
+
+bool JConvParameter::on_off_value() {
+    assert(false);
+    return false;
+}
+
+void JConvParameter::set(float n, float high, float llimit, float ulimit) {
+    assert(false);
+}
+
+void JConvParameter::stdJSON_value() {
+    json_value = std_value;
+}
+
+void JConvParameter::writeJSON(gx_system::JsonWriter& jw) {
+    jw.write_key(_id.c_str());
+    value->writeJSON(jw, conv.get_pathlist());
+}
+
+void JConvParameter::readJSON_value(gx_system::JsonParser& jp) {
+    json_value.readJSON(jp, conv.get_pathlist());
+}
+
+bool JConvParameter::compareJSON_value() {
+    return json_value == *value;
+}
+
+bool JConvParameter::set(const GxJConvSettings& val) const {
+    if (val == *value) {
+	return false;
+    }
+    *value = val;
+    conv.restart();
+    conv.signal_settings_changed()();
+    return true;
+}
+
+void JConvParameter::setJSON_value() {
+    set(json_value);
+}
+
+
+/****************************************************************
  ** class ConvolverAdapter
  */
 
 #include "faust/jconv_post.cc"
 
-ConvolverAdapter::ConvolverAdapter(EngineControl& engine_)
+ConvolverAdapter::ConvolverAdapter(
+    EngineControl& engine_, ParamMap& param_, const gx_system::PathList& pathlist_, const std::string& sys_ir_dir_)
     : PluginDef(),
       conv(),
       activate_mutex(),
       engine(engine_),
+      param(param_),
+      pathlist(pathlist_),
+      sys_ir_dir(sys_ir_dir_),
       activated(false),
       jc_post(),
-      plugin(),
-      jcset() {
+      settings_changed(),
+      jcset(),
+      jcp(0),
+      plugin() {
     version = PLUGINDEF_VERSION;
     id = "jconv";
     name = N_("Convolver");
@@ -289,7 +356,6 @@ ConvolverAdapter::ConvolverAdapter(EngineControl& engine_)
     plugin = this;
     engine.signal_buffersize_change().connect(
 	sigc::mem_fun(*this, &ConvolverAdapter::change_buffersize));
-    GxJConvSettings::checkbutton7 = &plugin.on_off;
 }
 
 ConvolverAdapter::~ConvolverAdapter() {
@@ -382,7 +448,9 @@ void ConvolverAdapter::convolver(int count, float *input0, float *input1,
 }
 
 int ConvolverAdapter::convolver_register(const ParamReg& reg) {
-    return static_cast<ConvolverAdapter*>(reg.plugin)->jc_post.register_par(reg);
+    ConvolverAdapter& self = *static_cast<ConvolverAdapter*>(reg.plugin);
+    self.jcp = JConvParameter::insert_param(self.param, "jconv.convolver", self, &self.jcset);
+    return self.jc_post.register_par(reg);
 }
 
 void ConvolverAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {

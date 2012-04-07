@@ -1639,7 +1639,11 @@ int get_current_workarea_height() {
 #endif
 
 void MainWindow::plugin_preset_popup(const std::string& id) {
-    new PluginPresetPopup(id, pmap, options, gx_settings);
+    new PluginPresetPopup(id, gx_settings);
+}
+
+void MainWindow::plugin_preset_popup(const std::string& id, const Glib::ustring& name) {
+    new PluginPresetPopup(id, gx_settings, name);
 }
 
 void MainWindow::clear_box(Gtk::Container& box) {
@@ -1681,6 +1685,25 @@ void MainWindow::make_icons() {
 	}
         i->second->hide();
     }
+}
+
+class JConvPluginUI: public PluginUI {
+private:
+    virtual void on_plugin_preset_popup();
+public:
+    JConvPluginUI(MainWindow& main, const gx_engine::PluginList& pl, const char* id,
+		  const Glib::ustring& fname="", const Glib::ustring& tooltip="")
+	: PluginUI(main, pl, id, fname, tooltip) {}
+};
+
+void JConvPluginUI::on_plugin_preset_popup() {
+    Glib::ustring name = Glib::path_get_basename(main.get_engine().convolver.getIRFile());
+    Glib::ustring::size_type n = name.find_last_of('.');
+    if (n != Glib::ustring::npos) {
+	name.erase(n);
+    }
+
+    main.plugin_preset_popup(get_id(), name);
 }
 
 void MainWindow::add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
@@ -1753,7 +1776,7 @@ void MainWindow::fill_pluginlist() {
 
     p = new std::vector<PluginUI*>;
     add_plugin(p, "freeverb");
-    add_plugin(p, "jconv");
+    p->push_back(new JConvPluginUI(*this, engine.pluginlist, "jconv"));
     add_plugin(p, "stereoverb");
     add_plugin(p, "zita_rev1", "", "High Quality Reverb");
     l.push_back(new PluginDesc("Reverb", p));
@@ -2405,7 +2428,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       fWaveView(),
       convolver_filename_label(),
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
-      boxbuilder(engine_, pmap_, fWaveView, convolver_filename_label, ui, gx_head_icon),
+      boxbuilder(engine_, gx_settings, fWaveView, convolver_filename_label, ui, gx_head_icon),
       portmap_window(0),
       skin_changed(&ui, &skin),
       select_jack_control(0),
@@ -2647,11 +2670,11 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	    false));
     midi_out_presets_mini->signal_clicked().connect(
 	sigc::bind(
-	    sigc::mem_fun(this, &MainWindow::plugin_preset_popup),
+	    sigc::mem_fun1(this, &MainWindow::plugin_preset_popup),
 	    "midi_out"));
     midi_out_presets_normal->signal_clicked().connect(
 	sigc::bind(
-	    sigc::mem_fun(this, &MainWindow::plugin_preset_popup),
+	    sigc::mem_fun1(this, &MainWindow::plugin_preset_popup),
 	    "midi_out"));
     channel1_button->signal_toggled().connect(
 	sigc::bind(

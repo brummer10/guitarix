@@ -82,7 +82,7 @@ public:
     CabinetConvolver cabinet;
     ContrastConvolver contrast;
 public:
-    GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups);
+    GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::CmdlineOptions& options);
     ~GxEngine();
     void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
 };

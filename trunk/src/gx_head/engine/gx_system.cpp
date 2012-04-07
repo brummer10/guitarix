@@ -216,7 +216,7 @@ bool PathList::contains(const string& d) const {
 }
 
 
-bool PathList::find_dir(string* d, const string& filename) const {
+bool PathList::find_dir(std::string* d, const std::string& filename) const {
     for (pathlist::const_iterator i = dirs.begin();
 	 i != dirs.end(); ++i) {
 	string p = (*i)->get_path();

@@ -45,7 +45,7 @@ PresetIO::PresetIO(gx_engine::MidiControllerList& mctrl_,
       opt(opt_),
       plist(),
       m(0),
-      jcset() {
+      jcset(0) {
 }
 
 PresetIO::~PresetIO() {
@@ -56,6 +56,8 @@ void PresetIO::clear() {
     plist.clear();
     delete m;
     m = 0;
+    delete jcset;
+    jcset = 0;
 }
 
 bool PresetIO::midi_in_preset() {
@@ -168,8 +170,8 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
         if (jp.current_value() == "engine") {
             read_parameters(jp, true);
         } else if (jp.current_value() == "jconv") {
-	    jcset = gx_engine::GxJConvSettings();
-	    jcset.readJSON(jp, opt.get_IR_pathlist());
+	    jcset = new gx_engine::GxJConvSettings();
+	    jcset->readJSON(jp, opt.get_IR_pathlist());
         } else if (jp.current_value() == "midi_controller") {
             if (use_midi) {
                 m = gx_engine::MidiControllerList::create_controller_array();
@@ -192,7 +194,9 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
 }
 
 void PresetIO::commit_preset() {
-    convolver.jcset = jcset;
+    if (jcset) {
+	convolver.set(*jcset);
+    }
     for (gx_engine::paramlist::iterator i = plist.begin(); i != plist.end(); ++i) {
         (*i)->setJSON_value();
     }
@@ -207,8 +211,6 @@ void PresetIO::write_intern(gx_system::JsonWriter &w, bool write_midi) {
     w.begin_object(true);
     w.write_key("engine");
     write_parameters(w, true);
-    w.write_key("jconv");
-    convolver.jcset.writeJSON(w, opt.get_IR_pathlist());
     if (write_midi) {
         w.write_key("midi_controller");
         mctrl.writeJSON(w);
@@ -407,11 +409,12 @@ void PluginPresetList::write_values(gx_system::JsonWriter& jw, std::string id) {
     id += ".";
     string on_off = id + "on_off";
     string pp = id + "pp";
+    std::string position = id + "position";
     jw.begin_object(true);
     for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
 	if (i->first.compare(0, id.size(), id) == 0) {
-	    if (i->second->isControllable()) {
-		if (i->first != on_off && i->first != pp) {
+	    if (i->second->isInPreset()) {
+		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->writeJSON(jw);
 		    jw.newline();
 		}

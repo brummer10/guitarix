@@ -1386,6 +1386,7 @@ void Parameter::dump(gx_system::JsonWriter *jw) {
 	case tp_switch: jw->write("s"); jw->write(getSwitch().get());          break;
 	case tp_file:   jw->write("F"); jw->write(getFile().get_parse_name()); break;
 	case tp_string: jw->write("S"); jw->write(getString().get_value());    break;
+	case tp_special: jw->write("G"); break;
 	default: assert(false);
 	}
 	jw->write(getLowerAsFloat());

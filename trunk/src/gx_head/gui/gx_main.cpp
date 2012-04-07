@@ -366,7 +366,7 @@ int main(int argc, char *argv[]) {
 
 	PosixSignals posixsig; // catch unix signals in special thread
 	gx_engine::GxEngine engine(
-	    options.get_plugin_dir(), gx_engine::parameter_map, gx_engine::get_group_table());
+	    options.get_plugin_dir(), gx_engine::parameter_map, gx_engine::get_group_table(), options);
 
 	// ------ initialize parameter list ------
 	gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
