@@ -622,8 +622,12 @@ bool IRWindow::on_key_press_event(GdkEventKey *event) {
 }
 
 void IRWindow::reload_and_show() {
-    load_state();
-    gtk_window->show();
+    if (gtk_window->get_visible()) {
+	gtk_window->hide();
+    } else {
+	load_state();
+	gtk_window->show();
+    }
 }
 
 } // namespace gx_jconv
