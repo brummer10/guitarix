@@ -1363,6 +1363,19 @@ void Parameter::dump(gx_system::JsonWriter *jw) {
     if (jw) {
 	jw->begin_array();
 	jw->write(id());
+	switch (c_type) {
+	case None: jw->write("None"); break;
+	case Continuous: jw->write("Cont"); break;
+	case Switch: jw->write("Swth"); break;
+	case Enum: jw->write("Enum"); break;
+	default: assert(false);
+	}
+	if (save_in_preset) {
+	    jw->write("preset");
+	}
+	if (controllable) {
+	    jw->write("control");
+	}
 	jw->write(l_group());
 	jw->write(l_name());
 	switch (v_type) {
@@ -1414,14 +1427,15 @@ void ParamMap::set_init_values() {
     }
 }
 
-bool ParamMap::unit_has_std_values(Glib::ustring group_id) {
+bool ParamMap::unit_has_std_values(Glib::ustring group_id) const {
     group_id += ".";
     std::string on_off = group_id + "on_off";
     std::string pp = group_id + "pp";
+    std::string position = group_id + "position";
     for (iterator i = begin(); i != end(); ++i) {
 	if (i->first.compare(0, group_id.size(), group_id) == 0) {
-	    if (i->second->isControllable()) {
-		if (i->first != on_off && i->first != pp) {
+	    if (i->second->isInPreset()) {
+		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->stdJSON_value();
 		    if (!i->second->compareJSON_value()) {
 			return false;
@@ -1435,19 +1449,19 @@ bool ParamMap::unit_has_std_values(Glib::ustring group_id) {
 }
 
 // reset all parameters to default settings
-void ParamMap::reset_unit(Glib::ustring group_id) {
+void ParamMap::reset_unit(Glib::ustring group_id) const {
     group_id += ".";
     std::string on_off = group_id + "on_off";
     std::string pp = group_id + "pp";
+    std::string position = group_id + "position";
     for (iterator i = begin(); i != end(); ++i) {
         if (i->first.compare(0, group_id.size(), group_id) == 0) {
-            if (i->second->isControllable()) {
-                string id = i->first;
-                if (i->first != on_off && i->first != pp) {
-                    i->second->stdJSON_value();
-                    i->second->setJSON_value();
-                }
-            }
+	    if (i->second->isInPreset()) {
+		if (i->first != on_off && i->first != pp && i->first != position) {
+		    i->second->stdJSON_value();
+		    i->second->setJSON_value();
+		}
+	    }
         }
     }
 }
