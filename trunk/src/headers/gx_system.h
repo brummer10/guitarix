@@ -45,7 +45,7 @@ inline unsigned int get_fpu_status_bits() {
     return flagp;
 }
 #endif //__i386__
-
+#endif // !NDEBUG
 #ifdef __SSE__
 
 /* On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
@@ -68,7 +68,7 @@ inline unsigned int _MM_GET_EXCEPTION_STATE(void) { return 0; }
 inline void AVOIDDENORMALS() {}
 
 #endif //__SSE__
-#endif // !NDEBUG
+
 
 /* constant defines */
 #define ASCII_START (48)
