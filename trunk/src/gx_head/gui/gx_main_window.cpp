@@ -2431,6 +2431,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       actions(),
       keyswitch(gx_settings, sigc::mem_fun(this, &MainWindow::display_preset_msg)) {
 
+    convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
+
     /*
     ** setup parameters
     */
