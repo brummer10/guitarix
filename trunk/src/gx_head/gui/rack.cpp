@@ -519,6 +519,7 @@ private:
     Glib::ustring name;
     void on_cancel();
     void on_ok(Gtk::Entry *e);
+    virtual bool on_key_press_event(GdkEventKey *event);
     static InputWindow* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld);
     InputWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld);
 public:
@@ -542,6 +543,14 @@ InputWindow *InputWindow::create(const gx_system::CmdlineOptions& options) {
 	"PluginPresetInputWindow", w,
 	sigc::bind(sigc::ptr_fun(InputWindow::create_from_builder),bld));
     return w;
+}
+
+bool InputWindow::on_key_press_event(GdkEventKey *event) {
+    if (event->keyval == GDK_KEY_Escape && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+	hide();
+	return true;
+    }
+    return Gtk::Window::on_key_press_event(event);
 }
 
 void InputWindow::on_ok(Gtk::Entry *e) {
@@ -592,6 +601,7 @@ private:
     Gtk::Button *removebutton;
     void on_remove();
     void on_selection_changed();
+    virtual bool on_key_press_event(GdkEventKey *event);
     static PluginPresetListWindow* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, Glib::RefPtr<gx_preset::PluginPresetList> l);
     PluginPresetListWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, Glib::RefPtr<gx_preset::PluginPresetList> l);
 public:
@@ -614,6 +624,14 @@ PluginPresetListWindow *PluginPresetListWindow::create(const gx_system::CmdlineO
 	"PluginPresetListWindow", w,
 	sigc::bind(sigc::ptr_fun(PluginPresetListWindow::create_from_builder), bld, l));
     return w;
+}
+
+bool PluginPresetListWindow::on_key_press_event(GdkEventKey *event) {
+    if (event->keyval == GDK_KEY_Escape && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+	hide();
+	return true;
+    }
+    return Gtk::Window::on_key_press_event(event);
 }
 
 void PluginPresetListWindow::on_remove() {

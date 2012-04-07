@@ -6,6 +6,7 @@
   <object class="GtkWindow" id="PluginPresetListWindow">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
+    <property name="window_position">mouse</property>
     <child>
       <object class="GxPaintBox" id="gxpaintbox2">
         <property name="visible">True</property>
