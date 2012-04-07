@@ -327,6 +327,9 @@ bool GxConvolver::configure(
     const Gainline& points) {
     Audiofile     audio;
     cleanup();
+    if (fname.empty()) {
+        return false;
+    }
     if (audio.open_read(fname)) {
         gx_system::gx_print_error("convolver", "Unable to open '" + fname + "'");
         return false;
