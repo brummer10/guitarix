@@ -47,6 +47,16 @@ void child_set_property(Gtk::Container& container, Gtk::Widget& child, const cha
  ** message boxes
  */
 
+static void on_gx_nchoice_map(GtkWidget *w, gpointer data) {
+    // since gx_nchoice_dialog_without_entry is only used for the
+    // jack starter dialog (FIXME: cleanup...):
+    // little hack to set the window non-modal
+    // after gtk_dialog_run() forced it to modal
+    // needed in case an error window is already open
+    // or gets opened by an background handler
+    gtk_window_set_modal(GTK_WINDOW(w), FALSE);
+}
+
 // ---- choice dialog without text entry
 gint gx_nchoice_dialog_without_entry(
     const char* window_title,
@@ -95,6 +105,8 @@ gint gx_nchoice_dialog_without_entry(
     gtk_widget_show(image);
 
     gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
+
+    g_signal_connect(dialog, "map", G_CALLBACK(on_gx_nchoice_map), NULL);
 
     // --- run dialog and check response
     gint response = gtk_dialog_run(GTK_DIALOG(dialog));
