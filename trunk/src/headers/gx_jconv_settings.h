@@ -41,8 +41,6 @@
 
 #include <string>
 
-class MainWindow;
-
 namespace gx_jconv {
 
 /****************************************************************
@@ -133,6 +131,7 @@ class IRWindow: public sigc::trackable {
 
     void on_preset_popup_clicked(const gx_preset::GxSettings& gx_settings);
     void on_enumerate();
+    bool on_key_press_event(GdkEventKey *event);
 
  protected:
     void init_connect(const gx_preset::GxSettings& gx_settings);

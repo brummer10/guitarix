@@ -149,6 +149,9 @@ void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
 	sigc::bind(
 	    sigc::mem_fun(this, &IRWindow::on_preset_popup_clicked),
 	    sigc::ref(gx_settings)));
+
+    gtk_window->signal_key_press_event().connect(
+	sigc::mem_fun(this, &IRWindow::on_key_press_event));
 }
 
 IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::ConvolverAdapter& convolver_,
@@ -608,6 +611,14 @@ void IRWindow::on_help_clicked() {
 
 void IRWindow::on_gain_button_toggled() {
     save_state();
+}
+
+bool IRWindow::on_key_press_event(GdkEventKey *event) {
+    if (event->keyval == GDK_KEY_Escape && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+	gtk_window->hide();
+	return true;
+    }
+    return false;
 }
 
 void IRWindow::reload_and_show() {
