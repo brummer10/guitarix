@@ -2841,7 +2841,10 @@ MainWindow::~MainWindow() {
 
     int mainwin_width;
     window->get_size(mainwin_width, mainwin_height);
-    window->get_window()->get_root_origin(mainwin_x, mainwin_y);
+    Glib::RefPtr<Gdk::Window> win = window->get_window();
+    if (win) {
+	win->get_root_origin(mainwin_x, mainwin_y);
+    }
     if (actions.presets->get_active()) {
 	preset_window_height = preset_scrolledbox->get_allocation().get_height();
     }
