@@ -133,7 +133,6 @@ class IRWindow: public sigc::trackable {
     void on_enumerate();
     bool on_key_press_event(GdkEventKey *event);
 
- protected:
     void init_connect(const gx_preset::GxSettings& gx_settings);
     IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::ConvolverAdapter &convolver,
 	     Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
@@ -142,12 +141,14 @@ class IRWindow: public sigc::trackable {
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
      public:
-        ModelColumns() { add(name);}
-        Gtk::TreeModelColumn<Glib::ustring> name;
+        ModelColumns() { add(displayname); add(filename); }
+        Gtk::TreeModelColumn<Glib::ustring> displayname;
+	Gtk::TreeModelColumn<std::string> filename;
     };
     Gtk::ComboBox *wcombo;
     ModelColumns columns;
     Glib::RefPtr<Gtk::TreeStore> model;
+    std::string current_combo_dir;
     void on_combo_changed();
 public:
     void reload_and_show();

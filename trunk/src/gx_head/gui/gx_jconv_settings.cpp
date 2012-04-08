@@ -63,6 +63,7 @@ void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
     builder->find_widget("file_combo:rack_button", wcombo);
     wcombo->signal_changed().connect(
 	sigc::mem_fun(*this, &IRWindow::on_combo_changed));
+    model->set_sort_column(columns.displayname, Gtk::SORT_ASCENDING);
     wcombo->set_model(model);
 
     builder->find_widget("left", wLeft);
@@ -169,7 +170,8 @@ IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::Convol
       autogain_conn(),
       //skipped all gtk widget pointers, will be set in init_connect()
       columns(),
-      model(Gtk::TreeStore::create(columns)) {
+      model(Gtk::TreeStore::create(columns)),
+      current_combo_dir() {
     bld->get_toplevel("DisplayIR", gtk_window);
 
     init_connect(gx_settings);
@@ -364,11 +366,10 @@ void IRWindow::on_combo_changed() {
     if (iter) {
         Gtk::TreeModel::Row row = *iter;
         if (row) {
-            Glib::ustring name = row[columns.name];
-	    if (name != convolver.getIRFile()) {
-		gx_engine::GxJConvSettings jcset = convolver.get_jcset();
-		jcset.setIRFile(name); //FIXME values out of range??
-		convolver.set(jcset);
+            std::string fname = row[columns.filename];
+	    if (fname != convolver.getIRFile()) {
+		load_data(Glib::build_filename(current_combo_dir, fname));
+		save_state();
             }
         }
     }
@@ -376,46 +377,47 @@ void IRWindow::on_combo_changed() {
 
 // reload the treelist for the combobox
 void IRWindow::on_enumerate() {
-    Glib::ustring path = convolver.getIRDir();
+    std::string path = convolver.getIRDir();
     if (path == "~/") {  // cruft in old files
 	path = getenv("HOME");
     }
-    Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(path);
-    if (file->query_exists()) {
-        Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
-              file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME);
-        std::vector<Glib::ustring> file_names;
-        Glib::RefPtr<Gio::FileInfo> file_info;
-
-        while ((file_info = child_enumeration->next_file()) != 0) {
-            if (file_info->get_name().size() > 3) { // filefilter
-             if (file_info->get_name().compare(file_info->get_name().size()-3, 3, "wav") == 0 ||
-                file_info->get_name().compare(file_info->get_name().size()-3, 3, "Wav") == 0 ||
-                file_info->get_name().compare(file_info->get_name().size()-3, 3, "WAV") == 0)
-                    file_names.push_back(file_info->get_name());
-            }
-        }
-        // sort the vector
-        std::sort(file_names.begin(), file_names.end());
-        // clear the model
-        model->clear();
-        // now populate the model
-        Gtk::TreeModel::Row row = *(model->append());
-        string irfile = convolver.get_jcset().getIRFile();
-        for (unsigned int i = 0; i < file_names.size(); i++) {
-            row[columns.name] = file_names[i];
-            if (file_names[i] == irfile ) {
+    string irfile = convolver.get_jcset().getIRFile();
+    if (current_combo_dir == path) {
+	Gtk::TreeNodeChildren ch = model->children();
+	for (Gtk::TreeIter i = ch.begin(); i != ch.end(); ++i) {
+	    if (i->get_value(columns.filename) == irfile) {
 		wcombo->set_active(i);
 	    }
-            // avoid appending a last empty row
-            if (i != file_names.size()-1) {
-                row = *(model->append());
-            }
+	}
+	return;
+    }
+    // directory changed: reload
+    current_combo_dir = path;
+    model->clear();
+    Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(current_combo_dir);
+    if (file->query_exists()) {
+        Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
+              file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
+				       "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
+				       "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
+        Glib::RefPtr<Gio::FileInfo> file_info;
+        // now populate the model
+        while ((file_info = child_enumeration->next_file()) != 0) {
+	    if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-wav") {
+		Gtk::TreeIter i = model->append();
+		std::string fname = file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME);
+		Glib::ustring displayname = file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME);
+		i->set_value(columns.displayname, displayname);
+		i->set_value(columns.filename, fname);
+		if (fname == irfile ) {
+		    wcombo->set_active(i);
+		}
+	    }
         }
     } else {
         gx_system::gx_print_error(
 	    "jconvolver",
-	    boost::format(_("Error reading file path %1%")) % path);
+	    boost::format(_("Error reading file path %1%")) % current_combo_dir);
     }
 }
 
