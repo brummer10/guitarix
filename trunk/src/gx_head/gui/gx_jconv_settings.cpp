@@ -63,7 +63,6 @@ void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
     builder->find_widget("file_combo:rack_button", wcombo);
     wcombo->signal_changed().connect(
 	sigc::mem_fun(*this, &IRWindow::on_combo_changed));
-    model->set_sort_column(columns.displayname, Gtk::SORT_ASCENDING);
     wcombo->set_model(model);
 
     builder->find_widget("left", wLeft);
@@ -375,6 +374,11 @@ void IRWindow::on_combo_changed() {
     }
 }
 
+inline double ts_diff(const timespec& ts1, const timespec& ts2) {
+    double df = ts1.tv_sec - ts2.tv_sec;
+    return df + (ts1.tv_nsec - ts2.tv_nsec)*1e-9;
+}
+
 // reload the treelist for the combobox
 void IRWindow::on_enumerate() {
     std::string path = convolver.getIRDir();
@@ -402,6 +406,9 @@ void IRWindow::on_enumerate() {
 				       "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
         Glib::RefPtr<Gio::FileInfo> file_info;
         // now populate the model
+	Gtk::TreeIter j;
+	wcombo->unset_model();
+	model->set_sort_column(Gtk::TreeSortable::DEFAULT_UNSORTED_COLUMN_ID, Gtk::SORT_ASCENDING);
         while ((file_info = child_enumeration->next_file()) != 0) {
 	    if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-wav") {
 		Gtk::TreeIter i = model->append();
@@ -410,10 +417,15 @@ void IRWindow::on_enumerate() {
 		i->set_value(columns.displayname, displayname);
 		i->set_value(columns.filename, fname);
 		if (fname == irfile ) {
-		    wcombo->set_active(i);
+		    j = i;
 		}
 	    }
         }
+	model->set_sort_column(columns.displayname, Gtk::SORT_ASCENDING);
+	wcombo->set_model(model);
+	if (j) {
+	    wcombo->set_active(j);
+	}
     } else {
         gx_system::gx_print_error(
 	    "jconvolver",
