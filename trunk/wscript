@@ -153,6 +153,12 @@ def set_options(opt):
 
     opt.tool_options('compiler_cc') # for pygxw and glade-gxw
 
+    opt.add_option('--dist-tree',
+                   type='string',
+                   dest='dist_tree',
+                   help=("option for 'dist' command: git tree-ish to build"
+                         " the archive from [Default: %s]" % 'V%s' % VERSION))
+
 
 ################################################################
 # waf configure
@@ -694,21 +700,45 @@ dir_prefix = "guitarix"
 tar_prefix = "guitarix2"
 tar_ext = ".tar.bz2"
 
+def _make_dict():
+    import Options
+    t = Options.options.dist_tree
+    if not t:
+        t = 'V%s' % VERSION
+    d = dict(t=t, d=dir_prefix, p=tar_prefix, e=tar_ext)
+    if re.match(r"V\d", t):
+        d["v"] = t[1:]
+        if Utils.exec_command("git show-ref --verify --quiet --tags refs/tags/'%(t)s'" % d) != 0:
+            raise Utils.WafError(
+                "tag '%(t)s' not found: please create revision tag" % d)
+    else:
+        d["v"] = t[1:]
+        try:
+            s = Utils.cmd_output("git show-ref --hash=8 '%(t)s' | sort -u" % d)
+            if not s:
+                raise ValueError
+            s = s.split()
+            if len(s) > 1:
+                raise Utils.WafError(
+                    "git tree-ish '%(t)s' is ambiguous" % d)
+            s = s[0]
+        except ValueError:
+            raise Utils.WafError(
+                "git tree-ish '%(t)s' not found" % d)
+        d["v"] = "git-" + s.strip()
+    return d
+
 def dist(ctx):
     "makes a tarball for redistributing the sources"
-    d = dict(v=VERSION, d=dir_prefix, p=tar_prefix, e=tar_ext)
-    if Utils.exec_command("git show-ref --verify --quiet --tags refs/tags/V%(v)s" % d) != 0:
-        raise Utils.WafError(
-            "tag 'V%(v)s' not found: please create revision tag" % d)
     Utils.exec_command(
-        "git archive --prefix=%(d)s-%(v)s/ refs/tags/V%(v)s ."
-        " | bzip2 > %(p)s-%(v)s%(e)s" % d)
+        "git archive --prefix=%(d)s-%(v)s/ %(t)s ."
+        " | bzip2 > %(p)s-%(v)s%(e)s" % _make_dict())
 
 def distcheck(ctx):
     '''checks if the sources compile (tarball from 'dist')'''
     import tempfile, tarfile
     waf = os.path.abspath(sys.argv[0])
-    d = dict(v=VERSION, d=dir_prefix, p=tar_prefix, e=tar_ext)
+    d = _make_dict()
     tarball = "%(p)s-%(v)s%(e)s" % d
     path = "%(d)s-%(v)s" % d
     if os.path.exists(path):
