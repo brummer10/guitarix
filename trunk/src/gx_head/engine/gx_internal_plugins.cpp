@@ -111,7 +111,7 @@ GxJConvSettings::GxJConvSettings()
       fLength(0),
       fDelay(0),
       gainline(),
-      fGainCor(true) {
+      fGainCor(false) {
 }
 
 GxJConvSettings& GxJConvSettings::operator=(GxJConvSettings const& jcset) {
@@ -260,9 +260,12 @@ ParameterV<GxJConvSettings>::ParameterV(const string& id, ConvolverAdapter &conv
       std_value(),
       conv(conv_) {
     own_var = !v;
-    std_value.setFullIRPath(Glib::build_filename(conv.get_sys_IR_dir(), GX_STD_IR_FILE));
-    std_value.fLength = GX_STD_IR_LEN;
-    static gain_points g[2] = {{0, 0}, {GX_STD_IR_LEN-1, 0}};
+    std_value.setFullIRPath(Glib::build_filename(conv.get_sys_IR_dir(), "greathall.wav"));
+    std_value.fGainCor = true;
+    std_value.fGain = 0.598717;
+    const int ir_len = 112561;
+    std_value.fLength = ir_len;
+    static gain_points g[2] = {{0, 0}, {ir_len-1, 0}};
     std_value.gainline = Gainline(g, sizeof(g) / sizeof(g[0]));
 }
 

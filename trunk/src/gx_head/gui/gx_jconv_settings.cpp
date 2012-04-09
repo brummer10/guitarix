@@ -374,11 +374,6 @@ void IRWindow::on_combo_changed() {
     }
 }
 
-inline double ts_diff(const timespec& ts1, const timespec& ts2) {
-    double df = ts1.tv_sec - ts2.tv_sec;
-    return df + (ts1.tv_nsec - ts2.tv_nsec)*1e-9;
-}
-
 // reload the treelist for the combobox
 void IRWindow::on_enumerate() {
     std::string path = convolver.getIRDir();
