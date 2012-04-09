@@ -420,7 +420,8 @@ public:
 
 private:
 
-    unsigned int    _state;                   // current state
+    volatile bool   _in_proc;                 // processing function is executed
+    volatile unsigned int _state;             // current state
     float          *_inpbuff [MAXINP];        // input buffers
     float          *_outbuff [MAXOUT];        // output buffers
     unsigned int    _inpoffs;                 // current offset in input buffers

@@ -350,7 +350,8 @@ def check_boost(conf):
             uselib_store="BOOST_THREAD", mandatory=1)
 
 def check_zita_convolver(opt, conf):
-    if opt.includeconvolver:
+    if True: # until official zita-convolver is fixed
+    #if opt.includeconvolver:
         conf.env['ZITA_CONVOLVER'] = False
     else:
         expected_zita_convolver_version = 3
