@@ -334,11 +334,13 @@ void JConvParameter::setJSON_value() {
 #include "faust/jconv_post.cc"
 
 ConvolverAdapter::ConvolverAdapter(
-    EngineControl& engine_, ParamMap& param_, const gx_system::PathList& pathlist_, const std::string& sys_ir_dir_)
+    EngineControl& engine_, sigc::slot<void> sync_, ParamMap& param_,
+    const gx_system::PathList& pathlist_, const std::string& sys_ir_dir_)
     : PluginDef(),
       conv(),
       activate_mutex(),
       engine(engine_),
+      sync(sync_),
       param(param_),
       pathlist(pathlist_),
       sys_ir_dir(sys_ir_dir_),
@@ -367,7 +369,7 @@ ConvolverAdapter::~ConvolverAdapter() {
 void ConvolverAdapter::change_buffersize(unsigned int size) {
     boost::mutex::scoped_lock lock(activate_mutex);
     if (activated) {
-	conv.stop();
+	conv.stop_process();
 	while (conv.is_runnable()) {
 	    conv.checkstate();
 	}
@@ -384,10 +386,10 @@ void ConvolverAdapter::restart() {
     if (!plugin.on_off) {
         return;
     }
-    conv.stop();
-    while (conv.is_runnable()) {
-	conv.checkstate();
-    }
+    conv.set_not_runnable();
+    sync();
+    conv.stop_process();
+    while (!conv.checkstate());
     float gain;
     if (jcset.getGainCor()) {
 	gain = jcset.getGain();
@@ -460,7 +462,7 @@ void ConvolverAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {
     ConvolverAdapter& self = *static_cast<ConvolverAdapter*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (self.activated) {
-	self.conv.stop();
+	self.conv.stop_process();
 	self.conv.set_samplerate(samplingFreq);
 	self.jc_post.init(samplingFreq);
 	while (self.conv.is_runnable()) {
@@ -495,7 +497,7 @@ int ConvolverAdapter::activate(bool start, PluginDef *p) {
 	    return -1;
 	}
     } else {
-	self.conv.stop();
+	self.conv.stop_process();
 	self.jc_post.activate(false);
     }
     return 0;
@@ -507,11 +509,12 @@ int ConvolverAdapter::activate(bool start, PluginDef *p) {
  */
 
 
-BaseConvolver::BaseConvolver(EngineControl& engine_, gx_resample::BufferResampler& resamp)
+BaseConvolver::BaseConvolver(EngineControl& engine_, sigc::slot<void> sync_, gx_resample::BufferResampler& resamp)
     : PluginDef(),
       conv(resamp),
       activate_mutex(),
       engine(engine_),
+      sync(sync_),
       activated(false),
       plugin() {
     version = PLUGINDEF_VERSION;
@@ -523,6 +526,7 @@ BaseConvolver::BaseConvolver(EngineControl& engine_, gx_resample::BufferResample
 }
 
 BaseConvolver::~BaseConvolver() {
+    update_conn.disconnect();
 }
 
 void BaseConvolver::change_buffersize(unsigned int bufsize) {
@@ -530,7 +534,7 @@ void BaseConvolver::change_buffersize(unsigned int bufsize) {
     conv.set_buffersize(bufsize);
     if (activated) {
 	if (!bufsize) {
-	    conv_stop();
+	    conv.stop_process();
 	} else {
 	    start(true);
 	}
@@ -544,6 +548,14 @@ void BaseConvolver::init(unsigned int samplingFreq, PluginDef *p) {
     if (self.activated) {
 	self.start(true);
     }
+}
+
+bool BaseConvolver::check_update_timeout() {
+    if (!activated || !plugin.on_off) {
+	return false;
+    }
+    check_update();
+    return true;
 }
 
 int BaseConvolver::activate(bool start, PluginDef *p) {
@@ -561,8 +573,10 @@ int BaseConvolver::activate(bool start, PluginDef *p) {
 	if (!self.start()) {
 	    return -1;
 	}
+	self.update_conn = Glib::signal_timeout().connect(
+	    sigc::mem_fun(self, &BaseConvolver::check_update_timeout), 200);
     } else {
-	self.conv_stop();
+	self.conv.stop_process();
     }
     self.activated = start;
     return 0;
@@ -628,8 +642,8 @@ static const float no_sum = 1e10;
 
 #include "faust/cabinet_impulse_former.cc"
 
-CabinetConvolver::CabinetConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp):
-    BaseConvolver(engine, resamp),
+CabinetConvolver::CabinetConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp):
+    BaseConvolver(engine, sync, resamp),
     current_cab(-1),
     level(0),
     cabinet(0),
@@ -655,29 +669,40 @@ CabinetConvolver::~CabinetConvolver() {
     delete[] cab_names;
 }
 
-bool CabinetConvolver::conv_update() {
-    update_sum();
-    bool ret = update();
-    if (! ret) {
-	ret = start();
+bool CabinetConvolver::do_update() {
+    bool configure = cabinet_changed();
+    if (conv.is_runnable()) {
+	conv.set_not_runnable();
+	sync();
+	conv.stop_process();
     }
-    return ret;
-}
-
-bool CabinetConvolver::start(bool force) {
     CabDesc& cab = *getCabEntry(cabinet).data;
-    if (cabinet_changed() || sum_changed() || force) {
-	conv.stop();
-        update_cabinet();
-	update_sum();
+    if (current_cab == -1) {
 	impf.init(cab.ir_sr);
-	float cab_irdata_c[cab.ir_count];
-	impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
-	while (!conv.checkstate());
+    }
+    float cab_irdata_c[cab.ir_count];
+    impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
+    while (!conv.checkstate());
+    if (configure) {
 	if (!conv.configure(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
 	    return false;
 	}
-	return conv_start();
+    } else {
+	if (!conv.update(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+	    return false;
+	}
+    }
+    update_cabinet();
+    update_sum();
+    return conv_start();
+}
+
+bool CabinetConvolver::start(bool force) {
+    if (force) {
+	current_cab = -1;
+    }
+    if (cabinet_changed() || sum_changed()) {
+	return do_update();
     } else {
 	while (!conv.checkstate());
 	if (!conv.is_runnable()) {
@@ -687,32 +712,17 @@ bool CabinetConvolver::start(bool force) {
     }
 }
 
-bool CabinetConvolver::update() {
-    CabDesc& cab = *getCabEntry(cabinet).data;
-    float cab_irdata_c[cab.ir_count];
-    impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
-    return conv.update(cab.ir_count, cab_irdata_c, cab.ir_sr);
-}
-
-// reduce gain to compensate the increased gain by the cabinet
-inline void CabinetConvolver::compensate_cab(int count, float *input0, float *output0) {
-    double fSlow0 = 0.001 * pow(10, -0.1 * level);
-    static double fRec0[2] = {0, 0};
-    for (int i = 0; i < count; i++) {
-        fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-        output0[i] = input0[i] * fRec0[0];
-        // post processing
-        fRec0[1] = fRec0[0];
+void CabinetConvolver::check_update() {
+    if (cabinet_changed() || sum_changed()) {
+	do_update();
     }
 }
 
-// wraper for the rack order function pointers
 void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, PluginDef *p) {
     CabinetConvolver& self = *static_cast<CabinetConvolver*>(p);
-    self.compensate_cab(count, output0, output0);
     if (!self.conv.compute(count, output0)) {
+	self.plugin.on_off = false;
 	gx_system::gx_print_error("Convolver", "cabinet overload");
-        self.current_cab = -1;
     }
 }
 
@@ -733,8 +743,8 @@ int CabinetConvolver::register_cab(const ParamReg& reg) {
 
 #include "faust/presence_level.cc"
 
-ContrastConvolver::ContrastConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp):
-    BaseConvolver(engine, resamp),
+ContrastConvolver::ContrastConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp):
+    BaseConvolver(engine, sync, resamp),
     level(0),
     sum(no_sum),
     presl() {
@@ -747,18 +757,38 @@ ContrastConvolver::ContrastConvolver(EngineControl& engine, gx_resample::BufferR
 ContrastConvolver::~ContrastConvolver() {
 }
 
-bool ContrastConvolver::start(bool force) {
-    if (sum_changed() || force) {
-	conv.stop();
-	update_sum();
+bool ContrastConvolver::do_update() {
+    bool configure = (sum == no_sum);
+    if (conv.is_runnable()) {
+	conv.set_not_runnable();
+	sync();
+	conv.stop_process();
+    }
+    if (configure) {
 	presl.init(contrast_ir_desc.ir_sr);
-	float contrast_irdata_c[contrast_ir_desc.ir_count];
-	presl.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
-	while (!conv.checkstate());
+    }
+    float contrast_irdata_c[contrast_ir_desc.ir_count];
+    presl.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
+    while (!conv.checkstate());
+    if (configure) {
 	if (!conv.configure(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
 	    return false;
 	}
-	return conv_start();
+    } else {
+	if (!conv.update(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
+	    return false;
+	}
+    }
+    update_sum();
+    return conv_start();
+}
+
+bool ContrastConvolver::start(bool force) {
+    if (force) {
+	sum = no_sum;
+    }
+    if (sum_changed()) {
+	return do_update();
     } else {
 	while (!conv.checkstate());
 	if (!conv.is_runnable()) {
@@ -768,15 +798,9 @@ bool ContrastConvolver::start(bool force) {
     }
 }
 
-// reduce gain to compensate the increased gain by the cabinet
-inline void ContrastConvolver::compensate_con(int count, float *input0, float *output0) {
-    double fSlow0 = (0.0010000000000000009 * pow(10, (0.05 * (-level*2.0))));
-    static double fRec0[2] = {0, 0};
-    for (int i = 0; i < count; i++) {
-        fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-        output0[i] = input0[i] * fRec0[0];
-        // post processing
-        fRec0[1] = fRec0[0];
+void ContrastConvolver::check_update() {
+    if (sum_changed()) {
+	do_update();
     }
 }
 
@@ -787,13 +811,11 @@ int ContrastConvolver::register_con(const ParamReg& reg) {
     return 0;
 }
 
-// wraper for the presence function
 void ContrastConvolver::run_contrast(int count, float *input0, float *output0, PluginDef *p) {
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(p);
-    self.compensate_con(count, output0, output0);
     if (!self.conv.compute(count, output0)) {
+	self.plugin.on_off = false;
 	gx_system::gx_print_error("Convolver", "presence overload");
-        self.sum = no_sum;
     }
 }
 

@@ -239,7 +239,7 @@ void IRWindow::load_state() {
     string path = convolver.getFullIRPath();
     const gx_engine::GxJConvSettings& jcset = convolver.get_jcset();
     if (path.empty()) {
-	wIredit->set_state(0, 0, 0, 0, jcset.getOffset(), jcset.getDelay(), jcset.getLength(), jcset.getGainline());
+	wIredit->set_ir_data(0, 0, 0, 0);
         return;
     }
     autogain_conn.block();

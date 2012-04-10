@@ -122,7 +122,9 @@ int Audiofile::read(float *data, uint32_t frames) {
  */
 
 GxConvolverBase::~GxConvolverBase() {
-    stop();
+    if (is_runnable()) {
+	stop_process();
+    }
 }
 
 void GxConvolverBase::adjust_values(

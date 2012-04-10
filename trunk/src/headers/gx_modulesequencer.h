@@ -55,7 +55,6 @@ protected:
     int steps_up;		// RT; >= 1
     int steps_up_dead;		// RT; >= 0
     int steps_down;		// RT; >= 1
-    volatile bool latch; // RT; set between commit and end of rt cycle
     list<Plugin*> modules;
     inline void set_ramp_value(int n) { gx_system::atomic_set(&ramp_value, n); } // RT
     inline void set_ramp_mode(RampMode n) { gx_system::atomic_set(&ramp_mode, n); } // RT
@@ -72,13 +71,15 @@ public:
     void clear_module_states();
     inline void post_rt_finished() { // RT
 	int val;
-	latch = false;
-	if (sem_getvalue(&sync_sem, &val) == 0 && val == 0) {
+	sem_getvalue(&sync_sem, &val);
+	if (val == 0) {
 	    sem_post(&sync_sem);
 	}
     }
     bool wait_rt_finished();
-    void wait_latch();
+    void set_latch();
+    void wait_latch() { wait_rt_finished(); }
+    void sync() { set_latch(); wait_latch(); }
     inline bool check_release() { return !to_release.empty(); }
     void release();
     void wait_ramp_down_finished();
@@ -204,7 +205,7 @@ void ThreadSafeChainPointer<F>::commit(bool clear) {
     }
     current_pointer[active_counter].func = 0;
     gx_system::atomic_set(&processing_pointer, current_pointer);
-    latch = true;
+    set_latch();
     current_index = (current_index+1) % 2;
     current_pointer = rack_order_ptr[current_index];
 }

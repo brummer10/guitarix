@@ -127,9 +127,10 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
       midiaudiobuffer(tuner),
       maxlevel(),
       oscilloscope(&ui, *this),
-      convolver(*this, param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
-      cabinet(*this, resamp),
-      contrast(*this, resamp) {
+      convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync),
+		param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
+      cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp) {
 #ifdef USE_MIDI_OUT
     tuner.set_dep_module(&midiaudiobuffer.plugin);
 #endif

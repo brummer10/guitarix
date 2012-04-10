@@ -330,6 +330,7 @@ private:
     GxConvolver conv;
     boost::mutex activate_mutex;
     EngineControl& engine;
+    sigc::slot<void> sync;
     ParamMap& param;
     const gx_system::PathList& pathlist;
     std::string sys_ir_dir;
@@ -348,7 +349,8 @@ private:
 public:
     Plugin plugin;
 public:
-    ConvolverAdapter(EngineControl& engine, ParamMap& param, const gx_system::PathList& pathlist, const std::string& sys_ir_dir);
+    ConvolverAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param,
+		     const gx_system::PathList& pathlist, const std::string& sys_ir_dir);
     ~ConvolverAdapter();
     void restart();
     bool conv_start();
@@ -375,20 +377,21 @@ protected:
     GxSimpleConvolver conv;
     boost::mutex activate_mutex;
     EngineControl& engine;
+    sigc::slot<void> sync;
     bool activated;
+    sigc::connection update_conn;
     static void init(unsigned int samplingFreq, PluginDef *p);
     static int activate(bool start, PluginDef *pdef);
     void change_buffersize(unsigned int);
-    inline bool is_runnable() { return conv.is_runnable(); }
-    inline void set_not_runnable() { conv.set_not_runnable(); }
     int conv_start();
+    bool check_update_timeout();
+    virtual void check_update() = 0;
+    virtual bool start(bool force = false) = 0;
 public:
     Plugin plugin;
 public:
-    BaseConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp);
+    BaseConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
     virtual ~BaseConvolver();
-    virtual bool start(bool force = false) = 0;
-    inline void conv_stop() { conv.stop(); }
     inline void set_sync(bool val) { conv.set_sync(val); }
 };
 
@@ -406,19 +409,18 @@ private:
     float sum;
     value_pair *cab_names;
     cabinet_impulse_former::Dsp impf;
-    inline void compensate_cab(int count, float *input0, float *output0);
     static void run_cab_conf(int count, float *input, float *output, PluginDef*);
     static int register_cab(const ParamReg& reg);
-    bool update();
-public:
-    CabinetConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp);
-    ~CabinetConvolver();
-    bool start(bool force = false);
+    bool do_update();
+    virtual void check_update();
+    virtual bool start(bool force = false);
     bool cabinet_changed() { return current_cab != cabinet; }
     void update_cabinet() { current_cab = cabinet; }
     bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
     void update_sum() { sum = level + bass + treble; }
-    bool conv_update();
+public:
+    CabinetConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
+    ~CabinetConvolver();
 };
 
 
@@ -431,16 +433,16 @@ private:
     float level;
     float sum;
     presence_level::Dsp presl;
-    // wrapper for the rack order function pointers
-    inline void compensate_con(int count, float *input0, float *output0);
     static void run_contrast(int count, float *input, float *output, PluginDef*);
     static int register_con(const ParamReg& reg);
     inline void update_sum() { sum = level; }
-public:
-    ContrastConvolver(EngineControl& engine, gx_resample::BufferResampler& resamp);
-    ~ContrastConvolver();
+    virtual void check_update();
+    bool do_update();
     inline bool sum_changed() { return abs(sum - level) > 0.01; }
-    bool start(bool force = false);
+    virtual bool start(bool force = false);
+public:
+    ContrastConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
+    ~ContrastConvolver();
 };
 
 } // namespace gx_engine

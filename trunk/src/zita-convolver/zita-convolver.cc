@@ -37,7 +37,6 @@ float Convproc::_fft_cost = 5.0f;
 
 
 Convproc::Convproc (void) :
-    _in_proc (false),
     _state (ST_IDLE),
     _options (0),
     _skipcnt (0),
@@ -287,11 +286,7 @@ int Convproc::process (bool sync)
     unsigned int k;
     int f = 0;
 
-    _in_proc = true;
-    if (_state != ST_PROC) {
-	_in_proc = false;
-	return 0;
-    }
+    if (_state != ST_PROC) return 0;
     
     _inpoffs += _quantum;
     if (_inpoffs == _inpsize) _inpoffs = 0;
@@ -314,7 +309,6 @@ int Convproc::process (bool sync)
 	}
         else _latecnt = 0;
     }
-    _in_proc = false;
     return f;
 }
 
@@ -324,11 +318,8 @@ int Convproc::stop_process (void)
     unsigned int k;
 
     if (_state != ST_PROC) return Converror::BAD_STATE;
-    _state = ST_WAIT;
-    while (_in_proc) {
-        usleep (100000);
-    }
     for (k = 0; k < _nlevels; k++) _convlev [k]->stop ();
+    _state = ST_WAIT;
     return 0;
 }
 

@@ -2179,52 +2179,6 @@ bool MainWindow::refresh_meter_level() {
     return true;
 }
 
-void MainWindow::cab_conv_restart() {
-    if (!cab_conv_conn.connected()) {
-	cab_conv_conn = Glib::signal_timeout().connect(
-	    sigc::bind_return(
-		sigc::bind(
-		    sigc::mem_fun(engine.cabinet, &gx_engine::CabinetConvolver::start),
-		    false),
-		false),
-	    0, Glib::PRIORITY_HIGH_IDLE + 10);
-    } else {
-        gx_system::gx_print_warning(_("Cabinet Loading"), string(_(" cab thread is bussy")));
-    }
-}
-
-void MainWindow::contrast_conv_restart() {
-    if (!contrast_conv_conn.connected()) {
-	contrast_conv_conn = Glib::signal_timeout().connect(
-	    sigc::bind_return(
-		sigc::bind(
-		    sigc::mem_fun(engine.contrast, &gx_engine::ContrastConvolver::start),
-		    false),
-		false),
-	    0, Glib::PRIORITY_HIGH_IDLE + 10);
-    } else {
-        gx_system::gx_print_warning(_("Presence Loading"), string(_(" presence thread is bussy")));
-    }
-}
-
-bool MainWindow::check_cab_state() {
-    if (engine.cabinet.plugin.on_off) {
-	if (engine.cabinet.cabinet_changed()) {
-            engine.cabinet.conv_stop();
-            cab_conv_restart();
-	} else if (engine.cabinet.sum_changed()) {
-	    engine.cabinet.conv_update();
-        }
-    }
-    if (engine.contrast.plugin.on_off) {
-        if (engine.contrast.sum_changed()) {
-            engine.contrast.conv_stop();
-            contrast_conv_restart();
-        }
-    }
-    return true;
-}
-
 bool MainWindow::survive_jack_shutdown() {
     // return if jack is not down
     if (gx_system::gx_system_call("pgrep jackd", true) == SYSTEM_OK) {
@@ -2444,8 +2398,6 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       pixbuf_log_red(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_red.png"))),
       mute_changed(&ui, &pmap.reg_par("engine.mute", "Mute", 0, false)->get_value()),
       ampdetail_sh(&ui, &pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false)->get_value()),
-      contrast_conv_conn(),
-      cab_conv_conn(),
       report_xrun(jack),
       in_session(false),
       status_icon(Gtk::StatusIcon::create(gx_head_icon)),
@@ -2641,12 +2593,6 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     }
     Glib::signal_timeout().connect(
 	sigc::mem_fun(*this, &MainWindow::refresh_meter_level), gx_gui::guivar.meter_display_timeout);
-
-    /*
-    ** connect cab parameter changed check signal
-    */
-    Glib::signal_timeout().connect(
-	sigc::mem_fun(*this, &MainWindow::check_cab_state), 200);
 
     /*
     ** amp top box signal connections

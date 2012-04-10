@@ -845,8 +845,8 @@ MonoEngine::MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroup
 	  "tube.select", _("select"), ampstack_groups),
       // internal audio modules
       noisegate(),
-      cabinet(*this, resamp),
-      contrast(*this, resamp) {
+      cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp) {
 
     cabinet.set_sync(true);
     contrast.set_sync(true);
@@ -1372,7 +1372,7 @@ void StereoEngine::set_samplerate(unsigned int samplerate) {
 StereoEngine::StereoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::PathList& pathlist)
     : EngineControl(),
       // internal audio modules
-      convolver(*this, param, pathlist, "") {
+      convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), param, pathlist, "") {
 
     convolver.set_sync(true);
 

@@ -41,7 +41,6 @@ ProcessingChainBase::ProcessingChainBase():
     steps_up(),
     steps_up_dead(),
     steps_down(),
-    latch(false),
     modules(),
     next_commit_needs_ramp() {
     sem_init(&sync_sem, 0, 0);
@@ -88,13 +87,13 @@ bool ProcessingChainBase::wait_rt_finished() {
     return true;
 }
 
-void ProcessingChainBase::wait_latch() {
-    if (!latch) {
-	return;
+void ProcessingChainBase::set_latch() {
+    int val;
+    sem_getvalue(&sync_sem, &val);
+    if (val > 0) {
+	sem_wait(&sync_sem);
     }
-    if (!wait_rt_finished()) {
-	latch = false; // timeout; emergency measure for ladspa plugin...
-    }
+    assert(sem_getvalue(&sync_sem, &val) == 0 && val == 0);
 }
 
 void ProcessingChainBase::wait_ramp_down_finished() {
@@ -243,8 +242,8 @@ void ProcessingChainBase::release() {
 void ProcessingChainBase::print_chain_state(const char *title) {
     int val;
     sem_getvalue(&sync_sem, &val);
-    printf("%s latch = %d, sync_sem = %d, stopped = %d, ramp_mode = %d\n",
-	   title, latch, val, stopped, ramp_mode);
+    printf("%s sync_sem = %d, stopped = %d, ramp_mode = %d\n",
+	   title, val, stopped, ramp_mode);
 }
 #endif
 

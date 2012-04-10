@@ -112,7 +112,7 @@ public:
     inline void set_not_runnable()   { ready = false; }
     inline bool is_runnable()        { return ready; }
     bool start(int policy, int priority);
-    inline void stop()               { stop_process(); }
+    using Convproc::stop_process;
     inline void set_sync(bool val)   { sync = val; }
 };
 

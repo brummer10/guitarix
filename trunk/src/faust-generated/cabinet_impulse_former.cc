@@ -61,12 +61,13 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 	double 	fSlow22 = (((fSlow0 + fSlow2) - 1) * (0 - (2 * fSlow0)));
 	double 	fSlow23 = (1.0 / ((1 + fSlow20) - fSlow4));
 	double 	fSlow24 = fslider2;
+	double 	fSlow25 = (fSlow24 * pow(10,(0 - (0.1 * fSlow24))));
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
 		fRec1[0] = (fSlow18 * ((fSlow7 * (((fSlow17 * fVec0[0]) + (fSlow15 * fVec0[1])) + (fSlow14 * fVec0[2]))) - ((fSlow13 * fRec1[2]) + (fSlow10 * fRec1[1]))));
 		fRec0[0] = (fSlow23 * ((((fSlow22 * fRec1[1]) + (fSlow21 * fRec1[0])) + (fSlow19 * fRec1[2])) + (0 - ((fSlow6 * fRec0[2]) + (fSlow3 * fRec0[1])))));
-		output0[i] = (FAUSTFLOAT)(fSlow24 * fRec0[0]);
+		output0[i] = (FAUSTFLOAT)(fSlow25 * fRec0[0]);
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];

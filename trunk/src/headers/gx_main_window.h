@@ -697,8 +697,6 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_red;
     gx_ui::UiSignal<bool> mute_changed;
     gx_ui::UiSignal<bool> ampdetail_sh;
-    sigc::connection contrast_conv_conn;
-    sigc::connection cab_conv_conn;
     gx_gui::ReportXrun report_xrun;
     bool in_session;
     Glib::RefPtr<Gtk::StatusIcon> status_icon;
@@ -832,9 +830,6 @@ private:
     int on_oscilloscope_activate(bool start);
     bool on_refresh_oscilloscope();
     bool refresh_meter_level();
-    bool check_cab_state();
-    void cab_conv_restart();
-    void contrast_conv_restart();
     bool survive_jack_shutdown();
     void gx_jack_is_down();
     void jack_session_event();
