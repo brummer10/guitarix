@@ -19,7 +19,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="round_digits">0</property>
                 <property name="var_id">gx_distortion.drive</property>
                 <property name="show_value">False</property>
                 <property name="label_ref">label16:rack_label</property>
@@ -103,7 +102,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.drive</property>
                         <property name="label_ref">label1:rack_label</property>
                       </object>
@@ -132,7 +130,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.gain</property>
                         <property name="label_ref">label2:rack_label</property>
                       </object>
@@ -159,7 +156,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">1</property>
                         <property name="var_id">gx_distortion.low_drive</property>
                         <property name="label_ref">label9:rack_label</property>
                       </object>
@@ -188,7 +184,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.low_gain</property>
                         <property name="label_ref">label10:rack_label</property>
                       </object>
@@ -215,7 +210,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.middle_l_drive</property>
                         <property name="label_ref">label3:rack_label</property>
                       </object>
@@ -244,7 +238,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.middle_l_gain</property>
                         <property name="label_ref">label4:rack_label</property>
                       </object>
@@ -271,7 +264,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.middle_h_drive</property>
                         <property name="label_ref">label5:rack_label</property>
                       </object>
@@ -300,7 +292,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.middle_h_gain</property>
                         <property name="label_ref">label7:rack_label</property>
                       </object>
@@ -327,7 +318,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.high_drive</property>
                         <property name="label_ref">label6:rack_label</property>
                       </object>
@@ -356,7 +346,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.high_gain</property>
                         <property name="label_ref">label8:rack_label</property>
                       </object>
@@ -469,7 +458,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="round_digits">0</property>
                             <property name="var_id">gx_distortion.wet_dry</property>
                             <property name="label_ref">label14:rack_label</property>
                           </object>
@@ -507,7 +495,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="round_digits">0</property>
                             <property name="var_id">gx_distortion.level</property>
                             <property name="label_ref">label15:rack_label</property>
                           </object>
@@ -545,7 +532,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="round_digits">0</property>
                             <property name="var_id">gx_distortion.split_low_freq</property>
                           </object>
                           <packing>
@@ -558,7 +544,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="round_digits">0</property>
                             <property name="var_id">gx_distortion.split_middle_freq</property>
                           </object>
                           <packing>
@@ -573,7 +558,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="round_digits">0</property>
                             <property name="var_id">gx_distortion.split_high_freq</property>
                           </object>
                           <packing>
@@ -636,7 +620,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.trigger</property>
                         <property name="label_ref">label12:rack_label</property>
                       </object>
@@ -663,7 +646,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">gx_distortion.vibrato</property>
                         <property name="label_ref">label13:rack_label</property>
                       </object>

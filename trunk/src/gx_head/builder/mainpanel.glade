@@ -58,7 +58,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">tube.select</property>
                       </object>
                     </child>
@@ -96,7 +95,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="round_digits">0</property>
                             <property name="var_id">amp2.stage1.Pregain</property>
                             <property name="label_ref">label22:effekt_label</property>
                           </object>
@@ -134,7 +132,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="round_digits">0</property>
                             <property name="var_id">gxdistortion.drive</property>
                           </object>
                           <packing>
@@ -172,7 +169,6 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="orientation">vertical</property>
-                            <property name="round_digits">0</property>
                             <property name="var_id">gxdistortion.wet_dry</property>
                           </object>
                           <packing>
@@ -209,7 +205,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="round_digits">0</property>
                             <property name="var_id">amp2.stage2.gain1</property>
                           </object>
                           <packing>
@@ -302,7 +297,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">bassbooster.Level</property>
                         <property name="show_value">False</property>
                       </object>
@@ -368,7 +362,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">con.Level</property>
                         <property name="show_value">False</property>
                       </object>
@@ -434,7 +427,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">amp.wet_dry</property>
                         <property name="show_value">False</property>
                       </object>
@@ -494,7 +486,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="round_digits">0</property>
                     <property name="var_id">amp.out_master</property>
                     <property name="show_value">False</property>
                   </object>
@@ -769,7 +760,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">ui.liveplay_background</property>
                         <property name="show_value">False</property>
                       </object>
@@ -809,7 +799,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="receives_default">True</property>
-                        <property name="round_digits">0</property>
                         <property name="var_id">ui.liveplay_brightness</property>
                         <property name="show_value">False</property>
                       </object>
@@ -1247,7 +1236,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">noise_gate.threshold</property>
                                                             <property name="show_value">False</property>
                                                             </object>
@@ -1331,7 +1319,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">shaper.sharper</property>
                                                             <property name="show_value">False</property>
                                                             </object>
@@ -1415,7 +1402,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">amp.out_amp</property>
                                                             <property name="value_position">left</property>
                                                             </object>
@@ -1499,7 +1485,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">amp.fuzz</property>
                                                             <property name="show_value">False</property>
                                                             </object>
@@ -1714,7 +1699,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">racktuner.tuning</property>
                                                             </object>
                                                             <packing>
@@ -1728,7 +1712,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">racktuner.streaming</property>
                                                             </object>
                                                             <packing>
@@ -1742,7 +1725,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">ui.tuner_reference_pitch</property>
                                                             <property name="value_position">right</property>
                                                             </object>
@@ -2307,7 +2289,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_1.velocity</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label9:effekt_label</property>
@@ -2346,7 +2327,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_1.volume</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label13:effekt_label</property>
@@ -2385,7 +2365,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_1.oktave</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label14:effekt_label</property>
@@ -2424,7 +2403,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_1.sensity</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label15:effekt_label</property>
@@ -2515,7 +2493,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_1.channel</property>
                                                             </object>
                                                             <packing>
@@ -2553,7 +2530,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_1.program</property>
                                                             </object>
                                                             <packing>
@@ -2651,7 +2627,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_2.velocity</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label27:effekt_label</property>
@@ -2690,7 +2665,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_2.volume</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label28:effekt_label</property>
@@ -2729,7 +2703,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_2.oktave</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label29:effekt_label</property>
@@ -2768,7 +2741,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_2.sensity</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label30:effekt_label</property>
@@ -2859,7 +2831,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_2.channel</property>
                                                             </object>
                                                             <packing>
@@ -2897,7 +2868,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_2.program</property>
                                                             </object>
                                                             <packing>
@@ -2995,7 +2965,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_3.velocity</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label31:effekt_label</property>
@@ -3034,7 +3003,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_3.volume</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label32:effekt_label</property>
@@ -3073,7 +3041,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_3.oktave</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label33:effekt_label</property>
@@ -3112,7 +3079,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_3.sensity</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label34:effekt_label</property>
@@ -3203,7 +3169,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_3.channel</property>
                                                             </object>
                                                             <packing>
@@ -3241,7 +3206,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.channel_3.program</property>
                                                             </object>
                                                             <packing>
@@ -3423,7 +3387,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.beat_detector.midi_gain</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label21:effekt_label</property>
@@ -3462,7 +3425,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.beat_detector.stepper</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label23:effekt_label</property>
@@ -3501,7 +3463,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.beat_detector.note_off</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label24:effekt_label</property>
@@ -3540,7 +3501,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.beat_detector.atack_gain</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label25:effekt_label</property>
@@ -3579,7 +3539,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="round_digits">0</property>
                                                             <property name="var_id">midi_out.beat_detector.beat_gain</property>
                                                             <property name="value_position">right</property>
                                                             <property name="label_ref">label26:effekt_label</property>

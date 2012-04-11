@@ -425,7 +425,6 @@ response file with the
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="adjustment">adjustment1</property>
-                                        <property name="round_digits">0</property>
                                         <property name="value_xalign">1</property>
                                         <signal name="value-changed" handler="on_m_delay_changed" swapped="no"/>
                                       </object>
@@ -442,7 +441,6 @@ response file with the
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="adjustment">adjustment2</property>
-                                        <property name="round_digits">0</property>
                                         <property name="value_xalign">1</property>
                                         <signal name="value-changed" handler="on_m_offset_changed" swapped="no"/>
                                       </object>
@@ -459,7 +457,6 @@ response file with the
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="adjustment">adjustment3</property>
-                                        <property name="round_digits">0</property>
                                         <property name="value_xalign">1</property>
                                         <signal name="value-changed" handler="on_m_length_changed" swapped="no"/>
                                       </object>
@@ -495,7 +492,6 @@ response file with the
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="adjustment">adjustment5</property>
-                                        <property name="round_digits">0</property>
                                         <property name="value_xalign">1</property>
                                         <signal name="value-changed" handler="on_ms_delay_changed" swapped="no"/>
                                       </object>
@@ -512,7 +508,6 @@ response file with the
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="adjustment">adjustment6</property>
-                                        <property name="round_digits">0</property>
                                         <property name="value_xalign">1</property>
                                         <signal name="value-changed" handler="on_ms_offset_changed" swapped="no"/>
                                       </object>
@@ -529,7 +524,6 @@ response file with the
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="adjustment">adjustment7</property>
-                                        <property name="round_digits">0</property>
                                         <property name="value_xalign">1</property>
                                         <signal name="value-changed" handler="on_ms_length_changed" swapped="no"/>
                                       </object>
@@ -806,7 +800,6 @@ response file with the
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="adjustment">adjustment8</property>
-                                                <property name="round_digits">0</property>
                                                 <property name="var_id">jconv.wet_dry</property>
                                               </object>
                                               <packing>

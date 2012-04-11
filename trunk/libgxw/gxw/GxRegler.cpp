@@ -900,7 +900,11 @@ static gchar* _gx_regler_format_value(GxRegler *regler, gdouble value)
 		return fmt;
 	} else {
 		/* insert a LRM, to prevent -20 to come out as 20- in RTL locales */
-		return g_strdup_printf ("\342\200\216%0.*f", GTK_RANGE(regler)->round_digits, value);
+		int rd = GTK_RANGE(regler)->round_digits;
+		if (rd < 0) {
+			rd = 0;
+		}
+		return g_strdup_printf ("\342\200\216%0.*f", rd, value);
 	}
 }
 
@@ -1177,8 +1181,12 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 		gtk_adjustment_new(
 			dst_adj->value, dst_adj->lower, dst_adj->upper,
 			dst_adj->step_increment, dst_adj->page_increment, dst_adj->page_size));
+	int rd = GTK_RANGE(regler)->round_digits;
+	if (rd < 0) {
+		rd = 0;
+	}
 	GtkWidget *spinner = gtk_spin_button_new(
-		src_adj, src_adj->step_increment, GTK_RANGE(regler)->round_digits);
+		src_adj, src_adj->step_increment, rd);
 	g_signal_connect(src_adj, "value-changed", G_CALLBACK(gx_regler_relay_value), dst_adj);
 	gtk_container_add(GTK_CONTAINER(dialog), spinner);
 
@@ -1273,7 +1281,7 @@ static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec)
 static void gx_regler_init(GxRegler *regler)
 {
 	regler->priv = G_TYPE_INSTANCE_GET_PRIVATE (regler, GX_TYPE_REGLER, GxReglerPrivate);
-	GTK_RANGE(regler)->round_digits = 0;
+	GTK_RANGE(regler)->round_digits = -1;
 	regler->value_position = GTK_POS_BOTTOM;
 	regler->show_value = TRUE;
 	regler->value_xalign = 0.5;

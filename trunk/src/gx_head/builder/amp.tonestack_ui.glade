@@ -18,7 +18,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="round_digits">0</property>
                 <property name="var_id">amp.tonestack.select</property>
               </object>
               <packing>
@@ -43,7 +42,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="round_digits">0</property>
                 <property name="var_id">amp.tonestack.select</property>
               </object>
               <packing>
@@ -73,7 +71,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="round_digits">0</property>
                     <property name="var_id">amp.tonestack.Bass</property>
                     <property name="label_ref">label1:rack_label</property>
                   </object>
@@ -111,7 +108,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="round_digits">0</property>
                     <property name="var_id">amp.tonestack.Middle</property>
                     <property name="label_ref">label2:rack_label</property>
                   </object>
@@ -149,7 +145,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="round_digits">0</property>
                     <property name="var_id">amp.tonestack.Treble</property>
                     <property name="label_ref">label3:rack_label</property>
                   </object>
