@@ -25,7 +25,7 @@ def build(bld):
     incl = ['../headers', '..','../gx_head/engine','../../libgxwmm','../../libgxw']
     lib = ['dl']
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
-              'GLIBMM', 'GIOMM', 'FFTW3', 'BOOST_THREAD']
+              'GLIBMM', 'GIOMM', 'FFTW3']
     if bld.env['ZITA_CONVOLVER']:
         uselib.append('ZITA_CONVOLVER')
     else:

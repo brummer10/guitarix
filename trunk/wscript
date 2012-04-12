@@ -334,8 +334,8 @@ def check_faust(conf):
     conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
 
 def check_boost(conf):
-    boost_atleast_version = 104000
-    boost_atleast_vermsg = "1.40"
+    boost_atleast_version = 104200
+    boost_atleast_vermsg = "1.42"
     code="""
     #include <boost/version.hpp>
     #include <boost/format.hpp>
@@ -345,15 +345,19 @@ def check_boost(conf):
     #endif
     int main(){ return 0; }
     """ % boost_atleast_version
-    msg = "Checking for boost_thread%%s >= %s" % boost_atleast_vermsg
-    try:
-        conf.check_cxx(
-            msg = msg % "", fragment=code, lib="boost_thread", uselib_store="BOOST_THREAD",
-            errmsg="not found, trying boost_thread-mt", mandatory=1)
-    except ConfigurationError:
-        conf.check_cxx(
-            msg = msg % "-mt",fragment=code, lib="boost_thread-mt",
-            uselib_store="BOOST_THREAD", mandatory=1)
+    msg = "Checking for boost >= %s" % boost_atleast_vermsg
+    conf.check_cxx(msg = msg, fragment=code, mandatory=1)
+    # not needed: with boost 1.42 Guitarix doesn't generate code which
+    #             references the boost threading lib
+    #msg = "Checking for boost_thread%%s >= %s" % boost_atleast_vermsg
+    #try:
+    #    conf.check_cxx(
+    #        msg = msg % "", fragment=code, lib="boost_thread", uselib_store="BOOST_THREAD",
+    #        errmsg="not found, trying boost_thread-mt", mandatory=1)
+    #except ConfigurationError:
+    #    conf.check_cxx(
+    #        msg = msg % "-mt",fragment=code, lib="boost_thread-mt",
+    #        uselib_store="BOOST_THREAD", mandatory=1)
 
 def check_zita_convolver(opt, conf):
     if opt.includeconvolver:
