@@ -1653,8 +1653,26 @@ void MainWindow::clear_box(Gtk::Container& box) {
     }
 }
 
+#define OFFSCREEN_WINDOW_BUG
+
+#ifdef OFFSCREEN_WINDOW_BUG
+static int icon_gen_pos_x = 0, icon_gen_pos_y = 0;
+#endif
+
 void MainWindow::make_icons() {
+#ifdef OFFSCREEN_WINDOW_BUG
+    Gtk::Window w;
+    w.set_type_hint(Gdk::WINDOW_TYPE_HINT_DOCK);
+    w.set_keep_below(true);
+    w.set_decorated(false);
+    if (window->get_visible()) {
+	window->get_position(icon_gen_pos_x, icon_gen_pos_y);
+    }
+    w.move(icon_gen_pos_x, icon_gen_pos_y);
+    w.set_default_size(1, 1);
+#else
     Gtk::OffscreenWindow w;
+#endif
     Glib::RefPtr<Gdk::Screen> screen = w.get_screen();
     Glib::RefPtr<Gdk::Colormap> rgba = screen->get_rgba_colormap();
     if (rgba) {
@@ -1679,7 +1697,13 @@ void MainWindow::make_icons() {
 	    Gtk::Main::iteration();
 	}
         //w.get_window()->process_updates(true);
+#ifdef OFFSCREEN_WINDOW_BUG
+	int wd, ht;
+	w.get_size(wd, ht);
+	i->first->icon = Gdk::Pixbuf::create(Glib::RefPtr<Gdk::Drawable>::cast_dynamic(w.get_snapshot()), 0, 0, wd, ht);
+#else
 	i->first->icon = w.get_pixbuf();
+#endif
 	if (i->first->toolitem) {
 	    dynamic_cast<Gtk::Image*>(i->first->toolitem->get_child())->set(i->first->icon);
 	}
@@ -2750,6 +2774,9 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	
     // we set the skin at this late point to avoid calling make_icons more
     // than once
+#ifdef OFFSCREEN_WINDOW_BUG
+    splash->get_position(icon_gen_pos_x, icon_gen_pos_y);
+#endif
     if (actions.skin->get_current_value() != skin) {
 	actions.skin->set_current_value(skin); // will call set_new_skin()
     } else {
