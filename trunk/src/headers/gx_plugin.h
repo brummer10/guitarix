@@ -96,19 +96,20 @@ typedef int (*uiloader)(const UiBuilder& builder);
 typedef void (*deletefunc)(PluginDef *plugin);
 
 enum {
-    PGN_STEREO      =  0x01, // stereo plugin (auto set when stereo_audio)
-    PGN_PRE         =  0x02, // (mono) always "pre" position
-    PGN_POST        =  0x04, // (mono) always "post" position
-    PGN_GUI         =  0x08, // register variables for gui (auto set when load_ui)
-    PGN_POST_PRE    =  0x10, // (mono) register post/pre variable (auto set when
+    PGN_STEREO      = 0x0001, // stereo plugin (auto set when stereo_audio)
+    PGN_PRE         = 0x0002, // (mono) always "pre" position
+    PGN_POST        = 0x0004, // (mono) always "post" position
+    PGN_GUI         = 0x0008, // register variables for gui (auto set when load_ui)
+    PGN_POST_PRE    = 0x0010, // (mono) register post/pre variable (auto set when
 				// gui and not always pre or post)
-    PGN_ALTERNATIVE =  0x20, // plugin is part of a group of modules
+    PGN_ALTERNATIVE = 0x0020, // plugin is part of a group of modules
 				// managed by a ModuleSelector
-    PGN_SNOOP       =  0x40, // does not alter audio stream
-    PGN_MODE_NORMAL = 0x100, // plugin is active in normal mode (default)
-    PGN_MODE_BYPASS = 0x200, // plugin is active in bypass mode
-    PGN_MODE_MUTE   = 0x400, // plugin is active in mute mode
-    PGN_FIXED_GUI   = 0x800, // user cannot hide plugin GUI
+    PGN_SNOOP       = 0x0040, // does not alter audio stream
+    PGN_MODE_NORMAL = 0x0100, // plugin is active in normal mode (default)
+    PGN_MODE_BYPASS = 0x0200, // plugin is active in bypass mode
+    PGN_MODE_MUTE   = 0x0400, // plugin is active in mute mode
+    PGN_FIXED_GUI   = 0x0800, // user cannot hide plugin GUI
+    PGN_NO_PRESETS  = 0x1000,
     // For additional flags see struct Plugin
 };
 

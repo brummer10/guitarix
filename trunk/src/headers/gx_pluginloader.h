@@ -33,9 +33,9 @@ namespace gx_engine {
 */
 
 enum {			       // additional flags for PluginDef (used internally)
-    PGNI_DYN_POSITION = 0x1000, // plugin is part of dynamically ordered rack
-    PGNI_NOT_OWN      = 0x2000,	// not owned by PluginList
-    PGNI_UI_REG       = 0x4000, // Plugin registered in user interface
+    PGNI_DYN_POSITION = 0x10000, // plugin is part of dynamically ordered rack
+    PGNI_NOT_OWN      = 0x20000, // not owned by PluginList
+    PGNI_UI_REG       = 0x40000, // Plugin registered in user interface
 };
 
 class Plugin {

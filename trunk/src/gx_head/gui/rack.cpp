@@ -480,8 +480,10 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
     al->set_padding(1, 0, 4, 4);
     pack_end(*manage(al), Gtk::PACK_SHRINK);
     box->pack_end(*manage(rb.wrap_bar(8)), Gtk::PACK_SHRINK);
-    preset_button = rb.make_preset_button();
-    box->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
+    if (!(rb.plugin.plugin->pdef->flags & PGN_NO_PRESETS)) {
+	preset_button = rb.make_preset_button();
+	box->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
+    }
     show_all();
 }
 
@@ -1170,7 +1172,9 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     bx->pack_start(box);
     Gtk::VBox *vbox = new Gtk::VBox();
     vbox->pack_start(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
-    vbox->pack_start(*manage(make_preset_button()), Gtk::PACK_EXPAND_PADDING);
+    if (!(plugin.plugin->pdef->flags & PGN_NO_PRESETS)) {
+	vbox->pack_start(*manage(make_preset_button()), Gtk::PACK_EXPAND_PADDING);
+    }
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.7);
     al->add(*manage(vbox));
     al->set_padding(1, 0, 0, 4);

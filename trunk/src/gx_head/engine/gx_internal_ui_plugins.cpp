@@ -178,7 +178,7 @@ OscilloscopeAdapter::OscilloscopeAdapter(
 {
     assert(buffer == 0);
     version = PLUGINDEF_VERSION;
-    flags = PGN_SNOOP;
+    flags = PGN_SNOOP | PGN_NO_PRESETS;
     id = "oscilloscope";
     name = N_("Oscilloscope");
     mono_audio = fill_buffer;
