@@ -305,7 +305,7 @@ Vibe::bjt_shape(float data)
 }
 
 void Vibe::out(int PERIOD, float *smpsl, float *smpsr, float * efxoutl, float * efxoutr) {
-    float fdepth = 1 - Pdepth;
+    float fdepth = (1 - pow(Pdepth, 0.2)) * 0.6;
     if (Pstereo) {
 	fcross = 1 - std::abs(flrcross);
 	rpanning = Ppanning+1;
