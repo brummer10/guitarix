@@ -400,7 +400,7 @@ void Vibe::out(int PERIOD, float *smpsl, float *smpsr, float * efxoutl, float * 
             fxr = f_exp(Ra/logf(xr));
         }
 
-	if(i%16 == 0) modulate(fxl, fxr);
+	if(i%4 == 0) modulate(fxl, fxr);
      
 	//Left Channel  
         input = bjt_shape(fbl + smpsl[i]);
