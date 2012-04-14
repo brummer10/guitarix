@@ -82,26 +82,30 @@ inline float f_pow2(float x)
 
 class NextValue {
 private:
-    enum  { size = 16 };
+    enum  {
+	size = 16,
+	period = 16, // corresponding to factor in vibe[_mono]_lfo_ctrl
+    };
     int idx;
+    int sample;
     float store_l[size];
     float store_r[size];
 public:
-    NextValue(): idx(0) {}
+    NextValue(): idx(size), sample(0) {}
     inline bool hasValue() { return idx < size; }
+    inline bool need_next() { sample %= period; return sample++ == 0; }
     inline void fetch(float& left, float& right) { left = store_l[idx]; right = store_r[idx]; ++idx; }
-    inline int limit(int count, int div) { return min((count+div-1)/div, size); }
-    inline void compute(int count, int div, void (*func)(int,float*));
-    inline void compute(int count, int div, void (*func)(int,float*,float*));
+    inline void compute(void (*func)(int,float*));
+    inline void compute(void (*func)(int,float*,float*));
 };
 
-inline void NextValue::compute(int count, int div, void (*func)(int,float*)) {
-    func(limit(count, div), store_l);
+inline void NextValue::compute(void (*func)(int,float*)) {
+    func(size, store_l);
     idx = 0;
 }
 
-inline void NextValue::compute(int count, int div, void (*func)(int,float*,float*)) {
-    func(limit(count, div), store_l, store_r);
+inline void NextValue::compute(void (*func)(int,float*,float*)) {
+    func(size, store_l, store_r);
     idx = 0;
 }
 
@@ -137,6 +141,7 @@ private:
     float fbr, fbl;
     float dalphal, dalphar;
     float lstep,rstep;
+    float lfol, lfor;
     float gl, oldgl;
     float gr, oldgr; 
   
@@ -229,9 +234,9 @@ int Vibe::registerparam(const ParamReg& reg) {
 	univibe_fb = "univibe_mono.fb";
     }
     reg.registerVar(univibe_width,N_("Width"),"S",N_("LFO amplitude"),&self.Pwidth, 0.5, 0, 1, 0.01);
-    reg.registerVar(univibe_depth,N_("Depth"),"S",N_("DC level in LFO"),&self.Pdepth,1,0,1,0.01);
+    reg.registerVar(univibe_depth,N_("Depth"),"S",N_("DC level in LFO"),&self.Pdepth,0.37,0,1,0.01);
     reg.registerVar(univibe_wet_dry,N_("Wet/Dry"),"S",N_("output mix (signal / effect)"),&self.wet_dry,1,0,1,0.01);
-    reg.registerVar(univibe_fb,N_("Fb"),"S",N_("sound modification by feedback"),&self.fb,0,-1,1,0.01);
+    reg.registerVar(univibe_fb,N_("Fb"),"S",N_("sound modification by feedback"),&self.fb,-0.6,-1,1,0.01);
     return 0;
 }
 
@@ -263,11 +268,11 @@ int Vibe::uiloader(const UiBuilder& b) {
     b.create_small_rackknob(univibe_freq,0);
     b.create_small_rackknob(univibe_depth,0);
     b.create_small_rackknob(univibe_width,0);
+    b.create_small_rackknob(univibe_fb,0);
     if (self.Pstereo) {
 	b.closeBox();
 	b.openHorizontalBox("");
     }
-    b.create_small_rackknob(univibe_fb,0);
     if (self.Pstereo) {
 	b.create_small_rackknob("univibe.stereo",0);
 	b.create_small_rackknob("univibe.panning",0);
@@ -331,7 +336,6 @@ void Vibe::out(int PERIOD, float *smpsl, float *smpsr, float * efxoutl, float * 
     // from rakarrack out()
 
     int i,j;
-    float lfol = 0, lfor = 0; // initialize to make stupid compiler happy
     float xl, xr;
     float  fxl=0.0f;
     float  fxr=0.0f;
@@ -343,13 +347,12 @@ void Vibe::out(int PERIOD, float *smpsl, float *smpsr, float * efxoutl, float * 
     input = cvolt = ocvolt = evolt = 0.0f;
 
     for (i = 0; i < PERIOD; i++) {
-	const int lfo_upsample = 16; // corresponding to factor in vibe[_mono]_lfo_ctrl
-	if (i % lfo_upsample == 0) {
+	if (lfo.need_next()) {
 	    if (!lfo.hasValue()) {
 		if (Pstereo) {
-		    lfo.compute(PERIOD-i, lfo_upsample, vibe_lfo_sine::compute);
+		    lfo.compute(vibe_lfo_sine::compute);
 		} else {
-		    lfo.compute(PERIOD-i, lfo_upsample, vibe_mono_lfo_sine::compute);
+		    lfo.compute(vibe_mono_lfo_sine::compute);
 		}
 	    }
 	    lfo.fetch(lfol, lfor);
@@ -569,6 +572,8 @@ void Vibe::init_vibes(unsigned int samplerate) {
     ilampTC = 1.0f - lampTC;
     lstep = 0.0f;
     rstep = 0.0f;
+    lfol = 0.0f;
+    lfor = 0.0f;
     lpanning = 1.0f;
     rpanning = 1.0f;
     oldgl = 0.0f;
