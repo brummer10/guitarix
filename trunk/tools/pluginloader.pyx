@@ -58,7 +58,7 @@ cdef extern from "gx_plugin.h":
     ctypedef int (*activatefunc)(int start, PluginDef *plugin)
     ctypedef void (*process_stereo_audio)(int count, float *input1, float *input2,
                                            float *output1, float *output2, PluginDef *plugin)
-    cppclass PluginDef(PluginDef):
+    cppclass PluginDef:
         int version
         int flags
         char* id
@@ -87,7 +87,7 @@ cdef class Plugin:
     cdef dict d
     cdef double time_per_sample
 
-    def __cinit__(self, char *path):
+    def __cinit__(self, char *path, unsigned int idx = 0):
         cdef int n
         self.varmap = new VarMap()
         self.p = <PluginDef*>0
@@ -105,7 +105,9 @@ cdef class Plugin:
             raise RuntimeError("error loading plugins")
         if n == 0:
             raise RuntimeError("no plugin found")
-        if get_gx_plugin(0, &self.p) < 0:
+        if idx >= n:
+            raise RuntimeError("idx too big (%d > %d)" % (idx, n-1))
+        if get_gx_plugin(idx, &self.p) < 0:
             raise RuntimeError("plugin loader error")
         cdef ParamRegImpl *pr
         cdef variter i
