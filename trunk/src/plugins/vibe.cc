@@ -126,7 +126,7 @@ private:
     bool Pstereo;
     float Ppanning;
   
-    float fwidth;
+    float Pwidth;
     float Pdepth;
     float rpanning, lpanning;
     float wet_dry;
@@ -228,7 +228,7 @@ int Vibe::registerparam(const ParamReg& reg) {
 	univibe_wet_dry = "univibe_mono.wet_dry";
 	univibe_fb = "univibe_mono.fb";
     }
-    reg.registerVar(univibe_width,N_("Width"),"S",N_("LFO amplitude"),&self.fwidth, 0.7, 0, 127/90.0, 0.1);
+    reg.registerVar(univibe_width,N_("Width"),"S",N_("LFO amplitude"),&self.Pwidth, 0.5, 0, 1, 0.01);
     reg.registerVar(univibe_depth,N_("Depth"),"S",N_("DC level in LFO"),&self.Pdepth,1,0,1,0.01);
     reg.registerVar(univibe_wet_dry,N_("Wet/Dry"),"S",N_("output mix (signal / effect)"),&self.wet_dry,1,0,1,0.01);
     reg.registerVar(univibe_fb,N_("Fb"),"S",N_("sound modification by feedback"),&self.fb,0,-1,1,0.01);
@@ -326,6 +326,7 @@ void Vibe::out(int PERIOD, float *smpsl, float *smpsr, float * efxoutl, float * 
 	fact_d = (1 - wet_dry) * 2;
 	fact_w = 1.0;
     }
+    float fwidth = pow(10, 2.14*Pwidth) * 0.01;
 
     // from rakarrack out()
 
