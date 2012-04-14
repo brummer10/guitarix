@@ -27,9 +27,7 @@
 
 #include "gx_faust_support.h"
 #include "../faust/vibe_lfo_sine.cc"
-#include "../faust/vibe_lfo_triangle.cc"
 #include "../faust/vibe_mono_lfo_sine.cc"
-#include "../faust/vibe_mono_lfo_triangle.cc"
 
 namespace pluginlib {
 namespace vibe {
@@ -213,19 +211,11 @@ int Vibe::registerparam(const ParamReg& reg) {
     Vibe& self = *static_cast<Vibe*>(reg.plugin);
     if (self.Pstereo) {
 	vibe_lfo_sine::register_params(reg);
-	vibe_lfo_triangle::register_params(reg);
     } else {
 	vibe_mono_lfo_sine::register_params(reg);
-	vibe_mono_lfo_triangle::register_params(reg);
     }
-    static const value_pair lfo_types[] = {
-	{"sine",             N_("Sine") },
-	{"tri",              N_("Tri") },
-	{0,0}
-    };
-    const char *univibe_lfo_type, *univibe_width, *univibe_depth, *univibe_wet_dry, *univibe_fb;
+    const char *univibe_width, *univibe_depth, *univibe_wet_dry, *univibe_fb;
     if (self.Pstereo) {
-	univibe_lfo_type = "univibe.lfo_type";
 	univibe_width = "univibe.width";
 	univibe_depth = "univibe.depth";
 	univibe_wet_dry = "univibe.wet_dry";
@@ -233,13 +223,11 @@ int Vibe::registerparam(const ParamReg& reg) {
 	reg.registerVar("univibe.panning",N_("Pan"),"S",N_("panning of output (left / right)"),&self.Ppanning,0,-1,1,0.01);
 	reg.registerVar("univibe.lrcross",N_("L/R.Cr"),"S",N_("left/right channel crossing"),&self.flrcross,0,-1,1,0.01);
     } else {
-	univibe_lfo_type = "univibe_mono.lfo_type";
 	univibe_width = "univibe_mono.width";
 	univibe_depth = "univibe_mono.depth";
 	univibe_wet_dry = "univibe_mono.wet_dry";
 	univibe_fb = "univibe_mono.fb";
     }
-    reg.registerUEnumVar(univibe_lfo_type,N_("LFO Type"),"B","",lfo_types,&self.PLFOtype,0);
     reg.registerVar(univibe_width,N_("Width"),"S",N_("LFO amplitude"),&self.fwidth, 0.7, 0, 127/90.0, 0.1);
     reg.registerVar(univibe_depth,N_("Depth"),"S",N_("DC level in LFO"),&self.Pdepth,1,0,1,0.01);
     reg.registerVar(univibe_wet_dry,N_("Wet/Dry"),"S",N_("output mix (signal / effect)"),&self.wet_dry,1,0,1,0.01);
@@ -249,17 +237,15 @@ int Vibe::registerparam(const ParamReg& reg) {
 
 int Vibe::uiloader(const UiBuilder& b) {
     Vibe& self = *static_cast<Vibe*>(b.plugin);
-    const char *univibe_freq, *univibe_lfo_type, *univibe_width, *univibe_depth, *univibe_wet_dry, *univibe_fb;
+    const char *univibe_freq, *univibe_width, *univibe_depth, *univibe_wet_dry, *univibe_fb;
     if (self.Pstereo) {
 	univibe_freq = "univibe.freq";
-	univibe_lfo_type = "univibe.lfo_type";
 	univibe_width = "univibe.width";
 	univibe_depth = "univibe.depth";
 	univibe_wet_dry = "univibe.wet_dry";
 	univibe_fb = "univibe.fb";
     } else {
 	univibe_freq = "univibe_mono.freq";
-	univibe_lfo_type = "univibe_mono.lfo_type";
 	univibe_width = "univibe_mono.width";
 	univibe_depth = "univibe_mono.depth";
 	univibe_wet_dry = "univibe_mono.wet_dry";
@@ -274,7 +260,6 @@ int Vibe::uiloader(const UiBuilder& b) {
 	b.openVerticalBox("");
 	b.openHorizontalBox("");
     }
-    b.create_selector(univibe_lfo_type);
     b.create_small_rackknob(univibe_freq,0);
     b.create_small_rackknob(univibe_depth,0);
     b.create_small_rackknob(univibe_width,0);
@@ -361,19 +346,9 @@ void Vibe::out(int PERIOD, float *smpsl, float *smpsr, float * efxoutl, float * 
 	if (i % lfo_upsample == 0) {
 	    if (!lfo.hasValue()) {
 		if (Pstereo) {
-		    if (PLFOtype == 0) {
-			lfo.compute(PERIOD-i, lfo_upsample, vibe_lfo_sine::compute);
-		    } else {
-			assert(PLFOtype == 1);
-			lfo.compute(PERIOD-i, lfo_upsample, vibe_lfo_triangle::compute);
-		    }
+		    lfo.compute(PERIOD-i, lfo_upsample, vibe_lfo_sine::compute);
 		} else {
-		    if (PLFOtype == 0) {
-			lfo.compute(PERIOD-i, lfo_upsample, vibe_mono_lfo_sine::compute);
-		    } else {
-			assert(PLFOtype == 1);
-			lfo.compute(PERIOD-i, lfo_upsample, vibe_mono_lfo_triangle::compute);
-		    }
+		    lfo.compute(PERIOD-i, lfo_upsample, vibe_mono_lfo_sine::compute);
 		}
 	    }
 	    lfo.fetch(lfol, lfor);
@@ -565,10 +540,8 @@ void Vibe::out(int PERIOD, float *smpsl, float *smpsr, float * efxoutl, float * 
 void Vibe::init_vibes(unsigned int samplerate) {
     if (Pstereo) {
 	vibe_lfo_sine::init(samplerate);
-	vibe_lfo_triangle::init(samplerate);
     } else {
 	vibe_mono_lfo_sine::init(samplerate);
-	vibe_mono_lfo_triangle::init(samplerate);
     }
 
     cSAMPLE_RATE = 1.0 / samplerate;

@@ -24,6 +24,8 @@ def build(bld):
         'distortion1.dsp',
         'noisegate.dsp',
         'sloop.dsp', ##float
+        'vibe_lfo_triangle.dsp',
+        'vibe_mono_lfo_triangle.dsp',
         ]
 
     sources_float = [
@@ -36,9 +38,7 @@ def build(bld):
         ]
 
     sources_static = [
-        'vibe_mono_lfo_triangle.dsp',
         'vibe_mono_lfo_sine.dsp',
-        'vibe_lfo_triangle.dsp',
         'vibe_lfo_sine.dsp',
         ]
 
