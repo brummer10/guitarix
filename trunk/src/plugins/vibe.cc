@@ -554,9 +554,9 @@ void Vibe::init_vibes(unsigned int samplerate) {
     //Because of time response, Rb needs to be driven further.
     //End resistance will max out to around 10k for most LFO freqs.
     //pushing low end a little lower for kicks and giggles
-    Ra = 500000.0f;  //Cds cell dark resistance.
+    Ra = 700000.0f;  //Cds cell dark resistance.
     Ra = logf(Ra);		//this is done for clarity
-    Rb = 600.0f;         //Cds cell full illumination
+    Rb = 500.0f;         //Cds cell full illumination
     b = exp(Ra/logf(Rb)) - CNST_E;
     dTC = 0.085f;
     dRCl = dTC;
