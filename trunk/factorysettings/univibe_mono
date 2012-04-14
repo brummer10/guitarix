@@ -1,58 +1,68 @@
-["gx_plugin_version", 1,
-  "Classic", {
-    "univibe_mono.width": 0.388889,
-    "univibe_mono.freq": 2,
-    "univibe_mono.lfo_type": 0,
-    "univibe_mono.wet_dry": 0.496063,
-    "univibe_mono.fb": 0,
-    "univibe_mono.depth": 0.976378,
-  }
-  "Wide Vibe", {
-    "univibe_mono.width": 1.41111,
-    "univibe_mono.freq": 1.33333,
-    "univibe_mono.lfo_type": 0,
-    "univibe_mono.wet_dry": 0.496063,
-    "univibe_mono.fb": 0,
-    "univibe_mono.depth": 1,
-  }
-  "Classic Chorus", {
-    "univibe_mono.width": 0.388889,
-    "univibe_mono.freq": 6,
-    "univibe_mono.lfo_type": 0,
-    "univibe_mono.wet_dry": 1,
-    "univibe_mono.fb": 0,
-    "univibe_mono.depth": 0.976378,
-  }
-  "Vibe Chorus", {
-    "univibe_mono.width": 0.833333,
-    "univibe_mono.freq": 5.5,
-    "univibe_mono.lfo_type": 0,
-    "univibe_mono.wet_dry": 1,
-    "univibe_mono.fb": 0,
-    "univibe_mono.depth": 0.866142,
-  }
-  "Lush Chorus", {
-    "univibe_mono.width": 0.611111,
-    "univibe_mono.freq": 4.33333,
-    "univibe_mono.lfo_type": 0,
-    "univibe_mono.wet_dry": 1,
-    "univibe_mono.fb": -0.230769,
-    "univibe_mono.depth": 0.84252,
-  }
-  "Sick Phaser", {
-    "univibe_mono.width": 1.22222,
-    "univibe_mono.freq": 1.25,
-    "univibe_mono.lfo_type": 0,
-    "univibe_mono.wet_dry": 0.496063,
-    "univibe_mono.fb": -0.769231,
-    "univibe_mono.depth": 1,
-  }
-  "Warble", {
-    "univibe_mono.width": 1.41111,
-    "univibe_mono.freq": 6,
-    "univibe_mono.lfo_type": 0,
-    "univibe_mono.wet_dry": 1,
-    "univibe_mono.fb": -0.984615,
-    "univibe_mono.depth": 1,
+[
+  "gx_plugin_version", 
+  1, 
+  "Classic", 
+  {
+    "univibe_mono.depth": 1.213, 
+    "univibe_mono.fb": 0.0, 
+    "univibe_mono.freq": 2.0, 
+    "univibe_mono.wet_dry": 0.4961, 
+    "univibe_mono.width": 0.7429
+  }, 
+  "Wide Vibe", 
+  {
+    "univibe_mono.depth": 1.0, 
+    "univibe_mono.fb": 0.0, 
+    "univibe_mono.freq": 1.3333, 
+    "univibe_mono.wet_dry": 0.4961, 
+    "univibe_mono.width": 1.0045
+  }, 
+  "Classic Chorus", 
+  {
+    "univibe_mono.depth": 1.213, 
+    "univibe_mono.fb": 0.0, 
+    "univibe_mono.freq": 6.0, 
+    "univibe_mono.wet_dry": 1.0, 
+    "univibe_mono.width": 0.7429
+  }, 
+  "Vibe Chorus", 
+  {
+    "univibe_mono.depth": 2.7372, 
+    "univibe_mono.fb": 0.0, 
+    "univibe_mono.freq": 5.5, 
+    "univibe_mono.wet_dry": 1.0, 
+    "univibe_mono.width": 0.8976
+  }, 
+  "Lush Chorus", 
+  {
+    "univibe_mono.depth": 3.207, 
+    "univibe_mono.fb": -0.2308, 
+    "univibe_mono.freq": 4.3333, 
+    "univibe_mono.wet_dry": 1.0, 
+    "univibe_mono.width": 0.8346
+  }, 
+  "Sick Phaser", 
+  {
+    "univibe_mono.depth": 1.0, 
+    "univibe_mono.fb": -0.7692, 
+    "univibe_mono.freq": 1.25, 
+    "univibe_mono.wet_dry": 0.4961, 
+    "univibe_mono.width": 0.9753
+  }, 
+  "Warble", 
+  {
+    "univibe_mono.depth": 1.0, 
+    "univibe_mono.fb": -0.9846, 
+    "univibe_mono.freq": 6.0, 
+    "univibe_mono.wet_dry": 1.0, 
+    "univibe_mono.width": 1.0045
+  }, 
+  "Standard", 
+  {
+    "univibe_mono.depth": 0.37, 
+    "univibe_mono.fb": -0.6, 
+    "univibe_mono.freq": 4.4, 
+    "univibe_mono.wet_dry": 1, 
+    "univibe_mono.width": 0.5
   }
 ]

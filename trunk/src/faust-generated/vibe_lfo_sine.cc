@@ -54,8 +54,8 @@ void compute(int count, float *output0, float *output1)
 
 static int register_params(const ParamReg& reg)
 {
-	fslider1_ = reg.registerVar("univibe.stereo",N_("St.df"),"SA",N_("LFO phase shift between left and right channels"),&fslider1, 0.0, -0.5, 0.5, 0.01);
-	fslider0_ = reg.registerVar("univibe.freq",N_("Tempo"),"SA",N_("LFO frequency (Hz)"),&fslider0, 6.0, 0.1, 1e+01, 0.1);
+	fslider1_ = reg.registerVar("univibe.stereo",N_("St.df"),"SA",N_("LFO phase shift between left and right channels"),&fslider1, 0.11, -0.5, 0.5, 0.01);
+	fslider0_ = reg.registerVar("univibe.freq",N_("Tempo"),"SA",N_("LFO frequency (Hz)"),&fslider0, 4.4, 0.1, 1e+01, 0.1);
 	return 0;
 }
 

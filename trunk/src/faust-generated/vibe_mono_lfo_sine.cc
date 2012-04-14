@@ -47,7 +47,7 @@ void compute(int count, float *output0)
 
 static int register_params(const ParamReg& reg)
 {
-	fslider0_ = reg.registerVar("univibe_mono.freq",N_("Tempo"),"SA",N_("LFO frequency (Hz)"),&fslider0, 6.0, 0.1, 1e+01, 0.1);
+	fslider0_ = reg.registerVar("univibe_mono.freq",N_("Tempo"),"SA",N_("LFO frequency (Hz)"),&fslider0, 4.4, 0.1, 1e+01, 0.1);
 	return 0;
 }
 
