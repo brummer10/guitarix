@@ -3,11 +3,11 @@
   1, 
   "Classic", 
   {
-    "univibe_mono.depth": 1.213, 
+    "univibe_mono.depth": 0.8181, 
     "univibe_mono.fb": 0.0, 
     "univibe_mono.freq": 2.0, 
     "univibe_mono.wet_dry": 0.4961, 
-    "univibe_mono.width": 0.7429
+    "univibe_mono.width": 0.7396
   }, 
   "Wide Vibe", 
   {
@@ -15,31 +15,31 @@
     "univibe_mono.fb": 0.0, 
     "univibe_mono.freq": 1.3333, 
     "univibe_mono.wet_dry": 0.4961, 
-    "univibe_mono.width": 1.0045
+    "univibe_mono.width": 1.0
   }, 
   "Classic Chorus", 
   {
-    "univibe_mono.depth": 1.213, 
+    "univibe_mono.depth": 0.8181, 
     "univibe_mono.fb": 0.0, 
     "univibe_mono.freq": 6.0, 
     "univibe_mono.wet_dry": 1.0, 
-    "univibe_mono.width": 0.7429
+    "univibe_mono.width": 0.7396
   }, 
   "Vibe Chorus", 
   {
-    "univibe_mono.depth": 2.7372, 
+    "univibe_mono.depth": 0.283, 
     "univibe_mono.fb": 0.0, 
     "univibe_mono.freq": 5.5, 
     "univibe_mono.wet_dry": 1.0, 
-    "univibe_mono.width": 0.8976
+    "univibe_mono.width": 0.8936
   }, 
   "Lush Chorus", 
   {
-    "univibe_mono.depth": 3.207, 
+    "univibe_mono.depth": 0.2182, 
     "univibe_mono.fb": -0.2308, 
     "univibe_mono.freq": 4.3333, 
     "univibe_mono.wet_dry": 1.0, 
-    "univibe_mono.width": 0.8346
+    "univibe_mono.width": 0.8309
   }, 
   "Sick Phaser", 
   {
@@ -47,7 +47,7 @@
     "univibe_mono.fb": -0.7692, 
     "univibe_mono.freq": 1.25, 
     "univibe_mono.wet_dry": 0.4961, 
-    "univibe_mono.width": 0.9753
+    "univibe_mono.width": 0.971
   }, 
   "Warble", 
   {
@@ -55,7 +55,7 @@
     "univibe_mono.fb": -0.9846, 
     "univibe_mono.freq": 6.0, 
     "univibe_mono.wet_dry": 1.0, 
-    "univibe_mono.width": 1.0045
+    "univibe_mono.width": 1.0
   }, 
   "Standard", 
   {

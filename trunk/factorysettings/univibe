@@ -3,25 +3,25 @@
   1, 
   "Classic", 
   {
-    "univibe.depth": 1.213, 
+    "univibe.depth": 0.8181, 
     "univibe.fb": 0.0, 
     "univibe.freq": 2.0, 
     "univibe.lrcross": 0.0, 
     "univibe.panning": 0.0, 
     "univibe.stereo": 0.0, 
     "univibe.wet_dry": 0.4961, 
-    "univibe.width": 0.7429
+    "univibe.width": 0.7396
   }, 
   "Stereo Classic", 
   {
-    "univibe.depth": 1.213, 
+    "univibe.depth": 0.8181, 
     "univibe.fb": 0.0, 
     "univibe.freq": 2.0, 
     "univibe.lrcross": 0.0, 
     "univibe.panning": 0.0, 
     "univibe.stereo": -0.125, 
     "univibe.wet_dry": 0.4961, 
-    "univibe.width": 0.7429
+    "univibe.width": 0.7396
   }, 
   "Wide Vibe", 
   {
@@ -32,40 +32,40 @@
     "univibe.panning": 0.0, 
     "univibe.stereo": -0.5, 
     "univibe.wet_dry": 0.4961, 
-    "univibe.width": 1.0045
+    "univibe.width": 1.0
   }, 
   "Classic Chorus", 
   {
-    "univibe.depth": 1.213, 
+    "univibe.depth": 0.8181, 
     "univibe.fb": 0.0, 
     "univibe.freq": 6.0, 
     "univibe.lrcross": 0.0, 
     "univibe.panning": 0.0, 
     "univibe.stereo": -0.125, 
     "univibe.wet_dry": 1.0, 
-    "univibe.width": 0.7429
+    "univibe.width": 0.7396
   }, 
   "Vibe Chorus", 
   {
-    "univibe.depth": 2.7372, 
+    "univibe.depth": 0.283, 
     "univibe.fb": 0.0, 
     "univibe.freq": 5.5, 
     "univibe.lrcross": 0.0, 
     "univibe.panning": 0.0, 
     "univibe.stereo": -0.1094, 
     "univibe.wet_dry": 1.0, 
-    "univibe.width": 0.8976
+    "univibe.width": 0.8936
   }, 
   "Lush Chorus", 
   {
-    "univibe.depth": 3.207, 
+    "univibe.depth": 0.2182, 
     "univibe.fb": -0.2308, 
     "univibe.freq": 4.3333, 
     "univibe.lrcross": -0.25, 
     "univibe.panning": 0.0938, 
     "univibe.stereo": 0.0, 
     "univibe.wet_dry": 1.0, 
-    "univibe.width": 0.8346
+    "univibe.width": 0.8309
   }, 
   "Sick Phaser", 
   {
@@ -76,7 +76,7 @@
     "univibe.panning": 0.0, 
     "univibe.stereo": -0.25, 
     "univibe.wet_dry": 0.4961, 
-    "univibe.width": 0.9753
+    "univibe.width": 0.971
   }, 
   "Warble", 
   {
@@ -87,7 +87,7 @@
     "univibe.panning": 0.0, 
     "univibe.stereo": -0.5, 
     "univibe.wet_dry": 1.0, 
-    "univibe.width": 1.0045
+    "univibe.width": 1.0
   }, 
   "Standard", 
   {
