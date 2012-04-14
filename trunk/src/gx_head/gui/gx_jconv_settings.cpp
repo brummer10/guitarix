@@ -634,11 +634,11 @@ bool IRWindow::on_key_press_event(GdkEventKey *event) {
 }
 
 void IRWindow::reload_and_show() {
-    if (gtk_window->get_visible()) {
+    if (gtk_window->get_visible() && !(gtk_window->get_window()->get_state() & Gdk::WINDOW_STATE_ICONIFIED)) {
 	gtk_window->hide();
     } else {
 	load_state();
-	gtk_window->show();
+	gtk_window->present();
     }
 }
 
