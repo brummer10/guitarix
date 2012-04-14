@@ -1,0 +1,34 @@
+["gx_plugin_version", 1,
+  "greathall-early-reflections", {
+    "jconv.balance": 0,
+    "jconv.convolver": {
+      "jconv.IRFile": "greathall.wav",
+      "jconv.IRDir": "",
+      "jconv.Gain": 1.26574,
+      "jconv.GainCor": 1,
+      "jconv.Offset": 0,
+      "jconv.Length": 36905,
+      "jconv.Delay": 0,
+      "jconv.gainline": [[0, 0], [1614, -4.5], [2767, -18.75], [89495, -120], [112560, -120]]
+    },
+    "jconv.diff_delay": -0.7,
+    "jconv.gain": -2.4,
+    "jconv.wet_dry": 100
+  },
+  "greathall", {
+    "jconv.balance": 0,
+    "jconv.convolver": {
+      "jconv.IRFile": "greathall.wav",
+      "jconv.IRDir": "",
+      "jconv.Gain": 0.598717,
+      "jconv.GainCor": 1,
+      "jconv.Offset": 0,
+      "jconv.Length": 112561,
+      "jconv.Delay": 0,
+      "jconv.gainline": [[0, 0], [112560, 0]]
+    },
+    "jconv.diff_delay": 0,
+    "jconv.gain": 0,
+    "jconv.wet_dry": 100
+  }
+]
