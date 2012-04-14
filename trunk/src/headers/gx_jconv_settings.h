@@ -71,6 +71,7 @@ class IRWindow: public sigc::trackable {
     static Gainline gain0;
     bool load_data(Glib::ustring filename, int offset = 0, int delay = 0, int length = 0, const Gainline& gain = gain0);
     void load_state();
+    void make_state(gx_engine::GxJConvSettings& jc);
     bool save_state();
     void set_GainCor();
     double calc_normalized_gain(int offset, int length, const Gainline& points);

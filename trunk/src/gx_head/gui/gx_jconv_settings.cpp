@@ -237,10 +237,15 @@ void IRWindow::file_changed(Glib::ustring filename, int rate, int length,
 
 void IRWindow::load_state() {
     string path = convolver.getFullIRPath();
-    const gx_engine::GxJConvSettings& jcset = convolver.get_jcset();
     if (path.empty()) {
 	wIredit->set_ir_data(0, 0, 0, 0);
         return;
+    }
+    const gx_engine::GxJConvSettings& jcset = convolver.get_jcset();
+    gx_engine::GxJConvSettings jc;
+    make_state(jc);
+    if (jc == jcset) {
+	return;
     }
     autogain_conn.block();
     wGain_correction->set_active(jcset.getGainCor());
@@ -340,8 +345,7 @@ double IRWindow::calc_normalized_gain(int offset, int length, const Gainline& po
     return gain;
 }
 
-bool IRWindow::save_state() {
-    gx_engine::GxJConvSettings jc;
+void IRWindow::make_state(gx_engine::GxJConvSettings& jc) {
     Gainline gainline = wIredit->get_gain();
     unsigned int offset = wIredit->get_offset();
     unsigned int length = wIredit->get_length();
@@ -353,6 +357,11 @@ bool IRWindow::save_state() {
     jc.setGainline(gainline);
     jc.setGain(gain);
     jc.setGainCor(wGain_correction->get_active());
+}
+
+bool IRWindow::save_state() {
+    gx_engine::GxJConvSettings jc;
+    make_state(jc);
     return convolver.set(jc);
 }
 
