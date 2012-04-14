@@ -752,14 +752,15 @@ PluginPresetPopup::PluginPresetPopup(const std::string& id_, const gx_preset::Gx
     if (found_presets) {
 	append(*manage(new Gtk::SeparatorMenuItem()));
     }
-    add_plugin_preset_list(gx_settings.load_plugin_preset_list(id, true));
-    Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(_("standard"));
-    if (gx_settings.get_param().unit_has_std_values(id)) {
-	c->set_active(true);
+    if (!add_plugin_preset_list(gx_settings.load_plugin_preset_list(id, true))) {
+	Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(_("standard"));
+	if (gx_settings.get_param().unit_has_std_values(id)) {
+	    c->set_active(true);
+	}
+	c->signal_activate().connect(
+	    sigc::mem_fun(this, &PluginPresetPopup::set_plugin_std_preset));
+	append(*manage(c));
     }
-    c->signal_activate().connect(
-	sigc::mem_fun(this, &PluginPresetPopup::set_plugin_std_preset));
-    append(*manage(c));
     append(*manage(new Gtk::SeparatorMenuItem()));
     Gtk::MenuItem *mi = new Gtk::MenuItem(_("save..."));
     append(*manage(mi));
