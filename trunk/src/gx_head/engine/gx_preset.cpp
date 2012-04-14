@@ -352,6 +352,13 @@ bool PluginPresetList::next(Glib::ustring& name, bool *is_set) {
 	    *is_set = true;
 	    while (jp.peek() != gx_system::JsonParser::end_object) {
 		jp.next(gx_system::JsonParser::value_key);
+		if (!pmap.hasId(jp.current_value())) {
+		    gx_system::gx_print_warning(
+			_("recall plugin settings"),
+			_("unknown parameter: ")+jp.current_value());
+		    jp.skip_object();
+		    continue;
+		}
 		gx_engine::Parameter& p = pmap[jp.current_value()];
 		p.readJSON_value(jp);
 		if (!p.compareJSON_value()) {
@@ -383,9 +390,11 @@ void PluginPresetList::set(const Glib::ustring& name) {
 		jp.next(gx_system::JsonParser::begin_object);
 		while (jp.peek() != gx_system::JsonParser::end_object) {
 		    jp.next(gx_system::JsonParser::value_key);
-		    gx_engine::Parameter& p = pmap[jp.current_value()];
-		    p.readJSON_value(jp);
-		    plist.push_back(&p);
+		    if (pmap.hasId(jp.current_value())) {
+			gx_engine::Parameter& p = pmap[jp.current_value()];
+			p.readJSON_value(jp);
+			plist.push_back(&p);
+		    }
 		}
 		jp.next(gx_system::JsonParser::end_object);
 	    }
