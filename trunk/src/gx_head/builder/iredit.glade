@@ -6,6 +6,7 @@
   <object class="GtkWindow" id="DisplayIR">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Guitarix JConvolver Parameters</property>
+    <property name="type_hint">dialog</property>
     <signal name="destroy" handler="on_DisplayIR_destroy" swapped="no"/>
     <child>
       <object class="GxPaintBox" id="gxpaintbox1">
@@ -1321,6 +1322,7 @@ it can be mono or stereo
   </object>
   <object class="GtkWindow" id="HelpIR">
     <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
     <child>
       <object class="GxPaintBox" id="gxpaintbox2">
         <property name="visible">True</property>

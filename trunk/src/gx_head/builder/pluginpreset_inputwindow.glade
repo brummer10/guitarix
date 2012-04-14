@@ -6,6 +6,7 @@
   <object class="GtkWindow" id="PluginPresetInputWindow">
     <property name="can_focus">False</property>
     <property name="window_position">mouse</property>
+    <property name="type_hint">dialog</property>
     <child>
       <object class="GxPaintBox" id="gxpaintbox1">
         <property name="visible">True</property>
