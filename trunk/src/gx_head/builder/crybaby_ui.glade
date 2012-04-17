@@ -147,7 +147,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="var_id">tremolo.wet_dry</property>
+                    <property name="var_id">crybaby.wet_dry</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
