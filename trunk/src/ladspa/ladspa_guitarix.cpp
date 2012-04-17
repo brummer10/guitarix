@@ -470,7 +470,7 @@ static string get_presetfile(const char *envvar) {
     if (path && path[0]) {
 	return path;
     }
-    return Glib::build_filename(Glib::get_user_config_dir(), "guitarix/scratchpad.gx");
+    return Glib::build_filename(Glib::get_user_config_dir(), "guitarix/banks/ladspa.gx");
 }
 
 // engine and cp not yet initialized, only use address!
