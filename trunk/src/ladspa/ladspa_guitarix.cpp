@@ -1018,7 +1018,7 @@ public:
 
 LadspaGuitarixMono::LadspaGuitarixMono(unsigned long sr)
     : LadspaGuitarix(engine, 0, control_parameter, "LADSPA_GUITARIX_MONO_PRESET"),
-      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins"), param, get_group_table()),
+      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"), param, get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),
@@ -1528,7 +1528,7 @@ public:
 LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
     : LadspaGuitarix(engine, &engine.convolver, control_parameter, "LADSPA_GUITARIX_STEREO_PRESET"),
       pathlist(),
-      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins"), param, get_group_table(), pathlist),
+      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"), param, get_group_table(), pathlist),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),
