@@ -945,6 +945,15 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
     it->set_value(pstore->col.edit_pb, pb_edit);
     it->set_value(pstore->col.del_pb, pb_del);
     if (oldname.empty()) {
+        // check if current preset is scratch and needs to be saved
+        if (!gx_settings.get_current_bank().empty()) {
+	    gx_system::PresetFile *cpf = gx_settings.banks.get_file(gx_settings.get_current_bank());
+	    if (cpf && cpf->has_entry(gx_settings.get_current_name())) {
+	        if (cpf->get_type() == gx_system::PresetFile::PRESET_SCRATCH && cpf->is_mutable()) {
+		    gx_settings.save(*cpf, gx_settings.get_current_name());
+		}
+	    }
+	}
 	pstore->append();
 	gx_settings.save(fl, newname);
     } else {
