@@ -875,6 +875,20 @@ void Dsp::del_instance(PluginDef *p)
 }
 
 #endif
+#if %(sharedlib)s
+extern "C" __attribute__ ((visibility ("default"))) int
+get_gx_plugin(unsigned int idx, PluginDef **pplugin)
+{
+    if (!pplugin) {
+        return 1;
+    }
+    if (idx > 0) {
+        return -1;
+    }
+    *pplugin = new Dsp();
+    return 1;
+}
+#endif
 } // end namespace %(namespace)s
 %(end_extra_namespace)s\
 """
@@ -1056,6 +1070,7 @@ class Output(object):
             has_plugindef = has_plugindef,
             has_separate_header = fp_head is not None,
             header_name = h_name,
+            sharedlib = self.options.template_type == "sharedlib",
             ))
         s.seek(0)
         depth = 0  # conditional nesting depth
