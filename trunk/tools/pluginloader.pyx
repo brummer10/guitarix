@@ -166,10 +166,10 @@ cdef class Plugin:
         cdef variter p = self.varmap[0].find(pname)
         if p == self.varmap[0].end():
             raise KeyError("not found: %s" % pname)
-        if pval < deref(p).second[0].low:
-            pval = deref(p).second[0].low
-        if pval > deref(p).second[0].up:
-            pval = deref(p).second[0].up
+        if not (deref(p).second[0].low <= pval <= deref(p).second[0].up):
+            raise ValueError(
+                "parameter %s value %s outside range [%s, %s]"
+                % (pname, pval, deref(p).second[0].low, deref(p).second[0].up))
         if deref(p).second[0].var:
             deref(p).second[0].var[0] = pval
         elif deref(p).second[0].uvar:

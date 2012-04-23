@@ -152,10 +152,10 @@ cdef class dsp(object):
         cdef fKeyIter p = self.interface.fKeyParam.find(pname)
         if p == self.interface.fKeyParam.end():
             raise KeyError("not found: %s" % pname)
-        if pval < deref(p).second.fMin:
-            pval = deref(p).second.fMin
-        if pval > deref(p).second.fMax:
-            pval = deref(p).second.fMax
+        if not (deref(p).second.fMin <= pval <= deref(p).second.fMax):
+            raise ValueError(
+                "parameter %s value %s outside range [%s, %s]"
+                % (pname, pval, deref(p).second.fMin, deref(p).second.fMax))
         deref(p).second.fZone[0] = pval
 
     property num_inputs:
