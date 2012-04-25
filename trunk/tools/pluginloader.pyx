@@ -87,10 +87,12 @@ cdef class Plugin:
     cdef dict d
     cdef double time_per_sample
 
-    def __cinit__(self, char *path, unsigned int idx = 0):
+    def __cinit__(self, path, unsigned int idx = 0):
         cdef int n
         self.varmap = new VarMap()
         self.p = <PluginDef*>0
+        if "/" not in path:
+            path = "./" + path # do not search system dirs
         self.handle = dlopen(path, RTLD_LOCAL|RTLD_NOW)
         if not self.handle:
             raise RuntimeError("Cannot open library: %s [%s]" % (path, dlerror()))
@@ -177,6 +179,26 @@ cdef class Plugin:
         else:
             assert(False)
 
+    property num_inputs:
+        "number of input channels"
+        def __get__(self):
+            if self.p[0].mono_audio:
+                return 1
+            elif self.p[0].stereo_audio:
+                return 2
+            else:
+                return 0
+
+    property num_outputs:
+        "number of output channels"
+        def __get__(self):
+            if self.p[0].mono_audio:
+                return 1
+            elif self.p[0].stereo_audio:
+                return 2
+            else:
+                return 0
+
     def init(self, int samplingRate):
         """argument: sample rate
         must be called before calling compute"""
@@ -216,6 +238,8 @@ cdef class Plugin:
                 count, <floatp>(inp.data), <floatp>(inp.data+inp.strides[0]),
                 <floatp>(o.data), <floatp>(o.data+o.strides[0]), self.p)
             clock_gettime(CLOCK_MONOTONIC, &t1)
+        else:
+            raise ValueError("no process function available")
         self.time_per_sample = ts_diff(t1,t0)/count
         return o
 
