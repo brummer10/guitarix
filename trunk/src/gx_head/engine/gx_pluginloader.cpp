@@ -250,9 +250,9 @@ int PluginList::load_library(const string& path, PluginPos pos) {
 	if (get_gx_plugin(i, &p) < 0) {
 	    continue;
 	}
-	if (!add(&p[i], pos)) {
+	if (!add(p, pos)) {
 	    cnt++;
-	    gx_system::gx_print_info(_("Plugin Loader"), Glib::ustring::compose("loaded[%1]: %2", path, p[i].id));
+	    gx_system::gx_print_info(_("Plugin Loader"), Glib::ustring::compose("loaded[%1]: %2", path, p->id));
 	}
     }
     return cnt;
