@@ -1,0 +1,27 @@
+#! /bin/bash
+tooldir="$(dirname "$0")"
+instdir="$tooldir"/..
+copy=0
+if [ "$1" = -c ]; then
+  copy=1
+  shift
+fi
+[ "$1" = "" ] && {
+  echo "usage: build-cmodule [-c] <c-file>"
+  echo "   -c:   copy generated file to user plugin dir"
+  exit 1
+}
+set -e
+bname="$(basename "${1%.*}" .dsp)"
+opt="-shared -fPIC -fvisibility=hidden"
+opt="$opt -I$instdir/src/gx_head -I$instdir/src/headers"
+opt="$opt -Wall"
+opt="$opt -O3 -march=i686 -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
+opt="$opt $CFLAGS $LDFLAGS"
+g++ -o "$bname".so "$1" $opt
+if [ $copy = 1 ]; then
+  cp "$bname.so" ~/.config/guitarix/plugins/.
+  echo "created and copied $bname.so"
+else
+  echo "created $bname.so"
+fi

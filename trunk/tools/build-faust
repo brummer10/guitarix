@@ -1,0 +1,44 @@
+#! /bin/bash
+function usage() {
+  echo "usage: build-faust {options} <dsp-file> [<module-name>]"
+  echo "options:"
+  echo "    -s:   faust use single precision"
+  echo "    -c:   copy generated file to user plugin dir"
+  exit 1
+}
+faustargs="-double"
+tooldir="$(dirname "$0")"
+instdir="$tooldir"/..
+copy=0
+while getopts sc OPT; do
+  case "$OPT" in
+  h) usage;;
+  s) faustargs="";;
+  c) copy=1;;
+  \?) usage;;
+  esac
+done
+shift $(expr $OPTIND - 1)
+[ "$1" = "" ] && usage
+if [ "$2" = "" ]; then
+  bname="$(basename "$1" .dsp)"
+else
+  bname="$2"
+fi
+set -e
+"$tooldir"/dsp2cc --param-warn --init-type=plugin-instance --template-type=sharedlib -o "$bname.cc" "$1"
+opt="$(python-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
+opt="$opt -shared -fPIC -fvisibility=hidden"
+opt="$opt -I$instdir/src/gx_head -I$instdir/src/headers"
+opt="$opt -Wall -Wno-unused-function"
+#opt="$opt -Wno-unused-but-set-variable"
+opt="$opt -O3 -march=i686 -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
+g++ $opt "$bname.cc" -o "$bname.so"
+rm -f "$bname.cc"
+echo "created $bname.so"
+if [ $copy = 1 ]; then
+  cp "$bname.so" ~/.config/guitarix/plugins/.
+  echo "created and copied $bname.so"
+else
+  echo "created $bname.so"
+fi

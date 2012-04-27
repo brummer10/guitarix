@@ -2,25 +2,26 @@
 function compile() {
   set -e
   rm -f "$2".so
-  faust $faustargs -a pythonmodule.cpp -o faustwrap.cpp "$1"
+  faust $faustargs -a "$tooldir"/pythonmodule.cpp -o faustwrap.cpp "$1"
   cython --cplus "$2".pyx
-  inc="-I../src/gx_head -I../src/headers -I/usr/include/python2.7"
-  opt="-fno-strict-aliasing -fwrapv -O2 -shared -fPIC"
-  opt="$opt -Wall -Wno-unused-but-set-variable -Wno-unused-function"
-  g++ $opt $inc "$2".cpp -o "$2".so -lrt
+  opt="$(python-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
+  opt="$opt -shared -fPIC -lrt"
+  opt="$opt -I$instdir/src/gx_head -I$instdir/src/headers"
+  opt="$opt -Wall -Wno-unused-function"
+  #opt="$opt -Wno-unused-but-set-variable"
+  opt="$opt -O3 -march=i686 -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
+  g++ $opt "$2".cpp -o "$2".so
   rm -f faustwrap.cpp $2.cpp
   echo "created $2.so"
 }
 
-faustargs="-double"
 [ "$1" = "" ] && {
-  echo "usage: ./build-module [-single] <dsp-file> [<module-name>]"
+  echo "usage: build-module [-single] <dsp-file> [<module-name>]"
   exit 1
 }
-[ "$(dirname "$0")" != "." ] && {
-  echo 'error: please make "tools" your working directory'
-  exit 1
-}
+faustargs="-double"
+tooldir="$(dirname "$0")"
+instdir="$tooldir"/..
 [ "$1" = "-single" ] && {
   faustargs=""
   shift
@@ -30,8 +31,8 @@ if [ "$2" = "" ]; then
 else
   bname="$2"
 fi
-if [ "$bname" != faustmod ]; then
+if [ "$tooldir" != . -o "$bname" != faustmod ]; then
   trap 'rm -f "$bname".pyx' EXIT
-  ln -s faustmod.pyx "$bname".pyx
+  ln -s "$tooldir"/faustmod.pyx "$bname".pyx
 fi
 compile "$1" "$bname"

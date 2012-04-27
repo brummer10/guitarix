@@ -1,8 +1,12 @@
 #! /bin/bash
 set -e
-cd "$(dirname $0)"
-pyinc="-I /usr/include/python2.7"
+tooldir="$(dirname "$0")"
+instdir="$tooldir"/..
 pl=pluginloader
-cython --cplus $pl.pyx
-g++ -g $pyinc -I ../src/headers -shared -fPIC $pl.cpp -lrt -o $pl.so
-rm $pl.cpp
+cython --cplus "$tooldir/$pl".pyx -o "$pl".cpp
+opt="$(python-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
+opt="$opt -shared -fPIC -lrt"
+opt="$opt -Wall -Wno-unused-function -Wno-unused-but-set-variable"
+opt="$opt -I$tooldir -I$instdir/src/headers"
+g++ -g $opt "$pl".cpp -o "$pl".so
+rm "$pl".cpp

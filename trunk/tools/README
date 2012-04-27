@@ -17,18 +17,6 @@ Files in this directory:
    search all relevant guitarix source files for function names,
    variable names etc. Fits nicely with Emacs grep (see below).
 
- - build-module, faustmod.pyx, pythonmodule.cpp
-   build python modules directly from faust sources (e.g. for
-   analytical processing). Uses faustmod.pyx
-
- - build-pluginloader, pluginloader.pyx, pluginloader.h
-   build a python module pluginloader.so which loads Guitarix
-   plugins
-
- - build-ladspaloader, ladspaloader.pyx
-   build a python module ladspaloader.so which loads LADSPA
-   plugins
-
  - tubestage.dsp
    faust module as test case for build-module (core tube stage
    copied from the faust directory)
@@ -57,6 +45,37 @@ Files in this directory:
    convert the C++ output of faust into the form used by
    guitarix. Used by build process.
 
+----------------- Python module builder ------------------------
+
+ - build-module, faustmod.pyx, pythonmodule.cpp
+   build python modules directly from faust sources (e.g. for
+   analytical processing). Uses faustmod.pyx
+
+ - build-pluginloader, pluginloader.pyx, pluginloader.h
+   build a python module pluginloader.so which loads Guitarix
+   plugins
+
+ - build-ladspaloader, ladspaloader.pyx
+   build a python module ladspaloader.so which loads LADSPA
+   plugins
+
+----------------- Guitarix module builder ----------------------
+
+ - build-cmodule
+   build a Guitarix module from a c source
+
+ - build-faust
+   build a Guitarix module from a faust source
+
+ - example.py
+   example how to use modules in python
+   run with "./build-cmodule example_plugin.cc && python example.py"
+
+ - pyrun-fixed
+   can be used instead of just python to get a better controlled
+   runtime environment for execution timing (2nd part of example.py)
+
+----------------------------------------------------------------
 
 Emacs support:
 

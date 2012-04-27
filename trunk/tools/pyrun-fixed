@@ -1,0 +1,10 @@
+#! /bin/bash
+[ $# -eq 0 ] && { echo "usage: pyrun-fixed python-script {args}"; exit; }
+set -e
+gov=($(cpufreq-info -c 0 -p))
+if [ ${gov[-1]} != userspace ]; then
+  freq=($(cpufreq-info -c 0 -l))
+  trap "sudo cpufreq-set -c 0 -g ondemand" EXIT
+  sudo cpufreq-set -c 0 -f ${freq[-1]}
+fi
+chrt 80 taskset -c 0 python "$@"

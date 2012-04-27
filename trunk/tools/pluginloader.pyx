@@ -107,7 +107,7 @@ cdef class Plugin:
             raise RuntimeError("error loading plugins")
         if n == 0:
             raise RuntimeError("no plugin found")
-        if idx >= n:
+        if idx >= <unsigned int>n:
             raise RuntimeError("idx too big (%d > %d)" % (idx, n-1))
         if get_gx_plugin(idx, &self.p) < 0:
             raise RuntimeError("plugin loader error")
