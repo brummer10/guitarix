@@ -47,11 +47,11 @@ private:
     void quit_slot();
     void gx_ladi_handler();
     void create_thread();
+    static void relay_sigchld(int);
 public:
     PosixSignals();
     ~PosixSignals();
 };
-
 
 PosixSignals::PosixSignals()
     : waitset(),
@@ -76,6 +76,7 @@ PosixSignals::PosixSignals()
 
     sigprocmask(SIG_BLOCK, &waitset, NULL);
     create_thread();
+    signal(SIGCHLD, relay_sigchld);
 }
 
 PosixSignals::~PosixSignals() {
@@ -109,6 +110,9 @@ void PosixSignals::gx_ladi_handler() {
     }
 }
 
+void PosixSignals::relay_sigchld(int) {
+    kill(getpid(), SIGCHLD);
+}
 
 // --- wait for USR1 signal to arrive and invoke ladi handler via mainloop
 void PosixSignals::signal_helper_thread() {
@@ -388,6 +392,7 @@ int main(int argc, char *argv[]) {
 	// ----------------------- run GTK main loop ----------------------
 	delete Splash;
 	gui.run();
+	gx_child_process::childprocs.killall();
 #ifndef NDEBUG
 	if (options.dump_parameter) {
 	    gx_engine::parameter_map.dump("json");

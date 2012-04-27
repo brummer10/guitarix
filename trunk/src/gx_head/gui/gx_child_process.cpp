@@ -25,7 +25,7 @@
 #include "guitarix.h"
 
 #include <sys/wait.h>
-
+#include <glibmm/main.h>
 #include <fstream>
 #include <string>
 #include <list>
@@ -37,7 +37,13 @@ namespace gx_child_process {
  */
 
 bool GxChild::kill() {
+    if (m_killsignal == SIGKILL) {
+	Glib::signal_timeout().connect_once(
+	    sigc::hide_return(sigc::bind(sigc::ptr_fun(::kill), m_pid, SIGKILL)), 100);
+	return ::kill(m_pid, SIGTERM) != -1;
+    } else {
     return ::kill(m_pid, m_killsignal) != -1;
+    }
 }
 
 GxChildProcs::~GxChildProcs() {
@@ -53,6 +59,13 @@ bool GxChildProcs::killall() {
         if (!(*i)->kill()) {
             ret = false;
         }
+    }
+    if (!ret) {
+	return ret;
+    }
+    Glib::RefPtr<Glib::MainContext> ctx = Glib::MainContext::get_default();
+    while (children.size() > 0) {
+	ctx->iteration(true);
     }
     return ret;
 }
@@ -388,7 +401,7 @@ void Meterbridge::start_stop(Glib::RefPtr<Gtk::ToggleAction>& action, gx_jack::G
             (jack.client_insert_name+":out_0").c_str(),
             (jack.client_insert_name+":out_1").c_str(),
             0 };
-        GxChild *meterbridge = childprocs.launch(app_name, args, SIGTERM);
+        GxChild *meterbridge = childprocs.launch(app_name, args, SIGKILL);
         if (meterbridge) {
             new Meterbridge(meterbridge, action);
         } else {
