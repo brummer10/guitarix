@@ -80,7 +80,7 @@ class UIDefs(object):
         for v, r in self.ui.items():
             r.write(fp, v, prefix)
 
-    def check_parameter(self, fname, uiname, l):
+    def check_parameter(self, fname, uiname, l, only_warn):
         s1 = set(l)
         s2 = set([v["id"] for v in self.ui.values()])
         d = s2 - s1
@@ -91,9 +91,14 @@ class UIDefs(object):
             errlevel = 1
         d = s1 - s2
         if d:
-            print ("%s:error: parameters in %s not found in faust dsp: %s"
-                   % (fname, uiname, ", ".join(d)))
-            errlevel = 2
+            if only_warn:
+                cat = "warning"
+                errlevel = 1
+            else:
+                cat = "error"
+                errlevel = 2
+            print ("%s:%s: parameters in %s not found in faust dsp: %s"
+                   % (fname, cat, uiname, ", ".join(d)))
         return errlevel
 
 
@@ -584,7 +589,10 @@ static int register_params(const ParamReg& reg)
 }
 #if %(has_cc_ui)s
 int load_ui(const UiBuilder& b) {
+#define PARAM(p) ("%(plugin_id)s" "." p)
 %(cc_ui)s
+#undef PARAM
+    return 0;
 }
 
 #endif
@@ -835,7 +843,10 @@ int Dsp::register_params_static(const ParamReg& reg)
 #if %(has_cc_ui)s
 inline int Dsp::load_ui_f(const UiBuilder& b)
 {
+#define PARAM(p) ("%(plugin_id)s" "." p)
 %(cc_ui)s
+#undef PARAM
+	return 0;
 }
 
 #if %(has_plugindef)s
@@ -913,14 +924,13 @@ class Output(object):
             fp.write(plugin_standalone_header)
         self.parser.write(fp, "includes")
 
-    def write_load_ui(self, fp, wrap=True):
+    def write_load_ui(self, fp, plugin_id, wrap=True):
         load_ui = 0
         ui_name = self.fname.replace(".dsp", "_ui.glade")
         if os.path.exists(ui_name):
             xml = file(ui_name).read()
-            if self.parser.ui.check_parameter(
-                self.fname, ui_name,
-                re.findall('<property name="var_id">([^<]*)</property>',xml)):
+            found_params = re.findall('<property name="var_id">([^<]*)</property>',xml)
+            if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
                 raise SystemExit, 1
             s = xml.replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"')
             if wrap:
@@ -932,9 +942,13 @@ class Output(object):
             ui_name = self.fname.replace(".dsp", "_ui.cc")
             if os.path.exists(ui_name):
                 ccdef = file(ui_name).read()
-                if self.parser.ui.check_parameter(
-                    self.fname, ui_name,
-                    re.findall(r'\.create_[a-zA-Z0-9_]+\("([^"]*)',ccdef)):
+                re_func_name = r'.*\.create_[a-zA-Z0-9_]+'
+                re_str = r'"([^"]*)'
+                re_param = r'PARAM\(\s*' + re_str
+                re_expr = r'\s*(//)?'+re_func_name+r'\s*\(\s*(?:'+re_param+'|'+re_str+')'
+                found_params = [v[2] if v[2] else plugin_id + "." + v[1]
+                                for v in re.findall(re_expr,ccdef) if not v[0]]
+                if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
                     raise SystemExit, 1
                 fp.write("\n")
                 fp.write(ccdef)
@@ -945,11 +959,11 @@ class Output(object):
         fp.write("static int register_params(const ParamReg& reg)\n{\n")
         self.parser.ui.write(fp, prefix="reg.")
         fp.write("\treturn 0;\n}\n")
-        if self.write_load_ui(fp):
+        plugin_id = self.parser.toplevel or self.parser.topname
+        if self.write_load_ui(fp, plugin_id):
             load_ui = "load_ui"
         else:
             load_ui = "0"
-        plugin_id = self.parser.toplevel or self.parser.topname
         if self.parser.groups:
             fp.write("\nstatic const char* parm_groups[] = {\n%s\t};\n" % self.parser.formatted_groups(plugin_id))
         if self.parser.name:
@@ -977,9 +991,9 @@ class Output(object):
         self.parser.ui.write(s, prefix)
         return s.getvalue()
 
-    def gen_load_ui(self):
+    def gen_load_ui(self, plugin_id):
         s = StringIO()
-        ret = self.write_load_ui(s, False)
+        ret = self.write_load_ui(s, plugin_id, False)
         if ret == 0:
             return False, "", False, ""
         if ret == 1:
@@ -1017,8 +1031,8 @@ class Output(object):
                         + "".join([", float *output%d" % i for i in range(self.parser.getNumOutputs())]))
         compute_call_args = ("".join([", input%d" % i for i in range(self.parser.getNumInputs())])
                              + "".join([", output%d" % i for i in range(self.parser.getNumOutputs())]))
-        has_cc_ui, cc_ui, has_glade_ui, glade_ui = self.gen_load_ui()
         plugin_id = self.parser.toplevel or self.parser.topname
+        has_cc_ui, cc_ui, has_glade_ui, glade_ui = self.gen_load_ui(plugin_id)
         if self.parser.groups:
             groups_define = "\nstatic const char* parm_groups[] = {\n%s\t};\n" % self.parser.formatted_groups(plugin_id)
         else:
@@ -1203,6 +1217,8 @@ def main():
                   help="template for code generation: %s" % ", ".join(template_opts))
     op.add_option("-N", "--in-namespace", action="store", metavar="NAMESPACE",
                   help="put definitions inside an extra namespace")
+    op.add_option("-e", "--param-warn", dest="param_warn", action="store_true", default=False,
+                  help="don't signal an error when the ui definition references an unknown dsp parameter")
     options, args = op.parse_args()
     if options.init_type not in init_opts:
         op.error("unknown init-type")
