@@ -62,17 +62,24 @@ UiBuilderImpl::UiBuilderImpl(StackBoxBuilder *i)
     : UiBuilderBase() {
     intf = i;
     openVerticalBox = openVerticalBox_;
+    openVerticalBox1 = openVerticalBox1_;
     openHorizontalBox = openHorizontalBox_;
     openHorizontalhideBox = openHorizontalhideBox_;
     closeBox = closeBox_;
     load_glade = load_glade_;
     create_master_slider = create_master_slider_;
     create_small_rackknob = create_small_rackknob_;
+    create_spin_value = create_spin_value_;
+    create_switch_no_caption = create_switch_no_caption_;
     create_selector = create_selector_;
 };
 
 void UiBuilderImpl::openVerticalBox_(const char* label) {
     intf->openVerticalBox(label);
+}
+
+void UiBuilderImpl::openVerticalBox1_(const char* label) {
+    intf->openVerticalBox1(label);
 }
 
 void UiBuilderImpl::openHorizontalhideBox_(const char* label) {
@@ -101,6 +108,14 @@ void UiBuilderImpl::create_master_slider_(const char *id, const char *label) {
 
 void UiBuilderImpl::create_selector_(const char *id) {
     intf->create_selector(id, "");
+}
+
+void UiBuilderImpl::create_spin_value_(const char *id) {
+    intf->create_spin_value(id);
+}
+
+void UiBuilderImpl::create_switch_no_caption_(const char *sw_type, const char * id) {
+    intf->create_switch_no_caption(sw_type, id);
 }
 
 void UiBuilderImpl::closeBox_() {

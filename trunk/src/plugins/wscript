@@ -3,6 +3,10 @@
 
 import os
 
+clsources = [ # generate .so files from c sources that can be loaded by guitarix
+    "ladspaplugin.cc",
+    ]
+
 csources = [ # generate .so files from c sources that can be loaded by guitarix
     ]
 
@@ -87,6 +91,17 @@ def build(bld):
             source = [s.replace(".dsp",".cc")],
             target = s.replace(".dsp",""),
             )
+    for s in clsources:
+        bld(name = "create plugin .so",
+            features = ['cxx', 'cshlib'],
+            type = 'cshlib',
+            cxxflags = ["-fvisibility=hidden"],
+            includes = ["../headers"],
+            uselib = ['GLIBMM', 'GIOMM'], # need for plugin search 
+            source = s,
+            target = s.replace(".cc",""),
+            install_path = None, # for now...
+            )
     for s in csources:
         bld(name = "create plugin .so",
             features = ['cxx', 'cshlib'],
@@ -97,7 +112,6 @@ def build(bld):
             target = s.replace(".cc",""),
             install_path = None, # for now...
             )
-    
 
 def configure(conf):
     pass

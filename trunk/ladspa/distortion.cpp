@@ -245,7 +245,7 @@ class distdsp : public dsp {
 		interface->openHorizontalBox("distortion");
                // interface->openVerticalBox("overdrive");
                 interface->addVerticalSlider("overdrive ", &drive, 0.0f, 1.0f, 20.0f, 0.1f);
-                interface->addToggleButton("over_drive", &overdrive4);
+                interface->addToggleButton("driveover", &overdrive4);
                // interface->closeBox();
 		interface->addVerticalSlider("drive", &fslider5, 0.64f, 0.0f, 1.0f, 0.01f);
 		interface->addVerticalSlider0("drivelevel", &fslider4, 0.0f, 0.0f, 1.0f, 0.01f);

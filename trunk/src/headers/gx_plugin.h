@@ -37,6 +37,7 @@ class PluginDef;
 struct UiBuilder {
     PluginDef *plugin;
     void (*openVerticalBox)(const char* label);
+    void (*openVerticalBox1)(const char* label);
     void (*openHorizontalBox)(const char* label);
     void (*openHorizontalhideBox)(const char* label);
     void (*closeBox)();
@@ -48,6 +49,8 @@ struct UiBuilder {
     void (*create_master_slider)(const char *id, const char *label);
     void (*create_small_rackknob)(const char *id, const char *label);
     void (*create_selector)(const char *id);
+    void (*create_switch_no_caption)(const char *sw_type,const char * id);
+    void (*create_spin_value)(const char * id);
     //FIXME add missing functions
 };
 
