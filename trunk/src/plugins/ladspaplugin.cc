@@ -504,7 +504,9 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    }
 	    if (LADSPA_IS_HINT_BOUNDED_ABOVE(self.desc->PortRangeHints[i].HintDescriptor)) {
 		up = self.desc->PortRangeHints[i].UpperBound;
-	    }
+	    } else if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
+        up = 4096;
+        }
 	    float step = (up - low) / 100;
 	    if (LADSPA_IS_HINT_INTEGER(self.desc->PortRangeHints[i].HintDescriptor) ||
         LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
@@ -539,7 +541,8 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 		} else if (LADSPA_IS_HINT_DEFAULT_MAXIMUM(self.desc->PortRangeHints[i].HintDescriptor)) {
 		    dflt = up;
 		} else if (LADSPA_IS_HINT_DEFAULT_0(self.desc->PortRangeHints[i].HintDescriptor)) {
-            dflt = low;
+            dflt = 0;
+            if (dflt < low) low = 0;
 		} else if (LADSPA_IS_HINT_DEFAULT_1(self.desc->PortRangeHints[i].HintDescriptor)) {
 		    dflt = 1;
 		} else if (LADSPA_IS_HINT_DEFAULT_100(self.desc->PortRangeHints[i].HintDescriptor)) {
@@ -551,10 +554,7 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 		dflt = low;
 	    } else if (dflt > up) {
 		dflt = up;
-	    } else if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
-            up = 4096;
-            
-        }
+	    } 
         std::string rep = ".";
         std::string pn = self.desc->PortNames[i];
         if(pn.find(rep) != std::string::npos)
