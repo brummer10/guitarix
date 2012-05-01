@@ -653,7 +653,6 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	} else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
 	    tp = "SL";
 	}
-	printf("X %s\n", s.c_str());
 	reg.registerVar(s.c_str(),nm,tp,"",&self.ctrl_ports[n].port,dflt,low,up,step);
 	n++;
     }
