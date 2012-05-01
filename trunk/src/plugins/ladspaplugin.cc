@@ -4,6 +4,7 @@
 #include <cstring>
 #include <vector>
 #include <map>
+#include <set>
 #include <sstream>
 #include <fstream>
 #include <dlfcn.h>
@@ -332,9 +333,8 @@ private:
     static int registerparam(const ParamReg& reg);
     static int uiloader(const UiBuilder& builder);
     static void del_instance(PluginDef *plugin);
-    static void write_file(std::string path);
-    static void make_menu(const LADSPA_Descriptor * psDescriptor, Glib::ustring path, Glib::ustring str, unsigned long lPluginIndex);
-    static void *dlopenLADSPA(const char * pcFilename, int iFlag);
+    static void write_file(const std::string& path);
+    static void make_menu(const LADSPA_Descriptor * psDescriptor, const Glib::ustring& str, unsigned long lPluginIndex);
     //
     const LADSPA_Descriptor *desc;
     void *handle;
@@ -375,6 +375,12 @@ LadspaDsp *LadspaDsp::create(const plugdesc& plug) {
     }
     if (desc->UniqueID == 4069 || desc->UniqueID == 4070) {
 	printf("ladspa_guitarix not loaded\n");
+	dlclose(handle);
+	handle = 0;
+	return NULL;
+    }
+    if (!LADSPA_IS_HARD_RT_CAPABLE(desc->Properties)) {
+	printf("plugin %s is not hard RT capable\n", desc->Label);
 	dlclose(handle);
 	handle = 0;
 	return NULL;
@@ -494,127 +500,162 @@ void LadspaDsp::stereo_process(int count, float *input1, float *input2, float *o
     self.desc->run(self.instance, count);
 }
 
+static void get_bounds(const LADSPA_PortRangeHint& pr, float& dflt, float& low, float& up, float& step) {
+    const LADSPA_PortRangeHintDescriptor& hd = pr.HintDescriptor;
+    if (LADSPA_IS_HINT_TOGGLED(hd)) {
+	low = 0;
+	up = 1;
+	step = 1;
+	dflt = 0;
+	if (LADSPA_IS_HINT_HAS_DEFAULT(hd) && LADSPA_IS_HINT_DEFAULT_1(hd)) {
+	    dflt = 1;
+	}
+	return;
+    }
+
+    /*
+    ** bounds
+    */
+    int samplefreq = 44100; // fixed frequency for rate dependent lower and upper bounds
+
+    if (LADSPA_IS_HINT_BOUNDED_BELOW(hd)) {
+	low = pr.LowerBound;
+	if (LADSPA_IS_HINT_SAMPLE_RATE(hd)) {
+	    low *= samplefreq;
+	}
+    }
+    if (LADSPA_IS_HINT_LOGARITHMIC(hd)) {
+	if (low < 1.192092896e-07F)
+	    low = 1.192092896e-07F;
+    }
+    if (LADSPA_IS_HINT_BOUNDED_ABOVE(hd)) {
+	up = pr.UpperBound;
+	if (LADSPA_IS_HINT_SAMPLE_RATE(hd)) {
+	    up *= samplefreq;
+	}
+	if (low >= up) {
+	    low = up - 1;
+	}
+    }
+    if (low >= up) {
+	up = low + 1;
+    }
+    if (LADSPA_IS_HINT_INTEGER(hd)) {
+	step = 1.0;
+    } else {
+	step = (up - low) / 100;
+	if (step > 1.0) {
+	    step = 1.0;
+	} else {
+	    step = pow(10, floor(log10(step)));
+	}
+    }
+
+    /*
+    ** default value
+    */
+    if (!LADSPA_IS_HINT_HAS_DEFAULT(hd)) {
+	dflt = 0;
+    } else if (LADSPA_IS_HINT_DEFAULT_MINIMUM(hd)) {
+	dflt = low;
+    } else if (LADSPA_IS_HINT_DEFAULT_LOW(hd)) {
+	if (LADSPA_IS_HINT_LOGARITHMIC(hd)) {
+	    dflt = exp(log(low) * 0.75 + log(up) * 0.25);
+	} else {
+	    dflt = low * 0.75 + up * 0.25;
+	}
+    } else if (LADSPA_IS_HINT_DEFAULT_MIDDLE(hd)) {
+	if (LADSPA_IS_HINT_LOGARITHMIC(hd)) {
+	    dflt = exp(log(low) * 0.5 + log(up) * 0.5);
+	} else {
+	    dflt = low * 0.5 + up * 0.5;
+	}
+    } else if (LADSPA_IS_HINT_DEFAULT_HIGH(hd)) {
+	if (LADSPA_IS_HINT_LOGARITHMIC(hd)) {
+	    dflt = exp(log(low) * 0.25 + log(up) * 0.75);
+	} else {
+	    dflt = low * 0.25 + up * 0.75;
+	}
+    } else if (LADSPA_IS_HINT_DEFAULT_MAXIMUM(hd)) {
+	dflt = up;
+    } else if (LADSPA_IS_HINT_DEFAULT_0(hd)) {
+	dflt = 0;
+    } else if (LADSPA_IS_HINT_DEFAULT_1(hd)) {
+	dflt = 1;
+    } else if (LADSPA_IS_HINT_DEFAULT_100(hd)) {
+	dflt = 100;
+    } else if (LADSPA_IS_HINT_DEFAULT_440(hd)) {
+	dflt = 440;
+    }
+
+    if (dflt < low) {
+	dflt = low;
+    } else if (dflt > up) {
+	dflt = up;
+    }
+}
+
 int LadspaDsp::registerparam(const ParamReg& reg) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(reg.plugin);
-    int samplefreq = 44100; // fixed frequency for rate dependent lower and upper bounds
     int n = 0;
     for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
-	if (LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
-	    if (!LADSPA_IS_HINT_BOUNDED_BELOW(self.desc->PortRangeHints[i].HintDescriptor) || !LADSPA_IS_HINT_BOUNDED_ABOVE(self.desc->PortRangeHints[i].HintDescriptor)) {
-		printf("LBUB %s %s %d %d\n",self.desc->Label,self.desc->PortNames[i], LADSPA_IS_HINT_BOUNDED_BELOW(self.desc->PortRangeHints[i].HintDescriptor), LADSPA_IS_HINT_BOUNDED_ABOVE(self.desc->PortRangeHints[i].HintDescriptor));
-	    }
-        float low = self.desc->PortRangeHints[i].LowerBound;
-        float up = self.desc->PortRangeHints[i].UpperBound;
-	    float dflt = 0.0;
-        
-        if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
-            if (low < 1.192092896e-07F)
-                low = 1.192092896e-07F;
-        }
-        if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-            low = 0;
-            up = 1;
-        }
-        
-	    if (LADSPA_IS_HINT_BOUNDED_BELOW(self.desc->PortRangeHints[i].HintDescriptor)) {
-		low = self.desc->PortRangeHints[i].LowerBound;
-	    }
-	    if (LADSPA_IS_HINT_BOUNDED_ABOVE(self.desc->PortRangeHints[i].HintDescriptor)) {
-		up = self.desc->PortRangeHints[i].UpperBound;
-	    } else if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
-        up = 4096;
-        }
-        if (LADSPA_IS_HINT_SAMPLE_RATE(self.desc->PortRangeHints[i].HintDescriptor)) {
-        low *= samplefreq; //FIXME
-        up *= samplefreq;  //FIXME
-        }
-	    float step = (up - low) / 100;
-	    if (LADSPA_IS_HINT_INTEGER(self.desc->PortRangeHints[i].HintDescriptor) ||
-        LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-		step = 1.0;
-	    } else if (step > 1.0) {
-		step = 1.0;
-	    } else {
-		step = pow(10, floor(log10(step)));
-	    }
-	    if (LADSPA_IS_HINT_HAS_DEFAULT(self.desc->PortRangeHints[i].HintDescriptor)) {
-		if (LADSPA_IS_HINT_DEFAULT_MINIMUM(self.desc->PortRangeHints[i].HintDescriptor)) {
-		    dflt = low;
-		} else if (LADSPA_IS_HINT_DEFAULT_LOW(self.desc->PortRangeHints[i].HintDescriptor)) {
-            if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
-                dflt = exp(log(low) * 0.75 + log(up) * 0.25);
-            } else {
-                dflt = low * 0.75 + up * 0.25;
-            }
-		    
-		} else if (LADSPA_IS_HINT_DEFAULT_MIDDLE(self.desc->PortRangeHints[i].HintDescriptor)) {
-            if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
-                dflt = exp(log(low) * 0.5 + log(up) * 0.5);
-            } else {
-                dflt = low * 0.5 + up * 0.5;
-            }
-		} else if (LADSPA_IS_HINT_DEFAULT_HIGH(self.desc->PortRangeHints[i].HintDescriptor)) {
-            if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
-                dflt = exp(log(low) * 0.25 + log(up) * 0.75);
-            } else {
-                dflt = low * 0.25 + up * 0.75;
-            }
-		} else if (LADSPA_IS_HINT_DEFAULT_MAXIMUM(self.desc->PortRangeHints[i].HintDescriptor)) {
-		    dflt = up;
-		} else if (LADSPA_IS_HINT_DEFAULT_0(self.desc->PortRangeHints[i].HintDescriptor)) {
-            dflt = 0;
-            if (dflt < low) low = 0;
-		} else if (LADSPA_IS_HINT_DEFAULT_1(self.desc->PortRangeHints[i].HintDescriptor)) {
-		    dflt = 1;
-		} else if (LADSPA_IS_HINT_DEFAULT_100(self.desc->PortRangeHints[i].HintDescriptor)) {
-		    dflt = 100;
-		} else if (LADSPA_IS_HINT_DEFAULT_440(self.desc->PortRangeHints[i].HintDescriptor)) {
-		    dflt = 440;
-		}
-	    } else if (dflt < low) {
-		dflt = low;
-	    } else if (dflt > up) {
-		dflt = up;
-	    } 
-        // replace . and cut label
-        std::string pn = self.desc->PortNames[i];
-        size_t rem =pn.find_first_of( ".");
-        if(rem != std::string::npos)
-            pn[rem] = '-';
-        rem =pn.find_first_of( "([");
-        if(rem != std::string::npos) {
-            std::string::iterator it;
-            pn.resize(rem+4);
-            it = pn.end()-4;
-            pn.erase(it);
-        }
-        rem =pn.find_first_of( "])");
-        if(rem != std::string::npos) {
-            std::string::iterator it;
-            pn.resize(rem);
-        }
-
-	    std::string& s = self.ctrl_ports[n].id;
-	    s = self.id_str + "." + pn;
-	    std::string nm;
-	    std::map<int,paradesc>::const_iterator it = self.pd.names.find(n);
-	    if (it != self.pd.names.end()) {
-		nm = it->second.name;
-		if (it->second.has_range) {
-		    dflt = it->second.dflt;
-		    low = it->second.low;
-		    up = it->second.up;
-		    step = it->second.step;
-		}
-	    }
-	    const char *tp = "S";
-	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-		tp = "B";
-		//printf("%s.%s: hint toggled: FIXME\n", self.desc->Label, self.desc->PortNames[i]);
-	    }
-	    reg.registerVar(s.c_str(),nm.c_str(),tp,"",&self.ctrl_ports[n].port,dflt,low,up,step);
-	    n++;
+	if (!(LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i]) &&
+	      LADSPA_IS_PORT_INPUT(self.desc->PortDescriptors[i]))) {
+	    continue;
 	}
+	float low = -1000;
+	float up = 1000;
+	float dflt = 0.0;
+	float step = 1.0;
+	const char *nm = "";
+	std::map<int,paradesc>::const_iterator it = self.pd.names.find(n);
+	if (it != self.pd.names.end()) {
+	    nm = it->second.name.c_str();
+	}
+	if (it != self.pd.names.end() && it->second.has_range) {
+	    dflt = it->second.dflt;
+	    low = it->second.low;
+	    up = it->second.up;
+	    step = it->second.step;
+	} else {
+	    get_bounds(self.desc->PortRangeHints[i], dflt, low, up, step);
+	}
+	// replace . and cut label
+	Glib::ustring pn = self.desc->PortNames[i];
+	size_t rem = 0;
+	while (true) {
+	    rem = pn.find_first_of(".", rem);
+	    if (rem == Glib::ustring::npos) {
+		break;
+	    }
+	    pn.replace(rem, 1, 1, '-');
+	    rem += 1;
+	    if (rem >= pn.size()) {
+		break;
+	    }
+	}
+	rem = pn.find_first_of( "([");
+	if(rem != Glib::ustring::npos) {
+	    pn.resize(rem+4);
+	    pn.erase(rem, 1);
+	}
+	rem = pn.find_first_of( "])");
+	if(rem != std::string::npos) {
+	    std::string::iterator it;
+	    pn.resize(rem);
+	}
+	std::string& s = self.ctrl_ports[n].id;
+	s = self.id_str + "." + pn;
+
+	const char *tp = "S";
+	if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
+	    tp = "B";
+	} else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
+	    tp = "SL";
+	}
+	printf("X %s\n", s.c_str());
+	reg.registerVar(s.c_str(),nm,tp,"",&self.ctrl_ports[n].port,dflt,low,up,step);
+	n++;
     }
     return 0;
 }
@@ -660,7 +701,7 @@ void LadspaDsp::del_instance(PluginDef *plugin) {
 std::list<Glib::ustring> ladspa_plug_list;
 
 
-void LadspaDsp::write_file(std::string path) {
+void LadspaDsp::write_file(const std::string& path) {
     std::ofstream ifs(path.c_str());
     std::list<Glib::ustring>::iterator it;
     ifs << "[ \n";
@@ -671,8 +712,8 @@ void LadspaDsp::write_file(std::string path) {
     ifs.close();
 }
 
-void LadspaDsp::make_menu(const LADSPA_Descriptor * psDescriptor, Glib::ustring path,
-                          Glib::ustring str, unsigned long lPluginIndex) {
+void LadspaDsp::make_menu(const LADSPA_Descriptor * psDescriptor,
+                          const Glib::ustring& str, unsigned long lPluginIndex) {
 
     unsigned long lPortIndex;
     int inputports = 0;
@@ -693,9 +734,7 @@ void LadspaDsp::make_menu(const LADSPA_Descriptor * psDescriptor, Glib::ustring 
         std::string mono_plug = ",\n";
         mono_plug += "    ";
         mono_plug += "[\"";
-        mono_plug += path.c_str();
-        mono_plug += "/";
-        mono_plug += str.c_str();
+        mono_plug += str;
         mono_plug += "\", ";
         mono_plug += to_string(lPluginIndex);
         mono_plug += ", {}]";
@@ -704,47 +743,70 @@ void LadspaDsp::make_menu(const LADSPA_Descriptor * psDescriptor, Glib::ustring 
     
 }
 
-/*  this routine will search the LADSPA_PATH for the file. */
-void *LadspaDsp::dlopenLADSPA(const char * pcFilename, int iFlag) {
-
-    char * pcBuffer = NULL;
-    const char * pcEnd;
-    const char * pcLADSPAPath;
-    const char * pcStart;
-    int iNeedSlash;
-    size_t iFilenameLength;
-    void * pvResult;
-    iFilenameLength = strlen(pcFilename);
-    pvResult = NULL;
-
-    pcLADSPAPath = getenv("LADSPA_PATH");
-
-    if (pcLADSPAPath == NULL) {
-        setenv("LADSPA_PATH","/usr/lib/ladspa",0);
-        setenv("LADSPA_PATH","/usr/local/lib/ladspa",0);
-        pcLADSPAPath = getenv("LADSPA_PATH");
-    } 
-    pcStart = pcLADSPAPath;
-    while (*pcStart != '\0') {
-        pcEnd = pcStart;
-        while (*pcEnd != ':' && *pcEnd != '\0')
-            pcEnd++;
-        pcBuffer = (char*)malloc(iFilenameLength + 2 + (pcEnd - pcStart));
-        if (pcEnd > pcStart)
-            strncpy(pcBuffer, pcStart, pcEnd - pcStart);
-        iNeedSlash = 0;
-        if (pcEnd > pcStart)
-            if (*(pcEnd - 1) != '/') {
-                iNeedSlash = 1;
-                pcBuffer[pcEnd - pcStart] = '/';
-            }
-        strcpy(pcBuffer + iNeedSlash + (pcEnd - pcStart), pcFilename);
-        pvResult = dlopen(pcBuffer, iFlag);
-        free(pcBuffer);
-        return pvResult;
-    
+static bool is_blacklisted(unsigned long id) {
+    static unsigned long blacklist[] = {
+	4069, 4070,		// ladspa_guitarix
+	1044, 1045, 1046, 1047,	// sine
+    };
+    for (unsigned int i = 0; i < sizeof(blacklist) / sizeof(blacklist[0]); i++) {
+	if (id == blacklist[i]) {
+	    return true;
+	}
     }
-    return pvResult;
+    return false;
+}
+
+static bool lib_is_blacklisted(const std::string& name) {
+    static const char *blacklist[] = {
+	"dssi-vst.so",
+    };
+    for (unsigned int i = 0; i < sizeof(blacklist) / sizeof(blacklist[0]); i++) {
+	if (name == blacklist[i]) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+class PathList {
+public:
+    typedef std::list< Glib::RefPtr<Gio::File> > pathlist;
+    typedef std::list< Glib::RefPtr<Gio::File> >::const_iterator iterator;
+private:
+    pathlist dirs;
+public:
+    PathList(const char *env_name = 0);
+    void add(const std::string& d) { dirs.push_back(Gio::File::create_for_path(d)); }
+    bool contains(const std::string& d) const;
+    bool find_dir(std::string *d, const std::string& filename) const;
+    iterator begin() { return dirs.begin(); }
+    iterator end() { return dirs.end(); }
+    size_t size() { return dirs.size(); }
+};
+
+PathList::PathList(const char *env_name): dirs() {
+    if (!env_name) {
+	return;
+    }
+    const char *p = getenv(env_name);
+    if (!p) {
+	return;
+    }
+    while (true) {
+	const char *q = strchr(p, ':');
+	if (q) {
+	    int n = q - p;
+	    if (n) {
+		add(std::string(p, n));
+	    }
+	    p = q;
+	} else {
+	    if (*p) {
+		add(p);
+	    }
+	    break;
+	}
+    }
 }
 
 void LadspaDsp::create_list() {
@@ -752,67 +814,71 @@ void LadspaDsp::create_list() {
     std::string if_path = getenv("HOME");
     if_path += "/.config/guitarix/ladspa_defs.js";
     // to avoid rescan the ladspa path activate this
-    /*std::ifstream ifs(if_path.c_str());
+    std::ifstream ifs(if_path.c_str());
     if (!ifs.fail()) {
         ifs.close();
         return;
-    }*/
-    
-    Glib::ustring path;
-    char * p = getenv ("LADSPA_PATH");
-        if (p != NULL) {
-            path = getenv ("LADSPA_PATH");
-        } else { 
-        setenv("LADSPA_PATH","/usr/lib/ladspa",0);
-        setenv("LADSPA_PATH","/usr/local/lib/ladspa",0);
-        path = getenv("LADSPA_PATH");
+    }
+
+    PathList pl("LADSPA_PATH");
+    if (!pl.size()) {
+        pl.add("/usr/lib/ladspa");
+        pl.add("/usr/local/lib/ladspa");
+    }
+    std::vector<Glib::ustring> file_names;
+    for (PathList::iterator it = pl.begin(); it != pl.end(); ++it) {
+	Glib::RefPtr<Gio::File> file = *it;
+	if (!file->query_exists()) {
+	    continue;
 	}
-    
-    Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(path);
-    if (file->query_exists()) {
-        Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
-              file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
-				       "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
-				       "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
-        std::vector<Glib::ustring> file_names;
-        Glib::RefPtr<Gio::FileInfo> file_info;
+	Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
+	    file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
+				     "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
+				     "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
+	Glib::RefPtr<Gio::FileInfo> file_info;
 
         while ((file_info = child_enumeration->next_file()) != 0) {
-             if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "application/x-sharedlib")
-                    file_names.push_back(file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME));
+	    if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "application/x-sharedlib") {
+		std::string nm = file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME);
+		if (lib_is_blacklisted(nm)) {
+		    continue;
+		}
+		file_names.push_back(Glib::build_filename(file->get_path(), nm));
+	    }
         }
-        // sort the vector
-        std::sort(file_names.begin(), file_names.end());
-       
-        for (unsigned int i = 0; i < file_names.size(); i++) {
-            
-            //fprintf(stderr, " %i %s \n", i,file_names[i].c_str());
-            if (i != file_names.size() || i == 0) {
-                
-                Glib::ustring str = file_names[i];
-                // unwanted plugs
-                if (str != "ladspa_guitarix.so") {
-                    const char * plug = str.c_str();
-                    void * pvPluginHandle;
-                    LADSPA_Descriptor_Function pfDescriptorFunction;
-                    const LADSPA_Descriptor * psDescriptor;
-                    unsigned long lPluginIndex;
-                    pvPluginHandle = dlopenLADSPA(plug, RTLD_LOCAL|RTLD_NOW);
-                    dlerror();
-                    pfDescriptorFunction 
-                        = (LADSPA_Descriptor_Function)dlsym(pvPluginHandle, "ladspa_descriptor");
-                    if (pfDescriptorFunction) {
-                        for (lPluginIndex = 0;; lPluginIndex++) {
-                            psDescriptor = pfDescriptorFunction(lPluginIndex);
-                            if (!psDescriptor)
-                                break;
-                            make_menu(psDescriptor, path, str, lPluginIndex);
-                        }
-                        dlclose(pvPluginHandle);
-                    }
-                }
-            }
-        }
+    }
+    // sort the vector
+    std::sort(file_names.begin(), file_names.end());
+    std::set<unsigned long> seen;
+    for (unsigned int i = 0; i < file_names.size(); i++) {
+	Glib::ustring str = file_names[i];
+	void *pvPluginHandle = dlopen(str.c_str(), RTLD_LOCAL|RTLD_NOW);
+	if (!pvPluginHandle) {
+	    continue;
+	}
+	LADSPA_Descriptor_Function pfDescriptorFunction =
+	    (LADSPA_Descriptor_Function)dlsym(pvPluginHandle, "ladspa_descriptor");
+	if (!pfDescriptorFunction) {
+	    continue;
+	}
+	for (unsigned long lPluginIndex = 0;; lPluginIndex++) {
+	    const LADSPA_Descriptor * psDescriptor = pfDescriptorFunction(lPluginIndex);
+	    if (!psDescriptor) {
+		break;
+	    }
+	    if (seen.find(psDescriptor->UniqueID) != seen.end()) {
+		continue;
+	    }
+	    if (is_blacklisted(psDescriptor->UniqueID)) {
+		continue;
+	    }
+	    if (!LADSPA_IS_HARD_RT_CAPABLE(psDescriptor->Properties)) {
+		continue;
+	    }
+	    make_menu(psDescriptor, str, lPluginIndex);
+	    seen.insert(psDescriptor->UniqueID);
+	}
+	dlclose(pvPluginHandle);
     }
     write_file(if_path);
 }
