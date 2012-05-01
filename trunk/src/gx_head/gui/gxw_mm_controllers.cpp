@@ -280,9 +280,10 @@ UiRackReglerWithCaption::UiRackReglerWithCaption(gx_ui::GxUI &ui,
     : UiRegler(ui, param, regler, true) {
     m_label.set_text(label);
     m_label.set_name("rack_label");
+    m_label.set_justify(Gtk::JUSTIFY_CENTER);
     m_box.set_name(param.id());
     m_box.pack_start(m_label, Gtk::PACK_SHRINK);
-    m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
+    m_box.pack_end(*m_regler, Gtk::PACK_SHRINK);
     set_accessible(GTK_WIDGET(m_regler->gobj()),m_label.gobj());
     m_box.show_all();
 }

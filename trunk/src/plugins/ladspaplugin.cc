@@ -13,6 +13,8 @@
 #include <giomm.h> // for create_list()
 #include "gx_plugin.h"
 
+//#define HARD_RT_ONLY
+
 template <class T>
 inline std::string to_string(const T& t) {
     std::stringstream ss;
@@ -379,7 +381,7 @@ LadspaDsp *LadspaDsp::create(const plugdesc& plug) {
 	handle = 0;
 	return NULL;
     }
-#if 0
+#ifdef HARD_RT_ONLY
     if (!LADSPA_IS_HARD_RT_CAPABLE(desc->Properties)) {
 	printf("plugin %s is not hard RT capable\n", desc->Label);
 	dlclose(handle);
@@ -636,18 +638,34 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 		    break;
 		}
 	    }
-	    rem = pn.find_first_of( "([");
+	    rem = pn.find_first_of("([");
 	    if(rem != Glib::ustring::npos) {
-		pn.resize(rem+4);
-		pn.erase(rem, 1);
+		pn.erase(rem);
 	    }
-	    rem = pn.find_first_of( "])");
-	    if(rem != std::string::npos) {
-		std::string::iterator it;
-		pn.resize(rem);
+	    while ((rem = pn.find_last_of(" ")) == pn.size()-1) {
+		pn.erase(rem);
 	    }
 	    std::string& s = self.ctrl_ports[n].id;
 	    s = self.id_str + "." + to_string(n) + "_" + pn;
+	    if (!*nm) {
+		nm = pn.c_str();
+		rem = 0;
+		unsigned int rem1 = 0;
+		while (true) {
+		    rem1 = pn.find_first_of(" ", rem1);
+		    if (rem1 == Glib::ustring::npos) {
+			break;
+		    }
+		    if (rem1 - rem > 5) {
+			pn.replace(rem1, 1, 1, '\n');
+			rem = rem1 + 1;
+		    }
+		    rem1 += 1;
+		    if (rem1 >= pn.size()) {
+			break;
+		    }
+		}
+	    }
 
 	    const char *tp = "S";
 	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
@@ -655,7 +673,8 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    } else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
 		tp = "SL";
 	    }
-	    reg.registerVar(s.c_str(),nm,tp,"",&self.ctrl_ports[n].port,dflt,low,up,step);
+	    reg.registerVar(s.c_str(),nm,tp,self.desc->PortNames[i],
+			    &self.ctrl_ports[n].port,dflt,low,up,step);
 	}
 	n++;
     }
@@ -877,7 +896,7 @@ void LadspaDsp::create_list() {
 	    if (is_blacklisted(psDescriptor->UniqueID)) {
 		continue;
 	    }
-#if 0
+#ifdef HARD_RT_ONLY
 	    if (!LADSPA_IS_HARD_RT_CAPABLE(psDescriptor->Properties)) {
 		continue;
 	    }
