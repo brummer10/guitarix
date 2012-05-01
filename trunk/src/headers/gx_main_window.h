@@ -359,7 +359,7 @@ private:
     void set_visibility(bool v);
     Gtk::Button *make_expand_button(bool expand);
     Gtk::Button *make_preset_button();
-    Gtk::HBox *make_full_box(gx_system::CmdlineOptions& options);
+    Gtk::VBox *make_full_box(gx_system::CmdlineOptions& options);
     Gtk::VBox *switcher_vbox(gx_system::CmdlineOptions& options);
     bool has_delete() const { return delete_button; }
     void do_expand();

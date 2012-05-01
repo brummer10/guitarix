@@ -309,6 +309,25 @@ void StackBoxBuilder::openVerticalBox1(const char* label) {
     }
 }
 
+void StackBoxBuilder::openVerticalBox2(const char* label) {
+    GxVBox * box =  new GxVBox(ui);
+    box->m_box.set_homogeneous(false);
+    box->m_box.set_spacing(0);
+    box->m_box.set_border_width(0);
+
+    if (fMode[fTop] != kTabMode && label[0] != 0) {
+        box->m_label.set_text(label);
+        box->m_label.set_name("rack_label");
+        box->m_box.pack_start(box->m_label, false, false, 0 );
+        gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), expand, fill, 0);
+        box->m_box.show();
+        box->m_label.show();
+        pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+    } else {
+        pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+    }
+}
+
 void StackBoxBuilder::openFlipLabelBox(const char* label) {
     GxVBox * box =  new GxVBox(ui);
     box->m_box.set_homogeneous(false);

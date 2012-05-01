@@ -1166,8 +1166,12 @@ void RackBox::pack(Gtk::Widget *main, Gtk::Widget *mini) {
     minibox->pack(mini);
 }
 
-Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
+Gtk::VBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
+    Gtk::VBox *vx = new Gtk::VBox();
+    Gtk::Widget *effect_label = make_label(plugin, options, true);
+    vx->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
     Gtk::HBox *bx = new Gtk::HBox();
+    vx->pack_start(*manage(bx), Gtk::PACK_EXPAND_PADDING);
     bx->pack_start(*manage(switcher_vbox(options)), Gtk::PACK_SHRINK);
     box.set_name(plugin.get_id());
     box.set_border_width(4);
@@ -1183,14 +1187,13 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     al->set_padding(1, 0, 0, 4);
     bx->pack_end(*manage(al), Gtk::PACK_SHRINK);
     bx->pack_end(*manage(wrap_bar(4, 8)), Gtk::PACK_SHRINK);
-    bx->show_all();
-    return bx;
+    vx->show_all();
+    return vx;
 }
 
 Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
     Gtk::VBox *vbox = new Gtk::VBox();
-    Gtk::Widget *effect_label = make_label(plugin, options, true);
-    vbox->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
+    
     Gtk::HBox *hbox = new Gtk::HBox();
     vbox->pack_start(*manage(hbox));
     Gtk::HBox *hbox2 = new Gtk::HBox();

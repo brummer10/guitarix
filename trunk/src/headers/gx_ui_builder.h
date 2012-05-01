@@ -180,6 +180,7 @@ protected:
     static StackBoxBuilder *intf;
     static void openVerticalBox_(const char* label);
     static void openVerticalBox1_(const char* label);
+    static void openVerticalBox2_(const char* label);
     static void openHorizontalBox_(const char* label);
     static void openHorizontalhideBox_(const char* label);
     static void create_small_rackknob_(const char *id, const char *label);

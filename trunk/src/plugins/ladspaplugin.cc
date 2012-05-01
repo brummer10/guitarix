@@ -14,6 +14,7 @@
 #include <list>
 #include <glibmm.h>
 #include <giomm.h>
+#include <jack/jack.h>
 
 #include "gx_plugin.h"
 
@@ -368,8 +369,24 @@ LadspaDsp::LadspaDsp(const plugdesc& plug)
 	return;
     }
     desc = ladspa_descriptor(pd.index);
+    
+    static bool first = false;
+    static int sr;
+    if (!first) {
+    jack_status_t jackstat;
+    jack_client_t *client = jack_client_open("gx-test", JackNoStartServer, &jackstat);
+    if (client) {
+    sr = jack_get_sample_rate (client);
+    jack_client_close(client);
+    } else {
+    printf("Cannot get SampleRate, use default 48000 Hz\n");
+    sr = 48000;
+    }
+    }
+    first = true;
+    samplefreq = sr;
 
-    instance = desc->instantiate(desc, 48000);
+    instance = desc->instantiate(desc, samplefreq); // FIXME SAMPLERATE
     if (!instance) {
 	printf("Cannot instanciate %s\n", desc->Label);
 	return;
@@ -555,10 +572,24 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    } else if (dflt > up) {
 		dflt = up;
 	    } 
-        std::string rep = ".";
+        // replace . and cut label
         std::string pn = self.desc->PortNames[i];
-        if(pn.find(rep) != std::string::npos)
-            pn.replace(pn.find(rep),rep.size(),"-");
+        size_t rem =pn.find_first_of( ".");
+        if(rem != std::string::npos)
+            pn[rem] = '-';
+        rem =pn.find_first_of( "([");
+        if(rem != std::string::npos) {
+            std::string::iterator it;
+            pn.resize(rem+4);
+            it = pn.end()-4;
+            pn.erase(it);
+        }
+        rem =pn.find_first_of( "])");
+        if(rem != std::string::npos) {
+            std::string::iterator it;
+            pn.resize(rem);
+        }
+
 	    std::string& s = self.ctrl_ports[n].id;
 	    s = self.id_str + "." + pn;
 	    std::string nm;
@@ -589,7 +620,7 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
     b.openHorizontalhideBox("");
     b.closeBox();
     int n = 0;
-    const unsigned int max_ctrl = 3;
+    const unsigned int max_ctrl = 4;
     if (self.desc->PortCount > max_ctrl) {
 	b.openVerticalBox("");
 	b.openHorizontalBox("");
@@ -601,7 +632,7 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 	}
 	if (LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
         if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-            b.openVerticalBox1(self.desc->PortNames[i]);
+            b.openVerticalBox2(self.desc->PortNames[i]);
             b.create_switch_no_caption("switchit",self.ctrl_ports[n++].id.c_str());
             b.closeBox();
         } else {

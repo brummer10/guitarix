@@ -93,6 +93,7 @@ protected:
     void create_selector(string id, const char *widget_name=0);
     void openFlipLabelBox(const char* = "");
     void openVerticalBox1(const char* label = "");
+    void openVerticalBox2(const char* label = "");
     void openPaintBox2(const char* label = "");
     void openTabBox(const char* label = "");
     void addCheckButton(string id, const char* label = 0);

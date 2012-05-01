@@ -63,6 +63,7 @@ UiBuilderImpl::UiBuilderImpl(StackBoxBuilder *i)
     intf = i;
     openVerticalBox = openVerticalBox_;
     openVerticalBox1 = openVerticalBox1_;
+    openVerticalBox2 = openVerticalBox2_;
     openHorizontalBox = openHorizontalBox_;
     openHorizontalhideBox = openHorizontalhideBox_;
     closeBox = closeBox_;
@@ -80,6 +81,10 @@ void UiBuilderImpl::openVerticalBox_(const char* label) {
 
 void UiBuilderImpl::openVerticalBox1_(const char* label) {
     intf->openVerticalBox1(label);
+}
+
+void UiBuilderImpl::openVerticalBox2_(const char* label) {
+    intf->openVerticalBox2(label);
 }
 
 void UiBuilderImpl::openHorizontalhideBox_(const char* label) {
