@@ -379,12 +379,14 @@ LadspaDsp *LadspaDsp::create(const plugdesc& plug) {
 	handle = 0;
 	return NULL;
     }
+#if 0
     if (!LADSPA_IS_HARD_RT_CAPABLE(desc->Properties)) {
 	printf("plugin %s is not hard RT capable\n", desc->Label);
 	dlclose(handle);
 	handle = 0;
 	return NULL;
     }
+#endif
     int num_ctrl = 0;
     int num_inputs = 0;
     int num_outputs = 0;
@@ -599,61 +601,62 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(reg.plugin);
     int n = 0;
     for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
-	if (!(LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i]) &&
-	      LADSPA_IS_PORT_INPUT(self.desc->PortDescriptors[i]))) {
+	if (!LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
 	    continue;
 	}
-	float low = -1000;
-	float up = 1000;
-	float dflt = 0.0;
-	float step = 1.0;
-	const char *nm = "";
-	std::map<int,paradesc>::const_iterator it = self.pd.names.find(n);
-	if (it != self.pd.names.end()) {
-	    nm = it->second.name.c_str();
-	}
-	if (it != self.pd.names.end() && it->second.has_range) {
-	    dflt = it->second.dflt;
-	    low = it->second.low;
-	    up = it->second.up;
-	    step = it->second.step;
-	} else {
-	    get_bounds(self.desc->PortRangeHints[i], dflt, low, up, step);
-	}
-	// replace . and cut label
-	Glib::ustring pn = self.desc->PortNames[i];
-	size_t rem = 0;
-	while (true) {
-	    rem = pn.find_first_of(".", rem);
-	    if (rem == Glib::ustring::npos) {
-		break;
+	if (LADSPA_IS_PORT_INPUT(self.desc->PortDescriptors[i])) {
+	    float low = -1000;
+	    float up = 1000;
+	    float dflt = 0.0;
+	    float step = 1.0;
+	    const char *nm = "";
+	    std::map<int,paradesc>::const_iterator it = self.pd.names.find(n);
+	    if (it != self.pd.names.end()) {
+		nm = it->second.name.c_str();
 	    }
-	    pn.replace(rem, 1, 1, '-');
-	    rem += 1;
-	    if (rem >= pn.size()) {
-		break;
+	    if (it != self.pd.names.end() && it->second.has_range) {
+		dflt = it->second.dflt;
+		low = it->second.low;
+		up = it->second.up;
+		step = it->second.step;
+	    } else {
+		get_bounds(self.desc->PortRangeHints[i], dflt, low, up, step);
 	    }
-	}
-	rem = pn.find_first_of( "([");
-	if(rem != Glib::ustring::npos) {
-	    pn.resize(rem+4);
-	    pn.erase(rem, 1);
-	}
-	rem = pn.find_first_of( "])");
-	if(rem != std::string::npos) {
-	    std::string::iterator it;
-	    pn.resize(rem);
-	}
-	std::string& s = self.ctrl_ports[n].id;
-	s = self.id_str + "." + pn;
+	    // replace . and cut label
+	    Glib::ustring pn = self.desc->PortNames[i];
+	    size_t rem = 0;
+	    while (true) {
+		rem = pn.find_first_of(".", rem);
+		if (rem == Glib::ustring::npos) {
+		    break;
+		}
+		pn.replace(rem, 1, 1, '-');
+		rem += 1;
+		if (rem >= pn.size()) {
+		    break;
+		}
+	    }
+	    rem = pn.find_first_of( "([");
+	    if(rem != Glib::ustring::npos) {
+		pn.resize(rem+4);
+		pn.erase(rem, 1);
+	    }
+	    rem = pn.find_first_of( "])");
+	    if(rem != std::string::npos) {
+		std::string::iterator it;
+		pn.resize(rem);
+	    }
+	    std::string& s = self.ctrl_ports[n].id;
+	    s = self.id_str + "." + to_string(n) + "_" + pn;
 
-	const char *tp = "S";
-	if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-	    tp = "B";
-	} else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
-	    tp = "SL";
+	    const char *tp = "S";
+	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
+		tp = "B";
+	    } else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
+		tp = "SL";
+	    }
+	    reg.registerVar(s.c_str(),nm,tp,"",&self.ctrl_ports[n].port,dflt,low,up,step);
 	}
-	reg.registerVar(s.c_str(),nm,tp,"",&self.ctrl_ports[n].port,dflt,low,up,step);
 	n++;
     }
     return 0;
@@ -663,27 +666,30 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(b.plugin);
     b.openHorizontalhideBox("");
     b.closeBox();
-    int n = 0;
     const unsigned int max_ctrl = 4;
     if (self.desc->PortCount > max_ctrl) {
 	b.openVerticalBox("");
 	b.openHorizontalBox("");
     }
+    int n = 0;
     for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
-	if (i > 0 && i % max_ctrl == 0) {
-	    b.closeBox();
-	    b.openHorizontalBox("");
+	if (!LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
+	    continue;
 	}
-	if (LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
-        if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-            b.openVerticalBox2(self.desc->PortNames[i]);
-            b.create_switch_no_caption("switchit",self.ctrl_ports[n++].id.c_str());
-            b.closeBox();
-        } else {
-            b.create_small_rackknob(self.ctrl_ports[n++].id.c_str(),0);
-        }
-        
+	if (LADSPA_IS_PORT_INPUT(self.desc->PortDescriptors[i])) {
+	    if (n > 0 && n % max_ctrl == 0) {
+		b.closeBox();
+		b.openHorizontalBox("");
+	    }
+	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
+		b.openVerticalBox2(self.desc->PortNames[i]);
+		b.create_switch_no_caption("switchit",self.ctrl_ports[n].id.c_str());
+		b.closeBox();
+	    } else {
+		b.create_small_rackknob(self.ctrl_ports[n].id.c_str(),0);
+	    }
 	}
+	n++;
     }
     if (self.desc->PortCount > max_ctrl) {
 	b.closeBox();
@@ -871,9 +877,11 @@ void LadspaDsp::create_list() {
 	    if (is_blacklisted(psDescriptor->UniqueID)) {
 		continue;
 	    }
+#if 0
 	    if (!LADSPA_IS_HARD_RT_CAPABLE(psDescriptor->Properties)) {
 		continue;
 	    }
+#endif
 	    make_menu(psDescriptor, str, lPluginIndex);
 	    seen.insert(psDescriptor->UniqueID);
 	}
