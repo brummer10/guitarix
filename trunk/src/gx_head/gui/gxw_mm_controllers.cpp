@@ -63,13 +63,21 @@ void set_accessible(GtkWidget *widget,GtkLabel *label) {
  */
 
 void UiRegler::on_value_changed() {
-    modifyZone(get_value());
+    if (log_display) {
+	modifyZone(pow(10.0,get_value()));
+    } else {
+	modifyZone(get_value());
+    }
 }
 
 void UiRegler::reflectZone() {
     float     v = *fZone;
     fCache = v;
-    set_value(v);
+    if (log_display) {
+	set_value(log10(v));
+    } else {
+	set_value(v);
+    }
 }
 
 static bool hasId(string id) {
@@ -87,10 +95,27 @@ GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, boo
     return (new UiRegler(ui, gx_engine::parameter_map[id].getFloat(), regler, show_value))->get_widget();
 }
 
+static Glib::ustring logarithmic_format_value(double v, int prec) {
+    return Glib::ustring::format(setprecision(prec), pow(10.0,v));
+}
+
 UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value):
     gx_ui::GxUiItemFloat(&ui, &param.get_value()),
     Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0),
-    m_regler(regler) {
+    m_regler(regler),
+    log_display(param.is_log_display()) {
+    if (log_display) {
+	double low = log10(param.lower);
+	double up = log10(param.upper);
+	double d = pow(10.0, low + up / 2);
+	double step = max(0.001, param.step/d);
+	configure(log10(param.std_value), low, up, log10(1+step), log10(1+10*step), 0);
+	int prec = max(up, -log10(min(1/d, step))) + 1;
+	m_regler->signal_format_value().connect(
+	    sigc::bind(
+		sigc::ptr_fun(logarithmic_format_value),
+		prec));
+    }
     m_regler->set_show_value(show_value);
     m_regler->set_name("regler");
     m_regler->set_has_tooltip();

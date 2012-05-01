@@ -102,10 +102,12 @@ public:
     enum ctrl_type { None, Continuous, Switch, Enum };
 protected:
     enum value_type { tp_float, tp_int, tp_uint, tp_bool, tp_switch, tp_file, tp_string, tp_special };
+    enum display_flags { dtp_normal, dtp_log = 1 };
     string _id;
     string _name, _group, _desc;
     enum value_type v_type : 3;
     enum ctrl_type c_type : 3;
+    unsigned int d_flags : 2;
     bool save_in_preset : 1;
     bool controllable : 1;
     bool own_var : 1;
@@ -121,6 +123,7 @@ public:
         _group(param_group(id)),
         v_type(vtp),
         c_type(ctp),
+	d_flags(0),
         save_in_preset(preset),
         controllable(ctrl),
 	own_var(false),
@@ -156,6 +159,8 @@ public:
     const string& desc() const { return _desc; }
     void set_desc(const string& desc) { _desc = desc; }
     string l_desc() const { return gettext(_desc.c_str()); }
+    void set_log_display() { d_flags |= dtp_log; }
+    bool is_log_display() { return d_flags & dtp_log; }
     bool operator==(const Parameter& p) const { return &p == this; }
     virtual void *zone() = 0;
     virtual void stdJSON_value() = 0;
@@ -235,7 +240,6 @@ public:
 #endif
     ~ParameterV();
 };
-
 
 /****************************************************************/
 

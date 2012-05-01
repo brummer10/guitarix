@@ -28,7 +28,7 @@
 #define _GX_PLUGIN_H
 
 // forward declarations (need not be resolved for plugin definition)
-class PluginDef;
+struct PluginDef;
 
 /*
 ** helper class for PluginDef::load_ui

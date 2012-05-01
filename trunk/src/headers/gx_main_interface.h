@@ -80,6 +80,7 @@ extern GuiVariables guivar;
 class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
  protected:
     Gxw::Regler *m_regler;
+    bool log_display;
     void on_value_changed();
     virtual void reflectZone();
  public:
