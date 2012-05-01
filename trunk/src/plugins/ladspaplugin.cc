@@ -6,16 +6,10 @@
 #include <map>
 #include <sstream>
 #include <fstream>
-#include <iostream>
 #include <dlfcn.h>
 #include <ladspa.h>
 
-#include <stdlib.h>
-#include <list>
-#include <glibmm.h>
-#include <giomm.h>
-#include <jack/jack.h>
-
+#include <giomm.h> // for create_list()
 #include "gx_plugin.h"
 
 template <class T>
@@ -323,6 +317,13 @@ struct plugdesc {
     std::map<int,paradesc> names;
 };
 
+class port_data {
+public:
+    LADSPA_Data port;
+    std::string id;
+    port_data(): port(), id() {}
+};
+
 class LadspaDsp: public PluginDef {
 private:
     static void init(unsigned int samplingFreq, PluginDef *plugin);
@@ -335,61 +336,48 @@ private:
     static void make_menu(const LADSPA_Descriptor * psDescriptor, Glib::ustring path, Glib::ustring str, unsigned long lPluginIndex);
     static void *dlopenLADSPA(const char * pcFilename, int iFlag);
     //
-    int samplefreq;
     const LADSPA_Descriptor *desc;
     void *handle;
     LADSPA_Handle instance;
-    struct port_data {
-	LADSPA_Data port;
-	std::string id;
-    } * ctrl_ports;
+    port_data *ctrl_ports;
     std::string id_str;
     const plugdesc& pd;
     void activate();
     void connect(int tp, int i, float *v);
-    LadspaDsp(const plugdesc& plug);
+    LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descriptor *desc_, int num_ctrl, bool mono);
     ~LadspaDsp();
 public:
     static void create_list();
-    static LadspaDsp *create(const plugdesc& plug) { return new LadspaDsp(plug); }
+    static LadspaDsp *create(const plugdesc& plug);
 };
 
-LadspaDsp::LadspaDsp(const plugdesc& plug)
-    : PluginDef(), desc(), handle(), instance(), ctrl_ports(), id_str(), pd(plug) {
-    handle = dlopen(pd.path.c_str(), RTLD_LOCAL|RTLD_NOW);
+LadspaDsp *LadspaDsp::create(const plugdesc& plug) {
+    void *handle;
+    handle = dlopen(plug.path.c_str(), RTLD_LOCAL|RTLD_NOW);
     if (!handle) {
-	printf("Cannot open plugin: %s [%s]\n", pd.path.c_str(), dlerror());
-	return;
+	printf("Cannot open plugin: %s [%s]\n", plug.path.c_str(), dlerror());
+	return NULL;
     }
-   // printf("load plugin: %s \n", pd.path.c_str());
     LADSPA_Descriptor_Function ladspa_descriptor = (LADSPA_Descriptor_Function)dlsym(handle, "ladspa_descriptor");
     const char *dlsym_error = dlerror();
     if (dlsym_error) {
 	printf("Cannot load symbol 'ladspa_descriptor': %s\n", dlsym_error);
-	return;
+	dlclose(handle);
+	handle = 0;
+	return NULL;
     }
-    desc = ladspa_descriptor(pd.index);
-    
-    static bool first = false;
-    static int sr;
-    if (!first) {
-    jack_status_t jackstat;
-    jack_client_t *client = jack_client_open("gx-test", JackNoStartServer, &jackstat);
-    if (client) {
-    sr = jack_get_sample_rate (client);
-    jack_client_close(client);
-    } else {
-    printf("Cannot get SampleRate, use default 48000 Hz\n");
-    sr = 48000;
+    const LADSPA_Descriptor *desc = ladspa_descriptor(plug.index);
+    if (!desc) {
+	printf("Cannot load ladspa descriptor #%d from %s\n", plug.index, plug.path.c_str());
+	dlclose(handle);
+	handle = 0;
+	return NULL;
     }
-    }
-    first = true;
-    samplefreq = sr;
-
-    instance = desc->instantiate(desc, samplefreq); // FIXME SAMPLERATE
-    if (!instance) {
-	printf("Cannot instanciate %s\n", desc->Label);
-	return;
+    if (desc->UniqueID == 4069 || desc->UniqueID == 4070) {
+	printf("ladspa_guitarix not loaded\n");
+	dlclose(handle);
+	handle = 0;
+	return NULL;
     }
     int num_ctrl = 0;
     int num_inputs = 0;
@@ -403,31 +391,43 @@ LadspaDsp::LadspaDsp(const plugdesc& plug)
 	    num_outputs += 1;
 	}
     }
-    ctrl_ports = new port_data[num_ctrl];
+    bool mono;
     if (num_inputs == 1 && num_outputs == 1) {
-	mono_audio = mono_process;
+	mono = true;
     } else if (num_inputs == 2 && num_outputs == 2) {
-	stereo_audio = stereo_process;
+	mono = false;
     } else {
 	printf("cannot use ladspa plugin %s with %d inputs and %d outputs\n", desc->Label, num_inputs, num_outputs);
-	return;
+	dlclose(handle);
+	handle = 0;
+	return NULL;
     }
-    desc->cleanup(instance);
-    instance = 0;
+    return new LadspaDsp(plug, handle, desc, num_ctrl, mono);
+}
 
+LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descriptor *desc_, int num_ctrl, bool mono)
+    : PluginDef(), desc(desc_), handle(handle_), instance(), ctrl_ports(), id_str(), pd(plug) {
+    ctrl_ports = new port_data[num_ctrl];
     version = PLUGINDEF_VERSION;
     id_str = "ladspa_";
     id_str += desc->Label;
     id_str += to_string(desc->UniqueID);
     id = id_str.c_str();
-
-    std::string na = desc->Name;
-    if(na.length()>24) name = desc->Label;
-    else name = desc->Name;
-    if (na.compare("Flanger") == 0)
-           name = "Flanger1";
-
+    name = desc->Name;
+    if (strlen(name) > 24) {
+	name = desc->Label;
+    } else {
+	name = desc->Name;
+    }
+    if (strcmp(name, "Flanger") == 0) { //FIXME
+	name = "Flanger1";
+    }
     set_samplerate = init;
+    if (mono) {
+	mono_audio = mono_process;
+    } else {
+	stereo_audio = stereo_process;
+    }
     register_params = registerparam;
     load_ui = uiloader;
     delete_instance = del_instance;
@@ -436,6 +436,9 @@ LadspaDsp::LadspaDsp(const plugdesc& plug)
 LadspaDsp::~LadspaDsp() {
     if (instance) {
 	desc->cleanup(instance);
+    }
+    if (handle) {
+	dlclose(handle);
     }
     delete[] ctrl_ports;
 }
@@ -466,7 +469,6 @@ void LadspaDsp::init(unsigned int samplingFreq, PluginDef *plugin) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
     self.instance = self.desc->instantiate(self.desc, samplingFreq);
     int n = 0;
-    self.samplefreq = samplingFreq;
     for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
 	if (LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
 	    self.desc->connect_port(self.instance, i, &self.ctrl_ports[n].port);
@@ -494,19 +496,17 @@ void LadspaDsp::stereo_process(int count, float *input1, float *input2, float *o
 
 int LadspaDsp::registerparam(const ParamReg& reg) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(reg.plugin);
+    int samplefreq = 44100; // fixed frequency for rate dependent lower and upper bounds
     int n = 0;
-    
     for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
 	if (LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
-        
+	    if (!LADSPA_IS_HINT_BOUNDED_BELOW(self.desc->PortRangeHints[i].HintDescriptor) || !LADSPA_IS_HINT_BOUNDED_ABOVE(self.desc->PortRangeHints[i].HintDescriptor)) {
+		printf("LBUB %s %s %d %d\n",self.desc->Label,self.desc->PortNames[i], LADSPA_IS_HINT_BOUNDED_BELOW(self.desc->PortRangeHints[i].HintDescriptor), LADSPA_IS_HINT_BOUNDED_ABOVE(self.desc->PortRangeHints[i].HintDescriptor));
+	    }
         float low = self.desc->PortRangeHints[i].LowerBound;
         float up = self.desc->PortRangeHints[i].UpperBound;
 	    float dflt = 0.0;
         
-        if (LADSPA_IS_HINT_SAMPLE_RATE(self.desc->PortRangeHints[i].HintDescriptor)) {
-        low *= self.samplefreq; //FIXME
-        up *= self.samplefreq;  //FIXME
-        }
         if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
             if (low < 1.192092896e-07F)
                 low = 1.192092896e-07F;
@@ -523,6 +523,10 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 		up = self.desc->PortRangeHints[i].UpperBound;
 	    } else if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
         up = 4096;
+        }
+        if (LADSPA_IS_HINT_SAMPLE_RATE(self.desc->PortRangeHints[i].HintDescriptor)) {
+        low *= samplefreq; //FIXME
+        up *= samplefreq;  //FIXME
         }
 	    float step = (up - low) / 100;
 	    if (LADSPA_IS_HINT_INTEGER(self.desc->PortRangeHints[i].HintDescriptor) ||
@@ -607,7 +611,7 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
 		tp = "B";
 		//printf("%s.%s: hint toggled: FIXME\n", self.desc->Label, self.desc->PortNames[i]);
-	    } 
+	    }
 	    reg.registerVar(s.c_str(),nm.c_str(),tp,"",&self.ctrl_ports[n].port,dflt,low,up,step);
 	    n++;
 	}
@@ -787,17 +791,7 @@ void LadspaDsp::create_list() {
                 
                 Glib::ustring str = file_names[i];
                 // unwanted plugs
-                if((strcmp(str.c_str(),"bandpass_a_iir_1893.so") !=0) &&
-                  (strcmp(str.c_str(),"bandpass_iir_1892.so") !=0) &&
-                  (strcmp(str.c_str(),"butterworth_1902.so") !=0) &&
-                  (strcmp(str.c_str(),"dssi-vst.so") !=0) &&
-                  (strcmp(str.c_str(),"highpass_iir_1890.so") !=0) &&
-                  (strcmp(str.c_str(),"ladspa_guitarix.so") !=0) &&
-                  (strcmp(str.c_str(),"lowpass_iir_1891.so") !=0) &&
-                  (strcmp(str.c_str(),"notch_iir_1894.so") !=0)&&
-                  (strcmp(str.c_str(),"decay_1886.so") !=0) &&
-                  (strcmp(str.c_str(),"sine.so") !=0)) {
-
+                if (str != "ladspa_guitarix.so") {
                     const char * plug = str.c_str();
                     void * pvPluginHandle;
                     LADSPA_Descriptor_Function pfDescriptorFunction;
@@ -903,7 +897,7 @@ get_gx_plugin(unsigned int idx, PluginDef **pplugin)
     }
     if (idx < plugins.size()) {
 	*pplugin = LadspaDsp::create(plugins[idx]);
-	return plugins.size();
+	return *pplugin ? plugins.size() : -1;
     } else {
 	*pplugin = 0;
 	return -1;
