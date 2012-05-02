@@ -343,6 +343,7 @@ private:
     LADSPA_Handle instance;
     port_data *ctrl_ports;
     std::string id_str;
+    Glib::ustring name_str;
     const plugdesc& pd;
     void activate();
     void connect(int tp, int i, float *v);
@@ -416,22 +417,24 @@ LadspaDsp *LadspaDsp::create(const plugdesc& plug) {
 }
 
 LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descriptor *desc_, int num_ctrl, bool mono)
-    : PluginDef(), desc(desc_), handle(handle_), instance(), ctrl_ports(), id_str(), pd(plug) {
+    : PluginDef(), desc(desc_), handle(handle_), instance(), ctrl_ports(), id_str(), name_str(), pd(plug) {
     ctrl_ports = new port_data[num_ctrl];
     version = PLUGINDEF_VERSION;
     id_str = "ladspa_";
     id_str += desc->Label;
     id_str += to_string(desc->UniqueID);
     id = id_str.c_str();
-    name = desc->Name;
-    if (strlen(name) > 24) {
-	name = desc->Label;
-    } else {
-	name = desc->Name;
+    description = desc->Name;
+    name_str = desc->Name;
+#if 0
+    if (name_str.size() > 24) {
+	name_str = desc->Label;
     }
-    if (strcmp(name, "Flanger") == 0) { //FIXME
-	name = "Flanger1";
+#endif
+    if (name_str.size() > 24) {
+	name_str.erase(24);
     }
+    name = name_str.c_str();
     set_samplerate = init;
     if (mono) {
 	mono_audio = mono_process;

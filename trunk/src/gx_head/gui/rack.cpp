@@ -46,6 +46,9 @@ PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const cha
     : GxUiItem(), merge_id(0), action(), plugin(pl.lookup_plugin(name)), fname(fname_),
       tooltip(tooltip_), shortname(), icon(), group(), toolitem(), main(main_), rackbox(),
       hidden(false), compressed(false) {
+    if (plugin->pdef->description && tooltip.empty()) {
+	tooltip = plugin->pdef->description;
+    }
     gx_ui::GxUI& ui = main.get_ui();
     ui.registerZone(&plugin->box_visible, this);
     ui.registerZone(&plugin->position, this);
@@ -497,16 +500,18 @@ void MiniRackBox::set_config_mode(bool mode) {
     evbox.set_above_child(mode);
     if (mode) {
 	mconbox.hide();
-    if (preset_button)
-	preset_button->hide();
+	if (preset_button) {
+	    preset_button->hide();
+	}
 	mb_expand_button->hide();
 	if (mb_delete_button) {
 	    mb_delete_button->show();
 	}
     } else {
 	mconbox.show();
-    if (preset_button)
-	preset_button->show();
+	if (preset_button) {
+	    preset_button->show();
+	}
 	mb_expand_button->show();
 	if (mb_delete_button) {
 	    mb_delete_button->hide();
