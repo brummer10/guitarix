@@ -96,7 +96,11 @@ GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, boo
 }
 
 static Glib::ustring logarithmic_format_value(double v, int prec) {
-    return Glib::ustring::format(setprecision(prec), pow(10.0,v));
+    if (v < -4) {
+	return Glib::ustring::format(std::setprecision(prec+1), pow(10.0,v));
+    } else {
+	return Glib::ustring::format(std::fixed, std::setprecision(prec-floor(v)), pow(10.0,v));
+    }
 }
 
 static int logarithmic_input_value(gpointer obj, gpointer nv)
@@ -119,12 +123,19 @@ UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regle
     m_regler(regler),
     log_display(param.is_log_display()) {
     if (log_display) {
-	double low = log10(param.lower);
 	double up = log10(param.upper);
-	double d = pow(10.0, low + up / 2);
-	double step = max(0.001, param.step/d);
-	configure(log10(param.get_value()), low, up, log10(1+step), log10(1+10*step), 0);
-	int prec = max(up, -log10(min(1/d, step))) + 1;
+	double step = log10(param.step);
+	configure(log10(param.get_value()), log10(param.lower), up, step, 10*step, 0);
+	int prec = 0;
+	float d = log10((param.step-1)*param.upper);
+	if (up > 0) {
+	    prec = up;
+	    if (d < 0) {
+		prec -= floor(d);
+	    }
+	} else if (d < 0) {
+	    prec = -floor(d);
+	}
 	m_regler->signal_format_value().connect(
 	    sigc::bind(
 		sigc::ptr_fun(logarithmic_format_value),

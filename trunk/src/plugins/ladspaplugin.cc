@@ -425,6 +425,7 @@ LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descripto
     id_str += to_string(desc->UniqueID);
     id = id_str.c_str();
     description = desc->Name;
+    name = desc->Name;
     name_str = desc->Name;
 #if 0
     if (name_str.size() > 24) {
@@ -434,7 +435,7 @@ LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descripto
     if (name_str.size() > 24) {
 	name_str.erase(24);
     }
-    name = name_str.c_str();
+    shortname = name_str.c_str();
     set_samplerate = init;
     if (mono) {
 	mono_audio = mono_process;
@@ -532,8 +533,9 @@ static void get_bounds(const LADSPA_PortRangeHint& pr, float& dflt, float& low, 
 	}
     }
     if (LADSPA_IS_HINT_LOGARITHMIC(hd)) {
-	if (low < 1.192092896e-07F)
-	    low = 1.192092896e-07F;
+	if (low <= 0) {
+	    low = up / 1000.0;
+	}
     }
     if (LADSPA_IS_HINT_BOUNDED_ABOVE(hd)) {
 	up = pr.UpperBound;
@@ -549,6 +551,8 @@ static void get_bounds(const LADSPA_PortRangeHint& pr, float& dflt, float& low, 
     }
     if (LADSPA_IS_HINT_INTEGER(hd)) {
 	step = 1.0;
+    } else if (LADSPA_IS_HINT_LOGARITHMIC(hd)) {
+	step = pow(up/low, 1.0/200);
     } else {
 	step = (up - low) / 100;
 	if (step > 1.0) {

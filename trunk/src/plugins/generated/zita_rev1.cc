@@ -160,6 +160,9 @@ Dsp::Dsp()
 	id = "zita_rev1";
 	name = N_("Zita Rev1");
 	groups = parm_groups;
+	description = ""; // description (tooltip)
+	category = "";       // category
+	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;
 	set_samplerate = init_static;
