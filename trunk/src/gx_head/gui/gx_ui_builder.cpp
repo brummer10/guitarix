@@ -73,6 +73,7 @@ UiBuilderImpl::UiBuilderImpl(StackBoxBuilder *i)
     create_spin_value = create_spin_value_;
     create_switch_no_caption = create_switch_no_caption_;
     create_selector = create_selector_;
+    create_port_display = create_port_display_;
 };
 
 void UiBuilderImpl::openVerticalBox_(const char* label) {
@@ -121,6 +122,10 @@ void UiBuilderImpl::create_spin_value_(const char *id) {
 
 void UiBuilderImpl::create_switch_no_caption_(const char *sw_type, const char * id) {
     intf->create_switch_no_caption(sw_type, id);
+}
+
+void UiBuilderImpl::create_port_display_(const char *id) {
+    intf->create_port_display(id);
 }
 
 void UiBuilderImpl::closeBox_() {

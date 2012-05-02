@@ -188,6 +188,7 @@ protected:
     static void create_selector_(const char *id);
     static void create_spin_value_(const char *id);
     static void create_switch_no_caption_(const char *sw_type,const char * id);
+    static void create_port_display_(const char *id);
     static void closeBox_();
     static void load_glade_(const char *data);
     virtual bool load(gx_engine::Plugin *p);

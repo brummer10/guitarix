@@ -47,6 +47,7 @@
 #include <gxwmm/tuner.h>
 #include <gxwmm/racktuner.h>
 #include <gxwmm/waveview.h>
+#include <gxwmm/portdisplay.h>
 #include <gtkmm/box.h>
 #include <gtkmm/alignment.h>
 #include <gtkmm/checkmenuitem.h>

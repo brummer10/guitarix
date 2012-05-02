@@ -90,6 +90,9 @@ protected:
     void create_eq_rackslider_no_caption(string id) {
             addwidget(UiRackRegler::create(ui, new Gxw::EqSlider(), id));
         }
+    void create_port_display(string id) {
+            addwidget(UiRackReglerWithCaption::create(ui, new Gxw::PortDisplay(), id));
+        }
     void create_selector(string id, const char *widget_name=0);
     void openFlipLabelBox(const char* = "");
     void openVerticalBox1(const char* label = "");
