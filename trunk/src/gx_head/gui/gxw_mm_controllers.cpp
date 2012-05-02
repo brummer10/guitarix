@@ -99,9 +99,23 @@ static Glib::ustring logarithmic_format_value(double v, int prec) {
     return Glib::ustring::format(setprecision(prec), pow(10.0,v));
 }
 
+static int logarithmic_input_value(gpointer obj, gpointer nv)
+{
+    GtkEntry *entry = GTK_ENTRY(obj);
+    double *new_val = static_cast<double*>(nv);
+    gchar *err = NULL;
+    *new_val = g_strtod(gtk_entry_get_text(entry), &err);
+    if (*err)
+	return GTK_INPUT_ERROR;
+    else {
+	*new_val = log10(*new_val);
+	return TRUE;
+    }
+}
+
 UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value):
     gx_ui::GxUiItemFloat(&ui, &param.get_value()),
-    Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0),
+    Gtk::Adjustment(param.get_value(), param.lower, param.upper, param.step, 10*param.step, 0),
     m_regler(regler),
     log_display(param.is_log_display()) {
     if (log_display) {
@@ -109,12 +123,14 @@ UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regle
 	double up = log10(param.upper);
 	double d = pow(10.0, low + up / 2);
 	double step = max(0.001, param.step/d);
-	configure(log10(param.std_value), low, up, log10(1+step), log10(1+10*step), 0);
+	configure(log10(param.get_value()), low, up, log10(1+step), log10(1+10*step), 0);
 	int prec = max(up, -log10(min(1/d, step))) + 1;
 	m_regler->signal_format_value().connect(
 	    sigc::bind(
 		sigc::ptr_fun(logarithmic_format_value),
 		prec));
+	m_regler->signal_input_value().connect(
+	    sigc::ptr_fun(logarithmic_input_value));
     }
     m_regler->set_show_value(show_value);
     m_regler->set_name("regler");
@@ -126,7 +142,11 @@ UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regle
     m_regler->set_tooltip_text(tip);
     m_regler->cp_set_var(param.id());
     m_regler->set_adjustment(*this);
-    set_value(param.get_value());
+    if (log_display) {
+	set_value(log10(param.get_value()));
+    } else {
+	set_value(param.get_value());
+    }
     m_regler->show();
     m_regler->get_accessible()->set_description (param.id().c_str());
     m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());

@@ -86,6 +86,9 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
     }
+    if (tp[0] == 'S' && tp[1] == 'L') {
+	p->set_log_display();
+    }
     return var;
 }
 
