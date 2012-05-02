@@ -118,7 +118,7 @@ enum {
 };
 
 #define PLUGINDEF_VERMAJOR_MASK 0xff00
-#define PLUGINDEF_VERSION       0x0400
+#define PLUGINDEF_VERSION       0x0500
 
 struct PluginDef {
     int version;	 // = PLUGINDEF_VERSION
@@ -128,6 +128,9 @@ struct PluginDef {
     const char* name;	 // displayed name (not translated) (may be 0)
     const char** groups; // list of alternating group_id, group_name (not translated)
 				// may be 0 (else end with 0 entry)
+    const char* description; // description (tooltip)
+    const char* category;
+    const char* shortname;
 
     // maximal one of mono_audio, stereo_audio must be set
     // all function pointers in PluginDef can be independently set to 0
