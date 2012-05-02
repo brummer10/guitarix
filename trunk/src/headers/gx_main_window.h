@@ -342,7 +342,7 @@ private:
     gx_gui::uiToggle<bool> toggle_on_off;
 private:
     static void set_paintbox(Gxw::PaintBox& pb, PluginType tp);
-    static Gtk::Widget *make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort=false);
+    static Gtk::Widget *make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort=true);
     static Gtk::Widget *make_bar(int left=4, int right=4, bool sens=false);
     Gtk::Widget *wrap_bar(int left=4, int right=4, bool sens=false);
     void init_dnd();
