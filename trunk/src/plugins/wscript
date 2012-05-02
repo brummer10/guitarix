@@ -3,11 +3,9 @@
 
 import os
 
-clsources = [ # generate .so files from c sources that can be loaded by guitarix
-    "ladspaplugin.cc",
-    ]
-
 csources = [ # generate .so files from c sources that can be loaded by guitarix
+    # element = name or [name, [lib, ...]]
+    ["ladspaplugin.cc", ["GLIBMM","GIOMM"]],
     ]
 
 sources = [ # generate .so files that can be loaded by guitarix
@@ -83,7 +81,7 @@ def build(bld):
             target = "plugins", # (also defines name of task)
             )
     for s in sources:
-        bld(name = "create plugin .so",
+        tsk = bld(name = "create plugin .so",
             features = ['cxx', 'cshlib'],
             type = 'cshlib',
             cxxflags = ["-fvisibility=hidden"],
@@ -91,27 +89,24 @@ def build(bld):
             source = [s.replace(".dsp",".cc")],
             target = s.replace(".dsp",""),
             )
-    for s in clsources:
-        bld(name = "create plugin .so",
-            features = ['cxx', 'cshlib'],
-            type = 'cshlib',
-            cxxflags = ["-fvisibility=hidden"],
-            includes = ["../headers"],
-            uselib = ['GLIBMM', 'GIOMM'], # need for plugin search 
-            source = s,
-            target = s.replace(".cc",""),
-            install_path = None, # for now...
-            )
+        tsk.env['shlib_PATTERN'] = '%s.so'
     for s in csources:
-        bld(name = "create plugin .so",
+        if not isinstance(s, basestring):
+            uselib = s[1]
+            s = s[0]
+        else:
+            uselib = []
+        tsk = bld(name = "create plugin .so",
             features = ['cxx', 'cshlib'],
             type = 'cshlib',
             cxxflags = ["-fvisibility=hidden"],
             includes = ["../headers"],
             source = s,
             target = s.replace(".cc",""),
+            uselib = uselib,
             install_path = None, # for now...
             )
+        tsk.env['shlib_PATTERN'] = '%s.so'
 
 def configure(conf):
     pass
