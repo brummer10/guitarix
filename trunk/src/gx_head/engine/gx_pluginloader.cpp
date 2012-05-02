@@ -446,7 +446,7 @@ void PluginList::registerParameter(ParamMap& param, ParameterGroups& groups) {
 	    param.reg_par((s+".on_off").c_str(),N_("on/off"), &pl->on_off, 0);
 	    new RackChangerUiItem<bool>(*this, &pl->on_off);
 	    if (pd->flags & PGNI_DYN_POSITION || !(pd->flags & PGN_FIXED_GUI)) {
-		param.reg_non_midi_par(string("ui.")+pd->name, &pl->box_visible, true);
+		param.reg_non_midi_par("ui."+s, &pl->box_visible, true);
 		param.reg_non_midi_par(s+".s_h", &pl->plug_visible, false);
 	    }
 	    if (pd->flags & PGNI_DYN_POSITION) {

@@ -491,6 +491,7 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf) {
 ParameterGroups::ParameterGroups() {
     insert("system", N_("System"));
     insert("ui", N_("User Interface"));
+    insert("ui.amp", N_("User Interface")); // FIXME (ui.amp.tonestack)
     insert("engine", N_("Audio Engine"));
 }
 

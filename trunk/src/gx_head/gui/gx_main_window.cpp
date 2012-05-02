@@ -1511,7 +1511,7 @@ void MainWindow::create_actions() {
 	ui, *pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false), "LiveTuner", "??");
 
     actions.midi_out = UiBoolToggleAction::create(
-	ui, gx_engine::parameter_map["ui.Midi Out"].getBool(), "MidiOut", _("M_idi Out"));
+	ui, gx_engine::parameter_map["ui.midi_out"].getBool(), "MidiOut", _("M_idi Out"));
     actions.group->add(
 	actions.midi_out,
 	sigc::mem_fun(this, &MainWindow::on_show_midi_out));
@@ -1803,7 +1803,6 @@ void MainWindow::fill_pluginlist() {
 
     p = new std::vector<PluginUI*>;
     add_plugin(p, "crybaby");
-    //add_plugin(p, PLUGIN_TYPE_MONO, "crybaby2");
     add_plugin(p, "compressor");
     l.push_back(new PluginDesc("Guitar Effects", p));
 
