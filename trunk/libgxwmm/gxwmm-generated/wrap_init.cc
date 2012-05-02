@@ -23,6 +23,7 @@
 #include "meterscale.h"
 #include "minislider.h"
 #include "paintbox.h"
+#include "portdisplay.h"
 #include "racktuner.h"
 #include "radiobutton.h"
 #include "regler.h"
@@ -53,6 +54,7 @@ GType gx_level_slider_get_type(void);
 GType gx_meter_scale_get_type(void);
 GType gx_mini_slider_get_type(void);
 GType gx_paint_box_get_type(void);
+GType gx_port_display_get_type(void);
 GType gx_rack_tuner_get_type(void);
 GType gx_radio_button_get_type(void);
 GType gx_regler_get_type(void);
@@ -87,6 +89,7 @@ class LevelSlider_Class { public: static Glib::ObjectBase* wrap_new(GObject*); }
 class MeterScale_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class MiniSlider_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class PaintBox_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
+class PortDisplay_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class RackTuner_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class RadioButton_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class Regler_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
@@ -118,6 +121,7 @@ void wrap_init()
   Glib::wrap_register(gx_meter_scale_get_type(), &MeterScale_Class::wrap_new);
   Glib::wrap_register(gx_mini_slider_get_type(), &MiniSlider_Class::wrap_new);
   Glib::wrap_register(gx_paint_box_get_type(), &PaintBox_Class::wrap_new);
+  Glib::wrap_register(gx_port_display_get_type(), &PortDisplay_Class::wrap_new);
   Glib::wrap_register(gx_rack_tuner_get_type(), &RackTuner_Class::wrap_new);
   Glib::wrap_register(gx_radio_button_get_type(), &RadioButton_Class::wrap_new);
   Glib::wrap_register(gx_regler_get_type(), &Regler_Class::wrap_new);
@@ -145,6 +149,7 @@ void wrap_init()
   MeterScale::get_type();
   MiniSlider::get_type();
   PaintBox::get_type();
+  PortDisplay::get_type();
   RackTuner::get_type();
   RadioButton::get_type();
   Regler::get_type();
