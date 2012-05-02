@@ -803,6 +803,9 @@ Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptio
     if (useshort) {
 	effect_name = plugin.shortname;
 	if (!effect_name) {
+	    effect_name = plugin.plugin->pdef->shortname;
+	}
+	if (!effect_name || !*effect_name) {
 	    effect_name = plugin.get_name();
 	}
     } else {
@@ -1173,7 +1176,7 @@ void RackBox::pack(Gtk::Widget *main, Gtk::Widget *mini) {
 
 Gtk::VBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     Gtk::VBox *vx = new Gtk::VBox();
-    Gtk::Widget *effect_label = make_label(plugin, options, true);
+    Gtk::Widget *effect_label = make_label(plugin, options, false);
     vx->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
     Gtk::HBox *bx = new Gtk::HBox();
     vx->pack_start(*manage(bx), Gtk::PACK_EXPAND_PADDING);

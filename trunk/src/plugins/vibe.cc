@@ -189,6 +189,7 @@ Vibe::Vibe(bool stereo)
     } else {
 	id = "univibe_mono";
 	name = N_("Vibe Mono");
+	shortname = N_("Vibe");
 	mono_audio = process_mono;
     }
     set_samplerate = init;

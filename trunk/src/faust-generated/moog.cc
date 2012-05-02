@@ -48,6 +48,9 @@ Dsp::Dsp()
 	id = "moog";
 	name = N_("Moog Filter");
 	groups = 0;
+	description = ""; // description (tooltip)
+	category = "";       // category
+	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;
 	set_samplerate = init_static;

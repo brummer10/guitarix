@@ -57,6 +57,9 @@ Dsp::Dsp()
 	id = "stereodelay";
 	name = N_("Stereo Delay");
 	groups = 0;
+	description = ""; // description (tooltip)
+	category = "";       // category
+	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;
 	set_samplerate = init_static;

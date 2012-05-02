@@ -41,6 +41,9 @@ Dsp::Dsp()
 	id = "gx_ampout_ladspa";
 	name = "?gx_ampout_ladspa";
 	groups = parm_groups;
+	description = ""; // description (tooltip)
+	category = "";       // category
+	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;

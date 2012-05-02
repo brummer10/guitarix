@@ -206,6 +206,9 @@ Dsp::Dsp()
 	id = "pre 6DJ8/ push-pull 6V6";
 	name = N_("pre 6DJ8/ push-pull 6V6");
 	groups = 0;
+	description = ""; // description (tooltip)
+	category = "";       // category
+	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;

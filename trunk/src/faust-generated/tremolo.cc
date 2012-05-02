@@ -47,6 +47,9 @@ Dsp::Dsp()
 	id = "tremolo";
 	name = N_("Tremolo");
 	groups = 0;
+	description = ""; // description (tooltip)
+	category = "";       // category
+	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;

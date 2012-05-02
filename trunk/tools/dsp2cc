@@ -309,6 +309,12 @@ class Parser(object):
                     self.name = value
                 elif key == "groups":
                     self.groups.update(self.splitgroups(value));
+                elif key == "category":
+                    self.category = value
+                elif key == "shortname":
+                    self.shortname = value
+                elif key == "description":
+                    self.description = value
 
     def readIncludes(self, stop_expr):
         stop = re.compile(stop_expr).match
@@ -473,6 +479,9 @@ PluginDef plugin = {
     "%s",  // id
     %s,  // name
     %s,  // groups
+    %s,  // description (tooltip)
+    %s,  // category
+    %s,  // shortname
     %s,  // mono_audio
     %s,  // stereo_audio
     init,  // set_samplerate
@@ -614,6 +623,9 @@ PluginDef plugindef = {
     "%(plugin_id)s",  // id
     %(plugin_name)s,  // name
     %(groups_p)s,  // groups
+    %(description)s,  // description (tooltip)
+    %(category)s,     // category
+    %(shortname)s,    // shortname
     %(mono_compute_p)s,  // mono_audio
     %(stereo_compute_p)s,  // stereo_audio
     init,  // set_samplerate
@@ -735,6 +747,9 @@ Dsp::Dsp()%(dsp_initlist)s {
 	id = "%(plugin_id)s";
 	name = %(plugin_name)s;
 	groups = %(groups_p)s;
+	description = %(description)s; // description (tooltip)
+	category = %(category)s;       // category
+	shortname = %(shortname)s;     // shortname
 	mono_audio = %(mono_compute_p)s;
 	stereo_audio = %(stereo_compute_p)s;
 	set_samplerate = init_static;
@@ -974,6 +989,9 @@ class Output(object):
             plugin_id,    # id
             plugin_name,  # name
             "parm_groups" if self.parser.groups else "0",  # groups
+            wrap_N_(getattr(self.parser,"description","")), # description (tooltip)
+            wrap_N_(getattr(self.parser,"category","")),    # category
+            wrap_N_(getattr(self.parser,"shortname","")),   # shortname
             "compute" if self.parser.getNumOutputs() == 1 else "0",  # mono_audio
             "compute" if self.parser.getNumOutputs() == 2 else "0",  # stereo_audio
             "activate" if self.has_activate else "0",  # activate plugin
@@ -1076,6 +1094,9 @@ class Output(object):
             plugin_id = plugin_id,
             plugin_name = plugin_name,
             groups_p = "parm_groups" if groups_define else "0",
+            description = wrap_N_(getattr(self.parser,"description","")),
+            category = wrap_N_(getattr(self.parser,"category","")),
+            shortname = wrap_N_(getattr(self.parser,"shortname","")),
             mono_compute_p = "compute"+ds if self.parser.getNumOutputs() == 1 else "0",
             stereo_compute_p = "compute"+ds if self.parser.getNumOutputs() == 2 else "0",
             activate_p = "activate"+ds if self.has_activate else "0",

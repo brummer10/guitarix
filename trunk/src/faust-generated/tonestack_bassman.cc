@@ -42,6 +42,9 @@ Dsp::Dsp()
 	id = "Bassman";
 	name = N_("Bassman");
 	groups = 0;
+	description = ""; // description (tooltip)
+	category = "";       // category
+	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;

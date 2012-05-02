@@ -92,6 +92,9 @@ Dsp::Dsp()
 	id = "tonemodul";
 	name = N_("3 Band EQ");
 	groups = 0;
+	description = ""; // description (tooltip)
+	category = "";       // category
+	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;
 	set_samplerate = init_static;

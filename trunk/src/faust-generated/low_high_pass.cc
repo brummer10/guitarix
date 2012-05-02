@@ -56,6 +56,9 @@ Dsp::Dsp()
 	id = "low_highpass";
 	name = N_("low high pass");
 	groups = parm_groups;
+	description = ""; // description (tooltip)
+	category = "";       // category
+	shortname = N_("L/H/Filter");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
