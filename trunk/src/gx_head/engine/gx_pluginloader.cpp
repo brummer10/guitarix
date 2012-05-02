@@ -74,20 +74,34 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
 	    gx_engine::Parameter& p = (*pmap)[id];
 #ifndef NDEBUG
 	    gx_engine::FloatParameter p2(
-		id, name, gx_engine::Parameter::Continuous, true,
-		&p.getFloat().get_value(), val, low, up, step, true);
+		id, name, (tp[0] == 'B' ? Parameter::Switch : gx_engine::Parameter::Continuous),
+		true, &p.getFloat().get_value(), val, low, up, step, true);
 	    p2.set_desc(tooltip);
 	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
 #endif
 	    return &p.getFloat().get_value();
 	}
     }
-    gx_engine::Parameter *p = pmap->reg_par(id, name, var, val, low, up, step);
+    gx_engine::Parameter *p = 0;
+    int i = 0;
+    if (tp[0] == 'S') {
+	i = 1;
+	p = pmap->reg_par(id, name, var, val, low, up, step);
+	if (tp[1] == 'L') {
+	    p->set_log_display();
+	    i = 2;
+	}
+    } else if (tp[0] == 'B') {
+	i = 1;
+	p = pmap->reg_par(id, name, var, val);
+    } else {
+	assert(false);
+    }
+    if (tp[i] == 'O') {
+	p->setSavable(false);
+    }
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
-    }
-    if (tp[0] == 'S' && tp[1] == 'L') {
-	p->set_log_display();
     }
     return var;
 }

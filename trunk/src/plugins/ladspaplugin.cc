@@ -678,13 +678,16 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    }
 	}
 
-	const char *tp = "S";
+	std::string tp = "S";
 	if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
 	    tp = "B";
 	} else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
 	    tp = "SL";
 	}
-	reg.registerVar(s.c_str(),nm,tp,self.desc->PortNames[i],
+	if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
+	    tp += "O";
+	}
+	reg.registerVar(s.c_str(),nm,tp.c_str(),self.desc->PortNames[i],
 			&self.ctrl_ports[n].port,dflt,low,up,step);
 
 	n++;
