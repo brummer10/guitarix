@@ -771,6 +771,7 @@ static bool is_blacklisted(unsigned long id) {
     static unsigned long blacklist[] = {
 	4069, 4070,		// ladspa_guitarix
 	1044, 1045, 1046, 1047,	// sine
+	1912,			// jamincont
     };
     for (unsigned int i = 0; i < sizeof(blacklist) / sizeof(blacklist[0]); i++) {
 	if (id == blacklist[i]) {
