@@ -26,8 +26,6 @@
 
 static gboolean gx_port_display_expose (GtkWidget *widget, GdkEventExpose *event);
 static void gx_port_display_size_request (GtkWidget *widget, GtkRequisition *requisition);
-static gboolean gx_port_display_button_press (GtkWidget *widget, GdkEventButton *event);
-static gboolean gx_port_display_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
 
 G_DEFINE_TYPE(GxPORTDisplay, gx_port_display, GX_TYPE_VSLIDER);
 
@@ -37,8 +35,8 @@ static void gx_port_display_class_init(GxPORTDisplayClass *klass)
 
 	widget_class->expose_event = gx_port_display_expose;
 	widget_class->size_request = gx_port_display_size_request;
-	widget_class->button_press_event = gx_port_display_button_press;
-	widget_class->motion_notify_event = gx_port_display_pointer_motion;
+	widget_class->button_press_event = NULL;
+	widget_class->motion_notify_event = NULL;
 	widget_class->enter_notify_event = NULL;
 	widget_class->leave_notify_event = NULL;
 	klass->parent_class.stock_id = "portdisplay";
@@ -93,17 +91,6 @@ static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 	r->height = gdk_pixbuf_get_height(pb);
 	g_object_unref(pb);
 }
-
-static gboolean gx_port_display_button_press (GtkWidget *widget, GdkEventButton *event)
-{
-	return FALSE;
-}
-
-static gboolean gx_port_display_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
-{
-	return FALSE;
-}
-
 
 static void gx_port_display_init(GxPORTDisplay *port_display)
 {
