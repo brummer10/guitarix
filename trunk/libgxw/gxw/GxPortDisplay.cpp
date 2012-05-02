@@ -94,63 +94,13 @@ static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 	g_object_unref(pb);
 }
 
-static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
-{
-	gint display_height;
-	GdkRectangle image_rect, value_rect;
-	gtk_widget_style_get(widget, "display-width", &display_height, NULL);
-	get_width_height(widget, &image_rect);
-	image_rect.height = (image_rect.height + display_height) / 2;
-	x += widget->allocation.x;
-	y += widget->allocation.y;
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	if (!drag) {
-		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {
-			return FALSE;
-		}
-	}
-	gint height = image_rect.height - display_height;
-	gint off =  image_rect.y + display_height/2;
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-    static double last_y = 2e20;
-	if (!drag) {
-		last_y = y;
-		if (event && event->type == GDK_2BUTTON_PRESS) {
-		    double value = adj->upper - ((y-off) / height) * (adj->upper - adj->lower);
-			gtk_range_set_value(GTK_RANGE(widget), value);
-		}
-	} else {
-		double value = ((last_y - y) / height) * (adj->upper - adj->lower);
-		if (state & (GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
-			value *= 0.1;
-		}
-		last_y = y;
-		gtk_range_set_value(GTK_RANGE(widget), adj->value + value);
-	}
-	return TRUE;
-}
-
 static gboolean gx_port_display_button_press (GtkWidget *widget, GdkEventButton *event)
 {
-	g_assert(GX_IS_PORT_DISPLAY(widget));
-	if (event->button != 1 && event->button != 3) {
-		return FALSE;
-	}
-	gtk_widget_grab_focus(widget);
-	if (slider_set_from_pointer(widget, event->state, event->x, event->y, FALSE, event->button, event)) {
-		gtk_grab_add(widget);
-	}
 	return FALSE;
 }
 
 static gboolean gx_port_display_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
 {
-	g_assert(GX_IS_PORT_DISPLAY(widget));
-	if (!gtk_widget_has_grab(widget)) {
-		return FALSE;
-	}
-	gdk_event_request_motions (event);
-	slider_set_from_pointer(widget, event->state, event->x, event->y, TRUE, 0, NULL);
 	return FALSE;
 }
 
