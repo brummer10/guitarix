@@ -27,16 +27,16 @@ inline std::string to_string(const T& t) {
  */
 
 class JsonException: public std::exception {
- private:
+private:
     std::string what_str;
- public:
+public:
     JsonException(const char* desc);
     ~JsonException() throw() { }
     virtual const char* what() const throw() { return what_str.c_str(); }
 };
 
 class JsonParser {
- public:
+public:
     JsonParser(std::istream* i = 0);
     virtual ~JsonParser();
     virtual void close();
@@ -68,7 +68,7 @@ class JsonParser {
         return d;
     }
     void skip_object();
- private:
+private:
     std::istream* is;
     int depth;
     token cur_tok;
@@ -98,11 +98,11 @@ JsonException::JsonException(const char* desc) {
 
 JsonParser::JsonParser(std::istream* i)
     : is(i),
-    depth(0),
-    cur_tok(no_token),
-    nl(false),
-    next_depth(0),
-    next_tok(no_token) {}
+      depth(0),
+      cur_tok(no_token),
+      nl(false),
+      next_depth(0),
+      next_tok(no_token) {}
 
 JsonParser::~JsonParser() {
     close();
@@ -134,12 +134,12 @@ const char* unicode2utf8(unsigned int input) {
     if (input < 0x80) {
         result[n++] = static_cast<char>(input);
 
-    // 110xxxxx 10xxxxxx
+	// 110xxxxx 10xxxxxx
     } else if (input < 0x800) {
         result[n++] = (static_cast<char>(mask2bytes | (input >> 6)));
         result[n++] = (static_cast<char>(maskbyte | (input & maskbits)));
 
-    // 1110xxxx 10xxxxxx 10xxxxxx
+	// 1110xxxx 10xxxxxx 10xxxxxx
     } else {
         result[n++] = (static_cast<char>(mask3bytes | (input >> 12)));
         result[n++] = (static_cast<char>(maskbyte | ((input >> 6) & maskbits)));
@@ -614,78 +614,78 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    continue;
 	}
 
-    float low = -1000;
-    float up = 1000;
-    float dflt = 0.0;
-    float step = 1.0;
-    if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
-    low = 0;
-    up = 8192;
-    }
-    const char *nm = "";
-    std::map<int,paradesc>::const_iterator it = self.pd.names.find(n);
-    if (it != self.pd.names.end()) {
-    nm = it->second.name.c_str();
-    }
-    if (it != self.pd.names.end() && it->second.has_range) {
-    dflt = it->second.dflt;
-    low = it->second.low;
-    up = it->second.up;
-    step = it->second.step;
-    } else {
-    get_bounds(self.desc->PortRangeHints[i], dflt, low, up, step);
-    }
-    // replace . and cut label
-    Glib::ustring pn = self.desc->PortNames[i];
-    size_t rem = 0;
-    while (true) {
-    rem = pn.find_first_of(".", rem);
-    if (rem == Glib::ustring::npos) {
-        break;
-    }
-    pn.replace(rem, 1, 1, '-');
-    rem += 1;
-    if (rem >= pn.size()) {
-        break;
-    }
-    }
-    rem = pn.find_first_of("([");
-    if(rem != Glib::ustring::npos) {
-    pn.erase(rem);
-    }
-    while ((rem = pn.find_last_of(" ")) == pn.size()-1) {
-    pn.erase(rem);
-    }
-    std::string& s = self.ctrl_ports[n].id;
-    s = self.id_str + "." + to_string(n) + "_" + pn;
-    if (!*nm) {
-    nm = pn.c_str();
-    rem = 0;
-    unsigned int rem1 = 0;
-    while (true) {
-        rem1 = pn.find_first_of(" ", rem1);
-        if (rem1 == Glib::ustring::npos) {
-        break;
-        }
-        if (rem1 - rem > 5) {
-        pn.replace(rem1, 1, 1, '\n');
-        rem = rem1 + 1;
-        }
-        rem1 += 1;
-        if (rem1 >= pn.size()) {
-        break;
-        }
-    }
-    }
+	float low = -1000;
+	float up = 1000;
+	float dflt = 0.0;
+	float step = 1.0;
+	if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
+	    low = 0;
+	    up = 8192;
+	}
+	const char *nm = "";
+	std::map<int,paradesc>::const_iterator it = self.pd.names.find(n);
+	if (it != self.pd.names.end()) {
+	    nm = it->second.name.c_str();
+	}
+	if (it != self.pd.names.end() && it->second.has_range) {
+	    dflt = it->second.dflt;
+	    low = it->second.low;
+	    up = it->second.up;
+	    step = it->second.step;
+	} else {
+	    get_bounds(self.desc->PortRangeHints[i], dflt, low, up, step);
+	}
+	// replace . and cut label
+	Glib::ustring pn = self.desc->PortNames[i];
+	size_t rem = 0;
+	while (true) {
+	    rem = pn.find_first_of(".", rem);
+	    if (rem == Glib::ustring::npos) {
+		break;
+	    }
+	    pn.replace(rem, 1, 1, '-');
+	    rem += 1;
+	    if (rem >= pn.size()) {
+		break;
+	    }
+	}
+	rem = pn.find_first_of("([");
+	if(rem != Glib::ustring::npos) {
+	    pn.erase(rem);
+	}
+	while ((rem = pn.find_last_of(" ")) == pn.size()-1) {
+	    pn.erase(rem);
+	}
+	std::string& s = self.ctrl_ports[n].id;
+	s = self.id_str + "." + to_string(n) + "_" + pn;
+	if (!*nm) {
+	    nm = pn.c_str();
+	    rem = 0;
+	    unsigned int rem1 = 0;
+	    while (true) {
+		rem1 = pn.find_first_of(" ", rem1);
+		if (rem1 == Glib::ustring::npos) {
+		    break;
+		}
+		if (rem1 - rem > 5) {
+		    pn.replace(rem1, 1, 1, '\n');
+		    rem = rem1 + 1;
+		}
+		rem1 += 1;
+		if (rem1 >= pn.size()) {
+		    break;
+		}
+	    }
+	}
 
-    const char *tp = "S";
-    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-    tp = "B";
-    } else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
-    tp = "SL";
-    }
-    reg.registerVar(s.c_str(),nm,tp,self.desc->PortNames[i],
-            &self.ctrl_ports[n].port,dflt,low,up,step);
+	const char *tp = "S";
+	if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
+	    tp = "B";
+	} else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
+	    tp = "SL";
+	}
+	reg.registerVar(s.c_str(),nm,tp,self.desc->PortNames[i],
+			&self.ctrl_ports[n].port,dflt,low,up,step);
 
 	n++;
     }
@@ -706,10 +706,10 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 	if (!LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
 	    continue;
 	}
-    if (n > 0 && n % max_ctrl == 0) {
-    b.closeBox();
-    b.openHorizontalBox("");
-    }
+	if (n > 0 && n % max_ctrl == 0) {
+	    b.closeBox();
+	    b.openHorizontalBox("");
+	}
 	if (LADSPA_IS_PORT_INPUT(self.desc->PortDescriptors[i])) {
 	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
 		b.openVerticalBox2(self.desc->PortNames[i]);
@@ -726,7 +726,7 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 	    } else {
 		b.create_port_display(self.ctrl_ports[n].id.c_str());
 	    }
-    }
+	}
 	n++;
     }
     if (self.desc->PortCount > max_ctrl) {
@@ -763,17 +763,17 @@ void LadspaDsp::make_menu(const LADSPA_Descriptor * psDescriptor,
     int outputports = 0;
 
     for (lPortIndex = 0;  lPortIndex < psDescriptor->PortCount; lPortIndex++) {
-            // only mono and stereo plugs are supported
+	// only mono and stereo plugs are supported
         if  (LADSPA_IS_PORT_AUDIO(psDescriptor->PortDescriptors[lPortIndex]) && 
-            LADSPA_IS_PORT_INPUT(psDescriptor->PortDescriptors[lPortIndex])) {
-                inputports ++;
+	     LADSPA_IS_PORT_INPUT(psDescriptor->PortDescriptors[lPortIndex])) {
+	    inputports ++;
         } else if  (LADSPA_IS_PORT_AUDIO(psDescriptor->PortDescriptors[lPortIndex]) && 
-            LADSPA_IS_PORT_OUTPUT(psDescriptor->PortDescriptors[lPortIndex])) {
-                outputports ++;
+		    LADSPA_IS_PORT_OUTPUT(psDescriptor->PortDescriptors[lPortIndex])) {
+	    outputports ++;
         }
     }
     if ((inputports == 1 && outputports == 1) ||
-      (inputports == 2 && outputports == 2)) {
+	(inputports == 2 && outputports == 2)) {
         std::string mono_plug = ",\n";
         mono_plug += "    ";
         mono_plug += "[\"";
