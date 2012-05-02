@@ -37,6 +37,7 @@ protected:
   //These will call the *_impl member methods, which will then call the existing default signal callbacks, if any.
   //You could prevent the original default signal handlers being called by overriding the *_impl method.
   static gboolean value_entry_callback(GxRegler* self, GdkRectangle* p0, GdkEventButton* p1);
+  static gint input_value_callback(GxRegler* self, gpointer p0, gpointer p1);
   static gchar* format_value_callback(GxRegler* self, gdouble p0);
 
   //Callbacks (virtual functions):

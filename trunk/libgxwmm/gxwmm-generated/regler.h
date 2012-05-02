@@ -93,6 +93,8 @@ protected:
   //Default Signal Handlers::
   /// This is a default handler for the signal signal_value_entry().
   virtual bool on_value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2);
+  /// This is a default handler for the signal signal_input_value().
+  virtual int on_input_value(void * spin, void * new_val);
   /// This is a default handler for the signal signal_format_value().
   virtual Glib::ustring on_format_value(double value);
 
@@ -121,6 +123,15 @@ private:
    */
 
   Glib::SignalProxy2< bool,const Gdk::Rectangle&,GdkEventButton* > signal_value_entry();
+
+	
+/**
+   * @par Slot Prototype:
+   * <tt>int on_my_%input_value(void * spin, void * new_val)</tt>
+   *
+   */
+
+  Glib::SignalProxy2< int,void *,void * > signal_input_value();
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** GtkLabel for caption.

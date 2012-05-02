@@ -96,6 +96,72 @@ static const Glib::SignalProxyInfo Regler_signal_value_entry_info =
 };
 
 
+static gint Regler_signal_input_value_callback(GxRegler* self, gpointer p0,gpointer p1,void* data)
+{
+  using namespace Gxw;
+  typedef sigc::slot< int,void *,void * > SlotType;
+
+  // Do not try to call a signal on a disassociated wrapper.
+  if(Glib::ObjectBase::_get_current_wrapper((GObject*) self))
+  {
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    try
+    {
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+      if(sigc::slot_base *const slot = Glib::SignalProxyNormal::data_to_slot(data))
+        return (*static_cast<SlotType*>(slot))(p0
+, p1
+);
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    }
+    catch(...)
+    {
+      Glib::exception_handlers_invoke();
+    }
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+  }
+
+  typedef gint RType;
+  return RType();
+}
+
+static gint Regler_signal_input_value_notify_callback(GxRegler* self, gpointer p0,gpointer p1, void* data)
+{
+  using namespace Gxw;
+  typedef sigc::slot< void,void *,void * > SlotType;
+
+  // Do not try to call a signal on a disassociated wrapper.
+  if(Glib::ObjectBase::_get_current_wrapper((GObject*) self))
+  {
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    try
+    {
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+      if(sigc::slot_base *const slot = Glib::SignalProxyNormal::data_to_slot(data))
+        (*static_cast<SlotType*>(slot))(p0
+, p1
+);
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    }
+    catch(...)
+    {
+      Glib::exception_handlers_invoke();
+    }
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+  }
+
+  typedef gint RType;
+  return RType();
+}
+
+static const Glib::SignalProxyInfo Regler_signal_input_value_info =
+{
+  "input-value",
+  (GCallback) &Regler_signal_input_value_callback,
+  (GCallback) &Regler_signal_input_value_notify_callback
+};
+
+
 static gchar* Regler_signal_format_value_callback(GxRegler* self, gdouble p0,void* data)
 {
   using namespace Gxw;
@@ -210,6 +276,7 @@ void Regler_Class::class_init_function(void* g_class, void* class_data)
 
 
   klass->value_entry = &value_entry_callback;
+  klass->input_value = &input_value_callback;
   klass->format_value = &format_value_callback;
 }
 
@@ -255,6 +322,50 @@ gboolean Regler_Class::value_entry_callback(GxRegler* self, GdkRectangle* p0, Gd
     return (*base->value_entry)(self, p0, p1);
 
   typedef gboolean RType;
+  return RType();
+}
+gint Regler_Class::input_value_callback(GxRegler* self, gpointer p0, gpointer p1)
+{
+  Glib::ObjectBase *const obj_base = static_cast<Glib::ObjectBase*>(
+      Glib::ObjectBase::_get_current_wrapper((GObject*)self));
+
+  // Non-gtkmmproc-generated custom classes implicitly call the default
+  // Glib::ObjectBase constructor, which sets is_derived_. But gtkmmproc-
+  // generated classes can use this optimisation, which avoids the unnecessary
+  // parameter conversions if there is no possibility of the virtual function
+  // being overridden:
+  if(obj_base && obj_base->is_derived_())
+  {
+    CppObjectType *const obj = dynamic_cast<CppObjectType* const>(obj_base);
+    if(obj) // This can be NULL during destruction.
+    {
+      #ifdef GLIBMM_EXCEPTIONS_ENABLED
+      try // Trap C++ exceptions which would normally be lost because this is a C callback.
+      {
+      #endif //GLIBMM_EXCEPTIONS_ENABLED
+        // Call the virtual member method, which derived classes might override.
+        return obj->on_input_value(p0
+, p1
+);
+      #ifdef GLIBMM_EXCEPTIONS_ENABLED
+      }
+      catch(...)
+      {
+        Glib::exception_handlers_invoke();
+      }
+      #endif //GLIBMM_EXCEPTIONS_ENABLED
+    }
+  }
+
+  BaseClassType *const base = static_cast<BaseClassType*>(
+        g_type_class_peek_parent(G_OBJECT_GET_CLASS(self)) // Get the parent class of the object class (The original underlying C class).
+    );
+
+  // Call the original underlying C function:
+  if(base && base->input_value)
+    return (*base->input_value)(self, p0, p1);
+
+  typedef gint RType;
   return RType();
 }
 gchar* Regler_Class::format_value_callback(GxRegler* self, gdouble p0)
@@ -390,6 +501,12 @@ Glib::SignalProxy2< bool,const Gdk::Rectangle&,GdkEventButton* > Regler::signal_
 }
 
 
+Glib::SignalProxy2< int,void *,void * > Regler::signal_input_value()
+{
+  return Glib::SignalProxy2< int,void *,void * >(this, &Regler_signal_input_value_info);
+}
+
+
 Glib::SignalProxy1< Glib::ustring,double > Regler::signal_format_value()
 {
   return Glib::SignalProxy1< Glib::ustring,double >(this, &Regler_signal_format_value_info);
@@ -470,6 +587,18 @@ bool Gxw::Regler::on_value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2)
     return (*base->value_entry)(gobj(),const_cast<GdkRectangle*>(p1.gobj()),p2);
 
   typedef bool RType;
+  return RType();
+}
+int Gxw::Regler::on_input_value(void * spin, void * new_val)
+{
+  BaseClassType *const base = static_cast<BaseClassType*>(
+      g_type_class_peek_parent(G_OBJECT_GET_CLASS(gobject_)) // Get the parent class of the object class (The original underlying C class).
+  );
+
+  if(base && base->input_value)
+    return (*base->input_value)(gobj(),spin,new_val);
+
+  typedef int RType;
   return RType();
 }
 Glib::ustring Gxw::Regler::on_format_value(double value)

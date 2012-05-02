@@ -48,6 +48,7 @@ struct _GxReglerPrivate
 enum {
   VALUE_ENTRY,
   FORMAT_VALUE,
+  INPUT_VALUE,
   LAST_SIGNAL
 };
 
@@ -344,6 +345,17 @@ static void gx_regler_class_init(GxReglerClass *klass)
 					  marshal_STRING__DOUBLE,
 					  G_TYPE_STRING, 1,
 					  G_TYPE_DOUBLE);
+
+	signals[INPUT_VALUE] =
+		g_signal_new (I_("input-value"),
+					  G_TYPE_FROM_CLASS (gobject_class),
+					  G_SIGNAL_RUN_LAST,
+					  G_STRUCT_OFFSET (GxReglerClass, input_value),
+					  NULL, NULL,
+					  NULL,
+					  G_TYPE_INT, 2,
+					  G_TYPE_POINTER, //FIXME: GtkEntry*, gdouble*
+					  G_TYPE_POINTER);
 
 	gtk_widget_class_install_style_property(
 		widget_class,
@@ -1104,6 +1116,9 @@ static gboolean spinner_button_press_event(
 	if (event->button == 3) {
 		return TRUE;
 	}
+	if (event->type == GDK_2BUTTON_PRESS) {
+	    return TRUE;
+	}
 	return FALSE;
 }
 
@@ -1164,7 +1179,22 @@ static gboolean map_check(
 }
 
 static void gx_regler_relay_value(GtkAdjustment *src, GtkAdjustment *dst) {
-    gtk_adjustment_set_value(dst, gtk_adjustment_get_value(src));
+	gtk_adjustment_set_value(dst, gtk_adjustment_get_value(src));
+}
+
+static gint gx_regler_spinner_input(GtkSpinButton *spin_button, gdouble *new_val, GxRegler *regler)
+{
+	gint ret;
+	g_signal_emit(regler, signals[INPUT_VALUE], 0, spin_button, new_val, &ret);
+	return ret;
+}
+
+static void gx_regler_spinner_output(GtkSpinButton *spinner, GxRegler *regler) {
+	gchar *fmt;
+	gdouble value = gtk_adjustment_get_value(gtk_spin_button_get_adjustment(spinner));
+	fmt = _gx_regler_format_value(regler, value);
+	gtk_entry_set_text (GTK_ENTRY(spinner), fmt);
+	g_free(fmt);
 }
 
 static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
@@ -1187,6 +1217,8 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 	}
 	GtkWidget *spinner = gtk_spin_button_new(
 		src_adj, src_adj->step_increment, rd);
+	g_signal_connect(spinner, "output", G_CALLBACK(gx_regler_spinner_output), regler);
+	g_signal_connect(spinner, "input", G_CALLBACK(gx_regler_spinner_input), regler);
 	g_signal_connect(src_adj, "value-changed", G_CALLBACK(gx_regler_relay_value), dst_adj);
 	gtk_container_add(GTK_CONTAINER(dialog), spinner);
 

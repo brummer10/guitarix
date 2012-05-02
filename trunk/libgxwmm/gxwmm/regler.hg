@@ -37,6 +37,7 @@ class Regler: public Gtk::Range, public ControlParameter {
 	_WRAP_METHOD(void set_value_position(Gtk::PositionType), gx_regler_set_value_position)
 	_WRAP_METHOD(Gtk::PositionType get_value_position(), gx_regler_get_value_position)
 	_WRAP_SIGNAL(bool value_entry(const Gdk::Rectangle&, GdkEventButton*), "value-entry")
+	_WRAP_SIGNAL(int input_value(void *spin, void *new_val), "input-value")
 	_WRAP_PROPERTY("label-ref", Gtk::Label)
 	_WRAP_PROPERTY("show-value", bool)
 	_WRAP_PROPERTY("value-xalign", double)

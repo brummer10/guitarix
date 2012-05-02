@@ -64,9 +64,14 @@ private:
   ControlParameter(const ControlParameter&);
   ControlParameter& operator=(const ControlParameter&);
 
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 protected:
-  ControlParameter(); // you must derive from this class
-
+  /**
+   * You should derive from this class to use it.
+   */
+  ControlParameter();
+  
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
   /** Called by constructors of derived classes. Provide the result of 
    * the Class init() function to ensure that it is properly 
    * initialized.
