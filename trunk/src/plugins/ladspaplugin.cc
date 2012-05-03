@@ -311,7 +311,8 @@ struct paradesc {
     float low;
     float up;
     float step;
-    paradesc(): name(), has_range(false), dflt(), low(), up(), step() {}
+    value_pair* values;
+    paradesc(): name(), has_range(false), dflt(), low(), up(), step(), values() {}
 };
 
 struct plugdesc {
@@ -678,18 +679,21 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    }
 	}
 
-	std::string tp = "S";
-	if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-	    tp = "B";
-	} else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
-	    tp = "SL";
+	if (it != self.pd.names.end() && it->second.values) {
+	    reg.registerEnumVar(s.c_str(), nm, "S", self.desc->PortNames[i], it->second.values, &self.ctrl_ports[n].port, dflt, low, up, step);
+	} else {
+	    std::string tp = "S";
+	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
+		tp = "B";
+	    } else if (LADSPA_IS_HINT_LOGARITHMIC(self.desc->PortRangeHints[i].HintDescriptor)) {
+		tp = "SL";
+	    }
+	    if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
+		tp += "O";
+	    }
+	    reg.registerVar(s.c_str(),nm,tp.c_str(),self.desc->PortNames[i],
+			    &self.ctrl_ports[n].port,dflt,low,up,step);
 	}
-	if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
-	    tp += "O";
-	}
-	reg.registerVar(s.c_str(),nm,tp.c_str(),self.desc->PortNames[i],
-			&self.ctrl_ports[n].port,dflt,low,up,step);
-
 	n++;
     }
     return 0;
@@ -966,10 +970,31 @@ void init() {
 		    para.dflt = jp.current_value_float();
 		    jp.next(JsonParser::value_number);
 		    para.low = jp.current_value_float();
-		    jp.next(JsonParser::value_number);
-		    para.up = jp.current_value_float();
-		    jp.next(JsonParser::value_number);
-		    para.step = jp.current_value_float();
+		    if (jp.peek() == JsonParser::begin_array) {
+			jp.next(JsonParser::begin_array);
+			std::vector<value_pair> v;
+			while (jp.peek() != JsonParser::end_array) {
+			    jp.next(JsonParser::value_string);
+			    const char *s = g_strdup(jp.current_value().c_str());
+			    value_pair p = {s, s};
+			    v.push_back(p);
+			}
+			jp.next(JsonParser::end_array);
+			para.values = new value_pair[v.size()+1];
+			int n = 0;
+			for (std::vector<value_pair>::iterator i = v.begin(); i != v.end(); ++i) {
+			    para.values[n++] = *i;
+			}
+			para.values[n].value_id = 0;
+			para.values[n].value_label = 0;
+			para.up = para.low + v.size() - 1;
+			para.step = 1.0;
+		    } else {
+			jp.next(JsonParser::value_number);
+			para.up = jp.current_value_float();
+			jp.next(JsonParser::value_number);
+			para.step = jp.current_value_float();
+		    }
 		    para.has_range = true;
 		    if (jp.peek() == JsonParser::value_string) {
 			jp.next(JsonParser::value_string);
