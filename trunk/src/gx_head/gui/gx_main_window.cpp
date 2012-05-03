@@ -948,16 +948,16 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
 	boxbuilder.get_box(pl.get_id(), mainwidget, miniwidget);
     }
     if (!mainwidget) {
-	UiBuilderImplNew builder(this, &boxbuilder);
-	if (builder.load_unit(pl)) {
-	    boxbuilder.fetch(mainwidget, miniwidget);
-	}
-    }
-    if (!mainwidget) {
 	std::string gladefile = options.get_builder_filepath(
 	    std::string(pl.get_id())+"_ui.glade");
 	if (access(gladefile.c_str(), R_OK) == 0) {
 	    load_rack_ui(gladefile, ui, mainwidget, miniwidget);
+	}
+    }
+    if (!mainwidget) {
+	UiBuilderImplNew builder(this, &boxbuilder);
+	if (builder.load_unit(pl)) {
+	    boxbuilder.fetch(mainwidget, miniwidget);
 	}
     }
     return add_rackbox_internal(pl, mainwidget, miniwidget, mini, pos, animate);
