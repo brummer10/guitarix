@@ -32,6 +32,7 @@
     <glade-widget-class title="Meter Scale" name="GxMeterScale" generic-name="gxmeterscale" />
     <glade-widget-class title="Level Slider" name="GxLevelSlider" generic-name="gxlevelslider" />
     <glade-widget-class title="Value Display" name="GxValueDisplay" generic-name="gxvaluedisplay" />
+    <glade-widget-class title="Port Display" name="GxPortDisplay" generic-name="gxportdisplay" />
   </glade-widget-classes>
 
   <glade-widget-group title="Gx Widgets" name="gxwidgets">
@@ -56,6 +57,7 @@
     <glade-widget-class-ref name="GxMeterScale"/>
     <glade-widget-class-ref name="GxLevelSlider"/>
     <glade-widget-class-ref name="GxValueDisplay"/>
+    <glade-widget-class-ref name="GxPortDisplay"/>
   </glade-widget-group>
 
 </glade-catalog>
