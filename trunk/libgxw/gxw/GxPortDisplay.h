@@ -25,20 +25,20 @@
 G_BEGIN_DECLS
 
 #define GX_TYPE_PORT_DISPLAY          (gx_port_display_get_type())
-#define GX_PORT_DISPLAY(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_PORT_DISPLAY, GxPORTDisplay))
-#define GX_PORT_DISPLAY_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_PORT_DISPLAY, GxPORTDisplayClass))
+#define GX_PORT_DISPLAY(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_PORT_DISPLAY, GxPortDisplay))
+#define GX_PORT_DISPLAY_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_PORT_DISPLAY, GxPortDisplayClass))
 #define GX_IS_PORT_DISPLAY(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_PORT_DISPLAY))
 #define GX_IS_PORT_DISPLAY_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_PORT_DISPLAY))
-#define GX_PORT_DISPLAY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_PORT_DISPLAY, GxPORTDisplayClass))
+#define GX_PORT_DISPLAY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_PORT_DISPLAY, GxPortDisplayClass))
 
-typedef struct _GxPORTDisplay GxPORTDisplay;
-typedef struct _GxPORTDisplayClass GxPORTDisplayClass;
+typedef struct _GxPortDisplay GxPortDisplay;
+typedef struct _GxPortDisplayClass GxPortDisplayClass;
 
-struct _GxPORTDisplay {
+struct _GxPortDisplay {
 	GxVSlider parent;
 };
 
-struct _GxPORTDisplayClass {
+struct _GxPortDisplayClass {
 	GxVSliderClass parent_class;
 };
 

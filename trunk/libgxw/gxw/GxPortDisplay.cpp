@@ -27,9 +27,9 @@
 static gboolean gx_port_display_expose (GtkWidget *widget, GdkEventExpose *event);
 static void gx_port_display_size_request (GtkWidget *widget, GtkRequisition *requisition);
 
-G_DEFINE_TYPE(GxPORTDisplay, gx_port_display, GX_TYPE_VSLIDER);
+G_DEFINE_TYPE(GxPortDisplay, gx_port_display, GX_TYPE_VSLIDER);
 
-static void gx_port_display_class_init(GxPORTDisplayClass *klass)
+static void gx_port_display_class_init(GxPortDisplayClass *klass)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
@@ -92,7 +92,7 @@ static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 	g_object_unref(pb);
 }
 
-static void gx_port_display_init(GxPORTDisplay *port_display)
+static void gx_port_display_init(GxPortDisplay *port_display)
 {
 	gtk_widget_set_name (GTK_WIDGET(port_display),"rack_slider");
 }
