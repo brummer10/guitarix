@@ -366,8 +366,25 @@ static void make_switch_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlPar
     }
 }
 
+struct uiAdjustmentLog : public gx_ui::GxUiItemFloat {
+    GtkAdjustment* fAdj;
+    uiAdjustmentLog(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) :
+	gx_ui::GxUiItemFloat(ui, zone), fAdj(adj) {
+	gtk_adjustment_set_value(fAdj, log10(*zone));
+    }
+    static void changed(GtkAdjustment *adj, gpointer data) {
+	float    v = adj->value;
+	((gx_ui::GxUiItemFloat*)data)->modifyZone(pow(10.0,v));
+    }
+    virtual void reflectZone() {
+	float     v = *fZone;
+	fCache = v;
+	gtk_adjustment_set_value(fAdj, log10(v));
+    }
+};
+
 static void make_continuous_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
-    Glib::RefPtr<Gtk::Range> r = Glib::RefPtr<Gtk::Range>::cast_dynamic(w);
+    Glib::RefPtr<Gxw::Regler> r = Glib::RefPtr<Gxw::Regler>::cast_dynamic(w);
     if (!r) {
 	make_switch_controller(ui, w, p);
 	return;
@@ -378,17 +395,47 @@ static void make_continuous_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::Contro
 	    Glib::ustring::compose("Continuous Parameter variable %1: type not handled", p.id()));
 	return;
     }
-    gx_engine::FloatParameter &fp = p.getFloat();
-    w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
-    w->cp_set_value(fp.get_value());
     Gtk::Adjustment *adj = r->get_adjustment();
-    gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.get_value(), adj->gobj());
-    destroy_with_widget(r.operator->(), c);
-    adj->signal_value_changed().connect(
-	sigc::bind<GtkAdjustment*>(
-	    sigc::bind<gpointer>(
-		sigc::ptr_fun(gx_gui::uiAdjustment::changed),
-		(gpointer)c), adj->gobj()));
+    gx_engine::FloatParameter &fp = p.getFloat();
+    if (fp.is_log_display()) {
+	double up = log10(fp.upper);
+	double step = log10(fp.step);
+	w->cp_configure(fp.l_group(), fp.l_name(), log10(fp.lower), up, step);
+	int prec = 0;
+	float d = log10((fp.step-1)*fp.upper);
+	if (up > 0) {
+	    prec = up;
+	    if (d < 0) {
+		prec -= floor(d);
+	    }
+	} else if (d < 0) {
+	    prec = -floor(d);
+	}
+	r->signal_format_value().connect(
+	    sigc::bind(
+		sigc::ptr_fun(logarithmic_format_value),
+		prec));
+	r->signal_input_value().connect(
+	    sigc::ptr_fun(logarithmic_input_value));
+	w->cp_set_value(log10(fp.get_value()));
+	gx_gui::uiAdjustmentLog* c = new gx_gui::uiAdjustmentLog(&ui, &fp.get_value(), adj->gobj());
+	adj->signal_value_changed().connect(
+	    sigc::bind<GtkAdjustment*>(
+		sigc::bind<gpointer>(
+		    sigc::ptr_fun(gx_gui::uiAdjustmentLog::changed),
+		    (gpointer)c), adj->gobj()));
+	destroy_with_widget(r.operator->(), c);
+    } else {
+	w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
+	w->cp_set_value(fp.get_value());
+	gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.get_value(), adj->gobj());
+	adj->signal_value_changed().connect(
+	    sigc::bind<GtkAdjustment*>(
+		sigc::bind<gpointer>(
+		    sigc::ptr_fun(gx_gui::uiAdjustment::changed),
+		    (gpointer)c), adj->gobj()));
+	destroy_with_widget(r.operator->(), c);
+    }
 }
 
 static void make_enum_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
@@ -405,6 +452,7 @@ static void make_enum_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParam
 	ls->append()->set_value(0, Glib::ustring(p.value_label(*vp)));
     }
     t->set_model(ls);
+    w->cp_configure(p.l_group(), p.l_name(), p.getLowerAsFloat(), p.getUpperAsFloat(), 1.0);
     if (p.isInt()) {
 	int& val = p.getInt().get_value();
 	destroy_with_widget(t, new uiSelector<int>(ui, t, &val));

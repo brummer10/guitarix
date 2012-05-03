@@ -43,6 +43,28 @@ void child_set_property(Gtk::Container& container, Gtk::Widget& child, const cha
     gtk_container_child_set_property(container.gobj(), child.gobj(), property_name, &v);
 }
 
+Glib::ustring logarithmic_format_value(double v, int prec) {
+    if (v < -4) {
+	return Glib::ustring::format(std::setprecision(prec+1), pow(10.0,v));
+    } else {
+	return Glib::ustring::format(std::fixed, std::setprecision(prec-floor(v)), pow(10.0,v));
+    }
+}
+
+int logarithmic_input_value(gpointer obj, gpointer nv)
+{
+    GtkEntry *entry = GTK_ENTRY(obj);
+    double *new_val = static_cast<double*>(nv);
+    gchar *err = NULL;
+    *new_val = g_strtod(gtk_entry_get_text(entry), &err);
+    if (*err)
+	return GTK_INPUT_ERROR;
+    else {
+	*new_val = log10(*new_val);
+	return TRUE;
+    }
+}
+
 /****************************************************************
  ** message boxes
  */

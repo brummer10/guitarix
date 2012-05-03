@@ -95,28 +95,6 @@ GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, boo
     return (new UiRegler(ui, gx_engine::parameter_map[id].getFloat(), regler, show_value))->get_widget();
 }
 
-static Glib::ustring logarithmic_format_value(double v, int prec) {
-    if (v < -4) {
-	return Glib::ustring::format(std::setprecision(prec+1), pow(10.0,v));
-    } else {
-	return Glib::ustring::format(std::fixed, std::setprecision(prec-floor(v)), pow(10.0,v));
-    }
-}
-
-static int logarithmic_input_value(gpointer obj, gpointer nv)
-{
-    GtkEntry *entry = GTK_ENTRY(obj);
-    double *new_val = static_cast<double*>(nv);
-    gchar *err = NULL;
-    *new_val = g_strtod(gtk_entry_get_text(entry), &err);
-    if (*err)
-	return GTK_INPUT_ERROR;
-    else {
-	*new_val = log10(*new_val);
-	return TRUE;
-    }
-}
-
 UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value):
     gx_ui::GxUiItemFloat(&ui, &param.get_value()),
     Gtk::Adjustment(param.get_value(), param.lower, param.upper, param.step, 10*param.step, 0),

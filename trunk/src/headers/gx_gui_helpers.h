@@ -41,6 +41,8 @@ gint gx_nchoice_dialog_without_entry(
 int  gx_message_popup(const char*);
 void show_error_msg(const string& msg);
 void child_set_property(Gtk::Container& container, Gtk::Widget& child, const char *property_name, bool value);
+Glib::ustring logarithmic_format_value(double v, int prec);
+int logarithmic_input_value(gpointer obj, gpointer nv);
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */
