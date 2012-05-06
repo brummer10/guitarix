@@ -746,7 +746,8 @@ void FloatParameter::writeJSON(gx_system::JsonWriter& jw) {
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_float();
-    if (json_value < lower || json_value > upper) {
+    const float eps = 1e-6;
+    if (json_value < lower-abs(eps*lower) || json_value > upper+abs(eps*upper)) {
 	range_warning(json_value, lower, upper);
     }
 }
