@@ -13,7 +13,6 @@ private:
 	int 	iConst0;
 	double 	fConst1;
 	double 	fRec1[2];
-	FAUSTFLOAT 	fslider1;
 	double 	fConst2;
 	double 	fConst3;
 	double 	fRec2[2];
@@ -111,15 +110,14 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (fConst1 * (0 - ((1.0 / ((fSlow0 * (0.270546 + (fSlow0 * ((fSlow0 * (3.64419 + (fSlow0 * ((2.85511 * fSlow0) - 5.20364)))) - 0.86331)))) - 0.814203)) + 0.933975)));
-	double 	fSlow2 = fslider1;
-	double 	fSlow3 = (1973.48 - (1000 / ((fSlow0 * (1.9841 + (fSlow0 * (5.76598 + (fSlow0 * ((fSlow0 * (49.9836 + (fSlow0 * ((12.499 * fSlow0) - 40.3658)))) - 28.3434)))))) - 1.6086)));
-	double 	fSlow4 = (1 - ((fConst2 * (fSlow3 / (21.9737 + (fSlow0 * ((fSlow0 * (42.2734 + (fSlow0 * ((fSlow0 * (115.375 - (52.3051 * fSlow0))) - 99.7712)))) - 24.555))))) / (1 + (fSlow2 * ((int((fSlow2 < 0)))?0.9:(0.9 + (1.5 * fSlow2)))))));
-	double 	fSlow5 = ((0.007000000000000006 * cos((fConst3 * fSlow3))) * (0 - (2.0 * fSlow4)));
-	double 	fSlow6 = (0.007000000000000006 * faustpower<2>(fSlow4));
+	double 	fSlow2 = (1973.48 - (1000 / ((fSlow0 * (1.9841 + (fSlow0 * (5.76598 + (fSlow0 * ((fSlow0 * (49.9836 + (fSlow0 * ((12.499 * fSlow0) - 40.3658)))) - 28.3434)))))) - 1.6086)));
+	double 	fSlow3 = (1 - (fConst2 * (fSlow2 / (21.9737 + (fSlow0 * ((fSlow0 * (42.2734 + (fSlow0 * ((fSlow0 * (115.375 - (52.3051 * fSlow0))) - 99.7712)))) - 24.555))))));
+	double 	fSlow4 = (0.007000000000000006 * (cos((fConst3 * fSlow2)) * (0 - (2.0 * fSlow3))));
+	double 	fSlow5 = (0.007000000000000006 * faustpower<2>(fSlow3));
 	for (int i=0; i<count; i++) {
 		fRec1[0] = (fSlow1 + (0.993 * fRec1[1]));
-		fRec2[0] = (fSlow5 + (0.993 * fRec2[1]));
-		fRec3[0] = (fSlow6 + (0.993 * fRec3[1]));
+		fRec2[0] = (fSlow4 + (0.993 * fRec2[1]));
+		fRec3[0] = (fSlow5 + (0.993 * fRec3[1]));
 		fRec0[0] = (0 - (((fRec0[1] * (fRec2[0] - fConst4)) + ((fConst4 * ((0 - fRec3[0]) * fRec0[3])) + (fRec0[2] * (fRec3[0] - (fConst4 * fRec2[0]))))) - ((double)input0[i] * fRec1[0])));
 		output0[i] = (FAUSTFLOAT)((fConst11 * fRec0[1]) + ((fConst10 * fRec0[2]) + (fRec0[0] + (fConst9 * fRec0[3]))));
 		// post processing
@@ -137,7 +135,6 @@ void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("dunwah.Q","","S","",&fslider1, 0.0, -1.0, 1.0, 0.1);
 	reg.registerVar("dunwah.wah","","S","",&fslider0, 0.0, 0.0, 1.0, 0.01);
 	return 0;
 }
@@ -167,7 +164,6 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkHBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">120</property>\n\
                 <child>\n\
                   <object class=\"GtkVBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -200,46 +196,9 @@ const char *Dsp::glade_def = "\
                     </child>\n\
                   </object>\n\
                   <packing>\n\
-                    <property name=\"expand\">True</property>\n\
+                    <property name=\"expand\">False</property>\n\
                     <property name=\"fill\">False</property>\n\
                     <property name=\"position\">0</property>\n\
-                  </packing>\n\
-                </child>\n\
-                <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
-                    <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
-                    <child>\n\
-                      <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">label</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">True</property>\n\
-                        <property name=\"position\">0</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GxSmallKnobR\" id=\"gxbigknob2\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">True</property>\n\
-                        <property name=\"receives_default\">True</property>\n\
-                        <property name=\"var_id\">dunwah.Q</property>\n\
-                        <property name=\"label_ref\">label2:rack_label</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">1</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                  </object>\n\
-                  <packing>\n\
-                    <property name=\"expand\">True</property>\n\
-                    <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">1</property>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\
