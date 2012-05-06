@@ -1,5 +1,6 @@
 declare id 		"IR";
 declare name            "ImpulseResponse";
+declare category        "Tone control";
 
 declare version 	"0.01";
 declare author 		"brummer";

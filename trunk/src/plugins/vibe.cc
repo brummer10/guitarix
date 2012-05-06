@@ -192,6 +192,7 @@ Vibe::Vibe(bool stereo)
 	shortname = N_("Vibe");
 	mono_audio = process_mono;
     }
+    category = N_("Modulation");
     set_samplerate = init;
     register_params = registerparam;
     load_ui = uiloader;

@@ -1,5 +1,6 @@
 declare id 		"flanger";
 declare name            "Flanger";
+declare category        "Modulation";
 declare license 	"BSD";
 
 import("effect.lib");

@@ -1,5 +1,6 @@
 declare id   "phaser";
 declare name "Phaser";
+declare category "Modulation";
 
 //phaser taken from effect.lib 
 // by Julius O. Smith III

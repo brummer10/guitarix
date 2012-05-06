@@ -46,7 +46,7 @@ Dsp::Dsp()
 	name = N_("Delay");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Echo / Delay");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

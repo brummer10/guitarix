@@ -1,4 +1,5 @@
 declare name "Chorus Mono";
+declare category "Modulation";
 
 declare author "Albert Graef";
 declare version "1.0";

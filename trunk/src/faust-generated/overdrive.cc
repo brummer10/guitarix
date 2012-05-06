@@ -36,7 +36,7 @@ Dsp::Dsp()
 	name = N_("Overdrive");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Distortion");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

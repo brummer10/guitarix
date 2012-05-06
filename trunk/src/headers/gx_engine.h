@@ -50,7 +50,7 @@ public:
     Plugin plugin;
     ModuleSelectorFromList(
 	EngineControl& seq, gx_ui::GxUI& ui, const char* id, const char* name,
-	plugindef_creator module_ids[],	const char* select_id,
+	const char *category, plugindef_creator module_ids[], const char* select_id,
 	const char* select_name, const char** groups = 0, int flags = 0);
     ~ModuleSelectorFromList();
     void set_module();

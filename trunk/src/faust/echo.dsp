@@ -1,4 +1,5 @@
 declare name "Echo";
+declare category "Echo / Delay";
 
 declare version 	"0.01";
 declare author 		"brummer";

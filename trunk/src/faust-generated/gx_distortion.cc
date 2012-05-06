@@ -105,7 +105,7 @@ Dsp::Dsp()
 	name = N_("Multi Band Distortion");
 	groups = parm_groups;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Distortion");       // category
 	shortname = N_("Distortion");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

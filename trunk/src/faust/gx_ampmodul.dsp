@@ -1,5 +1,6 @@
 declare id     "ampmodul";
 declare name   "Postamp";
+declare category "Distortion";
 declare groups "amp2.stage1[Postamp Tube1], amp2.stage2[Postamp Tube2]";
 
 import("guitarix.lib");

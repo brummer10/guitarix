@@ -59,7 +59,7 @@ Dsp::Dsp()
 	name = N_("Phaser");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Modulation");       // category
 	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;

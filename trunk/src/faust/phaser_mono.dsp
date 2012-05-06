@@ -1,5 +1,6 @@
 declare id   "phaser_mono";
 declare name "Phaser Mono";
+declare category "Modulation";
 
 import("effect.lib");
 

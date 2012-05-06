@@ -913,7 +913,7 @@ bool UiBuilderImplNew::load(gx_engine::Plugin *p) {
     if (!pd->load_ui) {
 	return false;
     }
-    main.add_plugin(pluginlist, pd->id, "", "");
+    main.add_plugin(*pluginlist, pd->id, "", "");
     return true;
 }
 
@@ -1712,11 +1712,11 @@ void JConvPluginUI::on_plugin_preset_popup() {
     main.plugin_preset_popup(get_id(), name);
 }
 
-void MainWindow::add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
+void MainWindow::add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
     if (PluginUI::is_registered(engine.pluginlist, id)) {
 	return;
     }
-    p->push_back(new PluginUI(*this, engine.pluginlist, id, fname, tooltip));
+    p.push_back(new PluginUI(*this, engine.pluginlist, id, fname, tooltip));
 }
 
 #ifdef accel_keys_for_plugins
@@ -1759,10 +1759,9 @@ struct PluginDesc {
 };
 
 void MainWindow::fill_pluginlist() {
-    std::vector<PluginDesc*> l;
-    std::vector<PluginUI*> *p;
+    std::vector<PluginUI*> p;
 
-    p = new std::vector<PluginUI*>;
+    // Tone control
     add_plugin(p, "low_highpass");
     add_plugin(p, "eqs");
     add_plugin(p, "IR");
@@ -1772,29 +1771,25 @@ void MainWindow::fill_pluginlist() {
     add_plugin(p, "cab");
     add_plugin(p, "moog");
     add_plugin(p, "tonemodul");
-    l.push_back(new PluginDesc("Tone control", p));
 
-    p = new std::vector<PluginUI*>;
+    // Distortion
     add_plugin(p, "gx_distortion");
     add_plugin(p, "overdrive");
     add_plugin(p, "ampmodul");
-    l.push_back(new PluginDesc("Distortion", p));
 
-    p = new std::vector<PluginUI*>;
+    // Reverb
     add_plugin(p, "freeverb");
-    p->push_back(new JConvPluginUI(*this, engine.pluginlist, "jconv"));
+    p.push_back(new JConvPluginUI(*this, engine.pluginlist, "jconv"));
     add_plugin(p, "stereoverb");
     add_plugin(p, "zita_rev1", "", "High Quality Reverb");
-    l.push_back(new PluginDesc("Reverb", p));
 
-    p = new std::vector<PluginUI*>;
+    // Echo / Delay
     add_plugin(p, "echo");
     add_plugin(p, "delay");
     add_plugin(p, "stereodelay");
     add_plugin(p, "stereoecho");
-    l.push_back(new PluginDesc("Echo / Delay", p));
 
-    p = new std::vector<PluginUI*>;
+    // Modulation
     add_plugin(p, "tremolo");
     add_plugin(p, "chorus_mono");
     add_plugin(p, "flanger_mono");
@@ -1804,25 +1799,18 @@ void MainWindow::fill_pluginlist() {
     add_plugin(p, "flanger");
     add_plugin(p, "univibe");
     add_plugin(p, "phaser");
-    l.push_back(new PluginDesc("Modulation", p));
 
-    p = new std::vector<PluginUI*>;
+    // Guitar Effects
     add_plugin(p, "crybaby");
     add_plugin(p, "compressor");
-    l.push_back(new PluginDesc("Guitar Effects", p));
 
-    p = new std::vector<PluginUI*>;
+    // Misc
     add_plugin(p, "abgate");
     add_plugin(p, "oscilloscope");
     //add_plugin(p, "midi_out");
-    l.push_back(new PluginDesc("Misc", p));
 
-    p = new std::vector<PluginUI*>;
-    UiBuilderImplNew builder(this, &boxbuilder, p);
+    UiBuilderImplNew builder(this, &boxbuilder, &p);
     engine.pluginlist.append_rack(builder);
-    if (p->size()) {
-	l.push_back(new PluginDesc("External", p));
-    }
 
     Glib::ustring ui_template =
 	"<menubar><menu action=\"PluginsMenu\"><menu action=\"%1Plugins\"><menu action=\"%2\">"
@@ -1831,42 +1819,46 @@ void MainWindow::fill_pluginlist() {
 #ifdef accel_keys_for_plugins
     unsigned int key = GDK_a;
 #endif
-    for (std::vector<PluginDesc*>::iterator i = l.begin(); i != l.end(); ++i) {
-	int idx = 0;
-	for (std::vector<PluginUI*>::iterator v = (*i)->plugins->begin(); v != (*i)->plugins->end(); ++v) {
-	    PluginUI *pui = *v;
-	    plugin_dict.add(pui);
-	    const char *tp = (pui->get_type() == PLUGIN_TYPE_MONO ? "Mono" : "Stereo");
-	    Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", (*i)->group);
-	    Glib::ustring actionname = Glib::ustring::compose("Plugin_%1", pui->get_id());
-	    pui->set_ui_merge_id(uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, tp, groupname, actionname)));
-	    if (idx++ == 0) {
-		actions.group->add(Gtk::Action::create(groupname, (*i)->group));
-	    }
-	    Glib::RefPtr<Gtk::ToggleAction> act = Gtk::ToggleAction::create(actionname, pui->get_name());
-	    actions.group->add(act);
-#ifdef accel_keys_for_plugins
-	    if (accel_map_next_key(&key)) {
-		Gtk::AccelMap::add_entry(act->get_accel_path(), key, Gdk::ModifierType(0));
-		++key;
-	    }
-#endif
-	    pui->set_action(act);
-	}
-    }
     bool collapse = false;
-    for (std::vector<PluginDesc*>::iterator i = l.begin(); i != l.end(); ++i) {
-	Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup((*i)->group);
-	gw->set_collapsed(collapse);
-	collapse = true;
-	for (std::vector<PluginUI*>::iterator v = (*i)->plugins->begin(); v != (*i)->plugins->end(); ++v) {
-	    add_toolitem(**v, gw);
+    std::map<Glib::ustring, Gtk::ToolItemGroup*> groupmap;
+    for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
+	PluginUI *pui = *v;
+	plugin_dict.add(pui);
+	const char *cat = pui->plugin->pdef->category;
+	Glib::ustring group;
+	if (cat && *cat) {
+	    group = cat;
+	} else {
+	    group = "External";
 	}
-	effects_toolpalette->add(*manage(gw));
-	effects_toolpalette->set_exclusive(*gw, true);
-	effects_toolpalette->set_expand(*gw, true);
-	delete (*i)->plugins;
-	delete *i;
+	const char *tp = (pui->get_type() == PLUGIN_TYPE_MONO ? "Mono" : "Stereo");
+	Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group);
+	Glib::ustring actionname = Glib::ustring::compose("Plugin_%1", pui->get_id());
+	pui->set_ui_merge_id(uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, tp, groupname, actionname)));
+	std::map<Glib::ustring, Gtk::ToolItemGroup*>::iterator it = groupmap.find(group);
+	Gtk::ToolItemGroup *gw;
+	if (it != groupmap.end()) {
+	    gw = it->second;
+	} else {
+	    actions.group->add(Gtk::Action::create(groupname, group));
+	    gw = new Gtk::ToolItemGroup(group);
+	    groupmap[group] = gw;
+	    gw->set_collapsed(collapse);
+	    collapse = true;
+	    effects_toolpalette->add(*manage(gw));
+	    effects_toolpalette->set_exclusive(*gw, true);
+	    effects_toolpalette->set_expand(*gw, true);
+	}
+	add_toolitem(*pui, gw);
+	Glib::RefPtr<Gtk::ToggleAction> act = Gtk::ToggleAction::create(actionname, pui->get_name());
+	actions.group->add(act);
+#ifdef accel_keys_for_plugins
+	if (accel_map_next_key(&key)) {
+	    Gtk::AccelMap::add_entry(act->get_accel_path(), key, Gdk::ModifierType(0));
+	    ++key;
+	}
+#endif
+	pui->set_action(act);
     }
 }
 

@@ -97,7 +97,7 @@ Dsp::Dsp()
 	name = N_("Postamp");
 	groups = parm_groups;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Distortion");       // category
 	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;

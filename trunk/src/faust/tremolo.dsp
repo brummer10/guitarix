@@ -1,4 +1,5 @@
 declare name "Tremolo";
+declare category "Modulation";
 
 /*
 ** Model of a vactrol tremolo unit by "transmogrify"

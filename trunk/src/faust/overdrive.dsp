@@ -1,4 +1,5 @@
 declare name "Overdrive";
+declare category "Distortion";
 
 import("music.lib");
 import("guitarix.lib");

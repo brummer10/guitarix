@@ -110,14 +110,14 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
       resamp(),
       // ModuleSelector's
       crybaby(
-	  *this, ui, "crybaby", N_("Crybaby"), builtin_crybaby_plugins,
+	  *this, ui, "crybaby", N_("Crybaby"), N_("Guitar Effects"), builtin_crybaby_plugins,
 	  "crybaby.autowah", _("select"), 0, PGN_POST_PRE),
       tonestack(
-	  *this, ui, "amp.tonestack", N_("Tonestack"),
+	  *this, ui, "amp.tonestack", N_("Tonestack"), N_("Tone control"),
 	  builtin_tonestack_plugins, "amp.tonestack.select",
 	  _("select"), 0, PGN_POST_PRE),
       ampstack(
-	  *this, ui, "ampstack", _("Amp"), builtin_amp_plugins,
+	  *this, ui, "ampstack", _("Amp"), "", builtin_amp_plugins,
 	  "tube.select", _("select"), ampstack_groups),
       // internal audio modules
       noisegate(),

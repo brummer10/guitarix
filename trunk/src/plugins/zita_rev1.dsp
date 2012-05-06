@@ -3,6 +3,7 @@
 
 declare id "zita_rev1";
 declare name "Zita Rev1";
+declare category "Reverb";
 
 import("filter.lib");
 

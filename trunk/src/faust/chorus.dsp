@@ -1,4 +1,5 @@
 declare name "Chorus";
+declare category "Modulation";
 
 /* Stereo chorus. */
 

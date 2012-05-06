@@ -49,7 +49,7 @@ Dsp::Dsp()
 	name = N_("Moog Filter");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Tone control");       // category
 	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;

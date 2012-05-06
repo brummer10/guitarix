@@ -101,7 +101,7 @@ Dsp::Dsp()
 	name = N_("Stereo Verb");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Reverb");       // category
 	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;

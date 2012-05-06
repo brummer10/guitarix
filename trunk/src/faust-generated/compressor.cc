@@ -44,7 +44,7 @@ Dsp::Dsp()
 	name = N_("Compressor");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Guitar Effects");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

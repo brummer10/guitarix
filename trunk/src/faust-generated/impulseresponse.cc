@@ -42,7 +42,7 @@ Dsp::Dsp()
 	name = N_("ImpulseResponse");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Tone control");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

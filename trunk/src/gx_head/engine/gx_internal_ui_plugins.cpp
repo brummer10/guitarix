@@ -181,6 +181,7 @@ OscilloscopeAdapter::OscilloscopeAdapter(
     flags = PGN_SNOOP | PGN_NO_PRESETS;
     id = "oscilloscope";
     name = N_("Oscilloscope");
+    category = N_("Misc");
     mono_audio = fill_buffer;
     activate_plugin = activate;
     plugin.pdef = this;

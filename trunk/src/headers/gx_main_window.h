@@ -869,7 +869,7 @@ public:
     gx_engine::ParamMap& get_parametermap() { return pmap; }
     gx_engine::GxEngine& get_engine() { return engine; }
     bool is_loading() { return gx_settings.is_loading(); }
-    void add_plugin(std::vector<PluginUI*> *p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
+    void add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
     void set_rackbox_expansion();
     double stop_at_stereo_bottom(double off, double step_size, double pagesize);
     double stop_at_mono_top(double off, double step_size);

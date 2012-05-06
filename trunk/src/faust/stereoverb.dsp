@@ -1,4 +1,5 @@
 declare name 		"Stereo Verb";
+declare category        "Reverb";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

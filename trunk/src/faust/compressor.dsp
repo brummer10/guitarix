@@ -1,4 +1,5 @@
 declare name "Compressor";
+declare category "Guitar Effects";
 
 /* Compressor unit. */
 

@@ -386,7 +386,7 @@ void StereoModuleChain::process(int count, float *input1, float *input2, float *
 
 ModuleSelectorFromList::ModuleSelectorFromList(
     EngineControl& seq_, gx_ui::GxUI& ui, const char* id_, const char* name_,
-    plugindef_creator plugins[], const char* select_id_,
+    const char* category_, plugindef_creator plugins[], const char* select_id_,
     const char* select_name_, const char** groups_, int flags_)
     : ModuleSelector(seq_),
       PluginDef(),
@@ -408,6 +408,7 @@ ModuleSelectorFromList::ModuleSelectorFromList(
     }
     id = id_;
     name = name_;
+    category = category_;
     groups = groups_;
     flags = flags_;
     plugin = this;

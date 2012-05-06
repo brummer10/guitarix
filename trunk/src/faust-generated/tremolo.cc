@@ -48,7 +48,7 @@ Dsp::Dsp()
 	name = N_("Tremolo");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Modulation");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

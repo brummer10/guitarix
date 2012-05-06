@@ -55,6 +55,7 @@ Gate::Gate():
     version = PLUGINDEF_VERSION;
     id = "abgate";
     name = N_("abGate");
+    category = N_("Misc");
     mono_audio = process;
     set_samplerate = init;
     register_params = registerparam;

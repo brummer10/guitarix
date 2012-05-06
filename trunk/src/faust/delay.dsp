@@ -1,4 +1,5 @@
 declare name "Delay";
+declare category "Echo / Delay";
 
 import("music.lib");
 import("guitarix.lib");

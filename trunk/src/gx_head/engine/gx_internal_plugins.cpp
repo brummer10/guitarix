@@ -353,6 +353,7 @@ ConvolverAdapter::ConvolverAdapter(
     version = PLUGINDEF_VERSION;
     id = "jconv";
     name = N_("Convolver");
+    category = N_("Reverb");
     stereo_audio = convolver;
     set_samplerate = convolver_init;
     activate_plugin = activate;
@@ -661,6 +662,7 @@ CabinetConvolver::CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
     cab_names[cab_table_size].value_label = 0;
     id = "cab";
     name = N_("Cabinet");
+    category = N_("Tone control");
     mono_audio = run_cab_conf;
     register_params = register_cab;
 }
