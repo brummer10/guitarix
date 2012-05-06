@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
+#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <vector>
@@ -304,21 +305,29 @@ void JsonParser::skip_object() {
  ** LadspaDsp
  */
 
+enum widget_type { tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none };
+
 struct paradesc {
+    int index;
     std::string name;
-    bool has_range;
     float dflt;
     float low;
     float up;
     float step;
+    widget_type tp;
+    bool newrow;
     value_pair* values;
-    paradesc(): name(), has_range(false), dflt(), low(), up(), step(), values() {}
+    paradesc(): index(), name(), dflt(), low(), up(), step(), tp(), newrow(), values() {}
 };
 
 struct plugdesc {
     std::string path;
     unsigned int index;
-    std::map<int,paradesc> names;
+    unsigned long UniqueID;
+    std::string Label;
+    std::string shortname;
+    std::string category;
+    std::vector<paradesc> names;
 };
 
 class port_data {
@@ -422,21 +431,20 @@ LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descripto
     ctrl_ports = new port_data[num_ctrl];
     version = PLUGINDEF_VERSION;
     id_str = "ladspa_";
-    id_str += desc->Label;
     id_str += to_string(desc->UniqueID);
     id = id_str.c_str();
+    category = pd.category.c_str();
     description = desc->Name;
     name = desc->Name;
-    name_str = desc->Name;
-#if 0
-    if (name_str.size() > 24) {
-	name_str = desc->Label;
+    if (!pd.shortname.empty()) {
+	shortname = pd.shortname.c_str();
+    } else {
+	name_str = desc->Name;
+	if (name_str.size() > 24) {
+	    name_str.erase(24);
+	}
+	shortname = name_str.c_str();
     }
-#endif
-    if (name_str.size() > 24) {
-	name_str.erase(24);
-    }
-    shortname = name_str.c_str();
     set_samplerate = init;
     if (mono) {
 	mono_audio = mono_process;
@@ -450,6 +458,7 @@ LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descripto
 
 LadspaDsp::~LadspaDsp() {
     if (instance) {
+	//FIXME: deactivate
 	desc->cleanup(instance);
     }
     if (handle) {
@@ -482,12 +491,22 @@ void LadspaDsp::connect(int tp, int i, float *v) {
 
 void LadspaDsp::init(unsigned int samplingFreq, PluginDef *plugin) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
+    if (self.instance) {
+	self.desc->cleanup(self.instance);
+    }
     self.instance = self.desc->instantiate(self.desc, samplingFreq);
-    int n = 0;
-    for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
-	if (LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
-	    self.desc->connect_port(self.instance, i, &self.ctrl_ports[n].port);
-	    n += 1;
+    if (self.pd.names.size() > 0) {
+	int n = 0;
+	for (std::vector<paradesc>::const_iterator it = self.pd.names.begin(); it != self.pd.names.end(); ++it, ++n) {
+	    self.desc->connect_port(self.instance, it->index, &self.ctrl_ports[n].port);
+	}
+    } else {
+	int n = 0;
+	for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
+	    if (LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
+		self.desc->connect_port(self.instance, i, &self.ctrl_ports[n].port);
+		n += 1;
+	    }
 	}
     }
     self.activate();
@@ -609,58 +628,74 @@ static void get_bounds(const LADSPA_PortRangeHint& pr, float& dflt, float& low, 
 
 int LadspaDsp::registerparam(const ParamReg& reg) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(reg.plugin);
-    int n = 0;
-    for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
-	if (!LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
-	    continue;
+    if (self.pd.names.size() > 0) {
+	int n = 0;
+	for (std::vector<paradesc>::const_iterator it = self.pd.names.begin(); it != self.pd.names.end(); ++it, ++n) {
+	    std::string& s = self.ctrl_ports[n].id;
+	    s = "ladspa_" + to_string(self.pd.UniqueID) + "." + to_string(it->index);
+	    const char *nm = self.desc->PortNames[it->index];
+	    const char *snm = it->name.c_str();
+	    if (!*snm) {
+		snm = nm;
+	    }
+	    if (it->tp == tp_enum) {
+		reg.registerEnumVar(s.c_str(), snm, "S", nm, it->values, &self.ctrl_ports[n].port,
+				    it->dflt, it->low, it->up, it->step);
+	    } else {
+		const char *tp = 0;
+		switch (it->tp) {
+		case tp_none:           tp = "S";  break;
+		case tp_scale:          tp = "S";  break;
+		case tp_scale_log:      tp = "SL"; break;
+		case tp_toggle:         tp = "B";  break;
+		case tp_display:        tp = "SO";  break;
+		case tp_display_toggle: tp = "BO"; break;
+		default: assert(false);
+		}
+		reg.registerVar(s.c_str(), snm, tp, nm,	&self.ctrl_ports[n].port,
+				it->dflt, it->low, it->up, it->step);
+	    }
 	}
-
-	float low = -1000;
-	float up = 1000;
-	float dflt = 0.0;
-	float step = 1.0;
-	if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
-	    low = 0;
-	    up = 8192;
-	}
-	const char *nm = "";
-	std::map<int,paradesc>::const_iterator it = self.pd.names.find(n);
-	if (it != self.pd.names.end()) {
-	    nm = it->second.name.c_str();
-	}
-	if (it != self.pd.names.end() && it->second.has_range) {
-	    dflt = it->second.dflt;
-	    low = it->second.low;
-	    up = it->second.up;
-	    step = it->second.step;
-	} else {
+    } else {
+	int n = 0;
+	for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
+	    if (!LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
+		continue;
+	    }
+	    
+	    float low = -1000;
+	    float up = 1000;
+	    float dflt = 0.0;
+	    float step = 1.0;
+	    if (LADSPA_IS_PORT_OUTPUT(self.desc->PortDescriptors[i])) {
+		low = 0;
+		up = 8192;
+	    }
 	    get_bounds(self.desc->PortRangeHints[i], dflt, low, up, step);
-	}
-	// replace . and cut label
-	Glib::ustring pn = self.desc->PortNames[i];
-	size_t rem = 0;
-	while (true) {
-	    rem = pn.find_first_of(".", rem);
-	    if (rem == Glib::ustring::npos) {
-		break;
+	    // replace . and cut label
+	    Glib::ustring pn = self.desc->PortNames[i];
+	    size_t rem = 0;
+	    while (true) {
+		rem = pn.find_first_of(".", rem);
+		if (rem == Glib::ustring::npos) {
+		    break;
+		}
+		pn.replace(rem, 1, 1, '-');
+		rem += 1;
+		if (rem >= pn.size()) {
+		    break;
+		}
 	    }
-	    pn.replace(rem, 1, 1, '-');
-	    rem += 1;
-	    if (rem >= pn.size()) {
-		break;
+	    rem = pn.find_first_of("([");
+	    if(rem != Glib::ustring::npos) {
+		pn.erase(rem);
 	    }
-	}
-	rem = pn.find_first_of("([");
-	if(rem != Glib::ustring::npos) {
-	    pn.erase(rem);
-	}
-	while ((rem = pn.find_last_of(" ")) == pn.size()-1) {
-	    pn.erase(rem);
-	}
-	std::string& s = self.ctrl_ports[n].id;
-	s = self.id_str + "." + to_string(n) + "_" + pn;
-	if (!*nm) {
-	    nm = pn.c_str();
+	    while ((rem = pn.find_last_of(" ")) == pn.size()-1) {
+		pn.erase(rem);
+	    }
+	    std::string& s = self.ctrl_ports[n].id;
+	    s = self.id_str + "." + to_string(n) + "_" + pn;
+	    const char *nm = pn.c_str();
 	    rem = 0;
 	    unsigned int rem1 = 0;
 	    while (true) {
@@ -677,11 +712,7 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 		    break;
 		}
 	    }
-	}
 
-	if (it != self.pd.names.end() && it->second.values) {
-	    reg.registerEnumVar(s.c_str(), nm, "S", self.desc->PortNames[i], it->second.values, &self.ctrl_ports[n].port, dflt, low, up, step);
-	} else {
 	    std::string tp = "S";
 	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
 		tp = "B";
@@ -693,8 +724,8 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    }
 	    reg.registerVar(s.c_str(),nm,tp.c_str(),self.desc->PortNames[i],
 			    &self.ctrl_ports[n].port,dflt,low,up,step);
+	    n++;
 	}
-	n++;
     }
     return 0;
 }
@@ -703,42 +734,82 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(b.plugin);
     b.openHorizontalhideBox("");
     b.closeBox();
-    const unsigned int max_ctrl = 4;
-    if (self.desc->PortCount > max_ctrl) {
+    if (self.pd.names.size() > 0) {
 	b.openVerticalBox("");
 	b.openHorizontalBox("");
-    }
-    int n = 0;
-    for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
-	if (!LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
-	    continue;
-	}
-	if (n > 0 && n % max_ctrl == 0) {
-	    b.closeBox();
-	    b.openHorizontalBox("");
-	}
-	if (LADSPA_IS_PORT_INPUT(self.desc->PortDescriptors[i])) {
-	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-		b.openVerticalBox2(self.desc->PortNames[i]);
+	int n = 0;
+	for (std::vector<paradesc>::const_iterator it = self.pd.names.begin(); it != self.pd.names.end(); ++it, ++n) {
+	    if (it->newrow) {
+		b.closeBox();
+		b.openHorizontalBox("");
+	    }
+	    switch (it->tp) {
+	    case tp_scale:
+	    case tp_scale_log:
+		b.create_small_rackknob(self.ctrl_ports[n].id.c_str(),0);
+		break;
+	    case tp_toggle:
+		b.openVerticalBox2(it->name.c_str());
 		b.create_switch_no_caption("switchit",self.ctrl_ports[n].id.c_str());
 		b.closeBox();
-	    } else {
-		b.create_small_rackknob(self.ctrl_ports[n].id.c_str(),0);
-	    }
-	} else {
-	    if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
-		b.openVerticalBox2(self.desc->PortNames[i]);
+		break;
+	    case tp_display:
+		b.create_port_display(self.ctrl_ports[n].id.c_str());
+		break;
+	    case tp_display_toggle:
+		b.openVerticalBox2(it->name.c_str());
 		b.create_switch_no_caption("led",self.ctrl_ports[n].id.c_str());
 		b.closeBox();
-	    } else {
-		b.create_port_display(self.ctrl_ports[n].id.c_str());
+		break;
+	    case tp_enum:
+		b.create_selector(self.ctrl_ports[n].id.c_str());
+		break;
+	    case tp_none:
+		break;
+	    default:
+		assert(false);
 	    }
 	}
-	n++;
-    }
-    if (self.desc->PortCount > max_ctrl) {
 	b.closeBox();
 	b.closeBox();
+    } else {
+	const unsigned int max_ctrl = 4;
+	if (self.desc->PortCount > max_ctrl) {
+	    b.openVerticalBox("");
+	    b.openHorizontalBox("");
+	}
+	int n = 0;
+	for (unsigned int i = 0; i < self.desc->PortCount; ++i) {
+	    if (!LADSPA_IS_PORT_CONTROL(self.desc->PortDescriptors[i])) {
+		continue;
+	    }
+	    if (n > 0 && n % max_ctrl == 0) {
+		b.closeBox();
+		b.openHorizontalBox("");
+	    }
+	    if (LADSPA_IS_PORT_INPUT(self.desc->PortDescriptors[i])) {
+		if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
+		    b.openVerticalBox2(self.desc->PortNames[i]);
+		    b.create_switch_no_caption("switchit",self.ctrl_ports[n].id.c_str());
+		    b.closeBox();
+		} else {
+		    b.create_small_rackknob(self.ctrl_ports[n].id.c_str(),0);
+		}
+	    } else {
+		if (LADSPA_IS_HINT_TOGGLED(self.desc->PortRangeHints[i].HintDescriptor)) {
+		    b.openVerticalBox2(self.desc->PortNames[i]);
+		    b.create_switch_no_caption("led",self.ctrl_ports[n].id.c_str());
+		    b.closeBox();
+		} else {
+		    b.create_port_display(self.ctrl_ports[n].id.c_str());
+		}
+	    }
+	    n++;
+	}
+	if (self.desc->PortCount > max_ctrl) {
+	    b.closeBox();
+	    b.closeBox();
+	}
     }
     return 0;
 }
@@ -938,11 +1009,68 @@ void LadspaDsp::create_list() {
 
 std::vector<plugdesc> plugins;
 
+void try_read_module_config(const std::string& filename, plugdesc& p) {
+    std::ifstream ifs(filename.c_str());
+    if (ifs.fail()) {
+        return;
+    }
+    JsonParser jp(&ifs);
+    jp.next(JsonParser::begin_array);
+    jp.next(JsonParser::value_number); // version
+    jp.next(JsonParser::value_string);
+    p.shortname = jp.current_value();
+    jp.next(JsonParser::value_string);
+    p.category = jp.current_value();
+    jp.next(JsonParser::begin_array);
+    while (jp.peek() != JsonParser::end_array) {
+	paradesc para;
+	jp.next(JsonParser::begin_array);
+	jp.next(JsonParser::value_number);
+	para.index = jp.current_value_int();
+	jp.skip_object(); // meta data
+	jp.next(JsonParser::value_string);
+	para.name = jp.current_value();
+	jp.next(JsonParser::value_number); // use_sr
+	jp.next(JsonParser::value_number);
+	para.dflt = jp.current_value_float();
+	jp.next(JsonParser::value_number);
+	para.low = jp.current_value_float();
+	jp.next(JsonParser::value_number);
+	para.up = jp.current_value_float();
+	jp.next(JsonParser::value_number);
+	para.step = jp.current_value_float();
+	jp.next(JsonParser::value_number);
+	para.tp = static_cast<widget_type>(jp.current_value_int()); //FIXME
+	jp.next(JsonParser::value_number);
+	para.newrow = jp.current_value_int();
+	jp.next(JsonParser::begin_array);
+	std::vector<value_pair> v;
+	while (jp.peek() != JsonParser::end_array) {
+	    jp.next(JsonParser::value_string);
+	    const char *s = g_strdup(jp.current_value().c_str());
+	    value_pair p = {s, s};
+	    v.push_back(p);
+	}
+	jp.next(JsonParser::end_array);
+	para.values = new value_pair[v.size()+1];
+	int n = 0;
+	for (std::vector<value_pair>::iterator i = v.begin(); i != v.end(); ++i) {
+	    para.values[n++] = *i;
+	}
+	para.values[n].value_id = 0;
+	para.values[n].value_label = 0;
+	jp.next(JsonParser::end_array);
+	p.names.push_back(para);
+    }
+    jp.next(JsonParser::end_array);
+    jp.close();
+    ifs.close();
+}
+
 void init() {
-    std::string path = getenv("HOME");
-    path += "/.config/guitarix/ladspa_defs.js";
-    LadspaDsp::create_list();
-    std::ifstream ifs(path.c_str());
+    //LadspaDsp::create_list();
+    std::string path = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
+    std::ifstream ifs(Glib::build_filename(path, "ladspa_defs.js").c_str());
     if (ifs.fail()) {
         return;
     }
@@ -955,61 +1083,12 @@ void init() {
 	p.path = jp.current_value();
 	jp.next(JsonParser::value_number);
 	p.index = jp.current_value_int();
-	jp.next(JsonParser::begin_object);
-	while (jp.peek() != JsonParser::end_object) {
-	    jp.next(JsonParser::value_key);
-	    if (jp.current_value().empty() || jp.current_value()[0] != '#') {
-		printf("unknown key '%s' for ladspa plugin '%s/%d'\n", jp.current_value().c_str(), p.path.c_str(), p.index);
-		jp.skip_object();
-	    } else {
-		paradesc para;
-		int key = atoi(jp.current_value().c_str()+1);
-		if (jp.peek() == JsonParser::begin_array) {
-		    jp.next(JsonParser::begin_array);
-		    jp.next(JsonParser::value_number);
-		    para.dflt = jp.current_value_float();
-		    jp.next(JsonParser::value_number);
-		    para.low = jp.current_value_float();
-		    if (jp.peek() == JsonParser::begin_array) {
-			jp.next(JsonParser::begin_array);
-			std::vector<value_pair> v;
-			while (jp.peek() != JsonParser::end_array) {
-			    jp.next(JsonParser::value_string);
-			    const char *s = g_strdup(jp.current_value().c_str());
-			    value_pair p = {s, s};
-			    v.push_back(p);
-			}
-			jp.next(JsonParser::end_array);
-			para.values = new value_pair[v.size()+1];
-			int n = 0;
-			for (std::vector<value_pair>::iterator i = v.begin(); i != v.end(); ++i) {
-			    para.values[n++] = *i;
-			}
-			para.values[n].value_id = 0;
-			para.values[n].value_label = 0;
-			para.up = para.low + v.size() - 1;
-			para.step = 1.0;
-		    } else {
-			jp.next(JsonParser::value_number);
-			para.up = jp.current_value_float();
-			jp.next(JsonParser::value_number);
-			para.step = jp.current_value_float();
-		    }
-		    para.has_range = true;
-		    if (jp.peek() == JsonParser::value_string) {
-			jp.next(JsonParser::value_string);
-			para.name = jp.current_value();
-		    }
-		    jp.next(JsonParser::end_array);
-		} else {
-		    jp.next(JsonParser::value_string);
-		    para.name = jp.current_value();
-		}
-		p.names[key] = para;
-	    }
-	}
-	jp.next(JsonParser::end_object);
+	jp.next(JsonParser::value_number);
+	p.UniqueID = jp.current_value_int();
+	jp.next(JsonParser::value_string);
+	p.Label = jp.current_value();
 	jp.next(JsonParser::end_array);
+	try_read_module_config(Glib::build_filename(path, "plugins", "ladspa"+to_string(p.UniqueID)+".js"), p);
 	plugins.push_back(p);
     }
     jp.close();
