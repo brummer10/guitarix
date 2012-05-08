@@ -8,13 +8,20 @@ class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
-	float 	fConst0;
+	int 	iVec0[2];
+	int 	iConst0;
+	float 	fConst1;
 	FAUSTFLOAT 	fslider1;
+	float 	fConst2;
+	float 	fRec1[2];
+	float 	fRec2[2];
+	FAUSTFLOAT 	fcheckbox0;
+	FAUSTFLOAT 	fslider2;
 	int 	IOTA;
 	float *fRec0;
-	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT 	fslider3;
-	float *fRec1;
+	FAUSTFLOAT 	fslider4;
+	float *fRec3;
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();
@@ -41,7 +48,7 @@ public:
 Dsp::Dsp()
 	: PluginDef(),
 	  fRec0(0),
-	  fRec1(0),
+	  fRec3(0),
 	  mem_allocated(false) {
 	version = PLUGINDEF_VERSION;
 	flags = 0;
@@ -66,8 +73,11 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
+	for (int i=0; i<2; i++) iVec0[i] = 0;
+	for (int i=0; i<2; i++) fRec1[i] = 0;
+	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<262144; i++) fRec0[i] = 0;
-	for (int i=0; i<262144; i++) fRec1[i] = 0;
+	for (int i=0; i<262144; i++) fRec3[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -78,7 +88,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (0.001f * min(192000, max(1, fSamplingFreq)));
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (0.001f * iConst0);
+	fConst2 = (6.283185307179586f / iConst0);
 	IOTA = 0;
 }
 
@@ -90,7 +102,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 void Dsp::mem_alloc()
 {
 	if (!fRec0) fRec0 = new float[262144];
-	if (!fRec1) fRec1 = new float[262144];
+	if (!fRec3) fRec3 = new float[262144];
 	mem_allocated = true;
 }
 
@@ -98,7 +110,7 @@ void Dsp::mem_free()
 {
 	mem_allocated = false;
 	if (fRec0) { delete fRec0; fRec0 = 0; }
-	if (fRec1) { delete fRec1; fRec1 = 0; }
+	if (fRec3) { delete fRec3; fRec3 = 0; }
 }
 
 int Dsp::activate(bool start)
@@ -121,17 +133,47 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
-	int 	iSlow0 = int((1 + int((int((int((fConst0 * fslider0)) - 1)) & 131071))));
-	float 	fSlow1 = (0.01f * fslider1);
-	int 	iSlow2 = int((1 + int((int((int((fConst0 * fslider2)) - 1)) & 131071))));
-	float 	fSlow3 = (0.01f * fslider3);
+	int 	iSlow0 = int((fConst1 * fslider0));
+	int 	iSlow1 = int((iSlow0 - 1.49999f));
+	int 	iSlow2 = int((1 + int((iSlow1 & 131071))));
+	float 	fSlow3 = (2.0f + iSlow1);
+	float 	fSlow4 = (0.5f * (fSlow3 - iSlow0));
+	int 	iSlow5 = int((1 + int((int((1 + iSlow1)) & 131071))));
+	float 	fSlow6 = (iSlow0 - (1.0f + iSlow1));
+	float 	fSlow7 = ((iSlow1 + 3.0f) - iSlow0);
+	int 	iSlow8 = int((1 + int((int((2 + iSlow1)) & 131071))));
+	float 	fSlow9 = (0.5f * (fSlow6 * (iSlow0 - fSlow3)));
+	float 	fSlow10 = (fConst2 * fslider1);
+	float 	fSlow11 = sinf(fSlow10);
+	float 	fSlow12 = cosf(fSlow10);
+	float 	fSlow13 = (0 - fSlow11);
+	float 	fSlow14 = fcheckbox0;
+	float 	fSlow15 = (0.01f * fslider2);
+	int 	iSlow16 = int((fConst1 * fslider3));
+	int 	iSlow17 = int((iSlow16 - 1.49999f));
+	int 	iSlow18 = int((1 + int((iSlow17 & 131071))));
+	float 	fSlow19 = (2.0f + iSlow17);
+	float 	fSlow20 = (0.5f * (fSlow19 - iSlow16));
+	int 	iSlow21 = int((1 + int((int((1 + iSlow17)) & 131071))));
+	float 	fSlow22 = (iSlow16 - (1.0f + iSlow17));
+	float 	fSlow23 = ((iSlow17 + 3.0f) - iSlow16);
+	int 	iSlow24 = int((1 + int((int((2 + iSlow17)) & 131071))));
+	float 	fSlow25 = (0.5f * (fSlow22 * (iSlow16 - fSlow19)));
+	float 	fSlow26 = (0.01f * fslider4);
 	for (int i=0; i<count; i++) {
-		fRec0[IOTA&262143] = ((float)input0[i] + (fSlow1 * fRec0[(IOTA-iSlow0)&262143]));
+		iVec0[0] = 1;
+		fRec1[0] = ((fSlow12 * fRec1[1]) + (fSlow11 * fRec2[1]));
+		fRec2[0] = ((1 + ((fSlow13 * fRec1[1]) + (fSlow12 * fRec2[1]))) - iVec0[1]);
+		float fTemp0 = (fSlow14 * fRec1[0]);
+		fRec0[IOTA&262143] = ((float)input0[i] + (fSlow15 * ((1 + fTemp0) * ((fSlow9 * fRec0[(IOTA-iSlow8)&262143]) + (fSlow7 * ((fSlow6 * fRec0[(IOTA-iSlow5)&262143]) + (fSlow4 * fRec0[(IOTA-iSlow2)&262143])))))));
 		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&262143];
-		fRec1[IOTA&262143] = ((float)input1[i] + (fSlow3 * fRec1[(IOTA-iSlow2)&262143]));
-		output1[i] = (FAUSTFLOAT)fRec1[(IOTA-0)&262143];
+		fRec3[IOTA&262143] = ((float)input1[i] + (fSlow26 * ((1 - fTemp0) * ((fSlow25 * fRec3[(IOTA-iSlow24)&262143]) + (fSlow23 * ((fSlow22 * fRec3[(IOTA-iSlow21)&262143]) + (fSlow20 * fRec3[(IOTA-iSlow18)&262143])))))));
+		output1[i] = (FAUSTFLOAT)fRec3[(IOTA-0)&262143];
 		// post processing
 		IOTA = IOTA+1;
+		fRec2[1] = fRec2[0];
+		fRec1[1] = fRec1[0];
+		iVec0[1] = iVec0[0];
 	}
 }
 
@@ -142,9 +184,12 @@ void Dsp::compute_static(int count, float *input0, float *input1, float *output0
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("stereoecho.percent_r","","S","",&fslider3, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.time_r","","S","",&fslider2, 1.0f, 1.0f, 2e+03f, 1.0f);
-	reg.registerVar("stereoecho.percent_l","","S","",&fslider1, 0.0f, 0.0f, 1e+02f, 0.1f);
+	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
+	reg.registerEnumVar("stereoecho.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("stereoecho.percent_r","","S","",&fslider4, 0.0f, 0.0f, 1e+02f, 0.1f);
+	reg.registerVar("stereoecho.time_r","","S","",&fslider3, 1.0f, 1.0f, 2e+03f, 1.0f);
+	reg.registerVar("stereoecho.percent_l","","S","",&fslider2, 0.0f, 0.0f, 1e+02f, 0.1f);
+	reg.registerVar("stereoecho.LFO freq","","S","",&fslider1, 0.2f, 0.0f, 5.0f, 0.01f);
 	reg.registerVar("stereoecho.time_l","","S","",&fslider0, 1.0f, 1.0f, 2e+03f, 1.0f);
 	return 0;
 }

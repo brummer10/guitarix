@@ -44,7 +44,7 @@ static void gx_port_display_class_init(GxPortDisplayClass *klass)
 		widget_class,
 		g_param_spec_int("display-width",P_("size of display"),
 		                   P_("Height of movable part of display"),
-		                 0, 80, 1, GParamFlags(GTK_PARAM_READABLE)));
+		                 0, 80, 0, GParamFlags(GTK_PARAM_READABLE)));
 }
 
 static void gx_port_display_size_request (GtkWidget *widget, GtkRequisition *requisition)

@@ -203,10 +203,44 @@ void StackBoxBuilder::make_rackbox_stereoecho() {
 	closeBox();
 	openHorizontalBox("");
 	{
+        openVerticalBox("");
+	    {
 	    create_small_rackknob("stereoecho.percent_l", _("left %"));
+        openSpaceBox("");
+		closeBox();
+        }
+	    closeBox();
+        openVerticalBox("");
+	    {
 	    create_small_rackknob("stereoecho.time_l", _("left time"));
+        openSpaceBox("");
+		closeBox();
+        }
+	    closeBox();
+        openVerticalBox("");
+	    {
+		create_small_rackknobr("stereoecho.LFO freq", _("LFO"));
+		openSpaceBox("");
+		closeBox();
+		create_selector("stereoecho.invert");
+		openFrameBox("");
+		closeBox();
+	    }
+	    closeBox();
+        openVerticalBox("");
+	    {
 	    create_small_rackknob("stereoecho.percent_r", _("right %"));
+        openSpaceBox("");
+		closeBox();
+        }
+	    closeBox();
+        openVerticalBox("");
+	    {
 	    create_small_rackknob("stereoecho.time_r", _("right time"));
+        openSpaceBox("");
+		closeBox();
+        }
+	    closeBox();
 	}
 	closeBox();
     }
