@@ -240,6 +240,8 @@ class ChangeableValues:
             if k == "enumdict":
                 if v:
                     return True
+            elif k == "step":
+                continue
             elif v is not None:
                 return True
         return False
@@ -357,6 +359,9 @@ class PortDesc:
         if f.dflt is None:
             self.fake_dflt = True
             f.dflt = f.low
+        if f.tp == tp_enum:
+            for k in range(int(f.low), int(f.up+1)):
+                f.enumdict[k] = f.enumdict.get(k,str(k))
 
     def calc_step(self):
         if self.get_tp() in (tp_toggle, tp_enum):
@@ -599,7 +604,7 @@ class PortDesc:
         s = int(low)
         for i, x in enumerate(v[10]):
             idx = s + i
-            if self.factory.enumdict.get(idx) != x:
+            if x and self.factory.enumdict.get(idx) != x:
                 self.user.enumdict[idx] = x
 
 cat_dict = {
@@ -682,19 +687,31 @@ class PluginDesc:
         return "%(UniqueID)s/%(Name)s [%(path)s:%(index)s]" % vars(self)
 
     def output(self):
-        return [1, self.short, self.category, [p.output() for p in self.ctrl_ports]]
+        s = self.short
+        if s == self.Name:
+            s = ""
+        return [1, s, self.category, [p.output() for p in self.ctrl_ports]]
 
     def output_entry(self):
         return [self.path, self.index, self.UniqueID, self.Label]
 
     def set_state(self, l):
         version = l[0]
-        if l[1] != self.short:
+        if l[1]:
             self.short = l[1]
-        if l[2] != self.category:
-            self.category = l[2]
-        for p, v in zip(self.ctrl_ports, l[3]):
-            p.set_state(v)
+        else:
+            self.short = self.Name
+        self.category = l[2]
+        ctrl_ports = []
+        for v in l[3]:
+            for p in self.ctrl_ports:
+                if p.idx == v[0]:
+                    p.set_state(v)
+                    ctrl_ports.append(p)
+                    break
+            else:
+                assert False
+        self.ctrl_ports = ctrl_ports
         self.check_has_settings()
 
     def print_ports(self):
@@ -835,7 +852,7 @@ class PluginDisplay:
         w = bld.get_object("treeview3")
         sel = w.get_selection()
         sel.set_mode(gtk.SELECTION_BROWSE)
-        l = gtk.ListStore(str,str,gobject.TYPE_PYOBJECT)
+        l = gtk.ListStore(int,str,gobject.TYPE_PYOBJECT)
         w.set_model(l)
         bld.get_object("cellrenderer_label").connect("edited", self.on_label_edited)
         bld.get_object("treeviewcolumn_label").set_cell_data_func(bld.get_object("cellrenderer_label"), display_label)
@@ -930,7 +947,7 @@ class PluginDisplay:
             if p.active:
                 l.append(p.output_entry())
             fname = get_ladspa_plugin_config(p.UniqueID)
-            if p.has_settings:
+            if p.active or p.has_settings:
                 tfname = fname + ".tmp"
                 tfile = file(tfname,"w")
                 json.dump(p.output(), tfile, sort_keys=True, indent=2)
@@ -989,7 +1006,13 @@ class PluginDisplay:
         ls2.handler_block_by_func(self.on_reordered)
         ls2.clear()
         ls2.handler_unblock_by_func(self.on_reordered)
+        self.bld.get_object("ladspa_category").set_text("")
+        self.bld.get_object("ladspa_maker").set_text("")
+        self.bld.get_object("ladspa_uniqueid").set_text("")
+        self.bld.get_object("plugin_name").set_text("")
+        self.bld.get_object("plugin_category").set_active(-1)
         if it is None:
+            self.current_plugin = None
             return
         self.current_plugin = p = ls[it][2]
         w = self.bld.get_object("plugin_name")
@@ -1005,6 +1028,7 @@ class PluginDisplay:
                 break
         self.bld.get_object("ladspa_category").set_text(p.ladspa_category)
         self.bld.get_object("ladspa_maker").set_text(p.Maker)
+        self.bld.get_object("ladspa_uniqueid").set_text(str(p.UniqueID))
         for i, q in enumerate(p.ctrl_ports):
             if q.is_output:
                 tls = self.output_type_list
@@ -1093,13 +1117,13 @@ class PluginDisplay:
         row = tv.get_model()[path]
         q = row[2]
         text = text.strip()
-        idx = int(path)
+        idx = row[0]
         if not text or q.factory.enumdict.get(idx,"") == text:
             try:
                 del q.user.enumdict[idx]
             except KeyError:
                 pass
-            text = q.factory.enumdict.get(idx,"")
+            text = q.factory.enumdict.get(idx,str(idx))
         else:
             q.user.enumdict[idx] = text
         row[1] = text
@@ -1306,9 +1330,14 @@ def main():
     for path in ladspa_path.split(":"):
         if not path:
             continue
-        for f in os.listdir(path):
-            if f.endswith(".so") and f != "dssi-vst.so":
-                LADSPA(os.path.join(path, f), d)
+        try:
+            files = os.listdir(path)
+        except OSError:
+            pass
+        else:
+            for f in files:
+                if f.endswith(".so") and f != "dssi-vst.so":
+                    LADSPA(os.path.join(path, f), d)
 
     locale.setlocale(locale.LC_ALL, "C")
     lrdf_init()
@@ -1320,10 +1349,15 @@ def main():
     for path in rdf_path.split(":"):
         if not path:
             continue
-        for f in os.listdir(path):
-            if not f.endswith((".rdf",".rdfs")):
-                continue
-            lrdf_read_file("file://"+os.path.join(path,f))
+        try:
+            files = os.listdir(path)
+        except OSError:
+            pass
+        else:
+            for f in files:
+                if not f.endswith((".rdf",".rdfs")):
+                    continue
+                lrdf_read_file("file://"+os.path.join(path,f))
 
     not_found = []
     seen = set()
