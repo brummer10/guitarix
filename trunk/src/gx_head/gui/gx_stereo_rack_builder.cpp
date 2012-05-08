@@ -372,9 +372,37 @@ void StackBoxBuilder::make_rackbox_stereoverb() {
 	closeBox();
 	openHorizontalBox("");
 	{
+        openVerticalBox("");
+	    {
 	    create_small_rackknobr("stereoverb.RoomSize", _("RoomSize"));
+        openSpaceBox("");
+		closeBox();
+        }
+        closeBox();
+        openVerticalBox("");
+	    {
 	    create_small_rackknob("stereoverb.damp", _("damp"));
+        openSpaceBox("");
+		closeBox();
+        }
+        closeBox();
+        openVerticalBox("");
+	    {
 	    create_small_rackknob("stereoverb.wet_dry", _("dry/wet"));
+        openSpaceBox("");
+		closeBox();
+        }
+        closeBox();
+        openVerticalBox("");
+	    {
+		create_small_rackknobr("stereoverb.LFO freq", _("LFO"));
+		openSpaceBox("");
+		closeBox();
+		create_selector("stereoverb.invert");
+		openFrameBox("");
+		closeBox();
+	    }
+        closeBox();
 	}
 	closeBox();
     }

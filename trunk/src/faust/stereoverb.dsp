@@ -62,6 +62,13 @@ monoReverb(fb1, fb2, damp, spread)
 
 //----------------------------------------------------------------
 
+lfol = component("oscillator.lib").oscrs; // sine for left channel
+
+freq	 = hslider("LFO freq [unit:Hz]", 0.2, 0, 5, 0.01);
+pingpong   = checkbox("invert[enum:linear|pingpong]");
+
 fxctrl(g,w,Fx) =  _ <: (*(g) <: _ + Fx ), *(1-w) +> _;
-process = (_<:*(dry),(*(wet_dry):fxctrl(0.015,wet_dry, monoReverb(combfeed, 0.5, dampslider, 23))):>_),
-          (_<:*(dry),(*(wet_dry):fxctrl(0.015,wet_dry, monoReverb(combfeed, 0.5, dampslider, 23))):>_);
+
+freeverb_r = (_<:*(dry),(*(wet_dry):fxctrl(0.015,wet_dry, monoReverb(combfeed, 0.5, dampslider, 23))* (1+(lfol(freq)*pingpong))):>_);
+freeverb_l = (_<:*(dry),(*(wet_dry):fxctrl(0.015,wet_dry, monoReverb(combfeed, 0.5, dampslider, 23))* (1-(lfol(freq)*pingpong))):>_);
+process = freeverb_r, freeverb_l;
