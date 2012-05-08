@@ -847,8 +847,8 @@ class PluginDisplay:
         bld.get_object("menubox").pack_start(uimanager.get_widget('/menubar'))
         self.window.add_accel_group(uimanager.get_accel_group())
 
-        w = bld.get_object("select_all").connect("clicked", self.on_select_all, True)
-        w = bld.get_object("unselect_all").connect("clicked", self.on_select_all, False)
+        w = bld.get_object("invert_selection").connect("clicked", self.on_invert_selection)
+        w = bld.get_object("show_details").connect("clicked", self.on_show_details)
         w = bld.get_object("treeview3")
         sel = w.get_selection()
         sel.set_mode(gtk.SELECTION_BROWSE)
@@ -974,10 +974,20 @@ class PluginDisplay:
                     print "cannot rename %s to %s" % (tfname, fname)
         gtk.main_quit()
 
-    def on_select_all(self, w, v):
+    def on_select_all(self, w, v): ##unused
         for row in self.bld.get_object("treeview1").get_model():
             row[1] = v
             row[2].set_active(v)
+
+    def on_invert_selection(self, w):
+        for row in self.bld.get_object("treeview1").get_model():
+            v = not row[1]
+            row[1] = v
+            row[2].set_active(v)
+
+    def on_show_details(self, w):
+        self.bld.get_object("details_box").set_visible(w.get_active())
+        self.window.resize(1, self.window.get_size()[1])
 
     def on_selected_only_changed(self, w):
         self.load()
