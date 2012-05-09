@@ -155,7 +155,10 @@ void PluginUI::display(bool v, bool animate) {
 }
 
 void PluginUI::display_new(bool unordered) {
-    plugin->plug_visible = false;
+    plugin->plug_visible = compressed = false;
+    if (rackbox) {
+	rackbox->swtch(false);
+    }
     display(true, true);
     if (!unordered) {
 	rackbox->get_parent()->reorder(get_id(), -1);
