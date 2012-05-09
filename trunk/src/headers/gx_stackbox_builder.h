@@ -74,9 +74,16 @@ protected:
     void openVerticalHideBox(const char* label = "");
     void openHorizontalhideBox(const char* label = "");
     void openHorizontalTableBox(const char* label);
-    void create_switch_no_caption(const char *sw_type, string id) {
-            addwidget(UiSwitch::create(ui, sw_type, id));
-        }
+    void create_switch_no_caption(const char *sw_type, const string& id) {
+	addwidget(UiSwitch::create(ui, sw_type, id));
+    }
+    void create_switch(const char *sw_type, const string& id, const char *label, Gtk::PositionType pos) {
+	if (label) {
+	    addwidget(UiSwitchWithCaption::create(ui, sw_type, id, label, pos));
+	} else {
+	    addwidget(UiSwitchWithCaption::create(ui, sw_type, id, pos));
+	}
+    }
     void openpaintampBox(const char* label = "");
     void create_wheel(string id, bool show_value = false) {
 	addwidget(UiRegler::create(ui, new Gxw::Wheel(), id, show_value));

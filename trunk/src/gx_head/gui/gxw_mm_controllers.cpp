@@ -403,7 +403,7 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui,
                                          Glib::ustring label, Gtk::PositionType pos):
     m_switch(UiSwitch::new_switch(ui, sw_type, param)) {
     m_label.set_text(label);
-    m_label.set_name("effekt_label");
+    m_label.set_name("rack_label");
     if (pos == Gtk::POS_LEFT || pos == Gtk::POS_RIGHT) {
         m_box = new Gtk::HBox();
     } else {
@@ -411,9 +411,9 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui,
     }
     if (pos == Gtk::POS_LEFT || pos == Gtk::POS_TOP) {
         m_box->pack_start(m_label, Gtk::PACK_SHRINK);
-        m_box->pack_start(*m_switch, Gtk::PACK_SHRINK);
+        m_box->pack_start(*m_switch, Gtk::PACK_EXPAND_PADDING);
     } else {
-        m_box->pack_start(*m_switch, Gtk::PACK_SHRINK);
+        m_box->pack_start(*m_switch, Gtk::PACK_EXPAND_PADDING);
         m_box->pack_start(m_label, Gtk::PACK_SHRINK);
     }
     m_box->set_name(param.id());
