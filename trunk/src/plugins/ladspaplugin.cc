@@ -750,7 +750,7 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 		break;
 	    case tp_toggle:
 		b.openVerticalBox2(it->name.c_str());
-		b.create_switch_no_caption("switchit",self.ctrl_ports[n].id.c_str());
+		b.create_switch("switch",self.ctrl_ports[n].id.c_str(), 0);
 		b.closeBox();
 		break;
 	    case tp_display:
