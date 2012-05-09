@@ -784,8 +784,8 @@ float FloatParameter::getStepAsFloat() const {
 /* FloatEnumParameter */
 
 FloatEnumParameter::FloatEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset,
-                                       float *v, int sv, bool ctrl):
-    FloatParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), 1, ctrl),
+                                       float *v, int sv, int low, bool ctrl):
+    FloatParameter(id, name, Enum, preset, v, sv, low, low+get_upper(vn), 1, ctrl),
     value_names(vn) {}
 
 const value_pair *FloatEnumParameter::getValueNames() const {
@@ -794,7 +794,7 @@ const value_pair *FloatEnumParameter::getValueNames() const {
 
 void FloatEnumParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value_names[static_cast<int>(round(*value))].value_id);
+    jw.write(value_names[static_cast<int>(round(*value-lower))].value_id);
 }
 
 void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -806,17 +806,19 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     }
     jp.check_expect(gx_system::JsonParser::value_string);
     int up = static_cast<int>(round(upper));
+    int low = static_cast<int>(round(lower));
     int n = 0;
-    for (; n <= up; n++) {
+    for (; n <= up-low; n++) {
         if (jp.current_value() == value_names[n].value_id) {
             break;
         }
     }
+    n += low;
     if (n > up) {
         gx_system::gx_print_warning(
             _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
                                % _id % jp.current_value()).str());
-        n = 0;
+        n = low;
     }
     json_value = n;
 }

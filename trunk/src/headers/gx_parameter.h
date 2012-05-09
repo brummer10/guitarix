@@ -251,7 +251,7 @@ class FloatEnumParameter: public FloatParameter {
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
     FloatEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset, float *v,
-                       int sv, bool ctrl);
+                       int sv, int low, bool ctrl);
 };
 
 /****************************************************************/
@@ -602,8 +602,8 @@ class ParamMap: boost::noncopyable {
     }
     inline FloatEnumParameter *reg_enum_par(const string& id, const string& name,
 					    const value_pair *vl, float *var,
-					    int std = 0) {
-	FloatEnumParameter *p = new FloatEnumParameter(id, name, vl, true, var, std, true);
+					    int std = 0, int low = 0) {
+	FloatEnumParameter *p = new FloatEnumParameter(id, name, vl, true, var, std, low, true);
 	insert(p);
 	return p;
     }

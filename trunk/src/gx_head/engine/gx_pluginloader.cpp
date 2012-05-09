@@ -121,8 +121,8 @@ void ParamRegImpl::registerEnumVar_(const char *id, const char* name, const char
         assert(strrchr(id, '.'));
         name = strrchr(id, '.')+1;
     }
-    assert(low == 0.0 && step == 1.0);
-    pmap->reg_enum_par(id, name, values, var, val);
+    assert(step == 1.0);
+    pmap->reg_enum_par(id, name, values, var, val, low);
 }
 
 void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const char* tp,
