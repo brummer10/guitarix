@@ -342,6 +342,7 @@ private:
     static void init(unsigned int samplingFreq, PluginDef *plugin);
     static void mono_process(int count, float *input, float *output, PluginDef *plugin);
     static void stereo_process(int count, float *input1, float *input2, float *output1, float *output2, PluginDef *plugin);
+    static int activate(bool start, PluginDef *plugin);
     static int registerparam(const ParamReg& reg);
     static int uiloader(const UiBuilder& builder);
     static void del_instance(PluginDef *plugin);
@@ -355,7 +356,7 @@ private:
     std::string id_str;
     Glib::ustring name_str;
     const plugdesc& pd;
-    void activate();
+    bool is_activated;
     void connect(int tp, int i, float *v);
     LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descriptor *desc_, int num_ctrl, bool mono);
     ~LadspaDsp();
@@ -427,7 +428,8 @@ LadspaDsp *LadspaDsp::create(const plugdesc& plug) {
 }
 
 LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descriptor *desc_, int num_ctrl, bool mono)
-    : PluginDef(), desc(desc_), handle(handle_), instance(), ctrl_ports(), id_str(), name_str(), pd(plug) {
+    : PluginDef(), desc(desc_), handle(handle_), instance(),
+      ctrl_ports(), id_str(), name_str(), pd(plug), is_activated(false) {
     ctrl_ports = new port_data[num_ctrl];
     version = PLUGINDEF_VERSION;
     id_str = "ladspa_";
@@ -451,6 +453,7 @@ LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descripto
     } else {
 	stereo_audio = stereo_process;
     }
+    activate_plugin = activate;
     register_params = registerparam;
     load_ui = uiloader;
     delete_instance = del_instance;
@@ -458,8 +461,11 @@ LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descripto
 
 LadspaDsp::~LadspaDsp() {
     if (instance) {
-	//FIXME: deactivate
-	desc->cleanup(instance);
+	activate(false, this);
+	// FIXME add "quirk" flags for buggy plugins?
+	// jamincont crashes in cleanup
+	// glame plugins crash in cleanup when never been activated
+	//desc->cleanup(instance);
     }
     if (handle) {
 	dlclose(handle);
@@ -467,10 +473,22 @@ LadspaDsp::~LadspaDsp() {
     delete[] ctrl_ports;
 }
 
-void LadspaDsp::activate() {
-    if (desc->activate) {
-	desc->activate(instance);
+int LadspaDsp::activate(bool start, PluginDef *plugin) {
+    LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
+    if (start == self.is_activated) {
+	return 0;
     }
+    self.is_activated = start;
+    if (start) {
+	if (self.desc->activate) {
+	    self.desc->activate(self.instance);
+	}
+    } else {
+	if (self.desc->deactivate) {
+	    self.desc->deactivate(self.instance);
+	}
+    }
+    return 0;
 }
 
 void LadspaDsp::connect(int tp, int i, float *v) {
@@ -492,7 +510,9 @@ void LadspaDsp::connect(int tp, int i, float *v) {
 void LadspaDsp::init(unsigned int samplingFreq, PluginDef *plugin) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
     if (self.instance) {
-	self.desc->cleanup(self.instance);
+	activate(false, plugin);
+	// see comment in dtor
+	//self.desc->cleanup(self.instance);
     }
     self.instance = self.desc->instantiate(self.desc, samplingFreq);
     if (self.pd.names.size() > 0) {
@@ -509,11 +529,14 @@ void LadspaDsp::init(unsigned int samplingFreq, PluginDef *plugin) {
 	    }
 	}
     }
-    self.activate();
+    // glame plugins crash in cleanup when instantiated but not activated
+    // (cleanup disabled for now)
+    //activate(true, plugin);
 }
 
 void LadspaDsp::mono_process(int count, float *input, float *output, PluginDef *plugin) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
+    assert(self.is_activated);
     self.connect(LADSPA_PORT_INPUT, 0, input);
     self.connect(LADSPA_PORT_OUTPUT, 0, output);
     self.desc->run(self.instance, count);
@@ -521,6 +544,7 @@ void LadspaDsp::mono_process(int count, float *input, float *output, PluginDef *
 
 void LadspaDsp::stereo_process(int count, float *input1, float *input2, float *output1, float *output2, PluginDef *plugin) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
+    assert(self.is_activated);
     self.connect(LADSPA_PORT_INPUT, 0, input1);
     self.connect(LADSPA_PORT_INPUT, 1, input2);
     self.connect(LADSPA_PORT_OUTPUT, 0, output1);
