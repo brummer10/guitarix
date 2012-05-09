@@ -1130,7 +1130,13 @@ void init() {
 	jp.next(JsonParser::value_string);
 	p.Label = jp.current_value();
 	jp.next(JsonParser::end_array);
-	try_read_module_config(Glib::build_filename(path, "plugins", "ladspa"+to_string(p.UniqueID)+".js"), p);
+	std::string s = Glib::build_filename(path, "plugins", "ladspa"+to_string(p.UniqueID)+".js");
+	try {
+	    try_read_module_config(s, p);
+	} catch (JsonException &e) {
+	    printf("read error in file %s\n", s.c_str());
+	    throw e;
+	}
 	plugins.push_back(p);
     }
     jp.close();
@@ -1146,7 +1152,7 @@ get_gx_plugin(unsigned int idx, PluginDef **pplugin)
 	try {
 	    init();
 	} catch (JsonException &e) {
-	    printf("Exception: %s\n", e.what());
+	    printf("Exception in LADSPA list reader: %s\n", e.what());
 	    if (pplugin) {
 		*pplugin = 0;
 	    }
