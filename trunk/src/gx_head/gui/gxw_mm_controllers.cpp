@@ -158,6 +158,12 @@ UiSelectorBase::UiSelectorBase(gx_engine::Parameter& param)
         ls->append()->set_value(0, Glib::ustring(param.value_label(*p)));
     }
     m_selector.set_model(ls);
+    m_selector.set_has_tooltip();
+    string tip = param.desc();
+    if (param.desc().empty()) {
+	tip = param.id().substr(param.id().find_last_of(".")+1);
+    }
+    m_selector.set_tooltip_text(tip);
     m_selector.get_accessible()->set_description (param.id().c_str());
     m_selector.get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
 }
@@ -347,7 +353,12 @@ UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, gx_engine::Fl
       gx_ui::GxUiItemFloat(&ui, &param.get_value()) {
     set_active(param.get_value() != 0.0);
     cp_set_var(param.id());
-    this->set_tooltip_text(param.id().substr( param.id().find_last_of(".")+1).c_str());
+    this->set_has_tooltip();
+    string tip = param.desc();
+    if (param.desc().empty()) {
+	tip = param.id().substr(param.id().find_last_of(".")+1);
+    }
+    this->set_tooltip_text(tip);
     this->get_accessible()->set_description (param.id().c_str());
     this->get_accessible()->set_name (param.id().substr(
           param.id().find_last_of(".")+1).c_str());
@@ -370,9 +381,12 @@ UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, gx_engine::Bool
       gx_ui::GxUiItemBool(&ui, &param.get_value()) {
     set_active(param.get_value());
     cp_set_var(param.id());
-    char s[64];
-    snprintf(s, 63, _("%s on/off"),param.l_group().c_str());
-    this->set_tooltip_text(s);
+    this->set_has_tooltip();
+    string tip = param.desc();
+    if (param.desc().empty()) {
+	tip = param.id().substr(param.id().find_last_of(".")+1);
+    }
+    this->set_tooltip_text(tip);
     this->get_accessible()->set_description (param.id().c_str());
     this->get_accessible()->set_name 
           (param.id().substr( param.id().find_last_of(".")+1).c_str());
