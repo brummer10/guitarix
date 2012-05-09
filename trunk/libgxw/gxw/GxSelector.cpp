@@ -91,12 +91,26 @@ static int get_selector_state(GxSelector *selector)
 		return 0;
 	}
 	int n = gtk_tree_model_iter_n_children(selector->model, NULL);
-	int selectorstate = (int)gtk_range_get_value(GTK_RANGE(selector));
+	int lower = gtk_adjustment_get_lower(gtk_range_get_adjustment(GTK_RANGE(selector)));
+	int selectorstate = (int)gtk_range_get_value(GTK_RANGE(selector)) - lower;
 	if (selectorstate < 0 || selectorstate >= n) {
-		selectorstate =  0 ;
-		gtk_range_set_value(GTK_RANGE(selector), 0);
+		selectorstate = 0;
+		gtk_range_set_value(GTK_RANGE(selector), lower);
 	}
 	return selectorstate;
+}
+
+static void set_value_from_selector_state(GxSelector *selector, int selectorstate)
+{
+	if (!selector->model) {
+		return;
+	}
+	int n = gtk_tree_model_iter_n_children(selector->model, NULL);
+	if (selectorstate < 0 || selectorstate >= n) {
+		selectorstate = 0;
+	}
+	int lower = gtk_adjustment_get_lower(gtk_range_get_adjustment(GTK_RANGE(selector)));
+	gtk_range_set_value(GTK_RANGE(selector), lower + selectorstate);
 }
 
 static const GtkBorder default_selector_border = { 10, 10, 3, 3 };
@@ -323,7 +337,7 @@ static void selection_done(GtkMenu *menu, gpointer data)
 		if (strcmp(label, s) == 0) {
 			g_free(s);
 			if (n != get_selector_state(selector)) {
-				gtk_range_set_value(GTK_RANGE(selector), n);
+				set_value_from_selector_state(selector, n);
 				gtk_widget_queue_draw(GTK_WIDGET(selector));
 			}
 			return;
@@ -380,12 +394,11 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		gtk_widget_grab_focus(widget);
 		gtk_grab_add(widget);
 		n = gtk_tree_model_iter_n_children(selector->model, NULL);
-		i = (int)gtk_range_get_value(GTK_RANGE(widget)) + 1;
-		gtk_range_set_range(GTK_RANGE(widget), 0, n-1);
+		i = get_selector_state(GX_SELECTOR(widget)) + 1;
 		if (i >= n) {
 			i = 0;
 		}
-		gtk_range_set_value(GTK_RANGE(widget), i);
+		set_value_from_selector_state(GX_SELECTOR(widget), i);
 		break;
 	case 3: // right button show num entry
 		rect.width = widget->requisition.width;
