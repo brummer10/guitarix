@@ -626,6 +626,48 @@ static void get_bounds(const LADSPA_PortRangeHint& pr, float& dflt, float& low, 
     }
 }
 
+static Glib::ustring TrimLabel(const char *label) {
+    Glib::ustring pn(label);
+    unsigned int rem = pn.find_first_of("([");
+    if(rem != Glib::ustring::npos) {
+	pn.erase(rem);
+    }
+    while ((rem = pn.find_last_of(" ")) == pn.size()-1) {
+	pn.erase(rem);
+    }
+    rem = 0;
+    unsigned int rem1 = 0;
+    unsigned int lastpos = 0;
+    while (true) {
+	rem1 = pn.find_first_of(" ", rem1);
+	if (rem1 == Glib::ustring::npos) {
+	    rem1 = pn.size();
+	}
+	while (rem1 > rem + 8) {
+	    if (lastpos > rem) {
+		rem = lastpos;
+		pn.replace(lastpos, 1, 1, '\n');
+	    } else if (rem1 < rem + 13) {
+		if (rem1 == pn.size()) {
+		    break;
+		}
+		rem = rem1;
+		pn.replace(rem1, 1, 1, '\n');
+	    } else {
+		rem += 10;
+		pn.insert(rem, "\n");
+	    }
+	    rem += 1;
+	}
+	lastpos = rem1;
+	rem1 += 1;
+	if (rem1 >= pn.size()) {
+	    break;
+	}
+    }
+    return pn;
+}
+
 int LadspaDsp::registerparam(const ParamReg& reg) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(reg.plugin);
     if (self.pd.names.size() > 0) {
@@ -634,12 +676,12 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    std::string& s = self.ctrl_ports[n].id;
 	    s = "ladspa_" + to_string(self.pd.UniqueID) + "." + to_string(it->index);
 	    const char *nm = self.desc->PortNames[it->index];
-	    const char *snm = it->name.c_str();
-	    if (!*snm) {
-		snm = nm;
+	    Glib::ustring snm(it->name);
+	    if (snm.empty()) {
+		snm = TrimLabel(nm);
 	    }
 	    if (it->tp == tp_enum) {
-		reg.registerEnumVar(s.c_str(), snm, "S", nm, it->values, &self.ctrl_ports[n].port,
+		reg.registerEnumVar(s.c_str(), snm.c_str(), "S", nm, it->values, &self.ctrl_ports[n].port,
 				    it->dflt, it->low, it->up, it->step);
 	    } else {
 		const char *tp = 0;
@@ -652,7 +694,7 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 		case tp_display_toggle: tp = "BO"; break;
 		default: assert(false);
 		}
-		reg.registerVar(s.c_str(), snm, tp, nm,	&self.ctrl_ports[n].port,
+		reg.registerVar(s.c_str(), snm.c_str(), tp, nm, &self.ctrl_ports[n].port,
 				it->dflt, it->low, it->up, it->step);
 	    }
 	}
