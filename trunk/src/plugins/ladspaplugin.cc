@@ -650,7 +650,10 @@ static void get_bounds(const LADSPA_PortRangeHint& pr, float& dflt, float& low, 
     }
 }
 
-static Glib::ustring TrimLabel(const char *label) {
+static Glib::ustring TrimLabel(const char *label, int cnt_in_row) {
+    const unsigned int minlen = 60  / cnt_in_row - 1;
+    const unsigned int maxlen = minlen + 10;
+    const unsigned int cutlen = (maxlen + minlen) / 2;
     Glib::ustring pn(label);
     unsigned int rem = pn.find_first_of("([");
     if(rem != Glib::ustring::npos) {
@@ -667,18 +670,18 @@ static Glib::ustring TrimLabel(const char *label) {
 	if (rem1 == Glib::ustring::npos) {
 	    rem1 = pn.size();
 	}
-	while (rem1 > rem + 8) {
+	while (rem1 > rem + minlen) {
 	    if (lastpos > rem) {
 		rem = lastpos;
 		pn.replace(lastpos, 1, 1, '\n');
-	    } else if (rem1 < rem + 13) {
+	    } else if (rem1 < rem + maxlen) {
 		if (rem1 == pn.size()) {
 		    break;
 		}
 		rem = rem1;
 		pn.replace(rem1, 1, 1, '\n');
 	    } else {
-		rem += 10;
+		rem += cutlen;
 		pn.insert(rem, "\n");
 	    }
 	    rem += 1;
@@ -696,13 +699,29 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(reg.plugin);
     if (self.pd.names.size() > 0) {
 	int n = 0;
+	int cnt_in_row = 0;
+	int left = 0;
 	for (std::vector<paradesc>::const_iterator it = self.pd.names.begin(); it != self.pd.names.end(); ++it, ++n) {
+	    if (it->tp != tp_none) {
+		left -= 1;
+		if (left < 0) {
+		    cnt_in_row = 1;
+		    std::vector<paradesc>::const_iterator it2 = it+1;
+		    while (it2 != self.pd.names.end() && !it2->newrow) {
+			if (it2->tp != tp_none) {
+			    ++cnt_in_row;
+			}
+			++it2;
+		    }
+		    left = cnt_in_row;
+		}
+	    }
 	    std::string& s = self.ctrl_ports[n].id;
 	    s = "ladspa_" + to_string(self.pd.UniqueID) + "." + to_string(it->index);
 	    const char *nm = self.desc->PortNames[it->index];
 	    Glib::ustring snm(it->name);
-	    if (snm.empty()) {
-		snm = TrimLabel(nm);
+	    if (snm.empty() && it->tp != tp_none) {
+		snm = TrimLabel(nm, cnt_in_row);
 	    }
 	    if (it->tp == tp_enum) {
 		reg.registerEnumVar(s.c_str(), snm.c_str(), "S", nm, it->values, &self.ctrl_ports[n].port,
