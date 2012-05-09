@@ -122,7 +122,10 @@ void ParamRegImpl::registerEnumVar_(const char *id, const char* name, const char
         name = strrchr(id, '.')+1;
     }
     assert(step == 1.0);
-    pmap->reg_enum_par(id, name, values, var, val, low);
+    gx_engine::Parameter *p = pmap->reg_enum_par(id, name, values, var, val, low);
+    if (tooltip && tooltip[0]) {
+        p->set_desc(tooltip);
+    }
 }
 
 void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const char* tp,
@@ -132,7 +135,10 @@ void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const cha
         assert(strrchr(id, '.'));
         name = strrchr(id, '.')+1;
     }
-    pmap->reg_enum_par(id, name, values, var, val);
+    gx_engine::Parameter *p = pmap->reg_enum_par(id, name, values, var, val);
+    if (tooltip && tooltip[0]) {
+        p->set_desc(tooltip);
+    }
 }
 
 void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave) {
@@ -149,7 +155,10 @@ void ParamRegImpl::registerUEnumVar_(const char *id, const char* name, const cha
         assert(strrchr(id, '.'));
         name = strrchr(id, '.')+1;
     }
-    pmap->reg_uenum_par(id, name, values, var, std);
+    gx_engine::Parameter *p = pmap->reg_uenum_par(id, name, values, var, std);
+    if (tooltip && tooltip[0]) {
+        p->set_desc(tooltip);
+    }
 }
 
 
