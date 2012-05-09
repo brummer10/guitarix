@@ -891,6 +891,7 @@ class PluginDisplay:
             self.output_type_list.append((display_type_names[tp],))
 
         w = bld.get_object("treeview1")
+        w.connect("row-activated", lambda w, m, p: bld.get_object("show_details").clicked())
         w.set_search_equal_func(search_equal)
         w.set_search_entry(bld.get_object("search_entry"))
         sel = w.get_selection()
