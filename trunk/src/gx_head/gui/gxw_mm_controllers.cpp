@@ -407,6 +407,7 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui,
     if (pos == Gtk::POS_LEFT || pos == Gtk::POS_RIGHT) {
         m_box = new Gtk::HBox();
     } else {
+	m_label.set_justify(Gtk::JUSTIFY_CENTER);
         m_box = new Gtk::VBox();
     }
     if (pos == Gtk::POS_LEFT || pos == Gtk::POS_TOP) {

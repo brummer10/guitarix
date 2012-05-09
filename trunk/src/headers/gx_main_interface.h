@@ -137,6 +137,7 @@ UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_ui::GxUI& ui, gx_engine::Para
 	m_label.set_text(param.l_name());
     }
     m_label.set_name("rack_label");
+    m_label.set_justify(Gtk::JUSTIFY_CENTER);
     m_box.set_name(param.id());
     m_box.pack_start(m_label, Gtk::PACK_SHRINK);
     m_box.pack_start(UiSelectorBase::m_selector, Gtk::PACK_EXPAND_PADDING);
