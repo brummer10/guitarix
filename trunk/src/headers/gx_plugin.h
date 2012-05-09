@@ -49,10 +49,11 @@ struct UiBuilder {
     // prefix or change the checker
     void (*create_master_slider)(const char *id, const char *label);
     void (*create_small_rackknob)(const char *id, const char *label);
-    void (*create_selector)(const char *id);
+    void (*create_selector_no_caption)(const char *id);
     void (*create_switch_no_caption)(const char *sw_type,const char * id);
     void (*create_spin_value)(const char * id);
     void (*create_port_display)(const char * id);
+    void (*create_selector)(const char *id, const char *label);
     //FIXME add missing functions
 };
 

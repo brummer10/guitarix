@@ -193,10 +193,6 @@ UiSelector<unsigned int>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<unsi
 }
 
 template <class T>
-UiSelector<T>::~UiSelector() {
-}
-
-template <class T>
 void UiSelector<T>::on_value_changed() {
     this->modifyZone(get_value());
 }

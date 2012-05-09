@@ -47,6 +47,8 @@
 
 namespace gx_gui {
 
+void set_accessible(GtkWidget *widget,GtkLabel *label);
+
 /****************************************************************/
 
 class UiSwitch: public Gxw::Switch {

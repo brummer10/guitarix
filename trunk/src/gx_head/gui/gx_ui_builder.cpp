@@ -73,6 +73,7 @@ UiBuilderImpl::UiBuilderImpl(StackBoxBuilder *i)
     create_spin_value = create_spin_value_;
     create_switch_no_caption = create_switch_no_caption_;
     create_selector = create_selector_;
+    create_selector_no_caption = create_selector_no_caption_;
     create_port_display = create_port_display_;
 };
 
@@ -112,8 +113,12 @@ void UiBuilderImpl::create_master_slider_(const char *id, const char *label) {
     }
 }
 
-void UiBuilderImpl::create_selector_(const char *id) {
+void UiBuilderImpl::create_selector_no_caption_(const char *id) {
     intf->create_selector(id, "");
+}
+
+void UiBuilderImpl::create_selector_(const char *id, const char *label) {
+    intf->create_selector_with_caption(id, label);
 }
 
 void UiBuilderImpl::create_spin_value_(const char *id) {

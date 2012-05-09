@@ -255,6 +255,19 @@ void StackBoxBuilder::create_selector(string id, const char *widget_name) {
     addwidget(s->get_widget());
 }
 
+void StackBoxBuilder::create_selector_with_caption(string id, const char *label) {
+    gx_engine::Parameter& p = gx_settings.get_param()[id];
+    UiSelectorBase *s;
+    if (p.isFloat()) {
+        s = new UiSelectorWithCaption<float>(ui, p.getFloat(), label);
+    } else if (p.isInt()) {
+        s = new UiSelectorWithCaption<int>(ui, p.getInt(), label);
+    } else {
+        s = new UiSelectorWithCaption<unsigned int>(ui, p.getUInt(), label);
+    }
+    addwidget(s->get_widget());
+}
+
 void StackBoxBuilder::openSpaceBox(const char* label) {
     GxVBox * box =  new GxVBox(ui);
     box->m_box.set_homogeneous(true);

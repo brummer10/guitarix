@@ -762,7 +762,7 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 		b.closeBox();
 		break;
 	    case tp_enum:
-		b.create_selector(self.ctrl_ports[n].id.c_str());
+		b.create_selector(self.ctrl_ports[n].id.c_str(), 0);
 		break;
 	    case tp_none:
 		break;

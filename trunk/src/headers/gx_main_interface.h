@@ -99,7 +99,7 @@ protected:
 public:
     UiSelectorBase(gx_engine::Parameter& param);
     void set_name(Glib::ustring n) { m_selector.set_name(n); }
-    GtkWidget *get_widget() { return GTK_WIDGET(m_selector.gobj()); }
+    virtual GtkWidget *get_widget() { return GTK_WIDGET(m_selector.gobj()); }
 };
 
 template <class T>
@@ -111,6 +111,42 @@ public:
     UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<T> &param);
     ~UiSelector();
 };
+
+template <class T>
+UiSelector<T>::~UiSelector() {
+}
+
+template <class T>
+class UiSelectorWithCaption: public UiSelector<T> {
+private:
+    Gtk::Label m_label;
+    Gtk::VBox m_box;
+public:
+    static GtkWidget* create(gx_ui::GxUI& ui, string id, const char *label);
+    UiSelectorWithCaption(gx_ui::GxUI& ui, gx_engine::ParameterV<T> &param, const char *label);
+    ~UiSelectorWithCaption();
+    virtual GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+};
+
+template <class T>
+UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_ui::GxUI& ui, gx_engine::ParameterV<T> &param, const char *label)
+    : UiSelector<T>(ui, param) {
+    if (label) {
+	m_label.set_text(label);
+    } else {
+	m_label.set_text(param.l_name());
+    }
+    m_label.set_name("rack_label");
+    m_box.set_name(param.id());
+    m_box.pack_start(m_label, Gtk::PACK_SHRINK);
+    m_box.pack_start(UiSelectorBase::m_selector, Gtk::PACK_EXPAND_PADDING);
+    set_accessible(GTK_WIDGET(UiSelectorBase::m_selector.gobj()),m_label.gobj());
+    m_box.show_all();
+}
+
+template <class T>
+UiSelectorWithCaption<T>::~UiSelectorWithCaption() {
+}
 
 /****************************************************************/
 

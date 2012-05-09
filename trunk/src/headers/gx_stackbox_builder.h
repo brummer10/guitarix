@@ -45,27 +45,27 @@ protected:
     virtual void openVerticalMidiBox(const char* label = "") = 0;
     // functions used in interfaces
     void create_master_slider(string id) {
-            addwidget(UiRackMasterRegler::create(ui, new Gxw::HSlider(), id));
-        }
+	addwidget(UiRackMasterRegler::create(ui, new Gxw::HSlider(), id));
+    }
     void create_master_slider(string id, Glib::ustring(label)) {
-            addwidget(UiRackMasterRegler::create(ui, new Gxw::HSlider(), id, label));
-        }
+	addwidget(UiRackMasterRegler::create(ui, new Gxw::HSlider(), id, label));
+    }
 
     void closeBox();
     void openSpaceBox(const char* label = "");
     void create_small_rackknob(string id) {
-            addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnob(), id));
-        }
+	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnob(), id));
+    }
     void create_small_rackknob(string id, Glib::ustring label) {
-            addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnob(), id, label));
-        }
+	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnob(), id, label));
+    }
 
     void create_small_rackknobr(string id) {
-            addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnobR(), id));
-        }
+	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnobR(), id));
+    }
     void create_small_rackknobr(string id, Glib::ustring label) {
-            addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnobR(), id, label));
-        }
+	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnobR(), id, label));
+    }
 
     void openVerticalBox(const char* label = "");
     void openFrameBox(const char* label);
@@ -79,21 +79,22 @@ protected:
         }
     void openpaintampBox(const char* label = "");
     void create_wheel(string id, bool show_value = false) {
-            addwidget(UiRegler::create(ui, new Gxw::Wheel(), id, show_value));
-        }
+	addwidget(UiRegler::create(ui, new Gxw::Wheel(), id, show_value));
+    }
     void create_spin_value(string id) {
-            addwidget(UiRegler::create(ui, new Gxw::ValueDisplay(), id, true));
-        }
+	addwidget(UiRegler::create(ui, new Gxw::ValueDisplay(), id, true));
+    }
     void create_simple_spin_value(string id) {
-            addwidget(UiRegler::create(ui, new Gxw::SimpleValueDisplay(), id, true));
-        }
+	addwidget(UiRegler::create(ui, new Gxw::SimpleValueDisplay(), id, true));
+    }
     void create_eq_rackslider_no_caption(string id) {
-            addwidget(UiRackRegler::create(ui, new Gxw::EqSlider(), id));
-        }
+	addwidget(UiRackRegler::create(ui, new Gxw::EqSlider(), id));
+    }
     void create_port_display(string id) {
-            addwidget(UiRackReglerWithCaption::create(ui, new Gxw::PortDisplay(), id));
-        }
+	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::PortDisplay(), id));
+    }
     void create_selector(string id, const char *widget_name=0);
+    void create_selector_with_caption(string id, const char *label);
     void openFlipLabelBox(const char* = "");
     void openVerticalBox1(const char* label = "");
     void openVerticalBox2(const char* label = "");
