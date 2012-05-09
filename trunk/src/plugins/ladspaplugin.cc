@@ -316,17 +316,20 @@ struct paradesc {
     float step;
     widget_type tp;
     bool newrow;
+    bool has_caption;
     value_pair* values;
-    paradesc(): index(), name(), dflt(), low(), up(), step(), tp(), newrow(), values() {}
+    paradesc(): index(), name(), dflt(), low(), up(), step(), tp(), newrow(), has_caption(true), values() {}
 };
 
 struct plugdesc {
     std::string path;
     unsigned int index;
     unsigned long UniqueID;
-    std::string Label;
-    std::string shortname;
-    std::string category;
+    Glib::ustring Label;
+    Glib::ustring shortname;
+    Glib::ustring category;
+    int master_idx;
+    Glib::ustring master_label;
     std::vector<paradesc> names;
 };
 
@@ -818,6 +821,13 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 int LadspaDsp::uiloader(const UiBuilder& b) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(b.plugin);
     b.openHorizontalhideBox("");
+    if (self.pd.master_idx >= 0) {
+	const char *p = self.pd.master_label.c_str();
+	if (!*p) {
+	    p = 0;
+	}
+	b.create_master_slider(self.ctrl_ports[self.pd.master_idx].id.c_str(), p);
+    }
     b.closeBox();
     if (self.pd.names.size() > 0) {
 	b.openVerticalBox("");
@@ -828,26 +838,41 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 		b.closeBox();
 		b.openHorizontalBox("");
 	    }
+	    const char *p = 0;
 	    switch (it->tp) {
 	    case tp_scale:
 	    case tp_scale_log:
-		b.create_small_rackknob(self.ctrl_ports[n].id.c_str(),0);
+		if (!it->has_caption) {
+		    p = "";
+		}
+		b.create_small_rackknob(self.ctrl_ports[n].id.c_str(), p);
 		break;
 	    case tp_toggle:
-		b.openVerticalBox2(it->name.c_str());
-		b.create_switch("switch",self.ctrl_ports[n].id.c_str(), 0);
-		b.closeBox();
+		if (it->has_caption) {
+		    b.create_switch("switch",self.ctrl_ports[n].id.c_str(), 0);
+		} else {
+		    b.create_switch_no_caption("switchit",self.ctrl_ports[n].id.c_str());
+		}
 		break;
 	    case tp_display:
-		b.create_port_display(self.ctrl_ports[n].id.c_str());
+		if (!it->has_caption) {
+		    p = "";
+		}
+		b.create_port_display(self.ctrl_ports[n].id.c_str(), p);
 		break;
 	    case tp_display_toggle:
-		b.openVerticalBox2(it->name.c_str());
-		b.create_switch_no_caption("led",self.ctrl_ports[n].id.c_str());
-		b.closeBox();
+		if (it->has_caption) {
+		    b.create_switch("led",self.ctrl_ports[n].id.c_str(), 0);
+		} else {
+		    b.create_switch_no_caption("led",self.ctrl_ports[n].id.c_str());
+		}
 		break;
 	    case tp_enum:
-		b.create_selector(self.ctrl_ports[n].id.c_str(), 0);
+		if (it->has_caption) {
+		    b.create_selector(self.ctrl_ports[n].id.c_str(), 0);
+		} else {
+		    b.create_selector_no_caption(self.ctrl_ports[n].id.c_str());
+		}
 		break;
 	    case tp_none:
 		break;
@@ -886,7 +911,7 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 		    b.create_switch_no_caption("led",self.ctrl_ports[n].id.c_str());
 		    b.closeBox();
 		} else {
-		    b.create_port_display(self.ctrl_ports[n].id.c_str());
+		    b.create_port_display(self.ctrl_ports[n].id.c_str(), 0);
 		}
 	    }
 	    n++;
@@ -1101,11 +1126,22 @@ void try_read_module_config(const std::string& filename, plugdesc& p) {
     }
     JsonParser jp(&ifs);
     jp.next(JsonParser::begin_array);
-    jp.next(JsonParser::value_number); // version
+    jp.next(JsonParser::value_number);
+    int version = jp.current_value_int();
     jp.next(JsonParser::value_string);
     p.shortname = jp.current_value();
     jp.next(JsonParser::value_string);
     p.category = jp.current_value();
+    if (version > 1) {
+	jp.next(JsonParser::value_number);
+	p.master_idx = jp.current_value_int();
+	jp.next(JsonParser::value_string);
+	p.master_label = jp.current_value();
+	jp.next(JsonParser::value_number); // reserverd for quirks flags
+    } else {
+	p.master_idx = -1;
+	p.master_label = "";
+    }
     jp.next(JsonParser::begin_array);
     while (jp.peek() != JsonParser::end_array) {
 	paradesc para;
@@ -1128,6 +1164,10 @@ void try_read_module_config(const std::string& filename, plugdesc& p) {
 	para.tp = static_cast<widget_type>(jp.current_value_int()); //FIXME
 	jp.next(JsonParser::value_number);
 	para.newrow = jp.current_value_int();
+	if (version > 1) {
+	    jp.next(JsonParser::value_number);
+	    para.has_caption = jp.current_value_int();
+	}
 	jp.next(JsonParser::begin_array);
 	std::vector<value_pair> v;
 	while (jp.peek() != JsonParser::end_array) {

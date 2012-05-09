@@ -1,6 +1,7 @@
 import os, json, locale
 from math import log, exp, sqrt, log10
 from ctypes import *
+from copy import deepcopy
 import gtk, glib, gobject
 
 ################################################################
@@ -169,8 +170,12 @@ LADSPA_IS_HINT_INTEGER     = lambda x: x & LADSPA_HINT_INTEGER
 blacklist = set((
     4069, 4070,		    # ladspa_guitarix
     1044, 1045, 1046, 1047, # sine
-    1912,                   # jamincont
-))
+    #1912,                   # jamincont (crashes when cleanup is used)
+    ))
+
+lib_blacklist = set((
+    "dssi-vst.so",
+    ))
 
 class LADSPA:
     def add_plugin(self, desc, d, path, i):
@@ -224,6 +229,9 @@ stp_coarse, stp_normal, stp_fine = range(3)
 step_type_names = "coarse", "normal", "fine"
 step_type_dict = dict((v, i) for i, v in enumerate(step_type_names))
 
+def float_eq(v1, v2):
+    return abs(v1 - v2) <= 1e-6 * abs(v1)
+
 class ChangeableValues:
     def __init__(self):
         self.name = None
@@ -234,6 +242,9 @@ class ChangeableValues:
         self.tp = None
         self.enumdict = {}
         self.newrow = None
+
+    def __ne__(self, q):
+        return vars(self) != vars(q)
 
     def has_settings(self):
         for k, v in vars(self).items():
@@ -258,6 +269,7 @@ class PortDesc:
         self.step = stp_normal
         self.use_sr = False
         self.has_sr = LADSPA_IS_HINT_SAMPLE_RATE(self.hint_desc)
+        self.has_caption = True
         factory = ChangeableValues()
         self.factory = factory
         self.user = ChangeableValues()
@@ -266,8 +278,17 @@ class PortDesc:
         self.set_default_value(hint, factory)
         self.set_tp_default(hint, factory)
 
+    def check_changed(self, vp):
+        for k, v in vars(self).items():
+            if type(v) == float:
+                if not float_eq(getattr(vp, k), v):
+                    return True
+            elif getattr(vp, k) != v:
+                return True
+        return False
+
     def has_settings(self):
-        return self.user.has_settings()
+        return not self.has_caption or self.step != stp_normal or self.use_sr or self.user.has_settings()
 
     def fixup(self):
         f = self.factory
@@ -403,7 +424,7 @@ class PortDesc:
         return self.factory.name
 
     def set_low(self, v):
-        if not self.fake_low and v == self.factory.low:
+        if not self.fake_low and float_eq(v, self.factory.low):
             self.user.low = None
         else:
             self.user.low = v
@@ -415,7 +436,7 @@ class PortDesc:
         return self.factory.low
 
     def set_up(self, v):
-        if not self.fake_up and v == self.factory.up:
+        if not self.fake_up and float_eq(v, self.factory.up):
             self.user.up = None
         else:
             self.user.up = v
@@ -427,7 +448,7 @@ class PortDesc:
         return self.factory.up
 
     def set_dflt(self, v):
-        if  not self.fake_dflt and v == self.factory.dflt:
+        if  not self.fake_dflt and float_eq(v, self.factory.dflt):
             self.user.dflt = None
         else:
             self.user.dflt = v
@@ -571,9 +592,10 @@ class PortDesc:
             if step is not None and self.get_tp() == tp_scale_log:
                 step *= SR
         el = [self.get_enum(i) for i in range(int(low), int(up)+1)] if self.get_tp() == tp_enum else []
-        return [self.idx, [self.step], self.user.name or "", int(self.use_sr), dflt, low, up, self.calc_step(), self.get_tp(), int(self.get_newrow()), el]
+        return [self.idx, [self.step], self.user.name or "", int(self.use_sr), dflt, low, up, self.calc_step(), self.get_tp(), int(self.get_newrow()),
+                int(self.has_caption), el]
 
-    def set_state(self, v):
+    def set_state(self, v, version):
         assert self.idx == v[0]
         self.step = v[1][0]
         self.use_sr = v[3]
@@ -587,11 +609,11 @@ class PortDesc:
             up /= SR
             if not v[8] == tp_scale_log:
                 step /= SR
-        if dflt != self.factory.dflt:
+        if not float_eq(dflt, self.factory.dflt):
             self.user.dflt = dflt
-        if low != self.factory.low:
+        if not float_eq(low, self.factory.low):
             self.user.low = low
-        if up != self.factory.up:
+        if not float_eq(up, self.factory.up):
             self.user.up = up
         if step != self.factory.step:
             self.user.step = step
@@ -601,8 +623,12 @@ class PortDesc:
             self.user.tp = v[8]
         if v[9] != self.factory.newrow:
             self.user.newrow = bool(v[9])
+        next_idx = 10
+        if version > 1:
+            self.has_caption = bool(v[10])
+            next_idx = 11
         s = int(low)
-        for i, x in enumerate(v[10]):
+        for i, x in enumerate(v[next_idx]):
             idx = s + i
             if x and self.factory.enumdict.get(idx) != x:
                 self.user.enumdict[idx] = x
@@ -629,6 +655,8 @@ class PluginDesc:
         self.Label = desc.Label
         self.short = self.Name = desc.Name
         self.Maker = desc.Maker
+        self.MasterIdx = -1
+        self.MasterLabel = ""
         self.tp = tp
         self.ctrl_ports = ctrl_ports
         self.path = path
@@ -636,14 +664,44 @@ class PluginDesc:
         self.category = self.deduced_category = "External"
         self.ladspa_category = ""
         self.active = False
+        self.active_set = False
         self.has_settings = False
+        self.old = None
 
+    def _i_check_changed(self):
+        if self.old is None:
+            return False
+        for k, v in vars(self).items():
+            if k in ("old", "active_set", "MasterLabel"):
+                continue
+            if k == "MasterIdx":
+                if v and self.MasterLabel != self.old.MasterLabel:
+                    return True
+            if k == "ctrl_ports":
+                for p, vp in zip(v, self.old.ctrl_ports):
+                    if p.check_changed(vp):
+                        return True
+                continue
+            if getattr(self.old, k) != v:
+                return True
+        return False
+
+    def check_changed(self):
+        if not self._i_check_changed():
+            self.old = None
+            return False
+        return True
+        
     def _i_check_has_settings(self):
         if self.short != self.Name:
             return True
         if self.category != self.deduced_category:
             return True
-        for q in self.ctrl_ports:
+        if self.MasterIdx != -1:
+            return True
+        for i, q in enumerate(self.ctrl_ports):
+            if i != q.pos:
+                return True
             if q.has_settings():
                 return True
         return False
@@ -652,11 +710,21 @@ class PluginDesc:
         self.has_settings = self._i_check_has_settings()
 
     def set_active(self, v):
+        if v == self.active:
+            return 0
         self.active = v
+        if v == self.active_set:
+            return 1
+        return -1
 
     def fixup(self):
-        for i, p in enumerate(self.ctrl_ports):
-            p.factory.newrow = (i % 4 == 0 and i != 0)
+        i = 0
+        for p in self.ctrl_ports:
+            if p.factory.tp == tp_none:
+                p.factory.newrow = False
+            else:
+                p.factory.newrow = (i % 4 == 0 and i != 0)
+                i += 1
             p.fixup()
 
     def set_category(self, s):
@@ -690,7 +758,16 @@ class PluginDesc:
         s = self.short
         if s == self.Name:
             s = ""
-        return [1, s, self.category, [p.output() for p in self.ctrl_ports]]
+        idx = -1
+        sm = ""
+        if self.MasterIdx >= 0:
+            for idx, p in enumerate(self.ctrl_ports):
+                if p.pos == self.MasterIdx:
+                    sm = self.MasterLabel or ""
+                    if sm == p.get_name():
+                        sm = ""
+                    break
+        return [2, s, self.category, idx, sm, 0, [p.output() for p in self.ctrl_ports]]
 
     def output_entry(self):
         return [self.path, self.index, self.UniqueID, self.Label]
@@ -702,11 +779,22 @@ class PluginDesc:
         else:
             self.short = self.Name
         self.category = l[2]
+        ports = 3
+        m_idx = -1
+        if version > 1:
+            self.MasterIdx = l[3]
+            self.MasterLabel = l[4]
+            # l[5] reserved for quirks flags
+            ports = 6
+            if self.MasterIdx >= 0:
+                m_idx = l[ports][self.MasterIdx][0]
         ctrl_ports = []
-        for v in l[3]:
+        for v in l[ports]:
             for p in self.ctrl_ports:
                 if p.idx == v[0]:
-                    p.set_state(v)
+                    if p.idx == m_idx:
+                        self.MasterIdx = p.pos
+                    p.set_state(v, version)
                     ctrl_ports.append(p)
                     break
             else:
@@ -724,7 +812,12 @@ class PluginDesc:
 #
 
 def search_equal(model, column, key, it):
-    txt = model[it][0].lower()
+    row = model[it]
+    p = row[2]
+    txt = str(p.UniqueID)
+    if key == txt[:len(key)]:
+        return False
+    txt = row[0].lower()
     for k in key.lower().split():
         if k not in txt:
             return True
@@ -834,19 +927,23 @@ class PluginDisplay:
         self.bld = bld = gtk.Builder()
         bld.add_from_file("ladspaliste.glade")
         self.window = bld.get_object("window1")
+        self.change_count = 0
+        self.set_title()
         uimanager = gtk.UIManager()
         actiongroup = gtk.ActionGroup("main")
         actiongroup.add_actions([('FileMenuAction',None,"_File"),
                                  ('SaveAction',None,"_Save","<control>s",None,self.on_save),
-                                 ('QuitAction',None,"_Quit","<control>q",None,gtk.main_quit),
+                                 ('QuitAction',None,"_Quit","<control>q",None,self.on_quit),
                                  ('ViewMenuAction',None,"_View"),
                                  ('FindAction',None,"_Find","<control>f",None,self.on_find),
                                  ])
         uimanager.insert_action_group(actiongroup, 0)
         uimanager.add_ui_from_string(menudef)
-        bld.get_object("menubox").pack_start(uimanager.get_widget('/menubar'))
+        uimanager.get_widget('/menubar')
+        #bld.get_object("menubox").pack_start(uimanager.get_widget('/menubar'))
         self.window.add_accel_group(uimanager.get_accel_group())
 
+        self.window.connect("delete-event", self.on_delete_event)
         w = bld.get_object("invert_selection").connect("clicked", self.on_invert_selection)
         w = bld.get_object("show_details").connect("clicked", self.on_show_details)
         w = bld.get_object("treeview3")
@@ -861,12 +958,13 @@ class PluginDisplay:
         sel = w.get_selection()
         sel.set_mode(gtk.SELECTION_BROWSE)
         sel.connect("changed", self.on_parameter_selection_changed)
-        l = gtk.ListStore(int,str,str,str,str,str,str,gtk.ListStore,gobject.TYPE_PYOBJECT,bool,bool)
+        l = gtk.ListStore(int,str,str,str,str,str,str,gtk.ListStore,gobject.TYPE_PYOBJECT,bool,bool,bool)
         l.connect("row-deleted", self.on_reordered)
         w.set_model(l)
         bld.get_object("cellrenderer_type").connect("edited", self.on_type_edited)
         bld.get_object("cellrenderer_step").connect("edited", self.on_step_edited)
         bld.get_object("cellrenderer_newrow").connect("toggled", self.on_newrow_toggled, l)
+        bld.get_object("cellrenderer_caption").connect("toggled", self.on_caption_toggled, l)
         bld.get_object("cellrenderer_name").connect("edited", self.on_name_edited)
         bld.get_object("cellrenderer_dflt").connect("edited", self.on_dflt_edited)
         bld.get_object("cellrenderer_low").connect("edited", self.on_low_edited)
@@ -878,7 +976,16 @@ class PluginDisplay:
         bld.get_object("treeviewcolumn_up").set_cell_data_func(bld.get_object("cellrenderer_up"), display_upper)
         bld.get_object("treeviewcolumn_step").set_cell_data_func(bld.get_object("cellrenderer_step"), display_step)
         bld.get_object("treeviewcolumn_type").set_cell_data_func(bld.get_object("cellrenderer_type"), display_type)
-        bld.get_object("treeviewcolumn_SR").set_cell_data_func(bld.get_object("cellrenderer_SR"), display_SR)
+        col = bld.get_object("treeviewcolumn_SR")
+        label = gtk.Label("SR")
+        label.set_tooltip_text("marked rows: range depends on samplerate; using 44100 as fixed value")
+        label.show()
+        col.set_widget(label)
+        col.set_cell_data_func(bld.get_object("cellrenderer_SR"), display_SR)
+        label = gtk.Label("N")
+        label.set_tooltip_text("start a new row of controls in the rackbox unit")
+        label.show()
+        bld.get_object("treeviewcolumn_newrow").set_widget(label)
 
         self.display_type_list = gtk.ListStore(str)
         for tp in tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_none:
@@ -893,7 +1000,9 @@ class PluginDisplay:
         w = bld.get_object("treeview1")
         w.connect("row-activated", lambda w, m, p: bld.get_object("show_details").clicked())
         w.set_search_equal_func(search_equal)
-        w.set_search_entry(bld.get_object("search_entry"))
+        e = bld.get_object("search_entry")
+        e.connect("activate", lambda w: bld.get_object("show_details").clicked())
+        w.set_search_entry(e)
         sel = w.get_selection()
         sel.set_mode(gtk.SELECTION_BROWSE)
         sel.connect("changed", self.selection_changed)
@@ -909,10 +1018,42 @@ class PluginDisplay:
         w.connect("changed", self.on_mono_stereo_changed)
         w.set_active(0)
 
+        bld.get_object("master_slider_idx").set_model(gtk.ListStore(int))
+
         self.window.connect("destroy", gtk.main_quit)
         bld.get_object("button_cancel").set_related_action(actiongroup.get_action("QuitAction"))
         bld.get_object("button_save").set_related_action(actiongroup.get_action("SaveAction"))
         self.window.show()
+
+    def check_for_changes(self):
+        self.save_current()
+        for p in self.plugindict.values():
+            if p.active != p.active_set:
+                return True
+            if p.old is not None:
+                return True
+        return False
+
+    def ask_discard(self):
+        d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION,
+                              gtk.BUTTONS_YES_NO, "Discard changes to plugin definitions?")
+        return d.run()
+
+    def check_exit(self):
+        if self.check_for_changes():
+            ret = self.ask_discard()
+            if ret == gtk.RESPONSE_NO:
+                self.do_save()
+            elif ret != gtk.RESPONSE_YES:
+                return False
+        return True
+
+    def on_delete_event(self, w, ev):
+        return not self.check_exit()
+
+    def on_quit(self, w):
+        if self.check_exit():
+            self.window.destroy()
 
     def on_find(self, a):
         self.bld.get_object("search_entry").grab_focus()
@@ -940,11 +1081,13 @@ class PluginDisplay:
             l.append((v.Name, v.active, v))
 
     def on_save(self, w):
+        self.do_save()
+
+    def do_save(self):
         self.save_current()
         l = []
         fl = []
-        for row in self.bld.get_object("treeview1").get_model():
-            p = row[2]
+        for p in self.plugindict.values():
             if p.active:
                 l.append(p.output_entry())
             fname = get_ladspa_plugin_config(p.UniqueID)
@@ -976,15 +1119,23 @@ class PluginDisplay:
         gtk.main_quit()
 
     def on_select_all(self, w, v): ##unused
+        d = 0
         for row in self.bld.get_object("treeview1").get_model():
             row[1] = v
-            row[2].set_active(v)
+            d += row[2].set_active(v)
+        if d:
+            self.change_count += d
+            self.set_title()
 
     def on_invert_selection(self, w):
+        d = 0
         for row in self.bld.get_object("treeview1").get_model():
             v = not row[1]
             row[1] = v
-            row[2].set_active(v)
+            d += row[2].set_active(v)
+        if d:
+            self.change_count += d
+            self.set_title()
 
     def on_show_details(self, w):
         self.bld.get_object("details_box").set_visible(w.get_active())
@@ -1007,7 +1158,28 @@ class PluginDisplay:
             p.short = s
         w = self.bld.get_object("plugin_category")
         p.category = w.get_model()[w.get_active_iter()][0]
+        w = self.bld.get_object("master_slider_idx")
+        it = w.get_active_iter()
+        if it is not None:
+            p.MasterIdx = w.get_model()[it][0]
+        else:
+            p.MasterIdx = -1
+        if p.MasterIdx < 0:
+            p.MasterLabel = ""
+        else:
+            p.MasterLabel = self.bld.get_object("master_slider_name").get_text()
         p.check_has_settings()
+        change_diff = self.old_state - p.check_changed()
+        if change_diff:
+            self.change_count += change_diff
+            self.set_title()
+
+    def set_title(self):
+        t = "Select LADSPA plugins for Guitarix"
+        if self.change_count:
+            self.window.set_title(t + " (*changed*)")
+        else:
+            self.window.set_title(t)
 
     def selection_changed(self, sel):
         self.save_current()
@@ -1026,6 +1198,9 @@ class PluginDisplay:
             self.current_plugin = None
             return
         self.current_plugin = p = ls[it][2]
+        self.old_state = (p.old is not None)
+        if p.old is None:
+            p.old = deepcopy(p)
         w = self.bld.get_object("plugin_name")
         if p.short != p.Name:
             w.modify_text(gtk.STATE_NORMAL, gtk.gdk.Color("red"))
@@ -1037,9 +1212,20 @@ class PluginDisplay:
             if row[0] == p.category:
                 w.set_active(i)
                 break
+        w = self.bld.get_object("master_slider_idx")
+        w.set_cell_data_func(self.bld.get_object("cellrenderer_master"), self.display_master_idx)
+        w.connect("changed", self.set_master_text)
+        ls_master = w.get_model()
+        ls_master.clear()
+        ls_master.append((-1,))
+        for i, q in enumerate(p.ctrl_ports):
+            ls_master.append((i,))
+        w.set_active(p.MasterIdx+1)
+        if p.MasterLabel:
+            self.bld.get_object("master_slider_name").set_text(p.MasterLabel)
         self.bld.get_object("ladspa_category").set_text(p.ladspa_category)
         self.bld.get_object("ladspa_maker").set_text(p.Maker)
-        self.bld.get_object("ladspa_uniqueid").set_text(str(p.UniqueID))
+        self.bld.get_object("ladspa_uniqueid").set_text("%d: %s[%d]" % (p.UniqueID, p.path, p.index))
         for i, q in enumerate(p.ctrl_ports):
             if q.is_output:
                 tls = self.output_type_list
@@ -1061,7 +1247,26 @@ class PluginDisplay:
             low = "%g" % low 
             up = "%g" % up
             ls2.append((q.pos, q.get_name(), dflt, low, up, step_type_names[q.step],
-                        display_type_names[q.get_tp()], tls, q, q.get_newrow(), q.has_sr and not q.use_sr))
+                        display_type_names[q.get_tp()], tls, q, q.get_newrow(), q.has_sr and not q.use_sr, q.has_caption))
+
+    def display_master_idx(self, w, c, m, i):
+        if m[i][0] < 0:
+            c.props.text = "--"
+
+    def set_master_text(self, w):
+        t = self.bld.get_object("master_slider_name")
+        it = w.get_active_iter()
+        if it is None:
+            t.set_text("")
+            return
+        idx = w.get_model().get_value(it, 0)
+        if idx < 0:
+            t.set_text("")
+        else:
+            for q in self.current_plugin.ctrl_ports:
+                if q.pos == idx:
+                    t.set_text(q.factory.name)
+                    break
 
     def on_parameter_selection_changed(self, sel):
         ls, it = sel.get_selected()
@@ -1253,12 +1458,22 @@ class PluginDisplay:
         else:
             q.user.newrow = s
 
+    def on_caption_toggled(self, w, path, model):
+        row = model[path]
+        q = row[8]
+        s = not w.get_active()
+        row[11] = s
+        q.has_caption = s
+
     def on_active_toggled(self, w, path, model):
         row = model[path]
         p = row[2]
         s = not w.get_active()
         row[1] = s
-        p.set_active(s)
+        d = p.set_active(s)
+        if d:
+            self.change_count += d
+            self.set_title()
 
 
 ###############################################################
@@ -1348,7 +1563,7 @@ def main():
             pass
         else:
             for f in files:
-                if f.endswith(".so") and f != "dssi-vst.so":
+                if f.endswith(".so") and f not in lib_blacklist:
                     LADSPA(os.path.join(path, f), d)
 
     locale.setlocale(locale.LC_ALL, "C")
@@ -1387,6 +1602,7 @@ def main():
                 old_not_found.append(uid)
             else:
                 d[uid].set_active(True)
+                d[uid].active_set = True
         f.close()
     for v in d.values():
         v.fixup()

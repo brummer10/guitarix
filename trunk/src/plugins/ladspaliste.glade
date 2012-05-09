@@ -106,7 +106,7 @@
                   <object class="GtkHBox" id="hbox2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="spacing">10</property>
+                    <property name="spacing">20</property>
                     <child>
                       <object class="GtkButton" id="invert_selection">
                         <property name="label" translatable="yes">invert selection</property>
@@ -116,7 +116,7 @@
                         <property name="use_action_appearance">False</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
+                        <property name="expand">True</property>
                         <property name="fill">False</property>
                         <property name="position">0</property>
                       </packing>
@@ -134,7 +134,7 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
+                        <property name="expand">True</property>
                         <property name="fill">False</property>
                         <property name="position">1</property>
                       </packing>
@@ -149,7 +149,7 @@
                       </object>
                       <packing>
                         <property name="expand">True</property>
-                        <property name="fill">True</property>
+                        <property name="fill">False</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
@@ -337,7 +337,7 @@
                   <object class="GtkTable" id="table1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="n_rows">5</property>
+                    <property name="n_rows">6</property>
                     <property name="n_columns">2</property>
                     <property name="column_spacing">4</property>
                     <child>
@@ -475,7 +475,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">LADSPA id</property>
+                        <property name="label" translatable="yes">LADSPA id / path</property>
                       </object>
                       <packing>
                         <property name="top_attach">4</property>
@@ -501,6 +501,65 @@
                         <property name="right_attach">2</property>
                         <property name="top_attach">4</property>
                         <property name="bottom_attach">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Master Slider (idx)</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">5</property>
+                        <property name="bottom_attach">6</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkComboBox" id="master_slider_idx">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderer_master"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="master_slider_name">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="invisible_char">●</property>
+                            <property name="primary_icon_activatable">False</property>
+                            <property name="secondary_icon_activatable">False</property>
+                            <property name="primary_icon_sensitive">True</property>
+                            <property name="secondary_icon_sensitive">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">5</property>
+                        <property name="bottom_attach">6</property>
                       </packing>
                     </child>
                   </object>
@@ -622,6 +681,17 @@
                           </object>
                         </child>
                         <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_caption">
+                            <property name="title" translatable="yes">C</property>
+                            <child>
+                              <object class="GtkCellRendererToggle" id="cellrenderer_caption"/>
+                              <attributes>
+                                <attribute name="active">11</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_type">
                             <property name="sizing">autosize</property>
                             <property name="title" translatable="yes">Type</property>
@@ -641,7 +711,7 @@
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_newrow">
                             <property name="sizing">autosize</property>
-                            <property name="title" translatable="yes">New Row</property>
+                            <property name="title" translatable="yes">N</property>
                             <child>
                               <object class="GtkCellRendererToggle" id="cellrenderer_newrow"/>
                               <attributes>
