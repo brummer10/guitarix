@@ -1075,9 +1075,10 @@ class PluginDisplay:
 
     def on_reordered(self, model, path):
         assert self.current_plugin
+        d = dict([(p.pos, i) for i, p in enumerate(self.current_plugin.ctrl_ports)])
         l = []
         for row in model:
-            l.append(self.current_plugin.ctrl_ports[row[0]])
+            l.append(self.current_plugin.ctrl_ports[d[row[0]]])
         self.current_plugin.ctrl_ports = l
 
     def on_type_edited(self, w, path, text):
@@ -1096,7 +1097,7 @@ class PluginDisplay:
                 if not (q.get_low() <= q.get_dflt() <= q.get_up()):
                     q.set_dflt(q.get_low())
             elif tp == tp_toggle:
-                q.set_dflt(q.get_dflt() != 0)
+                q.set_dflt(int(q.get_dflt() != 0))
                 q.set_low(0)
                 q.set_up(1)
             elif tp == tp_enum:
@@ -1158,10 +1159,10 @@ class PluginDisplay:
         if not text:
             q.user.dflt = None
             val = q.factory.dflt
-            if val < self.get_low():
-                self.set_low(val)
-            if val > self.get_up():
-                self.set_up(val)
+            if val < q.get_low():
+                q.set_low(val)
+            if val > q.get_up():
+                q.set_up(val)
             if q.has_sr and not q.use_sr:
                 val *= SR
         else:
@@ -1185,10 +1186,10 @@ class PluginDisplay:
         if not text:
             q.user.low = None
             val = q.factory.low
-            if self.get_dflt() < val:
-                self.set_dflt(val)
-            if self.get_up() < val:
-                self.set_up(min(self.get_up(),val+1))
+            if q.get_dflt() < val:
+                q.set_dflt(val)
+            if q.get_up() < val:
+                q.set_up(min(q.get_up(),val+1))
             if q.has_sr and not q.use_sr:
                 val *= SR
         else:
@@ -1217,10 +1218,10 @@ class PluginDisplay:
         if not text:
             q.user.up = None
             val = q.factory.up
-            if self.get_dflt() > val:
-                self.set_dflt(val)
-            if self.get_low() > val:
-                self.set_low(max(self.get_low(),val-1))
+            if q.get_dflt() > val:
+                q.set_dflt(val)
+            if q.get_low() > val:
+                q.set_low(max(q.get_low(),val-1))
             if q.has_sr and not q.use_sr:
                 val *= SR
         else:
