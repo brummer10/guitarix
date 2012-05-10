@@ -64,7 +64,8 @@ static gboolean gx_simple_value_display_expose(GtkWidget *widget, GdkEventExpose
 static gboolean gx_simple_value_display_button_press (GtkWidget *widget, GdkEventButton *event)
 {
 	g_assert(GX_IS_SIMPLE_VALUE_DISPLAY(widget));
-	if (event->button != 1 && event->button != 3) {
+	gtk_widget_grab_focus(widget);
+	if (event->button != 3) {
 		return FALSE;
 	}
 	GdkRectangle image_rect, value_rect;
