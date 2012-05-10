@@ -1,4 +1,4 @@
-import os, json, locale
+import os, json, locale, itertools
 from math import log, exp, sqrt, log10
 from ctypes import *
 from copy import deepcopy
@@ -169,7 +169,7 @@ LADSPA_IS_HINT_INTEGER     = lambda x: x & LADSPA_HINT_INTEGER
 
 blacklist = set((
     4069, 4070,		    # ladspa_guitarix
-    1044, 1045, 1046, 1047, # sine
+    #1044, 1045, 1046, 1047, # sine
     #1912,                   # jamincont (crashes when cleanup is used)
     ))
 
@@ -221,8 +221,8 @@ class LADSPA:
 # PluginDesc, PortDesc
 #
 
-tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none = range(7)
-display_type_names = "Scale", "Log. Scale", "Toggle", "Enum", "Display", "Led", "Hide"
+tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int = range(8)
+display_type_names = "Scale", "Log. Scale", "Toggle", "Enum", "Display", "Led", "Hide", "Int"
 display_type_dict = dict((v, i) for i, v in enumerate(display_type_names))
 
 stp_coarse, stp_normal, stp_fine = range(3)
@@ -244,12 +244,17 @@ class ChangeableValues:
         self.newrow = None
 
     def __ne__(self, q):
-        return vars(self) != vars(q)
+        for k, v in vars(self).items():
+            if k == "step":
+                continue
+            if getattr(q, k) != v:
+                return True
+        return False
 
     def has_settings(self):
         for k, v in vars(self).items():
             if k == "enumdict":
-                if v:
+                if self.tp == tp_enum and v:
                     return True
             elif k == "step":
                 continue
@@ -277,6 +282,13 @@ class PortDesc:
         self.set_range_default(hint, factory)
         self.set_default_value(hint, factory)
         self.set_tp_default(hint, factory)
+
+    def reset(self):
+        self.step = stp_normal
+        self.use_sr = False
+        self.has_sr = LADSPA_IS_HINT_SAMPLE_RATE(self.hint_desc)
+        self.has_caption = True
+        self.user = ChangeableValues()
 
     def check_changed(self, vp):
         for k, v in vars(self).items():
@@ -375,7 +387,7 @@ class PortDesc:
                         f.up = f.dflt
                 self.fake_up = True
             f.step = (f.up - f.low) / 100.0
-            if f.tp in (tp_toggle, tp_enum):
+            if f.tp in (tp_toggle, tp_enum, tp_int):
                 f.step = 1.0
         if f.dflt is None:
             self.fake_dflt = True
@@ -385,7 +397,7 @@ class PortDesc:
                 f.enumdict[k] = f.enumdict.get(k,str(k))
 
     def calc_step(self):
-        if self.get_tp() in (tp_toggle, tp_enum):
+        if self.get_tp() in (tp_toggle, tp_enum, tp_int):
             return 1.0
         up = self.get_up()
         low = self.get_low()
@@ -564,7 +576,7 @@ class PortDesc:
         elif LADSPA_IS_HINT_LOGARITHMIC(self.hint_desc):
             store.tp = tp_scale_log
         elif LADSPA_IS_HINT_INTEGER(h.HintDescriptor):
-            store.tp = tp_enum
+            store.tp = tp_int
             store.step = 1
         else:
             store.tp = tp_scale
@@ -572,6 +584,8 @@ class PortDesc:
     def set_enum(self, l):
         assert not self.factory.enumdict
         self.factory.enumdict = dict([(int(k),v) for k, v in l])
+        if LADSPA_IS_HINT_INTEGER(self.hint_desc):
+            self.factory.tp = tp_enum
 
     def set_default(self, value, label):
         if self.factory.dflt is None:
@@ -649,6 +663,13 @@ cat_dict = {
     "Amplifiers": "Distortion",
 }
     
+quirk_list = (
+    (1, (1912,)),
+    (2, (1890, 1891, 1893, 1892, 1903, 1904,)),
+    )
+
+quirk_dict = dict(itertools.chain(*[[(v, q) for v in l] for q, l in quirk_list]))
+    
 class PluginDesc:
     def __init__(self, desc, tp, ctrl_ports, path, index):
         self.UniqueID = desc.UniqueID
@@ -662,17 +683,29 @@ class PluginDesc:
         self.path = path
         self.index = index
         self.category = self.deduced_category = "External"
+        self.quirks = self.quirks_default = quirk_dict.get(self.UniqueID, 0)
         self.ladspa_category = ""
         self.active = False
         self.active_set = False
         self.has_settings = False
         self.old = None
 
+    def reset(self):
+        self.short = self.Name
+        self.MasterIdx = -1
+        self.MasterLabel = ""
+        self.category = self.deduced_category
+        self.quirks = self.quirks_default
+        self.has_settings = False
+        self.ctrl_ports.sort(cmp=lambda a, b: cmp(a.pos, b.pos))
+        for p in self.ctrl_ports:
+            p.reset()
+
     def _i_check_changed(self):
         if self.old is None:
             return False
         for k, v in vars(self).items():
-            if k in ("old", "active_set", "MasterLabel"):
+            if k in ("old", "active", "active_set", "MasterLabel"):
                 continue
             if k == "MasterIdx":
                 if v and self.MasterLabel != self.old.MasterLabel:
@@ -697,6 +730,8 @@ class PluginDesc:
             return True
         if self.category != self.deduced_category:
             return True
+        if self.quirks != self.quirks_default:
+            return True
         if self.MasterIdx != -1:
             return True
         for i, q in enumerate(self.ctrl_ports):
@@ -714,8 +749,8 @@ class PluginDesc:
             return 0
         self.active = v
         if v == self.active_set:
-            return 1
-        return -1
+            return -1
+        return 1
 
     def fixup(self):
         i = 0
@@ -767,7 +802,7 @@ class PluginDesc:
                     if sm == p.get_name():
                         sm = ""
                     break
-        return [2, s, self.category, idx, sm, 0, [p.output() for p in self.ctrl_ports]]
+        return [2, s, self.category, idx, sm, self.quirks, [p.output() for p in self.ctrl_ports]]
 
     def output_entry(self):
         return [self.path, self.index, self.UniqueID, self.Label]
@@ -784,7 +819,7 @@ class PluginDesc:
         if version > 1:
             self.MasterIdx = l[3]
             self.MasterLabel = l[4]
-            # l[5] reserved for quirks flags
+            self.quirks = l[5]
             ports = 6
             if self.MasterIdx >= 0:
                 m_idx = l[ports][self.MasterIdx][0]
@@ -944,7 +979,8 @@ class PluginDisplay:
         self.window.add_accel_group(uimanager.get_accel_group())
 
         self.window.connect("delete-event", self.on_delete_event)
-        w = bld.get_object("invert_selection").connect("clicked", self.on_invert_selection)
+        w = bld.get_object("select_all").connect("clicked", self.on_select_all, True)
+        w = bld.get_object("select_none").connect("clicked", self.on_select_all, False)
         w = bld.get_object("show_details").connect("clicked", self.on_show_details)
         w = bld.get_object("treeview3")
         sel = w.get_selection()
@@ -988,7 +1024,7 @@ class PluginDisplay:
         bld.get_object("treeviewcolumn_newrow").set_widget(label)
 
         self.display_type_list = gtk.ListStore(str)
-        for tp in tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_none:
+        for tp in tp_scale, tp_scale_log, tp_toggle, tp_int, tp_enum, tp_none:
             self.display_type_list.append((display_type_names[tp],))
         self.display_type_list_sr = gtk.ListStore(str)
         for tp in tp_scale, tp_scale_log, tp_none:
@@ -1001,7 +1037,7 @@ class PluginDisplay:
         w.connect("row-activated", lambda w, m, p: bld.get_object("show_details").clicked())
         w.set_search_equal_func(search_equal)
         e = bld.get_object("search_entry")
-        e.connect("activate", lambda w: bld.get_object("show_details").clicked())
+        e.connect("activate", self.on_search_entry_activate)
         w.set_search_entry(e)
         sel = w.get_selection()
         sel.set_mode(gtk.SELECTION_BROWSE)
@@ -1013,17 +1049,43 @@ class PluginDisplay:
 
         bld.get_object("plugin_category").set_cell_data_func(bld.get_object("cellrenderer_category"), self.display_category)
 
-        bld.get_object("selected_only").connect("toggled", self.on_selected_only_changed)
+        bld.get_object("selected_only").connect("toggled", self.on_view_changed)
+        bld.get_object("changed_only").connect("toggled", self.on_view_changed)
+        bld.get_object("show_all").connect("toggled", self.on_view_changed)
         w = bld.get_object("combobox_mono_stereo")
         w.connect("changed", self.on_mono_stereo_changed)
         w.set_active(0)
+        bld.get_object("reset_changes").connect("clicked", self.on_delete_changes)
 
         bld.get_object("master_slider_idx").set_model(gtk.ListStore(int))
 
         self.window.connect("destroy", gtk.main_quit)
         bld.get_object("button_cancel").set_related_action(actiongroup.get_action("QuitAction"))
         bld.get_object("button_save").set_related_action(actiongroup.get_action("SaveAction"))
+
         self.window.show()
+
+    def on_delete_changes(self, w):
+        if self.current_plugin is None:
+            return
+        p = self.current_plugin
+        p.reset()
+        change_diff = p.check_changed() - self.old_state
+        if change_diff:
+            self.change_count += change_diff
+            self.set_title()
+        self.current_plugin = None
+        self.selection_changed(self.bld.get_object("treeview1").get_selection())
+
+    def on_search_entry_activate(self, w):
+        w = self.bld.get_object("treeview1")
+        m, it = w.get_selection().get_selected()
+        if it is not None:
+            row = m[it]
+            v = not row[1]
+            row[1] = v
+            self.change_count += row[2].set_active(v)
+            self.set_title()
 
     def check_for_changes(self):
         self.save_current()
@@ -1037,14 +1099,14 @@ class PluginDisplay:
     def ask_discard(self):
         d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION,
                               gtk.BUTTONS_YES_NO, "Discard changes to plugin definitions?")
-        return d.run()
+        res = d.run()
+        d.destroy()
+        return res
 
     def check_exit(self):
         if self.check_for_changes():
             ret = self.ask_discard()
-            if ret == gtk.RESPONSE_NO:
-                self.do_save()
-            elif ret != gtk.RESPONSE_YES:
+            if ret != gtk.RESPONSE_YES:
                 return False
         return True
 
@@ -1070,11 +1132,14 @@ class PluginDisplay:
 
     def load(self):
         a = self.bld.get_object("combobox_mono_stereo").get_active()
-        o = self.bld.get_object("selected_only").get_active()
+        s = self.bld.get_object("selected_only").get_active()
+        c = self.bld.get_object("changed_only").get_active()
         l = self.bld.get_object("treeview1").get_model()
         l.clear()
         for v in sorted(self.plugindict.values(), cmp=lambda a, b: cmp(a.Name.lower(),b.Name.lower())):
-            if (o and not v.active):
+            if (s and not v.active):
+                continue
+            if (c and not v.has_settings):
                 continue
             if (a == 1 and v.tp != 0) or (a == 2 and v.tp != 1):
                 continue
@@ -1087,7 +1152,7 @@ class PluginDisplay:
         self.save_current()
         l = []
         fl = []
-        for p in self.plugindict.values():
+        for p in sorted(self.plugindict.values(), cmp=lambda a, b: cmp(a.short.lower(),b.short.lower())):
             if p.active:
                 l.append(p.output_entry())
             fname = get_ladspa_plugin_config(p.UniqueID)
@@ -1118,7 +1183,7 @@ class PluginDisplay:
                     print "cannot rename %s to %s" % (tfname, fname)
         gtk.main_quit()
 
-    def on_select_all(self, w, v): ##unused
+    def on_select_all(self, w, v):
         d = 0
         for row in self.bld.get_object("treeview1").get_model():
             row[1] = v
@@ -1127,7 +1192,7 @@ class PluginDisplay:
             self.change_count += d
             self.set_title()
 
-    def on_invert_selection(self, w):
+    def on_invert_selection(self, w): ##unused
         d = 0
         for row in self.bld.get_object("treeview1").get_model():
             v = not row[1]
@@ -1141,11 +1206,12 @@ class PluginDisplay:
         self.bld.get_object("details_box").set_visible(w.get_active())
         self.window.resize(1, self.window.get_size()[1])
 
-    def on_selected_only_changed(self, w):
-        self.load()
-
     def on_mono_stereo_changed(self, w):
         self.load()
+
+    def on_view_changed(self, w):
+        if w.get_active():
+            self.load()
 
     def save_current(self):
         if self.current_plugin is None:
@@ -1158,6 +1224,8 @@ class PluginDisplay:
             p.short = s
         w = self.bld.get_object("plugin_category")
         p.category = w.get_model()[w.get_active_iter()][0]
+        w = self.bld.get_object("plugin_quirks")
+        p.quirks = w.get_model()[w.get_active_iter()][1]
         w = self.bld.get_object("master_slider_idx")
         it = w.get_active_iter()
         if it is not None:
@@ -1169,7 +1237,7 @@ class PluginDisplay:
         else:
             p.MasterLabel = self.bld.get_object("master_slider_name").get_text()
         p.check_has_settings()
-        change_diff = self.old_state - p.check_changed()
+        change_diff = p.check_changed() - self.old_state
         if change_diff:
             self.change_count += change_diff
             self.set_title()
@@ -1181,11 +1249,20 @@ class PluginDisplay:
         else:
             self.window.set_title(t)
 
+    def set_old_state(self, p):
+        self.current_plugin = p
+        self.old_state = (p.old is not None)
+        if p.old is None:
+            p.old = deepcopy(p)
+
     def selection_changed(self, sel):
+        ls, it = sel.get_selected()
+        if it is not None:
+            if self.current_plugin == ls[it][2]:
+                return
         self.save_current()
         w = self.bld.get_object("treeview2")
         ls2 = w.get_model()
-        ls, it = sel.get_selected()
         ls2.handler_block_by_func(self.on_reordered)
         ls2.clear()
         ls2.handler_unblock_by_func(self.on_reordered)
@@ -1194,13 +1271,12 @@ class PluginDisplay:
         self.bld.get_object("ladspa_uniqueid").set_text("")
         self.bld.get_object("plugin_name").set_text("")
         self.bld.get_object("plugin_category").set_active(-1)
+        self.bld.get_object("plugin_quirks").set_active(-1)
         if it is None:
             self.current_plugin = None
             return
-        self.current_plugin = p = ls[it][2]
-        self.old_state = (p.old is not None)
-        if p.old is None:
-            p.old = deepcopy(p)
+        p = ls[it][2]
+        self.set_old_state(p)
         w = self.bld.get_object("plugin_name")
         if p.short != p.Name:
             w.modify_text(gtk.STATE_NORMAL, gtk.gdk.Color("red"))
@@ -1210,6 +1286,11 @@ class PluginDisplay:
         w = self.bld.get_object("plugin_category")
         for i, row in enumerate(w.get_model()):
             if row[0] == p.category:
+                w.set_active(i)
+                break
+        w = self.bld.get_object("plugin_quirks")
+        for i, row in enumerate(w.get_model()):
+            if row[1] == p.quirks:
                 w.set_active(i)
                 break
         w = self.bld.get_object("master_slider_idx")
@@ -1305,7 +1386,7 @@ class PluginDisplay:
                 q.set_dflt(int(q.get_dflt() != 0))
                 q.set_low(0)
                 q.set_up(1)
-            elif tp == tp_enum:
+            elif tp in (tp_enum, tp_int):
                 q.set_dflt(round(q.get_dflt()))
                 q.set_low(round(q.get_low()))
                 q.set_up(round(q.get_up()))
@@ -1467,14 +1548,11 @@ class PluginDisplay:
 
     def on_active_toggled(self, w, path, model):
         row = model[path]
-        p = row[2]
         s = not w.get_active()
         row[1] = s
-        d = p.set_active(s)
-        if d:
-            self.change_count += d
-            self.set_title()
-
+        d = row[2].set_active(s)
+        self.change_count += d
+        self.set_title()
 
 ###############################################################
 # program

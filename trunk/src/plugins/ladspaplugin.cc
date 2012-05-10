@@ -305,7 +305,7 @@ void JsonParser::skip_object() {
  ** LadspaDsp
  */
 
-enum widget_type { tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none };
+enum widget_type { tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int };
 
 struct paradesc {
     int index;
@@ -321,6 +321,8 @@ struct paradesc {
     paradesc(): index(), name(), dflt(), low(), up(), step(), tp(), newrow(), has_caption(true), values() {}
 };
 
+enum quirkflag { need_activate = 1, no_cleanup = 2 };
+
 struct plugdesc {
     std::string path;
     unsigned int index;
@@ -328,6 +330,7 @@ struct plugdesc {
     Glib::ustring Label;
     Glib::ustring shortname;
     Glib::ustring category;
+    int quirks;
     int master_idx;
     Glib::ustring master_label;
     std::vector<paradesc> names;
@@ -361,6 +364,7 @@ private:
     const plugdesc& pd;
     bool is_activated;
     void connect(int tp, int i, float *v);
+    inline void cleanup();
     LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descriptor *desc_, int num_ctrl, bool mono);
     ~LadspaDsp();
 public:
@@ -462,14 +466,20 @@ LadspaDsp::LadspaDsp(const plugdesc& plug, void *handle_, const LADSPA_Descripto
     delete_instance = del_instance;
 }
 
-LadspaDsp::~LadspaDsp() {
+inline void LadspaDsp::cleanup() {
     if (instance) {
+	if (pd.quirks & need_activate) {
+	    activate(true, this);
+	}
 	activate(false, this);
-	// FIXME add "quirk" flags for buggy plugins?
-	// jamincont crashes in cleanup
-	// glame plugins crash in cleanup when never been activated
-	//desc->cleanup(instance);
+	if (!(pd.quirks & no_cleanup)) {
+	    desc->cleanup(instance);
+	}
     }
+}
+
+LadspaDsp::~LadspaDsp() {
+    cleanup();
     if (handle) {
 	dlclose(handle);
     }
@@ -512,11 +522,7 @@ void LadspaDsp::connect(int tp, int i, float *v) {
 
 void LadspaDsp::init(unsigned int samplingFreq, PluginDef *plugin) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
-    if (self.instance) {
-	activate(false, plugin);
-	// see comment in dtor
-	//self.desc->cleanup(self.instance);
-    }
+    self.cleanup();
     self.instance = self.desc->instantiate(self.desc, samplingFreq);
     if (self.pd.names.size() > 0) {
 	int n = 0;
@@ -532,9 +538,6 @@ void LadspaDsp::init(unsigned int samplingFreq, PluginDef *plugin) {
 	    }
 	}
     }
-    // glame plugins crash in cleanup when instantiated but not activated
-    // (cleanup disabled for now)
-    //activate(true, plugin);
 }
 
 void LadspaDsp::mono_process(int count, float *input, float *output, PluginDef *plugin) {
@@ -733,10 +736,11 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 		const char *tp = 0;
 		switch (it->tp) {
 		case tp_none:           tp = "S";  break;
+		case tp_int:            tp = "S";  break;
 		case tp_scale:          tp = "S";  break;
 		case tp_scale_log:      tp = "SL"; break;
 		case tp_toggle:         tp = "B";  break;
-		case tp_display:        tp = "SO";  break;
+		case tp_display:        tp = "SO"; break;
 		case tp_display_toggle: tp = "BO"; break;
 		default: assert(false);
 		}
@@ -866,6 +870,9 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 		} else {
 		    b.create_switch_no_caption("led",self.ctrl_ports[n].id.c_str());
 		}
+		break;
+	    case tp_int:
+		b.create_spin_value(self.ctrl_ports[n].id.c_str(), 0);
 		break;
 	    case tp_enum:
 		if (it->has_caption) {
@@ -1137,8 +1144,10 @@ void try_read_module_config(const std::string& filename, plugdesc& p) {
 	p.master_idx = jp.current_value_int();
 	jp.next(JsonParser::value_string);
 	p.master_label = jp.current_value();
-	jp.next(JsonParser::value_number); // reserverd for quirks flags
+	jp.next(JsonParser::value_number);
+	p.quirks = jp.current_value_int();
     } else {
+	p.quirks = 0;
 	p.master_idx = -1;
 	p.master_label = "";
     }
