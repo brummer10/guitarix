@@ -134,8 +134,8 @@ void UiBuilderImpl::create_switch_(const char *sw_type, const char * id, const c
     intf->create_switch(sw_type, id, label, Gtk::POS_TOP);
 }
 
-void UiBuilderImpl::create_port_display_(const char *id) {
-    intf->create_port_display(id);
+void UiBuilderImpl::create_port_display_(const char *id, const char *label) {
+    intf->create_port_display(id, label);
 }
 
 void UiBuilderImpl::closeBox_() {

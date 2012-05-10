@@ -97,8 +97,16 @@ protected:
     void create_eq_rackslider_no_caption(string id) {
 	addwidget(UiRackRegler::create(ui, new Gxw::EqSlider(), id));
     }
-    void create_port_display(string id) {
-	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::PortDisplay(), id));
+    void create_port_display(string id, const char *label) {
+	if (label) {
+	    if (*label) {
+		addwidget(UiRackReglerWithCaption::create(ui, new Gxw::PortDisplay(), id, label));
+	    } else {
+		addwidget(UiRackRegler::create(ui, new Gxw::PortDisplay(), id));
+	    }
+	} else {
+	    addwidget(UiRackReglerWithCaption::create(ui, new Gxw::PortDisplay(), id));
+	}
     }
     void create_selector(string id, const char *widget_name=0);
     void create_selector_with_caption(string id, const char *label);

@@ -52,7 +52,7 @@ struct UiBuilder {
     void (*create_selector_no_caption)(const char *id);
     void (*create_switch_no_caption)(const char *sw_type,const char * id);
     void (*create_spin_value)(const char * id);
-    void (*create_port_display)(const char * id);
+    void (*create_port_display)(const char * id, const char *label);
     void (*create_switch)(const char *sw_type,const char * id, const char *label);
     void (*create_selector)(const char *id, const char *label);
     //FIXME add missing functions
