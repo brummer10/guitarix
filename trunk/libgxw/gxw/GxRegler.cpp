@@ -911,12 +911,11 @@ static gchar* _gx_regler_format_value(GxRegler *regler, gdouble value)
 	if (fmt) {
 		return fmt;
 	} else {
-		/* insert a LRM, to prevent -20 to come out as 20- in RTL locales */
 		int rd = GTK_RANGE(regler)->round_digits;
 		if (rd < 0) {
 			rd = 0;
 		}
-		return g_strdup_printf ("\342\200\216%0.*f", rd, value);
+		return g_strdup_printf ("%0.*f", rd, value);
 	}
 }
 
