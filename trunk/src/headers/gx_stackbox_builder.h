@@ -88,11 +88,27 @@ protected:
     void create_wheel(string id, bool show_value = false) {
 	addwidget(UiRegler::create(ui, new Gxw::Wheel(), id, show_value));
     }
-    void create_spin_value(string id) {
-	addwidget(UiRegler::create(ui, new Gxw::ValueDisplay(), id, true));
+    void create_spin_value(const std::string& id, const char *label) {
+	GtkWidget *w;
+	Gxw::ValueDisplay *v = new Gxw::ValueDisplay();
+	if (label) {
+	    w = UiRackReglerWithCaption::create(ui, v, id, label);
+	} else {
+	    w = UiRackReglerWithCaption::create(ui, v, id);
+	}
+	v->set_name("show_always");
+	addwidget(w);
     }
-    void create_simple_spin_value(string id) {
-	addwidget(UiRegler::create(ui, new Gxw::SimpleValueDisplay(), id, true));
+    void create_simple_spin_value(const std::string& id, const char *label = 0) {
+	GtkWidget *w;
+	Gxw::SimpleValueDisplay *v = new Gxw::SimpleValueDisplay();
+	if (label) {
+	    w = UiRackReglerWithCaption::create(ui, v, id, label);
+	} else {
+	    w = UiRackReglerWithCaption::create(ui, v, id);
+	}
+	v->set_name("show_always");
+	addwidget(w);
     }
     void create_eq_rackslider_no_caption(string id) {
 	addwidget(UiRackRegler::create(ui, new Gxw::EqSlider(), id));

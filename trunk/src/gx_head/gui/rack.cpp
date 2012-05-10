@@ -802,18 +802,7 @@ void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
 }
 
 Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort) {
-    const char *effect_name;
-    if (useshort) {
-	effect_name = plugin.shortname;
-	if (!effect_name) {
-	    effect_name = plugin.plugin->pdef->shortname;
-	}
-	if (!effect_name || !*effect_name) {
-	    effect_name = plugin.get_name();
-	}
-    } else {
-	effect_name = plugin.get_name();
-    }
+    const char *effect_name = useshort ? plugin.get_shortname() : plugin.get_name();
     Gtk::Label *effect_label = new Gtk::Label(effect_name);
     effect_label->set_alignment(0, 0.5);
     effect_label->set_name("rack_effect_label");

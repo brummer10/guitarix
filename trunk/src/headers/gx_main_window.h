@@ -266,6 +266,16 @@ public:
     void set_action(Glib::RefPtr<Gtk::ToggleAction>& act);
     static bool is_registered(gx_engine::PluginList& pl, const char *name);
     virtual void on_plugin_preset_popup();
+    inline const char *get_shortname() const {
+	const char *name = shortname;
+	if (!name) {
+	    name = plugin->pdef->shortname;
+	}
+	if (!name || !*name) {
+	    name = get_name();
+	}
+	return name;
+    }
 };
 
 

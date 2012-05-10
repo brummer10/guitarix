@@ -122,8 +122,8 @@ void UiBuilderImpl::create_selector_(const char *id, const char *label) {
     intf->create_selector_with_caption(id, label);
 }
 
-void UiBuilderImpl::create_spin_value_(const char *id) {
-    intf->create_spin_value(id);
+void UiBuilderImpl::create_spin_value_(const char *id, const char *label) {
+    intf->create_simple_spin_value(id, label);
 }
 
 void UiBuilderImpl::create_switch_no_caption_(const char *sw_type, const char * id) {

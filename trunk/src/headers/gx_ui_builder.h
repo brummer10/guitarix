@@ -187,7 +187,7 @@ protected:
     static void create_master_slider_(const char *id, const char *label);
     static void create_selector_no_caption_(const char *id);
     static void create_selector_(const char *id, const char *label);
-    static void create_spin_value_(const char *id);
+    static void create_spin_value_(const char *id, const char *label);
     static void create_switch_no_caption_(const char *sw_type,const char * id);
     static void create_switch_(const char *sw_type,const char * id, const char *label);
     static void create_port_display_(const char *id, const char *label);
