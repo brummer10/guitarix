@@ -1758,6 +1758,18 @@ struct PluginDesc {
 	: group(g), plugins(p) {}
 };
 
+bool cmp_plugins (PluginUI *a, PluginUI *b) {
+    int res = a->get_type() - b->get_type();
+    if (res == 0) {
+	gchar *an = g_utf8_casefold(a->get_shortname(), 1);
+	gchar *bn = g_utf8_casefold(b->get_shortname(), 1);
+	res = g_utf8_collate(an, bn);
+	g_free(an);
+	g_free(bn);
+    }
+    return res < 0;
+}
+
 void MainWindow::fill_pluginlist() {
     std::vector<PluginUI*> p;
 
@@ -1814,13 +1826,44 @@ void MainWindow::fill_pluginlist() {
 
     Glib::ustring ui_template =
 	"<menubar><menu action=\"PluginsMenu\"><menu action=\"%1Plugins\"><menu action=\"%2\">"
+	"</menu></menu></menu></menubar>";
+    bool collapse = false;
+    std::map<Glib::ustring, Gtk::ToolItemGroup*> groupmap;
+    for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
+	PluginUI *pui = *v;
+	const char *cat = pui->plugin->pdef->category;
+	Glib::ustring group;
+	if (cat && *cat) {
+	    group = cat;
+	} else {
+	    group = "External";
+	}
+	Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group);
+	pui->set_ui_merge_id(uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, "Mono", groupname)));
+	pui->set_ui_merge_id(uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, "Stereo", groupname)));
+	std::map<Glib::ustring, Gtk::ToolItemGroup*>::iterator it = groupmap.find(group);
+	Gtk::ToolItemGroup *gw;
+	if (it != groupmap.end()) {
+	    gw = it->second;
+	} else {
+	    actions.group->add(Gtk::Action::create(groupname, group));
+	    gw = new Gtk::ToolItemGroup(group);
+	    groupmap[group] = gw;
+	    gw->set_collapsed(collapse);
+	    collapse = true;
+	    effects_toolpalette->add(*manage(gw));
+	    effects_toolpalette->set_exclusive(*gw, true);
+	    effects_toolpalette->set_expand(*gw, true);
+	}
+    }
+    std::sort(p.begin(), p.end(), cmp_plugins);
+    ui_template =
+	"<menubar><menu action=\"PluginsMenu\"><menu action=\"%1Plugins\"><menu action=\"%2\">"
 	"<menuitem action=\"%3\"/>"
 	"</menu></menu></menu></menubar>";
 #ifdef accel_keys_for_plugins
     unsigned int key = GDK_a;
 #endif
-    bool collapse = false;
-    std::map<Glib::ustring, Gtk::ToolItemGroup*> groupmap;
     for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
 	PluginUI *pui = *v;
 	plugin_dict.add(pui);
@@ -1836,19 +1879,7 @@ void MainWindow::fill_pluginlist() {
 	Glib::ustring actionname = Glib::ustring::compose("Plugin_%1", pui->get_id());
 	pui->set_ui_merge_id(uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, tp, groupname, actionname)));
 	std::map<Glib::ustring, Gtk::ToolItemGroup*>::iterator it = groupmap.find(group);
-	Gtk::ToolItemGroup *gw;
-	if (it != groupmap.end()) {
-	    gw = it->second;
-	} else {
-	    actions.group->add(Gtk::Action::create(groupname, group));
-	    gw = new Gtk::ToolItemGroup(group);
-	    groupmap[group] = gw;
-	    gw->set_collapsed(collapse);
-	    collapse = true;
-	    effects_toolpalette->add(*manage(gw));
-	    effects_toolpalette->set_exclusive(*gw, true);
-	    effects_toolpalette->set_expand(*gw, true);
-	}
+	Gtk::ToolItemGroup *gw = it->second;
 	add_toolitem(*pui, gw);
 	Glib::RefPtr<Gtk::ToggleAction> act = Gtk::ToggleAction::create(actionname, pui->get_name());
 	actions.group->add(act);
