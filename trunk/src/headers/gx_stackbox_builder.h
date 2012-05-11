@@ -105,7 +105,7 @@ protected:
 	if (label) {
 	    w = UiRackReglerWithCaption::create(ui, v, id, label);
 	} else {
-	    w = UiRackReglerWithCaption::create(ui, v, id);
+	    w = UiRackRegler::create(ui, v, id);
 	}
 	v->set_name("show_always");
 	addwidget(w);
