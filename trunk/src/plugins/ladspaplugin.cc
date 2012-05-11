@@ -1204,6 +1204,7 @@ void try_read_module_config(const std::string& filename, plugdesc& p) {
 void init() {
     //LadspaDsp::create_list();
     std::string path = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
+    std::string plugindir = Glib::build_filename(path, "plugins");
     std::ifstream ifs(Glib::build_filename(path, "ladspa_defs.js").c_str());
     if (ifs.fail()) {
         return;
@@ -1222,7 +1223,7 @@ void init() {
 	jp.next(JsonParser::value_string);
 	p.Label = jp.current_value();
 	jp.next(JsonParser::end_array);
-	std::string s = Glib::build_filename(path, "plugins", "ladspa"+to_string(p.UniqueID)+".js");
+	std::string s = Glib::build_filename(plugindir, "ladspa"+to_string(p.UniqueID)+".js");
 	try {
 	    try_read_module_config(s, p);
 	} catch (JsonException &e) {
