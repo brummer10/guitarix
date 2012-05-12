@@ -200,6 +200,30 @@ bool GxConvolverBase::checkstate() {
  ** GxConvolver
  */
 
+/*
+** GxConvolver::read_sndfile()
+**
+** read samples from soundfile into convolver
+** the convolver is working at rate samplerate, the audio file has audio.rate
+**
+** offset, length, points are based on audio.rate, delay and the count of
+** samples written into the convolver are based on samplerate.
+**
+** Arguments:
+**    Audiofile& audio        already opened, will be converted to samplerate
+**                            on the fly
+**    int nchan               channel count for convolver (can be less
+**                            or more than audio.chan())
+**    int samplerate          current engine samplerate
+**    const float *gain       array[nchan] of gains to be applied
+**    unsigned int *delay     array[nchan], starting sample index for values
+**                            stored into convolver
+**    unsigned int offset     offset into audio file
+**    unsigned int length     number of samples to be read from audio
+**    const Gainline& points  gain line to be applied
+**
+** returns false if some error occurred, else true
+*/
 bool GxConvolver::read_sndfile(
     Audiofile& audio, int nchan, int samplerate, const float *gain,
     unsigned int *delay, unsigned int offset, unsigned int length,
@@ -353,6 +377,12 @@ bool GxConvolver::configure(
          << ", lgain" << lgain << endl;
     */
 
+    if (samplerate != static_cast<unsigned int>(audio.rate())) {
+	float f = float(samplerate) / audio.rate();
+	size = round(size * f) + 2; // 2 is safety margin for rounding differences
+	delay = round(delay * f);
+	ldelay = round(ldelay * f);
+    }
     if (Convproc::configure(2, 2, size, buffersize, bufsize, Convproc::MAXPART)) {
         gx_system::gx_print_error("convolver", "error in Convproc::configure ");
         return false;
