@@ -711,7 +711,7 @@
                         <property name="model">liststore4</property>
                         <property name="active">0</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                          <object class="GtkCellRendererText" id="cellrenderer_quirks"/>
                           <attributes>
                             <attribute name="text">0</attribute>
                           </attributes>

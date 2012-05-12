@@ -861,6 +861,10 @@ def search_equal(model, column, key, it):
 def display_step(column, cell, model, it):
     q = model[it][8]
     cell.props.visible = (q.get_tp() in (tp_scale, tp_scale_log))
+    if q.step != stp_normal:
+        cell.props.foreground = "red"
+    else:
+        cell.props.foreground_set = False
 
 def display_ladspa(column, cell, model, it):
     p = model[it][2]
@@ -938,6 +942,20 @@ def display_type(column, cell, model, it):
         cell.props.foreground_set = False
     else:
         cell.props.foreground = "red"
+
+def display_newrow(column, cell, model, it):
+    q = model[it][8]
+    if q.user.newrow is None:
+        cell.props.cell_background_set = False
+    else:
+        cell.props.cell_background = "red"
+
+def display_caption(column, cell, model, it):
+    q = model[it][8]
+    if q.has_caption:
+        cell.props.cell_background_set = False
+    else:
+        cell.props.cell_background = "red"
 
 SR = 44100
 
@@ -1021,7 +1039,15 @@ class PluginDisplay:
         label = gtk.Label("N")
         label.set_tooltip_text("start a new row of controls in the rackbox unit")
         label.show()
-        bld.get_object("treeviewcolumn_newrow").set_widget(label)
+        col = bld.get_object("treeviewcolumn_newrow")
+        col.set_widget(label)
+        col.set_cell_data_func(bld.get_object("cellrenderer_newrow"), display_newrow)
+        label = gtk.Label("C")
+        label.set_tooltip_text("display the name as caption above the control")
+        label.show()
+        col = bld.get_object("treeviewcolumn_caption")
+        col.set_widget(label)
+        col.set_cell_data_func(bld.get_object("cellrenderer_caption"), display_caption)
 
         self.display_type_list = gtk.ListStore(str)
         for tp in tp_scale, tp_scale_log, tp_toggle, tp_int, tp_enum, tp_none:
@@ -1048,6 +1074,7 @@ class PluginDisplay:
         bld.get_object("treeviewcolumn_ladspa").set_cell_data_func(bld.get_object("cellrenderer_ladspa"), display_ladspa)
 
         bld.get_object("plugin_category").set_cell_data_func(bld.get_object("cellrenderer_category"), self.display_category)
+        bld.get_object("plugin_quirks").set_cell_data_func(bld.get_object("cellrenderer_quirks"), self.display_quirks)
 
         bld.get_object("selected_only").connect("toggled", self.on_view_changed)
         bld.get_object("changed_only").connect("toggled", self.on_view_changed)
@@ -1119,6 +1146,15 @@ class PluginDisplay:
 
     def on_find(self, a):
         self.bld.get_object("search_entry").grab_focus()
+
+    def display_quirks(self, column, cell, model, it):
+        if self.current_plugin is None:
+            cell.props.foreground_set = False
+        else:
+            if model[it][1] == self.current_plugin.quirks_default:
+                cell.props.foreground_set = False
+            else:
+                cell.props.foreground = "red"
 
     def display_category(self, column, cell, model, it):
         if self.current_plugin is None:
@@ -1299,11 +1335,18 @@ class PluginDisplay:
         ls_master = w.get_model()
         ls_master.clear()
         ls_master.append((-1,))
+        ml = ""
         for i, q in enumerate(p.ctrl_ports):
             ls_master.append((i,))
+            if q.pos == p.MasterIdx:
+                ml = q.factory.name
         w.set_active(p.MasterIdx+1)
+        w = self.bld.get_object("master_slider_name")
+        w.modify_text(gtk.STATE_NORMAL, None)
         if p.MasterLabel:
-            self.bld.get_object("master_slider_name").set_text(p.MasterLabel)
+            w.set_text(p.MasterLabel)
+            if p.MasterLabel != ml:
+                w.modify_text(gtk.STATE_NORMAL, gtk.gdk.Color("red"))
         self.bld.get_object("ladspa_category").set_text(p.ladspa_category)
         self.bld.get_object("ladspa_maker").set_text(p.Maker)
         self.bld.get_object("ladspa_uniqueid").set_text("%d: %s[%d]" % (p.UniqueID, p.path, p.index))
@@ -1333,21 +1376,27 @@ class PluginDisplay:
     def display_master_idx(self, w, c, m, i):
         if m[i][0] < 0:
             c.props.text = "--"
+            c.props.foreground_set = False
+        else:
+            c.props.foreground = "red"
 
     def set_master_text(self, w):
         t = self.bld.get_object("master_slider_name")
         it = w.get_active_iter()
         if it is None:
             t.set_text("")
+            t.set_editable(False)
             return
         idx = w.get_model().get_value(it, 0)
         if idx < 0:
             t.set_text("")
+            t.set_editable(False)
         else:
             for q in self.current_plugin.ctrl_ports:
                 if q.pos == idx:
                     t.set_text(q.factory.name)
                     break
+            t.set_editable(True)
 
     def on_parameter_selection_changed(self, sel):
         ls, it = sel.get_selected()
@@ -1696,4 +1745,6 @@ def main():
     gtk.main()
 
 if __name__ == "__main__":
+    gtk.rc_parse("../../rcstyles/gx_head_gx7-blues.rc")
+    #gtk.rc_parse_string(styledef % style_dir)
     main()
