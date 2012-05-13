@@ -243,21 +243,23 @@ bool GxConvolver::read_sndfile(
         return false;
     }
     try {
-        buff = new float[BSIZE * nchan];
+        buff = new float[BSIZE * audio.chan()];
     } catch(...) {
         audio.close();
         gx_system::gx_print_error("convolver", "out of memory");
         return false;
     }
     if (samplerate != audio.rate()) {
-        ostringstream buf;
-        buf << "resampling from " << audio.rate() << " to " << samplerate;
-        gx_system::gx_print_info("convolver", buf.str());
-        if (!resamp.setup(audio.rate(), samplerate, nchan)) {
+        gx_system::gx_print_info(
+	    "convolver", Glib::ustring::compose(
+		_("resampling from %1 to %2"), audio.rate(), samplerate));
+        if (!resamp.setup(audio.rate(), samplerate, audio.chan())) {
+            gx_system::gx_print_error("convolver", "resample failure");
             assert(false);
+	    return false;
         }
         try {
-            rbuff = new float[resamp.get_max_out_size(BSIZE)*nchan];
+            rbuff = new float[resamp.get_max_out_size(BSIZE)*audio.chan()];
         } catch(...) {
             audio.close();
             gx_system::gx_print_error("convolver", "out of memory");
@@ -298,8 +300,8 @@ bool GxConvolver::read_sndfile(
                     compute_interpolation(fct, gp, idx, points, offset);
                 }
 
-                for (int ichan = 0; ichan < nchan; ichan++) {
-                    buff[ix*nchan+ichan] *= pow(10, gp + ix*fct) *  gain[ichan];
+                for (int ichan = 0; ichan < min(audio.chan(), nchan); ichan++) {
+                    buff[ix*audio.chan()+ichan] *= pow(10, gp + ix*fct) *  gain[ichan];
                 }
             }
             offset += nfram;
