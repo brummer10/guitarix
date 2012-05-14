@@ -99,9 +99,9 @@ table1d *tubetab[TUBE_TABLE_SIZE] = {
  *  in gx_amp.dsp - gx_ampmodul.dsp
  */
 
-static inline float Ftube(int table, float Vgk) {
+static inline double Ftube(int table, double Vgk) {
     const table1d& tab = *tubetab[table];
-    float f = (Vgk - tab.low) * tab.istep;
+    double f = (Vgk - tab.low) * tab.istep;
     int i = static_cast<int>(f);
     if (i < 0)
         return tab.data[0];
