@@ -282,6 +282,7 @@ GxSplashBox::GxSplashBox()
         sigc::group(&gx_cairo::splash_expose, GTK_WIDGET(gobj()),
 		    sigc::_1, (void*)0), false);
     set_decorated(false);
+    set_auto_startup_notification(false);
     set_type_hint(Gdk::WINDOW_TYPE_HINT_SPLASHSCREEN);
     set_position(Gtk::WIN_POS_CENTER );
     set_default_size(280,80);
@@ -340,6 +341,7 @@ int main(int argc, char *argv[]) {
 
 	gx_system::CmdlineOptions options;
 	Gtk::Main main(argc, argv, options);
+	
 	GxSplashBox * Splash =  new GxSplashBox();
 
 	gx_system::GxExit::get_instance().signal_msg().connect(
