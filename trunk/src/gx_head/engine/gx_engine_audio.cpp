@@ -482,7 +482,7 @@ void EngineControl::add_selector(ModuleSelector& sel) {
 
 void EngineControl::registerParameter(ParamMap& param, ParameterGroups& groups)
 {
-    pluginlist.registerParameter(param, groups);
+    pluginlist.registerAllPlugins(param, groups);
 }
 
 void EngineControl::get_sched_priority(int &policy_, int &priority_, int prio_dim) { 

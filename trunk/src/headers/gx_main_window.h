@@ -266,6 +266,10 @@ public:
     void set_action(Glib::RefPtr<Gtk::ToggleAction>& act);
     static bool is_registered(gx_engine::PluginList& pl, const char *name);
     virtual void on_plugin_preset_popup();
+    inline const char *get_category() {
+	const char *cat = plugin->pdef->category;
+	return (cat && *cat) ? cat : "External";
+    }
     inline const char *get_shortname() const {
 	const char *name = shortname;
 	if (!name) {
@@ -714,6 +718,7 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> gx_head_warn;
     GxActions actions;
     KeySwitcher keyswitch;
+    std::map<Glib::ustring, Gtk::ToolItemGroup*> groupmap;
 
     // Widget pointers
     Gxw::PaintBox *tunerbox;
@@ -806,7 +811,7 @@ private:
     bool on_ti_button_press(GdkEventButton *ev, const char *effect_id);
     void on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, int info, int timestamp);
     void fill_pluginlist();
-    void make_icons();
+    void make_icons(bool force=true);
     bool update_all_gui();
     void jack_connection();
     void on_miditable_toggle();
@@ -860,6 +865,8 @@ private:
     void on_show_midi_out();
     void on_show_midi_out_plug();
     void on_midi_out_channel_toggled(Gtk::RadioButton *rb, Gtk::Container *c);
+    Gtk::ToolItemGroup *add_plugin_category(const char *cat, bool collapse = true);
+    void register_plugin(PluginUI *pui);
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
 	       gx_engine::ParamMap& pmap, Gtk::Window *splash);

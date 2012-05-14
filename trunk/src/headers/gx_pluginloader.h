@@ -61,6 +61,31 @@ public:
 };
 
 /****************************************************************
+ ** class ParamRegImpl
+ */
+
+class ParamRegImpl: public ParamReg {
+private:
+    static gx_engine::ParamMap *pmap;
+    static float *registerVar_(const char* id, const char* name, const char* tp,
+			       const char* tooltip, float* var, float val,
+			       float low, float up, float step);
+    static void registerBoolVar_(const char* id, const char* name, const char* tp,
+				 const char* tooltip, bool* var, bool val);
+    static void registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave);
+    static void registerEnumVar_(const char *id, const char* name, const char* tp,
+				 const char* tooltip, const value_pair* values, float *var, float val,
+				 float low, float up, float step);
+    static void registerIEnumVar_(const char *id, const char* name, const char* tp,
+				  const char* tooltip, const value_pair* values, int *var, int val);
+    static void registerUEnumVar_(const char *id, const char* name, const char* tp,
+				  const char* tooltip, const value_pair* values,
+				  unsigned int *var, unsigned int std);
+public:
+    ParamRegImpl(gx_engine::ParamMap* pm);
+};
+
+/****************************************************************
  ** class PluginList
  ** container of plugins for all processing chains
  */
@@ -105,7 +130,10 @@ public:
     int add(PluginDef **p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int check_version(PluginDef *p);
-    void registerParameter(gx_engine::ParamMap& param, gx_engine::ParameterGroups& groups);
+    void registerGroup(PluginDef *pd, ParameterGroups& groups);
+    void registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& preg);
+    void registerPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups);
+    void registerAllPlugins(gx_engine::ParamMap& param, gx_engine::ParameterGroups& groups);
     void append_rack(UiBuilderBase& ui);
     void ordered_mono_list(list<Plugin*>& mono, int mode);
     void ordered_stereo_list(list<Plugin*>& stereo, int mode);

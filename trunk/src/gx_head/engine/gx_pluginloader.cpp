@@ -27,27 +27,6 @@ namespace gx_engine {
  ** class ParamRegImpl
  */
 
-class ParamRegImpl: public ParamReg {
-private:
-    static gx_engine::ParamMap *pmap;
-    static float *registerVar_(const char* id, const char* name, const char* tp,
-			       const char* tooltip, float* var, float val,
-			       float low, float up, float step);
-    static void registerBoolVar_(const char* id, const char* name, const char* tp,
-				 const char* tooltip, bool* var, bool val);
-    static void registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave);
-    static void registerEnumVar_(const char *id, const char* name, const char* tp,
-				 const char* tooltip, const value_pair* values, float *var, float val,
-				 float low, float up, float step);
-    static void registerIEnumVar_(const char *id, const char* name, const char* tp,
-				  const char* tooltip, const value_pair* values, int *var, int val);
-    static void registerUEnumVar_(const char *id, const char* name, const char* tp,
-				  const char* tooltip, const value_pair* values,
-				  unsigned int *var, unsigned int std);
-public:
-    ParamRegImpl(gx_engine::ParamMap* pm);
-};
-
 gx_engine::ParamMap *ParamRegImpl::pmap = 0;
 
 ParamRegImpl::ParamRegImpl(gx_engine::ParamMap* pm): ParamReg() {
@@ -442,61 +421,73 @@ void RackChangerUiItem<T>::reflectZone() {
     pluginlist.seq.set_rack_changed();
 }
 
-void PluginList::registerParameter(ParamMap& param, ParameterGroups& groups) {
-    for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
-	PluginDef *pd = p->second->pdef;
-	groups.insert(pd->id, tr_name(pd->name));
-	const char **gp = pd->groups;
-	if (gp) {
-	    while (*gp) {
-		string id = *gp++;
-		const char *name = *gp++;
-		if (!name) {
-		    break;
-		}
-		if (id[0] == '.') {
-		    id = id.substr(1);
+void PluginList::registerGroup(PluginDef *pd, ParameterGroups& groups) {
+    groups.insert(pd->id, tr_name(pd->name));
+    const char **gp = pd->groups;
+    if (gp) {
+	while (*gp) {
+	    string id = *gp++;
+	    const char *name = *gp++;
+	    if (!name) {
+		break;
+	    }
+	    if (id[0] == '.') {
+		id = id.substr(1);
+	    } else {
+		id = string(pd->id) + "." + id;
+	    }
+	    groups.insert(id, tr_name(name));
+	}
+    }
+}
+
+void PluginList::registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& preg) {
+    PluginDef *pd = pl->pdef;
+    if (pd->load_ui || (pd->flags & PGN_GUI)) {
+	string s = pd->id;
+	param.reg_par((s+".on_off").c_str(),N_("on/off"), &pl->on_off, 0);
+	new RackChangerUiItem<bool>(*this, &pl->on_off);
+	if (pd->flags & PGNI_DYN_POSITION || !(pd->flags & PGN_FIXED_GUI)) {
+	    param.reg_non_midi_par("ui."+s, &pl->box_visible, true);
+	    param.reg_non_midi_par(s+".s_h", &pl->plug_visible, false);
+	}
+	if (pd->flags & PGNI_DYN_POSITION) {
+	    // PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
+	    param.reg_non_midi_par(s+".position", &pl->position, true,
+				   pl->position, 0, 999);
+	    if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
+		if (pd->flags & PGN_PRE) {
+		    pl->effect_post_pre = 1;
+		} else if (pd->flags & PGN_POST) {
+		    pl->effect_post_pre = 0;
 		} else {
-		    id = string(pd->id) + "." + id;
+		    static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
+		    param.reg_uenum_par((s+".pp").c_str(), "select", post_pre,
+					&(pl->effect_post_pre), 0);
+		    new RackChangerUiItem<unsigned int>(*this, &pl->effect_post_pre);
 		}
-		groups.insert(id, tr_name(name));
 	    }
 	}
     }
+    if (pd->register_params) {
+	preg.plugin = pd;
+	pd->register_params(preg);
+    }
+}
+
+void PluginList::registerPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
+    registerGroup(pl->pdef, groups);
+    ParamRegImpl preg(&param);
+    registerParameter(pl, param, preg);
+}
+
+void PluginList::registerAllPlugins(ParamMap& param, ParameterGroups& groups) {
+    for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
+	registerGroup(p->second->pdef, groups);
+    }
     ParamRegImpl preg(&param);
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
-	Plugin *pl = p->second;
-	PluginDef *pd = pl->pdef;
-	if (pd->load_ui || (pd->flags & PGN_GUI)) {
-	    string s = pd->id;
-	    param.reg_par((s+".on_off").c_str(),N_("on/off"), &pl->on_off, 0);
-	    new RackChangerUiItem<bool>(*this, &pl->on_off);
-	    if (pd->flags & PGNI_DYN_POSITION || !(pd->flags & PGN_FIXED_GUI)) {
-		param.reg_non_midi_par("ui."+s, &pl->box_visible, true);
-		param.reg_non_midi_par(s+".s_h", &pl->plug_visible, false);
-	    }
-	    if (pd->flags & PGNI_DYN_POSITION) {
-		// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
-		param.reg_non_midi_par(s+".position", &pl->position, true,
-				       pl->position, 0, 999);
-		if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
-		    if (pd->flags & PGN_PRE) {
-			pl->effect_post_pre = 1;
-		    } else if (pd->flags & PGN_POST) {
-			pl->effect_post_pre = 0;
-		    } else {
-			static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
-			param.reg_uenum_par((s+".pp").c_str(), "select", post_pre,
-					    &(pl->effect_post_pre), 0);
-			new RackChangerUiItem<unsigned int>(*this, &pl->effect_post_pre);
-		    }
-		}
-	    }
-	}
-	if (pd->register_params) {
-	    preg.plugin = pd;
-	    pd->register_params(preg);
-	}
+	registerParameter(p->second, param, preg);
     }
 }
 
