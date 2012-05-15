@@ -326,6 +326,7 @@ public:
     string get_builder_filepath(const string& basename) const { return builder_dir + basename; }
     string get_user_filepath(const string& basename) const { return user_dir + basename; }
     string get_preset_filepath(const string& basename) const { return preset_dir + basename; }
+    string get_plugin_filepath(const string& basename) const { return plugin_dir + basename; }
     string get_factory_filepath(const string& basename) const { return factory_dir + basename; }
     string get_pluginpreset_filepath(const string& id) const { return pluginpreset_dir + id; }
     const string& get_user_dir() const { return user_dir; }

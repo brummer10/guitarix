@@ -57,11 +57,25 @@ PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const cha
 }
 
 PluginUI::~PluginUI() {
+    delete rackbox;
+    if (toolitem) {
+	if (group) {
+	    group->remove(*toolitem);
+	}
+	delete toolitem;
+    }
     plugin->pdef->flags &= ~gx_engine::PGNI_UI_REG;
     gx_ui::GxUI& ui = main.get_ui();
     ui.unregisterZone(&plugin->box_visible, this);
     ui.unregisterZone(&plugin->position, this);
     ui.unregisterZone(&plugin->effect_post_pre, this);
+}
+
+void PluginUI::unset_ui_merge_id(Glib::RefPtr<Gtk::UIManager> uimanager) {
+    if (merge_id) {
+	uimanager->remove_ui(merge_id);
+	merge_id = 0;
+    }
 }
 
 void PluginUI::on_plugin_preset_popup() {
@@ -165,14 +179,57 @@ void PluginUI::display_new(bool unordered) {
     }
 }
 
+void PluginUI::update_rackbox() {
+    if (!rackbox) {
+	return;
+    }
+    if (plugin->box_visible) {
+	RackContainer::rackbox_list l = rackbox->get_parent()->get_children();
+	int n = 0;
+	for (RackContainer::rackbox_list::iterator i = l.begin(); i != l.end(); ++i, ++n)
+	    if (*i == rackbox) {
+		break;
+	    }
+	delete rackbox;
+	rackbox = main.add_rackbox(*this, compressed, n, false);
+    } else {
+	delete rackbox;
+	rackbox = 0;
+    }
+}
+
+bool plugins_by_name_less(PluginUI *a, PluginUI *b) {
+    int res = a->get_type() - b->get_type();
+    if (res == 0) {
+	gchar *an = g_utf8_casefold(a->get_shortname(), 1);
+	gchar *bn = g_utf8_casefold(b->get_shortname(), 1);
+	res = g_utf8_collate(an, bn);
+	g_free(an);
+	g_free(bn);
+    }
+    return res < 0;
+}
+
+
 /****************************************************************
  ** class PluginDict
  */
 
-PluginDict::~PluginDict() {
+void PluginDict::remove(PluginUI *p) {
+    std::map<std::string, PluginUI*>::iterator i = find(p->get_id());
+    assert(i != end());
+    erase(i);
+}
+
+void PluginDict::cleanup() {
     for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
 	delete i->second;
     }
+    clear();
+}
+
+PluginDict::~PluginDict() {
+    cleanup();
 }
 
 

@@ -100,6 +100,11 @@ class EngineControl;
 
 typedef PluginDef *(*plugindef_creator)();
 
+class RackChangerUiItemBase: public gx_ui::GxUiItem {
+public :
+    virtual void *zone() = 0;
+};
+
 class PluginList {
 public:
     typedef pair<const char*, Plugin*> map_pair;
@@ -112,13 +117,13 @@ private:
     pluginmap pmap;
     EngineControl& seq;
     gx_ui::GxUI& ui;
-    list<gx_ui::GxUiItem*> rackchanger;
+    list<RackChangerUiItemBase*> rackchanger;
     int plugin_pos[PLUGIN_POS_COUNT];
-    Plugin *find_plugin(const char *id) const;
     int add_module(Plugin *pl, PluginPos pos, int flags);
 public:
     PluginList(gx_ui::GxUI& ui, EngineControl& seq);
     ~PluginList();
+    Plugin *find_plugin(const char *id) const;
     Plugin *lookup_plugin(const char *id) const;
     void set_samplerate(int samplerate); // call set_samplerate of all plugins
     int* pos_var(const char *id);     // return the position of the plugin
@@ -129,10 +134,14 @@ public:
     int add(PluginDef *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int add(PluginDef **p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
+    void delete_module(Plugin *pl, ParamMap& param, ParameterGroups& groups);
     int check_version(PluginDef *p);
     void registerGroup(PluginDef *pd, ParameterGroups& groups);
     void registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& preg);
     void registerPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups);
+    void unregisterGroup(PluginDef *pd, ParameterGroups& groups);
+    void unregisterParameter(Plugin *pl, ParamMap& param);
+    void unregisterPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups);
     void registerAllPlugins(gx_engine::ParamMap& param, gx_engine::ParameterGroups& groups);
     void append_rack(UiBuilderBase& ui);
     void ordered_mono_list(list<Plugin*>& mono, int mode);

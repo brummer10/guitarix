@@ -130,7 +130,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
       convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync),
 		param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp) {
+      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      ladspaloader(options) {
 #ifdef USE_MIDI_OUT
     tuner.set_dep_module(&midiaudiobuffer.plugin);
 #endif
@@ -140,6 +141,13 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
     // loaded from shared libs
     if (!plugin_dir.empty()) {
 	pluginlist.load_from_path(plugin_dir, PLUGIN_POS_RACK);
+    }
+
+    for (unsigned int i = 0; i < ladspaloader.size(); ++i) {
+	PluginDef *p = ladspaloader.create(i);
+	if (p) {
+	    pluginlist.add(p);
+	}
     }
 
     // selector objects to switch "alternative" modules

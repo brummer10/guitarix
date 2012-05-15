@@ -1425,6 +1425,13 @@ void ParamMap::insert(Parameter* param) {
     id_map.insert(pair<string, Parameter*>(param->id(), param));
 }
 
+void ParamMap::unregister(const string& id) {
+    Parameter *p = &(*this)[id];
+    addr_map.erase(p->zone());
+    id_map.erase(id);
+    delete p;
+}
+
 void ParamMap::set_init_values() {
     for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
         i->second->stdJSON_value();

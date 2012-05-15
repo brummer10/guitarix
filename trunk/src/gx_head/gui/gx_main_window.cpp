@@ -1572,6 +1572,11 @@ void MainWindow::create_actions() {
 	actions.jackstartup,
 	sigc::mem_fun(*this, &MainWindow::on_select_jack_control));
 
+    actions.loadladspa = Gtk::Action::create("LoadLADSPA", _("_Reload LADSPA Plugins"));
+    actions.group->add(
+	actions.loadladspa,
+	sigc::mem_fun(this, &MainWindow::on_load_ladspa));
+
     actions.group->add(Gtk::Action::create("ResetAll", _("Reset _All Parameters")),
 		       sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
 
@@ -1716,6 +1721,70 @@ void JConvPluginUI::on_plugin_preset_popup() {
     main.plugin_preset_popup(get_id(), name);
 }
 
+static gx_engine::LadspaLoader::pluginarray::iterator find_plugin(gx_engine::LadspaLoader::pluginarray& ml, gx_engine::plugdesc *pl) {
+    for (gx_engine::LadspaLoader::pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
+	if ((*i)->UniqueID == pl->UniqueID) {
+	    return i;
+	}
+    }
+    return ml.end();
+}
+
+void MainWindow::on_load_ladspa() {
+    typedef gx_engine::LadspaLoader::pluginarray pluginarray;
+    pluginarray ml;
+    // load plugindesc list
+    engine.ladspaloader.load(options, ml);
+    // look for removed and changed plugins
+    std::vector<gx_engine::Plugin*> to_remove;
+    for (pluginarray::iterator i = engine.ladspaloader.begin(); i != engine.ladspaloader.end(); ++i) {
+	PluginUI *pui = plugin_dict[(*i)->id_str];
+	pluginarray::iterator j = find_plugin(ml, *i);
+	if (j == ml.end()) {
+	    plugin_dict.remove(pui);
+	    pui->unset_ui_merge_id(uimanager);
+	    actions.group->remove(pui->get_action());
+	    delete pui;
+	    pui->plugin->on_off = false;
+	    to_remove.push_back(pui->plugin);
+	} else {
+	    engine.ladspaloader.update_instance(pui->plugin->pdef, *j);
+	    pui->update_rackbox();
+	    // todo:
+	    // update changed parameters, menu entry, ToolItem/ToolItemGroup
+	}
+    }
+    // update engine for plugins to be removed
+    engine.update_module_lists();
+    engine.mono_chain.release();
+    engine.stereo_chain.release();
+    // remove plugins
+    for (std::vector<gx_engine::Plugin*>::iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
+	engine.pluginlist.delete_module(*i, pmap, gx_engine::get_group_table());
+    }
+    // add new plugins (engine)
+    for (pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
+	if (engine.ladspaloader.find((*i)->UniqueID) == engine.ladspaloader.end()) {
+	    PluginDef *plugin = engine.ladspaloader.create(*i);
+	    if (plugin) {
+		engine.pluginlist.add(plugin);
+	    }
+	}
+    }
+    // update ladspaloader with new list
+    engine.ladspaloader.set_plugins(ml);
+    // add new plugins (UI)
+    std::vector<PluginUI*> p;
+    UiBuilderImplNew builder(this, &boxbuilder, &p);
+    engine.pluginlist.append_rack(builder);
+    std::sort(p.begin(), p.end(), plugins_by_name_less);
+    for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
+	register_plugin(*v);
+	engine.pluginlist.registerPlugin((*v)->plugin, pmap, gx_engine::get_group_table());
+    }
+    make_icons(true); // re-create all icons, width might have changed
+}
+
 void MainWindow::add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
     if (PluginUI::is_registered(engine.pluginlist, id)) {
 	return;
@@ -1761,18 +1830,6 @@ struct PluginDesc {
     PluginDesc(const Glib::ustring& g, std::vector<PluginUI*> *p)
 	: group(g), plugins(p) {}
 };
-
-bool cmp_plugins (PluginUI *a, PluginUI *b) {
-    int res = a->get_type() - b->get_type();
-    if (res == 0) {
-	gchar *an = g_utf8_casefold(a->get_shortname(), 1);
-	gchar *bn = g_utf8_casefold(b->get_shortname(), 1);
-	res = g_utf8_collate(an, bn);
-	g_free(an);
-	g_free(bn);
-    }
-    return res < 0;
-}
 
 Gtk::ToolItemGroup *MainWindow::add_plugin_category(const char *group, bool collapse) {
     std::map<Glib::ustring, Gtk::ToolItemGroup*>::iterator it = groupmap.find(group);
@@ -1839,7 +1896,7 @@ void MainWindow::fill_pluginlist() {
     UiBuilderImplNew builder(this, &boxbuilder, &p);
     engine.pluginlist.append_rack(builder);
 
-    std::sort(p.begin(), p.end(), cmp_plugins);
+    std::sort(p.begin(), p.end(), plugins_by_name_less);
     for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
 	register_plugin(*v);
     }
@@ -2754,7 +2811,7 @@ MainWindow::~MainWindow() {
     if (actions.presets->get_active()) {
 	preset_window_height = preset_scrolledbox->get_allocation().get_height();
     }
-
+    plugin_dict.cleanup();
     delete live_play;
     delete preset_window;
     delete window;

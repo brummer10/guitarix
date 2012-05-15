@@ -81,6 +81,8 @@ public:
     ConvolverAdapter convolver;
     CabinetConvolver cabinet;
     ContrastConvolver contrast;
+    //
+    LadspaLoader ladspaloader;
 public:
     GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::CmdlineOptions& options);
     ~GxEngine();

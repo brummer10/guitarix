@@ -6,6 +6,7 @@ def configure(conf):
 
 def build(bld):
     sources_engine = [
+        './engine/ladspaplugin.cpp',
         './engine/gx_jack.cpp',
         './engine/gx_preset.cpp',
         './engine/gx_json.cpp',

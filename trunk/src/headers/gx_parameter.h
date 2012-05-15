@@ -68,6 +68,10 @@ class ParameterGroups {
             debug_check(group_is_new, id);
             groups.insert(pair<string, string>(id, group));
         }
+    inline void erase(const string& id) {
+	size_t n = groups.erase(id);
+	assert(n == 1);
+    }
 #ifndef NDEBUG
     void dump();
 #endif
@@ -565,6 +569,7 @@ class ParamMap: boost::noncopyable {
     void set_init_values();
     void reset_unit(Glib::ustring group_id) const;
     bool unit_has_std_values(Glib::ustring group_id) const;
+    void unregister(const string& id);
     inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std,
 				   float lower, float upper, float step) {
 	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, true, var, std, lower, upper, step, true);

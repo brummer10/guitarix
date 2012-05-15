@@ -445,4 +445,63 @@ public:
     ~ContrastConvolver();
 };
 
+
+/****************************************************************
+ ** class LadspaLoader
+ */
+
+enum widget_type { tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int };
+
+struct paradesc {
+    int index;
+    std::string name;
+    float dflt;
+    float low;
+    float up;
+    float step;
+    widget_type tp;
+    bool newrow;
+    bool has_caption;
+    value_pair* values;
+    paradesc(): index(), name(), dflt(), low(), up(), step(), tp(), newrow(), has_caption(true), values() {}
+};
+
+enum quirkflag { need_activate = 1, no_cleanup = 2 };
+
+struct plugdesc {
+    std::string path;
+    unsigned int index;
+    unsigned long UniqueID;
+    Glib::ustring Label;
+    Glib::ustring shortname;
+    Glib::ustring category;
+    int quirks; // quirkflag bits
+    int master_idx;
+    Glib::ustring master_label;
+    std::vector<paradesc> names;
+    std::string id_str;
+};
+
+class LadspaLoader {
+public:
+    typedef std::vector<plugdesc*> pluginarray;
+private:
+    pluginarray plugins;
+private:
+    void try_read_module_config(const std::string& filename, plugdesc *p);
+    void read_module_list(const gx_system::CmdlineOptions& options, pluginarray& p);
+public:
+    LadspaLoader(const gx_system::CmdlineOptions& options);
+    ~LadspaLoader();
+    bool load(const gx_system::CmdlineOptions& options, pluginarray& p);
+    unsigned int size() { return plugins.size(); }
+    PluginDef *create(unsigned int idx) { return create(plugins[idx]); }
+    PluginDef *create(plugdesc *p);
+    pluginarray::iterator begin() { return plugins.begin(); }
+    pluginarray::iterator end() { return plugins.end(); }
+    pluginarray::iterator find(unsigned long uniqueid);
+    void set_plugins(pluginarray& new_plugins) { plugins = new_plugins; }
+    void update_instance(PluginDef *pdef, plugdesc *pdesc);
+};
+
 } // namespace gx_engine

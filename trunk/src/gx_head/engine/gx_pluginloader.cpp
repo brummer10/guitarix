@@ -167,7 +167,7 @@ PluginList::PluginList(gx_ui::GxUI& ui_, EngineControl& seq_)
 };
 
 PluginList::~PluginList() {
-    for (list<gx_ui::GxUiItem*>::iterator i = rackchanger.begin(); i != rackchanger.end(); ++i) {
+    for (list<RackChangerUiItemBase*>::iterator i = rackchanger.begin(); i != rackchanger.end(); ++i) {
 	delete(*i);
     }
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); ++p) {
@@ -297,6 +297,19 @@ int PluginList::check_version(PluginDef *p) {
     return 0;
 }
 
+void PluginList::delete_module(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
+    unregisterPlugin(pl, param, groups);
+    PluginDef *p = pl->pdef;
+    size_t n = pmap.erase(p->id);
+    assert(n == 1);
+    if (!(p->flags & PGNI_NOT_OWN)) {
+	if (p->delete_instance) {
+	    p->delete_instance(p);
+	}
+	delete pl;
+    }
+}
+
 int PluginList::add_module(Plugin *pvars, PluginPos pos, int flags) {
     const int mode_mask = (PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);  // all mode bits
     PluginDef *p = pvars->pdef;
@@ -386,7 +399,7 @@ static const char* tr_name(const char *name) {
 }
 
 template<class T>
-class RackChangerUiItem: public gx_ui::GxUiItem {
+class RackChangerUiItem: public RackChangerUiItemBase {
 private:
     PluginList& pluginlist;
     T *fZone;
@@ -396,6 +409,7 @@ public :
     ~RackChangerUiItem();
     virtual bool hasChanged();
     virtual void reflectZone();
+    virtual void *zone();
 };
 
 template<class T>
@@ -408,6 +422,11 @@ RackChangerUiItem<T>::RackChangerUiItem(PluginList& pl, T *z)
 template<class T>
 RackChangerUiItem<T>::~RackChangerUiItem() {
     pluginlist.ui.unregisterZone(fZone, this);
+}
+
+template<class T>
+void *RackChangerUiItem<T>::zone() {
+    return fZone;
 }
 
 template<class T>
@@ -437,6 +456,26 @@ void PluginList::registerGroup(PluginDef *pd, ParameterGroups& groups) {
 		id = string(pd->id) + "." + id;
 	    }
 	    groups.insert(id, tr_name(name));
+	}
+    }
+}
+
+void PluginList::unregisterGroup(PluginDef *pd, ParameterGroups& groups) {
+    groups.erase(pd->id);
+    const char **gp = pd->groups;
+    if (gp) {
+	while (*gp) {
+	    string id = *gp++;
+	    const char *name = *gp++;
+	    if (!name) {
+		break;
+	    }
+	    if (id[0] == '.') {
+		id = id.substr(1);
+	    } else {
+		id = string(pd->id) + "." + id;
+	    }
+	    groups.erase(id);
 	}
     }
 }
@@ -475,10 +514,59 @@ void PluginList::registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& pr
     }
 }
 
+void PluginList::unregisterParameter(Plugin *pl, ParamMap& param) {
+    PluginDef *pd = pl->pdef;
+    string s = pd->id;
+    if (pd->load_ui || (pd->flags & PGN_GUI)) {
+	param.unregister(s+".on_off");
+	if (pd->flags & PGNI_DYN_POSITION || !(pd->flags & PGN_FIXED_GUI)) {
+	    param.unregister("ui."+s);
+	    param.unregister(s+".s_h");
+	}
+	if (pd->flags & PGNI_DYN_POSITION) {
+	    param.unregister(s+".position");
+	    if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
+		if (!(pd->flags & (PGN_PRE|PGN_POST))) {
+		    param.unregister(s+".pp");
+		    for (list<RackChangerUiItemBase*>::iterator i = rackchanger.begin(); i != rackchanger.end(); ) {
+			if ((*i)->zone() == &pl->on_off || (*i)->zone() == &pl->effect_post_pre) {
+			    list<RackChangerUiItemBase*>::iterator j = i;
+			    ++i;
+			    rackchanger.erase(j);
+			} else {
+			    ++i;
+			}
+		    }
+		}
+	    }
+	}
+    }
+    std::vector<const std::string*> l;
+    if (pd->register_params) {
+	s += ".";
+	for (ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
+	    if (i->first.compare(0, s.size(), s) == 0) {
+		assert(i->second->isInPreset());
+		l.push_back(&i->first);
+	    }
+	}
+    }
+    for (std::vector<const std::string*>::iterator i = l.begin(); i != l.end(); ++i) {
+	param.unregister(**i);
+    }
+}
+
 void PluginList::registerPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
     registerGroup(pl->pdef, groups);
     ParamRegImpl preg(&param);
     registerParameter(pl, param, preg);
+}
+
+void PluginList::unregisterPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
+    ParamRegImpl preg(&param);
+    printf("PluginList: unreg %s\n", pl->pdef->id);
+    unregisterParameter(pl, param);
+    unregisterGroup(pl->pdef, groups);
 }
 
 void PluginList::registerAllPlugins(ParamMap& param, ParameterGroups& groups) {

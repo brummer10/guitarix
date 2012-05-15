@@ -46,3 +46,4 @@
 (gtk_accel_path "<Actions>/Main/StereoPlugins" "")
 (gtk_accel_path "<Actions>/Main/TubeMenu" "")
 (gtk_accel_path "<Actions>/Main/Tuner" "<Control>t")
+(gtk_accel_path "<Actions>/Main/LoadLADSPA" "<Control>u")

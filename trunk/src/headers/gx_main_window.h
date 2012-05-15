@@ -263,7 +263,9 @@ public:
     void display_new(bool unordered = false);
     inline bool is_displayed();
     void set_ui_merge_id(Gtk::UIManager::ui_merge_id id) { merge_id = id; }
+    void unset_ui_merge_id(Glib::RefPtr<Gtk::UIManager> uimanager);
     void set_action(Glib::RefPtr<Gtk::ToggleAction>& act);
+    Glib::RefPtr<Gtk::ToggleAction> get_action() { return action; }
     static bool is_registered(gx_engine::PluginList& pl, const char *name);
     virtual void on_plugin_preset_popup();
     inline const char *get_category() {
@@ -280,8 +282,11 @@ public:
 	}
 	return name;
     }
+    void update_rackbox();
+    friend bool plugins_by_name_less(PluginUI *a, PluginUI *b);
 };
 
+bool plugins_by_name_less(PluginUI *a, PluginUI *b);
 
 /****************************************************************
  ** class PluginDict
@@ -294,7 +299,9 @@ public:
     typedef std::map<std::string, PluginUI*>::iterator iterator;
     PluginDict(gx_ui::GxUI& ui_): std::map<std::string, PluginUI*>(), ui(ui_) {}
     ~PluginDict();
+    void cleanup();
     void add(PluginUI *p) { insert(pair<std::string, PluginUI*>(p->get_id(), p)); }
+    void remove(PluginUI *p);
     PluginUI *operator[](const std::string& s) { return find(s)->second; }
     using std::map<std::string, PluginUI*>::begin;
     using std::map<std::string, PluginUI*>::end;
@@ -627,6 +634,7 @@ struct GxActions {
     Glib::RefPtr<Gtk::Action> expand;
     Glib::RefPtr<Gtk::Action> jack_latency_menu;
     Glib::RefPtr<Gtk::Action> jackstartup;
+    Glib::RefPtr<Gtk::Action> loadladspa;
 
     Glib::RefPtr<Gtk::ToggleAction> rack_config;
     Glib::RefPtr<Gtk::ToggleAction> live_play;
@@ -828,6 +836,7 @@ private:
     int gx_wait_latency_warn();
     void set_latency();
     void on_select_jack_control();
+    void on_load_ladspa();
     void delete_select_jack_control();
     void on_log_activate();
     void do_program_change(int pgm);
