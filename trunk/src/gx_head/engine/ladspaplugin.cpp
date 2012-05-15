@@ -142,7 +142,7 @@ inline void LadspaDsp::cleanup() {
 
 LadspaDsp::~LadspaDsp() {
     cleanup();
-    if (handle) {
+    if (handle && !(pd->quirks & no_cleanup)) {
 	dlclose(handle);
     }
     delete[] ctrl_ports;

@@ -1690,14 +1690,13 @@ void MainWindow::make_icons(bool force) {
     w.show_all();
     for (std::vector<std::pair<PluginUI*,Gtk::Widget*> >::iterator i = l.begin(); i != l.end(); ++i) {
         i->second->show();
-	while (Gtk::Main::events_pending()) {
-	    Gtk::Main::iteration();
-	}
-        //w.get_window()->process_updates(true);  // not needed (part of event loop)
+	w.show();
+        w.get_window()->process_updates(true);
 	i->first->icon = w.get_pixbuf();
 	if (i->first->toolitem) {
 	    dynamic_cast<Gtk::Image*>(i->first->toolitem->get_child())->set(i->first->icon);
 	}
+	w.hide();
         i->second->hide();
     }
 }
@@ -1763,11 +1762,13 @@ void MainWindow::on_load_ladspa() {
 	engine.pluginlist.delete_module(*i, pmap, gx_engine::get_group_table());
     }
     // add new plugins (engine)
+    std::vector<PluginDef *> pv;
     for (pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
 	if (engine.ladspaloader.find((*i)->UniqueID) == engine.ladspaloader.end()) {
 	    PluginDef *plugin = engine.ladspaloader.create(*i);
 	    if (plugin) {
 		engine.pluginlist.add(plugin);
+		pv.push_back(plugin);
 	    }
 	}
     }
@@ -1781,6 +1782,9 @@ void MainWindow::on_load_ladspa() {
     for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
 	register_plugin(*v);
 	engine.pluginlist.registerPlugin((*v)->plugin, pmap, gx_engine::get_group_table());
+    }
+    for (std::vector<PluginDef*>::iterator i = pv.begin(); i != pv.end(); ++i) {
+	(*i)->set_samplerate(engine.get_samplerate(), *i);
     }
     make_icons(true); // re-create all icons, width might have changed
 }

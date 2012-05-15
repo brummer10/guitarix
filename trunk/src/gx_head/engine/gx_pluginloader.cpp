@@ -564,7 +564,6 @@ void PluginList::registerPlugin(Plugin *pl, ParamMap& param, ParameterGroups& gr
 
 void PluginList::unregisterPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
     ParamRegImpl preg(&param);
-    printf("PluginList: unreg %s\n", pl->pdef->id);
     unregisterParameter(pl, param);
     unregisterGroup(pl->pdef, groups);
 }
