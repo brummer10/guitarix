@@ -169,8 +169,8 @@ LADSPA_IS_HINT_INTEGER     = lambda x: x & LADSPA_HINT_INTEGER
 
 blacklist = set((
     4069, 4070,		    # ladspa_guitarix
+    1912,                   # jamincont (crashes?)
     #1044, 1045, 1046, 1047, # sine
-    #1912,                   # jamincont (crashes when cleanup is used)
     ))
 
 lib_blacklist = set((
@@ -181,6 +181,8 @@ class LADSPA:
     def add_plugin(self, desc, d, path, i):
         if desc.UniqueID in blacklist:
             return
+        #if not LADSPA_IS_HARD_RT_CAPABLE(desc->Properties):
+        #    return
         n_in = n_out = 0
         ctrl_ports = []
         pos = 0
@@ -665,7 +667,7 @@ cat_dict = {
     
 quirk_list = (
     (1, (1912,)),
-    (2, (1890, 1891, 1893, 1892, 1903, 1904,)),
+    (2, (1890, 1891, 1893, 1894, 1892, 1903, 1904,)),
     )
 
 quirk_dict = dict(itertools.chain(*[[(v, q) for v in l] for q, l in quirk_list]))
@@ -708,7 +710,7 @@ class PluginDesc:
             if k in ("old", "active", "active_set", "MasterLabel"):
                 continue
             if k == "MasterIdx":
-                if v and self.MasterLabel != self.old.MasterLabel:
+                if v > -1 and self.MasterLabel != self.old.MasterLabel:
                     return True
             if k == "ctrl_ports":
                 for p, vp in zip(v, self.old.ctrl_ports):
@@ -963,7 +965,10 @@ menudef = """
 <ui>
   <menubar>
     <menu action="FileMenuAction">
+      <menuitem action="SelectAllAction" />
+      <menuitem action="SelectNoneAction" />
       <menuitem action="SaveAction" />
+      <menuitem action="ApplyAction" />
       <menuitem action="QuitAction" />
     </menu>
     <menu action="ViewMenuAction">
@@ -985,21 +990,22 @@ class PluginDisplay:
         uimanager = gtk.UIManager()
         actiongroup = gtk.ActionGroup("main")
         actiongroup.add_actions([('FileMenuAction',None,"_File"),
-                                 ('SaveAction',None,"_Save","<control>s",None,self.on_save),
+                                 ('SaveAction',None,"_Ok","<control>o",None,self.on_save),
+                                 ('ApplyAction',None,"_Apply","<control>s",None,self.on_apply),
                                  ('QuitAction',None,"_Quit","<control>q",None,self.on_quit),
+                                 ('SelectAllAction',None,"_Select All","<control>a",None,lambda w: self.on_select_all(True)),
+                                 ('SelectNoneAction',None,"Select _None","<control>n",None,lambda w: self.on_select_all(False)),
                                  ('ViewMenuAction',None,"_View"),
                                  ('FindAction',None,"_Find","<control>f",None,self.on_find),
                                  ])
         uimanager.insert_action_group(actiongroup, 0)
         uimanager.add_ui_from_string(menudef)
         uimanager.get_widget('/menubar')
-        #bld.get_object("menubox").pack_start(uimanager.get_widget('/menubar'))
+        bld.get_object("menubox").pack_start(uimanager.get_widget('/menubar'))
         self.window.add_accel_group(uimanager.get_accel_group())
 
         self.window.connect("delete-event", self.on_delete_event)
-        w = bld.get_object("select_all").connect("clicked", self.on_select_all, True)
-        w = bld.get_object("select_none").connect("clicked", self.on_select_all, False)
-        w = bld.get_object("show_details").connect("clicked", self.on_show_details)
+        bld.get_object("show_details").connect("clicked", self.on_show_details)
         w = bld.get_object("treeview3")
         sel = w.get_selection()
         sel.set_mode(gtk.SELECTION_BROWSE)
@@ -1088,7 +1094,10 @@ class PluginDisplay:
 
         self.window.connect("destroy", gtk.main_quit)
         bld.get_object("button_cancel").set_related_action(actiongroup.get_action("QuitAction"))
+        bld.get_object("button_apply").set_related_action(actiongroup.get_action("ApplyAction"))
         bld.get_object("button_save").set_related_action(actiongroup.get_action("SaveAction"))
+        bld.get_object("select_all").set_related_action(actiongroup.get_action("SelectAllAction"))
+        bld.get_object("select_none").set_related_action(actiongroup.get_action("SelectNoneAction"))
 
         self.window.show()
 
@@ -1183,6 +1192,10 @@ class PluginDisplay:
 
     def on_save(self, w):
         self.do_save()
+        gtk.main_quit()
+
+    def on_apply(self, w):
+        self.do_save()
 
     def do_save(self):
         self.save_current()
@@ -1217,9 +1230,14 @@ class PluginDisplay:
                     os.rename(tfname, fname)
                 except OSError:
                     print "cannot rename %s to %s" % (tfname, fname)
-        gtk.main_quit()
+        for p in self.plugindict.values():
+            p.active_set = p.active;
+            p.old = None
+        self.old_state = 0
+        self.change_count = 0
+        self.set_title()
 
-    def on_select_all(self, w, v):
+    def on_select_all(self, v):
         d = 0
         for row in self.bld.get_object("treeview1").get_model():
             row[1] = v
