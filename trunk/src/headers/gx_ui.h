@@ -67,6 +67,10 @@ class GxUI {
     virtual ~GxUI();
 
     // public methods
+#ifndef NDEBUG
+    static size_t zoneCount(void *zone);
+#endif
+    static void zapZone(void *zone);
     void registerZone(void*, GxUiItem*);
     void unregisterZone(void* z, GxUiItem* c);
     void updateAllZones(bool force = false);

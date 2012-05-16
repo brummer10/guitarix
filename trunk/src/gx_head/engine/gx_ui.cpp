@@ -61,6 +61,22 @@ void GxUI::unregisterZone(void* z, GxUiItem* c) {
     i->second->remove(c);
 }
 
+#ifndef NDEBUG
+size_t GxUI::zoneCount(void *zone) {
+    size_t n = 0;
+    for (list<GxUI*>::iterator g = fGuiList.begin(); g != fGuiList.end(); ++g) {
+	n += (*g)->fZoneMap.count(zone);
+    }
+    return n;
+}
+#endif
+
+void GxUI::zapZone(void *zone) {
+    for (list<GxUI*>::iterator g = fGuiList.begin(); g != fGuiList.end(); ++g) {
+	(*g)->fZoneMap.erase(zone);
+    }
+}
+
 void GxUI::updateAllGuis(bool force) {
     if (in_updateAll) {
 	return;

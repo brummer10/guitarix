@@ -1427,6 +1427,8 @@ void ParamMap::insert(Parameter* param) {
 
 void ParamMap::unregister(const string& id) {
     Parameter *p = &(*this)[id];
+    gx_ui::GxUI::zapZone(p->zone()); //FIXME
+    assert(gx_ui::GxUI::zoneCount(p->zone()) == 0);
     addr_map.erase(p->zone());
     id_map.erase(id);
     delete p;
