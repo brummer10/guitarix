@@ -61,6 +61,7 @@ static image_entry image_data[] = {
     { "gxplate", pb_gxplate },
     { "gxplate2", pb_gxplate2 },
     { "portdisplay", pb_portdisplay },
+    { "texture_cab", pb_texture_cab },
 	{ NULL, NULL },
 };
 

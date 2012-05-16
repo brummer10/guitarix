@@ -49,6 +49,7 @@ G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
 #define get_main_image_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->main_image_id)
 #define get_widget_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id)
 #define get_widget_id2(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id2)
+#define get_cab_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->cab_id)
 
 
 static void gx_paint_box_class_init (GxPaintBoxClass *klass)
@@ -65,6 +66,7 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 	klass->main_image_id = "main_image";
     klass->widget_id = "gxplate";
     klass->widget_id2 = "gxplate2";
+    klass->cab_id = "texture_cab";
 	g_object_class_install_property(
 		gobject_class, PROP_PAINT_FUNC,
 		g_param_spec_string("paint-func",
@@ -83,6 +85,14 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 	gtk_widget_class_install_style_property_parser(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_boxed("box-gradient",
+		                   P_("Skin color"),
+		                   P_("Color gradient defined as part of skin"),
+		                   GX_TYPE_GRADIENT,
+		                   GParamFlags(GTK_PARAM_READABLE)),
+		gx_parse_gradient);
+	gtk_widget_class_install_style_property_parser(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_boxed("rack-gradient",
 		                   P_("Skin color"),
 		                   P_("Color gradient defined as part of skin"),
 		                   GX_TYPE_GRADIENT,
@@ -300,6 +310,31 @@ static void set_box_color(GtkWidget *wi, cairo_pattern_t *pat)
 {
 	GxGradient *grad;
 	gtk_widget_style_get(wi, "box-gradient", &grad, NULL);
+	if (!grad) {
+		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
+		cairo_pattern_add_color_stop_rgba(
+			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
+			cairo_clr(p1->blue), 0.8);
+		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
+		cairo_pattern_add_color_stop_rgba(
+			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
+			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
+			(cairo_clr(p1->blue)+cairo_clr(p2->blue))/2, 0.8);
+		return;
+	}
+	GSList *p;
+	for (p = grad->colors; p; p = g_slist_next(p)) {
+		GxGradientElement *el = (GxGradientElement*)p->data;
+		cairo_pattern_add_color_stop_rgba(pat, el->offset, el->red, el->green, el->blue, el->alpha);
+	}
+	gx_gradient_free(grad);
+}
+
+// set cairo color related to the used skin
+static void set_rack_color(GtkWidget *wi, cairo_pattern_t *pat)
+{
+	GxGradient *grad;
+	gtk_widget_style_get(wi, "rack-gradient", &grad, NULL);
 	if (!grad) {
 		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
 		cairo_pattern_add_color_stop_rgba(
@@ -635,6 +670,61 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
     
     
 	//cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
+	cairo_fill (cr);
+	cairo_pattern_destroy (pat);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+}
+
+static void cab_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr;
+    cairo_pattern_t*pat;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+1;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-2;
+    
+    
+    
+	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
+	cairo_paint(cr);
+	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    
+    GdkPixbuf * stock_image =
+        gtk_widget_render_icon(wi,get_cab_id(wi),(GtkIconSize)-1,NULL);
+
+    guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
+    gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
+    gint width = gdk_pixbuf_get_width (stock_image);
+    gint height = gdk_pixbuf_get_height (stock_image);
+    cairo_surface_t *s_image =
+        cairo_image_surface_create_for_data
+        (pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
+
+    pat = cairo_pattern_create_for_surface(s_image);
+    cairo_set_source (cr, pat);
+    cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+    cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
+
+    cairo_fill(cr);
+    g_object_unref(stock_image);
+    cairo_surface_destroy(s_image);
+
+	pat = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
+    set_rack_color(wi, pat);
+    
+	cairo_set_source (cr, pat);
+	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
 	cairo_fill (cr);
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
@@ -2226,6 +2316,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = main_expose;
 	} else if (strcmp(paint_func, "level_meter_expose") == 0) {
 	    paint_box->expose_func = level_meter_expose;
+	} else if (strcmp(paint_func, "cab_expose") == 0) {
+	    paint_box->expose_func = cab_expose;
 	} else {
 		paint_box->expose_func = 0;
 	}

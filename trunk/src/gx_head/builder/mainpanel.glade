@@ -1108,9 +1108,11 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkVBox" id="vbox14">
+                              <object class="GxPaintBox" id="vbox14">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="orientation">vertical</property>
+                                <property name="paint_func">cab_expose</property>
                                 <child>
                                   <object class="GtkVBox" id="monobox">
                                     <property name="visible">True</property>
@@ -1884,8 +1886,8 @@
                                                     <property name="width_request">18</property>
                                                     <property name="height_request">18</property>
                                                     <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="receives_default">False</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
                                                     <property name="use_action_appearance">False</property>
                                                     <child>
                                                       <object class="GtkLabel" id="label12">
@@ -3301,7 +3303,7 @@
                                                             <object class="GtkRadioButton" id="channel1_button">
                                                             <property name="label" translatable="yes">1</property>
                                                             <property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
+                                                            <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <property name="active">True</property>
@@ -3317,7 +3319,7 @@
                                                             <object class="GtkRadioButton" id="channel2_button">
                                                             <property name="label" translatable="yes">2</property>
                                                             <property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
+                                                            <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <property name="draw_indicator">True</property>
@@ -3333,7 +3335,7 @@
                                                             <object class="GtkRadioButton" id="channel3_button">
                                                             <property name="label" translatable="yes">3</property>
                                                             <property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
+                                                            <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <property name="draw_indicator">True</property>
@@ -3638,8 +3640,8 @@
                                                             <property name="width_request">18</property>
                                                             <property name="height_request">18</property>
                                                             <property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
-                                                            <property name="receives_default">False</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <child>
                                                             <object class="GtkLabel" id="label8">
@@ -3756,24 +3758,38 @@
                       <object class="GtkScrolledWindow" id="stereorackbox">
                         <property name="can_focus">True</property>
                         <property name="hscrollbar_policy">never</property>
+                        <property name="vscrollbar_policy">automatic</property>
                         <child>
                           <object class="GtkViewport" id="viewport1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkHBox" id="stereorackcontainerH">
+                              <object class="GxPaintBox" id="gxpaintbox1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="orientation">vertical</property>
+                                <property name="paint_func">cab_expose</property>
                                 <child>
-                                  <object class="GtkLabel" id="label2">
+                                  <object class="GtkHBox" id="stereorackcontainerH">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">stereo rack, horiz. mode</property>
-                                    <property name="angle">270</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label2">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">stereo rack, horiz. mode</property>
+                                        <property name="angle">270</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
+                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
@@ -4281,18 +4297,6 @@ to midi controller</property>
       </object>
     </child>
   </object>
-  <object class="GtkSizeGroup" id="ampdetail_sizegroup">
-    <widgets>
-      <widget name="ampdetail_mini"/>
-      <widget name="ampdetail_normal"/>
-    </widgets>
-  </object>
-  <object class="GtkListStore" id="bank_combo_liststore">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkListStore" id="bank_liststore">
     <columns>
       <!-- column-name gchararray1 -->
@@ -4308,6 +4312,18 @@ to midi controller</property>
     </columns>
   </object>
   <object class="GtkListStore" id="target_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkSizeGroup" id="ampdetail_sizegroup">
+    <widgets>
+      <widget name="ampdetail_mini"/>
+      <widget name="ampdetail_normal"/>
+    </widgets>
+  </object>
+  <object class="GtkListStore" id="bank_combo_liststore">
     <columns>
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
