@@ -42,6 +42,7 @@ class PosixSignals {
 private:
     sigset_t waitset;
     Glib::Thread *thread;
+    pthread_t pthr;
     volatile bool exit;
     void signal_helper_thread();
     void quit_slot();
@@ -56,6 +57,7 @@ public:
 PosixSignals::PosixSignals()
     : waitset(),
       thread(),
+      pthr(),
       exit(false) {
     sigemptyset(&waitset);
     /* ----- block signal USR1 ---------
@@ -82,7 +84,7 @@ PosixSignals::PosixSignals()
 PosixSignals::~PosixSignals() {
     if (thread) {
 	exit = true;
-	kill(getpid(), SIGINT);
+	pthread_kill(pthr, SIGINT);
 	thread->join();
     }
     sigprocmask(SIG_UNBLOCK, &waitset, NULL);
@@ -116,6 +118,7 @@ void PosixSignals::relay_sigchld(int) {
 
 // --- wait for USR1 signal to arrive and invoke ladi handler via mainloop
 void PosixSignals::signal_helper_thread() {
+    pthr = pthread_self();
     const char *signame;
     guint source_id_usr1 = 0;
     pthread_sigmask(SIG_BLOCK, &waitset, NULL);
@@ -279,14 +282,13 @@ class GxSplashBox: public Gtk::Window {
 GxSplashBox::~GxSplashBox() {}
 
 GxSplashBox::GxSplashBox()
-    : Gtk::Window(Gtk::WINDOW_TOPLEVEL) {
+    : Gtk::Window(Gtk::WINDOW_POPUP) {
     set_redraw_on_allocate(true);
     set_app_paintable();
     signal_expose_event().connect(
         sigc::group(&gx_cairo::splash_expose, GTK_WIDGET(gobj()),
 		    sigc::_1, (void*)0), false);
     set_decorated(false);
-    set_auto_startup_notification(false);
     set_type_hint(Gdk::WINDOW_TYPE_HINT_SPLASHSCREEN);
     set_position(Gtk::WIN_POS_CENTER );
     set_default_size(280,80);
