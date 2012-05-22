@@ -58,6 +58,7 @@ def build(bld):
         'gx_distortion.dsp',
         'impulseresponse.dsp',
         'compressor.dsp',
+        'expander.dsp',
         'overdrive.dsp',
         'freeverb.dsp',
         'biquad.dsp',

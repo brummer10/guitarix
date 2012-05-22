@@ -176,6 +176,7 @@ public:
     void make_rackbox_gx_distortion();
     void make_rackbox_IR();
     void make_rackbox_compressor();
+    void make_rackbox_expander();
     void make_rackbox_biquad();
     void make_rackbox_tremolo();
     void make_rackbox_phaser_mono();

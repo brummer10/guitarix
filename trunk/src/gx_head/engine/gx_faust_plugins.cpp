@@ -86,6 +86,7 @@ namespace gx_effects {
 #include "faust/gx_ampout.cc"
 #include "faust/overdrive.cc"
 #include "faust/compressor.cc"
+#include "faust/expander.cc"
 #include "faust/crybaby.cc"
 #include "faust/autowah.cc"
 #include "faust/echo.cc"

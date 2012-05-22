@@ -289,6 +289,28 @@ void StackBoxBuilder::make_rackbox_compressor() {
     closeMonoRackBox();
 }
 
+void StackBoxBuilder::make_rackbox_expander() {
+    // ----- the expander
+    openMonoRackBox(_("Expand."), engine.pluginlist.pos_var("expander"), "expander.on_off", "compressor.pp", "ui.Compressor");
+    {
+	openHorizontalhideBox("");
+	create_master_slider("expander.ratio", _("ratio"));
+	closeBox();
+	openHorizontalTableBox("");
+	{
+	    create_small_rackknob("expander.knee", _("knee"));
+	    create_small_rackknobr("expander.ratio", _("ratio"));
+	    create_small_rackknob("expander.threshold", _("threshold"));
+
+
+	    create_small_rackknob("expander.attack", _("attack"));
+	    create_small_rackknob("expander.release", _("release"));
+	}
+	closeBox();
+    }
+    closeMonoRackBox();
+}
+
 void StackBoxBuilder::make_rackbox_overdrive() {
     // -----overdrive
     openMonoRackBox(_("overdrive"), engine.pluginlist.pos_var("overdrive"), "overdrive.on_off", "overdrive.pp", "ui.Overdrive");
