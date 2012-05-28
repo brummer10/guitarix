@@ -48,6 +48,7 @@ public:
 };
 
 Gate::Gate():
+    PluginDef(),
     state(CLOSED),
     holding(0),
     gate(0),
