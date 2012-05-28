@@ -1729,64 +1729,88 @@ static gx_engine::LadspaLoader::pluginarray::iterator find_plugin(gx_engine::Lad
     return ml.end();
 }
 
-void MainWindow::on_load_ladspa() {
-    typedef gx_engine::LadspaLoader::pluginarray pluginarray;
-    pluginarray ml;
-    // load plugindesc list
-    engine.ladspaloader.load(options, ml);
-    // look for removed and changed plugins
-    std::vector<gx_engine::Plugin*> to_remove;
-    for (pluginarray::iterator i = engine.ladspaloader.begin(); i != engine.ladspaloader.end(); ++i) {
-	PluginUI *pui = plugin_dict[(*i)->id_str];
-	pluginarray::iterator j = find_plugin(ml, *i);
-	if (j == ml.end()) {
-	    plugin_dict.remove(pui);
-	    pui->unset_ui_merge_id(uimanager);
-	    actions.group->remove(pui->get_action());
-	    delete pui;
-	    pui->plugin->on_off = false;
-	    to_remove.push_back(pui->plugin);
-	} else {
-	    engine.ladspaloader.update_instance(pui->plugin->pdef, *j);
-	    pui->update_rackbox();
-	    // todo:
-	    // update changed parameters, menu entry, ToolItem/ToolItemGroup
-	}
-    }
-    // update engine for plugins to be removed
-    engine.update_module_lists();
-    engine.mono_chain.release();
-    engine.stereo_chain.release();
-    // remove plugins
-    for (std::vector<gx_engine::Plugin*>::iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
-	engine.pluginlist.delete_module(*i, pmap, gx_engine::get_group_table());
-    }
-    // add new plugins (engine)
-    std::vector<PluginDef *> pv;
-    for (pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
-	if (engine.ladspaloader.find((*i)->UniqueID) == engine.ladspaloader.end()) {
-	    PluginDef *plugin = engine.ladspaloader.create(*i);
-	    if (plugin) {
-		engine.pluginlist.add(plugin);
-		pv.push_back(plugin);
+void MainWindow::on_ladspa_finished(bool reload, bool quit) {
+    if (reload) {
+	typedef gx_engine::LadspaLoader::pluginarray pluginarray;
+	pluginarray ml;
+	// load plugindesc list
+	engine.ladspaloader.load(options, ml);
+	// look for removed and changed plugins
+	std::vector<gx_engine::Plugin*> to_remove;
+	for (pluginarray::iterator i = engine.ladspaloader.begin(); i != engine.ladspaloader.end(); ++i) {
+	    PluginUI *pui = plugin_dict[(*i)->id_str];
+	    pluginarray::iterator j = find_plugin(ml, *i);
+	    if (j == ml.end()) {
+		plugin_dict.remove(pui);
+		pui->unset_ui_merge_id(uimanager);
+		actions.group->remove(pui->get_action());
+		delete pui;
+		pui->plugin->on_off = false;
+		to_remove.push_back(pui->plugin);
+	    } else {
+		engine.ladspaloader.update_instance(pui->plugin->pdef, *j);
+		PluginDef *pd = pui->plugin->pdef;
+		if (pd->register_params) {
+		    pmap.set_replace_mode(true);
+		    gx_engine::ParamRegImpl preg(&pmap);
+		    preg.plugin = pd;
+		    pd->register_params(preg);
+		    pmap.set_replace_mode(false);
+		}
+		pui->update_rackbox();
+		if ((*j)->category != (*i)->category) {
+		    pui->group = add_plugin_category(pui->get_category());
+		    pui->toolitem->reparent(*pui->group);
+		}
 	    }
 	}
+	// update engine for plugins to be removed
+	engine.update_module_lists();
+	engine.mono_chain.release();
+	engine.stereo_chain.release();
+	// remove plugins
+	for (std::vector<gx_engine::Plugin*>::iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
+	    engine.pluginlist.delete_module(*i, pmap, gx_engine::get_group_table());
+	}
+	// add new plugins (engine)
+	std::vector<PluginDef *> pv;
+	for (pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
+	    if (engine.ladspaloader.find((*i)->UniqueID) == engine.ladspaloader.end()) {
+		PluginDef *plugin = engine.ladspaloader.create(*i);
+		if (plugin) {
+		    engine.pluginlist.add(plugin);
+		    pv.push_back(plugin);
+		}
+	    }
+	}
+	// update ladspaloader with new list
+	engine.ladspaloader.set_plugins(ml);
+	// add new plugins (UI)
+	std::vector<PluginUI*> p;
+	UiBuilderImplNew builder(this, &boxbuilder, &p);
+	engine.pluginlist.append_rack(builder);
+	std::sort(p.begin(), p.end(), plugins_by_name_less);
+	for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
+	    register_plugin(*v);
+	    engine.pluginlist.registerPlugin((*v)->plugin, pmap, gx_engine::get_group_table());
+	}
+	for (std::vector<PluginDef*>::iterator i = pv.begin(); i != pv.end(); ++i) {
+	    (*i)->set_samplerate(engine.get_samplerate(), *i);
+	}
+	make_icons(true); // re-create all icons, width might have changed
     }
-    // update ladspaloader with new list
-    engine.ladspaloader.set_plugins(ml);
-    // add new plugins (UI)
-    std::vector<PluginUI*> p;
-    UiBuilderImplNew builder(this, &boxbuilder, &p);
-    engine.pluginlist.append_rack(builder);
-    std::sort(p.begin(), p.end(), plugins_by_name_less);
-    for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
-	register_plugin(*v);
-	engine.pluginlist.registerPlugin((*v)->plugin, pmap, gx_engine::get_group_table());
+    if (quit) {
+	Glib::signal_idle().connect(sigc::mem_fun(this, &MainWindow::delete_ladspalist_window));
     }
-    for (std::vector<PluginDef*>::iterator i = pv.begin(); i != pv.end(); ++i) {
-	(*i)->set_samplerate(engine.get_samplerate(), *i);
-    }
-    make_icons(true); // re-create all icons, width might have changed
+}
+
+bool MainWindow::delete_ladspalist_window() {
+    delete ladspalist_window;
+    return false;
+}
+
+void MainWindow::on_load_ladspa() {
+    ladspalist_window = new ladspa::PluginDisplay(options, sigc::mem_fun(this, &MainWindow::on_ladspa_finished));
 }
 
 void MainWindow::add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
@@ -2446,7 +2470,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       gx_head_warn(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-warn.png"))),
       actions(),
       keyswitch(gx_settings, sigc::mem_fun(this, &MainWindow::display_preset_msg)),
-      groupmap() {
+      groupmap(),
+      ladspalist_window() {
 
     convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
 

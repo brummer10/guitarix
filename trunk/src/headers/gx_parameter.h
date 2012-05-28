@@ -535,6 +535,7 @@ class ParamMap: boost::noncopyable {
  private:
     map<string, Parameter*> id_map;
     map<const void*, Parameter*> addr_map;
+    bool replace_mode;
 #ifndef NDEBUG
     void unique_zone(Parameter* param);
     void unique_id(Parameter* param);
@@ -554,6 +555,7 @@ class ParamMap: boost::noncopyable {
     bool hasZone(const void *p) const { return addr_map.find(p) != addr_map.end(); }
     bool hasId(const string& id) const { return id_map.find(id) != id_map.end(); }
     bool hasId(const char *p) const { return id_map.find(p) != id_map.end(); }
+    void set_replace_mode(bool mode) { replace_mode = mode; }
     Parameter& operator[](const void *p) {
         debug_check(check_addr, p);
         return *addr_map[p];

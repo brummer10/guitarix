@@ -645,23 +645,11 @@ bool PresetWindow::on_bank_button_release(GdkEventButton *ev) {
     return false;
 }
 
-static void strip(Glib::ustring& s) {
-    size_t n = s.find_first_not_of(' ');
-    if (n == Glib::ustring::npos) {
-	s.erase();
-	return;
-    }
-    if (n != 0) {
-	s.erase(0, n);
-    }
-    s.erase(s.find_last_not_of(' ')+1);
-}
-
 void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring& newtext, Gtk::TreeView* w) {
     Gtk::TreeIter sel = w->get_model()->get_iter(path);
     Glib::ustring oldname = sel->get_value(bank_col.name);
     Glib::ustring newname = newtext;
-    strip(newname);
+    gx_system::strip(newname);
     if (newname.empty() || newname == oldname) {
 	Gtk::TreeViewColumn *p = w->get_column(1);
 	reset_edit(*p);
@@ -929,7 +917,7 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
     Gtk::TreeIter it = pstore->get_iter(path);
     Glib::ustring oldname = it->get_value(pstore->col.name);
     Glib::ustring newname = newtext;
-    strip(newname);
+    gx_system::strip(newname);
     if (newname.empty() || newname == oldname) {
 	reset_edit(*preset_treeview->get_column(0));
 	return;

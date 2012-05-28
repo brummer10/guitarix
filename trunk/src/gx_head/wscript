@@ -27,6 +27,7 @@ def build(bld):
         ]
 
     sources_gui = [
+        './gui/ladspalist.cpp',
         './gui/gx_stackbox_builder.cpp',
         './gui/gx_main_window.cpp',
         './gui/liveplay.cpp',
@@ -53,6 +54,7 @@ def build(bld):
         './builder/iredit.glade',
         './builder/jackstarter.glade',
         './builder/mainpanel.glade',
+        './builder/ladspaliste.glade',
         './builder/crybaby_ui.glade',
         './builder/gx_distortion_ui.glade',
         './builder/amp.tonestack_ui.glade',
@@ -68,7 +70,7 @@ def build(bld):
     libpath = []
     lib = ['dl']
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
-              'GTK2', 'GTKMM', 'GIOMM', 'FFTW3']
+              'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF']
     uselib_local = []
     if bld.env['ZITA_CONVOLVER']:
         uselib.append('ZITA_CONVOLVER')

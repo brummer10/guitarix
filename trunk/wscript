@@ -492,6 +492,7 @@ def configure(conf):
     conf.check_cfg(package='gtkmm-2.4', atleast_version='2.20', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
     conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
+    conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
     if not opt.no_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
 

@@ -727,6 +727,7 @@ private:
     GxActions actions;
     KeySwitcher keyswitch;
     std::map<Glib::ustring, Gtk::ToolItemGroup*> groupmap;
+    ladspa::PluginDisplay *ladspalist_window;
 
     // Widget pointers
     Gxw::PaintBox *tunerbox;
@@ -876,6 +877,8 @@ private:
     void on_midi_out_channel_toggled(Gtk::RadioButton *rb, Gtk::Container *c);
     Gtk::ToolItemGroup *add_plugin_category(const char *cat, bool collapse = true);
     void register_plugin(PluginUI *pui);
+    void on_ladspa_finished(bool reload, bool quit);
+    bool delete_ladspalist_window();
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
 	       gx_engine::ParamMap& pmap, Gtk::Window *splash);

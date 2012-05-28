@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2012 Andreas Degert, Hermann Meyer
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <dlfcn.h>
 #include <ladspa.h>
 
@@ -15,13 +33,6 @@ namespace gx_engine {
  ** class LadspaDsp
  */
 
-class port_data {
-public:
-    LADSPA_Data port;
-    std::string id;
-    port_data(): port(), id() {}
-};
-
 class LadspaDsp: public PluginDef {
 private:
     static void init(unsigned int samplingFreq, PluginDef *plugin);
@@ -35,14 +46,15 @@ private:
     const LADSPA_Descriptor *desc;
     void *handle;
     LADSPA_Handle instance;
-    port_data *ctrl_ports;
+    LADSPA_Data *ports;
     Glib::ustring name_str;
     const plugdesc *pd;
     bool is_activated;
     void connect(int tp, int i, float *v);
     inline void cleanup();
     void set_shortname();
-    LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, int num_ctrl, bool mono);
+    std::string make_id(const paradesc& p);
+    LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, bool mono);
     ~LadspaDsp();
 public:
     static LadspaDsp *create(const plugdesc *plug);
@@ -77,16 +89,15 @@ LadspaDsp *LadspaDsp::create(const plugdesc *plug) {
 	handle = 0;
 	return NULL;
     }
-    int num_ctrl = 0;
     int num_inputs = 0;
     int num_outputs = 0;
     for (unsigned int i = 0; i < desc->PortCount; ++i) {
-	if (LADSPA_IS_PORT_CONTROL(desc->PortDescriptors[i])) {
-	    num_ctrl += 1;
-	} else if (LADSPA_IS_PORT_INPUT(desc->PortDescriptors[i])) {
-	    num_inputs += 1;
-	} else if (LADSPA_IS_PORT_OUTPUT(desc->PortDescriptors[i])) {
-	    num_outputs += 1;
+	if (LADSPA_IS_PORT_AUDIO(desc->PortDescriptors[i])) {
+	    if (LADSPA_IS_PORT_INPUT(desc->PortDescriptors[i])) {
+		num_inputs += 1;
+	    } else { // LADSPA_IS_PORT_OUTPUT(desc->PortDescriptors[i])
+		num_outputs += 1;
+	    }
 	}
     }
     bool mono;
@@ -103,13 +114,12 @@ LadspaDsp *LadspaDsp::create(const plugdesc *plug) {
 	handle = 0;
 	return NULL;
     }
-    return new LadspaDsp(plug, handle, desc, num_ctrl, mono);
+    return new LadspaDsp(plug, handle, desc, mono);
 }
 
-LadspaDsp::LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, int num_ctrl, bool mono)
+LadspaDsp::LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, bool mono)
     : PluginDef(), desc(desc_), handle(handle_), instance(),
-      ctrl_ports(), name_str(), pd(plug), is_activated(false) {
-    ctrl_ports = new port_data[num_ctrl];
+      ports(new LADSPA_Data[desc->PortCount]), name_str(), pd(plug), is_activated(false) {
     version = PLUGINDEF_VERSION;
     id = pd->id_str.c_str();
     category = pd->category.c_str();
@@ -137,6 +147,7 @@ inline void LadspaDsp::cleanup() {
 	if (!(pd->quirks & no_cleanup)) {
 	    desc->cleanup(instance);
 	}
+	instance = 0;
     }
 }
 
@@ -145,7 +156,7 @@ LadspaDsp::~LadspaDsp() {
     if (handle && !(pd->quirks & no_cleanup)) {
 	dlclose(handle);
     }
-    delete[] ctrl_ports;
+    delete[] ports;
 }
 
 int LadspaDsp::activate(bool start, PluginDef *plugin) {
@@ -184,6 +195,7 @@ void LadspaDsp::connect(int tp, int i, float *v) {
 
 void LadspaDsp::set_plugdesc(const plugdesc* pd_) {
     pd = pd_;
+    category = pd->category.c_str();
     set_shortname();
 }
 
@@ -202,10 +214,13 @@ void LadspaDsp::set_shortname() {
 void LadspaDsp::init(unsigned int samplingFreq, PluginDef *plugin) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
     self.cleanup();
+    if (samplingFreq == 0) {
+	return;
+    }
     self.instance = self.desc->instantiate(self.desc, samplingFreq);
     int n = 0;
     for (std::vector<paradesc>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
-	self.desc->connect_port(self.instance, it->index, &self.ctrl_ports[n].port);
+	self.desc->connect_port(self.instance, it->index, &self.ports[it->index]);
     }
 }
 
@@ -272,6 +287,10 @@ static Glib::ustring TrimLabel(const char *label, int cnt_in_row) {
     return pn;
 }
 
+std::string LadspaDsp::make_id(const paradesc& p) {
+    return "ladspa_" + to_string(pd->UniqueID) + "." + to_string(p.index);
+}
+
 int LadspaDsp::registerparam(const ParamReg& reg) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(reg.plugin);
     int n = 0;
@@ -292,17 +311,15 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 		left = cnt_in_row;
 	    }
 	}
-	std::string& s = self.ctrl_ports[n].id;
-	s = "ladspa_" + to_string(self.pd->UniqueID) + "." + to_string(it->index);
 	const char *nm = self.desc->PortNames[it->index];
 	Glib::ustring snm(it->name);
 	if (snm.empty() && it->tp != tp_none) {
 	    snm = TrimLabel(nm, cnt_in_row);
 	}
 	if (it->tp == tp_enum) {
-	    reg.registerEnumVar(s.c_str(), snm.c_str(), "S", nm, it->values, &self.ctrl_ports[n].port,
+	    reg.registerEnumVar(self.make_id(*it).c_str(), snm.c_str(), "S", nm, it->values, &self.ports[it->index],
 				it->dflt, it->low, it->up, it->step);
-	    } else {
+	} else {
 	    const char *tp = 0;
 	    switch (it->tp) {
 	    case tp_none:           tp = "S";  break;
@@ -314,7 +331,7 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    case tp_display_toggle: tp = "BO"; break;
 	    default: assert(false);
 	    }
-	    reg.registerVar(s.c_str(), snm.c_str(), tp, nm, &self.ctrl_ports[n].port,
+	    reg.registerVar(self.make_id(*it).c_str(), snm.c_str(), tp, nm, &self.ports[it->index],
 			    it->dflt, it->low, it->up, it->step);
 	}
     }
@@ -329,7 +346,7 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 	if (!*p) {
 	    p = 0;
 	}
-	b.create_master_slider(self.ctrl_ports[self.pd->master_idx].id.c_str(), p);
+	b.create_master_slider(self.make_id(self.pd->names[self.pd->master_idx]).c_str(), p);
     }
     b.closeBox();
     b.openVerticalBox("");
@@ -341,42 +358,43 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 	    b.openHorizontalBox("");
 	}
 	const char *p = 0;
+	std::string id = self.make_id(*it);
 	switch (it->tp) {
 	case tp_scale:
 	case tp_scale_log:
 	    if (!it->has_caption) {
 		p = "";
 	    }
-	    b.create_small_rackknob(self.ctrl_ports[n].id.c_str(), p);
+	    b.create_small_rackknob(id.c_str(), p);
 	    break;
 	case tp_toggle:
 	    if (it->has_caption) {
-		b.create_switch("switch",self.ctrl_ports[n].id.c_str(), 0);
+		b.create_switch("switch",id.c_str(), 0);
 	    } else {
-		b.create_switch_no_caption("switchit",self.ctrl_ports[n].id.c_str());
+		b.create_switch_no_caption("switchit",id.c_str());
 	    }
 	    break;
 	case tp_display:
 	    if (!it->has_caption) {
 		p = "";
 	    }
-	    b.create_port_display(self.ctrl_ports[n].id.c_str(), p);
+	    b.create_port_display(id.c_str(), p);
 	    break;
 	case tp_display_toggle:
 	    if (it->has_caption) {
-		b.create_switch("led",self.ctrl_ports[n].id.c_str(), 0);
+		b.create_switch("led",id.c_str(), 0);
 	    } else {
-		b.create_switch_no_caption("led",self.ctrl_ports[n].id.c_str());
+		b.create_switch_no_caption("led",id.c_str());
 	    }
 	    break;
 	case tp_int:
-	    b.create_spin_value(self.ctrl_ports[n].id.c_str(), 0);
+	    b.create_spin_value(id.c_str(), 0);
 	    break;
 	case tp_enum:
 	    if (it->has_caption) {
-		b.create_selector(self.ctrl_ports[n].id.c_str(), 0);
+		b.create_selector(id.c_str(), 0);
 	    } else {
-		b.create_selector_no_caption(self.ctrl_ports[n].id.c_str());
+		b.create_selector_no_caption(id.c_str());
 	    }
 	    break;
 	case tp_none:
@@ -393,50 +411,6 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 void LadspaDsp::del_instance(PluginDef *plugin) {
     delete static_cast<LadspaDsp*>(plugin);
 }
-
-
-#if 0 // unused
-class PathList {
-public:
-    typedef std::list< Glib::RefPtr<Gio::File> > pathlist;
-    typedef std::list< Glib::RefPtr<Gio::File> >::const_iterator iterator;
-private:
-    pathlist dirs;
-public:
-    PathList(const char *env_name = 0);
-    void add(const std::string& d) { dirs.push_back(Gio::File::create_for_path(d)); }
-    bool contains(const std::string& d) const;
-    bool find_dir(std::string *d, const std::string& filename) const;
-    iterator begin() { return dirs.begin(); }
-    iterator end() { return dirs.end(); }
-    size_t size() { return dirs.size(); }
-};
-
-PathList::PathList(const char *env_name): dirs() {
-    if (!env_name) {
-	return;
-    }
-    const char *p = getenv(env_name);
-    if (!p) {
-	return;
-    }
-    while (true) {
-	const char *q = strchr(p, ':');
-	if (q) {
-	    int n = q - p;
-	    if (n) {
-		add(std::string(p, n));
-	    }
-	    p = q;
-	} else {
-	    if (*p) {
-		add(p);
-	    }
-	    break;
-	}
-    }
-}
-#endif
 
 
 /****************************************************************

@@ -204,6 +204,31 @@ bool SkinHandling::is_in_list(const string& name) {
     return false;
 }
 
+PathList::PathList(const char *env_name): dirs() {
+    if (!env_name) {
+	return;
+    }
+    const char *p = getenv(env_name);
+    if (!p) {
+	return;
+    }
+    while (true) {
+	const char *q = strchr(p, ':');
+	if (q) {
+	    int n = q - p;
+	    if (n) {
+		add(std::string(p, n));
+	    }
+	    p = q;
+	} else {
+	    if (*p) {
+		add(p);
+	    }
+	    break;
+	}
+    }
+}
+
 bool PathList::contains(const string& d) const {
     Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(d);
     for (pathlist::const_iterator i = dirs.begin();
@@ -693,6 +718,18 @@ int gx_system_call(const string& cmd,
     int rc = system(str.c_str());
     sigprocmask(SIG_BLOCK, &waitset, NULL);
     return rc;
+}
+
+void strip(Glib::ustring& s) {
+    size_t n = s.find_first_not_of(' ');
+    if (n == Glib::ustring::npos) {
+	s.erase();
+	return;
+    }
+    if (n != 0) {
+	s.erase(0, n);
+    }
+    s.erase(s.find_last_not_of(' ')+1);
 }
 
 } /* end of gx_system namespace */

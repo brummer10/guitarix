@@ -1419,6 +1419,17 @@ void Parameter::dump(gx_system::JsonWriter *jw) {
 #endif
 
 void ParamMap::insert(Parameter* param) {
+    if (replace_mode) {
+	map<const void*, Parameter*>::iterator ia = addr_map.find(param->zone());
+	assert(ia != addr_map.end());
+	map<string, Parameter*>::iterator ii = id_map.find(param->id());
+	assert(ii != id_map.end());
+	assert(ii->second == ia->second);
+	Parameter *p = ii->second;
+	addr_map.erase(ia);
+	id_map.erase(ii);
+	delete p;
+    }
     debug_check(unique_zone, param);
     addr_map.insert(pair<const void*, Parameter*>(param->zone(), param));
     debug_check(unique_id, param);

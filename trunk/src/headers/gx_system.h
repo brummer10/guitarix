@@ -262,14 +262,19 @@ public:
 /****************************************************************/
 
 class PathList {
+public:
+    typedef std::list< Glib::RefPtr<Gio::File> > pathlist;
+    typedef std::list< Glib::RefPtr<Gio::File> >::const_iterator iterator;
 private:
-    typedef list< Glib::RefPtr<Gio::File> > pathlist;
     pathlist dirs;
 public:
-    PathList(): dirs() {}
+    PathList(const char *env_name = 0);
     void add(const string& d) { dirs.push_back(Gio::File::create_for_path(d)); }
     bool contains(const string& d) const;
     bool find_dir(string *d, const string& filename) const;
+    size_t size() { return dirs.size(); }
+    iterator begin() { return dirs.begin(); }
+    iterator end() { return dirs.end(); }
 };
 
 /****************************************************************
@@ -447,6 +452,7 @@ public:
  */
 
 int  gx_system_call(const string&, bool devnull = false, bool escape = false);
+void strip(Glib::ustring& s);
 
 template <class T>
 inline string to_string(const T& t) {
