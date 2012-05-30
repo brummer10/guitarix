@@ -1301,7 +1301,8 @@ void StringParameter::setJSON_value() {
 
 ParamMap::ParamMap()
     : id_map(),
-      addr_map() {
+      addr_map(),
+      replace_mode(false) {
 }
 
 ParamMap::~ParamMap() {
