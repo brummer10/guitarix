@@ -10,7 +10,7 @@ function compile() {
   opt="$opt -Wall -Wno-unused-function"
   #opt="$opt -Wno-unused-but-set-variable"
   opt="$opt -O3 -march=i686 -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
-  g++ $opt "$2".cpp -o "$2".so
+  g++ "$2".cpp -o "$2".so $opt
   rm -f faustwrap.cpp $2.cpp
   echo "created $2.so"
 }
