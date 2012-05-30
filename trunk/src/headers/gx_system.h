@@ -388,11 +388,13 @@ private:
     Logger();
     ~Logger();
     void write_queued();
+    friend class LoggerGuard;
 public:
     void unplug_queue();
     msg_signal& signal_message();
     void print(const char* func, const string& msg, GxMsgType msgtype);
     static Logger& get_logger();
+    static void destroy();
 };
 
 void  gx_print_logmsg(const char*, const string&, GxMsgType);

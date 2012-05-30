@@ -36,7 +36,6 @@ namespace gx_engine {
 
 /* Midi */
 MidiStandardControllers midi_std_ctr; // map ctrl num -> standard name
-MidiControllerList controller_map; // map ctrl num -> controlled parameters
 
 
 /****************************************************************

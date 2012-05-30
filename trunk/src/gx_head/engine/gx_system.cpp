@@ -543,9 +543,28 @@ Logger::Logger()
       queue_all_msgs(true) {
 }
 
+static class LoggerGuard {
+private:
+    Logger *logger_instance;
+public:
+    LoggerGuard() : logger_instance(0) {}
+    ~LoggerGuard() { destroy(); }
+    void create() { logger_instance = new Logger; }
+    void destroy() { if (logger_instance) { delete logger_instance; logger_instance = 0; }}
+    Logger *get() { return logger_instance; }
+} logger_guard;
+
 Logger& Logger::get_logger() {
-    static Logger instance;
-    return instance;
+    Logger *l = logger_guard.get();
+    if (!l) {
+	logger_guard.create();
+	l = logger_guard.get();
+    }
+    return *l;
+}
+
+void Logger::destroy() {
+    logger_guard.destroy();
 }
 
 Logger::~Logger() {
