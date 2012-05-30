@@ -129,6 +129,7 @@ def build(bld):
         'gxamp16.dsp',
         'gxamp17.dsp',
         'gxamp18.dsp',
+        'gxnoamp.dsp',
 
         # bypass mode
         'balance.dsp',

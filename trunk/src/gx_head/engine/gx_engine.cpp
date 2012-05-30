@@ -94,6 +94,9 @@ static plugindef_creator builtin_amp_plugins[] = {
     gx_amps::gxamp8::plugin,
     gx_amps::gxamp16::plugin,
     gx_amps::gxamp6::plugin,
+
+    gx_amps::gxnoamp::plugin, // keep last position (UI switches controls)
+
     0
 };
 

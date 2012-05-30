@@ -879,6 +879,7 @@ private:
     void register_plugin(PluginUI *pui);
     void on_ladspa_finished(bool reload, bool quit);
     bool delete_ladspalist_window();
+    void amp_controls_visible(Gtk::Range *rr);
 public:
     MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
 	       gx_engine::ParamMap& pmap, Gtk::Window *splash);

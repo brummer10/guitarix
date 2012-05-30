@@ -2410,6 +2410,17 @@ bool MainWindow::on_key_press_event(GdkEventKey *event) {
     return false;
 }
 
+void MainWindow::amp_controls_visible(Gtk::Range *rr) {
+    //FIXME
+    bool v = abs(rr->get_value() - pmap["tube.select"].getUpperAsFloat()) < 0.5;
+    const char *knobs[] = {"gxbigknob1","gxbigknob2","gxbigknob3"};
+    for (unsigned int i = 0; i < sizeof(knobs)/sizeof(knobs[0]); ++i) {
+	Gtk::Widget *w;
+	bld->find_widget(knobs[i], w);
+	w->set_visible(!v);
+    }
+}
+
 int MainWindow::skin = -1;
 bool MainWindow::no_warn_latency = false;
 int MainWindow::mainwin_x = -1;
@@ -2817,6 +2828,14 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 
     Glib::signal_timeout().connect(
 	sigc::mem_fun(*this, &MainWindow::update_all_gui), 40);
+
+    Gtk::Range *rr;
+    bld->find_widget("gxselector1:amp_selector", rr);
+    rr->signal_value_changed().connect(
+	sigc::bind(
+	    sigc::mem_fun(this, &MainWindow::amp_controls_visible),
+	    rr));
+    amp_controls_visible(rr);
 }
 
 MainWindow::~MainWindow() {
