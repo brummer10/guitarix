@@ -288,7 +288,7 @@ static Glib::ustring TrimLabel(const char *label, int cnt_in_row) {
 }
 
 std::string LadspaDsp::make_id(const paradesc& p) {
-    return "ladspa_" + to_string(pd->UniqueID) + "." + to_string(p.index);
+    return pd->id_str + "." + to_string(p.index);
 }
 
 int LadspaDsp::registerparam(const ParamReg& reg) {
@@ -456,9 +456,10 @@ void LadspaLoader::update_instance(PluginDef *pdef, plugdesc *pdesc) {
     static_cast<LadspaDsp*>(pdef)->set_plugdesc(pdesc);
 }
 
-void LadspaLoader::try_read_module_config(const std::string& filename, plugdesc *p) {
+void LadspaLoader::read_module_config(const std::string& filename, plugdesc *p) {
     std::ifstream ifs(filename.c_str());
     if (ifs.fail()) {
+	gx_print_error("ladspaloader", ustring::compose(_("can't open %1"), filename));
         return;
     }
     gx_system::JsonParser jp(&ifs);
@@ -542,12 +543,20 @@ void LadspaLoader::read_module_list(const gx_system::CmdlineOptions& options, pl
 	jp.next(gx_system::JsonParser::value_string);
 	p->Label = jp.current_value();
 	jp.next(gx_system::JsonParser::end_array);
-	std::string s = options.get_plugin_filepath("ladspa"+to_string(p->UniqueID)+".js");
-	try {
-	    try_read_module_config(s, p);
-	} catch (JsonException &e) {
-	    gx_print_error("ladspaloader",ustring::compose(_("read error in file %1"), s));
-	    throw e;
+	std::string s = get_ladspa_filename(p->UniqueID);
+	std::string fname = options.get_plugin_filepath(s);
+	if (access(fname.c_str(), F_OK) != 0) {
+	    fname = options.get_factory_filepath(s);
+	    if (access(fname.c_str(), F_OK) != 0) {
+		fname = "";
+	    }
+	}
+	if (!fname.empty()) {
+	    try {
+		read_module_config(fname, p);
+	    } catch (JsonException &e) {
+		gx_print_error("ladspaloader",ustring::compose(_("read error in file %1: %2"), s, e.what()));
+	    }
 	}
 	p->id_str = "ladspa_";
 	p->id_str += to_string(p->UniqueID);

@@ -488,7 +488,7 @@ public:
 private:
     pluginarray plugins;
 private:
-    void try_read_module_config(const std::string& filename, plugdesc *p);
+    void read_module_config(const std::string& filename, plugdesc *p);
     void read_module_list(const gx_system::CmdlineOptions& options, pluginarray& p);
 public:
     LadspaLoader(const gx_system::CmdlineOptions& options);
@@ -502,6 +502,8 @@ public:
     pluginarray::iterator find(unsigned long uniqueid);
     void set_plugins(pluginarray& new_plugins) { plugins = new_plugins; }
     void update_instance(PluginDef *pdef, plugdesc *pdesc);
+    static std::string get_ladspa_filename(unsigned long uid)
+	{ return "ladspa"+gx_system::to_string(uid)+".js"; }
 };
 
 } // namespace gx_engine

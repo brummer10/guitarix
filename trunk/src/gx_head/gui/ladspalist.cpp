@@ -892,6 +892,7 @@ void PluginDesc::output_entry(JsonWriter& jw) {
 void PluginDesc::set_state(const ustring& fname) {
     ifstream is(fname.c_str());
     if (is.fail()) {
+	gx_system::gx_print_error("ladspalist", ustring::compose(_("can't open %1"), fname));
 	return;
     }
     try {
@@ -1519,7 +1520,8 @@ bool PluginDisplay::do_save() {
     tfile.close();
     std::vector<std::pair<std::string,std::string> > fl;
     for (std::vector<PluginDesc*>::iterator p = pluginlist.begin(); p != pluginlist.end(); ++p) {
-	std::string cname = get_ladspa_plugin_config((*p)->UniqueID);
+	std::string cname = options.get_plugin_filepath(
+	    gx_engine::LadspaLoader::get_ladspa_filename((*p)->UniqueID));
 	if ((*p)->active || (*p)->has_settings) {
 	    std::string tcname = cname + ".tmp";
 	    ofstream tcfile(tcname.c_str());
@@ -2270,7 +2272,17 @@ void PluginDisplay::load_ladspalist(std::vector<unsigned long>& old_not_found, s
     }
     for (std::map<unsigned long, PluginDesc*>::iterator v = d.begin(); v != d.end(); ++v) {
 	v->second->fixup();
-	v->second->set_state(get_ladspa_plugin_config(v->first));
+	std::string s = gx_engine::LadspaLoader::get_ladspa_filename(v->first);
+	std::string fname = options.get_plugin_filepath(s);
+	if (access(fname.c_str(), F_OK) != 0) {
+	    fname = options.get_factory_filepath(s);
+	    if (access(fname.c_str(), F_OK) != 0) {
+		fname = "";
+	    }
+	}
+	if (!fname.empty()) {
+	    v->second->set_state(fname);
+	}
     }
     for (std::map<unsigned long, PluginDesc*>::iterator i = d.begin(); i != d.end(); ++i) {
 	l.push_back(i->second);
