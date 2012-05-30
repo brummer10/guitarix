@@ -402,6 +402,27 @@ static void log_terminal(const string& msg, gx_system::GxMsgType tp, bool plugge
     }
 }
 
+static int logger_inited = 0;
+
+static void init_logger() {
+    if (logger_inited++) {
+	return;
+    }
+    gx_system::Logger& log(gx_system::Logger::get_logger());
+    if (log.signal_message().empty()) {
+	log.signal_message().connect(sigc::ptr_fun(log_terminal));
+	log.unplug_queue();
+    }
+}
+
+static void destroy_logger() {
+    if (--logger_inited > 0) {
+	return;
+    }
+    gx_system::Logger::destroy();
+}
+
+
 /****************************************************************
  ** class LadspaGuitarix
  */
@@ -424,6 +445,7 @@ private:
 	PresetLoader();
 	~PresetLoader();
     public:
+	static void start_presetloader() { if (!instance) create(); }
 	static void create();
 	static void destroy();
 	static void add_instance(LadspaGuitarix* i);
@@ -455,6 +477,7 @@ protected:
     LadspaGuitarix(EngineControl& engine, ConvolverAdapter* convolver,
 		   ControlParameter& cp, const char *envvar);
     ~LadspaGuitarix();
+    static void start_presetloader() { PresetLoader::start_presetloader(); }
 };
 
 static string get_statefile() {
@@ -621,12 +644,14 @@ void LadspaGuitarix::PresetLoader::destroy() {
 }
 
 void LadspaGuitarix::PresetLoader::run_mainloop() {
+    init_logger();
     instance = new PresetLoader();
     instance->new_preset.connect(sigc::mem_fun(*instance, &PresetLoader::load_presets));
     sem_post(&instance->created_sem);
     instance->mainloop->run();
     delete instance;
     instance = 0;
+    destroy_logger();
 }
 
 void LadspaGuitarix::PresetLoader::load_presets() {
@@ -1112,6 +1137,7 @@ void LadspaGuitarixMono::connectPortToGuitarix(
 
 LADSPA_Handle LadspaGuitarixMono::instantiateGuitarix(
     const LADSPA_Descriptor * Descriptor, unsigned long SampleRate) {
+    start_presetloader();
     return new LadspaGuitarixMono(SampleRate);
 }
 
@@ -1632,6 +1658,7 @@ void LadspaGuitarixStereo::connectPortToGuitarix(
 
 LADSPA_Handle LadspaGuitarixStereo::instantiateGuitarix(
     const LADSPA_Descriptor * Descriptor, unsigned long SampleRate) {
+    start_presetloader();
     return new LadspaGuitarixStereo(SampleRate);
 }
 
@@ -1858,11 +1885,6 @@ const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) {
 	inited = 1;
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-	gx_system::Logger& log(gx_system::Logger::get_logger());
-	if (log.signal_message().empty()) {
-	    log.signal_message().connect(sigc::ptr_fun(log_terminal));
-	    log.unplug_queue();
-	}
     }
     switch (Index) {
     case 0:

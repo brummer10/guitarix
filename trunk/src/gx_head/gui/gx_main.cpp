@@ -320,6 +320,7 @@ int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& 
 namespace gx_engine {
 //FIXME should not be global but needed for UI atm.
 ParamMap parameter_map;
+MidiControllerList controller_map;
 }
 
 int main(int argc, char *argv[]) {
