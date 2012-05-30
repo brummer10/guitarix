@@ -336,6 +336,7 @@ public:
     PluginDisplay(const gx_system::CmdlineOptions& options, sigc::slot<void,bool,bool> finished_callback);
     ~PluginDisplay();
     bool check_exit();
+    void present() { window->present(); }
 };
 
 } // namespace ladspa

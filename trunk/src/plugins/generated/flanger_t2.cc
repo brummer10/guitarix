@@ -143,8 +143,8 @@ int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("flanger_mono_t2.depth","","S","",&fslider4, 0.5, 0.0, 5.0, 0.01);
 	reg.registerVar("flanger_mono_t2.width","","S","",&fslider3, 5.0, 0.0, 1e+01, 0.01);
-	reg.registerVar("flanger_mono_t2.freq","","S","",&fslider2, 0.2, 0.05, 5.0, 0.01);
-	reg.registerVar("flanger_mono_t2.feedback","","S","",&fslider1, 0.0, -1.0, 1.0, 0.01);
+	reg.registerVar("flanger_mono_t2.freq","","SL","",&fslider2, 0.2, 0.05, 5.0, 1.05);
+	reg.registerVar("flanger_mono_t2.feedback","","S","",&fslider1, -0.707, -1.0, 1.0, 0.01);
 	reg.registerVar("flanger_mono_t2.wet","","S","",&fslider0, 1.0, 0.0, 1.0, 0.1);
 	return 0;
 }

@@ -1473,7 +1473,9 @@ void MainWindow::create_actions() {
 	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
 
     actions.quit = Gtk::Action::create("Quit",_("_Quit"));
-    actions.group->add(actions.quit, sigc::ptr_fun(Gtk::Main::quit));
+    actions.group->add(
+	actions.quit,
+	sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_quit)));
 
     /*
     ** actions to open other (sub)windows
@@ -1806,11 +1808,16 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 
 bool MainWindow::delete_ladspalist_window() {
     delete ladspalist_window;
+    ladspalist_window = 0;
     return false;
 }
 
 void MainWindow::on_load_ladspa() {
-    ladspalist_window = new ladspa::PluginDisplay(options, sigc::mem_fun(this, &MainWindow::on_ladspa_finished));
+    if (ladspalist_window) {
+	ladspalist_window->present();
+    } else {
+	ladspalist_window = new ladspa::PluginDisplay(options, sigc::mem_fun(this, &MainWindow::on_ladspa_finished));
+    }
 }
 
 void MainWindow::add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
@@ -2410,6 +2417,14 @@ bool MainWindow::on_key_press_event(GdkEventKey *event) {
     return false;
 }
 
+bool MainWindow::on_quit() {
+    if (ladspalist_window && !ladspalist_window->check_exit()) {
+	return true;
+    }
+    Gtk::Main::quit();
+    return false;
+}
+
 void MainWindow::amp_controls_visible(Gtk::Range *rr) {
     //FIXME
     bool v = abs(rr->get_value() - pmap["tube.select"].getUpperAsFloat()) < 0.5;
@@ -2558,11 +2573,9 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     window->signal_window_state_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_window_state_changed));
     window->signal_delete_event().connect(
-	sigc::bind_return(
-	    sigc::hide(
-		sigc::ptr_fun(Gtk::Main::quit)),
-	    true));
-    window->signal_configure_event().connect_notify(sigc::mem_fun(*this, &MainWindow::on_configure_event));
+	sigc::hide(sigc::mem_fun(this, &MainWindow::on_quit)));
+    window->signal_configure_event().connect_notify(
+	sigc::mem_fun(*this, &MainWindow::on_configure_event));
     window->signal_visibility_notify_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_visibility_notify));
     window->signal_key_press_event().connect(

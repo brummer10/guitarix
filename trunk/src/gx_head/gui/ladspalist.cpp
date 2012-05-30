@@ -1406,7 +1406,9 @@ bool PluginDisplay::check_for_changes() {
 	    break;
 	}
     }
-    set_old_state(cur);
+    if (cur) {
+	set_old_state(cur);
+    }
     return ret;
 }
 
@@ -1665,7 +1667,7 @@ void PluginDisplay::selection_changed() {
     plugin_name->set_text("");
     plugin_category->set_active(-1);
     plugin_quirks->set_active(-1);
-    if (!it) {
+    if (!p) {
 	return;
     }
     set_old_state(p);
