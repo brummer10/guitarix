@@ -43,6 +43,8 @@ ParamRegImpl::ParamRegImpl(gx_engine::ParamMap* pm): ParamReg() {
 float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* tp,
 			      const char* tooltip, float* var, float val,
 			      float low, float up, float step) {
+    assert(step > 0);
+    assert(up > low);
     if (!name[0]) {
 	assert(strrchr(id, '.'));
 	name = strrchr(id, '.')+1;
@@ -67,6 +69,7 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
 	i = 1;
 	p = pmap->reg_par(id, name, var, val, low, up, step);
 	if (tp[1] == 'L') {
+	    assert(step > 1);
 	    p->set_log_display();
 	    i = 2;
 	}

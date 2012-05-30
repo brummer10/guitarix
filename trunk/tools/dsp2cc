@@ -25,6 +25,8 @@ class UIDefs(object):
             d["prefix"] = prefix
             d["N_name"] = wrap_N_("%(name)s" % self)
             d["N_tooltip"] = wrap_N_("%(tooltip)s" % self)
+            if "log" in d:
+                d["type"] += "L"
             if "alias" in d:
                 assert "enum" not in d
                 fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
