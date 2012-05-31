@@ -1109,17 +1109,19 @@ void RackBox::pack(Gtk::Widget *main, Gtk::Widget *mini) {
     minibox->pack(mini);
 }
 
-Gtk::VBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
+Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
+    Gtk::HBox *bx = new Gtk::HBox();
     Gtk::VBox *vx = new Gtk::VBox();
+    bx->pack_start(*manage(vx));
     Gtk::Widget *effect_label = make_label(plugin, options, false);
     vx->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
-    Gtk::HBox *bx = new Gtk::HBox();
-    vx->pack_start(*manage(bx), Gtk::PACK_EXPAND_PADDING);
-    bx->pack_start(*manage(switcher_vbox(options)), Gtk::PACK_SHRINK);
+    Gtk::HBox *bx2 = new Gtk::HBox();
+    vx->pack_start(*manage(bx2));
+    bx2->pack_start(*manage(switcher_vbox(options)), Gtk::PACK_SHRINK);
     box.set_name(plugin.get_id());
     box.set_border_width(4);
     box.property_paint_func().set_value("RackBox_expose");
-    bx->pack_start(box);
+    bx2->pack_start(box);
     Gtk::VBox *vbox = new Gtk::VBox();
     vbox->pack_start(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
     if (!(plugin.plugin->pdef->flags & PGN_NO_PRESETS)) {
@@ -1130,8 +1132,8 @@ Gtk::VBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     al->set_padding(1, 0, 0, 4);
     bx->pack_end(*manage(al), Gtk::PACK_SHRINK);
     bx->pack_end(*manage(wrap_bar(4, 8)), Gtk::PACK_SHRINK);
-    vx->show_all();
-    return vx;
+    bx->show_all();
+    return bx;
 }
 
 Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
