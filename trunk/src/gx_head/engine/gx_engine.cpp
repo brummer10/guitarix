@@ -130,8 +130,10 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
       midiaudiobuffer(tuner),
       maxlevel(),
       oscilloscope(&ui, *this),
-      convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync),
-		param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
+      mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync),
+		     param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
+      stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync),
+		       param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       ladspaloader(options) {
@@ -222,6 +224,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::overdrive::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::echo::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::delay::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&mono_convolver.plugin,                PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::freeverb::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&oscilloscope.plugin,                  PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::biquad::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
@@ -243,7 +246,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::moog::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_amps::gx_ampmodul::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::tonecontroll::plugin(),    PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&convolver.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&stereo_convolver.plugin,              PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::stereoverb::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::zita_rev1::plugin(),        PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_stereo(),      PLUGIN_POS_RACK);

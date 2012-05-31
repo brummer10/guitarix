@@ -38,14 +38,16 @@ struct uiToggleButton : public gx_ui::GxUiItemBool {
 #define kTabMode 2
 
 class StackBoxBuilder {
-protected:
-    int&                  fTop;
-    GtkWidget*            (&fBox)[stackSize];
-    gx_engine::GxEngine&  engine;
-    const gx_preset::GxSettings& gx_settings;
-    int                   (&fMode)[stackSize];
-    Gxw::WaveView&        fWaveView;
-    Gtk::Label&           convolver_filename_label;
+private:
+    int                  fTop;
+    GtkWidget*           fBox[stackSize];
+    int                  fMode[stackSize];
+    gx_engine::GxEngine& engine;
+    gx_preset::GxSettings& gx_settings;
+    Gxw::WaveView&       fWaveView;
+    Gtk::Label&          convolver_filename_label;
+    Gtk::Label&          convolver_mono_filename_label;
+    Gtk::HBox           *widget;
     gx_ui::GxUI&          ui;
     Glib::RefPtr<Gtk::AccelGroup> accels;
     Glib::RefPtr<Gdk::Pixbuf> window_icon;
@@ -55,12 +57,9 @@ protected:
     static const          gboolean homogene = false;
     void loadRackFromGladeData(const char *xmldesc);
     void set_convolver_filename();
-protected:
-    virtual void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog) = 0;
-    virtual void closeMonoRackBox() = 0;
-    virtual void openStereoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_dialog) = 0;
-    virtual void closeStereoRackBox() = 0;
-    virtual void openVerticalMidiBox(const char* label = "") = 0;
+    void set_convolver_mono_filename();
+private:
+    void openVerticalMidiBox(const char* label = "");
     // functions used in interfaces
     void create_master_slider(string id) {
 	addwidget(UiRackMasterRegler::create(ui, new Gxw::HSlider(), id));
@@ -155,10 +154,11 @@ protected:
     void addStatusDisplay(const char* label, bool* zone );
     void addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void openSetLabelBox();
+    void openSetMonoLabelBox();
     void addJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void addJConvButton(const char* label, gx_jconv::IRWindow *irw);
     void addJToggleButton(const char* label, bool* zone);
-protected:
+private:
     // functions used indirectly
     void          pushBox(int mode, GtkWidget* w);
     GtkWidget*            addWidget(const char* label, GtkWidget* w);
@@ -173,14 +173,18 @@ protected:
     void addCheckButton(const char* label, bool* zone);
     void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
     void addMToggleButton(const char* label, bool* zone);
+    friend class UiBuilderImpl;
 public:
     StackBoxBuilder(
-	int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
-	gx_preset::GxSettings& gx_settings_, int (&fMode_)[stackSize],
-	Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui,
+	gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
+	Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
+	Gtk::Label& convolver_mono_filename_label_, gx_ui::GxUI& ui,
 	Glib::RefPtr<Gdk::Pixbuf> window_icon);
     ~StackBoxBuilder();
-    friend class UiBuilderImpl;
+    void set_accelgroup(Glib::RefPtr<Gtk::AccelGroup> accels_) { accels = accels_; }
+    void get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
+    void prepare();
+    void fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
     // mono
     void make_rackbox_ampdetail();
     void make_rackbox_overdrive();
@@ -203,6 +207,7 @@ public:
     void make_rackbox_feedback();
     void make_rackbox_amp_tonestack();
     void make_rackbox_cab();
+    void make_rackbox_jconv_mono();
     void make_rackbox_midi_out();
     // stereo
     void make_rackbox_chorus();

@@ -206,7 +206,7 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
         jp.next(gx_system::JsonParser::value_key);
         if (jp.current_value() == "engine") {
             read_parameters(jp, true);
-        } else if (jp.current_value() == "jconv") {
+        } else if (jp.current_value() == "jconv") { // for backwards compatibility
 	    jcset = new gx_engine::GxJConvSettings();
 	    jcset->readJSON(jp, opt.get_IR_pathlist());
         } else if (jp.current_value() == "midi_controller") {

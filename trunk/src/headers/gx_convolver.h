@@ -130,6 +130,10 @@ public:
         unsigned int length, unsigned int size, unsigned int bufsize,
         const Gainline& gainline);
     bool compute(int count, float* input1, float *input2, float *output1, float *output2);
+    bool configure(string fname, float gain, unsigned int delay, unsigned int offset,
+		   unsigned int length, unsigned int size, unsigned int bufsize,
+		   const Gainline& gainline);
+    bool compute(int count, float* input, float *output);
     static void compute_interpolation(double& fct, double& gp, unsigned int& idx,
 				      const Gainline& points, int offset);
 };

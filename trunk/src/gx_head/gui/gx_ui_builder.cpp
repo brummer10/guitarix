@@ -58,9 +58,9 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 
 StackBoxBuilder *UiBuilderImpl::intf = 0;
 
-UiBuilderImpl::UiBuilderImpl(StackBoxBuilder *i)
-    : UiBuilderBase() {
-    intf = i;
+UiBuilderImpl::UiBuilderImpl(MainWindow *i, gx_gui::StackBoxBuilder *b, std::vector<PluginUI*> *pl)
+    : UiBuilderBase(), main(*i), pluginlist(pl) {
+    intf = b;
     openVerticalBox = openVerticalBox_;
     openVerticalBox1 = openVerticalBox1_;
     openVerticalBox2 = openVerticalBox2_;
@@ -77,6 +77,17 @@ UiBuilderImpl::UiBuilderImpl(StackBoxBuilder *i)
     create_selector_no_caption = create_selector_no_caption_;
     create_port_display = create_port_display_;
 };
+
+bool UiBuilderImpl::load_unit(PluginUI &pl) {
+    PluginDef *pd = pl.plugin->pdef;
+    if (!pd->load_ui) {
+	return false;
+    }
+    intf->prepare();
+    plugin = pd;
+    pd->load_ui(*this);
+    return true;
+}
 
 void UiBuilderImpl::openVerticalBox_(const char* label) {
     intf->openVerticalBox(label);
@@ -148,29 +159,13 @@ void UiBuilderImpl::load_glade_(const char *data) {
 
 bool UiBuilderImpl::load(gx_engine::Plugin *p) {
     PluginDef *pd = p->pdef;
-    if (!pd->load_ui) {
+    if (!(pd->flags & PGN_GUI) || !(pd->flags & gx_engine::PGNI_DYN_POSITION)) {
 	return false;
     }
-    plugin = pd;
-    string s = pd->id;
-    string id_on_off = s + ".on_off";
-    string id_dialog = string("ui.") + pd->name;
-    const char *name = pd->name;
-    if (name && name[0]) {
-	name = gettext(name);
-    }
-    if (pd->flags & PGN_STEREO) {
-	intf->openStereoRackBox(name, &(p->position), id_on_off.c_str(), id_dialog.c_str());
-	pd->load_ui(*this);
-	intf->closeStereoRackBox();
-    } else {
-	string id_pre_post = s+".pp";
-	intf->openMonoRackBox(name, &(p->position), id_on_off.c_str(), id_pre_post.c_str(), id_dialog.c_str());
-	pd->load_ui(*this);
-	intf->closeMonoRackBox();
-    }
+    main.add_plugin(*pluginlist, pd->id, "", "");
     return true;
 }
+
 } /* end of gx_gui namespace */
 
 /****************************************************************

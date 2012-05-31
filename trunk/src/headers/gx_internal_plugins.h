@@ -321,12 +321,8 @@ typedef ParameterV<GxJConvSettings> JConvParameter;
  ** class ConvolverAdapter
  */
 
-#include "faust/jconv_post.h"
-#include "faust/cabinet_impulse_former.h"
-#include "faust/presence_level.h"
-
-class ConvolverAdapter: PluginDef {
-private:
+class ConvolverAdapter: protected PluginDef {
+protected:
     GxConvolver conv;
     boost::mutex activate_mutex;
     EngineControl& engine;
@@ -335,13 +331,7 @@ private:
     const gx_system::PathList& pathlist;
     std::string sys_ir_dir;
     bool activated;
-    jconv_post::Dsp jc_post;
     // wrapper for the rack order function pointers
-    static void convolver(int count, float *input0, float *input1,
-			  float *output0, float *output1, PluginDef*);
-    static int activate(bool start, PluginDef *pdef);
-    static int convolver_register(const ParamReg& reg);
-    static void convolver_init(unsigned int samplingFreq, PluginDef *pdef);
     void change_buffersize(unsigned int size);
     sigc::signal<void> settings_changed;
     GxJConvSettings jcset;
@@ -364,6 +354,46 @@ public:
     const gx_system::PathList& get_pathlist() const { return pathlist; }
     const std::string& get_sys_IR_dir() const { return sys_ir_dir; }
     ParamMap& get_parameter_map() const { return param; }
+};
+
+
+/****************************************************************
+ ** class ConvolverStereoAdapter
+ */
+
+#include "faust/jconv_post.h"
+
+class ConvolverStereoAdapter: public ConvolverAdapter {
+private:
+    jconv_post::Dsp jc_post;
+    // wrapper for the rack order function pointers
+    static void convolver_init(unsigned int samplingFreq, PluginDef *pdef);
+    static int activate(bool start, PluginDef *pdef);
+    static void convolver(int count, float *input0, float *input1,
+			  float *output0, float *output1, PluginDef*);
+    static int convolver_register(const ParamReg& reg);
+public:
+    ConvolverStereoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param,
+		     const gx_system::PathList& pathlist, const std::string& sys_ir_dir);
+    ~ConvolverStereoAdapter();
+};
+
+
+/****************************************************************
+ ** class ConvolverMonoAdapter
+ */
+
+class ConvolverMonoAdapter: public ConvolverAdapter {
+private:
+    // wrapper for the rack order function pointers
+    static void convolver_init(unsigned int samplingFreq, PluginDef *pdef);
+    static int activate(bool start, PluginDef *pdef);
+    static void convolver(int count, float *input, float *output, PluginDef*);
+    static int convolver_register(const ParamReg& reg);
+public:
+    ConvolverMonoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param,
+		     const gx_system::PathList& pathlist, const std::string& sys_ir_dir);
+    ~ConvolverMonoAdapter();
 };
 
 
@@ -399,6 +429,8 @@ public:
  ** class CabinetConvolver
  */
 
+#include "faust/cabinet_impulse_former.h"
+
 class CabinetConvolver: public BaseConvolver {
 private:
     int current_cab;
@@ -427,6 +459,8 @@ public:
 /****************************************************************
  ** class ContrastConvolver
  */
+
+#include "faust/presence_level.h"
 
 class ContrastConvolver: public BaseConvolver {
 private:

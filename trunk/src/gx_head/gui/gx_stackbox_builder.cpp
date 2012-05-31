@@ -129,17 +129,111 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
  */
 
 StackBoxBuilder::StackBoxBuilder(
-    int& fTop_, GtkWidget*(&fBox_)[stackSize], gx_engine::GxEngine& engine_,
-    gx_preset::GxSettings& gx_settings_, int (&fMode_)[stackSize],
-    Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui_,
+    gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
+    Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
+    Gtk::Label &convolver_mono_filename_label_, gx_ui::GxUI& ui_,
     Glib::RefPtr<Gdk::Pixbuf> window_icon_)
-    : fTop(fTop_), fBox(fBox_), engine(engine_), gx_settings(gx_settings_),
-      fMode(fMode_), fWaveView(fWaveView_),
-      convolver_filename_label(convolver_filename_label_), ui(ui_), accels(),
-      window_icon(window_icon_) {
+    : fTop(0), fBox(), fMode(), engine(engine_), gx_settings(gx_settings_),
+      fWaveView(fWaveView_), convolver_filename_label(convolver_filename_label_),
+      convolver_mono_filename_label(convolver_mono_filename_label_),
+      widget(), ui(ui_), accels(), window_icon(window_icon_) {
 }
 
 StackBoxBuilder::~StackBoxBuilder() {
+}
+
+/****************************************************************
+ ** class StackBoxBuilder
+ */
+
+void StackBoxBuilder::openVerticalMidiBox(const char* label) {
+    openVerticalBox(label);
+}
+
+void StackBoxBuilder::prepare() {
+    fTop = 0;
+    widget = new Gtk::HBox();
+    widget->show();
+    fBox[fTop] = GTK_WIDGET(widget->gobj());
+    fMode[fTop] = kBoxMode;
+}
+
+#ifndef NDEBUG
+void wnotify(gpointer data, GObject *where_the_object_was) {
+    printf("WN %p %p\n", where_the_object_was, data);
+}
+
+// check if object will be finalized
+void trace_finalize(Glib::Object *o, int n) {
+    g_object_weak_ref(o->gobj(), wnotify, (gpointer)n);
+}
+#endif
+
+void StackBoxBuilder::fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox) {
+    assert(fTop == 0);
+    mainbox = widget;
+    Glib::ListHandle<Gtk::Widget*> l = widget->get_children();
+    if (l.size() == 2) {
+	Glib::ListHandle<Gtk::Widget*>::iterator i = l.begin();
+	minibox = new Gtk::VBox();
+	minibox->show();
+	(*i)->show();
+	(*i)->reference(); //FIXME can't unmanage widget, reparent unrefs
+	(*i)->reparent(*minibox);
+    } else {
+	minibox = 0;
+    }
+}
+
+void StackBoxBuilder::get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox) {
+    struct {
+	const char *name;
+	void (StackBoxBuilder::*func)();
+    } mapping[] = {
+	// mono
+	//{ "ampdetail", &StackBoxBuilder::make_rackbox_ampdetail },
+	{ "overdrive", &StackBoxBuilder::make_rackbox_overdrive },
+	{ "echo", &StackBoxBuilder::make_rackbox_echo },
+	{ "delay", &StackBoxBuilder::make_rackbox_delay },
+	{ "freeverb", &StackBoxBuilder::make_rackbox_freeverb },
+	{ "oscilloscope", &StackBoxBuilder::make_rackbox_oscilloscope },
+	{ "low_highpass", &StackBoxBuilder::make_rackbox_low_highpass },
+	{ "eqs", &StackBoxBuilder::make_rackbox_eqs },
+	//{ "crybaby", &StackBoxBuilder::make_rackbox_crybaby },
+	//{ "gx_distortion", &StackBoxBuilder::make_rackbox_gx_distortion },
+	{ "IR", &StackBoxBuilder::make_rackbox_IR },
+	{ "compressor", &StackBoxBuilder::make_rackbox_compressor },
+    { "expander", &StackBoxBuilder::make_rackbox_expander },
+	{ "biquad", &StackBoxBuilder::make_rackbox_biquad },
+	//{ "tremolo", &StackBoxBuilder::make_rackbox_tremolo },
+	{ "phaser_mono", &StackBoxBuilder::make_rackbox_phaser_mono },
+	{ "chorus_mono", &StackBoxBuilder::make_rackbox_chorus_mono },
+	{ "flanger_mono", &StackBoxBuilder::make_rackbox_flanger_mono },
+	{ "feedback", &StackBoxBuilder::make_rackbox_feedback },
+	//{ "amp.tonestack", &StackBoxBuilder::make_rackbox_amp_tonestack },
+	{ "cab", &StackBoxBuilder::make_rackbox_cab },
+	{ "jconv_mono", &StackBoxBuilder::make_rackbox_jconv_mono },
+	{ "midi_out", &StackBoxBuilder::make_rackbox_midi_out },
+	// stereo
+	{ "chorus", &StackBoxBuilder::make_rackbox_chorus },
+	{ "flanger", &StackBoxBuilder::make_rackbox_flanger },
+	{ "phaser", &StackBoxBuilder::make_rackbox_phaser },
+	{ "stereodelay", &StackBoxBuilder::make_rackbox_stereodelay },
+	{ "stereoecho", &StackBoxBuilder::make_rackbox_stereoecho },
+	{ "moog", &StackBoxBuilder::make_rackbox_moog },
+	{ "ampmodul", &StackBoxBuilder::make_rackbox_ampmodul },
+	{ "tonemodul", &StackBoxBuilder::make_rackbox_tonemodul },
+	{ "jconv", &StackBoxBuilder::make_rackbox_jconv },
+	{ "stereoverb", &StackBoxBuilder::make_rackbox_stereoverb }
+    };
+    mainbox = minibox = 0;
+    for (unsigned int i = 0; i < sizeof(mapping) / sizeof(mapping[0]); ++i) {
+	if (name == mapping[i].name) {
+	    prepare();
+	    (this->*mapping[i].func)();
+	    fetch(mainbox, minibox);
+	}
+    }
 }
 
 void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
@@ -199,7 +293,11 @@ void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWind
 }
 
 void StackBoxBuilder::set_convolver_filename() {
-    convolver_filename_label.set_label(engine.convolver.getIRFile());
+    convolver_filename_label.set_label(engine.stereo_convolver.getIRFile());
+}
+
+void StackBoxBuilder::set_convolver_mono_filename() {
+    convolver_mono_filename_label.set_label(engine.mono_convolver.getIRFile());
 }
 
 void StackBoxBuilder::openSetLabelBox() {
@@ -214,12 +312,33 @@ void StackBoxBuilder::openSetLabelBox() {
     convolver_filename_label.modify_font(font);
     box->pack_start(convolver_filename_label, false, false, 0);
     box->show_all();
-    convolver_filename_label.set_label(engine.convolver.getIRFile());
-    engine.convolver.signal_settings_changed().connect(
+    convolver_filename_label.set_label(engine.stereo_convolver.getIRFile());
+    engine.stereo_convolver.signal_settings_changed().connect(
 	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_filename));
     gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->gobj()), false, fill, 0);
     pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
 }
+
+void StackBoxBuilder::openSetMonoLabelBox() {
+    Gtk::VBox *box =  new Gtk::VBox();
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
+    convolver_mono_filename_label.set_name("beffect_label");
+    Pango::FontDescription font = convolver_mono_filename_label.get_style()->get_font();
+    font.set_size(8*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_BOLD);
+    convolver_mono_filename_label.modify_font(font);
+    convolver_mono_filename_label.set_alignment(0.2, 0.5);
+    box->pack_start(convolver_mono_filename_label, true, false, 0);
+    box->show_all();
+    convolver_mono_filename_label.set_label(engine.mono_convolver.getIRFile());
+    engine.mono_convolver.signal_settings_changed().connect(
+	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_mono_filename));
+    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->gobj()), true, true, 0);
+    pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
+}
+
 void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw) {
     Gtk::Button *button = new Gtk::Button();
     button->set_can_default(false);
@@ -234,7 +353,7 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
     al->add(*manage(button));
     al->show_all();
-    addWidget(label, GTK_WIDGET(al->gobj()));
+    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(al->gobj()), false, fill, 0);
     button->signal_clicked().connect(
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
 }

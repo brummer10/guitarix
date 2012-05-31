@@ -30,17 +30,12 @@ namespace gx_jconv {
 ** static class variables and functions
 */
 
-IRWindow *IRWindow::instance = 0;
-
 IRWindow *IRWindow::create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver,
 			   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
-			   Glib::RefPtr<Gtk::AccelGroup> accels) {
-    if (!instance) {
-	Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
-	    gx_system::get_options().get_builder_filepath("iredit.glade"), &ui);
-	instance = new IRWindow(bld, convolver, icon, gx_settings, accels);
-    }
-    return instance;
+			   Glib::RefPtr<Gtk::AccelGroup> accels, int nchan) {
+    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
+	gx_settings.get_options().get_builder_filepath("iredit.glade"), &ui);
+    return new IRWindow(bld, convolver, icon, gx_settings, accels, nchan);
 }
 
 /*
@@ -157,7 +152,7 @@ void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
 
 IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::ConvolverAdapter& convolver_,
 		   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
-		   Glib::RefPtr<Gtk::AccelGroup> accels)
+		   Glib::RefPtr<Gtk::AccelGroup> accels, int nchan_)
     : builder(bld),
       filename(),
       ms(0.0),
@@ -167,6 +162,7 @@ IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::Convol
       convolver(convolver_),
       gtk_window(0),
       autogain_conn(),
+      nchan(nchan_),
       //skipped all gtk widget pointers, will be set in init_connect()
       columns(),
       model(Gtk::TreeStore::create(columns)),
@@ -184,6 +180,12 @@ IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::Convol
     on_delay_changed(0, 0);
     on_offset_changed(0, 0);
     on_length_changed(0, 0);
+    if (nchan == 1) {
+	wChannelbox->hide();
+	Gtk::Frame *frame1;
+	builder->find_widget("frame1", frame1);
+	frame1->hide();
+    }
 }
 
 IRWindow::~IRWindow() {
@@ -599,7 +601,6 @@ void IRWindow::on_apply_button_clicked() {
 
 void IRWindow::destroy_self() {
     delete this;
-    instance = 0;
 }
 
 void IRWindow::on_window_hide() {

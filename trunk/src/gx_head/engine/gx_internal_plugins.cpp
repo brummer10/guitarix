@@ -345,19 +345,12 @@ ConvolverAdapter::ConvolverAdapter(
       pathlist(pathlist_),
       sys_ir_dir(sys_ir_dir_),
       activated(false),
-      jc_post(),
       settings_changed(),
       jcset(),
       jcp(0),
       plugin() {
     version = PLUGINDEF_VERSION;
-    id = "jconv";
-    name = N_("Convolver");
     category = N_("Reverb");
-    stereo_audio = convolver;
-    set_samplerate = convolver_init;
-    activate_plugin = activate;
-    register_params = convolver_register;
     //FIXME: add clear_state
     plugin = this;
     engine.signal_buffersize_change().connect(
@@ -437,9 +430,29 @@ bool ConvolverAdapter::conv_start() {
     return conv.start(policy, priority);
 }
 
-void ConvolverAdapter::convolver(int count, float *input0, float *input1,
+
+/****************************************************************
+ ** class ConvolverStereoAdapter
+ */
+
+ConvolverStereoAdapter::ConvolverStereoAdapter(
+    EngineControl& engine_, sigc::slot<void> sync_, ParamMap& param_,
+    const gx_system::PathList& pathlist_, const std::string& sys_ir_dir_)
+    : ConvolverAdapter(engine_, sync_, param_, pathlist_, sys_ir_dir_) {
+    id = "jconv";
+    name = N_("Convolver");
+    register_params = convolver_register;
+    set_samplerate = convolver_init;
+    activate_plugin = activate;
+    stereo_audio = convolver;
+}
+
+ConvolverStereoAdapter::~ConvolverStereoAdapter() {
+}
+
+void ConvolverStereoAdapter::convolver(int count, float *input0, float *input1,
 				 float *output0, float *output1, PluginDef* plugin) {
-    ConvolverAdapter& self = *static_cast<ConvolverAdapter*>(plugin);
+    ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(plugin);
     if (self.conv.is_runnable()) {
         float conv_out0[count];
         float conv_out1[count];
@@ -453,14 +466,14 @@ void ConvolverAdapter::convolver(int count, float *input0, float *input1,
     }
 }
 
-int ConvolverAdapter::convolver_register(const ParamReg& reg) {
-    ConvolverAdapter& self = *static_cast<ConvolverAdapter*>(reg.plugin);
+int ConvolverStereoAdapter::convolver_register(const ParamReg& reg) {
+    ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(reg.plugin);
     self.jcp = JConvParameter::insert_param(self.param, "jconv.convolver", self, &self.jcset);
     return self.jc_post.register_par(reg);
 }
 
-void ConvolverAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {
-    ConvolverAdapter& self = *static_cast<ConvolverAdapter*>(p);
+void ConvolverStereoAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {
+    ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (self.activated) {
 	self.conv.stop_process();
@@ -476,8 +489,8 @@ void ConvolverAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {
     }
 }
 
-int ConvolverAdapter::activate(bool start, PluginDef *p) {
-    ConvolverAdapter& self = *static_cast<ConvolverAdapter*>(p);
+int ConvolverStereoAdapter::activate(bool start, PluginDef *p) {
+    ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (start) {
 	if (self.activated && self.conv.is_runnable()) {
@@ -504,6 +517,79 @@ int ConvolverAdapter::activate(bool start, PluginDef *p) {
     return 0;
 }
 
+
+/****************************************************************
+ ** class ConvolverMonoAdapter
+ */
+
+ConvolverMonoAdapter::ConvolverMonoAdapter(
+    EngineControl& engine_, sigc::slot<void> sync_, ParamMap& param_,
+    const gx_system::PathList& pathlist_, const std::string& sys_ir_dir_)
+    : ConvolverAdapter(engine_, sync_, param_, pathlist_, sys_ir_dir_) {
+    id = "jconv_mono";
+    name = N_("Convolver");
+    register_params = convolver_register;
+    set_samplerate = convolver_init;
+    activate_plugin = activate;
+    mono_audio = convolver;
+}
+
+ConvolverMonoAdapter::~ConvolverMonoAdapter() {
+}
+
+void ConvolverMonoAdapter::convolver(int count, float *input, float *output, PluginDef* plugin) {
+    ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(plugin);
+    if (self.conv.is_runnable()) {
+        if (!self.conv.compute(count, input, output)) {
+            self.plugin.on_off = false;
+	    gx_system::gx_print_error("Convolver", "overload");
+        }
+    }
+}
+
+int ConvolverMonoAdapter::convolver_register(const ParamReg& reg) {
+    ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(reg.plugin);
+    self.jcp = JConvParameter::insert_param(self.param, "jconv_mono.convolver", self, &self.jcset);
+    return 0;
+}
+
+void ConvolverMonoAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {
+    ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(p);
+    boost::mutex::scoped_lock lock(self.activate_mutex);
+    if (self.activated) {
+	self.conv.stop_process();
+	self.conv.set_samplerate(samplingFreq);
+	while (self.conv.is_runnable()) {
+	    self.conv.checkstate();
+	}
+	self.conv_start();
+    } else {
+	self.conv.set_samplerate(samplingFreq);
+    }
+}
+
+int ConvolverMonoAdapter::activate(bool start, PluginDef *p) {
+    ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(p);
+    boost::mutex::scoped_lock lock(self.activate_mutex);
+    if (start) {
+	if (self.activated && self.conv.is_runnable()) {
+	    return 0;
+	}
+    } else {
+	if (!self.activated) {
+	    return 0;
+	}
+    }
+    self.activated = start;
+    if (start) {
+	if (!self.conv_start()) {
+	    return -1;
+	}
+    } else {
+	self.conv.stop_process();
+    }
+    return 0;
+}
 
 /****************************************************************
  ** class BaseConvolver

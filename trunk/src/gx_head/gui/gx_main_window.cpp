@@ -894,40 +894,6 @@ RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwid
     return r;
 }
 
-class UiBuilderImplNew: public gx_gui::UiBuilderImpl {
-private:
-    MainWindow& main;
-    std::vector<PluginUI*> *pluginlist;
-public:
-    virtual bool load(gx_engine::Plugin *p);
-    bool load_unit(PluginUI &pl);
-    UiBuilderImplNew(MainWindow *i, gx_gui::StackBoxBuilder *b, std::vector<PluginUI*> *pl=0);
-};
-
-UiBuilderImplNew::UiBuilderImplNew(MainWindow *i, gx_gui::StackBoxBuilder *b, std::vector<PluginUI*> *pl)
-    : gx_gui::UiBuilderImpl(b), main(*i), pluginlist(pl) {
-}
-
-bool UiBuilderImplNew::load(gx_engine::Plugin *p) {
-    PluginDef *pd = p->pdef;
-    if (!(pd->flags & PGN_GUI) || !(pd->flags & gx_engine::PGNI_DYN_POSITION)) {
-	return false;
-    }
-    main.add_plugin(*pluginlist, pd->id, "", "");
-    return true;
-}
-
-bool UiBuilderImplNew::load_unit(PluginUI &pl) {
-    PluginDef *pd = pl.plugin->pdef;
-    if (!pd->load_ui) {
-	return false;
-    }
-    dynamic_cast<StackBoxBuilderNew*>(intf)->prepare();
-    plugin = pd;
-    pd->load_ui(*this);
-    return true;
-}
-
 void load_rack_ui(const std::string& fname, gx_ui::GxUI& ui, Gtk::Widget*& mainwidget, Gtk::Widget*& miniwidget) {
     const char *id_list[] = {"rackbox", "minibox", 0};
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
@@ -955,7 +921,7 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
 	}
     }
     if (!mainwidget) {
-	UiBuilderImplNew builder(this, &boxbuilder);
+	gx_gui::UiBuilderImpl builder(this, &boxbuilder);
 	if (builder.load_unit(pl)) {
 	    boxbuilder.fetch(mainwidget, miniwidget);
 	}
@@ -1705,20 +1671,22 @@ void MainWindow::make_icons(bool force) {
 
 class JConvPluginUI: public PluginUI {
 private:
+    gx_engine::ConvolverAdapter& conv;
     virtual void on_plugin_preset_popup();
 public:
     JConvPluginUI(MainWindow& main, const gx_engine::PluginList& pl, const char* id,
-		  const Glib::ustring& fname="", const Glib::ustring& tooltip="")
-	: PluginUI(main, pl, id, fname, tooltip) {}
+		  gx_engine::ConvolverAdapter& conv_, const Glib::ustring& fname="",
+		  const Glib::ustring& tooltip="")
+	: PluginUI(main, pl, id, fname, tooltip), conv(conv_) {
+    }
 };
 
 void JConvPluginUI::on_plugin_preset_popup() {
-    Glib::ustring name = Glib::path_get_basename(main.get_engine().convolver.getIRFile());
+    Glib::ustring name = Glib::path_get_basename(conv.getIRFile());
     Glib::ustring::size_type n = name.find_last_of('.');
     if (n != Glib::ustring::npos) {
 	name.erase(n);
     }
-
     main.plugin_preset_popup(get_id(), name);
 }
 
@@ -1789,7 +1757,7 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 	engine.ladspaloader.set_plugins(ml);
 	// add new plugins (UI)
 	std::vector<PluginUI*> p;
-	UiBuilderImplNew builder(this, &boxbuilder, &p);
+	gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p);
 	engine.pluginlist.append_rack(builder);
 	std::sort(p.begin(), p.end(), plugins_by_name_less);
 	for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
@@ -1926,9 +1894,10 @@ void MainWindow::fill_pluginlist() {
     add_plugin_category("Misc");
 
     std::vector<PluginUI*> p;
-    p.push_back(new JConvPluginUI(*this, engine.pluginlist, "jconv"));
+    p.push_back(new JConvPluginUI(*this, engine.pluginlist, "jconv", engine.stereo_convolver));
+    p.push_back(new JConvPluginUI(*this, engine.pluginlist, "jconv_mono", engine.mono_convolver));
 
-    UiBuilderImplNew builder(this, &boxbuilder, &p);
+    gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p);
     engine.pluginlist.append_rack(builder);
 
     std::sort(p.begin(), p.end(), plugins_by_name_less);
@@ -2467,13 +2436,14 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       pmap(pmap_),
       engine(engine_),
       jack(engine),
-      gx_settings(options, jack, engine.convolver, gx_engine::midi_std_ctr, gx_engine::controller_map, engine, pmap_),
+      gx_settings(options, jack, engine.stereo_convolver, gx_engine::midi_std_ctr, gx_engine::controller_map, engine, pmap_),
       live_play(),
       preset_window(),
       fWaveView(),
       convolver_filename_label(),
+      convolver_mono_filename_label(),
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
-      boxbuilder(engine_, gx_settings, fWaveView, convolver_filename_label, ui, gx_head_icon),
+      boxbuilder(engine_, gx_settings, fWaveView, convolver_filename_label, convolver_mono_filename_label, ui, gx_head_icon),
       portmap_window(0),
       skin_changed(&ui, &skin),
       select_jack_control(0),
@@ -2500,6 +2470,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       ladspalist_window() {
 
     convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
+    convolver_mono_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
 
     /*
     ** setup parameters

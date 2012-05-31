@@ -78,7 +78,8 @@ public:
     MidiAudioBuffer midiaudiobuffer;
     MaxLevel maxlevel;
     OscilloscopeAdapter oscilloscope;
-    ConvolverAdapter convolver;
+    ConvolverMonoAdapter mono_convolver;
+    ConvolverStereoAdapter stereo_convolver;
     CabinetConvolver cabinet;
     ContrastConvolver contrast;
     //

@@ -35,378 +35,338 @@ namespace gx_gui {
 
 void StackBoxBuilder::make_rackbox_chorus() {
     // ----- chorus
-    openStereoRackBox(_("chorus"), engine.pluginlist.pos_var("chorus"), "chorus.on_off", "ui.Chorus");
+    openHorizontalhideBox("");
+    create_master_slider("chorus.level", _("level"));
+    closeBox();
+    openHorizontalBox("");
     {
-	openHorizontalhideBox("");
-	create_master_slider("chorus.level", _("level"));
-	closeBox();
-	openHorizontalBox("");
-	{
-	    create_small_rackknobr("chorus.level", _("  level  "));
-	    create_small_rackknob("chorus.delay", _("  delay  "));
-	    create_small_rackknob("chorus.depth", _("  depth  "));
-	    create_small_rackknob("chorus.freq", _("  freq  "));
-	}
-	closeBox();
+	create_small_rackknobr("chorus.level", _("  level  "));
+	create_small_rackknob("chorus.delay", _("  delay  "));
+	create_small_rackknob("chorus.depth", _("  depth  "));
+	create_small_rackknob("chorus.freq", _("  freq  "));
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 void StackBoxBuilder::make_rackbox_flanger() {
     // flanger
-    openStereoRackBox(_("flanger"), engine.pluginlist.pos_var("flanger"), "flanger.on_off", "ui.Flanger");
+    openHorizontalhideBox("");
+    create_master_slider("flanger.level", _("level"));
+    closeBox();
+    openHorizontalBox("");
     {
-	openHorizontalhideBox("");
-	create_master_slider("flanger.level", _("level"));
-	closeBox();
 	openHorizontalBox("");
+	{
+	    create_small_rackknobr("flanger.level", _("  level  "));
+	}
+	closeBox();
+	openVerticalBox("");
 	{
 	    openHorizontalBox("");
 	    {
-		create_small_rackknobr("flanger.level", _("  level  "));
+		create_small_rackknob("flanger.feedback gain", _(" feedback "));
+		create_small_rackknob("flanger.depth", _("  depth  "));
+		create_small_rackknob("flanger.flange delay", _("  delay  "));
+		create_small_rackknob("flanger.flange delay offset", _(" delay offset"));
+		create_small_rackknob("flanger.LFO freq", _(" LFO "));
 	    }
 	    closeBox();
-	    openVerticalBox("");
+	    openSpaceBox("");
+	    closeBox();
+	    openHorizontalBox("");
 	    {
-		openHorizontalBox("");
-		{
-		    create_small_rackknob("flanger.feedback gain", _(" feedback "));
-		    create_small_rackknob("flanger.depth", _("  depth  "));
-		    create_small_rackknob("flanger.flange delay", _("  delay  "));
-		    create_small_rackknob("flanger.flange delay offset", _(" delay offset"));
-		    create_small_rackknob("flanger.LFO freq", _(" LFO "));
-		}
+		openSpaceBox("");
+		closeBox();
+		create_selector("flanger.invert");
+		openSpaceBox("");
 		closeBox();
 		openSpaceBox("");
 		closeBox();
-		openHorizontalBox("");
-		{
-		    openSpaceBox("");
-		    closeBox();
-		    create_selector("flanger.invert");
-		    openSpaceBox("");
-		    closeBox();
-		    openSpaceBox("");
-		    closeBox();
-		    openSpaceBox("");
-		    closeBox();
-		    openSpaceBox("");
-		    closeBox();
-		    openSpaceBox("");
-		    closeBox();
-		    openSpaceBox("");
-		    closeBox();
-		}
+		openSpaceBox("");
 		closeBox();
-		openFrameBox("");
+		openSpaceBox("");
+		closeBox();
+		openSpaceBox("");
+		closeBox();
+		openSpaceBox("");
 		closeBox();
 	    }
+	    closeBox();
+	    openFrameBox("");
 	    closeBox();
 	}
 	closeBox();
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 void StackBoxBuilder::make_rackbox_phaser() {
     // phaser
-    openStereoRackBox(_("phaser"), engine.pluginlist.pos_var("phaser"), "phaser.on_off", "ui.Phaser");
+    openHorizontalhideBox("");
+    create_master_slider("phaser.level", _("level"));
+    closeBox();
+    openHorizontalBox("");
     {
-	openHorizontalhideBox("");
-	create_master_slider("phaser.level", _("level"));
-	closeBox();
 	openHorizontalBox("");
+	{
+	    create_small_rackknobr("phaser.level", _("  level "));
+	}
+	closeBox();
+	openVerticalBox("");
 	{
 	    openHorizontalBox("");
 	    {
-		create_small_rackknobr("phaser.level", _("  level "));
+		create_small_rackknob("phaser.feedback gain", _(" feedback "));
+		create_small_rackknob("phaser.depth", _("depth"));
+		create_small_rackknob("phaser.Notch width", _("width"));
+		create_small_rackknob("phaser.NotchFreq", _("freq"));
+		create_small_rackknob("phaser.MaxNotch1Freq", _("max Hz"));
+		create_small_rackknob("phaser.MinNotch1Freq", _("min Hz"));
+		create_small_rackknob("phaser.Speed", _("speed"));
 	    }
 	    closeBox();
-	    openVerticalBox("");
+	    openSpaceBox("");
+	    closeBox();
+	    openHorizontalBox("");
 	    {
-		openHorizontalBox("");
-		{
-		    create_small_rackknob("phaser.feedback gain", _(" feedback "));
-		    create_small_rackknob("phaser.depth", _("depth"));
-		    create_small_rackknob("phaser.Notch width", _("width"));
-		    create_small_rackknob("phaser.NotchFreq", _("freq"));
-		    create_small_rackknob("phaser.MaxNotch1Freq", _("max Hz"));
-		    create_small_rackknob("phaser.MinNotch1Freq", _("min Hz"));
-		    create_small_rackknob("phaser.Speed", _("speed"));
-		}
+		openSpaceBox("");
+		closeBox();
+		create_selector("phaser.invert");
+		openSpaceBox("");
+		closeBox();
+		create_selector("phaser.VibratoMode");
+		openSpaceBox("");
 		closeBox();
 		openSpaceBox("");
 		closeBox();
-		openHorizontalBox("");
-		{
-		    openSpaceBox("");
-		    closeBox();
-		    create_selector("phaser.invert");
-		    openSpaceBox("");
-		    closeBox();
-		    create_selector("phaser.VibratoMode");
-		    openSpaceBox("");
-		    closeBox();
-		    openSpaceBox("");
-		    closeBox();
-		    openSpaceBox("");
-		    closeBox();
-		    openSpaceBox("");
-		    closeBox();
-		    openSpaceBox("");
-		    closeBox();
-		}
+		openSpaceBox("");
 		closeBox();
-		openFrameBox("");
+		openSpaceBox("");
+		closeBox();
+		openSpaceBox("");
 		closeBox();
 	    }
+	    closeBox();
+	    openFrameBox("");
 	    closeBox();
 	}
 	closeBox();
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 void StackBoxBuilder::make_rackbox_stereodelay() {
     // stereo delay
-    openStereoRackBox(_("delay"), engine.pluginlist.pos_var("stereodelay"), "stereodelay.on_off", "ui.Stereo Delay");
+    openHorizontalhideBox("");
+    closeBox();
+    openHorizontalBox("");
     {
-	openHorizontalhideBox("");
-	closeBox();
-	openHorizontalBox("");
+	create_small_rackknob("stereodelay.l_gain", _("left gain"));
+	create_small_rackknob("stereodelay.l_delay", _("left delay"));
+	openVerticalBox("");
 	{
-	    create_small_rackknob("stereodelay.l_gain", _("left gain"));
-	    create_small_rackknob("stereodelay.l_delay", _("left delay"));
-	    openVerticalBox("");
-	    {
-		create_small_rackknobr("stereodelay.LFO freq", _("LFO"));
-		openSpaceBox("");
-		closeBox();
-		create_selector("stereodelay.invert");
-		openFrameBox("");
-		closeBox();
-	    }
+	    create_small_rackknobr("stereodelay.LFO freq", _("LFO"));
+	    openSpaceBox("");
 	    closeBox();
-	    create_small_rackknob("stereodelay.r_gain", _("right gain"));
-	    create_small_rackknob("stereodelay.r_delay", _("right delay"));
+	    create_selector("stereodelay.invert");
+	    openFrameBox("");
+	    closeBox();
 	}
 	closeBox();
+	create_small_rackknob("stereodelay.r_gain", _("right gain"));
+	create_small_rackknob("stereodelay.r_delay", _("right delay"));
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 void StackBoxBuilder::make_rackbox_stereoecho() {
     // echo
-    openStereoRackBox(_("echo"), engine.pluginlist.pos_var("stereoecho"), "stereoecho.on_off", "ui.Stereo Echo");
+    openHorizontalhideBox("");
+    closeBox();
+    openHorizontalBox("");
     {
-	openHorizontalhideBox("");
-	closeBox();
-	openHorizontalBox("");
+        openVerticalBox("");
 	{
-        openVerticalBox("");
-	    {
 	    create_small_rackknob("stereoecho.percent_l", _("left %"));
-        openSpaceBox("");
-		closeBox();
-        }
+	    openSpaceBox("");
 	    closeBox();
+        }
+	closeBox();
         openVerticalBox("");
-	    {
+	{
 	    create_small_rackknob("stereoecho.time_l", _("left time"));
-        openSpaceBox("");
-		closeBox();
-        }
+	    openSpaceBox("");
 	    closeBox();
-        openVerticalBox("");
-	    {
-		create_small_rackknobr("stereoecho.LFO freq", _("LFO"));
-		openSpaceBox("");
-		closeBox();
-		create_selector("stereoecho.invert");
-		openFrameBox("");
-		closeBox();
-	    }
-	    closeBox();
-        openVerticalBox("");
-	    {
-	    create_small_rackknob("stereoecho.percent_r", _("right %"));
-        openSpaceBox("");
-		closeBox();
         }
-	    closeBox();
+	closeBox();
         openVerticalBox("");
-	    {
-	    create_small_rackknob("stereoecho.time_r", _("right time"));
-        openSpaceBox("");
-		closeBox();
-        }
+	{
+	    create_small_rackknobr("stereoecho.LFO freq", _("LFO"));
+	    openSpaceBox("");
+	    closeBox();
+	    create_selector("stereoecho.invert");
+	    openFrameBox("");
 	    closeBox();
 	}
 	closeBox();
+        openVerticalBox("");
+	{
+	    create_small_rackknob("stereoecho.percent_r", _("right %"));
+	    openSpaceBox("");
+	    closeBox();
+        }
+	closeBox();
+        openVerticalBox("");
+	{
+	    create_small_rackknob("stereoecho.time_r", _("right time"));
+	    openSpaceBox("");
+	    closeBox();
+        }
+	closeBox();
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 void StackBoxBuilder::make_rackbox_moog() {
     // moog filter
-    openStereoRackBox(_("moog"), engine.pluginlist.pos_var("moog"), "moog.on_off", "ui.Moog Filter");
+    openHorizontalhideBox("");
+    create_master_slider("moog.Q", _("Q"));
+    closeBox();
+    openHorizontalTableBox("");
     {
-	openHorizontalhideBox("");
-	create_master_slider("moog.Q", _("Q"));
-	closeBox();
-	openHorizontalTableBox("");
-	{
-	    create_small_rackknob("moog.Q", _("            Q            "));
-	    create_small_rackknob("moog.fr", _("            Hz           "));
-	}
-	closeBox();
+	create_small_rackknob("moog.Q", _("            Q            "));
+	create_small_rackknob("moog.fr", _("            Hz           "));
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 void StackBoxBuilder::make_rackbox_ampmodul() {
     // postamp
-    openStereoRackBox(_("amp"), engine.pluginlist.pos_var("ampmodul"), "ampmodul.on_off", "ui.Postamp");
+    openHorizontalhideBox("");
+    create_master_slider("ampmodul.level", _("level"));
+    closeBox();
+    openHorizontalBox("");
     {
-	openHorizontalhideBox("");
-	create_master_slider("ampmodul.level", _("level"));
+	openSpaceBox("");
 	closeBox();
-	openHorizontalBox("");
-	{
-	    openSpaceBox("");
-	    closeBox();
-	    create_small_rackknobr("ampmodul.feedbac", _("dry/feedback  "));
-	    create_small_rackknob("ampmodul.wet_dry", _("dry/wet"));
-	    create_small_rackknob("ampmodul.level", _("level"));
-	    create_small_rackknob("ampmodul.amp2.stage1.tube1", _("tube1"));
-	    create_small_rackknob("ampmodul.amp2.stage2.tube2", _("tube2"));
-	    create_small_rackknobr("ampmodul.feedback", _("  wet/feedback"));
-	    openSpaceBox("");
-	    closeBox();
-	}
+	create_small_rackknobr("ampmodul.feedbac", _("dry/feedback  "));
+	create_small_rackknob("ampmodul.wet_dry", _("dry/wet"));
+	create_small_rackknob("ampmodul.level", _("level"));
+	create_small_rackknob("ampmodul.amp2.stage1.tube1", _("tube1"));
+	create_small_rackknob("ampmodul.amp2.stage2.tube2", _("tube2"));
+	create_small_rackknobr("ampmodul.feedback", _("  wet/feedback"));
+	openSpaceBox("");
 	closeBox();
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 void StackBoxBuilder::make_rackbox_tonemodul() {
     // 3 band eq
-    openStereoRackBox(_("tone"), engine.pluginlist.pos_var("tonemodul"), "tonemodul.on_off", "ui.3 Band EQ");
+    openHorizontalhideBox("");
+    closeBox();
+    openHorizontalBox("");
     {
-	openHorizontalhideBox("");
+	create_small_rackknob("tonemodul.Bass", _("bass"));
+	create_small_rackknob("tonemodul.Middle", _("middle"));
+	create_small_rackknob("tonemodul.Treble", _("treble"));
+	openSpaceBox("");
 	closeBox();
-	openHorizontalBox("");
-	{
-	    create_small_rackknob("tonemodul.Bass", _("bass"));
-	    create_small_rackknob("tonemodul.Middle", _("middle"));
-	    create_small_rackknob("tonemodul.Treble", _("treble"));
-	    openSpaceBox("");
-	    closeBox();
-	    create_switch_no_caption(sw_switchit, "tonemodul.ON");
-	    create_small_rackknob("tonemodul.sharper", _("sharp"));
-	}
-	closeBox();
+	create_switch_no_caption(sw_switchit, "tonemodul.ON");
+	create_small_rackknob("tonemodul.sharper", _("sharp"));
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 void StackBoxBuilder::make_rackbox_jconv() {
-    gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.convolver, window_icon, gx_settings, accels);
-    openStereoRackBox(_("convolver"), engine.pluginlist.pos_var("jconv"), "jconv.on_off", "ui.Convolver");
+    static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.stereo_convolver, window_icon, gx_settings, accels, 2);
+    openHorizontalhideBox("");
     {
-	openHorizontalhideBox("");
-	{
-	    create_master_slider("jconv.gain", _("gain"));
-	    openSpaceBox("");
-	    closeBox();
-	    openSpaceBox("");
-	    closeBox();
-	    addSmallJConvFavButton(_("setup"), irw);
-	}
+	create_master_slider("jconv.gain", _("gain"));
+	openSpaceBox("");
 	closeBox();
-	openHorizontalBox("");
+	openSpaceBox("");
+	closeBox();
+	addSmallJConvFavButton(_("setup"), irw);
+    }
+    closeBox();
+    openHorizontalBox("");
+    {
+	openVerticalBox("");
 	{
-	    openVerticalBox("");
+	    openSetLabelBox();
 	    {
-                openSetLabelBox();
-                {
-                }
-                closeBox();
-                openHorizontalBox("");
-                {
-                    openSpaceBox("");
-                    closeBox();
-                    openSpaceBox("");
-                    closeBox();
-                    create_small_rackknobr("jconv.gain", _("gain"));
-                    openSpaceBox("");
-                    closeBox();
-                    create_small_rackknob("jconv.diff_delay", _("delta delay"));
-                    openSpaceBox("");
-                    closeBox();
-                    create_small_rackknob("jconv.balance", _("balance"));
-                    openSpaceBox("");
-                    closeBox();
-                    create_small_rackknobr("jconv.wet_dry", _("dry/wet"));
-                    openSpaceBox("");
-                    closeBox();
-		    addJConvButton(_("setup"), irw);
-                    openSpaceBox("");
-                    closeBox();
-                }
-                closeBox();
+	    }
+	    closeBox();
+	    openHorizontalBox("");
+	    {
+		openSpaceBox("");
+		closeBox();
+		openSpaceBox("");
+		closeBox();
+		create_small_rackknobr("jconv.gain", _("gain"));
+		openSpaceBox("");
+		closeBox();
+		create_small_rackknob("jconv.diff_delay", _("delta delay"));
+		openSpaceBox("");
+		closeBox();
+		create_small_rackknob("jconv.balance", _("balance"));
+		openSpaceBox("");
+		closeBox();
+		create_small_rackknobr("jconv.wet_dry", _("dry/wet"));
+		openSpaceBox("");
+		closeBox();
+		addJConvButton(_("setup"), irw);
+		openSpaceBox("");
+		closeBox();
 	    }
 	    closeBox();
 	}
 	closeBox();
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 void StackBoxBuilder::make_rackbox_stereoverb() {
     //stereoverb
-    openStereoRackBox(_("stereoverb"), engine.pluginlist.pos_var("stereoverb"), "stereoverb.on_off", "ui.Stereo Verb");
+    openHorizontalhideBox("");
+    create_master_slider("stereoverb.RoomSize", _("RoomSize"));
+    closeBox();
+    openHorizontalBox("");
     {
-	openHorizontalhideBox("");
-	create_master_slider("stereoverb.RoomSize", _("RoomSize"));
-	closeBox();
-	openHorizontalBox("");
+        openVerticalBox("");
 	{
-        openVerticalBox("");
-	    {
 	    create_small_rackknobr("stereoverb.RoomSize", _("RoomSize"));
-        openSpaceBox("");
-		closeBox();
+	    openSpaceBox("");
+	    closeBox();
         }
         closeBox();
         openVerticalBox("");
-	    {
+	{
 	    create_small_rackknob("stereoverb.damp", _("damp"));
-        openSpaceBox("");
-		closeBox();
+	    openSpaceBox("");
+	    closeBox();
         }
         closeBox();
         openVerticalBox("");
-	    {
+	{
 	    create_small_rackknob("stereoverb.wet_dry", _("dry/wet"));
-        openSpaceBox("");
-		closeBox();
+	    openSpaceBox("");
+	    closeBox();
         }
         closeBox();
         openVerticalBox("");
-	    {
-		create_small_rackknobr("stereoverb.LFO freq", _("LFO"));
-		openSpaceBox("");
-		closeBox();
-		create_selector("stereoverb.invert");
-		openFrameBox("");
-		closeBox();
-	    }
-        closeBox();
+	{
+	    create_small_rackknobr("stereoverb.LFO freq", _("LFO"));
+	    openSpaceBox("");
+	    closeBox();
+	    create_selector("stereoverb.invert");
+	    openFrameBox("");
+	    closeBox();
 	}
-	closeBox();
+        closeBox();
     }
-    closeStereoRackBox();
+    closeBox();
 }
 
 }  // end namespace gx_gui

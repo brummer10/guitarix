@@ -359,25 +359,16 @@ bool GxConvolver::configure(
         return false;
     }
     if (audio.open_read(fname)) {
-        gx_system::gx_print_error("convolver", "Unable to open '" + fname + "'");
+        gx_system::gx_print_error("convolver", Glib::ustring::compose("Unable to open '%1'", fname));
         return false;
     }
     if (audio.chan() > 2) {
-        ostringstream buf;
-        buf << "only taking 2 of " << audio.chan() << " channels in impulse response";
-        gx_system::gx_print_error("convolver", buf.str());
+        gx_system::gx_print_error(
+	    "convolver",
+	    Glib::ustring::compose("only taking first 2 of %1 channels in impulse response", audio.chan()));
         return false;
     }
     adjust_values(audio.size(), buffersize, offset, delay, ldelay, length, size, bufsize);
-    /* FIXME remove
-    cout << "state=" << state() << ", ready=" << ready << endl;
-    cout << "fname=" << fname << ", size=" << audio.size()
-         << ", channels=" << audio.chan() << endl;
-    cout << "convolver: size=" << size << ", count=" << buffersize << ", bufsize="
-         << bufsize << ", offset=" << offset << ", delay=" << delay
-         << ", ldelay=" << ldelay << ", length=" << length << ", gain" << gain
-         << ", lgain" << lgain << endl;
-    */
 
     if (samplerate != static_cast<unsigned int>(audio.rate())) {
 	float f = float(samplerate) / audio.rate();
@@ -419,6 +410,63 @@ bool GxConvolver::compute(int count, float* input1, float *input2, float *output
 
     memcpy(output1, outdata(0), count * sizeof(float));
     memcpy(output2, outdata(1), count * sizeof(float));
+    return flags == 0;
+}
+
+bool GxConvolver::configure(string fname, float gain, unsigned int delay, unsigned int offset,
+			    unsigned int length, unsigned int size, unsigned int bufsize,
+			    const Gainline& points) {
+    Audiofile audio;
+    cleanup();
+    if (fname.empty()) {
+        return false;
+    }
+    if (audio.open_read(fname)) {
+        gx_system::gx_print_error("convolver", Glib::ustring::compose("Unable to open '%1'", fname));
+	return false;
+    }
+    if (audio.chan() > 1) {
+        gx_system::gx_print_error(
+	    "convolver",
+	    Glib::ustring::compose("only taking first channel of %1 channels in impulse response", audio.chan()));
+	return false;
+    }
+    unsigned int ldelay = delay;
+    adjust_values(audio.size(), buffersize, offset, delay, ldelay, length, size, bufsize);
+
+    if (samplerate != static_cast<unsigned int>(audio.rate())) {
+	float f = float(samplerate) / audio.rate();
+	size = round(size * f) + 2; // 2 is safety margin for rounding differences
+	delay = round(delay * f);
+    }
+    if (Convproc::configure(1, 1, size, buffersize, bufsize, Convproc::MAXPART)) {
+        gx_system::gx_print_error("convolver", "error in Convproc::configure ");
+        return false;
+    }
+
+    float gain_a[1] = {gain};
+    unsigned int delay_a[1] = {delay};
+    return read_sndfile(audio, 1, samplerate, gain_a, delay_a, offset, length, points);
+}
+
+bool GxConvolver::compute(int count, float* input, float *output) {
+    if (state() != Convproc::ST_PROC) {
+        if (input != output) {
+            memcpy(output, input, count * sizeof(float));
+        }
+	if (state() == Convproc::ST_WAIT) {
+	    check_stop();
+	}
+        if (state() == ST_STOP) {
+            ready = false;
+        }
+        return true;
+    }
+    memcpy(inpdata(0), input, count * sizeof(float));
+
+    int flags = process(sync);
+
+    memcpy(output, outdata(0), count * sizeof(float));
     return flags == 0;
 }
 

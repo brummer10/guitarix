@@ -493,37 +493,6 @@ public:
 
 
 /****************************************************************
- ** class StackBoxBuilderNew
- */
-
-class StackBoxBuilderNew: public gx_gui::StackBoxBuilder {
-private:
-    int                  fTop;
-    GtkWidget*           fBox[stackSize];
-    int                  fMode[stackSize];
-    gx_engine::GxEngine& engine;
-    gx_preset::GxSettings& gx_settings;
-    Gxw::WaveView&       fWaveView;
-    Gtk::Label&          convolver_filename_label;
-    Gtk::HBox           *widget;
-private:
-    virtual void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
-    virtual void closeMonoRackBox();
-    virtual void openStereoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_dialog);
-    virtual void closeStereoRackBox();
-    virtual void openVerticalMidiBox(const char* label = "");
-public:
-    StackBoxBuilderNew(gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
-		       Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_, gx_ui::GxUI& ui,
-		       Glib::RefPtr<Gdk::Pixbuf> window_icon);
-    void set_accelgroup(Glib::RefPtr<Gtk::AccelGroup> accels_) { accels = accels_; }
-    void get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
-    void prepare();
-    void fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
-};
-
-
-/****************************************************************
  ** class TextLoggingBox
  */
 
@@ -700,8 +669,9 @@ private:
     PresetWindow *preset_window;
     Gxw::WaveView fWaveView;
     Gtk::Label convolver_filename_label;
+    Gtk::Label convolver_mono_filename_label;
     Glib::RefPtr<Gdk::Pixbuf> gx_head_icon;
-    StackBoxBuilderNew boxbuilder;
+    gx_gui::StackBoxBuilder boxbuilder;
     gx_portmap::PortMapWindow* portmap_window;
     static int skin;
     static bool no_warn_latency;

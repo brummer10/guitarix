@@ -25,6 +25,9 @@
 #ifndef SRC_HEADERS_GX_UI_BUILDER_H_
 #define SRC_HEADERS_GX_UI_BUILDER_H_
 
+class PluginUI;
+class MainWindow;
+
 namespace gx_gui {
 
 template<class T>
@@ -177,6 +180,8 @@ class StackBoxBuilder;
 
 class UiBuilderImpl: public gx_engine::UiBuilderBase {
 protected:
+    MainWindow& main;
+    std::vector<PluginUI*> *pluginlist;
     static StackBoxBuilder *intf;
     static void openVerticalBox_(const char* label);
     static void openVerticalBox1_(const char* label);
@@ -195,7 +200,8 @@ protected:
     static void load_glade_(const char *data);
     virtual bool load(gx_engine::Plugin *p);
 public:
-    UiBuilderImpl(StackBoxBuilder *i);
+    UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl=0);
+    bool load_unit(PluginUI &pl);
 };
 
 GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname);

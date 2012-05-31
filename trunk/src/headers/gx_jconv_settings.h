@@ -15,19 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * --------------------------------------------------------------------------
- *
- *  This is the JConv settings handler class used by guitarix
- *  There can only be one instance at all time. To get a pointer
- *  to the unique instance, simply call
- *
- *  GxJConvSettings* jcset = GxJConvSettings::instance();
- *
- *  throughout the entire program.
- *
- *  This class belongs to the gx_jconv namespace
- *
- * --------------------------------------------------------------------------
  */
 
 #pragma once
@@ -58,7 +45,7 @@ class IRWindow: public sigc::trackable {
     gx_engine::ConvolverAdapter& convolver;
     Gtk::Window* gtk_window;
     sigc::connection autogain_conn;
-    static IRWindow *instance;
+    int nchan;
 
     // helper functions
     int set_val(Gxw::ControlParameter *sample_display, Gxw::ControlParameter *ms_display,
@@ -137,7 +124,7 @@ class IRWindow: public sigc::trackable {
     void init_connect(const gx_preset::GxSettings& gx_settings);
     IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::ConvolverAdapter &convolver,
 	     Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
-	     Glib::RefPtr<Gtk::AccelGroup> accels);
+	     Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
     ~IRWindow();
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -155,7 +142,7 @@ public:
     void reload_and_show();
     static IRWindow *create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver,
 			    Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& settings,
-			    Glib::RefPtr<Gtk::AccelGroup> accels);
+			    Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
     friend class JConvPopup;
 };
 
