@@ -524,7 +524,7 @@ void PortDesc::output(JsonWriter& jw) {
     jw.begin_array();
     if (get_tp() == tp_enum) {
 	int iup = int(round(up));
-	for (int i = int(round(low)); i < iup+1; ++i) {
+	for (int i = int(round(low)); i < iup; ++i) {
 	    jw.write(get_enum(i));
 	}
     }
@@ -2268,7 +2268,7 @@ void PluginDisplay::load_ladspalist(std::vector<unsigned long>& old_not_found, s
 	is.close();
     } catch(JsonException& e) {
 	printf("Fail\n"); //FIXME
-	return;
+	//return; // don't return before build the list
     }
     for (std::map<unsigned long, PluginDesc*>::iterator v = d.begin(); v != d.end(); ++v) {
 	v->second->fixup();
