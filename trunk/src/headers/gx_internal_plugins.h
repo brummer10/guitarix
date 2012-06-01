@@ -362,6 +362,7 @@ public:
  */
 
 #include "faust/jconv_post.h"
+#include "faust/jconv_post_mono.h"
 
 class ConvolverStereoAdapter: public ConvolverAdapter {
 private:
@@ -385,6 +386,7 @@ public:
 
 class ConvolverMonoAdapter: public ConvolverAdapter {
 private:
+    jconv_post_mono::Dsp jc_post_mono;
     // wrapper for the rack order function pointers
     static void convolver_init(unsigned int samplingFreq, PluginDef *pdef);
     static int activate(bool start, PluginDef *pdef);

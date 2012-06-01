@@ -332,6 +332,7 @@ void JConvParameter::setJSON_value() {
  */
 
 #include "faust/jconv_post.cc"
+#include "faust/jconv_post_mono.cc"
 
 ConvolverAdapter::ConvolverAdapter(
     EngineControl& engine_, sigc::slot<void> sync_, ParamMap& param_,
@@ -540,9 +541,12 @@ ConvolverMonoAdapter::~ConvolverMonoAdapter() {
 void ConvolverMonoAdapter::convolver(int count, float *input, float *output, PluginDef* plugin) {
     ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(plugin);
     if (self.conv.is_runnable()) {
-        if (!self.conv.compute(count, input, output)) {
+        float conv_out[count];
+        if (!self.conv.compute(count, input, conv_out)) {
             self.plugin.on_off = false;
 	    gx_system::gx_print_error("Convolver", "overload");
+        } else {
+            self.jc_post_mono.compute(count, output, conv_out, output);
         }
     }
 }
@@ -550,7 +554,7 @@ void ConvolverMonoAdapter::convolver(int count, float *input, float *output, Plu
 int ConvolverMonoAdapter::convolver_register(const ParamReg& reg) {
     ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(reg.plugin);
     self.jcp = JConvParameter::insert_param(self.param, "jconv_mono.convolver", self, &self.jcset);
-    return 0;
+    return self.jc_post_mono.register_par(reg);;
 }
 
 void ConvolverMonoAdapter::convolver_init(unsigned int samplingFreq, PluginDef *p) {
