@@ -151,6 +151,12 @@ inline void LadspaDsp::cleanup() {
     }
 }
 
+plugdesc::~plugdesc() {
+    for (std::vector<paradesc*>::const_iterator it = names.begin(); it != names.end(); ++it) {
+	delete *it;
+    }
+}
+
 LadspaDsp::~LadspaDsp() {
     cleanup();
     if (handle && !(pd->quirks & no_cleanup)) {
@@ -219,8 +225,8 @@ void LadspaDsp::init(unsigned int samplingFreq, PluginDef *plugin) {
     }
     self.instance = self.desc->instantiate(self.desc, samplingFreq);
     int n = 0;
-    for (std::vector<paradesc>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
-	self.desc->connect_port(self.instance, it->index, &self.ports[it->index]);
+    for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
+	self.desc->connect_port(self.instance, (*it)->index, &self.ports[(*it)->index]);
     }
 }
 
@@ -296,14 +302,15 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
     int n = 0;
     int cnt_in_row = 0;
     int left = 0;
-    for (std::vector<paradesc>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
-	if (it->tp != tp_none) {
+    for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
+	paradesc *d = *it;
+	if (d->tp != tp_none) {
 	    left -= 1;
 	    if (left < 0) {
 		cnt_in_row = 1;
-		std::vector<paradesc>::const_iterator it2 = it+1;
-		while (it2 != self.pd->names.end() && !it2->newrow) {
-		    if (it2->tp != tp_none) {
+		std::vector<paradesc*>::const_iterator it2 = it+1;
+		while (it2 != self.pd->names.end() && !(*it2)->newrow) {
+		    if ((*it2)->tp != tp_none) {
 			++cnt_in_row;
 		    }
 		    ++it2;
@@ -311,17 +318,17 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 		left = cnt_in_row;
 	    }
 	}
-	const char *nm = self.desc->PortNames[it->index];
-	Glib::ustring snm(it->name);
-	if (snm.empty() && it->tp != tp_none) {
+	const char *nm = self.desc->PortNames[d->index];
+	Glib::ustring snm(d->name);
+	if (snm.empty() && d->tp != tp_none) {
 	    snm = TrimLabel(nm, cnt_in_row);
 	}
-	if (it->tp == tp_enum) {
-	    reg.registerEnumVar(self.make_id(*it).c_str(), snm.c_str(), "S", nm, it->values, &self.ports[it->index],
-				it->dflt, it->low, it->up, it->step);
+	if (d->tp == tp_enum) {
+	    reg.registerEnumVar(self.make_id(*d).c_str(), snm.c_str(), "S", nm, d->values, &self.ports[d->index],
+				d->dflt, d->low, d->up, d->step);
 	} else {
 	    const char *tp = 0;
-	    switch (it->tp) {
+	    switch (d->tp) {
 	    case tp_none:           tp = "S";  break;
 	    case tp_int:            tp = "S";  break;
 	    case tp_scale:          tp = "S";  break;
@@ -331,8 +338,8 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    case tp_display_toggle: tp = "BO"; break;
 	    default: assert(false);
 	    }
-	    reg.registerVar(self.make_id(*it).c_str(), snm.c_str(), tp, nm, &self.ports[it->index],
-			    it->dflt, it->low, it->up, it->step);
+	    reg.registerVar(self.make_id(*d).c_str(), snm.c_str(), tp, nm, &self.ports[d->index],
+			    d->dflt, d->low, d->up, d->step);
 	}
     }
     return 0;
@@ -346,42 +353,42 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 	if (!*p) {
 	    p = 0;
 	}
-	b.create_master_slider(self.make_id(self.pd->names[self.pd->master_idx]).c_str(), p);
+	b.create_master_slider(self.make_id(*self.pd->names[self.pd->master_idx]).c_str(), p);
     }
     b.closeBox();
     b.openVerticalBox("");
     b.openHorizontalBox("");
     int n = 0;
-    for (std::vector<paradesc>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
-	if (it->newrow) {
+    for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
+	if ((*it)->newrow) {
 	    b.closeBox();
 	    b.openHorizontalBox("");
 	}
 	const char *p = 0;
-	std::string id = self.make_id(*it);
-	switch (it->tp) {
+	std::string id = self.make_id(**it);
+	switch ((*it)->tp) {
 	case tp_scale:
 	case tp_scale_log:
-	    if (!it->has_caption) {
+	    if (!(*it)->has_caption) {
 		p = "";
 	    }
 	    b.create_small_rackknob(id.c_str(), p);
 	    break;
 	case tp_toggle:
-	    if (it->has_caption) {
+	    if ((*it)->has_caption) {
 		b.create_switch("switch",id.c_str(), 0);
 	    } else {
 		b.create_switch_no_caption("switchit",id.c_str());
 	    }
 	    break;
 	case tp_display:
-	    if (!it->has_caption) {
+	    if (!(*it)->has_caption) {
 		p = "";
 	    }
 	    b.create_port_display(id.c_str(), p);
 	    break;
 	case tp_display_toggle:
-	    if (it->has_caption) {
+	    if ((*it)->has_caption) {
 		b.create_switch("led",id.c_str(), 0);
 	    } else {
 		b.create_switch_no_caption("led",id.c_str());
@@ -391,7 +398,7 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 	    b.create_spin_value(id.c_str(), 0);
 	    break;
 	case tp_enum:
-	    if (it->has_caption) {
+	    if ((*it)->has_caption) {
 		b.create_selector(id.c_str(), 0);
 	    } else {
 		b.create_selector_no_caption(id.c_str());
@@ -452,8 +459,25 @@ LadspaLoader::pluginarray::iterator LadspaLoader::find(unsigned long uniqueid) {
 }
 
 void LadspaLoader::update_instance(PluginDef *pdef, plugdesc *pdesc) {
-    //FIXME
     static_cast<LadspaDsp*>(pdef)->set_plugdesc(pdesc);
+}
+
+paradesc::~paradesc() {
+    for (value_pair *p = values; p->value_id; ++p) {
+	g_free(const_cast<char*>(p->value_id));
+	g_free(const_cast<char*>(p->value_label));
+    }
+    delete[] values;
+}
+
+void paradesc::set_valuelist(const std::vector<value_pair>& v) {
+    values = new value_pair[v.size()+1];
+    int n = 0;
+    for (std::vector<value_pair>::const_iterator i = v.begin(); i != v.end(); ++i) {
+	values[n++] = *i;
+    }
+    values[n].value_id = 0;
+    values[n].value_label = 0;
 }
 
 void LadspaLoader::read_module_config(const std::string& filename, plugdesc *p) {
@@ -478,28 +502,28 @@ void LadspaLoader::read_module_config(const std::string& filename, plugdesc *p) 
     p->quirks = jp.current_value_int();
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
-	paradesc para;
+	paradesc *para = new paradesc;
 	jp.next(gx_system::JsonParser::begin_array);
 	jp.next(gx_system::JsonParser::value_number);
-	para.index = jp.current_value_int();
+	para->index = jp.current_value_int();
 	jp.skip_object(); // meta data
 	jp.next(gx_system::JsonParser::value_string);
-	para.name = jp.current_value();
+	para->name = jp.current_value();
 	jp.next(gx_system::JsonParser::value_number); // use_sr
 	jp.next(gx_system::JsonParser::value_number);
-	para.dflt = jp.current_value_float();
+	para->dflt = jp.current_value_float();
 	jp.next(gx_system::JsonParser::value_number);
-	para.low = jp.current_value_float();
+	para->low = jp.current_value_float();
 	jp.next(gx_system::JsonParser::value_number);
-	para.up = jp.current_value_float();
+	para->up = jp.current_value_float();
 	jp.next(gx_system::JsonParser::value_number);
-	para.step = jp.current_value_float();
+	para->step = jp.current_value_float();
 	jp.next(gx_system::JsonParser::value_number);
-	para.tp = static_cast<widget_type>(jp.current_value_int()); //FIXME
+	para->tp = static_cast<widget_type>(jp.current_value_int()); //FIXME
 	jp.next(gx_system::JsonParser::value_number);
-	para.newrow = jp.current_value_int();
+	para->newrow = jp.current_value_int();
 	jp.next(gx_system::JsonParser::value_number);
-	para.has_caption = jp.current_value_int();
+	para->has_caption = jp.current_value_int();
 	jp.next(gx_system::JsonParser::begin_array);
 	std::vector<value_pair> v;
 	while (jp.peek() != gx_system::JsonParser::end_array) {
@@ -509,13 +533,7 @@ void LadspaLoader::read_module_config(const std::string& filename, plugdesc *p) 
 	    v.push_back(p);
 	}
 	jp.next(gx_system::JsonParser::end_array);
-	para.values = new value_pair[v.size()+1];
-	int n = 0;
-	for (std::vector<value_pair>::iterator i = v.begin(); i != v.end(); ++i) {
-	    para.values[n++] = *i;
-	}
-	para.values[n].value_id = 0;
-	para.values[n].value_label = 0;
+	para->set_valuelist(v);
 	jp.next(gx_system::JsonParser::end_array);
 	p->names.push_back(para);
     }

@@ -488,7 +488,7 @@ public:
 
 enum widget_type { tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int };
 
-struct paradesc {
+struct paradesc: boost::noncopyable {
     int index;
     std::string name;
     float dflt;
@@ -500,6 +500,8 @@ struct paradesc {
     bool has_caption;
     value_pair* values;
     paradesc(): index(), name(), dflt(), low(), up(), step(), tp(), newrow(), has_caption(true), values() {}
+    ~paradesc();
+    void set_valuelist(const std::vector<value_pair>& v);
 };
 
 enum quirkflag { need_activate = 1, no_cleanup = 2 };
@@ -514,8 +516,9 @@ struct plugdesc {
     int quirks; // quirkflag bits
     int master_idx;
     Glib::ustring master_label;
-    std::vector<paradesc> names;
+    std::vector<paradesc*> names;
     std::string id_str;
+    ~plugdesc();
 };
 
 class LadspaLoader {
