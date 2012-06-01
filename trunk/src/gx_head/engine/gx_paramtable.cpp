@@ -783,8 +783,8 @@ float FloatParameter::getStepAsFloat() const {
 /* FloatEnumParameter */
 
 FloatEnumParameter::FloatEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset,
-                                       float *v, int sv, int low, bool ctrl):
-    FloatParameter(id, name, Enum, preset, v, sv, low, low+get_upper(vn), 1, ctrl),
+                                       float *v, int sv, int low, bool ctrl, bool no_init):
+    FloatParameter(id, name, Enum, preset, v, sv, low, low+get_upper(vn), 1, ctrl, no_init),
     value_names(vn) {}
 
 const value_pair *FloatEnumParameter::getValueNames() const {

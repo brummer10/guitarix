@@ -232,11 +232,11 @@ public:
     virtual float getUpperAsFloat() const;
     virtual float getStepAsFloat() const;
     ParameterV(const string& id, const string& name, ctrl_type ctp, bool preset,
-	       float *v, float sv, float lv, float uv, float tv, bool ctrl):
+	       float *v, float sv, float lv, float uv, float tv, bool ctrl, bool no_init):
 	Parameter(id, name, tp_float, ctp, preset, ctrl),
 	value(v ? v : new float()), std_value(sv),lower(lv),upper(uv),step(tv) {
 	own_var = !v;
-	*value = sv;
+	set(no_init ? *value : sv);
     }
 #ifndef NDEBUG
     friend void compare_parameter(const char* title, Parameter* p1,
@@ -255,7 +255,7 @@ class FloatEnumParameter: public FloatParameter {
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
     FloatEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset, float *v,
-                       int sv, int low, bool ctrl);
+                       int sv, int low, bool ctrl, bool no_init);
 };
 
 /****************************************************************/
@@ -574,18 +574,18 @@ class ParamMap: boost::noncopyable {
     void unregister(const string& id);
     inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std,
 				   float lower, float upper, float step) {
-	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, true, var, std, lower, upper, step, true);
+	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, true, var, std, lower, upper, step, true, replace_mode);
 	insert(p);
 	return p;
     }
     inline FloatParameter *reg_par_non_preset(
 	const string& id, const string& name, float *var, float std, float lower, float upper, float step) {
-	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, false, var, std, lower, upper, step, false);
+	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, false, var, std, lower, upper, step, false, replace_mode);
 	insert(p);
 	return p;
     }
     inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std = 0) {
-	FloatParameter *p = new FloatParameter(id, name, Parameter::Switch, true, var, std, 0, 1, 1, true);
+	FloatParameter *p = new FloatParameter(id, name, Parameter::Switch, true, var, std, 0, 1, 1, true, replace_mode);
 	insert(p);
 	return p;
     }
@@ -610,7 +610,7 @@ class ParamMap: boost::noncopyable {
     inline FloatEnumParameter *reg_enum_par(const string& id, const string& name,
 					    const value_pair *vl, float *var,
 					    int std = 0, int low = 0) {
-	FloatEnumParameter *p = new FloatEnumParameter(id, name, vl, true, var, std, low, true);
+	FloatEnumParameter *p = new FloatEnumParameter(id, name, vl, true, var, std, low, true, replace_mode);
 	insert(p);
 	return p;
     }
@@ -632,7 +632,7 @@ class ParamMap: boost::noncopyable {
     }
     inline FloatParameter *reg_non_midi_par(const string& id, float *val, bool preset,
 				 float std = 0, float lower = 0, float upper = 1, float step = 0) {
-	FloatParameter *p = new FloatParameter(id, "", Parameter::None, preset, val, std, lower, upper, step, false);
+	FloatParameter *p = new FloatParameter(id, "", Parameter::None, preset, val, std, lower, upper, step, false, replace_mode);
 	insert(p);
 	return p;
     }

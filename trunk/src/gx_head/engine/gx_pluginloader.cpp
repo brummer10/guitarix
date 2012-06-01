@@ -56,7 +56,7 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
 #ifndef NDEBUG
 	    gx_engine::FloatParameter p2(
 		id, name, (tp[0] == 'B' ? Parameter::Switch : gx_engine::Parameter::Continuous),
-		true, &p.getFloat().get_value(), val, low, up, step, true);
+		true, &p.getFloat().get_value(), val, low, up, step, true, false);
 	    p2.set_desc(tooltip);
 	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
 #endif
