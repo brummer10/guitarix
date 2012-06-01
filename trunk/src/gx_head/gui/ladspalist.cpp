@@ -524,7 +524,7 @@ void PortDesc::output(JsonWriter& jw) {
     jw.begin_array();
     if (get_tp() == tp_enum) {
 	int iup = int(round(up));
-	for (int i = int(round(low)); i < iup; ++i) {
+	for (int i = int(round(low)); i < iup+1; ++i) {
 	    jw.write(get_enum(i));
 	}
     }

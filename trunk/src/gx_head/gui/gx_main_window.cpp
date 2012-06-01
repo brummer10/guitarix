@@ -1540,7 +1540,7 @@ void MainWindow::create_actions() {
 	actions.jackstartup,
 	sigc::mem_fun(*this, &MainWindow::on_select_jack_control));
 
-    actions.loadladspa = Gtk::Action::create("LoadLADSPA", _("_Reload LADSPA Plugins"));
+    actions.loadladspa = Gtk::Action::create("LoadLADSPA", _("LADSPA Pl_ugins"));
     actions.group->add(
 	actions.loadladspa,
 	sigc::mem_fun(this, &MainWindow::on_load_ladspa));

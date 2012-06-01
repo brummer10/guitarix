@@ -28,6 +28,7 @@
       <!-- <menuitem action="MidiOut" /> -->
       <menu action="MonoPlugins"/>
       <menu action="StereoPlugins"/>
+      <menuitem action="LoadLADSPA" />
       <separator/>
       <menuitem action="Compress" />
       <menuitem action="Expand" />
@@ -39,7 +40,6 @@
       <menuitem action="LoggingBox" />
       <menuitem action="Meterbridge"/>
       <menuitem action="ShowValues" />
-      <menuitem action="LoadLADSPA" />
       <menu action="SkinMenu"/>
       <menuitem action="JackStartup" />
       <menuitem action="MidiInPresets" />

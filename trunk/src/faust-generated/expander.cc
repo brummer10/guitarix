@@ -41,7 +41,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "expander";
-	name = N_("expander");
+	name = N_("Expander");
 	groups = 0;
 	description = N_("expander unit"); // description (tooltip)
 	category = N_("Guitar Effects");       // category

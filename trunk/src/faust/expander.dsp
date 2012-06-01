@@ -4,7 +4,7 @@
 /* This is pretty much the same as compressor.dsp, but here the given ratio is
    applied to *attenuate* levels *below* the threshold. */
 
-declare name "expander";
+declare name "Expander";
 declare category "Guitar Effects";
 
 declare description "expander unit";
