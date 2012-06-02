@@ -21,7 +21,6 @@ private:
 	double 	fConst5;
 	double 	fConst6;
 	double 	fRec1[2];
-	FAUSTFLOAT 	fslider2;
 	double 	fVec1[2];
 	double 	fRec0[2];
 	void clear_state_f();
@@ -106,15 +105,14 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 	double 	fSlow3 = (fConst5 * ((500000 * fslider1) + 55700));
 	double 	fSlow4 = (1 + fSlow3);
 	double 	fSlow5 = (1 - fSlow3);
-	double 	fSlow6 = (51000 + (500000 * fslider2));
-	double 	fSlow7 = (1.0 / fSlow1);
+	double 	fSlow6 = (1.0 / fSlow1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
 		fRec1[0] = ((fConst6 * ((fSlow5 * fVec0[1]) + (fSlow4 * fVec0[0]))) + (fConst4 * fRec1[1]));
-		double fTemp1 = (fVec0[0] - ts9nonlin((fRec1[0] - fVec0[0]), fSlow6));
+		double fTemp1 = (fVec0[0] - ts9nonlin((fRec1[0] - fVec0[0])));
 		fVec1[0] = fTemp1;
-		fRec0[0] = ((fSlow7 * (fVec1[0] + fVec1[1])) + (fSlow2 * fRec0[1]));
+		fRec0[0] = ((fSlow6 * (fVec1[0] + fVec1[1])) + (fSlow2 * fRec0[1]));
 		output0[i] = (FAUSTFLOAT)fRec0[0];
 		// post processing
 		fRec0[1] = fRec0[0];
@@ -131,7 +129,6 @@ void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("ts9sim.drive2",N_("R2a"),"S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
 	reg.registerVar("ts9sim.drive",N_("Drive"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 	reg.registerVar("ts9sim.tone",N_("Tone"),"SL","",&fslider0, 4e+02, 1e+02, 1e+03, 1.03);
 	return 0;
@@ -151,7 +148,6 @@ b.create_master_slider(PARAM("drive"), 0);
 b.closeBox();
 b.openHorizontalBox("");
 b.create_small_rackknob(PARAM("drive"), 0);
-b.create_small_rackknob(PARAM("drive2"), 0);
 b.create_small_rackknob(PARAM("tone"), 0);
 b.closeBox();
 

@@ -1,0 +1,8 @@
+#! /bin/bash
+set -e
+python ts9sim.py T > ../src/plugins/ts9nonlin.cc
+cython --cplus ts9func.pyx
+opt="$(python-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
+opt="$opt -Wno-unused-function -shared -fPIC"
+g++ ts9func.cpp $opt -I ../src/plugins -o ts9func.so
+python ts9sim.py
