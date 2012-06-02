@@ -469,11 +469,13 @@ paradesc::~paradesc() {
     delete[] values;
 }
 
-void paradesc::set_valuelist(const std::vector<value_pair>& v) {
+void paradesc::set_valuelist(const std::vector<std::string>& v) {
     values = new value_pair[v.size()+1];
     int n = 0;
-    for (std::vector<value_pair>::const_iterator i = v.begin(); i != v.end(); ++i) {
-	values[n++] = *i;
+    for (std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++i, ++n) {
+	const char *p = g_strdup(i->c_str());
+	values[n].value_id = p;
+	values[n].value_label = p;
     }
     values[n].value_id = 0;
     values[n].value_label = 0;
@@ -518,18 +520,16 @@ void LadspaLoader::read_module_config(const std::string& filename, plugdesc *p) 
 	jp.next(gx_system::JsonParser::value_number);
 	para->step = jp.current_value_float();
 	jp.next(gx_system::JsonParser::value_number);
-	para->tp = static_cast<widget_type>(jp.current_value_int()); //FIXME
+	para->tp = static_cast<widget_type>(jp.current_value_int()); //FIXME (check valid)
 	jp.next(gx_system::JsonParser::value_number);
 	para->newrow = jp.current_value_int();
 	jp.next(gx_system::JsonParser::value_number);
 	para->has_caption = jp.current_value_int();
 	jp.next(gx_system::JsonParser::begin_array);
-	std::vector<value_pair> v;
+	std::vector<std::string> v;
 	while (jp.peek() != gx_system::JsonParser::end_array) {
 	    jp.next(gx_system::JsonParser::value_string);
-	    const char *s = g_strdup(jp.current_value().c_str());
-	    value_pair p = {s, s};
-	    v.push_back(p);
+	    v.push_back(jp.current_value());
 	}
 	jp.next(gx_system::JsonParser::end_array);
 	para->set_valuelist(v);

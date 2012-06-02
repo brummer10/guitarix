@@ -501,7 +501,7 @@ struct paradesc: boost::noncopyable {
     value_pair* values;
     paradesc(): index(), name(), dflt(), low(), up(), step(), tp(), newrow(), has_caption(true), values() {}
     ~paradesc();
-    void set_valuelist(const std::vector<value_pair>& v);
+    void set_valuelist(const std::vector<std::string>& v);
 };
 
 enum quirkflag { need_activate = 1, no_cleanup = 2 };
