@@ -52,6 +52,7 @@ def build(bld):
         './builder/midi.glade',
         './builder/ports.glade',
         './builder/iredit.glade',
+        './builder/iredit_mono.glade',
         './builder/jackstarter.glade',
         './builder/mainpanel.glade',
         './builder/ladspaliste.glade',
