@@ -941,7 +941,9 @@ void PluginDesc::set_state(const ustring& fname) {
 	jp.next(JsonParser::end_token);
 	jp.close();
     } catch(JsonException& e) {
-	printf("Fail2\n"); //FIXME
+	gx_system::gx_print_error(
+	    "ladspalist",
+	    ustring::compose(_("error parsing LADSPA plugin config file %1: %2"), fname, e.what()));
 	return;
     }
     is.close();
@@ -1177,7 +1179,6 @@ PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, sigc::sl
     bld->find_widget("master_slider_idx", cb);
     cb->set_model(masteridx_liststore);
 
-    //self.window.connect("destroy", gtk.main_quit) FIXME
     bld->find_widget("button_cancel", b);
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("QuitAction")->gobj());
     bld->find_widget("button_apply", b);
@@ -1535,7 +1536,10 @@ bool PluginDisplay::do_save() {
 	}
     }
     if (rename(tfname.c_str(), fname.c_str()) != 0) {
-	perror("error writing ladspa plugin config file\n"); //FIXME
+	char buf[100];
+	char *p = strerror_r(errno, buf, sizeof(buf));
+	gx_system::gx_print_error(
+	    "ladspalist",ustring::compose(_("error renaming LADSPA config file '%1': %2\n"), fname, p));
 	return false;
     }
     for (std::vector<std::pair<std::string,std::string> >::iterator i = fl.begin(); i != fl.end(); ++i) {
@@ -1543,7 +1547,11 @@ bool PluginDisplay::do_save() {
 	    unlink(i->second.c_str());
 	} else {
 	    if (rename(i->first.c_str(), i->second.c_str()) != 0) {
-		perror(ustring::compose("error renaming %1 to %2\n", i->first, i->second).c_str()); //FIXME
+		char buf[100];
+		char *p = strerror_r(errno, buf, sizeof(buf));
+		gx_system::gx_print_error(
+		    "ladspalist",
+		    ustring::compose("error renaming %1 to %2: %3\n", i->first, i->second, p));
 	    }
 	}
     }
@@ -2245,30 +2253,34 @@ void PluginDisplay::load_ladspalist(std::vector<unsigned long>& old_not_found, s
     freelocale(loc);
     lrdf_cleanup();
 
-    try {
-	ifstream is(get_config_filename().c_str());
-	JsonParser jp(&is);
-	jp.next(JsonParser::begin_array);
-	while (jp.peek() == JsonParser::begin_array) {
+    ifstream is(get_config_filename().c_str());
+    if (!is.fail()) {
+	try {
+	    JsonParser jp(&is);
 	    jp.next(JsonParser::begin_array);
-	    jp.next(JsonParser::value_string); // path
-	    jp.next(JsonParser::value_number); // index
-	    jp.next(JsonParser::value_number); // UniqueID
-	    unsigned long uid = jp.current_value_uint();
-	    if (d.find(uid) == d.end()) {
-		old_not_found.push_back(uid);
-	    } else {
-		d[uid]->set_active(true);
-		d[uid]->active_set = true;
+	    while (jp.peek() == JsonParser::begin_array) {
+		jp.next(JsonParser::begin_array);
+		jp.next(JsonParser::value_string); // path
+		jp.next(JsonParser::value_number); // index
+		jp.next(JsonParser::value_number); // UniqueID
+		unsigned long uid = jp.current_value_uint();
+		if (d.find(uid) == d.end()) {
+		    old_not_found.push_back(uid);
+		} else {
+		    d[uid]->set_active(true);
+		    d[uid]->active_set = true;
+		}
+		jp.next(JsonParser::value_string); // Label
+		jp.next(JsonParser::end_array);
 	    }
-	    jp.next(JsonParser::value_string); // Label
-	    jp.next(JsonParser::end_array);
+	    jp.close();
+	} catch(JsonException& e) {
+	    gx_system::gx_print_error(
+		"ladspalist", ustring::compose(
+		    _("error loading ladspa plugin selection data from file %1"),
+		    get_config_filename()));
 	}
-	jp.close();
 	is.close();
-    } catch(JsonException& e) {
-	printf("Fail\n"); //FIXME
-	//return; // don't return before build the list
     }
     for (std::map<unsigned long, PluginDesc*>::iterator v = d.begin(); v != d.end(); ++v) {
 	v->second->fixup();
