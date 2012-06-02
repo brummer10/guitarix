@@ -465,7 +465,6 @@ void LadspaLoader::update_instance(PluginDef *pdef, plugdesc *pdesc) {
 paradesc::~paradesc() {
     for (value_pair *p = values; p->value_id; ++p) {
 	g_free(const_cast<char*>(p->value_id));
-	g_free(const_cast<char*>(p->value_label));
     }
     delete[] values;
 }
