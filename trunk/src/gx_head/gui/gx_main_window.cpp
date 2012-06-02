@@ -1729,8 +1729,10 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 		}
 		pui->update_rackbox();
 		if ((*j)->category != (*i)->category) {
+		    pui->unset_ui_merge_id(uimanager);
 		    pui->group = add_plugin_category(pui->get_category());
 		    pui->toolitem->reparent(*pui->group);
+		    add_plugin_menu_entry(pui);
 		}
 	    }
 	}
@@ -1855,25 +1857,28 @@ Gtk::ToolItemGroup *MainWindow::add_plugin_category(const char *group, bool coll
     return gw;
 }
 
-void MainWindow::register_plugin(PluginUI *pui) {
+Glib::ustring MainWindow::add_plugin_menu_entry(PluginUI *pui) {
     Glib::ustring ui_template =
 	"<menubar><menu action=\"PluginsMenu\"><menu action=\"%1Plugins\"><menu action=\"%2\">"
 	"<menuitem action=\"%3\"/>"
 	"</menu></menu></menu></menubar>";
-#ifdef accel_keys_for_plugins
-    unsigned int key = GDK_a;
-#endif
-    plugin_dict.add(pui);
     const char *group = pui->get_category();
     Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group);
     Glib::ustring actionname = Glib::ustring::compose("Plugin_%1", pui->get_id());
     const char *tp = (pui->get_type() == PLUGIN_TYPE_MONO ? "Mono" : "Stereo");
     pui->set_ui_merge_id(uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, tp, groupname, actionname)));
-    Gtk::ToolItemGroup *gw = add_plugin_category(group);
+    return actionname;
+}
+
+void MainWindow::register_plugin(PluginUI *pui) {
+    plugin_dict.add(pui);
+    Gtk::ToolItemGroup *gw = add_plugin_category(pui->get_category());
+    Glib::ustring actionname = add_plugin_menu_entry(pui);
     add_toolitem(*pui, gw);
     Glib::RefPtr<Gtk::ToggleAction> act = Gtk::ToggleAction::create(actionname, pui->get_name());
     actions.group->add(act);
 #ifdef accel_keys_for_plugins
+    unsigned int key = GDK_a;
     if (accel_map_next_key(&key)) {
 	Gtk::AccelMap::add_entry(act->get_accel_path(), key, Gdk::ModifierType(0));
 	++key;
@@ -2340,11 +2345,12 @@ void MainWindow::hide_extended_settings() {
     if (!is_visible ||
 	(window->get_window()->get_state()
 	 & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
-        window->move(mainwin_x, mainwin_y);
+        //window->move(mainwin_x, mainwin_y);
         window->present();
+        //window->deiconify();
     } else {
-        window->hide();
-        //window->iconify();
+        //window->hide();
+        window->iconify();
     }
 }
 
