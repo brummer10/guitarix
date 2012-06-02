@@ -542,22 +542,36 @@ void StackBoxBuilder::make_rackbox_jconv_mono() {
     static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.mono_convolver, window_icon, gx_settings, accels, 1);
     openHorizontalhideBox("");
     {
-    create_master_slider("jconv_mono.gain",  _("gain"));
-	addSmallJConvFavButton(_("setup"), irw);
+	create_master_slider("jconv_mono.wet_dry", _("Dry/Wet"));
+	openSpaceBox("");
+	closeBox();
+	openSpaceBox("");
+	closeBox();
+	addSmallJConvFavButton(_("Setup"), irw);
     }
     closeBox();
     openVerticalBox("");
     {
-    openSetMonoLabelBox();
-    openHorizontalBox("");
+	openSetMonoLabelBox();
+	closeBox();
+	openSpaceBox("");
+	closeBox();
+	openHorizontalBox("");
 	{
-    create_small_rackknob("jconv_mono.gain", "gain");
-    create_small_rackknob("jconv_mono.wet_dry", "dry/wet");
-    addJConvButton(_("setup"), irw);
-    }
+	    openSpaceBox("");
+	    closeBox();
+	    create_small_rackknobr("jconv.gain", _("Gain"));
+	    openSpaceBox("");
+	    closeBox();
+	    create_small_rackknobr("jconv.wet_dry", _("Dry/Wet"));
+	    openSpaceBox("");
+	    closeBox();
+	    addJConvButton(_("Setup"), irw);
+	    openSpaceBox("");
+	    closeBox();
+	}
 	closeBox();
     }
-	closeBox();
     closeBox();
 }
 

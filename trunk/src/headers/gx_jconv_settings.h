@@ -111,7 +111,7 @@ class IRWindow: public sigc::trackable {
     Gtk::ToggleButton *wGain_correction;
     void on_gain_button_toggled();
 
-    Gtk::Label *wSamples, *wSampleRate, *wFormat, *wFilename;
+    Gtk::Label *wSamples, *wSampleRate, *wFormat, *wChan, *wFilename;
     Gtk::Widget *wChannelbox;
 
     void on_help_clicked();

@@ -457,13 +457,19 @@ void ConvolverStereoAdapter::convolver(int count, float *input0, float *input1,
     if (self.conv.is_runnable()) {
         float conv_out0[count];
         float conv_out1[count];
-        if (!self.conv.compute(count, output0, output1, conv_out0, conv_out1)) {
-            self.plugin.on_off = false;
-	    gx_system::gx_print_error("Convolver", "overload");
-        } else {
-            self.jc_post.compute(count, output0, output1,
-			    conv_out0, conv_out1, output0, output1);
+        if (self.conv.compute(count, input0, input1, conv_out0, conv_out1)) {
+            self.jc_post.compute(count, input0, input1,
+				 conv_out0, conv_out1, output0, output1);
+	    return;
         }
+	self.plugin.on_off = false;
+	gx_system::gx_print_error("Convolver", "overload");
+    }
+    if (input0 != output0) {
+	memcpy(output0, input0, count * sizeof(float));
+    }
+    if (input1 != output1) {
+	memcpy(output1, input1, count * sizeof(float));
     }
 }
 
@@ -542,12 +548,15 @@ void ConvolverMonoAdapter::convolver(int count, float *input, float *output, Plu
     ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(plugin);
     if (self.conv.is_runnable()) {
         float conv_out[count];
-        if (!self.conv.compute(count, input, conv_out)) {
-            self.plugin.on_off = false;
-	    gx_system::gx_print_error("Convolver", "overload");
-        } else {
+        if (self.conv.compute(count, input, conv_out)) {
             self.jc_post_mono.compute(count, output, conv_out, output);
+	    return;
         }
+	self.plugin.on_off = false;
+	gx_system::gx_print_error("Convolver", "overload");
+    }
+    if (input != output) {
+	memcpy(output, input, count * sizeof(float));
     }
 }
 

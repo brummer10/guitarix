@@ -34,7 +34,7 @@ IRWindow *IRWindow::create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolv
 			   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
 			   Glib::RefPtr<Gtk::AccelGroup> accels, int nchan) {
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
-	gx_settings.get_options().get_builder_filepath("iredit.glade"), &ui);
+	gx_settings.get_options().get_builder_filepath(nchan == 1 ? "iredit_mono.glade" : "iredit.glade"), &ui);
     return new IRWindow(bld, convolver, icon, gx_settings, accels, nchan);
 }
 
@@ -60,13 +60,17 @@ void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
 	sigc::mem_fun(*this, &IRWindow::on_combo_changed));
     wcombo->set_model(model);
 
-    builder->find_widget("left", wLeft);
-    wLeft->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_left));
-    builder->find_widget("right", wRight);
-    wRight->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_right));
-    builder->find_widget("sum", wSum);
-    wSum->set_active(true);
-    wSum->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_sum));
+    if (nchan != 1) {
+	builder->find_widget("left", wLeft);
+	wLeft->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_left));
+	builder->find_widget("right", wRight);
+	wRight->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_right));
+	builder->find_widget("sum", wSum);
+	wSum->set_active(true);
+	wSum->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_sum));
+    } else {
+	wLeft = wRight = wSum = 0;
+    }
 
     builder->find_widget("log", wLog);
     wLog->set_active(true);
@@ -92,9 +96,11 @@ void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
     wLength_ms->signal_value_changed().connect(sigc::mem_fun(*this,
                                                &IRWindow::on_ms_length_changed));
 
-    builder->find_widget("delay_delta", wDelay_delta);
-    wDelay_delta->signal_format_value().connect(sigc::mem_fun(*this,
-                                                &IRWindow::on_delay_delta_format_value));
+    if (nchan != 1) {
+	builder->find_widget("delay_delta", wDelay_delta);
+	wDelay_delta->signal_format_value().connect(sigc::mem_fun(*this,
+								  &IRWindow::on_delay_delta_format_value));
+    }
 
     builder->find_widget("home", wHome);
     wHome->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_home));
@@ -129,10 +135,14 @@ void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
     builder->find_widget("length", wSamples);
     builder->find_widget("samplerate", wSampleRate);
     builder->find_widget("format", wFormat);
+    builder->find_widget("channels", wChan);
     builder->find_widget("filename", wFilename);
 
-    builder->find_widget("channelbox", wChannelbox);
-
+    if (nchan == 1) {
+	wChannelbox = 0;
+    } else {
+	builder->find_widget("channelbox", wChannelbox);
+    }
     Gtk::Button* button;
     builder->find_widget("help_button", button);
     button->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_help_clicked));
@@ -180,12 +190,6 @@ IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::Convol
     on_delay_changed(0, 0);
     on_offset_changed(0, 0);
     on_length_changed(0, 0);
-    if (nchan == 1) {
-	wChannelbox->hide();
-	Gtk::Frame *frame1;
-	builder->find_widget("frame1", frame1);
-	frame1->hide();
-    }
 }
 
 IRWindow::~IRWindow() {
@@ -229,11 +233,15 @@ void IRWindow::file_changed(Glib::ustring filename, int rate, int length,
         wLength_ms->set_range(0, (length)*1000.0/rate);
         s_length = (boost::format("%1%") % length).str();
         s_rate = (boost::format("%1%") % rate).str();
+	s_channels = (boost::format("%1%") % channels).str();
     }
     wSamples->set_text(s_length);
     wSampleRate->set_text(s_rate);
     wFormat->set_text(format);
-    wChannelbox->set_sensitive(channels >= 2);
+    wChan->set_text(s_channels);
+    if (nchan != 1) {
+	wChannelbox->set_sensitive(channels >= 2);
+    }
     wFilename->set_text(Glib::path_get_dirname(filename));
 }
 
@@ -308,7 +316,9 @@ bool IRWindow::load_data(Glib::ustring f, int offset, int delay, int length, con
 	length = audio_size;
     }
     wIredit->set_state(audio_buffer, audio_chan, audio_size, audio.rate(), offset, offset+length, delay-offset, gain);
-    wSum->set_active(true);
+    if (wSum) {
+	wSum->set_active(true);
+    }
     wLog->set_active(true);
     return true;
 }
@@ -624,7 +634,7 @@ void IRWindow::on_preset_popup_clicked(const gx_preset::GxSettings& gx_settings)
 	name.erase(n);
     }
     save_state();
-    new PluginPresetPopup("jconv", gx_settings, name);
+    new PluginPresetPopup(nchan == 1 ? "jconv_mono" : "jconv", gx_settings, name);
 }
 
 void IRWindow::on_help_clicked() {

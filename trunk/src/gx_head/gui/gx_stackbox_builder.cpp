@@ -329,7 +329,6 @@ void StackBoxBuilder::openSetMonoLabelBox() {
     font.set_size(8*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
     convolver_mono_filename_label.modify_font(font);
-    convolver_mono_filename_label.set_alignment(0.2, 0.5);
     box->pack_start(convolver_mono_filename_label, true, false, 0);
     box->show_all();
     convolver_mono_filename_label.set_label(engine.mono_convolver.getIRFile());
