@@ -996,7 +996,6 @@ PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, sigc::sl
       on_reordered_conn(), display_type_list(), display_type_list_sr(), output_type_list(),
       finished_callback(finished_callback_)
 {
-    printf("load ladspa_window\n");
     std::vector<unsigned long> old_not_found;
     load_ladspalist(old_not_found, pluginlist);
     bld = gx_gui::GxBuilder::create_from_file(options.get_builder_filepath("ladspaliste.glade"));
@@ -1192,7 +1191,6 @@ PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, sigc::sl
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("SelectNoneAction")->gobj());
 
     window->show();
-    printf("show ladspa_window\n");
 }
 
 PluginDisplay::~PluginDisplay() {
@@ -2190,16 +2188,11 @@ static bool cmp_plugins(const PluginDesc *a, const PluginDesc *b) {
 }
 
 void PluginDisplay::load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<PluginDesc*>& l) {
-    printf("before check LADSPA_PATH: %s\n", getenv("LADSPA_PATH"));
     gx_system::PathList pl("LADSPA_PATH");
-    printf("after check LADSPA_PATH\n");
     if (!pl.size()) {
-        printf("LADSPA_PATH empty, set own\n");
         pl.add("/usr/lib/ladspa");
         pl.add("/usr/local/lib/ladspa");
-        printf("own LADSPA_PATH is set\n");
     }
-    printf("load_ladspalist %s\n", getenv("LADSPA_PATH"));
     std::map<unsigned long, PluginDesc*> d;
     for (gx_system::PathList::iterator it = pl.begin(); it != pl.end(); ++it) {
         Glib::RefPtr<Gio::File> file = *it;
@@ -2218,7 +2211,7 @@ void PluginDisplay::load_ladspalist(std::vector<unsigned long>& old_not_found, s
                 if (lib_is_blacklisted(nm)) {
                     continue;
                 }
-		printf("opening %s/%s\n", file->get_path().c_str(), nm.c_str());
+		//printf("opening %s/%s\n", file->get_path().c_str(), nm.c_str());
 		load_ladspa_defs(Glib::build_filename(file->get_path(), nm), d);
             }
         }
