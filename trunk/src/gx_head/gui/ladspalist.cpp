@@ -2211,7 +2211,7 @@ void PluginDisplay::load_ladspalist(std::vector<unsigned long>& old_not_found, s
                 if (lib_is_blacklisted(nm)) {
                     continue;
                 }
-		printf("opening %s\n", file->get_path().c_str());
+		printf("opening %s/%s\n", file->get_path().c_str(), nm.c_str());
 		load_ladspa_defs(Glib::build_filename(file->get_path(), nm), d);
             }
         }
