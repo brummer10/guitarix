@@ -2190,12 +2190,16 @@ static bool cmp_plugins(const PluginDesc *a, const PluginDesc *b) {
 }
 
 void PluginDisplay::load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<PluginDesc*>& l) {
+    printf("before check LADSPA_PATH: %s\n", getenv("LADSPA_PATH"));
     gx_system::PathList pl("LADSPA_PATH");
+    printf("after check LADSPA_PATH\n");
     if (!pl.size()) {
+        printf("LADSPA_PATH empty, set own\n");
         pl.add("/usr/lib/ladspa");
         pl.add("/usr/local/lib/ladspa");
+        printf("own LADSPA_PATH is set\n");
     }
-    printf("load_ladspalist\n");
+    printf("load_ladspalist %s\n", getenv("LADSPA_PATH"));
     std::map<unsigned long, PluginDesc*> d;
     for (gx_system::PathList::iterator it = pl.begin(); it != pl.end(); ++it) {
         Glib::RefPtr<Gio::File> file = *it;
