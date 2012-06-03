@@ -996,6 +996,7 @@ PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, sigc::sl
       on_reordered_conn(), display_type_list(), display_type_list_sr(), output_type_list(),
       finished_callback(finished_callback_)
 {
+    printf("load ladspa_window\n");
     std::vector<unsigned long> old_not_found;
     load_ladspalist(old_not_found, pluginlist);
     bld = gx_gui::GxBuilder::create_from_file(options.get_builder_filepath("ladspaliste.glade"));
@@ -1191,6 +1192,7 @@ PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, sigc::sl
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("SelectNoneAction")->gobj());
 
     window->show();
+    printf("show ladspa_window\n");
 }
 
 PluginDisplay::~PluginDisplay() {
@@ -2193,6 +2195,7 @@ void PluginDisplay::load_ladspalist(std::vector<unsigned long>& old_not_found, s
         pl.add("/usr/lib/ladspa");
         pl.add("/usr/local/lib/ladspa");
     }
+    printf("load_ladspalist\n");
     std::map<unsigned long, PluginDesc*> d;
     for (gx_system::PathList::iterator it = pl.begin(); it != pl.end(); ++it) {
         Glib::RefPtr<Gio::File> file = *it;
