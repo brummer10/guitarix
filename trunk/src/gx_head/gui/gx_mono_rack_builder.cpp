@@ -286,14 +286,14 @@ void StackBoxBuilder::make_rackbox_expander() {
 void StackBoxBuilder::make_rackbox_overdrive() {
     // -----overdrive
     openHorizontalhideBox("");
-    create_master_slider("overdrive.drive", _("drive"));
+    create_master_slider("overdrive.drive", _("Drive"));
     closeBox();
     openHorizontalTableBox("");
     {
 	openSpaceBox("");
 	closeBox();
-	create_small_rackknobr("overdrive.drive", _("  drive "));
-	create_small_rackknob("overdrive.wet_dry", _("dry/wet"));
+	create_small_rackknobr("overdrive.drive", _("  Drive "));
+	create_small_rackknob("overdrive.wet_dry", _("Dry/Wet"));
 	openSpaceBox("");
 	closeBox();
     }
