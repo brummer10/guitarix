@@ -9,7 +9,6 @@ csources = [ # generate .so files from c sources that can be loaded by guitarix
 
 sources = [ # generate .so files that can be loaded by guitarix
     "dunwah.dsp",
-    "flanger_t2.dsp",
     "ts9sim.dsp",
     ]
 
@@ -20,6 +19,7 @@ lib_csource_defs = [ # put in static library linked with guitarix
 
 lib_sources = [ # put in static library linked with guitarix
     "zita_rev1.dsp",
+    "flanger_gx.dsp",
     ]
 
 def build(bld):
@@ -77,7 +77,7 @@ def build(bld):
     bld.env["HAVE_PLUGINLIB"] = have_pluginlib
     if have_pluginlib:
         bld(features = ['cxx', 'cstaticlib'],
-            includes = ["../headers"],
+            includes = [".","../headers"],
             source = [s.replace(".dsp",".cc") for s in lib_sources]+lib_csources,
             target = "plugins", # (also defines name of task)
             )

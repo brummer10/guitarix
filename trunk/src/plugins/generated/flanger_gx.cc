@@ -1,10 +1,11 @@
-// generated from file '../src/plugins/flanger_t2.dsp' by dsp2cc:
+// generated from file '../src/plugins/flanger_gx.dsp' by dsp2cc:
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
 
-namespace flanger_t2 {
+namespace pluginlib {
+namespace flanger_gx {
 
 class Dsp: public PluginDef {
 private:
@@ -51,8 +52,8 @@ Dsp::Dsp()
 	: PluginDef() {
 	version = PLUGINDEF_VERSION;
 	flags = 0;
-	id = "flanger_mono_t2";
-	name = N_("Flanger Mono T2");
+	id = "flanger_mono_gx";
+	name = N_("Flanger GX");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = N_("Modulation");       // category
@@ -106,7 +107,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = fslider1;
-	double 	fSlow2 = (fSlow1 * min(1, (1 + fSlow0)));
+	double 	fSlow2 = (0.01 * (fSlow1 * min(1, (1 + fSlow0))));
 	double 	fSlow3 = (2 - fSlow2);
 	double 	fSlow4 = (0.3333333333333333 * ((2 + fabs(fSlow0)) * fslider2));
 	double 	fSlow5 = (fConst1 * fslider3);
@@ -115,8 +116,8 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 	double 	fSlow8 = (0 - fSlow6);
 	double 	fSlow9 = (0.0005 * fslider4);
 	double 	fSlow10 = (0.001 * fslider5);
-	double 	fSlow11 = (min(1, (1 - fSlow0)) * fSlow1);
-	double 	fSlow12 = (0.5 * (2 - fSlow11));
+	double 	fSlow11 = (0.01 * (min(1, (1 - fSlow0)) * fSlow1));
+	double 	fSlow12 = (2 - fSlow11);
 	double 	fSlow13 = (0 - fSlow4);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
@@ -136,13 +137,13 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fVec2[IOTA&1023] = fTemp9;
 		fRec0[0] = ((fTemp8 * fVec2[(IOTA-iTemp7)&1023]) + (fTemp6 * fVec2[(IOTA-iTemp4)&1023]));
 		double fTemp10 = ((fSlow2 * fRec0[0]) + (fSlow3 * fVec0[IOTA&1023]));
-		double fTemp11 = ((0.5 * fTemp10) + (fSlow13 * fRec3[1]));
+		double fTemp11 = (fTemp10 + (fSlow13 * fRec3[1]));
 		fVec3[IOTA&2047] = fTemp11;
 		double fTemp12 = (iConst0 * fTemp1);
 		int iTemp13 = int(fTemp12);
 		int iTemp14 = (1 + iTemp13);
 		fRec3[0] = (((fTemp12 - iTemp13) * fVec3[(IOTA-int((int(iTemp14) & 2047)))&2047]) + ((iTemp14 - fTemp12) * fVec3[(IOTA-int((iTemp13 & 2047)))&2047]));
-		output0[i] = (FAUSTFLOAT)(0.5 * ((fSlow11 * fRec3[0]) + (fSlow12 * fTemp10)));
+		output0[i] = (FAUSTFLOAT)(0.25 * ((fSlow11 * fRec3[0]) + (fSlow12 * fTemp10)));
 		// post processing
 		fRec3[1] = fRec3[0];
 		fRec0[1] = fRec0[0];
@@ -160,12 +161,12 @@ void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("flanger_mono_t2.depth","","S","",&fslider5, 0.5, 0.0, 5.0, 0.01);
-	reg.registerVar("flanger_mono_t2.width","","S","",&fslider4, 5.0, 0.0, 1e+01, 0.01);
-	reg.registerVar("flanger_mono_t2.freq","","SL","",&fslider3, 0.2, 0.05, 1e+01, 1.06);
-	reg.registerVar("flanger_mono_t2.feedback","","S","",&fslider2, -0.707, -0.99, 0.99, 0.01);
-	reg.registerVar("flanger_mono_t2.wet","","S","",&fslider1, 1.0, 0.0, 1.0, 0.1);
-	reg.registerVar("flanger_mono_t2.mix","","S","",&fslider0, 0.0, -1.0, 1.0, 0.1);
+	reg.registerVar("flanger_mono_gx.depth",N_("Depth"),"S","",&fslider5, 0.5, 0.0, 5.0, 0.01);
+	reg.registerVar("flanger_mono_gx.width",N_("Width"),"S","",&fslider4, 5.0, 0.0, 1e+01, 0.01);
+	reg.registerVar("flanger_mono_gx.freq",N_("Speed"),"SL","",&fslider3, 0.2, 0.05, 1e+01, 1.06);
+	reg.registerVar("flanger_mono_gx.feedback",N_("Feedback"),"S","",&fslider2, -0.707, -0.99, 0.99, 0.01);
+	reg.registerVar("flanger_mono_gx.wet",N_("Wet"),"S","",&fslider1, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("flanger_mono_gx.mix",N_("Mix"),"S","",&fslider0, 0.0, -1.0, 1.0, 0.1);
 	return 0;
 }
 
@@ -176,16 +177,20 @@ int Dsp::register_params_static(const ParamReg& reg)
 
 inline int Dsp::load_ui_f(const UiBuilder& b)
 {
-#define PARAM(p) ("flanger_mono_t2" "." p)
+#define PARAM(p) ("flanger_mono_gx" "." p)
 
 b.openHorizontalhideBox("");
+b.create_master_slider(PARAM("wet"), "Dry/Wet");
 b.closeBox();
+
+b.openHorizontalBox("");
 b.create_small_rackknob(PARAM("freq"), 0);
 b.create_small_rackknob(PARAM("depth"), 0);
 b.create_small_rackknob(PARAM("width"), 0);
 b.create_small_rackknob(PARAM("feedback"), 0);
 b.create_small_rackknob(PARAM("mix"), 0);
 b.create_small_rackknob(PARAM("wet"), 0);
+b.closeBox();
 
 #undef PARAM
 	return 0;
@@ -205,16 +210,5 @@ void Dsp::del_instance(PluginDef *p)
 	delete static_cast<Dsp*>(p);
 }
 
-extern "C" __attribute__ ((visibility ("default"))) int
-get_gx_plugin(unsigned int idx, PluginDef **pplugin)
-{
-    if (!pplugin) {
-        return 1;
-    }
-    if (idx > 0) {
-        return -1;
-    }
-    *pplugin = new Dsp();
-    return 1;
-}
-} // end namespace flanger_t2
+} // end namespace flanger_gx
+} // end namespace pluginlib

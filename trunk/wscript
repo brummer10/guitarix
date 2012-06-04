@@ -652,6 +652,7 @@ def build(bld):
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jp_n_o_s.gx', chmod=0664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe', chmod=0664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe_mono', chmod=0664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/flanger_mono_gx', chmod=0664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jconv', chmod=0664)
     # "greathall.wav" is referenced in the source (keep in sync when changing)
     bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0664)

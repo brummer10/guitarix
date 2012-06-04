@@ -1,0 +1,26 @@
+["gx_plugin_version", 1,
+  "Aqua", {
+    "flanger_mono_gx.depth": 0.5,
+    "flanger_mono_gx.feedback": -0.707,
+    "flanger_mono_gx.freq": 0.2,
+    "flanger_mono_gx.mix": 1,
+    "flanger_mono_gx.wet": 100,
+    "flanger_mono_gx.width": 5
+  },
+  "Flanger Mono", {
+    "flanger_mono_gx.depth": 1,
+    "flanger_mono_gx.feedback": -0.5,
+    "flanger_mono_gx.freq": 0.2,
+    "flanger_mono_gx.mix": -1,
+    "flanger_mono_gx.wet": 100,
+    "flanger_mono_gx.width": 10
+  }
+  "standard", {
+    "flanger_mono_gx.depth": 0.5,
+    "flanger_mono_gx.feedback": -0.707,
+    "flanger_mono_gx.freq": 0.2,
+    "flanger_mono_gx.mix": 0,
+    "flanger_mono_gx.wet": 100,
+    "flanger_mono_gx.width": 5
+  },
+]
