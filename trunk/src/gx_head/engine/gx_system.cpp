@@ -218,10 +218,8 @@ PathList::PathList(const char *env_name): dirs() {
 	    int n = q - p;
 	    if (n) {
 		add(std::string(p, n));
-        p = q;
-	    } else {
-	    p = "";
-        }
+	    }
+	    p = q+1;
 	} else {
 	    if (*p) {
 		add(p);
