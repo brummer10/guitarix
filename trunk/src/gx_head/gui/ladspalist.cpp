@@ -685,13 +685,15 @@ static void load_ladspa_defs(const std::string& path, std::map<unsigned long, Pl
     void *handle;
     handle = dlopen(path.c_str(), RTLD_LOCAL|RTLD_NOW);
     if (!handle) {
-        printf("Cannot open plugin: %s\n", dlerror());
+	gx_system::gx_print_warning(
+	    "ladspalist",
+	    ustring::compose(_("Cannot open plugin: %1\n"), dlerror()));
         return;
     }
     LADSPA_Descriptor_Function ladspa_descriptor = (LADSPA_Descriptor_Function)dlsym(handle, "ladspa_descriptor");
     const char *dlsym_error = dlerror();
     if (dlsym_error) {
-        printf("Cannot load symbol 'ladspa_descriptor': %s\n", dlsym_error);
+	gx_system::gx_print_warning("ladspalist", dlsym_error);
         dlclose(handle);
         handle = 0;
         return;
@@ -2215,7 +2217,6 @@ void PluginDisplay::load_ladspalist(std::vector<unsigned long>& old_not_found, s
 		load_ladspa_defs(Glib::build_filename(file->get_path(), nm), d);
             }
         }
-	printf("ladspa list done\n");
     }
     gx_system::PathList rpl("LADSPA_RDF_PATH");
     if (!rpl.size()) {
