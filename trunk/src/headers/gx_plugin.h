@@ -55,6 +55,8 @@ struct UiBuilder {
     void (*create_port_display)(const char * id, const char *label);
     void (*create_switch)(const char *sw_type,const char * id, const char *label);
     void (*create_selector)(const char *id, const char *label);
+    void (*create_small_rackknobr)(const char *id, const char *label);
+    void (*insertSpacer)();
     //FIXME add missing functions
 };
 

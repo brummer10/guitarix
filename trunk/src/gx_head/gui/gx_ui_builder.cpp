@@ -70,12 +70,14 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, gx_gui::StackBoxBuilder *b, std::vec
     load_glade = load_glade_;
     create_master_slider = create_master_slider_;
     create_small_rackknob = create_small_rackknob_;
+    create_small_rackknobr = create_small_rackknobr_;
     create_spin_value = create_spin_value_;
     create_switch = create_switch_;
     create_switch_no_caption = create_switch_no_caption_;
     create_selector = create_selector_;
     create_selector_no_caption = create_selector_no_caption_;
     create_port_display = create_port_display_;
+    insertSpacer = insertSpacer_;
 };
 
 bool UiBuilderImpl::load_unit(PluginUI &pl) {
@@ -109,11 +111,24 @@ void UiBuilderImpl::openHorizontalBox_(const char* label) {
     intf->openHorizontalBox(label);
 }
 
+void UiBuilderImpl::insertSpacer_() {
+    intf->openSpaceBox("");
+    intf->closeBox();
+}
+
 void UiBuilderImpl::create_small_rackknob_(const char *id, const char *label) {
     if (label) {
 	intf->create_small_rackknob(id, label);
     } else {
 	intf->create_small_rackknob(id);
+    }
+}
+
+void UiBuilderImpl::create_small_rackknobr_(const char *id, const char *label) {
+    if (label) {
+	intf->create_small_rackknobr(id, label);
+    } else {
+	intf->create_small_rackknobr(id);
     }
 }
 

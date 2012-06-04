@@ -188,7 +188,9 @@ protected:
     static void openVerticalBox2_(const char* label);
     static void openHorizontalBox_(const char* label);
     static void openHorizontalhideBox_(const char* label);
+    static void insertSpacer_();
     static void create_small_rackknob_(const char *id, const char *label);
+    static void create_small_rackknobr_(const char *id, const char *label);
     static void create_master_slider_(const char *id, const char *label);
     static void create_selector_no_caption_(const char *id);
     static void create_selector_(const char *id, const char *label);
