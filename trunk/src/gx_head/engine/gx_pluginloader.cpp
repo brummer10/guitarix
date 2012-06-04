@@ -303,8 +303,12 @@ int PluginList::check_version(PluginDef *p) {
 void PluginList::delete_module(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
     unregisterPlugin(pl, param, groups);
     PluginDef *p = pl->pdef;
+#ifndef NDEBUG // avoid unused variable compiler warning
     size_t n = pmap.erase(p->id);
     assert(n == 1);
+#else
+    pmap.erase(p->id);
+#endif
     if (!(p->flags & PGNI_NOT_OWN)) {
 	if (p->delete_instance) {
 	    p->delete_instance(p);
