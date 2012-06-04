@@ -5,6 +5,7 @@
 #include "gx_plugin.h"
 #include "ts9nonlin.h"
 
+namespace pluginlib {
 namespace ts9sim {
 
 class Dsp: public PluginDef {
@@ -147,8 +148,10 @@ b.openHorizontalhideBox("");
 b.create_master_slider(PARAM("drive"), 0);
 b.closeBox();
 b.openHorizontalBox("");
-b.create_small_rackknob(PARAM("drive"), 0);
+b.insertSpacer();
+b.create_small_rackknobr(PARAM("drive"), 0);
 b.create_small_rackknob(PARAM("tone"), 0);
+b.insertSpacer();
 b.closeBox();
 
 #undef PARAM
@@ -169,16 +172,5 @@ void Dsp::del_instance(PluginDef *p)
 	delete static_cast<Dsp*>(p);
 }
 
-extern "C" __attribute__ ((visibility ("default"))) int
-get_gx_plugin(unsigned int idx, PluginDef **pplugin)
-{
-    if (!pplugin) {
-        return 1;
-    }
-    if (idx > 0) {
-        return -1;
-    }
-    *pplugin = new Dsp();
-    return 1;
-}
 } // end namespace ts9sim
+} // end namespace pluginlib
