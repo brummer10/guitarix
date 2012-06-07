@@ -983,6 +983,7 @@ bool RackBox::animate_create() {
     } else {
 	set_size_request(-1, anim_height);
     }
+    main.update_width();
     get_parent()->ensure_visible(*this);
     return ret;
 }
@@ -990,6 +991,7 @@ bool RackBox::animate_create() {
 void RackBox::animate_insert() {
     if (!get_parent()->check_if_animate(*this)) {
 	show();
+	main.update_width();
 	get_parent()->ensure_visible(*this);
     } else {
 	if (anim_tag.connected()) {
@@ -1061,6 +1063,7 @@ void RackBox::set_config_mode(bool mode) {
 
 void RackBox::do_expand() {
     swtch(false);
+    main.update_width();
     Glib::signal_idle().connect_once(
 	sigc::bind(
 	    sigc::mem_fun(get_parent(), &RackContainer::ensure_visible),

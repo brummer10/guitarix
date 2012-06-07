@@ -878,6 +878,7 @@ public:
     bool use_animations() { return actions.animations->get_active(); }
     void create_default_scratch_preset() { gx_settings.create_default_scratch_preset(); }
     void resize_finished(RackContainer *ch);
+    void update_width();
 };
 
 inline bool RackContainer::check_if_animate(const RackBox& rackbox) { return main.use_animations(); }

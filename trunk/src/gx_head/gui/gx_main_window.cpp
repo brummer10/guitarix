@@ -788,9 +788,7 @@ void MainWindow::on_rack_configuration() {
 	}
     }
     if (!plugin_bar) {
-	update_scrolled_window(*vrack_scrolledbox);
-	update_scrolled_window(*stereorackbox);
-	maybe_shrink_horizontally();
+	update_width();
     }
 }
 
@@ -874,6 +872,12 @@ void MainWindow::resize_finished(RackContainer *ch)
     if (ch == &monorackcontainer && !actions.rackh->get_active()) {
 	stereorackcontainer.queue_draw();
     }
+}
+
+void MainWindow::update_width() {
+    update_scrolled_window(*vrack_scrolledbox);
+    update_scrolled_window(*stereorackbox);
+    maybe_shrink_horizontally();
 }
 
 RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwidget, Gtk::Widget *miniwidget,
