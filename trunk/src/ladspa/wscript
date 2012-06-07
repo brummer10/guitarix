@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import os
+import os, TaskGen, ctypes
 
 def configure(conf):
     pass
+
+@TaskGen.feature('test_loadable')
+def test_loadable(self):
+    def link_and_test(lib=self.link_task.outputs[0].bldpath(self.env), link=self.link_task.run):
+        link()
+        try:
+            ctypes.cdll.LoadLibrary(lib)
+        except Exception, e:
+            raise RuntimeError("LADSPA load test failed: %s" % e)
+    self.link_task.run = link_and_test
 
 def build(bld):
     bsources = [
@@ -44,7 +54,7 @@ def build(bld):
         incl.append('../zita-resampler-1.1.0')
     ladspa_plugin = bld(
         #features='cxx cprogram',  ## for debugging
-        features='cxx cshlib',
+        features='cxx cshlib test_loadable',
         includes = incl,
         lib = lib,
         uselib = uselib,
