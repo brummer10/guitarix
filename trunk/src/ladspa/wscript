@@ -22,10 +22,12 @@ def build(bld):
         '../plugins/zita_rev1.cc',
         '../plugins/vibe.cc',
         '../plugins/abgate.cc',
+        '../plugins/ts9sim.cc',
+        '../plugins/flanger_gx.cc',
         ]
     
     src = ['ladspa_guitarix.cpp'] + bsources
-    incl = ['../headers', '..','../gx_head/engine','../../libgxwmm','../../libgxw']
+    incl = ['../headers', '..','../gx_head/engine','../plugins','../../libgxwmm','../../libgxw']
     lib = ['dl']
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
               'GLIBMM', 'GIOMM', 'FFTW3']
