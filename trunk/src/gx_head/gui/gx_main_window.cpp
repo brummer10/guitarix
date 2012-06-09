@@ -685,7 +685,7 @@ void MainWindow::on_show_rack() {
 	w->show();
 	monoampcontainer->show();
 	monorackcontainer.show_entries();
-	vrack_scrolledbox->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+	vrack_scrolledbox->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
 	vrack_scrolledbox->set_size_request(scrl_size_x, scrl_size_y);
 	if (preset_scrolledbox->get_parent() != main_vpaned) {
 	    preset_box_no_rack->remove(*preset_scrolledbox);
