@@ -17,7 +17,7 @@ def create_ladspa_plugin(bld, source, target, defstr, uselib = None):
     ladspa_plugin.source   = source
     ladspa_plugin.env.append_value("CXXFLAGS", ['-fPIC', '-shared'])
     ladspa_plugin.install_path = '${LADSPADIR}'
-    ladspa_plugin.chmod = 0755
+    ladspa_plugin.chmod = 0o755
     return ladspa_plugin
 
 

@@ -12,7 +12,7 @@ def test_loadable(self):
         link()
         try:
             ctypes.cdll.LoadLibrary(lib)
-        except Exception, e:
+        except Exception as e:
             raise RuntimeError("LADSPA load test failed: %s" % e)
     self.link_task.run = link_and_test
 
@@ -64,7 +64,7 @@ def build(bld):
         target   = 'ladspa_guitarix',
         source   = src,
         install_path = '${LADSPADIR}',
-        chmod = 0755,
+        chmod = 0o755,
         )
     ladspa_plugin.env['shlib_PATTERN'] = '%s.so'
     bld.install_files('${SHAREDIR}/ladspa/rdf', 'guitarix_amp.rdf')

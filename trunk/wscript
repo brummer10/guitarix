@@ -15,7 +15,7 @@ try:
 except:
     WAFVERSION='1.0.0'
 if WAFVERSION[:3] != '1.5':
-    print 'Incompatible Waf, use 1.5'
+    print('Incompatible Waf, use 1.5')
     sys.exit (1)
 
 # these variables are mandatory ('/' are converted automatically)
@@ -214,7 +214,7 @@ def append_optimization_flags(cxxflags):
     cpu_model = None
     x86_flags = None
     try:
-        for line in file("/proc/cpuinfo"):
+        for line in open("/proc/cpuinfo"):
             if cpu_model is None:
                 if line.startswith("model name"):
                     cpu_model = line.split(":",1)[1].strip()
@@ -567,7 +567,7 @@ def configure(conf):
     conf.sub_config('rcstyles');
 
     # some output
-    print
+    print("")
     display_msg("==================")
     version_msg = "GUITARIX II " + VERSION
     print_msg(version_msg)
@@ -643,19 +643,19 @@ def build(bld):
     bld.add_subdirs('src/gx_head')
     if bld.env["NEW_LADSPA"]:
         bld.add_subdirs('src/ladspa')
-    bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/funkmuscle.gx', chmod=0664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dlp_ae.gx', chmod=0664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/zettberlin.gx', chmod=0664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/autoandimat.gx', chmod=0664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jp_n_o_s.gx', chmod=0664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe', chmod=0664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe_mono', chmod=0664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/flanger_mono_gx', chmod=0664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jconv', chmod=0664)
+    bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/funkmuscle.gx', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dlp_ae.gx', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/zettberlin.gx', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/autoandimat.gx', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jp_n_o_s.gx', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe_mono', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/flanger_mono_gx', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jconv', chmod=0o664)
     # "greathall.wav" is referenced in the source (keep in sync when changing)
-    bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0664)
+    bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
 
     gen_desktop = bld(features  = "intltool_in",
         podir     = "po",
@@ -751,13 +751,13 @@ def distcheck(ctx):
         try:
             raw_input("%s exists, press enter to remove (stop with Ctrl-C)\n" % path)
         except KeyboardInterrupt:
-            print
+            print("")
             raise Utils.WafError('distcheck cancelled')
             return
         else:
-            print "removing %s" % path
+            print("removing %s" % path)
         shutil.rmtree(path)
-    print "creating tarball and extracting files into %s" % path
+    print("creating tarball and extracting files into %s" % path)
     dist(ctx)
     t = tarfile.open(tarball)
     for x in t:
@@ -766,8 +766,8 @@ def distcheck(ctx):
     build_path = path
     instdir = tempfile.mkdtemp('.inst', path)
     cmdargs = [waf,'configure','build','install','uninstall','--destdir='+instdir]
-    print 'starting "%s"' % (" ".join(cmdargs))
-    print
+    print('starting "%s"' % (" ".join(cmdargs)))
+    print("")
     ret = Utils.pproc.Popen(cmdargs, cwd=build_path).wait()
     if ret:
         raise Utils.WafError('distcheck failed with code %i'%ret)

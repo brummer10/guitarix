@@ -21,4 +21,4 @@ def configure(conf):
     pass
 
 def build(bld):
-    bld.install_files(bld.env['GX_PIXMAPS_DIR'], pixmap_files, chmod=0644)
+    bld.install_files(bld.env['GX_PIXMAPS_DIR'], pixmap_files, chmod=0o644)

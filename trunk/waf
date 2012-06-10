@@ -148,7 +148,10 @@ def find_lib():
 	return dir
 
 wafdir = find_lib()
-w = join(wafdir, 'wafadmin')
+if sys.version > '3':
+	w = join(wafdir, 'wafadmin3')
+else:
+	w = join(wafdir, 'wafadmin')
 t = join(w, 'Tools')
 f = join(w, '3rdparty')
 sys.path = [w, t, f] + sys.path

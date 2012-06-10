@@ -103,7 +103,7 @@ def build(bld):
             source = sources,
             uselib = ['GTHREAD', 'GTK2'],
             target = 'gxw',
-            chmod=0755,
+            chmod=0o755,
             )
     if bld.env["GX_LIB_SHARED"] or bld.env["GXW_SHARED"]:
         # shared library
@@ -113,7 +113,7 @@ def build(bld):
             source = sources,
             uselib = ['GTHREAD', 'GTK2'],
             target = 'gxw',
-            chmod=0755,
+            chmod=0o755,
             )
         if bld.env["GX_LIB_SHARED"] or bld.env["GXW_SHARED_INSTALL"]:
             prog.features.append('libtool')

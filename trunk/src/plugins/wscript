@@ -51,8 +51,8 @@ def build(bld):
                 source = gdir + s,
                 target = s,
             )
-    lib_csources = [v if isinstance(v, basestring) else v[0] for v in lib_csource_defs]
-    lib_dict = dict([v for v in lib_csource_defs if not isinstance(v, basestring)])
+    lib_csources = [v if isinstance(v, str) else v[0] for v in lib_csource_defs]
+    lib_dict = dict([v for v in lib_csource_defs if not isinstance(v, str)])
     def run(task):
         l = []
         for fname in lib_sources+lib_csources:
@@ -62,7 +62,7 @@ def build(bld):
                     l.append("namespace %s { PluginDef *%s(); }\n" % (name, pname))
             else:
                 l.append("namespace %s { PluginDef *plugin(); }\n" % name)
-        f = file(task.outputs[0].bldpath(task.env),"w")
+        f = open(task.outputs[0].bldpath(task.env),"w")
         f.write('#include "gx_plugin.h"\n\nnamespace pluginlib {\n')
         f.write("".join(l))
         f.write("}\n")
@@ -92,7 +92,7 @@ def build(bld):
             )
         tsk.env['shlib_PATTERN'] = '%s.so'
     for s in csources:
-        if not isinstance(s, basestring):
+        if not isinstance(s, str):
             uselib = s[1]
             s = s[0]
         else:

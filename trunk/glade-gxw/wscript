@@ -43,4 +43,4 @@ def build(bld):
         install_path = bld.env["GLADE_MODULES_DIR"],
         )
 
-    bld.install_files(bld.env["GLADE_CATALOG_DIR"], "gxw.xml", chmod=0644)
+    bld.install_files(bld.env["GLADE_CATALOG_DIR"], "gxw.xml", chmod=0o644)

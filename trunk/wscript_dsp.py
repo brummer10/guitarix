@@ -31,7 +31,7 @@ def dsp2cc(task):
         shutil.copy2(dst, cpy)
         if cpy_h:
             shutil.copy2(dst_h, cpy_h)
-    except (OSError, IOError), e:
+    except (OSError, IOError) as e:
         Logs.error("runner: cannot copy file -> %s" % e)
         return e.errno
     return 0

@@ -68,7 +68,7 @@ def template2cc(task):
         shutil.copy2(dpath+basename+".cc", spath+basename+".cc")
         shutil.copy2(dpath+basename+".h", spath+basename+".h")
         shutil.copy2(dpath+"private/"+basename+"_p.h", spath+"private/"+basename+"_p.h")
-    except (OSError, IOError), e:
+    except (OSError, IOError) as e:
         Logs.error("runner: cannot copy file -> %s" % e)
         return e.errno
     return 0
