@@ -552,7 +552,9 @@ public:
 	TextListColumns() { add(name); }
     } col;
 private:
-    TextListStore(): Gtk::ListStore(TextListColumns()) {}
+    TextListStore(): Gtk::ListStore(), col() {
+	set_column_types(col);
+    }
 public:
     static Glib::RefPtr<TextListStore> create() { return Glib::RefPtr<TextListStore>(new TextListStore); }
 };

@@ -27,8 +27,9 @@
  ** class PresetWindow
  */
 
-PresetStore::PresetStore(): Gtk::ListStore(PresetModelColumns())
-{}
+PresetStore::PresetStore(): Gtk::ListStore(), col() {
+    set_column_types(col);
+}
 
 bool PresetStore::row_draggable_vfunc(const TreeModel::Path& path) const {
     Gtk::TreeModel::const_iterator i = const_cast<PresetStore*>(this)->get_iter(path); // Bug in Gtkmm: no get_iter() const
