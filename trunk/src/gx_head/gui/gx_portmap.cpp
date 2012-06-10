@@ -604,15 +604,16 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_jack::GxJac
 	//Gtk::CellRendererToggle *tg;
 	//bld->find_widget(name, tg);
 	cell->signal_toggled().connect(
-	    sigc::bind<PortSection&>(
-		sigc::mem_fun(*this, &PortMapWindow::on_cell_toggle),portsection[i]));
+	    sigc::bind(
+		sigc::mem_fun(*this, &PortMapWindow::on_cell_toggle),
+		sigc::ref(portsection[i])));
         snprintf(name, sizeof(name), "expander%d", i+1);
 	//bld->find_widget(name, portsection[i].expander);
         if (portsection[i].expander) {
 	    portsection[i].expander->property_expanded().signal_changed().connect(
-		sigc::bind<Gtk::Expander&>(
+		sigc::bind(
 		    sigc::mem_fun(*this, &PortMapWindow::on_expander),
-		    *portsection[i].expander));
+		    sigc::ref(*portsection[i].expander)));
             snprintf(name, sizeof(name), "port%d", i+1);
             bld->find_widget(name, portsection[i].label);
         }
