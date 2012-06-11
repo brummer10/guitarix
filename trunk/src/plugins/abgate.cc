@@ -83,7 +83,7 @@ void Gate::process(int count, float *input, float *output, PluginDef *plugin) {
     float range_coef = self.range > -90 ? pow(10, self.range * 0.05) : 0;
     float attack_coef = 1000 / (self.attack * self.sample_rate);
     float decay_coef = 1000 / (self.decay * self.sample_rate);
-    float thres = std::pow(10.0, self.threshold / 20);
+    float thres = std::pow(10, self.threshold / 20);
     for (int i = 0; i < count; ++i) {
 	float input_abs = std::abs(input[i]);
 	switch (self.state){

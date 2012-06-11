@@ -39,7 +39,7 @@ extern int zita_convolver_major_version (void);
 #undef ZCSEMA_IS_IMPLEMENTED
 #endif
 
-#ifdef __linux__
+#if defined __linux__ || defined __FreeBSD__
 #include <semaphore.h>
 
 class ZCsema
