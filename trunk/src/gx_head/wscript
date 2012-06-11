@@ -69,8 +69,9 @@ def build(bld):
     sources = sources_engine + sources_gui
     incl = ['.','./engine','../..','..','../headers','../../libgxwmm','../../libgxw'] # need ".." for config.h
     libpath = []
+    lib = []
     if bld.env['IS_LINUX']:
-        lib = ['dl']
+        lib.append('dl')
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
               'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF']
     uselib_local = []
