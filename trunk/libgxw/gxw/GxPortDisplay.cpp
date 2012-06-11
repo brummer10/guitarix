@@ -17,8 +17,6 @@
  */
 
 #include "GxPortDisplay.h"
-#include <gtk/gtkmain.h>
-#include <gtk/gtkprivate.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -43,8 +41,8 @@ static void gx_port_display_class_init(GxPortDisplayClass *klass)
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_int("display-width",P_("size of display"),
-		                   P_("Height of movable part of display"),
-		                 0, 80, 0, GParamFlags(GTK_PARAM_READABLE)));
+				 P_("Height of movable part of display"),
+		                 0, 80, 0, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 }
 
 static void gx_port_display_size_request (GtkWidget *widget, GtkRequisition *requisition)

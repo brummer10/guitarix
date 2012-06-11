@@ -17,8 +17,6 @@
  */
 
 #include "GxSimpleValueDisplay.h"
-#include <gtk/gtkmain.h>
-#include <gtk/gtkprivate.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 

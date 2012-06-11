@@ -19,7 +19,7 @@
 #ifndef __GX_PAINT_BOX_H__
 #define __GX_PAINT_BOX_H__
 
-#include <gtk/gtkbox.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 

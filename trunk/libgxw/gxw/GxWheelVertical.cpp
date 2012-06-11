@@ -17,8 +17,6 @@
  */
 
 #include "GxWheelVertical.h"
-#include <gtk/gtkprivate.h>
-#include <gtk/gtkmain.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -51,7 +49,7 @@ static void gx_wheel_vertical_class_init(GxWheelVerticalClass *klass)
                         P_("framecount"),
                         P_("Number of frames in the animation specified by the gtkrc"),
                         -1, 250, -1,
-                        GParamFlags(GTK_PARAM_READABLE)));
+                        GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
     g_type_class_add_private(klass, sizeof (GxWheelVerticalPrivate));                    
 }
 

@@ -17,7 +17,6 @@
  */
 
 #include "GxSmallKnob.h"
-#include <gtk/gtkprivate.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -30,7 +29,7 @@ static void gx_small_knob_class_init(GxSmallKnobClass *klass)
 		widget_class,
 		g_param_spec_int("arc-inset",P_("inset of arch"),
 		                   P_("Inset of the arc around the knob"),
-		                 0, 100, 0, GParamFlags(GTK_PARAM_READABLE)));
+		                 0, 100, 0, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	klass->parent_class.stock_id = "smallknob";
 }
 

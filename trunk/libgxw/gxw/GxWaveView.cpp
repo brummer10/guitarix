@@ -22,7 +22,6 @@ part of guitarix, show a wave with Gtk
 ******************************************************************************/
 
 #include "GxWaveView.h"
-#include <gtk/gtkprivate.h>
 #include <math.h>
 
 #define P_(s) (s)   // FIXME -> gettext
@@ -269,42 +268,42 @@ static void gx_wave_view_class_init (GxWaveViewClass *klass)
 	                                                      P_("Text top left"),
 	                                                      P_("Text to be displayed at the top left"),
 	                                                      "",
-	                                                      GParamFlags(GTK_PARAM_READWRITE)));
+	                                                      GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property (gobject_class,
 	                                 PROP_TEXT_TOP_RIGHT,
 	                                 g_param_spec_string ("text-top-right",
 	                                                      P_("Text top right"),
 	                                                      P_("Text to be displayed at the top right"),
 	                                                      "",
-	                                                      GParamFlags(GTK_PARAM_READWRITE)));
+	                                                      GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property (gobject_class,
 	                                 PROP_TEXT_BOTTOM_LEFT,
 	                                 g_param_spec_string ("text-bottom-left",
 	                                                      P_("Text bottom left"),
 	                                                      P_("Text to be displayed at the bottom left"),
 	                                                      "",
-	                                                      GParamFlags(GTK_PARAM_READWRITE)));
+	                                                      GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property (gobject_class,
 	                                 PROP_TEXT_BOTTOM_RIGHT,
 	                                 g_param_spec_string ("text-bottom-right",
 	                                                      P_("Text bottom right"),
 	                                                      P_("Text to be displayed at the bottom right"),
 	                                                      "",
-	                                                      GParamFlags(GTK_PARAM_READWRITE)));
+	                                                      GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property (gobject_class,
 	                                 PROP_TEXT_POS_LEFT,
 	                                 g_param_spec_double ("text-pos-left",
 	                                                      P_("Left Position"),
 	                                                      P_("Text to be displayed at the bottom right"),
 	                                                      0, 100, 5,
-	                                                      GParamFlags(GTK_PARAM_READWRITE)));
+	                                                      GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property (gobject_class,
 	                                 PROP_TEXT_POS_RIGHT,
 	                                 g_param_spec_double ("text-pos-right",
 	                                                      P_("Right Position"),
 	                                                      P_("Text to be displayed at the bottom right"),
 	                                                      0, 100, 70,
-	                                                      GParamFlags(GTK_PARAM_READWRITE)));
+	                                                      GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 }
 
 static void gx_wave_view_init(GxWaveView *waveview)

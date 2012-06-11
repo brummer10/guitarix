@@ -23,9 +23,7 @@ part of guitarix, use  knobs with Gtk
 #ifndef __GX_REGLER_H__
 #define __GX_REGLER_H__
 
-#include <gtk/gtkrange.h>
-#include <gtk/gtklabel.h>
-#include "compat2-12.h"
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 

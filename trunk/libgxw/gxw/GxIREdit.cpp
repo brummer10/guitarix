@@ -19,7 +19,6 @@
 #include "GxIREdit.h"
 #include "GxGradient.h"
 #include <gtk/gtkmarshal.h>
-#include <gtk/gtkprivate.h>
 #include <math.h>
 #include <assert.h>
 #include <string.h>
@@ -163,64 +162,64 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		gobject_class, PROP_Y_BORDER_TOP, g_param_spec_int(
 			"y-border-top", P_("top border"),
 			P_("area above x axis at the top of the window"),
-			0, G_MAXINT, 5, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXINT, 5, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_Y_BORDER_BOTTOM, g_param_spec_int(
 			"y-border-bottom", P_("bottom border"),
 			P_(NULL),
-			0, G_MAXINT, 10, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXINT, 10, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_X_BORDER, g_param_spec_int(
 			"x-border", P_("right border"),
 			P_(NULL),
-			0, G_MAXINT, 5, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXINT, 5, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_LABEL_SEP, g_param_spec_int(
 			"label-sep", P_("label sep"),
 			P_(NULL),
-			0, G_MAXINT, 4, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXINT, 4, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_DOT_DIAMETER, g_param_spec_double(
 			"dot-diameter", P_("dot diameter"),
 			P_(NULL),
-			0, G_MAXDOUBLE, 5.0, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXDOUBLE, 5.0, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_SEGMENT_DISTANCE, g_param_spec_double(
 			"segment-distance", P_("hit distance"),
 			P_(NULL),
-			0, G_MAXDOUBLE, 2.0, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXDOUBLE, 2.0, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_LIMIT, g_param_spec_double(
 			"limit", P_("limit"),
 			P_(NULL),
-			0, G_MAXDOUBLE, 5.0, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXDOUBLE, 5.0, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_FS, g_param_spec_int(
 			"fs", P_("samplerate"),
 			P_(NULL),
-			0, G_MAXINT, 4, GParamFlags(GTK_PARAM_READABLE)));
+			0, G_MAXINT, 4, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_MAX_SCALE_FACT, g_param_spec_double(
 			"max-scale-fact", P_("max scale fact"),
 			P_(NULL),
-			0, G_MAXDOUBLE, 50.0, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXDOUBLE, 50.0, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_MIN_SCALE, g_param_spec_double(
 			"min-scale", P_("min scale"),
 			P_(NULL),
-			0, G_MAXDOUBLE, 0.02, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXDOUBLE, 0.02, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_SCALE, g_param_spec_double(
 			"scale", P_("scale"),
 			P_(NULL),
-			0, G_MAXDOUBLE, 1.0, GParamFlags(GTK_PARAM_READWRITE)));
+			0, G_MAXDOUBLE, 1.0, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_NO_DATA_TEXT,
 		g_param_spec_string("no-data-text",
 		                    P_("no data text"),
 		                    P_("text displayed when no data is available"),
 		                    "NO DATA",
-		                    GParamFlags(GTK_PARAM_READWRITE)));
+		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 
 	/* style properties */
 	gtk_widget_class_install_style_property(
@@ -229,14 +228,14 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		                    P_("Zoom marker color"),
 		                    P_("Color of zoom marker"),
 		                    GDK_TYPE_COLOR,
-		                    GParamFlags(GTK_PARAM_READABLE)));
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property_parser(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_boxed ("no-data-color",
 		                    P_("No data color"),
 		                    P_("Color of graph background when no data is available"),
 		                    GX_TYPE_RGBA,
-		                    GParamFlags(GTK_PARAM_READABLE)),
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_rgba);
 	gtk_widget_class_install_style_property_parser(
 		GTK_WIDGET_CLASS(klass),
@@ -244,7 +243,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		                    P_("Sample graph color"),
 		                    P_("Color of graph with sampled values"),
 		                    GX_TYPE_RGBA,
-		                    GParamFlags(GTK_PARAM_READABLE)),
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_rgba);
 	gtk_widget_class_install_style_property_parser(
 		GTK_WIDGET_CLASS(klass),
@@ -252,7 +251,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		                    P_("Sample graph color outside"),
 		                    P_("Color of graph outside of cut region"),
 		                    GX_TYPE_RGBA,
-		                    GParamFlags(GTK_PARAM_READABLE)),
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_rgba);
 	gtk_widget_class_install_style_property_parser(
 		GTK_WIDGET_CLASS(klass),
@@ -260,14 +259,14 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		                    P_("Gain line color"),
 		                    P_("Color of gain line"),
 		                    GX_TYPE_RGBA,
-		                    GParamFlags(GTK_PARAM_READABLE)),
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_rgba);
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_double(
 			"shade-alpha", P_("Shade alpha value"),
 			P_("Alpha Value for shading outside of cut region"),
-			0, 1, 0.1, GParamFlags(GTK_PARAM_READWRITE)));
+			0, 1, 0.1, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 }
 
 static gdouble ir_edit_get_default_scale(GxIREdit *ir_edit)

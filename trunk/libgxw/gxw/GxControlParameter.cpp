@@ -17,7 +17,6 @@
  */
 
 #include "GxControlParameter.h"
-#include <gtk/gtkprivate.h>
 #include <math.h>
 
 #define P_(s) (s)   // FIXME -> gettext
@@ -29,12 +28,13 @@ gx_control_parameter_base_init (gpointer g_class)
 
 	if (!is_initialized) {
 		/* add properties and signals to the interface here */
-		g_object_interface_install_property (g_class,
-		                                     g_param_spec_string("var-id",
-		                                                         P_("Variable"),
-	                                                             P_("The id of the linked variable"),
-		                                                         NULL,
-		                                                         GParamFlags(GTK_PARAM_READWRITE)));
+		g_object_interface_install_property (
+			g_class,
+			g_param_spec_string("var-id",
+					    P_("Variable"),
+					    P_("The id of the linked variable"),
+					    NULL,
+					    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 		is_initialized = TRUE;
 	}
 }

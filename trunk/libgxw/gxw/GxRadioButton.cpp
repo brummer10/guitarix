@@ -21,7 +21,6 @@
  */
 
 #include "GxRadioButton.h"
-#include <gtk/gtkprivate.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -52,7 +51,7 @@ static void gx_radio_button_class_init(GxRadioButtonClass *klass)
 		                    P_("Indicator"),
 		                    P_("Base name of the indicator image, append \"_on\" and \"_off\" for the stock names"),
 		                    "switch",
-		                    GParamFlags(GTK_PARAM_READWRITE)));
+		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 }
 
 static void gx_radio_button_init(GxRadioButton *radio_button)

@@ -17,7 +17,6 @@
  */
 
 #include <glibmm_generate_extra_defs/generate_extra_defs.h>
-#include <gtk/gtk.h>
 #include <gxw.h>
 
 int main(int argc, char** argv)

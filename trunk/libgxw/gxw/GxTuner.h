@@ -19,8 +19,7 @@
 #ifndef __GX_TUNER_H__
 #define __GX_TUNER_H__
 
-#include <gtk/gtkdrawingarea.h>
-#include "compat2-12.h"
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 

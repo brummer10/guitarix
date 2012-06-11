@@ -20,8 +20,6 @@
 #include "GxPaintBox.h"
 #include "GxGradient.h"
 #include "GxLevelSlider.h"
-#include <gtk/gtkprivate.h>
-#include <gtk/gtk.h>
 #include <cmath>
 #include <cstring>
 
@@ -73,14 +71,14 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                    P_("Paint Type"),
 		                    P_("Type of paint function for background"),
 		                    "",
-		                    GParamFlags(GTK_PARAM_READWRITE)));
+		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property_parser(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_boxed("skin-gradient",
 		                   P_("Skin color"),
 		                   P_("Color gradient defined as part of skin"),
 		                   GX_TYPE_GRADIENT,
-		                   GParamFlags(GTK_PARAM_READABLE)),
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_gradient);
 	gtk_widget_class_install_style_property_parser(
 		GTK_WIDGET_CLASS(klass),
@@ -88,7 +86,7 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                   P_("Skin color"),
 		                   P_("Color gradient defined as part of skin"),
 		                   GX_TYPE_GRADIENT,
-		                   GParamFlags(GTK_PARAM_READABLE)),
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_gradient);
 	gtk_widget_class_install_style_property_parser(
 		GTK_WIDGET_CLASS(klass),
@@ -96,7 +94,7 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                   P_("Skin color"),
 		                   P_("Color gradient defined as part of skin"),
 		                   GX_TYPE_GRADIENT,
-		                   GParamFlags(GTK_PARAM_READABLE)),
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_gradient);
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
@@ -104,43 +102,43 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                    P_("Paint Type"),
 		                    P_("Type of paint function for background"),
 		                    NULL,
-		                    GParamFlags(GTK_PARAM_READABLE)));
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class,PROP_ICON_SET,
 	    g_param_spec_int ("icon-set",
-						 P_("Icon Set"),
-						 P_("Type of Icon function for background"),
-						 0,
-						 G_MAXINT,
-						 0,
-						 GParamFlags(GTK_PARAM_READWRITE)));
+			      P_("Icon Set"),
+			      P_("Type of Icon function for background"),
+			      0,
+			      G_MAXINT,
+			      0,
+			      GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_int("icon-set",
 		                 P_("Icon Set"),
 		                 P_("Type of Icon function for background"),
 		                 0,
-						 G_MAXINT,
-						 0,
-		                 GParamFlags(GTK_PARAM_READABLE)));
+				 G_MAXINT,
+				 0,
+		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_int("width",
 		                 P_("Width"),
 		                 P_("size.width request for paintbox"),
 		                 0,
-						 G_MAXINT,
-						 0,
-		                 GParamFlags(GTK_PARAM_READABLE)));
+				 G_MAXINT,
+				 0,
+		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_int("height",
 		                 P_("Height"),
 		                 P_("size.height request for paintbox"),
 		                 0,
-						 G_MAXINT,
-						 0,
-		                 GParamFlags(GTK_PARAM_READABLE)));
+				 G_MAXINT,
+				 0,
+		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 
 }
 

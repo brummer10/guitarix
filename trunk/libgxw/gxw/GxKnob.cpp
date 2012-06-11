@@ -17,8 +17,6 @@
  */
 
 #include "GxKnob.h"
-#include <gtk/gtkprivate.h>
-#include <gtk/gtkmain.h>
 #include <cmath>
 
 
@@ -66,7 +64,7 @@ static void gx_knob_class_init(GxKnobClass *klass)
 		widget_class,
 		g_param_spec_int("arc-inset",P_("inset of arch"),
 		                   P_("Inset of the arc around the knob"),
-		                 0, 100, 2, GParamFlags(GTK_PARAM_READABLE)));
+		                 0, 100, 2, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 		                    
     gtk_widget_class_install_style_property(
 		widget_class,
@@ -74,7 +72,7 @@ static void gx_knob_class_init(GxKnobClass *klass)
 		                    P_("Framecount"),
 		                    P_("Number of frames in the animation specified by the gtkrc"),
 		                    -1, 250, -1,
-		                    GParamFlags(GTK_PARAM_READABLE)));
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 
 	g_type_class_add_private(klass, sizeof (GxKnobPrivate));
 }

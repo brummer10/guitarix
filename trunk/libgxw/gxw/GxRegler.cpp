@@ -24,10 +24,6 @@
 #include "GxRegler.h"
 #include "GxControlParameter.h"
 #include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
-#include <gtk/gtkprivate.h>
-#include <gtk/gtkbindings.h>
-#include <gtk/gtkmarshal.h>
 
 #define gtk_widget_get_requisition(w, r) (*r = (w)->requisition)
 
@@ -363,19 +359,19 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                     P_("show value"),
 		                     P_("display the value"),
 		                     TRUE,
-		                     GParamFlags(GTK_PARAM_READABLE)));
+		                     GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_int("value-spacing",P_("Value spacing"),
 		                 P_("Distance of value display"),
-		                 0, 100, 5, GParamFlags(GTK_PARAM_READABLE)));
+		                 0, 100, 5, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("value-border",
 		                   P_("Value Spacing"),
 		                   P_("Extra space for value display"),
 		                   GTK_TYPE_BORDER,
-		                   GParamFlags(GTK_PARAM_READABLE)));
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 
 	g_object_class_install_property(
 		gobject_class, PROP_SHOW_VALUE,
@@ -383,14 +379,14 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                     P_("show value"),
 		                     P_("display the value"),
 		                     TRUE,
-		                     GParamFlags(GTK_PARAM_READWRITE)));
+		                     GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_LABEL_REF,
 		g_param_spec_object("label-ref",
 		                    P_("Label ref"),
 		                    P_("GtkLabel for caption"),
 		                    GTK_TYPE_LABEL,
-		                    GParamFlags(GTK_PARAM_READWRITE)));
+		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_VALUE_POSITION,
 		g_param_spec_enum("value-position",
@@ -398,21 +394,21 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                  P_("The position of the value display"),
 		                  GTK_TYPE_POSITION_TYPE,
 		                  GTK_POS_BOTTOM,
-		                  GParamFlags(GTK_PARAM_READWRITE)));
+		                  GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_VALUE_XALIGN,
 		g_param_spec_double("value-xalign",
 		                    P_("Value Alignment"),
 		                    P_("The horizontal position of the value (0..1)"),
 		                    0, 1, 0.5,
-		                    GParamFlags(GTK_PARAM_READWRITE)));
+		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_DIGITS,
 		g_param_spec_int("digits",
 		                 P_("Digits"),
 		                 P_("Number of digits for display"),
 		                 0, 10, 1,
-		                 GParamFlags(GTK_PARAM_READABLE)));
+		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
 
 	binding_set = gtk_binding_set_by_class(klass);

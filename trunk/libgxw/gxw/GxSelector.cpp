@@ -17,12 +17,7 @@
  */
 
 #include "GxSelector.h"
-#include <gtk/gtk.h>
-#include <gtk/gtkprivate.h>
 #include <string.h>
-
-#include <glib.h>
-#include <glib/gi18n.h>
 
 #define gtk_widget_get_requisition(w, r) (*r = (w)->requisition)
 
@@ -81,7 +76,7 @@ static void gx_selector_class_init(GxSelectorClass *klass)
 		g_param_spec_object(
 			"model", P_("Selector model"),
 			P_("The model for the selector"),
-			GTK_TYPE_TREE_MODEL, GParamFlags(GTK_PARAM_READWRITE)));
+			GTK_TYPE_TREE_MODEL, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_type_class_add_private(klass, sizeof (GxSelectorPrivate));
 }
 

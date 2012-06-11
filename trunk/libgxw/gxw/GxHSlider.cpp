@@ -17,8 +17,6 @@
  */
 
 #include "GxHSlider.h"
-#include <gtk/gtkmain.h>
-#include <gtk/gtkprivate.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -50,7 +48,7 @@ static void gx_hslider_class_init(GxHSliderClass *klass)
 		widget_class,
 		g_param_spec_int("slider-width",P_("size of slider"),
 		                   P_("Width of movable part of vslider"),
-		                 0, 100, 20, GParamFlags(GTK_PARAM_READABLE)));
+		                 0, 100, 20, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 }
 
 static void gx_hslider_size_request (GtkWidget *widget, GtkRequisition *requisition)

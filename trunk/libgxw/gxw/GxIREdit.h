@@ -19,8 +19,7 @@
 #ifndef __GX_IR_EDIT_H__
 #define __GX_IR_EDIT_H__
 
-#include <gtk/gtkdrawingarea.h>
-#include "compat2-12.h"
+#include <gtk/gtk.h>
 #include "gainpoints.h"
 
 G_BEGIN_DECLS

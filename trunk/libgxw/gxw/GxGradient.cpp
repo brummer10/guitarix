@@ -17,7 +17,7 @@
  */
 
 #include "GxGradient.h"
-#include <gtk/gtkrc.h>
+#include <gtk/gtk.h>
 
 void gx_rgba_free(GxRgba *rgba)
 {

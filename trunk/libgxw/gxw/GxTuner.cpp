@@ -17,7 +17,6 @@
  */
 
 #include "GxTuner.h"
-#include <gtk/gtkprivate.h>
 #include <math.h>
 
 #define P_(s) (s)   // FIXME -> gettext
@@ -70,17 +69,17 @@ static void gx_tuner_class_init(GxTunerClass *klass)
 		gobject_class, PROP_FREQ, g_param_spec_double (
 			"freq", P_("Frequency"),
 			P_("The frequency for which tuning is displayed"),
-			0.0, 1000.0, 0.0, GParamFlags(GTK_PARAM_READWRITE)));
+			0.0, 1000.0, 0.0, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_REFERENCE_PITCH, g_param_spec_double (
 			"reference-pitch", P_("Reference Pitch"),
 			P_("The frequency for which tuning is displayed"),
-			400.0, 500.0, 440.0, GParamFlags(GTK_PARAM_READWRITE)));
+			400.0, 500.0, 440.0, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_SCALE, g_param_spec_double (
 			"scale", P_("Image Scale"),
 			P_("scale the tuner area to make it bigger or smaller"),
-			0.5, 10.0, 1.0, GParamFlags(GTK_PARAM_READWRITE)));
+			0.5, 10.0, 1.0, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 }
 
 static void tuner_surface_init(GxTuner *tuner)

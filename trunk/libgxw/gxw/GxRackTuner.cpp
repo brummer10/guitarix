@@ -18,7 +18,6 @@
 
 #include "GxRackTuner.h"
 #include <gtk/gtkmarshal.h>
-#include <gtk/gtkprivate.h>
 #include <math.h>
 #include <string.h>
 
@@ -94,37 +93,37 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 		gobject_class, PROP_FREQ, g_param_spec_double (
 			"freq", P_("Frequency"),
 			P_("The frequency for which tuning is displayed"),
-			0.0, 1000.0, 0.0, GParamFlags(GTK_PARAM_READWRITE)));
+			0.0, 1000.0, 0.0, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_SCALE_LIM, g_param_spec_double (
 			"scale-lim", P_("Scale Limit"),
 			P_("The threshold for display of tune match (0.01 = 1 cent)"),
-			0.005, 0.3, 0.03, GParamFlags(GTK_PARAM_READWRITE)));
+			0.005, 0.3, 0.03, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_SPEED, g_param_spec_double (
 			"speed", P_("Streaming Speed"),
 			P_("Speed of streaming mode display (led positions per msec)"),
-			0.0001, 1.0, 0.15, GParamFlags(GTK_PARAM_READWRITE)));
+			0.0001, 1.0, 0.15, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_DISPLAY_FLAT, g_param_spec_boolean (
 			"display-flat", P_("Display Flat Notes"),
 			P_("select flat enharmonic equivalents instead of sharp"),
-			FALSE, GParamFlags(GTK_PARAM_READWRITE)));
+			FALSE, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_STREAMING, g_param_spec_boolean (
 			"streaming", P_("Streaming"),
 			P_("use streaming display"),
-			FALSE, GParamFlags(GTK_PARAM_READWRITE)));
+			FALSE, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_TIMESTEP, g_param_spec_int (
 			"timestep", P_("Time Step"),
 			P_("time interval in msec for refreshing the streaming display"),
-			1, 1000, 50, GParamFlags(GTK_PARAM_READWRITE)));
+			1, 1000, 50, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_LIMIT_TIMESTEP, g_param_spec_int (
 			"limit-timestep", P_("In-Limit Time Step"),
 			P_("time interval in msec for refreshing the streaming match display"),
-			1, 100, 8, GParamFlags(GTK_PARAM_READWRITE)));
+			1, 100, 8, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	/* new signals */
 	signals[FREQUENCY_POLL] =
 		g_signal_new(I_("frequency-poll"),

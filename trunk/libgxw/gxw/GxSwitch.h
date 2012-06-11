@@ -19,9 +19,7 @@
 #ifndef __GX_SWITCH_H__
 #define __GX_SWITCH_H__
 
-#include <gtk/gtktogglebutton.h>
-#include <gtk/gtklabel.h>
-#include "compat2-12.h"
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 

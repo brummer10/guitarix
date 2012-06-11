@@ -17,9 +17,6 @@
  */
 
 #include "GxToggleImage.h"
-#include <gtk/gtktogglebutton.h>
-#include <gtk/gtkprivate.h>
-#include <gdk/gdkpixbuf.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -57,7 +54,7 @@ static void gx_toggle_image_class_init(GxToggleImageClass *klass)
 		                    P_("Image base name"),
 		                    P_("Base name of the image, append \"_on\" and \"_off\" for the stock names"),
 		                    "switch",
-		                    GParamFlags(GTK_PARAM_READWRITE)));
+		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 }
 
 static void gx_toggle_image_init(GxToggleImage *toggle_image)

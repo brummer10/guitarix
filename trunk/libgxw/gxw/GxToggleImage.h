@@ -19,8 +19,7 @@
 #ifndef __GX_TOGGLE_IMAGE_H__
 #define __GX_TOGGLE_IMAGE_H__
 
-#include <gtk/gtkmisc.h>
-#include "compat2-12.h"
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 

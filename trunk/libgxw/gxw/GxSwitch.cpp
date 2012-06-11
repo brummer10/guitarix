@@ -19,8 +19,6 @@
 #include "GxSwitch.h"
 #include "GxToggleImage.h"
 #include "GxControlParameter.h"
-#include <gtk/gtk.h>
-#include <gtk/gtkprivate.h>
 #include <gdk/gdkkeysyms.h>
 #include <unistd.h>
 #include <string.h>
@@ -97,14 +95,14 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 		                    P_("Label ref"),
 		                    P_("GtkLabel for caption"),
 		                    GTK_TYPE_LABEL,
-		                    GParamFlags(GTK_PARAM_READWRITE)));
+		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_BASE_NAME,
 		g_param_spec_string("base-name",
 		                    P_("Image base name"),
 		                    P_("Base name of the image, append \"_on\" and \"_off\" for the stock names"),
 		                    "",
-		                    GParamFlags(GTK_PARAM_READWRITE)));
+		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
 	g_object_class_override_property(gobject_class, PROP_IMAGE, "image");
 }

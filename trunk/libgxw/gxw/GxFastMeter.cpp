@@ -24,7 +24,6 @@
  */
 #include <math.h>
 #include <stdlib.h>
-#include <gtk/gtkprivate.h>
 #include "GxFastMeter.h"
 
 #ifndef max
@@ -77,41 +76,41 @@ void gx_fast_meter_class_init(GxFastMeterClass* klass)
 		gobject_class, PROP_HOLD, g_param_spec_int(
 			"hold", P_("Hold"),
 			P_("Count of cycles for which the peak value is held on display"),
-			0, 1000, 5, GParamFlags(GTK_PARAM_READWRITE)));
+			0, 1000, 5, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_DIMEN, g_param_spec_int(
 			"dimen", P_("Dimen"),
 			P_("Horizontal size of meter"),
-			0, 100, 20, GParamFlags(GTK_PARAM_READWRITE)));
+			0, 100, 20, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("clr-bottom",P_("bottom color"),
 		                   P_("indicator color gradient: value at the bottom"),
 		                   GDK_TYPE_COLOR,
-		                   GParamFlags(GTK_PARAM_READABLE)));
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("clr-middle",P_("middle color"),
 		                   P_("indicator color gradient: value in the middle"),
 		                   GDK_TYPE_COLOR,
-		                   GParamFlags(GTK_PARAM_READABLE)));
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("clr-top",P_("top color"),
 		                   P_("indicator color gradient: value near the top"),
 		                   GDK_TYPE_COLOR,
-		                   GParamFlags(GTK_PARAM_READABLE)));
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("over",P_("clip warn color"),
 		                   P_("indicator color for values > 0 dbFS"),
 		                   GDK_TYPE_COLOR,
-		                   GParamFlags(GTK_PARAM_READABLE)));
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_int("dimen",P_("width of indicator"),
 		                   P_("width of (vertical) indicator"),
-		                 0, 100, 5, GParamFlags(GTK_PARAM_READABLE)));
+		                 0, 100, 5, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 }
 
 /* ----- fast meter init ----- */

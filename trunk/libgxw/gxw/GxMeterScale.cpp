@@ -18,7 +18,6 @@
 
 
 #include "GxMeterScale.h"
-#include <gtk/gtkprivate.h>
 #include <cmath>
 
 #define P_(s) (s)   // FIXME -> gettext
@@ -78,7 +77,7 @@ static void gx_meter_scale_class_init (GxMeterScaleClass *klass)
 			"tick-pos", P_("tick position"),
 			P_("Position of the tick relativ to the tick text"),
 			GX_TYPE_TICK_POSITION, GX_TICK_RIGHT,
-			GParamFlags(GTK_PARAM_READWRITE)));
+			GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	// style properties
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
@@ -86,14 +85,14 @@ static void gx_meter_scale_class_init (GxMeterScaleClass *klass)
 		                 P_("Tick size"),
 		                 P_("Size of ticks"),
 		                 0, 100, 5,
-		                 GParamFlags(GTK_PARAM_READABLE)));
+		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_int("tick-space",
 		                 P_("Tick space"),
 		                 P_("Space between tick and text"),
 		                 0, 100, 2,
-		                 GParamFlags(GTK_PARAM_READABLE)));
+		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	g_type_class_add_private(gobject_class, sizeof (GxMeterScalePrivate));
 }
 

@@ -24,7 +24,6 @@ part of guitarix, use  knobs with Gtk
 #define __GX_SELECTOR_H__
 
 #include "GxRegler.h"
-#include <gtk/gtktreemodel.h>
 
 G_BEGIN_DECLS
 
