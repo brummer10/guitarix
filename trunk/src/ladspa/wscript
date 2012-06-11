@@ -26,7 +26,8 @@ def build(bld):
     
     src = ['ladspa_guitarix.cpp'] + bsources
     incl = ['../headers', '..','../gx_head/engine','../../libgxwmm','../../libgxw']
-    lib = ['dl']
+    if bld.env['IS_LINUX']:
+        lib = ['dl']
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
               'GLIBMM', 'GIOMM', 'FFTW3']
     if bld.env['ZITA_CONVOLVER']:
