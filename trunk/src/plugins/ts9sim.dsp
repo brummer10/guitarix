@@ -7,7 +7,9 @@ declare category        "Distortion";
 ** a mathematical analysis published by Tamás Kenéz
 */
 
-process = ts9 : lowpass with {
+smoothi(c) = *(1-c) : +~*(c);
+
+process = ts9 : lowpass : *(gain) with {
     SR = component("math.lib").SR;
     R1 = 4700;
     R2 = 51000 + 500000 * hslider("drive[name:Drive]", 0.5, 0, 1, 0.01);
@@ -22,4 +24,5 @@ process = ts9 : lowpass with {
     ts9 = _ <: _ - ts9nonlin(X2-_) :> _;
     fc = hslider("tone[log][name:Tone]", 400, 100, 1000, 1.03);
     lowpass = component("filter.lib").lowpass1(fc);
+    gain = hslider("level[name:Level]", -16, -20, 4, 0.1) : component("music.lib").db2linear : smoothi(0.999);
 };

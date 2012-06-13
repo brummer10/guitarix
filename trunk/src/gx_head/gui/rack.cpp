@@ -411,7 +411,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
     al->set_size_request(35, -1);
 #endif
     box->pack_start(*manage(al), Gtk::PACK_SHRINK);
-    Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
+    Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options, true);
     szg_label->add_widget(*manage(effect_label));
     al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->add(*manage(rb.wrap_bar()));

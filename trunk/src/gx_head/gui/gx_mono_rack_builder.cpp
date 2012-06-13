@@ -541,14 +541,7 @@ void StackBoxBuilder::make_rackbox_cab() {
 void StackBoxBuilder::make_rackbox_jconv_mono() {
     static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.mono_convolver, window_icon, gx_settings, accels, 1);
     openHorizontalhideBox("");
-    {
 	create_master_slider("jconv_mono.wet_dry", _("Dry/Wet"));
-	openSpaceBox("");
-	closeBox();
-	openSpaceBox("");
-	closeBox();
-	addSmallJConvFavButton(_("Setup"), irw);
-    }
     closeBox();
     openVerticalBox("");
     {

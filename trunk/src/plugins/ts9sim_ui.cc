@@ -4,6 +4,7 @@ b.closeBox();
 b.openHorizontalBox("");
 b.insertSpacer();
 b.create_small_rackknobr(PARAM("drive"), 0);
+b.create_small_rackknob(PARAM("level"), 0);
 b.create_small_rackknob(PARAM("tone"), 0);
 b.insertSpacer();
 b.closeBox();
