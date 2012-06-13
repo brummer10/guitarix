@@ -757,6 +757,7 @@ void MainWindow::on_rack_configuration() {
     monobox->size_request(req);
     stereorackcontainer.set_config_mode(v);
     monorackcontainer.set_config_mode(v);
+    szg_rack_units->set_ignore_hidden(v);
     bool plugin_bar = actions.show_plugin_bar->get_active();
     if (v) {
 	pre_act = actions.presets->get_active();
@@ -773,15 +774,20 @@ void MainWindow::on_rack_configuration() {
 	    if (rackbox_stacked_vertical()) {
 		width -= req2.width;
 	    } else {
+		if (req2.width & 1) {
+		    req2.width += 1;
+		}
 		width -= req2.width/2;
 	    }
 	}
+	effects_frame_paintbox->set_size_request(req2.width, -1);
 	monobox->set_size_request(width,-1);
     } else {
 	if (!plugin_bar) {
 	    effects_frame_paintbox->hide();
 	}
 	upper_rackbox->show();
+ 	effects_frame_paintbox->set_size_request(-1,-1);
 	monobox->set_size_request(-1,-1);
 	if (pre_act) {
 	    actions.presets->set_active(true);
@@ -789,6 +795,7 @@ void MainWindow::on_rack_configuration() {
     }
     if (!plugin_bar) {
 	update_width();
+	maybe_shrink_horizontally();
     }
 }
 
@@ -877,7 +884,6 @@ void MainWindow::resize_finished(RackContainer *ch)
 void MainWindow::update_width() {
     update_scrolled_window(*vrack_scrolledbox);
     update_scrolled_window(*stereorackbox);
-    maybe_shrink_horizontally();
 }
 
 RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwidget, Gtk::Widget *miniwidget,
@@ -886,7 +892,8 @@ RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwid
     if (mini) {
 	r->swtch(true);
     }
-    r->pack(mainwidget, miniwidget);
+    r->pack(mainwidget, miniwidget, szg_rack_units);
+    update_width();
     if (plugin.get_type() == PLUGIN_TYPE_MONO) {
 	monorackcontainer.add(*manage(r), pos);
     } else {
@@ -2477,7 +2484,8 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       actions(),
       keyswitch(gx_settings, sigc::mem_fun(this, &MainWindow::display_preset_msg)),
       groupmap(),
-      ladspalist_window() {
+      ladspalist_window(),
+      szg_rack_units(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)) {
 
     convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
     convolver_mono_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
@@ -2516,10 +2524,12 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     Gtk::AccelMap::load(options.get_builder_filepath("accels_rc"));
 
     const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore",
-			      "bank_combo_liststore", "ampdetail_sizegroup", 0 };
+			      "bank_combo_liststore", 0 };
     bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &ui, id_list);
     load_widget_pointers();
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
+    szg_rack_units->add_widget(*ampdetail_mini);
+    szg_rack_units->add_widget(*ampdetail_normal);
 
     // remove marker labels from boxes (used in glade to make display clearer)
     clear_box(*monocontainer);

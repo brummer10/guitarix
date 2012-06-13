@@ -394,7 +394,7 @@ public:
     const char *get_id() const { return plugin.get_id(); }
     void set_config_mode(bool mode);
     void swtch(bool mini);
-    void pack(Gtk::Widget *mainbox, Gtk::Widget *minibox);
+    void pack(Gtk::Widget *mainbox, Gtk::Widget *minibox, const Glib::RefPtr<Gtk::SizeGroup>& szg);
     void animate_insert();
     static Gtk::Widget *create_icon_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);
     void setOrder(int pos, unsigned int post_pre) {
@@ -698,6 +698,7 @@ private:
     KeySwitcher keyswitch;
     std::map<Glib::ustring, Gtk::ToolItemGroup*> groupmap;
     ladspa::PluginDisplay *ladspalist_window;
+    Glib::RefPtr<Gtk::SizeGroup> szg_rack_units;
 
     // Widget pointers
     Gxw::PaintBox *tunerbox;
