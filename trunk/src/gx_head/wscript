@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+import sys
+
 def configure(conf):
     pass
 
@@ -70,7 +72,7 @@ def build(bld):
     incl = ['.','./engine','../..','..','../headers','../../libgxwmm','../../libgxw'] # need ".." for config.h
     libpath = []
     lib = []
-    if bld.env['IS_LINUX']:
+    if sys.platform.startswith("linux"):
         lib.append('dl')
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
               'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF']

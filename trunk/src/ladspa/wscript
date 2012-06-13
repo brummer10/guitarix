@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import os, TaskGen, ctypes
+import sys, os, TaskGen, ctypes
 
 def configure(conf):
     pass
@@ -39,7 +39,7 @@ def build(bld):
     src = ['ladspa_guitarix.cpp'] + bsources
     incl = ['../headers', '..','../gx_head/engine','../plugins','../../libgxwmm','../../libgxw']
     lib = []
-    if bld.env['IS_LINUX']:
+    if sys.platform.startswith("linux"):
         lib.append('dl')
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
               'GLIBMM', 'GIOMM', 'FFTW3']
