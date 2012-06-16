@@ -210,8 +210,8 @@ void LadspaDsp::set_shortname() {
 	shortname = pd->shortname.c_str();
     } else {
 	name_str = desc->Name;
-	if (name_str.size() > 24) {
-	    name_str.erase(24);
+	if (name_str.size() > 15) {
+	    name_str.erase(15);
 	}
 	shortname = name_str.c_str();
     }
