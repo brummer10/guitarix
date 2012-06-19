@@ -333,7 +333,7 @@ private:
     void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<PluginDesc*>& l);
     std::string get_ladspa_plugin_config(unsigned long UniqueID);
 public:
-    PluginDisplay(const gx_system::CmdlineOptions& options, sigc::slot<void,bool,bool> finished_callback);
+    PluginDisplay(const gx_system::CmdlineOptions& options, Glib::RefPtr<Gdk::Pixbuf> icon, sigc::slot<void,bool,bool> finished_callback);
     ~PluginDisplay();
     bool check_exit();
     void present() { window->present(); }

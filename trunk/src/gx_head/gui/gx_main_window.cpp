@@ -1797,7 +1797,7 @@ void MainWindow::on_load_ladspa() {
     if (ladspalist_window) {
 	ladspalist_window->present();
     } else {
-	ladspalist_window = new ladspa::PluginDisplay(options, sigc::mem_fun(this, &MainWindow::on_ladspa_finished));
+	ladspalist_window = new ladspa::PluginDisplay(options, gx_head_icon, sigc::mem_fun(this, &MainWindow::on_ladspa_finished));
     }
 }
 

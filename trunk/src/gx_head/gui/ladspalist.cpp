@@ -990,7 +990,7 @@ public:
     }
 };
 
-PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, sigc::slot<void, bool, bool> finished_callback_)
+PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, Glib::RefPtr<Gdk::Pixbuf> icon, sigc::slot<void, bool, bool> finished_callback_)
     : options(options_), pluginlist(), current_plugin(0), old_state(0), bld(), change_count(0),
       actiongroup(Gtk::ActionGroup::create("ladspa_window")), uimanager(),
       enum_liststore(new EnumListStore), port_liststore(new PortListStore),
@@ -1192,6 +1192,7 @@ PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, sigc::sl
     bld->find_widget("select_none", b);
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("SelectNoneAction")->gobj());
 
+    window->set_icon(icon);
     window->show();
 }
 
