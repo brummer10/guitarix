@@ -514,6 +514,7 @@ struct plugdesc {
     Glib::ustring shortname;
     Glib::ustring category;
     int quirks; // quirkflag bits
+    int add_wet_dry;
     int master_idx;
     Glib::ustring master_label;
     std::vector<paradesc*> names;

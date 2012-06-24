@@ -53,6 +53,10 @@ private:
     void connect(int tp, int i, float *v);
     inline void cleanup();
     void set_shortname();
+    float dry_wet;
+    std::string idd;
+    inline void mono_dry_wet(int count, float *input0, float *input1, float *output0);
+    inline void stereo_dry_wet(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1);
     std::string make_id(const paradesc& p);
     LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, bool mono);
     ~LadspaDsp();
@@ -230,22 +234,60 @@ void LadspaDsp::init(unsigned int samplingFreq, PluginDef *plugin) {
     }
 }
 
+inline void LadspaDsp::mono_dry_wet(int count, float *input0, float *input1, float *output0)
+{
+	double 	fSlow0 = (0.01 * dry_wet);
+	double 	fSlow1 = (1 - fSlow0);
+	for (int i=0; i<count; i++) {
+		output0[i] = ((fSlow0 * (double)input1[i]) + (fSlow1 * (double)input0[i]));
+	}
+}
+
 void LadspaDsp::mono_process(int count, float *input, float *output, PluginDef *plugin) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
     assert(self.is_activated);
+    if (self.pd->add_wet_dry) {
+    float wet_out[count];
+    self.connect(LADSPA_PORT_INPUT, 0, input);
+    self.connect(LADSPA_PORT_OUTPUT, 0, wet_out);
+    self.desc->run(self.instance, count);
+    self.mono_dry_wet(count, input, wet_out, output);
+    } else {
     self.connect(LADSPA_PORT_INPUT, 0, input);
     self.connect(LADSPA_PORT_OUTPUT, 0, output);
     self.desc->run(self.instance, count);
+    }
+}
+
+inline void LadspaDsp::stereo_dry_wet(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1)
+{
+	double 	fSlow0 = (0.01 * dry_wet);
+	double 	fSlow1 = (1 - fSlow0);
+	for (int i=0; i<count; i++) {
+		output0[i] = ((fSlow0 * (double)input2[i]) + (fSlow1 * (double)input0[i]));
+		output1[i] = ((fSlow0 * (double)input3[i]) + (fSlow1 * (double)input1[i]));
+	}
 }
 
 void LadspaDsp::stereo_process(int count, float *input1, float *input2, float *output1, float *output2, PluginDef *plugin) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
     assert(self.is_activated);
+    if (self.pd->add_wet_dry) {
+    float wet_out1[count];
+    float wet_out2[count];
+    self.connect(LADSPA_PORT_INPUT, 0, input1);
+    self.connect(LADSPA_PORT_INPUT, 1, input2);
+    self.connect(LADSPA_PORT_OUTPUT, 0, wet_out1);
+    self.connect(LADSPA_PORT_OUTPUT, 1, wet_out2);
+    self.desc->run(self.instance, count);
+    self.stereo_dry_wet(count, input1, input2, wet_out1, wet_out2, output1, output2);
+    } else {
     self.connect(LADSPA_PORT_INPUT, 0, input1);
     self.connect(LADSPA_PORT_INPUT, 1, input2);
     self.connect(LADSPA_PORT_OUTPUT, 0, output1);
     self.connect(LADSPA_PORT_OUTPUT, 1, output2);
     self.desc->run(self.instance, count);
+    }
 }
 
 static Glib::ustring TrimLabel(const char *label, int cnt_in_row) {
@@ -342,6 +384,8 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 			    d->dflt, d->low, d->up, d->step);
 	}
     }
+    self.idd = self.pd->id_str + ".dry_wet";
+    reg.registerVar(self.idd.c_str(),"","S","dry/wet",&self.dry_wet, 100, 0, 100, 1);
     return 0;
 }
 
@@ -409,6 +453,9 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 	default:
 	    assert(false);
 	}
+    }
+    if (self.pd->add_wet_dry) {
+    b.create_small_rackknob(self.idd.c_str(), "dry/wet");
     }
     b.closeBox();
     b.closeBox();
@@ -501,6 +548,8 @@ void LadspaLoader::read_module_config(const std::string& filename, plugdesc *p) 
     p->master_label = jp.current_value();
     jp.next(gx_system::JsonParser::value_number);
     p->quirks = jp.current_value_int();
+    jp.next(gx_system::JsonParser::value_number);
+    p->add_wet_dry= jp.current_value_int();
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
 	paradesc *para = new paradesc;

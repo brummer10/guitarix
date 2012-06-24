@@ -147,6 +147,7 @@ public:
     bool active;
     bool active_set;
     bool has_settings;
+    int add_wet_dry;
     PluginDesc *old;
     int quirks_get();
     void reset();
@@ -155,6 +156,7 @@ public:
     void check_has_settings();
     int set_active(bool v);
     void fixup();
+    void set_add_wet_dry_controller(bool v);
     void copy_ports(PluginDesc *p);
     void set_category(const std::vector<Glib::ustring>& s);
     void set_default(int idx, float value, const Glib::ustring& label);
@@ -270,6 +272,7 @@ private:
     Gtk::ToggleButton *show_details;
     Gtk::Entry *plugin_name;
     Gtk::ComboBox *plugin_category;
+    Gtk::ToggleButton *dry_wet_button;
     Gtk::ComboBox *plugin_quirks;
     Gtk::ComboBox *master_slider_idx;
     Gtk::Entry *master_slider_name;
@@ -288,6 +291,7 @@ private:
     void on_find();
     bool on_delete_event(GdkEventAny*);
     void on_show_details();
+    void on_add_dry_wet_controller();
     void on_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column);
     void on_label_edited(const Glib::ustring& path, const Glib::ustring& newtext);
     void on_parameter_selection_changed();

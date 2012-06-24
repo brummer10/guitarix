@@ -2356,12 +2356,12 @@ void MainWindow::hide_extended_settings() {
     if (!is_visible ||
 	(window->get_window()->get_state()
 	 & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
-        //window->move(mainwin_x, mainwin_y);
+        window->move(mainwin_x, mainwin_y);
         window->present();
         //window->deiconify();
     } else {
-        //window->hide();
-        window->iconify();
+        window->hide();
+        //window->iconify();
     }
 }
 

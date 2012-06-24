@@ -626,6 +626,7 @@ void PluginDesc::reset() {
     shortname = Name;
     MasterIdx = -1;
     MasterLabel = "";
+    add_wet_dry = 0;
     category = deduced_category;
     quirks = quirks_default;
     has_settings = false;
@@ -735,6 +736,9 @@ bool PluginDesc::check_changed() {
     if (MasterIdx > -1 && MasterLabel != old->MasterLabel) {
 	return true;
     }
+    if (add_wet_dry != old->add_wet_dry) {
+    return true;
+    }
     if (tp != old->tp) {
 	return true;
     }
@@ -806,6 +810,14 @@ int PluginDesc::set_active(bool v) {
     return 1;
 }
 
+void PluginDesc::set_add_wet_dry_controller(bool v) {
+    if (v) {
+    add_wet_dry = 1;
+    } else {
+    add_wet_dry = 0;
+    }
+}
+
 void PluginDesc::fixup() {
     int i = 0;
     for (unsigned int n = 0; n < ctrl_ports.size(); ++n) {
@@ -868,12 +880,13 @@ void PluginDesc::output(JsonWriter& jw) {
 	}
     }
     jw.begin_array();
-    jw.write(2); // version
+    jw.write(3); // version
     jw.write(s);
     jw.write(category);
     jw.write(idx);
     jw.write(sm);
     jw.write(quirks);
+    jw.write(add_wet_dry);
     jw.begin_array(true);
     for (std::vector<PortDesc*>::iterator p = ctrl_ports.begin(); p != ctrl_ports.end(); ++p) {
 	(*p)->output(jw);
@@ -915,6 +928,8 @@ void PluginDesc::set_state(const ustring& fname) {
 	MasterLabel = jp.current_value();
 	jp.next(JsonParser::value_number);
 	quirks = jp.current_value_int();
+    jp.next(JsonParser::value_number);
+	add_wet_dry = jp.current_value_int();
 	std::vector<PortDesc*> ports;
 	jp.next(JsonParser::begin_array);
 	int n = 0;
@@ -1060,6 +1075,10 @@ PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, Glib::Re
     Gtk::TreeViewColumn *c;
     bld->find_widget("treeviewcolumn_label", c);
     c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_label));
+    
+    bld->find_widget("dry_wet_button", dry_wet_button);
+    dry_wet_button->signal_clicked().connect(sigc::mem_fun(this, &PluginDisplay::on_add_dry_wet_controller));
+   // dry_wet_button->set_active(current_plugin->add_wet_dry);
 
     Glib::RefPtr<Gtk::TreeSelection> sel = treeview2->get_selection();
     sel->set_mode(Gtk::SELECTION_BROWSE);
@@ -1590,6 +1609,13 @@ void PluginDisplay::on_show_details() {
     window->resize(1, h);
 }
 
+void PluginDisplay::on_add_dry_wet_controller() {
+    if (!current_plugin) {
+	return;
+    }
+    current_plugin->set_add_wet_dry_controller(dry_wet_button->get_active()); 
+}
+
 void PluginDisplay::on_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column) {
     show_details->clicked();
 }
@@ -1730,6 +1756,7 @@ void PluginDisplay::selection_changed() {
 	    master_slider_name->modify_text(Gtk::STATE_NORMAL, Gdk::Color("red"));
 	}
     }
+    dry_wet_button->set_active(current_plugin->add_wet_dry);
     ladspa_category->set_text(p->ladspa_category);
     ladspa_maker->set_text(p->Maker);
     ladspa_uniqueid->set_text(ustring::compose("%1: %2[%3]", p->UniqueID, p->path, p->index));

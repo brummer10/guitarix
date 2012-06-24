@@ -728,6 +728,8 @@ struct CabEntry {
     { "1x15",        N_("1x15"),        &static_cast<CabDesc&>(cab_data_1x15) },
     { "Mesa Boogie", N_("Mesa Boogie"), &static_cast<CabDesc&>(cab_data_mesa) },
     { "Briliant",    N_("Briliant"),    &static_cast<CabDesc&>(cab_data_briliant) },
+    { "Vitalize",     N_("Vitalize"),     &static_cast<CabDesc&>(cab_data_vitalize) },
+    { "Charisma",    N_("Charisma"),    &static_cast<CabDesc&>(cab_data_charisma) },
 };
 static const unsigned int cab_table_size = sizeof(cab_table) / sizeof(cab_table[0]);
 
