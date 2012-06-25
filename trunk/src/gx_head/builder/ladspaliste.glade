@@ -708,7 +708,7 @@
                     </child>
                     <child>
                       <object class="GtkToggleButton" id="dry_wet_button">
-                        <property name="label" translatable="yes">add dry/wet</property>
+                        <property name="label" translatable="yes">use dry/wet Box</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

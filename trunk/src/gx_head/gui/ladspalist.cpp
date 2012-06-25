@@ -595,7 +595,7 @@ PluginDesc::PluginDesc(const LADSPA_Descriptor& desc, int tp_, std::vector<PortD
     : UniqueID(desc.UniqueID), Label(desc.Label), Name(desc.Name), shortname(desc.Name), Maker(desc.Maker),
       MasterIdx(-1), MasterLabel(), tp(tp_), ctrl_ports(ctrl_ports_), path(path_), index(index_),
       category(unknown_category), deduced_category(unknown_category), quirks(), quirks_default(),
-      ladspa_category(), active(false), active_set(false), has_settings(false), old(0) {
+      ladspa_category(), active(false), active_set(false), has_settings(false), add_wet_dry(0), old(0) {
     quirks = quirks_default = quirks_get();
 }
 
