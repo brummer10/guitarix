@@ -42,7 +42,7 @@ def build(bld):
     if sys.platform.startswith("linux"):
         lib.append('dl')
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
-              'GLIBMM', 'GIOMM', 'FFTW3']
+              'GLIBMM', 'GIOMM', 'FFTW3', 'BOOST_SYSTEM']
     if bld.env['ZITA_CONVOLVER']:
         uselib.append('ZITA_CONVOLVER')
     else:

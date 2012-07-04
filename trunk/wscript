@@ -24,7 +24,7 @@ blddir = 'build'
 use_2to3 = True
 
 # used by waf dist and waf build
-VERSION='0.23.0'
+VERSION='0.23.1'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.43']
@@ -346,7 +346,7 @@ def check_boost(conf):
     int main(){ return 0; }
     """ % boost_atleast_version
     msg = "Checking for boost >= %s" % boost_atleast_vermsg
-    conf.check_cxx(msg = msg, fragment=code, mandatory=1)
+    conf.check_cxx(msg = msg, fragment=code, lib="boost_system", mandatory=1)
     # not needed: with boost 1.42 Guitarix doesn't generate code which
     #             references the boost threading lib
     #msg = "Checking for boost_thread%%s >= %s" % boost_atleast_vermsg
