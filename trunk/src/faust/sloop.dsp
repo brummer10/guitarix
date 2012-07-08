@@ -1,4 +1,5 @@
-declare id 		"sloop";
+declare name 		"sloop";
+declare category "Echo / Delay";
 declare version 	"1.0";
 declare author 		"brummer";
 declare license 	"BSD";
@@ -21,5 +22,5 @@ capture = ( *(B) : (+ : fdelay(2097152, D-1)) ~ *(1.0-B)) *(C);
 smooth(c)	= *(1-c) : +~*(c);
 level		= hslider("gain", 0, -96, 4, 0.1) : db2linear : smooth(0.999);
 
-process 	= vgroup( "SampleLooper", _ <:_, (capture : *(level)):>_ ) ;
+process 	= vgroup( "sloop", _ <:_, (capture : *(level)):>_ ) ;
 

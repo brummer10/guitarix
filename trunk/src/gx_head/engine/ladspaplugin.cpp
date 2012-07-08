@@ -123,7 +123,7 @@ LadspaDsp *LadspaDsp::create(const plugdesc *plug) {
 
 LadspaDsp::LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, bool mono)
     : PluginDef(), desc(desc_), handle(handle_), instance(),
-      ports(new LADSPA_Data[desc->PortCount]), name_str(), pd(plug), is_activated(false) {
+      ports(new LADSPA_Data[desc->PortCount]), name_str(), pd(plug), is_activated(false), dry_wet(100) {
     version = PLUGINDEF_VERSION;
     id = pd->id_str.c_str();
     category = pd->category.c_str();
@@ -291,20 +291,24 @@ void LadspaDsp::stereo_process(int count, float *input1, float *input2, float *o
 }
 
 static Glib::ustring TrimLabel(const char *label, int cnt_in_row) {
-    const unsigned int minlen = 60  / cnt_in_row - 1;
-    const unsigned int maxlen = minlen + 10;
-    const unsigned int cutlen = (maxlen + minlen) / 2;
+    const size_t minlen = 60  / cnt_in_row - 1;
+    const size_t maxlen = minlen + 10;
+    const size_t cutlen = (maxlen + minlen) / 2;
     Glib::ustring pn(label);
-    unsigned int rem = pn.find_first_of("([");
+    size_t rem = pn.find_first_of("([");
     if(rem != Glib::ustring::npos) {
 	pn.erase(rem);
     }
     while ((rem = pn.find_last_of(" ")) == pn.size()-1) {
-	pn.erase(rem);
+        if(rem != Glib::ustring::npos) {
+        pn.erase(rem);
+        } else {
+        break;
+        }
     }
     rem = 0;
-    unsigned int rem1 = 0;
-    unsigned int lastpos = 0;
+    size_t rem1 = 0;
+    size_t lastpos = 0;
     while (true) {
 	rem1 = pn.find_first_of(" ", rem1);
 	if (rem1 == Glib::ustring::npos) {

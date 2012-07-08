@@ -1,3 +1,13 @@
+guitarix2 (0.23.2) unstable; urgency=low
+  * fix segfault on 64 bit arch
+  * fix wrong vars in mono convolver unit
+  
+ -- brummer <brummer-@web.de>  Mon, 02 Jul 2012 05:37:35 +0200 
+  
+guitarix2 (0.23.1) unstable; urgency=low
+  * GIT head [938e5a]
+  
+ -- brummer <brummer-@web.de>  Mon, 02 Jul 2012 05:37:35 +0200 
 guitarix2 (0.23.0) unstable; urgency=low
   * GIT head [938e5a]
   
