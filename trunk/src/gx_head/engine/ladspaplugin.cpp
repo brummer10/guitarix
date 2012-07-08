@@ -300,11 +300,7 @@ static Glib::ustring TrimLabel(const char *label, int cnt_in_row) {
 	pn.erase(rem);
     }
     while ((rem = pn.find_last_of(" ")) == pn.size()-1) {
-        if(rem != Glib::ustring::npos) {
         pn.erase(rem);
-        } else {
-        break;
-        }
     }
     rem = 0;
     size_t rem1 = 0;
