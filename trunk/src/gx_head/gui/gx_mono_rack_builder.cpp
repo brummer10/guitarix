@@ -558,10 +558,10 @@ void StackBoxBuilder::make_rackbox_jconv_mono() {
 	{
 	    openSpaceBox("");
 	    closeBox();
-	    create_small_rackknobr("jconv.gain", _("Gain"));
+	    create_small_rackknobr("jconv_mono.gain", _("Gain"));
 	    openSpaceBox("");
 	    closeBox();
-	    create_small_rackknobr("jconv.wet_dry", _("Dry/Wet"));
+	    create_small_rackknobr("jconv_mono.wet_dry", _("Dry/Wet"));
 	    openSpaceBox("");
 	    closeBox();
 	    addJConvButton(_("Setup"), irw);

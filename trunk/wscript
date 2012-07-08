@@ -334,6 +334,14 @@ def check_faust(conf):
     conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
 
 def check_boost(conf):
+    code="""
+    #include <boost/system/error_code.hpp>
+    int main() { boost::system::error_code c; }
+    """
+    msg = "Checking for boost-system " 
+    conf.check_cxx(msg = msg, fragment=code, lib="boost_system", uselib_store="BOOST_SYSTEM", mandatory=1)
+    # some boost (>1.49) versions depend on boost-system so we will check for it first
+    # and later link against boost_system were boost headers are included.
     boost_atleast_version = 104200
     boost_atleast_vermsg = "1.42"
     code="""
@@ -346,7 +354,7 @@ def check_boost(conf):
     int main(){ return 0; }
     """ % boost_atleast_version
     msg = "Checking for boost >= %s" % boost_atleast_vermsg
-    conf.check_cxx(msg = msg, fragment=code, mandatory=1)
+    conf.check_cxx(msg = msg, fragment=code, lib="boost_system", mandatory=1)
     # not needed: with boost 1.42 Guitarix doesn't generate code which
     #             references the boost threading lib
     #msg = "Checking for boost_thread%%s >= %s" % boost_atleast_vermsg
