@@ -166,7 +166,6 @@
                         <property name="receives_default">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
-                        <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
                       </object>
@@ -184,7 +183,6 @@
                         <property name="receives_default">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
-                        <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
                       </object>
@@ -342,8 +340,6 @@
                       <object class="GtkEntry" id="search_entry">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="has_focus">True</property>
-                        <property name="is_focus">True</property>
                         <property name="invisible_char">●</property>
                         <property name="invisible_char_set">True</property>
                         <property name="primary_icon_activatable">False</property>
@@ -490,6 +486,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">•</property>
+                        <property name="invisible_char_set">True</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
@@ -543,6 +540,7 @@
                         <property name="editable">False</property>
                         <property name="has_frame">False</property>
                         <property name="invisible_char">•</property>
+                        <property name="invisible_char_set">True</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
@@ -576,6 +574,7 @@
                         <property name="editable">False</property>
                         <property name="has_frame">False</property>
                         <property name="invisible_char">•</property>
+                        <property name="invisible_char_set">True</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
@@ -609,6 +608,7 @@
                         <property name="editable">False</property>
                         <property name="has_frame">False</property>
                         <property name="invisible_char">•</property>
+                        <property name="invisible_char_set">True</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
@@ -661,6 +661,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
+                            <property name="invisible_char_set">True</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
                             <property name="primary_icon_sensitive">True</property>
@@ -930,6 +931,7 @@
                       <object class="GtkTreeView" id="treeview3">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="headers_clickable">False</property>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn3">
                             <property name="title" translatable="yes">value</property>
