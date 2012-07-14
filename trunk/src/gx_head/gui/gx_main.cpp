@@ -342,7 +342,11 @@ int main(int argc, char *argv[]) {
 
     try {
 	// ----------------------- init basic subsystems ----------------------
-	Glib::thread_init();
+#ifndef G_DISABLE_DEPRECATED
+	if (!g_thread_supported ()) {
+        Glib::thread_init();
+    }
+#endif
 	Glib::init();
 	Gxw::init();
 
