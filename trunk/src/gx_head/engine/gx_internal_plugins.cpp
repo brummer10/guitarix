@@ -839,7 +839,6 @@ int CabinetConvolver::register_cab(const ParamReg& reg) {
     return 0;
 }
 
-
 /****************************************************************
  ** class ContrastConvolver
  */
