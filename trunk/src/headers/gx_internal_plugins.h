@@ -224,8 +224,10 @@ private:
     static float* buffer;
     static unsigned int size;
     static void fill_buffer(int count, float *input0, float *output0, PluginDef*);
+    static int osc_register(const ParamReg& reg);
     static int activate(bool start, PluginDef *p);
     void change_buffersize(unsigned int);
+    int mul_buffer;
 public:
     Plugin plugin;
     sigc::signal<int, bool>          activation;
@@ -234,6 +236,8 @@ public:
     gx_ui::UiSignalBool              visible;
     void clear_buffer();
     inline float *get_buffer() { return buffer; }
+    int get_mul_buffer() { return mul_buffer; }
+    void set_mul_buffer(int a, unsigned int b) { mul_buffer = a; change_buffersize(b); }
     OscilloscopeAdapter(gx_ui::GxUI *ui, ModuleSequencer& engine);
 };
 

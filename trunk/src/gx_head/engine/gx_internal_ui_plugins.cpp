@@ -170,6 +170,7 @@ void TunerAdapter::set_module() {
 OscilloscopeAdapter::OscilloscopeAdapter(
     gx_ui::GxUI *ui, ModuleSequencer& engine)
     : PluginDef(),
+      mul_buffer(1),
       plugin(),
       activation(),
       size_change(),
@@ -189,14 +190,20 @@ OscilloscopeAdapter::OscilloscopeAdapter(
 	sigc::mem_fun(*this, &OscilloscopeAdapter::change_buffersize));
 }
 
+int OscilloscopeAdapter::osc_register(const ParamReg& reg) {
+
+    return 0;
+}
+
 void OscilloscopeAdapter::change_buffersize(unsigned int size_) {
     //FIXME waveview display needs mutex
     size_change(0);
     float *b = buffer;
-    buffer = new float[size_];
-    size = size_;
+    unsigned int d = mul_buffer;
+    buffer = new float[size_ * d];
+    size = size_* d;
     clear_buffer();
-    size_change(size_);
+    size_change(size_* d);
     delete b;
 }
 
@@ -204,9 +211,11 @@ float* OscilloscopeAdapter::buffer = 0;
 unsigned int OscilloscopeAdapter::size = 0;
 
 // rt process function
-void OscilloscopeAdapter::fill_buffer(int count, float *input0, float *output0, PluginDef*) {
-    assert(count == static_cast<int>(size));
-    (void)memcpy(buffer, output0, sizeof(float)*count);
+void OscilloscopeAdapter::fill_buffer(int count, float *input0, float *output0, PluginDef *p) {
+    OscilloscopeAdapter& self = *static_cast<OscilloscopeAdapter*>(p);
+    assert(count*self.mul_buffer == static_cast<int>(size));
+    (void)memcpy(buffer, &buffer[count], sizeof(float)*count*(self.mul_buffer-1));
+    (void)memcpy(&buffer[count*(self.mul_buffer-1)], output0, sizeof(float)*count);
 }
 
 int OscilloscopeAdapter::activate(bool start, PluginDef *plugin) {

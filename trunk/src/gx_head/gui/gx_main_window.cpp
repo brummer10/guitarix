@@ -1411,6 +1411,8 @@ void MainWindow::create_actions() {
     actions.group->add(Gtk::Action::create("EngineMenu",_("_Engine")));
     actions.jack_latency_menu = Gtk::Action::create("JackLatency",_("_Latency"));
     actions.group->add(actions.jack_latency_menu);
+    actions.osc_buffer_menu = Gtk::Action::create("OscBuffer",_("Osc. Buffer-size"));
+    actions.group->add(actions.osc_buffer_menu);
     actions.group->add(Gtk::Action::create("PresetsMenu",_("_Presets")));
     actions.group->add(Gtk::Action::create("PresetListMenu","--"));
     actions.group->add(Gtk::Action::create("PluginsMenu",_("P_lugins")));
@@ -2135,6 +2137,46 @@ void MainWindow::on_ampdetail_switch(bool compress) {
  ** oscilloscope handling
  */
 
+void MainWindow::set_osc_size() {
+    //int osc_size = engine.oscilloscope.get_mul_buffer();
+    if (mul_buffer > 0) {
+        actions.osc_buffer_size->set_current_value(mul_buffer);
+    }
+}
+
+void MainWindow::change_osc_buffer(Glib::RefPtr<Gtk::RadioAction> action) {
+    if (jack.client) {
+    mul_buffer = action->get_current_value();
+    on_oscilloscope_activate(false);
+    engine.oscilloscope.set_mul_buffer(mul_buffer, jack.get_jack_bs());
+    on_oscilloscope_activate(true);
+    } else {
+    set_osc_size();
+    }
+}
+
+void MainWindow::add_osc_size_menu() {
+    Glib::ustring s = "<menubar><menu action=\"OptionsMenu\"><menu action=\"OscBuffer\">";
+    Gtk::RadioButtonGroup group;
+    int osc_buffer_size = 1;
+    for (int i = 1; i <= 6; ++i) {
+	Glib::ustring name = "*" + gx_system::to_string(osc_buffer_size);
+	Glib::ustring actname = Glib::ustring::compose("buffer size %1", name);
+	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
+	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(group, actname, name);
+	actions.group->add(action);
+	if (i == 1) {
+	    action->signal_changed().connect(
+		sigc::mem_fun(*this, &MainWindow::change_osc_buffer));
+	    actions.osc_buffer_size = action;
+	}
+	action->property_value().set_value(osc_buffer_size);
+    osc_buffer_size++;
+    }
+    s.append("</menu></menu></menubar>");
+    uimanager->add_ui_from_string(s);
+}
+
 void MainWindow::on_show_oscilloscope(bool v) {
     if (v) {
 	// FIXME G_PRIORITY_DEFAULT_IDLE??
@@ -2429,6 +2471,7 @@ int MainWindow::mainwin_y = -1;
 int MainWindow::mainwin_height = -1;
 int MainWindow::window_height = 0;
 int MainWindow::preset_window_height = 0;
+int MainWindow::mul_buffer = 1;
 
 MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_,
 		       gx_engine::ParamMap& pmap_, Gtk::Window *splash)
@@ -2510,7 +2553,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
     pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 427, 453, 0.1);
     //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
-
+    pmap.reg_non_midi_par("oscilloscope.bufferset",&mul_buffer,false,1,1,6);
     /*
     ** create actions and some parameters
     */
@@ -2548,6 +2591,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     // add dynamic submenus
     add_skin_menu();
     add_latency_menu();
+    add_osc_size_menu();
     amp_radio_menu.setup("<menubar><menu action=\"TubeMenu\">","</menu></menubar>",uimanager,actions.group);
 
     // add menubar, accelgroup and icon to main window
@@ -2810,7 +2854,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	jack.signal_client_change()();
     }
     set_latency(); // make sure latency menu is updated
-	
+	set_osc_size();
     // we set the skin at this late point to avoid calling make_icons more
     // than once
     if (actions.skin->get_current_value() != skin) {

@@ -602,6 +602,7 @@ struct GxActions {
     Glib::RefPtr<Gtk::Action> compress;
     Glib::RefPtr<Gtk::Action> expand;
     Glib::RefPtr<Gtk::Action> jack_latency_menu;
+    Glib::RefPtr<Gtk::Action> osc_buffer_menu;
     Glib::RefPtr<Gtk::Action> jackstartup;
     Glib::RefPtr<Gtk::Action> loadladspa;
 
@@ -630,6 +631,7 @@ struct GxActions {
 
     Glib::RefPtr<Gtk::RadioAction> skin;
     Glib::RefPtr<Gtk::RadioAction> latency;
+    Glib::RefPtr<Gtk::RadioAction> osc_buffer_size;
 
     // preset window
     Glib::RefPtr<Gtk::Action> new_bank;
@@ -646,6 +648,7 @@ private:
     static int mainwin_height;
     static int window_height;
     static int preset_window_height;
+    static int mul_buffer;
     Freezer freezer;
     PluginDict plugin_dict;
     int oldpos;
@@ -807,6 +810,9 @@ private:
     void user_disable_latency_warn(Gtk::CheckButton* disable_warn);
     int gx_wait_latency_warn();
     void set_latency();
+    void set_osc_size();
+    void add_osc_size_menu();
+    void change_osc_buffer(Glib::RefPtr<Gtk::RadioAction> action);
     void on_select_jack_control();
     void on_load_ladspa();
     void delete_select_jack_control();

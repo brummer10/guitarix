@@ -10,6 +10,7 @@
 (gtk_accel_path "<Actions>/Main/Expand" "<Control>e")
 (gtk_accel_path "<Actions>/Main/Help" "F1")
 (gtk_accel_path "<Actions>/Main/JackLatency" "")
+(gtk_accel_path "<Actions>/Main/OscBuffer" "")
 (gtk_accel_path "<Actions>/Main/JackPorts" "<Control>p")
 (gtk_accel_path "<Actions>/Main/JackServerConnection" "<Control>c")
 (gtk_accel_path "<Actions>/Main/JackStartup" "<Control>j")
