@@ -213,8 +213,8 @@ unsigned int OscilloscopeAdapter::size = 0;
 // rt process function
 void OscilloscopeAdapter::fill_buffer(int count, float *input0, float *output0, PluginDef *p) {
     OscilloscopeAdapter& self = *static_cast<OscilloscopeAdapter*>(p);
-    assert(count*self.mul_buffer == static_cast<int>(size));
-    (void)memcpy(buffer, &buffer[count], sizeof(float)*count*(self.mul_buffer-1));
+    if(count*self.mul_buffer != static_cast<int>(size)) return;
+    (void)memmove(buffer, &buffer[count], sizeof(float)*count*(self.mul_buffer-1));
     (void)memcpy(&buffer[count*(self.mul_buffer-1)], output0, sizeof(float)*count);
 }
 
