@@ -81,6 +81,7 @@ public:
     ConvolverMonoAdapter mono_convolver;
     ConvolverStereoAdapter stereo_convolver;
     CabinetConvolver cabinet;
+    PreampConvolver preamp;
     ContrastConvolver contrast;
     //
     LadspaLoader ladspaloader;

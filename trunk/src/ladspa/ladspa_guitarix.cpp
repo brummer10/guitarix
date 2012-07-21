@@ -736,6 +736,7 @@ public:
     // internal audio modules
     NoiseGate noisegate;
     CabinetConvolver cabinet;
+    PreampConvolver preamp;
     ContrastConvolver contrast;
 public:
     MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups);
@@ -889,9 +890,11 @@ MonoEngine::MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroup
       // internal audio modules
       noisegate(),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp) {
 
     cabinet.set_sync(true);
+    preamp.set_sync(true);
     contrast.set_sync(true);
 
     load_static_plugins();
@@ -976,6 +979,7 @@ void MonoEngine::load_static_plugins() {
     pl.add(gx_effects::gx_feedback::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&preamp.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::abgate::plugin(),           PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_mono(),        PLUGIN_POS_RACK);
 }

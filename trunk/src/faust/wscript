@@ -36,6 +36,7 @@ def build(bld):
         'jconv_post_mono.dsp',
         'presence_level.dsp',
         'cabinet_impulse_former.dsp',
+        'preamp_impulse_former.dsp',
         ]
 
     sources_static = [

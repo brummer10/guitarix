@@ -463,6 +463,36 @@ public:
 
 
 /****************************************************************
+ ** class PreampConvolver
+ */
+
+#include "faust/preamp_impulse_former.h"
+
+class PreampConvolver: public BaseConvolver {
+private:
+    int current_pre;
+    float level;
+    int preamp;
+    float bass;
+    float treble;
+    float sum;
+    value_pair *pre_names;
+    preamp_impulse_former::Dsp impf;
+    static void run_pre_conf(int count, float *input, float *output, PluginDef*);
+    static int register_pre(const ParamReg& reg);
+    bool do_update();
+    virtual void check_update();
+    virtual bool start(bool force = false);
+    bool preamp_changed() { return current_pre != preamp; }
+    void update_preamp() { current_pre = preamp; }
+    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
+    void update_sum() { sum = level + bass + treble; }
+public:
+    PreampConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
+    ~PreampConvolver();
+};
+
+/****************************************************************
  ** class ContrastConvolver
  */
 

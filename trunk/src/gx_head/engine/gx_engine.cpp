@@ -135,6 +135,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
       stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync),
 		       param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       ladspaloader(options) {
 #ifdef USE_MIDI_OUT
@@ -237,6 +238,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::gx_feedback::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&preamp.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::abgate::plugin(),           PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_mono(),        PLUGIN_POS_RACK);
     // stereo

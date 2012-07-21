@@ -102,6 +102,7 @@ static std::string replaced_id(const std::string& s) {
 	{ "ui.3 Band EQ", "ui.tonemodul" },
 	{ "ui.BiQuad Filter", "ui.biquad" },
 	{ "ui.Cabinet", "ui.cab" },
+    { "ui.Preamp", "ui.pre" },
 	{ "ui.Chorus", "ui.chorus" },
 	{ "ui.Chorus Mono", "ui.chorus_mono" },
 	{ "ui.Compressor", "ui.compressor" },

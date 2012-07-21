@@ -214,7 +214,9 @@ unsigned int OscilloscopeAdapter::size = 0;
 void OscilloscopeAdapter::fill_buffer(int count, float *input0, float *output0, PluginDef *p) {
     OscilloscopeAdapter& self = *static_cast<OscilloscopeAdapter*>(p);
     if(count*self.mul_buffer != static_cast<int>(size)) return;
+    if(self.mul_buffer > 1) {
     (void)memmove(buffer, &buffer[count], sizeof(float)*count*(self.mul_buffer-1));
+    }
     (void)memcpy(&buffer[count*(self.mul_buffer-1)], output0, sizeof(float)*count);
 }
 

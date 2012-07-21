@@ -212,6 +212,7 @@ void StackBoxBuilder::get_box(const std::string& name, Gtk::Widget*& mainbox, Gt
 	{ "feedback", &StackBoxBuilder::make_rackbox_feedback },
 	//{ "amp.tonestack", &StackBoxBuilder::make_rackbox_amp_tonestack },
 	{ "cab", &StackBoxBuilder::make_rackbox_cab },
+    { "pre", &StackBoxBuilder::make_rackbox_pre },
 	{ "jconv_mono", &StackBoxBuilder::make_rackbox_jconv_mono },
 	{ "midi_out", &StackBoxBuilder::make_rackbox_midi_out },
 	// stereo

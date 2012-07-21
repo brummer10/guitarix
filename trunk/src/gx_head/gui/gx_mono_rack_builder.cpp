@@ -538,6 +538,23 @@ void StackBoxBuilder::make_rackbox_cab() {
     closeBox();
 }
 
+void StackBoxBuilder::make_rackbox_pre() {
+    openHorizontalhideBox("");
+    create_selector("pre.select");
+    closeBox();
+    openVerticalBox("");
+    {
+	openHorizontalBox("");
+	{
+	    create_selector("pre.select");
+	    create_small_rackknob("pre.bass", "bass");
+	    create_small_rackknob("pre.treble", "treble");
+	    create_small_rackknobr("pre.Level", "level");
+	}
+	closeBox();
+    }
+    closeBox();
+}
 void StackBoxBuilder::make_rackbox_jconv_mono() {
     static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.mono_convolver, window_icon, gx_settings, accels, 1);
     openHorizontalhideBox("");

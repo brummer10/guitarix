@@ -207,6 +207,7 @@ public:
     void make_rackbox_feedback();
     void make_rackbox_amp_tonestack();
     void make_rackbox_cab();
+    void make_rackbox_pre();
     void make_rackbox_jconv_mono();
     void make_rackbox_midi_out();
     // stereo
