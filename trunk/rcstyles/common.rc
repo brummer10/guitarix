@@ -66,6 +66,10 @@ style "guitarix_selector"
 
 style "guitarix_waveview"
 {
+  GxWaveView::box-gradient = {
+    { 26214, 65536, 13107, 0, 52428 }, # 0.4, 1, 0.2, 0, 0.8
+	{ 52428, 13107, 65536, 13107, 52428 }} # 0.8, 0.2, 1, 0.2, 0.8
+
   fg[NORMAL] = 	{ 0.48, 0.48, 0.12 } # RGBA: 0.8, 0.8, 0.2, 0.6
   font_name = "sans 6"
 }

@@ -22,6 +22,7 @@ part of guitarix, show a wave with Gtk
 ******************************************************************************/
 
 #include "GxWaveView.h"
+#include "GxGradient.h"
 #include <math.h>
 
 #define P_(s) (s)   // FIXME -> gettext
@@ -49,6 +50,36 @@ static const int liveview_x = 300;
 static const int liveview_y = 80;
 static const int background_width = 282;
 static const int background_height = 52;
+
+inline double cairo_clr(guint16 clr)
+{
+	return clr / 65535.0;
+}
+
+// set cairo color related to the used skin
+static void set_box_color(GtkWidget *wi, cairo_pattern_t *pat)
+{
+	GxGradient *grad;
+	gtk_widget_style_get(wi, "box-gradient", &grad, NULL);
+	if (!grad) {
+		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
+		cairo_pattern_add_color_stop_rgba(
+			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
+			cairo_clr(p1->blue), 0.8);
+		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
+		cairo_pattern_add_color_stop_rgba(
+			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
+			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
+			(cairo_clr(p1->blue)+cairo_clr(p2->blue))/2, 0.8);
+		return;
+	}
+	GSList *p;
+	for (p = grad->colors; p; p = g_slist_next(p)) {
+		GxGradientElement *el = (GxGradientElement*)p->data;
+		cairo_pattern_add_color_stop_rgba(pat, el->offset, el->red, el->green, el->blue, el->alpha);
+	}
+	gx_gradient_free(grad);
+}
 
 static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
                                  int liveviewx, int liveviewy)
@@ -210,10 +241,11 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	cairo_line_to (cr, liveviewx, liveviewy+25);
 	cairo_pattern_t* linpat =
 		cairo_pattern_create_linear (liveviewx, liveviewy-15,liveviewx, liveviewy+25);
-
 	cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
-	cairo_pattern_add_color_stop_rgba (linpat, 0.4, 1, 0.2, 0,0.8);
-	cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
+    set_box_color(widget, linpat);
+
+	//cairo_pattern_add_color_stop_rgba (linpat, 0.4, 1, 0.2, 0,0.8);
+	//cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
 	cairo_set_source (cr, linpat);
 	cairo_close_path (cr);
 
@@ -233,8 +265,9 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 		cairo_pattern_create_linear (liveviewx, liveviewy,liveviewx+140, liveviewy);
 
 	cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
-	cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
-	cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
+    set_box_color(widget, linpat);
+	//cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
+	//cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
 	cairo_set_source (cr, linpat);
 	cairo_set_line_width (cr, 3.0);
 	cairo_stroke (cr);
@@ -304,6 +337,14 @@ static void gx_wave_view_class_init (GxWaveViewClass *klass)
 	                                                      P_("Text to be displayed at the bottom right"),
 	                                                      0, 100, 70,
 	                                                      GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property_parser(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_boxed("box-gradient",
+		                   P_("Skin color"),
+		                   P_("Color gradient defined as part of skin"),
+		                   GX_TYPE_GRADIENT,
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
+		gx_parse_gradient);
 }
 
 static void gx_wave_view_init(GxWaveView *waveview)
