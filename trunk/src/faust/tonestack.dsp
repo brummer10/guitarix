@@ -304,7 +304,9 @@ t = vslider(".amp.tonestack.Treble[alias]", 0.5, 0, 1, 0.01);
 m = vslider(".amp.tonestack.Middle[alias]", 0.5, 0, 1, 0.01);
 l = vslider(".amp.tonestack.Bass[alias]", 0.5, 0, 1, 0.01) : (_-1)*3.4 : exp;
 
-tonestack = 1/A0*tf3(B0,B1,B2,B3,A1/A0,A2/A0,A3/A0) with {
+
+
+tonestack = 1/A0*iir((B0,B1,B2,B3),(A1/A0,A2/A0,A3/A0)) with {
     C1 = tse.C1;
     C2 = tse.C2;
     C3 = tse.C3;

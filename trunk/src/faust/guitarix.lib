@@ -84,11 +84,11 @@ TB_6C16_68k   = fconstant(int TUBE_TABLE_6C16_68k,   "valve.h");
 TB_6C16_250k  = fconstant(int TUBE_TABLE_6C16_250k,  "valve.h");
 
 tubestageF(tb,vplus,divider,fck,Rk,Vk0) = tube : hpf with {
-    lpfk = lowpass1(fck);
+    lpfk = lowpass(1,fck);
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
     tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);
-    hpf = highpass1(31.0);
+    hpf = highpass(1,31.0);
 };
 
 tubestage(tb,fck,Rk,Vk0)  = tubestageF(tb,250.0,40.0,fck,Rk,Vk0);
@@ -194,7 +194,7 @@ ts = environment {
         };
 };
 
-tonestack(tse) = 1/A0*tf3(B0,B1,B2,B3,A1/A0,A2/A0,A3/A0) with {
+tonestack(tse) = 1/A0*iir((B0,B1,B2,B3),(A1/A0,A2/A0,A3/A0)) with {
     C1 = tse.C1;
     C2 = tse.C2;
     C3 = tse.C3;

@@ -23,6 +23,6 @@ process = ts9 : lowpass : *(gain) with {
     ts9nonlin = ffunction(float ts9nonlin(float), "ts9nonlin.h", "");
     ts9 = _ <: _ - ts9nonlin(X2-_) :> _;
     fc = hslider("tone[log][name:Tone]", 400, 100, 1000, 1.03);
-    lowpass = component("filter.lib").lowpass1(fc);
+    lowpass = component("filter.lib").lowpass(1,fc);
     gain = hslider("level[name:Level]", -16, -20, 4, 0.1) : component("music.lib").db2linear : smoothi(0.999);
 };

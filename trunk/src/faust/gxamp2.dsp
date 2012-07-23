@@ -39,8 +39,8 @@ tubec(preamp,gain1) = hgroup("stage1", stage1) :
           with {
           
     stage1 =  tubestage(TB_6V6_68k,86.0,2700.0,2.296150):
-    lowpass1(6531.0) : *(preamp) : tubestage(TB_6V6_250k,132.0,1500.0,1.675587); 
-    stage2 = lowpass1(6531.0) : *(gain1) : tubestage(TB_6V6_250k,194.0,820.0,1.130462);
+    lowpass(1,6531.0) : *(preamp) : tubestage(TB_6V6_250k,132.0,1500.0,1.675587); 
+    stage2 = lowpass(1,6531.0) : *(gain1) : tubestage(TB_6V6_250k,194.0,820.0,1.130462);
     
 };
 
@@ -49,8 +49,8 @@ tubeax(preamp,gain1) = hgroup("stage1", stage1) :
           with {
           
     stage1 = *(preamp): tubestage(TB_6V6_68k,86.0,2700.0,2.296150): *(0.77) :
-    lowpass1(6531.0) : *(preamp) : tubestage(TB_6V6_250k,132.0,1500.0,1.675587): *(0.77); 
-    stage2 = lowpass1(6531.0) : *(gain1) : bifilter : tubestage(TB_6V6_250k,194.0,820.0,1.130462) : *(0.77);
+    lowpass(1,6531.0) : *(preamp) : tubestage(TB_6V6_250k,132.0,1500.0,1.675587): *(0.77); 
+    stage2 = lowpass(1,6531.0) : *(gain1) : bifilter : tubestage(TB_6V6_250k,194.0,820.0,1.130462) : *(0.77);
     
 } ;
 

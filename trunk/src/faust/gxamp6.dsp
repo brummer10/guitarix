@@ -33,8 +33,8 @@ process = hgroup("stage1", stage1) :
     atten = 0.6;
     stage1 = speakerbp(310.0, 12000.0) :
      *(preamp): (tubestage130_20(TB_6DJ8_68k,86.0,2700.0,1.863946) : + ~ (atten*tubestage130_20(TB_6DJ8_250k,132.0,1500.0,1.271609))):
-    lowpass1(6531.0) : (tubestage130_20(TB_6DJ8_250k,132.0,1500.0,1.271609) : + ~ (atten*tubestage130_20(TB_6DJ8_250k,194.0,820.0,0.797043))) : tubestage130_20(TB_6DJ8_250k,194.0,820.0,0.797043) ; 
-    stage2 = lowpass1(6531.0) : *(gain1)  <: ((min(0.7,tubestage(TB_6V6_250k,6531.0,410.0,0.659761))),(max(-0.75,tubestage(TB_6V6_68k,6531.0,410.0,0.664541)))) :> 
+    lowpass(1,6531.0) : (tubestage130_20(TB_6DJ8_250k,132.0,1500.0,1.271609) : + ~ (atten*tubestage130_20(TB_6DJ8_250k,194.0,820.0,0.797043))) : tubestage130_20(TB_6DJ8_250k,194.0,820.0,0.797043) ; 
+    stage2 = lowpass(1,6531.0) : *(gain1)  <: ((min(0.7,tubestage(TB_6V6_250k,6531.0,410.0,0.659761))),(max(-0.75,tubestage(TB_6V6_68k,6531.0,410.0,0.664541)))) :> 
     notch1 : notch2 : notch3
     with {
         gain1 = ampctrl.gain1;

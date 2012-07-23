@@ -29,8 +29,8 @@ tubeax(preamp,gain1) =  hgroup("stage1", stage1) :
           
     atten = 0.6;
     stage1 = tubestage130_20(TB_6DJ8_68k,86.0,2700.0,1.863946) : - ~ (atten*tubestage130_20(TB_6DJ8_250k,132.0,1500.0,1.271609)) : *(preamp):
-    lowpass1(6531.0) : tubestage130_20(TB_6DJ8_250k,132.0,1500.0,1.271609): + ~ (atten*tubestage130_20(TB_6DJ8_250k,194.0,820.0,0.797043));
-    stage2 = lowpass1(6531.0) : tubestage130_20(TB_6DJ8_250k,194.0,820.0,0.797043) : *(gain1); 
+    lowpass(1,6531.0) : tubestage130_20(TB_6DJ8_250k,132.0,1500.0,1.271609): + ~ (atten*tubestage130_20(TB_6DJ8_250k,194.0,820.0,0.797043));
+    stage2 = lowpass(1,6531.0) : tubestage130_20(TB_6DJ8_250k,194.0,820.0,0.797043) : *(gain1); 
     
 };
 

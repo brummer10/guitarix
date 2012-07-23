@@ -1,5 +1,5 @@
 // generated from file '../src/faust/tonestack_bogner.dsp' by dsp2cc:
-// Code generated with Faust 0.9.43 (http://faust.grame.fr)
+// Code generated with Faust 0.9.46 (http://faust.grame.fr)
 
 
 namespace tonestack_bogner {
@@ -104,7 +104,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 	double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
 	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
 	double 	fSlow16 = fslider2;
-	double 	fSlow17 = ((fSlow0 * (5.08400739e-11 + fSlow4)) + (fSlow16 * ((6.5258325e-11 - (6.5258325e-11 * fSlow0)) + fSlow5)));
+	double 	fSlow17 = ((fSlow0 * (5.08400739e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (6.5258325e-11 - (6.5258325e-11 * fSlow0)))));
 	double 	fSlow18 = (fConst2 * fSlow17);
 	double 	fSlow19 = (5.018112e-08 + (((1.7391e-07 * fSlow16) + (fSlow0 * (8.643102600000002e-07 - fSlow1))) + (fSlow2 * (1.5206400000000001e-06 + (2.3606220000000006e-05 * fSlow0)))));
 	double 	fSlow20 = (0.0005022600000000001 + (fSlow9 + (fSlow8 + (5.4999999999999995e-05 * fSlow16))));

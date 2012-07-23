@@ -1,5 +1,5 @@
 // generated from file '../src/faust/tonestack_ac15.dsp' by dsp2cc:
-// Code generated with Faust 0.9.43 (http://faust.grame.fr)
+// Code generated with Faust 0.9.46 (http://faust.grame.fr)
 
 
 namespace tonestack_ac15 {
@@ -109,10 +109,10 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 	double 	fSlow11 = ((fSlow7 + (fConst3 * (fSlow3 - fSlow9))) - 3);
 	double 	fSlow12 = (1.0 / ((fConst3 * (0 - (fSlow3 + fSlow6))) - (1 + fSlow7)));
 	double 	fSlow13 = fslider2;
-	double 	fSlow14 = ((fSlow0 * (3.421299200000001e-08 + fSlow4)) + (fSlow13 * ((1.0691560000000003e-08 - (1.0691560000000003e-08 * fSlow0)) + (1.0691560000000003e-08 * fSlow2))));
+	double 	fSlow14 = ((fSlow0 * (3.421299200000001e-08 + fSlow4)) + (fSlow13 * ((1.0691560000000003e-08 * fSlow2) + (1.0691560000000003e-08 - (1.0691560000000003e-08 * fSlow0)))));
 	double 	fSlow15 = (fConst5 * fSlow14);
 	double 	fSlow16 = (3.7947800000000004e-06 + (((1.5199800000000001e-06 * fSlow13) + (fSlow0 * (0.00022961831200000004 - fSlow1))) + (fSlow2 * (3.7947800000000004e-06 + fSlow1))));
-	double 	fSlow17 = (1.0 + (fSlow2 + ((0.0046780133373146215 * fSlow13) + (0.4678013337314621 * fSlow0))));
+	double 	fSlow17 = (1.0 + (fSlow2 + ((0.4678013337314621 * fSlow0) + (0.0046780133373146215 * fSlow13))));
 	double 	fSlow18 = (fConst6 * fSlow17);
 	double 	fSlow19 = (fSlow18 + (fConst3 * (fSlow16 - fSlow15)));
 	double 	fSlow20 = (fConst1 * fSlow14);

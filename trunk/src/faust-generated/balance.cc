@@ -1,5 +1,5 @@
 // generated from file '../src/faust/balance.dsp' by dsp2cc:
-// Code generated with Faust 0.9.43 (http://faust.grame.fr)
+// Code generated with Faust 0.9.46 (http://faust.grame.fr)
 
 
 namespace balance {

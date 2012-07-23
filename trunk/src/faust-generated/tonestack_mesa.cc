@@ -1,5 +1,5 @@
 // generated from file '../src/faust/tonestack_mesa.dsp' by dsp2cc:
-// Code generated with Faust 0.9.43 (http://faust.grame.fr)
+// Code generated with Faust 0.9.46 (http://faust.grame.fr)
 
 
 namespace tonestack_mesa {
@@ -104,7 +104,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 	double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
 	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
 	double 	fSlow16 = fslider2;
-	double 	fSlow17 = ((fSlow0 * (2.5703125000000003e-10 + fSlow4)) + (fSlow16 * ((7.343750000000001e-10 - (7.343750000000001e-10 * fSlow0)) + fSlow5)));
+	double 	fSlow17 = ((fSlow0 * (2.5703125000000003e-10 + fSlow4)) + (fSlow16 * (fSlow5 + (7.343750000000001e-10 - (7.343750000000001e-10 * fSlow0)))));
 	double 	fSlow18 = (fConst2 * fSlow17);
 	double 	fSlow19 = (2.48125e-07 + (((9.187500000000001e-07 * fSlow16) + (fSlow0 * (3.0182812500000004e-06 - fSlow1))) + (fSlow2 * (2.48125e-06 + (2.9448437500000007e-05 * fSlow0)))));
 	double 	fSlow20 = (0.0025062500000000002 + (fSlow9 + (fSlow8 + (6.25e-05 * fSlow16))));

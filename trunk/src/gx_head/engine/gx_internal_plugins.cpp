@@ -873,6 +873,7 @@ struct PreEntry {
     { "Mesa Boogie", N_("Mesa Boogie"), &static_cast<PreDesc&>(pre_data_mesaboogie) },
     { "Boutique",    N_("Boutique"),    &static_cast<PreDesc&>(pre_data_boutique) },
     { "Ampeg",       N_("Ampeg"),       &static_cast<PreDesc&>(pre_data_ampeg) },
+    { "Rectifier",   N_("Rectifier"),   &static_cast<PreDesc&>(pre_data_rectifier) },
 };
 static const unsigned int pre_table_size = sizeof(pre_table) / sizeof(pre_table[0]);
 

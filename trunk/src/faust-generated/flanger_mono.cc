@@ -1,5 +1,5 @@
 // generated from file '../src/faust/flanger_mono.dsp' by dsp2cc:
-// Code generated with Faust 0.9.43 (http://faust.grame.fr)
+// Code generated with Faust 0.9.46 (http://faust.grame.fr)
 
 
 namespace flanger_mono {

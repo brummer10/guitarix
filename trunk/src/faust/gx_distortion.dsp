@@ -126,7 +126,7 @@ distortion1 	=  _:cubicnl(drive1,drivelevel): *(low_gain);
 distortion2 	=  _:cubicnl(drive2,drivelevel) : *(high_gain);
 distortion3 	=  _:cubicnl(drive3,drivelevel) : *(middle_gain_l);
 distortion4 	=  _:cubicnl(drive4,drivelevel) : *(middle_gain_h);
-distortion	= lowpassN(2,15000.0): highpass1(31.0)  : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>lowpass1(6531.0);
+distortion	= lowpassN(2,15000.0): highpass(1,31.0)  : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>lowpass(1,6531.0);
 
 //-resonator
 resonator 		= (+ <: (delay(4096, d-1) + delay(4096, d)) / 2) ~ *(1.0-a)
