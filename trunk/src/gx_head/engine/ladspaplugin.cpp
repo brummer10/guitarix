@@ -393,12 +393,24 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
     LadspaDsp& self = *static_cast<LadspaDsp*>(b.plugin);
     b.openHorizontalhideBox("");
     if (self.pd->master_idx >= 0) {
-	const char *p = self.pd->master_label.c_str();
-	if (!*p) {
-	    p = 0;
-	}
-	b.create_master_slider(self.make_id(*self.pd->names[self.pd->master_idx]).c_str(), p);
+	int n = 0;
+    for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
+	if ((n)==self.pd->master_idx) {
+    switch ((*it)->tp) {
+    case tp_enum:
+		b.create_selector_no_caption(self.make_id(*self.pd->names[self.pd->master_idx]).c_str());
+        break;
+    default:
+        const char *p = self.pd->master_label.c_str();
+        if (!*p) {
+            p = 0;
+        }
+        b.create_master_slider(self.make_id(*self.pd->names[self.pd->master_idx]).c_str(), p);
+        break;
     }
+    }
+    }
+	}
     b.closeBox();
     b.openVerticalBox("");
     b.openHorizontalBox("");
