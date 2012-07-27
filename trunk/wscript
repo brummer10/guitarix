@@ -24,7 +24,7 @@ blddir = 'build'
 use_2to3 = True
 
 # used by waf dist and waf build
-VERSION='0.23.2'
+VERSION='0.23.3'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.43']
@@ -334,6 +334,14 @@ def check_faust(conf):
     conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
 
 def check_boost(conf):
+    code="""
+    #include <boost/system/error_code.hpp>
+    int main() { boost::system::error_code c; }
+    """
+    msg = "Checking for boost-system " 
+    conf.check_cxx(msg = msg, fragment=code, lib="boost_system", uselib_store="BOOST_SYSTEM", mandatory=1)
+    # some boost (>1.49) versions depend on boost-system so we will check for it first
+    # and later link against boost_system were boost headers are included.
     boost_atleast_version = 104200
     boost_atleast_vermsg = "1.42"
     code="""
