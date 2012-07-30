@@ -276,6 +276,7 @@ CmdlineOptions::CmdlineOptions()
       jack_outputs(),
       jack_uuid(),
       jack_uuid2(),
+      jack_noconnect(false),
       load_file(shellvar("GUITARIX_LOAD_FILE")),
       builder_dir(GX_BUILDER_DIR),
       style_dir(GX_STYLE_DIR),
@@ -290,6 +291,7 @@ CmdlineOptions::CmdlineOptions()
       IR_pathlist(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
       lterminal(false),
+      a_save(false),
 #ifndef NDEBUG
       dump_parameter(false),
 #endif
@@ -353,6 +355,10 @@ CmdlineOptions::CmdlineOptions()
     opt_jack_midi.set_long_name("jack-midi");
     opt_jack_midi.set_description("Guitarix JACK midi control");
     opt_jack_midi.set_arg_description("PORT");
+    Glib::OptionEntry opt_jack_noconnect;
+    opt_jack_noconnect.set_short_name('J');
+    opt_jack_noconnect.set_long_name("jack-no-conect");
+    opt_jack_noconnect.set_description("dissable self-connect JACK ports");
     Glib::OptionEntry opt_jack_instance;
     opt_jack_instance.set_short_name('n');
     opt_jack_instance.set_long_name("name");
@@ -369,6 +375,7 @@ CmdlineOptions::CmdlineOptions()
     optgroup_jack.add_entry(opt_jack_input, jack_input);
     optgroup_jack.add_entry(opt_jack_output, jack_outputs);
     optgroup_jack.add_entry(opt_jack_midi, jack_midi);
+    optgroup_jack.add_entry(opt_jack_noconnect, jack_noconnect);
     optgroup_jack.add_entry(opt_jack_instance, jack_instance);
     optgroup_jack.add_entry(opt_jack_uuid, jack_uuid);
     optgroup_jack.add_entry(opt_jack_uuid2, jack_uuid2);
@@ -387,6 +394,11 @@ CmdlineOptions::CmdlineOptions()
     opt_plugin_dir.set_description(_("directory with guitarix plugins (.so files)"));
     opt_plugin_dir.set_arg_description("DIR");
     optgroup_file.add_entry_filename(opt_plugin_dir, plugin_dir);
+    Glib::OptionEntry opt_auto_save;
+    opt_auto_save.set_short_name('K');
+    opt_auto_save.set_long_name("dissable-auto-save");
+    opt_auto_save.set_description(_("dissable auto save to state file when quit"));
+    optgroup_file.add_entry(opt_auto_save, a_save);
 
     // DEBUG options
     Glib::OptionEntry opt_builder_dir;

@@ -274,7 +274,7 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
 
     gx_jack_callbacks();
     client_change(); // might load port connection definitions
-    if (opt.get_jack_uuid().empty()) {
+    if (opt.get_jack_uuid().empty() && !opt.get_jack_noconnect()) {
 	// when not loaded by session manager
 	gx_jack_init_port_connection();
     }

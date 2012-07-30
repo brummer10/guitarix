@@ -2849,6 +2849,9 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     // state file, which means that the jack starter options are read from the
     // standard state file (gx_head_rc or similar if -n is used)
     gx_settings.loadstate();
+    if (!in_session) {
+    gx_settings.disable_autosave(gx_system::get_options().get_opt_auto_save());
+    }
     if (!connect_jack(true, splash)) {
 	// not connected, must synthesize signal for initialization
 	jack.signal_client_change()();

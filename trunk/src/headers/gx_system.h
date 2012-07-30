@@ -297,6 +297,7 @@ private:
     vector<Glib::ustring> jack_outputs;
     Glib::ustring jack_uuid;
     Glib::ustring jack_uuid2;
+    bool jack_noconnect;
     string load_file;
     string builder_dir;
     string style_dir;
@@ -311,6 +312,7 @@ private:
     PathList IR_pathlist;
     Glib::ustring rcset;
     bool lterminal;
+    bool a_save;
     static CmdlineOptions *instance;
     void make_ending_slash(string& dirpath);
     string get_opskin();
@@ -348,6 +350,8 @@ public:
     const Glib::ustring& get_jack_uuid2() const { return jack_uuid2; }
     const Glib::ustring& get_jack_midi() const { return jack_midi; }
     const Glib::ustring& get_jack_input() const { return jack_input; }
+    bool get_jack_noconnect() const { return jack_noconnect; }
+    bool get_opt_auto_save() const { return a_save; }
     const PathList& get_IR_pathlist() const { return IR_pathlist; }
     Glib::ustring get_jack_output(unsigned int n) const;
 };

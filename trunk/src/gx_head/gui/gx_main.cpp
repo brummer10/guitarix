@@ -108,7 +108,10 @@ void PosixSignals::gx_ladi_handler() {
     gx_system::gx_print_warning(
 	_("signal_handler"), _("signal USR1 received, save settings"));
     if (gx_preset::GxSettings::instance) {
+    bool cur_state = gx_preset::GxSettings::instance->get_auto_save_state();
+    gx_preset::GxSettings::instance->disable_autosave(false);
 	gx_preset::GxSettings::instance->auto_save_state();
+    gx_preset::GxSettings::instance->disable_autosave(cur_state);
     }
 }
 
