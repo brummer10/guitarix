@@ -185,6 +185,8 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
 	jackopt |= JackUseExactName;
     }
 
+    std::string ServerName = opt.get_jack_servername();
+
     set_jack_down(false);
     set_jack_exit(true);
     engine.set_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
@@ -201,10 +203,20 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
 	    client_name.c_str(), JackOptions(jackopt | JackSessionID),
 	    &jackstat, opt.get_jack_uuid().c_str());
     } else {
+        if (ServerName.empty()) {
         client = jack_client_open(client_name.c_str(), JackOptions(jackopt), &jackstat);
+        } else {
+        client = jack_client_open(client_name.c_str(), JackOptions(jackopt | JackServerName),
+        &jackstat, ServerName.c_str());
+        }
     }
 #else
+    if (ServerName.empty()) {
     client = jack_client_open(client_name.c_str(), JackOptions(jackopt), &jackstat);
+    } else {
+    client = jack_client_open(client_name.c_str(), JackOptions(jackopt | JackServerName),
+    &jackstat, ServerName.c_str());
+    }
 #endif
     // ----- only start the insert gxjack.client when the amp gxjack.client is true
     if (client) {
@@ -224,14 +236,28 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
 		JackOptions(jackopt | JackSessionID | JackUseExactName),
 		&jackstat, opt.get_jack_uuid2().c_str());
         } else {
+            if (ServerName.empty()) {
             client_insert = jack_client_open(
 		client_insert_name.c_str(),
-		JackOptions(jackopt | JackUseExactName), &jackstat);
+		JackOptions(jackopt | JackUseExactName ), &jackstat);
+        } else {
+            client_insert = jack_client_open(
+		client_insert_name.c_str(),
+		JackOptions(jackopt | JackUseExactName | JackServerName),
+        &jackstat, ServerName.c_str());
+        }
         }
 #else
+        if (ServerName.empty()) {
         client_insert = jack_client_open(
 	    client_insert_name.c_str(),
 	    JackOptions(jackopt | JackUseExactName), &jackstat);
+        } else {
+        client_insert = jack_client_open(
+	    client_insert_name.c_str(),
+	    JackOptions(jackopt | JackUseExactName | JackServerName),
+        &jackstat, ServerName.c_str());
+        }
 #endif
 	if (!client_insert) {
 	    jack_client_close(client);

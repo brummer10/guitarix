@@ -298,6 +298,7 @@ private:
     Glib::ustring jack_uuid;
     Glib::ustring jack_uuid2;
     bool jack_noconnect;
+    Glib::ustring jack_servername;
     string load_file;
     string builder_dir;
     string style_dir;
@@ -350,6 +351,7 @@ public:
     const Glib::ustring& get_jack_uuid2() const { return jack_uuid2; }
     const Glib::ustring& get_jack_midi() const { return jack_midi; }
     const Glib::ustring& get_jack_input() const { return jack_input; }
+    const Glib::ustring& get_jack_servername() const { return jack_servername; }
     bool get_jack_noconnect() const { return jack_noconnect; }
     bool get_opt_auto_save() const { return a_save; }
     const PathList& get_IR_pathlist() const { return IR_pathlist; }

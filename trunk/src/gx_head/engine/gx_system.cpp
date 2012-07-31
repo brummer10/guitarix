@@ -277,6 +277,7 @@ CmdlineOptions::CmdlineOptions()
       jack_uuid(),
       jack_uuid2(),
       jack_noconnect(false),
+      jack_servername(),
       load_file(shellvar("GUITARIX_LOAD_FILE")),
       builder_dir(GX_BUILDER_DIR),
       style_dir(GX_STYLE_DIR),
@@ -372,6 +373,11 @@ CmdlineOptions::CmdlineOptions()
     opt_jack_uuid2.set_short_name('A');
     opt_jack_uuid2.set_long_name("jack-uuid2");
     opt_jack_uuid2.set_description("JackSession ID");
+    Glib::OptionEntry opt_jack_servername;
+    opt_jack_servername.set_short_name('s');
+    opt_jack_servername.set_long_name("server-name");
+    opt_jack_servername.set_description("JACK server name to connect to");
+    opt_jack_servername.set_arg_description("NAME");
     optgroup_jack.add_entry(opt_jack_input, jack_input);
     optgroup_jack.add_entry(opt_jack_output, jack_outputs);
     optgroup_jack.add_entry(opt_jack_midi, jack_midi);
@@ -379,6 +385,7 @@ CmdlineOptions::CmdlineOptions()
     optgroup_jack.add_entry(opt_jack_instance, jack_instance);
     optgroup_jack.add_entry(opt_jack_uuid, jack_uuid);
     optgroup_jack.add_entry(opt_jack_uuid2, jack_uuid2);
+    optgroup_jack.add_entry(opt_jack_servername, jack_servername);
 
     // FILE options
 
