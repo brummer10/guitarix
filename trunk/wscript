@@ -79,6 +79,12 @@ def set_options(opt):
                     dest='cxxflags',
                     help='C++ base compiler flags [Default: %default]')
 
+    comp.add_option('--ldflags',
+                    type='string',
+                    default='', 
+                    dest='ldflags',
+                    help='C++ base linker flags ')
+
     comp.add_option('--optimization',
                     action='store_const',
                     default=False, #'-fomit-frame-pointer -ffast-math -fstrength-reduce -pipe',
@@ -435,7 +441,7 @@ write_linguas_file = feature ('intltool_po')(write_linguas_file)
 ################################################################
 # guitarix waf configuration
 #
-
+ 
 def configure(conf):
     opt = Options.options
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
@@ -483,6 +489,10 @@ def configure(conf):
     if opt.python_wrapper or opt.glade_support:
         conf.check_tool('compiler_cc')
     conf.env['shlib_LINKFLAGS'].append("-fPIC") # error in waf 1.5.18?
+    # linker flags
+    conf.env.append_value('LDFLAGS', opt.ldflags)
+    conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
+
     # needed libaries
     try:
         conf.check_cfg(package='jack', atleast_version='0.116.2', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
@@ -586,6 +596,7 @@ def configure(conf):
     if cpu_model:
         display_msg("CPU version" , "%s" % cpu_model, "CYAN")
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
+    display_msg("Link flags", " ".join(conf.env['LINKFLAGS']), 'CYAN')
     display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
     display_feature("Use prebuild faust files", not conf.env['FAUST'])
     if not opt.faust_float:
