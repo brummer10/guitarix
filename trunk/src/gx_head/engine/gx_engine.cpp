@@ -25,6 +25,7 @@
  */
 
 #include "engine.h"
+#include "valve.h"
 
 #include "gx_faust_plugins.h"
 #include "../plugins/pluginlib.h"
@@ -143,7 +144,6 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
 #endif
 
     load_static_plugins();
-
     // loaded from shared libs
     if (!plugin_dir.empty()) {
 	pluginlist.load_from_path(plugin_dir, PLUGIN_POS_RACK);
