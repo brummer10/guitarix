@@ -1279,6 +1279,8 @@ void MainWindow::set_latency() {
     if (n > 0) {
 	actions.latency->set_current_value(n);
     }
+    if (n > 1023) actions.osc_buffer_menu->set_sensitive(false);
+    else actions.osc_buffer_menu->set_sensitive(true);
 }
 
 void gx_show_help() {

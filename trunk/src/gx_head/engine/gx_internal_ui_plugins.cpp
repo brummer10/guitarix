@@ -200,6 +200,7 @@ void OscilloscopeAdapter::change_buffersize(unsigned int size_) {
     size_change(0);
     float *b = buffer;
     unsigned int d = mul_buffer;
+    if (size_ > 1023) d = 1;
     buffer = new float[size_ * d];
     size = size_* d;
     clear_buffer();
