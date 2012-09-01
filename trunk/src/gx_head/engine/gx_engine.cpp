@@ -216,6 +216,7 @@ void GxEngine::load_static_plugins() {
 
     // mono
     pl.add(gx_effects::low_high_pass::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::highbooster::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::selecteq::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
@@ -238,7 +239,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::gx_feedback::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&preamp.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&preamp.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::abgate::plugin(),           PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_mono(),        PLUGIN_POS_RACK);
     // stereo

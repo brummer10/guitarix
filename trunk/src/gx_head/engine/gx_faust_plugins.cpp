@@ -81,6 +81,7 @@ namespace gx_tonestacks {
 
 namespace gx_effects {
 #include "faust/bassbooster.cc"
+#include "faust/highbooster.cc"
 #include "faust/gxfeed.cc"
 #include "faust/gx_feedback.cc"
 #include "faust/gx_outputlevel.cc"

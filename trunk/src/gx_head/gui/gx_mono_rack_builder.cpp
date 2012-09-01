@@ -590,6 +590,21 @@ void StackBoxBuilder::make_rackbox_jconv_mono() {
     closeBox();
 }
 
+void StackBoxBuilder::make_rackbox_highbooster() {
+    openHorizontalhideBox("");
+    create_master_slider("highbooster.Level",  _("Level"));
+    closeBox();
+    openVerticalBox("");
+    {
+	openHorizontalBox("");
+	{
+	    create_small_rackknobr("highbooster.Level",  _("Level"));
+	}
+	closeBox();
+    }
+    closeBox();
+}
+
 void StackBoxBuilder::make_rackbox_midi_out() {
     openVerticalMidiBox(_("  MIDI out  "));
     {

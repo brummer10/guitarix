@@ -209,6 +209,7 @@ public:
     void make_rackbox_cab();
     void make_rackbox_pre();
     void make_rackbox_jconv_mono();
+    void make_rackbox_highbooster();
     void make_rackbox_midi_out();
     // stereo
     void make_rackbox_chorus();
