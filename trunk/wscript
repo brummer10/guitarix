@@ -274,6 +274,9 @@ def append_optimization_flags(cxxflags):
     elif "ssse3" in x86_flags:
         cxxflags.append ("-mssse3")
         cxxflags.append ("-mfpmath=sse")
+    elif "sse4a" in x86_flags:
+        cxxflags.append ("-msse4a")
+        cxxflags.append ("-mfpmath=sse")
     elif "sse4" in x86_flags:
         cxxflags.append ("-msse4")
         cxxflags.append ("-mfpmath=sse")
