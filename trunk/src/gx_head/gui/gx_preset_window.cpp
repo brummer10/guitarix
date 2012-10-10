@@ -385,6 +385,10 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
     }
     Glib::ustring src_bank = get_current_bank();
     gx_system::PresetFile& pf = *gx_settings.banks.get_file(src_bank);
+    if (src_bank == bank) {
+        gx_system::gx_print_error("preset", "can't copy inside the same bank");
+        return;
+    }
     Gtk::TreeModel::Path pt;
     Gtk::TreeViewDropPosition dst;
     if (!presets_target_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
