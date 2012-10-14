@@ -1,7 +1,12 @@
-guitarix2 (0.25.0git) unstable; urgency=low
-  * SVN head
+guitarix2 (0.24.1) unstable; urgency=low
+  * fix In "organize" mod copying preset form one bank to the 
+    same one corrupts the bank
+  * add sse4a (optimization) to wscript 
+  * add treble booster unit 
+  * set osc buffersize menu to sensitive false when jack buffer 
+    is larger then 1023
   
- -- brummer <brummer-@web.de>  Mon, 14 Jun 2011 05:37:35 +0200 
+ -- brummer <brummer-@web.de>  Mon, 14 Oct 2012 05:37:35 +0200 
 
 guitarix2 (0.17.0svn) unstable; urgency=low
   * SVN head
