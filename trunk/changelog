@@ -1,3 +1,8 @@
+guitarix2 (0.25.0git) unstable; urgency=low
+  * git head
+  
+ -- brummer <brummer-@web.de>  Sat, 20 Oct 2012 05:37:35 +0200 
+
 guitarix2 (0.24.2) unstable; urgency=low
   * remove dunwah from build to avoid unwonted install
   * correct version mismatch in wscript
