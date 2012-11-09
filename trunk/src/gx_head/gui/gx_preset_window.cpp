@@ -742,6 +742,9 @@ bool PresetWindow::on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& con
 
 void PresetWindow::on_bank_changed() {
     preset_row_del_conn.block();
+    if (in_edit) {
+    pstore->prepend();
+    }
     pstore->clear();
     preset_row_del_conn.unblock();
     Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
