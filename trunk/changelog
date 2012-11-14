@@ -1,3 +1,8 @@
+guitarix2 (0.25.0git) unstable; urgency=low
+  * Git Head
+  
+ -- brummer <brummer-@web.de>  Wed, 14 Nov 2012 13:27:35 +0200 
+
 guitarix2 (0.24.3) unstable; urgency=low
   * add dark theme rc-file
   * fix new unsaved banks return no valid iter
