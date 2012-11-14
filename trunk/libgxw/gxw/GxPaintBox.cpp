@@ -47,6 +47,7 @@ G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
 #define get_main_image_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->main_image_id)
 #define get_widget_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id)
 #define get_widget_id2(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id2)
+#define get_widget_id3(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id3)
 #define get_cab_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->cab_id)
 
 
@@ -64,6 +65,7 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 	klass->main_image_id = "main_image";
     klass->widget_id = "gxplate";
     klass->widget_id2 = "gxplate2";
+    klass->widget_id3 = "gxplate3";
     klass->cab_id = "texture_cab";
 	g_object_class_install_property(
 		gobject_class, PROP_PAINT_FUNC,
@@ -603,7 +605,7 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
 	cairo_paint(cr);
 	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    if(spf == 6 || spf == 7) {
+    if(spf >= 6 || spf <= 8) {
         GdkPixbuf * stock_image =
             gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
     
@@ -1046,10 +1048,13 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double rect_height = wi->allocation.height;
 	double x,y;
 
-    if (spf == 6) {
-        GdkPixbuf * stock_image =
-            gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
-        
+    if (spf == 6 || spf == 8) {
+        GdkPixbuf * stock_image;
+        if (spf == 6) {
+            stock_image =gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
+        } else {
+            stock_image =gtk_widget_render_icon(wi,get_widget_id3(wi),(GtkIconSize)-1,NULL);
+        }
         guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
         gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
         gint width = gdk_pixbuf_get_width (stock_image);

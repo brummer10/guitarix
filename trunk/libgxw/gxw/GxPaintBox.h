@@ -50,6 +50,7 @@ struct _GxPaintBoxClass {
 	const gchar *main_image_id;
 	const gchar *widget_id;
 	const gchar *widget_id2;
+    const gchar *widget_id3;
     const gchar *cab_id;
 };
 

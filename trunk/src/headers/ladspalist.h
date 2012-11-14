@@ -341,6 +341,7 @@ public:
     ~PluginDisplay();
     bool check_exit();
     void present() { window->present(); }
+    void hide() { window->hide(); }
 };
 
 } // namespace ladspa

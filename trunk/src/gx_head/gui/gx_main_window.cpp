@@ -1792,8 +1792,11 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 }
 
 bool MainWindow::delete_ladspalist_window() {
-    delete ladspalist_window;
-    ladspalist_window = 0;
+    if (ladspalist_window) {
+    //ladspalist_window->hide();
+	delete ladspalist_window;
+	ladspalist_window = 0;
+    }
     return false;
 }
 
@@ -2917,6 +2920,10 @@ MainWindow::~MainWindow() {
     delete preset_window;
     delete window;
     window = 0;
+    //if (ladspalist_window) {
+	//delete ladspalist_window;
+	//ladspalist_window = 0;
+    //}
 
     engine.wait_ramp_down_finished();
     engine.set_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);

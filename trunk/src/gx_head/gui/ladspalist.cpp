@@ -1218,6 +1218,7 @@ PluginDisplay::PluginDisplay(const gx_system::CmdlineOptions& options_, Glib::Re
 PluginDisplay::~PluginDisplay() {
     delete window;
     for (std::vector<PluginDesc*>::iterator i = pluginlist.begin(); i != pluginlist.end(); ++i) {
+    //if (pluginlist.size())
 	delete *i;
     }
 }
