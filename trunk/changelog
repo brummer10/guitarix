@@ -1,7 +1,8 @@
-guitarix2 (0.25.0git) unstable; urgency=low
-  * git head
+guitarix2 (0.24.3) unstable; urgency=low
+  * add dark theme rc-file
+  * fix new unsaved banks return no valid iter
   
- -- brummer <brummer-@web.de>  Sat, 20 Oct 2012 05:37:35 +0200 
+ -- brummer <brummer-@web.de>  Wed, 14 Nov 2012 12:37:35 +0200 
 
 guitarix2 (0.24.2) unstable; urgency=low
   * remove dunwah from build to avoid unwonted install
