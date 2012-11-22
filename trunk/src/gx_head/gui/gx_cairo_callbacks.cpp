@@ -25,7 +25,8 @@
  */
 
 #include "guitarix.h"
-
+#include <ft2build.h>
+#include <freetype/freetype.h>
 /* --------------------------- gx_cairo namespace ------------------------ */
 namespace gx_cairo
 {

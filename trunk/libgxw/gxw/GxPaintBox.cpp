@@ -1923,6 +1923,50 @@ static void slooper_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gdk_region_destroy (region);
 }
 
+static void line_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+
+	gint x0      = wi->allocation.x+3;
+	gint y0      = wi->allocation.y+3;
+	gint rect_width  = wi->allocation.width-6;
+	gint rect_height = wi->allocation.height-6;
+
+
+	double radius = 12.;
+	if (rect_width<12) radius = rect_width;
+	else if (rect_height<12) radius = rect_height;
+	double x1,y1;
+
+	x1=x0+rect_width;
+	y1=y0+rect_height;
+
+	cairo_move_to  (cr, x0, y0 + radius);
+	cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+	cairo_line_to (cr, x1 - radius, y0);
+	cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+	cairo_line_to (cr, x1 , y1 - radius);
+	cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+	cairo_line_to (cr, x0 + radius, y1);
+	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+	cairo_close_path (cr);
+    cairo_set_line_width(cr, 4.0);
+    cairo_set_source_rgb(cr, 0.2, 0.2, 0.2);
+    cairo_stroke_preserve(cr);
+    cairo_set_line_width(cr, 1.0);
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_stroke(cr);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+}
+
 static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	GxPaintBox *paintbox =  GX_PAINT_BOX(wi);
@@ -1937,6 +1981,36 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 	int spf;
 
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+
+    if (spf == 8 || spf == 7) {
+        rectangle_skin_color_expose(wi,ev);
+        line_expose(wi,ev);
+        paintbox->gxh_image = gtk_widget_render_icon(wi,"guitarix",(GtkIconSize)-1,NULL);
+        GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	                paintbox->gxh_image, 0, 0,
+	                x0+38, y0+20, 131,26,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+        g_object_unref(paintbox->gxh_image);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	                stock_image, 0, 0,
+	                x0+5, y0+5, 10,10,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	                stock_image, 0, 0,
+	                x0+5, y0+rect_height-15, 10,10,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	                stock_image, 0, 0,
+	                x0+rect_width-15, y0+rect_height-15, 10,10,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	                stock_image, 0, 0,
+	                x0+rect_width-15, y0+5, 10,10,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+        g_object_unref(stock_image);
+        return;
+    }
 
 	if (nf != spf || ne_w1 != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox-> gxh_image))) {
 		ne_w1 = rect_width*rect_height;

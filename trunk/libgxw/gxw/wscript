@@ -53,7 +53,9 @@ def build_stock_images(bld):
         "gxplate2.png",
         "gxplate3.png",
         "portdisplay.png",
-        "texture_cab.png"
+        "texture_cab.png",
+        "guitarix.png",
+        "screw.png"
         ]
 
     bld(name = "img2c",

@@ -277,7 +277,7 @@ style "gx_head_dark-v_black"
 
 style "gx_head_dark-b_black"
 {
-  fg[NORMAL] = "#e2dcdc"
+  fg[NORMAL] = { 0.6, 0.6, 0.6 }
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
