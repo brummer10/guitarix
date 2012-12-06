@@ -1049,6 +1049,7 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double x,y;
 
     if (spf == 6 || spf == 8) {
+        if(strcmp(title,"oscilloscope")==0) return;
         GdkPixbuf * stock_image;
         if (spf == 6) {
             stock_image =gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
@@ -1982,16 +1983,18 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
 
-    if (spf == 8 || spf == 7) {
+    if (spf >= 7) {
         rectangle_skin_color_expose(wi,ev);
         line_expose(wi,ev);
+        if ( spf <10) {
         paintbox->gxh_image = gtk_widget_render_icon(wi,"guitarix",(GtkIconSize)-1,NULL);
-        GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
         gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 	                paintbox->gxh_image, 0, 0,
 	                x0+38, y0+20, 131,26,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
         g_object_unref(paintbox->gxh_image);
+        }
+        GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
         gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 	                stock_image, 0, 0,
 	                x0+5, y0+5, 10,10,

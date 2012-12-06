@@ -1,0 +1,15 @@
+prefix=/path
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+datarootdir=${prefix}/share
+datadir=${datarootdir}
+includedir=${prefix}/include
+
+
+Name: gxwmm
+Description: Additional widgets for the GTKMM toolkit
+Version: 1
+URL: http://www.gtkmm.org/
+Requires: atkmm-1.6 >= 2.22.2 giomm-2.4 >= 2.24 pangomm-1.4 >= 2.27.1 gtk+-2.0 >= 2.24.0 gtk+-unix-print-2.0 gdkmm-2.4
+Libs: -L${libdir} -lgxwmm
+Cflags: -I${includedir}/gxwmm -I${libdir}/gxwmm/include

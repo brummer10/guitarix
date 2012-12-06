@@ -121,6 +121,12 @@ def set_options(opt):
                     const=True,
                     help=("don't build with new ladspa plugins"))
 
+    comp.add_option('--build-lv2',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help=("build with new lv2 plugins"))
+
     faust = opt.add_option_group("Faust-Compiler")
 
     if len(good_faust_versions) == 1:
@@ -317,6 +323,19 @@ def cfg_get_variable(self, package, variable, prefix=""):
 ################################################################
 # configuration helper functions
 #
+def sub_file(src_fname, dst_fname, lst):
+
+    f = open(src_fname, 'rU')
+    txt = f.read()
+    f.close()
+
+    for (key, val) in lst:
+        re_pat = re.compile(key, re.M)
+        txt = re_pat.sub(val, txt)
+
+    f = open(dst_fname, 'w')
+    f.write(txt)
+    f.close()
 
 def check_faust(conf):
     if Options.options.no_faust:
@@ -514,6 +533,8 @@ def configure(conf):
     conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
+    if opt.build_lv2:
+        conf.check_cfg(package='lv2core',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
     if not opt.no_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
 
@@ -534,7 +555,7 @@ def configure(conf):
     conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
     conf.define('GX_VERSION', VERSION)
-
+    
     if conf.env.DEST_CPU=='x86_64': 
         conf.define('OS_64_BIT', 1)
     else:
@@ -546,6 +567,11 @@ def configure(conf):
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
+
+    conf.env['LV2'] =  opt.build_lv2
+    if opt.build_lv2:
+        conf.define('LV2DIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'lv2')) )
+
 
     conf.env['NEW_LADSPA'] = not opt.no_ladspa and not opt.no_new_ladspa
     conf.env['LADSPA'] = not opt.no_ladspa
@@ -578,6 +604,7 @@ def configure(conf):
     conf.sub_config('glade-gxw');
     conf.sub_config('libgxwmm');
     conf.sub_config('libgxw/gxw');
+    #conf.sub_config('src/LV2/gxamp.lv2')
 
     conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
@@ -585,7 +612,16 @@ def configure(conf):
     conf.sub_config('src/plugins');
     if conf.env["LADSPA"]:   
         conf.sub_config('ladspa');
+    if conf.env["LV2"]:   
+        conf.sub_config('src/LV2/gxamp.lv2');
+        pa = '.so'
+        sub_file('./src/LV2/gxamp.lv2/manifest.ttl.in', './src/LV2/gxamp.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('rcstyles');
+    if conf.env["GX_LIB_DEV"]:
+        pa = conf.env['PREFIX']
+        sub_file('./libgxw/gxw.pc.in', './libgxw/gxw.pc', (('prefix=/path', 'prefix=%s' % pa), ))
+        sub_file('./libgxwmm/gxwmm.pc.in', './libgxwmm/gxwmm.pc', (('prefix=/path', 'prefix=%s' % pa), ))
+
 
     # some output
     print("")
@@ -612,9 +648,11 @@ def configure(conf):
 
 
     display_feature("build ladspa plugins", conf.env['LADSPA'])
+    display_feature("build lv2 plugins", conf.env['LV2'])
     display_feature("skip Python Library Wrapper", not conf.env['GX_PYTHON_WRAPPER'])
     display_feature("use prebuild C++ Library Wrapper", conf.env['USE_GENERATED_CPP'])
     display_feature("skip building shared lib", not conf.env['GX_LIB_SHARED'])
+    display_feature("skip install lib-dev", not conf.env['GX_LIB_DEV'])
     display_feature("Localization  (intltool)", conf.env['ENABLE_NLS'])
     display_feature("skip glade support", not conf.env['GX_GLADE_SUPPORT'])
     if conf.env['GX_GLADE_SUPPORT']:
@@ -625,6 +663,8 @@ def configure(conf):
     
     if not opt.no_ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
+    if opt.build_lv2:
+        display_msg("Install lv2", conf.env['LV2DIR'], 'CYAN')
     display_msg("Guitarix shared files directory", gxsharedir, 'CYAN')
     display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
     if conf.env['g++']:
@@ -657,14 +697,14 @@ def build(bld):
     bld.add_subdirs('pygxw')
     bld.add_subdirs('src/faust')
     bld.add_subdirs('src/plugins')
-    
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')
-
-    pa = bld.env['GX_SOUND_DIR']
     bld.add_subdirs('src/gx_head')
     if bld.env["NEW_LADSPA"]:
         bld.add_subdirs('src/ladspa')
+    if bld.env["LV2"]:
+        bld.add_subdirs('src/LV2/gxamp.lv2')
+    
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/funkmuscle.gx', chmod=0o664)
@@ -706,7 +746,14 @@ def build(bld):
 
     if bld.env["GX_LIB_SHARED"]:
         bld.add_post_fun(post)
-
+    if bld.env["GX_LIB_DEV"]:
+        bld.install_files('${PREFIX}/include/gxw','libgxw/gxw/*.h')
+        bld.install_files('${PREFIX}/include','libgxw/gxw.h')
+        bld.install_files('${PREFIX}/lib/pkgconfig', './libgxw/gxw.pc')
+        bld.install_files('${PREFIX}/include/gxwmm','libgxwmm/gxwmm-generated/*.h')
+        bld.install_files('${PREFIX}/include/gxwmm','libgxwmm/gxwmm/*.h')
+        bld.install_files('${PREFIX}/include','libgxwmm/gxwmm.h')
+        bld.install_files('${PREFIX}/lib/pkgconfig', './libgxwmm/gxwmm.pc')
 
 ################################################################
 # other commands

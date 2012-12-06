@@ -71,7 +71,7 @@ static void gx_knob_class_init(GxKnobClass *klass)
 		g_param_spec_int("framecount",
 		                    P_("Framecount"),
 		                    P_("Number of frames in the animation specified by the gtkrc"),
-		                    -1, 250, -1,
+		                    -1, 250, 0,
 		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 
 	g_type_class_add_private(klass, sizeof (GxKnobPrivate));

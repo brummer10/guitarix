@@ -12,6 +12,12 @@ def set_options(opt):
                    const=True,
                    help=('build shared library'),
                    )
+    grp.add_option('--lib-dev',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('install shared library headers'),
+                   )
     grp.add_option('--generate-cpp-wrapper',
                    action='store_const',
                    default=False,
@@ -33,6 +39,11 @@ def configure(conf):
         conf.env["GX_LIB_SHARED"] = True
     else:
         conf.env["GX_LIB_STATIC"] = True
+    if Options.options.lib_dev:
+        conf.env["GX_LIB_SHARED"] = True
+        conf.env["GX_LIB_DEV"] = True
+        conf.env["GX_LIB_STATIC"] = False
+
 
 def template2cc(task):
     basename = os.path.splitext(

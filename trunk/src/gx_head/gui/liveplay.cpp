@@ -505,13 +505,29 @@ Liveplay::Liveplay(
 	sigc::bind(
 	    sigc::ptr_fun(MyPaintBox::create_from_builder),
 	    background_adj));
-
-    Glib::RefPtr<Gdk::Pixbuf> pb = Gdk::Pixbuf::create_from_file(
-	options.get_style_filepath("bypass.svg"), 300, 150);
-    bypass_image->set(pb);
-    pb = Gdk::Pixbuf::create_from_file(
-	options.get_style_filepath("mute.svg"), 300, 150);
-    mute_image->set(pb);
+    Glib::RefPtr<Gdk::Pixbuf> pb;
+    try {
+      pb = Gdk::Pixbuf::create_from_file(
+	  options.get_style_filepath("bypass.svg"), 300, 150);
+      bypass_image->set(pb);
+    } catch (const Glib::FileError& ex) {
+        gx_system::gx_print_error("liveplay", ex.what());
+    } catch (const Gdk::PixbufError& ex) {
+        gx_system::gx_print_error("liveplay", ex.what());
+    } catch(...) {
+        gx_system::gx_print_error("liveplay", "failed to load pixmap bypass.svg");
+    }
+    try {
+      pb = Gdk::Pixbuf::create_from_file(
+	  options.get_style_filepath("mute.svg"), 300, 150);
+      mute_image->set(pb);
+    } catch (const Glib::FileError& ex) {
+        gx_system::gx_print_error("liveplay", ex.what());
+    } catch (const Gdk::PixbufError& ex) {
+        gx_system::gx_print_error("liveplay", ex.what());
+    } catch(...) {
+        gx_system::gx_print_error("liveplay", "failed to load pixmap mute.svg");
+    }   
     use_composite = window->get_display()->supports_composite();
     if (use_composite) {
 	brightness_adj->signal_value_changed().connect(sigc::mem_fun(this, &Liveplay::on_brightness_changed));

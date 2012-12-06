@@ -33,6 +33,7 @@
 #include <gxwmm/regler.h>
 #include <gxwmm/selector.h>
 #include <gxwmm/smallknob.h>
+#include <gxwmm/smallknobr.h>
 #include <gxwmm/switch.h>
 #include <gxwmm/toggleimage.h>
 #include <gxwmm/tuner.h>
@@ -41,5 +42,6 @@
 #include <gxwmm/waveview.h>
 #include <gxwmm/wheel.h>
 #include <gxwmm/portdisplay.h>
+#include <gxwmm/init.h>
 
 #endif /* __GXWMM_H__ */
