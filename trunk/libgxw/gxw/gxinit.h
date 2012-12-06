@@ -20,8 +20,8 @@
 part of guitarix, use  knobs with Gtk
 ******************************************************************************/
 
-#ifndef __GX_RADIO_BUTTON_H__
-#define __GX_RADIO_BUTTON_H__
+#ifndef __GX_INIT_H__
+#define __GX_INIT_H__
 
 #include <gtk/gtk.h>
 

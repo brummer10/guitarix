@@ -6,10 +6,10 @@ datadir=${datarootdir}
 includedir=${prefix}/include
 
 
-Name: gxw
+Name: gxw+
 Description: Additional widgets for the GTK toolkit
 Version: 1
 URL: http://www.gtk.org/
-Requires: atk-1.6 >= 2.22.2 gio-2.4 >= 2.24 pango-1.4 >= 2.27.1 gtk+-2.0 >= 2.24.0 gtk+-unix-print-2.0 gdk-2.4
+Requires: gtk+-2.0 >= 2.24.0 
 Libs: -L${libdir} -lgxw
-Cflags: -I${includedir}/gxw -I${libdir}/gxw/include
+Cflags: -I${includedir}/gxw
