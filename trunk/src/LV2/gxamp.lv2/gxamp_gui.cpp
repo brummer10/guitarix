@@ -36,7 +36,7 @@ struct GXPluginGUI{
 } ;
 
 static GtkWidget* make_gui(GXPluginGUI *self) {
-    Gtk::Main::init_gtkmm_internals();
+   // Gtk::Main::init_gtkmm_internals();
     gtk_rc_parse_string ("style \"gx_head_dark-paintbox\"\n"
                              " { \n"
                              "    GxPaintBox::skin-gradient = {\n"

@@ -45,6 +45,7 @@ class Widget : public Gtk::VBox
                {self->set_value(port_index,format,buffer);}
     
     Widget();
+    ~Widget();
 
   protected:
     Gtk::VBox m_vbox;

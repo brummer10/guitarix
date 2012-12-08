@@ -56,14 +56,13 @@ def build(bld):
         uselib_local += ['gxwmm','gxw']
     
     lv2_plugin_gui = bld(
-        #features='cxx cprogram',  ## for debugging
         features='cxx cshlib ',
         includes = incl,
         lib = lib,
         uselib = 'LV2CORE GTKMM',
         libpath = libpath,
-        uselib_local = uselib_local, 
-        #cxxflags = ["-fvisibility=hidden"],
+        uselib_local = uselib_local,
+        linkflags = '-Wl,-z,nodelete',
         defines  = ["LV2_GUI"],
         target   = 'gxamp_gui',
         source   = 'widget.cpp gxamp_gui.cpp',

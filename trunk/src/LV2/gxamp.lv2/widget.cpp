@@ -127,6 +127,10 @@ Widget::Widget()
   set_size_request(-1,-1);
 }
 
+Widget::~Widget() {
+ 
+}
+
 void Widget::set_value(uint32_t port_index,
                uint32_t format,
                const void * buffer)
