@@ -66,6 +66,7 @@ public:
     bool compute(int count, float* buffer) {
         return is_runnable() ? compute(count, buffer, buffer) : true;
     }
+    static void run_static(uint32_t n_samples, GxSimpleConvolver*, float *output);
 };
 
 

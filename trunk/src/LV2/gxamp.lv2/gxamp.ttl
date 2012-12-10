@@ -28,11 +28,18 @@
 @prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
 @prefix opt:  <http://lv2plug.in/ns/ext/options#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix work:  <http://lv2plug.in/ns/ext/worker#> .
 
 <http://guitarix.sourceforge.net/plugins/gxamp/gui>
   a guiext:GtkUI;
   guiext:binary <gxamp_gui.so>;
-  guiext:requiredFeature guiext:makeResident.
+  guiext:requiredFeature guiext:makeResident;
+  lv2:extensionData work:interface ;
+  guiext:portNotification [
+        guiext: <http://guitarix.sourceforge.net/plugins/gxamp>;
+        lv2:symbol "notify" ;
+        guiext:notifyType atom:Blank
+  ] .
 
 <http://guitarix.sourceforge.net/plugins/gxamp>
 	a lv2:Plugin ,
@@ -42,10 +49,12 @@
 	doap:license <http://opensource.org/licenses/isc> ;
 	lv2:optionalFeature lv2:hardRTCapable ;
     lv2:requiredFeature urid:map ,
-        bufsz:boundedBlockLength ;
+        bufsz:boundedBlockLength ,
+		work:schedule ;
     bufsz:minBlockLength 64 ;
     bufsz:maxBlockLength 8192 ;
- 
+    lv2:extensionData work:interface ;
+
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxamp/gui>;
   
 	lv2:port [
@@ -111,16 +120,50 @@
 		lv2:default 0.5 ;
 		lv2:minimum 0.0 ;
 		lv2:maximum 1.0 ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 7 ;
+		lv2:symbol "fslider0_" ;
+		lv2:name "Level";
+		lv2:default 1.0 ;
+		lv2:minimum 0.5 ;
+		lv2:maximum 5.0 ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 8 ;
+		lv2:symbol "fslider0_" ;
+		lv2:name "Level";
+		lv2:default 1.0 ;
+		lv2:minimum 0.5 ;
+		lv2:maximum 5.0 ;
 	] ,	[
 		a lv2:AudioPort ,
 			lv2:OutputPort ;
-		lv2:index 7 ;
+		lv2:index 9 ;
 		lv2:symbol "out" ;
 		lv2:name "Out"
 	] ,	[
 		a lv2:AudioPort ,
 			lv2:InputPort ;
-		lv2:index 8 ;
+		lv2:index 10 ;
 		lv2:symbol "in" ;
 		lv2:name "in"
+	] , [
+		a lv2:InputPort ,
+			atom:AtomPort ;
+		atom:bufferType atom:Sequence ;
+		atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
+		lv2:index 11 ;
+		lv2:symbol "control" ;
+		lv2:name "Control"
+	] , [
+		a lv2:OutputPort ,
+			atom:AtomPort ;
+		atom:bufferType atom:Sequence ;
+		atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
+		lv2:index 12 ;
+		lv2:symbol "notify" ;
+		lv2:name "Notify"
 	] .

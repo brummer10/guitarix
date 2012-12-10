@@ -63,6 +63,7 @@ inline void GxAmp::clear_state_f()
 inline void GxAmp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+    fslider0 = 0;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (1.0 / tan((97.38937226128358 / iConst0)));
 	fConst2 = (1 + fConst1);
@@ -155,22 +156,29 @@ void GxAmp::connect(uint32_t port,void* data)
         break;
       case TREBLE:
         break;
+      case CLevel:
+        break;
+      case ALevel:
+        break;
       case AMP_OUTPUT:
         output = (float*)data;
         break;
       case AMP_INPUT:
         input = (float*)data;
         break;
+      case AMP_CONTROL:
+        break;
+      case AMP_NOTIFY:
+        break;
     }
 }
 
-void GxAmp::run(uint32_t n_samples, LV2_Handle instance)
+void GxAmp::run(uint32_t n_samples, GXPlugin *self)
 {
-    GXPlugin* self = (GXPlugin*)instance;
-    double fslider0  = (*fslider0_);
-	double fslider1  = (*fslider1_);
-	double fslider2  = (*fslider2_);
-	double fslider3  = (*fslider3_);
+    fslider0  = (*fslider0_);
+	fslider1  = (*fslider1_);
+	fslider2  = (*fslider2_);
+	fslider3  = (*fslider3_);
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
 	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * fslider1)));
 	double 	fSlow2 = (1.000000000000001e-05 * fslider2);
@@ -278,24 +286,26 @@ void GxAmp::run(uint32_t n_samples, LV2_Handle instance)
 		fRec7[1] = fRec7[0];
 		fRec0[1] = fRec0[0];
 	}
+    self->ampconv->run_static(n_samples,self->ampconv, output);
     self->ts->run_static(n_samples, self->ts, output);
-    self->cabconv->compute(n_samples, output, output);
+    self->cabconv->run_static(n_samples,self->cabconv, output);
+    
 }
 
 // static wrappers
 void GxAmp::init_static(unsigned int samplingFreq, GxAmp *p)
 {
-	static_cast<GxAmp*>(p)->init(samplingFreq);
+	p->init(samplingFreq);
 }
 
 void GxAmp::connect_static(uint32_t port,void* data, GxAmp *p)
 {
-	static_cast<GxAmp*>(p)->connect(port, data);
+	p->connect(port, data);
 }
 
 
-void GxAmp::run_static(uint32_t n_samples, GxAmp *p, LV2_Handle instance)
+void GxAmp::run_static(uint32_t n_samples, GXPlugin *self)
 {
-	static_cast<GxAmp*>(p)->run(n_samples, instance);
+	self->amplifier->run(n_samples, self);
 }
 

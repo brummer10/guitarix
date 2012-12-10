@@ -31,6 +31,10 @@
 using namespace std;
 
 struct GXPluginGUI{
+    LV2_Atom_Forge forge;
+
+	LV2_URID_Map* map;
+	GXPluginURIs   uris;
     Widget* widget;
     GXPluginGUI () {}
 } ;
@@ -77,9 +81,26 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     
     GXPluginGUI* self = new GXPluginGUI;
     if (self == NULL) return NULL;
+    for (int i = 0; features[i]; ++i) {
+		if (!strcmp(features[i]->URI, LV2_URID_URI "#map")) {
+			self->map = (LV2_URID_Map*)features[i]->data;
+		}
+	}
+
+	if (!self->map) {
+		fprintf(stderr, "sampler_ui: Host does not support urid:Map\n");
+		delete self;
+		return NULL;
+	}
+    LV2_URID_Map*             map      = self->map;
+  map_gx_uris(map, &self->uris);
+  lv2_atom_forge_init(&self->forge, self->map);
+    
     *widget = (LV2UI_Widget)make_gui(self);
     self->widget->controller = controller;
     self->widget->write_function = write_function;
+    self->widget->uris = self->uris;
+    self->widget->map = self->map;
     return (LV2UI_Handle)self;
 }
 

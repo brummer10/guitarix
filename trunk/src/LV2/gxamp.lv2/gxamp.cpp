@@ -51,11 +51,15 @@ template <int N> inline int faustpower(int x) {return faustpower<N/2>(x) * faust
 template <>      inline int faustpower<0>(int x)        {return 1;}
 template <>      inline int faustpower<1>(int x)        {return x;}
 
+struct GXPlugin;
+
 #include "gxamp.h"
 #include "gx_resampler.h"
 #include "gx_convolver.h"
 #include "gx_amp.h"
 #include "gx_tonestack.h"
+#include "impulse_former.h"
+#include "ampulse_former.h"
 
 typedef enum {
   AMP_MASTERGAIN   = 0,
@@ -65,24 +69,99 @@ typedef enum {
   MID,
   BASS,
   TREBLE,
+  CLevel,
+  ALevel,
   AMP_OUTPUT,
   AMP_INPUT,
+  AMP_CONTROL,
+  AMP_NOTIFY,
 } PortIndex;
 
 struct GXPlugin {
+  // Port buffers
+  LV2_Atom_Sequence* c_notice;
+  LV2_Atom_Sequence* n_notice;
+  
+  LV2_Atom_Forge forge;
+  GXPluginURIs   uris;
+  LV2_Atom_Forge_Frame notify_frame;
+  LV2_Worker_Schedule* schedule;
+  LV2_Log_Log*         log;
+  
+  bool schedule_wait;
   Tonestack *ts;
   LV2_URID_Map*        map;
   GxAmp *amplifier;
+  
   gx_resample::BufferResampler resamp;
   GxSimpleConvolver *cabconv;
+  Impf * impf;
+  
+  gx_resample::BufferResampler resamp1;
+  GxSimpleConvolver *ampconv;
+  Ampf * ampf;
+  
   uint32_t bufsize;
+  static void connect(uint32_t port,void* data, GXPlugin* self);
   GXPlugin() {}
 };
+
+
 
 #include "gx_tonestack.cc"
 #include "gx_amp.cc"
 #include "gx_convolver.cc"
 #include "gx_resampler.cc"
+#include "impulse_former.cc"
+#include "ampulse_former.cc"
+
+
+static LV2_Worker_Status
+work(LV2_Handle                  instance,
+     LV2_Worker_Respond_Function respond,
+     LV2_Worker_Respond_Handle   handle,
+     uint32_t                    size,
+     const void*                 data)
+{
+  GXPlugin* self = (GXPlugin*)instance;
+  GXPluginURIs* uris        = &self->uris;
+  const LV2_Atom_Object* obj = (LV2_Atom_Object*)data;
+  if (obj->body.otype == uris->gx_cab) {
+    //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
+    float cab_irdata_c[cab_data_HighGain.ir_count];
+    self->impf->compute(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_irdata_c);
+   // cab_data_HighGain.ir_count, cab_data_HighGain.ir_data,cab_data_HighGain.ir_sr
+    if (!self->cabconv->update(cab_data_HighGain.ir_count, cab_irdata_c, cab_data_HighGain.ir_sr))
+    printf("cabconv->update fail.\n");
+    //printf("worker 1 ready.\n");
+  } else if (obj->body.otype == uris->gx_pre) {
+    //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
+    float pre_irdata_c[contrast_ir_desc.ir_count];
+    self->ampf->compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c);
+   // cab_data_HighGain.ir_count, cab_data_HighGain.ir_data,cab_data_HighGain.ir_sr
+    if (!self->ampconv->update(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
+    printf("cabconv->update fail.\n");
+    //printf("worker 2 ready.\n");
+  }
+  self->schedule_wait = false;
+  return LV2_WORKER_SUCCESS;
+}
+
+/**
+   Handle a response from work() in the audio thread.
+
+   When running normally, this will be called by the host after run().  When
+   freewheeling, this will be called immediately at the point the work was
+   scheduled.
+*/
+static LV2_Worker_Status
+work_response(LV2_Handle  instance,
+              uint32_t    size,
+              const void* data)
+{
+  printf("worker respose.\n");
+  return LV2_WORKER_SUCCESS;
+}
 
 // LV2 defines
 static LV2_Handle
@@ -91,25 +170,31 @@ instantiate(const LV2_Descriptor*     descriptor,
             const char*               bundle_path,
             const LV2_Feature* const* features)
 {
+  GXPlugin *self = new GXPlugin();
+  if (!self) {
+    return NULL;
+  }
+
   const LV2_Options_Option* options  = NULL;
-  LV2_URID_Map*             map      = NULL;
   uint32_t bufsize = 0;
 
   for (int i = 0; features[i]; ++i) {
     if (!strcmp(features[i]->URI, LV2_URID__map)) {
-      map = (LV2_URID_Map*)features[i]->data;
+      self->map = (LV2_URID_Map*)features[i]->data;
+    } else if (!strcmp(features[i]->URI, LV2_WORKER__schedule)) {
+        self->schedule = (LV2_Worker_Schedule*)features[i]->data;
     } else if (!strcmp(features[i]->URI, LV2_OPTIONS__options)) {
       options = (const LV2_Options_Option*)features[i]->data;
     }
   }
 
-  if (!map) {
+  if (!self->map) {
     fprintf(stderr, "Missing feature uri:map.\n");
   } else if (!options) {
     fprintf(stderr, "Missing feature options.\n");
   } else {
-    LV2_URID bufsz_max = map->map(map->handle, LV2_BUF_SIZE__maxBlockLength);
-    LV2_URID atom_Int = map->map(map->handle, LV2_ATOM__Int);
+    LV2_URID bufsz_max = self->map->map(self->map->handle, LV2_BUF_SIZE__maxBlockLength);
+    LV2_URID atom_Int = self->map->map(self->map->handle, LV2_ATOM__Int);
   
     for (const LV2_Options_Option* o = options; o->key; ++o) {
       if (o->context == LV2_OPTIONS_INSTANCE &&
@@ -129,10 +214,16 @@ instantiate(const LV2_Descriptor*     descriptor,
     }
     printf("using block size: %d\n", bufsize);
   }
-
+  
+  
   AVOIDDENORMALS();
-  GXPlugin *self = new GXPlugin();
+  
+  LV2_URID_Map*             map      = self->map;
+  map_gx_uris(map, &self->uris);
+  lv2_atom_forge_init(&self->forge, self->map);
+
   self->bufsize = bufsize;
+  self->schedule_wait = false;
   self->amplifier = new GxAmp();
   self->ts = new Tonestack();
   self->amplifier->init_static(rate, self->amplifier);
@@ -140,14 +231,61 @@ instantiate(const LV2_Descriptor*     descriptor,
     
   self->cabconv = new GxSimpleConvolver(self->resamp);
   self->cabconv->set_samplerate(rate);
-  if (bufsize) {
-    self->cabconv->set_buffersize(bufsize);
-    self->cabconv->configure(cab_data_4x12.ir_count, cab_data_4x12.ir_data,cab_data_4x12.ir_sr);
+  self->impf = new Impf();
+  self->impf->init_static(rate, self->impf);
+  
+  self->ampconv = new GxSimpleConvolver(self->resamp1);
+  self->ampconv->set_samplerate(rate);
+  self->ampf = new Ampf();
+  self->ampf->init_static(rate, self->ampf);
+  
+  if (self->bufsize ) {
+    self->cabconv->set_buffersize(self->bufsize);
+    self->cabconv->configure(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_data_HighGain.ir_sr);
     self->cabconv->start(0, 0);
+    
+    self->ampconv->set_buffersize(self->bufsize);
+    self->ampconv->configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
+    self->ampconv->start(0, 0);
   } else {
     printf("convolver disabled\n");
   }
   return (LV2_Handle)self;
+}
+
+void GXPlugin::connect(uint32_t port,void* data, GXPlugin* self)
+{
+    switch ((PortIndex)port) {
+      case AMP_MASTERGAIN:
+        break;
+      case AMP_PREGAIN:
+        break;
+      case AMP_WET_DRY:
+        break;
+      case AMP_DRIVE:
+        break;
+      case MID:
+        break;
+      case BASS:
+        break;
+      case TREBLE:
+        break;
+      case CLevel:
+        break;
+      case ALevel:
+        break;
+      case AMP_OUTPUT:
+        break;
+      case AMP_INPUT:
+        break;
+      case AMP_CONTROL:
+        self->c_notice = (LV2_Atom_Sequence*)data;
+        break;
+      case AMP_NOTIFY:
+        self->n_notice = (LV2_Atom_Sequence*)data;
+        break;
+    }
+    
 }
 
 static void
@@ -156,8 +294,11 @@ connect_port(LV2_Handle instance,
              void*      data)
 {
   GXPlugin* self = (GXPlugin*)instance;
+  self->connect(port,data, self);
   self->amplifier->connect_static(port,data, self->amplifier);
   self->ts->connect_static(port,data, self->ts);
+  self->impf->connect_static(port,data, self->impf);
+  self->ampf->connect_static(port,data, self->ampf);
 }
 
 static void
@@ -170,7 +311,26 @@ static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
   GXPlugin* self = (GXPlugin*)instance;
-  self->amplifier->run_static(n_samples, self->amplifier, instance);
+  //GXPluginURIs* uris        = &self->uris;
+  /* Set up forge to write directly to notify output port. */
+  const uint32_t notify_capacity = self->n_notice->atom.size;
+  lv2_atom_forge_set_buffer(&self->forge,
+                            (uint8_t*)self->n_notice,
+                            notify_capacity);
+
+  /* Start a sequence in the notify output port. */
+  lv2_atom_forge_sequence_head(&self->forge, &self->notify_frame, 0);
+
+  /* Read incoming events */
+  if (self->schedule_wait == false) {
+    LV2_ATOM_SEQUENCE_FOREACH(self->c_notice, ev) {
+        
+      self->schedule_wait = true;
+      self->schedule->schedule_work(self->schedule->handle, 
+            lv2_atom_total_size(&ev->body), &ev->body);
+    }
+  }
+  self->amplifier->run_static(n_samples, self);
 }
 
 static void
@@ -187,12 +347,19 @@ cleanup(LV2_Handle instance)
   delete self->amplifier;
   delete self->ts;
   delete self->cabconv;
+  delete self->impf;
+  delete self->ampconv;
+  delete self->ampf;
   delete self; 
 }
 
 const void*
 extension_data(const char* uri)
 {
+  static const LV2_Worker_Interface worker = { work, work_response, NULL };
+  if (!strcmp(uri, LV2_WORKER__interface)) {
+    return &worker;
+  }
   return NULL;
 }
 

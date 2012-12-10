@@ -73,7 +73,19 @@ Widget::Widget()
   m_smallknob3.set_show_value(false);
   m_smallknob3.signal_value_changed().connect(sigc::mem_fun(*this,
     &Widget::on_knob6_value_changed));
-  
+    
+  m_smallknob4.cp_configure("KNOB", "clevel", 0.5, 5, 0.5);
+  m_smallknob4.cp_set_value(clevel);
+  m_smallknob4.set_show_value(false);
+  m_smallknob4.signal_value_changed().connect(sigc::mem_fun(*this,
+    &Widget::on_knob7_value_changed));
+     
+  m_smallknob5.cp_configure("KNOB", "alevel", 0.5, 5, 0.5);
+  m_smallknob5.cp_set_value(alevel);
+  m_smallknob5.set_show_value(false);
+  m_smallknob5.signal_value_changed().connect(sigc::mem_fun(*this,
+    &Widget::on_knob8_value_changed));
+    
   Gxw::PaintBox *m_paintbox = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL,12,false);
   m_paintbox->show();
   m_paintbox->set_border_width(18);
@@ -83,6 +95,16 @@ Widget::Widget()
   m_hbox.property_paint_func() = "RackBox_expose";
   m_hbox.set_border_width(8);
   pack_start(*Gtk::manage(m_paintbox));
+  m_hbox_.set_spacing(22);
+  m_hbox_.set_homogeneous(false);
+  m_hbox1_.set_spacing(12);
+  m_paintbox->pack_start(m_vbox_);
+  m_vbox_.pack_start(m_hbox1_);
+  m_vbox_.pack_start(m_hbox_);
+  //m_vboxa.pack_start(m_vbox7);
+  m_hbox1_.pack_start(m_vbox2_, Gtk::PACK_EXPAND_PADDING);
+  m_hbox1_.pack_end(m_vbox7,Gtk::PACK_SHRINK);
+  m_hbox1_.pack_end(m_vbox8,Gtk::PACK_SHRINK);
   m_vbox.pack_start(m_vboxa, Gtk::PACK_EXPAND_PADDING);
   m_vbox.pack_start( *Gtk::manage(new Gtk::Label("Master Gain", 0)),Gtk::PACK_SHRINK);
   m_vbox.pack_start(m_bigknob,Gtk::PACK_SHRINK);
@@ -92,6 +114,7 @@ Widget::Widget()
   m_vbox2.pack_start(m_vboxc, Gtk::PACK_EXPAND_PADDING);
   m_vbox2.pack_start( *Gtk::manage(new Gtk::Label("Distortion", 0)),Gtk::PACK_SHRINK);
   m_vbox2.pack_start( m_bigknob2,Gtk::PACK_SHRINK);
+  //m_vboxd.pack_start(m_vbox8);
   m_vbox3.pack_start(m_vboxd, Gtk::PACK_EXPAND_PADDING); 
   m_vbox3.pack_start( *Gtk::manage(new Gtk::Label("Drive", 0)),Gtk::PACK_SHRINK);
   m_vbox3.pack_start( m_bigknob3,Gtk::PACK_SHRINK);
@@ -111,15 +134,26 @@ Widget::Widget()
   m_vbox6.pack_start(m_smallknob3,Gtk::PACK_SHRINK);
   m_vbox6.pack_start(m_vboxgg, Gtk::PACK_EXPAND_PADDING);
   
+  m_vbox7.pack_start(m_vboxh, Gtk::PACK_EXPAND_PADDING);
+  m_vbox7.pack_start( *Gtk::manage(new Gtk::Label("cabinet", 0)),Gtk::PACK_SHRINK);
+  m_vbox7.pack_start(m_smallknob4,Gtk::PACK_SHRINK);
+  m_vbox7.pack_start(m_vboxhh, Gtk::PACK_EXPAND_PADDING);
   
-  m_paintbox->pack_start(m_vbox1);
-  m_paintbox->pack_start(m_vbox2);
-  m_paintbox->pack_start(m_vbox3);
-  m_paintbox->pack_start(m_vbox);
+  m_vbox8.pack_start(m_vboxi, Gtk::PACK_EXPAND_PADDING);
+  m_vbox8.pack_start( *Gtk::manage(new Gtk::Label("presence", 0)),Gtk::PACK_SHRINK);
+  m_vbox8.pack_start(m_smallknob5,Gtk::PACK_SHRINK);
+  m_vbox8.pack_start(m_vboxii, Gtk::PACK_EXPAND_PADDING);
   
+  m_hbox_.pack_start(m_vbox1);
+  m_hbox_.pack_start(m_vbox2);
+  m_hbox_.pack_start(m_vbox3);
+  m_hbox_.pack_start(m_vbox);
+  
+  //m_hbox.pack_start(m_vbox8);
   m_hbox.pack_start(m_vbox5);
   m_hbox.pack_start(m_vbox4);
   m_hbox.pack_start(m_vbox6);
+  //m_hbox.pack_start(m_vbox7);
   m_hbox.set_spacing(5);
   m_paintbox->pack_start(m_hbox);
   
@@ -167,6 +201,14 @@ void Widget::set_value(uint32_t port_index,
             treble = value;
             m_smallknob3.cp_set_value(treble);
             break;
+        case 7:
+            clevel = value;
+            m_smallknob4.cp_set_value(clevel);
+            break;
+        case 8:
+            alevel = value;
+            m_smallknob5.cp_set_value(alevel);
+            break;
     }
   }
 }
@@ -190,6 +232,7 @@ void Widget::on_knob2_value_changed()
   //std::cout << "wet_dry = " << wet_dry << std::endl;
   write_function( controller, 2, sizeof(float), 0, (const void*)&wet_dry);
 }
+
 void Widget::on_knob3_value_changed()
 {
   drive = m_bigknob3.get_value();
@@ -213,4 +256,41 @@ void Widget::on_knob6_value_changed()
   treble = m_smallknob3.get_value();
   //std::cout << "treble = " << treble << std::endl;
   write_function( controller, 6, sizeof(float), 0, (const void*)&treble);
+}
+
+void Widget::on_knob7_value_changed()
+{
+  clevel = m_smallknob4.get_value();
+  //std::cout << "treble = " << treble << std::endl;
+  write_function( controller, 7, sizeof(float), 0, (const void*)&clevel);
+  
+    uint32_t OBJ_BUF_SIZE = sizeof(uris)+1;
+    uint8_t obj_buf[OBJ_BUF_SIZE];
+	lv2_atom_forge_set_buffer(&forge, obj_buf, OBJ_BUF_SIZE);
+
+	LV2_Atom* msg = write_set_cab(&forge, &uris);
+
+	write_function(controller, 11, lv2_atom_total_size(msg),
+	          uris.atom_eventTransfer,
+	          msg);
+  
+  
+}
+void Widget::on_knob8_value_changed()
+{
+  alevel = m_smallknob5.get_value();
+  //std::cout << "treble = " << treble << std::endl;
+  write_function( controller, 8, sizeof(float), 0, (const void*)&alevel);
+  
+    uint32_t OBJ_BUF_SIZE = sizeof(uris)+1;
+    uint8_t obj_buf[OBJ_BUF_SIZE];
+	lv2_atom_forge_set_buffer(&forge, obj_buf, OBJ_BUF_SIZE);
+
+	LV2_Atom* msg = write_set_pre(&forge, &uris);
+
+	write_function(controller, 11, lv2_atom_total_size(msg),
+	          uris.atom_eventTransfer,
+	          msg);
+  
+  
 }

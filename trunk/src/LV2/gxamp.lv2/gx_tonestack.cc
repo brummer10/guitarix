@@ -53,11 +53,19 @@ void Tonestack::connect(uint32_t port,void* data)
       case TREBLE:
         fslider2_ = (float*)data;
         break;
+      case CLevel:
+        break;
+      case ALevel:
+        break;
       case AMP_OUTPUT:
         //output = (float*)data;
         break;
       case AMP_INPUT:
         //input = (float*)data;
+        break;
+      case AMP_CONTROL:
+        break;
+      case AMP_NOTIFY:
         break;
     }
 }
@@ -105,16 +113,16 @@ inline void Tonestack::run(uint32_t n_samples, float *output) //sovtek
 
 void Tonestack::init_static(unsigned int samplingFreq, Tonestack *p)
 {
-	static_cast<Tonestack*>(p)->init(samplingFreq);
+	p->init(samplingFreq);
 }
 
 void Tonestack::connect_static(uint32_t port,void* data, Tonestack *p)
 {
-	static_cast<Tonestack*>(p)->connect(port, data);
+	p->connect(port, data);
 }
 
 void Tonestack::run_static(uint32_t n_samples, Tonestack *p, float *output)
 {
-	static_cast<Tonestack*>(p)->run(n_samples, output);
+	p->run(n_samples, output);
 }
 

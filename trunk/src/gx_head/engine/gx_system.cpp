@@ -540,7 +540,7 @@ void CmdlineOptions::process(int argc, char** argv) {
 	    (boost::format(_("invalid style '%1%' on command line"))
 	     % rcset).str());
     }
-    if (jack_outputs.size() >= 2) {
+    if (jack_outputs.size() > 2) {
 	gx_print_warning(
 	    _("main"),
 	    _("Warning --> provided more than 2 output ports, ignoring extra ports"));

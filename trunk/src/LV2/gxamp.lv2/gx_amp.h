@@ -147,11 +147,11 @@ private:
 	void clear_state_f();
     void init(unsigned int samplingFreq);
     void connect(uint32_t port,void* data);
-    void run(uint32_t n_samples, LV2_Handle instance);
+    void run(uint32_t n_samples, GXPlugin *self);
 public:
     static void init_static(unsigned int samplingFreq, GxAmp*);
     static void connect_static(uint32_t port,void* data, GxAmp *p);
-    static void run_static(uint32_t n_samples, GxAmp *p, LV2_Handle instance);
+    static void run_static(uint32_t n_samples,GXPlugin *self);
 	GxAmp() {};
 	~GxAmp() {};
 };
