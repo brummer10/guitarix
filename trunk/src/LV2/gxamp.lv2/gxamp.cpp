@@ -187,7 +187,11 @@ instantiate(const LV2_Descriptor*     descriptor,
       options = (const LV2_Options_Option*)features[i]->data;
     }
   }
-
+  if (!self->schedule) {
+    fprintf(stderr, "Missing feature work:schedule.\n");
+    delete self; 
+    return NULL;
+  }
   if (!self->map) {
     fprintf(stderr, "Missing feature uri:map.\n");
   } else if (!options) {
@@ -208,10 +212,10 @@ instantiate(const LV2_Descriptor*     descriptor,
       fprintf(stderr, "No maximum buffer size given.\n");
     }
 
-    if (bufsize < 64 || bufsize > 8192 ) {
-      fprintf(stderr, "unsupported block-size: %d\n", bufsize);
-      bufsize = 0;
-    }
+    //if (bufsize < 64 || bufsize > 8192 ) {
+    //  fprintf(stderr, "unsupported block-size: %d\n", bufsize);
+    //  bufsize = 0;
+    //}
     printf("using block size: %d\n", bufsize);
   }
   
@@ -242,11 +246,11 @@ instantiate(const LV2_Descriptor*     descriptor,
   if (self->bufsize ) {
     self->cabconv->set_buffersize(self->bufsize);
     self->cabconv->configure(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_data_HighGain.ir_sr);
-    self->cabconv->start(0, 0);
+    self->cabconv->start(0, SCHED_FIFO);
     
     self->ampconv->set_buffersize(self->bufsize);
     self->ampconv->configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
-    self->ampconv->start(0, 0);
+    self->ampconv->start(0, SCHED_FIFO);
   } else {
     printf("convolver disabled\n");
   }
