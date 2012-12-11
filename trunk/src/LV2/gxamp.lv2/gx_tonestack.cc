@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,108 +21,108 @@
 
 inline void Tonestack::clear_state_f()
 {
-	for (int i=0; i<4; i++) fRec0[i] = 0;
+  for (int i=0; i<4; i++) fRec0[i] = 0;
 }
 
 inline void Tonestack::init(unsigned int samplingFreq)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (2 * double(min(192000, max(1, fSamplingFreq))));
-	fConst1 = faustpower<2>(fConst0);
-	fConst2 = (3 * fConst0);
-	clear_state_f();
+  fSamplingFreq = samplingFreq;
+  fConst0 = (2 * double(min(192000, max(1, fSamplingFreq))));
+  fConst1 = faustpower<2>(fConst0);
+  fConst2 = (3 * fConst0);
+  clear_state_f();
 }
 
 void Tonestack::connect(uint32_t port,void* data)
 {
-    switch ((PortIndex)port) {
-      case AMP_MASTERGAIN:
-        break;
-      case AMP_PREGAIN:
-        break;
-      case AMP_WET_DRY:
-        break;
-      case AMP_DRIVE:
-        break;
-      case MID:
-        fslider0_ = (float*)data;
-        break;
-      case BASS:
-        fslider1_ = (float*)data;
-        break;
-      case TREBLE:
-        fslider2_ = (float*)data;
-        break;
-      case CLevel:
-        break;
-      case ALevel:
-        break;
-      case AMP_OUTPUT:
-        //output = (float*)data;
-        break;
-      case AMP_INPUT:
-        //input = (float*)data;
-        break;
-      case AMP_CONTROL:
-        break;
-      case AMP_NOTIFY:
-        break;
+  switch ((PortIndex)port)
+    {
+    case AMP_MASTERGAIN:
+      break;
+    case AMP_PREGAIN:
+      break;
+    case AMP_WET_DRY:
+      break;
+    case AMP_DRIVE:
+      break;
+    case MID:
+      fslider0_ = (float*)data;
+      break;
+    case BASS:
+      fslider1_ = (float*)data;
+      break;
+    case TREBLE:
+      fslider2_ = (float*)data;
+      break;
+    case CLevel:
+      break;
+    case ALevel:
+      break;
+    case AMP_OUTPUT:
+      break;
+    case AMP_INPUT:
+      break;
+    case AMP_CONTROL:
+      break;
+    case AMP_NOTIFY:
+      break;
     }
 }
 
 inline void Tonestack::run(uint32_t n_samples, float *output) //sovtek
 {
-    float fslider0 = *fslider0_;
-    float fslider1 = *fslider1_;
-    float fslider2 = *fslider2_;
-	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (4.9434000000000004e-08 * fSlow0);
-	double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
-	double 	fSlow3 = (7.748796000000001e-07 + ((2.8889960000000004e-05 * fSlow2) + (fSlow0 * (((4.943400000000001e-06 * fSlow2) - 1.2634599999999999e-07) - fSlow1))));
-	double 	fSlow4 = ((1.2443156000000004e-09 * fSlow2) - (1.2443156000000002e-11 * fSlow0));
-	double 	fSlow5 = (5.345780000000001e-09 * fSlow2);
-	double 	fSlow6 = (5.345780000000001e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 4.101464400000001e-11))));
-	double 	fSlow7 = (fConst0 * fSlow6);
-	double 	fSlow8 = (0.00022 * fSlow0);
-	double 	fSlow9 = (0.022470000000000004 * fSlow2);
-	double 	fSlow10 = (fConst0 * (0.0025277 + (fSlow9 + fSlow8)));
-	double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
-	double 	fSlow12 = (fConst2 * fSlow6);
-	double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
-	double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
-	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
-	double 	fSlow16 = fslider2;
-	double 	fSlow17 = ((fSlow0 * (1.2443156000000002e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (5.345780000000001e-11 - (5.345780000000001e-11 * fSlow0)))));
-	double 	fSlow18 = (fConst2 * fSlow17);
-	double 	fSlow19 = (6.141960000000001e-08 + (((4.859800000000001e-07 * fSlow16) + (fSlow0 * (1.0113400000000001e-07 - fSlow1))) + (fSlow2 * (6.141960000000001e-06 + (4.943400000000001e-06 * fSlow0)))));
-	double 	fSlow20 = (0.00022470000000000001 + (fSlow9 + (fSlow8 + (0.00023500000000000002 * fSlow16))));
-	double 	fSlow21 = (fConst0 * fSlow20);
-	double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
-	double 	fSlow23 = (fConst0 * fSlow17);
-	double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
-	double 	fSlow25 = (fConst0 * (0 - fSlow20));
-	double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
-	double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
-	for (uint32_t i=0; i<n_samples; i++) {
-		fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-		output[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
-		// post processing
-		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
-	}
+  float fslider0 = *fslider0_;
+  float fslider1 = *fslider1_;
+  float fslider2 = *fslider2_;
+  double 	fSlow0 = fslider0;
+  double 	fSlow1 = (4.9434000000000004e-08 * fSlow0);
+  double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+  double 	fSlow3 = (7.748796000000001e-07 + ((2.8889960000000004e-05 * fSlow2) + (fSlow0 * (((4.943400000000001e-06 * fSlow2) - 1.2634599999999999e-07) - fSlow1))));
+  double 	fSlow4 = ((1.2443156000000004e-09 * fSlow2) - (1.2443156000000002e-11 * fSlow0));
+  double 	fSlow5 = (5.345780000000001e-09 * fSlow2);
+  double 	fSlow6 = (5.345780000000001e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 4.101464400000001e-11))));
+  double 	fSlow7 = (fConst0 * fSlow6);
+  double 	fSlow8 = (0.00022 * fSlow0);
+  double 	fSlow9 = (0.022470000000000004 * fSlow2);
+  double 	fSlow10 = (fConst0 * (0.0025277 + (fSlow9 + fSlow8)));
+  double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+  double 	fSlow12 = (fConst2 * fSlow6);
+  double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+  double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+  double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+  double 	fSlow16 = fslider2;
+  double 	fSlow17 = ((fSlow0 * (1.2443156000000002e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (5.345780000000001e-11 - (5.345780000000001e-11 * fSlow0)))));
+  double 	fSlow18 = (fConst2 * fSlow17);
+  double 	fSlow19 = (6.141960000000001e-08 + (((4.859800000000001e-07 * fSlow16) + (fSlow0 * (1.0113400000000001e-07 - fSlow1))) + (fSlow2 * (6.141960000000001e-06 + (4.943400000000001e-06 * fSlow0)))));
+  double 	fSlow20 = (0.00022470000000000001 + (fSlow9 + (fSlow8 + (0.00023500000000000002 * fSlow16))));
+  double 	fSlow21 = (fConst0 * fSlow20);
+  double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+  double 	fSlow23 = (fConst0 * fSlow17);
+  double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+  double 	fSlow25 = (fConst0 * (0 - fSlow20));
+  double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+  double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+  for (uint32_t i=0; i<n_samples; i++)
+    {
+      fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+      output[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      // post processing
+      for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+    }
 }
 
 void Tonestack::init_static(unsigned int samplingFreq, Tonestack *p)
 {
-	p->init(samplingFreq);
+  p->init(samplingFreq);
 }
 
 void Tonestack::connect_static(uint32_t port,void* data, Tonestack *p)
 {
-	p->connect(port, data);
+  p->connect(port, data);
 }
 
 void Tonestack::run_static(uint32_t n_samples, Tonestack *p, float *output)
 {
-	p->run(n_samples, output);
+  p->run(n_samples, output);
 }
 

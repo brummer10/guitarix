@@ -38,7 +38,7 @@ static image_entry image_data[] = {
 	{ "minitoggle_on", pb_minitoggle_on },
 	{ "hslider", pb_hslider },
 	{ "smallknob", pb_smallknob1 },
-	{ "smallknobr", pb_smallknob1 },
+	{ "smallknobr", pb_knob_medium },
 	{ "switchit_off", pb_switchit_off },
 	{ "switchit_on", pb_switchit_on },
 	{ "switch_off", pb_switch_off },

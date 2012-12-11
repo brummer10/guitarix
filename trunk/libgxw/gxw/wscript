@@ -55,7 +55,8 @@ def build_stock_images(bld):
         "portdisplay.png",
         "texture_cab.png",
         "guitarix.png",
-        "screw.png"
+        "screw.png",
+        "knob_medium.png"
         ]
 
     bld(name = "img2c",

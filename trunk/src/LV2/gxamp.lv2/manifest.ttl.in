@@ -21,6 +21,6 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 <http://guitarix.sourceforge.net/plugins/gxamp>
-	a lv2:Plugin ;
-	lv2:binary <gxamp@LIB_EXT@>  ;
-	rdfs:seeAlso <gxamp.ttl> .
+    a lv2:Plugin ;
+    lv2:binary <gxamp@LIB_EXT@>  ;
+    rdfs:seeAlso <gxamp.ttl> .

@@ -71,7 +71,7 @@ static void vslider_expose(
 	gdk_pixbuf_copy_area(image, 0, rect->height, rect->width, slider_height,
 	                     image1, 0, rect->height-(int)sliderstate-slider_height);
 	if (has_focus) {
-		gdk_pixbuf_saturate_and_pixelate(image1, image1, sat, FALSE);
+		//gdk_pixbuf_saturate_and_pixelate(image1, image1, sat, FALSE);
 		if (paint_focus) {
 			gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
 			                rect->x, rect->y, rect->width, rect->height);

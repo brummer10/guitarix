@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -28,9 +28,9 @@
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
-#include "lv2/lv2plug.in/ns/ext/log/log.h"
-#include "lv2/lv2plug.in/ns/ext/worker/worker.h"
-#include "lv2/lv2plug.in/ns/ext/patch/patch.h"
+#include <lv2/lv2plug.in/ns/ext/log/log.h>
+#include <lv2/lv2plug.in/ns/ext/worker/worker.h>
+#include <lv2/lv2plug.in/ns/ext/patch/patch.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxamp"
 #define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxamp/gui"
@@ -40,7 +40,26 @@
 #define GXPlugin__cab        GXPLUGIN_URI "#cab"
 #define GXPlugin__pre        GXPLUGIN_URI "#pre"
 
-typedef struct {
+typedef enum
+{
+  AMP_MASTERGAIN = 0,
+  AMP_PREGAIN,
+  AMP_WET_DRY,
+  AMP_DRIVE,
+  MID,
+  BASS,
+  TREBLE,
+  CLevel,
+  ALevel,
+  AMP_OUTPUT,
+  AMP_INPUT,
+  AMP_CONTROL,
+  AMP_NOTIFY,
+} PortIndex;
+
+
+typedef struct
+{
   LV2_URID atom_Blank;
   LV2_URID atom_Float;
   LV2_URID atom_Int;
@@ -52,7 +71,8 @@ typedef struct {
 } GXPluginURIs;
 
 static inline void
-map_gx_uris(LV2_URID_Map* map, GXPluginURIs* uris) {
+map_gx_uris(LV2_URID_Map* map, GXPluginURIs* uris)
+{
   uris->atom_Blank          = map->map(map->handle, LV2_ATOM__Blank);
   uris->atom_Float          = map->map(map->handle, LV2_ATOM__Float);
   uris->atom_Int            = map->map(map->handle, LV2_ATOM__Int);
@@ -65,52 +85,52 @@ map_gx_uris(LV2_URID_Map* map, GXPluginURIs* uris) {
 
 static inline LV2_Atom*
 write_set_cab(LV2_Atom_Forge*    forge,
-               const GXPluginURIs* uris)
+              const GXPluginURIs* uris)
 {
-    LV2_Atom_Forge_Frame set_frame;
-    LV2_Atom* set = (LV2_Atom*)lv2_atom_forge_blank(
-    forge, &set_frame, 1, uris->gx_cab);
-    lv2_atom_forge_pop(forge, &set_frame);
-    return set;
+  LV2_Atom_Forge_Frame set_frame;
+  LV2_Atom* set = (LV2_Atom*)lv2_atom_forge_blank(
+                    forge, &set_frame, 1, uris->gx_cab);
+  lv2_atom_forge_pop(forge, &set_frame);
+  return set;
 }
 
 static inline LV2_Atom*
 write_set_pre(LV2_Atom_Forge*    forge,
-               const GXPluginURIs* uris)
+              const GXPluginURIs* uris)
 {
-    LV2_Atom_Forge_Frame set_frame;
-    LV2_Atom* set = (LV2_Atom*)lv2_atom_forge_blank(
-    forge, &set_frame, 1, uris->gx_pre);
-    lv2_atom_forge_pop(forge, &set_frame);
-    return set;
+  LV2_Atom_Forge_Frame set_frame;
+  LV2_Atom* set = (LV2_Atom*)lv2_atom_forge_blank(
+                    forge, &set_frame, 1, uris->gx_pre);
+  lv2_atom_forge_pop(forge, &set_frame);
+  return set;
 }
 
 static inline LV2_Atom*
 write_set_float(LV2_Atom_Forge*    forge,
-               const GXPluginURIs* uris,
-               float        value)
+                const GXPluginURIs* uris,
+                float        value)
 {
-    LV2_Atom_Forge_Frame set_frame;
-    LV2_Atom* set = (LV2_Atom*)lv2_atom_forge_resource(
-    forge, &set_frame, 1, uris->atom_Float);
-    lv2_atom_forge_float(forge, value);
-    lv2_atom_forge_pop(forge, &set_frame);
-    
-    return set;
+  LV2_Atom_Forge_Frame set_frame;
+  LV2_Atom* set = (LV2_Atom*)lv2_atom_forge_resource(
+                    forge, &set_frame, 1, uris->atom_Float);
+  lv2_atom_forge_float(forge, value);
+  lv2_atom_forge_pop(forge, &set_frame);
+
+  return set;
 }
 
 static inline LV2_Atom*
 write_set_int(LV2_Atom_Forge*    forge,
-               const GXPluginURIs* uris,
-               int        value)
+              const GXPluginURIs* uris,
+              int        value)
 {
-    LV2_Atom_Forge_Frame set_frame;
-	LV2_Atom* set = (LV2_Atom*)lv2_atom_forge_resource(
-    forge, &set_frame, 1, uris->atom_Int);
-	lv2_atom_forge_int(forge, value);
-	lv2_atom_forge_pop(forge, &set_frame);
-    
-    return set;
+  LV2_Atom_Forge_Frame set_frame;
+  LV2_Atom* set = (LV2_Atom*)lv2_atom_forge_resource(
+                    forge, &set_frame, 1, uris->atom_Int);
+  lv2_atom_forge_int(forge, value);
+  lv2_atom_forge_pop(forge, &set_frame);
+
+  return set;
 }
 
 #endif //SRC_HEADERS_GXAMP_H_
