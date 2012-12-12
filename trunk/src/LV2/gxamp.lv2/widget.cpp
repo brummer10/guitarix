@@ -88,23 +88,21 @@ Widget::Widget()
 
   Gxw::PaintBox *m_paintbox = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL,12,false);
   m_paintbox->show();
-  m_paintbox->set_border_width(18);
+  m_paintbox->set_border_width(38);
   m_paintbox->set_spacing(22);
   m_paintbox->set_homogeneous(false);
-  m_paintbox->property_paint_func() = "gxhead_expose";
-  m_hbox.property_paint_func() = "RackBox_expose";
+  m_paintbox->property_paint_func() = "amp_skin_expose";
+  
   m_hbox.set_border_width(8);
   pack_start(*Gtk::manage(m_paintbox));
   m_hbox_.set_spacing(22);
   m_hbox_.set_homogeneous(false);
   m_hbox1_.set_spacing(12);
   m_paintbox->pack_start(m_vbox_);
-  m_vbox_.pack_start(m_hbox1_);
-  m_vbox_.pack_start(m_hbox_);
+  m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
+  m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
 
   m_hbox1_.pack_start(m_vbox2_, Gtk::PACK_EXPAND_PADDING);
-  m_hbox1_.pack_end(m_vbox7,Gtk::PACK_SHRINK);
-  m_hbox1_.pack_end(m_vbox8,Gtk::PACK_SHRINK);
   m_vbox.pack_start(m_vboxa, Gtk::PACK_EXPAND_PADDING);
   m_vbox.pack_start( *Gtk::manage(new Gtk::Label("Master Gain", 0)),Gtk::PACK_SHRINK);
   m_vbox.pack_start(m_bigknob,Gtk::PACK_SHRINK);
@@ -137,25 +135,31 @@ Widget::Widget()
   m_vbox7.pack_start(m_vboxh, Gtk::PACK_EXPAND_PADDING);
   m_vbox7.pack_start( *Gtk::manage(new Gtk::Label("cabinet", 0)),Gtk::PACK_SHRINK);
   m_vbox7.pack_start(m_smallknob4,Gtk::PACK_SHRINK);
+  m_vbox7.pack_start(m_vboxhi, Gtk::PACK_EXPAND_PADDING);
 
   m_vbox8.pack_start(m_vboxi, Gtk::PACK_EXPAND_PADDING);
   m_vbox8.pack_start( *Gtk::manage(new Gtk::Label("presence", 0)),Gtk::PACK_SHRINK);
   m_vbox8.pack_start(m_smallknob5,Gtk::PACK_SHRINK);
+  m_vbox8.pack_start(m_vboxih, Gtk::PACK_EXPAND_PADDING);
 
+  m_hbox_.pack_start(m_vboxhh);
   m_hbox_.pack_start(m_vbox1);
   m_hbox_.pack_start(m_vbox2);
   m_hbox_.pack_start(m_vbox3);
+  m_hbox_.pack_start(m_vbox7);
+  m_hbox_.pack_start(m_vbox8);
   m_hbox_.pack_start(m_vbox);
 
   m_hbox.pack_start(m_vbox5);
   m_hbox.pack_start(m_vbox4);
   m_hbox.pack_start(m_vbox6);
+  m_hbox.pack_start(m_vboxii);
 
   m_hbox.set_spacing(5);
-  m_paintbox->pack_start(m_hbox);
+  m_hbox_.pack_start(m_hbox);
 
   show_all();
-  set_size_request(-1,-1);
+  set_size_request(750,285);
 }
 
 Widget::~Widget()

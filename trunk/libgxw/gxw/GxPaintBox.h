@@ -52,6 +52,7 @@ struct _GxPaintBoxClass {
 	const gchar *widget_id2;
     const gchar *widget_id3;
     const gchar *cab_id;
+    const gchar *amp_id;
 };
 
 GType gx_paint_box_get_type(void) G_GNUC_CONST;

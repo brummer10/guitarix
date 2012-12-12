@@ -599,23 +599,23 @@ def configure(conf):
         conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
         conf.cfg_get_variable(package='pygobject-2.0', variable='codegendir')
 
-    # config subdirs
-    conf.sub_config('pygxw');
-    conf.sub_config('glade-gxw');
-    conf.sub_config('libgxwmm');
-    conf.sub_config('libgxw/gxw');
-    #conf.sub_config('src/LV2/gxamp.lv2')
-
     conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
     conf.sub_config('src/plugins');
     if conf.env["LADSPA"]:   
         conf.sub_config('ladspa');
-    if conf.env["LV2"]:   
+    if conf.env["LV2"]:
+        conf.env["GX_LIB_SHARED"] = True  
         conf.sub_config('src/LV2/gxamp.lv2');
         pa = '.so'
         sub_file('./src/LV2/gxamp.lv2/manifest.ttl.in', './src/LV2/gxamp.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+        # config subdirs
+    conf.sub_config('pygxw');
+    conf.sub_config('glade-gxw');
+    conf.sub_config('libgxwmm');
+    conf.sub_config('libgxw/gxw');
+
     conf.sub_config('rcstyles');
     if conf.env["GX_LIB_DEV"]:
         pa = conf.env['PREFIX']

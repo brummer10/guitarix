@@ -24,6 +24,7 @@
 #include <gtkmm.h>
 #include "gxamp.h"
 #include "widget.h"
+#include "../config.h"
 
 #include <lv2.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
@@ -42,8 +43,11 @@ struct GXPluginGUI
 
 static GtkWidget* make_gui(GXPluginGUI *self)
 {
-  // Gtk::Main::init_gtkmm_internals();
-  gtk_rc_parse_string ("style \"gx_head_dark-paintbox\"\n"
+  std::string toparse = "pixmap_path  ";
+        toparse +=     " '";
+        toparse +=        GX_STYLE_DIR;
+        toparse +=     "/'\n";
+        toparse +=     "style \"gx_head_dark-paintbox\"\n"
                        " { \n"
                        "    GxPaintBox::skin-gradient = {\n"
                        "    { 65536, 0, 0, 13107, 52428 },\n"
@@ -55,9 +59,13 @@ static GtkWidget* make_gui(GXPluginGUI *self)
                        "    { 52428, 8, 8, 80, 33107 },\n"
                        "    { 65536, 4, 4, 4, 42428 }}\n"
                        "    GxPaintBox::icon-set =9\n"
+                       "    stock['amp_skin'] = {{'amp21.png'}}\n"
                        " }\n"
                        "\n"
-                       "class \"*GxPaintBox\" style \"gx_head_dark-paintbox\"");
+                       "class \"*GxPaintBox\" style \"gx_head_dark-paintbox\"";
+    
+  // Gtk::Main::init_gtkmm_internals();
+  gtk_rc_parse_string (toparse.c_str());
 
   GtkWidget* container = gtk_vbox_new(FALSE, 2);
   self->widget = new Widget();

@@ -49,6 +49,7 @@ G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
 #define get_widget_id2(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id2)
 #define get_widget_id3(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id3)
 #define get_cab_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->cab_id)
+#define get_amp_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->amp_id)
 
 
 static void gx_paint_box_class_init (GxPaintBoxClass *klass)
@@ -67,6 +68,7 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
     klass->widget_id2 = "gxplate2";
     klass->widget_id3 = "gxplate3";
     klass->cab_id = "texture_cab";
+    klass->amp_id = "amp_skin";
 	g_object_class_install_property(
 		gobject_class, PROP_PAINT_FUNC,
 		g_param_spec_string("paint-func",
@@ -200,12 +202,12 @@ static void gx_paint_box_destroy(GtkObject *object)
 		g_free(paint_box->paint_func);
 		paint_box->paint_func = NULL;
 	}
-	if (G_IS_OBJECT(paint_box->gxh_image)) {
-		g_object_unref(paint_box->gxh_image);
+	while (G_IS_OBJECT(paint_box->gxh_image)) {
+        g_object_unref(paint_box->gxh_image);
 	}
 	paint_box->gxh_image = NULL;
-	if (G_IS_OBJECT(paint_box->gxr_image)) {
-		g_object_unref(paint_box->gxr_image);
+	while (G_IS_OBJECT(paint_box->gxr_image)) {
+        g_object_unref(paint_box->gxr_image);
 	}
 	paint_box->gxr_image = NULL;
 	GTK_OBJECT_CLASS(gx_paint_box_parent_class)->destroy(object);
@@ -2359,6 +2361,36 @@ static void main_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gdk_region_destroy (region);   
 }
 
+static void amp_skin_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+    GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+    GxPaintBox *paintbox = GX_PAINT_BOX(wi);
+    gint x0      = wi->allocation.x;
+	gint y0      = wi->allocation.y;
+	gint w      = wi->allocation.width;
+	gint h      = wi->allocation.height;
+    static double ne_w = 0.;
+	if (ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
+		ne_w = w*h;
+		while (G_IS_OBJECT(paintbox-> gxr_image)) {
+			g_object_unref(paintbox->gxr_image);
+		}
+        GdkPixbuf  *stock_image = gtk_widget_render_icon(
+            wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
+        paintbox->gxr_image = gdk_pixbuf_scale_simple(
+			stock_image,wi->allocation.width ,wi->allocation.height , GDK_INTERP_NEAREST);
+        g_object_unref(stock_image);
+        //paintbox-> gxr_image = gtk_widget_render_icon(wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
+    }
+    gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	                paintbox-> gxr_image, 0, 0,
+	                x0, y0, w,h,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+    gdk_region_destroy (region);  
+}
+
 static void level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
@@ -2489,6 +2521,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 	    paint_box->expose_func = cab_expose;
 	} else if (strcmp(paint_func, "cabinet_expose") == 0) {
 	    paint_box->expose_func = cabinet_expose;
+	} else if (strcmp(paint_func, "amp_skin_expose") == 0) {
+	    paint_box->expose_func = amp_skin_expose;
 	} else {
 		paint_box->expose_func = 0;
 	}

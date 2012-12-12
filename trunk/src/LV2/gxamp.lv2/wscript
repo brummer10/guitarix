@@ -76,3 +76,4 @@ def build(bld):
 
     bld.install_files('${LV2DIR}/gxamp.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gxamp.lv2', 'gxamp.ttl')
+    bld.install_files('${GX_STYLE_DIR}/', 'amp21.png')
