@@ -45,23 +45,24 @@ def build(bld):
         )
     lv2_plugin.env['shlib_PATTERN'] = '%s.so'
     
-    uselib_local = []
-    libpath = []
+    uselib_local1 = []
+    libpath1 = []
+    lib1 = []
     incl = ['../../../libgxwmm','../../../libgxw']
     if bld.env["GX_LIB_SHARED"]:
-        lib += ['gxwmm','gxw']
-        libpath += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
+        lib1 += ['gxwmm','gxw']
+        libpath1 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
                     bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
     else:
-        uselib_local += ['gxwmm','gxw']
+        uselib_local1 += ['gxwmm','gxw']
     
     lv2_plugin_gui = bld(
         features='cxx cshlib ',
         includes = incl,
-        lib = lib,
+        lib = lib1,
         uselib = 'LV2CORE GTKMM',
-        libpath = libpath,
-        uselib_local = uselib_local,
+        libpath = libpath1,
+        uselib_local = uselib_local1,
         linkflags = '-Wl,-z,nodelete',
         defines  = ["LV2_GUI"],
         target   = 'gxamp_gui',
