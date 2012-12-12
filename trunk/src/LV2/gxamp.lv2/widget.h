@@ -32,7 +32,7 @@
 class Widget : public Gtk::VBox
 {
 private:
-
+  bool _expose_event(GdkEventExpose *event);
   void set_value(uint32_t port_index,
                  uint32_t format,
                  const void * buffer);
@@ -78,6 +78,7 @@ protected:
   Gtk::VBox      m_vboxg,m_vboxgg;
   Gtk::VBox      m_vboxh,m_vboxhh,m_vboxhi;
   Gtk::VBox      m_vboxi,m_vboxii,m_vboxih;
+  Gxw::PaintBox  m_paintbox;
   //Gtk::HBox      m_paintbox;
   Gtk::HBox      m_hbox;
   Gxw::BigKnob   m_bigknob;

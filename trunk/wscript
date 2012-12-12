@@ -534,7 +534,7 @@ def configure(conf):
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
     if opt.build_lv2:
-        conf.check_cfg(package='lv2core',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
+        conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
     if not opt.no_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
 

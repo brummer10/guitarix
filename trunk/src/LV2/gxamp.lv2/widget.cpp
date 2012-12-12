@@ -86,19 +86,21 @@ Widget::Widget()
   m_smallknob5.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob8_value_changed));
 
-  Gxw::PaintBox *m_paintbox = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL,12,false);
-  m_paintbox->show();
-  m_paintbox->set_border_width(38);
-  m_paintbox->set_spacing(22);
-  m_paintbox->set_homogeneous(false);
-  m_paintbox->property_paint_func() = "amp_skin_expose";
+  //Gxw::PaintBox *m_paintbox = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL,12,false);
+  m_paintbox.show();
+  m_paintbox.set_border_width(30);
+  m_paintbox.set_spacing(12);
+  m_paintbox.set_homogeneous(false);
+  m_paintbox.property_paint_func() = "amp_skin_expose";
   
   m_hbox.set_border_width(8);
-  pack_start(*Gtk::manage(m_paintbox));
-  m_hbox_.set_spacing(22);
+  pack_start(m_paintbox);
+  m_hbox_.set_spacing(12);
   m_hbox_.set_homogeneous(false);
   m_hbox1_.set_spacing(12);
-  m_paintbox->pack_start(m_vbox_);
+  m_hbox1_.set_border_width(65);
+  
+  m_paintbox.pack_start(m_vbox_);
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
 
@@ -154,17 +156,26 @@ Widget::Widget()
   m_hbox.pack_start(m_vbox4);
   m_hbox.pack_start(m_vbox6);
   m_hbox.pack_start(m_vboxii);
+  //m_vboxii.set_border_width(18);
 
   m_hbox.set_spacing(5);
   m_hbox_.pack_start(m_hbox);
-
+  m_paintbox.signal_expose_event().connect(
+	    sigc::mem_fun(this, &Widget::_expose_event), true);
   show_all();
-  set_size_request(750,285);
+  //set_size_request(-1,-1); // 750, 285 
 }
 
 Widget::~Widget()
 {
 
+}
+
+bool Widget::_expose_event(GdkEventExpose *event) {
+    int x, y, width, height, depth;
+    m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
+    m_paintbox.set_border_width(height/10);
+    return false;
 }
 
 void Widget::set_value(uint32_t port_index,
