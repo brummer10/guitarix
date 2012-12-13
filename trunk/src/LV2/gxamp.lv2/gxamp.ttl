@@ -30,6 +30,12 @@
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 @prefix work:  <http://lv2plug.in/ns/ext/worker#> .
 
+<http://guitarix.sourceforge.net#me>
+	a foaf:Person ;
+	foaf:name "Hermann Meyer" ;
+	foaf:mbox <mailto:brummer@web.de> ;
+	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
 <http://guitarix.sourceforge.net/plugins/gxamp/gui>
   a guiext:GtkUI;
   guiext:binary <gxamp_gui.so>;
@@ -44,7 +50,7 @@
 <http://guitarix.sourceforge.net/plugins/gxamp>
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
-    doap:maintainer "brummer" ;
+    doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxAmplifier";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:optionalFeature lv2:hardRTCapable ;

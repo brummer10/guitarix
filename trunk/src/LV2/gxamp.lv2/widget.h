@@ -59,7 +59,7 @@ protected:
   Gtk::VBox      m_vbox_;
   Gtk::HBox      m_hbox_;
   Gtk::HBox      m_hbox1_;
-  Gtk::VBox      m_vbox2_;
+  //Gtk::VBox      m_vbox2_;
   Gtk::VBox      m_vbox;
   Gtk::VBox      m_vbox1;
   Gtk::VBox      m_vbox2;

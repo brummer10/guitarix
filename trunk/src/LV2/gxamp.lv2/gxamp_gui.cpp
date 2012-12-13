@@ -62,6 +62,11 @@ static GtkWidget* make_gui(GXPluginGUI *self)
                        "    stock['amp_skin'] = {{'amp21.png'}}\n"
                        " }\n"
                        "\n"
+                       "style 'gx_head_black_box' \n"
+                       " { \n"
+                       "    fg[NORMAL] = '#afafaf' \n"
+                       " }\n"
+                       " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
                        "class \"*GxPaintBox\" style \"gx_head_dark-paintbox\"";
     
   // Gtk::Main::init_gtkmm_internals();
