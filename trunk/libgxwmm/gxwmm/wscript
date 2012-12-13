@@ -35,7 +35,7 @@ def configure(conf):
         conf.env["USE_GENERATED_CPP"] = False
     else:
         conf.env["USE_GENERATED_CPP"] = True
-    if Options.options.shared_lib:
+    if Options.options.shared_lib or Options.options.build_lv2:
         conf.env["GX_LIB_SHARED"] = True
     else:
         conf.env["GX_LIB_STATIC"] = True
@@ -260,6 +260,7 @@ def build(bld):
     else:
         bld(features = ['cxx', 'cstaticlib'],
             includes = ['..','../../libgxw'],
+            #cxxflags = ['-fPIC'],
             source = sources+["init.cc","wrap_init.cc"],
             uselib = ['GTKMM'],
             target = 'gxwmm',

@@ -49,6 +49,8 @@ def build(bld):
     libpath1 = []
     lib1 = []
     incl = ['../../../libgxwmm','../../../libgxw']
+    if sys.platform.startswith("linux"):
+        lib1.append('dl')
     if bld.env["GX_LIB_SHARED"]:
         lib1 += ['gxwmm','gxw']
         libpath1 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),

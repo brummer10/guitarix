@@ -105,6 +105,7 @@ def build(bld):
         prog = bld(
             features = ['cxx', 'cstaticlib'],
             includes = ['.'],
+            #cxxflags = ['-fPIC'],
             source = sources,
             uselib = ['GTHREAD', 'GTK2'],
             target = 'gxw',

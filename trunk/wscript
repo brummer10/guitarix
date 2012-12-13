@@ -606,7 +606,7 @@ def configure(conf):
     if conf.env["LADSPA"]:   
         conf.sub_config('ladspa');
     if conf.env["LV2"]:
-        conf.env["GX_LIB_SHARED"] = True  
+        opt.shared_lib = True;
         conf.sub_config('src/LV2/gxamp.lv2');
         pa = '.so'
         sub_file('./src/LV2/gxamp.lv2/manifest.ttl.in', './src/LV2/gxamp.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
