@@ -29,9 +29,14 @@
 // LV2UI stuff
 #include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
 
-class Widget : public Gtk::VBox
+class Widget : public Gtk::HBox
 {
 private:
+  void make_controller_box(Gtk::VBox *box,
+                          Gxw::Regler *regler,
+                          Glib::ustring label,
+                          float min, float max,
+                          float digits, float value);
   bool _expose_event(GdkEventExpose *event);
   void set_value(uint32_t port_index,
                  uint32_t format,
@@ -59,7 +64,6 @@ protected:
   Gtk::VBox      m_vbox_;
   Gtk::HBox      m_hbox_;
   Gtk::HBox      m_hbox1_;
-  //Gtk::VBox      m_vbox2_;
   Gtk::VBox      m_vbox;
   Gtk::VBox      m_vbox1;
   Gtk::VBox      m_vbox2;
@@ -69,17 +73,10 @@ protected:
   Gtk::VBox      m_vbox6;
   Gtk::VBox      m_vbox7;
   Gtk::VBox      m_vbox8;
-  Gtk::VBox      m_vboxa;
-  Gtk::VBox      m_vboxb;
-  Gtk::VBox      m_vboxc;
-  Gtk::VBox      m_vboxd;
-  Gtk::VBox      m_vboxe,m_vboxee;
-  Gtk::VBox      m_vboxf,m_vboxff;
-  Gtk::VBox      m_vboxg,m_vboxgg;
-  Gtk::VBox      m_vboxh,m_vboxhh,m_vboxhi;
-  Gtk::VBox      m_vboxi,m_vboxii,m_vboxih;
+  Gtk::VBox      m_vboxhh;
+  Gtk::VBox      m_vboxii;
+  
   Gxw::PaintBox  m_paintbox;
-  //Gtk::HBox      m_paintbox;
   Gtk::HBox      m_hbox;
   Gxw::BigKnob   m_bigknob;
   Gxw::BigKnob   m_bigknob1;

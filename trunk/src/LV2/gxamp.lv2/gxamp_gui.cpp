@@ -24,7 +24,7 @@
 #include <gtkmm.h>
 #include "gxamp.h"
 #include "widget.h"
-#include "../config.h"
+#include "../config.h" // for GX_STYLE_DIR
 
 #include <lv2.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
@@ -49,15 +49,6 @@ static GtkWidget* make_gui(GXPluginGUI *self)
         toparse +=     "/'\n";
         toparse +=     "style \"gx_head_dark-paintbox\"\n"
                        " { \n"
-                       "    GxPaintBox::skin-gradient = {\n"
-                       "    { 65536, 0, 0, 13107, 52428 },\n"
-                       "    { 52428, 0, 0, 0, 52428 },\n"
-                       "    { 13107, 0, 0, 13107, 13107 }}\n"
-                       "    GxPaintBox::box-gradient = {\n"
-                       "    { 0, 19661, 19661, 19661, 13107 },\n"
-                       "    { 22768, 80, 83, 80, 23107 },\n"
-                       "    { 52428, 8, 8, 80, 33107 },\n"
-                       "    { 65536, 4, 4, 4, 42428 }}\n"
                        "    GxPaintBox::icon-set =9\n"
                        "    stock['amp_skin'] = {{'amp21.png'}}\n"
                        " }\n"
@@ -69,7 +60,7 @@ static GtkWidget* make_gui(GXPluginGUI *self)
                        " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
                        "class \"*GxPaintBox\" style \"gx_head_dark-paintbox\"";
     
-  // Gtk::Main::init_gtkmm_internals();
+  // Gtk::Main::init_gtkmm_internals(); // not needed, done by Gxw::init()
   gtk_rc_parse_string (toparse.c_str());
 
   GtkWidget* container = gtk_vbox_new(FALSE, 2);
@@ -142,35 +133,7 @@ static void port_event(LV2UI_Handle ui,
   //cout << "Port event on index " << port_index << "  Format is " << format << endl;
 
   /*
-      if ( format == 0 )
-      {
-        float value =  *(float *)buffer;
-        switch ( port_index )
-        {
-          case 0:
-              self->widget->mastergain = value;
-              break;
-          case 1:
-              self->widget->pregain = value;
-              break;
-          case 2:
-              self->widget->wet_dry = value;
-              break;
-          case 3:
-              self->widget->drive = value;
-              break;
-          case 4:
-              self->widget->mid = value;
-              break;
-          case 5:
-              self->widget->bass = value;
-              break;
-          case 6:
-              self->widget->treble = value;
-              break;
-        }
-      }
-      else
+      if ( format != 0 )
       {
         LV2_ATOM_SEQUENCE_FOREACH( (LV2_Atom_Sequence*)buffer, ev)
         {
@@ -183,7 +146,6 @@ static void port_event(LV2UI_Handle ui,
           }
         }
       }*/
-
 
   return;
 }

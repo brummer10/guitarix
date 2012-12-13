@@ -32,142 +32,24 @@ Widget::Widget()
   mid        = 0.5;
   bass       = 0.5;
   treble     = 0.5;
-  clevel     = 0.5;
-  alevel     = 0.5;*/
+  clevel     = 1.0;
+  alevel     = 1.0;*/
 
   // init the gxwmm library
   Gxw::init();
 
-  // create all controllers
-  m_bigknob.cp_configure("KNOB", "MASTER", -20, 20, 0.1);
-  m_bigknob.cp_set_value(mastergain);
-  m_bigknob.set_show_value(false);
-  m_bigknob.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob_value_changed));
-
-  m_bigknob1.cp_configure("KNOB", "PRE", -20, 20, 0.1);
-  m_bigknob1.cp_set_value(pregain);
-  m_bigknob1.set_show_value(false);
-  m_bigknob1.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob1_value_changed));
-
-  m_bigknob2.cp_configure("KNOB", "WETDRY", 1, 100, 1);
-  m_bigknob2.cp_set_value(wet_dry);
-  m_bigknob2.set_show_value(false);
-  m_bigknob2.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob2_value_changed));
-
-  m_bigknob3.cp_configure("KNOB", "DRIVE", 0.01, 1, 0.01);
-  m_bigknob3.cp_set_value(drive);
-  m_bigknob3.set_show_value(false);
-  m_bigknob3.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob3_value_changed));
-
-  m_smallknob1.cp_configure("KNOB", "mid", 0, 1, 0.01);
-  m_smallknob1.cp_set_value(mid);
-  m_smallknob1.set_show_value(false);
-  m_smallknob1.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob4_value_changed));
-
-  m_smallknob2.cp_configure("KNOB", "bass", 0, 1, 0.01);
-  m_smallknob2.cp_set_value(bass);
-  m_smallknob2.set_show_value(false);
-  m_smallknob2.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob5_value_changed));
-
-  m_smallknob3.cp_configure("KNOB", "treble", 0, 1, 0.01);
-  m_smallknob3.cp_set_value(treble);
-  m_smallknob3.set_show_value(false);
-  m_smallknob3.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob6_value_changed));
-
-  m_smallknob4.cp_configure("KNOB", "clevel", 0.5, 5, 0.5);
-  m_smallknob4.cp_set_value(clevel);
-  m_smallknob4.set_show_value(false);
-  m_smallknob4.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob7_value_changed));
-
-  m_smallknob5.cp_configure("KNOB", "alevel", 0.5, 5, 0.5);
-  m_smallknob5.cp_set_value(alevel);
-  m_smallknob5.set_show_value(false);
-  m_smallknob5.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob8_value_changed));
-
-  // set labels to the controllers and put them in boxes
-  Gtk::Label* master = new Gtk::Label("Master Gain", 0);
-  master->set_name("amplabel"); // name labes to set color via rc-string
-  m_vbox.pack_start(m_vboxa, Gtk::PACK_EXPAND_PADDING);
-  m_vbox.pack_start( *Gtk::manage(master),Gtk::PACK_SHRINK);
-  m_vbox.pack_start(m_bigknob,Gtk::PACK_SHRINK);
-  
-  Gtk::Label* pre = new Gtk::Label("Pre Gain", 0);
-  pre->set_name("amplabel");
-  m_vbox1.pack_start(m_vboxb, Gtk::PACK_EXPAND_PADDING);
-  m_vbox1.pack_start( *Gtk::manage(pre),Gtk::PACK_SHRINK);
-  m_vbox1.pack_start( m_bigknob1,Gtk::PACK_SHRINK);
-
-  Gtk::Label* dis = new Gtk::Label("Distortion", 0);
-  dis->set_name("amplabel");
-  m_vbox2.pack_start(m_vboxc, Gtk::PACK_EXPAND_PADDING);
-  m_vbox2.pack_start( *Gtk::manage(dis),Gtk::PACK_SHRINK);
-  m_vbox2.pack_start( m_bigknob2,Gtk::PACK_SHRINK);
-
-  Gtk::Label* dr = new Gtk::Label("Drive", 0);
-  dr->set_name("amplabel");
-  m_vbox3.pack_start(m_vboxd, Gtk::PACK_EXPAND_PADDING);
-  m_vbox3.pack_start( *Gtk::manage(dr),Gtk::PACK_SHRINK);
-  m_vbox3.pack_start( m_bigknob3,Gtk::PACK_SHRINK);
-
-  Gtk::Label* mi = new Gtk::Label("mid", 0);
-  mi->set_name("amplabel");
-  m_vbox4.pack_start(m_vboxe, Gtk::PACK_EXPAND_PADDING);
-  m_vbox4.pack_start( *Gtk::manage(mi),Gtk::PACK_SHRINK);
-  m_vbox4.pack_start(m_smallknob1,Gtk::PACK_SHRINK);
-  m_vbox4.pack_start(m_vboxee, Gtk::PACK_EXPAND_PADDING);
-
-  Gtk::Label* ba = new Gtk::Label("bass", 0);
-  ba->set_name("amplabel");
-  m_vbox5.pack_start(m_vboxf, Gtk::PACK_EXPAND_PADDING);
-  m_vbox5.pack_start( *Gtk::manage(ba),Gtk::PACK_SHRINK);
-  m_vbox5.pack_start(m_smallknob2,Gtk::PACK_SHRINK);
-  m_vbox5.pack_start(m_vboxff, Gtk::PACK_EXPAND_PADDING);
-
-  Gtk::Label* tr = new Gtk::Label("treble", 0);
-  tr->set_name("amplabel");
-  m_vbox6.pack_start(m_vboxg, Gtk::PACK_EXPAND_PADDING);
-  m_vbox6.pack_start( *Gtk::manage(tr),Gtk::PACK_SHRINK);
-  m_vbox6.pack_start(m_smallknob3,Gtk::PACK_SHRINK);
-  m_vbox6.pack_start(m_vboxgg, Gtk::PACK_EXPAND_PADDING);
-
-  Gtk::Label* ca = new Gtk::Label("cabinet", 0);
-  ca->set_name("amplabel");
-  m_vbox7.pack_start(m_vboxh, Gtk::PACK_EXPAND_PADDING);
-  m_vbox7.pack_start( *Gtk::manage(ca),Gtk::PACK_SHRINK);
-  m_vbox7.pack_start(m_smallknob4,Gtk::PACK_SHRINK);
-  m_vbox7.pack_start(m_vboxhi, Gtk::PACK_EXPAND_PADDING);
-
-  Gtk::Label* pr = new Gtk::Label("presence", 0);
-  pr->set_name("amplabel");
-  m_vbox8.pack_start(m_vboxi, Gtk::PACK_EXPAND_PADDING);
-  m_vbox8.pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
-  m_vbox8.pack_start(m_smallknob5,Gtk::PACK_SHRINK);
-  m_vbox8.pack_start(m_vboxih, Gtk::PACK_EXPAND_PADDING);
-
-  // create the main paintbox holding the skin
+  // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(30);
   m_paintbox.set_spacing(12);
   m_paintbox.set_homogeneous(false);
   m_paintbox.property_paint_func() = "amp_skin_expose";
-  pack_start(m_paintbox);
-
- // box for the controllers
-  m_hbox.set_border_width(8);  
+  add(m_paintbox);
+  // box for the controllers
   m_hbox_.set_spacing(12);
   m_hbox_.set_homogeneous(false);
   // this box set space for the upper part of the skin
   m_hbox1_.set_spacing(12);    
   m_hbox1_.set_border_width(65);
-  
   // set a vertical box in the paintbox
   m_paintbox.pack_start(m_vbox_);
   // and put space box on top
@@ -175,7 +57,43 @@ Widget::Widget()
   // and controller box on bottem
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
 
-  
+  // create all controllers
+  make_controller_box(&m_vbox, &m_bigknob, "Master Gain", -20, 20, 0.1, mastergain);
+  m_bigknob.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob_value_changed));
+
+  make_controller_box(&m_vbox1, &m_bigknob1, "Pre Gain", -20, 20, 0.1, pregain);
+  m_bigknob1.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob1_value_changed));
+
+  make_controller_box(&m_vbox2, &m_bigknob2, "Distortion", 1, 100, 1, wet_dry);
+  m_bigknob2.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob2_value_changed));
+
+  make_controller_box(&m_vbox3, &m_bigknob3, "Drive", 0.01, 1, 0.01, drive);
+  m_bigknob3.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob3_value_changed));
+
+  make_controller_box(&m_vbox4, &m_smallknob1, "mid", 0, 1, 0.01, mid);
+  m_smallknob1.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob4_value_changed));
+
+  make_controller_box(&m_vbox5, &m_smallknob2, "bass", 0, 1, 0.01, bass);
+  m_smallknob2.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob5_value_changed));
+
+  make_controller_box(&m_vbox6, &m_smallknob3, "treble", 0, 1, 0.01, treble);
+  m_smallknob3.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob6_value_changed));
+
+  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 0.5, 5, 0.5, clevel);
+  m_smallknob4.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob7_value_changed));
+
+  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 0.5, 5, 0.5, alevel);
+  m_smallknob5.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob8_value_changed));
+
   // put boxed controllers into controller box
   m_hbox_.pack_start(m_vboxhh);
   m_hbox_.pack_start(m_vbox1);
@@ -184,18 +102,17 @@ Widget::Widget()
   m_hbox_.pack_start(m_vbox7);
   m_hbox_.pack_start(m_vbox8);
   m_hbox_.pack_start(m_vbox);
-
   // etxra box for the boxed tonestack controllers
+  m_hbox.set_border_width(8);  
   m_hbox.pack_start(m_vbox5);
   m_hbox.pack_start(m_vbox4);
   m_hbox.pack_start(m_vbox6);
   m_hbox.pack_start(m_vboxii);
   m_hbox.set_spacing(5);
-
   // add tonestack controller box to main controller box
   m_hbox_.pack_start(m_hbox);
 
-  // connect (after) expose handler as resize handler
+  // connect expose handler as resize handler
   m_paintbox.signal_expose_event().connect(
         sigc::mem_fun(this, &Widget::_expose_event), true);
 
@@ -206,14 +123,34 @@ Widget::~Widget()
 {
 
 }
-
+// create stackboxes with controllers from gxw
+void Widget::make_controller_box(Gtk::VBox *box,
+                                Gxw::Regler *regler,
+                                Glib::ustring label,
+                                float min, float max,
+                                float digits, float value)
+{
+  Gtk::Label* pr = new Gtk::Label(label, 0);
+  pr->set_name("amplabel");
+  Gtk::VBox* b1 = new Gtk::VBox();
+  box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+  box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
+  regler->cp_configure("KNOB", label, min, max, digits);
+  regler->set_show_value(false);
+  regler->cp_set_value(value);
+  box->pack_start(*regler,Gtk::PACK_SHRINK);
+  Gtk::VBox* b2 = new Gtk::VBox();
+  box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+}
+// set borderwith for paintbox when widget resize
+// to hold controllers in place
 bool Widget::_expose_event(GdkEventExpose *event)
 {
   double_t height = m_paintbox.get_window()->get_height();
   m_paintbox.set_border_width(height/10);
   return false;
 }
-
+// receive controller value changes from host
 void Widget::set_value(uint32_t port_index,
                        uint32_t format,
                        const void * buffer)
@@ -270,7 +207,7 @@ void Widget::set_value(uint32_t port_index,
         }
     }
 }
-
+// write value changes to the host->engine
 void Widget::on_knob_value_changed()
 {
   mastergain = m_bigknob.get_value();
@@ -321,7 +258,7 @@ void Widget::on_knob7_value_changed()
   clevel = m_smallknob4.get_value();
   //std::cout << "treble = " << clevel << std::endl;
   write_function( controller, 7, sizeof(float), 0, (const void*)&clevel);
-
+  // start a worker thread to update the convolver
   uint32_t OBJ_BUF_SIZE = sizeof(uris)+1;
   uint8_t obj_buf[OBJ_BUF_SIZE];
   lv2_atom_forge_set_buffer(&forge, obj_buf, OBJ_BUF_SIZE);
@@ -335,7 +272,7 @@ void Widget::on_knob8_value_changed()
   alevel = m_smallknob5.get_value();
   //std::cout << "treble = " << alevel << std::endl;
   write_function( controller, 8, sizeof(float), 0, (const void*)&alevel);
-
+  // start a worker thread to update the convolver
   uint32_t OBJ_BUF_SIZE = sizeof(uris)+1;
   uint8_t obj_buf[OBJ_BUF_SIZE];
   lv2_atom_forge_set_buffer(&forge, obj_buf, OBJ_BUF_SIZE);
