@@ -58,19 +58,19 @@ Widget::Widget()
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
 
   // create all controllers
-  make_controller_box(&m_vbox, &m_bigknob, "Master Gain", -20, 20, 0.1, mastergain);
+  make_controller_box(&m_vbox, &m_bigknob, "mastergain", -20, 20, 0.1, mastergain);
   m_bigknob.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob_value_changed));
 
-  make_controller_box(&m_vbox1, &m_bigknob1, "Pre Gain", -20, 20, 0.1, pregain);
+  make_controller_box(&m_vbox1, &m_bigknob1, "pregain", -20, 20, 0.1, pregain);
   m_bigknob1.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob1_value_changed));
 
-  make_controller_box(&m_vbox2, &m_bigknob2, "Distortion", 1, 100, 1, wet_dry);
+  make_controller_box(&m_vbox2, &m_bigknob2, "distortion", 1, 100, 1, wet_dry);
   m_bigknob2.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob2_value_changed));
 
-  make_controller_box(&m_vbox3, &m_bigknob3, "Drive", 0.01, 1, 0.01, drive);
+  make_controller_box(&m_vbox3, &m_bigknob3, "drive", 0.01, 1, 0.01, drive);
   m_bigknob3.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob3_value_changed));
 
@@ -130,8 +130,14 @@ void Widget::make_controller_box(Gtk::VBox *box,
                                 float min, float max,
                                 float digits, float value)
 {
-  Gtk::Label* pr = new Gtk::Label(label, 0);
-  pr->set_name("amplabel");
+  //Gtk::Label* pr = new Gtk::Label(label, 0);
+  //pr->set_name("amplabel");
+  Glib::ustring  label_image = GX_STYLE_DIR;
+  label_image += "/";
+  label_image += label;
+  label_image += "-label.png";
+  Gtk::Image *pr = new Gtk::Image(label_image);
+  
   Gtk::VBox* b1 = new Gtk::VBox();
   box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
   box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);

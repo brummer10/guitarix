@@ -25,7 +25,7 @@
 #include <gtkmm.h>
 #include <gxwmm.h>
 #include "gxamp.h"
-
+#include "../config.h" // for GX_STYLE_DIR
 // LV2UI stuff
 #include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
 
