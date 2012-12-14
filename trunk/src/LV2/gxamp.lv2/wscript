@@ -81,6 +81,7 @@ def build(bld):
     bld.install_files('${LV2DIR}/gxamp.lv2', 'gxamp.ttl')
     bld.install_files('${GX_STYLE_DIR}/', 'GUI/amp21.png')
     bld.install_files('${GX_STYLE_DIR}/', 'GUI/amp22.png')
+    bld.install_files('${GX_STYLE_DIR}/', 'GUI/amp23.png')
     bld.install_files('${GX_STYLE_DIR}/', 'GUI/mastergain-label.png')
     bld.install_files('${GX_STYLE_DIR}/', 'GUI/pregain-label.png')
     bld.install_files('${GX_STYLE_DIR}/', 'GUI/drive-label.png')

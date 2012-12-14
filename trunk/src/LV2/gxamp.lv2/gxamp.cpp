@@ -145,6 +145,13 @@ work(LV2_Handle                  instance,
           if (!self->cabconv->update(cab_data_AC30.ir_count, cab_irdata_c, cab_data_AC30.ir_sr))
             printf("cabconv->update fail.\n");
         }
+      else if (self->tubesel == 2)
+        {
+          float cab_irdata_c[cab_data_1x15.ir_count];
+          self->impf->compute(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_irdata_c);
+          if (!self->cabconv->update(cab_data_1x15.ir_count, cab_irdata_c, cab_data_1x15.ir_sr))
+            printf("cabconv->update fail.\n");
+        }
     }
   else if (obj->body.otype == uris->gx_pre)
     {
@@ -195,7 +202,11 @@ instantiate(const LV2_Descriptor*     descriptor,
       printf("12AT7\n");
       self->tubesel  = 2;
     }
-
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16",descriptor->URI)== 0)
+    {
+      printf("6C16\n");
+      self->tubesel  = 3;
+    }
   for (int i = 0; features[i]; ++i)
     {
       if (!strcmp(features[i]->URI, LV2_URID__map))
@@ -286,6 +297,10 @@ instantiate(const LV2_Descriptor*     descriptor,
       else if (self->tubesel == 2)
         {
           self->cabconv->configure(cab_data_AC30.ir_count, cab_data_AC30.ir_data, cab_data_AC30.ir_sr);
+        }
+      else if (self->tubesel == 3)
+        {
+          self->cabconv->configure(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_data_1x15.ir_sr);
         }
       self->cabconv->start(0, SCHED_FIFO);
 
@@ -437,7 +452,17 @@ static const LV2_Descriptor descriptor1 =
   cleanup,
   extension_data
 };
-
+static const LV2_Descriptor descriptor2 =
+{
+  GXPLUGIN_URI "#6C16",
+  instantiate,
+  connect_port,
+  activate,
+  run,
+  deactivate,
+  cleanup,
+  extension_data
+};
 extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
@@ -449,6 +474,8 @@ lv2_descriptor(uint32_t index)
       return &descriptor;
     case 1:
       return &descriptor1;
+    case 2:
+      return &descriptor2;
     default:
       return NULL;
     }

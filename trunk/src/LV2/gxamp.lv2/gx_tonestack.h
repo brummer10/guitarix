@@ -42,6 +42,7 @@ private:
 
 
 public:
+  void        run_bassman(uint32_t n_samples, float *output);
   void        run(uint32_t n_samples, float *output);
   void        run_soldano(uint32_t n_samples, float *output);
   static void init_static(unsigned int samplingFreq, GXPlugin *self);

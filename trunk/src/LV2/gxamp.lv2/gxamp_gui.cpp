@@ -94,7 +94,10 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     {
       self->plugskin = "amp22.png";
     }
-
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16", plugin_uri) == 0)
+    {
+      self->plugskin = "amp23.png";
+    }
   
   for (int i = 0; features[i]; ++i)
     {
