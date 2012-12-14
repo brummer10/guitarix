@@ -37,6 +37,7 @@ struct GXPluginGUI
 
   LV2_URID_Map* map;
   GXPluginURIs   uris;
+  Glib::ustring plugskin;
   Widget* widget;
   GXPluginGUI () {}
 } ;
@@ -50,7 +51,9 @@ static GtkWidget* make_gui(GXPluginGUI *self)
         toparse +=     "style \"gx_head_dark-paintbox\"\n"
                        " { \n"
                        "    GxPaintBox::icon-set =9\n"
-                       "    stock['amp_skin'] = {{'amp21.png'}}\n"
+                       "    stock['amp_skin'] = {{'";
+         toparse +=    self->plugskin;
+         toparse +=    "'}}\n"
                        " }\n"
                        "\n"
                        "style 'gx_head_black_box' \n"
@@ -80,15 +83,19 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
                                 LV2UI_Widget * widget,
                                 const LV2_Feature * const * features)
 {
-
-  if (strcmp(plugin_uri, GXPLUGIN_URI) != 0)
-    {
-      fprintf(stderr, "SORCER_URI error: this GUI does not support plugin with URI %s\n", plugin_uri);
-      return NULL;
-    }
-
   GXPluginGUI* self = new GXPluginGUI;
   if (self == NULL) return NULL;
+
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7", plugin_uri) == 0)
+    {
+      self->plugskin = "amp21.png";
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7", plugin_uri) == 0)
+    {
+      self->plugskin = "amp22.png";
+    }
+
+  
   for (int i = 0; features[i]; ++i)
     {
       if (!strcmp(features[i]->URI, LV2_URID_URI "#map"))

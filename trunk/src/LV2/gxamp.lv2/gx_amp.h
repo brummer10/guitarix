@@ -146,15 +146,22 @@ private:
   float*      input;
   float*      output;
   void        clear_state_f();
-  void        init(unsigned int samplingFreq);
+  void        init(unsigned int samplingFreq, GXPlugin *self);
   void        connect(uint32_t port,void* data);
-  void        run(uint32_t n_samples, GXPlugin *self);
+  
 public:
-  static void init_static(unsigned int samplingFreq, GxAmp*);
+  void        run_12AT7(uint32_t n_samples, GXPlugin *self);
+  void        run_12ax7(uint32_t n_samples, GXPlugin *self);
+  static void init_static(unsigned int samplingFreq, GXPlugin *self);
   static void connect_static(uint32_t port,void* data, GxAmp *p);
   static void run_static(uint32_t n_samples,GXPlugin *self);
   GxAmp() {};
   ~GxAmp() {};
 };
+// define run pointer typs
+typedef void (GxAmp::*run_this)
+             (uint32_t count, GXPlugin *self);
+
+run_this    _a_ptr;
 
 #endif  //SRC_HEADERS_GX_AMP_H_

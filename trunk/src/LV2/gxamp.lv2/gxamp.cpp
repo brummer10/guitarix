@@ -92,6 +92,7 @@ struct GXPlugin
   LV2_Atom_Forge_Frame         notify_frame;
   LV2_Worker_Schedule*         schedule;
   // internal stuff
+  uint32_t                     tubesel;
   Tonestack                    *ts;
   GxAmp                        *amplifier;
   gx_resample::BufferResampler resamp;
@@ -128,13 +129,22 @@ work(LV2_Handle                  instance,
   const LV2_Atom_Object* obj = (LV2_Atom_Object*)data;
   if (obj->body.otype == uris->gx_cab)
     {
-      //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
-      float cab_irdata_c[cab_data_HighGain.ir_count];
-      self->impf->compute(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_irdata_c);
-      // cab_data_HighGain.ir_count, cab_data_HighGain.ir_data,cab_data_HighGain.ir_sr
-      if (!self->cabconv->update(cab_data_HighGain.ir_count, cab_irdata_c, cab_data_HighGain.ir_sr))
-        printf("cabconv->update fail.\n");
-      //printf("worker 1 ready.\n");
+      if (self->tubesel == 1)
+        {
+          //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
+          float cab_irdata_c[cab_data_HighGain.ir_count];
+          self->impf->compute(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_irdata_c);
+          if (!self->cabconv->update(cab_data_HighGain.ir_count, cab_irdata_c, cab_data_HighGain.ir_sr))
+            printf("cabconv->update fail.\n");
+          //printf("worker 1 ready.\n");
+        }
+      else if (self->tubesel == 2)
+        {
+          float cab_irdata_c[cab_data_AC30.ir_count];
+          self->impf->compute(cab_data_AC30.ir_count, cab_data_AC30.ir_data, cab_irdata_c);
+          if (!self->cabconv->update(cab_data_AC30.ir_count, cab_irdata_c, cab_data_AC30.ir_sr))
+            printf("cabconv->update fail.\n");
+        }
     }
   else if (obj->body.otype == uris->gx_pre)
     {
@@ -174,6 +184,17 @@ instantiate(const LV2_Descriptor*     descriptor,
 
   const LV2_Options_Option* options  = NULL;
   uint32_t bufsize = 0;
+  //printf(" %s\n",descriptor->URI);
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7",descriptor->URI)== 0)
+    {
+      printf("12ax7\n");
+      self->tubesel  = 1;
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7",descriptor->URI)== 0)
+    {
+      printf("12AT7\n");
+      self->tubesel  = 2;
+    }
 
   for (int i = 0; features[i]; ++i)
     {
@@ -242,8 +263,8 @@ instantiate(const LV2_Descriptor*     descriptor,
   self->schedule_wait = false;
   self->amplifier = new GxAmp();
   self->ts = new Tonestack();
-  self->amplifier->init_static(rate, self->amplifier);
-  self->ts->init_static(rate, self->ts);
+  self->amplifier->init_static(rate, self);
+  self->ts->init_static(rate, self);
 
   self->cabconv = new GxSimpleConvolver(self->resamp);
   self->cabconv->set_samplerate(rate);
@@ -258,7 +279,14 @@ instantiate(const LV2_Descriptor*     descriptor,
   if (self->bufsize )
     {
       self->cabconv->set_buffersize(self->bufsize);
-      self->cabconv->configure(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_data_HighGain.ir_sr);
+      if (self->tubesel == 1)
+        {
+          self->cabconv->configure(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_data_HighGain.ir_sr);
+        }
+      else if (self->tubesel == 2)
+        {
+          self->cabconv->configure(cab_data_AC30.ir_count, cab_data_AC30.ir_data, cab_data_AC30.ir_sr);
+        }
       self->cabconv->start(0, SCHED_FIFO);
 
       self->ampconv->set_buffersize(self->bufsize);
@@ -388,7 +416,19 @@ extension_data(const char* uri)
 
 static const LV2_Descriptor descriptor =
 {
-  GXPLUGIN_URI,
+  GXPLUGIN_URI "#12ax7",
+  instantiate,
+  connect_port,
+  activate,
+  run,
+  deactivate,
+  cleanup,
+  extension_data
+};
+
+static const LV2_Descriptor descriptor1 =
+{
+  GXPLUGIN_URI "#12AT7",
   instantiate,
   connect_port,
   activate,
@@ -407,6 +447,8 @@ lv2_descriptor(uint32_t index)
     {
     case 0:
       return &descriptor;
+    case 1:
+      return &descriptor1;
     default:
       return NULL;
     }

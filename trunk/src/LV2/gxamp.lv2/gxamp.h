@@ -33,7 +33,7 @@
 #include <lv2/lv2plug.in/ns/ext/patch/patch.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxamp"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxamp/gui"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxamp#gui"
 
 #define GXPlugin__on         GXPLUGIN_URI "#on"
 #define GXPlugin__off        GXPLUGIN_URI "#off"

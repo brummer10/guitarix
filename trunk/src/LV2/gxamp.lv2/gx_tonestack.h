@@ -37,18 +37,26 @@ private:
   float       fslider2;
   float       *fslider2_;
   void        clear_state_f();
-  void        init(unsigned int samplingFreq);
+  void        init(unsigned int samplingFreq, GXPlugin *self);
   void        connect(uint32_t port,void* data);
-  void        run(uint32_t n_samples, float *output);
+
 
 public:
-  static void init_static(unsigned int samplingFreq, Tonestack*);
+  void        run(uint32_t n_samples, float *output);
+  void        run_soldano(uint32_t n_samples, float *output);
+  static void init_static(unsigned int samplingFreq, GXPlugin *self);
   static void connect_static(uint32_t port,void* data, Tonestack *p);
   static void run_static(uint32_t n_samples, Tonestack*, float *output);
 
   Tonestack() {};
   ~Tonestack() {};
 };
+
+// define run pointer typs
+typedef void (Tonestack::*run_tonestack)
+             (uint32_t count, float *output);
+
+run_tonestack    _t_ptr;
 
 #endif  //SRC_HEADERS_GX_TONESTACK_H_
 
