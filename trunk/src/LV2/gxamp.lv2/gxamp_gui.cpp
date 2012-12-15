@@ -41,13 +41,15 @@ struct GXPluginGUI
   Glib::ustring addKnob;
   Glib::ustring plug_name;
   Widget* widget;
-  GXPluginGUI () {}
+  GXPluginGUI () {};
 } ;
 
 static void set_knob(GXPluginGUI *self, Glib::ustring knob) 
 {
 
-  self->addKnob =   " style 'gx_head_dark_skin_icons'\n"
+  self->addKnob =   " style 'gx_";
+  self->addKnob +=  self->plug_name;
+  self->addKnob +=   "_dark_skin_icons'\n"
                     " { \n"
                     "   stock['bigknob'] = {{'";
   self->addKnob +=  knob;
@@ -61,7 +63,9 @@ static void set_knob(GXPluginGUI *self, Glib::ustring knob)
                     " }\n"
                     "widget '*.";
   self->addKnob +=  self->plug_name;
-  self->addKnob +=  "' style 'gx_head_dark_skin_icons' ";
+  self->addKnob +=  "' style 'gx_";
+  self->addKnob +=  self->plug_name;
+  self->addKnob +=  "_dark_skin_icons' ";
                     
 }
 
@@ -71,7 +75,9 @@ static GtkWidget* make_gui(GXPluginGUI *self)
         toparse +=     " '";
         toparse +=        GX_STYLE_DIR;
         toparse +=     "/'\n";
-        toparse +=     "style \"gx_head_dark-paintbox\"\n"
+        toparse +=     "style \"gx_";
+        toparse +=    self->plug_name;
+        toparse +=    "_dark-paintbox\"\n"
                        " { \n"
                        "    GxPaintBox::icon-set =9\n"
                        "    stock['amp_skin'] = {{'";
@@ -88,7 +94,9 @@ static GtkWidget* make_gui(GXPluginGUI *self)
          toparse +=    " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
                        "widget '*.";
          toparse +=    self->plug_name;
-         toparse +=    "' style 'gx_head_dark-paintbox' ";
+         toparse +=    "' style 'gx_";
+         toparse +=    self->plug_name;
+         toparse +=    "_dark-paintbox' ";
     
   // Gtk::Main::init_gtkmm_internals(); // not needed, done by Gxw::init()
   gtk_rc_parse_string (toparse.c_str());
@@ -110,8 +118,9 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
                                 LV2UI_Widget * widget,
                                 const LV2_Feature * const * features)
 {
-  GXPluginGUI* self = new GXPluginGUI;
+  GXPluginGUI* self = new GXPluginGUI();
   if (self == NULL) return NULL;
+
   self->addKnob = "";
 
   if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7", plugin_uri) == 0)
@@ -123,6 +132,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     {
       self->plugskin = "amp22.png";
       self->plug_name = "12AT7";
+      //set_knob(self, "metalic1-knob");
     }
   else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16", plugin_uri) == 0)
     {
@@ -216,3 +226,4 @@ const LV2UI_Descriptor * lv2ui_descriptor(uint32_t index)
     }
   return descriptors + index;
 }
+

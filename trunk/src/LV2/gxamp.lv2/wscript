@@ -97,6 +97,9 @@ def build(bld):
         'GUI/knob.png',
         'GUI/knob-middle.png',
         'GUI/knob-small.png',
+        #'GUI/metalic1-knob.png',
+        #'GUI/metalic1-knob-middle.png',
+        #'GUI/metalic1-knob-small.png',
         ]
 
     bld.install_files(bld.env['GX_STYLE_DIR'], gxlv2style_files, chmod=0o644)
