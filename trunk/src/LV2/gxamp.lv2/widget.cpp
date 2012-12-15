@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-Widget::Widget()
+Widget::Widget(Glib::ustring plug_name)
 {
   // init values set by host
   /*mastergain = -15.0;
@@ -42,6 +42,7 @@ Widget::Widget()
   m_paintbox.set_border_width(30);
   m_paintbox.set_spacing(12);
   m_paintbox.set_homogeneous(false);
+  m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "amp_skin_expose";
   add(m_paintbox);
   // box for the controllers
@@ -58,39 +59,39 @@ Widget::Widget()
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
 
   // create all controllers
-  make_controller_box(&m_vbox, &m_bigknob, "mastergain", -20, 20, 0.1, mastergain);
+  make_controller_box(&m_vbox, &m_bigknob, "mastergain", -20, 20, 0.1, mastergain, plug_name);
   m_bigknob.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob_value_changed));
 
-  make_controller_box(&m_vbox1, &m_bigknob1, "pregain", -20, 20, 0.1, pregain);
+  make_controller_box(&m_vbox1, &m_bigknob1, "pregain", -20, 20, 0.1, pregain, plug_name);
   m_bigknob1.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob1_value_changed));
 
-  make_controller_box(&m_vbox2, &m_bigknob2, "distortion", 1, 100, 1, wet_dry);
+  make_controller_box(&m_vbox2, &m_bigknob2, "distortion", 1, 100, 1, wet_dry, plug_name);
   m_bigknob2.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob2_value_changed));
 
-  make_controller_box(&m_vbox3, &m_bigknob3, "drive", 0.01, 1, 0.01, drive);
+  make_controller_box(&m_vbox3, &m_bigknob3, "drive", 0.01, 1, 0.01, drive, plug_name);
   m_bigknob3.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob3_value_changed));
 
-  make_controller_box(&m_vbox4, &m_smallknob1, "mid", 0, 1, 0.01, mid);
+  make_controller_box(&m_vbox4, &m_smallknob1, "mid", 0, 1, 0.01, mid, plug_name);
   m_smallknob1.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob4_value_changed));
 
-  make_controller_box(&m_vbox5, &m_smallknob2, "bass", 0, 1, 0.01, bass);
+  make_controller_box(&m_vbox5, &m_smallknob2, "bass", 0, 1, 0.01, bass, plug_name);
   m_smallknob2.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob5_value_changed));
 
-  make_controller_box(&m_vbox6, &m_smallknob3, "treble", 0, 1, 0.01, treble);
+  make_controller_box(&m_vbox6, &m_smallknob3, "treble", 0, 1, 0.01, treble, plug_name);
   m_smallknob3.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob6_value_changed));
 
-  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 0.5, 5, 0.5, clevel);
+  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 0.5, 5, 0.5, clevel, plug_name);
   m_smallknob4.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob7_value_changed));
 
-  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 0.5, 5, 0.5, alevel);
+  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 0.5, 5, 0.5, alevel, plug_name);
   m_smallknob5.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob8_value_changed));
 
@@ -128,7 +129,8 @@ void Widget::make_controller_box(Gtk::VBox *box,
                                 Gxw::Regler *regler,
                                 Glib::ustring label,
                                 float min, float max,
-                                float digits, float value)
+                                float digits, float value,
+                                Glib::ustring plug_name)
 {
   //Gtk::Label* pr = new Gtk::Label(label, 0);
   //pr->set_name("amplabel");
@@ -144,6 +146,7 @@ void Widget::make_controller_box(Gtk::VBox *box,
   regler->cp_configure("KNOB", label, min, max, digits);
   regler->set_show_value(false);
   regler->cp_set_value(value);
+  regler->set_name(plug_name);
   box->pack_start(*regler,Gtk::PACK_SHRINK);
   Gtk::VBox* b2 = new Gtk::VBox();
   box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);

@@ -36,7 +36,8 @@ private:
                           Gxw::Regler *regler,
                           Glib::ustring label,
                           float min, float max,
-                          float digits, float value);
+                          float digits, float value,
+                          Glib::ustring plug_name);
   bool _expose_event(GdkEventExpose *event);
   void set_value(uint32_t port_index,
                  uint32_t format,
@@ -57,7 +58,7 @@ public:
     self->set_value(port_index,format,buffer);
   }
 
-  Widget();
+  Widget(Glib::ustring plug_name);
   ~Widget();
 
 protected:
