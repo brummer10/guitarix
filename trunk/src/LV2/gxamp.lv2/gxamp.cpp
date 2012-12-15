@@ -154,9 +154,9 @@ work(LV2_Handle                  instance,
         }
       else if (self->tubesel == 4)
         {
-          float cab_irdata_c[cab_data_Princeton.ir_count];
-          self->impf->compute(cab_data_Princeton.ir_count, cab_data_Princeton.ir_data, cab_irdata_c);
-          if (!self->cabconv->update(cab_data_Princeton.ir_count, cab_irdata_c, cab_data_Princeton.ir_sr))
+          float cab_irdata_c[cab_data_mesa.ir_count];
+          self->impf->compute(cab_data_mesa.ir_count, cab_data_mesa.ir_data, cab_irdata_c);
+          if (!self->cabconv->update(cab_data_mesa.ir_count, cab_irdata_c, cab_data_mesa.ir_sr))
             printf("cabconv->update fail.\n");
         }
       else
@@ -324,7 +324,7 @@ instantiate(const LV2_Descriptor*     descriptor,
         }
       else if (self->tubesel == 4)
         {
-          self->cabconv->configure(cab_data_Princeton.ir_count, cab_data_Princeton.ir_data, cab_data_Princeton.ir_sr);
+          self->cabconv->configure(cab_data_mesa.ir_count, cab_data_mesa.ir_data, cab_data_mesa.ir_sr);
         }
       else self->cabconv->configure(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_data_HighGain.ir_sr);
 
