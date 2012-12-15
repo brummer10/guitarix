@@ -154,9 +154,16 @@ work(LV2_Handle                  instance,
         }
       else if (self->tubesel == 4)
         {
-          float cab_irdata_c[cab_data_1x15.ir_count];
-          self->impf->compute(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_irdata_c);
-          if (!self->cabconv->update(cab_data_1x15.ir_count, cab_irdata_c, cab_data_1x15.ir_sr))
+          float cab_irdata_c[cab_data_Princeton.ir_count];
+          self->impf->compute(cab_data_Princeton.ir_count, cab_data_Princeton.ir_data, cab_irdata_c);
+          if (!self->cabconv->update(cab_data_Princeton.ir_count, cab_irdata_c, cab_data_Princeton.ir_sr))
+            printf("cabconv->update fail.\n");
+        }
+      else
+        {
+          float cab_irdata_c[cab_data_HighGain.ir_count];
+          self->impf->compute(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_irdata_c);
+          if (!self->cabconv->update(cab_data_HighGain.ir_count, cab_irdata_c, cab_data_HighGain.ir_sr))
             printf("cabconv->update fail.\n");
         }
     }
@@ -219,6 +226,7 @@ instantiate(const LV2_Descriptor*     descriptor,
       printf("6V6\n");
       self->tubesel  = 4;
     }
+  else self->tubesel  = 0;
   for (int i = 0; features[i]; ++i)
     {
       if (!strcmp(features[i]->URI, LV2_URID__map))
@@ -316,8 +324,10 @@ instantiate(const LV2_Descriptor*     descriptor,
         }
       else if (self->tubesel == 4)
         {
-          self->cabconv->configure(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_data_1x15.ir_sr);
+          self->cabconv->configure(cab_data_Princeton.ir_count, cab_data_Princeton.ir_data, cab_data_Princeton.ir_sr);
         }
+      else self->cabconv->configure(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_data_HighGain.ir_sr);
+
       self->cabconv->start(0, SCHED_FIFO);
 
       self->ampconv->set_buffersize(self->bufsize);

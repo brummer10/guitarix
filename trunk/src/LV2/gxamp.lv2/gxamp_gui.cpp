@@ -102,6 +102,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     {
       self->plugskin = "amp24.png";
     }
+  else self->plugskin = "amp21.png";
 
   for (int i = 0; features[i]; ++i)
     {
