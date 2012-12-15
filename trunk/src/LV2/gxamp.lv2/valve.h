@@ -53,7 +53,7 @@ struct table1d_imp {
 #include "12ax7.cc"
 #include "12AT7.cc"
 #include "6C16.cc"
-
+#include "6V6.cc"
 
 enum {
     TUBE_TABLE_12AX7_68k,
@@ -62,6 +62,8 @@ enum {
     TUBE_TABLE_12AT7_250k,
     TUBE_TABLE_6C16_68k,
     TUBE_TABLE_6C16_250k,
+    TUBE_TABLE_6V6_68k,
+    TUBE_TABLE_6V6_250k,
     TUBE_TABLE_SIZE
 };
 
@@ -72,6 +74,8 @@ table1d *tubetab[TUBE_TABLE_SIZE] = {
     &static_cast<table1d&>(tubetable_12AT7[1]),
     &static_cast<table1d&>(tubetable_6C16[0]),
     &static_cast<table1d&>(tubetable_6C16[1]),
+    &static_cast<table1d&>(tubetable_6V6[0]),
+    &static_cast<table1d&>(tubetable_6V6[1]),
 };
 
 /*

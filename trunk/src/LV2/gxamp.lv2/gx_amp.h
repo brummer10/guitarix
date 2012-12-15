@@ -150,6 +150,7 @@ private:
   void        connect(uint32_t port,void* data);
   
 public:
+  void        run_6V6(uint32_t n_samples, GXPlugin *self);
   void        run_6C16(uint32_t n_samples, GXPlugin *self);
   void        run_12AT7(uint32_t n_samples, GXPlugin *self);
   void        run_12ax7(uint32_t n_samples, GXPlugin *self);

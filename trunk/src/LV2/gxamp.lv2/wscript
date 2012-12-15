@@ -76,18 +76,25 @@ def build(bld):
 
     
     install_path = '${LV2DIR}/%s' % bundle,
-
     bld.install_files('${LV2DIR}/gxamp.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gxamp.lv2', 'gxamp.ttl')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/amp21.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/amp22.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/amp23.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/mastergain-label.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/pregain-label.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/drive-label.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/distortion-label.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/cabinet-label.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/presence-label.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/bass-label.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/treble-label.png')
-    bld.install_files('${GX_STYLE_DIR}/', 'GUI/mid-label.png')
+    
+    gxlv2style_files = [
+        'GUI/amp21.png',
+        'GUI/amp22.png',
+        'GUI/amp23.png',
+        'GUI/amp24.png',
+        'GUI/mastergain-label.png',
+        'GUI/pregain-label.png',
+        'GUI/drive-label.png',
+        'GUI/distortion-label.png',
+        'GUI/cabinet-label.png',
+        'GUI/presence-label.png',
+        'GUI/presence-label.png',
+        'GUI/bass-label.png',
+        'GUI/treble-label.png',
+        'GUI/mid-label.png',
+        ]
+
+    bld.install_files(bld.env['GX_STYLE_DIR'], gxlv2style_files, chmod=0o644)
+

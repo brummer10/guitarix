@@ -145,7 +145,14 @@ work(LV2_Handle                  instance,
           if (!self->cabconv->update(cab_data_AC30.ir_count, cab_irdata_c, cab_data_AC30.ir_sr))
             printf("cabconv->update fail.\n");
         }
-      else if (self->tubesel == 2)
+      else if (self->tubesel == 3)
+        {
+          float cab_irdata_c[cab_data_1x15.ir_count];
+          self->impf->compute(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_irdata_c);
+          if (!self->cabconv->update(cab_data_1x15.ir_count, cab_irdata_c, cab_data_1x15.ir_sr))
+            printf("cabconv->update fail.\n");
+        }
+      else if (self->tubesel == 4)
         {
           float cab_irdata_c[cab_data_1x15.ir_count];
           self->impf->compute(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_irdata_c);
@@ -206,6 +213,11 @@ instantiate(const LV2_Descriptor*     descriptor,
     {
       printf("6C16\n");
       self->tubesel  = 3;
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6V6",descriptor->URI)== 0)
+    {
+      printf("6V6\n");
+      self->tubesel  = 4;
     }
   for (int i = 0; features[i]; ++i)
     {
@@ -299,6 +311,10 @@ instantiate(const LV2_Descriptor*     descriptor,
           self->cabconv->configure(cab_data_AC30.ir_count, cab_data_AC30.ir_data, cab_data_AC30.ir_sr);
         }
       else if (self->tubesel == 3)
+        {
+          self->cabconv->configure(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_data_1x15.ir_sr);
+        }
+      else if (self->tubesel == 4)
         {
           self->cabconv->configure(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_data_1x15.ir_sr);
         }
@@ -463,6 +479,18 @@ static const LV2_Descriptor descriptor2 =
   cleanup,
   extension_data
 };
+static const LV2_Descriptor descriptor3 =
+{
+  GXPLUGIN_URI "#6V6",
+  instantiate,
+  connect_port,
+  activate,
+  run,
+  deactivate,
+  cleanup,
+  extension_data
+};
+
 extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
@@ -476,6 +504,8 @@ lv2_descriptor(uint32_t index)
       return &descriptor1;
     case 2:
       return &descriptor2;
+    case 3:
+      return &descriptor3;
     default:
       return NULL;
     }

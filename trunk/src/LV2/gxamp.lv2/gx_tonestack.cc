@@ -38,6 +38,14 @@ inline void Tonestack::init(unsigned int samplingFreq, GXPlugin *self)
     {
       _t_ptr = &Tonestack::run_bassman;
     }
+  else if (self->tubesel == 4)
+    {
+      _t_ptr = &Tonestack::run_soldano;
+    }
+  else
+    {
+      _t_ptr = &Tonestack::run;
+    }
   fSamplingFreq = samplingFreq;
   fConst0 = (2 * double(min(192000, max(1, fSamplingFreq))));
   fConst1 = faustpower<2>(fConst0);
