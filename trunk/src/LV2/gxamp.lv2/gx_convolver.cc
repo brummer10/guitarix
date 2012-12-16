@@ -455,5 +455,5 @@ bool GxSimpleConvolver::compute(int count, float* input, float *output)
 
 void GxSimpleConvolver::run_static(uint32_t n_samples, GxSimpleConvolver *p, float *output)
 {
-  p->compute(n_samples, output, output);
+  p->compute((int)n_samples, output, output);
 }

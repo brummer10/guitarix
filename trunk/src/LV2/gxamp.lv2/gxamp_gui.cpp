@@ -132,7 +132,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     {
       self->plugskin = "amp22.png";
       self->plug_name = "12AT7";
-      //set_knob(self, "metalic1-knob");
+      set_knob(self, "metalic1-knob");
     }
   else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16", plugin_uri) == 0)
     {

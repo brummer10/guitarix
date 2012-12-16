@@ -129,6 +129,12 @@ work(LV2_Handle                  instance,
   const LV2_Atom_Object* obj = (LV2_Atom_Object*)data;
   if (obj->body.otype == uris->gx_cab)
     {
+      if (self->cabconv->is_runnable()) {
+        self->cabconv->set_not_runnable();
+        self->cabconv->stop_process();
+        while (!self->cabconv->checkstate());
+        //printf("stop().\n");
+      }
       if (self->tubesel == 1)
         {
           //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
@@ -166,9 +172,18 @@ work(LV2_Handle                  instance,
           if (!self->cabconv->update(cab_data_HighGain.ir_count, cab_irdata_c, cab_data_HighGain.ir_sr))
             printf("cabconv->update fail.\n");
         }
+        
+        self->cabconv->start(0,0);
+        //printf("start().\n");
     }
   else if (obj->body.otype == uris->gx_pre)
     {
+      if (self->ampconv->is_runnable()) {
+        self->ampconv->set_not_runnable();
+        self->ampconv->stop_process();
+        while (!self->ampconv->checkstate());
+        //printf("stop().\n");
+      }
       //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
       float pre_irdata_c[contrast_ir_desc.ir_count];
       self->ampf->compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c);
@@ -176,6 +191,9 @@ work(LV2_Handle                  instance,
       if (!self->ampconv->update(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
         printf("cabconv->update fail.\n");
       //printf("worker 2 ready.\n");
+      
+      self->ampconv->start(0,0);
+      //printf("start().\n");
     }
   self->schedule_wait = false;
   return LV2_WORKER_SUCCESS;
@@ -328,11 +346,15 @@ instantiate(const LV2_Descriptor*     descriptor,
         }
       else self->cabconv->configure(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_data_HighGain.ir_sr);
 
-      self->cabconv->start(0, SCHED_FIFO);
+      if(!self->cabconv->start(0, SCHED_FIFO))
+        printf("cabinet convolver disabled\n");
+      else printf("cabinet convolver start\n");
 
       self->ampconv->set_buffersize(self->bufsize);
       self->ampconv->configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
-      self->ampconv->start(0, SCHED_FIFO);
+      if(!self->ampconv->start(0, SCHED_FIFO))
+        printf("presence convolver disabled\n");
+      else printf("presence convolver start\n");
     }
   else
     {
