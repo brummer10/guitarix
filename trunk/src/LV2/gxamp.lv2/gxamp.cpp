@@ -348,13 +348,13 @@ instantiate(const LV2_Descriptor*     descriptor,
 
       if(!self->cabconv->start(0, SCHED_FIFO))
         printf("cabinet convolver disabled\n");
-      else printf("cabinet convolver start\n");
+      //else printf("cabinet convolver start\n");
 
       self->ampconv->set_buffersize(self->bufsize);
       self->ampconv->configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
       if(!self->ampconv->start(0, SCHED_FIFO))
         printf("presence convolver disabled\n");
-      else printf("presence convolver start\n");
+      //else printf("presence convolver start\n");
     }
   else
     {
