@@ -26,26 +26,7 @@ inline void Tonestack::clear_state_f()
 
 inline void Tonestack::init(unsigned int samplingFreq, GXPlugin *self)
 {
-  if (self->tubesel == 1)
-    {
-      _t_ptr = &Tonestack::run;
-    }
-  else if (self->tubesel == 2)
-    {
-      _t_ptr = &Tonestack::run_soldano;
-    }
-  else if (self->tubesel == 3)
-    {
-      _t_ptr = &Tonestack::run_bassman;
-    }
-  else if (self->tubesel == 4)
-    {
-      _t_ptr = &Tonestack::run_soldano;
-    }
-  else
-    {
-      _t_ptr = &Tonestack::run;
-    }
+
   fSamplingFreq = samplingFreq;
   fConst0 = (2 * double(min(192000, max(1, fSamplingFreq))));
   fConst1 = faustpower<2>(fConst0);

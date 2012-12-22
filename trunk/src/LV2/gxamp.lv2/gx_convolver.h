@@ -81,8 +81,13 @@ class GxSimpleConvolver: public GxConvolverBase
 private:
   gx_resample::BufferResampler& resamp;
 public:
+  int cab_count;
+  int cab_sr;
+  float *cab_data;
+  float *cab_data_new;
   GxSimpleConvolver(gx_resample::BufferResampler& resamp_)
-    : GxConvolverBase(), resamp(resamp_) {}
+    : GxConvolverBase(), resamp(resamp_), cab_count(0), cab_sr(0),
+      cab_data(NULL), cab_data_new(NULL) {}
   bool configure(int count, float *impresp, unsigned int imprate);
   bool update(int count, float *impresp, unsigned int imprate);
   bool compute(int count, float* input, float *output);

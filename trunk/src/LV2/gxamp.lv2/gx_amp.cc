@@ -62,23 +62,6 @@ inline void GxAmp::clear_state_f()
 
 inline void GxAmp::init(unsigned int samplingFreq, GXPlugin *self)
 {
-  if (self->tubesel == 1)
-    {
-      _a_ptr = &GxAmp::run_12ax7;
-    }
-  else if (self->tubesel == 2)
-    {
-      _a_ptr = &GxAmp::run_12AT7;
-    }
-  else if (self->tubesel == 3)
-    {
-      _a_ptr = &GxAmp::run_6C16;
-    }
-  else if (self->tubesel == 4)
-    {
-      _a_ptr = &GxAmp::run_6V6;
-    }
-  else _a_ptr = &GxAmp::run_12ax7;
 
   fSamplingFreq = samplingFreq;
   fslider0 = 0;

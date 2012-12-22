@@ -93,6 +93,7 @@ public:
   LV2_Atom_Forge_Frame         notify_frame;
   LV2_Worker_Schedule*         schedule;
   // internal stuff
+  void set_tubesel(const LV2_Descriptor*     descriptor);
   uint32_t                     tubesel;
   Tonestack                    *ts;
   GxAmp                        *amplifier;
@@ -104,7 +105,10 @@ public:
   Ampf                         *ampf;
   uint32_t                     bufsize;
   bool                         schedule_wait;
+
   static void connect(uint32_t port,void* data, GXPlugin* self);
+  void init_dsp(double rate, uint32_t bufsize_);
+  void do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris);
   GXPlugin() :
     tubesel(0),
     ts(new Tonestack()),
@@ -128,8 +132,6 @@ public:
       };
 };
 
-
-
 #include "gx_tonestack.cc"
 #include "gx_amp.cc"
 #include "gx_convolver.cc"
@@ -137,6 +139,150 @@ public:
 #include "impulse_former.cc"
 #include "ampulse_former.cc"
 
+void GXPlugin::do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris)
+{
+  if (obj->body.otype == uris->gx_cab)
+    {
+      float cab_irdata_c[cabconv->cab_count];
+      impf->compute(cabconv->cab_count, cabconv->cab_data, cab_irdata_c);
+      cabconv->cab_data_new = cab_irdata_c;
+      if (!cabconv->update(cabconv->cab_count, cabconv->cab_data_new, cabconv->cab_sr))
+        printf("cabconv->update fail.\n");
+    }
+  else if (obj->body.otype == uris->gx_pre)
+    {
+      //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
+      float pre_irdata_c[contrast_ir_desc.ir_count];
+      ampf->compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c);
+      // cab_data_HighGain.ir_count, cab_data_HighGain.ir_data,cab_data_HighGain.ir_sr
+      if (!ampconv->update(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
+        printf("cabconv->update fail.\n");
+      //printf("worker 2 ready.\n");
+    }
+  schedule_wait = false;
+}
+
+void GXPlugin::set_tubesel(const LV2_Descriptor*     descriptor)
+{
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7",descriptor->URI)== 0)
+    {
+      printf("12ax7\n");
+      _a_ptr = &GxAmp::run_12ax7;
+      _t_ptr = &Tonestack::run;
+      cabconv->cab_count = cab_data_HighGain.ir_count;
+      cabconv->cab_sr = cab_data_HighGain.ir_sr;
+      cabconv->cab_data = cab_data_HighGain.ir_data;
+      tubesel  = 1;
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7",descriptor->URI)== 0)
+    {
+      printf("12AT7\n");
+      _a_ptr = &GxAmp::run_12AT7;
+      _t_ptr = &Tonestack::run_soldano;
+      cabconv->cab_count = cab_data_AC30.ir_count;
+      cabconv->cab_sr = cab_data_AC30.ir_sr;
+      cabconv->cab_data = cab_data_AC30.ir_data;
+      tubesel  = 2;
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16",descriptor->URI)== 0)
+    {
+      printf("6C16\n");
+      _a_ptr = &GxAmp::run_6C16;
+      _t_ptr = &Tonestack::run_bassman;
+      cabconv->cab_count = cab_data_1x15.ir_count;
+      cabconv->cab_sr =  cab_data_1x15.ir_sr;
+      cabconv->cab_data = cab_data_1x15.ir_data;
+      tubesel  = 3;
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6V6",descriptor->URI)== 0)
+    {
+      printf("6V6\n");
+      _a_ptr = &GxAmp::run_6V6;
+      _t_ptr = &Tonestack::run_soldano;
+      cabconv->cab_count = cab_data_mesa.ir_count;
+      cabconv->cab_sr = cab_data_mesa.ir_sr;
+      cabconv->cab_data = cab_data_mesa.ir_data;
+      tubesel  = 4;
+    }
+  else {
+      _a_ptr = &GxAmp::run_12ax7;
+      _t_ptr = &Tonestack::run;
+      cabconv->cab_count = cab_data_HighGain.ir_count;
+      cabconv->cab_sr = cab_data_HighGain.ir_sr;
+      cabconv->cab_data = cab_data_HighGain.ir_data;
+      tubesel  = 0;
+    }
+}
+
+void GXPlugin::init_dsp(double rate, uint32_t bufsize_)
+{
+  AVOIDDENORMALS();
+
+  bufsize = bufsize_;
+  amplifier->init_static(rate, this);
+  ts->init_static(rate, this);
+
+  cabconv->set_samplerate(rate);
+  impf->init_static(rate, impf);
+
+  ampconv->set_samplerate(rate);
+  ampf->init_static(rate, ampf);
+
+  if (bufsize )
+  {
+    cabconv->set_buffersize(bufsize);
+    cabconv->configure(cabconv->cab_count, cabconv->cab_data, cabconv->cab_sr);
+      
+    if(!cabconv->start(0, SCHED_FIFO))
+      printf("cabinet convolver disabled\n");
+
+    ampconv->set_buffersize(bufsize);
+    ampconv->configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
+    if(!ampconv->start(0, SCHED_FIFO))
+      printf("presence convolver disabled\n");
+  }
+  else
+  {
+    printf("convolver disabled\n");
+  }
+}
+
+
+void GXPlugin::connect(uint32_t port,void* data, GXPlugin* self)
+{
+  switch ((PortIndex)port)
+    {
+    case AMP_MASTERGAIN:
+      break;
+    case AMP_PREGAIN:
+      break;
+    case AMP_WET_DRY:
+      break;
+    case AMP_DRIVE:
+      break;
+    case MID:
+      break;
+    case BASS:
+      break;
+    case TREBLE:
+      break;
+    case CLevel:
+      break;
+    case ALevel:
+      break;
+    case AMP_OUTPUT:
+      break;
+    case AMP_INPUT:
+      break;
+    case AMP_CONTROL:
+      self->c_notice = (LV2_Atom_Sequence*)data;
+      break;
+    case AMP_NOTIFY:
+      self->n_notice = (LV2_Atom_Sequence*)data;
+      break;
+    }
+
+}
 
 static LV2_Worker_Status
 work(LV2_Handle                  instance,
@@ -148,57 +294,7 @@ work(LV2_Handle                  instance,
   GXPlugin* self = (GXPlugin*)instance;
   GXPluginURIs* uris        = &self->uris;
   const LV2_Atom_Object* obj = (LV2_Atom_Object*)data;
-  if (obj->body.otype == uris->gx_cab)
-    {
-      if (self->tubesel == 1)
-        {
-          //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
-          float cab_irdata_c[cab_data_HighGain.ir_count];
-          self->impf->compute(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_irdata_c);
-          if (!self->cabconv->update(cab_data_HighGain.ir_count, cab_irdata_c, cab_data_HighGain.ir_sr))
-            printf("cabconv->update fail.\n");
-          //printf("worker 1 ready.\n");
-        }
-      else if (self->tubesel == 2)
-        {
-          float cab_irdata_c[cab_data_AC30.ir_count];
-          self->impf->compute(cab_data_AC30.ir_count, cab_data_AC30.ir_data, cab_irdata_c);
-          if (!self->cabconv->update(cab_data_AC30.ir_count, cab_irdata_c, cab_data_AC30.ir_sr))
-            printf("cabconv->update fail.\n");
-        }
-      else if (self->tubesel == 3)
-        {
-          float cab_irdata_c[cab_data_1x15.ir_count];
-          self->impf->compute(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_irdata_c);
-          if (!self->cabconv->update(cab_data_1x15.ir_count, cab_irdata_c, cab_data_1x15.ir_sr))
-            printf("cabconv->update fail.\n");
-        }
-      else if (self->tubesel == 4)
-        {
-          float cab_irdata_c[cab_data_mesa.ir_count];
-          self->impf->compute(cab_data_mesa.ir_count, cab_data_mesa.ir_data, cab_irdata_c);
-          if (!self->cabconv->update(cab_data_mesa.ir_count, cab_irdata_c, cab_data_mesa.ir_sr))
-            printf("cabconv->update fail.\n");
-        }
-      else
-        {
-          float cab_irdata_c[cab_data_HighGain.ir_count];
-          self->impf->compute(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_irdata_c);
-          if (!self->cabconv->update(cab_data_HighGain.ir_count, cab_irdata_c, cab_data_HighGain.ir_sr))
-            printf("cabconv->update fail.\n");
-        }
-    }
-  else if (obj->body.otype == uris->gx_pre)
-    {
-      //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
-      float pre_irdata_c[contrast_ir_desc.ir_count];
-      self->ampf->compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c);
-      // cab_data_HighGain.ir_count, cab_data_HighGain.ir_data,cab_data_HighGain.ir_sr
-      if (!self->ampconv->update(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
-        printf("cabconv->update fail.\n");
-      //printf("worker 2 ready.\n");
-    }
-  self->schedule_wait = false;
+  self->do_work(obj, uris);
   return LV2_WORKER_SUCCESS;
 }
 
@@ -227,27 +323,7 @@ instantiate(const LV2_Descriptor*     descriptor,
   const LV2_Options_Option* options  = NULL;
   uint32_t bufsize = 0;
   //printf(" %s\n",descriptor->URI);
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7",descriptor->URI)== 0)
-    {
-      printf("12ax7\n");
-      self->tubesel  = 1;
-    }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7",descriptor->URI)== 0)
-    {
-      printf("12AT7\n");
-      self->tubesel  = 2;
-    }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16",descriptor->URI)== 0)
-    {
-      printf("6C16\n");
-      self->tubesel  = 3;
-    }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6V6",descriptor->URI)== 0)
-    {
-      printf("6V6\n");
-      self->tubesel  = 4;
-    }
-  else self->tubesel  = 0;
+  
   for (int i = 0; features[i]; ++i)
     {
       if (!strcmp(features[i]->URI, LV2_URID__map))
@@ -304,93 +380,13 @@ instantiate(const LV2_Descriptor*     descriptor,
       printf("using block size: %d\n", bufsize);
     }
 
-
-  AVOIDDENORMALS();
-
   LV2_URID_Map*             map      = self->map;
   map_gx_uris(map, &self->uris);
   lv2_atom_forge_init(&self->forge, self->map);
-
-  self->bufsize = bufsize;
-  self->amplifier->init_static(rate, self);
-  self->ts->init_static(rate, self);
-
-  self->cabconv->set_samplerate(rate);
-  self->impf->init_static(rate, self->impf);
-
-  self->ampconv->set_samplerate(rate);
-  self->ampf->init_static(rate, self->ampf);
-
-  if (self->bufsize )
-    {
-      self->cabconv->set_buffersize(self->bufsize);
-      if (self->tubesel == 1)
-        {
-          self->cabconv->configure(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_data_HighGain.ir_sr);
-        }
-      else if (self->tubesel == 2)
-        {
-          self->cabconv->configure(cab_data_AC30.ir_count, cab_data_AC30.ir_data, cab_data_AC30.ir_sr);
-        }
-      else if (self->tubesel == 3)
-        {
-          self->cabconv->configure(cab_data_1x15.ir_count, cab_data_1x15.ir_data, cab_data_1x15.ir_sr);
-        }
-      else if (self->tubesel == 4)
-        {
-          self->cabconv->configure(cab_data_mesa.ir_count, cab_data_mesa.ir_data, cab_data_mesa.ir_sr);
-        }
-      else self->cabconv->configure(cab_data_HighGain.ir_count, cab_data_HighGain.ir_data, cab_data_HighGain.ir_sr);
-
-      if(!self->cabconv->start(0, SCHED_FIFO))
-        printf("cabinet convolver disabled\n");
-
-      self->ampconv->set_buffersize(self->bufsize);
-      self->ampconv->configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
-      if(!self->ampconv->start(0, SCHED_FIFO))
-        printf("presence convolver disabled\n");
-    }
-  else
-    {
-      printf("convolver disabled\n");
-    }
+  self->set_tubesel( descriptor);
+  self->init_dsp(rate, bufsize);
+  
   return (LV2_Handle)self;
-}
-
-void GXPlugin::connect(uint32_t port,void* data, GXPlugin* self)
-{
-  switch ((PortIndex)port)
-    {
-    case AMP_MASTERGAIN:
-      break;
-    case AMP_PREGAIN:
-      break;
-    case AMP_WET_DRY:
-      break;
-    case AMP_DRIVE:
-      break;
-    case MID:
-      break;
-    case BASS:
-      break;
-    case TREBLE:
-      break;
-    case CLevel:
-      break;
-    case ALevel:
-      break;
-    case AMP_OUTPUT:
-      break;
-    case AMP_INPUT:
-      break;
-    case AMP_CONTROL:
-      self->c_notice = (LV2_Atom_Sequence*)data;
-      break;
-    case AMP_NOTIFY:
-      self->n_notice = (LV2_Atom_Sequence*)data;
-      break;
-    }
-
 }
 
 static void

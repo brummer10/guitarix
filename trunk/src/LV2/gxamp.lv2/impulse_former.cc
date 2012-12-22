@@ -35,11 +35,11 @@ inline void Impf::init(unsigned int samplingFreq)
 inline void Impf::compute(int count, float *input0, float *output0)
 {
   fslider0 = (*fslider0_);
-  double 	fSlow0 = fslider0;
-  double 	fSlow1 = (fSlow0 * pow(10,(0 - (0.1 * fSlow0))));
+  double 	fSlow0 = fslider0* fslider0;
+  //double 	fSlow1 = (fSlow0 * pow(10,(0 - (0.1 * fSlow0))));
   for (int i=0; i<count; i++)
     {
-      output0[i] = (FAUSTFLOAT)(fSlow1 * (double)input0[i]);
+      output0[i] = fSlow0 * input0[i];
     }
 }
 
