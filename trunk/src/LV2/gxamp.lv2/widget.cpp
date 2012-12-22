@@ -87,11 +87,11 @@ Widget::Widget(Glib::ustring plug_name)
   m_smallknob3.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob6_value_changed));
 
-  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 1, 5, 0.5, clevel, plug_name);
+  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 0.1, 2, 0.1, clevel, plug_name);
   m_smallknob4.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob7_value_changed));
 
-  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 1, 5, 0.5, alevel, plug_name);
+  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 0.1, 2, 0.1, alevel, plug_name);
   m_smallknob5.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob8_value_changed));
 

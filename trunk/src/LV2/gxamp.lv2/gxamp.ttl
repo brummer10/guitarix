@@ -128,8 +128,8 @@
         lv2:symbol "fslider0_" ;
         lv2:name "Cabinet";
         lv2:default 1.0 ;
-        lv2:minimum 0.5 ;
-        lv2:maximum 5.0 ;
+        lv2:minimum 0.1 ;
+        lv2:maximum 2.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -137,8 +137,8 @@
         lv2:symbol "fslider0_" ;
         lv2:name "Presence";
         lv2:default 1.0 ;
-        lv2:minimum 0.5 ;
-        lv2:maximum 5.0 ;
+        lv2:minimum 0.1 ;
+        lv2:maximum 2.0 ;
     ] ,    [
         a lv2:AudioPort ,
             lv2:OutputPort ;
@@ -256,8 +256,8 @@
         lv2:symbol "fslider0_" ;
         lv2:name "Cabinet";
         lv2:default 1.0 ;
-        lv2:minimum 0.5 ;
-        lv2:maximum 5.0 ;
+        lv2:minimum 0.1 ;
+        lv2:maximum 2.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -265,8 +265,8 @@
         lv2:symbol "fslider0_" ;
         lv2:name "Presence";
         lv2:default 1.0 ;
-        lv2:minimum 0.5 ;
-        lv2:maximum 5.0 ;
+        lv2:minimum 0.1 ;
+        lv2:maximum 2.0 ;
     ] ,    [
         a lv2:AudioPort ,
             lv2:OutputPort ;
@@ -384,8 +384,8 @@
         lv2:symbol "fslider0_" ;
         lv2:name "Cabinet";
         lv2:default 1.0 ;
-        lv2:minimum 0.5 ;
-        lv2:maximum 5.0 ;
+        lv2:minimum 0.1 ;
+        lv2:maximum 2.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -393,8 +393,8 @@
         lv2:symbol "fslider0_" ;
         lv2:name "Presence";
         lv2:default 1.0 ;
-        lv2:minimum 0.5 ;
-        lv2:maximum 5.0 ;
+        lv2:minimum 0.1 ;
+        lv2:maximum 2.0 ;
     ] ,    [
         a lv2:AudioPort ,
             lv2:OutputPort ;
@@ -512,8 +512,8 @@
         lv2:symbol "fslider0_" ;
         lv2:name "Cabinet";
         lv2:default 1.0 ;
-        lv2:minimum 0.5 ;
-        lv2:maximum 5.0 ;
+        lv2:minimum 0.1 ;
+        lv2:maximum 2.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -521,8 +521,8 @@
         lv2:symbol "fslider0_" ;
         lv2:name "Presence";
         lv2:default 1.0 ;
-        lv2:minimum 0.5 ;
-        lv2:maximum 5.0 ;
+        lv2:minimum 0.1 ;
+        lv2:maximum 2.0 ;
     ] ,    [
         a lv2:AudioPort ,
             lv2:OutputPort ;

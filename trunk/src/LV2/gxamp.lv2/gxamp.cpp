@@ -70,7 +70,7 @@ template <>      inline int faustpower<1>(int x)
   return x;
 }
 
-struct GXPlugin;
+class GXPlugin;
 
 #include "gxamp.h"
 #include "gx_resampler.h"
@@ -81,8 +81,9 @@ struct GXPlugin;
 #include "ampulse_former.h"
 
 
-struct GXPlugin
+class GXPlugin
 {
+public:
   // LV2 stuff
   LV2_Atom_Sequence*           c_notice;
   LV2_Atom_Sequence*           n_notice;
@@ -104,7 +105,27 @@ struct GXPlugin
   uint32_t                     bufsize;
   bool                         schedule_wait;
   static void connect(uint32_t port,void* data, GXPlugin* self);
-  GXPlugin() {}
+  GXPlugin() :
+    tubesel(0),
+    ts(new Tonestack()),
+    amplifier(new GxAmp()),
+    cabconv(new GxSimpleConvolver(resamp)),
+    impf(new Impf()),
+    ampconv(new GxSimpleConvolver(resamp1)),
+    ampf(new Ampf()),
+    bufsize(0),
+    schedule_wait(false)
+    {};
+  ~GXPlugin() {
+    cabconv->stop_process();
+    ampconv->stop_process();
+    delete amplifier;
+    delete ts;
+    delete cabconv;
+    delete impf;
+    delete ampconv;
+    delete ampf;
+      };
 };
 
 
@@ -291,20 +312,13 @@ instantiate(const LV2_Descriptor*     descriptor,
   lv2_atom_forge_init(&self->forge, self->map);
 
   self->bufsize = bufsize;
-  self->schedule_wait = false;
-  self->amplifier = new GxAmp();
-  self->ts = new Tonestack();
   self->amplifier->init_static(rate, self);
   self->ts->init_static(rate, self);
 
-  self->cabconv = new GxSimpleConvolver(self->resamp);
   self->cabconv->set_samplerate(rate);
-  self->impf = new Impf();
   self->impf->init_static(rate, self->impf);
 
-  self->ampconv = new GxSimpleConvolver(self->resamp1);
   self->ampconv->set_samplerate(rate);
-  self->ampf = new Ampf();
   self->ampf->init_static(rate, self->ampf);
 
   if (self->bufsize )
@@ -435,14 +449,7 @@ static void
 cleanup(LV2_Handle instance)
 {
   GXPlugin* self = (GXPlugin*)instance;
-  self->cabconv->stop_process();
-  self->ampconv->stop_process();
-  delete self->amplifier;
-  delete self->ts;
-  delete self->cabconv;
-  delete self->impf;
-  delete self->ampconv;
-  delete self->ampf;
+  
   delete self;
 }
 

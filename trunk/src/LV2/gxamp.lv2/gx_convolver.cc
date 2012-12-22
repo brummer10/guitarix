@@ -455,5 +455,6 @@ bool GxSimpleConvolver::compute(int count, float* input, float *output)
 
 void GxSimpleConvolver::run_static(uint32_t n_samples, GxSimpleConvolver *p, float *output)
 {
-  p->compute(n_samples, output, output);
+  if (!p->compute(n_samples, output, output))
+    printf("convolver didn't run\n");
 }
