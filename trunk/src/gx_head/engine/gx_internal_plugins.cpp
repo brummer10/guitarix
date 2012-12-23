@@ -800,6 +800,18 @@ bool CabinetConvolver::do_update() {
     return conv_start();
 }
 
+bool CabinetConvolver::do_only_update() {
+    CabDesc& cab = *getCabEntry(cabinet).data;
+    float cab_irdata_c[cab.ir_count];
+    impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
+
+	if (!conv.update(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+	    return false;
+	}
+    update_sum();
+    return true;
+}
+
 bool CabinetConvolver::start(bool force) {
     if (force) {
 	current_cab = -1;
@@ -816,8 +828,10 @@ bool CabinetConvolver::start(bool force) {
 }
 
 void CabinetConvolver::check_update() {
-    if (cabinet_changed() || sum_changed()) {
+    if (cabinet_changed()) {
 	do_update();
+    } else if (sum_changed()) {
+	do_only_update();
     }
 }
 
@@ -942,6 +956,17 @@ bool PreampConvolver::do_update() {
     return conv_start();
 }
 
+bool PreampConvolver::do_only_update() {
+    PreDesc& pre = *getPreEntry(preamp).data;
+    float pre_irdata_c[pre.ir_count];
+    impf.compute(pre.ir_count,pre.ir_data,pre_irdata_c);
+	if (!conv.update(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+	    return false;
+	}
+    update_sum();
+    return true;
+}
+
 bool PreampConvolver::start(bool force) {
     if (force) {
 	current_pre = -1;
@@ -958,8 +983,10 @@ bool PreampConvolver::start(bool force) {
 }
 
 void PreampConvolver::check_update() {
-    if (preamp_changed() || sum_changed()) {
+    if (preamp_changed()) {
 	do_update();
+    } else if (sum_changed()) {
+	do_only_update();
     }
 }
 
@@ -1027,6 +1054,17 @@ bool ContrastConvolver::do_update() {
     return conv_start();
 }
 
+bool ContrastConvolver::do_only_update() {
+    float contrast_irdata_c[contrast_ir_desc.ir_count];
+    presl.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
+    
+	if (!conv.update(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
+	    return false;
+	}
+    update_sum();
+    return true;
+}
+
 bool ContrastConvolver::start(bool force) {
     if (force) {
 	sum = no_sum;
@@ -1044,7 +1082,7 @@ bool ContrastConvolver::start(bool force) {
 
 void ContrastConvolver::check_update() {
     if (sum_changed()) {
-	do_update();
+	do_only_update();
     }
 }
 

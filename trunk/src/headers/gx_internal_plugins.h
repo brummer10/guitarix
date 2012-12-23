@@ -450,6 +450,7 @@ private:
     static void run_cab_conf(int count, float *input, float *output, PluginDef*);
     static int register_cab(const ParamReg& reg);
     bool do_update();
+    bool do_only_update();
     virtual void check_update();
     virtual bool start(bool force = false);
     bool cabinet_changed() { return current_cab != cabinet; }
@@ -481,6 +482,7 @@ private:
     static void run_pre_conf(int count, float *input, float *output, PluginDef*);
     static int register_pre(const ParamReg& reg);
     bool do_update();
+    bool do_only_update();
     virtual void check_update();
     virtual bool start(bool force = false);
     bool preamp_changed() { return current_pre != preamp; }
@@ -508,6 +510,7 @@ private:
     inline void update_sum() { sum = level; }
     virtual void check_update();
     bool do_update();
+    bool do_only_update();
     inline bool sum_changed() { return abs(sum - level) > 0.01; }
     virtual bool start(bool force = false);
 public:

@@ -2084,6 +2084,7 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 	                x0+38, y0+20, 131,26,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
         g_object_unref(paintbox->gxh_image);
+        paintbox->gxh_image = NULL;
         }
         GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
         gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
@@ -2111,6 +2112,7 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 		nf = spf;
 		if (G_IS_OBJECT(paintbox-> gxh_image)) {
 			g_object_unref(paintbox->gxh_image);
+            paintbox->gxh_image = NULL;
 		}
 		GdkPixbuf  *stock_image, *frame;
 		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
