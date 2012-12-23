@@ -107,8 +107,8 @@ public:
   bool                         schedule_wait;
 
   static void connect(uint32_t port,void* data, GXPlugin* self);
-  void init_dsp(double rate, uint32_t bufsize_);
-  void do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris);
+  inline void init_dsp(double rate, uint32_t bufsize_);
+  inline void do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris);
   GXPlugin() :
     tubesel(0),
     ts(new Tonestack()),
@@ -203,6 +203,16 @@ void GXPlugin::set_tubesel(const LV2_Descriptor*     descriptor)
       cabconv->cab_sr = cab_data_mesa.ir_sr;
       cabconv->cab_data = cab_data_mesa.ir_data;
       tubesel  = 4;
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6DJ8",descriptor->URI)== 0)
+    {
+      printf("6DJ8\n");
+      _a_ptr = &GxAmp::run_6DJ8;
+      _t_ptr = &Tonestack::run_ampeg;
+      cabconv->cab_count = cab_data_4x12.ir_count;
+      cabconv->cab_sr = cab_data_4x12.ir_sr;
+      cabconv->cab_data = cab_data_4x12.ir_data;
+      tubesel  = 5;
     }
   else {
       _a_ptr = &GxAmp::run_12ax7;
@@ -505,6 +515,17 @@ static const LV2_Descriptor descriptor3 =
   cleanup,
   extension_data
 };
+static const LV2_Descriptor descriptor4 =
+{
+  GXPLUGIN_URI "#6DJ8",
+  instantiate,
+  connect_port,
+  activate,
+  run,
+  deactivate,
+  cleanup,
+  extension_data
+};
 
 extern "C"
 LV2_SYMBOL_EXPORT
@@ -521,6 +542,8 @@ lv2_descriptor(uint32_t index)
       return &descriptor2;
     case 3:
       return &descriptor3;
+    case 4:
+      return &descriptor4;
     default:
       return NULL;
     }

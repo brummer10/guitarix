@@ -31,57 +31,67 @@
 
 using namespace std;
 
-struct GXPluginGUI
+class GXPluginGUI
 {
-  LV2_Atom_Forge forge;
-
-  LV2_URID_Map* map;
-  GXPluginURIs   uris;
+private:
   Glib::ustring plugskin;
   Glib::ustring addKnob;
   Glib::ustring plug_name;
+  void set_knob(Glib::ustring knob);
+  void set_skin();
+  void set_plug_name(const char * plugin_uri);
+  GtkWidget* make_gui();
+public:
+  LV2_Atom_Forge forge;
+  LV2_URID_Map* map;
+  GXPluginURIs   uris;
+  
   Widget* widget;
+  static void set_plug_name_static(GXPluginGUI *self, const char * plugin_uri)
+    {self->set_plug_name(plugin_uri);}
+  static GtkWidget* make_gui_static(GXPluginGUI *self)
+    {return self->make_gui();}
+
   GXPluginGUI () {};
+  ~GXPluginGUI () {};
 } ;
 
-static void set_knob(GXPluginGUI *self, Glib::ustring knob) 
+void GXPluginGUI::set_knob( Glib::ustring knob)
 {
-
-  self->addKnob =   " style 'gx_";
-  self->addKnob +=  self->plug_name;
-  self->addKnob +=   "_dark_skin_icons'\n"
+  addKnob =   " style 'gx_";
+  addKnob +=  plug_name;
+  addKnob +=   "_dark_skin_icons'\n"
                     " { \n"
                     "   stock['bigknob'] = {{'";
-  self->addKnob +=  knob;
-  self->addKnob +=  ".png'}}\n"
+  addKnob +=  knob;
+  addKnob +=  ".png'}}\n"
                     "   stock['smallknob'] = {{'";
-  self->addKnob +=  knob;
-  self->addKnob +=  "-small.png'}}\n"
+  addKnob +=  knob;
+  addKnob +=  "-small.png'}}\n"
                     "   stock['smallknobr'] = {{'";
-  self->addKnob +=  knob;
-  self->addKnob +=  "-middle.png'}}\n"
+  addKnob +=  knob;
+  addKnob +=  "-middle.png'}}\n"
                     " }\n"
                     "widget '*.";
-  self->addKnob +=  self->plug_name;
-  self->addKnob +=  "' style 'gx_";
-  self->addKnob +=  self->plug_name;
-  self->addKnob +=  "_dark_skin_icons' ";
-                    
+  addKnob +=  plug_name;
+  addKnob +=  "' style 'gx_";
+  addKnob +=  plug_name;
+  addKnob +=  "_dark_skin_icons' ";
 }
 
-static GtkWidget* make_gui(GXPluginGUI *self)
+void GXPluginGUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
         toparse +=     " '";
         toparse +=        GX_STYLE_DIR;
         toparse +=     "/'\n";
         toparse +=     "style \"gx_";
-        toparse +=    self->plug_name;
-        toparse +=    "_dark-paintbox\"\n"
+        toparse +=     plug_name;
+        toparse +=     "_dark-paintbox\"\n"
                        " { \n"
                        "    GxPaintBox::icon-set =9\n"
                        "    stock['amp_skin'] = {{'";
-        toparse +=     self->plugskin;
+        toparse +=     plugskin;
         toparse +=     "'}}\n"
                        " }\n"
                        "\n"
@@ -89,21 +99,63 @@ static GtkWidget* make_gui(GXPluginGUI *self)
                        " { \n"
                        "    fg[NORMAL] = '#afafaf' \n"
                        " }\n";
-        toparse +=     self->addKnob;
+        toparse +=     addKnob;
                        
-         toparse +=    " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
+        toparse +=     " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
                        "widget '*.";
-         toparse +=    self->plug_name;
-         toparse +=    "' style 'gx_";
-         toparse +=    self->plug_name;
-         toparse +=    "_dark-paintbox' ";
-    
-  // Gtk::Main::init_gtkmm_internals(); // not needed, done by Gxw::init()
-  gtk_rc_parse_string (toparse.c_str());
+        toparse +=     plug_name;
+        toparse +=     "' style 'gx_";
+        toparse +=     plug_name;
+        toparse +=     "_dark-paintbox' ";
 
+  gtk_rc_parse_string (toparse.c_str());
+}
+
+void GXPluginGUI::set_plug_name( const char * plugin_uri)
+{
+  addKnob = "";
+
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7", plugin_uri) == 0)
+    {
+      plugskin = "amp21.png";
+      plug_name = "12ax7";
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7", plugin_uri) == 0)
+    {
+      plugskin = "amp22.png";
+      plug_name = "12AT7";
+      set_knob("metalic1-knob");
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16", plugin_uri) == 0)
+    {
+      plugskin = "amp23.png";
+      plug_name = "6C16";
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6V6", plugin_uri) == 0)
+    {
+      plugskin = "amp24.png";
+      plug_name = "6V6";
+      set_knob("knob");
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6DJ8", plugin_uri) == 0)
+    {
+      plugskin = "amp25.png";
+      plug_name = "6DJ8";
+      set_knob("black-knob");
+    }
+  else 
+    {
+      plugskin = "amp21.png";
+      plug_name = "12ax7";
+    }
+}
+
+GtkWidget* GXPluginGUI::make_gui()
+{
+  set_skin();
   GtkWidget* container = gtk_vbox_new(FALSE, 2);
-  self->widget = new Widget(self->plug_name);
-  GtkWidget* cWidget = (GtkWidget*)self->widget->gobj();
+  widget = new Widget(plug_name);
+  GtkWidget* cWidget = (GtkWidget*)widget->gobj();
   gtk_container_add( (GtkContainer*)container, cWidget );
 
   return container;
@@ -121,35 +173,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
   GXPluginGUI* self = new GXPluginGUI();
   if (self == NULL) return NULL;
 
-  self->addKnob = "";
-
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7", plugin_uri) == 0)
-    {
-      self->plugskin = "amp21.png";
-      self->plug_name = "12ax7";
-    }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7", plugin_uri) == 0)
-    {
-      self->plugskin = "amp22.png";
-      self->plug_name = "12AT7";
-      set_knob(self, "metalic1-knob");
-    }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16", plugin_uri) == 0)
-    {
-      self->plugskin = "amp23.png";
-      self->plug_name = "6C16";
-    }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6V6", plugin_uri) == 0)
-    {
-      self->plugskin = "amp24.png";
-      self->plug_name = "6V6";
-      set_knob(self, "knob");
-    }
-  else 
-    {
-      self->plugskin = "amp21.png";
-      self->plug_name = "12ax7";
-    }
+  self->set_plug_name_static(self, plugin_uri);
 
   for (int i = 0; features[i]; ++i)
     {
@@ -169,7 +193,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
   map_gx_uris(map, &self->uris);
   lv2_atom_forge_init(&self->forge, self->map);
 
-  *widget = (LV2UI_Widget)make_gui(self);
+  *widget = (LV2UI_Widget)self->make_gui_static(self);
   self->widget->controller = controller;
   self->widget->write_function = write_function;
   self->widget->uris = self->uris;

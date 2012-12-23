@@ -154,6 +154,7 @@ public:
   void        run_6C16(uint32_t n_samples, GXPlugin *self);
   void        run_12AT7(uint32_t n_samples, GXPlugin *self);
   void        run_12ax7(uint32_t n_samples, GXPlugin *self);
+  void        run_6DJ8(uint32_t n_samples, GXPlugin *self);
   static void init_static(unsigned int samplingFreq, GXPlugin *self);
   static void connect_static(uint32_t port,void* data, GxAmp *p);
   static void run_static(uint32_t n_samples,GXPlugin *self);

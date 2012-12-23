@@ -45,6 +45,7 @@ public:
   void        run_bassman(uint32_t n_samples, float *output);
   void        run(uint32_t n_samples, float *output);
   void        run_soldano(uint32_t n_samples, float *output);
+  void        run_ampeg(uint32_t n_samples, float *output);
   static void init_static(unsigned int samplingFreq, GXPlugin *self);
   static void connect_static(uint32_t port,void* data, Tonestack *p);
   static void run_static(uint32_t n_samples, Tonestack*, float *output);

@@ -84,6 +84,7 @@ def build(bld):
         'GUI/amp22.png',
         'GUI/amp23.png',
         'GUI/amp24.png',
+        'GUI/amp25.png',
         'GUI/mastergain-label.png',
         'GUI/pregain-label.png',
         'GUI/drive-label.png',
@@ -100,7 +101,9 @@ def build(bld):
         'GUI/metalic1-knob.png',
         'GUI/metalic1-knob-middle.png',
         'GUI/metalic1-knob-small.png',
-        ]
+        'GUI/black-knob.png',
+        'GUI/black-knob-middle.png',
+        'GUI/black-knob-small.png',]
 
     bld.install_files(bld.env['GX_STYLE_DIR'], gxlv2style_files, chmod=0o644)
 
