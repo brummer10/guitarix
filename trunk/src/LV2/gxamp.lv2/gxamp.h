@@ -122,7 +122,7 @@ write_set_float(LV2_Atom_Forge*    forge,
 static inline LV2_Atom*
 write_set_int(LV2_Atom_Forge*    forge,
               const GXPluginURIs* uris,
-              int        value)
+              int32_t        value)
 {
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* set = (LV2_Atom*)lv2_atom_forge_resource(

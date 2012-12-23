@@ -26,18 +26,18 @@ Ampf::~Ampf()
 {
 }
 
-inline void Ampf::init(unsigned int samplingFreq)
+inline void Ampf::init(uint32_t samplingFreq)
 {
   fSamplingFreq = samplingFreq;
   fslider0 = 1.;
 }
 
-inline void Ampf::compute(int count, float *input0, float *output0)
+inline void Ampf::compute(int32_t count, float *input0, float *output0)
 {
   fslider0 = (*fslider0_);
   double 	fSlow0 = fslider0* fslider0;
   //double 	fSlow1 = (fSlow0 * pow(10,(0 - (0.1 * fSlow0))));
-  for (int i=0; i<count; i++)
+  for (int32_t i=0; i<count; i++)
     {
       output0[i] = fSlow0 * input0[i];
     }
@@ -82,7 +82,7 @@ void Ampf::connect_static(uint32_t port,void* data, Ampf *p)
   static_cast<Ampf*>(p)->connect(port, data);
 }
 
-void Ampf::init_static(unsigned int samplingFreq, Ampf *p)
+void Ampf::init_static(uint32_t samplingFreq, Ampf *p)
 {
   static_cast<Ampf*>(p)->init(samplingFreq);
 }

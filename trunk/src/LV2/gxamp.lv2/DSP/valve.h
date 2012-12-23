@@ -20,6 +20,9 @@
 
 #pragma once
 
+#ifndef SRC_HEADERS_VALVE_H_
+#define SRC_HEADERS_VALVE_H_
+
 /****************************************************************
  * 1-dimensional function tables for linear interpolation
  *
@@ -33,16 +36,16 @@ struct table1d { // 1-dimensional function table
     float low;
     float high;
     float istep;
-    int size;
+    int32_t size;
     float data[];
 };
 
-template <int tab_size>
+template <int32_t tab_size>
 struct table1d_imp {
     float low;
     float high;
     float istep;
-    int size;
+    int32_t size;
     float data[tab_size];
     operator table1d&() const { return *(table1d*)this; }
 };
@@ -84,14 +87,14 @@ table1d *tubetab[TUBE_TABLE_SIZE] = {
 };
 
 /*
- *  definitions for ffunction(float Ftube(int,float), "valve.h", "");
+ *  definitions for ffunction(float Ftube(int32_t,float), "valve.h", "");
  *  in gx_amp.dsp - gx_ampmodul.dsp
  */
 
-static inline double Ftube(int table, double Vgk) {
+static inline double Ftube(int32_t table, double Vgk) {
     const table1d& tab = *tubetab[table];
     double f = (Vgk - tab.low) * tab.istep;
-    int i = static_cast<int>(f);
+    int32_t i = static_cast<int32_t>(f);
     if (i < 0)
         return tab.data[0];
     if (i >= tab.size-1)
@@ -99,3 +102,5 @@ static inline double Ftube(int table, double Vgk) {
     f -= i;
     return tab.data[i]*(1-f) + tab.data[i+1]*f;
 }
+
+#endif

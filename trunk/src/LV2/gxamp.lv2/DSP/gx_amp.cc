@@ -20,47 +20,47 @@
 
 inline void GxAmp::clear_state_f()
 {
-  for (int i=0; i<2; i++) fRec0[i] = 0;
-  for (int i=0; i<2; i++) fRec7[i] = 0;
-  for (int i=0; i<2; i++) fRec18[i] = 0;
-  for (int i=0; i<3; i++) fRec17[i] = 0;
-  for (int i=0; i<2; i++) fVec0[i] = 0;
-  for (int i=0; i<2; i++) fRec16[i] = 0;
-  for (int i=0; i<2; i++) fRec15[i] = 0;
-  for (int i=0; i<3; i++) fRec14[i] = 0;
-  for (int i=0; i<2; i++) fVec1[i] = 0;
-  for (int i=0; i<2; i++) fRec13[i] = 0;
-  for (int i=0; i<3; i++) fRec12[i] = 0;
-  for (int i=0; i<3; i++) fRec11[i] = 0;
-  for (int i=0; i<2; i++) fRec22[i] = 0;
-  for (int i=0; i<3; i++) fRec21[i] = 0;
-  for (int i=0; i<2; i++) fVec2[i] = 0;
-  for (int i=0; i<2; i++) fRec20[i] = 0;
-  for (int i=0; i<3; i++) fRec19[i] = 0;
-  for (int i=0; i<2; i++) fRec26[i] = 0;
-  for (int i=0; i<3; i++) fRec25[i] = 0;
-  for (int i=0; i<3; i++) fRec24[i] = 0;
-  for (int i=0; i<3; i++) fRec23[i] = 0;
-  for (int i=0; i<2; i++) fRec28[i] = 0;
-  for (int i=0; i<3; i++) fRec27[i] = 0;
-  for (int i=0; i<2; i++) fVec3[i] = 0;
-  for (int i=0; i<2; i++) fRec10[i] = 0;
-  for (int i=0; i<2; i++) fRec29[i] = 0;
-  for (int i=0; i<3; i++) fRec9[i] = 0;
-  for (int i=0; i<2; i++) fRec8[i] = 0;
-  for (int i=0; i<2; i++) fVec4[i] = 0;
-  for (int i=0; i<2; i++) fRec6[i] = 0;
-  for (int i=0; i<2; i++) fRec30[i] = 0;
-  for (int i=0; i<3; i++) fRec5[i] = 0;
-  for (int i=0; i<2; i++) fRec4[i] = 0;
-  for (int i=0; i<2; i++) fVec5[i] = 0;
-  for (int i=0; i<2; i++) fRec3[i] = 0;
-  for (int i=0; i<2; i++) fRec31[i] = 0;
-  for (int i=0; i<3; i++) fRec2[i] = 0;
-  for (int i=0; i<2; i++) fRec1[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec0[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec7[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec18[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec17[i] = 0;
+  for (int32_t i=0; i<2; i++) fVec0[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec16[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec15[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec14[i] = 0;
+  for (int32_t i=0; i<2; i++) fVec1[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec13[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec12[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec11[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec22[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec21[i] = 0;
+  for (int32_t i=0; i<2; i++) fVec2[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec20[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec19[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec26[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec25[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec24[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec23[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec28[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec27[i] = 0;
+  for (int32_t i=0; i<2; i++) fVec3[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec10[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec29[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec9[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec8[i] = 0;
+  for (int32_t i=0; i<2; i++) fVec4[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec6[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec30[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec5[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec4[i] = 0;
+  for (int32_t i=0; i<2; i++) fVec5[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec3[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec31[i] = 0;
+  for (int32_t i=0; i<3; i++) fRec2[i] = 0;
+  for (int32_t i=0; i<2; i++) fRec1[i] = 0;
 }
 
-inline void GxAmp::init(unsigned int samplingFreq, GXPlugin *self)
+inline void GxAmp::init(uint32_t samplingFreq)
 {
 
   fSamplingFreq = samplingFreq;
@@ -163,10 +163,10 @@ void GxAmp::connect(uint32_t port,void* data)
     case ALevel:
       break;
     case AMP_OUTPUT:
-      output = (float*)data;
+      //output = (float*)data;
       break;
     case AMP_INPUT:
-      input = (float*)data;
+      //input = (float*)data;
       break;
     case AMP_CONTROL:
       break;
@@ -175,7 +175,7 @@ void GxAmp::connect(uint32_t port,void* data)
     }
 }
 
-void GxAmp::run_12ax7(uint32_t n_samples, GXPlugin *self)
+void GxAmp::run_12ax7(uint32_t n_samples, float* input, float* output)
 {
   fslider0  = (*fslider0_);
   fslider1  = (*fslider1_);
@@ -302,13 +302,9 @@ void GxAmp::run_12ax7(uint32_t n_samples, GXPlugin *self)
       fRec7[1] = fRec7[0];
       fRec0[1] = fRec0[0];
     }
-  self->ampconv->run_static(n_samples,self->ampconv, output);
-  self->ts->run_static(n_samples, self->ts, output);
-  self->cabconv->run_static(n_samples,self->cabconv, output);
-
 }
 
-void GxAmp::run_12AT7(uint32_t n_samples, GXPlugin *self)
+void GxAmp::run_12AT7(uint32_t n_samples, float* input, float* output)
 {
   fslider0  = (*fslider0_);
   fslider1  = (*fslider1_);
@@ -435,12 +431,9 @@ void GxAmp::run_12AT7(uint32_t n_samples, GXPlugin *self)
       fRec7[1] = fRec7[0];
       fRec0[1] = fRec0[0];
     }
-  self->ampconv->run_static(n_samples,self->ampconv, output);
-  self->ts->run_static(n_samples, self->ts, output);
-  self->cabconv->run_static(n_samples,self->cabconv, output);
 }
 
-void GxAmp::run_6C16(uint32_t n_samples, GXPlugin *self)
+void GxAmp::run_6C16(uint32_t n_samples, float* input, float* output)
 {
   fslider0  = (*fslider0_);
   fslider1  = (*fslider1_);
@@ -567,12 +560,9 @@ void GxAmp::run_6C16(uint32_t n_samples, GXPlugin *self)
       fRec7[1] = fRec7[0];
       fRec0[1] = fRec0[0];
     }
-  self->ampconv->run_static(n_samples,self->ampconv, output);
-  self->ts->run_static(n_samples, self->ts, output);
-  self->cabconv->run_static(n_samples,self->cabconv, output);
 }
 
-void GxAmp::run_6V6(uint32_t n_samples, GXPlugin *self)
+void GxAmp::run_6V6(uint32_t n_samples, float* input, float* output)
 {
   fslider0  = (*fslider0_);
   fslider1  = (*fslider1_);
@@ -699,13 +689,10 @@ void GxAmp::run_6V6(uint32_t n_samples, GXPlugin *self)
       fRec7[1] = fRec7[0];
       fRec0[1] = fRec0[0];
     }
-  self->ampconv->run_static(n_samples,self->ampconv, output);
-  self->ts->run_static(n_samples, self->ts, output);
-  self->cabconv->run_static(n_samples,self->cabconv, output);
 }
 
 
-void GxAmp::run_6DJ8(uint32_t n_samples, GXPlugin *self)
+void GxAmp::run_6DJ8(uint32_t n_samples, float* input, float* output)
 {
   fslider0  = (*fslider0_);
   fslider1  = (*fslider1_);
@@ -819,16 +806,13 @@ void GxAmp::run_6DJ8(uint32_t n_samples, GXPlugin *self)
 		fRec7[1] = fRec7[0];
 		fRec0[1] = fRec0[0];
 	}
-  self->ampconv->run_static(n_samples,self->ampconv, output);
-  self->ts->run_static(n_samples, self->ts, output);
-  self->cabconv->run_static(n_samples,self->cabconv, output);
 }
 
 
 // static wrappers
-void GxAmp::init_static(unsigned int samplingFreq, GXPlugin *self)
+void GxAmp::init_static(uint32_t samplingFreq, GxAmp *p)
 {
-  self->amplifier->init(samplingFreq, self);
+  p->init(samplingFreq);
 }
 
 void GxAmp::connect_static(uint32_t port,void* data, GxAmp *p)
@@ -837,8 +821,8 @@ void GxAmp::connect_static(uint32_t port,void* data, GxAmp *p)
 }
 
 
-void GxAmp::run_static(uint32_t n_samples, GXPlugin *self)
+void GxAmp::run_static(uint32_t n_samples, float* input, float* output, GxAmp *p)
 {
-  (self->amplifier->*_a_ptr)(n_samples, self);
+  (p->*_a_ptr)(n_samples, input, output);
 }
 

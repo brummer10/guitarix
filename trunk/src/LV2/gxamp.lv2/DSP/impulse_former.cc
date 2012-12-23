@@ -26,18 +26,18 @@ Impf::~Impf()
 {
 }
 
-inline void Impf::init(unsigned int samplingFreq)
+inline void Impf::init(uint32_t samplingFreq)
 {
   fSamplingFreq = samplingFreq;
   fslider0 = 1.;
 }
 
-inline void Impf::compute(int count, float *input0, float *output0)
+inline void Impf::compute(int32_t count, float *input0, float *output0)
 {
   fslider0 = (*fslider0_);
   double 	fSlow0 = fslider0* fslider0;
   //double 	fSlow1 = (fSlow0 * pow(10,(0 - (0.1 * fSlow0))));
-  for (int i=0; i<count; i++)
+  for (int32_t i=0; i<count; i++)
     {
       output0[i] = fSlow0 * input0[i];
     }
@@ -82,7 +82,7 @@ void Impf::connect_static(uint32_t port,void* data, Impf *p)
   static_cast<Impf*>(p)->connect(port, data);
 }
 
-void Impf::init_static(unsigned int samplingFreq, Impf *p)
+void Impf::init_static(uint32_t samplingFreq, Impf *p)
 {
   static_cast<Impf*>(p)->init(samplingFreq);
 }

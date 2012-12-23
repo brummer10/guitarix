@@ -33,27 +33,27 @@ class GxConvolverBase: protected Convproc
 protected:
   volatile bool ready;
   bool sync;
-  void adjust_values(unsigned int audio_size, unsigned int& count, unsigned int& offset,
-                     unsigned int& delay, unsigned int& ldelay, unsigned int& length,
-                     unsigned int& size, unsigned int& bufsize);
-  unsigned int buffersize;
-  unsigned int samplerate;
+  void adjust_values(uint32_t audio_size, uint32_t& count, uint32_t& offset,
+                     uint32_t& delay, uint32_t& ldelay, uint32_t& length,
+                     uint32_t& size, uint32_t& bufsize);
+  uint32_t buffersize;
+  uint32_t samplerate;
   GxConvolverBase(): ready(false), sync(false), buffersize(), samplerate() {}
   ~GxConvolverBase();
 public:
-  inline void set_buffersize(unsigned int sz)
+  inline void set_buffersize(uint32_t sz)
   {
     buffersize = sz;
   }
-  inline unsigned int get_buffersize()
+  inline uint32_t get_buffersize()
   {
     return buffersize;
   }
-  inline void set_samplerate(unsigned int sr)
+  inline void set_samplerate(uint32_t sr)
   {
     samplerate = sr;
   }
-  inline unsigned int get_samplerate()
+  inline uint32_t get_samplerate()
   {
     return samplerate;
   }
@@ -67,7 +67,7 @@ public:
   {
     return ready;
   }
-  bool start(int policy, int priority);
+  bool start(int32_t policy, int32_t priority);
   using Convproc::stop_process;
   inline void set_sync(bool val)
   {
@@ -81,17 +81,17 @@ class GxSimpleConvolver: public GxConvolverBase
 private:
   gx_resample::BufferResampler& resamp;
 public:
-  int cab_count;
-  int cab_sr;
+  int32_t cab_count;
+  uint32_t cab_sr;
   float *cab_data;
   float *cab_data_new;
   GxSimpleConvolver(gx_resample::BufferResampler& resamp_)
     : GxConvolverBase(), resamp(resamp_), cab_count(0), cab_sr(0),
       cab_data(NULL), cab_data_new(NULL) {}
-  bool configure(int count, float *impresp, unsigned int imprate);
-  bool update(int count, float *impresp, unsigned int imprate);
-  bool compute(int count, float* input, float *output);
-  bool compute(int count, float* buffer)
+  bool configure(int32_t count, float *impresp, uint32_t imprate);
+  bool update(int32_t count, float *impresp, uint32_t imprate);
+  bool compute(int32_t count, float* input, float *output);
+  bool compute(int32_t count, float* buffer)
   {
     return is_runnable() ? compute(count, buffer, buffer) : true;
   }

@@ -21,10 +21,10 @@
 
 inline void Tonestack::clear_state_f()
 {
-  for (int i=0; i<4; i++) fRec0[i] = 0;
+  for (int32_t i=0; i<4; i++) fRec0[i] = 0;
 }
 
-inline void Tonestack::init(unsigned int samplingFreq, GXPlugin *self)
+inline void Tonestack::init(uint32_t samplingFreq)
 {
 
   fSamplingFreq = samplingFreq;
@@ -108,7 +108,7 @@ inline void Tonestack::run(uint32_t n_samples, float *output) //sovtek
       fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
       output[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
       // post processing
-      for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+      for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
     }
 }
 
@@ -151,7 +151,7 @@ inline void Tonestack::run_soldano(uint32_t n_samples, float *output) //soldano
       fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
       output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
       // post processing
-      for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+      for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
     }
 }
 
@@ -192,7 +192,7 @@ inline void Tonestack::run_bassman(uint32_t n_samples, float *output) //bassman
 		fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
 		output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
 		// post processing
-		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+		for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
 	}
 
 }
@@ -235,14 +235,14 @@ inline void Tonestack::run_ampeg(uint32_t n_samples, float *output) //ampeg
 		fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
 		output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
 		// post processing
-		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+		for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
 	}
 }
 
 
-void Tonestack::init_static(unsigned int samplingFreq, GXPlugin *self)
+void Tonestack::init_static(uint32_t samplingFreq, Tonestack *p)
 {
-  self->ts->init(samplingFreq, self);
+  p->init(samplingFreq);
 }
 
 void Tonestack::connect_static(uint32_t port,void* data, Tonestack *p)

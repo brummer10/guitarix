@@ -28,11 +28,11 @@
 class GxAmp
 {
 private:
-  int         fSamplingFreq;
+  int32_t         fSamplingFreq;
   float       fslider0;
   float       *fslider0_;
   double      fRec0[2];
-  int         iConst0;
+  int32_t         iConst0;
   double      fConst1;
   double      fConst2;
   double      fConst3;
@@ -143,27 +143,27 @@ private:
   double      fRec31[2];
   double      fRec2[3];
   double      fRec1[2];
-  float*      input;
-  float*      output;
+  //float*      input;
+  //float*      output;
   void        clear_state_f();
-  void        init(unsigned int samplingFreq, GXPlugin *self);
+  void        init(uint32_t samplingFreq);
   void        connect(uint32_t port,void* data);
   
 public:
-  void        run_6V6(uint32_t n_samples, GXPlugin *self);
-  void        run_6C16(uint32_t n_samples, GXPlugin *self);
-  void        run_12AT7(uint32_t n_samples, GXPlugin *self);
-  void        run_12ax7(uint32_t n_samples, GXPlugin *self);
-  void        run_6DJ8(uint32_t n_samples, GXPlugin *self);
-  static void init_static(unsigned int samplingFreq, GXPlugin *self);
+  void        run_6V6(uint32_t n_samples,float* input, float* output);
+  void        run_6C16(uint32_t n_samples, float* input, float* output);
+  void        run_12AT7(uint32_t n_samples, float* input, float* output);
+  void        run_12ax7(uint32_t n_samples, float* input, float* output);
+  void        run_6DJ8(uint32_t n_samples, float* input, float* output);
+  static void init_static(uint32_t samplingFreq, GxAmp *p);
   static void connect_static(uint32_t port,void* data, GxAmp *p);
-  static void run_static(uint32_t n_samples,GXPlugin *self);
+  static void run_static(uint32_t n_samples, float* input, float* output, GxAmp *p);
   GxAmp() {};
   ~GxAmp() {};
 };
 // define run pointer typs
 typedef void (GxAmp::*run_this)
-             (uint32_t count, GXPlugin *self);
+             (uint32_t count,float* input, float* output);
 
 run_this    _a_ptr;
 

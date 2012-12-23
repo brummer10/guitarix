@@ -49,23 +49,23 @@ inline void AVOIDDENORMALS() {}
 #endif
 #define max(x, y) (((x) > (y)) ? (x) : (y))
 #define min(x, y) (((x) < (y)) ? (x) : (y))
-template <int N> inline float faustpower(float x)
+template <int32_t N> inline float faustpower(float x)
 {
   return powf(x, N);
 }
-template <int N> inline double faustpower(double x)
+template <int32_t N> inline double faustpower(double x)
 {
   return pow(x, N);
 }
-template <int N> inline int faustpower(int x)
+template <int32_t N> inline int32_t faustpower(int32_t x)
 {
   return faustpower<N/2>(x) * faustpower<N-N/2>(x);
 }
-template <>      inline int faustpower<0>(int x)
+template <>      inline int32_t faustpower<0>(int32_t x)
 {
   return 1;
 }
-template <>      inline int faustpower<1>(int x)
+template <>      inline int32_t faustpower<1>(int32_t x)
 {
   return x;
 }
@@ -83,17 +83,10 @@ class GXPlugin;
 
 class GXPlugin
 {
-public:
-  // LV2 stuff
-  LV2_Atom_Sequence*           c_notice;
-  LV2_Atom_Sequence*           n_notice;
-  LV2_URID_Map*                map;
-  LV2_Atom_Forge               forge;
-  GXPluginURIs                 uris;
-  LV2_Atom_Forge_Frame         notify_frame;
-  LV2_Worker_Schedule*         schedule;
+private:
   // internal stuff
-  void set_tubesel(const LV2_Descriptor*     descriptor);
+  float*                       output;
+  float*                       input;
   uint32_t                     tubesel;
   Tonestack                    *ts;
   GxAmp                        *amplifier;
@@ -104,12 +97,29 @@ public:
   GxSimpleConvolver            *ampconv;
   Ampf                         *ampf;
   uint32_t                     bufsize;
+  LV2_Atom_Sequence*           c_notice;
+  LV2_Atom_Sequence*           n_notice;
   bool                         schedule_wait;
 
-  static void connect(uint32_t port,void* data, GXPlugin* self);
-  inline void init_dsp(double rate, uint32_t bufsize_);
+public:
+  // LV2 stuff
+  
+  LV2_URID_Map*                map;
+  LV2_Atom_Forge               forge;
+  GXPluginURIs                 uris;
+  LV2_Atom_Forge_Frame         notify_frame;
+  LV2_Worker_Schedule*         schedule;
+
+  void set_tubesel(const LV2_Descriptor* descriptor);
+  inline void run_dsp(uint32_t n_samples);
+  void connect(uint32_t port,void* data);
+  inline void init_dsp(uint32_t rate, uint32_t bufsize_);
   inline void do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris);
+  inline void connect_all_ports(uint32_t port, void* data);
+
   GXPlugin() :
+    output(NULL),
+    input(NULL),
     tubesel(0),
     ts(new Tonestack()),
     amplifier(new GxAmp()),
@@ -120,6 +130,7 @@ public:
     bufsize(0),
     schedule_wait(false)
     {};
+
   ~GXPlugin() {
     cabconv->stop_process();
     ampconv->stop_process();
@@ -169,9 +180,9 @@ void GXPlugin::set_tubesel(const LV2_Descriptor*     descriptor)
       printf("12ax7\n");
       _a_ptr = &GxAmp::run_12ax7;
       _t_ptr = &Tonestack::run;
-      cabconv->cab_count = cab_data_HighGain.ir_count;
-      cabconv->cab_sr = cab_data_HighGain.ir_sr;
-      cabconv->cab_data = cab_data_HighGain.ir_data;
+      cabconv->cab_count = cab_data_4x12.ir_count;
+      cabconv->cab_sr = cab_data_4x12.ir_sr;
+      cabconv->cab_data = cab_data_4x12.ir_data;
       tubesel  = 1;
     }
   else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7",descriptor->URI)== 0)
@@ -209,43 +220,40 @@ void GXPlugin::set_tubesel(const LV2_Descriptor*     descriptor)
       printf("6DJ8\n");
       _a_ptr = &GxAmp::run_6DJ8;
       _t_ptr = &Tonestack::run_ampeg;
-      cabconv->cab_count = cab_data_4x12.ir_count;
-      cabconv->cab_sr = cab_data_4x12.ir_sr;
-      cabconv->cab_data = cab_data_4x12.ir_data;
+      cabconv->cab_count = cab_data_HighGain.ir_count;
+      cabconv->cab_sr = cab_data_HighGain.ir_sr;
+      cabconv->cab_data = cab_data_HighGain.ir_data;
       tubesel  = 5;
     }
   else {
       _a_ptr = &GxAmp::run_12ax7;
       _t_ptr = &Tonestack::run;
-      cabconv->cab_count = cab_data_HighGain.ir_count;
-      cabconv->cab_sr = cab_data_HighGain.ir_sr;
-      cabconv->cab_data = cab_data_HighGain.ir_data;
+      cabconv->cab_count = cab_data_4x12.ir_count;
+      cabconv->cab_sr = cab_data_4x12.ir_sr;
+      cabconv->cab_data = cab_data_4x12.ir_data;
       tubesel  = 0;
     }
 }
 
-void GXPlugin::init_dsp(double rate, uint32_t bufsize_)
+void GXPlugin::init_dsp(uint32_t rate, uint32_t bufsize_)
 {
   AVOIDDENORMALS();
 
   bufsize = bufsize_;
-  amplifier->init_static(rate, this);
-  ts->init_static(rate, this);
-
-  cabconv->set_samplerate(rate);
+  amplifier->init_static(rate, amplifier);
+  ts->init_static(rate, ts);
   impf->init_static(rate, impf);
-
-  ampconv->set_samplerate(rate);
   ampf->init_static(rate, ampf);
 
   if (bufsize )
   {
+    cabconv->set_samplerate((uint32_t)rate);
     cabconv->set_buffersize(bufsize);
     cabconv->configure(cabconv->cab_count, cabconv->cab_data, cabconv->cab_sr);
-      
     if(!cabconv->start(0, SCHED_FIFO))
       printf("cabinet convolver disabled\n");
 
+    ampconv->set_samplerate((uint32_t)rate);
     ampconv->set_buffersize(bufsize);
     ampconv->configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
     if(!ampconv->start(0, SCHED_FIFO))
@@ -258,7 +266,7 @@ void GXPlugin::init_dsp(double rate, uint32_t bufsize_)
 }
 
 
-void GXPlugin::connect(uint32_t port,void* data, GXPlugin* self)
+void GXPlugin::connect(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
@@ -281,17 +289,57 @@ void GXPlugin::connect(uint32_t port,void* data, GXPlugin* self)
     case ALevel:
       break;
     case AMP_OUTPUT:
+      output = (float*)data;
       break;
     case AMP_INPUT:
+      input = (float*)data;
       break;
     case AMP_CONTROL:
-      self->c_notice = (LV2_Atom_Sequence*)data;
+      c_notice = (LV2_Atom_Sequence*)data;
       break;
     case AMP_NOTIFY:
-      self->n_notice = (LV2_Atom_Sequence*)data;
+      n_notice = (LV2_Atom_Sequence*)data;
       break;
     }
 
+}
+
+void GXPlugin::run_dsp(uint32_t n_samples)
+{
+  /* Set up forge to write directly to notify output port. */
+  const uint32_t notify_capacity = n_notice->atom.size;
+  lv2_atom_forge_set_buffer(&forge,
+                            (uint8_t*)n_notice,
+                            notify_capacity);
+
+  /* Start a sequence in the notify output port. */
+  lv2_atom_forge_sequence_head(&forge, &notify_frame, 0);
+
+  /* Read incoming events if scheduler is free*/
+  if (schedule_wait == false)
+    {
+      LV2_ATOM_SEQUENCE_FOREACH(c_notice, ev)
+      {
+
+        schedule_wait = true;
+        schedule->schedule_work(schedule->handle,
+                                      lv2_atom_total_size(&ev->body), &ev->body);
+      }
+    }
+  // run dsp
+  amplifier->run_static(n_samples, input, output, amplifier);
+  ampconv->run_static(n_samples, ampconv, output);
+  ts->run_static(n_samples, ts, output);
+  cabconv->run_static(n_samples, cabconv, output);
+}
+
+void GXPlugin::connect_all_ports(uint32_t port, void* data)
+{
+  connect(port,data);
+  amplifier->connect_static(port,data, this->amplifier);
+  ts->connect_static(port,data, this->ts);
+  impf->connect_static(port,data, this->impf);
+  ampf->connect_static(port,data, this->ampf);
 }
 
 static LV2_Worker_Status
@@ -334,7 +382,7 @@ instantiate(const LV2_Descriptor*     descriptor,
   uint32_t bufsize = 0;
   //printf(" %s\n",descriptor->URI);
   
-  for (int i = 0; features[i]; ++i)
+  for (int32_t i = 0; features[i]; ++i)
     {
       if (!strcmp(features[i]->URI, LV2_URID__map))
         {
@@ -394,7 +442,7 @@ instantiate(const LV2_Descriptor*     descriptor,
   map_gx_uris(map, &self->uris);
   lv2_atom_forge_init(&self->forge, self->map);
   self->set_tubesel( descriptor);
-  self->init_dsp(rate, bufsize);
+  self->init_dsp((uint32_t)rate, bufsize);
   
   return (LV2_Handle)self;
 }
@@ -405,11 +453,7 @@ connect_port(LV2_Handle instance,
              void*      data)
 {
   GXPlugin* self = (GXPlugin*)instance;
-  self->connect(port,data, self);
-  self->amplifier->connect_static(port,data, self->amplifier);
-  self->ts->connect_static(port,data, self->ts);
-  self->impf->connect_static(port,data, self->impf);
-  self->ampf->connect_static(port,data, self->ampf);
+  self->connect_all_ports(port, data);
 }
 
 static void
@@ -422,27 +466,7 @@ static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
   GXPlugin* self = (GXPlugin*)instance;
-  /* Set up forge to write directly to notify output port. */
-  const uint32_t notify_capacity = self->n_notice->atom.size;
-  lv2_atom_forge_set_buffer(&self->forge,
-                            (uint8_t*)self->n_notice,
-                            notify_capacity);
-
-  /* Start a sequence in the notify output port. */
-  lv2_atom_forge_sequence_head(&self->forge, &self->notify_frame, 0);
-
-  /* Read incoming events if scheduler is free*/
-  if (self->schedule_wait == false)
-    {
-      LV2_ATOM_SEQUENCE_FOREACH(self->c_notice, ev)
-      {
-
-        self->schedule_wait = true;
-        self->schedule->schedule_work(self->schedule->handle,
-                                      lv2_atom_total_size(&ev->body), &ev->body);
-      }
-    }
-  self->amplifier->run_static(n_samples, self);
+  self->run_dsp(n_samples);
 }
 
 static void

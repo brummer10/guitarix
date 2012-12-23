@@ -35,33 +35,33 @@ class SimpleResampler
 {
 private:
   Resampler r_up, r_down;
-  int m_fact;
+  int32_t m_fact;
 public:
   SimpleResampler(): r_up(), r_down(), m_fact() {}
-  void setup(int sampleRate, unsigned int fact);
-  void up(int count, float *input, float *output);
-  void down(int count, float *input, float *output);
+  void setup(int32_t sampleRate, uint32_t fact);
+  void up(int32_t count, float *input, float *output);
+  void down(int32_t count, float *input, float *output);
 };
 
 class BufferResampler: Resampler
 {
 public:
-  float *process(int fs_inp, int ilen, float *input, int fs_outp, int* olen);
+  float *process(int32_t fs_inp, int32_t ilen, float *input, int32_t fs_outp, int32_t* olen);
 };
 
 class StreamingResampler: Resampler
 {
 private:
-  int ratio_a;
-  int ratio_b;
+  int32_t ratio_a;
+  int32_t ratio_b;
 public:
-  bool setup(int srcRate, int dstRate, int nchan);
-  int get_max_out_size(int i_size)
+  bool setup(int32_t srcRate, int32_t dstRate, int32_t nchan);
+  int32_t get_max_out_size(int32_t i_size)
   {
     return (i_size * ratio_b) / ratio_a + 1;
   }
-  int process(int count, float *input, float *output);
-  int flush(float *output); // check source for max. output size
+  int32_t process(int32_t count, float *input, float *output);
+  int32_t flush(float *output); // check source for max. output size
 };
 
 }

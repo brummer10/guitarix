@@ -22,7 +22,7 @@ namespace gx_resample
 
 // copyed gcd from (zita) resampler.cc to get ratio_a and ratio_b for
 // calculate the correct buffer size resulting from resample
-static unsigned int gcd (unsigned int a, unsigned int b)
+static uint32_t gcd (uint32_t a, uint32_t b)
 {
   if (a == 0) return b;
   if (b == 0) return a;
@@ -44,11 +44,11 @@ static unsigned int gcd (unsigned int a, unsigned int b)
   return 1;
 }
 
-void SimpleResampler::setup(int sampleRate, unsigned int fact)
+void SimpleResampler::setup(int32_t sampleRate, uint32_t fact)
 {
   assert(fact <= MAX_UPSAMPLE);
   m_fact = fact;
-  const int qual = 16; // resulting in a total delay of 2*qual (0.7ms @44100)
+  const int32_t qual = 16; // resulting in a total delay of 2*qual (0.7ms @44100)
   // upsampler
   r_up.setup(sampleRate, sampleRate*fact, 1, qual);
   // k == inpsize() == 2 * qual
@@ -67,7 +67,7 @@ void SimpleResampler::setup(int sampleRate, unsigned int fact)
   r_down.process();
 }
 
-void SimpleResampler::up(int count, float *input, float *output)
+void SimpleResampler::up(int32_t count, float *input, float *output)
 {
   r_up.inp_count = count;
   r_up.inp_data = input;
@@ -78,7 +78,7 @@ void SimpleResampler::up(int count, float *input, float *output)
   assert(r_up.out_count == 0);
 }
 
-void SimpleResampler::down(int count, float *input, float *output)
+void SimpleResampler::down(int32_t count, float *input, float *output)
 {
   r_down.inp_count = count * m_fact;
   r_down.inp_data = input;
@@ -89,19 +89,19 @@ void SimpleResampler::down(int count, float *input, float *output)
   assert(r_down.out_count == 1);
 }
 
-float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp, int *olen)
+float *BufferResampler::process(int32_t fs_inp, int32_t ilen, float *input, int32_t fs_outp, int32_t *olen)
 {
-  int d = gcd(fs_inp, fs_outp);
-  int ratio_a = fs_inp / d;
-  int ratio_b = fs_outp / d;
+  int32_t d = gcd(fs_inp, fs_outp);
+  int32_t ratio_a = fs_inp / d;
+  int32_t ratio_b = fs_outp / d;
 
-  const int qual = 32;
+  const int32_t qual = 32;
   if (setup(fs_inp, fs_outp, 1, qual) != 0)
     {
       return 0;
     }
   // pre-fill with k/2-1 zeros
-  int k = inpsize();
+  int32_t k = inpsize();
   inp_count = k/2-1;
   inp_data = 0;
   out_count = 1; // must be at least 1 to get going
@@ -111,7 +111,7 @@ float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp,
       return 0;
     }
   inp_count = ilen;
-  int nout = out_count = (ilen * ratio_b + ratio_a - 1) / ratio_a;
+  int32_t nout = out_count = (ilen * ratio_b + ratio_a - 1) / ratio_a;
   inp_data = input;
   float *p = out_data = new float[out_count];
   if (Resampler::process() != 0)
@@ -133,13 +133,13 @@ float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp,
   return p;
 }
 
-bool StreamingResampler::setup(int srcRate, int dstRate, int nchan)
+bool StreamingResampler::setup(int32_t srcRate, int32_t dstRate, int32_t nchan)
 {
-  int d = gcd(srcRate, dstRate);
+  int32_t d = gcd(srcRate, dstRate);
   ratio_a = srcRate / d;
   ratio_b = dstRate / d;
 
-  const int qual = 32;
+  const int32_t qual = 32;
   if (Resampler::setup(srcRate, dstRate, nchan, qual) != 0)
     {
       return false;
@@ -157,10 +157,10 @@ bool StreamingResampler::setup(int srcRate, int dstRate, int nchan)
   return true;
 }
 
-int StreamingResampler::process(int count, float *input, float *output)
+int32_t StreamingResampler::process(int32_t count, float *input, float *output)
 {
   inp_count = count;
-  int olen = out_count = get_max_out_size(count);
+  int32_t olen = out_count = get_max_out_size(count);
   inp_data = input;
   out_data = output;
   if (Resampler::process() != 0)
@@ -171,7 +171,7 @@ int StreamingResampler::process(int count, float *input, float *output)
   return olen - out_count;
 }
 
-int StreamingResampler::flush(float *output)
+int32_t StreamingResampler::flush(float *output)
 {
   // maximum data written to output:
   // srcRate > dstRate:  ~ 2 * qual
@@ -179,7 +179,7 @@ int StreamingResampler::flush(float *output)
   inp_data = 0;
   inp_count = inpsize()/2;
   out_data = output;
-  int olen = out_count = get_max_out_size(inp_count);
+  int32_t olen = out_count = get_max_out_size(inp_count);
   if (Resampler::process() != 0)
     {
       return 0;

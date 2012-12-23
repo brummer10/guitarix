@@ -175,7 +175,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 
   self->set_plug_name_static(self, plugin_uri);
 
-  for (int i = 0; features[i]; ++i)
+  for (int32_t i = 0; features[i]; ++i)
     {
       if (!strcmp(features[i]->URI, LV2_URID_URI "#map"))
         {
@@ -243,7 +243,7 @@ static LV2UI_Descriptor descriptors[] =
 
 const LV2UI_Descriptor * lv2ui_descriptor(uint32_t index)
 {
-  //printf("lv2ui_descriptor(%u) called\n", (unsigned int)index);
+  //printf("lv2ui_descriptor(%u) called\n", (uint32_t)index);
   if (index >= sizeof(descriptors) / sizeof(descriptors[0]))
     {
       return NULL;

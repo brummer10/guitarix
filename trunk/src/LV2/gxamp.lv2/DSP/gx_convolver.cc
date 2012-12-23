@@ -37,9 +37,9 @@ GxConvolverBase::~GxConvolverBase()
 }
 
 void GxConvolverBase::adjust_values(
-  unsigned int audio_size, unsigned int& count, unsigned int& offset,
-  unsigned int& delay, unsigned int& ldelay, unsigned int& length,
-  unsigned int& size, unsigned int& bufsize)
+  uint32_t audio_size, uint32_t& count, uint32_t& offset,
+  uint32_t& delay, uint32_t& ldelay, uint32_t& length,
+  uint32_t& size, uint32_t& bufsize)
 {
 
   if (bufsize < count)
@@ -93,9 +93,9 @@ void GxConvolverBase::adjust_values(
     }
 }
 
-bool GxConvolverBase::start(int policy, int priority)
+bool GxConvolverBase::start(int32_t policy, int32_t priority)
 {
-  int rc = start_process(priority, policy);
+  int32_t rc = start_process(priority, policy);
   if (rc != 0)
     {
 
@@ -127,16 +127,16 @@ bool GxConvolverBase::checkstate()
 
 struct CabDesc
 {
-  int ir_count;
-  int ir_sr;
+  int32_t ir_count;
+  uint32_t ir_sr;
   float ir_data[];
 };
 
-template <int tab_size>
+template <int32_t tab_size>
 struct CabDesc_imp
 {
-  int ir_count;
-  int ir_sr;
+  int32_t ir_count;
+  uint32_t ir_sr;
   float ir_data[tab_size];
   operator CabDesc&()
   {
@@ -451,7 +451,7 @@ private:
   gx_resample::BufferResampler& resamp;
 public:
   CheckResample(gx_resample::BufferResampler& resamp_): vec(0), resamp(resamp_) {}
-  float *resample(int *count, float *impresp, unsigned int imprate, unsigned int samplerate)
+  float *resample(int32_t *count, float *impresp, uint32_t imprate, uint32_t samplerate)
   {
     if (imprate != samplerate)
       {
@@ -479,7 +479,7 @@ public:
   }
 };
 
-bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int imprate)
+bool GxSimpleConvolver::configure(int32_t count, float *impresp, uint32_t imprate)
 {
   //printf("try configure()\n");
   CheckResample r(resamp);
@@ -490,7 +490,7 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int imprat
       return false;
     }
   cleanup();
-  unsigned int bufsize = buffersize;
+  uint32_t bufsize = buffersize;
   if (bufsize < Convproc::MINPART)
     {
       bufsize = Convproc::MINPART;
@@ -511,7 +511,7 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int imprat
   return true;
 }
 
-bool GxSimpleConvolver::update(int count, float *impresp, unsigned int imprate)
+bool GxSimpleConvolver::update(int32_t count, float *impresp, uint32_t imprate)
 {
   CheckResample r(resamp);
   impresp = r.resample(&count, impresp, imprate, samplerate);
@@ -526,7 +526,7 @@ bool GxSimpleConvolver::update(int count, float *impresp, unsigned int imprate)
   return true;
 }
 
-bool GxSimpleConvolver::compute(int count, float* input, float *output)
+bool GxSimpleConvolver::compute(int32_t count, float* input, float *output)
 {
   // printf("try run\n");
   if (state() != Convproc::ST_PROC)
@@ -550,7 +550,7 @@ bool GxSimpleConvolver::compute(int count, float* input, float *output)
     }
   memcpy(inpdata(0), input, count * sizeof(float));
 
-  int flags = process(sync);
+  int32_t flags = process(sync);
 
   memcpy(output, outdata(0), count * sizeof(float));
   //printf("run\n");
@@ -559,6 +559,6 @@ bool GxSimpleConvolver::compute(int count, float* input, float *output)
 
 void GxSimpleConvolver::run_static(uint32_t n_samples, GxSimpleConvolver *p, float *output)
 {
-  if (!p->compute(n_samples, output, output))
+  if (!p->compute((int32_t)n_samples, output, output))
     printf("convolver didn't run\n");
 }
