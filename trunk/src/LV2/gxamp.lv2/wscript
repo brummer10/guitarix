@@ -10,7 +10,7 @@ def build(bld):
     bundle = 'gxamp.lv2'
     
     src = ['gxamp.cpp']
-    incl = ['../../','..']
+    incl = ['../../','..', './DSP']
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
