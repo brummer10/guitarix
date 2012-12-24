@@ -56,7 +56,7 @@ public:
 
 // define run pointer typs
 typedef void (Tonestack::*run_tonestack)
-             (uint32_t count, float *output);
+(uint32_t count, float *output);
 
 run_tonestack    _t_ptr;
 

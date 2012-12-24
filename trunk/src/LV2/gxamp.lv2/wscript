@@ -9,8 +9,12 @@ def configure(conf):
 def build(bld):
     bundle = 'gxamp.lv2'
     
-    src = ['gxamp.cpp']
-    incl = ['../../','..', './DSP']
+    src = ['gxamp.cpp',
+           'DSP/gx_resampler.cc',
+           'DSP/gx_convolver.cc'
+           ]
+
+    incl = ['../../','./', './DSP']
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')

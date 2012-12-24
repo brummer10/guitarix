@@ -33,11 +33,11 @@ class Widget : public Gtk::HBox
 {
 private:
   void make_controller_box(Gtk::VBox *box,
-                          Gxw::Regler *regler,
-                          Glib::ustring label,
-                          float min, float max,
-                          float digits, float value,
-                          Glib::ustring plug_name);
+                           Gxw::Regler *regler,
+                           Glib::ustring label,
+                           float min, float max,
+                           float digits, float value,
+                           Glib::ustring plug_name);
   bool _expose_event(GdkEventExpose *event);
   void set_value(uint32_t port_index,
                  uint32_t format,
@@ -76,7 +76,7 @@ protected:
   Gtk::VBox      m_vbox8;
   Gtk::VBox      m_vboxhh;
   Gtk::VBox      m_vboxii;
-  
+
   Gxw::PaintBox  m_paintbox;
   Gtk::HBox      m_hbox;
   Gxw::BigKnob   m_bigknob;

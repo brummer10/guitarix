@@ -45,12 +45,16 @@ public:
   LV2_Atom_Forge forge;
   LV2_URID_Map* map;
   GXPluginURIs   uris;
-  
+
   Widget* widget;
   static void set_plug_name_static(GXPluginGUI *self, const char * plugin_uri)
-    {self->set_plug_name(plugin_uri);}
+  {
+    self->set_plug_name(plugin_uri);
+  }
   static GtkWidget* make_gui_static(GXPluginGUI *self)
-    {return self->make_gui();}
+  {
+    return self->make_gui();
+  }
 
   GXPluginGUI () {};
   ~GXPluginGUI () {};
@@ -61,18 +65,18 @@ void GXPluginGUI::set_knob( Glib::ustring knob)
   addKnob =   " style 'gx_";
   addKnob +=  plug_name;
   addKnob +=   "_dark_skin_icons'\n"
-                    " { \n"
-                    "   stock['bigknob'] = {{'";
+               " { \n"
+               "   stock['bigknob'] = {{'";
   addKnob +=  knob;
   addKnob +=  ".png'}}\n"
-                    "   stock['smallknob'] = {{'";
+              "   stock['smallknob'] = {{'";
   addKnob +=  knob;
   addKnob +=  "-small.png'}}\n"
-                    "   stock['smallknobr'] = {{'";
+              "   stock['smallknobr'] = {{'";
   addKnob +=  knob;
   addKnob +=  "-middle.png'}}\n"
-                    " }\n"
-                    "widget '*.";
+              " }\n"
+              "widget '*.";
   addKnob +=  plug_name;
   addKnob +=  "' style 'gx_";
   addKnob +=  plug_name;
@@ -82,31 +86,31 @@ void GXPluginGUI::set_knob( Glib::ustring knob)
 void GXPluginGUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
-        toparse +=     " '";
-        toparse +=        GX_STYLE_DIR;
-        toparse +=     "/'\n";
-        toparse +=     "style \"gx_";
-        toparse +=     plug_name;
-        toparse +=     "_dark-paintbox\"\n"
-                       " { \n"
-                       "    GxPaintBox::icon-set =9\n"
-                       "    stock['amp_skin'] = {{'";
-        toparse +=     plugskin;
-        toparse +=     "'}}\n"
-                       " }\n"
-                       "\n"
-                       "style 'gx_head_black_box' \n"
-                       " { \n"
-                       "    fg[NORMAL] = '#afafaf' \n"
-                       " }\n";
-        toparse +=     addKnob;
-                       
-        toparse +=     " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
-                       "widget '*.";
-        toparse +=     plug_name;
-        toparse +=     "' style 'gx_";
-        toparse +=     plug_name;
-        toparse +=     "_dark-paintbox' ";
+  toparse +=     " '";
+  toparse +=        GX_STYLE_DIR;
+  toparse +=     "/'\n";
+  toparse +=     "style \"gx_";
+  toparse +=     plug_name;
+  toparse +=     "_dark-paintbox\"\n"
+                 " { \n"
+                 "    GxPaintBox::icon-set =9\n"
+                 "    stock['amp_skin'] = {{'";
+  toparse +=     plugskin;
+  toparse +=     "'}}\n"
+                 " }\n"
+                 "\n"
+                 "style 'gx_head_black_box' \n"
+                 " { \n"
+                 "    fg[NORMAL] = '#afafaf' \n"
+                 " }\n";
+  toparse +=     addKnob;
+
+  toparse +=     " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
+                 "widget '*.";
+  toparse +=     plug_name;
+  toparse +=     "' style 'gx_";
+  toparse +=     plug_name;
+  toparse +=     "_dark-paintbox' ";
 
   gtk_rc_parse_string (toparse.c_str());
 }
@@ -143,7 +147,7 @@ void GXPluginGUI::set_plug_name( const char * plugin_uri)
       plug_name = "6DJ8";
       set_knob("black-knob");
     }
-  else 
+  else
     {
       plugskin = "amp21.png";
       plug_name = "12ax7";

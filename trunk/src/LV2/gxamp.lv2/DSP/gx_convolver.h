@@ -24,7 +24,8 @@
 #define SRC_HEADERS_GX_CONVOLVER_H_
 
 #include <zita-convolver.h>
-
+#include <stdint.h>
+#include "gx_resampler.h"
 /* GxConvolver */
 
 
@@ -87,7 +88,7 @@ public:
   float *cab_data_new;
   GxSimpleConvolver(gx_resample::BufferResampler& resamp_)
     : GxConvolverBase(), resamp(resamp_), cab_count(0), cab_sr(0),
-      cab_data(NULL), cab_data_new(NULL) {}
+    cab_data(NULL), cab_data_new(NULL) {}
   bool configure(int32_t count, float *impresp, uint32_t imprate);
   bool update(int32_t count, float *impresp, uint32_t imprate);
   bool compute(int32_t count, float* input, float *output);

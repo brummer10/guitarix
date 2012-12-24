@@ -75,36 +75,43 @@ template <>      inline int32_t faustpower<1>(int32_t x)
  ** "atomic" value access
  */
 
-inline void atomic_set(volatile int32_t* p, int32_t v) {
-    g_atomic_int_set(p, v);
+inline void atomic_set(volatile int32_t* p, int32_t v)
+{
+  g_atomic_int_set(p, v);
 }
 
-inline int atomic_get(volatile int32_t& p) {
-    return g_atomic_int_get(&p);
+inline int atomic_get(volatile int32_t& p)
+{
+  return g_atomic_int_get(&p);
 }
 
-inline bool atomic_compare_and_exchange(volatile int32_t *p, int32_t oldv, int32_t newv) {
-    return g_atomic_int_compare_and_exchange(p, oldv, newv);
-}
-
-template <class T>
-inline void atomic_set(T **p, T *v) {
-    g_atomic_pointer_set(p, v);
-}
-
-template <class T>
-inline void atomic_set_0(T **p) {
-    g_atomic_pointer_set(p, 0);
+inline bool atomic_compare_and_exchange(volatile int32_t *p, int32_t oldv, int32_t newv)
+{
+  return g_atomic_int_compare_and_exchange(p, oldv, newv);
 }
 
 template <class T>
-inline T *atomic_get(T*& p) {
-    return static_cast<T*>(g_atomic_pointer_get(&p));
+inline void atomic_set(T **p, T *v)
+{
+  g_atomic_pointer_set(p, v);
 }
 
 template <class T>
-inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv) {
-    return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
+inline void atomic_set_0(T **p)
+{
+  g_atomic_pointer_set(p, 0);
+}
+
+template <class T>
+inline T *atomic_get(T*& p)
+{
+  return static_cast<T*>(g_atomic_pointer_get(&p));
+}
+
+template <class T>
+inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
+{
+  return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
 }
 
 
@@ -142,7 +149,7 @@ private:
 
 public:
   // LV2 stuff
-  
+
   LV2_URID_Map*                map;
   LV2_Atom_Forge               forge;
   GXPluginURIs                 uris;
@@ -167,18 +174,20 @@ public:
     ampconv(GxSimpleConvolver(resamp1)),
     ampf(Ampf()),
     bufsize(0)
-    {atomic_set(&schedule_wait,false);};
+  {
+    atomic_set(&schedule_wait,false);
+  };
 
-  ~GXPlugin() {
+  ~GXPlugin()
+  {
     cabconv.stop_process();
     ampconv.stop_process();
-      };
+  };
 };
 
+#include "cab_data.cc"
 #include "gx_tonestack.cc"
 #include "gx_amp.cc"
-#include "gx_convolver.cc"
-#include "gx_resampler.cc"
 #include "impulse_former.cc"
 #include "ampulse_former.cc"
 
@@ -186,24 +195,39 @@ void GXPlugin::do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris)
 {
   if (obj->body.otype == uris->gx_cab)
     {
+      if (cabconv.is_runnable()) 
+        {
+          cabconv.set_not_runnable();
+          cabconv.stop_process();
+        }
       float cab_irdata_c[cabconv.cab_count];
       impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c);
       cabconv.cab_data_new = cab_irdata_c;
+      while (!cabconv.checkstate());
       if (!cabconv.update(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr))
         printf("cabconv.update fail.\n");
       printf("worker 1 done.\n");
+      if(!cabconv.start(0, SCHED_FIFO))
+        printf("cabinet convolver disabled\n");
     }
   else if (obj->body.otype == uris->gx_pre)
     {
+      if (ampconv.is_runnable()) 
+        {
+          ampconv.set_not_runnable();
+          ampconv.stop_process();
+        }
       //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
       float pre_irdata_c[contrast_ir_desc.ir_count];
       ampf.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c);
-      // cab_data_HighGain.ir_count, cab_data_HighGain.ir_data,cab_data_HighGain.ir_sr
+      while (!ampconv.checkstate());
       if (!ampconv.update(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
         printf("cabconv.update fail.\n");
       printf("worker 2 done.\n");
+      if(!ampconv.start(0, SCHED_FIFO))
+        printf("cabinet convolver disabled\n");
     }
-    printf("worker thread is running.\n");
+  printf("worker thread is running.\n");
   atomic_set(&schedule_wait,false);
 }
 
@@ -259,7 +283,8 @@ void GXPlugin::set_tubesel(const LV2_Descriptor*     descriptor)
       cabconv.cab_data = cab_data_HighGain.ir_data;
       tubesel  = 5;
     }
-  else {
+  else
+    {
       _a_ptr = &GxAmp::run_12ax7;
       _t_ptr = &Tonestack::run;
       cabconv.cab_count = cab_data_4x12.ir_count;
@@ -280,23 +305,23 @@ void GXPlugin::init_dsp(uint32_t rate, uint32_t bufsize_)
   ampf.init_static(rate, &ampf);
 
   if (bufsize )
-  {
-    cabconv.set_samplerate(rate);
-    cabconv.set_buffersize(bufsize);
-    cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
-    if(!cabconv.start(0, SCHED_FIFO))
-      printf("cabinet convolver disabled\n");
+    {
+      cabconv.set_samplerate(rate);
+      cabconv.set_buffersize(bufsize);
+      cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
+      if(!cabconv.start(0, SCHED_FIFO))
+        printf("cabinet convolver disabled\n");
 
-    ampconv.set_samplerate(rate);
-    ampconv.set_buffersize(bufsize);
-    ampconv.configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
-    if(!ampconv.start(0, SCHED_FIFO))
-      printf("presence convolver disabled\n");
-  }
+      ampconv.set_samplerate(rate);
+      ampconv.set_buffersize(bufsize);
+      ampconv.configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
+      if(!ampconv.start(0, SCHED_FIFO))
+        printf("presence convolver disabled\n");
+    }
   else
-  {
-    printf("convolver disabled\n");
-  }
+    {
+      printf("convolver disabled\n");
+    }
 }
 
 
@@ -356,7 +381,7 @@ void GXPlugin::run_dsp(uint32_t n_samples)
       {
         atomic_set(&schedule_wait,true);
         schedule->schedule_work(schedule->handle,
-                                      lv2_atom_total_size(&ev->body), &ev->body);
+                                lv2_atom_total_size(&ev->body), &ev->body);
       }
     }
   // run dsp
@@ -414,7 +439,7 @@ instantiate(const LV2_Descriptor*     descriptor,
   const LV2_Options_Option* options  = NULL;
   uint32_t bufsize = 0;
   //printf(" %s\n",descriptor->URI);
-  
+
   for (int32_t i = 0; features[i]; ++i)
     {
       if (!strcmp(features[i]->URI, LV2_URID__map))
@@ -476,7 +501,7 @@ instantiate(const LV2_Descriptor*     descriptor,
   lv2_atom_forge_init(&self->forge, self->map);
   self->set_tubesel( descriptor);
   self->init_dsp((uint32_t)rate, bufsize);
-  
+
   return (LV2_Handle)self;
 }
 
@@ -512,7 +537,7 @@ static void
 cleanup(LV2_Handle instance)
 {
   GXPlugin* self = (GXPlugin*)instance;
-  
+
   delete self;
 }
 

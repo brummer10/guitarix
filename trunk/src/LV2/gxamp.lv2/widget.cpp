@@ -49,7 +49,7 @@ Widget::Widget(Glib::ustring plug_name)
   m_hbox_.set_spacing(12);
   m_hbox_.set_homogeneous(false);
   // this box set space for the upper part of the skin
-  m_hbox1_.set_spacing(12);    
+  m_hbox1_.set_spacing(12);
   m_hbox1_.set_border_width(65);
   // set a vertical box in the paintbox
   m_paintbox.pack_start(m_vbox_);
@@ -104,7 +104,7 @@ Widget::Widget(Glib::ustring plug_name)
   m_hbox_.pack_start(m_vbox8);
   m_hbox_.pack_start(m_vbox);
   // etxra box for the boxed tonestack controllers
-  m_hbox.set_border_width(8);  
+  m_hbox.set_border_width(8);
   m_hbox.pack_start(m_vbox5);
   m_hbox.pack_start(m_vbox4);
   m_hbox.pack_start(m_vbox6);
@@ -115,7 +115,7 @@ Widget::Widget(Glib::ustring plug_name)
 
   // connect expose handler as resize handler
   m_paintbox.signal_expose_event().connect(
-        sigc::mem_fun(this, &Widget::_expose_event), true);
+    sigc::mem_fun(this, &Widget::_expose_event), true);
 
   show_all();
 }
@@ -126,11 +126,11 @@ Widget::~Widget()
 }
 // create stackboxes with controllers from gxw
 void Widget::make_controller_box(Gtk::VBox *box,
-                                Gxw::Regler *regler,
-                                Glib::ustring label,
-                                float min, float max,
-                                float digits, float value,
-                                Glib::ustring plug_name)
+                                 Gxw::Regler *regler,
+                                 Glib::ustring label,
+                                 float min, float max,
+                                 float digits, float value,
+                                 Glib::ustring plug_name)
 {
   //Gtk::Label* pr = new Gtk::Label(label, 0);
   //pr->set_name("amplabel");
@@ -139,7 +139,7 @@ void Widget::make_controller_box(Gtk::VBox *box,
   label_image += label;
   label_image += "-label.png";
   Gtk::Image *pr = new Gtk::Image(label_image);
-  
+
   Gtk::VBox* b1 = new Gtk::VBox();
   box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
   box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);

@@ -70,7 +70,7 @@ void Tonestack::connect(uint32_t port,void* data)
     }
 }
 
-inline void Tonestack::run(uint32_t n_samples, float *output) //sovtek
+inline void Tonestack::run(uint32_t n_samples, float *output)   //sovtek
 {
   float fslider0 = *fslider0_;
   float fslider1 = *fslider1_;
@@ -113,7 +113,7 @@ inline void Tonestack::run(uint32_t n_samples, float *output) //sovtek
 }
 
 
-inline void Tonestack::run_soldano(uint32_t n_samples, float *output) //soldano
+inline void Tonestack::run_soldano(uint32_t n_samples, float *output)   //soldano
 {
   float fslider0 = *fslider0_;
   float fslider1 = *fslider1_;
@@ -155,88 +155,90 @@ inline void Tonestack::run_soldano(uint32_t n_samples, float *output) //soldano
     }
 }
 
-inline void Tonestack::run_bassman(uint32_t n_samples, float *output) //bassman
+inline void Tonestack::run_bassman(uint32_t n_samples, float *output)   //bassman
 {
   float fslider0 = *fslider0_;
   float fslider1 = *fslider1_;
   float fslider2 = *fslider2_;
-	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (2.5312500000000006e-07 * fSlow0);
-	double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
-	double 	fSlow3 = (7.4525e-07 + ((2.4210000000000004e-05 * fSlow2) + (fSlow0 * (((1.0125e-05 * fSlow2) - 2.75625e-07) - fSlow1))));
-	double 	fSlow4 = ((7.650000000000002e-10 * fSlow2) - (1.9125000000000002e-11 * fSlow0));
-	double 	fSlow5 = (1.4000000000000001e-09 * fSlow2);
-	double 	fSlow6 = (3.500000000000001e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 1.5875000000000007e-11))));
-	double 	fSlow7 = (fConst0 * fSlow6);
-	double 	fSlow8 = (0.0005 * fSlow0);
-	double 	fSlow9 = (0.02025 * fSlow2);
-	double 	fSlow10 = (fConst0 * (0.0028087500000000005 + (fSlow9 + fSlow8)));
-	double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
-	double 	fSlow12 = (fConst2 * fSlow6);
-	double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
-	double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
-	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
-	double 	fSlow16 = fslider2;
-	double 	fSlow17 = ((fSlow0 * (1.9125000000000002e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (3.500000000000001e-11 - (3.500000000000001e-11 * fSlow0)))));
-	double 	fSlow18 = (fConst2 * fSlow17);
-	double 	fSlow19 = (4.525e-08 + (((1.4e-07 * fSlow16) + (fSlow0 * (2.8437500000000003e-07 - fSlow1))) + (fSlow2 * (1.8100000000000002e-06 + (1.0125e-05 * fSlow0)))));
-	double 	fSlow20 = (0.00050625 + (fSlow9 + (fSlow8 + (6.25e-05 * fSlow16))));
-	double 	fSlow21 = (fConst0 * fSlow20);
-	double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
-	double 	fSlow23 = (fConst0 * fSlow17);
-	double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
-	double 	fSlow25 = (fConst0 * (0 - fSlow20));
-	double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
-	double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
-	for (uint32_t i=0; i<n_samples; i++) {
-		fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-		output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
-		// post processing
-		for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
-	}
+  double 	fSlow0 = fslider0;
+  double 	fSlow1 = (2.5312500000000006e-07 * fSlow0);
+  double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+  double 	fSlow3 = (7.4525e-07 + ((2.4210000000000004e-05 * fSlow2) + (fSlow0 * (((1.0125e-05 * fSlow2) - 2.75625e-07) - fSlow1))));
+  double 	fSlow4 = ((7.650000000000002e-10 * fSlow2) - (1.9125000000000002e-11 * fSlow0));
+  double 	fSlow5 = (1.4000000000000001e-09 * fSlow2);
+  double 	fSlow6 = (3.500000000000001e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 1.5875000000000007e-11))));
+  double 	fSlow7 = (fConst0 * fSlow6);
+  double 	fSlow8 = (0.0005 * fSlow0);
+  double 	fSlow9 = (0.02025 * fSlow2);
+  double 	fSlow10 = (fConst0 * (0.0028087500000000005 + (fSlow9 + fSlow8)));
+  double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+  double 	fSlow12 = (fConst2 * fSlow6);
+  double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+  double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+  double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+  double 	fSlow16 = fslider2;
+  double 	fSlow17 = ((fSlow0 * (1.9125000000000002e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (3.500000000000001e-11 - (3.500000000000001e-11 * fSlow0)))));
+  double 	fSlow18 = (fConst2 * fSlow17);
+  double 	fSlow19 = (4.525e-08 + (((1.4e-07 * fSlow16) + (fSlow0 * (2.8437500000000003e-07 - fSlow1))) + (fSlow2 * (1.8100000000000002e-06 + (1.0125e-05 * fSlow0)))));
+  double 	fSlow20 = (0.00050625 + (fSlow9 + (fSlow8 + (6.25e-05 * fSlow16))));
+  double 	fSlow21 = (fConst0 * fSlow20);
+  double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+  double 	fSlow23 = (fConst0 * fSlow17);
+  double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+  double 	fSlow25 = (fConst0 * (0 - fSlow20));
+  double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+  double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+  for (uint32_t i=0; i<n_samples; i++)
+    {
+      fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+      output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      // post processing
+      for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+    }
 
 }
 
 
-inline void Tonestack::run_ampeg(uint32_t n_samples, float *output) //ampeg
+inline void Tonestack::run_ampeg(uint32_t n_samples, float *output)   //ampeg
 {
   float fslider0 = *fslider0_;
   float fslider1 = *fslider1_;
   float fslider2 = *fslider2_;
-	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (3.0896250000000005e-07 * fSlow0);
-	double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
-	double 	fSlow3 = (6.338090000000001e-07 + ((1.8734760000000003e-05 * fSlow2) + (fSlow0 * (((1.2358500000000002e-05 * fSlow2) - 1.361249999999999e-08) - fSlow1))));
-	double 	fSlow4 = ((1.6037340000000005e-09 * fSlow2) - (4.0093350000000015e-11 * fSlow0));
-	double 	fSlow5 = (1.8198400000000004e-09 * fSlow2);
-	double 	fSlow6 = (4.5496000000000015e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 5.40265e-12))));
-	double 	fSlow7 = (fConst0 * fSlow6);
-	double 	fSlow8 = (0.00055 * fSlow0);
-	double 	fSlow9 = (0.022470000000000004 * fSlow2);
-	double 	fSlow10 = (fConst0 * (0.00208725 + (fSlow9 + fSlow8)));
-	double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
-	double 	fSlow12 = (fConst2 * fSlow6);
-	double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
-	double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
-	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
-	double 	fSlow16 = fslider2;
-	double 	fSlow17 = ((fSlow0 * (4.0093350000000015e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (4.5496000000000015e-11 - (4.5496000000000015e-11 * fSlow0)))));
-	double 	fSlow18 = (fConst2 * fSlow17);
-	double 	fSlow19 = (8.1169e-08 + (((1.6544000000000003e-07 * fSlow16) + (fSlow0 * (3.735875000000001e-07 - fSlow1))) + (fSlow2 * (3.24676e-06 + (1.2358500000000002e-05 * fSlow0)))));
-	double 	fSlow20 = (0.0005617500000000001 + (fSlow9 + (fSlow8 + (0.00011750000000000001 * fSlow16))));
-	double 	fSlow21 = (fConst0 * fSlow20);
-	double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
-	double 	fSlow23 = (fConst0 * fSlow17);
-	double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
-	double 	fSlow25 = (fConst0 * (0 - fSlow20));
-	double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
-	double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
-	for (uint32_t i=0; i<n_samples; i++) {
-		fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-		output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
-		// post processing
-		for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
-	}
+  double 	fSlow0 = fslider0;
+  double 	fSlow1 = (3.0896250000000005e-07 * fSlow0);
+  double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+  double 	fSlow3 = (6.338090000000001e-07 + ((1.8734760000000003e-05 * fSlow2) + (fSlow0 * (((1.2358500000000002e-05 * fSlow2) - 1.361249999999999e-08) - fSlow1))));
+  double 	fSlow4 = ((1.6037340000000005e-09 * fSlow2) - (4.0093350000000015e-11 * fSlow0));
+  double 	fSlow5 = (1.8198400000000004e-09 * fSlow2);
+  double 	fSlow6 = (4.5496000000000015e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 5.40265e-12))));
+  double 	fSlow7 = (fConst0 * fSlow6);
+  double 	fSlow8 = (0.00055 * fSlow0);
+  double 	fSlow9 = (0.022470000000000004 * fSlow2);
+  double 	fSlow10 = (fConst0 * (0.00208725 + (fSlow9 + fSlow8)));
+  double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+  double 	fSlow12 = (fConst2 * fSlow6);
+  double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+  double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+  double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+  double 	fSlow16 = fslider2;
+  double 	fSlow17 = ((fSlow0 * (4.0093350000000015e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (4.5496000000000015e-11 - (4.5496000000000015e-11 * fSlow0)))));
+  double 	fSlow18 = (fConst2 * fSlow17);
+  double 	fSlow19 = (8.1169e-08 + (((1.6544000000000003e-07 * fSlow16) + (fSlow0 * (3.735875000000001e-07 - fSlow1))) + (fSlow2 * (3.24676e-06 + (1.2358500000000002e-05 * fSlow0)))));
+  double 	fSlow20 = (0.0005617500000000001 + (fSlow9 + (fSlow8 + (0.00011750000000000001 * fSlow16))));
+  double 	fSlow21 = (fConst0 * fSlow20);
+  double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+  double 	fSlow23 = (fConst0 * fSlow17);
+  double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+  double 	fSlow25 = (fConst0 * (0 - fSlow20));
+  double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+  double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+  for (uint32_t i=0; i<n_samples; i++)
+    {
+      fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+      output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      // post processing
+      for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+    }
 }
 
 

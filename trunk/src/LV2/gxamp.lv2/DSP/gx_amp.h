@@ -148,7 +148,7 @@ private:
   void        clear_state_f();
   void        init(uint32_t samplingFreq);
   void        connect(uint32_t port,void* data);
-  
+
 public:
   void        run_6V6(uint32_t n_samples,float* input, float* output);
   void        run_6C16(uint32_t n_samples, float* input, float* output);
@@ -163,7 +163,7 @@ public:
 };
 // define run pointer typs
 typedef void (GxAmp::*run_this)
-             (uint32_t count,float* input, float* output);
+(uint32_t count,float* input, float* output);
 
 run_this    _a_ptr;
 

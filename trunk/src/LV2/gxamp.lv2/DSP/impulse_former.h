@@ -21,9 +21,9 @@
 class Impf
 {
 private:
-  int32_t             fSamplingFreq;
-  FAUSTFLOAT      fslider0;
-  FAUSTFLOAT      *fslider0_;
+  int32_t         fSamplingFreq;
+  float           fslider0;
+  float           *fslider0_;
   void            init(uint32_t samplingFreq);
   void            connect(uint32_t port,void* data);
 
