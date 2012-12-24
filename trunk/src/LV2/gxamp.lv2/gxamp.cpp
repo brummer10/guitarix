@@ -19,6 +19,7 @@
 
 #include <cstdlib>
 #include <cmath>
+#include <semaphore.h>
 
 #ifdef __SSE__
 /* On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
@@ -99,7 +100,7 @@ private:
   uint32_t                     bufsize;
   LV2_Atom_Sequence*           c_notice;
   LV2_Atom_Sequence*           n_notice;
-  bool                         schedule_wait;
+  sem_t                        mutex;
 
 public:
   // LV2 stuff
@@ -127,9 +128,8 @@ public:
     impf(new Impf()),
     ampconv(new GxSimpleConvolver(resamp1)),
     ampf(new Ampf()),
-    bufsize(0),
-    schedule_wait(false)
-    {};
+    bufsize(0)
+    {sem_init(&mutex, 0, 1);}
 
   ~GXPlugin() {
     cabconv->stop_process();
@@ -140,7 +140,8 @@ public:
     delete impf;
     delete ampconv;
     delete ampf;
-      };
+    sem_destroy(&mutex);
+      }
 };
 
 #include "gx_tonestack.cc"
@@ -152,6 +153,7 @@ public:
 
 void GXPlugin::do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris)
 {
+  sem_wait(&mutex);
   if (obj->body.otype == uris->gx_cab)
     {
       float cab_irdata_c[cabconv->cab_count];
@@ -170,7 +172,7 @@ void GXPlugin::do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris)
         printf("cabconv->update fail.\n");
       //printf("worker 2 ready.\n");
     }
-  schedule_wait = false;
+  sem_post(&mutex);
 }
 
 void GXPlugin::set_tubesel(const LV2_Descriptor*     descriptor)
@@ -247,13 +249,13 @@ void GXPlugin::init_dsp(uint32_t rate, uint32_t bufsize_)
 
   if (bufsize )
   {
-    cabconv->set_samplerate((uint32_t)rate);
+    cabconv->set_samplerate(rate);
     cabconv->set_buffersize(bufsize);
     cabconv->configure(cabconv->cab_count, cabconv->cab_data, cabconv->cab_sr);
     if(!cabconv->start(0, SCHED_FIFO))
       printf("cabinet convolver disabled\n");
 
-    ampconv->set_samplerate((uint32_t)rate);
+    ampconv->set_samplerate(rate);
     ampconv->set_buffersize(bufsize);
     ampconv->configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
     if(!ampconv->start(0, SCHED_FIFO))
@@ -315,17 +317,12 @@ void GXPlugin::run_dsp(uint32_t n_samples)
   /* Start a sequence in the notify output port. */
   lv2_atom_forge_sequence_head(&forge, &notify_frame, 0);
 
-  /* Read incoming events if scheduler is free*/
-  if (schedule_wait == false)
-    {
+  /* Read incoming events */
       LV2_ATOM_SEQUENCE_FOREACH(c_notice, ev)
       {
-
-        schedule_wait = true;
         schedule->schedule_work(schedule->handle,
                                       lv2_atom_total_size(&ev->body), &ev->body);
       }
-    }
   // run dsp
   amplifier->run_static(n_samples, input, output, amplifier);
   ampconv->run_static(n_samples, ampconv, output);
