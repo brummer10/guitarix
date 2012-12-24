@@ -14,7 +14,7 @@ def build(bld):
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
-    uselib = ['LV2CORE']
+    uselib = ['LV2CORE','GLIBMM']
     if bld.env['ZITA_CONVOLVER']:
         uselib.append('ZITA_CONVOLVER')
     else:
