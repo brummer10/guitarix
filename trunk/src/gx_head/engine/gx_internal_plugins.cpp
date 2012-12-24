@@ -828,11 +828,9 @@ bool CabinetConvolver::start(bool force) {
 }
 
 void CabinetConvolver::check_update() {
-    if (cabinet_changed()) {
+    if (cabinet_changed() || sum_changed()) {
 	do_update();
-    } else if (sum_changed()) {
-	do_only_update();
-    }
+    } 
 }
 
 void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, PluginDef *p) {
@@ -983,10 +981,8 @@ bool PreampConvolver::start(bool force) {
 }
 
 void PreampConvolver::check_update() {
-    if (preamp_changed()) {
+    if (preamp_changed() || sum_changed()) {
 	do_update();
-    } else if (sum_changed()) {
-	do_only_update();
     }
 }
 
@@ -1082,7 +1078,7 @@ bool ContrastConvolver::start(bool force) {
 
 void ContrastConvolver::check_update() {
     if (sum_changed()) {
-	do_only_update();
+	do_update();
     }
 }
 
