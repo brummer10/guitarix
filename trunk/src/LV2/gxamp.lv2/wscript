@@ -13,7 +13,6 @@ def build(bld):
            'DSP/gx_resampler.cc',
            'DSP/gx_convolver.cc'
            ]
-
     incl = ['../../','./', './DSP']
     lib = []
     if sys.platform.startswith("linux"):

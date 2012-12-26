@@ -87,11 +87,11 @@ Widget::Widget(Glib::ustring plug_name)
   m_smallknob3.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob6_value_changed));
 
-  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 0.1, 2, 0.1, clevel, plug_name);
+  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 1, 20, 1, clevel, plug_name);
   m_smallknob4.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob7_value_changed));
 
-  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 0.1, 2, 0.1, alevel, plug_name);
+  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 1, 20, 1, alevel, plug_name);
   m_smallknob5.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob8_value_changed));
 
@@ -268,13 +268,13 @@ void Widget::on_knob7_value_changed()
   //std::cout << "treble = " << clevel << std::endl;
   write_function( controller, 7, sizeof(float), 0, (const void*)&clevel);
   // start a worker thread to update the convolver
-  uint32_t OBJ_BUF_SIZE = sizeof(uris)+1;
+  /*uint32_t OBJ_BUF_SIZE = 1024;
   uint8_t obj_buf[OBJ_BUF_SIZE];
   lv2_atom_forge_set_buffer(&forge, obj_buf, OBJ_BUF_SIZE);
   LV2_Atom* msg = write_set_cab(&forge, &uris);
   write_function(controller, 11, lv2_atom_total_size(msg),
                  uris.atom_eventTransfer,
-                 msg);
+                 msg);*/
 }
 void Widget::on_knob8_value_changed()
 {
@@ -282,11 +282,11 @@ void Widget::on_knob8_value_changed()
   //std::cout << "treble = " << alevel << std::endl;
   write_function( controller, 8, sizeof(float), 0, (const void*)&alevel);
   // start a worker thread to update the convolver
-  uint32_t OBJ_BUF_SIZE = sizeof(uris)+1;
+  /*uint32_t OBJ_BUF_SIZE = 1024;
   uint8_t obj_buf[OBJ_BUF_SIZE];
   lv2_atom_forge_set_buffer(&forge, obj_buf, OBJ_BUF_SIZE);
   LV2_Atom* msg = write_set_pre(&forge, &uris);
   write_function(controller, 11, lv2_atom_total_size(msg),
                  uris.atom_eventTransfer,
-                 msg);
+                 msg);*/
 }

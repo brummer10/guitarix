@@ -115,9 +115,6 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 }
 
 
-
-class GXPlugin;
-
 #include "gxamp.h"
 #include "gx_resampler.h"
 #include "gx_convolver.h"
@@ -145,8 +142,16 @@ private:
   uint32_t                     bufsize;
   LV2_Atom_Sequence*           c_notice;
   LV2_Atom_Sequence*           n_notice;
+  float                        *clevel;
+  float                        cab;
+  bool cab_changed()           { return abs(cab - (*clevel)) > 0.1; }
+  void update_cab()            { cab = (*clevel); }
+  float                        *alevel;
+  float                        pre;
+  bool pre_changed()           { return abs(pre - (*alevel)) > 0.1; }
+  void update_pre()            { pre = (*alevel); }
   volatile int32_t             schedule_wait;
-
+  
 public:
   // LV2 stuff
 
@@ -160,7 +165,7 @@ public:
   inline void run_dsp(uint32_t n_samples);
   void connect(uint32_t port,void* data);
   inline void init_dsp(uint32_t rate, uint32_t bufsize_);
-  inline void do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris);
+  inline void do_work( const void* data);
   inline void connect_all_ports(uint32_t port, void* data);
 
   GXPlugin() :
@@ -173,9 +178,13 @@ public:
     impf(Impf()),
     ampconv(GxSimpleConvolver(resamp1)),
     ampf(Ampf()),
-    bufsize(0)
+    bufsize(0),
+    clevel(NULL),
+    cab(0),
+    alevel(NULL),
+    pre(0)
   {
-    atomic_set(&schedule_wait,false);
+    atomic_set(&schedule_wait,0);
   };
 
   ~GXPlugin()
@@ -191,9 +200,9 @@ public:
 #include "impulse_former.cc"
 #include "ampulse_former.cc"
 
-void GXPlugin::do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris)
+void GXPlugin::do_work(const void* data)
 {
-  if (obj->body.otype == uris->gx_cab)
+  if ((*((const int*)data)) == 1)
     {
       if (cabconv.is_runnable()) 
         {
@@ -206,29 +215,29 @@ void GXPlugin::do_work(const LV2_Atom_Object* obj, GXPluginURIs* uris)
       while (!cabconv.checkstate());
       if (!cabconv.update(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr))
         printf("cabconv.update fail.\n");
-      printf("worker 1 done.\n");
       if(!cabconv.start(0, SCHED_FIFO))
         printf("cabinet convolver disabled\n");
+      update_cab();
+      //printf("cabinet convolver updated\n");
     }
-  else if (obj->body.otype == uris->gx_pre)
+  else if ((*((const int*)data)) == 2)
     {
       if (ampconv.is_runnable()) 
         {
           ampconv.set_not_runnable();
           ampconv.stop_process();
         }
-      //printf("worker run. %d id= %d type= %d\n", obj->body.otype, obj->body.id, obj->atom.type);
       float pre_irdata_c[contrast_ir_desc.ir_count];
       ampf.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c);
       while (!ampconv.checkstate());
       if (!ampconv.update(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
-        printf("cabconv.update fail.\n");
-      printf("worker 2 done.\n");
+        printf("ampconv.update fail.\n");
       if(!ampconv.start(0, SCHED_FIFO))
-        printf("cabinet convolver disabled\n");
+        printf("presence convolver disabled\n");
+      update_pre();
+      //printf("presence convolver updated\n");
     }
-  printf("worker thread is running.\n");
-  atomic_set(&schedule_wait,false);
+  atomic_set(&schedule_wait,0);
 }
 
 void GXPlugin::set_tubesel(const LV2_Descriptor*     descriptor)
@@ -344,8 +353,10 @@ void GXPlugin::connect(uint32_t port,void* data)
     case TREBLE:
       break;
     case CLevel:
+      clevel = (float*)data;
       break;
     case ALevel:
+      alevel = (float*)data;
       break;
     case AMP_OUTPUT:
       output = (float*)data;
@@ -360,30 +371,44 @@ void GXPlugin::connect(uint32_t port,void* data)
       n_notice = (LV2_Atom_Sequence*)data;
       break;
     }
-
 }
 
 void GXPlugin::run_dsp(uint32_t n_samples)
 {
+  if (!atomic_get(schedule_wait))
+  {
+    if(cab_changed()) 
+    {
+      int d = 1;
+      atomic_set(&schedule_wait,1);
+      schedule->schedule_work(schedule->handle, sizeof(int), &d);
+    }
+    else if(pre_changed()) 
+    {
+      int d = 2;
+      atomic_set(&schedule_wait,1);
+      schedule->schedule_work(schedule->handle, sizeof(int), &d);
+    }
+  }
   /* Set up forge to write directly to notify output port. */
-  const uint32_t notify_capacity = n_notice->atom.size;
+ /* const uint32_t notify_capacity = n_notice->atom.size;
   lv2_atom_forge_set_buffer(&forge,
                             (uint8_t*)n_notice,
-                            notify_capacity);
+                            notify_capacity);*/
 
   /* Start a sequence in the notify output port. */
-  lv2_atom_forge_sequence_head(&forge, &notify_frame, 0);
+  //lv2_atom_forge_sequence_head(&forge, &notify_frame, 0);
 
   /* Read incoming events if scheduler is free*/
-  if (!atomic_get(schedule_wait))
+ /* if (!atomic_get(schedule_wait))
     {
       LV2_ATOM_SEQUENCE_FOREACH(c_notice, ev)
       {
-        atomic_set(&schedule_wait,true);
+        atomic_set(&schedule_wait,1);
         schedule->schedule_work(schedule->handle,
                                 lv2_atom_total_size(&ev->body), &ev->body);
       }
-    }
+    }*/
   // run dsp
   amplifier.run_static(n_samples, input, output, &amplifier);
   ampconv.run_static(n_samples, &ampconv, output);
@@ -408,9 +433,9 @@ work(LV2_Handle                  instance,
      const void*                 data)
 {
   GXPlugin* self = (GXPlugin*)instance;
-  GXPluginURIs* uris        = &self->uris;
-  const LV2_Atom_Object* obj = (LV2_Atom_Object*)data;
-  self->do_work(obj, uris);
+  //GXPluginURIs* uris        = &self->uris;
+  //const LV2_Atom_Object* obj = (LV2_Atom_Object*)data;
+  self->do_work(data);
   return LV2_WORKER_SUCCESS;
 }
 
