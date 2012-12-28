@@ -1,3 +1,8 @@
+guitarix2 (0.26.0git) unstable; urgency=low
+  * git head
+  
+ -- brummer <brummer-@web.de>  Fri, 28 Dec 2012 15:30:35 +0200 
+
 guitarix2 (0.25.0) unstable; urgency=low
   * add LV2 amplifiers mono and stereo versions
   
