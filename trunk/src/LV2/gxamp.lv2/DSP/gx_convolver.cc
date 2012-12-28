@@ -247,3 +247,91 @@ void GxSimpleConvolver::run_static(uint32_t n_samples, GxSimpleConvolver *p, flo
   if (!p->compute((int32_t)n_samples, output, output))
     printf("convolver didn't run\n");
 }
+
+//////////////stero/////////////////
+
+bool GxSimpleConvolver::configure_stereo(int32_t count, float *impresp, uint32_t imprate)
+{
+  //printf("try configure()\n");
+  CheckResample r(resamp);
+  impresp = r.resample(&count, impresp, imprate, samplerate);
+  if (!impresp)
+    {
+      printf("no impresp\n");
+      return false;
+    }
+  cleanup();
+  uint32_t bufsize = buffersize;
+  if (bufsize < Convproc::MINPART)
+    {
+      bufsize = Convproc::MINPART;
+    }
+  if (Convproc::configure(2, 2, count, buffersize,
+                          bufsize, Convproc::MAXPART))
+    {
+      printf("no configure\n");
+      return false;
+    }
+  if (impdata_create(0, 0, 1, impresp, 0, count) & impdata_create(1, 1, 1, impresp, 0, count))
+    {
+      printf("no impdata_create()\n");
+      return false;
+    }
+  //printf("configure()\n");
+
+  return true;
+}
+
+bool GxSimpleConvolver::update_stereo(int32_t count, float *impresp, uint32_t imprate)
+{
+  CheckResample r(resamp);
+  impresp = r.resample(&count, impresp, imprate, samplerate);
+  if (!impresp)
+    {
+      return false;
+    }
+  if (impdata_update(0, 0, 1, impresp, 0, count) & impdata_update(1, 1, 1, impresp, 0, count))
+    {
+      return false;
+    }
+  return true;
+}
+
+bool GxSimpleConvolver::compute_stereo(int32_t count, float* input, float* input1, float *output, float *output1)
+{
+  // printf("try run\n");
+  if (state() != Convproc::ST_PROC)
+    {
+      //printf("state() != ST_PROC\n");
+      if (input != output)
+        {
+          memcpy(output, input, count * sizeof(float));
+          memcpy(output1, input1, count * sizeof(float));
+        }
+      if (state() == Convproc::ST_WAIT)
+        {
+          //printf("state() == ST_WAIT\n");
+          check_stop();
+        }
+      if (state() == ST_STOP)
+        {
+          //printf("state() == ST_STOP\n");
+          ready = false;
+        }
+      return true;
+    }
+  memcpy(inpdata(0), input, count * sizeof(float));
+  memcpy(inpdata(1), input1, count * sizeof(float));
+  int32_t flags = process(sync);
+
+  memcpy(output, outdata(0), count * sizeof(float));
+  memcpy(output1, outdata(1), count * sizeof(float));
+  //printf("run\n");
+  return flags == 0;
+}
+
+void GxSimpleConvolver::run_static_stereo(uint32_t n_samples, GxSimpleConvolver *p, float *output, float *output1)
+{
+  if (!p->compute_stereo((int32_t)n_samples, output, output1, output, output1))
+    printf("convolver didn't run\n");
+}

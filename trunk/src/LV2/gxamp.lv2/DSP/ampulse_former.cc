@@ -65,13 +65,17 @@ void Ampf::connect(uint32_t port,void* data)
     case ALevel:
       fslider0_ = (float*)data;
       break;
+    case AMP_CONTROL:
+      break;
+    case AMP_NOTIFY:
+      break;
     case AMP_OUTPUT:
       break;
     case AMP_INPUT:
       break;
-    case AMP_CONTROL:
+    case AMP_OUTPUT1:
       break;
-    case AMP_NOTIFY:
+    case AMP_INPUT1:
       break;
     }
 }

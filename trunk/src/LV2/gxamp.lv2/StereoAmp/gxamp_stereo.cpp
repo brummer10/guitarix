@@ -126,18 +126,20 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "impulse_former.h"
 #include "ampulse_former.h"
 
-////////////////////////////// MONO ////////////////////////////////////
+//////////////////////////// STEREO ////////////////////////////////////
 
-class GxPluginMono
+class GxPluginStereo
 {
 private:
   // internal stuff
   float*                       output;
   float*                       input;
+  float*                       output1;
+  float*                       input1;
   uint32_t                     tubesel;
   int32_t                      prio;
-  TonestackMono                ts;
-  GxAmpMono                    amplifier;
+  TonestackStereo              ts;
+  GxAmpStereo                  amplifier;
   gx_resample::BufferResampler resamp;
   GxSimpleConvolver            cabconv;
   Impf                         impf;
@@ -184,20 +186,22 @@ public:
   LV2_URID_Map*                map;
   LV2_Worker_Schedule*         schedule;
 
-  void set_tubesel_mono(const LV2_Descriptor* descriptor);
-  inline void run_dsp_mono(uint32_t n_samples);
-  void connect_mono(uint32_t port,void* data);
-  inline void init_dsp_mono(uint32_t rate, uint32_t bufsize_);
-  inline void do_work_mono();
-  inline void connect_all_mono_ports(uint32_t port, void* data);
+  void set_tubesel_stereo(const LV2_Descriptor* descriptor);
+  inline void run_dsp_stereo(uint32_t n_samples);
+  void connect_stereo(uint32_t port,void* data);
+  inline void init_dsp_stereo(uint32_t rate, uint32_t bufsize_);
+  inline void do_work_stereo();
+  inline void connect_all_stereo_ports(uint32_t port, void* data);
 
-  GxPluginMono() :
+  GxPluginStereo() :
     output(NULL),
     input(NULL),
+    output1(NULL),
+    input1(NULL),
     tubesel(0),
     prio(0),
-    ts(TonestackMono()),
-    amplifier(GxAmpMono()),
+    ts(TonestackStereo()),
+    amplifier(GxAmpStereo()),
     cabconv(GxSimpleConvolver(resamp)),
     impf(Impf()),
     ampconv(GxSimpleConvolver(resamp1)),
@@ -213,12 +217,13 @@ public:
     atomic_set(&schedule_wait,0);
   };
 
-  ~GxPluginMono()
+  ~GxPluginStereo()
   {
     cabconv.stop_process();
     ampconv.stop_process();
   };
 };
+
 
 #include "cab_data.cc"
 #include "gx_tonestack.cc"
@@ -226,7 +231,7 @@ public:
 #include "impulse_former.cc"
 #include "ampulse_former.cc"
 
-void GxPluginMono::do_work_mono()
+void GxPluginStereo::do_work_stereo()
 {
   atomic_set(&schedule_wait,1);
   if (cab_changed())
@@ -240,7 +245,7 @@ void GxPluginMono::do_work_mono()
       impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c);
       cabconv.cab_data_new = cab_irdata_c;
       while (!cabconv.checkstate());
-      if (!cabconv.update(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr))
+      if (!cabconv.update_stereo(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr))
         printf("cabconv.update fail.\n");
       if(!cabconv.start(0, prio))
         printf("cabinet convolver disabled\n");
@@ -257,7 +262,7 @@ void GxPluginMono::do_work_mono()
       float pre_irdata_c[contrast_ir_desc.ir_count];
       ampf.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c);
       while (!ampconv.checkstate());
-      if (!ampconv.update(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
+      if (!ampconv.update_stereo(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
         printf("ampconv.update fail.\n");
       if(!ampconv.start(0, prio))
         printf("presence convolver disabled\n");
@@ -268,53 +273,53 @@ void GxPluginMono::do_work_mono()
   atomic_set(&schedule_wait,0);
 }
 
-void GxPluginMono::set_tubesel_mono(const LV2_Descriptor*     descriptor)
+void GxPluginStereo::set_tubesel_stereo(const LV2_Descriptor*     descriptor)
 {
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7",descriptor->URI)== 0)
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7_stereo",descriptor->URI)== 0)
     {
-      printf("12ax7\n");
-      _a_ptr = &GxAmpMono::run_12ax7;
-      _t_ptr = &TonestackMono::run;
+      printf("12ax7_stereo\n");
+      _as_ptr = &GxAmpStereo::run_12ax7;
+      _ts_ptr = &TonestackStereo::run;
       cabconv.cab_count = cab_data_4x12.ir_count;
       cabconv.cab_sr = cab_data_4x12.ir_sr;
       cabconv.cab_data = cab_data_4x12.ir_data;
       tubesel  = 1;
     }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7",descriptor->URI)== 0)
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7_stereo",descriptor->URI)== 0)
     {
-      printf("12AT7\n");
-      _a_ptr = &GxAmpMono::run_12AT7;
-      _t_ptr = &TonestackMono::run_soldano;
+      printf("12AT7_stereo\n");
+      _as_ptr = &GxAmpStereo::run_12AT7;
+      _ts_ptr = &TonestackStereo::run_soldano;
       cabconv.cab_count = cab_data_AC30.ir_count;
       cabconv.cab_sr = cab_data_AC30.ir_sr;
       cabconv.cab_data = cab_data_AC30.ir_data;
       tubesel  = 2;
     }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16",descriptor->URI)== 0)
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16_stereo",descriptor->URI)== 0)
     {
-      printf("6C16\n");
-      _a_ptr = &GxAmpMono::run_6C16;
-      _t_ptr = &TonestackMono::run_bassman;
+      printf("6C16_stereo\n");
+      _as_ptr = &GxAmpStereo::run_6C16;
+      _ts_ptr = &TonestackStereo::run_bassman;
       cabconv.cab_count = cab_data_1x15.ir_count;
       cabconv.cab_sr =  cab_data_1x15.ir_sr;
       cabconv.cab_data = cab_data_1x15.ir_data;
       tubesel  = 3;
     }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6V6",descriptor->URI)== 0)
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6V6_stereo",descriptor->URI)== 0)
     {
-      printf("6V6\n");
-      _a_ptr = &GxAmpMono::run_6V6;
-      _t_ptr = &TonestackMono::run_soldano;
+      printf("6V6_stereo\n");
+      _as_ptr = &GxAmpStereo::run_6V6;
+      _ts_ptr = &TonestackStereo::run_soldano;
       cabconv.cab_count = cab_data_mesa.ir_count;
       cabconv.cab_sr = cab_data_mesa.ir_sr;
       cabconv.cab_data = cab_data_mesa.ir_data;
       tubesel  = 4;
     }
-  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6DJ8",descriptor->URI)== 0)
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6DJ8_stereo",descriptor->URI)== 0)
     {
-      printf("6DJ8\n");
-      _a_ptr = &GxAmpMono::run_6DJ8;
-      _t_ptr = &TonestackMono::run_ampeg;
+      printf("6DJ8_stereo\n");
+      _as_ptr = &GxAmpStereo::run_6DJ8;
+      _ts_ptr = &TonestackStereo::run_ampeg;
       cabconv.cab_count = cab_data_HighGain.ir_count;
       cabconv.cab_sr = cab_data_HighGain.ir_sr;
       cabconv.cab_data = cab_data_HighGain.ir_data;
@@ -322,8 +327,8 @@ void GxPluginMono::set_tubesel_mono(const LV2_Descriptor*     descriptor)
     }
   else
     {
-      _a_ptr = &GxAmpMono::run_12ax7;
-      _t_ptr = &TonestackMono::run;
+      _as_ptr = &GxAmpStereo::run_12ax7;
+      _ts_ptr = &TonestackStereo::run;
       cabconv.cab_count = cab_data_4x12.ir_count;
       cabconv.cab_sr = cab_data_4x12.ir_sr;
       cabconv.cab_data = cab_data_4x12.ir_data;
@@ -331,7 +336,7 @@ void GxPluginMono::set_tubesel_mono(const LV2_Descriptor*     descriptor)
     }
 }
 
-void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
+void GxPluginStereo::init_dsp_stereo(uint32_t rate, uint32_t bufsize_)
 {
   AVOIDDENORMALS();
 
@@ -349,13 +354,13 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
 #endif
       cabconv.set_samplerate(rate);
       cabconv.set_buffersize(bufsize);
-      cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
+      cabconv.configure_stereo(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
       if(!cabconv.start(0, prio))
         printf("cabinet convolver disabled\n");
 
       ampconv.set_samplerate(rate);
       ampconv.set_buffersize(bufsize);
-      ampconv.configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
+      ampconv.configure_stereo(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
       if(!ampconv.start(0, prio))
         printf("presence convolver disabled\n");
     }
@@ -366,7 +371,7 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
 }
 
 
-void GxPluginMono::connect_mono(uint32_t port,void* data)
+void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
@@ -403,28 +408,30 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
       input = (float*)data;
       break;
     case AMP_OUTPUT1:
+      output1 = (float*)data;
       break;
     case AMP_INPUT1:
+      input1 = (float*)data;
       break;
     }
 }
 
-void GxPluginMono::run_dsp_mono(uint32_t n_samples)
+void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
   if (!atomic_get(schedule_wait) && val_changed())
     {
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
     }
   // run dsp
-  amplifier.run_static(n_samples, input, output, &amplifier);
-  ampconv.run_static(n_samples, &ampconv, output);
-  ts.run_static(n_samples, &ts, output);
-  cabconv.run_static(n_samples, &cabconv, output);
+  amplifier.run_static(n_samples, input, input1, output, output1, &amplifier);
+  ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+  ts.run_static(n_samples, &ts, output, output1);
+  cabconv.run_static_stereo(n_samples, &cabconv, output, output1);
 }
 
-void GxPluginMono::connect_all_mono_ports(uint32_t port, void* data)
+void GxPluginStereo::connect_all_stereo_ports(uint32_t port, void* data)
 {
-  connect_mono(port,data);
+  connect_stereo(port,data);
   amplifier.connect_static(port,data, &amplifier);
   ts.connect_static(port,data, &ts);
   impf.connect_static(port,data, &impf);
@@ -440,8 +447,8 @@ work(LV2_Handle                  instance,
      uint32_t                    size,
      const void*                 data)
 {
-  GxPluginMono* self = (GxPluginMono*)instance;
-  self->do_work_mono();
+  GxPluginStereo* self = (GxPluginStereo*)instance;
+  self->do_work_stereo();
   return LV2_WORKER_SUCCESS;
 }
 
@@ -461,8 +468,8 @@ instantiate(const LV2_Descriptor*     descriptor,
             const char*               bundle_path,
             const LV2_Feature* const* features)
 {
+  GxPluginStereo *self = new GxPluginStereo();
 
-  GxPluginMono *self = new GxPluginMono();
   if (!self)
     {
       return NULL;
@@ -522,8 +529,8 @@ instantiate(const LV2_Descriptor*     descriptor,
         }
       printf("using block size: %d\n", bufsize);
     }
-  self->set_tubesel_mono( descriptor);
-  self->init_dsp_mono((uint32_t)rate, bufsize);
+  self->set_tubesel_stereo( descriptor);
+  self->init_dsp_stereo((uint32_t)rate, bufsize);
 
   return (LV2_Handle)self;
 }
@@ -533,8 +540,9 @@ connect_port(LV2_Handle instance,
              uint32_t   port,
              void*      data)
 {
-  GxPluginMono* self = (GxPluginMono*)instance;
-  self->connect_all_mono_ports(port, data);
+  GxPluginStereo* self = (GxPluginStereo*)instance;
+  self->connect_all_stereo_ports(port, data);
+
 }
 
 static void
@@ -546,8 +554,8 @@ activate(LV2_Handle instance)
 static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
-  GxPluginMono* self = (GxPluginMono*)instance;
-  self->run_dsp_mono(n_samples);
+  GxPluginStereo* self = (GxPluginStereo*)instance;
+  self->run_dsp_stereo(n_samples);
 }
 
 static void
@@ -559,7 +567,7 @@ deactivate(LV2_Handle instance)
 static void
 cleanup(LV2_Handle instance)
 {
-  GxPluginMono* self = (GxPluginMono*)instance;
+  GxPluginStereo* self = (GxPluginStereo*)instance;
   delete self;
 }
 
@@ -576,9 +584,9 @@ extension_data(const char* uri)
   return NULL;
 }
 
-static const LV2_Descriptor descriptor =
+static const LV2_Descriptor descriptor5 =
 {
-  GXPLUGIN_URI "#12ax7",
+  GXPLUGIN_URI "#12ax7_stereo",
   instantiate,
   connect_port,
   activate,
@@ -587,10 +595,9 @@ static const LV2_Descriptor descriptor =
   cleanup,
   extension_data
 };
-
-static const LV2_Descriptor descriptor1 =
+static const LV2_Descriptor descriptor6 =
 {
-  GXPLUGIN_URI "#12AT7",
+  GXPLUGIN_URI "#12AT7_stereo",
   instantiate,
   connect_port,
   activate,
@@ -599,9 +606,9 @@ static const LV2_Descriptor descriptor1 =
   cleanup,
   extension_data
 };
-static const LV2_Descriptor descriptor2 =
+static const LV2_Descriptor descriptor7 =
 {
-  GXPLUGIN_URI "#6C16",
+  GXPLUGIN_URI "#6C16_stereo",
   instantiate,
   connect_port,
   activate,
@@ -610,9 +617,9 @@ static const LV2_Descriptor descriptor2 =
   cleanup,
   extension_data
 };
-static const LV2_Descriptor descriptor3 =
+static const LV2_Descriptor descriptor8 =
 {
-  GXPLUGIN_URI "#6V6",
+  GXPLUGIN_URI "#6V6_stereo",
   instantiate,
   connect_port,
   activate,
@@ -621,9 +628,9 @@ static const LV2_Descriptor descriptor3 =
   cleanup,
   extension_data
 };
-static const LV2_Descriptor descriptor4 =
+static const LV2_Descriptor descriptor9 =
 {
-  GXPLUGIN_URI "#6DJ8",
+  GXPLUGIN_URI "#6DJ8_stereo",
   instantiate,
   connect_port,
   activate,
@@ -641,15 +648,15 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &descriptor5;
     case 1:
-      return &descriptor1;
+      return &descriptor6;
     case 2:
-      return &descriptor2;
+      return &descriptor7;
     case 3:
-      return &descriptor3;
+      return &descriptor8;
     case 4:
-      return &descriptor4;
+      return &descriptor9;
     default:
       return NULL;
     }

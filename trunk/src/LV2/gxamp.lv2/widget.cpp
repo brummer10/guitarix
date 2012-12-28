@@ -205,13 +205,17 @@ void Widget::set_value(uint32_t port_index,
           alevel = value;
           m_smallknob5.cp_set_value(alevel);
           break;
+        case AMP_CONTROL:
+          break;
+        case AMP_NOTIFY:
+          break;
         case AMP_OUTPUT:
           break;
         case AMP_INPUT:
           break;
-        case AMP_CONTROL:
+        case AMP_OUTPUT1:
           break;
-        case AMP_NOTIFY:
+        case AMP_INPUT1:
           break;
         }
     }
@@ -223,6 +227,7 @@ void Widget::on_knob_value_changed()
   //std::cout << "mastergain = " << mastergain << std::endl;
   write_function( controller, 0, sizeof(float), 0, (const void*)&mastergain);
 }
+
 void Widget::on_knob1_value_changed()
 {
   pregain = m_bigknob1.get_value();
@@ -243,18 +248,21 @@ void Widget::on_knob3_value_changed()
   //std::cout << "drive = " << drive << std::endl;
   write_function( controller, 3, sizeof(float), 0, (const void*)&drive);
 }
+
 void Widget::on_knob4_value_changed()
 {
   mid = m_smallknob1.get_value();
   //std::cout << "mid = " << mid << std::endl;
   write_function( controller, 4, sizeof(float), 0, (const void*)&mid);
 }
+
 void Widget::on_knob5_value_changed()
 {
   bass = m_smallknob2.get_value();
   //std::cout << "bass = " << bass << std::endl;
   write_function( controller, 5, sizeof(float), 0, (const void*)&bass);
 }
+
 void Widget::on_knob6_value_changed()
 {
   treble = m_smallknob3.get_value();
@@ -267,26 +275,11 @@ void Widget::on_knob7_value_changed()
   clevel = m_smallknob4.get_value();
   //std::cout << "treble = " << clevel << std::endl;
   write_function( controller, 7, sizeof(float), 0, (const void*)&clevel);
-  // start a worker thread to update the convolver
-  /*uint32_t OBJ_BUF_SIZE = 1024;
-  uint8_t obj_buf[OBJ_BUF_SIZE];
-  lv2_atom_forge_set_buffer(&forge, obj_buf, OBJ_BUF_SIZE);
-  LV2_Atom* msg = write_set_cab(&forge, &uris);
-  write_function(controller, 11, lv2_atom_total_size(msg),
-                 uris.atom_eventTransfer,
-                 msg);*/
 }
+
 void Widget::on_knob8_value_changed()
 {
   alevel = m_smallknob5.get_value();
   //std::cout << "treble = " << alevel << std::endl;
   write_function( controller, 8, sizeof(float), 0, (const void*)&alevel);
-  // start a worker thread to update the convolver
-  /*uint32_t OBJ_BUF_SIZE = 1024;
-  uint8_t obj_buf[OBJ_BUF_SIZE];
-  lv2_atom_forge_set_buffer(&forge, obj_buf, OBJ_BUF_SIZE);
-  LV2_Atom* msg = write_set_pre(&forge, &uris);
-  write_function(controller, 11, lv2_atom_total_size(msg),
-                 uris.atom_eventTransfer,
-                 msg);*/
 }

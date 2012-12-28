@@ -43,9 +43,6 @@ private:
                  uint32_t format,
                  const void * buffer);
 public:
-  LV2_Atom_Forge forge;
-  LV2_URID_Map* map;
-  GXPluginURIs   uris;
 
   // public Lv2 communication stuff
   LV2UI_Controller controller;

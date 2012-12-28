@@ -94,9 +94,18 @@ public:
   bool compute(int32_t count, float* input, float *output);
   bool compute(int32_t count, float* buffer)
   {
-    return is_runnable() ? compute(count, buffer, buffer) : true;
+    return is_runnable() ? compute_stereo(count, buffer, buffer) : true;
+  }
+  
+  bool configure_stereo(int32_t count, float *impresp, uint32_t imprate);
+  bool update_stereo(int32_t count, float *impresp, uint32_t imprate);
+  bool compute_stereo(int32_t count, float* input, float* input1, float *output, float *output1);
+  bool compute_stereo(int32_t count, float* buffer, float* buffer1)
+  {
+    return is_runnable() ? compute_stereo(count, buffer, buffer, buffer1, buffer1) : true;
   }
   static void run_static(uint32_t n_samples, GxSimpleConvolver*, float *output);
+  static void run_static_stereo(uint32_t n_samples, GxSimpleConvolver*, float *output, float *output1);
 };
 
 

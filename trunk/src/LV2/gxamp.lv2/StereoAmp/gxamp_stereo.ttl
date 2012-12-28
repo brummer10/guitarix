@@ -41,11 +41,11 @@
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
 	doap:name "GxAmplifier" .
 
-<http://guitarix.sourceforge.net/plugins/gxamp#12ax7>
+<http://guitarix.sourceforge.net/plugins/gxamp#12ax7_stereo>
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier";
+    doap:name "GxAmplifier stereo";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
     lv2:optionalFeature lv2:hardRTCapable ;
@@ -167,13 +167,25 @@
         lv2:index 12 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ].
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 13 ;
+        lv2:symbol "out1" ;
+        lv2:name "Out1"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 14 ;
+        lv2:symbol "in1" ;
+        lv2:name "in1"
+    ] .
 
-<http://guitarix.sourceforge.net/plugins/gxamp#12AT7>
+<http://guitarix.sourceforge.net/plugins/gxamp#12AT7_stereo>
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier-II";
+    doap:name "GxAmplifier-II stereo";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
     lv2:optionalFeature lv2:hardRTCapable ;
@@ -295,13 +307,25 @@
         lv2:index 12 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ].
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 13 ;
+        lv2:symbol "out1" ;
+        lv2:name "Out1"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 14 ;
+        lv2:symbol "in1" ;
+        lv2:name "in1"
+    ] .
 
-<http://guitarix.sourceforge.net/plugins/gxamp#6C16>
+<http://guitarix.sourceforge.net/plugins/gxamp#6C16_stereo>
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier-III";
+    doap:name "GxAmplifier-III stereo";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
     lv2:optionalFeature lv2:hardRTCapable ;
@@ -423,13 +447,25 @@
         lv2:index 12 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ].
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 13 ;
+        lv2:symbol "out1" ;
+        lv2:name "Out1"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 14 ;
+        lv2:symbol "in1" ;
+        lv2:name "in1"
+    ] .
 
-<http://guitarix.sourceforge.net/plugins/gxamp#6V6>
+<http://guitarix.sourceforge.net/plugins/gxamp#6V6_stereo>
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier-IV";
+    doap:name "GxAmplifier-IV stereo";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
     lv2:optionalFeature lv2:hardRTCapable ;
@@ -551,13 +587,25 @@
         lv2:index 12 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ].
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 13 ;
+        lv2:symbol "out1" ;
+        lv2:name "Out1"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 14 ;
+        lv2:symbol "in1" ;
+        lv2:name "in1"
+    ] .
 
-<http://guitarix.sourceforge.net/plugins/gxamp#6DJ8>
+<http://guitarix.sourceforge.net/plugins/gxamp#6DJ8_stereo>
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier-V";
+    doap:name "GxAmplifier-V stereo";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
     lv2:optionalFeature lv2:hardRTCapable ;
@@ -679,11 +727,23 @@
         lv2:index 12 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ].
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 13 ;
+        lv2:symbol "out1" ;
+        lv2:name "Out1"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 14 ;
+        lv2:symbol "in1" ;
+        lv2:name "in1"
+    ] .
 
 <http://guitarix.sourceforge.net/plugins/gxamp#gui>
   a guiext:GtkUI;
-  guiext:binary <gxamp_gui.so>;
+  guiext:binary <gxamp_gui_stereo.so>;
   guiext:requiredFeature guiext:makeResident;
   lv2:extensionData work:interface ;
   guiext:portNotification [
@@ -700,10 +760,6 @@
         guiext:notifyType atom:Blank
   ] , [
         guiext:plugin <http://guitarix.sourceforge.net/plugins/gxamp#6V6>;
-        lv2:symbol "notify" ;
-        guiext:notifyType atom:Blank
-  ] , [
-        guiext:plugin <http://guitarix.sourceforge.net/plugins/gxamp#6DJ8>;
         lv2:symbol "notify" ;
         guiext:notifyType atom:Blank
   ] .

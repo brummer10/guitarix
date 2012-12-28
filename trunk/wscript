@@ -590,6 +590,7 @@ def configure(conf):
         cxxflags += opt.cxxflags_release.split()
     cpu_model = None
     if opt.optimization:
+        conf.env['OPT'] = False
         cpu_model = append_optimization_flags(cxxflags)
     conf.env['CXXFLAGS'] += cxxflags
 
@@ -610,6 +611,9 @@ def configure(conf):
         conf.sub_config('src/LV2/gxamp.lv2');
         pa = '.so'
         sub_file('./src/LV2/gxamp.lv2/manifest.ttl.in', './src/LV2/gxamp.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+        conf.sub_config('src/LV2/gxamp.lv2/StereoAmp');
+        sub_file('./src/LV2/gxamp.lv2/StereoAmp/manifest_stereo.ttl.in', './src/LV2/gxamp.lv2/StereoAmp/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+        
         # config subdirs
     conf.sub_config('pygxw');
     conf.sub_config('glade-gxw');
@@ -704,6 +708,7 @@ def build(bld):
         bld.add_subdirs('src/ladspa')
     if bld.env["LV2"]:
         bld.add_subdirs('src/LV2/gxamp.lv2')
+        bld.add_subdirs('src/LV2/gxamp.lv2/StereoAmp')
     
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)

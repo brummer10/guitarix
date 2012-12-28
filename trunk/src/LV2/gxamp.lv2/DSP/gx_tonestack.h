@@ -22,7 +22,7 @@
 #ifndef SRC_HEADERS_GX_TONESTACK_H_
 #define SRC_HEADERS_GX_TONESTACK_H_
 
-class Tonestack
+class TonestackMono
 {
 private:
   int32_t         fSamplingFreq;
@@ -46,19 +46,58 @@ public:
   void        run(uint32_t n_samples, float *output);
   void        run_soldano(uint32_t n_samples, float *output);
   void        run_ampeg(uint32_t n_samples, float *output);
-  static void init_static(uint32_t samplingFreq, Tonestack *p);
-  static void connect_static(uint32_t port,void* data, Tonestack *p);
-  static void run_static(uint32_t n_samples, Tonestack*, float *output);
+  static void init_static(uint32_t samplingFreq, TonestackMono *p);
+  static void connect_static(uint32_t port,void* data, TonestackMono *p);
+  static void run_static(uint32_t n_samples, TonestackMono*, float *output);
 
-  Tonestack() {};
-  ~Tonestack() {};
+  TonestackMono() {};
+  ~TonestackMono() {};
 };
 
 // define run pointer typs
-typedef void (Tonestack::*run_tonestack)
+typedef void (TonestackMono::*run_tonestack_mono)
 (uint32_t count, float *output);
 
-run_tonestack    _t_ptr;
+run_tonestack_mono    _t_ptr;
+
+
+class TonestackStereo
+{
+private:
+  int32_t fSamplingFreq;
+  FAUSTFLOAT 	fslider0;
+  FAUSTFLOAT	*fslider0_;
+  FAUSTFLOAT 	fslider1;
+  FAUSTFLOAT	*fslider1_;
+  double 	fConst0;
+  double 	fConst1;
+  double 	fConst2;
+  double 	fRec0[4];
+  double 	fRec1[4];
+  FAUSTFLOAT 	fslider2;
+  FAUSTFLOAT	*fslider2_;
+  void        clear_state_f();
+  void        init(uint32_t samplingFreq);
+  void        connect(uint32_t port,void* data);
+public:
+
+  void        run_bassman(uint32_t n_samples, float *output, float *output1);
+  void        run(uint32_t n_samples, float *output, float *output1);
+  void        run_soldano(uint32_t n_samples, float *output, float *output1);
+  void        run_ampeg(uint32_t n_samples, float *output, float *output1);
+  static void init_static(uint32_t samplingFreq, TonestackStereo *p);
+  static void connect_static(uint32_t port,void* data, TonestackStereo *p);
+  static void run_static(uint32_t n_samples, TonestackStereo*, float *output, float *output1);
+  TonestackStereo() {};
+  ~TonestackStereo() {};
+};
+
+// define run pointer typs
+typedef void (TonestackStereo::*run_tonestack_stereo)
+(uint32_t count, float *output, float *output1);
+
+run_tonestack_stereo    _ts_ptr;
+
 
 #endif  //SRC_HEADERS_GX_TONESTACK_H_
 

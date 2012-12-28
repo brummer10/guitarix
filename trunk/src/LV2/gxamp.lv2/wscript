@@ -30,16 +30,16 @@ def build(bld):
         src.append('../../zita-resampler-1.1.0/resampler.cc')
         src.append('../../zita-resampler-1.1.0/resampler-table.cc')
         incl.append('../../zita-resampler-1.1.0')
-        
+    cxxflag =[]
+    if not bld.env['OPT']:
+        cxxflag = [ "-msse2", "-mfpmath=sse"]
     lv2_plugin = bld(
-        #features='cxx cprogram',  ## for debugging
         features='cxx cshlib ',
         includes = incl,
         lib = lib,
         uselib = uselib,
         obj_ext  = '_2.o',
-        #uselib_local = ["plugins"], ## needs -fPIC
-        #cxxflags = ["-fvisibility=hidden"],
+        cxxflags = cxxflag,
         defines  = ["LV2_SO"],
         target   = 'gxamp',
         source   = src,

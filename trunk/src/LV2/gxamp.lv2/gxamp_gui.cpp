@@ -42,9 +42,6 @@ private:
   void set_plug_name(const char * plugin_uri);
   GtkWidget* make_gui();
 public:
-  LV2_Atom_Forge forge;
-  LV2_URID_Map* map;
-  GXPluginURIs   uris;
 
   Widget* widget;
   static void set_plug_name_static(GXPluginGUI *self, const char * plugin_uri)
@@ -147,6 +144,34 @@ void GXPluginGUI::set_plug_name( const char * plugin_uri)
       plug_name = "6DJ8";
       set_knob("black-knob");
     }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7_stereo", plugin_uri) == 0)
+    {
+      plugskin = "amp21.png";
+      plug_name = "12ax7_stereo";
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12AT7_stereo", plugin_uri) == 0)
+    {
+      plugskin = "amp22.png";
+      plug_name = "12AT7_stereo";
+      set_knob("metalic1-knob");
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6C16_stereo", plugin_uri) == 0)
+    {
+      plugskin = "amp23.png";
+      plug_name = "6C16_stereo";
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6V6_stereo", plugin_uri) == 0)
+    {
+      plugskin = "amp24.png";
+      plug_name = "6V6_stereo";
+      set_knob("knob");
+    }
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#6DJ8_stereo", plugin_uri) == 0)
+    {
+      plugskin = "amp25.png";
+      plug_name = "6DJ8_stereo";
+      set_knob("black-knob");
+    }
   else
     {
       plugskin = "amp21.png";
@@ -176,32 +201,10 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 {
   GXPluginGUI* self = new GXPluginGUI();
   if (self == NULL) return NULL;
-
   self->set_plug_name_static(self, plugin_uri);
-
-  for (int32_t i = 0; features[i]; ++i)
-    {
-      if (!strcmp(features[i]->URI, LV2_URID_URI "#map"))
-        {
-          self->map = (LV2_URID_Map*)features[i]->data;
-        }
-    }
-
-  if (!self->map)
-    {
-      fprintf(stderr, "sampler_ui: Host does not support urid:Map\n");
-      delete self;
-      return NULL;
-    }
-  LV2_URID_Map*             map      = self->map;
-  map_gx_uris(map, &self->uris);
-  lv2_atom_forge_init(&self->forge, self->map);
-
   *widget = (LV2UI_Widget)self->make_gui_static(self);
   self->widget->controller = controller;
   self->widget->write_function = write_function;
-  self->widget->uris = self->uris;
-  self->widget->map = self->map;
   return (LV2UI_Handle)self;
 }
 
@@ -220,23 +223,6 @@ static void port_event(LV2UI_Handle ui,
 {
   GXPluginGUI *self = (GXPluginGUI *) ui;
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
-  //cout << "Port event on index " << port_index << "  Format is " << format << endl;
-
-  /*
-      if ( format != 0 )
-      {
-        LV2_ATOM_SEQUENCE_FOREACH( (LV2_Atom_Sequence*)buffer, ev)
-        {
-          //self->frame_offset = ev->time.frames;
-
-          if (ev->body.type == self->guiState->uris.midiEvent)
-          {
-            cout << "Refractor GUI got MIDI event!" << endl;
-            //uint8_t* const data = (uint8_t* const)(ev + 1);
-          }
-        }
-      }*/
-
   return;
 }
 

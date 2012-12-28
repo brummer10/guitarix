@@ -19,12 +19,12 @@
 
 
 
-inline void Tonestack::clear_state_f()
+inline void TonestackMono::clear_state_f()
 {
   for (int32_t i=0; i<4; i++) fRec0[i] = 0;
 }
 
-inline void Tonestack::init(uint32_t samplingFreq)
+inline void TonestackMono::init(uint32_t samplingFreq)
 {
 
   fSamplingFreq = samplingFreq;
@@ -34,7 +34,7 @@ inline void Tonestack::init(uint32_t samplingFreq)
   clear_state_f();
 }
 
-void Tonestack::connect(uint32_t port,void* data)
+void TonestackMono::connect(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
@@ -59,18 +59,22 @@ void Tonestack::connect(uint32_t port,void* data)
       break;
     case ALevel:
       break;
-    case AMP_OUTPUT:
-      break;
-    case AMP_INPUT:
-      break;
     case AMP_CONTROL:
       break;
     case AMP_NOTIFY:
       break;
+    case AMP_OUTPUT:
+      break;
+    case AMP_INPUT:
+      break;
+    case AMP_OUTPUT1:
+      break;
+    case AMP_INPUT1:
+      break;
     }
 }
 
-inline void Tonestack::run(uint32_t n_samples, float *output)   //sovtek
+inline void TonestackMono::run(uint32_t n_samples, float *output)   //sovtek
 {
   float fslider0 = *fslider0_;
   float fslider1 = *fslider1_;
@@ -113,7 +117,7 @@ inline void Tonestack::run(uint32_t n_samples, float *output)   //sovtek
 }
 
 
-inline void Tonestack::run_soldano(uint32_t n_samples, float *output)   //soldano
+inline void TonestackMono::run_soldano(uint32_t n_samples, float *output)   //soldano
 {
   float fslider0 = *fslider0_;
   float fslider1 = *fslider1_;
@@ -155,7 +159,7 @@ inline void Tonestack::run_soldano(uint32_t n_samples, float *output)   //soldan
     }
 }
 
-inline void Tonestack::run_bassman(uint32_t n_samples, float *output)   //bassman
+inline void TonestackMono::run_bassman(uint32_t n_samples, float *output)   //bassman
 {
   float fslider0 = *fslider0_;
   float fslider1 = *fslider1_;
@@ -199,7 +203,7 @@ inline void Tonestack::run_bassman(uint32_t n_samples, float *output)   //bassma
 }
 
 
-inline void Tonestack::run_ampeg(uint32_t n_samples, float *output)   //ampeg
+inline void TonestackMono::run_ampeg(uint32_t n_samples, float *output)   //ampeg
 {
   float fslider0 = *fslider0_;
   float fslider1 = *fslider1_;
@@ -242,18 +246,274 @@ inline void Tonestack::run_ampeg(uint32_t n_samples, float *output)   //ampeg
 }
 
 
-void Tonestack::init_static(uint32_t samplingFreq, Tonestack *p)
+void TonestackMono::init_static(uint32_t samplingFreq, TonestackMono *p)
 {
   p->init(samplingFreq);
 }
 
-void Tonestack::connect_static(uint32_t port,void* data, Tonestack *p)
+void TonestackMono::connect_static(uint32_t port,void* data, TonestackMono *p)
 {
   p->connect(port, data);
 }
 
-void Tonestack::run_static(uint32_t n_samples, Tonestack *p, float *output)
+void TonestackMono::run_static(uint32_t n_samples, TonestackMono *p, float *output)
 {
   (p->*_t_ptr)(n_samples, output);
 }
 
+////////////////////////////// STEREO //////////////////////////////////
+
+
+inline void TonestackStereo::clear_state_f()
+{
+  for (int32_t i=0; i<4; i++) fRec0[i] = 0;
+  for (int32_t i=0; i<4; i++) fRec1[i] = 0;
+}
+
+
+inline void TonestackStereo::init(uint32_t  samplingFreq)
+{
+  fSamplingFreq = samplingFreq;
+  fConst0 = (2 * double(min(192000, max(1, fSamplingFreq))));
+  fConst1 = faustpower<2>(fConst0);
+  fConst2 = (3 * fConst0);
+  clear_state_f();
+}
+
+
+void TonestackStereo::connect(uint32_t port,void* data)
+{
+  switch ((PortIndex)port)
+    {
+    case AMP_MASTERGAIN:
+      break;
+    case AMP_PREGAIN:
+      break;
+    case AMP_WET_DRY:
+      break;
+    case AMP_DRIVE:
+      break;
+    case MID:
+      fslider0_ = (float*)data;
+      break;
+    case BASS:
+      fslider1_ = (float*)data;
+      break;
+    case TREBLE:
+      fslider2_ = (float*)data;
+      break;
+    case CLevel:
+      break;
+    case ALevel:
+      break;
+    case AMP_OUTPUT:
+      break;
+    case AMP_INPUT:
+      break;
+    case AMP_OUTPUT1:
+      break;
+    case AMP_INPUT1:
+      break;
+    case AMP_CONTROL:
+      break;
+    case AMP_NOTIFY:
+      break;
+    }
+}
+
+inline void TonestackStereo::run(uint32_t count, float *output0, float *output1)
+{
+  float fslider0 = *fslider0_;
+  float fslider1 = *fslider1_;
+  float fslider2 = *fslider2_;
+  double 	fSlow0 = fslider0;
+  double 	fSlow1 = (4.9434000000000004e-08 * fSlow0);
+  double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+  double 	fSlow3 = (7.748796000000001e-07 + ((2.8889960000000004e-05 * fSlow2) + (fSlow0 * (((4.943400000000001e-06 * fSlow2) - 1.2634599999999999e-07) - fSlow1))));
+  double 	fSlow4 = ((1.2443156000000004e-09 * fSlow2) - (1.2443156000000002e-11 * fSlow0));
+  double 	fSlow5 = (5.345780000000001e-09 * fSlow2);
+  double 	fSlow6 = (5.345780000000001e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 4.101464400000001e-11))));
+  double 	fSlow7 = (fConst0 * fSlow6);
+  double 	fSlow8 = (0.00022 * fSlow0);
+  double 	fSlow9 = (0.022470000000000004 * fSlow2);
+  double 	fSlow10 = (fConst0 * (0.0025277 + (fSlow9 + fSlow8)));
+  double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+  double 	fSlow12 = (fConst2 * fSlow6);
+  double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+  double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+  double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+  double 	fSlow16 = fslider2;
+  double 	fSlow17 = ((fSlow0 * (1.2443156000000002e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (5.345780000000001e-11 - (5.345780000000001e-11 * fSlow0)))));
+  double 	fSlow18 = (fConst2 * fSlow17);
+  double 	fSlow19 = (6.141960000000001e-08 + (((4.859800000000001e-07 * fSlow16) + (fSlow0 * (1.0113400000000001e-07 - fSlow1))) + (fSlow2 * (6.141960000000001e-06 + (4.943400000000001e-06 * fSlow0)))));
+  double 	fSlow20 = (0.00022470000000000001 + (fSlow9 + (fSlow8 + (0.00023500000000000002 * fSlow16))));
+  double 	fSlow21 = (fConst0 * fSlow20);
+  double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+  double 	fSlow23 = (fConst0 * fSlow17);
+  double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+  double 	fSlow25 = (fConst0 * (0 - fSlow20));
+  double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+  double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+  for (uint32_t i=0; i<count; i++)
+    {
+      fRec0[0] = ((double)output0[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+      output0[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      fRec1[0] = ((double)output1[i] - (fSlow15 * (((fSlow14 * fRec1[2]) + (fSlow13 * fRec1[1])) + (fSlow11 * fRec1[3]))));
+      output1[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
+      // post processing
+      for (int32_t i=3; i>0; i--) fRec1[i] = fRec1[i-1];
+      for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+    }
+}
+
+
+inline void TonestackStereo::run_soldano(uint32_t count, float *output0, float *output1) //soldano
+{
+  float fslider0 = *fslider0_;
+  float fslider1 = *fslider1_;
+  float fslider2 = *fslider2_;
+  double 	fSlow0 = fslider0;
+  double 	fSlow1 = (2.5587500000000006e-07 * fSlow0);
+  double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+  double 	fSlow3 = (7.717400000000001e-07 + ((2.2033600000000005e-05 * fSlow2) + (fSlow0 * (((1.0235000000000001e-05 * fSlow2) - 1.5537499999999997e-07) - fSlow1))));
+  double 	fSlow4 = ((1.3959000000000001e-09 * fSlow2) - (3.48975e-11 * fSlow0));
+  double 	fSlow5 = (2.2090000000000005e-09 * fSlow2);
+  double 	fSlow6 = (5.522500000000001e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 2.0327500000000007e-11))));
+  double 	fSlow7 = (fConst0 * fSlow6);
+  double 	fSlow8 = (0.0005 * fSlow0);
+  double 	fSlow9 = (0.020470000000000002 * fSlow2);
+  double 	fSlow10 = (fConst0 * (0.0025092499999999998 + (fSlow9 + fSlow8)));
+  double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+  double 	fSlow12 = (fConst2 * fSlow6);
+  double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+  double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+  double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+  double 	fSlow16 = fslider2;
+  double 	fSlow17 = ((fSlow0 * (3.48975e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (5.522500000000001e-11 - (5.522500000000001e-11 * fSlow0)))));
+  double 	fSlow18 = (fConst2 * fSlow17);
+  double 	fSlow19 = (8.084000000000001e-08 + (((2.2090000000000003e-07 * fSlow16) + (fSlow0 * (3.146250000000001e-07 - fSlow1))) + (fSlow2 * (3.2336000000000007e-06 + (1.0235000000000001e-05 * fSlow0)))));
+  double 	fSlow20 = (0.00051175 + (fSlow9 + (fSlow8 + (0.00011750000000000001 * fSlow16))));
+  double 	fSlow21 = (fConst0 * fSlow20);
+  double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+  double 	fSlow23 = (fConst0 * fSlow17);
+  double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+  double 	fSlow25 = (fConst0 * (0 - fSlow20));
+  double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+  double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+  for (uint32_t i=0; i<count; i++)
+    {
+      fRec0[0] = ((double)output0[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+      output0[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      fRec1[0] = ((double)output1[i] - (fSlow15 * (((fSlow14 * fRec1[2]) + (fSlow13 * fRec1[1])) + (fSlow11 * fRec1[3]))));
+      output1[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
+      // post processing
+      for (int32_t i=3; i>0; i--) fRec1[i] = fRec1[i-1];
+      for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+    }
+}
+
+inline void TonestackStereo::run_bassman(uint32_t count, float *output0, float *output1) // bassman
+{
+  float fslider0 = *fslider0_;
+  float fslider1 = *fslider1_;
+  float fslider2 = *fslider2_;
+  double 	fSlow0 = fslider0;
+  double 	fSlow1 = (2.5312500000000006e-07 * fSlow0);
+  double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+  double 	fSlow3 = (7.4525e-07 + ((2.4210000000000004e-05 * fSlow2) + (fSlow0 * (((1.0125e-05 * fSlow2) - 2.75625e-07) - fSlow1))));
+  double 	fSlow4 = ((7.650000000000002e-10 * fSlow2) - (1.9125000000000002e-11 * fSlow0));
+  double 	fSlow5 = (1.4000000000000001e-09 * fSlow2);
+  double 	fSlow6 = (3.500000000000001e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 1.5875000000000007e-11))));
+  double 	fSlow7 = (fConst0 * fSlow6);
+  double 	fSlow8 = (0.0005 * fSlow0);
+  double 	fSlow9 = (0.02025 * fSlow2);
+  double 	fSlow10 = (fConst0 * (0.0028087500000000005 + (fSlow9 + fSlow8)));
+  double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+  double 	fSlow12 = (fConst2 * fSlow6);
+  double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+  double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+  double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+  double 	fSlow16 = fslider2;
+  double 	fSlow17 = ((fSlow0 * (1.9125000000000002e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (3.500000000000001e-11 - (3.500000000000001e-11 * fSlow0)))));
+  double 	fSlow18 = (fConst2 * fSlow17);
+  double 	fSlow19 = (4.525e-08 + (((1.4e-07 * fSlow16) + (fSlow0 * (2.8437500000000003e-07 - fSlow1))) + (fSlow2 * (1.8100000000000002e-06 + (1.0125e-05 * fSlow0)))));
+  double 	fSlow20 = (0.00050625 + (fSlow9 + (fSlow8 + (6.25e-05 * fSlow16))));
+  double 	fSlow21 = (fConst0 * fSlow20);
+  double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+  double 	fSlow23 = (fConst0 * fSlow17);
+  double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+  double 	fSlow25 = (fConst0 * (0 - fSlow20));
+  double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+  double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+  for (uint32_t i=0; i<count; i++)
+    {
+      fRec0[0] = ((double)output0[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+      output0[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      fRec1[0] = ((double)output1[i] - (fSlow15 * (((fSlow14 * fRec1[2]) + (fSlow13 * fRec1[1])) + (fSlow11 * fRec1[3]))));
+      output1[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
+      // post processing
+      for (int32_t i=3; i>0; i--) fRec1[i] = fRec1[i-1];
+      for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+    }
+}
+
+inline void TonestackStereo::run_ampeg(uint32_t count, float *output0, float *output1)  //ampeg
+{
+  float fslider0 = *fslider0_;
+  float fslider1 = *fslider1_;
+  float fslider2 = *fslider2_;
+  double 	fSlow0 = fslider0;
+  double 	fSlow1 = (3.0896250000000005e-07 * fSlow0);
+  double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+  double 	fSlow3 = (6.338090000000001e-07 + ((1.8734760000000003e-05 * fSlow2) + (fSlow0 * (((1.2358500000000002e-05 * fSlow2) - 1.361249999999999e-08) - fSlow1))));
+  double 	fSlow4 = ((1.6037340000000005e-09 * fSlow2) - (4.0093350000000015e-11 * fSlow0));
+  double 	fSlow5 = (1.8198400000000004e-09 * fSlow2);
+  double 	fSlow6 = (4.5496000000000015e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 5.40265e-12))));
+  double 	fSlow7 = (fConst0 * fSlow6);
+  double 	fSlow8 = (0.00055 * fSlow0);
+  double 	fSlow9 = (0.022470000000000004 * fSlow2);
+  double 	fSlow10 = (fConst0 * (0.00208725 + (fSlow9 + fSlow8)));
+  double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+  double 	fSlow12 = (fConst2 * fSlow6);
+  double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+  double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+  double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+  double 	fSlow16 = fslider2;
+  double 	fSlow17 = ((fSlow0 * (4.0093350000000015e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (4.5496000000000015e-11 - (4.5496000000000015e-11 * fSlow0)))));
+  double 	fSlow18 = (fConst2 * fSlow17);
+  double 	fSlow19 = (8.1169e-08 + (((1.6544000000000003e-07 * fSlow16) + (fSlow0 * (3.735875000000001e-07 - fSlow1))) + (fSlow2 * (3.24676e-06 + (1.2358500000000002e-05 * fSlow0)))));
+  double 	fSlow20 = (0.0005617500000000001 + (fSlow9 + (fSlow8 + (0.00011750000000000001 * fSlow16))));
+  double 	fSlow21 = (fConst0 * fSlow20);
+  double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+  double 	fSlow23 = (fConst0 * fSlow17);
+  double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+  double 	fSlow25 = (fConst0 * (0 - fSlow20));
+  double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+  double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+  for (uint32_t i=0; i<count; i++)
+    {
+      fRec0[0] = ((double)output0[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+      output0[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      fRec1[0] = ((double)output1[i] - (fSlow15 * (((fSlow14 * fRec1[2]) + (fSlow13 * fRec1[1])) + (fSlow11 * fRec1[3]))));
+      output1[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
+      // post processing
+      for (int32_t i=3; i>0; i--) fRec1[i] = fRec1[i-1];
+      for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+    }
+}
+
+
+void TonestackStereo::init_static(uint32_t samplingFreq, TonestackStereo *p)
+{
+  p->init(samplingFreq);
+}
+
+void TonestackStereo::connect_static(uint32_t port,void* data, TonestackStereo *p)
+{
+  p->connect(port, data);
+}
+
+void TonestackStereo::run_static(uint32_t n_samples, TonestackStereo *p, float *output, float *output1)
+{
+  (p->*_ts_ptr)(n_samples, output, output1);
+}
