@@ -181,7 +181,7 @@ private:
   // threading stuff
   Glib::Thread *thread;
   pthread_t pthr;
-  volatile bool exit;
+  volatile bool noexit;
   void create_thread();
   void watch_thread();
   bool timeout_handler(); 
@@ -221,7 +221,9 @@ public:
     doit(true),
     thread(),
     pthr(),
-    exit(false)
+    noexit(true),
+    time_cond(),
+    _mutex()
     
   {
     Glib::signal_timeout().connect(sigc::mem_fun(*this, &GxPluginMono::timeout_handler), 200);
@@ -232,11 +234,12 @@ public:
   {
     cabconv.stop_process();
     ampconv.stop_process();
-    if (thread) {
-	exit = true;
-    time_cond.signal();
-	pthread_kill(pthr, SIGINT);
-	thread->join();
+    noexit = false;
+    if (thread) 
+    {
+      time_cond.signal();
+      pthread_kill(pthr, SIGINT);
+      thread->join();
     }
   };
 };
@@ -249,14 +252,16 @@ public:
 
 // watch thread to fetch value changes from outside
 
-bool GxPluginMono::timeout_handler() { 
+bool GxPluginMono::timeout_handler() 
+{ 
   time_cond.signal();
-  return !exit;
+  return noexit;
 }
 
-void GxPluginMono::watch_thread() {
+void GxPluginMono::watch_thread() 
+{
   pthr = pthread_self();
-  while (!exit) {
+  while (noexit) {
     time_cond.wait(_mutex);
     if (!atomic_get(schedule_wait) && val_changed())
       {
@@ -265,7 +270,8 @@ void GxPluginMono::watch_thread() {
   }
 }
 
-void GxPluginMono::create_thread() {
+void GxPluginMono::create_thread() 
+{
   try {
     thread = Glib::Thread::create(
         sigc::mem_fun(*this, &GxPluginMono::watch_thread), true);
@@ -295,7 +301,7 @@ void GxPluginMono::do_work_mono()
       if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver disabled\n");
       update_cab();
-      printf("cabinet convolver updated\n");
+      //printf("cabinet convolver updated\n");
     }
   if (pre_changed())
     {
@@ -312,7 +318,7 @@ void GxPluginMono::do_work_mono()
       if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver disabled\n");
       update_pre();
-      printf("presence convolver updated\n");
+      //printf("presence convolver updated\n");
     }
   update_val();
   atomic_set(&schedule_wait,0);
@@ -518,7 +524,7 @@ instantiate(const LV2_Descriptor*     descriptor,
 
   const LV2_Options_Option* options  = NULL;
   uint32_t bufsize = 0;
-  printf(" %s\n",descriptor->URI);
+  //printf(" %s\n",descriptor->URI);
 
   for (int32_t i = 0; features[i]; ++i)
     {

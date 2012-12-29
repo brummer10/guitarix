@@ -477,7 +477,7 @@ instantiate(const LV2_Descriptor*     descriptor,
 
   const LV2_Options_Option* options  = NULL;
   uint32_t bufsize = 0;
-  printf(" %s\n",descriptor->URI);
+  //printf(" %s\n",descriptor->URI);
 
   for (int32_t i = 0; features[i]; ++i)
     {
