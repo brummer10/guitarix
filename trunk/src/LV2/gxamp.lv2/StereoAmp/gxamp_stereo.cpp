@@ -21,7 +21,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstring>
-#include <glib.h>
+#include <glibmm.h>
 #include <unistd.h>
 
 #ifdef __SSE__
@@ -180,6 +180,15 @@ private:
   }
   bool                         doit;
   volatile int32_t             schedule_wait;
+  // threading stuff
+  Glib::Threads::Thread *thread;
+  pthread_t pthr;
+  volatile bool noexit;
+  void create_thread();
+  void watch_thread();
+  bool timeout_handler(); 
+  Glib::Threads::Cond time_cond;
+  Glib::Threads::Mutex _mutex;
 
 public:
   // LV2 stuff
@@ -212,8 +221,14 @@ public:
     alevel(NULL),
     pre(0),
     val(0),
-    doit(true)
+    doit(true),
+    thread(),
+    pthr(),
+    noexit(true),
+    time_cond(),
+    _mutex()
   {
+    Glib::signal_timeout().connect(sigc::mem_fun(*this, &GxPluginStereo::timeout_handler), 200);
     atomic_set(&schedule_wait,0);
   };
 
@@ -221,6 +236,13 @@ public:
   {
     cabconv.stop_process();
     ampconv.stop_process();
+    noexit = false;
+    if (thread) 
+    {
+      time_cond.signal();
+      pthread_kill(pthr, SIGINT);
+      thread->join();
+    }
   };
 };
 
@@ -230,6 +252,38 @@ public:
 #include "gx_amp.cc"
 #include "impulse_former.cc"
 #include "ampulse_former.cc"
+
+// watch thread to fetch value changes from outside
+
+bool GxPluginStereo::timeout_handler() 
+{ 
+  time_cond.signal();
+  return noexit;
+}
+
+void GxPluginStereo::watch_thread() 
+{
+  pthr = pthread_self();
+  while (noexit) {
+    time_cond.wait(_mutex);
+    if (!atomic_get(schedule_wait) && val_changed())
+      {
+        schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
+      }
+  }
+}
+
+void GxPluginStereo::create_thread() 
+{
+  try {
+    thread = Glib::Threads::Thread::create(
+        sigc::mem_fun(*this, &GxPluginStereo::watch_thread));
+    } catch (Glib::Threads::ThreadError& e) {
+      throw printf("Thread create failed (signal): %s",  e.what().c_str());
+    }
+}
+
+// plugin stuff
 
 void GxPluginStereo::do_work_stereo()
 {
@@ -363,6 +417,7 @@ void GxPluginStereo::init_dsp_stereo(uint32_t rate, uint32_t bufsize_)
       ampconv.configure_stereo(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
       if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver disabled\n");
+      create_thread();
     }
   else
     {
@@ -418,10 +473,6 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
-  if (!atomic_get(schedule_wait) && val_changed())
-    {
-      schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
-    }
   // run dsp
   amplifier.run_static(n_samples, input, input1, output, output1, &amplifier);
   ampconv.run_static_stereo(n_samples, &ampconv, output, output1);

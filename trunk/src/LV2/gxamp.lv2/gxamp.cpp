@@ -179,14 +179,14 @@ private:
   bool                         doit;
   volatile int32_t             schedule_wait;
   // threading stuff
-  Glib::Thread *thread;
+  Glib::Threads::Thread *thread;
   pthread_t pthr;
   volatile bool noexit;
   void create_thread();
   void watch_thread();
   bool timeout_handler(); 
-  Glib::Cond time_cond;
-  Glib::Mutex _mutex;
+  Glib::Threads::Cond time_cond;
+  Glib::Threads::Mutex _mutex;
 
 
 public:
@@ -224,7 +224,6 @@ public:
     noexit(true),
     time_cond(),
     _mutex()
-    
   {
     Glib::signal_timeout().connect(sigc::mem_fun(*this, &GxPluginMono::timeout_handler), 200);
     atomic_set(&schedule_wait,0);
@@ -273,9 +272,9 @@ void GxPluginMono::watch_thread()
 void GxPluginMono::create_thread() 
 {
   try {
-    thread = Glib::Thread::create(
-        sigc::mem_fun(*this, &GxPluginMono::watch_thread), true);
-    } catch (Glib::ThreadError& e) {
+    thread = Glib::Threads::Thread::create(
+        sigc::mem_fun(*this, &GxPluginMono::watch_thread));
+    } catch (Glib::Threads::ThreadError& e) {
       throw printf("Thread create failed (signal): %s",  e.what().c_str());
     }
 }
