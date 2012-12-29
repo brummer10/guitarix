@@ -181,14 +181,14 @@ private:
   bool                         doit;
   volatile int32_t             schedule_wait;
   // threading stuff
-  Glib::Threads::Thread *thread;
-  pthread_t pthr;
-  volatile bool noexit;
-  void create_thread();
-  void watch_thread();
-  bool timeout_handler(); 
-  Glib::Threads::Cond time_cond;
-  Glib::Threads::Mutex _mutex;
+  Glib::Threads::Thread        *thread;
+  pthread_t                    pthr;
+  volatile bool                noexit;
+  void                         create_thread();
+  void                         watch_thread();
+  bool                         timeout_handler(); 
+  Glib::Threads::Cond          time_cond;
+  Glib::Threads::Mutex         _mutex;
 
 public:
   // LV2 stuff
@@ -240,7 +240,6 @@ public:
     if (thread) 
     {
       time_cond.signal();
-      pthread_kill(pthr, SIGINT);
       thread->join();
     }
   };
