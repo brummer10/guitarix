@@ -65,17 +65,17 @@ class TonestackStereo
 {
 private:
   int32_t fSamplingFreq;
-  FAUSTFLOAT 	fslider0;
-  FAUSTFLOAT	*fslider0_;
-  FAUSTFLOAT 	fslider1;
-  FAUSTFLOAT	*fslider1_;
+  float 	fslider0;
+  float	*fslider0_;
+  float 	fslider1;
+  float	*fslider1_;
   double 	fConst0;
   double 	fConst1;
   double 	fConst2;
   double 	fRec0[4];
   double 	fRec1[4];
-  FAUSTFLOAT 	fslider2;
-  FAUSTFLOAT	*fslider2_;
+  float 	fslider2;
+  float	*fslider2_;
   void        clear_state_f();
   void        init(uint32_t samplingFreq);
   void        connect(uint32_t port,void* data);

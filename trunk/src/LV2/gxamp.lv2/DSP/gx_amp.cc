@@ -379,7 +379,7 @@ void GxAmpMono::run_12AT7(uint32_t n_samples, float* input, float* output)
       fRec31[0] = ((fConst67 * (fRec2[1] + fRec2[2])) + (fConst66 * fRec31[1]));
       fRec2[0] = (Ftube(TUBE_TABLE_12AT7_250k, ((fRec31[0] + fRec3[0]) - 1.256962)) - 96.7119512195122);
       fRec1[0] = ((fConst59 * ((fConst37 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
-      output[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+      output[i] = (float)(fRec1[0] * fRec0[0]);
       // post processing
       fRec1[1] = fRec1[0];
       fRec2[2] = fRec2[1];
@@ -508,7 +508,7 @@ void GxAmpMono::run_6C16(uint32_t n_samples, float* input, float* output)
       fRec31[0] = ((fConst67 * (fRec2[1] + fRec2[2])) + (fConst66 * fRec31[1]));
       fRec2[0] = (Ftube(TUBE_TABLE_6C16_250k, ((fRec31[0] + fRec3[0]) - 1.378742)) - 81.86073170731709);
       fRec1[0] = ((fConst59 * ((fConst37 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
-      output[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+      output[i] = (float)(fRec1[0] * fRec0[0]);
       // post processing
       fRec1[1] = fRec1[0];
       fRec2[2] = fRec2[1];
@@ -637,7 +637,7 @@ void GxAmpMono::run_6V6(uint32_t n_samples, float* input, float* output)
       fRec31[0] = ((fConst67 * (fRec2[1] + fRec2[2])) + (fConst66 * fRec31[1]));
       fRec2[0] = (Ftube(TUBE_TABLE_6V6_250k, ((fRec31[0] + fRec3[0]) - 1.130462)) - 112.13878048780487);
       fRec1[0] = ((fConst59 * ((fConst37 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
-      output[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+      output[i] = (float)(fRec1[0] * fRec0[0]);
       // post processing
       fRec1[1] = fRec1[0];
       fRec2[2] = fRec2[1];
@@ -767,7 +767,7 @@ void GxAmpMono::run_6DJ8(uint32_t n_samples, float* input, float* output)
       fRec31[0] = ((fConst67 * (fRec2[1] + fRec2[2])) + (fConst66 * fRec31[1]));
       fRec2[0] = (Ftube(TUBE_TABLE_6DJ8_250k, ((fRec31[0] + fRec3[0]) - 0.797043)) - 32.799634146341475);
       fRec1[0] = ((fConst59 * ((fConst37 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
-      output[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+      output[i] = (float)(fRec1[0] * fRec0[0]);
       // post processing
       fRec1[1] = fRec1[0];
       fRec2[2] = fRec2[1];
@@ -1115,7 +1115,7 @@ inline void GxAmpStereo::run_12ax7(uint32_t count, float *input0, float *input1,
       fRec31[0] = ((fConst67 * (fRec2[1] + fRec2[2])) + (fConst66 * fRec31[1]));
       fRec2[0] = (Ftube(TUBE_TABLE_12AX7_250k, ((fRec31[0] + fRec3[0]) - 0.840703)) - 147.47524390243905);
       fRec1[0] = ((fConst59 * ((fConst37 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
-      output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+      output0[i] = (float)(fRec1[0] * fRec0[0]);
       double fTemp16 = (fConst9 * fRec41[1]);
       double fTemp17 = (double)input1[i];
       fRec47[0] = ((fTemp17 * fRec18[0]) - (fConst36 * ((fConst34 * fRec47[2]) + (fConst32 * fRec47[1]))));
@@ -1165,7 +1165,7 @@ inline void GxAmpStereo::run_12ax7(uint32_t count, float *input0, float *input1,
       fRec60[0] = ((fConst67 * (fRec33[1] + fRec33[2])) + (fConst66 * fRec60[1]));
       fRec33[0] = (Ftube(TUBE_TABLE_12AX7_250k, ((fRec60[0] + fRec34[0]) - 0.840703)) - 147.47524390243905);
       fRec32[0] = ((fConst59 * ((fConst37 * fRec33[1]) + (fConst1 * fRec33[0]))) + (fConst3 * fRec32[1]));
-      output1[i] = (FAUSTFLOAT)(fRec0[0] * fRec32[0]);
+      output1[i] = (float)(fRec0[0] * fRec32[0]);
       // post processing
       fRec32[1] = fRec32[0];
       fRec33[2] = fRec33[1];
@@ -1343,7 +1343,7 @@ inline void GxAmpStereo::run_6V6(uint32_t count, float *input0, float *input1, f
       fRec31[0] = ((fConst67 * (fRec2[1] + fRec2[2])) + (fConst66 * fRec31[1]));
       fRec2[0] = (Ftube(TUBE_TABLE_6V6_250k, ((fRec31[0] + fRec3[0]) - 1.130462)) - 112.13878048780487);
       fRec1[0] = ((fConst59 * ((fConst37 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
-      output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+      output0[i] = (float)(fRec1[0] * fRec0[0]);
       double fTemp16 = (fConst9 * fRec41[1]);
       double fTemp17 = (double)input1[i];
       fRec47[0] = ((fTemp17 * fRec18[0]) - (fConst36 * ((fConst34 * fRec47[2]) + (fConst32 * fRec47[1]))));
@@ -1393,7 +1393,7 @@ inline void GxAmpStereo::run_6V6(uint32_t count, float *input0, float *input1, f
       fRec60[0] = ((fConst67 * (fRec33[1] + fRec33[2])) + (fConst66 * fRec60[1]));
       fRec33[0] = (Ftube(TUBE_TABLE_6V6_250k, ((fRec60[0] + fRec34[0]) - 1.130462)) - 112.13878048780487);
       fRec32[0] = ((fConst59 * ((fConst37 * fRec33[1]) + (fConst1 * fRec33[0]))) + (fConst3 * fRec32[1]));
-      output1[i] = (FAUSTFLOAT)(fRec0[0] * fRec32[0]);
+      output1[i] = (float)(fRec0[0] * fRec32[0]);
       // post processing
       fRec32[1] = fRec32[0];
       fRec33[2] = fRec33[1];
@@ -1571,7 +1571,7 @@ inline void GxAmpStereo::run_6DJ8(uint32_t count, float *input0, float *input1, 
       fRec31[0] = ((fConst67 * (fRec2[1] + fRec2[2])) + (fConst66 * fRec31[1]));
       fRec2[0] = (Ftube(TUBE_TABLE_6DJ8_250k, ((fRec31[0] + fRec3[0]) - 0.797043)) - 32.799634146341475);
       fRec1[0] = ((fConst59 * ((fConst37 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
-      output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+      output0[i] = (float)(fRec1[0] * fRec0[0]);
       double fTemp16 = (fConst9 * fRec41[1]);
       double fTemp17 = (double)input1[i];
       fRec47[0] = ((fTemp17 * fRec18[0]) - (fConst36 * ((fConst34 * fRec47[2]) + (fConst32 * fRec47[1]))));
@@ -1621,7 +1621,7 @@ inline void GxAmpStereo::run_6DJ8(uint32_t count, float *input0, float *input1, 
       fRec60[0] = ((fConst67 * (fRec33[1] + fRec33[2])) + (fConst66 * fRec60[1]));
       fRec33[0] = (Ftube(TUBE_TABLE_6DJ8_250k, ((fRec60[0] + fRec34[0]) - 0.797043)) - 32.799634146341475);
       fRec32[0] = ((fConst59 * ((fConst37 * fRec33[1]) + (fConst1 * fRec33[0]))) + (fConst3 * fRec32[1]));
-      output1[i] = (FAUSTFLOAT)(fRec0[0] * fRec32[0]);
+      output1[i] = (float)(fRec0[0] * fRec32[0]);
       // post processing
       fRec32[1] = fRec32[0];
       fRec33[2] = fRec33[1];
@@ -1799,7 +1799,7 @@ inline void GxAmpStereo::run_12AT7(uint32_t count, float *input0, float *input1,
       fRec31[0] = ((fConst67 * (fRec2[1] + fRec2[2])) + (fConst66 * fRec31[1]));
       fRec2[0] = (Ftube(TUBE_TABLE_12AT7_250k, ((fRec31[0] + fRec3[0]) - 1.256962)) - 96.7119512195122);
       fRec1[0] = ((fConst59 * ((fConst37 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
-      output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+      output0[i] = (float)(fRec1[0] * fRec0[0]);
       double fTemp16 = (fConst9 * fRec41[1]);
       double fTemp17 = (double)input1[i];
       fRec47[0] = ((fTemp17 * fRec18[0]) - (fConst36 * ((fConst34 * fRec47[2]) + (fConst32 * fRec47[1]))));
@@ -1849,7 +1849,7 @@ inline void GxAmpStereo::run_12AT7(uint32_t count, float *input0, float *input1,
       fRec60[0] = ((fConst67 * (fRec33[1] + fRec33[2])) + (fConst66 * fRec60[1]));
       fRec33[0] = (Ftube(TUBE_TABLE_12AT7_250k, ((fRec60[0] + fRec34[0]) - 1.256962)) - 96.7119512195122);
       fRec32[0] = ((fConst59 * ((fConst37 * fRec33[1]) + (fConst1 * fRec33[0]))) + (fConst3 * fRec32[1]));
-      output1[i] = (FAUSTFLOAT)(fRec0[0] * fRec32[0]);
+      output1[i] = (float)(fRec0[0] * fRec32[0]);
       // post processing
       fRec32[1] = fRec32[0];
       fRec33[2] = fRec33[1];
@@ -2028,7 +2028,7 @@ inline void GxAmpStereo::run_6C16(uint32_t count, float *input0, float *input1, 
       fRec31[0] = ((fConst67 * (fRec2[1] + fRec2[2])) + (fConst66 * fRec31[1]));
       fRec2[0] = (Ftube(TUBE_TABLE_6C16_250k, ((fRec31[0] + fRec3[0]) - 1.378742)) - 81.86073170731709);
       fRec1[0] = ((fConst59 * ((fConst37 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
-      output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+      output0[i] = (float)(fRec1[0] * fRec0[0]);
       double fTemp16 = (fConst9 * fRec41[1]);
       double fTemp17 = (double)input1[i];
       fRec47[0] = ((fTemp17 * fRec18[0]) - (fConst36 * ((fConst34 * fRec47[2]) + (fConst32 * fRec47[1]))));
@@ -2078,7 +2078,7 @@ inline void GxAmpStereo::run_6C16(uint32_t count, float *input0, float *input1, 
       fRec60[0] = ((fConst67 * (fRec33[1] + fRec33[2])) + (fConst66 * fRec60[1]));
       fRec33[0] = (Ftube(TUBE_TABLE_6C16_250k, ((fRec60[0] + fRec34[0]) - 1.378742)) - 81.86073170731709);
       fRec32[0] = ((fConst59 * ((fConst37 * fRec33[1]) + (fConst1 * fRec33[0]))) + (fConst3 * fRec32[1]));
-      output1[i] = (FAUSTFLOAT)(fRec0[0] * fRec32[0]);
+      output1[i] = (float)(fRec0[0] * fRec32[0]);
       // post processing
       fRec32[1] = fRec32[0];
       fRec33[2] = fRec33[1];

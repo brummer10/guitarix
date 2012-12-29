@@ -21,7 +21,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstring>
-#include <glib.h>
+#include <glibmm.h>
 #include <unistd.h>
 
 #ifdef __SSE__
@@ -178,6 +178,16 @@ private:
   }
   bool                         doit;
   volatile int32_t             schedule_wait;
+  // threading stuff
+  Glib::Thread *thread;
+  pthread_t pthr;
+  volatile bool exit;
+  void create_thread();
+  void watch_thread();
+  bool timeout_handler(); 
+  Glib::Cond time_cond;
+  Glib::Mutex _mutex;
+
 
 public:
   // LV2 stuff
@@ -190,7 +200,7 @@ public:
   inline void init_dsp_mono(uint32_t rate, uint32_t bufsize_);
   inline void do_work_mono();
   inline void connect_all_mono_ports(uint32_t port, void* data);
-
+  // constructor
   GxPluginMono() :
     output(NULL),
     input(NULL),
@@ -208,15 +218,26 @@ public:
     alevel(NULL),
     pre(0),
     val(0),
-    doit(true)
+    doit(true),
+    thread(),
+    pthr(),
+    exit(false)
+    
   {
+    Glib::signal_timeout().connect(sigc::mem_fun(*this, &GxPluginMono::timeout_handler), 200);
     atomic_set(&schedule_wait,0);
   };
-
+  // destructor
   ~GxPluginMono()
   {
     cabconv.stop_process();
     ampconv.stop_process();
+    if (thread) {
+	exit = true;
+    time_cond.signal();
+	pthread_kill(pthr, SIGINT);
+	thread->join();
+    }
   };
 };
 
@@ -225,6 +246,35 @@ public:
 #include "gx_amp.cc"
 #include "impulse_former.cc"
 #include "ampulse_former.cc"
+
+// watch thread to fetch value changes from outside
+
+bool GxPluginMono::timeout_handler() { 
+  time_cond.signal();
+  return !exit;
+}
+
+void GxPluginMono::watch_thread() {
+  pthr = pthread_self();
+  while (!exit) {
+    time_cond.wait(_mutex);
+    if (!atomic_get(schedule_wait) && val_changed())
+      {
+        schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
+      }
+  }
+}
+
+void GxPluginMono::create_thread() {
+  try {
+    thread = Glib::Thread::create(
+        sigc::mem_fun(*this, &GxPluginMono::watch_thread), true);
+    } catch (Glib::ThreadError& e) {
+      throw printf("Thread create failed (signal): %s",  e.what().c_str());
+    }
+}
+
+// plugin stuff
 
 void GxPluginMono::do_work_mono()
 {
@@ -242,10 +292,10 @@ void GxPluginMono::do_work_mono()
       while (!cabconv.checkstate());
       if (!cabconv.update(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr))
         printf("cabconv.update fail.\n");
-      if(!cabconv.start(0, prio))
+      if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver disabled\n");
       update_cab();
-      //printf("cabinet convolver updated\n");
+      printf("cabinet convolver updated\n");
     }
   if (pre_changed())
     {
@@ -259,10 +309,10 @@ void GxPluginMono::do_work_mono()
       while (!ampconv.checkstate());
       if (!ampconv.update(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
         printf("ampconv.update fail.\n");
-      if(!ampconv.start(0, prio))
+      if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver disabled\n");
       update_pre();
-      //printf("presence convolver updated\n");
+      printf("presence convolver updated\n");
     }
   update_val();
   atomic_set(&schedule_wait,0);
@@ -350,14 +400,15 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
       cabconv.set_samplerate(rate);
       cabconv.set_buffersize(bufsize);
       cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
-      if(!cabconv.start(0, prio))
+      if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver disabled\n");
 
       ampconv.set_samplerate(rate);
       ampconv.set_buffersize(bufsize);
       ampconv.configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
-      if(!ampconv.start(0, prio))
+      if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver disabled\n");
+      create_thread();
     }
   else
     {
@@ -411,10 +462,7 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
-  if (!atomic_get(schedule_wait) && val_changed())
-    {
-      schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
-    }
+  
   // run dsp
   amplifier.run_static(n_samples, input, output, &amplifier);
   ampconv.run_static(n_samples, &ampconv, output);

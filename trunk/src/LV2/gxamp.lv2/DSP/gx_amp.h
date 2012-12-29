@@ -170,8 +170,8 @@ class GxAmpStereo
 {
 private:
   int32_t fSamplingFreq;
-  FAUSTFLOAT 	fslider0;
-  FAUSTFLOAT	*fslider0_;
+  float 	fslider0;
+  float	*fslider0_;
   double 	fRec0[2];
   int32_t 	iConst0;
   double 	fConst1;
@@ -180,8 +180,8 @@ private:
   double 	fConst4;
   double 	fConst5;
   double 	fConst6;
-  FAUSTFLOAT 	fslider1;
-  FAUSTFLOAT	*fslider1_;
+  float 	fslider1;
+  float	*fslider1_;
   double 	fRec7[2];
   double 	fConst7;
   double 	fConst8;
@@ -213,8 +213,8 @@ private:
   double 	fConst34;
   double 	fConst35;
   double 	fConst36;
-  FAUSTFLOAT 	fslider2;
-  FAUSTFLOAT	*fslider2_;
+  float 	fslider2;
+  float	*fslider2_;
   double 	fRec18[2];
   double 	fRec17[3];
   double 	fVec0[2];
@@ -231,8 +231,8 @@ private:
   double 	fRec12[3];
   double 	fConst42;
   double 	fRec11[3];
-  FAUSTFLOAT 	fslider3;
-  FAUSTFLOAT	*fslider3_;
+  float 	fslider3;
+  float	*fslider3_;
   double 	fConst43;
   double 	fConst44;
   double 	fConst45;

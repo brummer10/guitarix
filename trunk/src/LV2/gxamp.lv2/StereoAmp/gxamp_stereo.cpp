@@ -247,7 +247,7 @@ void GxPluginStereo::do_work_stereo()
       while (!cabconv.checkstate());
       if (!cabconv.update_stereo(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr))
         printf("cabconv.update fail.\n");
-      if(!cabconv.start(0, prio))
+      if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver disabled\n");
       update_cab();
       //printf("cabinet convolver updated\n");
@@ -264,7 +264,7 @@ void GxPluginStereo::do_work_stereo()
       while (!ampconv.checkstate());
       if (!ampconv.update_stereo(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
         printf("ampconv.update fail.\n");
-      if(!ampconv.start(0, prio))
+      if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver disabled\n");
       update_pre();
       //printf("presence convolver updated\n");
@@ -355,13 +355,13 @@ void GxPluginStereo::init_dsp_stereo(uint32_t rate, uint32_t bufsize_)
       cabconv.set_samplerate(rate);
       cabconv.set_buffersize(bufsize);
       cabconv.configure_stereo(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
-      if(!cabconv.start(0, prio))
+      if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver disabled\n");
 
       ampconv.set_samplerate(rate);
       ampconv.set_buffersize(bufsize);
       ampconv.configure_stereo(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
-      if(!ampconv.start(0, prio))
+      if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver disabled\n");
     }
   else

@@ -153,7 +153,7 @@ inline void TonestackMono::run_soldano(uint32_t n_samples, float *output)   //so
   for (uint32_t i=0; i<n_samples; i++)
     {
       fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-      output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      output[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
       // post processing
       for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
     }
@@ -195,7 +195,7 @@ inline void TonestackMono::run_bassman(uint32_t n_samples, float *output)   //ba
   for (uint32_t i=0; i<n_samples; i++)
     {
       fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-      output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      output[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
       // post processing
       for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
     }
@@ -239,7 +239,7 @@ inline void TonestackMono::run_ampeg(uint32_t n_samples, float *output)   //ampe
   for (uint32_t i=0; i<n_samples; i++)
     {
       fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-      output[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      output[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
       // post processing
       for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
     }
@@ -357,9 +357,9 @@ inline void TonestackStereo::run(uint32_t count, float *output0, float *output1)
   for (uint32_t i=0; i<count; i++)
     {
       fRec0[0] = ((double)output0[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-      output0[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      output0[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
       fRec1[0] = ((double)output1[i] - (fSlow15 * (((fSlow14 * fRec1[2]) + (fSlow13 * fRec1[1])) + (fSlow11 * fRec1[3]))));
-      output1[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
+      output1[i] = (float)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
       // post processing
       for (int32_t i=3; i>0; i--) fRec1[i] = fRec1[i-1];
       for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
@@ -403,9 +403,9 @@ inline void TonestackStereo::run_soldano(uint32_t count, float *output0, float *
   for (uint32_t i=0; i<count; i++)
     {
       fRec0[0] = ((double)output0[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-      output0[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      output0[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
       fRec1[0] = ((double)output1[i] - (fSlow15 * (((fSlow14 * fRec1[2]) + (fSlow13 * fRec1[1])) + (fSlow11 * fRec1[3]))));
-      output1[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
+      output1[i] = (float)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
       // post processing
       for (int32_t i=3; i>0; i--) fRec1[i] = fRec1[i-1];
       for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
@@ -448,9 +448,9 @@ inline void TonestackStereo::run_bassman(uint32_t count, float *output0, float *
   for (uint32_t i=0; i<count; i++)
     {
       fRec0[0] = ((double)output0[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-      output0[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      output0[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
       fRec1[0] = ((double)output1[i] - (fSlow15 * (((fSlow14 * fRec1[2]) + (fSlow13 * fRec1[1])) + (fSlow11 * fRec1[3]))));
-      output1[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
+      output1[i] = (float)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
       // post processing
       for (int32_t i=3; i>0; i--) fRec1[i] = fRec1[i-1];
       for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
@@ -493,9 +493,9 @@ inline void TonestackStereo::run_ampeg(uint32_t count, float *output0, float *ou
   for (uint32_t i=0; i<count; i++)
     {
       fRec0[0] = ((double)output0[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-      output0[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+      output0[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
       fRec1[0] = ((double)output1[i] - (fSlow15 * (((fSlow14 * fRec1[2]) + (fSlow13 * fRec1[1])) + (fSlow11 * fRec1[3]))));
-      output1[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
+      output1[i] = (float)(fSlow15 * ((fSlow27 * fRec1[0]) + ((fSlow26 * fRec1[1]) + ((fSlow24 * fRec1[3]) + (fSlow22 * fRec1[2])))));
       // post processing
       for (int32_t i=3; i>0; i--) fRec1[i] = fRec1[i-1];
       for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
