@@ -180,13 +180,13 @@ private:
   volatile int32_t             schedule_wait;
   // threading stuff
   Glib::Threads::Thread        *thread;
-  pthread_t                    pthr;
   volatile bool                noexit;
   void                         create_thread();
   void                         watch_thread();
   bool                         timeout_handler(); 
   Glib::Threads::Cond          time_cond;
   Glib::Threads::Mutex         _mutex;
+  volatile int32_t             schedule_doit;
 
 
 public:
@@ -220,13 +220,13 @@ public:
     val(0),
     doit(true),
     thread(),
-    pthr(),
     noexit(true),
     time_cond(),
     _mutex()
   {
-    Glib::signal_timeout().connect(sigc::mem_fun(*this, &GxPluginMono::timeout_handler), 200);
     atomic_set(&schedule_wait,0);
+    atomic_set(&schedule_doit,0);
+    Glib::signal_timeout().connect(sigc::mem_fun(*this, &GxPluginMono::timeout_handler), 200);
   };
   // destructor
   ~GxPluginMono()
@@ -258,12 +258,12 @@ bool GxPluginMono::timeout_handler()
 
 void GxPluginMono::watch_thread() 
 {
-  pthr = pthread_self();
   while (noexit) {
     time_cond.wait(_mutex);
     if (!atomic_get(schedule_wait) && val_changed())
       {
-        schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
+        atomic_set(&schedule_doit,1);
+        //schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
       }
   }
 }
@@ -466,12 +466,17 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
-  
   // run dsp
   amplifier.run_static(n_samples, input, output, &amplifier);
   ampconv.run_static(n_samples, &ampconv, output);
   ts.run_static(n_samples, &ts, output);
   cabconv.run_static(n_samples, &cabconv, output);
+  // work ?
+  if (atomic_get(schedule_doit))
+    {
+      atomic_set(&schedule_doit,0);
+      schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
+    }
 }
 
 void GxPluginMono::connect_all_mono_ports(uint32_t port, void* data)

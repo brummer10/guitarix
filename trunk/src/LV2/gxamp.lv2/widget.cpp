@@ -155,7 +155,9 @@ void Widget::make_controller_box(Gtk::VBox *box,
 // to hold controllers in place
 bool Widget::_expose_event(GdkEventExpose *event)
 {
-  double_t height = m_paintbox.get_window()->get_height();
+  int x, y, width, height, depth;
+  m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
+  //double_t height = m_paintbox.get_window()->get_height();
   m_paintbox.set_border_width(height/10);
   return false;
 }
