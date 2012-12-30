@@ -181,6 +181,8 @@ void GXPluginGUI::set_plug_name( const char * plugin_uri)
 
 GtkWidget* GXPluginGUI::make_gui()
 {
+  // init the gxwmm library
+  Gxw::init();
   set_skin();
   GtkWidget* container = gtk_vbox_new(FALSE, 2);
   widget = new Widget(plug_name);

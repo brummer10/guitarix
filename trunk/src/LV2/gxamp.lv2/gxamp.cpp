@@ -152,7 +152,7 @@ private:
   float                        cab;
   bool cab_changed()
   {
-    return abs(cab - (clevel_)) > 0.1;
+    return abs(cab - clevel_) > 0.1;
   }
   void update_cab()
   {
@@ -163,7 +163,7 @@ private:
   float                        pre;
   bool pre_changed()
   {
-    return abs(pre - (alevel_)) > 0.1;
+    return abs(pre - alevel_) > 0.1;
   }
   void update_pre()
   {
@@ -172,24 +172,14 @@ private:
   float                        val;
   bool val_changed()
   {
-    return abs(val - (alevel_) -(clevel_)) > 0.1;
+    return abs(val - (*alevel) -(*clevel)) > 0.1;
   }
   void update_val()
   {
-    val = (alevel_) + (clevel_);
+    val = (*alevel) + (*clevel);
   }
   bool                         doit;
   volatile int32_t             schedule_wait;
-  // threading stuff
-  Glib::Threads::Thread        *thread;
-  volatile bool                noexit;
-  void                         create_thread();
-  void                         watch_thread();
-  bool                         timeout_handler(); 
-  Glib::Threads::Cond          time_cond;
-  Glib::Threads::Mutex         _mutex;
-  volatile int32_t             schedule_doit;
-
 
 public:
   // LV2 stuff
@@ -221,28 +211,15 @@ public:
     alevel(NULL),
     alevel_(0),
     pre(0),
-    val(0),
-    doit(true),
-    thread(),
-    noexit(true),
-    time_cond(),
-    _mutex()
+    val(0)
   {
     atomic_set(&schedule_wait,0);
-    atomic_set(&schedule_doit,0);
-    Glib::signal_timeout().connect(sigc::mem_fun(*this, &GxPluginMono::timeout_handler), 200);
   };
   // destructor
   ~GxPluginMono()
   {
     cabconv.stop_process();
     ampconv.stop_process();
-    noexit = false;
-    if (thread) 
-    {
-      time_cond.signal();
-      thread->join();
-    }
   };
 };
 
@@ -251,36 +228,6 @@ public:
 #include "gx_amp.cc"
 #include "impulse_former.cc"
 #include "ampulse_former.cc"
-
-// watch thread to fetch value changes from outside
-
-bool GxPluginMono::timeout_handler() 
-{ 
-  time_cond.signal();
-  return noexit;
-}
-
-void GxPluginMono::watch_thread() 
-{
-  while (noexit) {
-    time_cond.wait(_mutex);
-    if (!atomic_get(schedule_wait) && val_changed())
-      {
-        atomic_set(&schedule_doit,1);
-        //schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
-      }
-  }
-}
-
-void GxPluginMono::create_thread() 
-{
-  try {
-    thread = Glib::Threads::Thread::create(
-        sigc::mem_fun(*this, &GxPluginMono::watch_thread));
-    } catch (Glib::Threads::ThreadError& e) {
-      throw printf("Thread create failed (signal): %s",  e.what().c_str());
-    }
-}
 
 // plugin stuff
 
@@ -416,7 +363,6 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
       ampconv.configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
       if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver disabled\n");
-      create_thread();
     }
   else
     {
@@ -444,10 +390,10 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
     case TREBLE:
       break;
     case CLevel:
-      clevel = (float*)data;
+      clevel = static_cast<float*>(data);
       break;
     case ALevel:
-      alevel = (float*)data;
+      alevel = static_cast<float*>(data);
       break;
     case AMP_CONTROL:
       c_notice = (LV2_Atom_Sequence*)data;
@@ -456,10 +402,10 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
       n_notice = (LV2_Atom_Sequence*)data;
       break;
     case AMP_OUTPUT:
-      output = (float*)data;
+      output = static_cast<float*>(data);
       break;
     case AMP_INPUT:
-      input = (float*)data;
+      input = static_cast<float*>(data);
       break;
     case AMP_OUTPUT1:
       break;
@@ -470,17 +416,16 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
-  clevel_ = (*clevel);
-  alevel_ = (*alevel);
   // run dsp
   amplifier.run_static(n_samples, input, output, &amplifier);
   ampconv.run_static(n_samples, &ampconv, output);
   ts.run_static(n_samples, &ts, output);
   cabconv.run_static(n_samples, &cabconv, output);
   // work ?
-  if (atomic_get(schedule_doit))
+  if (!atomic_get(schedule_wait) && val_changed())
     {
-      atomic_set(&schedule_doit,0);
+      clevel_ = (*clevel);
+      alevel_ = (*alevel);
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
     }
 }

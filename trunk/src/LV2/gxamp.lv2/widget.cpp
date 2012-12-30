@@ -35,8 +35,7 @@ Widget::Widget(Glib::ustring plug_name)
   clevel     = 1.0;
   alevel     = 1.0;*/
 
-  // init the gxwmm library
-  Gxw::init();
+  
 
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(30);
