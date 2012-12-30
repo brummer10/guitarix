@@ -176,7 +176,7 @@ private:
   }
   void update_val()
   {
-    val = (*alevel) + (*clevel);
+    val = (alevel_) + (clevel_);
   }
   bool                         doit;
   volatile int32_t             schedule_wait;
