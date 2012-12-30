@@ -28,13 +28,11 @@ Impf::~Impf()
 inline void Impf::init(uint32_t samplingFreq)
 {
   fSamplingFreq = samplingFreq;
-  fslider0 = 1.;
 }
 
-inline void Impf::compute(int32_t count, float *input0, float *output0)
+inline void Impf::compute(int32_t count, float *input0, float *output0, float value)
 {
-  fslider0 = (*fslider0_);
-  double 	fSlow0 = fslider0* fslider0 * 0.01;
+  double 	fSlow0 = value* value * 0.01;
   //double 	fSlow1 = (fSlow0 * pow(10,(0 - (0.1 * fSlow0))));
   for (int32_t i=0; i<count; i++)
     {
@@ -61,7 +59,6 @@ void Impf::connect(uint32_t port,void* data)
     case TREBLE:
       break;
     case CLevel:
-      fslider0_ = (float*)data;
       break;
     case ALevel:
       break;

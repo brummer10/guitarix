@@ -150,33 +150,35 @@ private:
   LV2_Atom_Sequence*           c_notice;
   LV2_Atom_Sequence*           n_notice;
   float                        *clevel;
+  float                        clevel_;
   float                        cab;
   bool cab_changed()
   {
-    return abs(cab - (*clevel)) > 0.1;
+    return abs(cab - (clevel_)) > 0.1;
   }
   void update_cab()
   {
-    cab = (*clevel);
+    cab = (clevel_);
   }
   float                        *alevel;
+  float                        alevel_;
   float                        pre;
   bool pre_changed()
   {
-    return abs(pre - (*alevel)) > 0.1;
+    return abs(pre - (alevel_)) > 0.1;
   }
   void update_pre()
   {
-    pre = (*alevel);
+    pre = (alevel_);
   }
   float                        val;
   bool val_changed()
   {
-    return abs(val - (*alevel) -(*clevel)) > 0.1;
+    return abs(val - (alevel_) -(clevel_)) > 0.1;
   }
   void update_val()
   {
-    val = (*alevel) + (*clevel);
+    val = (alevel_) + (clevel_);
   }
   bool                         doit;
   volatile int32_t             schedule_wait;
@@ -295,7 +297,7 @@ void GxPluginStereo::do_work_stereo()
           cabconv.stop_process();
         }
       float cab_irdata_c[cabconv.cab_count];
-      impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c);
+      impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, clevel_);
       cabconv.cab_data_new = cab_irdata_c;
       while (!cabconv.checkstate());
       if (!cabconv.update_stereo(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr))
@@ -313,7 +315,7 @@ void GxPluginStereo::do_work_stereo()
           ampconv.stop_process();
         }
       float pre_irdata_c[contrast_ir_desc.ir_count];
-      ampf.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c);
+      ampf.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c, alevel_);
       while (!ampconv.checkstate());
       if (!ampconv.update_stereo(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr))
         printf("ampconv.update fail.\n");
@@ -396,8 +398,8 @@ void GxPluginStereo::init_dsp_stereo(uint32_t rate, uint32_t bufsize_)
   bufsize = bufsize_;
   amplifier.init_static(rate, &amplifier);
   ts.init_static(rate, &ts);
-  impf.init_static(rate, &impf);
-  ampf.init_static(rate, &ampf);
+  //impf.init_static(rate, &impf);
+  //ampf.init_static(rate, &ampf);
 
   if (bufsize )
     {
@@ -472,6 +474,8 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
+  clevel_ = (*clevel);
+  alevel_ = (*alevel);
   // run dsp
   amplifier.run_static(n_samples, input, input1, output, output1, &amplifier);
   ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
@@ -490,8 +494,8 @@ void GxPluginStereo::connect_all_stereo_ports(uint32_t port, void* data)
   connect_stereo(port,data);
   amplifier.connect_static(port,data, &amplifier);
   ts.connect_static(port,data, &ts);
-  impf.connect_static(port,data, &impf);
-  ampf.connect_static(port,data, &ampf);
+  //impf.connect_static(port,data, &impf);
+  //ampf.connect_static(port,data, &ampf);
 }
 
 ///////////////////////////// LV2 defines //////////////////////////////

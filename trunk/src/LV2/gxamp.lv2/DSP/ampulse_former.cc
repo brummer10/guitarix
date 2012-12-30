@@ -28,13 +28,11 @@ Ampf::~Ampf()
 inline void Ampf::init(uint32_t samplingFreq)
 {
   fSamplingFreq = samplingFreq;
-  fslider0 = 1.;
 }
 
-inline void Ampf::compute(int32_t count, float *input0, float *output0)
+inline void Ampf::compute(int32_t count, float *input0, float *output0, float value)
 {
-  fslider0 = (*fslider0_);
-  double 	fSlow0 = fslider0* fslider0 * 0.01;
+  double 	fSlow0 = value * value * 0.01;
   //double 	fSlow1 = (fSlow0 * pow(10,(0 - (0.1 * fSlow0))));
   for (int32_t i=0; i<count; i++)
     {
@@ -63,7 +61,6 @@ void Ampf::connect(uint32_t port,void* data)
     case CLevel:
       break;
     case ALevel:
-      fslider0_ = (float*)data;
       break;
     case AMP_CONTROL:
       break;

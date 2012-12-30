@@ -21,13 +21,11 @@ class Ampf
 {
 private:
   int32_t         fSamplingFreq;
-  float           fslider0;
-  float           *fslider0_;
   void            init(uint32_t samplingFreq);
   void            connect(uint32_t port,void* data);
 
 public:
-  void            compute(int32_t count, float *input0, float *output0);
+  void            compute(int32_t count, float *input0, float *output0, float value);
   static void     connect_static(uint32_t port,void* data, Ampf *p);
   static void     init_static(uint32_t samplingFreq, Ampf *p);
   Ampf();
