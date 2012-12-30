@@ -240,7 +240,6 @@ public:
 
 void GxPluginStereo::do_work_stereo()
 {
-  atomic_set(&schedule_wait,1);
   if (cab_changed())
     {
       if (cabconv.is_runnable())
@@ -435,6 +434,7 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
+      atomic_set(&schedule_wait,1);
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
     }
 }

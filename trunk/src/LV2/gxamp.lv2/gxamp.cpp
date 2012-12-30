@@ -233,7 +233,6 @@ public:
 
 void GxPluginMono::do_work_mono()
 {
-  atomic_set(&schedule_wait,1);
   if (cab_changed())
     {
       if (cabconv.is_runnable())
@@ -426,6 +425,7 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
+      atomic_set(&schedule_wait,1);
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
     }
 }
