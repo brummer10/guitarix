@@ -155,15 +155,10 @@ public:
   void        run_6DJ8(uint32_t n_samples, float* input, float* output);
   static void init_static(uint32_t samplingFreq, GxAmpMono *p);
   static void connect_static(uint32_t port,void* data, GxAmpMono *p);
-  static void run_static(uint32_t n_samples, float* input, float* output, GxAmpMono *p);
+  //static void run_static(uint32_t n_samples, float* input, float* output, GxAmpMono *p);
   GxAmpMono() {};
   ~GxAmpMono() {};
 };
-// define run pointer typs
-typedef void (GxAmpMono::*run_this)
-(uint32_t count,float* input, float* output);
-
-run_this    _a_ptr;
 
 
 class GxAmpStereo
@@ -332,16 +327,11 @@ public:
   void        run_6DJ8(uint32_t n_samples, float* input,float* input1, float* output, float* output1);
   static void init_static(uint32_t samplingFreq, GxAmpStereo *p);
   static void connect_static(uint32_t port,void* data, GxAmpStereo *p);
-  static void run_static(uint32_t n_samples, float* input,float* input1, float* output, float* output1, GxAmpStereo *p);
+  //static void run_static(uint32_t n_samples, float* input,float* input1, float* output, float* output1, GxAmpStereo *p);
   GxAmpStereo() {};
   ~GxAmpStereo() {};
 };
 
-// define run pointer typs
-typedef void (GxAmpStereo::*run_stereo)
-(uint32_t count,float* input, float* input1, float* output, float* output1);
-
-run_stereo    _as_ptr;
 
 
 #endif  //SRC_HEADERS_GX_AMP_H_

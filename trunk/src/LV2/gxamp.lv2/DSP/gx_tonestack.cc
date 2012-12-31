@@ -256,11 +256,6 @@ void TonestackMono::connect_static(uint32_t port,void* data, TonestackMono *p)
   p->connect(port, data);
 }
 
-void TonestackMono::run_static(uint32_t n_samples, TonestackMono *p, float *output)
-{
-  (p->*_t_ptr)(n_samples, output);
-}
-
 ////////////////////////////// STEREO //////////////////////////////////
 
 
@@ -511,9 +506,4 @@ void TonestackStereo::init_static(uint32_t samplingFreq, TonestackStereo *p)
 void TonestackStereo::connect_static(uint32_t port,void* data, TonestackStereo *p)
 {
   p->connect(port, data);
-}
-
-void TonestackStereo::run_static(uint32_t n_samples, TonestackStereo *p, float *output, float *output1)
-{
-  (p->*_ts_ptr)(n_samples, output, output1);
 }

@@ -126,6 +126,13 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "impulse_former.h"
 #include "ampulse_former.h"
 
+// define run pointer typs
+typedef void (GxAmpMono::*run_amp_mono)
+(uint32_t count,float* input, float* output);
+
+typedef void (TonestackMono::*run_tonestack_mono)
+(uint32_t count, float *output);
+
 ////////////////////////////// MONO ////////////////////////////////////
 
 class GxPluginMono
@@ -137,7 +144,9 @@ private:
   uint32_t                     tubesel;
   int32_t                      prio;
   TonestackMono                ts;
+  run_tonestack_mono           _t_ptr;
   GxAmpMono                    amplifier;
+  run_amp_mono                 _a_ptr;
   gx_resample::BufferResampler resamp;
   GxSimpleConvolver            cabconv;
   Impf                         impf;
@@ -226,8 +235,6 @@ public:
 #include "cab_data.cc"
 #include "gx_tonestack.cc"
 #include "gx_amp.cc"
-#include "impulse_former.cc"
-#include "ampulse_former.cc"
 
 // plugin stuff
 
@@ -416,9 +423,11 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
   // run dsp
-  amplifier.run_static(n_samples, input, output, &amplifier);
+  (&amplifier->*_a_ptr)(n_samples, input, output);
+  //amplifier.run_static(n_samples, input, output, &amplifier);
   ampconv.run_static(n_samples, &ampconv, output);
-  ts.run_static(n_samples, &ts, output);
+  //ts.run_static(n_samples, &ts, output);
+  (&ts->*_t_ptr)(n_samples, output);
   cabconv.run_static(n_samples, &cabconv, output);
   // work ?
   if (!atomic_get(schedule_wait) && val_changed())

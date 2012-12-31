@@ -126,6 +126,13 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "impulse_former.h"
 #include "ampulse_former.h"
 
+// define run pointer typs
+typedef void (GxAmpStereo::*run_amp_stereo)
+(uint32_t count,float* input, float* input1, float* output, float* output1);
+
+typedef void (TonestackStereo::*run_tonestack_stereo)
+(uint32_t count, float *output, float *output1);
+
 //////////////////////////// STEREO ////////////////////////////////////
 
 class GxPluginStereo
@@ -139,7 +146,9 @@ private:
   uint32_t                     tubesel;
   int32_t                      prio;
   TonestackStereo              ts;
+  run_tonestack_stereo         _ts_ptr;
   GxAmpStereo                  amplifier;
+  run_amp_stereo               _as_ptr;
   gx_resample::BufferResampler resamp;
   GxSimpleConvolver            cabconv;
   Impf                         impf;
@@ -232,9 +241,6 @@ public:
 #include "cab_data.cc"
 #include "gx_tonestack.cc"
 #include "gx_amp.cc"
-#include "impulse_former.cc"
-#include "ampulse_former.cc"
-
 
 // plugin stuff
 
@@ -425,9 +431,11 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
   // run dsp
-  amplifier.run_static(n_samples, input, input1, output, output1, &amplifier);
+  (&amplifier->*_as_ptr)(n_samples, input, input1, output, output1);
+  //amplifier.run_static(n_samples, input, input1, output, output1, &amplifier);
   ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
-  ts.run_static(n_samples, &ts, output, output1);
+  //ts.run_static(n_samples, &ts, output, output1);
+  (&ts->*_ts_ptr)(n_samples, output, output1);
   cabconv.run_static_stereo(n_samples, &cabconv, output, output1);
   // work ?
   if (!atomic_get(schedule_wait) && val_changed())

@@ -48,17 +48,12 @@ public:
   void        run_ampeg(uint32_t n_samples, float *output);
   static void init_static(uint32_t samplingFreq, TonestackMono *p);
   static void connect_static(uint32_t port,void* data, TonestackMono *p);
-  static void run_static(uint32_t n_samples, TonestackMono*, float *output);
+  //static void run_static(uint32_t n_samples, TonestackMono*, float *output);
 
   TonestackMono() {};
   ~TonestackMono() {};
 };
 
-// define run pointer typs
-typedef void (TonestackMono::*run_tonestack_mono)
-(uint32_t count, float *output);
-
-run_tonestack_mono    _t_ptr;
 
 
 class TonestackStereo
@@ -87,16 +82,11 @@ public:
   void        run_ampeg(uint32_t n_samples, float *output, float *output1);
   static void init_static(uint32_t samplingFreq, TonestackStereo *p);
   static void connect_static(uint32_t port,void* data, TonestackStereo *p);
-  static void run_static(uint32_t n_samples, TonestackStereo*, float *output, float *output1);
+  //static void run_static(uint32_t n_samples, TonestackStereo*, float *output, float *output1);
   TonestackStereo() {};
   ~TonestackStereo() {};
 };
 
-// define run pointer typs
-typedef void (TonestackStereo::*run_tonestack_stereo)
-(uint32_t count, float *output, float *output1);
-
-run_tonestack_stereo    _ts_ptr;
 
 
 #endif  //SRC_HEADERS_GX_TONESTACK_H_

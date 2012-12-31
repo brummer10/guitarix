@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * --------------------------------------------------------------------------
  */
+#include "gx_amp.h"
 
 
 inline void GxAmpMono::clear_state_f()
@@ -835,11 +836,6 @@ void GxAmpMono::connect_static(uint32_t port,void* data, GxAmpMono *p)
   p->connect(port, data);
 }
 
-
-void GxAmpMono::run_static(uint32_t n_samples, float* input, float* output, GxAmpMono *p)
-{
-  (p->*_a_ptr)(n_samples, input, output);
-}
 
 /////////////////////////////// STEREO /////////////////////////////////
 
@@ -2193,10 +2189,3 @@ void GxAmpStereo::connect_static(uint32_t port,void* data, GxAmpStereo *p)
 {
   p->connect(port, data);
 }
-
-
-void GxAmpStereo::run_static(uint32_t n_samples, float* input, float* input1, float* output, float* output1, GxAmpStereo *p)
-{
-  (p->*_as_ptr)(n_samples, input, input1, output, output1);
-}
-

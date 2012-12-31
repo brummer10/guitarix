@@ -226,61 +226,70 @@ void Widget::on_knob_value_changed()
 {
   mastergain = m_bigknob.get_value();
   //std::cout << "mastergain = " << mastergain << std::endl;
-  write_function( controller, 0, sizeof(float), 0, (const void*)&mastergain);
+  write_function(controller, (PortIndex)AMP_MASTERGAIN,
+                 sizeof(float), 0, (const void*)&mastergain);
 }
 
 void Widget::on_knob1_value_changed()
 {
   pregain = m_bigknob1.get_value();
   //std::cout << "pregain = " << pregain << std::endl;
-  write_function( controller, 1, sizeof(float), 0, (const void*)&pregain);
+  write_function(controller, (PortIndex)AMP_PREGAIN,
+                 sizeof(float), 0, (const void*)&pregain);
 }
 
 void Widget::on_knob2_value_changed()
 {
   wet_dry = m_bigknob2.get_value();
   //std::cout << "wet_dry = " << wet_dry << std::endl;
-  write_function( controller, 2, sizeof(float), 0, (const void*)&wet_dry);
+  write_function(controller, (PortIndex)AMP_WET_DRY,
+                 sizeof(float), 0, (const void*)&wet_dry);
 }
 
 void Widget::on_knob3_value_changed()
 {
   drive = m_bigknob3.get_value();
   //std::cout << "drive = " << drive << std::endl;
-  write_function( controller, 3, sizeof(float), 0, (const void*)&drive);
+  write_function(controller, (PortIndex)AMP_DRIVE,
+                 sizeof(float), 0, (const void*)&drive);
 }
 
 void Widget::on_knob4_value_changed()
 {
   mid = m_smallknob1.get_value();
   //std::cout << "mid = " << mid << std::endl;
-  write_function( controller, 4, sizeof(float), 0, (const void*)&mid);
+  write_function(controller, (PortIndex)MID,
+                 sizeof(float), 0, (const void*)&mid);
 }
 
 void Widget::on_knob5_value_changed()
 {
   bass = m_smallknob2.get_value();
   //std::cout << "bass = " << bass << std::endl;
-  write_function( controller, 5, sizeof(float), 0, (const void*)&bass);
+  write_function(controller, (PortIndex)BASS,
+                 sizeof(float), 0, (const void*)&bass);
 }
 
 void Widget::on_knob6_value_changed()
 {
   treble = m_smallknob3.get_value();
   //std::cout << "treble = " << treble << std::endl;
-  write_function( controller, 6, sizeof(float), 0, (const void*)&treble);
+  write_function(controller, (PortIndex)TREBLE,
+                 sizeof(float), 0, (const void*)&treble);
 }
 
 void Widget::on_knob7_value_changed()
 {
   clevel = m_smallknob4.get_value();
   //std::cout << "treble = " << clevel << std::endl;
-  write_function( controller, 7, sizeof(float), 0, (const void*)&clevel);
+  write_function(controller, (PortIndex)CLevel,
+                 sizeof(float), 0, (const void*)&clevel);
 }
 
 void Widget::on_knob8_value_changed()
 {
   alevel = m_smallknob5.get_value();
   //std::cout << "treble = " << alevel << std::endl;
-  write_function( controller, 8, sizeof(float), 0, (const void*)&alevel);
+  write_function(controller, (PortIndex)ALevel,
+                 sizeof(float), 0, (const void*)&alevel);
 }

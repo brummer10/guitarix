@@ -17,19 +17,18 @@
  * --------------------------------------------------------------------------
  */
 
+#include <stdint.h>
 
 class Impf
 {
-private:
-  int32_t         fSamplingFreq;
-  void            init(uint32_t samplingFreq);
-  void            connect(uint32_t port,void* data);
-
 public:
-  void            compute(int32_t count, float *input0, float *output0, float value);
-  static void     connect_static(uint32_t port,void* data, Impf *p);
-  static void     init_static(uint32_t samplingFreq, Impf *p);
-  Impf();
-  ~Impf();
+  inline void compute(int32_t count, float *input0, float *output0, float value) {
+  double 	fSlow0 = value* value * 0.01;
+  for (int32_t i=0; i<count; i++) {
+      output0[i] = fSlow0 * input0[i];
+    }
+  };
+  Impf() {};
+  ~Impf() {};
 };
 
