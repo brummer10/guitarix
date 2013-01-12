@@ -38,14 +38,6 @@ void TonestackMono::connect(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
-    case AMP_MASTERGAIN:
-      break;
-    case AMP_PREGAIN:
-      break;
-    case AMP_WET_DRY:
-      break;
-    case AMP_DRIVE:
-      break;
     case MID:
       fslider0_ = (float*)data;
       break;
@@ -55,21 +47,7 @@ void TonestackMono::connect(uint32_t port,void* data)
     case TREBLE:
       fslider2_ = (float*)data;
       break;
-    case CLevel:
-      break;
-    case ALevel:
-      break;
-    case AMP_CONTROL:
-      break;
-    case AMP_NOTIFY:
-      break;
-    case AMP_OUTPUT:
-      break;
-    case AMP_INPUT:
-      break;
-    case AMP_OUTPUT1:
-      break;
-    case AMP_INPUT1:
+    default:
       break;
     }
 }
@@ -280,14 +258,6 @@ void TonestackStereo::connect(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
-    case AMP_MASTERGAIN:
-      break;
-    case AMP_PREGAIN:
-      break;
-    case AMP_WET_DRY:
-      break;
-    case AMP_DRIVE:
-      break;
     case MID:
       fslider0_ = (float*)data;
       break;
@@ -297,21 +267,7 @@ void TonestackStereo::connect(uint32_t port,void* data)
     case TREBLE:
       fslider2_ = (float*)data;
       break;
-    case CLevel:
-      break;
-    case ALevel:
-      break;
-    case AMP_OUTPUT:
-      break;
-    case AMP_INPUT:
-      break;
-    case AMP_OUTPUT1:
-      break;
-    case AMP_INPUT1:
-      break;
-    case AMP_CONTROL:
-      break;
-    case AMP_NOTIFY:
+    default:
       break;
     }
 }

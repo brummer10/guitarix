@@ -1,6 +1,6 @@
 prefix=/path
 exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
+libdir=/path
 datarootdir=${prefix}/share
 datadir=${datarootdir}
 includedir=${prefix}/include

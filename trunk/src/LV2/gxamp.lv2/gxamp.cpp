@@ -381,20 +381,6 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
-    case AMP_MASTERGAIN:
-      break;
-    case AMP_PREGAIN:
-      break;
-    case AMP_WET_DRY:
-      break;
-    case AMP_DRIVE:
-      break;
-    case MID:
-      break;
-    case BASS:
-      break;
-    case TREBLE:
-      break;
     case CLevel:
       clevel = static_cast<float*>(data);
       break;
@@ -413,9 +399,7 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
     case AMP_INPUT:
       input = static_cast<float*>(data);
       break;
-    case AMP_OUTPUT1:
-      break;
-    case AMP_INPUT1:
+    default:
       break;
     }
 }

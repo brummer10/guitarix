@@ -387,20 +387,6 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
-    case AMP_MASTERGAIN:
-      break;
-    case AMP_PREGAIN:
-      break;
-    case AMP_WET_DRY:
-      break;
-    case AMP_DRIVE:
-      break;
-    case MID:
-      break;
-    case BASS:
-      break;
-    case TREBLE:
-      break;
     case CLevel:
       clevel = static_cast<float*>(data);
       break;
@@ -424,6 +410,8 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
       break;
     case AMP_INPUT1:
       input1 = static_cast<float*>(data);
+      break;
+    default:
       break;
     }
 }

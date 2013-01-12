@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * --------------------------------------------------------------------------
  */
-#include "gx_amp.h"
 
 
 inline void GxAmpMono::clear_state_f()
@@ -153,27 +152,7 @@ void GxAmpMono::connect(uint32_t port,void* data)
     case AMP_DRIVE:
       fslider3_ = (float*)data;
       break;
-    case MID:
-      break;
-    case BASS:
-      break;
-    case TREBLE:
-      break;
-    case CLevel:
-      break;
-    case ALevel:
-      break;
-    case AMP_CONTROL:
-      break;
-    case AMP_NOTIFY:
-      break;
-    case AMP_OUTPUT:
-      break;
-    case AMP_INPUT:
-      break;
-    case AMP_OUTPUT1:
-      break;
-    case AMP_INPUT1:
+    default:
       break;
     }
 }
@@ -1008,31 +987,7 @@ void GxAmpStereo::connect(uint32_t port,void* data)
     case AMP_DRIVE:
       fslider3_ = (float*)data;
       break;
-    case MID:
-      break;
-    case BASS:
-      break;
-    case TREBLE:
-      break;
-    case CLevel:
-      break;
-    case ALevel:
-      break;
-    case AMP_OUTPUT:
-      //output = (float*)data;
-      break;
-    case AMP_INPUT:
-      //input = (float*)data;
-      break;
-    case AMP_OUTPUT1:
-      //output = (float*)data;
-      break;
-    case AMP_INPUT1:
-      //input = (float*)data;
-      break;
-    case AMP_CONTROL:
-      break;
-    case AMP_NOTIFY:
+    default:
       break;
     }
 }

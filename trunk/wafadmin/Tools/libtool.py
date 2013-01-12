@@ -51,7 +51,7 @@ def apply_link_libtool(self):
 		linktask=self.link_task
 		self.latask=self.create_task('fakelibtool',linktask.outputs,linktask.outputs[0].change_ext('.la'))
 	if self.bld.is_install:
-		self.bld.install_files('${PREFIX}/lib',linktask.outputs[0],self.env)
+		self.bld.install_files('${LIBDIR}',linktask.outputs[0],self.env)
 def apply_libtool(self):
 	self.env['vnum']=self.vnum
 	paths=[]
@@ -101,7 +101,7 @@ class libtool_la_file:
 		self.shouldnotlink=None
 		self.dlopen=None
 		self.dlpreopen=None
-		self.libdir='/usr/lib'
+		self.libdir='${LIBDIR}'
 		if not self.__parse():
 			raise ValueError("file %s not found!!"%(la_filename))
 	def __parse(self):

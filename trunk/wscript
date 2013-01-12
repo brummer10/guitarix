@@ -121,12 +121,6 @@ def set_options(opt):
                     const=True,
                     help=("don't build with new ladspa plugins"))
 
-    comp.add_option('--build-lv2',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help=("build with new lv2 plugins"))
-
     faust = opt.add_option_group("Faust-Compiler")
 
     if len(good_faust_versions) == 1:
@@ -159,6 +153,19 @@ def set_options(opt):
     ladspa.add_option('--ladspadir',
                     type='string',
                     help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
+
+    lv2 = opt.add_option_group("LV2 Options (installing LV2 modules)")
+
+    lv2.add_option('--lv2dir',
+                    type='string',
+                    help='LV2 plugin directory [Default: <prefix>/lib/lv2]')
+
+    lv2.add_option('--build-lv2',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help=("build with new lv2 plugins"))
+
 
     opt.recurse('pygxw')
     opt.recurse('glade-gxw')
@@ -570,8 +577,10 @@ def configure(conf):
 
     conf.env['LV2'] =  opt.build_lv2
     if opt.build_lv2:
-        conf.define('LV2DIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'lv2')) )
-
+        if opt.lv2dir:
+            conf.define('LV2DIR', opt.lv2dir)
+        else:
+            conf.define('LV2DIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'lv2')) )
 
     conf.env['NEW_LADSPA'] = not opt.no_ladspa and not opt.no_new_ladspa
     conf.env['LADSPA'] = not opt.no_ladspa
@@ -624,7 +633,9 @@ def configure(conf):
     if conf.env["GX_LIB_DEV"]:
         pa = conf.env['PREFIX']
         sub_file('./libgxw/gxw.pc.in', './libgxw/gxw.pc', (('prefix=/path', 'prefix=%s' % pa), ))
+        sub_file('./libgxw/gxw.pc', './libgxw/gxw.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
         sub_file('./libgxwmm/gxwmm.pc.in', './libgxwmm/gxwmm.pc', (('prefix=/path', 'prefix=%s' % pa), ))
+        sub_file('./libgxwmm/gxwmm.pc', './libgxwmm/gxwmm.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
 
 
     # some output
@@ -754,11 +765,11 @@ def build(bld):
     if bld.env["GX_LIB_DEV"]:
         bld.install_files('${PREFIX}/include/gxw','libgxw/gxw/*.h')
         bld.install_files('${PREFIX}/include','libgxw/gxw.h')
-        bld.install_files('${PREFIX}/lib/pkgconfig', './libgxw/gxw.pc')
+        bld.install_files('${LIBDIR}/pkgconfig', './libgxw/gxw.pc')
         bld.install_files('${PREFIX}/include/gxwmm','libgxwmm/gxwmm-generated/*.h')
         bld.install_files('${PREFIX}/include/gxwmm','libgxwmm/gxwmm/*.h')
         bld.install_files('${PREFIX}/include','libgxwmm/gxwmm.h')
-        bld.install_files('${PREFIX}/lib/pkgconfig', './libgxwmm/gxwmm.pc')
+        bld.install_files('${LIBDIR}/pkgconfig', './libgxwmm/gxwmm.pc')
 
 ################################################################
 # other commands
