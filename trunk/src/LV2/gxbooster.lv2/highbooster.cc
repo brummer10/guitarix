@@ -1,0 +1,97 @@
+// generated from file '../src/faust/highbooster.dsp' by dsp2cc:
+// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+
+
+
+class HighBooster {
+private:
+	int32_t fSamplingFreq;
+	double 	fConst0;
+	double 	fConst1;
+	double 	fConst2;
+	double 	fVec0[2];
+	double 	fConst3;
+	double 	fConst4;
+	double 	fRec0[2];
+    float 	*fslider0_;
+	float 	fslider0;
+	void clear_state_f();
+	void init(uint32_t samplingFreq);
+	void run(uint32_t count, float *input0, float *output0);
+	void connect(uint32_t port,void* data);
+public:
+    
+    static void init_static(uint32_t samplingFreq, HighBooster*);
+	static void run_static(uint32_t count, float *input0, float *output0, HighBooster*);
+    static void connect_static(uint32_t port,void* data, HighBooster *p);
+	HighBooster();
+	~HighBooster();
+};
+
+
+
+HighBooster::HighBooster() {
+}
+
+HighBooster::~HighBooster() {
+}
+
+void HighBooster::connect(uint32_t port,void* data)
+{
+  switch ((EffectPortIndex)port)
+    {
+    case T_LEVEL:
+      fslider0_ = (float*)data;
+      break;
+    default:
+      break;
+    }
+}
+
+inline void HighBooster::clear_state_f()
+{
+	for (int32_t i=0; i<2; i++) fVec0[i] = 0;
+	for (int32_t i=0; i<2; i++) fRec0[i] = 0;
+}
+
+inline void HighBooster::init(uint32_t samplingFreq)
+{
+	fSamplingFreq = samplingFreq;
+	fConst0 = (1.0 / tan((4712.38898038469 / min(192000, max(1, fSamplingFreq)))));
+	fConst1 = (1 + fConst0);
+	fConst2 = (0 - ((1 - fConst0) / fConst1));
+	fConst3 = (0 - fConst0);
+	fConst4 = (1.0 / fConst1);
+	clear_state_f();
+}
+
+
+inline void HighBooster::run(uint32_t count, float *input0, float *output0)
+{
+	fslider0 = (*fslider0_);
+	double 	fSlow0 = (pow(10,(0.05 * fslider0)) - 1);
+	for (uint32_t i=0; i<count; i++) {
+		double fTemp0 = (double)input0[i];
+		fVec0[0] = fTemp0;
+		fRec0[0] = ((fConst4 * ((fConst3 * fVec0[1]) + (fConst0 * fVec0[0]))) + (fConst2 * fRec0[1]));
+		output0[i] = (float)(fVec0[0] + (fSlow0 * fRec0[0]));
+		// post processing
+		fRec0[1] = fRec0[0];
+		fVec0[1] = fVec0[0];
+	}
+}
+
+void HighBooster::run_static(uint32_t count, float *input0, float *output0, HighBooster *p)
+{
+	p->run(count, input0, output0);
+}
+
+void HighBooster::init_static(uint32_t samplingFreq, HighBooster *p)
+{
+	p->init(samplingFreq);
+}
+
+void HighBooster::connect_static(uint32_t port,void* data, HighBooster *p)
+{
+  p->connect(port, data);
+}

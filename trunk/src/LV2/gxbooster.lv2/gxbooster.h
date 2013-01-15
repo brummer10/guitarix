@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Andreas Degert, Hermann Meyer
+ * Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,30 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * --------------------------------------------------------------------------
  */
 
-template <int32_t tab_size>
-struct table1d_imp {
-    float low;
-    float high;
-    float istep;
-    int32_t size;
-    float data[tab_size];
-};
+#pragma once
 
-#include "ts9nonlin.cc"
+#ifndef SRC_HEADERS_GXEFFECTS_H_
+#define SRC_HEADERS_GXEFFECTS_H_
 
-static inline double ts9nonlin(double x) {
-    double f = fabs(x);
-    f = (f/(3.0 + f) - ts9table.low) * ts9table.istep;
-    int32_t i = static_cast<int32_t>(f);
-    if (i < 0) {
-        f = ts9table.data[0];
-    } else if (i >= ts9table.size-1) {
-        f = ts9table.data[ts9table.size-1];
-    } else {
-	f -= i;
-	f = ts9table.data[i]*(1-f) + ts9table.data[i+1]*f;
-    }
-    return copysign(f, -x);
-}
+#include <lv2.h>
+
+#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxbooster"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxbooster#gui"
+
+
+typedef enum
+{
+  T_LEVEL,
+  B_LEVEL,
+  EFFECTS_OUTPUT,
+  EFFECTS_INPUT,
+} EffectPortIndex;
+
+#endif //SRC_HEADERS_GXEFFECTS_H_
