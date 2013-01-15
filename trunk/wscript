@@ -622,6 +622,8 @@ def configure(conf):
         sub_file('./src/LV2/gxamp.lv2/manifest.ttl.in', './src/LV2/gxamp.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
         conf.sub_config('src/LV2/gxamp.lv2/StereoAmp');
         sub_file('./src/LV2/gxamp.lv2/StereoAmp/manifest_stereo.ttl.in', './src/LV2/gxamp.lv2/StereoAmp/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+        conf.sub_config('src/LV2/gxts9.lv2');
+        sub_file('./src/LV2/gxts9.lv2/manifest.ttl.in', './src/LV2/gxts9.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
         
         # config subdirs
     conf.sub_config('pygxw');
@@ -720,6 +722,7 @@ def build(bld):
     if bld.env["LV2"]:
         bld.add_subdirs('src/LV2/gxamp.lv2')
         bld.add_subdirs('src/LV2/gxamp.lv2/StereoAmp')
+        bld.add_subdirs('src/LV2/gxts9.lv2')
     
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
