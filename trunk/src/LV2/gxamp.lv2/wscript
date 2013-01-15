@@ -31,7 +31,7 @@ def build(bld):
         src.append('../../zita-resampler-1.1.0/resampler-table.cc')
         incl.append('../../zita-resampler-1.1.0')
     cxxflag =[]
-    if not bld.env['OPT']:
+    if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag = [ "-msse2", "-mfpmath=sse"]
     lv2_plugin = bld(
         features='cxx cshlib ',

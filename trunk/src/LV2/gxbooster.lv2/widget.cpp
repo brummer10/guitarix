@@ -24,19 +24,6 @@
 
 Widget::Widget(Glib::ustring plug_name)
 {
-  // init values set by host
-  /*mastergain = -15.0;
-  pregain    = -15.0;
-  wet_dry    = 20.0;
-  drive      = 0.25;
-  mid        = 0.5;
-  bass       = 0.5;
-  treble     = 0.5;
-  clevel     = 1.0;
-  alevel     = 1.0;*/
-
-  
-
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(6);

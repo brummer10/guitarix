@@ -17,7 +17,7 @@ def build(bld):
         lib.append('dl')
     uselib = ['LV2CORE']
     cxxflag =[]
-    if not bld.env['OPT']:
+    if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag = [ "-msse2", "-mfpmath=sse"]
     lv2_effects = bld(
         features='cxx cshlib ',

@@ -30,8 +30,8 @@ def build(bld):
         src2.append('../../../zita-resampler-1.1.0/resampler.cc')
         src2.append('../../../zita-resampler-1.1.0/resampler-table.cc')
         incl2.append('../../../zita-resampler-1.1.0')
-    cxxflag1 =[]
-    if not bld.env['OPT']:
+    cxxflag2 =[]
+    if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag2 = [ "-msse2", "-mfpmath=sse"]
     lv2_plugin_stereo = bld(
         features='cxx cshlib ',
