@@ -133,7 +133,7 @@ void Widget::make_controller_box(Gtk::VBox *box,
 {
   //Gtk::Label* pr = new Gtk::Label(label, 0);
   //pr->set_name("amplabel");
-  Glib::ustring  label_image = GX_STYLE_DIR;
+  Glib::ustring  label_image = GX_LV2_STYLE_DIR;
   label_image += "/";
   label_image += label;
   label_image += "-label.png";
