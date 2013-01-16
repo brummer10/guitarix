@@ -66,8 +66,8 @@ protected:
   
   Gxw::PaintBox  m_paintbox;
   Gtk::HBox      m_hbox;
-  Gxw::VSlider   m_bigknob;
-  Gxw::VSlider   m_bigknob1;
+  Gxw::BigKnob   m_bigknob;
+  Gxw::BigKnob   m_bigknob1;
   
   void on_knob_value_changed();
   void on_knob1_value_changed();

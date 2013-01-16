@@ -556,6 +556,8 @@ def configure(conf):
     # defines for compilation
     gxsharedir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head'))
     conf.define('GX_STYLE_DIR', os.path.join(gxsharedir,'skins'))
+    if opt.build_lv2:
+        conf.define('GX_LV2_STYLE_DIR', os.path.join(conf.env['GX_STYLE_DIR'],'LV2'))
     conf.define('GX_FACTORY_DIR', os.path.join(gxsharedir,'factorysettings'))
     conf.define('GX_SOUND_DIR', os.path.join(gxsharedir,'sounds'))
     conf.define('GX_BUILDER_DIR', os.path.join(gxsharedir,'builder'))
@@ -657,9 +659,10 @@ def configure(conf):
     display_feature("Use internal zita-convolver", not conf.env['ZITA_CONVOLVER'])
     display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
 
-
     display_feature("build ladspa plugins", conf.env['LADSPA'])
     display_feature("build lv2 plugins", conf.env['LV2'])
+    if opt.build_lv2:
+        display_feature("SSE2 support found", conf.env['SSE2'])
     display_feature("skip Python Library Wrapper", not conf.env['GX_PYTHON_WRAPPER'])
     display_feature("use prebuild C++ Library Wrapper", conf.env['USE_GENERATED_CPP'])
     display_feature("skip building shared lib", not conf.env['GX_LIB_SHARED'])

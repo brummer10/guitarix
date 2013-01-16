@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import sys, os, re, TaskGen, ctypes
+import os, re
 
 def sub_file(src_fname, dst_fname, lst):
 
@@ -33,9 +33,6 @@ def append_sse_flags():
     except IOError:
         pass
     if cpu_model is None or x86_flags is None:
-        display_msg("Checking CPU Architecture",
-                    "cpu model not found in /proc/cpuinfo",
-                    "YELLOW")
         return False
     model = cpu_model.split()
     arch = os.uname()[4]
@@ -55,9 +52,42 @@ def configure(conf):
     sub_file('./src/LV2/gxts9.lv2/manifest.ttl.in', './src/LV2/gxts9.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxbooster.lv2');
     sub_file('./src/LV2/gxbooster.lv2/manifest.ttl.in', './src/LV2/gxbooster.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
-        
+    
 def build(bld):
     bld.add_subdirs('gxamp.lv2')
     bld.add_subdirs('gxamp.lv2/StereoAmp')
     bld.add_subdirs('gxts9.lv2')
     bld.add_subdirs('gxbooster.lv2')
+
+    gxlv2style_files = [
+        'gxamp.lv2/GUI/amp21.png',
+        'gxamp.lv2/GUI/amp22.png',
+        'gxamp.lv2/GUI/amp23.png',
+        'gxamp.lv2/GUI/amp24.png',
+        'gxamp.lv2/GUI/amp25.png',
+        'gxamp.lv2/GUI/mastergain-label.png',
+        'gxamp.lv2/GUI/pregain-label.png',
+        'gxamp.lv2/GUI/drive-label.png',
+        'gxamp.lv2/GUI/distortion-label.png',
+        'gxamp.lv2/GUI/cabinet-label.png',
+        'gxamp.lv2/GUI/presence-label.png',
+        'gxamp.lv2/GUI/presence-label.png',
+        'gxamp.lv2/GUI/bass-label.png',
+        'gxamp.lv2/GUI/treble-label.png',
+        'gxamp.lv2/GUI/mid-label.png',
+        'gxamp.lv2/GUI/knob.png',
+        'gxamp.lv2/GUI/knob-middle.png',
+        'gxamp.lv2/GUI/knob-small.png',
+        'gxamp.lv2/GUI/metalic1-knob.png',
+        'gxamp.lv2/GUI/metalic1-knob-middle.png',
+        'gxamp.lv2/GUI/metalic1-knob-small.png',
+        'gxamp.lv2/GUI/black-knob.png',
+        'gxamp.lv2/GUI/black-knob-middle.png',
+        'gxamp.lv2/GUI/black-knob-small.png',
+        'gxamp.lv2/GUI/booster.png',
+        'gxamp.lv2/GUI/booster-knob.png',
+        'gxamp.lv2/GUI/ts9.png',
+        'gxamp.lv2/GUI/ts9-knob.png',
+        ]
+
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxlv2style_files, chmod=0o644)

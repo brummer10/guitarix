@@ -84,7 +84,7 @@ void GXPluginGUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
   toparse +=     " '";
-  toparse +=        GX_STYLE_DIR;
+  toparse +=        GX_LV2_STYLE_DIR;
   toparse +=     "/'\n";
   toparse +=     "style \"gx_";
   toparse +=     plug_name;

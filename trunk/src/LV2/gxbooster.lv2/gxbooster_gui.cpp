@@ -84,7 +84,7 @@ void GxboosterGUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
   toparse +=     " '";
-  toparse +=        GX_STYLE_DIR;
+  toparse +=        GX_LV2_STYLE_DIR;
   toparse +=     "/'\n";
   toparse +=     "style \"gx_";
   toparse +=     plug_name;
@@ -95,11 +95,14 @@ void GxboosterGUI::set_skin()
                  "{ 52428, 0, 0, 0, 52428 },\n"
                  "{ 13107, 0, 0, 13107, 13107 }}\n"
                  "    GxPaintBox::icon-set =7\n"
+                 "    stock['amp_skin'] = {{'";
+  toparse +=     plugskin;
+  toparse +=     "'}}\n"
                  " }\n"
                  "\n"
                  "style 'gx_head_boost_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#030328' \n"
+                 "    fg[NORMAL] = '#838383' \n"
                  " }\n";
   toparse +=     addKnob;
 
@@ -119,13 +122,13 @@ void GxboosterGUI::set_plug_name( const char * plugin_uri)
 
   if (strcmp("http://guitarix.sourceforge.net/plugins/gxbooster#booster", plugin_uri) == 0)
     {
-      //plugskin = "booster.png";
+      plugskin = "booster.png";
       plug_name = "booster";
-      //set_knob("booster-knob");
+      set_knob("booster-knob");
     }
   else
     {
-      //plugskin = "booster.png";
+      plugskin = "booster.png";
       plug_name = "booster";
     }
 }

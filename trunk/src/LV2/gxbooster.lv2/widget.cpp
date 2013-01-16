@@ -29,11 +29,11 @@ Widget::Widget(Glib::ustring plug_name)
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "rectangle_skin_color_expose";
+  m_paintbox.property_paint_func() = "amp_skin_expose";
   add(m_paintbox);
   // box for the controllers
-  m_hbox_.set_spacing(24);
-  m_hbox_.set_border_width(14);
+  m_hbox_.set_spacing(44);
+  m_hbox_.set_border_width(24);
   m_hbox_.set_homogeneous(false);
   // set a vertical box in the paintbox
   m_paintbox.pack_start(m_vbox_);
