@@ -19,7 +19,7 @@
 
 class dunwahauto {
 private:
-	int32_t fSamplingFreq;
+	uint32_t fSamplingFreq;
 	int32_t 	iConst0;
 	double 	fConst1;
 	double 	fConst2;
