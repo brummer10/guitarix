@@ -88,7 +88,8 @@ public:
   void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate);
   inline void connect_all_mono_ports(uint32_t port, void* data);
-  // constructor
+  void activate_f();
+   // constructor
   Gxbooster() :
     output(NULL),
     input(NULL),
@@ -126,11 +127,17 @@ void Gxbooster::connect_mono(uint32_t port,void* data)
     }
 }
 
+void Gxbooster::activate_f()
+{
+    bb.clear_state_static(&bb);
+    hb.clear_state_static(&hb);
+}
+
 void Gxbooster::run_dsp_mono(uint32_t n_samples)
 {
   // run dsp
   bb.run_static(n_samples, input, output, &bb);
-  hb.run_static(n_samples, input, output, &hb);
+  hb.run_static(n_samples, output, output, &hb);
 }
 
 void Gxbooster::connect_all_mono_ports(uint32_t port, void* data)
@@ -170,6 +177,13 @@ connect_port(LV2_Handle instance,
 }
 
 static void
+activate(LV2_Handle instance)
+{
+  Gxbooster* self = (Gxbooster*)instance;
+  self->activate_f();
+}
+
+static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
   Gxbooster* self = (Gxbooster*)instance;
@@ -190,7 +204,7 @@ static const LV2_Descriptor descriptor =
   GXPLUGIN_URI "#booster",
   instantiate,
   connect_port,
-  NULL,
+  activate,
   run,
   NULL,
   cleanup,

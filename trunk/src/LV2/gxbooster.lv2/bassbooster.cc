@@ -1,6 +1,21 @@
-// generated from file '../src/faust/bassbooster.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
-
+/*
+ * Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * --------------------------------------------------------------------------
+ */
 
 
 class BassBooster {
@@ -12,8 +27,8 @@ private:
 	double 	fConst3;
 	double 	fConst4;
 	double 	fRec0[3];
-    float 	*fslider0_;
-	float 	fslider0;
+    float 	*fslider1_;
+	float 	fslider1;
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
 	void run(uint32_t count, float *input0, float *output0);
@@ -23,6 +38,7 @@ public:
     static void init_static(uint32_t samplingFreq, BassBooster*);
 	static void run_static(uint32_t count, float *input0, float *output0, BassBooster*);
     static void connect_static(uint32_t port,void* data, BassBooster *p);
+    static void clear_state_static(BassBooster*);
 	BassBooster();
 	~BassBooster();
 };
@@ -33,7 +49,7 @@ void BassBooster::connect(uint32_t port,void* data)
   switch ((EffectPortIndex)port)
     {
     case B_LEVEL:
-      fslider0_ = (float*)data;
+      fslider1_ = (float*)data;
       break;
     default:
       break;
@@ -65,8 +81,8 @@ inline void BassBooster::init(uint32_t samplingFreq)
 
 inline void BassBooster::run(uint32_t count, float *input0, float *output0)
 {
-    fslider0 = (*fslider0_);
-	double 	fSlow0 = pow(10,(0.05 * fslider0));
+    fslider1 = (*fslider1_);
+	double 	fSlow0 = pow(10,(0.05 * fslider1));
 	double 	fSlow1 = sqrt((2 * fSlow0));
 	double 	fSlow2 = (fConst0 * fSlow0);
 	double 	fSlow3 = (1 + (fConst0 * (fSlow2 - fSlow1)));
@@ -95,6 +111,9 @@ void BassBooster::connect_static(uint32_t port,void* data, BassBooster *p)
   p->connect(port, data);
 }
 
-
+void BassBooster::clear_state_static(BassBooster *p)
+{
+	p->clear_state_f();
+}
 
 

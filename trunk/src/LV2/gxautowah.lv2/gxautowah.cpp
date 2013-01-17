@@ -45,55 +45,76 @@ inline void AVOIDDENORMALS()
 inline void AVOIDDENORMALS() {}
 #endif //__SSE__
 
-#include "gxts9.h"
-#include "ts9sim.cc"
+#define max(x, y) (((x) > (y)) ? (x) : (y))
+#define min(x, y) (((x) < (y)) ? (x) : (y))
+template <int32_t N> inline float faustpower(float x)
+{
+  return powf(x, N);
+}
+template <int32_t N> inline double faustpower(double x)
+{
+  return pow(x, N);
+}
+template <int32_t N> inline int32_t faustpower(int32_t x)
+{
+  return faustpower<N/2>(x) * faustpower<N-N/2>(x);
+}
+template <>      inline int32_t faustpower<0>(int32_t x)
+{
+  return 1;
+}
+template <>      inline int32_t faustpower<1>(int32_t x)
+{
+  return x;
+}
+
+#include "gxautowah.h"
+#include "dunwahauto.cc"
 
 ////////////////////////////// MONO ////////////////////////////////////
 
-class Gxts9
+class Gxautowah
 {
 private:
   // internal stuff
   float*                       output;
   float*                       input;
-  ts9sim                       ts9;
-
+  dunwahauto                   wah;
 public:
-
+  void activate_f();
   inline void run_dsp_mono(uint32_t n_samples);
   void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate);
   inline void connect_all_mono_ports(uint32_t port, void* data);
-  void activate_f();
   // constructor
-  Gxts9() :
+  Gxautowah() :
     output(NULL),
     input(NULL),
-    ts9(ts9sim())
+    wah(dunwahauto())
   {
   };
   // destructor
-  ~Gxts9()
+  ~Gxautowah()
   {
   };
 };
 
 // plugin stuff
 
-void Gxts9::init_dsp_mono(uint32_t rate)
+void Gxautowah::init_dsp_mono(uint32_t rate)
 {
   AVOIDDENORMALS();
-  ts9.init_static(rate, &ts9);
+  wah.init_static(rate, &wah);
 }
 
-void Gxts9::connect_mono(uint32_t port,void* data)
+void Gxautowah::connect_mono(uint32_t port,void* data)
 {
   switch ((EffectPortIndex)port)
     {
-    case EFFECTS_OUTPUT:
+    case AUTOWAH_OUTPUT:
       output = static_cast<float*>(data);
       break;
-    case EFFECTS_INPUT:
+    case AUTOWAH_INPUT:
       input = static_cast<float*>(data);
       break;
     default:
@@ -101,21 +122,20 @@ void Gxts9::connect_mono(uint32_t port,void* data)
     }
 }
 
-void Gxts9::activate_f()
+void Gxautowah::activate_f()
 {
-    ts9.clear_state_static(&ts9);
+    wah.clear_state_static(&wah);
 }
 
-void Gxts9::run_dsp_mono(uint32_t n_samples)
+void Gxautowah::run_dsp_mono(uint32_t n_samples)
 {
   // run dsp
-  ts9.run_static(n_samples, input, output, &ts9);
+  wah.run_static(n_samples, input, output, &wah);
 }
 
-void Gxts9::connect_all_mono_ports(uint32_t port, void* data)
+void Gxautowah::connect_all_mono_ports(uint32_t port, void* data)
 {
   connect_mono(port,data);
-  ts9.connect_static(port,data, &ts9);
 }
 
 ///////////////////////////// LV2 defines //////////////////////////////
@@ -127,7 +147,7 @@ instantiate(const LV2_Descriptor*     descriptor,
             const LV2_Feature* const* features)
 {
 
-  Gxts9 *self = new Gxts9();
+  Gxautowah *self = new Gxautowah();
   if (!self)
     {
       return NULL;
@@ -143,28 +163,28 @@ connect_port(LV2_Handle instance,
              uint32_t   port,
              void*      data)
 {
-  Gxts9* self = (Gxts9*)instance;
+  Gxautowah* self = (Gxautowah*)instance;
   self->connect_all_mono_ports(port, data);
-}
-
-static void
-activate(LV2_Handle instance)
-{
-  Gxts9* self = (Gxts9*)instance;
-  self->activate_f();
 }
 
 static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
-  Gxts9* self = (Gxts9*)instance;
+  Gxautowah* self = (Gxautowah*)instance;
   self->run_dsp_mono(n_samples);
+}
+
+static void
+activate(LV2_Handle instance)
+{
+  Gxautowah* self = (Gxautowah*)instance;
+  self->activate_f();
 }
 
 static void
 cleanup(LV2_Handle instance)
 {
-  Gxts9* self = (Gxts9*)instance;
+  Gxautowah* self = (Gxautowah*)instance;
   delete self;
 }
 
@@ -172,7 +192,7 @@ cleanup(LV2_Handle instance)
 
 static const LV2_Descriptor descriptor =
 {
-  GXPLUGIN_URI "#ts9sim",
+  GXPLUGIN_URI "#autowah",
   instantiate,
   connect_port,
   activate,

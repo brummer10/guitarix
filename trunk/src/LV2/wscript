@@ -52,12 +52,15 @@ def configure(conf):
     sub_file('./src/LV2/gxts9.lv2/manifest.ttl.in', './src/LV2/gxts9.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxbooster.lv2');
     sub_file('./src/LV2/gxbooster.lv2/manifest.ttl.in', './src/LV2/gxbooster.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+    conf.sub_config('gxautowah.lv2');
+    sub_file('./src/LV2/gxautowah.lv2/manifest.ttl.in', './src/LV2/gxautowah.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     
 def build(bld):
     bld.add_subdirs('gxamp.lv2')
     bld.add_subdirs('gxamp.lv2/StereoAmp')
     bld.add_subdirs('gxts9.lv2')
     bld.add_subdirs('gxbooster.lv2')
+    bld.add_subdirs('gxautowah.lv2')
 
     gxlv2style_files = [
         'gxamp.lv2/GUI/amp21.png',
@@ -88,6 +91,7 @@ def build(bld):
         'gxamp.lv2/GUI/booster-knob.png',
         'gxamp.lv2/GUI/ts9.png',
         'gxamp.lv2/GUI/ts9-knob.png',
+        'gxamp.lv2/GUI/autowah.png',
         ]
 
     bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxlv2style_files, chmod=0o644)

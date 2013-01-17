@@ -51,6 +51,7 @@ public:
     static void init_static(uint32_t samplingFreq, ts9sim*);
 	static void run_static(uint32_t count, float *input0, float *output0, ts9sim*);
 	static void connect_static(uint32_t port, void* data, ts9sim*);
+    static void clear_state_static(ts9sim*);
 	ts9sim();
 	~ts9sim();
 };
@@ -146,4 +147,9 @@ void ts9sim::run_static(uint32_t count, float *input0, float *output0, ts9sim *p
 void ts9sim::connect_static(uint32_t port,void* data, ts9sim *p)
 {
   p->connect(port, data);
+}
+
+void ts9sim::clear_state_static(ts9sim *p)
+{
+	p->clear_state_f();
 }
