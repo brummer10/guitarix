@@ -126,10 +126,16 @@ void GxautowahGUI::set_plug_name( const char * plugin_uri)
       plug_name = "autowah";
       //set_knob("autowah-knob");
     }
-  else
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxautowah#wah", plugin_uri) == 0)
+    {
+      plugskin = "autowah.png";
+      plug_name = "wah";
+    }
+  else 
     {
       plugskin = "autowah.png";
       plug_name = "autowah";
+      //set_knob("autowah-knob");
     }
 }
 
@@ -159,6 +165,8 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
   if (self == NULL) return NULL;
   self->set_plug_name_static(self, plugin_uri);
   *widget = (LV2UI_Widget)self->make_gui_static(self);
+  self->widget->controller = controller;
+  self->widget->write_function = write_function;
   return (LV2UI_Handle)self;
 }
 
@@ -175,6 +183,8 @@ static void port_event(LV2UI_Handle ui,
                        uint32_t format,
                        const void * buffer)
 {
+  GxautowahGUI *self = (GxautowahGUI *) ui;
+  self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }
 

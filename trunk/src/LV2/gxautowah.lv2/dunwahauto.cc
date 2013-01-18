@@ -39,20 +39,13 @@ private:
 	double 	fConst11;
 	double 	fConst12;
 	double 	fConst13;
+public:
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
 	void run(uint32_t count, float *input0, float *output0);
-
-
-public:
-	static void init_static(uint32_t samplingFreq, dunwahauto*);
-	static void run_static(uint32_t count, float *input0, float *output0, dunwahauto*);
-	static void clear_state_static(dunwahauto*);
 	dunwahauto();
 	~dunwahauto();
 };
-
-
 
 dunwahauto::dunwahauto() {
 }
@@ -110,17 +103,108 @@ inline void dunwahauto::run(uint32_t count, float *input0, float *output0)
 	}
 }
 
-void dunwahauto::run_static(uint32_t count, float *input0, float *output0, dunwahauto *p)
-{
-	p->run(count, input0, output0);
+//////////////////////////////////////////////////////////////////////
+
+class dunwah {
+private:
+	uint32_t fSamplingFreq;
+	float 	*fslider0_;
+	float 	fslider0;
+	int32_t 	iConst0;
+	double 	fConst1;
+	double 	fRec1[2];
+	double 	fConst2;
+	double 	fConst3;
+	double 	fRec2[2];
+	double 	fConst4;
+	double 	fRec3[2];
+	double 	fRec0[4];
+	double 	fConst5;
+	double 	fConst6;
+	double 	fConst7;
+	double 	fConst8;
+	double 	fConst9;
+	double 	fConst10;
+	double 	fConst11;
+public:
+    void clear_state_fd();
+	void init_d(uint32_t samplingFreq);
+	void run_d(uint32_t count, float *input0, float *output0);
+    void connect_d(uint32_t port,void* data);
+	dunwah();
+	~dunwah();
+};
+
+dunwah::dunwah() {
 }
 
-void dunwahauto::init_static(uint32_t samplingFreq, dunwahauto *p)
-{
-	p->init(samplingFreq);
+dunwah::~dunwah() {
 }
 
-void dunwahauto::clear_state_static(dunwahauto *p)
+inline void dunwah::clear_state_fd()
 {
-	p->clear_state_f();
+	for (int32_t i=0; i<2; i++) fRec1[i] = 0;
+	for (int32_t i=0; i<2; i++) fRec2[i] = 0;
+	for (int32_t i=0; i<2; i++) fRec3[i] = 0;
+	for (int32_t i=0; i<4; i++) fRec0[i] = 0;
 }
+
+void dunwah::connect_d(uint32_t port,void* data)
+{
+  switch ((EffectPortIndex)port)
+    {
+    case WAH:
+      fslider0_ = (float*)data;
+      break;
+    default:
+      break;
+    }
+}
+
+inline void dunwah::init_d(uint32_t samplingFreq)
+{
+	fSamplingFreq = samplingFreq;
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (0.007000000000000006 * ((iConst0 * (1.73888e-06 - (8.38823e-12 * iConst0))) - 0.193457));
+	fConst2 = (0.5 / iConst0);
+	fConst3 = (1.0 / iConst0);
+	fConst4 = exp((0 - (1236.9027460477864 / iConst0)));
+	fConst5 = (1.77528e-06 - (8.52216e-12 * iConst0));
+	fConst6 = (0.879905 + (iConst0 * fConst5));
+	fConst7 = (1.54419e-05 - (6.43963e-11 * iConst0));
+	fConst8 = ((iConst0 * fConst7) - 0.386688);
+	fConst9 = (fConst8 * (0 - (1.00038 * fConst6)));
+	fConst10 = ((fConst8 * fConst6) + (1.00038 * (fConst8 + fConst6)));
+	fConst11 = (0 - ((iConst0 * (fConst7 + fConst5)) + 1.4935970000000003));
+	clear_state_fd();
+}
+
+inline void dunwah::run_d(uint32_t count, float *input0, float *output0)
+{
+    fslider0 = (*fslider0_);
+	double 	fSlow0 = fslider0;
+	double 	fSlow1 = (fConst1 * (0 - ((1.0 / ((fSlow0 * (0.270546 + (fSlow0 * ((fSlow0 * (3.64419 + (fSlow0 * ((2.85511 * fSlow0) - 5.20364)))) - 0.86331)))) - 0.814203)) + 0.933975)));
+	double 	fSlow2 = (1973.48 - (1000 / ((fSlow0 * (1.9841 + (fSlow0 * (5.76598 + (fSlow0 * ((fSlow0 * (49.9836 + (fSlow0 * ((12.499 * fSlow0) - 40.3658)))) - 28.3434)))))) - 1.6086)));
+	double 	fSlow3 = (1 - (fConst2 * (fSlow2 / (21.9737 + (fSlow0 * ((fSlow0 * (42.2734 + (fSlow0 * ((fSlow0 * (115.375 - (52.3051 * fSlow0))) - 99.7712)))) - 24.555))))));
+	double 	fSlow4 = (0.007000000000000006 * (cos((fConst3 * fSlow2)) * (0 - (2.0 * fSlow3))));
+	double 	fSlow5 = (0.007000000000000006 * faustpower<2>(fSlow3));
+	for (uint32_t i=0; i<count; i++) {
+		fRec1[0] = (fSlow1 + (0.993 * fRec1[1]));
+		fRec2[0] = (fSlow4 + (0.993 * fRec2[1]));
+		fRec3[0] = (fSlow5 + (0.993 * fRec3[1]));
+		fRec0[0] = (0 - (((fRec0[1] * (fRec2[0] - fConst4)) + ((fConst4 * ((0 - fRec3[0]) * fRec0[3])) + (fRec0[2] * (fRec3[0] - (fConst4 * fRec2[0]))))) - ((double)input0[i] * fRec1[0])));
+		output0[i] = (float)((fConst11 * fRec0[1]) + ((fConst10 * fRec0[2]) + (fRec0[0] + (fConst9 * fRec0[3]))));
+		// post processing
+		for (int32_t i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+		fRec3[1] = fRec3[0];
+		fRec2[1] = fRec2[0];
+		fRec1[1] = fRec1[0];
+	}
+}
+
+class crybaby: public dunwahauto, public dunwah
+{
+  public:
+    crybaby(){};
+    ~crybaby(){};
+};

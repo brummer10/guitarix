@@ -24,3 +24,8 @@
     a lv2:Plugin ;
     lv2:binary <gxautowah@LIB_EXT@>  ;
     rdfs:seeAlso <gxautowah.ttl> .
+
+<http://guitarix.sourceforge.net/plugins/gxautowah#wah>
+    a lv2:Plugin ;
+    lv2:binary <gxautowah@LIB_EXT@>  ;
+    rdfs:seeAlso <gxautowah.ttl> .

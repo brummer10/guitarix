@@ -20,7 +20,7 @@
 
 class BassBooster {
 private:
-	int32_t fSamplingFreq;
+	uint32_t fSamplingFreq;
 	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;

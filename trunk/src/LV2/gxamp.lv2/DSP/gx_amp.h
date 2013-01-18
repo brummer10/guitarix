@@ -28,7 +28,7 @@
 class GxAmpMono
 {
 private:
-  int32_t         fSamplingFreq;
+  uint32_t         fSamplingFreq;
   float       fslider0;
   float       *fslider0_;
   double      fRec0[2];
@@ -164,7 +164,7 @@ public:
 class GxAmpStereo
 {
 private:
-  int32_t fSamplingFreq;
+  uint32_t fSamplingFreq;
   float 	fslider0;
   float	*fslider0_;
   double 	fRec0[2];

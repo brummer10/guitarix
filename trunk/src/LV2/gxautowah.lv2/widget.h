@@ -31,13 +31,39 @@
 
 class Widget : public Gtk::HBox
 {
+private:
+  float wah;
+  void set_value(uint32_t port_index,
+                 uint32_t format,
+                 const void * buffer);
+
+  void make_controller_box(Gtk::VBox *box,
+                           Gxw::Regler *regler,
+                           Glib::ustring label,
+                           float min, float max,
+                           float digits, float value,
+                           Glib::ustring plug_name);
 public:
+    // public Lv2 communication stuff
+  LV2UI_Controller controller;
+  LV2UI_Write_Function write_function;
+  static void set_value_static(uint32_t port_index,
+                               uint32_t buffer_size,
+                               uint32_t format,
+                               const void * buffer, Widget *self)
+  {
+    self->set_value(port_index,format,buffer);
+  }
+
   Widget(Glib::ustring plug_name);
   ~Widget();
 
 protected:
   Gxw::PaintBox  m_paintbox;
+  Gxw::HSlider   m_bigknob;
+  Gtk::VBox      m_vbox;
 
+  void on_knob_value_changed();
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

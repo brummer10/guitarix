@@ -32,6 +32,7 @@ typedef enum
 {
   AUTOWAH_OUTPUT,
   AUTOWAH_INPUT,
+  WAH,
 } EffectPortIndex;
 
 #endif //SRC_HEADERS_GXAUTOWAH_H_

@@ -24,7 +24,7 @@
 
 class ts9sim {
 private:
-	int32_t fSamplingFreq;
+	uint32_t fSamplingFreq;
     float 	*fslider0_;
 	float 	fslider0;
 	double 	fRec0[2];
