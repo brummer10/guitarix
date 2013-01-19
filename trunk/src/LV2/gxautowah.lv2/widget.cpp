@@ -33,8 +33,12 @@ Widget::Widget(Glib::ustring plug_name)
         &Widget::on_knob_value_changed));
 
       m_paintbox.pack_start(m_vbox);
+      set_size_request(225,157);
     } 
-  set_size_request(175,100);
+  else
+    {
+      set_size_request(175,100);
+    }
   set_app_paintable(true);
   show_all();
 }
@@ -60,9 +64,9 @@ void Widget::make_controller_box(Gtk::VBox *box,
   label_image += "-label.png";
   Gtk::Image *pr = new Gtk::Image(label_image);*/
 
-  Gtk::VBox* b1 = new Gtk::VBox();
-  box->set_border_width(5);
-  box->pack_start( *Gtk::manage(b1), Gtk::PACK_SHRINK);
+  //Gtk::VBox* b1 = new Gtk::VBox();
+  //box->set_border_width(5);
+  //box->pack_start( *Gtk::manage(b1), Gtk::PACK_SHRINK);
   //box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
   regler->cp_configure("KNOB", label, min, max, digits);
   regler->set_show_value(false);

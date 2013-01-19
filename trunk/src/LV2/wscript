@@ -92,6 +92,8 @@ def build(bld):
         'gxamp.lv2/GUI/ts9.png',
         'gxamp.lv2/GUI/ts9-knob.png',
         'gxamp.lv2/GUI/autowah.png',
+        'gxamp.lv2/GUI/wah.png',
+        'gxamp.lv2/GUI/wah-pedal.png',
         ]
 
     bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxlv2style_files, chmod=0o644)

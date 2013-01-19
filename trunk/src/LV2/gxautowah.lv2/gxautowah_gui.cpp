@@ -71,7 +71,8 @@ void GxautowahGUI::set_knob( Glib::ustring knob)
   addKnob +=  ".png'}}\n"
               "   stock['smallknobr'] = {{'";
   addKnob +=  knob;
-  addKnob +=  ".png'}}\n"
+  addKnob +=  ".png'}}\n";
+  addKnob +=  "GxKnob::framecount = 20\n"
               " }\n"
               "widget '*.";
   addKnob +=  plug_name;
@@ -124,12 +125,12 @@ void GxautowahGUI::set_plug_name( const char * plugin_uri)
     {
       plugskin = "autowah.png";
       plug_name = "autowah";
-      //set_knob("autowah-knob");
     }
   else if (strcmp("http://guitarix.sourceforge.net/plugins/gxautowah#wah", plugin_uri) == 0)
     {
-      plugskin = "autowah.png";
+      plugskin = "wah.png";
       plug_name = "wah";
+      set_knob("wah-pedal");
     }
   else 
     {
