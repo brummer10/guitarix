@@ -72,7 +72,7 @@ void GxautowahGUI::set_knob( Glib::ustring knob)
               "   stock['smallknobr'] = {{'";
   addKnob +=  knob;
   addKnob +=  ".png'}}\n";
-  addKnob +=  "GxKnob::framecount = 20\n"
+  addKnob +=  "GxKnob::framecount = 18\n"
               " }\n"
               "widget '*.";
   addKnob +=  plug_name;
