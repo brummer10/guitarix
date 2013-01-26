@@ -726,6 +726,7 @@ def build(bld):
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/zettberlin.gx', chmod=0o664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/autoandimat.gx', chmod=0o664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jp_n_o_s.gx', chmod=0o664)
+    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/kokoko3k.gx', chmod=0o664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe', chmod=0o664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe_mono', chmod=0o664)
     bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/flanger_mono_gx', chmod=0o664)
