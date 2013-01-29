@@ -1,5 +1,11 @@
-guitarix2 (0.26.0git) unstable; urgency=low
-  * git head
+guitarix2 (0.25.2) unstable; urgency=low
+  * add ts9 tube screamer to lv2.plugs
+  * add dunlop wah to lv2.plugs 
+  * add booster /treble/low to lv2.plugs
+  * add factory settings file contributed by kokoko3k
+  * add patch by Brendan Jones to set library install path
+  * fix lv2 build on non ix86 arch 
+  * switch to use fixed block-size in zita-convolver for all lv2 amps
   
  -- brummer <brummer-@web.de>  Fri, 31 Dec 2012 9:30:35 +0200 
 
