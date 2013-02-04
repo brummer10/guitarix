@@ -108,7 +108,6 @@ def set_options(opt):
                     const=True,
                     help='build with included local zita-convolver libary (Default NO)')
 
-
     comp.add_option('--no-ladspa',
                     action='store_const',
                     default=False,
@@ -120,6 +119,13 @@ def set_options(opt):
                     default=False,
                     const=True,
                     help=("don't build with new ladspa plugins"))
+
+    comp.add_option('--libdir',
+                   type='string',
+                   default='', 
+                   dest='libdir',
+                   help=('library install path '),
+                   )
 
     faust = opt.add_option_group("Faust-Compiler")
 
@@ -572,7 +578,11 @@ def configure(conf):
     # writing config.h
     conf.write_config_header('config.h')
 
-    conf.define('LIBDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib')))
+    if not opt.libdir:
+        conf.define('LIBDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib')))
+    else:
+        conf.define('LIBDIR', opt.libdir)
+
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
@@ -674,7 +684,8 @@ def configure(conf):
         display_msg("glade modules dir", conf.env['GLADE_MODULES_DIR'], 'CYAN')
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
-    
+    display_msg("Install library", conf.env['LIBDIR'], 'CYAN')
+
     if not opt.no_ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
     if opt.build_lv2:

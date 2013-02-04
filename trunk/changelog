@@ -2,6 +2,7 @@ gguitarix2 (0.26.0git) unstable; urgency=low
   * git head
   
  -- brummer <brummer-@web.de>  Fri, 31 Dec 2012 9:30:35 +0200 
+
 uitarix2 (0.25.2) unstable; urgency=low
   * add ts9 tube screamer to lv2.plugs
   * add dunlop wah to lv2.plugs 
