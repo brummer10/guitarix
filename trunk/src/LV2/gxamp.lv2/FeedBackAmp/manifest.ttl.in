@@ -22,15 +22,15 @@
 
 <http://guitarix.sourceforge.net/plugins/gxamp#12ax7f>
     a lv2:Plugin ;
-    lv2:binary <gxamp_feedback.so>  ;
+    lv2:binary <gxamp_feedback@LIB_EXT@>  ;
     rdfs:seeAlso <gxamp_feedback.ttl> .
 
 <http://guitarix.sourceforge.net/plugins/gxamp#12AT7f>
     a lv2:Plugin ;
-    lv2:binary <gxamp_feedback.so>  ;
+    lv2:binary <gxamp_feedback@LIB_EXT@>  ;
     rdfs:seeAlso <gxamp_feedback.ttl> .
 
 <http://guitarix.sourceforge.net/plugins/gxamp#6DJ8f>
     a lv2:Plugin ;
-    lv2:binary <gxamp_feedback.so>  ;
+    lv2:binary <gxamp_feedback@LIB_EXT@>  ;
     rdfs:seeAlso <gxamp_feedback.ttl> .
