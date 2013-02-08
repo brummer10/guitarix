@@ -46,6 +46,9 @@ public:
   void        run(uint32_t n_samples, float *output);
   void        run_soldano(uint32_t n_samples, float *output);
   void        run_ampeg(uint32_t n_samples, float *output);
+  void        run_ac30(uint32_t n_samples, float *output); 
+  void        run_bogner(uint32_t n_samples, float *output);
+  void        run_jcm2000(uint32_t n_samples, float *output);
   static void init_static(uint32_t samplingFreq, TonestackMono *p);
   static void connect_static(uint32_t port,void* data, TonestackMono *p);
   //static void run_static(uint32_t n_samples, TonestackMono*, float *output);

@@ -18,7 +18,7 @@
  */
 
 
-#include "widget.h"
+#include "widget_feedback.h"
 
 #include <iostream>
 
@@ -38,25 +38,25 @@ Widget::Widget(Glib::ustring plug_name)
   
 
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(30);
+  m_paintbox.set_border_width(32);
   m_paintbox.set_spacing(12);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "amp_skin_expose";
   add(m_paintbox);
   // box for the controllers
-  m_hbox_.set_spacing(12);
+  m_hbox_.set_spacing(8);
   m_hbox_.set_homogeneous(false);
   // this box set space for the upper part of the skin
   m_hbox1_.set_spacing(12);
   m_hbox1_.set_border_width(65);
   // set a vertical box in the paintbox
   m_paintbox.pack_start(m_vbox_);
-  // and put space box on top
-  m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
   // and controller box on bottem
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
-
+  // and put space box on top
+  m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
+  
   // create all controllers
   make_controller_box(&m_vbox, &m_bigknob, "mastergain", -20, 20, 0.1, mastergain, plug_name);
   m_bigknob.signal_value_changed().connect(sigc::mem_fun(*this,
@@ -73,6 +73,10 @@ Widget::Widget(Glib::ustring plug_name)
   make_controller_box(&m_vbox3, &m_bigknob3, "drive", 0.01, 1, 0.01, drive, plug_name);
   m_bigknob3.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob3_value_changed));
+
+  make_controller_box(&m_vbox9, &m_smallknob6, "feedback", -0.6, 0.2, 0.01, feedback, plug_name);
+  m_smallknob6.signal_value_changed().connect(sigc::mem_fun(*this,
+      &Widget::on_knob9_value_changed));
 
   make_controller_box(&m_vbox4, &m_smallknob1, "mid", 0, 1, 0.01, mid, plug_name);
   m_smallknob1.signal_value_changed().connect(sigc::mem_fun(*this,
@@ -101,6 +105,7 @@ Widget::Widget(Glib::ustring plug_name)
   m_hbox_.pack_start(m_vbox3);
   m_hbox_.pack_start(m_vbox7);
   m_hbox_.pack_start(m_vbox8);
+  m_hbox_.pack_start(m_vbox9);
   m_hbox_.pack_start(m_vbox);
   // etxra box for the boxed tonestack controllers
   m_hbox.set_border_width(8);
@@ -131,14 +136,9 @@ void Widget::make_controller_box(Gtk::VBox *box,
                                  float digits, float value,
                                  Glib::ustring plug_name)
 {
-  //Gtk::Label* pr = new Gtk::Label(label, 0);
-  //pr->set_name("amplabel");
-  Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-  label_image += "/";
-  label_image += label;
-  label_image += "-label.png";
-  Gtk::Image *pr = new Gtk::Image(label_image);
-
+  Gtk::Label* pr = new Gtk::Label(label, 0);
+  pr->set_name("amplabel");
+  
   Gtk::VBox* b1 = new Gtk::VBox();
   box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
   box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
@@ -185,6 +185,10 @@ void Widget::set_value(uint32_t port_index,
         case AMP_DRIVE:
           drive = value;
           m_bigknob3.cp_set_value(drive);
+          break;
+        case AMP_FEEDBACK:
+          feedback = value;
+          m_smallknob6.cp_set_value(feedback);
           break;
         case MID:
           mid = value;
@@ -282,4 +286,12 @@ void Widget::on_knob8_value_changed()
   //std::cout << "treble = " << alevel << std::endl;
   write_function(controller, (PortIndex)ALevel,
                  sizeof(float), 0, (const void*)&alevel);
+}
+
+void Widget::on_knob9_value_changed()
+{
+  feedback = m_smallknob6.get_value();
+  //std::cout << "treble = " << alevel << std::endl;
+  write_function(controller, (PortIndex)AMP_FEEDBACK,
+                 sizeof(float), 0, (const void*)&feedback);
 }

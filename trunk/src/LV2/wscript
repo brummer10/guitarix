@@ -48,6 +48,8 @@ def configure(conf):
     sub_file('./src/LV2/gxamp.lv2/manifest.ttl.in', './src/LV2/gxamp.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxamp.lv2/StereoAmp');
     sub_file('./src/LV2/gxamp.lv2/StereoAmp/manifest_stereo.ttl.in', './src/LV2/gxamp.lv2/StereoAmp/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+    conf.sub_config('gxamp.lv2/FeedBackAmp');
+    sub_file('./src/LV2/gxamp.lv2/FeedBackAmp/manifest.ttl.in', './src/LV2/gxamp.lv2/FeedBackAmp/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxts9.lv2');
     sub_file('./src/LV2/gxts9.lv2/manifest.ttl.in', './src/LV2/gxts9.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxbooster.lv2');
@@ -58,6 +60,7 @@ def configure(conf):
 def build(bld):
     bld.add_subdirs('gxamp.lv2')
     bld.add_subdirs('gxamp.lv2/StereoAmp')
+    bld.add_subdirs('gxamp.lv2/FeedBackAmp')
     bld.add_subdirs('gxts9.lv2')
     bld.add_subdirs('gxbooster.lv2')
     bld.add_subdirs('gxautowah.lv2')
@@ -68,6 +71,9 @@ def build(bld):
         'gxamp.lv2/GUI/amp23.png',
         'gxamp.lv2/GUI/amp24.png',
         'gxamp.lv2/GUI/amp25.png',
+        'gxamp.lv2/GUI/amp26.png',
+        'gxamp.lv2/GUI/amp27.png',
+        'gxamp.lv2/GUI/amp28.png',
         'gxamp.lv2/GUI/mastergain-label.png',
         'gxamp.lv2/GUI/pregain-label.png',
         'gxamp.lv2/GUI/drive-label.png',
@@ -87,6 +93,8 @@ def build(bld):
         'gxamp.lv2/GUI/black-knob.png',
         'gxamp.lv2/GUI/black-knob-middle.png',
         'gxamp.lv2/GUI/black-knob-small.png',
+        'gxamp.lv2/GUI/mc-knob-middle.png',
+        'gxamp.lv2/GUI/mc-knob-small.png',
         'gxamp.lv2/GUI/booster.png',
         'gxamp.lv2/GUI/booster-knob.png',
         'gxamp.lv2/GUI/ts9.png',

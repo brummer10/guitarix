@@ -136,9 +136,9 @@
         lv2:index 8 ;
         lv2:symbol "fslider0_" ;
         lv2:name "Presence";
-        lv2:default 10.0 ;
+        lv2:default 5.0 ;
         lv2:minimum 1.0 ;
-        lv2:maximum 20.0 ;
+        lv2:maximum 10.0 ;
     ] , [
         a lv2:InputPort ,
             atom:AtomPort ;
@@ -264,9 +264,9 @@
         lv2:index 8 ;
         lv2:symbol "fslider0_" ;
         lv2:name "Presence";
-        lv2:default 10.0 ;
+        lv2:default 5.0 ;
         lv2:minimum 1.0 ;
-        lv2:maximum 20.0 ;
+        lv2:maximum 10.0 ;
     ] , [
         a lv2:InputPort ,
             atom:AtomPort ;
@@ -392,9 +392,9 @@
         lv2:index 8 ;
         lv2:symbol "fslider0_" ;
         lv2:name "Presence";
-        lv2:default 10.0 ;
+        lv2:default 5.0 ;
         lv2:minimum 1.0 ;
-        lv2:maximum 20.0 ;
+        lv2:maximum 10.0 ;
     ] , [
         a lv2:InputPort ,
             atom:AtomPort ;
@@ -520,9 +520,9 @@
         lv2:index 8 ;
         lv2:symbol "fslider0_" ;
         lv2:name "Presence";
-        lv2:default 10.0 ;
+        lv2:default 5.0 ;
         lv2:minimum 1.0 ;
-        lv2:maximum 20.0 ;
+        lv2:maximum 10.0 ;
     ] , [
         a lv2:InputPort ,
             atom:AtomPort ;
@@ -648,9 +648,9 @@
         lv2:index 8 ;
         lv2:symbol "fslider0_" ;
         lv2:name "Presence";
-        lv2:default 10.0 ;
+        lv2:default 5.0 ;
         lv2:minimum 1.0 ;
-        lv2:maximum 20.0 ;
+        lv2:maximum 10.0 ;
     ] , [
         a lv2:InputPort ,
             atom:AtomPort ;

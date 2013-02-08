@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import sys, os, TaskGen, ctypes
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bundle7 = 'gxamp_feedback.lv2'
+    
+    src2 = ['gxamp_feedback.cpp',
+           '../DSP/gx_resampler.cc',
+           '../DSP/gx_convolver.cc'
+           ]
+    incl2 = ['../../','./','../', '../DSP']
+    lib2 = []
+    if sys.platform.startswith("linux"):
+        lib2.append('dl')
+    uselib2 = ['LV2CORE','GLIBMM']
+    if bld.env['ZITA_CONVOLVER']:
+        uselib2.append('ZITA_CONVOLVER')
+    else:
+        src2.append('../../../zita-convolver/zita-convolver.cc')
+        incl2.append('../../../zita-convolver');
+        uselib2.append('FFTW3')
+    if bld.env['ZITA_RESAMPLER']:
+        uselib2.append('ZITA_RESAMPLER')
+    else:
+        src2.append('../../../zita-resampler-1.1.0/resampler.cc')
+        src2.append('../../../zita-resampler-1.1.0/resampler-table.cc')
+        incl2.append('../../../zita-resampler-1.1.0')
+    cxxflag2 =[]
+    if not bld.env['OPT'] and bld.env['SSE2']:
+        cxxflag2 = [ "-msse2", "-mfpmath=sse"]
+    lv2_plugin_feedback = bld(
+        features='cxx cshlib ',
+        includes = incl2,
+        lib = lib2,
+        uselib = uselib2,
+        obj_ext  = '_4.o',
+        cxxflags = cxxflag2,
+        defines  = ["LV2_SO"],
+        target   = 'gxamp_feedback',
+        source   = src2,
+        install_path = '${LV2DIR}/%s' % bundle7,
+        chmod = 0o755,
+        )
+    lv2_plugin_feedback.env['shlib_PATTERN'] = '%s.so'
+    
+    uselib_local7 = []
+    libpath7 = []
+    lib7 = []
+    incl7 = ['../../../../libgxwmm','../../../../libgxw','../']
+    if sys.platform.startswith("linux"):
+        lib7.append('dl')
+    if bld.env["GX_LIB_SHARED"]:
+        lib7 += ['gxwmm','gxw']
+        libpath7 += [bld.path.find_dir("../../../../libgxw/gxw").bldpath(bld.env),
+                    bld.path.find_dir("../../../../libgxwmm/gxwmm").bldpath(bld.env)]
+    else:
+        uselib_local7 += ['gxwmm','gxw']
+    
+    lv2_plugin_gui_feedback = bld(
+        features='cxx cshlib ',
+        includes = incl7,
+        lib = lib7,
+        uselib = 'LV2CORE GTKMM',
+        libpath = libpath7,
+        obj_ext  = '_4.o',
+        uselib_local = uselib_local7,
+        linkflags = '-Wl,-z,nodelete',
+        defines  = ["LV2_GUI"],
+        target   = 'gxamp_gui_feedback',
+        source   = 'widget_feedback.cpp gxamp_feedback_gui.cpp',
+        install_path = '${LV2DIR}/%s' % bundle7,
+        chmod = 0o755,
+        )
+    lv2_plugin_gui_feedback.env['shlib_PATTERN'] = '%s.so'
+
+    
+    install_path = '${LV2DIR}/%s' % bundle7,
+    bld.install_files('${LV2DIR}/gxamp_feedback.lv2', 'manifest.ttl')
+    bld.install_files('${LV2DIR}/gxamp_feedback.lv2', 'gxamp_feedback.ttl')
+    

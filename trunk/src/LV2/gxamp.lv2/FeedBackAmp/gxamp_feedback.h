@@ -16,19 +16,42 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * --------------------------------------------------------------------------
  */
-#include <stdint.h>
-// level 1 - 10 
-class Ampf
-{
-public:
-  inline void  compute(int32_t count, float *input0, float *output0, float value) {
-    double 	fSlow0 = value*0.5;
-	double 	fSlow1 = (fSlow0 * pow(10,(0 - (0.1 * fSlow0))));
-	for (int i=0; i<count; i++) {
-		output0[i] = fSlow1 * input0[i];
-	}
-  };
-  Ampf() {};
-  ~Ampf() {};
-};
 
+#pragma once
+
+#ifndef SRC_HEADERS_GXAMP_H_
+#define SRC_HEADERS_GXAMP_H_
+
+#include <lv2.h>
+#include <lv2/lv2plug.in/ns/ext/buf-size/buf-size.h>
+#include <lv2/lv2plug.in/ns/ext/options/options.h>
+#include <lv2/lv2plug.in/ns/ext/atom/atom.h>
+#include <lv2/lv2plug.in/ns/ext/log/log.h>
+#include <lv2/lv2plug.in/ns/ext/worker/worker.h>
+#include <lv2/lv2plug.in/ns/ext/urid/urid.h>
+
+#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxamp"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxamp#gui"
+
+
+typedef enum
+{
+  AMP_MASTERGAIN = 0,
+  AMP_PREGAIN,
+  AMP_WET_DRY,
+  AMP_DRIVE,
+  AMP_FEEDBACK,
+  MID,
+  BASS,
+  TREBLE,
+  CLevel,
+  ALevel,
+  AMP_CONTROL,
+  AMP_NOTIFY,
+  AMP_OUTPUT,
+  AMP_INPUT,
+  AMP_OUTPUT1,
+  AMP_INPUT1,
+} PortIndex;
+
+#endif //SRC_HEADERS_GXAMP_H_

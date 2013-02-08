@@ -41,11 +41,11 @@
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
 	doap:name "GxAmplifier" .
 
-<http://guitarix.sourceforge.net/plugins/gxamp#12ax7_stereo>
+<http://guitarix.sourceforge.net/plugins/gxamp#12ax7f>
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier stereo";
+    doap:name "GxAmplifier-FB";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
     lv2:optionalFeature lv2:hardRTCapable ;
@@ -62,62 +62,62 @@
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 0 ;
-        lv2:symbol "fslider0_" ;
+        lv2:symbol "MG" ;
         lv2:name "MasterGain";
         lv2:default -15.0 ;
         lv2:minimum -20.0 ;
         lv2:maximum 20.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 1 ;
-        lv2:symbol "fslider1_" ;
+        lv2:symbol "PG" ;
         lv2:name "PreGain";
         lv2:default -15.0 ;
         lv2:minimum -20.0 ;
         lv2:maximum 20.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 2 ;
-        lv2:symbol "fslider2_" ;
+        lv2:symbol "DIS" ;
         lv2:name "Distortion";
         lv2:default 20.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 100.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
-        lv2:symbol "fslider3_" ;
+        lv2:symbol "DRI" ;
         lv2:name "Drive";
         lv2:default 0.25 ;
         lv2:minimum 0.01 ;
         lv2:maximum 1.0 ;
-    ] ,[
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 4 ;
-        lv2:symbol "fslider0_" ;
+        lv2:symbol "FE" ;
+        lv2:name "Feeback";
+        lv2:default -0.25 ;
+        lv2:minimum -0.6 ;
+        lv2:maximum 0.2 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "MI" ;
         lv2:name "Middle";
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 5 ;
-        lv2:symbol "fslider1_" ;
-        lv2:name "Bass";
-        lv2:default 0.5 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 6 ;
-        lv2:symbol "fslider2_" ;
-        lv2:name "Treble";
+        lv2:symbol "BA" ;
+        lv2:name "Bass";
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
@@ -125,7 +125,16 @@
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 7 ;
-        lv2:symbol "fslider0_" ;
+        lv2:symbol "TR" ;
+        lv2:name "Treble";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "CA" ;
         lv2:name "Cabinet";
         lv2:default 10.0 ;
         lv2:minimum 1.0 ;
@@ -133,8 +142,8 @@
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 8 ;
-        lv2:symbol "fslider0_" ;
+        lv2:index 9 ;
+        lv2:symbol "PR" ;
         lv2:name "Presence";
         lv2:default 5.0 ;
         lv2:minimum 1.0 ;
@@ -144,7 +153,7 @@
             atom:AtomPort ;
         atom:bufferType atom:Sequence ;
         atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 9 ;
+        lv2:index 10 ;
         lv2:symbol "control" ;
         lv2:name "Control"
     ] , [
@@ -152,40 +161,28 @@
             atom:AtomPort ;
         atom:bufferType atom:Sequence ;
         atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 10 ;
+        lv2:index 11 ;
         lv2:symbol "notify" ;
         lv2:name "Notify"
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 11 ;
+        lv2:index 12 ;
         lv2:symbol "out" ;
         lv2:name "Out"
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 12 ;
+        lv2:index 13 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:OutputPort ;
-        lv2:index 13 ;
-        lv2:symbol "out1" ;
-        lv2:name "Out1"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:InputPort ;
-        lv2:index 14 ;
-        lv2:symbol "in1" ;
-        lv2:name "in1"
-    ] .
+    ].
 
-<http://guitarix.sourceforge.net/plugins/gxamp#12AT7_stereo>
+<http://guitarix.sourceforge.net/plugins/gxamp#12AT7f>
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier-II stereo";
+    doap:name "GxAmplifier-FB-I";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
     lv2:optionalFeature lv2:hardRTCapable ;
@@ -202,62 +199,62 @@
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 0 ;
-        lv2:symbol "fslider0_" ;
+        lv2:symbol "MG" ;
         lv2:name "MasterGain";
         lv2:default -15.0 ;
         lv2:minimum -20.0 ;
         lv2:maximum 20.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 1 ;
-        lv2:symbol "fslider1_" ;
+        lv2:symbol "PG" ;
         lv2:name "PreGain";
         lv2:default -15.0 ;
         lv2:minimum -20.0 ;
         lv2:maximum 20.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 2 ;
-        lv2:symbol "fslider2_" ;
+        lv2:symbol "DIS" ;
         lv2:name "Distortion";
         lv2:default 20.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 100.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
-        lv2:symbol "fslider3_" ;
+        lv2:symbol "DRI" ;
         lv2:name "Drive";
         lv2:default 0.25 ;
         lv2:minimum 0.01 ;
         lv2:maximum 1.0 ;
-    ] ,[
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 4 ;
-        lv2:symbol "fslider0_" ;
+        lv2:symbol "FE" ;
+        lv2:name "Feeback";
+        lv2:default -0.25 ;
+        lv2:minimum -0.6 ;
+        lv2:maximum 0.2 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "MI" ;
         lv2:name "Middle";
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 5 ;
-        lv2:symbol "fslider1_" ;
-        lv2:name "Bass";
-        lv2:default 0.5 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 6 ;
-        lv2:symbol "fslider2_" ;
-        lv2:name "Treble";
+        lv2:symbol "BA" ;
+        lv2:name "Bass";
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
@@ -265,7 +262,16 @@
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 7 ;
-        lv2:symbol "fslider0_" ;
+        lv2:symbol "TR" ;
+        lv2:name "Treble";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "CA" ;
         lv2:name "Cabinet";
         lv2:default 10.0 ;
         lv2:minimum 1.0 ;
@@ -273,8 +279,8 @@
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 8 ;
-        lv2:symbol "fslider0_" ;
+        lv2:index 9 ;
+        lv2:symbol "PR" ;
         lv2:name "Presence";
         lv2:default 5.0 ;
         lv2:minimum 1.0 ;
@@ -284,7 +290,7 @@
             atom:AtomPort ;
         atom:bufferType atom:Sequence ;
         atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 9 ;
+        lv2:index 10 ;
         lv2:symbol "control" ;
         lv2:name "Control"
     ] , [
@@ -292,40 +298,28 @@
             atom:AtomPort ;
         atom:bufferType atom:Sequence ;
         atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 10 ;
+        lv2:index 11 ;
         lv2:symbol "notify" ;
         lv2:name "Notify"
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 11 ;
+        lv2:index 12 ;
         lv2:symbol "out" ;
         lv2:name "Out"
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 12 ;
+        lv2:index 13 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:OutputPort ;
-        lv2:index 13 ;
-        lv2:symbol "out1" ;
-        lv2:name "Out1"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:InputPort ;
-        lv2:index 14 ;
-        lv2:symbol "in1" ;
-        lv2:name "in1"
-    ] .
+    ].
 
-<http://guitarix.sourceforge.net/plugins/gxamp#6C16_stereo>
+<http://guitarix.sourceforge.net/plugins/gxamp#6DJ8f>
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier-III stereo";
+    doap:name "GxAmplifier-FB-II";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
     lv2:optionalFeature lv2:hardRTCapable ;
@@ -342,62 +336,62 @@
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 0 ;
-        lv2:symbol "fslider0_" ;
+        lv2:symbol "MG" ;
         lv2:name "MasterGain";
         lv2:default -15.0 ;
         lv2:minimum -20.0 ;
         lv2:maximum 20.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 1 ;
-        lv2:symbol "fslider1_" ;
+        lv2:symbol "PG" ;
         lv2:name "PreGain";
         lv2:default -15.0 ;
         lv2:minimum -20.0 ;
         lv2:maximum 20.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 2 ;
-        lv2:symbol "fslider2_" ;
+        lv2:symbol "DIS" ;
         lv2:name "Distortion";
         lv2:default 20.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 100.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
-        lv2:symbol "fslider3_" ;
+        lv2:symbol "DRI" ;
         lv2:name "Drive";
         lv2:default 0.25 ;
         lv2:minimum 0.01 ;
         lv2:maximum 1.0 ;
-    ] ,[
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 4 ;
-        lv2:symbol "fslider0_" ;
+        lv2:symbol "FE" ;
+        lv2:name "Feeback";
+        lv2:default -0.25 ;
+        lv2:minimum -0.6 ;
+        lv2:maximum 0.2 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "MI" ;
         lv2:name "Middle";
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 5 ;
-        lv2:symbol "fslider1_" ;
-        lv2:name "Bass";
-        lv2:default 0.5 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
-    ] ,     [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 6 ;
-        lv2:symbol "fslider2_" ;
-        lv2:name "Treble";
+        lv2:symbol "BA" ;
+        lv2:name "Bass";
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
@@ -405,7 +399,16 @@
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 7 ;
-        lv2:symbol "fslider0_" ;
+        lv2:symbol "TR" ;
+        lv2:name "Treble";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "CA" ;
         lv2:name "Cabinet";
         lv2:default 10.0 ;
         lv2:minimum 1.0 ;
@@ -413,8 +416,8 @@
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 8 ;
-        lv2:symbol "fslider0_" ;
+        lv2:index 9 ;
+        lv2:symbol "PR" ;
         lv2:name "Presence";
         lv2:default 5.0 ;
         lv2:minimum 1.0 ;
@@ -424,7 +427,7 @@
             atom:AtomPort ;
         atom:bufferType atom:Sequence ;
         atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 9 ;
+        lv2:index 10 ;
         lv2:symbol "control" ;
         lv2:name "Control"
     ] , [
@@ -432,334 +435,38 @@
             atom:AtomPort ;
         atom:bufferType atom:Sequence ;
         atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 10 ;
+        lv2:index 11 ;
         lv2:symbol "notify" ;
         lv2:name "Notify"
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 11 ;
+        lv2:index 12 ;
         lv2:symbol "out" ;
         lv2:name "Out"
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 12 ;
+        lv2:index 13 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:OutputPort ;
-        lv2:index 13 ;
-        lv2:symbol "out1" ;
-        lv2:name "Out1"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:InputPort ;
-        lv2:index 14 ;
-        lv2:symbol "in1" ;
-        lv2:name "in1"
-    ] .
-
-<http://guitarix.sourceforge.net/plugins/gxamp#6V6_stereo>
-    a lv2:Plugin ,
-        lv2:AmplifierPlugin ;
-    doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier-IV stereo";
-    doap:license <http://opensource.org/licenses/isc> ;
-    lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
-    lv2:optionalFeature lv2:hardRTCapable ;
-    lv2:requiredFeature urid:map ,
-        bufsz:boundedBlockLength ,
-        work:schedule ;
-    bufsz:minBlockLength 64 ;
-    bufsz:maxBlockLength 8192 ;
-    lv2:extensionData work:interface ;
-
-  guiext:ui <http://guitarix.sourceforge.net/plugins/gxamp#gui>;
-  
-    lv2:port [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 0 ;
-        lv2:symbol "fslider0_" ;
-        lv2:name "MasterGain";
-        lv2:default -15.0 ;
-        lv2:minimum -20.0 ;
-        lv2:maximum 20.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 1 ;
-        lv2:symbol "fslider1_" ;
-        lv2:name "PreGain";
-        lv2:default -15.0 ;
-        lv2:minimum -20.0 ;
-        lv2:maximum 20.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 2 ;
-        lv2:symbol "fslider2_" ;
-        lv2:name "Distortion";
-        lv2:default 20.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 100.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 3 ;
-        lv2:symbol "fslider3_" ;
-        lv2:name "Drive";
-        lv2:default 0.25 ;
-        lv2:minimum 0.01 ;
-        lv2:maximum 1.0 ;
-    ] ,[
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 4 ;
-        lv2:symbol "fslider0_" ;
-        lv2:name "Middle";
-        lv2:default 0.5 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 5 ;
-        lv2:symbol "fslider1_" ;
-        lv2:name "Bass";
-        lv2:default 0.5 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 6 ;
-        lv2:symbol "fslider2_" ;
-        lv2:name "Treble";
-        lv2:default 0.5 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
-    ] , [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 7 ;
-        lv2:symbol "fslider0_" ;
-        lv2:name "Cabinet";
-        lv2:default 10.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 20.0 ;
-    ] , [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 8 ;
-        lv2:symbol "fslider0_" ;
-        lv2:name "Presence";
-        lv2:default 5.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 10.0 ;
-    ] , [
-        a lv2:InputPort ,
-            atom:AtomPort ;
-        atom:bufferType atom:Sequence ;
-        atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 9 ;
-        lv2:symbol "control" ;
-        lv2:name "Control"
-    ] , [
-        a lv2:OutputPort ,
-            atom:AtomPort ;
-        atom:bufferType atom:Sequence ;
-        atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 10 ;
-        lv2:symbol "notify" ;
-        lv2:name "Notify"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:OutputPort ;
-        lv2:index 11 ;
-        lv2:symbol "out" ;
-        lv2:name "Out"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:InputPort ;
-        lv2:index 12 ;
-        lv2:symbol "in" ;
-        lv2:name "in"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:OutputPort ;
-        lv2:index 13 ;
-        lv2:symbol "out1" ;
-        lv2:name "Out1"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:InputPort ;
-        lv2:index 14 ;
-        lv2:symbol "in1" ;
-        lv2:name "in1"
-    ] .
-
-<http://guitarix.sourceforge.net/plugins/gxamp#6DJ8_stereo>
-    a lv2:Plugin ,
-        lv2:AmplifierPlugin ;
-    doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier-V stereo";
-    doap:license <http://opensource.org/licenses/isc> ;
-    lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
-    lv2:optionalFeature lv2:hardRTCapable ;
-    lv2:requiredFeature urid:map ,
-        bufsz:boundedBlockLength ,
-        work:schedule ;
-    bufsz:minBlockLength 64 ;
-    bufsz:maxBlockLength 8192 ;
-    lv2:extensionData work:interface ;
-
-  guiext:ui <http://guitarix.sourceforge.net/plugins/gxamp#gui>;
-  
-    lv2:port [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 0 ;
-        lv2:symbol "fslider0_" ;
-        lv2:name "MasterGain";
-        lv2:default -15.0 ;
-        lv2:minimum -20.0 ;
-        lv2:maximum 20.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 1 ;
-        lv2:symbol "fslider1_" ;
-        lv2:name "PreGain";
-        lv2:default -15.0 ;
-        lv2:minimum -20.0 ;
-        lv2:maximum 20.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 2 ;
-        lv2:symbol "fslider2_" ;
-        lv2:name "Distortion";
-        lv2:default 20.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 100.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 3 ;
-        lv2:symbol "fslider3_" ;
-        lv2:name "Drive";
-        lv2:default 0.25 ;
-        lv2:minimum 0.01 ;
-        lv2:maximum 1.0 ;
-    ] ,[
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 4 ;
-        lv2:symbol "fslider0_" ;
-        lv2:name "Middle";
-        lv2:default 0.5 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 5 ;
-        lv2:symbol "fslider1_" ;
-        lv2:name "Bass";
-        lv2:default 0.5 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
-    ] ,     [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 6 ;
-        lv2:symbol "fslider2_" ;
-        lv2:name "Treble";
-        lv2:default 0.5 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
-    ] , [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 7 ;
-        lv2:symbol "fslider0_" ;
-        lv2:name "Cabinet";
-        lv2:default 10.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 20.0 ;
-    ] , [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 8 ;
-        lv2:symbol "fslider0_" ;
-        lv2:name "Presence";
-        lv2:default 5.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 10.0 ;
-    ] , [
-        a lv2:InputPort ,
-            atom:AtomPort ;
-        atom:bufferType atom:Sequence ;
-        atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 9 ;
-        lv2:symbol "control" ;
-        lv2:name "Control"
-    ] , [
-        a lv2:OutputPort ,
-            atom:AtomPort ;
-        atom:bufferType atom:Sequence ;
-        atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
-        lv2:index 10 ;
-        lv2:symbol "notify" ;
-        lv2:name "Notify"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:OutputPort ;
-        lv2:index 11 ;
-        lv2:symbol "out" ;
-        lv2:name "Out"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:InputPort ;
-        lv2:index 12 ;
-        lv2:symbol "in" ;
-        lv2:name "in"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:OutputPort ;
-        lv2:index 13 ;
-        lv2:symbol "out1" ;
-        lv2:name "Out1"
-    ] , [
-        a lv2:AudioPort ,
-            lv2:InputPort ;
-        lv2:index 14 ;
-        lv2:symbol "in1" ;
-        lv2:name "in1"
-    ] .
+    ].
 
 <http://guitarix.sourceforge.net/plugins/gxamp#gui>
   a guiext:GtkUI;
-  guiext:binary <gxamp_gui_stereo.so>;
+  guiext:binary <gxamp_gui_feedback.so>;
   guiext:requiredFeature guiext:makeResident;
   lv2:extensionData work:interface ;
   guiext:portNotification [
-        guiext:plugin <http://guitarix.sourceforge.net/plugins/gxamp#12ax7>;
+        guiext:plugin <http://guitarix.sourceforge.net/plugins/gxamp#12ax7f>;
         lv2:symbol "notify" ;
         guiext:notifyType atom:Blank
   ] , [
-        guiext:plugin <http://guitarix.sourceforge.net/plugins/gxamp#12AT7>;
+        guiext:plugin <http://guitarix.sourceforge.net/plugins/gxamp#12AT7f>;
         lv2:symbol "notify" ;
         guiext:notifyType atom:Blank
   ] , [
-        guiext:plugin <http://guitarix.sourceforge.net/plugins/gxamp#6C16>;
-        lv2:symbol "notify" ;
-        guiext:notifyType atom:Blank
-  ] , [
-        guiext:plugin <http://guitarix.sourceforge.net/plugins/gxamp#6V6>;
+        guiext:plugin <http://guitarix.sourceforge.net/plugins/gxamp#6DJ8f>;
         lv2:symbol "notify" ;
         guiext:notifyType atom:Blank
   ] .

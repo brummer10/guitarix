@@ -223,6 +223,129 @@ inline void TonestackMono::run_ampeg(uint32_t n_samples, float *output)   //ampe
     }
 }
 
+inline void TonestackMono::run_ac30(uint32_t n_samples, float *output)   //ac30
+{
+    fslider0 = (*fslider0_);
+    fslider1 = (*fslider1_);
+    fslider2 = (*fslider2_);
+	double 	fSlow0 = fslider0;
+	double 	fSlow1 = (4.851e-08 * fSlow0);
+	double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+	double 	fSlow3 = (7.172000000000001e-07 + ((4.972000000000001e-05 * fSlow2) + (fSlow0 * (((4.8510000000000015e-06 * fSlow2) - 4.2449000000000006e-07) - fSlow1))));
+	double 	fSlow4 = ((2.6620000000000007e-10 * fSlow2) - (2.662e-12 * fSlow0));
+	double 	fSlow5 = (2.4200000000000003e-09 * fSlow2);
+	double 	fSlow6 = (2.4200000000000004e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 2.1538000000000003e-11))));
+	double 	fSlow7 = (fConst0 * fSlow6);
+	double 	fSlow8 = (0.00022 * fSlow0);
+	double 	fSlow9 = (0.022050000000000004 * fSlow2);
+	double 	fSlow10 = (fConst0 * (0.0046705 + (fSlow9 + fSlow8)));
+	double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+	double 	fSlow12 = (fConst2 * fSlow6);
+	double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+	double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+	double 	fSlow16 = fslider2;
+	double 	fSlow17 = ((fSlow0 * (2.662e-12 + fSlow4)) + (fSlow16 * (fSlow5 + (2.4200000000000004e-11 - (2.4200000000000004e-11 * fSlow0)))));
+	double 	fSlow18 = (fConst2 * fSlow17);
+	double 	fSlow19 = (1.32e-08 + (((2.2000000000000004e-07 * fSlow16) + (fSlow0 * (5.951000000000001e-08 - fSlow1))) + (fSlow2 * (1.32e-06 + (4.8510000000000015e-06 * fSlow0)))));
+	double 	fSlow20 = (0.00022050000000000002 + (fSlow9 + (fSlow8 + (5e-05 * fSlow16))));
+	double 	fSlow21 = (fConst0 * fSlow20);
+	double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+	double 	fSlow23 = (fConst0 * fSlow17);
+	double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+	double 	fSlow25 = (fConst0 * (0 - fSlow20));
+	double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+	double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+	for (uint32_t i=0; i<n_samples; i++) {
+		fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+		output[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+		// post processing
+		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+	}
+}
+
+inline void TonestackMono::run_bogner(uint32_t n_samples, float *output)   //bogener
+{
+    fslider0 = (*fslider0_);
+    fslider1 = (*fslider1_);
+    fslider2 = (*fslider2_);
+	double 	fSlow0 = fslider0;
+	double 	fSlow1 = (7.790052600000002e-07 * fSlow0);
+	double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+	double 	fSlow3 = (1.4106061200000003e-06 + ((3.7475640000000014e-05 * fSlow2) + (fSlow0 * (((2.3606220000000006e-05 * fSlow2) - 3.2220474e-07) - fSlow1))));
+	double 	fSlow4 = ((1.5406083e-09 * fSlow2) - (5.08400739e-11 * fSlow0));
+	double 	fSlow5 = (1.9775250000000004e-09 * fSlow2);
+	double 	fSlow6 = (6.5258325e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 1.4418251099999996e-11))));
+	double 	fSlow7 = (fConst0 * fSlow6);
+	double 	fSlow8 = (0.001551 * fSlow0);
+	double 	fSlow9 = (0.015220000000000001 * fSlow2);
+	double 	fSlow10 = (fConst0 * (0.0037192600000000003 + (fSlow9 + fSlow8)));
+	double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+	double 	fSlow12 = (fConst2 * fSlow6);
+	double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+	double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+	double 	fSlow16 = fslider2;
+	double 	fSlow17 = ((fSlow0 * (5.08400739e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (6.5258325e-11 - (6.5258325e-11 * fSlow0)))));
+	double 	fSlow18 = (fConst2 * fSlow17);
+	double 	fSlow19 = (5.018112e-08 + (((1.7391e-07 * fSlow16) + (fSlow0 * (8.643102600000002e-07 - fSlow1))) + (fSlow2 * (1.5206400000000001e-06 + (2.3606220000000006e-05 * fSlow0)))));
+	double 	fSlow20 = (0.0005022600000000001 + (fSlow9 + (fSlow8 + (5.4999999999999995e-05 * fSlow16))));
+	double 	fSlow21 = (fConst0 * fSlow20);
+	double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+	double 	fSlow23 = (fConst0 * fSlow17);
+	double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+	double 	fSlow25 = (fConst0 * (0 - fSlow20));
+	double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+	double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+	for (uint32_t i=0; i<n_samples; i++) {
+		fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+		output[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+		// post processing
+		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+	}
+}
+
+inline void TonestackMono::run_jcm2000(uint32_t n_samples, float *output)   //jcm2000
+{
+    fslider0 = (*fslider0_);
+    fslider1 = (*fslider1_);
+    fslider2 = (*fslider2_);
+	double 	fSlow0 = fslider0;
+	double 	fSlow1 = (3.0937500000000006e-07 * fSlow0);
+	double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
+	double 	fSlow3 = (1.08515e-06 + ((3.108600000000001e-05 * fSlow2) + (fSlow0 * (((1.2375000000000003e-05 * fSlow2) - 2.99475e-07) - fSlow1))));
+	double 	fSlow4 = ((1.8513000000000002e-09 * fSlow2) - (4.628250000000001e-11 * fSlow0));
+	double 	fSlow5 = (3.3880000000000003e-09 * fSlow2);
+	double 	fSlow6 = (8.470000000000002e-11 + (fSlow5 + (fSlow0 * (fSlow4 - 3.8417500000000006e-11))));
+	double 	fSlow7 = (fConst0 * fSlow6);
+	double 	fSlow8 = (0.00055 * fSlow0);
+	double 	fSlow9 = (0.022500000000000003 * fSlow2);
+	double 	fSlow10 = (fConst0 * (0.0031515000000000002 + (fSlow9 + fSlow8)));
+	double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
+	double 	fSlow12 = (fConst2 * fSlow6);
+	double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
+	double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
+	double 	fSlow16 = fslider2;
+	double 	fSlow17 = ((fSlow0 * (4.628250000000001e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (8.470000000000002e-11 - (8.470000000000002e-11 * fSlow0)))));
+	double 	fSlow18 = (fConst2 * fSlow17);
+	double 	fSlow19 = (9.955000000000001e-08 + (((3.08e-07 * fSlow16) + (fSlow0 * (3.781250000000001e-07 - fSlow1))) + (fSlow2 * (3.982e-06 + (1.2375000000000003e-05 * fSlow0)))));
+	double 	fSlow20 = (0.0005625000000000001 + (fSlow9 + (fSlow8 + (0.000125 * fSlow16))));
+	double 	fSlow21 = (fConst0 * fSlow20);
+	double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
+	double 	fSlow23 = (fConst0 * fSlow17);
+	double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+	double 	fSlow25 = (fConst0 * (0 - fSlow20));
+	double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
+	double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+	for (uint32_t i=0; i<n_samples; i++) {
+		fRec0[0] = ((double)output[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
+		output[i] = (float)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+		// post processing
+		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
+	}
+}
+
 
 void TonestackMono::init_static(uint32_t samplingFreq, TonestackMono *p)
 {
