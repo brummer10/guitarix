@@ -50,6 +50,8 @@ def configure(conf):
     sub_file('./src/LV2/gxamp.lv2/StereoAmp/manifest_stereo.ttl.in', './src/LV2/gxamp.lv2/StereoAmp/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxamp.lv2/FeedBackAmp');
     sub_file('./src/LV2/gxamp.lv2/FeedBackAmp/manifest.ttl.in', './src/LV2/gxamp.lv2/FeedBackAmp/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+    sub_file('./src/LV2/gxamp5.lv2/manifest.ttl.in', './src/LV2/gxamp5.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+    sub_file('./src/LV2/gxamp7.lv2/manifest.ttl.in', './src/LV2/gxamp7.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxts9.lv2');
     sub_file('./src/LV2/gxts9.lv2/manifest.ttl.in', './src/LV2/gxts9.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxbooster.lv2');
@@ -61,47 +63,17 @@ def build(bld):
     bld.add_subdirs('gxamp.lv2')
     bld.add_subdirs('gxamp.lv2/StereoAmp')
     bld.add_subdirs('gxamp.lv2/FeedBackAmp')
+    bld.add_subdirs('gxamp5.lv2')
+    bld.add_subdirs('gxamp7.lv2')
     bld.add_subdirs('gxts9.lv2')
     bld.add_subdirs('gxbooster.lv2')
     bld.add_subdirs('gxautowah.lv2')
 
-    gxlv2style_files = [
-        'gxamp.lv2/GUI/amp21.png',
-        'gxamp.lv2/GUI/amp22.png',
-        'gxamp.lv2/GUI/amp23.png',
-        'gxamp.lv2/GUI/amp24.png',
-        'gxamp.lv2/GUI/amp25.png',
-        'gxamp.lv2/GUI/amp26.png',
-        'gxamp.lv2/GUI/amp27.png',
-        'gxamp.lv2/GUI/amp28.png',
-        'gxamp.lv2/GUI/mastergain-label.png',
-        'gxamp.lv2/GUI/pregain-label.png',
-        'gxamp.lv2/GUI/drive-label.png',
-        'gxamp.lv2/GUI/distortion-label.png',
-        'gxamp.lv2/GUI/cabinet-label.png',
-        'gxamp.lv2/GUI/presence-label.png',
-        'gxamp.lv2/GUI/presence-label.png',
-        'gxamp.lv2/GUI/bass-label.png',
-        'gxamp.lv2/GUI/treble-label.png',
-        'gxamp.lv2/GUI/mid-label.png',
-        'gxamp.lv2/GUI/knob.png',
-        'gxamp.lv2/GUI/knob-middle.png',
-        'gxamp.lv2/GUI/knob-small.png',
-        'gxamp.lv2/GUI/metalic1-knob.png',
-        'gxamp.lv2/GUI/metalic1-knob-middle.png',
-        'gxamp.lv2/GUI/metalic1-knob-small.png',
-        'gxamp.lv2/GUI/black-knob.png',
-        'gxamp.lv2/GUI/black-knob-middle.png',
-        'gxamp.lv2/GUI/black-knob-small.png',
-        'gxamp.lv2/GUI/mc-knob-middle.png',
-        'gxamp.lv2/GUI/mc-knob-small.png',
-        'gxamp.lv2/GUI/booster.png',
-        'gxamp.lv2/GUI/booster-knob.png',
-        'gxamp.lv2/GUI/ts9.png',
-        'gxamp.lv2/GUI/ts9-knob.png',
-        'gxamp.lv2/GUI/autowah.png',
-        'gxamp.lv2/GUI/wah.png',
-        'gxamp.lv2/GUI/wah-pedal.png',
-        ]
 
-    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxlv2style_files, chmod=0o644)
+    gxampstyledir = bld.path.find_dir( 'gxamp.lv2/GUI' ) ;
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxampstyledir.ant_glob('**/*.png'),cwd=gxampstyledir,  chmod=0o644, relative_trick=True)
+    gxamp5styledir = bld.path.find_dir( 'gxamp5.lv2/GUI' ) ;
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxamp5styledir.ant_glob('**/*.png'),cwd=gxamp5styledir, chmod=0o644, relative_trick=True)
+    gxamp7styledir = bld.path.find_dir( 'gxamp7.lv2/GUI' ) ;
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxamp7styledir.ant_glob('**/*.png'),cwd=gxamp7styledir, chmod=0o644, relative_trick=True)
+

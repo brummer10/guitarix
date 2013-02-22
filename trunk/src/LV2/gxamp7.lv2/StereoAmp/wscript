@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import sys, os, TaskGen, ctypes
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bundle2 = 'gxamp5_stereo.lv2'
+    
+    src2 = ['gxamp5_stereo.cpp',
+           '../DSP/gx_resampler.cc',
+           '../DSP/gx_convolver.cc'
+           ]
+    incl2 = ['../../','./','../', '../DSP']
+    lib2 = []
+    if sys.platform.startswith("linux"):
+        lib2.append('dl')
+    uselib2 = ['LV2CORE','GLIBMM']
+    if bld.env['ZITA_CONVOLVER']:
+        uselib2.append('ZITA_CONVOLVER')
+    else:
+        src2.append('../../../zita-convolver/zita-convolver.cc')
+        incl2.append('../../../zita-convolver');
+        uselib2.append('FFTW3')
+    if bld.env['ZITA_RESAMPLER']:
+        uselib2.append('ZITA_RESAMPLER')
+    else:
+        src2.append('../../../zita-resampler-1.1.0/resampler.cc')
+        src2.append('../../../zita-resampler-1.1.0/resampler-table.cc')
+        incl2.append('../../../zita-resampler-1.1.0')
+    cxxflag2 =[]
+    if not bld.env['OPT'] and bld.env['SSE2']:
+        cxxflag2 = [ "-msse2", "-mfpmath=sse"]
+    lv2_plugin_stereo = bld(
+        features='cxx cshlib ',
+        includes = incl2,
+        lib = lib2,
+        uselib = uselib2,
+        obj_ext  = '_3.o',
+        cxxflags = cxxflag2,
+        defines  = ["LV2_SO"],
+        target   = 'gxamp5_stereo',
+        source   = src2,
+        install_path = '${LV2DIR}/%s' % bundle2,
+        chmod = 0o755,
+        )
+    lv2_plugin_stereo.env['shlib_PATTERN'] = '%s.so'
+    
+    uselib_local3 = []
+    libpath3 = []
+    lib3 = []
+    incl3 = ['../../../../libgxwmm','../../../../libgxw','../']
+    if sys.platform.startswith("linux"):
+        lib3.append('dl')
+    if bld.env["GX_LIB_SHARED"]:
+        lib3 += ['gxwmm','gxw']
+        libpath3 += [bld.path.find_dir("../../../../libgxw/gxw").bldpath(bld.env),
+                    bld.path.find_dir("../../../../libgxwmm/gxwmm").bldpath(bld.env)]
+    else:
+        uselib_local3 += ['gxwmm','gxw']
+    
+    lv2_plugin_gui_stereo = bld(
+        features='cxx cshlib ',
+        includes = incl3,
+        lib = lib3,
+        uselib = 'LV2CORE GTKMM',
+        libpath = libpath3,
+        obj_ext  = '_3.o',
+        uselib_local = uselib_local3,
+        linkflags = '-Wl,-z,nodelete',
+        defines  = ["LV2_GUI"],
+        target   = 'gxamp5_gui_stereo',
+        source   = '../widget.cpp ../gxamp5_gui.cpp',
+        install_path = '${LV2DIR}/%s' % bundle2,
+        chmod = 0o755,
+        )
+    lv2_plugin_gui_stereo.env['shlib_PATTERN'] = '%s.so'
+
+    
+    install_path = '${LV2DIR}/%s' % bundle2,
+    bld.install_files('${LV2DIR}/gxamp5_stereo.lv2', 'manifest.ttl')
+    bld.install_files('${LV2DIR}/gxamp5_stereo.lv2', 'gxamp5_stereo.ttl')
+    
