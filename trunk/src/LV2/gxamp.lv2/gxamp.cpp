@@ -330,6 +330,16 @@ void GxPluginMono::set_tubesel_mono(const LV2_Descriptor*     descriptor)
       cabconv.cab_sr = cab_data_HighGain.ir_sr;
       cabconv.cab_data = cab_data_HighGain.ir_data;
       tubesel  = 5;
+    }// SHP : Added new model AC30
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#AC30",descriptor->URI)== 0)
+    {
+      printf("AC30\n");
+      _a_ptr = &GxAmpMono::run_12ax7;
+      _t_ptr = &TonestackMono::run_ac30;
+      cabconv.cab_count = cab_data_AC30.ir_count;
+      cabconv.cab_sr = cab_data_AC30.ir_sr;
+      cabconv.cab_data = cab_data_AC30.ir_data;
+      tubesel  = 6;
     }
   else
     {
@@ -634,6 +644,19 @@ static const LV2_Descriptor descriptor4 =
   extension_data
 };
 
+// SHP : New amp model
+static const LV2_Descriptor descriptor5 =
+{
+  GXPLUGIN_URI "#AC30",
+  instantiate,
+  connect_port,
+  activate,
+  run,
+  deactivate,
+  cleanup,
+  extension_data
+};
+
 extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
@@ -651,6 +674,9 @@ lv2_descriptor(uint32_t index)
       return &descriptor3;
     case 4:
       return &descriptor4;
+// SHP : New amp model
+    case 5:
+      return &descriptor5;
     default:
       return NULL;
     }

@@ -44,3 +44,8 @@
     a lv2:Plugin ;
     lv2:binary <gxamp@LIB_EXT@>  ;
     rdfs:seeAlso <gxamp.ttl> .
+
+<http://guitarix.sourceforge.net/plugins/gxamp#AC30>
+    a lv2:Plugin ;
+    lv2:binary <gxamp@LIB_EXT@>  ;
+    rdfs:seeAlso <gxamp.ttl> .

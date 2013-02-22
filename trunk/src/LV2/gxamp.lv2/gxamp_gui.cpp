@@ -144,6 +144,14 @@ void GXPluginGUI::set_plug_name( const char * plugin_uri)
       plug_name = "6DJ8";
       set_knob("black-knob");
     }
+// SHP : New AC30 model
+  else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#AC30", plugin_uri) == 0)
+    {
+      plugskin = "ac30.png";
+      plug_name = "AC30";
+      set_knob("ac30-knob");
+    }
+
   else if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#12ax7_stereo", plugin_uri) == 0)
     {
       plugskin = "amp21.png";
