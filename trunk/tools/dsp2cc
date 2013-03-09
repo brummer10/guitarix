@@ -44,6 +44,39 @@ class UIDefs(object):
             else:
                 fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
 
+        def write_port(self, fp, v, prefix):
+            d = {}
+            d.update(self)
+            d["tail"] = "".join([", "+x for x in d["value"]])
+            d["prefix"] = prefix
+            d["N_name"] = wrap_N_("%(name)s" % self)
+            d["N_tooltip"] = wrap_N_("%(tooltip)s" % self)
+            ast = d["id"].split(".")
+            d["port"] = re.sub(r'\s+', '',ast[-1].upper())
+            if "log" in d:
+                d["type"] += "L"
+            if "enum" not in d:
+                if "alias" in d:
+                    assert "enum" not in d
+                    fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+                   # fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+            elif "enum" in d:
+                def value_pair(s):
+                    m = re.match(r"(.*)\[(.*)\]$", s)
+                    if m:
+                        return '{"%s",%s}' % (m.group(1), wrap_N_(m.group(2)))
+                    else:
+                        return '{"%s"}' % s
+                enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
+                d["ename"] = ename = d["variable"] + "_values"
+                fp.write('\t// static const value_pair %s[] = {%s};\n' % (ename, enumvals))
+                fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+                #fp.write('\t%(prefix)sregisterEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
+            else:
+                fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+               #fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+
+
         def __getitem__(self, n):
             try:
                 return dict.__getitem__(self, n)
@@ -81,6 +114,10 @@ class UIDefs(object):
     def write(self, fp, prefix=""):
         for v, r in self.ui.items():
             r.write(fp, v, prefix)
+
+    def write_port(self, fp, prefix=""):
+        for v, r in self.ui.items():
+            r.write_port(fp, v, prefix)
 
     def check_parameter(self, fname, uiname, l, only_warn):
         s1 = set(l)
@@ -328,7 +365,7 @@ class Parser(object):
                 cp.append(line)
         raise RuntimeError("EOF while looking for #include")
 
-    def change_var_decl(self, lines):
+    def change_var_decl(self, lines, init_type):
         param_matcher = re.compile(r"FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
         array_matcher = re.compile(r"(int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
         static_matcher = re.compile(r"static (int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
@@ -340,6 +377,10 @@ class Parser(object):
             if m:
                 var = m.group(1)
                 alias = self.ui.has(var,"alias")
+                if init_type in ("plugin-lv2"):
+                    if not alias:
+                        self.ui.add(var,"alias", "[alias]")
+                        alias = self.ui.has(var,"alias")
                 if alias:
                     #l = ('FAUSTFLOAT&\t%s = get_alias("%s");\n'
                     #     % (var, self.ui.get(var, "id")))
@@ -376,7 +417,7 @@ class Parser(object):
             l.append("if (%s) { delete %s; %s = 0; }\n" % (v, v, v))
         return l
 
-    def __init__(self, lines, modname, memory_threshold):
+    def __init__(self, lines, modname, memory_threshold, init_type):
         self.lines = lines
         self.modname = modname
         self.memory_threshold = memory_threshold;
@@ -386,6 +427,7 @@ class Parser(object):
         self.groups = {}
         self.memlist = []
         self.staticlist = []
+        self.init_type = init_type
         s = {}
         self.ui = UIDefs()
         #self.readMeta()  # (needed only for faust 9.4
@@ -403,7 +445,7 @@ class Parser(object):
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
-        s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl)
+        s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl,init_type)
         s["var-init"] = s["var-init"]
         s["var-alloc"] = self.add_var_alloc()
         s["var-free"] = self.add_var_free()
@@ -714,7 +756,6 @@ public:
 	static void compute_static(int count%(compute_args)s, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
-
 public:
 #endif
 	Dsp();
@@ -921,6 +962,284 @@ get_gx_plugin(unsigned int idx, PluginDef **pplugin)
 %(end_extra_namespace)s\
 """
 
+template_plugin_lv2 = """\
+// generated from file '%(filepath)s' by dsp2cc:
+// %(headline)s
+
+#if %(has_separate_header)s
+#define FAUSTFLOAT float
+#else
+#if %(has_standalone_header)s
+#include "gx_faust_support.h"
+#include "gx_plugin.h"
+#endif
+%(includes)s\
+#endif
+
+%(start_extra_namespace)s\
+namespace %(namespace)s {
+
+#if %(has_plugindef)s
+class Dsp: public PluginLV2 {
+#else
+class Dsp {
+#endif
+private:
+	int fSamplingFreq;
+%(var_decl)s\
+#if %(has_activate)s
+	bool mem_allocated;
+	void mem_alloc();
+	void mem_free();
+#endif
+#if %(has_lv2)s
+	void connect(uint32_t port,void* data);
+#endif
+#ifnot %(has_plugindef)s
+
+public:
+#endif
+#if %(has_state)s
+	void clear_state_f();
+#endif
+#if %(has_activate)s
+	int activate(bool start);
+#endif
+#if %(has_cc_ui)s
+	int load_ui_f(const UiBuilder& b);
+#endif
+#if %(has_glade_ui)s
+	int load_ui_f(const UiBuilder& b);
+	static const char *glade_def;
+#endif
+	void init(unsigned int samplingFreq);
+	void compute(int count%(compute_args)s);
+#if %(has_plugindef)s
+
+#if %(has_state)s
+	static void clear_state_f_static(PluginLV2*);
+#endif
+#if %(has_activate)s
+	static int activate_static(bool start, PluginLV2*);
+#endif
+#if %(has_cc_ui)s
+	static int load_ui_f_static(const UiBuilder& b);
+#endif
+#if %(has_glade_ui)s
+	static int load_ui_f_static(const UiBuilder& b);
+#endif
+	static void init_static(unsigned int samplingFreq, PluginLV2*);
+	static void compute_static(int count%(compute_args)s, PluginLV2*);
+	static void del_instance(PluginLV2 *p);
+#if %(has_lv2)s
+	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
+#endif
+public:
+#endif
+	Dsp();
+	~Dsp();
+};
+
+#if %(has_separate_header)s
+} // end namespace %(namespace)s
+%(end_extra_namespace)s\
+#impl
+// generated from file '%(filepath)s' by dsp2cc:
+// %(headline)s
+
+#if %(has_standalone_header)s
+#include "gx_faust_support.h"
+#include "gx_plugin.h"
+#include "%(header_name)s"
+#endif
+%(includes)s\
+
+%(start_extra_namespace)s\
+namespace %(namespace)s {
+#endif
+
+%(static_decl)s\
+%(groups_define)s\
+
+Dsp::Dsp()%(dsp_initlist)s {
+#if %(has_plugindef)s
+	version = PLUGINLV2_VERSION;
+	id = "%(plugin_id)s";
+	name = %(plugin_name)s;
+	mono_audio = %(mono_compute_p)s;
+	stereo_audio = %(stereo_compute_p)s;
+	set_samplerate = init_static;
+	activate_plugin = %(activate_p)s;
+	connect_ports = connect_static;
+	clear_state = %(clear_state_p)s;
+	delete_instance = del_instance;
+#endif
+}
+
+Dsp::~Dsp() {
+}
+
+#if %(has_state)s
+inline void Dsp::clear_state_f()
+{
+%(state_init)s\
+}
+
+#if %(has_plugindef)s
+void Dsp::clear_state_f_static(PluginLV2 *p)
+{
+	static_cast<Dsp*>(p)->clear_state_f();
+}
+
+#endif
+#endif
+inline void Dsp::init(unsigned int samplingFreq)
+{
+%(init_body)s\
+#if %(has_state_no_activate)s
+	clear_state_f();
+#endif
+}
+
+#if %(has_plugindef)s
+void Dsp::init_static(unsigned int samplingFreq, PluginLV2 *p)
+{
+	static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+#endif
+#if %(has_activate)s
+void Dsp::mem_alloc()
+{
+%(var_alloc)s\
+	mem_allocated = true;
+}
+
+void Dsp::mem_free()
+{
+	mem_allocated = false;
+%(var_free)s\
+}
+
+int Dsp::activate(bool start)
+{
+	if (start) {
+		if (!mem_allocated) {
+			mem_alloc();
+			clear_state_f();
+		}
+	} else if (!mem_allocated) {
+		mem_free();
+	}
+	return 0;
+}
+
+#if %(has_plugindef)s
+int Dsp::activate_static(bool start, PluginLV2 *p)
+{
+	return static_cast<Dsp*>(p)->activate(start);
+}
+
+#endif
+#endif
+inline void Dsp::compute(int count%(compute_args)s)
+{
+%(defines)s\
+%(compute_body)s\
+	}
+%(undefines)s\
+}
+
+#if %(has_plugindef)s
+void Dsp::compute_static(int count%(compute_args)s, PluginLV2 *p)
+{
+	static_cast<Dsp*>(p)->compute(count%(compute_call_args)s);
+}
+
+#endif
+
+#if %(has_lv2)s
+void Dsp::connect(uint32_t port,void* data)
+{
+	switch ((PortIndex)port)
+	{
+%(port_body)s\
+	default:
+		break;
+	}
+}
+
+void Dsp::connect_static(uint32_t port,void* data, PluginLV2 *p)
+{
+	static_cast<Dsp*>(p)->connect(port, data);
+}
+
+#endif
+
+#if %(has_cc_ui)s
+inline int Dsp::load_ui_f(const UiBuilder& b)
+{
+#define PARAM(p) ("%(plugin_id)s" "." p)
+%(cc_ui)s
+#undef PARAM
+	return 0;
+}
+
+#if %(has_plugindef)s
+int Dsp::load_ui_f_static(const UiBuilder& b)
+{
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+}
+
+#endif
+#endif
+#if %(has_glade_ui)s
+const char *Dsp::glade_def = "\\
+%(glade_ui)s";
+
+int Dsp::load_ui_f(const UiBuilder& b)
+{
+	b.load_glade(glade_def);
+	return 0;
+}
+
+#if %(has_plugindef)s
+int Dsp::load_ui_f_static(const UiBuilder& b)
+{
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+}
+
+#endif
+#endif
+#if %(has_plugindef)s
+PluginLV2 *plugin() {
+	return new Dsp();
+}
+
+void Dsp::del_instance(PluginLV2 *p)
+{
+	delete static_cast<Dsp*>(p);
+}
+
+#endif
+#if %(sharedlib)s
+extern "C" __attribute__ ((visibility ("default"))) int
+get_gx_plugin(unsigned int idx, PluginLV2 **pplugin)
+{
+    if (!pplugin) {
+        return 1;
+    }
+    if (idx > 0) {
+        return -1;
+    }
+    *pplugin = new Dsp();
+    return 1;
+}
+#endif
+} // end namespace %(namespace)s
+%(end_extra_namespace)s\
+"""
+
 class Output(object):
 
     def __init__(self, parser, fname, options):
@@ -1006,11 +1325,18 @@ class Output(object):
         self.parser.write(s, sect, indent, filt)
         return s.getvalue()
 
-    def parser_ui(self, prefix=""):
+    def parser_ui(self, has_lv2, prefix=""):
         s = StringIO()
-        self.parser.ui.write(s, prefix)
+        if has_lv2:
+            self.parser.ui.write_port(s, prefix)
+        else:
+            self.parser.ui.write(s, prefix)
         return s.getvalue()
 
+    def parser_lv2(self, prefix=""):
+        s = StringIO()
+        self.parser.ui.write_port(s, prefix)
+        return s.getvalue()
     def gen_load_ui(self, plugin_id):
         s = StringIO()
         ret = self.write_load_ui(s, plugin_id, False)
@@ -1022,8 +1348,10 @@ class Output(object):
             return False, "", True, s.getvalue()
         assert False, str(ret)
 
-    def dsp_initlist(self, has_plugindef):
-        if has_plugindef:
+    def dsp_initlist(self, has_plugindef, has_lv2):
+        if has_lv2:
+            l = ["PluginLV2()"]
+        elif has_plugindef:
             l = ["PluginDef()"]
         else:
             l = []
@@ -1045,7 +1373,8 @@ class Output(object):
             ds = "_static"
             indent = 1
         plugin_standalone = self.options.template_type in ("staticlib", "sharedlib")
-        has_plugindef = self.options.init_type in ("plugin", "plugin-instance")
+        has_plugindef = self.options.init_type in ("plugin", "plugin-instance", "plugin-lv2")
+        has_lv2 = self.options.init_type in ("plugin-lv2")
         in_namespace = self.options.in_namespace
         compute_args = ("".join([", float *input%d" % i for i in range(self.parser.getNumInputs())])
                         + "".join([", float *output%d" % i for i in range(self.parser.getNumOutputs())]))
@@ -1063,6 +1392,8 @@ class Output(object):
             plugin_name = '"?%s"' % self.parser.modname
         static_decl = "".join(["%s Dsp::%s[%s];\n" % (tp, v, n) for v, tp, n in self.parser.staticlist])
         template = template_plugin if self.options.init_type == "plugin" else template_plugin_instance
+        if self.options.init_type == "plugin-lv2":
+            template = template_plugin_lv2 
         s = StringIO()
         s.write(template % dict(
             filepath = self.fname,
@@ -1079,7 +1410,7 @@ class Output(object):
             has_state = self.state_init != "",
             has_state_no_activate = self.state_init != "" and not self.has_activate,
             init_body = self.parser_sect("var-init", 1, filt=self.parser.ui.var_filter(1)),
-            dsp_initlist = self.dsp_initlist(has_plugindef),
+            dsp_initlist = self.dsp_initlist(has_plugindef, has_lv2),
             var_alloc = self.parser_sect("var-alloc", 1),
             var_free = self.parser_sect("var-free", 1),
             compute_args = compute_args,
@@ -1087,7 +1418,8 @@ class Output(object):
             defines = self.parser_sect("alias-defines", 0),
             compute_body = self.parser_sect("compute", 1),
             undefines = self.parser_sect("alias-undefines", 0),
-            register_body = self.parser_ui("reg."),
+            register_body = self.parser_ui(has_lv2, "reg."),
+            port_body     = self.parser_lv2(""),
             has_cc_ui = has_cc_ui,
             has_glade_ui = has_glade_ui,
             cc_ui = cc_ui,
@@ -1105,6 +1437,7 @@ class Output(object):
             load_ui_p = "load_ui_f"+ds if has_cc_ui or has_glade_ui else "0",
             clear_state_p = "clear_state_f"+ds if self.state_init else "0",
             has_plugindef = has_plugindef,
+            has_lv2 = has_lv2,
             has_separate_header = fp_head is not None,
             header_name = h_name,
             sharedlib = self.options.template_type == "sharedlib",
@@ -1153,7 +1486,7 @@ class Output(object):
             raise SystemExit("template EOF: unbalanced #if / #endif")
 
     def write(self, fp, fp_head, h_name):
-        if self.options.init_type in ("plugin", "plugin-instance", "no-init-instance"):
+        if self.options.init_type in ("plugin", "plugin-instance", "no-init-instance", "plugin-lv2"):
             self.write_plugin(fp, fp_head, h_name)
             return
         #FIXME: cleanup when write_plugin can generate code for all types of plugins
@@ -1231,7 +1564,7 @@ def main():
     op.add_option("-s", "--memory-threshold", dest="memory_threshold",
                   default=0, type="int",
                   help="change static memory allocations above threshold to dynamic ones")
-    init_opts = ["ctor", "no-init", "no-init-instance", "plugin", "plugin-instance", "plugin-standalone"]
+    init_opts = ["ctor", "no-init", "no-init-instance", "plugin", "plugin-instance", "plugin-standalone", "plugin-lv2"]
     op.add_option("-i", "--init-type", dest="init_type", action="store", default="ctor",
                   help="type of init code generation: %s" % ", ".join(init_opts))
     template_opts = ["embed", "staticlib", "sharedlib"]
@@ -1263,7 +1596,7 @@ def main():
     try:
         parser = Parser(faust.stdout,
                         os.path.splitext(os.path.basename(fname))[0],
-                        options.memory_threshold)
+                        options.memory_threshold, options.init_type)
     except ValueError, e:
         if faust.wait() == 0:
             print e

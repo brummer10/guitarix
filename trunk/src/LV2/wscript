@@ -60,6 +60,8 @@ def configure(conf):
     sub_file('./src/LV2/gxautowah.lv2/manifest.ttl.in', './src/LV2/gxautowah.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     
 def build(bld):
+    bld.add_subdirs('faust')
+    bld.add_subdirs('gx_amp.lv2')
     bld.add_subdirs('gxamp.lv2')
     bld.add_subdirs('gxamp.lv2/StereoAmp')
     bld.add_subdirs('gxamp.lv2/FeedBackAmp')
@@ -76,4 +78,7 @@ def build(bld):
     bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxamp5styledir.ant_glob('**/*.png'),cwd=gxamp5styledir, chmod=0o644, relative_trick=True)
     gxamp7styledir = bld.path.find_dir( 'gxamp7.lv2/GUI' ) ;
     bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxamp7styledir.ant_glob('**/*.png'),cwd=gxamp7styledir, chmod=0o644, relative_trick=True)
+    gx_ampstyledir = bld.path.find_dir( 'gx_amp.lv2/GUI' ) ;
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gx_ampstyledir.ant_glob('**/*.png'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gx_ampstyledir.ant_glob('**/*.rc'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
 

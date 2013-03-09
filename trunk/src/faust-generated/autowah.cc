@@ -33,7 +33,6 @@ private:
 	static void compute_static(int count, float *input0, float *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
-
 public:
 	Dsp();
 	~Dsp();
@@ -136,7 +135,7 @@ void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fslider2_ = reg.registerVar("crybaby.wet_dry",N_("wet/dry"),"SA","",&fslider2, 1e+02, 0.0, 1e+02, 1.0);
+	fslider2_ = reg.registerVar("crybaby.wet_dry",N_("dry/wet"),"SA","",&fslider2, 1e+02, 0.0, 1e+02, 1.0);
 	fslider1_ = reg.registerVar("crybaby.level","","SA","",&fslider1, 0.1, 0.0, 1.0, 0.01);
 	fslider0_ = reg.registerVar("crybaby.wah","","SA","",&fslider0, 0.0, 0.0, 1.0, 0.01);
 	return 0;

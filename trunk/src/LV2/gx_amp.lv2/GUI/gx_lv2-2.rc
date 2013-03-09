@@ -1,0 +1,12 @@
+#"12AT7"
+style "gx_lv2-2"
+{
+  stock["bigknob"] = {{"black-knob.png"}}
+  stock["smallknob"] = {{"black-knob-small.png"}}
+  stock["smallknobr"] = {{"black-knob-middle.png"}}
+  stock["amp_skin"] = {{"amp23.png"}}
+  GxPaintBox::icon-set =2
+}
+
+widget "*.GUITARIXLV2" style:highest "gx_lv2-2"
+

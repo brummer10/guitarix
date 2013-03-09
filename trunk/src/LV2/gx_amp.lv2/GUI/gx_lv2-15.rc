@@ -1,0 +1,12 @@
+#"pre 12AU7/ push-pull 6V6"
+style "gx_lv2-15"
+{
+  stock["bigknob"] = {{"princeton-knob.png"}}
+  stock["smallknob"] = {{"princeton-knob-small.png"}}
+  stock["smallknobr"] = {{"princeton-knob-middle.png"}}
+  stock["amp_skin"] = {{"princeton.png"}}
+  GxPaintBox::icon-set =15
+}
+
+widget "*.GUITARIXLV2" style:highest "gx_lv2-15"
+

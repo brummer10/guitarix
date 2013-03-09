@@ -1,0 +1,12 @@
+#"pre 12AT7/ push pull 6V6"
+style "gx_lv2-16"
+{
+  stock["bigknob"] = {{"metal-knob.png"}}
+  stock["smallknob"] = {{"metal-knob-small.png"}}
+  stock["smallknobr"] = {{"metal-knob-middle.png"}}
+  stock["amp_skin"] = {{"amp23.png"}}
+  GxPaintBox::icon-set =16
+}
+
+widget "*.GUITARIXLV2" style:highest "gx_lv2-16"
+
