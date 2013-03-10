@@ -60,7 +60,8 @@ def configure(conf):
     sub_file('./src/LV2/gxautowah.lv2/manifest.ttl.in', './src/LV2/gxautowah.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     
 def build(bld):
-    bld.add_subdirs('faust')
+    # faust folder keep of for now
+    #bld.add_subdirs('faust')
     bld.add_subdirs('gx_amp.lv2')
     bld.add_subdirs('gxamp.lv2')
     bld.add_subdirs('gxamp.lv2/StereoAmp')
