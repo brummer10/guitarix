@@ -45,7 +45,7 @@
     a lv2:Plugin ,
         lv2:AmplifierPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxAmplifier";
+    doap:name "GxAmplifier-X";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gxamp> ;
     lv2:optionalFeature lv2:hardRTCapable ;
