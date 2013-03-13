@@ -67,7 +67,9 @@ Widget::Widget(Glib::ustring plug_name)
     m_selector.cp_set_value(model);
     m_selector.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
       &Widget::on_value_changed),MODEL));
-  m_hboxsel.pack_start(m_selector,Gtk::PACK_SHRINK);
+    m_hboxsel1.pack_start(m_selector,Gtk::PACK_SHRINK);
+    m_hboxsel1.pack_start(m_hboxsel2,Gtk::PACK_EXPAND_PADDING);
+    m_vboxsel.pack_start(m_hboxsel1,Gtk::PACK_EXPAND_PADDING);
 
   Gtk::TreeModelColumn<Glib::ustring> label1;
     Gtk::TreeModelColumnRecord rec1;
@@ -145,7 +147,7 @@ Widget::Widget(Glib::ustring plug_name)
   //m_hboxsel.pack_start(c_selector,Gtk::PACK_SHRINK);
   
   
-  m_vboxsel.pack_start(m_hboxsel,Gtk::PACK_SHRINK);
+  //m_vboxsel.pack_start(m_hboxsel,Gtk::PACK_SHRINK);
 
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(30);
@@ -165,7 +167,7 @@ Widget::Widget(Glib::ustring plug_name)
   // and put space box on top
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
   // and put selector box in the middle
-  m_vbox_.pack_start(m_vboxsel);
+  //m_vbox_.pack_start(m_vboxsel);
 
   // and controller box on bottem
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
@@ -208,14 +210,19 @@ Widget::Widget(Glib::ustring plug_name)
   m_smallknob5.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
       &Widget::on_value_changed),ALevel));
 
+  m_hboxsel.set_spacing(12);
+  m_hboxsel.set_homogeneous(false);
+  m_hboxsel.pack_start(m_vbox1);
+  m_hboxsel.pack_start(m_vbox2);
+  m_hboxsel.pack_start(m_vbox3);
+  m_hboxsel.pack_start(m_vbox8);
+  m_hboxsel.pack_start(m_vbox);
+  m_vboxsel.pack_start(m_hboxsel);
+
   // put boxed controllers into controller box
   m_hbox_.pack_start(m_vboxhh);
-  m_hbox_.pack_start(m_vbox1);
-  m_hbox_.pack_start(m_vbox2);
-  m_hbox_.pack_start(m_vbox3);
+  m_hbox_.pack_start(m_vboxsel);
   m_hbox_.pack_start(m_vbox7);
-  m_hbox_.pack_start(m_vbox8);
-  m_hbox_.pack_start(m_vbox);
   // etxra box for the boxed tonestack controllers
   m_vboxtonestack.pack_start(t_selector,Gtk::PACK_SHRINK);
   m_vboxtonestack.pack_start(m_hbox);
