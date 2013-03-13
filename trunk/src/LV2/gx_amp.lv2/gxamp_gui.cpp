@@ -136,7 +136,7 @@ void GXPluginGUI::set_plug_name( const char * plugin_uri)
   else
     {
       plugskin = "amp21.png";
-      plug_name = "12ax7";
+      plug_name = "GUITARIXLV2";
     }
 }
 

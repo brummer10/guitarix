@@ -382,13 +382,13 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
   // run dsp
   // run selected tube model
-  int m = (int) *(a_model);
-  amps[m]->mono_audio((int)n_samples, (float *)input, (float *)output, amps[m]);
+  int m = static_cast<int>(*(a_model));
+  amps[m]->mono_audio(static_cast<int>(n_samples), input, output, amps[m]);
   // run presence convolver
   ampconv.run_static(n_samples, &ampconv, output);
   // run selected tonestack
-  int t = (int) *(t_model);
-  tonestack[t]->mono_audio((int)n_samples, (float *)output, (float *)output, tonestack[t]);
+  int t = static_cast<int>(*(t_model));
+  tonestack[t]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t]);
   // run selected cabinet convolver
   cabconv.run_static(n_samples, &cabconv, output);
 
