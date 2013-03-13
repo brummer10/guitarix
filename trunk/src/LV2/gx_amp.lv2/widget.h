@@ -32,6 +32,7 @@
 class Widget : public Gtk::HBox
 {
 private:
+  void on_value_changed(uint32_t port_index);
   void change_skin(int model);
   void make_controller_box(Gtk::VBox *box,
                            Gxw::Regler *regler,
@@ -60,63 +61,51 @@ public:
   ~Widget();
 
 protected:
-  Gtk::VBox      m_vbox_;
-  Gtk::HBox      m_hbox_;
-  Gtk::HBox      m_hbox1_;
-  Gtk::VBox      m_vbox;
-  Gtk::VBox      m_vbox1;
-  Gtk::VBox      m_vbox2;
-  Gtk::VBox      m_vbox3;
-  Gtk::VBox      m_vbox4;
-  Gtk::VBox      m_vbox5;
-  Gtk::VBox      m_vbox6;
-  Gtk::VBox      m_vbox7;
-  Gtk::VBox      m_vbox8;
-  Gtk::VBox      m_vboxhh;
-  Gtk::VBox      m_vboxii;
-  Gtk::VBox      m_vboxsel;
-  Gtk::HBox       m_hboxsel;
-  Gtk::VBox      m_vboxtonestack;
+  Gtk::VBox          m_vbox_;
+  Gtk::HBox          m_hbox_;
+  Gtk::HBox          m_hbox1_;
+  Gtk::VBox          m_vbox;
+  Gtk::VBox          m_vbox1;
+  Gtk::VBox          m_vbox2;
+  Gtk::VBox          m_vbox3;
+  Gtk::VBox          m_vbox4;
+  Gtk::VBox          m_vbox5;
+  Gtk::VBox          m_vbox6;
+  Gtk::VBox          m_vbox7;
+  Gtk::VBox          m_vbox8;
+  Gtk::VBox          m_vboxhh;
+  Gtk::VBox          m_vboxii;
+  Gtk::VBox          m_vboxsel;
+  Gtk::HBox          m_hboxsel;
+  Gtk::VBox          m_vboxtonestack;
 
-  Gxw::PaintBox  m_paintbox;
-  Gtk::HBox      m_hbox;
-  Gxw::BigKnob   m_bigknob;
-  Gxw::BigKnob   m_bigknob1;
-  Gxw::BigKnob   m_bigknob2;
-  Gxw::BigKnob   m_bigknob3;
-  Gxw::SmallKnob   m_smallknob1;
-  Gxw::SmallKnob   m_smallknob2;
-  Gxw::SmallKnob   m_smallknob3;
-  Gxw::SmallKnobR m_smallknob4;
-  Gxw::SmallKnobR m_smallknob5;
-  Gxw::Selector m_selector;
-  Gxw::Selector t_selector;
-  Gxw::Selector c_selector;
-  void on_knob_value_changed();
-  void on_knob1_value_changed();
-  void on_knob2_value_changed();
-  void on_knob3_value_changed();
-  void on_knob4_value_changed();
-  void on_knob5_value_changed();
-  void on_knob6_value_changed();
-  void on_knob7_value_changed();
-  void on_knob8_value_changed();
-  void on_selector_value_changed();
-  void on_tselector_value_changed();
-  void on_cselector_value_changed();
+  Gxw::PaintBox      m_paintbox;
+  Gtk::HBox          m_hbox;
+  Gxw::BigKnob       m_bigknob;
+  Gxw::BigKnob       m_bigknob1;
+  Gxw::BigKnob       m_bigknob2;
+  Gxw::BigKnob       m_bigknob3;
+  Gxw::SmallKnob     m_smallknob1;
+  Gxw::SmallKnob     m_smallknob2;
+  Gxw::SmallKnob     m_smallknob3;
+  Gxw::SmallKnobR    m_smallknob4;
+  Gxw::SmallKnobR    m_smallknob5;
+  Gxw::Selector      m_selector;
+  Gxw::Selector      t_selector;
+  Gxw::Selector      c_selector;
   // stores port values we're currently at.
-  float          model;
-  float          t_model;
-  float          c_model;
-  float          mastergain;
-  float          pregain;
-  float          wet_dry;
-  float          drive;
-  float          mid;
-  float          bass;
-  float          treble;
-  float          clevel;
-  float          alevel;
+  float              model;
+  float              t_model;
+  float              c_model;
+  float              mastergain;
+  float              pregain;
+  float              wet_dry;
+  float              drive;
+  float              mid;
+  float              bass;
+  float              treble;
+  float              clevel;
+  float              alevel;
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

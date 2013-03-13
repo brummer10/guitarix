@@ -820,9 +820,9 @@ struct CabEntry {
     { &static_cast<CabDesc&>(cab_data_vitalize) },
     { &static_cast<CabDesc&>(cab_data_charisma) },
 };
-static const unsigned int cab_table_size = sizeof(cab_table) / sizeof(cab_table[0]);
+static const uint32_t cab_table_size = sizeof(cab_table) / sizeof(cab_table[0]);
 
-static CabEntry& getCabEntry(unsigned int n) {
+static CabEntry& getCabEntry(uint32_t n) {
     if (n >= cab_table_size) {
 	n = cab_table_size - 1;
     }

@@ -65,8 +65,8 @@ Widget::Widget(Glib::ustring plug_name)
     m_selector.cp_configure("SELECTOR", "tubes", 0, 17, 1);
     m_selector.set_show_value(false);
     m_selector.cp_set_value(model);
-    m_selector.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_selector_value_changed));
+    m_selector.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),MODEL));
   m_hboxsel.pack_start(m_selector,Gtk::PACK_SHRINK);
 
   Gtk::TreeModelColumn<Glib::ustring> label1;
@@ -74,31 +74,31 @@ Widget::Widget(Glib::ustring plug_name)
     rec1.add(label1);
     Glib::RefPtr<Gtk::ListStore> ls1 = Gtk::ListStore::create(rec1);
     ls1->append()->set_value(0, Glib::ustring("default"));
-    ls1->append()->set_value(0, Glib::ustring("bassman"));
-    ls1->append()->set_value(0, Glib::ustring("twin"));
-    ls1->append()->set_value(0, Glib::ustring("princeton"));
-    ls1->append()->set_value(0, Glib::ustring("jcm800"));
-    ls1->append()->set_value(0, Glib::ustring("jcm2000"));
-    ls1->append()->set_value(0, Glib::ustring("mlead"));
-    ls1->append()->set_value(0, Glib::ustring("m2199"));
-    ls1->append()->set_value(0, Glib::ustring("ac30"));
-    ls1->append()->set_value(0, Glib::ustring("mesa"));
-    ls1->append()->set_value(0, Glib::ustring("soldano"));
-    ls1->append()->set_value(0, Glib::ustring("jtm45"));
-    ls1->append()->set_value(0, Glib::ustring("ac15"));
-    ls1->append()->set_value(0, Glib::ustring("peavey"));
-    ls1->append()->set_value(0, Glib::ustring("ibanez"));
-    ls1->append()->set_value(0, Glib::ustring("roland"));
-    ls1->append()->set_value(0, Glib::ustring("ampeg"));
-    ls1->append()->set_value(0, Glib::ustring("ampeg_rev"));
-    ls1->append()->set_value(0, Glib::ustring("sovtek"));
-    ls1->append()->set_value(0, Glib::ustring("bogner"));
-    ls1->append()->set_value(0, Glib::ustring("groove"));
-    ls1->append()->set_value(0, Glib::ustring("crunch"));
-    ls1->append()->set_value(0, Glib::ustring("fender_blues"));
-    ls1->append()->set_value(0, Glib::ustring("fender_default"));
-    ls1->append()->set_value(0, Glib::ustring("fender_deville"));
-    ls1->append()->set_value(0, Glib::ustring("gibsen"));
+    ls1->append()->set_value(0, Glib::ustring("Bassman"));
+    ls1->append()->set_value(0, Glib::ustring("Twin Reverb"));
+    ls1->append()->set_value(0, Glib::ustring("Princeton"));
+    ls1->append()->set_value(0, Glib::ustring("JCM-800"));
+    ls1->append()->set_value(0, Glib::ustring("JCM-2000"));
+    ls1->append()->set_value(0, Glib::ustring("M-Lead"));
+    ls1->append()->set_value(0, Glib::ustring("M2199"));
+    ls1->append()->set_value(0, Glib::ustring("AC-30"));
+    ls1->append()->set_value(0, Glib::ustring("Mesa Boogie"));
+    ls1->append()->set_value(0, Glib::ustring("SOL 100"));
+    ls1->append()->set_value(0, Glib::ustring("JTM-45"));
+    ls1->append()->set_value(0, Glib::ustring("AC-15"));
+    ls1->append()->set_value(0, Glib::ustring("Peavey"));
+    ls1->append()->set_value(0, Glib::ustring("Ibanez"));
+    ls1->append()->set_value(0, Glib::ustring("Roland"));
+    ls1->append()->set_value(0, Glib::ustring("Ampeg"));
+    ls1->append()->set_value(0, Glib::ustring("Rev.Rocket"));
+    ls1->append()->set_value(0, Glib::ustring("MIG 100 H"));
+    ls1->append()->set_value(0, Glib::ustring("Triple Giant"));
+    ls1->append()->set_value(0, Glib::ustring("Trio Preamp"));
+    ls1->append()->set_value(0, Glib::ustring("Hughes&Kettner"));
+    ls1->append()->set_value(0, Glib::ustring("Fender Junior"));
+    ls1->append()->set_value(0, Glib::ustring("Fender"));
+    ls1->append()->set_value(0, Glib::ustring("Fender Deville"));
+    ls1->append()->set_value(0, Glib::ustring("Gibsen"));
     //for (const value_pair *p = param.getValueNames(); p->value_id; ++p) {
     //    ls->append()->set_value(0, Glib::ustring(param.value_label(*p)));
     //}
@@ -107,8 +107,8 @@ Widget::Widget(Glib::ustring plug_name)
     t_selector.cp_configure("SELECTOR", "tonestacks", 0, 25, 1);
     t_selector.set_show_value(false);
     t_selector.cp_set_value(model);
-    t_selector.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_tselector_value_changed));
+    t_selector.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),T_MODEL));
   //m_hboxsel.pack_start(t_selector,Gtk::PACK_SHRINK);
   
   Gtk::TreeModelColumn<Glib::ustring> label2;
@@ -140,8 +140,8 @@ Widget::Widget(Glib::ustring plug_name)
     c_selector.cp_configure("SELECTOR", "Cabs", 0, 16, 1);
     c_selector.set_show_value(false);
     c_selector.cp_set_value(model);
-    c_selector.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_cselector_value_changed));
+    c_selector.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),C_MODEL));
   //m_hboxsel.pack_start(c_selector,Gtk::PACK_SHRINK);
   
   
@@ -172,41 +172,41 @@ Widget::Widget(Glib::ustring plug_name)
   
   // create all controllers
   make_controller_box(&m_vbox, &m_bigknob, "mastergain", -20, 20, 0.1, mastergain, plug_name);
-  m_bigknob.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob_value_changed));
+  m_bigknob.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),GAIN1));
 
   make_controller_box(&m_vbox1, &m_bigknob1, "pregain", -20, 20, 0.1, pregain, plug_name);
-  m_bigknob1.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob1_value_changed));
+  m_bigknob1.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),PREGAIN));
 
   make_controller_box(&m_vbox2, &m_bigknob2, "distortion", 1, 100, 1, wet_dry, plug_name);
-  m_bigknob2.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob2_value_changed));
+  m_bigknob2.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),WET_DRY));
 
   make_controller_box(&m_vbox3, &m_bigknob3, "drive", 0.01, 1, 0.01, drive, plug_name);
-  m_bigknob3.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob3_value_changed));
+  m_bigknob3.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),DRIVE));
 
   make_controller_box(&m_vbox4, &m_smallknob1, "mid", 0, 1, 0.01, mid, plug_name);
-  m_smallknob1.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob4_value_changed));
+  m_smallknob1.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),MIDDLE));
 
   make_controller_box(&m_vbox5, &m_smallknob2, "bass", 0, 1, 0.01, bass, plug_name);
-  m_smallknob2.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob5_value_changed));
+  m_smallknob2.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),BASS));
 
   make_controller_box(&m_vbox6, &m_smallknob3, "treble", 0, 1, 0.01, treble, plug_name);
-  m_smallknob3.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob6_value_changed));
+  m_smallknob3.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),TREBLE));
 
   m_vbox7.pack_start(c_selector,Gtk::PACK_SHRINK);
   make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 1, 20, 1, clevel, plug_name);
-  m_smallknob4.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob7_value_changed));
+  m_smallknob4.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),CLevel));
 
   make_controller_box(&m_vbox8, &m_smallknob5, "presence", 1, 10, 1, alevel, plug_name);
-  m_smallknob5.signal_value_changed().connect(sigc::mem_fun(*this,
-      &Widget::on_knob8_value_changed));
+  m_smallknob5.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),ALevel));
 
   // put boxed controllers into controller box
   m_hbox_.pack_start(m_vboxhh);
@@ -340,105 +340,90 @@ void Widget::set_value(uint32_t port_index,
     }
 }
 // write value changes to the host->engine
-void Widget::on_knob_value_changed()
+void Widget::on_value_changed(uint32_t port_index)
 {
-  mastergain = m_bigknob.get_value();
-  //std::cout << "mastergain = " << mastergain << std::endl;
-  write_function(controller, (PortIndex)GAIN1,
+  switch ((PortIndex)port_index )
+    {
+    case GAIN1:
+      mastergain = m_bigknob.get_value();
+      //std::cout << "mastergain = " << mastergain << std::endl;
+      write_function(controller, (PortIndex)GAIN1,
                  sizeof(float), 0, (const void*)&mastergain);
-}
-
-void Widget::on_knob1_value_changed()
-{
-  pregain = m_bigknob1.get_value();
-  //std::cout << "pregain = " << pregain << std::endl;
-  write_function(controller, (PortIndex)PREGAIN,
+      break;
+    case PREGAIN:
+       pregain = m_bigknob1.get_value();
+       //std::cout << "pregain = " << pregain << std::endl;
+       write_function(controller, (PortIndex)PREGAIN,
                  sizeof(float), 0, (const void*)&pregain);
-}
-
-void Widget::on_knob2_value_changed()
-{
-  wet_dry = m_bigknob2.get_value();
-  //std::cout << "wet_dry = " << wet_dry << std::endl;
-  write_function(controller, (PortIndex)WET_DRY,
+      break;
+    case WET_DRY:
+      wet_dry = m_bigknob2.get_value();
+      //std::cout << "wet_dry = " << wet_dry << std::endl;
+      write_function(controller, (PortIndex)WET_DRY,
                  sizeof(float), 0, (const void*)&wet_dry);
-}
-
-void Widget::on_knob3_value_changed()
-{
-  drive = m_bigknob3.get_value();
-  //std::cout << "drive = " << drive << std::endl;
-  write_function(controller, (PortIndex)DRIVE,
+      break;
+    case DRIVE:
+      drive = m_bigknob3.get_value();
+      //std::cout << "drive = " << drive << std::endl;
+      write_function(controller, (PortIndex)DRIVE,
                  sizeof(float), 0, (const void*)&drive);
-}
-
-void Widget::on_knob4_value_changed()
-{
-  mid = m_smallknob1.get_value();
-  //std::cout << "mid = " << mid << std::endl;
-  write_function(controller, (PortIndex)MIDDLE,
+      break;
+    case MIDDLE:
+      mid = m_smallknob1.get_value();
+      //std::cout << "mid = " << mid << std::endl;
+      write_function(controller, (PortIndex)MIDDLE,
                  sizeof(float), 0, (const void*)&mid);
-}
-
-void Widget::on_knob5_value_changed()
-{
-  bass = m_smallknob2.get_value();
-  //std::cout << "bass = " << bass << std::endl;
-  write_function(controller, (PortIndex)BASS,
+      break;
+    case BASS:
+      bass = m_smallknob2.get_value();
+      //std::cout << "bass = " << bass << std::endl;
+      write_function(controller, (PortIndex)BASS,
                  sizeof(float), 0, (const void*)&bass);
-}
-
-void Widget::on_knob6_value_changed()
-{
-  treble = m_smallknob3.get_value();
-  //std::cout << "treble = " << treble << std::endl;
-  write_function(controller, (PortIndex)TREBLE,
+      break;
+    case TREBLE:
+      treble = m_smallknob3.get_value();
+      //std::cout << "treble = " << treble << std::endl;
+      write_function(controller, (PortIndex)TREBLE,
                  sizeof(float), 0, (const void*)&treble);
-}
-
-void Widget::on_knob7_value_changed()
-{
-  clevel = m_smallknob4.get_value();
-  //std::cout << "treble = " << clevel << std::endl;
-  write_function(controller, (PortIndex)CLevel,
-                 sizeof(float), 0, (const void*)&clevel);
-}
-
-void Widget::on_knob8_value_changed()
-{
-  alevel = m_smallknob5.get_value();
-  //std::cout << "treble = " << alevel << std::endl;
-  write_function(controller, (PortIndex)ALevel,
-                 sizeof(float), 0, (const void*)&alevel);
-}
-
-void Widget::on_selector_value_changed()
-{
-  model = m_selector.get_value();
-  //std::cout << "model = " << model << std::endl;
-  write_function(controller, (PortIndex)MODEL,
+      break;
+    case MODEL:
+      model = m_selector.get_value();
+      //std::cout << "model = " << model << std::endl;
+      write_function(controller, (PortIndex)MODEL,
                  sizeof(float), 0, (const void*)&model);
-  change_skin(static_cast<int>(model));
-}
-
-void Widget::on_tselector_value_changed()
-{
-  t_model = t_selector.get_value();
-  //std::cout << "model = " << model << std::endl;
-  write_function(controller, (PortIndex)T_MODEL,
+      change_skin(static_cast<int>(model));
+      break;
+    case T_MODEL:
+      t_model = t_selector.get_value();
+      //std::cout << "model = " << model << std::endl;
+      write_function(controller, (PortIndex)T_MODEL,
                  sizeof(float), 0, (const void*)&t_model);
-}
-
-void Widget::on_cselector_value_changed()
-{
-  c_model = c_selector.get_value();
-  //std::cout << "model = " << model << std::endl;
-  write_function(controller, (PortIndex)C_MODEL,
+      break;
+    case C_MODEL:
+      c_model = c_selector.get_value();
+      //std::cout << "model = " << model << std::endl;
+      write_function(controller, (PortIndex)C_MODEL,
                  sizeof(float), 0, (const void*)&c_model);
+      break;
+    case CLevel:
+      clevel = m_smallknob4.get_value();
+      //std::cout << "treble = " << clevel << std::endl;
+      write_function(controller, (PortIndex)CLevel,
+                 sizeof(float), 0, (const void*)&clevel);
+      break;
+    case ALevel:
+      alevel = m_smallknob5.get_value();
+      //std::cout << "treble = " << alevel << std::endl;
+      write_function(controller, (PortIndex)ALevel,
+                 sizeof(float), 0, (const void*)&alevel);
+      break;
+    default:
+      break;
+    }
 }
 
 inline std::string to_string(int _Val)
-{   // convert long long to string
+{   // convert int to string
         char _Buf[4];
         sprintf(_Buf, "%d", _Val);
         return (std::string(_Buf));

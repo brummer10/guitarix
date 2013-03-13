@@ -69,7 +69,7 @@ static plug amp_model [] = {
     gxamp6::plugin, //17
 };
 
-#define AMP_COUNT 18
+static const uint32_t AMP_COUNT = sizeof(amp_model) / sizeof(amp_model[0]);
 
 
 #endif  //SRC_HEADERS_GX_AMP_H_

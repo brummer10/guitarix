@@ -138,10 +138,12 @@ private:
   float*                       input;
   uint32_t                     s_rate;
   int32_t                      prio;
-  PluginLV2*                   amps[AMP_COUNT];
+  PluginLV2*                   amplifier[AMP_COUNT];
   PluginLV2*                   tonestack[TS_COUNT];
   float*                       a_model;
+  uint32_t                     a_model_;
   float*                       t_model;
+  uint32_t                     t_model_;
   gx_resample::BufferResampler resamp;
   GxSimpleConvolver            cabconv;
   Impf                         impf;
@@ -212,7 +214,9 @@ public:
     s_rate(0),
     prio(0),
     a_model(NULL),
+    a_model_(0), 
     t_model(NULL),
+    t_model_(1),
     cabconv(GxSimpleConvolver(resamp)),
     impf(Impf()),
     ampconv(GxSimpleConvolver(resamp1)),
@@ -253,7 +257,7 @@ void GxPluginMono::do_work_mono()
       // selected cabinet have changed?
       if (change_cab())
       {
-        CabDesc& cab = *getCabEntry(static_cast<int>(c_model_)).data;
+        CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
         cabconv.cab_count = cab.ir_count;
         cabconv.cab_sr = cab.ir_sr;
         cabconv.cab_data = cab.ir_data;
@@ -302,13 +306,13 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
   bufsize = bufsize_;
   s_rate = rate;
   
-  for(int i=0; i<AMP_COUNT; i++) {
-        amps[i] = amp_model[i]();
-        amps[i]->set_samplerate((unsigned int) rate, amps[i]);
+  for(uint32_t i=0; i<AMP_COUNT; i++) {
+        amplifier[i] = amp_model[i]();
+        amplifier[i]->set_samplerate(static_cast<unsigned int>(rate), amplifier[i]);
     }
-  for(int i=0; i<TS_COUNT; i++) {
+  for(uint32_t i=0; i<TS_COUNT; i++) {
         tonestack[i] = tonestack_model[i]();
-        tonestack[i]->set_samplerate((unsigned int) rate, tonestack[i]);
+        tonestack[i]->set_samplerate(static_cast<unsigned int>(rate), tonestack[i]);
     }
   
   if (bufsize )
@@ -318,7 +322,7 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
       if ((priomax/2) > 0) prio = priomax/2;
 #endif
       // set cabinet data
-      CabDesc& cab = *getCabEntry(static_cast<int>(c_model_)).data;
+      CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
       cabconv.cab_count = cab.ir_count;
       cabconv.cab_sr = cab.ir_sr;
       cabconv.cab_data = cab.ir_data;
@@ -382,13 +386,13 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
   // run dsp
   // run selected tube model
-  int m = static_cast<int>(*(a_model));
-  amps[m]->mono_audio(static_cast<int>(n_samples), input, output, amps[m]);
+  a_model_ = static_cast<uint32_t>(*(a_model));
+  amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
   // run presence convolver
   ampconv.run_static(n_samples, &ampconv, output);
   // run selected tonestack
-  int t = static_cast<int>(*(t_model));
-  tonestack[t]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t]);
+  t_model_ = static_cast<uint32_t>(*(t_model));
+  tonestack[t_model_]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t_model_]);
   // run selected cabinet convolver
   cabconv.run_static(n_samples, &cabconv, output);
 
@@ -407,20 +411,20 @@ void GxPluginMono::connect_all_mono_ports(uint32_t port, void* data)
 {
   connect_mono(port,data);
   
-  for(int i=0; i<AMP_COUNT; i++) {
-        amps[i]->connect_ports(port, data, amps[i]);
+  for(uint32_t i=0; i<AMP_COUNT; i++) {
+        amplifier[i]->connect_ports(port, data, amplifier[i]);
     }
-  for(int i=0; i<TS_COUNT; i++) {
+  for(uint32_t i=0; i<TS_COUNT; i++) {
         tonestack[i]->connect_ports(port, data, tonestack[i]);
     }
 }
 
 void GxPluginMono::clean()
 {
-  for(int i=0; i<AMP_COUNT; i++) {
-    amps[i]->delete_instance(amps[i]);
+  for(uint32_t i=0; i<AMP_COUNT; i++) {
+    amplifier[i]->delete_instance(amplifier[i]);
   }
-  for(int i=0; i<TS_COUNT; i++) {
+  for(uint32_t i=0; i<TS_COUNT; i++) {
     tonestack[i]->delete_instance(tonestack[i]);
   }
 }
