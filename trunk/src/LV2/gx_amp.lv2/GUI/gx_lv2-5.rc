@@ -1,9 +1,9 @@
 #"6V6"
 style "gx_lv2-5"
 {
-  stock["bigknob"] = {{"metalic1-knob.png"}}
-  stock["smallknob"] = {{"metalic1-knob-small.png"}}
-  stock["smallknobr"] = {{"metalic1-knob-middle.png"}}
+  stock["bigknob"] = {{"metal-knob.png"}}
+  stock["smallknob"] = {{"metal-knob-small.png"}}
+  stock["smallknobr"] = {{"metal-knob-middle.png"}}
   stock["amp_skin"] = {{"ac30.png"}}
   GxPaintBox::icon-set =5
 }

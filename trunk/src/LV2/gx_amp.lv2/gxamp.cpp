@@ -259,6 +259,7 @@ void GxPluginMono::do_work_mono()
       // selected cabinet have changed?
       if (change_cab())
       {
+        cabconv.cleanup();
         CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
         cabconv.cab_count = cab.ir_count;
         cabconv.cab_sr = cab.ir_sr;

@@ -39,7 +39,7 @@ Widget::Widget(Glib::ustring plug_name)
   "pre 12AT7/ master 6V6","pre 6DJ8/ master 6V6","pre 12ax7/ push-pull 6V6","pre 12AU7/ push-pull 6V6",
   "pre 12AT7/ push pull 6V6","pre 6DJ8/ push-pull 6V6"
   };
-  static const uint32_t tubes_size = sizeof(tubes) / sizeof(tubes[0]);
+  static const size_t tubes_size = sizeof(tubes) / sizeof(tubes[0]);
   Gtk::TreeModelColumn<Glib::ustring> label;
     Gtk::TreeModelColumnRecord rec;
     rec.add(label);
