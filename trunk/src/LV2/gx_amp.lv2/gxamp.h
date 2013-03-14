@@ -30,8 +30,8 @@
 #include <lv2/lv2plug.in/ns/ext/worker/worker.h>
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
 
-#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxamp"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxamp#gui"
+#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_amp"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_amp#gui"
 
 
 typedef enum

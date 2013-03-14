@@ -34,12 +34,17 @@ Widget::Widget(Glib::ustring plug_name)
   treble     = 0.5;
   clevel     = 1.0;
   alevel     = 1.0;*/
-
+  Glib::ustring tubes[] = {"12ax7","12AU7","12AT7","6DJ8","6C16","6V6","12ax7 feedback",
+  "12AU7 feedback","12AT7 feedback","6DJ8 feedback","pre 12ax7/ master 6V6","pre 12AU7/ master 6V6",
+  "pre 12AT7/ master 6V6","pre 6DJ8/ master 6V6","pre 12ax7/ push-pull 6V6","pre 12AU7/ push-pull 6V6",
+  "pre 12AT7/ push pull 6V6","pre 6DJ8/ push-pull 6V6"
+  };
+  static const uint32_t tubes_size = sizeof(tubes) / sizeof(tubes[0]);
   Gtk::TreeModelColumn<Glib::ustring> label;
     Gtk::TreeModelColumnRecord rec;
     rec.add(label);
     Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
-    ls->append()->set_value(0, Glib::ustring("12ax7")); //0
+    /*ls->append()->set_value(0, Glib::ustring("12ax7")); //0
     ls->append()->set_value(0, Glib::ustring("12AU7")); //1
     ls->append()->set_value(0, Glib::ustring("12AT7")); //2
     ls->append()->set_value(0, Glib::ustring("6DJ8")); //3
@@ -56,10 +61,10 @@ Widget::Widget(Glib::ustring plug_name)
     ls->append()->set_value(0, Glib::ustring("pre 12ax7/ push-pull 6V6")); //14
     ls->append()->set_value(0, Glib::ustring("pre 12AU7/ push-pull 6V6")); //15
     ls->append()->set_value(0, Glib::ustring("pre 12AT7/ push pull 6V6")); //16
-    ls->append()->set_value(0, Glib::ustring("pre 6DJ8/ push-pull 6V6")); //17
-    //for (const value_pair *p = param.getValueNames(); p->value_id; ++p) {
-    //    ls->append()->set_value(0, Glib::ustring(param.value_label(*p)));
-    //}
+    ls->append()->set_value(0, Glib::ustring("pre 6DJ8/ push-pull 6V6"));*/ //17
+    for (uint32_t i = 0 ; i< tubes_size; ++i) {
+        ls->append()->set_value(0, tubes[i]);
+    }
     m_selector.set_model(ls);
     m_selector.set_has_tooltip();
     m_selector.cp_configure("SELECTOR", "tubes", 0, 17, 1);

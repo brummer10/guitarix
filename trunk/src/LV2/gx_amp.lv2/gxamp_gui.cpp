@@ -128,7 +128,7 @@ void GXPluginGUI::set_plug_name( const char * plugin_uri)
 {
   addKnob = "";
 
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gxamp#GUITARIX", plugin_uri) == 0)
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_amp#GUITARIX", plugin_uri) == 0)
     {
       plugskin = "amp21.png";
       plug_name = "GUITARIXLV2";

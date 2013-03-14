@@ -80,5 +80,5 @@ def build(bld):
     
     install_path = '${LV2DIR}/%s' % bundle,
     bld.install_files('${LV2DIR}/gx_amp.lv2', 'manifest.ttl')
-    bld.install_files('${LV2DIR}/gx_amp.lv2', 'gxamp.ttl')
+    bld.install_files('${LV2DIR}/gx_amp.lv2', 'gx_amp.ttl')
 

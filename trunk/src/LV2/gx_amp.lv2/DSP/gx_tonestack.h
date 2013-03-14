@@ -81,7 +81,7 @@ static plug tonestack_model[] = {
     tonestack_gibsen::plugin,
 };
 
-static const uint32_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[0]);
+static const size_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[0]);
 
 
 #endif  //SRC_HEADERS_GX_TONESTACK_H_

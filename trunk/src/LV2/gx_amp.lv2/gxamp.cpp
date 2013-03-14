@@ -330,12 +330,14 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
       cabconv.set_samplerate(rate);
       cabconv.set_buffersize(bufsize);
       cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
+      while (!cabconv.checkstate());
       if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver disabled\n");
 
       ampconv.set_samplerate(rate);
       ampconv.set_buffersize(bufsize);
       ampconv.configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
+      while (!ampconv.checkstate());
       if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver disabled\n");
     }
