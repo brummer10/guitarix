@@ -233,13 +233,38 @@ bool GxSimpleConvolver::compute(int32_t count, float* input, float *output)
         }
       return true;
     }
-  memcpy(inpdata(0), input, count * sizeof(float));
+  int32_t flags = 0;
+  if (static_cast<uint32_t>(count) == buffersize)
+  {
+    memcpy(inpdata(0), input, count * sizeof(float));
 
-  int32_t flags = process(sync);
+    flags = process(sync);
 
-  memcpy(output, outdata(0), count * sizeof(float));
+    memcpy(output, outdata(0), count * sizeof(float));
   //printf("run\n");
-  return flags == 0;
+    return flags == 0;
+  } else {
+      float *in, *out;
+      in = inpdata(0);
+      out = outdata(0);
+      uint32_t b = 0;
+      uint32_t c = 1;
+      for(int32_t i = 0; i<count; ++i){
+        in[b] = input[i];
+        if(++b == buffersize) {
+          b=0;
+          flags = process();
+          for(uint32_t d = 0; d<buffersize; ++d) {
+            output[d*c] = out[d];
+          }
+          ++c;
+        }
+        
+      }
+        
+    return flags == 0;
+  }
+      
 }
 
 void GxSimpleConvolver::run_static(uint32_t n_samples, GxSimpleConvolver *p, float *output)

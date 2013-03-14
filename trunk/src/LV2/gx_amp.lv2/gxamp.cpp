@@ -239,7 +239,9 @@ public:
   ~GxPluginMono()
   {
     cabconv.stop_process();
+    cabconv.cleanup();
     ampconv.stop_process();
+    ampconv.cleanup();
   };
 };
 

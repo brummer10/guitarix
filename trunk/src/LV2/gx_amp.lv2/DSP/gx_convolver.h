@@ -70,6 +70,7 @@ public:
   }
   bool start(int32_t policy, int32_t priority);
   using Convproc::stop_process;
+  using Convproc::cleanup;
   inline void set_sync(bool val)
   {
     sync = val;
