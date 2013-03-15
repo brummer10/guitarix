@@ -89,6 +89,9 @@ protected:
   Gtk::HBox          m_hboxsel1;
   Gtk::HBox          m_hboxsel2;
   Gtk::VBox          m_vboxtonestack;
+  Gtk::HBox          m_hboxtonestack1;
+  Gtk::HBox          m_hboxtonestack2;
+  Gtk::HBox          m_hboxtonestack3;
 
   Gxw::PaintBox      m_paintbox;
   Gtk::HBox          m_hbox;

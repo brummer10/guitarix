@@ -59,7 +59,7 @@ Widget::Widget(Glib::ustring plug_name)
   static const size_t ts_size = sizeof(ts) / sizeof(ts[0]);
   
   make_selector_box(&t_selector, "Tonestacks", ts, ts_size, 
-                    T_MODEL, 0, tubes_size+1, 1.0, t_model, plug_name);
+                    T_MODEL, 0, ts_size+1, 1.0, t_model, plug_name);
 
 
 
@@ -132,7 +132,11 @@ Widget::Widget(Glib::ustring plug_name)
   m_hbox_.pack_start(m_vboxsel);
   m_hbox_.pack_start(m_vbox7);
   // etxra box for the boxed tonestack controllers
-  m_vboxtonestack.pack_start(t_selector,Gtk::PACK_SHRINK);
+  m_hboxtonestack1.pack_start(m_hboxtonestack3,Gtk::PACK_EXPAND_PADDING);
+  m_hboxtonestack1.pack_start(t_selector,Gtk::PACK_SHRINK);
+  m_hboxtonestack1.pack_start(m_hboxtonestack2,Gtk::PACK_EXPAND_PADDING);
+  
+  m_vboxtonestack.pack_start(m_hboxtonestack1);
   m_vboxtonestack.pack_start(m_hbox);
   m_hbox.set_border_width(8);
   m_hbox.pack_start(m_vbox5);

@@ -4,7 +4,7 @@ style "gx_lv2-12"
   stock["bigknob"] = {{"tactile_knob_large_151f.png"}}
   stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
   stock["smallknobr"] = {{"tactile_knob_medium_151f.png"}}
-  stock["amp_skin"] = {{"amp23.png"}}
+  stock["amp_skin"] = {{"amp32.png"}}
   GxPaintBox::icon-set =12
 }
 

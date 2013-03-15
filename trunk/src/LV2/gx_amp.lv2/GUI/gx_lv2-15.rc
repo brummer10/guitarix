@@ -1,10 +1,10 @@
 #"pre 12AU7/ push-pull 6V6"
 style "gx_lv2-15"
 {
-  stock["bigknob"] = {{"princeton-knob.png"}}
-  stock["smallknob"] = {{"princeton-knob-small.png"}}
-  stock["smallknobr"] = {{"princeton-knob-middle.png"}}
-  stock["amp_skin"] = {{"princeton.png"}}
+  stock["bigknob"] = {{"mc-knob-middle.png"}}
+  stock["smallknob"] = {{"mc-knob-small.png"}}
+  stock["smallknobr"] = {{"mc-knob-small.png"}}
+  stock["amp_skin"] = {{"amp35.png"}}
   GxPaintBox::icon-set =15
 }
 

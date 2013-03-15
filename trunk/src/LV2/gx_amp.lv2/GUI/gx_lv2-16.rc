@@ -1,10 +1,10 @@
 #"pre 12AT7/ push pull 6V6"
 style "gx_lv2-16"
 {
-  stock["bigknob"] = {{"metal-knob.png"}}
-  stock["smallknob"] = {{"metal-knob-small.png"}}
-  stock["smallknobr"] = {{"metal-knob-middle.png"}}
-  stock["amp_skin"] = {{"amp23.png"}}
+  stock["bigknob"] = {{"black-knob.png"}}
+  stock["smallknob"] = {{"black-knob-small.png"}}
+  stock["smallknobr"] = {{"black-knob-middle.png"}}
+  stock["amp_skin"] = {{"amp36.png"}}
   GxPaintBox::icon-set =16
 }
 

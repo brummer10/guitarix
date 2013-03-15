@@ -4,7 +4,7 @@ style "gx_lv2-10"
   stock["bigknob"] = {{"knob.png"}}
   stock["smallknob"] = {{"knob-small.png"}}
   stock["smallknobr"] = {{"knob-middle.png"}}
-  stock["amp_skin"] = {{"amp21.png"}}
+  stock["amp_skin"] = {{"amp30.png"}}
   GxPaintBox::icon-set =10
 }
 
