@@ -34,125 +34,65 @@ Widget::Widget(Glib::ustring plug_name)
   treble     = 0.5;
   clevel     = 1.0;
   alevel     = 1.0;*/
+  
+  // create all selectors
   Glib::ustring tubes[] = {"12ax7","12AU7","12AT7","6DJ8","6C16","6V6","12ax7 feedback",
   "12AU7 feedback","12AT7 feedback","6DJ8 feedback","pre 12ax7/ master 6V6","pre 12AU7/ master 6V6",
   "pre 12AT7/ master 6V6","pre 6DJ8/ master 6V6","pre 12ax7/ push-pull 6V6","pre 12AU7/ push-pull 6V6",
   "pre 12AT7/ push pull 6V6","pre 6DJ8/ push-pull 6V6"
   };
   static const size_t tubes_size = sizeof(tubes) / sizeof(tubes[0]);
-  Gtk::TreeModelColumn<Glib::ustring> label;
-    Gtk::TreeModelColumnRecord rec;
-    rec.add(label);
-    Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
-    /*ls->append()->set_value(0, Glib::ustring("12ax7")); //0
-    ls->append()->set_value(0, Glib::ustring("12AU7")); //1
-    ls->append()->set_value(0, Glib::ustring("12AT7")); //2
-    ls->append()->set_value(0, Glib::ustring("6DJ8")); //3
-    ls->append()->set_value(0, Glib::ustring("6C16")); //4
-    ls->append()->set_value(0, Glib::ustring("6V6")); //5
-    ls->append()->set_value(0, Glib::ustring("12ax7 feedback")); //6
-    ls->append()->set_value(0, Glib::ustring("12AU7 feedback")); //7
-    ls->append()->set_value(0, Glib::ustring("12AT7 feedback")); //8
-    ls->append()->set_value(0, Glib::ustring("6DJ8 feedback")); //9
-    ls->append()->set_value(0, Glib::ustring("pre 12ax7/ master 6V6")); //10
-    ls->append()->set_value(0, Glib::ustring("pre 12AU7/ master 6V6")); //11
-    ls->append()->set_value(0, Glib::ustring("pre 12AT7/ master 6V6")); //12
-    ls->append()->set_value(0, Glib::ustring("pre 6DJ8/ master 6V6")); //13
-    ls->append()->set_value(0, Glib::ustring("pre 12ax7/ push-pull 6V6")); //14
-    ls->append()->set_value(0, Glib::ustring("pre 12AU7/ push-pull 6V6")); //15
-    ls->append()->set_value(0, Glib::ustring("pre 12AT7/ push pull 6V6")); //16
-    ls->append()->set_value(0, Glib::ustring("pre 6DJ8/ push-pull 6V6"));*/ //17
-    for (uint32_t i = 0 ; i< tubes_size; ++i) {
-        ls->append()->set_value(0, tubes[i]);
-    }
-    m_selector.set_model(ls);
-    m_selector.set_has_tooltip();
-    m_selector.cp_configure("SELECTOR", "tubes", 0, 17, 1);
-    m_selector.set_show_value(false);
-    m_selector.cp_set_value(model);
-    m_selector.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),MODEL));
-    m_hboxsel1.pack_start(m_selector,Gtk::PACK_SHRINK);
-    m_hboxsel1.pack_start(m_hboxsel2,Gtk::PACK_EXPAND_PADDING);
-    m_vboxsel.pack_start(m_hboxsel1,Gtk::PACK_EXPAND_PADDING);
+  
+  make_selector_box(&m_selector, "Tubes", tubes, tubes_size, 
+                    MODEL, 0, tubes_size+1, 1.0, model, plug_name);
 
-  Gtk::TreeModelColumn<Glib::ustring> label1;
-    Gtk::TreeModelColumnRecord rec1;
-    rec1.add(label1);
-    Glib::RefPtr<Gtk::ListStore> ls1 = Gtk::ListStore::create(rec1);
-    ls1->append()->set_value(0, Glib::ustring("default"));
-    ls1->append()->set_value(0, Glib::ustring("Bassman"));
-    ls1->append()->set_value(0, Glib::ustring("Twin Reverb"));
-    ls1->append()->set_value(0, Glib::ustring("Princeton"));
-    ls1->append()->set_value(0, Glib::ustring("JCM-800"));
-    ls1->append()->set_value(0, Glib::ustring("JCM-2000"));
-    ls1->append()->set_value(0, Glib::ustring("M-Lead"));
-    ls1->append()->set_value(0, Glib::ustring("M2199"));
-    ls1->append()->set_value(0, Glib::ustring("AC-30"));
-    ls1->append()->set_value(0, Glib::ustring("Mesa Boogie"));
-    ls1->append()->set_value(0, Glib::ustring("SOL 100"));
-    ls1->append()->set_value(0, Glib::ustring("JTM-45"));
-    ls1->append()->set_value(0, Glib::ustring("AC-15"));
-    ls1->append()->set_value(0, Glib::ustring("Peavey"));
-    ls1->append()->set_value(0, Glib::ustring("Ibanez"));
-    ls1->append()->set_value(0, Glib::ustring("Roland"));
-    ls1->append()->set_value(0, Glib::ustring("Ampeg"));
-    ls1->append()->set_value(0, Glib::ustring("Rev.Rocket"));
-    ls1->append()->set_value(0, Glib::ustring("MIG 100 H"));
-    ls1->append()->set_value(0, Glib::ustring("Triple Giant"));
-    ls1->append()->set_value(0, Glib::ustring("Trio Preamp"));
-    ls1->append()->set_value(0, Glib::ustring("Hughes&Kettner"));
-    ls1->append()->set_value(0, Glib::ustring("Fender Junior"));
-    ls1->append()->set_value(0, Glib::ustring("Fender"));
-    ls1->append()->set_value(0, Glib::ustring("Fender Deville"));
-    ls1->append()->set_value(0, Glib::ustring("Gibsen"));
-    //for (const value_pair *p = param.getValueNames(); p->value_id; ++p) {
-    //    ls->append()->set_value(0, Glib::ustring(param.value_label(*p)));
-    //}
-    t_selector.set_model(ls1);
-    t_selector.set_has_tooltip();
-    t_selector.cp_configure("SELECTOR", "tonestacks", 0, 25, 1);
-    t_selector.set_show_value(false);
-    t_selector.cp_set_value(model);
-    t_selector.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),T_MODEL));
-  //m_hboxsel.pack_start(t_selector,Gtk::PACK_SHRINK);
+  m_hboxsel1.pack_start(m_selector,Gtk::PACK_SHRINK);
+  m_hboxsel1.pack_start(m_hboxsel2,Gtk::PACK_EXPAND_PADDING);
+  m_vboxsel.pack_start(m_hboxsel1,Gtk::PACK_EXPAND_PADDING);
+
+  Glib::ustring ts[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800",
+  "JCM-2000","M-Lead","M2199","AC-30","Mesa Boogie","SOL 100","JTM-45","AC-15",
+  "Peavey","Ibanez","Roland","Ampeg","Rev.Rocket","MIG 100 H","Triple Giant",
+  "Trio Preamp","Hughes&Kettner","Fender Junior","Fender","Fender Deville",
+  "Gibsen",
+  };
+  static const size_t ts_size = sizeof(ts) / sizeof(ts[0]);
   
-  Gtk::TreeModelColumn<Glib::ustring> label2;
-    Gtk::TreeModelColumnRecord rec2;
-    rec2.add(label2);
-    Glib::RefPtr<Gtk::ListStore> ls2 = Gtk::ListStore::create(rec);
-    ls2->append()->set_value(0, Glib::ustring("4x12"));
-    ls2->append()->set_value(0, Glib::ustring("2x12"));
-    ls2->append()->set_value(0, Glib::ustring("1x12"));
-    ls2->append()->set_value(0, Glib::ustring("4x10"));
-    ls2->append()->set_value(0, Glib::ustring("2x10"));
-    ls2->append()->set_value(0, Glib::ustring("HighGain"));
-    ls2->append()->set_value(0, Glib::ustring("Twin"));
-    ls2->append()->set_value(0, Glib::ustring("Bassman"));
-    ls2->append()->set_value(0, Glib::ustring("Marshall"));
-    ls2->append()->set_value(0, Glib::ustring("AC30"));
-    ls2->append()->set_value(0, Glib::ustring("Princeton"));
-    ls2->append()->set_value(0, Glib::ustring("A2"));
-    ls2->append()->set_value(0, Glib::ustring("1x15"));
-    ls2->append()->set_value(0, Glib::ustring("Mesa"));
-    ls2->append()->set_value(0, Glib::ustring("Briliant"));
-    ls2->append()->set_value(0, Glib::ustring("Vitalize"));
-    ls2->append()->set_value(0, Glib::ustring("Charisma"));
-    //for (const value_pair *p = param.getValueNames(); p->value_id; ++p) {
-    //    ls->append()->set_value(0, Glib::ustring(param.value_label(*p)));
-    //}
-    c_selector.set_model(ls2);
-    c_selector.set_has_tooltip();
-    c_selector.cp_configure("SELECTOR", "Cabs", 0, 16, 1);
-    c_selector.set_show_value(false);
-    c_selector.cp_set_value(model);
-    c_selector.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),C_MODEL));
-  //m_hboxsel.pack_start(c_selector,Gtk::PACK_SHRINK);
+  make_selector_box(&t_selector, "Tonestacks", ts, ts_size, 
+                    T_MODEL, 0, tubes_size+1, 1.0, t_model, plug_name);
+
+
+
+  Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain","Twin",
+  "Bassman","Marshall","AC30","Princeton","A2","1x15","Mesa","Briliant","Vitalize",
+  "Charisma",
+  };
+  static const size_t cab_size = sizeof(cab) / sizeof(cab[0]);
   
-  
-  //m_vboxsel.pack_start(m_hboxsel,Gtk::PACK_SHRINK);
+  make_selector_box(&c_selector, "Cabinets", cab, cab_size, 
+                    C_MODEL, 0, cab_size+1, 1.0, c_model, plug_name);
+
+  // create all controllers
+  make_controller_box(&m_vbox, &m_bigknob, "mastergain", -20, 20, 0.1,
+                      mastergain,GAIN1, plug_name);
+  make_controller_box(&m_vbox1, &m_bigknob1, "pregain", -20, 20, 0.1,
+                      pregain,PREGAIN, plug_name);
+  make_controller_box(&m_vbox2, &m_bigknob2, "distortion", 1, 100, 1,
+                      wet_dry,WET_DRY, plug_name);
+  make_controller_box(&m_vbox3, &m_bigknob3, "drive", 0.01, 1, 0.01,
+                      drive,DRIVE, plug_name);
+  make_controller_box(&m_vbox4, &m_smallknob1, "mid", 0, 1, 0.01,
+                      mid,MIDDLE, plug_name);
+  make_controller_box(&m_vbox5, &m_smallknob2, "bass", 0, 1, 0.01,
+                      bass,BASS, plug_name);
+  make_controller_box(&m_vbox6, &m_smallknob3, "treble", 0, 1, 0.01,
+                      treble,TREBLE, plug_name);
+  // put cabinet selector above cab controller
+  m_vbox7.pack_start(c_selector,Gtk::PACK_SHRINK);
+  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 1, 20, 1,
+                     clevel,CLevel, plug_name);
+  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 1, 10, 1,
+                      alevel,ALevel, plug_name);
 
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(30);
@@ -176,45 +116,8 @@ Widget::Widget(Glib::ustring plug_name)
 
   // and controller box on bottem
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
-  
-  // create all controllers
-  make_controller_box(&m_vbox, &m_bigknob, "mastergain", -20, 20, 0.1, mastergain, plug_name);
-  m_bigknob.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),GAIN1));
 
-  make_controller_box(&m_vbox1, &m_bigknob1, "pregain", -20, 20, 0.1, pregain, plug_name);
-  m_bigknob1.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),PREGAIN));
-
-  make_controller_box(&m_vbox2, &m_bigknob2, "distortion", 1, 100, 1, wet_dry, plug_name);
-  m_bigknob2.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),WET_DRY));
-
-  make_controller_box(&m_vbox3, &m_bigknob3, "drive", 0.01, 1, 0.01, drive, plug_name);
-  m_bigknob3.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),DRIVE));
-
-  make_controller_box(&m_vbox4, &m_smallknob1, "mid", 0, 1, 0.01, mid, plug_name);
-  m_smallknob1.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),MIDDLE));
-
-  make_controller_box(&m_vbox5, &m_smallknob2, "bass", 0, 1, 0.01, bass, plug_name);
-  m_smallknob2.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),BASS));
-
-  make_controller_box(&m_vbox6, &m_smallknob3, "treble", 0, 1, 0.01, treble, plug_name);
-  m_smallknob3.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),TREBLE));
-
-  m_vbox7.pack_start(c_selector,Gtk::PACK_SHRINK);
-  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 1, 20, 1, clevel, plug_name);
-  m_smallknob4.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),CLevel));
-
-  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 1, 10, 1, alevel, plug_name);
-  m_smallknob5.signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),ALevel));
-
+  // amp controllers including the tube selector
   m_hboxsel.set_spacing(12);
   m_hboxsel.set_homogeneous(false);
   m_hboxsel.pack_start(m_vbox1);
@@ -251,12 +154,44 @@ Widget::~Widget()
 {
 
 }
+
+// create selectors from gxwmm
+void Widget::make_selector_box(Gxw::Selector *regler,
+                                 Glib::ustring labela,
+                                 Glib::ustring tables[],
+                                 size_t _size,
+                                 PortIndex port_name,
+                                 float min, float max,
+                                 float digits, float value,
+                                 Glib::ustring plug_name)
+{
+  Gtk::TreeModelColumn<Glib::ustring> label;
+  Gtk::TreeModelColumnRecord rec;
+  rec.add(label);
+  Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+
+  for (uint32_t i = 0 ; i< _size; ++i) {
+    ls->append()->set_value(0, tables[i]);
+  }
+    
+  regler->set_model(ls);
+  regler->set_has_tooltip();
+  regler->set_tooltip_text(labela);
+  regler->cp_configure("SELECTOR", labela, min, max, digits);
+  regler->set_show_value(false);
+  regler->cp_set_value(value);
+  regler->set_name(plug_name);
+  regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed),port_name));
+}
+
 // create stackboxes with controllers from gxw
 void Widget::make_controller_box(Gtk::VBox *box,
                                  Gxw::Regler *regler,
                                  Glib::ustring label,
                                  float min, float max,
                                  float digits, float value,
+                                 PortIndex port_name,
                                  Glib::ustring plug_name)
 {
   //Gtk::Label* pr = new Gtk::Label(label, 0);
@@ -277,6 +212,9 @@ void Widget::make_controller_box(Gtk::VBox *box,
   box->pack_start(*regler,Gtk::PACK_SHRINK);
   Gtk::VBox* b2 = new Gtk::VBox();
   box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+  regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+      &Widget::on_value_changed), port_name));
+
 }
 // set borderwith for paintbox when widget resize
 // to hold controllers in place

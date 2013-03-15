@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * --------------------------------------------------------------------------
  *
- *    This file is part of the guitarix GUI main class
- *    Note: this header file depends on gx_system.h 
+ *
+ *
  * 
  * ----------------------------------------------------------------------------
  */
