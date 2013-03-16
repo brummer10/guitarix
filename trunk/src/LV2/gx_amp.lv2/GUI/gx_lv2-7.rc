@@ -1,9 +1,9 @@
 #"12AU7 feedback"
 style "gx_lv2-7"
 {
-  stock["bigknob"] = {{"princeton-knob.png"}}
-  stock["smallknob"] = {{"princeton-knob-small.png"}}
-  stock["smallknobr"] = {{"princeton-knob-middle.png"}}
+  stock["bigknob"] = {{"m3-knob-middle.png"}}
+  stock["smallknob"] = {{"m3-knob-small.png"}}
+  stock["smallknobr"] = {{"m3-knob-small.png"}}
   stock["amp_skin"] = {{"champ.png"}}
   GxPaintBox::icon-set =7
 }

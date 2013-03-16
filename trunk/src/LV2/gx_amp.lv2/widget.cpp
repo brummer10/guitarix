@@ -44,7 +44,7 @@ Widget::Widget(Glib::ustring plug_name)
   static const size_t tubes_size = sizeof(tubes) / sizeof(tubes[0]);
   
   make_selector_box(&m_selector, "Tubes", tubes, tubes_size, 
-                    MODEL, 0, tubes_size+1, 1.0, model, plug_name);
+                    MODEL, 0, static_cast<float>(tubes_size+1), 1.0, model, plug_name);
 
   m_hboxsel1.pack_start(m_selector,Gtk::PACK_SHRINK);
   m_hboxsel1.pack_start(m_hboxsel2,Gtk::PACK_EXPAND_PADDING);
@@ -59,8 +59,7 @@ Widget::Widget(Glib::ustring plug_name)
   static const size_t ts_size = sizeof(ts) / sizeof(ts[0]);
   
   make_selector_box(&t_selector, "Tonestacks", ts, ts_size, 
-                    T_MODEL, 0, ts_size+1, 1.0, t_model, plug_name);
-
+                    T_MODEL, 0, static_cast<float>(ts_size+1), 1.0, t_model, plug_name);
 
 
   Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain","Twin",
@@ -70,7 +69,7 @@ Widget::Widget(Glib::ustring plug_name)
   static const size_t cab_size = sizeof(cab) / sizeof(cab[0]);
   
   make_selector_box(&c_selector, "Cabinets", cab, cab_size, 
-                    C_MODEL, 0, cab_size+1, 1.0, c_model, plug_name);
+                    C_MODEL, 0, static_cast<float>(cab_size+1), 1.0, c_model, plug_name);
 
   // create all controllers
   make_controller_box(&m_vbox, &m_bigknob, "mastergain", -20, 20, 0.1,
@@ -111,12 +110,8 @@ Widget::Widget(Glib::ustring plug_name)
   m_paintbox.pack_start(m_vbox_);
   // and put space box on top
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
-  // and put selector box in the middle
-  //m_vbox_.pack_start(m_vboxsel);
-
   // and controller box on bottem
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
-
   // amp controllers including the tube selector
   m_hboxsel.set_spacing(12);
   m_hboxsel.set_homogeneous(false);
@@ -349,25 +344,25 @@ void Widget::on_value_changed(uint32_t port_index)
       break;
     case T_MODEL:
       t_model = t_selector.get_value();
-      //std::cout << "model = " << model << std::endl;
+      //std::cout << "t_model = " << t_model << std::endl;
       write_function(controller, (PortIndex)T_MODEL,
                  sizeof(float), 0, (const void*)&t_model);
       break;
     case C_MODEL:
       c_model = c_selector.get_value();
-      //std::cout << "model = " << model << std::endl;
+      //std::cout << "c_model = " << c_model << std::endl;
       write_function(controller, (PortIndex)C_MODEL,
                  sizeof(float), 0, (const void*)&c_model);
       break;
     case CLevel:
       clevel = m_smallknob4.get_value();
-      //std::cout << "treble = " << clevel << std::endl;
+      //std::cout << "clevel = " << clevel << std::endl;
       write_function(controller, (PortIndex)CLevel,
                  sizeof(float), 0, (const void*)&clevel);
       break;
     case ALevel:
       alevel = m_smallknob5.get_value();
-      //std::cout << "treble = " << alevel << std::endl;
+      //std::cout << "alevel = " << alevel << std::endl;
       write_function(controller, (PortIndex)ALevel,
                  sizeof(float), 0, (const void*)&alevel);
       break;
