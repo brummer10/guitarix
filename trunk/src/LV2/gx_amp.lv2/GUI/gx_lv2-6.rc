@@ -1,9 +1,9 @@
 #"12ax7 feedback"
 style "gx_lv2-6"
 {
-  stock["bigknob"] = {{"metalic1-knob.png"}}
-  stock["smallknob"] = {{"metalic1-knob-small.png"}}
-  stock["smallknobr"] = {{"metalic1-knob-middle.png"}}
+  stock["bigknob"] = {{"nm1-knob.png"}}
+  stock["smallknob"] = {{"nm1-knob-small.png"}}
+  stock["smallknobr"] = {{"nm1-knob-middle.png"}}
   stock["amp_skin"] = {{"ga15.png"}}
   GxPaintBox::icon-set =6
 }

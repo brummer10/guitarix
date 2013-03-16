@@ -39,14 +39,14 @@ private:
   Glib::ustring plug_name;
   void set_knob(Glib::ustring knob);
   void set_skin();
-  void set_plug_name(const char * plugin_uri);
+  void set_plug_name();
   GtkWidget* make_gui();
 public:
 
   Widget* widget;
-  static void set_plug_name_static(GXPluginGUI *self, const char * plugin_uri)
+  static void set_plug_name_static(GXPluginGUI *self)
   {
-    self->set_plug_name(plugin_uri);
+    self->set_plug_name();
   }
   static GtkWidget* make_gui_static(GXPluginGUI *self)
   {
@@ -124,20 +124,11 @@ void GXPluginGUI::set_skin()
   gtk_rc_parse_string (toparse.c_str());
 }
 
-void GXPluginGUI::set_plug_name( const char * plugin_uri)
+void GXPluginGUI::set_plug_name()
 {
   addKnob = "";
-
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_amp#GUITARIX", plugin_uri) == 0)
-    {
-      plugskin = "amp21.png";
-      plug_name = "GUITARIXLV2";
-    }
-  else
-    {
-      plugskin = "amp21.png";
-      plug_name = "GUITARIXLV2";
-    }
+  plugskin = "amp21.png";
+  plug_name = "GUITARIXLV2";
 }
 
 GtkWidget* GXPluginGUI::make_gui()
@@ -164,7 +155,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 {
   GXPluginGUI* self = new GXPluginGUI();
   if (self == NULL) return NULL;
-  self->set_plug_name_static(self, plugin_uri);
+  self->set_plug_name_static(self);
   *widget = (LV2UI_Widget)self->make_gui_static(self);
   self->widget->controller = controller;
   self->widget->write_function = write_function;

@@ -1,9 +1,9 @@
 #"12AT7 feedback"
 style "gx_lv2-8"
 {
-  stock["bigknob"] = {{"tactile_knob_large_151f.png"}}
-  stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
-  stock["smallknobr"] = {{"tactile_knob_medium_151f.png"}}
+  stock["bigknob"] = {{"nm-knob.png"}}
+  stock["smallknob"] = {{"nm-knob-small.png"}}
+  stock["smallknobr"] = {{"nm-knob-middle.png"}}
   stock["amp_skin"] = {{"gx_dark.png"}}
   GxPaintBox::icon-set =8
 }
