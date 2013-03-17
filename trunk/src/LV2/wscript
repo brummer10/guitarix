@@ -58,6 +58,18 @@ def configure(conf):
     sub_file('./src/LV2/gxbooster.lv2/manifest.ttl.in', './src/LV2/gxbooster.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxautowah.lv2');
     sub_file('./src/LV2/gxautowah.lv2/manifest.ttl.in', './src/LV2/gxautowah.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+
+    conf.sub_config('gxpreamp.lv2');
+    sub_file('./src/LV2/gxpreamp.lv2/manifest.ttl.in', './src/LV2/gxpreamp.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+
+    conf.sub_config('gxpreamp.lv2/StereoAmp');
+    sub_file('./src/LV2/gxpreamp.lv2/StereoAmp/manifest_stereo.ttl.in', './src/LV2/gxpreamp.lv2/StereoAmp/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+
+    conf.sub_config('gxredeye.lv2');
+    sub_file('./src/LV2/gxredeye.lv2/manifest.ttl.in', './src/LV2/gxredeye.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+
+    conf.sub_config('gxtilttone.lv2');
+    sub_file('./src/LV2/gxtilttone.lv2/manifest.ttl.in', './src/LV2/gxtilttone.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     
 def build(bld):
     bld.add_subdirs('gxamp.lv2')
@@ -68,7 +80,11 @@ def build(bld):
     bld.add_subdirs('gxts9.lv2')
     bld.add_subdirs('gxbooster.lv2')
     bld.add_subdirs('gxautowah.lv2')
-
+    bld.add_subdirs('gxpreamp.lv2')
+    bld.add_subdirs('gxpreamp.lv2/StereoAmp')
+    bld.add_subdirs('gxredeye.lv2')
+    bld.add_subdirs('gxtilttone.lv2')
+    
 
     gxampstyledir = bld.path.find_dir( 'gxamp.lv2/GUI' ) ;
     bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxampstyledir.ant_glob('**/*.png'),cwd=gxampstyledir,  chmod=0o644, relative_trick=True)
@@ -76,4 +92,10 @@ def build(bld):
     bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxamp5styledir.ant_glob('**/*.png'),cwd=gxamp5styledir, chmod=0o644, relative_trick=True)
     gxamp7styledir = bld.path.find_dir( 'gxamp7.lv2/GUI' ) ;
     bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxamp7styledir.ant_glob('**/*.png'),cwd=gxamp7styledir, chmod=0o644, relative_trick=True)
+    gxampstyledir = bld.path.find_dir( 'gxpreamp.lv2/GUI' ) ;
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxampstyledir.ant_glob('**/*.png'),cwd=gxampstyledir,chmod=0o644, relative_trick=True)
+    gxampstyledir = bld.path.find_dir( 'gxredeye.lv2/GUI' ) ;
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxampstyledir.ant_glob('**/*.png'),cwd=gxampstyledir,chmod=0o644, relative_trick=True)
+    gxampstyledir = bld.path.find_dir( 'gxtilttone.lv2/GUI' ) ;
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxampstyledir.ant_glob('**/*.png'),cwd=gxampstyledir,chmod=0o644, relative_trick=True)
 
