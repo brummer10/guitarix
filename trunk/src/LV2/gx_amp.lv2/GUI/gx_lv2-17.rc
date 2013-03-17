@@ -1,0 +1,12 @@
+#"pre 6DJ8/ push-pull 6V6"
+style "gx_lv2-17"
+{
+  stock["bigknob"] = {{"ac30-knob.png"}}
+  stock["smallknob"] = {{"ac30-knob-small.png"}}
+  stock["smallknobr"] = {{"ac30-knob-middle.png"}}
+  stock["amp_skin"] = {{"amp37.png"}}
+  GxPaintBox::icon-set =17
+}
+
+widget "*.GUITARIXLV2" style:highest "gx_lv2-17"
+

@@ -58,7 +58,6 @@ private:
 	static void compute_static(int count, float *input0, float *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
-
 public:
 	Dsp();
 	~Dsp();

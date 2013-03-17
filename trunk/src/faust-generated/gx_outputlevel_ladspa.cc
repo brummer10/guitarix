@@ -20,7 +20,6 @@ private:
 	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
-
 public:
 	Dsp();
 	~Dsp();

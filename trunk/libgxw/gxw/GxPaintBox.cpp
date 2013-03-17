@@ -2373,9 +2373,13 @@ static void amp_skin_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gint y0      = wi->allocation.y;
 	gint w      = wi->allocation.width;
 	gint h      = wi->allocation.height;
+    static int spf, opf = 0;
+    gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    
     static double ne_w = 0.;
-	if (ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
+	if (spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
 		ne_w = w*h;
+        opf = spf;
 		while (G_IS_OBJECT(paintbox-> gxr_image)) {
 			g_object_unref(paintbox->gxr_image);
 		}

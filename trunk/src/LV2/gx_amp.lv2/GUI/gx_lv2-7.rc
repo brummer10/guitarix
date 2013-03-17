@@ -1,0 +1,12 @@
+#"12AU7 feedback"
+style "gx_lv2-7"
+{
+  stock["bigknob"] = {{"m3-knob-middle.png"}}
+  stock["smallknob"] = {{"m3-knob-small.png"}}
+  stock["smallknobr"] = {{"m3-knob-small.png"}}
+  stock["amp_skin"] = {{"champ.png"}}
+  GxPaintBox::icon-set =7
+}
+
+widget "*.GUITARIXLV2" style:highest "gx_lv2-7"
+

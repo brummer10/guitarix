@@ -1,0 +1,12 @@
+#"pre 12AU7/ master 6V6"
+style "gx_lv2-11"
+{
+  stock["bigknob"] = {{"black-knob.png"}}
+  stock["smallknob"] = {{"black-knob-small.png"}}
+  stock["smallknobr"] = {{"black-knob-middle.png"}}
+  stock["amp_skin"] = {{"amp31.png"}}
+  GxPaintBox::icon-set =11
+}
+
+widget "*.GUITARIXLV2" style:highest "gx_lv2-11"
+
