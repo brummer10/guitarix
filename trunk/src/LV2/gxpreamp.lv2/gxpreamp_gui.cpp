@@ -110,7 +110,7 @@ void GXPluginGUI::set_skin()
   toparse +=     plug_name;
   toparse +=     "_dark-paintbox' ";
 
-fprintf(stderr, "%s\n",toparse.c_str() ) ;
+//fprintf(stderr, "%s\n",toparse.c_str() ) ;
   gtk_rc_parse_string (toparse.c_str());
 }
 
