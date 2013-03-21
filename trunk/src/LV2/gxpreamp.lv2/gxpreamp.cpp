@@ -143,12 +143,12 @@ private:
 
 public:
 
-LV2_Atom_Forge forge;
-LV2_Atom_Forge_Frame notify_frame;
-LV2_Atom_Sequence*           notify_port;
+  LV2_Atom_Forge forge;
+  LV2_Atom_Forge_Frame notify_frame;
+  LV2_Atom_Sequence*           notify_port;
   float                        maxlevels_[4];
-/* URIs */
-PreampURIs uris;
+  /* URIs */
+  PreampURIs uris;
 
   // LV2 stuff
   LV2_URID_Map*                map;
@@ -162,8 +162,8 @@ PreampURIs uris;
   inline void connect_all_mono_ports(uint32_t port, void* data);
   // constructor
   GxPluginMono() :
-    input(NULL),
     output(NULL),
+    input(NULL),
     amplifier(GxPreAmpMono())
     {
     	atomic_set(&schedule_wait,0);

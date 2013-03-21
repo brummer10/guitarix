@@ -80,6 +80,9 @@ void GxRedeyeGUI::set_knob( Glib::ustring prefix)
   addKnob +=  "' style 'gx_";
   addKnob +=  plug_name;
   addKnob +=  "_icons'\n";
+  addKnob +=  "class '*GxToggleImage' style'gx_"; 
+  addKnob +=  plug_name;
+  addKnob +=  "_icons'\n";
 //  std::cout << "addKnob = " << addKnob << std::endl;
 }
 

@@ -72,14 +72,8 @@ void GXPluginGUI::set_knob( Glib::ustring knob)
               "   stock['smallknobr'] = {{'";
   addKnob +=  knob;
   addKnob +=  "-middle.png'}}\n";
-
-  addKnob +=  "   stock['redeyelabel']={{'" ;
-  addKnob +=  "redeyelabel.png'}}\n" ;
-
-  addKnob +=  "   stock['guitarixlabel']={{'" ;
-  addKnob +=  "guitarixlabel.png'}}\n"
-              " }\n"
-              "widget '*.";
+  addKnob +=   " }\n"
+               "widget '*.";
   addKnob +=  plug_name;
   addKnob +=  "' style 'gx_";
   addKnob +=  plug_name;

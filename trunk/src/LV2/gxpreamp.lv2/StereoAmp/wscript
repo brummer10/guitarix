@@ -36,7 +36,7 @@ def build(bld):
         includes = incl2,
         lib = lib2,
         uselib = uselib2,
-        obj_ext  = '_3.o',
+        obj_ext  = '_12.o',
         cxxflags = cxxflag2,
         defines  = ["LV2_SO"],
         target   = 'gxpreamp_stereo',

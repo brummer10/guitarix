@@ -46,6 +46,8 @@ def configure(conf):
     conf.env['SSE2'] = append_sse_flags()
     pa = '.so'
     sub_file('./src/LV2/gxamp.lv2/manifest.ttl.in', './src/LV2/gxamp.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+    conf.sub_config('gx_amp.lv2');
+    sub_file('./src/LV2/gx_amp.lv2manifest.ttl.in', './src/LV2/gx_amp.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxamp.lv2/StereoAmp');
     sub_file('./src/LV2/gxamp.lv2/StereoAmp/manifest_stereo.ttl.in', './src/LV2/gxamp.lv2/StereoAmp/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     conf.sub_config('gxamp.lv2/FeedBackAmp');
@@ -72,6 +74,9 @@ def configure(conf):
     sub_file('./src/LV2/gxtilttone.lv2/manifest.ttl.in', './src/LV2/gxtilttone.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     
 def build(bld):
+    # faust folder keep of for now
+    #bld.add_subdirs('faust')
+    bld.add_subdirs('gx_amp.lv2')
     bld.add_subdirs('gxamp.lv2')
     bld.add_subdirs('gxamp.lv2/StereoAmp')
     bld.add_subdirs('gxamp.lv2/FeedBackAmp')
@@ -86,6 +91,9 @@ def build(bld):
     bld.add_subdirs('gxtilttone.lv2')
     
 
+    gx_ampstyledir = bld.path.find_dir( 'gx_amp.lv2/GUI' ) ;
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gx_ampstyledir.ant_glob('**/*.png'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
+    bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gx_ampstyledir.ant_glob('**/*.rc'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
     gxampstyledir = bld.path.find_dir( 'gxamp.lv2/GUI' ) ;
     bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gxampstyledir.ant_glob('**/*.png'),cwd=gxampstyledir,  chmod=0o644, relative_trick=True)
     gxamp5styledir = bld.path.find_dir( 'gxamp5.lv2/GUI' ) ;
