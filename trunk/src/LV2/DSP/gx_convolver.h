@@ -103,7 +103,7 @@ public:
   bool compute_stereo(int32_t count, float* input, float* input1, float *output, float *output1);
   bool compute_stereo(int32_t count, float* buffer, float* buffer1)
   {
-    return is_runnable() ? compute_stereo(count, buffer, buffer, buffer1, buffer1) : true;
+    return is_runnable() ? compute_stereo(count, buffer, buffer1, buffer, buffer1) : true;
   }
   static void run_static(uint32_t n_samples, GxSimpleConvolver *p, float *output);
   static void run_static_stereo(uint32_t n_samples, GxSimpleConvolver *p, float *output, float *output1);

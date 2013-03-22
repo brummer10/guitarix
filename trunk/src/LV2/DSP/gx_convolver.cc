@@ -235,15 +235,13 @@ bool GxSimpleConvolver::compute(int32_t count, float* input, float *output)
     }
   int32_t flags = 0;
   if (static_cast<uint32_t>(count) == buffersize)
-  {
-    memcpy(inpdata(0), input, count * sizeof(float));
+    {
+      memcpy(inpdata(0), input, count * sizeof(float));
 
-    flags = process(sync);
+      flags = process(sync);
 
-    memcpy(output, outdata(0), count * sizeof(float));
-  //printf("run\n");
-    return flags == 0;
-  } else {
+      memcpy(output, outdata(0), count * sizeof(float));
+    } else {
       float *in, *out;
       in = inpdata(0);
       out = outdata(0);
@@ -259,12 +257,9 @@ bool GxSimpleConvolver::compute(int32_t count, float* input, float *output)
           }
           ++c;
         }
-        
       }
-        
-    return flags == 0;
-  }
-      
+    }
+  return flags == 0;
 }
 
 void GxSimpleConvolver::run_static(uint32_t n_samples, GxSimpleConvolver *p, float *output)
@@ -345,12 +340,38 @@ bool GxSimpleConvolver::compute_stereo(int32_t count, float* input, float* input
         }
       return true;
     }
-  memcpy(inpdata(0), input, count * sizeof(float));
-  memcpy(inpdata(1), input1, count * sizeof(float));
-  int32_t flags = process(sync);
+  int32_t flags = 0;
+  if (static_cast<uint32_t>(count) == buffersize)
+    {
+      memcpy(inpdata(0), input, count * sizeof(float));
+      memcpy(inpdata(1), input1, count * sizeof(float));
 
-  memcpy(output, outdata(0), count * sizeof(float));
-  memcpy(output1, outdata(1), count * sizeof(float));
+      flags = process(sync);
+
+      memcpy(output, outdata(0), count * sizeof(float));
+      memcpy(output1, outdata(1), count * sizeof(float));
+    } else {
+        float *in, *in1, *out, *out1;
+      in = inpdata(0);
+      in1 = inpdata(1);
+      out = outdata(0);
+      out = outdata(1);
+      uint32_t b = 0;
+      uint32_t c = 1;
+      for(int32_t i = 0; i<count; ++i){
+        in[b] = input[i];
+        in1[b] = input1[i];
+        if(++b == buffersize) {
+          b=0;
+          flags = process();
+          for(uint32_t d = 0; d<buffersize; ++d) {
+            output[d*c] = out[d];
+            output1[d*c] = out1[d];
+          }
+          ++c;
+        }
+      }
+    }
   //printf("run\n");
   return flags == 0;
 }
