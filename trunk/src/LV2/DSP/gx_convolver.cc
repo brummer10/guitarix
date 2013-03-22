@@ -355,7 +355,7 @@ bool GxSimpleConvolver::compute_stereo(int32_t count, float* input, float* input
       in = inpdata(0);
       in1 = inpdata(1);
       out = outdata(0);
-      out = outdata(1);
+      out1 = outdata(1);
       uint32_t b = 0;
       uint32_t c = 1;
       for(int32_t i = 0; i<count; ++i){

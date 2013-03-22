@@ -126,7 +126,7 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "impulse_former.h"
 #include "ampulse_former.h"
 
-#include "cab_data.cc"
+#include "cab_data_table.cc"
 
 ////////////////////////////// MONO ////////////////////////////////////
 

@@ -555,7 +555,6 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 #undef fslider1
 #undef fslider2
 #undef fslider3
-printf("run 12ax7\n");
 }
 
 void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginLV2 *p)
