@@ -77,6 +77,7 @@ namespace gx_tonestacks {
 #include "faust/tonestack_fender_default.cc"
 #include "faust/tonestack_fender_deville.cc"
 #include "faust/tonestack_gibsen.cc"
+#include "faust/tonestack_engl.cc"
 }
 
 namespace gx_effects {

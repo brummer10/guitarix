@@ -856,6 +856,7 @@ static plugindef_creator builtin_tonestack_plugins[] = {
     gx_tonestacks::tonestack_fender_default::plugin,
     gx_tonestacks::tonestack_fender_deville::plugin,
     gx_tonestacks::tonestack_gibsen::plugin,
+    gx_tonestacks::tonestack_engl::plugin,
     0
 };
 
