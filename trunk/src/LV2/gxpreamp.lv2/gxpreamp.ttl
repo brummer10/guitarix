@@ -32,7 +32,7 @@
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
-	foaf:name "Hermann Meyer" ;
+	foaf:name "Guitarix team" ;
 	foaf:mbox <mailto:brummer@web.de> ;
 	rdfs:seeAlso <http://guitarix.sourceforge.net> .
 

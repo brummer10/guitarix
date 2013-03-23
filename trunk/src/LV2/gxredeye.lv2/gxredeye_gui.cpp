@@ -68,10 +68,10 @@ void GxRedeyeGUI::set_knob( Glib::ustring prefix)
                "   stock['bigknob'] = {{'";
   addKnob +=  prefix;
   addKnob +=  "-knob.png'}}\n";
-  addKnob +=  "   stock['switchit_on'] = {{'";
+  addKnob +=  "   stock['button_on'] = {{'";
   addKnob +=  prefix;
   addKnob +=  "-switch_on.png'}}\n";
-  addKnob +=   "   stock['switchit_off'] = {{'";
+  addKnob +=   "   stock['button_off'] = {{'";
   addKnob +=  prefix;
   addKnob +=  "-switch_off.png'}}\n"
               " }\n"
@@ -83,7 +83,7 @@ void GxRedeyeGUI::set_knob( Glib::ustring prefix)
   addKnob +=  "class '*GxToggleImage' style'gx_"; 
   addKnob +=  plug_name;
   addKnob +=  "_icons'\n";
-  addKnob +=  "style 'guitarix_switch'\n"
+  addKnob +=  "style 'gx_switch'\n"
               "{\n"
               "xthickness = 0\n"
               "ythickness = 0\n"
@@ -95,7 +95,9 @@ void GxRedeyeGUI::set_knob( Glib::ustring prefix)
               "GtkButton::child-displacement-x = 0\n"
               "GtkButton::child-displacement-y = 0\n"
               " }\n"
-              "class '*GxSwitch' style:highest 'guitarix_switch'";
+              "widget '*.";
+  addKnob +=  plug_name;
+  addKnob +=  "' style:highest 'gx_switch'";
   
 }
 

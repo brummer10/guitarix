@@ -6,7 +6,7 @@ namespace stereodelay {
 
 class Dsp: public PluginLV2 {
 private:
-	int fSamplingFreq;
+	uint32_t fSamplingFreq;
 	int 	IOTA;
 	float *fVec0;
 	FAUSTFLOAT 	fslider0;
@@ -36,12 +36,12 @@ private:
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	int activate(bool start);
-	void init(unsigned int samplingFreq);
+	void init(uint32_t samplingFreq);
 	void compute(int count, float *input0, float *input1, float *output0, float *output1);
 
 	static void clear_state_f_static(PluginLV2*);
 	static int activate_static(bool start, PluginLV2*);
-	static void init_static(unsigned int samplingFreq, PluginLV2*);
+	static void init_static(uint32_t samplingFreq, PluginLV2*);
 	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -88,7 +88,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
@@ -97,7 +97,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst2 = (6.283185307179586f / iConst0);
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }

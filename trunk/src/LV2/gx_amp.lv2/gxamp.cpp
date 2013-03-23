@@ -313,11 +313,11 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
   
   for(uint32_t i=0; i<AMP_COUNT; i++) {
         amplifier[i] = amp_model[i]();
-        amplifier[i]->set_samplerate(static_cast<unsigned int>(rate), amplifier[i]);
+        amplifier[i]->set_samplerate(rate, amplifier[i]);
     }
   for(uint32_t i=0; i<TS_COUNT; i++) {
         tonestack[i] = tonestack_model[i]();
-        tonestack[i]->set_samplerate(static_cast<unsigned int>(rate), tonestack[i]);
+        tonestack[i]->set_samplerate(rate, tonestack[i]);
     }
   
   if (bufsize )

@@ -39,7 +39,7 @@ struct value_pair {
 ** structure for plugin definition
 */
 
-typedef void (*inifunc)(unsigned int samplingFreq, PluginLV2 *plugin);
+typedef void (*inifunc)(uint32_t samplingFreq, PluginLV2 *plugin);
 typedef int (*activatefunc)(bool start, PluginLV2 *plugin);
 typedef void (*clearstatefunc)(PluginLV2 *plugin);
 typedef void (*process_mono_audio) (int count, float *input, float *output, PluginLV2 *plugin);

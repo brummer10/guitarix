@@ -295,7 +295,7 @@ void Widget::on_value_changed(uint32_t port_index)
     {
     case GAIN1:
       mastergain = m_bigknob.get_value();
-      std::cout << "mastergain = " << mastergain << std::endl;
+      //std::cout << "mastergain = " << mastergain << std::endl;
       write_function(controller, (PortIndex)GAIN1,
                  sizeof(float), 0, (const void*)&mastergain);
       break;

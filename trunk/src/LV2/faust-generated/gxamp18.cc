@@ -7,7 +7,7 @@ namespace gxamp18 {
 
 class Dsp: public PluginLV2 {
 private:
-	int fSamplingFreq;
+	uint32_t fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
 	double 	fRec0[2];
@@ -124,11 +124,11 @@ private:
 	double 	fRec1[2];
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(unsigned int samplingFreq);
+	void init(uint32_t samplingFreq);
 	void compute(int count, float *input0, float *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(unsigned int samplingFreq, PluginLV2*);
+	static void init_static(uint32_t samplingFreq, PluginLV2*);
 	static void compute_static(int count, float *input0, float *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -203,7 +203,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
@@ -277,7 +277,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
