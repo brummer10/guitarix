@@ -71,7 +71,6 @@ Widget::Widget(Glib::ustring plug_name)
   m_hbox_.pack_start(m_vbox2);
   m_hbox_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
 
-
   // connect expose handler as resize handler
   m_paintbox.signal_expose_event().connect(
     sigc::mem_fun(this, &Widget::_expose_event), true);
@@ -83,6 +82,28 @@ Widget::Widget(Glib::ustring plug_name)
 Widget::~Widget()
 {
 
+}
+
+// get controller by port
+Gxw::Regler* Widget::get_controller_by_port(uint32_t port_index)
+{
+  switch ((PortIndex)port_index )
+  {
+    case TIME_R:
+      return &m_bigknob;
+    case TIME_L:
+      return &m_bigknob1;
+    case LFOFREQ:
+      return &m_smallknob3;
+    case INVERT:
+      return &m_selector;
+    case PERCENT_R:
+      return &m_smallknob4;
+    case PERCENT_L:
+      return &m_smallknob5;
+    default:
+      return NULL;
+  } 
 }
 
 // create selectors from gxwmm
@@ -111,7 +132,7 @@ void Widget::make_selector_box(Gxw::Selector *regler,
   regler->set_show_value(false);
   regler->set_name(plug_name);
   regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_selector_value_changed),regler, port_name));
+      &Widget::on_value_changed), port_name));
 }
 
 // create stackboxes with controllers from gxw
@@ -141,7 +162,7 @@ void Widget::make_controller_box(Gtk::VBox *box,
   Gtk::VBox* b2 = new Gtk::VBox();
   box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
   regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_regler_value_changed),regler, port_name));
+      &Widget::on_value_changed), port_name));
 
 }
 // set borderwith for paintbox when widget resize
@@ -154,53 +175,31 @@ bool Widget::_expose_event(GdkEventExpose *event)
   m_paintbox.set_border_width(height/20);
   return false;
 }
+
 // receive controller value changes from host
 void Widget::set_value(uint32_t port_index,
                        uint32_t format,
                        const void * buffer)
 {
   if ( format == 0 )
+  {
+    Gxw::Regler *regler = get_controller_by_port(port_index);
+    if (regler)
     {
-      float value =  *(float *)buffer;
-      switch ((PortIndex)port_index )
-        {
-        case TIME_R:
-          m_bigknob.cp_set_value(value);
-          break;
-        case TIME_L:
-          m_bigknob1.cp_set_value(value);
-          break;
-        case LFOFREQ:
-          m_smallknob3.cp_set_value(value);
-          break;
-        case INVERT:
-          m_selector.cp_set_value(value);
-          break;
-        case PERCENT_R:
-          m_smallknob4.cp_set_value(value);
-          break;
-        case PERCENT_L:
-          m_smallknob5.cp_set_value(value);
-          break;
-         default:
-          break;
-        }
+      regler->cp_set_value(*static_cast<const float*>(buffer));
     }
+  }
 }
 
-// write regler value changes to the host->engine
-void Widget::on_regler_value_changed(Gxw::Regler *regler,uint32_t port_index)
+// write controller value changes to the host->engine
+void Widget::on_value_changed(uint32_t port_index)
 {
-  float value = regler->get_value();
-  write_function(controller, port_index,
-                 sizeof(float), 0, (const void*)&value);
-}
-
-// write selector value changes to the host->engine
-void Widget::on_selector_value_changed(Gxw::Selector *regler, uint32_t port_index)
-{
-  float value = regler->get_value();
-  write_function(controller, port_index,
-                 sizeof(float), 0, (const void*)&value);
+  Gxw::Regler *regler = get_controller_by_port(port_index);
+  if (regler)
+  {
+    float value = regler->get_value();
+    write_function(controller, port_index,
+                   sizeof(float), 0, static_cast<const void*>(&value));
+  }
 }
 

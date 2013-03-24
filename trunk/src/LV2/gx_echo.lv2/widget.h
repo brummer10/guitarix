@@ -32,8 +32,8 @@
 class Widget : public Gtk::HBox
 {
 private:
-  void on_selector_value_changed(Gxw::Selector *regler,uint32_t port_index);
-  void on_regler_value_changed(Gxw::Regler *regler,uint32_t port_index);
+  Gxw::Regler* get_controller_by_port(uint32_t port_index);
+  void on_value_changed(uint32_t port_index);
   void make_controller_box(Gtk::VBox *box,
                            Gxw::Regler *regler,
                            Glib::ustring label,
