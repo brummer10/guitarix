@@ -16,6 +16,6 @@ releasel = vslider("percent_l", 0, 0,  100, 0.1);
 tr = vslider("time_r", 1, 1, 2000, 1);
 releaser = vslider("percent_r", 0, 0,  100, 0.1);
 
-echo1  = +~(fdelay2(131072,   int(tl*millisec)-1) * ((releasel/100.0)*(1+(lfol(freq)*pingpong))) );
-echo2  = +~(fdelay2(131072,   int(tr*millisec)-1) * ((releaser/100.0)*(1-(lfol(freq)*pingpong))) );
+echo1  = +~(sdelay(131072, 1024,  int(tl*millisec)-1) * ((releasel/100.0)*(1-(lfol(freq)*pingpong))) );
+echo2  = +~(sdelay(131072, 1024,  int(tr*millisec)-1) * ((releaser/100.0)*(1-((1-lfol(freq))*pingpong))) );
 process = echo1,echo2;

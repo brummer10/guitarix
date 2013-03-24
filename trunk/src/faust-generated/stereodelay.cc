@@ -163,13 +163,12 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		iVec1[0] = 1;
 		fRec0[0] = ((fSlow9 * fRec0[1]) + (fSlow8 * fRec1[1]));
 		fRec1[0] = ((1 + ((fSlow10 * fRec0[1]) + (fSlow9 * fRec1[1]))) - iVec1[1]);
-		float fTemp1 = (fSlow11 * fRec0[0]);
 		fRec2[0] = (fSlow12 + (0.999f * fRec2[1]));
-		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&262143] + ((fRec2[0] * (1 + fTemp1)) * ((fSlow6 * fVec0[(IOTA-iSlow5)&262143]) + (fSlow4 * fVec0[(IOTA-iSlow2)&262143]))));
-		float fTemp2 = (float)input1[i];
-		fVec2[IOTA&262143] = fTemp2;
+		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&262143] + ((fRec2[0] * (1 - (fSlow11 * fRec0[0]))) * ((fSlow6 * fVec0[(IOTA-iSlow5)&262143]) + (fSlow4 * fVec0[(IOTA-iSlow2)&262143]))));
+		float fTemp1 = (float)input1[i];
+		fVec2[IOTA&262143] = fTemp1;
 		fRec3[0] = (fSlow20 + (0.999f * fRec3[1]));
-		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec3[0] * (1 - fTemp1)) * ((fSlow19 * fVec2[(IOTA-iSlow18)&262143]) + (fSlow17 * fVec2[(IOTA-iSlow15)&262143]))));
+		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec3[0] * (1 - (fSlow11 * (1 - fRec0[0])))) * ((fSlow19 * fVec2[(IOTA-iSlow18)&262143]) + (fSlow17 * fVec2[(IOTA-iSlow15)&262143]))));
 		// post processing
 		fRec3[1] = fRec3[0];
 		fRec2[1] = fRec2[0];

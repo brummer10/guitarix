@@ -54,8 +54,13 @@ def configure(conf):
 
     conf.sub_config('gxts9.lv2');
     sub_file('./src/LV2/gxts9.lv2/manifest.ttl.in', './src/LV2/gxts9.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+    
     conf.sub_config('gxbooster.lv2');
     sub_file('./src/LV2/gxbooster.lv2/manifest.ttl.in', './src/LV2/gxbooster.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+    
+    conf.sub_config('gx_echo.lv2');
+    sub_file('./src/LV2/gx_echo.lv2/manifest.ttl.in', './src/LV2/gx_echo.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+    
     conf.sub_config('gxautowah.lv2');
     sub_file('./src/LV2/gxautowah.lv2/manifest.ttl.in', './src/LV2/gxautowah.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
 
@@ -78,6 +83,7 @@ def build(bld):
     bld.add_subdirs('gx_amp_stereo.lv2')
     bld.add_subdirs('gxts9.lv2')
     bld.add_subdirs('gxbooster.lv2')
+    bld.add_subdirs('gx_echo.lv2')
     bld.add_subdirs('gxautowah.lv2')
     bld.add_subdirs('gxpreamp.lv2')
     bld.add_subdirs('gxpreamp.lv2/StereoAmp')
