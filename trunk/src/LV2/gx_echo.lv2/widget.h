@@ -33,21 +33,25 @@ class Widget : public Gtk::HBox
 {
 private:
   Gxw::Regler* get_controller_by_port(uint32_t port_index);
+
   void on_value_changed(uint32_t port_index);
+
   void make_controller_box(Gtk::VBox *box,
-                           Gxw::Regler *regler,
                            Glib::ustring label,
                            float min, float max,
                            float digits,
                            PortIndex port_name,
                            Glib::ustring plug_name);
-  void make_selector_box(Gxw::Regler *regler,
-                           Glib::ustring label,
-                           Glib::ustring tables[],
-                           PortIndex port_name,
-                           float min, float digits,
-                           Glib::ustring plug_name);
+
+  void make_selector_box(Glib::ustring label,
+                         Glib::ustring tables[],
+                         size_t _size,
+                         float min, float digits,
+                         PortIndex port_name,
+                         Glib::ustring plug_name);
+
   bool _expose_event(GdkEventExpose *event);
+
   void set_value(uint32_t port_index,
                  uint32_t format,
                  const void * buffer);

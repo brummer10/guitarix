@@ -22,28 +22,51 @@
 
 #include <iostream>
 
+
+/*    @get controller by port
+ *  this function is used by make_selector_box() make_controller_box()
+ *  set_value() and on_value_changed()
+ *  so controller widgets needs only here asined to a port, 
+ *  and all functions which need acess to the widget pointer can receive
+ *  them by port number
+ */
+Gxw::Regler* Widget::get_controller_by_port(uint32_t port_index)
+{
+  switch ((PortIndex)port_index )
+  {
+    case TIME_R:
+      return &m_bigknob;
+    case TIME_L:
+      return &m_bigknob1;
+    case LFOFREQ:
+      return &m_smallknob3;
+    case INVERT:
+      return &m_selector;
+    case PERCENT_R:
+      return &m_smallknob4;
+    case PERCENT_L:
+      return &m_smallknob5;
+    default:
+      return NULL;
+  } 
+}
+
 Widget::Widget(Glib::ustring plug_name)
 {
   Glib::ustring modes[] = {"linear","ping pong"};  
-  make_selector_box(get_controller_by_port(INVERT), "Echo Mode", 
-                    modes, INVERT, 0, 1.0, plug_name);
+  size_t _size = sizeof(modes) / sizeof(modes[0]);
+  make_selector_box("Echo Mode", modes, _size, 0, 1.0, INVERT, plug_name);
 
-  // create all controllers
-  make_controller_box(&m_vbox2, get_controller_by_port(TIME_R), "Time (R)", 1, 2000, 1,
-                      TIME_R, plug_name);
+  make_controller_box(&m_vbox2, "Time (R)", 1, 2000, 1, TIME_R, plug_name);
 
-  make_controller_box(&m_vbox3, get_controller_by_port(TIME_L), "Time (L)", 1, 2000, 1,
-                      TIME_L, plug_name);
+  make_controller_box(&m_vbox3, "Time (L)", 1, 2000, 1, TIME_L, plug_name);
 
-  make_controller_box(&m_vbox4, get_controller_by_port(LFOFREQ), "LFO", 0.2, 5, 0.01,
-                      LFOFREQ, plug_name);
+  make_controller_box(&m_vbox4, "LFO", 0.2, 5, 0.01, LFOFREQ, plug_name);
   m_vbox4.pack_start(m_selector,Gtk::PACK_SHRINK);
 
-  make_controller_box(&m_vbox5, get_controller_by_port(PERCENT_R), "Level (R)", 0, 100, 1,
-                     PERCENT_R, plug_name);
+  make_controller_box(&m_vbox5, "Level (R)", 0, 100, 1, PERCENT_R, plug_name);
 
-  make_controller_box(&m_vbox6, get_controller_by_port(PERCENT_L), "Level (L)", 0, 100, 1,
-                      PERCENT_L, plug_name);
+  make_controller_box(&m_vbox6, "Level (L)", 0, 100, 1, PERCENT_L, plug_name);
   
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(10);
@@ -95,94 +118,69 @@ bool Widget::_expose_event(GdkEventExpose *event)
   return false;
 }
 
-/*    @get controller by port
- *  this function is used by make_selector_box() make_controller_box()
- *  set_value() and on_value_changed()
- *  so controller widgets needs only here asined to a port, 
- *  and all functions which need acess to the widget pointer can receive
- *  them by port number
- */
-Gxw::Regler* Widget::get_controller_by_port(uint32_t port_index)
-{
-  switch ((PortIndex)port_index )
-  {
-    case TIME_R:
-      return &m_bigknob;
-    case TIME_L:
-      return &m_bigknob1;
-    case LFOFREQ:
-      return &m_smallknob3;
-    case INVERT:
-      return &m_selector;
-    case PERCENT_R:
-      return &m_smallknob4;
-    case PERCENT_L:
-      return &m_smallknob5;
-    default:
-      return NULL;
-  } 
-}
-
 // create selectors from gxwmm
-void Widget::make_selector_box(Gxw::Regler *regler,
-                                 Glib::ustring labela,
-                                 Glib::ustring tables[],
-                                 PortIndex port_name,
-                                 float min, float digits,
-                                 Glib::ustring plug_name)
+void Widget::make_selector_box(Glib::ustring labela,
+                               Glib::ustring tables[],
+                               size_t _size,
+                               float min, float digits,
+                               PortIndex port_name,
+                               Glib::ustring plug_name)
 {
-  
-  static const size_t _size = sizeof(tables) / sizeof(tables[0]);
-  float max = static_cast<float>(_size+1);
-  
-  Gtk::TreeModelColumn<Glib::ustring> label;
-  Gtk::TreeModelColumnRecord rec;
-  rec.add(label);
-  Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+  Gxw::Regler *regler = get_controller_by_port(port_name);
+  if (regler)
+  {
+    float max = static_cast<float>(_size+1);
 
-  for (uint32_t i = 0 ; i< _size; ++i) {
-    ls->append()->set_value(0, tables[i]);
+    Gtk::TreeModelColumn<Glib::ustring> label;
+    Gtk::TreeModelColumnRecord rec;
+    rec.add(label);
+    Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+
+    for (uint32_t i = 0 ; i< _size; ++i) {
+      ls->append()->set_value(0, tables[i]);
+    }
+    static_cast<Gxw::Selector*>(regler)->set_model(ls);
+    regler->set_has_tooltip();
+    regler->set_tooltip_text(labela);
+    regler->cp_configure("SELECTOR", labela, min, max, digits);
+    regler->set_show_value(false);
+    regler->set_name(plug_name);
+    regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+        &Widget::on_value_changed), port_name));
   }
-    
-  static_cast<Gxw::Selector*>(regler)->set_model(ls);
-  regler->set_has_tooltip();
-  regler->set_tooltip_text(labela);
-  regler->cp_configure("SELECTOR", labela, min, max, digits);
-  regler->set_show_value(false);
-  regler->set_name(plug_name);
-  regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed), port_name));
 }
 
 // create stackboxes with controllers from gxw
 void Widget::make_controller_box(Gtk::VBox *box,
-                                 Gxw::Regler *regler,
                                  Glib::ustring label,
                                  float min, float max,
                                  float digits,
                                  PortIndex port_name,
                                  Glib::ustring plug_name)
 {
-  Gtk::Label* pr = new Gtk::Label(label, 0);
-  pr->set_name("amplabel");
-  /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-  label_image += "/";
-  label_image += label;
-  label_image += "-label.png";
-  Gtk::Image *pr = new Gtk::Image(label_image);*/
+  Gxw::Regler *regler = get_controller_by_port(port_name);
+  if (regler)
+  {
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
+    /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    label_image += "/";
+    label_image += label;
+    label_image += "-label.png";
+    Gtk::Image *pr = new Gtk::Image(label_image);*/
 
-  Gtk::VBox* b1 = new Gtk::VBox();
-  box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
-  box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
-  regler->cp_configure("KNOB", label, min, max, digits);
-  regler->set_show_value(false);
-  regler->set_name(plug_name);
-  box->pack_start(*regler,Gtk::PACK_SHRINK);
-  Gtk::VBox* b2 = new Gtk::VBox();
-  box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
-  regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed), port_name));
-
+    Gtk::VBox* b1 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
+    regler->cp_configure("KNOB", label, min, max, digits);
+    regler->set_show_value(false);
+    regler->set_name(plug_name);
+    box->pack_start(*regler,Gtk::PACK_SHRINK);
+    Gtk::VBox* b2 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+        &Widget::on_value_changed), port_name));
+  }
 }
 
 // receive controller value changes from host and set them to controller
