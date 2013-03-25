@@ -24,25 +24,25 @@
 
 Widget::Widget(Glib::ustring plug_name)
 {
-  Glib::ustring modes[] = {"linear","ping pong"};
-  static const size_t modes_size = sizeof(modes) / sizeof(modes[0]);
-  
-  make_selector_box(&m_selector, "Echo Mode", modes, modes_size, 
-                    INVERT, 0, static_cast<float>(modes_size+1), 1.0, plug_name);
+  Glib::ustring modes[] = {"linear","ping pong"};  
+  make_selector_box(get_controller_by_port(INVERT), "Echo Mode", 
+                    modes, INVERT, 0, 1.0, plug_name);
 
   // create all controllers
-  make_controller_box(&m_vbox2, &m_bigknob, "Time (R)", 1, 2000, 1,
+  make_controller_box(&m_vbox2, get_controller_by_port(TIME_R), "Time (R)", 1, 2000, 1,
                       TIME_R, plug_name);
-  make_controller_box(&m_vbox3, &m_bigknob1, "Time (L)", 1, 2000, 1,
+
+  make_controller_box(&m_vbox3, get_controller_by_port(TIME_L), "Time (L)", 1, 2000, 1,
                       TIME_L, plug_name);
 
-  make_controller_box(&m_vbox4, &m_smallknob3, "LFO", 0.2, 5, 0.01,
+  make_controller_box(&m_vbox4, get_controller_by_port(LFOFREQ), "LFO", 0.2, 5, 0.01,
                       LFOFREQ, plug_name);
   m_vbox4.pack_start(m_selector,Gtk::PACK_SHRINK);
-  
-  make_controller_box(&m_vbox5, &m_smallknob4, "Level (R)", 0, 100, 1,
+
+  make_controller_box(&m_vbox5, get_controller_by_port(PERCENT_R), "Level (R)", 0, 100, 1,
                      PERCENT_R, plug_name);
-  make_controller_box(&m_vbox6, &m_smallknob5, "Level (L)", 0, 100, 1,
+
+  make_controller_box(&m_vbox6, get_controller_by_port(PERCENT_L), "Level (L)", 0, 100, 1,
                       PERCENT_L, plug_name);
   
   // set propertys for the main paintbox holding the skin
@@ -84,7 +84,24 @@ Widget::~Widget()
 
 }
 
-// get controller by port
+// set borderwith for paintbox when widget resize
+// to hold controllers in place
+bool Widget::_expose_event(GdkEventExpose *event)
+{
+  int x, y, width, height, depth;
+  m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
+  //double_t height = m_paintbox.get_window()->get_height();
+  m_paintbox.set_border_width(height/20);
+  return false;
+}
+
+/*    @get controller by port
+ *  this function is used by make_selector_box() make_controller_box()
+ *  set_value() and on_value_changed()
+ *  so controller widgets needs only here asined to a port, 
+ *  and all functions which need acess to the widget pointer can receive
+ *  them by port number
+ */
 Gxw::Regler* Widget::get_controller_by_port(uint32_t port_index)
 {
   switch ((PortIndex)port_index )
@@ -107,15 +124,17 @@ Gxw::Regler* Widget::get_controller_by_port(uint32_t port_index)
 }
 
 // create selectors from gxwmm
-void Widget::make_selector_box(Gxw::Selector *regler,
+void Widget::make_selector_box(Gxw::Regler *regler,
                                  Glib::ustring labela,
                                  Glib::ustring tables[],
-                                 size_t _size,
                                  PortIndex port_name,
-                                 float min, float max,
-                                 float digits,
+                                 float min, float digits,
                                  Glib::ustring plug_name)
 {
+  
+  static const size_t _size = sizeof(tables) / sizeof(tables[0]);
+  float max = static_cast<float>(_size+1);
+  
   Gtk::TreeModelColumn<Glib::ustring> label;
   Gtk::TreeModelColumnRecord rec;
   rec.add(label);
@@ -125,7 +144,7 @@ void Widget::make_selector_box(Gxw::Selector *regler,
     ls->append()->set_value(0, tables[i]);
   }
     
-  regler->set_model(ls);
+  static_cast<Gxw::Selector*>(regler)->set_model(ls);
   regler->set_has_tooltip();
   regler->set_tooltip_text(labela);
   regler->cp_configure("SELECTOR", labela, min, max, digits);
@@ -165,18 +184,8 @@ void Widget::make_controller_box(Gtk::VBox *box,
       &Widget::on_value_changed), port_name));
 
 }
-// set borderwith for paintbox when widget resize
-// to hold controllers in place
-bool Widget::_expose_event(GdkEventExpose *event)
-{
-  int x, y, width, height, depth;
-  m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
-  //double_t height = m_paintbox.get_window()->get_height();
-  m_paintbox.set_border_width(height/20);
-  return false;
-}
 
-// receive controller value changes from host
+// receive controller value changes from host and set them to controller
 void Widget::set_value(uint32_t port_index,
                        uint32_t format,
                        const void * buffer)
@@ -191,7 +200,7 @@ void Widget::set_value(uint32_t port_index,
   }
 }
 
-// write controller value changes to the host->engine
+// write (UI) controller value changes to the host->engine
 void Widget::on_value_changed(uint32_t port_index)
 {
   Gxw::Regler *regler = get_controller_by_port(port_index);

@@ -41,13 +41,11 @@ private:
                            float digits,
                            PortIndex port_name,
                            Glib::ustring plug_name);
-  void make_selector_box(Gxw::Selector *regler,
+  void make_selector_box(Gxw::Regler *regler,
                            Glib::ustring label,
                            Glib::ustring tables[],
-                           size_t _size,
                            PortIndex port_name,
-                           float min, float max,
-                           float digits,
+                           float min, float digits,
                            Glib::ustring plug_name);
   bool _expose_event(GdkEventExpose *event);
   void set_value(uint32_t port_index,
