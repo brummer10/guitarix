@@ -84,6 +84,7 @@ def build(bld):
     bld.add_subdirs('gxts9.lv2')
     bld.add_subdirs('gxbooster.lv2')
     bld.add_subdirs('gx_echo.lv2')
+    bld.add_subdirs('gx_delay.lv2')
     bld.add_subdirs('gxautowah.lv2')
     bld.add_subdirs('gxpreamp.lv2')
     bld.add_subdirs('gxpreamp.lv2/StereoAmp')
