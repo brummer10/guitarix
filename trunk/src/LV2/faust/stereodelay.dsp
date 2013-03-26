@@ -14,5 +14,5 @@ r_gain = vslider("r_gain", 0, -20, 20, 0.1) : db2linear : smoothi(0.999);
 d = vslider("l_delay", 0, 0, 5000, 10)*msec;
 r = vslider("r_delay", 0, 0, 5000, 10)*msec;
 process = (_ <: _ + l_gain*(1-(lfol(freq)*pingpong)) * fdelay5s(d) :> _),
-		  (_ <: _ + r_gain*(1-((1-lfol(freq))*pingpong)) * fdelay5s(r) :> _);
+		  (_ <: _ + r_gain*(1-((-1*lfol(freq))*pingpong)) * fdelay5s(r) :> _);
 

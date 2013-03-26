@@ -168,7 +168,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		float fTemp1 = (float)input1[i];
 		fVec2[IOTA&262143] = fTemp1;
 		fRec3[0] = (fSlow20 + (0.999f * fRec3[1]));
-		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec3[0] * (1 - (fSlow11 * (1 - fRec0[0])))) * ((fSlow19 * fVec2[(IOTA-iSlow18)&262143]) + (fSlow17 * fVec2[(IOTA-iSlow15)&262143]))));
+		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec3[0] * ((fSlow19 * fVec2[(IOTA-iSlow18)&262143]) + (fSlow17 * fVec2[(IOTA-iSlow15)&262143]))) * (1 - (fSlow11 * (0 - fRec0[0])))));
 		// post processing
 		fRec3[1] = fRec3[0];
 		fRec2[1] = fRec2[0];
