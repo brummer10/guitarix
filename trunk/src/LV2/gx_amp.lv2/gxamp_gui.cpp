@@ -126,6 +126,7 @@ void GXPluginGUI::set_skin()
 
 void GXPluginGUI::set_plug_name()
 {
+  // Here the plugin should have different name for different amp.....
   addKnob = "";
   plugskin = "amp21.png";
   plug_name = "GUITARIXLV2";

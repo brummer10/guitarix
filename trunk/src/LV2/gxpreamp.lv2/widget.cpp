@@ -39,8 +39,8 @@ Widget::Widget(Glib::ustring plug_name)
   // this box set space for the upper part of the skin
   m_hbox1_.set_spacing(32);
   m_hbox1_.set_border_width(12);
-  make_logo( &m_vbox6, "guitarix" ) ;
-  make_logo( &m_vbox7, "redeye" ) ;
+  make_logo( &m_vbox6, "guitarix-tube-processor" ) ;
+  make_logo( &m_vbox7, "redeye-logo-big" ) ;
   m_hbox1_.pack_start(m_vbox6);
   m_hbox1_.pack_start(m_vbox7);
 
@@ -137,9 +137,9 @@ void Widget::make_controller_box(Gtk::VBox *box,
 void Widget::make_logo(Gtk::VBox *box,Glib::ustring label)
 {
 	Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-  	label_image += "/preamp-";
+  	label_image += "/";
   	label_image += label;
-  	label_image += "-label.png";
+  	label_image += ".png";
   	Gtk::Image *pr = new Gtk::Image(label_image);
         box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
 } 
