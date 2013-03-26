@@ -77,6 +77,7 @@ declare(tonestack_fender_blues)
 declare(tonestack_fender_default)
 declare(tonestack_fender_deville)
 declare(tonestack_gibsen)
+declare(tonestack_engl)
 }
 
 namespace gx_effects {

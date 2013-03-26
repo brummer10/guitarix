@@ -112,6 +112,7 @@ def build(bld):
         'tonestack_fender_default.dsp',
         'tonestack_fender_deville.dsp',
         'tonestack_gibsen.dsp',
+        'tonestack_engl.dsp',
 
         # amps
         'gxamp.dsp',

@@ -11,7 +11,7 @@ def build(bld):
     
     src = ['gxtilttone.cpp'
            ]
-    incl = ['./']
+    incl = ['./', '../DSP']
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
@@ -24,7 +24,7 @@ def build(bld):
         includes = incl,
         lib = lib,
         uselib = uselib,
-        obj_ext  = '_5.o',
+        obj_ext  = '_11.o',
         cxxflags = cxxflag,
         defines  = ["LV2_SO"],
         target   = 'gxtilttone',

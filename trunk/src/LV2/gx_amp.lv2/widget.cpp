@@ -64,7 +64,7 @@ Widget::Widget(Glib::ustring plug_name)
 
   Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain","Twin",
   "Bassman","Marshall","AC30","Princeton","A2","1x15","Mesa","Briliant","Vitalize",
-  "Charisma",
+  "Charisma","1x8",
   };
   static const size_t cab_size = sizeof(cab) / sizeof(cab[0]);
   

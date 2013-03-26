@@ -126,7 +126,7 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "impulse_former.h"
 #include "ampulse_former.h"
 
-#include "cab_data.cc"
+#include "cab_data_table.cc"
 
 ////////////////////////////// MONO ////////////////////////////////////
 
@@ -271,7 +271,9 @@ void GxPluginMono::do_work_mono()
         //printf("cabconv.changed.\n");
       }
       float cab_irdata_c[cabconv.cab_count];
-      impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, clevel_);
+      float adjust_1x8 = 1;
+      if ( c_model_ == 17.0) adjust_1x8 = 0.5;
+      impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, (clevel_ * adjust_1x8) );
       cabconv.cab_data_new = cab_irdata_c;
       while (!cabconv.checkstate());
       if (!cabconv.update(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr))
@@ -311,11 +313,11 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
   
   for(uint32_t i=0; i<AMP_COUNT; i++) {
         amplifier[i] = amp_model[i]();
-        amplifier[i]->set_samplerate(static_cast<unsigned int>(rate), amplifier[i]);
+        amplifier[i]->set_samplerate(rate, amplifier[i]);
     }
   for(uint32_t i=0; i<TS_COUNT; i++) {
         tonestack[i] = tonestack_model[i]();
-        tonestack[i]->set_samplerate(static_cast<unsigned int>(rate), tonestack[i]);
+        tonestack[i]->set_samplerate(rate, tonestack[i]);
     }
   
   if (bufsize )

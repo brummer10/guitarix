@@ -1,0 +1,207 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+def build(bld):
+    unused_sources = [
+        'preamp.dsp',
+        'inputgain.dsp',
+        'AntiAlias.dsp',
+        'HighShelf.dsp',
+        'drive.dsp',
+        'osc_tube.dsp',
+        'reso_tube.dsp',
+        'tube.dsp',
+        'tube3.dsp',
+        'tubevibrato.dsp',
+        'multifilter.dsp',
+        'eq.dsp',
+        'outputgain.dsp',
+        'feed.dsp',
+        'balance1.dsp',
+        'amp2.dsp',
+        'stage3.dsp',
+        'distortion.dsp',
+        'distortion1.dsp',
+        'noisegate.dsp',
+        'sloop.dsp', ##float
+        'vibe_lfo_triangle.dsp',
+        'vibe_mono_lfo_triangle.dsp',
+        'presence_level.dsp',
+        'cabinet_impulse_former.dsp',
+        'preamp_impulse_former.dsp',
+        'vibe_mono_lfo_sine.dsp',
+        'vibe_lfo_sine.dsp',
+        ]
+
+    sources_plugin_float = [
+        'echo.dsp',
+        'delay.dsp',
+        'chorus.dsp',
+        'stereodelay.dsp',
+        'stereoecho.dsp',
+        ]
+
+    sources_plugin = [
+        'low_high_pass.dsp',
+        'selecteq.dsp',
+        'crybaby.dsp',
+        'autowah.dsp',
+        'gx_distortion.dsp',
+        'impulseresponse.dsp',
+        'compressor.dsp',
+        'expander.dsp',
+        'overdrive.dsp',
+        'freeverb.dsp',
+        'biquad.dsp',
+        'tremolo.dsp',
+        'phaser_mono.dsp',
+        'chorus_mono.dsp',
+        'flanger_mono.dsp',
+        'gx_feedback.dsp',
+        'flanger.dsp',
+        'moog.dsp',
+        'phaser.dsp',
+        'gx_ampmodul.dsp',
+        'tonecontroll.dsp',
+        'stereoverb.dsp',
+        'softclip.dsp',
+        'gx_ampout.dsp',
+        'gx_ampout_ladspa.dsp',
+        'noise_shaper.dsp',
+        'bassbooster.dsp',
+        'gx_outputlevel.dsp',
+        'gx_outputlevel_ladspa.dsp',
+        'gxfeed.dsp',
+        'highbooster.dsp',
+
+        # tone stacks
+        'tonestack_default.dsp',
+        'tonestack_bassman.dsp',
+        'tonestack_twin.dsp',
+        'tonestack_princeton.dsp',
+        'tonestack_jcm800.dsp',
+        'tonestack_jcm2000.dsp',
+        'tonestack_mlead.dsp',
+        'tonestack_m2199.dsp',
+        'tonestack_ac30.dsp',
+        'tonestack_soldano.dsp',
+        'tonestack_mesa.dsp',
+        'tonestack_jtm45.dsp',
+        'tonestack_ac15.dsp',
+        'tonestack_peavey.dsp',
+        'tonestack_ibanez.dsp',
+        'tonestack_roland.dsp',
+        'tonestack_ampeg.dsp',
+        'tonestack_ampeg_rev.dsp',
+        'tonestack_sovtek.dsp',
+        'tonestack_bogner.dsp',
+        'tonestack_groove.dsp',
+        'tonestack_crunch.dsp',
+        'tonestack_fender_blues.dsp',
+        'tonestack_fender_default.dsp',
+        'tonestack_fender_deville.dsp',
+        'tonestack_gibsen.dsp',
+
+        # tone stacks stereo
+        'tonestack_default_stereo.dsp',
+        'tonestack_bassman_stereo.dsp',
+        'tonestack_twin_stereo.dsp',
+        'tonestack_princeton_stereo.dsp',
+        'tonestack_jcm800_stereo.dsp',
+        'tonestack_jcm2000_stereo.dsp',
+        'tonestack_mlead_stereo.dsp',
+        'tonestack_m2199_stereo.dsp',
+        'tonestack_ac30_stereo.dsp',
+        'tonestack_soldano_stereo.dsp',
+        'tonestack_mesa_stereo.dsp',
+        'tonestack_jtm45_stereo.dsp',
+        'tonestack_ac15_stereo.dsp',
+        'tonestack_peavey_stereo.dsp',
+        'tonestack_ibanez_stereo.dsp',
+        'tonestack_roland_stereo.dsp',
+        'tonestack_ampeg_stereo.dsp',
+        'tonestack_ampeg_rev_stereo.dsp',
+        'tonestack_sovtek_stereo.dsp',
+        'tonestack_bogner_stereo.dsp',
+        'tonestack_groove_stereo.dsp',
+        'tonestack_crunch_stereo.dsp',
+        'tonestack_fender_blues_stereo.dsp',
+        'tonestack_fender_default_stereo.dsp',
+        'tonestack_fender_deville_stereo.dsp',
+        'tonestack_gibsen_stereo.dsp',
+
+        # amps
+        'gxamp.dsp',
+        'gxamp2.dsp',
+        'gxamp3.dsp',
+        'gxamp4.dsp',
+        'gxamp5.dsp',
+        'gxamp6.dsp',
+        'gxamp7.dsp',
+        'gxamp8.dsp',
+        'gxamp9.dsp',
+        'gxamp10.dsp',
+        'gxamp11.dsp',
+        'gxamp12.dsp',
+        'gxamp13.dsp',
+        'gxamp14.dsp',
+        'gxamp15.dsp',
+        'gxamp16.dsp',
+        'gxamp17.dsp',
+        'gxamp18.dsp',
+        'gxnoamp.dsp',
+
+        # stereo amps
+        'gxamp_stereo.dsp',
+        'gxamp2_stereo.dsp',
+        'gxamp3_stereo.dsp',
+        'gxamp4_stereo.dsp',
+        'gxamp5_stereo.dsp',
+        'gxamp6_stereo.dsp',
+        'gxamp7_stereo.dsp',
+        'gxamp8_stereo.dsp',
+        'gxamp9_stereo.dsp',
+        'gxamp10_stereo.dsp',
+        'gxamp11_stereo.dsp',
+        'gxamp12_stereo.dsp',
+        'gxamp13_stereo.dsp',
+        'gxamp14_stereo.dsp',
+        'gxamp15_stereo.dsp',
+        'gxamp16_stereo.dsp',
+        'gxamp17_stereo.dsp',
+        'gxamp18_stereo.dsp',
+
+        # bypass mode
+        'balance.dsp',
+        ]
+
+
+    if bld.env['FAUST']:
+        float_arg = ["-s","40000","--float"]
+        if bld.env['FAUST_DOUBLE']:
+            arg = ["--double"]
+        else:
+            arg = ["--float"]
+        bld.new_task_gen(
+            source = sources_plugin,
+            proc = "../tools/dsp2cc",
+            proc_args = arg+["--init-type=plugin-lv2"],
+            )
+        bld.new_task_gen(
+            source = sources_plugin_float,
+            proc = "../tools/dsp2cc",
+            proc_args = float_arg+["--init-type=plugin-lv2"]
+            )
+    else:
+        gdir = "../faust-generated/"
+        for s in sources_plugin_float + sources_plugin:
+            s = s.replace(".dsp",".cc")
+            bld(name = "copy-faust-cc",
+                rule = "cp ${SRC} ${TGT}",
+                source = gdir + s,
+                target = s,
+                )
+    bld.add_group()
+
+def configure(conf):
+    pass

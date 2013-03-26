@@ -985,7 +985,7 @@ class Dsp: public PluginLV2 {
 class Dsp {
 #endif
 private:
-	int fSamplingFreq;
+	uint32_t fSamplingFreq;
 %(var_decl)s\
 #if %(has_activate)s
 	bool mem_allocated;
@@ -1012,7 +1012,7 @@ public:
 	int load_ui_f(const UiBuilder& b);
 	static const char *glade_def;
 #endif
-	void init(unsigned int samplingFreq);
+	void init(uint32_t samplingFreq);
 	void compute(int count%(compute_args)s);
 #if %(has_plugindef)s
 
@@ -1028,7 +1028,7 @@ public:
 #if %(has_glade_ui)s
 	static int load_ui_f_static(const UiBuilder& b);
 #endif
-	static void init_static(unsigned int samplingFreq, PluginLV2*);
+	static void init_static(uint32_t samplingFreq, PluginLV2*);
 	static void compute_static(int count%(compute_args)s, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 #if %(has_lv2)s
@@ -1093,7 +1093,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 
 #endif
 #endif
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(uint32_t samplingFreq)
 {
 %(init_body)s\
 #if %(has_state_no_activate)s
@@ -1102,7 +1102,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 }
 
 #if %(has_plugindef)s
-void Dsp::init_static(unsigned int samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
