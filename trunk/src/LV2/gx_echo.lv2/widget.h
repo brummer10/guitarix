@@ -32,23 +32,27 @@
 class Widget : public Gtk::HBox
 {
 private:
-  Gxw::Regler* get_controller_by_port(uint32_t port_index);
+  Gtk::Widget* get_controller_by_port(uint32_t port_index);
 
   void on_value_changed(uint32_t port_index);
 
-  void make_controller_box(Gtk::VBox *box,
+  void check_for_link(uint32_t port_name, float value);
+
+  void make_controller_box(Gtk::Box *box,
                            Glib::ustring label,
                            float min, float max,
                            float digits,
-                           PortIndex port_name,
-                           Glib::ustring plug_name);
+                           PortIndex port_name);
 
-  void make_selector_box(Glib::ustring label,
-                         Glib::ustring tables[],
-                         size_t _size,
-                         float min, float digits,
-                         PortIndex port_name,
-                         Glib::ustring plug_name);
+  void make_selector(Glib::ustring label,
+                     Glib::ustring tables[],
+                     size_t _size,
+                     float min, float digits,
+                     PortIndex port_name);
+
+  void make_switch_box(Gtk::Box *box,
+                       Glib::ustring label,
+                       PortIndex port_name);
 
   bool _expose_event(GdkEventExpose *event);
 
@@ -68,29 +72,30 @@ public:
     self->set_value(port_index,format,buffer);
   }
 
-  Widget(Glib::ustring plug_name);
+  Widget(Glib::ustring plugname);
   ~Widget();
 
 protected:
-  Gtk::VBox      m_vbox_;
-  Gtk::HBox      m_hbox_;
-  Gtk::VBox      m_vbox;
-  Gtk::VBox      m_vbox1;
-  Gtk::VBox      m_vbox2;
-  Gtk::VBox      m_vbox3;
-  Gtk::VBox      m_vbox4;
-  Gtk::VBox      m_vbox5;
-  Gtk::VBox      m_vbox6;
-  
-  Gxw::PaintBox  m_paintbox;
-  Gtk::HBox      m_hbox;
-  Gxw::BigKnob   m_bigknob;
-  Gxw::BigKnob   m_bigknob1;
-  Gxw::SmallKnobR   m_smallknob3;
-  Gxw::BigKnob   m_smallknob4;
-  Gxw::BigKnob   m_smallknob5;
-  Gxw::Selector  m_selector;
+  Glib::ustring     plug_name;
+  Gtk::VBox         m_vbox_;
+  Gtk::VBox         m_vbox;
+  Gtk::VBox         m_vbox1;
+  Gtk::VBox         m_vbox2;
+  Gtk::VBox         m_vbox3;
+  Gtk::VBox         m_vbox4;
+  Gtk::VBox         m_vbox5;
+  Gtk::VBox         m_vbox6;
+  Gtk::VBox         m_vbox7;
+  Gtk::HBox         m_hbox_;
 
+  Gxw::PaintBox     m_paintbox;
+  Gxw::BigKnob      m_bigknob;
+  Gxw::BigKnob      m_bigknob1;
+  Gxw::SmallKnobR   m_smallknob3;
+  Gxw::BigKnob      m_smallknob4;
+  Gxw::BigKnob      m_smallknob5;
+  Gxw::Selector     m_selector;
+  Gxw::Switch       m_switch;
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

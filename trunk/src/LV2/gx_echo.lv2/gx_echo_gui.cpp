@@ -72,12 +72,19 @@ void Gx_echoGUI::set_knob( Glib::ustring knob)
               "   stock['smallknobr'] = {{'";
   addKnob +=  knob;
   addKnob +=  "-middle.png'}}\n"
+              "   stock['button_on'] = {{'"
+              "echo-switch_on.png'}}\n"
+              "   stock['button_off'] = {{'"
+              "echo-switch_off.png'}}\n"
               " }\n"
               "widget '*.";
   addKnob +=  plug_name;
   addKnob +=  "' style 'gx_";
   addKnob +=  plug_name;
-  addKnob +=  "_dark_skin_icons' ";
+  addKnob +=  "_dark_skin_icons' \n"
+              "class '*GxToggleImage' style'gx_"; 
+  addKnob +=  plug_name;
+  addKnob +=  "_dark_skin_icons' \n";
 }
 
 void Gx_echoGUI::set_skin()
@@ -131,6 +138,21 @@ void Gx_echoGUI::set_skin()
   toparse +=     "' style:highest 'gx_selector_";
   toparse +=     plug_name;
   toparse +=     "'\n";
+  toparse +=  "style 'gx_switch'\n"
+              "{\n"
+              "xthickness = 0\n"
+              "ythickness = 0\n"
+              "GtkButton::inner-border = {0, 0, 0, 0}\n"
+              "GtkButton::default-border = {0, 0, 0, 0}\n"
+              "GtkButton::focus-line-width = 0\n"
+              "GtkButton::focus-padding = 0\n"
+              "GtkButton::interior-focus = 0\n"
+              "GtkButton::child-displacement-x = 0\n"
+              "GtkButton::child-displacement-y = 0\n"
+              " }\n"
+              "widget '*.";
+  toparse +=  plug_name;
+  toparse +=  "' style:highest 'gx_switch'";
 
   gtk_rc_parse_string (toparse.c_str());
 }
@@ -159,8 +181,8 @@ GtkWidget* Gx_echoGUI::make_gui()
   set_skin();
   GtkWidget* container = gtk_vbox_new(FALSE, 2);
   widget = new Widget(plug_name);
-  GtkWidget* cWidget = (GtkWidget*)widget->gobj();
-  gtk_container_add( (GtkContainer*)container, cWidget );
+  GtkWidget* cWidget = GTK_WIDGET(widget->gobj());
+  gtk_container_add(GTK_CONTAINER(container), cWidget );
 
   return container;
 }
@@ -185,7 +207,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 
 static void cleanup(LV2UI_Handle ui)
 {
-  Gx_echoGUI *pluginGui = (Gx_echoGUI *) ui;
+  Gx_echoGUI *pluginGui = static_cast<Gx_echoGUI*>(ui);
   delete pluginGui->widget;
   delete pluginGui;
 }
@@ -196,7 +218,7 @@ static void port_event(LV2UI_Handle ui,
                        uint32_t format,
                        const void * buffer)
 {
-  Gx_echoGUI *self = (Gx_echoGUI *) ui;
+  Gx_echoGUI *self = static_cast<Gx_echoGUI*>(ui);
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }
