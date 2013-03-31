@@ -521,7 +521,8 @@ def configure(conf):
     else:
         nls = 'no '
         conf.define ('DISABLE_NLS', 1)
-        sub_file('guitarix.desktop.in', 'build/default/guitarix.desktop', (('^_', '%s' % ""), ))
+        #sub_file('guitarix.desktop.in', 'build/default/guitarix.desktop', (('^_', '%s' % ""), ))
+        sub_file('guitarix.desktop.in', 'guitarix.desktop._in', (('^_', '%s' % ""), ))
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
@@ -724,28 +725,6 @@ def build(bld):
         obj.podir = 'po'
         obj.appname = APPNAME
 
-    if not bld.env['DISABLE_NLS']:
-        gen_desktop = bld(features  = "intltool_in",
-            podir     = "po",
-            flags     = ["-d", "-q", "-u", "-c"],
-            source    = 'guitarix.desktop.in',
-            target    = 'guitarix.desktop',
-            install_path = "${DATADIR}/applications",
-        )
-    
-        # hacked in scanner method so the desktop file gets rebuild
-        # when any po file changes; don't know if there is a better way
-        gen_desktop_create_task = gen_desktop.create_task
-        def gen_desktop_add_scanner(*args,**kw):
-            task = gen_desktop_create_task(*args,**kw)
-            def po_scanner():
-                gen = task.generator
-                podir = gen.bld.srcnode.find_dir(gen.podir)
-                return (podir.ant_glob("*.po", flat=False), [])
-            task.scan = po_scanner
-            return task
-        gen_desktop.create_task = gen_desktop_add_scanner
-
     # process subfolders from here
     if bld.env["LADSPA"]:
         bld.add_subdirs('ladspa')
@@ -779,7 +758,35 @@ def build(bld):
     # "greathall.wav" is referenced in the source (keep in sync when changing)
     bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
 
-
+    if not bld.env['DISABLE_NLS']:
+        gen_desktop = bld(features  = "intltool_in",
+            podir     = "po",
+            flags     = ["-d", "-q", "-u", "-c"],
+            source    = 'guitarix.desktop.in',
+            target    = 'guitarix.desktop',
+            install_path = "${DATADIR}/applications",
+        )
+    
+        # hacked in scanner method so the desktop file gets rebuild
+        # when any po file changes; don't know if there is a better way
+        gen_desktop_create_task = gen_desktop.create_task
+        def gen_desktop_add_scanner(*args,**kw):
+            task = gen_desktop_create_task(*args,**kw)
+            def po_scanner():
+                gen = task.generator
+                podir = gen.bld.srcnode.find_dir(gen.podir)
+                return (podir.ant_glob("*.po", flat=False), [])
+            task.scan = po_scanner
+            return task
+        gen_desktop.create_task = gen_desktop_add_scanner
+    else:
+        gen_desktop = bld(features  = "subst",
+            source    = 'guitarix.desktop._in',
+            target    = 'guitarix.desktop',
+            install_path = "${DATADIR}/applications",
+            VAR        = ""
+        )
+        gen_desktop.create_task
     if Options.commands["install"]:  ## newer waf version: bld.cmd == 'install'
         if not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"]:
             try:
