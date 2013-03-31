@@ -91,6 +91,13 @@ def set_options(opt):
                     const=True,
                     help='automatically select additional C++ compiler optimization flags for the current platform')
 
+    comp.add_option('--no-desktop-update',
+                    action='store_const',
+                    default=False, #'-fomit-frame-pointer -ffast-math -fstrength-reduce -pipe',
+                    const=True,
+                    help='dont automatically update desktop database')
+
+
     opt.recurse('libgxw/gxw')
     opt.recurse('libgxwmm/gxwmm')
 
@@ -614,6 +621,9 @@ def configure(conf):
         cpu_model = append_optimization_flags(cxxflags)
     conf.env['CXXFLAGS'] += cxxflags
 
+    if opt.no_desktop_update:
+        conf.env["NO_UPDATE_DESKTOP_DATA_BASE"] = True
+
     # pygobject is used by both python and c++ wrapper
     if opt.python_wrapper or opt.generate_cpp_wrapper:
         conf.check_tool('python')
@@ -676,6 +686,8 @@ def configure(conf):
     display_feature("use prebuild C++ Library Wrapper", conf.env['USE_GENERATED_CPP'])
     display_feature("skip building shared lib", not conf.env['GX_LIB_SHARED'])
     display_feature("skip install lib-dev", not conf.env['GX_LIB_DEV'])
+    display_feature("run ldconfig tool", not conf.env['NO_LDCONFIG'])
+    display_feature("update desktop database", not conf.env['NO_UPDATE_DESKTOP_DATA_BASE'])
     display_feature("Localization  (intltool)", conf.env['ENABLE_NLS'])
     display_feature("skip glade support", not conf.env['GX_GLADE_SUPPORT'])
     if conf.env['GX_GLADE_SUPPORT']:
@@ -764,13 +776,15 @@ def build(bld):
         return task
     gen_desktop.create_task = gen_desktop_add_scanner
     if Options.commands["install"]:  ## newer waf version: bld.cmd == 'install'
-        try:
-            bld.exec_command(["update-desktop-database", Utils.subst_vars("${DATADIR}/applications", bld.env)])
-        except:
-            pass
+        if not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"]:
+            try:
+                bld.exec_command(["update-desktop-database", Utils.subst_vars("${DATADIR}/applications", bld.env)])
+            except:
+                pass
 
     if bld.env["GX_LIB_SHARED"]:
-        bld.add_post_fun(post)
+        if not bld.env["NO_LDCONFIG"]:
+            bld.add_post_fun(post)
     if bld.env["GX_LIB_DEV"]:
         bld.install_files('${PREFIX}/include/gxw','libgxw/gxw/*.h')
         bld.install_files('${PREFIX}/include','libgxw/gxw.h')

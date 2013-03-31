@@ -24,6 +24,12 @@ def set_options(opt):
                    const=True,
                    help=('use the pre-built c++ library wrapper files'),
                    )
+    grp.add_option('--no-ldconfig',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('dont run ldconfig'),
+                   )
 
 def configure(conf):
     conf.check_tool('misc')
@@ -43,6 +49,8 @@ def configure(conf):
         conf.env["GX_LIB_SHARED"] = True
         conf.env["GX_LIB_DEV"] = True
         conf.env["GX_LIB_STATIC"] = False
+    if Options.options.no_ldconfig:
+        conf.env["NO_LDCONFIG"] = True
 
 
 def template2cc(task):
