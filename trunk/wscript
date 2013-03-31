@@ -521,6 +521,7 @@ def configure(conf):
     else:
         nls = 'no '
         conf.define ('DISABLE_NLS', 1)
+        sub_file('guitarix.desktop.in', 'build/default/guitarix.desktop', (('^_', '%s' % ""), ))
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
@@ -744,8 +745,6 @@ def build(bld):
             task.scan = po_scanner
             return task
         gen_desktop.create_task = gen_desktop_add_scanner
-    else:
-        sub_file('guitarix.desktop.in', 'build/default/guitarix.desktop', (('^_', '%s' % ""), ))
 
     # process subfolders from here
     if bld.env["LADSPA"]:
