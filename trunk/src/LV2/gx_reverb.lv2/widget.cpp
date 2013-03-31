@@ -56,7 +56,7 @@ plug_name(plugname)
   // create controllers for port name
   Glib::ustring modes[] = {"linear","ping pong"};  
   static const size_t _size = sizeof(modes) / sizeof(modes[0]);
-  make_selector("Echo Mode", modes, _size, 0, 1.0, INVERT);
+  make_selector("Reverb Mode", modes, _size, 0, 1.0, INVERT);
   make_controller_box(&m_vbox2, "dry/wet", 0, 100, 1, WET_DRY);
   make_controller_box(&m_vbox4, "LFO", 0.2, 5, 0.01, LFOFREQ);
   m_vbox4.pack_start(m_selector, Gtk::PACK_SHRINK);

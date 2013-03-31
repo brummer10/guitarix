@@ -155,7 +155,7 @@ gx_drive(drive) = _ <: _ + nonlin(4,4,0.125) * drive * 10 ;
 wetdry = vslider("wet_dry[name:wet/dry]",  100, 0, 100, 1) : /(100);
 drive = vslider("drive", 0.35, 0, 1, 0.01) : smoothi(0.999);
 
-dist(drive,wetdry) =_<:(*(dry): gx_drive(drive)),(*(wetdry):distdrive(drive)):>_
+dist(drive,wetdry) =_<:(*(dry): +(no_denormal) :gx_drive(drive)),(*(wetdry):+(no_denormal) :distdrive(drive)):>_
 	with{
 	
 	dry = 1 - wetdry;

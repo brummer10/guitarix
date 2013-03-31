@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose, Steve Poskitt
+# Copyright (C) 2013 Hermann Meyer, Andreas Degert, Pete Shorthose, Steve Poskitt
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,5 +24,4 @@
     a lv2:Plugin ;
     lv2:binary <gxredeye.so>  ;
     rdfs:seeAlso <gxredeye.ttl> .
-
 

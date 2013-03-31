@@ -60,7 +60,7 @@ plug_name(plugname)
   // create controllers for port name
   Glib::ustring modes[] = {"linear","ping pong"};  
   static const size_t _size = sizeof(modes) / sizeof(modes[0]);
-  make_selector("Echo Mode", modes, _size, 0, 1.0, INVERT);
+  make_selector("Delay Mode", modes, _size, 0, 1.0, INVERT);
   make_controller_box(&m_vbox2, "Time (R)", 1, 5000, 10, R_DELAY);
   make_controller_box(&m_vbox3, "Time (L)", 1, 5000, 10, L_DELAY);
   make_controller_box(&m_vbox4, "LFO", 0.2, 5, 0.01, LFOFREQ);
