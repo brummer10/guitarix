@@ -38,10 +38,10 @@ private:
   PluginLV2*                   reverb_st;
 public:
 
-  inline void run_dsp_mono(uint32_t n_samples);
-  inline void connect_mono(uint32_t port,void* data);
-  inline void init_dsp_mono(uint32_t rate);
-  inline void connect_all_mono_ports(uint32_t port, void* data);
+  inline void run_dsp_stereo(uint32_t n_samples);
+  inline void connect_stereo(uint32_t port,void* data);
+  inline void init_dsp_stereo(uint32_t rate);
+  inline void connect_all_stereo_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
   Gx_reverb_stereo();
@@ -59,19 +59,24 @@ Gx_reverb_stereo::Gx_reverb_stereo() :
 // destructor
 Gx_reverb_stereo::~Gx_reverb_stereo()
 {
+  // just to be sure the plug have given free the allocated mem
+  // check if the function is valid
+  // it didn't hurd if the mem is already given free by clean_up()
+  if (reverb_st->activate_plugin !=0)
+    reverb_st->activate_plugin(false, reverb_st);
   reverb_st->delete_instance(reverb_st);
 };
 
 ////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
 
-void Gx_reverb_stereo::init_dsp_mono(uint32_t rate)
+void Gx_reverb_stereo::init_dsp_stereo(uint32_t rate)
 {
   AVOIDDENORMALS(); // init the SSE denormal protection
   reverb_st->set_samplerate(rate, reverb_st); // init the DSP class
 }
 
 // connect the Ports used by the plug-in class
-void Gx_reverb_stereo::connect_mono(uint32_t port,void* data)
+void Gx_reverb_stereo::connect_stereo(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
@@ -95,25 +100,29 @@ void Gx_reverb_stereo::connect_mono(uint32_t port,void* data)
 void Gx_reverb_stereo::activate_f()
 {
   // allocate the internal DSP mem
-  // nothing to do for reverb
+  // check if the function is valid
+  if (reverb_st->activate_plugin !=0)
+    reverb_st->activate_plugin(true, reverb_st);
 }
 
 void Gx_reverb_stereo::clean_up()
 {
-  // delete the internal DSP mem
-  // nothing to do for reverb
+  // allocate the internal DSP mem
+  // check if the function is valid
+  if (reverb_st->activate_plugin !=0)
+    reverb_st->activate_plugin(false, reverb_st);
 }
 
-void Gx_reverb_stereo::run_dsp_mono(uint32_t n_samples)
+void Gx_reverb_stereo::run_dsp_stereo(uint32_t n_samples)
 {
   reverb_st->stereo_audio(static_cast<int>(n_samples), input, input1,
                         output, output1, reverb_st);
 }
 
-void Gx_reverb_stereo::connect_all_mono_ports(uint32_t port, void* data)
+void Gx_reverb_stereo::connect_all_stereo_ports(uint32_t port, void* data)
 {
   // connect the Ports used by the plug-in class
-  connect_mono(port,data); 
+  connect_stereo(port,data); 
   // connect the Ports used by the DSP class
   reverb_st->connect_ports(port,  data, reverb_st);
 }
@@ -133,7 +142,7 @@ instantiate(const LV2_Descriptor*     descriptor,
       return NULL;
     }
 
-  self->init_dsp_mono((uint32_t)rate);
+  self->init_dsp_stereo((uint32_t)rate);
 
   return (LV2_Handle)self;
 }
@@ -144,7 +153,7 @@ connect_port(LV2_Handle instance,
              void*      data)
 {
   // connect all ports
-  static_cast<Gx_reverb_stereo*>(instance)->connect_all_mono_ports(port, data);
+  static_cast<Gx_reverb_stereo*>(instance)->connect_all_stereo_ports(port, data);
 }
 
 static void
@@ -158,7 +167,7 @@ static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
-  static_cast<Gx_reverb_stereo*>(instance)->run_dsp_mono(n_samples);
+  static_cast<Gx_reverb_stereo*>(instance)->run_dsp_stereo(n_samples);
 }
 
 static void

@@ -56,8 +56,10 @@ Gx_tremolo::Gx_tremolo() :
 Gx_tremolo::~Gx_tremolo()
 {
   // just to be sure the plug have given free the allocated mem
+  // check if the function is valid
   // it didn't hurd if the mem is already given free by clean_up()
-  //tremolo_st->activate_plugin(false, tremolo_st);
+  if ( tremolo_st->activate_plugin !=0)
+    tremolo_st->activate_plugin(false, tremolo_st);
   // delete DSP class
   tremolo_st->delete_instance(tremolo_st);
 };
@@ -89,13 +91,17 @@ void Gx_tremolo::connect_mono(uint32_t port,void* data)
 void Gx_tremolo::activate_f()
 {
   // allocate the internal DSP mem
-  //tremolo_st->activate_plugin(true, tremolo_st);
+  // check if the function is valid
+  if (tremolo_st->activate_plugin !=0)
+    tremolo_st->activate_plugin(true, tremolo_st);
 }
 
 void Gx_tremolo::clean_up()
 {
   // delete the internal DSP mem
-  //tremolo_st->activate_plugin(false, tremolo_st);
+  // check if the function is valid
+  if (tremolo_st->activate_plugin !=0)
+    tremolo_st->activate_plugin(false, tremolo_st);
 }
 
 void Gx_tremolo::run_dsp_mono(uint32_t n_samples)

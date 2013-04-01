@@ -38,10 +38,10 @@ private:
   PluginLV2*                   echo_st;
 public:
 
-  inline void run_dsp_mono(uint32_t n_samples);
-  inline void connect_mono(uint32_t port,void* data);
-  inline void init_dsp_mono(uint32_t rate);
-  inline void connect_all_mono_ports(uint32_t port, void* data);
+  inline void run_dsp_stereo(uint32_t n_samples);
+  inline void connect_stereo(uint32_t port,void* data);
+  inline void init_dsp_stereo(uint32_t rate);
+  inline void connect_all_stereo_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
   Gx_echo_stereo();
@@ -61,21 +61,22 @@ Gx_echo_stereo::~Gx_echo_stereo()
 {
   // just to be sure the plug have given free the allocated mem
   // it didn't hurd if the mem is already given free by clean_up()
-  echo_st->activate_plugin(false, echo_st);
+  if (echo_st->activate_plugin !=0)
+    echo_st->activate_plugin(false, echo_st);
   // delete DSP class
   echo_st->delete_instance(echo_st);
 };
 
 ////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
 
-void Gx_echo_stereo::init_dsp_mono(uint32_t rate)
+void Gx_echo_stereo::init_dsp_stereo(uint32_t rate)
 {
   AVOIDDENORMALS(); // init the SSE denormal protection
   echo_st->set_samplerate(rate, echo_st); // init the DSP class
 }
 
 // connect the Ports used by the plug-in class
-void Gx_echo_stereo::connect_mono(uint32_t port,void* data)
+void Gx_echo_stereo::connect_stereo(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
@@ -99,25 +100,27 @@ void Gx_echo_stereo::connect_mono(uint32_t port,void* data)
 void Gx_echo_stereo::activate_f()
 {
   // allocate the internal DSP mem
-  echo_st->activate_plugin(true, echo_st);
+  if (echo_st->activate_plugin !=0)
+    echo_st->activate_plugin(true, echo_st);
 }
 
 void Gx_echo_stereo::clean_up()
 {
   // delete the internal DSP mem
-  echo_st->activate_plugin(false, echo_st);
+  if (echo_st->activate_plugin !=0)
+    echo_st->activate_plugin(false, echo_st);
 }
 
-void Gx_echo_stereo::run_dsp_mono(uint32_t n_samples)
+void Gx_echo_stereo::run_dsp_stereo(uint32_t n_samples)
 {
   echo_st->stereo_audio(static_cast<int>(n_samples), input, input1,
                         output, output1, echo_st);
 }
 
-void Gx_echo_stereo::connect_all_mono_ports(uint32_t port, void* data)
+void Gx_echo_stereo::connect_all_stereo_ports(uint32_t port, void* data)
 {
   // connect the Ports used by the plug-in class
-  connect_mono(port,data); 
+  connect_stereo(port,data); 
   // connect the Ports used by the DSP class
   echo_st->connect_ports(port,  data, echo_st);
 }
@@ -137,7 +140,7 @@ instantiate(const LV2_Descriptor*     descriptor,
       return NULL;
     }
 
-  self->init_dsp_mono((uint32_t)rate);
+  self->init_dsp_stereo((uint32_t)rate);
 
   return (LV2_Handle)self;
 }
@@ -148,7 +151,7 @@ connect_port(LV2_Handle instance,
              void*      data)
 {
   // connect all ports
-  static_cast<Gx_echo_stereo*>(instance)->connect_all_mono_ports(port, data);
+  static_cast<Gx_echo_stereo*>(instance)->connect_all_stereo_ports(port, data);
 }
 
 static void
@@ -162,7 +165,7 @@ static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
-  static_cast<Gx_echo_stereo*>(instance)->run_dsp_mono(n_samples);
+  static_cast<Gx_echo_stereo*>(instance)->run_dsp_stereo(n_samples);
 }
 
 static void
