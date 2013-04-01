@@ -24,20 +24,17 @@
 
 #include <lv2.h>
 
-#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_reverb_stereo"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_reverb_stereo#gui"
+#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_tremolo"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_tremolo#gui"
 
 typedef enum
 {
   WET_DRY,
-  LFOFREQ,
-  ROOMSIZE,
-  DAMP,
-  INVERT,
+  SINE,
+  DEPTH,
+  FREQ,
   EFFECTS_OUTPUT,
-  EFFECTS_OUTPUT1,
   EFFECTS_INPUT,
-  EFFECTS_INPUT1,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

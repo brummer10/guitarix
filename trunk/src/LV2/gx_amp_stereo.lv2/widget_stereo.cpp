@@ -229,14 +229,14 @@ void Widget::make_controller_box(Gtk::Box *box,
                                     get_controller_by_port(port_name));
   if (regler)
   {
-    Gtk::Label* pr = new Gtk::Label(label, 0);
-    pr->set_name("amplabel");
+    //Gtk::Label* pr = new Gtk::Label(label, 0);
+    //pr->set_name("amplabel");
     // use label images instead simple string labes
-    /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    Glib::ustring  label_image = GX_LV2_STYLE_DIR;
     label_image += "/";
     label_image += label;
     label_image += "-label.png";
-    Gtk::Image *pr = new Gtk::Image(label_image);*/
+    Gtk::Image *pr = new Gtk::Image(label_image);
 
     Gtk::VBox* b1 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);

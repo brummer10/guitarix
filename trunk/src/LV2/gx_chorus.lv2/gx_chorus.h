@@ -24,16 +24,15 @@
 
 #include <lv2.h>
 
-#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_reverb_stereo"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_reverb_stereo#gui"
+#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_chorus_stereo"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_chorus_stereo#gui"
 
 typedef enum
 {
-  WET_DRY,
-  LFOFREQ,
-  ROOMSIZE,
-  DAMP,
-  INVERT,
+  LEVEL,
+  DELAY,
+  DEPTH,
+  FREQ,
   EFFECTS_OUTPUT,
   EFFECTS_OUTPUT1,
   EFFECTS_INPUT,

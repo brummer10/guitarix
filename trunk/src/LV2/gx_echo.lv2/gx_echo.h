@@ -24,8 +24,8 @@
 
 #include <lv2.h>
 
-#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_echo"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_echo#gui"
+#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_echo_stereo"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_echo_stereo#gui"
 
 
 typedef enum

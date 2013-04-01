@@ -31,7 +31,7 @@
 
 using namespace std;
 
-class Gx_delayGUI
+class Gx_delay_stereoGUI
 {
 private:
   Glib::ustring plugskin;
@@ -44,20 +44,20 @@ private:
 public:
 
   Widget* widget;
-  static void set_plug_name_static(Gx_delayGUI *self, const char * plugin_uri)
+  static void set_plug_name_static(Gx_delay_stereoGUI *self, const char * plugin_uri)
   {
     self->set_plug_name(plugin_uri);
   }
-  static GtkWidget* make_gui_static(Gx_delayGUI *self)
+  static GtkWidget* make_gui_static(Gx_delay_stereoGUI *self)
   {
     return self->make_gui();
   }
 
-  Gx_delayGUI () {};
-  ~Gx_delayGUI () {};
+  Gx_delay_stereoGUI () {};
+  ~Gx_delay_stereoGUI () {};
 } ;
 
-void Gx_delayGUI::set_knob( Glib::ustring knob)
+void Gx_delay_stereoGUI::set_knob( Glib::ustring knob)
 {
   addKnob =   " style 'gx_";
   addKnob +=  plug_name;
@@ -87,7 +87,7 @@ void Gx_delayGUI::set_knob( Glib::ustring knob)
   addKnob +=  "_dark_skin_icons' \n";
 }
 
-void Gx_delayGUI::set_skin()
+void Gx_delay_stereoGUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
   toparse +=     " '";
@@ -107,14 +107,14 @@ void Gx_delayGUI::set_skin()
   toparse +=     "'}}\n"
                  " }\n"
                  "\n"
-                 "style 'gx_head_delay_box' \n"
+                 "style 'gx_head_delay_stereo_box' \n"
                  " { \n"
                  "    fg[NORMAL] = '#838383' \n"
                  "font_name = 'sans 7.5 bold' \n"
                  " }\n";
   toparse +=     addKnob;
 
-  toparse +=     " widget '*.amplabel' style:highest 'gx_head_delay_box'\n"
+  toparse +=     " widget '*.amplabel' style:highest 'gx_head_delay_stereo_box'\n"
                  "widget '*.";
   toparse +=     plug_name;
   toparse +=     "' style 'gx_";
@@ -157,24 +157,24 @@ void Gx_delayGUI::set_skin()
   gtk_rc_parse_string (toparse.c_str());
 }
 
-void Gx_delayGUI::set_plug_name( const char * plugin_uri)
+void Gx_delay_stereoGUI::set_plug_name( const char * plugin_uri)
 {
   addKnob = "";
 
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_delay#_delay", plugin_uri) == 0)
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_delay_stereo#_delay_stereo", plugin_uri) == 0)
     {
       plugskin = "_delay.png";
-      plug_name = "_delay";
+      plug_name = "_delay_stereo";
       set_knob("nk-knob");
     }
   else
     {
       plugskin = "_delay.png";
-      plug_name = "_delay";
+      plug_name = "_delay_stereo";
     }
 }
 
-GtkWidget* Gx_delayGUI::make_gui()
+GtkWidget* Gx_delay_stereoGUI::make_gui()
 {
   // init the gxwmm library
   Gxw::init();
@@ -196,7 +196,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
                                 LV2UI_Widget * widget,
                                 const LV2_Feature * const * features)
 {
-  Gx_delayGUI* self = new Gx_delayGUI();
+  Gx_delay_stereoGUI* self = new Gx_delay_stereoGUI();
   if (self == NULL) return NULL;
   self->set_plug_name_static(self, plugin_uri);
   *widget = (LV2UI_Widget)self->make_gui_static(self);
@@ -207,7 +207,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 
 static void cleanup(LV2UI_Handle ui)
 {
-  Gx_delayGUI *pluginGui = static_cast<Gx_delayGUI*>(ui);
+  Gx_delay_stereoGUI *pluginGui = static_cast<Gx_delay_stereoGUI*>(ui);
   delete pluginGui->widget;
   delete pluginGui;
 }
@@ -218,7 +218,7 @@ static void port_event(LV2UI_Handle ui,
                        uint32_t format,
                        const void * buffer)
 {
-  Gx_delayGUI *self = static_cast<Gx_delayGUI*>(ui);
+  Gx_delay_stereoGUI *self = static_cast<Gx_delay_stereoGUI*>(ui);
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }

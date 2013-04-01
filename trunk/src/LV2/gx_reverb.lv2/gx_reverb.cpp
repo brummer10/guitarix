@@ -27,7 +27,7 @@
 
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
-class Gx_reverb
+class Gx_reverb_stereo
 {
 private:
   // internal stuff
@@ -44,12 +44,12 @@ public:
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
-  Gx_reverb();
-  ~Gx_reverb();
+  Gx_reverb_stereo();
+  ~Gx_reverb_stereo();
 };
 
 // constructor
-Gx_reverb::Gx_reverb() :
+Gx_reverb_stereo::Gx_reverb_stereo() :
   output(NULL),
   input(NULL),
   output1(NULL),
@@ -57,21 +57,21 @@ Gx_reverb::Gx_reverb() :
   reverb_st(stereoverb::plugin()) {};
 
 // destructor
-Gx_reverb::~Gx_reverb()
+Gx_reverb_stereo::~Gx_reverb_stereo()
 {
   reverb_st->delete_instance(reverb_st);
 };
 
 ////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
 
-void Gx_reverb::init_dsp_mono(uint32_t rate)
+void Gx_reverb_stereo::init_dsp_mono(uint32_t rate)
 {
   AVOIDDENORMALS(); // init the SSE denormal protection
   reverb_st->set_samplerate(rate, reverb_st); // init the DSP class
 }
 
 // connect the Ports used by the plug-in class
-void Gx_reverb::connect_mono(uint32_t port,void* data)
+void Gx_reverb_stereo::connect_mono(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
@@ -92,25 +92,25 @@ void Gx_reverb::connect_mono(uint32_t port,void* data)
     }
 }
 
-void Gx_reverb::activate_f()
+void Gx_reverb_stereo::activate_f()
 {
   // allocate the internal DSP mem
   // nothing to do for reverb
 }
 
-void Gx_reverb::clean_up()
+void Gx_reverb_stereo::clean_up()
 {
   // delete the internal DSP mem
   // nothing to do for reverb
 }
 
-void Gx_reverb::run_dsp_mono(uint32_t n_samples)
+void Gx_reverb_stereo::run_dsp_mono(uint32_t n_samples)
 {
   reverb_st->stereo_audio(static_cast<int>(n_samples), input, input1,
                         output, output1, reverb_st);
 }
 
-void Gx_reverb::connect_all_mono_ports(uint32_t port, void* data)
+void Gx_reverb_stereo::connect_all_mono_ports(uint32_t port, void* data)
 {
   // connect the Ports used by the plug-in class
   connect_mono(port,data); 
@@ -127,7 +127,7 @@ instantiate(const LV2_Descriptor*     descriptor,
             const LV2_Feature* const* features)
 {
   // init the plug-in class
-  Gx_reverb *self = new Gx_reverb();
+  Gx_reverb_stereo *self = new Gx_reverb_stereo();
   if (!self)
     {
       return NULL;
@@ -144,28 +144,28 @@ connect_port(LV2_Handle instance,
              void*      data)
 {
   // connect all ports
-  static_cast<Gx_reverb*>(instance)->connect_all_mono_ports(port, data);
+  static_cast<Gx_reverb_stereo*>(instance)->connect_all_mono_ports(port, data);
 }
 
 static void
 activate(LV2_Handle instance)
 {
   // allocate needed mem
-  static_cast<Gx_reverb*>(instance)->activate_f();
+  static_cast<Gx_reverb_stereo*>(instance)->activate_f();
 }
 
 static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
-  static_cast<Gx_reverb*>(instance)->run_dsp_mono(n_samples);
+  static_cast<Gx_reverb_stereo*>(instance)->run_dsp_mono(n_samples);
 }
 
 static void
 cleanup(LV2_Handle instance)
 {
   // well, clean up after us
-  Gx_reverb* self = static_cast<Gx_reverb*>(instance);
+  Gx_reverb_stereo* self = static_cast<Gx_reverb_stereo*>(instance);
   self->clean_up();
   delete self;
 }
@@ -174,7 +174,7 @@ cleanup(LV2_Handle instance)
 
 static const LV2_Descriptor descriptor =
 {
-  GXPLUGIN_URI "#_reverb",
+  GXPLUGIN_URI "#_reverb_stereo",
   instantiate,
   connect_port,
   activate,

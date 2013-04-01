@@ -24,8 +24,8 @@
 
 #include <lv2.h>
 
-#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_delay"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_delay#gui"
+#define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_delay_stereo"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_delay_stereo#gui"
 
 
 typedef enum

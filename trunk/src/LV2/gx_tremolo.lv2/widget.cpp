@@ -35,138 +35,60 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 {
   switch ((PortIndex)port_index )
   {
-    case GAIN1:
-      return &m_bigknob;
-    case PREGAIN:
-      return &m_bigknob1;
     case WET_DRY:
-      return &m_bigknob2;
-    case DRIVE:
-      return &m_bigknob3;
-    case MIDDLE:
-      return &m_smallknob1;
-    case BASS:
-      return &m_smallknob2;
-    case TREBLE:
-      return &m_smallknob3;
-    case MODEL:
+      return &m_bigknob;
+    case SINE:
       return &m_selector;
-    case T_MODEL:
-      return &t_selector;
-    case C_MODEL:
-      return &c_selector;
-    case CLevel:
+    case DEPTH:
       return &m_smallknob4;
-    case ALevel:
+    case FREQ:
       return &m_smallknob5;
     default:
       return NULL;
-  }
+  } 
 }
 
 Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
-
-  // create all selectors
-  Glib::ustring tubes[] = {"12ax7","12AU7","12AT7","6DJ8","6C16","6V6","12ax7 feedback",
-  "12AU7 feedback","12AT7 feedback","6DJ8 feedback","pre 12ax7/ master 6V6","pre 12AU7/ master 6V6",
-  "pre 12AT7/ master 6V6","pre 6DJ8/ master 6V6","pre 12ax7/ push-pull 6V6","pre 12AU7/ push-pull 6V6",
-  "pre 12AT7/ push pull 6V6","pre 6DJ8/ push-pull 6V6"
-  };
-  static const size_t tubes_size = sizeof(tubes) / sizeof(tubes[0]);
-  
-  make_selector("Tubes", tubes, tubes_size, 0, 1.0, MODEL);
-
-  m_hboxsel1.pack_start(m_selector,Gtk::PACK_SHRINK);
-  m_hboxsel1.pack_start(m_hboxsel2,Gtk::PACK_EXPAND_PADDING);
-  m_vboxsel.pack_start(m_hboxsel1,Gtk::PACK_EXPAND_PADDING);
-
-  Glib::ustring ts[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800",
-  "JCM-2000","M-Lead","M2199","AC-30","Mesa Boogie","SOL 100","JTM-45","AC-15",
-  "Peavey","Ibanez","Roland","Ampeg","Rev.Rocket","MIG 100 H","Triple Giant",
-  "Trio Preamp","Hughes&Kettner","Fender Junior","Fender","Fender Deville",
-  "Gibsen",
-  };
-  static const size_t ts_size = sizeof(ts) / sizeof(ts[0]);
-  
-  make_selector("Tonestacks", ts, ts_size, 0,1.0, T_MODEL);
-
-
-  Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain","Twin",
-  "Bassman","Marshall","AC30","Princeton","A2","1x15","Mesa","Briliant","Vitalize",
-  "Charisma","1x8",
-  };
-  static const size_t cab_size = sizeof(cab) / sizeof(cab[0]);
-  
-  make_selector("Cabinets", cab, cab_size, 0, 1.0, C_MODEL);
-
-  // create all controllers
-  make_controller_box(&m_vbox, "mastergain", -20, 20, 0.1, GAIN1);
-  make_controller_box(&m_vbox1, "pregain", -20, 20, 0.1, PREGAIN);
-  make_controller_box(&m_vbox2, "distortion", 1, 100, 1, WET_DRY);
-  make_controller_box(&m_vbox3, "drive", 0.01, 1, 0.01, DRIVE);
-  make_controller_box(&m_vbox4, "mid", 0, 1, 0.01, MIDDLE);
-  make_controller_box(&m_vbox5, "bass", 0, 1, 0.01, BASS);
-  make_controller_box(&m_vbox6, "treble", 0, 1, 0.01, TREBLE);
-  // put cabinet selector above cab controller
-  m_vbox7.pack_start(c_selector,Gtk::PACK_SHRINK);
-  make_controller_box(&m_vbox7, "cabinet", 1, 20, 1, CLevel);
-  make_controller_box(&m_vbox8, "presence", 1, 10, 1, ALevel);
+  // create controllers for port name
+  Glib::ustring modes[] = {"triangle","sine"};  
+  static const size_t _size = sizeof(modes) / sizeof(modes[0]);
+  make_selector("Tremolo Mode", modes, _size, 0, 1.0, SINE);
+  make_controller_box(&m_vbox2, "dry/wet", 0, 100, 1, WET_DRY);
+  make_controller_box(&m_vbox3, "depth", 0, 1, 0.01, DEPTH);
+  make_controller_box(&m_vbox4, "freq", 0.1, 50, 0.1, FREQ);
+  m_vbox4.pack_start(m_selector, Gtk::PACK_SHRINK);
 
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(30);
-  m_paintbox.set_spacing(12);
+  m_paintbox.set_border_width(10);
+  m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "amp_skin_expose";
+  m_paintbox.property_paint_func() = "rectangle_skin_color_expose";
   add(m_paintbox);
   // box for the controllers
-  m_hbox_.set_spacing(12);
+  m_hbox_.set_spacing(64);
+  m_hbox_.set_border_width(5);
   m_hbox_.set_homogeneous(false);
-  // this box set space for the upper part of the skin
-  m_hbox1_.set_spacing(12);
-  m_hbox1_.set_border_width(65);
   // set a vertical box in the paintbox
+  m_vbox.set_border_width(2);
+  m_vbox1.set_border_width(2);
   m_paintbox.pack_start(m_vbox_);
-  // and put space box on top
-  m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
-  // and controller box on bottem
-  m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
-  // amp controllers including the tube selector
-  m_hboxsel.set_spacing(12);
-  m_hboxsel.set_homogeneous(false);
-  m_hboxsel.pack_start(m_vbox1);
-  m_hboxsel.pack_start(m_vbox2);
-  m_hboxsel.pack_start(m_vbox3);
-  m_hboxsel.pack_start(m_vbox8);
-  m_hboxsel.pack_start(m_vbox);
-  m_vboxsel.pack_start(m_hboxsel);
-
-  // put boxed controllers into controller box
-  m_hbox_.pack_start(m_vboxhh);
-  m_hbox_.pack_start(m_vboxsel);
-  m_hbox_.pack_start(m_vbox7);
-  // etxra box for the boxed tonestack controllers
-  m_hboxtonestack1.pack_start(m_hboxtonestack3,Gtk::PACK_EXPAND_PADDING);
-  m_hboxtonestack1.pack_start(t_selector,Gtk::PACK_SHRINK);
-  m_hboxtonestack1.pack_start(m_hboxtonestack2,Gtk::PACK_EXPAND_PADDING);
+  // and controller box on top
+  m_vbox_.pack_start(m_hbox_, Gtk::PACK_SHRINK);
+   // put boxed controllers into controller box
+  m_hbox_.pack_start(m_vbox,Gtk::PACK_EXPAND_PADDING);
+  m_hbox_.pack_start(m_vbox3);
+  m_hbox_.pack_start(m_vbox4);
+  m_hbox_.pack_start(m_vbox2);
+  m_hbox_.pack_start(m_vbox1,Gtk::PACK_EXPAND_PADDING);
   
-  m_vboxtonestack.pack_start(m_hboxtonestack1);
-  m_vboxtonestack.pack_start(m_hbox);
-  m_hbox.set_border_width(8);
-  m_hbox.pack_start(m_vbox5);
-  m_hbox.pack_start(m_vbox4);
-  m_hbox.pack_start(m_vbox6);
-  m_hbox.pack_start(m_vboxii);
-  m_hbox.set_spacing(5);
-  // add tonestack controller box to main controller box
-  m_hbox_.pack_start(m_vboxtonestack);
-
   // connect expose handler as resize handler
   m_paintbox.signal_expose_event().connect(
     sigc::mem_fun(this, &Widget::_expose_event), true);
 
+  set_app_paintable(true);
   show_all();
 }
 
@@ -229,14 +151,14 @@ void Widget::make_controller_box(Gtk::Box *box,
                                     get_controller_by_port(port_name));
   if (regler)
   {
-    //Gtk::Label* pr = new Gtk::Label(label, 0);
-    //pr->set_name("amplabel");
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
     // use label images instead simple string labes
-    Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
     label_image += "/";
     label_image += label;
     label_image += "-label.png";
-    Gtk::Image *pr = new Gtk::Image(label_image);
+    Gtk::Image *pr = new Gtk::Image(label_image);*/
 
     Gtk::VBox* b1 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
@@ -297,7 +219,6 @@ void Widget::set_value(uint32_t port_index,
     {
       float value = *static_cast<const float*>(buffer);
       regler->cp_set_value(value);
-      check_for_skin(port_index, static_cast<int>(value));
     }
   }
 }
@@ -312,28 +233,6 @@ void Widget::on_value_changed(uint32_t port_index)
     float value = regler->cp_get_value();
     write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
-    check_for_skin(port_index, static_cast<int>(value));
   }
 }
 
-void Widget::check_for_skin(uint32_t port_index, float model)
-{
-  if (port_index == MODEL)
-    change_skin(static_cast<int>(model));
-}
-
-inline std::string to_string(int _Val)
-{   // convert int to string
-        char _Buf[4];
-        sprintf(_Buf, "%d", _Val);
-        return (std::string(_Buf));
-}
-void Widget::change_skin(int model)
-{
-  std::string rcfile =GX_LV2_STYLE_DIR;
-  rcfile +="/gx_lv2-";
-  rcfile += to_string(model);
-  rcfile += ".rc";
-  gtk_rc_parse(rcfile.c_str());
-  gtk_rc_reset_styles(gtk_settings_get_default());
-}

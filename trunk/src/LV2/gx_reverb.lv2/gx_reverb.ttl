@@ -31,21 +31,21 @@
 	foaf:mbox <mailto:brummer@web.de> ;
 	rdfs:seeAlso <http://guitarix.sourceforge.net> .
 
-<http://guitarix.sourceforge.net/plugins/gx_reverb>
+<http://guitarix.sourceforge.net/plugins/gx_reverb_stereo>
 	a doap:Project ;
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
-	doap:name "Gx_reverb" .
+	doap:name "Gx_reverb_stereo" .
 
-<http://guitarix.sourceforge.net/plugins/gx_reverb#_reverb>
+<http://guitarix.sourceforge.net/plugins/gx_reverb_stereo#_reverb_stereo>
     a lv2:Plugin ,
         lv2:EffectPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxReverb";
+    doap:name "GxReverb-Stereo";
     doap:license <http://opensource.org/licenses/isc> ;
-    lv2:project <http://guitarix.sourceforge.net/plugins/gx_reverb> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_reverb_stereo> ;
     lv2:optionalFeature lv2:hardRTCapable ;
     
-  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_reverb#gui>;
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_reverb_stereo#gui>;
   
     lv2:port  [
         a lv2:InputPort ,
@@ -122,7 +122,7 @@
         lv2:name "In1"
     ].
 
-<http://guitarix.sourceforge.net/plugins/gx_reverb#gui>
+<http://guitarix.sourceforge.net/plugins/gx_reverb_stereo#gui>
   a guiext:GtkUI;
   guiext:binary <gx_reverb_gui.so>;
   guiext:requiredFeature guiext:makeResident .

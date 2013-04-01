@@ -27,7 +27,7 @@
 
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
-class Gx_delay
+class Gx_delay_stereo
 {
 private:
   // internal stuff
@@ -44,12 +44,12 @@ public:
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
-  Gx_delay();
-  ~Gx_delay();
+  Gx_delay_stereo();
+  ~Gx_delay_stereo();
 };
 
 // constructor
-Gx_delay::Gx_delay() :
+Gx_delay_stereo::Gx_delay_stereo() :
   output(NULL),
   input(NULL),
   output1(NULL),
@@ -57,7 +57,7 @@ Gx_delay::Gx_delay() :
   delay_st(stereodelay::plugin()) {};
 
 // destructor
-Gx_delay::~Gx_delay()
+Gx_delay_stereo::~Gx_delay_stereo()
 {
   // just to be sure the plug have given free the allocated mem
   // it didn't hurd if the mem is already given free by clean_up()
@@ -68,14 +68,14 @@ Gx_delay::~Gx_delay()
 
 ////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
 
-void Gx_delay::init_dsp_mono(uint32_t rate)
+void Gx_delay_stereo::init_dsp_mono(uint32_t rate)
 {
   AVOIDDENORMALS(); // init the SSE denormal protection
   delay_st->set_samplerate(rate, delay_st); // init the DSP class
 }
 
 // connect the Ports used by the plug-in class
-void Gx_delay::connect_mono(uint32_t port,void* data)
+void Gx_delay_stereo::connect_mono(uint32_t port,void* data)
 {
   switch ((PortIndex)port)
     {
@@ -96,25 +96,25 @@ void Gx_delay::connect_mono(uint32_t port,void* data)
     }
 }
 
-void Gx_delay::activate_f()
+void Gx_delay_stereo::activate_f()
 {
   // allocate the internal DSP mem
   delay_st->activate_plugin(true, delay_st);
 }
 
-void Gx_delay::clean_up()
+void Gx_delay_stereo::clean_up()
 {
   // delete the internal DSP mem
   delay_st->activate_plugin(false, delay_st);
 }
 
-void Gx_delay::run_dsp_mono(uint32_t n_samples)
+void Gx_delay_stereo::run_dsp_mono(uint32_t n_samples)
 {
   delay_st->stereo_audio(static_cast<int>(n_samples), input, input1,
                         output, output1, delay_st);
 }
 
-void Gx_delay::connect_all_mono_ports(uint32_t port, void* data)
+void Gx_delay_stereo::connect_all_mono_ports(uint32_t port, void* data)
 {
   // connect the Ports used by the plug-in class
   connect_mono(port,data); 
@@ -131,7 +131,7 @@ instantiate(const LV2_Descriptor*     descriptor,
             const LV2_Feature* const* features)
 {
   // init the plug-in class
-  Gx_delay *self = new Gx_delay();
+  Gx_delay_stereo *self = new Gx_delay_stereo();
   if (!self)
     {
       return NULL;
@@ -148,28 +148,28 @@ connect_port(LV2_Handle instance,
              void*      data)
 {
   // connect all ports
-  static_cast<Gx_delay*>(instance)->connect_all_mono_ports(port, data);
+  static_cast<Gx_delay_stereo*>(instance)->connect_all_mono_ports(port, data);
 }
 
 static void
 activate(LV2_Handle instance)
 {
   // allocate needed mem
-  static_cast<Gx_delay*>(instance)->activate_f();
+  static_cast<Gx_delay_stereo*>(instance)->activate_f();
 }
 
 static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
-  static_cast<Gx_delay*>(instance)->run_dsp_mono(n_samples);
+  static_cast<Gx_delay_stereo*>(instance)->run_dsp_mono(n_samples);
 }
 
 static void
 cleanup(LV2_Handle instance)
 {
   // well, clean up after us
-  Gx_delay* self = static_cast<Gx_delay*>(instance);
+  Gx_delay_stereo* self = static_cast<Gx_delay_stereo*>(instance);
   self->clean_up();
   delete self;
 }
@@ -178,7 +178,7 @@ cleanup(LV2_Handle instance)
 
 static const LV2_Descriptor descriptor =
 {
-  GXPLUGIN_URI "#_delay",
+  GXPLUGIN_URI "#_delay_stereo",
   instantiate,
   connect_port,
   activate,

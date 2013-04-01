@@ -357,7 +357,7 @@ int main(int argc, char *argv[]) {
 	Gtk::Main main(argc, argv, options);
     options.process(argc, argv);
 	gx_system::CmdlineOptions& opt = gx_system::get_options();
-    GxSplashBox * Splash;
+    GxSplashBox * Splash = NULL;
 	if (!opt.get_nogui()) {
         Splash =  new GxSplashBox();
 
@@ -407,8 +407,12 @@ int main(int argc, char *argv[]) {
 	// ----------------------- run GTK main loop ----------------------
 	if (!opt.get_nogui()) {
         delete Splash;
+        gui.run();
+	} else {
+        char t;
+        cout << "Press Ctrl C to exit: ";
+        cin  >> t;
     }
-	gui.run();
 	gx_child_process::childprocs.killall();
 #ifndef NDEBUG
 	if (options.dump_parameter) {

@@ -20,7 +20,7 @@
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://guitarix.sourceforge.net/plugins/gx_echo_stereo#_echo_stereo>
+<http://guitarix.sourceforge.net/plugins/gx_chorus_stereo#_chorus_stereo>
     a lv2:Plugin ;
-    lv2:binary <gx_echo.so>  ;
-    rdfs:seeAlso <gx_echo.ttl> .
+    lv2:binary <gx_chorus@LIB_EXT@>  ;
+    rdfs:seeAlso <gx_chorus.ttl> .
