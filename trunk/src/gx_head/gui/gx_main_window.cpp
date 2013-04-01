@@ -2413,7 +2413,10 @@ void MainWindow::hide_extended_settings() {
 }
 
 void MainWindow::run() {
-    window->show();
+    gx_system::CmdlineOptions& opt = gx_system::get_options();
+    if (!opt.get_nogui()) {
+        window->show();
+    }
     Gtk::Main::run();
 }
 
@@ -2535,6 +2538,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       ladspalist_window(),
       szg_rack_units(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)) {
 
+    status_icon->set_visible(!options.get_nogui());
     convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
     convolver_mono_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
 

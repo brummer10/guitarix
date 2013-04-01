@@ -355,17 +355,18 @@ int main(int argc, char *argv[]) {
 
 	gx_system::CmdlineOptions options;
 	Gtk::Main main(argc, argv, options);
-	
-	GxSplashBox * Splash =  new GxSplashBox();
+    options.process(argc, argv);
+	gx_system::CmdlineOptions& opt = gx_system::get_options();
+    GxSplashBox * Splash;
+	if (!opt.get_nogui()) {
+        Splash =  new GxSplashBox();
 
-	gx_system::GxExit::get_instance().signal_msg().connect(
-	    sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
-	ErrorPopup popup;
-	gx_system::Logger::get_logger().signal_message().connect(
-	    sigc::mem_fun(popup, &ErrorPopup::on_message));
-
-	options.process(argc, argv);
-
+        gx_system::GxExit::get_instance().signal_msg().connect(
+            sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
+        ErrorPopup popup;
+        gx_system::Logger::get_logger().signal_message().connect(
+            sigc::mem_fun(popup, &ErrorPopup::on_message));
+	}
 	// ---------------- Check for working user directory  -------------
 	bool need_new_preset;
 	if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
@@ -392,7 +393,9 @@ int main(int argc, char *argv[]) {
 	gx_system::add_time_measurement();
 
 	if (argc > 1) {
-	    delete Splash;
+        if (!opt.get_nogui()) {
+            delete Splash;
+        }
 	    return debug_display_glade(engine, options, gx_engine::parameter_map, argv[1]);
 	}
 #endif
@@ -402,7 +405,9 @@ int main(int argc, char *argv[]) {
 	    gui.create_default_scratch_preset();
 	}
 	// ----------------------- run GTK main loop ----------------------
-	delete Splash;
+	if (!opt.get_nogui()) {
+        delete Splash;
+    }
 	gui.run();
 	gx_child_process::childprocs.killall();
 #ifndef NDEBUG

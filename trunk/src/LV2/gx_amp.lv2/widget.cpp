@@ -22,19 +22,52 @@
 
 #include <iostream>
 
-Widget::Widget(Glib::ustring plug_name)
+
+/*    @get controller by port
+ *  this function is used by make_selector() make_controller_box()
+ *  set_value() and on_value_changed()
+ *  so controller widgets needs only here asined to a port, 
+ *  and all functions which need acess to the controller widget pointer 
+ *  can receive them by port number
+ */
+
+Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 {
-  // init values set by host
-  /*mastergain = -15.0;
-  pregain    = -15.0;
-  wet_dry    = 20.0;
-  drive      = 0.25;
-  mid        = 0.5;
-  bass       = 0.5;
-  treble     = 0.5;
-  clevel     = 1.0;
-  alevel     = 1.0;*/
-  
+  switch ((PortIndex)port_index )
+  {
+    case GAIN1:
+      return &m_bigknob;
+    case PREGAIN:
+      return &m_bigknob1;
+    case WET_DRY:
+      return &m_bigknob2;
+    case DRIVE:
+      return &m_bigknob3;
+    case MIDDLE:
+      return &m_smallknob1;
+    case BASS:
+      return &m_smallknob2;
+    case TREBLE:
+      return &m_smallknob3;
+    case MODEL:
+      return &m_selector;
+    case T_MODEL:
+      return &t_selector;
+    case C_MODEL:
+      return &c_selector;
+    case CLevel:
+      return &m_smallknob4;
+    case ALevel:
+      return &m_smallknob5;
+    default:
+      return NULL;
+  }
+}
+
+Widget::Widget(Glib::ustring plugname):
+plug_name(plugname)
+{
+
   // create all selectors
   Glib::ustring tubes[] = {"12ax7","12AU7","12AT7","6DJ8","6C16","6V6","12ax7 feedback",
   "12AU7 feedback","12AT7 feedback","6DJ8 feedback","pre 12ax7/ master 6V6","pre 12AU7/ master 6V6",
@@ -43,8 +76,7 @@ Widget::Widget(Glib::ustring plug_name)
   };
   static const size_t tubes_size = sizeof(tubes) / sizeof(tubes[0]);
   
-  make_selector_box(&m_selector, "Tubes", tubes, tubes_size, 
-                    MODEL, 0, static_cast<float>(tubes_size+1), 1.0, model, plug_name);
+  make_selector("Tubes", tubes, tubes_size, 0, 1.0, MODEL);
 
   m_hboxsel1.pack_start(m_selector,Gtk::PACK_SHRINK);
   m_hboxsel1.pack_start(m_hboxsel2,Gtk::PACK_EXPAND_PADDING);
@@ -58,8 +90,7 @@ Widget::Widget(Glib::ustring plug_name)
   };
   static const size_t ts_size = sizeof(ts) / sizeof(ts[0]);
   
-  make_selector_box(&t_selector, "Tonestacks", ts, ts_size, 
-                    T_MODEL, 0, static_cast<float>(ts_size+1), 1.0, t_model, plug_name);
+  make_selector("Tonestacks", ts, ts_size, 0,1.0, T_MODEL);
 
 
   Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain","Twin",
@@ -68,30 +99,20 @@ Widget::Widget(Glib::ustring plug_name)
   };
   static const size_t cab_size = sizeof(cab) / sizeof(cab[0]);
   
-  make_selector_box(&c_selector, "Cabinets", cab, cab_size, 
-                    C_MODEL, 0, static_cast<float>(cab_size+1), 1.0, c_model, plug_name);
+  make_selector("Cabinets", cab, cab_size, 0, 1.0, C_MODEL);
 
   // create all controllers
-  make_controller_box(&m_vbox, &m_bigknob, "mastergain", -20, 20, 0.1,
-                      mastergain,GAIN1, plug_name);
-  make_controller_box(&m_vbox1, &m_bigknob1, "pregain", -20, 20, 0.1,
-                      pregain,PREGAIN, plug_name);
-  make_controller_box(&m_vbox2, &m_bigknob2, "distortion", 1, 100, 1,
-                      wet_dry,WET_DRY, plug_name);
-  make_controller_box(&m_vbox3, &m_bigknob3, "drive", 0.01, 1, 0.01,
-                      drive,DRIVE, plug_name);
-  make_controller_box(&m_vbox4, &m_smallknob1, "mid", 0, 1, 0.01,
-                      mid,MIDDLE, plug_name);
-  make_controller_box(&m_vbox5, &m_smallknob2, "bass", 0, 1, 0.01,
-                      bass,BASS, plug_name);
-  make_controller_box(&m_vbox6, &m_smallknob3, "treble", 0, 1, 0.01,
-                      treble,TREBLE, plug_name);
+  make_controller_box(&m_vbox, "mastergain", -20, 20, 0.1, GAIN1);
+  make_controller_box(&m_vbox1, "pregain", -20, 20, 0.1, PREGAIN);
+  make_controller_box(&m_vbox2, "distortion", 1, 100, 1, WET_DRY);
+  make_controller_box(&m_vbox3, "drive", 0.01, 1, 0.01, DRIVE);
+  make_controller_box(&m_vbox4, "mid", 0, 1, 0.01, MIDDLE);
+  make_controller_box(&m_vbox5, "bass", 0, 1, 0.01, BASS);
+  make_controller_box(&m_vbox6, "treble", 0, 1, 0.01, TREBLE);
   // put cabinet selector above cab controller
   m_vbox7.pack_start(c_selector,Gtk::PACK_SHRINK);
-  make_controller_box(&m_vbox7, &m_smallknob4, "cabinet", 1, 20, 1,
-                     clevel,CLevel, plug_name);
-  make_controller_box(&m_vbox8, &m_smallknob5, "presence", 1, 10, 1,
-                      alevel,ALevel, plug_name);
+  make_controller_box(&m_vbox7, "cabinet", 1, 20, 1, CLevel);
+  make_controller_box(&m_vbox8, "presence", 1, 10, 1, ALevel);
 
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(30);
@@ -154,67 +175,6 @@ Widget::~Widget()
 
 }
 
-// create selectors from gxwmm
-void Widget::make_selector_box(Gxw::Selector *regler,
-                                 Glib::ustring labela,
-                                 Glib::ustring tables[],
-                                 size_t _size,
-                                 PortIndex port_name,
-                                 float min, float max,
-                                 float digits, float value,
-                                 Glib::ustring plug_name)
-{
-  Gtk::TreeModelColumn<Glib::ustring> label;
-  Gtk::TreeModelColumnRecord rec;
-  rec.add(label);
-  Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
-
-  for (uint32_t i = 0 ; i< _size; ++i) {
-    ls->append()->set_value(0, tables[i]);
-  }
-    
-  regler->set_model(ls);
-  regler->set_has_tooltip();
-  regler->set_tooltip_text(labela);
-  regler->cp_configure("SELECTOR", labela, min, max, digits);
-  regler->set_show_value(false);
-  regler->cp_set_value(value);
-  regler->set_name(plug_name);
-  regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed),port_name));
-}
-
-// create stackboxes with controllers from gxw
-void Widget::make_controller_box(Gtk::VBox *box,
-                                 Gxw::Regler *regler,
-                                 Glib::ustring label,
-                                 float min, float max,
-                                 float digits, float value,
-                                 PortIndex port_name,
-                                 Glib::ustring plug_name)
-{
-  //Gtk::Label* pr = new Gtk::Label(label, 0);
-  //pr->set_name("amplabel");
-  Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-  label_image += "/";
-  label_image += label;
-  label_image += "-label.png";
-  Gtk::Image *pr = new Gtk::Image(label_image);
-
-  Gtk::VBox* b1 = new Gtk::VBox();
-  box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
-  box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
-  regler->cp_configure("KNOB", label, min, max, digits);
-  regler->set_show_value(false);
-  regler->cp_set_value(value);
-  regler->set_name(plug_name);
-  box->pack_start(*regler,Gtk::PACK_SHRINK);
-  Gtk::VBox* b2 = new Gtk::VBox();
-  box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
-  regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
-      &Widget::on_value_changed), port_name));
-
-}
 // set borderwith for paintbox when widget resize
 // to hold controllers in place
 bool Widget::_expose_event(GdkEventExpose *event)
@@ -222,153 +182,144 @@ bool Widget::_expose_event(GdkEventExpose *event)
   int x, y, width, height, depth;
   m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
   //double_t height = m_paintbox.get_window()->get_height();
-  m_paintbox.set_border_width(height/12);
+  m_paintbox.set_border_width(height/10);
   return false;
 }
-// receive controller value changes from host
+
+// create selectors from gxwmm
+void Widget::make_selector(Glib::ustring labela,
+                           Glib::ustring tables[],
+                           size_t _size,
+                           float min, float digits,
+                           PortIndex port_name)
+{
+  Gxw::Selector *regler = static_cast<Gxw::Selector*>
+                                    (get_controller_by_port(port_name));
+  if (regler)
+  {
+    float max = static_cast<float>(_size+1);
+
+    Gtk::TreeModelColumn<Glib::ustring> label;
+    Gtk::TreeModelColumnRecord rec;
+    rec.add(label);
+    Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+
+    for (uint32_t i = 0 ; i< _size; ++i) {
+      ls->append()->set_value(0, tables[i]);
+    }
+    regler->set_model(ls);
+    regler->set_has_tooltip();
+    regler->set_tooltip_text(labela);
+    regler->cp_configure("SELECTOR", labela, min, max, digits);
+    regler->set_show_value(false);
+    regler->set_name(plug_name);
+    regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(
+           *this, &Widget::on_value_changed), port_name));
+  }
+}
+
+// create stackboxes with controllers for port name
+void Widget::make_controller_box(Gtk::Box *box,
+                                 Glib::ustring label,
+                                 float min, float max,
+                                 float digits,
+                                 PortIndex port_name)
+{
+  Gxw::Regler *regler = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_name));
+  if (regler)
+  {
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
+    // use label images instead simple string labes
+    /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    label_image += "/";
+    label_image += label;
+    label_image += "-label.png";
+    Gtk::Image *pr = new Gtk::Image(label_image);*/
+
+    Gtk::VBox* b1 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
+    regler->cp_configure("KNOB", label, min, max, digits);
+    regler->set_show_value(false);
+    regler->set_name(plug_name);
+    box->pack_start(*regler,Gtk::PACK_SHRINK);
+    Gtk::VBox* b2 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(
+           *this, &Widget::on_value_changed), port_name));
+  }
+}
+
+// create stackboxes with switch controller for port name
+void Widget::make_switch_box(Gtk::Box *box,
+                             Glib::ustring label,
+                             PortIndex port_name)
+{
+  Gxw::Switch *regler = static_cast<Gxw::Switch*>(
+                                    get_controller_by_port(port_name));
+  if (regler)
+  {
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
+    // use label images instead simple string labes
+    /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    label_image += "/"+plug_name+"-";
+    label_image += label;
+    label_image += "-label.png";
+     Gtk::Image *pr = new Gtk::Image(label_image);*/
+ 
+    regler->cp_configure("switch", label, 0, 1, 1);
+    regler->set_name(plug_name);
+    regler->set_base_name( "button" );
+    Gtk::VBox* b1 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
+    box->pack_start(*regler,Gtk::PACK_SHRINK);
+    Gtk::VBox* b2 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
+        *this, &Widget::on_value_changed), port_name));
+  }
+}
+
+// receive controller value changes from host and set them to controller
 void Widget::set_value(uint32_t port_index,
                        uint32_t format,
                        const void * buffer)
 {
   if ( format == 0 )
+  {
+    Gxw::Regler *regler = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_index));
+    if (regler)
     {
-      float value =  *(float *)buffer;
-      switch ((PortIndex)port_index )
-        {
-        case GAIN1:
-          mastergain = value;
-          m_bigknob.cp_set_value(mastergain);
-          break;
-        case PREGAIN:
-          pregain = value;
-          m_bigknob1.cp_set_value(pregain);
-          break;
-        case WET_DRY:
-          wet_dry = value;
-          m_bigknob2.cp_set_value(wet_dry);
-          break;
-        case DRIVE:
-          drive = value;
-          m_bigknob3.cp_set_value(drive);
-          break;
-        case MIDDLE:
-          mid = value;
-          m_smallknob1.cp_set_value(mid);
-          break;
-        case BASS:
-          bass = value;
-          m_smallknob2.cp_set_value(bass);
-          break;
-        case TREBLE:
-          treble = value;
-          m_smallknob3.cp_set_value(treble);
-          break;
-        case MODEL:
-          model = value;
-          m_selector.cp_set_value(model);
-          break;
-        case T_MODEL:
-          t_model = value;
-          t_selector.cp_set_value(t_model);
-          break;
-        case C_MODEL:
-          c_model = value;
-          c_selector.cp_set_value(c_model);
-          break;
-        case CLevel:
-          clevel = value;
-          m_smallknob4.cp_set_value(clevel);
-          break;
-        case ALevel:
-          alevel = value;
-          m_smallknob5.cp_set_value(alevel);
-          break;
-        default:
-          break;
-        }
+      float value = *static_cast<const float*>(buffer);
+      regler->cp_set_value(value);
+      check_for_skin(port_index, static_cast<int>(value));
     }
+  }
 }
-// write value changes to the host->engine
+
+// write (UI) controller value changes to the host->engine
 void Widget::on_value_changed(uint32_t port_index)
 {
-  switch ((PortIndex)port_index )
-    {
-    case GAIN1:
-      mastergain = m_bigknob.get_value();
-      //std::cout << "mastergain = " << mastergain << std::endl;
-      write_function(controller, (PortIndex)GAIN1,
-                 sizeof(float), 0, (const void*)&mastergain);
-      break;
-    case PREGAIN:
-       pregain = m_bigknob1.get_value();
-       //std::cout << "pregain = " << pregain << std::endl;
-       write_function(controller, (PortIndex)PREGAIN,
-                 sizeof(float), 0, (const void*)&pregain);
-      break;
-    case WET_DRY:
-      wet_dry = m_bigknob2.get_value();
-      //std::cout << "wet_dry = " << wet_dry << std::endl;
-      write_function(controller, (PortIndex)WET_DRY,
-                 sizeof(float), 0, (const void*)&wet_dry);
-      break;
-    case DRIVE:
-      drive = m_bigknob3.get_value();
-      //std::cout << "drive = " << drive << std::endl;
-      write_function(controller, (PortIndex)DRIVE,
-                 sizeof(float), 0, (const void*)&drive);
-      break;
-    case MIDDLE:
-      mid = m_smallknob1.get_value();
-      //std::cout << "mid = " << mid << std::endl;
-      write_function(controller, (PortIndex)MIDDLE,
-                 sizeof(float), 0, (const void*)&mid);
-      break;
-    case BASS:
-      bass = m_smallknob2.get_value();
-      //std::cout << "bass = " << bass << std::endl;
-      write_function(controller, (PortIndex)BASS,
-                 sizeof(float), 0, (const void*)&bass);
-      break;
-    case TREBLE:
-      treble = m_smallknob3.get_value();
-      //std::cout << "treble = " << treble << std::endl;
-      write_function(controller, (PortIndex)TREBLE,
-                 sizeof(float), 0, (const void*)&treble);
-      break;
-    case MODEL:
-      model = m_selector.get_value();
-      //std::cout << "model = " << model << std::endl;
-      write_function(controller, (PortIndex)MODEL,
-                 sizeof(float), 0, (const void*)&model);
-      change_skin(static_cast<int>(model));
-      break;
-    case T_MODEL:
-      t_model = t_selector.get_value();
-      //std::cout << "t_model = " << t_model << std::endl;
-      write_function(controller, (PortIndex)T_MODEL,
-                 sizeof(float), 0, (const void*)&t_model);
-      break;
-    case C_MODEL:
-      c_model = c_selector.get_value();
-      //std::cout << "c_model = " << c_model << std::endl;
-      write_function(controller, (PortIndex)C_MODEL,
-                 sizeof(float), 0, (const void*)&c_model);
-      break;
-    case CLevel:
-      clevel = m_smallknob4.get_value();
-      //std::cout << "clevel = " << clevel << std::endl;
-      write_function(controller, (PortIndex)CLevel,
-                 sizeof(float), 0, (const void*)&clevel);
-      break;
-    case ALevel:
-      alevel = m_smallknob5.get_value();
-      //std::cout << "alevel = " << alevel << std::endl;
-      write_function(controller, (PortIndex)ALevel,
-                 sizeof(float), 0, (const void*)&alevel);
-      break;
-    default:
-      break;
-    }
+  Gxw::Regler *regler = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_index));
+  if (regler)
+  {
+    float value = regler->cp_get_value();
+    write_function(controller, port_index, sizeof(float), 0,
+                                    static_cast<const void*>(&value));
+    check_for_skin(port_index, static_cast<int>(value));
+  }
+}
+
+void Widget::check_for_skin(uint32_t port_index, float model)
+{
+  if (port_index == MODEL)
+    change_skin(static_cast<int>(model));
 }
 
 inline std::string to_string(int _Val)

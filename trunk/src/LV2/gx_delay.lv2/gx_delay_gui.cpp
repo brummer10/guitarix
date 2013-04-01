@@ -109,7 +109,7 @@ void Gx_delayGUI::set_skin()
                  "\n"
                  "style 'gx_head_delay_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#8d8800' \n"
+                 "    fg[NORMAL] = '#838383' \n"
                  "font_name = 'sans 7.5 bold' \n"
                  " }\n";
   toparse +=     addKnob;
@@ -124,7 +124,7 @@ void Gx_delayGUI::set_skin()
   toparse +=     plug_name;
   toparse +=     "'\n"
                  " {\n"
-                 " fg[NORMAL] = '#8d8800'\n"
+                 " fg[NORMAL] = '#838383'\n"
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"

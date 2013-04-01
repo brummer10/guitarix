@@ -32,24 +32,29 @@
 class Widget : public Gtk::HBox
 {
 private:
-  void on_value_changed(uint32_t port_index);
+  Gtk::Widget* get_controller_by_port(uint32_t port_index);
+  void check_for_skin(uint32_t port_index, float model);
   void change_skin(int model);
-  void make_controller_box(Gtk::VBox *box,
-                           Gxw::Regler *regler,
+  void on_value_changed(uint32_t port_index);
+
+  void make_controller_box(Gtk::Box *box,
                            Glib::ustring label,
                            float min, float max,
-                           float digits, float value,
-                           PortIndex port_name,
-                           Glib::ustring plug_name);
-  void make_selector_box(Gxw::Selector *regler,
-                           Glib::ustring label,
-                           Glib::ustring tables[],
-                           size_t _size,
-                           PortIndex port_name,
-                           float min, float max,
-                           float digits, float value,
-                           Glib::ustring plug_name);
+                           float digits,
+                           PortIndex port_name);
+
+  void make_selector(Glib::ustring label,
+                     Glib::ustring tables[],
+                     size_t _size,
+                     float min, float digits,
+                     PortIndex port_name);
+
+  void make_switch_box(Gtk::Box *box,
+                       Glib::ustring label,
+                       PortIndex port_name);
+
   bool _expose_event(GdkEventExpose *event);
+
   void set_value(uint32_t port_index,
                  uint32_t format,
                  const void * buffer);
@@ -70,6 +75,7 @@ public:
   ~Widget();
 
 protected:
+  Glib::ustring      plug_name;
   Gtk::VBox          m_vbox_;
   Gtk::HBox          m_hbox_;
   Gtk::HBox          m_hbox1_;
@@ -107,19 +113,6 @@ protected:
   Gxw::Selector      m_selector;
   Gxw::Selector      t_selector;
   Gxw::Selector      c_selector;
-  // stores port values we're currently at.
-  float              model;
-  float              t_model;
-  float              c_model;
-  float              mastergain;
-  float              pregain;
-  float              wet_dry;
-  float              drive;
-  float              mid;
-  float              bass;
-  float              treble;
-  float              clevel;
-  float              alevel;
 };
 
 #endif //SRC_HEADERS_WIDGET_H_
