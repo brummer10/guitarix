@@ -64,6 +64,9 @@ def configure(conf):
     conf.sub_config('gx_tremolo.lv2');
     sub_file('./src/LV2/gx_tremolo.lv2/manifest.ttl.in', './src/LV2/gx_tremolo.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     
+    conf.sub_config('gx_flanger.lv2');
+    sub_file('./src/LV2/gx_flanger.lv2/manifest.ttl.in', './src/LV2/gx_flanger.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+    
     conf.sub_config('gx_chorus.lv2');
     sub_file('./src/LV2/gx_chorus.lv2/manifest.ttl.in', './src/LV2/gx_chorus.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
     
@@ -91,6 +94,7 @@ def build(bld):
     bld.add_subdirs('gxbooster.lv2')
     bld.add_subdirs('gx_echo.lv2')
     bld.add_subdirs('gx_tremolo.lv2')
+    bld.add_subdirs('gx_flanger.lv2')
     bld.add_subdirs('gx_chorus.lv2')
     bld.add_subdirs('gx_delay.lv2')
     bld.add_subdirs('gx_reverb.lv2')
