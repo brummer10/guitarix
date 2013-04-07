@@ -252,4 +252,16 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   INVERT, 
+   PERCENT_R, 
+   TIME_R, 
+   PERCENT_L, 
+   LFOFREQ, 
+   TIME_L, 
+} PortIndex;
+*/
+
 } // end namespace stereoecho

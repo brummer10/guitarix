@@ -321,4 +321,15 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   TREBLE, 
+   SHARPER, 
+   ON, 
+   BASS, 
+   MIDDLE, 
+} PortIndex;
+*/
+
 } // end namespace tonecontroll

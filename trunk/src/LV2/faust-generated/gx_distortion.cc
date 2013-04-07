@@ -466,4 +466,28 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   HIGH_GAIN, 
+   HIGH_DRIVE, 
+   MIDDLE_H_GAIN, 
+   MIDDLE_H_DRIVE, 
+   ON_OFF, 
+   SPLIT_MIDDLE_FREQ, 
+   SPLIT_LOW_FREQ, 
+   SPLIT_HIGH_FREQ, 
+   MIDDLE_L_GAIN, 
+   LEVEL, 
+   DRIVE, 
+   MIDDLE_L_DRIVE, 
+   VIBRATO, 
+   TRIGGER, 
+   GAIN, 
+   WET_DRY, 
+   LOW_GAIN, 
+   LOW_DRIVE, 
+} PortIndex;
+*/
+
 } // end namespace gx_distortion

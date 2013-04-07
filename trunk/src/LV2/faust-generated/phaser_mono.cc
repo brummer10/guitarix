@@ -183,4 +183,13 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   WET_DRY, 
+   LEVEL, 
+   SPEED, 
+} PortIndex;
+*/
+
 } // end namespace phaser_mono

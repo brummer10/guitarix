@@ -205,4 +205,13 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   BASS, 
+   TREBLE, 
+   MIDDLE, 
+} PortIndex;
+*/
+
 } // end namespace tonestack_default

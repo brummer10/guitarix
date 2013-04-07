@@ -92,13 +92,13 @@
             lv2:OutputPort ;
         lv2:index 4 ;
         lv2:symbol "out" ;
-        lv2:name "Out"
+        lv2:name "Out" ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
         lv2:index 5 ;
         lv2:symbol "in" ;
-        lv2:name "In"
+        lv2:name "In" ;
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_tremolo#gui>

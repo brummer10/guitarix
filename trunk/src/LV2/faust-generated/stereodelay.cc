@@ -262,4 +262,16 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   INVERT, 
+   R_GAIN, 
+   R_DELAY, 
+   L_GAIN, 
+   L_DELAY, 
+   LFOFREQ, 
+} PortIndex;
+*/
+
 } // end namespace stereodelay

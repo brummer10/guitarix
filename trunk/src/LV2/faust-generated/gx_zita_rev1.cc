@@ -619,4 +619,21 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   LEVEL, 
+   EQ2_FREQ, 
+   EQ1_LEVEL, 
+   EQ1_FREQ, 
+   IN_DELAY, 
+   LOW_RT60, 
+   LF_X, 
+   HF_DAMPING, 
+   MID_RT60, 
+   DRY_WET_MIX, 
+   EQ2_LEVEL, 
+} PortIndex;
+*/
+
 } // end namespace gx_zita_rev1

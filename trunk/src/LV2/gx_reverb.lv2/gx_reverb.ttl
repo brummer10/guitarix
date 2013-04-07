@@ -113,13 +113,13 @@
             lv2:InputPort ;
         lv2:index 7 ;
         lv2:symbol "in" ;
-        lv2:name "In"
+        lv2:name "In" ;
     ], [
         a lv2:AudioPort ,
             lv2:InputPort ;
         lv2:index 8 ;
         lv2:symbol "in1" ;
-        lv2:name "In1"
+        lv2:name "In1" ;
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_reverb_stereo#gui>

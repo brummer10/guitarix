@@ -349,4 +349,16 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   LEVEL, 
+   TUBE1, 
+   TUBE2, 
+   FEEDBACK, 
+   WET_DRY, 
+   FEEDBAC, 
+} PortIndex;
+*/
+
 } // end namespace gx_ampmodul

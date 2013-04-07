@@ -636,4 +636,14 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   DRIVE, 
+   WET_DRY, 
+   PREGAIN, 
+   GAIN1, 
+} PortIndex;
+*/
+
 } // end namespace gxamp3_stereo
