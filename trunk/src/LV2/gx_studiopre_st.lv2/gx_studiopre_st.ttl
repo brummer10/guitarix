@@ -36,11 +36,11 @@
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
 	doap:name "Gx_studiopre_st" .
 
-<http://guitarix.sourceforge.net/plugins/gx_studiopre_st#_studiopre_st>
+<http://guitarix.sourceforge.net/plugins/gx_studiopre_st#studiopre_st>
     a lv2:Plugin ,
         lv2:EffectPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "Gx Alembic Stereo";
+    doap:name "Gx Studio Preamp Stereo";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_studiopre_st> ;
     lv2:optionalFeature lv2:hardRTCapable ;

@@ -53,6 +53,7 @@ private:
                        PortIndex port_name);
   void make_image(Gtk::Box *box,Glib::ustring label, bool start );
 
+  void make_label(Gtk::Box *box,Glib::ustring label, bool start  ) ;
   bool _expose_event(GdkEventExpose *event);
 
   void set_value(uint32_t port_index,
@@ -77,6 +78,11 @@ public:
 protected:
   Glib::ustring     plug_name;
   Gtk::VBox         m_vbox_;
+  Gtk::VBox         m_vbox1_;
+  Gtk::VBox         m_vbox2_;
+  Gtk::VBox         m_vbox3_;
+  Gtk::VBox         m_vbox4_;
+
   Gtk::VBox         m_vbox;
   Gtk::VBox         m_vbox1;
   Gtk::VBox         m_vbox2;
@@ -86,6 +92,10 @@ protected:
   Gtk::VBox         m_vbox6;
   Gtk::VBox         m_vbox7;
   Gtk::HBox         m_hbox_;
+  Gtk::HBox         m_hbox2_;
+ Gtk::HBox         m_hbox3_;
+ Gtk::HBox         m_hbox4_;
+ Gtk::HBox         m_hbox5_;
 
   Gxw::PaintBox     m_paintbox;
   Gxw::BigKnob      m_bigknob;

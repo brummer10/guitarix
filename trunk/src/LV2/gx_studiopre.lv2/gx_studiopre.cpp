@@ -33,8 +33,6 @@ private:
   // internal stuff
   float*                       output;
   float*                       input;
-  float*                       output1;
-  float*                       input1;
   PluginLV2*                   studiopre_mono;
 public:
 
@@ -52,8 +50,6 @@ public:
 Gx_studiopre::Gx_studiopre() :
   output(NULL),
   input(NULL),
-  output1(NULL),
-  input1(NULL),
   studiopre_mono(gx_studiopre::plugin()) {};
 
 // destructor
@@ -61,7 +57,7 @@ Gx_studiopre::~Gx_studiopre()
 {
   // just to be sure the plug have given free the allocated mem
   // it didn't hurd if the mem is already given free by clean_up()
-  studiopre_mono->activate_plugin(false, studiopre_mono);
+ // studiopre_mono->activate_plugin(false, studiopre_mono);
   // delete DSP class
   studiopre_mono->delete_instance(studiopre_mono);
 };
@@ -175,7 +171,7 @@ cleanup(LV2_Handle instance)
 
 static const LV2_Descriptor descriptor =
 {
-  GXPLUGIN_URI "#_studiopre",
+  GXPLUGIN_URI "#studiopre",
   instantiate,
   connect_port,
   activate,

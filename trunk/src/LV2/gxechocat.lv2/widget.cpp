@@ -82,6 +82,7 @@ plug_name(plugname)
   m_vbox_.set_border_width(0);
   m_vbox_.set_homogeneous(false);
   
+
   m_paintbox.pack_start(m_vbox_ , Gtk::PACK_EXPAND_PADDING, 0);
 
   
@@ -108,7 +109,8 @@ plug_name(plugname)
   m_hbox2_.set_border_width(0);
   m_hbox2_.set_homogeneous(false);
   m_hbox2_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);
-  m_hbox2_.pack_start(m_vbox6, Gtk::PACK_SHRINK, 0);
+  m_hbox2_.pack_start(m_vbox6, Gtk::PACK_SHRINK, 0); 
+
   m_hbox2_.pack_start(m_vbox7, Gtk::PACK_SHRINK, 0);
   m_hbox2_.pack_start(m_vbox8, Gtk::PACK_SHRINK, 0);
   m_hbox2_.pack_start(m_vbox2_, Gtk::PACK_EXPAND_PADDING);
@@ -117,7 +119,7 @@ plug_name(plugname)
   m_vbox_.pack_start(m_hbox3_, Gtk::PACK_EXPAND_PADDING, 0);
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_SHRINK, 0);
   m_vbox_.pack_end(m_hbox2_, Gtk::PACK_SHRINK, 0);
-  m_vbox_.pack_end(m_hbox3_, Gtk::PACK_EXPAND_PADDING, 0);
+  m_vbox_.pack_end(m_hbox4_, Gtk::PACK_EXPAND_PADDING, 0);
 
   // connect expose handler as resize handler
   m_paintbox.signal_expose_event().connect(

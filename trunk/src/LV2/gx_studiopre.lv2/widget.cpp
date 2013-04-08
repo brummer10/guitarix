@@ -34,15 +34,15 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 {
   switch ((PortIndex)port_index )
   {
-    case VOLUME:
+    case VOLUME_L:
       return &m_bigknob;
-    case BASS:
+    case BASS_L:
       return &m_bigknob1;
-    case MIDDLE:
+    case MIDDLE_L:
       return &m_bigknob2;
-    case TREBLE:
+    case TREBLE_L:
       return &m_bigknob3;
-    case BRIGHT:
+    case BRIGHT_L:
       return &m_switch;
     default:
       return NULL;
@@ -52,17 +52,6 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
-  // create controllers for port name
-  make_image( &m_vbox, "screwhead", true ) ;
-  make_image( &m_vbox, "screwhead", false ) ;
-  make_switch_box(&m_vbox2, "BRIGHT", BRIGHT);
-  make_controller_box(&m_vbox3, "VOLUME", 0.0, 10.0, 0.1, VOLUME);
-  make_controller_box(&m_vbox4, "BASS", 0.0, 1.0, 0.1, BASS);
-  make_controller_box(&m_vbox5, "MIDDLE", 0.0, 1.0, 0.1, MIDDLE);
-  make_controller_box(&m_vbox6, "TREBLE", 0.0, 1.0, 0.1, TREBLE);
-  make_image( &m_vbox1, "screwhead", true ) ;
-  make_image( &m_vbox1, "screwhead", false ) ;
-   
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(0);
   m_paintbox.set_spacing(0);
@@ -70,33 +59,108 @@ plug_name(plugname)
   m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "amp_skin_expose";
   add(m_paintbox);
-  // box for the controllers
+
+  // 1st wrapper HBox with 3 sections inside
   m_hbox_.set_spacing(10);
   m_hbox_.set_border_width(0);
-  m_hbox_.set_border_width(0);
-  m_hbox_.set_size_request( 500, 100 ) ;
   m_hbox_.set_homogeneous(false);
-  // set a vertical box in the paintbox
-  m_paintbox.pack_start(m_vbox_);
-  // and controller box on top
-  m_vbox_.pack_start(m_hbox_, Gtk::PACK_SHRINK);
 
-// Some spacing for labels/controllers
-m_vbox2.set_spacing( 6 ) ; 
-m_vbox3.set_spacing( 6 ) ; 
-m_vbox4.set_spacing( 6 ) ; 
-m_vbox5.set_spacing( 6 ) ; 
-m_vbox6.set_spacing( 6 ) ; 
-  // put boxed controllers into controller box
-  m_hbox_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
-  m_hbox_.pack_start(m_vbox2);
-  m_hbox_.pack_start(m_vbox3);
-  m_hbox_.pack_start(m_vbox4);
-  m_hbox_.pack_start(m_vbox5);
-  m_hbox_.pack_start(m_vbox6);
-  m_hbox_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
+  // Add 3 containers for the screws and main panel controls
 
-  // connect expose handler as resize handler
+  // Left Screws
+  m_vbox_.set_spacing(0);
+  m_vbox_.set_border_width(0);
+  m_vbox_.set_homogeneous(false);
+
+  m_vbox.set_spacing(40);
+  make_image( &m_vbox, "screwhead", true ) ;
+  make_image( &m_vbox, "screwhead", false ) ;
+  m_vbox_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
+
+  m_hbox_.pack_start(m_vbox_, Gtk::PACK_SHRINK);
+
+  // Control Panel Middle
+  m_vbox1_.set_spacing(6);
+  m_vbox1_.set_border_width(0);
+  m_vbox1_.set_homogeneous(false);
+
+  // Vbox for controls
+  m_vbox3_.set_spacing(4);
+  m_vbox3_.set_border_width(0);
+  m_vbox3_.set_homogeneous(false);
+  m_vbox1_.pack_start(m_vbox3_, Gtk::PACK_EXPAND_PADDING);
+	
+  // 2 hboxes One for the Channel Labels
+  m_hbox3_.set_spacing(40);
+  m_hbox3_.set_border_width(0);
+  m_hbox3_.set_homogeneous(true);
+  m_vbox3_.pack_start(m_hbox3_, Gtk::PACK_SHRINK);
+  make_label(&m_hbox3_, "CHANNEL", true ) ;
+ 
+  // One wraps the 2 channel control panels
+  m_hbox4_.set_spacing(40);
+  m_hbox4_.set_border_width(0);
+  m_hbox4_.set_homogeneous(true);
+
+  // Left channel
+  m_hbox5_.set_spacing(10);
+  m_hbox5_.set_border_width(0);
+  m_hbox5_.set_homogeneous(true);
+  m_hbox4_.pack_start(m_hbox5_, Gtk::PACK_SHRINK);
+
+  // Now the actual controllers
+  m_vbox2.set_spacing( 6 ) ;
+  m_vbox3.set_spacing( 6 ) ;
+  m_vbox4.set_spacing( 6 ) ;
+  m_vbox5.set_spacing( 6 ) ;
+  m_vbox6.set_spacing( 6 ) ;
+  make_switch_box(&m_vbox2, "BRIGHT", BRIGHT_L);
+  make_controller_box(&m_vbox3, "VOLUME", 0.0, 10.0, 0.1, VOLUME_L);
+  make_controller_box(&m_vbox4, "BASS", 0.0, 1.0, 0.1, BASS_L);
+  make_controller_box(&m_vbox5, "MIDDLE", 0.0, 1.0, 0.1, MIDDLE_L);
+  make_controller_box(&m_vbox6, "TREBLE", 0.0, 1.0, 0.1, TREBLE_L);
+  m_hbox5_.pack_start(m_vbox2, Gtk::PACK_SHRINK);
+  m_hbox5_.pack_start(m_vbox3, Gtk::PACK_SHRINK);
+  m_hbox5_.pack_start(m_vbox4, Gtk::PACK_SHRINK);
+  m_hbox5_.pack_start(m_vbox5, Gtk::PACK_SHRINK);
+  m_hbox5_.pack_start(m_vbox6, Gtk::PACK_SHRINK);
+
+  // All controls in box
+  m_vbox3_.pack_start(m_hbox4_, Gtk::PACK_SHRINK);
+
+  // Vbox for logos
+  m_vbox4_.set_spacing(0);
+  m_vbox4_.set_border_width(0);
+  m_vbox4_.set_homogeneous(false);
+  
+  // Make and add the 2 logo images ( labels for now )
+  // setup the hBox
+  make_image( &m_hbox2_, "studiopre-guitarix-logo", true ) ;
+  make_image( &m_hbox2_, "studiopre_redeyelogo", false ) ;
+ 
+  m_vbox4_.pack_start(m_hbox2_, Gtk::PACK_EXPAND_PADDING);
+  m_vbox1_.pack_start(m_vbox4_, Gtk::PACK_SHRINK);
+
+  m_hbox_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);
+
+  // Right Screws
+  m_vbox2_.set_spacing(0);
+  m_vbox2_.set_border_width(0);
+  m_vbox2_.set_homogeneous(false);
+
+  m_vbox1.set_spacing(40);
+  make_image( &m_vbox1, "screwhead", true ) ;
+  make_image( &m_vbox1, "screwhead", false ) ;
+  m_vbox2_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
+
+  m_hbox_.pack_start(m_vbox2_, Gtk::PACK_SHRINK);
+
+  // For now set size of main container
+  m_hbox_.set_size_request( 500 ) ;
+  m_paintbox.pack_start(m_hbox_);
+
+  //Add main box to paintbox
+ // connect expose handler as resize handler
   m_paintbox.signal_expose_event().connect(
     sigc::mem_fun(this, &Widget::_expose_event), true);
 
@@ -237,6 +301,33 @@ void Widget::make_image(Gtk::Box *box,Glib::ustring label, bool start )
 	        box->pack_end( *Gtk::manage(pr),Gtk::PACK_SHRINK);
 	}
 } 
+
+
+// Create the Text Labels
+void Widget::make_label(Gtk::Box *box,Glib::ustring label, bool start  )
+{
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
+
+   Gtk::VBox* b1 = new Gtk::VBox();
+   Gtk::VBox* b2 = new Gtk::VBox();
+    		
+    if( start ){
+//		std::cout << "Pack Start "<<label<<std::endl;  Gtk::VBox* b1 = new Gtk::VBox();
+	    //box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+	    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
+	    //box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+	}else{
+//	       std::cout << "Pack End " << label << std::endl;
+	      // box->pack_end( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+   		 box->pack_end( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
+   	 	//box->pack_end( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+	}
+
+} 
+
+
+
 // receive controller value changes from host and set them to controller
 void Widget::set_value(uint32_t port_index,
                        uint32_t format,

@@ -62,14 +62,6 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
-/*
-  make_switch_box(&m_vbox2, "BRIGHT", BRIGHT);
-  make_controller_box(&m_vbox3, "VOLUME", 0.0, 10.0, 0.1, VOLUME);
-  make_controller_box(&m_vbox4, "BASS", 0.0, 1.0, 0.1, BASS);
-  make_controller_box(&m_vbox5, "MIDDLE", 0.0, 1.0, 0.1, MIDDLE);
-  make_controller_box(&m_vbox6, "TREBLE", 0.0, 1.0, 0.1, TREBLE);
- */
-
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(0);
   m_paintbox.set_spacing(0);

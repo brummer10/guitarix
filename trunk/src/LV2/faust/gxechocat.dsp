@@ -40,11 +40,9 @@ may have same effect as in real amp of creating a resonance an will try same sol
 // so tape speed in inches per second
 // distance from record head in inches
 // thus we get delay in milliseconds
-
-// Need LFO for WOW and possibly flutter so as to modulate the tape speed
-
 speed = 7.5 ;
-// Wow ( should also add flutter )
+// The wow should be preset by experiment...
+// Lets introduce just a little
 sine(freq) = (oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy
 freq= 4 ; // 4Hz
 depth = 0.005 ;	// Play with this
@@ -54,7 +52,7 @@ tapespeed = hgroup( "Tape Control",speed + wow );
 // Control input level
 input = hgroup( "Input", vslider("InputGain[style:knob]", 0, 0, 1.0, 0.01) );
 gain = hgroup( "Output", vslider("OutputGain[style:knob]", 0, 0, 1.0, 0.01));
-echo = hgroup( "Echo", vslider("Swell[style:knob]", 0, 0, 1.0, 0.01) );
+echo = hgroup( "Echo", vslider("Swell[style:knob]", 0, 0, 1, 0.1)) ;
 feedback = hgroup( "Echo", vslider("Sustain[style:knob]", 0, 0.0, 0.95, 0.01));
 
 dtime1 = SR*( 1.5/tapespeed) ;
@@ -85,29 +83,17 @@ head4 = sdelay(N, interp, dtime4):*(checkbox("Head4")) with {
 //			1500		1.3
 //			2700		1,83
 //			820			0.96
-stage1 = tubestage(TB_12AX7_68k,2.1,1500.0,1.204541):lowpass( 1, 6531 ) ; // Gain 2.9   2nd -29.8 3rd -26.24
+stage1 = tubestage(TB_12AX7_68k,2.1,1500.0,1.204541) ; // Gain 2.9   2nd -29.8 3rd -26.24
 // End amp is 2 stages of 12AX7 with 100K anode and 3k3 and then 2k2 cathode!
 // Tube details 3k3 cathode res 2.637334 vk0
 // Tube details 2k2 cathode res 2.426864 vk0
-stage2 =lowpass( 1, 6531 ): tubestage(TB_12AX7_250k,2.1,3300.0,2.637334) ; 
-stage3 =lowpass( 1, 6531 ): tubestage(TB_12AX7_250k,2.1, 2200.0,2.426864) ; 
-
-// This could be used to a dd a little tape saturation
-dist2 = cubicnl(drive,offset):dcblocker  with{
-	drive = vslider("drive[style:knob]", 0.0, 0.0, 1.0, 0.01);
-offset = vslider("offset[style:knob]", 0.0, 0.0, 1.0, 0.01);
-};
+stage2 =tubestage(TB_12AX7_250k,2.1,3300.0,2.637334) ; 
+stage3 =tubestage(TB_12AX7_250k,2.1, 2200.0,2.426864) ; 
 
 // IN real machine the ECHO level control is after the last 2 stages of valves
-machine = vgroup( "Tape Heads", highpass( 4, 40 )<:head1,head2,head3:>lowpass( 2, 5000 ):dcblocker:*(echo) );
+machine = vgroup( "Tape Heads", highpass( 4, 40 )<:head1,head2,head3:>lowpass( 1, 6500 ):dcblocker:*(echo) );
 
-fbloop = lowpass( 2, 5500 ):*(feedback):*(0.5):highpass( 2, 120 )  ;
+fbloop = lowpass( 1, 7500 ):*(feedback):*(0.5):highpass( 1, 125 )  ;
 
-// Need to test to see what is causing the rattling in the echo
-// 1st seem to be getting very low frequencies come in
-// Maybe just overload a s mixing in 3 signals and getting increase in dB of +10
-// So maybe just a reduction of +10db before feedback?
-//process = dist2;
-process = highpass( 1, 80 ):*(input):stage1:(+:_<:_,machine :>stage2:stage3)~fbloop:*(gain);
-//process= highpass( 1, 20 ) :stage1:dist2:(+:_<:_,machine :>stage2)~fbloop:*(gain):stage2:highpass( 1, 20 ) ;
-//process= highpass( 1, 80 ) :stage1:(+:_<:_,machine :>stage2:*(gain):stage2)~fbloop:highpass( 1, 80 ) ;
+process = highpass( 1, 80 ):*(input):stage1<:_,(+:_<:machine :>stage2:stage3)~fbloop:>*(gain);
+

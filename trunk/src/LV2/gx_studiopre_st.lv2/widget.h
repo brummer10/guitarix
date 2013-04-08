@@ -78,47 +78,6 @@ public:
 
 protected:
   Glib::ustring     plug_name;
-  // SHP : named boxes by function as too confusing otherwise
-  Gtk::HBox         m_h_panelbox_;
-  Gtk::HBox         m_h_lscrewbox_;
-  Gtk::HBox         m_h_middlebox_;
-  Gtk::HBox         m_h_rscrewbox_;
-
-  // vboxes for screw images
-  Gtk::VBox         m_v_lscrews_;
-  Gtk::VBox         m_v_rscrews_;
-
-  // Middle box has 2 vboxes
-  Gtk::VBox         m_v_control_box_;
-  Gtk::VBox         m_v_logo_box_;
-
-  // Logo boxes
-  Gtk::HBox         m_h_l_logo_box_;
-  Gtk::HBox         m_h_r_logo_box_;
-
-  // Left and right control boxes
-  Gtk::HBox         m_h_l_controls_box_;
-  Gtk::HBox         m_h_r_controls_box_;
-
-  // Control boxes have top box fo logo and bottom for rest
-  Gtk::VBox         m_v_l_channel_box_;
-  Gtk::VBox         m_v_r_channel_box_;
-  Gtk::VBox         m_v_l_control_box_;
-  Gtk::VBox         m_v_r_control_box_;
-
-  // Each control is placed in a vbox
-  Gtk::VBox         m_v_l_bright_box_;
-  Gtk::VBox         m_v_l_volume_box_;
-  Gtk::VBox         m_v_l_bass_box_;
-  Gtk::VBox         m_v_l_mid_box_;
-  Gtk::VBox         m_v_l_treble_box_;
-
-  Gtk::VBox         m_v_r_bright_box_;
-  Gtk::VBox         m_v_r_volume_box_;
-  Gtk::VBox         m_v_r_bass_box_;
-  Gtk::VBox         m_v_r_mid_box_;
-  Gtk::VBox         m_v_r_treble_box_;
-
   Gtk::VBox         m_vbox_;
   Gtk::VBox         m_vbox1_;
   Gtk::VBox         m_vbox2_;
@@ -145,7 +104,7 @@ protected:
   Gtk::VBox         m_vbox17;
 
   Gtk::HBox         m_hbox_;
- Gtk::HBox         m_hbox1_;
+ Gtk::HBox          m_hbox1_;
   Gtk::HBox         m_hbox2_;
  Gtk::HBox         m_hbox3_;
  Gtk::HBox         m_hbox4_;

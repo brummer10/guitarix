@@ -75,7 +75,6 @@ std::cout << "init_dsp_mono\n " << std::endl;
 // connect the Ports used by the plug-in class
 void Gxechocat::connect_mono(uint32_t port,void* data)
 {
-std::cout << "connect_mono\n " << std::endl;
 
   switch ((PortIndex)port)
     {
@@ -88,7 +87,6 @@ std::cout << "connect_mono\n " << std::endl;
     default:
       break;
     }
-std::cout << "connect_mono\n " << std::endl;
 }
 
 void Gxechocat::activate_f()
@@ -105,7 +103,6 @@ void Gxechocat::clean_up()
 
 void Gxechocat::run_dsp_mono(uint32_t n_samples)
 {
-std::cout << "Point2  " << std::endl;
 
   echocat->mono_audio(static_cast<int>(n_samples), input,
                         output, echocat);

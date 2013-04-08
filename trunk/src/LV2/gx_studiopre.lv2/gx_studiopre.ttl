@@ -36,7 +36,7 @@
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
 	doap:name "Gx_studiopre" .
 
-<http://guitarix.sourceforge.net/plugins/gx_studiopre#_studiopre>
+<http://guitarix.sourceforge.net/plugins/gx_studiopre#studiopre>
     a lv2:Plugin ,
         lv2:EffectPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;

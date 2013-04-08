@@ -155,16 +155,16 @@ void gx_studiopre_stGUI::set_plug_name( const char * plugin_uri)
 {
   addKnob = "";
 
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_studiopre_st#_studiopre_st", plugin_uri) == 0)
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_studiopre_st#studiopre_st", plugin_uri) == 0)
     {
       plugskin = "studiopre.png";
-      plug_name = "_studiopre_st";
+      plug_name = "studiopre_st";
       set_knob("studiopre-knob");
     }
   else
     {
       plugskin = "studiopre.png";
-      plug_name = "_studiopre_st";
+      plug_name = "studiopre_st";
     }
 }
 

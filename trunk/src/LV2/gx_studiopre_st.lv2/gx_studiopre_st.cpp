@@ -181,7 +181,7 @@ cleanup(LV2_Handle instance)
 
 static const LV2_Descriptor descriptor =
 {
-  GXPLUGIN_URI "#_studiopre_st",
+  GXPLUGIN_URI "#studiopre_st",
   instantiate,
   connect_port,
   activate,
