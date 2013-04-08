@@ -1,0 +1,175 @@
+#
+# Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# --------------------------------------------------------------------------
+#
+
+
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+
+<http://guitarix.sourceforge.net#me>
+	a foaf:Person ;
+	foaf:name "Guitarix team" ;
+	foaf:mbox <mailto:brummer@web.de> ;
+	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
+<http://guitarix.sourceforge.net/plugins/gx_studiopre_st>
+	a doap:Project ;
+	doap:maintainer <http://guitarix.sourceforge.net#me> ;
+	doap:name "Gx_studiopre_st" .
+
+<http://guitarix.sourceforge.net/plugins/gx_studiopre_st#_studiopre_st>
+    a lv2:Plugin ,
+        lv2:EffectPlugin ;
+    doap:maintainer <http://guitarix.sourceforge.net#me> ;
+    doap:name "Gx Alembic Stereo";
+    doap:license <http://opensource.org/licenses/isc> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_studiopre_st> ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+    
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_studiopre_st#gui>;
+  
+    lv2:port [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 0 ;
+        lv2:symbol "bright_l" ;
+        lv2:name "Bright_L";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 1 ;
+        lv2:symbol "volume_l" ;
+        lv2:name "Volume_L";
+        lv2:default 5.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 10.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 2 ;
+        lv2:symbol "bass_l" ;
+        lv2:name "Bass_L";
+        lv2:default 0.5 ;
+        lv2:minimum  0.0;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:symbol "middle_l" ;
+        lv2:name "Middle_L";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "treble_l" ;
+        lv2:name "Treble_L";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] ,[
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "bright_r" ;
+        lv2:name "Bright_L";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "volume_r" ;
+        lv2:name "Volume_R";
+        lv2:default 5.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 10.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 7 ;
+        lv2:symbol "bass_r" ;
+        lv2:name "Bass_R";
+        lv2:default 0.5 ;
+        lv2:minimum  0.0;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "middle_r" ;
+        lv2:name "Middle_R";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 9 ;
+        lv2:symbol "treble_r" ;
+        lv2:name "Treble_R";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 10 ;
+        lv2:symbol "out" ;
+        lv2:name "Out"
+    ],[
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 11 ;
+        lv2:symbol "in" ;
+        lv2:name "In"
+    ], [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 12 ;
+        lv2:symbol "out1" ;
+        lv2:name "Out1"
+    ],[
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 13 ;
+        lv2:symbol "in1" ;
+        lv2:name "In1"
+    ].
+
+
+<http://guitarix.sourceforge.net/plugins/gx_studiopre_st#gui>
+  a guiext:GtkUI;
+  guiext:binary <gx_studiopre_st_gui.so>;
+  guiext:requiredFeature guiext:makeResident .
+  

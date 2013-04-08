@@ -536,7 +536,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		double fTemp38 = (1e-15 + fTemp25);
 		double fTemp39 = (1e-15 + ((fSlow11 * ((fTemp38 * (4 - (4 * fabs(fTemp38)))) - fTemp38)) + (((fSlow9 * fRec51[0]) + (fSlow10 * fTemp26)) + fTemp25)));
 		fVec17[0] = fTemp39;
-		fRec40[0] = ((fConst7 * (fVec17[0] + fVec17[1])) + (fConst6 * fRec40[1]));
+		fRec40[0] = ((fConst6 * fRec40[1]) + (fConst7 * (fVec17[0] + fVec17[1])));
 		double fTemp40 = (fRec3[0] * fRec40[0]);
 		double fTemp41 = (1e-15 + (0.0082 * fRec39[1]));
 		fVec18[0] = fTemp41;

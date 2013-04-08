@@ -439,7 +439,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		fRec26[0] = ((fConst36 * (((fConst31 * fRec27[0]) + (fConst61 * fRec27[1])) + (fConst31 * fRec27[2]))) - (fConst59 * ((fConst58 * fRec26[2]) + fTemp13)));
 		fRec25[0] = ((fRec26[2] + (fConst59 * (fTemp13 + (fConst58 * fRec26[0])))) - (fConst20 * ((fConst19 * fRec25[2]) + fTemp12)));
 		double fTemp14 = max(-1, min(1, (fSlow6 * (fRec25[2] + (fConst20 * (fTemp12 + (fConst19 * fRec25[0])))))));
-		fRec30[0] = ((fConst56 * (fVec4[0] + fVec4[1])) + (fConst54 * fRec30[1]));
+		fRec30[0] = ((fConst56 * (fVec4[1] + fVec4[0])) + (fConst54 * fRec30[1]));
 		fRec29[0] = (fRec30[0] - (fConst52 * ((fConst51 * fRec29[2]) + (fConst17 * fRec29[1]))));
 		double fTemp15 = max(-1, min(1, (fSlow7 * (fRec29[2] + (fRec29[0] + (2 * fRec29[1]))))));
 		double fTemp16 = ((1.2589412 * (fTemp15 * (1 - (0.3333333333333333 * faustpower<2>(fTemp15))))) + (1.584893192 * ((fTemp14 * (1 - (0.3333333333333333 * faustpower<2>(fTemp14)))) + ((fTemp11 * (1 - (0.3333333333333333 * faustpower<2>(fTemp11)))) + (0.8413951417869425 * (fTemp9 * (1 - (0.3333333333333333 * faustpower<2>(fTemp9)))))))));
@@ -511,7 +511,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		fRec45[0] = ((fConst62 * (fVec15[0] + fVec15[1])) + (fConst10 * fRec45[1]));
 		double fTemp38 = (1e-15 + fTemp24);
 		fRec43[0] = (Ftube(TUBE_TABLE_6DJ8_68k, (((fSlow11 * ((fTemp38 * (4 - (4 * fabs(fTemp38)))) - fTemp38)) + ((fSlow10 * fTemp27) + ((fSlow9 * fRec45[0]) + (fRec44[0] + fTemp24)))) - 1.863945999999998)) - 60.96496296296296);
-		fRec42[0] = ((fConst3 * fRec42[1]) + (fConst63 * ((fConst45 * fRec43[1]) + (fConst1 * fRec43[0]))));
+		fRec42[0] = ((fConst63 * ((fConst45 * fRec43[1]) + (fConst1 * fRec43[0]))) + (fConst3 * fRec42[1]));
 		double fTemp39 = (fRec8[0] * fRec42[0]);
 		fVec16[0] = fTemp39;
 		fRec41[0] = ((fConst62 * (fVec16[0] + fVec16[1])) + (fConst10 * fRec41[1]));
