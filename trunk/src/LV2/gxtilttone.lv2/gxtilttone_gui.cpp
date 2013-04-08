@@ -31,7 +31,7 @@
 
 using namespace std;
 
-class GxTiltToneGUI
+class GxtilttoneGUI
 {
 private:
   Glib::ustring plugskin;
@@ -44,20 +44,20 @@ private:
 public:
 
   Widget* widget;
-  static void set_plug_name_static(GxTiltToneGUI *self, const char * plugin_uri)
+  static void set_plug_name_static(GxtilttoneGUI *self, const char * plugin_uri)
   {
     self->set_plug_name(plugin_uri);
   }
-  static GtkWidget* make_gui_static(GxTiltToneGUI *self)
+  static GtkWidget* make_gui_static(GxtilttoneGUI *self)
   {
     return self->make_gui();
   }
 
-  GxTiltToneGUI () {};
-  ~GxTiltToneGUI () {};
+  GxtilttoneGUI () {};
+  ~GxtilttoneGUI () {};
 } ;
 
-void GxTiltToneGUI::set_knob( Glib::ustring knob)
+void GxtilttoneGUI::set_knob( Glib::ustring knob)
 {
   addKnob =   " style 'gx_";
   addKnob +=  plug_name;
@@ -65,15 +65,23 @@ void GxTiltToneGUI::set_knob( Glib::ustring knob)
                " { \n"
                "   stock['bigknob'] = {{'";
   addKnob +=  knob;
-  addKnob +=  ".png'}}\n }\n"
+  addKnob +=  ".png'}}\n";
+  addKnob +=  "   stock['button_on'] = {{'"
+              "echo-switch_on.png'}}\n"
+              "   stock['button_off'] = {{'"
+              "echo-switch_off.png'}}\n"
+              " }\n"
               "widget '*.";
   addKnob +=  plug_name;
   addKnob +=  "' style 'gx_";
   addKnob +=  plug_name;
-  addKnob +=  "_dark_skin_icons' ";
+  addKnob +=  "_dark_skin_icons' \n"
+              "class '*GxToggleImage' style'gx_"; 
+  addKnob +=  plug_name;
+  addKnob +=  "_dark_skin_icons' \n";
 }
 
-void GxTiltToneGUI::set_skin()
+void GxtilttoneGUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
   toparse +=     " '";
@@ -87,54 +95,70 @@ void GxTiltToneGUI::set_skin()
                  "{ 65536, 0, 0, 13107, 52428 }, \n"
                  "{ 52428, 0, 0, 0, 52428 },\n"
                  "{ 13107, 0, 0, 13107, 13107 }}\n"
-                 "    GxPaintBox::icon-set =7\n"
+                 "    GxPaintBox::icon-set =4\n"
                  "    stock['amp_skin'] = {{'";
   toparse +=     plugskin;
   toparse +=     "'}}\n"
                  " }\n"
                  "\n"
-                 "style 'gx_head_boost_box' \n"
+                 "style 'gx_headtilttone_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#dddddd' \n"
+                 "    fg[NORMAL] = '#9c8233' \n"
+                 "font_name = 'sans 10.5' \n"
                  " }\n";
   toparse +=     addKnob;
 
-  toparse +=     " widget '*.amplabel' style:highest 'gx_head_boost_box'\n"
+  toparse +=     " widget '*.amplabel' style:highest 'gx_headtilttone_box'\n"
                  "widget '*.";
   toparse +=     plug_name;
   toparse +=     "' style 'gx_";
   toparse +=     plug_name;
   toparse +=     "_dark-paintbox' ";
-  //std::cout << "style = " << toparse.c_str() << std::endl;
+  toparse +=  "style 'gx_switch'\n"
+              "{\n"
+              "xthickness = 0\n"
+              "ythickness = 0\n"
+              "GtkButton::inner-border = {0, 0, 0, 0}\n"
+              "GtkButton::default-border = {0, 0, 0, 0}\n"
+              "GtkButton::focus-line-width = 0\n"
+              "GtkButton::focus-padding = 0\n"
+              "GtkButton::interior-focus = 0\n"
+              "GtkButton::child-displacement-x = 0\n"
+              "GtkButton::child-displacement-y = 0\n"
+              " }\n"
+              "widget '*.";
+  toparse +=  plug_name;
+  toparse +=  "' style:highest 'gx_switch'";
+
   gtk_rc_parse_string (toparse.c_str());
 }
 
-void GxTiltToneGUI::set_plug_name( const char * plugin_uri)
+void GxtilttoneGUI::set_plug_name( const char * plugin_uri)
 {
   addKnob = "";
 
   if (strcmp("http://guitarix.sourceforge.net/plugins/gxtilttone#tilttone", plugin_uri) == 0)
     {
-      plugskin = "tilttone.png";
-      plug_name = "tilttone";
-      set_knob("tilttone-knob");
+      plugskin = "gxtilttone.png";
+      plug_name = "gxtilttone";
+      set_knob("redeyefx-knob");
     }
   else
     {
-      plugskin = "tilttone.png";
-      plug_name = "tilttone";
+      plugskin = "gxtilttone.png";
+      plug_name = "gxtilttone";
     }
 }
 
-GtkWidget* GxTiltToneGUI::make_gui()
+GtkWidget* GxtilttoneGUI::make_gui()
 {
   // init the gxwmm library
   Gxw::init();
   set_skin();
-  GtkWidget* container = gtk_vbox_new(FALSE, 2);
+  GtkWidget* container = gtk_vbox_new(FALSE, 0);
   widget = new Widget(plug_name);
-  GtkWidget* cWidget = (GtkWidget*)widget->gobj();
-  gtk_container_add( (GtkContainer*)container, cWidget );
+  GtkWidget* cWidget = GTK_WIDGET(widget->gobj());
+  gtk_container_add(GTK_CONTAINER(container), cWidget );
 
   return container;
 }
@@ -148,7 +172,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
                                 LV2UI_Widget * widget,
                                 const LV2_Feature * const * features)
 {
-  GxTiltToneGUI* self = new GxTiltToneGUI();
+  GxtilttoneGUI* self = new GxtilttoneGUI();
   if (self == NULL) return NULL;
   self->set_plug_name_static(self, plugin_uri);
   *widget = (LV2UI_Widget)self->make_gui_static(self);
@@ -159,7 +183,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 
 static void cleanup(LV2UI_Handle ui)
 {
-  GxTiltToneGUI *pluginGui = (GxTiltToneGUI *) ui;
+  GxtilttoneGUI *pluginGui = static_cast<GxtilttoneGUI*>(ui);
   delete pluginGui->widget;
   delete pluginGui;
 }
@@ -170,7 +194,7 @@ static void port_event(LV2UI_Handle ui,
                        uint32_t format,
                        const void * buffer)
 {
-  GxTiltToneGUI *self = (GxTiltToneGUI *) ui;
+  GxtilttoneGUI *self = static_cast<GxtilttoneGUI*>(ui);
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }

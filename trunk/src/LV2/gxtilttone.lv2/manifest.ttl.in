@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose, Steve Poskitt
+# Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://guitarix.sourceforge.net/plugins/gxredeyefx#tilttone>
+<http://guitarix.sourceforge.net/plugins/gxtilttone#tilttone>
     a lv2:Plugin ;
     lv2:binary <gxtilttone@LIB_EXT@>  ;
     rdfs:seeAlso <gxtilttone.ttl> .
