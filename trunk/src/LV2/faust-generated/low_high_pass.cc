@@ -218,4 +218,16 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   ON_OFF, 
+   ON_OFF, 
+   LOW_FREQ, 
+   HIGH_FREQ, 
+   LOW_FREQ, 
+   HIGH_FREQ, 
+} PortIndex;
+*/
+
 } // end namespace low_high_pass

@@ -31,7 +31,7 @@
 
 using namespace std;
 
-class Gx_echoGUI
+class Gx_echo_stereoGUI
 {
 private:
   Glib::ustring plugskin;
@@ -44,20 +44,20 @@ private:
 public:
 
   Widget* widget;
-  static void set_plug_name_static(Gx_echoGUI *self, const char * plugin_uri)
+  static void set_plug_name_static(Gx_echo_stereoGUI *self, const char * plugin_uri)
   {
     self->set_plug_name(plugin_uri);
   }
-  static GtkWidget* make_gui_static(Gx_echoGUI *self)
+  static GtkWidget* make_gui_static(Gx_echo_stereoGUI *self)
   {
     return self->make_gui();
   }
 
-  Gx_echoGUI () {};
-  ~Gx_echoGUI () {};
+  Gx_echo_stereoGUI () {};
+  ~Gx_echo_stereoGUI () {};
 } ;
 
-void Gx_echoGUI::set_knob( Glib::ustring knob)
+void Gx_echo_stereoGUI::set_knob( Glib::ustring knob)
 {
   addKnob =   " style 'gx_";
   addKnob +=  plug_name;
@@ -87,7 +87,7 @@ void Gx_echoGUI::set_knob( Glib::ustring knob)
   addKnob +=  "_dark_skin_icons' \n";
 }
 
-void Gx_echoGUI::set_skin()
+void Gx_echo_stereoGUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
   toparse +=     " '";
@@ -101,20 +101,17 @@ void Gx_echoGUI::set_skin()
                  "{ 65536, 0, 0, 13107, 52428 }, \n"
                  "{ 52428, 0, 0, 0, 52428 },\n"
                  "{ 13107, 0, 0, 13107, 13107 }}\n"
-                 "    GxPaintBox::icon-set =7\n"
-                 "    stock['amp_skin'] = {{'";
-  toparse +=     plugskin;
-  toparse +=     "'}}\n"
+                 "    GxPaintBox::icon-set =11\n"
                  " }\n"
                  "\n"
-                 "style 'gx_head_echo_box' \n"
+                 "style 'gx_head_expander_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#8d8800' \n"
+                 "    fg[NORMAL] = '#c0c6d0' \n"
                  "font_name = 'sans 7.5 bold' \n"
                  " }\n";
   toparse +=     addKnob;
 
-  toparse +=     " widget '*.amplabel' style:highest 'gx_head_echo_box'\n"
+  toparse +=     " widget '*.amplabel' style:highest 'gx_head_expander_box'\n"
                  "widget '*.";
   toparse +=     plug_name;
   toparse +=     "' style 'gx_";
@@ -124,7 +121,7 @@ void Gx_echoGUI::set_skin()
   toparse +=     plug_name;
   toparse +=     "'\n"
                  " {\n"
-                 " fg[NORMAL] = '#8d8800'\n"
+                 " fg[NORMAL] = '#c0c6d0'\n"
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"
@@ -157,24 +154,22 @@ void Gx_echoGUI::set_skin()
   gtk_rc_parse_string (toparse.c_str());
 }
 
-void Gx_echoGUI::set_plug_name( const char * plugin_uri)
+void Gx_echo_stereoGUI::set_plug_name( const char * plugin_uri)
 {
   addKnob = "";
 
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_echo#_echo", plugin_uri) == 0)
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_echo_stereo#_echo_stereo", plugin_uri) == 0)
     {
-      plugskin = "_echo.png";
-      plug_name = "_echo";
+      plug_name = "_echo_stereo";
       set_knob("nk-knob");
     }
   else
     {
-      plugskin = "_echo.png";
-      plug_name = "_echo";
+      plug_name = "_echo_stereo";
     }
 }
 
-GtkWidget* Gx_echoGUI::make_gui()
+GtkWidget* Gx_echo_stereoGUI::make_gui()
 {
   // init the gxwmm library
   Gxw::init();
@@ -196,7 +191,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
                                 LV2UI_Widget * widget,
                                 const LV2_Feature * const * features)
 {
-  Gx_echoGUI* self = new Gx_echoGUI();
+  Gx_echo_stereoGUI* self = new Gx_echo_stereoGUI();
   if (self == NULL) return NULL;
   self->set_plug_name_static(self, plugin_uri);
   *widget = (LV2UI_Widget)self->make_gui_static(self);
@@ -207,7 +202,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 
 static void cleanup(LV2UI_Handle ui)
 {
-  Gx_echoGUI *pluginGui = static_cast<Gx_echoGUI*>(ui);
+  Gx_echo_stereoGUI *pluginGui = static_cast<Gx_echo_stereoGUI*>(ui);
   delete pluginGui->widget;
   delete pluginGui;
 }
@@ -218,7 +213,7 @@ static void port_event(LV2UI_Handle ui,
                        uint32_t format,
                        const void * buffer)
 {
-  Gx_echoGUI *self = static_cast<Gx_echoGUI*>(ui);
+  Gx_echo_stereoGUI *self = static_cast<Gx_echo_stereoGUI*>(ui);
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }

@@ -9,7 +9,7 @@ import("guitarix.lib");
 /****************************************************************
  ** Tube Preamp Emulation stage 1 - 2 
  */
- 
+
 tubeax(preamp,gain1) =  hgroup("stage1", stage1) :
           hgroup("stage2", stage2) 
           with {

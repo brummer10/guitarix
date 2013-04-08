@@ -21,15 +21,23 @@ private:
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
 	float 	fConst2;
+	float 	fRec2[2];
+	float 	fRec3[2];
+	float 	fRec4[2];
+	float 	fRec5[2];
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
-	float 	fRec2[2];
+	float 	fRec6[2];
 	float *fVec2;
 	FAUSTFLOAT 	fslider3;
 	FAUSTFLOAT	*fslider3_;
+	float 	fRec7[2];
+	float 	fRec8[2];
+	float 	fRec9[2];
+	float 	fRec10[2];
 	FAUSTFLOAT 	fslider4;
 	FAUSTFLOAT	*fslider4_;
-	float 	fRec3[2];
+	float 	fRec11[2];
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();
@@ -79,8 +87,16 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<262144; i++) fVec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
-	for (int i=0; i<262144; i++) fVec2[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
+	for (int i=0; i<2; i++) fRec4[i] = 0;
+	for (int i=0; i<2; i++) fRec5[i] = 0;
+	for (int i=0; i<2; i++) fRec6[i] = 0;
+	for (int i=0; i<262144; i++) fVec2[i] = 0;
+	for (int i=0; i<2; i++) fRec7[i] = 0;
+	for (int i=0; i<2; i++) fRec8[i] = 0;
+	for (int i=0; i<2; i++) fRec9[i] = 0;
+	for (int i=0; i<2; i++) fRec10[i] = 0;
+	for (int i=0; i<2; i++) fRec11[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -148,34 +164,40 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	float 	fSlow3 = (0 - fSlow1);
 	float 	fSlow4 = fcheckbox0;
 	float 	fSlow5 = (fConst2 * fslider1);
-	int 	iSlow6 = int(fSlow5);
-	int 	iSlow7 = int((iSlow6 & 262143));
-	int 	iSlow8 = (1 + iSlow6);
-	float 	fSlow9 = (iSlow8 - fSlow5);
-	int 	iSlow10 = int((int(iSlow8) & 262143));
-	float 	fSlow11 = (fSlow5 - iSlow6);
-	float 	fSlow12 = (0.0010000000000000009f * powf(10,(0.05f * fslider2)));
-	float 	fSlow13 = (fConst2 * fslider3);
-	int 	iSlow14 = int(fSlow13);
-	int 	iSlow15 = int((iSlow14 & 262143));
-	int 	iSlow16 = (1 + iSlow14);
-	float 	fSlow17 = (iSlow16 - fSlow13);
-	int 	iSlow18 = int((int(iSlow16) & 262143));
-	float 	fSlow19 = (fSlow13 - iSlow14);
-	float 	fSlow20 = (0.0010000000000000009f * powf(10,(0.05f * fslider4)));
+	float 	fSlow6 = (0.0010000000000000009f * powf(10,(0.05f * fslider2)));
+	float 	fSlow7 = (fConst2 * fslider3);
+	float 	fSlow8 = (0.0010000000000000009f * powf(10,(0.05f * fslider4)));
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
 		fRec0[0] = ((fSlow2 * fRec0[1]) + (fSlow1 * fRec1[1]));
 		fRec1[0] = ((1 + ((fSlow3 * fRec0[1]) + (fSlow2 * fRec1[1]))) - iVec0[1]);
 		float fTemp0 = (float)input0[i];
 		fVec1[IOTA&262143] = fTemp0;
-		fRec2[0] = (fSlow12 + (0.999f * fRec2[1]));
-		output0[i] = (FAUSTFLOAT)(fVec1[IOTA&262143] + ((fRec2[0] * ((fSlow11 * fVec1[(IOTA-iSlow10)&262143]) + (fSlow9 * fVec1[(IOTA-iSlow7)&262143]))) * (1 - (fSlow4 * fRec0[0]))));
-		float fTemp1 = (float)input1[i];
-		fVec2[IOTA&262143] = fTemp1;
-		fRec3[0] = (fSlow20 + (0.999f * fRec3[1]));
-		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec3[0] * ((fSlow19 * fVec2[(IOTA-iSlow18)&262143]) + (fSlow17 * fVec2[(IOTA-iSlow15)&262143]))) * (1 - (fSlow4 * (1 - fRec0[0])))));
+		float fTemp1 = ((int((fRec2[1] != 0.0f)))?((int(((fRec3[1] > 0.0f) & (fRec3[1] < 1.0f))))?fRec2[1]:0):((int(((fRec3[1] == 0.0f) & (fSlow5 != fRec4[1]))))?0.0009765625f:((int(((fRec3[1] == 1.0f) & (fSlow5 != fRec5[1]))))?-0.0009765625f:0)));
+		fRec2[0] = fTemp1;
+		fRec3[0] = max(0.0f, min(1.0f, (fRec3[1] + fTemp1)));
+		fRec4[0] = ((int(((fRec3[1] >= 1.0f) & (fRec5[1] != fSlow5))))?fSlow5:fRec4[1]);
+		fRec5[0] = ((int(((fRec3[1] <= 0.0f) & (fRec4[1] != fSlow5))))?fSlow5:fRec5[1]);
+		fRec6[0] = (fSlow6 + (0.999f * fRec6[1]));
+		output0[i] = (FAUSTFLOAT)(fVec1[IOTA&262143] + ((fRec6[0] * ((fRec3[0] * fVec1[(IOTA-int((int(fRec5[0]) & 262143)))&262143]) + ((1.0f - fRec3[0]) * fVec1[(IOTA-int((int(fRec4[0]) & 262143)))&262143]))) * (1 - (fSlow4 * fRec0[0]))));
+		float fTemp2 = (float)input1[i];
+		fVec2[IOTA&262143] = fTemp2;
+		float fTemp3 = ((int((fRec7[1] != 0.0f)))?((int(((fRec8[1] > 0.0f) & (fRec8[1] < 1.0f))))?fRec7[1]:0):((int(((fRec8[1] == 0.0f) & (fSlow7 != fRec9[1]))))?0.0009765625f:((int(((fRec8[1] == 1.0f) & (fSlow7 != fRec10[1]))))?-0.0009765625f:0)));
+		fRec7[0] = fTemp3;
+		fRec8[0] = max(0.0f, min(1.0f, (fRec8[1] + fTemp3)));
+		fRec9[0] = ((int(((fRec8[1] >= 1.0f) & (fRec10[1] != fSlow7))))?fSlow7:fRec9[1]);
+		fRec10[0] = ((int(((fRec8[1] <= 0.0f) & (fRec9[1] != fSlow7))))?fSlow7:fRec10[1]);
+		fRec11[0] = (fSlow8 + (0.999f * fRec11[1]));
+		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec11[0] * ((fRec8[0] * fVec2[(IOTA-int((int(fRec10[0]) & 262143)))&262143]) + ((1.0f - fRec8[0]) * fVec2[(IOTA-int((int(fRec9[0]) & 262143)))&262143]))) * (1 - (fSlow4 * (0 - fRec0[0])))));
 		// post processing
+		fRec11[1] = fRec11[0];
+		fRec10[1] = fRec10[0];
+		fRec9[1] = fRec9[0];
+		fRec8[1] = fRec8[0];
+		fRec7[1] = fRec7[0];
+		fRec6[1] = fRec6[0];
+		fRec5[1] = fRec5[0];
+		fRec4[1] = fRec4[0];
 		fRec3[1] = fRec3[0];
 		fRec2[1] = fRec2[0];
 		IOTA = IOTA+1;
@@ -239,5 +261,17 @@ void Dsp::del_instance(PluginLV2 *p)
 {
 	delete static_cast<Dsp*>(p);
 }
+
+/*
+typedef enum
+{
+   INVERT, 
+   R_GAIN, 
+   R_DELAY, 
+   L_GAIN, 
+   L_DELAY, 
+   LFOFREQ, 
+} PortIndex;
+*/
 
 } // end namespace stereodelay

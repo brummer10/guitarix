@@ -451,4 +451,40 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   QS31_25, 
+   FS31_25, 
+   FS62_5, 
+   FREQ31_25, 
+   FREQ62_5, 
+   QS62_5, 
+   QS125, 
+   FS125, 
+   FS250, 
+   FREQ125, 
+   QS1K, 
+   FREQ1K, 
+   FS2K, 
+   QS2K, 
+   FS500, 
+   QS500, 
+   FREQ500, 
+   FS1K, 
+   QS250, 
+   FREQ250, 
+   QS4K, 
+   FREQ4K, 
+   FS8K, 
+   QS8K, 
+   FREQ8K, 
+   FS16K, 
+   QS16K, 
+   FREQ16K, 
+   FREQ2K, 
+   FS4K, 
+} PortIndex;
+*/
+
 } // end namespace selecteq

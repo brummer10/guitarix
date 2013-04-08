@@ -6,10 +6,10 @@ function compile() {
   cython --cplus "$2".pyx
   opt="$(python-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
   opt="$opt -shared -fPIC -lrt"
-  opt="$opt -I$instdir/src/gx_head -I$instdir/src/headers"
+  opt="$opt -I$instdir/src/gx_head/engine -I$instdir/src/headers"
   opt="$opt -Wall -Wno-unused-function"
   #opt="$opt -Wno-unused-but-set-variable"
-  opt="$opt -O3 -march=i686 -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
+  opt="$opt -O2 -march=corei7 -pipe -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
   g++ "$2".cpp -o "$2".so $opt
   rm -f faustwrap.cpp $2.cpp
   echo "created $2.so"
@@ -35,4 +35,6 @@ if [ "$tooldir" != . -o "$bname" != faustmod ]; then
   trap 'rm -f "$bname".pyx' EXIT
   ln -s "$tooldir"/faustmod.pyx "$bname".pyx
 fi
+echo "$1"
+echo "$basename"
 compile "$1" "$bname"

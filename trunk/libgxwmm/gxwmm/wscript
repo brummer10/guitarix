@@ -18,11 +18,17 @@ def set_options(opt):
                    const=True,
                    help=('install shared library headers'),
                    )
+    grp.add_option('--no-ldconfig',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('dont run ldconfig'),
+                   )
     grp.add_option('--generate-cpp-wrapper',
                    action='store_const',
                    default=False,
                    const=True,
-                   help=('use the pre-built c++ library wrapper files'),
+                   help=('re-generate the pre-built c++ library wrapper files (Developers only!!)'),
                    )
 
 def configure(conf):
@@ -43,6 +49,8 @@ def configure(conf):
         conf.env["GX_LIB_SHARED"] = True
         conf.env["GX_LIB_DEV"] = True
         conf.env["GX_LIB_STATIC"] = False
+    if Options.options.no_ldconfig:
+        conf.env["NO_LDCONFIG"] = True
 
 
 def template2cc(task):

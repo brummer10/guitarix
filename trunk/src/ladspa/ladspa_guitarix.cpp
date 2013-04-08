@@ -1926,8 +1926,10 @@ const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) {
     static bool inited = 0;
     if (!inited) {
 	inited = 1;
+#if ENABLE_NLS
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+#endif
     }
     switch (Index) {
     case 0:

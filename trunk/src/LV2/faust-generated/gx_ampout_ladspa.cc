@@ -131,4 +131,13 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   ON_OFF, 
+   OUT_AMP, 
+   OUT_LADSPA, 
+} PortIndex;
+*/
+
 } // end namespace gx_ampout_ladspa

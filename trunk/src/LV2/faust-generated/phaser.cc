@@ -262,4 +262,20 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   INVERT, 
+   VIBRATOMODE, 
+   NOTCHWIDTH, 
+   FEEDBACKGAIN, 
+   NOTCHFREQ, 
+   MAXNOTCH1FREQ, 
+   MINNOTCH1FREQ, 
+   SPEED, 
+   LEVEL, 
+   DEPTH, 
+} PortIndex;
+*/
+
 } // end namespace phaser

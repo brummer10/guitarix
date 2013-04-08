@@ -97,8 +97,14 @@ class Circuit(object):
     # Parameters for circuit / approximation
     table_size = 2001
     Uin_range = (-5.0, 5.0)
-    Vp = 250
-    Rp  = 100e3
+    # This could be user choice
+#    Vp = 250
+    Vp = 300	# Better for output section
+    # For power valves this Rp is too high???
+#    Rp  = 100e3
+#    Rp  = 7e3	# Transformer for Pentode around this
+    Rp  = 3.5e3   # Transformer for triode wired 
+# These values are also not right for po
     Ri_values = (68e3, 250e3)
 
     # class data

@@ -54,7 +54,7 @@ def display_param(dsp):
 
 if __name__ == "__main__":
     dsp = faustmod.dsp()
-    #display_param(dsp)
+    display_param(dsp)
     show_Vk0(dsp)
-    #dsp.init(44100)
-    #plot_dsp(dsp)
+    dsp.init(44100)
+    plot_dsp(dsp)

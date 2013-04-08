@@ -7,6 +7,7 @@ BP(block) = bypass(checkbox("ON"), block);
 copysign = ffunction(float copysign(float,float), <math.h>, "");
 
 anti_denormal = pow(10,-20);
+no_denormal = pow(10,-15);
 //add_dc = +(anti_denormal);
 add_dc = +(anti_denormal);
 anti_denormal_ac = 1 - 1' : *(anti_denormal) : + ~ *(-1);
@@ -83,11 +84,11 @@ TB_12AT7_250k = fconstant(int TUBE_TABLE_12AT7_250k, "valve.h");
 TB_6C16_68k   = fconstant(int TUBE_TABLE_6C16_68k,   "valve.h");
 TB_6C16_250k  = fconstant(int TUBE_TABLE_6C16_250k,  "valve.h");
 
-tubestageF(tb,vplus,divider,fck,Rk,Vk0) = tube : hpf with {
+tubestageF(tb,vplus,divider,fck,Rk,Vk0) = +(no_denormal) : tube : hpf with {
     lpfk = lowpass(1,fck);
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
-    tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);
+    tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) :+(no_denormal) : lpfk) : /(divider);
     hpf = highpass(1,31.0);
 };
 

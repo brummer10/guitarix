@@ -79,7 +79,7 @@
             lv2:OutputPort ;
         lv2:index 3 ;
         lv2:symbol "out" ;
-        lv2:name "Out"
+        lv2:name "Out" ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;

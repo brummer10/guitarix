@@ -203,4 +203,17 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   INVERT, 
+   DEPTH, 
+   FLANGEDELAYOFFSET, 
+   FLANGEDELAY, 
+   LFOFREQ, 
+   FEEDBACKGAIN, 
+   LEVEL, 
+} PortIndex;
+*/
+
 } // end namespace flanger

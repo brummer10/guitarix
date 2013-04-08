@@ -312,6 +312,7 @@ private:
     string sys_IR_dir;
     PathList IR_pathlist;
     Glib::ustring rcset;
+    bool nogui;
     bool lterminal;
     bool a_save;
     static CmdlineOptions *instance;
@@ -345,6 +346,7 @@ public:
     const string& get_factory_dir() const { return factory_dir; }
     const string& get_sys_IR_dir() const { return sys_IR_dir; }
     const Glib::ustring& get_rcset() const { return rcset; }
+    bool get_nogui() const { return nogui; }
     const string& get_loadfile() const { return load_file; }
     const Glib::ustring& get_jack_instancename() const { return jack_instance; }
     const Glib::ustring& get_jack_uuid() const { return jack_uuid; }

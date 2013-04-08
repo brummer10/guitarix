@@ -31,21 +31,21 @@
 	foaf:mbox <mailto:brummer@web.de> ;
 	rdfs:seeAlso <http://guitarix.sourceforge.net> .
 
-<http://guitarix.sourceforge.net/plugins/gx_echo>
+<http://guitarix.sourceforge.net/plugins/gx_echo_stereo>
 	a doap:Project ;
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
-	doap:name "Gx_echo" .
+	doap:name "Gx_echo_stereo" .
 
-<http://guitarix.sourceforge.net/plugins/gx_echo#_echo>
+<http://guitarix.sourceforge.net/plugins/gx_echo_stereo#_echo_stereo>
     a lv2:Plugin ,
         lv2:EffectPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxEcho";
+    doap:name "GxEcho-Stereo";
     doap:license <http://opensource.org/licenses/isc> ;
-    lv2:project <http://guitarix.sourceforge.net/plugins/gx_echo> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_echo_stereo> ;
     lv2:optionalFeature lv2:hardRTCapable ;
     
-  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_echo#gui>;
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_echo_stereo#gui>;
   
     lv2:port [
         a lv2:InputPort ,
@@ -131,16 +131,16 @@
             lv2:InputPort ;
         lv2:index 9 ;
         lv2:symbol "in" ;
-        lv2:name "In"
+        lv2:name "In" ;
     ], [
         a lv2:AudioPort ,
             lv2:InputPort ;
         lv2:index 10 ;
         lv2:symbol "in1" ;
-        lv2:name "In1"
+        lv2:name "In1" ;
     ].
 
-<http://guitarix.sourceforge.net/plugins/gx_echo#gui>
+<http://guitarix.sourceforge.net/plugins/gx_echo_stereo#gui>
   a guiext:GtkUI;
   guiext:binary <gx_echo_gui.so>;
   guiext:requiredFeature guiext:makeResident .

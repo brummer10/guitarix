@@ -291,6 +291,7 @@ CmdlineOptions::CmdlineOptions()
       sys_IR_dir(GX_SOUND_DIR),
       IR_pathlist(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
+      nogui(false),
       lterminal(false),
       a_save(false),
 #ifndef NDEBUG
@@ -337,6 +338,11 @@ CmdlineOptions::CmdlineOptions()
     opt_rcset.set_long_name("rcset");
     opt_rcset.set_description(get_opskin());
     opt_rcset.set_arg_description("STYLE");
+    Glib::OptionEntry opt_nogui;
+    opt_nogui.set_short_name('N');
+    opt_nogui.set_long_name("nogui");
+    opt_nogui.set_description("start without GUI");
+    optgroup_style.add_entry(opt_nogui, nogui);
     optgroup_style.add_entry(opt_clear, clear);
     optgroup_style.add_entry(opt_rcset, rcset);
 
@@ -369,10 +375,12 @@ CmdlineOptions::CmdlineOptions()
     opt_jack_uuid.set_short_name('U');
     opt_jack_uuid.set_long_name("jack-uuid");
     opt_jack_uuid.set_description("JackSession ID");
+    opt_jack_uuid.set_arg_description("UUID");
     Glib::OptionEntry opt_jack_uuid2;
     opt_jack_uuid2.set_short_name('A');
     opt_jack_uuid2.set_long_name("jack-uuid2");
     opt_jack_uuid2.set_description("JackSession ID");
+    opt_jack_uuid2.set_arg_description("UUID2");
     Glib::OptionEntry opt_jack_servername;
     opt_jack_servername.set_short_name('s');
     opt_jack_servername.set_long_name("server-name");

@@ -1,0 +1,113 @@
+#
+# Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# --------------------------------------------------------------------------
+#
+
+
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+
+<http://guitarix.sourceforge.net#me>
+	a foaf:Person ;
+	foaf:name "Guitarix team" ;
+	foaf:mbox <mailto:brummer@web.de> ;
+	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
+<http://guitarix.sourceforge.net/plugins/gx_compressor>
+	a doap:Project ;
+	doap:maintainer <http://guitarix.sourceforge.net#me> ;
+	doap:name "Gx_compressor" .
+
+<http://guitarix.sourceforge.net/plugins/gx_compressor#_compressor>
+    a lv2:Plugin ,
+        lv2:EffectPlugin ;
+    doap:maintainer <http://guitarix.sourceforge.net#me> ;
+    doap:name "GxCompressor";
+    doap:license <http://opensource.org/licenses/isc> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_compressor> ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+    
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_compressor#gui>;
+  
+    lv2:port  [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 0 ;
+        lv2:symbol "RATIO" ;
+        lv2:name "RATIO";
+        lv2:default 2.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 2e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 1 ;
+        lv2:symbol "KNEE" ;
+        lv2:name "KNEE";
+        lv2:default 3.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 2e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 2 ;
+        lv2:symbol "THRESHOLD" ;
+        lv2:name "THRESHOLD";
+        lv2:default -2e+01 ;
+        lv2:minimum -96.0 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:symbol "RELEASE" ;
+        lv2:name "RELEASE";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "ATTACK" ;
+        lv2:name "ATTACK";
+        lv2:default 0.002 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 5 ;
+        lv2:symbol "out" ;
+        lv2:name "Out" ;
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 6 ;
+        lv2:symbol "in" ;
+        lv2:name "In" ;
+    ].
+
+<http://guitarix.sourceforge.net/plugins/gx_compressor#gui>
+  a guiext:GtkUI;
+  guiext:binary <gx_compressor_gui.so>;
+  guiext:requiredFeature guiext:makeResident .
+  

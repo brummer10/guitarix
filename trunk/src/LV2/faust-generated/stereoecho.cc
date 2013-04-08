@@ -179,7 +179,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		fRec9[0] = max(0.0f, min(1.0f, (fRec9[1] + fTemp1)));
 		iRec10[0] = ((int(((fRec9[1] >= 1.0f) & (iRec11[1] != iSlow7))))?iSlow7:iRec10[1]);
 		iRec11[0] = ((int(((fRec9[1] <= 0.0f) & (iRec10[1] != iSlow7))))?iSlow7:iRec11[1]);
-		fRec7[IOTA&262143] = ((float)input1[i] + (fSlow8 * ((1 - (fSlow5 * (1 - fRec5[0]))) * ((fRec9[0] * fRec7[(IOTA-int((1 + int((int(iRec11[0]) & 131071)))))&262143]) + ((1.0f - fRec9[0]) * fRec7[(IOTA-int((1 + int((int(iRec10[0]) & 131071)))))&262143])))));
+		fRec7[IOTA&262143] = ((float)input1[i] + (fSlow8 * ((1 - (fSlow5 * (0 - fRec5[0]))) * ((fRec9[0] * fRec7[(IOTA-int((1 + int((int(iRec11[0]) & 131071)))))&262143]) + ((1.0f - fRec9[0]) * fRec7[(IOTA-int((1 + int((int(iRec10[0]) & 131071)))))&262143])))));
 		output1[i] = (FAUSTFLOAT)fRec7[(IOTA-0)&262143];
 		// post processing
 		iRec11[1] = iRec11[0];
@@ -251,5 +251,17 @@ void Dsp::del_instance(PluginLV2 *p)
 {
 	delete static_cast<Dsp*>(p);
 }
+
+/*
+typedef enum
+{
+   INVERT, 
+   PERCENT_R, 
+   TIME_R, 
+   PERCENT_L, 
+   LFOFREQ, 
+   TIME_L, 
+} PortIndex;
+*/
 
 } // end namespace stereoecho

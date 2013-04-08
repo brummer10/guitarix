@@ -123,4 +123,11 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+   SHARPER, 
+} PortIndex;
+*/
+
 } // end namespace noise_shaper

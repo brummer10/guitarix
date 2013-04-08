@@ -242,7 +242,7 @@
         atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
         lv2:index 12 ;
         lv2:symbol "control" ;
-        lv2:name "Control"
+        lv2:name "Control" ;
     ] , [
         a lv2:OutputPort ,
             atom:AtomPort ;
@@ -250,31 +250,31 @@
         atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
         lv2:index 13 ;
         lv2:symbol "notify" ;
-        lv2:name "Notify"
+        lv2:name "Notify" ;
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
         lv2:index 14 ;
         lv2:symbol "out" ;
-        lv2:name "Out"
+        lv2:name "Out" ;
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
         lv2:index 15 ;
         lv2:symbol "out1" ;
-        lv2:name "Out1"
+        lv2:name "Out1" ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
         lv2:index 16 ;
         lv2:symbol "in" ;
-            lv2:name "In"
+            lv2:name "In" ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
         lv2:index 17 ;
         lv2:symbol "in1" ;
-        lv2:name "In1"
+        lv2:name "In1" ;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_amp_stereo#gui>

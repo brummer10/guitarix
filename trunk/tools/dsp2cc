@@ -76,6 +76,12 @@ class UIDefs(object):
                 fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
                #fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
 
+        def write_port_head(self, fp, v, prefix):
+            d = {}
+            d.update(self)
+            ast = d["id"].split(".")
+            d["port"] = re.sub(r'\s+', '',ast[-1].upper())
+            fp.write('   %(port)s, \n' % d)
 
         def __getitem__(self, n):
             try:
@@ -118,6 +124,10 @@ class UIDefs(object):
     def write_port(self, fp, prefix=""):
         for v, r in self.ui.items():
             r.write_port(fp, v, prefix)
+
+    def write_port_head(self, fp, prefix=""):
+        for v, r in self.ui.items():
+            r.write_port_head(fp, v, prefix)
 
     def check_parameter(self, fname, uiname, l, only_warn):
         s1 = set(l)
@@ -1221,6 +1231,13 @@ void Dsp::del_instance(PluginLV2 *p)
 	delete static_cast<Dsp*>(p);
 }
 
+/*
+typedef enum
+{
+%(port_head)s\
+} PortIndex;
+*/
+
 #endif
 #if %(sharedlib)s
 extern "C" __attribute__ ((visibility ("default"))) int
@@ -1333,6 +1350,10 @@ class Output(object):
             self.parser.ui.write(s, prefix)
         return s.getvalue()
 
+    def parser_h_lv2(self, prefix=""):
+        s = StringIO()
+        self.parser.ui.write_port_head(s, prefix)
+        return s.getvalue()
     def parser_lv2(self, prefix=""):
         s = StringIO()
         self.parser.ui.write_port(s, prefix)
@@ -1420,6 +1441,7 @@ class Output(object):
             undefines = self.parser_sect("alias-undefines", 0),
             register_body = self.parser_ui(has_lv2, "reg."),
             port_body     = self.parser_lv2(""),
+            port_head     = self.parser_h_lv2(""),
             has_cc_ui = has_cc_ui,
             has_glade_ui = has_glade_ui,
             cc_ui = cc_ui,
