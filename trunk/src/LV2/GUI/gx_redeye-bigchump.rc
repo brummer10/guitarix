@@ -1,0 +1,13 @@
+#"bigchump"
+style "gx_redeye-bigchump"
+{
+  stock["bigknob"] = {{"chump-knob.png"}}
+  stock["amp_skin"] = {{"bigchump.png"}}
+  stock["switchit_on"] = {{"vibrochump-switch_on.png"}}
+  stock["switchit_off"] = {{"vibrochump-switch_off.png"}}
+  GxPaintBox::icon-set =1
+}
+
+widget "*.bigchump" style:highest "gx_redeye-bigchump"
+class "*GxToggleImage" style "gx_redeye-bigchump"
+

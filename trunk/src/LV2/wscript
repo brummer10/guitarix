@@ -113,6 +113,9 @@ def configure(conf):
     conf.sub_config('gxechocat.lv2');
     sub_file('./src/LV2/gxechocat.lv2/manifest.ttl.in', './src/LV2/gxechocat.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
 
+    conf.sub_config('gx_redeye.lv2');
+    sub_file('./src/LV2/gx_redeye.lv2/manifest.ttl.in', './src/LV2/gx_redeye.lv2/manifest.ttl', (('@LIB_EXT@', '%s' % pa), ))
+
 def build(bld):
     # faust folder keep of for now
     bld.add_subdirs('faust')
@@ -140,6 +143,7 @@ def build(bld):
     bld.add_subdirs('gx_studiopre.lv2')
     bld.add_subdirs('gx_studiopre_st.lv2')
     bld.add_subdirs('gxechocat.lv2')
+    bld.add_subdirs('gx_redeye.lv2')
 
     gx_ampstyledir = bld.path.find_dir( 'GUI' ) ;
     bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gx_ampstyledir.ant_glob('**/*.png'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose
+ * Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose, Steve Poskitt
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 #define SRC_HEADERS_GXEFFECTS_H_
 
 #include <lv2.h>
-#include "gx_pluginlv2.h"
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxtubedelay"
 #define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxtubedelay#gui"

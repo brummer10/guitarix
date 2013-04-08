@@ -1,0 +1,12 @@
+#"vibrochump"
+style "gx_redeye-vibrochump"
+{
+  stock["bigknob"] = {{"vibrochump-knob.png"}}
+  stock["amp_skin"] = {{"vibrochump.png"}}
+  stock["switchit_on"] = {{"vibrochump-switch_on.png"}}
+  stock["switchit_off"] = {{"vibrochump-switch_off.png"}}
+  GxPaintBox::icon-set =2
+}
+
+widget "*.vibrochump" style:highest "gx_redeye-vibrochump"
+class "*GxToggleImage" style "gx_redeye-vibrochump"

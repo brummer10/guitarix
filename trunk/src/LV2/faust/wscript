@@ -161,6 +161,9 @@ def build(bld):
         'gxamp17.dsp',
         'gxamp18.dsp',
         'gxnoamp.dsp',
+        'gx_chump.dsp',
+        'gx_bigchump.dsp',
+        'gx_vibrochump.dsp',
 
         # stereo amps
         'gxamp_stereo.dsp',

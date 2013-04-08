@@ -33,7 +33,6 @@ import("guitarix.lib");
 // Have to set track fader to very low level....
 
 process =  stage1:tone:*(preamp):( + : stage2:transformer )~feedback with {
-//process = stage1:*(preamp):tone:((+:stage2)~feedback):transformer  with {
     preamp =  vslider("Gain[alias][style:knob]",0,-20,20,0.1):db2linear: smoothi(0.999);
 	stage1= tubestage(TB_12AX7_68k,86.0,2700.0,1.581656) ; 
 	tone = component("bigmuff.dsp").bigmuff ;
@@ -41,8 +40,8 @@ process =  stage1:tone:*(preamp):( + : stage2:transformer )~feedback with {
 	volume =  vslider("Volume[alias][style:knob]",0,-20,10,0.1):db2linear:smoothi(0.999);
 	// Ideally attenuation should be proportional to the volume so that we achieve
 	// a kind of compression if volume > 0dB 
-	atten = 0.5; // Seems to need at least this much!
-	atten = 1-( gain/20);
+	//atten = 0.5; // Seems to need at least this much!
+	atten = 1-( volume/20);
 
 	stage2 =  lowpass(1,6531.0):tubestage(TB_12AX7_250k,100.0,1500.0,1.204285):*(volume):lowpass(1,6531.0):tubestage(TB_6V6_250k,120.0,820.0,1.130462):*(atten); 
        transformer = lowpass( 1, 6531 ):highpass( 1, 120) ;

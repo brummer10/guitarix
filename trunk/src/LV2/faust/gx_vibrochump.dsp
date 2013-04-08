@@ -67,6 +67,7 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
     SINE=checkbox("SINEWAVE[enum:triangle|sine]");
     lfo = select2(SINE, trianglewave(freq), sine(freq));
 };
+
 effect =  (tremolo(vslider("speed[style:knob]",5,0.1,10,0.1),vslider("intensity[style:knob]",5,0,10,0.1)/10));
 
 
@@ -75,7 +76,6 @@ effect =  (tremolo(vslider("speed[style:knob]",5,0.1,10,0.1),vslider("intensity[
 // if even then we need to reverse
 
 process =  stage1:tone:*(preamp):( + : stage2:transformer )~feedback with {
-//process = stage1:*(preamp):tone:((+:stage2)~feedback):transformer  with {
         preamp =  vslider("Gain[alias][style:knob]",0,-20,20,0.1):db2linear: smoothi(0.999);
 	stage1= tubestage(TB_12AX7_68k,86.0,2700.0,1.581656) ; 
 	tone = component("bigmuff.dsp").bigmuff ;
