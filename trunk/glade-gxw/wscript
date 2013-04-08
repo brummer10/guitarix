@@ -9,7 +9,7 @@ def set_options(opt):
                    action='store_const',
                    default=False,
                    const=True,
-                   help=('build support for Glade / GtkBuilder'),
+                   help=('build support for Glade / GtkBuilder (Developers only!!)'),
                    )
     grp.add_option('--glade-catalog-dir',
                    type='string',

@@ -125,7 +125,9 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "gx_amp.h"
 #include "impulse_former.h"
 #include "ampulse_former.h"
-
+#ifndef __SSE__
+#include "noiser.cc"
+#endif
 #include "cab_data_table.cc"
 
 ////////////////////////////// MONO ////////////////////////////////////
@@ -138,6 +140,9 @@ private:
   float*                       input;
   uint32_t                     s_rate;
   int32_t                      prio;
+#ifndef __SSE__
+  PluginLV2*                   wn;
+#endif
   PluginLV2*                   amplifier[AMP_COUNT];
   PluginLV2*                   tonestack[TS_COUNT];
   float*                       a_model;
@@ -310,7 +315,12 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
 
   bufsize = bufsize_;
   s_rate = rate;
-  
+
+#ifndef __SSE__
+  wn = noiser::plugin();
+  wn->set_samplerate(rate, wn);
+#endif
+
   for(uint32_t i=0; i<AMP_COUNT; i++) {
         amplifier[i] = amp_model[i]();
         amplifier[i]->set_samplerate(rate, amplifier[i]);
@@ -392,6 +402,9 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
   // run dsp
+#ifndef __SSE__
+  wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
+#endif
   // run selected tube model
   a_model_ = static_cast<uint32_t>(*(a_model));
   amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
@@ -428,6 +441,9 @@ void GxPluginMono::connect_all_mono_ports(uint32_t port, void* data)
 
 void GxPluginMono::clean()
 {
+#ifndef __SSE__
+  wn->delete_instance(wn);;
+#endif
   for(uint32_t i=0; i<AMP_COUNT; i++) {
     amplifier[i]->delete_instance(amplifier[i]);
   }

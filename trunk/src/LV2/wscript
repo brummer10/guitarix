@@ -43,7 +43,8 @@ def append_sse_flags():
         return False
 
 def configure(conf):
-    conf.env['SSE2'] = append_sse_flags()
+    if not conf.env['NOSSE']:
+        conf.env['SSE2'] = append_sse_flags()
     pa = '.so'
 
     conf.sub_config('gx_amp.lv2');

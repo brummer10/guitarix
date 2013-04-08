@@ -9,10 +9,6 @@ import("guitarix.lib");
 /****************************************************************
  ** Tube Preamp Emulation stage 1 - 2 
  */
- 
-
-randomr  = +(12345)~*(1103515245);
-noiser   = (randomr/2147483647.0) * 0.0001;
 
 tubeax(preamp,gain1) =  hgroup("stage1", stage1) :
           hgroup("stage2", stage2) 
@@ -23,7 +19,7 @@ tubeax(preamp,gain1) =  hgroup("stage1", stage1) :
 };
 
 
-process = + ( noiser) : component("gxdistortion.dsp").dist(drive,wet_dry) : tubeax(preamp,gain1) with {
+process = component("gxdistortion.dsp").dist(drive,wet_dry) : tubeax(preamp,gain1) with {
     drive = ampctrl.drive;
     wet_dry = ampctrl.wet_dry;
     preamp = ampctrl.preamp;

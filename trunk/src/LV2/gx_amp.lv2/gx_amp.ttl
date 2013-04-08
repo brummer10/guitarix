@@ -74,7 +74,7 @@
         lv2:index 1 ;
         lv2:symbol "PreGain" ;
         lv2:name "PreGain";
-        lv2:default -15.0 ;
+        lv2:default 0.0 ;
         lv2:minimum -20.0 ;
         lv2:maximum 20.0 ;
     ] , [

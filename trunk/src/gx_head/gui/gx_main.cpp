@@ -410,8 +410,9 @@ int main(int argc, char *argv[]) {
         gui.run();
 	} else {
         char t;
-        cout << "Press Ctrl C to exit: ";
+        cout << "Type quit (q) and Enter to exit: ";
         cin  >> t;
+        gx_system::GxExit::get_instance().exit_program("** guitarix exit **");
     }
 	gx_child_process::childprocs.killall();
 #ifndef NDEBUG

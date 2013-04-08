@@ -9,7 +9,7 @@ def set_options(opt):
                    action='store_const',
                    default=False,
                    const=True,
-                   help=('build python wrapper for library'),
+                   help=('build python wrapper for library (Developers only!!)'),
                    )
 
 def configure(conf):

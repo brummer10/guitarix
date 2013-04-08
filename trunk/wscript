@@ -115,18 +115,6 @@ def set_options(opt):
                     const=True,
                     help='build with included local zita-convolver libary (Default NO)')
 
-    comp.add_option('--no-ladspa',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help="don't build ladspa plugins (Default yes)")
-
-    comp.add_option('--no-new-ladspa',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help=("don't build with new ladspa plugins"))
-
     comp.add_option('--libdir',
                    type='string',
                    default='', 
@@ -163,6 +151,19 @@ def set_options(opt):
 
     ladspa = opt.add_option_group("LADSPA Options (installing ladspa modules)")
 
+    ladspa.add_option('--no-ladspa',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help="don't build ladspa plugins (Default yes)")
+
+    ladspa.add_option('--no-new-ladspa',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help=("don't build with new ladspa plugins (Default yes)"))
+
+
     ladspa.add_option('--ladspadir',
                     type='string',
                     help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
@@ -177,7 +178,19 @@ def set_options(opt):
                     action='store_const',
                     default=False,
                     const=True,
-                    help=("build with new lv2 plugins"))
+                    help=("build with new lv2 plugins (Default no)"))
+
+    lv2.add_option('--lv2-only',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help=("build only the lv2 plugins (Default no)"))
+
+    lv2.add_option('--dissable-sse',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help=("dissable SSE for lv2 plugins (ARM)"))
 
 
     opt.recurse('pygxw')
@@ -536,7 +549,12 @@ def configure(conf):
     # linker flags
     conf.env.append_value('LDFLAGS', opt.ldflags)
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
-
+    if opt.lv2_only:
+        opt.build_lv2 = True
+        opt.no_ladspa = True
+        opt.no_new_ladspa = True
+        conf.env['NO_MAIN'] = True
+        opt.no_desktop_update = True
     # needed libaries
     try:
         conf.check_cfg(package='jack', atleast_version='0.116.2', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
@@ -596,6 +614,7 @@ def configure(conf):
     conf.define('BIN_NAME', APPNAME)
 
     conf.env['LV2'] =  opt.build_lv2
+    conf.env['NOSSE'] =  opt.dissable_sse
     if opt.build_lv2:
         if opt.lv2dir:
             conf.define('LV2DIR', opt.lv2dir)
@@ -632,7 +651,8 @@ def configure(conf):
         conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
         conf.cfg_get_variable(package='pygobject-2.0', variable='codegendir')
 
-    conf.sub_config('src/gx_head');
+    if not conf.env['NO_MAIN']:
+        conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
     conf.sub_config('src/plugins');
@@ -665,7 +685,8 @@ def configure(conf):
     
     print_msg("")
     display_msg("OS ", conf.env['OS'], 'CYAN')
-
+    if conf.env['NO_MAIN']:
+        display_msg("Guitarix main build ", "dissabled", 'RED')
     if cpu_model:
         display_msg("CPU version" , "%s" % cpu_model, "CYAN")
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
@@ -684,6 +705,7 @@ def configure(conf):
     display_feature("build lv2 plugins", conf.env['LV2'])
     if opt.build_lv2:
         display_feature("SSE2 support found", conf.env['SSE2'])
+        display_feature("SSE2 support dissabled", conf.env['NOSSE'])
     display_feature("skip Python Library Wrapper", not conf.env['GX_PYTHON_WRAPPER'])
     display_feature("use prebuild C++ Library Wrapper", conf.env['USE_GENERATED_CPP'])
     display_feature("skip building shared lib", not conf.env['GX_LIB_SHARED'])
@@ -696,15 +718,17 @@ def configure(conf):
         display_msg("glade catalog dir", conf.env['GLADE_CATALOG_DIR'], 'CYAN')
         display_msg("glade modules dir", conf.env['GLADE_MODULES_DIR'], 'CYAN')
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
-    display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
+    if not conf.env['NO_MAIN']:
+        display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
     display_msg("Install library", conf.env['LIBDIR'], 'CYAN')
 
     if not opt.no_ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
     if opt.build_lv2:
         display_msg("Install lv2", conf.env['LV2DIR'], 'CYAN')
-    display_msg("Guitarix shared files directory", gxsharedir, 'CYAN')
-    display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
+    if not conf.env['NO_MAIN']:
+        display_msg("Guitarix shared files directory", gxsharedir, 'CYAN')
+        display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
     if conf.env['g++']:
        error_msg("ERROR       !!! Compiler version is too old !!!")
 
@@ -733,66 +757,68 @@ def build(bld):
     bld.add_subdirs('libgxwmm')
     bld.add_subdirs('glade-gxw')
     bld.add_subdirs('pygxw')
-    bld.add_subdirs('src/faust')
-    bld.add_subdirs('src/plugins')
-    bld.add_subdirs('rcstyles')
-    bld.add_subdirs('pixmaps')
-    bld.add_subdirs('src/gx_head')
+    if not bld.env['NO_MAIN']:
+        bld.add_subdirs('src/faust')
+        bld.add_subdirs('src/plugins')
+        bld.add_subdirs('rcstyles')
+        bld.add_subdirs('pixmaps')
+        bld.add_subdirs('src/gx_head')
     if bld.env["NEW_LADSPA"]:
         bld.add_subdirs('src/ladspa')
     if bld.env["LV2"]:
         bld.add_subdirs('src/LV2')
 
-    bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/funkmuscle.gx', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dlp_ae.gx', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/zettberlin.gx', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/autoandimat.gx', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jp_n_o_s.gx', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/kokoko3k.gx', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe_mono', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/flanger_mono_gx', chmod=0o664)
-    bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jconv', chmod=0o664)
-    # "greathall.wav" is referenced in the source (keep in sync when changing)
-    bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
+    if not bld.env['NO_MAIN']:
+        bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/funkmuscle.gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dlp_ae.gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/zettberlin.gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/autoandimat.gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jp_n_o_s.gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/kokoko3k.gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe_mono', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/flanger_mono_gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jconv', chmod=0o664)
+        # "greathall.wav" is referenced in the source (keep in sync when changing)
+        bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
 
-    if not bld.env['DISABLE_NLS']:
-        gen_desktop = bld(features  = "intltool_in",
-            podir     = "po",
-            flags     = ["-d", "-q", "-u", "-c"],
-            source    = 'guitarix.desktop.in',
-            target    = 'guitarix.desktop',
-            install_path = "${DATADIR}/applications",
-        )
-    
-        # hacked in scanner method so the desktop file gets rebuild
-        # when any po file changes; don't know if there is a better way
-        gen_desktop_create_task = gen_desktop.create_task
-        def gen_desktop_add_scanner(*args,**kw):
-            task = gen_desktop_create_task(*args,**kw)
-            def po_scanner():
-                gen = task.generator
-                podir = gen.bld.srcnode.find_dir(gen.podir)
-                return (podir.ant_glob("*.po", flat=False), [])
-            task.scan = po_scanner
-            return task
-        gen_desktop.create_task = gen_desktop_add_scanner
-    else:
-        gen_desktop = bld(features  = "subst",
-            source    = 'guitarix.desktop._in',
-            target    = 'guitarix.desktop',
-            install_path = "${DATADIR}/applications",
-            VAR        = ""
-        )
-        gen_desktop.create_task
-    if Options.commands["install"]:  ## newer waf version: bld.cmd == 'install'
-        if not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"]:
-            try:
-                bld.exec_command(["update-desktop-database", Utils.subst_vars("${DATADIR}/applications", bld.env)])
-            except:
-                pass
+        if not bld.env['DISABLE_NLS']:
+            gen_desktop = bld(features  = "intltool_in",
+                podir     = "po",
+                flags     = ["-d", "-q", "-u", "-c"],
+                source    = 'guitarix.desktop.in',
+                target    = 'guitarix.desktop',
+                install_path = "${DATADIR}/applications",
+            )
+        
+            # hacked in scanner method so the desktop file gets rebuild
+            # when any po file changes; don't know if there is a better way
+            gen_desktop_create_task = gen_desktop.create_task
+            def gen_desktop_add_scanner(*args,**kw):
+                task = gen_desktop_create_task(*args,**kw)
+                def po_scanner():
+                    gen = task.generator
+                    podir = gen.bld.srcnode.find_dir(gen.podir)
+                    return (podir.ant_glob("*.po", flat=False), [])
+                task.scan = po_scanner
+                return task
+            gen_desktop.create_task = gen_desktop_add_scanner
+        else:
+            gen_desktop = bld(features  = "subst",
+                source    = 'guitarix.desktop._in',
+                target    = 'guitarix.desktop',
+                install_path = "${DATADIR}/applications",
+                VAR        = ""
+            )
+            gen_desktop.create_task
+        if Options.commands["install"]:  ## newer waf version: bld.cmd == 'install'
+            if not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"]:
+                try:
+                    bld.exec_command(["update-desktop-database", Utils.subst_vars("${DATADIR}/applications", bld.env)])
+                except:
+                    pass
 
     if bld.env["GX_LIB_SHARED"]:
         if not bld.env["NO_LDCONFIG"]:
