@@ -74,7 +74,7 @@ plug_name(plugname)
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "amp_skin_expose";
+  m_paintbox.property_paint_func() = "gxhead_expose";
   add(m_paintbox);
   // box for the controllers
   m_hbox_.set_spacing(14);

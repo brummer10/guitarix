@@ -101,20 +101,17 @@ void Gx_reverb_stereoGUI::set_skin()
                  "{ 65536, 0, 0, 13107, 52428 }, \n"
                  "{ 52428, 0, 0, 0, 52428 },\n"
                  "{ 13107, 0, 0, 13107, 13107 }}\n"
-                 "    GxPaintBox::icon-set =7\n"
-                 "    stock['amp_skin'] = {{'";
-  toparse +=     plugskin;
-  toparse +=     "'}}\n"
+                 "    GxPaintBox::icon-set =11\n"
                  " }\n"
                  "\n"
-                 "style 'gx_head_reverb_stereo_box' \n"
+                 "style 'gx_head_tremolo_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#fefc51' \n"
+                 "    fg[NORMAL] = '#c0c6d0' \n"
                  "font_name = 'sans 7.5 bold' \n"
                  " }\n";
   toparse +=     addKnob;
 
-  toparse +=     " widget '*.amplabel' style:highest 'gx_head_reverb_stereo_box'\n"
+  toparse +=     " widget '*.amplabel' style:highest 'gx_head_tremolo_box'\n"
                  "widget '*.";
   toparse +=     plug_name;
   toparse +=     "' style 'gx_";
@@ -124,7 +121,7 @@ void Gx_reverb_stereoGUI::set_skin()
   toparse +=     plug_name;
   toparse +=     "'\n"
                  " {\n"
-                 " fg[NORMAL] = '#8d8800'\n"
+                 " fg[NORMAL] = '#c0c6d0'\n"
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"
@@ -163,13 +160,11 @@ void Gx_reverb_stereoGUI::set_plug_name( const char * plugin_uri)
 
   if (strcmp("http://guitarix.sourceforge.net/plugins/gx_reverb_stereo#_reverb_stereo", plugin_uri) == 0)
     {
-      plugskin = "_reverb.png";
       plug_name = "_reverb_stereo";
       set_knob("nk-knob");
     }
   else
     {
-      plugskin = "_reverb.png";
       plug_name = "_reverb_stereo";
     }
 }

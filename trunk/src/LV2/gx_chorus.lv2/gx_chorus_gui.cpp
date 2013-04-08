@@ -101,7 +101,7 @@ void Gx_chorus_stereoGUI::set_skin()
                  "{ 65536, 0, 0, 13107, 52428 }, \n"
                  "{ 52428, 0, 0, 0, 52428 },\n"
                  "{ 13107, 0, 0, 13107, 13107 }}\n"
-                 "    GxPaintBox::icon-set =6\n"
+                 "    GxPaintBox::icon-set =11\n"
                  " }\n"
                  "\n"
                  "style 'gx_head_chorus_stereo_box' \n"
