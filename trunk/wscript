@@ -499,6 +499,10 @@ write_linguas_file = feature ('intltool_po')(write_linguas_file)
  
 def configure(conf):
     opt = Options.options
+    if opt.dissable_sse and opt.optimization:
+        display_msg("configuration error", " cant use --dissable-sse and --optimization together", 'RED')
+        sys.exit(1)
+
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
 
     platform = Utils.detect_platform()
