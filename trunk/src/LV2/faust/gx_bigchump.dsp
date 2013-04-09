@@ -24,8 +24,9 @@ trannie = coil1,coil2:>_ with {
 // Well before we get decent guitar sounds Ardour has run out of headroom 
 // Have to set track fader to very low level....
 
-//process = stage1:tone:*(gain):stage2:*(volume):amp with{
-process = stage1:tone:*(gain):stage2:*(volume):amp:*(atten) with{
+process = stage1:tone:*(gain):stage2:*(volume):amp with{
+//process = stage1:tone:*(gain):stage2:*(volume):amp:*(atten) with{
+
 	gain =  vslider("Gain[0][alias][style:knob]",0,-24,10,0.1) : db2linear : smoothi(0.999);
 
 	tone = component("bigmuff.dsp").bigmuff ;
@@ -42,13 +43,14 @@ process = stage1:tone:*(gain):stage2:*(volume):amp:*(atten) with{
 	driver2 = lowpass( 1, 6531):tubestage(TB_12AU7_250k,132.0,1475.0,1.204285);
 
 	feedback = *(checkbox("feedback") ):*(0.5);
+
 	// This is bodge for transformer simple low and high pass roll off
 
 //	pushpull = (driver1:positive:pp1),(driver1:negative:pp2) ;
 	pushpull = (positive:pp1),(negative:pp2) ;
 
 	amp = (+:_<:pushpull:trannie:>_)~feedback ;
-	atten = 0.38;
+	atten = 0.5;
 	cabinet = lowpass(2,5500):peak_eq(-15.0,400.0,600):highpass(2,80);
 
 };

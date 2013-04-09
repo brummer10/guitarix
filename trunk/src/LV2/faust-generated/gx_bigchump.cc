@@ -259,7 +259,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec18[0] = ((fConst42 * (fRec19[0] + fRec19[1])) + (fConst41 * fRec18[1]));
 		fRec17[0] = ((fConst44 * ((fConst43 * fRec18[1]) + (fConst36 * fRec18[0]))) + (fConst38 * fRec17[1]));
 		fRec0[0] = (fRec17[0] + (0.98 * fRec1[0]));
-		output0[i] = (FAUSTFLOAT)(0.38 * fRec0[0]);
+		output0[i] = (FAUSTFLOAT)fRec0[0];
 		// post processing
 		fRec0[1] = fRec0[0];
 		fRec17[1] = fRec17[0];
