@@ -66,7 +66,7 @@
         lv2:name "Volume_L";
         lv2:default 5.0 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 10.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -113,7 +113,7 @@
         lv2:name "Volume_R";
         lv2:default 5.0 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 10.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;

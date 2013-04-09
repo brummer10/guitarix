@@ -126,7 +126,7 @@ plug_name(plugname)
   m_vbox5.set_spacing( 6 ) ;
   m_vbox6.set_spacing( 6 ) ;
   make_switch_box(&m_vbox2, "BRIGHT", BRIGHT_L);
-  make_controller_box(&m_vbox3, "VOLUME", 0.0, 10.0, 0.1, VOLUME_L);
+  make_controller_box(&m_vbox3, "VOLUME", 0.0, 20.0, 0.1, VOLUME_L);
   make_controller_box(&m_vbox4, "BASS", 0.0, 1.0, 0.1, BASS_L);
   make_controller_box(&m_vbox5, "MIDDLE", 0.0, 1.0, 0.1, MIDDLE_L);
   make_controller_box(&m_vbox6, "TREBLE", 0.0, 1.0, 0.1, TREBLE_L);
@@ -149,7 +149,7 @@ plug_name(plugname)
   m_vbox10.set_spacing( 6 ) ;
   m_vbox11.set_spacing( 6 ) ;
   make_switch_box(&m_vbox7, "BRIGHT", BRIGHT_R);
-  make_controller_box(&m_vbox8, "VOLUME", 0.0, 10.0, 0.1, VOLUME_R);
+  make_controller_box(&m_vbox8, "VOLUME", 0.0, 20.0, 0.1, VOLUME_R);
   make_controller_box(&m_vbox9, "BASS", 0.0, 1.0, 0.1, BASS_R);
   make_controller_box(&m_vbox10, "MIDDLE", 0.0, 1.0, 0.1, MIDDLE_R);
   make_controller_box(&m_vbox11, "TREBLE", 0.0, 1.0, 0.1, TREBLE_R);

@@ -194,7 +194,7 @@ Widget::Widget(Glib::ustring plug_name)
 	// And the logo 
         make_logo( &m_vbox13_,plug_name+"-logo", true );
 	// May move this to top of the amp
-	 make_logo( &m_vbox13_,"redeye-logo-small", true );
+	 make_logo( &m_vbox13_,"redeye-logo", true );
 
         m_hbox3_.pack_start( m_vbox13_ ) ;
 
@@ -249,8 +249,14 @@ void Widget::make_controller_box(Gtk::VBox *box,
 {
   //Gtk::Label* pr = new Gtk::Label(label, 0);
   //pr->set_name("amplabel");
+  Glib::ustring plugname = "";
+  if( strcmp( "bigchump", plug_name.c_str() ) == 0 ){
+    plugname = "chump";
+  } else {
+    plugname = plug_name;
+  }
   Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-  label_image += "/"+plug_name+"-";
+  label_image += "/"+plugname+"-";
   label_image += label;
   label_image += "-label.png";
   Gtk::Image *pr = new Gtk::Image(label_image);
@@ -285,8 +291,14 @@ void Widget::make_switch_box(Gtk::Box *box,
 {
 /*  Gtk::Label* pr = new Gtk::Label(label, 0);
   pr->set_name("amplabel");*/
+  Glib::ustring plugname = "";
+  if( strcmp( "bigchump", plug_name.c_str() ) == 0 ){
+    plugname = "chump";
+  } else {
+    plugname = plug_name;
+  }
   Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-  label_image += "/"+plug_name+"-";
+  label_image += "/"+plugname+"-";
   label_image += label;
   label_image += "-label.png";
    Gtk::Image *pr = new Gtk::Image(label_image);
@@ -454,8 +466,8 @@ void Widget::change_skin(Glib::ustring plug_name)
   rcfile +="/gx_redeye-";
   rcfile += plug_name;
   rcfile += ".rc";
-std::cout << "rcfile = " << rcfile << std::endl;
+  //std::cout << "rcfile = " << rcfile << std::endl;
     
- gtk_rc_parse(rcfile.c_str());
+  gtk_rc_parse(rcfile.c_str());
   gtk_rc_reset_styles(gtk_settings_get_default());
 }

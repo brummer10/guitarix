@@ -64,7 +64,7 @@ Widget::Widget(Glib::ustring plug_name)
       &Widget::on_knob2_value_changed));
   
 
-  make_controller_box(&m_vbox3, &m_bigknob3, "gain", -60, 6, 0.1, gain, plug_name);
+  make_controller_box(&m_vbox3, &m_bigknob3, "gain", -40, 16, 0.1, gain, plug_name);
   m_bigknob3.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob3_value_changed));
   

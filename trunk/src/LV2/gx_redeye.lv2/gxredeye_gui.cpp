@@ -109,6 +109,21 @@ void GXPluginGUI::set_skin()
   toparse +=     "' style 'gx_";
   toparse +=     plug_name;
   toparse +=     "_dark-paintbox' ";
+  toparse +=  "style 'gx_switch'\n"
+              "{\n"
+              "xthickness = 0\n"
+              "ythickness = 0\n"
+              "GtkButton::inner-border = {0, 0, 0, 0}\n"
+              "GtkButton::default-border = {0, 0, 0, 0}\n"
+              "GtkButton::focus-line-width = 0\n"
+              "GtkButton::focus-padding = 0\n"
+              "GtkButton::interior-focus = 0\n"
+              "GtkButton::child-displacement-x = 0\n"
+              "GtkButton::child-displacement-y = 0\n"
+              " }\n"
+              "widget '*.";
+  toparse +=  "chump";
+  toparse +=  "' style:highest 'gx_switch'";
 
   gtk_rc_parse_string (toparse.c_str());
 }

@@ -184,9 +184,9 @@ static void port_event(LV2UI_Handle ui,
 {
   GXPluginGUI *self = (GXPluginGUI *) ui;
 
-  fprintf(stderr, "Port Index %u\n",port_index ) ;
-  fprintf(stderr, "Buffer Size %u\n",buffer_size ) ;
-  fprintf(stderr, "Format %u\n",format ) ;
+  //fprintf(stderr, "Port Index %u\n",port_index ) ;
+  //fprintf(stderr, "Buffer Size %u\n",buffer_size ) ;
+  //fprintf(stderr, "Format %u\n",format ) ;
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }

@@ -39,8 +39,8 @@ Widget::Widget(Glib::ustring plug_name)
   // this box set space for the upper part of the skin
   m_hbox1_.set_spacing(32);
   m_hbox1_.set_border_width(12);
-  make_logo( &m_vbox6, "guitarix-tube-processor" ) ;
-  make_logo( &m_vbox7, "redeye-logo-big" ) ;
+  make_logo( &m_vbox6, "preamp-guitarix-label" ) ;
+  make_logo( &m_vbox7, "preamp-redeye-label" ) ;
   m_hbox1_.pack_start(m_vbox6);
   m_hbox1_.pack_start(m_vbox7);
 
@@ -189,7 +189,7 @@ void Widget::set_value(uint32_t port_index,
           m_bigknob5.cp_set_value(feedback);
           break;
 	case MAXLEVEL :
-	fprintf(stderr, "MAXLEVEL MESSAGE THROUGH\n!" ) ;
+	//fprintf(stderr, "MAXLEVEL MESSAGE THROUGH\n!" ) ;
 	break;
         default:
           break;

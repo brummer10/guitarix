@@ -53,7 +53,7 @@ plug_name(plugname)
   // create controllers for port name
   make_controller_box(&m_vbox2, "DEPTH", 0, 1.0, 0.01, DEPTH);
   make_controller_box(&m_vbox3, "SPEED", 0.1, 14.0, 0.01, SPEED);
-  make_controller_box(&m_vbox4, "GAIN", -12, 12, 0.1, GAIN);
+  make_controller_box(&m_vbox4, "GAIN", -12, 22, 0.1, GAIN);
   make_switch_box(&m_vbox5, "SINE", "TRIANGLE", SINEWAVE);
   
   // set propertys for the main paintbox holding the skin

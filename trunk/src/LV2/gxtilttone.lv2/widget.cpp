@@ -224,13 +224,13 @@ void Widget::make_switch_box(Gtk::Box *box,
 // Create the Text Labels from images For Amp
 void Widget::make_image(Gtk::Box *box,Glib::ustring label, bool start )
 {
-	Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-  	label_image += "/";
-  	label_image += label;
-  	label_image += ".png";
-  	Gtk::Image *pr = new Gtk::Image(label_image);
-pr->set_padding( 0, 0 ) ;
-pr->set_alignment( Gtk::ALIGN_CENTER , Gtk::ALIGN_CENTER  ) ;
+    Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    label_image += "/";
+    label_image += label;
+    label_image += ".png";
+    Gtk::Image *pr = new Gtk::Image(label_image);
+    pr->set_padding( 0, 0 ) ;
+    pr->set_alignment( Gtk::ALIGN_CENTER , Gtk::ALIGN_CENTER  ) ;
 
 // 	Gtk::VBox* b1 = new Gtk::VBox();
  //       box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);

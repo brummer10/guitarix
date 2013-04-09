@@ -17,62 +17,8 @@
  * --------------------------------------------------------------------------
  */
 
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <cstring>
 #include <glibmm.h>
-#include <unistd.h>
-
-#ifdef __SSE__
-/* On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
-   flags to avoid costly denormals */
-#ifdef __SSE3__
-#include <pmmintrin.h>
-inline void AVOIDDENORMALS()
-{
-  _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
-}
-#else
-#include <xmmintrin.h>
-inline void AVOIDDENORMALS()
-{
-  _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-}
-#endif //__SSE3__
-
-#else
-inline void AVOIDDENORMALS() {}
-#endif //__SSE__
-
-// faust support
-#define FAUSTFLOAT float
-#ifndef N_
-#define N_(String) (String)
-#endif
-#define max(x, y) (((x) > (y)) ? (x) : (y))
-#define min(x, y) (((x) < (y)) ? (x) : (y))
-template <int32_t N> inline float faustpower(float x)
-{
-  return powf(x, N);
-}
-template <int32_t N> inline double faustpower(double x)
-{
-  return pow(x, N);
-}
-template <int32_t N> inline int32_t faustpower(int32_t x)
-{
-  return faustpower<N/2>(x) * faustpower<N-N/2>(x);
-}
-template <>      inline int32_t faustpower<0>(int32_t x)
-{
-  return 1;
-}
-template <>      inline int32_t faustpower<1>(int32_t x)
-{
-  return x;
-}
+#include "gx_common.h"
 
 /****************************************************************
  ** "atomic" value access
@@ -117,14 +63,15 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
   return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
 }
 
-
 #include "gxredeye.h"
 #include "gx_resampler.h"
 #include "gx_convolver.h"
 #include "gx_redeye.h"
 #include "impulse_former.h"
 #include "ampulse_former.h"
-
+#ifndef __SSE__
+#include "noiser.cc"
+#endif
 #include "cab_data_table.cc"
 
 ////////////////////////////// MONO ////////////////////////////////////
@@ -138,6 +85,9 @@ private:
   uint32_t                     s_rate;
   int32_t                      prio;
   PluginLV2*                   amplifier[AMP_COUNT];
+#ifndef __SSE__
+  PluginLV2*                   wn;
+#endif
   uint32_t                     a_model_;
   uint32_t                     c_model_;
   gx_resample::BufferResampler resamp;
@@ -223,7 +173,10 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
 
   bufsize = bufsize_;
   s_rate = rate;
-  
+#ifndef __SSE__
+  wn = noiser::plugin();
+  wn->set_samplerate(rate, wn);
+#endif  
   for(uint32_t i=0; i<AMP_COUNT; i++) {
         amplifier[i] = amp_model[i]();
         amplifier[i]->set_samplerate(static_cast<unsigned int>(rate), amplifier[i]);
@@ -286,6 +239,9 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
   // run dsp
+#ifndef __SSE__
+  wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
+#endif
   // run selected tube model
   amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
 
@@ -305,6 +261,9 @@ void GxPluginMono::connect_all_mono_ports(uint32_t port, void* data)
 
 void GxPluginMono::clean()
 {
+#ifndef __SSE__
+  wn->delete_instance(wn);;
+#endif
   for(uint32_t i=0; i<AMP_COUNT; i++) {
     amplifier[i]->delete_instance(amplifier[i]);
   }
