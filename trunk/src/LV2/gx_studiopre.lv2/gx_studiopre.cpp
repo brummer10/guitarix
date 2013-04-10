@@ -206,7 +206,7 @@ void Gx_studiopre::cleanup(LV2_Handle instance)
 
 const LV2_Descriptor Gx_studiopre::descriptor =
 {
-  GXPLUGIN_URI "#_studiopre",
+  GXPLUGIN_URI "#studiopre",
   instantiate,
   connect_port,
   activate,
