@@ -8,7 +8,7 @@ import("guitarix.lib");
 level = vslider("level[style:knob]", 0, 0, 10, 0.1)/10;
 gain = vslider("gain[style:knob]", 0, -30, 6, 0.1) : db2linear : smoothi(0.999);
 feedback = vslider("feedback[style:knob]", 0, 0.0, 10, 0.1)/10;
-dtime	= hslider("delay[unit:ms][style:knob]", 0, 0, 5000, 0.1)*SR/1000.0;
+dtime	= hslider("delay[unit:ms][style:knob]", 0, 0.1, 5000, 0.1)*SR/1000.0;
 
 // Added gain reduction to get unity gain at 0dB ( trial and error for each stage )
 // Real tube values 
@@ -29,4 +29,4 @@ delayed = sdelay(262144, interp, dtime) ;
 // and a low/highpass filter section in the feedback loop
 // to avoid self oscillation
 
-process = stage1:_<:((+:_<:_ ,( delayed:*(level)) :>_)~(*(feedback): highpass(1,120):lowpass(1,6531))):>_:*(gain):stage2;
+process = stage1:_<:((+:_<:_ ,( delayed:*(level)) :>_)~(*(feedback): highpass(1,120):lowpass(1,12000))):>_:*(gain):stage2;

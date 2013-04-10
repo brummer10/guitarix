@@ -34,21 +34,25 @@ private:
 	double 	fConst15;
 	double 	fConst16;
 	double 	fConst17;
-	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT	*fslider1_;
 	double 	fConst18;
-	double 	fVec1[2];
 	double 	fConst19;
 	double 	fConst20;
+	FAUSTFLOAT 	fslider1;
+	FAUSTFLOAT	*fslider1_;
+	double 	fConst21;
+	double 	fVec1[2];
+	double 	fConst22;
+	double 	fConst23;
 	double 	fRec10[2];
+	double 	fConst24;
 	double 	fRec9[2];
 	int 	IOTA;
 	double 	fVec2[262144];
-	double 	fConst21;
-	double 	fConst22;
+	double 	fConst25;
+	double 	fConst26;
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
-	double 	fConst23;
+	double 	fConst27;
 	double 	fRec11[2];
 	double 	fRec12[2];
 	double 	fRec13[2];
@@ -141,17 +145,21 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst11 = (0 - fConst4);
 	fConst12 = (0.025 / fConst5);
 	fConst13 = (1.0 / fConst2);
-	fConst14 = tan((376.99111843077515 / iConst0));
-	fConst15 = (1.0 / fConst14);
-	fConst16 = (1 + fConst15);
-	fConst17 = (0 - ((1 - fConst15) / fConst16));
-	fConst18 = (0.1 / fConst14);
-	fConst19 = (0 - fConst15);
-	fConst20 = (1.0 / fConst16);
+	fConst14 = (1.0 / tan((37699.11184307752 / iConst0)));
+	fConst15 = (1 + fConst14);
+	fConst16 = (0 - ((1 - fConst14) / fConst15));
+	fConst17 = tan((376.99111843077515 / iConst0));
+	fConst18 = (1.0 / fConst17);
+	fConst19 = (1 + fConst18);
+	fConst20 = (0 - ((1 - fConst18) / fConst19));
+	fConst21 = (0.1 / fConst17);
+	fConst22 = (0 - fConst18);
+	fConst23 = (1.0 / fConst19);
+	fConst24 = (1.0 / fConst15);
 	IOTA = 0;
-	fConst21 = (1e+01 / iConst0);
-	fConst22 = (0 - fConst21);
-	fConst23 = (0.001 * iConst0);
+	fConst25 = (1e+01 / iConst0);
+	fConst26 = (0 - fConst25);
+	fConst27 = (0.001 * iConst0);
 	clear_state_f();
 }
 
@@ -168,9 +176,9 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 #define fslider3 (*fslider3_)
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
 	double 	fSlow1 = fslider1;
-	double 	fSlow2 = (fConst18 * fSlow1);
+	double 	fSlow2 = (fConst21 * fSlow1);
 	double 	fSlow3 = (0.1 * fSlow1);
-	double 	fSlow4 = (fConst23 * fslider2);
+	double 	fSlow4 = (fConst27 * fslider2);
 	double 	fSlow5 = (0.1 * fslider3);
 	for (int i=0; i<count; i++) {
 		fRec3[0] = (fSlow0 + (0.999 * fRec3[1]));
@@ -181,11 +189,11 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec6[0] = ((fConst12 * ((fConst11 * fRec7[1]) + (fConst4 * fRec7[0]))) + (fConst6 * fRec6[1]));
 		fRec5[0] = ((fConst13 * (fRec6[0] + fRec6[1])) + (fConst3 * fRec5[1]));
 		fVec1[0] = (fSlow3 * fRec4[1]);
-		fRec10[0] = ((fConst20 * ((fConst19 * fVec1[1]) + (fSlow2 * fRec4[1]))) + (fConst17 * fRec10[1]));
-		fRec9[0] = ((fConst13 * (fRec10[0] + fRec10[1])) + (fConst3 * fRec9[1]));
+		fRec10[0] = ((fConst23 * ((fConst22 * fVec1[1]) + (fSlow2 * fRec4[1]))) + (fConst20 * fRec10[1]));
+		fRec9[0] = ((fConst24 * (fRec10[0] + fRec10[1])) + (fConst16 * fRec9[1]));
 		double fTemp1 = (fRec9[0] + fRec5[0]);
 		fVec2[IOTA&262143] = fTemp1;
-		double fTemp2 = ((int((fRec11[1] != 0.0)))?((int(((fRec12[1] > 0.0) & (fRec12[1] < 1.0))))?fRec11[1]:0):((int(((fRec12[1] == 0.0) & (fSlow4 != fRec13[1]))))?fConst21:((int(((fRec12[1] == 1.0) & (fSlow4 != fRec14[1]))))?fConst22:0)));
+		double fTemp2 = ((int((fRec11[1] != 0.0)))?((int(((fRec12[1] > 0.0) & (fRec12[1] < 1.0))))?fRec11[1]:0):((int(((fRec12[1] == 0.0) & (fSlow4 != fRec13[1]))))?fConst25:((int(((fRec12[1] == 1.0) & (fSlow4 != fRec14[1]))))?fConst26:0)));
 		fRec11[0] = fTemp2;
 		fRec12[0] = max(0.0, min(1.0, (fRec12[1] + fTemp2)));
 		fRec13[0] = ((int(((fRec12[1] >= 1.0) & (fRec14[1] != fSlow4))))?fSlow4:fRec13[1]);
@@ -240,7 +248,7 @@ void Dsp::connect(uint32_t port,void* data)
 		fslider3_ = (float*)data; // , 0.0, 0.0, 1e+01, 0.1 
 		break;
 	case DELAY: 
-		fslider2_ = (float*)data; // , 0.0, 0.0, 5e+03, 0.1 
+		fslider2_ = (float*)data; // , 0.0, 0.1, 5e+03, 0.1 
 		break;
 	case FEEDBACK: 
 		fslider1_ = (float*)data; // , 0.0, 0.0, 1e+01, 0.1 

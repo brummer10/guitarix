@@ -51,7 +51,7 @@ Widget::Widget(Glib::ustring plug_name)
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
 
   // create all controllers
-  make_controller_box(&m_vbox, &m_bigknob, "delay", 0, 5000, 0, gain, plug_name);
+  make_controller_box(&m_vbox, &m_bigknob, "delay", 0.1, 5000, 0, gain, plug_name);
   m_bigknob.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob_value_changed));
   

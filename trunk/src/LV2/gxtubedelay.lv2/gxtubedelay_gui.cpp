@@ -95,7 +95,7 @@ void GxTubeDelayGUI::set_skin()
                  "\n"
                  "style 'gx_head_tubedelay_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#dddddd' \n"
+                 "    fg[NORMAL] = '#97823f' \n"
                  " }\n";
   toparse +=     addKnob;
 

@@ -71,8 +71,8 @@
         lv2:index 2 ;
         lv2:symbol "fslider2_" ;
         lv2:name "delay";
-        lv2:default 0.0 ;
-        lv2:minimum 0.0 ;
+        lv2:default 0.1 ;
+        lv2:minimum 0.1 ;
         lv2:maximum 5000.0 ;
     ] , [
         a lv2:InputPort ,
