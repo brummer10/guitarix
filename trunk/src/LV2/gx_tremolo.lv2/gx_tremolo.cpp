@@ -42,6 +42,7 @@ public:
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
+  inline void deactivate_f();
   Gx_tremolo();
   ~Gx_tremolo();
 };
@@ -94,6 +95,14 @@ void Gx_tremolo::activate_f()
   // check if the function is valid
   if (tremolo_st->activate_plugin !=0)
     tremolo_st->activate_plugin(true, tremolo_st);
+}
+
+void Gx_tremolo::deactivate_f()
+{
+  // allocate the internal DSP mem
+  // check if the function is valid
+  if (tremolo_st->activate_plugin !=0)
+    tremolo_st->activate_plugin(false, tremolo_st);
 }
 
 void Gx_tremolo::clean_up()
@@ -162,6 +171,13 @@ run(LV2_Handle instance, uint32_t n_samples)
 }
 
 static void
+deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gx_tremolo*>(instance)->deactivate_f();
+}
+
+static void
 cleanup(LV2_Handle instance)
 {
   // well, clean up after us
@@ -179,7 +195,7 @@ static const LV2_Descriptor descriptor =
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };

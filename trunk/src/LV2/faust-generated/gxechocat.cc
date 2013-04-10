@@ -64,7 +64,7 @@ private:
 	double 	fConst38;
 	double 	fRec7[3];
 	int 	IOTA;
-	double 	fVec4[524288];
+	double *fVec4;
 	double 	fConst39;
 	double 	fConst40;
 	double 	fConst41;
@@ -109,12 +109,17 @@ private:
 	double 	fRec0[3];
 	FAUSTFLOAT 	fslider3;
 	FAUSTFLOAT	*fslider3_;
+	bool mem_allocated;
+	void mem_alloc();
+	void mem_free();
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
+	int activate(bool start);
 	void init(uint32_t samplingFreq);
 	void compute(int count, float *input0, float *output0);
 
 	static void clear_state_f_static(PluginLV2*);
+	static int activate_static(bool start, PluginLV2*);
 	static void init_static(uint32_t samplingFreq, PluginLV2*);
 	static void compute_static(int count, float *input0, float *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
@@ -127,14 +132,16 @@ public:
 
 
 Dsp::Dsp()
-	: PluginLV2() {
+	: PluginLV2(),
+	  fVec4(0),
+	  mem_allocated(false) {
 	version = PLUGINLV2_VERSION;
 	id = "gxechocat";
 	name = N_("Tape Delay");
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
-	activate_plugin = 0;
+	activate_plugin = activate_static;
 	connect_ports = connect_static;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
@@ -242,12 +249,41 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst43 = (1.5 * iConst0);
 	fConst44 = (3.0 * iConst0);
 	fConst45 = (1.0 / (fConst5 * fConst12));
-	clear_state_f();
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+void Dsp::mem_alloc()
+{
+	if (!fVec4) fVec4 = new double[524288];
+	mem_allocated = true;
+}
+
+void Dsp::mem_free()
+{
+	mem_allocated = false;
+	if (fVec4) { delete fVec4; fVec4 = 0; }
+}
+
+int Dsp::activate(bool start)
+{
+	if (start) {
+		if (!mem_allocated) {
+			mem_alloc();
+			clear_state_f();
+		}
+	} else if (!mem_allocated) {
+		mem_free();
+	}
+	return 0;
+}
+
+int Dsp::activate_static(bool start, PluginLV2 *p)
+{
+	return static_cast<Dsp*>(p)->activate(start);
 }
 
 inline void Dsp::compute(int count, float *input0, float *output0)

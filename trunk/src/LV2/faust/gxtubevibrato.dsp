@@ -32,8 +32,8 @@ vibrato = ((( lfo + 1 ) *5)+5)*depth with {
 	depth = vslider("depth[style:knob]",0.5,0,1,0.01) ;
 };
 
-delayed  = sdelay(N, interp, vibrato*SR/1000.0) with{
-	N 		= int(2^19);  
+delayed  = sdelay(65536, interp, vibrato*SR/1000.0) with{
+	N 		= int(2^12); //65536
 	interp = 100.0 *SR/1000.0;
 //	interp 	= hslider("interpolation[unit:ms][style:knob]",10,1,100,0.1)*SR/1000.0; 
 	dtime	= hslider("delay[unit:ms][style:knob]", 0, 0, 14, 0.1)*SR/1000.0;

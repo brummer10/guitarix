@@ -47,6 +47,7 @@ public:
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
+  inline void deactivate_f();
   Gxechocat();
   ~Gxechocat();
 };
@@ -114,6 +115,13 @@ void Gxechocat::clean_up()
     echocat->activate_plugin(false, echocat);
 }
 
+void Gxechocat::deactivate_f()
+{  
+  // delete the internal DSP mem
+  if (echocat->activate_plugin !=0)
+    echocat->activate_plugin(false, echocat);
+}
+
 void Gxechocat::run_dsp_mono(uint32_t n_samples)
 {
 #ifndef __SSE__
@@ -175,6 +183,13 @@ run(LV2_Handle instance, uint32_t n_samples)
 }
 
 static void
+deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gxechocat*>(instance)->deactivate_f();
+}
+
+static void
 cleanup(LV2_Handle instance)
 {
   // well, clean up after us
@@ -192,7 +207,7 @@ static const LV2_Descriptor descriptor =
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };

@@ -47,6 +47,7 @@ public:
   inline void init_dsp_mono(uint32_t rate);
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
+  inline void deactivate_f();
   inline void clean_up();
   Gxtubevibrato();
   ~Gxtubevibrato();
@@ -63,7 +64,8 @@ Gxtubevibrato::~Gxtubevibrato()
 {
   // just to be sure the plug have given free the allocated mem
   // it didn't hurd if the mem is already given free by clean_up()
-  //tubevib->activate_plugin(false, tubevib);
+  if (tubevib->activate_plugin !=0)
+    tubevib->activate_plugin(false, tubevib);
   // delete DSP class
   tubevib->delete_instance(tubevib);
 };
@@ -99,7 +101,8 @@ void Gxtubevibrato::connect_mono(uint32_t port,void* data)
 void Gxtubevibrato::activate_f()
 {
   // allocate the internal DSP mem
-//  tubevib->activate_plugin(true, tubevib);
+  if (tubevib->activate_plugin !=0)
+    tubevib->activate_plugin(true, tubevib);
 }
 
 void Gxtubevibrato::clean_up()
@@ -108,7 +111,15 @@ void Gxtubevibrato::clean_up()
   wn->delete_instance(wn);;
 #endif
   // delete the internal DSP mem
- // tubevib->activate_plugin(false, tubevib);
+  if (tubevib->activate_plugin !=0)
+    tubevib->activate_plugin(false, tubevib);
+}
+
+void Gxtubevibrato::deactivate_f()
+{ 
+  // delete the internal DSP mem
+  if (tubevib->activate_plugin !=0)
+    tubevib->activate_plugin(false, tubevib);
 }
 
 void Gxtubevibrato::run_dsp_mono(uint32_t n_samples)
@@ -161,7 +172,7 @@ static void
 activate(LV2_Handle instance)
 {
   // allocate needed mem
- // static_cast<Gxtubevibrato*>(instance)->activate_f();
+  static_cast<Gxtubevibrato*>(instance)->activate_f();
 }
 
 static void
@@ -169,6 +180,13 @@ run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
   static_cast<Gxtubevibrato*>(instance)->run_dsp_mono(n_samples);
+}
+
+static void
+deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gxtubevibrato*>(instance)->deactivate_f();
 }
 
 static void
@@ -189,7 +207,7 @@ static const LV2_Descriptor descriptor =
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };

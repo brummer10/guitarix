@@ -44,6 +44,7 @@ public:
   inline void connect_all_stereo_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
+  inline void deactivate_f();
   Gx_delay_stereo();
   ~Gx_delay_stereo();
 };
@@ -105,6 +106,13 @@ void Gx_delay_stereo::activate_f()
 }
 
 void Gx_delay_stereo::clean_up()
+{
+  // delete the internal DSP mem
+  if (delay_st->activate_plugin !=0)
+    delay_st->activate_plugin(false, delay_st);
+}
+
+void Gx_delay_stereo::deactivate_f()
 {
   // delete the internal DSP mem
   if (delay_st->activate_plugin !=0)
@@ -177,6 +185,13 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
+static void
+deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gx_delay_stereo*>(instance)->deactivate_f();
+}
+
 ///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
 
 static const LV2_Descriptor descriptor =
@@ -186,7 +201,7 @@ static const LV2_Descriptor descriptor =
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };

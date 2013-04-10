@@ -32,13 +32,22 @@ def build(bld):
         'vibe_mono_lfo_sine.dsp',
         'vibe_lfo_sine.dsp',
         ]
-
+    
+    # activate mem allocation internal float
     sources_plugin_float = [
         'echo.dsp',
         'delay.dsp',
         'chorus.dsp',
         'stereodelay.dsp',
         'stereoecho.dsp',
+        ]
+
+    # activate mem allocation internal double
+    sources_plugin_init = [
+        'gxtubedelay.dsp',
+        'gxtubevibrato.dsp',
+        'gxechocat.dsp',
+        
         ]
 
     sources_plugin = [
@@ -78,12 +87,9 @@ def build(bld):
         'gx_zita_rev1.dsp',
         'gx_flanger.dsp',
         'gxtilttone.dsp',
-        'gxtubevibrato.dsp',
         'gxtubetremelo.dsp',
-        'gxtubedelay.dsp',
         'gx_studiopre.dsp',
         'gx_studiopre_st.dsp',
-        'gxechocat.dsp',
 
         # tone stacks
         'tonestack_default.dsp',
@@ -200,6 +206,11 @@ def build(bld):
             source = sources_plugin,
             proc = "../tools/dsp2cc",
             proc_args = arg+["--init-type=plugin-lv2"],
+            )
+        bld.new_task_gen(
+            source = sources_plugin_init,
+            proc = "../tools/dsp2cc",
+            proc_args = arg+["-s","40000","--init-type=plugin-lv2"],
             )
         bld.new_task_gen(
             source = sources_plugin_float,

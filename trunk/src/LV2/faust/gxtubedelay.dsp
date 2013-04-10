@@ -22,8 +22,8 @@ stage2 = tubestage(TB_12AX7_250k,2.1,1500.0,1.204285) :lowpass( 1, 6531 ); //  G
 interp = 100*SR/1000.0;
 
 // for a 5 sec delay, mem size of 262144 will be enough
-//N = int( 2^19 ) ;
-delayed = sdelay(262144, interp, dtime) ;
+N = int( 2^18 ) ;
+delayed = sdelay(N, interp, dtime) ;
 
 // added a delay bypass output to get a real tape delay,
 // and a low/highpass filter section in the feedback loop

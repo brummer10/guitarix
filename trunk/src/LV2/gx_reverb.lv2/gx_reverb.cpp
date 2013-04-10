@@ -44,6 +44,7 @@ public:
   inline void connect_all_stereo_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
+  inline void deactivate_f();
   Gx_reverb_stereo();
   ~Gx_reverb_stereo();
 };
@@ -105,9 +106,17 @@ void Gx_reverb_stereo::activate_f()
     reverb_st->activate_plugin(true, reverb_st);
 }
 
+void Gx_reverb_stereo::deactivate_f()
+{
+  // free the internal DSP mem
+  // check if the function is valid
+  if (reverb_st->activate_plugin !=0)
+    reverb_st->activate_plugin(false, reverb_st);
+}
+
 void Gx_reverb_stereo::clean_up()
 {
-  // allocate the internal DSP mem
+  // free the internal DSP mem
   // check if the function is valid
   if (reverb_st->activate_plugin !=0)
     reverb_st->activate_plugin(false, reverb_st);
@@ -162,6 +171,12 @@ activate(LV2_Handle instance)
   // allocate needed mem
   static_cast<Gx_reverb_stereo*>(instance)->activate_f();
 }
+static void
+deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gx_reverb_stereo*>(instance)->deactivate_f();
+}
 
 static void
 run(LV2_Handle instance, uint32_t n_samples)
@@ -188,7 +203,7 @@ static const LV2_Descriptor descriptor =
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };

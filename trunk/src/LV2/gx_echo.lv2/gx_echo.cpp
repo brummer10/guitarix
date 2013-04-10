@@ -44,6 +44,7 @@ public:
   inline void connect_all_stereo_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
+  inline void deactivate_f();
   Gx_echo_stereo();
   ~Gx_echo_stereo();
 };
@@ -102,6 +103,13 @@ void Gx_echo_stereo::activate_f()
   // allocate the internal DSP mem
   if (echo_st->activate_plugin !=0)
     echo_st->activate_plugin(true, echo_st);
+}
+
+void Gx_echo_stereo::deactivate_f()
+{
+  // delete the internal DSP mem
+  if (echo_st->activate_plugin !=0)
+    echo_st->activate_plugin(false, echo_st);
 }
 
 void Gx_echo_stereo::clean_up()
@@ -169,6 +177,13 @@ run(LV2_Handle instance, uint32_t n_samples)
 }
 
 static void
+deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gx_echo_stereo*>(instance)->deactivate_f();
+}
+
+static void
 cleanup(LV2_Handle instance)
 {
   // well, clean up after us
@@ -186,7 +201,7 @@ static const LV2_Descriptor descriptor =
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };

@@ -44,6 +44,7 @@ public:
   inline void connect_all_stereo_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
+  inline void deactivate_f();
   Gx_chorus_stereo();
   ~Gx_chorus_stereo();
 };
@@ -109,6 +110,13 @@ void Gx_chorus_stereo::clean_up()
     chorus_st->activate_plugin(false, chorus_st);
 }
 
+void Gx_chorus_stereo::deactivate_f()
+{
+  // delete the internal DSP mem
+  if (chorus_st->activate_plugin !=0)
+    chorus_st->activate_plugin(false, chorus_st);
+}
+
 void Gx_chorus_stereo::run_dsp_stereo(uint32_t n_samples)
 {
   chorus_st->stereo_audio(static_cast<int>(n_samples), input, input1,
@@ -167,6 +175,13 @@ run(LV2_Handle instance, uint32_t n_samples)
 }
 
 static void
+deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gx_chorus_stereo*>(instance)->deactivate_f();
+}
+
+static void
 cleanup(LV2_Handle instance)
 {
   // well, clean up after us
@@ -184,7 +199,7 @@ static const LV2_Descriptor descriptor =
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };

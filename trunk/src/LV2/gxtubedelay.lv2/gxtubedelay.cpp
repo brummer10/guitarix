@@ -42,12 +42,13 @@ private:
 #endif
 public:
 
-  void clean();
+  inline void clean();
   inline void run_dsp_mono(uint32_t n_samples);
-  void connect_mono(uint32_t port,void* data);
+  inline void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate);
   inline void connect_all_mono_ports(uint32_t port, void* data);
-  void activate_f();
+  inline void activate_f();
+  inline void deactivate_f();
    // constructor
   GxTubeDelay() :
     output(NULL),
@@ -56,6 +57,12 @@ public:
   // destructor
   ~GxTubeDelay()
   {
+#ifndef __SSE__
+    wn->delete_instance(wn);;
+#endif
+    if (tubedelay->activate_plugin !=0)
+      tubedelay->activate_plugin(false, tubedelay);
+    tubedelay->delete_instance(tubedelay);
   };
 };
 
@@ -91,7 +98,16 @@ void GxTubeDelay::connect_mono(uint32_t port,void* data)
 void GxTubeDelay::activate_f()
 {
 //   std::cout << "activate_f" << std::endl;
-    tubedelay->clear_state(tubedelay);
+  if (tubedelay->activate_plugin !=0)
+    tubedelay->activate_plugin(true, tubedelay);
+  tubedelay->clear_state(tubedelay);
+}
+
+void GxTubeDelay::deactivate_f()
+{
+//   std::cout << "activate_f" << std::endl;
+  if (tubedelay->activate_plugin !=0)
+    tubedelay->activate_plugin(false, tubedelay);
 }
 
 void GxTubeDelay::run_dsp_mono(uint32_t n_samples)
@@ -113,10 +129,8 @@ void GxTubeDelay::connect_all_mono_ports(uint32_t port, void* data)
 
 void GxTubeDelay::clean()
 {
-#ifndef __SSE__
-  wn->delete_instance(wn);;
-#endif
-  tubedelay->delete_instance(tubedelay);
+  if (tubedelay->activate_plugin !=0)
+    tubedelay->activate_plugin(false, tubedelay);
 }
 
 
@@ -145,21 +159,27 @@ connect_port(LV2_Handle instance,
              uint32_t   port,
              void*      data)
 {
-  GxTubeDelay* self = (GxTubeDelay*)instance;
-  self->connect_all_mono_ports(port, data);
+  static_cast<GxTubeDelay*>(instance)->connect_all_mono_ports(port, data);
 }
 
 static void
 activate(LV2_Handle instance)
 {
- 
+   // allocate needed mem
+  static_cast<GxTubeDelay*>(instance)->activate_f();
 }
 
 static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
-  GxTubeDelay* self = (GxTubeDelay*)instance;
-  self->run_dsp_mono(n_samples);
+  static_cast<GxTubeDelay*>(instance)->run_dsp_mono(n_samples);
+}
+
+static void
+deactivate(LV2_Handle instance)
+{
+   // free allocated mem
+  static_cast<GxTubeDelay*>(instance)->deactivate_f();
 }
 
 static void
@@ -179,7 +199,7 @@ static const LV2_Descriptor descriptor =
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };

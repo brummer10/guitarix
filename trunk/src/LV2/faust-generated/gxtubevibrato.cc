@@ -26,7 +26,7 @@ private:
 	double 	fConst11;
 	double 	fConst12;
 	int 	IOTA;
-	double 	fRec3[524288];
+	double *fRec3;
 	double 	fConst13;
 	double 	fConst14;
 	FAUSTFLOAT 	fslider0;
@@ -61,12 +61,17 @@ private:
 	double 	fRec16[2];
 	double 	fRec1[2];
 	double 	fRec0[2];
+	bool mem_allocated;
+	void mem_alloc();
+	void mem_free();
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
+	int activate(bool start);
 	void init(uint32_t samplingFreq);
 	void compute(int count, float *input0, float *output0);
 
 	static void clear_state_f_static(PluginLV2*);
+	static int activate_static(bool start, PluginLV2*);
 	static void init_static(uint32_t samplingFreq, PluginLV2*);
 	static void compute_static(int count, float *input0, float *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
@@ -79,14 +84,16 @@ public:
 
 
 Dsp::Dsp()
-	: PluginLV2() {
+	: PluginLV2(),
+	  fRec3(0),
+	  mem_allocated(false) {
 	version = PLUGINLV2_VERSION;
 	id = "gxtubevibrato";
 	name = "?gxtubevibrato";
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
-	activate_plugin = 0;
+	activate_plugin = activate_static;
 	connect_ports = connect_static;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
@@ -101,7 +108,7 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) fVec1[i] = 0;
 	for (int i=0; i<2; i++) fRec5[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<524288; i++) fRec3[i] = 0;
+	for (int i=0; i<65536; i++) fRec3[i] = 0;
 	for (int i=0; i<2; i++) iRec11[i] = 0;
 	for (int i=0; i<2; i++) iRec10[i] = 0;
 	for (int i=0; i<2; i++) fRec14[i] = 0;
@@ -152,12 +159,41 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst20 = (1 + fConst19);
 	fConst21 = (0 - ((1 - fConst19) / fConst20));
 	fConst22 = (1.0 / fConst20);
-	clear_state_f();
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+void Dsp::mem_alloc()
+{
+	if (!fRec3) fRec3 = new double[65536];
+	mem_allocated = true;
+}
+
+void Dsp::mem_free()
+{
+	mem_allocated = false;
+	if (fRec3) { delete fRec3; fRec3 = 0; }
+}
+
+int Dsp::activate(bool start)
+{
+	if (start) {
+		if (!mem_allocated) {
+			mem_alloc();
+			clear_state_f();
+		}
+	} else if (!mem_allocated) {
+		mem_free();
+	}
+	return 0;
+}
+
+int Dsp::activate_static(bool start, PluginLV2 *p)
+{
+	return static_cast<Dsp*>(p)->activate(start);
 }
 
 inline void Dsp::compute(int count, float *input0, float *output0)
@@ -179,7 +215,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fVec1[0] = fTemp0;
 		fRec5[0] = ((fConst10 * (fVec1[0] + fVec1[1])) + (fConst9 * fRec5[1]));
 		fRec4[0] = (Ftube(TUBE_TABLE_12AX7_68k, (((double)input0[i] + fRec5[0]) - 1.204540999999999)) - 169.69726666666665);
-		fRec3[IOTA&524287] = ((fConst3 * fRec3[(IOTA-1)&524287]) + (fConst12 * ((fConst11 * fRec4[1]) + (fConst1 * fRec4[0]))));
+		fRec3[IOTA&65535] = ((fConst12 * ((fConst11 * fRec4[1]) + (fConst1 * fRec4[0]))) + (fConst3 * fRec3[(IOTA-1)&65535]));
 		iRec11[0] = ((int((iRec11[1] > 0)))?((2 * (iRec10[1] < iSlow1)) - 1):(1 - (2 * (iRec10[1] > 0))));
 		iRec10[0] = (iRec11[0] + iRec10[1]);
 		fRec14[0] = ((fSlow3 * (0 - fRec12[1])) + fRec14[1]);
@@ -192,7 +228,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec8[0] = ((int(((fRec7[1] >= 1.0) & (fRec9[1] != fTemp1))))?fTemp1:fRec8[1]);
 		fRec9[0] = ((int(((fRec7[1] <= 0.0) & (fRec8[1] != fTemp1))))?fTemp1:fRec9[1]);
 		fRec15[0] = (fSlow6 + (0.999 * fRec15[1]));
-		double fTemp3 = (fRec15[0] * ((fRec7[0] * fRec3[(IOTA-int((int(fRec9[0]) & 524287)))&524287]) + ((1.0 - fRec7[0]) * fRec3[(IOTA-int((int(fRec8[0]) & 524287)))&524287])));
+		double fTemp3 = (fRec15[0] * ((fRec7[0] * fRec3[(IOTA-int((int(fRec9[0]) & 65535)))&65535]) + ((1.0 - fRec7[0]) * fRec3[(IOTA-int((int(fRec8[0]) & 65535)))&65535])));
 		fVec2[0] = fTemp3;
 		fRec2[0] = ((fConst18 * (fVec2[0] + fVec2[1])) + (fConst6 * fRec2[1]));
 		double fTemp4 = (1e-15 + (0.015 * fRec1[1]));
