@@ -20,7 +20,13 @@ stage1 = tubestage(TB_12AX7_68k,2.1,1500.0,1.204541):lowpass( 1, 6531 ) ; // Gai
 stage2 = tubestage(TB_12AX7_250k,2.1,1500.0,1.204285) :lowpass( 1, 6531 ); //  Gain 2.41 2nd -34.34 3rd -23.36
 
 interp = 100*SR/1000.0;
-N = int( 2^19 ) ;
-delayed = sdelay(N, interp, dtime) ;
 
-process = stage1:(+:_<:_ ,( delayed:*(level)) :>_)~*(feedback):*(gain):stage2;
+// for a 5 sec delay, mem size of 262144 will be enough
+//N = int( 2^19 ) ;
+delayed = sdelay(262144, interp, dtime) ;
+
+// added a delay bypass output to get a real tape delay,
+// and a low/highpass filter section in the feedback loop
+// to avoid self oscillation
+
+process = stage1:_<:((+:_<:_ ,( delayed:*(level)) :>_)~(*(feedback): highpass(1,120):lowpass(1,6531))):>_:*(gain):stage2;

@@ -51,15 +51,15 @@ Widget::Widget(Glib::ustring plug_name)
   m_vbox_.pack_start(m_hbox_,Gtk::PACK_SHRINK);
 
   // create all controllers
-  make_controller_box(&m_vbox, &m_bigknob, "delay", 0, 2000, 0, gain, plug_name);
+  make_controller_box(&m_vbox, &m_bigknob, "delay", 0, 5000, 0, gain, plug_name);
   m_bigknob.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob_value_changed));
   
-  make_controller_box(&m_vbox1, &m_bigknob1, "feedback", -60, 0, 1, feedback, plug_name);
+  make_controller_box(&m_vbox1, &m_bigknob1, "feedback", 0, 10, 1, feedback, plug_name);
   m_bigknob1.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob1_value_changed));
 
-  make_controller_box(&m_vbox2, &m_bigknob2, "level", -60, 0, 0.1, level, plug_name);
+  make_controller_box(&m_vbox2, &m_bigknob2, "level", 0, 10, 0.1, level, plug_name);
   m_bigknob2.signal_value_changed().connect(sigc::mem_fun(*this,
       &Widget::on_knob2_value_changed));
   
