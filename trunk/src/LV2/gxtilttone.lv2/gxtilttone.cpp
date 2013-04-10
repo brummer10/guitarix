@@ -27,6 +27,7 @@
 #ifndef __SSE__
 #include "noiser.cc"
 #endif
+
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
 class Gxtilttone
@@ -39,14 +40,26 @@ private:
 #ifndef __SSE__
   PluginLV2*                   wn;
 #endif
-public:
 
   inline void run_dsp_mono(uint32_t n_samples);
   inline void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate);
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
+  inline void deactivate_f();
   inline void clean_up();
+public:
+  // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gxtilttone();
   ~Gxtilttone();
 };
@@ -62,12 +75,13 @@ Gxtilttone::~Gxtilttone()
 {
   // just to be sure the plug have given free the allocated mem
   // it didn't hurd if the mem is already given free by clean_up()
-  //tilttone->activate_plugin(false, tilttone);
+  if (tilttone->activate_plugin !=0)
+    tilttone->activate_plugin(false, tilttone);
   // delete DSP class
   tilttone->delete_instance(tilttone);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
 void Gxtilttone::init_dsp_mono(uint32_t rate)
 {
@@ -98,7 +112,8 @@ void Gxtilttone::connect_mono(uint32_t port,void* data)
 void Gxtilttone::activate_f()
 {
   // allocate the internal DSP mem
-//  tilttone->activate_plugin(true, tilttone);
+  if (tilttone->activate_plugin !=0)
+    tilttone->activate_plugin(true, tilttone);
 }
 
 void Gxtilttone::clean_up()
@@ -107,7 +122,15 @@ void Gxtilttone::clean_up()
   wn->delete_instance(wn);;
 #endif
   // delete the internal DSP mem
- // tilttone->activate_plugin(false, tilttone);
+  if (tilttone->activate_plugin !=0)
+    tilttone->activate_plugin(false, tilttone);
+}
+
+void Gxtilttone::deactivate_f()
+{ 
+  // delete the internal DSP mem
+  if (tilttone->activate_plugin !=0)
+    tilttone->activate_plugin(false, tilttone);
 }
 
 void Gxtilttone::run_dsp_mono(uint32_t n_samples)
@@ -127,10 +150,10 @@ void Gxtilttone::connect_all_mono_ports(uint32_t port, void* data)
   tilttone->connect_ports(port,  data, tilttone);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
+LV2_Handle
+Gxtilttone::instantiate(const LV2_Descriptor*     descriptor,
             double                    rate,
             const char*               bundle_path,
             const LV2_Feature* const* features)
@@ -147,31 +170,33 @@ instantiate(const LV2_Descriptor*     descriptor,
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+void Gxtilttone::connect_port(LV2_Handle instance,
+                                uint32_t   port,
+                                void*      data)
 {
   // connect all ports
   static_cast<Gxtilttone*>(instance)->connect_all_mono_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gxtilttone::activate(LV2_Handle instance)
 {
   // allocate needed mem
- // static_cast<Gxtilttone*>(instance)->activate_f();
+  static_cast<Gxtilttone*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gxtilttone::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
   static_cast<Gxtilttone*>(instance)->run_dsp_mono(n_samples);
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gxtilttone::deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gxtilttone*>(instance)->deactivate_f();
+}
+
+void Gxtilttone::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gxtilttone* self = static_cast<Gxtilttone*>(instance);
@@ -179,19 +204,19 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gxtilttone::descriptor =
 {
   GXPLUGIN_URI "#tilttone",
   instantiate,
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };
+
+///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
 
 extern "C"
 LV2_SYMBOL_EXPORT
@@ -201,7 +226,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gxtilttone::descriptor;
     default:
       return NULL;
     }

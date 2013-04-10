@@ -42,7 +42,6 @@ private:
 #ifndef __SSE__
   PluginLV2*                   wn;
 #endif
-public:
 
   inline void run_dsp_stereo(uint32_t n_samples);
   inline void connect_stereo(uint32_t port,void* data);
@@ -50,6 +49,20 @@ public:
   inline void connect_all_stereo_ports(uint32_t port, void* data);
   inline void activate_f();
   inline void clean_up();
+  inline void deactivate_f();
+  
+public:
+    // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gx_studiopre_st();
   ~Gx_studiopre_st();
 };
@@ -67,12 +80,13 @@ Gx_studiopre_st::~Gx_studiopre_st()
 {
   // just to be sure the plug have given free the allocated mem
   // it didn't hurd if the mem is already given free by clean_up()
-  //studiopre_stereo->activate_plugin(false, studiopre_stereo);
+  if (studiopre_stereo->activate_plugin !=0)
+    studiopre_stereo->activate_plugin(false, studiopre_stereo);
   // delete DSP class
   studiopre_stereo->delete_instance(studiopre_stereo);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
 void Gx_studiopre_st::init_dsp_stereo(uint32_t rate)
 {
@@ -110,7 +124,8 @@ void Gx_studiopre_st::connect_stereo(uint32_t port,void* data)
 void Gx_studiopre_st::activate_f()
 {
   // allocate the internal DSP mem
-    //studiopre_stereo->activate_plugin(true, studiopre_stereo);
+ if (studiopre_stereo->activate_plugin !=0)
+    studiopre_stereo->activate_plugin(true, studiopre_stereo);
 }
 
 void Gx_studiopre_st::clean_up()
@@ -119,7 +134,15 @@ void Gx_studiopre_st::clean_up()
   wn->delete_instance(wn);;
 #endif
   // delete the internal DSP mem
-  //studiopre_stereo->activate_plugin(false, studiopre_stereo);
+  if (studiopre_stereo->activate_plugin !=0)
+    studiopre_stereo->activate_plugin(false, studiopre_stereo);
+}
+
+void Gx_studiopre_st::deactivate_f()
+{
+  // free allocated DSP mem
+  if (studiopre_stereo->activate_plugin !=0)
+    studiopre_stereo->activate_plugin(false, studiopre_stereo);
 }
 
 void Gx_studiopre_st::run_dsp_stereo(uint32_t n_samples)
@@ -139,13 +162,13 @@ void Gx_studiopre_st::connect_all_stereo_ports(uint32_t port, void* data)
   studiopre_stereo->connect_ports(port,  data, studiopre_stereo);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+//////////////////////// STATIC CLASS  FUNCTIONS ///////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
-            double                    rate,
-            const char*               bundle_path,
-            const LV2_Feature* const* features)
+LV2_Handle
+Gx_studiopre_st::instantiate(const LV2_Descriptor*     descriptor,
+                            double                    rate,
+                            const char*               bundle_path,
+                            const LV2_Feature* const* features)
 {
   // init the plug-in class
   Gx_studiopre_st *self = new Gx_studiopre_st();
@@ -158,34 +181,33 @@ instantiate(const LV2_Descriptor*     descriptor,
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
+void Gx_studiopre_st::connect_port(LV2_Handle instance,
              uint32_t   port,
              void*      data)
 {
   // connect all ports
-  
   static_cast<Gx_studiopre_st*>(instance)->connect_all_stereo_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gx_studiopre_st::activate(LV2_Handle instance)
 {
   // allocate needed mem
- 
   static_cast<Gx_studiopre_st*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gx_studiopre_st::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
-  
   static_cast<Gx_studiopre_st*>(instance)->run_dsp_stereo(n_samples);
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gx_studiopre_st::deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gx_studiopre_st*>(instance)->deactivate_f();
+}
+
+void Gx_studiopre_st::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gx_studiopre_st* self = static_cast<Gx_studiopre_st*>(instance);
@@ -193,9 +215,7 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gx_studiopre_st::descriptor =
 {
   GXPLUGIN_URI "#studiopre_st",
   instantiate,
@@ -207,6 +227,8 @@ static const LV2_Descriptor descriptor =
   NULL
 };
 
+///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
+
 extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
@@ -215,7 +237,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gx_studiopre_st::descriptor;
     default:
       return NULL;
     }

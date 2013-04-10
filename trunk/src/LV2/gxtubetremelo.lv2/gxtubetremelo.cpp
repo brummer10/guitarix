@@ -40,14 +40,26 @@ private:
 #ifndef __SSE__
   PluginLV2*                   wn;
 #endif
-public:
 
   inline void run_dsp_mono(uint32_t n_samples);
   inline void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate);
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
+  inline void deactivate_f();
   inline void clean_up();
+public:
+  // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gxtubetremelo();
   ~Gxtubetremelo();
 };
@@ -63,12 +75,13 @@ Gxtubetremelo::~Gxtubetremelo()
 {
   // just to be sure the plug have given free the allocated mem
   // it didn't hurd if the mem is already given free by clean_up()
-  //tubevib->activate_plugin(false, tubevib);
+  if (tubevib->activate_plugin !=0)
+    tubevib->activate_plugin(false, tubevib);
   // delete DSP class
   tubevib->delete_instance(tubevib);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
 void Gxtubetremelo::init_dsp_mono(uint32_t rate)
 {
@@ -99,7 +112,8 @@ void Gxtubetremelo::connect_mono(uint32_t port,void* data)
 void Gxtubetremelo::activate_f()
 {
   // allocate the internal DSP mem
-//  tubevib->activate_plugin(true, tubevib);
+  if (tubevib->activate_plugin !=0)
+    tubevib->activate_plugin(true, tubevib);
 }
 
 void Gxtubetremelo::clean_up()
@@ -108,7 +122,15 @@ void Gxtubetremelo::clean_up()
   wn->delete_instance(wn);;
 #endif
   // delete the internal DSP mem
- // tubevib->activate_plugin(false, tubevib);
+  if (tubevib->activate_plugin !=0)
+    tubevib->activate_plugin(false, tubevib);
+}
+
+void Gxtubetremelo::deactivate_f()
+{ 
+  // delete the internal DSP mem
+  if (tubevib->activate_plugin !=0)
+    tubevib->activate_plugin(false, tubevib);
 }
 
 void Gxtubetremelo::run_dsp_mono(uint32_t n_samples)
@@ -128,10 +150,10 @@ void Gxtubetremelo::connect_all_mono_ports(uint32_t port, void* data)
   tubevib->connect_ports(port,  data, tubevib);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
+LV2_Handle
+Gxtubetremelo::instantiate(const LV2_Descriptor*     descriptor,
             double                    rate,
             const char*               bundle_path,
             const LV2_Feature* const* features)
@@ -148,31 +170,33 @@ instantiate(const LV2_Descriptor*     descriptor,
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+void Gxtubetremelo::connect_port(LV2_Handle instance,
+                                uint32_t   port,
+                                void*      data)
 {
   // connect all ports
   static_cast<Gxtubetremelo*>(instance)->connect_all_mono_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gxtubetremelo::activate(LV2_Handle instance)
 {
   // allocate needed mem
- // static_cast<Gxtubetremelo*>(instance)->activate_f();
+  static_cast<Gxtubetremelo*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gxtubetremelo::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
   static_cast<Gxtubetremelo*>(instance)->run_dsp_mono(n_samples);
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gxtubetremelo::deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gxtubetremelo*>(instance)->deactivate_f();
+}
+
+void Gxtubetremelo::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gxtubetremelo* self = static_cast<Gxtubetremelo*>(instance);
@@ -180,19 +204,19 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gxtubetremelo::descriptor =
 {
   GXPLUGIN_URI "#tubetremelo",
   instantiate,
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };
+
+///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
 
 extern "C"
 LV2_SYMBOL_EXPORT
@@ -202,7 +226,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gxtubetremelo::descriptor;
     default:
       return NULL;
     }

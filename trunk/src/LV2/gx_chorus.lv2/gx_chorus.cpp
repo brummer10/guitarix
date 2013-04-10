@@ -30,14 +30,14 @@
 class Gx_chorus_stereo
 {
 private:
-  // internal stuff
-  float*                       output;
-  float*                       input;
-  float*                       output1;
-  float*                       input1;
-  PluginLV2*                   chorus_st;
-public:
-
+  // pointer to buffer
+  float*      output;
+  float*      input;
+  float*      output1;
+  float*      input1;
+  // pointer to dsp class
+  PluginLV2*  chorus_st;
+  // private functions
   inline void run_dsp_stereo(uint32_t n_samples);
   inline void connect_stereo(uint32_t port,void* data);
   inline void init_dsp_stereo(uint32_t rate);
@@ -45,6 +45,19 @@ public:
   inline void activate_f();
   inline void clean_up();
   inline void deactivate_f();
+
+public:
+  // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gx_chorus_stereo();
   ~Gx_chorus_stereo();
 };
@@ -53,6 +66,8 @@ public:
 Gx_chorus_stereo::Gx_chorus_stereo() :
   output(NULL),
   input(NULL),
+  output1(NULL),
+  input1(NULL),
   chorus_st(chorus::plugin()) {};
 
 // destructor
@@ -66,7 +81,7 @@ Gx_chorus_stereo::~Gx_chorus_stereo()
   chorus_st->delete_instance(chorus_st);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
 
 void Gx_chorus_stereo::init_dsp_stereo(uint32_t rate)
 {
@@ -131,13 +146,12 @@ void Gx_chorus_stereo::connect_all_stereo_ports(uint32_t port, void* data)
   chorus_st->connect_ports(port,  data, chorus_st);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+////////////////////// STATIC CLASS  FUNCTIONS  ////////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
-            double                    rate,
-            const char*               bundle_path,
-            const LV2_Feature* const* features)
+LV2_Handle 
+Gx_chorus_stereo::instantiate(const LV2_Descriptor* descriptor,
+                            double rate, const char* bundle_path,
+                            const LV2_Feature* const* features)
 {
   // init the plug-in class
   Gx_chorus_stereo *self = new Gx_chorus_stereo();
@@ -151,38 +165,32 @@ instantiate(const LV2_Descriptor*     descriptor,
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+void Gx_chorus_stereo::connect_port(LV2_Handle instance, 
+                                   uint32_t port, void* data)
 {
   // connect all ports
   static_cast<Gx_chorus_stereo*>(instance)->connect_all_stereo_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gx_chorus_stereo::activate(LV2_Handle instance)
 {
   // allocate needed mem
   static_cast<Gx_chorus_stereo*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gx_chorus_stereo::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
   static_cast<Gx_chorus_stereo*>(instance)->run_dsp_stereo(n_samples);
 }
 
-static void
-deactivate(LV2_Handle instance)
+void Gx_chorus_stereo::deactivate(LV2_Handle instance)
 {
   // free allocated mem
   static_cast<Gx_chorus_stereo*>(instance)->deactivate_f();
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gx_chorus_stereo::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gx_chorus_stereo* self = static_cast<Gx_chorus_stereo*>(instance);
@@ -190,19 +198,19 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gx_chorus_stereo::descriptor =
 {
   GXPLUGIN_URI "#_chorus_stereo",
-  instantiate,
-  connect_port,
-  activate,
-  run,
-  deactivate,
-  cleanup,
+  Gx_chorus_stereo::instantiate,
+  Gx_chorus_stereo::connect_port,
+  Gx_chorus_stereo::activate,
+  Gx_chorus_stereo::run,
+  Gx_chorus_stereo::deactivate,
+  Gx_chorus_stereo::cleanup,
   NULL
 };
+
+////////////////////////// LV2 SYMBOL EXPORT ///////////////////////////
 
 extern "C"
 LV2_SYMBOL_EXPORT
@@ -212,7 +220,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gx_chorus_stereo::descriptor;
     default:
       return NULL;
     }

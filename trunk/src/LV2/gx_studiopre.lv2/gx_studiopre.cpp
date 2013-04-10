@@ -27,6 +27,7 @@
 #ifndef __SSE__
 #include "noiser.cc"
 #endif
+
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
 class Gx_studiopre
@@ -39,14 +40,26 @@ private:
 #ifndef __SSE__
   PluginLV2*                   wn;
 #endif
-public:
 
   inline void run_dsp_mono(uint32_t n_samples);
   inline void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate);
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
+  inline void deactivate_f();
   inline void clean_up();
+public:
+  // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gx_studiopre();
   ~Gx_studiopre();
 };
@@ -62,12 +75,13 @@ Gx_studiopre::~Gx_studiopre()
 {
   // just to be sure the plug have given free the allocated mem
   // it didn't hurd if the mem is already given free by clean_up()
- // studiopre_mono->activate_plugin(false, studiopre_mono);
+  if (studiopre_mono->activate_plugin !=0)
+    studiopre_mono->activate_plugin(false, studiopre_mono);
   // delete DSP class
   studiopre_mono->delete_instance(studiopre_mono);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
 void Gx_studiopre::init_dsp_mono(uint32_t rate)
 {
@@ -77,7 +91,6 @@ void Gx_studiopre::init_dsp_mono(uint32_t rate)
   wn->set_samplerate(rate, wn);
 #endif
   studiopre_mono->set_samplerate(rate, studiopre_mono); // init the DSP class
-  
 }
 
 // connect the Ports used by the plug-in class
@@ -99,7 +112,8 @@ void Gx_studiopre::connect_mono(uint32_t port,void* data)
 void Gx_studiopre::activate_f()
 {
   // allocate the internal DSP mem
-  //  studiopre_mono->activate_plugin(true, studiopre_mono);
+  if (studiopre_mono->activate_plugin !=0)
+    studiopre_mono->activate_plugin(true, studiopre_mono);
 }
 
 void Gx_studiopre::clean_up()
@@ -108,7 +122,15 @@ void Gx_studiopre::clean_up()
   wn->delete_instance(wn);;
 #endif
   // delete the internal DSP mem
- // studiopre_mono->activate_plugin(false, studiopre_mono);
+  if (studiopre_mono->activate_plugin !=0)
+    studiopre_mono->activate_plugin(false, studiopre_mono);
+}
+
+void Gx_studiopre::deactivate_f()
+{ 
+  // delete the internal DSP mem
+  if (studiopre_mono->activate_plugin !=0)
+    studiopre_mono->activate_plugin(false, studiopre_mono);
 }
 
 void Gx_studiopre::run_dsp_mono(uint32_t n_samples)
@@ -128,10 +150,10 @@ void Gx_studiopre::connect_all_mono_ports(uint32_t port, void* data)
   studiopre_mono->connect_ports(port,  data, studiopre_mono);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
+LV2_Handle
+Gx_studiopre::instantiate(const LV2_Descriptor*     descriptor,
             double                    rate,
             const char*               bundle_path,
             const LV2_Feature* const* features)
@@ -142,39 +164,39 @@ instantiate(const LV2_Descriptor*     descriptor,
     {
       return NULL;
     }
+
   self->init_dsp_mono((uint32_t)rate);
 
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+void Gx_studiopre::connect_port(LV2_Handle instance,
+                                uint32_t   port,
+                                void*      data)
 {
   // connect all ports
-  
   static_cast<Gx_studiopre*>(instance)->connect_all_mono_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gx_studiopre::activate(LV2_Handle instance)
 {
   // allocate needed mem
- 
   static_cast<Gx_studiopre*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gx_studiopre::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
-  
   static_cast<Gx_studiopre*>(instance)->run_dsp_mono(n_samples);
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gx_studiopre::deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gx_studiopre*>(instance)->deactivate_f();
+}
+
+void Gx_studiopre::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gx_studiopre* self = static_cast<Gx_studiopre*>(instance);
@@ -182,19 +204,19 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gx_studiopre::descriptor =
 {
-  GXPLUGIN_URI "#studiopre",
+  GXPLUGIN_URI "#_studiopre",
   instantiate,
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };
+
+///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
 
 extern "C"
 LV2_SYMBOL_EXPORT
@@ -204,7 +226,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gx_studiopre::descriptor;
     default:
       return NULL;
     }

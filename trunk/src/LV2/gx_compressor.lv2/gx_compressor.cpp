@@ -30,18 +30,32 @@
 class Gx_compressor
 {
 private:
-  // internal stuff
+  // pointer to buffer
   float*                       output;
   float*                       input;
+  // pointer to dsp class
   PluginLV2*                   compressor_st;
-public:
-
+  // private functions
   inline void run_dsp_mono(uint32_t n_samples);
   inline void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate);
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
+  inline void deactivate_f();
   inline void clean_up();
+  
+public:
+  // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gx_compressor();
   ~Gx_compressor();
 };
@@ -64,7 +78,7 @@ Gx_compressor::~Gx_compressor()
   compressor_st->delete_instance(compressor_st);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
 void Gx_compressor::init_dsp_mono(uint32_t rate)
 {
@@ -96,6 +110,14 @@ void Gx_compressor::activate_f()
     compressor_st->activate_plugin(true, compressor_st);
 }
 
+void Gx_compressor::deactivate_f()
+{
+  // free the allocated internal DSP mem
+  // check if the function is valid
+  if (compressor_st->activate_plugin !=0)
+    compressor_st->activate_plugin(false, compressor_st);
+}
+
 void Gx_compressor::clean_up()
 {
   // delete the internal DSP mem
@@ -118,13 +140,13 @@ void Gx_compressor::connect_all_mono_ports(uint32_t port, void* data)
   compressor_st->connect_ports(port,  data, compressor_st);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+///////////////////// STATIC CLASS  FUNCTIONS  /////////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
-            double                    rate,
-            const char*               bundle_path,
-            const LV2_Feature* const* features)
+LV2_Handle
+Gx_compressor::instantiate( const LV2_Descriptor*     descriptor,
+                        double                    rate,
+                        const char*               bundle_path,
+                        const LV2_Feature* const* features)
 {
   // init the plug-in class
   Gx_compressor *self = new Gx_compressor();
@@ -138,8 +160,7 @@ instantiate(const LV2_Descriptor*     descriptor,
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
+void Gx_compressor::connect_port(LV2_Handle instance,
              uint32_t   port,
              void*      data)
 {
@@ -147,22 +168,25 @@ connect_port(LV2_Handle instance,
   static_cast<Gx_compressor*>(instance)->connect_all_mono_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gx_compressor::activate(LV2_Handle instance)
 {
   // allocate needed mem
   static_cast<Gx_compressor*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gx_compressor::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
   static_cast<Gx_compressor*>(instance)->run_dsp_mono(n_samples);
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gx_compressor::deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gx_compressor*>(instance)->deactivate_f();
+}
+
+void Gx_compressor::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gx_compressor* self = static_cast<Gx_compressor*>(instance);
@@ -170,19 +194,19 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gx_compressor::descriptor =
 {
   GXPLUGIN_URI "#_compressor",
   instantiate,
   connect_port,
   activate,
   run,
-  NULL,
+  deactivate,
   cleanup,
   NULL
 };
+
+///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
 
 extern "C"
 LV2_SYMBOL_EXPORT
@@ -192,7 +216,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gx_compressor::descriptor;
     default:
       return NULL;
     }

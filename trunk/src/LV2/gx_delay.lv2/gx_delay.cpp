@@ -30,14 +30,14 @@
 class Gx_delay_stereo
 {
 private:
-  // internal stuff
-  float*                       output;
-  float*                       input;
-  float*                       output1;
-  float*                       input1;
-  PluginLV2*                   delay_st;
-public:
-
+  // pointer to buffer
+  float*      output;
+  float*      input;
+  float*      output1;
+  float*      input1;
+  // pointer to dsp class
+  PluginLV2*  delay_st;
+  // private functions
   inline void run_dsp_stereo(uint32_t n_samples);
   inline void connect_stereo(uint32_t port,void* data);
   inline void init_dsp_stereo(uint32_t rate);
@@ -45,6 +45,19 @@ public:
   inline void activate_f();
   inline void clean_up();
   inline void deactivate_f();
+
+public:
+  // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gx_delay_stereo();
   ~Gx_delay_stereo();
 };
@@ -68,7 +81,7 @@ Gx_delay_stereo::~Gx_delay_stereo()
   delay_st->delete_instance(delay_st);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
 
 void Gx_delay_stereo::init_dsp_stereo(uint32_t rate)
 {
@@ -133,13 +146,12 @@ void Gx_delay_stereo::connect_all_stereo_ports(uint32_t port, void* data)
   delay_st->connect_ports(port,  data, delay_st);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+////////////////////// STATIC CLASS  FUNCTIONS  ////////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
-            double                    rate,
-            const char*               bundle_path,
-            const LV2_Feature* const* features)
+LV2_Handle 
+Gx_delay_stereo::instantiate(const LV2_Descriptor* descriptor,
+                            double rate, const char* bundle_path,
+                            const LV2_Feature* const* features)
 {
   // init the plug-in class
   Gx_delay_stereo *self = new Gx_delay_stereo();
@@ -153,31 +165,32 @@ instantiate(const LV2_Descriptor*     descriptor,
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+void Gx_delay_stereo::connect_port(LV2_Handle instance, 
+                                   uint32_t port, void* data)
 {
   // connect all ports
   static_cast<Gx_delay_stereo*>(instance)->connect_all_stereo_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gx_delay_stereo::activate(LV2_Handle instance)
 {
   // allocate needed mem
   static_cast<Gx_delay_stereo*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gx_delay_stereo::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
   static_cast<Gx_delay_stereo*>(instance)->run_dsp_stereo(n_samples);
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gx_delay_stereo::deactivate(LV2_Handle instance)
+{
+  // free allocated mem
+  static_cast<Gx_delay_stereo*>(instance)->deactivate_f();
+}
+
+void Gx_delay_stereo::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gx_delay_stereo* self = static_cast<Gx_delay_stereo*>(instance);
@@ -185,26 +198,19 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-static void
-deactivate(LV2_Handle instance)
-{
-  // free allocated mem
-  static_cast<Gx_delay_stereo*>(instance)->deactivate_f();
-}
-
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gx_delay_stereo::descriptor =
 {
   GXPLUGIN_URI "#_delay_stereo",
-  instantiate,
-  connect_port,
-  activate,
-  run,
-  deactivate,
-  cleanup,
+  Gx_delay_stereo::instantiate,
+  Gx_delay_stereo::connect_port,
+  Gx_delay_stereo::activate,
+  Gx_delay_stereo::run,
+  Gx_delay_stereo::deactivate,
+  Gx_delay_stereo::cleanup,
   NULL
 };
+
+////////////////////////// LV2 SYMBOL EXPORT ///////////////////////////
 
 extern "C"
 LV2_SYMBOL_EXPORT
@@ -214,7 +220,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gx_delay_stereo::descriptor;
     default:
       return NULL;
     }

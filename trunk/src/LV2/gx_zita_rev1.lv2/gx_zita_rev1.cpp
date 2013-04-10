@@ -30,14 +30,14 @@
 class Gx_zita_rev1_stereo
 {
 private:
-  // internal stuff
-  float*                       output;
-  float*                       input;
-  float*                       output1;
-  float*                       input1;
-  PluginLV2*                   zita_rev1_st;
-public:
-
+  // pointer to buffer
+  float*      output;
+  float*      input;
+  float*      output1;
+  float*      input1;
+  // pointer to dsp class
+  PluginLV2*  zita_rev1_st;
+  // private functions
   inline void run_dsp_stereo(uint32_t n_samples);
   inline void connect_stereo(uint32_t port,void* data);
   inline void init_dsp_stereo(uint32_t rate);
@@ -45,6 +45,19 @@ public:
   inline void activate_f();
   inline void clean_up();
   inline void deactivate_f();
+
+public:
+  // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gx_zita_rev1_stereo();
   ~Gx_zita_rev1_stereo();
 };
@@ -68,7 +81,7 @@ Gx_zita_rev1_stereo::~Gx_zita_rev1_stereo()
   zita_rev1_st->delete_instance(zita_rev1_st);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
 
 void Gx_zita_rev1_stereo::init_dsp_stereo(uint32_t rate)
 {
@@ -105,14 +118,14 @@ void Gx_zita_rev1_stereo::activate_f()
     zita_rev1_st->activate_plugin(true, zita_rev1_st);
 }
 
-void Gx_zita_rev1_stereo::deactivate_f()
+void Gx_zita_rev1_stereo::clean_up()
 {
-  // allocate the internal DSP mem
+  // delete the internal DSP mem
   if (zita_rev1_st->activate_plugin !=0)
     zita_rev1_st->activate_plugin(false, zita_rev1_st);
 }
 
-void Gx_zita_rev1_stereo::clean_up()
+void Gx_zita_rev1_stereo::deactivate_f()
 {
   // delete the internal DSP mem
   if (zita_rev1_st->activate_plugin !=0)
@@ -133,13 +146,12 @@ void Gx_zita_rev1_stereo::connect_all_stereo_ports(uint32_t port, void* data)
   zita_rev1_st->connect_ports(port,  data, zita_rev1_st);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+////////////////////// STATIC CLASS  FUNCTIONS  ////////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
-            double                    rate,
-            const char*               bundle_path,
-            const LV2_Feature* const* features)
+LV2_Handle 
+Gx_zita_rev1_stereo::instantiate(const LV2_Descriptor* descriptor,
+                            double rate, const char* bundle_path,
+                            const LV2_Feature* const* features)
 {
   // init the plug-in class
   Gx_zita_rev1_stereo *self = new Gx_zita_rev1_stereo();
@@ -153,38 +165,32 @@ instantiate(const LV2_Descriptor*     descriptor,
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+void Gx_zita_rev1_stereo::connect_port(LV2_Handle instance, 
+                                   uint32_t port, void* data)
 {
   // connect all ports
   static_cast<Gx_zita_rev1_stereo*>(instance)->connect_all_stereo_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gx_zita_rev1_stereo::activate(LV2_Handle instance)
 {
   // allocate needed mem
   static_cast<Gx_zita_rev1_stereo*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gx_zita_rev1_stereo::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
   static_cast<Gx_zita_rev1_stereo*>(instance)->run_dsp_stereo(n_samples);
 }
 
-static void
-deactivate(LV2_Handle instance)
+void Gx_zita_rev1_stereo::deactivate(LV2_Handle instance)
 {
-  // allocate needed mem
+  // free allocated mem
   static_cast<Gx_zita_rev1_stereo*>(instance)->deactivate_f();
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gx_zita_rev1_stereo::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gx_zita_rev1_stereo* self = static_cast<Gx_zita_rev1_stereo*>(instance);
@@ -192,19 +198,19 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gx_zita_rev1_stereo::descriptor =
 {
   GXPLUGIN_URI "#_zita_rev1_stereo",
-  instantiate,
-  connect_port,
-  activate,
-  run,
-  deactivate,
-  cleanup,
+  Gx_zita_rev1_stereo::instantiate,
+  Gx_zita_rev1_stereo::connect_port,
+  Gx_zita_rev1_stereo::activate,
+  Gx_zita_rev1_stereo::run,
+  Gx_zita_rev1_stereo::deactivate,
+  Gx_zita_rev1_stereo::cleanup,
   NULL
 };
+
+////////////////////////// LV2 SYMBOL EXPORT ///////////////////////////
 
 extern "C"
 LV2_SYMBOL_EXPORT
@@ -214,7 +220,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gx_zita_rev1_stereo::descriptor;
     default:
       return NULL;
     }

@@ -27,6 +27,7 @@
 #ifndef __SSE__
 #include "noiser.cc"
 #endif
+
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
 class Gxechocat
@@ -39,15 +40,26 @@ private:
 #ifndef __SSE__
   PluginLV2*                   wn;
 #endif
-public:
 
   inline void run_dsp_mono(uint32_t n_samples);
   inline void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate);
   inline void connect_all_mono_ports(uint32_t port, void* data);
   inline void activate_f();
-  inline void clean_up();
   inline void deactivate_f();
+  inline void clean_up();
+public:
+  // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gxechocat();
   ~Gxechocat();
 };
@@ -69,11 +81,11 @@ Gxechocat::~Gxechocat()
   echocat->delete_instance(echocat);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
 void Gxechocat::init_dsp_mono(uint32_t rate)
 {
-  AVOIDDENORMALS(); // init th`ee SSE denormal protection
+  AVOIDDENORMALS(); // init the SSE denormal protection
 #ifndef __SSE__
   wn = noiser::plugin();
   wn->set_samplerate(rate, wn);
@@ -84,7 +96,6 @@ void Gxechocat::init_dsp_mono(uint32_t rate)
 // connect the Ports used by the plug-in class
 void Gxechocat::connect_mono(uint32_t port,void* data)
 {
-
   switch ((PortIndex)port)
     {
     case EFFECTS_OUTPUT:
@@ -116,7 +127,7 @@ void Gxechocat::clean_up()
 }
 
 void Gxechocat::deactivate_f()
-{  
+{ 
   // delete the internal DSP mem
   if (echocat->activate_plugin !=0)
     echocat->activate_plugin(false, echocat);
@@ -139,58 +150,53 @@ void Gxechocat::connect_all_mono_ports(uint32_t port, void* data)
   echocat->connect_ports(port,  data, echocat);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
+LV2_Handle
+Gxechocat::instantiate(const LV2_Descriptor*     descriptor,
             double                    rate,
             const char*               bundle_path,
             const LV2_Feature* const* features)
 {
   // init the plug-in class
-
   Gxechocat *self = new Gxechocat();
   if (!self)
     {
       return NULL;
     }
+
   self->init_dsp_mono((uint32_t)rate);
 
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+void Gxechocat::connect_port(LV2_Handle instance,
+                                uint32_t   port,
+                                void*      data)
 {
   // connect all ports
   static_cast<Gxechocat*>(instance)->connect_all_mono_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gxechocat::activate(LV2_Handle instance)
 {
   // allocate needed mem
   static_cast<Gxechocat*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gxechocat::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
   static_cast<Gxechocat*>(instance)->run_dsp_mono(n_samples);
 }
 
-static void
-deactivate(LV2_Handle instance)
+void Gxechocat::deactivate(LV2_Handle instance)
 {
   // free allocated mem
   static_cast<Gxechocat*>(instance)->deactivate_f();
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gxechocat::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gxechocat* self = static_cast<Gxechocat*>(instance);
@@ -198,9 +204,7 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gxechocat::descriptor =
 {
   GXPLUGIN_URI "#echocat",
   instantiate,
@@ -212,6 +216,8 @@ static const LV2_Descriptor descriptor =
   NULL
 };
 
+///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
+
 extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
@@ -220,7 +226,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gxechocat::descriptor;
     default:
       return NULL;
     }

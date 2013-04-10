@@ -40,7 +40,6 @@ private:
 #ifndef __SSE__
   PluginLV2*                   wn;
 #endif
-public:
 
   inline void run_dsp_mono(uint32_t n_samples);
   inline void connect_mono(uint32_t port,void* data);
@@ -49,6 +48,18 @@ public:
   inline void activate_f();
   inline void deactivate_f();
   inline void clean_up();
+public:
+  // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
   Gxtubevibrato();
   ~Gxtubevibrato();
 };
@@ -70,7 +81,7 @@ Gxtubevibrato::~Gxtubevibrato()
   tubevib->delete_instance(tubevib);
 };
 
-////////////////////////////// PLUG-IN CLASS  FUNCTIONS ////////////////
+////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
 void Gxtubevibrato::init_dsp_mono(uint32_t rate)
 {
@@ -139,10 +150,10 @@ void Gxtubevibrato::connect_all_mono_ports(uint32_t port, void* data)
   tubevib->connect_ports(port,  data, tubevib);
 }
 
-///////////////////////////// LV2 defines //////////////////////////////
+///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
+LV2_Handle
+Gxtubevibrato::instantiate(const LV2_Descriptor*     descriptor,
             double                    rate,
             const char*               bundle_path,
             const LV2_Feature* const* features)
@@ -159,38 +170,33 @@ instantiate(const LV2_Descriptor*     descriptor,
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+void Gxtubevibrato::connect_port(LV2_Handle instance,
+                                uint32_t   port,
+                                void*      data)
 {
   // connect all ports
   static_cast<Gxtubevibrato*>(instance)->connect_all_mono_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void Gxtubevibrato::activate(LV2_Handle instance)
 {
   // allocate needed mem
   static_cast<Gxtubevibrato*>(instance)->activate_f();
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void Gxtubevibrato::run(LV2_Handle instance, uint32_t n_samples)
 {
   // run dsp
   static_cast<Gxtubevibrato*>(instance)->run_dsp_mono(n_samples);
 }
 
-static void
-deactivate(LV2_Handle instance)
+void Gxtubevibrato::deactivate(LV2_Handle instance)
 {
   // free allocated mem
   static_cast<Gxtubevibrato*>(instance)->deactivate_f();
 }
 
-static void
-cleanup(LV2_Handle instance)
+void Gxtubevibrato::cleanup(LV2_Handle instance)
 {
   // well, clean up after us
   Gxtubevibrato* self = static_cast<Gxtubevibrato*>(instance);
@@ -198,9 +204,7 @@ cleanup(LV2_Handle instance)
   delete self;
 }
 
-///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
-
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor Gxtubevibrato::descriptor =
 {
   GXPLUGIN_URI "#tubevibrato",
   instantiate,
@@ -212,6 +216,8 @@ static const LV2_Descriptor descriptor =
   NULL
 };
 
+///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
+
 extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
@@ -220,7 +226,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &Gxtubevibrato::descriptor;
     default:
       return NULL;
     }
