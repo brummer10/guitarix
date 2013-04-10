@@ -150,7 +150,7 @@ void Gxtilttone::connect_all_mono_ports(uint32_t port, void* data)
   tilttone->connect_ports(port,  data, tilttone);
 }
 
-///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
+///////////////////////// STATIC CLASS  FUNCTIONS /////////////////////
 
 LV2_Handle
 Gxtilttone::instantiate(const LV2_Descriptor*     descriptor,

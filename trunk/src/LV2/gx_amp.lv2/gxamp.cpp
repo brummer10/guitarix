@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose
+ * Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose, Steve Poskitt
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,62 +17,8 @@
  * --------------------------------------------------------------------------
  */
 
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <cstring>
 #include <glibmm.h>
-#include <unistd.h>
-
-#ifdef __SSE__
-/* On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
-   flags to avoid costly denormals */
-#ifdef __SSE3__
-#include <pmmintrin.h>
-inline void AVOIDDENORMALS()
-{
-  _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
-}
-#else
-#include <xmmintrin.h>
-inline void AVOIDDENORMALS()
-{
-  _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-}
-#endif //__SSE3__
-
-#else
-inline void AVOIDDENORMALS() {}
-#endif //__SSE__
-
-// faust support
-#define FAUSTFLOAT float
-#ifndef N_
-#define N_(String) (String)
-#endif
-#define max(x, y) (((x) > (y)) ? (x) : (y))
-#define min(x, y) (((x) < (y)) ? (x) : (y))
-template <int32_t N> inline float faustpower(float x)
-{
-  return powf(x, N);
-}
-template <int32_t N> inline double faustpower(double x)
-{
-  return pow(x, N);
-}
-template <int32_t N> inline int32_t faustpower(int32_t x)
-{
-  return faustpower<N/2>(x) * faustpower<N-N/2>(x);
-}
-template <>      inline int32_t faustpower<0>(int32_t x)
-{
-  return 1;
-}
-template <>      inline int32_t faustpower<1>(int32_t x)
-{
-  return x;
-}
+#include "gx_common.h"
 
 /****************************************************************
  ** "atomic" value access
@@ -200,8 +146,6 @@ private:
   }
   bool                         doit;
   volatile int32_t             schedule_wait;
-
-public:
   // LV2 stuff
   LV2_URID_Map*                map;
   LV2_Worker_Schedule*         schedule;
@@ -212,42 +156,72 @@ public:
   inline void init_dsp_mono(uint32_t rate, uint32_t bufsize_);
   inline void do_work_mono();
   inline void connect_all_mono_ports(uint32_t port, void* data);
+  inline void activate_f();
+  inline void deactivate_f();
+
+public:
+    // LV2 Descriptor
+  static const LV2_Descriptor descriptor;
+  // static wrapper to private functions
+  static void deactivate(LV2_Handle instance);
+  static void cleanup(LV2_Handle instance);
+  static void run(LV2_Handle instance, uint32_t n_samples);
+  static void activate(LV2_Handle instance);
+  static void connect_port(LV2_Handle instance, uint32_t port, void* data);
+
+  static LV2_Handle instantiate(const LV2_Descriptor* descriptor,
+                                double rate, const char* bundle_path,
+                                const LV2_Feature* const* features);
+  
+  static LV2_Worker_Status work(LV2_Handle                 instance,
+                                LV2_Worker_Respond_Function respond,
+                                LV2_Worker_Respond_Handle   handle,
+                                uint32_t size, const void*    data);
+  
+  static LV2_Worker_Status work_response(LV2_Handle  instance,
+                                         uint32_t    size,
+                                         const void* data);
+  static const void* extension_data(const char* uri);
+
+  GxPluginMono();
+  ~GxPluginMono();
+};
+
   // constructor
-  GxPluginMono() :
-    output(NULL),
-    input(NULL),
-    s_rate(0),
-    prio(0),
-    a_model(NULL),
-    a_model_(0), 
-    t_model(NULL),
-    t_model_(1),
-    cabconv(GxSimpleConvolver(resamp)),
-    impf(Impf()),
-    ampconv(GxSimpleConvolver(resamp1)),
-    ampf(Ampf()),
-    bufsize(0),
-    clevel(NULL),
-    clevel_(0),
-    cab(0),
-    c_model(NULL),
-    c_model_(0),
-    c_old_model_(0),
-    alevel(NULL),
-    alevel_(0),
-    pre(0),
-    val(0)
-  {
-    atomic_set(&schedule_wait,0);
-  };
+GxPluginMono::GxPluginMono() :
+  output(NULL),
+  input(NULL),
+  s_rate(0),
+  prio(0),
+  a_model(NULL),
+  a_model_(0), 
+  t_model(NULL),
+  t_model_(1),
+  cabconv(GxSimpleConvolver(resamp)),
+  impf(Impf()),
+  ampconv(GxSimpleConvolver(resamp1)),
+  ampf(Ampf()),
+  bufsize(0),
+  clevel(NULL),
+  clevel_(0),
+  cab(0),
+  c_model(NULL),
+  c_model_(0),
+  c_old_model_(0),
+  alevel(NULL),
+  alevel_(0),
+  pre(0),
+  val(0)
+{
+  atomic_set(&schedule_wait,0);
+};
   // destructor
-  ~GxPluginMono()
-  {
-    cabconv.stop_process();
-    cabconv.cleanup();
-    ampconv.stop_process();
-    ampconv.cleanup();
-  };
+GxPluginMono::~GxPluginMono()
+{
+  cabconv.stop_process();
+  cabconv.cleanup();
+  ampconv.stop_process();
+  ampconv.cleanup();
 };
 
 // plugin stuff
@@ -439,6 +413,18 @@ void GxPluginMono::connect_all_mono_ports(uint32_t port, void* data)
     }
 }
 
+void GxPluginMono::activate_f()
+{
+  // allocate the internal DSP mem
+
+}
+
+void GxPluginMono::deactivate_f()
+{
+  // delete the internal DSP mem
+
+}
+
 void GxPluginMono::clean()
 {
 #ifndef __SSE__
@@ -453,30 +439,26 @@ void GxPluginMono::clean()
 }
 ///////////////////////////// LV2 defines //////////////////////////////
 
-static LV2_Worker_Status
-work(LV2_Handle                  instance,
+LV2_Worker_Status GxPluginMono::work(LV2_Handle                  instance,
      LV2_Worker_Respond_Function respond,
      LV2_Worker_Respond_Handle   handle,
      uint32_t                    size,
      const void*                 data)
 {
-  GxPluginMono* self = (GxPluginMono*)instance;
-  self->do_work_mono();
+  static_cast<GxPluginMono*>(instance)->do_work_mono();
   return LV2_WORKER_SUCCESS;
 }
 
-static LV2_Worker_Status
-work_response(LV2_Handle  instance,
+LV2_Worker_Status GxPluginMono::work_response(LV2_Handle  instance,
               uint32_t    size,
               const void* data)
 {
-  printf("worker respose.\n");
+  //printf("worker respose.\n");
   return LV2_WORKER_SUCCESS;
 }
 
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
+LV2_Handle GxPluginMono::instantiate(const LV2_Descriptor*     descriptor,
             double                    rate,
             const char*               bundle_path,
             const LV2_Feature* const* features)
@@ -547,36 +529,29 @@ instantiate(const LV2_Descriptor*     descriptor,
   return (LV2_Handle)self;
 }
 
-static void
-connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+void GxPluginMono::connect_port(LV2_Handle instance,
+                                uint32_t   port,
+                                void*      data)
 {
-  GxPluginMono* self = (GxPluginMono*)instance;
-  self->connect_all_mono_ports(port, data);
+  static_cast<GxPluginMono*>(instance)->connect_all_mono_ports(port, data);
 }
 
-static void
-activate(LV2_Handle instance)
+void GxPluginMono::activate(LV2_Handle instance)
 {
 
 }
 
-static void
-run(LV2_Handle instance, uint32_t n_samples)
+void GxPluginMono::run(LV2_Handle instance, uint32_t n_samples)
 {
-  GxPluginMono* self = (GxPluginMono*)instance;
-  self->run_dsp_mono(n_samples);
+  static_cast<GxPluginMono*>(instance)->run_dsp_mono(n_samples);
 }
 
-static void
-deactivate(LV2_Handle instance)
+void GxPluginMono::deactivate(LV2_Handle instance)
 {
 
 }
 
-static void
-cleanup(LV2_Handle instance)
+void GxPluginMono::cleanup(LV2_Handle instance)
 {
   GxPluginMono* self = (GxPluginMono*)instance;
   self->clean();
@@ -585,8 +560,7 @@ cleanup(LV2_Handle instance)
 
 //////////////////////////////////////////////////////////////////
 
-const void*
-extension_data(const char* uri)
+const void* GxPluginMono::extension_data(const char* uri)
 {
   static const LV2_Worker_Interface worker = { work, work_response, NULL };
   if (!strcmp(uri, LV2_WORKER__interface))
@@ -596,7 +570,7 @@ extension_data(const char* uri)
   return NULL;
 }
 
-static const LV2_Descriptor descriptor =
+const LV2_Descriptor GxPluginMono::descriptor =
 {
   GXPLUGIN_URI "#GUITARIX",
   instantiate,
@@ -616,7 +590,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &GxPluginMono::descriptor;
     default:
       return NULL;
     }
