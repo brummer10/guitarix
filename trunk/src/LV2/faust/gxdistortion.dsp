@@ -158,7 +158,7 @@ distdrive1(drive) = wet_dry_mix(wet_dry, _: distortion) with {
 //ml = (2.5): db2linear; //1,333521432
 
 distortion1 	=  _:cubicnl(0.4*drive,0.0): *(1.2589412); // l
-distortion2 	=  _:cubicnl(0.4*drive,0.0) : *(1.584893192); // h
+distortion2 	=  _:cubicnl(0.8*drive,0.0) : *(1.584893192); // h
 distortion3 	=  _:cubicnl(0.8*drive,0.0) : *(1.584893192); //ml
 distortion4 	=  _:cubicnl(0.6*drive,0.0) : *(1.333521432); //mh
 distortion	= lowpassN(1,6531.0): highpass(1,120.0)  : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>lowpass(1,6531.0): highpass(1,120.0);
