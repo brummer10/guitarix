@@ -684,7 +684,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		fRec71[0] = ((fConst26 * (fRec72[2] + (fRec72[0] + (2 * fRec72[1])))) - (fConst24 * ((fConst23 * fRec71[2]) + (fConst21 * fRec71[1]))));
 		double fTemp38 = (1e-15 + (0.027 * fRec70[1]));
 		fVec16[0] = fTemp38;
-		fRec75[0] = ((fConst32 * fRec75[1]) + (fConst33 * (fVec16[0] + fVec16[1])));
+		fRec75[0] = ((fConst33 * (fVec16[0] + fVec16[1])) + (fConst32 * fRec75[1]));
 		fRec70[0] = (Ftube(TUBE_TABLE_6DJ8_68k, ((fRec75[0] + (fConst24 * (fRec22[0] * (fRec71[2] + (fRec71[0] + (2 * fRec71[1])))))) - 1.863945999999999)) - 60.96496296296296);
 		fRec69[0] = ((fConst35 * ((fConst34 * fRec70[1]) + (fConst13 * fRec70[0]))) + (fConst15 * fRec69[1]));
 		double fTemp39 = (1e-15 + (0.015 * fRec77[1]));

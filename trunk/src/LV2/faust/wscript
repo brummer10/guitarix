@@ -170,6 +170,7 @@ def build(bld):
         'gx_chump.dsp',
         'gx_bigchump.dsp',
         'gx_vibrochump.dsp',
+        'gxmetal_head.dsp',
 
         # stereo amps
         'gxamp_stereo.dsp',

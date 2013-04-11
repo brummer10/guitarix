@@ -443,7 +443,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		fRec9[0] = (fRec10[0] - (fConst29 * ((fConst27 * fRec9[2]) + (fConst25 * fRec9[1]))));
 		double fTemp7 = (fRec9[2] + (fRec9[0] + (2 * fRec9[1])));
 		fVec5[0] = fTemp7;
-		fRec8[0] = ((fConst55 * ((fConst17 * fVec5[0]) + (fConst54 * fVec5[1]))) + (fConst22 * fRec8[1]));
+		fRec8[0] = ((fConst55 * ((fConst54 * fVec5[1]) + (fConst17 * fVec5[0]))) + (fConst22 * fRec8[1]));
 		fRec7[0] = (fRec8[0] - (fConst20 * ((fConst18 * fRec7[2]) + (fConst16 * fRec7[1]))));
 		fRec6[0] = ((fConst20 * (((fConst15 * fRec7[0]) + (fConst56 * fRec7[1])) + (fConst15 * fRec7[2]))) - (fConst13 * ((fConst12 * fRec6[2]) + fTemp1)));
 		double fTemp8 = max(-1, min(1, (fSlow4 * (fRec6[2] + (fConst13 * (fTemp1 + (fConst12 * fRec6[0])))))));

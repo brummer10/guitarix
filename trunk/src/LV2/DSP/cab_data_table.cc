@@ -44,7 +44,7 @@ struct CabEntry {
 };
 static const size_t cab_table_size = sizeof(cab_table) / sizeof(cab_table[0]);
 
-static CabEntry& getCabEntry(uint32_t n) {
+static inline CabEntry& getCabEntry(uint32_t n) {
     if (n >= cab_table_size) {
 	n = cab_table_size - 1;
     }

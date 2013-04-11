@@ -93,8 +93,10 @@ private:
   PluginLV2*                   tonestack[TS_COUNT];
   float*                       a_model;
   uint32_t                     a_model_;
+  uint32_t                     a_max;
   float*                       t_model;
   uint32_t                     t_model_;
+  uint32_t                     t_max;
   gx_resample::BufferResampler resamp;
   GxSimpleConvolver            cabconv;
   Impf                         impf;
@@ -110,49 +112,35 @@ private:
   float                        *c_model;
   float                        c_model_;
   float                        c_old_model_;
-  
-  bool cab_changed()
-  {
-    return abs(cab - (clevel_ + c_model_)) > 0.1;
-  }
-  void update_cab()
-  {
-    cab = (clevel_ + c_model_);
-    c_old_model_ = c_model_;
-  }
-  bool change_cab()
-  {
-    return abs(c_old_model_ - c_model_) > 0.1;
-  }
   float                        *alevel;
   float                        alevel_;
   float                        pre;
-  bool pre_changed()
-  {
-    return abs(pre - alevel_) > 0.1;
-  }
-  void update_pre()
-  {
-    pre = (alevel_);
-  }
   float                        val;
-  bool val_changed()
-  {
-    return abs(val - ((*alevel) + (*clevel) + (*c_model))) > 0.1;
-  }
-  void update_val()
-  {
-    val = (alevel_) + (clevel_) + (c_model_);
-  }
   bool                         doit;
   volatile int32_t             schedule_wait;
+
+  inline bool cab_changed() 
+    {return abs(cab - (clevel_ + c_model_)) > 0.1;}
+  inline void update_cab() 
+    {cab = (clevel_ + c_model_); c_old_model_ = c_model_;}
+  inline bool change_cab() 
+    {return abs(c_old_model_ - c_model_) > 0.1;}
+  inline bool pre_changed() 
+    {return abs(pre - alevel_) > 0.1;}
+  inline void update_pre() 
+    {pre = (alevel_);}
+  inline bool val_changed() 
+    {return abs(val - ((*alevel) + (*clevel) + (*c_model))) > 0.1;}
+  inline void update_val() 
+    {val = (alevel_) + (clevel_) + (c_model_);}
+
   // LV2 stuff
   LV2_URID_Map*                map;
   LV2_Worker_Schedule*         schedule;
 
-  void clean();
+  inline void clean();
   inline void run_dsp_mono(uint32_t n_samples);
-  void connect_mono(uint32_t port,void* data);
+  inline void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate, uint32_t bufsize_);
   inline void do_work_mono();
   inline void connect_all_mono_ports(uint32_t port, void* data);
@@ -162,6 +150,7 @@ private:
 public:
     // LV2 Descriptor
   static const LV2_Descriptor descriptor;
+  static const void* extension_data(const char* uri);
   // static wrapper to private functions
   static void deactivate(LV2_Handle instance);
   static void cleanup(LV2_Handle instance);
@@ -181,7 +170,6 @@ public:
   static LV2_Worker_Status work_response(LV2_Handle  instance,
                                          uint32_t    size,
                                          const void* data);
-  static const void* extension_data(const char* uri);
 
   GxPluginMono();
   ~GxPluginMono();
@@ -299,11 +287,12 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
         amplifier[i] = amp_model[i]();
         amplifier[i]->set_samplerate(rate, amplifier[i]);
     }
+  a_max = AMP_COUNT-1;
   for(uint32_t i=0; i<TS_COUNT; i++) {
         tonestack[i] = tonestack_model[i]();
         tonestack[i]->set_samplerate(rate, tonestack[i]);
     }
-  
+  t_max = TS_COUNT-1;
   if (bufsize )
     {
 #ifdef _POSIX_PRIORITY_SCHEDULING
@@ -380,12 +369,12 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
   wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
 #endif
   // run selected tube model
-  a_model_ = static_cast<uint32_t>(*(a_model));
+  a_model_ = min(a_max, static_cast<uint32_t>(*(a_model)));
   amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
   // run presence convolver
   ampconv.run_static(n_samples, &ampconv, output);
   // run selected tonestack
-  t_model_ = static_cast<uint32_t>(*(t_model));
+  t_model_ = min(t_max, static_cast<uint32_t>(*(t_model)));
   tonestack[t_model_]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t_model_]);
   // run selected cabinet convolver
   cabconv.run_static(n_samples, &cabconv, output);
