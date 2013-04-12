@@ -41,18 +41,25 @@ private:
   void set_skin();
   void set_plug_name(const char * plugin_uri);
   GtkWidget* make_gui();
+  Widget* widget;
+
 public:
 
-  Widget* widget;
-  static void set_plug_name_static(GxtubevibratoGUI *self, const char * plugin_uri)
-  {
-    self->set_plug_name(plugin_uri);
-  }
-  static GtkWidget* make_gui_static(GxtubevibratoGUI *self)
-  {
-    return self->make_gui();
-  }
-
+  static LV2UI_Descriptor descriptors[];
+  static void cleanup(LV2UI_Handle ui);
+  
+  static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
+                                  const char * plugin_uri,
+                                  const char * bundle_path,
+                                  LV2UI_Write_Function write_function,
+                                  LV2UI_Controller controller,
+                                  LV2UI_Widget * widget,
+                                  const LV2_Feature * const * features);
+  
+  static void port_event(LV2UI_Handle ui, uint32_t port_index,
+                         uint32_t buffer_size,  uint32_t format,
+                         const void * buffer);
+  
   GxtubevibratoGUI () {};
   ~GxtubevibratoGUI () {};
 } ;
@@ -133,7 +140,7 @@ void GxtubevibratoGUI::set_skin()
   gtk_rc_parse_string (toparse.c_str());
 }
 
-void GxtubevibratoGUI::set_plug_name( const char * plugin_uri)
+void GxtubevibratoGUI::set_plug_name(const char * plugin_uri)
 {
   addKnob = "";
 
@@ -164,53 +171,57 @@ GtkWidget* GxtubevibratoGUI::make_gui()
 }
 
 
-static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
-                                const char * plugin_uri,
-                                const char * bundle_path,
-                                LV2UI_Write_Function write_function,
-                                LV2UI_Controller controller,
-                                LV2UI_Widget * widget,
-                                const LV2_Feature * const * features)
+LV2UI_Handle GxtubevibratoGUI::instantiate(const struct _LV2UI_Descriptor * descriptor,
+                                            const char * plugin_uri,
+                                            const char * bundle_path,
+                                            LV2UI_Write_Function write_function,
+                                            LV2UI_Controller controller,
+                                            LV2UI_Widget * widget,
+                                            const LV2_Feature * const * features)
 {
   GxtubevibratoGUI* self = new GxtubevibratoGUI();
   if (self == NULL) return NULL;
-  self->set_plug_name_static(self, plugin_uri);
-  *widget = (LV2UI_Widget)self->make_gui_static(self);
+  self->set_plug_name(plugin_uri);
+  *widget = (LV2UI_Widget)self->make_gui();
   self->widget->controller = controller;
   self->widget->write_function = write_function;
   return (LV2UI_Handle)self;
 }
 
-static void cleanup(LV2UI_Handle ui)
+void GxtubevibratoGUI::cleanup(LV2UI_Handle ui)
 {
   GxtubevibratoGUI *pluginGui = static_cast<GxtubevibratoGUI*>(ui);
   delete pluginGui->widget;
   delete pluginGui;
 }
 
-static void port_event(LV2UI_Handle ui,
-                       uint32_t port_index,
-                       uint32_t buffer_size,
-                       uint32_t format,
-                       const void * buffer)
+void GxtubevibratoGUI::port_event(LV2UI_Handle ui, uint32_t port_index,
+                                  uint32_t buffer_size, uint32_t format,
+                                  const void * buffer)
 {
   GxtubevibratoGUI *self = static_cast<GxtubevibratoGUI*>(ui);
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }
 
-static LV2UI_Descriptor descriptors[] =
+LV2UI_Descriptor GxtubevibratoGUI::descriptors[] =
 {
-  {GXPLUGIN_UI_URI, instantiate, cleanup, port_event, NULL}
+  {
+    GXPLUGIN_UI_URI, 
+    GxtubevibratoGUI::instantiate, 
+    GxtubevibratoGUI::cleanup, 
+    GxtubevibratoGUI::port_event, 
+    NULL
+  }
 };
 
 const LV2UI_Descriptor * lv2ui_descriptor(uint32_t index)
 {
   //printf("lv2ui_descriptor(%u) called\n", (uint32_t)index);
-  if (index >= sizeof(descriptors) / sizeof(descriptors[0]))
+  if (index >= sizeof(GxtubevibratoGUI::descriptors) / sizeof(GxtubevibratoGUI::descriptors[0]))
     {
       return NULL;
     }
-  return descriptors + index;
+  return GxtubevibratoGUI::descriptors + index;
 }
 

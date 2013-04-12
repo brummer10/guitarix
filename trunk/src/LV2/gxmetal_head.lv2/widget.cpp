@@ -56,8 +56,8 @@ plug_name(plugname)
   make_controller_box(&m_vbox5, "gain", -2e+01, 2e+01, 0.1 , GAIN1);
  
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(10);
-  m_paintbox.set_spacing(10);
+  m_paintbox.set_border_width(20);
+  m_paintbox.set_spacing(0);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "amp_skin_expose";
@@ -66,7 +66,7 @@ plug_name(plugname)
   add(m_paintbox);
 
   // One vertical box to wrap all in
-  m_vbox_.set_spacing(10);
+  m_vbox_.set_spacing(0);
   m_vbox_.set_border_width(10);
   m_vbox_.set_homogeneous(false);
   
@@ -74,23 +74,27 @@ plug_name(plugname)
 
 
  // This is the central controller strip	  
-  m_hbox1_.set_spacing(10);
+  m_hbox1_.set_spacing(45);
   m_hbox1_.set_border_width(0);
   m_hbox1_.set_homogeneous(true);
 
 
 // put boxed controllers into controller box
   m_vbox2.set_spacing(6);
+  m_vbox2.set_border_width(10);
   m_vbox3.set_spacing(6);
+  m_vbox3.set_border_width(10);
   m_vbox4.set_spacing(6);
+  m_vbox4.set_border_width(10);
   m_vbox5.set_spacing(6);
-
-  m_hbox1_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
+  m_vbox5.set_border_width(10);
+  
+  //m_hbox1_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
   m_hbox1_.pack_start(m_vbox2);
   m_hbox1_.pack_start(m_vbox3);
   m_hbox1_.pack_start(m_vbox4);
   m_hbox1_.pack_start(m_vbox5);
-  m_hbox1_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
+  //m_hbox1_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
 
   // Npow put all layers in main vbox
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING, 0);
@@ -116,7 +120,7 @@ bool Widget::_expose_event(GdkEventExpose *event)
   int x, y, width, height, depth;
   m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
   //double_t height = m_paintbox.get_window()->get_height();
-  m_paintbox.set_border_width(height/20);
+  m_paintbox.set_border_width(height/10);
   return false;
 }
 

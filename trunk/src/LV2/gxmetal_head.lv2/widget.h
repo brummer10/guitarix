@@ -90,7 +90,7 @@ protected:
   Gtk::HBox         m_hbox2_;
 
   Gxw::PaintBox     m_paintbox;
-  Gxw::BigKnob      m_bigknob;
+  Gxw::SmallKnobR   m_bigknob;
   Gxw::BigKnob      m_bigknob1;
   Gxw::BigKnob      m_bigknob2;
   Gxw::BigKnob      m_bigknob3;

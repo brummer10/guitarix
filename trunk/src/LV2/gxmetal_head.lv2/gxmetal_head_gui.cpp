@@ -34,6 +34,7 @@ using namespace std;
 class Gxmetal_headGUI
 {
 private:
+
   Glib::ustring plugskin;
   Glib::ustring addKnob;
   Glib::ustring plug_name;
@@ -41,23 +42,30 @@ private:
   void set_skin();
   void set_plug_name(const char * plugin_uri);
   GtkWidget* make_gui();
+  Widget* widget;
+
 public:
 
-  Widget* widget;
-  static void set_plug_name_static(Gxmetal_headGUI *self, const char * plugin_uri)
-  {
-    self->set_plug_name(plugin_uri);
-  }
-  static GtkWidget* make_gui_static(Gxmetal_headGUI *self)
-  {
-    return self->make_gui();
-  }
+  static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
+                                  const char * plugin_uri,
+                                  const char * bundle_path,
+                                  LV2UI_Write_Function write_function,
+                                  LV2UI_Controller controller,
+                                  LV2UI_Widget * widget,
+                                  const LV2_Feature * const * features);
+
+  static void port_event(LV2UI_Handle ui, uint32_t port_index,
+                        uint32_t buffer_size, uint32_t format,
+                        const void *                   buffer);
+
+  static LV2UI_Descriptor descriptors[];
+  static void cleanup(LV2UI_Handle ui);
 
   Gxmetal_headGUI () {};
   ~Gxmetal_headGUI () {};
 } ;
 
-void Gxmetal_headGUI::set_knob( Glib::ustring knob)
+void Gxmetal_headGUI::set_knob(Glib::ustring knob)
 {
   addKnob =   " style 'gx_";
   addKnob +=  plug_name;
@@ -66,6 +74,9 @@ void Gxmetal_headGUI::set_knob( Glib::ustring knob)
                "   stock['bigknob'] = {{'";
   addKnob +=  knob;
   addKnob +=  ".png'}}\n";
+  addKnob +=  "   stock['smallknobr'] = {{'";
+  addKnob +=  knob;
+  addKnob +=  "-middle.png'}}\n";
   addKnob +=  "   stock['button_on'] = {{'"
               "echo-switch_on.png'}}\n"
               "   stock['button_off'] = {{'"
@@ -133,7 +144,7 @@ void Gxmetal_headGUI::set_skin()
   gtk_rc_parse_string (toparse.c_str());
 }
 
-void Gxmetal_headGUI::set_plug_name( const char * plugin_uri)
+void Gxmetal_headGUI::set_plug_name(const char * plugin_uri)
 {
   addKnob = "";
 
@@ -141,7 +152,7 @@ void Gxmetal_headGUI::set_plug_name( const char * plugin_uri)
     {
       plugskin = "metalhead.png";
       plug_name = "gxmetal_head";
-      set_knob("mc-knob-middle");
+      set_knob("nm2-knob");
     }
   else
     {
@@ -164,7 +175,7 @@ GtkWidget* Gxmetal_headGUI::make_gui()
 }
 
 
-static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
+LV2UI_Handle Gxmetal_headGUI::instantiate(const struct _LV2UI_Descriptor * descriptor,
                                 const char * plugin_uri,
                                 const char * bundle_path,
                                 LV2UI_Write_Function write_function,
@@ -174,21 +185,21 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 {
   Gxmetal_headGUI* self = new Gxmetal_headGUI();
   if (self == NULL) return NULL;
-  self->set_plug_name_static(self, plugin_uri);
-  *widget = (LV2UI_Widget)self->make_gui_static(self);
+  self->set_plug_name(plugin_uri);
+  *widget = (LV2UI_Widget)self->make_gui();
   self->widget->controller = controller;
   self->widget->write_function = write_function;
   return (LV2UI_Handle)self;
 }
 
-static void cleanup(LV2UI_Handle ui)
+void Gxmetal_headGUI::cleanup(LV2UI_Handle ui)
 {
   Gxmetal_headGUI *pluginGui = static_cast<Gxmetal_headGUI*>(ui);
   delete pluginGui->widget;
   delete pluginGui;
 }
 
-static void port_event(LV2UI_Handle ui,
+void Gxmetal_headGUI::port_event(LV2UI_Handle ui,
                        uint32_t port_index,
                        uint32_t buffer_size,
                        uint32_t format,
@@ -199,18 +210,25 @@ static void port_event(LV2UI_Handle ui,
   return;
 }
 
-static LV2UI_Descriptor descriptors[] =
+LV2UI_Descriptor Gxmetal_headGUI::descriptors[] =
 {
-  {GXPLUGIN_UI_URI, instantiate, cleanup, port_event, NULL}
+  {
+    GXPLUGIN_UI_URI,
+    Gxmetal_headGUI::instantiate,
+    Gxmetal_headGUI::cleanup,
+    Gxmetal_headGUI::port_event,
+    NULL
+  }
 };
 
 const LV2UI_Descriptor * lv2ui_descriptor(uint32_t index)
 {
   //printf("lv2ui_descriptor(%u) called\n", (uint32_t)index);
-  if (index >= sizeof(descriptors) / sizeof(descriptors[0]))
+  if (index >= sizeof(Gxmetal_headGUI::descriptors) /
+               sizeof(Gxmetal_headGUI::descriptors[0]))
     {
       return NULL;
     }
-  return descriptors + index;
+  return Gxmetal_headGUI::descriptors + index;
 }
 

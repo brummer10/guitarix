@@ -150,7 +150,7 @@ void Gxtubevibrato::connect_all_mono_ports(uint32_t port, void* data)
   tubevib->connect_ports(port,  data, tubevib);
 }
 
-///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
+///////////////////////// STATIC CLASS  FUNCTIONS /////////////////////
 
 LV2_Handle
 Gxtubevibrato::instantiate(const LV2_Descriptor*     descriptor,
