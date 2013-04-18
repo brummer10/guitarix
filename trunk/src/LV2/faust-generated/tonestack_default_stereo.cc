@@ -167,7 +167,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		double fTemp1 = (double)input1[i];
 		fVec1[0] = fTemp1;
 		fRec7[0] = (fSlow34 * ((fSlow23 * (((fSlow33 * fVec1[0]) + (fSlow31 * fVec1[1])) + (fSlow30 * fVec1[2]))) - ((fSlow29 * fRec7[2]) + (fSlow26 * fRec7[1]))));
-		fRec6[0] = (fSlow39 * ((fSlow9 * (((fSlow36 * fRec7[1]) + (fSlow38 * fRec7[0])) + (fSlow35 * fRec7[2]))) - ((fSlow22 * fRec6[2]) + (fSlow19 * fRec6[1]))));
+		fRec6[0] = (fSlow39 * ((fSlow9 * (((fSlow38 * fRec7[0]) + (fSlow36 * fRec7[1])) + (fSlow35 * fRec7[2]))) - ((fSlow22 * fRec6[2]) + (fSlow19 * fRec6[1]))));
 		fRec5[0] = (fSlow44 * ((((fSlow43 * fRec6[1]) + (fSlow42 * fRec6[0])) + (fSlow40 * fRec6[2])) + (0 - ((fSlow17 * fRec5[2]) + (fSlow12 * fRec5[1])))));
 		fRec4[0] = (fSlow49 * ((((fSlow48 * fRec5[1]) + (fSlow47 * fRec5[0])) + (fSlow45 * fRec5[2])) + (0 - ((fSlow8 * fRec4[2]) + (fSlow5 * fRec4[1])))));
 		output1[i] = (FAUSTFLOAT)fRec4[0];

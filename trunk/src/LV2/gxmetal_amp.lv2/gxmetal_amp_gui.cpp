@@ -22,7 +22,7 @@
 #include <iostream>
 
 #include <gtkmm.h>
-#include "gxmetal_head.h"
+#include "gxmetal_amp.h"
 #include "widget.h"
 
 
@@ -31,7 +31,7 @@
 
 using namespace std;
 
-class Gxmetal_headGUI
+class Gxmetal_ampGUI
 {
 private:
 
@@ -61,11 +61,11 @@ public:
   static LV2UI_Descriptor descriptors[];
   static void cleanup(LV2UI_Handle ui);
 
-  Gxmetal_headGUI () {};
-  ~Gxmetal_headGUI () {};
+  Gxmetal_ampGUI () {};
+  ~Gxmetal_ampGUI () {};
 } ;
 
-void Gxmetal_headGUI::set_knob(Glib::ustring knob)
+void Gxmetal_ampGUI::set_knob(Glib::ustring knob)
 {
   addKnob =   " style 'gx_";
   addKnob +=  plug_name;
@@ -92,7 +92,7 @@ void Gxmetal_headGUI::set_knob(Glib::ustring knob)
   addKnob +=  "_dark_skin_icons' \n";
 }
 
-void Gxmetal_headGUI::set_skin()
+void Gxmetal_ampGUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
   toparse +=     " '";
@@ -112,14 +112,14 @@ void Gxmetal_headGUI::set_skin()
   toparse +=     "'}}\n"
                  " }\n"
                  "\n"
-                 "style 'gx_headmetal_head_box' \n"
+                 "style 'gx_headmetal_amp_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#d190bc' \n"
+                 "    fg[NORMAL] = '#cbc8c8' \n"
                  "font_name = 'sans bold 9.5' \n"
                  " }\n";
   toparse +=     addKnob;
 
-  toparse +=     " widget '*.amplabel' style:highest 'gx_headmetal_head_box'\n"
+  toparse +=     " widget '*.amplabel' style:highest 'gx_headmetal_amp_box'\n"
                  "widget '*.";
   toparse +=     plug_name;
   toparse +=     "' style 'gx_";
@@ -144,24 +144,24 @@ void Gxmetal_headGUI::set_skin()
   gtk_rc_parse_string (toparse.c_str());
 }
 
-void Gxmetal_headGUI::set_plug_name(const char * plugin_uri)
+void Gxmetal_ampGUI::set_plug_name(const char * plugin_uri)
 {
   addKnob = "";
 
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gxmetal_head#metal_head", plugin_uri) == 0)
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gxmetal_amp#metal_amp", plugin_uri) == 0)
     {
-      plugskin = "metalhead.png";
-      plug_name = "gxmetal_head";
-      set_knob("nm2-knob");
+      plugskin = "metalamp.png";
+      plug_name = "gxmetal_amp";
+      set_knob("sn-knob");
     }
   else
     {
       plugskin = "preampmono.png";
-      plug_name = "gxmetal_head";
+      plug_name = "gxmetal_amp";
     }
 }
 
-GtkWidget* Gxmetal_headGUI::make_gui()
+GtkWidget* Gxmetal_ampGUI::make_gui()
 {
   // init the gxwmm library
   Gxw::init();
@@ -175,7 +175,7 @@ GtkWidget* Gxmetal_headGUI::make_gui()
 }
 
 
-LV2UI_Handle Gxmetal_headGUI::instantiate(const struct _LV2UI_Descriptor * descriptor,
+LV2UI_Handle Gxmetal_ampGUI::instantiate(const struct _LV2UI_Descriptor * descriptor,
                                 const char * plugin_uri,
                                 const char * bundle_path,
                                 LV2UI_Write_Function write_function,
@@ -183,7 +183,7 @@ LV2UI_Handle Gxmetal_headGUI::instantiate(const struct _LV2UI_Descriptor * descr
                                 LV2UI_Widget * widget,
                                 const LV2_Feature * const * features)
 {
-  Gxmetal_headGUI* self = new Gxmetal_headGUI();
+  Gxmetal_ampGUI* self = new Gxmetal_ampGUI();
   if (self == NULL) return NULL;
   self->set_plug_name(plugin_uri);
   *widget = (LV2UI_Widget)self->make_gui();
@@ -192,31 +192,31 @@ LV2UI_Handle Gxmetal_headGUI::instantiate(const struct _LV2UI_Descriptor * descr
   return (LV2UI_Handle)self;
 }
 
-void Gxmetal_headGUI::cleanup(LV2UI_Handle ui)
+void Gxmetal_ampGUI::cleanup(LV2UI_Handle ui)
 {
-  Gxmetal_headGUI *pluginGui = static_cast<Gxmetal_headGUI*>(ui);
+  Gxmetal_ampGUI *pluginGui = static_cast<Gxmetal_ampGUI*>(ui);
   delete pluginGui->widget;
   delete pluginGui;
 }
 
-void Gxmetal_headGUI::port_event(LV2UI_Handle ui,
+void Gxmetal_ampGUI::port_event(LV2UI_Handle ui,
                        uint32_t port_index,
                        uint32_t buffer_size,
                        uint32_t format,
                        const void * buffer)
 {
-  Gxmetal_headGUI *self = static_cast<Gxmetal_headGUI*>(ui);
+  Gxmetal_ampGUI *self = static_cast<Gxmetal_ampGUI*>(ui);
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }
 
-LV2UI_Descriptor Gxmetal_headGUI::descriptors[] =
+LV2UI_Descriptor Gxmetal_ampGUI::descriptors[] =
 {
   {
     GXPLUGIN_UI_URI,
-    Gxmetal_headGUI::instantiate,
-    Gxmetal_headGUI::cleanup,
-    Gxmetal_headGUI::port_event,
+    Gxmetal_ampGUI::instantiate,
+    Gxmetal_ampGUI::cleanup,
+    Gxmetal_ampGUI::port_event,
     NULL
   }
 };
@@ -224,11 +224,11 @@ LV2UI_Descriptor Gxmetal_headGUI::descriptors[] =
 const LV2UI_Descriptor * lv2ui_descriptor(uint32_t index)
 {
   //printf("lv2ui_descriptor(%u) called\n", (uint32_t)index);
-  if (index >= sizeof(Gxmetal_headGUI::descriptors) /
-               sizeof(Gxmetal_headGUI::descriptors[0]))
+  if (index >= sizeof(Gxmetal_ampGUI::descriptors) /
+               sizeof(Gxmetal_ampGUI::descriptors[0]))
     {
       return NULL;
     }
-  return Gxmetal_headGUI::descriptors + index;
+  return Gxmetal_ampGUI::descriptors + index;
 }
 
