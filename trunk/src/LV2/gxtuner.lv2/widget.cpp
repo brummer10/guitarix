@@ -37,6 +37,8 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &m_bigknob;
     case TUNEMODE:
       return &tuner_tuning;
+    case THRESHOLD: 
+      return &m_bigknob1;
     default:
       return NULL;
   } 
@@ -77,6 +79,8 @@ plug_name(plugname)
   m_hbox2_.pack_start(tuner_tuning);
   
   make_controller_box(&m_vbox4, "Reference Pitch", 400.0, 480.0, 0.1, REFFREQ);
+  make_controller_box(&m_vbox5, "Threshold", 0.001, 0.1, 0.001, THRESHOLD);
+  m_hbox2_.pack_start(m_vbox5);
   m_hbox2_.pack_start(m_vbox4);
   m_hbox1_.pack_start(m_tuner);
   m_hbox1_.set_border_width(5);

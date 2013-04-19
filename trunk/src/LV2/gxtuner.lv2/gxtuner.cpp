@@ -38,6 +38,8 @@ private:
   float*                       output;
   float*                       input;
   float*                       freq;
+  float                        threshold;
+  float*                       threshold_;
   PluginLV2*                   tuner_adapter;
 
   inline void run_dsp_mono(uint32_t n_samples);
@@ -98,6 +100,9 @@ void Gxtuner::connect_mono(uint32_t port,void* data)
     case FREQ: 
       freq = static_cast<float*>(data);
       break;
+    case THRESHOLD: 
+      threshold_ = static_cast<float*>(data) ;
+      break;
     case EFFECTS_OUTPUT:
       output = static_cast<float*>(data);
       break;
@@ -132,6 +137,10 @@ void Gxtuner::deactivate_f()
 
 void Gxtuner::run_dsp_mono(uint32_t n_samples)
 {
+  tuner& self = *static_cast<tuner*>(tuner_adapter);
+  threshold = *(threshold_);
+  self.set_threshold_level(threshold);
+    
   tuner_adapter->mono_audio(static_cast<int>(n_samples), input, output, tuner_adapter);
   *(freq) = static_cast<tuner*>(tuner_adapter)->get_freq();
   //printf("frequency  value %f\n",*(freq));
@@ -143,7 +152,7 @@ void Gxtuner::connect_all_mono_ports(uint32_t port, void* data)
   // connect the Ports used by the plug-in class
   connect_mono(port,data); 
   // connect the Ports used by the DSP class
-  //tuner_adapter->connect_ports(port,  data, tuner_adapter);
+  tuner_adapter->connect_ports(port,  data, tuner_adapter);
 }
 
 ///////////////////////// STATIC CLASS  FUNCTIONS /////////////////////

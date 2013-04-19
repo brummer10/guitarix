@@ -90,10 +90,10 @@ protected:
   Gtk::HBox         m_hbox2_;
 
   Gxw::PaintBox     m_paintbox;
-  Gxw::HSlider   m_bigknob;
+  Gxw::HSlider      m_bigknob;
+  Gxw::HSlider      m_bigknob1;
   Gxw::RackTuner    m_tuner;
   Gxw::Selector     tuner_tuning;
-  Gxw::BigKnob      m_bigknob3;
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

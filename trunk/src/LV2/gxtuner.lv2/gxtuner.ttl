@@ -69,7 +69,7 @@
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 2 ;
-        lv2:symbol "tuner_mode" ;
+        lv2:symbol "TUNER_MODE" ;
         lv2:name "Tuner Mode";
         lv2:portProperty lv2:integer;
         lv2:portProperty lv2:enumeration ;
@@ -80,15 +80,24 @@
         lv2:scalePoint [rdfs:label "Standard/Es"; rdf:value 1];
         lv2:scalePoint [rdfs:label "Open E"; rdf:value 1];
     ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:symbol "THRESHOLD" ;
+        lv2:name "THRESHOLD";
+        lv2:default 0.001 ;
+        lv2:minimum 0.001 ;
+        lv2:maximum 0.1 ;
+    ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 3 ;
+        lv2:index 4 ;
         lv2:symbol "out" ;
         lv2:name "Out" ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 4 ;
+        lv2:index 5 ;
         lv2:symbol "in" ;
         lv2:name "In" ;
     ].

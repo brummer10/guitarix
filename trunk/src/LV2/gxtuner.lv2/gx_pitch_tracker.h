@@ -39,6 +39,7 @@ class PitchTracker {
     float           get_estimated_note();
     void            stop_thread();
     void            reset();
+    void            set_threshold(float v);
     void            set_fast_note_detection(bool v);
     Glib::Dispatcher new_freq;
  private:

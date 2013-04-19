@@ -94,6 +94,11 @@ PitchTracker::~PitchTracker() {
     delete[] m_buffer;
 }
 
+void PitchTracker::set_threshold(float v) {
+    signal_threshold_on = v;
+    signal_threshold_off = v*0.9;
+}
+
 void PitchTracker::set_fast_note_detection(bool v) {
     if (v) {
 	signal_threshold_on = SIGNAL_THRESHOLD_ON * 5;

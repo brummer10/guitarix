@@ -47,6 +47,7 @@ public:
     Glib::Dispatcher& signal_freq_changed() { return pitch_tracker.new_freq; }
     float get_freq() { return pitch_tracker.get_estimated_freq(); }
     float get_note() { return pitch_tracker.get_estimated_note(); }
+    void set_threshold_level(float v) {pitch_tracker.set_threshold(v);}
     static void del_instance(PluginLV2 *p);
 };
 
@@ -97,23 +98,14 @@ int tuner::activate(bool start, PluginLV2 *plugin) {
 }
 
 void tuner::feed_tuner(int count, float* input, float*, PluginLV2* plugin) {
-    static_cast<tuner*>(plugin)->pitch_tracker.add(count, input);
+    tuner& self = *static_cast<tuner*>(plugin);
+    self.pitch_tracker.add(count, input);
 }
 
 
 void tuner::connect(uint32_t port,void* data)
 {
-	/*switch ((PortIndex)port)
-	{
-	case FREQ: 
-		pitch_tracker.m_freq_ = static_cast<float*>(data) ;
-		break;
-	case NOTE: 
-		pitch_tracker.m_note_ = static_cast<float*>(data) ;
-		break;
-	default:
-		break;
-	}*/
+	
 }
 
 void tuner::connect_static(uint32_t port,void* data, PluginLV2 *p)
