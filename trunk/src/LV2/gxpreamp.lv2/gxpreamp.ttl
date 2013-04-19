@@ -115,10 +115,8 @@
         lv2:minimum -75.0 ;
         lv2:maximum -3.0 ;
     ], [
-        a lv2:InputPort ,
-            atom:AtomPort ;
-        atom:bufferType atom:Sequence ;
-        atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
+        a lv2:OutputPort ,
+             lv2:ControlPort;
         lv2:index 6 ;
         lv2:symbol "notify" ;
         lv2:name "Notify"

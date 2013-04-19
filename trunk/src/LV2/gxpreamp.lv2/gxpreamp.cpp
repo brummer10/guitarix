@@ -145,7 +145,7 @@ public:
 
   LV2_Atom_Forge forge;
   LV2_Atom_Forge_Frame notify_frame;
-  LV2_Atom_Sequence*           notify_port;
+  float*           notify_port;
   float                        maxlevels_[4];
   /* URIs */
   PreampURIs uris;
@@ -217,7 +217,7 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
       input = static_cast<float*>(data);
       break;
     case MAXLEVEL:
-      notify_port = (LV2_Atom_Sequence*)(data);
+      notify_port = static_cast<float*>(data);
       break;
     default:
       break;
@@ -267,6 +267,7 @@ void GxPluginMono::calculate_maxlevels( uint32_t n_samples, float *input, float 
     	}
 	// Here we need to assign values input0, output0, input1, output1
 	maxlevels_[port] = fast_log10(level) ; 
+    *(notify_port) = fast_log10(level) ;
     }
 
 }
@@ -401,18 +402,18 @@ run(LV2_Handle instance, uint32_t n_samples)
 {
   GxPluginMono* self = (GxPluginMono*)instance;
 
-  const uint32_t notify_capacity = self->notify_port->atom.size;
+  //const uint32_t notify_capacity = self->notify_port->atom.size;
 // Seems to be 8 assume that is bytes
 // fprintf(stderr, "Notify Capacity = %d\n", notify_capacity );
 // fprintf(stderr, "Size of float = %lu\n", sizeof( float )  );
 
-  lv2_atom_forge_set_buffer(&self->forge,(uint8_t*)self->notify_port, notify_capacity);
+  //lv2_atom_forge_set_buffer(&self->forge,(uint8_t*)self->notify_port, notify_capacity);
   /* Start a sequence in the notify output port. */
-  lv2_atom_forge_sequence_head(&self->forge, &self->notify_frame, 0);
+ // lv2_atom_forge_sequence_head(&self->forge, &self->notify_frame, 0);
   /* Now write the value to the port */
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_blank(
-                &self->forge, &self->notify_frame, 1, self->uris.eg_Maxlevel );
-  lv2_atom_forge_resource(&self->forge, &self->notify_frame, 1, self->uris.eg_Maxlevel);
+  //LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_blank(
+  //              &self->forge, &self->notify_frame, 1, self->uris.eg_Maxlevel );
+ // lv2_atom_forge_resource(&self->forge, &self->notify_frame, 1, self->uris.eg_Maxlevel);
   // Now get core dump so mamybe buffer too small
   //lv2_atom_forge_property_head(&self->forge, self->uris.eg_maxlevel, 0);
   //lv2_atom_forge_float( &self->forge, self->maxlevels_[0] ) ; 

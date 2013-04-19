@@ -189,7 +189,7 @@ void Widget::set_value(uint32_t port_index,
           m_bigknob5.cp_set_value(feedback);
           break;
 	case MAXLEVEL :
-	//fprintf(stderr, "MAXLEVEL MESSAGE THROUGH\n!" ) ;
+	fprintf(stderr, "MAXLEVEL MESSAGE THROUGH %f\n", value ) ;
 	break;
         default:
           break;
