@@ -90,6 +90,7 @@ protected:
   Gtk::HBox         m_hbox2_;
 
   Gxw::PaintBox     m_paintbox;
+  Gxw::PaintBox     m_paintbox1;
   Gxw::HSlider      m_bigknob;
   Gxw::HSlider      m_bigknob1;
   Gxw::RackTuner    m_tuner;

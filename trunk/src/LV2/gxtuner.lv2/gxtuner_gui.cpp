@@ -113,7 +113,7 @@ void GxtunerGUI::set_skin()
                  " }\n";
   toparse +=     "style 'gx_headtuner_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#cbc8c8' \n"
+                 "    fg[NORMAL] = '#222222' \n"
                  "font_name = 'sans  7.5' \n"
                  " }\n";
   toparse +=     addKnob;
@@ -143,7 +143,7 @@ void GxtunerGUI::set_skin()
   toparse +=     plug_name;
   toparse +=     "'\n"
                  " {\n"
-                 " fg[NORMAL] = '#c0c6d0'\n"
+                 " fg[NORMAL] = '#888888'\n"
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"

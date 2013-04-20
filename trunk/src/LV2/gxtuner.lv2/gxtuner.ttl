@@ -63,8 +63,8 @@
         lv2:symbol "REFFREQ" ;
         lv2:name "REFFREQ";
         lv2:default 440.0 ;
-        lv2:minimum 400.0 ;
-        lv2:maximum 480.0 ;
+        lv2:minimum 427.0 ;
+        lv2:maximum 453.0 ;
     ] ,[
         a lv2:InputPort ,
             lv2:ControlPort ;

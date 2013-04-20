@@ -142,7 +142,7 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
   self.set_threshold_level(threshold);
     
   tuner_adapter->mono_audio(static_cast<int>(n_samples), input, output, tuner_adapter);
-  *(freq) = static_cast<tuner*>(tuner_adapter)->get_freq();
+  *(freq) = self.get_freq();
   //printf("frequency  value %f\n",*(freq));
   memcpy(output, input, n_samples * sizeof(float));
 }

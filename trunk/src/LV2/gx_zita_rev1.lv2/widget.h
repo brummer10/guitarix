@@ -84,8 +84,16 @@ protected:
   Gtk::VBox         m_vbox5;
   Gtk::VBox         m_vbox6;
   Gtk::VBox         m_vbox7;
+  Gtk::VBox         m_vbox8;
   Gtk::HBox         m_hbox_;
   Gtk::HBox         m_hbox1_;
+  Gtk::HBox         m_hbox1;
+  Gtk::HBox         m_hbox2;
+  Gtk::Frame        m_fr1;
+  Gtk::Frame        m_fr2;
+  Gtk::Frame        m_fr3;
+  Gtk::Frame        m_fr4;
+  Gtk::Frame        m_fr5;
 
   Gxw::PaintBox     m_paintbox;
   Gxw::SmallKnobR   m_bigknob;

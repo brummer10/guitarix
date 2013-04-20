@@ -66,17 +66,32 @@ Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
   // create controllers for port name
-  make_controller_box(&m_vbox2, "LEVEL", -7e+01, 4e+01, 0.1, LEVEL);
-  make_controller_box(&m_vbox2, "DELAY IN",  2e+01, 1e+02, 1.0 , IN_DELAY);
-  make_controller_box(&m_vbox3, "EQ2 LEVEL",  -1.0, 1.0, 0.01  , EQ2_LEVEL);
-  make_controller_box(&m_vbox3, "EQ2 FREQ", 4e+01, 2.5e+03, 1.0 , EQ2_FREQ);
-  make_controller_box(&m_vbox4, "EQ1 LEVEL", -15.0, 15.0, 0.1, EQ1_LEVEL);
-  make_controller_box(&m_vbox4, "EQ1 FREQ",  4e+01, 2.5e+03, 1.0 , EQ1_FREQ);
+  m_fr5.set_label("In");
+  m_fr5.add(m_vbox2);
+  make_controller_box(&m_vbox2, "DELAY",  2e+01, 1e+02, 1.0 , IN_DELAY);
   
-  make_controller_box(&m_vbox5, "LOW RT60",  1.0, 8.0, 0.1, LOW_RT60);
-  make_controller_box(&m_vbox5, "MID RT60",  1.0, 8.0, 0.1 , MID_RT60);
-  make_controller_box(&m_vbox6, "LF X", 5e+01, 1e+03, 1.0  , LF_X);
-  make_controller_box(&m_vbox6, "HF DAMPING", 1.5e+03, 2.352e+04, 1.0, HF_DAMPING);
+  m_fr1.set_label("EQ2");
+  m_fr1.add(m_vbox3);
+  make_controller_box(&m_vbox3, "LEVEL",  -1.0, 1.0, 0.01  , EQ2_LEVEL);
+  make_controller_box(&m_vbox3, "FREQ", 4e+01, 2.5e+03, 1.0 , EQ2_FREQ);
+  
+  m_fr2.set_label("EQ1");
+  m_fr2.add(m_vbox4);
+  make_controller_box(&m_vbox4, "LEVEL", -15.0, 15.0, 0.1, EQ1_LEVEL);
+  make_controller_box(&m_vbox4, "FREQ",  4e+01, 2.5e+03, 1.0 , EQ1_FREQ);
+  
+  m_fr3.set_label("Reverb Time T60");
+  m_fr3.add(m_hbox1);
+  m_hbox1.add(m_vbox5);
+  m_hbox1.add(m_vbox6);
+  make_controller_box(&m_vbox5, "LOW",  1.0, 8.0, 0.1, LOW_RT60);
+  make_controller_box(&m_vbox5, "MID",  1.0, 8.0, 0.1 , MID_RT60);
+  make_controller_box(&m_vbox6, "FREQ X", 5e+01, 1e+03, 1.0  , LF_X);
+  make_controller_box(&m_vbox6, "DAMP", 1.5e+03, 2.352e+04, 1.0, HF_DAMPING);
+  
+  m_fr4.set_label("Output");
+  m_fr4.add(m_vbox7);
+  make_controller_box(&m_vbox7, "LEVEL", -7e+01, 4e+01, 0.1, LEVEL);
   make_controller_box(&m_vbox7, "DRY/WET",  -1.0, 1.0, 0.01  , DRY_WET_MIX);
   
   // set propertys for the main paintbox holding the skin
@@ -99,12 +114,11 @@ plug_name(plugname)
 
    // put boxed controllers into controller box
   m_hbox_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
-  m_hbox_.pack_start(m_vbox2);
-  m_hbox_.pack_start(m_vbox4);
-  m_hbox_.pack_start(m_vbox3);
-  m_hbox_.pack_start(m_vbox5);
-  m_hbox_.pack_start(m_vbox6);
-  m_hbox_.pack_start(m_vbox7);
+  m_hbox_.pack_start(m_fr5);
+  m_hbox_.pack_start(m_fr2);
+  m_hbox_.pack_start(m_fr1);
+  m_hbox_.pack_start(m_fr3);
+  m_hbox_.pack_start(m_fr4);
   m_hbox_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
 
   // connect expose handler as resize handler
