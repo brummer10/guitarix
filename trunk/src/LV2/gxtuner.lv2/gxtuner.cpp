@@ -138,8 +138,11 @@ void Gxtuner::deactivate_f()
 void Gxtuner::run_dsp_mono(uint32_t n_samples)
 {
   tuner& self = *static_cast<tuner*>(tuner_adapter);
-  threshold = *(threshold_);
-  self.set_threshold_level(threshold);
+  if (threshold != *(threshold_))
+  {
+    threshold = *(threshold_);
+    self.set_threshold_level(threshold);
+  }
     
   tuner_adapter->mono_audio(static_cast<int>(n_samples), input, output, tuner_adapter);
   *(freq) = self.get_freq();
@@ -152,7 +155,7 @@ void Gxtuner::connect_all_mono_ports(uint32_t port, void* data)
   // connect the Ports used by the plug-in class
   connect_mono(port,data); 
   // connect the Ports used by the DSP class
-  tuner_adapter->connect_ports(port,  data, tuner_adapter);
+  // tuner_adapter->connect_ports(port,  data, tuner_adapter);
 }
 
 ///////////////////////// STATIC CLASS  FUNCTIONS /////////////////////

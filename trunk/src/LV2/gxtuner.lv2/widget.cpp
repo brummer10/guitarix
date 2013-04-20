@@ -103,6 +103,7 @@ plug_name(plugname)
   add(m_paintbox);
   m_paintbox.pack_start(m_paintbox1);
   m_paintbox1.property_paint_func() = "RackBox_expose";
+  m_paintbox1.set_name(plug_name);
   m_paintbox1.set_border_width(1);
   // One vertical box to wrap all in
   m_vbox2.set_homogeneous(false);

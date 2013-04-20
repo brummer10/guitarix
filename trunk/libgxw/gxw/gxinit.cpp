@@ -70,7 +70,9 @@ static image_entry image_data[] = {
 
 void gxw_init()
 {
+#if !GLIB_CHECK_VERSION(2, 36, 0) 
 	g_type_init();
+#endif
 	GtkIconFactory *factory = gtk_icon_factory_new();
 	for (image_entry *p = image_data; p->icon_name; p++) {
 		gtk_icon_factory_add(

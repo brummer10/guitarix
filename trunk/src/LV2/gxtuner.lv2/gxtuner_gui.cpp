@@ -106,6 +106,12 @@ void GxtunerGUI::set_skin()
                  "{ 65536, 0, 0, 13107, 52428 }, \n"
                  "{ 52428, 0, 0, 0, 52428 },\n"
                  "{ 13107, 0, 0, 13107, 13107 }}\n"
+                 " GxPaintBox::box-gradient = {\n"
+                 "{ 0, 19661, 19661, 19661, 52428 }, \n"
+                 "{ 22768, 80, 83, 80, 52428 }, \n"
+                 "{ 52428, 8, 8, 80, 52428 }, \n"
+                 "{ 65536, 4, 4, 4, 62428 }} \n"
+
                  "    GxPaintBox::icon-set =11\n"
                  "    stock['amp_skin'] = {{'";
   toparse +=     plugskin;
@@ -113,7 +119,7 @@ void GxtunerGUI::set_skin()
                  " }\n";
   toparse +=     "style 'gx_headtuner_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#222222' \n"
+                 "    fg[NORMAL] = '#888888' \n"
                  "font_name = 'sans  7.5' \n"
                  " }\n";
   toparse +=     addKnob;
