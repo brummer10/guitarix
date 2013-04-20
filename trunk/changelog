@@ -1,7 +1,7 @@
-guitarix2 (0.27.0git) unstable; urgency=low
+guitarix2 (0.27.0) unstable; urgency=low
   * git head
   
- -- brummer <brummer-@web.de>  Fri, 31 Dec 2012 9:30:35 +0200 
+ -- brummer <brummer-@web.de>  Sat, 20 Apr 2013 21:30:35 +0200 
 
 guitarix2 (0.25.2) unstable; urgency=low
   * add ts9 tube screamer to lv2.plugs

@@ -76,43 +76,48 @@ plug_name(plugname)
   Glib::ustring modes[] = {"(Chromatic)","Standard/E","Standard/Es", "Open E"};  
   static const size_t _size = sizeof(modes) / sizeof(modes[0]);
   make_selector("Tunning Modes", modes, _size, 0, 1.0, TUNEMODE);
-  m_hbox2_.pack_start(tuner_tuning);
   
   make_controller_box(&m_vbox4, "Reference Pitch", 427.0, 453.0, 0.1, REFFREQ);
   make_controller_box(&m_vbox5, "Threshold", 0.001, 0.1, 0.001, THRESHOLD);
-  m_hbox2_.pack_start(m_vbox5);
-  m_hbox2_.pack_start(m_vbox4);
-  m_hbox1_.pack_start(m_tuner);
-  m_hbox1_.set_border_width(5);
-  m_vbox2.pack_start(m_hbox1_);
-  m_vbox2.pack_start(m_hbox2_,Gtk::PACK_SHRINK);
-  m_vbox2.set_border_width(5);
+
   // set propertys for the tuner widget
   m_tuner.set_size_request( 440, 35 ) ;
   m_tuner.set_streaming(true);
   m_tuner.set_display_flat(false);
   m_tuner.set_reference_pitch(440.0);
+
+  m_hbox1_.pack_start(m_tuner);
+  m_hbox1_.set_border_width(5);
+
+  m_hbox2_.pack_start(tuner_tuning);
+  m_hbox2_.pack_start(m_vbox5);
+  m_hbox2_.pack_start(m_vbox4);
+
+  m_vbox2.pack_start(m_hbox1_);
+  m_vbox2.pack_start(m_hbox2_,Gtk::PACK_SHRINK);
+  m_vbox2.set_border_width(5);
+  m_vbox2.set_homogeneous(false);
+
+  m_paintbox1.property_paint_func() = "RackBox_expose";
+  m_paintbox1.set_name(plug_name);
+  m_paintbox1.set_border_width(1);
+  m_paintbox1.pack_start(m_vbox2);
+  
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(20);
   m_paintbox.set_spacing(0);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "gxhead_expose";
+  m_paintbox.pack_start(m_paintbox1);
   //m_paintbox.set_size_request( 425, 160 ) ;
 
-  add(m_paintbox);
-  m_paintbox.pack_start(m_paintbox1);
-  m_paintbox1.property_paint_func() = "RackBox_expose";
-  m_paintbox1.set_name(plug_name);
-  m_paintbox1.set_border_width(1);
-  // One vertical box to wrap all in
-  m_vbox2.set_homogeneous(false);
-  m_paintbox1.pack_start(m_vbox2);
 
   // connect expose handler as resize handler
   m_paintbox.signal_expose_event().connect(
     sigc::mem_fun(this, &Widget::_expose_event), true);
 
+  add(m_paintbox);
   set_app_paintable(true);
   show_all();
 }
