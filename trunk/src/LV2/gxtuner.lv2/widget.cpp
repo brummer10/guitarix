@@ -73,7 +73,7 @@ plug_name(plugname)
 {
   // create controllers for port name
   
-  Glib::ustring modes[] = {"Standard","Standard/Es", "Open E"};  
+  Glib::ustring modes[] = {"(Chromatic)","Standard/E","Standard/Es", "Open E"};  
   static const size_t _size = sizeof(modes) / sizeof(modes[0]);
   make_selector("Tunning Modes", modes, _size, 0, 1.0, TUNEMODE);
   m_hbox2_.pack_start(tuner_tuning);
@@ -88,7 +88,7 @@ plug_name(plugname)
   m_vbox2.pack_start(m_hbox2_,Gtk::PACK_SHRINK);
   m_vbox2.set_border_width(5);
   // set propertys for the tuner widget
-  m_tuner.set_size_request( 440, 45 ) ;
+  m_tuner.set_size_request( 440, 35 ) ;
   m_tuner.set_streaming(true);
   m_tuner.set_display_flat(false);
   m_tuner.set_reference_pitch(440.0);

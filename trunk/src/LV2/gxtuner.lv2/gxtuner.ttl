@@ -76,9 +76,10 @@
         lv2:default 0 ;
         lv2:minimum 0 ;
         lv2:maximum 1 ;
-        lv2:scalePoint [rdfs:label "Standard"; rdf:value 0];
-        lv2:scalePoint [rdfs:label "Standard/Es"; rdf:value 1];
-        lv2:scalePoint [rdfs:label "Open E"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "(Chromatic)"; rdf:value 0];
+        lv2:scalePoint [rdfs:label "Standard/E"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "Standard/Es"; rdf:value 2];
+        lv2:scalePoint [rdfs:label "Open E"; rdf:value 3];
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
