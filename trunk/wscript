@@ -394,6 +394,28 @@ def check_faust(conf):
         conf.check_message('faust','version',1,vers)
     conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
 
+def check_cloop(conf):
+    code = """
+    int
+    main (void)
+    {
+    #define max(x, y) (((x) > (y)) ? (x) : (y))
+    #define min(x, y) (((x) < (y)) ? (x) : (y))
+    for (int p1=0;p1<=5;p1++) {
+        for (int p2=0;p2<=10;p2++) {
+            for (int i=max(2*p1,0);i<=min(10,2*p1+1);i++) {
+                for (int j=max(2*p2,0);j<=min(20,2*p2+1);j++) {
+                    ;
+                }
+            }
+        }
+    }
+    return 0;
+    }
+    """
+    msg = "Checking for ibcloog-ppl0" 
+    conf.check_cxx(msg = msg, fragment=code, cxxflags=[ '-O3', '-ftree-loop-linear'], define_name="NOOPT")
+
 def check_boost(conf):
     code="""
     #include <boost/system/error_code.hpp>
@@ -642,8 +664,10 @@ def configure(conf):
         cxxflags += opt.cxxflags_release.split()
     cpu_model = None
     if opt.optimization:
-        conf.env['OPT'] = False
-        cpu_model = append_optimization_flags(cxxflags)
+        check_cloop(conf)
+        if conf.env['NOOPT']:
+            conf.env['OPT'] = False
+            cpu_model = append_optimization_flags(cxxflags)
     conf.env['CXXFLAGS'] += cxxflags
 
     if opt.no_desktop_update:
@@ -693,6 +717,8 @@ def configure(conf):
         display_msg("Guitarix main build ", "dissabled", 'RED')
     if cpu_model:
         display_msg("CPU version" , "%s" % cpu_model, "CYAN")
+    if not conf.env['NOOPT'] and opt.optimization:
+        display_msg("package libcloog-ppl0 not found", "optimization is disabled", "RED")
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
     display_msg("Link flags", " ".join(conf.env['LINKFLAGS']), 'CYAN')
     display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
