@@ -32,6 +32,10 @@
 class Widget : public Gtk::HBox
 {
 private:
+  float reset;
+  bool refresh_meter_level(float new_level);
+  inline float power2db(float power);
+  inline double log_meter (double db);
   Gtk::Widget* get_controller_by_port(uint32_t port_index);
 
   void on_value_changed(uint32_t port_index);
@@ -92,10 +96,13 @@ protected:
 
   Gxw::PaintBox     m_paintbox;
   Gxw::PaintBox     m_paintbox1;
+  Gxw::PaintBox     m_paintbox2;
   Gxw::HSlider      m_bigknob;
   Gxw::HSlider      m_bigknob1;
   Gxw::RackTuner    m_tuner;
   Gxw::Selector     tuner_tuning;
+  Gxw::FastMeter    fastmeter;
+  
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

@@ -41,6 +41,8 @@ typedef enum
   REFFREQ,
   TUNEMODE,
   THRESHOLD,
+  MAXL,
+  RESET,
   EFFECTS_OUTPUT,
   EFFECTS_INPUT,
 } PortIndex;

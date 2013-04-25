@@ -21,7 +21,7 @@
 #include "widget.h"
 
 #include <iostream>
-
+#define max(x, y) (((x) > (y)) ? (x) : (y))
 /*    @get controller by port
  *  this function is used by make_selector() make_controller_box()
  *  set_value() and on_value_changed()
@@ -67,6 +67,66 @@ void Widget::set_tuning() {
     }
 }
 
+inline float Widget::power2db(float power) {
+    return  20.*log10(power);
+}
+
+inline double Widget::log_meter (double db)
+{
+	// keep log_meter_inv in sync when changing anying!
+	gfloat def = 0.0f; /* Meter deflection %age */
+
+	if (db < -70.0f) {
+		def = 0.0f;
+	} else if (db < -60.0f) {
+		def = (db + 70.0f) * 0.25f;
+	} else if (db < -50.0f) {
+		def = (db + 60.0f) * 0.5f + 2.5f;
+	} else if (db < -40.0f) {
+		def = (db + 50.0f) * 0.75f + 7.5f;
+	} else if (db < -30.0f) {
+		def = (db + 40.0f) * 1.5f + 15.0f;
+	} else if (db < -20.0f) {
+		def = (db + 30.0f) * 2.0f + 30.0f;
+	} else if (db < 6.0f) {
+		def = (db + 20.0f) * 2.5f + 50.0f;
+	} else {
+		def = 115.0f;
+	}
+
+	/* 115 is the deflection %age that would be
+	   when db=6.0. this is an arbitrary
+	   endpoint for our scaling.
+	*/
+
+	return def/115.0f;
+}
+
+
+bool Widget::refresh_meter_level(float new_level) {
+
+    const float falloff = 87 * 60 * 0.001;
+
+    // Note: removed RMS calculation, we will only focus on max peaks
+    static float old_peak_db = -INFINITY;
+
+    // calculate peak dB and translate into meter
+	float peak_db = -INFINITY;
+	if (new_level > 0) {
+	    peak_db = power2db(new_level);
+	}
+	// retrieve old meter value and consider falloff
+	if (peak_db < old_peak_db) {
+	    peak_db = max(peak_db, old_peak_db - falloff);
+	}
+	fastmeter.set(log_meter(peak_db));
+	old_peak_db = peak_db;
+    
+    // reset the maxlevel buffer in the vumeter thread
+    reset *= -1;
+    on_value_changed(RESET);
+    return true;
+}
 
 Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
@@ -95,13 +155,14 @@ plug_name(plugname)
 
   m_vbox2.pack_start(m_hbox1_);
   m_vbox2.pack_start(m_hbox2_,Gtk::PACK_SHRINK);
-  m_vbox2.set_border_width(5);
+  m_vbox2.set_border_width(2);
   m_vbox2.set_homogeneous(false);
 
   m_paintbox1.property_paint_func() = "RackBox_expose";
   m_paintbox1.set_name(plug_name);
   m_paintbox1.set_border_width(1);
   m_paintbox1.pack_start(m_vbox2);
+  
   
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(20);
@@ -110,6 +171,17 @@ plug_name(plugname)
   m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "gxhead_expose";
   m_paintbox.pack_start(m_paintbox1);
+  m_paintbox.pack_start(m_hbox3_,Gtk::PACK_SHRINK);
+  m_hbox3_.set_border_width(5);
+  m_paintbox.pack_start(m_paintbox2,Gtk::PACK_SHRINK);
+
+  m_paintbox2.property_paint_func() = "level_meter_expose";
+  m_paintbox2.set_spacing(20);
+  m_paintbox2.set_border_width(2);
+  m_paintbox2.set_size_request(22, -1 );
+  m_paintbox2.pack_start(fastmeter,Gtk::PACK_SHRINK);
+  fastmeter.set_hold_count(8);
+  fastmeter.set_property("dimen",5);
   //m_paintbox.set_size_request( 425, 160 ) ;
 
 
@@ -120,6 +192,7 @@ plug_name(plugname)
   add(m_paintbox);
   set_app_paintable(true);
   show_all();
+  reset = 1;
 }
 
 Widget::~Widget()
@@ -134,7 +207,7 @@ bool Widget::_expose_event(GdkEventExpose *event)
   int x, y, width, height, depth;
   m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
   //double_t height = m_paintbox.get_window()->get_height();
-  m_paintbox.set_border_width(height/10);
+  m_paintbox.set_border_width(height/8);
   return false;
 }
 
@@ -276,18 +349,13 @@ void Widget::set_value(uint32_t port_index,
 {
   if ( format == 0 )
   {
+    float value = *static_cast<const float*>(buffer);
     Gxw::Regler *regler = static_cast<Gxw::Regler*>(
                                     get_controller_by_port(port_index));
-    if (regler)
-    {
-      float value = *static_cast<const float*>(buffer);
-      regler->cp_set_value(value);
-      //printf("port event %i, value %f\n",port_index,value);
-      
-    }
-    if(port_index == FREQ) m_tuner.set_freq(*static_cast<const float*>(buffer));
+    if (regler) regler->cp_set_value(value);
+    if (port_index == FREQ) m_tuner.set_freq(value);
     if (port_index == TUNEMODE) set_tuning();
-    
+    if (port_index == MAXL) refresh_meter_level(value);
   }
 }
 
@@ -303,5 +371,9 @@ void Widget::on_value_changed(uint32_t port_index)
                                     static_cast<const void*>(&value));
   }
   if (port_index == TUNEMODE) set_tuning();
+  if (port_index == RESET) {
+      write_function(controller, RESET, sizeof(float), 0,
+                                    static_cast<const void*>(&reset));
+  }
 }
 
