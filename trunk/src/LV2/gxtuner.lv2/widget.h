@@ -93,6 +93,7 @@ protected:
   Gtk::HBox         m_hbox1_;
   Gtk::HBox         m_hbox2_;
   Gtk::HBox         m_hbox3_;
+  Gtk::HBox         m_hbox4_;
 
   Gxw::PaintBox     m_paintbox;
   Gxw::PaintBox     m_paintbox1;

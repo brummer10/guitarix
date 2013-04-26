@@ -141,7 +141,7 @@ plug_name(plugname)
   make_controller_box(&m_vbox5, "Threshold", 0.001, 0.1, 0.001, THRESHOLD);
 
   // set propertys for the tuner widget
-  m_tuner.set_size_request( 440, 35 ) ;
+  m_tuner.set_size_request( 440, 45 ) ;
   m_tuner.set_streaming(true);
   m_tuner.set_display_flat(false);
   m_tuner.set_reference_pitch(440.0);
@@ -155,26 +155,28 @@ plug_name(plugname)
 
   m_vbox2.pack_start(m_hbox1_);
   m_vbox2.pack_start(m_hbox2_,Gtk::PACK_SHRINK);
-  m_vbox2.set_border_width(2);
+  m_vbox2.set_border_width(1);
   m_vbox2.set_homogeneous(false);
 
   m_paintbox1.property_paint_func() = "RackBox_expose";
   m_paintbox1.set_name(plug_name);
-  m_paintbox1.set_border_width(1);
+  m_paintbox1.set_border_width(5);
   m_paintbox1.pack_start(m_vbox2);
+  m_paintbox1.pack_start(m_paintbox2,Gtk::PACK_SHRINK);
   
-  
+
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(20);
   m_paintbox.set_spacing(0);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "gxhead_expose";
+  m_paintbox.pack_start(m_hbox4_,Gtk::PACK_SHRINK);
   m_paintbox.pack_start(m_paintbox1);
   m_paintbox.pack_start(m_hbox3_,Gtk::PACK_SHRINK);
-  m_hbox3_.set_border_width(5);
-  m_paintbox.pack_start(m_paintbox2,Gtk::PACK_SHRINK);
-
+  m_hbox3_.set_border_width(8);
+  m_hbox4_.set_border_width(8);
+  
   m_paintbox2.property_paint_func() = "level_meter_expose";
   m_paintbox2.set_spacing(20);
   m_paintbox2.set_border_width(2);

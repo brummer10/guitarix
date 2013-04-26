@@ -163,6 +163,14 @@ void GxtunerGUI::set_skin()
   toparse +=     "' style:highest 'gx_selector_";
   toparse +=     plug_name;
   toparse +=     "'\n";
+  toparse +=     "style 'gx_fastmeter'\n"
+                 " {\n"
+                 "   GxFastMeter::clr-bottom = '#003808'\n"
+                 "   GxFastMeter::clr-middle = '#00ff00'\n"
+                 "   GxFastMeter::clr-top    = '#ff0000'\n"
+                 "   GxFastMeter::over       = '#ff0000'\n"
+                 " }\n"
+                 " class '*GxFastMeter' style:highest 'gx_fastmeter'\n";
 
   gtk_rc_parse_string (toparse.c_str());
 }

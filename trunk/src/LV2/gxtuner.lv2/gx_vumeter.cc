@@ -21,18 +21,19 @@
 class MaxLevel: public PluginLV2 {
 
 private:
-    float maxlevel;
-    float  resetmaxlevel;
-    float *resetmaxlevel_;
-    float *maxlevel_;
-    static void init(unsigned int samplerate, PluginLV2 *plugin);
-    static void process(int count, float *input0, float *output0, PluginLV2*);
-    static void connect_static(uint32_t port,void* data, PluginLV2 *p);
-    static void del_instance(PluginLV2 *p);
+    float        maxlevel;
+    float        resetmaxlevel;
+    float        *resetmaxlevel_;
+    float        *maxlevel_;
+    static void  init(unsigned int samplerate, PluginLV2 *plugin);
+    static void  process(int count, float *input0, float *output0, PluginLV2*);
+    static void  connect_static(uint32_t port,void* data, PluginLV2 *p);
+    static void  del_instance(PluginLV2 *p);
+    static float get_level(MaxLevel& self) { return self.maxlevel;}
 
 public:
     MaxLevel();
-    ~MaxLevel() {};
+    ~MaxLevel()  {};
 };
 
 MaxLevel::MaxLevel()
@@ -52,7 +53,7 @@ void MaxLevel::init(unsigned int samplerate,PluginLV2 *plugin)
     MaxLevel& self = *static_cast<MaxLevel*>(plugin);
     self.maxlevel = 0;
     self.maxlevel_ = NULL;
-    self.resetmaxlevel = 0;
+    self.resetmaxlevel = 1;
     self.resetmaxlevel_ = NULL;
 }
 
@@ -74,17 +75,14 @@ void MaxLevel::connect_static(uint32_t port,void* data, PluginLV2 *plugin)
 
 void MaxLevel::process(int count, float *input1, float*, PluginLV2 *plugin) {
     MaxLevel& self = *static_cast<MaxLevel*>(plugin);
-    if(self.resetmaxlevel != *(self.resetmaxlevel_)) {
+    if(abs(self.resetmaxlevel - *(self.resetmaxlevel_))>0.1) {
         self.maxlevel = 0;
         self.resetmaxlevel = *(self.resetmaxlevel_);
     }
     const float *data = input1;
         float level = 0;
         for (int i = 0; i < count; i++) {
-            float t = fabs(data[i]);
-            if (level < t) {
-                level = t;
-            }
+            level = max(fabs(data[i]),level);
         }
         *(self.maxlevel_) = self.maxlevel = max(self.maxlevel, level);
 }
