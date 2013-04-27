@@ -39,7 +39,7 @@ private:
   Gtk::Widget* get_controller_by_port(uint32_t port_index);
 
   void on_value_changed(uint32_t port_index);
-  void set_tuning();
+  void set_tuning(float value);
   void make_controller_box(Gtk::Box *box,
                            Glib::ustring label,
                            float min, float max,

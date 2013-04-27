@@ -44,7 +44,7 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
   } 
 }
 
-void Widget::set_tuning() {
+void Widget::set_tuning(float mode_) {
     static struct TuningTab {
 	const char *name;
 	const char* key;
@@ -55,7 +55,7 @@ void Widget::set_tuning() {
 	{ "Standard/Es", "Es", true,  {39, 44, 49, 54, 58, 63}},
 	{ "Open E",      "E",  false, {40, 47, 52, 56, 59, 64}},
     };
-    int mode = tuner_tuning.get_value();
+    int mode = static_cast<int>(mode_);
     m_tuner.clear_notes();
     if (mode > 0) {
 	m_tuner.set_display_flat(tuning_tab[mode-1].flat);
@@ -356,7 +356,7 @@ void Widget::set_value(uint32_t port_index,
                                     get_controller_by_port(port_index));
     if (regler) regler->cp_set_value(value);
     if (port_index == FREQ) m_tuner.set_freq(value);
-    if (port_index == TUNEMODE) set_tuning();
+    if (port_index == TUNEMODE) set_tuning(value);
     if (port_index == MAXL) refresh_meter_level(value);
   }
 }
@@ -371,8 +371,8 @@ void Widget::on_value_changed(uint32_t port_index)
     float value = regler->cp_get_value();
     write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
+    if (port_index == TUNEMODE) set_tuning(value);
   }
-  if (port_index == TUNEMODE) set_tuning();
   if (port_index == RESET) {
       write_function(controller, RESET, sizeof(float), 0,
                                     static_cast<const void*>(&reset));

@@ -19,19 +19,20 @@
 
 
 class MaxLevel: public PluginLV2 {
-
-private:
+protected:
     float        maxlevel;
     float        resetmaxlevel;
     float        *resetmaxlevel_;
     float        *maxlevel_;
+
+private:
     static void  init(unsigned int samplerate, PluginLV2 *plugin);
     static void  process(int count, float *input0, float *output0, PluginLV2*);
-    static void  connect_static(uint32_t port,void* data, PluginLV2 *p);
+    static void  connect(uint32_t port,void* data, PluginLV2 *p);
     static void  del_instance(PluginLV2 *p);
-    static float get_level(MaxLevel& self) { return self.maxlevel;}
 
 public:
+    static float get_level(MaxLevel& self) { return self.maxlevel;}
     MaxLevel();
     ~MaxLevel()  {};
 };
@@ -43,7 +44,7 @@ MaxLevel::MaxLevel()
     name = "?maxlevel";
     set_samplerate = init;
     mono_audio = process;
-    connect_ports = connect_static;
+    connect_ports = connect;
     activate_plugin = 0;
     delete_instance = del_instance;
 }
@@ -57,7 +58,7 @@ void MaxLevel::init(unsigned int samplerate,PluginLV2 *plugin)
     self.resetmaxlevel_ = NULL;
 }
 
-void MaxLevel::connect_static(uint32_t port,void* data, PluginLV2 *plugin)
+void MaxLevel::connect(uint32_t port,void* data, PluginLV2 *plugin)
 {
     MaxLevel& self = *static_cast<MaxLevel*>(plugin);
     switch ((PortIndex)port)
