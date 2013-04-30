@@ -89,11 +89,14 @@ protected:
   Gtk::VBox         m_vbox5;
   Gtk::VBox         m_vbox6;
   Gtk::VBox         m_vbox7;
+  Gtk::VBox         m_vbox8;
   Gtk::HBox         m_hbox_;
   Gtk::HBox         m_hbox1_;
   Gtk::HBox         m_hbox2_;
   Gtk::HBox         m_hbox3_;
   Gtk::HBox         m_hbox4_;
+  Gtk::HBox         m_hbox5_;
+  Gtk::Frame        m_fr1;
 
   Gxw::PaintBox     m_paintbox;
   Gxw::PaintBox     m_paintbox1;
@@ -102,8 +105,10 @@ protected:
   Gxw::HSlider      m_bigknob1;
   Gxw::RackTuner    m_tuner;
   Gxw::Selector     tuner_tuning;
+  Gxw::Selector     select1;
   Gxw::FastMeter    fastmeter;
-  
+  Gxw::LevelSlider  levelslider;
+  Gxw::Switch       m_switch;
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

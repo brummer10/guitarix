@@ -25,6 +25,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix ev: <http://lv2plug.in/ns/ext/event#>.
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -107,15 +108,69 @@
         lv2:minimum -10 ;
         lv2:maximum 10 ;
     ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "LEVEL" ;
+        lv2:name "LEVEL";
+        lv2:default -20 ;
+        lv2:minimum -60 ;
+        lv2:maximum 4 ;
+        lv2:scalePoint [rdfs:label "0"; rdf:value 0];
+        lv2:scalePoint [rdfs:label "1"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "2"; rdf:value 2];
+        lv2:scalePoint [rdfs:label "3"; rdf:value 3];
+        lv2:scalePoint [rdfs:label "4"; rdf:value 4];
+        lv2:scalePoint [rdfs:label "5"; rdf:value 5];
+        lv2:scalePoint [rdfs:label "6"; rdf:value 6];
+        lv2:scalePoint [rdfs:label "7"; rdf:value 7];
+        lv2:scalePoint [rdfs:label "8"; rdf:value 8];
+        lv2:scalePoint [rdfs:label "9"; rdf:value 9];
+        lv2:scalePoint [rdfs:label "10"; rdf:value 10];
+        lv2:scalePoint [rdfs:label "11"; rdf:value 11];
+        lv2:scalePoint [rdfs:label "12"; rdf:value 12];
+        lv2:scalePoint [rdfs:label "13"; rdf:value 13];
+        lv2:scalePoint [rdfs:label "14"; rdf:value 14];
+        lv2:scalePoint [rdfs:label "15"; rdf:value 15];
+        lv2:scalePoint [rdfs:label "16"; rdf:value 16];
+   ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 7 ;
+        lv2:symbol "MIDI_ON" ;
+        lv2:name "MIDI_ON";
+        lv2:portProperty lv2:integer;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "CHANNEL" ;
+        lv2:name "CHANNELL";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 16 ;
+    ] , [
+        a ev:EventPort, lv2:OutputPort;
+        lv2:index 9;
+        ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
+        lv2:symbol "midi_out";
+        lv2:name "MIDI Out";
+        lv2:portProperty lv2:connectionOptional;
+  ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 6 ;
+        lv2:index 10 ;
         lv2:symbol "out" ;
         lv2:name "Out" ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 7 ;
+        lv2:index 11 ;
         lv2:symbol "in" ;
         lv2:name "In" ;
     ].

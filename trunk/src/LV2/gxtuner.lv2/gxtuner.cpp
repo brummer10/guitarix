@@ -34,7 +34,24 @@
 
 class Gxtuner
 {
-private:
+protected:
+  // MIDI stuff
+  int                          midi_event;
+  LV2_Event_Buffer             *MidiOut;
+  LV2_Event_Iterator           out_iter;
+  uint8_t                      note;
+  float                        fnote;
+  uint8_t                      lastnote;
+  float                        level;
+  float                        nolevel;
+  float                        *nolevel_;
+  float                        fallback;
+  uint8_t                      midi_data[3];
+  bool                         noteoff;
+  float                        *channel_;
+  uint8_t                      channel;
+  uint8_t                      prevchannel;
+  float                        *playmidi_;
   // internal stuff
   float*                       output;
   float*                       input;
@@ -44,6 +61,7 @@ private:
   PluginLV2*                   tuner_adapter;
   PluginLV2*                   vu_adapter;
 
+private:
   inline void run_dsp_mono(uint32_t n_samples);
   inline void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate);
@@ -51,6 +69,9 @@ private:
   inline void activate_f();
   inline void deactivate_f();
   inline void clean_up();
+  inline void play_midi(tuner& self);
+  inline void send_midi_data(int count, uint8_t controller ,
+                             uint8_t note, uint8_t velocie);
 public:
   // LV2 Descriptor
   static const LV2_Descriptor descriptor;
@@ -69,6 +90,19 @@ public:
 
 // constructor
 Gxtuner::Gxtuner() :
+  midi_event(0),
+  MidiOut(NULL),
+  note(0),
+  lastnote(0),
+  level(0),
+  nolevel(0),
+  nolevel_(NULL),
+  fallback(0),
+  noteoff(false),
+  channel_(NULL),
+  channel(0),
+  prevchannel(0),
+  playmidi_(NULL),
   output(NULL),
   input(NULL),
   tuner_adapter(plugin()),
@@ -89,6 +123,51 @@ Gxtuner::~Gxtuner()
 
 ////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
+void Gxtuner::send_midi_data(int count, uint8_t controller,
+                             uint8_t note, uint8_t velocie)
+{
+  midi_data[0] = controller; // note on/off
+  midi_data[1] = note; // note
+  midi_data[2] = velocie; // velocie
+  if(! MidiOut) return;
+	if(!lv2_event_write(&out_iter, count, 0, midi_event, 3, midi_data)) {
+		printf("Error! midi event fail!\n");
+	} 
+}
+
+void Gxtuner::play_midi(tuner& self)
+{
+  MaxLevel& lev = *static_cast<MaxLevel*>(vu_adapter);
+  lv2_event_begin(&out_iter,MidiOut);  
+  fnote = self.get_note(self);
+  level = 20.*log10(lev.get_level(lev));
+  nolevel = *(nolevel_);
+  if ((fnote  < 999.) && (level > nolevel)) {
+    note = static_cast<uint8_t>(round(fnote)+57);
+    fallback = level;
+    if(note != lastnote) {
+      channel = static_cast<uint8_t>(*(channel_));
+      // new note on
+      send_midi_data(0, 0x90| channel, note, 64);
+      // previus note off
+      //send_midi_data(1, 0x80| channel,lastnote,64);
+      lastnote = note;
+      noteoff = true;
+    }
+  } else if (((level+fallback) < (nolevel*0.001))&& noteoff) {
+    // all note off
+    send_midi_data(0, 0xB0| channel, 123, 64);
+    lastnote = 0;
+    noteoff = false;
+  }
+  if(noteoff) fallback *= 0.9999;
+  // when channel change, send all note off to previus channel
+  if (prevchannel !=channel) {
+    send_midi_data(2, 0xB0| prevchannel, 123, 64);
+    prevchannel =channel;
+  }
+}
+
 void Gxtuner::init_dsp_mono(uint32_t rate)
 {
   AVOIDDENORMALS(); // init the SSE denormal protection
@@ -106,6 +185,18 @@ void Gxtuner::connect_mono(uint32_t port,void* data)
       break;
     case THRESHOLD: 
       threshold_ = static_cast<float*>(data) ;
+      break;
+    case LEVEL: 
+      nolevel_ = static_cast<float*>(data) ;
+      break;
+    case CHANNEL: 
+      channel_ = static_cast<float*>(data) ;
+      break;
+    case ONMIDI:
+      playmidi_ = static_cast<float*>(data) ;
+      break;
+    case MIDIOUT: 
+      MidiOut = static_cast<LV2_Event_Buffer*>(data) ;
       break;
     case EFFECTS_OUTPUT:
       output = static_cast<float*>(data);
@@ -148,10 +239,13 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
     threshold = *(threshold_);
     self.set_threshold_level(self,threshold);
   }
-    
   tuner_adapter->mono_audio(static_cast<int>(n_samples), input, output, tuner_adapter);
   *(freq) = self.get_freq(self);
 
+  // MIDI
+  if (*(playmidi_)) {
+    play_midi(self);
+  }
   //printf("frequency  value %f\n",*(freq));
   memcpy(output, input, n_samples * sizeof(float));
 }
@@ -178,6 +272,21 @@ Gxtuner::instantiate(const LV2_Descriptor*     descriptor,
     {
       return NULL;
     }
+  LV2_URI_Map_Feature *map_feature;
+  const LV2_Feature * const *  i;
+  for (i = features; *i; i++) {
+    if (!strcmp((*i)->URI, "http://lv2plug.in/ns/ext/uri-map"))
+    {
+      map_feature = static_cast<LV2_URI_Map_Feature*>((*i)->data);
+      self->midi_event = map_feature->uri_to_id(map_feature->callback_data,
+                                "http://lv2plug.in/ns/ext/event",
+                                "http://lv2plug.in/ns/ext/midi#MidiEvent");
+    }
+  }
+  if (self->midi_event == 0)
+  {
+    fprintf(stderr, "GxTuner: No MIDI Out support in host...\n");
+  }
 
   self->init_dsp_mono((uint32_t)rate);
   return (LV2_Handle)self;

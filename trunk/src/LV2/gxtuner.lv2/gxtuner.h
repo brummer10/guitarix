@@ -30,6 +30,9 @@
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/log/log.h>
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
+#include <lv2/lv2plug.in/ns/ext/event/event.h>
+#include <lv2/lv2plug.in/ns/ext/event/event-helpers.h>
+#include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxtuner"
 #define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxtuner#gui"
@@ -43,6 +46,10 @@ typedef enum
   THRESHOLD,
   MAXL,
   RESET,
+  LEVEL,
+  CHANNEL,
+  ONMIDI,
+  MIDIOUT,
   EFFECTS_OUTPUT,
   EFFECTS_INPUT,
 } PortIndex;

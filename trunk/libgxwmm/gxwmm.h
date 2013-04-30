@@ -23,6 +23,7 @@
 #include <gxwmm/controlparameter.h>
 #include <gxwmm/eqslider.h>
 #include <gxwmm/fastmeter.h>
+#include <gxwmm/levelslider.h>
 #include <gxwmm/hslider.h>
 #include <gxwmm/iredit.h>
 #include <gxwmm/knob.h>

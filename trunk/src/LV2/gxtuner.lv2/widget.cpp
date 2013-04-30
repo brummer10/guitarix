@@ -39,93 +39,15 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &tuner_tuning;
     case THRESHOLD: 
       return &m_bigknob1;
+    case LEVEL: 
+      return &levelslider;
+    case CHANNEL: 
+      return &select1;
+    case ONMIDI: 
+      return &m_switch;
     default:
       return NULL;
   } 
-}
-
-void Widget::set_tuning(float mode_) {
-    static struct TuningTab {
-	const char *name;
-	const char* key;
-	bool flat;
-	int notes[6];
-    } tuning_tab[] = {
-	{ "Standard",    "E",  false, {40, 45, 50, 55, 59, 64}},
-	{ "Standard/Es", "Es", true,  {39, 44, 49, 54, 58, 63}},
-	{ "Open E",      "E",  false, {40, 47, 52, 56, 59, 64}},
-    };
-    int mode = static_cast<int>(mode_);
-    m_tuner.clear_notes();
-    if (mode > 0) {
-	m_tuner.set_display_flat(tuning_tab[mode-1].flat);
-	for (int i = 0; i < 6; ++i) {
-	    m_tuner.push_note(tuning_tab[mode-1].notes[i]);
-	}
-    } else {
-	m_tuner.set_display_flat(false);
-    }
-}
-
-inline float Widget::power2db(float power) {
-    return  20.*log10(power);
-}
-
-inline double Widget::log_meter (double db)
-{
-	// keep log_meter_inv in sync when changing anying!
-	gfloat def = 0.0f; /* Meter deflection %age */
-
-	if (db < -70.0f) {
-		def = 0.0f;
-	} else if (db < -60.0f) {
-		def = (db + 70.0f) * 0.25f;
-	} else if (db < -50.0f) {
-		def = (db + 60.0f) * 0.5f + 2.5f;
-	} else if (db < -40.0f) {
-		def = (db + 50.0f) * 0.75f + 7.5f;
-	} else if (db < -30.0f) {
-		def = (db + 40.0f) * 1.5f + 15.0f;
-	} else if (db < -20.0f) {
-		def = (db + 30.0f) * 2.0f + 30.0f;
-	} else if (db < 6.0f) {
-		def = (db + 20.0f) * 2.5f + 50.0f;
-	} else {
-		def = 115.0f;
-	}
-
-	/* 115 is the deflection %age that would be
-	   when db=6.0. this is an arbitrary
-	   endpoint for our scaling.
-	*/
-
-	return def/115.0f;
-}
-
-
-bool Widget::refresh_meter_level(float new_level) {
-
-    const float falloff = 87 * 60 * 0.001;
-
-    // Note: removed RMS calculation, we will only focus on max peaks
-    static float old_peak_db = -INFINITY;
-
-    // calculate peak dB and translate into meter
-	float peak_db = -INFINITY;
-	if (new_level > 0) {
-	    peak_db = power2db(new_level);
-	}
-	// retrieve old meter value and consider falloff
-	if (peak_db < old_peak_db) {
-	    peak_db = max(peak_db, old_peak_db - falloff);
-	}
-	fastmeter.set(log_meter(peak_db));
-	old_peak_db = peak_db;
-    
-    // reset the maxlevel buffer in the vumeter thread
-    reset *= -1;
-    on_value_changed(RESET);
-    return true;
 }
 
 Widget::Widget(Glib::ustring plugname):
@@ -136,9 +58,21 @@ plug_name(plugname)
   Glib::ustring modes[] = {"(Chromatic)","Standard/E","Standard/Es", "Open E"};  
   static const size_t _size = sizeof(modes) / sizeof(modes[0]);
   make_selector("Tunning Modes", modes, _size, 0, 1.0, TUNEMODE);
+  m_vbox8.pack_start(tuner_tuning);
+  m_vbox8.set_spacing(2);
   
-  make_controller_box(&m_vbox4, "Reference Pitch", 427.0, 453.0, 0.1, REFFREQ);
-  make_controller_box(&m_vbox5, "Threshold", 0.001, 0.1, 0.001, THRESHOLD);
+  Glib::ustring channel[] = {"0","1","2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"};  
+  static const size_t _size1 = sizeof(channel) / sizeof(channel[0]);
+  make_selector("Set Midi Channel", channel, _size1, 0, 1.0, CHANNEL);
+  m_fr1.set_label("MIDI OUT");
+  m_fr1.add(m_vbox5);
+  m_fr1.set_name("amplabel");
+  m_vbox5.pack_start(select1);
+  make_switch_box(&m_hbox5_, "", "ON/OFF", ONMIDI);
+  m_vbox5.pack_start(m_hbox5_);
+  
+  make_controller_box(&m_vbox4, "Threshold", 0.001, 0.1, 0.001, THRESHOLD);
+  make_controller_box(&m_vbox8, "Reference Pitch", 427.0, 453.0, 0.1, REFFREQ);
 
   // set propertys for the tuner widget
   m_tuner.set_size_request( 440, 45 ) ;
@@ -149,9 +83,9 @@ plug_name(plugname)
   m_hbox1_.pack_start(m_tuner);
   m_hbox1_.set_border_width(5);
 
-  m_hbox2_.pack_start(tuner_tuning);
-  m_hbox2_.pack_start(m_vbox5);
+  m_hbox2_.pack_start(m_vbox8);
   m_hbox2_.pack_start(m_vbox4);
+  m_hbox2_.pack_start(m_fr1);
 
   m_vbox2.pack_start(m_hbox1_);
   m_vbox2.pack_start(m_hbox2_,Gtk::PACK_SHRINK);
@@ -162,7 +96,7 @@ plug_name(plugname)
   m_paintbox1.set_name(plug_name);
   m_paintbox1.set_border_width(5);
   m_paintbox1.pack_start(m_vbox2);
-  m_paintbox1.pack_start(m_paintbox2,Gtk::PACK_SHRINK);
+  m_paintbox1.pack_start(m_vbox3,Gtk::PACK_SHRINK);
   
 
   // set propertys for the main paintbox holding the skin
@@ -178,10 +112,18 @@ plug_name(plugname)
   m_hbox4_.set_border_width(8);
   
   m_paintbox2.property_paint_func() = "level_meter_expose";
-  m_paintbox2.set_spacing(20);
+  //m_paintbox2.set_spacing(20);
   m_paintbox2.set_border_width(2);
-  m_paintbox2.set_size_request(22, -1 );
+  //m_paintbox2.set_size_request(22, -1 );
+  //m_paintbox2.pack_start(m_vbox3,Gtk::PACK_SHRINK);
+  m_vbox3.pack_start(m_vbox7, Gtk::PACK_EXPAND_PADDING);
+  m_vbox3.pack_start(m_paintbox2,Gtk::PACK_SHRINK);
+  m_vbox3.pack_start(m_vbox6, Gtk::PACK_EXPAND_PADDING);
   m_paintbox2.pack_start(fastmeter,Gtk::PACK_SHRINK);
+  make_controller_box(static_cast<Gtk::Box*>(&m_paintbox2), "", -60, 4, 1, LEVEL);
+  levelslider.set_tooltip_text("Set Note ON level");
+  //m_paintbox2.pack_start(levelslider,Gtk::PACK_SHRINK);
+  levelslider.set_show_value(false);
   fastmeter.set_hold_count(8);
   fastmeter.set_property("dimen",5);
   //m_paintbox.set_size_request( 425, 160 ) ;
@@ -289,8 +231,8 @@ void Widget::make_switch_box(Gtk::Box *box,
                                     get_controller_by_port(port_name));
   if (regler)
   {
-    Gtk::Label* pr = new Gtk::Label(label, 0);
-    pr->set_name("amplabel");
+    //Gtk::Label* pr = new Gtk::Label(label, 0);
+   // pr->set_name("amplabel");
     // use label images instead simple string labes
     /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
     label_image += "/"+plug_name+"-";
@@ -303,9 +245,9 @@ void Widget::make_switch_box(Gtk::Box *box,
 
     regler->set_name(plug_name);
     regler->set_base_name( "button" );
-    Gtk::VBox* b1 = new Gtk::VBox();
-    box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
-    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
+    //Gtk::VBox* b1 = new Gtk::VBox();
+    //box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+    //box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
     box->pack_start(*regler,Gtk::PACK_SHRINK);
 
     // 2nd Label
@@ -379,3 +321,87 @@ void Widget::on_value_changed(uint32_t port_index)
   }
 }
 
+//////////////////////// Special Stuff for Tuner and VU-Meter //////////
+
+void Widget::set_tuning(float mode_) {
+    static struct TuningTab {
+	const char *name;
+	const char* key;
+	bool flat;
+	int notes[6];
+    } tuning_tab[] = {
+	{ "Standard",    "E",  false, {40, 45, 50, 55, 59, 64}},
+	{ "Standard/Es", "Es", true,  {39, 44, 49, 54, 58, 63}},
+	{ "Open E",      "E",  false, {40, 47, 52, 56, 59, 64}},
+    };
+    int mode = static_cast<int>(mode_);
+    m_tuner.clear_notes();
+    if (mode > 0) {
+	m_tuner.set_display_flat(tuning_tab[mode-1].flat);
+	for (int i = 0; i < 6; ++i) {
+	    m_tuner.push_note(tuning_tab[mode-1].notes[i]);
+	}
+    } else {
+	m_tuner.set_display_flat(false);
+    }
+}
+
+inline float Widget::power2db(float power) {
+    return  20.*log10(power);
+}
+
+inline double Widget::log_meter (double db)
+{
+	// keep log_meter_inv in sync when changing anying!
+	gfloat def = 0.0f; /* Meter deflection %age */
+
+	if (db < -70.0f) {
+		def = 0.0f;
+	} else if (db < -60.0f) {
+		def = (db + 70.0f) * 0.25f;
+	} else if (db < -50.0f) {
+		def = (db + 60.0f) * 0.5f + 2.5f;
+	} else if (db < -40.0f) {
+		def = (db + 50.0f) * 0.75f + 7.5f;
+	} else if (db < -30.0f) {
+		def = (db + 40.0f) * 1.5f + 15.0f;
+	} else if (db < -20.0f) {
+		def = (db + 30.0f) * 2.0f + 30.0f;
+	} else if (db < 6.0f) {
+		def = (db + 20.0f) * 2.5f + 50.0f;
+	} else {
+		def = 115.0f;
+	}
+
+	/* 115 is the deflection %age that would be
+	   when db=6.0. this is an arbitrary
+	   endpoint for our scaling.
+	*/
+
+	return def/115.0f;
+}
+
+bool Widget::refresh_meter_level(float new_level) {
+
+    const float falloff = 87 * 60 * 0.001;
+
+    // Note: removed RMS calculation, we will only focus on max peaks
+    static float old_peak_db = -INFINITY;
+
+    // calculate peak dB and translate into meter
+	float peak_db = -INFINITY;
+	if (new_level > 0) {
+	    peak_db = power2db(new_level);
+	}
+	// retrieve old meter value and consider falloff
+	if (peak_db < old_peak_db) {
+	    peak_db = max(peak_db, old_peak_db - falloff);
+	}
+	fastmeter.set(log_meter(peak_db));
+	old_peak_db = peak_db;
+    
+    // reset the maxlevel buffer in the vumeter thread
+    reset *= -1;
+    on_value_changed(RESET);
+    return true;
+}

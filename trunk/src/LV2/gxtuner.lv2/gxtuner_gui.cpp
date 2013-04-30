@@ -78,9 +78,9 @@ void GxtunerGUI::set_knob(Glib::ustring knob)
   addKnob +=  knob;
   addKnob +=  "-middle.png'}}\n";
   addKnob +=  "   stock['button_on'] = {{'"
-              "chump-switch_on.png'}}\n"
+              "push-switch-on.png'}}\n"
               "   stock['button_off'] = {{'"
-              "chump-switch_off.png'}}\n"
+              "push-switch-off.png'}}\n"
               " }\n"
               "widget '*.";
   addKnob +=  plug_name;
@@ -123,7 +123,6 @@ void GxtunerGUI::set_skin()
                  "font_name = 'sans  7.5' \n"
                  " }\n";
   toparse +=     addKnob;
-
   toparse +=     " widget '*.amplabel' style:highest 'gx_headtuner_box'\n"
                  "widget '*.";
   toparse +=     plug_name;
