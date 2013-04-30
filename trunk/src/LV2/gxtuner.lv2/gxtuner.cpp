@@ -52,6 +52,9 @@ protected:
   uint8_t                      channel;
   uint8_t                      prevchannel;
   float                        *playmidi_;
+  float                        playmidi;
+  float                        fastnote;
+  float*                       fastnote_;
   // internal stuff
   float*                       output;
   float*                       input;
@@ -103,6 +106,8 @@ Gxtuner::Gxtuner() :
   channel(0),
   prevchannel(0),
   playmidi_(NULL),
+  fastnote(0),
+  fastnote_(NULL),
   output(NULL),
   input(NULL),
   tuner_adapter(plugin()),
@@ -195,6 +200,9 @@ void Gxtuner::connect_mono(uint32_t port,void* data)
     case ONMIDI:
       playmidi_ = static_cast<float*>(data) ;
       break;
+    case FASTNOTE:
+      fastnote_ = static_cast<float*>(data) ;
+      break;
     case MIDIOUT: 
       MidiOut = static_cast<LV2_Event_Buffer*>(data) ;
       break;
@@ -234,7 +242,7 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
 {
   tuner& self = *static_cast<tuner*>(tuner_adapter);
   vu_adapter->mono_audio(static_cast<int>(n_samples), input, output, vu_adapter);
-  if (fabs(threshold - *(threshold_))>0.001)
+  if (fabs(threshold - *(threshold_))>0.1)
   {
     threshold = *(threshold_);
     self.set_threshold_level(self,threshold);
@@ -243,7 +251,13 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
   *(freq) = self.get_freq(self);
 
   // MIDI
-  if (*(playmidi_)) {
+  if (fastnote != *(fastnote_)) {
+    fastnote =  *(fastnote_);
+    if (fastnote > 0) self.set_fast_note(self, true);
+    else self.set_fast_note(self, false);
+  }
+  if (*(playmidi_) > 0) {
+    
     play_midi(self);
   }
   //printf("frequency  value %f\n",*(freq));

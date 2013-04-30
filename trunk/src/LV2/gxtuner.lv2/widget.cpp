@@ -45,6 +45,8 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &select1;
     case ONMIDI: 
       return &m_switch;
+    case FASTNOTE: 
+      return &m_switch1;
     default:
       return NULL;
   } 
@@ -60,6 +62,8 @@ plug_name(plugname)
   make_selector("Tunning Modes", modes, _size, 0, 1.0, TUNEMODE);
   m_vbox8.pack_start(tuner_tuning);
   m_vbox8.set_spacing(2);
+  make_switch_box(&m_hbox_, "", "FAST DETECTION", FASTNOTE);
+  m_vbox8.pack_start(m_hbox_);
   
   Glib::ustring channel[] = {"0","1","2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"};  
   static const size_t _size1 = sizeof(channel) / sizeof(channel[0]);
@@ -71,8 +75,10 @@ plug_name(plugname)
   make_switch_box(&m_hbox5_, "", "ON/OFF", ONMIDI);
   m_vbox5.pack_start(m_hbox5_);
   
-  make_controller_box(&m_vbox4, "Threshold", 0.001, 0.1, 0.001, THRESHOLD);
-  make_controller_box(&m_vbox8, "Reference Pitch", 427.0, 453.0, 0.1, REFFREQ);
+  make_controller_box(&m_vbox4, "Threshold (db)", -60, 4, 1, THRESHOLD);
+  m_bigknob1.set_value_position(Gtk::POS_RIGHT);
+  make_controller_box(&m_vbox4, "Reference Pitch (Hz)", 427.0, 453.0, 0.1, REFFREQ);
+  m_bigknob.set_value_position(Gtk::POS_RIGHT);
 
   // set propertys for the tuner widget
   m_tuner.set_size_request( 440, 45 ) ;

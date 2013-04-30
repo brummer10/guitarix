@@ -109,6 +109,7 @@ protected:
   Gxw::FastMeter    fastmeter;
   Gxw::LevelSlider  levelslider;
   Gxw::Switch       m_switch;
+  Gxw::Switch       m_switch1;
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

@@ -45,7 +45,9 @@ public:
     Glib::Dispatcher& signal_freq_changed() { return pitch_tracker.new_freq; }
     static float get_freq(tuner& self) { return self.pitch_tracker.get_estimated_freq(); }
     static float get_note(tuner& self) { return self.pitch_tracker.get_estimated_note(); }
-    static void set_threshold_level(tuner& self,float v) {self.pitch_tracker.set_threshold(v);}
+    static inline float db2power(float db) {return pow(10.,db*0.05);}
+    static void set_threshold_level(tuner& self,float v) {self.pitch_tracker.set_threshold(db2power(v)); }
+    static void set_fast_note(tuner& self,bool v) {self.pitch_tracker.set_fast_note_detection(v); }
     tuner();
     ~tuner() {};
 };
