@@ -145,8 +145,8 @@ void Gxtuner::play_midi(tuner& self)
   MaxLevel& lev = *static_cast<MaxLevel*>(vu_adapter);
   lv2_event_begin(&out_iter,MidiOut);  
   fnote = self.get_note(self);
-  level = 20.*log10(lev.get_level(lev));
-  nolevel = *(nolevel_);
+  level = lev.get_level(lev);
+  nolevel = pow(10.,*(nolevel_)*0.05);
   if ((fnote  < 999.) && (level > nolevel)) {
     note = static_cast<uint8_t>(round(fnote)+57);
     fallback = level;
@@ -159,13 +159,13 @@ void Gxtuner::play_midi(tuner& self)
       lastnote = note;
       noteoff = true;
     }
-  } else if (((level+fallback) < (nolevel*0.001))&& noteoff) {
+  } else if (((level+fallback) < (nolevel))&& noteoff) {
     // all note off
     send_midi_data(0, 0xB0| channel, 123, 64);
     lastnote = 0;
     noteoff = false;
   }
-  if(noteoff) fallback *= 0.9999;
+  if(noteoff) fallback *= 0.9;
   // when channel change, send all note off to previus channel
   if (prevchannel !=channel) {
     send_midi_data(2, 0xB0| prevchannel, 123, 64);
