@@ -269,15 +269,15 @@ Gxtuner::instantiate(const LV2_Descriptor*     descriptor,
   // init the plug-in class
   Gxtuner *self = new Gxtuner();
   if (!self)
-    {
-      return NULL;
-    }
+  {
+    return NULL;
+  }
   LV2_URI_Map_Feature *map_feature;
-  const LV2_Feature * const *  i;
-  for (i = features; *i; i++) {
-    if (!strcmp((*i)->URI, "http://lv2plug.in/ns/ext/uri-map"))
+  for (int32_t i = 0; features[i]; ++i)
+  {
+    if (!strcmp(features[i]->URI, "http://lv2plug.in/ns/ext/uri-map")) 
     {
-      map_feature = static_cast<LV2_URI_Map_Feature*>((*i)->data);
+      map_feature = static_cast<LV2_URI_Map_Feature*>(features[i]->data);
       self->midi_event = map_feature->uri_to_id(map_feature->callback_data,
                                 "http://lv2plug.in/ns/ext/event",
                                 "http://lv2plug.in/ns/ext/midi#MidiEvent");
