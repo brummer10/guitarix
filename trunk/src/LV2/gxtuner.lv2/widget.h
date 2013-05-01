@@ -96,6 +96,8 @@ protected:
   Gtk::HBox         m_hbox3_;
   Gtk::HBox         m_hbox4_;
   Gtk::HBox         m_hbox5_;
+  Gtk::HBox         m_hbox6_;
+  Gtk::HBox         m_hbox7_;
   Gtk::Frame        m_fr1;
 
   Gxw::PaintBox     m_paintbox;
@@ -110,6 +112,8 @@ protected:
   Gxw::LevelSlider  levelslider;
   Gxw::Switch       m_switch;
   Gxw::Switch       m_switch1;
+  Gxw::Switch       m_switch2;
+  Gxw::Switch       m_switch3;
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

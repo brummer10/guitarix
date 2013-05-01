@@ -24,6 +24,7 @@ protected:
     float        resetmaxlevel;
     float        *resetmaxlevel_;
     float        *maxlevel_;
+    float        midilevel;
 
 private:
     static void  init(unsigned int samplerate, PluginLV2 *plugin);
@@ -32,6 +33,7 @@ private:
     static void  del_instance(PluginLV2 *p);
 
 public:
+    static float get_midi_level(MaxLevel& self) { return self.midilevel;}
     static float get_level(MaxLevel& self) { return self.maxlevel;}
     MaxLevel();
     ~MaxLevel()  {};
@@ -85,6 +87,7 @@ void MaxLevel::process(int count, float *input1, float*, PluginLV2 *plugin) {
         for (int i = 0; i < count; i++) {
             level = max(fabs(data[i]),level);
         }
+        self.midilevel = level;
         *(self.maxlevel_) = self.maxlevel = max(self.maxlevel, level);
 }
 

@@ -47,6 +47,10 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &m_switch;
     case FASTNOTE: 
       return &m_switch1;
+     case PITCHBEND: 
+      return &m_switch2;
+     case SINGLENOTE: 
+      return &m_switch3;
     default:
       return NULL;
   } 
@@ -72,13 +76,17 @@ plug_name(plugname)
   m_fr1.add(m_vbox5);
   m_fr1.set_name("amplabel");
   m_vbox5.pack_start(select1);
-  make_switch_box(&m_hbox5_, "", "ON/OFF", ONMIDI);
+  make_switch_box(&m_hbox5_, "", "SEND MIDI", ONMIDI);
+  make_switch_box(&m_hbox6_, "", "PITCH WHEEL", PITCHBEND);
+  make_switch_box(&m_hbox7_, "", "SINGLE NOTE", SINGLENOTE);
   m_vbox5.pack_start(m_hbox5_);
+  m_vbox5.pack_start(m_hbox6_);
+  m_vbox5.pack_start(m_hbox7_);
   
   make_controller_box(&m_vbox4, "Threshold (db)", -60, 4, 1, THRESHOLD);
-  m_bigknob1.set_value_position(Gtk::POS_RIGHT);
+  //m_bigknob1.set_value_position(Gtk::POS_RIGHT);
   make_controller_box(&m_vbox4, "Reference Pitch (Hz)", 427.0, 453.0, 0.1, REFFREQ);
-  m_bigknob.set_value_position(Gtk::POS_RIGHT);
+  //m_bigknob.set_value_position(Gtk::POS_RIGHT);
 
   // set propertys for the tuner widget
   m_tuner.set_size_request( 440, 45 ) ;
@@ -122,7 +130,7 @@ plug_name(plugname)
   m_paintbox2.set_border_width(2);
   //m_paintbox2.set_size_request(22, -1 );
   //m_paintbox2.pack_start(m_vbox3,Gtk::PACK_SHRINK);
-  m_vbox3.pack_start(m_vbox7, Gtk::PACK_EXPAND_PADDING);
+  //m_vbox3.pack_start(m_vbox7, Gtk::PACK_EXPAND_PADDING);
   m_vbox3.pack_start(m_paintbox2,Gtk::PACK_SHRINK);
   m_vbox3.pack_start(m_vbox6, Gtk::PACK_EXPAND_PADDING);
   m_paintbox2.pack_start(fastmeter,Gtk::PACK_SHRINK);
@@ -389,7 +397,7 @@ inline double Widget::log_meter (double db)
 
 bool Widget::refresh_meter_level(float new_level) {
 
-    const float falloff = 87 * 60 * 0.001;
+    static const float falloff = 87 * 60 * 0.001;
 
     // Note: removed RMS calculation, we will only focus on max peaks
     static float old_peak_db = -INFINITY;

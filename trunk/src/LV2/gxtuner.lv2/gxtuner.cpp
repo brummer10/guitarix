@@ -28,8 +28,6 @@
 #include "gx_pitch_tracker.cpp"
 #include "gx_vumeter.cc"
 
-#include "cab_data.cc"
-
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
 class Gxtuner
@@ -55,6 +53,9 @@ protected:
   float                        playmidi;
   float                        fastnote;
   float*                       fastnote_;
+  float*                       sendpich_;
+  float                        sendpich;
+  float*                       singlenote_;
   // internal stuff
   float*                       output;
   float*                       input;
@@ -74,7 +75,7 @@ private:
   inline void clean_up();
   inline void play_midi(tuner& self);
   inline void send_midi_data(int count, uint8_t controller ,
-                             uint8_t note, uint8_t velocie);
+                             uint8_t note, uint8_t velocity);
 public:
   // LV2 Descriptor
   static const LV2_Descriptor descriptor;
@@ -129,11 +130,11 @@ Gxtuner::~Gxtuner()
 ////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
 void Gxtuner::send_midi_data(int count, uint8_t controller,
-                             uint8_t note, uint8_t velocie)
+                             uint8_t note, uint8_t velocity)
 {
   midi_data[0] = controller; // note on/off
   midi_data[1] = note; // note
-  midi_data[2] = velocie; // velocie
+  midi_data[2] = velocity; // velocity
   if(! MidiOut) return;
 	if(!lv2_event_write(&out_iter, count, 0, midi_event, 3, midi_data)) {
 		printf("Error! midi event fail!\n");
@@ -145,30 +146,52 @@ void Gxtuner::play_midi(tuner& self)
   MaxLevel& lev = *static_cast<MaxLevel*>(vu_adapter);
   lv2_event_begin(&out_iter,MidiOut);  
   fnote = self.get_note(self);
-  level = lev.get_level(lev);
+  level = lev.get_midi_level(lev);
   nolevel = pow(10.,*(nolevel_)*0.05);
   if ((fnote  < 999.) && (level > nolevel)) {
     note = static_cast<uint8_t>(round(fnote)+57);
     fallback = level;
     if(note != lastnote) {
       channel = static_cast<uint8_t>(*(channel_));
+      sendpich = *(sendpich_);
+      // clear pitchwheel
+      if (sendpich > 0)
+        send_midi_data(0, 0xE0| channel, 8192 & 127, (8192&16256) >> 7);
       // new note on
-      send_midi_data(0, 0x90| channel, note, 64);
+      send_midi_data(1, 0x90| channel, note, 64);
+      // send pitchwheel data
+      if (sendpich > 0) {
+        unsigned int pitch_wheel = 8192;
+        float prepitch = fnote - (note - 57);
+        if (prepitch>0){
+		  pitch_wheel=8192+round(prepitch*8191);
+	    } else {
+		  pitch_wheel=8192+round(prepitch*8192);
+	    }
+        send_midi_data(2, 0xE0| channel, pitch_wheel & 127, (pitch_wheel&16256) >> 7);
+      }
       // previus note off
-      //send_midi_data(1, 0x80| channel,lastnote,64);
+      if (*(singlenote_)>0)
+        send_midi_data(3, 0x80| channel,lastnote,64);
       lastnote = note;
       noteoff = true;
     }
-  } else if (((level+fallback) < (nolevel))&& noteoff) {
+  } else if (((level+fallback) < (nolevel*0.1))&& noteoff) {
     // all note off
     send_midi_data(0, 0xB0| channel, 123, 64);
+    // clear pitch wheel
+    if (sendpich > 0)
+      send_midi_data(1, 0xE0| channel, 8192 & 127, (8192&16256) >> 7);
     lastnote = 0;
     noteoff = false;
   }
   if(noteoff) fallback *= 0.9;
-  // when channel change, send all note off to previus channel
+  // when channel changed, send all note off to previus channel
   if (prevchannel !=channel) {
-    send_midi_data(2, 0xB0| prevchannel, 123, 64);
+    send_midi_data(4, 0xB0| prevchannel, 123, 64);
+    // and clear pitch wheel
+    if (sendpich > 0)
+      send_midi_data(1, 0xE0| channel, 8192 & 127, (8192&16256) >> 7);
     prevchannel =channel;
   }
 }
@@ -202,6 +225,12 @@ void Gxtuner::connect_mono(uint32_t port,void* data)
       break;
     case FASTNOTE:
       fastnote_ = static_cast<float*>(data) ;
+      break;
+    case PITCHBEND:
+      sendpich_ = static_cast<float*>(data) ;
+      break;
+    case SINGLENOTE:
+      singlenote_ = static_cast<float*>(data) ;
       break;
     case MIDIOUT: 
       MidiOut = static_cast<LV2_Event_Buffer*>(data) ;
