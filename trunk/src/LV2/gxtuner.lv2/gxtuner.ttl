@@ -191,7 +191,7 @@
         lv2:symbol "midi_out";
         lv2:name "MIDI Out";
         lv2:portProperty lv2:connectionOptional;
-  ] , [
+    ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
         lv2:index 13 ;

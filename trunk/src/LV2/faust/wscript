@@ -90,6 +90,7 @@ def build(bld):
         'gxtubetremelo.dsp',
         'gx_studiopre.dsp',
         'gx_studiopre_st.dsp',
+        'low_high_cut.dsp',
 
         # tone stacks
         'tonestack_default.dsp',
