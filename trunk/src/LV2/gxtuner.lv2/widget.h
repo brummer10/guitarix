@@ -90,6 +90,7 @@ protected:
   Gtk::VBox         m_vbox6;
   Gtk::VBox         m_vbox7;
   Gtk::VBox         m_vbox8;
+  Gtk::VBox         m_vbox9;
   Gtk::HBox         m_hbox_;
   Gtk::HBox         m_hbox1_;
   Gtk::HBox         m_hbox2_;
@@ -99,12 +100,15 @@ protected:
   Gtk::HBox         m_hbox6_;
   Gtk::HBox         m_hbox7_;
   Gtk::Frame        m_fr1;
+  Gtk::Frame        m_fr2;
 
   Gxw::PaintBox     m_paintbox;
   Gxw::PaintBox     m_paintbox1;
   Gxw::PaintBox     m_paintbox2;
   Gxw::HSlider      m_bigknob;
   Gxw::HSlider      m_bigknob1;
+  Gxw::HSlider      m_bigknob2;
+  Gxw::HSlider      m_vdisplay;
   Gxw::RackTuner    m_tuner;
   Gxw::Selector     tuner_tuning;
   Gxw::Selector     select1;

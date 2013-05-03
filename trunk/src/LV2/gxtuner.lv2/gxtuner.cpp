@@ -57,12 +57,20 @@ protected:
   float*                       sendpich_;
   float                        sendpich;
   float*                       singlenote_;
+  float*                       velocity_;
+  uint8_t                        velocity;
   // internal stuff
   float*                       output;
   float*                       input;
   float*                       freq;
   float                        threshold;
   float*                       threshold_;
+  uint32_t                     frames_period;
+  uint32_t                     sample_period;
+  float*                       bpm_;
+  float                        bpm;
+  uint32_t                     count_frame;
+  bool                         play;
   PluginLV2*                   tuner_adapter;
   PluginLV2*                   vu_adapter;
   PluginLV2*                   lhcut;
@@ -152,17 +160,24 @@ void Gxtuner::play_midi(tuner& self)
   fnote = self.get_note(self);
   level = lev.get_midi_level(lev);
   nolevel = pow(10.,*(nolevel_)*0.05);
-  if ((fnote  < 999.) && (level > nolevel)) {
+  count_frame++;
+  if (count_frame >= frames_period) {
+    count_frame = 0;
+    play = true;
+  }
+  if ((fnote  < 999.) && (level > nolevel) && play) {
+    play = false;
     note = static_cast<uint8_t>(round(fnote)+57);
     fallback = level;
     if(note != lastnote) {
       channel = static_cast<uint8_t>(*(channel_));
+      velocity = static_cast<uint8_t>(*(velocity_));
       sendpich = *(sendpich_);
       // clear pitchwheel
       if (sendpich > 0)
         send_midi_data(0, 0xE0| channel, 8192 & 127, (8192&16256) >> 7);
       // new note on
-      send_midi_data(1, 0x90| channel, note, 64);
+      send_midi_data(1, 0x90| channel, note, velocity);
       // send pitchwheel data
       if (sendpich > 0) {
         unsigned int pitch_wheel = 8192;
@@ -176,13 +191,13 @@ void Gxtuner::play_midi(tuner& self)
       }
       // previus note off
       if (*(singlenote_)>0)
-        send_midi_data(3, 0x80| channel,lastnote,64);
+        send_midi_data(3, 0x80| channel,lastnote,velocity);
       lastnote = note;
       noteoff = true;
     }
   } else if (((level+fallback) < (nolevel*0.1))&& noteoff) {
     // all note off
-    send_midi_data(1, 0xB0| channel, 123, 64);
+    send_midi_data(1, 0xB0| channel, 123, velocity);
     // clear pitch wheel
     if (sendpich > 0)
       send_midi_data(2, 0xE0| channel, 8192 & 127, (8192&16256) >> 7);
@@ -192,7 +207,7 @@ void Gxtuner::play_midi(tuner& self)
   if(noteoff) fallback *= 0.9;
   // when channel changed, send all note off to previus channel
   if (prevchannel !=channel) {
-    send_midi_data(4, 0xB0| prevchannel, 123, 64);
+    send_midi_data(4, 0xB0| prevchannel, 123, velocity);
     // and clear pitch wheel
     if (sendpich > 0)
       send_midi_data(5, 0xE0| channel, 8192 & 127, (8192&16256) >> 7);
@@ -203,6 +218,7 @@ void Gxtuner::play_midi(tuner& self)
 void Gxtuner::init_dsp_mono(uint32_t rate)
 {
   AVOIDDENORMALS(); // init the SSE denormal protection
+  sample_period = 60 * rate;
   tuner_adapter->set_samplerate(rate, tuner_adapter); // init the DSP class
   vu_adapter->set_samplerate(rate, vu_adapter);
   lhcut->set_samplerate(rate, lhcut);
@@ -236,6 +252,12 @@ void Gxtuner::connect_mono(uint32_t port,void* data)
       break;
     case SINGLENOTE:
       singlenote_ = static_cast<float*>(data) ;
+      break;
+    case BPM:
+      bpm_ = static_cast<float*>(data) ;
+      break;
+    case VELOCITY:
+      velocity_ = static_cast<float*>(data) ;
       break;
     case MIDIOUT: 
       MidiOut = static_cast<LV2_Event_Buffer*>(data) ;
@@ -274,6 +296,13 @@ void Gxtuner::deactivate_f()
 
 void Gxtuner::run_dsp_mono(uint32_t n_samples)
 {
+  static uint32_t sample_set = sample_period/n_samples;
+  if (fabs(bpm - *(bpm_))>0.1)
+  {
+    bpm = *(bpm_);
+    if (bpm > 0) frames_period = sample_set/ bpm;
+    else frames_period = 0;
+  }
   lhcut->mono_audio(static_cast<int>(n_samples), input, output, lhcut);
   tuner& self = *static_cast<tuner*>(tuner_adapter);
   vu_adapter->mono_audio(static_cast<int>(n_samples), output, output, vu_adapter);

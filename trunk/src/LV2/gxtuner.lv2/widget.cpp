@@ -49,8 +49,12 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &m_switch1;
      case PITCHBEND: 
       return &m_switch2;
-     case SINGLENOTE: 
+    case SINGLENOTE: 
       return &m_switch3;
+    case BPM: 
+      return &m_bigknob2;
+    case VELOCITY: 
+      return &m_vdisplay;
     default:
       return NULL;
   } 
@@ -67,6 +71,7 @@ plug_name(plugname)
   m_vbox8.pack_start(tuner_tuning);
   m_vbox8.set_spacing(2);
   make_switch_box(&m_hbox_, "", "FAST DETECTION", FASTNOTE);
+  m_vbox8.pack_start(m_vbox4);
   m_vbox8.pack_start(m_hbox_);
   
   Glib::ustring channel[] = {"0","1","2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"};  
@@ -76,12 +81,18 @@ plug_name(plugname)
   m_fr1.add(m_vbox5);
   m_fr1.set_name("amplabel");
   m_vbox5.pack_start(select1);
+  
+  make_controller_box(&m_vbox1, "BPM", 0, 360, 1, BPM);
+  make_controller_box(&m_vbox9, "VELOCITY", 0, 127, 1, VELOCITY);
   make_switch_box(&m_hbox5_, "", "SEND MIDI", ONMIDI);
   make_switch_box(&m_hbox6_, "", "PITCH WHEEL", PITCHBEND);
   make_switch_box(&m_hbox7_, "", "SINGLE NOTE", SINGLENOTE);
+  m_vbox5.pack_start(m_vbox1);
+  m_vbox5.pack_start(m_vbox9);
   m_vbox5.pack_start(m_hbox5_);
   m_vbox5.pack_start(m_hbox6_);
   m_vbox5.pack_start(m_hbox7_);
+  m_vbox5.set_spacing(2);
   
   make_controller_box(&m_vbox4, "Threshold (db)", -60, 4, 1, THRESHOLD);
   //m_bigknob1.set_value_position(Gtk::POS_RIGHT);
@@ -97,9 +108,12 @@ plug_name(plugname)
   m_hbox1_.pack_start(m_tuner);
   m_hbox1_.set_border_width(5);
 
-  m_hbox2_.pack_start(m_vbox8);
-  m_hbox2_.pack_start(m_vbox4);
+  m_fr2.set_label("TUNER");
+  m_fr2.add(m_vbox8);
+  m_fr2.set_name("amplabel");
+  m_hbox2_.pack_start(m_fr2);
   m_hbox2_.pack_start(m_fr1);
+  m_hbox2_.set_spacing(2);
 
   m_vbox2.pack_start(m_hbox1_);
   m_vbox2.pack_start(m_hbox2_,Gtk::PACK_SHRINK);
@@ -110,11 +124,11 @@ plug_name(plugname)
   m_paintbox1.set_name(plug_name);
   m_paintbox1.set_border_width(5);
   m_paintbox1.pack_start(m_vbox2);
-  m_paintbox1.pack_start(m_vbox3,Gtk::PACK_SHRINK);
+  m_hbox2_.pack_start(m_vbox3,Gtk::PACK_SHRINK);
   
 
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(20);
+  m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(0);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
@@ -130,7 +144,7 @@ plug_name(plugname)
   m_paintbox2.set_border_width(2);
   //m_paintbox2.set_size_request(22, -1 );
   //m_paintbox2.pack_start(m_vbox3,Gtk::PACK_SHRINK);
-  //m_vbox3.pack_start(m_vbox7, Gtk::PACK_EXPAND_PADDING);
+  m_vbox3.pack_start(m_vbox7, Gtk::PACK_EXPAND_PADDING);
   m_vbox3.pack_start(m_paintbox2,Gtk::PACK_SHRINK);
   m_vbox3.pack_start(m_vbox6, Gtk::PACK_EXPAND_PADDING);
   m_paintbox2.pack_start(fastmeter,Gtk::PACK_SHRINK);
@@ -165,7 +179,7 @@ bool Widget::_expose_event(GdkEventExpose *event)
   int x, y, width, height, depth;
   m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
   //double_t height = m_paintbox.get_window()->get_height();
-  m_paintbox.set_border_width(height/8);
+  m_paintbox.set_border_width(height/20);
   return false;
 }
 

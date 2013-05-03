@@ -116,6 +116,17 @@
         lv2:default -20 ;
         lv2:minimum -60 ;
         lv2:maximum 4 ;
+   ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 7 ;
+        lv2:symbol "CHANNEL" ;
+        lv2:name "CHANNELL";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 16 ;
         lv2:scalePoint [rdfs:label "0"; rdf:value 0];
         lv2:scalePoint [rdfs:label "1"; rdf:value 1];
         lv2:scalePoint [rdfs:label "2"; rdf:value 2];
@@ -133,27 +144,16 @@
         lv2:scalePoint [rdfs:label "14"; rdf:value 14];
         lv2:scalePoint [rdfs:label "15"; rdf:value 15];
         lv2:scalePoint [rdfs:label "16"; rdf:value 16];
-   ] , [
+    ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 7 ;
+        lv2:index 8 ;
         lv2:symbol "MIDI_ON" ;
         lv2:name "MIDI_ON";
         lv2:portProperty lv2:integer;
         lv2:default 0 ;
         lv2:minimum 0 ;
         lv2:maximum 1 ;
-    ] , [
-        a lv2:InputPort ,
-            lv2:ControlPort ;
-        lv2:index 8 ;
-        lv2:symbol "CHANNEL" ;
-        lv2:name "CHANNELL";
-        lv2:portProperty lv2:integer;
-        lv2:portProperty lv2:enumeration ;
-        lv2:default 0 ;
-        lv2:minimum 0 ;
-        lv2:maximum 16 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -185,8 +185,26 @@
         lv2:minimum 0 ;
         lv2:maximum 1 ;
     ] , [
+        a  lv2:ControlPort, lv2:InputPort ;
+        lv2:index 12 ;
+        lv2:symbol "BPM" ;
+        lv2:name "BPM";
+        lv2:portProperty lv2:integer;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 360.0 ;
+    ] , [
+        a  lv2:ControlPort, lv2:InputPort ;
+        lv2:index 13 ;
+        lv2:symbol "VELOCITY" ;
+        lv2:name "VELOCITY";
+        lv2:portProperty lv2:integer;
+        lv2:default 64.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 127.0 ;
+    ] , [
         a ev:EventPort, lv2:OutputPort;
-        lv2:index 12;
+        lv2:index 14;
         ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
         lv2:symbol "midi_out";
         lv2:name "MIDI Out";
@@ -194,13 +212,13 @@
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 13 ;
+        lv2:index 15 ;
         lv2:symbol "out" ;
         lv2:name "Out" ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 14 ;
+        lv2:index 16 ;
         lv2:symbol "in" ;
         lv2:name "In" ;
     ].
