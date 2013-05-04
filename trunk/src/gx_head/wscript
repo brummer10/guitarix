@@ -8,6 +8,8 @@ def configure(conf):
 
 def build(bld):
     sources_engine = [
+        './engine/tunerswitcher.cpp',
+        './engine/jsonrpc.cpp',
         './engine/ladspaplugin.cpp',
         './engine/gx_jack.cpp',
         './engine/gx_preset.cpp',

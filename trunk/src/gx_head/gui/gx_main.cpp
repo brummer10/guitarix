@@ -25,10 +25,10 @@
 
 #include "guitarix.h"       // NOLINT
 
-#include <giomm/init.h>     // NOLINT
 #include <gtkmm/main.h>     // NOLINT
 #include <gxwmm/init.h>     // NOLINT
 #include <string>           // NOLINT
+#include <jsonrpc.h>
 
 /****************************************************************
  ** class PosixSignals
@@ -43,21 +43,24 @@ private:
     sigset_t waitset;
     Glib::Thread *thread;
     pthread_t pthr;
+    bool gui;
     volatile bool exit;
     void signal_helper_thread();
     void quit_slot();
     void gx_ladi_handler();
     void create_thread();
+    bool gtk_level();
     static void relay_sigchld(int);
 public:
-    PosixSignals();
+    PosixSignals(bool gui);
     ~PosixSignals();
 };
 
-PosixSignals::PosixSignals()
+PosixSignals::PosixSignals(bool gui_)
     : waitset(),
       thread(),
       pthr(),
+      gui(gui_),
       exit(false) {
     sigemptyset(&waitset);
     /* ----- block signal USR1 ---------
@@ -119,6 +122,14 @@ void PosixSignals::relay_sigchld(int) {
     kill(getpid(), SIGCHLD);
 }
 
+bool PosixSignals::gtk_level() {
+    if (! gui) {
+	return 1;
+    } else {
+	return Gtk::Main::level();
+    }
+}
+
 // --- wait for USR1 signal to arrive and invoke ladi handler via mainloop
 void PosixSignals::signal_helper_thread() {
     pthr = pthread_self();
@@ -138,7 +149,7 @@ void PosixSignals::signal_helper_thread() {
 	}
 	switch (sig) {
 	case SIGUSR1:
-	    if (Gtk::Main::level() < 1) {
+	    if (gtk_level() < 1) {
 		gx_system::gx_print_info(_("system startup"),
 					 _("signal usr1 skipped"));
 		break;
@@ -176,7 +187,7 @@ void PosixSignals::signal_helper_thread() {
 		signame = "SIGHUP";
 		break;
 	    }
-	    if (!seen && Gtk::Main::level() == 1) {
+	    if (!seen && gtk_level() == 1) {
 		printf("\nquit (%s)\n", signame);
 		Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PosixSignals::quit_slot));
 	    } else {
@@ -332,6 +343,164 @@ ParamMap parameter_map;
 MidiControllerList controller_map;
 }
 
+
+//FIXME: join with MainWindow::do_program_change
+void do_program_change(int pgm, gx_preset::GxSettings& gx_settings, gx_engine::GxEngine& engine) {
+    Glib::ustring bank = gx_settings.get_current_bank();
+    bool in_preset = !bank.empty();
+    gx_system::PresetFile *f;
+    if (in_preset) {
+	f = gx_settings.banks.get_file(bank);
+	in_preset = pgm < f->size();
+    }
+    if (in_preset) {
+	gx_settings.load_preset(f, f->get_name(pgm));
+	if (engine.get_state() == gx_engine::kEngineBypass) {
+	    engine.set_state(gx_engine::kEngineOn);
+	}
+    } else if (engine.get_state() == gx_engine::kEngineOn) {
+	engine.set_state(gx_engine::kEngineBypass);
+    }
+}
+
+bool update_all_gui(gx_engine::GxEngine& engine) {
+    // the general Gui update handler
+    gx_ui::GxUI::updateAllGuis();
+    engine.check_module_lists();
+    return true;
+}
+static void mainHeadless(int argc, char *argv[]) {
+    Glib::init();
+    Gio::init();
+
+    gx_system::CmdlineOptions options;
+    options.parse(argc, argv);
+    PosixSignals posixsig(false); // catch unix signals in special thread
+    options.process(argc, argv);
+    // ---------------- Check for working user directory  -------------
+    bool need_new_preset;
+    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
+	cerr << 
+	    _("old config directory found (.gx_head)."
+	      " state file and standard presets file have been copied to"
+	      " the new directory (.config/guitarix).\n"
+	      " Additional old preset files can be imported into the"
+	      " new bank scheme by mouse drag and drop with a file"
+	      " manager");
+	return;
+    }
+
+    gx_engine::GxEngine engine(
+	options.get_plugin_dir(), gx_engine::parameter_map, gx_engine::get_group_table(), options);
+
+    // ------ initialize parameter list ------
+    gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
+
+    // ------ time measurement (debug) ------
+#ifndef NDEBUG
+    gx_system::add_time_measurement();
+#endif
+    gx_jack::GxJack jack(engine);
+    gx_jack::GxJack::rt_watchdog_set_limit(options.get_idle_thread_timeout());
+    engine.set_jack(&jack);
+    gx_preset::GxSettings gx_settings(
+	options, jack, engine.stereo_convolver, gx_engine::midi_std_ctr,
+	gx_engine::controller_map, engine, gx_engine::parameter_map);
+    gx_engine::parameter_map.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
+    gx_settings.loadstate();
+    //if (!in_session) {
+    //	gx_settings.disable_autosave(options.get_opt_auto_save());
+    //}
+    gx_engine::controller_map.signal_new_program().connect(
+	sigc::bind(sigc::ptr_fun(do_program_change),sigc::ref(gx_settings),sigc::ref(engine)));
+
+    if (! jack.gx_jack_connection(true, true, 0)) {
+	cerr << "can't connect to jack\n";
+	return;
+    }
+    if (need_new_preset) {
+	gx_settings.create_default_scratch_preset();
+    }
+    // ----------------------- Run Glib main loop ----------------------
+    Glib::signal_timeout().connect(sigc::bind(sigc::ptr_fun(update_all_gui), sigc::ref(engine)), 40);
+    cout << "Ctrl-C to quit\n";
+    Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create();
+    jack.shutdown.connect(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit));
+    MyService sock(gx_settings, jack, loop);
+    sock.start();
+    loop->run();
+}
+
+static void mainGtk(int argc, char *argv[]) {
+    Glib::init();
+    Gxw::init();
+
+    gx_system::CmdlineOptions options;
+    PosixSignals posixsig(true); // catch unix signals in special thread
+    Gtk::Main main(argc, argv, options);
+    options.process(argc, argv);
+    GxSplashBox * Splash = NULL;
+    Splash =  new GxSplashBox();
+
+    gx_system::GxExit::get_instance().signal_msg().connect(
+	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
+    ErrorPopup popup;
+    gx_system::Logger::get_logger().signal_message().connect(
+	sigc::mem_fun(popup, &ErrorPopup::on_message));
+    // ---------------- Check for working user directory  -------------
+    bool need_new_preset;
+    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
+	Gtk::MessageDialog dialog(
+	    _("old config directory found (.gx_head)."
+	      " state file and standard presets file have been copied to"
+	      " the new directory (.config/guitarix).\n"
+	      " Additional old preset files can be imported into the"
+	      " new bank scheme by mouse drag and drop with a file"
+	      " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
+	dialog.set_title("Guitarix");
+	dialog.run();
+    }
+
+    gx_engine::GxEngine engine(
+	options.get_plugin_dir(), gx_engine::parameter_map, gx_engine::get_group_table(), options);
+    
+    // ------ initialize parameter list ------
+    gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
+    
+    // ------ time measurement (debug) ------
+#ifndef NDEBUG
+    gx_system::add_time_measurement();
+
+    if (argc > 1) {
+	delete Splash;
+	debug_display_glade(engine, options, gx_engine::parameter_map, argv[1]);
+	return;
+    }
+#endif
+    // ----------------------- init GTK interface----------------------
+    MainWindow gui(engine, options, gx_engine::parameter_map, Splash);
+    if (need_new_preset) {
+	gui.create_default_scratch_preset();
+    }
+    // ----------------------- run GTK main loop ----------------------
+    delete Splash;
+    gui.run();
+#ifndef NDEBUG
+    if (options.dump_parameter) {
+	gx_engine::parameter_map.dump("json");
+    }
+#endif
+}
+
+static bool is_headless(int argc, char *argv[]) {
+    for (int i = 0; i < argc; ++i) {
+	if (strcmp(argv[i], "-N") == 0 || strcmp(argv[i], "--nogui") == 0) {
+	    return true;
+	}
+    }
+    return false;
+}
+
 int main(int argc, char *argv[]) {
 #ifdef DISABLE_NLS
 // break
@@ -347,79 +516,15 @@ int main(int argc, char *argv[]) {
 	// ----------------------- init basic subsystems ----------------------
 #ifndef G_DISABLE_DEPRECATED
 	if (!g_thread_supported ()) {
-        Glib::thread_init();
-    }
-#endif
-	Glib::init();
-	Gxw::init();
-
-	gx_system::CmdlineOptions options;
-	Gtk::Main main(argc, argv, options);
-    options.process(argc, argv);
-	gx_system::CmdlineOptions& opt = gx_system::get_options();
-    GxSplashBox * Splash = NULL;
-	if (!opt.get_nogui()) {
-        Splash =  new GxSplashBox();
-
-        gx_system::GxExit::get_instance().signal_msg().connect(
-            sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
-        ErrorPopup popup;
-        gx_system::Logger::get_logger().signal_message().connect(
-            sigc::mem_fun(popup, &ErrorPopup::on_message));
-	}
-	// ---------------- Check for working user directory  -------------
-	bool need_new_preset;
-	if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
-	    Gtk::MessageDialog dialog(
-		_("old config directory found (.gx_head)."
-		  " state file and standard presets file have been copied to"
-		  " the new directory (.config/guitarix).\n"
-		  " Additional old preset files can be imported into the"
-		  " new bank scheme by mouse drag and drop with a file"
-		  " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
-	    dialog.set_title("Guitarix");
-	    dialog.run();
-	}
-
-	PosixSignals posixsig; // catch unix signals in special thread
-	gx_engine::GxEngine engine(
-	    options.get_plugin_dir(), gx_engine::parameter_map, gx_engine::get_group_table(), options);
-
-	// ------ initialize parameter list ------
-	gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
-
-	// ------ time measurement (debug) ------
-#ifndef NDEBUG
-	gx_system::add_time_measurement();
-
-	if (argc > 1) {
-        if (!opt.get_nogui()) {
-            delete Splash;
-        }
-	    return debug_display_glade(engine, options, gx_engine::parameter_map, argv[1]);
+	    Glib::thread_init();
 	}
 #endif
-	// ----------------------- init GTK interface----------------------
-	MainWindow gui(engine, options, gx_engine::parameter_map, Splash);
-	if (need_new_preset) {
-	    gui.create_default_scratch_preset();
-	}
-	// ----------------------- run GTK main loop ----------------------
-	if (!opt.get_nogui()) {
-        delete Splash;
-        gui.run();
+	if (is_headless(argc, argv)) {
+	    mainHeadless(argc, argv);
 	} else {
-        char t;
-        cout << "Type quit (q) and Enter to exit: ";
-        cin  >> t;
-        gx_system::GxExit::get_instance().exit_program("** guitarix exit **");
-    }
-	gx_child_process::childprocs.killall();
-#ifndef NDEBUG
-	if (options.dump_parameter) {
-	    gx_engine::parameter_map.dump("json");
+	    mainGtk(argc, argv);
 	}
-#endif
+	gx_child_process::childprocs.killall();
     } catch (const Glib::OptionError &e) {
 	cerr << e.what() << endl;
 	cerr << _("use \"guitarix -h\" to get a help text") << endl;

@@ -24,251 +24,6 @@
 #include <guitarix.h>
 
 /****************************************************************
- ** class TunerSwitcher
- */
-
-static const int no_note = 1000;
-static const int bad_note = 1002;
-
-inline bool is_no_note(float n) {
-    return abs(n - no_note) < 1;
-}
-
-TunerSwitcher::TunerSwitcher(Liveplay &lp_)
-    : lp(lp_),
-      switcher_conn(),
-      timeout_conn(),
-      current_note(),
-      state(normal_mode),
-      old_engine_state(),
-      new_engine_state(),
-      old_tuner_active(),
-      new_tuner_active(),
-      last_bank_idx(),
-      last_preset_idx() {
-}
-
-bool TunerSwitcher::display_bank_key(int idx) {
-    last_bank_idx = lp.gx_settings.banks.size() - idx - 1;
-    Glib::ustring bank = lp.gx_settings.banks.get_name(last_bank_idx);
-    if (bank.empty()) {
-	lp.display("--", "--");
-	return false;
-    }
-    lp.display(bank, "");
-    return true;
-}
-
-bool TunerSwitcher::display_preset_key(int idx) {
-    last_preset_idx = idx;
-    Glib::ustring bank = lp.gx_settings.banks.get_name(last_bank_idx);
-    if (bank.empty()) {
-	lp.display("??", gx_system::to_string(idx+1));
-	return false;
-    }
-    gx_system::PresetFile *f = lp.gx_settings.banks.get_file(bank);
-    if (idx >= f->size()) {
-	lp.display(bank, gx_system::to_string(idx+1));
-	return false;
-    }
-    lp.display(bank, f->get_name(idx));
-    return true;
-}
-
-void TunerSwitcher::try_load_preset() {
-    if (state == wait_stop) {
-	switch (last_bank_idx) {
-	case mute_on:    new_engine_state = gx_engine::kEngineOff;    break;
-	case mute_off:   new_engine_state = gx_engine::kEngineOn;     break;
-	case bypass_on:  new_engine_state = gx_engine::kEngineBypass; break;
-	case bypass_off: new_engine_state = gx_engine::kEngineOn;     break;
-	case tuner_on:   new_tuner_active = true;  break;
-	case tuner_off:  new_tuner_active = false; break;
-	default:
-	    Glib::ustring bank = lp.gx_settings.banks.get_name(last_bank_idx);
-	    if (!bank.empty()) {
-		gx_system::PresetFile *f = lp.gx_settings.banks.get_file(bank);
-		if (last_preset_idx < f->size()) {
-		    Glib::ustring preset = f->get_name(last_preset_idx);
-		    if (preset != lp.gx_settings.get_current_name() || bank != lp.gx_settings.get_current_bank()) {
-			lp.gx_settings.load_preset(f, preset);
-			return;
-		    }
-		}
-	    }
-	    break;
-	}
-    }
-    lp.on_selection_changed();
-}
-
-void TunerSwitcher::set_state(SwitcherState newstate) {
-    if (state == newstate) {
-	return;
-    }
-    state = newstate;
-    bool sens = true;
-    Gtk::StateType st = Gtk::STATE_NORMAL;
-    switch (state) {
-    case normal_mode:
-	break;
-    case wait_start:
-	sens = false;
-	st = Gtk::STATE_SELECTED;
-	break;
-    case listening:
-	st = Gtk::STATE_SELECTED;
-	break;
-    case wait_stop:
-	st = Gtk::STATE_PRELIGHT;
-	break;
-    default:
-	assert(false);
-	break;
-    }
-    lp.liveplay_bank->set_sensitive(sens);
-    lp.liveplay_bank->set_state(st);
-    lp.liveplay_preset->set_sensitive(sens);
-    lp.liveplay_preset->set_state(st);
-}
-
-bool TunerSwitcher::on_note_timeout() {
-    if (-24 <= current_note && current_note < -10) {
-	set_state(listening);
-	display_bank_key(current_note - (-24));
-    } else if (current_note >= -10 && current_note <= 7) {
-	if (display_preset_key(current_note - (-10))) {
-	    set_state(wait_stop);
-	} else {
-	    set_state(listening);
-	}
-    } else if (current_note == -25) {
-	if (old_engine_state != gx_engine::kEngineOff) {
-	    lp.display("", _("MUTE"));
-	    last_bank_idx = mute_on;
-	} else {
-	    lp.display("", _("UNMUTE"));
-	    last_bank_idx = mute_off;
-	}
-	set_state(wait_stop);
-    } else if (current_note == -26) {
-	if (old_engine_state != gx_engine::kEngineBypass) {
-	    lp.display("", _("BYPASS"));
-	    last_bank_idx = bypass_on;
-	} else {
-	    lp.display("", _("BYPASS OFF"));
-	    last_bank_idx = bypass_off;
-	}
-	set_state(wait_stop);
-    } else if (current_note < 26) {
-	if (!old_tuner_active) {
-	    lp.display("", _("TUNER ON"));
-	    last_bank_idx = tuner_on;
-	} else {
-	    lp.display("", _("TUNER OFF"));
-	    last_bank_idx = tuner_off;
-	}
-	set_state(wait_stop);
-    }
-    return false;
-}
-
-bool TunerSwitcher::on_state_timeout() {
-    if (state == wait_start) {
-	set_state(listening);
-	current_note = no_note;
-	if (lp.gx_settings.setting_is_preset()) {
-	    last_bank_idx = lp.gx_settings.banks.get_index(lp.gx_settings.get_current_bank());
-	    last_preset_idx = lp.gx_settings.get_current_bank_file()->get_index(lp.gx_settings.get_current_name());
-	} else {
-	    last_bank_idx = last_preset_idx = 0; //FIXME
-	}
-    } else {
-	assert(state == wait_stop);
-	try_load_preset();
-	set_active(false);
-    }
-    return false;
-}
-
-void TunerSwitcher::on_tuner_freq_changed() {
-    const float precision = 0.3;
-    float note = lp.engine.tuner.get_note();
-    if (state == wait_start) {
-	if (is_no_note(note)) {
-	    if (!timeout_conn.connected()) {
-		current_note = no_note;
-		timeout_conn = Glib::signal_timeout().connect(
-		    sigc::mem_fun(this, &TunerSwitcher::on_state_timeout),
-		    40);
-	    }
-	} else {
-	    timeout_conn.disconnect();
-	}
-	return;
-    }
-    if (abs(current_note - note) < precision) {
-	return;
-    }
-    if (state == wait_stop) {
-	if (is_no_note(note)) {
-	    if (!is_no_note(current_note)) {
-		timeout_conn.disconnect();
-	    }
-	    if (!timeout_conn.connected()) {
-		current_note = no_note;
-		timeout_conn = Glib::signal_timeout().connect(
-		    sigc::mem_fun(this, &TunerSwitcher::on_state_timeout),
-		    40);
-	    }
-	    return;
-	}
-    }
-    timeout_conn.disconnect();
-    float n = round(note);
-    if (abs(note - n) < precision) {
-	current_note = n;
-	if (!is_no_note(current_note)) {
-	    timeout_conn = Glib::signal_timeout().connect(
-		sigc::mem_fun(this, &TunerSwitcher::on_note_timeout),
-		40);
-	}
-    } else {
-	current_note = bad_note;
-    }
-}
-
-void TunerSwitcher::set_active(bool v) {
-    if (get_active() == v) {
-	return;
-    }
-    if (v) {
-	bool running = lp.engine.tuner.plugin.on_off;
-	lp.engine.tuner.used_for_switching(true);
-	state = wait_start;
-	new_engine_state = old_engine_state = lp.engine.get_state();
-	lp.engine.set_state(gx_engine::kEngineOff);
-	new_tuner_active = old_tuner_active = lp.actions.livetuner->get_active();
-	lp.actions.livetuner->set_active(false);
-	lp.liveplay_preset->set_sensitive(false);
-	switcher_conn = lp.engine.tuner.signal_freq_changed().connect(
-	    sigc::mem_fun(this, &TunerSwitcher::on_tuner_freq_changed));
-	if (running) {
-	    on_tuner_freq_changed();
-	}
-    } else {
-	switcher_conn.disconnect();
-	timeout_conn.disconnect();
-	lp.engine.tuner.used_for_switching(false);
-	set_state(normal_mode);
-	lp.engine.set_state(new_engine_state);
-	lp.actions.livetuner->set_active(new_tuner_active);
-	lp.on_selection_changed();
-    }
-}
-
-
-/****************************************************************
  ** class KeySwitcher
  */
 
@@ -402,16 +157,55 @@ bool Liveplay::on_keyboard_toggle_bypass(GtkAccelGroup *accel_group, GObject *ac
 
 bool Liveplay::on_keyboard_mode_switch(GtkAccelGroup *accel_group, GObject *acceleratable,
 				       guint keyval, GdkModifierType modifier, Liveplay& self) {
-    self.tuner_switcher.toggle();
+    self.set_tuner_switcher_active(!self.tuner_switcher.get_active());
     return true;
+}
+
+void Liveplay::set_display_state(TunerSwitcher::SwitcherState newstate) {
+    bool sens = true;
+    Gtk::StateType st = Gtk::STATE_NORMAL;
+    switch (newstate) {
+    case TunerSwitcher::normal_mode:
+	break;
+    case TunerSwitcher::wait_start:
+	sens = false;
+	st = Gtk::STATE_SELECTED;
+	break;
+    case TunerSwitcher::listening:
+	st = Gtk::STATE_SELECTED;
+	break;
+    case TunerSwitcher::wait_stop:
+	st = Gtk::STATE_PRELIGHT;
+	break;
+    default:
+	assert(false);
+	break;
+    }
+    liveplay_bank->set_sensitive(sens);
+    liveplay_bank->set_state(st);
+    liveplay_preset->set_sensitive(sens);
+    liveplay_preset->set_state(st);
+}
+
+void Liveplay::set_tuner_switcher_active(bool v) {
+    if (tuner_switcher.get_active() == v) {
+	return;
+    }
+    if (v) {
+	liveplay_preset->set_sensitive(false);
+	tuner_switcher.activate(actions.livetuner->get_active());
+	actions.livetuner->set_active(false);
+    } else {
+	actions.livetuner->set_active(tuner_switcher.deactivate());
+    }
 }
 
 void Liveplay::on_switcher_toggled(bool v) {
     if (false) {
-	tuner_switcher.set_active(v);
+	set_tuner_switcher_active(v);
     } else {
 	if (v) {
-	    tuner_switcher.toggle();
+	    set_tuner_switcher_active(!tuner_switcher.get_active());
 	}
     }
 }
@@ -479,7 +273,7 @@ Liveplay::Liveplay(
       keyswitch(gx_settings_, sigc::mem_fun(this, &Liveplay::display)),
       midi_conn(),
       window(),
-      tuner_switcher(*this),
+      tuner_switcher(gx_settings_, engine_),
       switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()), //FIXME
       mouse_hide_conn() {
     const char *id_list[] = {"LivePlay", 0};
@@ -599,7 +393,11 @@ Liveplay::Liveplay(
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_mode_switch), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_space, (GdkModifierType)0, (GtkAccelFlags)0, cl);
     switcher_signal.changed.connect(sigc::mem_fun(this, &Liveplay::on_switcher_toggled));
-    
+
+    tuner_switcher.signal_display().connect(sigc::mem_fun(this, &Liveplay::display));
+    tuner_switcher.signal_set_state().connect(sigc::mem_fun(this, &Liveplay::set_display_state));
+    tuner_switcher.signal_selection_done().connect(sigc::mem_fun(this, &Liveplay::on_selection_changed));
+
     window->add_accel_group(ag);
 
     engine.signal_state_change().connect(
@@ -644,6 +442,7 @@ void Liveplay::on_engine_state_change(gx_engine::GxEngineState state) {
 
 void Liveplay::on_selection_changed() {
     keyswitch.deactivate();
+    set_tuner_switcher_active(false);
     if (!gx_settings.setting_is_preset()) {
 	display("----","");
     } else {
@@ -661,7 +460,7 @@ void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
     } else {
 	midi_conn.disconnect();
 	keyswitch.deactivate();
-	tuner_switcher.set_active(false);
+	set_tuner_switcher_active(false);
 	window->hide();
     }
 }
