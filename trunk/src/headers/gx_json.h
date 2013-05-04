@@ -33,12 +33,18 @@ namespace gx_system {
  */
 
 class JsonException: public exception {
- private:
+ protected:
     Glib::ustring what_str;
  public:
     JsonException(const char* desc);
     ~JsonException() throw() { }
     virtual const char* what() const throw() { return what_str.c_str(); }
+};
+
+class JsonExceptionEOF: public JsonException {
+ public:
+    JsonExceptionEOF(const char* desc): JsonException(desc) {}
+    ~JsonExceptionEOF() throw() { }
 };
 
 class JsonWriter {
@@ -55,6 +61,7 @@ class JsonWriter {
  public:
     JsonWriter(ostream* o = 0);
     virtual ~JsonWriter();
+    void reset();
     void set_stream(ostream* o) { os = o; }
     bool good() { return os->good(); }
     void flush();
@@ -73,6 +80,7 @@ class JsonWriter {
     void end_array(bool nl = false);
     void write_key(const char* p, bool nl = false);
     void write_key(const string& p, bool nl = false);
+    void write_null(bool nl = false) { write_lit("null", nl); }
     void newline() { snl(true); }
 };
 
@@ -81,6 +89,7 @@ class JsonParser {
     JsonParser(istream* i = 0);
     virtual ~JsonParser();
     virtual void close();
+    void reset();
     bool is_closed() { return !is; }
     void set_stream(istream* i) { is = i; }
     enum token {

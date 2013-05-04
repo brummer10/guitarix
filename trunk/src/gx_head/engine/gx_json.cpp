@@ -56,6 +56,13 @@ JsonWriter::~JsonWriter() {
     close();
 }
 
+void JsonWriter::reset() {
+    os->flush();
+    first = true;
+    deferred_nl = false;
+    indent.clear();
+}
+
 void JsonWriter::close() {
     if (is_closed()) {
 	return;
@@ -209,13 +216,28 @@ JsonException::JsonException(const char* desc) {
     what_str = string("Json parse error: ") + desc;
 }
 
+void JsonParser::reset() {
+    depth = 0;
+    cur_tok = no_token;
+    str.clear();
+    nl = false;
+    next_depth = 0;
+    next_tok = no_token;
+    next_str.clear();
+    next_pos = 0;
+}
+
 JsonParser::JsonParser(istream* i)
     : is(i),
-    depth(0),
-    cur_tok(no_token),
-    nl(false),
-    next_depth(0),
-    next_tok(no_token) {}
+      depth(0),
+      cur_tok(no_token),
+      str(),
+      nl(false),
+      next_depth(0),
+      next_tok(no_token),
+      next_str(),
+      next_pos(0) {
+}
 
 JsonParser::~JsonParser() {
     close();
@@ -267,7 +289,7 @@ const char* JsonParser::readcode() {
     for (int i = 0; i < 4; i++) {
         int n = is->get();
         if (!is->good())
-            throw JsonException("eof");
+            throw JsonExceptionEOF("eof");
         if ('0' <= n && n <= '9')
             n = n - '0';
         else
@@ -337,7 +359,7 @@ void JsonParser::read_next() {
         do {
             is->get(c);
             if (!is->good())
-                throw JsonException("eof");
+                throw JsonExceptionEOF("eof");
             if (c == '\n')
                 nl = true;
         } while (c == ' ' || c == '\t' || c == '\r' || c == '\n');
@@ -357,7 +379,7 @@ void JsonParser::read_next() {
             next_str = readstring();
             *is >> c;
             if (!is->good())
-                throw JsonException("eof");
+                throw JsonExceptionEOF("eof");
             if (c == ':') {
                 next_tok = value_key;
             } else {
