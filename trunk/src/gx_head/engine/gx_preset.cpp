@@ -61,7 +61,12 @@ void PresetIO::clear() {
 }
 
 bool PresetIO::midi_in_preset() {
-    return param["system.midi_in_preset"].getSwitch().get();
+    const char *i = "system.midi_in_preset";
+    if (param.hasId(i)) {
+	return param[i].getSwitch().get();
+    } else {
+	return false;
+    }
 }
 
 void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {

@@ -564,6 +564,13 @@ void Parameter::range_warning(float value, float lower, float upper) {
 			       _id, value, lower, upper));
 }
 
+const char *Parameter::get_typename() const {
+    static const char *tpname[] = {
+	"float", "int", "int", "bool", "bool", "filename", "string", "special"};
+    assert(0 <= v_type and v_type < sizeof(tpname)/sizeof(tpname[0]));
+    return tpname[v_type];
+}
+
 bool Parameter::hasRange() const {
     return false;
 }

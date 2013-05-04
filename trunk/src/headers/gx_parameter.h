@@ -147,6 +147,7 @@ public:
     void dump(gx_system::JsonWriter *jw);
 #endif
 
+    const char *get_typename() const;
     bool isFloat() const { return v_type == tp_float; }
     bool isInt() const { return v_type == tp_int; }
     bool isUInt() const { return v_type == tp_uint; }
