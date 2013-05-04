@@ -2636,6 +2636,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     /*
     ** jack, engine, and controller_map signal connections and related settings
     */
+    gx_jack::GxJack::rt_watchdog_set_limit(options.get_idle_thread_timeout());
     engine.set_jack(&jack);
     jack.xrun.connect(sigc::mem_fun(report_xrun, &gx_gui::ReportXrun::run));
     jack.shutdown.connect(sigc::mem_fun(*this, &MainWindow::gx_jack_is_down));
@@ -2802,7 +2803,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     live_play = new Liveplay(options, engine, gx_settings, options.get_builder_filepath("mainpanel.glade"), actions);
     setup_tuner(live_play->get_tuner());
     live_play->get_tuner().signal_poll_status_changed().connect(
-	sigc::mem_fun(engine.tuner, &gx_engine::TunerAdapter::used_for_livedisplay));
+	sigc::mem_fun1(engine.tuner, &gx_engine::TunerAdapter::used_for_livedisplay));
 
     /*
     ** init logging window and logstate image widget

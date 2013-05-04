@@ -18,6 +18,11 @@
  * --------------------------------------------------------------------------
  */
 
+#pragma once
+
+#ifndef SRC_HEADERS_ENGINE_H_
+#define SRC_HEADERS_ENGINE_H_
+
 /* system header files */
 #include <semaphore.h>
 #include <cmath>
@@ -73,3 +78,6 @@ using namespace std;
 #include "gx_engine.h"
 
 #include "gx_jack.h"
+#include "tunerswitcher.h"
+
+#endif  // SRC_HEADERS_ENGINE_H_

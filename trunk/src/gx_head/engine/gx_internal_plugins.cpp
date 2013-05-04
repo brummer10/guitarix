@@ -462,8 +462,7 @@ void ConvolverStereoAdapter::convolver(int count, float *input0, float *input1,
 				 conv_out0, conv_out1, output0, output1);
 	    return;
         }
-	self.plugin.on_off = false;
-	gx_system::gx_print_error("Convolver", "overload");
+	self.engine.overload(EngineControl::ov_Convolver, "jconv");
     }
     if (input0 != output0) {
 	memcpy(output0, input0, count * sizeof(float));
@@ -552,8 +551,7 @@ void ConvolverMonoAdapter::convolver(int count, float *input, float *output, Plu
             self.jc_post_mono.compute(count, output, conv_out, output);
 	    return;
         }
-	self.plugin.on_off = false;
-	gx_system::gx_print_error("Convolver", "overload");
+	self.engine.overload(EngineControl::ov_Convolver, "jconv_mono");
     }
     if (input != output) {
 	memcpy(output, input, count * sizeof(float));
@@ -836,8 +834,7 @@ void CabinetConvolver::check_update() {
 void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, PluginDef *p) {
     CabinetConvolver& self = *static_cast<CabinetConvolver*>(p);
     if (!self.conv.compute(count, output0)) {
-	self.plugin.on_off = false;
-	gx_system::gx_print_error("Convolver", "cabinet overload");
+	self.engine.overload(EngineControl::ov_Convolver, "cab");
     }
 }
 
@@ -989,8 +986,7 @@ void PreampConvolver::check_update() {
 void PreampConvolver::run_pre_conf(int count, float *input0, float *output0, PluginDef *p) {
     PreampConvolver& self = *static_cast<PreampConvolver*>(p);
     if (!self.conv.compute(count, output0)) {
-	self.plugin.on_off = false;
-	gx_system::gx_print_error("Convolver", "preamp overload");
+	self.engine.overload(EngineControl::ov_Convolver, "pre");
     }
 }
 
@@ -1092,8 +1088,7 @@ int ContrastConvolver::register_con(const ParamReg& reg) {
 void ContrastConvolver::run_contrast(int count, float *input0, float *output0, PluginDef *p) {
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(p);
     if (!self.conv.compute(count, output0)) {
-	self.plugin.on_off = false;
-	gx_system::gx_print_error("Convolver", "presence overload");
+	self.engine.overload(EngineControl::ov_Convolver, "contrast");
     }
 }
 

@@ -548,8 +548,12 @@ ModuleSequencer::ModuleSequencer()
       stateflags_mutex(),
       stateflags(SF_INITIALIZING),
       state_change(),
+      overload_detected(),
+      overload_reason(),
       mono_chain(),
       stereo_chain() {
+    overload_detected.connect(
+	sigc::mem_fun(this, &ModuleSequencer::check_overload));
 }
 
 ModuleSequencer::~ModuleSequencer() {
@@ -576,6 +580,13 @@ bool ModuleSequencer::update_module_lists() {
     }
     if (prepare_module_lists()) {
 	commit_module_lists();
+	if (stateflags & SF_OVERLOAD) {
+	    // hack: jackd need some time for new load statistic
+	    Glib::signal_timeout().connect_once(
+		sigc::bind(
+		    sigc::mem_fun(this,&ModuleSequencer::clear_stateflag),
+		    SF_OVERLOAD), 1000);
+	}
 	return true;
     }
     return false;
@@ -629,6 +640,24 @@ void ModuleSequencer::commit_module_lists() {
     }
 }
 
+int ModuleSequencer::sporadic_interval = 0;
+
+void ModuleSequencer::overload(OverloadType tp, const char *reason) {
+    if (sporadic_interval > 0 && (tp == ov_Convolver || tp == ov_XRun)) {
+	static float last = -sporadic_interval;
+	timespec ts;
+	clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+	float now = ts.tv_sec + ts.tv_nsec * 1e-9;
+	if (now - last < sporadic_interval) { // max. 1 event every sporadic_interval seconds
+	    last = now;
+	    return;
+	}
+    }
+    set_stateflag(SF_OVERLOAD);
+    gx_system::atomic_set(&overload_reason, reason);
+    overload_detected();
+}
+
 void ModuleSequencer::set_stateflag(StateFlag flag) {
     if (stateflags & flag) {
 	return;
@@ -652,6 +681,16 @@ void ModuleSequencer::clear_stateflag(StateFlag flag) {
 	mono_chain.set_stopped(false);
 	stereo_chain.set_stopped(false);
 	start_ramp_up();
+    }
+}
+
+void ModuleSequencer::check_overload() {
+    if (stateflags & SF_OVERLOAD) {
+	set_state(kEngineBypass);
+	check_module_lists();
+	gx_system::gx_print_error(
+	    "watchdog",
+	    boost::format(_("Overload (%s)")) % gx_system::atomic_get(overload_reason));
     }
 }
 

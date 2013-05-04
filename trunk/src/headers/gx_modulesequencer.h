@@ -86,7 +86,9 @@ public:
     void start_ramp_up();
     void start_ramp_down();
     inline void set_down_dead() { set_ramp_mode(ramp_mode_down_dead); }
+    inline bool is_down_dead() { return get_ramp_mode() == ramp_mode_down_dead; }
     void set_stopped(bool v);
+    bool is_stopped() { return stopped; }
 #ifndef NDEBUG
     void print_chain_state(const char *title);
 #endif
@@ -249,6 +251,11 @@ protected:
     unsigned int buffersize;
     unsigned int samplerate;
 public:
+    enum OverloadType {		// type of overload condition
+	ov_User,		// idle thread probe starved
+	ov_Convolver,		// convolver overload
+	ov_XRun			// jack audio loop overload
+    };
     PluginList pluginlist;  
     EngineControl();
     ~EngineControl();
@@ -258,6 +265,7 @@ public:
     virtual bool update_module_lists() = 0;
     virtual void start_ramp_up() = 0;
     virtual void start_ramp_down() = 0;
+    virtual void overload(OverloadType tp, const char *reason) = 0; // RT
     void set_samplerate(unsigned int samplerate_);
     unsigned int get_samplerate() { return samplerate; }
     void set_buffersize(unsigned int buffersize_);
@@ -269,6 +277,7 @@ public:
     void add_selector(ModuleSelector& sel);
     void registerParameter(ParamMap& param, ParameterGroups& groups);
     void get_sched_priority(int &policy, int &priority, int prio_dim = 0);
+    gx_ui::GxUI& get_ui() { return ui; }
 };
 
 
@@ -289,6 +298,11 @@ protected:
     boost::mutex stateflags_mutex;
     int stateflags;
     sigc::signal<void, GxEngineState> state_change;
+    Glib::Dispatcher    overload_detected;
+    const char         *overload_reason;   // name of unit which detected overload
+    static int         sporadic_interval; // seconds; overload if at least 2 events in the timespan
+protected:
+    void check_overload();
 public:
     MonoModuleChain mono_chain;  // active modules (amp chain, input to insert output)
     StereoModuleChain stereo_chain;  // active stereo modules (effect chain, after insert input)
@@ -296,6 +310,7 @@ public:
 	SF_NO_CONNECTION = 0x01,  // no jack connection at amp input
 	SF_JACK_RECONFIG = 0x02,  // jack buffersize reconfiguration in progress
 	SF_INITIALIZING  = 0x04,  // jack or engine not ready
+	SF_OVERLOAD      = 0x08,  // engine overload
     };
 public:
     ModuleSequencer();
@@ -330,11 +345,13 @@ public:
 	    update_module_lists();
 	}
     }
-    void set_stateflag(StateFlag flag);
-    void clear_stateflag(StateFlag flag);
+    virtual void overload(OverloadType tp, const char *reason); // RT
+    void set_stateflag(StateFlag flag); // RT
+    void clear_stateflag(StateFlag flag); // RT
     void set_state(GxEngineState state);
     GxEngineState get_state();
     sigc::signal<void, GxEngineState>& signal_state_change() { return state_change; }
+    static void set_overload_interval(int i)  { sporadic_interval = i; }
 #ifndef NDEBUG
     void print_engine_state();
 #endif

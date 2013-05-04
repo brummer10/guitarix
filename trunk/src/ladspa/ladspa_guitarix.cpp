@@ -746,6 +746,7 @@ private:
     void load_static_plugins();
     void sr_changed(unsigned int);
     void bs_changed(unsigned int);
+    void overload(OverloadType tp, const char *reason);
 public:
     MonoModuleChain mono_chain;  // active modules (amp chain, input to insert output)
     // ModuleSelector's
@@ -953,6 +954,10 @@ void MonoEngine::sr_changed(unsigned int sr) {
 
 void MonoEngine::bs_changed(unsigned int bs) {
     buffersize = bs;
+}
+
+void MonoEngine::overload(OverloadType tp, const char *reason) {
+    gx_system::gx_print_error("overload", reason);
 }
 
 void MonoEngine::load_static_plugins() {
@@ -1378,6 +1383,7 @@ LadspaGuitarixMono::LADSPA::~LADSPA() {
 class StereoEngine: public EngineControl {
 private:
     void load_static_plugins();
+    void overload(OverloadType tp, const char *reason);
 public:
     StereoModuleChain stereo_chain;
     ConvolverStereoAdapter stereo_convolver;
@@ -1392,6 +1398,10 @@ public:
     bool prepare_module_lists();
     void commit_module_lists();
 };
+
+void StereoEngine::overload(OverloadType tp, const char *reason) {
+    gx_system::gx_print_error("overload", reason);
+}
 
 void StereoEngine::wait_ramp_down_finished() {
     stereo_chain.wait_ramp_down_finished();

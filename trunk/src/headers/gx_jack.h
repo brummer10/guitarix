@@ -146,6 +146,7 @@ class GxJack: public sigc::trackable {
     void                gx_jack_init_port_connection();
     void                gx_jack_callbacks();
     void                gx_jack_cleanup();
+    inline void         check_overload();
 
  public:
     JackPorts           ports;
@@ -188,7 +189,7 @@ public:
     Glib::Dispatcher&   signal_portchange() { return connection_queue.portchange; }
     Glib::Dispatcher&   signal_buffersize_change() { return buffersize_change; }
     void                send_connection_changes(bool v) { connection_queue.set_send(v); }
-
+    static void         rt_watchdog_set_limit(int limit);
 #ifdef HAVE_JACK_SESSION
     jack_session_event_t *get_last_session_event() {
 	return gx_system::atomic_get(session_event);
@@ -199,6 +200,7 @@ public:
     int                 return_last_session_event();
     int                 return_last_session_event_ins();
     string              get_uuid_insert();
+    gx_engine::GxEngine& get_engine() { return engine; }
 #endif
 };
 

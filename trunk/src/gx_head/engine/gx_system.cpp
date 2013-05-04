@@ -268,6 +268,7 @@ CmdlineOptions::CmdlineOptions()
     : main_group("",""),
       optgroup_style("style", TCLR2("GTK style configuration options")),
       optgroup_jack("jack", TCLR2("JACK configuration options")),
+      optgroup_overload("overload", TCLR2("Switch to bypass mode on overload condition")),
       optgroup_file("file", TCLR2("File options")),
       optgroup_debug("debug", TCLR2("Debug options")),
       version(false), clear(false),
@@ -292,6 +293,10 @@ CmdlineOptions::CmdlineOptions()
       IR_pathlist(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
       nogui(false),
+      sporadic_overload(0),
+      idle_thread_timeout(0),
+      convolver_watchdog(true),
+      xrun_watchdog(false),
       lterminal(false),
       a_save(false),
 #ifndef NDEBUG
@@ -322,13 +327,21 @@ CmdlineOptions::CmdlineOptions()
         "\tguitarix\n"
         "\tguitarix -r gx4-black -i system:capture_3\n"
         "\tguitarix -c -o system:playback_1 -o system:playback_2");
+
+    // main group
     Glib::OptionEntry opt_version;
     opt_version.set_short_name('v');
     opt_version.set_long_name("version");
     opt_version.set_description("Print version string and exit");
+    Glib::OptionEntry opt_nogui;
+    opt_nogui.set_short_name('N');
+    opt_nogui.set_long_name("nogui");
+    opt_nogui.set_description("start without GUI");
     main_group.add_entry(opt_version, version);
+    main_group.add_entry(opt_nogui, nogui);
     set_main_group(main_group);
 
+    // style options
     Glib::OptionEntry opt_clear;
     opt_clear.set_short_name('c');
     opt_clear.set_long_name("clear");
@@ -338,15 +351,10 @@ CmdlineOptions::CmdlineOptions()
     opt_rcset.set_long_name("rcset");
     opt_rcset.set_description(get_opskin());
     opt_rcset.set_arg_description("STYLE");
-    Glib::OptionEntry opt_nogui;
-    opt_nogui.set_short_name('N');
-    opt_nogui.set_long_name("nogui");
-    opt_nogui.set_description("start without GUI");
-    optgroup_style.add_entry(opt_nogui, nogui);
     optgroup_style.add_entry(opt_clear, clear);
     optgroup_style.add_entry(opt_rcset, rcset);
 
-    // JACK options: input and output ports
+    // JACK options
     Glib::OptionEntry opt_jack_input;
     opt_jack_input.set_short_name('i');
     opt_jack_input.set_long_name("jack-input");
@@ -395,8 +403,35 @@ CmdlineOptions::CmdlineOptions()
     optgroup_jack.add_entry(opt_jack_uuid2, jack_uuid2);
     optgroup_jack.add_entry(opt_jack_servername, jack_servername);
 
-    // FILE options
+    // Engine overload options
+    Glib::OptionEntry opt_watchdog_idle;
+    opt_watchdog_idle.set_short_name('I');
+    opt_watchdog_idle.set_long_name("idle-timeout");
+    opt_watchdog_idle.set_description(
+	"starved idle thread probe (default: disabled)");
+    opt_watchdog_idle.set_arg_description("SECONDS");
+    Glib::OptionEntry opt_watchdog_convolver;
+    opt_watchdog_convolver.set_short_name('C');
+    opt_watchdog_convolver.set_long_name("convolver-overload");
+    opt_watchdog_convolver.set_description(
+	"convolver missed deadline (default: true)");
+    Glib::OptionEntry opt_watchdog_xrun;
+    opt_watchdog_xrun.set_short_name('X');
+    opt_watchdog_xrun.set_long_name("xrun-overload");
+    opt_watchdog_xrun.set_description(
+	"JACK xrun (default: false)");
+    Glib::OptionEntry opt_sporadic_overload;
+    opt_sporadic_overload.set_short_name('S');
+    opt_sporadic_overload.set_long_name("sporadic");
+    opt_sporadic_overload.set_description(
+	"allow single overload events per interval (default: disabled)");
+    opt_sporadic_overload.set_arg_description("SECONDS");
+    optgroup_overload.add_entry(opt_watchdog_idle, idle_thread_timeout);
+    optgroup_overload.add_entry(opt_watchdog_convolver, convolver_watchdog);
+    optgroup_overload.add_entry(opt_watchdog_xrun, xrun_watchdog);
+    optgroup_overload.add_entry(opt_sporadic_overload, sporadic_overload);
 
+    // FILE options
     Glib::OptionEntry opt_load_file;
     opt_load_file.set_short_name('f');
     opt_load_file.set_long_name("load-file");
@@ -444,6 +479,7 @@ CmdlineOptions::CmdlineOptions()
     // collecting all option groups
     add_group(optgroup_style);
     add_group(optgroup_jack);
+    add_group(optgroup_overload);
     add_group(optgroup_file);
     add_group(optgroup_debug);
 
@@ -523,9 +559,13 @@ void CmdlineOptions::process(int argc, char** argv) {
 	    Glib::OptionError::BAD_VALUE,
 	    _("-c and -r cannot be used together"));
     }
+    gx_engine::ModuleSequencer::set_overload_interval(sporadic_overload);
     if (lterminal) {
 	Logger::get_logger().signal_message().connect(
 	    sigc::ptr_fun(log_terminal));
+	if (nogui) {
+	    Logger::get_logger().unplug_queue();
+	}
     }
 
     make_ending_slash(builder_dir);

@@ -48,6 +48,49 @@ string GxJack::get_default_instancename() {
     return default_jack_instancename;
 }
 
+
+/****************************************************************
+ ** rt_watchdog
+ */
+
+static unsigned int rt_watchdog_counter;
+
+static void *rt_watchdog_run(void *p) {
+    struct sched_param  spar;
+    spar.sched_priority = 0;
+    pthread_setschedparam(pthread_self(), SCHED_IDLE, &spar);
+    while (true) {
+	gx_system::atomic_set(&rt_watchdog_counter, 0);
+	usleep(1000000);
+    }
+    return NULL;
+}
+
+static int rt_watchdog_limit = 0;
+
+static void rt_watchdog_start() {
+    if (rt_watchdog_limit > 0) {
+	pthread_attr_t      attr;
+	pthread_attr_init(&attr);
+	pthread_t pthr;
+	if (pthread_create(&pthr, &attr, rt_watchdog_run, 0)) {
+	    gx_system::gx_print_error("watchdog", _("can't create thread"));
+	}
+	pthread_attr_destroy(&attr);
+    }
+}
+
+static inline bool rt_watchdog_check_alive(unsigned int bs, unsigned int sr) {
+    if (rt_watchdog_limit > 0) {
+	if (gx_system::atomic_get(rt_watchdog_counter) > rt_watchdog_limit*(2*sr)/bs) {
+	    return false;
+	}
+	gx_system::atomic_inc(&rt_watchdog_counter);
+    }
+    return true;
+}
+
+
 /****************************************************************
  ** GxJack ctor, dtor
  */
@@ -85,10 +128,15 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
     client_change_rt.connect(client_change);
     gx_system::GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxJack::cleanup_slot));
+    rt_watchdog_start();
 }
 
 GxJack::~GxJack() {
     gx_jack_cleanup();
+}
+
+void GxJack::rt_watchdog_set_limit(int limit) {
+    rt_watchdog_limit = limit;
 }
 
 
@@ -565,12 +613,21 @@ static inline float *get_float_buf(jack_port_t *port, jack_nframes_t nframes) {
     return static_cast<float *>(jack_port_get_buffer(port, nframes));
 }
 
+inline void GxJack::check_overload() {
+    if (!rt_watchdog_check_alive(jack_bs, jack_sr)) {
+	engine.overload(gx_engine::EngineControl::ov_User, "watchdog thread");
+    }
+}
+
 // ----- main jack process method gx_amp, mono -> mono
 // RT process thread
 int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
     gx_system::measure_start();
     GxJack& self = *static_cast<GxJack*>(arg);
     if (!self.is_jack_exit()) {
+	if (!self.engine.mono_chain.is_stopped()) {
+	    self.check_overload();
+	}
         // gx_head DSP computing
 	self.engine.mono_chain.process(
 	    nframes,
@@ -594,6 +651,9 @@ int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
     gx_system::measure_cont();
     if (!self.is_jack_exit()) {
+	if (!self.engine.stereo_chain.is_stopped()) {
+	    self.check_overload();
+	}
         // gx_head DSP computing
 	float *ibuf = get_float_buf(self.ports.insert_in.port, nframes);
 	self.engine.stereo_chain.process(
@@ -786,6 +846,9 @@ int GxJack::gx_jack_xrun_callback(void* arg) {
 	return 0;
     }
     self.last_xrun = jack_get_xrun_delayed_usecs(self.client);
+    if (!self.engine.mono_chain.is_stopped()) {
+	self.engine.overload(gx_engine::EngineControl::ov_XRun, "xrun");
+    }
     self.xrun();
     return 0;
 }

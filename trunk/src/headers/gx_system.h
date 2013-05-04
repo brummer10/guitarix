@@ -86,8 +86,24 @@ inline void atomic_set(volatile int* p, int v) {
     g_atomic_int_set(p, v);
 }
 
+inline void atomic_set(volatile unsigned int* p, unsigned int v) {
+    g_atomic_int_set(p, v);
+}
+
 inline int atomic_get(volatile int& p) {
     return g_atomic_int_get(&p);
+}
+
+inline unsigned int atomic_get(volatile unsigned int& p) {
+    return g_atomic_int_get(&p);
+}
+
+inline void atomic_inc(volatile int* p) {
+    g_atomic_int_inc(p);
+}
+
+inline void atomic_inc(volatile unsigned int* p) {
+    g_atomic_int_inc(p);
 }
 
 inline bool atomic_compare_and_exchange(volatile int *p, int oldv, int newv) {
@@ -286,6 +302,7 @@ private:
     Glib::OptionGroup main_group;
     Glib::OptionGroup optgroup_style;
     Glib::OptionGroup optgroup_jack;
+    Glib::OptionGroup optgroup_overload;
     Glib::OptionGroup optgroup_file;
     Glib::OptionGroup optgroup_debug;
     string path_to_program;
@@ -313,6 +330,10 @@ private:
     PathList IR_pathlist;
     Glib::ustring rcset;
     bool nogui;
+    int sporadic_overload;
+    int idle_thread_timeout;
+    bool convolver_watchdog;
+    bool xrun_watchdog;
     bool lterminal;
     bool a_save;
     static CmdlineOptions *instance;
@@ -358,6 +379,7 @@ public:
     bool get_opt_auto_save() const { return a_save; }
     const PathList& get_IR_pathlist() const { return IR_pathlist; }
     Glib::ustring get_jack_output(unsigned int n) const;
+    int get_idle_thread_timeout() { return idle_thread_timeout; }
 };
 
 inline CmdlineOptions& get_options() {

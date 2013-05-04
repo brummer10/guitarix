@@ -84,6 +84,7 @@ public:
     void used_for_switching(bool on) { set_and_check(switcher_use, on); }
     void used_for_display(bool on) { set_and_check(tuner_use, on); }
     void used_for_livedisplay(bool on) { set_and_check(livetuner_use, on); }
+    bool used_for_livedisplay() { return state & livetuner_use; }
     void used_by_midi(bool on) { set_and_check(midi_use, on); }
     void set_dep_module(Plugin* dep) { dep_plugin = dep; }
     void set_module();
