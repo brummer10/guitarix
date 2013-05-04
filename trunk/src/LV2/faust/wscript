@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+import wscript_helper
+
 def build(bld):
     unused_sources = [
         'preamp.dsp',
@@ -200,11 +202,7 @@ def build(bld):
 
 
     if bld.env['FAUST']:
-        float_arg = ["-s","40000","--float"]
-        if bld.env['FAUST_DOUBLE']:
-            arg = ["--double"]
-        else:
-            arg = ["--float"]
+        arg, float_arg = wscript_helper.get_faust_args(bld)
         bld.new_task_gen(
             source = sources_plugin,
             proc = "../tools/dsp2cc",

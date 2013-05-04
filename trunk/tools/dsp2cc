@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2
 # -*- coding: utf-8 -*-
 
 import re, os, sys
@@ -402,12 +402,12 @@ class Parser(object):
             m = static_matcher(l);
             if m:
                 self.staticlist.append((m.group(2), m.group(1), m.group(3)))
-            if self.memory_threshold:
+            if self.options.memory_threshold:
                 m = array_matcher(l)
                 if m:
                     sz = {"int": 4, "float": 4, "double": 8}[m.group(1)]
                     alen = int(m.group(3))
-                    if alen * sz > self.memory_threshold:
+                    if alen * sz > self.options.memory_threshold:
                         l = "%s *%s;\n" % (m.group(1), m.group(2))
                         self.memlist.append((m.group(2), m.group(1), alen))
             if l.startswith(("int","float","double","FAUSTFLOAT")):
@@ -427,17 +427,16 @@ class Parser(object):
             l.append("if (%s) { delete %s; %s = 0; }\n" % (v, v, v))
         return l
 
-    def __init__(self, lines, modname, memory_threshold, init_type):
+    def __init__(self, lines, modname, options):
         self.lines = lines
         self.modname = modname
-        self.memory_threshold = memory_threshold;
+        self.options = options
         self.toplevel = None
         self.topname = None
         self.name = None
         self.groups = {}
         self.memlist = []
         self.staticlist = []
-        self.init_type = init_type
         s = {}
         self.ui = UIDefs()
         #self.readMeta()  # (needed only for faust 9.4
@@ -455,20 +454,41 @@ class Parser(object):
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
-        s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl,init_type)
+        s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl,options.init_type)
         s["var-init"] = s["var-init"]
         s["var-alloc"] = self.add_var_alloc()
         s["var-free"] = self.add_var_free()
         self.skip_until(r"\s*virtual void compute")
-        iodef = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
-        s["compute"] = self.copy(iodef)
-        line = self.skip_while(iodef)
-        s["compute"] += self.copy("\s*}$", line)
+        if self.options.vectorize:
+            s["compute"] = self.replace_ioref_vector(self.copy(r"\t}$"))
+        else:
+            s["compute"] = self.replace_ioref_scalar(self.copy(r"\t}$"))
         self.sections = s
         if self.topname is None:
             self.topname = self.modname
         # ignore any following definitions of static class members
         #self.checkfor(r".*\bexp\b", "compute")
+
+    def replace_ioref_vector(self, lines):
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*&\2put\[\3\]\[index\];"
+        match = re.compile(ioref).match
+        l = []
+        for line in lines:
+            m = match(line)
+            if m:
+                g = m.groups()
+                line = "\t%s* %sput%s = &%sputX%s[index];\n" % (g[0],g[1],g[2],g[1],g[2])
+            l.append(line)
+        return l
+
+    def replace_ioref_scalar(self, lines):
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
+        match = re.compile(ioref).match
+        l = []
+        for line in lines:
+            if not match(line):
+                l.append(line)
+        return l
 
     def checkfor(self, re_exp, sect):
         loop = re.compile(r"\s*for\s*\(int\s+i=0;\s*i<count;\s*i\+\+\)\s*{").match
@@ -639,10 +659,9 @@ static int activate(bool start, PluginDef* = 0)
 }
 
 #endif
-static void compute(int count%(compute_args)s, PluginDef *)
+static void compute(int %(countname)s%(compute_args)s, PluginDef *)
 {
 %(compute_body)s\
-	}
 }
 
 static int register_params(const ParamReg& reg)
@@ -746,7 +765,7 @@ public:
 	static const char *glade_def;
 #endif
 	void init(unsigned int samplingFreq);
-	void compute(int count%(compute_args)s);
+	void compute(int %(countname)s%(compute_args)s);
 	int register_par(const ParamReg& reg);
 #if %(has_plugindef)s
 
@@ -763,7 +782,7 @@ public:
 	static int load_ui_f_static(const UiBuilder& b);
 #endif
 	static void init_static(unsigned int samplingFreq, PluginDef*);
-	static void compute_static(int count%(compute_args)s, PluginDef*);
+	static void compute_static(int %(countname)s%(compute_args)s, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
 public:
@@ -880,18 +899,17 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 #endif
 #endif
-inline void Dsp::compute(int count%(compute_args)s)
+inline void Dsp::compute(int %(countname)s%(compute_args)s)
 {
 %(defines)s\
 %(compute_body)s\
-	}
 %(undefines)s\
 }
 
 #if %(has_plugindef)s
-void Dsp::compute_static(int count%(compute_args)s, PluginDef *p)
+void Dsp::compute_static(int %(countname)s%(compute_args)s, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->compute(count%(compute_call_args)s);
+	static_cast<Dsp*>(p)->compute(%(countname)s%(compute_call_args)s);
 }
 
 #endif
@@ -1023,7 +1041,7 @@ public:
 	static const char *glade_def;
 #endif
 	void init(uint32_t samplingFreq);
-	void compute(int count%(compute_args)s);
+	void compute(int %(countname)s%(compute_args)s);
 #if %(has_plugindef)s
 
 #if %(has_state)s
@@ -1039,7 +1057,7 @@ public:
 	static int load_ui_f_static(const UiBuilder& b);
 #endif
 	static void init_static(uint32_t samplingFreq, PluginLV2*);
-	static void compute_static(int count%(compute_args)s, PluginLV2*);
+	static void compute_static(int %(countname)s%(compute_args)s, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 #if %(has_lv2)s
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -1152,18 +1170,17 @@ int Dsp::activate_static(bool start, PluginLV2 *p)
 
 #endif
 #endif
-inline void Dsp::compute(int count%(compute_args)s)
+inline void Dsp::compute(int %(countname)s%(compute_args)s)
 {
 %(defines)s\
 %(compute_body)s\
-	}
 %(undefines)s\
 }
 
 #if %(has_plugindef)s
-void Dsp::compute_static(int count%(compute_args)s, PluginLV2 *p)
+void Dsp::compute_static(int %(countname)s%(compute_args)s, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->compute(count%(compute_call_args)s);
+	static_cast<Dsp*>(p)->compute(%(countname)s%(compute_call_args)s);
 }
 
 #endif
@@ -1264,6 +1281,18 @@ class Output(object):
         self.fname = fname
         self.options = options
         self.has_activate = len(self.parser.memlist) > 0
+        if self.options.vectorize:
+            self.countname = "fullcount"
+            self.inputdecl = ", float *inputX%d"
+            self.outputdecl = ", float *outputX%d"
+            self.inputcall = ", inputX%d"
+            self.outputcall = ", outputX%d"
+        else:
+            self.countname = "count"
+            self.inputdecl = ", float *input%d"
+            self.outputdecl = ", float *output%d"
+            self.inputcall = ", input%d"
+            self.outputcall = ", output%d"
         s = StringIO()
         self.parser.write(s, "var-init", 1, filt=self.parser.ui.var_filter(0))
         self.state_init = s.getvalue()
@@ -1397,10 +1426,10 @@ class Output(object):
         has_plugindef = self.options.init_type in ("plugin", "plugin-instance", "plugin-lv2")
         has_lv2 = self.options.init_type in ("plugin-lv2")
         in_namespace = self.options.in_namespace
-        compute_args = ("".join([", float *input%d" % i for i in range(self.parser.getNumInputs())])
-                        + "".join([", float *output%d" % i for i in range(self.parser.getNumOutputs())]))
-        compute_call_args = ("".join([", input%d" % i for i in range(self.parser.getNumInputs())])
-                             + "".join([", output%d" % i for i in range(self.parser.getNumOutputs())]))
+        compute_args = ("".join([self.inputdecl % i for i in range(self.parser.getNumInputs())])
+                        + "".join([self.outputdecl % i for i in range(self.parser.getNumOutputs())]))
+        compute_call_args = ("".join([self.inputcall % i for i in range(self.parser.getNumInputs())])
+                             + "".join([self.outputcall % i for i in range(self.parser.getNumOutputs())]))
         plugin_id = self.parser.toplevel or self.parser.topname
         has_cc_ui, cc_ui, has_glade_ui, glade_ui = self.gen_load_ui(plugin_id)
         if self.parser.groups:
@@ -1434,6 +1463,7 @@ class Output(object):
             dsp_initlist = self.dsp_initlist(has_plugindef, has_lv2),
             var_alloc = self.parser_sect("var-alloc", 1),
             var_free = self.parser_sect("var-free", 1),
+            countname = self.countname,
             compute_args = compute_args,
             compute_call_args = compute_call_args,
             defines = self.parser_sect("alias-defines", 0),
@@ -1542,10 +1572,11 @@ class Output(object):
             self.parser.write(fp, "var-free", 1)
             fp.write("}\n\n")
             fp.write(activate)
-        fp.write("%s(int count%s%s" % (
+        fp.write("%s(int %s%s%s" % (
             "static void compute" if self.options.init_type == "plugin" else "void compute",
-            "".join([", float *input%d" % i for i in range(self.parser.getNumInputs())]),
-            "".join([", float *output%d" % i for i in range(self.parser.getNumOutputs())])))
+            self.countname,
+            "".join([self.inputdecl % i for i in range(self.parser.getNumInputs())]),
+            "".join([self.outputdecl % i for i in range(self.parser.getNumOutputs())])))
         if self.options.init_type == "plugin":
             fp.write(", PluginDef *)\n{\n")
         else:
@@ -1553,7 +1584,7 @@ class Output(object):
         self.parser.write(fp, "alias-defines", 0)
         self.parser.write(fp, "compute", 1)
         self.parser.write(fp, "alias-undefines", 0)
-        fp.write("\t}\n}\n\n")
+        fp.write("}\n\n")
         if self.options.init_type == "ctor":
             fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
             fp.write("RegisterParams::RegisterParams()\n{\n")
@@ -1583,6 +1614,10 @@ def main():
                   help="additional faust options, build with double precision") 
     op.add_option("-f", "--float", dest="faustf", action="store_true", default=False,
                   help="additional faust options, build with single precision")
+    op.add_option("-V", "--vectorize", dest="vectorize", action="store_true", default=False,
+                  help="faust --vectorize")
+    op.add_option("-a", "--add", dest="add", action="store",
+                  help="additional faust options, like '-vs 128 -dfs'")
     op.add_option("-s", "--memory-threshold", dest="memory_threshold",
                   default=0, type="int",
                   help="change static memory allocations above threshold to dynamic ones")
@@ -1608,17 +1643,20 @@ def main():
     if not os.path.exists(fname):
         print "error: can't open '%s'" % fname
         raise SystemExit, 1
+    faust_opt = []
     if options.faust:
-        precision = ' -double'
+        faust_opt.append('-double')
     elif options.faustf:
-        precision = ' -single'
-    else:
-        precision = ''
-    faust = Popen("faust %s%s" % (fname, precision), shell=True, stdout=PIPE)
+        faust_opt.append('-single')
+    if options.vectorize:
+        faust_opt.append('-vec')
+    if options.add:
+        faust_opt.append(options.add);
+    faust = Popen("faust %s %s" % (" ".join(faust_opt), fname), shell=True, stdout=PIPE)
     try:
         parser = Parser(faust.stdout,
                         os.path.splitext(os.path.basename(fname))[0],
-                        options.memory_threshold, options.init_type)
+                        options)
     except ValueError, e:
         if faust.wait() == 0:
             print e

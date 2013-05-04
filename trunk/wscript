@@ -115,6 +115,12 @@ def set_options(opt):
                     const=True,
                     help='build with included local zita-convolver libary (Default NO)')
 
+    comp.add_option('--convolver-ffmpeg',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help='use for ARM NEON build only: modified zita-convolver libary that uses ffmpeg for FFT instead of fftw3 (Default NO)')
+
     comp.add_option('--libdir',
                    type='string',
                    default='', 
@@ -148,6 +154,13 @@ def set_options(opt):
                      const=True,
                      help="build with faust, single precision")
 
+    faust.add_option('--faust-vectorize',
+                     action='store_const',
+                     default=False,
+                     const=True,
+                     help="call faust with --vectorize")
+
+    faust.add_option('--faust-options', help="additional faust options")
 
     ladspa = opt.add_option_group("LADSPA Options (installing ladspa modules)")
 
@@ -393,6 +406,8 @@ def check_faust(conf):
     else:
         conf.check_message('faust','version',1,vers)
     conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
+    conf.env['FAUST_VECTORIZE'] = Options.options.faust_vectorize
+    conf.env['FAUST_OPTIONS'] = Options.options.faust_options
 
 def check_cloop(conf):
     code = """
@@ -451,8 +466,12 @@ def check_boost(conf):
     #        uselib_store="BOOST_THREAD", mandatory=1)
 
 def check_zita_convolver(opt, conf):
+    conf.env['CONVOLVER_FFMPEG'] = False
     if opt.includeconvolver:
         conf.env['ZITA_CONVOLVER'] = False
+    elif opt.convolver_ffmpeg:
+        conf.env['ZITA_CONVOLVER'] = False
+        conf.env['CONVOLVER_FFMPEG'] = True
     else:
         expected_zita_convolver_version = 3
         code="""
@@ -598,6 +617,8 @@ def configure(conf):
     conf.check_cfg(package='gtkmm-2.4', atleast_version='2.20', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
     conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
+    if opt.convolver_ffmpeg:
+        conf.check_cfg(package='libavcodec', args='--cflags --libs', uselib_store='LIBAVCODEC', mandatory=1)
     conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
     if opt.build_lv2:
         conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
@@ -607,6 +628,16 @@ def configure(conf):
     check_zita_convolver(opt, conf)
     check_zita_resampler(opt, conf)
     check_faust(conf)
+    if not conf.env['FAUST']:
+        if Options.options.faust_float:
+            display_msg("configuration error", " can't use --faust-float without faust", 'RED')
+            sys.exit(1)
+        if Options.options.faust_vectorize:
+            display_msg("configuration error", " can't use --faust-vectorize without faust", 'RED')
+            sys.exit(1)
+        if Options.options.faust_options:
+            display_msg("configuration error", " can't use --faust-options without faust", 'RED')
+            sys.exit(1)
 
     # directory
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
@@ -727,8 +758,15 @@ def configure(conf):
         display_msg("Use faust precision", "double", 'CYAN')
     else:
         display_msg("Use faust precision", "single", 'CYAN')
+    if opt.faust_vectorize:
+        display_msg("call faust with --vectorize", conf.env['FAUST_VECTORIZE'], 'CYAN')
+    if opt.faust_options:
+        display_msg("Additional faust options", conf.env['FAUST_OPTIONS'], 'CYAN')
     display_feature("Use internal zita-resampler", not conf.env['ZITA_RESAMPLER'])
-    display_feature("Use internal zita-convolver", not conf.env['ZITA_CONVOLVER'])
+    if conf.env['CONVOLVER_FFMPEG']:
+        display_feature("Use zita-convolver-ffmpeg", True)
+    else:
+        display_feature("Use internal zita-convolver", not conf.env['ZITA_CONVOLVER'])
     display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
 
     display_feature("build ladspa plugins", conf.env['LADSPA'])

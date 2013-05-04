@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import os
+import os, wscript_helper
 
 csources = [ # generate .so files from c sources that can be loaded by guitarix
     # element = name or [name, [lib, ...]]
@@ -24,11 +24,7 @@ lib_sources = [ # put in static library linked with guitarix
 
 def build(bld):
     if bld.env['FAUST']:
-        float_arg = ["-s","40000","--float"]
-        if bld.env['FAUST_DOUBLE']:
-            arg = ["--double"]
-        else:
-            arg = ["--float"]
+        arg, float_arg = wscript_helper.get_faust_args(bld)
         arg += ["--init-type=plugin-instance"]
         bld(name = "dsp2cc sharedlib",
             source = sources,
