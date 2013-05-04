@@ -25,6 +25,8 @@
 #ifndef SRC_HEADERS_GX_PITCH_TRACKER_H_
 #define SRC_HEADERS_GX_PITCH_TRACKER_H_
 
+#include <fftw3.h>
+
 namespace gx_engine {
 /* ------------- Pitch Tracker ------------- */
 
@@ -38,7 +40,6 @@ class PitchTracker {
     float           get_estimated_note();
     void            stop_thread();
     void            reset();
-    void            set_threshold(float v);
     void            set_fast_note_detection(bool v);
     Glib::Dispatcher new_freq;
  private:
