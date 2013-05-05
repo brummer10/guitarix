@@ -23,6 +23,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <cmath>
+extern "C" {
+#define __STDC_CONSTANT_MACROS  // needed for UINT64_C (libavutil 0.8.6)
+#include <libavutil/common.h>
+}
 #include "zita-convolver.h"
 
 int zita_convolver_major_version (void)
@@ -409,7 +413,7 @@ void *Convlevel::alloc_aligned (size_t size)
 {
     void *p;
 
-    if (posix_memalign (&p, 16, size)) throw (Converror (Converror::MEM_ALLOC));
+    p = av_malloc(size);
     memset (p, 0, size);
     return p;
 }

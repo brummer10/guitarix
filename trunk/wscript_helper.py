@@ -4,7 +4,7 @@ def add_zita_convolver(bld, uselib, sources, incl, base=".."):
     elif bld.env['CONVOLVER_FFMPEG']:
         sources.append(base+'/zita-convolver-ffmpeg/zita-convolver.cc')
         incl.append(base+'/zita-convolver-ffmpeg');
-        uselib.append('LIBAVCODEC')
+        uselib += ['LIBAVCODEC','LIBAVUTIL']
     else:
         sources.append(base+'/zita-convolver/zita-convolver.cc')
         incl.append(base+'/zita-convolver');
