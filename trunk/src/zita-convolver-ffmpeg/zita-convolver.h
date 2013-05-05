@@ -432,6 +432,7 @@ private:
     unsigned int    _maxpart;                 // largest allowed partition size
     unsigned int    _nlevels;                 // number of partition sizes
     unsigned int    _inpsize;                 // size of input buffers
+    unsigned int    _latecnt;                 // count of cycles ending too late
     Convlevel      *_convlev [MAXLEV];        // array of processors 
     void           *_dummy [64];
 };

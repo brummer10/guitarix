@@ -44,7 +44,8 @@ Convproc::Convproc (void) :
     _quantum (0),
     _minpart (0),
     _maxpart (0),
-    _nlevels (0)
+    _nlevels (0),
+    _latecnt (0)
 {
     memset (_inpbuff, 0, MAXINP * sizeof (float *));
     memset (_outbuff, 0, MAXOUT * sizeof (float *));
@@ -156,6 +157,7 @@ int Convproc::configure (unsigned int ninp,
 	_minpart = minpart;
 	_maxpart = size;
 	_nlevels = pind;
+	_latecnt = 0;
 	_inpsize = 2 * size;
 	 
 	for (i = 0; i < ninp; i++) _inpbuff [i] = new float [_inpsize];
@@ -258,6 +260,7 @@ int Convproc::start_process (int abspri, int policy)
 
     if (_state != ST_STOP) return Converror::BAD_STATE;
 
+    _latecnt = 0;
     _inpoffs = 0;
     _outoffs = 0;
     reset ();
@@ -288,6 +291,14 @@ int Convproc::process (bool sync)
 	for (k = 0; k < _nlevels; k++) f |= _convlev [k]->readout (sync, _skipcnt);
 	if (_skipcnt < _minpart) _skipcnt = 0;
 	else _skipcnt -= _minpart;
+        if (f)
+	{
+            if (++_latecnt >= 5)
+            {
+	        f |= FL_LOAD;
+	    }
+	}
+        else _latecnt = 0;
     }
     return f;
 }
@@ -342,6 +353,7 @@ int Convproc::cleanup (void)
     _minpart = 0;
     _maxpart = 0;
     _nlevels = 0;
+    _latecnt = 0;
     return 0;
 }
 
