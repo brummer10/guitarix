@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <meta charset="utf-8">
+    <title>Guitarix</title>
+    <style>
+    body {
+        background-color: black;
+        color: white;
+    }
+    button {
+        background-color: #000000;
+        color: white;
+        height: 40px;
+        font-size: 130%;
+    }
+    img {
+        height: 20pt;
+    }
+    canvas {
+        background-color: #000000;
+        margin-top: 30pt;
+    }
+    .maindisplay {
+        text-align: center;
+        font-size: 300%;
+    }
+    .hide {
+        display: none;
+    }
+    #bank {
+        margin-top: 30pt;
+        margin-bottom: 0pt;
+    }
+    #preset {
+        margin-top: 20pt;
+    }
+    #load {
+        vertical-align: 40%;
+	margin-right: 20pt;
+    }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="tuner.js"></script>
+    <script type="text/javascript" src="jquery.json.js"></script>
+    <script type="text/javascript" src="jquery.jsonrpcclient.js"></script>
+    <script>
+function display_preset(bank, preset) {
+    $("#bank").text(bank);
+    $("#preset").text(preset);
+}
+function show_tuner(v) {
+    var running = (tuner.stop == 1);
+    guitarix.notify("switch_tuner", [v]);
+    if (v == 1) {
+	if (running) {
+	    $("#live").hide();
+	    $("#tuner").show();
+	    drawCanvas();
+	}
+    } else {
+	if (!running) {
+	    tuner.stop = 1;
+	    $("#tuner").hide();
+	    $("#live").show();
+	}
+    }
+}
+function show_status(s) {
+    if (s == "running") {
+	$("#status_on").show();
+    } else {
+	$("#status_on").hide();
+    }
+    if (s == "stopped") {
+	$("#status_mute").show();
+    } else {
+	$("#status_mute").hide();
+    }
+    if (s == "bypassed") {
+	$("#status_bypass").show();
+    } else {
+	$("#status_bypass").hide();
+    }
+}
+function notify(event) {
+    //console.log(event.data);
+    var response = $.parseJSON(event.data);
+    switch (response.method) {
+    case "preset_changed":
+	display_preset(response.params[0], response.params[1]);
+	break;
+    case "state_changed":
+	show_status(response.params[0]);
+	break;
+    case "tuner_changed":
+	tuner.freq = response.params[0];
+	break;
+    case "display_bank_preset":
+	display_preset(response.params[0], response.params[1]);
+	break;
+    case "set_display_state":
+	if (!tuner.stop) {
+	    show_tuner(0);
+	}
+	var color;
+	switch (response.params[0]) {
+	case "wait_start": color = "yellow"; break;
+	case "listening": color = "red"; break;
+	case "wait_stop": color = "green"; break;
+	case "normal_mode":
+	    color = "white";
+ 	    guitarix.call(
+		'get',["system.current_bank","system.current_preset"],
+		function(result) {
+		    display_preset(result["system.current_bank"], result["system.current_preset"]);
+		});
+	    break;
+	}
+	$("#bank").css("color", color);
+	$("#preset").css("color", color);
+	break;
+    case "show_tuner":
+	show_tuner(response.params[0]);
+	break;
+    default:
+	console.log("unknown websocket data: ", event);
+	break;
+    }
+}
+var guitarix;
+function show_load() {
+    guitarix.call('jack_cpu_load',[],
+                  function(result){$("#load").text(result.toFixed(1)); setTimeout(show_load, 1100);});
+}
+function startWebsocket(version) {
+    guitarix.call(
+        'get',["system.current_bank","system.current_preset"],
+	function(result) {
+	    display_preset(result["system.current_bank"], result["system.current_preset"]);
+            guitarix.call(
+                "getstate",[],
+	        function(result) { show_status(result); show_load(); });
+	});
+}
+function initWebSocket() {
+    var ws = new WebSocket('ws://'+document.location.hostname+':8000/json');
+    ws.onclose = function() { alert("close"); setTimeout(initWebSocket, 1000); }
+    ws.onerror = function() { alert("error"); setTimeout(initWebSocket, 1000); }
+    guitarix = new $.JsonRpcClient(
+	{onmessage:notify,
+	 getSocket:function(onmessage_cb){
+	     ws.onmessage = onmessage_cb;
+	     return ws;
+	 }});
+    guitarix.call("getversion",[],startWebsocket);
+}
+$(document).ready(function() {
+    initWebSocket();
+    create_tuner();
+});
+    </script>
+    <div id="tuner" style="display:none">
+      <canvas id="mycanvas">Please use a browser with HTML5 support</canvas>
+      <button id="showtuner_off"
+              style="position:fixed; bottom:10pt; left:10pt"
+	      height="20"
+	      onclick="guitarix.notify('setstate',['running']); show_tuner(0)"
+	      >Tuner OFF</button>
+    </div>
+    <div style="position:fixed; bottom:10pt; right:20pt">
+      <span id="load"></span>
+      <button class="hide" id="status_mute" onclick="guitarix.notify('setstate',['running'])"><img src="mute.svg"></button>
+      <button class="hide" id="status_on" onclick="guitarix.notify('setstate',['stopped'])"><img src="on.svg"></button>
+      <button class="hide" id="status_bypass" onclick="guitarix.notify('setstate',['running'])"><img src="bypass.svg"></button>
+    </div>
+    <div id="live">
+      <p class="maindisplay" id="bank"></p>
+      <p class="maindisplay" id="preset"></p>
+      <div style="position:fixed; bottom:10pt; left:10pt">
+          <button id="showtuner_on"
+	          onclick="guitarix.notify('setstate',['bypassed']); show_tuner(1)"
+	          >Tuner ON</button>
+          <button id="switch" style="margin-left:20px"
+                  onclick="guitarix.notify('switch',[]);"
+		  >Switch</button>
+      </div>
+    </div>
+  </body>
+</html>
