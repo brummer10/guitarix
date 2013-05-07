@@ -54,7 +54,7 @@ void ProcessingChainBase::set_samplerate(int samplerate) {
     steps_up_dead = 0;
 }
 
-void ProcessingChainBase::set_stopped(bool v) {
+void __rt_func ProcessingChainBase::set_stopped(bool v) {
     stopped = v;
     if (v) {
 	post_rt_finished();  // in case someone is already waiting
@@ -132,7 +132,7 @@ void ProcessingChainBase::start_ramp_down() {
     }
 }
 
-void ProcessingChainBase::try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv) {
+void __rt_func ProcessingChainBase::try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv) {
     if (oldmode != newmode) {
 	if (!gx_system::atomic_compare_and_exchange(&ramp_mode, oldmode, newmode)) {
 	    return;
@@ -252,7 +252,7 @@ void ProcessingChainBase::print_chain_state(const char *title) {
  ** MonoModuleChain, StereoModuleChain
  */
 
-void MonoModuleChain::process(int count, float *input, float *output) {
+void __rt_func MonoModuleChain::process(int count, float *input, float *output) {
     RampMode rm = get_ramp_mode();
     if (rm == ramp_mode_down_dead) {
 	memset(output, 0, count*sizeof(float));
@@ -312,7 +312,7 @@ void MonoModuleChain::process(int count, float *input, float *output) {
     try_set_ramp_mode(rm, rm1, rv, rv1);
 }
 
-void StereoModuleChain::process(int count, float *input1, float *input2, float *output1, float *output2) {
+void __rt_func StereoModuleChain::process(int count, float *input1, float *input2, float *output1, float *output2) {
     // run stereo rack
     RampMode rm = get_ramp_mode();
     if (rm == ramp_mode_down_dead) {
@@ -643,7 +643,7 @@ void ModuleSequencer::commit_module_lists() {
 
 int ModuleSequencer::sporadic_interval = 0;
 
-void ModuleSequencer::overload(OverloadType tp, const char *reason) {
+void __rt_func ModuleSequencer::overload(OverloadType tp, const char *reason) {
     if ((tp & ov_disabled) == ov_XRun) {
 	return; // the xrun should show up in the log anyhow
     }
@@ -668,7 +668,7 @@ void ModuleSequencer::overload(OverloadType tp, const char *reason) {
     overload_detected();
 }
 
-void ModuleSequencer::set_stateflag(StateFlag flag) {
+void __rt_func ModuleSequencer::set_stateflag(StateFlag flag) {
     if (stateflags & flag) {
 	return;
     }
@@ -681,7 +681,7 @@ void ModuleSequencer::set_stateflag(StateFlag flag) {
     stateflags |= flag;
 }
 
-void ModuleSequencer::clear_stateflag(StateFlag flag) {
+void __rt_func ModuleSequencer::clear_stateflag(StateFlag flag) {
     if (!(stateflags & flag)) {
 	return;
     }

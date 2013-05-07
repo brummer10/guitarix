@@ -659,7 +659,7 @@ static int activate(bool start, PluginDef* = 0)
 }
 
 #endif
-static void compute(int %(countname)s%(compute_args)s, PluginDef *)
+static void __rt_func compute(int %(countname)s%(compute_args)s, PluginDef *)
 {
 %(compute_body)s\
 }
@@ -907,7 +907,7 @@ inline void Dsp::compute(int %(countname)s%(compute_args)s)
 }
 
 #if %(has_plugindef)s
-void Dsp::compute_static(int %(countname)s%(compute_args)s, PluginDef *p)
+void __rt_func Dsp::compute_static(int %(countname)s%(compute_args)s, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(%(countname)s%(compute_call_args)s);
 }
@@ -1178,7 +1178,7 @@ inline void Dsp::compute(int %(countname)s%(compute_args)s)
 }
 
 #if %(has_plugindef)s
-void Dsp::compute_static(int %(countname)s%(compute_args)s, PluginLV2 *p)
+void __rt_func Dsp::compute_static(int %(countname)s%(compute_args)s, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(%(countname)s%(compute_call_args)s);
 }
@@ -1573,7 +1573,7 @@ class Output(object):
             fp.write("}\n\n")
             fp.write(activate)
         fp.write("%s(int %s%s%s" % (
-            "static void compute" if self.options.init_type == "plugin" else "void compute",
+            "static void __rt_func compute" if self.options.init_type == "plugin" else "void compute",
             self.countname,
             "".join([self.inputdecl % i for i in range(self.parser.getNumInputs())]),
             "".join([self.outputdecl % i for i in range(self.parser.getNumOutputs())])))

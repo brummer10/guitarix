@@ -386,8 +386,8 @@ bool GxConvolver::configure(
     return read_sndfile(audio, 2, samplerate, gain_a, delay_a, offset, length, points);
 }
 
-bool GxConvolver::compute(int count, float* input1, float *input2, float *output1,
-                          float *output2) {
+bool __rt_func GxConvolver::compute(int count, float* input1, float *input2,
+				    float *output1, float *output2) {
     if (state() != Convproc::ST_PROC) {
         if (input1 != output1) {
             memcpy(output1, input1, count * sizeof(float));
@@ -449,7 +449,7 @@ bool GxConvolver::configure(string fname, float gain, unsigned int delay, unsign
     return read_sndfile(audio, 1, samplerate, gain_a, delay_a, offset, length, points);
 }
 
-bool GxConvolver::compute(int count, float* input, float *output) {
+bool __rt_func GxConvolver::compute(int count, float* input, float *output) {
     if (state() != Convproc::ST_PROC) {
         if (input != output) {
             memcpy(output, input, count * sizeof(float));
@@ -541,7 +541,7 @@ bool GxSimpleConvolver::update(int count, float *impresp, unsigned int imprate) 
     return true;
 }
 
-bool GxSimpleConvolver::compute(int count, float* input, float *output) {
+bool __rt_func GxSimpleConvolver::compute(int count, float* input, float *output) {
     if (state() != Convproc::ST_PROC) {
         if (input != output) {
             memcpy(output, input, count * sizeof(float));

@@ -9,5 +9,5 @@ tables=(
 )
 for f in "${tables[@]}"; do
   set -- $f
-  python ../../tools/tube_transfer.py table $1 $2 > $3
+  python ../../../tools/tube_transfer.py table $1 $2 > $3
 done

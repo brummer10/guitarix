@@ -28,6 +28,7 @@ extern "C" {
 #include <libavutil/common.h>
 }
 #include "zita-convolver.h"
+#include "gx_compiler.h"
 
 int zita_convolver_major_version (void)
 {
@@ -277,7 +278,7 @@ int Convproc::start_process (int abspri, int policy)
 }
 
 
-int Convproc::process (bool sync)
+int __rt_func Convproc::process (bool sync)
 {
     unsigned int k;
     int f = 0;
@@ -694,7 +695,7 @@ void *Convlevel::static_main (void *arg)
 }
 
 
-void Convlevel::main (void)
+void __rt_func Convlevel::main (void)
 {
     _stat = ST_PROC;
     while (true)
@@ -712,7 +713,7 @@ void Convlevel::main (void)
 }
 
 
-void Convlevel::process (bool skip)
+void __rt_func Convlevel::process (bool skip)
 {
     unsigned int    i, j, k;
     unsigned int    i1, n1, n2, opi1, opi2;
@@ -811,7 +812,7 @@ void Convlevel::process (bool skip)
 }
 
 
-int Convlevel::readout (bool sync, unsigned int skipcnt)
+int __rt_func Convlevel::readout (bool sync, unsigned int skipcnt)
 {
     unsigned int  i;
     float         *p, *q;	
@@ -915,7 +916,7 @@ Macnode *Convlevel::findmacnode (unsigned int inp, unsigned int out, bool create
 }
 
 
-void Convlevel::fftswap (fftwf_complex *p)
+void __rt_func Convlevel::fftswap (fftwf_complex *p)
 {
     unsigned int  n = _parsize;
     float         a, b;

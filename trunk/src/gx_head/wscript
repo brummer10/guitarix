@@ -89,7 +89,9 @@ def build(bld):
                     bld.path.find_dir("../../libgxwmm/gxwmm").bldpath(bld.env)]
     else:
         uselib_local += ['gxwmm','gxw']
-    bld(features = 'cxx cprogram',
+    ldscript = bld.path.find_resource('guitarix.lds')
+    mapfile = bld.path.find_or_declare("guitarix.map")
+    task = bld(features = 'cxx cprogram',
         includes = incl,
         obj_ext  = '.o',
         source = sources,
@@ -100,5 +102,7 @@ def build(bld):
         target = bld.env['BIN_NAME'],
         chmod = 0o755,
         install_path = bld.env['BINDIR'],
+        ldflags = ['-Wl,%s,-Map=%s' % (ldscript.srcpath(),mapfile.bldpath(bld.env))],
         )
+    bld.add_manual_dependency(bld.path.find_or_declare(task.target), ldscript)
     bld.install_files(bld.env['GX_BUILDER_DIR'], builder_files, chmod=0o644)

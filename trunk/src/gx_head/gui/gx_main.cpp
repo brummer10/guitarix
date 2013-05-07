@@ -28,7 +28,8 @@
 #include <gtkmm/main.h>     // NOLINT
 #include <gxwmm/init.h>     // NOLINT
 #include <string>           // NOLINT
-#include <jsonrpc.h>
+#include <sys/mman.h>
+#include "jsonrpc.h"
 
 /****************************************************************
  ** class PosixSignals
@@ -369,6 +370,25 @@ bool update_all_gui(gx_engine::GxEngine& engine) {
     engine.check_module_lists();
     return true;
 }
+
+static void lock_rt_memory() {
+    extern char __rt_text__start[], __rt_text__end[];
+    extern char __rt_data__start[], __rt_data__end[];
+    struct {
+	char *start;
+	int len;
+    } regions[] = {
+	{ __rt_text__start, __rt_text__end - __rt_text__start },
+	{ __rt_data__start, __rt_data__end - __rt_data__start },
+    };
+    for (unsigned int i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
+	if (mlock(regions[i].start, regions[i].len) != 0) {
+	    throw gx_system::GxFatalError(
+		boost::format(_("failed to lock memory: %1%")) % strerror(errno));
+	}
+    }
+}
+
 static void mainHeadless(int argc, char *argv[]) {
     Glib::init();
     Gio::init();
@@ -402,6 +422,7 @@ static void mainHeadless(int argc, char *argv[]) {
 #endif
     gx_jack::GxJack jack(engine);
     gx_jack::GxJack::rt_watchdog_set_limit(options.get_idle_thread_timeout());
+    lock_rt_memory();
     engine.set_jack(&jack);
     gx_preset::GxSettings gx_settings(
 	options, jack, engine.stereo_convolver, gx_engine::midi_std_ctr,

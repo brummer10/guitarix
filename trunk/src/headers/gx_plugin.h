@@ -27,6 +27,8 @@
 #ifndef _GX_PLUGIN_H
 #define _GX_PLUGIN_H
 
+#include "gx_compiler.h"
+
 // forward declarations (need not be resolved for plugin definition)
 struct PluginDef;
 

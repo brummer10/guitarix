@@ -621,7 +621,7 @@ inline void GxJack::check_overload() {
 
 // ----- main jack process method gx_amp, mono -> mono
 // RT process thread
-int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
+int __rt_func GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
     gx_system::measure_start();
     GxJack& self = *static_cast<GxJack*>(arg);
     if (!self.is_jack_exit()) {
@@ -647,7 +647,7 @@ int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 
 // ----- main jack process method, gx_fx_amp, mono -> stereo
 // RT process_insert thread
-int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
+int __rt_func GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
     gx_system::measure_cont();
     if (!self.is_jack_exit()) {

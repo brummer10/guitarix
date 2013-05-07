@@ -200,7 +200,7 @@ class Circuit(object):
         for n in self.used_names:
             sys.stdout.write("// %s: %g\n" % (n, getattr(self, n)))
         sys.stdout.write("\n")
-        sys.stdout.write("table1d_imp<%d> tubetable_%s[%d] = {\n"
+        sys.stdout.write("table1d_imp<%d> tubetable_%s[%d] __rt_data = {\n"
                          % (self.table_size, self.tube, len(self.Ri_values)))
         s = ""
         for Ri in self.Ri_values:

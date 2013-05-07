@@ -60,6 +60,8 @@
 
 using namespace std;
 
+#include "gx_compiler.h"
+
 /* guitarix declarations */
 #include "gx_plugin.h"
 #include "gx_system.h"
