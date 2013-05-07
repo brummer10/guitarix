@@ -116,13 +116,16 @@ private:
     void error_response(int code, const char *message);
     void error_response(int code, Glib::ustring& message) { error_response(code, message.c_str()); }
     void preset_changed();
-    void send_notify(bool start, const char *method = 0);
+    void send_notify_begin(const char *method);
+    void send_notify_end();
     void on_engine_state_change(gx_engine::GxEngineState state);
     void write_engine_state(gx_engine::GxEngineState s);
     void on_tuner_freq_changed();
     void display(const Glib::ustring& bank, const Glib::ustring& preset);
     void set_display_state(TunerSwitcher::SwitcherState newstate);
     void on_selection_done();
+    void on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
+
 public:
     CmdConnection(MyService& serv, const Glib::RefPtr<Gio::SocketConnection>& connection_);
     ~CmdConnection() {}
@@ -147,23 +150,40 @@ CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketCon
     serv.tuner_switcher.signal_display().connect(sigc::mem_fun(this, &CmdConnection::display));
     serv.tuner_switcher.signal_set_state().connect(sigc::mem_fun(this, &CmdConnection::set_display_state));
     serv.tuner_switcher.signal_selection_done().connect(sigc::mem_fun(this, &CmdConnection::on_selection_done));
+    gx_system::Logger::get_logger().signal_message().connect(
+	sigc::mem_fun(this, &CmdConnection::on_log_message));
+    gx_system::Logger::get_logger().unplug_queue();
 }
 
-void CmdConnection::send_notify(bool start, const char *method) {
-    if (start) {
-	jw.begin_object();
-	jw.write_key("jsonrpc");
-	jw.write("2.0");
-	jw.write_key("method");
-	jw.write(method);
-	jw.write_key("params");
-	jw.begin_array();
-    } else {
-	jw.end_array();
-	jw.end_object();
-	os << endl;
-	jw.reset();
+void CmdConnection::on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged) {
+    switch (tp) {
+    case gx_system::kInfo:    return;
+    case gx_system::kWarning: return;
+    case gx_system::kError:   break;
+    default:       break;
     }
+    if (!plugged) {
+	send_notify_begin("errormsg");
+	jw.write(msg);
+	send_notify_end();
+    }
+}
+
+void CmdConnection::send_notify_begin(const char *method) {
+    jw.begin_object();
+    jw.write_key("jsonrpc");
+    jw.write("2.0");
+    jw.write_key("method");
+    jw.write(method);
+    jw.write_key("params");
+    jw.begin_array();
+}
+
+void CmdConnection::send_notify_end() {
+    jw.end_array();
+    jw.end_object();
+    os << endl;
+    jw.reset();
 }
 
 void CmdConnection::write_engine_state(gx_engine::GxEngineState s) {
@@ -181,44 +201,44 @@ void CmdConnection::write_engine_state(gx_engine::GxEngineState s) {
 }
 
 void CmdConnection::on_selection_done() {
-    send_notify(true, "show_tuner");
+    send_notify_begin("show_tuner");
     jw.write(serv.tuner_switcher.deactivate());
-    send_notify(false);
+    send_notify_end();
 }
 
 void CmdConnection::on_engine_state_change(gx_engine::GxEngineState state) {
-    send_notify(true, "state_changed");
+    send_notify_begin("state_changed");
     write_engine_state(state);
-    send_notify(false);
+    send_notify_end();
 }
 
 void CmdConnection::preset_changed() {
-    send_notify(true, "preset_changed");
+    send_notify_begin("preset_changed");
     if (serv.settings.setting_is_preset()) {
 	jw.write(serv.settings.get_current_bank());
 	jw.write(serv.settings.get_current_name());
     }
-    send_notify(false);
+    send_notify_end();
 }
 
 void CmdConnection::on_tuner_freq_changed() {
-    send_notify(true, "tuner_changed");
+    send_notify_begin("tuner_changed");
     //jw.write_key("frequency");
     jw.write(serv.jack.get_engine().tuner.get_freq());
     //jw.write_key("note");
     jw.write(serv.jack.get_engine().tuner.get_note());
-    send_notify(false);
+    send_notify_end();
 }
 
 void CmdConnection::display(const Glib::ustring& bank, const Glib::ustring& preset) {
-    send_notify(true, "display_bank_preset");
+    send_notify_begin("display_bank_preset");
     jw.write(bank);
     jw.write(preset);
-    send_notify(false);
+    send_notify_end();
 }
 
 void CmdConnection::set_display_state(TunerSwitcher::SwitcherState state) {
-    send_notify(true, "set_display_state");
+    send_notify_begin("set_display_state");
     switch (state) {
     case TunerSwitcher::normal_mode: jw.write("normal_mode"); break;
     case TunerSwitcher::wait_start: jw.write("wait_start"); break;
@@ -226,7 +246,7 @@ void CmdConnection::set_display_state(TunerSwitcher::SwitcherState state) {
     case TunerSwitcher::wait_stop: jw.write("wait_stop"); break;
     default: assert(false); break;
     }
-    send_notify(false);
+    send_notify_end();
 }
 
 static bool do_reset = true;
