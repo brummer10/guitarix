@@ -420,8 +420,8 @@ static void mainHeadless(int argc, char *argv[]) {
 #ifndef NDEBUG
     gx_system::add_time_measurement();
 #endif
-    gx_jack::GxJack jack(engine);
     gx_jack::GxJack::rt_watchdog_set_limit(options.get_idle_thread_timeout());
+    gx_jack::GxJack jack(engine);
     lock_rt_memory();
     engine.set_jack(&jack);
     gx_preset::GxSettings gx_settings(
@@ -498,6 +498,7 @@ static void mainGtk(int argc, char *argv[]) {
 	return;
     }
 #endif
+    lock_rt_memory();
     // ----------------------- init GTK interface----------------------
     MainWindow gui(engine, options, gx_engine::parameter_map, Splash);
     if (need_new_preset) {
