@@ -252,9 +252,9 @@ protected:
     unsigned int samplerate;
 public:
     enum OverloadType {		// type of overload condition
-	ov_User,		// idle thread probe starved
-	ov_Convolver,		// convolver overload
-	ov_XRun			// jack audio loop overload
+	ov_User      = 0x1,	// idle thread probe starved
+	ov_Convolver = 0x2,	// convolver overload
+	ov_XRun      = 0x4	// jack audio loop overload
     };
     PluginList pluginlist;  
     EngineControl();
@@ -300,6 +300,7 @@ protected:
     sigc::signal<void, GxEngineState> state_change;
     Glib::Dispatcher    overload_detected;
     const char         *overload_reason;   // name of unit which detected overload
+    int                 ov_disabled;	   // bitmask of OverloadType
     static int         sporadic_interval; // seconds; overload if at least 2 events in the timespan
 protected:
     void check_overload();

@@ -550,6 +550,7 @@ ModuleSequencer::ModuleSequencer()
       state_change(),
       overload_detected(),
       overload_reason(),
+      ov_disabled(0),
       mono_chain(),
       stereo_chain() {
     overload_detected.connect(
@@ -643,17 +644,26 @@ void ModuleSequencer::commit_module_lists() {
 int ModuleSequencer::sporadic_interval = 0;
 
 void ModuleSequencer::overload(OverloadType tp, const char *reason) {
-    if (sporadic_interval > 0 && (tp == ov_Convolver || tp == ov_XRun)) {
+    if ((tp & ov_disabled) == ov_XRun) {
+	return; // the xrun should show up in the log anyhow
+    }
+    bool ignore = false;
+    if ((tp & ov_disabled) == ov_Convolver) {
+	ignore = true;
+    }
+    if (sporadic_interval > 0 && !ignore && (tp & (ov_Convolver|ov_XRun))) {
 	static float last = -sporadic_interval;
 	timespec ts;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
 	float now = ts.tv_sec + ts.tv_nsec * 1e-9;
 	if (now - last < sporadic_interval) { // max. 1 event every sporadic_interval seconds
 	    last = now;
-	    return;
+	    ignore = true;
 	}
     }
-    set_stateflag(SF_OVERLOAD);
+    if (!ignore) {
+	set_stateflag(SF_OVERLOAD);
+    }
     gx_system::atomic_set(&overload_reason, reason);
     overload_detected();
 }
@@ -691,6 +701,10 @@ void ModuleSequencer::check_overload() {
 	gx_system::gx_print_error(
 	    "watchdog",
 	    boost::format(_("Overload (%s)")) % gx_system::atomic_get(overload_reason));
+    } else {
+	gx_system::gx_print_error(
+	    "watchdog",
+	    boost::format(_("Overload ignored (%s)")) % gx_system::atomic_get(overload_reason));
     }
 }
 

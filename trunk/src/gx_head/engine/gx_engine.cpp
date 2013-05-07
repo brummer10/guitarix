@@ -140,6 +140,13 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       ladspaloader(options) {
+    set_overload_interval(options.get_sporadic_overload());
+    if (!options.get_convolver_watchdog()) {
+	ov_disabled |= ov_Convolver;
+    }
+    if (!options.get_xrun_watchdog()) {
+	ov_disabled |= ov_XRun;
+    }
 #ifdef USE_MIDI_OUT
     tuner.set_dep_module(&midiaudiobuffer.plugin);
 #endif

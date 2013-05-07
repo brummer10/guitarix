@@ -412,9 +412,10 @@ CmdlineOptions::CmdlineOptions()
     opt_watchdog_idle.set_arg_description("SECONDS");
     Glib::OptionEntry opt_watchdog_convolver;
     opt_watchdog_convolver.set_short_name('C');
-    opt_watchdog_convolver.set_long_name("convolver-overload");
+    opt_watchdog_convolver.set_long_name("no-convolver-overload");
     opt_watchdog_convolver.set_description(
-	"convolver missed deadline (default: true)");
+	"disable overload on convolver missed deadline");
+    opt_watchdog_convolver.set_flags(Glib::OptionEntry::FLAG_REVERSE);
     Glib::OptionEntry opt_watchdog_xrun;
     opt_watchdog_xrun.set_short_name('X');
     opt_watchdog_xrun.set_long_name("xrun-overload");
@@ -559,7 +560,6 @@ void CmdlineOptions::process(int argc, char** argv) {
 	    Glib::OptionError::BAD_VALUE,
 	    _("-c and -r cannot be used together"));
     }
-    gx_engine::ModuleSequencer::set_overload_interval(sporadic_overload);
     if (lterminal) {
 	Logger::get_logger().signal_message().connect(
 	    sigc::ptr_fun(log_terminal));

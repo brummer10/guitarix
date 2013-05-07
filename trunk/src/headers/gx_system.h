@@ -379,7 +379,10 @@ public:
     bool get_opt_auto_save() const { return a_save; }
     const PathList& get_IR_pathlist() const { return IR_pathlist; }
     Glib::ustring get_jack_output(unsigned int n) const;
-    int get_idle_thread_timeout() { return idle_thread_timeout; }
+    int get_idle_thread_timeout() const { return idle_thread_timeout; }
+    int get_sporadic_overload() const { return sporadic_overload; }
+    bool get_xrun_watchdog() const { return xrun_watchdog; }
+    bool get_convolver_watchdog() const { return convolver_watchdog; }
 };
 
 inline CmdlineOptions& get_options() {
