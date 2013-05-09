@@ -21,6 +21,52 @@
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
 #include <glibmm.h>
 #include "gx_common.h"      // faust support and denormal protection (SSE)
+
+/****************************************************************
+ ** "atomic" value access
+ */
+
+inline void atomic_set(volatile int32_t* p, int32_t v)
+{
+  g_atomic_int_set(p, v);
+}
+
+inline int32_t atomic_get(volatile int32_t& p)
+{
+  return g_atomic_int_get(&p);
+}
+
+inline bool atomic_compare_and_exchange(volatile int32_t *p, int32_t oldv, int32_t newv)
+{
+  return g_atomic_int_compare_and_exchange(p, oldv, newv);
+}
+
+template <class T>
+inline void atomic_set(T **p, T *v)
+{
+  g_atomic_pointer_set(p, v);
+}
+
+template <class T>
+inline void atomic_set_0(T **p)
+{
+  g_atomic_pointer_set(p, 0);
+}
+
+template <class T>
+inline T *atomic_get(T*& p)
+{
+  return static_cast<T*>(g_atomic_pointer_get(&p));
+}
+
+template <class T>
+inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
+{
+  return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
+}
+
+
+
 #include "gxtuner.h"        // define struct PortIndex
 #include "gx_pluginlv2.h"   // define struct PluginLV2
 #include "gx_resampler.h"
@@ -86,6 +132,23 @@ private:
   inline void play_midi(tuner& self);
   inline void send_midi_data(int count, uint8_t controller ,
                              uint8_t note, uint8_t velocity);
+
+  // threading stuff
+  volatile bool                noexit;
+  Glib::Threads::Thread        *thread;
+  void                         create_thread();
+  void                         watch_thread();
+  void                         freq_change_handler(); 
+  Glib::Threads::Cond          freq_changed;
+  Glib::Threads::Mutex         _mutex;
+  volatile int32_t             note_verified;
+  float                        freq_old;
+  float                        freq_new;
+  uint32_t                     verifielevel;
+  
+
+
+
 public:
   // LV2 Descriptor
   static const LV2_Descriptor descriptor;
@@ -123,8 +186,14 @@ Gxtuner::Gxtuner() :
   input(NULL),
   tuner_adapter(plugin()),
   vu_adapter(vu_plugin()),
-  lhcut(low_high_cut::plugin())
- {};
+  lhcut(low_high_cut::plugin()),
+  noexit(true),
+  thread(),
+  freq_changed(),
+  _mutex()
+  {
+    atomic_set(&note_verified,0);
+  };
 
 // destructor
 Gxtuner::~Gxtuner()
@@ -137,9 +206,56 @@ Gxtuner::~Gxtuner()
   tuner_adapter->delete_instance(tuner_adapter);
   vu_adapter->delete_instance(vu_adapter);
   lhcut->delete_instance(lhcut);
+  noexit = false;
+  if (thread) 
+  {
+    freq_changed.signal();
+    thread->join();
+  }
 };
 
 ////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
+
+
+void Gxtuner::freq_change_handler() 
+{ 
+  freq_changed.signal();
+}
+
+void Gxtuner::watch_thread() 
+{
+  tuner& self = *static_cast<tuner*>(tuner_adapter);
+  while (noexit) {
+    freq_changed.wait(_mutex);
+    freq_new = round(self.get_note(self));
+    if (freq_new == freq_old) {
+        verifielevel++;
+        if(verifielevel>static_cast<uint32_t>(fastnote)*2) {
+          atomic_set(&note_verified,1);
+          fnote = self.get_note(self);
+          verifielevel =0;
+          //fprintf(stderr,"NOTE VERIFIED \n");
+        }
+    } else {
+        freq_old = freq_new;
+        verifielevel =0;
+        fnote = 1000;
+       // fprintf(stderr,"NOTE NOT VERIFIED");
+    }
+  }
+}
+
+void Gxtuner::create_thread() 
+{
+  try {
+    thread = Glib::Threads::Thread::create(
+        sigc::mem_fun(*this, &Gxtuner::watch_thread));
+    } catch (Glib::Threads::ThreadError& e) {
+      throw printf("Thread create failed (signal): %s",  e.what().c_str());
+    }
+}
+
+
 
 void Gxtuner::send_midi_data(int count, uint8_t controller,
                              uint8_t note, uint8_t velocity)
@@ -157,7 +273,7 @@ void Gxtuner::play_midi(tuner& self)
 {
   MaxLevel& lev = *static_cast<MaxLevel*>(vu_adapter);
   lv2_event_begin(&out_iter,MidiOut);  
-  fnote = self.get_note(self);
+  //fnote = self.get_note(self);
   level = lev.get_midi_level(lev);
   nolevel = pow(10.,*(nolevel_)*0.05);
   count_frame++;
@@ -165,8 +281,9 @@ void Gxtuner::play_midi(tuner& self)
     count_frame = 0;
     play = true;
   }
-  if ((fnote  < 999.) && (level > nolevel) && play) {
+  if ((fnote  < 999.) && (level > nolevel) && play && atomic_get(note_verified)) {
     play = false;
+    atomic_set(&note_verified,0);
     note = static_cast<uint8_t>(round(fnote)+57);
     fallback = level;
     if(note != lastnote) {
@@ -222,6 +339,9 @@ void Gxtuner::init_dsp_mono(uint32_t rate)
   tuner_adapter->set_samplerate(rate, tuner_adapter); // init the DSP class
   vu_adapter->set_samplerate(rate, vu_adapter);
   lhcut->set_samplerate(rate, lhcut);
+  create_thread();
+  tuner& self = *static_cast<tuner*>(tuner_adapter);
+  self.signal_freq_changed().connect(sigc::mem_fun(this, &Gxtuner::freq_change_handler));
 }
 
 // connect the Ports used by the plug-in class
