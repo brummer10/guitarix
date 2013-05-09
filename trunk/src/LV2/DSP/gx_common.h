@@ -53,6 +53,10 @@ inline void AVOIDDENORMALS()
 inline void AVOIDDENORMALS() {}
 #endif //__SSE__
 
+///////////////////////// memlock rt ///////////////////////////////////
+
+#include "gx_compiler.h"
+
 ///////////////////////// FAUST SUPPORT ////////////////////////////////
 
 #define FAUSTFLOAT float

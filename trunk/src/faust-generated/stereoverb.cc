@@ -356,7 +356,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	}
 }
 
-void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+void __rt_func Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
 }

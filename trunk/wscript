@@ -428,7 +428,7 @@ def check_cloop(conf):
     return 0;
     }
     """
-    msg = "Checking for ibcloog-ppl0" 
+    msg = "Checking for libcloog-ppl0" 
     conf.check_cxx(msg = msg, fragment=code, cxxflags=[ '-O3', '-ftree-loop-linear'], define_name="NOOPT")
 
 def check_boost(conf):

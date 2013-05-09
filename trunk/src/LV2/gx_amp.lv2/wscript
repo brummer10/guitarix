@@ -10,6 +10,7 @@ def build(bld):
     bundle = 'gx_amp.lv2'
     
     src = ['gxamp.cpp',
+           'gx_amp.cc',
            '../DSP/gx_resampler.cc',
            '../DSP/gx_convolver.cc'
            ]

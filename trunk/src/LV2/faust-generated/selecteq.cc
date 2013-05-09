@@ -331,7 +331,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 #undef fslider29
 }
 
-void Dsp::compute_static(int count, float *input0, float *output0, PluginLV2 *p)
+void __rt_func Dsp::compute_static(int count, float *input0, float *output0, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);
 }

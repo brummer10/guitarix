@@ -26,6 +26,9 @@
 
 #pragma once
 
+#ifndef SRC_HEADERS_VALVE_H_
+#define SRC_HEADERS_VALVE_H_
+
 /****************************************************************
  * 1-dimensional function tables for linear interpolation
  *
@@ -110,3 +113,5 @@ static inline double Ftube(int table, double Vgk) {
     f -= i;
     return tab.data[i]*(1-f) + tab.data[i+1]*f;
 }
+
+#endif  // SRC_HEADERS_VALVE_H_

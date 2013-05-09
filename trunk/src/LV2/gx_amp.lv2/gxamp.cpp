@@ -68,13 +68,67 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "gx_resampler.h"
 #include "gx_convolver.h"
 #include "gx_tonestack.h"
-#include "gx_amp.h"
+#include "gx_pluginlv2.h"   // define struct PluginLV2
+//#include "gx_amp.h"
 #include "impulse_former.h"
 #include "ampulse_former.h"
+
 #ifndef __SSE__
 #include "noiser.cc"
 #endif
+
 #include "cab_data_table.cc"
+
+//////////////////////// define dsp namespaces /////////////////////////
+
+#define declare(n) namespace n { PluginLV2 *plugin(); }
+
+declare(gxamp);
+declare(gxamp2);
+declare(gxamp3);
+declare(gxamp4);
+declare(gxamp5);
+declare(gxamp6);
+declare(gxamp7);
+declare(gxamp8);
+declare(gxamp9);
+declare(gxamp10);
+declare(gxamp11);
+declare(gxamp12);
+declare(gxamp13);
+declare(gxamp14);
+declare(gxamp15);
+declare(gxamp16);
+declare(gxamp17);
+declare(gxamp18);
+
+static plug amp_model [] = {
+    gxamp::plugin, //0
+    gxamp3::plugin, //1
+    gxamp14::plugin, //2
+    gxamp10::plugin, //3
+    gxamp18::plugin, //4
+
+    gxamp2::plugin, //5
+
+    gxamp9::plugin, //6
+    gxamp11::plugin, //7
+    gxamp17::plugin, //8
+    gxamp13::plugin, //9
+
+    gxamp5::plugin, //10
+    gxamp4::plugin, //11
+    gxamp15::plugin, //12
+    gxamp12::plugin, //13
+
+    gxamp7::plugin, //14
+    gxamp8::plugin, //15
+    gxamp16::plugin, //16
+    gxamp6::plugin, //17
+};
+
+static const size_t AMP_COUNT = sizeof(amp_model) / sizeof(amp_model[0]);
+
 
 ////////////////////////////// MONO ////////////////////////////////////
 

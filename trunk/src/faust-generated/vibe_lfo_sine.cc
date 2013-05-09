@@ -47,9 +47,9 @@ void compute(int count, float *output0, float *output1)
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];
 		iVec0[1] = iVec0[0];
+	}
 #undef fslider0
 #undef fslider1
-	}
 }
 
 static int register_params(const ParamReg& reg)

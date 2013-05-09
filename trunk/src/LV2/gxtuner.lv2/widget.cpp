@@ -54,7 +54,7 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
     case BPM: 
       return &m_bigknob2;
     case VELOCITY: 
-      return &m_vdisplay;
+      return &m_bigknob3;
     default:
       return NULL;
   } 
