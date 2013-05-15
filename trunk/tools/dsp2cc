@@ -899,7 +899,7 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 #endif
 #endif
-inline void Dsp::compute(int %(countname)s%(compute_args)s)
+void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 {
 %(defines)s\
 %(compute_body)s\
@@ -1170,7 +1170,7 @@ int Dsp::activate_static(bool start, PluginLV2 *p)
 
 #endif
 #endif
-inline void Dsp::compute(int %(countname)s%(compute_args)s)
+void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 {
 %(defines)s\
 %(compute_body)s\

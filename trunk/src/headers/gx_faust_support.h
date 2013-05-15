@@ -13,3 +13,5 @@ template <>      inline int faustpower<1>(int x)        {return x;}
 #ifndef N_
 #define N_(String) (String)
 #endif
+
+#define always_inline inline __attribute__((always_inline))
