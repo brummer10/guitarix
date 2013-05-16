@@ -65,6 +65,9 @@ inline void AVOIDDENORMALS() {}
 #endif
 #define max(x, y) (((x) > (y)) ? (x) : (y))
 #define min(x, y) (((x) < (y)) ? (x) : (y))
+
+#define always_inline inline __attribute__((always_inline))
+
 template <int32_t N> inline float faustpower(float x)
 {
   return powf(x, N);

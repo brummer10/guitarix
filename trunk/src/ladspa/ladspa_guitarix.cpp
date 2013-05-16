@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define always_inline inline __attribute__((always_inline))
+
 #include <stdlib.h>
 #include <string.h>
 #include <ladspa.h>
