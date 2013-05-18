@@ -23,6 +23,7 @@ gxstyle_files = [
     'gx_dezert_12b.png',
     'gx_dezert_14b.png',
     'common.rc',
+    'clear.rc',
     'knob9.png',
     'tactile_knob_large_151f.png',
     'tactile_knob_small_99f.png',

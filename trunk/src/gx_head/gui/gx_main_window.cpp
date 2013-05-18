@@ -2594,7 +2594,10 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     uimanager->add_ui_from_file(options.get_builder_filepath("menudef.xml"));
 
     // add dynamic submenus
-    add_skin_menu();
+    gx_system::CmdlineOptions& opt = gx_system::get_options();
+    if (!opt.get_clear_rc()) {
+        add_skin_menu();
+    }
     add_latency_menu();
     add_osc_size_menu();
     amp_radio_menu.setup("<menubar><menu action=\"TubeMenu\">","</menu></menubar>",uimanager,actions.group);
@@ -2841,9 +2844,16 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     on_show_rack();
     on_show_values();
     // somehow need to load a style or window might open too wide
-    gtk_rc_parse(
-	(options.get_style_filepath(
-	    "gx_head_" + options.skin.skin_list[0] + ".rc")).c_str());
+    if (!opt.get_clear_rc()) {
+        gtk_rc_parse(
+          (options.get_style_filepath(
+	      "gx_head_" + options.skin.skin_list[0] + ".rc")).c_str());
+    } else {    
+        gtk_rc_parse(
+          (options.get_style_filepath("clear.rc")).c_str());
+    }
+	//(options.get_style_filepath(
+	//    "gx_head_" + options.skin.skin_list[0] + ".rc")).c_str());
 
     /*
     ** Jack client connection and subsequent initalizations
@@ -2866,14 +2876,17 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	set_osc_size();
     // we set the skin at this late point to avoid calling make_icons more
     // than once
-    if (actions.skin->get_current_value() != skin) {
-	actions.skin->set_current_value(skin); // will call set_new_skin()
+    if (!opt.get_clear_rc()) {
+        if (actions.skin->get_current_value() != skin) {
+        actions.skin->set_current_value(skin); // will call set_new_skin()
+        } else {
+        set_new_skin(skin);
+        }
+        skin_changed.changed.connect(
+        sigc::mem_fun(actions.skin.operator->(), &Gtk::RadioAction::set_current_value));
     } else {
-	set_new_skin(skin);
+        make_icons();
     }
-    skin_changed.changed.connect(
-	sigc::mem_fun(actions.skin.operator->(), &Gtk::RadioAction::set_current_value));
-
     if (mainwin_height > 0) {  // initially use the default set in mainpanel.glade
 	window->set_default_size(-1, min(window_height, mainwin_height));
     }

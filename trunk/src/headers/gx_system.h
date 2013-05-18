@@ -367,6 +367,7 @@ public:
     const string& get_factory_dir() const { return factory_dir; }
     const string& get_sys_IR_dir() const { return sys_IR_dir; }
     const Glib::ustring& get_rcset() const { return rcset; }
+    bool get_clear_rc() const { return clear; }
     bool get_nogui() const { return nogui; }
     const string& get_loadfile() const { return load_file; }
     const Glib::ustring& get_jack_instancename() const { return jack_instance; }
