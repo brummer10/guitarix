@@ -592,7 +592,7 @@ def configure(conf):
         conf.check_tool('compiler_cc')
     conf.env['shlib_LINKFLAGS'].append("-fPIC") # error in waf 1.5.18?
     # linker flags
-    conf.env.append_value('LDFLAGS', opt.ldflags)
+    conf.env.append_value('LDFLAGS', opt.ldflags.split())
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
     if opt.lv2_only:
         opt.build_lv2 = True
