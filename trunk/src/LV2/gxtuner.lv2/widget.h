@@ -58,7 +58,7 @@ private:
                        PortIndex port_name);
   void  make_image(Gtk::Box *box,Glib::ustring label, bool start );
   bool _expose_event(GdkEventExpose *event);
-
+  void _expande_event();
   void set_value(uint32_t port_index,
                  uint32_t format,
                  const void * buffer);
@@ -107,7 +107,7 @@ protected:
   Gtk::HBox         m_hbox12_;
   Gtk::Frame        m_fr1;
   Gtk::Frame        m_fr2;
-  Gtk::Frame        m_fr3;
+  Gtk::Expander     m_fr3;
   Gtk::ToggleButton m_button[60];
 
   Gxw::PaintBox     m_paintbox;

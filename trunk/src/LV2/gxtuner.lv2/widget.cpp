@@ -123,6 +123,7 @@ plug_name(plugname)
   m_fr3.set_label("SELECT NOTES");
   m_fr3.add(m_vbox10);
   m_fr3.set_name("amplabel");
+  m_fr3.set_expanded(true);
   m_vbox2.pack_start(m_fr3,Gtk::PACK_SHRINK);
   m_vbox10.pack_start(m_hbox8_,Gtk::PACK_SHRINK);
   m_vbox10.pack_start(m_hbox9_,Gtk::PACK_SHRINK);
@@ -223,7 +224,9 @@ plug_name(plugname)
   // connect expose handler as resize handler
   m_paintbox.signal_expose_event().connect(
     sigc::mem_fun(this, &Widget::_expose_event), true);
-
+  
+  m_fr3.property_expanded().signal_changed().connect(
+  sigc::mem_fun(*this, &Widget::_expande_event));
   add(m_paintbox);
   set_app_paintable(true);
   show_all();
@@ -233,6 +236,12 @@ plug_name(plugname)
 Widget::~Widget()
 {
 
+}
+
+void Widget::_expande_event()
+{
+  if(m_fr3.get_expanded()) m_tuner.set_property("scale",1.5);
+  else m_tuner.set_property("scale",2.5);
 }
 
 // set borderwith for paintbox when widget resize

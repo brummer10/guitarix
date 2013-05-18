@@ -206,7 +206,7 @@ void Gxtuner::freq_changed_handler()
   //freq_changed.signal();
   tuner& self = *static_cast<tuner*>(tuner_adapter);
   freq_new = round(self.get_note(self));
-  if (freq_new == freq_old) {
+  if (freq_new == freq_old && freq_new != 0) {
     verifielevel++;
     if(verifielevel>static_cast<uint32_t>(fastnote)*2) {
       atomic_set(&note_verified,1);
