@@ -100,10 +100,11 @@ plug_name(plugname)
   //m_bigknob.set_value_position(Gtk::POS_RIGHT);
 
   // set propertys for the tuner widget
-  m_tuner.set_size_request( 440, 45 ) ;
+  m_tuner.set_size_request( 440, 65 ) ;
   m_tuner.set_streaming(true);
   m_tuner.set_display_flat(false);
   m_tuner.set_reference_pitch(440.0);
+  m_tuner.set_property("scale",1.5);
 
   m_hbox1_.pack_start(m_tuner);
   m_hbox1_.set_border_width(5);
@@ -119,14 +120,76 @@ plug_name(plugname)
   m_vbox2.pack_start(m_hbox2_,Gtk::PACK_SHRINK);
   m_vbox2.set_border_width(1);
   m_vbox2.set_homogeneous(false);
-
+  m_fr3.set_label("SELECT NOTES");
+  m_fr3.add(m_vbox10);
+  m_fr3.set_name("amplabel");
+  m_vbox2.pack_start(m_fr3,Gtk::PACK_SHRINK);
+  m_vbox10.pack_start(m_hbox8_,Gtk::PACK_SHRINK);
+  m_vbox10.pack_start(m_hbox9_,Gtk::PACK_SHRINK);
+  m_vbox10.pack_start(m_hbox10_,Gtk::PACK_SHRINK);
+  m_vbox10.pack_start(m_hbox11_,Gtk::PACK_SHRINK);
+  m_vbox10.pack_start(m_hbox12_,Gtk::PACK_SHRINK);
+  
   m_paintbox1.property_paint_func() = "RackBox_expose";
   m_paintbox1.set_name(plug_name);
   m_paintbox1.set_border_width(5);
   m_paintbox1.pack_start(m_vbox2);
   m_hbox2_.pack_start(m_vbox3,Gtk::PACK_SHRINK);
   
+  Glib::ustring Notes[] = {"C1","Cb1","D1", "Db1", "E1", "F1", "Fb1", "G1", "Gb1", "A1", "Ab1", "B1"};  
+  m_hbox8_.set_homogeneous(true);
+  m_hbox8_.set_spacing(1);
+  m_hbox8_.set_border_width(1);
+  for(uint32_t i = 0; i<12;i++) {
+      m_button[i].set_label(Notes[i]);
+      m_hbox8_.pack_start(m_button[i]);
+      m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
+        *this, &Widget::on_value_changed), i+14));
+  }
 
+  Glib::ustring Notes2[] = {"C2","Cb2","D2", "Db2", "E2", "F2", "Fb2", "G2", "Gb2", "A2", "Ab2", "B2"};  
+  m_hbox9_.set_homogeneous(true);
+  m_hbox9_.set_spacing(1);
+  m_hbox9_.set_border_width(1);
+  for(uint32_t i = 12; i<24;i++) {
+      m_button[i].set_label(Notes2[i-12]);
+      m_hbox9_.pack_start(m_button[i]);
+      m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
+        *this, &Widget::on_value_changed), i+14));
+  }
+
+  Glib::ustring Notes3[] = {"C3","Cb3","D3", "Db3", "E3", "F3", "Fb3", "G3", "Gb3", "A3", "Ab3", "B3"};  
+  m_hbox10_.set_homogeneous(true);
+  m_hbox10_.set_spacing(1);
+  m_hbox10_.set_border_width(1);
+  for(uint32_t i = 24; i<36;i++) {
+      m_button[i].set_label(Notes3[i-24]);
+      m_hbox10_.pack_start(m_button[i]);
+      m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
+        *this, &Widget::on_value_changed), i+14));
+  }
+
+  Glib::ustring Notes4[] = {"C4","Cb4","D4", "Db4", "E4", "F4", "Fb4", "G4", "Gb4", "A4", "Ab4", "B4"};  
+  m_hbox11_.set_homogeneous(true);
+  m_hbox11_.set_spacing(1);
+  m_hbox11_.set_border_width(1);
+  for(uint32_t i = 36; i<48;i++) {
+      m_button[i].set_label(Notes4[i-36]);
+      m_hbox11_.pack_start(m_button[i]);
+      m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
+        *this, &Widget::on_value_changed), i+14));
+  }
+
+  Glib::ustring Notes5[] = {"C5","Cb5","D5", "Db5", "E5", "F5", "Fb5", "G5", "Gb5", "A5", "Ab5", "B5"};  
+  m_hbox12_.set_homogeneous(true);
+  m_hbox12_.set_spacing(1);
+  m_hbox12_.set_border_width(1);
+  for(uint32_t i = 48; i<60;i++) {
+      m_button[i].set_label(Notes5[i-48]);
+      m_hbox12_.pack_start(m_button[i]);
+      m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
+        *this, &Widget::on_value_changed), i+14));
+  }
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(0);
@@ -328,6 +391,10 @@ void Widget::set_value(uint32_t port_index,
     if (port_index == FREQ) m_tuner.set_freq(value);
     if (port_index == TUNEMODE) set_tuning(value);
     if (port_index == MAXL) refresh_meter_level(value);
+    if (port_index >=14 && port_index <=73) {
+        m_button[port_index-14].set_active(static_cast<int>(value));
+    }
+        
   }
 }
 
@@ -342,7 +409,13 @@ void Widget::on_value_changed(uint32_t port_index)
     write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
     if (port_index == TUNEMODE) set_tuning(value);
+  } else if (port_index >=14 && port_index <=73) {
+     float value = m_button[port_index-14].get_active();
+     //fprintf(stderr, "valeu = %f",value);
+     write_function(controller, port_index, sizeof(float), 0,
+                                    static_cast<const void*>(&value));
   }
+  
   if (port_index == RESET) {
       write_function(controller, RESET, sizeof(float), 0,
                                     static_cast<const void*>(&reset));

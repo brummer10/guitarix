@@ -171,6 +171,20 @@ void GxtunerGUI::set_skin()
                  " }\n"
                  " class '*GxFastMeter' style:highest 'gx_fastmeter'\n";
 
+toparse +=     "style 'gx_notes_style'\n"
+                 "{\n"
+
+                 "  bg[ACTIVE] = '#000000'\n"
+                 "  bg[NORMAL] = '#49495a'\n"
+                 "  bg[PRELIGHT] ='#262640'\n"
+
+                 "  fg[NORMAL] = '#f1eded'\n"
+                 "  fg[ACTIVE] = '#c5c5c5'\n"
+                 "  fg[PRELIGHT] = '#ede9e9'\n"
+                 "}\n"
+                 "widget_class '*GtkToggleButton*' style:highest 'gx_notes_style'\n";
+
+
   gtk_rc_parse_string (toparse.c_str());
 }
 

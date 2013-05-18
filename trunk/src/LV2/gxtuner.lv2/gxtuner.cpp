@@ -75,6 +75,8 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "gx_pitch_tracker.cpp"
 #include "gx_vumeter.cc"
 
+
+
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
 class Gxtuner
@@ -120,6 +122,7 @@ protected:
   PluginLV2*                   tuner_adapter;
   PluginLV2*                   vu_adapter;
   PluginLV2*                   lhcut;
+  float*                       allowed_notes[60];
 
 private:
   inline void run_dsp_mono(uint32_t n_samples);
@@ -178,6 +181,7 @@ Gxtuner::Gxtuner() :
   vu_adapter(vu_plugin()),
   lhcut(low_high_cut::plugin())
   {
+    for(uint8_t i = 0; i<60;i++) allowed_notes[i]=NULL;
     atomic_set(&note_verified,0);
   };
 
@@ -248,7 +252,7 @@ void Gxtuner::play_midi(tuner& self)
     atomic_set(&note_verified,0);
     note = static_cast<uint8_t>(round(fnote)+57);
     fallback = level;
-    if(note != lastnote) {
+    if(note != lastnote && *(allowed_notes[max(0,min(60,note-24))]) > 0) {
       channel = static_cast<uint8_t>(*(channel_));
       velocity = static_cast<uint8_t>(*(velocity_));
       sendpich = *(sendpich_);
@@ -308,6 +312,11 @@ void Gxtuner::init_dsp_mono(uint32_t rate)
 // connect the Ports used by the plug-in class
 void Gxtuner::connect_mono(uint32_t port,void* data)
 {
+  if (port >=14 && port <=73) {
+    allowed_notes[port-14] = static_cast<float*>(data);
+    return;
+  }
+    
   switch ((PortIndex)port)
     {
     case FREQ: 
