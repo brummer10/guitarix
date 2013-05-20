@@ -54,7 +54,7 @@ typedef enum
   SINGLENOTE,
   BPM,
   VELOCITY,
-    
+
   C1,
   Cb1,
   D1,
@@ -67,7 +67,7 @@ typedef enum
   A1,
   Ab1,
   B1,
-    
+
   C2,
   Cb2,
   D2,
@@ -80,7 +80,7 @@ typedef enum
   A2,
   Ab2,
   B2,
-     
+
   C3,
   Cb3,
   D3,
@@ -93,7 +93,7 @@ typedef enum
   A3,
   Ab3,
   B3,
-     
+
   C4,
   Cb4,
   D4,
@@ -106,7 +106,7 @@ typedef enum
   A4,
   Ab4,
   B4,
-      
+
   C5,
   Cb5,
   D5,
@@ -119,7 +119,8 @@ typedef enum
   A5,
   Ab5,
   B5,
-  
+
+  VERIFY,
   MIDIOUT,  
   EFFECTS_OUTPUT,
   EFFECTS_INPUT,

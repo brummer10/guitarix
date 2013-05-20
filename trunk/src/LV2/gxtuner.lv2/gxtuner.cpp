@@ -106,6 +106,8 @@ protected:
   float                        sendpich;
   float*                       singlenote_;
   float*                       velocity_;
+  float*                       verify_;
+  float                        verify;
   uint8_t                        velocity;
   // internal stuff
   float*                       output;
@@ -208,7 +210,7 @@ void Gxtuner::freq_changed_handler()
   freq_new = round(self.get_note(self));
   if (freq_new == freq_old && freq_new != 0) {
     verifielevel++;
-    if(verifielevel>static_cast<uint32_t>(fastnote)*2) {
+    if(verifielevel>static_cast<uint32_t>(fastnote)+verify) {
       atomic_set(&note_verified,1);
       fnote = self.get_note(self);
       verifielevel =0;
@@ -349,6 +351,9 @@ void Gxtuner::connect_mono(uint32_t port,void* data)
     case VELOCITY:
       velocity_ = static_cast<float*>(data) ;
       break;
+    case VERIFY:
+      verify_ = static_cast<float*>(data) ;
+      break;
     case MIDIOUT: 
       MidiOut = static_cast<LV2_Event_Buffer*>(data) ;
       break;
@@ -411,7 +416,7 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
     else self.set_fast_note(self, false);
   }
   if (*(playmidi_) > 0) {
-    
+    verify = *(verify_);
     play_midi(self);
   }
   //printf("frequency  value %f\n",*(freq));

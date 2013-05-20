@@ -10,6 +10,8 @@ def build(bld):
     bundle = 'gx_amp_stereo.lv2'
     
     src = ['gxamp_stereo.cpp',
+           'gx_amp_stereo.cc',
+           'gx_tonestack_stereo.cc',
            '../DSP/gx_resampler.cc',
            '../DSP/gx_convolver.cc'
            ]

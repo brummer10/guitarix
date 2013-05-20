@@ -67,14 +67,124 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "gxamp_stereo.h"
 #include "gx_resampler.h"
 #include "gx_convolver.h"
-#include "gx_tonestack_stereo.h"
-#include "gx_amp_stereo.h"
+#include "gx_pluginlv2.h"   // define struct PluginLV2
 #include "impulse_former.h"
 #include "ampulse_former.h"
 #ifndef __SSE__
 #include "stereo_noiser.cc"
 #endif
 #include "cab_data_table.cc"
+
+
+//////////////////////// define dsp namespaces /////////////////////////
+
+#define declare(n) namespace n { PluginLV2 *plugin(); }
+
+declare(gxamp_stereo);
+declare(gxamp2_stereo);
+declare(gxamp3_stereo);
+declare(gxamp4_stereo);
+declare(gxamp5_stereo);
+declare(gxamp6_stereo);
+declare(gxamp7_stereo);
+declare(gxamp8_stereo);
+declare(gxamp9_stereo);
+declare(gxamp10_stereo);
+declare(gxamp11_stereo);
+declare(gxamp12_stereo);
+declare(gxamp13_stereo);
+declare(gxamp14_stereo);
+declare(gxamp15_stereo);
+declare(gxamp16_stereo);
+declare(gxamp17_stereo);
+declare(gxamp18_stereo);
+
+static plug amp_model [] = {
+    gxamp_stereo::plugin, //0
+    gxamp3_stereo::plugin, //1
+    gxamp14_stereo::plugin, //2
+    gxamp10_stereo::plugin, //3
+    gxamp18_stereo::plugin, //4
+
+    gxamp2_stereo::plugin, //5
+
+    gxamp9_stereo::plugin, //6
+    gxamp11_stereo::plugin, //7
+    gxamp17_stereo::plugin, //8
+    gxamp13_stereo::plugin, //9
+
+    gxamp5_stereo::plugin, //10
+    gxamp4_stereo::plugin, //11
+    gxamp15_stereo::plugin, //12
+    gxamp12_stereo::plugin, //13
+
+    gxamp7_stereo::plugin, //14
+    gxamp8_stereo::plugin, //15
+    gxamp16_stereo::plugin, //16
+    gxamp6_stereo::plugin, //17
+};
+
+static const size_t AMP_COUNT = sizeof(amp_model) / sizeof(amp_model[0]);
+
+declare(tonestack_default_stereo)
+declare(tonestack_bassman_stereo)
+declare(tonestack_twin_stereo)
+declare(tonestack_princeton_stereo)
+declare(tonestack_jcm800_stereo)
+declare(tonestack_jcm2000_stereo)
+declare(tonestack_mlead_stereo)
+declare(tonestack_m2199_stereo)
+declare(tonestack_ac30_stereo)
+declare(tonestack_soldano_stereo)
+declare(tonestack_mesa_stereo)
+declare(tonestack_jtm45_stereo)
+declare(tonestack_ac15_stereo)
+declare(tonestack_peavey_stereo)
+declare(tonestack_ibanez_stereo)
+declare(tonestack_roland_stereo)
+declare(tonestack_ampeg_stereo)
+declare(tonestack_ampeg_rev_stereo)
+declare(tonestack_sovtek_stereo)
+declare(tonestack_bogner_stereo)
+declare(tonestack_groove_stereo)
+declare(tonestack_crunch_stereo)
+declare(tonestack_fender_blues_stereo)
+declare(tonestack_fender_default_stereo)
+declare(tonestack_fender_deville_stereo)
+declare(tonestack_gibsen_stereo)
+
+static plug tonestack_model[] = {
+    tonestack_default_stereo::plugin,
+    tonestack_bassman_stereo::plugin,
+    tonestack_twin_stereo::plugin,
+    tonestack_princeton_stereo::plugin,
+    tonestack_jcm800_stereo::plugin,
+    tonestack_jcm2000_stereo::plugin,
+    tonestack_mlead_stereo::plugin,
+    tonestack_m2199_stereo::plugin,
+    tonestack_ac30_stereo::plugin,
+    tonestack_soldano_stereo::plugin,
+    tonestack_mesa_stereo::plugin,
+    tonestack_jtm45_stereo::plugin,
+    tonestack_ac15_stereo::plugin,
+    tonestack_peavey_stereo::plugin,
+    tonestack_ibanez_stereo::plugin,
+    tonestack_roland_stereo::plugin,
+    tonestack_ampeg_stereo::plugin,
+    tonestack_ampeg_rev_stereo::plugin,
+    tonestack_sovtek_stereo::plugin,
+    tonestack_bogner_stereo::plugin,
+    tonestack_groove_stereo::plugin,
+    tonestack_crunch_stereo::plugin,
+    tonestack_fender_blues_stereo::plugin,
+    tonestack_fender_default_stereo::plugin,
+    tonestack_fender_deville_stereo::plugin,
+    tonestack_gibsen_stereo::plugin,
+};
+
+static const size_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[0]);
+
+
 
 ////////////////////////////// STEREO ////////////////////////////////////
 

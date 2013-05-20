@@ -117,6 +117,7 @@ protected:
   Gxw::HSlider      m_bigknob1;
   Gxw::HSlider      m_bigknob2;
   Gxw::HSlider      m_bigknob3;
+  Gxw::HSlider      m_bigknob4;
   Gxw::RackTuner    m_tuner;
   Gxw::Selector     tuner_tuning;
   Gxw::Selector     select1;

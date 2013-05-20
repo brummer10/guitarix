@@ -55,6 +55,8 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &m_bigknob2;
     case VELOCITY: 
       return &m_bigknob3;
+    case VERIFY: 
+      return &m_bigknob4;
     default:
       return NULL;
   } 
@@ -98,7 +100,8 @@ plug_name(plugname)
   //m_bigknob1.set_value_position(Gtk::POS_RIGHT);
   make_controller_box(&m_vbox4, "Reference Pitch (Hz)", 427.0, 453.0, 0.1, REFFREQ);
   //m_bigknob.set_value_position(Gtk::POS_RIGHT);
-
+  make_controller_box(&m_vbox4, "Verify Level", 1, 12, 1, VERIFY);
+  
   // set propertys for the tuner widget
   m_tuner.set_size_request( 440, 65 ) ;
   m_tuner.set_streaming(true);
@@ -137,60 +140,43 @@ plug_name(plugname)
   m_paintbox1.pack_start(m_vbox2);
   m_hbox2_.pack_start(m_vbox3,Gtk::PACK_SHRINK);
   
-  Glib::ustring Notes[] = {"C1","Cb1","D1", "Db1", "E1", "F1", "Fb1", "G1", "Gb1", "A1", "Ab1", "B1"};  
+  Glib::ustring Notes[] = {"C1","Cb1","D1", "Db1", "E1", "F1", "Fb1", "G1", "Gb1", "A1", "Ab1", "B1",
+                           "C2","Cb2","D2", "Db2", "E2", "F2", "Fb2", "G2", "Gb2", "A2", "Ab2", "B2",
+                           "C3","Cb3","D3", "Db3", "E3", "F3", "Fb3", "G3", "Gb3", "A3", "Ab3", "B3",
+                           "C4","Cb4","D4", "Db4", "E4", "F4", "Fb4", "G4", "Gb4", "A4", "Ab4", "B4",
+                           "C5","Cb5","D5", "Db5", "E5", "F5", "Fb5", "G5", "Gb5", "A5", "Ab5", "B5"};  
   m_hbox8_.set_homogeneous(true);
   m_hbox8_.set_spacing(1);
   m_hbox8_.set_border_width(1);
-  for(uint32_t i = 0; i<12;i++) {
-      m_button[i].set_label(Notes[i]);
-      m_hbox8_.pack_start(m_button[i]);
-      m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
-        *this, &Widget::on_value_changed), i+14));
-  }
-
-  Glib::ustring Notes2[] = {"C2","Cb2","D2", "Db2", "E2", "F2", "Fb2", "G2", "Gb2", "A2", "Ab2", "B2"};  
   m_hbox9_.set_homogeneous(true);
   m_hbox9_.set_spacing(1);
   m_hbox9_.set_border_width(1);
-  for(uint32_t i = 12; i<24;i++) {
-      m_button[i].set_label(Notes2[i-12]);
-      m_hbox9_.pack_start(m_button[i]);
-      m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
-        *this, &Widget::on_value_changed), i+14));
-  }
-
-  Glib::ustring Notes3[] = {"C3","Cb3","D3", "Db3", "E3", "F3", "Fb3", "G3", "Gb3", "A3", "Ab3", "B3"};  
   m_hbox10_.set_homogeneous(true);
   m_hbox10_.set_spacing(1);
   m_hbox10_.set_border_width(1);
-  for(uint32_t i = 24; i<36;i++) {
-      m_button[i].set_label(Notes3[i-24]);
-      m_hbox10_.pack_start(m_button[i]);
-      m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
-        *this, &Widget::on_value_changed), i+14));
-  }
-
-  Glib::ustring Notes4[] = {"C4","Cb4","D4", "Db4", "E4", "F4", "Fb4", "G4", "Gb4", "A4", "Ab4", "B4"};  
   m_hbox11_.set_homogeneous(true);
   m_hbox11_.set_spacing(1);
   m_hbox11_.set_border_width(1);
-  for(uint32_t i = 36; i<48;i++) {
-      m_button[i].set_label(Notes4[i-36]);
-      m_hbox11_.pack_start(m_button[i]);
+  m_hbox12_.set_homogeneous(true);
+  m_hbox12_.set_spacing(1);
+  m_hbox12_.set_border_width(1);
+  for(uint32_t i = 0; i<60;i++) {
+      m_button[i].set_label(Notes[i]);
+      if (i<12) {
+        m_hbox8_.pack_start(m_button[i]);
+      } else if (i<24) {
+        m_hbox9_.pack_start(m_button[i]); 
+      } else if (i<36) {
+        m_hbox10_.pack_start(m_button[i]); 
+      } else if (i<48) {
+        m_hbox11_.pack_start(m_button[i]); 
+      } else if (i<60) {
+        m_hbox12_.pack_start(m_button[i]); 
+      }
       m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
         *this, &Widget::on_value_changed), i+14));
   }
 
-  Glib::ustring Notes5[] = {"C5","Cb5","D5", "Db5", "E5", "F5", "Fb5", "G5", "Gb5", "A5", "Ab5", "B5"};  
-  m_hbox12_.set_homogeneous(true);
-  m_hbox12_.set_spacing(1);
-  m_hbox12_.set_border_width(1);
-  for(uint32_t i = 48; i<60;i++) {
-      m_button[i].set_label(Notes5[i-48]);
-      m_hbox12_.pack_start(m_button[i]);
-      m_button[i].signal_toggled().connect(sigc::bind(sigc::mem_fun(
-        *this, &Widget::on_value_changed), i+14));
-  }
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(0);

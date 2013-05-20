@@ -120,7 +120,8 @@ void GxtunerGUI::set_skin()
   toparse +=     "style 'gx_headtuner_box' \n"
                  " { \n"
                  "    fg[NORMAL] = '#888888' \n"
-                 "font_name = 'sans  7.5' \n"
+                 "    bg[PRELIGHT] ='#262640'\n"
+                 "    font_name = 'sans  7.5' \n"
                  " }\n";
   toparse +=     addKnob;
   toparse +=     " widget '*.amplabel' style:highest 'gx_headtuner_box'\n"

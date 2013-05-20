@@ -11,6 +11,7 @@ def build(bld):
     
     src = ['gxamp.cpp',
            'gx_amp.cc',
+           'gx_tonestack.cc',
            '../DSP/gx_resampler.cc',
            '../DSP/gx_convolver.cc'
            ]

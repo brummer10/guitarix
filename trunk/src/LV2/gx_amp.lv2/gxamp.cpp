@@ -67,9 +67,7 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "gxamp.h"
 #include "gx_resampler.h"
 #include "gx_convolver.h"
-#include "gx_tonestack.h"
 #include "gx_pluginlv2.h"   // define struct PluginLV2
-//#include "gx_amp.h"
 #include "impulse_former.h"
 #include "ampulse_former.h"
 
@@ -128,6 +126,65 @@ static plug amp_model [] = {
 };
 
 static const size_t AMP_COUNT = sizeof(amp_model) / sizeof(amp_model[0]);
+
+declare(tonestack_default)
+declare(tonestack_bassman)
+declare(tonestack_twin)
+declare(tonestack_princeton)
+declare(tonestack_jcm800)
+declare(tonestack_jcm2000)
+declare(tonestack_mlead)
+declare(tonestack_m2199)
+declare(tonestack_ac30)
+declare(tonestack_soldano)
+declare(tonestack_mesa)
+declare(tonestack_jtm45)
+declare(tonestack_ac15)
+declare(tonestack_peavey)
+declare(tonestack_ibanez)
+declare(tonestack_roland)
+declare(tonestack_ampeg)
+declare(tonestack_ampeg_rev)
+declare(tonestack_sovtek)
+declare(tonestack_bogner)
+declare(tonestack_groove)
+declare(tonestack_crunch)
+declare(tonestack_fender_blues)
+declare(tonestack_fender_default)
+declare(tonestack_fender_deville)
+declare(tonestack_gibsen)
+
+static plug tonestack_model[] = {
+    tonestack_default::plugin,
+    tonestack_bassman::plugin,
+    tonestack_twin::plugin,
+    tonestack_princeton::plugin,
+    tonestack_jcm800::plugin,
+    tonestack_jcm2000::plugin,
+    tonestack_mlead::plugin,
+    tonestack_m2199::plugin,
+    tonestack_ac30::plugin,
+    tonestack_soldano::plugin,
+    tonestack_mesa::plugin,
+    tonestack_jtm45::plugin,
+    tonestack_ac15::plugin,
+    tonestack_peavey::plugin,
+    tonestack_ibanez::plugin,
+    tonestack_roland::plugin,
+    tonestack_ampeg::plugin,
+    tonestack_ampeg_rev::plugin,
+    tonestack_sovtek::plugin,
+    tonestack_bogner::plugin,
+    tonestack_groove::plugin,
+    tonestack_crunch::plugin,
+    tonestack_fender_blues::plugin,
+    tonestack_fender_default::plugin,
+    tonestack_fender_deville::plugin,
+    tonestack_gibsen::plugin,
+};
+
+static const size_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[0]);
+
 
 
 ////////////////////////////// MONO ////////////////////////////////////
