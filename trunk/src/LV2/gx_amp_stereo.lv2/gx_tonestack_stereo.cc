@@ -17,10 +17,9 @@
  * --------------------------------------------------------------------------
  */
 
-#pragma once
 
-#ifndef SRC_HEADERS_GX_TONESTACK_H_
-#define SRC_HEADERS_GX_TONESTACK_H_
+#include "gx_common.h"
+#include "gxamp_stereo.h"
 
 #include "gx_pluginlv2.h"
 
@@ -52,37 +51,4 @@
 #include "tonestack_gibsen_stereo.cc"
 
 
-static plug tonestack_model[] = {
-    tonestack_default_stereo::plugin,
-    tonestack_bassman_stereo::plugin,
-    tonestack_twin_stereo::plugin,
-    tonestack_princeton_stereo::plugin,
-    tonestack_jcm800_stereo::plugin,
-    tonestack_jcm2000_stereo::plugin,
-    tonestack_mlead_stereo::plugin,
-    tonestack_m2199_stereo::plugin,
-    tonestack_ac30_stereo::plugin,
-    tonestack_soldano_stereo::plugin,
-    tonestack_mesa_stereo::plugin,
-    tonestack_jtm45_stereo::plugin,
-    tonestack_ac15_stereo::plugin,
-    tonestack_peavey_stereo::plugin,
-    tonestack_ibanez_stereo::plugin,
-    tonestack_roland_stereo::plugin,
-    tonestack_ampeg_stereo::plugin,
-    tonestack_ampeg_rev_stereo::plugin,
-    tonestack_sovtek_stereo::plugin,
-    tonestack_bogner_stereo::plugin,
-    tonestack_groove_stereo::plugin,
-    tonestack_crunch_stereo::plugin,
-    tonestack_fender_blues_stereo::plugin,
-    tonestack_fender_default_stereo::plugin,
-    tonestack_fender_deville_stereo::plugin,
-    tonestack_gibsen_stereo::plugin,
-};
-
-static const size_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[0]);
-
-
-#endif  //SRC_HEADERS_GX_TONESTACK_H_
 

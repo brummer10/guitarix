@@ -17,10 +17,9 @@
  * --------------------------------------------------------------------------
  */
 
-#pragma once
 
-#ifndef SRC_HEADERS_GX_TONESTACK_H_
-#define SRC_HEADERS_GX_TONESTACK_H_
+#include "gx_common.h"
+#include "gxamp.h"
 
 #include "gx_pluginlv2.h"
 
@@ -52,37 +51,4 @@
 #include "tonestack_gibsen.cc"
 
 
-static plug tonestack_model[] = {
-    tonestack_default::plugin,
-    tonestack_bassman::plugin,
-    tonestack_twin::plugin,
-    tonestack_princeton::plugin,
-    tonestack_jcm800::plugin,
-    tonestack_jcm2000::plugin,
-    tonestack_mlead::plugin,
-    tonestack_m2199::plugin,
-    tonestack_ac30::plugin,
-    tonestack_soldano::plugin,
-    tonestack_mesa::plugin,
-    tonestack_jtm45::plugin,
-    tonestack_ac15::plugin,
-    tonestack_peavey::plugin,
-    tonestack_ibanez::plugin,
-    tonestack_roland::plugin,
-    tonestack_ampeg::plugin,
-    tonestack_ampeg_rev::plugin,
-    tonestack_sovtek::plugin,
-    tonestack_bogner::plugin,
-    tonestack_groove::plugin,
-    tonestack_crunch::plugin,
-    tonestack_fender_blues::plugin,
-    tonestack_fender_default::plugin,
-    tonestack_fender_deville::plugin,
-    tonestack_gibsen::plugin,
-};
-
-static const size_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[0]);
-
-
-#endif  //SRC_HEADERS_GX_TONESTACK_H_
 
