@@ -114,6 +114,7 @@ namespace gx_effects {
 #include "faust/chorus_mono.cc"
 #include "faust/flanger_mono.cc"
 #include "faust/stereoverb.cc"
+#include "faust/peak_eq.cc"
 }
 
 #include "faust/balance.cc"

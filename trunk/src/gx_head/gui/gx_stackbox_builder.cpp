@@ -199,6 +199,7 @@ void StackBoxBuilder::get_box(const std::string& name, Gtk::Widget*& mainbox, Gt
 	{ "oscilloscope", &StackBoxBuilder::make_rackbox_oscilloscope },
 	{ "low_highpass", &StackBoxBuilder::make_rackbox_low_highpass },
 	{ "eqs", &StackBoxBuilder::make_rackbox_eqs },
+	{ "eq", &StackBoxBuilder::make_rackbox_peak_eq },
 	//{ "crybaby", &StackBoxBuilder::make_rackbox_crybaby },
 	//{ "gx_distortion", &StackBoxBuilder::make_rackbox_gx_distortion },
 	{ "IR", &StackBoxBuilder::make_rackbox_IR },

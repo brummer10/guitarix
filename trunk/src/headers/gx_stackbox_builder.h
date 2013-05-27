@@ -194,6 +194,7 @@ public:
     void make_rackbox_oscilloscope();
     void make_rackbox_low_highpass();
     void make_rackbox_eqs();
+    void make_rackbox_peak_eq();
     void make_rackbox_crybaby();
     void make_rackbox_gx_distortion();
     void make_rackbox_IR();

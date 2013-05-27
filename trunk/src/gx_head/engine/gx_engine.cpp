@@ -245,6 +245,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::flanger_mono::plugin(),    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::flanger_gx::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::gx_feedback::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::peak_eq::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&preamp.plugin,                        PLUGIN_POS_RACK, PGN_GUI);

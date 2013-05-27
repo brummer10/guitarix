@@ -114,6 +114,7 @@ declare(stereoecho)
 declare(moog)
 declare(tonecontroll)
 declare(stereoverb)
+declare(peak_eq)
 }
 
 declare(balance)

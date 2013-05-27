@@ -86,6 +86,7 @@ def build(bld):
         'gx_outputlevel_ladspa.dsp',
         'gxfeed.dsp',
         'highbooster.dsp',
+        'peak_eq.dsp',
 
         # tone stacks
         'tonestack_default.dsp',
