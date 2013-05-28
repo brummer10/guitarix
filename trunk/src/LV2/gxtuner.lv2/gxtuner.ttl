@@ -813,8 +813,36 @@
         lv2:minimum 1 ;
         lv2:maximum 12 ;
     ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 75 ;
+        lv2:symbol "GATE" ;
+        lv2:name "GATE";
+        lv2:portProperty lv2:integer;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 76 ;
+        lv2:symbol "SYNTHFREQ" ;
+        lv2:name "SYNTHFREQ";
+        lv2:default 220 ;
+        lv2:minimum 30 ;
+        lv2:maximum 1000 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 77 ;
+        lv2:symbol "GAIN" ;
+        lv2:name "GAIN";
+        lv2:default 1 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+    ] , [
         a ev:EventPort, lv2:OutputPort;
-        lv2:index 75;
+        lv2:index 78;
         ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
         lv2:symbol "midi_out";
         lv2:name "MIDI Out";
@@ -822,13 +850,13 @@
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 76 ;
+        lv2:index 79 ;
         lv2:symbol "out" ;
         lv2:name "Out" ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 77 ;
+        lv2:index 80 ;
         lv2:symbol "in" ;
         lv2:name "In" ;
     ].

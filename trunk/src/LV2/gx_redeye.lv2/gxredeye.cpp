@@ -98,20 +98,15 @@ private:
   LV2_Atom_Sequence*           c_notice;
   LV2_Atom_Sequence*           n_notice;
   float                        cab;
-  
-  bool                         doit;
-  volatile int32_t             schedule_wait;
 
 public:
   // LV2 stuff
   LV2_URID_Map*                map;
-  LV2_Worker_Schedule*         schedule;
 
   void clean();
   inline void run_dsp_mono(uint32_t n_samples);
   void connect_mono(uint32_t port,void* data);
   inline void init_dsp_mono(uint32_t rate, uint32_t bufsize_);
-  inline void do_work_mono();
   void set_amp_mono(const LV2_Descriptor* descriptor);
   inline void connect_all_mono_ports(uint32_t port, void* data);
   // constructor
@@ -127,7 +122,6 @@ public:
     bufsize(0),
     cab(0)
   {
-    atomic_set(&schedule_wait,0);
   };
   // destructor
   ~GxPluginMono()
@@ -138,11 +132,6 @@ public:
 };
 
 // plugin stuff
-
-void GxPluginMono::do_work_mono()
-{
-  atomic_set(&schedule_wait,0);
-}
 
 void GxPluginMono::set_amp_mono(const LV2_Descriptor*     descriptor)
 {
@@ -270,28 +259,6 @@ void GxPluginMono::clean()
 }
 ///////////////////////////// LV2 defines //////////////////////////////
 
-static LV2_Worker_Status
-work(LV2_Handle                  instance,
-     LV2_Worker_Respond_Function respond,
-     LV2_Worker_Respond_Handle   handle,
-     uint32_t                    size,
-     const void*                 data)
-{
-  GxPluginMono* self = (GxPluginMono*)instance;
-  self->do_work_mono();
-  return LV2_WORKER_SUCCESS;
-}
-
-static LV2_Worker_Status
-work_response(LV2_Handle  instance,
-              uint32_t    size,
-              const void* data)
-{
-  printf("worker respose.\n");
-  return LV2_WORKER_SUCCESS;
-}
-
-
 static LV2_Handle
 instantiate(const LV2_Descriptor*     descriptor,
             double                    rate,
@@ -315,20 +282,10 @@ instantiate(const LV2_Descriptor*     descriptor,
         {
           self->map = (LV2_URID_Map*)features[i]->data;
         }
-      else if (!strcmp(features[i]->URI, LV2_WORKER__schedule))
-        {
-          self->schedule = (LV2_Worker_Schedule*)features[i]->data;
-        }
       else if (!strcmp(features[i]->URI, LV2_OPTIONS__options))
         {
           options = (const LV2_Options_Option*)features[i]->data;
         }
-    }
-  if (!self->schedule)
-    {
-      fprintf(stderr, "Missing feature work:schedule.\n");
-      delete self;
-      return NULL;
     }
   if (!self->map)
     {
@@ -404,17 +361,6 @@ cleanup(LV2_Handle instance)
 
 //////////////////////////////////////////////////////////////////
 
-const void*
-extension_data(const char* uri)
-{
-  static const LV2_Worker_Interface worker = { work, work_response, NULL };
-  if (!strcmp(uri, LV2_WORKER__interface))
-    {
-      return &worker;
-    }
-  return NULL;
-}
-
 static const LV2_Descriptor descriptor =
 {
   GXPLUGIN_URI "#chump",
@@ -424,7 +370,7 @@ static const LV2_Descriptor descriptor =
   run,
   deactivate,
   cleanup,
-  extension_data
+  NULL
 };
 static const LV2_Descriptor descriptor1 =
 {
@@ -435,7 +381,7 @@ static const LV2_Descriptor descriptor1 =
   run,
   deactivate,
   cleanup,
-  extension_data
+  NULL
 };
 static const LV2_Descriptor descriptor2 =
 {
@@ -446,7 +392,7 @@ static const LV2_Descriptor descriptor2 =
   run,
   deactivate,
   cleanup,
-  extension_data
+  NULL
 };
 
 extern "C"

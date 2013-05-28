@@ -74,7 +74,7 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "low_high_cut.cc"
 #include "gx_pitch_tracker.cpp"
 #include "gx_vumeter.cc"
-
+#include "uniBar.cc"
 
 
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
@@ -108,7 +108,11 @@ protected:
   float*                       velocity_;
   float*                       verify_;
   float                        verify;
-  uint8_t                        velocity;
+  float*                       gate_;
+  float*                       gain_;
+  float*                       synthfreq_;
+  uint8_t                      velocity;
+  float*                       ref_pitch;
   // internal stuff
   float*                       output;
   float*                       input;
@@ -124,6 +128,7 @@ protected:
   PluginLV2*                   tuner_adapter;
   PluginLV2*                   vu_adapter;
   PluginLV2*                   lhcut;
+  PluginLV2*                   bow;
   float*                       allowed_notes[60];
 
 private:
@@ -139,6 +144,7 @@ private:
                              uint8_t note, uint8_t velocity);
 
   void                         freq_changed_handler(); 
+  inline bool                  verify_freq(float newf, float old);
   volatile int32_t             note_verified;
   float                        freq_old;
   float                        freq_new;
@@ -181,7 +187,8 @@ Gxtuner::Gxtuner() :
   input(NULL),
   tuner_adapter(plugin()),
   vu_adapter(vu_plugin()),
-  lhcut(low_high_cut::plugin())
+  lhcut(low_high_cut::plugin()),
+  bow(uniBar::plugin())
   {
     for(uint8_t i = 0; i<60;i++) allowed_notes[i]=NULL;
     atomic_set(&note_verified,0);
@@ -198,21 +205,34 @@ Gxtuner::~Gxtuner()
   tuner_adapter->delete_instance(tuner_adapter);
   vu_adapter->delete_instance(vu_adapter);
   lhcut->delete_instance(lhcut);
+  bow->delete_instance(bow);
 };
 
 ////////////////////////////// PRIVATE CLASS  FUNCTIONS ////////////////
 
+inline bool Gxtuner::verify_freq(float newf, float old)
+{
+  bool back = false;
+  float fvis = 12 * log2f(newf/(*(ref_pitch)));
+  
+  float scale = fabs(fvis-round(fvis)) ;
+  //fprintf(stderr,"scale = %f , fvis = %f\n",scale,fvis);
+  if (scale > 0.2) return back;
+  if (abs(newf - old) < 0.1) back = true;
+  return back;
+}
 
 void Gxtuner::freq_changed_handler() 
 { 
   //freq_changed.signal();
   tuner& self = *static_cast<tuner*>(tuner_adapter);
-  freq_new = round(self.get_note(self));
-  if (freq_new == freq_old && freq_new != 0) {
+  freq_new = self.get_freq(self);
+  if (freq_new != 0 && verify_freq(freq_new, freq_old)) {
     verifielevel++;
     if(verifielevel>static_cast<uint32_t>(fastnote)+verify) {
       atomic_set(&note_verified,1);
       fnote = self.get_note(self);
+     // *(synthfreq_) = self.get_freq(self);
       verifielevel =0;
       //fprintf(stderr,"NOTE VERIFIED \n");
     }
@@ -248,12 +268,22 @@ void Gxtuner::play_midi(tuner& self)
   if (count_frame >= frames_period) {
     count_frame = 0;
     play = true;
-  }
-  if ((fnote  < 999.) && (level > nolevel) && play && atomic_get(note_verified)) {
+  } 
+  //metronome
+  if (play && bpm>0) {
+    *(gain_) = 1;
+    if((*(gate_)<1))
+      if((*(synthfreq_)<880) ? (*(synthfreq_)+=220) : (*(synthfreq_)=220));
+    //*(synthfreq_) = 220;
+    if((*(gate_)>0) ? (*(gate_)=0) : (*(gate_)=1)) ;
     play = false;
+  } 
+  if ((fnote  < 999.) && (level > nolevel)  && atomic_get(note_verified)) {
+    //play = false;
     atomic_set(&note_verified,0);
-    note = static_cast<uint8_t>(round(fnote)+57);
+    note = static_cast<uint8_t>(round(fnote)+69);
     fallback = level;
+    //fprintf(stderr,"note %i",note);
     if(note != lastnote && *(allowed_notes[max(0,min(60,note-24))]) > 0) {
       channel = static_cast<uint8_t>(*(channel_));
       velocity = static_cast<uint8_t>(*(velocity_));
@@ -263,6 +293,8 @@ void Gxtuner::play_midi(tuner& self)
         send_midi_data(0, 0xE0| channel, 8192 & 127, (8192&16256) >> 7);
       // new note on
       send_midi_data(1, 0x90| channel, note, velocity);
+      //*(gain_) = static_cast<float>(velocity)/127;
+      //*(gate_) = 1;
       // send pitchwheel data
       if (sendpich > 0) {
         unsigned int pitch_wheel = 8192;
@@ -279,10 +311,11 @@ void Gxtuner::play_midi(tuner& self)
         send_midi_data(3, 0x80| channel,lastnote,velocity);
       lastnote = note;
       noteoff = true;
-    }
+    } //else if(!play) *(gate_) = 0;
   } else if (((level+fallback) < (nolevel*0.1))&& noteoff) {
     // all note off
     send_midi_data(1, 0xB0| channel, 123, velocity);
+    //if(!play) *(gate_) = 0;
     // clear pitch wheel
     if (sendpich > 0)
       send_midi_data(2, 0xE0| channel, 8192 & 127, (8192&16256) >> 7);
@@ -307,6 +340,7 @@ void Gxtuner::init_dsp_mono(uint32_t rate)
   tuner_adapter->set_samplerate(rate, tuner_adapter); // init the DSP class
   vu_adapter->set_samplerate(rate, vu_adapter);
   lhcut->set_samplerate(rate, lhcut);
+  bow->set_samplerate(rate, bow);
   tuner& self = *static_cast<tuner*>(tuner_adapter);
   self.signal_freq_changed().connect(sigc::mem_fun(this, &Gxtuner::freq_changed_handler));
 }
@@ -323,6 +357,9 @@ void Gxtuner::connect_mono(uint32_t port,void* data)
     {
     case FREQ: 
       freq = static_cast<float*>(data);
+      break;
+    case REFFREQ: 
+      ref_pitch = static_cast<float*>(data);
       break;
     case THRESHOLD: 
       threshold_ = static_cast<float*>(data) ;
@@ -353,6 +390,15 @@ void Gxtuner::connect_mono(uint32_t port,void* data)
       break;
     case VERIFY:
       verify_ = static_cast<float*>(data) ;
+      break;
+    case GATE:
+      gate_ = static_cast<float*>(data) ;
+      break;
+    case SYNTHFREQ:
+      synthfreq_ = static_cast<float*>(data) ;
+      break;
+    case GAIN:
+      gain_ = static_cast<float*>(data) ;
       break;
     case MIDIOUT: 
       MidiOut = static_cast<LV2_Event_Buffer*>(data) ;
@@ -418,9 +464,8 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
   if (*(playmidi_) > 0) {
     verify = *(verify_);
     play_midi(self);
-  }
-  //printf("frequency  value %f\n",*(freq));
-  memcpy(output, input, n_samples * sizeof(float));
+    bow->mono_audio(static_cast<int>(n_samples), input, output, bow);
+  } else memcpy(output, input, n_samples * sizeof(float));
 }
 
 void Gxtuner::connect_all_mono_ports(uint32_t port, void* data)
@@ -428,7 +473,8 @@ void Gxtuner::connect_all_mono_ports(uint32_t port, void* data)
   // connect the Ports used by the plug-in class
   connect_mono(port,data); 
   // connect the Ports used by the DSP class
-  vu_adapter->connect_ports(port,  data, vu_adapter);
+  vu_adapter->connect_ports(port, data, vu_adapter);
+  bow->connect_ports(port, data, bow);
 }
 
 ///////////////////////// STATIC CLASS  FUNCTIONS /////////////////////

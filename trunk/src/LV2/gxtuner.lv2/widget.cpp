@@ -384,6 +384,7 @@ void Widget::set_value(uint32_t port_index,
                                     get_controller_by_port(port_index));
     if (regler) regler->cp_set_value(value);
     if (port_index == FREQ) m_tuner.set_freq(value);
+    if (port_index == REFFREQ) m_tuner.set_reference_pitch(value);
     if (port_index == TUNEMODE) set_tuning(value);
     if (port_index == MAXL) refresh_meter_level(value);
     if (port_index >=14 && port_index <=73) {
@@ -404,6 +405,7 @@ void Widget::on_value_changed(uint32_t port_index)
     write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
     if (port_index == TUNEMODE) set_tuning(value);
+    if (port_index == REFFREQ) m_tuner.set_reference_pitch(value);
   } else if (port_index >=14 && port_index <=73) {
      float value = m_button[port_index-14].get_active();
      //fprintf(stderr, "valeu = %f",value);

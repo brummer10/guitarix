@@ -120,6 +120,9 @@ typedef enum
   Ab5,
   B5,
 
+  GATE, 
+  SYNTHFREQ, 
+  GAIN, 
   VERIFY,
   MIDIOUT,  
   EFFECTS_OUTPUT,
