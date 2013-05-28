@@ -273,7 +273,7 @@ void StackBoxBuilder::make_rackbox_peak_eq() {
     {
         openVerticalBox1("");
         {
-            create_small_rackknob("eq.level1"), _("peak");
+            create_small_rackknob("eq.level1", _("peak"));
             openSpaceBox("");
             closeBox();
             create_spin_value("eq.peak1", _("frequency"));
@@ -284,7 +284,7 @@ void StackBoxBuilder::make_rackbox_peak_eq() {
         closeBox();
         openVerticalBox1("");
         {
-            create_small_rackknob("eq.level2"), _("peak");
+            create_small_rackknob("eq.level2", _("peak"));
             openSpaceBox("");
             closeBox();
             create_spin_value("eq.peak2", _("frequency"));
@@ -295,13 +295,24 @@ void StackBoxBuilder::make_rackbox_peak_eq() {
         closeBox();
         openVerticalBox1("");
         {
-            create_small_rackknob("eq.level3"), _("peak");
+            create_small_rackknob("eq.level3", _("peak"));
             openSpaceBox("");
             closeBox();
             create_spin_value("eq.peak3", _("frequency"));
             openSpaceBox("");
             closeBox();
             create_spin_value("eq.bandwidth3", _("bandwidth"));
+        }
+        closeBox();
+        openVerticalBox1("");
+        {
+            create_small_rackknob("eq.level4", _("peak"));
+            openSpaceBox("");
+            closeBox();
+            create_spin_value("eq.peak4", _("frequency"));
+            openSpaceBox("");
+            closeBox();
+            create_spin_value("eq.bandwidth4", _("bandwidth"));
         }
         closeBox();
     }

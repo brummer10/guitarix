@@ -15,14 +15,18 @@ private:
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT 	fslider2;
 	double 	fConst4;
-	double 	fRec2_perm[4];
+	double 	fRec3_perm[4];
 	FAUSTFLOAT 	fslider3;
 	FAUSTFLOAT 	fslider4;
 	FAUSTFLOAT 	fslider5;
-	double 	fRec1_perm[4];
+	double 	fRec2_perm[4];
 	FAUSTFLOAT 	fslider6;
 	FAUSTFLOAT 	fslider7;
 	FAUSTFLOAT 	fslider8;
+	double 	fRec1_perm[4];
+	FAUSTFLOAT 	fslider9;
+	FAUSTFLOAT 	fslider10;
+	FAUSTFLOAT 	fslider11;
 	double 	fRec0_perm[4];
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
@@ -66,6 +70,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
+	for (int i=0; i<4; i++) fRec3_perm[i]=0;
 	for (int i=0; i<4; i++) fRec2_perm[i]=0;
 	for (int i=0; i<4; i++) fRec1_perm[i]=0;
 	for (int i=0; i<4; i++) fRec0_perm[i]=0;
@@ -95,10 +100,12 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 void always_inline Dsp::compute(int fullcount, float *inputX0, float *outputX0)
 {
 	double 	fZec0[128];
-	double 	fRec2_tmp[128+4];
+	double 	fRec3_tmp[128+4];
 	double 	fZec1[128];
-	double 	fRec1_tmp[128+4];
+	double 	fRec2_tmp[128+4];
 	double 	fZec2[128];
+	double 	fRec1_tmp[128+4];
+	double 	fZec3[128];
 	double 	fRec0_tmp[128+4];
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = tan((fConst1 * fSlow0));
@@ -113,7 +120,7 @@ void always_inline Dsp::compute(int fullcount, float *inputX0, float *outputX0)
 	double 	fSlow10 = (1 + (fSlow2 * (fSlow9 + fSlow2)));
 	double 	fSlow11 = (2 * (1 - (1.0 / faustpower<2>(fSlow1))));
 	double 	fSlow12 = (1 + (fSlow2 * (fSlow2 - fSlow9)));
-	double* 	fRec2 = &fRec2_tmp[4];
+	double* 	fRec3 = &fRec3_tmp[4];
 	double 	fSlow13 = fslider3;
 	double 	fSlow14 = tan((fConst1 * fSlow13));
 	double 	fSlow15 = (1.0 / fSlow14);
@@ -130,7 +137,7 @@ void always_inline Dsp::compute(int fullcount, float *inputX0, float *outputX0)
 	double 	fSlow26 = ((iSlow8)?fSlow6:fSlow7);
 	double 	fSlow27 = (1 + (fSlow2 * (fSlow26 + fSlow2)));
 	double 	fSlow28 = (1 + (fSlow2 * (fSlow2 - fSlow26)));
-	double* 	fRec1 = &fRec1_tmp[4];
+	double* 	fRec2 = &fRec2_tmp[4];
 	double 	fSlow29 = fslider6;
 	double 	fSlow30 = tan((fConst1 * fSlow29));
 	double 	fSlow31 = (1.0 / fSlow30);
@@ -147,10 +154,27 @@ void always_inline Dsp::compute(int fullcount, float *inputX0, float *outputX0)
 	double 	fSlow42 = ((iSlow21)?fSlow19:fSlow20);
 	double 	fSlow43 = (1 + (fSlow15 * (fSlow42 + fSlow15)));
 	double 	fSlow44 = (1 + (fSlow15 * (fSlow15 - fSlow42)));
+	double* 	fRec1 = &fRec1_tmp[4];
+	double 	fSlow45 = fslider9;
+	double 	fSlow46 = tan((fConst1 * fSlow45));
+	double 	fSlow47 = (1.0 / fSlow46);
+	double 	fSlow48 = sin((fConst3 * fSlow45));
+	double 	fSlow49 = fslider10;
+	double 	fSlow50 = fslider11;
+	double 	fSlow51 = (fConst4 * ((fSlow50 * pow(10,(0.05 * fabs(fSlow49)))) / fSlow48));
+	double 	fSlow52 = (fConst4 * (fSlow50 / fSlow48));
+	int 	iSlow53 = int((fSlow49 > 0));
+	double 	fSlow54 = ((iSlow53)?fSlow52:fSlow51);
+	double 	fSlow55 = (1 + (fSlow47 * (fSlow54 + fSlow47)));
+	double 	fSlow56 = (2 * (1 - (1.0 / faustpower<2>(fSlow46))));
+	double 	fSlow57 = (1 + (fSlow47 * (fSlow47 - fSlow54)));
+	double 	fSlow58 = ((iSlow37)?fSlow35:fSlow36);
+	double 	fSlow59 = (1 + (fSlow31 * (fSlow58 + fSlow31)));
+	double 	fSlow60 = (1 + (fSlow31 * (fSlow31 - fSlow58)));
 	double* 	fRec0 = &fRec0_tmp[4];
-	double 	fSlow45 = ((iSlow37)?fSlow35:fSlow36);
-	double 	fSlow46 = (1 + (fSlow31 * (fSlow45 + fSlow31)));
-	double 	fSlow47 = (1 + (fSlow31 * (fSlow31 - fSlow45)));
+	double 	fSlow61 = ((iSlow53)?fSlow51:fSlow52);
+	double 	fSlow62 = (1 + (fSlow47 * (fSlow61 + fSlow47)));
+	double 	fSlow63 = (1 + (fSlow47 * (fSlow47 - fSlow61)));
 	int index;
 	for (index = 0; index <= fullcount - 128; index += 128) {
 		// compute by blocks of 128 samples
@@ -158,46 +182,58 @@ void always_inline Dsp::compute(int fullcount, float *inputX0, float *outputX0)
 		FAUSTFLOAT* input0 = &inputX0[index];
 		FAUSTFLOAT* output0 = &outputX0[index];
 		// SECTION : 1
-		// LOOP 0x9262b98
+		// LOOP 0x9441290
+		// pre processing
+		for (int i=0; i<4; i++) fRec3_tmp[i]=fRec3_perm[i];
+		// exec code
+		for (int i=0; i<count; i++) {
+			fZec0[i] = (fSlow11 * fRec3[i-1]);
+			fRec3[i] = ((double)input0[i] - (((fSlow12 * fRec3[i-2]) + fZec0[i]) / fSlow10));
+		}
+		// post processing
+		for (int i=0; i<4; i++) fRec3_perm[i]=fRec3_tmp[count+i];
+		
+		// SECTION : 2
+		// LOOP 0x9441060
 		// pre processing
 		for (int i=0; i<4; i++) fRec2_tmp[i]=fRec2_perm[i];
 		// exec code
 		for (int i=0; i<count; i++) {
-			fZec0[i] = (fSlow11 * fRec2[i-1]);
-			fRec2[i] = ((double)input0[i] - (((fSlow12 * fRec2[i-2]) + fZec0[i]) / fSlow10));
+			fZec1[i] = (fSlow24 * fRec2[i-1]);
+			fRec2[i] = ((((fSlow28 * fRec3[i-2]) + (fZec0[i] + (fSlow27 * fRec3[i]))) / fSlow10) - (((fSlow25 * fRec2[i-2]) + fZec1[i]) / fSlow23));
 		}
 		// post processing
 		for (int i=0; i<4; i++) fRec2_perm[i]=fRec2_tmp[count+i];
 		
-		// SECTION : 2
-		// LOOP 0x9262968
+		// SECTION : 3
+		// LOOP 0x9440e90
 		// pre processing
 		for (int i=0; i<4; i++) fRec1_tmp[i]=fRec1_perm[i];
 		// exec code
 		for (int i=0; i<count; i++) {
-			fZec1[i] = (fSlow24 * fRec1[i-1]);
-			fRec1[i] = ((((fSlow28 * fRec2[i-2]) + (fZec0[i] + (fSlow27 * fRec2[i]))) / fSlow10) - (((fSlow25 * fRec1[i-2]) + fZec1[i]) / fSlow23));
+			fZec2[i] = (fSlow40 * fRec1[i-1]);
+			fRec1[i] = ((((fSlow44 * fRec2[i-2]) + (fZec1[i] + (fSlow43 * fRec2[i]))) / fSlow23) - (((fSlow41 * fRec1[i-2]) + fZec2[i]) / fSlow39));
 		}
 		// post processing
 		for (int i=0; i<4; i++) fRec1_perm[i]=fRec1_tmp[count+i];
 		
-		// SECTION : 3
-		// LOOP 0x92627b8
+		// SECTION : 4
+		// LOOP 0x9440d00
 		// pre processing
 		for (int i=0; i<4; i++) fRec0_tmp[i]=fRec0_perm[i];
 		// exec code
 		for (int i=0; i<count; i++) {
-			fZec2[i] = (fSlow40 * fRec0[i-1]);
-			fRec0[i] = ((((fSlow44 * fRec1[i-2]) + (fZec1[i] + (fSlow43 * fRec1[i]))) / fSlow23) - (((fSlow41 * fRec0[i-2]) + fZec2[i]) / fSlow39));
+			fZec3[i] = (fSlow56 * fRec0[i-1]);
+			fRec0[i] = ((((fSlow60 * fRec1[i-2]) + (fZec2[i] + (fSlow59 * fRec1[i]))) / fSlow39) - (((fSlow57 * fRec0[i-2]) + fZec3[i]) / fSlow55));
 		}
 		// post processing
 		for (int i=0; i<4; i++) fRec0_perm[i]=fRec0_tmp[count+i];
 		
-		// SECTION : 4
-		// LOOP 0x92626d8
+		// SECTION : 5
+		// LOOP 0x9440c20
 		// exec code
 		for (int i=0; i<count; i++) {
-			output0[i] = (FAUSTFLOAT)(((fSlow47 * fRec0[i-2]) + (fZec2[i] + (fSlow46 * fRec0[i]))) / fSlow39);
+			output0[i] = (FAUSTFLOAT)(((fSlow63 * fRec0[i-2]) + (fZec3[i] + (fSlow62 * fRec0[i]))) / fSlow55);
 		}
 		
 	}
@@ -207,46 +243,58 @@ void always_inline Dsp::compute(int fullcount, float *inputX0, float *outputX0)
 		FAUSTFLOAT* input0 = &inputX0[index];
 		FAUSTFLOAT* output0 = &outputX0[index];
 		// SECTION : 1
-		// LOOP 0x9262b98
+		// LOOP 0x9441290
+		// pre processing
+		for (int i=0; i<4; i++) fRec3_tmp[i]=fRec3_perm[i];
+		// exec code
+		for (int i=0; i<count; i++) {
+			fZec0[i] = (fSlow11 * fRec3[i-1]);
+			fRec3[i] = ((double)input0[i] - (((fSlow12 * fRec3[i-2]) + fZec0[i]) / fSlow10));
+		}
+		// post processing
+		for (int i=0; i<4; i++) fRec3_perm[i]=fRec3_tmp[count+i];
+		
+		// SECTION : 2
+		// LOOP 0x9441060
 		// pre processing
 		for (int i=0; i<4; i++) fRec2_tmp[i]=fRec2_perm[i];
 		// exec code
 		for (int i=0; i<count; i++) {
-			fZec0[i] = (fSlow11 * fRec2[i-1]);
-			fRec2[i] = ((double)input0[i] - (((fSlow12 * fRec2[i-2]) + fZec0[i]) / fSlow10));
+			fZec1[i] = (fSlow24 * fRec2[i-1]);
+			fRec2[i] = ((((fSlow28 * fRec3[i-2]) + (fZec0[i] + (fSlow27 * fRec3[i]))) / fSlow10) - (((fSlow25 * fRec2[i-2]) + fZec1[i]) / fSlow23));
 		}
 		// post processing
 		for (int i=0; i<4; i++) fRec2_perm[i]=fRec2_tmp[count+i];
 		
-		// SECTION : 2
-		// LOOP 0x9262968
+		// SECTION : 3
+		// LOOP 0x9440e90
 		// pre processing
 		for (int i=0; i<4; i++) fRec1_tmp[i]=fRec1_perm[i];
 		// exec code
 		for (int i=0; i<count; i++) {
-			fZec1[i] = (fSlow24 * fRec1[i-1]);
-			fRec1[i] = ((((fSlow28 * fRec2[i-2]) + (fZec0[i] + (fSlow27 * fRec2[i]))) / fSlow10) - (((fSlow25 * fRec1[i-2]) + fZec1[i]) / fSlow23));
+			fZec2[i] = (fSlow40 * fRec1[i-1]);
+			fRec1[i] = ((((fSlow44 * fRec2[i-2]) + (fZec1[i] + (fSlow43 * fRec2[i]))) / fSlow23) - (((fSlow41 * fRec1[i-2]) + fZec2[i]) / fSlow39));
 		}
 		// post processing
 		for (int i=0; i<4; i++) fRec1_perm[i]=fRec1_tmp[count+i];
 		
-		// SECTION : 3
-		// LOOP 0x92627b8
+		// SECTION : 4
+		// LOOP 0x9440d00
 		// pre processing
 		for (int i=0; i<4; i++) fRec0_tmp[i]=fRec0_perm[i];
 		// exec code
 		for (int i=0; i<count; i++) {
-			fZec2[i] = (fSlow40 * fRec0[i-1]);
-			fRec0[i] = ((((fSlow44 * fRec1[i-2]) + (fZec1[i] + (fSlow43 * fRec1[i]))) / fSlow23) - (((fSlow41 * fRec0[i-2]) + fZec2[i]) / fSlow39));
+			fZec3[i] = (fSlow56 * fRec0[i-1]);
+			fRec0[i] = ((((fSlow60 * fRec1[i-2]) + (fZec2[i] + (fSlow59 * fRec1[i]))) / fSlow39) - (((fSlow57 * fRec0[i-2]) + fZec3[i]) / fSlow55));
 		}
 		// post processing
 		for (int i=0; i<4; i++) fRec0_perm[i]=fRec0_tmp[count+i];
 		
-		// SECTION : 4
-		// LOOP 0x92626d8
+		// SECTION : 5
+		// LOOP 0x9440c20
 		// exec code
 		for (int i=0; i<count; i++) {
-			output0[i] = (FAUSTFLOAT)(((fSlow47 * fRec0[i-2]) + (fZec2[i] + (fSlow46 * fRec0[i]))) / fSlow39);
+			output0[i] = (FAUSTFLOAT)(((fSlow63 * fRec0[i-2]) + (fZec3[i] + (fSlow62 * fRec0[i]))) / fSlow55);
 		}
 		
 	}
@@ -259,15 +307,18 @@ void __rt_func Dsp::compute_static(int fullcount, float *inputX0, float *outputX
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	reg.registerVar("eq.bandwidth4","","S",N_("bandwidth (hz)"),&fslider11, 1.76e+03, 5.0, 2637.0, 1.0);
+	reg.registerVar("eq.level4","","S",N_("gain (dB)"),&fslider10, 0.0, -4e+01, 4e+01, 0.1);
 	reg.registerVar("eq.level3","","S",N_("gain (dB)"),&fslider7, 0.0, -4e+01, 4e+01, 0.1);
 	reg.registerVar("eq.peak3","","S",N_("frequency (hz)"),&fslider6, 1.76e+03, 1318.0, 2637.0, 1.0);
-	reg.registerVar("eq.bandwidth2","","S",N_("frequency (hz)"),&fslider5, 2.2e+02, 5.0, 329.0, 1.0);
+	reg.registerVar("eq.bandwidth2","","S",N_("bandwidth (hz)"),&fslider5, 2.2e+02, 5.0, 329.0, 1.0);
 	reg.registerVar("eq.level2","","S",N_("gain (dB)"),&fslider4, 0.0, -4e+01, 4e+01, 0.1);
 	reg.registerVar("eq.peak2","","S",N_("frequency (hz)"),&fslider3, 4.4e+02, 329.0, 1318.0, 1.0);
-	reg.registerVar("eq.bandwidth1","","S",N_("frequency (hz)"),&fslider2, 41.0, 5.0, 41.0, 1.0);
+	reg.registerVar("eq.bandwidth1","","S",N_("bandwidth (hz)"),&fslider2, 41.0, 5.0, 41.0, 1.0);
 	reg.registerVar("eq.level1","","S",N_("gain (dB)"),&fslider1, 0.0, -4e+01, 4e+01, 0.1);
 	reg.registerVar("eq.peak1","","S",N_("frequency (hz)"),&fslider0, 1.1e+02, 41.0, 329.0, 1.0);
-	reg.registerVar("eq.bandwidth3","","S",N_("frequency (hz)"),&fslider8, 8.8e+02, 5.0, 1318.0, 1.0);
+	reg.registerVar("eq.peak4","","S",N_("frequency (hz)"),&fslider9, 3.52e+03, 2637.0, 5274.0, 1.0);
+	reg.registerVar("eq.bandwidth3","","S",N_("bandwidth (hz)"),&fslider8, 8.8e+02, 5.0, 1318.0, 1.0);
 	return 0;
 }
 

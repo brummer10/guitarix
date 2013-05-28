@@ -15,7 +15,8 @@ import("guitarix.lib");
 //     fx = peak frequency (Hz)
 //      B = bandwidth (B) of peak in Hz
 
-process =   peak_eq(vslider("level1 [tooltip:gain (dB)]", 0, -40, 40, 0.1),vslider("peak1 [tooltip:frequency (hz)]", 110, 41, 329, 1),vslider("bandwidth1 [tooltip:frequency (hz)]", 41, 5, 41, 1))
-          : peak_eq(vslider("level2 [tooltip:gain (dB)]", 0, -40, 40, 0.1),vslider("peak2 [tooltip:frequency (hz)]", 440, 329, 1318, 1),vslider("bandwidth2 [tooltip:frequency (hz)]", 220, 5, 329, 1))
-          : peak_eq(vslider("level3 [tooltip:gain (dB)]", 0, -40, 40, 0.1),vslider("peak3 [tooltip:frequency (hz)]", 1760, 1318, 2637, 1),vslider("bandwidth3 [tooltip:frequency (hz)]", 880, 5, 1318, 1))
+process =   peak_eq(vslider("level1 [tooltip:gain (dB)]", 0, -40, 40, 0.1),vslider("peak1 [tooltip:frequency (hz)]", 110, 41, 329, 1),vslider("bandwidth1 [tooltip:bandwidth (hz)]", 41, 5, 41, 1))
+          : peak_eq(vslider("level2 [tooltip:gain (dB)]", 0, -40, 40, 0.1),vslider("peak2 [tooltip:frequency (hz)]", 440, 329, 1318, 1),vslider("bandwidth2 [tooltip:bandwidth (hz)]", 220, 5, 329, 1))
+          : peak_eq(vslider("level3 [tooltip:gain (dB)]", 0, -40, 40, 0.1),vslider("peak3 [tooltip:frequency (hz)]", 1760, 1318, 2637, 1),vslider("bandwidth3 [tooltip:bandwidth (hz)]", 880, 5, 1318, 1))
+          : peak_eq(vslider("level4 [tooltip:gain (dB)]", 0, -40, 40, 0.1),vslider("peak4 [tooltip:frequency (hz)]", 3520, 2637, 5274, 1),vslider("bandwidth4 [tooltip:bandwidth (hz)]", 1760, 5, 2637, 1))
           ;
