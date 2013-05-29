@@ -501,6 +501,7 @@ void PluginList::registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& pr
 	    // PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
 	    param.reg_non_midi_par(s+".position", &pl->position, true,
 				   pl->position, 0, 999);
+	    new RackChangerUiItem<int>(*this, &pl->position);
 	    if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
 		if (pd->flags & PGN_PRE) {
 		    pl->effect_post_pre = 1;
