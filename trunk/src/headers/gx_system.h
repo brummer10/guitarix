@@ -297,6 +297,9 @@ public:
  ** CmdlineParser
  */
 
+#define RPCPORT_DEFAULT (-2)
+#define RPCPORT_NONE (-1)
+
 class CmdlineOptions: public Glib::OptionContext, boost::noncopyable {
 private:
     Glib::OptionGroup main_group;
@@ -330,6 +333,7 @@ private:
     PathList IR_pathlist;
     Glib::ustring rcset;
     bool nogui;
+    int rpcport;
     int sporadic_overload;
     int idle_thread_timeout;
     bool convolver_watchdog;
@@ -369,6 +373,7 @@ public:
     const Glib::ustring& get_rcset() const { return rcset; }
     bool get_clear_rc() const { return clear; }
     bool get_nogui() const { return nogui; }
+    bool get_rpcport() const { return rpcport; }
     const string& get_loadfile() const { return load_file; }
     const Glib::ustring& get_jack_instancename() const { return jack_instance; }
     const Glib::ustring& get_jack_uuid() const { return jack_uuid; }

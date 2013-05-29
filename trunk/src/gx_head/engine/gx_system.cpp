@@ -293,6 +293,7 @@ CmdlineOptions::CmdlineOptions()
       IR_pathlist(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
       nogui(false),
+      rpcport(RPCPORT_DEFAULT),
       sporadic_overload(0),
       idle_thread_timeout(0),
       convolver_watchdog(true),
@@ -337,8 +338,14 @@ CmdlineOptions::CmdlineOptions()
     opt_nogui.set_short_name('N');
     opt_nogui.set_long_name("nogui");
     opt_nogui.set_description("start without GUI");
+    Glib::OptionEntry opt_rpcport;
+    opt_rpcport.set_short_name('p');
+    opt_rpcport.set_long_name("rpcport");
+    opt_rpcport.set_description("start a JSON-RPC server listening on port PORT");
+    opt_rpcport.set_arg_description("PORT");
     main_group.add_entry(opt_version, version);
     main_group.add_entry(opt_nogui, nogui);
+    main_group.add_entry(opt_rpcport, rpcport);
     set_main_group(main_group);
 
     // style options

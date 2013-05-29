@@ -447,8 +447,14 @@ static void mainHeadless(int argc, char *argv[]) {
     cout << "Ctrl-C to quit\n";
     Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create();
     jack.shutdown.connect(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit));
-    MyService sock(gx_settings, jack, loop);
-    sock.start();
+    int port = options.get_rpcport();
+    if (port == RPCPORT_DEFAULT) {
+	port = 7000;
+    }
+    if (port != RPCPORT_NONE) {
+	MyService sock(gx_settings, jack, sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), port);
+	sock.start();
+    }
     loop->run();
 }
 

@@ -25,6 +25,7 @@
 #include <guitarix.h>
 #include <gxw/GxLevelSlider.h>
 #include <gtkmm/accelmap.h>
+#include "jsonrpc.h"
 
 /****************************************************************
  ** class TextLoggingBox
@@ -2413,6 +2414,11 @@ void MainWindow::hide_extended_settings() {
 }
 
 void MainWindow::run() {
+    int port = options.get_rpcport();
+    if (port != RPCPORT_DEFAULT && port != RPCPORT_NONE) {
+	MyService sock(gx_settings, jack, sigc::ptr_fun(Gtk::Main::quit), port);
+	sock.start();
+    }
     window->show();
     Gtk::Main::run();
 }
