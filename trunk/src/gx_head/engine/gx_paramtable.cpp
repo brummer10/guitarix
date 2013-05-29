@@ -394,7 +394,7 @@ void MidiControllerList::set_ctr_val(int ctr, int val) {
     MidiControllerList::set_last_midi_control_value(ctr, val);
 }
 
-void MidiControllerList::writeJSON(gx_system::JsonWriter& w) {
+void MidiControllerList::writeJSON(gx_system::JsonWriter& w) const {
     w.begin_array(true);
     for (unsigned int n = 0; n < map.size(); n++) {
         const midi_controller_list& cl = map[n];
@@ -744,7 +744,7 @@ void FloatParameter::stdJSON_value() {
     json_value = std_value;
 }
 
-void FloatParameter::writeJSON(gx_system::JsonWriter& jw) {
+void FloatParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(*value);
 }
@@ -798,7 +798,7 @@ const value_pair *FloatEnumParameter::getValueNames() const {
     return value_names;
 }
 
-void FloatEnumParameter::writeJSON(gx_system::JsonWriter& jw) {
+void FloatEnumParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(value_names[static_cast<int>(round(*value-lower))].value_id);
 }
@@ -871,7 +871,7 @@ void IntParameter::stdJSON_value() {
     json_value = std_value;
 }
 
-void IntParameter::writeJSON(gx_system::JsonWriter& jw) {
+void IntParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(*value);
 }
@@ -925,7 +925,7 @@ int EnumParameter::idx_from_id(string v_id) {
     return -1;
 }
 
-void EnumParameter::writeJSON(gx_system::JsonWriter& jw) {
+void EnumParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(value_names[*value].value_id);
 }
@@ -960,6 +960,11 @@ void *UIntParameter::zone() {
     return value;
 }
 
+unsigned int UIntParameter::idx_from_id(string v_id) {
+    assert(false);
+    return 0;
+}
+
 bool UIntParameter::on_off_value() {
     return *value != 0;
 }
@@ -984,7 +989,7 @@ void UIntParameter::stdJSON_value() {
     json_value = std_value;
 }
 
-void UIntParameter::writeJSON(gx_system::JsonWriter& jw) {
+void UIntParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(*value);
 }
@@ -1028,7 +1033,17 @@ const value_pair *UEnumParameter::getValueNames() const {
     return value_names;
 }
 
-void UEnumParameter::writeJSON(gx_system::JsonWriter& jw) {
+unsigned int UEnumParameter::idx_from_id(string v_id) {
+    unsigned int n = 0;
+    for (; n <= upper; n++) {
+        if (v_id == value_names[n].value_id) {
+            return n;
+        }
+    }
+    return n;
+}
+
+void UEnumParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(value_names[*value].value_id);
 }
@@ -1041,12 +1056,7 @@ void UEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
         return;
     }
     jp.check_expect(gx_system::JsonParser::value_string);
-    unsigned int n = 0;
-    for (; n <= upper; n++) {
-        if (jp.current_value() == value_names[n].value_id) {
-            break;
-        }
-    }
+    unsigned int n = idx_from_id(jp.current_value());
     if (n > upper) {
         gx_system::gx_print_warning(
             _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
@@ -1088,7 +1098,7 @@ void BoolParameter::stdJSON_value() {
     json_value = std_value;
 }
 
-void BoolParameter::writeJSON(gx_system::JsonWriter& jw) {
+void BoolParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(*value);
 }
@@ -1135,7 +1145,7 @@ void SwitchParameter::set(float n, float high, float llimit, float ulimit) {
     assert(false);
 }
 
-void SwitchParameter::writeJSON(gx_system::JsonWriter& jw) {
+void SwitchParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(value);
 }
@@ -1201,7 +1211,7 @@ void FileParameter::set(float n, float high, float llimit, float ulimit) {
     assert(false);
 }
 
-void FileParameter::writeJSON(gx_system::JsonWriter& jw) {
+void FileParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(get_path());
 }
@@ -1238,23 +1248,23 @@ bool FileParameter::is_equal(const Glib::RefPtr<Gio::File>& v) const {
     return id == id2;
 }
 
-string FileParameter::get_path() {
+string FileParameter::get_path() const {
     return value->get_path();
 }
 
-string FileParameter::get_directory_path() {
+string FileParameter::get_directory_path() const {
     return value->get_parent()->get_path();
 }
 
-string FileParameter::get_parse_name() {
+string FileParameter::get_parse_name() const {
     return value->get_parse_name();
 }
 
-string FileParameter::get_display_name() {
+string FileParameter::get_display_name() const {
     return value->query_info(G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME)->get_display_name();
 }
 
-void FileParameter::copy(const string& destination) {
+void FileParameter::copy(const string& destination) const {
     value->copy(Gio::File::create_for_path(destination));
 }
 
@@ -1283,7 +1293,7 @@ void StringParameter::stdJSON_value() {
     json_value = std_value;
 }
 
-void StringParameter::writeJSON(gx_system::JsonWriter& jw) {
+void StringParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     jw.write(*value);
 }

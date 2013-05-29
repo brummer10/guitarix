@@ -140,7 +140,7 @@ void GxJConvSettings::setFullIRPath(string name) {
 }
 
 void GxJConvSettings::writeJSON(gx_system::JsonWriter& w,
-				const gx_system::PathList& search_path) {
+				const gx_system::PathList& search_path) const {
     w.begin_object(true);
     w.write_key("jconv.IRFile");
     w.write(fIRFile, true);
@@ -299,7 +299,7 @@ void JConvParameter::stdJSON_value() {
     json_value = std_value;
 }
 
-void JConvParameter::writeJSON(gx_system::JsonWriter& jw) {
+void JConvParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
     value->writeJSON(jw, conv.get_pathlist());
 }

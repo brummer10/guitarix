@@ -290,7 +290,7 @@ class GxJConvSettings {
     void readJSON(gx_system::JsonParser& jp,
 		  const gx_system::PathList& search_path);
     void writeJSON(gx_system::JsonWriter& w,
-		   const gx_system::PathList& search_path);
+		   const gx_system::PathList& search_path) const;
 };
 
 class ConvolverAdapter;
@@ -313,7 +313,7 @@ public:
     virtual void stdJSON_value();
     virtual bool on_off_value();
     virtual void set(float n, float high, float llimit, float ulimit);
-    virtual void writeJSON(gx_system::JsonWriter& jw);
+    virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual bool compareJSON_value();
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
