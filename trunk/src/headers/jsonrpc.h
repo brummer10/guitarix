@@ -30,17 +30,21 @@ class MyService: public Gio::SocketService {
 private:
     gx_preset::GxSettings& settings;
     gx_jack::GxJack& jack;
-    Glib::RefPtr<Glib::MainLoop> loop;
+    sigc::slot<void> quit_mainloop;
     TunerSwitcher tuner_switcher;
     gx_ui::UiSignal<bool> switcher_signal;
+    time_t oldest_unsaved;
+    time_t last_change;
+    sigc::connection save_conn;
     virtual bool on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connection,
 			     const Glib::RefPtr<Glib::Object>& source_object);
     void on_switcher_toggled(bool v);
     void on_selection_done();
+    void save_state();
     friend class CmdConnection;
 public:
     MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
-	      Glib::RefPtr<Glib::MainLoop>& loop_);
+	      sigc::slot<void> quit_mainloop_, int port);
     ~MyService() {}
 };
 

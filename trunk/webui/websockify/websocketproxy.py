@@ -183,7 +183,7 @@ Traffic Legend:
                 connect=True, use_ssl=self.ssl_target, unix_socket=self.unix_target)
 
         if self.verbose and not self.daemon:
-            print(self.traffic_legend)
+            pass #print(self.traffic_legend)
 
         # Start proxying
         try:
@@ -239,6 +239,7 @@ Traffic Legend:
         """
         Proxy client WebSocket to normal target socket.
         """
+        tail = ""
         cqueue = []
         c_pend = 0
         tqueue = []
@@ -272,8 +273,10 @@ Traffic Legend:
 
             if target in outs:
                 # Send queued client data to the target
-                dat = tqueue.pop(0)
+                dat = tqueue.pop(0)+"\n"
                 sent = target.send(dat)
+                if self.verbose:
+                    sys.stdout.write("> " + dat[:sent]); sys.stdout.flush()
                 if sent == len(dat):
                     self.traffic(">")
                 else:
@@ -285,12 +288,17 @@ Traffic Legend:
             if target in ins:
                 # Receive target data, encode it and queue for client
                 buf = target.recv(self.buffer_size)
+                if self.verbose:
+                    sys.stdout.write("< " + buf); sys.stdout.flush()
                 if len(buf) == 0:
                     self.vmsg("%s:%s: Target closed connection" %(
                         self.target_host, self.target_port))
                     raise self.CClose(1000, "Target closed")
-                for line in buf.split("\n"):
-                    cqueue.append(line)
+                lines = (tail+buf).split("\n")
+                tail = lines.pop()
+                for line in lines:
+                    if line:
+                        cqueue.append(line)
                 self.traffic("{")
 
 

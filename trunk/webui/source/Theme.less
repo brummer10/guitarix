@@ -1,0 +1,35 @@
+/* 
+    You can modify the Onyx theme by adding variable and rule overrides to this
+    file.  To enable theming, follow these steps:
+
+    1. In debug.html, uncomment the line referencing "less-<version number>.min.js".
+    2. In package.js, change "$lib/onyx" to "$lib/onyx/source".
+    3. Also in package.js, add "Theme.less" (this file).
+    4. Add variable and rule overrides below.
+
+    See [https://github.com/enyojs/enyo/wiki/UI-Theming] for more information.
+*/
+
+
+/* Onyx default variable definitions: */
+@import "../lib/onyx/css/onyx-variables.less";
+
+/* Place your Onyx variable overrides here -------------------- */
+
+@onyx-gradient: url(../lib/onyx/images/gradient.png);
+@onyx-gradient-invert: url(../lib/onyx/images/gradient-invert.png);
+@onyx-checkbox-image: url(../lib/onyx/images/checkbox.png);
+@onyx-grabber-image: url(../lib/onyx/images/grabbutton.png);
+@onyx-more-toolbar-button-image: url(../lib/onyx/images/more.png);
+@onyx-slider-knob-image: url(../lib/onyx/images/slider-handle.png);
+@onyx-spinner-dark-image: url(../lib/onyx/images/spinner-dark.gif);
+@onyx-spinner-light-image: url(../lib/onyx/images/spinner-light.gif);
+
+/* ------------------------------------- end variable overrides */
+
+/* Onyx rule definitions: */
+@import "../lib/onyx/css/onyx-rules.less";
+
+/* Place your Onyx rule overrides here ------------------------ */
+
+/* ----------------------------------------- end rule overrides */

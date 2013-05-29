@@ -380,6 +380,7 @@ Sec-WebSocket-Accept: %s\r
 
     def traffic(self, token="."):
         """ Show traffic flow in verbose mode. """
+        return
         if self.verbose and not self.daemon:
             sys.stdout.write(token)
             sys.stdout.flush()
