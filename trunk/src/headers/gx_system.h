@@ -373,7 +373,7 @@ public:
     const Glib::ustring& get_rcset() const { return rcset; }
     bool get_clear_rc() const { return clear; }
     bool get_nogui() const { return nogui; }
-    bool get_rpcport() const { return rpcport; }
+    int get_rpcport() const { return rpcport; }
     const string& get_loadfile() const { return load_file; }
     const Glib::ustring& get_jack_instancename() const { return jack_instance; }
     const Glib::ustring& get_jack_uuid() const { return jack_uuid; }

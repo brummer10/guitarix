@@ -454,8 +454,10 @@ static void mainHeadless(int argc, char *argv[]) {
     if (port != RPCPORT_NONE) {
 	MyService sock(gx_settings, jack, sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), port);
 	sock.start();
+	loop->run();
+    } else {
+	loop->run();
     }
-    loop->run();
 }
 
 static void mainGtk(int argc, char *argv[]) {

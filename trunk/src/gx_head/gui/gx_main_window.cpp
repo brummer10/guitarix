@@ -2418,9 +2418,12 @@ void MainWindow::run() {
     if (port != RPCPORT_DEFAULT && port != RPCPORT_NONE) {
 	MyService sock(gx_settings, jack, sigc::ptr_fun(Gtk::Main::quit), port);
 	sock.start();
+	window->show();
+	Gtk::Main::run();
+    } else {
+	window->show();
+	Gtk::Main::run();
     }
-    window->show();
-    Gtk::Main::run();
 }
 
 bool MainWindow::on_meter_button_release(GdkEventButton* ev) {
