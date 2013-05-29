@@ -146,6 +146,7 @@ public:
     void append_rack(UiBuilderBase& ui);
     void ordered_mono_list(list<Plugin*>& mono, int mode);
     void ordered_stereo_list(list<Plugin*>& stereo, int mode);
+    void ordered_list(list<Plugin*>& l, bool stereo, int flagmask, int flagvalue);
 #ifndef NDEBUG
     void printlist(bool ordered = true);
 #endif

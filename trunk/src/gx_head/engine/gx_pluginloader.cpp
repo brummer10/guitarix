@@ -618,6 +618,22 @@ void PluginList::ordered_stereo_list(list<Plugin*>& stereo, int mode) {
     stereo.sort(plugin_order);
 }
 
+void PluginList::ordered_list(list<Plugin*>& l, bool stereo, int flagmask, int flagvalue) {
+    flagmask |= (PGN_STEREO | PGN_MODE_NORMAL);
+    if (stereo) {
+	flagvalue |= PGN_STEREO;
+    }
+    flagvalue |= PGN_MODE_NORMAL;
+    l.clear();
+    for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
+	PluginDef *pd = p->second->pdef;
+	if (((pd->flags & flagmask) == flagvalue) || (strcmp(pd->id, "ampstack") == 0)) {
+	    l.push_back(p->second);
+	}
+    }
+    l.sort(plugin_order);
+}
+
 void PluginList::set_samplerate(int samplerate) {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	inifunc f = p->second->pdef->set_samplerate;
@@ -649,12 +665,12 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header) {
     if (!getenv("GUITARIX_MODULE_DEBUG")) {
 	return;
     }
-    const char *fmth = "%-25s %5s %5s %3s %2s %3s %8s\n";
-    const char *fmtl = "%-25s %5d %5d %3d %2d %3d %8s\n";
+    const char *fmth = "%1s %-25s %5s %5s %3s %2s %3s %8s\n";
+    const char *fmtl = "%1s %-25s %5d %5d %3d %2d %3d %8s\n";
     static int cnt = 0;
     if (header) {
 	printf("%d %s:\n", ++cnt, title);
-	printf(fmth, "id","wght","pos","pre","on","vis","channels");
+	printf(fmth, "F", "id","wght","pos","pre","on","vis","channels");
     } else {
 	printf("\n");
     }
@@ -667,8 +683,16 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header) {
 	} else if (pd->stereo_audio) {
 	    c = "stereo";
 	}
-	printf(fmtl, pd->id, p->position_weight(), p->position, p->effect_post_pre,
-	       p->on_off,p->box_visible, c);
+	const char *f;
+	if (pd->flags & PGN_GUI) {
+	    f = "";
+	} else if (pd->flags & PGN_ALTERNATIVE) {
+	    f = "A";
+	} else {
+	    f = "-";
+	}
+	printf(fmtl, f, pd->id, p->position_weight(), p->position,
+	       p->effect_post_pre, p->on_off,p->box_visible, c);
     }
 }
 #endif
