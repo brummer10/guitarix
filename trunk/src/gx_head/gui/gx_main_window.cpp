@@ -1866,8 +1866,8 @@ Gtk::ToolItemGroup *MainWindow::add_plugin_category(const char *group, bool coll
     Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group);
     uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, "Mono", groupname));
     uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, "Stereo", groupname));
-    actions.group->add(Gtk::Action::create(groupname, group));
-    Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup(group);
+    actions.group->add(Gtk::Action::create(groupname, gettext(group)));
+    Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup(gettext(group));
     groupmap[group] = gw;
     gw->set_collapsed(collapse);
     effects_toolpalette->add(*manage(gw));
@@ -1909,13 +1909,13 @@ void MainWindow::register_plugin(PluginUI *pui) {
 void MainWindow::fill_pluginlist() {
     // define order of categories by registering
     // them first
-    add_plugin_category("Tone control", false);
-    add_plugin_category("Distortion");
-    add_plugin_category("Reverb");
-    add_plugin_category("Echo / Delay");
-    add_plugin_category("Modulation");
-    add_plugin_category("Guitar Effects");
-    add_plugin_category("Misc");
+    add_plugin_category(N_("Tone control"), false);
+    add_plugin_category(N_("Distortion"));
+    add_plugin_category(N_("Reverb"));
+    add_plugin_category(N_("Echo / Delay"));
+    add_plugin_category(N_("Modulation"));
+    add_plugin_category(N_("Guitar Effects"));
+    add_plugin_category(N_("Misc"));
 
     std::vector<PluginUI*> p;
     p.push_back(new JConvPluginUI(*this, engine.pluginlist, "jconv", engine.stereo_convolver));

@@ -5,13 +5,12 @@
 # First translator in French : Jean-Yves Poilleux jy.poilleux@gmail.com>,2010, 2011.
 # Frédéric Rech <f.rech@yahoo.fr>, 2012.
 # bayo <bayo.fr@gmail.com>, 2013.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.21.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-28 13:14+0200\n"
-"PO-Revision-Date: 2013-05-28 15:19+0200\n"
+"POT-Creation-Date: 2013-05-29 11:26+0200\n"
+"PO-Revision-Date: 2013-05-29 11:31+0200\n"
 "Last-Translator: bayo <bayo.fr@gmail.com>\n"
 "Language-Team: français <brummer-@web.de>\n"
 "Language: fr\n"
@@ -39,12 +38,12 @@ msgstr "auto"
 
 #: ../src/faust-generated/autowah.cc:138 ../src/faust-generated/crybaby.cc:129
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:181
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:397
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:469
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:488
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:505
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:522
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:538
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:408
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:480
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:499
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:516
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:533
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:549
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:253
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:349
 msgid "dry/wet"
@@ -67,6 +66,8 @@ msgid "BiQuad Filter"
 msgstr "Filtre Bi-Quad"
 
 #. description (tooltip)
+#. define order of categories by registering
+#. them first
 #: ../src/faust-generated/biquad.cc:38
 #: ../src/faust-generated/gx_feedback.cc:38
 #: ../src/faust-generated/impulseresponse.cc:44
@@ -76,17 +77,18 @@ msgstr "Filtre Bi-Quad"
 #: ../src/gx_head/engine/gx_engine.cpp:121
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:764
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:917
+#: ../src/gx_head/gui/gx_main_window.cpp:1911
 msgid "Tone control"
 msgstr "Contrôle de la tonalité"
 
 #: ../src/faust-generated/cabinet_impulse_former.cc:84
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:555
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:566
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:270
 msgid "bass"
 msgstr "grave"
 
 #: ../src/faust-generated/cabinet_impulse_former.cc:85
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:559
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:570
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:272
 msgid "treble"
 msgstr "aigu"
@@ -102,7 +104,8 @@ msgstr "Chorus"
 #: ../src/faust-generated/flanger_mono.cc:46
 #: ../src/faust-generated/phaser.cc:61
 #: ../src/faust-generated/phaser_mono.cc:55
-#: ../src/faust-generated/tremolo.cc:50 ../src/plugins/vibe.cc:195
+#: ../src/faust-generated/tremolo.cc:50
+#: ../src/gx_head/gui/gx_main_window.cpp:1915 ../src/plugins/vibe.cc:195
 msgid "Modulation"
 msgstr "Modulation"
 
@@ -139,6 +142,7 @@ msgstr "Compresseur"
 #. description (tooltip)
 #: ../src/faust-generated/compressor.cc:46
 #: ../src/gx_head/engine/gx_engine.cpp:118
+#: ../src/gx_head/gui/gx_main_window.cpp:1916
 msgid "Guitar Effects"
 msgstr "Effets de guitare"
 
@@ -154,6 +158,7 @@ msgstr "Délai"
 #: ../src/faust-generated/delay.cc:48 ../src/faust-generated/echo.cc:47
 #: ../src/faust-generated/stereodelay.cc:68
 #: ../src/faust-generated/stereoecho.cc:66
+#: ../src/gx_head/gui/gx_main_window.cpp:1914
 msgid "Echo / Delay"
 msgstr "Écho / délai"
 
@@ -177,6 +182,7 @@ msgstr "Freeverb"
 #: ../src/faust-generated/freeverb.cc:71
 #: ../src/faust-generated/stereoverb.cc:109
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:354
+#: ../src/gx_head/gui/gx_main_window.cpp:1913
 #: ../src/plugins/generated/zita_rev1.cc:163
 msgid "Reverb"
 msgstr "Réverbération"
@@ -200,6 +206,7 @@ msgstr "Postamp"
 #: ../src/faust-generated/gx_distortion.cc:107
 #: ../src/faust-generated/gx_distortion.cc:108
 #: ../src/faust-generated/overdrive.cc:38
+#: ../src/gx_head/gui/gx_main_window.cpp:1912
 msgid "Distortion"
 msgstr "Distortion"
 
@@ -213,8 +220,8 @@ msgstr "Ampli"
 #: ../src/faust-generated/gx_ampout_ladspa.cc:100
 #: ../src/faust-generated/gx_outputlevel.cc:92
 #: ../src/faust-generated/gx_outputlevel_ladspa.cc:99
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:638
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:644
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:649
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:655
 #: ../src/plugins/generated/zita_rev1.cc:545
 #: ../src/plugins/generated/zita_rev1.cc:547
 #: ../src/plugins/generated/zita_rev1.cc:555
@@ -302,7 +309,7 @@ msgstr "12AT7"
 msgid "pre 12AT7/ master 6V6"
 msgstr "pré 12AT7 / master 6V6"
 
-#: ../src/faust-generated/gxamp16.cc:201
+#: ../src/faust-generated/gxamp16.cc:205
 msgid "pre 12AT7/ push pull 6V6"
 msgstr "pré 12AT7 / push-pull 6V6"
 
@@ -330,15 +337,15 @@ msgstr "pré 12AU7 / master 6V6"
 msgid "pre 12ax7/ master 6V6"
 msgstr "pré 12ax7 / master 6V6"
 
-#: ../src/faust-generated/gxamp6.cc:202
+#: ../src/faust-generated/gxamp6.cc:206
 msgid "pre 6DJ8/ push-pull 6V6"
 msgstr "pré 6DJ8 / push-pull 6V6"
 
-#: ../src/faust-generated/gxamp7.cc:201
+#: ../src/faust-generated/gxamp7.cc:205
 msgid "pre 12ax7/ push-pull 6V6"
 msgstr "pré 12ax7 / push-pull 6V6"
 
-#: ../src/faust-generated/gxamp8.cc:204
+#: ../src/faust-generated/gxamp8.cc:208
 msgid "pre 12AU7/ push-pull 6V6"
 msgstr "pré 12AU7 / push-pull 6V6"
 
@@ -371,7 +378,7 @@ msgid "bandwidth (Hz)"
 msgstr "largeur de bande (Hz)"
 
 #: ../src/faust-generated/jconv_post.cc:100
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:621
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:632
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:305
 msgid "Gain"
 msgstr "Gain"
@@ -940,7 +947,7 @@ msgid "Pre gain"
 msgstr "Entrée"
 
 #: ../src/gx_head/builder/mainpanel.glade.h:3
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:332
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:343
 msgid "Drive"
 msgstr "Drive"
 
@@ -1063,9 +1070,9 @@ msgid "Status"
 msgstr "État"
 
 #: ../src/gx_head/builder/mainpanel.glade.h:34
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:701
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:765
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:829
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:712
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:776
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:840
 msgid "autogain"
 msgstr "auto-gain"
 
@@ -1432,7 +1439,7 @@ msgid "Oscilloscope"
 msgstr "Oscilloscope"
 
 #: ../src/gx_head/engine/gx_internal_ui_plugins.cpp:185
-#: ../src/plugins/abgate.cc:59
+#: ../src/gx_head/gui/gx_main_window.cpp:1917 ../src/plugins/abgate.cc:59
 msgid "Misc"
 msgstr "Divers"
 
@@ -2466,6 +2473,7 @@ msgstr " vibrato "
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:276
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:287
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:298
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:309
 msgid "peak"
 msgstr "pic"
 
@@ -2483,108 +2491,110 @@ msgstr " largeur de bande "
 
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:253
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:258
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:314
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:319
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:325
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:330
 msgid "ratio"
 msgstr "ratio"
 
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:257
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:318
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:329
 msgid "knee"
 msgstr "courbe"
 
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:259
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:320
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:331
 msgid "threshold"
 msgstr "seuil"
 
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:262
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:323
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:334
 msgid "attack"
 msgstr "attaque"
 
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:263
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:324
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:335
 msgid "release"
 msgstr "déclin"
 
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:279
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:290
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:301
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:312
 msgid "frequency"
 msgstr "fréquence"
 
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:282
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:293
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:304
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:315
 msgid "bandwidth"
 msgstr "largeur de bande"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:338
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:349
 msgid "  Drive "
 msgstr " Drive "
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:339
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:604
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:624
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:350
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:615
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:635
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:284
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:314
 #: ../src/plugins/generated/zita_rev1.cc:554
 msgid "Dry/Wet"
 msgstr "Sans/avec"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:349
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:360
 msgid "%"
 msgstr "%"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:355
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:366
 msgid "  time  "
 msgstr "  durée  "
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:357
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:368
 msgid "    %    "
 msgstr "    %    "
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:367
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:373
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:378
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:384
 msgid " delay "
 msgstr " délai "
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:375
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:386
 msgid "  gain "
 msgstr "  gain "
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:385
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:395
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:396
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:406
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:329
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:335
 msgid "RoomSize"
 msgstr "Taille"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:396
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:407
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:342
 msgid "damp"
 msgstr "atténuation"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:433
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:439
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:448
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:463
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:444
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:450
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:459
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:474
 #: ../src/plugins/generated/zita_rev1.cc:546
 #: ../src/plugins/generated/zita_rev1.cc:548
 msgid "Freq"
 msgstr "Fréquence"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:466 ../src/plugins/vibe.cc:239
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:477 ../src/plugins/vibe.cc:239
 msgid "Depth"
 msgstr "Profondeur"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:480
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:486
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:491
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:497
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:503
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:508
 #: ../src/gx_head/gui/gx_mono_rack_builder.cpp:514
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:520
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:525
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:531
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:39
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:54
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:106
@@ -2593,113 +2603,113 @@ msgstr "Profondeur"
 msgid "level"
 msgstr "niveau"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:487
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:504
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:521
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:498
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:515
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:532
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:125
 msgid "speed"
 msgstr "vitesse"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:531
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:537
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:542
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:548
 msgid "feedback"
 msgstr "feedback"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:557
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:568
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:271
 msgid "middle"
 msgstr "médium"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:609
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:620
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:289
 msgid "S"
 msgstr "S"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:627
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:638
 #: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:317
 msgid "Setup"
 msgstr "Configuration"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:652
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:658
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:663
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:669
 msgid "  MIDI out  "
 msgstr "  sortie MIDI  "
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:685
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:696
 msgid "channel1"
 msgstr "canal1"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:693
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:757
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:821
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:704
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:768
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:832
 msgid "velocity"
 msgstr "vélocité"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:698
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:762
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:826
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:709
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:773
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:837
 msgid "volume"
 msgstr "volume"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:706
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:770
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:834
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:717
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:781
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:845
 msgid "channel"
 msgstr "canal"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:707
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:771
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:835
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:718
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:782
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:846
 msgid "program"
 msgstr "programme"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:710
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:774
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:838
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:721
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:785
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:849
 msgid "oktave"
 msgstr "oktave"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:711
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:775
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:839
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:722
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:786
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:850
 msgid "sensity"
 msgstr "sensibilité"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:737
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:801
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:865
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:748
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:812
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:876
 msgid "auto_pitch"
 msgstr "autoPitch"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:749
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:760
 msgid "channel2"
 msgstr "canal2"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:813
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:824
 msgid "channel3"
 msgstr "canal3"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:877
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:888
 msgid "beat_detector"
 msgstr "détecteur de rythme"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:886
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:897
 msgid "stepper"
 msgstr "largeur du pas"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:887
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:898
 msgid "note_off"
 msgstr "note off"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:888
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:899
 msgid "atack_gain"
 msgstr "gain d'attaque"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:889
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:900
 msgid "beat_gain"
 msgstr "gain du rythme"
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:920
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:931
 msgid "Midi gain"
 msgstr "gain MIDI"
 
@@ -2911,6 +2921,10 @@ msgstr "assigner un paramètre"
 #: ../src/ladspa/ladspa_guitarix.cpp:106
 msgid "%1% -> controller %2% [%3%]"
 msgstr "%1% -> contrôleur %2% [%3%]"
+
+#: ../src/headers/gx_main_window.h:231
+msgid "External"
+msgstr "Externe"
 
 #: ../src/plugins/abgate.cc:58
 msgid "abGate"

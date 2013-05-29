@@ -141,6 +141,7 @@ src/gx_head/gui/gxw_mm_controllers.cpp
 src/gx_head/gui/liveplay.cpp
 src/gx_head/gui/rack.cpp
 src/ladspa/ladspa_guitarix.cpp
+src/headers/gx_main_window.h
 src/plugins/abgate.cc
 src/plugins/generated/zita_rev1.cc
 src/plugins/vibe.cc

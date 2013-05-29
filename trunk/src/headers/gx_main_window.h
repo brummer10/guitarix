@@ -228,7 +228,7 @@ public:
     virtual void on_plugin_preset_popup();
     inline const char *get_category() {
 	const char *cat = plugin->pdef->category;
-	return (cat && *cat) ? cat : "External";
+	return (cat && *cat) ? cat : N_("External");
     }
     inline const char *get_shortname() const {
 	const char *name = shortname;
