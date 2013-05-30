@@ -62,7 +62,7 @@ enyo.kind({
 		var l = this.$.list;
 		l.destroyClientControls();
 		for (var i = 0; i < result.length; ++i) {
-		    l.createComponent({kind:"onyx.MenuItem",content:result[i]});
+		    l.createComponent({kind:"onyx.MenuItem",content:result[i].name});
 		}
 		l.render();
 	    });

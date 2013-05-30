@@ -146,23 +146,13 @@ enyo.kind({
     },
     sys_loadvar: null,
     stereo: false,
-    loaded_preset: null,
     effects: {},
-    checkEffects: function(current_preset) {
-	if (!current_preset) {
-	    return;
-	}
-	if (current_preset != this.loaded_preset) {
-	    this.loadEffects();
-	}
-    },
     loadEffects: function() {
 	guitarix.call(
-	    "get", [this.sys_loadvar,"system.current_bank","system.current_preset"],
+	    "get", [this.sys_loadvar],
 	    this, function(result) {
 		this.effects = {}
 		this.destroyClientControls();
-		this.loaded_preset = [result["system.current_bank"],result["system.current_preset"]];
 		var l = result[this.sys_loadvar];
 		for (var i=0; i < l.length; i++) {
 		    e = l[i];
@@ -318,6 +308,7 @@ enyo.kind({
 	onAdd: "addUnit",
     },
     current_preset: null,
+    loaded_preset: null,
     components:[
 	{name: "slider", kind: "gx.SlidingPanel", components: [
 	    {kind: "enyo.Scroller", classes: "enyo-fit", horizontal: "hidden", components: [
@@ -337,9 +328,10 @@ enyo.kind({
 	    ]},
 	    {name: "stereo_rack", kind: "gx.EffectRack", sys_loadvar: "sys.visible_stereo_plugins", stereo: true},
 	]},
-	{kind: "onyx.Toolbar", layoutKind: "FittableColumnsLayout", components:[
+	{kind: "onyx.Toolbar", components:[
 	    {kind: "onyx.Button", content: "Main", ontap: "toMain"},
-	    {fit: true},
+	    {kind: "onyx.Button", content: "Save", name: "save_button", ontap: "save"},
+	    //{kind: "onyx.Button", content: "Save As", ontap: "save_as"},
 	]},
     ],
     setCurrentPreset: function(p) {
@@ -348,6 +340,12 @@ enyo.kind({
     toMain: function(inSender, inEvent) {
 	this.doMain(inEvent);
 	return true;
+    },
+    save: function(inSender, inEvent) {
+	guitarix.notify("save_current",[]);
+    },
+    save_as: function(inSender, inEvent) {
+	//guitarix.notify("save_current",[]);
     },
     addMonoEffect: function(inSender, inEvent) {
 	this.addEffect(this.$.mono_rack);
@@ -394,7 +392,16 @@ enyo.kind({
 	s.animateToMin();
     },
     preparePanel: function() {
-	this.$.mono_rack.checkEffects(this.current_preset);
-	this.$.stereo_rack.checkEffects(this.current_preset);
+	if (!this.current_preset) {
+	    return;
+	}
+	this.loaded_preset = this.current_preset;
+	guitarix.call(
+	    "get_bank", [this.current_preset[0]],
+	    this, function(result) {
+		this.$.save_button.setDisabled(!result.mutable);
+	    });
+	this.$.mono_rack.loadEffects(this.current_preset);
+	this.$.stereo_rack.loadEffects(this.current_preset);
     },
 });
