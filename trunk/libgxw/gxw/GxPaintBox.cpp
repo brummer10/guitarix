@@ -31,6 +31,7 @@
 enum {
 	PROP_PAINT_FUNC = 1,
 	PROP_ICON_SET = 2,
+    PROP_FORCE_RELOAD = 3,
 };
 
 static void gx_paint_box_destroy(GtkObject *object);
@@ -122,8 +123,26 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                 P_("Icon Set"),
 		                 P_("Type of Icon function for background"),
 		                 0,
-				 G_MAXINT,
-				 0,
+                         G_MAXINT,
+                         0,
+		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	g_object_class_install_property(
+		gobject_class,PROP_FORCE_RELOAD,
+	    g_param_spec_int ("force-reload",
+			      P_("Force Reload"),
+			      P_("Reload Image for background"),
+			      0,
+			      G_MAXINT,
+			      0,
+			      GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_int("force-reload",
+		                 P_("Force Reload"),
+		                 P_("Reload Image for background"),
+		                 0,
+                         G_MAXINT,
+                         0,
 		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
@@ -193,6 +212,7 @@ static void gx_paint_box_init (GxPaintBox *paint_box)
 	paint_box->gxh_image = NULL;
 	paint_box->gxr_image = NULL;
 	paint_box->icon_set = 0;
+    paint_box->force_reload = 0;
 }
 
 static void gx_paint_box_destroy(GtkObject *object)
@@ -223,6 +243,13 @@ static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
+static void set_reload(GxPaintBox *paint_box, int value)
+{
+	int spf;
+	gtk_widget_style_get(GTK_WIDGET(paint_box), "force-reload", &spf, NULL);
+	 paint_box->force_reload = spf;
+}
+
 static void set_icon(GxPaintBox *paint_box, int value)
 {
 	int spf;
@@ -241,6 +268,9 @@ static void gx_paint_box_set_property(
 	case PROP_ICON_SET:
 		set_icon(paint_box, g_value_get_int(value));
 		break;
+	case PROP_FORCE_RELOAD:
+		set_reload(paint_box, g_value_get_int(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
 		break;
@@ -256,6 +286,9 @@ static void gx_paint_box_get_property(
 		break;
 	case PROP_ICON_SET:
 		g_value_set_int (value, GX_PAINT_BOX(object)->icon_set);
+		break;
+	case PROP_FORCE_RELOAD:
+		g_value_set_int (value, GX_PAINT_BOX(object)->force_reload);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -2397,14 +2430,15 @@ static void amp_skin_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gint y0      = wi->allocation.y;
 	gint w      = wi->allocation.width;
 	gint h      = wi->allocation.height;
-    static int spf, opf = 0;
+    static int spf, opf, rel = 0;
     gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
     
     static double ne_w = 0.;
-	if (spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
+	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
 		ne_w = w*h;
         opf = spf;
-		while (G_IS_OBJECT(paintbox-> gxr_image)) {
+        while (G_IS_OBJECT(paintbox-> gxr_image)) {
 			g_object_unref(paintbox->gxr_image);
 		}
         GdkPixbuf  *stock_image = gtk_widget_render_icon(

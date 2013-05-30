@@ -26,7 +26,7 @@
 // kp: 300
 // kvb: 300
 
-table1d_imp<2001> tubetable_12AT7[2] =
+table1d_imp<2001> tubetable_12AT7[2] __rt_data =
 {
   {
     // Ri = 68k

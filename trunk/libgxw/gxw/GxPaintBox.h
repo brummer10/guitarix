@@ -42,6 +42,7 @@ struct _GxPaintBox {
 	GdkPixbuf *gxh_image;
 	GdkPixbuf *gxr_image;
 	guint GSEAL(icon_set);
+    guint GSEAL(force_reload);
 };
 
 struct _GxPaintBoxClass {

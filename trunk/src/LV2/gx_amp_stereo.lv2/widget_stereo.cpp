@@ -284,6 +284,15 @@ void Widget::make_switch_box(Gtk::Box *box,
   }
 }
 
+void Widget::set_sensitive_state(float state)
+{
+  bool set;
+  if (( state > 0) ? (set = false) : (set = true));
+  c_selector.set_sensitive(set);
+  m_smallknob4.set_sensitive(set);
+  m_smallknob5.set_sensitive(set);
+}
+
 // receive controller value changes from host and set them to controller
 void Widget::set_value(uint32_t port_index,
                        uint32_t format,
@@ -298,6 +307,11 @@ void Widget::set_value(uint32_t port_index,
       float value = *static_cast<const float*>(buffer);
       regler->cp_set_value(value);
       check_for_skin(port_index, static_cast<int>(value));
+    }
+    if (port_index == SCHEDULE)
+    {
+      float value = *static_cast<const float*>(buffer);
+      set_sensitive_state(value);
     }
   }
 }
@@ -334,6 +348,23 @@ void Widget::change_skin(int model)
   rcfile +="/gx_lv2-";
   rcfile += to_string(model);
   rcfile += ".rc";
+  Glib::ustring  rc_name = plug_name;
+  rc_name += to_string(model);
+  m_paintbox.set_name(rc_name);
+  for (uint32_t i =0;i<11; i++) {
+    Gxw::Regler *regler = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(i));
+    if (regler)
+    {
+      regler->set_name(rc_name);
+    }
+  }
   gtk_rc_parse(rcfile.c_str());
+  gtk_rc_reset_styles(gtk_settings_get_default());
+  if (m_paintbox.get_window())
+    m_paintbox.get_window()->process_updates(true);
+  std::string resetfile =GX_LV2_STYLE_DIR;
+  resetfile +="/gx_lv2.rc";
+  gtk_rc_parse(resetfile.c_str());
   gtk_rc_reset_styles(gtk_settings_get_default());
 }

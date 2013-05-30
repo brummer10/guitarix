@@ -26,6 +26,8 @@ def build(bld):
     wscript_helper.add_zita_convolver(bld, uselib, src, incl, base="../..")
     wscript_helper.add_zita_resampler(bld, uselib, src, incl, base="../..")
     cxxflag =[]
+    ldscript = bld.path.find_resource('gx_amp.lds')
+    mapfile = bld.path.find_or_declare("gx_amp.map")
     if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag = [ "-msse2", "-mfpmath=sse"]
     lv2_plugin = bld(
@@ -40,7 +42,9 @@ def build(bld):
         source   = src,
         install_path = '${LV2DIR}/%s' % bundle,
         chmod = 0o755,
+        ldflags = ['-Wl,%s,-Map=%s' % (ldscript.srcpath(),mapfile.bldpath(bld.env))],
         )
+    bld.add_manual_dependency(bld.path.find_or_declare(lv2_plugin.target), ldscript)
     lv2_plugin.env['shlib_PATTERN'] = '%s.so'
     
     uselib_local1 = []

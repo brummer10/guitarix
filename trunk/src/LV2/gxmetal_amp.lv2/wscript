@@ -27,6 +27,8 @@ def build(bld):
     if sys.platform.startswith("linux"):
         lib.append('dl')
     cxxflag =[]
+    ldscript = bld.path.find_resource('gxmetal_amp.lds')
+    mapfile = bld.path.find_or_declare("gxmetal_amp.map")
     if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag = [ "-msse2", "-mfpmath=sse"]
     lv2_effects = bld(
@@ -41,7 +43,9 @@ def build(bld):
         source   = src,
         install_path = '${LV2DIR}/%s' % bundle,
         chmod = 0o755,
+        ldflags = ['-Wl,%s,-Map=%s' % (ldscript.srcpath(),mapfile.bldpath(bld.env))],
         )
+    bld.add_manual_dependency(bld.path.find_or_declare(lv2_effects.target), ldscript)
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
     
     uselib_local5 = []

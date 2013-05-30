@@ -75,6 +75,7 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #endif
 #include "cab_data_table.cc"
 
+#include "gx_mlock.cc"
 
 //////////////////////// define dsp namespaces /////////////////////////
 
@@ -229,6 +230,8 @@ private:
   float                        pre;
   float                        val;
   bool                         doit;
+  float*                       schedule_ok;
+  float                        schedule_ok_;
   volatile int32_t             schedule_wait;
   
   bool cab_changed()
@@ -316,7 +319,9 @@ GxPluginStereo::GxPluginStereo() :
   alevel(NULL),
   alevel_(0),
   pre(0),
-  val(0)
+  val(0),
+  schedule_ok(NULL),
+  schedule_ok_(0)
 {
   atomic_set(&schedule_wait,0);
 };
@@ -397,6 +402,9 @@ void GxPluginStereo::init_dsp_stereo(uint32_t rate, uint32_t bufsize_)
   bufsize = bufsize_;
   s_rate = rate;
 
+#ifdef _POSIX_MEMLOCK_RANGE
+  GX_LOCK::lock_rt_memory();
+#endif
 #ifndef __SSE__
   wn = stereo_noiser::plugin();
   wn->set_samplerate(rate, wn);
@@ -470,6 +478,9 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
     case C_MODEL:
       c_model =  static_cast<float*>(data);
       break;
+    case SCHEDULE:
+      schedule_ok =  static_cast<float*>(data);
+      break;
     case AMP_OUTPUT:
       output = static_cast<float*>(data);
       break;
@@ -489,6 +500,7 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
+  if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
 #ifndef __SSE__
   wn->stereo_audio(static_cast<int>(n_samples), input, input1, input, input1, wn);;
@@ -542,6 +554,9 @@ void GxPluginStereo::deactivate_f()
 void GxPluginStereo::clean()
 {
 
+#ifdef _POSIX_MEMLOCK_RANGE
+  GX_LOCK::unlock_rt_memory();
+#endif
 #ifndef __SSE__
   wn->delete_instance(wn);;
 #endif
@@ -610,16 +625,22 @@ GxPluginStereo::instantiate(const LV2_Descriptor*     descriptor,
   if (!self->schedule)
     {
       fprintf(stderr, "Missing feature work:schedule.\n");
-      delete self;
-      return NULL;
+      atomic_set(&self->schedule_wait,1);
+      self->schedule_ok_ = 1;
+      //delete self;
+      //return NULL;
     }
   if (!self->map)
     {
       fprintf(stderr, "Missing feature uri:map.\n");
+      atomic_set(&self->schedule_wait,1);
+      self->schedule_ok_ = 1;
     }
   else if (!options)
     {
       fprintf(stderr, "Missing feature options.\n");
+      atomic_set(&self->schedule_wait,1);
+      self->schedule_ok_ = 1;
     }
   else
     {
@@ -639,7 +660,9 @@ GxPluginStereo::instantiate(const LV2_Descriptor*     descriptor,
       if (bufsize == 0)
         {
           fprintf(stderr, "No maximum buffer size given.\n");
-        }
+          atomic_set(&self->schedule_wait,1);
+          self->schedule_ok_ = 1;
+      }
       printf("using block size: %d\n", bufsize);
     }
   self->init_dsp_stereo((uint32_t)rate, bufsize);

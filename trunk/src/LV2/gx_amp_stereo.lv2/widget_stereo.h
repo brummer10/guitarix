@@ -33,6 +33,7 @@ class Widget : public Gtk::HBox
 {
 private:
   Gtk::Widget* get_controller_by_port(uint32_t port_index);
+  void set_sensitive_state(float state);
   void check_for_skin(uint32_t port_index, float model);
   void change_skin(int model);
   void on_value_changed(uint32_t port_index);

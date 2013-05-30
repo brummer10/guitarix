@@ -52,6 +52,7 @@ typedef enum
   C_MODEL,
   AMP_CONTROL,
   AMP_NOTIFY,
+  SCHEDULE,
   AMP_OUTPUT,
   AMP_INPUT,
   AMP_OUTPUT1,

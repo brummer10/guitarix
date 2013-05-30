@@ -29,6 +29,7 @@ class PaintBox: public Gtk::Box {
 	_WRAP_CTOR(PaintBox(Gtk::Orientation orientation = Gtk::ORIENTATION_HORIZONTAL, bool homogeneous = false, int spacing = 0), gx_paint_box_new)
 	_WRAP_PROPERTY(paint-func, Glib::ustring)
 	_WRAP_PROPERTY(icon-set, guint)
+	_WRAP_PROPERTY(force-reload, guint)
 	_WRAP_METHOD(void call_paint_func(GdkEventExpose *event), gx_paint_box_call_paint_func)
 };
 

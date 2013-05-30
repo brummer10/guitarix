@@ -163,6 +163,19 @@ Glib::PropertyProxy_ReadOnly< guint > PaintBox::property_icon_set() const
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy< guint > PaintBox::property_force_reload() 
+{
+  return Glib::PropertyProxy< guint >(this, "force-reload");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly< guint > PaintBox::property_force_reload() const
+{
+  return Glib::PropertyProxy_ReadOnly< guint >(this, "force-reload");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
 
 } // namespace Gxw
 

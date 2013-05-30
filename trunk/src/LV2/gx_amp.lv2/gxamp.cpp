@@ -77,6 +77,8 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 
 #include "cab_data_table.cc"
 
+#include "gx_mlock.cc"
+
 //////////////////////// define dsp namespaces /////////////////////////
 
 #define declare(n) namespace n { PluginLV2 *plugin(); }
@@ -228,6 +230,8 @@ private:
   float                        pre;
   float                        val;
   bool                         doit;
+  float*                       schedule_ok;
+  float                        schedule_ok_;
   volatile int32_t             schedule_wait;
 
   inline bool cab_changed() 
@@ -310,7 +314,9 @@ GxPluginMono::GxPluginMono() :
   alevel(NULL),
   alevel_(0),
   pre(0),
-  val(0)
+  val(0),
+  schedule_ok(NULL),
+  schedule_ok_(0)
 {
   atomic_set(&schedule_wait,0);
 };
@@ -388,7 +394,9 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
 
   bufsize = bufsize_;
   s_rate = rate;
-
+#ifdef _POSIX_MEMLOCK_RANGE
+  GX_LOCK::lock_rt_memory();
+#endif
 #ifndef __SSE__
   wn = noiser::plugin();
   wn->set_samplerate(rate, wn);
@@ -433,6 +441,7 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
   else
     {
       printf("convolver disabled\n");
+      schedule_ok_ = 1.;
     }
 }
 
@@ -462,6 +471,9 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
     case C_MODEL:
       c_model =  static_cast<float*>(data);
       break;
+    case SCHEDULE:
+      schedule_ok =  static_cast<float*>(data);
+      break;
     case AMP_OUTPUT:
       output = static_cast<float*>(data);
       break;
@@ -475,6 +487,7 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
+  if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
 #ifndef __SSE__
   wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
@@ -527,6 +540,9 @@ void GxPluginMono::deactivate_f()
 
 void GxPluginMono::clean()
 {
+#ifdef _POSIX_MEMLOCK_RANGE
+  GX_LOCK::unlock_rt_memory();
+#endif
 #ifndef __SSE__
   wn->delete_instance(wn);;
 #endif
@@ -592,16 +608,24 @@ LV2_Handle GxPluginMono::instantiate(const LV2_Descriptor*     descriptor,
   if (!self->schedule)
     {
       fprintf(stderr, "Missing feature work:schedule.\n");
-      delete self;
-      return NULL;
+      atomic_set(&self->schedule_wait,1);
+      self->schedule_ok_ = 1.;
+      //delete self;
+      //return NULL;
+    } else {
+      self->schedule_ok_ = 0.;
     }
   if (!self->map)
     {
       fprintf(stderr, "Missing feature uri:map.\n");
+      atomic_set(&self->schedule_wait,1);
+      self->schedule_ok_ = 1.;
     }
   else if (!options)
     {
       fprintf(stderr, "Missing feature options.\n");
+      atomic_set(&self->schedule_wait,1);
+      self->schedule_ok_ = 1.;
     }
   else
     {
@@ -621,8 +645,11 @@ LV2_Handle GxPluginMono::instantiate(const LV2_Descriptor*     descriptor,
       if (bufsize == 0)
         {
           fprintf(stderr, "No maximum buffer size given.\n");
+          atomic_set(&self->schedule_wait,1);
+          self->schedule_ok_ = 1.;
         }
       printf("using block size: %d\n", bufsize);
+      self->schedule_ok_ = 0.;
     }
   self->init_dsp_mono((uint32_t)rate, bufsize);
 

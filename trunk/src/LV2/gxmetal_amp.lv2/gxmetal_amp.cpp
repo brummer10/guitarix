@@ -32,6 +32,8 @@
 #endif
 #include "cab_data.cc"
 
+#include "gx_mlock.cc"
+
 #define declare(n) namespace n { PluginLV2 *plugin(); }
 
 declare(gxmetal_amp);
@@ -108,7 +110,9 @@ void Gxmetal_amp::init_dsp_mono(uint32_t rate,uint32_t bufsize_)
   AVOIDDENORMALS(); // init the SSE denormal protection
   bufsize = bufsize_;
   s_rate = rate;
-
+#ifdef _POSIX_MEMLOCK_RANGE
+  GX_LOCK::lock_rt_memory();
+#endif
 #ifndef __SSE__
   wn = noiser::plugin();
   wn->set_samplerate(rate, wn);
@@ -165,6 +169,9 @@ void Gxmetal_amp::activate_f()
 
 void Gxmetal_amp::clean_up()
 {
+#ifdef _POSIX_MEMLOCK_RANGE
+  GX_LOCK::unlock_rt_memory();
+#endif
 #ifndef __SSE__
   wn->delete_instance(wn);;
 #endif

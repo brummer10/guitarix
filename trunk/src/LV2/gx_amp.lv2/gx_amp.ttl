@@ -252,15 +252,26 @@
         lv2:symbol "notify" ;
         lv2:name "Notify" ;
     ] , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 14 ;
+        lv2:symbol "SCHEDULE" ;
+        lv2:name "SCHEDULE";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:notOnGUI;
+        lv2:default 1.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 14 ;
+        lv2:index 15 ;
         lv2:symbol "out" ;
         lv2:name "Out" ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 15 ;
+        lv2:index 16 ;
         lv2:symbol "in" ;
         lv2:name "in" ;
     ] .
