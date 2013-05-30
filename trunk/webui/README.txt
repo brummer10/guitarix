@@ -41,6 +41,13 @@ files which can be generated with the deploy script:
 
 This script creates the build/ directory which is used in index.html.
 
+deploy.sh needs the node program from node.js. For Debian/Ubuntu:
+
+# apt-get install nodejs-legacy
+
+(The program in the nodejs package is named "nodejs". The package
+nodejs-legacy depends on nodejs and installs a symbolic link for the
+name "node".)
 
 --------------- Deployable version ---------------
 
