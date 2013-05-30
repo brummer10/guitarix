@@ -73,6 +73,7 @@ class JsonArray: public std::vector<JsonValue*> {
 public:
     JsonArray():std::vector<JsonValue*>() {}
     ~JsonArray();
+    JsonValue *operator[](unsigned int i);
     void append(gx_system::JsonParser& jp);
 };
 
@@ -80,6 +81,13 @@ JsonArray::~JsonArray() {
     for (iterator i = begin(); i != end(); ++i) {
 	delete *i;
     }
+}
+
+JsonValue *JsonArray::operator[](unsigned int i) {
+    if (i >= size()) {
+	throw RpcError(-32602, "Invalid param -- wrong argument count");
+    }
+    return std::vector<JsonValue*>::operator[](i);
 }
 
 void JsonArray::append(gx_system::JsonParser& jp) {
@@ -433,6 +441,35 @@ static void write_parameter_state(gx_system::JsonWriter& jw, const gx_engine::Pa
     jw.end_object();
 }
 
+static void write_bank_state(gx_system::JsonWriter& jw, const gx_system::PresetFile *pf) {
+    jw.begin_object();
+    jw.write_key("name");
+    jw.write(pf->get_name());
+    jw.write_key("mutable");
+    jw.write(pf->is_mutable());
+    jw.write_key("type");
+    switch (pf->get_type()) {
+    case gx_system::PresetFile::PRESET_SCRATCH: jw.write("scratch"); break;
+    case gx_system::PresetFile::PRESET_FACTORY: jw.write("factory"); break;
+    case gx_system::PresetFile::PRESET_FILE: jw.write("file"); break;
+    default: jw.write("unknown"); break;
+    }
+    int flags = pf->get_flags();
+    if (flags & gx_system::PRESET_FLAG_INVALID) {
+	jw.write_key("flag_invalid");
+	jw.write(1);
+    }
+    if (flags & gx_system::PRESET_FLAG_READONLY) {
+	jw.write_key("flag_readonly");
+	jw.write(1);
+    }
+    if (flags & gx_system::PRESET_FLAG_VERSIONDIFF) {
+	jw.write_key("flag_versiondiff");
+	jw.write(1);
+    }
+    jw.end_object();
+}
+
 static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& prefix, const char** gl) {
     if (id.compare(0, prefix.size(), prefix) == 0) {
 	return true;
@@ -523,18 +560,25 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    }
 	}
 	jw.end_object();
+    } else if (method == "get_bank") {
+	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
+	if (!pf) {
+	    throw RpcError(-32602, "Invalid params -- unknown bank");
+	}
+	jw.write_key("result");
+	write_bank_state(jw, pf);
     } else if (method == "banks") {
 	gx_system::PresetBanks& banks = serv.settings.banks;
 	jw.write_key("result");
 	jw.begin_array();
 	for (gx_system::PresetBanks::iterator i = banks.begin(); i != banks.end(); ++i) {
-	    jw.write(i->get_name());
+	    write_bank_state(jw, *i);
 	}
 	jw.end_array();
     } else if (method == "presets") {
 	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
 	if (!pf) {
-	    throw RpcError(-32602, "Invalid params");
+	    throw RpcError(-32602, "Invalid params -- unknown bank");
 	}
 	jw.write_key("result");
 	jw.begin_array();
@@ -633,6 +677,27 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
     }
 }
 
+static void save_preset(gx_preset::GxSettings& settings, const Glib::ustring& bank,
+			const Glib::ustring& preset) {
+    gx_system::PresetFile *pf = settings.banks.get_file(bank);
+    if (!pf) {
+	Glib::ustring newbank = bank;
+	std::string newfile;
+	settings.banks.make_bank_unique(newbank, &newfile);
+	pf = new gx_system::PresetFile();
+	if (pf->create_file(newbank, newfile, gx_system::PresetFile::PRESET_FILE, 0)) {
+	    settings.banks.insert(pf);
+	} else {
+	    delete pf;
+	    throw RpcError(-32001, "bank not found");
+	}
+    }
+    if (!pf->is_mutable()) {
+	throw RpcError(-32001, "bank is immutable");
+    }
+    settings.save(*pf, preset);
+}
+
 void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
     if (method == "set") {
 	if (params.size() & 1) {
@@ -712,6 +777,13 @@ void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
 	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
 	    CmdConnection::unlisten((*i)->getString());
 	}
+    } else if (method == "save_current") {
+	if (!serv.settings.setting_is_preset()) {
+	    throw RpcError(-32001, "no current preset");
+	}
+	save_preset(serv.settings, serv.settings.get_current_bank(), serv.settings.get_current_name());
+    } else if (method == "save_preset") {
+	save_preset(serv.settings, params[0]->getString(), params[1]->getString());
     } else {
 	throw RpcError(-32601, "Method not found");
     }

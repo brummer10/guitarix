@@ -283,7 +283,7 @@ public:
     bool remove_file();
     iterator begin();
     iterator end() { return entries.end(); }
-    bool is_mutable() { return (tp == PRESET_SCRATCH || tp == PRESET_FILE) && !flags; }
+    bool is_mutable() const { return (tp == PRESET_SCRATCH || tp == PRESET_FILE) && !flags; }
 };
 
 class AbstractStateIO {
