@@ -5,4 +5,6 @@ trunk/build/
 trunk/po/LINGUAS
 trunk/.lock-wscript
 trunk/TAGS
+trunk/webui/build
+trunk/webui/deploy
 .dir-locals.el

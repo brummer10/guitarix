@@ -12,5 +12,6 @@ enyo.depends(
     "EffectUnit.js",
     "TunerScreen.js",
     "tuner.js",
-    "SlidingPanel.js"
+    "SlidingPanel.js",
+    "Rack.js"
 );

@@ -63,7 +63,10 @@ http://localhost:8000/deploy/webui/
 
 The deployable version uses a manifest.appcache document to tell a
 HTML5 browser which documents to cache for offline usage (then only
-the websocket connection to Guitarix is needed).
+the websocket connection to Guitarix is needed). The current commit id
+and a running number are inserted into the manifest.appcache document
+on each run of deploy.sh so the Browser will recognize a new version
+and download all files again.
 
 
 --------------- Use it on Android devices ---------------

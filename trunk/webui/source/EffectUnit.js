@@ -5,7 +5,8 @@ enyo.kind({
 	fxId: null,
     },
     handlers: {
-	onChange: "valueChanged",
+	onChanging: "valueChanged",
+	onChange:   "valueChanged",
     },
     fxIdChanged: function() {
 	this.destroyClientControls();
@@ -103,10 +104,8 @@ enyo.kind({
     },
     components:[
 	{name: "controls", kind: "gx.EffectControls", fit: true},
-	{kind: "onyx.Toolbar", layoutKind: "FittableColumnsLayout", components:[
+	{kind: "onyx.Toolbar", components:[
 	    {kind: "onyx.Button", content: "List", ontap: "doEffects"},
-	    {fit: true},
-	    //{kind: "onyx.Button", content: "add", ontap: "addEffect"},
 	]},
     ],
     setFxId: function(id) {
