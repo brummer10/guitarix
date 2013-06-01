@@ -5,8 +5,7 @@ enyo.kind({
     value: -100,
     min: -100,
     unit: "%",
-    classes: "enyo-fit",
-    style: "width: 300px; z-index: 2; background-color: green",
+    classes: "enyo-fit gx-sliding-panel",
     preventDragPropagation: true,
     captureEvents: true,
     handlers: {

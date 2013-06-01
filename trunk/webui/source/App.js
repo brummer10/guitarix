@@ -154,6 +154,8 @@ enyo.kind({
 		this.$.EffectScreen.setCurrentPreset(p);
 		this.$.MainScreen.display_preset(p[0], p[1]);
 	    });
+	this.$.MainScreen.$.load.start();
+	this.$.MainScreen.$.maxlevel.start();
 	this.$.errorpopup.hide();
     },
 });

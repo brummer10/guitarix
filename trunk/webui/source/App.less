@@ -1,20 +1,39 @@
 /*
 	Put anything you reference with "url()" in ../assets/
-	This way, you can minify your application, and just remove the "source" folder for production
 */
+
+.enyo-panels {
+    color: darken(white,10%);
+    background-color: black;
+}
+
+.gx-sliding-panel {
+    width: 300px;
+    z-index: 2;
+    background-color: darken(white, 20%);
+    color: black;
+}
+
+.gx-sliding-panel * {
+    padding-left: 8px;
+}
+
 .nice-padding {
     padding: 15px;
 }
+
 .test {
     width: 100%;
     display: -webkit-box;
     display: -moz-box;
-    background-color: grey;
+    background-color: black;
+    color: white;
     -webkit-box-orient: vertical;
     -webkit-box-pack: center;
     -moz-box-orient: vertical;
     -moz-box-pack: center;
 }
+
 .preset {
     margin-left: auto;
     margin-right: auto;
@@ -29,9 +48,25 @@
 .gx-selected * {
     background-color: blue;
 }
+
 .gx-before-selected * {
     background-color: red;
 }
+
 .gx-after-selected * {
     background-color: green;
 }
+
+.led {
+    width: 15px;
+    height: 15px !important;
+    border-radius: 50%;
+    vertical-align: middle;
+    background-color: black;
+};
+
+.led-on {
+    background-image: -moz-radial-gradient(45% 45% 45deg, circle cover, red 0%, desaturate(yellow, 50%) 100%);
+    background-image: -webkit-radial-gradient(45% 45%, circle cover, red, desaturate(yellow, 50%));
+    background-image: radial-gradient(45% 45% 45deg, circle cover, red 0%, desaturate(yellow, 50%) 100%);
+};

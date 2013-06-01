@@ -7,12 +7,13 @@ enyo.kind({
 	onSwitch: "",
     },
     components:[
-	{classes: "test", fit: true, components:[
+	{fit: true, components:[
 	    {name: "bank", kind: "gx.SelectButton", onPrepareList: "showBankList", onSelect: "selectBank"},
 	    {name: "preset", kind: "gx.SelectButton", onPrepareList: "showPresetList", onSelect: "selectPreset"},
 	    {name: "message", ontap: "messageTap", style: "visibility: hidden; text-align:center", content: "X"},
+	    {name: "maxlevel", kind: "gx.LevelDisplay"},
 	]},
-	{kind: "onyx.Toolbar", layoutKind: "FittableColumnsLayout", components:[
+	{kind: "onyx.MoreToolbar", layoutKind: "FittableColumnsLayout", components:[
 	    {kind: "onyx.Button", content: "Tuner On", ontap: "TunerOn"},
 	    {fit: true, style:"display:inline-table; width:100%", components: [
 		{style: "display: table-cell; text-align: center", components:[
@@ -168,16 +169,71 @@ enyo.kind({
     published: {
 	repeat: 5100,
     },
-    rendered: function() {
-	this.inherited(arguments);
+    timeout_handle: null,
+    start: function() {
+	if (this.timeout_handle) {
+	    clearTimeout(this.timeout_handle);
+	}
 	this.display_load();
     },
     display_load: function() {
+	this.timeout_handle = null;
 	guitarix.call(
 	    'jack_cpu_load',[],
 	    this, function(result) {
 		this.setContent(result.toFixed(1));
-		setTimeout(enyo.bind(this, this.display_load), this.repeat);
+		if (!this.timeout_handle) {
+		    this.timeout_handle = setTimeout(
+			enyo.bind(this, this.display_load), this.repeat);
+		}
+	    }
+	);
+    },
+});
+
+enyo.kind({
+    name: "gx.LevelDisplay",
+    layoutKind: "FittableColumnsLayout",
+    repeat: 100,
+    led_hold_count: 10,
+    led_left: 0,
+    timeout_handle: null,
+    published: {
+	overload: false,
+    },
+    components:[
+	{name: "bar", kind: "onyx.ProgressBar", style: "height:10px; vertical-align: middle", fit: true, max: 1, showStripes: false },
+	{name: "led", classes: "led", style: "margin-right: 20px"},
+    ],
+    overloadChanged: function(old) {
+	//this.$.led.applyStyle("background-color", (this.overload ? "red" : "black"));
+	this.$.led.addRemoveClass("led-on", this.overload);
+    },
+    start: function() {
+	if (this.timeout_handle) {
+	    clearTimeout(this.timeout_handle);
+	}
+	this.display_level();
+    },
+    display_level: function() {
+	this.timeout_handle = null;
+	guitarix.call(
+	    'get_max_output_level',[],
+	    this, function(result) {
+		var v = result[0] > result[1] ? result[0] : result[1];
+		if (v >= 1) {
+		    this.led_left = this.led_hold_count;
+		    this.setOverload(true);
+		} else if (this.led_left) {
+		    if (--this.led_left == 0) {
+			this.setOverload(false);
+		    }
+		}
+		this.$.bar.setProgress(v);
+		if (!this.timeout_handle) {
+		    this.timeout_handle = setTimeout(
+			enyo.bind(this, this.display_level), this.repeat);
+		}
 	    }
 	);
     },
