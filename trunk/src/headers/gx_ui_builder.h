@@ -183,6 +183,7 @@ protected:
     MainWindow& main;
     std::vector<PluginUI*> *pluginlist;
     static StackBoxBuilder *intf;
+    static void openTabBox_(const char* label);
     static void openVerticalBox_(const char* label);
     static void openVerticalBox1_(const char* label);
     static void openVerticalBox2_(const char* label);

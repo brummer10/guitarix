@@ -61,6 +61,7 @@ StackBoxBuilder *UiBuilderImpl::intf = 0;
 UiBuilderImpl::UiBuilderImpl(MainWindow *i, gx_gui::StackBoxBuilder *b, std::vector<PluginUI*> *pl)
     : UiBuilderBase(), main(*i), pluginlist(pl) {
     intf = b;
+    openTabBox = openTabBox_;
     openVerticalBox = openVerticalBox_;
     openVerticalBox1 = openVerticalBox1_;
     openVerticalBox2 = openVerticalBox2_;
@@ -89,6 +90,10 @@ bool UiBuilderImpl::load_unit(PluginUI &pl) {
     plugin = pd;
     pd->load_ui(*this);
     return true;
+}
+
+void UiBuilderImpl::openTabBox_(const char* label) {
+    intf->openTabBox(label);
 }
 
 void UiBuilderImpl::openVerticalBox_(const char* label) {

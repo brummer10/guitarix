@@ -38,6 +38,7 @@ struct PluginDef;
 
 struct UiBuilder {
     PluginDef *plugin;
+    void (*openTabBox)(const char* label);
     void (*openVerticalBox)(const char* label);
     void (*openVerticalBox1)(const char* label);
     void (*openVerticalBox2)(const char* label);
