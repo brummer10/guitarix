@@ -102,7 +102,10 @@ void JsonArray::append(gx_system::JsonParser& jp) {
 	if (*endptr == '\0') {
 	    push_back(new JsonInt(n));
 	} else {
-	    push_back(new JsonFloat(atof(str)));
+	    istringstream b(str);
+	    float f;
+	    b >> f;
+	    push_back(new JsonFloat(f));
 	}
     } else {
 	throw gx_system::JsonException("unexpected token");
@@ -740,9 +743,10 @@ void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
 		} else {
 		    throw RpcError(-32602, "Invalid param -- unknown variable");
 		}
+		//gx_system::JsonWriter jwd(&cerr); p.dump(&jwd);
 	    }
-	    serv.save_state();
 	}
+	serv.save_state();
     } else if (method == "setpreset") {
 	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
 	serv.settings.load_preset(pf, params[1]->getString());

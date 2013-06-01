@@ -627,7 +627,7 @@ void PluginList::ordered_list(list<Plugin*>& l, bool stereo, int flagmask, int f
     l.clear();
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	PluginDef *pd = p->second->pdef;
-	if (((pd->flags & flagmask) == flagvalue) || (strcmp(pd->id, "ampstack") == 0)) {
+	if (((pd->flags & flagmask) == flagvalue) || (!stereo && strcmp(pd->id, "ampstack") == 0)) {
 	    l.push_back(p->second);
 	}
     }
