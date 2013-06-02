@@ -1,6 +1,6 @@
 // Alternate gx_outputlevel definion for ladspa stereo plugin
 
-declare groups ".amp";
+declare groups ".amp[Default]";
 
 import("music.lib");
 import("guitarix.lib");

@@ -30,7 +30,7 @@ public:
 
 
 static const char* parm_groups[] = {
-	".amp", N_("?"),
+	".amp", N_("Default"),
 	0
 	};
 

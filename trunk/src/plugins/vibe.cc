@@ -238,7 +238,7 @@ int Vibe::registerparam(const ParamReg& reg) {
     reg.registerVar(univibe_width,N_("Width"),"S",N_("LFO amplitude"),&self.Pwidth, 0.5, 0, 1, 0.01);
     reg.registerVar(univibe_depth,N_("Depth"),"S",N_("DC level in LFO"),&self.Pdepth,0.37,0,1,0.01);
     reg.registerVar(univibe_wet_dry,N_("Wet/Dry"),"S",N_("output mix (signal / effect)"),&self.wet_dry,1,0,1,0.01);
-    reg.registerVar(univibe_fb,N_("Fb"),"S",N_("sound modification by feedback"),&self.fb,-0.6,-1,1,0.01);
+    reg.registerVar(univibe_fb,NC_("Feedback", "Fb"),"S",N_("sound modification by feedback"),&self.fb,-0.6,-1,1,0.01);
     return 0;
 }
 

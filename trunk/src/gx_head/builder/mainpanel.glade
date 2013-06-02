@@ -1146,7 +1146,7 @@
                                                           <object class="GtkLabel" id="label6:rack_slider">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="label" translatable="yes">▶</property>
+                                                            <property name="label" translatable="no">▶</property>
                                                           </object>
                                                         </child>
                                                       </object>
@@ -1533,7 +1533,7 @@
                                                             <object class="GtkLabel" id="label7:rack_slider">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="label" translatable="yes">▼</property>
+                                                            <property name="label" translatable="no">▼</property>
                                                             </object>
                                                             </child>
                                                           </object>
@@ -1957,7 +1957,7 @@
                                                             <object class="GtkLabel" id="label:rack_slider">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="label" translatable="yes">▶</property>
+                                                            <property name="label" translatable="no">▶</property>
                                                             </object>
                                                             </child>
                                                           </object>
@@ -3301,7 +3301,7 @@
                                                             </child>
                                                             <child>
                                                             <object class="GtkRadioButton" id="channel1_button">
-                                                            <property name="label" translatable="yes">1</property>
+                                                            <property name="label" translatable="no">1</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
@@ -3317,7 +3317,7 @@
                                                             </child>
                                                             <child>
                                                             <object class="GtkRadioButton" id="channel2_button">
-                                                            <property name="label" translatable="yes">2</property>
+                                                            <property name="label" translatable="no">2</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
@@ -3333,7 +3333,7 @@
                                                             </child>
                                                             <child>
                                                             <object class="GtkRadioButton" id="channel3_button">
-                                                            <property name="label" translatable="yes">3</property>
+                                                            <property name="label" translatable="no">3</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
@@ -3624,7 +3624,7 @@
                                                             <object class="GtkLabel" id="label8:rack_slider">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="label" translatable="yes">▼</property>
+                                                            <property name="label" translatable="no">▼</property>
                                                             </object>
                                                             </child>
                                                           </object>

@@ -5,7 +5,7 @@
 // it here. It will be of type float instead of bool, but
 // this doesn't matter for data read from preset files.
 
-declare groups ".amp";
+declare groups ".amp[Default]";
 
 import("music.lib");
 import("guitarix.lib");

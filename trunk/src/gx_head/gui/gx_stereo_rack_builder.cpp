@@ -286,7 +286,7 @@ void StackBoxBuilder::make_rackbox_jconv() {
 	closeBox();
 	openSpaceBox("");
 	closeBox();
-	addSmallJConvFavButton(_("S"), irw);
+	addSmallJConvFavButton(C_("Setup", "S"), irw);
     closeBox();
     openVerticalBox("");
     {

@@ -357,7 +357,7 @@ void StackBoxBuilder::make_rackbox_overdrive() {
 void StackBoxBuilder::make_rackbox_echo() {
     // ----- echo
     openHorizontalhideBox("");
-    create_master_slider("echo.percent", _("%"));
+    create_master_slider("echo.percent", "%");
     closeBox();
     openVerticalBox("");
     {
@@ -365,7 +365,7 @@ void StackBoxBuilder::make_rackbox_echo() {
 	{
 	    create_small_rackknobr("echo.time", _("  time  "));
 
-	    create_small_rackknob("echo.percent", _("    %    "));
+	    create_small_rackknob("echo.percent", "    %    ");
 	}
 	closeBox();
     }
@@ -617,7 +617,7 @@ void StackBoxBuilder::make_rackbox_jconv_mono() {
 	closeBox();
 	openSpaceBox("");
 	closeBox();
-	addSmallJConvFavButton(_("S"), irw);
+	addSmallJConvFavButton(C_("Setup", "S"), irw);
     closeBox();
     openVerticalBox("");
     {

@@ -1094,7 +1094,7 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
 }
 
 Gtk::Button *RackBox::make_preset_button() {
-    Gtk::Button *p = new Gtk::Button("p");
+    Gtk::Button *p = new Gtk::Button(C_("Preset", "p"));
     p->set_can_default(false);
     p->set_can_focus(false);
     p->set_size_request(18,18);
