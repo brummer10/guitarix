@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-06-02 14:13+0200\n"
+"POT-Creation-Date: 2013-06-02 19:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -228,7 +228,7 @@ msgstr ""
 
 #: ../src/faust-generated/gx_ampout_ladspa.cc:32
 #: ../src/faust-generated/gx_outputlevel_ladspa.cc:31
-msgid "?"
+msgid "Default"
 msgstr ""
 
 #: ../src/faust-generated/gx_ampout_ladspa.cc:99
@@ -306,7 +306,7 @@ msgstr ""
 msgid "pre 12AT7/ master 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp16.cc:201
+#: ../src/faust-generated/gxamp16.cc:205
 msgid "pre 12AT7/ push pull 6V6"
 msgstr ""
 
@@ -334,15 +334,15 @@ msgstr ""
 msgid "pre 12ax7/ master 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp6.cc:202
+#: ../src/faust-generated/gxamp6.cc:206
 msgid "pre 6DJ8/ push-pull 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp7.cc:201
+#: ../src/faust-generated/gxamp7.cc:205
 msgid "pre 12ax7/ push-pull 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp8.cc:204
+#: ../src/faust-generated/gxamp8.cc:208
 msgid "pre 12AU7/ push-pull 6V6"
 msgstr ""
 
@@ -469,57 +469,57 @@ msgstr ""
 msgid "Scaleable EQ"
 msgstr ""
 
-#: ../src/faust-generated/selecteq.cc:258
-msgid "gain (dB) at 31.25 Hz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:259
-msgid "gain (dB) at 62.5 Hz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:260
-#: ../src/faust-generated/selecteq.cc:261
-#: ../src/faust-generated/selecteq.cc:266
-#: ../src/faust-generated/selecteq.cc:268
-#: ../src/faust-generated/selecteq.cc:273
-#: ../src/faust-generated/selecteq.cc:276
-#: ../src/faust-generated/selecteq.cc:278
-#: ../src/faust-generated/selecteq.cc:281
-#: ../src/faust-generated/selecteq.cc:284
-#: ../src/faust-generated/selecteq.cc:285
-msgid "Hz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:264
-msgid "gain (dB) at 125 Hz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:265
-msgid "gain (dB) at 250 Hz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:269
-msgid "gain (dB) at 2 kHz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:271
-msgid "gain (dB) at 500 Hz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:274
-msgid "gain (dB) at 1 kHz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:279
-msgid "gain (dB) at 8 kHz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:282
+#: ../src/faust-generated/selecteq.cc:521
 msgid "gain (dB) at 16 kHz"
 msgstr ""
 
-#: ../src/faust-generated/selecteq.cc:286
+#: ../src/faust-generated/selecteq.cc:522
+msgid "gain (dB) at 8 kHz"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:523
+#: ../src/faust-generated/selecteq.cc:524
+#: ../src/faust-generated/selecteq.cc:529
+#: ../src/faust-generated/selecteq.cc:531
+#: ../src/faust-generated/selecteq.cc:536
+#: ../src/faust-generated/selecteq.cc:539
+#: ../src/faust-generated/selecteq.cc:541
+#: ../src/faust-generated/selecteq.cc:544
+#: ../src/faust-generated/selecteq.cc:547
+#: ../src/faust-generated/selecteq.cc:548
+msgid "Hz"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:527
 msgid "gain (dB) at 4 kHz"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:528
+msgid "gain (dB) at 2 kHz"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:532
+msgid "gain (dB) at 250 Hz"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:534
+msgid "gain (dB) at 1 kHz"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:537
+msgid "gain (dB) at 500 Hz"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:542
+msgid "gain (dB) at 62.5 Hz"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:545
+msgid "gain (dB) at 31.25 Hz"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:549
+msgid "gain (dB) at 125 Hz"
 msgstr ""
 
 #: ../src/faust-generated/stereodelay.cc:65
@@ -1008,6 +1008,7 @@ msgid "Midi Out"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:26
+msgctxt "preset"
 msgid "p"
 msgstr ""
 

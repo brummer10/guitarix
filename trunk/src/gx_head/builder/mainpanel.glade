@@ -1893,7 +1893,7 @@
                                                       <object class="GtkLabel" id="label12">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="label" translatable="yes">p</property>
+                                                        <property name="label" translatable="yes" context="preset">p</property>
                                                       </object>
                                                     </child>
                                                   </object>
@@ -3647,7 +3647,7 @@
                                                             <object class="GtkLabel" id="label8">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="label" translatable="yes">p</property>
+                                                            <property name="label" translatable="yes" context="preset">p</property>
                                                             </object>
                                                             </child>
                                                           </object>
