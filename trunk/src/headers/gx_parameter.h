@@ -129,6 +129,7 @@ public:
         _id(id),
         _name(name),
         _group(param_group(id)),
+        _desc(),
         v_type(vtp),
         c_type(ctp),
 	d_flags(0),

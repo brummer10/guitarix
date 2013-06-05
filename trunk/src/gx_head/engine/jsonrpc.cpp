@@ -198,7 +198,7 @@ CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketCon
       jp(),
       writebuf(connection->get_socket()->get_fd(), std::ios::out),
       os(&writebuf),
-      jw(&os),
+      jw(&os, false),
       conn_preset_changed(),
       conn_state_changed(),
       conn_freq_changed(),

@@ -51,15 +51,15 @@ class JsonWriter {
  private:
     ostream *os;
     bool first;
-    bool deferred_nl;
+    int deferred_nl;
     string indent;
-    void snl(bool v) { deferred_nl = v; }
+    void snl(bool v) { if (deferred_nl >= 0) deferred_nl = (v ? 1 : 0); }
     void komma();
     void space();
     void iplus();
     void iminus();
  public:
-    JsonWriter(ostream* o = 0);
+    JsonWriter(ostream* o = 0, bool enable_newlines = true);
     virtual ~JsonWriter();
     void reset();
     void set_stream(ostream* o) { os = o; }

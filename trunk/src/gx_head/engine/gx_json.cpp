@@ -46,10 +46,10 @@ bool check_mtime(const std::string& filename, time_t& mtime) {
  ** JsonWriter
  */
 
-JsonWriter::JsonWriter(ostream *o)
+JsonWriter::JsonWriter(ostream *o, bool enable_newlines)
     : os(o),
       first(true),
-      deferred_nl(false),
+      deferred_nl(enable_newlines ? 0 : -1),
       indent("") {}
 
 JsonWriter::~JsonWriter() {
@@ -59,7 +59,9 @@ JsonWriter::~JsonWriter() {
 void JsonWriter::reset() {
     os->flush();
     first = true;
-    deferred_nl = false;
+    if (deferred_nl == 1) {
+	deferred_nl = 0;
+    }
     indent.clear();
 }
 
@@ -67,7 +69,7 @@ void JsonWriter::close() {
     if (is_closed()) {
 	return;
     }
-    if (deferred_nl) {
+    if (deferred_nl == 1) {
 	*os << endl;
     }
     os = 0;
@@ -76,7 +78,7 @@ void JsonWriter::close() {
 inline void JsonWriter::komma() {
     if (first)
         first = false;
-    else if (!deferred_nl)
+    else if (deferred_nl == 0)
         *os << ", ";
     else
         *os << ",";
@@ -86,7 +88,7 @@ inline void JsonWriter::komma() {
 inline void JsonWriter::space() {
     if (first)
         first = false;
-    else if (!deferred_nl)
+    else if (deferred_nl == 0)
         *os << " ";
     flush();
 }
@@ -195,7 +197,7 @@ void JsonWriter::write_key(const string& p, bool nl) {
 
 // called before output of next element
 void JsonWriter::flush() {
-    if (deferred_nl) {
+    if (deferred_nl == 1) {
         *os << endl;
         deferred_nl = false;
         *os << indent;
