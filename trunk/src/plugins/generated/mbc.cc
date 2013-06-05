@@ -116,7 +116,7 @@ Dsp::Dsp()
 	groups = 0;
 	description = N_("Multi Band Compressor contributed by kokoko3k"); // description (tooltip)
 	category = N_("Guitar Effects");       // category
-	shortname = N_("MB Compressor");     // shortname
+	shortname = N_("MB Compresssor");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
@@ -425,43 +425,43 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("mbc.Attack1 (sec)","","S",N_("Time before the compressor starts to kick in"),&fslider28, 0.012, 0.0, 1.0, 0.001);
-	static const value_pair fslider29_values[] = {{"Compres"},{"Bypass"},{"Mute"},{0}};
-	reg.registerEnumVar("mbc.Mode1","","S",N_("Compres or Mute the selected band, or Bypass The Compressor"),fslider29_values,&fslider29, 1.0, 1.0, 3.0, 1.0);
-	reg.registerVar("mbc.Ratio2","","S",N_("Compression ratio"),&fslider26, 2.0, 1.0, 1e+02, 0.1);
+	static const value_pair fslider29_values[] = {{"Compress"},{"Bypass"},{"Mute"},{0}};
+	reg.registerEnumVar("mbc.Mode1","","S",N_("Compress or Mute the selected band, or Bypass The Compresssor"),fslider29_values,&fslider29, 1.0, 1.0, 3.0, 1.0);
+	reg.registerVar("mbc.Ratio2","","S",N_("Compresssion ratio"),&fslider26, 2.0, 1.0, 1e+02, 0.1);
 	reg.registerVar("mbc.Makeup-Threshold2 (db)","","S",N_("Threshold correction, an anticlip measure"),&fslider27, 2.0, 0.0, 1e+01, 0.1);
 	reg.registerVar("mbc.Release2 (sec)","","S",N_("Time before the compressor releases the sound"),&fslider24, 1.25, 0.0, 1e+01, 0.01);
 	reg.registerVar("mbc.Makeup2 (db)","","S",N_("Post amplification and threshold"),&fslider25, 1e+01, -5e+01, 5e+01, 0.1);
 	reg.registerVar("mbc.show_always.Crossover B1-B2 (hz)","","S",N_("Crossover bandpass frequency"),&fslider22, 8e+01, 2e+01, 2e+04, 1.0);
-	static const value_pair fslider23_values[] = {{"Compres"},{"Bypass"},{"Mute"},{0}};
-	reg.registerEnumVar("mbc.Mode2","","S",N_("Compres or Mute the selected band, or Bypass The Compressor"),fslider23_values,&fslider23, 1.0, 1.0, 3.0, 1.0);
+	static const value_pair fslider23_values[] = {{"Compress"},{"Bypass"},{"Mute"},{0}};
+	reg.registerEnumVar("mbc.Mode2","","S",N_("Compress or Mute the selected band, or Bypass The Compresssor"),fslider23_values,&fslider23, 1.0, 1.0, 3.0, 1.0);
 	reg.registerVar("mbc.Makeup-Threshold3 (db)","","S",N_("Threshold correction, an anticlip measure"),&fslider20, 2.0, 0.0, 1e+01, 0.1);
 	reg.registerVar("mbc.Attack2 (sec)","","S",N_("Time before the compressor starts to kick in"),&fslider21, 0.012, 0.0, 1.0, 0.001);
 	reg.registerVar("mbc.Makeup-Threshold5 (db)","","S",N_("Threshold correction, an anticlip measure"),&fslider13, 2.0, 0.0, 1e+01, 0.1);
-	reg.registerVar("mbc.Ratio5","","S",N_("Compression ratio"),&fslider12, 2.0, 1.0, 1e+02, 0.1);
+	reg.registerVar("mbc.Ratio5","","S",N_("Compresssion ratio"),&fslider12, 2.0, 1.0, 1e+02, 0.1);
 	reg.registerVar("mbc.Makeup5 (db)","","S",N_("Post amplification and threshold"),&fslider11, 11.0, -5e+01, 5e+01, 0.1);
 	reg.registerVar("mbc.Release5 (sec)","","S",N_("Time before the compressor releases the sound"),&fslider10, 1.25, 0.0, 1e+01, 0.01);
 	reg.registerVar("mbc.Release3 (sec)","","S",N_("Time before the compressor releases the sound"),&fslider17, 1.25, 0.0, 1e+01, 0.01);
-	static const value_pair fslider16_values[] = {{"Compres"},{"Bypass"},{"Mute"},{0}};
-	reg.registerEnumVar("mbc.Mode3","","S",N_("Compres or Mute the selected band, or Bypass The Compressor"),fslider16_values,&fslider16, 1.0, 1.0, 3.0, 1.0);
+	static const value_pair fslider16_values[] = {{"Compress"},{"Bypass"},{"Mute"},{0}};
+	reg.registerEnumVar("mbc.Mode3","","S",N_("Compress or Mute the selected band, or Bypass The Compresssor"),fslider16_values,&fslider16, 1.0, 1.0, 3.0, 1.0);
 	reg.registerVar("mbc.show_always.Crossover B2-B3 (hz)","","S",N_("Crossover bandpass frequency"),&fslider15, 2.1e+02, 2e+01, 2e+04, 1.0);
 	reg.registerVar("mbc.Attack3 (sec)","","S",N_("Time before the compressor starts to kick in"),&fslider14, 0.012, 0.0, 1.0, 0.001);
-	reg.registerVar("mbc.Ratio3","","S",N_("Compression ratio"),&fslider19, 2.0, 1.0, 1e+02, 0.1);
+	reg.registerVar("mbc.Ratio3","","S",N_("Compresssion ratio"),&fslider19, 2.0, 1.0, 1e+02, 0.1);
 	reg.registerVar("mbc.Makeup3 (db)","","S",N_("Post amplification and threshold"),&fslider18, 4.0, -5e+01, 5e+01, 0.1);
 	reg.registerVar("mbc.Makeup1 (db)","","S",N_("Post amplification and threshold"),&fslider31, 13.0, -5e+01, 5e+01, 0.1);
 	reg.registerVar("mbc.Release1 (sec)","","S",N_("Time before the compressor releases the sound"),&fslider30, 1.25, 0.0, 1e+01, 0.01);
 	reg.registerVar("mbc.Makeup-Threshold1 (db)","","S",N_("Threshold correction, an anticlip measure"),&fslider33, 2.0, 0.0, 1e+01, 0.1);
-	reg.registerVar("mbc.Ratio1","","S",N_("Compression ratio"),&fslider32, 2.0, 1.0, 1e+02, 0.1);
+	reg.registerVar("mbc.Ratio1","","S",N_("Compresssion ratio"),&fslider32, 2.0, 1.0, 1e+02, 0.1);
 	reg.registerVar("mbc.Makeup-Threshold4 (db)","","S",N_("Threshold correction, an anticlip measure"),&fslider7, 2.0, 0.0, 1e+01, 0.1);
-	reg.registerVar("mbc.Ratio4","","S",N_("Compression ratio"),&fslider6, 2.0, 1.0, 1e+02, 0.1);
+	reg.registerVar("mbc.Ratio4","","S",N_("Compresssion ratio"),&fslider6, 2.0, 1.0, 1e+02, 0.1);
 	reg.registerVar("mbc.Makeup4 (db)","","S",N_("Post amplification and threshold"),&fslider5, 8.0, -5e+01, 5e+01, 0.1);
 	reg.registerVar("mbc.Release4 (sec)","","S",N_("Time before the compressor releases the sound"),&fslider4, 1.25, 0.0, 1e+01, 0.01);
-	static const value_pair fslider3_values[] = {{"Compres"},{"Bypass"},{"Mute"},{0}};
-	reg.registerEnumVar("mbc.Mode4","","S",N_("Compres or Mute the selected band, or Bypass The Compressor"),fslider3_values,&fslider3, 1.0, 1.0, 3.0, 1.0);
+	static const value_pair fslider3_values[] = {{"Compress"},{"Bypass"},{"Mute"},{0}};
+	reg.registerEnumVar("mbc.Mode4","","S",N_("Compress or Mute the selected band, or Bypass The Compresssor"),fslider3_values,&fslider3, 1.0, 1.0, 3.0, 1.0);
 	reg.registerVar("mbc.show_always.Crossover B4-B5 (hz)","","S",N_("Crossover bandpass frequency"),&fslider2, 5e+03, 2e+01, 2e+04, 1.0);
 	reg.registerVar("mbc.show_always.Crossover B3-B4 (hz)","","S",N_("Crossover bandpass frequency"),&fslider1, 1.7e+03, 2e+01, 2e+04, 1.0);
 	reg.registerVar("mbc.Attack4 (sec)","","S",N_("Time before the compressor starts to kick in"),&fslider0, 0.012, 0.0, 1.0, 0.001);
-	static const value_pair fslider9_values[] = {{"Compres"},{"Bypass"},{"Mute"},{0}};
-	reg.registerEnumVar("mbc.Mode5","","S",N_("Compres or Mute the selected band, or Bypass The Compressor"),fslider9_values,&fslider9, 1.0, 1.0, 3.0, 1.0);
+	static const value_pair fslider9_values[] = {{"Compress"},{"Bypass"},{"Mute"},{0}};
+	reg.registerEnumVar("mbc.Mode5","","S",N_("Compress or Mute the selected band, or Bypass The Compresssor"),fslider9_values,&fslider9, 1.0, 1.0, 3.0, 1.0);
 	reg.registerVar("mbc.Attack5 (sec)","","S",N_("Time before the compressor starts to kick in"),&fslider8, 0.012, 0.0, 1.0, 0.001);
 	return 0;
 }

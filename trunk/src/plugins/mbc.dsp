@@ -1,6 +1,6 @@
 declare id "mbc";
 declare name "Multi Band Compressor";
-declare shortname "MB Compressor";
+declare shortname "MB Compresssor";
 declare category "Guitar Effects";
 declare description "Multi Band Compressor contributed by kokoko3k";
 
@@ -18,11 +18,11 @@ gcomp5s = bandpass5:bypass1(bswitch5,compressor_mono(ratio5,-push5,attack5,relea
 };
 
 
-sel1         = hslider("Mode1[enum:Compres|Bypass|Mute][tooltip: Compres or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
-sel2         = hslider("Mode2[enum:Compres|Bypass|Mute][tooltip: Compres or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
-sel3         = hslider("Mode3[enum:Compres|Bypass|Mute][tooltip: Compres or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
-sel4         = hslider("Mode4[enum:Compres|Bypass|Mute][tooltip: Compres or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
-sel5         = hslider("Mode5[enum:Compres|Bypass|Mute][tooltip: Compres or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
+sel1         = hslider("Mode1[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compresssor]",1,1,3,1);
+sel2         = hslider("Mode2[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compresssor]",1,1,3,1);
+sel3         = hslider("Mode3[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compresssor]",1,1,3,1);
+sel4         = hslider("Mode4[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compresssor]",1,1,3,1);
+sel5         = hslider("Mode5[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compresssor]",1,1,3,1);
 
 not(x) 	= abs(x-1);
 mute1		= not(max(0,sel1-2));
@@ -54,23 +54,23 @@ bandpass3 	= lowpass(3,hifr3) : highpass(3,lowfr3);
 bandpass4 	= lowpass(3,hifr4) : highpass(3,lowfr4);
 bandpass5 	= highpass(3,lowfr5);
 
-ratio1 		= hslider("[9] Ratio1 [tooltip: Compression ratio]",2,1,100,0.1);
+ratio1 		= hslider("[9] Ratio1 [tooltip: Compresssion ratio]",2,1,100,0.1);
 attack1		= hslider("[A] Attack1 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
 release1 	= hslider("[B] Release1 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
-ratio2 		= hslider("[9] Ratio2 [tooltip: Compression ratio]",2,1,100,0.1);
+ratio2 		= hslider("[9] Ratio2 [tooltip: Compresssion ratio]",2,1,100,0.1);
 attack2		= hslider("[A] Attack2 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
 release2 	= hslider("[B] Release2 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
-ratio3 		= hslider("[9] Ratio3 [tooltip: Compression ratio]",2,1,100,0.1);
+ratio3 		= hslider("[9] Ratio3 [tooltip: Compresssion ratio]",2,1,100,0.1);
 attack3		= hslider("[A] Attack3 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
 release3 	= hslider("[B] Release3 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
-ratio4 		= hslider("[9] Ratio4 [tooltip: Compression ratio]",2,1,100,0.1);
+ratio4 		= hslider("[9] Ratio4 [tooltip: Compresssion ratio]",2,1,100,0.1);
 attack4		= hslider("[A] Attack4 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
 release4 	= hslider("[B] Release4 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
-ratio5 		= hslider("[9] Ratio5 [tooltip: Compression ratio]",2,1,100,0.1);
+ratio5 		= hslider("[9] Ratio5 [tooltip: Compresssion ratio]",2,1,100,0.1);
 attack5		= hslider("[A] Attack5 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
 release5 	= hslider("[B] Release5 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
