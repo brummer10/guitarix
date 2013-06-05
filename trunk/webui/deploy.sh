@@ -2,7 +2,7 @@
 cd `dirname $0`
 counter=deploy/lastN
 bootplate/tools/deploy.sh
-cp bootplate/assets/favicon.ico deploy/webui/assets
+cp -L --remove-destination assets/* bootplate/assets/* deploy/webui/assets
 REV=$(git rev-parse HEAD 2>/dev/null)
 N=1
 [ -e $counter ] && let N=$(< $counter)+1

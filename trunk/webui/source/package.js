@@ -2,7 +2,7 @@ enyo.depends(
     "$lib/layout",
     "$lib/onyx/source", //??
     //"$lib/onyx", //??
-    "Theme.less",
+    //"Theme.less",
     //"App.css",
     "App.less",
     "App.js",

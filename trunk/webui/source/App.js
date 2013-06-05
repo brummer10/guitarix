@@ -1,4 +1,20 @@
 enyo.kind({
+    name: "gx.Storage",
+    kind: "Component",
+    statics: {
+	set: function(name, obj){
+	    localStorage.setItem(name, JSON.stringify(obj));
+	},
+	get: function(name){
+	    return JSON.parse(localStorage.getItem(name));
+	},
+	remove: function(name){
+	    localStorage.remove(name);
+	},
+    }
+});
+
+enyo.kind({
     name: "gx.LeftRightArranger",
     kind: "LeftRightArranger",
     margin: 0,
@@ -28,14 +44,41 @@ enyo.kind({
 	 ]},
 	{name: "errorpopup", kind: "onyx.Popup", scrim: true,
 	 floating: true, centered: true, autoDismiss: false, components:[
-	     {kind: "onyx.Spinner"},
-	     {name: "msg", style: "display: inline; margin: 1ex; vertical-align: 100%"},
+	     {kind: "onyx.Spinner", style: "float: left"},
+	     {name: "msg", style: "margin: 1ex; text-align: center; vertical-align: 100%"},
+	     {kind: "onyx.Button", content: "change connection",
+	      style: "display: block; margin: auto", ontap: "changeConnection"},
 	 ]},
 	{name: "guitarix", kind: "gx.JsonRpcSocket", onNotify: "guitarixNotify",
 	 onError: "guitarixError", onClose: "guitarixClose", onOpen: "guitarixOpen",
-	 onBadMessage: "guitarixBadMessage", onUnknownMessage: "guitarixUnknownMessage",
-	 uri: 'ws://'+(document.location.hostname||'localhost')+':8000/json'}
+	 onBadMessage: "guitarixBadMessage", onUnknownMessage: "guitarixUnknownMessage"}
     ],
+    saveWsHostPort: function(host, port) {
+	gx.Storage.set("ws_connection_data",{host:host, port:port});
+	this.setWsUri();
+    },
+    retrieveWsHostPort: function() {
+	var s = gx.Storage.get("ws_connection_data");
+	var h, p;
+	if (s !== null) {
+	    h = s.host;
+	    p = s.port;
+	}
+	if (typeof(h) !== "string" || h == "") {
+	    h = document.location.hostname||'localhost';
+	}
+	if (typeof(p) !== "number" || !(p > 0)) {
+	    p = 8001;
+	}
+	return {host: h, port: p};
+    },
+    retrieveWsUri: function() {
+	var s = this.retrieveWsHostPort();
+	return 'ws://'+s.host+':'+s.port+'/json'
+    },
+    setWsUri: function() {
+	this.$.guitarix.setUri(this.retrieveWsUri());
+    },
     create: function() {
     	this.inherited(arguments);
 	var p = this.$.panels.getPanels();
@@ -43,6 +86,65 @@ enyo.kind({
 	    p[i].panelIndex = i;
 	}
 	window.guitarix = this.$.guitarix;
+	this.setWsUri();
+    },
+    changeConnection: function(inSender, inEvent) {
+	var app = this;
+	var p = new onyx.Popup({
+	    showing: true,
+	    floating: true,
+	    centered: true,
+	    modal: true,
+	    scrim: true,
+	    components:[
+		{content:"Change connection", style: "text-align: center; font-weight: bold"},
+		{tag: "table",components:[
+		    {tag: "tr", components:[
+			{tag: "th", content: "Host"},
+			{tag: "td", components:[{kind:"onyx.InputDecorator", components:[
+			    {name: "host", kind: "onyx.Input", selectOnFocus: true, onkeydown: "hostKeyDown"},
+			]}]},
+		    ]},
+		    {tag: "tr", components:[
+			{tag: "th", content: "Port"},
+			{tag: "td", components:[{kind: "onyx.InputDecorator", components: [
+			    {name: "port", type: "number", selectOnFocus: true, kind: "onyx.Input", onkeydown: "portKeyDown"},
+			]}]},
+		    ]},
+		    {tag: "tr", components:[
+			{tag: "td", attributes:{colspan:"2", align: "right"}, components:[
+			    {kind: "onyx.Button", style: "margin: 10px", content: "Cancel",
+			     ontap: "hide"},
+			    {kind: "onyx.Button", style: "margin: 10px", content: "Ok",
+			     ontap: "save"},
+			]},
+		    ]},
+		]},
+	    ],
+	    hostKeyDown: function(inSender, inEvent) {
+		if (inEvent.keyCode === 13) {
+		    this.$.port.focus();
+		    return true;
+		}
+	    },
+	    portKeyDown: function(inSender, inEvent) {
+		if (inEvent.keyCode === 13) {
+		    this.save();
+		    return true;
+		}
+	    },
+	    save: function() {
+		var host = this.$.host.getValue();
+		var port = parseInt(this.$.port.getValue());
+		app.saveWsHostPort(host, port);
+		this.hide();
+	    },
+	});
+	var s = this.retrieveWsHostPort();
+	p.$.host.setValue(s.host);
+	p.$.port.setValue(s.port);
+	p.render();
+	p.$.host.focus();
     },
     transitionFinished: function(inSender, inEvent) {
 	var p;
@@ -132,11 +234,11 @@ enyo.kind({
 	}
     },
     guitarixError: function(inSender, inEvent) {
-	this.$.msg.setContent("Guitarix connection error... retrying");
+	this.$.msg.setContent("Guitarix connection error...\nretrying");
 	this.$.errorpopup.show();
     },
     guitarixClose: function(inSender, inEvent) {
-	this.$.msg.setContent("connection to Guitarix closed... retrying");
+	this.$.msg.setContent("connection to Guitarix closed...\nretrying");
 	this.$.errorpopup.show();
     },
     guitarixOpen: function(inSender, inEvent) {

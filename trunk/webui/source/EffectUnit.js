@@ -1,6 +1,7 @@
 enyo.kind({
     name: "gx.EffectControls",
     kind: "enyo.Scroller",
+    classes: "gx-effect",
     published:{
 	fxId: null,
     },
@@ -16,13 +17,24 @@ enyo.kind({
 	guitarix.call(
 	    "queryunit", [this.fxId],
 	    this, function(result) {
-		var name, o;
+		var name, o, a;
 		var m = this.fxId+"\\.(position|s_h|on_off|pp)$";
+		a = [];
+		o = result[this.fxId+".on_off"];
+		if (o !== undefined) {
+		    a.push(o);
+		}
 		for (var key in result) {
 		    if (key.match(m)) {
 			continue;
 		    }
-		    o = result[key];
+		    a.push(result[key]);
+		}
+		for (var key in a) {
+		    if (key.match(m)) {
+			continue;
+		    }
+		    o = a[key];
 		    name = o.name;
 		    if (!name) {
 			name = key;

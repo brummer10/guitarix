@@ -4,7 +4,7 @@ enyo.kind({
 	onAdd: "",
     },
     components: [
-	{name: "head", classes: ["onyx-menu"], ontap: "toggle"},
+	{name: "head", classes: ["gx-effect-section-header"], ontap: "toggle"},
 	{name: "drawer", kind: "onyx.Drawer", open: false}
     ],
     toggle: function(inSender, inEvent) {

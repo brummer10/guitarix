@@ -86,6 +86,7 @@ enyo.kind({
 
 enyo.kind({
     name: "gx.EffectBox",
+    classes: "gx-effect-box",
     layoutKind: "FittableColumnsLayout",
     fx: null,
     events: {
@@ -94,10 +95,10 @@ enyo.kind({
     },
     components:[
 	{name: "state", kind: "gx.ToggleButton", onChange: "stateChanged"},
-	{name: "del", kind: "onyx.Button", content: "D", ontap: "deleteModule"},
 	{name: "before", kind: "onyx.Button", showing: false, content: "B", ontap: "insertBefore"},
 	{name: "after", kind: "onyx.Button", showing: false, content: "A", ontap: "insertAfter"},
 	{name: "name", kind: "onyx.Button", fit: true, ontap: "displayUnit", onhold: "startMove", onup: "checkMoveTap"},
+	{name: "del", kind: "onyx.IconButton", style: "height: 32px", src: "assets/remove-icon.png", ontap: "deleteModule"},
     ],
     create: function() {
 	this.inherited(arguments);

@@ -2,6 +2,9 @@
 	Put anything you reference with "url()" in ../assets/
 */
 
+/* Onyx default variable definitions: */
+@import "Theme.less";
+
 .enyo-panels {
     color: darken(white,10%);
     background-color: black;
@@ -10,12 +13,24 @@
 .gx-sliding-panel {
     width: 300px;
     z-index: 2;
-    background-color: darken(white, 20%);
+    background-color: fade(darken(white, 20%), 90%);
     color: black;
 }
 
 .gx-sliding-panel * {
     padding-left: 8px;
+}
+
+.gx-effect .onyx-picker-decorator .onyx-button {
+    min-width: 80%;
+}
+
+.gx-effect-box .onyx-icon-button {
+    background-color: @onyx-button-background;
+}
+
+.gx-effect-section-header {
+    font-weight: bold;
 }
 
 .nice-padding {

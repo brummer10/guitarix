@@ -15,17 +15,20 @@ enyo.kind({
 	]},
 	{kind: "onyx.MoreToolbar", layoutKind: "FittableColumnsLayout", components:[
 	    {kind: "onyx.Button", content: "Tuner On", ontap: "TunerOn"},
-	    {fit: true, style:"display:inline-table; width:100%", components: [
-		{style: "display: table-cell; text-align: center", components:[
-		    {kind: "onyx.Button", style: "display:inline", content: "Switch", ontap: "Switch"},
-		    {name: "status", style: "display:inline", kind: "gx.StatusDisplay"},
-		    {name: "load", style: "display:inline", kind: "gx.LoadDisplay"},
-		]},
-	    ]},
-	    {kind: "onyx.Button", content: "Effects", ontap: "EffectsOn"}
+	    {kind: "onyx.Button", content: "Switch", ontap: "Switch"},
+	    {name: "status", kind: "gx.StatusDisplay"},
+	    {name: "load", kind: "gx.LoadDisplay"},
+	    {name: "fullscreen", kind: "onyx.Button", content: "FS", ontap: "toggleFullscreen"},
+	    {fit: true},
+	    {kind: "onyx.Button", content: "Effects", unmoveable: true, ontap: "EffectsOn"},
 	]},
     ],
-
+    rendered: function() {
+	if (!this.isFullscreenAvailable()) {
+	    this.$.fullscreen.hide();
+	}
+	this.inherited(arguments);
+    },
     setStatus: function(stat) {
 	this.$.status.setStatus(stat);
     },
@@ -105,7 +108,40 @@ enyo.kind({
 	this.$.preset.display_state(statename);
     },
     setRepeat: function(v) {this.$.load.setRepeat(v);},
-    getRepeat: function() {return this.$.load.getRepeat();}
+    getRepeat: function() {return this.$.load.getRepeat();},
+    isFullscreenAvailable: function () {
+	var elem = document.documentElement;
+	return elem.requestFullscreen ||   // W3C incl. Opera
+	elem.webkitRequestFullScreen && ! window.externalHost ||   // not Google Chrome Frame
+	elem.mozRequestFullScreen && ! /Android/.test(window.navigator.userAgent);   // not working in FF17 on TouchPad
+    },
+    toggleFullscreen: function() {
+	var elem = document.documentElement;
+	if (elem.requestFullscreen) {
+	    this.log("using W3C Fullscreen API");
+	    if (document.fullscreenElement) {
+		document.exitFullscreen();
+	    } else {
+		elem.requestFullscreen();
+	    }
+	} else if (elem.webkitRequestFullScreen) {
+	    this.log("using WebKit FullScreen  API");
+	    if (document.webkitIsFullScreen) {
+		document.webkitCancelFullScreen();
+	    } else {
+		elem.webkitRequestFullScreen();
+	    }
+	} else if (elem.mozRequestFullScreen) {
+	    this.log("using Mozilla FullScreen  API");
+	    if (document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreenElement) {
+		document.mozCancelFullScreen();
+	    } else {
+		elem.mozRequestFullScreen();
+	    }
+	} else {
+	    this.log("no fullscreen API");
+	}
+    },
 });
 
 enyo.kind({
@@ -206,7 +242,6 @@ enyo.kind({
 	{name: "led", classes: "led", style: "margin-right: 20px"},
     ],
     overloadChanged: function(old) {
-	//this.$.led.applyStyle("background-color", (this.overload ? "red" : "black"));
 	this.$.led.addRemoveClass("led-on", this.overload);
     },
     start: function() {

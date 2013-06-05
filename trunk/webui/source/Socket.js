@@ -40,11 +40,11 @@ enyo.kind({
     constructed: function() {
     	this.inherited(arguments);
 	this.queue = [];
-	this.createSocket();
+	this.uriChanged();
     },
 
     createSocket: function() {
-    	if ("WebSocket" in window) {
+	if ("WebSocket" in window) {
 	    this.ws = new WebSocket(this.uri);
 	} else if ("MozWebSocket" in window) {
 	    this.ws = newMozWebSocket(this.uri);
@@ -55,6 +55,17 @@ enyo.kind({
 	    this.ws.onmessage = enyo.bind(this, "doMessage");
 	    this.ws.onerror = enyo.bind(this, "doError");
 	}
+    },
+
+    uriChanged: function() {
+	if (this.ws !== null) {
+	    this.ws.close();
+	    this.ws = null;
+	}
+	if (this.uri === null) {
+	    return;
+	}
+	this.createSocket();
     },
 
     socketOpened: function(evt) {
