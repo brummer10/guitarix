@@ -20,6 +20,8 @@ lib_sources = [ # put in static library linked with guitarix
     "zita_rev1.dsp",
     "ts9sim.dsp",
     "flanger_gx.dsp",
+    "mbc.dsp",
+    "mbcs.dsp",
     ]
 
 def build(bld):

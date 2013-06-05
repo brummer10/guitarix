@@ -34,6 +34,8 @@ def build(bld):
         '../plugins/abgate.cc',
         '../plugins/ts9sim.cc',
         '../plugins/flanger_gx.cc',
+        '../plugins/mbc.cc',
+        '../plugins/mbcs.cc',
         ]
     
     src = ['ladspa_guitarix.cpp'] + bsources
