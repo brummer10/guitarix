@@ -31,6 +31,7 @@ def build(bld):
         ]
 
     sources_gui = [
+        './gui/machine.cpp',
         './gui/ladspalist.cpp',
         './gui/gx_stackbox_builder.cpp',
         './gui/gx_main_window.cpp',

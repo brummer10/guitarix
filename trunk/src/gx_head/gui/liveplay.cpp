@@ -60,10 +60,10 @@ bool KeySwitcher::display_selected_bank() {
 
 bool KeySwitcher::display_current() {
     last_bank_key.clear();
-    if (!gx_settings.setting_is_preset()) {
+    if (!machine.setting_is_preset()) {
 	display("----","");
     } else {
-	display(gx_settings.get_current_bank(), gx_settings.get_current_name());
+	display(machine.get_current_bank(), machine.get_current_name());
     }
     return false;
 }
@@ -72,25 +72,25 @@ bool KeySwitcher::process_preset_key(int idx) {
     key_timeout.disconnect();
     Glib::ustring bank = last_bank_key;
     if (bank.empty()) {
-	if (!gx_settings.setting_is_preset()) {
+	if (!machine.setting_is_preset()) {
 	    display_empty("??", gx_system::to_string(idx+1));
 	    return false;
 	}
-	bank = gx_settings.get_current_bank();
+	bank = machine.get_current_bank();
     }
-    gx_system::PresetFile *f = gx_settings.banks.get_file(bank);
+    gx_system::PresetFile *f = machine.get_bank_file(bank);
     if (idx >= f->size()) {
 	display_empty(bank, gx_system::to_string(idx+1)+"?");
 	return false;
     } else {
-	gx_settings.load_preset(f, f->get_name(idx));
+	machine.load_preset(f, f->get_name(idx));
 	return true;
     }
 }
 
 bool KeySwitcher::process_bank_key(int idx) {
     key_timeout.disconnect();
-    Glib::ustring bank = gx_settings.banks.get_name(gx_settings.banks.size() - idx - 1);
+    Glib::ustring bank = machine.get_bank_name(machine.bank_size() - idx - 1);
     if (bank.empty()) {
 	display_empty("--", "--");
 	return false;
@@ -141,7 +141,7 @@ bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *ac
 
 bool Liveplay::on_keyboard_toggle_mute(GtkAccelGroup *accel_group, GObject *acceleratable,
 				       guint keyval, GdkModifierType modifier, Liveplay& self) {
-    self.engine.set_state(self.engine.get_state() == gx_engine::kEngineOff ?
+    self.machine.set_state(self.machine.get_state() == gx_engine::kEngineOff ?
 		     gx_engine::kEngineOn
 		     : gx_engine::kEngineOff);
     return true;
@@ -149,7 +149,7 @@ bool Liveplay::on_keyboard_toggle_mute(GtkAccelGroup *accel_group, GObject *acce
 
 bool Liveplay::on_keyboard_toggle_bypass(GtkAccelGroup *accel_group, GObject *acceleratable,
 				       guint keyval, GdkModifierType modifier, Liveplay& self) {
-    self.engine.set_state(self.engine.get_state() == gx_engine::kEngineBypass ?
+    self.machine.set_state(self.machine.get_state() == gx_engine::kEngineBypass ?
 		     gx_engine::kEngineOn
 		     : gx_engine::kEngineBypass);
     return true;
@@ -157,7 +157,7 @@ bool Liveplay::on_keyboard_toggle_bypass(GtkAccelGroup *accel_group, GObject *ac
 
 bool Liveplay::on_keyboard_mode_switch(GtkAccelGroup *accel_group, GObject *acceleratable,
 				       guint keyval, GdkModifierType modifier, Liveplay& self) {
-    self.set_tuner_switcher_active(!self.tuner_switcher.get_active());
+    self.set_tuner_switcher_active(!self.machine.get_tuner_switcher_active());
     return true;
 }
 
@@ -188,15 +188,15 @@ void Liveplay::set_display_state(TunerSwitcher::SwitcherState newstate) {
 }
 
 void Liveplay::set_tuner_switcher_active(bool v) {
-    if (tuner_switcher.get_active() == v) {
+    if (machine.get_tuner_switcher_active() == v) {
 	return;
     }
     if (v) {
 	liveplay_preset->set_sensitive(false);
-	tuner_switcher.activate(actions.livetuner->get_active());
+	machine.tuner_switcher_activate(actions.livetuner->get_active());
 	actions.livetuner->set_active(false);
     } else {
-	actions.livetuner->set_active(tuner_switcher.deactivate());
+	actions.livetuner->set_active(machine.tuner_switcher_deactivate());
     }
 }
 
@@ -205,7 +205,7 @@ void Liveplay::on_switcher_toggled(bool v) {
 	set_tuner_switcher_active(v);
     } else {
 	if (v) {
-	    set_tuner_switcher_active(!tuner_switcher.get_active());
+	    set_tuner_switcher_active(!machine.get_tuner_switcher_active());
 	}
     }
 }
@@ -260,20 +260,18 @@ bool MyPaintBox::on_expose_event(GdkEventExpose *event) {
 
 
 Liveplay::Liveplay(
-    const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
+    const gx_system::CmdlineOptions& options, gx_engine::GxMachineBase& machine_,
     const std::string& fname, const GxActions& actions_)
     : ui(),
       bld(),
-      engine(engine_),
-      gx_settings(gx_settings_),
+      machine(machine_),
       actions(actions_),
       use_composite(),
       brightness_adj(),
       background_adj(),
-      keyswitch(gx_settings_, sigc::mem_fun(this, &Liveplay::display)),
+      keyswitch(machine_, sigc::mem_fun(this, &Liveplay::display)),
       midi_conn(),
       window(),
-      tuner_switcher(gx_settings_, engine_),
       switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()), //FIXME
       mouse_hide_conn() {
     const char *id_list[] = {"LivePlay", 0};
@@ -394,18 +392,18 @@ Liveplay::Liveplay(
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_space, (GdkModifierType)0, (GtkAccelFlags)0, cl);
     switcher_signal.changed.connect(sigc::mem_fun(this, &Liveplay::on_switcher_toggled));
 
-    tuner_switcher.signal_display().connect(sigc::mem_fun(this, &Liveplay::display));
-    tuner_switcher.signal_set_state().connect(sigc::mem_fun(this, &Liveplay::set_display_state));
-    tuner_switcher.signal_selection_done().connect(sigc::mem_fun(this, &Liveplay::on_selection_changed));
+    machine.tuner_switcher_signal_display().connect(sigc::mem_fun(this, &Liveplay::display));
+    machine.tuner_switcher_signal_set_state().connect(sigc::mem_fun(this, &Liveplay::set_display_state));
+    machine.tuner_switcher_signal_selection_done().connect(sigc::mem_fun(this, &Liveplay::on_selection_changed));
 
     window->add_accel_group(ag);
 
-    engine.signal_state_change().connect(
+    machine.signal_state_change().connect(
 	sigc::mem_fun(this, &Liveplay::on_engine_state_change));
-    gx_settings.signal_selection_changed().connect(
+    machine.signal_selection_changed().connect(
 	sigc::mem_fun(this, &Liveplay::on_selection_changed));
 
-    on_engine_state_change(engine.get_state());
+    on_engine_state_change(machine.get_state());
     on_selection_changed();
 }
 
@@ -443,10 +441,10 @@ void Liveplay::on_engine_state_change(gx_engine::GxEngineState state) {
 void Liveplay::on_selection_changed() {
     keyswitch.deactivate();
     set_tuner_switcher_active(false);
-    if (!gx_settings.setting_is_preset()) {
+    if (!machine.setting_is_preset()) {
 	display("----","");
     } else {
-	display(gx_settings.get_current_bank(), gx_settings.get_current_name());
+	display(machine.get_current_bank(), machine.get_current_name());
     }
 }
 

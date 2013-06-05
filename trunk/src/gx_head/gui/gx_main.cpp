@@ -28,7 +28,6 @@
 #include <gtkmm/main.h>     // NOLINT
 #include <gxwmm/init.h>     // NOLINT
 #include <string>           // NOLINT
-#include <sys/mman.h>
 #include "jsonrpc.h"
 
 /****************************************************************
@@ -346,47 +345,29 @@ MidiControllerList controller_map;
 
 
 //FIXME: join with MainWindow::do_program_change
-void do_program_change(int pgm, gx_preset::GxSettings& gx_settings, gx_engine::GxEngine& engine) {
-    Glib::ustring bank = gx_settings.get_current_bank();
+void do_program_change(int pgm, gx_engine::GxMachineBase& machine) {
+    Glib::ustring bank = machine.get_current_bank();
     bool in_preset = !bank.empty();
     gx_system::PresetFile *f;
     if (in_preset) {
-	f = gx_settings.banks.get_file(bank);
+	f = machine.get_bank_file(bank);
 	in_preset = pgm < f->size();
     }
     if (in_preset) {
-	gx_settings.load_preset(f, f->get_name(pgm));
-	if (engine.get_state() == gx_engine::kEngineBypass) {
-	    engine.set_state(gx_engine::kEngineOn);
+	machine.load_preset(f, f->get_name(pgm));
+	if (machine.get_state() == gx_engine::kEngineBypass) {
+	    machine.set_state(gx_engine::kEngineOn);
 	}
-    } else if (engine.get_state() == gx_engine::kEngineOn) {
-	engine.set_state(gx_engine::kEngineBypass);
+    } else if (machine.get_state() == gx_engine::kEngineOn) {
+	machine.set_state(gx_engine::kEngineBypass);
     }
 }
 
-bool update_all_gui(gx_engine::GxEngine& engine) {
+bool update_all_gui(gx_engine::GxMachineBase& machine) {
     // the general Gui update handler
     gx_ui::GxUI::updateAllGuis();
-    engine.check_module_lists();
+    machine.check_module_lists();
     return true;
-}
-
-static void lock_rt_memory() {
-    extern char __rt_text__start[], __rt_text__end[];
-    extern char __rt_data__start[], __rt_data__end[];
-    struct {
-	char *start;
-	int len;
-    } regions[] = {
-	{ __rt_text__start, __rt_text__end - __rt_text__start },
-	{ __rt_data__start, __rt_data__end - __rt_data__start },
-    };
-    for (unsigned int i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
-	if (mlock(regions[i].start, regions[i].len) != 0) {
-	    throw gx_system::GxFatalError(
-		boost::format(_("failed to lock memory: %1%")) % strerror(errno));
-	}
-    }
 }
 
 static void mainHeadless(int argc, char *argv[]) {
@@ -410,50 +391,35 @@ static void mainHeadless(int argc, char *argv[]) {
 	return;
     }
 
-    gx_engine::GxEngine engine(
-	options.get_plugin_dir(), gx_engine::parameter_map, gx_engine::get_group_table(), options);
+    gx_engine::GxMachine machine(options);
 
-    // ------ initialize parameter list ------
-    gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
-
-    // ------ time measurement (debug) ------
-#ifndef NDEBUG
-    gx_system::add_time_measurement();
-#endif
     gx_jack::GxJack::rt_watchdog_set_limit(options.get_idle_thread_timeout());
-    gx_jack::GxJack jack(engine);
-    lock_rt_memory();
-    engine.set_jack(&jack);
-    gx_preset::GxSettings gx_settings(
-	options, jack, engine.stereo_convolver, gx_engine::midi_std_ctr,
-	gx_engine::controller_map, engine, gx_engine::parameter_map);
-    gx_engine::parameter_map.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
-    gx_settings.loadstate();
+    machine.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
+    machine.loadstate();
     //if (!in_session) {
     //	gx_settings.disable_autosave(options.get_opt_auto_save());
     //}
     gx_engine::controller_map.signal_new_program().connect(
-	sigc::bind(sigc::ptr_fun(do_program_change),sigc::ref(gx_settings),sigc::ref(engine)));
+	sigc::bind(sigc::ptr_fun(do_program_change),sigc::ref(machine)));
 
-    if (! jack.gx_jack_connection(true, true, 0)) {
+    if (! machine.get_jack()->gx_jack_connection(true, true, 0)) {
 	cerr << "can't connect to jack\n";
 	return;
     }
     if (need_new_preset) {
-	gx_settings.create_default_scratch_preset();
+	machine.create_default_scratch_preset();
     }
     // ----------------------- Run Glib main loop ----------------------
-    Glib::signal_timeout().connect(sigc::bind(sigc::ptr_fun(update_all_gui), sigc::ref(engine)), 40);
+    Glib::signal_timeout().connect(sigc::bind(sigc::ptr_fun(update_all_gui), sigc::ref(machine)), 40);
     cout << "Ctrl-C to quit\n";
     Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create();
-    jack.shutdown.connect(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit));
+    machine.get_jack()->shutdown.connect(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit));
     int port = options.get_rpcport();
     if (port == RPCPORT_DEFAULT) {
 	port = 7000;
     }
     if (port != RPCPORT_NONE) {
-	MyService sock(gx_settings, jack, sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), port);
-	sock.start();
+	machine.start_socket(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), port);
 	loop->run();
     } else {
 	loop->run();
@@ -490,36 +456,24 @@ static void mainGtk(int argc, char *argv[]) {
 	dialog.run();
     }
 
-    gx_engine::GxEngine engine(
-	options.get_plugin_dir(), gx_engine::parameter_map, gx_engine::get_group_table(), options);
-    
-    // ------ initialize parameter list ------
-    gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
-    
-    // ------ time measurement (debug) ------
+    gx_engine::GxMachine machine(options);
+#if 0
 #ifndef NDEBUG
-    gx_system::add_time_measurement();
-
     if (argc > 1) {
 	delete Splash;
 	debug_display_glade(engine, options, gx_engine::parameter_map, argv[1]);
 	return;
     }
 #endif
-    lock_rt_memory();
+#endif
     // ----------------------- init GTK interface----------------------
-    MainWindow gui(engine, options, gx_engine::parameter_map, Splash);
+    MainWindow gui(machine, options, Splash);
     if (need_new_preset) {
 	gui.create_default_scratch_preset();
     }
     // ----------------------- run GTK main loop ----------------------
     delete Splash;
     gui.run();
-#ifndef NDEBUG
-    if (options.dump_parameter) {
-	gx_engine::parameter_map.dump("json");
-    }
-#endif
 }
 
 static bool is_headless(int argc, char *argv[]) {

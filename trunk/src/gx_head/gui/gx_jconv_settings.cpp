@@ -31,18 +31,18 @@ namespace gx_jconv {
 */
 
 IRWindow *IRWindow::create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver,
-			   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
+			   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_engine::GxMachineBase& machine,
 			   Glib::RefPtr<Gtk::AccelGroup> accels, int nchan) {
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
-	gx_settings.get_options().get_builder_filepath(nchan == 1 ? "iredit_mono.glade" : "iredit.glade"), &ui);
-    return new IRWindow(bld, convolver, icon, gx_settings, accels, nchan);
+	machine.get_options().get_builder_filepath(nchan == 1 ? "iredit_mono.glade" : "iredit.glade"), &ui);
+    return new IRWindow(bld, convolver, icon, machine, accels, nchan);
 }
 
 /*
  ** Constructor
  */
 
-void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
+void IRWindow::init_connect(const gx_engine::GxMachineBase& machine) {
     builder->find_widget("iredit", wIredit);
     wIredit->signal_delay_changed().connect(sigc::mem_fun(*this,
                                             &IRWindow::on_delay_changed));
@@ -154,14 +154,14 @@ void IRWindow::init_connect(const gx_preset::GxSettings& gx_settings) {
     button->signal_clicked().connect(
 	sigc::bind(
 	    sigc::mem_fun(this, &IRWindow::on_preset_popup_clicked),
-	    sigc::ref(gx_settings)));
+	    sigc::ref(machine)));
 
     gtk_window->signal_key_press_event().connect(
 	sigc::mem_fun(this, &IRWindow::on_key_press_event));
 }
 
 IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::ConvolverAdapter& convolver_,
-		   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
+		   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_engine::GxMachineBase& machine,
 		   Glib::RefPtr<Gtk::AccelGroup> accels, int nchan_)
     : builder(bld),
       filename(),
@@ -179,7 +179,7 @@ IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::Convol
       current_combo_dir() {
     bld->get_toplevel("DisplayIR", gtk_window);
 
-    init_connect(gx_settings);
+    init_connect(machine);
     gtk_window->set_icon(icon);
     gtk_window->add_accel_group(accels);
     convolver.signal_settings_changed().connect(
@@ -627,14 +627,14 @@ void IRWindow::on_ok_button_clicked() {
     gtk_window->hide();
 }
 
-void IRWindow::on_preset_popup_clicked(const gx_preset::GxSettings& gx_settings) {
+void IRWindow::on_preset_popup_clicked(const gx_engine::GxMachineBase& machine) {
     Glib::ustring name = Glib::path_get_basename(filename);
     Glib::ustring::size_type n = name.find_last_of('.');
     if (n != Glib::ustring::npos) {
 	name.erase(n);
     }
     save_state();
-    new PluginPresetPopup(nchan == 1 ? "jconv_mono" : "jconv", gx_settings, name);
+    new PluginPresetPopup(nchan == 1 ? "jconv_mono" : "jconv", machine, name);
 }
 
 void IRWindow::on_help_clicked() {

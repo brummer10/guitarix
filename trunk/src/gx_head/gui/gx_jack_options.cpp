@@ -36,15 +36,15 @@ namespace gx_gui {
  ** class SelectJackControlPgm
  */
 
-SelectJackControlPgm::SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::ParamMap& pmap)
+SelectJackControlPgm::SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::GxMachineBase& m)
     : Gtk::Window(cobject),
       description(),
       customstarter(),
       startercombo(),
       dontask(),
-      starter(pmap["ui.jack_starter_idx"].getInt()),
-      starter_cmd(pmap["ui.jack_starter"].getString()),
-      ask(pmap["ui.ask_for_jack_starter"].getSwitch()),
+      starter(m.get_parameter("ui.jack_starter_idx").getInt()),
+      starter_cmd(m.get_parameter("ui.jack_starter").getString()),
+      ask(m.get_parameter("ui.ask_for_jack_starter").getSwitch()),
       close() {
     signal_delete_event().connect(sigc::mem_fun(*this, &SelectJackControlPgm::on_delete_event));
     bld->find_widget("description", description);
@@ -78,11 +78,11 @@ SelectJackControlPgm::~SelectJackControlPgm() {
 }
 
 //static
-SelectJackControlPgm* SelectJackControlPgm::create(gx_ui::GxUI *ui, gx_system::CmdlineOptions& opt, gx_engine::ParamMap& pmap) {
+SelectJackControlPgm* SelectJackControlPgm::create(gx_ui::GxUI *ui, gx_system::CmdlineOptions& opt, gx_engine::GxMachineBase& m) {
     Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_file(opt.get_builder_filepath("jackstarter.glade"), ui);
     SelectJackControlPgm *w;
     bld->get_toplevel_derived("selectjackstarter", w,
-			    sigc::bind(sigc::ptr_fun(SelectJackControlPgm::create_from_builder), bld, sigc::ref(pmap)));
+			    sigc::bind(sigc::ptr_fun(SelectJackControlPgm::create_from_builder), bld, sigc::ref(m)));
     return w;
 }
 
@@ -146,11 +146,15 @@ void ReportXrun::run() {
 	return;
     }
     blocked = true;
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return;
+    }
     Glib::signal_timeout().connect_once(sigc::mem_fun(*this, &ReportXrun::clear), 100);
     gx_system::gx_print_warning(
 	_("Jack XRun"),
 	(boost::format(_(" delay of at least %1% microsecs"))
-	 % jack.get_last_xrun()).str());
+	 % jack->get_last_xrun()).str());
 }
 
 /****************************************************************

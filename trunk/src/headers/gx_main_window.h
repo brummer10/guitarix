@@ -79,7 +79,7 @@ typedef UiRadioAction<gx_engine::SwitchParameter> UiSwitchRadioAction;
 
 class KeySwitcher: public sigc::trackable {
 private:
-    gx_preset::GxSettings& gx_settings;
+    gx_engine::GxMachineBase& machine;
     sigc::slot<void, const Glib::ustring&, const Glib::ustring&> display;
     sigc::connection key_timeout;
     Glib::ustring last_bank_key;
@@ -88,9 +88,9 @@ private:
     bool display_selected_bank();
     bool display_current();
 public:
-    KeySwitcher(gx_preset::GxSettings& gx_settings_,
+    KeySwitcher(gx_engine::GxMachineBase& machine_,
 		sigc::slot<void, const Glib::ustring&, const Glib::ustring&> display_)
-	: gx_settings(gx_settings_), display(display_) {}
+	: machine(machine_), display(display_) {}
     bool process_bank_key(int idx);
     bool process_preset_key(int idx);
     void display_key_error();
@@ -106,8 +106,7 @@ class Liveplay: public sigc::trackable {
 private:
     gx_ui::GxUI ui;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
-    gx_engine::GxEngine &engine;
-    gx_preset::GxSettings& gx_settings;
+    gx_engine::GxMachineBase &machine;
     const GxActions& actions;
     bool use_composite;
     Gtk::Adjustment *brightness_adj;
@@ -115,7 +114,6 @@ private:
     KeySwitcher keyswitch;
     sigc::connection midi_conn;
     Gtk::Window *window;
-    TunerSwitcher tuner_switcher;
     gx_ui::UiSignal<bool> switcher_signal;
     sigc::connection mouse_hide_conn;
     //
@@ -163,9 +161,8 @@ private:
     void display(const Glib::ustring& bank, const Glib::ustring& preset);
     void set_tuner_switcher_active(bool v);
     void set_display_state(TunerSwitcher::SwitcherState s);
-    friend class TunerSwitcher;
 public:
-    Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxEngine& engine, gx_preset::GxSettings& gx_settings,
+    Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxMachineBase& machine,
 	     const std::string& fname, const GxActions& actions);
     ~Liveplay();
     void on_live_play(Glib::RefPtr<Gtk::ToggleAction> act);
@@ -209,7 +206,7 @@ public:
     bool hidden;
     bool compressed;
 
-    PluginUI(MainWindow& main, const gx_engine::PluginList& pl, const char* id_,
+    PluginUI(MainWindow& main, const gx_engine::GxMachineBase& m, const char* id_,
 	     const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
     virtual ~PluginUI();
     PluginType get_type() const {
@@ -224,7 +221,7 @@ public:
     void unset_ui_merge_id(Glib::RefPtr<Gtk::UIManager> uimanager);
     void set_action(Glib::RefPtr<Gtk::ToggleAction>& act);
     Glib::RefPtr<Gtk::ToggleAction> get_action() { return action; }
-    static bool is_registered(gx_engine::PluginList& pl, const char *name);
+    static bool is_registered(gx_engine::GxMachineBase& m, const char *name);
     virtual void on_plugin_preset_popup();
     inline const char *get_category() {
 	const char *cat = plugin->pdef->category;
@@ -517,7 +514,7 @@ public:
 class PluginPresetPopup: public Gtk::Menu {
 private:
     const std::string id;
-    const gx_preset::GxSettings& gx_settings;
+    const gx_engine::GxMachineBase& machine;
     const Glib::ustring save_name_default;
     void set_plugin_std_preset();
     static void set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Glib::ustring name);
@@ -527,7 +524,7 @@ private:
 protected:
     virtual void on_selection_done();
 public:
-    PluginPresetPopup(const std::string& id, const gx_preset::GxSettings& gx_settings,
+    PluginPresetPopup(const std::string& id, const gx_engine::GxMachineBase& machine,
 		      const Glib::ustring& save_name_default = "");
 };
 
@@ -622,10 +619,7 @@ private:
     Glib::RefPtr<Gtk::ActionGroup> preset_list_actiongroup;
     Glib::RefPtr<Gtk::UIManager> uimanager;
     gx_system::CmdlineOptions& options;
-    gx_engine::ParamMap&  pmap;
-    gx_engine::GxEngine&  engine;
-    gx_jack::GxJack       jack;
-    gx_preset::GxSettings gx_settings;
+    gx_engine::GxMachineBase&  machine;
     Liveplay *live_play;
     PresetWindow *preset_window;
     Gxw::WaveView fWaveView;
@@ -818,8 +812,7 @@ private:
     bool on_quit();
     void amp_controls_visible(Gtk::Range *rr);
 public:
-    MainWindow(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
-	       gx_engine::ParamMap& pmap, Gtk::Window *splash);
+    MainWindow(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options, Gtk::Window *splash);
     ~MainWindow();
     void hide_effect(const std::string& name);
     RackContainer& get_monorackcontainer() { return monorackcontainer; }
@@ -833,15 +826,14 @@ public:
     gx_ui::GxUI& get_ui() { return ui; }
     void plugin_preset_popup(const std::string& id);
     void plugin_preset_popup(const std::string& id, const Glib::ustring& name);
-    gx_engine::ParamMap& get_parametermap() { return pmap; }
-    gx_engine::GxEngine& get_engine() { return engine; }
-    bool is_loading() { return gx_settings.is_loading(); }
+    gx_engine::GxMachineBase& get_machine() { return machine; }
+    bool is_loading() { return machine.settings_is_loading(); }
     void add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
     void set_rackbox_expansion();
     double stop_at_stereo_bottom(double off, double step_size, double pagesize);
     double stop_at_mono_top(double off, double step_size);
     bool use_animations() { return actions.animations->get_active(); }
-    void create_default_scratch_preset() { gx_settings.create_default_scratch_preset(); }
+    void create_default_scratch_preset() { machine.create_default_scratch_preset(); }
     void resize_finished(RackContainer *ch);
     void update_width();
 };

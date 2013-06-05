@@ -279,7 +279,7 @@ void StackBoxBuilder::make_rackbox_tonemodul() {
 }
 
 void StackBoxBuilder::make_rackbox_jconv() {
-    static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, engine.stereo_convolver, window_icon, gx_settings, accels, 2);
+    static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, machine.get_stereo_convolver(), window_icon, machine, accels, 2);
     openHorizontalhideBox("");
 	create_master_slider("jconv.wet_dry", _("Dry/Wet"));
     openSpaceBox("");

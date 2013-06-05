@@ -42,8 +42,7 @@ private:
     int                  fTop;
     GtkWidget*           fBox[stackSize];
     int                  fMode[stackSize];
-    gx_engine::GxEngine& engine;
-    gx_preset::GxSettings& gx_settings;
+    gx_engine::GxMachineBase& machine;
     Gxw::WaveView&       fWaveView;
     Gtk::Label&          convolver_filename_label;
     Gtk::Label&          convolver_mono_filename_label;
@@ -176,7 +175,7 @@ private:
     friend class UiBuilderImpl;
 public:
     StackBoxBuilder(
-	gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
+	gx_engine::GxMachineBase& machine_,
 	Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
 	Gtk::Label& convolver_mono_filename_label_, gx_ui::GxUI& ui,
 	Glib::RefPtr<Gdk::Pixbuf> window_icon);

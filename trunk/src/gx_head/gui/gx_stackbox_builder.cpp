@@ -129,11 +129,11 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
  */
 
 StackBoxBuilder::StackBoxBuilder(
-    gx_engine::GxEngine& engine_, gx_preset::GxSettings& gx_settings_,
+    gx_engine::GxMachineBase& machine_,
     Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
     Gtk::Label &convolver_mono_filename_label_, gx_ui::GxUI& ui_,
     Glib::RefPtr<Gdk::Pixbuf> window_icon_)
-    : fTop(0), fBox(), fMode(), engine(engine_), gx_settings(gx_settings_),
+    : fTop(0), fBox(), fMode(), machine(machine_),
       fWaveView(fWaveView_), convolver_filename_label(convolver_filename_label_),
       convolver_mono_filename_label(convolver_mono_filename_label_),
       widget(), ui(ui_), accels(), window_icon(window_icon_) {
@@ -296,11 +296,11 @@ void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWind
 }
 
 void StackBoxBuilder::set_convolver_filename() {
-    convolver_filename_label.set_label(engine.stereo_convolver.getIRFile());
+    convolver_filename_label.set_label(machine.conv_getIRFile("jconv"));
 }
 
 void StackBoxBuilder::set_convolver_mono_filename() {
-    convolver_mono_filename_label.set_label(engine.mono_convolver.getIRFile());
+    convolver_mono_filename_label.set_label(machine.conv_getIRFile("jconv_mono"));
 }
 
 void StackBoxBuilder::openSetLabelBox() {
@@ -315,8 +315,8 @@ void StackBoxBuilder::openSetLabelBox() {
     convolver_filename_label.modify_font(font);
     box->pack_start(convolver_filename_label, false, false, 0);
     box->show_all();
-    convolver_filename_label.set_label(engine.stereo_convolver.getIRFile());
-    engine.stereo_convolver.signal_settings_changed().connect(
+    convolver_filename_label.set_label(machine.conv_getIRFile("jconv"));
+    machine.signal_conv_settings_changed("jconv").connect(
 	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_filename));
     gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->gobj()), false, fill, 0);
     pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
@@ -334,8 +334,8 @@ void StackBoxBuilder::openSetMonoLabelBox() {
     convolver_mono_filename_label.modify_font(font);
     box->pack_start(convolver_mono_filename_label, true, false, 0);
     box->show_all();
-    convolver_mono_filename_label.set_label(engine.mono_convolver.getIRFile());
-    engine.mono_convolver.signal_settings_changed().connect(
+    convolver_mono_filename_label.set_label(machine.conv_getIRFile("jconv_mono"));
+    machine.signal_conv_settings_changed("jconv_mono").connect(
 	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_mono_filename));
     gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->gobj()), true, true, 0);
     pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
@@ -361,7 +361,7 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
 }
 
 void StackBoxBuilder::create_selector(string id, const char *widget_name) {
-    gx_engine::Parameter& p = gx_settings.get_param()[id];
+    gx_engine::Parameter& p = machine.get_parameter(id);
     UiSelectorBase *s;
     if (p.isFloat()) {
         s = new UiSelector<float>(ui, p.getFloat());
@@ -377,7 +377,7 @@ void StackBoxBuilder::create_selector(string id, const char *widget_name) {
 }
 
 void StackBoxBuilder::create_selector_with_caption(string id, const char *label) {
-    gx_engine::Parameter& p = gx_settings.get_param()[id];
+    gx_engine::Parameter& p = machine.get_parameter(id);
     UiSelectorBase *s;
     if (p.isFloat()) {
         s = new UiSelectorWithCaption<float>(ui, p.getFloat(), label);
@@ -520,10 +520,10 @@ void StackBoxBuilder::addNumEntry(const char* label, float* zone, float init, fl
 
 void StackBoxBuilder::addNumEntry(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!gx_settings.get_param().hasId(id)) {
+    if (!machine.parameter_hasId(id)) {
         return;
     }
-    const gx_engine::FloatParameter &p = gx_settings.get_param()[id].getFloat();
+    const gx_engine::FloatParameter &p = machine.get_parameter(id).getFloat();
     if (label.empty()) {
         label = p.l_name();
     }
@@ -570,10 +570,10 @@ void StackBoxBuilder::addMToggleButton(const char* label, bool* zone) {
 
 void StackBoxBuilder::addMToggleButton(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!gx_settings.get_param().hasId(id)) {
+    if (!machine.parameter_hasId(id)) {
         return;
     }
-    const gx_engine::BoolParameter &p = gx_settings.get_param()[id].getBool();
+    const gx_engine::BoolParameter &p = machine.get_parameter(id).getBool();
     if (label.empty()) {
         label = p.l_name();
     }
@@ -666,10 +666,10 @@ void StackBoxBuilder::openpaintampBox(const char* label) {
 
 void StackBoxBuilder::addCheckButton(string id, const char* label_) {
     Glib::ustring label(label_);
-    if (!gx_settings.get_param().hasId(id)) {
+    if (!machine.parameter_hasId(id)) {
         return;
     }
-    const gx_engine::BoolParameter &p = gx_settings.get_param()[id].getBool();
+    const gx_engine::BoolParameter &p = machine.get_parameter(id).getBool();
     if (label.empty()) {
         label = p.l_name();
     }

@@ -596,15 +596,15 @@ void MainWindow::rebuild_preset_menu() {
 	preset_list_merge_id = 0;
 	preset_list_actiongroup.reset();
     }
-    if (!gx_settings.setting_is_preset()) {
+    if (!machine.setting_is_preset()) {
 	return;
     }
-    gx_system::PresetFile *pf = gx_settings.get_current_bank_file();
+    gx_system::PresetFile *pf = machine.get_current_bank_file();
     if (!pf) {
 	return;
     }
     preset_list_actiongroup = Gtk::ActionGroup::create("PresetList");
-    preset_list_menu_bank = gx_settings.get_current_bank();
+    preset_list_menu_bank = machine.get_current_bank();
     Glib::ustring s = "<menubar><menu action=\"PresetsMenu\"><menu action=\"PresetListMenu\">";
     int idx = 0;
     for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
@@ -630,11 +630,11 @@ void MainWindow::rebuild_preset_menu() {
 void MainWindow::show_selected_preset() {
     keyswitch.deactivate();
     Glib::ustring t;
-    if (gx_settings.setting_is_preset()) {
-	t = gx_settings.get_current_bank() + " / " + gx_settings.get_current_name();
-	if (preset_list_menu_bank != gx_settings.get_current_bank()) {
+    if (machine.setting_is_preset()) {
+	t = machine.get_current_bank() + " / " + machine.get_current_name();
+	if (preset_list_menu_bank != machine.get_current_bank()) {
 	    rebuild_preset_menu();
-	}	    
+	}
     }
     preset_status->set_text(t);
 }
@@ -1087,11 +1087,15 @@ void MainWindow::on_portmap_response(int) {
 }
 
 void MainWindow::on_portmap_activate() {
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return;
+    }
     if (actions.jackports->get_active()) {
 	if (portmap_window) {
 	    return;
 	}
-	portmap_window = gx_portmap::PortMapWindow::create(jack, ui, actions.accels);
+	portmap_window = gx_portmap::PortMapWindow::create(*jack, ui, actions.accels);
 	portmap_window->signal_response().connect(
 	    sigc::mem_fun(*this, &MainWindow::on_portmap_response));
     } else {
@@ -1104,7 +1108,7 @@ void MainWindow::on_portmap_activate() {
 }
 
 void MainWindow::on_miditable_toggle() {
-    gx_main_midi::MidiControllerTable::toggle(pmap, actions.midicontroller);
+    gx_main_midi::MidiControllerTable::toggle(machine, actions.midicontroller);
 }
 
 void MainWindow::change_skin(Glib::RefPtr<Gtk::RadioAction> action) {
@@ -1148,7 +1152,7 @@ void MainWindow::add_skin_menu() {
     uimanager->add_ui_from_string(s);
     skin_labels[idx].value_id = 0;
     skin_labels[idx].value_label = 0;
-    pmap.reg_non_midi_enum_par("ui.skin_name", "?ui.skin_name", skin_labels, &skin, false, 6);
+    machine.reg_non_midi_enum_par("ui.skin_name", "?ui.skin_name", skin_labels, &skin, false, 6);
 }
 
 enum GxJackLatencyChange {
@@ -1225,7 +1229,11 @@ int MainWindow::gx_wait_latency_warn() {
 
 void MainWindow::change_latency(Glib::RefPtr<Gtk::RadioAction> action) {
     // are we a proper jack gxjack.client ?
-    if (!jack.client) {
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return;
+    }
+    if (!jack->client) {
         gx_system::gx_print_error(
             _("Jack Buffer Size setting"),
             _("we are not a jack gxjack.client, server may be down")
@@ -1233,21 +1241,21 @@ void MainWindow::change_latency(Glib::RefPtr<Gtk::RadioAction> action) {
         return;
     }
     jack_nframes_t buf_size = action->get_current_value();
-    if (buf_size == jack.get_jack_bs()) {
+    if (buf_size == jack->get_jack_bs()) {
         return;
     }
     if (!no_warn_latency && gx_wait_latency_warn() != kChangeLatency) {
 	Glib::signal_idle().connect_once(
 	    sigc::bind(
-		sigc::mem_fun(action.operator->(), &Gtk::RadioAction::set_current_value), jack.get_jack_bs()));
+		sigc::mem_fun(action.operator->(), &Gtk::RadioAction::set_current_value), jack->get_jack_bs()));
     } else {
-        if (jack_set_buffer_size(jack.client, buf_size) != 0)
+        if (jack_set_buffer_size(jack->client, buf_size) != 0)
             gx_system::gx_print_warning(_("Setting Jack Buffer Size"),
 					_("Could not change latency"));
     }	
     gx_system::gx_print_info(
 	_("Jack Buffer Size"),
-	boost::format(_("latency is %1%")) % jack_get_buffer_size(jack.client));
+	boost::format(_("latency is %1%")) % jack_get_buffer_size(jack->client));
 }
 
 void MainWindow::add_latency_menu() {
@@ -1272,11 +1280,15 @@ void MainWindow::add_latency_menu() {
     }
     s.append("</menu></menu></menubar>");
     uimanager->add_ui_from_string(s);
-    pmap.reg_non_midi_par("ui.latency_nowarn", &no_warn_latency, false, false);
+    machine.reg_non_midi_par("ui.latency_nowarn", &no_warn_latency, false, false);
 }
 
 void MainWindow::set_latency() {
-    jack_nframes_t n = jack.get_jack_bs();
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return;
+    }
+    jack_nframes_t n = jack->get_jack_bs();
     if (n > 0) {
 	actions.latency->set_current_value(n);
     }
@@ -1336,7 +1348,7 @@ void MainWindow::on_select_jack_control() {
     if (select_jack_control) {
 	select_jack_control->present();
     } else {
-	select_jack_control = gx_gui::SelectJackControlPgm::create(&ui, options, pmap);
+	select_jack_control = gx_gui::SelectJackControlPgm::create(&ui, options, machine);
 	select_jack_control->signal_close().connect(
 	    sigc::mem_fun(*this, &MainWindow::delete_select_jack_control));
 	select_jack_control->set_transient_for(*window);
@@ -1371,12 +1383,12 @@ void MainWindow::on_engine_toggled() {
     } else {
 	s = gx_engine::kEngineOn;
     }
-    engine.set_state(s);
+    machine.set_state(s);
 }
 
 void MainWindow::set_switcher_controller() {
     if (!gx_engine::controller_map.get_config_mode()) {
-	new gx_main_midi::MidiConnect(0, pmap["ui.live_play_switcher"]);
+	new gx_main_midi::MidiConnect(0, machine.get_parameter("ui.live_play_switcher"));
     }
 }
 
@@ -1407,15 +1419,18 @@ void MainWindow::on_midi_out_channel_toggled(Gtk::RadioButton *rb, Gtk::Containe
 }
 
 void MainWindow::create_actions() {
+    gx_jack::GxJack *jack = machine.get_jack();
     actions.group = Gtk::ActionGroup::create("Main");
     /*
     ** Menu actions
     */
     actions.group->add(Gtk::Action::create("EngineMenu",_("_Engine")));
-    actions.jack_latency_menu = Gtk::Action::create("JackLatency",_("_Latency"));
-    actions.group->add(actions.jack_latency_menu);
-    actions.osc_buffer_menu = Gtk::Action::create("OscBuffer",_("Osc. Buffer-size"));
-    actions.group->add(actions.osc_buffer_menu);
+    if (jack) {
+	actions.jack_latency_menu = Gtk::Action::create("JackLatency",_("_Latency"));
+	actions.group->add(actions.jack_latency_menu);
+	actions.osc_buffer_menu = Gtk::Action::create("OscBuffer",_("Osc. Buffer-size"));
+	actions.group->add(actions.osc_buffer_menu);
+    }
     actions.group->add(Gtk::Action::create("PresetsMenu",_("_Presets")));
     actions.group->add(Gtk::Action::create("PresetListMenu","--"));
     actions.group->add(Gtk::Action::create("PluginsMenu",_("P_lugins")));
@@ -1429,15 +1444,17 @@ void MainWindow::create_actions() {
     /*
     ** engine actions
     */
-    actions.jackserverconnection = Gtk::ToggleAction::create("JackServerConnection", _("Jack Server _Connection"));
-    actions.group->add(
-	actions.jackserverconnection,
-	sigc::mem_fun(*this, &MainWindow::jack_connection));
+    if (jack) {
+	actions.jackserverconnection = Gtk::ToggleAction::create("JackServerConnection", _("Jack Server _Connection"));
+	actions.group->add(
+	    actions.jackserverconnection,
+	    sigc::mem_fun(*this, &MainWindow::jack_connection));
 
-    actions.jackports = Gtk::ToggleAction::create("JackPorts", _("Jack _Ports"));
-    actions.group->add(
-	actions.jackports,
-	sigc::mem_fun(*this, &MainWindow::on_portmap_activate));
+	actions.jackports = Gtk::ToggleAction::create("JackPorts", _("Jack _Ports"));
+	actions.group->add(
+	    actions.jackports,
+	    sigc::mem_fun(*this, &MainWindow::on_portmap_activate));
+    }
 
     actions.midicontroller = Gtk::ToggleAction::create("MidiController", _("M_idi Controller"));
     actions.group->add(
@@ -1463,17 +1480,17 @@ void MainWindow::create_actions() {
     ** actions to open other (sub)windows
     */
     actions.presets = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_presets", false, false), "Presets",_("_Preset Selection"));
+	ui, *machine.reg_switch("system.show_presets", false, false), "Presets",_("_Preset Selection"));
     actions.group->add(actions.presets, 
 		     sigc::mem_fun(*this, &MainWindow::on_preset_action));
 
     actions.show_plugin_bar = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_toolbar", false, false), "ShowPluginBar",_("Show Plugin _Bar"));
+	ui, *machine.reg_switch("system.show_toolbar", false, false), "ShowPluginBar",_("Show Plugin _Bar"));
     actions.group->add(actions.show_plugin_bar,
 		     sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
 
     actions.show_rack = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_rack", false, false), "ShowRack",_("Show _Rack"));
+	ui, *machine.reg_switch("system.show_rack", false, false), "ShowRack",_("Show _Rack"));
     actions.group->add(actions.show_rack,
 		     sigc::mem_fun(*this, &MainWindow::on_show_rack));
 
@@ -1486,17 +1503,19 @@ void MainWindow::create_actions() {
     actions.group->add(actions.live_play,
 		     sigc::mem_fun(*this, &MainWindow::on_live_play));
 
-    actions.meterbridge = Gtk::ToggleAction::create("Meterbridge", _("_Meterbridge"));
-    actions.group->add(
-	actions.meterbridge,
-	sigc::bind(sigc::ptr_fun(gx_child_process::Meterbridge::start_stop),
-		   sigc::ref(actions.meterbridge), sigc::ref(jack)));
+    if (jack) {
+	actions.meterbridge = Gtk::ToggleAction::create("Meterbridge", _("_Meterbridge"));
+	actions.group->add(
+	    actions.meterbridge,
+	    sigc::bind(sigc::ptr_fun(gx_child_process::Meterbridge::start_stop),
+		       sigc::ref(actions.meterbridge), sigc::ref(*jack)));
+    }
 
     actions.livetuner = UiBoolToggleAction::create(
-	ui, *pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false), "LiveTuner", "??");
+	ui, *machine.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false), "LiveTuner", "??");
 
     actions.midi_out = UiBoolToggleAction::create(
-	ui, gx_engine::parameter_map["ui.midi_out"].getBool(), "MidiOut", _("M_idi Out"));
+	ui, machine.get_parameter("ui.midi_out").getBool(), "MidiOut", _("M_idi Out"));
     actions.group->add(
 	actions.midi_out,
 	sigc::mem_fun(this, &MainWindow::on_show_midi_out));
@@ -1511,7 +1530,7 @@ void MainWindow::create_actions() {
     ** rack actions
     */
     actions.tuner = UiBoolToggleAction::create(
-	ui, *pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false), "Tuner",_("_Tuner"));
+	ui, *machine.reg_non_midi_par("system.show_tuner", (bool*)0, false), "Tuner",_("_Tuner"));
     actions.group->add(actions.tuner,
 		     sigc::mem_fun(*this, &MainWindow::on_show_tuner));
 
@@ -1528,7 +1547,7 @@ void MainWindow::create_actions() {
 		     sigc::mem_fun(*this, &MainWindow::on_expand_all));
 
     actions.rackh = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.order_rack_h", false, false), "RackH", _("Order Rack _Horizontally"));
+	ui, *machine.reg_switch("system.order_rack_h", false, false), "RackH", _("Order Rack _Horizontally"));
     actions.group->add(actions.rackh,
 		     sigc::mem_fun(*this, &MainWindow::on_dir_changed));
 
@@ -1536,19 +1555,19 @@ void MainWindow::create_actions() {
     ** option actions
     */
     actions.show_values = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_value", false, false), "ShowValues",_("_Show _Values"));
+	ui, *machine.reg_switch("system.show_value", false, false), "ShowValues",_("_Show _Values"));
     actions.group->add(actions.show_values,
 		     sigc::mem_fun(*this, &MainWindow::on_show_values));
 
     actions.tooltips = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.show_tooltips", false, true), "ShowTooltips", _("Show _Tooltips"), "", true);
+	ui, *machine.reg_switch("system.show_tooltips", false, true), "ShowTooltips", _("Show _Tooltips"), "", true);
     actions.group->add(
 	actions.tooltips,
 	sigc::compose(sigc::ptr_fun(set_tooltips),
 		      sigc::mem_fun(actions.tooltips.operator->(), &UiSwitchToggleAction::get_active)));
 
     actions.midi_in_presets = UiSwitchToggleAction::create(
-	ui, *pmap.reg_switch("system.midi_in_preset", false, false), "MidiInPresets", _("Include MIDI in _presets"));
+	ui, *machine.reg_switch("system.midi_in_preset", false, false), "MidiInPresets", _("Include MIDI in _presets"));
     actions.group->add(actions.midi_in_presets);
 
     actions.jackstartup = Gtk::Action::create("JackStartup", _("_Jack Startup Control"));
@@ -1562,17 +1581,17 @@ void MainWindow::create_actions() {
 	sigc::mem_fun(this, &MainWindow::on_load_ladspa));
 
     actions.group->add(Gtk::Action::create("ResetAll", _("Reset _All Parameters")),
-		       sigc::mem_fun(pmap, &gx_engine::ParamMap::set_init_values));
+		       sigc::mem_fun(machine, &gx_engine::GxMachineBase::set_init_values));
 
     actions.animations = UiBoolToggleAction::create(
-	ui, *pmap.reg_non_midi_par("system.animations", (bool*)0, false, true), "Animations", _("_Use Animations"),"",true);
+	ui, *machine.reg_non_midi_par("system.animations", (bool*)0, false, true), "Animations", _("_Use Animations"),"",true);
     actions.group->add(actions.animations);
 
-    pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
+    machine.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
     actions.group->add(Gtk::Action::create("SetPresetSwitcher", _("L_iveplay Midi Switch")),
 		     sigc::mem_fun(this, &MainWindow::set_switcher_controller));
-    pmap.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
-    pmap.reg_par_non_preset("ui.liveplay_background", "?liveplay_background", 0, 0.8, 0.0, 1.0, 0.01);
+    machine.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
+    machine.reg_par_non_preset("ui.liveplay_background", "?liveplay_background", 0, 0.8, 0.0, 1.0, 0.01);
 
     /*
     ** Help and About
@@ -1629,11 +1648,11 @@ int get_current_workarea_height() {
 #endif
 
 void MainWindow::plugin_preset_popup(const std::string& id) {
-    new PluginPresetPopup(id, gx_settings);
+    new PluginPresetPopup(id, machine);
 }
 
 void MainWindow::plugin_preset_popup(const std::string& id, const Glib::ustring& name) {
-    new PluginPresetPopup(id, gx_settings, name);
+    new PluginPresetPopup(id, machine, name);
 }
 
 void MainWindow::clear_box(Gtk::Container& box) {
@@ -1687,18 +1706,16 @@ void MainWindow::make_icons(bool force) {
 
 class JConvPluginUI: public PluginUI {
 private:
-    gx_engine::ConvolverAdapter& conv;
     virtual void on_plugin_preset_popup();
 public:
-    JConvPluginUI(MainWindow& main, const gx_engine::PluginList& pl, const char* id,
-		  gx_engine::ConvolverAdapter& conv_, const Glib::ustring& fname="",
-		  const Glib::ustring& tooltip="")
-	: PluginUI(main, pl, id, fname, tooltip), conv(conv_) {
+    JConvPluginUI(MainWindow& main, const gx_engine::GxMachineBase& m, const char* id,
+		  const Glib::ustring& fname="", const Glib::ustring& tooltip="")
+	: PluginUI(main, m, id, fname, tooltip) {
     }
 };
 
 void JConvPluginUI::on_plugin_preset_popup() {
-    Glib::ustring name = Glib::path_get_basename(conv.getIRFile());
+    Glib::ustring name = Glib::path_get_basename(main.get_machine().conv_getIRFile(get_id()));
     Glib::ustring::size_type n = name.find_last_of('.');
     if (n != Glib::ustring::npos) {
 	name.erase(n);
@@ -1720,10 +1737,10 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 	typedef gx_engine::LadspaLoader::pluginarray pluginarray;
 	pluginarray ml;
 	// load plugindesc list
-	engine.ladspaloader.load(options, ml);
+	machine.ladspaloader_load(options, ml);
 	// look for removed and changed plugins
 	std::vector<gx_engine::Plugin*> to_remove;
-	for (pluginarray::iterator i = engine.ladspaloader.begin(); i != engine.ladspaloader.end(); ++i) {
+	for (pluginarray::iterator i = machine.ladspaloader_begin(); i != machine.ladspaloader_end(); ++i) {
 	    PluginUI *pui = plugin_dict[(*i)->id_str];
 	    pluginarray::iterator j = find_plugin(ml, *i);
 	    if (j == ml.end()) {
@@ -1734,14 +1751,14 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 		pui->plugin->on_off = false;
 		to_remove.push_back(pui->plugin);
 	    } else {
-		engine.ladspaloader.update_instance(pui->plugin->pdef, *j);
+		machine.ladspaloader_update_instance(pui->plugin->pdef, *j);
 		PluginDef *pd = pui->plugin->pdef;
 		if (pd->register_params) {
-		    pmap.set_replace_mode(true);
-		    gx_engine::ParamRegImpl preg(&pmap);
+		    machine.set_replace_mode(true);
+		    gx_engine::ParamRegImpl preg(&gx_engine::parameter_map);
 		    preg.plugin = pd;
 		    pd->register_params(preg);
-		    pmap.set_replace_mode(false);
+		    machine.set_replace_mode(false);
 		}
 		pui->update_rackbox();
 		if ((*j)->category != (*i)->category) {
@@ -1753,37 +1770,37 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 	    }
 	}
 	// update engine for plugins to be removed
-	engine.update_module_lists();
-	engine.mono_chain.release();
-	engine.stereo_chain.release();
+	machine.update_module_lists();
+	machine.mono_chain_release();
+	machine.stereo_chain_release();
 	// remove plugins
 	for (std::vector<gx_engine::Plugin*>::iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
-	    engine.pluginlist.delete_module(*i, pmap, gx_engine::get_group_table());
+	    machine.pluginlist_delete_module(*i);
 	}
 	// add new plugins (engine)
 	std::vector<PluginDef *> pv;
 	for (pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
-	    if (engine.ladspaloader.find((*i)->UniqueID) == engine.ladspaloader.end()) {
-		PluginDef *plugin = engine.ladspaloader.create(*i);
+	    if (machine.ladspaloader_find((*i)->UniqueID) == machine.ladspaloader_end()) {
+		PluginDef *plugin = machine.ladspaloader_create(*i);
 		if (plugin) {
-		    engine.pluginlist.add(plugin);
+		    machine.pluginlist_add(plugin);
 		    pv.push_back(plugin);
 		}
 	    }
 	}
 	// update ladspaloader with new list
-	engine.ladspaloader.set_plugins(ml);
+	machine.ladspaloader_set_plugins(ml);
 	// add new plugins (UI)
 	std::vector<PluginUI*> p;
 	gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p);
-	engine.pluginlist.append_rack(builder);
+	machine.pluginlist_append_rack(builder);
 	std::sort(p.begin(), p.end(), plugins_by_name_less);
 	for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
 	    register_plugin(*v);
-	    engine.pluginlist.registerPlugin((*v)->plugin, pmap, gx_engine::get_group_table());
+	    machine.pluginlist_registerPlugin((*v)->plugin);
 	}
 	for (std::vector<PluginDef*>::iterator i = pv.begin(); i != pv.end(); ++i) {
-	    (*i)->set_samplerate(engine.get_samplerate(), *i);
+	    (*i)->set_samplerate(machine.get_samplerate(), *i);
 	}
 	make_icons(true); // re-create all icons, width might have changed
     }
@@ -1810,10 +1827,10 @@ void MainWindow::on_load_ladspa() {
 }
 
 void MainWindow::add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
-    if (PluginUI::is_registered(engine.pluginlist, id)) {
+    if (PluginUI::is_registered(machine, id)) {
 	return;
     }
-    p.push_back(new PluginUI(*this, engine.pluginlist, id, fname, tooltip));
+    p.push_back(new PluginUI(*this, machine, id, fname, tooltip));
 }
 
 #ifdef accel_keys_for_plugins
@@ -1918,11 +1935,11 @@ void MainWindow::fill_pluginlist() {
     add_plugin_category(N_("Misc"));
 
     std::vector<PluginUI*> p;
-    p.push_back(new JConvPluginUI(*this, engine.pluginlist, "jconv", engine.stereo_convolver));
-    p.push_back(new JConvPluginUI(*this, engine.pluginlist, "jconv_mono", engine.mono_convolver));
+    p.push_back(new JConvPluginUI(*this, machine, "jconv"));
+    p.push_back(new JConvPluginUI(*this, machine, "jconv_mono"));
 
     gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p);
-    engine.pluginlist.append_rack(builder);
+    machine.pluginlist_append_rack(builder);
 
     std::sort(p.begin(), p.end(), plugins_by_name_less);
     for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
@@ -1934,7 +1951,7 @@ void MainWindow::fill_pluginlist() {
 bool MainWindow::update_all_gui() {
     // the general Gui update handler
     gx_ui::GxUI::updateAllGuis();
-    engine.check_module_lists();
+    machine.check_module_lists();
     return true;
 }
 
@@ -1943,15 +1960,19 @@ bool MainWindow::update_all_gui() {
 // 0:  fail
 // -1: no start command configured
 int MainWindow::start_jack() {
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return -1;
+    }
     int wait_after_connect = 0;
-    gx_engine::EnumParameter& jack_starter = pmap["ui.jack_starter_idx"].getEnum();
+    gx_engine::EnumParameter& jack_starter = machine.get_parameter("ui.jack_starter_idx").getEnum();
     string v_id = jack_starter.get_pair().value_id;
     if (v_id == "autostart") {
-	return jack.gx_jack_connection(true, true, wait_after_connect) ? 1 : 0;
+	return jack->gx_jack_connection(true, true, wait_after_connect) ? 1 : 0;
     }
     string cmd;
     if (v_id == "other") {
-	cmd = pmap["ui.jack_starter"].getString().get_value();
+	cmd = machine.get_parameter("ui.jack_starter").getString().get_value();
 	if (cmd.empty()) {
 	    return -1;
 	}
@@ -1963,7 +1984,7 @@ int MainWindow::start_jack() {
     }
     gx_system::gx_system_call(cmd, true, true);
     for (int i = 0; i < 10; i++) {
-	if (jack.gx_jack_connection(true,false,wait_after_connect)) {
+	if (jack->gx_jack_connection(true,false,wait_after_connect)) {
 	    return 1;
 	}
 	usleep(500000);
@@ -1975,14 +1996,18 @@ int MainWindow::start_jack() {
 }
 
 bool MainWindow::connect_jack(bool v, Gtk::Window *splash) {
-    if (jack.gx_jack_connection(v, false, 0)) {
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return false;
+    }
+    if (jack->gx_jack_connection(v, false, 0)) {
 	return true;
     }
     if (!v) {
 	gx_system::gx_print_error(_("main"), _("can't disconnect jack"));
 	return false;
     }
-    bool ask = pmap["ui.ask_for_jack_starter"].getSwitch().get();
+    bool ask = machine.get_parameter("ui.ask_for_jack_starter").getSwitch().get();
     if (!ask) {
 	switch (start_jack()) {
 	case 1: return true;   // connected
@@ -2004,17 +2029,20 @@ void MainWindow::on_jack_client_changed() {
     if (!window) {
 	return;
     }
-
-    bool v = (jack.client != 0);
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return;
+    }
+    bool v = (jack->client != 0);
     if (!v) {
         gx_child_process::Meterbridge::stop(); //FIXME
     }
     actions.jackserverconnection->set_active(v);
     Glib::ustring s = "Guitarix: ";
     if (v) {
-	s += jack.get_instancename();
+	s += jack->get_instancename();
     } else {
-	s += "("+jack.get_instancename()+")";
+	s += "("+jack->get_instancename()+")";
     }
     window->set_title(s);
     actions.jack_latency_menu->set_sensitive(v);
@@ -2048,20 +2076,20 @@ void MainWindow::on_engine_state_change(gx_engine::GxEngineState state) {
 }
 
 void MainWindow::do_program_change(int pgm) {
-    Glib::ustring bank = gx_settings.get_current_bank();
+    Glib::ustring bank = machine.get_current_bank();
     bool in_preset = !bank.empty();
     gx_system::PresetFile *f;
     if (in_preset) {
-	f = gx_settings.banks.get_file(bank);
+	f = machine.get_bank_file(bank);
 	in_preset = pgm < f->size();
     }
     if (in_preset) {
-	gx_settings.load_preset(f, f->get_name(pgm));
-	if (engine.get_state() == gx_engine::kEngineBypass) {
-	    engine.set_state(gx_engine::kEngineOn);
+	machine.load_preset(f, f->get_name(pgm));
+	if (machine.get_state() == gx_engine::kEngineBypass) {
+	    machine.set_state(gx_engine::kEngineOn);
 	}
-    } else if (engine.get_state() == gx_engine::kEngineOn) {
-	engine.set_state(gx_engine::kEngineBypass);
+    } else if (machine.get_state() == gx_engine::kEngineOn) {
+	machine.set_state(gx_engine::kEngineBypass);
     }
 }
 
@@ -2092,7 +2120,7 @@ void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
     tuner.signal_frequency_poll().connect(
 	sigc::compose(
 	    sigc::mem_fun(tuner, &Gxw::RackTuner::set_freq),
-	    sigc::mem_fun(engine.tuner, &gx_engine::TunerAdapter::get_freq)));
+	    sigc::mem_fun(machine, &gx_engine::GxMachineBase::get_tuner_freq)));
     tuner_mode->signal_value_changed().connect(
 	sigc::compose(
 	    sigc::mem_fun(tuner, &Gxw::RackTuner::set_streaming),
@@ -2107,10 +2135,10 @@ void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
 
 bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
     if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
-	if (engine.get_state() == gx_engine::kEngineOff) {
-	    engine.set_state(gx_engine::kEngineOn);
+	if (machine.get_state() == gx_engine::kEngineOff) {
+	    machine.set_state(gx_engine::kEngineOn);
 	} else {
-	    engine.set_state(gx_engine::kEngineOff);
+	    machine.set_state(gx_engine::kEngineOff);
 	}
     }
     return true;
@@ -2136,7 +2164,7 @@ void MainWindow::on_ampdetail_switch(bool compress) {
 	ampdetail_mini->hide();
 	ampdetail_normal->show();
     }
-    pmap["ui.mp_s_h"].getBool().set(compress);
+    machine.get_parameter("ui.mp_s_h").getBool().set(compress);
 }
 
 /****************************************************************
@@ -2151,13 +2179,17 @@ void MainWindow::set_osc_size() {
 }
 
 void MainWindow::change_osc_buffer(Glib::RefPtr<Gtk::RadioAction> action) {
-    if (jack.client) {
-    mul_buffer = action->get_current_value();
-    on_oscilloscope_activate(false);
-    engine.oscilloscope.set_mul_buffer(mul_buffer, jack.get_jack_bs());
-    on_oscilloscope_activate(true);
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return;
+    }
+    if (jack->client) {
+	mul_buffer = action->get_current_value();
+	on_oscilloscope_activate(false);
+	machine.set_oscilloscope_mul_buffer(mul_buffer, jack->get_jack_bs());
+	on_oscilloscope_activate(true);
     } else {
-    set_osc_size();
+	set_osc_size();
     }
 }
 
@@ -2192,7 +2224,7 @@ void MainWindow::on_show_oscilloscope(bool v) {
 }
 
 void MainWindow::set_waveview_buffer(unsigned int size) {
-    fWaveView.set_frame(engine.oscilloscope.get_buffer(), size);
+    fWaveView.set_frame(machine.get_oscilloscope_buffer(), size);
 }
 
 void MainWindow::on_oscilloscope_post_pre(int post_pre) {
@@ -2205,47 +2237,51 @@ void MainWindow::on_oscilloscope_post_pre(int post_pre) {
 
 int MainWindow::on_oscilloscope_activate(bool start) {
     if (!start) {
-	engine.oscilloscope.clear_buffer();
+	machine.clear_oscilloscope_buffer();
 	fWaveView.queue_draw();
     }
     return 0;
 }
 
 bool MainWindow::on_refresh_oscilloscope() {
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return false;
+    }
     static struct  {
         int load, frames;
         jack_nframes_t bsize;
         bool rt;
     } oc;
-    int load = static_cast<int>(round(jack.get_jcpu_load()));
+    int load = static_cast<int>(round(jack->get_jcpu_load()));
     if (!oc.bsize || oc.load != load) {
         oc.load = load;
         fWaveView.set_text(
             (boost::format(_("dsp load  %1% %%")) % oc.load).str().c_str(),
             Gtk::CORNER_TOP_LEFT);
     }
-    int frames = jack.get_time_is()/100000;
+    int frames = jack->get_time_is()/100000;
     if (!oc.bsize || oc.frames != frames) {
         oc.frames = frames;
         fWaveView.set_text(
             (boost::format(_("ht frames %1%")) % oc.frames).str().c_str(),
             Gtk::CORNER_BOTTOM_LEFT);
     }
-    bool is_rt = jack.get_is_rt();
+    bool is_rt = jack->get_is_rt();
     if (!oc.bsize || oc.rt != is_rt) {
         oc.rt = is_rt;
         fWaveView.set_text(
             oc.rt ? _("RT mode  yes ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
             Gtk::CORNER_BOTTOM_RIGHT);
     }
-    if (!oc.bsize || oc.bsize != jack.get_jack_bs()) {
-        oc.bsize = jack.get_jack_bs();
+    if (!oc.bsize || oc.bsize != jack->get_jack_bs()) {
+        oc.bsize = jack->get_jack_bs();
         fWaveView.set_text(
             (boost::format(_("latency    %1%")) % oc.bsize).str().c_str(),
             Gtk::CORNER_TOP_RIGHT);
     }
     fWaveView.queue_draw();
-    return engine.oscilloscope.plugin.box_visible;
+    return machine.oscilloscope_plugin_box_visible();
 }
 
 /* --------- calculate power (percent) to decibel -------- */
@@ -2255,7 +2291,11 @@ inline float power2db(float power) {
 }
 
 bool MainWindow::refresh_meter_level() {
-    if (!jack.client) {
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return false;
+    }
+    if (!jack->client) {
 	return true;
     }
     const float falloff = gx_gui::guivar.meter_falloff *
@@ -2265,13 +2305,13 @@ bool MainWindow::refresh_meter_level() {
     static float old_peak_db[sizeof(fastmeter)/sizeof(fastmeter[0])] = {-INFINITY, -INFINITY};
 
     // fill up from engine buffers
-    gx_engine::MaxLevel& m = engine.maxlevel;
     for (unsigned int c = 0; c < sizeof(fastmeter)/sizeof(fastmeter[0]); c++) {
 	// update meters (consider falloff as well)
 	// calculate peak dB and translate into meter
 	float peak_db = -INFINITY;
-	if (m.get(c) > 0) {
-	    peak_db = power2db(m.get(c));
+	float v = machine.maxlevel_get(c);
+	if (v > 0) {
+	    peak_db = power2db(v);
 	}
 	// retrieve old meter value and consider falloff
 	if (peak_db < old_peak_db[c]) {
@@ -2280,16 +2320,20 @@ bool MainWindow::refresh_meter_level() {
 	fastmeter[c]->set(log_meter(peak_db));
 	old_peak_db[c] = peak_db;
     }
-    m.reset();
+    machine.maxlevel_reset();
     return true;
 }
 
 bool MainWindow::survive_jack_shutdown() {
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return false;
+    }
     // return if jack is not down
     if (gx_system::gx_system_call("pgrep jackd", true) == SYSTEM_OK) {
-        if (jack.is_jack_down()) {
+        if (jack->is_jack_down()) {
         sleep(2);
-	    jack.set_jack_down(false);
+	    jack->set_jack_down(false);
 	}
 	// let's make sure we get out of here
 	gx_system::gx_print_warning("Jack Shutdown",
@@ -2297,11 +2341,11 @@ bool MainWindow::survive_jack_shutdown() {
 	actions.jackserverconnection->set_active(true);
 	// run only one time whem jackd is running
 	return false;
-    } else if (!jack.is_jack_down()) {
+    } else if (!jack->is_jack_down()) {
         // refresh some stuff. Note that it can be executed
         // more than once, no harm here
         actions.jackserverconnection->set_active(false);
-        jack.set_jack_down(true);
+        jack->set_jack_down(true);
 	gx_system::gx_print_error("Jack Shutdown",
 				  _("jack has bumped us out!!   "));
     }
@@ -2318,11 +2362,15 @@ void MainWindow::gx_jack_is_down() {
 
 #ifdef HAVE_JACK_SESSION
 void MainWindow::jack_session_event() {
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return;
+    }
     const char *statefile = "gx_head.state";
-    jack_session_event_t *event = jack.get_last_session_event();
+    jack_session_event_t *event = jack->get_last_session_event();
     set_in_session();
-    gx_settings.set_statefilename(string(event->session_dir) + statefile);
-    gx_settings.save_to_state();
+    machine.set_statefilename(string(event->session_dir) + statefile);
+    machine.save_to_state();
 
 #ifndef NDEBUG
     string cmd(options.get_path_to_program());
@@ -2332,13 +2380,13 @@ void MainWindow::jack_session_event() {
     cmd += " -U ";
     cmd += event->client_uuid;
     cmd += " -A ";
-    cmd += jack.get_uuid_insert();
+    cmd += jack->get_uuid_insert();
     cmd += " -f ${SESSION_DIR}";
     cmd += statefile; // no space after SESSION_DIR
     event->command_line = strdup(cmd.c_str());
 
     JackSessionEventType tp = event->type;
-    if (jack.return_last_session_event() == 0) {
+    if (jack->return_last_session_event() == 0) {
 	if (tp == JackSessionSaveAndQuit) {
 	    gx_system::GxExit::get_instance().exit_program("** session exit **");
 	}
@@ -2346,11 +2394,15 @@ void MainWindow::jack_session_event() {
 }
 
 void MainWindow::jack_session_event_ins() {
-    jack_session_event_t *event = jack.get_last_session_event_ins();
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return;
+    }
+    jack_session_event_t *event = jack->get_last_session_event_ins();
     set_in_session();
     event->command_line = strdup("true ${SESSION_DIR}");
     JackSessionEventType tp = event->type;
-    if (jack.return_last_session_event_ins() == 0) {
+    if (jack->return_last_session_event_ins() == 0) {
 	if (tp == JackSessionSaveAndQuit) {
 	    gx_system::GxExit::get_instance().exit_program("** session exit **");
 	}
@@ -2364,7 +2416,7 @@ void MainWindow::set_in_session() {
 	// it seems in a session we generally don't know
 	// where to save and from where to recall data
 	// it's all controlled by the session manager
-	gx_settings.disable_autosave(true);
+	machine.disable_autosave(true);
     }
 }
 
@@ -2374,12 +2426,12 @@ void MainWindow::systray_menu(guint button, guint32 activate_time) {
 }
 
 void MainWindow::overload_status_changed() {
-    switch (engine.midiaudiobuffer.jack_load_status()) {
+    switch (machine.midiaudiobuffer_jack_load_status()) {
     case gx_engine::MidiAudioBuffer::load_off:
 	status_icon->set(gx_head_icon);
 	break;
     case gx_engine::MidiAudioBuffer::load_normal:
-	if (engine.midiaudiobuffer.get_midistat()) {
+	if (machine.midiaudiobuffer_get_midistat()) {
 	    status_icon->set(gx_head_midi);
 	} else {
 	    status_icon->set(gx_head_icon);
@@ -2416,8 +2468,7 @@ void MainWindow::hide_extended_settings() {
 void MainWindow::run() {
     int port = options.get_rpcport();
     if (port != RPCPORT_DEFAULT && port != RPCPORT_NONE) {
-	MyService sock(gx_settings, jack, sigc::ptr_fun(Gtk::Main::quit), port);
-	sock.start();
+	machine.start_socket(sigc::ptr_fun(Gtk::Main::quit), port);
 	window->show();
 	Gtk::Main::run();
     } else {
@@ -2469,7 +2520,7 @@ bool MainWindow::on_quit() {
 
 void MainWindow::amp_controls_visible(Gtk::Range *rr) {
     //FIXME
-    bool v = abs(rr->get_value() - pmap["tube.select"].getUpperAsFloat()) < 0.5;
+    bool v = abs(rr->get_value() - machine.get_parameter("tube.select").getUpperAsFloat()) < 0.5;
     const char *knobs[] = {"gxbigknob1","gxbigknob2","gxbigknob3"};
     for (unsigned int i = 0; i < sizeof(knobs)/sizeof(knobs[0]); ++i) {
 	Gtk::Widget *w;
@@ -2487,8 +2538,8 @@ int MainWindow::window_height = 0;
 int MainWindow::preset_window_height = 0;
 int MainWindow::mul_buffer = 1;
 
-MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_,
-		       gx_engine::ParamMap& pmap_, Gtk::Window *splash)
+MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
+		       Gtk::Window *splash)
     : sigc::trackable(),
       ui(),
       bld(),
@@ -2507,22 +2558,19 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       preset_list_actiongroup(),
       uimanager(),
       options(options_),
-      pmap(pmap_),
-      engine(engine_),
-      jack(engine),
-      gx_settings(options, jack, engine.stereo_convolver, gx_engine::midi_std_ctr, gx_engine::controller_map, engine, pmap_),
+      machine(machine_),
       live_play(),
       preset_window(),
       fWaveView(),
       convolver_filename_label(),
       convolver_mono_filename_label(),
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
-      boxbuilder(engine_, gx_settings, fWaveView, convolver_filename_label, convolver_mono_filename_label, ui, gx_head_icon),
+      boxbuilder(machine_, fWaveView, convolver_filename_label, convolver_mono_filename_label, ui, gx_head_icon),
       portmap_window(0),
       skin_changed(&ui, &skin),
       select_jack_control(0),
       fLoggingWindow(),
-      amp_radio_menu(&ui, pmap["tube.select"].getUInt()),
+      amp_radio_menu(&ui, machine_.get_parameter("tube.select").getUInt()),
       pixbuf_on(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_on.png"))),
       pixbuf_off(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_off.png"))),
       pixbuf_bypass(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_bypass.png"))),
@@ -2531,15 +2579,15 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
       pixbuf_log_grey(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_grey.png"))),
       pixbuf_log_yellow(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_yellow.png"))),
       pixbuf_log_red(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_red.png"))),
-      mute_changed(&ui, &pmap.reg_par("engine.mute", "Mute", 0, false)->get_value()),
-      ampdetail_sh(&ui, &pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false)->get_value()),
-      report_xrun(jack),
+      mute_changed(&ui, &machine.reg_par("engine.mute", "Mute", 0, false)->get_value()),
+      ampdetail_sh(&ui, &machine.reg_non_midi_par("ui.mp_s_h", (bool*)0, false)->get_value()),
+      report_xrun(machine),
       in_session(false),
       status_icon(Gtk::StatusIcon::create(gx_head_icon)),
       gx_head_midi(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-midi.png"))),
       gx_head_warn(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-warn.png"))),
       actions(),
-      keyswitch(gx_settings, sigc::mem_fun(this, &MainWindow::display_preset_msg)),
+      keyswitch(machine, sigc::mem_fun(this, &MainWindow::display_preset_msg)),
       groupmap(),
       ladspalist_window(),
       szg_rack_units(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)) {
@@ -2552,22 +2600,22 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     */
 
     // window geometry parameter definitions
-    pmap.reg_non_midi_par("system.mainwin_x", &mainwin_x, false, -1, -1, 99999);
-    pmap.reg_non_midi_par("system.mainwin_y", &mainwin_y, false, -1, -1, 99999);
-    pmap.reg_non_midi_par("system.mainwin_height", &mainwin_height, false, -1, -1, 99999);
-    pmap.reg_non_midi_par("system.mainwin_rack_height", &window_height, false, 600, 1, 99999);
-    pmap.reg_non_midi_par("system.preset_window_height", &preset_window_height, false, 150, 0, 99999);
+    machine.reg_non_midi_par("system.mainwin_x", &mainwin_x, false, -1, -1, 99999);
+    machine.reg_non_midi_par("system.mainwin_y", &mainwin_y, false, -1, -1, 99999);
+    machine.reg_non_midi_par("system.mainwin_height", &mainwin_height, false, -1, -1, 99999);
+    machine.reg_non_midi_par("system.mainwin_rack_height", &window_height, false, 600, 1, 99999);
+    machine.reg_non_midi_par("system.preset_window_height", &preset_window_height, false, 150, 0, 99999);
 
     // rack tuner
     gx_engine::get_group_table().insert("racktuner", N_("Rack Tuner"));
     static const value_pair streaming_labels[] = {{"scale"}, {"stream"}, {0}};
-    pmap.reg_non_midi_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, (int*)0, false, 1);
+    machine.reg_non_midi_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, (int*)0, false, 1);
     static const value_pair tuning_labels[] = {{"(Chromatic)"},{"Standard"}, {"Standard/Es"}, {"Open E"}, {0}};
-    pmap.reg_non_midi_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, false, 0);
-    pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
-    pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 427, 453, 0.1);
+    machine.reg_non_midi_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, false, 0);
+    machine.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
+    machine.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 427, 453, 0.1);
     //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
-    pmap.reg_non_midi_par("oscilloscope.bufferset",&mul_buffer,false,1,1,6);
+    machine.reg_non_midi_par("oscilloscope.bufferset",&mul_buffer,false,1,1,6);
     /*
     ** create actions and some parameters
     */
@@ -2595,7 +2643,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     clear_box(*preset_box_no_rack);
 
     // preset window also creates some actions
-    preset_window = new PresetWindow(bld, gx_settings, options, actions);
+    preset_window = new PresetWindow(bld, machine, options, actions);
 
     // create uimanager and load menu
     uimanager = Gtk::UIManager::create();
@@ -2649,24 +2697,26 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     ** jack, engine, and controller_map signal connections and related settings
     */
     gx_jack::GxJack::rt_watchdog_set_limit(options.get_idle_thread_timeout());
-    engine.set_jack(&jack);
-    jack.xrun.connect(sigc::mem_fun(report_xrun, &gx_gui::ReportXrun::run));
-    jack.shutdown.connect(sigc::mem_fun(*this, &MainWindow::gx_jack_is_down));
-    jack.signal_buffersize_change().connect(
-	sigc::mem_fun(*this, &MainWindow::set_latency));
-    jack.signal_client_change().connect(
-	sigc::mem_fun(*this, &MainWindow::on_jack_client_changed));
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (jack) {
+	jack->xrun.connect(sigc::mem_fun(report_xrun, &gx_gui::ReportXrun::run));
+	jack->shutdown.connect(sigc::mem_fun(*this, &MainWindow::gx_jack_is_down));
+	jack->signal_buffersize_change().connect(
+	    sigc::mem_fun(*this, &MainWindow::set_latency));
+	jack->signal_client_change().connect(
+	    sigc::mem_fun(*this, &MainWindow::on_jack_client_changed));
 #ifdef HAVE_JACK_SESSION
-    jack.session.connect(sigc::mem_fun(*this, &MainWindow::jack_session_event));
-    jack.session_ins.connect(sigc::mem_fun(*this, &MainWindow::jack_session_event_ins));
-    if (!options.get_jack_uuid().empty()) {
-	set_in_session();
-    }
+	jack->session.connect(sigc::mem_fun(*this, &MainWindow::jack_session_event));
+	jack->session_ins.connect(sigc::mem_fun(*this, &MainWindow::jack_session_event_ins));
+	if (!options.get_jack_uuid().empty()) {
+	    set_in_session();
+	}
 #endif
+    }
 
-    engine.signal_state_change().connect(
+    machine.signal_state_change().connect(
 	sigc::mem_fun(*this, &MainWindow::on_engine_state_change));
-    engine.midiaudiobuffer.signal_jack_load_change().connect(
+    machine.signal_jack_load_change().connect(
 	sigc::mem_fun(*this, &MainWindow::overload_status_changed));
 
     gx_engine::controller_map.signal_new_program().connect(
@@ -2675,13 +2725,13 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     /*
     ** GxSettings signal connections
     */
-    gx_settings.signal_presetlist_changed().connect(
+    machine.signal_presetlist_changed().connect(
 	sigc::mem_fun(*this, &MainWindow::rebuild_preset_menu));
-    gx_settings.signal_selection_changed().connect(
+    machine.signal_selection_changed().connect(
 	sigc::mem_fun(*this, &MainWindow::show_selected_preset));
-    gx_settings.signal_selection_changed().connect(
+    machine.signal_selection_changed().connect(
 	sigc::mem_fun(monorackcontainer, &RackContainer::check_order));
-    gx_settings.signal_selection_changed().connect(
+    machine.signal_selection_changed().connect(
 	sigc::mem_fun(stereorackcontainer, &RackContainer::check_order));
 
     /*
@@ -2713,18 +2763,18 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
 	    sigc::mem_fun(*racktuner, &Gxw::RackTuner::set_sensitive),
 	    sigc::mem_fun(*tuner_on_off, &Gxw::Switch::get_active)));
     racktuner->signal_poll_status_changed().connect(
-	sigc::mem_fun(engine.tuner, &gx_engine::TunerAdapter::used_for_display));
+	sigc::mem_fun(machine, &gx_engine::GxMachineBase::tuner_used_for_display));
 
     /*
     ** oscilloscope signal connections
     */
-    engine.oscilloscope.post_pre_signal.changed.connect(
+    machine.signal_oscilloscope_post_pre().connect(
 	sigc::mem_fun(*this, &MainWindow::on_oscilloscope_post_pre));
-    engine.oscilloscope.visible.changed.connect(
+    machine.signal_oscilloscope_visible().connect(
 	sigc::mem_fun(*this, &MainWindow::on_show_oscilloscope));
-    engine.oscilloscope.activation.connect(
+    machine.signal_oscilloscope_activation().connect(
 	sigc::mem_fun(*this, &MainWindow::on_oscilloscope_activate));
-    engine.oscilloscope.size_change.connect(
+    machine.signal_oscilloscope_size_change().connect(
 	sigc::mem_fun(*this, &MainWindow::set_waveview_buffer));
 
     /*
@@ -2784,7 +2834,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     ** init status image widget
     */
     status_image->set(pixbuf_on);
-    gx_engine::BoolParameter& par = pmap["engine.mute"].getBool();
+    gx_engine::BoolParameter& par = machine.get_parameter("engine.mute").getBool();
     par.setSavable(false);
     gx_gui::connect_midi_controller(GTK_WIDGET(status_image->get_parent()->gobj()), &par.get_value());
     status_image->get_parent()->signal_button_press_event().connect(
@@ -2812,10 +2862,10 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     /*
     ** create liveplay and setup liveplay racktuner
     */
-    live_play = new Liveplay(options, engine, gx_settings, options.get_builder_filepath("mainpanel.glade"), actions);
+    live_play = new Liveplay(options, machine, options.get_builder_filepath("mainpanel.glade"), actions);
     setup_tuner(live_play->get_tuner());
     live_play->get_tuner().signal_poll_status_changed().connect(
-	sigc::mem_fun1(engine.tuner, &gx_engine::TunerAdapter::used_for_livedisplay));
+	sigc::mem_fun1(machine, &gx_engine::GxMachineBase::tuner_used_for_livedisplay));
 
     /*
     ** init logging window and logstate image widget
@@ -2843,7 +2893,7 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     ** UI definitions will be loaded on demand
     */
     fill_pluginlist();
-    PluginUI *mainamp_plugin = new PluginUI(*this, engine.pluginlist, "ampstack");
+    PluginUI *mainamp_plugin = new PluginUI(*this, machine, "ampstack");
     plugin_dict.add(mainamp_plugin);
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     effects_toolpalette->show();
@@ -2873,13 +2923,15 @@ MainWindow::MainWindow(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& 
     // on connect the jack client-change signal will trigger the load of another
     // state file, which means that the jack starter options are read from the
     // standard state file (gx_head_rc or similar if -n is used)
-    gx_settings.loadstate();
+    machine.loadstate();
     if (!in_session) {
-    gx_settings.disable_autosave(gx_system::get_options().get_opt_auto_save());
+    machine.disable_autosave(gx_system::get_options().get_opt_auto_save());
     }
     if (!connect_jack(true, splash)) {
 	// not connected, must synthesize signal for initialization
-	jack.signal_client_change()();
+	if (jack) {
+	    jack->signal_client_change()();
+	}
     }
     set_latency(); // make sure latency menu is updated
 	set_osc_size();
@@ -2927,7 +2979,7 @@ MainWindow::~MainWindow() {
     Gtk::AccelMap::save(options.get_user_filepath("accels_rc"));
 #endif
 
-    engine.start_ramp_down();
+    machine.start_ramp_down();
 
     int mainwin_width;
     window->get_size(mainwin_width, mainwin_height);
@@ -2948,7 +3000,7 @@ MainWindow::~MainWindow() {
 	//ladspalist_window = 0;
     //}
 
-    engine.wait_ramp_down_finished();
-    engine.set_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
-    engine.set_jack(0);
+    machine.wait_ramp_down_finished();
+    machine.set_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
+    machine.set_jack(0);
 }

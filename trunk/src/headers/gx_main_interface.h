@@ -231,12 +231,12 @@ struct uiCheckButton : public gx_ui::GxUiItemBool {
 
 class ReportXrun {
 private:
-    gx_jack::GxJack& jack;
+    gx_engine::GxMachineBase& machine;
     bool blocked;
     void clear();
 public:
-    ReportXrun(gx_jack::GxJack& jack_)
-	: jack(jack_), blocked(false) {}
+    ReportXrun(gx_engine::GxMachineBase& machine_)
+	: machine(machine_), blocked(false) {}
     void run();
 };
 

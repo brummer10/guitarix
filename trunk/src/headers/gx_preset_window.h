@@ -74,7 +74,7 @@ private:
 	MODELROW_TARGET = 1,
 	URILIST_TARGET = 2,
     };
-    gx_preset::GxSettings& gx_settings;
+    gx_engine::GxMachineBase& machine;
     GxActions& actions;
     bool in_edit;
     Gtk::TreeModel::iterator edit_iter;
@@ -166,7 +166,7 @@ private:
     void display_paned(bool show_preset, int paned_child_height);
     void on_selection_changed();
 public:
-    PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_preset::GxSettings& gx_settings,
+    PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine,
 		 const gx_system::CmdlineOptions& options, GxActions& actions);
     ~PresetWindow();
     void on_preset_select(bool v, bool animated, int preset_window_height);

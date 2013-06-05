@@ -50,13 +50,13 @@ private:
     void on_cancel_button();
     bool on_delete_event(GdkEventAny* event);
     bool on_key_press_event(GdkEventKey *event);
-    static SelectJackControlPgm* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::ParamMap& pmap) {
-	return new SelectJackControlPgm(cobject, bld, pmap);
+    static SelectJackControlPgm* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::GxMachineBase& m) {
+	return new SelectJackControlPgm(cobject, bld, m);
     }
-    SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::ParamMap& pmap);
+    SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::GxMachineBase& m);
 public:
     ~SelectJackControlPgm();
-    static SelectJackControlPgm* create(gx_ui::GxUI *ui, gx_system::CmdlineOptions& opt, gx_engine::ParamMap& pmap);
+    static SelectJackControlPgm* create(gx_ui::GxUI *ui, gx_system::CmdlineOptions& opt, gx_engine::GxMachineBase& machine);
     sigc::signal<void>& signal_close() { return close; }
 };
 

@@ -67,6 +67,8 @@
 #include <gtkmm.h>
 
 #include "engine.h"
+#include "jsonrpc.h"
+#include "machine.h"
 
 #include "gx_cairo_callbacks.h"
 

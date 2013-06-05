@@ -53,7 +53,7 @@ class MidiControllerTable: public sigc::trackable {
     GtkTreeSelection *selection;
     GtkListStore *store;
     Glib::RefPtr<Gtk::ToggleAction> menuaction;
-    gx_engine::ParamMap& param;
+    gx_engine::GxMachineBase& machine;
     static void response_cb(GtkWidget *widget, gint response_id, gpointer data);
     static void edited_cb(GtkCellRendererText *renderer, gchar *path,
                           gchar *new_text, gpointer data);
@@ -61,10 +61,10 @@ class MidiControllerTable: public sigc::trackable {
     static void toggleButtonSetSwitch(GtkWidget *w, gpointer data);
     void set(bool v);
     void load();
-    explicit MidiControllerTable(gx_engine::ParamMap& param, Glib::RefPtr<Gtk::ToggleAction> item);
+    explicit MidiControllerTable(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gtk::ToggleAction> item);
     ~MidiControllerTable();
  public:
-    static void toggle(gx_engine::ParamMap& param, Glib::RefPtr<Gtk::ToggleAction> item);
+    static void toggle(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gtk::ToggleAction> item);
 };
 
 /*****************************************************************

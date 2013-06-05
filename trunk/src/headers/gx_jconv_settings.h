@@ -117,13 +117,13 @@ class IRWindow: public sigc::trackable {
     void on_help_clicked();
     Gtk::Window *wHelp;
 
-    void on_preset_popup_clicked(const gx_preset::GxSettings& gx_settings);
+    void on_preset_popup_clicked(const gx_engine::GxMachineBase& machine);
     void on_enumerate();
     bool on_key_press_event(GdkEventKey *event);
 
-    void init_connect(const gx_preset::GxSettings& gx_settings);
+    void init_connect(const gx_engine::GxMachineBase& machine);
     IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::ConvolverAdapter &convolver,
-	     Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& gx_settings,
+	     Glib::RefPtr<Gdk::Pixbuf> icon, const gx_engine::GxMachineBase& machine,
 	     Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
     ~IRWindow();
 
@@ -141,7 +141,7 @@ class IRWindow: public sigc::trackable {
 public:
     void reload_and_show();
     static IRWindow *create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver,
-			    Glib::RefPtr<Gdk::Pixbuf> icon, const gx_preset::GxSettings& settings,
+			    Glib::RefPtr<Gdk::Pixbuf> icon, const gx_engine::GxMachineBase& machine,
 			    Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
     friend class JConvPopup;
 };

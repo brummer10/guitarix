@@ -43,7 +43,7 @@ void MidiControllerTable::response_cb(GtkWidget *widget, gint response_id, gpoin
                                     reinterpret_cast<GtkTreePath*>(p->data));
             const char* id;
             gtk_tree_model_get(GTK_TREE_MODEL(model), &iter, 7, &id, -1);
-            gx_engine::controller_map.deleteParameter(m.param[id], true);
+            gx_engine::controller_map.deleteParameter(m.machine.get_parameter(id), true);
             gtk_tree_path_free(reinterpret_cast<GtkTreePath*>(p->data));
         }
         g_list_free(list);
@@ -130,14 +130,14 @@ void MidiControllerTable::load() {
     }
 }
 
-void MidiControllerTable::toggle(gx_engine::ParamMap& param, Glib::RefPtr<Gtk::ToggleAction> item) {
+void MidiControllerTable::toggle(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gtk::ToggleAction> item) {
     if (!item->get_active()) {
         if (window) {
             gtk_widget_destroy(window);
         }
     } else {
         if (!window) {
-            new MidiControllerTable(param, item);
+            new MidiControllerTable(machine, item);
         }
     }
 }
@@ -146,16 +146,16 @@ MidiControllerTable::~MidiControllerTable() {
     window = NULL;
 }
 
-MidiControllerTable::MidiControllerTable(gx_engine::ParamMap& param_, Glib::RefPtr<Gtk::ToggleAction> item)
+MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gtk::ToggleAction> item)
     : menuaction(item),
-      param(param_) {
+      machine(machine_) {
 
     GtkBuilder * builder = gtk_builder_new();
     window = gx_gui::load_toplevel(builder, "midi.glade", "MidiControllerTable");
     store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
     togglebutton = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "save_controller"));
 
-    gx_engine::SwitchParameter& p = param["system.midi_in_preset"].getSwitch();
+    gx_engine::SwitchParameter& p = machine.get_parameter("system.midi_in_preset").getSwitch();
     gtk_toggle_button_set_active(togglebutton, p.get());
     p.signal_changed().connect(sigc::mem_fun(*this, &MidiControllerTable::set));
     g_signal_connect(GTK_OBJECT(togglebutton), "toggled",

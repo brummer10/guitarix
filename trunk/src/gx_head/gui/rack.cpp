@@ -41,9 +41,9 @@
  **
  */
 
-PluginUI::PluginUI(MainWindow& main_, const gx_engine::PluginList& pl, const char *name,
+PluginUI::PluginUI(MainWindow& main_, const gx_engine::GxMachineBase& m, const char *name,
 		   const Glib::ustring& fname_, const Glib::ustring& tooltip_)
-    : GxUiItem(), merge_id(0), action(), plugin(pl.lookup_plugin(name)), fname(fname_),
+    : GxUiItem(), merge_id(0), action(), plugin(m.pluginlist_lookup_plugin(name)), fname(fname_),
       tooltip(tooltip_), shortname(), icon(), group(), toolitem(), main(main_), rackbox(),
       hidden(false), compressed(false) {
     if (plugin->pdef->description && tooltip.empty()) {
@@ -82,8 +82,8 @@ void PluginUI::on_plugin_preset_popup() {
     main.plugin_preset_popup(get_id());
 }
 
-bool PluginUI::is_registered(gx_engine::PluginList& pl, const char *name) {
-    return pl.lookup_plugin(name)->pdef->flags & gx_engine::PGNI_UI_REG;
+bool PluginUI::is_registered(gx_engine::GxMachineBase& m, const char *name) {
+    return m.pluginlist_lookup_plugin(name)->pdef->flags & gx_engine::PGNI_UI_REG;
 }
 
 bool PluginUI::hasChanged() {
@@ -649,11 +649,11 @@ void PluginPresetPopup::set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetLi
 }
 
 void PluginPresetPopup::set_plugin_std_preset() {
-    gx_settings.get_param().reset_unit(id);
+    machine.reset_unit(id);
 }
 
 void PluginPresetPopup::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    InputWindow *w = InputWindow::create(gx_settings.get_options(), save_name_default);
+    InputWindow *w = InputWindow::create(machine.get_options(), save_name_default);
     w->run();
     if (!w->get_name().empty()) {
 	l->save(w->get_name(), id);
@@ -662,7 +662,7 @@ void PluginPresetPopup::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetL
 }
 
 void PluginPresetPopup::remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    PluginPresetListWindow *w = PluginPresetListWindow::create(gx_settings.get_options(), l);
+    PluginPresetListWindow *w = PluginPresetListWindow::create(machine.get_options(), l);
     w->run();
     delete w;
 }
@@ -699,17 +699,17 @@ void PluginPresetPopup::on_selection_done() {
 	    this));
 }
 
-PluginPresetPopup::PluginPresetPopup(const std::string& id_, const gx_preset::GxSettings& gx_settings_,
+PluginPresetPopup::PluginPresetPopup(const std::string& id_, const gx_engine::GxMachineBase& machine_,
 				     const Glib::ustring& save_name_default_)
-  : Gtk::Menu(), id(id_), gx_settings(gx_settings_), save_name_default(save_name_default_) {
-    Glib::RefPtr<gx_preset::PluginPresetList> l = gx_settings.load_plugin_preset_list(id, false);
+  : Gtk::Menu(), id(id_), machine(machine_), save_name_default(save_name_default_) {
+    Glib::RefPtr<gx_preset::PluginPresetList> l = machine.load_plugin_preset_list(id, false);
     bool found_presets = add_plugin_preset_list(l);
     if (found_presets) {
 	append(*manage(new Gtk::SeparatorMenuItem()));
     }
-    if (!add_plugin_preset_list(gx_settings.load_plugin_preset_list(id, true))) {
+    if (!add_plugin_preset_list(machine.load_plugin_preset_list(id, true))) {
 	Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(_("standard"));
-	if (gx_settings.get_param().unit_has_std_values(id)) {
+	if (machine.parameter_unit_has_std_values(id)) {
 	    c->set_active(true);
 	}
 	c->signal_activate().connect(
