@@ -56,7 +56,7 @@ private:
     SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr<GxBuilder> bld, gx_engine::GxMachineBase& m);
 public:
     ~SelectJackControlPgm();
-    static SelectJackControlPgm* create(gx_ui::GxUI *ui, gx_system::CmdlineOptions& opt, gx_engine::GxMachineBase& machine);
+    static SelectJackControlPgm* create(gx_system::CmdlineOptions& opt, gx_engine::GxMachineBase& machine);
     sigc::signal<void>& signal_close() { return close; }
 };
 

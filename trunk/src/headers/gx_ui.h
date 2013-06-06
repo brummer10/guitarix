@@ -191,7 +191,7 @@ UiSignal<T>* UiSignal<T>::create(GxUI* ui, gx_engine::ParamMap& param, const cha
 	printf("%s has wrong type [%s/%s]!!\n", id, typeid(param[id]).name(), typeid(gx_engine::ParameterV<T>).name());
 	return 0;
     }
-    return new UiSignal(ui, &p->value);
+    return new UiSignal(ui, &p->get_value());
 }
 
 typedef UiSignal<float> UiSignalFloat;

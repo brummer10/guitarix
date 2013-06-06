@@ -140,8 +140,8 @@ class IRWindow: public sigc::trackable {
     void on_combo_changed();
 public:
     void reload_and_show();
-    static IRWindow *create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver,
-			    Glib::RefPtr<Gdk::Pixbuf> icon, const gx_engine::GxMachineBase& machine,
+    static IRWindow *create(gx_engine::ConvolverAdapter& convolver,
+			    Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine,
 			    Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
     friend class JConvPopup;
 };

@@ -546,10 +546,14 @@ void PortMapWindow::load_all() {
 #undef uslp
 }
 
-PortMapWindow* PortMapWindow::create(gx_jack::GxJack& jack, gx_ui::GxUI& ui, Glib::RefPtr<Gtk::AccelGroup> ag) {
+PortMapWindow* PortMapWindow::create(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gtk::AccelGroup> ag) {
+    gx_jack::GxJack *jack = machine.get_jack();
+    if (!jack) {
+	return 0;
+    }
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
-	gx_system::get_options().get_builder_filepath("ports.glade"), &ui);
-    return new PortMapWindow(bld, jack, ag);
+	gx_system::get_options().get_builder_filepath("ports.glade"), &machine);
+    return new PortMapWindow(bld, *jack, ag);
 }
 
 PortMapWindow::PortMapWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_jack::GxJack& jack_, Glib::RefPtr<Gtk::AccelGroup> ag)

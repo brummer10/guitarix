@@ -196,12 +196,25 @@ void SkinHandling::set_styledir(const string& style_dir) {
 }
 
 bool SkinHandling::is_in_list(const string& name) {
-    for (vector<string>::iterator i = skin_list.begin(); i != skin_list.end(); ++i) {
-	if (*i == name) {
-	    return true;
+    return index(name) == skin_list.size();
+}
+
+unsigned int SkinHandling::index(const Glib::ustring& name) {
+    unsigned int i = 0;
+    for (; i < skin_list.size(); ++i) {
+	if (skin_list[i] == name) {
+	    break;
 	}
     }
-    return false;
+    return i;
+}
+
+const Glib::ustring& SkinHandling::operator[](unsigned int idx) {
+    if (idx < skin_list.size()) {
+	return skin_list[idx];
+    } else {
+	return empty;
+    }
 }
 
 PathList::PathList(const char *env_name): dirs() {
@@ -303,7 +316,15 @@ CmdlineOptions::CmdlineOptions()
 #ifndef NDEBUG
       dump_parameter(false),
 #endif
-      skin(style_dir) {
+      skin(style_dir),
+      mainwin_x(-1),
+      mainwin_y(-1),
+      mainwin_height(-1),
+      window_height(0),
+      preset_window_height(0),
+      mul_buffer(1),
+      skin_name("gx7-blues"),
+      no_warn_latency(false) {
     const char* home = getenv("HOME");
     if (!home) {
 	throw GxFatalError(_("no HOME environment variable"));
@@ -321,6 +342,8 @@ CmdlineOptions::CmdlineOptions()
     if (tmp && *tmp) {
 	jack_outputs.push_back(tmp);
     }
+
+    read_ui_vars();
 
     // ---- parse command line arguments
     set_summary(
@@ -495,7 +518,76 @@ CmdlineOptions::CmdlineOptions()
 }
 
 CmdlineOptions::~CmdlineOptions() {
+    write_ui_vars();
     instance = 0;
+}
+
+void CmdlineOptions::read_ui_vars() {
+    ifstream i(Glib::build_filename(user_dir, "ui_rc").c_str());
+    if (i.fail()) {
+	return;
+    }
+    JsonParser jp(&i);
+    try {
+	jp.next(JsonParser::begin_object);
+	while (jp.peek() != JsonParser::end_object) {
+	    jp.next(JsonParser::value_key);
+	    if (jp.current_value() == "system.mainwin_x") {
+		jp.next(JsonParser::value_number);
+		mainwin_x = jp.current_value_int();
+	    } else if (jp.current_value() == "system.mainwin_y") {
+		jp.next(JsonParser::value_number);
+		mainwin_y = jp.current_value_int();
+	    } else if (jp.current_value() == "system.mainwin_height") {
+		jp.next(JsonParser::value_number);
+		mainwin_height = jp.current_value_int();
+	    } else if (jp.current_value() == "system.mainwin_rack_height") {
+		jp.next(JsonParser::value_number);
+		window_height = jp.current_value_int();
+	    } else if (jp.current_value() == "system.preset_window_height") {
+		jp.next(JsonParser::value_number);
+		preset_window_height = jp.current_value_int();
+	    } else if (jp.current_value() == "system.mul_buffer") {
+		jp.next(JsonParser::value_number);
+		mul_buffer = jp.current_value_int();
+	    } else if (jp.current_value() == "ui.skin_name") {
+		jp.next(JsonParser::value_string);
+		skin_name = jp.current_value();
+	    } else if (jp.current_value() == "ui.latency_nowarn") {
+		jp.next(JsonParser::value_number);
+		no_warn_latency = jp.current_value_int();
+	    }
+	}
+	jp.next(JsonParser::end_object);
+	jp.close();
+    } catch (JsonException) {
+	gx_print_warning("main", "can't read/parse ui_rc");
+    }
+    i.close();
+}
+
+void CmdlineOptions::write_ui_vars() {
+    ofstream o(Glib::build_filename(user_dir, "ui_rc").c_str());
+    if (o.fail()) {
+	return;
+    }
+    JsonWriter jw(&o);
+    try {
+	jw.begin_object(true);
+	jw.write_key("system.mainwin_x"); jw.write(mainwin_x, true);
+	jw.write_key("system.mainwin_y"); jw.write(mainwin_y, true);
+	jw.write_key("system.mainwin_height"); jw.write(mainwin_height, true);
+	jw.write_key("system.mainwin_rack_height"); jw.write(window_height, true);
+	jw.write_key("system.preset_window_height"); jw.write(preset_window_height, true);
+	jw.write_key("system.mul_buffer"); jw.write(mul_buffer, true);
+	jw.write_key("ui.skin_name"); jw.write(skin_name, true);
+	jw.write_key("ui.latency_nowarn"); jw.write(no_warn_latency, true);
+	jw.end_object(true);
+	jw.close();
+    } catch (JsonException) {
+	gx_print_warning("main", "can't write ui_rc");
+    }
+    o.close();
 }
 
 Glib::ustring CmdlineOptions::get_jack_output(unsigned int n) const {
@@ -516,7 +608,7 @@ string CmdlineOptions::get_opskin() {
     // GTK options: rc style (aka skin)
     string opskin("Style to use");
 
-    vector<string>::iterator it;
+    vector<Glib::ustring>::iterator it;
 
     for (it = skin.skin_list.begin(); it != skin.skin_list.end(); ++it) {
         opskin += ", '" + *it + "'";
@@ -589,11 +681,15 @@ void CmdlineOptions::process(int argc, char** argv) {
     IR_pathlist.add(get_sys_IR_dir());
 
     skin.set_styledir(style_dir);
-    if (!rcset.empty() && !skin.is_in_list(rcset)) {
-	throw Glib::OptionError(
-	    Glib::OptionError::BAD_VALUE,
-	    (boost::format(_("invalid style '%1%' on command line"))
-	     % rcset).str());
+    if (!rcset.empty()) {
+	if (skin.is_in_list(rcset)) {
+	    skin_name = rcset;
+	} else {
+	    throw Glib::OptionError(
+		Glib::OptionError::BAD_VALUE,
+		(boost::format(_("invalid style '%1%' on command line"))
+		 % rcset).str());
+	}
     }
     if (jack_outputs.size() > 2) {
 	gx_print_warning(

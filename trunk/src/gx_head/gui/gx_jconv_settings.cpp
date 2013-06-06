@@ -30,11 +30,11 @@ namespace gx_jconv {
 ** static class variables and functions
 */
 
-IRWindow *IRWindow::create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver,
-			   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_engine::GxMachineBase& machine,
+IRWindow *IRWindow::create(gx_engine::ConvolverAdapter& convolver,
+			   Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine,
 			   Glib::RefPtr<Gtk::AccelGroup> accels, int nchan) {
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
-	machine.get_options().get_builder_filepath(nchan == 1 ? "iredit_mono.glade" : "iredit.glade"), &ui);
+	machine.get_options().get_builder_filepath(nchan == 1 ? "iredit_mono.glade" : "iredit.glade"), &machine);
     return new IRWindow(bld, convolver, icon, machine, accels, nchan);
 }
 

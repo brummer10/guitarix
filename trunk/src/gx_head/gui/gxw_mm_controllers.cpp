@@ -80,23 +80,23 @@ void UiRegler::reflectZone() {
     }
 }
 
-static bool hasId(string id) {
-    if (!gx_engine::parameter_map.hasId(id)) {
+static bool hasId(gx_engine::GxMachineBase& machine, string id) {
+    if (!machine.parameter_hasId(id)) {
 	printf("not found: %s\n", id.c_str());
         return false;
     }
     return true;
 }
 
-GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value) {
-    if (!hasId(id)) {
+GtkWidget *UiRegler::create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id, bool show_value) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return (new UiRegler(ui, gx_engine::parameter_map[id].getFloat(), regler, show_value))->get_widget();
+    return (new UiRegler(machine, machine.get_parameter(id).getFloat(), regler, show_value))->get_widget();
 }
 
-UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value):
-    gx_ui::GxUiItemFloat(&ui, &param.get_value()),
+UiRegler::UiRegler(gx_engine::GxMachineBase &machine, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value):
+    gx_ui::GxUiItemFloat(&machine.get_ui(), &param.get_value()),
     Gtk::Adjustment(param.get_value(), param.lower, param.upper, param.step, 10*param.step, 0),
     m_regler(regler),
     log_display(param.is_log_display()) {
@@ -139,7 +139,7 @@ UiRegler::UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regle
     m_regler->show();
     m_regler->get_accessible()->set_description (param.id().c_str());
     m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
-    connect_midi_controller(GTK_WIDGET(m_regler->gobj()), &param.get_value());
+    connect_midi_controller(m_regler, param.id().c_str(), machine);
 }
 
 UiRegler::~UiRegler() {
@@ -169,33 +169,33 @@ UiSelectorBase::UiSelectorBase(gx_engine::Parameter& param)
 }
 
 template <>
-UiSelector<float>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<float> &param)
+UiSelector<float>::UiSelector(gx_engine::GxMachineBase& machine, gx_engine::ParameterV<float> &param)
     : UiSelectorBase(param),
-      gx_ui::GxUiItemV<float>(&ui, &param.get_value()),
+      gx_ui::GxUiItemV<float>(&machine.get_ui(), &param.get_value()),
       Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0) {
     m_selector.set_adjustment(*this);
     set_value(param.get_value());
-    connect_midi_controller(GTK_WIDGET(m_selector.gobj()), gx_ui::GxUiItemV<float>::fZone);
+    connect_midi_controller(&m_selector, param.id().c_str(), machine);
 }
 
 template <>
-UiSelector<int>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<int> &param)
+UiSelector<int>::UiSelector(gx_engine::GxMachineBase& machine, gx_engine::ParameterV<int> &param)
     : UiSelectorBase(param),
-      gx_ui::GxUiItemV<int>(&ui, &param.get_value()),
+      gx_ui::GxUiItemV<int>(&machine.get_ui(), &param.get_value()),
       Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0) {
     m_selector.set_adjustment(*this);
     set_value(param.get_value());
-    connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
+    connect_midi_controller(&m_selector, param.id().c_str(), machine);
 }
 
 template <>
-UiSelector<unsigned int>::UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<unsigned int> &param)
+UiSelector<unsigned int>::UiSelector(gx_engine::GxMachineBase& machine, gx_engine::ParameterV<unsigned int> &param)
     : UiSelectorBase(param),
-      gx_ui::GxUiItemV<unsigned int>(&ui, &param.get_value()),
+      gx_ui::GxUiItemV<unsigned int>(&machine.get_ui(), &param.get_value()),
       Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0) {
     m_selector.set_adjustment(*this);
     set_value(param.get_value());
-    connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
+    connect_midi_controller(&m_selector, param.id().c_str(), machine);
 }
 
 template <class T>
@@ -210,72 +210,72 @@ void UiSelector<T>::reflectZone() {
     set_value(v);
 }
 
-GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
+GtkWidget* UiReglerWithCaption::create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler,
            string id, bool show_value) {
-    if (!hasId(id)) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return create(ui, regler, id, gx_engine::parameter_map[id].l_name(), show_value);
+    return create(machine, regler, id, machine.get_parameter(id).l_name(), show_value);
 }
 
-GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
+GtkWidget* UiReglerWithCaption::create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler,
            string id, Glib::ustring label, bool show_value) {
-    if (!hasId(id)) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return (new UiReglerWithCaption(ui, gx_engine::parameter_map[id].getFloat(), regler, label, show_value))->get_widget();
+    return (new UiReglerWithCaption(machine, machine.get_parameter(id).getFloat(), regler, label, show_value))->get_widget();
 }
 
-GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id) {
-    if (!hasId(id)) {
+GtkWidget* UiRackReglerWithCaption::create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return create(ui, regler, id, gx_engine::parameter_map[id].l_name());
+    return create(machine, regler, id, machine.get_parameter(id).l_name());
 }
 
-GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
+GtkWidget* UiRackReglerWithCaption::create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler,
                                            string id, Glib::ustring label) {
-    if (!hasId(id)) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return (new UiRackReglerWithCaption(ui, gx_engine::parameter_map[id].getFloat(), regler,
+    return (new UiRackReglerWithCaption(machine, machine.get_parameter(id).getFloat(), regler,
             label))->get_widget();
 }
 
-GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id) {
-    if (!hasId(id)) {
+GtkWidget* UiRackRegler::create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return create(ui, regler, id, gx_engine::parameter_map[id].l_name());
+    return create(machine, regler, id, machine.get_parameter(id).l_name());
 }
 
-GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
+GtkWidget* UiRackRegler::create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler,
                                 string id, Glib::ustring label) {
-    if (!hasId(id)) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return (new UiRackRegler(ui, gx_engine::parameter_map[id].getFloat(), regler, label))->get_widget();
+    return (new UiRackRegler(machine, machine.get_parameter(id).getFloat(), regler, label))->get_widget();
 }
 
-GtkWidget* UiRackMasterRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
+GtkWidget* UiRackMasterRegler::create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler,
                                 string id, Glib::ustring label) {
-    if (!hasId(id)) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return (new UiRackMasterRegler(ui, gx_engine::parameter_map[id].getFloat(), regler, label))->get_widget();
+    return (new UiRackMasterRegler(machine, machine.get_parameter(id).getFloat(), regler, label))->get_widget();
 }
 
-GtkWidget* UiRackMasterRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id) {
-    if (!hasId(id)) {
+GtkWidget* UiRackMasterRegler::create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return create(ui, regler, id, gx_engine::parameter_map[id].l_name());
+    return create(machine, regler, id, machine.get_parameter(id).l_name());
 }
 
-UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui,
+UiReglerWithCaption::UiReglerWithCaption(gx_engine::GxMachineBase& machine,
                     gx_engine::FloatParameter &param, Gxw::Regler *regler,
                     Glib::ustring label, bool show_value)
-    : UiRegler(ui, param, regler, show_value) {
+    : UiRegler(machine, param, regler, show_value) {
     m_label.set_text(label);
     m_label.set_name("effekt_label");
     m_box.set_name(param.id());
@@ -285,10 +285,10 @@ UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui,
     m_box.show_all();
 }
 
-UiRackReglerWithCaption::UiRackReglerWithCaption(gx_ui::GxUI &ui,
+UiRackReglerWithCaption::UiRackReglerWithCaption(gx_engine::GxMachineBase& machine,
                          gx_engine::FloatParameter &param, Gxw::Regler *regler,
                          Glib::ustring label)
-    : UiRegler(ui, param, regler, true) {
+    : UiRegler(machine, param, regler, true) {
     m_label.set_text(label);
     m_label.set_name("rack_label");
     m_label.set_justify(Gtk::JUSTIFY_CENTER);
@@ -305,9 +305,9 @@ UiRackReglerWithCaption::UiRackReglerWithCaption(gx_ui::GxUI &ui,
     m_box.show_all();
 }
 
-UiRackRegler::UiRackRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
+UiRackRegler::UiRackRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
     Glib::ustring label)
-    : UiRegler(ui, param, regler, true) {
+    : UiRegler(machine, param, regler, true) {
     m_box.set_name(param.id());
     m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
     m_regler->set_name("rack_regler");
@@ -317,10 +317,10 @@ UiRackRegler::UiRackRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gx
     m_box.show_all();
 }
 
-UiRackMasterRegler::UiRackMasterRegler(gx_ui::GxUI &ui,
+UiRackMasterRegler::UiRackMasterRegler(gx_engine::GxMachineBase& machine,
                          gx_engine::FloatParameter &param, Gxw::Regler *regler,
                          Glib::ustring label)
-    : UiRegler(ui, param, regler, false) {
+    : UiRegler(machine, param, regler, false) {
     m_label.set_text(label+" "); //FIXME: font bug, add space to avoid cut off on the right
     m_label.set_name("rack_label");
     m_label.set_size_request(-1,12);
@@ -336,11 +336,11 @@ UiSwitch::UiSwitch(const char *sw_type):
     Switch(sw_type) {
 }
 
-UiSwitch *UiSwitch::new_switch(gx_ui::GxUI& ui, const char* sw_type, gx_engine::Parameter& param) {
+UiSwitch *UiSwitch::new_switch(gx_engine::GxMachineBase& machine, const char* sw_type, gx_engine::Parameter& param) {
     if (param.isFloat()) {
-        return new UiSwitchFloat(ui, sw_type, param.getFloat());
+        return new UiSwitchFloat(machine, sw_type, param.getFloat());
     } else {
-        return new UiSwitchBool(ui, sw_type, param.getBool());
+        return new UiSwitchBool(machine, sw_type, param.getBool());
     }
 }
 
@@ -354,9 +354,9 @@ void UiSwitchFloat::reflectZone() {
     set_active(v != 0.0);
 }
 
-UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, gx_engine::FloatParameter &param)
+UiSwitchFloat::UiSwitchFloat(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::FloatParameter &param)
     : UiSwitch(sw_type),
-      gx_ui::GxUiItemFloat(&ui, &param.get_value()) {
+      gx_ui::GxUiItemFloat(&machine.get_ui(), &param.get_value()) {
     set_active(param.get_value() != 0.0);
     cp_set_var(param.id());
     this->set_has_tooltip();
@@ -368,7 +368,7 @@ UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, gx_engine::Fl
     this->get_accessible()->set_description (param.id().c_str());
     this->get_accessible()->set_name (param.id().substr(
           param.id().find_last_of(".")+1).c_str());
-    connect_midi_controller(GTK_WIDGET(gobj()), fZone);
+    connect_midi_controller(this, param.id().c_str(), machine);
     show();
 }
 
@@ -382,9 +382,9 @@ void UiSwitchBool::reflectZone() {
     set_active(v);
 }
 
-UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, gx_engine::BoolParameter &param)
+UiSwitchBool::UiSwitchBool(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::BoolParameter &param)
     : UiSwitch(sw_type),
-      gx_ui::GxUiItemBool(&ui, &param.get_value()) {
+      gx_ui::GxUiItemBool(&machine.get_ui(), &param.get_value()) {
     set_active(param.get_value());
     cp_set_var(param.id());
     this->set_has_tooltip();
@@ -396,32 +396,32 @@ UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, gx_engine::Bool
     this->get_accessible()->set_description (param.id().c_str());
     this->get_accessible()->set_name 
           (param.id().substr( param.id().find_last_of(".")+1).c_str());
-    connect_midi_controller(GTK_WIDGET(gobj()), fZone);
+    connect_midi_controller(this, param.id().c_str(), machine);
     show();
 }
 
 GtkWidget* UiSwitchWithCaption::create(
-    gx_ui::GxUI& ui, const char *sw_type, string id, Gtk::PositionType pos) {
-    if (!hasId(id)) {
+    gx_engine::GxMachineBase& machine, const char *sw_type, string id, Gtk::PositionType pos) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return create(ui, sw_type, id, gx_engine::parameter_map[id].l_name(), pos);
+    return create(machine, sw_type, id, machine.get_parameter(id).l_name(), pos);
 }
 
 GtkWidget* UiSwitchWithCaption::create(
-                                gx_ui::GxUI& ui, const char *sw_type, string id,
+                                gx_engine::GxMachineBase& machine, const char *sw_type, string id,
                                 Glib::ustring label, Gtk::PositionType pos) {
-    if (!hasId(id)) {
+    if (!hasId(machine, id)) {
         return 0;
     }
-    return (new UiSwitchWithCaption(ui, sw_type, gx_engine::parameter_map[id],
+    return (new UiSwitchWithCaption(machine, sw_type, machine.get_parameter(id),
                                     label, pos))->get_widget();
 }
 
-UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui,
+UiSwitchWithCaption::UiSwitchWithCaption(gx_engine::GxMachineBase& machine,
                                          const char *sw_type, gx_engine::Parameter &param,
                                          Glib::ustring label, Gtk::PositionType pos):
-    m_switch(UiSwitch::new_switch(ui, sw_type, param)) {
+    m_switch(UiSwitch::new_switch(machine, sw_type, param)) {
     m_label.set_text(label);
     m_label.set_name("rack_label");
     if (pos == Gtk::POS_LEFT || pos == Gtk::POS_RIGHT) {

@@ -37,7 +37,7 @@ namespace gx_preset {
 PresetIO::PresetIO(gx_engine::MidiControllerList& mctrl_,
 		   gx_engine::ConvolverAdapter& cvr_,
 		   gx_engine::ParamMap& param_,
-		   const gx_system::CmdlineOptions& opt_)
+		   gx_system::CmdlineOptions& opt_)
     : gx_system::AbstractPresetIO(),
       mctrl(mctrl_),
       convolver(cvr_),
@@ -150,12 +150,59 @@ static std::string replaced_id(const std::string& s) {
     return "";
 }
 
+bool PresetIO::convert_old(gx_system::JsonParser &jp) {
+    if (jp.current_value() == "system.mainwin_x") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.mainwin_x = jp.current_value_int();
+	return true;
+    }
+    if (jp.current_value() == "system.mainwin_y") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.mainwin_y = jp.current_value_int();
+	return true;
+    }
+    if (jp.current_value() == "system.mainwin_height") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.mainwin_height = jp.current_value_int();
+	return true;
+    }
+    if (jp.current_value() == "system.mainwin_rack_height") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.window_height = jp.current_value_int();
+	return true;
+    }
+    if (jp.current_value() == "system.preset_window_height") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.preset_window_height = jp.current_value_int();
+	return true;
+    }
+    if (jp.current_value() == "oscilloscope.bufferset") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.mul_buffer = jp.current_value_int();
+	return true;
+    }
+    if (jp.current_value() == "ui.skin_name") {
+	jp.next(gx_system::JsonParser::value_string);
+	opt.skin_name = jp.current_value();
+	return true;
+    }
+    if (jp.current_value() == "ui.latency_nowarn") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.no_warn_latency = jp.current_value_int();
+	return true;
+    }
+    return false;
+}
+
 void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
     jp.next(gx_system::JsonParser::begin_object);
     do {
         jp.next(gx_system::JsonParser::value_key);
         gx_engine::Parameter *p;
         if (!param.hasId(jp.current_value())) {
+	    if (convert_old(jp)) {
+		continue;
+	    }
 	    std::string s = replaced_id(jp.current_value());
 	    if (s.empty()) {
 		gx_system::gx_print_warning(
@@ -189,7 +236,7 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
 void PresetIO::write_parameters(gx_system::JsonWriter &w, bool preset) {
     w.begin_object(true);
     for (gx_engine::ParamMap::iterator i = param.begin();
-                                   i != param.end(); ++i) {
+	 i != param.end(); ++i) {
         gx_engine::Parameter *param = i->second;
 	if (!param->isSavable()) {
 	    continue;
@@ -247,7 +294,7 @@ void PresetIO::commit_preset() {
         mctrl.set_controller_array(*m);
     }
     clear();
-    gx_engine::controller_map.update_from_controllers();
+    mctrl.update_from_controllers();
 }
 
 void PresetIO::write_intern(gx_system::JsonWriter &w, bool write_midi) {
@@ -283,7 +330,7 @@ void PresetIO::copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 
 StateIO::StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
 		 gx_engine::ParamMap& param, gx_engine::MidiStandardControllers& mstdctr,
-		 gx_jack::GxJack& jack_, const gx_system::CmdlineOptions& opt_)
+		 gx_jack::GxJack& jack_, gx_system::CmdlineOptions& opt_)
     : PresetIO(mctrl, cvr, param, opt_),
       midi_std_control(mstdctr),
       jack(jack_) {
@@ -329,10 +376,10 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
     write_parameters(jw, false);
 
     jw.write("midi_controller");
-    gx_engine::controller_map.writeJSON(jw);
+    mctrl.writeJSON(jw);
 
     jw.write("midi_ctrl_names");
-    gx_engine::midi_std_ctr.writeJSON(jw);
+    midi_std_control.writeJSON(jw);
 
     if (!no_preset) {
 	jw.write("current_preset");
@@ -350,12 +397,12 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
  ** class PluginPresetList
  */
 
-PluginPresetList::PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap_)
-    : Glib::Object(), filename(fname), pmap(pmap_), is(), jp(&is) {
+PluginPresetList::PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap_, gx_engine::MidiControllerList& mctrl_)
+    : Glib::Object(), filename(fname), pmap(pmap_), mctrl(mctrl_), is(), jp(&is) {
 }
 
-Glib::RefPtr<PluginPresetList> PluginPresetList::create(const std::string& fname, gx_engine::ParamMap& pmap) {
-    return Glib::RefPtr<PluginPresetList>(new PluginPresetList(fname, pmap));
+Glib::RefPtr<PluginPresetList> PluginPresetList::create(const std::string& fname, gx_engine::ParamMap& pmap_, gx_engine::MidiControllerList& mctrl_) {
+    return Glib::RefPtr<PluginPresetList>(new PluginPresetList(fname, pmap_, mctrl_));
 }
 
 bool PluginPresetList::start() {
@@ -448,7 +495,7 @@ void PluginPresetList::set(const Glib::ustring& name) {
 	gx_system::gx_print_error(filename.c_str(), _("parse error"));
 	return;
     }
-    gx_engine::controller_map.remove_controlled_parameters(plist, 0);
+    mctrl.remove_controlled_parameters(plist, 0);
     for (gx_engine::paramlist::iterator i = plist.begin(); i != plist.end(); ++i) {
         (*i)->setJSON_value();
     }
@@ -572,16 +619,17 @@ static const char *statename_postfix = "_rc";
 static const char *bank_list = "banklist.js";
 
 GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, gx_engine::ConvolverAdapter& cvr,
-		       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl,
+		       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl_,
 		       gx_engine::ModuleSequencer& seq_, gx_engine::ParamMap& param_)
     : sigc::trackable(),
       GxSettingsBase(seq_),
       param(param_),
-      preset_io(mctrl, cvr, param, opt),
-      state_io(mctrl, cvr, param, mstdctr, jack_, opt),
+      preset_io(mctrl_, cvr, param, opt),
+      state_io(mctrl_, cvr, param, mstdctr, jack_, opt),
       state_loaded(false),
       no_autosave(false),
       jack(jack_),
+      mctrl(mctrl_),
       options(opt),
       preset_parameter(*param.reg_string("system.current_preset", "?", &current_name, "")),
       bank_parameter(*param.reg_string("system.current_bank", "?", &current_bank, "")) {
@@ -772,9 +820,9 @@ void GxSettings::loadstate() {
 
 Glib::RefPtr<PluginPresetList> GxSettings::load_plugin_preset_list(const Glib::ustring& id, bool factory) const {
     if (factory) {
-	return PluginPresetList::create(options.get_factory_filepath(id), param);
+	return PluginPresetList::create(options.get_factory_filepath(id), param, mctrl);
     } else {
-	return PluginPresetList::create(options.get_pluginpreset_filepath(id), param);
+	return PluginPresetList::create(options.get_pluginpreset_filepath(id), param, mctrl);
     }
 }
 

@@ -40,17 +40,17 @@ namespace gx_gui {
 
 GxVBox::~GxVBox() {}
 
-GxVBox::GxVBox(const gx_ui::GxUI& ui) {}
+GxVBox::GxVBox(const gx_engine::GxMachineBase& machine) {}
 /****************************************************************/
 
 GxHBox::~GxHBox() {}
 
-GxHBox::GxHBox(const gx_ui::GxUI& ui) {}
+GxHBox::GxHBox(const gx_engine::GxMachineBase& machine) {}
 /****************************************************************/
 
 GxPaintBox::~GxPaintBox() {}
 
-GxPaintBox::GxPaintBox(gx_ui::GxUI& ui, const char *expose_funk)
+GxPaintBox::GxPaintBox(gx_engine::GxMachineBase& machine, const char *expose_funk)
     : m_box(false, 0) {
     m_paintbox.property_paint_func() = expose_funk;
     m_paintbox.pack_start(m_box);
@@ -59,7 +59,7 @@ GxPaintBox::GxPaintBox(gx_ui::GxUI& ui, const char *expose_funk)
 
 GxEventBox::~GxEventBox() {}
 
-GxEventBox::GxEventBox(const gx_ui::GxUI& ui) {
+GxEventBox::GxEventBox(const gx_engine::GxMachineBase& machine) {
     m_eventbox.add(m_box);
     m_fixedbox.add(m_eventbox);
     m_hbox.add(m_pbox);
@@ -71,7 +71,7 @@ GxEventBox::GxEventBox(const gx_ui::GxUI& ui) {
 
 GxNotebookBox::~GxNotebookBox() {}
 
-GxNotebookBox::GxNotebookBox(const gx_ui::GxUI& ui) {
+GxNotebookBox::GxNotebookBox(const gx_engine::GxMachineBase& machine) {
     m_box.set_name("tab_rack");
 }
 

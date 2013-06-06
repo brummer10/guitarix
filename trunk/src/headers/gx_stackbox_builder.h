@@ -47,7 +47,6 @@ private:
     Gtk::Label&          convolver_filename_label;
     Gtk::Label&          convolver_mono_filename_label;
     Gtk::HBox           *widget;
-    gx_ui::GxUI&          ui;
     Glib::RefPtr<Gtk::AccelGroup> accels;
     Glib::RefPtr<Gdk::Pixbuf> window_icon;
 
@@ -61,26 +60,26 @@ private:
     void openVerticalMidiBox(const char* label = "");
     // functions used in interfaces
     void create_master_slider(string id) {
-	addwidget(UiRackMasterRegler::create(ui, new Gxw::HSlider(), id));
+	addwidget(UiRackMasterRegler::create(machine, new Gxw::HSlider(), id));
     }
     void create_master_slider(string id, Glib::ustring(label)) {
-	addwidget(UiRackMasterRegler::create(ui, new Gxw::HSlider(), id, label));
+	addwidget(UiRackMasterRegler::create(machine, new Gxw::HSlider(), id, label));
     }
 
     void closeBox();
     void openSpaceBox(const char* label = "");
     void create_small_rackknob(string id) {
-	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnob(), id));
+	addwidget(UiRackReglerWithCaption::create(machine, new Gxw::SmallKnob(), id));
     }
     void create_small_rackknob(string id, Glib::ustring label) {
-	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnob(), id, label));
+	addwidget(UiRackReglerWithCaption::create(machine, new Gxw::SmallKnob(), id, label));
     }
 
     void create_small_rackknobr(string id) {
-	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnobR(), id));
+	addwidget(UiRackReglerWithCaption::create(machine, new Gxw::SmallKnobR(), id));
     }
     void create_small_rackknobr(string id, Glib::ustring label) {
-	addwidget(UiRackReglerWithCaption::create(ui, new Gxw::SmallKnobR(), id, label));
+	addwidget(UiRackReglerWithCaption::create(machine, new Gxw::SmallKnobR(), id, label));
     }
 
     void openVerticalBox(const char* label = "");
@@ -91,26 +90,26 @@ private:
     void openHorizontalhideBox(const char* label = "");
     void openHorizontalTableBox(const char* label);
     void create_switch_no_caption(const char *sw_type, const string& id) {
-	addwidget(UiSwitch::create(ui, sw_type, id));
+	addwidget(UiSwitch::create(machine, sw_type, id));
     }
     void create_switch(const char *sw_type, const string& id, const char *label, Gtk::PositionType pos) {
 	if (label) {
-	    addwidget(UiSwitchWithCaption::create(ui, sw_type, id, label, pos));
+	    addwidget(UiSwitchWithCaption::create(machine, sw_type, id, label, pos));
 	} else {
-	    addwidget(UiSwitchWithCaption::create(ui, sw_type, id, pos));
+	    addwidget(UiSwitchWithCaption::create(machine, sw_type, id, pos));
 	}
     }
     void openpaintampBox(const char* label = "");
     void create_wheel(string id, bool show_value = false) {
-	addwidget(UiRegler::create(ui, new Gxw::Wheel(), id, show_value));
+	addwidget(UiRegler::create(machine, new Gxw::Wheel(), id, show_value));
     }
     void create_spin_value(const std::string& id, const char *label) {
 	GtkWidget *w;
 	Gxw::ValueDisplay *v = new Gxw::ValueDisplay();
 	if (label) {
-	    w = UiRackReglerWithCaption::create(ui, v, id, label);
+	    w = UiRackReglerWithCaption::create(machine, v, id, label);
 	} else {
-	    w = UiRackReglerWithCaption::create(ui, v, id);
+	    w = UiRackReglerWithCaption::create(machine, v, id);
 	}
 	v->set_name("show_always");
 	addwidget(w);
@@ -119,25 +118,25 @@ private:
 	GtkWidget *w;
 	Gxw::SimpleValueDisplay *v = new Gxw::SimpleValueDisplay();
 	if (label) {
-	    w = UiRackReglerWithCaption::create(ui, v, id, label);
+	    w = UiRackReglerWithCaption::create(machine, v, id, label);
 	} else {
-	    w = UiRackRegler::create(ui, v, id);
+	    w = UiRackRegler::create(machine, v, id);
 	}
 	v->set_name("show_always");
 	addwidget(w);
     }
     void create_eq_rackslider_no_caption(string id) {
-	addwidget(UiRackRegler::create(ui, new Gxw::EqSlider(), id));
+	addwidget(UiRackRegler::create(machine, new Gxw::EqSlider(), id));
     }
     void create_port_display(string id, const char *label) {
 	if (label) {
 	    if (*label) {
-		addwidget(UiRackReglerWithCaption::create(ui, new Gxw::PortDisplay(), id, label));
+		addwidget(UiRackReglerWithCaption::create(machine, new Gxw::PortDisplay(), id, label));
 	    } else {
-		addwidget(UiRackRegler::create(ui, new Gxw::PortDisplay(), id));
+		addwidget(UiRackRegler::create(machine, new Gxw::PortDisplay(), id));
 	    }
 	} else {
-	    addwidget(UiRackReglerWithCaption::create(ui, new Gxw::PortDisplay(), id));
+	    addwidget(UiRackReglerWithCaption::create(machine, new Gxw::PortDisplay(), id));
 	}
     }
     void create_selector(string id, const char *widget_name=0);
@@ -169,9 +168,9 @@ private:
 	    gtk_container_add(GTK_CONTAINER(fBox[fTop]), manage(widget)->gobj());
 	}
     }
-    void addCheckButton(const char* label, bool* zone);
-    void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
-    void addMToggleButton(const char* label, bool* zone);
+    void addCheckButton(const char* label, const char* id);
+    void addNumEntry(const char* label, const char* id, float init, float min, float max, float step);
+    void addMToggleButton(const char* label, const char* id);
     friend class UiBuilderImpl;
 public:
     StackBoxBuilder(

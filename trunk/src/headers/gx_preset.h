@@ -38,7 +38,7 @@ private:
     gx_engine::MidiControllerList& mctrl;
     gx_engine::ConvolverAdapter& convolver;
     gx_engine::ParamMap& param;
-    const gx_system::CmdlineOptions& opt;
+    gx_system::CmdlineOptions& opt;
     gx_engine::paramlist plist;
     gx_engine::MidiControllerList::controller_array *m;
     gx_engine::GxJConvSettings *jcset;
@@ -49,10 +49,11 @@ private:
     void read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_system::SettingsFileHeader& head);
     void fixup_parameters(const gx_system::SettingsFileHeader& head);
     void write_intern(gx_system::JsonWriter &w, bool write_midi);
+    bool convert_old(gx_system::JsonParser &jp);
     friend class StateIO;
 public:
     PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-	     gx_engine::ParamMap& param, const gx_system::CmdlineOptions& opt);
+	     gx_engine::ParamMap& param, gx_system::CmdlineOptions& opt);
     ~PresetIO();
     void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_preset();
@@ -67,7 +68,7 @@ private:
 public:
     StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
 	    gx_engine::ParamMap& param, gx_engine::MidiStandardControllers& mstdctr,
-	    gx_jack::GxJack& jack, const gx_system::CmdlineOptions& opt);
+	    gx_jack::GxJack& jack, gx_system::CmdlineOptions& opt);
     ~StateIO();
     void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_state();
@@ -78,11 +79,12 @@ class PluginPresetList: public Glib::Object {
 private:
     std::string filename;
     gx_engine::ParamMap& pmap;
+    gx_engine::MidiControllerList& mctrl;
     ifstream is;
     gx_system::JsonParser jp;
-    PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap);
+    PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap, gx_engine::MidiControllerList& mctrl_);
 public:
-    static Glib::RefPtr<PluginPresetList> create(const std::string& fname, gx_engine::ParamMap& pmap);
+    static Glib::RefPtr<PluginPresetList> create(const std::string& fname, gx_engine::ParamMap& pmap, gx_engine::MidiControllerList& mctrl);
     bool start();
     bool next(Glib::ustring& name, bool *is_set = 0);
     void set(const Glib::ustring& name);
@@ -99,6 +101,7 @@ private:
     bool                  state_loaded;
     bool                  no_autosave;
     gx_jack::GxJack&      jack;
+    gx_engine::MidiControllerList& mctrl;
     gx_system::CmdlineOptions& options;
     gx_engine::StringParameter& preset_parameter;
     gx_engine::StringParameter& bank_parameter;

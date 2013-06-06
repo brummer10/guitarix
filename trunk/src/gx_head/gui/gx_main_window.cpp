@@ -505,9 +505,9 @@ void MainWindow::maybe_shrink_horizontally(bool preset_no_rack) {
     geom.min_height = req.height;
     w->set_geometry_hints(geom, Gdk::HINT_MIN_SIZE);
     if (preset_no_rack) {
-	req.height += preset_window_height - preset_scrolledbox->size_request().height;
+	req.height += options.preset_window_height - preset_scrolledbox->size_request().height;
     } else {
-	req.height = std::max(req.height, window_height);
+	req.height = std::max(req.height, options.window_height);
     }
     w->move_resize(x, y, req.width, req.height);
     if (!state) {
@@ -658,7 +658,7 @@ void MainWindow::maybe_change_resizable() {
 void MainWindow::set_vpaned_handle() {
     int w, h;
     main_vpaned->get_handle_window()->get_size(w, h);
-    int pos = main_vpaned->get_allocation().get_height() - preset_window_height - h;
+    int pos = main_vpaned->get_allocation().get_height() - options.preset_window_height - h;
     main_vpaned->set_position(pos);
 }
 
@@ -677,11 +677,11 @@ void MainWindow::on_show_rack() {
     compress_button->set_visible(v);
     expand_button->set_visible(v);
     if (actions.presets->get_active() && preset_scrolledbox->get_mapped()) {
-	preset_window_height = preset_scrolledbox->get_allocation().get_height();
+	options.preset_window_height = preset_scrolledbox->get_allocation().get_height();
     }
     if (v) {
 	midi_out_box->set_visible(actions.midi_out->get_active());
-	window_height = max(window_height, window->size_request().height);
+	options.window_height = max(options.window_height, window->size_request().height);
 	main_vpaned->set_position(oldpos);
 	w->show();
 	monoampcontainer->show();
@@ -698,7 +698,7 @@ void MainWindow::on_show_rack() {
 	if (!win || win->get_state() == 0) {
 	    Gtk::Requisition req;
 	    window->size_request(req);
-	    req.height = max(req.height, window_height);
+	    req.height = max(req.height, options.window_height);
 	    freezer.freeze_and_size_request(window, req.width, req.height);
 	    if (win && actions.presets->get_active()) {
 		freezer.set_slot(sigc::mem_fun(this, &MainWindow::set_vpaned_handle));
@@ -870,7 +870,7 @@ void MainWindow::on_dir_changed() {
 void MainWindow::on_configure_event(GdkEventConfigure *ev) {
     if (freezer.check_thaw(ev->width, ev->height)) {
 	if (actions.show_rack->get_active()) {
-	    window_height = ev->height;
+	    options.window_height = ev->height;
 	}
     }
 }
@@ -906,9 +906,9 @@ RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwid
     return r;
 }
 
-void load_rack_ui(const std::string& fname, gx_ui::GxUI& ui, Gtk::Widget*& mainwidget, Gtk::Widget*& miniwidget) {
+void load_rack_ui(const std::string& fname, gx_engine::GxMachineBase& machine, Gtk::Widget*& mainwidget, Gtk::Widget*& miniwidget) {
     const char *id_list[] = {"rackbox", "minibox", 0};
-    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
+    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &machine, id_list);
     bld->get_toplevel("rackbox", mainwidget);
     miniwidget = 0;
     if (bld->has_object("minibox")) {
@@ -920,7 +920,7 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
     Gtk::Widget *mainwidget = 0;
     Gtk::Widget *miniwidget = 0;
     if (!mainwidget && !pl.fname.empty()) {
-	load_rack_ui(pl.fname, ui, mainwidget, miniwidget);
+	load_rack_ui(pl.fname, machine, mainwidget, miniwidget);
     }
     if (!mainwidget) {
 	boxbuilder.get_box(pl.get_id(), mainwidget, miniwidget);
@@ -929,7 +929,7 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
 	std::string gladefile = options.get_builder_filepath(
 	    std::string(pl.get_id())+"_ui.glade");
 	if (access(gladefile.c_str(), R_OK) == 0) {
-	    load_rack_ui(gladefile, ui, mainwidget, miniwidget);
+	    load_rack_ui(gladefile, machine, mainwidget, miniwidget);
 	}
     }
     if (!mainwidget) {
@@ -959,7 +959,7 @@ void MainWindow::on_show_values() {
 void MainWindow::on_preset_action() {
     bool v = actions.presets->get_active();
     if (!v && preset_scrolledbox->get_mapped()) {
-	preset_window_height = preset_scrolledbox->get_allocation().get_height();
+	options.preset_window_height = preset_scrolledbox->get_allocation().get_height();
     }
     maybe_change_resizable();
     if (v && !actions.show_rack->get_active()) {
@@ -967,11 +967,11 @@ void MainWindow::on_preset_action() {
 	if (!win || win->get_state() == 0) {
 	    Gtk::Requisition req;
 	    window->size_request(req);
-	    freezer.freeze_and_size_request(window, req.width, req.height+preset_window_height);
+	    freezer.freeze_and_size_request(window, req.width, req.height+options.preset_window_height);
 	}
     }
     preset_box_no_rack->set_visible(v);
-    preset_window->on_preset_select(v, use_animations() && actions.show_rack->get_active(), preset_window_height);
+    preset_window->on_preset_select(v, use_animations() && actions.show_rack->get_active(), options.preset_window_height);
 }
 
 /*
@@ -1095,7 +1095,7 @@ void MainWindow::on_portmap_activate() {
 	if (portmap_window) {
 	    return;
 	}
-	portmap_window = gx_portmap::PortMapWindow::create(*jack, ui, actions.accels);
+	portmap_window = gx_portmap::PortMapWindow::create(machine, actions.accels);
 	portmap_window->signal_response().connect(
 	    sigc::mem_fun(*this, &MainWindow::on_portmap_response));
     } else {
@@ -1112,26 +1112,25 @@ void MainWindow::on_miditable_toggle() {
 }
 
 void MainWindow::change_skin(Glib::RefPtr<Gtk::RadioAction> action) {
-    unsigned int n = action->get_current_value();
-    skin_changed.modifyZone(n);
-    set_new_skin(n);
+    set_new_skin(options.skin[action->get_current_value()]);
 }
 
-void MainWindow::set_new_skin(unsigned int idx) {
-    assert(idx < options.skin.skin_list.size());
-    string rcfile = options.get_style_filepath(
-	"gx_head_" + options.skin.skin_list[idx] + ".rc");
-    gtk_rc_parse(rcfile.c_str());
-    gtk_rc_reset_styles(gtk_settings_get_default());
-    make_icons();
+void MainWindow::set_new_skin(const Glib::ustring& skin_name) {
+    if (!skin_name.empty()) {
+	options.skin_name = skin_name;
+	string rcfile = options.get_style_filepath(
+	    "gx_head_" + skin_name + ".rc");
+	gtk_rc_parse(rcfile.c_str());
+	gtk_rc_reset_styles(gtk_settings_get_default());
+	make_icons();
+    }
 }
 
 void MainWindow::add_skin_menu() {
     Glib::ustring s = "<menubar><menu action=\"OptionsMenu\"><menu action=\"SkinMenu\">";
     int idx = 0;
     Gtk::RadioButtonGroup sg;
-    value_pair *skin_labels = new value_pair[options.skin.skin_list.size()+1];
-    for (vector<string>::iterator i = options.skin.skin_list.begin();
+    for (vector<Glib::ustring>::iterator i = options.skin.skin_list.begin();
 	 i != options.skin.skin_list.end();
 	 ++i) {
 	Glib::ustring name = *i;
@@ -1144,15 +1143,10 @@ void MainWindow::add_skin_menu() {
 		sigc::mem_fun(*this, &MainWindow::change_skin));
 	    actions.skin = action;
 	}
-	skin_labels[idx].value_id = strdup(name.c_str()); // will not be freed
-	skin_labels[idx].value_label = 0;
 	action->property_value().set_value(idx++);
     }
     s.append("</menu></menu></menubar>");
     uimanager->add_ui_from_string(s);
-    skin_labels[idx].value_id = 0;
-    skin_labels[idx].value_label = 0;
-    machine.reg_non_midi_enum_par("ui.skin_name", "?ui.skin_name", skin_labels, &skin, false, 6);
 }
 
 enum GxJackLatencyChange {
@@ -1162,7 +1156,7 @@ enum GxJackLatencyChange {
 
 // check user's decision to turn off latency change warning
 void MainWindow::user_disable_latency_warn(Gtk::CheckButton* disable_warn) {
-    no_warn_latency = disable_warn->get_active();
+    options.no_warn_latency = disable_warn->get_active();
 }
 
 int MainWindow::gx_wait_latency_warn() {
@@ -1244,7 +1238,7 @@ void MainWindow::change_latency(Glib::RefPtr<Gtk::RadioAction> action) {
     if (buf_size == jack->get_jack_bs()) {
         return;
     }
-    if (!no_warn_latency && gx_wait_latency_warn() != kChangeLatency) {
+    if (!options.no_warn_latency && gx_wait_latency_warn() != kChangeLatency) {
 	Glib::signal_idle().connect_once(
 	    sigc::bind(
 		sigc::mem_fun(action.operator->(), &Gtk::RadioAction::set_current_value), jack->get_jack_bs()));
@@ -1280,7 +1274,6 @@ void MainWindow::add_latency_menu() {
     }
     s.append("</menu></menu></menubar>");
     uimanager->add_ui_from_string(s);
-    machine.reg_non_midi_par("ui.latency_nowarn", &no_warn_latency, false, false);
 }
 
 void MainWindow::set_latency() {
@@ -1348,7 +1341,7 @@ void MainWindow::on_select_jack_control() {
     if (select_jack_control) {
 	select_jack_control->present();
     } else {
-	select_jack_control = gx_gui::SelectJackControlPgm::create(&ui, options, machine);
+	select_jack_control = gx_gui::SelectJackControlPgm::create(options, machine);
 	select_jack_control->signal_close().connect(
 	    sigc::mem_fun(*this, &MainWindow::delete_select_jack_control));
 	select_jack_control->set_transient_for(*window);
@@ -1387,8 +1380,8 @@ void MainWindow::on_engine_toggled() {
 }
 
 void MainWindow::set_switcher_controller() {
-    if (!gx_engine::controller_map.get_config_mode()) {
-	new gx_main_midi::MidiConnect(0, machine.get_parameter("ui.live_play_switcher"));
+    if (!machine.midi_get_config_mode()) {
+	new gx_main_midi::MidiConnect(0, machine.get_parameter("ui.live_play_switcher"), machine);
     }
 }
 
@@ -1480,17 +1473,17 @@ void MainWindow::create_actions() {
     ** actions to open other (sub)windows
     */
     actions.presets = UiSwitchToggleAction::create(
-	ui, *machine.reg_switch("system.show_presets", false, false), "Presets",_("_Preset Selection"));
+	ui, machine.get_parameter("system.show_presets").getSwitch(), "Presets",_("_Preset Selection"));
     actions.group->add(actions.presets, 
 		     sigc::mem_fun(*this, &MainWindow::on_preset_action));
 
     actions.show_plugin_bar = UiSwitchToggleAction::create(
-	ui, *machine.reg_switch("system.show_toolbar", false, false), "ShowPluginBar",_("Show Plugin _Bar"));
+	ui, machine.get_parameter("system.show_toolbar").getSwitch(), "ShowPluginBar",_("Show Plugin _Bar"));
     actions.group->add(actions.show_plugin_bar,
 		     sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
 
     actions.show_rack = UiSwitchToggleAction::create(
-	ui, *machine.reg_switch("system.show_rack", false, false), "ShowRack",_("Show _Rack"));
+	ui, machine.get_parameter("system.show_rack").getSwitch(), "ShowRack",_("Show _Rack"));
     actions.group->add(actions.show_rack,
 		     sigc::mem_fun(*this, &MainWindow::on_show_rack));
 
@@ -1512,7 +1505,7 @@ void MainWindow::create_actions() {
     }
 
     actions.livetuner = UiBoolToggleAction::create(
-	ui, *machine.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false), "LiveTuner", "??");
+	ui, machine.get_parameter("ui.racktuner").getBool(), "LiveTuner", "??");
 
     actions.midi_out = UiBoolToggleAction::create(
 	ui, machine.get_parameter("ui.midi_out").getBool(), "MidiOut", _("M_idi Out"));
@@ -1521,7 +1514,7 @@ void MainWindow::create_actions() {
 	sigc::mem_fun(this, &MainWindow::on_show_midi_out));
 
     actions.midi_out_plug = UiBoolToggleAction::create(
-	ui, gx_engine::parameter_map["midi_out.s_h"].getBool(), "MidiOutSH", "??");
+	ui, machine.get_parameter("midi_out.s_h").getBool(), "MidiOutSH", "??");
     actions.group->add(
 	actions.midi_out_plug,
 	sigc::mem_fun(this, &MainWindow::on_show_midi_out_plug));
@@ -1530,7 +1523,7 @@ void MainWindow::create_actions() {
     ** rack actions
     */
     actions.tuner = UiBoolToggleAction::create(
-	ui, *machine.reg_non_midi_par("system.show_tuner", (bool*)0, false), "Tuner",_("_Tuner"));
+	ui, machine.get_parameter("system.show_tuner").getBool(), "Tuner",_("_Tuner"));
     actions.group->add(actions.tuner,
 		     sigc::mem_fun(*this, &MainWindow::on_show_tuner));
 
@@ -1547,7 +1540,7 @@ void MainWindow::create_actions() {
 		     sigc::mem_fun(*this, &MainWindow::on_expand_all));
 
     actions.rackh = UiSwitchToggleAction::create(
-	ui, *machine.reg_switch("system.order_rack_h", false, false), "RackH", _("Order Rack _Horizontally"));
+	ui, machine.get_parameter("system.order_rack_h").getSwitch(), "RackH", _("Order Rack _Horizontally"));
     actions.group->add(actions.rackh,
 		     sigc::mem_fun(*this, &MainWindow::on_dir_changed));
 
@@ -1555,19 +1548,19 @@ void MainWindow::create_actions() {
     ** option actions
     */
     actions.show_values = UiSwitchToggleAction::create(
-	ui, *machine.reg_switch("system.show_value", false, false), "ShowValues",_("_Show _Values"));
+	ui, machine.get_parameter("system.show_value").getSwitch(), "ShowValues",_("_Show _Values"));
     actions.group->add(actions.show_values,
 		     sigc::mem_fun(*this, &MainWindow::on_show_values));
 
     actions.tooltips = UiSwitchToggleAction::create(
-	ui, *machine.reg_switch("system.show_tooltips", false, true), "ShowTooltips", _("Show _Tooltips"), "", true);
+	ui, machine.get_parameter("system.show_tooltips").getSwitch(), "ShowTooltips", _("Show _Tooltips"), "", true);
     actions.group->add(
 	actions.tooltips,
 	sigc::compose(sigc::ptr_fun(set_tooltips),
 		      sigc::mem_fun(actions.tooltips.operator->(), &UiSwitchToggleAction::get_active)));
 
     actions.midi_in_presets = UiSwitchToggleAction::create(
-	ui, *machine.reg_switch("system.midi_in_preset", false, false), "MidiInPresets", _("Include MIDI in _presets"));
+	ui, machine.get_parameter("system.midi_in_preset").getSwitch(), "MidiInPresets", _("Include MIDI in _presets"));
     actions.group->add(actions.midi_in_presets);
 
     actions.jackstartup = Gtk::Action::create("JackStartup", _("_Jack Startup Control"));
@@ -1584,14 +1577,11 @@ void MainWindow::create_actions() {
 		       sigc::mem_fun(machine, &gx_engine::GxMachineBase::set_init_values));
 
     actions.animations = UiBoolToggleAction::create(
-	ui, *machine.reg_non_midi_par("system.animations", (bool*)0, false, true), "Animations", _("_Use Animations"),"",true);
+	ui, machine.get_parameter("system.animations").getBool(), "Animations", _("_Use Animations"),"",true);
     actions.group->add(actions.animations);
 
-    machine.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
     actions.group->add(Gtk::Action::create("SetPresetSwitcher", _("L_iveplay Midi Switch")),
 		     sigc::mem_fun(this, &MainWindow::set_switcher_controller));
-    machine.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
-    machine.reg_par_non_preset("ui.liveplay_background", "?liveplay_background", 0, 0.8, 0.0, 1.0, 0.01);
 
     /*
     ** Help and About
@@ -1752,14 +1742,6 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 		to_remove.push_back(pui->plugin);
 	    } else {
 		machine.ladspaloader_update_instance(pui->plugin->pdef, *j);
-		PluginDef *pd = pui->plugin->pdef;
-		if (pd->register_params) {
-		    machine.set_replace_mode(true);
-		    gx_engine::ParamRegImpl preg(&gx_engine::parameter_map);
-		    preg.plugin = pd;
-		    pd->register_params(preg);
-		    machine.set_replace_mode(false);
-		}
 		pui->update_rackbox();
 		if ((*j)->category != (*i)->category) {
 		    pui->unset_ui_merge_id(uimanager);
@@ -2173,8 +2155,8 @@ void MainWindow::on_ampdetail_switch(bool compress) {
 
 void MainWindow::set_osc_size() {
     //int osc_size = engine.oscilloscope.get_mul_buffer();
-    if (mul_buffer > 0) {
-        actions.osc_buffer_size->set_current_value(mul_buffer);
+    if (options.mul_buffer > 0) {
+        actions.osc_buffer_size->set_current_value(options.mul_buffer);
     }
 }
 
@@ -2184,9 +2166,9 @@ void MainWindow::change_osc_buffer(Glib::RefPtr<Gtk::RadioAction> action) {
 	return;
     }
     if (jack->client) {
-	mul_buffer = action->get_current_value();
+	options.mul_buffer = action->get_current_value();
 	on_oscilloscope_activate(false);
-	machine.set_oscilloscope_mul_buffer(mul_buffer, jack->get_jack_bs());
+	machine.set_oscilloscope_mul_buffer(options.mul_buffer, jack->get_jack_bs());
 	on_oscilloscope_activate(true);
     } else {
 	set_osc_size();
@@ -2447,7 +2429,7 @@ void MainWindow::overload_status_changed() {
 
 bool MainWindow::on_window_state_changed(GdkEventWindowState* event) {
     if (event->changed_mask & event->new_window_state & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) {
-	window->get_window()->get_root_origin(mainwin_x, mainwin_y);
+	window->get_window()->get_root_origin(options.mainwin_x, options.mainwin_y);
     }
     return false;
 }
@@ -2456,7 +2438,7 @@ void MainWindow::hide_extended_settings() {
     if (!is_visible ||
 	(window->get_window()->get_state()
 	 & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
-        window->move(mainwin_x, mainwin_y);
+        window->move(options.mainwin_x, options.mainwin_y);
         window->present();
         //window->deiconify();
     } else {
@@ -2529,15 +2511,6 @@ void MainWindow::amp_controls_visible(Gtk::Range *rr) {
     }
 }
 
-int MainWindow::skin = -1;
-bool MainWindow::no_warn_latency = false;
-int MainWindow::mainwin_x = -1;
-int MainWindow::mainwin_y = -1;
-int MainWindow::mainwin_height = -1;
-int MainWindow::window_height = 0;
-int MainWindow::preset_window_height = 0;
-int MainWindow::mul_buffer = 1;
-
 MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
 		       Gtk::Window *splash)
     : sigc::trackable(),
@@ -2567,7 +2540,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
       boxbuilder(machine_, fWaveView, convolver_filename_label, convolver_mono_filename_label, ui, gx_head_icon),
       portmap_window(0),
-      skin_changed(&ui, &skin),
       select_jack_control(0),
       fLoggingWindow(),
       amp_radio_menu(&ui, machine_.get_parameter("tube.select").getUInt()),
@@ -2579,8 +2551,8 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       pixbuf_log_grey(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_grey.png"))),
       pixbuf_log_yellow(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_yellow.png"))),
       pixbuf_log_red(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_red.png"))),
-      mute_changed(&ui, &machine.reg_par("engine.mute", "Mute", 0, false)->get_value()),
-      ampdetail_sh(&ui, &machine.reg_non_midi_par("ui.mp_s_h", (bool*)0, false)->get_value()),
+      mute_changed(&ui, &machine.get_parameter("engine.mute").getBool().get_value()),
+      ampdetail_sh(&ui, &machine.get_parameter("ui.mp_s_h").getBool().get_value()),
       report_xrun(machine),
       in_session(false),
       status_icon(Gtk::StatusIcon::create(gx_head_icon)),
@@ -2596,27 +2568,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     convolver_mono_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
 
     /*
-    ** setup parameters
-    */
-
-    // window geometry parameter definitions
-    machine.reg_non_midi_par("system.mainwin_x", &mainwin_x, false, -1, -1, 99999);
-    machine.reg_non_midi_par("system.mainwin_y", &mainwin_y, false, -1, -1, 99999);
-    machine.reg_non_midi_par("system.mainwin_height", &mainwin_height, false, -1, -1, 99999);
-    machine.reg_non_midi_par("system.mainwin_rack_height", &window_height, false, 600, 1, 99999);
-    machine.reg_non_midi_par("system.preset_window_height", &preset_window_height, false, 150, 0, 99999);
-
-    // rack tuner
-    gx_engine::get_group_table().insert("racktuner", N_("Rack Tuner"));
-    static const value_pair streaming_labels[] = {{"scale"}, {"stream"}, {0}};
-    machine.reg_non_midi_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, (int*)0, false, 1);
-    static const value_pair tuning_labels[] = {{"(Chromatic)"},{"Standard"}, {"Standard/Es"}, {"Open E"}, {0}};
-    machine.reg_non_midi_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, false, 0);
-    machine.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
-    machine.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 427, 453, 0.1);
-    //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
-    machine.reg_non_midi_par("oscilloscope.bufferset",&mul_buffer,false,1,1,6);
-    /*
     ** create actions and some parameters
     */
     create_actions();
@@ -2630,7 +2581,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 
     const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore",
 			      "bank_combo_liststore", 0 };
-    bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &ui, id_list);
+    bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &machine, id_list);
     load_widget_pointers();
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
     szg_rack_units->add_widget(*ampdetail_mini);
@@ -2719,7 +2670,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     machine.signal_jack_load_change().connect(
 	sigc::mem_fun(*this, &MainWindow::overload_status_changed));
 
-    gx_engine::controller_map.signal_new_program().connect(
+    machine.signal_midi_new_program().connect(
 	sigc::mem_fun(*this, &MainWindow::do_program_change));
 
     /*
@@ -2836,7 +2787,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     status_image->set(pixbuf_on);
     gx_engine::BoolParameter& par = machine.get_parameter("engine.mute").getBool();
     par.setSavable(false);
-    gx_gui::connect_midi_controller(GTK_WIDGET(status_image->get_parent()->gobj()), &par.get_value());
+    gx_gui::connect_midi_controller(status_image->get_parent(), "engine.mute", machine);
     status_image->get_parent()->signal_button_press_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_toggle_mute));
 
@@ -2897,22 +2848,12 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     plugin_dict.add(mainamp_plugin);
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     effects_toolpalette->show();
+    set_new_skin(options.skin_name);
 
     // call some action functions to sync state
     // with settings defined in create_actions()
     on_show_rack();
     on_show_values();
-    // somehow need to load a style or window might open too wide
-    if (!opt.get_clear_rc()) {
-        gtk_rc_parse(
-          (options.get_style_filepath(
-	      "gx_head_" + options.skin.skin_list[0] + ".rc")).c_str());
-    } else {    
-        gtk_rc_parse(
-          (options.get_style_filepath("clear.rc")).c_str());
-    }
-	//(options.get_style_filepath(
-	//    "gx_head_" + options.skin.skin_list[0] + ".rc")).c_str());
 
     /*
     ** Jack client connection and subsequent initalizations
@@ -2925,7 +2866,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     // standard state file (gx_head_rc or similar if -n is used)
     machine.loadstate();
     if (!in_session) {
-    machine.disable_autosave(gx_system::get_options().get_opt_auto_save());
+	machine.disable_autosave(gx_system::get_options().get_opt_auto_save());
     }
     if (!connect_jack(true, splash)) {
 	// not connected, must synthesize signal for initialization
@@ -2934,27 +2875,30 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	}
     }
     set_latency(); // make sure latency menu is updated
-	set_osc_size();
+    set_osc_size();
     // we set the skin at this late point to avoid calling make_icons more
     // than once
+    /*
     if (!opt.get_clear_rc()) {
-        if (actions.skin->get_current_value() != skin) {
-        actions.skin->set_current_value(skin); // will call set_new_skin()
+	if (options.skin[actions.skin->get_current_value()] != options.skin_name) {
+	    actions.skin->set_current_value(options.skin.index(options.skin_name)); // will call set_new_skin()
         } else {
-        set_new_skin(skin);
+	    set_new_skin(options.skin_name);
         }
-        skin_changed.changed.connect(
-        sigc::mem_fun(actions.skin.operator->(), &Gtk::RadioAction::set_current_value));
+	//machine.signal_parameter_value_int("ui.skin_name").connect(
+	//    sigc::mem_fun(actions.skin.operator->(), &Gtk::RadioAction::set_current_value));
     } else {
         make_icons();
     }
-    if (mainwin_height > 0) {  // initially use the default set in mainpanel.glade
-	window->set_default_size(-1, min(window_height, mainwin_height));
+    */
+
+    if (options.mainwin_height > 0) {  // initially use the default set in mainpanel.glade
+	window->set_default_size(-1, min(options.window_height, options.mainwin_height));
     }
 
     // set window position (make this optional??)
-    if (mainwin_x > 0) {
-	window->move(mainwin_x, mainwin_y);
+    if (options.mainwin_x > 0) {
+	window->move(options.mainwin_x, options.mainwin_y);
     }
 
     Glib::signal_timeout().connect(
@@ -2982,13 +2926,13 @@ MainWindow::~MainWindow() {
     machine.start_ramp_down();
 
     int mainwin_width;
-    window->get_size(mainwin_width, mainwin_height);
+    window->get_size(mainwin_width, options.mainwin_height);
     Glib::RefPtr<Gdk::Window> win = window->get_window();
     if (win) {
-	win->get_root_origin(mainwin_x, mainwin_y);
+	win->get_root_origin(options.mainwin_x, options.mainwin_y);
     }
     if (actions.presets->get_active()) {
-	preset_window_height = preset_scrolledbox->get_allocation().get_height();
+	options.preset_window_height = preset_scrolledbox->get_allocation().get_height();
     }
     plugin_dict.cleanup();
     delete live_play;
@@ -3002,5 +2946,4 @@ MainWindow::~MainWindow() {
 
     machine.wait_ramp_down_finished();
     machine.set_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
-    machine.set_jack(0);
 }

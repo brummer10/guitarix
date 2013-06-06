@@ -75,6 +75,7 @@ class MidiConnect {
  private:
     enum { RESPONSE_DELETE = 1 };
     gx_engine::Parameter &param;
+    gx_engine::GxMachineBase& machine;
     int current_control;
     GtkAdjustment* adj_lower;
     GtkAdjustment* adj_upper;
@@ -86,7 +87,7 @@ class MidiConnect {
     static string ctr_desc(int ctr);
     static const char *ctl_to_str(int n);
  public:
-    MidiConnect(GdkEventButton *event, gx_engine::Parameter& param);
+    MidiConnect(GdkEventButton *event, gx_engine::Parameter& param, gx_engine::GxMachineBase& machine);
     static void midi_response_cb(GtkWidget *widget, gint response_id, gpointer data);
     static void midi_destroy_cb(GtkWidget *widget, gpointer data);
     static gboolean check_midi_cb(gpointer);

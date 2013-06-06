@@ -88,7 +88,7 @@ private:
     void port_changed(string name, const char *tp, int flags, bool reg);
 public:
     ~PortMapWindow();
-    static PortMapWindow* create(gx_jack::GxJack& jack, gx_ui::GxUI& ui, Glib::RefPtr<Gtk::AccelGroup> ag);
+    static PortMapWindow* create(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gtk::AccelGroup> ag);
     void refresh();
     void connection_changed(string port1, string port2, bool conn);
     Glib::SignalProxy1<void,int> signal_response() { return window->signal_response(); }

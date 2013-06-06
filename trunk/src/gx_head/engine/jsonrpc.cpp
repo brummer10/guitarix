@@ -970,7 +970,7 @@ MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
       quit_mainloop(quit_mainloop_),
       tuner_switcher(settings_, jack_.get_engine()),
       switcher_signal(&jack_.get_engine().get_ui(),
-		      &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()), //FIXME
+		      &settings_.get_param()["ui.live_play_switcher"].getBool().get_value()), //FIXME
       oldest_unsaved(0),
       last_change(0),
       save_conn() {

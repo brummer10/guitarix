@@ -98,18 +98,18 @@ public:
     static inline Glib::RefPtr<GxBuilder> create() { return Glib::RefPtr<GxBuilder>(new GxBuilder()); }
 
     static Glib::RefPtr<GxBuilder> create_from_file(
-	const std::string& filename, gx_ui::GxUI* ui = 0, const char* object_id = 0);
+	const std::string& filename, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0);
 
     static Glib::RefPtr<GxBuilder> create_from_file(
-	const std::string& filename, gx_ui::GxUI* ui, const Glib::StringArrayHandle& object_ids);
+	const std::string& filename, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids);
 
     static Glib::RefPtr<GxBuilder> create_from_string(
-	const Glib::ustring& buffer, gx_ui::GxUI* ui = 0, const char* object_id = 0);
+	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0);
 
     static Glib::RefPtr<GxBuilder> create_from_string(
-	const Glib::ustring& buffer, gx_ui::GxUI* ui, const Glib::StringArrayHandle& object_ids);
+	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids);
 
-    void fixup_controlparameters(gx_ui::GxUI& ui);
+    void fixup_controlparameters(gx_engine::GxMachineBase& machine);
 
     template <class T_Widget> inline
     void find_widget(const Glib::ustring& name, T_Widget*& widget) {

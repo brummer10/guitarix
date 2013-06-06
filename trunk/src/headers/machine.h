@@ -80,7 +80,6 @@ public:
     virtual void start_ramp_down() = 0;
     virtual void wait_ramp_down_finished() = 0;
     virtual void set_stateflag(ModuleSequencer::StateFlag flag) = 0; // RT
-    virtual void set_jack(gx_jack::GxJack *jack) = 0; //FIXME
     // tuner_switcher
     virtual bool get_tuner_switcher_active() = 0;
     virtual void tuner_switcher_activate(bool v) = 0;
@@ -130,49 +129,48 @@ public:
     // jack
     virtual gx_jack::GxJack *get_jack() = 0;
     // pmap
-    virtual EnumParameter *reg_non_midi_enum_par(
-	const string& id, const string& name, const value_pair *vl,
-	int *var, bool preset, int std = 0) = 0;
-    virtual BoolParameter *reg_non_midi_par(const string& id, bool *var, bool preset, bool std = false) = 0;
-    virtual IntParameter *reg_non_midi_par(const string& id, int *var, bool preset, int std, int lower, int upper) = 0;
-    virtual FloatParameter *reg_non_midi_par(const string& id, float *val, bool preset,
-					     float std = 0, float lower = 0, float upper = 1, float step = 0) = 0;
-    virtual FloatParameter *reg_par(const string& id, const string& name, float *var, float std,
-				    float lower, float upper, float step) = 0;
-    virtual FloatParameter *reg_par(const string& id, const string& name, float *var, float std = 0) = 0;
-    virtual BoolParameter *reg_par(const string& id, const string& name, bool *var, bool std=false, bool preset=true) = 0;
-    virtual FloatParameter *reg_par_non_preset(
-	const string& id, const string& name, float *var, float std, float lower, float upper, float step) = 0;
-    virtual EnumParameter *reg_enum_par(const string& id, const string& name,
-					const value_pair *vl, int *var, int std = 0) = 0;
-    virtual FloatEnumParameter *reg_enum_par(const string& id, const string& name,
-					     const value_pair *vl, float *var,
-					     int std = 0, int low = 0) = 0;
-    virtual UEnumParameter *reg_uenum_par(const string& id, const string& name, const value_pair *vl,
-					  unsigned int *var, unsigned int std = 0) = 0;
     virtual Parameter& get_parameter(const char *p) = 0;
     virtual Parameter& get_parameter(const string& id) = 0;
-    virtual SwitchParameter *reg_switch(const string& id, bool preset = false, bool sv = false) = 0;
-    virtual void set_replace_mode(bool v) = 0;
     virtual void set_init_values() = 0;
     virtual bool parameter_hasId(const char *p) = 0;
     virtual bool parameter_hasId(const string& id) = 0;
     virtual void reset_unit(Glib::ustring group_id) const = 0;
     virtual bool parameter_unit_has_std_values(Glib::ustring group_id) const = 0;
+    virtual void set_parameter_value(const char *id, int value) = 0;
+    void set_parameter_value(const char *id, unsigned int value) { set_parameter_value(id, (int)value); }
+    virtual void set_parameter_value(const char *id, float value) = 0;
+    virtual int get_parameter_value_int(const char *id) = 0;
+    virtual float get_parameter_value_float(const char *id) = 0;
+    virtual sigc::signal<void, int>& signal_parameter_value_int(const char *id) = 0;
+    virtual sigc::signal<void, float>& signal_parameter_value_float(const char *id) = 0;
+    // MidiControllerList
+    virtual bool midi_get_config_mode() = 0;
+    virtual void midi_set_config_mode(bool v, int ctl=-1) = 0;
+    virtual sigc::signal<void,int>& signal_midi_new_program() = 0;
+    virtual sigc::signal<void>& signal_midi_changed() = 0;
+    virtual int midi_size() = 0;
+    virtual midi_controller_list& midi_get(int n) = 0;
+    virtual void midi_deleteParameter(Parameter& param, bool quiet = false) = 0;
+    virtual int midi_get_current_control() = 0;
+    virtual void midi_set_current_control(int v) = 0;
+    virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle) = 0;
+    virtual int midi_param2controller(Parameter& param, const MidiController** p) = 0;
     // cheat
     virtual ConvolverMonoAdapter& get_mono_convolver() = 0;
     virtual ConvolverStereoAdapter& get_stereo_convolver() = 0;
+    virtual gx_ui::GxUI& get_ui() = 0;
 };
 
 class GxMachine: public GxMachineBase {
 private:
     gx_system::CmdlineOptions& options;
-    gx_engine::ParamMap&  pmap;
-    gx_engine::GxEngine  engine;
+    ParamMap  pmap;
+    GxEngine  engine;
     gx_jack::GxJack       jack;
     gx_preset::GxSettings settings;
     TunerSwitcher tuner_switcher;
     MyService *sock;
+    std::map<string,gx_ui::GxUiItem*> signals;
 public:
     GxMachine(gx_system::CmdlineOptions& options);
     virtual ~GxMachine();
@@ -227,7 +225,6 @@ public:
     virtual void start_ramp_down();
     virtual void wait_ramp_down_finished();
     virtual void set_stateflag(ModuleSequencer::StateFlag flag); // RT
-    virtual void set_jack(gx_jack::GxJack *jack); //FIXME
     // tuner_switcher
     virtual bool get_tuner_switcher_active();
     virtual void tuner_switcher_activate(bool v);
@@ -277,38 +274,35 @@ public:
     // jack
     virtual gx_jack::GxJack *get_jack();
     // pmap
-    virtual EnumParameter *reg_non_midi_enum_par(
-	const string& id, const string& name, const value_pair *vl,
-	int *var, bool preset, int std = 0);
-    virtual BoolParameter *reg_non_midi_par(const string& id, bool *var, bool preset, bool std = false);
-    virtual IntParameter *reg_non_midi_par(const string& id, int *var, bool preset, int std, int lower, int upper);
-    virtual FloatParameter *reg_non_midi_par(const string& id, float *val, bool preset,
-					     float std = 0, float lower = 0, float upper = 1, float step = 0);
-    virtual FloatParameter *reg_par(const string& id, const string& name, float *var, float std,
-				    float lower, float upper, float step);
-    virtual FloatParameter *reg_par(const string& id, const string& name, float *var, float std = 0);
-    virtual BoolParameter *reg_par(const string& id, const string& name, bool *var, bool std=false, bool preset=true);
-    virtual FloatParameter *reg_par_non_preset(
-	const string& id, const string& name, float *var, float std, float lower, float upper, float step);
-    virtual EnumParameter *reg_enum_par(const string& id, const string& name,
-					const value_pair *vl, int *var, int std = 0);
-    virtual FloatEnumParameter *reg_enum_par(const string& id, const string& name,
-					     const value_pair *vl, float *var,
-					     int std = 0, int low = 0);
-    virtual UEnumParameter *reg_uenum_par(const string& id, const string& name, const value_pair *vl,
-					  unsigned int *var, unsigned int std = 0);
     virtual Parameter& get_parameter(const char *p);
     virtual Parameter& get_parameter(const string& id);
-    virtual SwitchParameter *reg_switch(const string& id, bool preset = false, bool sv = false);
-    virtual void set_replace_mode(bool v);
     virtual void set_init_values();
     virtual bool parameter_hasId(const char *p);
     virtual bool parameter_hasId(const string& id);
     virtual void reset_unit(Glib::ustring group_id) const;
     virtual bool parameter_unit_has_std_values(Glib::ustring group_id) const;
+    virtual void set_parameter_value(const char *id, int value);
+    virtual void set_parameter_value(const char *id, float value);
+    virtual int get_parameter_value_int(const char *id);
+    virtual float get_parameter_value_float(const char *id);
+    virtual sigc::signal<void, int>& signal_parameter_value_int(const char *id);
+    virtual sigc::signal<void, float>& signal_parameter_value_float(const char *id);
+    // MidiControllerList
+    virtual bool midi_get_config_mode();
+    virtual void midi_set_config_mode(bool v, int ctl=-1);
+    virtual sigc::signal<void,int>& signal_midi_new_program();
+    virtual sigc::signal<void>& signal_midi_changed();
+    virtual int midi_size();
+    virtual midi_controller_list& midi_get(int n);
+    virtual void midi_deleteParameter(Parameter& param, bool quiet = false);
+    virtual int midi_get_current_control();
+    virtual void midi_set_current_control(int v);
+    virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
+    virtual int midi_param2controller(Parameter& param, const MidiController** p);
     // cheat
     virtual ConvolverMonoAdapter& get_mono_convolver();
     virtual ConvolverStereoAdapter& get_stereo_convolver();
+    virtual gx_ui::GxUI& get_ui();
 };
 
 } // namespace gx_engine

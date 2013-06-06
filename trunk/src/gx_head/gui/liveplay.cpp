@@ -272,10 +272,10 @@ Liveplay::Liveplay(
       keyswitch(machine_, sigc::mem_fun(this, &Liveplay::display)),
       midi_conn(),
       window(),
-      switcher_signal(&ui, &gx_engine::parameter_map["ui.live_play_switcher"].getBool().get_value()), //FIXME
+      switcher_signal(&ui, &machine.get_parameter("ui.live_play_switcher").getBool().get_value()), //FIXME
       mouse_hide_conn() {
     const char *id_list[] = {"LivePlay", 0};
-    bld = gx_gui::GxBuilder::create_from_file(fname, &ui, id_list);
+    bld = gx_gui::GxBuilder::create_from_file(fname, &machine, id_list);
     bld->get_toplevel("LivePlay", window);
 
     bld->find_widget("liveplay_bank", liveplay_bank);
@@ -451,7 +451,7 @@ void Liveplay::on_selection_changed() {
 void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
     if (act->get_active()) {
 	window->fullscreen();
-	midi_conn = gx_engine::controller_map.signal_changed().connect(
+	midi_conn = machine.signal_midi_changed().connect(
 	    sigc::mem_fun(this, &Liveplay::add_midi_elements));
 	add_midi_elements();
 	window->show();
@@ -558,8 +558,8 @@ void Liveplay::add_midi_elements() {
     int left_max = 3;
     Gtk::Table::TableList& tl = midictrl_table->children();
     tl.erase(tl.begin(), tl.end());
-    for (int i = 0; i < gx_engine::controller_map.size(); i++) {
-        gx_engine::midi_controller_list& cl = gx_engine::controller_map[i];
+    for (int i = 0; i < machine.midi_size(); i++) {
+        gx_engine::midi_controller_list& cl = machine.midi_get(i);
 	if (cl.empty()) {
 	    continue;
 	}

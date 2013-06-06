@@ -55,13 +55,13 @@ class UiSwitch: public Gxw::Switch {
  public:
     explicit UiSwitch(const char *sw_type);
     GtkWidget *get_widget() { return GTK_WIDGET(gobj());}
-    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, gx_engine::Parameter &param);
-    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, string id) {
-        if (!gx_engine::parameter_map.hasId(id)) return 0;
-        return new_switch(ui, sw_type, gx_engine::parameter_map[id]);
+    static UiSwitch *new_switch(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param);
+    static UiSwitch *new_switch(gx_engine::GxMachineBase& machine, const char *sw_type, string id) {
+        if (!machine.parameter_hasId(id)) return 0;
+        return new_switch(machine, sw_type, machine.get_parameter(id));
     }
-    static GtkWidget *create(gx_ui::GxUI& ui, const char *sw_type, string id) {
-        return new_switch(ui, sw_type, id)->get_widget();}
+    static GtkWidget *create(gx_engine::GxMachineBase& machine, const char *sw_type, string id) {
+        return new_switch(machine, sw_type, id)->get_widget();}
 };
 
 /****************************************************************/
@@ -71,7 +71,7 @@ class UiSwitchFloat: public UiSwitch, gx_ui::GxUiItemFloat {
     void on_toggled();
     virtual void reflectZone();
  public:
-    UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, gx_engine::FloatParameter &param);
+    UiSwitchFloat(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::FloatParameter &param);
 };
 
 /****************************************************************/
@@ -81,7 +81,7 @@ class UiSwitchBool: public UiSwitch, gx_ui::GxUiItemBool {
     void on_toggled();
     virtual void reflectZone();
  public:
-    UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, gx_engine::BoolParameter &param);
+    UiSwitchBool(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::BoolParameter &param);
 };
 
 /****************************************************************/
@@ -93,11 +93,11 @@ class UiSwitchWithCaption {
  protected:
     UiSwitch *m_switch;
  public:
-    static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, const char *sw_type, string id,
                              Gtk::PositionType pos);
-    static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, const char *sw_type, string id,
                              Glib::ustring label, Gtk::PositionType pos);
-    UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, gx_engine::Parameter &param,
+    UiSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
                         Glib::ustring label, Gtk::PositionType pos);
     ~UiSwitchWithCaption();
     GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
@@ -109,7 +109,7 @@ class GxVBox {
  public:
     Gtk::VBox m_box;
     Gtk::Label m_label;
-    explicit GxVBox(const gx_ui::GxUI& ui);
+    explicit GxVBox(const gx_engine::GxMachineBase& machine);
     virtual ~GxVBox();
 };
 
@@ -120,7 +120,7 @@ class GxHBox {
     Gtk::HBox m_box;
     Gtk::Label m_label;
     Gtk::Frame m_frame;
-    explicit GxHBox(const gx_ui::GxUI& ui);
+    explicit GxHBox(const gx_engine::GxMachineBase& machine);
     virtual ~GxHBox();
 };
 
@@ -130,7 +130,7 @@ class GxPaintBox {
  public:
     Gtk::HBox m_box;
     Gxw::PaintBox m_paintbox;
-    GxPaintBox(gx_ui::GxUI& ui, const char *expose_funk);
+    GxPaintBox(gx_engine::GxMachineBase& machine, const char *expose_funk);
     ~GxPaintBox();
 };
 
@@ -146,7 +146,7 @@ class GxEventBox {
     Gtk::HBox m_fbox;
     Gtk::HBox m_fixedbox;
     Gtk::Label m_label;
-    explicit GxEventBox(const gx_ui::GxUI& ui);
+    explicit GxEventBox(const gx_engine::GxMachineBase& machine);
     virtual ~GxEventBox();
 };
 
@@ -163,7 +163,7 @@ class GxMainBox {
     Gtk::Fixed m_fixedbox;
     Gtk::Label m_label;
     Gxw::PaintBox m_paintbox;
-    GxMainBox(gx_ui::GxUI& ui, const char *expose_funk);
+    GxMainBox(gx_engine::GxMachineBase& machine, const char *expose_funk);
     virtual ~GxMainBox();
 };
 
@@ -172,7 +172,7 @@ class GxMainBox {
 class GxNotebookBox {
  public:
     Gtk::Notebook m_box;
-    explicit GxNotebookBox(const gx_ui::GxUI& ui);
+    explicit GxNotebookBox(const gx_engine::GxMachineBase& machine);
     virtual ~GxNotebookBox();
 };
 

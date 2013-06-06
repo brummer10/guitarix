@@ -267,12 +267,16 @@ inline void measure_stop()  {}
 /****************************************************************/
 
 class SkinHandling {
+private:
+    Glib::ustring empty;
 public:
-    vector<string>   skin_list;
+    vector<Glib::ustring>   skin_list;
     SkinHandling(const string& styledir)
 	: skin_list() { set_styledir(styledir); }
     void set_styledir(const string& styledir);
     bool is_in_list(const string& name);
+    const Glib::ustring& operator[](unsigned int idx);
+    unsigned int index(const Glib::ustring& name);
 };
 
 /****************************************************************/
@@ -343,6 +347,8 @@ private:
     static CmdlineOptions *instance;
     void make_ending_slash(string& dirpath);
     string get_opskin();
+    void read_ui_vars();
+    void write_ui_vars();
     friend CmdlineOptions& get_options();
 
 public:
@@ -350,6 +356,17 @@ public:
     bool dump_parameter;
 #endif
     SkinHandling skin;
+
+    // saved in ui_rc:
+    int mainwin_x;
+    int mainwin_y;
+    int mainwin_height;
+    int window_height;
+    int preset_window_height;
+    int mul_buffer;
+    Glib::ustring skin_name;
+    bool no_warn_latency;
+
 public:
     CmdlineOptions();
     ~CmdlineOptions();

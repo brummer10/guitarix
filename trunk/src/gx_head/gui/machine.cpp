@@ -46,16 +46,48 @@ GxMachineBase::~GxMachineBase() {
 GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     GxMachineBase(),
     options(options_),
-    pmap(gx_engine::parameter_map),
+    pmap(),
     engine(options.get_plugin_dir(), pmap, gx_engine::get_group_table(), options),
     jack(engine),
     settings(options, jack, engine.stereo_convolver, gx_engine::midi_std_ctr,
-	       gx_engine::controller_map, engine, pmap),
+	     engine.controller_map, engine, pmap),
     tuner_switcher(settings, engine),
-    sock(0) {
+    sock(0),
+    signals() {
     engine.set_jack(&jack);
     // ------ initialize parameter list ------
-    gx_gui::guivar.register_gui_parameter(gx_engine::parameter_map);
+    gx_gui::guivar.register_gui_parameter(pmap);
+
+    /*
+    ** setup parameters
+    */
+
+    // rack tuner
+    gx_engine::get_group_table().insert("racktuner", N_("Rack Tuner"));
+    static const value_pair streaming_labels[] = {{"scale"}, {"stream"}, {0}};
+    pmap.reg_non_midi_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, (int*)0, false, 1);
+    static const value_pair tuning_labels[] = {{"(Chromatic)"},{"Standard"}, {"Standard/Es"}, {"Open E"}, {0}};
+    pmap.reg_non_midi_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, false, 0);
+    pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
+    pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 427, 453, 0.1);
+    //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
+
+    pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
+    pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false);
+    pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false);
+    pmap.reg_switch("system.order_rack_h", false, false);
+    pmap.reg_switch("system.show_value", false, false);
+    pmap.reg_switch("system.show_tooltips", false, true);
+    pmap.reg_switch("system.midi_in_preset", false, false);
+    pmap.reg_non_midi_par("system.animations", (bool*)0, false, true);
+    pmap.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
+    pmap.reg_par_non_preset("ui.liveplay_background", "?liveplay_background", 0, 0.8, 0.0, 1.0, 0.01);
+    pmap.reg_par("engine.mute", "Mute", 0, false);
+    pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false);
+    pmap.reg_switch("system.show_presets", false, false);
+    pmap.reg_switch("system.show_toolbar", false, false);
+    pmap.reg_switch("system.show_rack", false, false);
+
 #ifndef NDEBUG
     // ------ time measurement (debug) ------
     gx_system::add_time_measurement();
@@ -67,7 +99,7 @@ GxMachine::~GxMachine() {
     delete sock;
 #ifndef NDEBUG
     if (options.dump_parameter) {
-	gx_engine::parameter_map.dump("json");
+	pmap.dump("json");
     }
 #endif
 }
@@ -98,6 +130,13 @@ LadspaLoader::pluginarray::iterator GxMachine::ladspaloader_end() {
 
 void GxMachine::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) {
     engine.ladspaloader.update_instance(pdef, pdesc);
+    if (pdef->register_params) {
+	pmap.set_replace_mode(true);
+	gx_engine::ParamRegImpl preg(&pmap);
+	preg.plugin = pdef;
+	pdef->register_params(preg);
+	pmap.set_replace_mode(false);
+    }
 }
 
 bool GxMachine::update_module_lists() {
@@ -288,10 +327,6 @@ void GxMachine::set_stateflag(ModuleSequencer::StateFlag flag) {
     engine.set_stateflag(flag);
 }
 
-void GxMachine::set_jack(gx_jack::GxJack *jack) { //FIXME
-    engine.set_jack(jack);
-}
-
 // tuner_switcher
 bool GxMachine::get_tuner_switcher_active() {
     return tuner_switcher.get_active();
@@ -474,73 +509,12 @@ gx_jack::GxJack *GxMachine::get_jack() {
 }
 
 // pmap
-EnumParameter *GxMachine::reg_non_midi_enum_par(
-	const string& id, const string& name, const value_pair *vl,
-	int *var, bool preset, int std) {
-    return pmap.reg_non_midi_enum_par(id, name, vl, var, preset, std);
-}
-
-BoolParameter *GxMachine::reg_non_midi_par(const string& id, bool *var, bool preset, bool std) {
-    return pmap.reg_non_midi_par(id, var, preset, std);
-}
-
-IntParameter *GxMachine::reg_non_midi_par(const string& id, int *var, bool preset, int std, int lower, int upper) {
-    return pmap.reg_non_midi_par(id, var, preset, std, lower, upper);
-}
-
-FloatParameter *GxMachine::reg_non_midi_par(const string& id, float *val, bool preset,
-					    float std, float lower, float upper, float step) {
-    return pmap.reg_non_midi_par(id, val, preset, std, lower, upper, step);
-}
-
-FloatParameter *GxMachine::reg_par(const string& id, const string& name, float *var, float std,
-				   float lower, float upper, float step) {
-    return pmap.reg_par(id, name, var, std, lower, upper, step);
-}
-
-FloatParameter *GxMachine::reg_par(const string& id, const string& name, float *var, float std) {
-    return pmap.reg_par(id, name, var, std);
-}
-
-BoolParameter *GxMachine::reg_par(const string& id, const string& name, bool *var, bool std, bool preset) {
-    return pmap.reg_par(id, name, var, std, preset);
-}
-
-FloatParameter *GxMachine::reg_par_non_preset(
-    const string& id, const string& name, float *var, float std, float lower, float upper, float step) {
-    return pmap.reg_par_non_preset(id, name, var, std, lower, upper, step);
-}
-
-EnumParameter *GxMachine::reg_enum_par(const string& id, const string& name,
-					const value_pair *vl, int *var, int std) {
-    return pmap.reg_enum_par(id, name, vl, var, std);
-}
-
-FloatEnumParameter *GxMachine::reg_enum_par(const string& id, const string& name,
-					     const value_pair *vl, float *var,
-					     int std, int low) {
-    return pmap.reg_enum_par(id, name, vl, var, std, low);
-}
-
-UEnumParameter *GxMachine::reg_uenum_par(const string& id, const string& name, const value_pair *vl,
-					  unsigned int *var, unsigned int std) {
-    return pmap.reg_uenum_par(id, name, vl, var, std);
-}
-
 Parameter& GxMachine::get_parameter(const char *p) {
     return pmap[p];
 }
 
 Parameter& GxMachine::get_parameter(const string& id) {
     return pmap[id];
-}
-
-SwitchParameter *GxMachine::reg_switch(const string& id, bool preset, bool sv) {
-    return pmap.reg_switch(id, preset, sv);
-}
-
-void GxMachine::set_replace_mode(bool v) {
-    return pmap.set_replace_mode(v);
 }
 
 void GxMachine::set_init_values() {
@@ -563,6 +537,89 @@ bool GxMachine::parameter_unit_has_std_values(Glib::ustring group_id) const {
     return pmap.unit_has_std_values(group_id);
 }
 
+void GxMachine::set_parameter_value(const char *id, int value) {
+    pmap[id].getInt().set(value);
+}
+
+void GxMachine::set_parameter_value(const char *id, float value) {
+    pmap[id].getFloat().set(value);
+}
+
+int GxMachine::get_parameter_value_int(const char *id) {
+    return pmap[id].getInt().get_value();
+}
+
+float GxMachine::get_parameter_value_float(const char *id) {
+    return pmap[id].getFloat().get_value();
+}
+
+sigc::signal<void, int>& GxMachine::signal_parameter_value_int(const char *id) {
+    std::map<string,gx_ui::GxUiItem*>::iterator i = signals.find(id);
+    gx_ui::UiSignal<int> *u;
+    if (i != signals.end()) {
+	u = dynamic_cast<gx_ui::UiSignal<int>*>(i->second);
+    } else {
+	u = gx_ui::UiSignal<int>::create(&engine.get_ui(), pmap, id);
+    }
+    return u->changed;
+}
+
+sigc::signal<void, float>& GxMachine::signal_parameter_value_float(const char *id) {
+    std::map<string,gx_ui::GxUiItem*>::iterator i = signals.find(id);
+    gx_ui::UiSignal<float> *u;
+    if (i != signals.end()) {
+	u = dynamic_cast<gx_ui::UiSignal<float>*>(i->second);
+    } else {
+	u = gx_ui::UiSignal<float>::create(&engine.get_ui(), pmap, id);
+    }
+    return u->changed;
+}
+
+// MidiControllerList
+bool GxMachine::midi_get_config_mode() {
+    return engine.controller_map.get_config_mode();
+}
+
+void GxMachine::midi_set_config_mode(bool v, int ctl) {
+    engine.controller_map.set_config_mode(v, ctl);
+}
+
+sigc::signal<void,int>& GxMachine::signal_midi_new_program() {
+    return engine.controller_map.signal_new_program();
+}
+
+sigc::signal<void>& GxMachine::signal_midi_changed() {
+    return engine.controller_map.signal_changed();
+}
+
+int GxMachine::midi_size() {
+    return engine.controller_map.size();
+}
+
+midi_controller_list& GxMachine::midi_get(int n) {
+    return engine.controller_map[n];
+}
+
+void GxMachine::midi_deleteParameter(Parameter& param, bool quiet) {
+    engine.controller_map.deleteParameter(param, quiet);
+}
+
+int GxMachine::midi_get_current_control() {
+    return engine.controller_map.get_current_control();
+}
+
+void GxMachine::midi_set_current_control(int v) {
+    engine.controller_map.set_current_control(v);
+}
+
+void GxMachine::midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle) {
+    engine.controller_map.modifyCurrent(param, lower, upper, toggle);
+}
+
+int GxMachine::midi_param2controller(Parameter& param, const MidiController** p) {
+    return engine.controller_map.param2controller(param, p);
+}
+
 // cheat
 ConvolverMonoAdapter& GxMachine::get_mono_convolver() {
     return engine.mono_convolver;
@@ -570,6 +627,10 @@ ConvolverMonoAdapter& GxMachine::get_mono_convolver() {
 
 ConvolverStereoAdapter& GxMachine::get_stereo_convolver() {
     return engine.stereo_convolver;
+}
+
+gx_ui::GxUI& GxMachine::get_ui() {
+    return engine.get_ui();
 }
 
 } // namespace gx_engine

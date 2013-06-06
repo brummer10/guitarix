@@ -636,7 +636,7 @@ int __rt_func GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 
         // midi input processing
 	if (self.ports.midi_input.port) {
-	    gx_engine::controller_map.compute_midi_in(
+	    self.engine.controller_map.compute_midi_in(
 		jack_port_get_buffer(self.ports.midi_input.port, nframes));
 	}
     }

@@ -632,7 +632,7 @@ void StackBoxBuilder::make_rackbox_pre() {
     closeBox();
 }
 void StackBoxBuilder::make_rackbox_jconv_mono() {
-    static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(ui, machine.get_mono_convolver(), window_icon, machine, accels, 1);
+    static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(machine.get_mono_convolver(), window_icon, machine, accels, 1);
     openHorizontalhideBox("");
 	create_master_slider("jconv_mono.wet_dry", _("Dry/Wet"));
     openSpaceBox("");

@@ -598,12 +598,6 @@ class MainWindow: public sigc::trackable {
 private:
     gx_ui::GxUI ui;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
-    static int mainwin_x;
-    static int mainwin_y;
-    static int mainwin_height;
-    static int window_height;
-    static int preset_window_height;
-    static int mul_buffer;
     Freezer freezer;
     PluginDict plugin_dict;
     int oldpos;
@@ -628,9 +622,6 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> gx_head_icon;
     gx_gui::StackBoxBuilder boxbuilder;
     gx_portmap::PortMapWindow* portmap_window;
-    static int skin;
-    static bool no_warn_latency;
-    gx_ui::UiSignal<int> skin_changed;
     gx_gui::SelectJackControlPgm *select_jack_control;
     TextLoggingBox fLoggingWindow;
     GxUiRadioMenu amp_radio_menu;
@@ -728,7 +719,7 @@ private:
     void on_rack_configuration();
     void move_widget(Gtk::Widget& w, Gtk::Box& b1, Gtk::Box& b2);
     int rackbox_stacked_vertical() const;
-    static void change_expand(Gtk::Widget& w, bool value);
+ void change_expand(Gtk::Widget& w, bool value);
     void on_dir_changed();
     void on_configure_event(GdkEventConfigure *ev);
     void clear_box(Gtk::Container& box);
@@ -772,7 +763,7 @@ private:
     void do_program_change(int pgm);
     void on_engine_toggled();
     void on_engine_state_change(gx_engine::GxEngineState state);
-    void set_new_skin(unsigned int idx);
+    void set_new_skin(const Glib::ustring& skin_name);
     void set_tuning(Gxw::RackTuner& tuner);
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);

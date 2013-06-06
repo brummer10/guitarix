@@ -314,7 +314,7 @@ GxSplashBox::GxSplashBox()
 /****************************************************************
  ** main()
  */
-
+#if 0
 #ifndef NDEBUG
 int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
                         gx_engine::ParamMap& pmap, const string& fname) {
@@ -326,7 +326,7 @@ int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& 
     }
     Gtk::Window *w = 0;
     gx_ui::GxUI ui;
-    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &ui);
+    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &machine);
     w = bld->get_first_window();
     gx_ui::GxUI::updateAllGuis(true);
     if (w) {
@@ -336,13 +336,7 @@ int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& 
     return 0;
 }
 #endif
-
-namespace gx_engine {
-//FIXME should not be global but needed for UI atm.
-ParamMap parameter_map;
-MidiControllerList controller_map;
-}
-
+#endif
 
 //FIXME: join with MainWindow::do_program_change
 void do_program_change(int pgm, gx_engine::GxMachineBase& machine) {
@@ -394,12 +388,11 @@ static void mainHeadless(int argc, char *argv[]) {
     gx_engine::GxMachine machine(options);
 
     gx_jack::GxJack::rt_watchdog_set_limit(options.get_idle_thread_timeout());
-    machine.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
     machine.loadstate();
     //if (!in_session) {
     //	gx_settings.disable_autosave(options.get_opt_auto_save());
     //}
-    gx_engine::controller_map.signal_new_program().connect(
+    machine.signal_midi_new_program().connect(
 	sigc::bind(sigc::ptr_fun(do_program_change),sigc::ref(machine)));
 
     if (! machine.get_jack()->gx_jack_connection(true, true, 0)) {

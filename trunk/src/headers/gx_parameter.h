@@ -665,8 +665,6 @@ class ParamMap: boost::noncopyable {
 #endif
 };
 
-extern ParamMap parameter_map; // map id -> parameter, zone -> parameter
-
 /****************************************************************
  **
  ** Midi
@@ -774,8 +772,6 @@ class MidiControllerList {
     void update_from_controller(int ctr);
     void update_from_controllers();
 };
-
-extern MidiControllerList controller_map; // map ctrl num -> controlled parameters
 
 } // namespace gx_gui
 

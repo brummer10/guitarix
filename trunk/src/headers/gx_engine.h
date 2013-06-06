@@ -66,6 +66,7 @@ private:
     gx_resample::BufferResampler resamp;
     void load_static_plugins();
 public:
+    MidiControllerList controller_map;
     // ModuleSelector's
     ModuleSelectorFromList crybaby;
     ModuleSelectorFromList tonestack;

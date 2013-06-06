@@ -85,8 +85,8 @@ class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
     void on_value_changed();
     virtual void reflectZone();
  public:
-    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
-    UiRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value);
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id, bool show_value);
+    UiRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value);
     virtual ~UiRegler();
     GtkWidget *get_widget() { return GTK_WIDGET(m_regler->gobj()); }
 };
@@ -108,7 +108,7 @@ private:
     virtual void reflectZone();
     void on_value_changed();
 public:
-    UiSelector(gx_ui::GxUI& ui, gx_engine::ParameterV<T> &param);
+    UiSelector(gx_engine::GxMachineBase& machine, gx_engine::ParameterV<T> &param);
     ~UiSelector();
 };
 
@@ -122,15 +122,15 @@ private:
     Gtk::Label m_label;
     Gtk::VBox m_box;
 public:
-    static GtkWidget* create(gx_ui::GxUI& ui, string id, const char *label);
-    UiSelectorWithCaption(gx_ui::GxUI& ui, gx_engine::ParameterV<T> &param, const char *label);
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, string id, const char *label);
+    UiSelectorWithCaption(gx_engine::GxMachineBase& machine, gx_engine::ParameterV<T> &param, const char *label);
     ~UiSelectorWithCaption();
     virtual GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
 };
 
 template <class T>
-UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_ui::GxUI& ui, gx_engine::ParameterV<T> &param, const char *label)
-    : UiSelector<T>(ui, param) {
+UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_engine::GxMachineBase& machine, gx_engine::ParameterV<T> &param, const char *label)
+    : UiSelector<T>(machine, param) {
     if (label) {
 	m_label.set_text(label);
     } else {
@@ -156,10 +156,10 @@ class UiReglerWithCaption: public UiRegler {
     Gtk::Label m_label;
     Gtk::VBox m_box;
  public:
-    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
-    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id, bool show_value);
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id,
                              Glib::ustring label, bool show_value);
-    UiReglerWithCaption(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
+    UiReglerWithCaption(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
                         Glib::ustring label, bool show_value);
     GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
@@ -171,10 +171,10 @@ class UiRackReglerWithCaption: public UiRegler {
     Gtk::Label m_label;
     Gtk::VBox m_box;
  public:
-    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
-    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id);
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id,
                              Glib::ustring label);
-    UiRackReglerWithCaption(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
+    UiRackReglerWithCaption(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
                             Glib::ustring label);
     GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
@@ -185,10 +185,10 @@ class UiRackMasterRegler: public UiRegler {
     Gtk::Label m_label;
     Gtk::HBox m_box;
  public:
-    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
-    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id);
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id,
                              Glib::ustring label);
-    UiRackMasterRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
+    UiRackMasterRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
                             Glib::ustring label);
     GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
@@ -200,10 +200,10 @@ class UiRackRegler: public UiRegler {
     Gtk::Label m_label;
     Gtk::VBox m_box;
  public:
-    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
-    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id);
+    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id,
                              Glib::ustring label);
-    UiRackRegler(gx_ui::GxUI &ui, gx_engine::FloatParameter &param, Gxw::Regler *regler,
+    UiRackRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
                  Glib::ustring label);
     GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
@@ -292,7 +292,7 @@ extern const char *pb_eq_expose;
 extern const char *pb_main_expose;
 extern const char *pb_level_meter_expose;
 
-gboolean button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
+bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, const char *id);
 int precision(double n);
 string fformat(float value, float step);
 
@@ -300,25 +300,24 @@ string fformat(float value, float step);
 
 #ifndef NDEBUG
 // debug_check
-inline void check_zone(GtkWidget *w, void *zone) {
-    if (!gx_engine::parameter_map.hasZone(zone)) {
-        gchar *p;
-        gtk_widget_path(w, NULL, &p, NULL);
-        cerr << "zone not found in definition of widget: "
-             << p << endl;
-        g_free(p);
+inline void check_id(Gtk::Widget *w, const char *id, gx_engine::GxMachineBase& machine) {
+    if (!machine.parameter_hasId(id)) {
+	Glib::ustring pt, ptr;
+	w->path(pt, ptr);
+        cerr << "id '" << id << "' not found in definition of widget: "
+             << pt << endl;
         assert(false);
     }
-    gx_engine::parameter_map[zone].setUsed();
+    //gx_engine::parameter_map[zone].setUsed();
 }
 #endif
 
 /****************************************************************/
 
-inline void connect_midi_controller(GtkWidget *w, void *zone) {
-    debug_check(check_zone, w, zone);
-    g_signal_connect(w, "button_press_event", G_CALLBACK(button_press_cb),
-                    (gpointer)&gx_engine::parameter_map[zone]);
+inline void connect_midi_controller(Gtk::Widget *w, const char *id, gx_engine::GxMachineBase& machine) {
+    debug_check(check_id, w, id, machine);
+    w->signal_button_press_event().connect(
+	sigc::bind(sigc::ptr_fun(button_press_cb), sigc::ref(machine), id));
 }
 
 /****************************************************************/

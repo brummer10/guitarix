@@ -210,7 +210,7 @@ namespace gx_gui {
 
 //static
 Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
-    const std::string& filename, gx_ui::GxUI* ui, const char* object_id) {
+    const std::string& filename, gx_engine::GxMachineBase* pmach, const char* object_id) {
     Glib::RefPtr<GxBuilder> builder = GxBuilder::create();
     try {
 	if (object_id) {
@@ -223,15 +223,15 @@ Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
     } catch(const Gtk::BuilderError& ex) {
         gx_system::gx_print_fatal("Builder Error", ex.what());
     }
-    if (ui) {
-	builder->fixup_controlparameters(*ui);
+    if (pmach) {
+	builder->fixup_controlparameters(*pmach);
     }
     return builder;
 }
 
 //static
 Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
-    const std::string& filename, gx_ui::GxUI* ui, const Glib::StringArrayHandle& object_ids) {
+    const std::string& filename, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids) {
     Glib::RefPtr<GxBuilder> builder = GxBuilder::create();
     try {
 	builder->add_from_file(filename, object_ids);
@@ -240,15 +240,15 @@ Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
     } catch(const Gtk::BuilderError& ex) {
         gx_system::gx_print_fatal("Builder Error", ex.what());
     }
-    if (ui) {
-	builder->fixup_controlparameters(*ui);
+    if (pmach) {
+	builder->fixup_controlparameters(*pmach);
     }
     return builder;
 }
 
 //static
 Glib::RefPtr<GxBuilder> GxBuilder::create_from_string(
-    const Glib::ustring& buffer, gx_ui::GxUI* ui, const char* object_id) {
+    const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach, const char* object_id) {
     Glib::RefPtr<GxBuilder> builder = GxBuilder::create();
     try {
 	if (object_id) {
@@ -259,23 +259,23 @@ Glib::RefPtr<GxBuilder> GxBuilder::create_from_string(
     } catch(const Gtk::BuilderError& ex) {
         gx_system::gx_print_fatal("Builder Error", ex.what());
     }
-    if (ui) {
-	builder->fixup_controlparameters(*ui);
+    if (pmach) {
+	builder->fixup_controlparameters(*pmach);
     }
     return builder;
 }
 
 //static
 Glib::RefPtr<GxBuilder> GxBuilder::create_from_string(
-    const Glib::ustring& buffer, gx_ui::GxUI* ui, const Glib::StringArrayHandle& object_ids) {
+    const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids) {
     Glib::RefPtr<GxBuilder> builder = GxBuilder::create();
     try {
 	builder->add_from_string(buffer, object_ids);
     } catch(const Gtk::BuilderError& ex) {
         gx_system::gx_print_fatal("Builder Error", ex.what());
     }
-    if (ui) {
-	builder->fixup_controlparameters(*ui);
+    if (pmach) {
+	builder->fixup_controlparameters(*pmach);
     }
     return builder;
 }
@@ -369,20 +369,20 @@ static void destroy_with_widget(Glib::Object *t, gx_ui::GxUiItem *p) {
     t->set_data("GxUiItem", p, widget_destroyed);
 }
 
-static void make_switch_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
+static void make_switch_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
     w->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
     Gtk::ToggleButton *t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
     if (p.isFloat()) {
 	gx_engine::FloatParameter &fp = p.getFloat();
 	w->cp_set_value(fp.get_value());
 	if (t) {
-	    destroy_with_widget(t, new uiToggle<float>(ui, t, &fp.get_value()));
+	    destroy_with_widget(t, new uiToggle<float>(machine.get_ui(), t, &fp.get_value()));
 	}
     } else if (p.isBool()) {
 	gx_engine::BoolParameter &fp = p.getBool();
 	w->cp_set_value(fp.get_value());
 	if (t) {
-	    destroy_with_widget(t, new uiToggle<bool>(ui, t, &fp.get_value()));
+	    destroy_with_widget(t, new uiToggle<bool>(machine.get_ui(), t, &fp.get_value()));
 	}
     } else {
 	gx_system::gx_print_warning(
@@ -408,10 +408,10 @@ struct uiAdjustmentLog : public gx_ui::GxUiItemFloat {
     }
 };
 
-static void make_continuous_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
+static void make_continuous_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
     Glib::RefPtr<Gxw::Regler> r = Glib::RefPtr<Gxw::Regler>::cast_dynamic(w);
     if (!r) {
-	make_switch_controller(ui, w, p);
+	make_switch_controller(machine, w, p);
 	return;
     }
     if (!p.isFloat()) {
@@ -443,7 +443,7 @@ static void make_continuous_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::Contro
 	r->signal_input_value().connect(
 	    sigc::ptr_fun(logarithmic_input_value));
 	w->cp_set_value(log10(fp.get_value()));
-	gx_gui::uiAdjustmentLog* c = new gx_gui::uiAdjustmentLog(&ui, &fp.get_value(), adj->gobj());
+	gx_gui::uiAdjustmentLog* c = new gx_gui::uiAdjustmentLog(&machine.get_ui(), &fp.get_value(), adj->gobj());
 	adj->signal_value_changed().connect(
 	    sigc::bind<GtkAdjustment*>(
 		sigc::bind<gpointer>(
@@ -453,7 +453,7 @@ static void make_continuous_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::Contro
     } else {
 	w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
 	w->cp_set_value(fp.get_value());
-	gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.get_value(), adj->gobj());
+	gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&machine.get_ui(), &fp.get_value(), adj->gobj());
 	adj->signal_value_changed().connect(
 	    sigc::bind<GtkAdjustment*>(
 		sigc::bind<gpointer>(
@@ -463,10 +463,10 @@ static void make_continuous_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::Contro
     }
 }
 
-static void make_enum_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
+static void make_enum_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
     Gxw::Selector *t = dynamic_cast<Gxw::Selector*>(w.operator->());
     if (!t) {
-	make_continuous_controller(ui, w, p);
+	make_continuous_controller(machine, w, p);
 	return;
     }
     Gtk::TreeModelColumn<Glib::ustring> label;
@@ -480,15 +480,15 @@ static void make_enum_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParam
     w->cp_configure(p.l_group(), p.l_name(), p.getLowerAsFloat(), p.getUpperAsFloat(), 1.0);
     if (p.isInt()) {
 	int& val = p.getInt().get_value();
-	destroy_with_widget(t, new uiSelector<int>(ui, t, &val));
+	destroy_with_widget(t, new uiSelector<int>(machine.get_ui(), t, &val));
 	t->cp_set_value(val);
     } else if (p.isUInt()) {
 	unsigned int& val = p.getUInt().get_value();
-	destroy_with_widget(t, new uiSelector<unsigned int>(ui, t, &val));
+	destroy_with_widget(t, new uiSelector<unsigned int>(machine.get_ui(), t, &val));
 	t->cp_set_value(val);
     } else if (p.isFloat()) {
 	float& val = p.getFloat().get_value();
-	destroy_with_widget(t, new uiSelector<float>(ui, t, &val));
+	destroy_with_widget(t, new uiSelector<float>(machine.get_ui(), t, &val));
 	t->cp_set_value(val);
     } else {
 	gx_system::gx_print_warning(
@@ -497,7 +497,7 @@ static void make_enum_controller(gx_ui::GxUI& ui, Glib::RefPtr<Gxw::ControlParam
     }
 }
 
-void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
+void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine) {
     Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
         gtk_builder_get_objects(gobj()), Glib::OWNERSHIP_DEEP);
     for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); ++i) {
@@ -520,7 +520,7 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
 	if (!wname) {
 	    Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_name(v);
 	}
-        if (!gx_engine::parameter_map.hasId(v)) {
+        if (!machine.parameter_hasId(v)) {
 	    Glib::RefPtr<Gtk::Widget> wd = Glib::RefPtr<Gtk::Widget>::cast_dynamic(w);
 	    wd->set_sensitive(0);
             wd->set_tooltip_text(v);
@@ -529,20 +529,20 @@ void GxBuilder::fixup_controlparameters(gx_ui::GxUI& ui) {
 		(boost::format("Parameter variable %1% not found") % v).str());
             continue;
         }
-        gx_engine::Parameter& p = gx_engine::parameter_map[v];
+        gx_engine::Parameter& p = machine.get_parameter(v);
         if (!p.desc().empty()) {
             Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(
 		gettext(p.desc().c_str()));
         }
 	switch (p.getControlType()) {
 	case gx_engine::Parameter::None:       assert(false); break;
-	case gx_engine::Parameter::Continuous: make_continuous_controller(ui, w, p); break;
-	case gx_engine::Parameter::Switch:     make_switch_controller(ui, w, p); break;
-	case gx_engine::Parameter::Enum:       make_enum_controller(ui, w, p); break;
+	case gx_engine::Parameter::Continuous: make_continuous_controller(machine, w, p); break;
+	case gx_engine::Parameter::Switch:     make_switch_controller(machine, w, p); break;
+	case gx_engine::Parameter::Enum:       make_enum_controller(machine, w, p); break;
 	default:         assert(false); break;
         }
 	if (p.isControllable()) {
-	    gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), p.zone());
+	    gx_gui::connect_midi_controller(Glib::RefPtr<Gtk::Widget>::cast_dynamic(w).operator->(), v.c_str(), machine);
 	}
     }
 }

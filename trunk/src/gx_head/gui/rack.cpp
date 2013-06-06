@@ -392,7 +392,8 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       on_off_switch("minitoggle"),
       toggle_on_off(rb.main.get_ui(), &on_off_switch, &rb.plugin.plugin->on_off) {
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
-	gx_gui::connect_midi_controller(GTK_WIDGET(on_off_switch.gobj()), &rb.plugin.plugin->on_off);
+	std::string s = rb.get_id();
+	gx_gui::connect_midi_controller(&on_off_switch, (s+".on_off").c_str(), rb.main.get_machine());
     }
     if (!szg_label) {
 	szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
@@ -876,7 +877,8 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
       box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), position(), effect_post_pre(), on_off_switch("switchit"),
       toggle_on_off(tl.get_ui(), &on_off_switch, &plugin.plugin->on_off) {
     if (strcmp(plugin.get_id(), "ampstack") != 0) { // FIXME
-	gx_gui::connect_midi_controller(GTK_WIDGET(on_off_switch.gobj()), &plugin.plugin->on_off);
+	std::string s = get_id();
+	gx_gui::connect_midi_controller(&on_off_switch, (s+".on_off").c_str(), main.get_machine());
     }
 #ifdef USE_SZG
     if (!szg) {

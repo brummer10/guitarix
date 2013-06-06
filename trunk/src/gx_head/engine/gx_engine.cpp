@@ -113,6 +113,7 @@ static const char* ampstack_groups[] = {
 GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::CmdlineOptions& options)
     : ModuleSequencer(),
       resamp(),
+      controller_map(),
       // ModuleSelector's
       crybaby(
 	  *this, ui, "crybaby", N_("Crybaby"), N_("Guitar Effects"), builtin_crybaby_plugins,

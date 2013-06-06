@@ -78,8 +78,8 @@ SelectJackControlPgm::~SelectJackControlPgm() {
 }
 
 //static
-SelectJackControlPgm* SelectJackControlPgm::create(gx_ui::GxUI *ui, gx_system::CmdlineOptions& opt, gx_engine::GxMachineBase& m) {
-    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_file(opt.get_builder_filepath("jackstarter.glade"), ui);
+SelectJackControlPgm* SelectJackControlPgm::create(gx_system::CmdlineOptions& opt, gx_engine::GxMachineBase& m) {
+    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_file(opt.get_builder_filepath("jackstarter.glade"), &m);
     SelectJackControlPgm *w;
     bld->get_toplevel_derived("selectjackstarter", w,
 			    sigc::bind(sigc::ptr_fun(SelectJackControlPgm::create_from_builder), bld, sigc::ref(m)));
