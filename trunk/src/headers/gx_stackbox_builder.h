@@ -194,6 +194,8 @@ public:
     void make_rackbox_low_highpass();
     void make_rackbox_eqs();
     void make_rackbox_peak_eq();
+    void make_rackbox_digital_delay();
+    void make_rackbox_digital_delay_st();
     void make_rackbox_crybaby();
     void make_rackbox_gx_distortion();
     void make_rackbox_IR();

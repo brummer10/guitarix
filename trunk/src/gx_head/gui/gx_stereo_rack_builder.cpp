@@ -365,4 +365,26 @@ void StackBoxBuilder::make_rackbox_stereoverb() {
     closeBox();
 }
 
+void StackBoxBuilder::make_rackbox_digital_delay_st() {
+    // -----delay
+    openHorizontalhideBox("");
+    create_master_slider("didest.delay", _(" delay "));
+    closeBox();
+    openVerticalBox("");
+    {
+	openHorizontalBox("");
+	{
+	    create_small_rackknobr("didest.delay", _(" delay "));
+	    create_small_rackknob("didest.level", _("level"));
+        create_small_rackknob("didest.show_always.highpass (hz)", _("highpass (hz)"));
+        create_small_rackknob("didest.show_always.howpass (hz)", _("howpass (hz)"));
+        create_small_rackknob("didest.feedback", _("feedback"));
+
+	    create_small_rackknob("didest.gain", _("gain"));
+	}
+	closeBox();
+    }
+    closeBox();
+}
+
 }  // end namespace gx_gui

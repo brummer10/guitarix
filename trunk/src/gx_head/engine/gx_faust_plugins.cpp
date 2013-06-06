@@ -115,6 +115,8 @@ namespace gx_effects {
 #include "faust/flanger_mono.cc"
 #include "faust/stereoverb.cc"
 #include "faust/peak_eq.cc"
+#include "faust/digital_delay.cc"
+#include "faust/digital_delay_st.cc"
 }
 
 #include "faust/balance.cc"

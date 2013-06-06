@@ -115,6 +115,8 @@ declare(moog)
 declare(tonecontroll)
 declare(stereoverb)
 declare(peak_eq)
+declare(digital_delay)
+declare(digital_delay_st)
 }
 
 declare(balance)

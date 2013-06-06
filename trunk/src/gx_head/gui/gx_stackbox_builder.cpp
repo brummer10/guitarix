@@ -200,6 +200,8 @@ void StackBoxBuilder::get_box(const std::string& name, Gtk::Widget*& mainbox, Gt
 	{ "low_highpass", &StackBoxBuilder::make_rackbox_low_highpass },
 	{ "eqs", &StackBoxBuilder::make_rackbox_eqs },
 	{ "eq", &StackBoxBuilder::make_rackbox_peak_eq },
+    { "dide", &StackBoxBuilder::make_rackbox_digital_delay },
+	{ "didest", &StackBoxBuilder::make_rackbox_digital_delay_st },
 	//{ "crybaby", &StackBoxBuilder::make_rackbox_crybaby },
 	//{ "gx_distortion", &StackBoxBuilder::make_rackbox_gx_distortion },
 	{ "IR", &StackBoxBuilder::make_rackbox_IR },

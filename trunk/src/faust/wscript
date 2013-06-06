@@ -52,6 +52,8 @@ def build(bld):
         'chorus.dsp',
         'stereodelay.dsp',
         'stereoecho.dsp',
+        'digital_delay.dsp',
+        'digital_delay_st.dsp',
         ]
 
     sources_plugin = [
