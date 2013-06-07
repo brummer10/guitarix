@@ -30,10 +30,10 @@
     "mbc.Release3": 1.25,
     "mbc.Release4": 1.25,
     "mbc.Release5": 1.25,
-    "mbc.show_always_Crossover_B1-B2": 80,
-    "mbc.show_always_Crossover_B2-B3": 210,
-    "mbc.show_always_Crossover_B3-B4": 1700,
-    "mbc.show_always_Crossover_B4-B5": 5000
+    "mbc.show_always_crossover_b1_b2": 80,
+    "mbc.show_always_crossover_b2_b3": 210,
+    "mbc.show_always_crossover_b3_b4": 1700,
+    "mbc.show_always_crossover_b4_b5": 5000
   },
   "Mid-high end headset", {
     "mbc.Attack1": 0.012,
@@ -66,9 +66,9 @@
     "mbc.Release3": 1.25,
     "mbc.Release4": 1.25,
     "mbc.Release5": 1.25,
-    "mbc.show_always_Crossover_B1-B2": 44,
-    "mbc.show_always_Crossover_B2-B3": 180,
-    "mbc.show_always_Crossover_B3-B4": 800,
-    "mbc.show_always_Crossover_B4-B5": 5000
+    "mbc.show_always_crossover_b1_b2": 44,
+    "mbc.show_always_crossover_b2_b3": 180,
+    "mbc.show_always_crossover_b3_b4": 800,
+    "mbc.show_always_crossover_b4_b5": 5000
   }
 ]
