@@ -87,7 +87,7 @@ inline void atomic_set(volatile int* p, int v) {
 }
 
 inline void atomic_set(volatile unsigned int* p, unsigned int v) {
-    g_atomic_int_set(p, v);
+    g_atomic_int_set(reinterpret_cast<volatile int*>(p), v);
 }
 
 inline int atomic_get(volatile int& p) {
@@ -95,7 +95,7 @@ inline int atomic_get(volatile int& p) {
 }
 
 inline unsigned int atomic_get(volatile unsigned int& p) {
-    return g_atomic_int_get(&p);
+    return g_atomic_int_get(reinterpret_cast<volatile int*>(&p));
 }
 
 inline void atomic_inc(volatile int* p) {
@@ -103,7 +103,7 @@ inline void atomic_inc(volatile int* p) {
 }
 
 inline void atomic_inc(volatile unsigned int* p) {
-    g_atomic_int_inc(p);
+    g_atomic_int_inc(reinterpret_cast<volatile int*>(p));
 }
 
 inline bool atomic_compare_and_exchange(volatile int *p, int oldv, int newv) {
