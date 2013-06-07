@@ -401,8 +401,8 @@ void StackBoxBuilder::make_rackbox_digital_delay() {
 	{
 	    create_small_rackknobr("dide.delay", _(" delay "));
 	    create_small_rackknob("dide.level", _("level"));
-        create_small_rackknob("dide.show_always.highpass (hz)", _("highpass (hz)"));
-        create_small_rackknob("dide.show_always.howpass (hz)", _("howpass (hz)"));
+        create_small_rackknob("dide.show_always_highpass", _("highpass (hz)"));
+        create_small_rackknob("dide.show_always_howpass", _("howpass (hz)"));
         create_small_rackknob("dide.feedback", _("feedback"));
 
 	    create_small_rackknob("dide.gain", _("gain"));

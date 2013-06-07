@@ -248,7 +248,6 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::gx_feedback::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::peak_eq::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::digital_delay::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(gx_effects::digital_delay_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&preamp.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
@@ -264,6 +263,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::moog::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_amps::gx_ampmodul::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::tonecontroll::plugin(),    PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::digital_delay_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&stereo_convolver.plugin,              PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::stereoverb::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::zita_rev1::plugin(),        PLUGIN_POS_RACK);

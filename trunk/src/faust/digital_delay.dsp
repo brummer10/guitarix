@@ -17,8 +17,8 @@ dide         = _<:*(dry),(*(wet) : digd):>_ with {
     };
     level    = vslider("level[tooltip:percentage of the delay gain level]", 50, 0, 100, 1)/100 ;
     feedback = vslider("feedback[tooltip:percentage of the feedback level in the delay loop]", 50, 0, 100, 1)/100 ;
-    hifr1    = hslider("show_always.highpass (hz)[tooltip: highpass filter frequency in the feddback loop]" ,120 , 20, 20000, 1);
-    lofr1    = hslider("show_always.howpass (hz)[tooltip: lowpass filter frequency in the feddback loop]" ,12000 , 20, 20000, 1);
+    hifr1    = hslider("show_always_highpass [name:highpass (hz)][tooltip: highpass filter frequency in the feddback loop]" ,120 , 20, 20000, 1);
+    lofr1    = hslider("show_always_howpass [name:lowpass (hz)][tooltip: lowpass filter frequency in the feddback loop]" ,12000 , 20, 20000, 1);
   };
   wet        = vslider("gain[tooltip:overall gain of the delay line in percent]",  100, 0, 100, 1) : /(100);
   dry        = 1 - wet;

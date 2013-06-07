@@ -39,13 +39,13 @@ bswitch3	= max(0,sel3-1);
 bswitch4	= max(0,sel4-1);
 bswitch5	= max(0,sel5-1);
 
-hifr1			=hslider("show_always.Crossover B1-B2 (hz)[tooltip: Crossover bandpass frequency]" ,80 , 20, 20000, 1);
+hifr1			=hslider("show_always_Crossover_B1-B2 [name:Crossover B1-B2 (hz)][tooltip: Crossover bandpass frequency]" ,80 , 20, 20000, 1);
 lowfr2			=hifr1;
-hifr2			=hslider("show_always.Crossover B2-B3 (hz)[tooltip: Crossover bandpass frequency]",210,20,20000,1);
+hifr2			=hslider("show_always_Crossover_B2-B3 [name:Crossover B2-B3 (hz)][tooltip: Crossover bandpass frequency]",210,20,20000,1);
 lowfr3			=hifr2;
-hifr3			=hslider("show_always.Crossover B3-B4 (hz)[tooltip: Crossover bandpass frequency]",1700,20,20000,1);
+hifr3			=hslider("show_always_Crossover_B3-B4 [name:Crossover B3-B4 (hz)][tooltip: Crossover bandpass frequency]",1700,20,20000,1);
 lowfr4			=hifr3;
-hifr4			=hslider("show_always.Crossover B4-B5 (hz)[tooltip: Crossover bandpass frequency]",5000,20,20000,1);
+hifr4			=hslider("show_always_Crossover_B4-B5 [name:Crossover B4-B5 (hz)][tooltip: Crossover bandpass frequency]",5000,20,20000,1);
 lowfr5			=hifr4;
 
 bandpass1 	= lowpass(3,hifr1) ;
@@ -55,36 +55,36 @@ bandpass4 	= lowpass(3,hifr4) : highpass(3,lowfr4);
 bandpass5 	= highpass(3,lowfr5);
 
 ratio1 		= hslider("[9] Ratio1 [tooltip: Compression ratio]",2,1,100,0.1);
-attack1		= hslider("[A] Attack1 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release1 	= hslider("[B] Release1 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack1		= hslider("[A] Attack1 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
+release1 	= hslider("[B] Release1 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
 ratio2 		= hslider("[9] Ratio2 [tooltip: Compression ratio]",2,1,100,0.1);
-attack2		= hslider("[A] Attack2 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release2 	= hslider("[B] Release2 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack2		= hslider("[A] Attack2 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
+release2 	= hslider("[B] Release2 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
 ratio3 		= hslider("[9] Ratio3 [tooltip: Compression ratio]",2,1,100,0.1);
-attack3		= hslider("[A] Attack3 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release3 	= hslider("[B] Release3 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack3		= hslider("[A] Attack3 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
+release3 	= hslider("[B] Release3 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
 ratio4 		= hslider("[9] Ratio4 [tooltip: Compression ratio]",2,1,100,0.1);
-attack4		= hslider("[A] Attack4 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release4 	= hslider("[B] Release4 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack4		= hslider("[A] Attack4 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
+release4 	= hslider("[B] Release4 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
 ratio5 		= hslider("[9] Ratio5 [tooltip: Compression ratio]",2,1,100,0.1);
-attack5		= hslider("[A] Attack5 (sec) [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release5 	= hslider("[B] Release5 (sec) [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack5		= hslider("[A] Attack5 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
+release5 	= hslider("[B] Release5 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
 
-push1 		= hslider("[5] Makeup1 (db) [tooltip: Post amplification and threshold]"   , 13, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
-push2 		= hslider("[5] Makeup2 (db) [tooltip: Post amplification and threshold]"   , 10, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
-push3 		= hslider("[5] Makeup3 (db) [tooltip: Post amplification and threshold]"   , 4,  -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
-push4 		= hslider("[5] Makeup4 (db) [tooltip: Post amplification and threshold]"   , 8,  -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
-push5 		= hslider("[5] Makeup5 (db) [tooltip: Post amplification and threshold]"   , 11, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
+push1 		= hslider("[5] Makeup1 [tooltip: Post amplification and threshold]"   , 13, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
+push2 		= hslider("[5] Makeup2 [tooltip: Post amplification and threshold]"   , 10, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
+push3 		= hslider("[5] Makeup3 [tooltip: Post amplification and threshold]"   , 4,  -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
+push4 		= hslider("[5] Makeup4 [tooltip: Post amplification and threshold]"   , 8,  -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
+push5 		= hslider("[5] Makeup5 [tooltip: Post amplification and threshold]"   , 11, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
 
-safe1 	= hslider("[6] Makeup-Threshold1 (db) [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
-safe2 	= hslider("[6] Makeup-Threshold2 (db) [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
-safe3 	= hslider("[6] Makeup-Threshold3 (db) [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
-safe4 	= hslider("[6] Makeup-Threshold4 (db) [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
-safe5 	= hslider("[6] Makeup-Threshold5 (db) [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
+safe1 	= hslider("[6] Makeup-Threshold1 [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
+safe2 	= hslider("[6] Makeup-Threshold2 [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
+safe3 	= hslider("[6] Makeup-Threshold3 [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
+safe4 	= hslider("[6] Makeup-Threshold4 [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
+safe5 	= hslider("[6] Makeup-Threshold5 [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
 
 Makeup1	=  mute1* (not(bswitch1)*(push1-safe1)  : db2linear : smooth(0.999));
 Makeup2	=  mute2* (not(bswitch2)*(push2-safe2)  : db2linear : smooth(0.999));

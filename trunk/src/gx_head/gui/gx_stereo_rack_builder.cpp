@@ -376,8 +376,8 @@ void StackBoxBuilder::make_rackbox_digital_delay_st() {
 	{
 	    create_small_rackknobr("didest.delay", _(" delay "));
 	    create_small_rackknob("didest.level", _("level"));
-        create_small_rackknob("didest.show_always.highpass (hz)", _("highpass (hz)"));
-        create_small_rackknob("didest.show_always.howpass (hz)", _("howpass (hz)"));
+        create_small_rackknob("didest.show_always_highpass", _("highpass (hz)"));
+        create_small_rackknob("didest.show_always_howpass", _("howpass (hz)"));
         create_small_rackknob("didest.feedback", _("feedback"));
 
 	    create_small_rackknob("didest.gain", _("gain"));

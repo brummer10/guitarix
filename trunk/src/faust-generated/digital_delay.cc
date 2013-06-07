@@ -1,5 +1,5 @@
 // generated from file '../src/faust/digital_delay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace digital_delay {
@@ -95,9 +95,9 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (3.141592653589793f / iConst0);
+	fConst1 = (3.141592653589793f / float(iConst0));
 	IOTA = 0;
-	fConst2 = (1e+01f / iConst0);
+	fConst2 = (1e+01f / float(iConst0));
 	fConst3 = (0 - fConst2);
 	fConst4 = (0.001f * iConst0);
 }
@@ -195,8 +195,8 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("dide.level","","S",N_("percentage of the delay gain level"),&fslider5, 5e+01f, 0.0f, 1e+02f, 1.0f);
 	reg.registerVar("dide.delay","","S",N_("Delay Time in ms"),&fslider4, 2.5e+03f, 0.1f, 5e+03f, 0.1f);
 	reg.registerVar("dide.feedback","","S",N_("percentage of the feedback level in the delay loop"),&fslider3, 5e+01f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dide.show_always.highpass (hz)","","S",N_("highpass filter frequency in the feddback loop"),&fslider2, 1.2e+02f, 2e+01f, 2e+04f, 1.0f);
-	reg.registerVar("dide.show_always.howpass (hz)","","S",N_("lowpass filter frequency in the feddback loop"),&fslider1, 1.2e+04f, 2e+01f, 2e+04f, 1.0f);
+	reg.registerVar("dide.show_always_highpass",N_("highpass (hz)"),"S",N_("highpass filter frequency in the feddback loop"),&fslider2, 1.2e+02f, 2e+01f, 2e+04f, 1.0f);
+	reg.registerVar("dide.show_always_howpass",N_("lowpass (hz)"),"S",N_("lowpass filter frequency in the feddback loop"),&fslider1, 1.2e+04f, 2e+01f, 2e+04f, 1.0f);
 	reg.registerVar("dide.gain","","S",N_("overall gain of the delay line in percent"),&fslider0, 1e+02f, 0.0f, 1e+02f, 1.0f);
 	return 0;
 }
