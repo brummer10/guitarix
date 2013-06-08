@@ -290,14 +290,15 @@ int PluginList::load_from_path(const string& path, PluginPos pos) {
 }
 
 int PluginList::check_version(PluginDef *p) {
-    if ((p->version & PLUGINDEF_VERMAJOR_MASK) != (PLUGINDEF_VERSION & PLUGINDEF_VERMAJOR_MASK)) {
-	gx_system::gx_print_error(
-	    _("Plugin Loader"),
-	    boost::format(_("Plugin '%1%' has wrong version %2$#4x (current version: %3$#4x)"))
-	    % p->id % p->version % PLUGINDEF_VERSION);
-	return -1;
+    if (((p->version & PLUGINDEF_VERMAJOR_MASK) == (PLUGINDEF_VERSION & PLUGINDEF_VERMAJOR_MASK)) &&
+	((p->version & PLUGINDEF_VERMINOR_MASK) <= (PLUGINDEF_VERSION & PLUGINDEF_VERMINOR_MASK))) {
+	return 0;
     }
-    return 0;
+    gx_system::gx_print_error(
+	_("Plugin Loader"),
+	boost::format(_("Plugin '%1%' has wrong version %2$#4x (current version: %3$#4x)"))
+	% p->id % p->version % PLUGINDEF_VERSION);
+    return -1;
 }
 
 void PluginList::delete_module(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
