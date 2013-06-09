@@ -109,7 +109,6 @@ public :
 
 typedef GxUiItemV<float> GxUiItemFloat;
 typedef GxUiItemV<int> GxUiItemInt;
-typedef GxUiItemV<unsigned int> GxUiItemUInt;
 typedef GxUiItemV<bool> GxUiItemBool;
 
 template<class T>
@@ -164,7 +163,7 @@ private:
     virtual void reflectZone();
 public:
     UiSignal(GxUI* ui, T *v): GxUiItemV<T>(ui, v) {};
-    static UiSignal* create(GxUI* ui, gx_engine::ParamMap& param, const char *id);
+    static UiSignal* create(GxUI* ui, gx_engine::ParamMap& param, const std::string& id);
     ~UiSignal();
     sigc::signal<void, T> changed;
 };
@@ -181,14 +180,14 @@ void UiSignal<T>::reflectZone() {
 }
 
 template<class T>
-UiSignal<T>* UiSignal<T>::create(GxUI* ui, gx_engine::ParamMap& param, const char *id) {
+UiSignal<T>* UiSignal<T>::create(GxUI* ui, gx_engine::ParamMap& param, const std::string& id) {
     if (!param.hasId(id)) {
-	printf("%s not found!!!\n", id);
+	printf("%s not found!!!\n", id.c_str());
 	return 0;
     }
     gx_engine::ParameterV<T>* p = dynamic_cast<gx_engine::ParameterV<T>*>(&param[id]);
     if (!p) {
-	printf("%s has wrong type [%s/%s]!!\n", id, typeid(param[id]).name(), typeid(gx_engine::ParameterV<T>).name());
+	printf("%s has wrong type [%s/%s]!!\n", id.c_str(), typeid(param[id]).name(), typeid(gx_engine::ParameterV<T>).name());
 	return 0;
     }
     return new UiSignal(ui, &p->get_value());
@@ -196,7 +195,6 @@ UiSignal<T>* UiSignal<T>::create(GxUI* ui, gx_engine::ParamMap& param, const cha
 
 typedef UiSignal<float> UiSignalFloat;
 typedef UiSignal<int> UiSignalInt;
-typedef UiSignal<unsigned int> UiSignalUInt;
 typedef UiSignal<bool> UiSignalBool;
 
 } /* end of gx_ui namespace */

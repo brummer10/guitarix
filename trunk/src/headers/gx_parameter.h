@@ -93,13 +93,11 @@ template <class T> class ParameterV;
 
 typedef ParameterV<float> FloatParameter;
 typedef ParameterV<int> IntParameter;
-typedef ParameterV<unsigned int> UIntParameter;
 typedef ParameterV<bool> BoolParameter;
 typedef ParameterV<Glib::ustring> StringParameter;
 
 class FloatEnumParameter;
 class EnumParameter;
-class UEnumParameter;
 class SwitchParameter;
 class FileParameter;
 
@@ -109,7 +107,7 @@ class Parameter: boost::noncopyable {
 public:
     enum ctrl_type { None, Continuous, Switch, Enum };
 protected:
-    enum value_type { tp_float, tp_int, tp_uint, tp_bool, tp_switch, tp_file, tp_string, tp_special };
+    enum value_type { tp_float, tp_int, tp_bool, tp_switch, tp_file, tp_string, tp_special };
     enum display_flags { dtp_normal, dtp_log = 1 };
     string _id;
     string _name, _group, _desc;
@@ -151,7 +149,6 @@ public:
     const char *get_typename() const;
     bool isFloat() const { return v_type == tp_float; }
     bool isInt() const { return v_type == tp_int; }
-    bool isUInt() const { return v_type == tp_uint; }
     bool isBool() const { return v_type == tp_bool; }
     bool isSwitch() const { return v_type == tp_switch; }
     bool isFile() const { return v_type == tp_file; }
@@ -191,8 +188,6 @@ public:
     FloatParameter& getFloat();
     IntParameter& getInt();
     EnumParameter& getEnum();
-    UIntParameter& getUInt();
-    UEnumParameter& getUEnum();
     BoolParameter& getBool();
     SwitchParameter& getSwitch();
     FileParameter &getFile();
@@ -223,7 +218,7 @@ public:
     float std_value;
     float lower, upper, step;
     void set(float val) const { *value = min(max(val, lower), upper); }
-    float &get_value() const { return *value; }
+    float& get_value() const { return *value; }
     void convert_from_range(float low, float up);
     virtual void *zone();
     virtual void stdJSON_value();
@@ -275,7 +270,7 @@ public:
     int std_value;
     int lower, upper;
     void set(int val) const { *value = min(max(val, lower), upper); }
-    int &get_value() const { return *value; }
+    int& get_value() const { return *value; }
     virtual void *zone();
     virtual void stdJSON_value();
     virtual bool on_off_value();
@@ -316,56 +311,6 @@ class EnumParameter: public IntParameter {
 /****************************************************************/
 
 template<>
-class ParameterV<unsigned int>: public Parameter {
-protected:
-    unsigned int json_value;
-    unsigned int *value;
-public:
-    unsigned int std_value;
-    unsigned int lower, upper;
-    void set(unsigned int val) const { *value = min(max(val, lower), upper); }
-    unsigned int &get_value() const { return *value; }
-    virtual void *zone();
-    virtual void stdJSON_value();
-    virtual bool on_off_value();
-    virtual void set(float n, float high, float llimit, float ulimit);
-    virtual void writeJSON(gx_system::JsonWriter& jw) const;
-    virtual void readJSON_value(gx_system::JsonParser& jp);
-    virtual bool compareJSON_value();
-    virtual void setJSON_value();
-    virtual bool hasRange() const;
-    virtual float getLowerAsFloat() const;
-    virtual float getUpperAsFloat() const;
-    virtual unsigned int idx_from_id(string v_id);
-    ParameterV(const string& id, const string& name, ctrl_type ctp, bool preset,
-	       unsigned int *v, unsigned int sv, unsigned int lv,
-	       unsigned int uv, bool ctrl):
-        Parameter(id, name, tp_uint, ctp, preset, ctrl),
-        value(v ? v : new unsigned int()), std_value(sv), lower(lv), upper(uv) {
-	own_var = !v;
-	*value = sv;
-    }
-    ~ParameterV();
-};
-
-/****************************************************************/
-
-class UEnumParameter: public UIntParameter {
-private:
-    const value_pair* value_names;
-public:
-    virtual void writeJSON(gx_system::JsonWriter& jw) const;
-    virtual void readJSON_value(gx_system::JsonParser& jp);
-    virtual const value_pair *getValueNames() const;
-    virtual unsigned int idx_from_id(string v_id);
-    const value_pair& get_pair() { return getValueNames()[get_value()]; }
-    UEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset, unsigned int *v,
-                  unsigned int sv, bool ctrl);
-};
-
-/****************************************************************/
-
-template<>
 class ParameterV<bool>: public Parameter {
 private:
     bool json_value;
@@ -376,7 +321,7 @@ public:
 public:
     virtual void *zone();
     virtual void stdJSON_value();
-    bool &get_value() const { return *value; }
+    bool& get_value() const { return *value; }
     virtual bool on_off_value();
     virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
@@ -468,7 +413,7 @@ public:
     Glib::ustring std_value;
 public:
     void set(const Glib::ustring& val) const { *value = val; }
-    Glib::ustring &get_value() const { return *value; }
+    Glib::ustring& get_value() const { return *value; }
     virtual void *zone();
     virtual void stdJSON_value();
     virtual bool on_off_value();
@@ -500,17 +445,6 @@ inline IntParameter &Parameter::getInt() {
 
 inline EnumParameter &Parameter::getEnum() {
     EnumParameter *p = dynamic_cast<EnumParameter*>(this);
-    assert(p);
-    return *p;
-}
-
-inline UIntParameter &Parameter::getUInt() {
-    assert(isUInt());
-    return static_cast<UIntParameter&>(*this);
-}
-
-inline UEnumParameter &Parameter::getUEnum() {
-    UEnumParameter *p = dynamic_cast<UEnumParameter*>(this);
     assert(p);
     return *p;
 }
@@ -577,8 +511,8 @@ class ParamMap: boost::noncopyable {
         return *id_map[p];
     }
     void set_init_values();
-    void reset_unit(Glib::ustring group_id) const;
-    bool unit_has_std_values(Glib::ustring group_id) const;
+    void reset_unit(Glib::ustring group_id, const char **groups) const;
+    bool unit_has_std_values(Glib::ustring group_id, const char **groups) const;
     void unregister(const string& id);
     inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std,
 				   float lower, float upper, float step) {
@@ -619,12 +553,6 @@ class ParamMap: boost::noncopyable {
 					    const value_pair *vl, float *var,
 					    int std = 0, int low = 0) {
 	FloatEnumParameter *p = new FloatEnumParameter(id, name, vl, true, var, std, low, true, replace_mode);
-	insert(p);
-	return p;
-    }
-    inline UEnumParameter *reg_uenum_par(const string& id, const string& name, const value_pair *vl,
-					 unsigned int *var, unsigned int std = 0) {
-	UEnumParameter *p = new UEnumParameter(id, name, vl, true, var, std, true);
 	insert(p);
 	return p;
     }

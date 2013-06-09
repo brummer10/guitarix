@@ -36,6 +36,13 @@ struct PluginDef;
 ** helper class for PluginDef::load_ui
 */
 
+#define UI_NUM_TOP           0x01
+#define UI_NUM_BOTTOM        0x03
+#define UI_NUM_LEFT          0x05
+#define UI_NUM_RIGHT         0x07
+#define UI_NUM_POSITION_MASK 0x07
+#define UI_NUM_SHOW_ALWAYS   0x08
+
 struct UiBuilder {
     PluginDef *plugin;
     void (*openTabBox)(const char* label);
@@ -60,6 +67,7 @@ struct UiBuilder {
     void (*create_selector)(const char *id, const char *label);
     void (*create_small_rackknobr)(const char *id, const char *label);
     void (*insertSpacer)();
+    void (*set_next_flags)(int flags);
     //FIXME add missing functions
 };
 
@@ -85,9 +93,6 @@ struct ParamReg {
 			    float low, float up, float step);
     void (*registerIEnumVar)(const char *id, const char* name, const char* tp,
 			     const char* tooltip, const value_pair* values, int *var, int val);
-    void (*registerUEnumVar)(const char *id, const char* name, const char* tp,
-			     const char* tooltip, const value_pair* values,
-			     unsigned int *var, unsigned int std);
 };
 
 /*
@@ -127,7 +132,7 @@ enum {
 
 #define PLUGINDEF_VERMAJOR_MASK 0xff00
 #define PLUGINDEF_VERMINOR_MASK 0x00ff
-#define PLUGINDEF_VERSION       0x0500
+#define PLUGINDEF_VERSION       0x0501
 
 struct PluginDef {
     int version;	 // = PLUGINDEF_VERSION

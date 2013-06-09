@@ -397,11 +397,13 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
  ** class PluginPresetList
  */
 
-PluginPresetList::PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap_, gx_engine::MidiControllerList& mctrl_)
+PluginPresetList::PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap_,
+				   gx_engine::MidiControllerList& mctrl_)
     : Glib::Object(), filename(fname), pmap(pmap_), mctrl(mctrl_), is(), jp(&is) {
 }
 
-Glib::RefPtr<PluginPresetList> PluginPresetList::create(const std::string& fname, gx_engine::ParamMap& pmap_, gx_engine::MidiControllerList& mctrl_) {
+Glib::RefPtr<PluginPresetList> PluginPresetList::create(const std::string& fname, gx_engine::ParamMap& pmap_,
+							gx_engine::MidiControllerList& mctrl_) {
     return Glib::RefPtr<PluginPresetList>(new PluginPresetList(fname, pmap_, mctrl_));
 }
 
@@ -456,6 +458,7 @@ bool PluginPresetList::next(Glib::ustring& name, bool *is_set) {
 		}
 	    }
 	    jp.next(gx_system::JsonParser::end_object);
+	    cerr << "I " << name << " " << *is_set << endl;
 	} else {
 	    jp.skip_object();
 	}
@@ -503,15 +506,32 @@ void PluginPresetList::set(const Glib::ustring& name) {
 
 static const int GX_PLUGIN_VERSION = 1;
 
-void PluginPresetList::write_values(gx_system::JsonWriter& jw, std::string id) {
-    //FIXME
+static inline bool compare_groups(const std::string& id, const char **groups) { //FIXME (is copy from gx_paramtable.cpp
+    if (!groups) {
+	return false;
+    }
+    for (const char **g = groups; *g; g += 2) {
+	const char *p = *g;
+	if ((*p) != '.') {
+	    continue;
+	}
+	p++;
+	int n = strlen(p);
+	if (strncmp(id.c_str(), p, n) == 0 && id[n] == '.') {
+	    return true;
+	}
+    }
+    return false;
+}
+
+void PluginPresetList::write_values(gx_system::JsonWriter& jw, std::string id, const char **groups) {
     id += ".";
     string on_off = id + "on_off";
     string pp = id + "pp";
     std::string position = id + "position";
     jw.begin_object(true);
     for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
-	if (i->first.compare(0, id.size(), id) == 0) {
+	if (i->first.compare(0, id.size(), id) == 0 || compare_groups(i->first, groups)) {
 	    if (i->second->isInPreset()) {
 		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->writeJSON(jw);
@@ -523,7 +543,7 @@ void PluginPresetList::write_values(gx_system::JsonWriter& jw, std::string id) {
     jw.end_object(true);
 }
 
-void PluginPresetList::save(const Glib::ustring& name, const std::string& id) {
+void PluginPresetList::save(const Glib::ustring& name, const std::string& id, const char **groups) {
     try {
 	std::string tmpfile(filename + "_tmp");
 	ofstream os(tmpfile.c_str());
@@ -538,7 +558,7 @@ void PluginPresetList::save(const Glib::ustring& name, const std::string& id) {
 		jw.write(jp.current_value());
 		if (jp.current_value() == name) {
 		    found = true;
-		    write_values(jw, id);
+		    write_values(jw, id, groups);
 		    jp.skip_object();
 		} else {
 		    jp.copy_object(jw);
@@ -547,7 +567,7 @@ void PluginPresetList::save(const Glib::ustring& name, const std::string& id) {
 	}
 	if (!found) {
 	    jw.write(name);
-	    write_values(jw, id);
+	    write_values(jw, id, groups);
 	}
 	jw.end_array(true);
 	jw.close();

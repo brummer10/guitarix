@@ -84,12 +84,13 @@ private:
     gx_system::JsonParser jp;
     PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap, gx_engine::MidiControllerList& mctrl_);
 public:
-    static Glib::RefPtr<PluginPresetList> create(const std::string& fname, gx_engine::ParamMap& pmap, gx_engine::MidiControllerList& mctrl);
+    static Glib::RefPtr<PluginPresetList> create(const std::string& fname, gx_engine::ParamMap& pmap,
+						 gx_engine::MidiControllerList& mctrl);
     bool start();
     bool next(Glib::ustring& name, bool *is_set = 0);
     void set(const Glib::ustring& name);
-    void write_values(gx_system::JsonWriter& jw, std::string id);
-    void save(const Glib::ustring& name, const std::string& id);
+    void write_values(gx_system::JsonWriter& jw, std::string id, const char **groups);
+    void save(const Glib::ustring& name, const std::string& id, const char **groups);
     void remove(const Glib::ustring& name);
 };
 

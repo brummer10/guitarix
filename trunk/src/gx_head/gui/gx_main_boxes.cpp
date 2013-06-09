@@ -38,41 +38,49 @@ namespace gx_gui {
 
 /****************************************************************/
 
+GxVBox::GxVBox(): Gtk::VBox(), m_label() {}
 GxVBox::~GxVBox() {}
 
-GxVBox::GxVBox(const gx_engine::GxMachineBase& machine) {}
 /****************************************************************/
 
+GxHBox::GxHBox(): Gtk::HBox(), m_label(), m_frame() {}
 GxHBox::~GxHBox() {}
 
-GxHBox::GxHBox(const gx_engine::GxMachineBase& machine) {}
 /****************************************************************/
+
+GxPaintBox::GxPaintBox(const char *expose_funk)
+    : Gtk::HBox(false, 0), m_paintbox() {
+    m_paintbox.property_paint_func() = expose_funk;
+    m_paintbox.pack_start(*this);
+}
 
 GxPaintBox::~GxPaintBox() {}
 
-GxPaintBox::GxPaintBox(gx_engine::GxMachineBase& machine, const char *expose_funk)
-    : m_box(false, 0) {
-    m_paintbox.property_paint_func() = expose_funk;
-    m_paintbox.pack_start(m_box);
-}
 /****************************************************************/
 
-GxEventBox::~GxEventBox() {}
-
-GxEventBox::GxEventBox(const gx_engine::GxMachineBase& machine) {
-    m_eventbox.add(m_box);
+GxEventBox::GxEventBox():
+    Gtk::HBox(),
+    m_hbox(),
+    m_pbox(),
+    m_tbox(),
+    m_eventbox(),
+    m_fbox(),
+    m_fixedbox(),
+    m_label() {
+    m_eventbox.add(*this);
     m_fixedbox.add(m_eventbox);
     m_hbox.add(m_pbox);
     m_hbox.pack_start(m_fbox, false, false);
     m_fbox.pack_start(m_fixedbox, false, false);
     m_hbox.add(m_tbox);
 }
+
+GxEventBox::~GxEventBox() {}
+
 /****************************************************************/
 
-GxNotebookBox::~GxNotebookBox() {}
-
-GxNotebookBox::GxNotebookBox(const gx_engine::GxMachineBase& machine) {
-    m_box.set_name("tab_rack");
+GxNotebookBox::GxNotebookBox() {
+    set_name("tab_rack");
 }
 
 /****************************************************************/

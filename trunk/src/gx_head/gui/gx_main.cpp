@@ -428,8 +428,9 @@ static void mainGtk(int argc, char *argv[]) {
     Gtk::Main main(argc, argv, options);
     options.process(argc, argv);
     GxSplashBox * Splash = NULL;
+#ifdef NDEBUG
     Splash =  new GxSplashBox();
-
+#endif
     gx_system::GxExit::get_instance().signal_msg().connect(
 	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
     ErrorPopup popup;
@@ -469,12 +470,59 @@ static void mainGtk(int argc, char *argv[]) {
     gui.run();
 }
 
+static void mainFront(int argc, char *argv[]) {
+    Glib::init();
+    Gxw::init();
+
+    gx_system::CmdlineOptions options;
+    PosixSignals posixsig(true); // catch unix signals in special thread
+    Gtk::Main main(argc, argv, options);
+    options.process(argc, argv);
+    GxSplashBox * Splash = NULL;
+#ifdef NDEBUG
+    Splash =  new GxSplashBox();
+#endif
+    gx_system::GxExit::get_instance().signal_msg().connect(
+	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
+    ErrorPopup popup;
+    gx_system::Logger::get_logger().signal_message().connect(
+	sigc::mem_fun(popup, &ErrorPopup::on_message));
+    // ---------------- Check for working user directory  -------------
+    bool need_new_preset;
+    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
+	Gtk::MessageDialog dialog(
+	    _("old config directory found (.gx_head)."
+	      " state file and standard presets file have been copied to"
+	      " the new directory (.config/guitarix).\n"
+	      " Additional old preset files can be imported into the"
+	      " new bank scheme by mouse drag and drop with a file"
+	      " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
+	dialog.set_title("Guitarix");
+	dialog.run();
+    }
+
+    gx_engine::GxMachineRemote machine(options);
+
+    // ----------------------- init GTK interface----------------------
+    MainWindow gui(machine, options, Splash);
+    if (need_new_preset) {
+	gui.create_default_scratch_preset();
+    }
+    // ----------------------- run GTK main loop ----------------------
+    delete Splash;
+    gui.run();
+}
+
 static bool is_headless(int argc, char *argv[]) {
     for (int i = 0; i < argc; ++i) {
 	if (strcmp(argv[i], "-N") == 0 || strcmp(argv[i], "--nogui") == 0) {
 	    return true;
 	}
     }
+    return false;
+}
+
+static bool is_frontend(int argc, char *argv[]) {
     return false;
 }
 
@@ -498,6 +546,8 @@ int main(int argc, char *argv[]) {
 #endif
 	if (is_headless(argc, argv)) {
 	    mainHeadless(argc, argv);
+	} else if (is_frontend(argc, argv)) {
+	    mainFront(argc, argv);
 	} else {
 	    mainGtk(argc, argv);
 	}
@@ -508,6 +558,9 @@ int main(int argc, char *argv[]) {
 	return 1;
     } catch (const gx_system::GxFatalError &e) {
 	cerr << e.what() << endl;
+	return 1;
+    } catch (const Glib::Exception &e) {
+	cerr << "unknown Glib Exception: " << e.what() << endl;
 	return 1;
     }
     return 0;

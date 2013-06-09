@@ -202,7 +202,7 @@ int KeyFinder::operator()() {
 
 /****************************************************************
  ** GxUiRadioMenu
- ** adds the values of an UEnumParameter as Gtk::RadioMenuItem's
+ ** adds the values of an EnumParameter as Gtk::RadioMenuItem's
  ** to a Gtk::MenuShell
  */
 
@@ -230,9 +230,11 @@ inline int TubeKeys::operator()() {
     return -1;
 }
 
-GxUiRadioMenu::GxUiRadioMenu(gx_ui::GxUI* ui, gx_engine::UIntParameter& param_):
-    gx_ui::GxUiItemUInt(ui, &param_.get_value()),
-    param(param_) {
+GxUiRadioMenu::GxUiRadioMenu(gx_engine::GxMachineBase& machine_, const std::string& id_)
+    : machine(machine_),
+      id(id_) {
+    machine.signal_parameter_value<int>(id).connect(
+	sigc::mem_fun(this, &GxUiRadioMenu::set_value));
 }
 
 void GxUiRadioMenu::setup(const Glib::ustring& prefix, const Glib::ustring& postfix,
@@ -242,6 +244,7 @@ void GxUiRadioMenu::setup(const Glib::ustring& prefix, const Glib::ustring& post
     TubeKeys next_key;
     Glib::ustring s = prefix;
     Gtk::RadioButtonGroup group;
+    gx_engine::IntParameter& param = machine.get_parameter(id).getInt();
     for (p = param.getValueNames(), i = 0; p->value_id; p++, i++) {
 	c = next_key();
 	if (c == 0) {
@@ -267,14 +270,12 @@ void GxUiRadioMenu::setup(const Glib::ustring& prefix, const Glib::ustring& post
     uimanager->add_ui_from_string(s);
 }
 
-void GxUiRadioMenu::reflectZone() {
-    int v = *fZone;
-    fCache = v;
+void GxUiRadioMenu::set_value(unsigned int v) {
     action->set_current_value(v);
 }
 
 void GxUiRadioMenu::on_changed(Glib::RefPtr<Gtk::RadioAction> act) {
-    param.set(act->get_current_value());
+    machine.set_parameter_value(id, act->get_current_value());
 }
 
 
@@ -2542,7 +2543,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       portmap_window(0),
       select_jack_control(0),
       fLoggingWindow(),
-      amp_radio_menu(&ui, machine_.get_parameter("tube.select").getUInt()),
+      amp_radio_menu(machine_, "tube.select"),
       pixbuf_on(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_on.png"))),
       pixbuf_off(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_off.png"))),
       pixbuf_bypass(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_bypass.png"))),
@@ -2551,8 +2552,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       pixbuf_log_grey(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_grey.png"))),
       pixbuf_log_yellow(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_yellow.png"))),
       pixbuf_log_red(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_red.png"))),
-      mute_changed(&ui, &machine.get_parameter("engine.mute").getBool().get_value()),
-      ampdetail_sh(&ui, &machine.get_parameter("ui.mp_s_h").getBool().get_value()),
       report_xrun(machine),
       in_session(false),
       status_icon(Gtk::StatusIcon::create(gx_head_icon)),
@@ -2746,7 +2745,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), true));
     ampdetail_expand->signal_clicked().connect(
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), false));
-    ampdetail_sh.changed.connect(
+    machine.signal_parameter_value<bool>("ui.mp_s_h").connect(
 	sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch));
 
     /*

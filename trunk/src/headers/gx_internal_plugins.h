@@ -233,7 +233,7 @@ public:
     Plugin plugin;
     sigc::signal<int, bool>          activation;
     sigc::signal<void, unsigned int> size_change;
-    gx_ui::UiSignalUInt              post_pre_signal;
+    gx_ui::UiSignalInt               post_pre_signal;
     gx_ui::UiSignalBool              visible;
     void clear_buffer();
     inline float *get_buffer() { return buffer; }

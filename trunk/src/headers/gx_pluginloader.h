@@ -44,7 +44,7 @@ public:
     bool plug_visible;		// In Box: UI Interface Box visible
     bool on_off;		// Audio Processing
     int position;		// Position in Rack / Audio Processing Chain
-    unsigned int effect_post_pre; // pre/post amp position (post = 0)
+    int effect_post_pre; // pre/post amp position (post = 0)
     PluginDef *pdef;
     enum { POST_WEIGHT = 2000 };
     inline int position_weight() { return effect_post_pre ? position : position + POST_WEIGHT; }
@@ -78,9 +78,6 @@ private:
 				 float low, float up, float step);
     static void registerIEnumVar_(const char *id, const char* name, const char* tp,
 				  const char* tooltip, const value_pair* values, int *var, int val);
-    static void registerUEnumVar_(const char *id, const char* name, const char* tp,
-				  const char* tooltip, const value_pair* values,
-				  unsigned int *var, unsigned int std);
 public:
     ParamRegImpl(gx_engine::ParamMap* pm);
 };

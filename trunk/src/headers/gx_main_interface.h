@@ -78,37 +78,44 @@ extern GuiVariables guivar;
 
 /****************************************************************/
 
-class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
- protected:
+class UiRegler: public Gtk::Adjustment {
+private:
+    using Gtk::Adjustment::set_value;
+protected:
+    gx_engine::GxMachineBase& machine;
+    gx_engine::FloatParameter& param;
     Gxw::Regler *m_regler;
     bool log_display;
     void on_value_changed();
-    virtual void reflectZone();
+    void set_regler_value(float v);
  public:
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id, bool show_value);
-    UiRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler, bool show_value);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id, bool show_value);
+    UiRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter& param, Gxw::Regler *regler, bool show_value);
     virtual ~UiRegler();
-    GtkWidget *get_widget() { return GTK_WIDGET(m_regler->gobj()); }
+    Gtk::Widget *get_widget() { return m_regler; }
 };
 
 /****************************************************************/
 
 class UiSelectorBase {
 protected:
+    gx_engine::GxMachineBase& machine;
+    const std::string id;
     Gxw::Selector m_selector;
 public:
-    UiSelectorBase(gx_engine::Parameter& param);
-    void set_name(Glib::ustring n) { m_selector.set_name(n); }
-    virtual GtkWidget *get_widget() { return GTK_WIDGET(m_selector.gobj()); }
+    UiSelectorBase(gx_engine::GxMachineBase& machine, const std::string& id);
+    void set_name(const Glib::ustring& n) { m_selector.set_name(n); }
+    virtual Gtk::Widget *get_widget() { return &m_selector; }
 };
 
 template <class T>
-class UiSelector: public UiSelectorBase, private gx_ui::GxUiItemV<T>, protected Gtk::Adjustment {
+class UiSelector: public UiSelectorBase, public Gtk::Adjustment {
 private:
-    virtual void reflectZone();
+    using Gtk::Adjustment::set_value;
+    void set_selector_value(T v);
     void on_value_changed();
 public:
-    UiSelector(gx_engine::GxMachineBase& machine, gx_engine::ParameterV<T> &param);
+    UiSelector(gx_engine::GxMachineBase& machine, const std::string& id);
     ~UiSelector();
 };
 
@@ -122,23 +129,23 @@ private:
     Gtk::Label m_label;
     Gtk::VBox m_box;
 public:
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, string id, const char *label);
-    UiSelectorWithCaption(gx_engine::GxMachineBase& machine, gx_engine::ParameterV<T> &param, const char *label);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const std::string& id, const char *label);
+    UiSelectorWithCaption(gx_engine::GxMachineBase& machine, const std::string& id, const char *label);
     ~UiSelectorWithCaption();
-    virtual GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+    virtual Gtk::Widget *get_widget() { return &m_box; }
 };
 
 template <class T>
-UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_engine::GxMachineBase& machine, gx_engine::ParameterV<T> &param, const char *label)
-    : UiSelector<T>(machine, param) {
+UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_engine::GxMachineBase& machine, const std::string& id, const char *label)
+    : UiSelector<T>(machine, id) {
     if (label) {
 	m_label.set_text(label);
     } else {
-	m_label.set_text(param.l_name());
+	m_label.set_text(machine.get_parameter(id).l_name());
     }
     m_label.set_name("rack_label");
     m_label.set_justify(Gtk::JUSTIFY_CENTER);
-    m_box.set_name(param.id());
+    m_box.set_name(id);
     m_box.pack_start(m_label, Gtk::PACK_SHRINK);
     m_box.pack_start(UiSelectorBase::m_selector, Gtk::PACK_EXPAND_PADDING);
     set_accessible(GTK_WIDGET(UiSelectorBase::m_selector.gobj()),m_label.gobj());
@@ -156,12 +163,12 @@ class UiReglerWithCaption: public UiRegler {
     Gtk::Label m_label;
     Gtk::VBox m_box;
  public:
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id, bool show_value);
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id,
-                             Glib::ustring label, bool show_value);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id, bool show_value);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id,
+			       const Glib::ustring& label, bool show_value);
     UiReglerWithCaption(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
-                        Glib::ustring label, bool show_value);
-    GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
+                        const Glib::ustring& label, bool show_value);
+    Gtk::Widget *get_widget() { return &m_box;}
 };
 
 /****************************************************************/
@@ -171,12 +178,12 @@ class UiRackReglerWithCaption: public UiRegler {
     Gtk::Label m_label;
     Gtk::VBox m_box;
  public:
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id);
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id,
-                             Glib::ustring label);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id,
+                             const Glib::ustring& label);
     UiRackReglerWithCaption(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
-                            Glib::ustring label);
-    GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
+                            const Glib::ustring& label);
+    Gtk::Widget *get_widget() { return &m_box;}
 };
 /****************************************************************/
 
@@ -185,12 +192,12 @@ class UiRackMasterRegler: public UiRegler {
     Gtk::Label m_label;
     Gtk::HBox m_box;
  public:
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id);
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id,
-                             Glib::ustring label);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id,
+			       const Glib::ustring& label);
     UiRackMasterRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
-                            Glib::ustring label);
-    GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
+		       const Glib::ustring& label);
+    Gtk::Widget *get_widget() { return &m_box;}
 };
 
 /****************************************************************/
@@ -200,31 +207,33 @@ class UiRackRegler: public UiRegler {
     Gtk::Label m_label;
     Gtk::VBox m_box;
  public:
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id);
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, string id,
-                             Glib::ustring label);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id,
+                             const Glib::ustring& label);
     UiRackRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
-                 Glib::ustring label);
-    GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
+                 const Glib::ustring& label);
+    Gtk::Widget *get_widget() { return &m_box;}
 };
 
 /****************************************************************/
 
-struct uiCheckButton : public gx_ui::GxUiItemBool {
-    GtkToggleButton* fButton;
-    uiCheckButton(gx_ui::GxUI* ui, bool* zone, GtkToggleButton* b)
-                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {
-            gtk_toggle_button_set_active(fButton, *zone);
+class uiCheckButton {
+private:
+    gx_engine::GxMachineBase& machine;
+    const std::string& id;
+    Gtk::ToggleButton* fButton;
+public:
+    uiCheckButton(gx_engine::GxMachineBase& machine_, const std::string& id_, Gtk::ToggleButton* b)
+	: machine(machine_), id(id_), fButton(b) {
+	fButton->set_active(machine.get_parameter_value<bool>(id));
+	machine.signal_parameter_value<bool>(id).connect(sigc::mem_fun(this, &uiCheckButton::set_value));
     }
-    static void toggled(GtkWidget *widget, gpointer data) {
-            ((gx_ui::GxUiItemBool*)data)->modifyZone(GTK_TOGGLE_BUTTON(widget)->active);
-        }
-
-    virtual void reflectZone() {
-            bool v = *fZone;
-            fCache = v;
-            gtk_toggle_button_set_active(fButton, v);
-        }
+    void toggled() {
+	machine.set_parameter_value(id, fButton->get_active());
+    }
+    void set_value(bool v) {
+	fButton->set_active(v);
+    }
 };
 
 /****************************************************************/
@@ -242,22 +251,21 @@ public:
 
 /****************************************************************/
 
-struct uiAdjustment : public gx_ui::GxUiItemFloat {
-    GtkAdjustment* fAdj;
-    uiAdjustment(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) :
-                 gx_ui::GxUiItemFloat(ui, zone), fAdj(adj) {
-	gtk_adjustment_set_value(fAdj, *zone);
-}
-    static void changed(GtkAdjustment *adj, gpointer data) {
-            float    v = adj->value;
-            ((gx_ui::GxUiItemFloat*)data)->modifyZone(v);
-        }
-
-    virtual void reflectZone() {
-            float     v = *fZone;
-            fCache = v;
-            gtk_adjustment_set_value(fAdj, v);
-        }
+struct uiAdjustment: public uiElement {
+    gx_engine::GxMachineBase& machine;
+    const std::string id;
+    Gtk::Adjustment* fAdj;
+    uiAdjustment(gx_engine::GxMachineBase& machine_, const std::string& id_, Gtk::Adjustment* adj)
+	: uiElement(), machine(machine_), id(id_), fAdj(adj) {
+	fAdj->set_value(machine.get_parameter_value<float>(id));
+	machine.signal_parameter_value<float>(id).connect(sigc::mem_fun(this, &uiAdjustment::on_parameter_changed));
+    }
+    void changed() {
+	machine.set_parameter_value(id, fAdj->get_value());
+    }
+    void on_parameter_changed(float v) {
+	fAdj->set_value(v);
+    }
 };
 
 /****************************************************************/
@@ -292,15 +300,15 @@ extern const char *pb_eq_expose;
 extern const char *pb_main_expose;
 extern const char *pb_level_meter_expose;
 
-bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, const char *id);
+bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, const std::string& id);
 int precision(double n);
-string fformat(float value, float step);
+std::string fformat(float value, float step);
 
 /****************************************************************/
 
 #ifndef NDEBUG
 // debug_check
-inline void check_id(Gtk::Widget *w, const char *id, gx_engine::GxMachineBase& machine) {
+inline void check_id(Gtk::Widget *w, const std::string& id, gx_engine::GxMachineBase& machine) {
     if (!machine.parameter_hasId(id)) {
 	Glib::ustring pt, ptr;
 	w->path(pt, ptr);
@@ -314,7 +322,7 @@ inline void check_id(Gtk::Widget *w, const char *id, gx_engine::GxMachineBase& m
 
 /****************************************************************/
 
-inline void connect_midi_controller(Gtk::Widget *w, const char *id, gx_engine::GxMachineBase& machine) {
+inline void connect_midi_controller(Gtk::Widget *w, const std::string& id, gx_engine::GxMachineBase& machine) {
     debug_check(check_id, w, id, machine);
     w->signal_button_press_event().connect(
 	sigc::bind(sigc::ptr_fun(button_press_cb), sigc::ref(machine), id));

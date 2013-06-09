@@ -58,7 +58,7 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 
 StackBoxBuilder *UiBuilderImpl::intf = 0;
 
-UiBuilderImpl::UiBuilderImpl(MainWindow *i, gx_gui::StackBoxBuilder *b, std::vector<PluginUI*> *pl)
+UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl)
     : UiBuilderBase(), main(*i), pluginlist(pl) {
     intf = b;
     openTabBox = openTabBox_;
@@ -79,6 +79,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, gx_gui::StackBoxBuilder *b, std::vec
     create_selector_no_caption = create_selector_no_caption_;
     create_port_display = create_port_display_;
     insertSpacer = insertSpacer_;
+    set_next_flags = set_next_flags_;
 };
 
 bool UiBuilderImpl::load_unit(PluginUI &pl) {
@@ -119,6 +120,10 @@ void UiBuilderImpl::openHorizontalBox_(const char* label) {
 void UiBuilderImpl::insertSpacer_() {
     intf->openSpaceBox("");
     intf->closeBox();
+}
+
+void UiBuilderImpl::set_next_flags_(int flags) {
+    intf->set_next_flags(flags);
 }
 
 void UiBuilderImpl::create_small_rackknob_(const char *id, const char *label) {
@@ -331,42 +336,44 @@ Gtk::Object* GxBuilder::get_widget_checked(const Glib::ustring& name, GType type
  ** GxBuilder::fixup_controlparameters + helper classes
  */
 
-template<class T>
-class uiSelector: public gx_ui::GxUiItemV<T> {
+template <class T>
+class uiSelector: public uiElement {
 protected:
+    gx_engine::GxMachineBase& machine;
+    const std::string id;
     Gtk::Range *rng;
     void on_value_changed();
-    virtual void reflectZone();
+    void set_value(T v);
 public:
-    uiSelector(gx_ui::GxUI& ui, Gtk::Range *rng, T* zone);
+    uiSelector(gx_engine::GxMachineBase& machine, Gtk::Range *rng, const std::string& id);
 };
 
-template<class T>
-uiSelector<T>::uiSelector(gx_ui::GxUI& ui, Gtk::Range *rng_, T* zone)
-    : gx_ui::GxUiItemV<T>(&ui, zone), rng(rng_) {
-    rng->set_value(*zone);
+template <class T>
+uiSelector<T>::uiSelector(gx_engine::GxMachineBase& machine_, Gtk::Range *rng_, const std::string& id_)
+    : uiElement(), machine(machine_), id(id_), rng(rng_) {
+    set_value(machine.get_parameter_value<T>(id));
     rng->signal_value_changed().connect(
-	sigc::mem_fun(*this, &uiSelector<T>::on_value_changed));
+	sigc::mem_fun(*this, &uiSelector::on_value_changed));
+    machine.signal_parameter_value<T>(id).connect(
+	sigc::mem_fun(this, &uiSelector::set_value));
+}
+
+template <class T>
+void uiSelector<T>::set_value(T v) {
+    rng->set_value(v);
 }
 
 template<class T>
 void uiSelector<T>::on_value_changed() {
-    this->modifyZone(static_cast<T>(rng->get_value()));
-}
-
-template<class T>
-void uiSelector<T>::reflectZone() {
-    T v = *gx_ui::GxUiItemV<T>::fZone;
-    gx_ui::GxUiItemV<T>::fCache = v;
-    rng->set_value(v);
+    machine.set_parameter_value(id, static_cast<T>(rng->get_value()));
 }
 
 static void widget_destroyed(gpointer data) {
-    delete static_cast<gx_ui::GxUiItem*>(data);
+    delete static_cast<uiElement*>(data);
 }
 
-static void destroy_with_widget(Glib::Object *t, gx_ui::GxUiItem *p) {
-    t->set_data("GxUiItem", p, widget_destroyed);
+static void destroy_with_widget(Glib::Object *t, uiElement *p) {
+    t->set_data("uiElement", p, widget_destroyed);
 }
 
 static void make_switch_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p) {
@@ -376,13 +383,13 @@ static void make_switch_controller(gx_engine::GxMachineBase& machine, Glib::RefP
 	gx_engine::FloatParameter &fp = p.getFloat();
 	w->cp_set_value(fp.get_value());
 	if (t) {
-	    destroy_with_widget(t, new uiToggle<float>(machine.get_ui(), t, &fp.get_value()));
+	    destroy_with_widget(t, new uiToggle<float>(machine, t, p.id()));
 	}
     } else if (p.isBool()) {
 	gx_engine::BoolParameter &fp = p.getBool();
 	w->cp_set_value(fp.get_value());
 	if (t) {
-	    destroy_with_widget(t, new uiToggle<bool>(machine.get_ui(), t, &fp.get_value()));
+	    destroy_with_widget(t, new uiToggle<bool>(machine, t, p.id()));
 	}
     } else {
 	gx_system::gx_print_warning(
@@ -391,20 +398,20 @@ static void make_switch_controller(gx_engine::GxMachineBase& machine, Glib::RefP
     }
 }
 
-struct uiAdjustmentLog : public gx_ui::GxUiItemFloat {
-    GtkAdjustment* fAdj;
-    uiAdjustmentLog(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) :
-	gx_ui::GxUiItemFloat(ui, zone), fAdj(adj) {
-	gtk_adjustment_set_value(fAdj, log10(*zone));
+struct uiAdjustmentLog: public uiElement {
+    gx_engine::GxMachineBase& machine;
+    const std::string id;
+    Gtk::Adjustment* fAdj;
+    uiAdjustmentLog(gx_engine::GxMachineBase& machine_, const std::string& id_, Gtk::Adjustment* adj) :
+	uiElement(), machine(machine_), id(id_), fAdj(adj) {
+	fAdj->set_value(log10(machine.get_parameter_value<float>(id)));
+	machine.signal_parameter_value<float>(id).connect(sigc::mem_fun(this, &uiAdjustmentLog::on_parameter_changed));
     }
-    static void changed(GtkAdjustment *adj, gpointer data) {
-	float    v = adj->value;
-	((gx_ui::GxUiItemFloat*)data)->modifyZone(pow(10.0,v));
+    void changed() {
+	machine.set_parameter_value(id, pow(10.0,fAdj->get_value()));
     }
-    virtual void reflectZone() {
-	float     v = *fZone;
-	fCache = v;
-	gtk_adjustment_set_value(fAdj, log10(v));
+    void on_parameter_changed(float v) {
+	fAdj->set_value(log10(v));
     }
 };
 
@@ -443,22 +450,15 @@ static void make_continuous_controller(gx_engine::GxMachineBase& machine, Glib::
 	r->signal_input_value().connect(
 	    sigc::ptr_fun(logarithmic_input_value));
 	w->cp_set_value(log10(fp.get_value()));
-	gx_gui::uiAdjustmentLog* c = new gx_gui::uiAdjustmentLog(&machine.get_ui(), &fp.get_value(), adj->gobj());
-	adj->signal_value_changed().connect(
-	    sigc::bind<GtkAdjustment*>(
-		sigc::bind<gpointer>(
-		    sigc::ptr_fun(gx_gui::uiAdjustmentLog::changed),
-		    (gpointer)c), adj->gobj()));
+	uiAdjustmentLog* c = new uiAdjustmentLog(machine, p.id(), adj);
+	adj->signal_value_changed().connect(sigc::mem_fun(c, &uiAdjustmentLog::changed));
 	destroy_with_widget(r.operator->(), c);
     } else {
 	w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
 	w->cp_set_value(fp.get_value());
-	gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&machine.get_ui(), &fp.get_value(), adj->gobj());
+	uiAdjustment* c = new uiAdjustment(machine, p.id(), adj);
 	adj->signal_value_changed().connect(
-	    sigc::bind<GtkAdjustment*>(
-		sigc::bind<gpointer>(
-		    sigc::ptr_fun(gx_gui::uiAdjustment::changed),
-		    (gpointer)c), adj->gobj()));
+	    sigc::mem_fun(c, &uiAdjustment::changed));
 	destroy_with_widget(r.operator->(), c);
     }
 }
@@ -479,17 +479,11 @@ static void make_enum_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr
     t->set_model(ls);
     w->cp_configure(p.l_group(), p.l_name(), p.getLowerAsFloat(), p.getUpperAsFloat(), 1.0);
     if (p.isInt()) {
-	int& val = p.getInt().get_value();
-	destroy_with_widget(t, new uiSelector<int>(machine.get_ui(), t, &val));
-	t->cp_set_value(val);
-    } else if (p.isUInt()) {
-	unsigned int& val = p.getUInt().get_value();
-	destroy_with_widget(t, new uiSelector<unsigned int>(machine.get_ui(), t, &val));
-	t->cp_set_value(val);
+	destroy_with_widget(t, new uiSelector<int>(machine, t, p.id()));
+	t->cp_set_value(p.getInt().get_value());
     } else if (p.isFloat()) {
-	float& val = p.getFloat().get_value();
-	destroy_with_widget(t, new uiSelector<float>(machine.get_ui(), t, &val));
-	t->cp_set_value(val);
+	destroy_with_widget(t, new uiSelector<float>(machine, t, p.id()));
+	t->cp_set_value(p.getFloat().get_value());
     } else {
 	gx_system::gx_print_warning(
 	    "load dialog",
@@ -542,7 +536,7 @@ void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine) {
 	default:         assert(false); break;
         }
 	if (p.isControllable()) {
-	    gx_gui::connect_midi_controller(Glib::RefPtr<Gtk::Widget>::cast_dynamic(w).operator->(), v.c_str(), machine);
+	    connect_midi_controller(Glib::RefPtr<Gtk::Widget>::cast_dynamic(w).operator->(), v.c_str(), machine);
 	}
     }
 }

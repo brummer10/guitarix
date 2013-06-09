@@ -54,32 +54,36 @@ void set_accessible(GtkWidget *widget,GtkLabel *label);
 class UiSwitch: public Gxw::Switch {
  public:
     explicit UiSwitch(const char *sw_type);
-    GtkWidget *get_widget() { return GTK_WIDGET(gobj());}
+    Gtk::Widget *get_widget() { return this;}
     static UiSwitch *new_switch(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param);
-    static UiSwitch *new_switch(gx_engine::GxMachineBase& machine, const char *sw_type, string id) {
+    static UiSwitch *new_switch(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id) {
         if (!machine.parameter_hasId(id)) return 0;
         return new_switch(machine, sw_type, machine.get_parameter(id));
     }
-    static GtkWidget *create(gx_engine::GxMachineBase& machine, const char *sw_type, string id) {
+    static Gtk::Widget *create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id) {
         return new_switch(machine, sw_type, id)->get_widget();}
 };
 
 /****************************************************************/
 
-class UiSwitchFloat: public UiSwitch, gx_ui::GxUiItemFloat {
+class UiSwitchFloat: public UiSwitch {
  protected:
+    gx_engine::GxMachineBase& machine;
+    gx_engine::FloatParameter& param;
     void on_toggled();
-    virtual void reflectZone();
+    void set_value(float v);
  public:
     UiSwitchFloat(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::FloatParameter &param);
 };
 
 /****************************************************************/
 
-class UiSwitchBool: public UiSwitch, gx_ui::GxUiItemBool {
+class UiSwitchBool: public UiSwitch {
  protected:
+    gx_engine::GxMachineBase& machine;
+    gx_engine::BoolParameter& param;
     void on_toggled();
-    virtual void reflectZone();
+    void set_value(bool v);
  public:
     UiSwitchBool(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::BoolParameter &param);
 };
@@ -93,52 +97,48 @@ class UiSwitchWithCaption {
  protected:
     UiSwitch *m_switch;
  public:
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, const char *sw_type, string id,
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id,
                              Gtk::PositionType pos);
-    static GtkWidget* create(gx_engine::GxMachineBase& machine, const char *sw_type, string id,
-                             Glib::ustring label, Gtk::PositionType pos);
+    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id,
+			       const Glib::ustring& label, Gtk::PositionType pos);
     UiSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
-                        Glib::ustring label, Gtk::PositionType pos);
+                        const Glib::ustring& label, Gtk::PositionType pos);
     ~UiSwitchWithCaption();
-    GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
+    Gtk::Widget *get_widget() { return m_box; }
 };
 
 /****************************************************************/
 
-class GxVBox {
+class GxVBox: public Gtk::VBox {
  public:
-    Gtk::VBox m_box;
     Gtk::Label m_label;
-    explicit GxVBox(const gx_engine::GxMachineBase& machine);
-    virtual ~GxVBox();
+    GxVBox();
+    ~GxVBox();
 };
 
 /****************************************************************/
 
-class GxHBox {
+class GxHBox: public Gtk::HBox {
  public:
-    Gtk::HBox m_box;
     Gtk::Label m_label;
     Gtk::Frame m_frame;
-    explicit GxHBox(const gx_engine::GxMachineBase& machine);
-    virtual ~GxHBox();
+    GxHBox();
+    ~GxHBox();
 };
 
 /****************************************************************/
 
-class GxPaintBox {
+class GxPaintBox: public Gtk::HBox {
  public:
-    Gtk::HBox m_box;
     Gxw::PaintBox m_paintbox;
-    GxPaintBox(gx_engine::GxMachineBase& machine, const char *expose_funk);
+    GxPaintBox(const char *expose_funk);
     ~GxPaintBox();
 };
 
 /****************************************************************/
 
-class GxEventBox {
+class GxEventBox: public Gtk::HBox {
  public:
-    Gtk::HBox m_box;
     Gtk::HBox m_hbox;
     Gtk::HBox m_pbox;
     Gtk::HBox m_tbox;
@@ -146,15 +146,14 @@ class GxEventBox {
     Gtk::HBox m_fbox;
     Gtk::HBox m_fixedbox;
     Gtk::Label m_label;
-    explicit GxEventBox(const gx_engine::GxMachineBase& machine);
-    virtual ~GxEventBox();
+    GxEventBox();
+    ~GxEventBox();
 };
 
 /****************************************************************/
 
-class GxMainBox {
+class GxMainBox: public Gtk::HBox {
  public:
-    Gtk::HBox m_box;
     Gtk::HBox m_hbox;
     Gtk::HBox m_pbox;
     Gtk::HBox m_tbox;
@@ -163,17 +162,15 @@ class GxMainBox {
     Gtk::Fixed m_fixedbox;
     Gtk::Label m_label;
     Gxw::PaintBox m_paintbox;
-    GxMainBox(gx_engine::GxMachineBase& machine, const char *expose_funk);
-    virtual ~GxMainBox();
+    GxMainBox(const char *expose_funk);
+    ~GxMainBox();
 };
 
 /****************************************************************/
 
-class GxNotebookBox {
+class GxNotebookBox: public Gtk::Notebook {
  public:
-    Gtk::Notebook m_box;
-    explicit GxNotebookBox(const gx_engine::GxMachineBase& machine);
-    virtual ~GxNotebookBox();
+    GxNotebookBox();
 };
 
 /****************************************************************/

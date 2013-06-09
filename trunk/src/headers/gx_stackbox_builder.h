@@ -22,26 +22,39 @@
 
 namespace gx_gui {
 
-struct uiToggleButton : public gx_ui::GxUiItemBool {
+class uiToggleButton {
+private:
+    gx_engine::GxMachineBase& machine;
+    const std::string id;
     Gtk::ToggleButton* fButton;
-    uiToggleButton(gx_ui::GxUI* ui, bool* zone, Gtk::ToggleButton* b)
-                   : gx_ui::GxUiItemBool(ui, zone), fButton(b) {}
+public:
+    uiToggleButton(gx_engine::GxMachineBase& machine_, Gtk::ToggleButton* b, const std::string& id_);
     void toggled();
-    virtual void reflectZone();
+    void set_value(bool v);
 };
 
 /****************************************************************/
 
-#define stackSize 256
-#define kSingleMode 0
-#define kBoxMode 1
-#define kTabMode 2
+class WidgetStack {
+private:
+    std::vector<Gtk::Widget*> stack;
+    Gtk::Widget *top() { return stack.back(); }
+public:
+    WidgetStack(): stack() {}
+    ~WidgetStack() {}
+    bool empty() { return stack.empty(); }
+    void push(Gtk::Widget& w) { stack.push_back(&w); }
+    void pop() { return stack.pop_back(); }
+    void container_add(Gtk::Widget& w);
+    void box_pack_start(Gtk::Widget& w, bool expand=true, bool fill=true, int padding=0);
+    void notebook_append_page(Gtk::Widget& w, Gtk::Widget& label);
+    bool top_is_notebook() { return dynamic_cast<Gtk::Notebook*>(top()) != 0; }
+    void add(Gtk::Widget& w, const char *label=0);
+};
 
 class StackBoxBuilder {
 private:
-    int                  fTop;
-    GtkWidget*           fBox[stackSize];
-    int                  fMode[stackSize];
+    WidgetStack          fBox;
     gx_engine::GxMachineBase& machine;
     Gxw::WaveView&       fWaveView;
     Gtk::Label&          convolver_filename_label;
@@ -49,9 +62,8 @@ private:
     Gtk::HBox           *widget;
     Glib::RefPtr<Gtk::AccelGroup> accels;
     Glib::RefPtr<Gdk::Pixbuf> window_icon;
+    int next_flags;
 
-    static const          gboolean expand   = true;
-    static const          gboolean fill     = true;
     static const          gboolean homogene = false;
     void loadRackFromGladeData(const char *xmldesc);
     void set_convolver_filename();
@@ -68,19 +80,12 @@ private:
 
     void closeBox();
     void openSpaceBox(const char* label = "");
-    void create_small_rackknob(string id) {
-	addwidget(UiRackReglerWithCaption::create(machine, new Gxw::SmallKnob(), id));
-    }
-    void create_small_rackknob(string id, Glib::ustring label) {
-	addwidget(UiRackReglerWithCaption::create(machine, new Gxw::SmallKnob(), id, label));
-    }
 
-    void create_small_rackknobr(string id) {
-	addwidget(UiRackReglerWithCaption::create(machine, new Gxw::SmallKnobR(), id));
-    }
-    void create_small_rackknobr(string id, Glib::ustring label) {
-	addwidget(UiRackReglerWithCaption::create(machine, new Gxw::SmallKnobR(), id, label));
-    }
+    void check_set_flags(Gxw::Regler *r);
+    void create_small_rackknob(string id);
+    void create_small_rackknob(string id, Glib::ustring label);
+    void create_small_rackknobr(string id);
+    void create_small_rackknobr(string id, Glib::ustring label);
 
     void openVerticalBox(const char* label = "");
     void openFrameBox(const char* label);
@@ -104,7 +109,7 @@ private:
 	addwidget(UiRegler::create(machine, new Gxw::Wheel(), id, show_value));
     }
     void create_spin_value(const std::string& id, const char *label) {
-	GtkWidget *w;
+	Gtk::Widget *w;
 	Gxw::ValueDisplay *v = new Gxw::ValueDisplay();
 	if (label) {
 	    w = UiRackReglerWithCaption::create(machine, v, id, label);
@@ -115,7 +120,7 @@ private:
 	addwidget(w);
     }
     void create_simple_spin_value(const std::string& id, const char *label = 0) {
-	GtkWidget *w;
+	Gtk::Widget *w;
 	Gxw::SimpleValueDisplay *v = new Gxw::SimpleValueDisplay();
 	if (label) {
 	    w = UiRackReglerWithCaption::create(machine, v, id, label);
@@ -141,36 +146,27 @@ private:
     }
     void create_selector(string id, const char *widget_name=0);
     void create_selector_with_caption(string id, const char *label);
-    void openFlipLabelBox(const char* = "");
-    void openVerticalBox1(const char* label = "");
-    void openVerticalBox2(const char* label = "");
-    void openPaintBox2(const char* label = "");
-    void openTabBox(const char* label = "");
+    void openFlipLabelBox(const char* = 0);
+    void openVerticalBox1(const char* label = 0);
+    void openVerticalBox2(const char* label = 0);
+    void openPaintBox2(const char* label = 0);
+    void openTabBox(const char* label = 0);
     void addCheckButton(string id, const char* label = 0);
     void addNumEntry(string id, const char* label = 0);
-    void addMToggleButton(string id, const char* label = 0);
+    void addMToggleButton(const std::string& id, const char* label = 0);
     void addStatusDisplay(const char* label, bool* zone );
     void addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void openSetLabelBox();
     void openSetMonoLabelBox();
     void addJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void addJConvButton(const char* label, gx_jconv::IRWindow *irw);
-    void addJToggleButton(const char* label, bool* zone);
+    void set_next_flags(int flags);
 private:
     // functions used indirectly
-    void          pushBox(int mode, GtkWidget* w);
-    GtkWidget*            addWidget(const char* label, GtkWidget* w);
-    void addwidget(GtkWidget *widget) {
-	if (widget) gtk_container_add(GTK_CONTAINER(fBox[fTop]), widget);
-    }
-    void addwidget(Gtk::Widget *widget) {
-	if (widget) {
-	    gtk_container_add(GTK_CONTAINER(fBox[fTop]), manage(widget)->gobj());
-	}
-    }
+    Gtk::Widget*  addWidget(const char* label, Gtk::Widget* w);
+    void addwidget(Gtk::Widget *widget);
     void addCheckButton(const char* label, const char* id);
     void addNumEntry(const char* label, const char* id, float init, float min, float max, float step);
-    void addMToggleButton(const char* label, const char* id);
     friend class UiBuilderImpl;
 public:
     StackBoxBuilder(

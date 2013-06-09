@@ -566,7 +566,7 @@ void Parameter::range_warning(float value, float lower, float upper) {
 
 const char *Parameter::get_typename() const {
     static const char *tpname[] = {
-	"float", "int", "int", "bool", "bool", "filename", "string", "special"};
+	"float", "int", "bool", "bool", "filename", "string", "special"};
     assert(0 <= v_type and v_type < sizeof(tpname)/sizeof(tpname[0]));
     return tpname[v_type];
 }
@@ -683,10 +683,6 @@ void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all
 	return;
     }
     if (p1->isInt()) {
-	assert(false);
-	return;
-    }
-    if (p1->isUInt()) {
 	assert(false);
 	return;
     }
@@ -947,125 +943,6 @@ void EnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     }
     json_value = n;
 }
-
-/* unsigned IntParameter */
-
-UIntParameter::~ParameterV() {
-    if (own_var) {
-	delete value;
-    }
-}
-
-void *UIntParameter::zone() {
-    return value;
-}
-
-unsigned int UIntParameter::idx_from_id(string v_id) {
-    assert(false);
-    return 0;
-}
-
-bool UIntParameter::on_off_value() {
-    return *value != 0;
-}
-void UIntParameter::set(float n, float high, float llimit, float ulimit) {
-    switch (c_type) {
-    case Continuous:
-        assert(false); // not implemented
-        break;
-    case Switch:
-	assert(false); // not implemented
-        break;
-    case Enum:
-        *value = lower + min(static_cast<unsigned int>(n), upper-lower);
-        break;
-    default:
-        assert(false);
-        break;
-    }
-}
-
-void UIntParameter::stdJSON_value() {
-    json_value = std_value;
-}
-
-void UIntParameter::writeJSON(gx_system::JsonWriter& jw) const {
-    jw.write_key(_id.c_str());
-    jw.write(*value);
-}
-
-void UIntParameter::readJSON_value(gx_system::JsonParser& jp) {
-    jp.next(gx_system::JsonParser::value_number);
-    json_value = jp.current_value_uint();
-    if (json_value < lower || json_value > upper) {
-	range_warning(json_value, lower, upper);
-    }
-}
-
-bool UIntParameter::compareJSON_value() {
-    return json_value == *value;
-}
-
-void UIntParameter::setJSON_value() {
-    set(json_value);
-}
-
-bool UIntParameter::hasRange() const {
-    return true;
-}
-
-float UIntParameter::getLowerAsFloat() const {
-    return lower;
-}
-
-float UIntParameter::getUpperAsFloat() const {
-    return upper;
-}
-
-/* UEnumParameter */
-
-UEnumParameter::UEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset,
-                             unsigned int *v, unsigned int sv, bool ctrl):
-    UIntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl),
-    value_names(vn) {}
-
-const value_pair *UEnumParameter::getValueNames() const {
-    return value_names;
-}
-
-unsigned int UEnumParameter::idx_from_id(string v_id) {
-    unsigned int n = 0;
-    for (; n <= upper; n++) {
-        if (v_id == value_names[n].value_id) {
-            return n;
-        }
-    }
-    return n;
-}
-
-void UEnumParameter::writeJSON(gx_system::JsonWriter& jw) const {
-    jw.write_key(_id.c_str());
-    jw.write(value_names[*value].value_id);
-}
-
-void UEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
-    gx_system::JsonParser::token tok = jp.next();
-    if (tok == gx_system::JsonParser::value_number) {
-        // old version compatability
-        json_value = jp.current_value_uint();
-        return;
-    }
-    jp.check_expect(gx_system::JsonParser::value_string);
-    unsigned int n = idx_from_id(jp.current_value());
-    if (n > upper) {
-        gx_system::gx_print_warning(
-            _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
-                               % _id % jp.current_value()).str());
-        n = 0;
-    }
-    json_value = n;
-}
-
 
 /* BoolParameter */
 
@@ -1402,7 +1279,6 @@ void Parameter::dump(gx_system::JsonWriter *jw) {
 	switch (v_type) {
 	case tp_float:  jw->write("f"); jw->write(getFloat().get_value());     break;
 	case tp_int:    jw->write("i"); jw->write(getInt().get_value());       break;
-	case tp_uint:   jw->write("u"); jw->write(getUInt().get_value());      break;
 	case tp_bool:   jw->write("b"); jw->write(getBool().get_value());      break;
 	case tp_switch: jw->write("s"); jw->write(getSwitch().get());          break;
 	case tp_file:   jw->write("F"); jw->write(getFile().get_parse_name()); break;
@@ -1469,13 +1345,31 @@ void ParamMap::set_init_values() {
     }
 }
 
-bool ParamMap::unit_has_std_values(Glib::ustring group_id) const {
+static inline bool compare_groups(const std::string& id, const char **groups) {
+    if (!groups) {
+	return false;
+    }
+    for (const char **g = groups; *g; g += 2) {
+	const char *p = *g;
+	if ((*p) != '.') {
+	    continue;
+	}
+	p++;
+	int n = strlen(p);
+	if (strncmp(id.c_str(), p, n) == 0 && id[n] == '.') {
+	    return true;
+	}
+    }
+    return false;
+}
+
+bool ParamMap::unit_has_std_values(Glib::ustring group_id, const char **groups) const {
     group_id += ".";
     std::string on_off = group_id + "on_off";
     std::string pp = group_id + "pp";
     std::string position = group_id + "position";
     for (iterator i = begin(); i != end(); ++i) {
-	if (i->first.compare(0, group_id.size(), group_id) == 0) {
+	if (i->first.compare(0, group_id.size(), group_id) == 0 || compare_groups(i->first, groups)) {
 	    if (i->second->isInPreset()) {
 		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->stdJSON_value();
@@ -1491,13 +1385,13 @@ bool ParamMap::unit_has_std_values(Glib::ustring group_id) const {
 }
 
 // reset all parameters to default settings
-void ParamMap::reset_unit(Glib::ustring group_id) const {
+void ParamMap::reset_unit(Glib::ustring group_id, const char **groups) const {
     group_id += ".";
     std::string on_off = group_id + "on_off";
     std::string pp = group_id + "pp";
     std::string position = group_id + "position";
     for (iterator i = begin(); i != end(); ++i) {
-        if (i->first.compare(0, group_id.size(), group_id) == 0) {
+        if (i->first.compare(0, group_id.size(), group_id) == 0 || compare_groups(i->first, groups)) {
 	    if (i->second->isInPreset()) {
 		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->stdJSON_value();

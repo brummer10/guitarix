@@ -390,7 +390,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       mb_delete_button(),
       preset_button(),
       on_off_switch("minitoggle"),
-      toggle_on_off(rb.main.get_ui(), &on_off_switch, &rb.plugin.plugin->on_off) {
+      toggle_on_off(rb.main.get_machine(), &on_off_switch, std::string(rb.get_id())+".on_off") {
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
 	std::string s = rb.get_id();
 	gx_gui::connect_midi_controller(&on_off_switch, (s+".on_off").c_str(), rb.main.get_machine());
@@ -657,7 +657,7 @@ void PluginPresetPopup::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetL
     InputWindow *w = InputWindow::create(machine.get_options(), save_name_default);
     w->run();
     if (!w->get_name().empty()) {
-	l->save(w->get_name(), id);
+	l->save(w->get_name(), id, machine.pluginlist_lookup_plugin(id.c_str())->pdef->groups);
     }
     delete w;
 }
@@ -875,7 +875,7 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
       compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), minibox(0),
       fbox(0), target(), anim_height(0), anim_step(), drag_icon(), target_height(0),
       box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), position(), effect_post_pre(), on_off_switch("switchit"),
-      toggle_on_off(tl.get_ui(), &on_off_switch, &plugin.plugin->on_off) {
+      toggle_on_off(tl.get_machine(), &on_off_switch, std::string(plugin.get_id())+".on_off") {
     if (strcmp(plugin.get_id(), "ampstack") != 0) { // FIXME
 	std::string s = get_id();
 	gx_gui::connect_midi_controller(&on_off_switch, (s+".on_off").c_str(), main.get_machine());

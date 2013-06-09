@@ -43,6 +43,11 @@ namespace gx_engine {
 GxMachineBase::~GxMachineBase() {
 }
 
+
+/****************************************************************
+ ** GxMachine
+ */
+
 GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     GxMachineBase(),
     options(options_),
@@ -235,7 +240,7 @@ bool GxMachine::oscilloscope_plugin_box_visible() {
     return engine.oscilloscope.plugin.box_visible;
 }
 
-sigc::signal<void, unsigned int>& GxMachine::signal_oscilloscope_post_pre() {
+sigc::signal<void, int>& GxMachine::signal_oscilloscope_post_pre() {
     return engine.oscilloscope.post_pre_signal.changed;
 }
 
@@ -333,7 +338,7 @@ bool GxMachine::get_tuner_switcher_active() {
 }
 
 void GxMachine::tuner_switcher_activate(bool v) {
-    return tuner_switcher.activate(v);
+    tuner_switcher.activate(v);
 }
 
 bool GxMachine::tuner_switcher_deactivate() {
@@ -367,11 +372,11 @@ Glib::ustring GxMachine::get_bank_name(int n) {
 }
 
 void GxMachine::load_preset(gx_system::PresetFile *pf, const Glib::ustring& name) {
-    return settings.load_preset(pf, name);
+    settings.load_preset(pf, name);
 }
 
 void GxMachine::loadstate() {
-    return settings.loadstate();
+    settings.loadstate();
 }
 
 int GxMachine::bank_size() {
@@ -513,64 +518,86 @@ Parameter& GxMachine::get_parameter(const char *p) {
     return pmap[p];
 }
 
-Parameter& GxMachine::get_parameter(const string& id) {
+Parameter& GxMachine::get_parameter(const std::string& id) {
     return pmap[id];
 }
 
 void GxMachine::set_init_values() {
-    return pmap.set_init_values();
+    pmap.set_init_values();
 }
 
 bool GxMachine::parameter_hasId(const char *p) {
     return pmap.hasId(p);
 }
 
-bool GxMachine::parameter_hasId(const string& id) {
+bool GxMachine::parameter_hasId(const std::string& id) {
     return pmap.hasId(id);
 }
 
 void GxMachine::reset_unit(Glib::ustring group_id) const {
-    return pmap.reset_unit(group_id);
+    pmap.reset_unit(group_id, engine.pluginlist.lookup_plugin(group_id.c_str())->pdef->groups);
 }
 
 bool GxMachine::parameter_unit_has_std_values(Glib::ustring group_id) const {
-    return pmap.unit_has_std_values(group_id);
+    return pmap.unit_has_std_values(group_id, engine.pluginlist.lookup_plugin(group_id.c_str())->pdef->groups);
 }
 
-void GxMachine::set_parameter_value(const char *id, int value) {
+void GxMachine::set_parameter_value(const std::string& id, int value) {
     pmap[id].getInt().set(value);
 }
 
-void GxMachine::set_parameter_value(const char *id, float value) {
+void GxMachine::set_parameter_value(const std::string& id, bool value) {
+    pmap[id].getBool().set(value);
+}
+
+void GxMachine::set_parameter_value(const std::string& id, float value) {
     pmap[id].getFloat().set(value);
 }
 
-int GxMachine::get_parameter_value_int(const char *id) {
+int GxMachine::_get_parameter_value_int(const std::string& id) {
     return pmap[id].getInt().get_value();
 }
 
-float GxMachine::get_parameter_value_float(const char *id) {
+int GxMachine::_get_parameter_value_bool(const std::string& id) {
+    return pmap[id].getBool().get_value();
+}
+
+float GxMachine::_get_parameter_value_float(const std::string& id) {
     return pmap[id].getFloat().get_value();
 }
 
-sigc::signal<void, int>& GxMachine::signal_parameter_value_int(const char *id) {
+sigc::signal<void, int>& GxMachine::_signal_parameter_value_int(const std::string& id) {
     std::map<string,gx_ui::GxUiItem*>::iterator i = signals.find(id);
     gx_ui::UiSignal<int> *u;
     if (i != signals.end()) {
 	u = dynamic_cast<gx_ui::UiSignal<int>*>(i->second);
     } else {
 	u = gx_ui::UiSignal<int>::create(&engine.get_ui(), pmap, id);
+	signals[id] = u;
     }
     return u->changed;
 }
 
-sigc::signal<void, float>& GxMachine::signal_parameter_value_float(const char *id) {
+sigc::signal<void, bool>& GxMachine::_signal_parameter_value_bool(const std::string& id) {
+    std::map<string,gx_ui::GxUiItem*>::iterator i = signals.find(id);
+    gx_ui::UiSignal<bool> *u;
+    if (i != signals.end()) {
+	u = dynamic_cast<gx_ui::UiSignal<bool>*>(i->second);
+    } else {
+	u = gx_ui::UiSignal<bool>::create(&engine.get_ui(), pmap, id);
+	signals[id] = u;
+    }
+    return u->changed;
+}
+
+sigc::signal<void, float>& GxMachine::_signal_parameter_value_float(const std::string& id) {
     std::map<string,gx_ui::GxUiItem*>::iterator i = signals.find(id);
     gx_ui::UiSignal<float> *u;
     if (i != signals.end()) {
 	u = dynamic_cast<gx_ui::UiSignal<float>*>(i->second);
     } else {
 	u = gx_ui::UiSignal<float>::create(&engine.get_ui(), pmap, id);
+	signals[id] = u;
     }
     return u->changed;
 }
@@ -629,8 +656,635 @@ ConvolverStereoAdapter& GxMachine::get_stereo_convolver() {
     return engine.stereo_convolver;
 }
 
-gx_ui::GxUI& GxMachine::get_ui() {
-    return engine.get_ui();
+
+/****************************************************************
+ ** GxMachineRemote
+ */
+
+GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
+    : GxMachineBase(),
+      options(options_),
+      pmap(),
+      socket(),
+      writebuf(),
+      os(),
+      jw(),
+      jp() {
+    socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
+    Glib::RefPtr<Gio::InetAddress> a = Gio::InetAddress::create("127.0.0.1");
+    try {
+	socket->connect(Gio::InetSocketAddress::create(a, 7000));
+    } catch (Gio::Error e) {
+	throw e;
+    }
+    socket->set_blocking(false);
+    writebuf = new __gnu_cxx::stdio_filebuf<char>(socket->get_fd(), std::ios::out);
+    os = new ostream(writebuf);
+    jw = new gx_system::JsonWriter(os, false);
+    start_call("get_parameter");
+    send();
+    istringstream is;
+    receive(is);
+    load_parameter();
+    jp.reset();
 }
+
+GxMachineRemote::~GxMachineRemote() {
+    jw->close();
+    delete jw;
+    writebuf->close();
+    delete os;
+    delete writebuf;
+}
+
+void GxMachineRemote::start_notify(const char *method) {
+    jw->begin_object();
+    jw->write_key("jsonrpc");
+    jw->write("2.0");
+    jw->write_key("method");
+    jw->write(method);
+    jw->write_key("params");
+    jw->begin_array();
+}
+
+void GxMachineRemote::start_call(const char *method) {
+    jw->begin_object();
+    jw->write_key("jsonrpc");
+    jw->write("2.0");
+    jw->write_key("id");
+    jw->write("1");
+    jw->write_key("method");
+    jw->write(method);
+    jw->write_key("params");
+    jw->begin_array();
+}
+
+void GxMachineRemote::send() {
+    jw->end_array();
+    jw->end_object();
+    *os << endl;
+    jw->reset();
+}
+
+bool GxMachineRemote::receive(istringstream& is) {
+    char buf[1000];
+    socket->set_blocking(true);
+    while (true) {
+	int n;
+	try {
+	    n = socket->receive(buf, sizeof(buf));
+	    printf("%*s", n, buf); fflush(stdout);
+	} catch(Glib::Error e) {
+	    return false;
+	}
+	if (n <= 0) {
+	    return false;
+	}
+	char *p = buf;
+	while (n-- > 0) {
+	    inbuf.sputc(*p);
+	    if (*p == '\n') {
+		break;
+	    }
+	    p++;
+	}
+	if (*p == '\n') {
+	    break;
+	}
+    }
+    is.ios::rdbuf(&inbuf);
+    jp.set_stream(&is);
+    jp.next(gx_system::JsonParser::begin_object);
+    jp.next(gx_system::JsonParser::value_key);
+    jp.next(gx_system::JsonParser::value_string);
+    jp.next(gx_system::JsonParser::value_key);
+    jp.next(gx_system::JsonParser::value_string);
+    jp.next(gx_system::JsonParser::value_key);
+    return true;
+}
+
+void GxMachineRemote::load_parameter() {
+    jp.next(gx_system::JsonParser::begin_object);
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	cerr << jp.current_value() << endl;
+	jp.next(gx_system::JsonParser::begin_object);
+	while (jp.peek() != gx_system::JsonParser::end_object) {
+	    jp.next(gx_system::JsonParser::value_key);
+	    jp.skip_object();
+	    //jp.next();
+	}
+	jp.next(gx_system::JsonParser::end_object);
+    }
+}
+
+void GxMachineRemote::set_state(GxEngineState state) {
+}
+
+GxEngineState GxMachineRemote::get_state() {
+    return gx_engine::kEngineOn;
+}
+
+unsigned int GxMachineRemote::get_samplerate() {
+    return 44100;
+}
+
+bool GxMachineRemote::ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p) {
+    return false;
+}
+
+LadspaLoader::pluginarray::iterator GxMachineRemote::ladspaloader_begin() {
+    LadspaLoader::pluginarray p;
+    return p.begin();
+}
+
+LadspaLoader::pluginarray::iterator GxMachineRemote::ladspaloader_end() {
+    LadspaLoader::pluginarray p;
+    return p.end();
+}
+
+void GxMachineRemote::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) {
+}
+
+bool GxMachineRemote::update_module_lists() {
+    return false;
+}
+
+void GxMachineRemote::check_module_lists() {
+}
+
+void GxMachineRemote::mono_chain_release() {
+}
+
+void GxMachineRemote::stereo_chain_release() {
+}
+
+int GxMachineRemote::pluginlist_add(Plugin *pl, PluginPos pos, int flags) {
+    return 0;
+}
+
+int GxMachineRemote::pluginlist_add(PluginDef *p, PluginPos pos, int flags) {
+    return 0;
+}
+
+int GxMachineRemote::pluginlist_add(PluginDef **p, PluginPos pos, int flags) {
+    return 0;
+}
+
+int GxMachineRemote::pluginlist_add(plugindef_creator *p, PluginPos pos, int flags) {
+    return 0;
+}
+
+void GxMachineRemote::pluginlist_delete_module(Plugin *pl) {
+}
+
+Plugin *GxMachineRemote::pluginlist_lookup_plugin(const char *id) const {
+    return 0;
+}
+
+PluginDef *GxMachineRemote::ladspaloader_create(unsigned int idx) {
+    return 0;
+}
+
+PluginDef *GxMachineRemote::ladspaloader_create(plugdesc *p) {
+    return 0;
+}
+
+LadspaLoader::pluginarray::iterator GxMachineRemote::ladspaloader_find(unsigned long uniqueid) {
+    LadspaLoader::pluginarray p;
+    return p.begin();
+}
+
+void GxMachineRemote::ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) {
+}
+
+void GxMachineRemote::pluginlist_append_rack(UiBuilderBase& ui) {
+}
+
+void GxMachineRemote::pluginlist_registerPlugin(Plugin *pl) {
+}
+
+const std::string& GxMachineRemote::conv_getIRFile(const char *id) {
+    static std::string s = "";
+    return s;
+}
+
+float GxMachineRemote::get_tuner_freq() {
+    return 0;
+}
+
+void GxMachineRemote::set_oscilloscope_mul_buffer(int a, unsigned int b) {
+}
+
+int GxMachineRemote::get_oscilloscope_mul_buffer() {
+    return 1;
+}
+
+float *GxMachineRemote::get_oscilloscope_buffer() {
+    return 0;
+}
+
+void GxMachineRemote::clear_oscilloscope_buffer() {
+}
+
+bool GxMachineRemote::oscilloscope_plugin_box_visible() {
+    return false;
+}
+
+sigc::signal<void, int>& GxMachineRemote::signal_oscilloscope_post_pre() {
+    static sigc::signal<void, int> x;
+    return x;
+}
+
+sigc::signal<void, bool>& GxMachineRemote::signal_oscilloscope_visible() {
+    static sigc::signal<void, bool> x;
+    return x;
+}
+
+sigc::signal<int, bool>& GxMachineRemote::signal_oscilloscope_activation() {
+    static sigc::signal<int, bool> x;
+    return x;
+}
+
+sigc::signal<void, unsigned int>& GxMachineRemote::signal_oscilloscope_size_change() {
+    static sigc::signal<void, unsigned int> x;
+    return x;
+}
+
+float GxMachineRemote::maxlevel_get(int channel) {
+    return 0;
+}
+
+void GxMachineRemote::maxlevel_reset() {
+}
+
+bool GxMachineRemote::midiaudiobuffer_get_midistat() {
+    return false;
+}
+
+MidiAudioBuffer::Load GxMachineRemote::midiaudiobuffer_jack_load_status() {
+    return MidiAudioBuffer::load_normal;
+}
+
+gx_system::CmdlineOptions& GxMachineRemote::get_options() const {
+    return options;
+}
+
+void GxMachineRemote::start_socket(sigc::slot<void> quit_mainloop, int port) {
+}
+
+sigc::signal<void>& GxMachineRemote::signal_conv_settings_changed(const char *id) {
+    static sigc::signal<void> x;
+    return x;
+}
+
+sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& GxMachineRemote::tuner_switcher_signal_display() {
+    static sigc::signal<void,const Glib::ustring&,const Glib::ustring&> x;
+    return x;
+}
+
+sigc::signal<void,TunerSwitcher::SwitcherState>& GxMachineRemote::tuner_switcher_signal_set_state() {
+    static sigc::signal<void,TunerSwitcher::SwitcherState> x;
+    return x;
+}
+
+sigc::signal<void>& GxMachineRemote::tuner_switcher_signal_selection_done() {
+    static sigc::signal<void> x;
+    return x;
+}
+
+sigc::signal<void,GxEngineState>& GxMachineRemote::signal_state_change() {
+    static sigc::signal<void,GxEngineState> x;
+    return x;
+}
+
+Glib::Dispatcher& GxMachineRemote::signal_jack_load_change() {
+    static Glib::Dispatcher x;
+    return x;
+}
+
+void GxMachineRemote::tuner_used_for_display(bool on) {
+}
+
+void GxMachineRemote::tuner_used_for_livedisplay(bool on) {
+}
+
+void GxMachineRemote::start_ramp_down() {
+}
+
+void GxMachineRemote::wait_ramp_down_finished() {
+}
+
+void GxMachineRemote::set_stateflag(ModuleSequencer::StateFlag flag) {
+}
+
+// tuner_switcher
+bool GxMachineRemote::get_tuner_switcher_active() {
+    return false;
+}
+
+void GxMachineRemote::tuner_switcher_activate(bool v) {
+}
+
+bool GxMachineRemote::tuner_switcher_deactivate() {
+    return false;
+}
+
+// preset
+bool GxMachineRemote::setting_is_preset() {
+    return true;
+}
+
+
+const Glib::ustring& GxMachineRemote::get_current_bank() {
+    static Glib::ustring s = "testbank";
+    return s;
+}
+
+gx_system::PresetFile *GxMachineRemote::get_current_bank_file() {
+    return 0;
+}
+
+const Glib::ustring& GxMachineRemote::get_current_name() {
+    static Glib::ustring s = "testpreset";
+    return s;
+}
+
+gx_system::PresetFile* GxMachineRemote::get_bank_file(const Glib::ustring& bank) const {
+    return 0;
+}
+
+Glib::ustring GxMachineRemote::get_bank_name(int n) {
+    return "testbank";
+}
+
+void GxMachineRemote::load_preset(gx_system::PresetFile *pf, const Glib::ustring& name) {
+}
+
+void GxMachineRemote::loadstate() {
+}
+
+int GxMachineRemote::bank_size() {
+    return 0;
+}
+
+bool GxMachineRemote::settings_is_loading() {
+    return false;
+}
+
+void GxMachineRemote::create_default_scratch_preset() {
+}
+
+void GxMachineRemote::set_statefilename(const std::string& fn) {
+}
+
+void GxMachineRemote::save_to_state(bool preserve_preset) {
+}
+
+Glib::RefPtr<gx_preset::PluginPresetList> GxMachineRemote::load_plugin_preset_list(const Glib::ustring& id, bool factory) const {
+    static gx_engine::MidiControllerList m;
+    static std::string fname = "";
+    static Glib::RefPtr<gx_preset::PluginPresetList> p = gx_preset::PluginPresetList::create(fname, const_cast<ParamMap&>(pmap), m);
+    return p;
+}
+
+void GxMachineRemote::disable_autosave(bool v) {
+}
+
+sigc::signal<void>& GxMachineRemote::signal_selection_changed() {
+    static sigc::signal<void> x;
+    return x;
+}
+
+sigc::signal<void>& GxMachineRemote::signal_presetlist_changed() {
+    static sigc::signal<void> x;
+    return x;
+}
+
+bool GxMachineRemote::bank_strip_preset_postfix(std::string& name) {
+    return false;
+}
+
+std::string GxMachineRemote::bank_decode_filename(const std::string& s) {
+    return s;
+}
+
+void GxMachineRemote::bank_make_valid_utf8(Glib::ustring& s) {
+}
+
+void GxMachineRemote::bank_make_bank_unique(Glib::ustring& name, std::string *file) {
+}
+
+void GxMachineRemote::bank_insert(gx_system::PresetFile* f) {
+}
+
+bool GxMachineRemote::rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile) {
+    return false;
+}
+
+bool GxMachineRemote::rename_preset(gx_system::PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname) {
+    return false;
+}
+
+void GxMachineRemote::bank_reorder(const std::vector<Glib::ustring>& neworder) {
+}
+
+void GxMachineRemote::reorder_preset(gx_system::PresetFile& pf, const std::vector<Glib::ustring>& neworder) {
+}
+
+bool GxMachineRemote::bank_check_reparse() {
+    return false;
+}
+
+void GxMachineRemote::erase_preset(gx_system::PresetFile& pf, const Glib::ustring& name) {
+}
+
+gx_system::PresetFile *GxMachineRemote::bank_get_file(const Glib::ustring& bank) const {
+    return 0;
+}
+
+gx_system::PresetBanks::iterator GxMachineRemote::bank_begin() {
+    static gx_system::PresetBanks x;
+    return x.begin();
+}
+
+gx_system::PresetBanks::iterator GxMachineRemote::bank_end() {
+    static gx_system::PresetBanks x;
+    return x.end();
+}
+
+void GxMachineRemote::pf_append(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& name) {
+}
+
+void GxMachineRemote::pf_insert_before(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name) {
+}
+
+void GxMachineRemote::pf_insert_after(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name) {
+}
+
+bool GxMachineRemote::convert_preset(gx_system::PresetFile& pf) {
+    return true;
+}
+
+bool GxMachineRemote::bank_remove(const Glib::ustring& bank) {
+    return true;
+}
+
+void GxMachineRemote::bank_save() {
+}
+
+void GxMachineRemote::set_source_to_state() {
+}
+
+void GxMachineRemote::make_bank_unique(Glib::ustring& name, std::string *file) {
+}
+
+void GxMachineRemote::pf_save(gx_system::PresetFile& pf, const Glib::ustring& name) {
+}
+
+
+// jack
+gx_jack::GxJack *GxMachineRemote::get_jack() {
+    return 0;
+}
+
+// pmap
+Parameter& GxMachineRemote::get_parameter(const char *p) {
+    return pmap[p];
+}
+
+Parameter& GxMachineRemote::get_parameter(const std::string& id) {
+    return pmap[id];
+}
+
+void GxMachineRemote::set_init_values() {
+}
+
+bool GxMachineRemote::parameter_hasId(const char *p) {
+    return pmap.hasId(p);
+}
+
+bool GxMachineRemote::parameter_hasId(const std::string& id) {
+    return pmap.hasId(id);
+}
+
+void GxMachineRemote::reset_unit(Glib::ustring group_id) const {
+    pmap.reset_unit(group_id, 0);
+}
+
+bool GxMachineRemote::parameter_unit_has_std_values(Glib::ustring group_id) const {
+    return pmap.unit_has_std_values(group_id, 0);
+}
+
+void GxMachineRemote::set_parameter_value(const std::string& id, int value) {
+    pmap[id].getInt().set(value);
+}
+
+void GxMachineRemote::set_parameter_value(const std::string& id, bool value) {
+    pmap[id].getBool().set(value);
+}
+
+void GxMachineRemote::set_parameter_value(const std::string& id, float value) {
+    pmap[id].getFloat().set(value);
+}
+
+int GxMachineRemote::_get_parameter_value_int(const std::string& id) {
+    return pmap[id].getInt().get_value();
+}
+
+int GxMachineRemote::_get_parameter_value_bool(const std::string& id) {
+    return pmap[id].getBool().get_value();
+}
+
+float GxMachineRemote::_get_parameter_value_float(const std::string& id) {
+    return pmap[id].getFloat().get_value();
+}
+
+sigc::signal<void, int>& GxMachineRemote::_signal_parameter_value_int(const std::string& id) {
+    std::map<std::string,sigc::signal<void,int>* >::iterator i = signals_int.find(id);
+    if (i != signals_int.end()) {
+	return *i->second;
+    } else {
+	sigc::signal<void,int> *u = new sigc::signal<void,int>;
+	signals_int[id] = u;
+	return *u;
+    }
+}
+
+sigc::signal<void, bool>& GxMachineRemote::_signal_parameter_value_bool(const std::string& id) {
+    std::map<string,sigc::signal<void,bool>*>::iterator i = signals_bool.find(id);
+    if (i != signals_bool.end()) {
+	return *i->second;
+    } else {
+	sigc::signal<void,bool> *u = new sigc::signal<void,bool>;
+	signals_bool[id] = u;
+	return *u;
+    }
+}
+
+sigc::signal<void, float>& GxMachineRemote::_signal_parameter_value_float(const std::string& id) {
+    std::map<string,sigc::signal<void,float>*>::iterator i = signals_float.find(id);
+    if (i != signals_float.end()) {
+	return *i->second;
+    } else {
+	sigc::signal<void,float> *u = new sigc::signal<void,float>;
+	signals_float[id] = u;
+	return *u;
+    }
+}
+
+// MidiControllerList
+bool GxMachineRemote::midi_get_config_mode() {
+    return false;
+}
+
+void GxMachineRemote::midi_set_config_mode(bool v, int ctl) {
+}
+
+sigc::signal<void,int>& GxMachineRemote::signal_midi_new_program() {
+    static sigc::signal<void,int> x;
+    return x;
+}
+
+sigc::signal<void>& GxMachineRemote::signal_midi_changed() {
+    static sigc::signal<void> x;
+    return x;
+}
+
+int GxMachineRemote::midi_size() {
+    return 0;
+}
+
+midi_controller_list& GxMachineRemote::midi_get(int n) {
+    static midi_controller_list s;
+    return s;
+}
+
+void GxMachineRemote::midi_deleteParameter(Parameter& param, bool quiet) {
+}
+
+int GxMachineRemote::midi_get_current_control() {
+    return -1;
+}
+
+void GxMachineRemote::midi_set_current_control(int v) {
+}
+
+void GxMachineRemote::midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle) {
+}
+
+int GxMachineRemote::midi_param2controller(Parameter& param, const MidiController** p) {
+    return -1;
+}
+
+// cheat
+ConvolverMonoAdapter& GxMachineRemote::get_mono_convolver() {
+    return *(ConvolverMonoAdapter*)0;
+}
+
+ConvolverStereoAdapter& GxMachineRemote::get_stereo_convolver() {
+    return *(ConvolverStereoAdapter*)0;
+}
+
 
 } // namespace gx_engine

@@ -30,32 +30,51 @@ class MainWindow;
 
 namespace gx_gui {
 
-template<class T>
-class uiToggle: public gx_ui::GxUiItemV<T> {
-protected:
-    Gtk::ToggleButton* button;
-    void on_button_toggled();
-    virtual void reflectZone();
+class uiElement {
 public:
-    uiToggle(gx_ui::GxUI& ui, Gtk::ToggleButton *b, T *zone);
+    virtual ~uiElement() {}
 };
 
 template<class T>
-uiToggle<T>::uiToggle(gx_ui::GxUI& ui, Gtk::ToggleButton *b, T *zone)
-    : gx_ui::GxUiItemV<T>(&ui, zone), button(b) {
-    button->set_active(*zone);
-    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggle<T>::on_button_toggled));
-}
+class uiToggle: public uiElement {
+protected:
+    gx_engine::GxMachineBase& machine;
+    const std::string id;
+    Gtk::ToggleButton* button;
+    void on_button_toggled();
+    void on_parameter_changed(T v);
+public:
+    uiToggle(gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b, const std::string& id);
+};
 
 template<class T>
-void uiToggle<T>::on_button_toggled() {
-    gx_ui::GxUiItemV<T>::modifyZone(button->get_active());
+uiToggle<T>::uiToggle(gx_engine::GxMachineBase& machine_, Gtk::ToggleButton *b, const std::string& id_)
+    : uiElement(), machine(machine_), id(id_), button(b) {
+    if (!machine.parameter_hasId(id)) {
+	return;
+    }
+    button->set_active(machine.get_parameter_value<T>(id));
+    button->signal_toggled().connect(sigc::mem_fun(this, &uiToggle<T>::on_button_toggled));
+    machine.signal_parameter_value<T>(id).connect(sigc::mem_fun(this, &uiToggle<T>::on_parameter_changed));
 }
 
-template<class T>
-void uiToggle<T>::reflectZone() {
-    T v = *gx_ui::GxUiItemV<T>::fZone;
-    gx_ui::GxUiItemV<T>::fCache = v;
+template<>
+inline void uiToggle<float>::on_button_toggled() {
+    machine.set_parameter_value(id, static_cast<float>(button->get_active()));
+}
+
+template<>
+inline void uiToggle<bool>::on_button_toggled() {
+    machine.set_parameter_value(id, button->get_active());
+}
+
+template<>
+inline void uiToggle<float>::on_parameter_changed(float v) {
+    button->set_active(v != 0.0);
+}
+
+template<>
+inline void uiToggle<bool>::on_parameter_changed(bool v) {
     button->set_active(v);
 }
 
@@ -190,6 +209,7 @@ protected:
     static void openHorizontalBox_(const char* label);
     static void openHorizontalhideBox_(const char* label);
     static void insertSpacer_();
+    static void set_next_flags_(int flags);
     static void create_small_rackknob_(const char *id, const char *label);
     static void create_small_rackknobr_(const char *id, const char *label);
     static void create_master_slider_(const char *id, const char *label);

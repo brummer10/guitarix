@@ -390,7 +390,7 @@ ModuleSelectorFromList::ModuleSelectorFromList(
     const char* select_name_, const char** groups_, int flags_)
     : ModuleSelector(seq_),
       PluginDef(),
-      gx_ui::GxUiItemUInt(&ui, &selector),
+      gx_ui::GxUiItemInt(&ui, &selector),
       selector(0),
       select_id(select_id_),
       select_name(select_name_),
@@ -426,7 +426,7 @@ int ModuleSelectorFromList::register_parameter(const ParamReg &param) {
     }
     p[size].value_id = 0;
     p[size].value_label = 0;
-    param.registerUEnumVar(select_id, select_name, "S", "", p, &selector, 0);
+    param.registerIEnumVar(select_id, select_name, "S", "", p, &selector, 0);
     return 0;
 }
 

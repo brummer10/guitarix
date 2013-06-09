@@ -37,7 +37,6 @@ ParamRegImpl::ParamRegImpl(gx_engine::ParamMap* pm): ParamReg() {
     registerNonMidiVar = registerNonMidiVar_;
     registerEnumVar = registerEnumVar_;
     registerIEnumVar = registerIEnumVar_;
-    registerUEnumVar = registerUEnumVar_;
 }
 
 float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* tp,
@@ -127,19 +126,6 @@ void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, b
     BoolParameter *p = pmap->reg_non_midi_par(id, var, preset);
     if (nosave) {
 	p->setSavable(false);
-    }
-}
-
-void ParamRegImpl::registerUEnumVar_(const char *id, const char* name, const char* tp,
-				const char* tooltip, const value_pair* values,
-				unsigned int *var, unsigned int std) {
-    if (!name[0]) {
-        assert(strrchr(id, '.'));
-        name = strrchr(id, '.')+1;
-    }
-    gx_engine::Parameter *p = pmap->reg_uenum_par(id, name, values, var, std);
-    if (tooltip && tooltip[0]) {
-        p->set_desc(tooltip);
     }
 }
 
@@ -510,9 +496,9 @@ void PluginList::registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& pr
 		    pl->effect_post_pre = 0;
 		} else {
 		    static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
-		    param.reg_uenum_par((s+".pp").c_str(), "select", post_pre,
+		    param.reg_enum_par((s+".pp").c_str(), "select", post_pre,
 					&(pl->effect_post_pre), 0);
-		    new RackChangerUiItem<unsigned int>(*this, &pl->effect_post_pre);
+		    new RackChangerUiItem<int>(*this, &pl->effect_post_pre);
 		}
 	    }
 	}

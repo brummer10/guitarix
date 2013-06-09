@@ -35,9 +35,9 @@ namespace gx_engine {
  ** class ModuleSelectorFromList
  */
 
-class ModuleSelectorFromList: public ModuleSelector, private PluginDef, private gx_ui::GxUiItemUInt {
+class ModuleSelectorFromList: public ModuleSelector, private PluginDef, private gx_ui::GxUiItemInt {
 private:
-    unsigned int selector;
+    int selector;
     const char* select_id;
     const char* select_name;
     Plugin* current_plugin;

@@ -59,13 +59,17 @@ string fformat(float value, float step) {
     return buf.str();
 }
 
-void uiToggleButton::toggled() {
-    modifyZone(fButton->get_active());
+uiToggleButton::uiToggleButton(gx_engine::GxMachineBase& machine_, Gtk::ToggleButton* b, const std::string& id_)
+    : machine(machine_), id(id_), fButton(b) {
+    machine.signal_parameter_value<bool>(id).connect(
+	sigc::mem_fun(this, &uiToggleButton::set_value));
 }
 
-void uiToggleButton::reflectZone() {
-    bool v = *fZone;
-    fCache = v;
+void uiToggleButton::toggled() {
+    machine.set_parameter_value(id, fButton->get_active());
+}
+
+void uiToggleButton::set_value(bool v) {
     fButton->set_active(v);
 }
 
@@ -99,7 +103,7 @@ void uiButton::reflectZone() {
 }
 
 
-bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, const char *id) {
+bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, const std::string& id) {
     if (event->button != 2)
         return FALSE;
     if (machine.midi_get_config_mode())
@@ -125,6 +129,46 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
     meter_display_timeout = 60; // in millisec
 }
 
+
+/****************************************************************
+ ** class WidgetStack
+ */
+
+void WidgetStack::container_add(Gtk::Widget& w) {
+    dynamic_cast<Gtk::Container*>(top())->add(w);
+}
+
+void WidgetStack::box_pack_start(Gtk::Widget& w, bool expand, bool fill, int padding) {
+    dynamic_cast<Gtk::Box*>(top())->pack_start(w, expand, fill, padding);
+}
+
+void WidgetStack::notebook_append_page(Gtk::Widget& w, Gtk::Widget& label) {
+    dynamic_cast<Gtk::Notebook*>(top())->append_page(w, label);
+}
+
+void WidgetStack::add(Gtk::Widget& w, const char *label) {
+    Gtk::Widget *t = top();
+    Gtk::Notebook *n = dynamic_cast<Gtk::Notebook*>(t);
+    if (n) {
+	if (!label) {
+	    label = "";
+	}
+	n->append_page(w, *manage(new Gtk::Label(label)));
+	return;
+    }
+    Gtk::Box *b = dynamic_cast<Gtk::Box*>(t);
+    if (b) {
+	b->pack_start(w, true, true, 0);
+	return;
+    }
+    Gtk::Container *c = dynamic_cast<Gtk::Container*>(t);
+    if (c) {
+	c->add(w);
+	return;
+    }
+    assert(false);
+}
+
 /****************************************************************
  ** class StackBoxBuilder
  */
@@ -134,29 +178,23 @@ StackBoxBuilder::StackBoxBuilder(
     Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
     Gtk::Label &convolver_mono_filename_label_, gx_ui::GxUI& ui_,
     Glib::RefPtr<Gdk::Pixbuf> window_icon_)
-    : fTop(0), fBox(), fMode(), machine(machine_),
+    : fBox(), machine(machine_),
       fWaveView(fWaveView_), convolver_filename_label(convolver_filename_label_),
       convolver_mono_filename_label(convolver_mono_filename_label_),
-      widget(), accels(), window_icon(window_icon_) {
+      widget(), accels(), window_icon(window_icon_), next_flags(0) {
 }
 
 StackBoxBuilder::~StackBoxBuilder() {
 }
-
-/****************************************************************
- ** class StackBoxBuilder
- */
 
 void StackBoxBuilder::openVerticalMidiBox(const char* label) {
     openVerticalBox(label);
 }
 
 void StackBoxBuilder::prepare() {
-    fTop = 0;
     widget = new Gtk::HBox();
     widget->show();
-    fBox[fTop] = GTK_WIDGET(widget->gobj());
-    fMode[fTop] = kBoxMode;
+    fBox.push(*manage(widget));
 }
 
 #ifndef NDEBUG
@@ -171,7 +209,8 @@ void trace_finalize(Glib::Object *o, int n) {
 #endif
 
 void StackBoxBuilder::fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox) {
-    assert(fTop == 0);
+    fBox.pop();
+    assert(fBox.empty());
     mainbox = widget;
     Glib::ListHandle<Gtk::Widget*> l = widget->get_children();
     if (l.size() == 2) {
@@ -248,37 +287,27 @@ void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
     Gtk::Widget* w;
     bld->find_widget("minibox", w);
     if (w) {
-	addWidget("", w->gobj());
+	addWidget("", w);
     }
     bld->find_widget("rackbox", w);
     if (!w) {
         gx_system::gx_print_error("load_ui Error", "can't find widget 'rackbox'");
 	return;
     }
-    addWidget("", w->gobj());
+    addWidget("", w);
 }
 
-void StackBoxBuilder::pushBox(int mode, GtkWidget* w) {
-    ++fTop;
-    assert(fTop < stackSize);
-    fMode[fTop]     = mode;
-    fBox[fTop]         = w;
-}
-
-GtkWidget* StackBoxBuilder::addWidget(const char* label, GtkWidget* w) {
-    switch (fMode[fTop]) {
-    case kSingleMode    :
-        gtk_container_add(GTK_CONTAINER(fBox[fTop]), w);
-        break;
-    case kBoxMode         :
-        gtk_box_pack_start(GTK_BOX(fBox[fTop]), w, expand, fill, 0);
-        break;
-    case kTabMode         :
-        gtk_notebook_append_page(GTK_NOTEBOOK(fBox[fTop]), w, gtk_label_new(label));
-        break;
-    }
-    gtk_widget_show(w);
+Gtk::Widget* StackBoxBuilder::addWidget(const char* label, Gtk::Widget* w) {
+    fBox.add(*w, label);
+    w->show();
     return w;
+}
+
+void StackBoxBuilder::addwidget(Gtk::Widget *widget) {
+    if (widget) {
+	fBox.container_add(*manage(widget));
+    }
+    next_flags = 0;
 }
 
 void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw) {
@@ -292,7 +321,7 @@ void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWind
     button->add(*manage(lab));
     lab->set_name("rack_label");
     lab->set_padding(5,0);
-    addWidget(label, GTK_WIDGET(button->gobj()));
+    addWidget(label, button);
     lab->show();
     button->signal_clicked().connect(
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
@@ -321,8 +350,8 @@ void StackBoxBuilder::openSetLabelBox() {
     convolver_filename_label.set_label(machine.conv_getIRFile("jconv"));
     machine.signal_conv_settings_changed("jconv").connect(
 	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_filename));
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->gobj()), false, fill, 0);
-    pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
+    fBox.box_pack_start(*manage(box), false);
+    fBox.push(*box);
 }
 
 void StackBoxBuilder::openSetMonoLabelBox() {
@@ -340,8 +369,8 @@ void StackBoxBuilder::openSetMonoLabelBox() {
     convolver_mono_filename_label.set_label(machine.conv_getIRFile("jconv_mono"));
     machine.signal_conv_settings_changed("jconv_mono").connect(
 	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_mono_filename));
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->gobj()), true, true, 0);
-    pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
+    fBox.box_pack_start(*manage(box));
+    fBox.push(*box);
 }
 
 void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw) {
@@ -358,20 +387,22 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
     al->add(*manage(button));
     al->show_all();
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(al->gobj()), false, fill, 0);
+    fBox.box_pack_start(*manage(al), false);
     button->signal_clicked().connect(
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
+}
+
+void StackBoxBuilder::set_next_flags(int flags) {
+    next_flags = flags;
 }
 
 void StackBoxBuilder::create_selector(string id, const char *widget_name) {
     gx_engine::Parameter& p = machine.get_parameter(id);
     UiSelectorBase *s;
     if (p.isFloat()) {
-        s = new UiSelector<float>(machine, p.getFloat());
-    } else if (p.isInt()) {
-        s = new UiSelector<int>(machine, p.getInt());
+        s = new UiSelector<float>(machine, id);
     } else {
-        s = new UiSelector<unsigned int>(machine, p.getUInt());
+        s = new UiSelector<int>(machine, id);
     }
     if (widget_name) {
 	s->set_name(widget_name);
@@ -383,104 +414,145 @@ void StackBoxBuilder::create_selector_with_caption(string id, const char *label)
     gx_engine::Parameter& p = machine.get_parameter(id);
     UiSelectorBase *s;
     if (p.isFloat()) {
-        s = new UiSelectorWithCaption<float>(machine, p.getFloat(), label);
-    } else if (p.isInt()) {
-        s = new UiSelectorWithCaption<int>(machine, p.getInt(), label);
+        s = new UiSelectorWithCaption<float>(machine, id, label);
     } else {
-        s = new UiSelectorWithCaption<unsigned int>(machine, p.getUInt(), label);
+        s = new UiSelectorWithCaption<int>(machine, id, label);
     }
     addwidget(s->get_widget());
 }
 
 void StackBoxBuilder::openSpaceBox(const char* label) {
-    GxVBox * box =  new GxVBox(machine);
-    box->m_box.set_homogeneous(true);
-    box->m_box.set_spacing(2);
-    box->m_box.set_border_width(4);
-    box->m_box.show_all();
-    if (fMode[fTop] != kTabMode && label[0] != 0) {
-        gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), expand, fill, 0);
-        pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+    GxVBox * box =  new GxVBox();
+    box->set_homogeneous(true);
+    box->set_spacing(2);
+    box->set_border_width(4);
+    box->show_all();
+    if (!fBox.top_is_notebook() && label && label[0]) {
+        fBox.box_pack_start(*box);
+        fBox.push(*box);
     } else {
-        pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+        fBox.push(*addWidget(label, box));
     }
 }
 
+void StackBoxBuilder::check_set_flags(Gxw::Regler *r) {
+    if (next_flags & UI_NUM_SHOW_ALWAYS) {
+	r->set_name("show_always");
+    }
+    if ((next_flags & UI_NUM_POSITION_MASK)) {
+	Gtk::PositionType pos = Gtk::POS_BOTTOM;
+	switch (next_flags & UI_NUM_POSITION_MASK) {
+	case UI_NUM_TOP: pos = Gtk::POS_TOP; break;
+	case UI_NUM_LEFT: pos = Gtk::POS_LEFT; break;
+	case UI_NUM_RIGHT: pos = Gtk::POS_RIGHT; break;
+	}
+	r->set_value_position(pos);
+    }
+}
+
+void StackBoxBuilder::create_small_rackknob(string id) {
+    Gxw::SmallKnob *r = new Gxw::SmallKnob();
+    Gtk::Widget *w = UiRackReglerWithCaption::create(machine, r, id);
+    check_set_flags(r);
+    addwidget(w);
+}
+
+void StackBoxBuilder::create_small_rackknob(string id, Glib::ustring label) {
+    Gxw::SmallKnob *r = new Gxw::SmallKnob();
+    Gtk::Widget *w = UiRackReglerWithCaption::create(machine, r, id, label);
+    check_set_flags(r);
+    addwidget(w);
+}
+
+void StackBoxBuilder::create_small_rackknobr(string id) {
+    Gxw::SmallKnobR *r = new Gxw::SmallKnobR();
+    Gtk::Widget *w = UiRackReglerWithCaption::create(machine, r, id);
+    check_set_flags(r);
+    addwidget(w);
+}
+
+void StackBoxBuilder::create_small_rackknobr(string id, Glib::ustring label) {
+    Gxw::SmallKnobR *r = new Gxw::SmallKnobR();
+    Gtk::Widget *w = UiRackReglerWithCaption::create(machine, r, id, label);
+    check_set_flags(r);
+    addwidget(w);
+}
+
 void StackBoxBuilder::addLiveWaveDisplay(const char* label) {
-    GtkWidget * box      = gtk_hbox_new(false, 4);
-    GtkWidget * box1      = gtk_vbox_new(false, 0);
-    GtkWidget * box2      = gtk_vbox_new(false, 0);
-    GtkWidget * e_box =  gtk_event_box_new();
-    g_signal_connect(box, "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
-    gtk_widget_set_size_request(box, 303, 82);
-    gtk_widget_set_size_request(e_box, 284, 54);
-    gtk_container_set_border_width(GTK_CONTAINER(box), 12);
-    gtk_container_add(GTK_CONTAINER(e_box), GTK_WIDGET(fWaveView.gobj()));
-    gtk_box_pack_start(GTK_BOX(box), box1, true, true, 0);
-    gtk_box_pack_start(GTK_BOX(box), e_box, false, false, 0);
-    gtk_box_pack_start(GTK_BOX(box), box2, true, true, 0);
+    Gtk::HBox * box      = new Gtk::HBox(false, 4);
+    Gtk::VBox * box1     = new Gtk::VBox(false, 0);
+    Gtk::VBox * box2     = new Gtk::VBox(false, 0);
+    Gtk::EventBox* e_box = new Gtk::EventBox();
+    g_signal_connect(box->gobj(), "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
+    box->set_size_request(303, 82);
+    e_box->set_size_request(284, 54);
+    box->set_border_width(12);
+    e_box->add(fWaveView);
+    box->pack_start(*box1, true, true, 0);
+    box->pack_start(*e_box, false, false, 0);
+    box->pack_start(*box2, true, true, 0);
     addWidget(label, box);
     fWaveView.hide(); // was show()'n by addWidget
     fWaveView.property_text_pos_left() = 1.5;
     fWaveView.property_text_pos_right() = 77;
     // multiplicator is already set by signal handler
-    gtk_widget_show_all(box);
+    box->show_all();
 }
 
 void StackBoxBuilder::openVerticalBox1(const char* label) {
-    GxVBox * box =  new GxVBox(machine);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
+    GxVBox * box =  new GxVBox();
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
 
-    if (fMode[fTop] != kTabMode && label[0] != 0) {
+    if (!fBox.top_is_notebook() && label && label[0]) {
         box->m_label.set_text(label);
         box->m_label.set_name("effekt_label");
-        box->m_box.pack_start(box->m_label, false, false, 0 );
-        gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), expand, fill, 0);
-        box->m_box.show();
+        box->pack_start(box->m_label, false, false, 0 );
+        fBox.box_pack_start(*manage(box));
+        box->show();
         box->m_label.show();
-        pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+        fBox.push(*box);
     } else {
-        pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+        fBox.push(*addWidget(label, box));
     }
 }
 
 void StackBoxBuilder::openVerticalBox2(const char* label) {
-    GxVBox * box =  new GxVBox(machine);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
+    GxVBox * box =  new GxVBox();
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
 
-    if (fMode[fTop] != kTabMode && label[0] != 0) {
+    if (!fBox.top_is_notebook() && label && label[0]) {
         box->m_label.set_text(label);
         box->m_label.set_name("rack_label");
-        box->m_box.pack_start(box->m_label, false, false, 0 );
-        gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), expand, fill, 0);
-        box->m_box.show();
+        box->pack_start(box->m_label, false, false, 0 );
+        fBox.box_pack_start(*box);
+        box->show();
         box->m_label.show();
-        pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+        fBox.push(*box);
     } else {
-        pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+        fBox.push(*addWidget(label, box));
     }
 }
 
 void StackBoxBuilder::openFlipLabelBox(const char* label) {
-    GxVBox * box =  new GxVBox(machine);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
+    GxVBox * box =  new GxVBox();
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
 
-    if (fMode[fTop] != kTabMode && label[0] != 0) {
-        GxVBox * vbox =  new GxVBox(machine);
-        vbox->m_box.set_homogeneous(false);
-        vbox->m_box.set_spacing(0);
-        vbox->m_box.set_border_width(0);
+    if (!fBox.top_is_notebook() && label && label[0]) {
+        GxVBox * vbox =  new GxVBox();
+        vbox->set_homogeneous(false);
+        vbox->set_spacing(0);
+        vbox->set_border_width(0);
 
-        GxHBox * hbox =  new GxHBox(machine);
-        hbox->m_box.set_homogeneous(false);
-        hbox->m_box.set_spacing(0);
-        hbox->m_box.set_border_width(0);
+        GxHBox * hbox =  new GxHBox();
+        hbox->set_homogeneous(false);
+        hbox->set_spacing(0);
+        hbox->set_border_width(0);
 
         hbox->m_label.set_text(label);
         hbox->m_label.set_name("effekt_label");
@@ -492,32 +564,29 @@ void StackBoxBuilder::openFlipLabelBox(const char* label) {
         font.set_weight(Pango::WEIGHT_BOLD);
         hbox->m_label.modify_font(font);
 
-        hbox->m_box.add(hbox->m_label);
-        hbox->m_box.add(vbox->m_box);
-        box->m_box.add(hbox->m_box);
-        gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), false, fill, 0);
-        box->m_box.show_all();
-
-        pushBox(kBoxMode, GTK_WIDGET(vbox->m_box.gobj()));
+        hbox->add(hbox->m_label);
+        hbox->add(*vbox);
+        box->add(*hbox);
+        fBox.box_pack_start(*box, false);
+        box->show_all();
+        fBox.push(*vbox);
     } else {
-        pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+        fBox.push(*addWidget(label, box));
     }
 }
 
 void StackBoxBuilder::addNumEntry(const char* label, const char *id, float init, float min,
                                   float max, float step) {
-    float* zone = &machine.get_parameter(id).getFloat().get_value();
-    *zone = init;
-    GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-    uiAdjustment* c = new uiAdjustment(&machine.get_ui(), zone, GTK_ADJUSTMENT(adj));
-    g_signal_connect(GTK_OBJECT(adj), "value-changed",
-                      G_CALLBACK(uiAdjustment::changed), (gpointer) c);
-    GtkWidget* spinner = gtk_spin_button_new(GTK_ADJUSTMENT(adj), step, precision(step));
-    connect_midi_controller(Glib::wrap(spinner), id, machine);
-    GtkWidget * box = gtk_hbox_new(homogene, 0);
-    GtkWidget*     lab = gtk_label_new(label);
-    gtk_container_add(GTK_CONTAINER(box), lab);
-    gtk_widget_set_name(lab, "rack_label");
+    Gtk::Adjustment* adj = new Gtk::Adjustment(init, min, max, step, 10*step, 0);
+    uiAdjustment* c = new uiAdjustment(machine, id, adj);
+    adj->signal_value_changed().connect(
+	sigc::mem_fun(c, &uiAdjustment::changed));
+    Gtk::SpinButton* spinner = new Gtk::SpinButton(*adj, step, precision(step));
+    connect_midi_controller(spinner, id, machine);
+    Gtk::HBox *box = new Gtk::HBox(homogene, 0);
+    Gtk::Label *lab = new Gtk::Label(label);
+    box->add(*lab);
+    lab->set_name("rack_label");
     addWidget(label, box);
     addWidget(label, spinner);
 }
@@ -534,12 +603,18 @@ void StackBoxBuilder::addNumEntry(string id, const char* label_) {
     addNumEntry(label.c_str(), id.c_str(), p.std_value, p.lower, p.upper, p.step);
 }
 
-void StackBoxBuilder::addMToggleButton(const char* label, const char *id) {
-    bool *zone = &machine.get_parameter(id).getBool().get_value();
+void StackBoxBuilder::addMToggleButton(const std::string& id, const char* label_) {
+    Glib::ustring label(label_);
+    if (!machine.parameter_hasId(id)) {
+        return;
+    }
+    const gx_engine::BoolParameter &p = machine.get_parameter(id).getBool();
+    if (label.empty()) {
+        label = p.l_name();
+    }
     Gdk::Color colorRed("#58b45e");
     Gdk::Color colorOwn("#7f7f7f");
     Gdk::Color colorwn("#000000");
-    *zone = 0;
     Gtk::ToggleButton* button = new Gtk::ToggleButton();
     Gtk::Label* lab = new Gtk::Label(label);
     Pango::FontDescription font = lab->get_style()->get_font();
@@ -563,8 +638,8 @@ void StackBoxBuilder::addMToggleButton(const char* label, const char *id) {
     box2->show();
     lab->show();
     box->show();
-    gtk_container_add(GTK_CONTAINER(fBox[fTop]), GTK_WIDGET(manage(box)->gobj()));
-    uiToggleButton* c = new uiToggleButton(&machine.get_ui(), zone, button); // FIXME
+    fBox.container_add(*manage(box));
+    uiToggleButton* c = new uiToggleButton(machine, button, id); // FIXME
     button->modify_bg(Gtk::STATE_NORMAL, colorOwn);
     button->modify_bg(Gtk::STATE_ACTIVE, colorRed);
     lab->set_name("rack_label");
@@ -573,100 +648,85 @@ void StackBoxBuilder::addMToggleButton(const char* label, const char *id) {
     connect_midi_controller(button, id, machine);
 }
 
-void StackBoxBuilder::addMToggleButton(string id, const char* label_) {
-    Glib::ustring label(label_);
-    if (!machine.parameter_hasId(id)) {
-        return;
-    }
-    const gx_engine::BoolParameter &p = machine.get_parameter(id).getBool();
-    if (label.empty()) {
-        label = p.l_name();
-    }
-    addMToggleButton(label.c_str(), id.c_str());
-}
-
 void StackBoxBuilder::addCheckButton(const char* label, const char *id) {
-    bool *zone = &machine.get_parameter(id).getBool().get_value();
-    GdkColor   colorRed;
-    GdkColor   colorOwn;
-    GdkColor   colorba;
-    gdk_color_parse("#000000", &colorRed);
-    gdk_color_parse("#4c5159", &colorOwn);
-    gdk_color_parse("#c4c0c0", &colorba);
-    GtkWidget*     lab = gtk_label_new(label);
-    GtkWidget*     button = gtk_check_button_new();
-    gtk_container_add(GTK_CONTAINER(button), lab);
+    Gdk::Color colorRed("#000000");
+    Gdk::Color colorOwn("#4c5159");
+    Gdk::Color colorba("#c4c0c0");
+    Gtk::Label *lab = new Gtk::Label(label);
+    Gtk::CheckButton *button = new Gtk::CheckButton();
+    button->add(*lab);
     addWidget(label, button);
-    gtk_widget_modify_bg(button, GTK_STATE_PRELIGHT, &colorOwn);
-    gtk_widget_modify_fg(button, GTK_STATE_PRELIGHT, &colorRed);
-    gtk_widget_modify_text(button, GTK_STATE_NORMAL, &colorRed);
-    gtk_widget_modify_base(button, GTK_STATE_NORMAL, &colorba);
-    GtkStyle *style = gtk_widget_get_style(lab);
-    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-    gtk_widget_modify_font(lab, style->font_desc);
-    uiCheckButton* c = new uiCheckButton(&machine.get_ui(), zone, GTK_TOGGLE_BUTTON(button));
-    g_signal_connect(GTK_OBJECT(button), "toggled",
-                      G_CALLBACK(uiCheckButton::toggled), (gpointer) c);
-    connect_midi_controller(Glib::wrap(button), id, machine);
-    gtk_widget_show(lab);
+    button->modify_bg(Gtk::STATE_PRELIGHT, colorOwn);
+    button->modify_fg(Gtk::STATE_PRELIGHT, colorRed);
+    button->modify_text(Gtk::STATE_NORMAL, colorRed);
+    button->modify_base(Gtk::STATE_NORMAL, colorba);
+    Glib::RefPtr<Gtk::Style> style = lab->get_style();
+    style->get_font().set_size(8*Pango::SCALE);
+    style->get_font().set_weight(Pango::WEIGHT_NORMAL);
+    lab->modify_font(style->get_font());
+    uiCheckButton* c = new uiCheckButton(machine, id, button);
+    button->signal_toggled().connect(
+	sigc::mem_fun(c, &uiCheckButton::toggled));
+    connect_midi_controller(button, id, machine);
+    lab->show();
 }
 
 void StackBoxBuilder::openHorizontalhideBox(const char* label) {
-    GxHBox * box =  new GxHBox(machine);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()) , false, false, 5);
-    manage(&box->m_box);
-    pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
-    box->m_box.hide();
-    if (label[0] != 0) box->m_box.show();
+    GxHBox * box =  new GxHBox();
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
+    fBox.box_pack_start(*box , false, false, 5);
+    fBox.push(*box);
+    box->hide();
+    if (label[0] != 0) {
+	box->show();
+    }
 }
 
 void StackBoxBuilder::openHorizontalTableBox(const char* label) {
-    GxHBox * box =  new GxHBox(machine);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
+    GxHBox * box =  new GxHBox();
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
 
-    if (fMode[fTop] != kTabMode && label[0] != 0) {
+    if (!fBox.top_is_notebook() && label && label[0]) {
         box->m_frame.set_label(label);
         box->m_frame.set_shadow_type(Gtk::SHADOW_NONE);
-        box->m_frame.add(box->m_box);
-        gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_frame.gobj()), false, fill, 0);
-        box->m_box.show();
+        box->m_frame.add(*box);
+        fBox.box_pack_start(box->m_frame, false);
+        box->show();
         box->m_frame.show();
-        pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+        fBox.push(*box);
     } else {
-        pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+        fBox.push(*addWidget(label, box));
     }
 }
 
 void StackBoxBuilder::openPaintBox2(const char* label) {
-    GxEventBox * box =  new GxEventBox(machine);
+    GxEventBox * box =  new GxEventBox();
     box->m_eventbox.set_name(label);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_hbox.gobj()), false, false, 0);
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
+    fBox.box_pack_start(box->m_hbox, false, false);
     box->m_hbox.show_all();
-    pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+    fBox.push(*box);
 }
 
 void StackBoxBuilder::openTabBox(const char* label) {
-    GxNotebookBox * box =  new GxNotebookBox(machine);
-    pushBox(kTabMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+    GxNotebookBox * box =  new GxNotebookBox();
+    fBox.push(*addWidget(label, box));
 }
 
 void StackBoxBuilder::openpaintampBox(const char* label) {
-    GxPaintBox * box =  new GxPaintBox(machine, pb_RackBox_expose);
-    box->m_box.set_border_width(4);
+    GxPaintBox * box =  new GxPaintBox(pb_RackBox_expose);
+    box->set_border_width(4);
     box->m_paintbox.set_name(label);
     box->m_paintbox.set_tooltip_text(label);
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_paintbox.gobj()), expand, fill, 0);
+    fBox.box_pack_start(box->m_paintbox);
     box->m_paintbox.show_all();
-    pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+    fBox.push(*box);
 }
 
 void StackBoxBuilder::addCheckButton(string id, const char* label_) {
@@ -682,68 +742,68 @@ void StackBoxBuilder::addCheckButton(string id, const char* label_) {
 }
 
 void StackBoxBuilder::closeBox() {
-    --fTop;
-    assert(fTop >= 0);
+    assert(!fBox.empty());
+    fBox.pop();
 }
 
 void StackBoxBuilder::openHorizontalBox(const char* label) {
-    GxHBox * box =  new GxHBox(machine);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
+    GxHBox * box =  new GxHBox();
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
 
-    if (fMode[fTop] != kTabMode && label[0] != 0) {
+    if (!fBox.top_is_notebook() && label && label[0]) {
         box->m_frame.set_label(label);
         box->m_frame.set_shadow_type(Gtk::SHADOW_NONE);
-        box->m_frame.add(box->m_box);
-        gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_frame.gobj()), false, fill, 0);
-        box->m_box.show();
+        box->m_frame.add(*box);
+        fBox.box_pack_start(box->m_frame, false);
+        box->show();
         box->m_frame.show();
-        pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+        fBox.push(*box);
     } else {
-        pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+        fBox.push(*addWidget(label, box));
     }
 }
 
 void StackBoxBuilder::openVerticalBox(const char* label) {
-    GxVBox * box =  new GxVBox(machine);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
+    GxVBox * box =  new GxVBox();
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
 
-    if (fMode[fTop] != kTabMode && label[0] != 0) {
+    if (!fBox.top_is_notebook() && label && label[0]) {
         box->m_label.set_text(label);
         box->m_label.set_name("rack_effect_label");
-        GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(box->m_label.gobj()));
-        pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-        gtk_widget_modify_font(GTK_WIDGET(box->m_label.gobj()), style->font_desc);
-        box->m_box.pack_start(box->m_label, false, false, 0 );
-        gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), false, fill, 0);
-        box->m_box.show();
+	Glib::RefPtr<Gtk::Style> style = box->m_label.get_style();
+        style->get_font().set_size(8*Pango::SCALE);
+        style->get_font().set_weight(Pango::WEIGHT_BOLD);
+        box->m_label.modify_font(style->get_font());
+        box->pack_start(box->m_label, false, false, 0 );
+        fBox.box_pack_start(*box, false);
+        box->show();
         box->m_label.show();
-        pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+        fBox.push(*box);
     } else {
-        pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+        fBox.push(*addWidget(label, box));
     }
 }
 
 void StackBoxBuilder::openFrameBox(const char* label) {
-    GxHBox * box =  new GxHBox(machine);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(2);
-    box->m_box.set_border_width(2);
+    GxHBox * box =  new GxHBox();
+    box->set_homogeneous(false);
+    box->set_spacing(2);
+    box->set_border_width(2);
 
-    if (fMode[fTop] != kTabMode && label[0] != 0) {
+    if (!fBox.top_is_notebook() && label && label[0]) {
         box->m_frame.set_label(label);
         box->m_frame.set_shadow_type(Gtk::SHADOW_NONE);
-        box->m_frame.add(box->m_box);
-        gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_frame.gobj()), false, fill, 0);
-        box->m_box.show();
+        box->m_frame.add(*box);
+        fBox.box_pack_start(box->m_frame, false);
+        box->show();
         box->m_frame.show();
-        pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+        fBox.push(*box);
     } else {
-        pushBox(kBoxMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+        fBox.push(*addWidget(label, box));
     }
 }
 

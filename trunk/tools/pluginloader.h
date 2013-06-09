@@ -44,9 +44,6 @@ private:
 				 float low, float up, float step);
     static void registerIEnumVar_(const char *id, const char* name, const char* tp,
 				  const char* tooltip, const value_pair* values, int *var, int val);
-    static void registerUEnumVar_(const char *id, const char* name, const char* tp,
-				  const char* tooltip, const value_pair* values,
-				  unsigned int *var, unsigned int std);
 public:
     ParamRegImpl(VarMap *vars, PluginDef *p);
     ~ParamRegImpl();
@@ -63,7 +60,6 @@ ParamRegImpl::ParamRegImpl(VarMap *v, PluginDef *p)
     registerNonMidiVar = registerNonMidiVar_;
     registerEnumVar = registerEnumVar_;
     registerIEnumVar = registerIEnumVar_;
-    registerUEnumVar = registerUEnumVar_;
 }
 
 ParamRegImpl::~ParamRegImpl() {
@@ -92,13 +88,7 @@ void ParamRegImpl::registerEnumVar_(const char *id, const char* name, const char
 }
 
 void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const char* tp,
-				   const char* tooltip, const value_pair* values, int *var, int val) {
-    assert(false);
-}
-
-void ParamRegImpl::registerUEnumVar_(const char *id, const char* name, const char* tp,
-				     const char* tooltip, const value_pair* values,
-				     unsigned int *var, unsigned int std) {
+				   const char* tooltip, const value_pair* values, int *var, int std) {
     int up = -1;
     for (const value_pair* p = values; p->value_id; ++p, ++up);
     vars->insert(std::pair<std::string,Var*>(id, new Var(id,name,var,std,0,up,values)));

@@ -272,7 +272,6 @@ Liveplay::Liveplay(
       keyswitch(machine_, sigc::mem_fun(this, &Liveplay::display)),
       midi_conn(),
       window(),
-      switcher_signal(&ui, &machine.get_parameter("ui.live_play_switcher").getBool().get_value()), //FIXME
       mouse_hide_conn() {
     const char *id_list[] = {"LivePlay", 0};
     bld = gx_gui::GxBuilder::create_from_file(fname, &machine, id_list);
@@ -390,8 +389,8 @@ Liveplay::Liveplay(
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_mode_switch), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_space, (GdkModifierType)0, (GtkAccelFlags)0, cl);
-    switcher_signal.changed.connect(sigc::mem_fun(this, &Liveplay::on_switcher_toggled));
-
+    machine.signal_parameter_value<bool>("ui.live_play_switcher").connect(
+	sigc::mem_fun(this, &Liveplay::on_switcher_toggled));
     machine.tuner_switcher_signal_display().connect(sigc::mem_fun(this, &Liveplay::display));
     machine.tuner_switcher_signal_set_state().connect(sigc::mem_fun(this, &Liveplay::set_display_state));
     machine.tuner_switcher_signal_selection_done().connect(sigc::mem_fun(this, &Liveplay::on_selection_changed));

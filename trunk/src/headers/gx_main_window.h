@@ -114,7 +114,6 @@ private:
     KeySwitcher keyswitch;
     sigc::connection midi_conn;
     Gtk::Window *window;
-    gx_ui::UiSignal<bool> switcher_signal;
     sigc::connection mouse_hide_conn;
     //
     Gtk::Image *bypass_image;
@@ -313,7 +312,7 @@ private:
     Gxw::PaintBox box;
     int box_visible;
     int position;
-    unsigned int effect_post_pre;
+    int effect_post_pre;
     Gxw::Switch on_off_switch;
     gx_gui::uiToggle<bool> toggle_on_off;
 private:
@@ -531,18 +530,19 @@ public:
 
 /****************************************************************
  ** GxUiRadioMenu
- ** adds the values of an UEnumParameter as Gtk::RadioMenuItem's
+ ** adds the values of an EnumParameter as Gtk::RadioMenuItem's
  ** to a Gtk::MenuShell
  */
 
-class GxUiRadioMenu: public gx_ui::GxUiItemUInt {
+class GxUiRadioMenu {
 private:
+    gx_engine::GxMachineBase& machine;
+    const std::string id;
     Glib::RefPtr<Gtk::RadioAction> action;
-    gx_engine::UIntParameter& param;
-    virtual void reflectZone();
+    void set_value(unsigned int v);
     void on_changed(Glib::RefPtr<Gtk::RadioAction> act);
 public:
-    GxUiRadioMenu(gx_ui::GxUI* ui, gx_engine::UIntParameter& param);
+    GxUiRadioMenu(gx_engine::GxMachineBase& machine, const std::string& id);
     void setup(const Glib::ustring& prefix, const Glib::ustring& postfix,
 	       Glib::RefPtr<Gtk::UIManager>& uimanager, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
 };
@@ -633,8 +633,6 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_grey;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_yellow;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_red;
-    gx_ui::UiSignal<bool> mute_changed;
-    gx_ui::UiSignal<bool> ampdetail_sh;
     gx_gui::ReportXrun report_xrun;
     bool in_session;
     Glib::RefPtr<Gtk::StatusIcon> status_icon;

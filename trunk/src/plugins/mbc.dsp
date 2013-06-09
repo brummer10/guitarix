@@ -39,13 +39,13 @@ bswitch3	= max(0,sel3-1);
 bswitch4	= max(0,sel4-1);
 bswitch5	= max(0,sel5-1);
 
-hifr1			=hslider("show_always_crossover_b1_b2 [name:Crossover B1-B2 (hz)][tooltip: Crossover bandpass frequency]" ,80 , 20, 20000, 1);
+hifr1			=hslider("crossover_b1_b2 [log][name:Crossover B1-B2 (hz)][tooltip: Crossover bandpass frequency]" ,80 , 20, 20000, 1.08);
 lowfr2			=hifr1;
-hifr2			=hslider("show_always_crossover_b2_b3 [name:Crossover B2-B3 (hz)][tooltip: Crossover bandpass frequency]",210,20,20000,1);
+hifr2			=hslider("crossover_b2_b3 [log][name:Crossover B2-B3 (hz)][tooltip: Crossover bandpass frequency]",210,20,20000,1.08);
 lowfr3			=hifr2;
-hifr3			=hslider("show_always_crossover_b3_b4 [name:Crossover B3-B4 (hz)][tooltip: Crossover bandpass frequency]",1700,20,20000,1);
+hifr3			=hslider("crossover_b3_b4 [log][name:Crossover B3-B4 (hz)][tooltip: Crossover bandpass frequency]",1700,20,20000,1.08);
 lowfr4			=hifr3;
-hifr4			=hslider("show_always_crossover_b4_b5 [name:Crossover B4-B5 (hz)][tooltip: Crossover bandpass frequency]",5000,20,20000,1);
+hifr4			=hslider("crossover_b4_b5 [log][name:Crossover B4-B5 (hz)][tooltip: Crossover bandpass frequency]",5000,20,20000,1.08);
 lowfr5			=hifr4;
 
 bandpass1 	= lowpass(3,hifr1) ;

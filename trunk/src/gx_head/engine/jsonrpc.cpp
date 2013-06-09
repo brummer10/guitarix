@@ -555,11 +555,18 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	gx_engine::ParamMap& param = serv.settings.get_param();
 	jw.write_key("result");
 	jw.begin_object();
-	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
-	    const Glib::ustring& attr = (*i)->getString();
-	    if (param.hasId(attr)) {
-		jw.write_key(attr);
-		write_parameter_state(jw, param[attr]);
+	if (params.size() == 0) {
+	    for (gx_engine::ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
+		jw.write_key(i->first);
+		write_parameter_state(jw, *i->second);
+	    }
+	} else {
+	    for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
+		const Glib::ustring& attr = (*i)->getString();
+		if (param.hasId(attr)) {
+		    jw.write_key(attr);
+		    write_parameter_state(jw, param[attr]);
+		}
 	    }
 	}
 	jw.end_object();
@@ -716,15 +723,6 @@ void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
 		    p.getFloat().set(v->getFloat());
 		} else if (p.isInt()) {
 		    gx_engine::IntParameter& pi = p.getInt();
-		    int i;
-		    if (p.getControlType() == gx_engine::Parameter::Enum) {
-			i = pi.idx_from_id(v->getString());
-		    } else {
-			i = v->getInt();
-		    }
-		    pi.set(i);
-		} else if (p.isUInt()) {
-		    gx_engine::UIntParameter& pi = p.getUInt();
 		    int i;
 		    if (p.getControlType() == gx_engine::Parameter::Enum) {
 			i = pi.idx_from_id(v->getString());

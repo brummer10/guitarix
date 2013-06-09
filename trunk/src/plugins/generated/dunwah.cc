@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/dunwah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.55 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -39,7 +39,6 @@ private:
 	static void compute_static(int count, float *input0, float *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
-
 public:
 	Dsp();
 	~Dsp();
@@ -88,9 +87,9 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (0.007000000000000006 * ((iConst0 * (1.73888e-06 - (8.38823e-12 * iConst0))) - 0.193457));
-	fConst2 = (0.5 / iConst0);
-	fConst3 = (1.0 / iConst0);
-	fConst4 = exp((0 - (1236.9027460477864 / iConst0)));
+	fConst2 = (0.5 / double(iConst0));
+	fConst3 = (1.0 / double(iConst0));
+	fConst4 = exp((0 - (1236.9027460477864 / double(iConst0))));
 	fConst5 = (1.77528e-06 - (8.52216e-12 * iConst0));
 	fConst6 = (0.879905 + (iConst0 * fConst5));
 	fConst7 = (1.54419e-05 - (6.43963e-11 * iConst0));
@@ -106,11 +105,11 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (fConst1 * (0 - ((1.0 / ((fSlow0 * (0.270546 + (fSlow0 * ((fSlow0 * (3.64419 + (fSlow0 * ((2.85511 * fSlow0) - 5.20364)))) - 0.86331)))) - 0.814203)) + 0.933975)));
-	double 	fSlow2 = (1973.48 - (1000 / ((fSlow0 * (1.9841 + (fSlow0 * (5.76598 + (fSlow0 * ((fSlow0 * (49.9836 + (fSlow0 * ((12.499 * fSlow0) - 40.3658)))) - 28.3434)))))) - 1.6086)));
+	double 	fSlow2 = (1973.48 - (double(1000) / ((fSlow0 * (1.9841 + (fSlow0 * (5.76598 + (fSlow0 * ((fSlow0 * (49.9836 + (fSlow0 * ((12.499 * fSlow0) - 40.3658)))) - 28.3434)))))) - 1.6086)));
 	double 	fSlow3 = (1 - (fConst2 * (fSlow2 / (21.9737 + (fSlow0 * ((fSlow0 * (42.2734 + (fSlow0 * ((fSlow0 * (115.375 - (52.3051 * fSlow0))) - 99.7712)))) - 24.555))))));
 	double 	fSlow4 = (0.007000000000000006 * (cos((fConst3 * fSlow2)) * (0 - (2.0 * fSlow3))));
 	double 	fSlow5 = (0.007000000000000006 * faustpower<2>(fSlow3));
@@ -128,7 +127,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 	}
 }
 
-void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+void __rt_func Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);
 }
