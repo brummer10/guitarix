@@ -538,7 +538,7 @@ static int activate(bool start, PluginDef* = 0)
             mem_alloc();
             clear_state_f();
         }
-    } else if (!mem_allocated) {
+    } else if (mem_allocated) {
         mem_free();
     }
     return 0;
@@ -652,7 +652,7 @@ static int activate(bool start, PluginDef* = 0)
             mem_alloc();
             clear_state_f();
         }
-    } else if (!mem_allocated) {
+    } else if (mem_allocated) {
         mem_free();
     }
     return 0;
@@ -885,7 +885,7 @@ int Dsp::activate(bool start)
 			mem_alloc();
 			clear_state_f();
 		}
-	} else if (!mem_allocated) {
+	} else if (mem_allocated) {
 		mem_free();
 	}
 	return 0;
@@ -1156,7 +1156,7 @@ int Dsp::activate(bool start)
 			mem_alloc();
 			clear_state_f();
 		}
-	} else if (!mem_allocated) {
+	} else if (mem_allocated) {
 		mem_free();
 	}
 	return 0;
