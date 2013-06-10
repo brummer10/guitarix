@@ -1,5 +1,5 @@
 // generated from file '../src/faust/delay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace delay {
@@ -102,7 +102,7 @@ int Dsp::activate(bool start)
 			mem_alloc();
 			clear_state_f();
 		}
-	} else if (!mem_allocated) {
+	} else if (mem_allocated) {
 		mem_free();
 	}
 	return 0;
@@ -113,7 +113,7 @@ int Dsp::activate_static(bool start, PluginDef *p)
 	return static_cast<Dsp*>(p)->activate(start);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	float 	fSlow0 = (fConst0 * fslider0);
 	int 	iSlow1 = int(fSlow0);

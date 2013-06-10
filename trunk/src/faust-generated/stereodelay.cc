@@ -1,5 +1,5 @@
 // generated from file '../src/faust/stereodelay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace stereodelay {
@@ -110,7 +110,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	IOTA = 0;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (0.001f * iConst0);
-	fConst2 = (6.283185307179586f / iConst0);
+	fConst2 = (6.283185307179586f / float(iConst0));
 }
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
@@ -139,7 +139,7 @@ int Dsp::activate(bool start)
 			mem_alloc();
 			clear_state_f();
 		}
-	} else if (!mem_allocated) {
+	} else if (mem_allocated) {
 		mem_free();
 	}
 	return 0;
@@ -150,7 +150,7 @@ int Dsp::activate_static(bool start, PluginDef *p)
 	return static_cast<Dsp*>(p)->activate(start);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	float 	fSlow0 = (fConst1 * fslider0);
 	float 	fSlow1 = (fConst2 * fslider1);

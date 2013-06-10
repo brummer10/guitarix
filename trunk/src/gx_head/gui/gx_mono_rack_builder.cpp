@@ -393,21 +393,36 @@ void StackBoxBuilder::make_rackbox_delay() {
 void StackBoxBuilder::make_rackbox_digital_delay() {
     // -----delay
     openHorizontalhideBox("");
-    create_master_slider("dide.delay", _(" delay "));
+    create_master_slider("dide.bpm", _(" delay (bpm)"));
     closeBox();
     openVerticalBox("");
     {
 	openHorizontalBox("");
 	{
-	    create_small_rackknobr("dide.delay", _(" delay "));
-	    create_small_rackknob("dide.level", _("level"));
+        openVerticalBox("");
+        {
+            create_selector("dide.notes");
+            set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
+            create_small_rackknob("dide.bpm", _(" delay (bpm)"));
+        }
+        closeBox();
 	    set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
-	    create_small_rackknob("dide.highpass", _("highpass (hz)"));
+	    create_small_rackknob("dide.highpass", _("highpass(hz)"));
 	    set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
-	    create_small_rackknob("dide.howpass", _("howpass (hz)"));
-	    create_small_rackknob("dide.feedback", _("feedback"));
-
-	    create_small_rackknob("dide.gain", _("gain"));
+	    create_small_rackknob("dide.howpass", _("howpass(hz)"));
+        openVerticalBox("");
+        {
+            create_small_rackknob("dide.level", _("level"));
+            create_small_rackknob("dide.feedback", _("feedback"));
+        }
+        closeBox();
+        openVerticalBox("");
+        {
+            create_small_rackknobr("dide.gain", _("amount"));
+            openFrameBox("");
+            closeBox();
+        }
+        closeBox();
 	}
 	closeBox();
     }

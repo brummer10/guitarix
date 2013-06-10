@@ -113,7 +113,8 @@ protected:
   float*                       synthfreq_;
   uint8_t                      velocity;
   float*                       ref_pitch;
-  // internal stuff
+  uint32_t                     w;
+    // internal stuff
   float*                       output;
   float*                       input;
   float*                       freq;
@@ -218,7 +219,7 @@ inline bool Gxtuner::verify_freq(float newf, float old)
   float scale = fabs(fvis-round(fvis)) ;
   //fprintf(stderr,"scale = %f , fvis = %f\n",scale,fvis);
   if (scale > 0.2) return back;
-  if (abs(newf - old) < 0.1) back = true;
+  if (fabs(newf - old) < 0.1) back = true;
   return back;
 }
 
@@ -271,10 +272,11 @@ void Gxtuner::play_midi(tuner& self)
   } 
   //metronome
   if (play && bpm>0) {
+    if (w<10) w++;  
     *(gain_) = 1;
-    if((*(gate_)<1))
-      if((*(synthfreq_)<880) ? (*(synthfreq_)+=220) : (*(synthfreq_)=220));
-    //*(synthfreq_) = 220;
+    //if((*(gate_)<1))
+    //  if((*(synthfreq_)<880) ? (*(synthfreq_)+=220) : (*(synthfreq_)=220));
+    *(synthfreq_) = 220;
     if((*(gate_)>0) ? (*(gate_)=0) : (*(gate_)=1)) ;
     play = false;
   } 
@@ -284,7 +286,8 @@ void Gxtuner::play_midi(tuner& self)
     note = static_cast<uint8_t>(round(fnote)+69);
     fallback = level;
     //fprintf(stderr,"note %i",note);
-    if(note != lastnote && *(allowed_notes[max(0,min(60,note-24))]) > 0) {
+    if( note >= 24 && note <= 84 && note != lastnote &&
+         *(allowed_notes[max(0,min(60,note-24))]) > 0) {
       channel = static_cast<uint8_t>(*(channel_));
       velocity = static_cast<uint8_t>(*(velocity_));
       sendpich = *(sendpich_);
@@ -465,6 +468,9 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
     verify = *(verify_);
     play_midi(self);
     bow->mono_audio(static_cast<int>(n_samples), input, output, bow);
+    if (w<3) {
+      memcpy(output, input, n_samples * sizeof(float));
+    }
   } else memcpy(output, input, n_samples * sizeof(float));
 }
 
