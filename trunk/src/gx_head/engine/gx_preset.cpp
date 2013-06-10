@@ -458,7 +458,6 @@ bool PluginPresetList::next(Glib::ustring& name, bool *is_set) {
 		}
 	    }
 	    jp.next(gx_system::JsonParser::end_object);
-	    cerr << "I " << name << " " << *is_set << endl;
 	} else {
 	    jp.skip_object();
 	}
