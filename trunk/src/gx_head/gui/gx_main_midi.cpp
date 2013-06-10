@@ -224,7 +224,6 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
 void MidiConnect::midi_destroy_cb(GtkWidget *widget, gpointer data) {
     MidiConnect *m = reinterpret_cast<MidiConnect*>(data);
     m->machine.midi_set_config_mode(false);
-    delete m;
 }
 
 const char* MidiConnect::ctl_to_str(int n) {
@@ -238,8 +237,10 @@ const char* MidiConnect::ctl_to_str(int n) {
 
 gboolean MidiConnect::check_midi_cb(gpointer data) {
     MidiConnect *m = reinterpret_cast<MidiConnect*>(data);
-    if (!m->machine.midi_get_config_mode())
+    if (!m->machine.midi_get_config_mode()) {
+	delete m;
         return FALSE;
+    }
     int ctl = m->machine.midi_get_current_control();
     if (m->current_control == ctl)
         return TRUE;
