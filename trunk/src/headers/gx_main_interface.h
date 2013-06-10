@@ -325,7 +325,7 @@ inline void check_id(Gtk::Widget *w, const std::string& id, gx_engine::GxMachine
 inline void connect_midi_controller(Gtk::Widget *w, const std::string& id, gx_engine::GxMachineBase& machine) {
     debug_check(check_id, w, id, machine);
     w->signal_button_press_event().connect(
-	sigc::bind(sigc::ptr_fun(button_press_cb), sigc::ref(machine), id));
+	sigc::bind(sigc::ptr_fun(button_press_cb), sigc::ref(machine), id), false);
 }
 
 /****************************************************************/
