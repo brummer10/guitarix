@@ -43,7 +43,7 @@ private:
     Gtk::CheckButton *dontask;
     gx_engine::IntParameter& starter;
     gx_engine::StringParameter& starter_cmd;
-    gx_engine::SwitchParameter& ask;
+    gx_engine::BoolParameter& ask;
     sigc::signal<void> close;
     void on_starter_changed();
     void on_ok_button();

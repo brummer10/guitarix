@@ -136,7 +136,7 @@ void JsonWriter::write_lit(const string& s, bool nl) {
 void JsonWriter::write(const char* p, bool nl) {
     komma();
     *os << '"';
-    while (*p) {
+    for (; *p; p++) {
         switch (*p) {
         case '\\': case '"': *os << '\\'; break;
         case '\b': *os << '\\'; *os << 'b'; continue;       // NOLINT
@@ -145,7 +145,7 @@ void JsonWriter::write(const char* p, bool nl) {
         case '\r': *os << '\\'; *os << 'r'; continue;       // NOLINT
         case '\t': *os << '\\'; *os << 't'; continue;       // NOLINT
         }
-        *os << *p++;
+        *os << *p;
     }
     *os << '"';
     snl(nl);

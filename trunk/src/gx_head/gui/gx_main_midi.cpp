@@ -78,7 +78,7 @@ void  MidiControllerTable::edited_cb(
 }
 
 void MidiControllerTable::toggleButtonSetSwitch(GtkWidget *w, gpointer data) {
-    gx_engine::SwitchParameter *p = (gx_engine::SwitchParameter*)data;
+    gx_engine::BoolParameter *p = (gx_engine::BoolParameter*)data;
     p->set(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w)));
 }
 
@@ -155,9 +155,9 @@ MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Gli
     store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
     togglebutton = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "save_controller"));
 
-    gx_engine::SwitchParameter& p = machine.get_parameter("system.midi_in_preset").getSwitch();
-    gtk_toggle_button_set_active(togglebutton, p.get());
-    p.signal_changed().connect(sigc::mem_fun(*this, &MidiControllerTable::set));
+    gx_engine::BoolParameter& p = machine.get_parameter("system.midi_in_preset").getBool();
+    gtk_toggle_button_set_active(togglebutton, p.get_value());
+    machine.signal_parameter_value<bool>("system.midi_in_preset").connect(sigc::mem_fun(*this, &MidiControllerTable::set));
     g_signal_connect(GTK_OBJECT(togglebutton), "toggled",
                      G_CALLBACK(toggleButtonSetSwitch), (gpointer)&p);
     g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",

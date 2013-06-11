@@ -22,55 +22,52 @@
  * ----------------------------------------------------------------------------
  */
 
-template <class Param>
-class UiToggleAction: public Gtk::ToggleAction, public gx_ui::GxUiItem {
+template <class T>
+class UiToggleAction: public Gtk::ToggleAction {
 private:
-    Param& param;
-    gx_ui::GxUI& ui;
-    virtual void on_toggled();
-    virtual void reflectZone();
-    virtual bool hasChanged();
+    gx_engine::GxMachineBase& machine;
+    std::string id;
+    void on_toggled();
 protected:
     UiToggleAction(
-	gx_ui::GxUI& ui_, Param& para, const Glib::ustring& name, const Glib::ustring& icon_name,
+	gx_engine::GxMachineBase& machine_, const std::string& id, const Glib::ustring& name, const Glib::ustring& icon_name,
 	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring(),
 	bool is_active=false);
     ~UiToggleAction();
 public:
     static Glib::RefPtr<UiToggleAction> create(
-	gx_ui::GxUI& ui, Param& para, const Glib::ustring& name, const Glib::ustring& label=Glib::ustring(),
+	gx_engine::GxMachineBase& machine, const std::string& id, const Glib::ustring& name, const Glib::ustring& label=Glib::ustring(),
 	const Glib::ustring& tooltip=Glib::ustring(), bool is_active=false) {
 	return Glib::RefPtr<UiToggleAction>(
-	    new UiToggleAction(ui, para, name, Glib::ustring(), label, tooltip, is_active));
+	    new UiToggleAction(machine, id, name, Glib::ustring(), label, tooltip, is_active));
     }
 };
 
-typedef UiToggleAction<gx_engine::SwitchParameter> UiSwitchToggleAction;
-typedef UiToggleAction<gx_engine::BoolParameter> UiBoolToggleAction;
+typedef UiToggleAction<bool> UiBoolToggleAction;
+typedef UiBoolToggleAction UiSwitchToggleAction;
 
-template <class Param>
-class UiRadioAction: public Gtk::RadioAction, public gx_ui::GxUiItem {
+template <class T>
+class UiRadioAction: public Gtk::RadioAction {
 private:
-    Param& param;
-    gx_ui::GxUI& ui;
+    gx_engine::GxMachineBase& machine;
+    std::string id;
     virtual void on_changed(const Glib::RefPtr<Gtk::RadioAction>& act);
     virtual void reflectZone();
-    virtual bool hasChanged();
 protected:
     UiRadioAction(
-	gx_ui::GxUI& ui_, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
+	gx_engine::GxMachineBase& machine_, const std::string& id, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
 	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring());
     ~UiRadioAction();
 public:
     static Glib::RefPtr<UiRadioAction> create(
-	gx_ui::GxUI& ui, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name,
+	gx_engine::GxMachineBase& machine, const std::string& id, Gtk::RadioButtonGroup& group, const Glib::ustring& name,
 	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring()) {
 	return Glib::RefPtr<UiRadioAction>(
-	    new UiRadioAction(ui, para, group, name, Glib::ustring(), label, tooltip));
+	    new UiRadioAction(machine, id, group, name, Glib::ustring(), label, tooltip));
     }
 };
 
-typedef UiRadioAction<gx_engine::SwitchParameter> UiSwitchRadioAction;
+typedef UiRadioAction<bool> UiSwitchRadioAction;
 
 
 /****************************************************************

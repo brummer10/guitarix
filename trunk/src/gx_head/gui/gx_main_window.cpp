@@ -254,7 +254,7 @@ void GxUiRadioMenu::setup(const Glib::ustring& prefix, const Glib::ustring& post
 	Glib::ustring actname = Glib::ustring::compose("Enum_%1.%2", param.id(), p->value_id);
 	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
 	Glib::RefPtr<Gtk::RadioAction> act = Gtk::RadioAction::create(group, actname, param.value_label(*p));
-	act->property_value().set_value(param.lower+i);
+	act->property_value().set_value(static_cast<int>(param.getLowerAsFloat())+i);
 	if (c > 0) {
 	    actiongroup->add(act, Gtk::AccelKey(Glib::ustring::compose("<shift>%1", (char)c)));
 	} else {
@@ -400,81 +400,48 @@ bool Freezer::check_thaw(int width, int height) {
  ** class MainWindow
  */
 
-template <class Param>
-UiToggleAction<Param>::UiToggleAction(
-    gx_ui::GxUI& ui_, Param& para, const Glib::ustring& name, const Glib::ustring& icon_name,
+template <class T>
+UiToggleAction<T>::UiToggleAction(
+    gx_engine::GxMachineBase& machine_, const std::string& id_, const Glib::ustring& name, const Glib::ustring& icon_name,
     const Glib::ustring& label, const Glib::ustring& tooltip,
     bool is_active)
     : Gtk::ToggleAction(name, icon_name, label, tooltip, is_active),
-      gx_ui::GxUiItem(),
-      param(para),
-      ui(ui_)
-{
-    ui.registerZone(param.zone(), this);
-    reflectZone();
+      machine(machine_),
+      id(id_) {
+    set_active(machine.get_parameter_value<T>(id));
+    machine.signal_parameter_value<T>(id).connect(
+	sigc::mem_fun(this, &UiToggleAction::set_active));
 }
 
-template <class Param>
-UiToggleAction<Param>::~UiToggleAction() {
-    ui.unregisterZone(param.zone(), this);
+template <class T>
+UiToggleAction<T>::~UiToggleAction() {
 }
 
-template <>
-bool UiToggleAction<gx_engine::SwitchParameter>::hasChanged() {
-    return param.get() != get_active();
+template <class T>
+void UiToggleAction<T>::on_toggled() {
+    machine.set_parameter_value(id, get_active());
 }
 
-template <>
-void UiToggleAction<gx_engine::SwitchParameter>::reflectZone() {
-    set_active(param.get());
-}
-
-template <class Param>
-void UiToggleAction<Param>::on_toggled() {
-    param.set(get_active());
-}
-
-template <class Param>
-bool UiToggleAction<Param>::hasChanged() {
-    return param.get_value() != get_active();
-}
-
-template <class Param>
-void UiToggleAction<Param>::reflectZone() {
-    set_active(param.get_value());
-}
-
-template <class Param>
-UiRadioAction<Param>::UiRadioAction(
-    gx_ui::GxUI& ui_, Param& para, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
+template <class T>
+UiRadioAction<T>::UiRadioAction(
+    gx_engine::GxMachineBase& machine_, const std::string& id_, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
     const Glib::ustring& label, const Glib::ustring& tooltip)
     : Gtk::RadioAction(group, name, icon_name, label, tooltip),
-      gx_ui::GxUiItem(),
-      param(para),
-      ui(ui_)
+      machine(machine_),
+      id(id_)
 {
-    ui.registerZone(param.zone(), this);
-    reflectZone();
+    set_current_value(machine.get_parameter_value<T>(id));
+    machine.signal_parameter_value<T>(id).connect(
+	sigc::mem_fun(this, &UiRadioAction::set_active));
 }
 
-template <class Param>
-UiRadioAction<Param>::~UiRadioAction() {
-    ui.unregisterZone(param.zone(), this);
+template <class T>
+UiRadioAction<T>::~UiRadioAction() {
 }
 
-template <>
-bool UiRadioAction<gx_engine::SwitchParameter>::hasChanged() {
-    return param.get() != get_current_value();
-}
-
-template <>
-void UiRadioAction<gx_engine::SwitchParameter>::reflectZone() {
-    set_current_value(param.get());
-}
-
-template <class Param>
-void UiRadioAction<Param>::on_changed(const Glib::RefPtr<Gtk::RadioAction>& act) {
-    param.set(get_current_value());
+template <class T>
+void UiRadioAction<T>::on_changed(const Glib::RefPtr<Gtk::RadioAction>& act) {
+    machine.set_parameter_value(id, get_current_value());
 }
 
 void update_scrolled_window(Gtk::ScrolledWindow& w) {
@@ -1477,17 +1444,17 @@ void MainWindow::create_actions() {
     ** actions to open other (sub)windows
     */
     actions.presets = UiSwitchToggleAction::create(
-	ui, machine.get_parameter("system.show_presets").getSwitch(), "Presets",_("_Preset Selection"));
+	machine, "system.show_presets", "Presets",_("_Preset Selection"));
     actions.group->add(actions.presets, 
 		     sigc::mem_fun(*this, &MainWindow::on_preset_action));
 
     actions.show_plugin_bar = UiSwitchToggleAction::create(
-	ui, machine.get_parameter("system.show_toolbar").getSwitch(), "ShowPluginBar",_("Show Plugin _Bar"));
+	machine, "system.show_toolbar", "ShowPluginBar",_("Show Plugin _Bar"));
     actions.group->add(actions.show_plugin_bar,
 		     sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
 
     actions.show_rack = UiSwitchToggleAction::create(
-	ui, machine.get_parameter("system.show_rack").getSwitch(), "ShowRack",_("Show _Rack"));
+	machine, "system.show_rack", "ShowRack",_("Show _Rack"));
     actions.group->add(actions.show_rack,
 		     sigc::mem_fun(*this, &MainWindow::on_show_rack));
 
@@ -1509,16 +1476,16 @@ void MainWindow::create_actions() {
     }
 
     actions.livetuner = UiBoolToggleAction::create(
-	ui, machine.get_parameter("ui.racktuner").getBool(), "LiveTuner", "??");
+	machine, "ui.racktuner", "LiveTuner", "??");
 
     actions.midi_out = UiBoolToggleAction::create(
-	ui, machine.get_parameter("ui.midi_out").getBool(), "MidiOut", _("M_idi Out"));
+	machine, "ui.midi_out", "MidiOut", _("M_idi Out"));
     actions.group->add(
 	actions.midi_out,
 	sigc::mem_fun(this, &MainWindow::on_show_midi_out));
 
     actions.midi_out_plug = UiBoolToggleAction::create(
-	ui, machine.get_parameter("midi_out.s_h").getBool(), "MidiOutSH", "??");
+	machine, "midi_out.s_h", "MidiOutSH", "??");
     actions.group->add(
 	actions.midi_out_plug,
 	sigc::mem_fun(this, &MainWindow::on_show_midi_out_plug));
@@ -1527,7 +1494,7 @@ void MainWindow::create_actions() {
     ** rack actions
     */
     actions.tuner = UiBoolToggleAction::create(
-	ui, machine.get_parameter("system.show_tuner").getBool(), "Tuner",_("_Tuner"));
+	machine, "system.show_tuner", "Tuner",_("_Tuner"));
     actions.group->add(actions.tuner,
 		     sigc::mem_fun(*this, &MainWindow::on_show_tuner));
 
@@ -1544,7 +1511,7 @@ void MainWindow::create_actions() {
 		     sigc::mem_fun(*this, &MainWindow::on_expand_all));
 
     actions.rackh = UiSwitchToggleAction::create(
-	ui, machine.get_parameter("system.order_rack_h").getSwitch(), "RackH", _("Order Rack _Horizontally"));
+	machine, "system.order_rack_h", "RackH", _("Order Rack _Horizontally"));
     actions.group->add(actions.rackh,
 		     sigc::mem_fun(*this, &MainWindow::on_dir_changed));
 
@@ -1552,19 +1519,19 @@ void MainWindow::create_actions() {
     ** option actions
     */
     actions.show_values = UiSwitchToggleAction::create(
-	ui, machine.get_parameter("system.show_value").getSwitch(), "ShowValues",_("_Show _Values"));
+	machine, "system.show_value", "ShowValues",_("_Show _Values"));
     actions.group->add(actions.show_values,
 		     sigc::mem_fun(*this, &MainWindow::on_show_values));
 
     actions.tooltips = UiSwitchToggleAction::create(
-	ui, machine.get_parameter("system.show_tooltips").getSwitch(), "ShowTooltips", _("Show _Tooltips"), "", true);
+	machine, "system.show_tooltips", "ShowTooltips", _("Show _Tooltips"), "", true);
     actions.group->add(
 	actions.tooltips,
 	sigc::compose(sigc::ptr_fun(set_tooltips),
 		      sigc::mem_fun(actions.tooltips.operator->(), &UiSwitchToggleAction::get_active)));
 
     actions.midi_in_presets = UiSwitchToggleAction::create(
-	ui, machine.get_parameter("system.midi_in_preset").getSwitch(), "MidiInPresets", _("Include MIDI in _presets"));
+	machine, "system.midi_in_preset", "MidiInPresets", _("Include MIDI in _presets"));
     actions.group->add(actions.midi_in_presets);
 
     actions.jackstartup = Gtk::Action::create("JackStartup", _("_Jack Startup Control"));
@@ -1581,7 +1548,7 @@ void MainWindow::create_actions() {
 		       sigc::mem_fun(machine, &gx_engine::GxMachineBase::set_init_values));
 
     actions.animations = UiBoolToggleAction::create(
-	ui, machine.get_parameter("system.animations").getBool(), "Animations", _("_Use Animations"),"",true);
+	machine, "system.animations", "Animations", _("_Use Animations"),"",true);
     actions.group->add(actions.animations);
 
     actions.group->add(Gtk::Action::create("SetPresetSwitcher", _("L_iveplay Midi Switch")),
@@ -1993,7 +1960,7 @@ bool MainWindow::connect_jack(bool v, Gtk::Window *splash) {
 	gx_system::gx_print_error(_("main"), _("can't disconnect jack"));
 	return false;
     }
-    bool ask = machine.get_parameter("ui.ask_for_jack_starter").getSwitch().get();
+    bool ask = machine.get_parameter_value<bool>("ui.ask_for_jack_starter");
     if (!ask) {
 	switch (start_jack()) {
 	case 1: return true;   // connected
@@ -2878,21 +2845,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     }
     set_latency(); // make sure latency menu is updated
     set_osc_size();
-    // we set the skin at this late point to avoid calling make_icons more
-    // than once
-    /*
-    if (!opt.get_clear_rc()) {
-	if (options.skin[actions.skin->get_current_value()] != options.skin_name) {
-	    actions.skin->set_current_value(options.skin.index(options.skin_name)); // will call set_new_skin()
-        } else {
-	    set_new_skin(options.skin_name);
-        }
-	//machine.signal_parameter_value_int("ui.skin_name").connect(
-	//    sigc::mem_fun(actions.skin.operator->(), &Gtk::RadioAction::set_current_value));
-    } else {
-        make_icons();
-    }
-    */
 
     if (options.mainwin_height > 0) {  // initially use the default set in mainpanel.glade
 	window->set_default_size(-1, min(options.window_height, options.mainwin_height));

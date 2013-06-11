@@ -63,7 +63,7 @@ void PresetIO::clear() {
 bool PresetIO::midi_in_preset() {
     const char *i = "system.midi_in_preset";
     if (param.hasId(i)) {
-	return param[i].getSwitch().get();
+	return param[i].getBool().get_value();
     } else {
 	return false;
     }

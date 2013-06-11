@@ -301,10 +301,11 @@ MidiControllerList::MidiControllerList()
     pgm_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_pgm_chg));
 }
 
-void MidiControllerList::update_from_controller(int n) {
-    midi_controller_list& cl = map[n];
-    int v = get_last_midi_control_value(n);
+/** update all controlled parameters with last received value from MIDI controller ctr. */
+void MidiControllerList::update_from_controller(int ctr) {
+    int v = get_last_midi_control_value(ctr);
     if (v >= 0) {
+	midi_controller_list& cl = map[ctr];
 	for (midi_controller_list::iterator i = cl.begin(); i != cl.end(); ++i) {
 	    i->set_midi(v, v);
 	}
@@ -546,6 +547,67 @@ string param_group(const string& id, bool nowarn) {
  ** Parameter
  */
 
+gx_system::JsonParser& Parameter::jp_next(gx_system::JsonParser& jp, const char *key) {
+    jp.next(gx_system::JsonParser::begin_object);
+    jp.next(gx_system::JsonParser::value_key);
+    assert(jp.current_value() == key);
+    return jp;
+}
+
+void Parameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("id"); jw.write(_id);
+    jw.write_key("name"); jw.write(_name);
+    jw.write_key("group"); jw.write(_group);
+    jw.write_key("desc"); jw.write(_desc);
+    jw.write_key("v_type"); jw.write(v_type); //FIXME
+    jw.write_key("c_type"); jw.write(c_type); //FIXME
+    jw.write_key("d_flags"); jw.write(d_flags); //FIXME
+    if (!controllable) {
+	jw.write_key("non_controllable"); jw.write(false);
+    }
+    jw.end_object();
+}
+
+Parameter::Parameter(gx_system::JsonParser& jp)
+    : _id(), _name(), _group(), _desc(), v_type(tp_float), c_type(Continuous), d_flags(0),
+      save_in_preset(true), controllable(true), own_var(false), do_not_save(false), used(false) {
+    jp.next(gx_system::JsonParser::begin_object);
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.current_value() == "id") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    _id = jp.current_value();
+	    cerr << "X " << _id << endl;
+	} else if (jp.current_value() == "name") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    _name = jp.current_value();
+	} else if (jp.current_value() == "group") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    _group = jp.current_value();
+	} else if (jp.current_value() == "desc") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    _desc = jp.current_value();
+	} else if (jp.current_value() == "v_type") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    v_type = static_cast<value_type>(jp.current_value_int());
+	} else if (jp.current_value() == "c_type") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    c_type = static_cast<ctrl_type>(jp.current_value_int());
+	} else if (jp.current_value() == "d_flags") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    d_flags = jp.current_value_int();
+	} else if (jp.current_value() == "non_controllable") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    controllable = static_cast<bool>(jp.current_value_int());
+	} else {
+	    cerr << _id << ": unknown key: " << jp.current_value() << endl;
+	    jp.skip_object();
+	}
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
+
 Parameter::~Parameter() {
 }
 
@@ -690,10 +752,6 @@ void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all
 	assert(false);
 	return;
     }
-    if (p1->isSwitch()) {
-	assert(false);
-	return;
-    }
     if (p1->isFile()) {
 	assert(false);
 	return;
@@ -703,6 +761,36 @@ void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all
 #endif
 
 /* FloatParameter */
+
+void FloatParameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.write_key("lower"); jw.write(lower);
+    jw.write_key("upper"); jw.write(upper);
+    jw.write_key("step"); jw.write(step);
+    jw.end_object();
+}
+
+FloatParameter::ParameterV(gx_system::JsonParser& jp)
+    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(0), std_value(0), lower(), upper(), step() {
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.current_value() == "lower") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    lower = jp.current_value_float();
+	} else if (jp.current_value() == "upper") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    _name = jp.current_value_float();
+	} else if (jp.current_value() == "step") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    _group = jp.current_value_float();
+	} else {
+	    cerr << _id << ": unknown key: " << jp.current_value() << endl;
+	    jp.skip_object();
+	}
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
 
 FloatParameter::~ParameterV() {
     if (own_var) {
@@ -785,6 +873,28 @@ float FloatParameter::getStepAsFloat() const {
 
 /* FloatEnumParameter */
 
+static void serializeValueNames(gx_system::JsonWriter& jw, const value_pair *p) {
+    jw.write_key("value_names");
+    jw.begin_array();
+    while (p->value_id) {
+	jw.write(p->value_id);
+	if (p->value_label) {
+	    jw.write(p->value_label);
+	} else {
+	    jw.write(p->value_id);
+	}
+	p++;
+    }
+    jw.end_array();
+}
+
+void FloatEnumParameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("FloatParameter"); FloatParameter::serializeJSON(jw);
+    serializeValueNames(jw, value_names);
+    jw.end_object();
+}
+
 FloatEnumParameter::FloatEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset,
                                        float *v, int sv, int low, bool ctrl, bool no_init):
     FloatParameter(id, name, Enum, preset, v, sv, low, low+get_upper(vn), 1, ctrl, no_init),
@@ -826,6 +936,32 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
 }
 
 /* IntParameter */
+
+void IntParameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.write_key("lower"); jw.write(lower);
+    jw.write_key("upper"); jw.write(upper);
+    jw.end_object();
+}
+
+IntParameter::ParameterV(gx_system::JsonParser& jp)
+    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(0), std_value(0), lower(), upper() {
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.current_value() == "lower") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    lower = jp.current_value_int();
+	} else if (jp.current_value() == "upper") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    _name = jp.current_value_int();
+	} else {
+	    cerr << _id << ": unknown key: " << jp.current_value() << endl;
+	    jp.skip_object();
+	}
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
 
 IntParameter::~ParameterV() {
     if (own_var) {
@@ -902,6 +1038,13 @@ float IntParameter::getUpperAsFloat() const {
 
 /* EnumParameter */
 
+void EnumParameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("IntParameter"); IntParameter::serializeJSON(jw);
+    serializeValueNames(jw, value_names);
+    jw.end_object();
+}
+
 EnumParameter::EnumParameter(const string& id, const string& name, const value_pair* vn, bool preset,
                              int *v, int sv, bool ctrl):
     IntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl),
@@ -944,7 +1087,88 @@ void EnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     json_value = n;
 }
 
+/* derived enum parameters */
+
+typedef std::pair<std::string,std::string> id_label;
+
+void enum_parameter_load_values(gx_system::JsonParser& jp, std::vector<id_label>& value_array, const value_pair **value_names) {
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.current_value() == "value_names") {
+	    jp.next(gx_system::JsonParser::begin_array);
+	    while (jp.peek() != gx_system::JsonParser::end_array) {
+		jp.next(gx_system::JsonParser::value_string);
+		std::string value_id = jp.current_value();
+		jp.next(gx_system::JsonParser::value_string);
+		std::string value_label = jp.current_value();
+		value_array.push_back(id_label(value_id, value_label));
+	    }
+	    jp.next(gx_system::JsonParser::end_array);
+	} else {
+	    cerr << "unknown key: " << jp.current_value() << endl;
+	    jp.skip_object();
+	}
+    }
+    jp.next(gx_system::JsonParser::end_object);
+    value_pair* p = new value_pair[value_array.size()+1];
+    *value_names = p;
+    for (std::vector<id_label>::iterator i = value_array.begin(); i != value_array.end(); ++i) {
+	p->value_id = i->first.c_str();
+	p->value_label = i->second.c_str();
+	p++;
+    }
+    p->value_id = p->value_label = 0;
+}
+
+class FloatEnumParameterD: public FloatEnumParameter {
+private:
+    std::vector<id_label> value_array;
+public:
+    FloatEnumParameterD(gx_system::JsonParser& jp);
+    ~FloatEnumParameterD();
+};
+
+FloatEnumParameterD::FloatEnumParameterD(gx_system::JsonParser& jp)
+    : FloatEnumParameter(jp), value_array() {
+    enum_parameter_load_values(jp, value_array, &value_names);
+}
+
+FloatEnumParameterD::~FloatEnumParameterD() {
+    delete value_names;
+}
+
+class EnumParameterD: public EnumParameter {
+private:
+    std::vector<id_label> value_array;
+public:
+    EnumParameterD(gx_system::JsonParser& jp);
+    ~EnumParameterD();
+};
+
+EnumParameterD::EnumParameterD(gx_system::JsonParser& jp)
+    : EnumParameter(jp), value_array() {
+    enum_parameter_load_values(jp, value_array, &value_names);
+}
+
+EnumParameterD::~EnumParameterD() {
+    delete value_names;
+}
+
+
 /* BoolParameter */
+
+void BoolParameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.end_object();
+}
+
+BoolParameter::ParameterV(gx_system::JsonParser& jp)
+    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(0), std_value(0) {
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
 
 BoolParameter::~ParameterV() {
     if (own_var) {
@@ -997,54 +1221,20 @@ void BoolParameter::setJSON_value() {
 }
 
 
-/* SwitchParameter */
-
-void SwitchParameter::set(bool val) {
-    if (val != value) {
-        value = val;
-        changed(value);
-    }
-}
-
-void *SwitchParameter::zone() {
-    return &value;
-}
-
-void SwitchParameter::stdJSON_value() {
-    json_value = std_value;
-}
-
-bool SwitchParameter::on_off_value() {
-    return value;
-}
-
-void SwitchParameter::set(float n, float high, float llimit, float ulimit) {
-    assert(false);
-}
-
-void SwitchParameter::writeJSON(gx_system::JsonWriter& jw) const {
-    jw.write_key(_id.c_str());
-    jw.write(value);
-}
-
-void SwitchParameter::readJSON_value(gx_system::JsonParser& jp) {
-    jp.next(gx_system::JsonParser::value_number);
-    if (jp.current_value_int() < 0 || jp.current_value_int() > 1) {
-	range_warning(json_value, 0, 1);
-    }
-    json_value = jp.current_value_int();
-}
-
-bool SwitchParameter::compareJSON_value() {
-    return json_value == value;
-}
-
-void SwitchParameter::setJSON_value() {
-    set(json_value);
-}
-
-
 /* FileParameter */
+
+void FileParameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.end_object();
+}
+
+FileParameter::FileParameter(gx_system::JsonParser& jp)
+    : Parameter(jp_next(jp, "Parameter")), value(0), std_value(0), json_value(0) {
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
 
 void FileParameter::set_path(const string& path) {
     Glib::RefPtr<Gio::File> v = Gio::File::create_for_path(path);
@@ -1148,6 +1338,19 @@ void FileParameter::copy(const string& destination) const {
 
 /* StringParameter */
 
+void StringParameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.end_object();
+}
+
+StringParameter::ParameterV(gx_system::JsonParser& jp)
+    : Parameter(jp_next(jp, "Parameter")), json_value(""), value(0), std_value("") {
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
+
 StringParameter::~ParameterV() {
     if (own_var) {
 	delete value;
@@ -1203,6 +1406,64 @@ ParamMap::~ParamMap() {
     for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
 	delete i->second;
     }
+}
+
+void ParamMap::writeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_array();
+    for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
+	Parameter *p = i->second;
+	if (p->isFloat()) {
+	    if (p->getControlType() == Parameter::Enum) {
+		jw.write("FloatEnum");
+	    } else {
+		jw.write("Float");
+	    }
+	} else if (p->isInt()) {
+	    if (p->getControlType() == Parameter::Enum) {
+		jw.write("Enum");
+	    } else {
+		jw.write("Int");
+	    }
+	} else if (p->isBool()) {
+	    jw.write("Bool");
+	} else if (p->isFile()) {
+	    jw.write("File");
+	} else if (p->isString()) {
+	    jw.write("String");
+	} else {
+	    cerr << "skipping " << p->id() << endl;
+	    continue;
+	}
+	p->serializeJSON(jw);
+    }
+    jw.end_array();
+}
+
+void ParamMap::readJSON(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::begin_array);
+    while (jp.peek() != gx_system::JsonParser::end_array) {
+	jp.next(gx_system::JsonParser::value_string);
+	cerr << "T " << jp.current_value() << endl;
+	if (jp.current_value() == "FloatEnum") {
+	    insert(new FloatEnumParameterD(jp));
+	} else if (jp.current_value() == "Float") {
+	    insert(new FloatParameter(jp));
+	} else if (jp.current_value() == "Enum") {
+	    insert(new EnumParameterD(jp));
+	} else if (jp.current_value() == "Int") {
+	    insert(new IntParameter(jp));
+	} else if (jp.current_value() == "Bool") {
+	    insert(new BoolParameter(jp));
+	} else if (jp.current_value() == "File") {
+	    insert(new FileParameter(jp));
+	} else if (jp.current_value() == "String") {
+	    insert(new StringParameter(jp));
+	} else {
+	    cerr << "unknown parameter type: " << jp.current_value() << endl;
+	    jp.skip_object();
+	}
+    }
+    jp.next(gx_system::JsonParser::end_array);
 }
 
 #ifndef NDEBUG
@@ -1276,6 +1537,7 @@ void Parameter::dump(gx_system::JsonWriter *jw) {
 	}
 	jw->write(l_group());
 	jw->write(l_name());
+	/*
 	switch (v_type) {
 	case tp_float:  jw->write("f"); jw->write(getFloat().get_value());     break;
 	case tp_int:    jw->write("i"); jw->write(getInt().get_value());       break;
@@ -1286,6 +1548,7 @@ void Parameter::dump(gx_system::JsonWriter *jw) {
 	case tp_special: jw->write("G"); break;
 	default: assert(false);
 	}
+	*/
 	jw->write(getLowerAsFloat());
 	jw->write(getUpperAsFloat());
 	jw->write(getStepAsFloat());

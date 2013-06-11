@@ -430,11 +430,11 @@ static void make_continuous_controller(gx_engine::GxMachineBase& machine, Glib::
     Gtk::Adjustment *adj = r->get_adjustment();
     gx_engine::FloatParameter &fp = p.getFloat();
     if (fp.is_log_display()) {
-	double up = log10(fp.upper);
-	double step = log10(fp.step);
-	w->cp_configure(fp.l_group(), fp.l_name(), log10(fp.lower), up, step);
+	double up = log10(fp.getUpperAsFloat());
+	double step = log10(fp.getStepAsFloat());
+	w->cp_configure(fp.l_group(), fp.l_name(), log10(fp.getLowerAsFloat()), up, step);
 	int prec = 0;
-	float d = log10((fp.step-1)*fp.upper);
+	float d = log10((fp.getStepAsFloat()-1)*fp.getUpperAsFloat());
 	if (up > 0) {
 	    prec = up;
 	    if (d < 0) {
@@ -454,7 +454,7 @@ static void make_continuous_controller(gx_engine::GxMachineBase& machine, Glib::
 	adj->signal_value_changed().connect(sigc::mem_fun(c, &uiAdjustmentLog::changed));
 	destroy_with_widget(r.operator->(), c);
     } else {
-	w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
+	w->cp_configure(p.l_group(), p.l_name(), fp.getLowerAsFloat(), fp.getUpperAsFloat(), fp.getStepAsFloat());
 	w->cp_set_value(fp.get_value());
 	uiAdjustment* c = new uiAdjustment(machine, p.id(), adj);
 	adj->signal_value_changed().connect(

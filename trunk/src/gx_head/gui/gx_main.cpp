@@ -523,6 +523,11 @@ static bool is_headless(int argc, char *argv[]) {
 }
 
 static bool is_frontend(int argc, char *argv[]) {
+    for (int i = 0; i < argc; ++i) {
+	if (strcmp(argv[i], "-G") == 0 || strcmp(argv[i], "--onlygui") == 0) {
+	    return true;
+	}
+    }
     return false;
 }
 

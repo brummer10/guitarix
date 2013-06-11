@@ -98,7 +98,6 @@ typedef ParameterV<Glib::ustring> StringParameter;
 
 class FloatEnumParameter;
 class EnumParameter;
-class SwitchParameter;
 class FileParameter;
 
 /****************************************************************/
@@ -107,7 +106,7 @@ class Parameter: boost::noncopyable {
 public:
     enum ctrl_type { None, Continuous, Switch, Enum };
 protected:
-    enum value_type { tp_float, tp_int, tp_bool, tp_switch, tp_file, tp_string, tp_special };
+    enum value_type { tp_float, tp_int, tp_bool, tp_file, tp_string, tp_special };
     enum display_flags { dtp_normal, dtp_log = 1 };
     string _id;
     string _name, _group, _desc;
@@ -121,6 +120,7 @@ protected:
     bool used : 1; // debug
 protected:
     void range_warning(float value, float lower, float upper);
+    static gx_system::JsonParser& jp_next(gx_system::JsonParser& jp, const char *key);
 public:
     Parameter(const string& id, const string& name, value_type vtp, ctrl_type ctp, bool preset,
               bool ctrl):
@@ -136,7 +136,9 @@ public:
 	own_var(false),
 	do_not_save(false),
         used(false) {}
+    Parameter(gx_system::JsonParser& jp);
     virtual ~Parameter();
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
 
 #ifndef NDEBUG
     bool isUsed() const { return used; }
@@ -150,7 +152,6 @@ public:
     bool isFloat() const { return v_type == tp_float; }
     bool isInt() const { return v_type == tp_int; }
     bool isBool() const { return v_type == tp_bool; }
-    bool isSwitch() const { return v_type == tp_switch; }
     bool isFile() const { return v_type == tp_file; }
     bool isString() const { return v_type == tp_string; }
     ctrl_type getControlType() const { return c_type; }
@@ -189,7 +190,6 @@ public:
     IntParameter& getInt();
     EnumParameter& getEnum();
     BoolParameter& getBool();
-    SwitchParameter& getSwitch();
     FileParameter &getFile();
     StringParameter &getString();
 };
@@ -214,9 +214,9 @@ class ParameterV<float>: public Parameter {
 protected:
     float json_value;
     float *value;
-public:
     float std_value;
     float lower, upper, step;
+public:
     void set(float val) const { *value = min(max(val, lower), upper); }
     float& get_value() const { return *value; }
     void convert_from_range(float low, float up);
@@ -244,19 +244,23 @@ public:
 				  Parameter* p2, bool all);
 #endif
     ~ParameterV();
+    ParameterV(gx_system::JsonParser& jp);
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
 };
 
 /****************************************************************/
 
 class FloatEnumParameter: public FloatParameter {
- private:
+protected:
     const value_pair* value_names;
- public:
+    FloatEnumParameter(gx_system::JsonParser& jp): FloatParameter(jp_next(jp, "FloatParameter")), value_names(0) {}
+public:
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
     FloatEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset, float *v,
                        int sv, int low, bool ctrl, bool no_init);
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
 };
 
 /****************************************************************/
@@ -266,9 +270,9 @@ class ParameterV<int>: public Parameter {
 protected:
     int json_value;
     int *value;
-public:
     int std_value;
     int lower, upper;
+public:
     void set(int val) const { *value = min(max(val, lower), upper); }
     int& get_value() const { return *value; }
     virtual void *zone();
@@ -291,14 +295,17 @@ public:
 	*value = sv;
     }
     ~ParameterV();
+    ParameterV(gx_system::JsonParser& jp);
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
 };
 
 /****************************************************************/
 
 class EnumParameter: public IntParameter {
- private:
+protected:
     const value_pair* value_names;
- public:
+    EnumParameter(gx_system::JsonParser& jp): IntParameter(jp_next(jp, "IntParameter")), value_names(0) {}
+public:
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual const value_pair *getValueNames() const;
@@ -306,6 +313,7 @@ class EnumParameter: public IntParameter {
     const value_pair& get_pair() { return getValueNames()[get_value()]; }
     EnumParameter(const string& id, const string& name, const value_pair* vn, bool preset, int *v,
                   int sv, bool ctrl);
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
 };
 
 /****************************************************************/
@@ -315,10 +323,9 @@ class ParameterV<bool>: public Parameter {
 private:
     bool json_value;
     bool *value;
-public:
     bool std_value;
-    void set(bool val) const { *value = val; }
 public:
+    void set(bool val) const { *value = val; }
     virtual void *zone();
     virtual void stdJSON_value();
     bool& get_value() const { return *value; }
@@ -336,32 +343,11 @@ public:
 	*value = sv;
     }
     ~ParameterV();
+    ParameterV(gx_system::JsonParser& jp);
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
 };
 
 /****************************************************************/
-
-class SwitchParameter: public Parameter {
-private:
-    bool value;
-    bool std_value;
-    bool json_value;
-    sigc::signal<void, bool> changed;
-public:
-    sigc::signal<void, bool>& signal_changed() { return changed; }
-    void set(bool val);
-    const bool& get() const { return value; }
-    virtual void *zone();
-    virtual void stdJSON_value();
-    virtual bool on_off_value();
-    virtual void set(float n, float high, float llimit, float ulimit);
-    virtual void writeJSON(gx_system::JsonWriter& jw) const;
-    virtual void readJSON_value(gx_system::JsonParser& jp);
-    virtual bool compareJSON_value();
-    virtual void setJSON_value();
-    SwitchParameter(const string& id, bool preset = false, bool sv = false):
-        Parameter(id, "", tp_switch, Switch, preset, false),
-        value(sv), std_value(sv), json_value(), changed() {}
-};
 
 /****************************************************************/
 
@@ -392,6 +378,8 @@ public:
         Parameter(id, "", tp_file, None, preset, false),
         value(0),
         std_value(0) {}
+    FileParameter(gx_system::JsonParser& jp);
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
     void set_standard(const string& filename);
     bool is_equal(const Glib::RefPtr<Gio::File>& v) const;
     bool is_standard() const { return is_equal(std_value); }
@@ -409,7 +397,6 @@ class ParameterV<Glib::ustring>: public Parameter {
 private:
     Glib::ustring json_value;
     Glib::ustring *value;
-public:
     Glib::ustring std_value;
 public:
     void set(const Glib::ustring& val) const { *value = val; }
@@ -428,6 +415,8 @@ public:
 	own_var = !v;
     }
     ~ParameterV();
+    ParameterV(gx_system::JsonParser& jp);
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
 };
 
 
@@ -452,11 +441,6 @@ inline EnumParameter &Parameter::getEnum() {
 inline BoolParameter &Parameter::getBool() {
     assert(isBool());
     return static_cast<BoolParameter&>(*this);
-}
-
-inline SwitchParameter &Parameter::getSwitch() {
-    assert(isSwitch());
-    return static_cast<SwitchParameter&>(*this);
 }
 
 inline FileParameter &Parameter::getFile() {
@@ -491,6 +475,8 @@ class ParamMap: boost::noncopyable {
     template<class T> friend class ParameterV;
     ParamMap();
     ~ParamMap();
+    void writeJSON(gx_system::JsonWriter& jw);
+    void readJSON(gx_system::JsonParser& jp);
     typedef map<string, Parameter*>::const_iterator iterator;
     iterator begin() const { return id_map.begin(); }
     iterator end() const { return id_map.end(); }
@@ -569,11 +555,6 @@ class ParamMap: boost::noncopyable {
     inline FloatParameter *reg_non_midi_par(const string& id, float *val, bool preset,
 				 float std = 0, float lower = 0, float upper = 1, float step = 0) {
 	FloatParameter *p = new FloatParameter(id, "", Parameter::None, preset, val, std, lower, upper, step, false, replace_mode);
-	insert(p);
-	return p;
-    }
-    inline SwitchParameter *reg_switch(const string& id, bool preset = false, bool sv = false) {
-	SwitchParameter *p = new SwitchParameter(id, preset, sv);
 	insert(p);
 	return p;
     }

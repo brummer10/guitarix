@@ -47,7 +47,7 @@
 
 namespace gx_gui {
 
-void set_accessible(GtkWidget *widget,GtkLabel *label);
+void set_accessible(Gtk::Widget& widget,Gtk::Label& label);
 
 /****************************************************************/
 

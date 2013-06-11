@@ -338,6 +338,7 @@ private:
     Glib::ustring rcset;
     bool nogui;
     int rpcport;
+    bool onlygui;
     int sporadic_overload;
     int idle_thread_timeout;
     bool convolver_watchdog;

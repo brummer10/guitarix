@@ -148,7 +148,7 @@ UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_engine::GxMachineBase& machin
     m_box.set_name(id);
     m_box.pack_start(m_label, Gtk::PACK_SHRINK);
     m_box.pack_start(UiSelectorBase::m_selector, Gtk::PACK_EXPAND_PADDING);
-    set_accessible(GTK_WIDGET(UiSelectorBase::m_selector.gobj()),m_label.gobj());
+    set_accessible(UiSelectorBase::m_selector,m_label);
     m_box.show_all();
 }
 

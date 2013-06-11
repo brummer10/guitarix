@@ -551,6 +551,9 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    param[attr].writeJSON(jw);
 	}
 	jw.end_object();
+    } else if (method == "parameterlist") {
+	jw.write_key("result");
+	serv.settings.get_param().writeJSON(jw);
     } else if (method == "get_parameter") {
 	gx_engine::ParamMap& param = serv.settings.get_param();
 	jw.write_key("result");
@@ -732,8 +735,6 @@ void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
 		    pi.set(i);
 		} else if (p.isBool()) {
 		    p.getBool().set(v->getInt());
-		} else if (p.isSwitch()) {
-		    p.getSwitch().set(v->getInt());
 		} else if (p.isFile()) {
 		    p.getFile().set(Gio::File::create_for_path(v->getString()));
 		} else if (p.isString()) {

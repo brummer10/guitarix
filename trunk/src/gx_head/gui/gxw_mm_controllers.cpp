@@ -23,7 +23,7 @@
  */
 
 #include <glibmm/i18n.h>
-
+#include <atkmm/relationset.h>
 #include <string>
 
 #include "guitarix.h"
@@ -33,28 +33,26 @@ namespace gx_gui
 {
 // -------------------------- gxwmm library controlers -----------------------------------
 
-void set_accessible(GtkWidget *widget,GtkLabel *label) {
-    AtkObject *atk_widget, *atk_label;
-    AtkRelationSet *relation_set;
-    AtkRelation *relation;
-    AtkObject *targets[1];
+void set_accessible(Gtk::Widget& widget,Gtk::Label& label) {
+    Glib::RefPtr<Atk::Object> atk_widget, atk_label;
+    Glib::RefPtr<Atk::RelationSet> relation_set;
+    Glib::RefPtr<Atk::Relation> relation;
+    std::vector<Glib::RefPtr<Atk::Object> > targets(1);
 
-    atk_widget = gtk_widget_get_accessible (widget);
-    atk_label = gtk_widget_get_accessible (GTK_WIDGET(label));
+    atk_widget = widget.get_accessible();
+    atk_label = label.get_accessible();
 
-    relation_set = atk_object_ref_relation_set (atk_label);
+    relation_set = atk_label->get_relation_set();
     targets[0] = atk_widget;
 
-    relation = atk_relation_new(targets,1, ATK_RELATION_LABEL_FOR);
-    atk_relation_set_add(relation_set,relation);
-    g_object_unref(G_OBJECT(relation));
+    relation = Atk::Relation::create(targets, Atk::RELATION_LABEL_FOR);
+    relation_set->set_add(relation);
 
-    relation_set = atk_object_ref_relation_set (atk_widget);
+    relation_set = atk_widget->get_relation_set();
     targets[0] = atk_label;
 
-    relation = atk_relation_new (targets, 1, ATK_RELATION_LABELLED_BY);
-    atk_relation_set_add (relation_set, relation);
-    g_object_unref (G_OBJECT (relation));
+    relation = Atk::Relation::create(targets, Atk::RELATION_LABELLED_BY);
+    relation_set->set_add(relation);
 }
 
 
@@ -94,17 +92,17 @@ Gtk::Widget *UiRegler::create(gx_engine::GxMachineBase& machine, Gxw::Regler *re
 }
 
 UiRegler::UiRegler(gx_engine::GxMachineBase &machine_, gx_engine::FloatParameter &param_, Gxw::Regler *regler, bool show_value):
-    Gtk::Adjustment(param_.get_value(), param_.lower, param_.upper, param_.step, 10*param_.step, 0),
+    Gtk::Adjustment(param_.get_value(), param_.getLowerAsFloat(), param_.getUpperAsFloat(), param_.getStepAsFloat(), 10*param_.getStepAsFloat(), 0),
     machine(machine_),
     param(param_),
     m_regler(regler),
     log_display(param_.is_log_display()) {
     if (log_display) {
-	double up = log10(param.upper);
-	double step = log10(param.step);
-	configure(log10(param.get_value()), log10(param.lower), up, step, 10*step, 0);
+	double up = log10(param.getUpperAsFloat());
+	double step = log10(param.getStepAsFloat());
+	configure(log10(param.get_value()), log10(param.getLowerAsFloat()), up, step, 10*step, 0);
 	int prec = 0;
-	float d = log10((param.step-1)*param.upper);
+	float d = log10((param.getStepAsFloat()-1)*param.getUpperAsFloat());
 	if (up > 0) {
 	    prec = up;
 	    if (d < 0) {
@@ -166,16 +164,21 @@ UiSelectorBase::UiSelectorBase(gx_engine::GxMachineBase& machine_, const std::st
     m_selector.get_accessible()->set_name(id.substr(id.find_last_of(".")+1));
 }
 
+void testcb(GdkEvent *ev, gpointer data) {
+    cerr << "CC" << endl;
+}
+
 template <>
 UiSelector<float>::UiSelector(gx_engine::GxMachineBase& machine_, const std::string& id_)
     : UiSelectorBase(machine_, id_),
       Gtk::Adjustment(0,0,0) {
     gx_engine::FloatParameter& param = machine.get_parameter(id).getFloat();
-    configure(machine.get_parameter_value<float>(id), param.lower, param.upper, param.step, 10*param.step, 0);
+    configure(machine.get_parameter_value<float>(id), param.getLowerAsFloat(), param.getUpperAsFloat(), param.getStepAsFloat(), 10*param.getStepAsFloat(), 0);
     m_selector.set_adjustment(*this);
     machine.signal_parameter_value<float>(id).connect(
 	sigc::mem_fun(this, &UiSelector<float>::set_selector_value));
     connect_midi_controller(&m_selector, id, machine);
+    cerr << "ID " << id << endl; g_signal_connect(m_selector.gobj(), "button-press-event", G_CALLBACK(testcb), 0);
 }
 
 template <>
@@ -183,11 +186,12 @@ UiSelector<int>::UiSelector(gx_engine::GxMachineBase& machine, const std::string
     : UiSelectorBase(machine, id_),
       Gtk::Adjustment(0, 0, 0) {
     gx_engine::IntParameter& param = machine.get_parameter(id).getInt();
-    configure(machine.get_parameter_value<int>(id), param.lower, param.upper, 1, 5, 0);
+    configure(machine.get_parameter_value<int>(id), param.getLowerAsFloat(), param.getUpperAsFloat(), 1, 5, 0);
     m_selector.set_adjustment(*this);
     machine.signal_parameter_value<int>(id).connect(
 	sigc::mem_fun(this, &UiSelector<int>::set_selector_value));
     connect_midi_controller(&m_selector, id, machine);
+    cerr << "ID " << id << endl; g_signal_connect(m_selector.gobj(), "button-press-event", G_CALLBACK(testcb), 0);
 }
 
 template <class T>
@@ -276,7 +280,7 @@ UiReglerWithCaption::UiReglerWithCaption(gx_engine::GxMachineBase& machine,
     m_box.set_name(param.id());
     m_box.pack_start(m_label, Gtk::PACK_SHRINK);
     m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
-    set_accessible(GTK_WIDGET(m_regler->gobj()),m_label.gobj());
+    set_accessible(*m_regler, m_label);
     m_box.show_all();
 }
 
@@ -296,7 +300,7 @@ UiRackReglerWithCaption::UiRackReglerWithCaption(gx_engine::GxMachineBase& machi
     } else {
 	m_box.pack_end(*m_regler, Gtk::PACK_SHRINK);
     }
-    set_accessible(GTK_WIDGET(m_regler->gobj()),m_label.gobj());
+    set_accessible(*m_regler, m_label);
     m_box.show_all();
 }
 
@@ -323,7 +327,7 @@ UiRackMasterRegler::UiRackMasterRegler(gx_engine::GxMachineBase& machine,
     m_box.set_spacing(4);
     m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
     m_box.pack_start(m_label, Gtk::PACK_SHRINK);
-    set_accessible(GTK_WIDGET(m_regler->gobj()),m_label.gobj());
+    set_accessible(*m_regler, m_label);
     m_box.show_all();
 }
 
@@ -344,7 +348,7 @@ void UiSwitchFloat::on_toggled() {
 }
 
 void UiSwitchFloat::set_value(float v) {
-    set_active(v != 0.0);
+  set_active(v != 0.0);
 }
 
 UiSwitchFloat::UiSwitchFloat(gx_engine::GxMachineBase& machine_, const char *sw_type, gx_engine::FloatParameter &param_)
@@ -355,14 +359,14 @@ UiSwitchFloat::UiSwitchFloat(gx_engine::GxMachineBase& machine_, const char *sw_
     cp_set_var(param.id());
     machine.signal_parameter_value<float>(param.id()).connect(
 	sigc::mem_fun(this, &UiSwitchFloat::set_value));
-    this->set_has_tooltip();
+    set_has_tooltip();
     string tip = param.desc();
     if (param.desc().empty()) {
 	tip = param.id().substr(param.id().find_last_of(".")+1);
     }
-    this->set_tooltip_text(tip);
-    this->get_accessible()->set_description (param.id());
-    this->get_accessible()->set_name (param.id().substr(
+    set_tooltip_text(tip);
+    get_accessible()->set_description (param.id());
+    get_accessible()->set_name (param.id().substr(
           param.id().find_last_of(".")+1));
     connect_midi_controller(this, param.id(), machine);
     show();
@@ -384,14 +388,14 @@ UiSwitchBool::UiSwitchBool(gx_engine::GxMachineBase& machine_, const char *sw_ty
     cp_set_var(param.id());
     machine.signal_parameter_value<bool>(param.id()).connect(
 	sigc::mem_fun(this, &UiSwitchBool::set_value));
-    this->set_has_tooltip();
+    set_has_tooltip();
     string tip = param.desc();
     if (param.desc().empty()) {
 	tip = param.id().substr(param.id().find_last_of(".")+1);
     }
-    this->set_tooltip_text(tip);
-    this->get_accessible()->set_description (param.id());
-    this->get_accessible()->set_name 
+    set_tooltip_text(tip);
+    get_accessible()->set_description (param.id());
+    get_accessible()->set_name 
           (param.id().substr( param.id().find_last_of(".")+1));
     connect_midi_controller(this, param.id(), machine);
     show();
@@ -435,7 +439,7 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_engine::GxMachineBase& machine,
         m_box->pack_start(m_label, Gtk::PACK_SHRINK);
     }
     m_box->set_name(param.id());
-    set_accessible(GTK_WIDGET(m_switch->gobj()),m_label.gobj());
+    set_accessible(*m_switch, m_label);
     m_box->show_all();
 }
 

@@ -80,18 +80,18 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
     pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false);
     pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false);
-    pmap.reg_switch("system.order_rack_h", false, false);
-    pmap.reg_switch("system.show_value", false, false);
-    pmap.reg_switch("system.show_tooltips", false, true);
-    pmap.reg_switch("system.midi_in_preset", false, false);
+    pmap.reg_non_midi_par("system.order_rack_h", (bool*)0, false, false);
+    pmap.reg_non_midi_par("system.show_value", (bool*)0, false, false);
+    pmap.reg_non_midi_par("system.show_tooltips", (bool*)0, false, true);
+    pmap.reg_non_midi_par("system.midi_in_preset", (bool*)0, false, false);
     pmap.reg_non_midi_par("system.animations", (bool*)0, false, true);
     pmap.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
     pmap.reg_par_non_preset("ui.liveplay_background", "?liveplay_background", 0, 0.8, 0.0, 1.0, 0.01);
     pmap.reg_par("engine.mute", "Mute", 0, false);
     pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false);
-    pmap.reg_switch("system.show_presets", false, false);
-    pmap.reg_switch("system.show_toolbar", false, false);
-    pmap.reg_switch("system.show_rack", false, false);
+    pmap.reg_non_midi_par("system.show_presets", (bool*)0, false, false);
+    pmap.reg_non_midi_par("system.show_toolbar", (bool*)0, false, false);
+    pmap.reg_non_midi_par("system.show_rack", (bool*)0, false, false);
 
 #ifndef NDEBUG
     // ------ time measurement (debug) ------
@@ -681,7 +681,7 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     writebuf = new __gnu_cxx::stdio_filebuf<char>(socket->get_fd(), std::ios::out);
     os = new ostream(writebuf);
     jw = new gx_system::JsonWriter(os, false);
-    start_call("get_parameter");
+    start_call("parameterlist");
     send();
     istringstream is;
     receive(is);
@@ -727,13 +727,13 @@ void GxMachineRemote::send() {
 }
 
 bool GxMachineRemote::receive(istringstream& is) {
-    char buf[1000];
+    char buf[10000];
     socket->set_blocking(true);
     while (true) {
 	int n;
 	try {
 	    n = socket->receive(buf, sizeof(buf));
-	    printf("%*s", n, buf); fflush(stdout);
+	    //if (n > 0) { printf("%.*s", n, buf); fflush(stdout); }
 	} catch(Glib::Error e) {
 	    return false;
 	}
@@ -764,18 +764,8 @@ bool GxMachineRemote::receive(istringstream& is) {
 }
 
 void GxMachineRemote::load_parameter() {
-    jp.next(gx_system::JsonParser::begin_object);
-    while (jp.peek() != gx_system::JsonParser::end_object) {
-	jp.next(gx_system::JsonParser::value_key);
-	cerr << jp.current_value() << endl;
-	jp.next(gx_system::JsonParser::begin_object);
-	while (jp.peek() != gx_system::JsonParser::end_object) {
-	    jp.next(gx_system::JsonParser::value_key);
-	    jp.skip_object();
-	    //jp.next();
-	}
-	jp.next(gx_system::JsonParser::end_object);
-    }
+    pmap.readJSON(jp);
+    pmap.dump("json");
 }
 
 void GxMachineRemote::set_state(GxEngineState state) {

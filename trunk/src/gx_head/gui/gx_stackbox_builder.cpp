@@ -104,12 +104,13 @@ void uiButton::reflectZone() {
 
 
 bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, const std::string& id) {
-    if (event->button != 2)
-        return FALSE;
-    if (machine.midi_get_config_mode())
-        return TRUE;
-    new gx_main_midi::MidiConnect(event, machine.get_parameter(id), machine);
-    return TRUE;
+    if (event->button == 2) {
+	if (!machine.midi_get_config_mode()) {
+	    new gx_main_midi::MidiConnect(event, machine.get_parameter(id), machine);
+	}
+	return true;
+    }
+    return false;
 }
 
 void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
@@ -121,7 +122,7 @@ void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
     };
     pmap.reg_non_midi_enum_par(
 	"ui.jack_starter_idx", "", starter, static_cast<int*>(0), false, 1);
-    pmap.reg_switch("ui.ask_for_jack_starter", false, true);
+    pmap.reg_non_midi_par("ui.ask_for_jack_starter", (bool*)0, false, true);
     pmap.reg_string("ui.jack_starter", "", 0, "");
 
     /* for level display */
@@ -600,7 +601,7 @@ void StackBoxBuilder::addNumEntry(string id, const char* label_) {
     if (label.empty()) {
         label = p.l_name();
     }
-    addNumEntry(label.c_str(), id.c_str(), p.std_value, p.lower, p.upper, p.step);
+    addNumEntry(label.c_str(), id.c_str(), machine.get_parameter_value<float>(id), p.getLowerAsFloat(), p.getUpperAsFloat(), p.getStepAsFloat());
 }
 
 void StackBoxBuilder::addMToggleButton(const std::string& id, const char* label_) {

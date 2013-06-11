@@ -44,7 +44,7 @@ SelectJackControlPgm::SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr
       dontask(),
       starter(m.get_parameter("ui.jack_starter_idx").getInt()),
       starter_cmd(m.get_parameter("ui.jack_starter").getString()),
-      ask(m.get_parameter("ui.ask_for_jack_starter").getSwitch()),
+      ask(m.get_parameter("ui.ask_for_jack_starter").getBool()),
       close() {
     signal_delete_event().connect(sigc::mem_fun(*this, &SelectJackControlPgm::on_delete_event));
     bld->find_widget("description", description);
@@ -63,7 +63,7 @@ SelectJackControlPgm::SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr
     }
     startercombo->signal_changed().connect(sigc::mem_fun(*this, &SelectJackControlPgm::on_starter_changed));
     bld->find_widget("dontask", dontask);
-    dontask->set_active(!ask.get());
+    dontask->set_active(!ask.get_value());
     Gtk::Button *button;
     bld->find_widget("ok_button", button);
     button->signal_clicked().connect(
