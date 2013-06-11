@@ -243,6 +243,7 @@ enyo.kind({
     },
     guitarixOpen: function(inSender, inEvent) {
 	//this.$.MainScreen.setRepeat(1100);
+	//this.$.MainScreen.$.maxlevel.setRepeat(5000);
 	guitarix.notify("listen",["all"])
 	guitarix.call(
 	    "getstate",[],

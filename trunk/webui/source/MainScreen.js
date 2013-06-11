@@ -230,17 +230,25 @@ enyo.kind({
 enyo.kind({
     name: "gx.LevelDisplay",
     layoutKind: "FittableColumnsLayout",
-    repeat: 100,
     led_hold_count: 10,
     led_left: 0,
     timeout_handle: null,
     published: {
+	repeat: 100,
 	overload: false,
     },
     components:[
 	{name: "bar", kind: "onyx.ProgressBar", style: "height:10px; vertical-align: middle", fit: true, max: 1, showStripes: false },
 	{name: "led", classes: "led", style: "margin-right: 20px"},
     ],
+    create: function() {
+	this.inherited(arguments);
+	// patch buggy function (very small values render in
+	// scientific notation which is not understood by CSS)
+	this.$.bar.updateBarPosition = function(inPercent) {
+	    this.$.bar.applyStyle("width", inPercent.toFixed(2) + "%");
+	};
+    },
     overloadChanged: function(old) {
 	this.$.led.addRemoveClass("led-on", this.overload);
     },

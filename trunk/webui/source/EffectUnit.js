@@ -17,41 +17,41 @@ enyo.kind({
 	guitarix.call(
 	    "queryunit", [this.fxId],
 	    this, function(result) {
-		var name, o, a;
+		var name, o, a, i, id;
 		var m = this.fxId+"\\.(position|s_h|on_off|pp)$";
 		a = [];
-		o = result[this.fxId+".on_off"];
+		id = this.fxId+".on_off"
+		o = result[id];
 		if (o !== undefined) {
+		    o.id = id;
 		    a.push(o);
 		}
-		for (var key in result) {
-		    if (key.match(m)) {
+		for (id in result) {
+		    if (id.match(m)) {
 			continue;
 		    }
-		    a.push(result[key]);
+		    o = result[id]
+		    o.id = id
+		    a.push(o);
 		}
-		for (var key in a) {
-		    if (key.match(m)) {
-			continue;
-		    }
-		    o = a[key];
+		for (i = 0; i < a.length; i++) {
+		    o = a[i];
 		    name = o.name;
 		    if (!name) {
-			name = key;
+			name = o.id;
 		    }
-		    o.id = key
 		    if (o.ctl_switch) {
 			this.createComponent({
 			    components: [
 				{content: name},
 				{kind: "onyx.ToggleButton",
-				 value: o.value[key],
+				 value: o.value[o.id],
 				 obj: o,
 				}],
 			});
 		    } else if (o.ctl_enum) {
 			var c = [];
-			var v = o.value[key];
+			var v = o.value[o.id];
 			for (var i = 0; i < o.value_names.length; i++) {
 			    var p = o.value_names[i];
 			    var s = {content: p[1], key: p[0]};
@@ -78,7 +78,7 @@ enyo.kind({
 				{kind: "onyx.Slider",
 				 lockBar: true,
 				 tappable: true,
-				 value: o.value[key],
+				 value: o.value[o.id],
 				 min: o.lower_bound,
 				 max: o.upper_bound,
 				 obj: o,
