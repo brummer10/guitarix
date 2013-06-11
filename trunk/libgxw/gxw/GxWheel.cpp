@@ -76,10 +76,11 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 	g_assert(GX_IS_WHEEL(widget));
 	GxRegler *regler = GX_REGLER(widget);
 	GdkRectangle image_rect, value_rect;
-    gint fcount, findex;
-    gdouble wheelstate;
+	gint fcount, findex;
+	gdouble wheelstate;
 	gtk_widget_style_get (widget, "framecount", &fcount, NULL);
 	
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
 	if (fcount > -1) {
 		
@@ -89,45 +90,43 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 		
 		fcount--; // zero based index
 		findex = (int)(fcount * wheelstate);
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                wb, (image_rect.width * findex),0, image_rect.x, image_rect.y,
-	                image_rect.width, image_rect.height, GDK_RGB_DITHER_NORMAL, 0, 0);		
-	    _gx_regler_display_value(regler, &value_rect);
+		gdk_cairo_set_source_pixbuf (cr, wb, image_rect.x-(image_rect.width * findex), image_rect.y);
+		cairo_rectangle(cr, image_rect.x, image_rect.y,image_rect.width, image_rect.height);
+		cairo_fill(cr);
+		_gx_regler_display_value(regler, &value_rect);
 	} else {
 		
-	GdkPixbuf *ws = gtk_widget_render_icon(widget, "wheel_fringe", GtkIconSize(-1), NULL);
-	GdkPixbuf *wp = gtk_widget_render_icon(widget, "wheel_pointer", GtkIconSize(-1), NULL);
+		GdkPixbuf *ws = gtk_widget_render_icon(widget, "wheel_fringe", GtkIconSize(-1), NULL);
+		GdkPixbuf *wp = gtk_widget_render_icon(widget, "wheel_pointer", GtkIconSize(-1), NULL);
 
-    image_rect.width = gdk_pixbuf_get_width(wb);
-    image_rect.height = gdk_pixbuf_get_height(wb);
+		image_rect.width = gdk_pixbuf_get_width(wb);
+		image_rect.height = gdk_pixbuf_get_height(wb);
 
-	gint step = gdk_pixbuf_get_width(ws) / 2;
-	wheelstate = _gx_regler_get_step_pos(regler, step);
-	_gx_regler_get_positions(regler, &image_rect, &value_rect);
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	int smoth_pointer = 0;
-	if (wheelstate > (adj->upper - adj->lower)) {
-		smoth_pointer = -4;
+		gint step = gdk_pixbuf_get_width(ws) / 2;
+		wheelstate = _gx_regler_get_step_pos(regler, step);
+		_gx_regler_get_positions(regler, &image_rect, &value_rect);
+		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+		int smoth_pointer = 0;
+		if (wheelstate > (adj->upper - adj->lower)) {
+			smoth_pointer = -4;
+		}
+		gdk_cairo_set_source_pixbuf(cr, wb, image_rect.x, image_rect.y);
+		cairo_paint(cr);
+		//- ((int)(wheelstate) + image_rect.width)
+		gdk_cairo_set_source_pixbuf(cr, ws, image_rect.x+wheelstate*0.6-4*image_rect.width, image_rect.y);
+		cairo_rectangle(cr, image_rect.x, image_rect.y, image_rect.width, image_rect.height);
+		cairo_fill(cr);
+		gdk_cairo_set_source_pixbuf(cr, wp, image_rect.x+smoth_pointer+wheelstate*0.4, image_rect.y);
+		cairo_rectangle(cr, image_rect.x+smoth_pointer+wheelstate*0.4, image_rect.y,
+				gdk_pixbuf_get_width(wp), image_rect.height);
+		cairo_fill(cr);
+		_gx_regler_display_value(regler, &value_rect);
+
+		g_object_unref(ws);
+		g_object_unref(wp);
 	}
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                wb, 0, 0,
-	                image_rect.x, image_rect.y, image_rect.width, image_rect.height,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                ws, (int)(wheelstate) + image_rect.width, 0,
-	                image_rect.x, image_rect.y, image_rect.width, image_rect.height,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                wp,0, 0,
-	                image_rect.x+smoth_pointer+(int)(wheelstate*0.4), image_rect.y,
-	                gdk_pixbuf_get_width(wp), image_rect.height,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-	_gx_regler_display_value(regler, &value_rect);
-	
-	g_object_unref(ws);
-	g_object_unref(wp);
-    }
-    g_object_unref(wb);
+	cairo_destroy (cr);
+	g_object_unref(wb);
 	return TRUE;
 }
 

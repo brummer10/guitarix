@@ -1681,36 +1681,33 @@ static void lhfilter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double rect_height = wi->allocation.height-2;
 	GdkPixbuf  *stock_image, *frame;	
 	stock_image = gtk_widget_render_icon(wi,"gxhead_face",(GtkIconSize)-1,NULL);
-	
-    cairo_rectangle (cr, x0,y0,rect_width,rect_height);
-    cairo_set_line_width(cr, 3.0);
-    cairo_set_source_rgb (cr, 0., 0., 0.);
-    cairo_stroke (cr);
 
-    cairo_set_source_rgb(cr,  0.3, 0.3, 0.3);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+rect_width-3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
-    cairo_line_to(cr, x0+2, y0+rect_height-2);
-    cairo_stroke(cr);
+	cairo_rectangle (cr, x0,y0,rect_width,rect_height);
+	cairo_set_line_width(cr, 3.0);
+	cairo_set_source_rgb (cr, 0., 0., 0.);
+	cairo_stroke (cr);
 
-    cairo_set_source_rgb(cr,  0.4, 0.4, 0.4);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+3, y0+rect_height-1);
-    cairo_line_to(cr, x0+3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+3);
-    cairo_stroke(cr);
-    
- 
-	
+	cairo_set_source_rgb(cr,  0.3, 0.3, 0.3);
+	cairo_set_line_width(cr, 2.0);
+	cairo_move_to(cr,x0+rect_width-3, y0+3);
+	cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+	cairo_line_to(cr, x0+2, y0+rect_height-2);
+	cairo_stroke(cr);
+
+	cairo_set_source_rgb(cr,  0.4, 0.4, 0.4);
+	cairo_set_line_width(cr, 2.0);
+	cairo_move_to(cr,x0+3, y0+rect_height-1);
+	cairo_line_to(cr, x0+3, y0+3);
+	cairo_line_to(cr, x0+rect_width-3, y0+3);
+	cairo_stroke(cr);
+
 	frame = gdk_pixbuf_scale_simple(
 			stock_image, rect_width-8, rect_height-8, GDK_INTERP_NEAREST);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-	                frame, 0, 0,
-	                x0+4, y0+4, rect_width-8,rect_height-8,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-	
-    g_object_unref(stock_image);
+	gdk_cairo_set_source_pixbuf (cr, frame, x0+4, y0+4);
+	cairo_rectangle(cr, x0+4, y0+4, rect_width-8,rect_height-8);
+	cairo_fill(cr);
+
+	g_object_unref(stock_image);
 	g_object_unref(frame);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
@@ -1766,10 +1763,9 @@ static void tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-	                _image, 0, 0,
-	                x0, y0, rect_width,rect_height,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
+	gdk_cairo_set_source_pixbuf (cr, _image, x0, y0);
+	cairo_rectangle(cr, x0, y0, rect_width,rect_height);
+	cairo_fill(cr);
 
 	g_object_unref(_image);
 	gdk_region_destroy (region);
@@ -1832,11 +1828,9 @@ static void filter_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_pattern_t*pat;
 
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-	                _image, 0, 0,
-	                x0, y0, rect_width,rect_height,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-
+	gdk_cairo_set_source_pixbuf (cr, _image, x0, y0);
+	cairo_rectangle(cr, x0, y0, rect_width, rect_height);
+	cairo_fill(cr);
 	double radius = 38.;
 	if (rect_width<38) radius = rect_width;
 	else if (rect_height<38) radius = rect_height;
@@ -2243,11 +2237,11 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 		g_object_unref(frame);
 	}
 	// draw to display
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-	                paintbox->gxh_image, 0, 0,
-	                x0, y0, rect_width,rect_height,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-	
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	gdk_cairo_set_source_pixbuf(cr, paintbox->gxh_image, x0, y0);
+	cairo_rectangle(cr, x0, y0, rect_width, rect_height);
+	cairo_fill(cr);
+	cairo_destroy(cr);
 }
 
 static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
@@ -2346,10 +2340,9 @@ static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 	}
 	
 	// draw to display
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-	                paintbox->gxr_image, 0, 0,
-	                x0, y0, rect_width,rect_height,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
+	gdk_cairo_set_source_pixbuf (cr, paintbox->gxr_image, x0, y0);
+	cairo_rectangle(cr, x0, y0, rect_width, rect_height);
+	cairo_fill(cr);
 
 	// base 
 	x0      += 12;
@@ -2410,13 +2403,11 @@ static void main_expose(GtkWidget *wi, GdkEventExpose *ev)
 	
 	GdkPixbuf  *main_image = gtk_widget_render_icon(wi,get_main_image_id(wi),(GtkIconSize)-1,NULL);
 	
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-	                main_image, 0, 0,
-	                x0, y0, w,h,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-
-    g_object_unref(main_image);
-    cairo_destroy(cr);
+	gdk_cairo_set_source_pixbuf (cr, main_image, x0, y0);
+	cairo_rectangle(cr, x0, y0, w, h);
+	cairo_fill(cr);
+	g_object_unref(main_image);
+	cairo_destroy(cr);
 	gdk_region_destroy (region);   
 }
 

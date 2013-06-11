@@ -65,28 +65,30 @@ static void get_image_dimensions (GtkWidget *widget, GdkPixbuf *pb,
 
 static gboolean gx_wheel_vertical_expose (GtkWidget *widget, GdkEventExpose *event)
 {
-    g_assert(GX_IS_WHEEL_VERTICAL(widget));
-    GxRegler *regler = GX_REGLER(widget);
-    GdkRectangle image_rect, value_rect;
-    gint fcount, findex;
-    gdouble wheel_verticalstate;
-    gtk_widget_style_get (widget, "framecount", &fcount, NULL);
+	g_assert(GX_IS_WHEEL_VERTICAL(widget));
+	GxRegler *regler = GX_REGLER(widget);
+	GdkRectangle image_rect, value_rect;
+	gint fcount, findex;
+	gdouble wheel_verticalstate;
+	gtk_widget_style_get (widget, "framecount", &fcount, NULL);
 
-    GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_vertical_back", GtkIconSize(-1), NULL);
+	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_vertical_back", GtkIconSize(-1), NULL);
 
-    wheel_verticalstate = _gx_regler_get_step_pos(regler, 1);
-    get_image_dimensions (widget, wb, &image_rect, &fcount);
-    _gx_regler_get_positions(regler, &image_rect, &value_rect);
-    
-    fcount--; // zero based index
-    findex = (int)(fcount * wheel_verticalstate);
-    gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                wb,0, (image_rect.height * findex), image_rect.x, image_rect.y,
-                image_rect.width, image_rect.height, GDK_RGB_DITHER_NORMAL, 0, 0);        
-    _gx_regler_display_value(regler, &value_rect);
+	wheel_verticalstate = _gx_regler_get_step_pos(regler, 1);
+	get_image_dimensions (widget, wb, &image_rect, &fcount);
+	_gx_regler_get_positions(regler, &image_rect, &value_rect);
 
-    g_object_unref(wb);
-    return TRUE;
+	fcount--; // zero based index
+	findex = (int)(fcount * wheel_verticalstate);
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
+	gdk_cairo_set_source_pixbuf (cr, wb, image_rect.x, image_rect.y - (image_rect.height * findex));
+	cairo_rectangle(cr, image_rect.x, image_rect.y, image_rect.width, image_rect.height);
+	cairo_fill(cr);
+	cairo_destroy(cr);
+	_gx_regler_display_value(regler, &value_rect);
+
+	g_object_unref(wb);
+	return TRUE;
 }
 
 static void gx_wheel_vertical_size_request (GtkWidget *widget, GtkRequisition *requisition)

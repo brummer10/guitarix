@@ -199,10 +199,8 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	if (!waveview->liveview_image) {
 		wave_view_background(waveview, widget, liveviewx, liveviewy);
 	} else {
-		gdk_draw_pixbuf(
-			GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-			waveview->liveview_image, 0, 0, liveviewx-1, liveviewy-1,
-			background_width, background_height, GDK_RGB_DITHER_NORMAL, 0, 0);
+		gdk_cairo_set_source_pixbuf(cr, waveview->liveview_image, liveviewx-1, liveviewy-1);
+		cairo_paint (cr);
 	}
 
 	cairo_set_source_rgb(cr, 1, 1, 1);

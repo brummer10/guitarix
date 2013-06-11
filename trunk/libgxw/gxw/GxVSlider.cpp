@@ -77,9 +77,11 @@ static void vslider_expose(
 			                rect->x, rect->y, rect->width, rect->height);
 		}
 	}
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                image1, 0, 0, rect->x, rect->y,
-	                rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
+	gdk_cairo_set_source_pixbuf(cr, image1, rect->x, rect->y);
+	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
+	cairo_fill(cr);
+	cairo_destroy(cr);
 	g_object_unref(image1);
 }
 

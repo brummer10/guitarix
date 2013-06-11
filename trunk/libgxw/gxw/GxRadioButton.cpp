@@ -102,8 +102,10 @@ static void draw_indicator(GtkCheckButton *check_button, GdkRectangle *rect)
 	char *nm = g_strconcat(GX_RADIO_BUTTON(check_button)->base_name, s, NULL);
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, nm, GtkIconSize(-1), NULL);
 	g_free(nm);
-	gdk_draw_pixbuf(gtk_widget_get_window(widget), NULL, pb, 0, 0, x, y, -1, -1,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
+	gdk_cairo_set_source_pixbuf (cr, pb, x, y);
+	cairo_paint (cr);
+	cairo_destroy (cr);
 	g_object_unref(pb);
 }
 

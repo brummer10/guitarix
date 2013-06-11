@@ -293,8 +293,6 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 {
 	GxFastMeter* fm = GX_FAST_METER(wd);
 	gint         top_of_meter;
-	GdkRectangle intersection;
-	GdkRectangle rect;
 
 	if (!fm->pixbuf) {
 		return FALSE;
@@ -305,41 +303,14 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 
 	/* reset the height & origin of the rect that needs to show the pixbuf */
 
-	rect.x = 0;
-	rect.y = 0;
-	rect.width  = width;
-	rect.height = height - top_of_meter;
-
-	if (gdk_rectangle_intersect (&rect, &ev->area, &intersection)) {
-		GdkWindow* window = GTK_WIDGET(fm)->window;/*gtk_widget_get_window(GTK_WIDGET(fm));*/
-		GtkStyle*  style  = gtk_widget_get_style (GTK_WIDGET(fm));
-
-		gdk_draw_rectangle(GDK_DRAWABLE(window),
-		                   style->black_gc,
-		                   TRUE,
-		                   intersection.x,
-		                   intersection.y,
-		                   intersection.width,
-		                   intersection.height);
-	}
-
-	rect.x = 0;
-	rect.y = height - top_of_meter;
-	rect.width  = width;
-	rect.height = height - rect.y;
-	if (gdk_rectangle_intersect(&rect, &ev->area, &intersection)) {
-		// draw the part of the meter image that we need.
-		// the area we draw is bounded "in reverse" (top->bottom)
-		GdkWindow*   window = GTK_WIDGET(fm)->window;/*gtk_widget_get_window(GTK_WIDGET(fm));*/
-		GtkStyle*    style  = gtk_widget_get_style (GTK_WIDGET(fm));
-		gdk_draw_pixbuf(GDK_DRAWABLE(window),
-		                style->fg_gc[GTK_WIDGET_STATE(GTK_WIDGET(fm))],
-		                fm->pixbuf,
-		                intersection.x, intersection.y,
-		                intersection.x, intersection.y,
-		                intersection.width, intersection.height,
-		                GDK_RGB_DITHER_NONE, 0, 0);
-	}
+	cairo_t *cr = gdk_cairo_create(GTK_WIDGET(fm)->window);
+	int h = height - top_of_meter;
+	cairo_rectangle(cr, 0, 0, width, h);
+	gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(fm))->black);
+	cairo_fill(cr);
+	gdk_cairo_set_source_pixbuf(cr, fm->pixbuf, 0, 0);
+	cairo_rectangle(cr, 0, h, width, height - h);
+	cairo_fill(cr);
 
 	// draw peak bar
 
@@ -350,16 +321,9 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 
 		fm->last_peak_rect.height = min(3, height - fm->last_peak_rect.y);
 
-		GdkWindow*   window = GTK_WIDGET(fm)->window;
-		GtkStyle*    style  = gtk_widget_get_style (GTK_WIDGET(fm));
-
-		gdk_draw_pixbuf(GDK_DRAWABLE(window),
-		                style->fg_gc[GTK_WIDGET_STATE(GTK_WIDGET(fm))],
-		                fm->pixbuf,
-		                0, fm->last_peak_rect.y,
-		                0, fm->last_peak_rect.y,
-		                width, fm->last_peak_rect.height,
-		                GDK_RGB_DITHER_NONE, 0, 0);
+		gdk_cairo_set_source_pixbuf(cr, fm->pixbuf, 0, 0);
+		cairo_rectangle(cr, 0, fm->last_peak_rect.y, width, fm->last_peak_rect.height);
+		cairo_fill(cr);
 	} else {
 		fm->last_peak_rect.width  = 0;
 		fm->last_peak_rect.height = 0;

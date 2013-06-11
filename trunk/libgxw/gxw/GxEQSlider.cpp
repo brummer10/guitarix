@@ -62,9 +62,11 @@ static void gx_eq_slider_size_request (GtkWidget *widget, GtkRequisition *requis
 static void eq_slider_expose(
 	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image)
 {
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                image, 0, (gint)sliderstate, rect->x, rect->y,
-	                rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
+	gdk_cairo_set_source_pixbuf (cr, image, rect->x, rect->y - (gint)sliderstate);
+	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
+	cairo_fill(cr);
+	cairo_destroy(cr);
 }
 
 static gboolean gx_eq_slider_expose(GtkWidget *widget, GdkEventExpose *event)

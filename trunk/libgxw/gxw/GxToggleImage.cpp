@@ -101,9 +101,10 @@ static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
 	}
 	int x = widget->allocation.x + (widget->allocation.width - gdk_pixbuf_get_width(img))/2;
 	int y = widget->allocation.y + (widget->allocation.height - gdk_pixbuf_get_height(img))/2;
-	gdk_draw_pixbuf(gtk_widget_get_window(widget), widget->style->fg_gc[0], img,
-	                       0, 0, x, y, -1, -1,
-	                       GDK_RGB_DITHER_NORMAL, 0, 0);
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
+	gdk_cairo_set_source_pixbuf (cr, img, x, y);
+	cairo_paint (cr);
+	cairo_destroy (cr);
 	g_object_unref(img);
 	return FALSE;
 }
