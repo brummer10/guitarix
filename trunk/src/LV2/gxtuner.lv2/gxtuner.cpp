@@ -214,12 +214,9 @@ Gxtuner::~Gxtuner()
 inline bool Gxtuner::verify_freq(float newf, float old)
 {
   bool back = false;
-  float fvis = 12 * log2f(newf/(*(ref_pitch)));
-  
-  float scale = fabs(fvis-round(fvis)) ;
-  //fprintf(stderr,"scale = %f , fvis = %f\n",scale,fvis);
-  if (scale > 0.2) return back;
-  if (fabs(newf - old) < 0.1) back = true;
+  float changed = fabs(((newf/old)*100)-100);
+  //fprintf(stderr,"newf = %f , old = %f , changed =%f\n",newf, old, changed);
+  if (changed < 0.2) back = true;
   return back;
 }
 
