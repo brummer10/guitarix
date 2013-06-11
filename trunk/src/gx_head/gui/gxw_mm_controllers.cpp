@@ -164,10 +164,6 @@ UiSelectorBase::UiSelectorBase(gx_engine::GxMachineBase& machine_, const std::st
     m_selector.get_accessible()->set_name(id.substr(id.find_last_of(".")+1));
 }
 
-void testcb(GdkEvent *ev, gpointer data) {
-    cerr << "CC" << endl;
-}
-
 template <>
 UiSelector<float>::UiSelector(gx_engine::GxMachineBase& machine_, const std::string& id_)
     : UiSelectorBase(machine_, id_),
@@ -178,7 +174,6 @@ UiSelector<float>::UiSelector(gx_engine::GxMachineBase& machine_, const std::str
     machine.signal_parameter_value<float>(id).connect(
 	sigc::mem_fun(this, &UiSelector<float>::set_selector_value));
     connect_midi_controller(&m_selector, id, machine);
-    cerr << "ID " << id << endl; g_signal_connect(m_selector.gobj(), "button-press-event", G_CALLBACK(testcb), 0);
 }
 
 template <>
@@ -191,7 +186,6 @@ UiSelector<int>::UiSelector(gx_engine::GxMachineBase& machine, const std::string
     machine.signal_parameter_value<int>(id).connect(
 	sigc::mem_fun(this, &UiSelector<int>::set_selector_value));
     connect_midi_controller(&m_selector, id, machine);
-    cerr << "ID " << id << endl; g_signal_connect(m_selector.gobj(), "button-press-event", G_CALLBACK(testcb), 0);
 }
 
 template <class T>
