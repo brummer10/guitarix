@@ -1138,14 +1138,17 @@ void MainWindow::add_skin_menu() {
 	Glib::ustring actname = Glib::ustring::compose("ChangeSkin_%1", name);
 	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
 	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(sg, actname, name);
+	if (name == options.skin_name) {
+	    action->set_active(true);
+	}
 	actions.group->add(action);
 	if (idx == 0) {
-	    action->signal_changed().connect(
-		sigc::mem_fun(*this, &MainWindow::change_skin));
 	    actions.skin = action;
 	}
 	action->property_value().set_value(idx++);
     }
+    actions.skin->signal_changed().connect(
+	sigc::mem_fun(*this, &MainWindow::change_skin));
     s.append("</menu></menu></menubar>");
     uimanager->add_ui_from_string(s);
 }
