@@ -328,7 +328,7 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 		fm->last_peak_rect.width  = 0;
 		fm->last_peak_rect.height = 0;
 	}
-
+    cairo_destroy(cr);
 	return FALSE;
 }
 
