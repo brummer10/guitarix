@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/softclip.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace softclip {
@@ -51,7 +51,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 	double 	fSlow0 = (0.88 * (2 - fslider0));

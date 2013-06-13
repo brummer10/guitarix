@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxfeed.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace gxfeed {
@@ -95,13 +95,13 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 #define fslider0 (*fslider0_)
 #define fcheckbox0 (*fcheckbox0_)
 	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (1 - max(0, fSlow0));
-	double 	fSlow2 = (1 - max(0, (0 - fSlow0)));
+	double 	fSlow1 = (1 - max((double)0, fSlow0));
+	double 	fSlow2 = (1 - max((double)0, (0 - fSlow0)));
 	int 	iSlow3 = int(fcheckbox0);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input1[i];

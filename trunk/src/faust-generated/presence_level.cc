@@ -1,5 +1,5 @@
 // generated from file '../src/faust/presence_level.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace presence_level {
@@ -16,7 +16,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 	double 	fSlow0 = fslider0;

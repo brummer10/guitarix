@@ -1,5 +1,5 @@
 // generated from file '../src/faust/moog.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace moog {
@@ -88,7 +88,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (6.283185307179586 / min(192000, max(1, fSamplingFreq)));
+	fConst0 = (6.283185307179586 / double(min(192000, max(1, fSamplingFreq))));
 	clear_state_f();
 }
 
@@ -97,7 +97,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = (0.0010000000000000009 * fslider0);
 	double 	fSlow1 = (0 - fslider1);

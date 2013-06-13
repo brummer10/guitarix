@@ -1,5 +1,5 @@
 // generated from file '../src/faust/cabinet_impulse_former.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace cabinet_impulse_former {
@@ -22,16 +22,16 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (15079.644737231007 / iConst0);
+	fConst1 = (15079.644737231007 / double(iConst0));
 	fConst2 = cos(fConst1);
 	fConst3 = (1.4142135623730951 * sin(fConst1));
-	fConst4 = (1884.9555921538758 / iConst0);
+	fConst4 = (1884.9555921538758 / double(iConst0));
 	fConst5 = cos(fConst4);
 	fConst6 = (1.4142135623730951 * sin(fConst4));
 	clear_state_f();
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)

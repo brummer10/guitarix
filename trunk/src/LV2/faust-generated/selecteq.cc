@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/selecteq.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace selecteq {
@@ -134,7 +134,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (3.141592653589793 / min(192000, max(1, fSamplingFreq)));
+	fConst0 = (3.141592653589793 / double(min(192000, max(1, fSamplingFreq))));
 	clear_state_f();
 }
 
@@ -143,7 +143,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)

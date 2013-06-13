@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxechocat.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -203,13 +203,13 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst1 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = (1.0 / tan((20420.352248333656 / iConst0)));
+	fConst4 = (1.0 / tan((20420.352248333656 / double(iConst0))));
 	fConst5 = (1 + fConst4);
 	fConst6 = (0 - ((1 - fConst4) / fConst5));
-	fConst7 = tan((125.66370614359172 / iConst0));
+	fConst7 = tan((125.66370614359172 / double(iConst0)));
 	fConst8 = (1.0 / faustpower<2>(fConst7));
 	fConst9 = (2 * (1 - fConst8));
 	fConst10 = (1.0 / fConst7);
@@ -218,23 +218,23 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst13 = (1.0 / fConst12);
 	fConst14 = (1 + ((fConst10 - 1.8477590650225735) / fConst7));
 	fConst15 = (1.0 / (1 + ((fConst10 + 1.8477590650225735) / fConst7)));
-	fConst16 = tan((392.6990816987241 / iConst0));
+	fConst16 = tan((392.6990816987241 / double(iConst0)));
 	fConst17 = (1.0 / fConst16);
 	fConst18 = (1 + fConst17);
 	fConst19 = (0 - ((1 - fConst17) / fConst18));
-	fConst20 = (1.0 / tan((23561.94490192345 / iConst0)));
+	fConst20 = (1.0 / tan((23561.94490192345 / double(iConst0))));
 	fConst21 = (1 + fConst20);
 	fConst22 = (0 - ((1 - fConst20) / fConst21));
 	fConst23 = (1.0 / fConst21);
 	fConst24 = (0.5 / fConst16);
 	fConst25 = (0 - fConst17);
 	fConst26 = (1.0 / fConst18);
-	fConst27 = (1.0 / tan((251.32741228718345 / iConst0)));
+	fConst27 = (1.0 / tan((251.32741228718345 / double(iConst0))));
 	fConst28 = (1 + fConst27);
 	fConst29 = (0 - ((1 - fConst27) / fConst28));
 	fConst30 = (0 - fConst27);
 	fConst31 = (1.0 / fConst28);
-	fConst32 = (1.0 / tan((6.5973445725385655 / iConst0)));
+	fConst32 = (1.0 / tan((6.5973445725385655 / double(iConst0))));
 	fConst33 = (1 + fConst32);
 	fConst34 = (0 - ((1 - fConst32) / fConst33));
 	fConst35 = (1.0 / fConst33);
@@ -242,9 +242,9 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst37 = (0.025 / fConst2);
 	fConst38 = (2 * (0 - fConst8));
 	IOTA = 0;
-	fConst39 = (1e+01 / iConst0);
+	fConst39 = (1e+01 / double(iConst0));
 	fConst40 = (0 - fConst39);
-	fConst41 = (25.132741228718345 / iConst0);
+	fConst41 = (25.132741228718345 / double(iConst0));
 	fConst42 = (4.5 * iConst0);
 	fConst43 = (1.5 * iConst0);
 	fConst44 = (3.0 * iConst0);
@@ -275,7 +275,7 @@ int Dsp::activate(bool start)
 			mem_alloc();
 			clear_state_f();
 		}
-	} else if (!mem_allocated) {
+	} else if (mem_allocated) {
 		mem_free();
 	}
 	return 0;
@@ -286,7 +286,7 @@ int Dsp::activate_static(bool start, PluginLV2 *p)
 	return static_cast<Dsp*>(p)->activate(start);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
@@ -324,7 +324,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec21[0] = ((fConst41 * (0 - fRec19[1])) + fRec21[1]);
 		fRec20[0] = ((1 + ((fConst41 * fRec21[0]) + fRec20[1])) - iVec0[1]);
 		fRec19[0] = fRec20[0];
-		double fTemp3 = (7.5 + (0.005 * max(0, (0.5 * (1 + fRec19[0])))));
+		double fTemp3 = (7.5 + (0.005 * max((double)0, (0.5 * (1 + fRec19[0])))));
 		double fTemp4 = (fConst42 / fTemp3);
 		double fTemp5 = ((int((fRec15[1] != 0.0)))?((int(((fRec16[1] > 0.0) & (fRec16[1] < 1.0))))?fRec15[1]:0):((int(((fRec16[1] == 0.0) & (fTemp4 != fRec17[1]))))?fConst39:((int(((fRec16[1] == 1.0) & (fTemp4 != fRec18[1]))))?fConst40:0)));
 		fRec15[0] = fTemp5;

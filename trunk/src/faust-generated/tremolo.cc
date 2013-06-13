@@ -1,5 +1,5 @@
 // generated from file '../src/faust/tremolo.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace tremolo {
@@ -82,9 +82,9 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / iConst0);
+	fConst1 = (1.0 / double(iConst0));
 	fConst2 = (0.5 * iConst0);
-	fConst3 = (6.283185307179586 / iConst0);
+	fConst3 = (6.283185307179586 / double(iConst0));
 	clear_state_f();
 }
 
@@ -93,11 +93,11 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	int 	iSlow1 = int((fConst2 / double(fSlow0)));
-	double 	fSlow2 = (1.0 / iSlow1);
+	double 	fSlow2 = (1.0 / double(iSlow1));
 	double 	fSlow3 = (fConst3 * fSlow0);
 	int 	iSlow4 = int(fcheckbox0);
 	double 	fSlow5 = fslider1;
@@ -112,7 +112,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec5[0] = ((fSlow3 * (0 - fRec3[1])) + fRec5[1]);
 		fRec4[0] = ((1 + ((fSlow3 * fRec5[0]) + fRec4[1])) - iVec0[1]);
 		fRec3[0] = fRec4[0];
-		fRec0[0] = (fTemp0 + (fConst1 * (pow((1 + (fSlow5 * (((iSlow4)?max(0, (0.5 * (1 + fRec3[0]))):(fSlow2 * iRec1[0])) - 1))),1.9) / (fConst1 + (0.06 * exp((0 - (2.4849066497880004 * fTemp0))))))));
+		fRec0[0] = (fTemp0 + (fConst1 * (pow((1 + (fSlow5 * (((iSlow4)?max((double)0, (0.5 * (1 + fRec3[0]))):(fSlow2 * iRec1[0])) - 1))),1.9) / (fConst1 + (0.06 * exp((0 - (2.4849066497880004 * fTemp0))))))));
 		output0[i] = (FAUSTFLOAT)((double)input0[i] * (fSlow8 + (fSlow7 / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec0[0])))))))));
 		// post processing
 		fRec0[1] = fRec0[0];

@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/phaser.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace phaser {
@@ -103,8 +103,8 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586 / iConst0);
-	fConst2 = (1.0 / iConst0);
+	fConst1 = (6.283185307179586 / double(iConst0));
+	fConst2 = (1.0 / double(iConst0));
 	clear_state_f();
 }
 
@@ -113,7 +113,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 #define fslider0 (*fslider0_)
 #define fcheckbox0 (*fcheckbox0_)

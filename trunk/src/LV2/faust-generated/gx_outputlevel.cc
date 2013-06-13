@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_outputlevel.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace gx_outputlevel {
@@ -65,7 +65,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 #define fslider0 (*fslider0_)
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));

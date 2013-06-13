@@ -1,5 +1,5 @@
 // generated from file '../src/faust/noise_shaper.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace noise_shaper {
@@ -66,8 +66,8 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = exp((0 - (2e+02 / iConst0)));
-	fConst2 = exp((0 - (0.1 / iConst0)));
+	fConst1 = exp((0 - (2e+02 / double(iConst0))));
+	fConst2 = exp((0 - (0.1 / double(iConst0))));
 	clear_state_f();
 }
 
@@ -76,17 +76,17 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (5 * fSlow0);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		double fTemp1 = max(1, fabs(fTemp0));
+		double fTemp1 = max((double)1, fabs(fTemp0));
 		double fTemp2 = ((fConst2 * (fRec0[1] >= fTemp1)) + (fConst1 * (fRec0[1] < fTemp1)));
 		fRec0[0] = ((fTemp1 * (0 - (fTemp2 - 1))) + (fRec0[1] * fTemp2));
-		double fTemp3 = max(0, (fSlow1 + (20 * log10(fRec0[0]))));
-		double fTemp4 = (0.5 * min(1, max(0, (0.09522902580706599 * fTemp3))));
+		double fTemp3 = max((double)0, (fSlow1 + (20 * log10(fRec0[0]))));
+		double fTemp4 = (0.5 * min((double)1, max((double)0, (0.09522902580706599 * fTemp3))));
 		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * (fSlow0 + ((fTemp3 * (0 - fTemp4)) / (1 + fTemp4))))));
 		// post processing
 		fRec0[1] = fRec0[0];

@@ -1,5 +1,5 @@
 // generated from file '../src/faust/gxamp2.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -214,21 +214,21 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst1 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = log((7539.822368615503 / iConst0));
+	fConst4 = log((7539.822368615503 / double(iConst0)));
 	fConst5 = (0 - (1.8442 * cos(exp((0.07238887 + (fConst4 * (1.31282248 + (fConst4 * (0.43359433 + (fConst4 * (0.27547621 + (fConst4 * (0.06446806 + (0.00506158 * fConst4))))))))))))));
-	fConst6 = (1.0 / tan((20517.741620594938 / iConst0)));
+	fConst6 = (1.0 / tan((20517.741620594938 / double(iConst0))));
 	fConst7 = (1 + fConst6);
 	fConst8 = (0 - ((1 - fConst6) / fConst7));
-	fConst9 = tan((942.4777960769379 / iConst0));
+	fConst9 = tan((942.4777960769379 / double(iConst0)));
 	fConst10 = (1.0 / faustpower<2>(fConst9));
 	fConst11 = (2 * (1 - fConst10));
 	fConst12 = (1.0 / fConst9);
 	fConst13 = (1 + ((fConst12 - 1.0) / fConst9));
 	fConst14 = (1.0 / (1 + ((1.0 + fConst12) / fConst9)));
-	fConst15 = tan((3769.9111843077517 / iConst0));
+	fConst15 = tan((3769.9111843077517 / double(iConst0)));
 	fConst16 = (1.0 / faustpower<2>(fConst15));
 	fConst17 = (2 * (1 - fConst16));
 	fConst18 = (1.0 / fConst15);
@@ -237,7 +237,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst21 = (1.0 / fConst20);
 	fConst22 = (1 + fConst18);
 	fConst23 = (0 - ((1 - fConst18) / fConst22));
-	fConst24 = tan((10053.096491487338 / iConst0));
+	fConst24 = tan((10053.096491487338 / double(iConst0)));
 	fConst25 = (1.0 / faustpower<2>(fConst24));
 	fConst26 = (2 * (1 - fConst25));
 	fConst27 = (1.0 / fConst24);
@@ -246,7 +246,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst30 = (1.0 / fConst29);
 	fConst31 = (1 + fConst27);
 	fConst32 = (0 - ((1 - fConst27) / fConst31));
-	fConst33 = tan((47123.8898038469 / iConst0));
+	fConst33 = tan((47123.8898038469 / double(iConst0)));
 	fConst34 = (2 * (1 - (1.0 / faustpower<2>(fConst33))));
 	fConst35 = (1.0 / fConst33);
 	fConst36 = (1 + ((fConst35 - 1.414213562373095) / fConst33));
@@ -270,17 +270,17 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst54 = (0 - fConst27);
 	fConst55 = (2 * (0 - fConst25));
 	fConst56 = (1.0 / fConst7);
-	fConst57 = (1.0 / tan((270.1769682087222 / iConst0)));
+	fConst57 = (1.0 / tan((270.1769682087222 / double(iConst0))));
 	fConst58 = (1 + fConst57);
 	fConst59 = (0 - ((1 - fConst57) / fConst58));
 	fConst60 = (0.027 / fConst58);
 	fConst61 = (0.025 / fConst2);
 	fConst62 = (0.77 / fConst7);
-	fConst63 = (1.0 / tan((414.6902302738527 / iConst0)));
+	fConst63 = (1.0 / tan((414.6902302738527 / double(iConst0))));
 	fConst64 = (1 + fConst63);
 	fConst65 = (0 - ((1 - fConst63) / fConst64));
 	fConst66 = (0.015 / fConst64);
-	fConst67 = (1.0 / tan((609.4689747964198 / iConst0)));
+	fConst67 = (1.0 / tan((609.4689747964198 / double(iConst0))));
 	fConst68 = (1 + fConst67);
 	fConst69 = (0 - ((1 - fConst67) / fConst68));
 	fConst70 = (0.0082 / fConst68);
@@ -292,7 +292,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
@@ -303,12 +303,12 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 	double 	fSlow2 = fslider2;
 	double 	fSlow3 = (1.25 * fSlow2);
 	double 	fSlow4 = (2 * (fSlow2 - 0.5));
-	double 	fSlow5 = (1 - max(0, fSlow4));
+	double 	fSlow5 = (1 - max((double)0, fSlow4));
 	double 	fSlow6 = pow(1e+01,(1.2 * fSlow2));
 	double 	fSlow7 = (fConst46 * pow(1e+01,(2 * fSlow2)));
 	double 	fSlow8 = pow(1e+01,(0.8 * fSlow2));
 	double 	fSlow9 = (fConst46 * pow(1e+01,(0.9 * fSlow2)));
-	double 	fSlow10 = (1 - max(0, (0 - fSlow4)));
+	double 	fSlow10 = (1 - max((double)0, (0 - fSlow4)));
 	double 	fSlow11 = (0.0010000000000000009 * pow(10,(0.05 * fslider3)));
 	for (int i=0; i<count; i++) {
 		fRec3[0] = (fSlow0 + (0.999 * fRec3[1]));
@@ -327,24 +327,24 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec14[0] = ((fConst43 * ((fConst42 * fVec1[1]) + (fConst18 * fVec1[0]))) + (fConst23 * fRec14[1]));
 		fRec13[0] = (fRec14[0] - (fConst21 * ((fConst19 * fRec13[2]) + (fConst17 * fRec13[1]))));
 		fRec12[0] = ((fConst21 * (((fConst16 * fRec13[0]) + (fConst44 * fRec13[1])) + (fConst16 * fRec13[2]))) - (fConst14 * ((fConst13 * fRec12[2]) + fTemp2)));
-		double fTemp5 = max(-1, min(1, (fSlow6 * (fRec12[2] + (fConst14 * (fTemp2 + (fConst13 * fRec12[0])))))));
+		double fTemp5 = max((double)-1, min((double)1, (fSlow6 * (fRec12[2] + (fConst14 * (fTemp2 + (fConst13 * fRec12[0])))))));
 		fRec22[0] = ((fConst43 * (fVec1[0] + fVec1[1])) + (fConst23 * fRec22[1]));
 		fRec21[0] = (fRec22[0] - (fConst21 * ((fConst19 * fRec21[2]) + (fConst17 * fRec21[1]))));
 		double fTemp6 = (fRec21[2] + (fRec21[0] + (2 * fRec21[1])));
 		fVec2[0] = fTemp6;
 		fRec20[0] = ((fConst50 * ((fConst49 * fVec2[1]) + (fConst12 * fVec2[0]))) + (fConst48 * fRec20[1]));
 		fRec19[0] = (fRec20[0] - (fConst46 * ((fConst45 * fRec19[2]) + (fConst11 * fRec19[1]))));
-		double fTemp7 = max(-1, min(1, (fSlow7 * (((fConst10 * fRec19[0]) + (fConst51 * fRec19[1])) + (fConst10 * fRec19[2])))));
+		double fTemp7 = max((double)-1, min((double)1, (fSlow7 * (((fConst10 * fRec19[0]) + (fConst51 * fRec19[1])) + (fConst10 * fRec19[2])))));
 		double fTemp8 = (fConst11 * fRec23[1]);
 		double fTemp9 = (fConst17 * fRec24[1]);
 		fRec26[0] = ((fConst41 * ((fConst54 * fRec17[1]) + (fConst27 * fRec17[0]))) + (fConst32 * fRec26[1]));
 		fRec25[0] = (fRec26[0] - (fConst30 * ((fConst28 * fRec25[2]) + (fConst26 * fRec25[1]))));
 		fRec24[0] = ((fConst30 * (((fConst25 * fRec25[0]) + (fConst55 * fRec25[1])) + (fConst25 * fRec25[2]))) - (fConst53 * ((fConst52 * fRec24[2]) + fTemp9)));
 		fRec23[0] = ((fRec24[2] + (fConst53 * (fTemp9 + (fConst52 * fRec24[0])))) - (fConst14 * ((fConst13 * fRec23[2]) + fTemp8)));
-		double fTemp10 = max(-1, min(1, (fSlow8 * (fRec23[2] + (fConst14 * (fTemp8 + (fConst13 * fRec23[0])))))));
+		double fTemp10 = max((double)-1, min((double)1, (fSlow8 * (fRec23[2] + (fConst14 * (fTemp8 + (fConst13 * fRec23[0])))))));
 		fRec28[0] = ((fConst50 * (fVec2[0] + fVec2[1])) + (fConst48 * fRec28[1]));
 		fRec27[0] = (fRec28[0] - (fConst46 * ((fConst45 * fRec27[2]) + (fConst11 * fRec27[1]))));
-		double fTemp11 = max(-1, min(1, (fSlow9 * (fRec27[2] + (fRec27[0] + (2 * fRec27[1]))))));
+		double fTemp11 = max((double)-1, min((double)1, (fSlow9 * (fRec27[2] + (fRec27[0] + (2 * fRec27[1]))))));
 		double fTemp12 = ((1.2589412 * (fTemp11 * (1 - (0.3333333333333333 * faustpower<2>(fTemp11))))) + (1.584893192 * ((fTemp10 * (1 - (0.3333333333333333 * faustpower<2>(fTemp10)))) + ((fTemp7 * (1 - (0.3333333333333333 * faustpower<2>(fTemp7)))) + (0.8413951417869425 * (fTemp5 * (1 - (0.3333333333333333 * faustpower<2>(fTemp5)))))))));
 		fVec3[0] = fTemp12;
 		fRec11[0] = ((fConst56 * (fVec3[0] + fVec3[1])) + (fConst8 * fRec11[1]));

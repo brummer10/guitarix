@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/autowah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace autowah {
@@ -77,8 +77,8 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (2827.4333882308138 / iConst0);
-	fConst2 = (1413.7166941154069 / iConst0);
+	fConst1 = (2827.4333882308138 / double(iConst0));
+	fConst2 = (1413.7166941154069 / double(iConst0));
 	clear_state_f();
 }
 
@@ -87,7 +87,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
@@ -101,7 +101,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		int iTemp1 = abs(int((4194304 * fTemp0)));
 		iVec0[IOTA&1023] = iTemp1;
 		iRec2[0] = ((iVec0[IOTA&1023] + iRec2[1]) - iVec0[(IOTA-1000)&1023]);
-		double fTemp2 = min(1, max(0, (fSlow0 * double(iRec2[0]))));
+		double fTemp2 = min((double)1, max((double)0, (fSlow0 * double(iRec2[0]))));
 		fRec1[0] = ((0.0001000000000000001 * pow(4.0,fTemp2)) + (0.999 * fRec1[1]));
 		double fTemp3 = pow(2.0,(2.3 * fTemp2));
 		double fTemp4 = (1 - (fConst2 * (fTemp3 / pow(2.0,(1.0 + (2.0 * (1.0 - fTemp2)))))));

@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/biquad.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace biquad {
@@ -58,7 +58,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (6.283185307179586 / min(192000, max(1, fSamplingFreq)));
+	fConst0 = (6.283185307179586 / double(min(192000, max(1, fSamplingFreq))));
 	clear_state_f();
 }
 
@@ -67,7 +67,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 	double 	fSlow0 = log((fConst0 * fslider0));

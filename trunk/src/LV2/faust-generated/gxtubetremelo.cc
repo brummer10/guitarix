@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxtubetremelo.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -108,13 +108,13 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst1 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = (1.0 / iConst0);
+	fConst4 = (1.0 / double(iConst0));
 	fConst5 = (0.5 * iConst0);
-	fConst6 = (6.283185307179586 / iConst0);
-	fConst7 = (1.0 / tan((6.5973445725385655 / iConst0)));
+	fConst6 = (6.283185307179586 / double(iConst0));
+	fConst7 = (1.0 / tan((6.5973445725385655 / double(iConst0))));
 	fConst8 = (1 + fConst7);
 	fConst9 = (0 - ((1 - fConst7) / fConst8));
 	fConst10 = (1.0 / fConst8);
@@ -128,7 +128,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fcheckbox0 (*fcheckbox0_)
@@ -136,7 +136,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 #define fslider2 (*fslider2_)
 	double 	fSlow0 = fslider0;
 	int 	iSlow1 = int((fConst5 / double(fSlow0)));
-	double 	fSlow2 = (1.0 / iSlow1);
+	double 	fSlow2 = (1.0 / double(iSlow1));
 	double 	fSlow3 = (fConst6 * fSlow0);
 	int 	iSlow4 = int(fcheckbox0);
 	double 	fSlow5 = fslider1;
@@ -149,7 +149,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec7[0] = ((fSlow3 * (0 - fRec5[1])) + fRec7[1]);
 		fRec6[0] = ((1 + ((fSlow3 * fRec7[0]) + fRec6[1])) - iVec0[1]);
 		fRec5[0] = fRec6[0];
-		fRec2[0] = (fTemp0 + (fConst4 * (pow((1 + (fSlow5 * (((iSlow4)?max(0, (0.5 * (1 + fRec5[0]))):(fSlow2 * iRec3[0])) - 1))),1.9) / (fConst4 + (0.06 * exp((0 - (2.4849066497880004 * fTemp0))))))));
+		fRec2[0] = (fTemp0 + (fConst4 * (pow((1 + (fSlow5 * (((iSlow4)?max((double)0, (0.5 * (1 + fRec5[0]))):(fSlow2 * iRec3[0])) - 1))),1.9) / (fConst4 + (0.06 * exp((0 - (2.4849066497880004 * fTemp0))))))));
 		fRec8[0] = (fSlow6 + (0.999 * fRec8[1]));
 		double fTemp1 = (1e-15 + (0.015 * fRec10[1]));
 		fVec1[0] = fTemp1;

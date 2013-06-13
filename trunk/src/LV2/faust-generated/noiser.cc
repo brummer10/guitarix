@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/noiser.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace noiser {
@@ -63,7 +63,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	for (int i=0; i<count; i++) {
 		iRec0[0] = (12345 + (1103515245 * iRec0[1]));

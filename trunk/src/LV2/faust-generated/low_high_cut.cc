@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/low_high_cut.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace low_high_cut {
@@ -89,10 +89,10 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((314.1592653589793 / iConst0)));
+	fConst1 = (1.0 / tan((314.1592653589793 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = tan((3138.4510609362032 / iConst0));
+	fConst4 = tan((3138.4510609362032 / double(iConst0)));
 	fConst5 = (2 * (1 - (1.0 / faustpower<2>(fConst4))));
 	fConst6 = (1.0 / fConst4);
 	fConst7 = (1 + ((fConst6 - 0.7653668647301795) / fConst4));
@@ -100,7 +100,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst9 = (1.0 / fConst8);
 	fConst10 = (1 + ((fConst6 - 1.8477590650225735) / fConst4));
 	fConst11 = (1.0 / (1 + ((fConst6 + 1.8477590650225735) / fConst4)));
-	fConst12 = (94.24777960769379 / iConst0);
+	fConst12 = (94.24777960769379 / double(iConst0));
 	fConst13 = (1 - fConst12);
 	fConst14 = (1.0 / (1 + fConst12));
 	fConst15 = (0 - fConst1);
@@ -113,7 +113,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;

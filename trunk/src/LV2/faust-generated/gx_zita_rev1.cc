@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_zita_rev1.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace gx_zita_rev1 {
@@ -244,50 +244,50 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = floor((0.5 + (0.174713 * iConst0)));
-	fConst2 = ((0 - (6.907755278982138 * fConst1)) / iConst0);
+	fConst2 = ((0 - (6.907755278982138 * fConst1)) / double(iConst0));
 	fConst3 = (6.283185307179586 / double(iConst0));
-	fConst4 = (3.141592653589793 / iConst0);
+	fConst4 = (3.141592653589793 / double(iConst0));
 	IOTA = 0;
 	fConst5 = floor((0.5 + (0.022904 * iConst0)));
 	iConst6 = int((int((fConst1 - fConst5)) & 8191));
 	fConst7 = (0.001 * iConst0);
 	iConst8 = int((int((fConst5 - 1)) & 2047));
 	fConst9 = floor((0.5 + (0.153129 * iConst0)));
-	fConst10 = ((0 - (6.907755278982138 * fConst9)) / iConst0);
+	fConst10 = ((0 - (6.907755278982138 * fConst9)) / double(iConst0));
 	fConst11 = floor((0.5 + (0.020346 * iConst0)));
 	iConst12 = int((int((fConst9 - fConst11)) & 8191));
 	iConst13 = int((int((fConst11 - 1)) & 1023));
 	fConst14 = floor((0.5 + (0.127837 * iConst0)));
-	fConst15 = ((0 - (6.907755278982138 * fConst14)) / iConst0);
+	fConst15 = ((0 - (6.907755278982138 * fConst14)) / double(iConst0));
 	fConst16 = floor((0.5 + (0.031604 * iConst0)));
 	iConst17 = int((int((fConst14 - fConst16)) & 8191));
 	iConst18 = int((int((fConst16 - 1)) & 2047));
 	fConst19 = floor((0.5 + (0.125 * iConst0)));
-	fConst20 = ((0 - (6.907755278982138 * fConst19)) / iConst0);
+	fConst20 = ((0 - (6.907755278982138 * fConst19)) / double(iConst0));
 	fConst21 = floor((0.5 + (0.013458 * iConst0)));
 	iConst22 = int((int((fConst19 - fConst21)) & 8191));
 	iConst23 = int((int((fConst21 - 1)) & 1023));
 	fConst24 = floor((0.5 + (0.210389 * iConst0)));
-	fConst25 = ((0 - (6.907755278982138 * fConst24)) / iConst0);
+	fConst25 = ((0 - (6.907755278982138 * fConst24)) / double(iConst0));
 	fConst26 = floor((0.5 + (0.024421 * iConst0)));
 	iConst27 = int((int((fConst24 - fConst26)) & 16383));
 	iConst28 = int((int((fConst26 - 1)) & 2047));
 	fConst29 = floor((0.5 + (0.192303 * iConst0)));
-	fConst30 = ((0 - (6.907755278982138 * fConst29)) / iConst0);
+	fConst30 = ((0 - (6.907755278982138 * fConst29)) / double(iConst0));
 	fConst31 = floor((0.5 + (0.029291 * iConst0)));
 	iConst32 = int((int((fConst29 - fConst31)) & 8191));
 	iConst33 = int((int((fConst31 - 1)) & 2047));
 	fConst34 = floor((0.5 + (0.256891 * iConst0)));
-	fConst35 = ((0 - (6.907755278982138 * fConst34)) / iConst0);
+	fConst35 = ((0 - (6.907755278982138 * fConst34)) / double(iConst0));
 	fConst36 = floor((0.5 + (0.027333 * iConst0)));
 	iConst37 = int((int((fConst34 - fConst36)) & 16383));
 	iConst38 = int((int((fConst36 - 1)) & 2047));
 	fConst39 = floor((0.5 + (0.219991 * iConst0)));
-	fConst40 = ((0 - (6.907755278982138 * fConst39)) / iConst0);
+	fConst40 = ((0 - (6.907755278982138 * fConst39)) / double(iConst0));
 	fConst41 = floor((0.5 + (0.019123 * iConst0)));
 	iConst42 = int((int((fConst39 - fConst41)) & 16383));
 	iConst43 = int((int((fConst41 - 1)) & 1023));
-	fConst44 = (6.283185307179586 / iConst0);
+	fConst44 = (6.283185307179586 / double(iConst0));
 	clear_state_f();
 }
 
@@ -296,7 +296,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
@@ -315,7 +315,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	double 	fSlow3 = (1.0 - fSlow2);
 	double 	fSlow4 = cos((fConst3 * fslider1));
 	double 	fSlow5 = (1.0 - (fSlow4 * fSlow2));
-	double 	fSlow6 = sqrt(max(0, ((faustpower<2>(fSlow5) / faustpower<2>(fSlow3)) - 1.0)));
+	double 	fSlow6 = sqrt(max((double)0, ((faustpower<2>(fSlow5) / faustpower<2>(fSlow3)) - 1.0)));
 	double 	fSlow7 = (fSlow5 / fSlow3);
 	double 	fSlow8 = (fSlow7 - fSlow6);
 	double 	fSlow9 = (1.0 / tan((fConst4 * fslider2)));
@@ -330,7 +330,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	double 	fSlow18 = faustpower<2>(fSlow17);
 	double 	fSlow19 = (1.0 - fSlow18);
 	double 	fSlow20 = (1.0 - (fSlow4 * fSlow18));
-	double 	fSlow21 = sqrt(max(0, ((faustpower<2>(fSlow20) / faustpower<2>(fSlow19)) - 1.0)));
+	double 	fSlow21 = sqrt(max((double)0, ((faustpower<2>(fSlow20) / faustpower<2>(fSlow19)) - 1.0)));
 	double 	fSlow22 = (fSlow20 / fSlow19);
 	double 	fSlow23 = (fSlow22 - fSlow21);
 	double 	fSlow24 = ((exp((fConst10 / fSlow13)) / fSlow17) - 1);
@@ -339,7 +339,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	double 	fSlow27 = faustpower<2>(fSlow26);
 	double 	fSlow28 = (1.0 - fSlow27);
 	double 	fSlow29 = (1.0 - (fSlow4 * fSlow27));
-	double 	fSlow30 = sqrt(max(0, ((faustpower<2>(fSlow29) / faustpower<2>(fSlow28)) - 1.0)));
+	double 	fSlow30 = sqrt(max((double)0, ((faustpower<2>(fSlow29) / faustpower<2>(fSlow28)) - 1.0)));
 	double 	fSlow31 = (fSlow29 / fSlow28);
 	double 	fSlow32 = (fSlow31 - fSlow30);
 	double 	fSlow33 = ((exp((fConst15 / fSlow13)) / fSlow26) - 1);
@@ -348,7 +348,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	double 	fSlow36 = faustpower<2>(fSlow35);
 	double 	fSlow37 = (1.0 - fSlow36);
 	double 	fSlow38 = (1.0 - (fSlow4 * fSlow36));
-	double 	fSlow39 = sqrt(max(0, ((faustpower<2>(fSlow38) / faustpower<2>(fSlow37)) - 1.0)));
+	double 	fSlow39 = sqrt(max((double)0, ((faustpower<2>(fSlow38) / faustpower<2>(fSlow37)) - 1.0)));
 	double 	fSlow40 = (fSlow38 / fSlow37);
 	double 	fSlow41 = (fSlow40 - fSlow39);
 	double 	fSlow42 = ((exp((fConst20 / fSlow13)) / fSlow35) - 1);
@@ -357,7 +357,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	double 	fSlow45 = faustpower<2>(fSlow44);
 	double 	fSlow46 = (1.0 - fSlow45);
 	double 	fSlow47 = (1.0 - (fSlow4 * fSlow45));
-	double 	fSlow48 = sqrt(max(0, ((faustpower<2>(fSlow47) / faustpower<2>(fSlow46)) - 1.0)));
+	double 	fSlow48 = sqrt(max((double)0, ((faustpower<2>(fSlow47) / faustpower<2>(fSlow46)) - 1.0)));
 	double 	fSlow49 = (fSlow47 / fSlow46);
 	double 	fSlow50 = (fSlow49 - fSlow48);
 	double 	fSlow51 = ((exp((fConst25 / fSlow13)) / fSlow44) - 1);
@@ -366,7 +366,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	double 	fSlow54 = faustpower<2>(fSlow53);
 	double 	fSlow55 = (1.0 - fSlow54);
 	double 	fSlow56 = (1.0 - (fSlow4 * fSlow54));
-	double 	fSlow57 = sqrt(max(0, ((faustpower<2>(fSlow56) / faustpower<2>(fSlow55)) - 1.0)));
+	double 	fSlow57 = sqrt(max((double)0, ((faustpower<2>(fSlow56) / faustpower<2>(fSlow55)) - 1.0)));
 	double 	fSlow58 = (fSlow56 / fSlow55);
 	double 	fSlow59 = (fSlow58 - fSlow57);
 	double 	fSlow60 = ((exp((fConst30 / fSlow13)) / fSlow53) - 1);
@@ -375,7 +375,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	double 	fSlow63 = faustpower<2>(fSlow62);
 	double 	fSlow64 = (1.0 - fSlow63);
 	double 	fSlow65 = (1.0 - (fSlow4 * fSlow63));
-	double 	fSlow66 = sqrt(max(0, ((faustpower<2>(fSlow65) / faustpower<2>(fSlow64)) - 1.0)));
+	double 	fSlow66 = sqrt(max((double)0, ((faustpower<2>(fSlow65) / faustpower<2>(fSlow64)) - 1.0)));
 	double 	fSlow67 = (fSlow65 / fSlow64);
 	double 	fSlow68 = (fSlow67 - fSlow66);
 	double 	fSlow69 = ((exp((fConst35 / fSlow13)) / fSlow62) - 1);
@@ -384,7 +384,7 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 	double 	fSlow72 = faustpower<2>(fSlow71);
 	double 	fSlow73 = (1.0 - fSlow72);
 	double 	fSlow74 = (1.0 - (fSlow72 * fSlow4));
-	double 	fSlow75 = sqrt(max(0, ((faustpower<2>(fSlow74) / faustpower<2>(fSlow73)) - 1.0)));
+	double 	fSlow75 = sqrt(max((double)0, ((faustpower<2>(fSlow74) / faustpower<2>(fSlow73)) - 1.0)));
 	double 	fSlow76 = (fSlow74 / fSlow73);
 	double 	fSlow77 = (fSlow76 - fSlow75);
 	double 	fSlow78 = ((exp((fConst40 / fSlow13)) / fSlow71) - 1);

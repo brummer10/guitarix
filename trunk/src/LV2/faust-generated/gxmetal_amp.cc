@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxmetal_amp.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -154,32 +154,32 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((20517.741620594938 / iConst0)));
+	fConst1 = (1.0 / tan((20517.741620594938 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst4 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst5 = (1 + fConst4);
 	fConst6 = (0 - ((1 - fConst4) / fConst5));
 	fConst7 = (2 * double(iConst0));
 	fConst8 = faustpower<2>(fConst7);
 	fConst9 = (3 * fConst7);
 	fConst10 = (1.0 / fConst2);
-	fConst11 = (1.0 / tan((270.1769682087222 / iConst0)));
+	fConst11 = (1.0 / tan((270.1769682087222 / double(iConst0))));
 	fConst12 = (1 + fConst11);
 	fConst13 = (0 - ((1 - fConst11) / fConst12));
 	fConst14 = (1.0 / fConst12);
 	fConst15 = (0 - fConst4);
 	fConst16 = (0.025 / fConst5);
-	fConst17 = (1.0 / tan((414.6902302738527 / iConst0)));
+	fConst17 = (1.0 / tan((414.6902302738527 / double(iConst0))));
 	fConst18 = (1 + fConst17);
 	fConst19 = (0 - ((1 - fConst17) / fConst18));
 	fConst20 = (1.0 / fConst18);
-	fConst21 = (1.0 / tan((609.4689747964198 / iConst0)));
+	fConst21 = (1.0 / tan((609.4689747964198 / double(iConst0))));
 	fConst22 = (1 + fConst21);
 	fConst23 = (0 - ((1 - fConst21) / fConst22));
 	fConst24 = (1.0 / fConst22);
-	fConst25 = exp((0 - (2e+02 / iConst0)));
-	fConst26 = exp((0 - (0.1 / iConst0)));
+	fConst25 = exp((0 - (2e+02 / double(iConst0))));
+	fConst26 = exp((0 - (0.1 / double(iConst0))));
 	clear_state_f();
 }
 
@@ -188,7 +188,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
@@ -251,11 +251,11 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec7[0] = ((fConst16 * ((fConst15 * fRec8[1]) + (fConst4 * fRec8[0]))) + (fConst6 * fRec7[1]));
 		fRec5[0] = ((fRec7[0] * fRec6[0]) - (fSlow13 * (((fSlow12 * fRec5[2]) + (fSlow11 * fRec5[1])) + (fSlow9 * fRec5[3]))));
 		double fTemp6 = ((fSlow27 * fRec5[0]) + ((fSlow26 * fRec5[1]) + ((fSlow24 * fRec5[3]) + (fSlow22 * fRec5[2]))));
-		double fTemp7 = max(1, fabs((fSlow13 * fTemp6)));
+		double fTemp7 = max((double)1, fabs((fSlow13 * fTemp6)));
 		double fTemp8 = ((fConst26 * (fRec4[1] >= fTemp7)) + (fConst25 * (fRec4[1] < fTemp7)));
 		fRec4[0] = ((fTemp7 * (0 - (fTemp8 - 1))) + (fRec4[1] * fTemp8));
-		double fTemp9 = max(0, ((20 * log10(fRec4[0])) + 5e+01));
-		double fTemp10 = (0.5 * min(1, max(0, (0.09522902580706599 * fTemp9))));
+		double fTemp9 = max((double)0, ((20 * log10(fRec4[0])) + 5e+01));
+		double fTemp10 = (0.5 * min((double)1, max((double)0, (0.09522902580706599 * fTemp9))));
 		double fTemp11 = (fSlow13 * (fTemp6 * pow(10,(0.05 * (1e+01 + ((fTemp9 * (0 - fTemp10)) / (1 + fTemp10)))))));
 		double fTemp12 = (1e-15 + (0.0041 * fRec3[1]));
 		fVec5[0] = fTemp12;

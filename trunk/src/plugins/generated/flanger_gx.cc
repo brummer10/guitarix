@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/flanger_gx.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -92,7 +92,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586 / iConst0);
+	fConst1 = (6.283185307179586 / double(iConst0));
 	fConst2 = (0.5 * iConst0);
 	clear_state_f();
 }
@@ -102,11 +102,11 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = fslider1;
-	double 	fSlow2 = (0.01 * (fSlow1 * min(1, (1 + fSlow0))));
+	double 	fSlow2 = (0.01 * (fSlow1 * min((double)1, (1 + fSlow0))));
 	double 	fSlow3 = (2 - fSlow2);
 	double 	fSlow4 = (0.3333333333333333 * ((2 + fabs(fSlow0)) * fslider2));
 	double 	fSlow5 = (fConst1 * fslider3);
@@ -115,7 +115,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 	double 	fSlow8 = (0 - fSlow6);
 	double 	fSlow9 = (0.0005 * fslider4);
 	double 	fSlow10 = (0.001 * fslider5);
-	double 	fSlow11 = (0.01 * (min(1, (1 - fSlow0)) * fSlow1));
+	double 	fSlow11 = (0.01 * (min((double)1, (1 - fSlow0)) * fSlow1));
 	double 	fSlow12 = (2 - fSlow11);
 	double 	fSlow13 = (0 - fSlow4);
 	for (int i=0; i<count; i++) {

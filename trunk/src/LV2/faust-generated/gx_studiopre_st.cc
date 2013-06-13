@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_studiopre_st.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -133,14 +133,14 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst1 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = (41887.90204786391 / iConst0);
+	fConst4 = (41887.90204786391 / double(iConst0));
 	fConst5 = (2 * double(iConst0));
 	fConst6 = faustpower<2>(fConst5);
 	fConst7 = (3 * fConst5);
-	fConst8 = (1.0 / tan((6.5973445725385655 / iConst0)));
+	fConst8 = (1.0 / tan((6.5973445725385655 / double(iConst0))));
 	fConst9 = (1 + fConst8);
 	fConst10 = (0 - ((1 - fConst8) / fConst9));
 	fConst11 = (1.0 / fConst9);
@@ -154,7 +154,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)

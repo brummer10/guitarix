@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/bassbooster.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace bassbooster {
@@ -67,7 +67,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = tan((376.99111843077515 / min(192000, max(1, fSamplingFreq))));
+	fConst0 = tan((376.99111843077515 / double(min(192000, max(1, fSamplingFreq)))));
 	fConst1 = faustpower<2>(fConst0);
 	fConst2 = (2 * (fConst1 - 1));
 	fConst3 = (1 + (fConst0 * (fConst0 - 1.4142135623730951)));
@@ -80,7 +80,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 	double 	fSlow0 = pow(10,(0.05 * fslider0));

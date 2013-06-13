@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/compressor.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace compressor {
@@ -72,9 +72,9 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = exp((0 - (1e+01 / iConst0)));
+	fConst1 = exp((0 - (1e+01 / double(iConst0))));
 	fConst2 = (1 - fConst1);
-	fConst3 = (1.0 / iConst0);
+	fConst3 = (1.0 / double(iConst0));
 	clear_state_f();
 }
 
@@ -83,7 +83,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fentry0 (*fentry0_)
 #define fentry1 (*fentry1_)
@@ -101,8 +101,8 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec1[0] = ((fConst2 * fabs((fTemp0 + 1e-20))) + (fConst1 * fRec1[1]));
 		double fTemp1 = ((fSlow3 * (fRec0[1] >= fRec1[0])) + (fSlow2 * (fRec0[1] < fRec1[0])));
 		fRec0[0] = ((fRec1[0] * (0 - (fTemp1 - 1))) + (fRec0[1] * fTemp1));
-		double fTemp2 = max(0, ((20 * log10(fRec0[0])) + fSlow1));
-		double fTemp3 = (fSlow5 * min(1, max(0, (fSlow4 * fTemp2))));
+		double fTemp2 = max((double)0, ((20 * log10(fRec0[0])) + fSlow1));
+		double fTemp3 = (fSlow5 * min((double)1, max((double)0, (fSlow4 * fTemp2))));
 		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * ((fTemp2 * (0 - fTemp3)) / (1 + fTemp3)))));
 		// post processing
 		fRec0[1] = fRec0[0];

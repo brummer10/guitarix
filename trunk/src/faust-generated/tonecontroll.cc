@@ -1,5 +1,5 @@
 // generated from file '../src/faust/tonecontroll.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace tonecontroll {
@@ -147,7 +147,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = tan((1884.9555921538758 / iConst0));
+	fConst1 = tan((1884.9555921538758 / double(iConst0)));
 	fConst2 = (1.0 / faustpower<2>(fConst1));
 	fConst3 = (2 * (1 - fConst2));
 	fConst4 = (1.0 / fConst1);
@@ -155,7 +155,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst6 = (1.0 / (1 + ((fConst4 + 1.0000000000000004) / fConst1)));
 	fConst7 = (1 + fConst4);
 	fConst8 = (0 - ((1 - fConst4) / fConst7));
-	fConst9 = tan((7539.822368615503 / iConst0));
+	fConst9 = tan((7539.822368615503 / double(iConst0)));
 	fConst10 = (1.0 / faustpower<2>(fConst9));
 	fConst11 = (2 * (1 - fConst10));
 	fConst12 = (1.0 / fConst9);
@@ -172,8 +172,8 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst23 = (1.0 / (1 + ((1.0 + fConst4) / fConst1)));
 	fConst24 = (0 - fConst12);
 	fConst25 = (2 * (0 - fConst10));
-	fConst26 = exp((0 - (2e+02 / iConst0)));
-	fConst27 = exp((0 - (0.2 / iConst0)));
+	fConst26 = exp((0 - (2e+02 / double(iConst0))));
+	fConst27 = exp((0 - (0.2 / double(iConst0))));
 	clear_state_f();
 }
 
@@ -182,7 +182,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
 	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * fslider1)));
@@ -209,11 +209,11 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		fRec8[0] = ((fConst15 * (((fConst10 * fRec9[0]) + (fConst25 * fRec9[1])) + (fConst10 * fRec9[2]))) - (fConst23 * ((fConst22 * fRec8[2]) + fTemp2)));
 		fRec11[0] = (fSlow2 + (0.999 * fRec11[1]));
 		double fTemp3 = ((fRec11[0] * (fRec8[2] + (fConst23 * (fTemp2 + (fConst22 * fRec8[0]))))) + (fConst6 * ((fRec7[0] * (fRec5[2] + (fRec5[0] + (2 * fRec5[1])))) + (fRec4[0] * (((fConst2 * fRec0[0]) + (fConst21 * fRec0[1])) + (fConst2 * fRec0[2]))))));
-		double fTemp4 = max(1, fabs(fTemp3));
+		double fTemp4 = max((double)1, fabs(fTemp3));
 		double fTemp5 = ((fConst27 * (fRec12[1] >= fTemp4)) + (fConst26 * (fRec12[1] < fTemp4)));
 		fRec12[0] = ((fTemp4 * (0 - (fTemp5 - 1))) + (fRec12[1] * fTemp5));
-		double fTemp6 = max(0, ((20 * log10(fRec12[0])) + fSlow4));
-		double fTemp7 = (2.0 * min(1, max(0, (0.09522902580706599 * fTemp6))));
+		double fTemp6 = max((double)0, ((20 * log10(fRec12[0])) + fSlow4));
+		double fTemp7 = (2.0 * min((double)1, max((double)0, (0.09522902580706599 * fTemp6))));
 		output0[i] = (FAUSTFLOAT)((iSlow5)?(fTemp3 * pow(10,(0.05 * (fSlow3 + ((fTemp6 * (0 - fTemp7)) / (1 + fTemp7)))))):fTemp3);
 		double fTemp8 = (double)input1[i];
 		fVec2[0] = fTemp8;
@@ -230,11 +230,11 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 		fRec20[0] = (fRec21[0] - (fConst15 * ((fConst13 * fRec20[2]) + (fConst11 * fRec20[1]))));
 		fRec19[0] = ((fConst15 * (((fConst10 * fRec20[0]) + (fConst25 * fRec20[1])) + (fConst10 * fRec20[2]))) - (fConst23 * ((fConst22 * fRec19[2]) + fTemp10)));
 		double fTemp11 = ((fRec11[0] * (fRec19[2] + (fConst23 * (fTemp10 + (fConst22 * fRec19[0]))))) + (fConst6 * ((fRec7[0] * (fRec17[2] + (fRec17[0] + (2 * fRec17[1])))) + (fRec4[0] * (((fConst2 * fRec13[0]) + (fConst21 * fRec13[1])) + (fConst2 * fRec13[2]))))));
-		double fTemp12 = max(1, fabs(fTemp11));
+		double fTemp12 = max((double)1, fabs(fTemp11));
 		double fTemp13 = ((fConst27 * (fRec22[1] >= fTemp12)) + (fConst26 * (fRec22[1] < fTemp12)));
 		fRec22[0] = ((fTemp12 * (0 - (fTemp13 - 1))) + (fRec22[1] * fTemp13));
-		double fTemp14 = max(0, ((20 * log10(fRec22[0])) + fSlow4));
-		double fTemp15 = (2.0 * min(1, max(0, (0.09522902580706599 * fTemp14))));
+		double fTemp14 = max((double)0, ((20 * log10(fRec22[0])) + fSlow4));
+		double fTemp15 = (2.0 * min((double)1, max((double)0, (0.09522902580706599 * fTemp14))));
 		output1[i] = (FAUSTFLOAT)((iSlow5)?(fTemp11 * pow(10,(0.05 * (fSlow3 + ((fTemp14 * (0 - fTemp15)) / (1 + fTemp15)))))):fTemp11);
 		// post processing
 		fRec22[1] = fRec22[0];

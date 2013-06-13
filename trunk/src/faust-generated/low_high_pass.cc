@@ -1,5 +1,5 @@
 // generated from file '../src/faust/low_high_pass.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace low_high_pass {
@@ -94,7 +94,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (3.141592653589793 / min(192000, max(1, fSamplingFreq)));
+	fConst0 = (3.141592653589793 / double(min(192000, max(1, fSamplingFreq))));
 	clear_state_f();
 }
 
@@ -103,7 +103,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (1.0 / tan((fConst0 * fentry0)));
 	double 	fSlow1 = (1 + fSlow0);

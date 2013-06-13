@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/chorus_mono.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace chorus_mono {
@@ -94,7 +94,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / iConst0);
+	fConst1 = (1.0 / double(iConst0));
 	fConst2 = (0.01 * iConst0);
 	clear_state_f();
 }
@@ -104,7 +104,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)

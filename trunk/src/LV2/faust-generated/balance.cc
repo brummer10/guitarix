@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/balance.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace balance {
@@ -65,14 +65,14 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 #define fslider0 (*fslider0_)
 	double 	fSlow0 = (0.0010000000000000009 * fslider0);
 	for (int i=0; i<count; i++) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-		output0[i] = (FAUSTFLOAT)((double)input0[i] * (1 - max(0, fRec0[0])));
-		output1[i] = (FAUSTFLOAT)((double)input1[i] * (1 - max(0, (0 - fRec0[0]))));
+		output0[i] = (FAUSTFLOAT)((double)input0[i] * (1 - max((double)0, fRec0[0])));
+		output1[i] = (FAUSTFLOAT)((double)input1[i] * (1 - max((double)0, (0 - fRec0[0]))));
 		// post processing
 		fRec0[1] = fRec0[0];
 	}

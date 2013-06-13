@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/ts9sim.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -86,7 +86,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (3.141592653589793 / iConst0);
+	fConst1 = (3.141592653589793 / double(iConst0));
 	fConst2 = (0.00044179999999999995 * iConst0);
 	fConst3 = (1 + fConst2);
 	fConst4 = (0 - ((1 - fConst2) / fConst3));
@@ -100,7 +100,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
 	double 	fSlow1 = (1.0 / tan((fConst1 * fslider1)));

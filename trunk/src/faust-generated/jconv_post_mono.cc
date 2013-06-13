@@ -1,5 +1,5 @@
 // generated from file '../src/faust/jconv_post_mono.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace jconv_post_mono {
@@ -22,7 +22,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	clear_state_f();
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0)
 {
 	double 	fSlow0 = (0.01 * fslider0);
 	double 	fSlow1 = (1 - fSlow0);

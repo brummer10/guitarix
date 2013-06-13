@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_ampmodul.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -165,24 +165,24 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst1 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = (1.0 / tan((20517.741620594938 / iConst0)));
+	fConst4 = (1.0 / tan((20517.741620594938 / double(iConst0))));
 	fConst5 = (1 + fConst4);
 	fConst6 = (0 - ((1 - fConst4) / fConst5));
-	fConst7 = (1.0 / tan((270.1769682087222 / iConst0)));
+	fConst7 = (1.0 / tan((270.1769682087222 / double(iConst0))));
 	fConst8 = (1 + fConst7);
 	fConst9 = (0 - ((1 - fConst7) / fConst8));
 	fConst10 = (1.0 / fConst8);
 	fConst11 = (0 - fConst1);
 	fConst12 = (0.025 / fConst2);
 	fConst13 = (1.0 / fConst5);
-	fConst14 = (1.0 / tan((414.6902302738527 / iConst0)));
+	fConst14 = (1.0 / tan((414.6902302738527 / double(iConst0))));
 	fConst15 = (1 + fConst14);
 	fConst16 = (0 - ((1 - fConst14) / fConst15));
 	fConst17 = (1.0 / fConst15);
-	fConst18 = (1.0 / tan((609.4689747964198 / iConst0)));
+	fConst18 = (1.0 / tan((609.4689747964198 / double(iConst0))));
 	fConst19 = (1 + fConst18);
 	fConst20 = (0 - ((1 - fConst18) / fConst19));
 	fConst21 = (1.0 / fConst19);
@@ -194,7 +194,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
@@ -204,12 +204,12 @@ inline void Dsp::compute(int count, float *input0, float *input1, float *output0
 #define fslider5 (*fslider5_)
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = fslider1;
-	double 	fSlow2 = (1 - max(0, fSlow1));
+	double 	fSlow2 = (1 - max((double)0, fSlow1));
 	double 	fSlow3 = fslider2;
 	double 	fSlow4 = (0.0010000000000000009 * pow(10,(0.05 * fslider3)));
 	double 	fSlow5 = (0.0010000000000000009 * pow(10,(0.05 * fslider4)));
 	double 	fSlow6 = (0.0010000000000000009 * pow(10,(0.05 * fslider5)));
-	double 	fSlow7 = (1 - max(0, (0 - fSlow1)));
+	double 	fSlow7 = (1 - max((double)0, (0 - fSlow1)));
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fRec0[0] = (fTemp0 - (fSlow0 * fRec0[5]));

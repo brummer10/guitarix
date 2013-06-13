@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxtilttone.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -112,16 +112,16 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst1 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = (1.0 / tan((20517.741620594938 / iConst0)));
+	fConst4 = (1.0 / tan((20517.741620594938 / double(iConst0))));
 	fConst5 = (1 + fConst4);
 	fConst6 = (0 - ((1 - fConst4) / fConst5));
-	fConst7 = (1.0 / tan((5830.795965062656 / iConst0)));
+	fConst7 = (1.0 / tan((5830.795965062656 / double(iConst0))));
 	fConst8 = (1 + fConst7);
 	fConst9 = (0 - ((1 - fConst7) / fConst8));
-	fConst10 = (1.0 / tan((270.1769682087222 / iConst0)));
+	fConst10 = (1.0 / tan((270.1769682087222 / double(iConst0))));
 	fConst11 = (1 + fConst10);
 	fConst12 = (0 - ((1 - fConst10) / fConst11));
 	fConst13 = (1.0 / fConst11);
@@ -129,7 +129,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst15 = (0.025 / fConst2);
 	fConst16 = (0 - fConst7);
 	fConst17 = (1.0 / fConst8);
-	fConst18 = (1.0 / tan((1281.7698026646356 / iConst0)));
+	fConst18 = (1.0 / tan((1281.7698026646356 / double(iConst0))));
 	fConst19 = (1 + fConst18);
 	fConst20 = (0 - ((1 - fConst18) / fConst19));
 	fConst21 = (1.0 / fConst19);
@@ -142,7 +142,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)

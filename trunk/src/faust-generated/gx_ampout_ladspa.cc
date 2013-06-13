@@ -1,5 +1,5 @@
 // generated from file '../src/faust/gx_ampout_ladspa.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace gx_ampout_ladspa {
@@ -29,7 +29,7 @@ public:
 
 
 static const char* parm_groups[] = {
-	".amp", N_("Default"),
+	".amp", N_("?"),
 	0
 	};
 
@@ -77,7 +77,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * ((int(fcheckbox0))?(fSlow0 + fslider1):fSlow0))));

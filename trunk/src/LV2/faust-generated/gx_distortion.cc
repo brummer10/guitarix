@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_distortion.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace gx_distortion {
@@ -175,14 +175,14 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((20517.741620594938 / iConst0)));
+	fConst1 = (1.0 / tan((20517.741620594938 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = (3.141592653589793 / iConst0);
-	fConst5 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst4 = (3.141592653589793 / double(iConst0));
+	fConst5 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst6 = (1 + fConst5);
 	fConst7 = (0 - ((1 - fConst5) / fConst6));
-	fConst8 = tan((47123.8898038469 / iConst0));
+	fConst8 = tan((47123.8898038469 / double(iConst0)));
 	fConst9 = (2 * (1 - (1.0 / faustpower<2>(fConst8))));
 	fConst10 = (1.0 / fConst8);
 	fConst11 = (1 + ((fConst10 - 1.414213562373095) / fConst8));
@@ -200,7 +200,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
@@ -305,17 +305,17 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fVec4[0] = fTemp7;
 		fRec3[0] = ((fSlow39 * ((fSlow38 * fVec4[1]) + (fSlow37 * fTemp6))) + (fSlow11 * fRec3[1]));
 		fRec2[0] = (fRec3[0] - (fSlow9 * ((fSlow7 * fRec2[2]) + (fSlow5 * fRec2[1]))));
-		double fTemp8 = max(-1, min(1, (fSlow43 + (fSlow42 * (((fSlow4 * fRec2[0]) + (fSlow40 * fRec2[1])) + (fSlow4 * fRec2[2]))))));
+		double fTemp8 = max((double)-1, min((double)1, (fSlow43 + (fSlow42 * (((fSlow4 * fRec2[0]) + (fSlow40 * fRec2[1])) + (fSlow4 * fRec2[2]))))));
 		fRec12[0] = (fSlow44 + (0.999 * fRec12[1]));
 		fRec14[0] = ((fSlow39 * (fVec4[0] + fVec4[1])) + (fSlow11 * fRec14[1]));
 		fRec13[0] = (fRec14[0] - (fSlow9 * ((fSlow7 * fRec13[2]) + (fSlow5 * fRec13[1]))));
-		double fTemp9 = max(-1, min(1, (fSlow43 + (fSlow45 * (fRec13[2] + (fRec13[0] + (2 * fRec13[1])))))));
+		double fTemp9 = max((double)-1, min((double)1, (fSlow43 + (fSlow45 * (fRec13[2] + (fRec13[0] + (2 * fRec13[1])))))));
 		fRec15[0] = (fSlow46 + (0.999 * fRec15[1]));
 		double fTemp10 = (fSlow5 * fRec16[1]);
 		fRec18[0] = ((fSlow36 * ((fSlow50 * fVec3[1]) + (fSlow49 * fTemp4))) + (fSlow20 * fRec18[1]));
 		fRec17[0] = (fRec18[0] - (fSlow18 * ((fSlow16 * fRec17[2]) + (fSlow14 * fRec17[1]))));
 		fRec16[0] = ((fSlow18 * (((fSlow13 * fRec17[0]) + (fSlow51 * fRec17[1])) + (fSlow13 * fRec17[2]))) - (fSlow48 * ((fSlow47 * fRec16[2]) + fTemp10)));
-		double fTemp11 = max(-1, min(1, (fSlow43 + (fSlow52 * (fRec16[2] + (fSlow48 * (fTemp10 + (fSlow47 * fRec16[0]))))))));
+		double fTemp11 = max((double)-1, min((double)1, (fSlow43 + (fSlow52 * (fRec16[2] + (fSlow48 * (fTemp10 + (fSlow47 * fRec16[0]))))))));
 		fRec19[0] = (fSlow53 + (0.999 * fRec19[1]));
 		double fTemp12 = (fSlow5 * fRec20[1]);
 		double fTemp13 = (fSlow14 * fRec21[1]);
@@ -323,7 +323,7 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		fRec22[0] = (fRec23[0] - (fSlow27 * ((fSlow25 * fRec22[2]) + (fSlow23 * fRec22[1]))));
 		fRec21[0] = ((fSlow27 * (((fSlow22 * fRec22[0]) + (fSlow57 * fRec22[1])) + (fSlow22 * fRec22[2]))) - (fSlow55 * ((fSlow54 * fRec21[2]) + fTemp13)));
 		fRec20[0] = ((fRec21[2] + (fSlow55 * (fTemp13 + (fSlow54 * fRec21[0])))) - (fSlow48 * ((fSlow47 * fRec20[2]) + fTemp12)));
-		double fTemp14 = max(-1, min(1, (fSlow43 + (fSlow58 * (fRec20[2] + (fSlow48 * (fTemp12 + (fSlow47 * fRec20[0]))))))));
+		double fTemp14 = max((double)-1, min((double)1, (fSlow43 + (fSlow58 * (fRec20[2] + (fSlow48 * (fTemp12 + (fSlow47 * fRec20[0]))))))));
 		fRec24[0] = (fSlow59 + (0.999 * fRec24[1]));
 		double fTemp15 = (((fRec24[0] * fTemp14) * (1 - (0.3333333333333333 * faustpower<2>(fTemp14)))) + (((fRec19[0] * fTemp11) * (1 - (0.3333333333333333 * faustpower<2>(fTemp11)))) + (((fRec15[0] * fTemp9) * (1 - (0.3333333333333333 * faustpower<2>(fTemp9)))) + ((fRec12[0] * fTemp8) * (1 - (0.3333333333333333 * faustpower<2>(fTemp8)))))));
 		fVec5[0] = fTemp15;

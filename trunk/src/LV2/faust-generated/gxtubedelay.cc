@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxtubedelay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -139,23 +139,23 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((20517.741620594938 / iConst0)));
+	fConst1 = (1.0 / tan((20517.741620594938 / double(iConst0))));
 	fConst2 = (1 + fConst1);
 	fConst3 = (0 - ((1 - fConst1) / fConst2));
-	fConst4 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst4 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst5 = (1 + fConst4);
 	fConst6 = (0 - ((1 - fConst4) / fConst5));
-	fConst7 = (1.0 / tan((6.5973445725385655 / iConst0)));
+	fConst7 = (1.0 / tan((6.5973445725385655 / double(iConst0))));
 	fConst8 = (1 + fConst7);
 	fConst9 = (0 - ((1 - fConst7) / fConst8));
 	fConst10 = (1.0 / fConst8);
 	fConst11 = (0 - fConst4);
 	fConst12 = (0.025 / fConst5);
 	fConst13 = (1.0 / fConst2);
-	fConst14 = (1.0 / tan((37699.11184307752 / iConst0)));
+	fConst14 = (1.0 / tan((37699.11184307752 / double(iConst0))));
 	fConst15 = (1 + fConst14);
 	fConst16 = (0 - ((1 - fConst14) / fConst15));
-	fConst17 = tan((376.99111843077515 / iConst0));
+	fConst17 = tan((376.99111843077515 / double(iConst0)));
 	fConst18 = (1.0 / fConst17);
 	fConst19 = (1 + fConst18);
 	fConst20 = (0 - ((1 - fConst18) / fConst19));
@@ -164,7 +164,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst23 = (1.0 / fConst19);
 	fConst24 = (1.0 / fConst15);
 	IOTA = 0;
-	fConst25 = (1e+01 / iConst0);
+	fConst25 = (1e+01 / double(iConst0));
 	fConst26 = (0 - fConst25);
 	fConst27 = (0.001 * iConst0);
 }
@@ -193,7 +193,7 @@ int Dsp::activate(bool start)
 			mem_alloc();
 			clear_state_f();
 		}
-	} else if (!mem_allocated) {
+	} else if (mem_allocated) {
 		mem_free();
 	}
 	return 0;
@@ -204,7 +204,7 @@ int Dsp::activate_static(bool start, PluginLV2 *p)
 	return static_cast<Dsp*>(p)->activate(start);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)

@@ -1,5 +1,5 @@
 // generated from file '../src/faust/flanger.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace flanger {
@@ -85,7 +85,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586 / iConst0);
+	fConst1 = (6.283185307179586 / double(iConst0));
 	clear_state_f();
 }
 
@@ -94,7 +94,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = pow(10,(0.05 * fslider0));
 	double 	fSlow1 = fslider1;

@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/expander.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.57 (http://faust.grame.fr)
 
 
 namespace expander {
@@ -72,9 +72,9 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = exp((0 - (1e+01 / iConst0)));
+	fConst1 = exp((0 - (1e+01 / double(iConst0))));
 	fConst2 = (1 - fConst1);
-	fConst3 = (1.0 / iConst0);
+	fConst3 = (1.0 / double(iConst0));
 	clear_state_f();
 }
 
@@ -83,7 +83,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-inline void Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
@@ -102,8 +102,8 @@ inline void Dsp::compute(int count, float *input0, float *output0)
 		double fTemp1 = max(fRec1[0], fTemp0);
 		double fTemp2 = ((fSlow1 * (fRec0[1] >= fTemp1)) + (fSlow0 * (fRec0[1] < fTemp1)));
 		fRec0[0] = ((fTemp1 * (0 - (fTemp2 - 1))) + (fRec0[1] * fTemp2));
-		double fTemp3 = max(0, (fSlow3 - (20 * log10(fRec0[0]))));
-		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * (fTemp3 * (0 - (fSlow5 * min(1, max(0, (fSlow4 * fTemp3)))))))));
+		double fTemp3 = max((double)0, (fSlow3 - (20 * log10(fRec0[0]))));
+		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * (fTemp3 * (0 - (fSlow5 * min((double)1, max((double)0, (fSlow4 * fTemp3)))))))));
 		// post processing
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
