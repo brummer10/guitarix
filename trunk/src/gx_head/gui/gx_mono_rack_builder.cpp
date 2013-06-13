@@ -406,10 +406,23 @@ void StackBoxBuilder::make_rackbox_digital_delay() {
             create_small_rackknob("dide.bpm", _(" delay (bpm)"));
         }
         closeBox();
-	    set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
-	    create_small_rackknob("dide.highpass", _("highpass(hz)"));
-	    set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
-	    create_small_rackknob("dide.howpass", _("howpass(hz)"));
+        openVerticalBox("");
+        {
+            openHorizontalBox("");
+            openFrameBox("");
+            closeBox();
+            create_selector("dide.mode");
+            closeBox();
+            openHorizontalBox("");
+            {
+                set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
+                create_small_rackknob("dide.highpass", _("highpass(hz)"));
+                set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
+                create_small_rackknob("dide.howpass", _("howpass(hz)"));
+            }
+            closeBox();
+        }
+        closeBox();
         openVerticalBox("");
         {
             create_small_rackknob("dide.level", _("level"));
