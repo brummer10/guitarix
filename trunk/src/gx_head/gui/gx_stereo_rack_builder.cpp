@@ -386,7 +386,7 @@ void StackBoxBuilder::make_rackbox_digital_delay_st() {
             openHorizontalBox("");
             openFrameBox("");
             closeBox();
-            create_selector("dide.mode");
+            create_selector("didest.mode");
             closeBox();
             openHorizontalBox("");
             {
