@@ -86,6 +86,7 @@ protected:
     gx_engine::FloatParameter& param;
     Gxw::Regler *m_regler;
     bool log_display;
+    bool blocked;
     void on_value_changed();
     void set_regler_value(float v);
  public:
@@ -255,16 +256,21 @@ struct uiAdjustment: public uiElement {
     gx_engine::GxMachineBase& machine;
     const std::string id;
     Gtk::Adjustment* fAdj;
+    bool blocked;
     uiAdjustment(gx_engine::GxMachineBase& machine_, const std::string& id_, Gtk::Adjustment* adj)
-	: uiElement(), machine(machine_), id(id_), fAdj(adj) {
+	: uiElement(), machine(machine_), id(id_), fAdj(adj), blocked(false) {
 	fAdj->set_value(machine.get_parameter_value<float>(id));
 	machine.signal_parameter_value<float>(id).connect(sigc::mem_fun(this, &uiAdjustment::on_parameter_changed));
     }
     void changed() {
-	machine.set_parameter_value(id, fAdj->get_value());
+	if (!blocked) {
+	    machine.set_parameter_value(id, fAdj->get_value());
+	}
     }
     void on_parameter_changed(float v) {
+	blocked = true;
 	fAdj->set_value(v);
+	blocked = false;
     }
 };
 

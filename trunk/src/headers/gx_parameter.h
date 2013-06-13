@@ -261,6 +261,7 @@ public:
     FloatEnumParameter(const string& id, const string& name, const value_pair* vn, bool preset, float *v,
                        int sv, int low, bool ctrl, bool no_init);
     virtual void serializeJSON(gx_system::JsonWriter& jw);
+    float idx_from_id(string v_id);
 };
 
 /****************************************************************/

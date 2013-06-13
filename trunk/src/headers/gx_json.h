@@ -92,16 +92,29 @@ class JsonParser {
     void reset();
     bool is_closed() { return !is; }
     void set_stream(istream* i) { is = i; }
+    istream *get_stream() { return is; }
     enum token {
-        no_token, end_token, begin_object, end_object, begin_array, end_array,
-        value_string, value_number, value_key };
-    static const char* token_names[];
+        no_token = 0x0000,
+	end_token = 0x0001,
+	begin_object = 0x002,
+	end_object = 0x0004,
+	begin_array = 0x0008,
+	end_array = 0x0010,
+	value_string = 0x0020,
+	value_number = 0x0040,
+	value_key = 0x0080,
+	value_null = 0x0100,
+	value_false = 0x0200,
+	value_true = 0x0400,
+	value_bool = 0x0600, // value_false | value_true
+    };
+    const char* get_token_name(token tok);
     bool good() { return is->good(); }
     token next(token expect = no_token);
     token peek() { return next_tok; }
     streampos get_streampos() { return next_pos + streamoff(-1); }
     void set_streampos(streampos pos);
-    void check_expect(token expect) { if (cur_tok != expect) throw_unexpected(expect); }
+    void check_expect(token expect) { if ((cur_tok & expect) == 0) throw_unexpected(expect); }
     inline string current_value() const { return str; }
     int current_value_int() { return atoi(str.c_str()); }
     unsigned int current_value_uint() { return atoi(str.c_str()); }
@@ -119,6 +132,7 @@ class JsonParser {
     }
     void copy_object(JsonWriter& jw);
     void skip_object();
+    void throw_unexpected(token expect);
  private:
     istream* is;
     int depth;
@@ -131,9 +145,9 @@ class JsonParser {
     streampos next_pos;
     const char* readcode();
     string readstring();
+    token read_value_token(char c);
     string readnumber(char c);
     void read_next();
-    void throw_unexpected(token expect);
 };
 
 

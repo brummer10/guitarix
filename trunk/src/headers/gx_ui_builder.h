@@ -224,7 +224,8 @@ protected:
     virtual bool load(gx_engine::Plugin *p);
 public:
     UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl=0);
-    bool load_unit(PluginUI &pl);
+    bool load_unit(PluginDef *pl);
+    friend class gx_engine::GxMachineRemote;
 };
 
 GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname);

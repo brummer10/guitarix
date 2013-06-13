@@ -23,6 +23,8 @@
 
 #include <ext/stdio_filebuf.h>
 
+namespace gx_gui { class UiBuilderImpl; }
+
 namespace gx_engine {
 
 class GxMachineBase {
@@ -55,6 +57,7 @@ public:
     virtual int pluginlist_add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0) = 0;
     virtual void pluginlist_delete_module(Plugin *pl) = 0;
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const = 0;
+    virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) = 0;
     virtual PluginDef *ladspaloader_create(unsigned int idx) = 0;
     virtual PluginDef *ladspaloader_create(plugdesc *p) = 0;
     virtual LadspaLoader::pluginarray::iterator ladspaloader_find(unsigned long uniqueid) = 0;
@@ -228,6 +231,7 @@ public:
     virtual int pluginlist_add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     virtual void pluginlist_delete_module(Plugin *pl);
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
+    virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
     virtual PluginDef *ladspaloader_create(unsigned int idx);
     virtual PluginDef *ladspaloader_create(plugdesc *p);
     virtual LadspaLoader::pluginarray::iterator ladspaloader_find(unsigned long uniqueid);
@@ -342,12 +346,14 @@ class GxMachineRemote: public GxMachineBase {
 private:
     gx_system::CmdlineOptions& options;
     ParamMap  pmap;
+    PluginListBase pluginlist;
+    sigc::signal<void,GxEngineState> engine_state_change;
     Glib::RefPtr<Gio::Socket> socket;
     __gnu_cxx::stdio_filebuf<char> *writebuf;
     ostream *os;
     gx_system::JsonWriter *jw;
+    stringstream *is;
     gx_system::JsonParser jp;
-    std::stringbuf inbuf;
     std::map<string,sigc::signal<void,int>*> signals_int;
     std::map<string,sigc::signal<void,bool>*> signals_bool;
     std::map<string,sigc::signal<void,float>*> signals_float;
@@ -355,14 +361,17 @@ private:
     void start_notify(const char *method);
     void start_call(const char *method);
     void send();
-    bool receive(istringstream& is);
-    void load_parameter();
+    bool receive(gx_system::JsonParser *jp = 0, bool verbose=false);
+    bool socket_input_handler(Glib::IOCondition cond);
+    void _request_parameter_value(const std::string& id);
+    static int load_remote_ui(const UiBuilder& builder);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id);
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id);
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id);
+
 public:
     GxMachineRemote(gx_system::CmdlineOptions& options);
     virtual ~GxMachineRemote();
@@ -383,6 +392,7 @@ public:
     virtual int pluginlist_add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     virtual void pluginlist_delete_module(Plugin *pl);
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
+    virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
     virtual PluginDef *ladspaloader_create(unsigned int idx);
     virtual PluginDef *ladspaloader_create(plugdesc *p);
     virtual LadspaLoader::pluginarray::iterator ladspaloader_find(unsigned long uniqueid);

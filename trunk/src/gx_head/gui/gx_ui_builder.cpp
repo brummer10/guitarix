@@ -82,8 +82,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     set_next_flags = set_next_flags_;
 };
 
-bool UiBuilderImpl::load_unit(PluginUI &pl) {
-    PluginDef *pd = pl.plugin->pdef;
+bool UiBuilderImpl::load_unit(PluginDef *pd) {
     if (!pd->load_ui) {
 	return false;
     }
@@ -380,14 +379,12 @@ static void make_switch_controller(gx_engine::GxMachineBase& machine, Glib::RefP
     w->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
     Gtk::ToggleButton *t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
     if (p.isFloat()) {
-	gx_engine::FloatParameter &fp = p.getFloat();
-	w->cp_set_value(fp.get_value());
+	w->cp_set_value(machine.get_parameter_value<float>(p.id()));
 	if (t) {
 	    destroy_with_widget(t, new uiToggle<float>(machine, t, p.id()));
 	}
     } else if (p.isBool()) {
-	gx_engine::BoolParameter &fp = p.getBool();
-	w->cp_set_value(fp.get_value());
+	w->cp_set_value(machine.get_parameter_value<bool>(p.id()));
 	if (t) {
 	    destroy_with_widget(t, new uiToggle<bool>(machine, t, p.id()));
 	}
@@ -449,13 +446,13 @@ static void make_continuous_controller(gx_engine::GxMachineBase& machine, Glib::
 		prec));
 	r->signal_input_value().connect(
 	    sigc::ptr_fun(logarithmic_input_value));
-	w->cp_set_value(log10(fp.get_value()));
+	w->cp_set_value(log10(machine.get_parameter_value<float>(p.id())));
 	uiAdjustmentLog* c = new uiAdjustmentLog(machine, p.id(), adj);
 	adj->signal_value_changed().connect(sigc::mem_fun(c, &uiAdjustmentLog::changed));
 	destroy_with_widget(r.operator->(), c);
     } else {
 	w->cp_configure(p.l_group(), p.l_name(), fp.getLowerAsFloat(), fp.getUpperAsFloat(), fp.getStepAsFloat());
-	w->cp_set_value(fp.get_value());
+	w->cp_set_value(machine.get_parameter_value<float>(p.id()));
 	uiAdjustment* c = new uiAdjustment(machine, p.id(), adj);
 	adj->signal_value_changed().connect(
 	    sigc::mem_fun(c, &uiAdjustment::changed));
@@ -480,10 +477,10 @@ static void make_enum_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr
     w->cp_configure(p.l_group(), p.l_name(), p.getLowerAsFloat(), p.getUpperAsFloat(), 1.0);
     if (p.isInt()) {
 	destroy_with_widget(t, new uiSelector<int>(machine, t, p.id()));
-	t->cp_set_value(p.getInt().get_value());
+	t->cp_set_value(machine.get_parameter_value<int>(p.id()));
     } else if (p.isFloat()) {
 	destroy_with_widget(t, new uiSelector<float>(machine, t, p.id()));
-	t->cp_set_value(p.getFloat().get_value());
+	t->cp_set_value(machine.get_parameter_value<float>(p.id()));
     } else {
 	gx_system::gx_print_warning(
 	    "load dialog",

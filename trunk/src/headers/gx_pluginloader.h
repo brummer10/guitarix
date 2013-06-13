@@ -49,6 +49,8 @@ public:
     enum { POST_WEIGHT = 2000 };
     inline int position_weight() { return effect_post_pre ? position : position + POST_WEIGHT; }
     Plugin(PluginDef *pl=0);
+    Plugin(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& jw);
 };
 
 /****************************************************************
@@ -66,7 +68,7 @@ public:
 
 class ParamRegImpl: public ParamReg {
 private:
-    static gx_engine::ParamMap *pmap;
+    static ParamMap *pmap;
     static float *registerVar_(const char* id, const char* name, const char* tp,
 			       const char* tooltip, float* var, float val,
 			       float low, float up, float step);
@@ -79,7 +81,7 @@ private:
     static void registerIEnumVar_(const char *id, const char* name, const char* tp,
 				  const char* tooltip, const value_pair* values, int *var, int val);
 public:
-    ParamRegImpl(gx_engine::ParamMap* pm);
+    ParamRegImpl(ParamMap* pm);
 };
 
 /****************************************************************
@@ -102,16 +104,27 @@ public :
     virtual void *zone() = 0;
 };
 
-class PluginList {
+class PluginListBase {
 public:
     typedef pair<const char*, Plugin*> map_pair;
     typedef map<const char*, Plugin*, stringcomp> pluginmap;
-private:
+protected:
     enum PluginPosInternal {
 	PLUGIN_POS_RACK_STEREO = PLUGIN_POS_END+1,
 	PLUGIN_POS_COUNT		// keep last one
     };
     pluginmap pmap;
+public:
+    PluginListBase();
+    ~PluginListBase();
+    Plugin *find_plugin(const char *id) const;
+    Plugin *lookup_plugin(const char *id) const;
+    void append_rack(UiBuilderBase& ui);
+    void writeJSON(gx_system::JsonWriter& jw);
+    void readJSON(gx_system::JsonParser& jp);
+};
+
+class PluginList: public PluginListBase {
     EngineControl& seq;
     gx_ui::GxUI& ui;
     list<RackChangerUiItemBase*> rackchanger;
@@ -120,8 +133,6 @@ private:
 public:
     PluginList(gx_ui::GxUI& ui, EngineControl& seq);
     ~PluginList();
-    Plugin *find_plugin(const char *id) const;
-    Plugin *lookup_plugin(const char *id) const;
     void set_samplerate(int samplerate); // call set_samplerate of all plugins
     int* pos_var(const char *id);     // return the position of the plugin
     bool* on_off_var(const char *id); // return the on/off switch variable of the plugin
@@ -139,8 +150,7 @@ public:
     void unregisterGroup(PluginDef *pd, ParameterGroups& groups);
     void unregisterParameter(Plugin *pl, ParamMap& param);
     void unregisterPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups);
-    void registerAllPlugins(gx_engine::ParamMap& param, gx_engine::ParameterGroups& groups);
-    void append_rack(UiBuilderBase& ui);
+    void registerAllPlugins(ParamMap& param, ParameterGroups& groups);
     void ordered_mono_list(list<Plugin*>& mono, int mode);
     void ordered_stereo_list(list<Plugin*>& stereo, int mode);
     void ordered_list(list<Plugin*>& l, bool stereo, int flagmask, int flagvalue);

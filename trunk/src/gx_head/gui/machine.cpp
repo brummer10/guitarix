@@ -184,6 +184,10 @@ Plugin *GxMachine::pluginlist_lookup_plugin(const char *id) const {
     return engine.pluginlist.lookup_plugin(id);
 }
 
+bool GxMachine::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) {
+    return builder.load_unit(pdef);
+}
+
 PluginDef *GxMachine::ladspaloader_create(unsigned int idx) {
     return engine.ladspaloader.create(idx);
 }
@@ -543,14 +547,17 @@ bool GxMachine::parameter_unit_has_std_values(Glib::ustring group_id) const {
 }
 
 void GxMachine::set_parameter_value(const std::string& id, int value) {
+    //cerr << "SVI " << id << ": " << value << endl;
     pmap[id].getInt().set(value);
 }
 
 void GxMachine::set_parameter_value(const std::string& id, bool value) {
+    //cerr << "SVB " << id << ": " << value << endl;
     pmap[id].getBool().set(value);
 }
 
 void GxMachine::set_parameter_value(const std::string& id, float value) {
+    //cerr << "SVF " << id << ": " << value << endl;
     pmap[id].getFloat().set(value);
 }
 
@@ -665,10 +672,12 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     : GxMachineBase(),
       options(options_),
       pmap(),
+      pluginlist(),
       socket(),
       writebuf(),
       os(),
       jw(),
+      is(0),
       jp() {
     socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
     Glib::RefPtr<Gio::InetAddress> a = Gio::InetAddress::create("127.0.0.1");
@@ -681,12 +690,21 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     writebuf = new __gnu_cxx::stdio_filebuf<char>(socket->get_fd(), std::ios::out);
     os = new ostream(writebuf);
     jw = new gx_system::JsonWriter(os, false);
+
     start_call("parameterlist");
     send();
-    istringstream is;
-    receive(is);
-    load_parameter();
-    jp.reset();
+    receive();
+    pmap.readJSON(jp);
+    start_call("pluginlist");
+    send();
+    receive();
+    pluginlist.readJSON(jp);
+    Glib::signal_io().connect(
+	sigc::mem_fun(this, &GxMachineRemote::socket_input_handler),
+	socket->get_fd(), Glib::IO_IN|Glib::IO_HUP);
+    start_notify("listen");
+    jw->write("all");
+    send();
 }
 
 GxMachineRemote::~GxMachineRemote() {
@@ -695,6 +713,66 @@ GxMachineRemote::~GxMachineRemote() {
     writebuf->close();
     delete os;
     delete writebuf;
+}
+
+bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
+    if (cond == Glib::IO_HUP) {
+	return false;
+    }
+    char buf[10000];
+    int n = socket->receive(buf, sizeof(buf));
+    delete is;
+    is = new stringstream(std::string(buf, n));
+    jp.set_stream(is);
+    jp.reset();
+    try {
+	jp.next(gx_system::JsonParser::begin_object);
+	jp.next(gx_system::JsonParser::value_key);
+	jp.next(gx_system::JsonParser::value_string);
+	jp.next(gx_system::JsonParser::value_key);
+	jp.next(gx_system::JsonParser::value_string);
+	std::string method = jp.current_value();
+	jp.next(gx_system::JsonParser::value_key);
+	if (method == "state_changed") {
+	    jp.next(gx_system::JsonParser::begin_array);
+	    jp.next(gx_system::JsonParser::value_string);
+	    engine_state_change(string_to_engine_state(jp.current_value()));
+	} else if (method == "set") {
+	    jp.next(gx_system::JsonParser::begin_array);
+	    while (jp.peek() != gx_system::JsonParser::end_array) {
+		jp.next(gx_system::JsonParser::value_string);
+		Parameter& p = pmap[jp.current_value()];
+		if (p.isFloat()) {
+		    jp.next(gx_system::JsonParser::value_number);
+		    std::map<std::string,sigc::signal<void,float>* >::iterator i = signals_float.find(p.id());
+		    if (i != signals_float.end()) {
+			(*i->second)(jp.current_value_float());
+		    }
+		} else if (p.isInt()) {
+		    jp.next(gx_system::JsonParser::value_number);
+		    std::map<std::string,sigc::signal<void,int>* >::iterator i = signals_int.find(p.id());
+		    if (i != signals_int.end()) {
+			(*i->second)(jp.current_value_int());
+		    }
+		} else if (p.isBool()) {
+		    jp.next(gx_system::JsonParser::value_number);
+		    std::map<std::string,sigc::signal<void,bool>* >::iterator i = signals_bool.find(p.id());
+		    if (i != signals_bool.end()) {
+			(*i->second)(jp.current_value_int());
+		    }
+		} else if (p.isFile() || p.isString()) {
+		} else {
+		}
+	    }
+	    jp.next(gx_system::JsonParser::end_array);
+	} else {
+	    printf("> %.*s", n, buf); fflush(stdout);
+	}
+    } catch (gx_system::JsonException e) {
+	cerr << "JsonException: " << e.what() << endl;
+	assert(false);
+    }
+    return true;
 }
 
 void GxMachineRemote::start_notify(const char *method) {
@@ -726,14 +804,28 @@ void GxMachineRemote::send() {
     jw->reset();
 }
 
-bool GxMachineRemote::receive(istringstream& is) {
+bool GxMachineRemote::receive(gx_system::JsonParser *jpl, bool verbose) {
     char buf[10000];
     socket->set_blocking(true);
+    iostream *isl;
+    if (jpl) {
+	isl = static_cast<iostream*>(jpl->get_stream()); //FIXME
+    } else {
+	delete is;
+	is = new stringstream();
+	jp.set_stream(is);
+	jp.reset();
+	isl = is;
+	jpl = &jp;
+    }
     while (true) {
 	int n;
 	try {
 	    n = socket->receive(buf, sizeof(buf));
-	    //if (n > 0) { printf("%.*s", n, buf); fflush(stdout); }
+	    if (verbose && n > 0) {
+		printf("%.*s", n, buf);
+		fflush(stdout);
+	    }
 	} catch(Glib::Error e) {
 	    return false;
 	}
@@ -742,44 +834,50 @@ bool GxMachineRemote::receive(istringstream& is) {
 	}
 	char *p = buf;
 	while (n-- > 0) {
-	    inbuf.sputc(*p);
+	    isl->put(*p);
 	    if (*p == '\n') {
-		break;
+		isl->seekg(0);
+		jpl->next(gx_system::JsonParser::begin_object);
+		jpl->next(gx_system::JsonParser::value_key); // "jsonrpc"
+		jpl->next(gx_system::JsonParser::value_string); // "2.0"
+		jpl->next(gx_system::JsonParser::value_key);
+		if (jpl->current_value() == "id") {
+		    jpl->next(gx_system::JsonParser::value_string); // id
+		    jpl->next(gx_system::JsonParser::value_key); // "result"
+		    return true;
+		} else {
+		    assert(jpl->current_value() == "method");
+		    isl->seekp(0);
+		    jp.reset();
+		}
 	    }
 	    p++;
 	}
-	if (*p == '\n') {
-	    break;
-	}
     }
-    is.ios::rdbuf(&inbuf);
-    jp.set_stream(&is);
-    jp.next(gx_system::JsonParser::begin_object);
-    jp.next(gx_system::JsonParser::value_key);
-    jp.next(gx_system::JsonParser::value_string);
-    jp.next(gx_system::JsonParser::value_key);
-    jp.next(gx_system::JsonParser::value_string);
-    jp.next(gx_system::JsonParser::value_key);
-    return true;
-}
-
-void GxMachineRemote::load_parameter() {
-    pmap.readJSON(jp);
-#ifndef NDEBUG
-    pmap.dump("json");
-#endif
 }
 
 void GxMachineRemote::set_state(GxEngineState state) {
+    start_notify("setstate");
+    jw->write(engine_state_to_string(state));
+    send();
 }
 
 GxEngineState GxMachineRemote::get_state() {
-    return gx_engine::kEngineOn;
+    start_call("getstate");
+    send();
+    receive();
+    jp.next(gx_system::JsonParser::value_string);
+    return string_to_engine_state(jp.current_value());
 }
 
 unsigned int GxMachineRemote::get_samplerate() {
     return 44100;
 }
+
+
+/*
+** LadspaLoader
+*/
 
 bool GxMachineRemote::ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p) {
     return false;
@@ -798,6 +896,22 @@ LadspaLoader::pluginarray::iterator GxMachineRemote::ladspaloader_end() {
 void GxMachineRemote::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) {
 }
 
+PluginDef *GxMachineRemote::ladspaloader_create(unsigned int idx) {
+    return 0;
+}
+
+PluginDef *GxMachineRemote::ladspaloader_create(plugdesc *p) {
+    return 0;
+}
+
+LadspaLoader::pluginarray::iterator GxMachineRemote::ladspaloader_find(unsigned long uniqueid) {
+    LadspaLoader::pluginarray p;
+    return p.begin();
+}
+
+void GxMachineRemote::ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) {
+}
+
 bool GxMachineRemote::update_module_lists() {
     return false;
 }
@@ -810,6 +924,11 @@ void GxMachineRemote::mono_chain_release() {
 
 void GxMachineRemote::stereo_chain_release() {
 }
+
+
+/*
+** PluginList
+*/
 
 int GxMachineRemote::pluginlist_add(Plugin *pl, PluginPos pos, int flags) {
     return 0;
@@ -831,39 +950,119 @@ void GxMachineRemote::pluginlist_delete_module(Plugin *pl) {
 }
 
 Plugin *GxMachineRemote::pluginlist_lookup_plugin(const char *id) const {
-    return 0;
-}
-
-PluginDef *GxMachineRemote::ladspaloader_create(unsigned int idx) {
-    return 0;
-}
-
-PluginDef *GxMachineRemote::ladspaloader_create(plugdesc *p) {
-    return 0;
-}
-
-LadspaLoader::pluginarray::iterator GxMachineRemote::ladspaloader_find(unsigned long uniqueid) {
-    LadspaLoader::pluginarray p;
-    return p.begin();
-}
-
-void GxMachineRemote::ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) {
+    return pluginlist.lookup_plugin(id);
 }
 
 void GxMachineRemote::pluginlist_append_rack(UiBuilderBase& ui) {
+    pluginlist.append_rack(ui);
 }
 
 void GxMachineRemote::pluginlist_registerPlugin(Plugin *pl) {
+    assert(false);
 }
 
-const std::string& GxMachineRemote::conv_getIRFile(const char *id) {
-    static std::string s = "";
-    return s;
+static const char *next_char_pointer(gx_system::JsonParser& jp) {
+    switch (jp.next()) {
+    case gx_system::JsonParser::value_string: return jp.current_value().c_str();
+    case gx_system::JsonParser::value_null: return 0;
+    default: jp.throw_unexpected(gx_system::JsonParser::value_string); return 0;
+    }
 }
 
-float GxMachineRemote::get_tuner_freq() {
+static const std::string next_string(gx_system::JsonParser& jp) {
+    if (jp.next() != gx_system::JsonParser::value_string) {
+	jp.throw_unexpected(gx_system::JsonParser::value_string);
+    }
+    return jp.current_value();
+}
+
+int GxMachineRemote::load_remote_ui(const UiBuilder& builder) {
+    GxMachineRemote *m = dynamic_cast<GxMachineRemote*>(&static_cast<const gx_gui::UiBuilderImpl*>(&builder)->main.get_machine());
+    m->start_call("plugin_load_ui");
+    m->jw->write(builder.plugin->id);
+    m->send();
+    try {
+	stringstream is;
+	gx_system::JsonParser jp(&is);
+	m->receive(&jp);
+	jp.next(gx_system::JsonParser::begin_array);
+	while (jp.peek() != gx_system::JsonParser::end_array) {
+	    jp.next(gx_system::JsonParser::begin_array);
+	    jp.next(gx_system::JsonParser::value_string);
+	    if (jp.current_value() == "openTabBox") {
+		builder.openTabBox(next_char_pointer(jp));
+	    } else if (jp.current_value() == "openVerticalBox") {
+		builder.openVerticalBox(next_char_pointer(jp));
+	    } else if (jp.current_value() == "openVerticalBox1") {
+		builder.openVerticalBox1(next_char_pointer(jp));
+	    } else if (jp.current_value() == "openVerticalBox2") {
+		builder.openVerticalBox2(next_char_pointer(jp));
+	    } else if (jp.current_value() == "openHorizontalhideBox") {
+		builder.openHorizontalhideBox(next_char_pointer(jp));
+	    } else if (jp.current_value() == "openHorizontalBox") {
+		builder.openHorizontalBox(next_char_pointer(jp));
+	    } else if (jp.current_value() == "openHorizontalBox") {
+		builder.openHorizontalBox(next_char_pointer(jp));
+	    } else if (jp.current_value() == "insertSpacer") {
+		builder.insertSpacer();
+	    } else if (jp.current_value() == "set_next_flags") {
+		jp.next(gx_system::JsonParser::value_number);
+		builder.set_next_flags(jp.current_value_int());
+	    } else if (jp.current_value() == "create_small_rackknob") {
+		std::string id = next_string(jp);
+		builder.create_small_rackknob(id.c_str(), next_char_pointer(jp));
+	    } else if (jp.current_value() == "create_small_rackknobr") {
+		std::string id = next_string(jp);
+		builder.create_small_rackknobr(id.c_str(), next_char_pointer(jp));
+	    } else if (jp.current_value() == "create_master_slider") {
+		std::string id = next_string(jp);
+		builder.create_master_slider(id.c_str(), next_char_pointer(jp));
+	    } else if (jp.current_value() == "create_selector_no_caption") {
+		builder.create_selector_no_caption(next_char_pointer(jp));
+	    } else if (jp.current_value() == "create_selector") {
+		std::string id = next_string(jp);
+		builder.create_selector(id.c_str(), next_char_pointer(jp));
+	    } else if (jp.current_value() == "create_spin_value") {
+		std::string id = next_char_pointer(jp);
+		builder.create_spin_value(id.c_str(), next_char_pointer(jp));
+	    } else if (jp.current_value() == "create_switch_no_caption") {
+		std::string sw_type = next_char_pointer(jp);
+		builder.create_switch_no_caption(sw_type.c_str(), next_char_pointer(jp));
+	    } else if (jp.current_value() == "create_switch") {
+		std::string sw_type = next_char_pointer(jp);
+		std::string id = next_char_pointer(jp);
+		builder.create_switch(sw_type.c_str(), id.c_str(), next_char_pointer(jp));
+	    } else if (jp.current_value() == "create_port_display") {
+		std::string id = next_char_pointer(jp);
+		builder.create_port_display(id.c_str(), next_char_pointer(jp));
+	    } else if (jp.current_value() == "closeBox") {
+		builder.closeBox();
+	    } else if (jp.current_value() == "load_glade") {
+		jp.next(gx_system::JsonParser::value_string);
+		builder.load_glade(jp.current_value().c_str());
+	    } else {
+		cerr << "unknown uiBuilder function " << jp.current_value() << endl;
+		jp.skip_object();
+	    }
+	    jp.next(gx_system::JsonParser::end_array);
+	}
+	jp.next(gx_system::JsonParser::end_array);
+    } catch (gx_system::JsonException e) {
+	cerr << "JsonException: " << e.what() << endl;
+	assert(false);
+    }
     return 0;
 }
+
+bool GxMachineRemote::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) {
+    pdef->load_ui = load_remote_ui;
+    return builder.load_unit(pdef);
+}
+
+
+/*
+** Oscilloscope
+*/
 
 void GxMachineRemote::set_oscilloscope_mul_buffer(int a, unsigned int b) {
 }
@@ -903,6 +1102,15 @@ sigc::signal<void, unsigned int>& GxMachineRemote::signal_oscilloscope_size_chan
     return x;
 }
 
+const std::string& GxMachineRemote::conv_getIRFile(const char *id) {
+    static std::string s = "";
+    return s;
+}
+
+float GxMachineRemote::get_tuner_freq() {
+    return 0;
+}
+
 float GxMachineRemote::maxlevel_get(int channel) {
     return 0;
 }
@@ -923,6 +1131,7 @@ gx_system::CmdlineOptions& GxMachineRemote::get_options() const {
 }
 
 void GxMachineRemote::start_socket(sigc::slot<void> quit_mainloop, int port) {
+    assert(false);
 }
 
 sigc::signal<void>& GxMachineRemote::signal_conv_settings_changed(const char *id) {
@@ -946,8 +1155,7 @@ sigc::signal<void>& GxMachineRemote::tuner_switcher_signal_selection_done() {
 }
 
 sigc::signal<void,GxEngineState>& GxMachineRemote::signal_state_change() {
-    static sigc::signal<void,GxEngineState> x;
-    return x;
+    return engine_state_change;
 }
 
 Glib::Dispatcher& GxMachineRemote::signal_jack_load_change() {
@@ -1169,27 +1377,91 @@ bool GxMachineRemote::parameter_unit_has_std_values(Glib::ustring group_id) cons
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, int value) {
-    pmap[id].getInt().set(value);
+    //cerr << "SVI " << id << ": " << value << endl;
+    start_notify("set");
+    jw->write(id);
+    jw->write(value);
+    send();
+    std::map<string,sigc::signal<void,int>*>::iterator i = signals_int.find(id);
+    if (i != signals_int.end()) {
+	(*i->second)(value);
+    }
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, bool value) {
-    pmap[id].getBool().set(value);
+    //cerr << "SVB " << id << ": " << value << endl;
+    start_notify("set");
+    jw->write(id);
+    jw->write(value);
+    send();
+    std::map<string,sigc::signal<void,bool>*>::iterator i = signals_bool.find(id);
+    if (i != signals_bool.end()) {
+	(*i->second)(value);
+    }
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, float value) {
-    pmap[id].getFloat().set(value);
+    //cerr << "SVF " << id << ": " << value << endl;
+    start_notify("set");
+    jw->write(id);
+    jw->write(value);
+    send();
+    std::map<string,sigc::signal<void,float>*>::iterator i = signals_float.find(id);
+    if (i != signals_float.end()) {
+	(*i->second)(value);
+    }
+}
+
+void GxMachineRemote::_request_parameter_value(const std::string& id) {
+    start_call("get");
+    jw->write(id);
+    send();
+    receive();
+    jp.next(gx_system::JsonParser::begin_object);
+    jp.next(gx_system::JsonParser::value_key);
 }
 
 int GxMachineRemote::_get_parameter_value_int(const std::string& id) {
-    return pmap[id].getInt().get_value();
+    _request_parameter_value(id);
+    int v;
+    switch (jp.next()) {
+    case gx_system::JsonParser::value_string:
+	v = pmap[id].getEnum().idx_from_id(jp.current_value());
+	break;
+    case gx_system::JsonParser::value_number:
+	v = jp.current_value_int();
+	break;
+    default:
+	assert(false);
+	return 0;
+    }
+    //cerr << "GVI " << id << ": " << v << endl;
+    return v;
 }
 
 int GxMachineRemote::_get_parameter_value_bool(const std::string& id) {
-    return pmap[id].getBool().get_value();
+    _request_parameter_value(id);
+    jp.next(gx_system::JsonParser::value_number);
+    //cerr << "GVB " << id << ": " << jp.current_value_int() << endl;
+    return jp.current_value_int();
 }
 
 float GxMachineRemote::_get_parameter_value_float(const std::string& id) {
-    return pmap[id].getFloat().get_value();
+    _request_parameter_value(id);
+    float v;
+    switch (jp.next()) {
+    case gx_system::JsonParser::value_string:
+	v = dynamic_cast<FloatEnumParameter*>(&pmap[id])->idx_from_id(jp.current_value());
+	break;
+    case gx_system::JsonParser::value_number:
+	v = jp.current_value_float();
+	break;
+    default:
+	assert(false);
+	return 0;
+    }
+    //cerr << "GVF " << id << ": " << jp.current_value_float() << endl;
+    return v;
 }
 
 sigc::signal<void, int>& GxMachineRemote::_signal_parameter_value_int(const std::string& id) {

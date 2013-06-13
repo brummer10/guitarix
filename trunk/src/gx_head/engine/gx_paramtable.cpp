@@ -578,9 +578,6 @@ Parameter::Parameter(gx_system::JsonParser& jp)
 	if (jp.current_value() == "id") {
 	    jp.next(gx_system::JsonParser::value_string);
 	    _id = jp.current_value();
-#ifndef NDEBUG
-	    cerr << "X " << _id << endl;
-#endif
 	} else if (jp.current_value() == "name") {
 	    jp.next(gx_system::JsonParser::value_string);
 	    _name = jp.current_value();
@@ -603,9 +600,8 @@ Parameter::Parameter(gx_system::JsonParser& jp)
 	    jp.next(gx_system::JsonParser::value_number);
 	    controllable = static_cast<bool>(jp.current_value_int());
 	} else {
-#ifndef NDEBUG
-	    cerr << _id << ": unknown key: " << jp.current_value() << endl;
-#endif
+	    gx_system::gx_print_warning(
+		"Parameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
     }
@@ -784,14 +780,13 @@ FloatParameter::ParameterV(gx_system::JsonParser& jp)
 	    lower = jp.current_value_float();
 	} else if (jp.current_value() == "upper") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    _name = jp.current_value_float();
+	    upper = jp.current_value_float();
 	} else if (jp.current_value() == "step") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    _group = jp.current_value_float();
+	    step = jp.current_value_float();
 	} else {
-#ifndef NDEBUG
-	    cerr << _id << ": unknown key: " << jp.current_value() << endl;
-#endif
+	    gx_system::gx_print_warning(
+		"FloatParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
     }
@@ -915,6 +910,18 @@ void FloatEnumParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write(value_names[static_cast<int>(round(*value-lower))].value_id);
 }
 
+float FloatEnumParameter::idx_from_id(string v_id) {
+    int up = static_cast<int>(round(upper));
+    int low = static_cast<int>(round(lower));
+    int n = 0;
+    for (; n <= up-low; n++) {
+        if (v_id == value_names[n].value_id) {
+            return low + n;
+        }
+    }
+    return -1;
+}
+
 void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     gx_system::JsonParser::token tok = jp.next();
     if (tok == gx_system::JsonParser::value_number) {
@@ -923,20 +930,12 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
         return;
     }
     jp.check_expect(gx_system::JsonParser::value_string);
-    int up = static_cast<int>(round(upper));
-    int low = static_cast<int>(round(lower));
-    int n = 0;
-    for (; n <= up-low; n++) {
-        if (jp.current_value() == value_names[n].value_id) {
-            break;
-        }
-    }
-    n += low;
-    if (n > up) {
+    float n = idx_from_id(jp.current_value());
+    if (n < 0) {
         gx_system::gx_print_warning(
             _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
                                % _id % jp.current_value()).str());
-        n = low;
+        n = lower;
     }
     json_value = n;
 }
@@ -960,11 +959,10 @@ IntParameter::ParameterV(gx_system::JsonParser& jp)
 	    lower = jp.current_value_int();
 	} else if (jp.current_value() == "upper") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    _name = jp.current_value_int();
+	    upper = jp.current_value_int();
 	} else {
-#ifndef NDEBUG
-	    cerr << _id << ": unknown key: " << jp.current_value() << endl;
-#endif
+	    gx_system::gx_print_warning(
+		"IntParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
     }
@@ -1113,9 +1111,8 @@ void enum_parameter_load_values(gx_system::JsonParser& jp, std::vector<id_label>
 	    }
 	    jp.next(gx_system::JsonParser::end_array);
 	} else {
-#ifndef NDEBUG
-	    cerr << "unknown key: " << jp.current_value() << endl;
-#endif
+	    gx_system::gx_print_warning(
+		"EnumValueNames", Glib::ustring::compose("unknown key: %1", jp.current_value()));
 	    jp.skip_object();
 	}
     }
@@ -1455,9 +1452,6 @@ void ParamMap::readJSON(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
 	jp.next(gx_system::JsonParser::value_string);
-#ifndef NDEBUG
-	cerr << "T " << jp.current_value() << endl;
-#endif
 	if (jp.current_value() == "FloatEnum") {
 	    insert(new FloatEnumParameterD(jp));
 	} else if (jp.current_value() == "Float") {
@@ -1473,9 +1467,8 @@ void ParamMap::readJSON(gx_system::JsonParser& jp) {
 	} else if (jp.current_value() == "String") {
 	    insert(new StringParameter(jp));
 	} else {
-#ifndef NDEBUG
-	    cerr << "unknown parameter type: " << jp.current_value() << endl;
-#endif
+	    gx_system::gx_print_warning(
+		"ParamMap", Glib::ustring::compose("unknown parameter type: %1", jp.current_value()));
 	    jp.skip_object();
 	}
     }
@@ -1602,8 +1595,10 @@ void ParamMap::insert(Parameter* param) {
 	id_map.erase(ii);
 	delete p;
     }
-    debug_check(unique_zone, param);
-    addr_map.insert(pair<const void*, Parameter*>(param->zone(), param));
+    if (param->zone() != 0) {
+	debug_check(unique_zone, param);
+	addr_map.insert(pair<const void*, Parameter*>(param->zone(), param));
+    }
     debug_check(unique_id, param);
     id_map.insert(pair<string, Parameter*>(param->id(), param));
 }

@@ -17,7 +17,30 @@
  */
 
 #include "jsonrpc.h"
-#include <ext/stdio_filebuf.h>
+
+const char *engine_state_to_string(gx_engine::GxEngineState s) {
+    switch (s) {
+    case gx_engine::kEngineOff: return "stopped";
+    case gx_engine::kEngineOn: return "running";
+    case gx_engine::kEngineBypass: return "bypassed";
+    }
+    assert(false);
+    return 0;
+}
+
+gx_engine::GxEngineState string_to_engine_state(const std::string& s) {
+    if (s == "stopped") {
+	return gx_engine::kEngineOff;
+    }
+    if (s == "running") {
+	return gx_engine::kEngineOn;
+    }
+    if (s == "bypassed") {
+	return gx_engine::kEngineBypass;
+    }
+    assert(false);
+    return gx_engine::kEngineOff;
+}
 
 class RpcError: public exception {
 public:
@@ -29,17 +52,6 @@ public:
     virtual const char* what() const throw() { return message.c_str(); }
 };
 
-
-class JsonValue {
-protected:
-    JsonValue() {}
-    virtual ~JsonValue() {}
-    friend class JsonArray;
-public:
-    virtual double getFloat() const;
-    virtual int getInt() const;
-    virtual const Glib::ustring& getString() const;
-};
 
 class JsonString: public JsonValue {
 private:
@@ -67,14 +79,6 @@ private:
     friend class JsonArray;
     virtual double getFloat() const;
     virtual int getInt() const;
-};
-
-class JsonArray: public std::vector<JsonValue*> {
-public:
-    JsonArray():std::vector<JsonValue*>() {}
-    ~JsonArray();
-    JsonValue *operator[](unsigned int i);
-    void append(gx_system::JsonParser& jp);
 };
 
 JsonArray::~JsonArray() {
@@ -140,57 +144,47 @@ const Glib::ustring& JsonString::getString() const {
     return string;
 }
 
+
+/****************************************************************
+ ** class UiBuilderVirt
+ */
+
+class CmdConnection;
+
+class UiBuilderVirt: public UiBuilder {
+private:
+    static CmdConnection *conn;
+    static void openTabBox_(const char* label);
+    static void openVerticalBox_(const char* label);
+    static void openVerticalBox1_(const char* label);
+    static void openVerticalBox2_(const char* label);
+    static void openHorizontalBox_(const char* label);
+    static void openHorizontalhideBox_(const char* label);
+    static void insertSpacer_();
+    static void set_next_flags_(int flags);
+    static void create_small_rackknob_(const char *id, const char *label);
+    static void create_small_rackknobr_(const char *id, const char *label);
+    static void create_master_slider_(const char *id, const char *label);
+    static void create_selector_no_caption_(const char *id);
+    static void create_selector_(const char *id, const char *label);
+    static void create_spin_value_(const char *id, const char *label);
+    static void create_switch_no_caption_(const char *sw_type,const char * id);
+    static void create_switch_(const char *sw_type,const char * id, const char *label);
+    static void create_port_display_(const char *id, const char *label);
+    static void closeBox_();
+    static void load_glade_(const char *data);
+public:
+    UiBuilderVirt(CmdConnection *conn_);
+    ~UiBuilderVirt();
+};
+
+
 /****************************************************************
  ** class CmdConnection
  */
 
 const static int InterfaceVersionMajor = 1;
 const static int InterfaceVersionMinor = 0;
-
-class CmdConnection: public sigc::trackable {
-private:
-    MyService& serv;
-    Glib::RefPtr<Gio::SocketConnection> connection;
-    std::stringbuf inbuf;
-    gx_system::JsonParser jp;
-    __gnu_cxx::stdio_filebuf<char> writebuf;
-    ostream os;
-    gx_system::JsonWriter jw;
-    sigc::connection conn_preset_changed;
-    sigc::connection conn_state_changed;
-    sigc::connection conn_freq_changed;
-    sigc::connection conn_display;
-    sigc::connection conn_display_state;
-    sigc::connection conn_selection_done;
-    sigc::connection conn_log_message;
-private:
-    void exec(Glib::ustring cmd);
-    void call(Glib::ustring& method, JsonArray& params);
-    void notify(Glib::ustring& method, JsonArray& params);
-    bool request(bool batch_start);
-    void write_error(int code, const char *message);
-    void write_error(int code, Glib::ustring& message) { write_error(code, message.c_str()); }
-    void error_response(int code, const char *message);
-    void error_response(int code, Glib::ustring& message) { error_response(code, message.c_str()); }
-    void preset_changed();
-    void send_notify_begin(const char *method);
-    void send_notify_end();
-    void on_engine_state_change(gx_engine::GxEngineState state);
-    void write_engine_state(gx_engine::GxEngineState s);
-    void on_tuner_freq_changed();
-    void display(const Glib::ustring& bank, const Glib::ustring& preset);
-    void set_display_state(TunerSwitcher::SwitcherState newstate);
-    void on_selection_done();
-    void on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
-    void listen(const Glib::ustring& tp);
-    void unlisten(const Glib::ustring& tp);
-    void process(istringstream& is);
-
-public:
-    CmdConnection(MyService& serv, const Glib::RefPtr<Gio::SocketConnection>& connection_);
-    ~CmdConnection() {}
-    bool on_data(Glib::IOCondition cond);
-};
 
 CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketConnection>& connection_)
     : serv(serv_),
@@ -206,6 +200,9 @@ CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketCon
       conn_display_state(),
       conn_selection_done(),
       conn_log_message() {
+}
+
+CmdConnection::~CmdConnection() {
 }
 
 void CmdConnection::listen(const Glib::ustring& tp) {
@@ -294,17 +291,7 @@ void CmdConnection::send_notify_end() {
 }
 
 void CmdConnection::write_engine_state(gx_engine::GxEngineState s) {
-    const char *p = 0;
-    if (s == gx_engine::kEngineOff) {
-	p = "stopped";
-    } else if (s == gx_engine::kEngineOn) {
-	p = "running";
-    } else if (s == gx_engine::kEngineBypass) {
-	p = "bypassed";
-    } else {
-	p = "unknown";
-    }
-    jw.write(p);
+    jw.write(engine_state_to_string(s));
 }
 
 void CmdConnection::on_selection_done() {
@@ -554,6 +541,20 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
     } else if (method == "parameterlist") {
 	jw.write_key("result");
 	serv.settings.get_param().writeJSON(jw);
+    } else if (method == "pluginlist") {
+	jw.write_key("result");
+	serv.jack.get_engine().pluginlist.writeJSON(jw);
+    } else if (method == "plugin_load_ui") {
+	jw.write_key("result");
+	PluginDef *pd = serv.jack.get_engine().pluginlist.lookup_plugin(params[0]->getString().c_str())->pdef;
+	if (!pd->load_ui) {
+	    jw.write_null();
+	} else {
+	    UiBuilderVirt bld(this);
+	    jw.begin_array();
+	    pd->load_ui(bld);
+	    jw.end_array();
+	}
     } else if (method == "get_parameter") {
 	gx_engine::ParamMap& param = serv.settings.get_param();
 	jw.write_key("result");
@@ -727,7 +728,7 @@ void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
 		} else if (p.isInt()) {
 		    gx_engine::IntParameter& pi = p.getInt();
 		    int i;
-		    if (p.getControlType() == gx_engine::Parameter::Enum) {
+		    if (p.getControlType() == gx_engine::Parameter::Enum && dynamic_cast<JsonString*>(v)) {
 			i = pi.idx_from_id(v->getString());
 		    } else {
 			i = v->getInt();
@@ -745,22 +746,31 @@ void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
 		//gx_system::JsonWriter jwd(&cerr); p.dump(&jwd);
 	    }
 	}
+	for (std::list<CmdConnection*>::iterator p = serv.connection_list.begin(); p != serv.connection_list.end(); ++p) {
+	    if (*p == this) {
+		continue;
+	    }
+	    (*p)->send_notify_begin("set");
+	    for (unsigned int i = 0; i < params.size(); i += 2) {
+		(*p)->jw.write(params[i]->getString());
+		JsonValue *v = params[i+1];
+		if (dynamic_cast<JsonFloat*>(v)) {
+		    (*p)->jw.write(v->getFloat());
+		} else if (dynamic_cast<JsonInt*>(v)) {
+		    (*p)->jw.write(v->getInt());
+		} else if (dynamic_cast<JsonString*>(v)) {
+		    (*p)->jw.write(v->getString());
+		}
+	    }
+	    (*p)->send_notify_end();
+	}
 	serv.save_state();
     } else if (method == "setpreset") {
 	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
 	serv.settings.load_preset(pf, params[1]->getString());
 	serv.save_state();
     } else if (method == "setstate") {
-	const Glib::ustring &p = params[0]->getString();
-	if (p == "stopped") {
-	    serv.jack.get_engine().set_state(gx_engine::kEngineOff);
-	} else if (p == "running") {
-	    serv.jack.get_engine().set_state(gx_engine::kEngineOn);
-	} else if (p == "bypassed") {
-	    serv.jack.get_engine().set_state(gx_engine::kEngineBypass);
-	} else {
-	    // unknown
-	}
+	serv.jack.get_engine().set_state(string_to_engine_state(params[0]->getString()));
 	serv.jack.get_engine().check_module_lists();
     } else if (method == "switch_tuner") {
 	serv.jack.get_engine().tuner.used_for_livedisplay(params[0]->getInt());
@@ -884,7 +894,7 @@ void CmdConnection::error_response(int code, const char *message) {
 
 bool CmdConnection::on_data(Glib::IOCondition cond) {
     if (cond != Glib::IO_IN) {
-	delete this;
+	serv.remove_connection(this);
 	return false;
     }
     Glib::RefPtr<Gio::Socket> sock = connection->get_socket();
@@ -897,11 +907,11 @@ bool CmdConnection::on_data(Glib::IOCondition cond) {
 	    if (e.code() == Gio::Error::WOULD_BLOCK) {
 		return true;
 	    }
-	    delete this;
+	    serv.remove_connection(this);
 	    return false;
 	}
 	if (n <= 0) {
-	    delete this;
+	    serv.remove_connection(this);
 	    return false;
 	}
 	char *p = buf;
@@ -958,6 +968,196 @@ void CmdConnection::process(istringstream& is) {
 
 
 /****************************************************************
+ ** class UiBuilderVirt implementation
+ */
+
+CmdConnection *UiBuilderVirt::conn = 0;
+
+UiBuilderVirt::UiBuilderVirt(CmdConnection *conn_) {
+    conn = conn_;
+    openTabBox = openTabBox_;
+    openVerticalBox = openVerticalBox_;
+    openVerticalBox1 = openVerticalBox1_;
+    openVerticalBox2 = openVerticalBox2_;
+    openHorizontalBox = openHorizontalBox_;
+    openHorizontalhideBox = openHorizontalhideBox_;
+    closeBox = closeBox_;
+    load_glade = load_glade_;
+    create_master_slider = create_master_slider_;
+    create_small_rackknob = create_small_rackknob_;
+    create_small_rackknobr = create_small_rackknobr_;
+    create_spin_value = create_spin_value_;
+    create_switch = create_switch_;
+    create_switch_no_caption = create_switch_no_caption_;
+    create_selector = create_selector_;
+    create_selector_no_caption = create_selector_no_caption_;
+    create_port_display = create_port_display_;
+    insertSpacer = insertSpacer_;
+    set_next_flags = set_next_flags_;
+}
+
+UiBuilderVirt::~UiBuilderVirt() {
+}
+
+void UiBuilderVirt::openTabBox_(const char* label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("openTabBox");
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::openVerticalBox_(const char* label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("openVerticalBox");
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::openVerticalBox1_(const char* label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("openVerticalBox1");
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::openVerticalBox2_(const char* label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("openVerticalBox2");
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::openHorizontalhideBox_(const char* label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("openHorizontalhideBox");
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::openHorizontalBox_(const char* label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("openHorizontalBox");
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::insertSpacer_() {
+    conn->jw.begin_array();
+    conn->jw.write("insertSpacer");
+    conn->jw.end_array();
+}
+
+void UiBuilderVirt::set_next_flags_(int flags) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("set_next_flags");
+    jw.write(flags);
+    jw.end_array();
+}
+
+void UiBuilderVirt::create_small_rackknob_(const char *id, const char *label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("create_small_rackknob");
+    jw.write(id);
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::create_small_rackknobr_(const char *id, const char *label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("create_small_rackknobr");
+    jw.write(id);
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::create_master_slider_(const char *id, const char *label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("create_master_slider");
+    jw.write(id);
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::create_selector_no_caption_(const char *id) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("create_selector_no_caption");
+    jw.write(id);
+    jw.end_array();
+}
+
+void UiBuilderVirt::create_selector_(const char *id, const char *label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("create_selector");
+    jw.write(id);
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::create_spin_value_(const char *id, const char *label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("create_spin_value");
+    jw.write(id);
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::create_switch_no_caption_(const char *sw_type, const char * id) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("create_switch_no_caption");
+    jw.write(sw_type);
+    jw.write(id);
+    jw.end_array();
+}
+
+void UiBuilderVirt::create_switch_(const char *sw_type, const char * id, const char *label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("create_switch");
+    jw.write(sw_type);
+    jw.write(id);
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::create_port_display_(const char *id, const char *label) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("create_port_display");
+    jw.write(id);
+    jw.write(label);
+    jw.end_array();
+}
+
+void UiBuilderVirt::closeBox_() {
+    conn->jw.begin_array();
+    conn->jw.write("closeBox");
+    conn->jw.end_array();
+}
+
+void UiBuilderVirt::load_glade_(const char *data) {
+    gx_system::JsonWriter& jw = conn->jw;
+    jw.begin_array();
+    jw.write("load_glade");
+    jw.write(data);
+    jw.end_array();
+}
+
+
+/****************************************************************
  ** class MyService
  */
 
@@ -972,14 +1172,35 @@ MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
 		      &settings_.get_param()["ui.live_play_switcher"].getBool().get_value()), //FIXME
       oldest_unsaved(0),
       last_change(0),
-      save_conn() {
+      save_conn(),
+      connection_list() {
     switcher_signal.changed.connect(sigc::mem_fun(this, &MyService::on_switcher_toggled));
     tuner_switcher.signal_selection_done().connect(sigc::mem_fun(this, &MyService::on_selection_done));
     add_inet_port(port);
 }
 
+MyService::~MyService() {
+    for (std::list<CmdConnection*>::iterator i = connection_list.begin(); i != connection_list.end(); ++i) {
+	delete *i;
+    }
+}
+
+void MyService::remove_connection(CmdConnection *p) {
+    for (std::list<CmdConnection*>::iterator i = connection_list.begin(); i != connection_list.end(); ++i) {
+	if (*i == p) {
+	    connection_list.erase(i);
+	    delete p;
+	    return;
+	}
+    }
+    assert(false);
+}
+
 //FIXME: this belongs into GxSettings
 void MyService::save_state() {
+    if (settings.get_options().get_opt_auto_save()) {
+	return;
+    }
     static const int min_idle = 2;   // seconds; after this idle time save changed state
     static const int max_delay = 15; // seconds; maximum delay for save changed state
     time_t now = time(NULL);
@@ -1006,6 +1227,7 @@ void MyService::save_state() {
 bool MyService::on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connection,
 			    const Glib::RefPtr<Glib::Object>& source_object) {
     CmdConnection *cc = new CmdConnection(*this, connection);
+    connection_list.push_back(cc);
     Glib::RefPtr<Gio::Socket> sock = connection->get_socket();
     sock->set_blocking(false);
     Glib::signal_io().connect(

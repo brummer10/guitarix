@@ -61,6 +61,9 @@ void set_accessible(Gtk::Widget& widget,Gtk::Label& label) {
  */
 
 void UiRegler::on_value_changed() {
+    if (blocked) {
+	return;
+    }
     if (log_display) {
 	machine.set_parameter_value(param.id(), pow(10.0,get_value()));
     } else {
@@ -69,11 +72,13 @@ void UiRegler::on_value_changed() {
 }
 
 void UiRegler::set_regler_value(float v) {
+    blocked = true;
     if (log_display) {
 	Gtk::Adjustment::set_value(log10(v));
     } else {
 	Gtk::Adjustment::set_value(v);
     }
+    blocked = false;
 }
 
 static bool hasId(gx_engine::GxMachineBase& machine, string id) {
@@ -92,15 +97,16 @@ Gtk::Widget *UiRegler::create(gx_engine::GxMachineBase& machine, Gxw::Regler *re
 }
 
 UiRegler::UiRegler(gx_engine::GxMachineBase &machine_, gx_engine::FloatParameter &param_, Gxw::Regler *regler, bool show_value):
-    Gtk::Adjustment(param_.get_value(), param_.getLowerAsFloat(), param_.getUpperAsFloat(), param_.getStepAsFloat(), 10*param_.getStepAsFloat(), 0),
+    Gtk::Adjustment(0, 0, 0),
     machine(machine_),
     param(param_),
     m_regler(regler),
-    log_display(param_.is_log_display()) {
+    log_display(param_.is_log_display()),
+    blocked(false) {
     if (log_display) {
 	double up = log10(param.getUpperAsFloat());
 	double step = log10(param.getStepAsFloat());
-	configure(log10(param.get_value()), log10(param.getLowerAsFloat()), up, step, 10*step, 0);
+	configure(log10(machine.get_parameter_value<float>(param.id())), log10(param.getLowerAsFloat()), up, step, 10*step, 0);
 	int prec = 0;
 	float d = log10((param.getStepAsFloat()-1)*param.getUpperAsFloat());
 	if (up > 0) {
@@ -117,6 +123,8 @@ UiRegler::UiRegler(gx_engine::GxMachineBase &machine_, gx_engine::FloatParameter
 		prec));
 	m_regler->signal_input_value().connect(
 	    sigc::ptr_fun(logarithmic_input_value));
+    } else {
+	configure(machine.get_parameter_value<float>(param.id()), param.getLowerAsFloat(), param.getUpperAsFloat(), param.getStepAsFloat(), 10*param.getStepAsFloat(), 0);
     }
     m_regler->set_show_value(show_value);
     m_regler->set_name("regler");
@@ -128,7 +136,7 @@ UiRegler::UiRegler(gx_engine::GxMachineBase &machine_, gx_engine::FloatParameter
     m_regler->set_tooltip_text(tip);
     m_regler->cp_set_var(param.id());
     m_regler->set_adjustment(*this);
-    set_regler_value(param.get_value());
+    set_regler_value(machine.get_parameter_value<float>(param.id()));
     machine.signal_parameter_value<float>(param.id()).connect(
 	sigc::mem_fun(this, &UiRegler::set_regler_value));
     m_regler->show();
@@ -349,7 +357,7 @@ UiSwitchFloat::UiSwitchFloat(gx_engine::GxMachineBase& machine_, const char *sw_
     : UiSwitch(sw_type),
       machine(machine_),
       param(param_) {
-    set_value(param.get_value());
+    set_value(machine.get_parameter_value<float>(param.id()));
     cp_set_var(param.id());
     machine.signal_parameter_value<float>(param.id()).connect(
 	sigc::mem_fun(this, &UiSwitchFloat::set_value));
@@ -378,7 +386,7 @@ UiSwitchBool::UiSwitchBool(gx_engine::GxMachineBase& machine_, const char *sw_ty
     : UiSwitch(sw_type),
       machine(machine_),
       param(param_) {
-    set_active(param.get_value());
+    set_active(machine.get_parameter_value<bool>(param.id()));
     cp_set_var(param.id());
     machine.signal_parameter_value<bool>(param.id()).connect(
 	sigc::mem_fun(this, &UiSwitchBool::set_value));

@@ -902,7 +902,8 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
     }
     if (!mainwidget) {
 	gx_gui::UiBuilderImpl builder(this, &boxbuilder);
-	if (builder.load_unit(pl)) {
+	
+	if (machine.load_unit(builder, pl.plugin->pdef)) {
 	    boxbuilder.fetch(mainwidget, miniwidget);
 	}
     }
@@ -1389,12 +1390,11 @@ void MainWindow::create_actions() {
     ** Menu actions
     */
     actions.group->add(Gtk::Action::create("EngineMenu",_("_Engine")));
-    if (jack) {
-	actions.jack_latency_menu = Gtk::Action::create("JackLatency",_("_Latency"));
-	actions.group->add(actions.jack_latency_menu);
-	actions.osc_buffer_menu = Gtk::Action::create("OscBuffer",_("Osc. Buffer-size"));
-	actions.group->add(actions.osc_buffer_menu);
-    }
+    actions.jack_latency_menu = Gtk::Action::create("JackLatency",_("_Latency"));
+    actions.group->add(actions.jack_latency_menu);
+    actions.osc_buffer_menu = Gtk::Action::create("OscBuffer",_("Osc. Buffer-size"));
+    actions.group->add(actions.osc_buffer_menu);
+
     actions.group->add(Gtk::Action::create("PresetsMenu",_("_Presets")));
     actions.group->add(Gtk::Action::create("PresetListMenu","--"));
     actions.group->add(Gtk::Action::create("PluginsMenu",_("P_lugins")));
@@ -1408,17 +1408,15 @@ void MainWindow::create_actions() {
     /*
     ** engine actions
     */
-    if (jack) {
-	actions.jackserverconnection = Gtk::ToggleAction::create("JackServerConnection", _("Jack Server _Connection"));
-	actions.group->add(
-	    actions.jackserverconnection,
-	    sigc::mem_fun(*this, &MainWindow::jack_connection));
+    actions.jackserverconnection = Gtk::ToggleAction::create("JackServerConnection", _("Jack Server _Connection"));
+    actions.group->add(
+	actions.jackserverconnection,
+	sigc::mem_fun(*this, &MainWindow::jack_connection));
 
-	actions.jackports = Gtk::ToggleAction::create("JackPorts", _("Jack _Ports"));
-	actions.group->add(
-	    actions.jackports,
-	    sigc::mem_fun(*this, &MainWindow::on_portmap_activate));
-    }
+    actions.jackports = Gtk::ToggleAction::create("JackPorts", _("Jack _Ports"));
+    actions.group->add(
+	actions.jackports,
+	sigc::mem_fun(*this, &MainWindow::on_portmap_activate));
 
     actions.midicontroller = Gtk::ToggleAction::create("MidiController", _("M_idi Controller"));
     actions.group->add(
@@ -1467,12 +1465,14 @@ void MainWindow::create_actions() {
     actions.group->add(actions.live_play,
 		     sigc::mem_fun(*this, &MainWindow::on_live_play));
 
+    actions.meterbridge = Gtk::ToggleAction::create("Meterbridge", _("_Meterbridge"));
     if (jack) {
-	actions.meterbridge = Gtk::ToggleAction::create("Meterbridge", _("_Meterbridge"));
 	actions.group->add(
 	    actions.meterbridge,
 	    sigc::bind(sigc::ptr_fun(gx_child_process::Meterbridge::start_stop),
 		       sigc::ref(actions.meterbridge), sigc::ref(*jack)));
+    } else {
+	actions.group->add(actions.meterbridge);
     }
 
     actions.livetuner = UiBoolToggleAction::create(
@@ -1561,6 +1561,14 @@ void MainWindow::create_actions() {
 		     sigc::ptr_fun(gx_show_help));
     actions.group->add(Gtk::Action::create("About", _("_About")),
 		     sigc::ptr_fun(gx_show_about));
+
+    if (!jack) {
+	actions.jack_latency_menu->set_visible(false);
+	actions.osc_buffer_menu->set_visible(false);
+	actions.jackserverconnection->set_visible(false);
+	actions.jackports->set_visible(false);
+	actions.meterbridge->set_visible(false);
+    }
 }
 
 #if false // unused

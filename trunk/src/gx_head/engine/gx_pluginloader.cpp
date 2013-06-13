@@ -143,12 +143,133 @@ Plugin::Plugin(PluginDef *pl)
       pdef(pl) {
 }
 
+Plugin::Plugin(gx_system::JsonParser& jp)
+    : box_visible(false),
+      plug_visible(false),
+      on_off(false),
+      position(0),
+      effect_post_pre(0),
+      pdef(new PluginDef()) {
+    jp.next(gx_system::JsonParser::begin_object);
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.current_value() == "box_visible") {
+	    jp.next();
+	    box_visible = true;
+	} else if (jp.current_value() == "plug_visible") {
+	    jp.next();
+	    plug_visible = true;
+	} else if (jp.current_value() == "on_off") {
+	    jp.next();
+	    on_off = true;
+	} else if (jp.current_value() == "post_pre") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    effect_post_pre = jp.current_value_int();
+	} else if (jp.current_value() == "position") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    position = jp.current_value_int();
+	} else if (jp.current_value() == "version") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    pdef->version = jp.current_value_int();
+	} else if (jp.current_value() == "flags") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    pdef->flags = jp.current_value_int();
+	} else if (jp.current_value() == "id") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    pdef->id = strdup(jp.current_value().c_str()); //FIXME
+	} else if (jp.current_value() == "name") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    pdef->name = strdup(jp.current_value().c_str()); //FIXME
+	} else if (jp.current_value() == "groups") {
+	    jp.next(gx_system::JsonParser::begin_array);
+	    std::vector<std::string> v;
+	    while (jp.peek() != gx_system::JsonParser::end_array) {
+		jp.next(gx_system::JsonParser::value_string);
+		v.push_back(jp.current_value());
+	    }
+	    jp.next(gx_system::JsonParser::end_array);
+	    const char **p  = new const char*[v.size()+1];
+	    pdef->groups = p;
+	    for (std::vector<std::string>::iterator i = v.begin(); i != v.end(); ++i) {
+		*p++ = strdup(i->c_str()); //FIXME
+	    }
+	    *p++ = 0;
+	} else if (jp.current_value() == "description") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    pdef->description = strdup(jp.current_value().c_str()); //FIXME
+	} else if (jp.current_value() == "category") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    pdef->category = strdup(jp.current_value().c_str()); //FIXME
+	} else if (jp.current_value() == "shortname") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    pdef->shortname = strdup(jp.current_value().c_str()); //FIXME
+	}
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
+
+void Plugin::writeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    if (box_visible) {
+	jw.write_key("box_visible");
+	jw.write(true);
+    }
+    if (plug_visible) {
+	jw.write_key("plug_visible");
+	jw.write(true);
+    }
+    if (on_off) {
+	jw.write_key("on_off");
+	jw.write(true);
+    }
+    if (effect_post_pre) {
+	jw.write_key("post_pre");
+	jw.write(effect_post_pre);
+    }
+    jw.write_key("position");
+    jw.write(position);
+    jw.write_key("version");
+    jw.write(pdef->version);
+    jw.write_key("flags");
+    jw.write(pdef->flags); //FIXME
+    jw.write_key("id");
+    jw.write(pdef->id);
+    if (pdef->name) {
+	jw.write_key("name");
+	jw.write(pdef->name);
+    }
+    if (pdef->groups) {
+	jw.write_key("groups");
+	jw.begin_array();
+	for (const char **p = pdef->groups; *p; p++) {
+	    jw.write(*p);
+	}
+	jw.end_array();
+    }
+    if (pdef->description) {
+	jw.write_key("description");
+	jw.write(pdef->description);
+    }
+    if (pdef->category) {
+	jw.write_key("category");
+	jw.write(pdef->category);
+    }
+    if (pdef->shortname) {
+	jw.write_key("shortname");
+	jw.write(pdef->shortname);
+    }
+    jw.end_object();
+}
+
 /****************************************************************
  ** class PluginList
  */
 
+PluginListBase::PluginListBase() : pmap() {}
+PluginListBase::~PluginListBase() {}
+
 PluginList::PluginList(gx_ui::GxUI& ui_, EngineControl& seq_)
-    : seq(seq_), ui(ui_) {
+    : PluginListBase(), seq(seq_), ui(ui_) {
     plugin_pos[PLUGIN_POS_START]       = -1000;
     plugin_pos[PLUGIN_POS_RACK]        = 1;
     plugin_pos[PLUGIN_POS_END]         = 1000;
@@ -170,7 +291,7 @@ PluginList::~PluginList() {
     }
 }
 
-Plugin *PluginList::find_plugin(const char *id) const {
+Plugin *PluginListBase::find_plugin(const char *id) const {
     pluginmap::const_iterator p = pmap.find(id);
     if (p == pmap.end()) {
 	return 0;
@@ -178,7 +299,7 @@ Plugin *PluginList::find_plugin(const char *id) const {
     return p->second;
 }
 
-Plugin *PluginList::lookup_plugin(const char *id) const {
+Plugin *PluginListBase::lookup_plugin(const char *id) const {
     Plugin *p = find_plugin(id);
     if (!p) {
 	gx_system::gx_print_fatal(
@@ -573,7 +694,7 @@ void PluginList::registerAllPlugins(ParamMap& param, ParameterGroups& groups) {
     }
 }
 
-void PluginList::append_rack(UiBuilderBase& ui) {
+void PluginListBase::append_rack(UiBuilderBase& ui) {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	ui.load(p->second);
     }
@@ -619,6 +740,23 @@ void PluginList::ordered_list(list<Plugin*>& l, bool stereo, int flagmask, int f
 	}
     }
     l.sort(plugin_order);
+}
+
+void PluginListBase::writeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_array();
+    for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
+	p->second->writeJSON(jw);
+    }
+    jw.end_array();
+}
+
+void PluginListBase::readJSON(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::begin_array);
+    while (jp.peek() != gx_system::JsonParser::end_array) {
+	Plugin *p = new Plugin(jp);
+	pmap.insert(map_pair(p->pdef->id, p));
+    }
+    jp.next(gx_system::JsonParser::end_array);
 }
 
 void PluginList::set_samplerate(int samplerate) {

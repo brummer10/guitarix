@@ -135,19 +135,23 @@ void JsonWriter::write_lit(const string& s, bool nl) {
 
 void JsonWriter::write(const char* p, bool nl) {
     komma();
-    *os << '"';
-    for (; *p; p++) {
-        switch (*p) {
-        case '\\': case '"': *os << '\\'; break;
-        case '\b': *os << '\\'; *os << 'b'; continue;       // NOLINT
-        case '\f': *os << '\\'; *os << 'f'; continue;       // NOLINT
-        case '\n': *os << '\\'; *os << 'n'; continue;       // NOLINT
-        case '\r': *os << '\\'; *os << 'r'; continue;       // NOLINT
-        case '\t': *os << '\\'; *os << 't'; continue;       // NOLINT
-        }
-        *os << *p;
+    if (p) {
+	*os << '"';
+	for (; *p; p++) {
+	    switch (*p) {
+	    case '\\': case '"': *os << '\\'; break;
+	    case '\b': *os << '\\'; *os << 'b'; continue;       // NOLINT
+	    case '\f': *os << '\\'; *os << 'f'; continue;       // NOLINT
+	    case '\n': *os << '\\'; *os << 'n'; continue;       // NOLINT
+	    case '\r': *os << '\\'; *os << 'r'; continue;       // NOLINT
+	    case '\t': *os << '\\'; *os << 't'; continue;       // NOLINT
+	    }
+	    *os << *p;
+	}
+	*os << '"';
+    } else {
+	write_null();
     }
-    *os << '"';
     snl(nl);
 }
 
@@ -209,11 +213,6 @@ void JsonWriter::flush() {
  ** JsonParser
  */
 
-const char* JsonParser::token_names[] = {
-    "no_token", "end_token", "begin_object", "end_object",
-    "begin_array", "end_array", "value_string", "value_number",
-    "value_key" };
-
 JsonException::JsonException(const char* desc) {
     what_str = string("Json parse error: ") + desc;
 }
@@ -252,11 +251,31 @@ void JsonParser::close() {
     is = 0;
 }
 
+const char* JsonParser::get_token_name(token tok) {
+    switch (tok) {
+    case no_token: return "no_token";
+    case end_token: return "end_token";
+    case begin_object: return "begin_object";
+    case end_object: return "end_object";
+    case begin_array: return "begin_array";
+    case end_array: return "end_array";
+    case value_string: return "value_string";
+    case value_number: return "value_number";
+    case value_key: return "value_key";
+    case value_null: return "value_null";
+    case value_bool: return "value_bool";
+    case value_false: return "value_false";
+    case value_true: return "value_true";
+    default: assert(false); return 0;
+    }
+}
+
 void JsonParser::throw_unexpected(token expect) {
     ostringstream b;
-    b << "unexpected token: " << token_names[cur_tok]
-      << " (expected: " << token_names[expect] << ")"
+    b << "unexpected token: " << get_token_name(cur_tok)
+      << " (expected: " << get_token_name(expect) << ")"
       << endl;
+    //cerr << b.str() << endl; assert(false);
     throw JsonException(b.str().c_str());
 }
 
@@ -348,6 +367,29 @@ string JsonParser::readnumber(char c) {
     return "";
 }
 
+JsonParser::token JsonParser::read_value_token(char c) {
+    ostringstream os("");
+    do {
+        os << c;
+        c = is->peek();
+	if (c < 'a' || c > 'z') {
+	    break;
+        }
+        is->get(c);
+    } while (is->good());
+    next_str = os.str();
+    if (next_str == "null") {
+	return value_null;
+    }
+    if (next_str == "true") {
+	return value_true;
+    }
+    if (next_str == "false") {
+	return value_false;
+    }
+    return no_token;
+}
+
 void JsonParser::read_next() {
     if (next_tok == end_token)
         return;
@@ -397,7 +439,11 @@ void JsonParser::read_next() {
             break;
 
         default:
-            throw JsonException("bad token");
+	    next_tok = read_value_token(c);
+	    if (next_tok == no_token) {
+		throw JsonException("bad token");
+	    }
+	    break;
         }
         break;
     }
