@@ -7,4 +7,5 @@ trunk/.lock-wscript
 trunk/TAGS
 trunk/webui/build
 trunk/webui/deploy
+trunk/documentation/html
 .dir-locals.el
