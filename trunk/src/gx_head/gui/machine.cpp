@@ -765,7 +765,9 @@ bool GxMachineRemote::receive(istringstream& is) {
 
 void GxMachineRemote::load_parameter() {
     pmap.readJSON(jp);
+#ifndef NDEBUG
     pmap.dump("json");
+#endif
 }
 
 void GxMachineRemote::set_state(GxEngineState state) {
