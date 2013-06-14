@@ -6,7 +6,7 @@ style "gx_lv2-14"
   stock["smallknobr"] = {{"ac30-knob-middle.png"}}
   stock["amp_skin"] = {{"amp34.png"}}
   GxPaintBox::icon-set =14
-  GxPaintBox::force-reload =1
+  GxPaintBox::force-reload =0
 }
 
 widget "*.GUITARIXLV214" style:highest "gx_lv2-14"

@@ -22,6 +22,7 @@
 
 #include <iostream>
 
+#define min(x, y) (((x) < (y)) ? (x) : (y))
 
 /*    @get controller by port
  *  this function is used by make_selector() make_controller_box()
@@ -74,7 +75,7 @@ plug_name(plugname)
   "pre 12AT7/ master 6V6","pre 6DJ8/ master 6V6","pre 12ax7/ push-pull 6V6","pre 12AU7/ push-pull 6V6",
   "pre 12AT7/ push pull 6V6","pre 6DJ8/ push-pull 6V6"
   };
-  static const size_t tubes_size = sizeof(tubes) / sizeof(tubes[0]);
+  tubes_size = sizeof(tubes) / sizeof(tubes[0]);
   
   make_selector("Tubes", tubes, tubes_size, 0, 1.0, MODEL);
 
@@ -326,7 +327,7 @@ void Widget::on_value_changed(uint32_t port_index)
     float value = regler->cp_get_value();
     write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
-    check_for_skin(port_index, static_cast<int>(value));
+    check_for_skin(port_index, static_cast<int>(min(tubes_size-1,value)));
   }
 }
 
@@ -342,31 +343,16 @@ inline std::string to_string(int _Val)
         sprintf(_Buf, "%d", _Val);
         return (std::string(_Buf));
 }
+
 void Widget::change_skin(int model)
 {
-  std::string rcfile =GX_LV2_STYLE_DIR;
+  Glib::ustring rcfile =GX_LV2_STYLE_DIR;
   rcfile +="/gx_lv2-";
   rcfile += to_string(model);
   rcfile += ".rc";
-  Glib::ustring  rc_name = plug_name;
-  rc_name += to_string(model);
-  m_paintbox.set_name(rc_name);
-  for (uint32_t i =0;i<11; i++) {
-    Gxw::Regler *regler = static_cast<Gxw::Regler*>(
-                                    get_controller_by_port(i));
-    if (regler)
-    {
-      regler->set_name(rc_name);
-    }
-  }
   gtk_rc_parse(rcfile.c_str());
-  //gtk_rc_reparse_all_for_settings(gtk_settings_get_default(),true);
-  gtk_rc_reset_styles(gtk_settings_get_default());
-  //m_paintbox.queue_draw();
-  if (m_paintbox.get_window())
-    m_paintbox.get_window()->process_updates(true);
-  std::string resetfile =GX_LV2_STYLE_DIR;
-  resetfile +="/gx_lv2.rc";
-  gtk_rc_parse(resetfile.c_str());
+  gtk_rc_reparse_all_for_settings(gtk_settings_get_default(),true);
+  Glib::ustring o = "widget \"*." + plug_name + "\" style:highest \"gx_lv2-" + to_string(model) + "\"";
+  gtk_rc_parse_string(o.c_str());
   gtk_rc_reset_styles(gtk_settings_get_default());
 }

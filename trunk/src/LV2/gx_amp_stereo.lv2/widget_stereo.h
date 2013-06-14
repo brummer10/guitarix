@@ -76,6 +76,7 @@ public:
   ~Widget();
 
 protected:
+  size_t             tubes_size;
   Glib::ustring      plug_name;
   Gtk::VBox          m_vbox_;
   Gtk::HBox          m_hbox_;

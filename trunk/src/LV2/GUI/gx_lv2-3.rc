@@ -6,7 +6,7 @@ style "gx_lv2-3"
   stock["smallknobr"] = {{"ac30-knob-middle.png"}}
   stock["amp_skin"] = {{"amp24.png"}}
   GxPaintBox::icon-set =3
-  GxPaintBox::force-reload =1
+  GxPaintBox::force-reload =0
 }
 
 widget "*.GUITARIXLV23" style:highest "gx_lv2-3"

@@ -124,11 +124,18 @@ void GXPluginGUI::set_skin()
   gtk_rc_parse_string (toparse.c_str());
 }
 
+inline std::string to_string(long long _Val)
+{   // convert int to string
+        char _Buf[4];
+        sprintf(_Buf, "%lld", _Val);
+        return (std::string(_Buf));
+}
+
 void GXPluginGUI::set_plug_name()
 {
   addKnob = "";
   plugskin = "amp21.png";
-  plug_name = "GUITARIXLV2";
+  plug_name = "GUITARIXLV2" + to_string(reinterpret_cast<long long>(this));
 }
 
 GtkWidget* GXPluginGUI::make_gui()
