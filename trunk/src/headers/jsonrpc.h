@@ -57,12 +57,14 @@ private:
     __gnu_cxx::stdio_filebuf<char> writebuf;
     ostream os;
     gx_system::JsonWriter jw;
+    bool parameter_change_notify;
     sigc::connection conn_preset_changed;
     sigc::connection conn_state_changed;
     sigc::connection conn_freq_changed;
     sigc::connection conn_display;
     sigc::connection conn_display_state;
     sigc::connection conn_selection_done;
+    sigc::connection conn_presetlist_changed;
     sigc::connection conn_log_message;
 private:
     void exec(Glib::ustring cmd);
@@ -82,6 +84,7 @@ private:
     void display(const Glib::ustring& bank, const Glib::ustring& preset);
     void set_display_state(TunerSwitcher::SwitcherState newstate);
     void on_selection_done();
+    void on_presetlist_changed();
     void on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
     void listen(const Glib::ustring& tp);
     void unlisten(const Glib::ustring& tp);

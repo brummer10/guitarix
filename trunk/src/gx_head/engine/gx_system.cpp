@@ -811,19 +811,22 @@ string Logger::format(const char* func, const string& msg) {
 }
 
 void Logger::print(const char* func, const string& msg, GxMsgType msgtype) {
-    string m = format(func, msg);
+    Logger::print(format(func, msg), msgtype);
+}
+
+void Logger::print(const string& formatted_msg, GxMsgType msgtype) {
     if (handlers.empty() || !(pthread_equal(pthread_self(), ui_thread))) {
 	boost::mutex::scoped_lock lock(msgmutex);
 	// defer output
-        msglist.push_back(logmsg(m, msgtype, false));
+        msglist.push_back(logmsg(formatted_msg, msgtype, false));
 	if (!handlers.empty() && msglist.size() == 1) {
 	    (*got_new_msg)();
 	}
     } else {
 	write_queued();
-	handlers(m, msgtype, false);
+	handlers(formatted_msg, msgtype, false);
 	if (queue_all_msgs) {
-	    msglist.push_back(logmsg(m, msgtype, true));
+	    msglist.push_back(logmsg(formatted_msg, msgtype, true));
 	}
     }
 }

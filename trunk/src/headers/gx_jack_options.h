@@ -41,9 +41,7 @@ private:
     Gtk::Entry  *customstarter;
     Gtk::ComboBox *startercombo;
     Gtk::CheckButton *dontask;
-    gx_engine::IntParameter& starter;
-    gx_engine::StringParameter& starter_cmd;
-    gx_engine::BoolParameter& ask;
+    gx_engine::GxMachineBase& machine;
     sigc::signal<void> close;
     void on_starter_changed();
     void on_ok_button();

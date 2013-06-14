@@ -51,6 +51,11 @@ public:
     Plugin(PluginDef *pl=0);
     Plugin(gx_system::JsonParser& jp);
     void writeJSON(gx_system::JsonWriter& jw);
+    void set_box_visible(bool v);
+    void set_plug_visible(bool v);
+    void set_on_off(int v);
+    void set_position(int pos);
+    void set_effect_post_pre(int v);
 };
 
 /****************************************************************
@@ -122,6 +127,8 @@ public:
     void append_rack(UiBuilderBase& ui);
     void writeJSON(gx_system::JsonWriter& jw);
     void readJSON(gx_system::JsonParser& jp);
+    pluginmap::iterator begin() { return pmap.begin(); }
+    pluginmap::iterator end() { return pmap.end(); }
 };
 
 class PluginList: public PluginListBase {

@@ -703,14 +703,14 @@ void MainWindow::on_show_rack() {
 void MainWindow::on_compress_all() {
     monorackcontainer.compress_all();
     stereorackcontainer.compress_all();
-    on_ampdetail_switch(true);
+    on_ampdetail_switch(true, true);
     actions.midi_out_plug->set_active(true);
 }
 
 void MainWindow::on_expand_all() {
     monorackcontainer.expand_all();
     stereorackcontainer.expand_all();
-    on_ampdetail_switch(false);
+    on_ampdetail_switch(false, true);
     actions.midi_out_plug->set_active(false);
 }
 
@@ -2122,7 +2122,7 @@ static void toggle_action(Glib::RefPtr<Gtk::ToggleAction> act) {
     act->set_active(!act->get_active());
 }
 
-void MainWindow::on_ampdetail_switch(bool compress) {
+void MainWindow::on_ampdetail_switch(bool compress, bool setparam) {
     if (compress) {
 	ampdetail_normal->hide();
 	ampdetail_mini->show();
@@ -2130,7 +2130,9 @@ void MainWindow::on_ampdetail_switch(bool compress) {
 	ampdetail_mini->hide();
 	ampdetail_normal->show();
     }
-    machine.get_parameter("ui.mp_s_h").getBool().set(compress);
+    if (setparam) {
+	machine.set_parameter_value("ui.mp_s_h", compress);
+    }
 }
 
 /****************************************************************
@@ -2725,11 +2727,11 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     ** amp top box signal connections
     */
     ampdetail_compress->signal_clicked().connect(
-	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), true));
+	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), true, true));
     ampdetail_expand->signal_clicked().connect(
-	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), false));
+	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), false, true));
     machine.signal_parameter_value<bool>("ui.mp_s_h").connect(
-	sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch));
+	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), false));
 
     /*
     ** midi out signal connections

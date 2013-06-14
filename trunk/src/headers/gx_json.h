@@ -256,12 +256,14 @@ public:
     typedef std::vector<Position>::iterator iterator;
     PresetFile();
     ~PresetFile() { delete is; }
+    void readJSON_remote(JsonParser& jp);
+    void writeJSON_remote(JsonWriter& jw);
     bool open_file(const Glib::ustring& name, const std::string& path, int tp, int flags);
     bool create_file(const Glib::ustring& name, const std::string& path, int tp, int flags);
     bool set_factory(const Glib::ustring& name_, const std::string& path);
     bool readJSON(const std::string& dirpath, JsonParser &jp, bool *mtime_diff);
     void writeJSON(JsonWriter& jw);
-    void reopen() { if (!is) open(); }
+    void reopen() { if (!is && !filename.empty()) open(); }
     void open(const std::string& fname);
     void close() { delete is; is = 0; }
     bool fail();
@@ -340,6 +342,7 @@ public:
     };
     PresetBanks();
     ~PresetBanks();
+    void readJSON_remote(gx_system::JsonParser& jp);
     bool check_reparse();
     void parse(const std::string& bank_path, const std::string& preset_dir,
 	       const std::string& factory_path, const char* scratchpad_name, const char* scratchpad_file);

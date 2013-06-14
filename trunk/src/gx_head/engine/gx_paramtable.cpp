@@ -566,6 +566,9 @@ void Parameter::serializeJSON(gx_system::JsonWriter& jw) {
     if (!controllable) {
 	jw.write_key("non_controllable"); jw.write(false);
     }
+    if (!save_in_preset) {
+	jw.write_key("non_preset"); jw.write(false);
+    }
     jw.end_object();
 }
 
@@ -598,7 +601,10 @@ Parameter::Parameter(gx_system::JsonParser& jp)
 	    d_flags = jp.current_value_int();
 	} else if (jp.current_value() == "non_controllable") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    controllable = static_cast<bool>(jp.current_value_int());
+	    controllable = false;
+	} else if (jp.current_value() == "non_preset") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    save_in_preset = false;
 	} else {
 	    gx_system::gx_print_warning(
 		"Parameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -768,11 +774,13 @@ void FloatParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.write_key("lower"); jw.write(lower);
     jw.write_key("upper"); jw.write(upper);
     jw.write_key("step"); jw.write(step);
+    jw.write_key("value"); jw.write(*value);
     jw.end_object();
 }
 
 FloatParameter::ParameterV(gx_system::JsonParser& jp)
-    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(0), std_value(0), lower(), upper(), step() {
+    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(new float), std_value(0), lower(), upper(), step() {
+    own_var = true;
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
 	if (jp.current_value() == "lower") {
@@ -784,6 +792,9 @@ FloatParameter::ParameterV(gx_system::JsonParser& jp)
 	} else if (jp.current_value() == "step") {
 	    jp.next(gx_system::JsonParser::value_number);
 	    step = jp.current_value_float();
+	} else if (jp.current_value() == "value") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    *value = jp.current_value_float();
 	} else {
 	    gx_system::gx_print_warning(
 		"FloatParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -947,11 +958,13 @@ void IntParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
     jw.write_key("lower"); jw.write(lower);
     jw.write_key("upper"); jw.write(upper);
+    jw.write_key("value"); jw.write(*value);
     jw.end_object();
 }
 
 IntParameter::ParameterV(gx_system::JsonParser& jp)
-    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(0), std_value(0), lower(), upper() {
+    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(new int), std_value(0), lower(), upper() {
+    own_var = true;
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
 	if (jp.current_value() == "lower") {
@@ -960,6 +973,9 @@ IntParameter::ParameterV(gx_system::JsonParser& jp)
 	} else if (jp.current_value() == "upper") {
 	    jp.next(gx_system::JsonParser::value_number);
 	    upper = jp.current_value_int();
+	} else if (jp.current_value() == "value") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    *value = jp.current_value_int();
 	} else {
 	    gx_system::gx_print_warning(
 		"IntParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1167,12 +1183,23 @@ EnumParameterD::~EnumParameterD() {
 void BoolParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.write_key("value"); jw.write(*value);
     jw.end_object();
 }
 
 BoolParameter::ParameterV(gx_system::JsonParser& jp)
-    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(0), std_value(0) {
+    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(new bool), std_value(0) {
+    own_var = true;
     while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.current_value() == "value") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    *value = jp.current_value_int();
+	} else {
+	    gx_system::gx_print_warning(
+		"BoolParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
+	    jp.skip_object();
+	}
     }
     jp.next(gx_system::JsonParser::end_object);
 }
@@ -1239,6 +1266,10 @@ void FileParameter::serializeJSON(gx_system::JsonWriter& jw) {
 FileParameter::FileParameter(gx_system::JsonParser& jp)
     : Parameter(jp_next(jp, "Parameter")), value(0), std_value(0), json_value(0) {
     while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	gx_system::gx_print_warning(
+	    "FileParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
+	jp.skip_object();
     }
     jp.next(gx_system::JsonParser::end_object);
 }
@@ -1354,6 +1385,10 @@ void StringParameter::serializeJSON(gx_system::JsonWriter& jw) {
 StringParameter::ParameterV(gx_system::JsonParser& jp)
     : Parameter(jp_next(jp, "Parameter")), json_value(""), value(0), std_value("") {
     while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	gx_system::gx_print_warning(
+	    "StringParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
+	jp.skip_object();
     }
     jp.next(gx_system::JsonParser::end_object);
 }

@@ -225,8 +225,10 @@ enyo.kind({
 		this.showMain();
 	    }
 	    break;
-	case "errormsg":
-	    this.$.MainScreen.showMessage(response.params[0]);
+	case "message":
+	    if (response.params[0] == "error") {
+		this.$.MainScreen.showMessage(response.params[1]);
+	    }
 	    break;
 	default:
 	    console.log("unknown notify: ", response);

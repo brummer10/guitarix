@@ -852,6 +852,7 @@ void RackBox::display(bool v, bool animate) {
 	return;
     }
     box_visible = v;
+    main.get_machine().set_parameter_value(std::string("ui.")+get_id(), v);
     if (v) {
 	if (animate) {
 	    animate_insert();
@@ -861,6 +862,7 @@ void RackBox::display(bool v, bool animate) {
 	get_parent()->increment();
     } else {
 	plugin.plugin->on_off = false;
+	main.get_machine().set_parameter_value(std::string(get_id())+".on_off", v);
 	if (animate) {
 	    animate_remove();
 	} else {
@@ -1040,6 +1042,7 @@ void RackBox::set_visibility(bool v) {
 
 void RackBox::swtch(bool mini) {
     plugin.plugin->plug_visible = mini;
+    main.get_machine().set_parameter_value(std::string(plugin.get_id())+".s_h", mini);
     plugin.compressed = mini;
     if (!config_mode) {
 	if (mini) {
@@ -1061,6 +1064,16 @@ void RackBox::set_config_mode(bool mode) {
 	}
     }
     enable_drag(mode);
+}
+
+void RackBox::setOrder(int pos, int post_pre) {
+    position = plugin.plugin->position = pos;
+    effect_post_pre = plugin.plugin->effect_post_pre = post_pre;
+    std::string s = get_id();
+    if (plugin.get_type() == PLUGIN_TYPE_MONO) {
+	main.get_machine().set_parameter_value(s+".pp", post_pre);
+    }
+    main.get_machine().set_parameter_value(s+".position", position);
 }
 
 void RackBox::do_expand() {

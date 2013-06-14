@@ -348,10 +348,7 @@ public:
     void pack(Gtk::Widget *mainbox, Gtk::Widget *minibox, const Glib::RefPtr<Gtk::SizeGroup>& szg);
     void animate_insert();
     static Gtk::Widget *create_icon_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);
-    void setOrder(int pos, unsigned int post_pre) {
-	position = plugin.plugin->position = pos;
-	effect_post_pre = plugin.plugin->effect_post_pre = post_pre;
-    }
+    void setOrder(int pos, int post_pre);
     void storeOrder() { position = plugin.plugin->position; effect_post_pre = plugin.plugin->effect_post_pre; }
     bool hasOrderDiff() { return plugin.plugin->position != position || plugin.plugin->effect_post_pre != effect_post_pre; }
     int position_weight() { return plugin.plugin->position_weight(); }
@@ -763,7 +760,7 @@ private:
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);
     void on_msg_level_changed();
-    void on_ampdetail_switch(bool compress);
+    void on_ampdetail_switch(bool compress, bool setparam);
     void on_show_oscilloscope(bool v);
     void set_waveview_buffer(unsigned int size);
     void on_oscilloscope_post_pre(int post_pre);

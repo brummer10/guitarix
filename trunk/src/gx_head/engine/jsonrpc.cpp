@@ -193,12 +193,14 @@ CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketCon
       writebuf(connection->get_socket()->get_fd(), std::ios::out),
       os(&writebuf),
       jw(&os, false),
+      parameter_change_notify(false),
       conn_preset_changed(),
       conn_state_changed(),
       conn_freq_changed(),
       conn_display(),
       conn_display_state(),
       conn_selection_done(),
+      conn_presetlist_changed(),
       conn_log_message() {
 }
 
@@ -229,10 +231,17 @@ void CmdConnection::listen(const Glib::ustring& tp) {
 	conn_selection_done = serv.tuner_switcher.signal_selection_done().connect(
 	    sigc::mem_fun(this, &CmdConnection::on_selection_done));
     }
+    if (all || tp == "presetlist_changed") {
+	conn_presetlist_changed = serv.settings.signal_presetlist_changed().connect(
+	    sigc::mem_fun(this, &CmdConnection::on_presetlist_changed));
+    }
     if (all || tp == "logger") {
 	conn_log_message = gx_system::Logger::get_logger().signal_message().connect(
 	    sigc::mem_fun(this, &CmdConnection::on_log_message));
 	gx_system::Logger::get_logger().unplug_queue();
+    }
+    if (all || tp == "param") {
+	parameter_change_notify = true;
     }
 }
 
@@ -254,20 +263,25 @@ void CmdConnection::unlisten(const Glib::ustring& tp) {
     if (all || tp == "tuner") {
 	conn_selection_done.disconnect();
     }
+    if (all || tp == "presetlist_changed") {
+	conn_presetlist_changed.disconnect();
+    }
     if (all || tp == "logger") {
 	conn_log_message.disconnect();
     }
 }
 
 void CmdConnection::on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged) {
+    const char *tpname;
     switch (tp) {
-    case gx_system::kInfo:    break;
-    case gx_system::kWarning: break;
-    case gx_system::kError:   break;
-    default:       break;
+    case gx_system::kInfo:    tpname = "info"; break;
+    case gx_system::kWarning: tpname = "warning"; break;
+    case gx_system::kError:   tpname = "error"; break;
+    default: tpname = "unknown"; break;
     }
     if (!plugged) {
-	send_notify_begin("errormsg");
+	send_notify_begin("message");
+	jw.write(tpname);
 	jw.write(msg);
 	send_notify_end();
     }
@@ -297,6 +311,11 @@ void CmdConnection::write_engine_state(gx_engine::GxEngineState s) {
 void CmdConnection::on_selection_done() {
     send_notify_begin("show_tuner");
     jw.write(serv.tuner_switcher.deactivate());
+    send_notify_end();
+}
+
+void CmdConnection::on_presetlist_changed() {
+    send_notify_begin("presetlist_changed");
     send_notify_end();
 }
 
@@ -431,35 +450,6 @@ static void write_parameter_state(gx_system::JsonWriter& jw, const gx_engine::Pa
     jw.end_object();
 }
 
-static void write_bank_state(gx_system::JsonWriter& jw, const gx_system::PresetFile *pf) {
-    jw.begin_object();
-    jw.write_key("name");
-    jw.write(pf->get_name());
-    jw.write_key("mutable");
-    jw.write(pf->is_mutable());
-    jw.write_key("type");
-    switch (pf->get_type()) {
-    case gx_system::PresetFile::PRESET_SCRATCH: jw.write("scratch"); break;
-    case gx_system::PresetFile::PRESET_FACTORY: jw.write("factory"); break;
-    case gx_system::PresetFile::PRESET_FILE: jw.write("file"); break;
-    default: jw.write("unknown"); break;
-    }
-    int flags = pf->get_flags();
-    if (flags & gx_system::PRESET_FLAG_INVALID) {
-	jw.write_key("flag_invalid");
-	jw.write(1);
-    }
-    if (flags & gx_system::PRESET_FLAG_READONLY) {
-	jw.write_key("flag_readonly");
-	jw.write(1);
-    }
-    if (flags & gx_system::PRESET_FLAG_VERSIONDIFF) {
-	jw.write_key("flag_versiondiff");
-	jw.write(1);
-    }
-    jw.end_object();
-}
-
 static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& prefix, const char** gl) {
     if (id.compare(0, prefix.size(), prefix) == 0) {
 	return true;
@@ -580,13 +570,13 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    throw RpcError(-32602, "Invalid params -- unknown bank");
 	}
 	jw.write_key("result");
-	write_bank_state(jw, pf);
+	pf->writeJSON_remote(jw);
     } else if (method == "banks") {
 	gx_system::PresetBanks& banks = serv.settings.banks;
 	jw.write_key("result");
 	jw.begin_array();
 	for (gx_system::PresetBanks::iterator i = banks.begin(); i != banks.end(); ++i) {
-	    write_bank_state(jw, *i);
+	    (*i)->writeJSON_remote(jw);
 	}
 	jw.end_array();
     } else if (method == "presets") {
@@ -747,7 +737,7 @@ void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
 	    }
 	}
 	for (std::list<CmdConnection*>::iterator p = serv.connection_list.begin(); p != serv.connection_list.end(); ++p) {
-	    if (*p == this) {
+	    if (*p == this || !(*p)->parameter_change_notify) {
 		continue;
 	    }
 	    (*p)->send_notify_begin("set");

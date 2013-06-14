@@ -150,57 +150,109 @@ static std::string replaced_id(const std::string& s) {
     return "";
 }
 
-bool PresetIO::convert_old(gx_system::JsonParser &jp) {
-    if (jp.current_value() == "system.mainwin_x") {
+class UnitPositionID: public UnitPosition {
+public:
+    std::string id;
+    int weight;
+    UnitPositionID(const string& id_, const UnitPosition& u);
+    bool operator<(const UnitPositionID& v) const { return weight < v.weight; }
+};
+
+UnitPositionID::UnitPositionID(const string& id_, const UnitPosition& u)
+  : UnitPosition(u),
+    id(id_),
+    weight(position - 1000 * pp) {
+}
+
+void UnitsCollector::get_list(std::vector<std::string>& l, bool stereo) {
+    std::vector<UnitPositionID> v;
+    for (std::map<std::string,UnitPosition>::iterator i = m.begin(); i != m.end(); ++i) {
+	if (i->second.show && i->second.position >= 0) {
+	    if ((stereo && i->second.pp < 0) || (!stereo && i->second.pp >= 0)) {
+		v.push_back(UnitPositionID(i->first, i->second));
+	    }
+	}
+    }
+    l.clear();
+    std::sort(v.begin(), v.end());
+    int pp = 1;
+    for (std::vector<UnitPositionID>::iterator j = v.begin(); j != v.end(); ++j) {
+	if (j->pp != pp) {
+	    pp = j->pp;
+	    l.push_back("ampstack");
+	}
+	l.push_back(j->id);
+    }
+}
+
+bool PresetIO::convert_old(gx_system::JsonParser &jp, UnitsCollector& u) {
+    const std::string& s = jp.current_value();
+    if (s == "system.mainwin_x") {
 	jp.next(gx_system::JsonParser::value_number);
 	opt.mainwin_x = jp.current_value_int();
 	return true;
     }
-    if (jp.current_value() == "system.mainwin_y") {
+    if (s == "system.mainwin_y") {
 	jp.next(gx_system::JsonParser::value_number);
 	opt.mainwin_y = jp.current_value_int();
 	return true;
     }
-    if (jp.current_value() == "system.mainwin_height") {
+    if (s == "system.mainwin_height") {
 	jp.next(gx_system::JsonParser::value_number);
 	opt.mainwin_height = jp.current_value_int();
 	return true;
     }
-    if (jp.current_value() == "system.mainwin_rack_height") {
+    if (s == "system.mainwin_rack_height") {
 	jp.next(gx_system::JsonParser::value_number);
 	opt.window_height = jp.current_value_int();
 	return true;
     }
-    if (jp.current_value() == "system.preset_window_height") {
+    if (s == "system.preset_window_height") {
 	jp.next(gx_system::JsonParser::value_number);
 	opt.preset_window_height = jp.current_value_int();
 	return true;
     }
-    if (jp.current_value() == "oscilloscope.bufferset") {
+    if (s == "oscilloscope.bufferset") {
 	jp.next(gx_system::JsonParser::value_number);
 	opt.mul_buffer = jp.current_value_int();
 	return true;
     }
-    if (jp.current_value() == "ui.skin_name") {
+    if (s == "ui.skin_name") {
 	jp.next(gx_system::JsonParser::value_string);
-	opt.skin_name = jp.current_value();
+	opt.skin_name = s;
 	return true;
     }
-    if (jp.current_value() == "ui.latency_nowarn") {
+    if (s == "ui.latency_nowarn") {
 	jp.next(gx_system::JsonParser::value_number);
 	opt.no_warn_latency = jp.current_value_int();
+	return true;
+    }
+    if (s.compare(0, 3, "ui.") == 0) {
+	jp.next(gx_system::JsonParser::value_number);
+	u.set_show(s.substr(3), jp.current_value_int());
+	return true;
+    }
+    if (s.compare(s.size()-9, 9, ".position") == 0) {
+	jp.next(gx_system::JsonParser::value_number);
+	u.set_position(s.substr(0, s.size()-9), jp.current_value_int());
+	return true;
+    }
+    if (s.compare(s.size()-3, 3, ".pp") == 0) {
+	jp.next(gx_system::JsonParser::value_number);
+	u.set_pp(s.substr(0, s.size()-3), jp.current_value_int());
 	return true;
     }
     return false;
 }
 
 void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
+    UnitsCollector u;
     jp.next(gx_system::JsonParser::begin_object);
     do {
         jp.next(gx_system::JsonParser::value_key);
         gx_engine::Parameter *p;
         if (!param.hasId(jp.current_value())) {
-	    if (convert_old(jp)) {
+	    if (convert_old(jp, u)) {
 		continue;
 	    }
 	    std::string s = replaced_id(jp.current_value());
@@ -231,10 +283,29 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
         p->readJSON_value(jp);
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
+    u.get_list(mono_rack_units, false);
+    u.get_list(stereo_rack_units, true);
 }
 
 void PresetIO::write_parameters(gx_system::JsonWriter &w, bool preset) {
     w.begin_object(true);
+#if 0
+    int n = 0;
+    int pp = 1;
+    for (std::vector<std::string>::iterator j = mono_rack_units.begin(); j != mono_rack_units.end(); ++j) {
+	if (*j == "ampstack") {
+	    n = 1;
+	    pp = 0;
+	}
+	w.write_key("ui."+*j);
+	w.write(1);
+	w.write_key(*j+".pp");
+	w.write(pp);
+	w.write_key(*j+".position");
+	w.write(n);
+	n++;
+    }
+#endif
     for (gx_engine::ParamMap::iterator i = param.begin();
 	 i != param.end(); ++i) {
         gx_engine::Parameter *param = i->second;

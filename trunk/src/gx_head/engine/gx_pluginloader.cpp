@@ -261,6 +261,27 @@ void Plugin::writeJSON(gx_system::JsonWriter& jw) {
     jw.end_object();
 }
 
+void Plugin::set_box_visible(bool v) {
+    box_visible = v;
+}
+
+void Plugin::set_plug_visible(bool v) {
+    plug_visible = v;
+}
+
+void Plugin::set_on_off(int v) {
+    on_off = v;
+}
+
+void Plugin::set_position(int pos) {
+    position = pos;
+}
+
+void Plugin::set_effect_post_pre(int v) {
+    effect_post_pre = v;
+}
+
+
 /****************************************************************
  ** class PluginList
  */

@@ -32,6 +32,7 @@ private:
     virtual int _get_parameter_value_int(const std::string& id) = 0;
     virtual int _get_parameter_value_bool(const std::string& id) = 0;
     virtual float _get_parameter_value_float(const std::string& id) = 0;
+    virtual std::string _get_parameter_value_string(const std::string& id) = 0;
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id) = 0;
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id) = 0;
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id) = 0;
@@ -150,6 +151,7 @@ public:
     virtual void set_parameter_value(const std::string& id, int value) = 0;
     virtual void set_parameter_value(const std::string& id, float value) = 0;
     virtual void set_parameter_value(const std::string& id, bool value) = 0;
+    virtual void set_parameter_value(const std::string& id, const std::string& value) = 0;
     void set_parameter_value(const std::string& id, double value) { set_parameter_value(id, (float)value); }
     template <class T> T get_parameter_value (const std::string& id);
     template <class T> sigc::signal<void, T>& signal_parameter_value(const std::string& id);
@@ -182,6 +184,10 @@ template <> inline bool GxMachineBase::get_parameter_value(const std::string& id
     return _get_parameter_value_bool(id);
 }
 
+template <> inline std::string GxMachineBase::get_parameter_value(const std::string& id) {
+    return _get_parameter_value_string(id);
+}
+
 template <> inline sigc::signal<void, float>& GxMachineBase::signal_parameter_value(const std::string& id) {
     return _signal_parameter_value_float(id);
 }
@@ -208,6 +214,7 @@ private:
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
+    virtual std::string _get_parameter_value_string(const std::string& id);
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id);
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id);
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id);
@@ -325,6 +332,8 @@ public:
     virtual void set_parameter_value(const std::string& id, int value);
     virtual void set_parameter_value(const std::string& id, bool value);
     virtual void set_parameter_value(const std::string& id, float value);
+    virtual void set_parameter_value(const std::string& id, const std::string& value);
+
     // MidiControllerList
     virtual bool midi_get_config_mode();
     virtual void midi_set_config_mode(bool v, int ctl=-1);
@@ -342,32 +351,52 @@ public:
     virtual ConvolverStereoAdapter& get_stereo_convolver();
 };
 
+class JsonStringParser: public gx_system::JsonParser {
+private:
+    stringstream stream;
+public:
+    JsonStringParser() {}
+    void put(char c) { stream.put(c); }
+    void start_parser() { stream.seekg(0); set_stream(&stream); }
+    std::string get_string() { return stream.str(); }
+};
+
 class GxMachineRemote: public GxMachineBase {
 private:
     gx_system::CmdlineOptions& options;
     ParamMap  pmap;
     PluginListBase pluginlist;
+    gx_system::PresetBanks banks;
     sigc::signal<void,GxEngineState> engine_state_change;
+    sigc::signal<void> selection_changed;
+    sigc::signal<void> presetlist_changed;
     Glib::RefPtr<Gio::Socket> socket;
     __gnu_cxx::stdio_filebuf<char> *writebuf;
     ostream *os;
     gx_system::JsonWriter *jw;
-    stringstream *is;
-    gx_system::JsonParser jp;
+    std::vector<JsonStringParser*> notify_list;
+    sigc::connection idle_conn;
+    JsonStringParser *jp;
     std::map<string,sigc::signal<void,int>*> signals_int;
     std::map<string,sigc::signal<void,bool>*> signals_bool;
     std::map<string,sigc::signal<void,float>*> signals_float;
+    bool is_loading;
 private:
     void start_notify(const char *method);
     void start_call(const char *method);
     void send();
-    bool receive(gx_system::JsonParser *jp = 0, bool verbose=false);
+    bool receive(bool verbose=false);
     bool socket_input_handler(Glib::IOCondition cond);
     void _request_parameter_value(const std::string& id);
+    void add_idle_handler();
+    bool idle_notify_handler();
+    void handle_notify();
+    void parameter_changed(const std::string& id);
     static int load_remote_ui(const UiBuilder& builder);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
+    virtual std::string _get_parameter_value_string(const std::string& id);
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id);
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id);
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id);
@@ -486,6 +515,8 @@ public:
     virtual void set_parameter_value(const std::string& id, int value);
     virtual void set_parameter_value(const std::string& id, bool value);
     virtual void set_parameter_value(const std::string& id, float value);
+    virtual void set_parameter_value(const std::string& id, const std::string& value);
+
     // MidiControllerList
     virtual bool midi_get_config_mode();
     virtual void midi_set_config_mode(bool v, int ctl=-1);

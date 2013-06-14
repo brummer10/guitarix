@@ -475,7 +475,7 @@ static void mainFront(int argc, char *argv[]) {
     Gxw::init();
 
     gx_system::CmdlineOptions options;
-    PosixSignals posixsig(true); // catch unix signals in special thread
+    //PosixSignals posixsig(true); // catch unix signals in special thread
     Gtk::Main main(argc, argv, options);
     options.process(argc, argv);
     GxSplashBox * Splash = NULL;
@@ -510,6 +510,7 @@ static void mainFront(int argc, char *argv[]) {
     }
     // ----------------------- run GTK main loop ----------------------
     delete Splash;
+    machine.set_init_values();
     gui.run();
 }
 

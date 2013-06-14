@@ -450,6 +450,7 @@ public:
     void unplug_queue();
     msg_signal& signal_message();
     void print(const char* func, const string& msg, GxMsgType msgtype);
+    void print(const string& formatted_msg, GxMsgType msgtype);
     static Logger& get_logger();
     static void destroy();
 };

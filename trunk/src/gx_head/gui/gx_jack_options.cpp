@@ -42,16 +42,14 @@ SelectJackControlPgm::SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr
       customstarter(),
       startercombo(),
       dontask(),
-      starter(m.get_parameter("ui.jack_starter_idx").getInt()),
-      starter_cmd(m.get_parameter("ui.jack_starter").getString()),
-      ask(m.get_parameter("ui.ask_for_jack_starter").getBool()),
+      machine(m),
       close() {
     signal_delete_event().connect(sigc::mem_fun(*this, &SelectJackControlPgm::on_delete_event));
     bld->find_widget("description", description);
     bld->find_widget("customstarter", customstarter);
-    customstarter->set_text(starter_cmd.get_value());
+    customstarter->set_text(machine.get_parameter_value<string>("ui.jack_starter"));
     bld->find_widget("startercombo", startercombo);
-    const char *v_id = starter.getValueNames()[starter.get_value()].value_id;
+    const char *v_id = machine.get_parameter("ui.jack_starter_idx").getValueNames()[machine.get_parameter_value<int>("ui.jack_starter_idx")].value_id;
     int n = 0;
     Glib::RefPtr<Gtk::TreeModel> model = startercombo->get_model();
     for (Gtk::TreeIter i = model->children().begin(); i; ++i, ++n) {
@@ -63,7 +61,7 @@ SelectJackControlPgm::SelectJackControlPgm(BaseObjectType* cobject, Glib::RefPtr
     }
     startercombo->signal_changed().connect(sigc::mem_fun(*this, &SelectJackControlPgm::on_starter_changed));
     bld->find_widget("dontask", dontask);
-    dontask->set_active(!ask.get_value());
+    dontask->set_active(!machine.get_parameter_value<bool>("ui.ask_for_jack_starter"));
     Gtk::Button *button;
     bld->find_widget("ok_button", button);
     button->signal_clicked().connect(
@@ -116,16 +114,16 @@ void SelectJackControlPgm::on_starter_changed() {
 }
 
 void SelectJackControlPgm::on_ok_button() {
-    starter_cmd.set(customstarter->get_text());
+    machine.set_parameter_value("ui.jack_starter", customstarter->get_text());
     Glib::ustring s;
     startercombo->get_active()->get_value(1, s);
-    int n = starter.idx_from_id(s);
+    int n = machine.get_parameter("ui.jack_starter_idx").getInt().idx_from_id(s);
     if (n >= 0) {
-	starter.set(n);
+	machine.set_parameter_value("ui.jack_starter_idx", n);
     } else {
 	gx_system::gx_print_error("load error", "starter id not found");
     }
-    ask.set(!dontask->get_active());
+    machine.set_parameter_value("ui.ask_for_jack_starter", !dontask->get_active());
     close();
 }
 

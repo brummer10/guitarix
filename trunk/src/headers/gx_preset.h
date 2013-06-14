@@ -33,6 +33,25 @@ namespace gx_preset {
  ** class BasicIO, class PresetIO, class StateIO, class GxSettings
  */
 
+class UnitPosition {
+public:
+    bool show;
+    bool position;
+    int pp;
+    UnitPosition(): show(false), position(-1), pp(-1) {}
+};
+
+class UnitsCollector {
+private:
+    std::map<std::string,UnitPosition> m;
+public:
+    void set_show(const std::string& s, bool v) { m[s].show = v; }
+    void set_position(const std::string& s, int v) { m[s].position = v; }
+    void set_pp(const std::string& s, bool v) { m[s].pp = v; }
+    void get_list(std::vector<std::string>& l, bool stereo);
+    bool empty() { return m.empty(); }
+};
+
 class PresetIO: public gx_system::AbstractPresetIO {
 private:
     gx_engine::MidiControllerList& mctrl;
@@ -42,6 +61,8 @@ private:
     gx_engine::paramlist plist;
     gx_engine::MidiControllerList::controller_array *m;
     gx_engine::GxJConvSettings *jcset;
+    std::vector<std::string> mono_rack_units;
+    std::vector<std::string> stereo_rack_units;
     void read_parameters(gx_system::JsonParser &jp, bool preset);
     void write_parameters(gx_system::JsonWriter &w, bool preset);
     void clear();
@@ -49,7 +70,7 @@ private:
     void read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_system::SettingsFileHeader& head);
     void fixup_parameters(const gx_system::SettingsFileHeader& head);
     void write_intern(gx_system::JsonWriter &w, bool write_midi);
-    bool convert_old(gx_system::JsonParser &jp);
+    bool convert_old(gx_system::JsonParser &jp, UnitsCollector& u);
     friend class StateIO;
 public:
     PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,

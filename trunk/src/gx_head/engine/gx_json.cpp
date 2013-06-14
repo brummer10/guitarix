@@ -754,6 +754,83 @@ PresetFile::PresetFile()
       flags() {
 }
 
+void PresetFile::readJSON_remote(JsonParser& jp) {
+    entries.clear();
+    flags = 0;
+    name = "";
+    tp = PresetFile::PRESET_FILE;
+    jp.next(JsonParser::begin_object);
+    while (jp.peek() != JsonParser::end_object) {
+	jp.next(JsonParser::value_key);
+	if (jp.current_value() == "name") {
+	    jp.next(JsonParser::value_string);
+	    name = jp.current_value();
+	} else if (jp.current_value() == "type") {
+	    jp.next(JsonParser::value_string);
+	    if (jp.current_value() == "scratch") {
+		tp = PresetFile::PRESET_SCRATCH;
+	    } else if (jp.current_value() == "factory") {
+		tp = PresetFile::PRESET_FACTORY;
+	    } else if (jp.current_value() == "file") {
+		tp = PresetFile::PRESET_FILE;
+	    }
+	} else if (jp.current_value() == "mutable") {
+	    jp.skip_object();
+	} else if (jp.current_value() == "flag_invalid") {
+	    flags |= PRESET_FLAG_INVALID;
+	} else if (jp.current_value() == "flag_readonly") {
+	    flags |= PRESET_FLAG_READONLY;
+	} else if (jp.current_value() == "flag_versiondiff") {
+	    flags |= PRESET_FLAG_VERSIONDIFF;
+	} else if (jp.current_value() == "presets") {
+	    jp.next(JsonParser::begin_array);
+	    while (jp.peek() != JsonParser::end_array) {
+		jp.next(JsonParser::value_string);
+		entries.push_back(Position(jp.current_value(), 0));
+	    }
+	    jp.next(JsonParser::end_array);
+	} else {
+	    gx_print_warning(
+		"PresetFile", Glib::ustring::compose("%1: unknown remote key: %2", name, jp.current_value()));
+	}
+    }
+    jp.next(JsonParser::end_object);
+}
+
+void PresetFile::writeJSON_remote(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("name");
+    jw.write(name);
+    jw.write_key("mutable");
+    jw.write(is_mutable());
+    jw.write_key("type");
+    switch (tp) {
+    case gx_system::PresetFile::PRESET_SCRATCH: jw.write("scratch"); break;
+    case gx_system::PresetFile::PRESET_FACTORY: jw.write("factory"); break;
+    case gx_system::PresetFile::PRESET_FILE: jw.write("file"); break;
+    default: jw.write("unknown"); break;
+    }
+    if (flags & gx_system::PRESET_FLAG_INVALID) {
+	jw.write_key("flag_invalid");
+	jw.write(1);
+    }
+    if (flags & gx_system::PRESET_FLAG_READONLY) {
+	jw.write_key("flag_readonly");
+	jw.write(1);
+    }
+    if (flags & gx_system::PRESET_FLAG_VERSIONDIFF) {
+	jw.write_key("flag_versiondiff");
+	jw.write(1);
+    }
+    jw.write_key("presets");
+    jw.begin_array();
+    for (int i = 0; i < size(); i++) {
+	jw.write(entries[i].name);
+    }
+    jw.end_array();
+    jw.end_object();
+}
+
 bool PresetFile::set_factory(const Glib::ustring& name_, const std::string& path) {
     check_mtime(path, mtime);
     if (mtime == 0) {
@@ -1172,6 +1249,16 @@ PresetBanks::~PresetBanks() {
     for (iterator i = begin(); i != end(); ++i) {
 	delete *i;
     }
+}
+
+void PresetBanks::readJSON_remote(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::begin_array);
+    while (jp.peek() != gx_system::JsonParser::end_array) {
+	gx_system::PresetFile *pf = new gx_system::PresetFile;
+	pf->readJSON_remote(jp);
+	banklist.push_back(pf);
+    }
+    jp.next(gx_system::JsonParser::end_array);
 }
 
 bool PresetBanks::check_reparse() {
