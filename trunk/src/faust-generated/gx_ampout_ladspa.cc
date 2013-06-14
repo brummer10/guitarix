@@ -1,5 +1,5 @@
 // generated from file '../src/faust/gx_ampout_ladspa.dsp' by dsp2cc:
-// Code generated with Faust 0.9.57 (http://faust.grame.fr)
+// Code generated with Faust 0.9.58 (http://faust.grame.fr)
 
 
 namespace gx_ampout_ladspa {

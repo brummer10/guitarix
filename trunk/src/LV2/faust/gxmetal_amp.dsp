@@ -41,6 +41,8 @@ with {
 	g = env : compress + sharp : db2linear;
 };
 
+guitarboost = highpass(3,80)  : peak_eq(-3,200,50): peak_eq(1.5,375,125) : peak_eq(3,2000,500) : peak_eq(-6, 4000, 1000) : peak_eq(2,8000,1000) : lowpass(3,12000) ;
+
 /****************************************************************
  ** Tube Preamp Emulation stage 1 - 2 
  */
@@ -56,7 +58,7 @@ tubeax(preamp,gain1) =  hgroup("stage1", stage1)  :
         tubestage(TB_6V6_250k,6531.0,410.0,0.659761)):> lowpass(1,6531.0) ;
 };
 
-process = lowpass(1,6531.0) : overdrive(drive) : tubeax(preamp,gain1) : div_drive with {
+process = guitarboost  : overdrive(drive) : tubeax(preamp,gain1) : div_drive with {
     drive = vslider("drive", 1, 1, 20, 0.1);
     div_drive = *((drive*-0.4):db2linear : smoothi(0.999));
     preamp = ampctrl.preamp;

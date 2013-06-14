@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/flanger.dsp' by dsp2cc:
-// Code generated with Faust 0.9.57 (http://faust.grame.fr)
+// Code generated with Faust 0.9.58 (http://faust.grame.fr)
 
 
 namespace flanger {
@@ -133,7 +133,7 @@ void always_inline Dsp::compute(int count, float *input0, float *input1, float *
 		int iTemp8 = int(fTemp7);
 		int iTemp9 = (1 + iTemp8);
 		fRec3[0] = (((fTemp7 - iTemp8) * fVec2[(IOTA-int((int(iTemp9) & 2047)))&2047]) + ((iTemp9 - fTemp7) * fVec2[(IOTA-int((iTemp8 & 2047)))&2047]));
-		output1[i] = (FAUSTFLOAT)(0.5 * ((fSlow9 * fRec3[0]) + fTemp5));
+		output1[i] = (FAUSTFLOAT)(0.5 * (fTemp5 + (fSlow9 * fRec3[0])));
 		// post processing
 		fRec3[1] = fRec3[0];
 		fRec0[1] = fRec0[0];

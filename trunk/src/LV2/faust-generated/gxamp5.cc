@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxamp5.dsp' by dsp2cc:
-// Code generated with Faust 0.9.57 (http://faust.grame.fr)
+// Code generated with Faust 0.9.58 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -384,7 +384,7 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		fRec4[0] = ((fConst7 * (fVec8[0] + fVec8[1])) + (fConst6 * fRec4[1]));
 		double fTemp19 = (fRec4[0] * fRec3[0]);
 		fRec1[0] = (Ftube(TUBE_TABLE_6V6_68k, ((fTemp19 + fRec2[0]) - 1.130739999999999)) - 112.10487804878048);
-		fRec0[0] = ((fConst43 * ((fConst1 * fRec1[0]) + (fConst42 * fRec1[1]))) + (fConst3 * fRec0[1]));
+		fRec0[0] = ((fConst43 * ((fConst42 * fRec1[1]) + (fConst1 * fRec1[0]))) + (fConst3 * fRec0[1]));
 		double fTemp20 = (1e-15 + (0.0082 * fRec36[1]));
 		fVec9[0] = fTemp20;
 		fRec37[0] = ((fConst7 * (fVec9[0] + fVec9[1])) + (fConst6 * fRec37[1]));

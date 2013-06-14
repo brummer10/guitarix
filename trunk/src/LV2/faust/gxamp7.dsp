@@ -13,9 +13,9 @@ import("maxmsp.lib");
  */
 
 
-notch1(x) = notch(x,9645.,-12.,14.1);
-notch2(x) = notch(x,7890.,-17.,7.1);
-notch3(x) = notch(x,5046.,-12.,19.1);
+peak1 = peak_eq_cq(-12.,9645.,14.1);
+peak2 = peak_eq_cq(-17.,7890.,7.1);
+peak3 = peak_eq_cq(-12.,5046.,19.1);
 
 gx_drive(drive) = _ <: _ + nonlin(4,4,0.125) * drive * 10 ;
 
@@ -36,7 +36,7 @@ process = hgroup("stage1", stage1)
      : *(preamp): (tubestage(TB_12AX7_68k,86.0,2700.0,1.581656) : + ~ (atten*tubestage(TB_12AX7_250k,132.0,1500.0,1.204285)))
      : lowpass(1,6531.0) : (tubestage(TB_12AX7_250k,132.0,1500.0,1.204285) : + ~ (atten*tubestage(TB_12AX7_250k,194.0,820.0,0.840703))) : tubestage(TB_12AX7_250k,194.0,820.0,0.840703); 
     stage2 = lowpass(1,6531.0) : *(gain1)  <: ((min(0.7,tubestage(TB_6V6_250k,6531.0,410.0,0.659761))),(max(-0.75,tubestage(TB_6V6_68k,6531.0,410.0,0.664541)))) :> 
-    notch1 : notch2 : notch3
+    peak1 : peak2 : peak3
     with {
         gain1 = ampctrl.gain1;
     /*

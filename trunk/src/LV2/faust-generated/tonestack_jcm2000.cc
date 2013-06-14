@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/tonestack_jcm2000.dsp' by dsp2cc:
-// Code generated with Faust 0.9.57 (http://faust.grame.fr)
+// Code generated with Faust 0.9.58 (http://faust.grame.fr)
 
 
 namespace tonestack_jcm2000 {

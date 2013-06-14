@@ -1,5 +1,5 @@
 // generated from file '../src/faust/preamp_impulse_former.dsp' by dsp2cc:
-// Code generated with Faust 0.9.57 (http://faust.grame.fr)
+// Code generated with Faust 0.9.58 (http://faust.grame.fr)
 
 
 namespace preamp_impulse_former {
