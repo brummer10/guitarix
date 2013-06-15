@@ -529,6 +529,8 @@ void IRWindow::on_open() {
     Gtk::FileChooserDialog d(*gtk_window, "Select Impulse Response");
     d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
+    d.add_shortcut_folder(GX_SOUND_BPA_DIR);
+    d.add_shortcut_folder(GX_SOUND_BPB_DIR);
     Gtk::FileFilter wav;
     wav.set_name("WAV Files");
     wav.add_pattern("*.wav");

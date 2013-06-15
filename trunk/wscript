@@ -650,6 +650,8 @@ def configure(conf):
         conf.define('GX_LV2_STYLE_DIR', os.path.join(conf.env['GX_STYLE_DIR'],'LV2'))
     conf.define('GX_FACTORY_DIR', os.path.join(gxsharedir,'factorysettings'))
     conf.define('GX_SOUND_DIR', os.path.join(gxsharedir,'sounds'))
+    conf.define('GX_SOUND_BPB_DIR', os.path.join(conf.env['GX_SOUND_DIR'],'bands'))
+    conf.define('GX_SOUND_BPA_DIR', os.path.join(conf.env['GX_SOUND_DIR'],'amps'))
     conf.define('GX_BUILDER_DIR', os.path.join(gxsharedir,'builder'))
     conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
@@ -854,6 +856,8 @@ def build(bld):
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/mbcs', chmod=0o664)
         # "greathall.wav" is referenced in the source (keep in sync when changing)
         bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
+        bld.install_files(bld.env['GX_SOUND_BPB_DIR'], './IR/BestPlugins_Bands/*', chmod=0o664)
+        bld.install_files(bld.env['GX_SOUND_BPA_DIR'], './IR/BestPlugins_Amps/*', chmod=0o664)
 
         if not bld.env['DISABLE_NLS']:
             gen_desktop = bld(features  = "intltool_in",

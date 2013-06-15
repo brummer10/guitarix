@@ -1278,6 +1278,8 @@ void gx_show_help() {
 void gx_show_about() {
     static string about;
     if (about.empty()) {
+        about +=_("\n Guitarix:gx_head ");
+        about += GX_VERSION;
         about +=
             _("\n\n  This Aplication is to a large extent provided"
             "\n  with the marvelous faust compiler.Yann Orlary"
@@ -1285,14 +1287,17 @@ void gx_show_about() {
             "\n  A large part is based on the work of Julius Orion Smith"
             "\n  http://ccrma.stanford.edu/realsimple/faust/"
             "\n  and Albert Graef\n  http://q-lang.sourceforge.net/examples.html#Faust"
-            "\n\n\n  gx_head ");
+            "\n\n ");
 
-        about += GX_VERSION;
-
+        
         about +=
             _("\n  for impulse response it use zita-convolver "
             "\n  byFons Adriaensen "
             "\n  http://www.kokkinizita.net/linuxaudio/index.html "
+            "\n\n  The included IR-files are contributed by "
+            "\n  David Fau Casquel (BESTPLUGINS) under the terms of the "
+            "\n  http://creativecommons.org/licenses/by/3.0/"
+            "\n  home: http://www.youtube.com/bestplugins"
             "\n\n  authors: Hermann Meyer <brummer-@web.de>"
             "\n  authors: James Warden <warjamy@yahoo.com>"
             "\n  authors: Andreas Degert <andreas.degert@googlemail.com>    "
