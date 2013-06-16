@@ -37,6 +37,7 @@ class UnitRacks {
 public:
     std::vector<std::string> mono;
     std::vector<std::string> stereo;
+    UnitRacks() { mono.push_back("ampstack"); }
 };
 
 class UnitPosition {
