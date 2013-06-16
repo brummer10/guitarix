@@ -185,6 +185,9 @@ void UnitsCollector::get_list(std::vector<std::string>& l, bool stereo) {
 	}
 	l.push_back(j->id);
     }
+    if (!stereo && pp) {
+	l.push_back("ampstack");
+    }
     /*
     cerr << "SL";
     for (std::vector<std::string>::iterator ii = l.begin(); ii != l.end(); ++ii) {
