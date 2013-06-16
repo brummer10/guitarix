@@ -263,7 +263,7 @@ void PresetIO::collectRackOrder(gx_engine::Parameter *p, gx_system::JsonParser &
     } else if (endswith(s, 9, ".position")) {
 	u.set_position(s.substr(0, s.size()-9), jp.current_value_int());
     } else if (endswith(s, 3, ".pp")) {
-	u.set_pp(s.substr(0, s.size()-3), jp.current_value_int());
+	u.set_pp(s.substr(0, s.size()-3), (jp.current_value() == "pre" ? 1 : 0));
     }
 }
 
