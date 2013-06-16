@@ -182,7 +182,11 @@ MACOSX_DEPLOYMENT_TARGET = %r
 		python_config=conf.find_program('python-config-%s'%('.'.join(env['PYTHON_VERSION'].split('.')[:2])),var='PYTHON_CONFIG')
 	includes=[]
 	if python_config:
-		for incstr in Utils.cmd_output("%s %s --includes"%(python,python_config)).strip().split():
+		if open(python_config).readline() == "#!/bin/sh\n":
+			cmd = "%s --includes" % python_config
+		else:
+			cmd = "%s %s --includes" % (python,python_config)
+		for incstr in Utils.cmd_output(cmd).strip().split():
 			if(incstr.startswith('-I')or incstr.startswith('/I')):
 				incstr=incstr[2:]
 			if incstr not in includes:
