@@ -37,7 +37,8 @@ private:
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id) = 0;
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id) = 0;
 protected:
-    GxMachineBase() {}
+    sigc::signal<void, bool> rack_unit_order_changed;
+    GxMachineBase();
 public:
     virtual ~GxMachineBase();
     // engine
@@ -93,6 +94,10 @@ public:
     virtual void start_ramp_down() = 0;
     virtual void wait_ramp_down_finished() = 0;
     virtual void set_stateflag(ModuleSequencer::StateFlag flag) = 0; // RT
+    virtual const std::vector<std::string>& get_rack_unit_order(bool stereo) = 0;
+    sigc::signal<void, bool>& signal_rack_unit_order_changed();
+    virtual void remove_rack_unit(const std::string& unit, bool stereo) = 0;
+    virtual void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo) = 0;
     // tuner_switcher
     virtual bool get_tuner_switcher_active() = 0;
     virtual void tuner_switcher_activate(bool v) = 0;
@@ -107,7 +112,6 @@ public:
     virtual void load_preset(gx_system::PresetFile *pf, const Glib::ustring& name) = 0;
     virtual void loadstate() = 0;
     virtual int bank_size() = 0;
-    virtual bool settings_is_loading() = 0;
     virtual void create_default_scratch_preset() = 0;
     virtual void set_statefilename(const std::string& fn) = 0;
     virtual void save_to_state(bool preserve_preset=false) = 0;
@@ -160,6 +164,8 @@ public:
     virtual void midi_set_config_mode(bool v, int ctl=-1) = 0;
     virtual sigc::signal<void,int>& signal_midi_new_program() = 0;
     virtual sigc::signal<void>& signal_midi_changed() = 0;
+    virtual sigc::signal<void, int, int>& signal_midi_value_changed() = 0;
+    virtual void request_midi_value_update() = 0;
     virtual int midi_size() = 0;
     virtual midi_controller_list& midi_get(int n) = 0;
     virtual void midi_deleteParameter(Parameter& param, bool quiet = false) = 0;
@@ -203,13 +209,12 @@ template <> inline sigc::signal<void, bool>& GxMachineBase::signal_parameter_val
 class GxMachine: public GxMachineBase {
 private:
     gx_system::CmdlineOptions& options;
-    ParamMap  pmap;
     GxEngine  engine;
     gx_jack::GxJack       jack;
     gx_preset::GxSettings settings;
     TunerSwitcher tuner_switcher;
     MyService *sock;
-    std::map<string,gx_ui::GxUiItem*> signals;
+    ParamMap& pmap;
 private:
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
@@ -273,6 +278,9 @@ public:
     virtual void start_ramp_down();
     virtual void wait_ramp_down_finished();
     virtual void set_stateflag(ModuleSequencer::StateFlag flag); // RT
+    virtual const std::vector<std::string>& get_rack_unit_order(bool stereo);
+    virtual void remove_rack_unit(const std::string& unit, bool stereo);
+    virtual void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo);
     // tuner_switcher
     virtual bool get_tuner_switcher_active();
     virtual void tuner_switcher_activate(bool v);
@@ -287,7 +295,6 @@ public:
     virtual void load_preset(gx_system::PresetFile *pf, const Glib::ustring& name);
     virtual void loadstate();
     virtual int bank_size();
-    virtual bool settings_is_loading();
     virtual void create_default_scratch_preset();
     virtual void set_statefilename(const std::string& fn);
     virtual void save_to_state(bool preserve_preset=false);
@@ -339,6 +346,8 @@ public:
     virtual void midi_set_config_mode(bool v, int ctl=-1);
     virtual sigc::signal<void,int>& signal_midi_new_program();
     virtual sigc::signal<void>& signal_midi_changed();
+    virtual sigc::signal<void, int, int>& signal_midi_value_changed();
+    virtual void request_midi_value_update();
     virtual int midi_size();
     virtual midi_controller_list& midi_get(int n);
     virtual void midi_deleteParameter(Parameter& param, bool quiet = false);
@@ -377,10 +386,6 @@ private:
     std::vector<JsonStringParser*> notify_list;
     sigc::connection idle_conn;
     JsonStringParser *jp;
-    std::map<string,sigc::signal<void,int>*> signals_int;
-    std::map<string,sigc::signal<void,bool>*> signals_bool;
-    std::map<string,sigc::signal<void,float>*> signals_float;
-    bool is_loading;
 private:
     void start_notify(const char *method);
     void start_call(const char *method);
@@ -456,6 +461,9 @@ public:
     virtual void start_ramp_down();
     virtual void wait_ramp_down_finished();
     virtual void set_stateflag(ModuleSequencer::StateFlag flag); // RT
+    virtual const std::vector<std::string>& get_rack_unit_order(bool stereo);
+    virtual void remove_rack_unit(const std::string& unit, bool stereo);
+    virtual void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo);
     // tuner_switcher
     virtual bool get_tuner_switcher_active();
     virtual void tuner_switcher_activate(bool v);
@@ -470,7 +478,6 @@ public:
     virtual void load_preset(gx_system::PresetFile *pf, const Glib::ustring& name);
     virtual void loadstate();
     virtual int bank_size();
-    virtual bool settings_is_loading();
     virtual void create_default_scratch_preset();
     virtual void set_statefilename(const std::string& fn);
     virtual void save_to_state(bool preserve_preset=false);
@@ -522,6 +529,8 @@ public:
     virtual void midi_set_config_mode(bool v, int ctl=-1);
     virtual sigc::signal<void,int>& signal_midi_new_program();
     virtual sigc::signal<void>& signal_midi_changed();
+    virtual sigc::signal<void, int, int>& signal_midi_value_changed();
+    virtual void request_midi_value_update();
     virtual int midi_size();
     virtual midi_controller_list& midi_get(int n);
     virtual void midi_deleteParameter(Parameter& param, bool quiet = false);

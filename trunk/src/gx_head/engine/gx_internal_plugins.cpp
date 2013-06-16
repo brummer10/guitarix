@@ -50,7 +50,7 @@ NoiseGate::NoiseGate() {
     inputdef.mono_audio = inputlevel_compute;
     inputdef.register_params = noisegate_register;
 
-    inputlevel.pdef = &inputdef;
+    inputlevel.set_pdef(&inputdef);
 
     outputgate.version = PLUGINDEF_VERSION;
     outputgate.id = "noiseshut";
@@ -93,7 +93,7 @@ void NoiseGate::outputgate_compute(int count, float *input, float *output, Plugi
 
 int NoiseGate::outputgate_activate(bool start, PluginDef *pdef) {
     if (start) {
-	off = !inputlevel.on_off;
+	off = !inputlevel.get_on_off();
     }
     return 0;
 }
@@ -256,10 +256,9 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
 ParameterV<GxJConvSettings>::ParameterV(const string& id, ConvolverAdapter &conv_, GxJConvSettings *v)
     : Parameter(id, "", tp_special, None, true, false),
       json_value(),
-      value(v ? v : new GxJConvSettings),
+      value(v),
       std_value(),
       conv(conv_) {
-    own_var = !v;
     std_value.setFullIRPath(Glib::build_filename(conv.get_sys_IR_dir(), "greathall.wav"));
     std_value.fGainCor = true;
     std_value.fGain = 0.598717;
@@ -277,9 +276,6 @@ JConvParameter *JConvParameter::insert_param(
 }
 
 JConvParameter::~ParameterV() {
-    if (own_var) {
-	delete value;
-    }
 }
 
 void *JConvParameter::zone() {
@@ -289,10 +285,6 @@ void *JConvParameter::zone() {
 bool JConvParameter::on_off_value() {
     assert(false);
     return false;
-}
-
-void JConvParameter::set(float n, float high, float llimit, float ulimit) {
-    assert(false);
 }
 
 void JConvParameter::stdJSON_value() {
@@ -378,7 +370,7 @@ void ConvolverAdapter::change_buffersize(unsigned int size) {
 }
 
 void ConvolverAdapter::restart() {
-    if (!plugin.on_off) {
+    if (!plugin.get_on_off()) {
         return;
     }
     conv.set_not_runnable();
@@ -397,7 +389,7 @@ void ConvolverAdapter::restart() {
     int policy, priority;
     engine.get_sched_priority(policy, priority);
     if (!rc || !conv.start(policy, priority)) {
-        plugin.on_off = false;
+        engine.get_param()[plugin.id_on_off].getBool().set(false);
     }
 }
 
@@ -408,7 +400,7 @@ bool ConvolverAdapter::conv_start() {
     string path = jcset.getFullIRPath();
     if (path.empty()) {
         gx_system::gx_print_warning(_("convolver"), _("no impulseresponse file"));
-        plugin.on_off = false;
+        param[plugin.id_on_off].getBool().set(false);
         return false;
     }
     while (!conv.checkstate());
@@ -649,7 +641,7 @@ void BaseConvolver::init(unsigned int samplingFreq, PluginDef *p) {
 }
 
 bool BaseConvolver::check_update_timeout() {
-    if (!activated || !plugin.on_off) {
+    if (!activated || !plugin.get_on_off()) {
 	return false;
     }
     check_update();

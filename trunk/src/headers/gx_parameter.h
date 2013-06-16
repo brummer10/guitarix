@@ -105,6 +105,10 @@ class FileParameter;
 class Parameter: boost::noncopyable {
 public:
     enum ctrl_type { None, Continuous, Switch, Enum };
+private:
+    virtual bool set(float n, float high, float llimit, float ulimit); //RT
+    virtual void trigger_changed();
+    friend class MidiController;
 protected:
     enum value_type { tp_float, tp_int, tp_bool, tp_file, tp_string, tp_special };
     enum display_flags { dtp_normal, dtp_log = 1 };
@@ -115,7 +119,6 @@ protected:
     unsigned int d_flags : 2;
     bool save_in_preset : 1;
     bool controllable : 1;
-    bool own_var : 1;
     bool do_not_save : 1;
     bool used : 1; // debug
 protected:
@@ -133,7 +136,6 @@ public:
 	d_flags(0),
         save_in_preset(preset),
         controllable(ctrl),
-	own_var(false),
 	do_not_save(false),
         used(false) {}
     Parameter(gx_system::JsonParser& jp);
@@ -170,10 +172,8 @@ public:
     void set_log_display() { d_flags |= dtp_log; }
     bool is_log_display() { return d_flags & dtp_log; }
     bool operator==(const Parameter& p) const { return &p == this; }
-    virtual void *zone() = 0;
     virtual void stdJSON_value() = 0;
-    virtual void set(float n, float high, float llimit, float ulimit) = 0;
-    virtual bool on_off_value() = 0;
+    virtual bool on_off_value() = 0; //RT
     virtual void writeJSON(gx_system::JsonWriter& jw) const = 0;
     virtual void readJSON_value(gx_system::JsonParser& jp) = 0;
     virtual void setJSON_value() = 0;
@@ -192,6 +192,10 @@ public:
     BoolParameter& getBool();
     FileParameter &getFile();
     StringParameter &getString();
+    sigc::signal<void, float>& signal_changed_float();
+    sigc::signal<void, int>& signal_changed_int();
+    sigc::signal<void, bool>& signal_changed_bool();
+    sigc::signal<void, const Glib::ustring&>& signal_changed_string();
 };
 
 #ifndef NDEBUG
@@ -211,19 +215,23 @@ class ParameterV: public Parameter {
 
 template<>
 class ParameterV<float>: public Parameter {
+private:
+    virtual bool set(float n, float high, float llimit, float ulimit); //RT
+    virtual void trigger_changed();
 protected:
     float json_value;
     float *value;
     float std_value;
     float lower, upper, step;
+    sigc::signal<void, float> changed;
+    float value_storage;
+    friend class ParamRegImpl;
 public:
-    void set(float val) const { *value = min(max(val, lower), upper); }
-    float& get_value() const { return *value; }
+    bool set(float val) const;
+    float get_value() const { return *value; }
     void convert_from_range(float low, float up);
-    virtual void *zone();
     virtual void stdJSON_value();
     virtual bool on_off_value();
-    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual bool compareJSON_value();
@@ -235,8 +243,7 @@ public:
     ParameterV(const string& id, const string& name, ctrl_type ctp, bool preset,
 	       float *v, float sv, float lv, float uv, float tv, bool ctrl, bool no_init):
 	Parameter(id, name, tp_float, ctp, preset, ctrl),
-	value(v ? v : new float()), std_value(sv),lower(lv),upper(uv),step(tv) {
-	own_var = !v;
+	value(v ? v : &value_storage), std_value(sv),lower(lv),upper(uv),step(tv) {
 	set(no_init ? *value : sv);
     }
 #ifndef NDEBUG
@@ -246,6 +253,7 @@ public:
     ~ParameterV();
     ParameterV(gx_system::JsonParser& jp);
     virtual void serializeJSON(gx_system::JsonWriter& jw);
+    sigc::signal<void, float>& signal_changed() { return changed; }
 };
 
 /****************************************************************/
@@ -268,18 +276,21 @@ public:
 
 template<>
 class ParameterV<int>: public Parameter {
+private:
+    virtual bool set(float n, float high, float llimit, float ulimit); //RT
+    virtual void trigger_changed();
 protected:
     int json_value;
     int *value;
     int std_value;
     int lower, upper;
+    sigc::signal<void, int> changed;
+    int value_storage;
 public:
-    void set(int val) const { *value = min(max(val, lower), upper); }
-    int& get_value() const { return *value; }
-    virtual void *zone();
+    bool set(int val) const;
+    int get_value() const { return *value; }
     virtual void stdJSON_value();
     virtual bool on_off_value();
-    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual bool compareJSON_value();
@@ -291,13 +302,13 @@ public:
     ParameterV(const string& id, const string& name, ctrl_type ctp, bool preset,
 	       int *v, int sv, int lv, int uv, bool ctrl):
 	Parameter(id, name, tp_int, ctp, preset, ctrl),
-        value(v ? v : new int()), std_value(sv), lower(lv), upper(uv) {
-	own_var = !v;
+        value(v ? v : &value_storage), std_value(sv), lower(lv), upper(uv) {
 	*value = sv;
     }
     ~ParameterV();
     ParameterV(gx_system::JsonParser& jp);
     virtual void serializeJSON(gx_system::JsonWriter& jw);
+    sigc::signal<void, int>& signal_changed() { return changed; }
 };
 
 /****************************************************************/
@@ -322,16 +333,19 @@ public:
 template<>
 class ParameterV<bool>: public Parameter {
 private:
+    virtual bool set(float n, float high, float llimit, float ulimit); //RT
+    virtual void trigger_changed();
+protected:
     bool json_value;
     bool *value;
     bool std_value;
+    sigc::signal<void, bool> changed;
+    bool value_storage;
 public:
-    void set(bool val) const { *value = val; }
-    virtual void *zone();
+    bool set(bool val) const;
     virtual void stdJSON_value();
-    bool& get_value() const { return *value; }
+    bool get_value() const { return *value; }
     virtual bool on_off_value();
-    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual bool compareJSON_value();
     virtual void setJSON_value();
@@ -339,13 +353,13 @@ public:
     ParameterV(const string& id, const string& name, ctrl_type ctp, bool preset,
                   bool *v, bool sv, bool ctrl):
         Parameter(id, name, tp_bool, ctp, preset, ctrl),
-        value(v ? v : new bool()), std_value(sv) {
-	own_var = !v;
+        value(v ? v : &value_storage), std_value(sv) {
 	*value = sv;
     }
     ~ParameterV();
     ParameterV(gx_system::JsonParser& jp);
     virtual void serializeJSON(gx_system::JsonWriter& jw);
+    sigc::signal<void, bool>& signal_changed() { return changed; }
 };
 
 /****************************************************************/
@@ -353,20 +367,18 @@ public:
 /****************************************************************/
 
 class FileParameter: public Parameter {
-private:
+protected:
     Glib::RefPtr<Gio::File> value;
     Glib::RefPtr<Gio::File> std_value;
     Glib::RefPtr<Gio::File> json_value;
     sigc::signal<void> changed;
 public:
     sigc::signal<void>& signal_changed() { return changed; }
-    void set(const Glib::RefPtr<Gio::File>& val);
+    bool set(const Glib::RefPtr<Gio::File>& val);
     void set_path(const string& path);
     const Glib::RefPtr<Gio::File>& get() const { return value; }
-    virtual void *zone();
     virtual void stdJSON_value();
     virtual bool on_off_value();
-    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual void readJSON_value(gx_system::JsonParser& jp);
     virtual bool compareJSON_value();
@@ -395,29 +407,29 @@ public:
 
 template<>
 class ParameterV<Glib::ustring>: public Parameter {
-private:
+protected:
     Glib::ustring json_value;
     Glib::ustring *value;
     Glib::ustring std_value;
+    sigc::signal<void, const Glib::ustring&> changed;
+    Glib::ustring value_storage;
 public:
-    void set(const Glib::ustring& val) const { *value = val; }
-    Glib::ustring& get_value() const { return *value; }
-    virtual void *zone();
+    bool set(const Glib::ustring& val) const;
+    Glib::ustring get_value() const { return *value; }
     virtual void stdJSON_value();
     virtual bool on_off_value();
-    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual bool compareJSON_value();
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
     ParameterV(const string& id, const string& name, Glib::ustring *v, const Glib::ustring& sv, bool preset = false)
 	: Parameter(id, name, tp_string, None, preset, false),
-	  value(v ? v : new Glib::ustring), std_value(sv) {
-	own_var = !v;
+	  value(v ? v : &value_storage), std_value(sv) {
     }
     ~ParameterV();
     ParameterV(gx_system::JsonParser& jp);
     virtual void serializeJSON(gx_system::JsonWriter& jw);
+    sigc::signal<void, const Glib::ustring&>& signal_changed() { return changed; }
 };
 
 
@@ -454,6 +466,31 @@ inline StringParameter &Parameter::getString() {
     return static_cast<StringParameter&>(*this);
 }
 
+inline sigc::signal<void, float>& Parameter::signal_changed_float() {
+    FloatParameter *p = dynamic_cast<FloatParameter*>(this);
+    assert(p);
+    return p->signal_changed();
+}
+
+inline sigc::signal<void, int>& Parameter::signal_changed_int() {
+    IntParameter *p = dynamic_cast<IntParameter*>(this);
+    assert(p);
+    return p->signal_changed();
+}
+
+inline sigc::signal<void, bool>& Parameter::signal_changed_bool() {
+    BoolParameter *p = dynamic_cast<BoolParameter*>(this);
+    assert(p);
+    return p->signal_changed();
+}
+
+inline sigc::signal<void, const Glib::ustring&>& Parameter::signal_changed_string() {
+    StringParameter *p = dynamic_cast<StringParameter*>(this);
+    assert(p);
+    return p->signal_changed();
+}
+
+
 /****************************************************************
  ** ParamMap
  */
@@ -461,14 +498,11 @@ inline StringParameter &Parameter::getString() {
 class ParamMap: boost::noncopyable {
  private:
     map<string, Parameter*> id_map;
-    map<const void*, Parameter*> addr_map;
     bool replace_mode;
 #ifndef NDEBUG
-    void unique_zone(Parameter* param);
     void unique_id(Parameter* param);
     void check_id(const string& id);
     void check_p(const char *p);
-    void check_addr(const void *p);
 #endif
     void insert(Parameter* param); // private so we can make sure parameters are owned
 
@@ -481,14 +515,9 @@ class ParamMap: boost::noncopyable {
     typedef map<string, Parameter*>::const_iterator iterator;
     iterator begin() const { return id_map.begin(); }
     iterator end() const { return id_map.end(); }
-    bool hasZone(const void *p) const { return addr_map.find(p) != addr_map.end(); }
     bool hasId(const string& id) const { return id_map.find(id) != id_map.end(); }
     bool hasId(const char *p) const { return id_map.find(p) != id_map.end(); }
     void set_replace_mode(bool mode) { replace_mode = mode; }
-    Parameter& operator[](const void *p) {
-        debug_check(check_addr, p);
-        return *addr_map[p];
-    }
     Parameter& operator[](const string& id) {
         debug_check(check_id, id);
         return *id_map[id];
@@ -617,9 +646,9 @@ extern MidiStandardControllers midi_std_ctr; // map ctrl num -> standard name
 
 class MidiController {
  private:
-    Parameter *param;
-    float _lower, _upper;
-    bool toggle;
+    Parameter *param; //RT
+    float _lower, _upper; //RT
+    bool toggle; //RT
  public:
     MidiController(Parameter& p, float l, float u, bool t=false):
         param(&p), _lower(l), _upper(u), toggle(t) {}
@@ -629,8 +658,9 @@ class MidiController {
     bool hasParameter(const Parameter& p) const { return *param == p; }
     Parameter& getParameter() const { return *param; }
     static MidiController* readJSON(gx_system::JsonParser&, ParamMap& param);
-    void set_midi(int n, int last_value);
+    bool set_midi(int n, int last_value); //RT
     void set(float v, float high) { param->set(v, high, _lower, _upper); }
+    void trigger_changed() { param->trigger_changed(); }
     void writeJSON(gx_system::JsonWriter& jw) const;
 };
 
@@ -641,21 +671,24 @@ typedef list<MidiController> midi_controller_list;
 ** MidiControllerList
 **/
 
-class MidiControllerList {
- public:
+class MidiControllerList: public sigc::trackable {
+public:
     typedef vector<midi_controller_list> controller_array;
     enum { controller_array_size = 128 };
- private:
-    controller_array       map;
-    static int             last_midi_control_value[controller_array_size];
-    bool                   midi_config_mode;
-    int                    last_midi_control;
-    volatile gint          program_change;
+private:
+    controller_array       map; //RT
+    int                    last_midi_control_value[controller_array_size]; //RT
+    bool                   midi_config_mode; //RT
+    int                    last_midi_control; //RT
+    volatile gint          program_change; //RT
     Glib::Dispatcher       pgm_chg;
     sigc::signal<void>     changed;
     sigc::signal<void,int> new_program;
+    sigc::signal<void, int, int> midi_value_changed;
+private:
     void               on_pgm_chg();
- public:
+    bool check_midi_values();
+public:
     MidiControllerList();
     midi_controller_list& operator[](int n) { return map[n]; }
     int size() { return map.size(); }
@@ -663,7 +696,7 @@ class MidiControllerList {
     bool get_config_mode() { return midi_config_mode; }
     int get_current_control() { return last_midi_control; }
     void set_current_control(int ctl) { last_midi_control = ctl; }
-    void set_ctr_val(int ctr, int val);
+    void set_ctr_val(int ctr, int val); //RT
     void deleteParameter(Parameter& param, bool quiet = false);
     void modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
     int param2controller(Parameter& param, const MidiController** p);
@@ -671,16 +704,17 @@ class MidiControllerList {
     static void readJSON(gx_system::JsonParser& jp, ParamMap& param, controller_array& m);
     static controller_array* create_controller_array() {
 	return new controller_array(controller_array_size); }
-    static int get_last_midi_control_value(unsigned int n) { assert(n < controller_array_size); return last_midi_control_value[n]; }
-    static void set_last_midi_control_value(unsigned int n, int v) { assert(n < controller_array_size); last_midi_control_value[n] = v; }
-    static void *get_midi_control_zone(unsigned int n) { assert(n < controller_array_size); return &last_midi_control_value[n]; }
+    int get_last_midi_control_value(unsigned int n) { assert(n < controller_array_size); return last_midi_control_value[n]; } //RT
+    void set_last_midi_control_value(unsigned int n, int v) { assert(n < controller_array_size); last_midi_control_value[n] = v; } //RT
     void set_controller_array(const controller_array& m);
     void remove_controlled_parameters(paramlist& plist, const controller_array *m);
     sigc::signal<void>& signal_changed() { return changed; }
     sigc::signal<void,int>& signal_new_program() { return new_program; }
-    void compute_midi_in(void* midi_input_port_buf);
+    void compute_midi_in(void* midi_input_port_buf);  //RT
     void update_from_controller(int ctr);
     void update_from_controllers();
+    sigc::signal<void, int, int>& signal_midi_value_changed() { return midi_value_changed; }
+    void request_midi_value_update();
 };
 
 } // namespace gx_gui

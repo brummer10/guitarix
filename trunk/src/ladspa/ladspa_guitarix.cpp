@@ -361,7 +361,6 @@ void LadspaSettings::load(Source src, const Glib::ustring& name) {
 	// might have changed because we read all state file sections
 	current_bank = current_name = "";
     }
-    gx_ui::GxUI::updateAllGuis();
     seq.clear_rack_changed();
     selection_changed();
 }
@@ -749,6 +748,7 @@ private:
     void sr_changed(unsigned int);
     void bs_changed(unsigned int);
     void overload(OverloadType tp, const char *reason);
+    virtual void set_rack_changed();
 public:
     MonoModuleChain mono_chain;  // active modules (amp chain, input to insert output)
     // ModuleSelector's
@@ -782,7 +782,7 @@ bool MonoEngine::prepare_module_lists() {
 	(*i)->set_module();
     }
     list<Plugin*> modules;
-    rack_changed = false;
+    clear_rack_changed();
     pluginlist.ordered_mono_list(modules, PGN_MODE_NORMAL);
     bool ret_mono = mono_chain.set_plugin_list(modules);
     if (ret_mono) {
@@ -798,7 +798,7 @@ void MonoEngine::commit_module_lists() {
 	mono_chain.start_ramp_down();
 	mono_chain.wait_ramp_down_finished();
     }
-    mono_chain.commit(mono_chain.next_commit_needs_ramp);
+    mono_chain.commit(mono_chain.next_commit_needs_ramp, pmap);
     if (monoramp) {
 	mono_chain.start_ramp_up();
 	mono_chain.next_commit_needs_ramp = false;
@@ -811,6 +811,14 @@ bool MonoEngine::update_module_lists() {
 	return true;
     }
     return false;
+}
+
+void MonoEngine::set_rack_changed() {
+    if (rack_changed.connected()) {
+	return;
+    }
+    rack_changed = Glib::signal_idle().connect(
+	sigc::bind_return(sigc::mem_fun(this, &MonoEngine::update_module_lists),false));
 }
 
 void MonoEngine::start_ramp_up() {
@@ -902,14 +910,14 @@ MonoEngine::MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroup
       resamp(),
       // ModuleSelector's
       crybaby(
-	  *this, ui, "crybaby", N_("Crybaby"), "", builtin_crybaby_plugins,
+	  *this, "crybaby", N_("Crybaby"), "", builtin_crybaby_plugins,
 	  "crybaby.autowah", _("select"), 0, PGN_POST_PRE),
       tonestack(
-	  *this, ui, "amp.tonestack", N_("Tonestack"), "",
+	  *this, "amp.tonestack", N_("Tonestack"), "",
 	  builtin_tonestack_plugins, "amp.tonestack.select",
 	  _("select"), 0, PGN_POST_PRE),
       ampstack(
-	  *this, ui, "ampstack", "?Tube", "", builtin_amp_plugins,
+	  *this, "ampstack", "?Tube", "", builtin_amp_plugins,
 	  "tube.select", _("select"), ampstack_groups),
       // internal audio modules
       noisegate(),
@@ -935,7 +943,7 @@ MonoEngine::MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroup
     add_selector(crybaby);
     add_selector(tonestack);
 
-    registerParameter(param, groups);
+    registerParameter(groups);
 
     signal_samplerate_change().connect(
 	sigc::mem_fun(*this, &MonoEngine::sr_changed));
@@ -1389,6 +1397,7 @@ class StereoEngine: public EngineControl {
 private:
     void load_static_plugins();
     void overload(OverloadType tp, const char *reason);
+    virtual void set_rack_changed();
 public:
     StereoModuleChain stereo_chain;
     ConvolverStereoAdapter stereo_convolver;
@@ -1417,7 +1426,7 @@ bool StereoEngine::prepare_module_lists() {
 	(*i)->set_module();
     }
     list<Plugin*> modules;
-    rack_changed = false;
+    clear_rack_changed();
     pluginlist.ordered_stereo_list(modules, PGN_MODE_NORMAL);
     bool ret_stereo = stereo_chain.set_plugin_list(modules);
     if (ret_stereo) {
@@ -1433,7 +1442,7 @@ void StereoEngine::commit_module_lists() {
 	stereo_chain.start_ramp_down();
 	stereo_chain.wait_ramp_down_finished();
     }
-    stereo_chain.commit(stereo_chain.next_commit_needs_ramp);
+    stereo_chain.commit(stereo_chain.next_commit_needs_ramp, pmap);
     if (stereoramp) {
 	stereo_chain.start_ramp_up();
 	stereo_chain.next_commit_needs_ramp = false;
@@ -1446,6 +1455,14 @@ bool StereoEngine::update_module_lists() {
 	return true;
     }
     return false;
+}
+
+void StereoEngine::set_rack_changed() {
+    if (rack_changed.connected()) {
+	return;
+    }
+    rack_changed = Glib::signal_idle().connect(
+	sigc::bind_return(sigc::mem_fun(this, &StereoEngine::update_module_lists),false));
 }
 
 void StereoEngine::start_ramp_up() {
@@ -1475,7 +1492,7 @@ StereoEngine::StereoEngine(const string& plugin_dir, ParamMap& param, ParameterG
 	pluginlist.load_from_path(plugin_dir, PLUGIN_POS_RACK);
     }
 
-    registerParameter(param, groups);
+    registerParameter(groups);
 
 #ifndef NDEBUG
     pluginlist.printlist();

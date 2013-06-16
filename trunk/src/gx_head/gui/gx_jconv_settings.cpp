@@ -42,7 +42,7 @@ IRWindow *IRWindow::create(gx_engine::ConvolverAdapter& convolver,
  ** Constructor
  */
 
-void IRWindow::init_connect(const gx_engine::GxMachineBase& machine) {
+void IRWindow::init_connect() {
     builder->find_widget("iredit", wIredit);
     wIredit->signal_delay_changed().connect(sigc::mem_fun(*this,
                                             &IRWindow::on_delay_changed));
@@ -152,18 +152,17 @@ void IRWindow::init_connect(const gx_engine::GxMachineBase& machine) {
 
     builder->find_widget("preset_button", button);
     button->signal_clicked().connect(
-	sigc::bind(
-	    sigc::mem_fun(this, &IRWindow::on_preset_popup_clicked),
-	    sigc::ref(machine)));
+	sigc::mem_fun(this, &IRWindow::on_preset_popup_clicked));
 
     gtk_window->signal_key_press_event().connect(
 	sigc::mem_fun(this, &IRWindow::on_key_press_event));
 }
 
 IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::ConvolverAdapter& convolver_,
-		   Glib::RefPtr<Gdk::Pixbuf> icon, const gx_engine::GxMachineBase& machine,
+		   Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine_,
 		   Glib::RefPtr<Gtk::AccelGroup> accels, int nchan_)
-    : builder(bld),
+    : machine(machine_),
+      builder(bld),
       filename(),
       ms(0.0),
       audio_buffer(0),
@@ -179,7 +178,7 @@ IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::Convol
       current_combo_dir() {
     bld->get_toplevel("DisplayIR", gtk_window);
 
-    init_connect(machine);
+    init_connect();
     gtk_window->set_icon(icon);
     gtk_window->add_accel_group(accels);
     convolver.signal_settings_changed().connect(
@@ -607,7 +606,7 @@ void IRWindow::on_ms_length_changed() {
 }
 
 void IRWindow::on_apply_button_clicked() {
-    convolver.plugin.on_off = true;
+    machine.set_parameter_value(convolver.plugin.id_on_off, true);
     save_state();
 }
 
@@ -629,7 +628,7 @@ void IRWindow::on_ok_button_clicked() {
     gtk_window->hide();
 }
 
-void IRWindow::on_preset_popup_clicked(const gx_engine::GxMachineBase& machine) {
+void IRWindow::on_preset_popup_clicked() {
     Glib::ustring name = Glib::path_get_basename(filename);
     Glib::ustring::size_type n = name.find_last_of('.');
     if (n != Glib::ustring::npos) {

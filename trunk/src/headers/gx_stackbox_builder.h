@@ -154,7 +154,6 @@ private:
     void addCheckButton(string id, const char* label = 0);
     void addNumEntry(string id, const char* label = 0);
     void addMToggleButton(const std::string& id, const char* label = 0);
-    void addStatusDisplay(const char* label, bool* zone );
     void addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void openSetLabelBox();
     void openSetMonoLabelBox();
@@ -170,10 +169,8 @@ private:
     friend class UiBuilderImpl;
 public:
     StackBoxBuilder(
-	gx_engine::GxMachineBase& machine_,
-	Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
-	Gtk::Label& convolver_mono_filename_label_, gx_ui::GxUI& ui,
-	Glib::RefPtr<Gdk::Pixbuf> window_icon);
+	gx_engine::GxMachineBase& machine_, Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
+	Gtk::Label& convolver_mono_filename_label_, Glib::RefPtr<Gdk::Pixbuf> window_icon);
     ~StackBoxBuilder();
     void set_accelgroup(Glib::RefPtr<Gtk::AccelGroup> accels_) { accels = accels_; }
     void get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox);

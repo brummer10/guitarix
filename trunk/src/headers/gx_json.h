@@ -378,7 +378,6 @@ protected:
     gx_engine::EngineControl& seq;
     sigc::signal<void> selection_changed;
     sigc::signal<void> presetlist_changed;
-    bool               in_load;
     bool loadsetting(PresetFile *p, const Glib::ustring& name);
 protected:
     void loadstate();
@@ -406,7 +405,6 @@ public:
     void insert_before(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
     void insert_after(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
     void load_preset(PresetFile *pf, const Glib::ustring& name);
-    bool is_loading() { return in_load; }
     bool rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
     bool rename_preset(PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
 };

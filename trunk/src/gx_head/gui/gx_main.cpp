@@ -111,10 +111,10 @@ void PosixSignals::gx_ladi_handler() {
     gx_system::gx_print_warning(
 	_("signal_handler"), _("signal USR1 received, save settings"));
     if (gx_preset::GxSettings::instance) {
-    bool cur_state = gx_preset::GxSettings::instance->get_auto_save_state();
-    gx_preset::GxSettings::instance->disable_autosave(false);
+	bool cur_state = gx_preset::GxSettings::instance->get_auto_save_state();
+	gx_preset::GxSettings::instance->disable_autosave(false);
 	gx_preset::GxSettings::instance->auto_save_state();
-    gx_preset::GxSettings::instance->disable_autosave(cur_state);
+	gx_preset::GxSettings::instance->disable_autosave(cur_state);
     }
 }
 
@@ -357,13 +357,6 @@ void do_program_change(int pgm, gx_engine::GxMachineBase& machine) {
     }
 }
 
-bool update_all_gui(gx_engine::GxMachineBase& machine) {
-    // the general Gui update handler
-    gx_ui::GxUI::updateAllGuis();
-    machine.check_module_lists();
-    return true;
-}
-
 static void mainHeadless(int argc, char *argv[]) {
     Glib::init();
     Gio::init();
@@ -403,7 +396,6 @@ static void mainHeadless(int argc, char *argv[]) {
 	machine.create_default_scratch_preset();
     }
     // ----------------------- Run Glib main loop ----------------------
-    Glib::signal_timeout().connect(sigc::bind(sigc::ptr_fun(update_all_gui), sigc::ref(machine)), 40);
     cout << "Ctrl-C to quit\n";
     Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create();
     machine.get_jack()->shutdown.connect(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit));
@@ -475,7 +467,7 @@ static void mainFront(int argc, char *argv[]) {
     Gxw::init();
 
     gx_system::CmdlineOptions options;
-    //PosixSignals posixsig(true); // catch unix signals in special thread
+    PosixSignals posixsig(true); // catch unix signals in special thread
     Gtk::Main main(argc, argv, options);
     options.process(argc, argv);
     GxSplashBox * Splash = NULL;

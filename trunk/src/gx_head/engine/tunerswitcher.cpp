@@ -219,7 +219,7 @@ void TunerSwitcher::activate(bool tuner_active) {
     if (get_active()) {
 	return;
     }
-    bool running = engine.tuner.plugin.on_off;
+    bool running = engine.tuner.plugin.get_on_off();
     engine.tuner.used_for_switching(true);
     state = normal_mode;
     change_state(wait_start);

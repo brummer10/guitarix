@@ -58,7 +58,7 @@ MidiAudioBuffer::MidiAudioBuffer(TunerAdapter& t)
     set_samplerate = init;
     activate_plugin = activate;
     register_params = regparam;
-    plugin.pdef = this;
+    plugin.set_pdef(this);
 }
 
 int MidiAudioBuffer::activate(bool start, PluginDef *plugin) {

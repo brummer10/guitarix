@@ -23,7 +23,6 @@ def build(bld):
         '../gx_head/engine/gx_internal_plugins.cpp',
         '../gx_head/engine/gx_engine_audio.cpp',
         '../gx_head/engine/gx_paramtable.cpp',
-        '../gx_head/engine/gx_ui.cpp',
         '../gx_head/engine/gx_convolver.cpp',
         '../gx_head/engine/gx_resampler.cpp',
         '../gx_head/engine/gx_system.cpp',

@@ -233,13 +233,11 @@ public:
     Plugin plugin;
     sigc::signal<int, bool>          activation;
     sigc::signal<void, unsigned int> size_change;
-    gx_ui::UiSignalInt               post_pre_signal;
-    gx_ui::UiSignalBool              visible;
     void clear_buffer();
     inline float *get_buffer() { return buffer; }
     int get_mul_buffer() { return mul_buffer; }
     void set_mul_buffer(int a, unsigned int b) { mul_buffer = a; change_buffersize(b); }
-    OscilloscopeAdapter(gx_ui::GxUI *ui, ModuleSequencer& engine);
+    OscilloscopeAdapter(ModuleSequencer& engine);
 };
 
 
@@ -312,7 +310,6 @@ public:
     virtual void *zone();
     virtual void stdJSON_value();
     virtual bool on_off_value();
-    virtual void set(float n, float high, float llimit, float ulimit);
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual bool compareJSON_value();
     virtual void setJSON_value();

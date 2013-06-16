@@ -36,6 +36,7 @@ namespace gx_jconv {
 
 class IRWindow: public sigc::trackable {
  private:
+    gx_engine::GxMachineBase& machine;
     Glib::RefPtr<gx_gui::GxBuilder> builder;
     Glib::ustring filename;
     double ms; // samples per millisecond
@@ -117,13 +118,13 @@ class IRWindow: public sigc::trackable {
     void on_help_clicked();
     Gtk::Window *wHelp;
 
-    void on_preset_popup_clicked(const gx_engine::GxMachineBase& machine);
+    void on_preset_popup_clicked();
     void on_enumerate();
     bool on_key_press_event(GdkEventKey *event);
 
-    void init_connect(const gx_engine::GxMachineBase& machine);
+    void init_connect();
     IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::ConvolverAdapter &convolver,
-	     Glib::RefPtr<Gdk::Pixbuf> icon, const gx_engine::GxMachineBase& machine,
+	     Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine,
 	     Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
     ~IRWindow();
 

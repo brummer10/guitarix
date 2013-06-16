@@ -33,10 +33,16 @@ namespace gx_preset {
  ** class BasicIO, class PresetIO, class StateIO, class GxSettings
  */
 
+class UnitRacks {
+public:
+    std::vector<std::string> mono;
+    std::vector<std::string> stereo;
+};
+
 class UnitPosition {
 public:
     bool show;
-    bool position;
+    int position;
     int pp;
     UnitPosition(): show(false), position(-1), pp(-1) {}
 };
@@ -61,8 +67,8 @@ private:
     gx_engine::paramlist plist;
     gx_engine::MidiControllerList::controller_array *m;
     gx_engine::GxJConvSettings *jcset;
-    std::vector<std::string> mono_rack_units;
-    std::vector<std::string> stereo_rack_units;
+    UnitRacks& rack_units;
+private:
     void read_parameters(gx_system::JsonParser &jp, bool preset);
     void write_parameters(gx_system::JsonWriter &w, bool preset);
     void clear();
@@ -70,11 +76,12 @@ private:
     void read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_system::SettingsFileHeader& head);
     void fixup_parameters(const gx_system::SettingsFileHeader& head);
     void write_intern(gx_system::JsonWriter &w, bool write_midi);
-    bool convert_old(gx_system::JsonParser &jp, UnitsCollector& u);
+    bool convert_old(gx_system::JsonParser &jp);
+    void collectRackOrder(gx_engine::Parameter *p, gx_system::JsonParser &jp, UnitsCollector& u);
     friend class StateIO;
 public:
     PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-	     gx_engine::ParamMap& param, gx_system::CmdlineOptions& opt);
+	     gx_engine::ParamMap& param, gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
     ~PresetIO();
     void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_preset();
@@ -89,7 +96,7 @@ private:
 public:
     StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
 	    gx_engine::ParamMap& param, gx_engine::MidiStandardControllers& mstdctr,
-	    gx_jack::GxJack& jack, gx_system::CmdlineOptions& opt);
+	    gx_jack::GxJack& jack, gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
     ~StateIO();
     void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_state();
@@ -127,6 +134,7 @@ private:
     gx_system::CmdlineOptions& options;
     gx_engine::StringParameter& preset_parameter;
     gx_engine::StringParameter& bank_parameter;
+    UnitRacks rack_units;
     void exit_handler(bool otherthread);
     void jack_client_changed();
     string make_state_filename();
@@ -138,7 +146,7 @@ public:
     using GxSettingsBase::banks;
     GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack, gx_engine::ConvolverAdapter& cvr,
 	       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl,
-	       gx_engine::ModuleSequencer& seq, gx_engine::ParamMap& param);
+	       gx_engine::ModuleSequencer& seq);
     ~GxSettings();
     inline gx_engine::ParamMap&  get_param() const { return param; }
     inline gx_system::CmdlineOptions& get_options() const { return options; }
@@ -149,6 +157,9 @@ public:
     void auto_save_state();
     Glib::RefPtr<PluginPresetList> load_plugin_preset_list(const Glib::ustring& id, bool factory) const;
     void create_default_scratch_preset();
+    std::vector<std::string>& get_rack_unit_order(bool stereo) { return stereo ? rack_units.stereo : rack_units.mono; }
+    void remove_rack_unit(const std::string& unit, bool stereo);
+    void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo);
 };
 
 /* --------------------------------------------------------------------- */

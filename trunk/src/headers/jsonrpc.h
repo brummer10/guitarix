@@ -103,7 +103,6 @@ private:
     gx_jack::GxJack& jack;
     sigc::slot<void> quit_mainloop;
     TunerSwitcher tuner_switcher;
-    gx_ui::UiSignal<bool> switcher_signal;
     time_t oldest_unsaved;
     time_t last_change;
     sigc::connection save_conn;

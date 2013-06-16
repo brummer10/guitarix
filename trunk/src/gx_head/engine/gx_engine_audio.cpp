@@ -166,13 +166,13 @@ bool lists_equal(const list<Plugin*>& p1, const list<Plugin*>& p2, bool *need_ra
 	}
 	if (*i1 != *i2) {
 	    ret = false;
-	    while ((*i1)->pdef->flags & PGN_SNOOP) {
+	    while ((*i1)->get_pdef()->flags & PGN_SNOOP) {
 		++i1;
 		if (i1 == p1.end()) {
 		    break;
 		}
 	    }
-	    while ((*i2)->pdef->flags & PGN_SNOOP) {
+	    while ((*i2)->get_pdef()->flags & PGN_SNOOP) {
 		++i2;
 		if (i2 == p2.end()) {
 		    break;
@@ -204,13 +204,13 @@ bool ProcessingChainBase::set_plugin_list(const list<Plugin*> &p) {
     typedef set<const char*, stringcomp> pchar_set;
     pchar_set new_ids;
     for (list<Plugin*>::const_iterator i = p.begin(); i != p.end(); ++i) {
-	new_ids.insert((*i)->pdef->id);
+	new_ids.insert((*i)->get_pdef()->id);
     }
     for (list<Plugin*>::const_iterator i = modules.begin(); i != modules.end(); ++i) {
-	if (!(*i)->pdef->activate_plugin) {
+	if (!(*i)->get_pdef()->activate_plugin) {
 	    continue;
 	}
-	pchar_set::iterator r = new_ids.find((*i)->pdef->id);
+	pchar_set::iterator r = new_ids.find((*i)->get_pdef()->id);
 	if (r == new_ids.end()) {
 	    to_release.push_back(*i);
 	}
@@ -221,7 +221,7 @@ bool ProcessingChainBase::set_plugin_list(const list<Plugin*> &p) {
 
 void ProcessingChainBase::clear_module_states() {
     for (list<Plugin*>::const_iterator p = modules.begin(); p != modules.end(); ++p) {
-	PluginDef* pd = (*p)->pdef;
+	PluginDef* pd = (*p)->get_pdef();
 	if (pd->activate_plugin) {
 	    pd->activate_plugin(true, pd);
 	} else if (pd->clear_state) {
@@ -233,7 +233,7 @@ void ProcessingChainBase::clear_module_states() {
 void ProcessingChainBase::release() {
     wait_latch();
     for (list<Plugin*>::const_iterator p = to_release.begin(); p != to_release.end(); ++p) {
-	(*p)->pdef->activate_plugin(false, (*p)->pdef);
+	(*p)->get_pdef()->activate_plugin(false, (*p)->get_pdef());
     }
     to_release.clear();
 }
@@ -385,12 +385,11 @@ void __rt_func StereoModuleChain::process(int count, float *input1, float *input
  */
 
 ModuleSelectorFromList::ModuleSelectorFromList(
-    EngineControl& seq_, gx_ui::GxUI& ui, const char* id_, const char* name_,
+    EngineControl& seq_, const char* id_, const char* name_,
     const char* category_, plugindef_creator plugins[], const char* select_id_,
     const char* select_name_, const char** groups_, int flags_)
     : ModuleSelector(seq_),
       PluginDef(),
-      gx_ui::GxUiItemInt(&ui, &selector),
       selector(0),
       select_id(select_id_),
       select_name(select_name_),
@@ -427,6 +426,8 @@ int ModuleSelectorFromList::register_parameter(const ParamReg &param) {
     p[size].value_id = 0;
     p[size].value_label = 0;
     param.registerIEnumVar(select_id, select_name, "S", "", p, &selector, 0);
+    seq.get_param()[select_id].signal_changed_int().connect(
+	sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
     return 0;
 }
 
@@ -435,21 +436,18 @@ int ModuleSelectorFromList::static_register(const ParamReg &param) {
 	->register_parameter(param);
 }
 
-void ModuleSelectorFromList::reflectZone() {
-    fCache = selector;
-    seq.set_rack_changed();
-}
-
 void ModuleSelectorFromList::set_module() {
     if (current_plugin) {
-	current_plugin->on_off = false;
+	seq.get_param()[current_plugin->id_on_off].getBool().set(false);
     }
-    if (plugin.on_off) {
+    if (plugin.get_on_off()) {
 	const char* id;
 	id = modules[selector]->id;
 	current_plugin = seq.pluginlist.lookup_plugin(id);
-	current_plugin->on_off = true;
-	current_plugin->effect_post_pre = plugin.effect_post_pre;
+	seq.get_param()[current_plugin->id_on_off].getBool().set(true);
+	if (!current_plugin->id_effect_post_pre.empty()) {
+	    seq.get_param()[current_plugin->id_effect_post_pre].getInt().set(plugin.get_effect_post_pre());
+	}
     } else {
 	current_plugin = 0;
     }
@@ -462,15 +460,15 @@ void ModuleSelectorFromList::set_module() {
 
 EngineControl::EngineControl()
     : selectors(),
-      rack_changed(true),
-      ui(),
+      rack_changed(),
+      pmap(),
       policy(),
       priority(),
       buffersize_change(),
       samplerate_change(),
       buffersize(0),
       samplerate(0),
-      pluginlist(ui,*this) {
+      pluginlist(*this) {
 }
 
 EngineControl::~EngineControl() {
@@ -480,9 +478,9 @@ void EngineControl::add_selector(ModuleSelector& sel) {
     selectors.push_back(&sel);
 }
 
-void EngineControl::registerParameter(ParamMap& param, ParameterGroups& groups)
+void EngineControl::registerParameter(ParameterGroups& groups)
 {
-    pluginlist.registerAllPlugins(param, groups);
+    pluginlist.registerAllPlugins(pmap, groups);
 }
 
 void EngineControl::get_sched_priority(int &policy_, int &priority_, int prio_dim) { 
@@ -535,6 +533,14 @@ void EngineControl::init(unsigned int samplerate_, unsigned int buffersize_,
     if (samplerate_ != samplerate) {
 	set_samplerate(samplerate_);
     }
+}
+
+void EngineControl::clear_rack_changed() {
+    rack_changed.disconnect();
+}
+
+bool EngineControl::get_rack_changed() {
+    return rack_changed.connected();
 }
 
 
@@ -599,12 +605,20 @@ void ModuleSequencer::set_samplerate(unsigned int samplerate) {
     EngineControl::set_samplerate(samplerate);
 }
 
+void ModuleSequencer::set_rack_changed() {
+    if (rack_changed.connected()) {
+	return;
+    }
+    rack_changed = Glib::signal_idle().connect(
+	sigc::bind_return(sigc::mem_fun(this, &ModuleSequencer::check_module_lists),false));
+}
+
 bool ModuleSequencer::prepare_module_lists() {
     for (list<ModuleSelector*>::iterator i = selectors.begin(); i != selectors.end(); ++i) {
 	(*i)->set_module();
     }
     list<Plugin*> modules;
-    rack_changed = false;
+    clear_rack_changed();
     pluginlist.ordered_mono_list(modules, audio_mode);
     bool ret_mono = mono_chain.set_plugin_list(modules);
     pluginlist.ordered_stereo_list(modules, audio_mode);
@@ -623,14 +637,14 @@ void ModuleSequencer::commit_module_lists() {
 	mono_chain.start_ramp_down();
 	mono_chain.wait_ramp_down_finished();
     }
-    mono_chain.commit(mono_chain.next_commit_needs_ramp);
+    mono_chain.commit(mono_chain.next_commit_needs_ramp, get_param());
     already_down =  (stereo_chain.get_ramp_mode() == ProcessingChainBase::ramp_mode_down_dead);
     bool stereoramp = stereo_chain.next_commit_needs_ramp && !already_down;
     if (stereoramp) {
 	stereo_chain.start_ramp_down();
 	stereo_chain.wait_ramp_down_finished();
     }
-    stereo_chain.commit(stereo_chain.next_commit_needs_ramp);
+    stereo_chain.commit(stereo_chain.next_commit_needs_ramp, get_param());
     if (monoramp) {
 	mono_chain.start_ramp_up();
 	mono_chain.next_commit_needs_ramp = false;

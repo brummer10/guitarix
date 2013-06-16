@@ -115,13 +115,13 @@ protected:
 public:
     ThreadSafeChainPointer();
     ~ThreadSafeChainPointer();
-    inline void empty_chain() {
+    inline void empty_chain(ParamMap& pmap) {
 	list<Plugin*> p;
 	if (set_plugin_list(p)) {
-	    commit(true);
+	    commit(true, pmap);
 	}
     }
-    void commit(bool clear);
+    void commit(bool clear, ParamMap& pmap);
 };
 
 typedef void (*monochainorder)(int count, float *output, float *output1,
@@ -188,14 +188,14 @@ void ThreadSafeChainPointer<F>::setsize(int n)
 }
 
 template <class F>
-void ThreadSafeChainPointer<F>::commit(bool clear) {
+void ThreadSafeChainPointer<F>::commit(bool clear, ParamMap& pmap) {
     setsize(modules.size()+1);  // leave one slot for 0 marker
     int active_counter = 0;
     for (list<Plugin*>::const_iterator p = modules.begin(); p != modules.end(); p++) {
-	PluginDef* pd = (*p)->pdef;
+	PluginDef* pd = (*p)->get_pdef();
 	if (pd->activate_plugin) {
 	    if (pd->activate_plugin(true, pd) != 0) {
-		(*p)->on_off = false;
+		pmap[(*p)->id_on_off].getBool().set(false);
 		continue;
 	    }
 	} else if (pd->clear_state && clear) {
@@ -239,8 +239,8 @@ class EngineControl {
 protected:
     list<ModuleSelector*> selectors; // selectors that modify the on/off state of
 				     // modules at start of reconfiguration
-    bool rack_changed;  // triggers reconfiguration of module chains
-    gx_ui::GxUI ui;
+    sigc::connection rack_changed;  // idle signal for reconfiguration of module chains
+    ParamMap pmap;
     int policy;         // jack realtime policy,
     int priority;       // and priority, for internal modules
     // signal anyone who needs to be synchronously notified
@@ -270,14 +270,15 @@ public:
     unsigned int get_samplerate() { return samplerate; }
     void set_buffersize(unsigned int buffersize_);
     unsigned int get_buffersize() { return buffersize; }
-    void set_rack_changed() { rack_changed = true; }
-    void clear_rack_changed() { rack_changed = false; }
+    virtual void set_rack_changed() = 0;
+    void clear_rack_changed();
+    bool get_rack_changed();
     sigc::signal<void, unsigned int>& signal_buffersize_change() { return buffersize_change; }
     sigc::signal<void, unsigned int>& signal_samplerate_change() { return samplerate_change; }
     void add_selector(ModuleSelector& sel);
-    void registerParameter(ParamMap& param, ParameterGroups& groups);
+    void registerParameter(ParameterGroups& groups);
     void get_sched_priority(int &policy, int &priority, int prio_dim = 0);
-    gx_ui::GxUI& get_ui() { return ui; }
+    ParamMap& get_param() { return pmap; }
 };
 
 
@@ -334,6 +335,7 @@ public:
     }
     bool prepare_module_lists();
     void commit_module_lists();
+    virtual void set_rack_changed();
     virtual bool update_module_lists();
     inline void check_module_lists() {
 	if (mono_chain.check_release()) {
@@ -342,7 +344,7 @@ public:
 	if (stereo_chain.check_release()) {
 	    stereo_chain.release();
 	}
-	if (rack_changed) {
+	if (get_rack_changed()) {
 	    update_module_lists();
 	}
     }

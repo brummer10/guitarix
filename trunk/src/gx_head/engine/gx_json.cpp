@@ -1727,9 +1727,6 @@ void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
     seq.start_ramp_down();
     bool modules_changed = loadsetting(pf, name);
     seq.start_ramp_up();
-    in_load = true;
-    gx_ui::GxUI::updateAllGuis();
-    in_load = false;
     // if no modules changed either there was no change (then
     // rack_changed should not be set anyhow) or the modules
     // could not be installed because jack is not initialized.
@@ -1746,9 +1743,6 @@ void GxSettingsBase::loadstate() {
     seq.start_ramp_down();
     bool modules_changed = loadsetting(0, current_name);
     seq.start_ramp_up();
-    in_load = true;
-    gx_ui::GxUI::updateAllGuis();
-    in_load = false;
     if (modules_changed) { // see comment in load_preset()
 	seq.clear_rack_changed();
     }

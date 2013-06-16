@@ -701,15 +701,13 @@ void MainWindow::on_show_rack() {
 }
 
 void MainWindow::on_compress_all() {
-    monorackcontainer.compress_all();
-    stereorackcontainer.compress_all();
+    plugin_dict.compress(true);
     on_ampdetail_switch(true, true);
     actions.midi_out_plug->set_active(true);
 }
 
 void MainWindow::on_expand_all() {
-    monorackcontainer.expand_all();
-    stereorackcontainer.expand_all();
+    plugin_dict.compress(false);
     on_ampdetail_switch(false, true);
     actions.midi_out_plug->set_active(false);
 }
@@ -903,7 +901,7 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
     if (!mainwidget) {
 	gx_gui::UiBuilderImpl builder(this, &boxbuilder);
 	
-	if (machine.load_unit(builder, pl.plugin->pdef)) {
+	if (machine.load_unit(builder, pl.plugin->get_pdef())) {
 	    boxbuilder.fetch(mainwidget, miniwidget);
 	}
     }
@@ -1682,9 +1680,9 @@ class JConvPluginUI: public PluginUI {
 private:
     virtual void on_plugin_preset_popup();
 public:
-    JConvPluginUI(MainWindow& main, const gx_engine::GxMachineBase& m, const char* id,
+    JConvPluginUI(MainWindow& main, const char* id,
 		  const Glib::ustring& fname="", const Glib::ustring& tooltip="")
-	: PluginUI(main, m, id, fname, tooltip) {
+	: PluginUI(main, id, fname, tooltip) {
     }
 };
 
@@ -1722,10 +1720,10 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 		pui->unset_ui_merge_id(uimanager);
 		actions.group->remove(pui->get_action());
 		delete pui;
-		pui->plugin->on_off = false;
+		machine.set_parameter_value(pui->plugin->id_on_off, false);
 		to_remove.push_back(pui->plugin);
 	    } else {
-		machine.ladspaloader_update_instance(pui->plugin->pdef, *j);
+		machine.ladspaloader_update_instance(pui->plugin->get_pdef(), *j);
 		pui->update_rackbox();
 		if ((*j)->category != (*i)->category) {
 		    pui->unset_ui_merge_id(uimanager);
@@ -1796,7 +1794,7 @@ void MainWindow::add_plugin(std::vector<PluginUI*>& p, const char *id, const Gli
     if (PluginUI::is_registered(machine, id)) {
 	return;
     }
-    p.push_back(new PluginUI(*this, machine, id, fname, tooltip));
+    p.push_back(new PluginUI(*this, id, fname, tooltip));
 }
 
 #ifdef accel_keys_for_plugins
@@ -1886,6 +1884,9 @@ void MainWindow::register_plugin(PluginUI *pui) {
 	++key;
     }
 #endif
+    if (pui->rackbox && pui->rackbox->get_box_visible()) {
+	act->set_active(true);
+    }
     pui->set_action(act);
 }
 
@@ -1901,8 +1902,8 @@ void MainWindow::fill_pluginlist() {
     add_plugin_category(N_("Misc"));
 
     std::vector<PluginUI*> p;
-    p.push_back(new JConvPluginUI(*this, machine, "jconv"));
-    p.push_back(new JConvPluginUI(*this, machine, "jconv_mono"));
+    p.push_back(new JConvPluginUI(*this, "jconv"));
+    p.push_back(new JConvPluginUI(*this, "jconv_mono"));
 
     gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p);
     machine.pluginlist_append_rack(builder);
@@ -1911,14 +1912,6 @@ void MainWindow::fill_pluginlist() {
     for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
 	register_plugin(*v);
     }
-}
-
-/* Update all user items reflecting zone z */
-bool MainWindow::update_all_gui() {
-    // the general Gui update handler
-    gx_ui::GxUI::updateAllGuis();
-    machine.check_module_lists();
-    return true;
 }
 
 // start_jack() returns:
@@ -2500,10 +2493,11 @@ void MainWindow::amp_controls_visible(Gtk::Range *rr) {
 MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
 		       Gtk::Window *splash)
     : sigc::trackable(),
-      ui(),
+      options(options_),
+      machine(machine_),
       bld(),
       freezer(),
-      plugin_dict(ui),
+      plugin_dict(),
       oldpos(0),
       scrl_size_x(-1),
       scrl_size_y(-1),
@@ -2516,15 +2510,13 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       preset_list_merge_id(0),
       preset_list_actiongroup(),
       uimanager(),
-      options(options_),
-      machine(machine_),
       live_play(),
       preset_window(),
       fWaveView(),
       convolver_filename_label(),
       convolver_mono_filename_label(),
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
-      boxbuilder(machine_, fWaveView, convolver_filename_label, convolver_mono_filename_label, ui, gx_head_icon),
+      boxbuilder(machine_, fWaveView, convolver_filename_label, convolver_mono_filename_label, gx_head_icon),
       portmap_window(0),
       select_jack_control(0),
       fLoggingWindow(),
@@ -2828,7 +2820,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     ** UI definitions will be loaded on demand
     */
     fill_pluginlist();
-    PluginUI *mainamp_plugin = new PluginUI(*this, machine, "ampstack");
+    PluginUI *mainamp_plugin = new PluginUI(*this, "ampstack");
     plugin_dict.add(mainamp_plugin);
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     effects_toolpalette->show();
@@ -2869,9 +2861,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     if (options.mainwin_x > 0) {
 	window->move(options.mainwin_x, options.mainwin_y);
     }
-
-    Glib::signal_timeout().connect(
-	sigc::mem_fun(*this, &MainWindow::update_all_gui), 40);
 
     Gtk::Range *rr;
     bld->find_widget("gxselector1:amp_selector", rr);

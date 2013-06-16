@@ -41,19 +41,24 @@
  **
  */
 
-PluginUI::PluginUI(MainWindow& main_, const gx_engine::GxMachineBase& m, const char *name,
+PluginUI::PluginUI(MainWindow& main_, const char *name,
 		   const Glib::ustring& fname_, const Glib::ustring& tooltip_)
-    : GxUiItem(), merge_id(0), action(), plugin(m.pluginlist_lookup_plugin(name)), fname(fname_),
-      tooltip(tooltip_), shortname(), icon(), group(), toolitem(), main(main_), rackbox(),
-      hidden(false), compressed(false) {
-    if (plugin->pdef->description && tooltip.empty()) {
-	tooltip = plugin->pdef->description;
+    : merge_id(0),
+      action(),
+      plugin(main_.get_machine().pluginlist_lookup_plugin(name)),
+      fname(fname_),
+      tooltip(tooltip_),
+      shortname(),
+      icon(),
+      group(),
+      toolitem(),
+      main(main_),
+      rackbox(),
+      hidden(false) {
+    if (plugin->get_pdef()->description && tooltip.empty()) {
+	tooltip = plugin->get_pdef()->description;
     }
-    gx_ui::GxUI& ui = main.get_ui();
-    ui.registerZone(&plugin->box_visible, this);
-    ui.registerZone(&plugin->position, this);
-    ui.registerZone(&plugin->effect_post_pre, this);
-    plugin->pdef->flags |= gx_engine::PGNI_UI_REG;
+    plugin->get_pdef()->flags |= gx_engine::PGNI_UI_REG;
 }
 
 PluginUI::~PluginUI() {
@@ -64,11 +69,7 @@ PluginUI::~PluginUI() {
 	}
 	delete toolitem;
     }
-    plugin->pdef->flags &= ~gx_engine::PGNI_UI_REG;
-    gx_ui::GxUI& ui = main.get_ui();
-    ui.unregisterZone(&plugin->box_visible, this);
-    ui.unregisterZone(&plugin->position, this);
-    ui.unregisterZone(&plugin->effect_post_pre, this);
+    plugin->get_pdef()->flags &= ~gx_engine::PGNI_UI_REG;
 }
 
 void PluginUI::unset_ui_merge_id(Glib::RefPtr<Gtk::UIManager> uimanager) {
@@ -83,46 +84,18 @@ void PluginUI::on_plugin_preset_popup() {
 }
 
 bool PluginUI::is_registered(gx_engine::GxMachineBase& m, const char *name) {
-    return m.pluginlist_lookup_plugin(name)->pdef->flags & gx_engine::PGNI_UI_REG;
+    return m.pluginlist_lookup_plugin(name)->get_pdef()->flags & gx_engine::PGNI_UI_REG;
 }
 
-bool PluginUI::hasChanged() {
-    if (plugin->on_off) {
-	// when loading from old preset files make sure plugins
-	// are visible if they are switched on
-	plugin->box_visible = true;
-    }
-    if (plugin->box_visible != is_displayed()) {
-	return true;
-    }
-    if (!plugin->box_visible) {
-	return false;
-    }
-    if (plugin->plug_visible != rackbox->get_plug_visible()) {
-	return true;
-    }
-    if (main.is_loading()) {
-	return false;
-    }
-    return rackbox->hasOrderDiff();
-}
-
-void PluginUI::reflectZone() {
-    if (!hasChanged()) {
+void PluginUI::compress(bool state) {
+    const std::string& s = plugin->id_plug_visible;
+    if (s.empty()) {
 	return;
     }
-    if (plugin->box_visible != is_displayed()) {
-	if (action) {
-	    action->set_active(plugin->box_visible);
-	}
-	display(plugin->box_visible, false);
-    }
-    if (plugin->box_visible) {
-	if (plugin->plug_visible != rackbox->get_plug_visible()) {
-	    rackbox->swtch(plugin->plug_visible);
-	}
-	if (!main.is_loading() && rackbox->hasOrderDiff()) {
-	    rackbox->get_parent()->check_order();
+    main.get_machine().set_parameter_value(s, state);
+    if (rackbox) {
+	if (rackbox->can_compress()) {
+	    rackbox->swtch(state);
 	}
     }
 }
@@ -134,8 +107,8 @@ void PluginUI::set_action(Glib::RefPtr<Gtk::ToggleAction>& act)
 }
 
 void PluginUI::on_action_toggled() {
-    if (plugin->box_visible != is_displayed()) {
-	return; // call triggered by reflectZone
+    if (rackbox && action->get_active() == rackbox->get_box_visible()) {
+	return;
     }
     if (action->get_active()) {
 	display_new();
@@ -144,32 +117,44 @@ void PluginUI::on_action_toggled() {
     }
 }
 
+void PluginUI::hide(bool animate) {
+    main.get_machine().set_parameter_value(plugin->id_on_off, false);
+    if (rackbox) {
+	rackbox->display(false, animate);
+	main.add_icon(get_id());
+    }
+}
+
+void PluginUI::show(bool animate) {
+    if (!rackbox) {
+	rackbox = main.add_rackbox(*this, plugin->get_plug_visible(), -1, animate);
+	set_active(true);
+    } else {
+	rackbox->display(true, animate);
+    }
+    if (hidden) {
+	rackbox->hide();
+    }
+    main.hide_effect(get_id());
+}
+
 void PluginUI::display(bool v, bool animate) {
     // this function hides the rackbox. It could also destroy it (or
     // some other function could do it, e.g. when unloading a module),
     // but currently there are too many memory leaks in the stack based
     // builder.
-    plugin->box_visible = v;
+    main.get_machine().set_parameter_value(plugin->id_box_visible, v);
     if (v) {
-	if (!rackbox) {
-	    rackbox = main.add_rackbox(*this, compressed, -1, animate);
-	} else {
-	    rackbox->display(true, animate);
-	}
-	if (hidden) {
-	    rackbox->hide();
-	}
-	main.hide_effect(get_id());
+	main.get_machine().insert_rack_unit(get_id(), "", get_type() == PLUGIN_TYPE_STEREO);
+	show(animate);
     } else {
-	if (rackbox) {
-	    rackbox->display(false, animate);
-	    main.add_icon(get_id());
-	}
+	main.get_machine().remove_rack_unit(get_id(), get_type() == PLUGIN_TYPE_STEREO);
+	hide(animate);
     }
 }
 
 void PluginUI::display_new(bool unordered) {
-    plugin->plug_visible = compressed = false;
+    main.get_machine().set_parameter_value(plugin->id_plug_visible, false);
     if (rackbox) {
 	rackbox->swtch(false);
     }
@@ -183,7 +168,7 @@ void PluginUI::update_rackbox() {
     if (!rackbox) {
 	return;
     }
-    if (plugin->box_visible) {
+    if (plugin->get_box_visible()) {
 	RackContainer::rackbox_list l = rackbox->get_parent()->get_children();
 	int n = 0;
 	for (RackContainer::rackbox_list::iterator i = l.begin(); i != l.end(); ++i, ++n)
@@ -191,7 +176,7 @@ void PluginUI::update_rackbox() {
 		break;
 	    }
 	delete rackbox;
-	rackbox = main.add_rackbox(*this, compressed, n, false);
+	rackbox = main.add_rackbox(*this, plugin->get_plug_visible(), n, false);
     } else {
 	delete rackbox;
 	rackbox = 0;
@@ -230,6 +215,12 @@ void PluginDict::cleanup() {
 
 PluginDict::~PluginDict() {
     cleanup();
+}
+
+void PluginDict::compress(bool state) {
+    for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
+       i->second->compress(state);
+   }
 }
 
 
@@ -390,10 +381,9 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       mb_delete_button(),
       preset_button(),
       on_off_switch("minitoggle"),
-      toggle_on_off(rb.main.get_machine(), &on_off_switch, std::string(rb.get_id())+".on_off") {
+      toggle_on_off(rb.main.get_machine(), &on_off_switch, rb.plugin.plugin->id_on_off) {
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
-	std::string s = rb.get_id();
-	gx_gui::connect_midi_controller(&on_off_switch, (s+".on_off").c_str(), rb.main.get_machine());
+	gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off.c_str(), rb.main.get_machine());
     }
     if (!szg_label) {
 	szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
@@ -430,7 +420,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
     al->set_padding(1, 0, 4, 4);
     pack_end(*manage(al), Gtk::PACK_SHRINK);
     box->pack_end(*manage(rb.wrap_bar(8)), Gtk::PACK_SHRINK);
-    if (!(rb.plugin.plugin->pdef->flags & PGN_NO_PRESETS)) {
+    if (!(rb.plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
 	preset_button = rb.make_preset_button();
 	box->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
     }
@@ -657,7 +647,7 @@ void PluginPresetPopup::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetL
     InputWindow *w = InputWindow::create(machine.get_options(), save_name_default);
     w->run();
     if (!w->get_name().empty()) {
-	l->save(w->get_name(), id, machine.pluginlist_lookup_plugin(id.c_str())->pdef->groups);
+	l->save(w->get_name(), id, machine.pluginlist_lookup_plugin(id.c_str())->get_pdef()->groups);
     }
     delete w;
 }
@@ -827,7 +817,7 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
 	pb->property_paint_func().set_value("zac_expose");
     }
     Gxw::Switch *swtch = new Gxw::Switch("minitoggle");
-    swtch->set_active(plugin.plugin->on_off);
+    swtch->set_active(plugin.plugin->get_on_off());
 #ifdef USE_SZG
     RackBox::szg->add_widget(*swtch);
 #else
@@ -848,11 +838,9 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
 }
 
 void RackBox::display(bool v, bool animate) {
-    if (box_visible == v) {
-	return;
-    }
+    assert(box_visible != v);
     box_visible = v;
-    main.get_machine().set_parameter_value(std::string("ui.")+get_id(), v);
+    plugin.set_active(v);
     if (v) {
 	if (animate) {
 	    animate_insert();
@@ -861,8 +849,6 @@ void RackBox::display(bool v, bool animate) {
 	}
 	get_parent()->increment();
     } else {
-	plugin.plugin->on_off = false;
-	main.get_machine().set_parameter_value(std::string(get_id())+".on_off", v);
 	if (animate) {
 	    animate_remove();
 	} else {
@@ -876,11 +862,10 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     : Gtk::VBox(), plugin(plugin_), main(tl), config_mode(false), anim_tag(),
       compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), minibox(0),
       fbox(0), target(), anim_height(0), anim_step(), drag_icon(), target_height(0),
-      box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), position(), effect_post_pre(), on_off_switch("switchit"),
-      toggle_on_off(tl.get_machine(), &on_off_switch, std::string(plugin.get_id())+".on_off") {
+      box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), on_off_switch("switchit"),
+      toggle_on_off(tl.get_machine(), &on_off_switch, plugin.plugin->id_on_off) {
     if (strcmp(plugin.get_id(), "ampstack") != 0) { // FIXME
-	std::string s = get_id();
-	gx_gui::connect_midi_controller(&on_off_switch, (s+".on_off").c_str(), main.get_machine());
+	gx_gui::connect_midi_controller(&on_off_switch, plugin.plugin->id_on_off.c_str(), main.get_machine());
     }
 #ifdef USE_SZG
     if (!szg) {
@@ -1018,7 +1003,7 @@ void RackBox::on_my_drag_end(const Glib::RefPtr<Gdk::DragContext>& context) {
 	delete drag_icon;
 	drag_icon = 0;
     }
-    if (box_visible) {
+    if (plugin.plugin->get_box_visible()) {
 	animate_insert();
     }
 }
@@ -1041,9 +1026,7 @@ void RackBox::set_visibility(bool v) {
 }
 
 void RackBox::swtch(bool mini) {
-    plugin.plugin->plug_visible = mini;
-    main.get_machine().set_parameter_value(std::string(plugin.get_id())+".s_h", mini);
-    plugin.compressed = mini;
+    main.get_machine().set_parameter_value(plugin.plugin->id_plug_visible, mini);
     if (!config_mode) {
 	if (mini) {
 	    vis_switch(*fbox, mbox);
@@ -1067,13 +1050,10 @@ void RackBox::set_config_mode(bool mode) {
 }
 
 void RackBox::setOrder(int pos, int post_pre) {
-    position = plugin.plugin->position = pos;
-    effect_post_pre = plugin.plugin->effect_post_pre = post_pre;
-    std::string s = get_id();
+    main.get_machine().set_parameter_value(plugin.plugin->id_position, pos);
     if (plugin.get_type() == PLUGIN_TYPE_MONO) {
-	main.get_machine().set_parameter_value(s+".pp", post_pre);
+	main.get_machine().set_parameter_value(plugin.plugin->id_effect_post_pre, post_pre);
     }
-    main.get_machine().set_parameter_value(s+".position", position);
 }
 
 void RackBox::do_expand() {
@@ -1143,7 +1123,7 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     bx2->pack_start(box);
     Gtk::VBox *vbox = new Gtk::VBox();
     vbox->pack_start(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
-    if (!(plugin.plugin->pdef->flags & PGN_NO_PRESETS)) {
+    if (!(plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
 	vbox->pack_start(*manage(make_preset_button()), Gtk::PACK_EXPAND_PADDING);
     }
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.7);
@@ -1215,9 +1195,17 @@ RackContainer::RackContainer(PluginType tp_, MainWindow& main_)
     listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-stereo-s", Gtk::TARGET_SAME_APP, 4));
     listTargets.push_back(Gtk::TargetEntry("application/x-gtk-tool-palette-item-stereo", Gtk::TARGET_SAME_APP, 5));
     drag_dest_set(listTargets, Gtk::DEST_DEFAULT_DROP, Gdk::ACTION_MOVE);
+    main.get_machine().signal_rack_unit_order_changed().connect(
+	sigc::mem_fun(this, &RackContainer::unit_order_changed));
     signal_remove().connect(sigc::mem_fun(*this, &RackContainer::on_my_remove));
     set_size_request(-1, min_containersize);
     show_all();
+}
+
+void RackContainer::unit_order_changed(bool stereo) {
+    if (stereo == (tp == PLUGIN_TYPE_STEREO)) {
+	check_order();
+    }
 }
 
 bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
@@ -1296,9 +1284,7 @@ void RackContainer::find_index(int x, int y, int* len, int *ypos) {
 
 void RackContainer::on_my_remove(Gtk::Widget *ch) {
     decrement();
-    if (!main.is_loading()) {
-	renumber();
-    }
+    renumber();
 }
 
 bool RackContainer::check_targets(const std::vector<std::string>& tgts1, const std::vector<std::string>& tgts2) {
@@ -1492,9 +1478,6 @@ void RackContainer::add(RackBox& r, int pos) {
     if (config_mode) {
 	r.set_config_mode(true);
     }
-    if (main.is_loading()) {
-	return;
-    }
     reorder_child(r, pos);
     renumber();
 }
@@ -1522,57 +1505,54 @@ void RackContainer::set_config_mode(bool mode) {
     }
 }
 
-void RackContainer::compress_all() {
-    for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
-	i->second->plugin->plug_visible = i->second->compressed = true;
-	RackBox *r = i->second->rackbox;
-	if (r) {
-	    if (r->can_compress()) {
-		r->swtch(true);
-	    }
-	}
-    }
-}
-
-void RackContainer::expand_all() {
-    for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
-	i->second->plugin->plug_visible = i->second->compressed = false;
-	RackBox *r = i->second->rackbox;
-	if (r) {
-	    if (r->can_compress()) {
-		r->swtch(false);
-	    }
-	}
-    }
-}
-
-bool rackboxes_less(RackBox *a, RackBox *b) {
-    return a->position_weight() < b->position_weight();
-}
-
 void RackContainer::check_order() {
-    int last_weight = -1;
+    const std::vector<std::string>& ol = main.get_machine().get_rack_unit_order(tp == PLUGIN_TYPE_STEREO);
     bool in_order = true;
+    std::set<std::string> unit_set(ol.begin(), ol.end());
     rackbox_list l = get_children();
+    std::vector<std::string>::const_iterator oi = ol.begin();
     for (rackbox_list::iterator c = l.begin(); c != l.end(); ++c) {
-	if (in_order) {
-	    int w = (*c)->position_weight();
-	    if (w <= last_weight) {
-		in_order = false;
+	if (!(*c)->get_box_visible()) {
+	    continue;
+	}
+	if (unit_set.find((*c)->get_id()) == unit_set.end()) {
+	    main.get_plugin((*c)->get_id())->hide(false);
+	    continue;
+	}
+	if (!in_order) {
+	    continue;
+	}
+	if (oi == ol.end()) {
+	    in_order = false;
+	    continue;
+	}
+	if (*oi != (*c)->get_id()) {
+	    in_order = false;
+	}
+	++oi;
+    }
+    if (oi != ol.end()) {
+	in_order = false;
+    }
+    if (in_order) {
+	return;
+    }
+    int n = 0;
+    for (std::vector<std::string>::const_iterator oi = ol.begin(); oi != ol.end(); ++oi) {
+	PluginUI *p = main.get_plugin(*oi);
+	if (!p->rackbox) {
+	    p->show(false);
+	} else {
+	    reorder_child(*p->rackbox, n++);
+	    if (!p->rackbox->get_box_visible()) {
+		p->rackbox->display(true, false);
+		if (p->hidden) {
+		    p->rackbox->hide();
+		}
 	    }
-	    last_weight = w;
 	}
-	(*c)->storeOrder();
     }
-    if (!in_order) {
-	std::vector<RackBox*> ol = get_children();
-	std::sort(ol.begin(), ol.end(), rackboxes_less);
-	int n = 0;
-	for (std::vector<RackBox*>::iterator i = ol.begin(); i != ol.end(); ++i) {
-	    reorder_child(**i, n++);
-	}
-	renumber();
-    }
+    renumber();
 }
 
 void RackContainer::renumber() {

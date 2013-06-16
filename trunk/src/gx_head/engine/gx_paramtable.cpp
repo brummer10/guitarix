@@ -265,40 +265,61 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
     return new MidiController(pm, lower, upper, toggle);
 }
 
-void MidiController::set_midi(int n, int last_value) {
+bool MidiController::set_midi(int n, int last_value) {
+    bool ret = false;
     if (toggle) {
 	bool s_o = (2*last_value > 127);
 	bool s_n = (2*n > 127);
 	if (!s_o && s_n) {
 	    if (param->on_off_value()) {
-		param->set(0, 127, _lower, _upper);
+		ret = param->set(0, 127, _lower, _upper);
 	    } else {
-		param->set(127, 127, _lower, _upper);
+		ret = param->set(127, 127, _lower, _upper);
 	    }
 	}
     } else {
-	param->set(n, 127, _lower, _upper);
+	ret = param->set(n, 127, _lower, _upper);
     }
+    return ret;
 }
 
 /****************************************************************
  ** class MidiControllerList
  */
 
-int MidiControllerList::last_midi_control_value[controller_array_size];
-
 MidiControllerList::MidiControllerList()
     : map(controller_array_size),
+      last_midi_control_value(),
       midi_config_mode(false),
       last_midi_control(-1),
       program_change(-1),
       pgm_chg(),
       changed(),
-      new_program() {
+      new_program(),
+      midi_value_changed() {
     for (int i = 0; i < controller_array_size; ++i) {
 	last_midi_control_value[i] = -1;
     }
     pgm_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_pgm_chg));
+    Glib::signal_timeout().connect(
+	sigc::mem_fun(this, &MidiControllerList::check_midi_values), 60);
+}
+
+bool MidiControllerList::check_midi_values() {
+    static int saved_values[controller_array_size];
+    for (unsigned int n = 0; n < controller_array_size; ++n) {
+	if (saved_values[n] != last_midi_control_value[n]) {
+	    saved_values[n] = last_midi_control_value[n];
+	    midi_value_changed(n, saved_values[n]);
+	    if (!get_config_mode()) {
+		midi_controller_list& ctr_list = map[n];
+		for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
+		    i->trigger_changed();
+		}
+	    }
+	}
+    }
+    return true;
 }
 
 /** update all controlled parameters with last received value from MIDI controller ctr. */
@@ -384,13 +405,23 @@ void MidiControllerList::modifyCurrent(Parameter &param,
     changed();
 }
 
+void MidiControllerList::request_midi_value_update() {
+    for (unsigned int n = 0; n < controller_array_size; ++n) {
+	int v = last_midi_control_value[n];
+	if (v >= 0) {
+	    midi_value_changed(n, v);
+	}
+    }
+}
+
 void MidiControllerList::set_ctr_val(int ctr, int val) {
     if (midi_config_mode) {
         last_midi_control = ctr;
     } else {
         midi_controller_list& ctr_list = map[ctr];
-        for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i)
+        for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
             i->set_midi(val, get_last_midi_control_value(ctr));
+	}
     }
     MidiControllerList::set_last_midi_control_value(ctr, val);
 }
@@ -574,7 +605,7 @@ void Parameter::serializeJSON(gx_system::JsonWriter& jw) {
 
 Parameter::Parameter(gx_system::JsonParser& jp)
     : _id(), _name(), _group(), _desc(), v_type(tp_float), c_type(Continuous), d_flags(0),
-      save_in_preset(true), controllable(true), own_var(false), do_not_save(false), used(false) {
+      save_in_preset(true), controllable(true), do_not_save(false), used(false) {
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
@@ -615,6 +646,15 @@ Parameter::Parameter(gx_system::JsonParser& jp)
 }
 
 Parameter::~Parameter() {
+}
+
+bool Parameter::set(float n, float high, float llimit, float ulimit) {
+    assert(false);
+    return false;
+}
+
+void Parameter::trigger_changed() {
+    assert(false);
 }
 
 static int get_upper(const value_pair *vn) {
@@ -779,8 +819,7 @@ void FloatParameter::serializeJSON(gx_system::JsonWriter& jw) {
 }
 
 FloatParameter::ParameterV(gx_system::JsonParser& jp)
-    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(new float), std_value(0), lower(), upper(), step() {
-    own_var = true;
+    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(&value_storage), std_value(0), lower(), upper(), step() {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
 	if (jp.current_value() == "lower") {
@@ -794,7 +833,7 @@ FloatParameter::ParameterV(gx_system::JsonParser& jp)
 	    step = jp.current_value_float();
 	} else if (jp.current_value() == "value") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    *value = jp.current_value_float();
+	    set(jp.current_value_float());
 	} else {
 	    gx_system::gx_print_warning(
 		"FloatParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -805,35 +844,48 @@ FloatParameter::ParameterV(gx_system::JsonParser& jp)
 }
 
 FloatParameter::~ParameterV() {
-    if (own_var) {
-	delete value;
-    }
 }
 
-void *FloatParameter::zone() {
-    return value;
+bool FloatParameter::set(float val) const {
+    float v = min(max(val, lower), upper);
+    if (v != *value) {
+	*value = v;
+	changed(v);
+	return true;
+    }
+    return false;
 }
 
 bool FloatParameter::on_off_value() {
     return *value != 0;
 }
 
-void FloatParameter::set(float n, float high, float llimit, float ulimit) {
+bool FloatParameter::set(float n, float high, float llimit, float ulimit) {
+    float v;
     switch (c_type) {
     case Continuous:
         assert(n >= 0 && n <= high);
-        *value = llimit + (n / high) * (ulimit - llimit);
+        v = llimit + (n / high) * (ulimit - llimit);
         break;
     case Switch:
-        *value = (2*n > high ? 1.0 : 0.0);
+        v = (2*n > high ? 1.0 : 0.0);
         break;
     case Enum:
-        *value = lower + min(n, upper-lower);
+        v = lower + min(n, upper-lower);
         break;
     default:
         assert(false);
-        break;
+        return false;
     }
+    if (v != *value) {
+	*value = v;
+	return true;
+    }
+    return false;
+}
+
+void FloatParameter::trigger_changed() {
+    changed(*value);
 }
 
 void FloatParameter::stdJSON_value() {
@@ -963,8 +1015,7 @@ void IntParameter::serializeJSON(gx_system::JsonWriter& jw) {
 }
 
 IntParameter::ParameterV(gx_system::JsonParser& jp)
-    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(new int), std_value(0), lower(), upper() {
-    own_var = true;
+    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(&value_storage), std_value(0), lower(), upper() {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
 	if (jp.current_value() == "lower") {
@@ -975,7 +1026,7 @@ IntParameter::ParameterV(gx_system::JsonParser& jp)
 	    upper = jp.current_value_int();
 	} else if (jp.current_value() == "value") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    *value = jp.current_value_int();
+	    set(jp.current_value_int());
 	} else {
 	    gx_system::gx_print_warning(
 		"IntParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -986,13 +1037,16 @@ IntParameter::ParameterV(gx_system::JsonParser& jp)
 }
 
 IntParameter::~ParameterV() {
-    if (own_var) {
-	delete value;
-    }
 }
 
-void *IntParameter::zone() {
-    return value;
+bool IntParameter::set(int val) const {
+    int v = min(max(val, lower), upper);
+    if (v != *value) {
+	*value = v;
+	changed(v);
+	return true;
+    }
+    return false;
 }
 
 int IntParameter::idx_from_id(string v_id) {
@@ -1004,21 +1058,31 @@ bool IntParameter::on_off_value() {
     return *value != 0;
 }
 
-void IntParameter::set(float n, float high, float llimit, float ulimit) {
+bool IntParameter::set(float n, float high, float llimit, float ulimit) {
+    int v;
     switch (c_type) {
     case Continuous:
         assert(false); // not implemented
-        break;
+        return false;
     case Switch:
 	assert(false); // not implemented
-        break;
+        return false;
     case Enum:
-        *value = lower + min(static_cast<int>(n), upper-lower);
+        v = lower + min(static_cast<int>(n), upper-lower);
         break;
     default:
         assert(false);
-        break;
+        return false;
     }
+    if (v != *value) {
+	*value = v;
+	return true;
+    }
+    return false;
+}
+
+void IntParameter::trigger_changed() {
+    changed(*value);
 }
 
 void IntParameter::stdJSON_value() {
@@ -1188,13 +1252,12 @@ void BoolParameter::serializeJSON(gx_system::JsonWriter& jw) {
 }
 
 BoolParameter::ParameterV(gx_system::JsonParser& jp)
-    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(new bool), std_value(0) {
-    own_var = true;
+    : Parameter(jp_next(jp, "Parameter")), json_value(0), value(&value_storage), std_value(0) {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
 	if (jp.current_value() == "value") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    *value = jp.current_value_int();
+	    set(jp.current_value_int());
 	} else {
 	    gx_system::gx_print_warning(
 		"BoolParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1205,28 +1268,40 @@ BoolParameter::ParameterV(gx_system::JsonParser& jp)
 }
 
 BoolParameter::~ParameterV() {
-    if (own_var) {
-	delete value;
-    }
 }
 
-void *BoolParameter::zone() {
-    return value;
+bool BoolParameter::set(bool val) const {
+    if (val != *value) {
+	*value = val;
+	changed(val);
+	return true;
+    }
+    return false;
 }
 
 bool BoolParameter::on_off_value() {
     return *value;
 }
 
-void BoolParameter::set(float n, float high, float llimit, float ulimit) {
+bool BoolParameter::set(float n, float high, float llimit, float ulimit) {
+    bool v;
     switch (c_type) {
     case Switch:
-        *value = (2*n > high);
+        v = (2*n > high);
 	break;
     default:
         assert(false);
-        break;
+        return false;
     }
+    if (v != *value) {
+	*value = v;
+	return true;
+    }
+    return false;
+}
+
+void BoolParameter::trigger_changed() {
+    changed(*value);
 }
 
 void BoolParameter::stdJSON_value() {
@@ -1283,12 +1358,13 @@ void FileParameter::set_path(const string& path) {
     changed();
 }
 
-void FileParameter::set(const Glib::RefPtr<Gio::File>& val) {
+bool FileParameter::set(const Glib::RefPtr<Gio::File>& val) {
     if (is_equal(val)) {
-	return;
+	return false;
     }
     value = val;
     changed();
+    return true;
 }
 
 void FileParameter::set_standard(const string& filename) {
@@ -1304,16 +1380,8 @@ void FileParameter::stdJSON_value() {
     changed();
 }
 
-void *FileParameter::zone() {
-    return &value;
-}
-
 bool FileParameter::on_off_value() {
     return bool(value);
-}
-
-void FileParameter::set(float n, float high, float llimit, float ulimit) {
-    assert(false);
 }
 
 void FileParameter::writeJSON(gx_system::JsonWriter& jw) const {
@@ -1383,7 +1451,7 @@ void StringParameter::serializeJSON(gx_system::JsonWriter& jw) {
 }
 
 StringParameter::ParameterV(gx_system::JsonParser& jp)
-    : Parameter(jp_next(jp, "Parameter")), json_value(""), value(0), std_value("") {
+    : Parameter(jp_next(jp, "Parameter")), json_value(""), value(&value_storage), std_value("") {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
 	gx_system::gx_print_warning(
@@ -1394,21 +1462,19 @@ StringParameter::ParameterV(gx_system::JsonParser& jp)
 }
 
 StringParameter::~ParameterV() {
-    if (own_var) {
-	delete value;
-    }
 }
 
-void *StringParameter::zone() {
-    return value;
+bool StringParameter::set(const Glib::ustring& val) const {
+    if (val != *value) {
+	*value = val;
+	changed(*value);
+	return true;
+    }
+    return false;
 }
 
 bool StringParameter::on_off_value() {
     return !value->empty();
-}
-
-void StringParameter::set(float n, float high, float llimit, float ulimit) {
-    assert(false);
 }
 
 void StringParameter::stdJSON_value() {
@@ -1440,7 +1506,6 @@ void StringParameter::setJSON_value() {
 
 ParamMap::ParamMap()
     : id_map(),
-      addr_map(),
       replace_mode(false) {
 }
 
@@ -1511,23 +1576,12 @@ void ParamMap::readJSON(gx_system::JsonParser& jp) {
 }
 
 #ifndef NDEBUG
-void ParamMap::unique_zone(Parameter* param) {
-    if (addr_map.find(param->zone()) != addr_map.end()) {
-        gx_system::gx_print_error("Debug Check", "zone registered twice (id: " + param->id() +")");
-    }
-}
-
 void ParamMap::unique_id(Parameter* param) {
     if (id_map.find(param->id()) != id_map.end()) {
         gx_system::gx_print_error("Debug Check", "id registered twice: " + param->id());
     }
 }
 
-void ParamMap::check_addr(const void *p) {
-    if (!hasZone(p)) {
-        cerr << "zone not found: " << p << endl;
-    }
-}
 void ParamMap::check_id(const string& id) {
     if (!hasId(id)) {
         cerr << "string-id not found: " << id << endl;
@@ -1620,19 +1674,11 @@ void Parameter::dump(gx_system::JsonWriter *jw) {
 
 void ParamMap::insert(Parameter* param) {
     if (replace_mode) {
-	map<const void*, Parameter*>::iterator ia = addr_map.find(param->zone());
-	assert(ia != addr_map.end());
 	map<string, Parameter*>::iterator ii = id_map.find(param->id());
 	assert(ii != id_map.end());
-	assert(ii->second == ia->second);
 	Parameter *p = ii->second;
-	addr_map.erase(ia);
 	id_map.erase(ii);
 	delete p;
-    }
-    if (param->zone() != 0) {
-	debug_check(unique_zone, param);
-	addr_map.insert(pair<const void*, Parameter*>(param->zone(), param));
     }
     debug_check(unique_id, param);
     id_map.insert(pair<string, Parameter*>(param->id(), param));
@@ -1640,9 +1686,6 @@ void ParamMap::insert(Parameter* param) {
 
 void ParamMap::unregister(const string& id) {
     Parameter *p = &(*this)[id];
-    gx_ui::GxUI::zapZone(p->zone()); //FIXME
-    assert(gx_ui::GxUI::zoneCount(p->zone()) == 0);
-    addr_map.erase(p->zone());
     id_map.erase(id);
     delete p;
 }

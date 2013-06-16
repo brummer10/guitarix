@@ -37,7 +37,8 @@ namespace gx_preset {
 PresetIO::PresetIO(gx_engine::MidiControllerList& mctrl_,
 		   gx_engine::ConvolverAdapter& cvr_,
 		   gx_engine::ParamMap& param_,
-		   gx_system::CmdlineOptions& opt_)
+		   gx_system::CmdlineOptions& opt_,
+		   UnitRacks& rack_units_)
     : gx_system::AbstractPresetIO(),
       mctrl(mctrl_),
       convolver(cvr_),
@@ -45,7 +46,8 @@ PresetIO::PresetIO(gx_engine::MidiControllerList& mctrl_,
       opt(opt_),
       plist(),
       m(0),
-      jcset(0) {
+      jcset(0),
+      rack_units(rack_units_) {
 }
 
 PresetIO::~PresetIO() {
@@ -167,7 +169,7 @@ UnitPositionID::UnitPositionID(const string& id_, const UnitPosition& u)
 void UnitsCollector::get_list(std::vector<std::string>& l, bool stereo) {
     std::vector<UnitPositionID> v;
     for (std::map<std::string,UnitPosition>::iterator i = m.begin(); i != m.end(); ++i) {
-	if (i->second.show && i->second.position >= 0) {
+	if (i->second.position >= 0 && i->second.show) {
 	    if ((stereo && i->second.pp < 0) || (!stereo && i->second.pp >= 0)) {
 		v.push_back(UnitPositionID(i->first, i->second));
 	    }
@@ -177,15 +179,22 @@ void UnitsCollector::get_list(std::vector<std::string>& l, bool stereo) {
     std::sort(v.begin(), v.end());
     int pp = 1;
     for (std::vector<UnitPositionID>::iterator j = v.begin(); j != v.end(); ++j) {
-	if (j->pp != pp) {
+	if (!stereo && j->pp != pp) {
 	    pp = j->pp;
 	    l.push_back("ampstack");
 	}
 	l.push_back(j->id);
     }
+    /*
+    cerr << "SL";
+    for (std::vector<std::string>::iterator ii = l.begin(); ii != l.end(); ++ii) {
+	cerr << " '" << *ii << "'";
+    }
+    cerr << endl;
+    */
 }
 
-bool PresetIO::convert_old(gx_system::JsonParser &jp, UnitsCollector& u) {
+bool PresetIO::convert_old(gx_system::JsonParser &jp) {
     const std::string& s = jp.current_value();
     if (s == "system.mainwin_x") {
 	jp.next(gx_system::JsonParser::value_number);
@@ -227,22 +236,32 @@ bool PresetIO::convert_old(gx_system::JsonParser &jp, UnitsCollector& u) {
 	opt.no_warn_latency = jp.current_value_int();
 	return true;
     }
-    if (s.compare(0, 3, "ui.") == 0) {
-	jp.next(gx_system::JsonParser::value_number);
-	u.set_show(s.substr(3), jp.current_value_int());
-	return true;
-    }
-    if (s.compare(s.size()-9, 9, ".position") == 0) {
-	jp.next(gx_system::JsonParser::value_number);
-	u.set_position(s.substr(0, s.size()-9), jp.current_value_int());
-	return true;
-    }
-    if (s.compare(s.size()-3, 3, ".pp") == 0) {
-	jp.next(gx_system::JsonParser::value_number);
-	u.set_pp(s.substr(0, s.size()-3), jp.current_value_int());
-	return true;
-    }
     return false;
+}
+
+static inline bool endswith(const std::string& s, int n, const char *t) {
+    return s.compare(std::max<int>(0, s.size()-n), n, t) == 0;
+}
+
+static inline bool startswith(const std::string& s, int n, const char *t) {
+    return s.compare(0, n, t) == 0;
+}
+
+void PresetIO::collectRackOrder(gx_engine::Parameter *p, gx_system::JsonParser &jp, UnitsCollector& u) {
+    const std::string& s = p->id();
+    if (startswith(s, 3, "ui.")) {
+	if (jp.current_value_int()) {
+	    u.set_show(s.substr(3), true);
+	}
+    } else if (endswith(s, 7, ".on_off")) {
+	if (jp.current_value_int()) {
+	    u.set_show(s.substr(0, s.size()-7), true);
+	}
+    } else if (endswith(s, 9, ".position")) {
+	u.set_position(s.substr(0, s.size()-9), jp.current_value_int());
+    } else if (endswith(s, 3, ".pp")) {
+	u.set_pp(s.substr(0, s.size()-3), jp.current_value_int());
+    }
 }
 
 void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
@@ -252,7 +271,7 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
         jp.next(gx_system::JsonParser::value_key);
         gx_engine::Parameter *p;
         if (!param.hasId(jp.current_value())) {
-	    if (convert_old(jp, u)) {
+	    if (convert_old(jp)) {
 		continue;
 	    }
 	    std::string s = replaced_id(jp.current_value());
@@ -280,11 +299,12 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
             jp.skip_object();
             continue;
         }
-        p->readJSON_value(jp);
+	p->readJSON_value(jp);
+	collectRackOrder(p, jp, u);
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
-    u.get_list(mono_rack_units, false);
-    u.get_list(stereo_rack_units, true);
+    u.get_list(rack_units.mono, false);
+    u.get_list(rack_units.stereo, true);
 }
 
 void PresetIO::write_parameters(gx_system::JsonWriter &w, bool preset) {
@@ -401,8 +421,8 @@ void PresetIO::copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 
 StateIO::StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
 		 gx_engine::ParamMap& param, gx_engine::MidiStandardControllers& mstdctr,
-		 gx_jack::GxJack& jack_, gx_system::CmdlineOptions& opt_)
-    : PresetIO(mctrl, cvr, param, opt_),
+		 gx_jack::GxJack& jack_, gx_system::CmdlineOptions& opt_, UnitRacks& rack_units)
+    : PresetIO(mctrl, cvr, param, opt_, rack_units),
       midi_std_control(mstdctr),
       jack(jack_) {
 }
@@ -710,12 +730,12 @@ static const char *bank_list = "banklist.js";
 
 GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, gx_engine::ConvolverAdapter& cvr,
 		       gx_engine::MidiStandardControllers& mstdctr, gx_engine::MidiControllerList& mctrl_,
-		       gx_engine::ModuleSequencer& seq_, gx_engine::ParamMap& param_)
+		       gx_engine::ModuleSequencer& seq_)
     : sigc::trackable(),
       GxSettingsBase(seq_),
-      param(param_),
-      preset_io(mctrl_, cvr, param, opt),
-      state_io(mctrl_, cvr, param, mstdctr, jack_, opt),
+      param(seq_.get_param()),
+      preset_io(mctrl_, cvr, param, opt, rack_units),
+      state_io(mctrl_, cvr, param, mstdctr, jack_, opt, rack_units),
       state_loaded(false),
       no_autosave(false),
       jack(jack_),
@@ -822,6 +842,34 @@ bool GxSettings::check_create_config_dir(const Glib::ustring& dir) {
 
 void GxSettings::create_default_scratch_preset() {
     save(*banks.get_file(scratchpad_name), "livebuffer1");
+}
+
+static inline std::vector<std::string>::iterator find_unit(std::vector<std::string>& r, const std::string& unit) {
+    std::vector<std::string>::iterator i = r.begin();
+    for (; i != r.end(); ++i) {
+	if (unit == *i) {
+	    break;
+	}
+    }
+    return i;
+}
+
+void GxSettings::remove_rack_unit(const std::string& unit, bool stereo) {
+    std::vector<std::string>& r = stereo ? rack_units.stereo : rack_units.mono;
+    std::vector<std::string>::iterator i = find_unit(r, unit);
+    if (i != r.end()) {
+	r.erase(i);
+    }
+}
+
+void GxSettings::insert_rack_unit(const std::string& unit, const std::string& before, bool stereo) {
+    std::vector<std::string>& r = stereo ? rack_units.stereo : rack_units.mono;
+    remove_rack_unit(unit, stereo);
+    if (before.empty()) {
+	r.push_back(unit);
+    } else {
+	r.insert(find_unit(r, before), unit);
+    }
 }
 
 //static

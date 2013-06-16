@@ -262,8 +262,7 @@ bool MyPaintBox::on_expose_event(GdkEventExpose *event) {
 Liveplay::Liveplay(
     const gx_system::CmdlineOptions& options, gx_engine::GxMachineBase& machine_,
     const std::string& fname, const GxActions& actions_)
-    : ui(),
-      bld(),
+    : bld(),
       machine(machine_),
       actions(actions_),
       use_composite(),
@@ -507,46 +506,38 @@ void Liveplay::on_realize() {
     liveplay_canvas->get_window()->set_composited(true);
 }
 
-class MidiControllerDisplay: public Gtk::ProgressBar, public gx_ui::GxUiItem {
+class MidiControllerDisplay: public Gtk::ProgressBar {
 private:
-    gx_ui::GxUI& ui;
-    unsigned int ctr;
+    int ctr;
     const gx_engine::midi_controller_list& controller;
 private:
-    virtual void reflectZone();
-    virtual bool hasChanged();
+    void midi_value_changed(int ctr, int val);
 public:
-    MidiControllerDisplay(gx_ui::GxUI& ui, unsigned int n, const gx_engine::midi_controller_list& ctrl, const Glib::ustring& name);
+    MidiControllerDisplay(gx_engine::GxMachineBase& machine, unsigned int n, const gx_engine::midi_controller_list& ctrl, const Glib::ustring& name);
     ~MidiControllerDisplay();
 };
 
-MidiControllerDisplay::MidiControllerDisplay(gx_ui::GxUI& ui_, unsigned int n, const gx_engine::midi_controller_list& ctrl, const Glib::ustring& name)
-    : Gtk::ProgressBar(), gx_ui::GxUiItem(), ui(ui_), ctr(n), controller(ctrl) {
-    ui.registerZone(gx_engine::MidiControllerList::get_midi_control_zone(ctr), this);
+MidiControllerDisplay::MidiControllerDisplay(gx_engine::GxMachineBase& machine, unsigned int n, const gx_engine::midi_controller_list& ctrl, const Glib::ustring& name)
+    : Gtk::ProgressBar(), ctr(n), controller(ctrl) {
+    machine.signal_midi_value_changed().connect(
+	sigc::mem_fun(this, &MidiControllerDisplay::midi_value_changed));
     set_size_request(300, 50);
     set_text(name);
-    reflectZone();
+    machine.request_midi_value_update();
 }
 
 MidiControllerDisplay::~MidiControllerDisplay() {
-    ui.unregisterZone(gx_engine::MidiControllerList::get_midi_control_zone(ctr), this);
 }
 
-bool MidiControllerDisplay::hasChanged() {
-    int v = gx_engine::MidiControllerList::get_last_midi_control_value(ctr);
-    if (v >= 0) {
-	return get_fraction() != v / 127.0;
+void MidiControllerDisplay::midi_value_changed(int c, int v) {
+    if (c != ctr) {
+	return;
     }
-    if (get_sensitive()) {
-	set_sensitive(false);
-    }
-    return false;
-}
-
-void MidiControllerDisplay::reflectZone() {
-    int v = gx_engine::MidiControllerList::get_last_midi_control_value(ctr);
     if (v >= 0) {
+	set_sensitive(true);
 	set_fraction(v / 127.0);
+    } else {
+	set_sensitive(false);
     }
 }
 
@@ -571,7 +562,7 @@ void Liveplay::add_midi_elements() {
 	    v += Glib::ustring::compose(" %1/%2", p.l_group(), p.l_name());
 	}
 	midictrl_table->attach(
-	    *manage(new MidiControllerDisplay(ui, i, cl, v)),
+	    *manage(new MidiControllerDisplay(machine, i, cl, v)),
 	    left, left+1, top, top+1, Gtk::AttachOptions(0));
 	top += 1;
 	if (top >= top_max) {

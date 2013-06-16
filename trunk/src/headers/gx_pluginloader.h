@@ -26,6 +26,8 @@ struct stringcomp {
 
 namespace gx_engine {
 
+class EngineControl;
+
 /****************************************************************
  ** class Plugin
  ** Defines audio processing module and variables for
@@ -39,23 +41,35 @@ enum {			       // additional flags for PluginDef (used internally)
 };
 
 class Plugin {
-public:
+private:
+    PluginDef *pdef;
     bool box_visible;		// In Rack: UI Interface Box visible
     bool plug_visible;		// In Box: UI Interface Box visible
     bool on_off;		// Audio Processing
     int position;		// Position in Rack / Audio Processing Chain
     int effect_post_pre; // pre/post amp position (post = 0)
-    PluginDef *pdef;
+public:
+    std::string id_box_visible;
+    std::string id_plug_visible;
+    std::string id_on_off;
+    std::string id_position;
+    std::string id_effect_post_pre;
+public:
+    PluginDef *get_pdef() { return pdef; }
+    void set_pdef(PluginDef *p) { pdef = p; }
     enum { POST_WEIGHT = 2000 };
     inline int position_weight() { return effect_post_pre ? position : position + POST_WEIGHT; }
     Plugin(PluginDef *pl=0);
     Plugin(gx_system::JsonParser& jp);
     void writeJSON(gx_system::JsonWriter& jw);
-    void set_box_visible(bool v);
-    void set_plug_visible(bool v);
-    void set_on_off(int v);
-    void set_position(int pos);
-    void set_effect_post_pre(int v);
+    bool get_box_visible() { return box_visible; }
+    bool get_plug_visible() { return plug_visible; }
+    bool get_on_off() { return on_off; }
+    int get_position() { return position; }
+    int get_effect_post_pre() { return effect_post_pre; }
+    void register_vars(ParamMap& param, EngineControl& seq);
+    friend class PluginList;
+    friend void printlist(const char *title, const list<Plugin*>& modules, bool header);
 };
 
 /****************************************************************
@@ -100,14 +114,7 @@ enum PluginPos { // where to add a plugin (per processing chain)
     PLUGIN_POS_END		// keep last one
 };
 
-class EngineControl;
-
 typedef PluginDef *(*plugindef_creator)();
-
-class RackChangerUiItemBase: public gx_ui::GxUiItem {
-public :
-    virtual void *zone() = 0;
-};
 
 class PluginListBase {
 public:
@@ -133,16 +140,12 @@ public:
 
 class PluginList: public PluginListBase {
     EngineControl& seq;
-    gx_ui::GxUI& ui;
-    list<RackChangerUiItemBase*> rackchanger;
     int plugin_pos[PLUGIN_POS_COUNT];
     int add_module(Plugin *pl, PluginPos pos, int flags);
 public:
-    PluginList(gx_ui::GxUI& ui, EngineControl& seq);
+    PluginList(EngineControl& seq);
     ~PluginList();
     void set_samplerate(int samplerate); // call set_samplerate of all plugins
-    int* pos_var(const char *id);     // return the position of the plugin
-    bool* on_off_var(const char *id); // return the on/off switch variable of the plugin
     int load_from_path(const string& path, PluginPos pos = PLUGIN_POS_RACK);
     int load_library(const string& path, PluginPos pos = PLUGIN_POS_RACK);
     int add(Plugin *pl, PluginPos pos, int flags);
@@ -164,7 +167,6 @@ public:
 #ifndef NDEBUG
     void printlist(bool ordered = true);
 #endif
-    template<class T> friend class RackChangerUiItem;
 };
 
 #ifndef NDEBUG

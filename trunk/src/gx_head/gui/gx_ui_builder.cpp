@@ -182,7 +182,7 @@ void UiBuilderImpl::load_glade_(const char *data) {
 }
 
 bool UiBuilderImpl::load(gx_engine::Plugin *p) {
-    PluginDef *pd = p->pdef;
+    PluginDef *pd = p->get_pdef();
     if (!(pd->flags & PGN_GUI) || !(pd->flags & gx_engine::PGNI_DYN_POSITION)) {
 	return false;
     }

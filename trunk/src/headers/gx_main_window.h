@@ -52,7 +52,6 @@ private:
     gx_engine::GxMachineBase& machine;
     std::string id;
     virtual void on_changed(const Glib::RefPtr<Gtk::RadioAction>& act);
-    virtual void reflectZone();
 protected:
     UiRadioAction(
 	gx_engine::GxMachineBase& machine_, const std::string& id, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
@@ -101,7 +100,6 @@ public:
 
 class Liveplay: public sigc::trackable {
 private:
-    gx_ui::GxUI ui;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     gx_engine::GxMachineBase &machine;
     const GxActions& actions;
@@ -179,10 +177,8 @@ enum PluginType {
     PLUGIN_TYPE_STEREO,
 };
 
-class PluginUI: public gx_ui::GxUiItem {
+class PluginUI: public sigc::trackable {
 private:
-    virtual void reflectZone();
-    virtual bool hasChanged();
     Gtk::UIManager::ui_merge_id merge_id;
     Glib::RefPtr<Gtk::ToggleAction> action;
     void on_action_toggled();
@@ -200,33 +196,32 @@ public:
     MainWindow& main;
     RackBox *rackbox;
     bool hidden;
-    bool compressed;
 
-    PluginUI(MainWindow& main, const gx_engine::GxMachineBase& m, const char* id_,
+    PluginUI(MainWindow& main, const char* id_,
 	     const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
     virtual ~PluginUI();
     PluginType get_type() const {
-	return (plugin->pdef->flags & PGN_STEREO) ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO;
+	return (plugin->get_pdef()->flags & PGN_STEREO) ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO;
     }
-    const char *get_id() const { return plugin->pdef->id; }
-    const char *get_name() const { return plugin->pdef->name; }
+    const char *get_id() const { return plugin->get_pdef()->id; }
+    const char *get_name() const { return plugin->get_pdef()->name; }
     void display(bool v, bool animate);
     void display_new(bool unordered = false);
-    inline bool is_displayed();
     void set_ui_merge_id(Gtk::UIManager::ui_merge_id id) { merge_id = id; }
     void unset_ui_merge_id(Glib::RefPtr<Gtk::UIManager> uimanager);
     void set_action(Glib::RefPtr<Gtk::ToggleAction>& act);
+    void set_active(bool v) { if (action) action->set_active(v); }
     Glib::RefPtr<Gtk::ToggleAction> get_action() { return action; }
     static bool is_registered(gx_engine::GxMachineBase& m, const char *name);
     virtual void on_plugin_preset_popup();
     inline const char *get_category() {
-	const char *cat = plugin->pdef->category;
+	const char *cat = plugin->get_pdef()->category;
 	return (cat && *cat) ? cat : N_("External");
     }
     inline const char *get_shortname() const {
 	const char *name = shortname;
 	if (!name) {
-	    name = plugin->pdef->shortname;
+	    name = plugin->get_pdef()->shortname;
 	}
 	if (!name || !*name) {
 	    name = get_name();
@@ -234,6 +229,9 @@ public:
 	return name;
     }
     void update_rackbox();
+    void compress(bool state);
+    void hide(bool animate);
+    void show(bool animate);
     friend bool plugins_by_name_less(PluginUI *a, PluginUI *b);
 };
 
@@ -244,11 +242,9 @@ bool plugins_by_name_less(PluginUI *a, PluginUI *b);
  */
 
 class PluginDict: private std::map<std::string, PluginUI*> {
-private:
-    gx_ui::GxUI& ui;
 public:
     typedef std::map<std::string, PluginUI*>::iterator iterator;
-    PluginDict(gx_ui::GxUI& ui_): std::map<std::string, PluginUI*>(), ui(ui_) {}
+    PluginDict(): std::map<std::string, PluginUI*>() {}
     ~PluginDict();
     void cleanup();
     void add(PluginUI *p) { insert(pair<std::string, PluginUI*>(p->get_id(), p)); }
@@ -256,6 +252,7 @@ public:
     PluginUI *operator[](const std::string& s) { return find(s)->second; }
     using std::map<std::string, PluginUI*>::begin;
     using std::map<std::string, PluginUI*>::end;
+    void compress(bool state);
 };
 
 
@@ -307,9 +304,7 @@ private:
     DragIcon *drag_icon;
     int target_height;
     Gxw::PaintBox box;
-    int box_visible;
-    int position;
-    int effect_post_pre;
+    bool box_visible;
     Gxw::Switch on_off_switch;
     gx_gui::uiToggle<bool> toggle_on_off;
 private:
@@ -335,7 +330,6 @@ private:
     Gtk::VBox *switcher_vbox(gx_system::CmdlineOptions& options);
     bool has_delete() const { return delete_button; }
     void do_expand();
-    friend bool rackboxes_less(RackBox *a, RackBox *b);
 public:
     RackBox(PluginUI& plugin, MainWindow& main, Gtk::Widget* bare=0);
     static Gtk::Widget *create_drag_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);
@@ -349,12 +343,9 @@ public:
     void animate_insert();
     static Gtk::Widget *create_icon_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);
     void setOrder(int pos, int post_pre);
-    void storeOrder() { position = plugin.plugin->position; effect_post_pre = plugin.plugin->effect_post_pre; }
-    bool hasOrderDiff() { return plugin.plugin->position != position || plugin.plugin->effect_post_pre != effect_post_pre; }
-    int position_weight() { return plugin.plugin->position_weight(); }
-    bool is_displayed() { return box_visible; }
     void display(bool v, bool animate);
-    bool get_plug_visible() { return plugin.compressed; }
+    bool get_plug_visible() { return plugin.plugin->get_plug_visible(); }
+    bool get_box_visible() { return box_visible; }
 };
 
 class MiniRackBox: public Gtk::HBox {
@@ -376,10 +367,6 @@ public:
     void set_config_mode(bool mode);
     void pack(Gtk::Widget *w);
 };
-
-inline bool PluginUI::is_displayed() {
-    return rackbox && rackbox->is_displayed();
-}
 
 /****************************************************************
  ** class RackContainer
@@ -406,6 +393,7 @@ private:
     virtual void on_drag_leave(const Glib::RefPtr<Gdk::DragContext>& context, guint timestamp);
     virtual void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     virtual void on_add(Widget* ch);
+    void unit_order_changed(bool stereo);
     void renumber();
     bool scroll_timeout();
     bool scrollother_timeout();
@@ -426,8 +414,6 @@ public:
     inline bool check_if_animate(const RackBox& rackbox);
     void show_entries();
     void hide_entries();
-    void compress_all();
-    void expand_all();
     void set_config_mode(bool mode);
     bool empty() const { return child_count == 0; }
     void add(RackBox& r, int pos=-1);
@@ -590,7 +576,8 @@ struct GxActions {
 
 class MainWindow: public sigc::trackable {
 private:
-    gx_ui::GxUI ui;
+    gx_system::CmdlineOptions& options;
+    gx_engine::GxMachineBase&  machine;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     Freezer freezer;
     PluginDict plugin_dict;
@@ -606,8 +593,6 @@ private:
     Gtk::UIManager::ui_merge_id preset_list_merge_id;
     Glib::RefPtr<Gtk::ActionGroup> preset_list_actiongroup;
     Glib::RefPtr<Gtk::UIManager> uimanager;
-    gx_system::CmdlineOptions& options;
-    gx_engine::GxMachineBase&  machine;
     Liveplay *live_play;
     PresetWindow *preset_window;
     Gxw::WaveView fWaveView;
@@ -730,7 +715,6 @@ private:
     void on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, int info, int timestamp);
     void fill_pluginlist();
     void make_icons(bool force=true);
-    bool update_all_gui();
     void jack_connection();
     void on_miditable_toggle();
     void on_portmap_activate();
@@ -806,11 +790,9 @@ public:
     PluginDict::iterator plugins_end() { return plugin_dict.end(); }
     void run();
     gx_system::CmdlineOptions& get_options() { return options; }
-    gx_ui::GxUI& get_ui() { return ui; }
     void plugin_preset_popup(const std::string& id);
     void plugin_preset_popup(const std::string& id, const Glib::ustring& name);
     gx_engine::GxMachineBase& get_machine() { return machine; }
-    bool is_loading() { return machine.settings_is_loading(); }
     void add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
     void set_rackbox_expansion();
     double stop_at_stereo_bottom(double off, double step_size, double pagesize);

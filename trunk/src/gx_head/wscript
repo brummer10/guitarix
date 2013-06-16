@@ -20,7 +20,6 @@ def build(bld):
         './engine/gx_midi_plugin.cpp',
         './engine/gx_engine_audio.cpp',
         './engine/gx_paramtable.cpp',
-        './engine/gx_ui.cpp',
         './engine/gx_pitch_tracker.cpp',
         './engine/gx_convolver.cpp',
         './engine/gx_resampler.cpp',

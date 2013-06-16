@@ -73,36 +73,6 @@ void uiToggleButton::set_value(bool v) {
     fButton->set_active(v);
 }
 
-struct uiButton : public gx_ui::GxUiItemFloat {
-    GtkButton*     fButton;
-    uiButton(gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItemFloat(ui, zone),
-             fButton(b) {}
-    static void pressed(GtkWidget *widget, gpointer   data);
-    static void released(GtkWidget *widget, gpointer   data);
-    virtual void reflectZone();
-};
-
-void uiButton::pressed(GtkWidget *widget, gpointer   data) {
-    gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*)data;
-    c->modifyZone(1.0);
-}
-
-void uiButton::released(GtkWidget *widget, gpointer   data) {
-    gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*) data;
-    c->modifyZone(0.0);
-}
-
-void uiButton::reflectZone() {
-    float v = *fZone;
-    fCache = v;
-    if (v > 0.0) {
-	gtk_button_pressed(fButton);
-    } else {
-	gtk_button_released(fButton);
-    }
-}
-
-
 bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, const std::string& id) {
     if (event->button == 2) {
 	if (!machine.midi_get_config_mode()) {
@@ -175,10 +145,8 @@ void WidgetStack::add(Gtk::Widget& w, const char *label) {
  */
 
 StackBoxBuilder::StackBoxBuilder(
-    gx_engine::GxMachineBase& machine_,
-    Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
-    Gtk::Label &convolver_mono_filename_label_, gx_ui::GxUI& ui_,
-    Glib::RefPtr<Gdk::Pixbuf> window_icon_)
+    gx_engine::GxMachineBase& machine_, Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
+    Gtk::Label &convolver_mono_filename_label_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
     : fBox(), machine(machine_),
       fWaveView(fWaveView_), convolver_filename_label(convolver_filename_label_),
       convolver_mono_filename_label(convolver_mono_filename_label_),

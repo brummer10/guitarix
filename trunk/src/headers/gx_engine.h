@@ -35,7 +35,7 @@ namespace gx_engine {
  ** class ModuleSelectorFromList
  */
 
-class ModuleSelectorFromList: public ModuleSelector, private PluginDef, private gx_ui::GxUiItemInt {
+class ModuleSelectorFromList: public ModuleSelector, private PluginDef {
 private:
     int selector;
     const char* select_id;
@@ -45,11 +45,10 @@ private:
     unsigned int size;
     static int static_register(const ParamReg& reg);
     int register_parameter(const ParamReg& reg);
-    void reflectZone();
 public:
     Plugin plugin;
     ModuleSelectorFromList(
-	EngineControl& seq, gx_ui::GxUI& ui, const char* id, const char* name,
+	EngineControl& seq, const char* id, const char* name,
 	const char *category, plugindef_creator module_ids[], const char* select_id,
 	const char* select_name, const char** groups = 0, int flags = 0);
     ~ModuleSelectorFromList();
@@ -87,7 +86,7 @@ public:
     //
     LadspaLoader ladspaloader;
 public:
-    GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::CmdlineOptions& options);
+    GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options);
     ~GxEngine();
     void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
 };

@@ -71,7 +71,6 @@ using namespace std;
 #include "gx_resampler.h"
 #include "gx_convolver.h"
 #include "gx_pitch_tracker.h"
-#include "gx_ui.h"
 #include "gx_pluginloader.h"
 #include "gx_modulesequencer.h"
 #include "gx_json.h"

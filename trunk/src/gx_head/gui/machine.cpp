@@ -40,7 +40,15 @@ void lock_rt_memory() {
 
 namespace gx_engine {
 
+GxMachineBase::GxMachineBase()
+    : rack_unit_order_changed() {
+}
+
 GxMachineBase::~GxMachineBase() {
+}
+
+sigc::signal<void, bool>& GxMachineBase::signal_rack_unit_order_changed() {
+    return rack_unit_order_changed;
 }
 
 
@@ -51,14 +59,13 @@ GxMachineBase::~GxMachineBase() {
 GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     GxMachineBase(),
     options(options_),
-    pmap(),
-    engine(options.get_plugin_dir(), pmap, gx_engine::get_group_table(), options),
+    engine(options.get_plugin_dir(), gx_engine::get_group_table(), options),
     jack(engine),
     settings(options, jack, engine.stereo_convolver, gx_engine::midi_std_ctr,
-	     engine.controller_map, engine, pmap),
+	     engine.controller_map, engine),
     tuner_switcher(settings, engine),
     sock(0),
-    signals() {
+    pmap(engine.get_param()) {
     engine.set_jack(&jack);
     // ------ initialize parameter list ------
     gx_gui::guivar.register_gui_parameter(pmap);
@@ -241,15 +248,15 @@ void GxMachine::clear_oscilloscope_buffer() {
 }
 
 bool GxMachine::oscilloscope_plugin_box_visible() {
-    return engine.oscilloscope.plugin.box_visible;
+    return engine.oscilloscope.plugin.get_box_visible();
 }
 
 sigc::signal<void, int>& GxMachine::signal_oscilloscope_post_pre() {
-    return engine.oscilloscope.post_pre_signal.changed;
+    return pmap[engine.oscilloscope.plugin.id_effect_post_pre].signal_changed_int();
 }
 
 sigc::signal<void, bool>& GxMachine::signal_oscilloscope_visible() {
-    return engine.oscilloscope.visible.changed;
+    return pmap[engine.oscilloscope.plugin.id_box_visible].signal_changed_bool();
 }
 
 sigc::signal<int, bool>& GxMachine::signal_oscilloscope_activation() {
@@ -336,6 +343,34 @@ void GxMachine::set_stateflag(ModuleSequencer::StateFlag flag) {
     engine.set_stateflag(flag);
 }
 
+const std::vector<std::string>& GxMachine::get_rack_unit_order(bool stereo) {
+    return settings.get_rack_unit_order(stereo);
+}
+
+void GxMachine::remove_rack_unit(const std::string& unit, bool stereo) {
+    settings.remove_rack_unit(unit, stereo);
+    /*
+    const std::vector<std::string>& l = GxMachine::get_rack_unit_order(stereo);
+    cerr << "RU";
+    for (std::vector<std::string>::const_iterator ii = l.begin(); ii != l.end(); ++ii) {
+	cerr << " '" << *ii << "'";
+    }
+    cerr << endl;
+    */
+}
+
+void GxMachine::insert_rack_unit(const std::string& unit, const std::string& before, bool stereo) {
+    settings.insert_rack_unit(unit, before, stereo);
+    /*
+    const std::vector<std::string>& l = GxMachine::get_rack_unit_order(stereo);
+    cerr << "IU";
+    for (std::vector<std::string>::const_iterator ii = l.begin(); ii != l.end(); ++ii) {
+	cerr << " '" << *ii << "'";
+    }
+    cerr << endl;
+    */
+}
+
 // tuner_switcher
 bool GxMachine::get_tuner_switcher_active() {
     return tuner_switcher.get_active();
@@ -385,10 +420,6 @@ void GxMachine::loadstate() {
 
 int GxMachine::bank_size() {
     return settings.banks.size();
-}
-
-bool GxMachine::settings_is_loading() {
-    return settings.is_loading();
 }
 
 void GxMachine::create_default_scratch_preset() {
@@ -539,11 +570,11 @@ bool GxMachine::parameter_hasId(const std::string& id) {
 }
 
 void GxMachine::reset_unit(Glib::ustring group_id) const {
-    pmap.reset_unit(group_id, engine.pluginlist.lookup_plugin(group_id.c_str())->pdef->groups);
+    pmap.reset_unit(group_id, engine.pluginlist.lookup_plugin(group_id.c_str())->get_pdef()->groups);
 }
 
 bool GxMachine::parameter_unit_has_std_values(Glib::ustring group_id) const {
-    return pmap.unit_has_std_values(group_id, engine.pluginlist.lookup_plugin(group_id.c_str())->pdef->groups);
+    return pmap.unit_has_std_values(group_id, engine.pluginlist.lookup_plugin(group_id.c_str())->get_pdef()->groups);
 }
 
 void GxMachine::set_parameter_value(const std::string& id, int value) {
@@ -583,39 +614,15 @@ std::string GxMachine::_get_parameter_value_string(const std::string& id) {
 }
 
 sigc::signal<void, int>& GxMachine::_signal_parameter_value_int(const std::string& id) {
-    std::map<string,gx_ui::GxUiItem*>::iterator i = signals.find(id);
-    gx_ui::UiSignal<int> *u;
-    if (i != signals.end()) {
-	u = dynamic_cast<gx_ui::UiSignal<int>*>(i->second);
-    } else {
-	u = gx_ui::UiSignal<int>::create(&engine.get_ui(), pmap, id);
-	signals[id] = u;
-    }
-    return u->changed;
+    return pmap[id].signal_changed_int();
 }
 
 sigc::signal<void, bool>& GxMachine::_signal_parameter_value_bool(const std::string& id) {
-    std::map<string,gx_ui::GxUiItem*>::iterator i = signals.find(id);
-    gx_ui::UiSignal<bool> *u;
-    if (i != signals.end()) {
-	u = dynamic_cast<gx_ui::UiSignal<bool>*>(i->second);
-    } else {
-	u = gx_ui::UiSignal<bool>::create(&engine.get_ui(), pmap, id);
-	signals[id] = u;
-    }
-    return u->changed;
+    return pmap[id].signal_changed_bool();
 }
 
 sigc::signal<void, float>& GxMachine::_signal_parameter_value_float(const std::string& id) {
-    std::map<string,gx_ui::GxUiItem*>::iterator i = signals.find(id);
-    gx_ui::UiSignal<float> *u;
-    if (i != signals.end()) {
-	u = dynamic_cast<gx_ui::UiSignal<float>*>(i->second);
-    } else {
-	u = gx_ui::UiSignal<float>::create(&engine.get_ui(), pmap, id);
-	signals[id] = u;
-    }
-    return u->changed;
+    return pmap[id].signal_changed_float();
 }
 
 // MidiControllerList
@@ -633,6 +640,14 @@ sigc::signal<void,int>& GxMachine::signal_midi_new_program() {
 
 sigc::signal<void>& GxMachine::signal_midi_changed() {
     return engine.controller_map.signal_changed();
+}
+
+sigc::signal<void, int, int>& GxMachine::signal_midi_value_changed() {
+    return engine.controller_map.signal_midi_value_changed();
+}
+
+void GxMachine::request_midi_value_update() {
+    engine.controller_map.request_midi_value_update();
 }
 
 int GxMachine::midi_size() {
@@ -692,11 +707,7 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       jw(0),
       notify_list(),
       idle_conn(),
-      jp(0),
-      signals_int(),
-      signals_bool(),
-      signals_float(),
-      is_loading(false) {
+      jp(0) {
     socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
     Glib::RefPtr<Gio::InetAddress> a = Gio::InetAddress::create("127.0.0.1");
     try {
@@ -717,35 +728,6 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     send();
     receive();
     pluginlist.readJSON(*jp);
-    for (PluginListBase::pluginmap::iterator i = pluginlist.begin(); i != pluginlist.end(); ++i) {
-	std::string s = i->first;
-	std::string sp;
-	sp = "ui." + s;
-	if (parameter_hasId(sp)) {
-	    signal_parameter_value<bool>(sp).connect(
-		sigc::mem_fun(i->second, &Plugin::set_box_visible));
-	}
-	sp = s + ".s_h";
-	if (parameter_hasId(sp)) {
-	    signal_parameter_value<bool>(sp).connect(
-		sigc::mem_fun(i->second, &Plugin::set_plug_visible));
-	}
-	sp = s + ".on_off";
-	if (parameter_hasId(sp)) {
-	    signal_parameter_value<bool>(sp).connect(
-		sigc::mem_fun(i->second, &Plugin::set_on_off));
-	}
-	sp = s + ".position";
-	if (parameter_hasId(sp)) {
-	    signal_parameter_value<int>(sp).connect(
-		sigc::mem_fun(i->second, &Plugin::set_position));
-	}
-	sp = s + ".pp";
-	if (parameter_hasId(sp)) {
-	    signal_parameter_value<int>(sp).connect(
-		sigc::mem_fun(i->second, &Plugin::set_effect_post_pre));
-	}
-    }
     start_call("banks");
     send();
     receive();
@@ -781,17 +763,7 @@ void GxMachineRemote::parameter_changed(const std::string& id) {
 	    assert(false);
 	    v = 0;
 	}
-	float *vp = &p.getFloat().get_value();
-	if (vp) {
-	    if (*vp == v) {
-		return;
-	    }
-	    *vp = v;
-	}
-	std::map<std::string,sigc::signal<void,float>* >::iterator i = signals_float.find(id);
-	if (i != signals_float.end()) {
-	    (*i->second)(v);
-	}
+	p.getFloat().set(v);
     } else if (p.isInt()) {
 	int v;
 	switch (jp->next()) {
@@ -805,33 +777,15 @@ void GxMachineRemote::parameter_changed(const std::string& id) {
 	    assert(false);
 	    v = 0;
 	}
-	int *vp = &p.getInt().get_value();
-	if (vp) {
-	    if (*vp == v) {
-		return;
-	    }
-	    *vp = v;
-	}
-	std::map<std::string,sigc::signal<void,int>* >::iterator i = signals_int.find(id);
-	if (i != signals_int.end()) {
-	    (*i->second)(v);
-	}
+	p.getInt().set(v);
     } else if (p.isBool()) {
-	bool v = jp->current_value_int();
 	jp->next(gx_system::JsonParser::value_number);
-	bool *vp = &p.getBool().get_value();
-	if (vp) {
-	    if (*vp == v) {
-		return;
-	    }
-	    *vp = v;
-	}
-	std::map<std::string,sigc::signal<void,bool>* >::iterator i = signals_bool.find(id);
-	if (i != signals_bool.end()) {
-	    (*i->second)(v);
-	}
-    } else if (p.isFile() || p.isString()) {
-	cerr << "change string/file parameter " << id << endl;
+	p.getBool().set(jp->current_value_int());
+    } else if (p.isString()) {
+	jp->next(gx_system::JsonParser::value_string);
+	p.getString().set(jp->current_value());
+    } else if (p.isFile()) {
+	cerr << "change file parameter " << id << endl;
     } else {
 	cerr << "change special type parameter " << id << endl;
     }
@@ -857,18 +811,8 @@ void GxMachineRemote::handle_notify() {
 	gx_system::Logger::get_logger().print(jp->current_value(), msgtype);
     } else if (method == "preset_changed") {
 	start_call("get");
-	for (std::map<string,sigc::signal<void,int>*>::iterator i = signals_int.begin(); i != signals_int.end(); ++i) {
-	    if (pmap[i->first].isInPreset()) {
-		jw->write(i->first);
-	    }
-	}
-	for (std::map<string,sigc::signal<void,bool>*>::iterator i = signals_bool.begin(); i != signals_bool.end(); ++i) {
-	    if (pmap[i->first].isInPreset()) {
-		jw->write(i->first);
-	    }
-	}
-	for (std::map<string,sigc::signal<void,float>*>::iterator i = signals_float.begin(); i != signals_float.end(); ++i) {
-	    if (pmap[i->first].isInPreset()) {
+	for (ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
+	    if (i->second->isInPreset()) {
 		jw->write(i->first);
 	    }
 	}
@@ -1400,6 +1344,20 @@ void GxMachineRemote::set_stateflag(ModuleSequencer::StateFlag flag) {
     cerr << "set_stateflag()" << endl;
 }
 
+const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(bool stereo) {
+    static std::vector<std::string> x;
+    cerr << "get_rack_unit_order()" << endl;
+    return x;
+}
+
+void GxMachineRemote::remove_rack_unit(const std::string& unit, bool stereo) {
+    cerr << "remove_rack_unit()" << endl;
+}
+
+void GxMachineRemote::insert_rack_unit(const std::string& unit, const std::string& before, bool stereo) {
+    cerr << "insert_rack_unit()" << endl;
+}
+
 // tuner_switcher
 bool GxMachineRemote::get_tuner_switcher_active() {
     cerr << "get_tuner_switcher_active()" << endl;
@@ -1460,10 +1418,6 @@ void GxMachineRemote::loadstate() {
 
 int GxMachineRemote::bank_size() {
     return banks.size();
-}
-
-bool GxMachineRemote::settings_is_loading() {
-    return is_loading;
 }
 
 void GxMachineRemote::create_default_scratch_preset() {
@@ -1613,18 +1567,19 @@ Parameter& GxMachineRemote::get_parameter(const std::string& id) {
 
 void GxMachineRemote::set_init_values() {
     cerr << "set_init_values" << endl;
-    is_loading = true;
-    gx_ui::GxUI::updateAllGuis();
-    for (std::map<string,sigc::signal<void,int>*>::iterator i = signals_int.begin(); i != signals_int.end(); ++i) {
-	(*i->second)(get_parameter_value<int>(i->first));
+    for (ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
+	Parameter *p = i->second;
+	if (p->isFloat()) {
+	    FloatParameter& pf = p->getFloat();
+	    pf.signal_changed()(pf.get_value());
+	} else if (p->isInt()) {
+	    IntParameter& pi = p->getInt();
+	    pi.signal_changed()(pi.get_value());
+	} else if (p->isBool()) {
+	    BoolParameter& pb = p->getBool();
+	    pb.signal_changed()(pb.get_value());
+	}
     }
-    for (std::map<string,sigc::signal<void,bool>*>::iterator i = signals_bool.begin(); i != signals_bool.end(); ++i) {
-	(*i->second)(get_parameter_value<bool>(i->first));
-    }
-    for (std::map<string,sigc::signal<void,float>*>::iterator i = signals_float.begin(); i != signals_float.end(); ++i) {
-	(*i->second)(get_parameter_value<float>(i->first));
-    }
-    is_loading = false;
     selection_changed(); //FIXME
 }
 
@@ -1645,74 +1600,47 @@ bool GxMachineRemote::parameter_unit_has_std_values(Glib::ustring group_id) cons
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, int value) {
-    int *v = &pmap[id].getInt().get_value();
-    if (v) {
-	if (*v == value) {
-	    return;
-	}
-	*v = value;
+    if (!pmap[id].getInt().set(value)) {
+	return;
     }
     cerr << "SVI " << id << ": " << value << endl;
     start_notify("set");
     jw->write(id);
     jw->write(value);
     send();
-    std::map<string,sigc::signal<void,int>*>::iterator i = signals_int.find(id);
-    if (i != signals_int.end()) {
-	(*i->second)(value);
-    }
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, bool value) {
-    bool *v = &pmap[id].getBool().get_value();
-    if (v) {
-	if (*v == value) {
-	    return;
-	}
-	*v = value;
+    if (!pmap[id].getBool().set(value)) {
+	return;
     }
     cerr << "SVB " << id << ": " << value << endl;
     start_notify("set");
     jw->write(id);
     jw->write(value);
     send();
-    std::map<string,sigc::signal<void,bool>*>::iterator i = signals_bool.find(id);
-    if (i != signals_bool.end()) {
-	(*i->second)(value);
-    }
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, float value) {
-    float *v = &pmap[id].getFloat().get_value();
-    if (v) {
-	if (*v == value) {
-	    return;
-	}
-	*v = value;
+    if (!pmap[id].getFloat().set(value)) {
+	return;
     }
     cerr << "SVF " << id << ": " << value << endl;
     start_notify("set");
     jw->write(id);
     jw->write(value);
     send();
-    std::map<string,sigc::signal<void,float>*>::iterator i = signals_float.find(id);
-    if (i != signals_float.end()) {
-	(*i->second)(value);
-    }
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, const std::string& value) {
+    if (!pmap[id].getString().set(value)) {
+	return;
+    }
     cerr << "SVS " << id << ": " << value << endl;
     start_notify("set");
     jw->write(id);
     jw->write(value);
     send();
-    /*
-    std::map<string,sigc::signal<void,const std::string&>*>::iterator i = signals_string.find(id);
-    if (i != signals_string.end()) {
-	(*i->second)(value);
-    }
-    */
 }
 
 void GxMachineRemote::_request_parameter_value(const std::string& id) {
@@ -1775,36 +1703,15 @@ std::string GxMachineRemote::_get_parameter_value_string(const std::string& id) 
 }
 
 sigc::signal<void, int>& GxMachineRemote::_signal_parameter_value_int(const std::string& id) {
-    std::map<std::string,sigc::signal<void,int>* >::iterator i = signals_int.find(id);
-    if (i != signals_int.end()) {
-	return *i->second;
-    } else {
-	sigc::signal<void,int> *u = new sigc::signal<void,int>;
-	signals_int[id] = u;
-	return *u;
-    }
+    return pmap[id].signal_changed_int();
 }
 
 sigc::signal<void, bool>& GxMachineRemote::_signal_parameter_value_bool(const std::string& id) {
-    std::map<string,sigc::signal<void,bool>*>::iterator i = signals_bool.find(id);
-    if (i != signals_bool.end()) {
-	return *i->second;
-    } else {
-	sigc::signal<void,bool> *u = new sigc::signal<void,bool>;
-	signals_bool[id] = u;
-	return *u;
-    }
+    return pmap[id].signal_changed_bool();
 }
 
 sigc::signal<void, float>& GxMachineRemote::_signal_parameter_value_float(const std::string& id) {
-    std::map<string,sigc::signal<void,float>*>::iterator i = signals_float.find(id);
-    if (i != signals_float.end()) {
-	return *i->second;
-    } else {
-	sigc::signal<void,float> *u = new sigc::signal<void,float>;
-	signals_float[id] = u;
-	return *u;
-    }
+    return pmap[id].signal_changed_float();
 }
 
 // MidiControllerList
@@ -1827,6 +1734,16 @@ sigc::signal<void>& GxMachineRemote::signal_midi_changed() {
     cerr << "signal_midi_changed()" << endl;
     static sigc::signal<void> x;
     return x;
+}
+
+sigc::signal<void, int, int>& GxMachineRemote::signal_midi_value_changed() {
+    cerr << "signal_midi_value_changed()" << endl;
+    static sigc::signal<void, int, int> x;
+    return x;
+}
+
+void GxMachineRemote::request_midi_value_update() {
+    cerr << "request_midi_value_update()" << endl;
 }
 
 int GxMachineRemote::midi_size() {

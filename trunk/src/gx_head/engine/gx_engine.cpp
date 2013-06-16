@@ -110,20 +110,20 @@ static const char* ampstack_groups[] = {
     0
 };
 
-GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::CmdlineOptions& options)
+GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options)
     : ModuleSequencer(),
       resamp(),
       controller_map(),
       // ModuleSelector's
       crybaby(
-	  *this, ui, "crybaby", N_("Crybaby"), N_("Guitar Effects"), builtin_crybaby_plugins,
+	  *this, "crybaby", N_("Crybaby"), N_("Guitar Effects"), builtin_crybaby_plugins,
 	  "crybaby.autowah", _("select"), 0, PGN_POST_PRE),
       tonestack(
-	  *this, ui, "amp.tonestack", N_("Tonestack"), N_("Tone control"),
+	  *this, "amp.tonestack", N_("Tonestack"), N_("Tone control"),
 	  builtin_tonestack_plugins, "amp.tonestack.select",
 	  _("select"), 0, PGN_POST_PRE),
       ampstack(
-	  *this, ui, "ampstack", _("Amp"), "", builtin_amp_plugins,
+	  *this, "ampstack", _("Amp"), "", builtin_amp_plugins,
 	  "tube.select", _("select"), ampstack_groups),
       // internal audio modules
       noisegate(),
@@ -132,11 +132,11 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
       tuner(*this),
       midiaudiobuffer(tuner),
       maxlevel(),
-      oscilloscope(&ui, *this),
+      oscilloscope(*this),
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync),
-		     param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
+		     get_param(), options.get_IR_pathlist(), options.get_sys_IR_dir()),
       stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync),
-		       param, options.get_IR_pathlist(), options.get_sys_IR_dir()),
+		       get_param(), options.get_IR_pathlist(), options.get_sys_IR_dir()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
@@ -171,7 +171,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& g
     add_selector(tonestack);
     add_selector(tuner);
 
-    registerParameter(param, groups);
+    registerParameter(groups);
 
 #ifndef NDEBUG
     pluginlist.printlist();

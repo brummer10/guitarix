@@ -55,11 +55,11 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
 #ifndef NDEBUG
 	    gx_engine::FloatParameter p2(
 		id, name, (tp[0] == 'B' ? Parameter::Switch : gx_engine::Parameter::Continuous),
-		true, &p.getFloat().get_value(), val, low, up, step, true, false);
+		true, p.getFloat().value, val, low, up, step, true, false);
 	    p2.set_desc(tooltip);
 	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
 #endif
-	    return &p.getFloat().get_value();
+	    return p.getFloat().value;
 	}
     }
     gx_engine::Parameter *p = 0;
@@ -135,21 +135,23 @@ void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, b
  */
 
 Plugin::Plugin(PluginDef *pl)
-    : box_visible(false),
+    : pdef(0),
+      box_visible(false),
       plug_visible(false),
       on_off(false),
       position(0),
-      effect_post_pre(1),
-      pdef(pl) {
+      effect_post_pre(1) {
+    set_pdef(pl);
 }
 
 Plugin::Plugin(gx_system::JsonParser& jp)
-    : box_visible(false),
+    : pdef(0),
+      box_visible(false),
       plug_visible(false),
       on_off(false),
       position(0),
-      effect_post_pre(0),
-      pdef(new PluginDef()) {
+      effect_post_pre(0) {
+    PluginDef *p = new PluginDef();
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
@@ -170,16 +172,16 @@ Plugin::Plugin(gx_system::JsonParser& jp)
 	    position = jp.current_value_int();
 	} else if (jp.current_value() == "version") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    pdef->version = jp.current_value_int();
+	    p->version = jp.current_value_int();
 	} else if (jp.current_value() == "flags") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    pdef->flags = jp.current_value_int();
+	    p->flags = jp.current_value_int();
 	} else if (jp.current_value() == "id") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    pdef->id = strdup(jp.current_value().c_str()); //FIXME
+	    p->id = strdup(jp.current_value().c_str()); //FIXME
 	} else if (jp.current_value() == "name") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    pdef->name = strdup(jp.current_value().c_str()); //FIXME
+	    p->name = strdup(jp.current_value().c_str()); //FIXME
 	} else if (jp.current_value() == "groups") {
 	    jp.next(gx_system::JsonParser::begin_array);
 	    std::vector<std::string> v;
@@ -188,24 +190,25 @@ Plugin::Plugin(gx_system::JsonParser& jp)
 		v.push_back(jp.current_value());
 	    }
 	    jp.next(gx_system::JsonParser::end_array);
-	    const char **p  = new const char*[v.size()+1];
-	    pdef->groups = p;
+	    const char **pg  = new const char*[v.size()+1];
+	    p->groups = pg;
 	    for (std::vector<std::string>::iterator i = v.begin(); i != v.end(); ++i) {
-		*p++ = strdup(i->c_str()); //FIXME
+		*pg++ = strdup(i->c_str()); //FIXME
 	    }
-	    *p++ = 0;
+	    *pg++ = 0;
 	} else if (jp.current_value() == "description") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    pdef->description = strdup(jp.current_value().c_str()); //FIXME
+	    p->description = strdup(jp.current_value().c_str()); //FIXME
 	} else if (jp.current_value() == "category") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    pdef->category = strdup(jp.current_value().c_str()); //FIXME
+	    p->category = strdup(jp.current_value().c_str()); //FIXME
 	} else if (jp.current_value() == "shortname") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    pdef->shortname = strdup(jp.current_value().c_str()); //FIXME
+	    p->shortname = strdup(jp.current_value().c_str()); //FIXME
 	}
     }
     jp.next(gx_system::JsonParser::end_object);
+    set_pdef(p);
 }
 
 void Plugin::writeJSON(gx_system::JsonWriter& jw) {
@@ -261,24 +264,40 @@ void Plugin::writeJSON(gx_system::JsonWriter& jw) {
     jw.end_object();
 }
 
-void Plugin::set_box_visible(bool v) {
-    box_visible = v;
-}
-
-void Plugin::set_plug_visible(bool v) {
-    plug_visible = v;
-}
-
-void Plugin::set_on_off(int v) {
-    on_off = v;
-}
-
-void Plugin::set_position(int pos) {
-    position = pos;
-}
-
-void Plugin::set_effect_post_pre(int v) {
-    effect_post_pre = v;
+void Plugin::register_vars(ParamMap& param, EngineControl& seq) {
+    string s = pdef->id;
+    id_on_off = s+".on_off";
+    Parameter *p = param.reg_par(id_on_off,N_("on/off"), &on_off, on_off);
+    if (!(pdef->load_ui || (pdef->flags & PGN_GUI))) {
+	p->setSavable(false);
+	return;
+    }
+    p->signal_changed_bool().connect(
+	sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
+    if (pdef->flags & PGNI_DYN_POSITION || !(pdef->flags & PGN_FIXED_GUI)) {
+	id_box_visible = "ui." + s;
+	param.reg_non_midi_par(id_box_visible, &box_visible, true);
+	id_plug_visible = s + ".s_h";
+	param.reg_non_midi_par(id_plug_visible, &plug_visible, false);
+    }
+    if (pdef->flags & PGNI_DYN_POSITION) {
+	// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
+	id_position = s + ".position";
+	param.reg_non_midi_par(id_position, &position, true, position, 0, 999)->signal_changed_int().connect(
+	    sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
+	if (pdef->mono_audio || (pdef->flags & PGN_POST_PRE)) {
+	    if (pdef->flags & PGN_PRE) {
+		effect_post_pre = 1;
+	    } else if (pdef->flags & PGN_POST) {
+		effect_post_pre = 0;
+	    } else {
+		static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
+		id_effect_post_pre = s + ".pp";
+		param.reg_enum_par(id_effect_post_pre, "select", post_pre, &effect_post_pre, 0)->signal_changed_int().connect(
+		    sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
+	    }
+	}
+    }
 }
 
 
@@ -289,8 +308,8 @@ void Plugin::set_effect_post_pre(int v) {
 PluginListBase::PluginListBase() : pmap() {}
 PluginListBase::~PluginListBase() {}
 
-PluginList::PluginList(gx_ui::GxUI& ui_, EngineControl& seq_)
-    : PluginListBase(), seq(seq_), ui(ui_) {
+PluginList::PluginList(EngineControl& seq_)
+    : PluginListBase(), seq(seq_) {
     plugin_pos[PLUGIN_POS_START]       = -1000;
     plugin_pos[PLUGIN_POS_RACK]        = 1;
     plugin_pos[PLUGIN_POS_END]         = 1000;
@@ -298,11 +317,8 @@ PluginList::PluginList(gx_ui::GxUI& ui_, EngineControl& seq_)
 };
 
 PluginList::~PluginList() {
-    for (list<RackChangerUiItemBase*>::iterator i = rackchanger.begin(); i != rackchanger.end(); ++i) {
-	delete(*i);
-    }
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); ++p) {
-	PluginDef *pdef = p->second->pdef;
+	PluginDef *pdef = p->second->get_pdef();
 	if (!(pdef->flags & PGNI_NOT_OWN)) {
 	    if (pdef->delete_instance) {
 		pdef->delete_instance(pdef);
@@ -328,34 +344,6 @@ Plugin *PluginListBase::lookup_plugin(const char *id) const {
 	    boost::format("id not found: %1%") % id);
     }
     return p;
-}
-
-int* PluginList::pos_var(const char *id) {
-    Plugin *p = find_plugin(id);
-#ifndef NDEBUG
-    if (!p) {
-	gx_system::gx_print_error(
-	    "Debug Check",
-	    string("plugin position unknown id: ") + id);
-	static int dummy = 0;
-	return &dummy;
-    }
-#endif
-    return &p->position;
-}
-
-bool* PluginList::on_off_var(const char *id) {
-    Plugin *p = find_plugin(id);
-#ifndef NDEBUG
-    if (!p) {
-	gx_system::gx_print_error(
-	    "Debug Check",
-	    string("plugin on_off unknown id: ") + id);
-	static bool dummy;
-	return &dummy;
-    }
-#endif
-    return &p->on_off;
 }
 
 int PluginList::load_library(const string& path, PluginPos pos) {
@@ -431,7 +419,7 @@ int PluginList::check_version(PluginDef *p) {
 
 void PluginList::delete_module(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
     unregisterPlugin(pl, param, groups);
-    PluginDef *p = pl->pdef;
+    PluginDef *p = pl->get_pdef();
 #ifndef NDEBUG // avoid unused variable compiler warning
     size_t n = pmap.erase(p->id);
     assert(n == 1);
@@ -448,7 +436,7 @@ void PluginList::delete_module(Plugin *pl, ParamMap& param, ParameterGroups& gro
 
 int PluginList::add_module(Plugin *pvars, PluginPos pos, int flags) {
     const int mode_mask = (PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);  // all mode bits
-    PluginDef *p = pvars->pdef;
+    PluginDef *p = pvars->get_pdef();
     p->flags |= flags;
     if (!(p->flags & mode_mask)) {
 	p->flags |= PGN_MODE_NORMAL;
@@ -489,7 +477,7 @@ int PluginList::add_module(Plugin *pvars, PluginPos pos, int flags) {
 }
 
 int PluginList::add(Plugin *pvars, PluginPos pos, int flags) {
-    if (check_version(pvars->pdef) != 0) {
+    if (check_version(pvars->get_pdef()) != 0) {
 	return -1;
     }
     return add_module(pvars, pos, flags|PGNI_NOT_OWN);
@@ -534,48 +522,6 @@ static const char* tr_name(const char *name) {
     return "";
 }
 
-template<class T>
-class RackChangerUiItem: public RackChangerUiItemBase {
-private:
-    PluginList& pluginlist;
-    T *fZone;
-    T  fCache;
-public :
-    RackChangerUiItem(PluginList& pl, T *z);
-    ~RackChangerUiItem();
-    virtual bool hasChanged();
-    virtual void reflectZone();
-    virtual void *zone();
-};
-
-template<class T>
-RackChangerUiItem<T>::RackChangerUiItem(PluginList& pl, T *z)
-    : pluginlist(pl), fZone(z), fCache() {
-    pl.rackchanger.push_back(this);
-    pl.ui.registerZone(z, this);
-}
-
-template<class T>
-RackChangerUiItem<T>::~RackChangerUiItem() {
-    pluginlist.ui.unregisterZone(fZone, this);
-}
-
-template<class T>
-void *RackChangerUiItem<T>::zone() {
-    return fZone;
-}
-
-template<class T>
-bool RackChangerUiItem<T>::hasChanged() {
-    return *fZone != fCache;
-}
-
-template<class T>
-void RackChangerUiItem<T>::reflectZone() {
-    fCache = *fZone;
-    pluginlist.seq.set_rack_changed();
-}
-
 void PluginList::registerGroup(PluginDef *pd, ParameterGroups& groups) {
     groups.insert(pd->id, tr_name(pd->name));
     const char **gp = pd->groups;
@@ -617,34 +563,8 @@ void PluginList::unregisterGroup(PluginDef *pd, ParameterGroups& groups) {
 }
 
 void PluginList::registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& preg) {
-    PluginDef *pd = pl->pdef;
-    if (pd->load_ui || (pd->flags & PGN_GUI)) {
-	string s = pd->id;
-	param.reg_par((s+".on_off").c_str(),N_("on/off"), &pl->on_off, 0);
-	new RackChangerUiItem<bool>(*this, &pl->on_off);
-	if (pd->flags & PGNI_DYN_POSITION || !(pd->flags & PGN_FIXED_GUI)) {
-	    param.reg_non_midi_par("ui."+s, &pl->box_visible, true);
-	    param.reg_non_midi_par(s+".s_h", &pl->plug_visible, false);
-	}
-	if (pd->flags & PGNI_DYN_POSITION) {
-	    // PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
-	    param.reg_non_midi_par(s+".position", &pl->position, true,
-				   pl->position, 0, 999);
-	    new RackChangerUiItem<int>(*this, &pl->position);
-	    if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
-		if (pd->flags & PGN_PRE) {
-		    pl->effect_post_pre = 1;
-		} else if (pd->flags & PGN_POST) {
-		    pl->effect_post_pre = 0;
-		} else {
-		    static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
-		    param.reg_enum_par((s+".pp").c_str(), "select", post_pre,
-					&(pl->effect_post_pre), 0);
-		    new RackChangerUiItem<int>(*this, &pl->effect_post_pre);
-		}
-	    }
-	}
-    }
+    pl->register_vars(param, seq);
+    PluginDef *pd = pl->get_pdef();
     if (pd->register_params) {
 	preg.plugin = pd;
 	pd->register_params(preg);
@@ -652,34 +572,25 @@ void PluginList::registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& pr
 }
 
 void PluginList::unregisterParameter(Plugin *pl, ParamMap& param) {
-    PluginDef *pd = pl->pdef;
-    string s = pd->id;
+    PluginDef *pd = pl->get_pdef();
+    param.unregister(pl->id_on_off);
     if (pd->load_ui || (pd->flags & PGN_GUI)) {
-	param.unregister(s+".on_off");
 	if (pd->flags & PGNI_DYN_POSITION || !(pd->flags & PGN_FIXED_GUI)) {
-	    param.unregister("ui."+s);
-	    param.unregister(s+".s_h");
+	    param.unregister(pl->id_box_visible);
+	    param.unregister(pl->id_plug_visible);
 	}
 	if (pd->flags & PGNI_DYN_POSITION) {
-	    param.unregister(s+".position");
+	    param.unregister(pl->id_position);
 	    if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
 		if (!(pd->flags & (PGN_PRE|PGN_POST))) {
-		    param.unregister(s+".pp");
-		    for (list<RackChangerUiItemBase*>::iterator i = rackchanger.begin(); i != rackchanger.end(); ) {
-			if ((*i)->zone() == &pl->on_off || (*i)->zone() == &pl->effect_post_pre) {
-			    list<RackChangerUiItemBase*>::iterator j = i;
-			    ++i;
-			    rackchanger.erase(j);
-			} else {
-			    ++i;
-			}
-		    }
+		    param.unregister(pl->id_effect_post_pre);
 		}
 	    }
 	}
     }
     std::vector<const std::string*> l;
     if (pd->register_params) {
+	string s = pd->id;
 	s += ".";
 	for (ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
 	    if (i->first.compare(0, s.size(), s) == 0) {
@@ -694,7 +605,7 @@ void PluginList::unregisterParameter(Plugin *pl, ParamMap& param) {
 }
 
 void PluginList::registerPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
-    registerGroup(pl->pdef, groups);
+    registerGroup(pl->get_pdef(), groups);
     ParamRegImpl preg(&param);
     registerParameter(pl, param, preg);
 }
@@ -702,12 +613,12 @@ void PluginList::registerPlugin(Plugin *pl, ParamMap& param, ParameterGroups& gr
 void PluginList::unregisterPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
     ParamRegImpl preg(&param);
     unregisterParameter(pl, param);
-    unregisterGroup(pl->pdef, groups);
+    unregisterGroup(pl->get_pdef(), groups);
 }
 
 void PluginList::registerAllPlugins(ParamMap& param, ParameterGroups& groups) {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
-	registerGroup(p->second->pdef, groups);
+	registerGroup(p->second->get_pdef(), groups);
     }
     ParamRegImpl preg(&param);
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
@@ -729,7 +640,7 @@ void PluginList::ordered_mono_list(list<Plugin*>& mono, int mode) {
     mono.clear();
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	Plugin *pl = p->second;
-	if (pl->on_off && pl->pdef->mono_audio && (pl->pdef->flags & mode)) {
+	if (pl->on_off && pl->get_pdef()->mono_audio && (pl->get_pdef()->flags & mode)) {
 	    mono.push_back(pl);
 	}
     }
@@ -740,7 +651,7 @@ void PluginList::ordered_stereo_list(list<Plugin*>& stereo, int mode) {
     stereo.clear();
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	Plugin *pl = p->second;
-	if (pl->on_off && pl->pdef->stereo_audio && (pl->pdef->flags & mode)) {
+	if (pl->on_off && pl->get_pdef()->stereo_audio && (pl->get_pdef()->flags & mode)) {
 	    stereo.push_back(pl);
 	}
     }
@@ -755,7 +666,7 @@ void PluginList::ordered_list(list<Plugin*>& l, bool stereo, int flagmask, int f
     flagvalue |= PGN_MODE_NORMAL;
     l.clear();
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
-	PluginDef *pd = p->second->pdef;
+	PluginDef *pd = p->second->get_pdef();
 	if (((pd->flags & flagmask) == flagvalue) || (!stereo && strcmp(pd->id, "ampstack") == 0)) {
 	    l.push_back(p->second);
 	}
@@ -775,16 +686,16 @@ void PluginListBase::readJSON(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
 	Plugin *p = new Plugin(jp);
-	pmap.insert(map_pair(p->pdef->id, p));
+	pmap.insert(map_pair(p->get_pdef()->id, p));
     }
     jp.next(gx_system::JsonParser::end_array);
 }
 
 void PluginList::set_samplerate(int samplerate) {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
-	inifunc f = p->second->pdef->set_samplerate;
+	inifunc f = p->second->get_pdef()->set_samplerate;
 	if (f) {
-	    f(samplerate, p->second->pdef);
+	    f(samplerate, p->second->get_pdef());
 	}
     }
 }
@@ -793,7 +704,7 @@ void PluginList::set_samplerate(int samplerate) {
 void PluginList::printlist(bool order) {
     list<Plugin*> pl_mono, pl_stereo;
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
-	if (p->second->pdef->flags & PGN_STEREO) {
+	if (p->second->get_pdef()->flags & PGN_STEREO) {
 	    pl_stereo.push_back(p->second);
 	} else {
 	    pl_mono.push_back(p->second);
@@ -822,7 +733,7 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header) {
     }
     for (list<Plugin*>::const_iterator i = modules.begin(); i != modules.end(); ++i) {
 	Plugin *p = *i;
-	PluginDef *pd = p->pdef;
+	PluginDef *pd = p->get_pdef();
 	const char *c = "-";
 	if (pd->mono_audio) {
 	    c = "mono";

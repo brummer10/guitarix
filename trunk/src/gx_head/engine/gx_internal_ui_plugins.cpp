@@ -114,7 +114,7 @@ TunerAdapter::TunerAdapter(ModuleSequencer& engine_)
     set_samplerate = init;
     activate_plugin = activate;
     register_params = regparam;
-    plugin.pdef = this;
+    plugin.set_pdef(this);
 }
 
 void TunerAdapter::init(unsigned int samplingFreq, PluginDef *plugin) {
@@ -131,8 +131,8 @@ void TunerAdapter::set_and_check(int use, bool on) {
     } else {
 	state &= ~use;
     }
-    if (plugin.on_off != bool(state)) {
-	plugin.on_off = bool(state);
+    if (plugin.get_on_off() != bool(state)) {
+	engine.get_param()[plugin.id_on_off].getBool().set(bool(state));
 	engine.set_rack_changed();
     }
     if (use == switcher_use) {
@@ -152,13 +152,14 @@ void TunerAdapter::feed_tuner(int count, float* input, float*, PluginDef* plugin
 }
 
 int TunerAdapter::regparam(const ParamReg& reg) {
-    static_cast<TunerAdapter*>(reg.plugin)->plugin.on_off = false;
+    TunerAdapter* a = static_cast<TunerAdapter*>(reg.plugin);
+    a->engine.get_param()[a->plugin.id_on_off].getBool().set(false);
     return 0;
 }
 
 void TunerAdapter::set_module() {
     if (dep_plugin) {
-	used_by_midi(dep_plugin->on_off);
+	used_by_midi(dep_plugin->get_on_off());
     }
 }
 
@@ -167,15 +168,12 @@ void TunerAdapter::set_module() {
  ** class OscilloscopeAdapter
  */
 
-OscilloscopeAdapter::OscilloscopeAdapter(
-    gx_ui::GxUI *ui, ModuleSequencer& engine)
+OscilloscopeAdapter::OscilloscopeAdapter(ModuleSequencer& engine)
     : PluginDef(),
       mul_buffer(1),
       plugin(),
       activation(),
-      size_change(),
-      post_pre_signal(ui, &plugin.effect_post_pre),
-      visible(ui, &plugin.box_visible)
+      size_change()
 {
     assert(buffer == 0);
     version = PLUGINDEF_VERSION;
@@ -185,7 +183,7 @@ OscilloscopeAdapter::OscilloscopeAdapter(
     category = N_("Misc");
     mono_audio = fill_buffer;
     activate_plugin = activate;
-    plugin.pdef = this;
+    plugin.set_pdef(this);
     engine.signal_buffersize_change().connect(
 	sigc::mem_fun(*this, &OscilloscopeAdapter::change_buffersize));
 }

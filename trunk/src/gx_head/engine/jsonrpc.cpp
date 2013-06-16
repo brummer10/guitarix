@@ -367,36 +367,32 @@ static bool do_reset = true;
 static void write_plugin_state(gx_system::JsonWriter& jw, gx_engine::Plugin *i) {
     jw.begin_object();
     jw.write_key("id");
-    jw.write(i->pdef->id);
-    jw.write_key("on_off");
-    jw.write(i->on_off);
+    jw.write(i->get_pdef()->id);
     jw.write_key("box_visible");
-    jw.write(i->box_visible);
-    jw.write_key("plug_visible");
-    jw.write(i->plug_visible);
+    jw.write(i->get_box_visible());
     jw.write_key("position");
-    jw.write(i->position);
+    jw.write(i->get_position());
     jw.write_key("post_pre");
-    jw.write(i->effect_post_pre);
+    jw.write(i->get_effect_post_pre());
     jw.write_key("stereo");
-    jw.write((i->pdef->flags & PGN_STEREO) == PGN_STEREO);
+    jw.write((i->get_pdef()->flags & PGN_STEREO) == PGN_STEREO);
     const char *p;
-    p = i->pdef->category;
+    p = i->get_pdef()->category;
     if (p) {
 	jw.write_key("category");
 	jw.write(p);
     }
-    p = i->pdef->name;
+    p = i->get_pdef()->name;
     if (p) {
 	jw.write_key("name");
 	jw.write(p);
     }
-    p = i->pdef->shortname;
+    p = i->get_pdef()->shortname;
     if (p) {
 	jw.write_key("shortname");
 	jw.write(p);
     }
-    p = i->pdef->description;
+    p = i->get_pdef()->description;
     if (p) {
 	jw.write_key("description");
 	jw.write(p);
@@ -536,7 +532,7 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	serv.jack.get_engine().pluginlist.writeJSON(jw);
     } else if (method == "plugin_load_ui") {
 	jw.write_key("result");
-	PluginDef *pd = serv.jack.get_engine().pluginlist.lookup_plugin(params[0]->getString().c_str())->pdef;
+	PluginDef *pd = serv.jack.get_engine().pluginlist.lookup_plugin(params[0]->getString().c_str())->get_pdef();
 	if (!pd->load_ui) {
 	    jw.write_null();
 	} else {
@@ -631,9 +627,9 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	if (!p) {
 	    throw RpcError(-32602, "Invalid params -- plugin not found");
 	}
-	Glib::ustring unitprefix = p->pdef->id;
+	Glib::ustring unitprefix = p->get_pdef()->id;
 	unitprefix += ".";
-	const char **gl = p->pdef->groups;
+	const char **gl = p->get_pdef()->groups;
 	gx_engine::ParamMap& param = serv.settings.get_param();
 	jw.write_key("result");
 	jw.begin_object();
@@ -1158,13 +1154,12 @@ MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
       jack(jack_),
       quit_mainloop(quit_mainloop_),
       tuner_switcher(settings_, jack_.get_engine()),
-      switcher_signal(&jack_.get_engine().get_ui(),
-		      &settings_.get_param()["ui.live_play_switcher"].getBool().get_value()), //FIXME
       oldest_unsaved(0),
       last_change(0),
       save_conn(),
       connection_list() {
-    switcher_signal.changed.connect(sigc::mem_fun(this, &MyService::on_switcher_toggled));
+    settings.get_param()["ui.live_play_switcher"].signal_changed_bool().connect(
+	sigc::mem_fun(this, &MyService::on_switcher_toggled));
     tuner_switcher.signal_selection_done().connect(sigc::mem_fun(this, &MyService::on_selection_done));
     add_inet_port(port);
 }

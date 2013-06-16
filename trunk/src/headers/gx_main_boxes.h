@@ -18,8 +18,7 @@
  * --------------------------------------------------------------------------
  *
  *    This file is part of the guitarix GUI main class
- *    Note: this header file depends on gx_ui.h and
- *    gx_main_interface.h
+ *    Note: this header file depends on gx_main_interface.h
  * 
  * ----------------------------------------------------------------------------
  */
