@@ -12,7 +12,7 @@ import("effect.lib");
 import("filter.lib");
 
 t = vslider("time", 1, 1, 2000, 1);
-release = vslider("percent", 0, 0,  100, 0.1);
-
-echo1  = +~(delay(131072,   int(t*millisec)-1) * (release/100.0));
+release = vslider("percent", 0, 0,  100, 0.1)/100.0 : smooth(0.999);
+interp  = 100*millisec;
+echo1  = +~(sdelay(131072, interp, int(t*millisec)-1) * (release));
 process = echo1;

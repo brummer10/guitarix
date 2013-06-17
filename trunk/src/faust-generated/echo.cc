@@ -7,9 +7,17 @@ namespace echo {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
+	int 	iConst0;
+	float 	fConst1;
+	float 	fConst2;
 	FAUSTFLOAT 	fslider0;
-	float 	fConst0;
+	float 	fConst3;
+	float 	fRec1[2];
+	float 	fRec2[2];
+	int 	iRec3[2];
+	int 	iRec4[2];
 	FAUSTFLOAT 	fslider1;
+	float 	fRec5[2];
 	int 	IOTA;
 	float *fRec0;
 	bool mem_allocated;
@@ -61,6 +69,11 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
+	for (int i=0; i<2; i++) fRec1[i] = 0;
+	for (int i=0; i<2; i++) fRec2[i] = 0;
+	for (int i=0; i<2; i++) iRec3[i] = 0;
+	for (int i=0; i<2; i++) iRec4[i] = 0;
+	for (int i=0; i<2; i++) fRec5[i] = 0;
 	for (int i=0; i<262144; i++) fRec0[i] = 0;
 }
 
@@ -72,7 +85,10 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (0.001f * min(192000, max(1, fSamplingFreq)));
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (1e+01f / float(iConst0));
+	fConst2 = (0 - fConst1);
+	fConst3 = (0.001f * iConst0);
 	IOTA = 0;
 }
 
@@ -113,13 +129,24 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
-	int 	iSlow0 = int((1 + int((int((int((fConst0 * fslider0)) - 1)) & 131071))));
-	float 	fSlow1 = (0.01f * fslider1);
+	int 	iSlow0 = (int((fConst3 * fslider0)) - 1);
+	float 	fSlow1 = (1.000000000000001e-05f * fslider1);
 	for (int i=0; i<count; i++) {
-		fRec0[IOTA&262143] = ((float)input0[i] + (fSlow1 * fRec0[(IOTA-iSlow0)&262143]));
+		float fTemp0 = ((int((fRec1[1] != 0.0f)))?((int(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))))?fRec1[1]:0):((int(((fRec2[1] == 0.0f) & (iSlow0 != iRec3[1]))))?fConst1:((int(((fRec2[1] == 1.0f) & (iSlow0 != iRec4[1]))))?fConst2:0)));
+		fRec1[0] = fTemp0;
+		fRec2[0] = max(0.0f, min(1.0f, (fRec2[1] + fTemp0)));
+		iRec3[0] = ((int(((fRec2[1] >= 1.0f) & (iRec4[1] != iSlow0))))?iSlow0:iRec3[1]);
+		iRec4[0] = ((int(((fRec2[1] <= 0.0f) & (iRec3[1] != iSlow0))))?iSlow0:iRec4[1]);
+		fRec5[0] = (fSlow1 + (0.999f * fRec5[1]));
+		fRec0[IOTA&262143] = ((float)input0[i] + (fRec5[0] * ((fRec2[0] * fRec0[(IOTA-int((1 + int((int(iRec4[0]) & 131071)))))&262143]) + ((1.0f - fRec2[0]) * fRec0[(IOTA-int((1 + int((int(iRec3[0]) & 131071)))))&262143]))));
 		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&262143];
 		// post processing
 		IOTA = IOTA+1;
+		fRec5[1] = fRec5[0];
+		iRec4[1] = iRec4[0];
+		iRec3[1] = iRec3[0];
+		fRec2[1] = fRec2[0];
+		fRec1[1] = fRec1[0];
 	}
 }
 
