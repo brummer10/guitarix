@@ -1543,7 +1543,6 @@ void RackContainer::check_order() {
 	if (!p->rackbox) {
 	    p->show(false);
 	} else {
-	    reorder_child(*p->rackbox, n++);
 	    if (!p->rackbox->get_box_visible()) {
 		p->rackbox->display(true, false);
 		if (p->hidden) {
@@ -1551,6 +1550,7 @@ void RackContainer::check_order() {
 		}
 	    }
 	}
+	reorder_child(*p->rackbox, n++);
     }
     renumber();
 }
