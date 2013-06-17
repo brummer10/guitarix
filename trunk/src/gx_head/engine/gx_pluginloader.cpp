@@ -300,6 +300,19 @@ void Plugin::register_vars(ParamMap& param, EngineControl& seq) {
     }
 }
 
+void Plugin::copy_position(const Plugin& plugin, ParamMap& param) {
+    if (id_position.empty()) {
+	position = plugin.position;
+    } else {
+	param[id_position].getInt().set(plugin.position);
+    }
+    if (id_effect_post_pre.empty()) {
+	effect_post_pre = plugin.effect_post_pre;
+    } else {
+	param[id_effect_post_pre].getInt().set(plugin.effect_post_pre);
+    }
+}
+
 
 /****************************************************************
  ** class PluginList

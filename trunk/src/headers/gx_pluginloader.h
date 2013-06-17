@@ -62,12 +62,13 @@ public:
     Plugin(PluginDef *pl=0);
     Plugin(gx_system::JsonParser& jp);
     void writeJSON(gx_system::JsonWriter& jw);
-    bool get_box_visible() { return box_visible; }
-    bool get_plug_visible() { return plug_visible; }
-    bool get_on_off() { return on_off; }
-    int get_position() { return position; }
-    int get_effect_post_pre() { return effect_post_pre; }
+    bool get_box_visible() const { return box_visible; }
+    bool get_plug_visible() const { return plug_visible; }
+    bool get_on_off() const { return on_off; }
+    int get_position() const { return position; }
+    int get_effect_post_pre() const { return effect_post_pre; }
     void register_vars(ParamMap& param, EngineControl& seq);
+    void copy_position(const Plugin& plugin, ParamMap& param);
     friend class PluginList;
     friend void printlist(const char *title, const list<Plugin*>& modules, bool header);
 };
