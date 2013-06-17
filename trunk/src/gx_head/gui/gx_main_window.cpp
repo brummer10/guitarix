@@ -730,8 +730,9 @@ void MainWindow::on_rack_configuration() {
 	pre_act = actions.presets->get_active();
 	if (pre_act) {
 	    actions.presets->set_active(false);
-	}
-	actions.show_rack->set_active(true);
+	} else {
+        actions.show_rack->set_active(true);
+    }
 	effects_frame_paintbox->show();
 	upper_rackbox->hide();
 	Gtk::Requisition req2;
@@ -1293,8 +1294,7 @@ void gx_show_about() {
             "\n  byFons Adriaensen "
             "\n  http://www.kokkinizita.net/linuxaudio/index.html "
             "\n\n  The included IR-files are contributed by "
-            "\n  David Fau Casquel (BESTPLUGINS) under the terms of the "
-            "\n  http://creativecommons.org/licenses/by/3.0/"
+            "\n  David Fau Casquel (BESTPLUGINS) "
             "\n  home: http://www.youtube.com/bestplugins"
             "\n\n  authors: Hermann Meyer <brummer-@web.de>"
             "\n  authors: James Warden <warjamy@yahoo.com>"
