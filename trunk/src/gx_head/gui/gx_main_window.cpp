@@ -730,9 +730,8 @@ void MainWindow::on_rack_configuration() {
 	pre_act = actions.presets->get_active();
 	if (pre_act) {
 	    actions.presets->set_active(false);
-	} else {
-        actions.show_rack->set_active(true);
-    }
+	}
+    actions.show_rack->set_active(true);
 	effects_frame_paintbox->show();
 	upper_rackbox->hide();
 	Gtk::Requisition req2;
