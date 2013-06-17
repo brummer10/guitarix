@@ -321,8 +321,8 @@ CmdlineOptions::CmdlineOptions()
       mainwin_x(-1),
       mainwin_y(-1),
       mainwin_height(-1),
-      window_height(0),
-      preset_window_height(0),
+      window_height(600),
+      preset_window_height(220),
       mul_buffer(1),
       skin_name("gx7-blues"),
       no_warn_latency(false) {
