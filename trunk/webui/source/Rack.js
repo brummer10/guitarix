@@ -102,16 +102,13 @@ enyo.kind({
     ],
     create: function() {
 	this.inherited(arguments);
-	this.$.name.setContent(e.name);
-	this.$.state.changeValue(e.on_off);
-	if (e.id == "ampstack") {
-	    this.$.state.setDisabled(true);
-	    this.$.del.setDisabled(true);
+	this.$.name.setContent(this.fx.name);
+	this.$.state.changeValue(this.fx.on_off);
+	if (this.fx.id == "ampstack") {
+	    this.$.state.applyStyle("visibility", "hidden");
+	    this.$.del.applyStyle("visibility", "hidden");
+	    this.addClass("gx-amp-box");
 	}
-    },
-    rendered: function() {
-	this.inherited(arguments);
-	this.resized(); // onyx.ToggleButton seems to resize after rendered()
     },
     stateChanged: function(inSender, inEvent) {
 	guitarix.notify("set", [this.fx.id+".on_off", inEvent.value ? 1 : 0]);
@@ -157,7 +154,10 @@ enyo.kind({
 		this.destroyClientControls();
 		var l = result[this.sys_loadvar];
 		for (var i=0; i < l.length; i++) {
-		    e = l[i];
+		    var e = l[i];
+		    if (e.id == "oscilloscope") {
+			continue;
+		    }
 		    if (e.category) {
 			if (!(e.category in this.effects)) {
 			    this.effects[e.category] = [];
@@ -169,6 +169,7 @@ enyo.kind({
 		    }
 		}
 		this.render();
+		this.parent.resized();
 	    });
     },
     insertEffect: function(fx) {

@@ -368,6 +368,8 @@ static void write_plugin_state(gx_system::JsonWriter& jw, gx_engine::Plugin *i) 
     jw.begin_object();
     jw.write_key("id");
     jw.write(i->get_pdef()->id);
+    jw.write_key("on_off");
+    jw.write(i->get_on_off());
     jw.write_key("box_visible");
     jw.write(i->get_box_visible());
     jw.write_key("position");
