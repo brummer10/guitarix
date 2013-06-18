@@ -89,6 +89,9 @@ public:
     GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options);
     ~GxEngine();
     void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
+    void ladspaloader_update_plugins(
+	const std::vector<Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
+	std::vector<PluginDef*>& pv);
 };
 
 /* ------------------------------------------------------------------- */

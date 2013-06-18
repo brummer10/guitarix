@@ -271,4 +271,29 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::mbcs::plugin(),             PLUGIN_POS_RACK);
 }
 
+void GxEngine::ladspaloader_update_plugins(
+    const std::vector<Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
+    std::vector<PluginDef*>& pv) {
+    // update engine for plugins to be removed
+    update_module_lists();
+    mono_chain.release();
+    stereo_chain.release();
+    // remove plugins
+    for (std::vector<Plugin*>::const_iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
+	pluginlist.delete_module(*i, pmap, get_group_table());
+    }
+    // add new plugins (engine)
+    for (LadspaLoader::pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
+	if (ladspaloader.find((*i)->UniqueID) == ladspaloader.end()) {
+	    PluginDef *plugin = ladspaloader.create(*i);
+	    if (plugin) {
+		pluginlist.add(plugin);
+		pv.push_back(plugin);
+	    }
+	}
+    }
+    // update ladspaloader with new list
+    ladspaloader.set_plugins(ml);
+}
+
 } /* end of gx_engine namespace */

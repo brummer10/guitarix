@@ -562,6 +562,9 @@ ModuleSequencer::ModuleSequencer()
 }
 
 ModuleSequencer::~ModuleSequencer() {
+    start_ramp_down();
+    wait_ramp_down_finished();
+    set_stateflag(SF_INITIALIZING);
 }
 
 void ModuleSequencer::start_ramp_up() {

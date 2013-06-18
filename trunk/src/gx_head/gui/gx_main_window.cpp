@@ -1732,30 +1732,11 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 		}
 	    }
 	}
-	// update engine for plugins to be removed
-	machine.update_module_lists();
-	machine.mono_chain_release();
-	machine.stereo_chain_release();
-	// remove plugins
-	for (std::vector<gx_engine::Plugin*>::iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
-	    machine.pluginlist_delete_module(*i);
-	}
-	// add new plugins (engine)
-	std::vector<PluginDef *> pv;
-	for (pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
-	    if (machine.ladspaloader_find((*i)->UniqueID) == machine.ladspaloader_end()) {
-		PluginDef *plugin = machine.ladspaloader_create(*i);
-		if (plugin) {
-		    machine.pluginlist_add(plugin);
-		    pv.push_back(plugin);
-		}
-	    }
-	}
-	// update ladspaloader with new list
-	machine.ladspaloader_set_plugins(ml);
-	// add new plugins (UI)
 	std::vector<PluginUI*> p;
 	gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p);
+	std::vector<PluginDef *> pv;
+	machine.ladspaloader_update_plugins(to_remove, ml, pv);
+	// add new plugins (UI)
 	machine.pluginlist_append_rack(builder);
 	std::sort(p.begin(), p.end(), plugins_by_name_less);
 	for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
@@ -1763,7 +1744,7 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 	    machine.pluginlist_registerPlugin((*v)->plugin);
 	}
 	for (std::vector<PluginDef*>::iterator i = pv.begin(); i != pv.end(); ++i) {
-	    (*i)->set_samplerate(machine.get_samplerate(), *i);
+	    machine.init_plugin(*i);
 	}
 	make_icons(true); // re-create all icons, width might have changed
     }
@@ -2880,8 +2861,6 @@ MainWindow::~MainWindow() {
     Gtk::AccelMap::save(options.get_user_filepath("accels_rc"));
 #endif
 
-    machine.start_ramp_down();
-
     int mainwin_width;
     window->get_size(mainwin_width, options.mainwin_height);
     Glib::RefPtr<Gdk::Window> win = window->get_window();
@@ -2900,7 +2879,4 @@ MainWindow::~MainWindow() {
 	//delete ladspalist_window;
 	//ladspalist_window = 0;
     //}
-
-    machine.wait_ramp_down_finished();
-    machine.set_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
 }

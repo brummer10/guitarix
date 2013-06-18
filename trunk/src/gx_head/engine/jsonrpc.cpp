@@ -543,6 +543,14 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    pd->load_ui(bld);
 	    jw.end_array();
 	}
+    } else if (method == "get_rack_unit_order") {
+	std::vector<std::string>& ul = serv.settings.get_rack_unit_order(params[0]->getInt());
+	jw.write_key("result");
+	jw.begin_array();
+	for (std::vector<std::string>::iterator i = ul.begin(); i != ul.end(); ++i) {
+	    jw.write(*i);
+	}
+	jw.end_array();
     } else if (method == "get_parameter") {
 	gx_engine::ParamMap& param = serv.settings.get_param();
 	jw.write_key("result");

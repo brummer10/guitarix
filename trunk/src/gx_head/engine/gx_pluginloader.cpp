@@ -167,6 +167,21 @@ Plugin::Plugin(gx_system::JsonParser& jp)
 	} else if (jp.current_value() == "post_pre") {
 	    jp.next(gx_system::JsonParser::value_number);
 	    effect_post_pre = jp.current_value_int();
+	} else if (jp.current_value() == "id_box_visible") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    id_box_visible = jp.current_value();
+	} else if (jp.current_value() == "id_plug_visible") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    id_plug_visible = jp.current_value();
+	} else if (jp.current_value() == "id_on_off") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    id_on_off = jp.current_value();
+	} else if (jp.current_value() == "id_position") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    id_position = jp.current_value();
+	} else if (jp.current_value() == "id_effect_post_pre") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    id_effect_post_pre = jp.current_value();
 	} else if (jp.current_value() == "position") {
 	    jp.next(gx_system::JsonParser::value_number);
 	    position = jp.current_value_int();
@@ -231,6 +246,26 @@ void Plugin::writeJSON(gx_system::JsonWriter& jw) {
     }
     jw.write_key("position");
     jw.write(position);
+    if (!id_box_visible.empty()) {
+	jw.write_key("id_box_visible");
+	jw.write(id_box_visible);
+    }
+    if (!id_plug_visible.empty()) {
+	jw.write_key("id_plug_visible");
+	jw.write(id_plug_visible);
+    }
+    if (!id_on_off.empty()) {
+	jw.write_key("id_on_off");
+	jw.write(id_on_off);
+    }
+    if (!id_position.empty()) {
+	jw.write_key("id_position");
+	jw.write(id_position);
+    }
+    if (!id_effect_post_pre.empty()) {
+	jw.write_key("id_effect_post_pre");
+	jw.write(id_effect_post_pre);
+    }
     jw.write_key("version");
     jw.write(pdef->version);
     jw.write_key("flags");

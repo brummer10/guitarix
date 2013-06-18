@@ -44,24 +44,16 @@ public:
     // engine
     virtual void set_state(GxEngineState state) = 0;
     virtual GxEngineState get_state() = 0;
-    virtual unsigned int get_samplerate() = 0;
+    virtual void init_plugin(PluginDef *p) = 0;
     virtual bool ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p) = 0;
     virtual LadspaLoader::pluginarray::iterator ladspaloader_begin() = 0;
     virtual LadspaLoader::pluginarray::iterator ladspaloader_end() = 0;
     virtual void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) = 0;
-    virtual bool update_module_lists() = 0;
-    virtual void check_module_lists() = 0;
-    virtual void mono_chain_release() = 0;
-    virtual void stereo_chain_release() = 0;
-    virtual int pluginlist_add(Plugin *pl, PluginPos pos, int flags) = 0;
-    virtual int pluginlist_add(PluginDef *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0) = 0;
-    virtual int pluginlist_add(PluginDef **p, PluginPos pos = PLUGIN_POS_RACK, int flags=0) = 0;
-    virtual int pluginlist_add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0) = 0;
-    virtual void pluginlist_delete_module(Plugin *pl) = 0;
+    virtual void ladspaloader_update_plugins(
+	const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
+	std::vector<PluginDef*>& pv) = 0;
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const = 0;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) = 0;
-    virtual PluginDef *ladspaloader_create(unsigned int idx) = 0;
-    virtual PluginDef *ladspaloader_create(plugdesc *p) = 0;
     virtual LadspaLoader::pluginarray::iterator ladspaloader_find(unsigned long uniqueid) = 0;
     virtual void ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) = 0;
     virtual void pluginlist_append_rack(UiBuilderBase& ui) = 0;
@@ -91,9 +83,6 @@ public:
     virtual Glib::Dispatcher& signal_jack_load_change() = 0;
     virtual void tuner_used_for_display(bool on) = 0;
     virtual void tuner_used_for_livedisplay(bool on) = 0;
-    virtual void start_ramp_down() = 0;
-    virtual void wait_ramp_down_finished() = 0;
-    virtual void set_stateflag(ModuleSequencer::StateFlag flag) = 0; // RT
     virtual const std::vector<std::string>& get_rack_unit_order(bool stereo) = 0;
     sigc::signal<void, bool>& signal_rack_unit_order_changed();
     virtual void remove_rack_unit(const std::string& unit, bool stereo) = 0;
@@ -228,24 +217,16 @@ public:
     virtual ~GxMachine();
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
-    virtual unsigned int get_samplerate();
+    virtual void init_plugin(PluginDef *p);
     virtual bool ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p);
     virtual LadspaLoader::pluginarray::iterator ladspaloader_begin();
     virtual LadspaLoader::pluginarray::iterator ladspaloader_end();
     virtual void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc);
-    virtual bool update_module_lists();
-    virtual void check_module_lists();
-    virtual void mono_chain_release();
-    virtual void stereo_chain_release();
-    virtual int pluginlist_add(Plugin *pl, PluginPos pos, int flags);
-    virtual int pluginlist_add(PluginDef *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
-    virtual int pluginlist_add(PluginDef **p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
-    virtual int pluginlist_add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
-    virtual void pluginlist_delete_module(Plugin *pl);
+    virtual void ladspaloader_update_plugins(
+	const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
+	std::vector<PluginDef*>& pv);
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
-    virtual PluginDef *ladspaloader_create(unsigned int idx);
-    virtual PluginDef *ladspaloader_create(plugdesc *p);
     virtual LadspaLoader::pluginarray::iterator ladspaloader_find(unsigned long uniqueid);
     virtual void ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
@@ -275,9 +256,6 @@ public:
     virtual Glib::Dispatcher& signal_jack_load_change();
     virtual void tuner_used_for_display(bool on);
     virtual void tuner_used_for_livedisplay(bool on);
-    virtual void start_ramp_down();
-    virtual void wait_ramp_down_finished();
-    virtual void set_stateflag(ModuleSequencer::StateFlag flag); // RT
     virtual const std::vector<std::string>& get_rack_unit_order(bool stereo);
     virtual void remove_rack_unit(const std::string& unit, bool stereo);
     virtual void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo);
@@ -386,6 +364,7 @@ private:
     std::vector<JsonStringParser*> notify_list;
     sigc::connection idle_conn;
     JsonStringParser *jp;
+    gx_preset::UnitRacks rack_units;
 private:
     void start_notify(const char *method);
     void start_call(const char *method);
@@ -411,24 +390,16 @@ public:
     virtual ~GxMachineRemote();
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
-    virtual unsigned int get_samplerate();
+    virtual void init_plugin(PluginDef *p);
     virtual bool ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p);
     virtual LadspaLoader::pluginarray::iterator ladspaloader_begin();
     virtual LadspaLoader::pluginarray::iterator ladspaloader_end();
     virtual void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc);
-    virtual bool update_module_lists();
-    virtual void check_module_lists();
-    virtual void mono_chain_release();
-    virtual void stereo_chain_release();
-    virtual int pluginlist_add(Plugin *pl, PluginPos pos, int flags);
-    virtual int pluginlist_add(PluginDef *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
-    virtual int pluginlist_add(PluginDef **p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
-    virtual int pluginlist_add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
-    virtual void pluginlist_delete_module(Plugin *pl);
+    virtual void ladspaloader_update_plugins(
+	const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
+	std::vector<PluginDef*>& pv);
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
-    virtual PluginDef *ladspaloader_create(unsigned int idx);
-    virtual PluginDef *ladspaloader_create(plugdesc *p);
     virtual LadspaLoader::pluginarray::iterator ladspaloader_find(unsigned long uniqueid);
     virtual void ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
@@ -458,9 +429,6 @@ public:
     virtual Glib::Dispatcher& signal_jack_load_change();
     virtual void tuner_used_for_display(bool on);
     virtual void tuner_used_for_livedisplay(bool on);
-    virtual void start_ramp_down();
-    virtual void wait_ramp_down_finished();
-    virtual void set_stateflag(ModuleSequencer::StateFlag flag); // RT
     virtual const std::vector<std::string>& get_rack_unit_order(bool stereo);
     virtual void remove_rack_unit(const std::string& unit, bool stereo);
     virtual void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo);
