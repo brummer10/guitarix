@@ -126,7 +126,7 @@ void GXPluginGUI::set_skin()
 
 inline std::string to_string(long long _Val)
 {   // convert int to string
-        char _Buf[4];
+        char _Buf[128];
         sprintf(_Buf, "%lld", _Val);
         return (std::string(_Buf));
 }

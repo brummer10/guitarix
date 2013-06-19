@@ -348,6 +348,7 @@ void GxPluginStereo::do_work_stereo()
           cabconv.stop_process();
         }
       // selected cabinet have changed?
+    if (c_model_ < cab_table_size) {
       if (change_cab())
       {
         cabconv.cleanup();
@@ -373,6 +374,7 @@ void GxPluginStereo::do_work_stereo()
         printf("cabinet convolver disabled\n");
       update_cab();
       //printf("cabinet convolver updated\n");
+    }
     }
   if (pre_changed())
     {
@@ -511,7 +513,8 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   // run presence convolver
   ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
   // run selected tonestack
-  t_model_ = min(t_max, static_cast<uint32_t>(*(t_model)));
+  t_model_ = static_cast<uint32_t>(*(t_model));
+  if (t_model_ <= t_max)
   tonestack[t_model_]->stereo_audio(static_cast<int>(n_samples), output, output1, output, output1, tonestack[t_model_]);
   // run selected cabinet convolver
   cabconv.run_static_stereo(n_samples, &cabconv, output, output1);

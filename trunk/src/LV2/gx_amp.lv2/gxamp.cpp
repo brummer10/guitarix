@@ -340,9 +340,11 @@ void GxPluginMono::do_work_mono()
           cabconv.set_not_runnable();
           cabconv.stop_process();
         }
+     if (c_model_ < cab_table_size) {
       // selected cabinet have changed?
       if (change_cab())
       {
+       
         cabconv.cleanup();
         CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
         cabconv.cab_count = cab.ir_count;
@@ -366,6 +368,7 @@ void GxPluginMono::do_work_mono()
         printf("cabinet convolver disabled\n");
       update_cab();
       //printf("cabinet convolver updated\n");
+    } // else printf("cabinet convolver disabled\n");
     }
   if (pre_changed())
     {
@@ -498,8 +501,9 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
   // run presence convolver
   ampconv.run_static(n_samples, &ampconv, output);
   // run selected tonestack
-  t_model_ = min(t_max, static_cast<uint32_t>(*(t_model)));
-  tonestack[t_model_]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t_model_]);
+  t_model_ =  static_cast<uint32_t>(*(t_model));
+  if (t_model_<=t_max)
+    tonestack[t_model_]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t_model_]);
   // run selected cabinet convolver
   cabconv.run_static(n_samples, &cabconv, output);
 

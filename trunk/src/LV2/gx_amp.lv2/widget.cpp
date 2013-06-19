@@ -87,7 +87,7 @@ plug_name(plugname)
   "JCM-2000","M-Lead","M2199","AC-30","Mesa Boogie","SOL 100","JTM-45","AC-15",
   "Peavey","Ibanez","Roland","Ampeg","Rev.Rocket","MIG 100 H","Triple Giant",
   "Trio Preamp","Hughes&Kettner","Fender Junior","Fender","Fender Deville",
-  "Gibsen",
+  "Gibsen", "Off",
   };
   static const size_t ts_size = sizeof(ts) / sizeof(ts[0]);
   
@@ -96,7 +96,7 @@ plug_name(plugname)
 
   Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain","Twin",
   "Bassman","Marshall","AC30","Princeton","A2","1x15","Mesa","Briliant","Vitalize",
-  "Charisma","1x8",
+  "Charisma","1x8", "Off",
   };
   static const size_t cab_size = sizeof(cab) / sizeof(cab[0]);
   
