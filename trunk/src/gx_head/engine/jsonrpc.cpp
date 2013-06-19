@@ -190,9 +190,7 @@ CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketCon
     : serv(serv_),
       connection(connection_),
       jp(),
-      writebuf(connection->get_socket()->get_fd(), std::ios::out),
-      os(&writebuf),
-      jw(&os, false),
+      jw(0, false),
       parameter_change_notify(false),
       conn_preset_changed(),
       conn_state_changed(),
@@ -300,8 +298,6 @@ void CmdConnection::send_notify_begin(const char *method) {
 void CmdConnection::send_notify_end() {
     jw.end_array();
     jw.end_object();
-    os << endl;
-    jw.reset();
 }
 
 void CmdConnection::write_engine_state(gx_engine::GxEngineState s) {
@@ -469,6 +465,8 @@ static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& pref
     return false;
 }
 
+#define FUNCTION(n) else if (method == #n)
+
 void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
     static const char *cmds[] = {
 	"get","set","banks","presets","setpreset","getstate","setstate",
@@ -476,9 +474,11 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	"shutdown","stop","rtload","desc","list","get_parameter","help",
 	0
     };
-    if (method == "get") {
+
+    if (false) {} // Start macro context
+
+    FUNCTION(get) {
 	gx_engine::ParamMap& param = serv.settings.get_param();
-	jw.write_key("result");
 	jw.begin_object();
 	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
 	    const Glib::ustring& attr = (*i)->getString();
@@ -526,14 +526,17 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    param[attr].writeJSON(jw);
 	}
 	jw.end_object();
-    } else if (method == "parameterlist") {
-	jw.write_key("result");
+    }
+
+    FUNCTION(parameterlist) {
 	serv.settings.get_param().writeJSON(jw);
-    } else if (method == "pluginlist") {
-	jw.write_key("result");
+    }
+
+    FUNCTION(pluginlist) {
 	serv.jack.get_engine().pluginlist.writeJSON(jw);
-    } else if (method == "plugin_load_ui") {
-	jw.write_key("result");
+    }
+
+    FUNCTION(plugin_load_ui) {
 	PluginDef *pd = serv.jack.get_engine().pluginlist.lookup_plugin(params[0]->getString().c_str())->get_pdef();
 	if (!pd->load_ui) {
 	    jw.write_null();
@@ -543,17 +546,19 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    pd->load_ui(bld);
 	    jw.end_array();
 	}
-    } else if (method == "get_rack_unit_order") {
+    }
+
+    FUNCTION(get_rack_unit_order) {
 	std::vector<std::string>& ul = serv.settings.get_rack_unit_order(params[0]->getInt());
-	jw.write_key("result");
 	jw.begin_array();
 	for (std::vector<std::string>::iterator i = ul.begin(); i != ul.end(); ++i) {
 	    jw.write(*i);
 	}
 	jw.end_array();
-    } else if (method == "get_parameter") {
+    }
+
+    FUNCTION(get_parameter) {
 	gx_engine::ParamMap& param = serv.settings.get_param();
-	jw.write_key("result");
 	jw.begin_object();
 	if (params.size() == 0) {
 	    for (gx_engine::ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
@@ -570,66 +575,77 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    }
 	}
 	jw.end_object();
-    } else if (method == "get_bank") {
+    }
+
+    FUNCTION(get_bank) {
 	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
 	if (!pf) {
 	    throw RpcError(-32602, "Invalid params -- unknown bank");
 	}
-	jw.write_key("result");
 	pf->writeJSON_remote(jw);
-    } else if (method == "banks") {
+    }
+
+    FUNCTION(banks) {
 	gx_system::PresetBanks& banks = serv.settings.banks;
-	jw.write_key("result");
 	jw.begin_array();
 	for (gx_system::PresetBanks::iterator i = banks.begin(); i != banks.end(); ++i) {
 	    (*i)->writeJSON_remote(jw);
 	}
 	jw.end_array();
-    } else if (method == "presets") {
+    }
+
+    FUNCTION(presets) {
 	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
 	if (!pf) {
 	    throw RpcError(-32602, "Invalid params -- unknown bank");
 	}
-	jw.write_key("result");
 	jw.begin_array();
 	for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i) {
 	    jw.write(i->name);
 	}
 	jw.end_array();
-    } else if (method == "getstate") {
+    }
+
+    FUNCTION(getstate) {
 	gx_engine::GxEngineState s = serv.jack.get_engine().get_state();
-	jw.write_key("result");
 	write_engine_state(s);
-    } else if (method == "getversion") {
-	jw.write_key("result");
+    }
+
+    FUNCTION(getversion) {
 	jw.begin_array();
 	jw.write(InterfaceVersionMajor);
 	jw.write(InterfaceVersionMinor);
 	jw.write(GX_VERSION);
 	jw.end_array();
-    } else if (method == "get_tuning") {
-	jw.write_key("result");
+    }
+
+    FUNCTION(get_tuning) {
 	jw.begin_object();
 	jw.write_key("frequency");
 	jw.write(serv.jack.get_engine().tuner.get_freq());
 	jw.write_key("note");
 	jw.write(serv.jack.get_engine().tuner.get_note());
 	jw.end_object();
-    } else if (method == "get_max_input_level") {
-	jw.write_key("result");
+    }
+
+    FUNCTION(get_max_input_level) {
 	jw.write(0.0);
-    } else if (method == "get_max_output_level") {
+    }
+
+    FUNCTION(get_max_output_level) {
 	gx_engine::MaxLevel& m = serv.jack.get_engine().maxlevel;
-	jw.write_key("result");
 	jw.begin_array();
 	jw.write(m.get(0));
 	jw.write(m.get(1));
 	m.reset();
 	jw.end_array();
-    } else if (method == "jack_cpu_load") {
-	jw.write_key("result");
+    }
+
+    FUNCTION(jack_cpu_load) {
 	jw.write(serv.jack.get_jcpu_load());
-    } else if (method == "queryunit") {
+    }
+
+    FUNCTION(queryunit) {
 	if (params.size() != 1) {
 	    throw RpcError(-32602, "Invalid params -- 1 parameter expected");
 	}
@@ -641,7 +657,6 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	unitprefix += ".";
 	const char **gl = p->get_pdef()->groups;
 	gx_engine::ParamMap& param = serv.settings.get_param();
-	jw.write_key("result");
 	jw.begin_object();
 	for (gx_engine::ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
 	    if (unit_match(i->first, unitprefix, gl)) {
@@ -650,9 +665,10 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    }
 	}
 	jw.end_object();
-    } else if (method == "desc") {
+    }
+
+    FUNCTION(desc) {
 	gx_engine::ParamMap& param = serv.settings.get_param();
-	jw.write_key("result");
 	jw.begin_object();
 	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
 	    const Glib::ustring& attr = (*i)->getString();
@@ -664,10 +680,11 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    write_parameter_state(jw, param[attr]);
 	}
 	jw.end_object();
-    } else if (method == "list") {
+    }
+
+    FUNCTION(list) {
 	const Glib::ustring& prefix = params[0]->getString();
 	gx_engine::ParamMap& param = serv.settings.get_param();
-	jw.write_key("result");
 	jw.begin_array();
 	for (gx_engine::ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
 	    if (i->first.compare(0, prefix.size(), prefix) == 0) {
@@ -675,14 +692,17 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	    }
 	}
 	jw.end_array();
-    } else if (method == "help") {
-	jw.write_key("result");
+    }
+
+    FUNCTION(help) {
 	jw.begin_array();
 	for (const char **p = &cmds[0]; *p; ++p) {
 	    jw.write(*p);
 	}
 	jw.end_array();
-    } else {
+    }
+
+    else {
 	throw RpcError(-32601, "Method not found");
     }
 }
@@ -866,6 +886,7 @@ bool CmdConnection::request(bool batch_start) {
 	jw.write("2.0");
 	jw.write_key("id");
 	jw.write(id);
+	jw.write_key("result");
 	try {
 	    call(method, params);
 	} catch(RpcError& e) {
@@ -884,8 +905,6 @@ void CmdConnection::error_response(int code, const char *message) {
     jw.write_null();
     write_error(code, message);
     jw.end_object();
-    os << endl;
-    jw.reset();
 }
 
 bool CmdConnection::on_data(Glib::IOCondition cond) {
@@ -895,6 +914,7 @@ bool CmdConnection::on_data(Glib::IOCondition cond) {
     }
     Glib::RefPtr<Gio::Socket> sock = connection->get_socket();
     char buf[1000];
+    std::stringbuf inbuf;
     while (true) {
 	int n;
 	try {
@@ -924,8 +944,12 @@ bool CmdConnection::on_data(Glib::IOCondition cond) {
 }
 
 void CmdConnection::process(istringstream& is) {
+    ostringstream os;
+    jw.set_stream(&os);
+    jw.reset();
     try {
 	jp.set_stream(&is);
+	jp.reset();
 	bool resp = false;
 	is >> ws; // jp.peek() doesn't work at start of stream
 	if (is.peek() == '[') {
@@ -940,26 +964,27 @@ void CmdConnection::process(istringstream& is) {
 	} else {
 	    resp = request(false);
 	}
-	jp.reset();
-	if (resp) {
-	    os << endl;
-	    jw.reset();
+	if (!resp) {
+	    return;
 	}
-	return;
     } catch (gx_system::JsonException& e) {
+	gx_system::gx_print_error(
+	    "JSON-RPC", Glib::ustring::compose("error: %1, request: %2",
+					       e.what(), is.str()));
+	os.str("");
+	jw.reset();
 	error_response(-32700, "Parse Error");
     } catch (RpcError& e) {
+	os.str("");
+	jw.reset();
 	error_response(e.code, e.message);
     }
-    char buf[101];
-    is.seekg(0);
-    is.read(buf, sizeof(buf)-1);
-    gsize n = is.gcount();
-    if (n == 0) {
-	return;
+    os << endl;
+    std::string s = os.str();
+    ssize_t n = write(connection->get_socket()->get_fd(), s.c_str(), s.size());
+    if (n != (ssize_t)s.size()) {
+	cerr << "short write" << endl;
     }
-    buf[n] = '\0';
-    gx_system::gx_print_error("JSON-RPC", Glib::ustring("error: skipped text: ")+buf);
 }
 
 

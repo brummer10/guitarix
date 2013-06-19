@@ -52,10 +52,7 @@ class CmdConnection: public sigc::trackable {
 private:
     MyService& serv;
     Glib::RefPtr<Gio::SocketConnection> connection;
-    std::stringbuf inbuf;
     gx_system::JsonParser jp;
-    __gnu_cxx::stdio_filebuf<char> writebuf;
-    ostream os;
     gx_system::JsonWriter jw;
     bool parameter_change_notify;
     sigc::connection conn_preset_changed;
