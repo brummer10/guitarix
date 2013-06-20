@@ -629,6 +629,12 @@ JsonParser *StateFile::create_reader() {
     return jp;
 }
 
+void StateFile::set_filename(const string& fn) {
+    filename = fn;
+    delete is;
+    is = 0;
+}
+
 void StateFile::ensure_is_current() {
     if (filename.empty() || !mtime) {
 	return;

@@ -201,7 +201,7 @@ public:
     StateFile()
 	: filename(), is(0), mtime(), header() {}
     ~StateFile() { delete is; }
-    void set_filename(const string& fn) { filename = fn; }
+    void set_filename(const string& fn);
     const SettingsFileHeader& get_header() const { return header; }
     string get_filename() const { return filename; }
     JsonParser *create_reader();
