@@ -73,7 +73,7 @@ public:
     const std::string& id_effect_post_pre() const { return p_effect_post_pre->id(); }
     inline int position_weight() { return get_effect_post_pre() ? get_position() : get_position() + POST_WEIGHT; }
     void register_vars(ParamMap& param, EngineControl& seq);
-    void copy_position(const Plugin& plugin, ParamMap& param);
+    void copy_position(const Plugin& plugin);
     friend class PluginList;
     friend void printlist(const char *title, const list<Plugin*>& modules, bool header);
 };

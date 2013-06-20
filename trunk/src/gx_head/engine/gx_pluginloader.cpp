@@ -255,7 +255,7 @@ void Plugin::register_vars(ParamMap& param, EngineControl& seq) {
     }
     p_on_off->signal_changed_bool().connect(
 	sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
-    if ((pd->load_ui || pd->flags & PGN_GUI) &&
+    if ((pdef->load_ui || pdef->flags & PGN_GUI) &&
 	(pdef->flags & PGNI_DYN_POSITION || !(pdef->flags & PGN_FIXED_GUI))) {
 	p_box_visible = param.reg_non_midi_par("ui." + s, (bool*)0, true);
 	p_plug_visible = param.reg_non_midi_par(s + ".s_h", (bool*)0, false);
@@ -564,7 +564,7 @@ void PluginList::unregisterParameter(Plugin *pl, ParamMap& param) {
     param.unregister(pl->p_on_off);
     param.unregister(pl->p_position);
     param.unregister(pl->p_box_visible);
-    param.unregister(pl->p_plug_visible));
+    param.unregister(pl->p_plug_visible);
     param.unregister(pl->p_effect_post_pre);
     std::vector<const std::string*> l;
     if (pd->register_params) {

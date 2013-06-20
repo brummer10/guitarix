@@ -445,7 +445,7 @@ void ModuleSelectorFromList::set_module() {
 	id = modules[selector]->id;
 	current_plugin = seq.pluginlist.lookup_plugin(id);
 	current_plugin->set_on_off(true);
-	current_plugin->copy_position(plugin, seq.get_param());
+	current_plugin->copy_position(plugin);
     } else {
 	current_plugin = 0;
     }
