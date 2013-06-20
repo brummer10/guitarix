@@ -22,10 +22,23 @@
 #define SRC_HEADERS_MACHINE_H_
 
 #include <ext/stdio_filebuf.h>
+#include "jsonrpc_methods.h"
 
 namespace gx_gui { class UiBuilderImpl; }
 
 namespace gx_engine {
+
+class bank_iterator {
+private:
+    gx_system::PresetBanks::iterator it;
+public:
+    bank_iterator(gx_system::PresetBanks::iterator it_): it(it_) {}
+    ~bank_iterator() {}
+    bool operator!=(const bank_iterator& i) const { return i.it != it; }
+    bank_iterator& operator++() { ++it; return *this; }
+    gx_system::PresetFileGui* operator->() { return (*it)->get_guiwrapper(); }
+    gx_system::PresetFileGui* operator*() { return (*it)->get_guiwrapper(); }
+};
 
 class GxMachineBase {
 private:
@@ -69,8 +82,7 @@ public:
     virtual sigc::signal<void, bool>& signal_oscilloscope_visible() = 0;
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation() = 0;
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change() = 0;
-    virtual float maxlevel_get(int channel) = 0;
-    virtual void maxlevel_reset() = 0;
+    virtual void maxlevel_get(int channels, float *values) = 0;
     virtual bool midiaudiobuffer_get_midistat() = 0;
     virtual MidiAudioBuffer::Load midiaudiobuffer_jack_load_status() = 0;
     virtual gx_system::CmdlineOptions& get_options() const = 0;
@@ -94,11 +106,11 @@ public:
     // preset
     virtual bool setting_is_preset() = 0;
     virtual const Glib::ustring& get_current_bank() = 0;
-    virtual gx_system::PresetFile *get_current_bank_file() = 0;
+    virtual gx_system::PresetFileGui *get_current_bank_file() = 0;
     virtual const Glib::ustring& get_current_name() = 0;
-    virtual gx_system::PresetFile* get_bank_file(const Glib::ustring& bank) const = 0;
+    virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const = 0;
     virtual Glib::ustring get_bank_name(int n) = 0;
-    virtual void load_preset(gx_system::PresetFile *pf, const Glib::ustring& name) = 0;
+    virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) = 0;
     virtual void loadstate() = 0;
     virtual int bank_size() = 0;
     virtual void create_default_scratch_preset() = 0;
@@ -108,29 +120,27 @@ public:
     virtual void disable_autosave(bool v) = 0;
     virtual sigc::signal<void>& signal_selection_changed() = 0;
     virtual sigc::signal<void>& signal_presetlist_changed() = 0;
-    virtual bool bank_strip_preset_postfix(std::string& name) = 0;
-    virtual std::string bank_decode_filename(const std::string& s) = 0;
-    virtual void bank_make_valid_utf8(Glib::ustring& s) = 0;
-    virtual void bank_make_bank_unique(Glib::ustring& name, std::string *file = 0) = 0;
-    virtual void bank_insert(gx_system::PresetFile* f) = 0;
-    virtual bool rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile) = 0;
-    virtual bool rename_preset(gx_system::PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname) = 0;
+    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move) = 0;
+    virtual gx_system::PresetFileGui *bank_insert_new(const Glib::ustring& newname) = 0;
+    virtual bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname) = 0;
+    virtual bool rename_preset(gx_system::PresetFileGui& pf, const Glib::ustring& oldname, const Glib::ustring& newname) = 0;
     virtual void bank_reorder(const std::vector<Glib::ustring>& neworder) = 0;
-    virtual void reorder_preset(gx_system::PresetFile& pf, const std::vector<Glib::ustring>& neworder) = 0;
+    virtual void reorder_preset(gx_system::PresetFileGui& pf, const std::vector<Glib::ustring>& neworder) = 0;
     virtual bool bank_check_reparse() = 0;
-    virtual void erase_preset(gx_system::PresetFile& pf, const Glib::ustring& name) = 0;
-    virtual gx_system::PresetFile *bank_get_file(const Glib::ustring& bank) const = 0;
-    virtual gx_system::PresetBanks::iterator bank_begin() = 0;
-    virtual gx_system::PresetBanks::iterator bank_end() = 0;
-    virtual void pf_append(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& name) = 0;
-    virtual void pf_insert_before(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name) = 0;
-    virtual void pf_insert_after(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name) = 0;
-    virtual bool convert_preset(gx_system::PresetFile& pf) = 0;
+    virtual void erase_preset(gx_system::PresetFileGui& pf, const Glib::ustring& name) = 0;
+    virtual void bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v) = 0;
+    virtual std::string bank_get_filename(const Glib::ustring& bank) = 0;
+    virtual gx_system::PresetFileGui *bank_get_file(const Glib::ustring& bank) const = 0;
+    virtual bank_iterator bank_begin() = 0;
+    virtual bank_iterator bank_end() = 0;
+    virtual void pf_append(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& name) = 0;
+    virtual void pf_insert_before(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name) = 0;
+    virtual void pf_insert_after(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name) = 0;
+    virtual bool convert_preset(gx_system::PresetFileGui& pf) = 0;
     virtual bool bank_remove(const Glib::ustring& bank) = 0;
     virtual void bank_save() = 0;
     virtual void set_source_to_state() = 0;
-    virtual void make_bank_unique(Glib::ustring& name, std::string *file = 0) = 0;
-    virtual void pf_save(gx_system::PresetFile& pf, const Glib::ustring& name) = 0;
+    virtual void pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name) = 0;
 
     // jack
     virtual gx_jack::GxJack *get_jack() = 0;
@@ -242,8 +252,7 @@ public:
     virtual sigc::signal<void, bool>& signal_oscilloscope_visible();
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
-    virtual float maxlevel_get(int channel);
-    virtual void maxlevel_reset();
+    virtual void maxlevel_get(int channels, float *values);
     virtual bool midiaudiobuffer_get_midistat();
     virtual MidiAudioBuffer::Load midiaudiobuffer_jack_load_status();
     virtual gx_system::CmdlineOptions& get_options() const;
@@ -266,11 +275,11 @@ public:
     // preset
     virtual bool setting_is_preset();
     virtual const Glib::ustring& get_current_bank();
-    virtual gx_system::PresetFile *get_current_bank_file();
+    virtual gx_system::PresetFileGui *get_current_bank_file();
     virtual const Glib::ustring& get_current_name();
-    virtual gx_system::PresetFile* get_bank_file(const Glib::ustring& bank) const;
+    virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const;
     virtual Glib::ustring get_bank_name(int n);
-    virtual void load_preset(gx_system::PresetFile *pf, const Glib::ustring& name);
+    virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name);
     virtual void loadstate();
     virtual int bank_size();
     virtual void create_default_scratch_preset();
@@ -280,29 +289,27 @@ public:
     virtual void disable_autosave(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
-    virtual bool bank_strip_preset_postfix(std::string& name);
-    virtual std::string bank_decode_filename(const std::string& s);
-    virtual void bank_make_valid_utf8(Glib::ustring& s);
-    virtual void bank_make_bank_unique(Glib::ustring& name, std::string *file = 0);
-    virtual void bank_insert(gx_system::PresetFile* f);
-    virtual bool rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
-    virtual bool rename_preset(gx_system::PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
+    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move);
+    virtual gx_system::PresetFileGui *bank_insert_new(const Glib::ustring& newname);
+    virtual bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname);
+    virtual bool rename_preset(gx_system::PresetFileGui& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
     virtual void bank_reorder(const std::vector<Glib::ustring>& neworder);
-    virtual void reorder_preset(gx_system::PresetFile& pf, const std::vector<Glib::ustring>& neworder);
+    virtual void reorder_preset(gx_system::PresetFileGui& pf, const std::vector<Glib::ustring>& neworder);
     virtual bool bank_check_reparse();
-    virtual void erase_preset(gx_system::PresetFile& pf, const Glib::ustring& name);
-    virtual gx_system::PresetFile *bank_get_file(const Glib::ustring& bank) const;
-    virtual gx_system::PresetBanks::iterator bank_begin();
-    virtual gx_system::PresetBanks::iterator bank_end();
-    virtual void pf_append(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& name);
-    virtual void pf_insert_before(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
-    virtual void pf_insert_after(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
-    virtual bool convert_preset(gx_system::PresetFile& pf);
+    virtual void erase_preset(gx_system::PresetFileGui& pf, const Glib::ustring& name);
+    virtual void bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v);
+    virtual std::string bank_get_filename(const Glib::ustring& bank);
+    virtual gx_system::PresetFileGui *bank_get_file(const Glib::ustring& bank) const;
+    virtual bank_iterator bank_begin();
+    virtual bank_iterator bank_end();
+    virtual void pf_append(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& name);
+    virtual void pf_insert_before(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
+    virtual void pf_insert_after(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
+    virtual bool convert_preset(gx_system::PresetFileGui& pf);
     virtual bool bank_remove(const Glib::ustring& bank);
     virtual void bank_save();
     virtual void set_source_to_state();
-    virtual void make_bank_unique(Glib::ustring& name, std::string *file = 0);
-    virtual void pf_save(gx_system::PresetFile& pf, const Glib::ustring& name);
+    virtual void pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name);
 
     // jack
     virtual gx_jack::GxJack *get_jack();
@@ -338,16 +345,6 @@ public:
     virtual ConvolverStereoAdapter& get_stereo_convolver();
 };
 
-class JsonStringParser: public gx_system::JsonParser {
-private:
-    stringstream stream;
-public:
-    JsonStringParser() {}
-    void put(char c) { stream.put(c); }
-    void start_parser() { stream.seekg(0); set_stream(&stream); }
-    std::string get_string() { return stream.str(); }
-};
-
 class GxMachineRemote: public GxMachineBase {
 private:
     gx_system::CmdlineOptions& options;
@@ -361,22 +358,30 @@ private:
     __gnu_cxx::stdio_filebuf<char> *writebuf;
     ostream *os;
     gx_system::JsonWriter *jw;
-    std::vector<JsonStringParser*> notify_list;
+    std::vector<gx_system::JsonStringParser*> notify_list;
     sigc::connection idle_conn;
-    JsonStringParser *jp;
     gx_preset::UnitRacks rack_units;
+    sigc::signal<void,int> midi_new_program;
+    sigc::signal<void> midi_changed;
+    sigc::signal<void, int, int> midi_value_changed;
+    MidiControllerList::controller_array midi_controller_map;
+    bool current_call_has_result;
 private:
-    void start_notify(const char *method);
-    void start_call(const char *method);
+    void start_call(jsonrpc_method m_id);
     void send();
-    bool receive(bool verbose=false);
+    gx_system::JsonStringParser *receive(bool verbose=false);
+    bool get_bool(gx_system::JsonStringParser *jp);
     bool socket_input_handler(Glib::IOCondition cond);
-    void _request_parameter_value(const std::string& id);
     void add_idle_handler();
     bool idle_notify_handler();
-    void handle_notify();
-    void parameter_changed(const std::string& id);
-    static int load_remote_ui(const UiBuilder& builder);
+    void handle_notify(gx_system::JsonStringParser *jp);
+    void parameter_changed(gx_system::JsonStringParser *jp);
+    static int load_remote_ui_static(const UiBuilder& builder);
+    int load_remote_ui(const UiBuilder& builder);
+    void report_rpc_error(gx_system::JsonStringParser *jp, const gx_system::JsonException& e);
+    void param_signal_int(int v, IntParameter *p);
+    void param_signal_bool(bool v, BoolParameter *p);
+    void param_signal_float(float v, FloatParameter *p);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
@@ -415,8 +420,7 @@ public:
     virtual sigc::signal<void, bool>& signal_oscilloscope_visible();
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
-    virtual float maxlevel_get(int channel);
-    virtual void maxlevel_reset();
+    virtual void maxlevel_get(int channels, float *values);
     virtual bool midiaudiobuffer_get_midistat();
     virtual MidiAudioBuffer::Load midiaudiobuffer_jack_load_status();
     virtual gx_system::CmdlineOptions& get_options() const;
@@ -439,11 +443,11 @@ public:
     // preset
     virtual bool setting_is_preset();
     virtual const Glib::ustring& get_current_bank();
-    virtual gx_system::PresetFile *get_current_bank_file();
+    virtual gx_system::PresetFileGui *get_current_bank_file();
     virtual const Glib::ustring& get_current_name();
-    virtual gx_system::PresetFile* get_bank_file(const Glib::ustring& bank) const;
+    virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const;
     virtual Glib::ustring get_bank_name(int n);
-    virtual void load_preset(gx_system::PresetFile *pf, const Glib::ustring& name);
+    virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name);
     virtual void loadstate();
     virtual int bank_size();
     virtual void create_default_scratch_preset();
@@ -453,29 +457,27 @@ public:
     virtual void disable_autosave(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
-    virtual bool bank_strip_preset_postfix(std::string& name);
-    virtual std::string bank_decode_filename(const std::string& s);
-    virtual void bank_make_valid_utf8(Glib::ustring& s);
-    virtual void bank_make_bank_unique(Glib::ustring& name, std::string *file = 0);
-    virtual void bank_insert(gx_system::PresetFile* f);
-    virtual bool rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
-    virtual bool rename_preset(gx_system::PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
+    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move);
+    virtual gx_system::PresetFileGui *bank_insert_new(const Glib::ustring& newname);
+    virtual bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname);
+    virtual bool rename_preset(gx_system::PresetFileGui& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
     virtual void bank_reorder(const std::vector<Glib::ustring>& neworder);
-    virtual void reorder_preset(gx_system::PresetFile& pf, const std::vector<Glib::ustring>& neworder);
+    virtual void reorder_preset(gx_system::PresetFileGui& pf, const std::vector<Glib::ustring>& neworder);
     virtual bool bank_check_reparse();
-    virtual void erase_preset(gx_system::PresetFile& pf, const Glib::ustring& name);
-    virtual gx_system::PresetFile *bank_get_file(const Glib::ustring& bank) const;
-    virtual gx_system::PresetBanks::iterator bank_begin();
-    virtual gx_system::PresetBanks::iterator bank_end();
-    virtual void pf_append(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& name);
-    virtual void pf_insert_before(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
-    virtual void pf_insert_after(gx_system::PresetFile& pf, const Glib::ustring& src, gx_system::PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
-    virtual bool convert_preset(gx_system::PresetFile& pf);
+    virtual void erase_preset(gx_system::PresetFileGui& pf, const Glib::ustring& name);
+    virtual void bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v);
+    virtual std::string bank_get_filename(const Glib::ustring& bank);
+    virtual gx_system::PresetFileGui *bank_get_file(const Glib::ustring& bank) const;
+    virtual bank_iterator bank_begin();
+    virtual bank_iterator bank_end();
+    virtual void pf_append(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& name);
+    virtual void pf_insert_before(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
+    virtual void pf_insert_after(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
+    virtual bool convert_preset(gx_system::PresetFileGui& pf);
     virtual bool bank_remove(const Glib::ustring& bank);
     virtual void bank_save();
     virtual void set_source_to_state();
-    virtual void make_bank_unique(Glib::ustring& name, std::string *file = 0);
-    virtual void pf_save(gx_system::PresetFile& pf, const Glib::ustring& name);
+    virtual void pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name);
 
     // jack
     virtual gx_jack::GxJack *get_jack();

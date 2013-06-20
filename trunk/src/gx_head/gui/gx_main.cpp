@@ -342,7 +342,7 @@ int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& 
 void do_program_change(int pgm, gx_engine::GxMachineBase& machine) {
     Glib::ustring bank = machine.get_current_bank();
     bool in_preset = !bank.empty();
-    gx_system::PresetFile *f;
+    gx_system::PresetFileGui *f;
     if (in_preset) {
 	f = machine.get_bank_file(bank);
 	in_preset = pgm < f->size();

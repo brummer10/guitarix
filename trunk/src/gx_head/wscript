@@ -2,9 +2,45 @@
 # encoding: utf-8
 
 import sys, wscript_helper
+import Task, Utils, Logs, os, shutil
+from TaskGen import extension
 
 def configure(conf):
     pass
+
+def gperf2cc(task):
+    out_c = task.outputs[0].bldpath(task.env)
+    out_h = task.outputs[1].bldpath(task.env)
+    basename = os.path.splitext(
+        os.path.basename(task.inputs[0].srcpath(task.env)))[0]
+    srcdir = task.inputs[0].parent.srcpath(task.env)
+    if task.env["HAVE_GPERF"]:
+        cmd = ["../tools/make_jsonrpc_methods",
+               task.inputs[0].srcpath(task.env),
+               out_c,
+               out_h,
+               ]
+        Logs.debug("runner: system command -> %s" % cmd)
+        ret = Utils.exec_command(cmd, shell=False)
+        shutil.copy2(out_c, os.path.join(srcdir, basename+"-generated.cc"))
+        shutil.copy2(out_h, os.path.join(srcdir, basename+"-generated.h"))
+        return ret
+    else:
+        shutil.copy2(os.path.join(srcdir, basename+"-generated.cc"), out_c)
+        shutil.copy2(os.path.join(srcdir, basename+"-generated.h"), out_h)
+        return 0
+
+Task.task_type_from_func(
+    'gperf',
+    gperf2cc,
+    color='BLUE',
+    )
+
+@extension('.gperf_tmpl')
+def process_gperf_tmpl(self, node):
+    cc_node = node.change_ext('.cc')
+    h_node = node.change_ext('.h')
+    task = self.create_task('gperf', [node], [cc_node, h_node])
 
 def build(bld):
     sources_engine = [
@@ -27,6 +63,7 @@ def build(bld):
         './engine/gx_engine.cpp',
         './engine/gx_engine_midi.cpp',
         './engine/gx_pluginloader.cpp',
+        './engine/jsonrpc_methods.gperf_tmpl',
         ]
 
     sources_gui = [

@@ -43,30 +43,35 @@ enum {			       // additional flags for PluginDef (used internally)
 class Plugin {
 private:
     PluginDef *pdef;
-    bool box_visible;		// In Rack: UI Interface Box visible
-    bool plug_visible;		// In Box: UI Interface Box visible
-    bool on_off;		// Audio Processing
-    int position;		// Position in Rack / Audio Processing Chain
-    int effect_post_pre; // pre/post amp position (post = 0)
-public:
-    std::string id_box_visible;
-    std::string id_plug_visible;
-    std::string id_on_off;
-    std::string id_position;
-    std::string id_effect_post_pre;
+    BoolParameter *p_box_visible; // In Rack: UI Interface Box visible
+    BoolParameter *p_plug_visible; // In Box: UI Interface Box visible
+    BoolParameter *p_on_off;	   // Audio Processing
+    IntParameter  *p_position; // Position in Rack / Audio Processing Chain
+    IntParameter  *p_effect_post_pre; // pre/post amp position (post = 0)
+    int pos_tmp;
 public:
     PluginDef *get_pdef() { return pdef; }
     void set_pdef(PluginDef *p) { pdef = p; }
     enum { POST_WEIGHT = 2000 };
-    inline int position_weight() { return effect_post_pre ? position : position + POST_WEIGHT; }
     Plugin(PluginDef *pl=0);
-    Plugin(gx_system::JsonParser& jp);
+    Plugin(gx_system::JsonParser& jp, ParamMap& pmap);
     void writeJSON(gx_system::JsonWriter& jw);
-    bool get_box_visible() const { return box_visible; }
-    bool get_plug_visible() const { return plug_visible; }
-    bool get_on_off() const { return on_off; }
-    int get_position() const { return position; }
-    int get_effect_post_pre() const { return effect_post_pre; }
+    bool get_box_visible() const { return p_box_visible->get_value(); }
+    bool get_plug_visible() const { return p_plug_visible->get_value(); }
+    bool get_on_off() const { return p_on_off->get_value(); }
+    int get_position() const { return p_position->get_value(); }
+    int get_effect_post_pre() const { return p_effect_post_pre->get_value(); }
+    void set_box_visible(bool v) const { p_box_visible->set(v); }
+    void set_plug_visible(bool v) const { p_plug_visible->set(v); }
+    void set_on_off(bool v) const { p_on_off->set(v); }
+    void set_position(int v) const { p_position->set(v); }
+    void set_effect_post_pre(int v) const { p_effect_post_pre->set(v); }
+    const std::string& id_box_visible() const { return p_box_visible->id(); }
+    const std::string& id_plug_visible() const { return p_plug_visible->id(); }
+    const std::string& id_on_off() const { return p_on_off->id(); }
+    const std::string& id_position() const { return p_position->id(); }
+    const std::string& id_effect_post_pre() const { return p_effect_post_pre->id(); }
+    inline int position_weight() { return get_effect_post_pre() ? get_position() : get_position() + POST_WEIGHT; }
     void register_vars(ParamMap& param, EngineControl& seq);
     void copy_position(const Plugin& plugin, ParamMap& param);
     friend class PluginList;
@@ -134,7 +139,7 @@ public:
     Plugin *lookup_plugin(const char *id) const;
     void append_rack(UiBuilderBase& ui);
     void writeJSON(gx_system::JsonWriter& jw);
-    void readJSON(gx_system::JsonParser& jp);
+    void readJSON(gx_system::JsonParser& jp, ParamMap& pmap);
     pluginmap::iterator begin() { return pmap.begin(); }
     pluginmap::iterator end() { return pmap.end(); }
 };

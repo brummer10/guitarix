@@ -606,7 +606,7 @@ void IRWindow::on_ms_length_changed() {
 }
 
 void IRWindow::on_apply_button_clicked() {
-    machine.set_parameter_value(convolver.plugin.id_on_off, true);
+    convolver.plugin.set_on_off(true);
     save_state();
 }
 

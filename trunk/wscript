@@ -628,6 +628,7 @@ def configure(conf):
     check_boost(conf)
     check_zita_convolver(opt, conf)
     check_zita_resampler(opt, conf)
+    conf.find_program("gperf", var='HAVE_GPERF')
     check_faust(conf)
     if not conf.env['FAUST']:
         if Options.options.faust_float:
@@ -765,6 +766,7 @@ def configure(conf):
         display_msg("call faust with --vectorize", conf.env['FAUST_VECTORIZE'], 'CYAN')
     if opt.faust_options:
         display_msg("Additional faust options", conf.env['FAUST_OPTIONS'], 'CYAN')
+    display_feature("Use prebuild gperf files", not conf.env["HAVE_GPERF"])
     display_feature("Use internal zita-resampler", not conf.env['ZITA_RESAMPLER'])
     if conf.env['CONVOLVER_FFMPEG']:
         display_feature("Use zita-convolver-ffmpeg", True)

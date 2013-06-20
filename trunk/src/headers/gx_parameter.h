@@ -115,12 +115,13 @@ protected:
     string _id;
     string _name, _group, _desc;
     enum value_type v_type : 3;
-    enum ctrl_type c_type : 3;
-    unsigned int d_flags : 2;
-    bool save_in_preset : 1;
-    bool controllable : 1;
-    bool do_not_save : 1;
-    bool used : 1; // debug
+    enum ctrl_type c_type  : 3;
+    unsigned int d_flags   : 2;
+    bool save_in_preset    : 1;
+    bool controllable      : 1;
+    bool do_not_save       : 1;
+    bool blocked           : 1;
+    bool used              : 1; // debug
 protected:
     void range_warning(float value, float lower, float upper);
     static gx_system::JsonParser& jp_next(gx_system::JsonParser& jp, const char *key);
@@ -171,6 +172,8 @@ public:
     string l_desc() const { return gettext(_desc.c_str()); }
     void set_log_display() { d_flags |= dtp_log; }
     bool is_log_display() { return d_flags & dtp_log; }
+    void set_blocked(bool v) { blocked = v; }
+    bool get_blocked() { return blocked; }
     bool operator==(const Parameter& p) const { return &p == this; }
     virtual void stdJSON_value() = 0;
     virtual bool on_off_value() = 0; //RT
@@ -529,6 +532,7 @@ class ParamMap: boost::noncopyable {
     void set_init_values();
     void reset_unit(Glib::ustring group_id, const char **groups) const;
     bool unit_has_std_values(Glib::ustring group_id, const char **groups) const;
+    void unregister(Parameter *p);
     void unregister(const string& id);
     inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std,
 				   float lower, float upper, float step) {

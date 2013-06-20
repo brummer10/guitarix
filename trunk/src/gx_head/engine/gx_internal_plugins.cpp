@@ -389,7 +389,7 @@ void ConvolverAdapter::restart() {
     int policy, priority;
     engine.get_sched_priority(policy, priority);
     if (!rc || !conv.start(policy, priority)) {
-        engine.get_param()[plugin.id_on_off].getBool().set(false);
+        plugin.set_on_off(false);
     }
 }
 
@@ -400,7 +400,7 @@ bool ConvolverAdapter::conv_start() {
     string path = jcset.getFullIRPath();
     if (path.empty()) {
         gx_system::gx_print_warning(_("convolver"), _("no impulseresponse file"));
-        param[plugin.id_on_off].getBool().set(false);
+        plugin.set_on_off(false);
         return false;
     }
     while (!conv.checkstate());

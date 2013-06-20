@@ -161,7 +161,7 @@ void PresetWindow::on_selection_changed() {
     set_presets();
     bool s = false;
     if (machine.setting_is_preset()) {
-	gx_system::PresetFile *pf = machine.get_current_bank_file();
+	gx_system::PresetFileGui *pf = machine.get_current_bank_file();
 	if (pf && pf->is_mutable()) {
 	    s = true;
 	}
@@ -214,7 +214,7 @@ bool PresetWindow::on_bank_query_tooltip(int x, int y, bool kb_tooltip, Glib::Re
     if (nm.empty()) {
 	return false;
     }
-    gx_system::PresetFile *f = machine.get_bank_file(nm);
+    gx_system::PresetFileGui *f = machine.get_bank_file(nm);
     if (col == bank_treeview->get_column(0) || col == bank_treeview->get_column(1)) {
 	if (tp == gx_system::PresetFile::PRESET_FILE) {
 	    if (f->get_flags() & gx_system::PRESET_FLAG_INVALID) {
@@ -290,8 +290,8 @@ void PresetWindow::on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& c
     bank_treeview->get_cursor(path, focus_column);
     Glib::RefPtr<Gio::File> f =
 	Gio::File::create_for_path(
-	    machine.get_bank_file(
-		bank_treeview->get_model()->get_iter(path)->get_value(bank_col.name))->get_filename());
+	    machine.bank_get_filename(
+		bank_treeview->get_model()->get_iter(path)->get_value(bank_col.name)));
     if (info == TEXT_TARGETS) {
 	selection.set_text(f->get_path());
     } else {
@@ -314,43 +314,13 @@ void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContex
     std::vector<Glib::ustring> uris = data.get_uris();
     Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
     for (std::vector<Glib::ustring>::iterator i = uris.begin(); i != uris.end(); ++i) {
-	Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(*i);
-	std::string filename = rem->get_basename();
-	machine.bank_strip_preset_postfix(filename);
-	Glib::ustring name = machine.bank_decode_filename(filename);
-	machine.bank_make_valid_utf8(name);
-	machine.bank_make_bank_unique(name, &filename);
-	Glib::RefPtr<Gio::File> dest = Gio::File::create_for_path(filename);
-	try {
-	    rem->copy(dest);
-	} catch (Gio::Error& e) {
-	    gx_system::gx_print_error(e.what().c_str(), _("can't copy to config dir"));
-	    is_move = false;
-	    continue;
-	}
-	gx_system::PresetFile *f = new gx_system::PresetFile();
-	if (f->open_file(name, filename, gx_system::PresetFile::PRESET_FILE, 0)) {
-	    machine.bank_insert(f);
+	gx_system::PresetFileGui *f = machine.bank_insert_uri(*i, is_move);
+	if (f) {
 	    Gtk::TreeIter i = ls->prepend();
 	    set_row_for_presetfile(i,f);
 	    bank_treeview->set_cursor(ls->get_path(i));
 	    bank_treeview->get_selection()->select(i);
 	    success = true;
-	} else {
-	    delete f;
-	    try {
-		dest->remove();
-	    } catch (Gio::Error& e) {
-		gx_system::gx_print_error(e.what().c_str(), _("can't remove copied file!?"));
-	    }
-	    is_move = false;
-	}
-	if (is_move) {
-	    try {
-		rem->remove();
-	    } catch (Gio::Error& e) {
-		gx_system::gx_print_error(e.what().c_str(), _("can't move; file has been copied"));
-	    }
 	}
     }
     context->drag_finish(success, false, timestamp);
@@ -374,7 +344,7 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
 	presets_target_treeview->signal_drag_data_received().emission_stop();
 	return;
     }
-    gx_system::PresetFile& fl = *machine.get_bank_file(bank);
+    gx_system::PresetFileGui& fl = *machine.get_bank_file(bank);
     Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(presets_target_treeview->get_model());
     Glib::ustring srcnm = data.get_data_as_string();
     Glib::ustring dstnm = srcnm;
@@ -384,7 +354,7 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
 	n += 1;
     }
     Glib::ustring src_bank = get_current_bank();
-    gx_system::PresetFile& pf = *machine.bank_get_file(src_bank);
+    gx_system::PresetFileGui& pf = *machine.bank_get_file(src_bank);
     if (src_bank == bank) {
         gx_system::gx_print_error("preset", "can't copy inside the same bank");
         return;
@@ -441,7 +411,7 @@ void PresetWindow::reload_combo() {
     ls->clear();
     int n = 0;
     int nn = -1;
-    for (gx_system::PresetBanks::iterator i = machine.bank_begin(); i != machine.bank_end(); ++i) {
+    for (gx_engine::bank_iterator i = machine.bank_begin(); i != machine.bank_end(); ++i) {
 	int tp = i->get_type();
 	if (tp != gx_system::PresetFile::PRESET_FILE && tp != gx_system::PresetFile::PRESET_SCRATCH) {
 	    continue;
@@ -466,7 +436,7 @@ void PresetWindow::on_preset_combo_changed() {
     if (nm.empty()) {
 	return;
     }
-    gx_system::PresetFile& f = *machine.get_bank_file(nm);
+    gx_system::PresetFileGui& f = *machine.get_bank_file(nm);
     for (gx_system::PresetFile::iterator i = f.begin(); i != f.end(); ++i) {
 	ls->append()->set_value(bank_col.name, i->name);
     }
@@ -591,11 +561,10 @@ bool PresetWindow::on_bank_button_release(GdkEventButton *ev) {
     if (col == bank_treeview->get_column(0)) {
 	if (tp == gx_system::PresetFile::PRESET_SCRATCH || tp == gx_system::PresetFile::PRESET_FILE) {
 	    int flags = machine.get_bank_file(nm)->get_flags();
-	    gx_system::PresetFile *f = machine.get_bank_file(nm);
+	    gx_system::PresetFileGui *f = machine.get_bank_file(nm);
 	    if (flags == 0 && tp == gx_system::PresetFile::PRESET_FILE) {
 		/*if (run_message_dialog(*bank_treeview, "set bank " + nm + " to readonly?")) {*/
-		f->set_flag(gx_system::PRESET_FLAG_READONLY, true);
-		machine.bank_save();
+		machine.bank_set_flag(f, gx_system::PRESET_FLAG_READONLY, true);
 		reload_banks(nm);
 	    } else if (flags == gx_system::PRESET_FLAG_VERSIONDIFF) {
 		if (run_message_dialog(*bank_treeview, "convert bank " + nm + " to new version?")) {
@@ -605,8 +574,7 @@ bool PresetWindow::on_bank_button_release(GdkEventButton *ev) {
 		}
 	    } else if (flags == gx_system::PRESET_FLAG_READONLY) {
 		/*if (run_message_dialog(*bank_treeview, "set bank " + nm + " to read/write?")) {*/
-		f->set_flag(gx_system::PRESET_FLAG_READONLY, false);
-		machine.bank_save();
+		machine.bank_set_flag(f, gx_system::PRESET_FLAG_READONLY, false);
 		reload_banks(nm);
 	    } else if (flags == (gx_system::PRESET_FLAG_READONLY | gx_system::PRESET_FLAG_VERSIONDIFF)) {
 		if (run_message_dialog(*bank_treeview, "convert readonly bank " + nm + " to new version?")) {
@@ -661,27 +629,21 @@ void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring
 	return;
     }
     Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(banks_combobox->get_model());
-    std::string newfile;
-    machine.make_bank_unique(newname, &newfile);
     if (edit_iter) {
-	ls->prepend()->set_value(target_col.name, newname);
-	edit_iter = ls->children().end();
-	gx_system::PresetFile *f = new gx_system::PresetFile();
-	if (f->create_file(newname, newfile, gx_system::PresetFile::PRESET_FILE, 0)) {
-	    machine.bank_insert(f);
-	    set_row_for_presetfile(sel,f);
-	} else {
-	    delete f;
+	gx_system::PresetFileGui *f = machine.bank_insert_new(newname);
+	if (f) {
+	    ls->prepend()->set_value(target_col.name, f->get_name());
+	    edit_iter = ls->children().end();
+	    w->get_selection()->select(sel);
 	}
-	w->get_selection()->select(sel);
     } else {
+	machine.rename_bank(oldname, newname);
 	Gtk::TreeNodeChildren ch = ls->children();
 	for (Gtk::TreeIter it = ch.begin(); it != ch.end(); ++it) {
 	    if (it->get_value(bank_col.name) == oldname) {
 		it->set_value(bank_col.name, newname);
 	    }
 	}
-	machine.rename_bank(oldname, newname, newfile);
 	w->get_model()->get_iter(path)->set_value(bank_col.name, newname);
     }
     Gtk::TreeViewColumn *p = w->get_column(1);
@@ -756,7 +718,7 @@ void PresetWindow::on_bank_changed() {
     preset_title->set_text(nm);
     in_current_preset = (nm == machine.get_current_bank());
     Gtk::TreeIter i;
-    gx_system::PresetFile& ll = *machine.get_bank_file(nm);
+    gx_system::PresetFileGui& ll = *machine.get_bank_file(nm);
     if ((ll.get_flags() & gx_system::PRESET_FLAG_VERSIONDIFF) ||
 	((ll.get_flags() & gx_system::PRESET_FLAG_READONLY) && !actions.organize->get_active())) {
 	preset_treeview->unset_rows_drag_source();
@@ -787,7 +749,7 @@ void PresetWindow::on_bank_changed() {
     }
 }
 
-void PresetWindow::set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f) {
+void PresetWindow::set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFileGui *f) {
     i->set_value(bank_col.name, f->get_name());
     if (f->get_flags() & gx_system::PRESET_FLAG_INVALID) {
 	i->set_value(bank_col.type_pb, pb_del);
@@ -818,7 +780,7 @@ void PresetWindow::reload_banks(const Glib::ustring& sel_bank) {
     bank_row_del_conn.unblock();
     Gtk::TreeIter i;
     int in_factory = false;
-    for (gx_system::PresetBanks::iterator v = machine.bank_begin(); v != machine.bank_end(); ++v) {
+    for (gx_engine::bank_iterator v = machine.bank_begin(); v != machine.bank_end(); ++v) {
 	if (!in_factory && v->get_type() == gx_system::PresetFile::PRESET_FACTORY) {
 	    i = ls->append();
 	    i->set_value(bank_col.tp, static_cast<int>(gx_system::PresetFile::PRESET_SEP));
@@ -930,7 +892,7 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
 	reset_edit(*preset_treeview->get_column(0));
 	return;
     }
-    gx_system::PresetFile& fl = *machine.get_bank_file(get_current_bank());
+    gx_system::PresetFileGui& fl = *machine.get_bank_file(get_current_bank());
     Glib::ustring t = newname;
     int n = 1;
     while (fl.has_entry(newname)) {
@@ -943,7 +905,7 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
     if (oldname.empty()) {
         // check if current preset is scratch and needs to be saved
         if (!machine.get_current_bank().empty()) {
-	    gx_system::PresetFile *cpf = machine.get_bank_file(machine.get_current_bank());
+	    gx_system::PresetFileGui *cpf = machine.get_bank_file(machine.get_current_bank());
 	    if (cpf && cpf->has_entry(machine.get_current_name())) {
 	        if (cpf->get_type() == gx_system::PresetFile::PRESET_SCRATCH && cpf->is_mutable()) {
 		    machine.pf_save(*cpf, machine.get_current_name());
@@ -1094,7 +1056,7 @@ void PresetWindow::on_preset_changed() {
     }
     name = it->get_value(pstore->col.name);
     bool is_scratch = false;
-    gx_system::PresetFile *cpf = 0;
+    gx_system::PresetFileGui *cpf = 0;
     if (!machine.get_current_bank().empty()) {
 	cpf = machine.get_bank_file(machine.get_current_bank());
 	if (cpf && cpf->has_entry(machine.get_current_name())) {
@@ -1120,7 +1082,7 @@ void PresetWindow::on_preset_save() {
     if (!machine.setting_is_preset()) {
 	return;
     }
-    gx_system::PresetFile *pf = machine.get_bank_file(machine.get_current_bank());
+    gx_system::PresetFileGui *pf = machine.get_bank_file(machine.get_current_bank());
     if (!pf->is_mutable()) {
 	return;
     }

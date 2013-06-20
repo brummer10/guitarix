@@ -18,6 +18,8 @@
 
 #include "jsonrpc.h"
 
+#include "jsonrpc_methods.cc"
+
 const char *engine_state_to_string(gx_engine::GxEngineState s) {
     switch (s) {
     case gx_engine::kEngineOff: return "stopped";
@@ -153,7 +155,7 @@ class CmdConnection;
 
 class UiBuilderVirt: public UiBuilder {
 private:
-    static CmdConnection *conn;
+    static gx_system::JsonWriter *jw;
     static void openTabBox_(const char* label);
     static void openVerticalBox_(const char* label);
     static void openVerticalBox1_(const char* label);
@@ -174,7 +176,7 @@ private:
     static void closeBox_();
     static void load_glade_(const char *data);
 public:
-    UiBuilderVirt(CmdConnection *conn_);
+    UiBuilderVirt(gx_system::JsonWriter *jw);
     ~UiBuilderVirt();
 };
 
@@ -189,8 +191,6 @@ const static int InterfaceVersionMinor = 0;
 CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketConnection>& connection_)
     : serv(serv_),
       connection(connection_),
-      jp(),
-      jw(0, false),
       parameter_change_notify(false),
       conn_preset_changed(),
       conn_state_changed(),
@@ -200,6 +200,7 @@ CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketCon
       conn_selection_done(),
       conn_presetlist_changed(),
       conn_log_message() {
+    jp.start_parser();
 }
 
 CmdConnection::~CmdConnection() {
@@ -278,14 +279,15 @@ void CmdConnection::on_log_message(const string& msg, gx_system::GxMsgType tp, b
     default: tpname = "unknown"; break;
     }
     if (!plugged) {
-	send_notify_begin("message");
+	gx_system::JsonStringWriter jw;
+	send_notify_begin(jw, "message");
 	jw.write(tpname);
 	jw.write(msg);
-	send_notify_end();
+	send_notify_end(jw);
     }
 }
 
-void CmdConnection::send_notify_begin(const char *method) {
+void CmdConnection::send_notify_begin(gx_system::JsonWriter& jw, const char *method) {
     jw.begin_object();
     jw.write_key("jsonrpc");
     jw.write("2.0");
@@ -295,59 +297,69 @@ void CmdConnection::send_notify_begin(const char *method) {
     jw.begin_array();
 }
 
-void CmdConnection::send_notify_end() {
+void CmdConnection::send_notify_end(gx_system::JsonStringWriter& jw, bool send_out) {
     jw.end_array();
     jw.end_object();
+    if (send_out) {
+	send(jw);
+    }
 }
 
-void CmdConnection::write_engine_state(gx_engine::GxEngineState s) {
+void CmdConnection::write_engine_state(gx_system::JsonWriter& jw, gx_engine::GxEngineState s) {
     jw.write(engine_state_to_string(s));
 }
 
 void CmdConnection::on_selection_done() {
-    send_notify_begin("show_tuner");
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "show_tuner");
     jw.write(serv.tuner_switcher.deactivate());
-    send_notify_end();
+    send_notify_end(jw);
 }
 
 void CmdConnection::on_presetlist_changed() {
-    send_notify_begin("presetlist_changed");
-    send_notify_end();
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "presetlist_changed");
+    send_notify_end(jw);
 }
 
 void CmdConnection::on_engine_state_change(gx_engine::GxEngineState state) {
-    send_notify_begin("state_changed");
-    write_engine_state(state);
-    send_notify_end();
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "state_changed");
+    write_engine_state(jw, state);
+    send_notify_end(jw);
 }
 
 void CmdConnection::preset_changed() {
-    send_notify_begin("preset_changed");
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "preset_changed");
     if (serv.settings.setting_is_preset()) {
 	jw.write(serv.settings.get_current_bank());
 	jw.write(serv.settings.get_current_name());
     }
-    send_notify_end();
+    send_notify_end(jw);
 }
 
 void CmdConnection::on_tuner_freq_changed() {
-    send_notify_begin("tuner_changed");
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "tuner_changed");
     //jw.write_key("frequency");
     jw.write(serv.jack.get_engine().tuner.get_freq());
     //jw.write_key("note");
     jw.write(serv.jack.get_engine().tuner.get_note());
-    send_notify_end();
+    send_notify_end(jw);
 }
 
 void CmdConnection::display(const Glib::ustring& bank, const Glib::ustring& preset) {
-    send_notify_begin("display_bank_preset");
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "display_bank_preset");
     jw.write(bank);
     jw.write(preset);
-    send_notify_end();
+    send_notify_end(jw);
 }
 
 void CmdConnection::set_display_state(TunerSwitcher::SwitcherState state) {
-    send_notify_begin("set_display_state");
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "set_display_state");
     switch (state) {
     case TunerSwitcher::normal_mode: jw.write("normal_mode"); break;
     case TunerSwitcher::wait_start: jw.write("wait_start"); break;
@@ -355,10 +367,8 @@ void CmdConnection::set_display_state(TunerSwitcher::SwitcherState state) {
     case TunerSwitcher::wait_stop: jw.write("wait_stop"); break;
     default: assert(false); break;
     }
-    send_notify_end();
+    send_notify_end(jw);
 }
-
-static bool do_reset = true;
 
 static void write_plugin_state(gx_system::JsonWriter& jw, gx_engine::Plugin *i) {
     jw.begin_object();
@@ -465,9 +475,11 @@ static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& pref
     return false;
 }
 
-#define FUNCTION(n) else if (method == #n)
+#define START_FUNCTION_SWITCH(v)    switch (v) {
+#define FUNCTION(n)                 break; case RPCM_##n:
+#define END_FUNCTION_SWITCH(s)      break; default: s; }
 
-void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
+void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params) {
     static const char *cmds[] = {
 	"get","set","banks","presets","setpreset","getstate","setstate",
 	"switch_tuner","get_tuning","get_max_input_level","get_max_output_level",
@@ -475,7 +487,7 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	0
     };
 
-    if (false) {} // Start macro context
+    START_FUNCTION_SWITCH(mn->m_id);
 
     FUNCTION(get) {
 	gx_engine::ParamMap& param = serv.settings.get_param();
@@ -541,7 +553,7 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	if (!pd->load_ui) {
 	    jw.write_null();
 	} else {
-	    UiBuilderVirt bld(this);
+	    UiBuilderVirt bld(&jw);
 	    jw.begin_array();
 	    pd->load_ui(bld);
 	    jw.end_array();
@@ -606,9 +618,59 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	jw.end_array();
     }
 
+    FUNCTION(bank_insert_uri) {
+	gx_system::PresetFile *f = serv.settings.bank_insert_uri(params[0]->getString(), params[0]->getInt());
+	f->writeJSON_remote(jw);
+    }
+
+    FUNCTION(bank_insert_new) {
+	gx_system::PresetFile *f = serv.settings.bank_insert_new(params[0]->getString());
+	f->writeJSON_remote(jw);
+    }
+
+    FUNCTION(rename_bank) {
+	Glib::ustring newname = params[1]->getString();
+	jw.write(serv.settings.rename_bank(params[0]->getString(), newname));
+	jw.write(newname);
+    }
+
+    FUNCTION(rename_preset) {
+	jw.write(
+	    serv.settings.rename_preset(
+		*serv.settings.banks.get_file(params[0]->getString()), params[1]->getString(), params[2]->getString()));
+    }
+
+    FUNCTION(bank_check_reparse) {
+	jw.write(serv.settings.banks.check_reparse());
+    }
+
+    FUNCTION(bank_get_filename) {
+	jw.write(serv.settings.banks.get_file(params[0]->getString())->get_filename());
+    }
+
+    FUNCTION(convert_preset) {
+	jw.write(serv.settings.convert_preset(*serv.settings.banks.get_file(params[0]->getString())));
+    }
+
+    FUNCTION(bank_remove) {
+	jw.write(serv.settings.banks.remove(params[0]->getString()));
+    }
+
+    FUNCTION(midi_get_config_mode) {
+	jw.write(serv.jack.get_engine().controller_map.get_config_mode());
+    }
+
+    FUNCTION(midi_size) {
+	jw.write(serv.jack.get_engine().controller_map.size());
+    }
+
+    FUNCTION(midi_get_current_control) {
+	jw.write(serv.jack.get_engine().controller_map.get_current_control());
+    }
+
     FUNCTION(getstate) {
 	gx_engine::GxEngineState s = serv.jack.get_engine().get_state();
-	write_engine_state(s);
+	write_engine_state(jw, s);
     }
 
     FUNCTION(getversion) {
@@ -634,15 +696,31 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 
     FUNCTION(get_max_output_level) {
 	gx_engine::MaxLevel& m = serv.jack.get_engine().maxlevel;
+	unsigned int n = params[0]->getInt();
 	jw.begin_array();
-	jw.write(m.get(0));
-	jw.write(m.get(1));
+	for (unsigned int i = 0; i < n; i++) {
+	    float v;
+	    if (i < m.size()) {
+		v = m.get(i);
+	    } else {
+		v = 0.0;
+	    }
+	    jw.write(v);
+	}
 	m.reset();
 	jw.end_array();
     }
 
+    FUNCTION(get_tuner_freq) {
+	jw.write(serv.jack.get_engine().tuner.get_freq());
+    }
+
     FUNCTION(jack_cpu_load) {
 	jw.write(serv.jack.get_jcpu_load());
+    }
+
+    FUNCTION(get_jack_load_status) {
+	jw.write(serv.jack.get_engine().midiaudiobuffer.jack_load_status());
     }
 
     FUNCTION(queryunit) {
@@ -702,9 +780,7 @@ void CmdConnection::call(Glib::ustring& method, JsonArray& params) {
 	jw.end_array();
     }
 
-    else {
-	throw RpcError(-32601, "Method not found");
-    }
+    END_FUNCTION_SWITCH(throw RpcError(-32601, "Method not found"));
 }
 
 static void save_preset(gx_preset::GxSettings& settings, const Glib::ustring& bank,
@@ -728,8 +804,123 @@ static void save_preset(gx_preset::GxSettings& settings, const Glib::ustring& ba
     settings.save(*pf, preset);
 }
 
-void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
-    if (method == "set") {
+void CmdConnection::send_rack_changed(bool stereo) {
+    std::string s;
+    for (std::list<CmdConnection*>::iterator p = serv.connection_list.begin(); p != serv.connection_list.end(); ++p) {
+	if (*p == this || !(*p)->parameter_change_notify) {
+	    continue;
+	}
+	if (s.empty()) {
+	    gx_system::JsonStringWriter jw;
+	    send_notify_begin(jw, "rack_units_changed");
+	    std::vector<std::string>& ul = serv.settings.get_rack_unit_order(stereo);
+	    jw.begin_array();
+	    jw.write(stereo);
+	    for (std::vector<std::string>::iterator i = ul.begin(); i != ul.end(); ++i) {
+		jw.write(*i);
+	    }
+	    jw.end_array();
+	    send_notify_end(jw, false);
+	    jw.finish();
+	    s = jw.get_string();
+	}
+	ssize_t n = write((*p)->connection->get_socket()->get_fd(), s.c_str(), s.size());
+	if (n != (ssize_t)s.size()) {
+	    cerr << "short write" << endl;
+	}
+    }
+}
+
+void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params) {
+    START_FUNCTION_SWITCH(mn->m_id);
+
+    FUNCTION(insert_rack_unit) {
+	bool stereo = params[2]->getInt();
+	serv.settings.insert_rack_unit(params[0]->getString(), params[1]->getString(), stereo);
+	send_rack_changed(stereo);
+    }
+
+    FUNCTION(remove_rack_unit) {
+	bool stereo = params[1]->getInt();
+	serv.settings.remove_rack_unit(params[0]->getString(), stereo);
+	send_rack_changed(stereo);
+    }
+
+    FUNCTION(bank_reorder) {
+	std::vector<Glib::ustring> neworder;
+	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
+	    neworder.push_back((*i)->getString());
+	}
+	serv.settings.banks.reorder(neworder);
+    }
+
+    FUNCTION(reorder_preset) {
+	std::vector<Glib::ustring> neworder;
+	for (JsonArray::iterator i = params.begin()+1; i != params.end(); ++i) {
+	    neworder.push_back((*i)->getString());
+	}
+	serv.settings.reorder_preset(*serv.settings.banks.get_file(params[0]->getString()), neworder);
+    }
+
+    FUNCTION(erase_preset) {
+	serv.settings.erase_preset(*serv.settings.banks.get_file(params[0]->getString()), params[1]->getString());
+    }
+
+    FUNCTION(bank_set_flag) {
+	serv.settings.banks.get_file(params[0]->getString())->set_flag(params[1]->getInt(), params[2]->getInt());
+    }
+
+    FUNCTION(pf_append) {
+	serv.settings.append(
+	    *serv.settings.banks.get_file(params[0]->getString()), params[1]->getString(),
+	    *serv.settings.banks.get_file(params[2]->getString()), params[3]->getString());
+    }
+
+    FUNCTION(pf_insert_before) {
+	serv.settings.insert_before(
+	    *serv.settings.banks.get_file(params[0]->getString()), params[1]->getString(),
+	    *serv.settings.banks.get_file(params[2]->getString()), params[3]->getString(),
+	    params[4]->getString());
+    }
+
+    FUNCTION(pf_insert_after) {
+	serv.settings.insert_after(
+	    *serv.settings.banks.get_file(params[0]->getString()), params[1]->getString(),
+	    *serv.settings.banks.get_file(params[2]->getString()), params[3]->getString(),
+	    params[4]->getString());
+    }
+
+    FUNCTION(bank_save) {
+	serv.settings.banks.save();
+    }
+
+    FUNCTION(pf_save) {
+	serv.settings.save(*serv.settings.banks.get_file(params[0]->getString()), params[1]->getString());
+    }
+
+    FUNCTION(midi_set_config_mode) {
+	serv.jack.get_engine().controller_map.set_config_mode(params[0]->getInt(), params[1]->getInt());
+    }
+
+    FUNCTION(request_midi_value_update) {
+	serv.jack.get_engine().controller_map.request_midi_value_update();
+    }
+
+    FUNCTION(midi_deleteParameter) {
+	serv.jack.get_engine().controller_map.deleteParameter(serv.settings.get_param()[params[0]->getString()], params[1]->getInt());
+    }
+
+    FUNCTION(midi_set_current_control) {
+	serv.jack.get_engine().controller_map.set_current_control(params[0]->getInt());
+    }
+
+    FUNCTION(midi_modifyCurrent) {
+	serv.jack.get_engine().controller_map.modifyCurrent(
+	    serv.settings.get_param()[params[0]->getString()], params[1]->getFloat(),
+	    params[2]->getFloat(), params[3]->getInt());
+    }
+
+    FUNCTION(set) {
 	if (params.size() & 1) {
 	    throw RpcError(-32602, "Invalid param -- array length must be even");
 	}
@@ -762,63 +953,90 @@ void CmdConnection::notify(Glib::ustring& method, JsonArray& params) {
 		//gx_system::JsonWriter jwd(&cerr); p.dump(&jwd);
 	    }
 	}
+	std::string s;
+
 	for (std::list<CmdConnection*>::iterator p = serv.connection_list.begin(); p != serv.connection_list.end(); ++p) {
 	    if (*p == this || !(*p)->parameter_change_notify) {
 		continue;
 	    }
-	    (*p)->send_notify_begin("set");
-	    for (unsigned int i = 0; i < params.size(); i += 2) {
-		(*p)->jw.write(params[i]->getString());
-		JsonValue *v = params[i+1];
-		if (dynamic_cast<JsonFloat*>(v)) {
-		    (*p)->jw.write(v->getFloat());
-		} else if (dynamic_cast<JsonInt*>(v)) {
-		    (*p)->jw.write(v->getInt());
-		} else if (dynamic_cast<JsonString*>(v)) {
-		    (*p)->jw.write(v->getString());
+	    if (s.empty()) {
+		gx_system::JsonStringWriter jw;
+		send_notify_begin(jw, "set");
+		for (unsigned int i = 0; i < params.size(); i += 2) {
+		    jw.write(params[i]->getString());
+		    JsonValue *v = params[i+1];
+		    if (dynamic_cast<JsonFloat*>(v)) {
+			jw.write(v->getFloat());
+		    } else if (dynamic_cast<JsonInt*>(v)) {
+			jw.write(v->getInt());
+		    } else if (dynamic_cast<JsonString*>(v)) {
+			jw.write(v->getString());
+		    }
 		}
+		send_notify_end(jw, false);
+		jw.finish();
+		s = jw.get_string();
 	    }
-	    (*p)->send_notify_end();
+	    ssize_t n = write((*p)->connection->get_socket()->get_fd(), s.c_str(), s.size());
+	    if (n != (ssize_t)s.size()) {
+		cerr << "short write" << endl;
+	    }
 	}
 	serv.save_state();
-    } else if (method == "setpreset") {
+    }
+
+    FUNCTION(setpreset) {
 	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
 	serv.settings.load_preset(pf, params[1]->getString());
 	serv.save_state();
-    } else if (method == "setstate") {
+    }
+
+    FUNCTION(setstate) {
 	serv.jack.get_engine().set_state(string_to_engine_state(params[0]->getString()));
 	serv.jack.get_engine().check_module_lists();
-    } else if (method == "switch_tuner") {
+    }
+
+    FUNCTION(switch_tuner) {
 	serv.jack.get_engine().tuner.used_for_livedisplay(params[0]->getInt());
 	serv.jack.get_engine().check_module_lists();
-    } else if (method == "switch") {
+    }
+
+    FUNCTION(switch) {
 	serv.on_switcher_toggled(true);
-    } else if (method == "shutdown") {
+    }
+
+    FUNCTION(shutdown) {
 	connection->close();
 	serv.quit_mainloop();
-    } else if (method == "stop") {
-	do_reset = false;
-    } else if (method == "listen") {
+    }
+
+    FUNCTION(listen) {
 	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
 	    CmdConnection::listen((*i)->getString());
 	}
-    } else if (method == "unlisten") {
+    }
+
+    FUNCTION(unlisten) {
 	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
 	    CmdConnection::unlisten((*i)->getString());
 	}
-    } else if (method == "save_current") {
+    }
+
+    FUNCTION(save_current) {
 	if (!serv.settings.setting_is_preset()) {
 	    throw RpcError(-32001, "no current preset");
 	}
 	save_preset(serv.settings, serv.settings.get_current_bank(), serv.settings.get_current_name());
-    } else if (method == "save_preset") {
-	save_preset(serv.settings, params[0]->getString(), params[1]->getString());
-    } else {
-	throw RpcError(-32601, "Method not found");
     }
+
+    FUNCTION(save_preset) {
+	save_preset(serv.settings, params[0]->getString(), params[1]->getString());
+    }
+
+    END_FUNCTION_SWITCH(throw RpcError(-32601, "Method not found"));
 }
 
-void CmdConnection::write_error(int code, const char *message) {
+void CmdConnection::write_error(gx_system::JsonWriter& jw, int code, const char *message) {
     jw.write_key("error");
     jw.begin_object();
     jw.write_key("code");
@@ -828,7 +1046,7 @@ void CmdConnection::write_error(int code, const char *message) {
     jw.end_object();
 }
 
-bool CmdConnection::request(bool batch_start) {
+bool CmdConnection::request(gx_system::JsonParser& jp, gx_system::JsonWriter& jw, bool batch_start) {
     Glib::ustring method;
     JsonArray params;
     Glib::ustring id;
@@ -867,14 +1085,15 @@ bool CmdConnection::request(bool batch_start) {
 	}
     }
     jp.next(gx_system::JsonParser::end_object);
-    if (method.empty()) {
-	throw RpcError(-32600,"Invalid Request");
+    const methodnames *p = in_word_set(method.c_str(), method.size());
+    if (!p) {
+	throw RpcError(-32601, Glib::ustring::compose("Method not found -- '%1'", method));
     }
     if (id.empty()) {
 	try {
-	    notify(method, params);
+	    notify(jw, p, params);
 	} catch(RpcError& e) {
-	    error_response(e.code, e.message);
+	    error_response(jw, e.code, e.message);
 	}
 	return false;
     } else {
@@ -888,22 +1107,22 @@ bool CmdConnection::request(bool batch_start) {
 	jw.write(id);
 	jw.write_key("result");
 	try {
-	    call(method, params);
+	    call(jw, p, params);
 	} catch(RpcError& e) {
-	    write_error(e.code, e.message);
+	    write_error(jw, e.code, e.message);
 	}
 	jw.end_object();
 	return true;
     }
 }
 
-void CmdConnection::error_response(int code, const char *message) {
+void CmdConnection::error_response(gx_system::JsonWriter& jw, int code, const char *message) {
     jw.begin_object();
     jw.write_key("jsonrpc");
     jw.write("2.0");
     jw.write_key("id");
     jw.write_null();
-    write_error(code, message);
+    write_error(jw, code, message);
     jw.end_object();
 }
 
@@ -914,7 +1133,6 @@ bool CmdConnection::on_data(Glib::IOCondition cond) {
     }
     Glib::RefPtr<Gio::Socket> sock = connection->get_socket();
     char buf[1000];
-    std::stringbuf inbuf;
     while (true) {
 	int n;
 	try {
@@ -932,59 +1150,58 @@ bool CmdConnection::on_data(Glib::IOCondition cond) {
 	}
 	char *p = buf;
 	while (n-- > 0) {
-	    inbuf.sputc(*p);
+	    jp.put(*p);
+	    //cerr << *p;
 	    if (*p == '\n') {
-		istringstream is;
-		is.ios::rdbuf(&inbuf);
-		process(is);
+		//cerr << std::flush;
+		process(jp);
+		jp.reset();
 	    }
 	    p++;
 	}
     }
 }
 
-void CmdConnection::process(istringstream& is) {
-    ostringstream os;
-    jw.set_stream(&os);
-    jw.reset();
+void CmdConnection::send(gx_system::JsonStringWriter& jw) {
+    jw.finish();
+    std::string s = jw.get_string();
+    ssize_t n = write(connection->get_socket()->get_fd(), s.c_str(), s.size());
+    if (n != (ssize_t)s.size()) {
+	cerr << "short write" << endl;
+    }
+}
+
+void CmdConnection::process(gx_system::JsonStringParser& jp) {
+    gx_system::JsonStringWriter jw;
     try {
-	jp.set_stream(&is);
-	jp.reset();
 	bool resp = false;
-	is >> ws; // jp.peek() doesn't work at start of stream
-	if (is.peek() == '[') {
+	// jp.peek() doesn't work at start of stream
+	if (jp.peek_first_char() == '[') {
 	    jp.next(gx_system::JsonParser::begin_array);
 	    while (jp.peek() != gx_system::JsonParser::end_array) {
-		resp = request(!resp) || resp;
+		resp = request(jp, jw, !resp) || resp;
 	    }
 	    if (resp) {
 		jw.end_array();
 	    }
 	    jp.next(gx_system::JsonParser::end_array);
 	} else {
-	    resp = request(false);
+	    resp = request(jp, jw, false);
 	}
 	if (!resp) {
 	    return;
 	}
     } catch (gx_system::JsonException& e) {
 	gx_system::gx_print_error(
-	    "JSON-RPC", Glib::ustring::compose("error: %1, request: %2",
-					       e.what(), is.str()));
-	os.str("");
+	    "JSON-RPC", Glib::ustring::compose("error: %1, request: '%2'",
+					       e.what(), jp.get_string()));
 	jw.reset();
-	error_response(-32700, "Parse Error");
+	error_response(jw, -32700, "Parse Error");
     } catch (RpcError& e) {
-	os.str("");
 	jw.reset();
-	error_response(e.code, e.message);
+	error_response(jw, e.code, e.message);
     }
-    os << endl;
-    std::string s = os.str();
-    ssize_t n = write(connection->get_socket()->get_fd(), s.c_str(), s.size());
-    if (n != (ssize_t)s.size()) {
-	cerr << "short write" << endl;
-    }
+    send(jw);
 }
 
 
@@ -992,10 +1209,10 @@ void CmdConnection::process(istringstream& is) {
  ** class UiBuilderVirt implementation
  */
 
-CmdConnection *UiBuilderVirt::conn = 0;
+gx_system::JsonWriter *UiBuilderVirt::jw = 0;
 
-UiBuilderVirt::UiBuilderVirt(CmdConnection *conn_) {
-    conn = conn_;
+UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_) {
+    jw = jw_;
     openTabBox = openTabBox_;
     openVerticalBox = openVerticalBox_;
     openVerticalBox1 = openVerticalBox1_;
@@ -1021,160 +1238,143 @@ UiBuilderVirt::~UiBuilderVirt() {
 }
 
 void UiBuilderVirt::openTabBox_(const char* label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("openTabBox");
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("openTabBox");
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::openVerticalBox_(const char* label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("openVerticalBox");
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("openVerticalBox");
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::openVerticalBox1_(const char* label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("openVerticalBox1");
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("openVerticalBox1");
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::openVerticalBox2_(const char* label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("openVerticalBox2");
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("openVerticalBox2");
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::openHorizontalhideBox_(const char* label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("openHorizontalhideBox");
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("openHorizontalhideBox");
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::openHorizontalBox_(const char* label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("openHorizontalBox");
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("openHorizontalBox");
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::insertSpacer_() {
-    conn->jw.begin_array();
-    conn->jw.write("insertSpacer");
-    conn->jw.end_array();
+    jw->begin_array();
+    jw->write("insertSpacer");
+    jw->end_array();
 }
 
 void UiBuilderVirt::set_next_flags_(int flags) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("set_next_flags");
-    jw.write(flags);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("set_next_flags");
+    jw->write(flags);
+    jw->end_array();
 }
 
 void UiBuilderVirt::create_small_rackknob_(const char *id, const char *label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("create_small_rackknob");
-    jw.write(id);
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("create_small_rackknob");
+    jw->write(id);
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::create_small_rackknobr_(const char *id, const char *label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("create_small_rackknobr");
-    jw.write(id);
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("create_small_rackknobr");
+    jw->write(id);
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::create_master_slider_(const char *id, const char *label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("create_master_slider");
-    jw.write(id);
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("create_master_slider");
+    jw->write(id);
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::create_selector_no_caption_(const char *id) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("create_selector_no_caption");
-    jw.write(id);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("create_selector_no_caption");
+    jw->write(id);
+    jw->end_array();
 }
 
 void UiBuilderVirt::create_selector_(const char *id, const char *label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("create_selector");
-    jw.write(id);
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("create_selector");
+    jw->write(id);
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::create_spin_value_(const char *id, const char *label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("create_spin_value");
-    jw.write(id);
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("create_spin_value");
+    jw->write(id);
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::create_switch_no_caption_(const char *sw_type, const char * id) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("create_switch_no_caption");
-    jw.write(sw_type);
-    jw.write(id);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("create_switch_no_caption");
+    jw->write(sw_type);
+    jw->write(id);
+    jw->end_array();
 }
 
 void UiBuilderVirt::create_switch_(const char *sw_type, const char * id, const char *label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("create_switch");
-    jw.write(sw_type);
-    jw.write(id);
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("create_switch");
+    jw->write(sw_type);
+    jw->write(id);
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::create_port_display_(const char *id, const char *label) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("create_port_display");
-    jw.write(id);
-    jw.write(label);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("create_port_display");
+    jw->write(id);
+    jw->write(label);
+    jw->end_array();
 }
 
 void UiBuilderVirt::closeBox_() {
-    conn->jw.begin_array();
-    conn->jw.write("closeBox");
-    conn->jw.end_array();
+    jw->begin_array();
+    jw->write("closeBox");
+    jw->end_array();
 }
 
 void UiBuilderVirt::load_glade_(const char *data) {
-    gx_system::JsonWriter& jw = conn->jw;
-    jw.begin_array();
-    jw.write("load_glade");
-    jw.write(data);
-    jw.end_array();
+    jw->begin_array();
+    jw->write("load_glade");
+    jw->write(data);
+    jw->end_array();
 }
 
 

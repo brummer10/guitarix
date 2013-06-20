@@ -88,7 +88,7 @@ bool PluginUI::is_registered(gx_engine::GxMachineBase& m, const char *name) {
 }
 
 void PluginUI::compress(bool state) {
-    const std::string& s = plugin->id_plug_visible;
+    const std::string& s = plugin->id_plug_visible();
     if (s.empty()) {
 	return;
     }
@@ -118,7 +118,7 @@ void PluginUI::on_action_toggled() {
 }
 
 void PluginUI::hide(bool animate) {
-    main.get_machine().set_parameter_value(plugin->id_on_off, false);
+    plugin->set_on_off(false);
     if (rackbox) {
 	rackbox->display(false, animate);
 	main.add_icon(get_id());
@@ -143,7 +143,7 @@ void PluginUI::display(bool v, bool animate) {
     // some other function could do it, e.g. when unloading a module),
     // but currently there are too many memory leaks in the stack based
     // builder.
-    main.get_machine().set_parameter_value(plugin->id_box_visible, v);
+    plugin->set_box_visible(v);
     if (v) {
 	main.get_machine().insert_rack_unit(get_id(), "", get_type() == PLUGIN_TYPE_STEREO);
 	show(animate);
@@ -154,7 +154,7 @@ void PluginUI::display(bool v, bool animate) {
 }
 
 void PluginUI::display_new(bool unordered) {
-    main.get_machine().set_parameter_value(plugin->id_plug_visible, false);
+    plugin->set_plug_visible(false);
     if (rackbox) {
 	rackbox->swtch(false);
     }
@@ -381,9 +381,9 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       mb_delete_button(),
       preset_button(),
       on_off_switch("minitoggle"),
-      toggle_on_off(rb.main.get_machine(), &on_off_switch, rb.plugin.plugin->id_on_off) {
+      toggle_on_off(rb.main.get_machine(), &on_off_switch, rb.plugin.plugin->id_on_off()) {
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
-	gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off.c_str(), rb.main.get_machine());
+	gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off().c_str(), rb.main.get_machine());
     }
     if (!szg_label) {
 	szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
@@ -863,9 +863,9 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
       compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), minibox(0),
       fbox(0), target(), anim_height(0), anim_step(), drag_icon(), target_height(0),
       box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), on_off_switch("switchit"),
-      toggle_on_off(tl.get_machine(), &on_off_switch, plugin.plugin->id_on_off) {
+      toggle_on_off(tl.get_machine(), &on_off_switch, plugin.plugin->id_on_off()) {
     if (strcmp(plugin.get_id(), "ampstack") != 0) { // FIXME
-	gx_gui::connect_midi_controller(&on_off_switch, plugin.plugin->id_on_off.c_str(), main.get_machine());
+	gx_gui::connect_midi_controller(&on_off_switch, plugin.plugin->id_on_off().c_str(), main.get_machine());
     }
 #ifdef USE_SZG
     if (!szg) {
@@ -1026,7 +1026,7 @@ void RackBox::set_visibility(bool v) {
 }
 
 void RackBox::swtch(bool mini) {
-    main.get_machine().set_parameter_value(plugin.plugin->id_plug_visible, mini);
+    plugin.plugin->set_plug_visible(mini);
     if (!config_mode) {
 	if (mini) {
 	    vis_switch(*fbox, mbox);
@@ -1050,9 +1050,9 @@ void RackBox::set_config_mode(bool mode) {
 }
 
 void RackBox::setOrder(int pos, int post_pre) {
-    main.get_machine().set_parameter_value(plugin.plugin->id_position, pos);
+    plugin.plugin->set_position(pos);
     if (plugin.get_type() == PLUGIN_TYPE_MONO) {
-	main.get_machine().set_parameter_value(plugin.plugin->id_effect_post_pre, post_pre);
+	plugin.plugin->set_effect_post_pre(post_pre);
     }
 }
 
@@ -1446,26 +1446,10 @@ void RackContainer::hide_entries() {
     }
 }
 
-void RackContainer::reorder(const std::string& name, int pos) {
+void RackContainer::reorder(const std::string& name, unsigned int pos) {
     std::vector<RackBox*> l = get_children();
-    int i = 0;
-    RackBox *r = 0;
-    for (std::vector<RackBox*>::iterator v = l.begin(); v != l.end(); ++v) {
-	if ((*v)->get_id() == name) {
-	    if (pos > i) {
-		pos -= 1;
-	    }
-	    r = *v;
-	    break;
-	}
-	++i;
-    }
-    assert(r);
-    if (!r) {
-	return;
-    }
-    reorder_child(*r, pos);
-    renumber();
+    main.get_machine().insert_rack_unit(name, ((pos >= l.size()) ? "" : l[pos]->get_id()), tp == PLUGIN_TYPE_STEREO);
+    check_order();
 }
 
 void RackContainer::on_add(Widget *ch) {

@@ -136,56 +136,26 @@ void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, b
 
 Plugin::Plugin(PluginDef *pl)
     : pdef(0),
-      box_visible(false),
-      plug_visible(false),
-      on_off(false),
-      position(0),
-      effect_post_pre(1) {
+      p_box_visible(0),
+      p_plug_visible(0),
+      p_on_off(0),
+      p_position(0),
+      p_effect_post_pre(0) {
     set_pdef(pl);
 }
 
-Plugin::Plugin(gx_system::JsonParser& jp)
+Plugin::Plugin(gx_system::JsonParser& jp, ParamMap& pmap)
     : pdef(0),
-      box_visible(false),
-      plug_visible(false),
-      on_off(false),
-      position(0),
-      effect_post_pre(0) {
+      p_box_visible(0),
+      p_plug_visible(0),
+      p_on_off(0),
+      p_position(0),
+      p_effect_post_pre(0) {
     PluginDef *p = new PluginDef();
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
-	if (jp.current_value() == "box_visible") {
-	    jp.next();
-	    box_visible = true;
-	} else if (jp.current_value() == "plug_visible") {
-	    jp.next();
-	    plug_visible = true;
-	} else if (jp.current_value() == "on_off") {
-	    jp.next();
-	    on_off = true;
-	} else if (jp.current_value() == "post_pre") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    effect_post_pre = jp.current_value_int();
-	} else if (jp.current_value() == "id_box_visible") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    id_box_visible = jp.current_value();
-	} else if (jp.current_value() == "id_plug_visible") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    id_plug_visible = jp.current_value();
-	} else if (jp.current_value() == "id_on_off") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    id_on_off = jp.current_value();
-	} else if (jp.current_value() == "id_position") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    id_position = jp.current_value();
-	} else if (jp.current_value() == "id_effect_post_pre") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    id_effect_post_pre = jp.current_value();
-	} else if (jp.current_value() == "position") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    position = jp.current_value_int();
-	} else if (jp.current_value() == "version") {
+	if (jp.current_value() == "version") {
 	    jp.next(gx_system::JsonParser::value_number);
 	    p->version = jp.current_value_int();
 	} else if (jp.current_value() == "flags") {
@@ -223,49 +193,23 @@ Plugin::Plugin(gx_system::JsonParser& jp)
 	}
     }
     jp.next(gx_system::JsonParser::end_object);
+    std::string s = p->id;
+    std::string id = "ui."+s;
+    if (pmap.hasId(id)) {
+	p_box_visible = &pmap[id].getBool();
+    }
+    id = s+".s_h";
+    if (pmap.hasId(id)) {
+	p_plug_visible = &pmap[id].getBool();
+    }
+    p_on_off = &pmap[s+".on_off"].getBool();
+    p_position = &pmap[s+".position"].getInt();
+    p_effect_post_pre = &pmap[s+".pp"].getInt();
     set_pdef(p);
 }
 
 void Plugin::writeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
-    if (box_visible) {
-	jw.write_key("box_visible");
-	jw.write(true);
-    }
-    if (plug_visible) {
-	jw.write_key("plug_visible");
-	jw.write(true);
-    }
-    if (on_off) {
-	jw.write_key("on_off");
-	jw.write(true);
-    }
-    if (effect_post_pre) {
-	jw.write_key("post_pre");
-	jw.write(effect_post_pre);
-    }
-    jw.write_key("position");
-    jw.write(position);
-    if (!id_box_visible.empty()) {
-	jw.write_key("id_box_visible");
-	jw.write(id_box_visible);
-    }
-    if (!id_plug_visible.empty()) {
-	jw.write_key("id_plug_visible");
-	jw.write(id_plug_visible);
-    }
-    if (!id_on_off.empty()) {
-	jw.write_key("id_on_off");
-	jw.write(id_on_off);
-    }
-    if (!id_position.empty()) {
-	jw.write_key("id_position");
-	jw.write(id_position);
-    }
-    if (!id_effect_post_pre.empty()) {
-	jw.write_key("id_effect_post_pre");
-	jw.write(id_effect_post_pre);
-    }
     jw.write_key("version");
     jw.write(pdef->version);
     jw.write_key("flags");
@@ -301,51 +245,50 @@ void Plugin::writeJSON(gx_system::JsonWriter& jw) {
 
 void Plugin::register_vars(ParamMap& param, EngineControl& seq) {
     string s = pdef->id;
-    id_on_off = s+".on_off";
-    Parameter *p = param.reg_par(id_on_off,N_("on/off"), &on_off, on_off);
+    p_on_off = param.reg_par(s+".on_off",N_("on/off"), (bool*)0, false);
     if (!(pdef->load_ui || (pdef->flags & PGN_GUI))) {
-	p->setSavable(false);
-	return;
+	p_on_off->setSavable(false);
     }
-    p->signal_changed_bool().connect(
+    if (!(pdef->flags & (PGN_GUI|PGN_ALTERNATIVE))) {
+	// otherwise would be always off
+	p_on_off->set(true);
+    }
+    p_on_off->signal_changed_bool().connect(
 	sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
-    if (pdef->flags & PGNI_DYN_POSITION || !(pdef->flags & PGN_FIXED_GUI)) {
-	id_box_visible = "ui." + s;
-	param.reg_non_midi_par(id_box_visible, &box_visible, true);
-	id_plug_visible = s + ".s_h";
-	param.reg_non_midi_par(id_plug_visible, &plug_visible, false);
+    if ((pd->load_ui || pd->flags & PGN_GUI) &&
+	(pdef->flags & PGNI_DYN_POSITION || !(pdef->flags & PGN_FIXED_GUI))) {
+	p_box_visible = param.reg_non_midi_par("ui." + s, (bool*)0, true);
+	p_plug_visible = param.reg_non_midi_par(s + ".s_h", (bool*)0, false);
     }
+    p_position = param.reg_non_midi_par(s + ".position", (int*)0, true, 0, 0, 999);
+    set_position(pos_tmp);
+    static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
+    p_effect_post_pre = param.reg_enum_par(s + ".pp", "select", post_pre, (int*)0, 0);
+    p_effect_post_pre->setSavable(false);
+    p_effect_post_pre->set(pdef->flags & PGN_POST ? 0 : 1);
     if (pdef->flags & PGNI_DYN_POSITION) {
 	// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
-	id_position = s + ".position";
-	param.reg_non_midi_par(id_position, &position, true, position, 0, 999)->signal_changed_int().connect(
+	p_position->signal_changed_int().connect(
 	    sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
 	if (pdef->mono_audio || (pdef->flags & PGN_POST_PRE)) {
 	    if (pdef->flags & PGN_PRE) {
-		effect_post_pre = 1;
+		p_effect_post_pre->set(1);
 	    } else if (pdef->flags & PGN_POST) {
-		effect_post_pre = 0;
+		p_effect_post_pre->set(0);
 	    } else {
-		static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
-		id_effect_post_pre = s + ".pp";
-		param.reg_enum_par(id_effect_post_pre, "select", post_pre, &effect_post_pre, 0)->signal_changed_int().connect(
+		p_effect_post_pre->signal_changed_int().connect(
 		    sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
+		p_effect_post_pre->setSavable(true);
 	    }
 	}
+    } else {
+	p_position->setSavable(false);
     }
 }
 
-void Plugin::copy_position(const Plugin& plugin, ParamMap& param) {
-    if (id_position.empty()) {
-	position = plugin.position;
-    } else {
-	param[id_position].getInt().set(plugin.position);
-    }
-    if (id_effect_post_pre.empty()) {
-	effect_post_pre = plugin.effect_post_pre;
-    } else {
-	param[id_effect_post_pre].getInt().set(plugin.effect_post_pre);
-    }
+void Plugin::copy_position(const Plugin& plugin) {
+    set_position(plugin.get_position());
+    set_effect_post_pre(plugin.get_effect_post_pre());
 }
 
 
@@ -502,13 +445,10 @@ int PluginList::add_module(Plugin *pvars, PluginPos pos, int flags) {
 	    ipos = PLUGIN_POS_RACK_STEREO;
 	}
     }
-    if (!(p->flags & (PGN_GUI|PGN_ALTERNATIVE))) {
-	// otherwise would be always off
-	pvars->on_off = true;
-    }
-    pvars->position = plugin_pos[ipos];
-    if (p->flags & PGN_POST) {
-	pvars->effect_post_pre = 0;
+    if (pvars->p_position) {
+	pvars->set_position(plugin_pos[ipos]);
+    } else {
+	pvars->pos_tmp = plugin_pos[ipos];
     }
     pair<pluginmap::iterator,bool> ret = pmap.insert(map_pair(p->id, pvars));
     if (!ret.second) {
@@ -621,21 +561,11 @@ void PluginList::registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& pr
 
 void PluginList::unregisterParameter(Plugin *pl, ParamMap& param) {
     PluginDef *pd = pl->get_pdef();
-    param.unregister(pl->id_on_off);
-    if (pd->load_ui || (pd->flags & PGN_GUI)) {
-	if (pd->flags & PGNI_DYN_POSITION || !(pd->flags & PGN_FIXED_GUI)) {
-	    param.unregister(pl->id_box_visible);
-	    param.unregister(pl->id_plug_visible);
-	}
-	if (pd->flags & PGNI_DYN_POSITION) {
-	    param.unregister(pl->id_position);
-	    if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
-		if (!(pd->flags & (PGN_PRE|PGN_POST))) {
-		    param.unregister(pl->id_effect_post_pre);
-		}
-	    }
-	}
-    }
+    param.unregister(pl->p_on_off);
+    param.unregister(pl->p_position);
+    param.unregister(pl->p_box_visible);
+    param.unregister(pl->p_plug_visible));
+    param.unregister(pl->p_effect_post_pre);
     std::vector<const std::string*> l;
     if (pd->register_params) {
 	string s = pd->id;
@@ -688,7 +618,7 @@ void PluginList::ordered_mono_list(list<Plugin*>& mono, int mode) {
     mono.clear();
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	Plugin *pl = p->second;
-	if (pl->on_off && pl->get_pdef()->mono_audio && (pl->get_pdef()->flags & mode)) {
+	if (pl->get_on_off() && pl->get_pdef()->mono_audio && (pl->get_pdef()->flags & mode)) {
 	    mono.push_back(pl);
 	}
     }
@@ -699,7 +629,7 @@ void PluginList::ordered_stereo_list(list<Plugin*>& stereo, int mode) {
     stereo.clear();
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	Plugin *pl = p->second;
-	if (pl->on_off && pl->get_pdef()->stereo_audio && (pl->get_pdef()->flags & mode)) {
+	if (pl->get_on_off() && pl->get_pdef()->stereo_audio && (pl->get_pdef()->flags & mode)) {
 	    stereo.push_back(pl);
 	}
     }
@@ -730,10 +660,10 @@ void PluginListBase::writeJSON(gx_system::JsonWriter& jw) {
     jw.end_array();
 }
 
-void PluginListBase::readJSON(gx_system::JsonParser& jp) {
+void PluginListBase::readJSON(gx_system::JsonParser& jp, ParamMap& param) {
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
-	Plugin *p = new Plugin(jp);
+	Plugin *p = new Plugin(jp, param);
 	pmap.insert(map_pair(p->get_pdef()->id, p));
     }
     jp.next(gx_system::JsonParser::end_array);
@@ -796,8 +726,8 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header) {
 	} else {
 	    f = "-";
 	}
-	printf(fmtl, f, pd->id, p->position_weight(), p->position,
-	       p->effect_post_pre, p->on_off,p->box_visible, c);
+	printf(fmtl, f, pd->id, p->position_weight(), p->get_position(),
+	       p->get_effect_post_pre(), p->get_on_off(),p->get_box_visible(), c);
     }
 }
 #endif

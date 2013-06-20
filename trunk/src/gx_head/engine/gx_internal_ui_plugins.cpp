@@ -132,7 +132,7 @@ void TunerAdapter::set_and_check(int use, bool on) {
 	state &= ~use;
     }
     if (plugin.get_on_off() != bool(state)) {
-	engine.get_param()[plugin.id_on_off].getBool().set(bool(state));
+	plugin.set_on_off(bool(state));
 	engine.set_rack_changed();
     }
     if (use == switcher_use) {
@@ -153,7 +153,7 @@ void TunerAdapter::feed_tuner(int count, float* input, float*, PluginDef* plugin
 
 int TunerAdapter::regparam(const ParamReg& reg) {
     TunerAdapter* a = static_cast<TunerAdapter*>(reg.plugin);
-    a->engine.get_param()[a->plugin.id_on_off].getBool().set(false);
+    a->plugin.set_on_off(false);
     return 0;
 }
 

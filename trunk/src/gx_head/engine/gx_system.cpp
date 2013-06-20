@@ -301,6 +301,7 @@ CmdlineOptions::CmdlineOptions()
       old_user_dir(),
       preset_dir(),
       pluginpreset_dir(),
+      temp_dir(),
       plugin_dir(),
       sys_IR_dir(GX_SOUND_DIR),
       IR_pathlist(),
@@ -325,7 +326,14 @@ CmdlineOptions::CmdlineOptions()
       preset_window_height(220),
       mul_buffer(1),
       skin_name("gx7-blues"),
-      no_warn_latency(false) {
+      no_warn_latency(false),
+      system_order_rack_h(false),
+      system_show_value(false),
+      system_show_tooltips(true),
+      system_animations(true),
+      system_show_presets(false),
+      system_show_toolbar(false),
+      system_show_rack(false) {
     const char* home = getenv("HOME");
     if (!home) {
 	throw GxFatalError(_("no HOME environment variable"));
@@ -335,6 +343,7 @@ CmdlineOptions::CmdlineOptions()
     plugin_dir = Glib::build_filename(user_dir, "plugins");
     preset_dir = Glib::build_filename(user_dir, "banks");
     pluginpreset_dir = Glib::build_filename(user_dir, "pluginpresets");
+    temp_dir = Glib::build_filename(user_dir, "temp");
     const char *tmp = getenv("GUITARIX2JACK_OUTPUTS1");
     if (tmp && *tmp) {
 	jack_outputs.push_back(tmp);
@@ -562,6 +571,27 @@ void CmdlineOptions::read_ui_vars() {
 	    } else if (jp.current_value() == "ui.latency_nowarn") {
 		jp.next(JsonParser::value_number);
 		no_warn_latency = jp.current_value_int();
+	    } else if (jp.current_value() == "system.order_rack_h") {
+		jp.next(JsonParser::value_number);
+		system_order_rack_h = jp.current_value_int();
+	    } else if (jp.current_value() == "system.show_value") {
+		jp.next(JsonParser::value_number);
+		system_show_value = jp.current_value_int();
+	    } else if (jp.current_value() == "system.show_tooltips") {
+		jp.next(JsonParser::value_number);
+		system_show_tooltips = jp.current_value_int();
+	    } else if (jp.current_value() == "system.animations") {
+		jp.next(JsonParser::value_number);
+		system_animations = jp.current_value_int();
+	    } else if (jp.current_value() == "system.show_presets") {
+		jp.next(JsonParser::value_number);
+		system_show_presets = jp.current_value_int();
+	    } else if (jp.current_value() == "system.show_toolbar") {
+		jp.next(JsonParser::value_number);
+		system_show_toolbar = jp.current_value_int();
+	    } else if (jp.current_value() == "system.show_rack") {
+		jp.next(JsonParser::value_number);
+		system_show_rack = jp.current_value_int();
 	    }
 	}
 	jp.next(JsonParser::end_object);
@@ -588,6 +618,13 @@ void CmdlineOptions::write_ui_vars() {
 	jw.write_key("system.mul_buffer"); jw.write(mul_buffer, true);
 	jw.write_key("ui.skin_name"); jw.write(skin_name, true);
 	jw.write_key("ui.latency_nowarn"); jw.write(no_warn_latency, true);
+	jw.write_key("system.order_rack_h"); jw.write(system_order_rack_h, true);
+	jw.write_key("system.show_value"); jw.write(system_show_value, true);
+	jw.write_key("system.show_tooltips"); jw.write(system_show_tooltips, true);
+	jw.write_key("system.animations"); jw.write(system_animations, true);
+	jw.write_key("system.show_presets"); jw.write(system_show_presets, true);
+	jw.write_key("system.show_toolbar"); jw.write(system_show_toolbar, true);
+	jw.write_key("system.show_rack"); jw.write(system_show_rack, true);
 	jw.end_object(true);
 	jw.close();
     } catch (JsonException) {
@@ -680,6 +717,7 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(user_dir);
     make_ending_slash(preset_dir);
     make_ending_slash(pluginpreset_dir);
+    make_ending_slash(temp_dir);
     make_ending_slash(plugin_dir);
     make_ending_slash(sys_IR_dir);
 

@@ -195,7 +195,7 @@ void ThreadSafeChainPointer<F>::commit(bool clear, ParamMap& pmap) {
 	PluginDef* pd = (*p)->get_pdef();
 	if (pd->activate_plugin) {
 	    if (pd->activate_plugin(true, pd) != 0) {
-		pmap[(*p)->id_on_off].getBool().set(false);
+		(*p)->set_on_off(false);
 		continue;
 	    }
 	} else if (pd->clear_state && clear) {

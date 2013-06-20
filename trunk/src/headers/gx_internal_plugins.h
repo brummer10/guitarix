@@ -52,11 +52,14 @@ private:
 			float *output0, float *output1, PluginDef*);
     static int activate(bool start, PluginDef *plugin);
 public:
+    static unsigned int size() { return sizeof(maxlevel) / sizeof(maxlevel[0]); }
     static float get(unsigned int channel) {
-	assert(channel < 2); return maxlevel[channel];
+	assert(channel < size()); return maxlevel[channel];
     }
     static void reset() {
-	maxlevel[0] = maxlevel[1] = 0;
+	for (unsigned int i = 0; i < size(); i++) {
+	    maxlevel[i] = 0;
+	}
     }
     MaxLevel();
 };

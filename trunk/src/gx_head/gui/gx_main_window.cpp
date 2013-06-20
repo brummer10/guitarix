@@ -567,7 +567,7 @@ void MainWindow::rebuild_preset_menu() {
     if (!machine.setting_is_preset()) {
 	return;
     }
-    gx_system::PresetFile *pf = machine.get_current_bank_file();
+    gx_system::PresetFileGui *pf = machine.get_current_bank_file();
     if (!pf) {
 	return;
     }
@@ -637,7 +637,7 @@ void MainWindow::on_show_rack() {
     } else {
 	w = stereorackbox;
     }
-    bool v = actions.show_rack->get_active();
+    bool v = options.system_show_rack = actions.show_rack->get_active();
     actions.rackh->set_sensitive(v);
     rackcontainer->set_border_width(v ? 18 : 0); //FIXME (just experimental)
     stereorackcontainer.set_visible(v);
@@ -767,7 +767,7 @@ void MainWindow::on_rack_configuration() {
 }
 
 void MainWindow::on_show_plugin_bar() {
-    bool v = actions.show_plugin_bar->get_active();
+    bool v = options.system_show_toolbar = actions.show_plugin_bar->get_active();
     if (v) {
 	actions.show_rack->set_active(true);
     }
@@ -820,7 +820,8 @@ double MainWindow::stop_at_mono_top(double off, double step_size) {
 }
 
 void MainWindow::on_dir_changed() {
-    if (actions.rackh->get_active()) {
+    bool v = options.system_order_rack_h = actions.rackh->get_active();
+    if (v) {
 	// horizontally
 	move_widget(stereorackcontainer, *stereorackcontainerV, *stereorackcontainerH);
 	change_expand(*monobox, true);
@@ -914,9 +915,10 @@ void MainWindow::add_icon(const std::string& name) {
 }
 
 void MainWindow::on_show_values() {
+    options.system_show_value = actions.show_values->get_active();
     std::string s =
 	"style \"ShowValue\" {\n"
-	"  GxRegler::show-value = " + gx_system::to_string(actions.show_values->get_active()) + "\n"
+	"  GxRegler::show-value = " + gx_system::to_string(options.system_show_value) + "\n"
 	"}\n"
 	"class \"*GxRegler*\" style:highest \"ShowValue\"\n";
     gtk_rc_parse_string(s.c_str());
@@ -924,7 +926,7 @@ void MainWindow::on_show_values() {
 }
 
 void MainWindow::on_preset_action() {
-    bool v = actions.presets->get_active();
+    bool v = options.system_show_presets = actions.presets->get_active();
     if (!v && preset_scrolledbox->get_mapped()) {
 	options.preset_window_height = preset_scrolledbox->get_allocation().get_height();
     }
@@ -1305,10 +1307,15 @@ void gx_show_about() {
     gx_gui::gx_message_popup(about.c_str());
 }
 
-static void set_tooltips(bool v) {
+void MainWindow::set_tooltips() {
+    options.system_show_tooltips = actions.tooltips->get_active();
     gtk_settings_set_long_property(
-        gtk_settings_get_default(), "gtk-enable-tooltips", v,
+        gtk_settings_get_default(), "gtk-enable-tooltips", options.system_show_tooltips,
         "gx_head menu-option");
+}
+
+void MainWindow::set_animations() {
+    options.system_animations = actions.animations->get_active();
 }
 
 void MainWindow::on_select_jack_control() {
@@ -1443,20 +1450,20 @@ void MainWindow::create_actions() {
     /*
     ** actions to open other (sub)windows
     */
-    actions.presets = UiSwitchToggleAction::create(
-	machine, "system.show_presets", "Presets",_("_Preset Selection"));
+    actions.presets = Gtk::ToggleAction::create(
+	"Presets",_("_Preset Selection"));
     actions.group->add(actions.presets, 
-		     sigc::mem_fun(*this, &MainWindow::on_preset_action));
+		       sigc::mem_fun(*this, &MainWindow::on_preset_action));
 
-    actions.show_plugin_bar = UiSwitchToggleAction::create(
-	machine, "system.show_toolbar", "ShowPluginBar",_("Show Plugin _Bar"));
+    actions.show_plugin_bar = Gtk::ToggleAction::create(
+	"ShowPluginBar",_("Show Plugin _Bar"));
     actions.group->add(actions.show_plugin_bar,
-		     sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
+		       sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
 
-    actions.show_rack = UiSwitchToggleAction::create(
-	machine, "system.show_rack", "ShowRack",_("Show _Rack"));
+    actions.show_rack = Gtk::ToggleAction::create(
+	"ShowRack",_("Show _Rack"), "", true);
     actions.group->add(actions.show_rack,
-		     sigc::mem_fun(*this, &MainWindow::on_show_rack));
+		       sigc::mem_fun(*this, &MainWindow::on_show_rack));
 
     actions.loggingbox = Gtk::ToggleAction::create("LoggingBox", _("Show _Logging Box"));
     actions.group->add(
@@ -1512,25 +1519,24 @@ void MainWindow::create_actions() {
     actions.group->add(actions.expand,
 		     sigc::mem_fun(*this, &MainWindow::on_expand_all));
 
-    actions.rackh = UiSwitchToggleAction::create(
-	machine, "system.order_rack_h", "RackH", _("Order Rack _Horizontally"));
+    actions.rackh = Gtk::ToggleAction::create(
+	"RackH", _("Order Rack _Horizontally"));
     actions.group->add(actions.rackh,
 		     sigc::mem_fun(*this, &MainWindow::on_dir_changed));
 
     /*
     ** option actions
     */
-    actions.show_values = UiSwitchToggleAction::create(
-	machine, "system.show_value", "ShowValues",_("_Show _Values"));
+    actions.show_values = Gtk::ToggleAction::create(
+	"ShowValues",_("_Show _Values"), "", true);
     actions.group->add(actions.show_values,
-		     sigc::mem_fun(*this, &MainWindow::on_show_values));
+		       sigc::mem_fun(*this, &MainWindow::on_show_values));
 
-    actions.tooltips = UiSwitchToggleAction::create(
-	machine, "system.show_tooltips", "ShowTooltips", _("Show _Tooltips"), "", true);
+    actions.tooltips = Gtk::ToggleAction::create(
+	"ShowTooltips", _("Show _Tooltips"), "", true);
     actions.group->add(
 	actions.tooltips,
-	sigc::compose(sigc::ptr_fun(set_tooltips),
-		      sigc::mem_fun(actions.tooltips.operator->(), &UiSwitchToggleAction::get_active)));
+	sigc::mem_fun(this, &MainWindow::set_tooltips));
 
     actions.midi_in_presets = UiSwitchToggleAction::create(
 	machine, "system.midi_in_preset", "MidiInPresets", _("Include MIDI in _presets"));
@@ -1549,9 +1555,10 @@ void MainWindow::create_actions() {
     actions.group->add(Gtk::Action::create("ResetAll", _("Reset _All Parameters")),
 		       sigc::mem_fun(machine, &gx_engine::GxMachineBase::set_init_values));
 
-    actions.animations = UiBoolToggleAction::create(
-	machine, "system.animations", "Animations", _("_Use Animations"),"",true);
-    actions.group->add(actions.animations);
+    actions.animations = Gtk::ToggleAction::create(
+	"Animations", _("_Use Animations"),"",true);
+    actions.group->add(actions.animations,
+		       sigc::mem_fun(this, &MainWindow::set_animations));
 
     actions.group->add(Gtk::Action::create("SetPresetSwitcher", _("L_iveplay Midi Switch")),
 		     sigc::mem_fun(this, &MainWindow::set_switcher_controller));
@@ -1719,7 +1726,7 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 		pui->unset_ui_merge_id(uimanager);
 		actions.group->remove(pui->get_action());
 		delete pui;
-		machine.set_parameter_value(pui->plugin->id_on_off, false);
+		machine.set_parameter_value(pui->plugin->id_on_off(), false);
 		to_remove.push_back(pui->plugin);
 	    } else {
 		machine.ladspaloader_update_instance(pui->plugin->get_pdef(), *j);
@@ -2017,7 +2024,7 @@ void MainWindow::on_engine_state_change(gx_engine::GxEngineState state) {
 void MainWindow::do_program_change(int pgm) {
     Glib::ustring bank = machine.get_current_bank();
     bool in_preset = !bank.empty();
-    gx_system::PresetFile *f;
+    gx_system::PresetFileGui *f;
     if (in_preset) {
 	f = machine.get_bank_file(bank);
 	in_preset = pgm < f->size();
@@ -2232,6 +2239,7 @@ inline float power2db(float power) {
 }
 
 bool MainWindow::refresh_meter_level() {
+    const unsigned int channels = sizeof(fastmeter)/sizeof(fastmeter[0]);
     gx_jack::GxJack *jack = machine.get_jack();
     if (!jack) {
 	return false;
@@ -2243,16 +2251,17 @@ bool MainWindow::refresh_meter_level() {
 	gx_gui::guivar.meter_display_timeout * 0.001;
 
     // Note: removed RMS calculation, we will only focus on max peaks
-    static float old_peak_db[sizeof(fastmeter)/sizeof(fastmeter[0])] = {-INFINITY, -INFINITY};
+    static float old_peak_db[channels] = {-INFINITY, -INFINITY};
 
     // fill up from engine buffers
-    for (unsigned int c = 0; c < sizeof(fastmeter)/sizeof(fastmeter[0]); c++) {
+    float level[channels];
+    machine.maxlevel_get(channels, level);
+    for (unsigned int c = 0; c < channels; c++) {
 	// update meters (consider falloff as well)
 	// calculate peak dB and translate into meter
 	float peak_db = -INFINITY;
-	float v = machine.maxlevel_get(c);
-	if (v > 0) {
-	    peak_db = power2db(v);
+	if (level[c] > 0) {
+	    peak_db = power2db(level[c]);
 	}
 	// retrieve old meter value and consider falloff
 	if (peak_db < old_peak_db[c]) {
@@ -2261,7 +2270,6 @@ bool MainWindow::refresh_meter_level() {
 	fastmeter[c]->set(log_meter(peak_db));
 	old_peak_db[c] = peak_db;
     }
-    machine.maxlevel_reset();
     return true;
 }
 
@@ -2808,8 +2816,13 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 
     // call some action functions to sync state
     // with settings defined in create_actions()
-    on_show_rack();
-    on_show_values();
+    actions.rackh->set_active(options.system_order_rack_h);
+    actions.presets->set_active(options.system_show_presets);
+    actions.show_plugin_bar->set_active(options.system_show_toolbar);
+    actions.show_rack->set_active(options.system_show_rack);
+    actions.show_values->set_active(options.system_show_value);
+    actions.tooltips->set_active(options.system_show_tooltips);
+    actions.animations->set_active(options.system_animations);
 
     /*
     ** Jack client connection and subsequent initalizations

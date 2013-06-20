@@ -419,7 +419,7 @@ public:
     void add(RackBox& r, int pos=-1);
     void check_order();
     void ensure_visible(RackBox& child);
-    void reorder(const std::string& name, int pos);
+    void reorder(const std::string& name, unsigned int pos);
     void increment();
     void decrement();
     inline void resize_finished();
@@ -552,17 +552,17 @@ struct GxActions {
     Glib::RefPtr<Gtk::ToggleAction> loggingbox;
     Glib::RefPtr<Gtk::ToggleAction> animations;
 
-    Glib::RefPtr<UiSwitchToggleAction> show_plugin_bar;
-    Glib::RefPtr<UiSwitchToggleAction> presets;
-    Glib::RefPtr<UiSwitchToggleAction> show_rack;
+    Glib::RefPtr<Gtk::ToggleAction> show_plugin_bar;
+    Glib::RefPtr<Gtk::ToggleAction> presets;
+    Glib::RefPtr<Gtk::ToggleAction> show_rack;
     Glib::RefPtr<UiBoolToggleAction> tuner;
     Glib::RefPtr<UiBoolToggleAction> livetuner;
     Glib::RefPtr<UiBoolToggleAction> midi_out;
     Glib::RefPtr<UiBoolToggleAction> midi_out_plug;
-    Glib::RefPtr<UiSwitchToggleAction> show_values;
-    Glib::RefPtr<UiSwitchToggleAction> tooltips;
+    Glib::RefPtr<Gtk::ToggleAction> show_values;
+    Glib::RefPtr<Gtk::ToggleAction> tooltips;
     Glib::RefPtr<UiSwitchToggleAction> midi_in_presets;
-    Glib::RefPtr<UiSwitchToggleAction> rackh;
+    Glib::RefPtr<Gtk::ToggleAction> rackh;
 
     Glib::RefPtr<Gtk::RadioAction> skin;
     Glib::RefPtr<Gtk::RadioAction> latency;
@@ -694,6 +694,8 @@ private:
     void on_expand_all();
     void on_show_plugin_bar();
     void on_rack_configuration();
+    void set_tooltips();
+    void set_animations();
     void move_widget(Gtk::Widget& w, Gtk::Box& b1, Gtk::Box& b2);
     int rackbox_stacked_vertical() const;
  void change_expand(Gtk::Widget& w, bool value);

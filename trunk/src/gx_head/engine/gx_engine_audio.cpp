@@ -438,13 +438,13 @@ int ModuleSelectorFromList::static_register(const ParamReg &param) {
 
 void ModuleSelectorFromList::set_module() {
     if (current_plugin) {
-	seq.get_param()[current_plugin->id_on_off].getBool().set(false);
+	current_plugin->set_on_off(false);
     }
     if (plugin.get_on_off()) {
 	const char* id;
 	id = modules[selector]->id;
 	current_plugin = seq.pluginlist.lookup_plugin(id);
-	seq.get_param()[current_plugin->id_on_off].getBool().set(true);
+	current_plugin->set_on_off(true);
 	current_plugin->copy_position(plugin, seq.get_param());
     } else {
 	current_plugin = 0;

@@ -141,7 +141,10 @@ static std::string replaced_id(const std::string& s) {
 	{ "ui.Zita Rev1", "ui.zita_rev1" },
 	{ "ui.abGate", "ui.abgate" },
 	{ "ui.low high pass", "ui.low_highpass" },
-	// end ui.*
+	{ "Rev.Rocket.s_h", "rev_rocket.s_h"},
+	{ "Rev.Rocket.position", "rev_rocket.position"},
+	{ "Rev.Rocket.pp", "rev_rocket.pp"},
+	{ "ui.Rev.Rocket", "ui.rev_rocket"},
 	{0}
     };
     for (const char *(*p)[2] = old_new; (*p)[0]; ++p) {
@@ -239,6 +242,42 @@ bool PresetIO::convert_old(gx_system::JsonParser &jp) {
 	opt.no_warn_latency = jp.current_value_int();
 	return true;
     }
+    if (s == "system.order_rack_h") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.system_order_rack_h = jp.current_value_int();
+	return true;
+    }
+    if (s == "system.show_value") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.system_show_value = jp.current_value_int();
+	return true;
+    }
+    if (s == "system.show_tooltips") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.system_show_tooltips = jp.current_value_int();
+	return true;
+    }
+    if (s == "system.animations") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.system_animations = jp.current_value_int();
+	return true;
+    }
+    if (s == "system.show_presets") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.system_show_presets = jp.current_value_int();
+	return true;
+    }
+    if (s == "system.show_toolbar") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.system_show_toolbar = jp.current_value_int();
+	return true;
+    }
+    if (s == "system.show_rack") {
+	jp.next(gx_system::JsonParser::value_number);
+	opt.system_show_rack = jp.current_value_int();
+	return true;
+    }
+
     return false;
 }
 
@@ -875,6 +914,62 @@ void GxSettings::insert_rack_unit(const std::string& unit, const std::string& be
     }
 }
 
+gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, bool move) {
+    Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(uri);
+    std::string filename = rem->get_basename();
+    banks.strip_preset_postfix(filename);
+    Glib::ustring name = banks.decode_filename(filename);
+    banks.make_valid_utf8(name);
+    banks.make_bank_unique(name, &filename);
+    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_path(filename);
+    try {
+	rem->copy(dest);
+    } catch (Gio::Error& e) {
+	gx_system::gx_print_error(e.what().c_str(), _("can't copy to config dir"));
+	return 0;
+    }
+    gx_system::PresetFile *f = new gx_system::PresetFile();
+    if (f->open_file(name, filename, gx_system::PresetFile::PRESET_FILE, 0)) {
+	banks.insert(f);
+    } else {
+	delete f;
+	try {
+	    dest->remove();
+	} catch (Gio::Error& e) {
+	    gx_system::gx_print_error(e.what().c_str(), _("can't remove copied file!?"));
+	}
+	return 0;
+    }
+    if (move) {
+	try {
+	    rem->remove();
+	} catch (Gio::Error& e) {
+	    gx_system::gx_print_error(e.what().c_str(), _("can't move; file has been copied"));
+	}
+    }
+    return f;
+}
+
+gx_system::PresetFile *GxSettings::bank_insert_new(const Glib::ustring& name) {
+    Glib::ustring newname = name;
+    std::string newfile;
+    banks.make_bank_unique(newname, &newfile);
+    gx_system::PresetFile *f = new gx_system::PresetFile();
+    if (f->create_file(newname, newfile, gx_system::PresetFile::PRESET_FILE, 0)) {
+	banks.insert(f);
+	return f;
+    } else {
+	delete f;
+	return 0;
+    }
+}
+
+bool GxSettings::rename_bank(const Glib::ustring& oldname, Glib::ustring& newname) {
+    std::string newfile;
+    banks.make_bank_unique(newname, &newfile);
+    return GxSettingsBase::rename_bank(oldname, newname, newfile);
+}
+
 //static
 bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_new_preset) {
     bool copied_from_old = false;
@@ -884,6 +979,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
 	check_create_config_dir(opt.get_pluginpreset_dir());
+	check_create_config_dir(opt.get_temp_dir());
 	std::string fname = gx_jack::GxJack::get_default_instancename() + statename_postfix;
 	if (access(Glib::build_filename(opt.get_old_user_dir(), fname).c_str(), R_OK) == 0) {
 	    copied_from_old = true;
@@ -912,6 +1008,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
 	check_create_config_dir(opt.get_pluginpreset_dir());
+	check_create_config_dir(opt.get_temp_dir());
     }
     std::string fname = opt.get_preset_filepath(scratchpad_file);
     if (access(fname.c_str(), R_OK) != 0) {

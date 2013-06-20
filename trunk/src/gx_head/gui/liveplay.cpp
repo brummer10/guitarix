@@ -78,7 +78,7 @@ bool KeySwitcher::process_preset_key(int idx) {
 	}
 	bank = machine.get_current_bank();
     }
-    gx_system::PresetFile *f = machine.get_bank_file(bank);
+    gx_system::PresetFileGui *f = machine.get_bank_file(bank);
     if (idx >= f->size()) {
 	display_empty(bank, gx_system::to_string(idx+1)+"?");
 	return false;

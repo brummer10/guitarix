@@ -26,6 +26,7 @@
 #include <giomm/init.h>     // NOLINT
 #include <giomm/socketservice.h>
 #include <ext/stdio_filebuf.h>
+#include "jsonrpc_methods.h"
 
 class MyService;
 
@@ -48,12 +49,17 @@ public:
     void append(gx_system::JsonParser& jp);
 };
 
+
 class CmdConnection: public sigc::trackable {
+public:
+    struct methodnames {
+	const char *name;
+	jsonrpc_method m_id;
+    };
 private:
     MyService& serv;
     Glib::RefPtr<Gio::SocketConnection> connection;
-    gx_system::JsonParser jp;
-    gx_system::JsonWriter jw;
+    gx_system::JsonStringParser jp;
     bool parameter_change_notify;
     sigc::connection conn_preset_changed;
     sigc::connection conn_state_changed;
@@ -65,18 +71,19 @@ private:
     sigc::connection conn_log_message;
 private:
     void exec(Glib::ustring cmd);
-    void call(Glib::ustring& method, JsonArray& params);
-    void notify(Glib::ustring& method, JsonArray& params);
-    bool request(bool batch_start);
-    void write_error(int code, const char *message);
-    void write_error(int code, Glib::ustring& message) { write_error(code, message.c_str()); }
-    void error_response(int code, const char *message);
-    void error_response(int code, Glib::ustring& message) { error_response(code, message.c_str()); }
+    void call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
+    void notify(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
+    bool request(gx_system::JsonParser& jp, gx_system::JsonWriter& jw, bool batch_start);
+    void write_error(gx_system::JsonWriter& jw, int code, const char *message);
+    void write_error(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { write_error(jw, code, message.c_str()); }
+    void error_response(gx_system::JsonWriter& jw, int code, const char *message);
+    void error_response(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { error_response(jw, code, message.c_str()); }
     void preset_changed();
-    void send_notify_begin(const char *method);
-    void send_notify_end();
+    void send_rack_changed(bool stereo);
+    void send_notify_begin(gx_system::JsonWriter& jw, const char *method);
+    void send_notify_end(gx_system::JsonStringWriter& jw, bool send_out=true);
     void on_engine_state_change(gx_engine::GxEngineState state);
-    void write_engine_state(gx_engine::GxEngineState s);
+    void write_engine_state(gx_system::JsonWriter& jw, gx_engine::GxEngineState s);
     void on_tuner_freq_changed();
     void display(const Glib::ustring& bank, const Glib::ustring& preset);
     void set_display_state(TunerSwitcher::SwitcherState newstate);
@@ -85,7 +92,8 @@ private:
     void on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
     void listen(const Glib::ustring& tp);
     void unlisten(const Glib::ustring& tp);
-    void process(istringstream& is);
+    void send(gx_system::JsonStringWriter& jw);
+    void process(gx_system::JsonStringParser& jp);
 
 public:
     CmdConnection(MyService& serv, const Glib::RefPtr<Gio::SocketConnection>& connection_);

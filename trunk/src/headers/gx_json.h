@@ -25,6 +25,11 @@
 #ifndef SRC_HEADERS_GX_JSON_H_
 #define SRC_HEADERS_GX_JSON_H_
 
+namespace gx_engine {
+class GxMachine;
+class GxMachineRemote;
+}
+
 namespace gx_system {
 
 /****************************************************************
@@ -83,6 +88,18 @@ class JsonWriter {
     void write_null(bool nl = false) { write_lit("null", nl); }
     void newline() { snl(true); }
 };
+
+
+class JsonStringWriter: public JsonWriter {
+private:
+    ostringstream stream;
+public:
+    JsonStringWriter(): JsonWriter(0, false) { set_stream(&stream); }
+    void reset() { stream.str(""); }
+    void finish() { stream << endl; }
+    std::string get_string() { return stream.str(); }
+};
+
 
 class JsonParser {
  public:
@@ -148,6 +165,19 @@ class JsonParser {
     token read_value_token(char c);
     string readnumber(char c);
     void read_next();
+};
+
+
+class JsonStringParser: public JsonParser {
+private:
+    stringstream stream;
+public:
+    JsonStringParser() {}
+    void put(char c) { stream.put(c); }
+    void start_parser() { stream.seekg(0); set_stream(&stream); }
+    std::string get_string() { return stream.str(); }
+    void reset() { stream.str(""); JsonParser::reset(); }
+    char peek_first_char() { stream >> ws; return stream.peek(); }
 };
 
 
@@ -232,6 +262,8 @@ enum {
     PRESET_FLAG_INVALID = 4,
 };
 
+class PresetFileGui;
+
 class PresetFile : boost::noncopyable {
 public:
     enum { PRESET_SEP = -1, PRESET_SCRATCH = 0, PRESET_FILE = 1, PRESET_FACTORY = 2 };
@@ -300,7 +332,33 @@ public:
     iterator begin();
     iterator end() { return entries.end(); }
     bool is_mutable() const { return (tp == PRESET_SCRATCH || tp == PRESET_FILE) && !flags; }
+    PresetFileGui *get_guiwrapper();
 };
+
+class PresetFileGui: private PresetFile {
+private:
+    PresetFileGui();
+    ~PresetFileGui();
+    friend class PresetFile;
+    friend class gx_engine::GxMachine;
+    friend class gx_engine::GxMachineRemote;
+public:
+    using PresetFile::get_header;
+    using PresetFile::size;
+    using PresetFile::fill_names;
+    using PresetFile::get_name;
+    using PresetFile::get_index;
+    using PresetFile::has_entry;
+    using PresetFile::get_flags;
+    using PresetFile::get_type;
+    using PresetFile::get_name;
+    using PresetFile::begin;
+    using PresetFile::end;
+    using PresetFile::is_mutable;
+    operator PresetFile*() { return this; }
+};
+
+inline PresetFileGui *PresetFile::get_guiwrapper() { return static_cast<PresetFileGui*>(this); }
 
 class AbstractStateIO {
 public:

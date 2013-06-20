@@ -1684,10 +1684,19 @@ void ParamMap::insert(Parameter* param) {
     id_map.insert(pair<string, Parameter*>(param->id(), param));
 }
 
-void ParamMap::unregister(const string& id) {
-    Parameter *p = &(*this)[id];
-    id_map.erase(id);
+void ParamMap::unregister(Parameter *p) {
+    if (!p) {
+	return;
+    }
+    id_map.erase(p->id());
     delete p;
+}
+
+void ParamMap::unregister(const string& id) {
+    if (!hasId(id)) {
+	return;
+    }
+    unregister(&(*this)[id]);
 }
 
 void ParamMap::set_init_values() {

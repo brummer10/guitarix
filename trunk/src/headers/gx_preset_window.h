@@ -162,7 +162,7 @@ private:
     void on_presets_close();
     bool animate_preset_show();
     bool animate_preset_hide();
-    void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFile *f);
+    void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFileGui *f);
     void display_paned(bool show_preset, int paned_child_height);
     void on_selection_changed();
 public:
