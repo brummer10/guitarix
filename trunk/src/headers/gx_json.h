@@ -41,7 +41,7 @@ class JsonException: public exception {
  protected:
     Glib::ustring what_str;
  public:
-    JsonException(const char* desc);
+    JsonException(const Glib::ustring& desc);
     ~JsonException() throw() { }
     virtual const char* what() const throw() { return what_str.c_str(); }
 };
@@ -282,6 +282,7 @@ protected:
     Glib::ustring name;
     int tp;
     int flags;
+    friend class gx_engine::GxMachineRemote;
 protected:
     void open();
 public:
@@ -387,6 +388,7 @@ private:
     void parse_factory_list(const std::string& path);
     void parse_bank_list(bl_type::iterator pos);
     void collect_lost_banks(const char* scratchpad_name, const char* scratchpad_file);
+    friend class gx_engine::GxMachineRemote;
 public:
     class iterator {
     private:

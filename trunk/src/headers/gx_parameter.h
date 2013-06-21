@@ -418,7 +418,7 @@ protected:
     Glib::ustring value_storage;
 public:
     bool set(const Glib::ustring& val) const;
-    Glib::ustring get_value() const { return *value; }
+    const Glib::ustring& get_value() const { return *value; }
     virtual void stdJSON_value();
     virtual bool on_off_value();
     virtual void writeJSON(gx_system::JsonWriter& jw) const;

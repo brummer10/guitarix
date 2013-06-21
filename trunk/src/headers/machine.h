@@ -366,6 +366,8 @@ private:
     sigc::signal<void, int, int> midi_value_changed;
     MidiControllerList::controller_array midi_controller_map;
     bool current_call_has_result;
+    Glib::ustring current_bank;
+    Glib::ustring current_preset;
 private:
     void start_call(jsonrpc_method m_id);
     void send();
@@ -379,9 +381,11 @@ private:
     static int load_remote_ui_static(const UiBuilder& builder);
     int load_remote_ui(const UiBuilder& builder);
     void report_rpc_error(gx_system::JsonStringParser *jp, const gx_system::JsonException& e);
+    void throw_error(gx_system::JsonStringParser *jp);
     void param_signal_int(int v, IntParameter *p);
     void param_signal_bool(bool v, BoolParameter *p);
     void param_signal_float(float v, FloatParameter *p);
+    void param_signal_string(const Glib::ustring& v, StringParameter *p);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);

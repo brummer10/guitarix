@@ -1335,6 +1335,7 @@ void BoolParameter::setJSON_value() {
 void FileParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.write_key("value"); jw.write(value->get_path());
     jw.end_object();
 }
 
@@ -1342,9 +1343,14 @@ FileParameter::FileParameter(gx_system::JsonParser& jp)
     : Parameter(jp_next(jp, "Parameter")), value(0), std_value(0), json_value(0) {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
-	gx_system::gx_print_warning(
-	    "FileParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
-	jp.skip_object();
+	if (jp.current_value() == "value") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    value = Gio::File::create_for_path(jp.current_value());
+	} else {
+	    gx_system::gx_print_warning(
+		"FileParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
+	    jp.skip_object();
+	}
     }
     jp.next(gx_system::JsonParser::end_object);
 }
@@ -1447,6 +1453,7 @@ void FileParameter::copy(const string& destination) const {
 void StringParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.write_key("value"); jw.write(*value);
     jw.end_object();
 }
 
@@ -1454,9 +1461,14 @@ StringParameter::ParameterV(gx_system::JsonParser& jp)
     : Parameter(jp_next(jp, "Parameter")), json_value(""), value(&value_storage), std_value("") {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
-	gx_system::gx_print_warning(
-	    "StringParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
-	jp.skip_object();
+	if (jp.current_value() == "value") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    *value = jp.current_value();
+	} else {
+	    gx_system::gx_print_warning(
+		"StringParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
+	    jp.skip_object();
+	}
     }
     jp.next(gx_system::JsonParser::end_object);
 }

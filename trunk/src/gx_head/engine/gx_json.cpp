@@ -213,8 +213,8 @@ void JsonWriter::flush() {
  ** JsonParser
  */
 
-JsonException::JsonException(const char* desc) {
-    what_str = string("Json parse error: ") + desc;
+JsonException::JsonException(const Glib::ustring& desc) {
+    what_str = "Json parse error: " + desc;
 }
 
 void JsonParser::reset() {
@@ -1258,6 +1258,10 @@ PresetBanks::~PresetBanks() {
 }
 
 void PresetBanks::readJSON_remote(gx_system::JsonParser& jp) {
+    for (iterator i = begin(); i != end(); ++i) {
+	delete *i;
+    }
+    banklist.clear();
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
 	gx_system::PresetFile *pf = new gx_system::PresetFile;
@@ -1465,6 +1469,9 @@ void PresetBanks::collect_lost_banks(const char* scratchpad_name, const char* sc
 
 
 void PresetBanks::save() {
+    if (filepath.empty()) { //FIXME remote operation hack
+	return;
+    }
     std::string tmpfile = filepath + "_tmp";
     ofstream os(tmpfile.c_str());
     gx_system::JsonWriter jw(&os);

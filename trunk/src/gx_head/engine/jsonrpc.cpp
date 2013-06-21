@@ -630,8 +630,10 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     FUNCTION(rename_bank) {
 	Glib::ustring newname = params[1]->getString();
+	jw.begin_array();
 	jw.write(serv.settings.rename_bank(params[0]->getString(), newname));
 	jw.write(newname);
+	jw.end_array();
     }
 
     FUNCTION(rename_preset) {
@@ -646,6 +648,16 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     FUNCTION(bank_get_filename) {
 	jw.write(serv.settings.banks.get_file(params[0]->getString())->get_filename());
+    }
+
+    FUNCTION(bank_get_contents) {
+	const std::string& fname = serv.settings.banks.get_file(params[0]->getString())->get_filename();
+	jw.begin_array();
+	jw.write(fname);
+	stringstream s;
+	s << ifstream(fname.c_str()).rdbuf();
+	jw.write(s.str());
+	jw.end_array();
     }
 
     FUNCTION(convert_preset) {
@@ -780,7 +792,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.end_array();
     }
 
-    END_FUNCTION_SWITCH(throw RpcError(-32601, "Method not found"));
+    END_FUNCTION_SWITCH(cerr << "Method not found: " << mn->name << endl; assert(false));
 }
 
 static void save_preset(gx_preset::GxSettings& settings, const Glib::ustring& bank,
@@ -1033,7 +1045,7 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 	save_preset(serv.settings, params[0]->getString(), params[1]->getString());
     }
 
-    END_FUNCTION_SWITCH(throw RpcError(-32601, "Method not found"));
+    END_FUNCTION_SWITCH(cerr << "Method not found: " << mn->name << endl; assert(false));
 }
 
 void CmdConnection::write_error(gx_system::JsonWriter& jw, int code, const char *message) {
@@ -1106,11 +1118,7 @@ bool CmdConnection::request(gx_system::JsonParser& jp, gx_system::JsonWriter& jw
 	jw.write_key("id");
 	jw.write(id);
 	jw.write_key("result");
-	try {
-	    call(jw, p, params);
-	} catch(RpcError& e) {
-	    write_error(jw, e.code, e.message);
-	}
+	call(jw, p, params);
 	jw.end_object();
 	return true;
     }
@@ -1172,8 +1180,8 @@ void CmdConnection::send(gx_system::JsonStringWriter& jw) {
 }
 
 void CmdConnection::process(gx_system::JsonStringParser& jp) {
-    gx_system::JsonStringWriter jw;
     try {
+	gx_system::JsonStringWriter jw;
 	bool resp = false;
 	// jp.peek() doesn't work at start of stream
 	if (jp.peek_first_char() == '[') {
@@ -1191,17 +1199,19 @@ void CmdConnection::process(gx_system::JsonStringParser& jp) {
 	if (!resp) {
 	    return;
 	}
+	send(jw);
     } catch (gx_system::JsonException& e) {
 	gx_system::gx_print_error(
 	    "JSON-RPC", Glib::ustring::compose("error: %1, request: '%2'",
 					       e.what(), jp.get_string()));
-	jw.reset();
+	gx_system::JsonStringWriter jw;
 	error_response(jw, -32700, "Parse Error");
+	send(jw);
     } catch (RpcError& e) {
-	jw.reset();
+	gx_system::JsonStringWriter jw;
 	error_response(jw, e.code, e.message);
+	send(jw);
     }
-    send(jw);
 }
 
 

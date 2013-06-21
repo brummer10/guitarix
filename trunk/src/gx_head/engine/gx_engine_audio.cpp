@@ -437,16 +437,16 @@ int ModuleSelectorFromList::static_register(const ParamReg &param) {
 }
 
 void ModuleSelectorFromList::set_module() {
-    if (current_plugin) {
-	current_plugin->set_on_off(false);
-    }
     if (plugin.get_on_off()) {
-	const char* id;
-	id = modules[selector]->id;
-	current_plugin = seq.pluginlist.lookup_plugin(id);
+	Plugin *old = current_plugin;
+	current_plugin = seq.pluginlist.lookup_plugin(modules[selector]->id);
+	if (old && old != current_plugin) {
+	    old->set_on_off(false);
+	}
 	current_plugin->set_on_off(true);
 	current_plugin->copy_position(plugin);
-    } else {
+    } else if (current_plugin) {
+	current_plugin->set_on_off(false);
 	current_plugin = 0;
     }
 }
