@@ -573,10 +573,17 @@ void MainWindow::rebuild_preset_menu() {
     }
     preset_list_actiongroup = Gtk::ActionGroup::create("PresetList");
     preset_list_menu_bank = machine.get_current_bank();
+    static int counter = 0;
+    // somewhere part of the menu structure seems to be cached or just
+    // not properly deleted; when reordering presets the menu still shows
+    // the old list (or a reordered list but the key accelerator are still
+    // the old ones). The counter prevents this, but quite possible there
+    // is a memory leak. FIXME
+    Glib::ustring cnt = gx_system::to_string(counter++);
     Glib::ustring s = "<menubar><menu action=\"PresetsMenu\"><menu action=\"PresetListMenu\">";
     int idx = 0;
     for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
-	Glib::ustring actname = "PresetList_" + i->name;
+	Glib::ustring actname = "PresetList_" + cnt + i->name;
 	Glib::RefPtr<Gtk::Action> action = Gtk::Action::create(actname, i->name);
 	if (idx <= 9) {
 	    char c = (idx == 9 ? '0' : '1'+idx);
