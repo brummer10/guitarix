@@ -727,7 +727,8 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header) {
 	    f = "-";
 	}
 	printf(fmtl, f, pd->id, p->position_weight(), p->get_position(),
-	       p->get_effect_post_pre(), p->get_on_off(),p->get_box_visible(), c);
+	       p->get_effect_post_pre(), p->get_on_off(),
+	       (p->p_box_visible ? p->get_box_visible() : false), c);
     }
 }
 #endif

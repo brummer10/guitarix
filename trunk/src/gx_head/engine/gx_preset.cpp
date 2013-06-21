@@ -74,7 +74,7 @@ bool PresetIO::midi_in_preset() {
 void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {
     clear();
     for (gx_engine::ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
- 	if (i->second->isInPreset()) {
+ 	if (i->second->isInPreset() && i->second->isSavable()) {
 	    i->second->stdJSON_value();
 	    plist.push_back(i->second);
 	}
@@ -340,7 +340,13 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
 		_("non preset-parameter ")+p->id()+_(" in preset"));
             jp.skip_object();
             continue;
-        }
+        } else if (!p->isSavable()) {
+            gx_system::gx_print_warning(
+		_("recall settings"),
+		_("non savable parameter ")+p->id()+_(" in settings"));
+            jp.skip_object();
+            continue;
+	}
 	p->readJSON_value(jp);
 	collectRackOrder(p, jp, u);
     } while (jp.peek() == gx_system::JsonParser::value_key);
@@ -475,8 +481,10 @@ StateIO::~StateIO() {
 void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {
     clear();
     for (gx_engine::ParamMap::iterator i = param.begin(); i != param.end(); ++i) {
-	i->second->stdJSON_value();
-	plist.push_back(i->second);
+	if (i->second->isSavable()) {
+	    i->second->stdJSON_value();
+	    plist.push_back(i->second);
+	}
     }
     do {
 	jp.next(gx_system::JsonParser::value_string);
