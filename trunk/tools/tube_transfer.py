@@ -74,20 +74,38 @@ from scipy.optimize import newton
 names  = ("mu", "kx", "kg1", "kg2", "kp", "kvb", "ccg", "cpg", "ccp", "rgi")
 factor = ( 1.0,  1.0,   1.0,   1.0,  1.0,   1.0, 1e-12, 1e-12, 1e-12,   1e3)
 tubes  = {
-    #TUBE        MU    EX      KG1     KG2     KP    KVB   CCG*  CPG*   CCP*  RGI**
-    "6DJ8" : ( 28.0,  1.3,   330.0,   None, 320.0, 300.0,  2.3,  2.1,   0.7,  2.0),
-    "6L6CG": (  8.7,  1.35, 1460.0, 4500.0,  48.0,  12.0, 14.0,  0.85, 12.0,  1.0),
-    "12AX7": (100.0,  1.4,  1060.0,   None, 600.0, 300.0,  2.3,  2.4,   0.9,  2.0),
-    "12AT7": ( 60.0,  1.35,  460.0,   None, 300.0, 300.0,  2.7,  2.2,   1.0,  2.0),
-    "12AU7": ( 21.5,  1.3,  1180.0,   None,  84.0, 300.0,  2.3,  2.2,   1.0,  2.0),
-    "6550" : (  7.9,  1.35,  890.0, 4800.0,  60.0,  24.0, 14.0,  0.85, 12.0,  1.0),
-    "KT88" : (  8.8,  1.35,  730.0, 4200.0,  32.0,  16.0, 14.0,  0.85, 12.0,  1.0),
-    #"EL34" : ( 60.0,  4.8,  2000.0,   None, 800.0,  50.0, None, None,  None, None),
-    "EL34" : ( 11.0,  1.35,  650.0, 4200.0,  60.0,  24.0, 15.0,  1.0,   8.0,  1.0),
-    "2A3"  : (  4.2,  1.4,  1500.0,   None,  60.0, 300.0,  8.0, 17.0,   6.0,  1.0),
-    "300B" : (  3.95, 1.4,  1550.0,   None,  65.0, 300.0, 10.0, 16.0,   5.0,  1.0),
-    "6C33C": (  3.1,  1.4,   163.0,   None,  15.0, 300.0, 31.0, 31.0,  11.0,  0.5),
-    "6C16": (  42.2,  2.21,  393.0,   None, 629.0, 446.0,  9.0,  1.8,  0.48,  2.0),
+    #TUBE         MU    EX      KG1     KG2     KP     KVB    CCG*  CPG*   CCP*  RGI**
+    "6DJ8"   : ( 28.0,  1.3,   330.0,      0,  320.0, 300.0,  2.3,  2.1,   0.7,  2.0),
+    "6L6CG"  : (  8.7,  1.35, 1460.0, 4500.0,   48.0,  12.0, 14.0,  0.85, 12.0,  1.0),
+    "12AX7"  : (100.0,  1.4,  1060.0,      0,  600.0, 300.0,  2.3,  2.4,   0.9,  2.0),
+    "12AT7"  : ( 60.0,  1.35,  460.0,      0,  300.0, 300.0,  2.7,  2.2,   1.0,  2.0),
+   #"12AT7"  : ( 67.5,  1.23,  419.1,      0,  214.0, 300.0,  2.3,  2.2,   1.0,  2.0),
+   #"12AT7WA": ( 72.8,  1.67,  341.8,      0,  233.2, 267.8,  2.3,  2.2,   1.0,  2.0),
+    "12AU7"  : ( 21.5,  1.3,  1180.0,      0,   84.0, 300.0,  2.3,  2.2,   1.0,  2.0),
+   #"12AU7"  : ( 20.2,  1.23, 1108.0,      0,   84.9, 551.0,  2.3,  2.2,   1.0,  2.0),
+    "12AY7"  : (44.16,  1.11, 1192.4,      0, 409.96, 300.0,  2.0,  2.0,   1.0,  2.0),
+    "12AZ7"  : (74.08,  1.37,  382.4,      0, 190.11, 300.0,  2.3,  2.2,   1.0,  2.0),
+    "12BH7A" : (24.59,  1.34,  594.4,      0,  73.01, 300.0,  3.9,  3.2,   1.0,  2.0),
+    "6550"   : (  7.9,  1.35,  890.0, 4800.0,   60.0,  24.0, 14.0, 0.85,  12.0,  1.0),
+    "KT88"   : (  8.8,  1.35,  730.0, 4200.0,   32.0,  16.0, 14.0, 0.85,  12.0,  1.0),
+   #"EL34"   : ( 60.0,   4.8, 2000.0,      0,  800.0,  50.0,    0,    0,     0,    0),
+    "EL34_o" : ( 11.0,  1.35,  650.0, 4200.0,   60.0,  24.0, 15.0,  1.0,   8.0,  1.0),
+    "EL34"   : ( 12.3,  1.17,  353.9, 4500.0,   61.1,  29.9, 15.0,  1.0,   8.0,  1.0),
+    "SVEL34" : ( 11.5,  1.35,  608.9, 4500.0,   41.2,  30.1, 15.0,  1.0,   8.0,  1.0),
+    "SV6N1P" : ( 36.6,  1.53, 1020.2,      0,  193.2, 300.0,  3.7,  2.3,   2.2,  2.0),
+    "EL84"   : ( 21.3,  1.24,  401.7, 4500.0,  111.1,  17.9, 10.0,  0.6,   5.1,  1.0),
+    "6AB8"   : ( 39.1,  0.93,  228.9, 4500.0,   50.2,  21.2,  6.7,  0.6,   4.1,  2.0),
+   #"2A3"    : ( 4.05,  1.63, 3652.2,      0,   58.5, 300.0, 17.0,  8.2,   6.0,  1.0),
+   #"300B"   : ( 3.92,   1.5, 2140.3,      0,   64.0, 300.0, 17.0, 11.0,   7.5,  1.0),
+   #"6C33C"  : (  3.1,   1.4,  163.0,      0,   15.0, 300.0, 31.0, 31.0,  11.0,  0.5),
+    "6C16"   : ( 42.2,  2.21,  393.0,      0,  629.0, 446.0,  9.0,  1.8,  0.48,  2.0),
+    "ECL80T" : ( 29.3,  1.33, 1443.9,      0,   45.5, 300.0,  3.2,  2.7,   1.8,  2.0),
+    "ECL81T" : ( 66.3,  1.39, 1400.2,      0,  369.3,   2.5,  3.2,  2.7,   1.8,  2.0),
+    "ECL83T" : (119.1,  1.32,  732.7,      0,  305.2,   1.8,  3.2,  2.7,   1.8,  2.0),
+    "JJECC81": ( 77.1,  1.08,  320.0,      0,  230.0, 300.0,  2.3,  2.2,   1.0,  2.0),
+    "JJECC82": ( 24.1,  1.25, 1023.1,      0,   65.2, 300.0,  2.3,  2.2,   1.0,  2.0),
+    "JJECC83S":( 98.3,  1.45, 1722.8,      0,  749.4, 131.2,  2.3,  2.4,   0.9,  2.0),
+    "JJECC99": ( 23.1,  1.46,  455.3,      0,  191.9, 300.0,  2.3,  2.2,   1.0,  2.0),
     # * : 10^-12 (pF)
     # **: 10^3 (kOhm)
 }
@@ -98,18 +116,18 @@ class Circuit(object):
     table_size = 2001
     Uin_range = (-5.0, 5.0)
     # This could be user choice
-#    Vp = 250
-    Vp = 300	# Better for output section
+    Vp = 250
+#    Vp = 300	# Better for output section
     # For power valves this Rp is too high???
-#    Rp  = 100e3
+    Rp  = 100e3
 #    Rp  = 7e3	# Transformer for Pentode around this
-    Rp  = 3.5e3   # Transformer for triode wired 
+#    Rp  = 3.5e3   # Transformer for triode wired 
 # These values are also not right for po
     Ri_values = (68e3, 250e3)
 
     # class data
-    used_names = ("mu", "kx", "kg1", "kp", "kvb")
-    ipk_tab = { "triode": "Ipk_triode", "pentode": "Ipk_triode_pentode" }
+    used_names = ("mu", "kx", "kg1","kg2", "kp", "kvb")
+    ipk_tab = { "triode": "Ipk_triode", "pentode": "Ipk_triode_pentode", "pentode2": "Ipk_pentode" }
     Vi = linspace(Uin_range[0],Uin_range[1],table_size)
 
     @classmethod
@@ -140,6 +158,17 @@ class Circuit(object):
     def Igk_Vgk(self, Vgk):
         """gate current as function of gate-kathode voltage"""
         return exp(7.75*Vgk-10.3)
+
+    def Ipk_pentode(self, Vgk, Vpk):
+        """
+        LOGICAL ERROR in this, should become this:
+        E1  ={V(2,4)/KP*LOG(1+EXP((1/MU+V(3,4)/V(2,4))*KP))} ; E1 BREAKS UP LONG EQUATION FOR G1.
+        G1   ={(PWR(V(7),EX)+PWRS(V(7),EX))/KG1*ATAN(V(1,4)/KVB)}
+        G2   ={(EXP(EX*(LOG((V(2,4)/MU)+V(3,4)))))/KG2}
+        """
+        E1 = Vpk/self.kp*log(1+exp(self.kp*(1/self.mu+Vgk/Vpk)))
+        G1 = 2*E1**self.kx/self.kg1*(E1>0.0)*arctan(Vpk/self.kvb)
+        return (G1+exp(self.kx*(log(Vpk/self.mu)+Vgk)))/self.kg2
 
     def Ipk_triode_pentode(self, Vgk, Vpk):
         """Koren model of pentode connected as class A triode
@@ -267,10 +296,21 @@ class Circuit(object):
         legend()
         axis
         show()
+    
+    def s_plot_Ftube(self):
+        title(self.tube)
+        for Ri in self.Ri_values:
+            Vp = self.FtubeV(self.Vi, Ri)
+            plot(self.Vi, Vp, label="Ri=%dk" % (Ri/1e3))
+        xlabel("Vik")
+        ylabel("Vp")
+        legend()
+        axis
+        savefig("%s.png" % self.tube)
 
 
 def usage():
-    print "usage: %s plot|accuracy|table|vk0 tube-name plate-func" % sys.argv[0]
+    print "usage: %s plot|s_plot|accuracy|table|vk0 tube-name plate-func" % sys.argv[0]
     print Circuit.help()
     raise SystemExit, 1
 
@@ -281,6 +321,8 @@ def main():
     c = Circuit(sys.argv[2], sys.argv[3])
     if cmd == "plot":
         c.plot_Ftube()
+    elif cmd == "s_plot":
+        c.s_plot_Ftube()
     elif cmd == "accuracy":
         c.display_accuracy()
     elif cmd == "table":

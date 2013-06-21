@@ -1,0 +1,45 @@
+#! /bin/bash
+tables=(
+  "12AX7 triode 12ax7"
+  "12AU7 pentode 12AU7"
+  "12AT7 triode 12AT7"
+  "12AY7 triode 12AY7"
+  "12AZ7 triode 12AZ7"
+  "12BH7A triode 12BH7A"
+  #"6V6 triode 6V6"
+  "6DJ8 triode 6DJ8"
+  "6C16 triode 6C16"
+  "SV6N1P triode SV6N1P"
+  #"2A3 triode 2A3"
+  #"300B triode 300B"
+  #"6C33C triode 6C33C"
+  "6C16 triode 6C16"
+  "ECL80T triode ECL80T"
+  "ECL81T triode ECL81T"
+  "ECL83T triode ECL83T"
+  "JJECC81 triode JJECC81"
+  "JJECC82 triode JJECC82"
+  "JJECC83S triode JJECC83S"
+  "JJECC99 triode JJECC99"
+
+  "6L6CG pentode2 6L6CG"
+  "6550 pentode2 6550"
+  "KT88 pentode2 KT88"
+  "EL34_o pentode2 EL34_o"
+  "EL34 pentode2 EL34"
+  "SVEL34 pentode2 SVEL34"
+  "EL84 pentode2 EL84"
+  "6AB8 pentode2 6AB8"
+)
+
+rm -rf ./plots
+rm -rf ./tubes
+mkdir -p ./plots
+mkdir -p ./tubes
+for f in "${tables[@]}"; do
+  set -- $f
+  python ../tube_transfer.py table $1 $2 > "./tubes/"$3".cc"
+  cd ./plots ; python ../../tube_transfer.py s_plot $1 $2 
+  cd ../ ;
+  echo $1 $2
+done
