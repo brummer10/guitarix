@@ -409,6 +409,7 @@ static void mainHeadless(int argc, char *argv[]) {
     } else {
 	loop->run();
     }
+    gx_child_process::childprocs.killall();
 }
 
 static void mainGtk(int argc, char *argv[]) {
@@ -460,6 +461,7 @@ static void mainGtk(int argc, char *argv[]) {
     // ----------------------- run GTK main loop ----------------------
     delete Splash;
     gui.run();
+    gx_child_process::childprocs.killall();
 }
 
 static void mainFront(int argc, char *argv[]) {
@@ -504,6 +506,7 @@ static void mainFront(int argc, char *argv[]) {
     delete Splash;
     machine.set_init_values();
     gui.run();
+    gx_child_process::childprocs.killall();
 }
 
 static bool is_headless(int argc, char *argv[]) {
@@ -549,7 +552,6 @@ int main(int argc, char *argv[]) {
 	} else {
 	    mainGtk(argc, argv);
 	}
-	gx_child_process::childprocs.killall();
     } catch (const Glib::OptionError &e) {
 	cerr << e.what() << endl;
 	cerr << _("use \"guitarix -h\" to get a help text") << endl;
