@@ -9,11 +9,11 @@ tables=(
   #"6V6 triode 6V6"
   "6DJ8 triode 6DJ8"
   "6C16 triode 6C16"
+  "6AN8T triode 6AN8T"
   "SV6N1P triode SV6N1P"
   #"2A3 triode 2A3"
   #"300B triode 300B"
   #"6C33C triode 6C33C"
-  "6C16 triode 6C16"
   "ECL80T triode ECL80T"
   "ECL81T triode ECL81T"
   "ECL83T triode ECL83T"
@@ -22,6 +22,7 @@ tables=(
   "JJECC83S triode JJECC83S"
   "JJECC99 triode JJECC99"
 
+  "6AN8P pentode2 6AN8P"
   "6L6CG pentode2 6L6CG"
   "6550 pentode2 6550"
   "KT88 pentode2 KT88"
@@ -30,6 +31,11 @@ tables=(
   "SVEL34 pentode2 SVEL34"
   "EL84 pentode2 EL84"
   "6AB8 pentode2 6AB8"
+  "EF80 pentode2 EF80"
+  "EF83 pentode2 EF83"
+  "7199P pentode2 7199P"
+  "6BQ5 pentode2 6BQ5"
+ 
 )
 
 rm -rf ./plots
