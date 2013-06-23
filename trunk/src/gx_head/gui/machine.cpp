@@ -743,6 +743,7 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     jw->write("presetlist_changed");
     jw->write("logger");
     jw->write("midi");
+    jw->write("param");
     SEND();
 }
 
