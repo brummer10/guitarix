@@ -709,7 +709,7 @@ public:
     int get_current_control() { return last_midi_control; }
     void set_current_control(int ctl) { last_midi_control = ctl; }
     void set_ctr_val(int ctr, int val); //RT
-    void deleteParameter(Parameter& param, bool quiet = false);
+    void deleteParameter(Parameter& param);
     void modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
     int param2controller(Parameter& param, const MidiController** p) {
 	return map.param2controller(param, p); }

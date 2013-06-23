@@ -424,12 +424,12 @@ void MidiControllerList::set_config_mode(bool mode, int ctl) {
     }
 }
 
-void MidiControllerList::deleteParameter(Parameter& p, bool quiet) {
+void MidiControllerList::deleteParameter(Parameter& p) {
     bool mode = get_config_mode();
     if (!mode) {
         set_config_mode(true); // keep rt thread away from table
     }
-    if (map.deleteParameter(p) && !quiet) {
+    if (map.deleteParameter(p)) {
         changed();
     }
     if (!mode) {

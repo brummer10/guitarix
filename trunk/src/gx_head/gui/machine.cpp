@@ -635,8 +635,8 @@ midi_controller_list& GxMachine::midi_get(int n) {
     return engine.controller_map[n];
 }
 
-void GxMachine::midi_deleteParameter(Parameter& param, bool quiet) {
-    engine.controller_map.deleteParameter(param, quiet);
+void GxMachine::midi_deleteParameter(Parameter& param) {
+    engine.controller_map.deleteParameter(param);
 }
 
 void GxMachine::midi_set_current_control(int v) {
@@ -2055,11 +2055,10 @@ midi_controller_list& GxMachineRemote::midi_get(int n) {
     return midi_controller_map[n];
 }
 
-void GxMachineRemote::midi_deleteParameter(Parameter& param, bool quiet) {
+void GxMachineRemote::midi_deleteParameter(Parameter& param) {
     cerr << "midi_deleteParameter()" << endl;
     START_NOTIFY(midi_deleteParameter);
     jw->write(param.id());
-    jw->write(quiet);
     SEND();
 }
 

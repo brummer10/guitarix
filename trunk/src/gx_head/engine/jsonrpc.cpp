@@ -965,7 +965,8 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
     }
 
     PROCEDURE(midi_deleteParameter) {
-	serv.jack.get_engine().controller_map.deleteParameter(serv.settings.get_param()[params[0]->getString()], params[1]->getInt());
+	serv.jack.get_engine().controller_map.deleteParameter(
+	    serv.settings.get_param()[params[0]->getString()]);
     }
 
     PROCEDURE(midi_set_current_control) {

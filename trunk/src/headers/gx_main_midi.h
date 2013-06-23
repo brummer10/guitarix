@@ -54,6 +54,7 @@ class MidiControllerTable: public sigc::trackable {
     GtkListStore *store;
     Glib::RefPtr<Gtk::ToggleAction> menuaction;
     gx_engine::GxMachineBase& machine;
+    sigc::connection midi_conn;
     static void response_cb(GtkWidget *widget, gint response_id, gpointer data);
     static void edited_cb(GtkCellRendererText *renderer, gchar *path,
                           gchar *new_text, gpointer data);

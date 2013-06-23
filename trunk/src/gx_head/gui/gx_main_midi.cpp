@@ -43,7 +43,9 @@ void MidiControllerTable::response_cb(GtkWidget *widget, gint response_id, gpoin
                                     reinterpret_cast<GtkTreePath*>(p->data));
             const char* id;
             gtk_tree_model_get(GTK_TREE_MODEL(model), &iter, 7, &id, -1);
-            m.machine.midi_deleteParameter(m.machine.get_parameter(id), true);
+	    m.midi_conn.block();
+            m.machine.midi_deleteParameter(m.machine.get_parameter(id));
+	    m.midi_conn.unblock();
             gtk_tree_path_free(reinterpret_cast<GtkTreePath*>(p->data));
         }
         g_list_free(list);
@@ -148,7 +150,8 @@ MidiControllerTable::~MidiControllerTable() {
 
 MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gtk::ToggleAction> item)
     : menuaction(item),
-      machine(machine_) {
+      machine(machine_),
+      midi_conn() {
 
     GtkBuilder * builder = gtk_builder_new();
     window = gx_gui::load_toplevel(builder, "midi.glade", "MidiControllerTable");
@@ -181,7 +184,8 @@ MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Gli
 
     gtk_widget_show(window);
     g_object_unref(G_OBJECT(builder));
-    machine.signal_midi_changed().connect(sigc::mem_fun(*this, &MidiControllerTable::load));
+    midi_conn = machine.signal_midi_changed().connect(
+	sigc::mem_fun(*this, &MidiControllerTable::load));
 }
 
 

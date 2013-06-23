@@ -166,7 +166,7 @@ public:
     virtual void request_midi_value_update() = 0;
     virtual int midi_size() = 0;
     virtual midi_controller_list& midi_get(int n) = 0;
-    virtual void midi_deleteParameter(Parameter& param, bool quiet = false) = 0;
+    virtual void midi_deleteParameter(Parameter& param) = 0;
     virtual void midi_set_current_control(int v) = 0;
     virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle) = 0;
     virtual int midi_param2controller(Parameter& param, const MidiController** p) = 0;
@@ -333,7 +333,7 @@ public:
     virtual void request_midi_value_update();
     virtual int midi_size();
     virtual midi_controller_list& midi_get(int n);
-    virtual void midi_deleteParameter(Parameter& param, bool quiet = false);
+    virtual void midi_deleteParameter(Parameter& param);
     virtual void midi_set_current_control(int v);
     virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
@@ -505,7 +505,7 @@ public:
     virtual void request_midi_value_update();
     virtual int midi_size();
     virtual midi_controller_list& midi_get(int n);
-    virtual void midi_deleteParameter(Parameter& param, bool quiet = false);
+    virtual void midi_deleteParameter(Parameter& param);
     virtual void midi_set_current_control(int v);
     virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
