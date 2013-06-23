@@ -1,0 +1,87 @@
+#! /usr/bin/env python
+import re, sys, os
+
+def read_method_list(fname):
+    ml = {}
+    md = open(fname)
+    for line in md:
+        if line.startswith("%%"):
+            break
+    for line in md:
+        if line.startswith("%%"):
+            break
+        if not line.startswith('"'):
+            continue
+        name, has_result = line.split(",")
+        name = name.strip().strip('"');
+        has_result = (has_result.strip() == "true")
+        ml[name] = has_result
+    return ml
+
+funcdef_search = re.compile(r"FUNCTION\(([^)]+)\)").search
+procdef_search = re.compile(r"PROCEDURE\(([^)]+)\)").search
+
+def read_defined_methods(fname):
+    fd = {}
+    for line in open(fname):
+        if line.startswith("#"):
+            continue
+        m = funcdef_search(line)
+        if m:
+            fd[m.group(1)] = True
+            continue
+        m = procdef_search(line)
+        if m:
+            fd[m.group(1)] = False
+            continue
+    return fd
+
+funcref_search = re.compile(r"START_CALL\(([^)]+)\)").search
+procref_search = re.compile(r"START_NOTIFY\(([^)]+)\)").search
+
+def read_referenced_methods(fname):
+    fr = {}
+    for line in open(fname):
+        if line.startswith("#"):
+            continue
+        m = funcref_search(line)
+        if m:
+            fr[m.group(1)] = True
+            continue
+        m = procref_search(line)
+        if m:
+            fr[m.group(1)] = False
+            continue
+    return fr
+
+def main():
+    base = os.path.dirname(sys.argv[0])
+    def mkp(f):
+        return os.path.join(base, "..", f)
+    ml = read_method_list(mkp("src/gx_head/engine/jsonrpc_methods.gperf_tmpl"))
+    fd = read_defined_methods(mkp("src/gx_head/engine/jsonrpc.cpp"))
+    fr = read_referenced_methods("src/gx_head/gui/machine.cpp")
+
+    assert not (set(fd) - set(ml))
+    assert not (set(fr) - set(ml))
+
+    s = set(ml) - set(fr)
+    if s:
+        print "\nfunctions not referenced:"
+        for v in s:
+            print " ", v
+
+    s = set(ml) - set(fd)
+    if s:
+        print "\nfunctions not defined:"
+        for v in s:
+            print " ", v
+
+    s = set(fr) - set(fd)
+    if (s):
+        print "\nfunctions referenced but not defined:"
+        for v in s:
+            print " ", v
+
+if __name__ == "__main__":
+    main()

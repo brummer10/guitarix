@@ -2205,17 +2205,12 @@ inline float power2db(float power) {
     return  20.*log10(power);
 }
 
-bool MainWindow::refresh_meter_level() {
+bool MainWindow::refresh_meter_level(float falloff) {
     const unsigned int channels = sizeof(fastmeter)/sizeof(fastmeter[0]);
     gx_jack::GxJack *jack = machine.get_jack();
-    if (!jack) {
-	return false;
-    }
-    if (!jack->client) {
+    if (jack && !jack->client) {
 	return true;
     }
-    const float falloff = gx_gui::guivar.meter_falloff *
-	gx_gui::guivar.meter_display_timeout * 0.001;
 
     // Note: removed RMS calculation, we will only focus on max peaks
     static float old_peak_db[channels] = {-INFINITY, -INFINITY};
@@ -2664,8 +2659,12 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
             sigc::mem_fun(*this, &MainWindow::on_meter_button_release));
         fastmeter[i]->set_tooltip_text(_("gx_head output"));
     }
+    const float meter_falloff = 27; // in dB/sec.
+    const float meter_display_timeout = 60; // in millisec
+    const float falloff = meter_falloff * meter_display_timeout * 0.001;
     Glib::signal_timeout().connect(
-	sigc::mem_fun(*this, &MainWindow::refresh_meter_level), gx_gui::guivar.meter_display_timeout);
+	sigc::bind(sigc::mem_fun(this, &MainWindow::refresh_meter_level), falloff),
+	meter_display_timeout);
 
     /*
     ** amp top box signal connections

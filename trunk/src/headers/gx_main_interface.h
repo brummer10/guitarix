@@ -65,17 +65,6 @@ namespace gx_gui {
  ** ---------------- the main GUI class ----------------
  **
  */
-class GuiVariables {
- public:
-    /* for level display */
-    int                 meter_display_timeout; // in millisec
-    int                 meter_falloff ; // in dB/sec.
-    void register_gui_parameter(gx_engine::ParamMap& pmap);
-};
-
-extern GuiVariables guivar;
-
-/****************************************************************/
 
 class UiRegler: public Gtk::Adjustment {
 private:

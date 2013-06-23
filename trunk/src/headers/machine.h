@@ -361,14 +361,13 @@ private:
     sigc::signal<void> midi_changed;
     sigc::signal<void, int, int> midi_value_changed;
     ControllerArray midi_controller_map;
-    bool current_call_has_result;
     Glib::ustring current_bank;
     Glib::ustring current_preset;
     int bank_drag_get_counter;
     std::string bank_drag_get_path;
     
 private:
-    const char *start_call(jsonrpc_method m_id);
+    const jsonrpc_method_def& start_call(jsonrpc_method m_id);
     void send();
     gx_system::JsonStringParser *receive(bool verbose=false);
     bool get_bool(gx_system::JsonStringParser *jp);

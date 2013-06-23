@@ -730,7 +730,7 @@ private:
     void on_oscilloscope_post_pre(int post_pre);
     int on_oscilloscope_activate(bool start);
     bool on_refresh_oscilloscope();
-    bool refresh_meter_level();
+    bool refresh_meter_level(float falloff);
     bool survive_jack_shutdown();
     void gx_jack_is_down();
     void jack_session_event();

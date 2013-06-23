@@ -6,7 +6,6 @@
 
 namespace gx_gui {
 
-GuiVariables guivar;
 // Stock Items for Gxw::Switch
 
 const char *sw_led =             "led";
@@ -81,23 +80,6 @@ bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, c
 	return true;
     }
     return false;
-}
-
-void GuiVariables::register_gui_parameter(gx_engine::ParamMap& pmap) {
-    static value_pair starter[] = {
-	{ "other", "other" },
-	{ "qjackctl", "qjackctl" },
-	{ "autostart", "autostart" },
-	{0}
-    };
-    pmap.reg_non_midi_enum_par(
-	"ui.jack_starter_idx", "", starter, static_cast<int*>(0), false, 1);
-    pmap.reg_non_midi_par("ui.ask_for_jack_starter", (bool*)0, false, true);
-    pmap.reg_string("ui.jack_starter", "", 0, "");
-
-    /* for level display */
-    meter_falloff = 27; // in dB/sec.
-    meter_display_timeout = 60; // in millisec
 }
 
 

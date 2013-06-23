@@ -70,12 +70,21 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     sock(0),
     pmap(engine.get_param()) {
     engine.set_jack(&jack);
-    // ------ initialize parameter list ------
-    gx_gui::guivar.register_gui_parameter(pmap);
 
     /*
     ** setup parameters
     */
+
+    static value_pair starter[] = {
+	{ "other", "other" },
+	{ "qjackctl", "qjackctl" },
+	{ "autostart", "autostart" },
+	{0}
+    };
+    pmap.reg_non_midi_enum_par(
+	"ui.jack_starter_idx", "", starter, static_cast<int*>(0), false, 1);
+    pmap.reg_non_midi_par("ui.ask_for_jack_starter", (bool*)0, false, true);
+    pmap.reg_string("ui.jack_starter", "", 0, "");
 
     // rack tuner
     gx_engine::get_group_table().insert("racktuner", N_("Rack Tuner"));
@@ -656,18 +665,18 @@ ConvolverStereoAdapter& GxMachine::get_stereo_convolver() {
  ** GxMachineRemote
  */
 
-#define START_NOTIFY(m)  start_call(RPNM_##m)
+#define START_NOTIFY(m)  { const jsonrpc_method_def& _md = start_call(RPNM_##m)
 
-#define SEND()           assert(!current_call_has_result); send();
+#define SEND()           assert(!_md.has_result); send(); }
 
-#define START_CALL(m)    { const char *_md_name = start_call(RPCM_##m)
+#define START_CALL(m)    { const jsonrpc_method_def& _md = start_call(RPCM_##m)
 
-#define START_RECEIVE(s) assert(current_call_has_result); send(); { \
+#define START_RECEIVE(s) assert(_md.has_result); send(); { \
                            gx_system::JsonStringParser *jp = receive();\
                            if (!jp) { return s; }\
 			   try {
 
-#define END_RECEIVE(s)     } catch (const gx_system::JsonException& e) { report_rpc_error(jp, e, _md_name); } \
+#define END_RECEIVE(s)     } catch (const gx_system::JsonException& e) { report_rpc_error(jp, e, _md.name); } \
 			 delete jp; s; }}
 
 
@@ -689,7 +698,6 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       rack_units(),
       midi_changed(),
       midi_value_changed(),
-      current_call_has_result(),
       current_bank(),
       current_preset(),
       bank_drag_get_counter(),
@@ -727,7 +735,14 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     midi_controller_map.readJSON(*jp, pmap);
     END_RECEIVE();
     START_NOTIFY(listen);
-    jw->write("all");
+    jw->write("preset");
+    jw->write("state");
+    //we don't need "freq"
+    jw->write("display");
+    jw->write("tuner");
+    jw->write("presetlist_changed");
+    jw->write("logger");
+    jw->write("midi");
     SEND();
 }
 
@@ -945,9 +960,8 @@ bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
     }
 }
 
-const char *GxMachineRemote::start_call(jsonrpc_method m) {
+const jsonrpc_method_def& GxMachineRemote::start_call(jsonrpc_method m) {
     const jsonrpc_method_def& md = jsonrpc_method_list[m];
-    current_call_has_result = md.has_result;
     jw->begin_object();
     jw->write_key("jsonrpc");
     jw->write("2.0");
@@ -959,7 +973,7 @@ const char *GxMachineRemote::start_call(jsonrpc_method m) {
     jw->write(md.name);
     jw->write_key("params");
     jw->begin_array();
-    return md.name;
+    return md;
 }
 
 void GxMachineRemote::send() {
@@ -1312,6 +1326,7 @@ const std::string& GxMachineRemote::conv_getIRFile(const char *id) {
 }
 
 float GxMachineRemote::get_tuner_freq() {
+    //cerr << "get_tuner_freq()" << endl;
     START_CALL(get_tuner_freq);
     START_RECEIVE(0);
     jp->next(gx_system::JsonParser::value_number);
@@ -1320,7 +1335,6 @@ float GxMachineRemote::get_tuner_freq() {
 }
 
 void GxMachineRemote::maxlevel_get(int channels, float *values) {
-    cerr << "maxlevel_get()" << endl;
     START_CALL(get_max_output_level);
     jw->write(channels);
     START_RECEIVE();
@@ -1394,10 +1408,16 @@ Glib::Dispatcher& GxMachineRemote::signal_jack_load_change() {
 
 void GxMachineRemote::tuner_used_for_display(bool on) {
     cerr << "tuner_used_for_display()" << endl;
+    START_NOTIFY(tuner_used_for_display);
+    jw->write(on);
+    SEND();
 }
 
 void GxMachineRemote::tuner_used_for_livedisplay(bool on) {
     cerr << "tuner_used_for_livedisplay()" << endl;
+    START_NOTIFY(tuner_used_for_livedisplay);
+    jw->write(on);
+    SEND();
 }
 
 const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(bool stereo) {

@@ -1091,6 +1091,14 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 	save_preset(serv.settings, params[0]->getString(), params[1]->getString());
     }
 
+    PROCEDURE(tuner_used_for_display) {
+	serv.jack.get_engine().tuner.used_for_display(params[0]->getInt());
+    }
+
+    PROCEDURE(tuner_used_for_livedisplay) {
+	serv.jack.get_engine().tuner.used_for_livedisplay(params[0]->getInt());
+    }
+
     END_FUNCTION_SWITCH(cerr << "Method not found: " << mn->name << endl; assert(false));
 }
 

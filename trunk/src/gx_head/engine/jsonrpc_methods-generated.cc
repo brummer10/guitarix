@@ -54,10 +54,10 @@ hash (register const char *str, register unsigned int len)
       137, 137, 137, 137, 137, 137, 137, 137, 137, 137,
       137, 137, 137, 137, 137, 137, 137, 137, 137, 137,
       137, 137, 137, 137, 137, 137, 137, 137, 137, 137,
-      137, 137, 137, 137, 137,   5, 137,  30,  20,  40,
+      137, 137, 137, 137, 137,   0, 137,  30,  20,  40,
        60,  10, 137,  10,  25,  35,   0,  15,  10,  10,
-       60,  10,   5,  40,   0,   0,   0,   0,   0,  15,
-      137, 137, 137, 137, 137, 137, 137, 137
+       60,  10,   5,  40,   0,   0,   0,   0,   5,  15,
+      137,  20, 137, 137, 137, 137, 137, 137
     };
   register int hval = len;
 
@@ -88,9 +88,9 @@ in_word_set (register const char *str, register unsigned int len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 59,
+      TOTAL_KEYWORDS = 61,
       MIN_WORD_LENGTH = 3,
-      MAX_WORD_LENGTH = 25,
+      MAX_WORD_LENGTH = 26,
       MIN_HASH_VALUE = 3,
       MAX_HASH_VALUE = 136
     };
@@ -109,12 +109,12 @@ in_word_set (register const char *str, register unsigned int len)
       {"setpreset", RPNM_setpreset},
       {"pf_insert_after", RPNM_pf_insert_after},
       {""},
-      {"pf_save", RPNM_pf_save},
+      {"erase_preset", RPNM_erase_preset},
       {"rename_preset", RPCM_rename_preset},
       {"reorder_preset", RPNM_reorder_preset},
       {"banks", RPCM_banks},
       {"remove_rack_unit", RPNM_remove_rack_unit},
-      {"erase_preset", RPNM_erase_preset},
+      {"pf_save", RPNM_pf_save},
       {"parameterlist", RPCM_parameterlist},
       {"midi_size", RPCM_midi_size},
       {"get_tuning", RPCM_get_tuning},
@@ -129,10 +129,11 @@ in_word_set (register const char *str, register unsigned int len)
       {"bank_save", RPNM_bank_save},
       {"midi_set_config_mode", RPNM_midi_set_config_mode},
       {"bank_remove", RPCM_bank_remove},
-      {""},
+      {"tuner_used_for_display", RPNM_tuner_used_for_display},
       {"bank_set_flag", RPNM_bank_set_flag},
       {"midi_set_current_control", RPNM_midi_set_current_control},
-      {""}, {""},
+      {""},
+      {"tuner_used_for_livedisplay", RPNM_tuner_used_for_livedisplay},
       {"bank_get_contents", RPCM_bank_get_contents},
       {"setstate", RPNM_setstate},
       {"queryunit", RPCM_queryunit},
@@ -253,6 +254,8 @@ const jsonrpc_method_def jsonrpc_method_list[] = {
 	{ "get_tuning", true },
 	{ "get_tuner_freq", true },
 	{ "switch_tuner", false },
+	{ "tuner_used_for_display", false },
+	{ "tuner_used_for_livedisplay", false },
 	{ "get_max_input_level", true },
 	{ "get_max_output_level", true },
 	{ "switch", false },
