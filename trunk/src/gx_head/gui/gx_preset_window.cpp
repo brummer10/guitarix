@@ -65,8 +65,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
       vpaned_target(),
       options(options_),
       in_current_preset(false),
-      on_map_conn(),
-      reload_on_change_conn()
+      on_map_conn()
       /* widget pointers not initialized */ {
     load_widget_pointers(bld);
     actions.new_bank = Gtk::Action::create("NewBank");
@@ -142,15 +141,20 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
 	sigc::bind(
 	    sigc::mem_fun(*this, &PresetWindow::on_editing_started),
 	    Glib::RefPtr<Gtk::TreeModel>::cast_static(pstore)));
-    preset_treeview->get_column(0)->set_cell_data_func(*preset_cellrenderer, sigc::mem_fun(*this, &PresetWindow::text_func));
-    banks_combobox->signal_changed().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_combo_changed));
+    preset_treeview->get_column(0)->set_cell_data_func(
+	*preset_cellrenderer, sigc::mem_fun(*this, &PresetWindow::text_func));
+    banks_combobox->signal_changed().connect(
+	sigc::mem_fun(*this, &PresetWindow::on_preset_combo_changed));
     presets_target_treeview->get_selection()->set_mode(Gtk::SELECTION_NONE);
     std::vector<Gtk::TargetEntry> listTargets3;
-    listTargets3.push_back(Gtk::TargetEntry("application/x-guitarix-preset", Gtk::TARGET_SAME_APP, 0));
+    listTargets3.push_back(
+	Gtk::TargetEntry("application/x-guitarix-preset", Gtk::TARGET_SAME_APP, 0));
     presets_target_treeview->enable_model_drag_dest(listTargets3, Gdk::ACTION_COPY);
-    presets_target_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_target_drag_motion), false);
-    presets_target_treeview->signal_drag_data_received().connect_notify(sigc::mem_fun(*this, &PresetWindow::target_drag_data_received));
-    reload_on_change_conn = machine.signal_selection_changed().connect(
+    presets_target_treeview->signal_drag_motion().connect(
+	sigc::mem_fun(*this, &PresetWindow::on_target_drag_motion), false);
+    presets_target_treeview->signal_drag_data_received().connect_notify(
+	sigc::mem_fun(*this, &PresetWindow::target_drag_data_received));
+    machine.signal_selection_changed().connect(
 	sigc::mem_fun(*this, &PresetWindow::on_selection_changed));
 }
 
@@ -158,6 +162,23 @@ PresetWindow::~PresetWindow() {
 }
 
 void PresetWindow::on_selection_changed() {
+    Glib::ustring selected_bank;
+    Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
+    if (it) {
+	selected_bank = it->get_value(bank_col.name);
+    }
+    if (selected_bank == machine.get_current_bank()) {
+	Glib::ustring selected_preset;
+	Gtk::TreeIter it = preset_treeview->get_selection()->get_selected();
+	if (it) {
+	    selected_preset = it->get_value(pstore->col.name);
+	}
+	if (selected_preset == machine.get_current_name()) {
+	    gdk_window_invalidate_rect(bank_treeview->get_window()->gobj(), 0, true);
+	    gdk_window_invalidate_rect(preset_treeview->get_window()->gobj(), 0, true);
+	    return;
+	}
+    }
     set_presets();
     bool s = false;
     if (machine.setting_is_preset()) {
@@ -1073,9 +1094,7 @@ void PresetWindow::on_preset_changed() {
     }
     in_current_preset = true;
     cpf = machine.get_bank_file(bank);
-    reload_on_change_conn.block();
     machine.load_preset(cpf, name);
-    reload_on_change_conn.unblock();
     actions.save_changes->set_sensitive(cpf && cpf->is_mutable());
 }
 

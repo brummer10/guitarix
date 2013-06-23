@@ -95,7 +95,6 @@ private:
     const gx_system::CmdlineOptions& options;
     bool in_current_preset;
     sigc::connection on_map_conn;
-    sigc::connection reload_on_change_conn;
 
     // widget pointers (keep last)
     Gtk::Button *close_preset;
