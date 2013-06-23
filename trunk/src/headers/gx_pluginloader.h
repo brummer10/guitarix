@@ -56,7 +56,7 @@ public:
     Plugin(PluginDef *pl=0);
     Plugin(gx_system::JsonParser& jp, ParamMap& pmap);
     void writeJSON(gx_system::JsonWriter& jw);
-    bool get_box_visible() const { return p_box_visible->get_value(); }
+    bool get_box_visible() const { return p_box_visible && p_box_visible->get_value(); }
     bool get_plug_visible() const { return p_plug_visible->get_value(); }
     bool get_on_off() const { return p_on_off->get_value(); }
     int get_position() const { return p_position->get_value(); }
