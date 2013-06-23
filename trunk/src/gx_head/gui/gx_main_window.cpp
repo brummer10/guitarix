@@ -2006,24 +2006,6 @@ void MainWindow::on_engine_state_change(gx_engine::GxEngineState state) {
     }
 }
 
-void MainWindow::do_program_change(int pgm) {
-    Glib::ustring bank = machine.get_current_bank();
-    bool in_preset = !bank.empty();
-    gx_system::PresetFileGui *f;
-    if (in_preset) {
-	f = machine.get_bank_file(bank);
-	in_preset = pgm < f->size();
-    }
-    if (in_preset) {
-	machine.load_preset(f, f->get_name(pgm));
-	if (machine.get_state() == gx_engine::kEngineBypass) {
-	    machine.set_state(gx_engine::kEngineOn);
-	}
-    } else if (machine.get_state() == gx_engine::kEngineOn) {
-	machine.set_state(gx_engine::kEngineBypass);
-    }
-}
-
 void MainWindow::set_tuning(Gxw::RackTuner& tuner) {
     static struct TuningTab {
 	const char *name;
@@ -2618,9 +2600,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	sigc::mem_fun(*this, &MainWindow::on_engine_state_change));
     machine.signal_jack_load_change().connect(
 	sigc::mem_fun(*this, &MainWindow::overload_status_changed));
-
-    machine.signal_midi_new_program().connect(
-	sigc::mem_fun(*this, &MainWindow::do_program_change));
 
     /*
     ** GxSettings signal connections

@@ -159,16 +159,14 @@ public:
     template <class T> T get_parameter_value (const std::string& id);
     template <class T> sigc::signal<void, T>& signal_parameter_value(const std::string& id);
     // MidiControllerList
-    virtual bool midi_get_config_mode() = 0;
+    virtual bool midi_get_config_mode(int *ctl = 0) = 0;
     virtual void midi_set_config_mode(bool v, int ctl=-1) = 0;
-    virtual sigc::signal<void,int>& signal_midi_new_program() = 0;
     virtual sigc::signal<void>& signal_midi_changed() = 0;
     virtual sigc::signal<void, int, int>& signal_midi_value_changed() = 0;
     virtual void request_midi_value_update() = 0;
     virtual int midi_size() = 0;
     virtual midi_controller_list& midi_get(int n) = 0;
     virtual void midi_deleteParameter(Parameter& param, bool quiet = false) = 0;
-    virtual int midi_get_current_control() = 0;
     virtual void midi_set_current_control(int v) = 0;
     virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle) = 0;
     virtual int midi_param2controller(Parameter& param, const MidiController** p) = 0;
@@ -215,6 +213,7 @@ private:
     MyService *sock;
     ParamMap& pmap;
 private:
+    void do_program_change(int pgm);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
@@ -327,16 +326,14 @@ public:
     virtual void set_parameter_value(const std::string& id, const std::string& value);
 
     // MidiControllerList
-    virtual bool midi_get_config_mode();
+    virtual bool midi_get_config_mode(int *ctl = 0);
     virtual void midi_set_config_mode(bool v, int ctl=-1);
-    virtual sigc::signal<void,int>& signal_midi_new_program();
     virtual sigc::signal<void>& signal_midi_changed();
     virtual sigc::signal<void, int, int>& signal_midi_value_changed();
     virtual void request_midi_value_update();
     virtual int midi_size();
     virtual midi_controller_list& midi_get(int n);
     virtual void midi_deleteParameter(Parameter& param, bool quiet = false);
-    virtual int midi_get_current_control();
     virtual void midi_set_current_control(int v);
     virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
@@ -361,10 +358,9 @@ private:
     std::vector<gx_system::JsonStringParser*> notify_list;
     sigc::connection idle_conn;
     gx_preset::UnitRacks rack_units;
-    sigc::signal<void,int> midi_new_program;
     sigc::signal<void> midi_changed;
     sigc::signal<void, int, int> midi_value_changed;
-    MidiControllerList::controller_array midi_controller_map;
+    ControllerArray midi_controller_map;
     bool current_call_has_result;
     Glib::ustring current_bank;
     Glib::ustring current_preset;
@@ -372,7 +368,7 @@ private:
     std::string bank_drag_get_path;
     
 private:
-    void start_call(jsonrpc_method m_id);
+    const char *start_call(jsonrpc_method m_id);
     void send();
     gx_system::JsonStringParser *receive(bool verbose=false);
     bool get_bool(gx_system::JsonStringParser *jp);
@@ -383,7 +379,8 @@ private:
     void parameter_changed(gx_system::JsonStringParser *jp);
     static int load_remote_ui_static(const UiBuilder& builder);
     int load_remote_ui(const UiBuilder& builder);
-    void report_rpc_error(gx_system::JsonStringParser *jp, const gx_system::JsonException& e);
+    void report_rpc_error(gx_system::JsonStringParser *jp,
+			  const gx_system::JsonException& e, const char *method=0);
     void throw_error(gx_system::JsonStringParser *jp);
     void param_signal_int(int v, IntParameter *p);
     void param_signal_bool(bool v, BoolParameter *p);
@@ -502,16 +499,14 @@ public:
     virtual void set_parameter_value(const std::string& id, const std::string& value);
 
     // MidiControllerList
-    virtual bool midi_get_config_mode();
+    virtual bool midi_get_config_mode(int *ctl = 0);
     virtual void midi_set_config_mode(bool v, int ctl=-1);
-    virtual sigc::signal<void,int>& signal_midi_new_program();
     virtual sigc::signal<void>& signal_midi_changed();
     virtual sigc::signal<void, int, int>& signal_midi_value_changed();
     virtual void request_midi_value_update();
     virtual int midi_size();
     virtual midi_controller_list& midi_get(int n);
     virtual void midi_deleteParameter(Parameter& param, bool quiet = false);
-    virtual int midi_get_current_control();
     virtual void midi_set_current_control(int v);
     virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
     virtual int midi_param2controller(Parameter& param, const MidiController** p);

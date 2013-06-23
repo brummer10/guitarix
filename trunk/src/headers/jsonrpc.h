@@ -61,6 +61,7 @@ private:
     Glib::RefPtr<Gio::SocketConnection> connection;
     gx_system::JsonStringParser jp;
     bool parameter_change_notify;
+    bool midi_config_mode;
     sigc::connection conn_preset_changed;
     sigc::connection conn_state_changed;
     sigc::connection conn_freq_changed;
@@ -69,6 +70,8 @@ private:
     sigc::connection conn_selection_done;
     sigc::connection conn_presetlist_changed;
     sigc::connection conn_log_message;
+    sigc::connection conn_midi_changed;
+    sigc::connection conn_midi_value_changed;
 private:
     void exec(Glib::ustring cmd);
     void call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
@@ -90,6 +93,8 @@ private:
     void on_selection_done();
     void on_presetlist_changed();
     void on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
+    void on_midi_changed();
+    void on_midi_value_changed(int ctl, int value);
     void listen(const Glib::ustring& tp);
     void unlisten(const Glib::ustring& tp);
     void send(gx_system::JsonStringWriter& jw);

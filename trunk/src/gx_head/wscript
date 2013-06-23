@@ -15,7 +15,7 @@ def gperf2cc(task):
         os.path.basename(task.inputs[0].srcpath(task.env)))[0]
     srcdir = task.inputs[0].parent.srcpath(task.env)
     if task.env["HAVE_GPERF"]:
-        cmd = ["../tools/make_jsonrpc_methods",
+        cmd = [task.proc,
                task.inputs[0].srcpath(task.env),
                out_c,
                out_h,
@@ -41,6 +41,8 @@ def process_gperf_tmpl(self, node):
     cc_node = node.change_ext('.cc')
     h_node = node.change_ext('.h')
     task = self.create_task('gperf', [node], [cc_node, h_node])
+    task.proc = "../tools/make_jsonrpc_methods"
+    self.bld.add_manual_dependency(node,self.bld.bldnode.find_resource(task.proc))
 
 def build(bld):
     sources_engine = [

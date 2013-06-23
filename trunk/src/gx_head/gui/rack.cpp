@@ -88,11 +88,7 @@ bool PluginUI::is_registered(gx_engine::GxMachineBase& m, const char *name) {
 }
 
 void PluginUI::compress(bool state) {
-    const std::string& s = plugin->id_plug_visible();
-    if (s.empty()) {
-	return;
-    }
-    main.get_machine().set_parameter_value(s, state);
+    plugin->set_plug_visible(state);
     if (rackbox) {
 	if (rackbox->can_compress()) {
 	    rackbox->swtch(state);

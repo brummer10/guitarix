@@ -661,7 +661,7 @@ class MidiController {
     bool is_toggle() const { return toggle; }
     bool hasParameter(const Parameter& p) const { return *param == p; }
     Parameter& getParameter() const { return *param; }
-    static MidiController* readJSON(gx_system::JsonParser&, ParamMap& param);
+    static MidiController *readJSON(gx_system::JsonParser& jp, ParamMap& param);
     bool set_midi(int n, int last_value); //RT
     void set(float v, float high) { param->set(v, high, _lower, _upper); }
     void trigger_changed() { param->trigger_changed(); }
@@ -675,14 +675,22 @@ typedef list<MidiController> midi_controller_list;
 ** MidiControllerList
 **/
 
+class ControllerArray: public vector<midi_controller_list> {
+public:
+    enum { array_size = 128 };
+    ControllerArray(): vector<midi_controller_list>(array_size) {}
+    ~ControllerArray() {}
+    void writeJSON(gx_system::JsonWriter& jw) const;
+    void readJSON(gx_system::JsonParser& jp, ParamMap& param);
+    int param2controller(Parameter& param, const MidiController** p);
+    bool deleteParameter(Parameter& p);
+};
+
 class MidiControllerList: public sigc::trackable {
 public:
-    typedef vector<midi_controller_list> controller_array;
-    enum { controller_array_size = 128 };
 private:
-    controller_array       map; //RT
-    int                    last_midi_control_value[controller_array_size]; //RT
-    bool                   midi_config_mode; //RT
+    ControllerArray        map; //RT
+    int                    last_midi_control_value[ControllerArray::array_size]; //RT
     int                    last_midi_control; //RT
     volatile gint          program_change; //RT
     Glib::Dispatcher       pgm_chg;
@@ -697,21 +705,21 @@ public:
     midi_controller_list& operator[](int n) { return map[n]; }
     int size() { return map.size(); }
     void set_config_mode(bool mode, int ctl=-1);
-    bool get_config_mode() { return midi_config_mode; }
+    bool get_config_mode() { return last_midi_control != -2; }
     int get_current_control() { return last_midi_control; }
     void set_current_control(int ctl) { last_midi_control = ctl; }
     void set_ctr_val(int ctr, int val); //RT
     void deleteParameter(Parameter& param, bool quiet = false);
     void modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
-    int param2controller(Parameter& param, const MidiController** p);
-    void writeJSON(gx_system::JsonWriter& jw) const;
-    static void readJSON(gx_system::JsonParser& jp, ParamMap& param, controller_array& m);
-    static controller_array* create_controller_array() {
-	return new controller_array(controller_array_size); }
-    int get_last_midi_control_value(unsigned int n) { assert(n < controller_array_size); return last_midi_control_value[n]; } //RT
-    void set_last_midi_control_value(unsigned int n, int v) { assert(n < controller_array_size); last_midi_control_value[n] = v; } //RT
-    void set_controller_array(const controller_array& m);
-    void remove_controlled_parameters(paramlist& plist, const controller_array *m);
+    int param2controller(Parameter& param, const MidiController** p) {
+	return map.param2controller(param, p); }
+    void writeJSON(gx_system::JsonWriter& jw) const { map.writeJSON(jw); }
+    int get_last_midi_control_value(unsigned int n) {
+	assert(n < ControllerArray::array_size); return last_midi_control_value[n]; } //RT
+    void set_last_midi_control_value(unsigned int n, int v) {
+	assert(n < ControllerArray::array_size); last_midi_control_value[n] = v; } //RT
+    void set_controller_array(const ControllerArray& m);
+    void remove_controlled_parameters(paramlist& plist, const ControllerArray *m);
     sigc::signal<void>& signal_changed() { return changed; }
     sigc::signal<void,int>& signal_new_program() { return new_program; }
     void compute_midi_in(void* midi_input_port_buf);  //RT

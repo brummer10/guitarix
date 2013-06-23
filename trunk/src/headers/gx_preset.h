@@ -66,7 +66,7 @@ private:
     gx_engine::ParamMap& param;
     gx_system::CmdlineOptions& opt;
     gx_engine::paramlist plist;
-    gx_engine::MidiControllerList::controller_array *m;
+    gx_engine::ControllerArray *m;
     gx_engine::GxJConvSettings *jcset;
     UnitRacks& rack_units;
 private:

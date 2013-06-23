@@ -237,11 +237,11 @@ const char* MidiConnect::ctl_to_str(int n) {
 
 gboolean MidiConnect::check_midi_cb(gpointer data) {
     MidiConnect *m = reinterpret_cast<MidiConnect*>(data);
-    if (!m->machine.midi_get_config_mode()) {
+    int ctl;
+    if (!m->machine.midi_get_config_mode(&ctl)) {
 	delete m;
         return FALSE;
     }
-    int ctl = m->machine.midi_get_current_control();
     if (m->current_control == ctl)
         return TRUE;
     m->current_control = ctl;

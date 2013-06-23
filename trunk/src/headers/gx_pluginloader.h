@@ -57,12 +57,12 @@ public:
     Plugin(gx_system::JsonParser& jp, ParamMap& pmap);
     void writeJSON(gx_system::JsonWriter& jw);
     bool get_box_visible() const { return p_box_visible && p_box_visible->get_value(); }
-    bool get_plug_visible() const { return p_plug_visible->get_value(); }
+    bool get_plug_visible() const { return p_plug_visible && p_plug_visible->get_value(); }
     bool get_on_off() const { return p_on_off->get_value(); }
     int get_position() const { return p_position->get_value(); }
     int get_effect_post_pre() const { return p_effect_post_pre->get_value(); }
-    void set_box_visible(bool v) const { p_box_visible->set(v); }
-    void set_plug_visible(bool v) const { p_plug_visible->set(v); }
+    void set_box_visible(bool v) const { if (p_box_visible) p_box_visible->set(v); }
+    void set_plug_visible(bool v) const { if (p_plug_visible) p_plug_visible->set(v); }
     void set_on_off(bool v) const { p_on_off->set(v); }
     void set_position(int v) const { p_position->set(v); }
     void set_effect_post_pre(int v) const { p_effect_post_pre->set(v); }

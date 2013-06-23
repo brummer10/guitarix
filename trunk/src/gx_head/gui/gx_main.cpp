@@ -338,25 +338,6 @@ int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& 
 #endif
 #endif
 
-//FIXME: join with MainWindow::do_program_change
-void do_program_change(int pgm, gx_engine::GxMachineBase& machine) {
-    Glib::ustring bank = machine.get_current_bank();
-    bool in_preset = !bank.empty();
-    gx_system::PresetFileGui *f;
-    if (in_preset) {
-	f = machine.get_bank_file(bank);
-	in_preset = pgm < f->size();
-    }
-    if (in_preset) {
-	machine.load_preset(f, f->get_name(pgm));
-	if (machine.get_state() == gx_engine::kEngineBypass) {
-	    machine.set_state(gx_engine::kEngineOn);
-	}
-    } else if (machine.get_state() == gx_engine::kEngineOn) {
-	machine.set_state(gx_engine::kEngineBypass);
-    }
-}
-
 static void mainHeadless(int argc, char *argv[]) {
     Glib::init();
     Gio::init();
@@ -385,8 +366,6 @@ static void mainHeadless(int argc, char *argv[]) {
     //if (!in_session) {
     //	gx_settings.disable_autosave(options.get_opt_auto_save());
     //}
-    machine.signal_midi_new_program().connect(
-	sigc::bind(sigc::ptr_fun(do_program_change),sigc::ref(machine)));
 
     if (! machine.get_jack()->gx_jack_connection(true, true, 0)) {
 	cerr << "can't connect to jack\n";

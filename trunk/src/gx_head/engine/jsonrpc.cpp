@@ -194,6 +194,7 @@ CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketCon
     : serv(serv_),
       connection(connection_),
       parameter_change_notify(false),
+      midi_config_mode(false),
       conn_preset_changed(),
       conn_state_changed(),
       conn_freq_changed(),
@@ -201,11 +202,16 @@ CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketCon
       conn_display_state(),
       conn_selection_done(),
       conn_presetlist_changed(),
-      conn_log_message() {
+      conn_log_message(),
+      conn_midi_changed(),
+      conn_midi_value_changed() {
     jp.start_parser();
 }
 
 CmdConnection::~CmdConnection() {
+    if (midi_config_mode) {
+	serv.jack.get_engine().controller_map.set_config_mode(false, -1);
+    }
 }
 
 void CmdConnection::listen(const Glib::ustring& tp) {
@@ -241,6 +247,12 @@ void CmdConnection::listen(const Glib::ustring& tp) {
 	    sigc::mem_fun(this, &CmdConnection::on_log_message));
 	gx_system::Logger::get_logger().unplug_queue();
     }
+    if (all || tp == "midi") {
+	conn_midi_changed = serv.jack.get_engine().controller_map.signal_changed().connect(
+	    sigc::mem_fun(this, &CmdConnection::on_midi_changed));
+	conn_midi_value_changed = serv.jack.get_engine().controller_map.signal_midi_value_changed().connect(
+	    sigc::mem_fun(this, &CmdConnection::on_midi_value_changed));
+    }
     if (all || tp == "param") {
 	parameter_change_notify = true;
     }
@@ -270,6 +282,27 @@ void CmdConnection::unlisten(const Glib::ustring& tp) {
     if (all || tp == "logger") {
 	conn_log_message.disconnect();
     }
+    if (all || tp == "midi") {
+	conn_midi_changed.disconnect();
+	conn_midi_value_changed.disconnect();
+    }
+}
+
+void CmdConnection::on_midi_changed() {
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "midi_changed");
+    serv.jack.get_engine().controller_map.writeJSON(jw);
+    send_notify_end(jw);
+}
+
+void CmdConnection::on_midi_value_changed(int ctl, int value) {
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "midi_value_changed");
+    jw.begin_array();
+    jw.write(ctl);
+    jw.write(value);
+    jw.end_array();
+    send_notify_end(jw);
 }
 
 void CmdConnection::on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged) {
@@ -482,6 +515,7 @@ static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& pref
 
 #define START_FUNCTION_SWITCH(v)    switch (v) {
 #define FUNCTION(n)                 break; case RPCM_##n:
+#define PROCEDURE(n)                break; case RPNM_##n:
 #define END_FUNCTION_SWITCH(s)      break; default: s; }
 
 void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params) {
@@ -675,16 +709,20 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.write(serv.settings.remove_bank(params[0]->getString()));
     }
 
+    FUNCTION(get_midi_controller_map) {
+	serv.jack.get_engine().controller_map.writeJSON(jw);
+    }
+
     FUNCTION(midi_get_config_mode) {
-	jw.write(serv.jack.get_engine().controller_map.get_config_mode());
+	bool mode = serv.jack.get_engine().controller_map.get_config_mode();
+	jw.begin_array();
+	jw.write(mode);
+	jw.write(mode ? serv.jack.get_engine().controller_map.get_current_control() : -1);
+	jw.end_array();
     }
 
     FUNCTION(midi_size) {
 	jw.write(serv.jack.get_engine().controller_map.size());
-    }
-
-    FUNCTION(midi_get_current_control) {
-	jw.write(serv.jack.get_engine().controller_map.get_current_control());
     }
 
     FUNCTION(getstate) {
@@ -853,19 +891,19 @@ void CmdConnection::send_rack_changed(bool stereo) {
 void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params) {
     START_FUNCTION_SWITCH(mn->m_id);
 
-    FUNCTION(insert_rack_unit) {
+    PROCEDURE(insert_rack_unit) {
 	bool stereo = params[2]->getInt();
 	serv.settings.insert_rack_unit(params[0]->getString(), params[1]->getString(), stereo);
 	send_rack_changed(stereo);
     }
 
-    FUNCTION(remove_rack_unit) {
+    PROCEDURE(remove_rack_unit) {
 	bool stereo = params[1]->getInt();
 	serv.settings.remove_rack_unit(params[0]->getString(), stereo);
 	send_rack_changed(stereo);
     }
 
-    FUNCTION(bank_reorder) {
+    PROCEDURE(bank_reorder) {
 	std::vector<Glib::ustring> neworder;
 	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
 	    neworder.push_back((*i)->getString());
@@ -873,7 +911,7 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 	serv.settings.banks.reorder(neworder);
     }
 
-    FUNCTION(reorder_preset) {
+    PROCEDURE(reorder_preset) {
 	std::vector<Glib::ustring> neworder;
 	for (JsonArray::iterator i = params.begin()+1; i != params.end(); ++i) {
 	    neworder.push_back((*i)->getString());
@@ -881,65 +919,66 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 	serv.settings.reorder_preset(*serv.settings.banks.get_file(params[0]->getString()), neworder);
     }
 
-    FUNCTION(erase_preset) {
+    PROCEDURE(erase_preset) {
 	serv.settings.erase_preset(*serv.settings.banks.get_file(params[0]->getString()), params[1]->getString());
     }
 
-    FUNCTION(bank_set_flag) {
+    PROCEDURE(bank_set_flag) {
 	serv.settings.banks.get_file(params[0]->getString())->set_flag(params[1]->getInt(), params[2]->getInt());
     }
 
-    FUNCTION(pf_append) {
+    PROCEDURE(pf_append) {
 	serv.settings.append(
 	    *serv.settings.banks.get_file(params[0]->getString()), params[1]->getString(),
 	    *serv.settings.banks.get_file(params[2]->getString()), params[3]->getString());
     }
 
-    FUNCTION(pf_insert_before) {
+    PROCEDURE(pf_insert_before) {
 	serv.settings.insert_before(
 	    *serv.settings.banks.get_file(params[0]->getString()), params[1]->getString(),
 	    *serv.settings.banks.get_file(params[2]->getString()), params[3]->getString(),
 	    params[4]->getString());
     }
 
-    FUNCTION(pf_insert_after) {
+    PROCEDURE(pf_insert_after) {
 	serv.settings.insert_after(
 	    *serv.settings.banks.get_file(params[0]->getString()), params[1]->getString(),
 	    *serv.settings.banks.get_file(params[2]->getString()), params[3]->getString(),
 	    params[4]->getString());
     }
 
-    FUNCTION(bank_save) {
+    PROCEDURE(bank_save) {
 	serv.settings.banks.save();
     }
 
-    FUNCTION(pf_save) {
+    PROCEDURE(pf_save) {
 	serv.settings.save(*serv.settings.banks.get_file(params[0]->getString()), params[1]->getString());
     }
 
-    FUNCTION(midi_set_config_mode) {
-	serv.jack.get_engine().controller_map.set_config_mode(params[0]->getInt(), params[1]->getInt());
+    PROCEDURE(midi_set_config_mode) {
+	midi_config_mode = params[0]->getInt();
+	serv.jack.get_engine().controller_map.set_config_mode(midi_config_mode, params[1]->getInt());
     }
 
-    FUNCTION(request_midi_value_update) {
+    PROCEDURE(request_midi_value_update) {
 	serv.jack.get_engine().controller_map.request_midi_value_update();
     }
 
-    FUNCTION(midi_deleteParameter) {
+    PROCEDURE(midi_deleteParameter) {
 	serv.jack.get_engine().controller_map.deleteParameter(serv.settings.get_param()[params[0]->getString()], params[1]->getInt());
     }
 
-    FUNCTION(midi_set_current_control) {
+    PROCEDURE(midi_set_current_control) {
 	serv.jack.get_engine().controller_map.set_current_control(params[0]->getInt());
     }
 
-    FUNCTION(midi_modifyCurrent) {
+    PROCEDURE(midi_modifyCurrent) {
 	serv.jack.get_engine().controller_map.modifyCurrent(
 	    serv.settings.get_param()[params[0]->getString()], params[1]->getFloat(),
 	    params[2]->getFloat(), params[3]->getInt());
     }
 
-    FUNCTION(set) {
+    PROCEDURE(set) {
 	if (params.size() & 1) {
 	    throw RpcError(-32602, "Invalid param -- array length must be even");
 	}
@@ -1004,51 +1043,51 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 	serv.save_state();
     }
 
-    FUNCTION(setpreset) {
+    PROCEDURE(setpreset) {
 	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
 	serv.settings.load_preset(pf, params[1]->getString());
 	serv.save_state();
     }
 
-    FUNCTION(setstate) {
+    PROCEDURE(setstate) {
 	serv.jack.get_engine().set_state(string_to_engine_state(params[0]->getString()));
 	serv.jack.get_engine().check_module_lists();
     }
 
-    FUNCTION(switch_tuner) {
+    PROCEDURE(switch_tuner) {
 	serv.jack.get_engine().tuner.used_for_livedisplay(params[0]->getInt());
 	serv.jack.get_engine().check_module_lists();
     }
 
-    FUNCTION(switch) {
+    PROCEDURE(switch) {
 	serv.on_switcher_toggled(true);
     }
 
-    FUNCTION(shutdown) {
+    PROCEDURE(shutdown) {
 	connection->close();
 	serv.quit_mainloop();
     }
 
-    FUNCTION(listen) {
+    PROCEDURE(listen) {
 	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
 	    CmdConnection::listen((*i)->getString());
 	}
     }
 
-    FUNCTION(unlisten) {
+    PROCEDURE(unlisten) {
 	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
 	    CmdConnection::unlisten((*i)->getString());
 	}
     }
 
-    FUNCTION(save_current) {
+    PROCEDURE(save_current) {
 	if (!serv.settings.setting_is_preset()) {
 	    throw RpcError(-32001, "no current preset");
 	}
 	save_preset(serv.settings, serv.settings.get_current_bank(), serv.settings.get_current_name());
     }
 
-    FUNCTION(save_preset) {
+    PROCEDURE(save_preset) {
 	save_preset(serv.settings, params[0]->getString(), params[1]->getString());
     }
 

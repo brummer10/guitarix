@@ -101,6 +101,9 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     gx_system::add_time_measurement();
 #endif
     lock_rt_memory();
+
+    engine.controller_map.signal_new_program().connect(
+	sigc::mem_fun(this, &GxMachine::do_program_change));
 }
 
 GxMachine::~GxMachine() {
@@ -110,6 +113,24 @@ GxMachine::~GxMachine() {
 	pmap.dump("json");
     }
 #endif
+}
+
+void GxMachine::do_program_change(int pgm) {
+    Glib::ustring bank = settings.get_current_bank();
+    bool in_preset = !bank.empty();
+    gx_system::PresetFile *f;
+    if (in_preset) {
+	f = settings.banks.get_file(bank);
+	in_preset = pgm < f->size();
+    }
+    if (in_preset) {
+	settings.load_preset(f, f->get_name(pgm));
+	if (engine.get_state() == gx_engine::kEngineBypass) {
+	    engine.set_state(gx_engine::kEngineOn);
+	}
+    } else if (engine.get_state() == gx_engine::kEngineOn) {
+	engine.set_state(gx_engine::kEngineBypass);
+    }
 }
 
 void GxMachine::set_state(GxEngineState state) {
@@ -573,16 +594,16 @@ sigc::signal<void, float>& GxMachine::_signal_parameter_value_float(const std::s
 }
 
 // MidiControllerList
-bool GxMachine::midi_get_config_mode() {
-    return engine.controller_map.get_config_mode();
+bool GxMachine::midi_get_config_mode(int *ctl) {
+    if (engine.controller_map.get_config_mode()) {
+	*ctl = engine.controller_map.get_current_control();
+	return true;
+    }
+    return false;
 }
 
 void GxMachine::midi_set_config_mode(bool v, int ctl) {
     engine.controller_map.set_config_mode(v, ctl);
-}
-
-sigc::signal<void,int>& GxMachine::signal_midi_new_program() {
-    return engine.controller_map.signal_new_program();
 }
 
 sigc::signal<void>& GxMachine::signal_midi_changed() {
@@ -607,10 +628,6 @@ midi_controller_list& GxMachine::midi_get(int n) {
 
 void GxMachine::midi_deleteParameter(Parameter& param, bool quiet) {
     engine.controller_map.deleteParameter(param, quiet);
-}
-
-int GxMachine::midi_get_current_control() {
-    return engine.controller_map.get_current_control();
 }
 
 void GxMachine::midi_set_current_control(int v) {
@@ -639,17 +656,19 @@ ConvolverStereoAdapter& GxMachine::get_stereo_convolver() {
  ** GxMachineRemote
  */
 
-#define START_CALL(m)    start_call(RPCM_##m)
+#define START_NOTIFY(m)  start_call(RPNM_##m)
 
-#define SEND()           assert(!current_call_has_result); send()
+#define SEND()           assert(!current_call_has_result); send();
+
+#define START_CALL(m)    { const char *_md_name = start_call(RPCM_##m)
 
 #define START_RECEIVE(s) assert(current_call_has_result); send(); { \
                            gx_system::JsonStringParser *jp = receive();\
                            if (!jp) { return s; }\
 			   try {
 
-#define END_RECEIVE(s)     } catch (const gx_system::JsonException& e) { report_rpc_error(jp, e); }\
-                         delete jp; s; }
+#define END_RECEIVE(s)     } catch (const gx_system::JsonException& e) { report_rpc_error(jp, e, _md_name); } \
+			 delete jp; s; }}
 
 
 GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
@@ -668,7 +687,6 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       notify_list(),
       idle_conn(),
       rack_units(),
-      midi_new_program(),
       midi_changed(),
       midi_value_changed(),
       current_call_has_result(),
@@ -704,11 +722,11 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     START_RECEIVE();
     banks.readJSON_remote(*jp);
     END_RECEIVE();
-    //START_CALL(get_midi_controller_map); FIXME
-    //START_RECEIVE();
-    //midi_controller_map.readJSON_remote(jp);
-    //END_RECEIVE();
-    START_CALL(listen);
+    START_CALL(get_midi_controller_map);
+    START_RECEIVE();
+    midi_controller_map.readJSON(*jp, pmap);
+    END_RECEIVE();
+    START_NOTIFY(listen);
     jw->write("all");
     SEND();
 }
@@ -726,7 +744,7 @@ void GxMachineRemote::param_signal_int(int v, IntParameter *p) {
 	return;
     }
     //cerr << "SVI " << p->id() << ": " << v << endl;
-    START_CALL(set);
+    START_NOTIFY(set);
     jw->write(p->id());
     jw->write(v);
     SEND();
@@ -737,7 +755,7 @@ void GxMachineRemote::param_signal_bool(bool v, BoolParameter *p) {
 	return;
     }
     //cerr << "SVB " << p->id() << ": " << v << endl;
-    START_CALL(set);
+    START_NOTIFY(set);
     jw->write(p->id());
     jw->write(v);
     SEND();
@@ -748,7 +766,7 @@ void GxMachineRemote::param_signal_float(float v, FloatParameter *p) {
 	return;
     }
     //cerr << "SVF " << p->id() << ": " << v << endl;
-    START_CALL(set);
+    START_NOTIFY(set);
     jw->write(p->id());
     jw->write(v);
     SEND();
@@ -759,7 +777,7 @@ void GxMachineRemote::param_signal_string(const Glib::ustring& v, StringParamete
 	return;
     }
     //cerr << "SVS " << p->id() << ": " << v << endl;
-    START_CALL(set);
+    START_NOTIFY(set);
     jw->write(p->id());
     jw->write(v);
     SEND();
@@ -862,8 +880,18 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	}
 	jp->next(gx_system::JsonParser::end_array);
 	rack_unit_order_changed(stereo);
+    } else if (method == "midi_changed") {
+	midi_controller_map.readJSON(*jp, pmap);
+	midi_changed();
+    } else if (method == "midi_value_changed") {
+	jp->next(gx_system::JsonParser::begin_array);
+	jp->next(gx_system::JsonParser::value_number);
+	int ctl = jp->current_value_int();
+	jp->next(gx_system::JsonParser::value_number);
+	int value = jp->current_value_int();
+	jp->next(gx_system::JsonParser::end_array);
+	midi_value_changed(ctl, value);
     } else {
-	//ADD  midi_new_program, midi_changed, midi_value_changed
 	cerr << "> " << jp->get_string() << endl;
     }
 }
@@ -917,7 +945,7 @@ bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
     }
 }
 
-void GxMachineRemote::start_call(jsonrpc_method m) {
+const char *GxMachineRemote::start_call(jsonrpc_method m) {
     const jsonrpc_method_def& md = jsonrpc_method_list[m];
     current_call_has_result = md.has_result;
     jw->begin_object();
@@ -931,6 +959,7 @@ void GxMachineRemote::start_call(jsonrpc_method m) {
     jw->write(md.name);
     jw->write_key("params");
     jw->begin_array();
+    return md.name;
 }
 
 void GxMachineRemote::send() {
@@ -940,8 +969,13 @@ void GxMachineRemote::send() {
     jw->reset();
 }
 
-void GxMachineRemote::report_rpc_error(gx_system::JsonStringParser *jp, const gx_system::JsonException& e) {
-    cerr << "JsonException: " << e.what() << ": '" << jp->get_string() << "'" << endl;
+void GxMachineRemote::report_rpc_error(gx_system::JsonStringParser *jp, const gx_system::JsonException& e, const char *method) {
+    if (method) {
+	cerr << "RPC Error in " << method << "(): ";
+    } else {
+	cerr << "RPC Error: ";
+    }
+    cerr << e.what() << ": '" << jp->get_string() << "'" << endl;
     assert(false);
 }
 
@@ -1050,7 +1084,7 @@ bool GxMachineRemote::get_bool(gx_system::JsonStringParser *jp) {
 }
 
 void GxMachineRemote::set_state(GxEngineState state) {
-    START_CALL(setstate);
+    START_NOTIFY(setstate);
     jw->write(engine_state_to_string(state));
     SEND();
 }
@@ -1389,7 +1423,7 @@ const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(bool stereo
 
 void GxMachineRemote::remove_rack_unit(const std::string& unit, bool stereo) {
     cerr << "remove_rack_unit()" << endl;
-    START_CALL(remove_rack_unit);
+    START_NOTIFY(remove_rack_unit);
     jw->write(unit);
     jw->write(stereo);
     SEND();
@@ -1397,7 +1431,7 @@ void GxMachineRemote::remove_rack_unit(const std::string& unit, bool stereo) {
 
 void GxMachineRemote::insert_rack_unit(const std::string& unit, const std::string& before, bool stereo) {
     cerr << "insert_rack_unit()" << endl;
-    START_CALL(insert_rack_unit);
+    START_NOTIFY(insert_rack_unit);
     jw->write(unit);
     jw->write(before);
     jw->write(stereo);
@@ -1469,7 +1503,7 @@ Glib::ustring GxMachineRemote::get_bank_name(int n) {
 }
 
 void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
-    START_CALL(setpreset);
+    START_NOTIFY(setpreset);
     jw->write(pf->get_name());
     jw->write(name);
     SEND();
@@ -1583,7 +1617,7 @@ bool GxMachineRemote::rename_preset(gx_system::PresetFileGui& pf, const Glib::us
 
 void GxMachineRemote::bank_reorder(const std::vector<Glib::ustring>& neworder) {
     cerr << "bank_reorder()" << endl;
-    START_CALL(bank_reorder);
+    START_NOTIFY(bank_reorder);
     for (std::vector<Glib::ustring>::const_iterator i = neworder.begin(); i != neworder.end(); ++i) {
 	jw->write(*i);
     }
@@ -1593,7 +1627,7 @@ void GxMachineRemote::bank_reorder(const std::vector<Glib::ustring>& neworder) {
 
 void GxMachineRemote::reorder_preset(gx_system::PresetFileGui& pf, const std::vector<Glib::ustring>& neworder) {
     cerr << "reorder_preset()" << endl;
-    START_CALL(reorder_preset);
+    START_NOTIFY(reorder_preset);
     jw->write(pf.get_name());
     for (std::vector<Glib::ustring>::const_iterator i = neworder.begin(); i != neworder.end(); ++i) {
 	jw->write(*i);
@@ -1616,7 +1650,7 @@ bool GxMachineRemote::bank_check_reparse() {
 
 void GxMachineRemote::erase_preset(gx_system::PresetFileGui& pf, const Glib::ustring& name) {
     cerr << "erase_preset()" << endl;
-    START_CALL(erase_preset);
+    START_NOTIFY(erase_preset);
     jw->write(pf.get_name());
     jw->write(name);
     SEND();
@@ -1630,7 +1664,7 @@ void GxMachineRemote::erase_preset(gx_system::PresetFileGui& pf, const Glib::ust
 
 void GxMachineRemote::bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v) {
     cerr << "bank_set_flag()" << endl;
-    START_CALL(bank_set_flag);
+    START_NOTIFY(bank_set_flag);
     jw->write(pf->get_name());
     jw->write(flag);
     jw->write(v);
@@ -1689,7 +1723,7 @@ bank_iterator GxMachineRemote::bank_end() {
 
 void GxMachineRemote::pf_append(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& name) {
     cerr << "pf_append()" << endl;
-    START_CALL(pf_append);
+    START_NOTIFY(pf_append);
     jw->write(pf.get_name());
     jw->write(src);
     jw->write(pftgt.get_name());
@@ -1700,7 +1734,7 @@ void GxMachineRemote::pf_append(gx_system::PresetFileGui& pf, const Glib::ustrin
 
 void GxMachineRemote::pf_insert_before(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name) {
     cerr << "pf_insert_before()" << endl;
-    START_CALL(pf_insert_before);
+    START_NOTIFY(pf_insert_before);
     jw->write(pf.get_name());
     jw->write(src);
     jw->write(pftgt.get_name());
@@ -1717,7 +1751,7 @@ void GxMachineRemote::pf_insert_before(gx_system::PresetFileGui& pf, const Glib:
 
 void GxMachineRemote::pf_insert_after(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name) {
     cerr << "pf_insert_after()" << endl;
-    START_CALL(pf_insert_after);
+    START_NOTIFY(pf_insert_after);
     jw->write(pf.get_name());
     jw->write(src);
     jw->write(pftgt.get_name());
@@ -1762,13 +1796,13 @@ bool GxMachineRemote::bank_remove(const Glib::ustring& bank) {
 
 void GxMachineRemote::bank_save() {
     cerr << "bank_save()" << endl;
-    START_CALL(bank_save);
+    START_NOTIFY(bank_save);
     SEND();
 }
 
 void GxMachineRemote::pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name) {
     cerr << "pf_save()" << endl;
-    START_CALL(pf_save);
+    START_NOTIFY(pf_save);
     jw->write(pf.get_name());
     jw->write(name);
     SEND();
@@ -1864,7 +1898,7 @@ void GxMachineRemote::set_parameter_value(const std::string& id, const std::stri
 	return;
     }
     cerr << "SVS " << id << ": " << value << endl;
-    START_CALL(set);
+    START_NOTIFY(set);
     jw->write(id);
     jw->write(value);
     SEND();
@@ -1953,25 +1987,27 @@ sigc::signal<void, float>& GxMachineRemote::_signal_parameter_value_float(const 
 }
 
 // MidiControllerList
-bool GxMachineRemote::midi_get_config_mode() {
-    cerr << "midi_get_config_mode()" << endl;
+bool GxMachineRemote::midi_get_config_mode(int *ctl) {
+    //cerr << "midi_get_config_mode()" << endl;
     START_CALL(midi_get_config_mode);
     START_RECEIVE(false);
-    return get_bool(jp);
+    jp->next(gx_system::JsonParser::begin_array);
+    bool ret = get_bool(jp);
+    jp->next(gx_system::JsonParser::value_number);
+    if (ret && ctl) {
+	*ctl = jp->current_value_int();
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    return ret;
     END_RECEIVE(return false);
 }
 
 void GxMachineRemote::midi_set_config_mode(bool v, int ctl) {
-    cerr << "midi_set_config_mode()" << endl;
-    START_CALL(midi_set_config_mode);
+    cerr << "midi_set_config_mode(" << v << "," << ctl << ")" << endl;
+    START_NOTIFY(midi_set_config_mode);
     jw->write(v);
     jw->write(ctl);
     SEND();
-}
-
-sigc::signal<void,int>& GxMachineRemote::signal_midi_new_program() {
-    cerr << "signal_midi_new_program()" << endl;
-    return midi_new_program;
 }
 
 sigc::signal<void>& GxMachineRemote::signal_midi_changed() {
@@ -1986,7 +2022,7 @@ sigc::signal<void, int, int>& GxMachineRemote::signal_midi_value_changed() {
 
 void GxMachineRemote::request_midi_value_update() {
     cerr << "request_midi_value_update()" << endl;
-    START_CALL(request_midi_value_update);
+    START_NOTIFY(request_midi_value_update);
     SEND();
 }
 
@@ -2001,31 +2037,22 @@ midi_controller_list& GxMachineRemote::midi_get(int n) {
 
 void GxMachineRemote::midi_deleteParameter(Parameter& param, bool quiet) {
     cerr << "midi_deleteParameter()" << endl;
-    START_CALL(midi_deleteParameter);
+    START_NOTIFY(midi_deleteParameter);
     jw->write(param.id());
     jw->write(quiet);
     SEND();
 }
 
-int GxMachineRemote::midi_get_current_control() {
-    cerr << "midi_get_current_control()" << endl;
-    START_CALL(midi_get_current_control);
-    START_RECEIVE(0);
-    jp->next(gx_system::JsonParser::value_number);
-    return  jp->current_value_int();
-    END_RECEIVE(return 0);
-}
-
 void GxMachineRemote::midi_set_current_control(int v) {
     cerr << "midi_set_current_control()" << endl;
-    START_CALL(midi_set_current_control);
+    START_NOTIFY(midi_set_current_control);
     jw->write(v);
     SEND();
 }
 
 void GxMachineRemote::midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle) {
     cerr << "midi_modifyCurrent()" << endl;
-    START_CALL(midi_modifyCurrent);
+    START_NOTIFY(midi_modifyCurrent);
     jw->write(param.id());
     jw->write(lower);
     jw->write(upper);
@@ -2035,8 +2062,7 @@ void GxMachineRemote::midi_modifyCurrent(Parameter& param, float lower, float up
 
 int GxMachineRemote::midi_param2controller(Parameter& param, const MidiController** p) {
     cerr << "midi_param2controller()" << endl;
-    //FIXME
-    return -1;
+    return midi_controller_map.param2controller(param, p);
 }
 
 // cheat

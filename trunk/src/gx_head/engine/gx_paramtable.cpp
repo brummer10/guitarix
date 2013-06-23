@@ -283,21 +283,89 @@ bool MidiController::set_midi(int n, int last_value) {
     return ret;
 }
 
+
+/****************************************************************
+ ** class ControllerArray
+ */
+
+void ControllerArray::readJSON(gx_system::JsonParser& jp, ParamMap& param) {
+    for (unsigned int n = 0; n < array_size; n++) {
+	operator[](n).clear();
+    }
+    jp.next(gx_system::JsonParser::begin_array);
+    while (jp.peek() != gx_system::JsonParser::end_array) {
+        jp.next(gx_system::JsonParser::value_number);
+	midi_controller_list& l = operator[](jp.current_value_int());
+        jp.next(gx_system::JsonParser::begin_array);
+        while (jp.peek() != gx_system::JsonParser::end_array) {
+            MidiController *p = MidiController::readJSON(jp, param);
+            if (p) {
+                l.push_back(*p);
+		delete p;
+            }
+        }
+        jp.next(gx_system::JsonParser::end_array);
+    }
+    jp.next(gx_system::JsonParser::end_array);
+}
+
+void ControllerArray::writeJSON(gx_system::JsonWriter& w) const {
+    w.begin_array(true);
+    for (unsigned int n = 0; n < array_size; n++) {
+        const midi_controller_list& cl = operator[](n);
+        if (cl.empty())
+            continue;
+        w.write(n);
+        w.begin_array();
+        for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); ++i)
+            i->writeJSON(w);
+        w.end_array(true);
+    }
+    w.newline();
+    w.end_array(true);
+}
+
+int ControllerArray::param2controller(Parameter& param, const MidiController** p) {
+    for (ControllerArray::size_type n = 0; n < size(); ++n) {
+        const midi_controller_list& cl = operator[](n);
+        for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); ++i) {
+            if (i->hasParameter(param)) {
+                if (p) {
+                    *p = &(*i);
+                }
+                return n;
+            }
+        }
+    }
+    return -1;
+}
+
+bool ControllerArray::deleteParameter(Parameter& p) {
+    for (iterator pctr = begin(); pctr != end(); ++pctr) {
+        for (midi_controller_list::iterator i = pctr->begin(); i != pctr->end(); ++i) {
+            if (i->hasParameter(p)) {
+                pctr->erase(i);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 /****************************************************************
  ** class MidiControllerList
  */
 
 MidiControllerList::MidiControllerList()
-    : map(controller_array_size),
+    : map(),
       last_midi_control_value(),
-      midi_config_mode(false),
-      last_midi_control(-1),
+      last_midi_control(-2),
       program_change(-1),
       pgm_chg(),
       changed(),
       new_program(),
       midi_value_changed() {
-    for (int i = 0; i < controller_array_size; ++i) {
+    for (int i = 0; i < ControllerArray::array_size; ++i) {
 	last_midi_control_value[i] = -1;
     }
     pgm_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_pgm_chg));
@@ -306,8 +374,8 @@ MidiControllerList::MidiControllerList()
 }
 
 bool MidiControllerList::check_midi_values() {
-    static int saved_values[controller_array_size];
-    for (unsigned int n = 0; n < controller_array_size; ++n) {
+    static int saved_values[ControllerArray::array_size];
+    for (unsigned int n = 0; n < ControllerArray::array_size; ++n) {
 	if (saved_values[n] != last_midi_control_value[n]) {
 	    saved_values[n] = last_midi_control_value[n];
 	    midi_value_changed(n, saved_values[n]);
@@ -348,25 +416,12 @@ void MidiControllerList::on_pgm_chg() {
 }
 
 void MidiControllerList::set_config_mode(bool mode, int ctl) {
-    assert(mode != midi_config_mode);
-    if (mode)
+    assert(mode != get_config_mode());
+    if (mode) {
         last_midi_control = ctl;
-    midi_config_mode = mode;
-}
-
-int MidiControllerList::param2controller(Parameter& param, const MidiController** p) {
-    for (controller_array::size_type n = 0; n < map.size(); ++n) {
-        const midi_controller_list& cl = map[n];
-        for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); ++i) {
-            if (i->hasParameter(param)) {
-                if (p) {
-                    *p = &(*i);
-                }
-                return n;
-            }
-        }
+    } else {
+        last_midi_control = -2;
     }
-    return -1;
 }
 
 void MidiControllerList::deleteParameter(Parameter& p, bool quiet) {
@@ -374,17 +429,7 @@ void MidiControllerList::deleteParameter(Parameter& p, bool quiet) {
     if (!mode) {
         set_config_mode(true); // keep rt thread away from table
     }
-    bool found = false;
-    for (controller_array::iterator pctr = map.begin(); pctr != map.end(); ++pctr) {
-        for (midi_controller_list::iterator i = pctr->begin(); i != pctr->end(); ++i) {
-            if (i->hasParameter(p)) {
-                pctr->erase(i);
-                found = true;
-                break;
-            }
-        }
-    }
-    if (found && !quiet) {
+    if (map.deleteParameter(p) && !quiet) {
         changed();
     }
     if (!mode) {
@@ -394,10 +439,13 @@ void MidiControllerList::deleteParameter(Parameter& p, bool quiet) {
 
 void MidiControllerList::modifyCurrent(Parameter &param,
                                        float lower, float upper, bool toggle) {
-    assert(midi_config_mode == true); // keep rt thread away from table
+    if (!get_config_mode()) {
+	assert(false);
+	return;	// keep rt thread away from table
+    }
     // maximal one controller for a zone allowed
     deleteParameter(param);
-    if (last_midi_control == -1)
+    if (last_midi_control < 0)
         return;
     // add zone to controller
     map[last_midi_control].push_front(MidiController(param, lower, upper, toggle));
@@ -406,7 +454,7 @@ void MidiControllerList::modifyCurrent(Parameter &param,
 }
 
 void MidiControllerList::request_midi_value_update() {
-    for (unsigned int n = 0; n < controller_array_size; ++n) {
+    for (unsigned int n = 0; n < ControllerArray::array_size; ++n) {
 	int v = last_midi_control_value[n];
 	if (v >= 0) {
 	    midi_value_changed(n, v);
@@ -415,7 +463,7 @@ void MidiControllerList::request_midi_value_update() {
 }
 
 void MidiControllerList::set_ctr_val(int ctr, int val) {
-    if (midi_config_mode) {
+    if (get_config_mode()) {
         last_midi_control = ctr;
     } else {
         midi_controller_list& ctr_list = map[ctr];
@@ -426,40 +474,7 @@ void MidiControllerList::set_ctr_val(int ctr, int val) {
     MidiControllerList::set_last_midi_control_value(ctr, val);
 }
 
-void MidiControllerList::writeJSON(gx_system::JsonWriter& w) const {
-    w.begin_array(true);
-    for (unsigned int n = 0; n < map.size(); n++) {
-        const midi_controller_list& cl = map[n];
-        if (cl.empty())
-            continue;
-        w.write(n);
-        w.begin_array();
-        for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); ++i)
-            i->writeJSON(w);
-        w.end_array(true);
-    }
-    w.newline();
-    w.end_array(true);
-}
-
-void MidiControllerList::readJSON(gx_system::JsonParser& jp, ParamMap& param, controller_array& m) {
-    jp.next(gx_system::JsonParser::begin_array);
-    while (jp.peek() != gx_system::JsonParser::end_array) {
-        jp.next(gx_system::JsonParser::value_number);
-        midi_controller_list& l = m[jp.current_value_int()];
-        jp.next(gx_system::JsonParser::begin_array);
-        while (jp.peek() != gx_system::JsonParser::end_array) {
-            MidiController *p = MidiController::readJSON(jp, param);
-            if (p) {
-                l.push_front(*p);
-            }
-        }
-        jp.next(gx_system::JsonParser::end_array);
-    }
-    jp.next(gx_system::JsonParser::end_array);
-}
-
-void MidiControllerList::set_controller_array(const controller_array& m) {
+void MidiControllerList::set_controller_array(const ControllerArray& m) {
     bool mode = get_config_mode();
     if (!mode) {
         set_config_mode(true); // keep rt thread away from table
@@ -472,7 +487,7 @@ void MidiControllerList::set_controller_array(const controller_array& m) {
 }
 
 void MidiControllerList::remove_controlled_parameters(paramlist& plist,
-                                                      const controller_array *new_m) {
+                                                      const ControllerArray *new_m) {
     std::set<Parameter*> pset;
     for (unsigned int i = 0; i < map.size(); i++) {
         midi_controller_list& ctr = map[i];

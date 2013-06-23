@@ -114,7 +114,6 @@ struct CmdConnection::methodnames;
 "midi_modifyCurrent", false
 "midi_get_config_mode", true
 "midi_set_config_mode", false
-"midi_get_current_control", true
 "midi_set_current_control", false
 "request_midi_value_update", false
 
