@@ -922,13 +922,20 @@ void GxSettings::insert_rack_unit(const std::string& unit, const std::string& be
     }
 }
 
-gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, bool move) {
+Glib::RefPtr<Gio::File> GxSettings::uri_to_name_filename(const Glib::ustring& uri, Glib::ustring& name, std::string& filename) {
     Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(uri);
-    std::string filename = rem->get_basename();
+    filename = rem->get_basename();
     banks.strip_preset_postfix(filename);
-    Glib::ustring name = banks.decode_filename(filename);
+    name = banks.decode_filename(filename);
     banks.make_valid_utf8(name);
     banks.make_bank_unique(name, &filename);
+    return rem;
+}
+
+gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, bool move) {
+    Glib::ustring name;
+    std::string filename;
+    Glib::RefPtr<Gio::File> rem = uri_to_name_filename(uri, name, filename);
     Glib::RefPtr<Gio::File> dest = Gio::File::create_for_path(filename);
     try {
 	rem->copy(dest);
@@ -954,6 +961,34 @@ gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, boo
 	} catch (Gio::Error& e) {
 	    gx_system::gx_print_error(e.what().c_str(), _("can't move; file has been copied"));
 	}
+    }
+    return f;
+}
+
+gx_system::PresetFile* GxSettings::bank_insert_content(const Glib::ustring& uri, const std::string content) {
+    Glib::ustring name;
+    std::string filename;
+    uri_to_name_filename(uri, name, filename);
+    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_path(filename);
+    try {
+	Glib::RefPtr<Gio::FileOutputStream> s = dest->create_file();
+	s->write(content);
+	s->close();
+    } catch (Gio::Error& e) {
+	gx_system::gx_print_error(e.what().c_str(), _("can't bank"));
+	return 0;
+    }
+    gx_system::PresetFile *f = new gx_system::PresetFile();
+    if (f->open_file(name, filename, gx_system::PresetFile::PRESET_FILE, 0)) {
+	banks.insert(f);
+    } else {
+	delete f;
+	try {
+	    dest->remove();
+	} catch (Gio::Error& e) {
+	    gx_system::gx_print_error(e.what().c_str(), _("can't remove copied file!?"));
+	}
+	return 0;
     }
     return f;
 }

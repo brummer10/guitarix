@@ -337,6 +337,9 @@ void CmdConnection::preset_changed() {
     if (serv.settings.setting_is_preset()) {
 	jw.write(serv.settings.get_current_bank());
 	jw.write(serv.settings.get_current_name());
+    } else {
+	jw.write("");
+	jw.write("");
     }
     send_notify_end(jw);
 }
@@ -620,9 +623,11 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.end_array();
     }
 
-    FUNCTION(bank_insert_uri) {
-	gx_system::PresetFile *f = serv.settings.bank_insert_uri(params[0]->getString(), params[0]->getInt());
-	f->writeJSON_remote(jw);
+    FUNCTION(bank_insert_content) {
+	gx_system::PresetFile *f = serv.settings.bank_insert_content(params[0]->getString(), params[1]->getString());
+	if (f) {
+	    f->writeJSON_remote(jw);
+	}
     }
 
     FUNCTION(bank_insert_new) {
@@ -667,7 +672,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     FUNCTION(bank_remove) {
-	jw.write(serv.settings.banks.remove(params[0]->getString()));
+	jw.write(serv.settings.remove_bank(params[0]->getString()));
     }
 
     FUNCTION(midi_get_config_mode) {

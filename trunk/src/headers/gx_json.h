@@ -466,6 +466,7 @@ public:
     void insert_after(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
     void load_preset(PresetFile *pf, const Glib::ustring& name);
     bool rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
+    bool remove_bank(const Glib::ustring& bank);
     bool rename_preset(PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
 };
 

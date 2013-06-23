@@ -446,6 +446,9 @@ std::string GxMachine::bank_get_filename(const Glib::ustring& bank) {
     return settings.banks.get_file(bank)->get_filename();
 }
 
+void GxMachine::bank_drag_begin() {
+}
+
 gx_system::PresetFileGui *GxMachine::bank_get_file(const Glib::ustring& bank) const {
     return settings.banks.get_file(bank)->get_guiwrapper();
 }
@@ -475,15 +478,11 @@ bool GxMachine::convert_preset(gx_system::PresetFileGui& pf) {
 }
 
 bool GxMachine::bank_remove(const Glib::ustring& bank) {
-    return settings.banks.remove(bank);
+    return settings.remove_bank(bank);
 }
 
 void GxMachine::bank_save() {
     settings.banks.save();
-}
-
-void GxMachine::set_source_to_state() {
-    settings.set_source_to_state();
 }
 
 void GxMachine::pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name) {
@@ -674,7 +673,9 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       midi_value_changed(),
       current_call_has_result(),
       current_bank(),
-      current_preset() {
+      current_preset(),
+      bank_drag_get_counter(),
+      bank_drag_get_path() {
     socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
     int flag = 1;
     setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
@@ -828,16 +829,16 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	jp->next(gx_system::JsonParser::value_string);
 	gx_system::Logger::get_logger().print(jp->current_value(), msgtype);
     } else if (method == "preset_changed") {
-	cerr << "PCS:" << current_bank << "|" << current_preset << endl;
-	if (jp->peek() == gx_system::JsonParser::value_string) {
-	    jp->next();
-	    current_bank = jp->current_value();
-	    jp->next(gx_system::JsonParser::value_string);
-	    current_preset = jp->current_value();
-	}
+	jp->next();
+	Glib::ustring new_bank = jp->current_value();
+	jp->next(gx_system::JsonParser::value_string);
+	Glib::ustring new_preset = jp->current_value();
 	jp->next(gx_system::JsonParser::end_array);
-	cerr << "PCE:" << current_bank << "|" << current_preset << endl;
-	selection_changed();
+	if (new_preset != current_preset || new_bank != current_bank) {
+	    current_bank = new_bank;
+	    current_preset = new_preset;
+	    selection_changed();
+	}
     } else if (method == "presetlist_changed") {
 	START_CALL(banks);
 	START_RECEIVE();
@@ -1515,10 +1516,17 @@ sigc::signal<void>& GxMachineRemote::signal_presetlist_changed() {
 
 gx_system::PresetFileGui *GxMachineRemote::bank_insert_uri(const Glib::ustring& uri, bool move) {
     cerr << "bank_insert_uri()" << endl;
-    START_CALL(bank_insert_uri);
+    START_CALL(bank_insert_content);
     jw->write(uri);
-    jw->write(move);
+    Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(uri);
+    fstream f(rem->get_path().c_str());
+    stringstream s;
+    s << f.rdbuf();
+    jw->write(s.str());
     START_RECEIVE(0);
+    if (jp->peek() != gx_system::JsonParser::begin_object) {
+	return 0;
+    }
     gx_system::PresetFile *pf = new gx_system::PresetFile();
     pf->readJSON_remote(*jp);
     banks.insert(pf);
@@ -1612,6 +1620,12 @@ void GxMachineRemote::erase_preset(gx_system::PresetFileGui& pf, const Glib::ust
     jw->write(pf.get_name());
     jw->write(name);
     SEND();
+    for (gx_system::PresetFile::iterator i = pf.begin(); i != pf.end(); ++i) {
+	if (i->name == name) {
+	    pf.entries.erase(i);
+	    break;
+	}
+    }
 }
 
 void GxMachineRemote::bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v) {
@@ -1621,26 +1635,44 @@ void GxMachineRemote::bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool
     jw->write(flag);
     jw->write(v);
     SEND();
+    pf->set_flag(flag, v);
 }
 
 std::string GxMachineRemote::bank_get_filename(const Glib::ustring& bank) {
     cerr << "bank_get_filename()" << endl;
-    START_CALL(bank_get_contents);
-    jw->write(bank);
-    START_RECEIVE(empty_string);
-    jp->next(gx_system::JsonParser::begin_array);
-    jp->next(gx_system::JsonParser::value_string);
-    Glib::RefPtr<Gio::File> target = Gio::File::create_for_path(
-	options.get_temp_filepath(
-	    Gio::File::create_for_path(jp->current_value())->get_basename()));
-    jp->next(gx_system::JsonParser::value_string);
-    Glib::RefPtr<Gio::FileOutputStream> s = target->replace(
-	"", false, Gio::FILE_CREATE_REPLACE_DESTINATION);
-    s->write(jp->current_value());
-    s->close();
-    jp->next(gx_system::JsonParser::end_array);
-    return target->get_path();
-    END_RECEIVE(return empty_string);
+    // FIXME Gtk3: bank_get_filename is used in DnD bank operation, and the
+    // first request is due to an internal window of the DnD mechanism but
+    // there seems to be no way to detect this. Skip this first request so
+    // that no contents is send for a DnD reorder operation. Recheck for Gtk3
+    switch (bank_drag_get_counter) {
+    case 0:
+	bank_drag_get_counter++;
+	return "";
+    case 1:
+	bank_drag_get_counter++;
+	START_CALL(bank_get_contents);
+	jw->write(bank);
+	START_RECEIVE(empty_string);
+	jp->next(gx_system::JsonParser::begin_array);
+	jp->next(gx_system::JsonParser::value_string);
+	Glib::RefPtr<Gio::File> target = Gio::File::create_for_path(
+	    options.get_temp_filepath(
+		Gio::File::create_for_path(jp->current_value())->get_basename()));
+	jp->next(gx_system::JsonParser::value_string);
+	Glib::RefPtr<Gio::FileOutputStream> s = target->replace(
+	    "", false, Gio::FILE_CREATE_REPLACE_DESTINATION);
+	s->write(jp->current_value());
+	s->close();
+	jp->next(gx_system::JsonParser::end_array);
+	bank_drag_get_path = target->get_path();
+	END_RECEIVE(return empty_string);
+    }
+    return bank_drag_get_path;
+}
+
+void GxMachineRemote::bank_drag_begin() {
+    bank_drag_get_counter = 0;
+    bank_drag_get_path.clear();
 }
 
 gx_system::PresetFileGui *GxMachineRemote::bank_get_file(const Glib::ustring& bank) const {
@@ -1663,6 +1695,7 @@ void GxMachineRemote::pf_append(gx_system::PresetFileGui& pf, const Glib::ustrin
     jw->write(pftgt.get_name());
     jw->write(name);
     SEND();
+    pftgt.entries.push_back(gx_system::PresetFile::Position(name,0));
 }
 
 void GxMachineRemote::pf_insert_before(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name) {
@@ -1674,6 +1707,12 @@ void GxMachineRemote::pf_insert_before(gx_system::PresetFileGui& pf, const Glib:
     jw->write(pos);
     jw->write(name);
     SEND();
+    for (gx_system::PresetFile::iterator i = pftgt.begin(); i != pftgt.end(); ++i) {
+	if (i->name == pos) {
+	    pftgt.entries.insert(i, gx_system::PresetFile::Position(name, 0));
+	    break;
+	}
+    }
 }
 
 void GxMachineRemote::pf_insert_after(gx_system::PresetFileGui& pf, const Glib::ustring& src, gx_system::PresetFileGui& pftgt, const Glib::ustring& pos, const Glib::ustring& name) {
@@ -1685,6 +1724,12 @@ void GxMachineRemote::pf_insert_after(gx_system::PresetFileGui& pf, const Glib::
     jw->write(pos);
     jw->write(name);
     SEND();
+    for (gx_system::PresetFile::iterator i = pftgt.begin(); i != pftgt.end(); ++i) {
+	if (i->name == pos) {
+	    pftgt.entries.insert(++i, gx_system::PresetFile::Position(name, 0));
+	    break;
+	}
+    }
 }
 
 bool GxMachineRemote::convert_preset(gx_system::PresetFileGui& pf) {
@@ -1692,8 +1737,11 @@ bool GxMachineRemote::convert_preset(gx_system::PresetFileGui& pf) {
     START_CALL(convert_preset);
     jw->write(pf.get_name());
     START_RECEIVE(false);
-    // FIXME update cached PresetFile
-    return get_bool(jp);
+    bool ret = get_bool(jp);
+    if (ret) {
+	pf.set_flag(gx_system::PRESET_FLAG_VERSIONDIFF, false);
+    }
+    return ret;
     END_RECEIVE(return false);
 }
 
@@ -1716,11 +1764,6 @@ void GxMachineRemote::bank_save() {
     cerr << "bank_save()" << endl;
     START_CALL(bank_save);
     SEND();
-}
-
-void GxMachineRemote::set_source_to_state() {
-    cerr << "set_source_to_state()" << endl;
-    //FIXME
 }
 
 void GxMachineRemote::pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name) {

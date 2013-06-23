@@ -23,7 +23,7 @@ enum jsonrpc_method {
 	RPCM_list,
 	RPCM_banks,
 	RPCM_setpreset,
-	RPCM_bank_insert_uri,
+	RPCM_bank_insert_content,
 	RPCM_bank_insert_new,
 	RPCM_get_bank,
 	RPCM_rename_bank,

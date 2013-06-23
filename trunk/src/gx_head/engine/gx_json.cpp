@@ -1937,6 +1937,16 @@ bool GxSettingsBase::rename_bank(const Glib::ustring& oldname, const Glib::ustri
     return true;
 }
 
+bool GxSettingsBase::remove_bank(const Glib::ustring& bank) {
+    if (!banks.remove(bank)) {
+	return false;
+    }
+    if (bank == current_bank) {
+	set_source_to_state();
+    }
+    return true;
+}
+
 bool GxSettingsBase::rename_preset(PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname) {
     if (!pf.rename(oldname, newname)) {
 	return false;

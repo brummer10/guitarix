@@ -70,7 +70,7 @@ struct CmdConnection::methodnames;
 
 "banks", true
 "setpreset", false
-"bank_insert_uri", true
+"bank_insert_content", true
 "bank_insert_new", true
 "get_bank", true
 "rename_bank", true

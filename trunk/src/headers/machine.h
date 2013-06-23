@@ -130,6 +130,7 @@ public:
     virtual void erase_preset(gx_system::PresetFileGui& pf, const Glib::ustring& name) = 0;
     virtual void bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v) = 0;
     virtual std::string bank_get_filename(const Glib::ustring& bank) = 0;
+    virtual void bank_drag_begin() = 0;
     virtual gx_system::PresetFileGui *bank_get_file(const Glib::ustring& bank) const = 0;
     virtual bank_iterator bank_begin() = 0;
     virtual bank_iterator bank_end() = 0;
@@ -139,7 +140,6 @@ public:
     virtual bool convert_preset(gx_system::PresetFileGui& pf) = 0;
     virtual bool bank_remove(const Glib::ustring& bank) = 0;
     virtual void bank_save() = 0;
-    virtual void set_source_to_state() = 0;
     virtual void pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name) = 0;
 
     // jack
@@ -299,6 +299,7 @@ public:
     virtual void erase_preset(gx_system::PresetFileGui& pf, const Glib::ustring& name);
     virtual void bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v);
     virtual std::string bank_get_filename(const Glib::ustring& bank);
+    virtual void bank_drag_begin();
     virtual gx_system::PresetFileGui *bank_get_file(const Glib::ustring& bank) const;
     virtual bank_iterator bank_begin();
     virtual bank_iterator bank_end();
@@ -308,7 +309,6 @@ public:
     virtual bool convert_preset(gx_system::PresetFileGui& pf);
     virtual bool bank_remove(const Glib::ustring& bank);
     virtual void bank_save();
-    virtual void set_source_to_state();
     virtual void pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name);
 
     // jack
@@ -368,6 +368,9 @@ private:
     bool current_call_has_result;
     Glib::ustring current_bank;
     Glib::ustring current_preset;
+    int bank_drag_get_counter;
+    std::string bank_drag_get_path;
+    
 private:
     void start_call(jsonrpc_method m_id);
     void send();
@@ -471,6 +474,7 @@ public:
     virtual void erase_preset(gx_system::PresetFileGui& pf, const Glib::ustring& name);
     virtual void bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v);
     virtual std::string bank_get_filename(const Glib::ustring& bank);
+    virtual void bank_drag_begin();
     virtual gx_system::PresetFileGui *bank_get_file(const Glib::ustring& bank) const;
     virtual bank_iterator bank_begin();
     virtual bank_iterator bank_end();
@@ -480,7 +484,6 @@ public:
     virtual bool convert_preset(gx_system::PresetFileGui& pf);
     virtual bool bank_remove(const Glib::ustring& bank);
     virtual void bank_save();
-    virtual void set_source_to_state();
     virtual void pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name);
 
     // jack

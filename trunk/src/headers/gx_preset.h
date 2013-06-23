@@ -161,7 +161,9 @@ public:
     std::vector<std::string>& get_rack_unit_order(bool stereo) { return stereo ? rack_units.stereo : rack_units.mono; }
     void remove_rack_unit(const std::string& unit, bool stereo);
     void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo);
+    Glib::RefPtr<Gio::File> uri_to_name_filename(const Glib::ustring& uri, Glib::ustring& name, std::string& filename);
     gx_system::PresetFile *bank_insert_uri(const Glib::ustring& uri, bool move);
+    gx_system::PresetFile* bank_insert_content(const Glib::ustring& uri, const std::string content);
     gx_system::PresetFile *bank_insert_new(const Glib::ustring& name);
     bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname);
 };

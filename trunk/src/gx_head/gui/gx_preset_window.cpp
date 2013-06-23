@@ -115,6 +115,8 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
 	sigc::mem_fun(*this, &PresetWindow::on_bank_drag_data_received));
     bank_treeview->signal_drag_data_get().connect(
 	sigc::mem_fun(*this, &PresetWindow::on_bank_drag_data_get));
+    bank_treeview->signal_drag_begin().connect(
+	sigc::hide(sigc::mem_fun(machine, &gx_engine::GxMachineBase::bank_drag_begin)));
     Glib::RefPtr<Gtk::TreeSelection> sel = bank_treeview->get_selection();
     sel->set_mode(Gtk::SELECTION_BROWSE);
     sel->signal_changed().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_changed));
@@ -630,8 +632,7 @@ bool PresetWindow::on_bank_button_release(GdkEventButton *ev) {
 	    bank_row_del_conn.unblock();
 	    machine.bank_remove(nm);
 	    reload_combo();
-	    if (nm == machine.get_current_bank()) {
-		machine.set_source_to_state();
+	    if (!machine.setting_is_preset()) { // if current bank was removed
 		actions.save_changes->set_sensitive(false);
 	    }
 	}
@@ -878,7 +879,7 @@ bool PresetWindow::on_preset_button_release(GdkEventButton *ev) {
     Gtk::TreeModel::Path path;
     Gtk::TreeViewColumn *focus_column;
     preset_treeview->get_cursor(path, focus_column);
-    if (col != focus_column || pt != path) {
+    if (col != focus_column || !path || pt != path) {
 	return false;
     }
     Gtk::TreeIter bank_iter = get_current_bank_iter();
