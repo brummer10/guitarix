@@ -19,6 +19,8 @@
 #include "guitarix.h"
 #include <sys/mman.h>
 #include "jsonrpc_methods.h"
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 
 void lock_rt_memory() {
     extern char __rt_text__start[], __rt_text__end[];
@@ -674,6 +676,8 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       current_bank(),
       current_preset() {
     socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
+    int flag = 1;
+    setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
     Glib::RefPtr<Gio::InetAddress> a = Gio::InetAddress::create("127.0.0.1");
     try {
 	socket->connect(Gio::InetSocketAddress::create(a, 7000));

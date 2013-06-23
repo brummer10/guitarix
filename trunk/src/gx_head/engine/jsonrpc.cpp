@@ -17,6 +17,8 @@
  */
 
 #include "jsonrpc.h"
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #include "jsonrpc_methods.cc"
 
@@ -1460,6 +1462,8 @@ bool MyService::on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connectio
     connection_list.push_back(cc);
     Glib::RefPtr<Gio::Socket> sock = connection->get_socket();
     sock->set_blocking(false);
+    int flag = 1;
+    setsockopt(sock->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
     Glib::signal_io().connect(
 	sigc::mem_fun(cc, &CmdConnection::on_data),
 	sock->get_fd(), Glib::IO_IN|Glib::IO_HUP);
