@@ -46,28 +46,6 @@ public:
 typedef UiToggleAction<bool> UiBoolToggleAction;
 typedef UiBoolToggleAction UiSwitchToggleAction;
 
-template <class T>
-class UiRadioAction: public Gtk::RadioAction {
-private:
-    gx_engine::GxMachineBase& machine;
-    std::string id;
-    virtual void on_changed(const Glib::RefPtr<Gtk::RadioAction>& act);
-protected:
-    UiRadioAction(
-	gx_engine::GxMachineBase& machine_, const std::string& id, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
-	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring());
-    ~UiRadioAction();
-public:
-    static Glib::RefPtr<UiRadioAction> create(
-	gx_engine::GxMachineBase& machine, const std::string& id, Gtk::RadioButtonGroup& group, const Glib::ustring& name,
-	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring()) {
-	return Glib::RefPtr<UiRadioAction>(
-	    new UiRadioAction(machine, id, group, name, Glib::ustring(), label, tooltip));
-    }
-};
-
-typedef UiRadioAction<bool> UiSwitchRadioAction;
-
 
 /****************************************************************
  ** class KeySwitcher

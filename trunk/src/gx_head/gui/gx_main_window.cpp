@@ -422,28 +422,6 @@ void UiToggleAction<T>::on_toggled() {
     machine.set_parameter_value(id, get_active());
 }
 
-template <class T>
-UiRadioAction<T>::UiRadioAction(
-    gx_engine::GxMachineBase& machine_, const std::string& id_, Gtk::RadioButtonGroup& group, const Glib::ustring& name, const Glib::ustring& icon_name,
-    const Glib::ustring& label, const Glib::ustring& tooltip)
-    : Gtk::RadioAction(group, name, icon_name, label, tooltip),
-      machine(machine_),
-      id(id_)
-{
-    set_current_value(machine.get_parameter_value<T>(id));
-    machine.signal_parameter_value<T>(id).connect(
-	sigc::mem_fun(this, &UiRadioAction::set_active));
-}
-
-template <class T>
-UiRadioAction<T>::~UiRadioAction() {
-}
-
-template <class T>
-void UiRadioAction<T>::on_changed(const Glib::RefPtr<Gtk::RadioAction>& act) {
-    machine.set_parameter_value(id, get_current_value());
-}
-
 void update_scrolled_window(Gtk::ScrolledWindow& w) {
     Gtk::PolicyType hp, vp;
     w.get_policy(hp, vp);
