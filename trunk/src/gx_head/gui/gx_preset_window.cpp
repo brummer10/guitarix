@@ -634,6 +634,7 @@ void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring
 	if (f) {
 	    ls->prepend()->set_value(target_col.name, f->get_name());
 	    edit_iter = ls->children().end();
+	    set_row_for_presetfile(sel, f);
 	    w->get_selection()->select(sel);
 	}
     } else {
