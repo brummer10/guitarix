@@ -49,7 +49,7 @@ using namespace gx_engine;
 
 class ControlParameter {
 private:
-    MidiControllerList::controller_array *midi_control;
+    ControllerArray *midi_control;
     list<midi_controller_list*> ctlr;
     boost::mutex control_mutex;
     vector<LADSPA_Data*> parameter_port;
@@ -59,8 +59,8 @@ public:
     ControlParameter(int sz);
     ~ControlParameter();
     void set_port(unsigned int n, LADSPA_Data *p);
-    MidiControllerList::controller_array *readJSON(gx_system::JsonParser &jp, ParamMap& param);
-    void set_array(MidiControllerList::controller_array *m);
+    ControllerArray *readJSON(gx_system::JsonParser &jp, ParamMap& param);
+    void set_array(ControllerArray *m);
     void get_values();
 };
 
@@ -85,10 +85,10 @@ void ControlParameter::set_port(unsigned int n, LADSPA_Data *p) {
     }
 }
 
-MidiControllerList::controller_array *ControlParameter::readJSON(
+ControllerArray *ControlParameter::readJSON(
     gx_system::JsonParser &jp, ParamMap& param) {
-    MidiControllerList::controller_array *m = MidiControllerList::create_controller_array();
-    MidiControllerList::readJSON(jp, param, *m);
+    ControllerArray *m = new ControllerArray();
+    m->readJSON(jp, param);
     return m;
 }
 
@@ -106,7 +106,7 @@ void ControlParameter::log_assignment(int ctlr, int var, const midi_controller_l
 	boost::format(_("%1% -> controller %2% [%3%]")) % var % ctlr % s);
 }
 
-void ControlParameter::set_array(MidiControllerList::controller_array *m) {
+void ControlParameter::set_array(ControllerArray *m) {
     boost::mutex::scoped_lock lock(control_mutex);
     ctlr.clear();
     delete midi_control;
@@ -155,7 +155,7 @@ private:
     GxJConvSettings *jcset;
     ParamMap& param;
     paramlist plist;
-    MidiControllerList::controller_array *midi_list;
+    ControllerArray *midi_list;
     ConvolverStereoAdapter* stereo_convolver;
     ConvolverMonoAdapter* mono_convolver;
     ControlParameter& control_parameter;
@@ -289,7 +289,7 @@ StateIO::~StateIO() {
 }
 
 void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {
-    MidiControllerList::controller_array *m = 0;
+    ControllerArray *m = 0;
     do {
 	jp.next(gx_system::JsonParser::value_string);
 	if (jp.current_value() == "current_preset") {
