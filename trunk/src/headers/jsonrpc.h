@@ -72,6 +72,8 @@ private:
     sigc::connection conn_log_message;
     sigc::connection conn_midi_changed;
     sigc::connection conn_midi_value_changed;
+    sigc::connection conn_osc_activation;
+    sigc::connection conn_osc_size_changed;
 private:
     void exec(Glib::ustring cmd);
     void call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
@@ -83,7 +85,7 @@ private:
     void error_response(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { error_response(jw, code, message.c_str()); }
     void preset_changed();
     void send_rack_changed(bool stereo);
-    void send_notify_begin(gx_system::JsonWriter& jw, const char *method);
+    void send_notify_begin(gx_system::JsonStringWriter& jw, const char *method) { jw.send_notify_begin(method); }
     void send_notify_end(gx_system::JsonStringWriter& jw, bool send_out=true);
     void on_engine_state_change(gx_engine::GxEngineState state);
     void write_engine_state(gx_system::JsonWriter& jw, gx_engine::GxEngineState s);
@@ -95,15 +97,18 @@ private:
     void on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
     void on_midi_changed();
     void on_midi_value_changed(int ctl, int value);
+    void on_osc_size_changed(unsigned int sz);
+    int on_osc_activation(bool v);
     void listen(const Glib::ustring& tp);
     void unlisten(const Glib::ustring& tp);
-    void send(gx_system::JsonStringWriter& jw);
     void process(gx_system::JsonStringParser& jp);
 
 public:
     CmdConnection(MyService& serv, const Glib::RefPtr<Gio::SocketConnection>& connection_);
     ~CmdConnection();
     bool on_data(Glib::IOCondition cond);
+    bool get_parameter_change_notify() { return parameter_change_notify; }
+    void send(gx_system::JsonStringWriter& jw);
     friend class UiBuilderVirt;
 };
 

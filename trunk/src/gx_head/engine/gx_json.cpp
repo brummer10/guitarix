@@ -210,6 +210,26 @@ void JsonWriter::flush() {
 
 
 /****************************************************************
+ ** class JsonStringWriter
+ */
+
+void JsonStringWriter::send_notify_begin(const char *method) {
+    begin_object();
+    write_key("jsonrpc");
+    write("2.0");
+    write_key("method");
+    write(method);
+    write_key("params");
+    begin_array();
+}
+
+void JsonStringWriter::send_notify_end() {
+    end_array();
+    end_object();
+}
+
+
+/****************************************************************
  ** JsonParser
  */
 

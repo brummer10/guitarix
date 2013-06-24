@@ -237,6 +237,7 @@ public:
     sigc::signal<int, bool>          activation;
     sigc::signal<void, unsigned int> size_change;
     void clear_buffer();
+    unsigned int get_size() { return size; }
     inline float *get_buffer() { return buffer; }
     int get_mul_buffer() { return mul_buffer; }
     void set_mul_buffer(int a, unsigned int b) { mul_buffer = a; change_buffersize(b); }

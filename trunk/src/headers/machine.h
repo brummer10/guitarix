@@ -73,9 +73,9 @@ public:
     virtual void pluginlist_registerPlugin(Plugin *pl) = 0;
     virtual const std::string& conv_getIRFile(const char *id) = 0;
     virtual float get_tuner_freq() = 0;
-    virtual void set_oscilloscope_mul_buffer(int a, unsigned int b) = 0;
+    virtual void set_oscilloscope_mul_buffer(int a) = 0;
     virtual int get_oscilloscope_mul_buffer() = 0;
-    virtual float *get_oscilloscope_buffer() = 0;
+    virtual const float *get_oscilloscope_buffer() = 0;
     virtual void clear_oscilloscope_buffer() = 0;
     virtual bool oscilloscope_plugin_box_visible() = 0;
     virtual sigc::signal<void, int>& signal_oscilloscope_post_pre() = 0;
@@ -85,6 +85,7 @@ public:
     virtual void maxlevel_get(int channels, float *values) = 0;
     virtual bool midiaudiobuffer_get_midistat() = 0;
     virtual MidiAudioBuffer::Load midiaudiobuffer_jack_load_status() = 0;
+    virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) = 0;
     virtual gx_system::CmdlineOptions& get_options() const = 0;
     virtual void start_socket(sigc::slot<void> quit_mainloop, int port) = 0;
     virtual sigc::signal<void>& signal_conv_settings_changed(const char *id) = 0;
@@ -242,9 +243,9 @@ public:
     virtual void pluginlist_registerPlugin(Plugin *pl);
     virtual const std::string& conv_getIRFile(const char *id);
     virtual float get_tuner_freq();
-    virtual void set_oscilloscope_mul_buffer(int a, unsigned int b);
+    virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
-    virtual float *get_oscilloscope_buffer();
+    virtual const float *get_oscilloscope_buffer();
     virtual void clear_oscilloscope_buffer();
     virtual bool oscilloscope_plugin_box_visible();
     virtual sigc::signal<void, int>& signal_oscilloscope_post_pre();
@@ -254,6 +255,7 @@ public:
     virtual void maxlevel_get(int channels, float *values);
     virtual bool midiaudiobuffer_get_midistat();
     virtual MidiAudioBuffer::Load midiaudiobuffer_jack_load_status();
+    virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, int port);
     virtual sigc::signal<void>& signal_conv_settings_changed(const char *id);
@@ -365,7 +367,11 @@ private:
     Glib::ustring current_preset;
     int bank_drag_get_counter;
     std::string bank_drag_get_path;
-    
+    sigc::signal<int, bool> oscilloscope_activation;
+    sigc::signal<void, unsigned int> oscilloscope_size_change;
+    float *oscilloscope_buffer;
+    unsigned int oscilloscope_buffer_size;
+
 private:
     const jsonrpc_method_def& start_call(jsonrpc_method m_id);
     void send();
@@ -414,9 +420,9 @@ public:
     virtual void pluginlist_registerPlugin(Plugin *pl);
     virtual const std::string& conv_getIRFile(const char *id);
     virtual float get_tuner_freq();
-    virtual void set_oscilloscope_mul_buffer(int a, unsigned int b);
+    virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
-    virtual float *get_oscilloscope_buffer();
+    virtual const float *get_oscilloscope_buffer();
     virtual void clear_oscilloscope_buffer();
     virtual bool oscilloscope_plugin_box_visible();
     virtual sigc::signal<void, int>& signal_oscilloscope_post_pre();
@@ -426,6 +432,7 @@ public:
     virtual void maxlevel_get(int channels, float *values);
     virtual bool midiaudiobuffer_get_midistat();
     virtual MidiAudioBuffer::Load midiaudiobuffer_jack_load_status();
+    virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, int port);
     virtual sigc::signal<void>& signal_conv_settings_changed(const char *id);

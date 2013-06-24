@@ -95,6 +95,8 @@ private:
     ostringstream stream;
 public:
     JsonStringWriter(): JsonWriter(0, false) { set_stream(&stream); }
+    void send_notify_begin(const char *method);
+    void send_notify_end();
     void reset() { stream.str(""); }
     void finish() { stream << endl; }
     std::string get_string() { return stream.str(); }

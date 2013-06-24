@@ -204,7 +204,9 @@ CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketCon
       conn_presetlist_changed(),
       conn_log_message(),
       conn_midi_changed(),
-      conn_midi_value_changed() {
+      conn_midi_value_changed(),
+      conn_osc_activation(),
+      conn_osc_size_changed() {
     jp.start_parser();
 }
 
@@ -253,6 +255,12 @@ void CmdConnection::listen(const Glib::ustring& tp) {
 	conn_midi_value_changed = serv.jack.get_engine().controller_map.signal_midi_value_changed().connect(
 	    sigc::mem_fun(this, &CmdConnection::on_midi_value_changed));
     }
+    if (all || tp == "oscilloscope") {
+	conn_osc_size_changed = serv.jack.get_engine().oscilloscope.size_change.connect(
+	    sigc::mem_fun(this, &CmdConnection::on_osc_size_changed));
+	conn_osc_activation = serv.jack.get_engine().oscilloscope.activation.connect(
+	    sigc::mem_fun(this, &CmdConnection::on_osc_activation));
+    }
     if (all || tp == "param") {
 	parameter_change_notify = true;
     }
@@ -286,6 +294,21 @@ void CmdConnection::unlisten(const Glib::ustring& tp) {
 	conn_midi_changed.disconnect();
 	conn_midi_value_changed.disconnect();
     }
+}
+
+void CmdConnection::on_osc_size_changed(unsigned int sz) {
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "osc_size_changed");
+    jw.write(sz);
+    send_notify_end(jw);
+}
+
+int CmdConnection::on_osc_activation(bool start) {
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "osc_activation");
+    jw.write(start);
+    send_notify_end(jw);
+    return 0;
 }
 
 void CmdConnection::on_midi_changed() {
@@ -322,19 +345,8 @@ void CmdConnection::on_log_message(const string& msg, gx_system::GxMsgType tp, b
     }
 }
 
-void CmdConnection::send_notify_begin(gx_system::JsonWriter& jw, const char *method) {
-    jw.begin_object();
-    jw.write_key("jsonrpc");
-    jw.write("2.0");
-    jw.write_key("method");
-    jw.write(method);
-    jw.write_key("params");
-    jw.begin_array();
-}
-
 void CmdConnection::send_notify_end(gx_system::JsonStringWriter& jw, bool send_out) {
-    jw.end_array();
-    jw.end_object();
+    jw.send_notify_end();
     if (send_out) {
 	send(jw);
     }
@@ -772,6 +784,27 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.write(serv.jack.get_engine().tuner.get_freq());
     }
 
+    FUNCTION(get_oscilloscope_info) {
+	jw.begin_array();
+	jw.write(static_cast<int>(round(serv.jack.get_jcpu_load())));
+	jw.write(serv.jack.get_time_is()/100000);
+	jw.write(serv.jack.get_is_rt());
+	jw.write(serv.jack.get_jack_bs());
+	unsigned int sz = serv.jack.get_engine().oscilloscope.get_size();
+	float *p = serv.jack.get_engine().oscilloscope.get_buffer();
+	jw.write(sz);
+	jw.begin_array();
+	for (unsigned int i = 0; i < sz; i++) {
+	    jw.write(*p++);
+	}
+	jw.end_array();
+	jw.end_array();
+    }
+
+    FUNCTION(get_oscilloscope_mul_buffer) {
+	jw.write(serv.jack.get_engine().oscilloscope.get_mul_buffer());
+    }
+
     FUNCTION(jack_cpu_load) {
 	jw.write(serv.jack.get_jcpu_load());
     }
@@ -1098,6 +1131,15 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 
     PROCEDURE(tuner_used_for_livedisplay) {
 	serv.jack.get_engine().tuner.used_for_livedisplay(params[0]->getInt());
+    }
+
+    PROCEDURE(clear_oscilloscope_buffer) {
+	serv.jack.get_engine().oscilloscope.clear_buffer();
+    }
+
+    PROCEDURE(set_oscilloscope_mul_buffer) {
+	serv.jack.get_engine().oscilloscope.set_mul_buffer(
+	    params[0]->getInt(), serv.jack.get_jack_bs());
     }
 
     END_FUNCTION_SWITCH(cerr << "Method not found: " << mn->name << endl; assert(false));

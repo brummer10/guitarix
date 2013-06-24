@@ -1558,7 +1558,6 @@ void MainWindow::create_actions() {
 
     if (!jack) {
 	actions.jack_latency_menu->set_visible(false);
-	actions.osc_buffer_menu->set_visible(false);
 	actions.jackserverconnection->set_visible(false);
 	actions.jackports->set_visible(false);
 	actions.meterbridge->set_visible(false);
@@ -2095,13 +2094,10 @@ void MainWindow::set_osc_size() {
 
 void MainWindow::change_osc_buffer(Glib::RefPtr<Gtk::RadioAction> action) {
     gx_jack::GxJack *jack = machine.get_jack();
-    if (!jack) {
-	return;
-    }
-    if (jack->client) {
+    if (!jack || jack->client) {
 	options.mul_buffer = action->get_current_value();
 	on_oscilloscope_activate(false);
-	machine.set_oscilloscope_mul_buffer(options.mul_buffer, jack->get_jack_bs());
+	machine.set_oscilloscope_mul_buffer(options.mul_buffer);
 	on_oscilloscope_activate(true);
     } else {
 	set_osc_size();
@@ -2159,38 +2155,35 @@ int MainWindow::on_oscilloscope_activate(bool start) {
 }
 
 bool MainWindow::on_refresh_oscilloscope() {
-    gx_jack::GxJack *jack = machine.get_jack();
-    if (!jack) {
-	return false;
-    }
+    int load, frames;
+    bool is_rt;
+    jack_nframes_t bsize;
+    machine.get_oscilloscope_info(load, frames, is_rt, bsize);
     static struct  {
         int load, frames;
         jack_nframes_t bsize;
         bool rt;
     } oc;
-    int load = static_cast<int>(round(jack->get_jcpu_load()));
     if (!oc.bsize || oc.load != load) {
         oc.load = load;
         fWaveView.set_text(
             (boost::format(_("dsp load  %1% %%")) % oc.load).str().c_str(),
             Gtk::CORNER_TOP_LEFT);
     }
-    int frames = jack->get_time_is()/100000;
     if (!oc.bsize || oc.frames != frames) {
         oc.frames = frames;
         fWaveView.set_text(
             (boost::format(_("ht frames %1%")) % oc.frames).str().c_str(),
             Gtk::CORNER_BOTTOM_LEFT);
     }
-    bool is_rt = jack->get_is_rt();
     if (!oc.bsize || oc.rt != is_rt) {
         oc.rt = is_rt;
         fWaveView.set_text(
             oc.rt ? _("RT mode  yes ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
             Gtk::CORNER_BOTTOM_RIGHT);
     }
-    if (!oc.bsize || oc.bsize != jack->get_jack_bs()) {
-        oc.bsize = jack->get_jack_bs();
+    if (!oc.bsize || oc.bsize != bsize) {
+	oc.bsize = bsize;
         fWaveView.set_text(
             (boost::format(_("latency    %1%")) % oc.bsize).str().c_str(),
             Gtk::CORNER_TOP_RIGHT);

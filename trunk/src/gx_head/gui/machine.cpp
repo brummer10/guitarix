@@ -219,15 +219,15 @@ float GxMachine::get_tuner_freq() {
     return engine.tuner.get_freq();
 }
 
-void GxMachine::set_oscilloscope_mul_buffer(int a, unsigned int b) {
-    engine.oscilloscope.set_mul_buffer(a, b);
+void GxMachine::set_oscilloscope_mul_buffer(int a) {
+    engine.oscilloscope.set_mul_buffer(a, jack.get_jack_bs());
 }
 
 int GxMachine::get_oscilloscope_mul_buffer() {
     return engine.oscilloscope.get_mul_buffer();
 }
 
-float *GxMachine::get_oscilloscope_buffer() {
+const float *GxMachine::get_oscilloscope_buffer() {
     return engine.oscilloscope.get_buffer();
 }
 
@@ -268,6 +268,13 @@ bool GxMachine::midiaudiobuffer_get_midistat() {
 
 MidiAudioBuffer::Load GxMachine::midiaudiobuffer_jack_load_status() {
     return engine.midiaudiobuffer.jack_load_status();
+}
+
+void GxMachine::get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) {
+    load = static_cast<int>(round(jack.get_jcpu_load()));
+    frames = jack.get_time_is()/100000;
+    is_rt = jack.get_is_rt();
+    bsize = jack.get_jack_bs();
 }
 
 gx_system::CmdlineOptions& GxMachine::get_options() const {
@@ -701,7 +708,11 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       current_bank(),
       current_preset(),
       bank_drag_get_counter(),
-      bank_drag_get_path() {
+      bank_drag_get_path(),
+      oscilloscope_activation(),
+      oscilloscope_size_change(),
+      oscilloscope_buffer(0),
+      oscilloscope_buffer_size(0) {
     socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
     int flag = 1;
     setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
@@ -907,6 +918,18 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	int value = jp->current_value_int();
 	jp->next(gx_system::JsonParser::end_array);
 	midi_value_changed(ctl, value);
+    } else if (method == "osc_activation") {
+	jp->next(gx_system::JsonParser::value_number);
+	oscilloscope_activation(jp->current_value_int());
+    } else if (method == "osc_size_changed") {
+	jp->next(gx_system::JsonParser::value_number);
+	unsigned int sz = jp->current_value_int();
+	if (oscilloscope_buffer_size != sz) {
+	    delete oscilloscope_buffer;
+	    oscilloscope_buffer = new float[sz];
+	    oscilloscope_buffer_size = sz;
+	}
+	oscilloscope_size_change(sz);
     } else {
 	cerr << "> " << jp->get_string() << endl;
     }
@@ -1273,51 +1296,54 @@ bool GxMachineRemote::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef)
 ** Oscilloscope
 */
 
-void GxMachineRemote::set_oscilloscope_mul_buffer(int a, unsigned int b) {
+void GxMachineRemote::set_oscilloscope_mul_buffer(int a) {
     cerr << "pluginlist_lookup_plugin()" << endl;
+    START_NOTIFY(set_oscilloscope_mul_buffer);
+    jw->write(a);
+    SEND();
 }
 
 int GxMachineRemote::get_oscilloscope_mul_buffer() {
     cerr << "get_oscilloscope_mul_buffer()" << endl;
-    return 1;
+    START_CALL(get_oscilloscope_mul_buffer);
+    START_RECEIVE(1);
+    return get_bool(jp);
+    END_RECEIVE(return 1);
 }
 
-float *GxMachineRemote::get_oscilloscope_buffer() {
-    cerr << "get_oscilloscope_buffer()" << endl;
-    return 0;
+const float *GxMachineRemote::get_oscilloscope_buffer() {
+    return oscilloscope_buffer;
 }
 
 void GxMachineRemote::clear_oscilloscope_buffer() {
     cerr << "clear_oscilloscope_buffer()" << endl;
+    START_NOTIFY(clear_oscilloscope_buffer);
+    SEND();
 }
 
 bool GxMachineRemote::oscilloscope_plugin_box_visible() {
-    cerr << "oscilloscope_plugin_box_visible()" << endl;
-    return false;
+    //cerr << "oscilloscope_plugin_box_visible()" << endl;
+    return pluginlist.lookup_plugin("oscilloscope")->get_box_visible();
 }
 
 sigc::signal<void, int>& GxMachineRemote::signal_oscilloscope_post_pre() {
     cerr << "signal_oscilloscope_post_pre()" << endl;
-    static sigc::signal<void, int> x;
-    return x;
+    return pmap["oscilloscope.pp"].signal_changed_int();
 }
 
 sigc::signal<void, bool>& GxMachineRemote::signal_oscilloscope_visible() {
     cerr << "signal_oscilloscope_visible()" << endl;
-    static sigc::signal<void, bool> x;
-    return x;
+    return pmap["ui.oscilloscope"].signal_changed_bool();
 }
 
 sigc::signal<int, bool>& GxMachineRemote::signal_oscilloscope_activation() {
     cerr << "signal_oscilloscope_activation()" << endl;
-    static sigc::signal<int, bool> x;
-    return x;
+    return oscilloscope_activation;
 }
 
 sigc::signal<void, unsigned int>& GxMachineRemote::signal_oscilloscope_size_change() {
     cerr << "signal_oscilloscope_size_change()" << endl;
-    static sigc::signal<void, unsigned int> x;
-    return x;
+    return oscilloscope_size_change;
 }
 
 const std::string& GxMachineRemote::conv_getIRFile(const char *id) {
@@ -1354,6 +1380,37 @@ void GxMachineRemote::maxlevel_get(int channels, float *values) {
 bool GxMachineRemote::midiaudiobuffer_get_midistat() {
     cerr << "midiaudiobuffer_get_midistat()" << endl;
     return false;
+}
+
+void GxMachineRemote::get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) {
+    START_CALL(get_oscilloscope_info);
+    START_RECEIVE();
+    jp->next(gx_system::JsonParser::begin_array);
+    jp->next(gx_system::JsonParser::value_number);
+    load = jp->current_value_int();
+    jp->next(gx_system::JsonParser::value_number);
+    frames = jp->current_value_int();
+    jp->next(gx_system::JsonParser::value_number);
+    is_rt = jp->current_value_int();
+    jp->next(gx_system::JsonParser::value_number);
+    bsize = jp->current_value_int();
+    jp->next(gx_system::JsonParser::value_number);
+    unsigned int sz = jp->current_value_int();
+    if (oscilloscope_buffer_size != sz) {
+	delete oscilloscope_buffer;
+	oscilloscope_buffer = new float[sz];
+	oscilloscope_buffer_size = sz;
+	oscilloscope_size_change(sz);
+    }
+    jp->next(gx_system::JsonParser::begin_array);
+    float *p = oscilloscope_buffer;
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	jp->next(gx_system::JsonParser::value_number);
+	*p++ = jp->current_value_float();
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    jp->next(gx_system::JsonParser::end_array);
+    END_RECEIVE();
 }
 
 MidiAudioBuffer::Load GxMachineRemote::midiaudiobuffer_jack_load_status() {
@@ -2052,7 +2109,7 @@ int GxMachineRemote::midi_size() {
 }
 
 midi_controller_list& GxMachineRemote::midi_get(int n) {
-    cerr << "midi_get()" << endl;
+    //cerr << "midi_get()" << endl;
     return midi_controller_map[n];
 }
 

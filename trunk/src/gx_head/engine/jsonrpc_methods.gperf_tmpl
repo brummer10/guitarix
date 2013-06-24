@@ -131,6 +131,13 @@ struct CmdConnection::methodnames;
 "get_max_input_level", true
 "get_max_output_level", true
 
+/* Oscilloscope */
+
+"set_oscilloscope_mul_buffer", false
+"get_oscilloscope_mul_buffer", true
+"clear_oscilloscope_buffer", false
+"get_oscilloscope_info", true
+
 /* Direct Guitar Control */
 "switch", false
 
