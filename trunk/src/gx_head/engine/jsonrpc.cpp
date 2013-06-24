@@ -178,7 +178,7 @@ private:
     static void closeBox_();
     static void load_glade_(const char *data);
 public:
-    UiBuilderVirt(gx_system::JsonWriter *jw);
+    UiBuilderVirt(gx_system::JsonWriter *jw, PluginDef *pd);
     ~UiBuilderVirt();
 };
 
@@ -592,7 +592,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	if (!pd->load_ui) {
 	    jw.write_null();
 	} else {
-	    UiBuilderVirt bld(&jw);
+	    UiBuilderVirt bld(&jw, pd);
 	    jw.begin_array();
 	    pd->load_ui(bld);
 	    jw.end_array();
@@ -1276,7 +1276,9 @@ void CmdConnection::process(gx_system::JsonStringParser& jp) {
 
 gx_system::JsonWriter *UiBuilderVirt::jw = 0;
 
-UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_) {
+UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, PluginDef *pd)
+    : UiBuilder() {
+    plugin = pd;
     jw = jw_;
     openTabBox = openTabBox_;
     openVerticalBox = openVerticalBox_;
