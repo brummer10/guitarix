@@ -128,6 +128,7 @@ protected:
 public:
     Parameter(const string& id, const string& name, value_type vtp, ctrl_type ctp, bool preset,
               bool ctrl):
+	boost::noncopyable(),
         _id(id),
         _name(name),
         _group(param_group(id)),
@@ -138,6 +139,7 @@ public:
         save_in_preset(preset),
         controllable(ctrl),
 	do_not_save(false),
+	blocked(false),
         used(false) {}
     Parameter(gx_system::JsonParser& jp);
     virtual ~Parameter();

@@ -619,8 +619,19 @@ void Parameter::serializeJSON(gx_system::JsonWriter& jw) {
 }
 
 Parameter::Parameter(gx_system::JsonParser& jp)
-    : _id(), _name(), _group(), _desc(), v_type(tp_float), c_type(Continuous), d_flags(0),
-      save_in_preset(true), controllable(true), do_not_save(false), used(false) {
+    : boost::noncopyable(),
+      _id(),
+      _name(),
+      _group(),
+      _desc(),
+      v_type(tp_float),
+      c_type(Continuous),
+      d_flags(0),
+      save_in_preset(true),
+      controllable(true),
+      do_not_save(false),
+      blocked(false),
+      used(false) {
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
