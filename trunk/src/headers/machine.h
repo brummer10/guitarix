@@ -387,10 +387,7 @@ private:
     void report_rpc_error(gx_system::JsonStringParser *jp,
 			  const gx_system::JsonException& e, const char *method=0);
     void throw_error(gx_system::JsonStringParser *jp);
-    void param_signal_int(int v, IntParameter *p);
-    void param_signal_bool(bool v, BoolParameter *p);
-    void param_signal_float(float v, FloatParameter *p);
-    void param_signal_string(const Glib::ustring& v, StringParameter *p);
+    void param_signal(Parameter *p);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);

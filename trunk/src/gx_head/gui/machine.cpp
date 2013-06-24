@@ -767,47 +767,54 @@ GxMachineRemote::~GxMachineRemote() {
     delete writebuf;
 }
 
-void GxMachineRemote::param_signal_int(int v, IntParameter *p) {
-    if (p->get_blocked()) {
+#ifdef NDEBUG
+inline void debug_trace_param(Parameter *p) {}
+#else
+inline void debug_trace_param(Parameter *p) {
+    const char *q = getenv("GUITARIX_TRACE");
+    if (!q) {
 	return;
     }
-    //cerr << "SVI " << p->id() << ": " << v << endl;
-    START_NOTIFY(set);
-    jw->write(p->id());
-    jw->write(v);
-    SEND();
+    if (*q && q != p->id()) {
+	return;
+    }
+    cerr << "set " << p->id() << " = ";
+    if (p->isInt()) {
+	cerr << p->getInt().get_value();
+    } else if (p->isBool()) {
+	cerr << p->getBool().get_value();
+    } else if (p->isFloat()) {
+	cerr << p->getFloat().get_value();
+    } else if (p->isString()) {
+	cerr << p->getString().get_value();
+    } else {
+	assert(false);
+    }
+    if (p->get_blocked()) {
+	cerr << " (blocked)";
+    }
+    cerr << endl;
 }
+#endif
 
-void GxMachineRemote::param_signal_bool(bool v, BoolParameter *p) {
+void GxMachineRemote::param_signal(Parameter *p) {
+    debug_trace_param(p);
     if (p->get_blocked()) {
 	return;
     }
-    //cerr << "SVB " << p->id() << ": " << v << endl;
     START_NOTIFY(set);
     jw->write(p->id());
-    jw->write(v);
-    SEND();
-}
-
-void GxMachineRemote::param_signal_float(float v, FloatParameter *p) {
-    if (p->get_blocked()) {
-	return;
+    if (p->isInt()) {
+	jw->write(p->getInt().get_value());
+    } else if (p->isBool()) {
+	jw->write(p->getBool().get_value());
+    } else if (p->isFloat()) {
+	jw->write(p->getFloat().get_value());
+    } else if (p->isString()) {
+	jw->write(p->getString().get_value());
+    } else {
+	assert(false);
     }
-    //cerr << "SVF " << p->id() << ": " << v << endl;
-    START_NOTIFY(set);
-    jw->write(p->id());
-    jw->write(v);
-    SEND();
-}
-
-void GxMachineRemote::param_signal_string(const Glib::ustring& v, StringParameter *p) {
-    if (p->get_blocked()) {
-	return;
-    }
-    //cerr << "SVS " << p->id() << ": " << v << endl;
-    START_NOTIFY(set);
-    jw->write(p->id());
-    jw->write(v);
     SEND();
 }
 
@@ -1941,16 +1948,24 @@ void GxMachineRemote::set_init_values() {
     for (ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
 	if (i->second->isInt()) {
 	    i->second->getInt().signal_changed().connect(
-		sigc::bind(sigc::mem_fun(this, &GxMachineRemote::param_signal_int), &i->second->getInt()));
+		sigc::hide(
+		    sigc::bind(
+			sigc::mem_fun(this, &GxMachineRemote::param_signal), i->second)));
 	} else if (i->second->isBool()) {
 	    i->second->getBool().signal_changed().connect(
-		sigc::bind(sigc::mem_fun(this, &GxMachineRemote::param_signal_bool), &i->second->getBool()));
+		sigc::hide(
+		    sigc::bind(
+			sigc::mem_fun(this, &GxMachineRemote::param_signal), i->second)));
 	} else if (i->second->isFloat()) {
 	    i->second->getFloat().signal_changed().connect(
-		sigc::bind(sigc::mem_fun(this, &GxMachineRemote::param_signal_float), &i->second->getFloat()));
+		sigc::hide(
+		    sigc::bind(
+			sigc::mem_fun(this, &GxMachineRemote::param_signal), i->second)));
 	} else if (i->second->isString()) {
 	    i->second->getString().signal_changed().connect(
-		sigc::bind(sigc::mem_fun(this, &GxMachineRemote::param_signal_string), &i->second->getString()));
+		sigc::hide(
+		    sigc::bind(
+			sigc::mem_fun(this, &GxMachineRemote::param_signal), i->second)));
 	}
     }
 }
