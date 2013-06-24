@@ -21,6 +21,7 @@
 #include "jsonrpc_methods.h"
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <sys/ioctl.h>
 
 void lock_rt_memory() {
     extern char __rt_text__start[], __rt_text__end[];
@@ -935,9 +936,20 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
     }
 }
 
+static int socket_get_available_bytes(const Glib::RefPtr<Gio::Socket>& socket) {
+    // return socket->get_available_bytes();  // Glib 2.32
+    int avail;
+    int ret = ioctl(socket->get_fd(), FIONREAD, &avail);
+    assert(ret == 0);
+    return avail;
+}
+
 bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
-    if (cond == Glib::IO_HUP) {
-	return false;
+    if (!(cond & Glib::IO_IN)) {
+	return true;
+    }
+    if (socket_get_available_bytes(socket) == 0) {
+	return true;
     }
     char buf[10000];
     gx_system::JsonStringParser *jp = new gx_system::JsonStringParser;
@@ -972,7 +984,7 @@ bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
 		    cerr << "JsonException: " << e.what() << ": '" << jp->get_string() << "'" << endl;
 		    assert(false);
 		}
-		if (n == 0) {
+		if (n == 0 && socket_get_available_bytes(socket) == 0) {
 		    delete jp;
 		    return true;
 		}
@@ -1925,7 +1937,7 @@ void GxMachineRemote::set_init_values() {
     selection_changed(); //FIXME
     Glib::signal_io().connect(
 	sigc::mem_fun(this, &GxMachineRemote::socket_input_handler),
-	socket->get_fd(), Glib::IO_IN|Glib::IO_HUP);
+	socket->get_fd(), Glib::IO_IN);
     for (ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
 	if (i->second->isInt()) {
 	    i->second->getInt().signal_changed().connect(
