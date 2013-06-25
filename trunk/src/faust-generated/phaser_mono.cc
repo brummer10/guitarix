@@ -10,23 +10,23 @@ private:
 	int 	iVec0[2];
 	FAUSTFLOAT 	fslider0;
 	int 	iConst0;
-	double 	fConst1;
-	double 	fRec1[2];
-	double 	fRec2[2];
-	double 	fConst2;
+	float 	fConst1;
+	float 	fRec1[2];
+	float 	fRec2[2];
+	float 	fConst2;
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT 	fslider2;
-	double 	fConst3;
-	double 	fConst4;
-	double 	fConst5;
-	double 	fConst6;
-	double 	fRec6[3];
-	double 	fConst7;
-	double 	fRec5[3];
-	double 	fConst8;
-	double 	fRec4[3];
-	double 	fRec3[3];
-	double 	fRec0[2];
+	float 	fConst3;
+	float 	fConst4;
+	float 	fConst5;
+	float 	fConst6;
+	float 	fRec6[3];
+	float 	fConst7;
+	float 	fRec5[3];
+	float 	fConst8;
+	float 	fRec4[3];
+	float 	fRec3[3];
+	float 	fRec0[2];
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
 	void compute(int count, float *input0, float *output0);
@@ -88,14 +88,14 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586 / double(iConst0));
-	fConst2 = (16.0 / double(iConst0));
-	fConst3 = (2.0 / double(iConst0));
-	fConst4 = exp((0 - (3141.592653589793 / double(iConst0))));
+	fConst1 = (6.283185307179586f / float(iConst0));
+	fConst2 = (16.0f / float(iConst0));
+	fConst3 = (2.0f / float(iConst0));
+	fConst4 = expf((0 - (3141.592653589793f / float(iConst0))));
 	fConst5 = (0 - (2 * fConst4));
 	fConst6 = faustpower<2>(fConst4);
-	fConst7 = (4.0 / double(iConst0));
-	fConst8 = (8.0 / double(iConst0));
+	fConst7 = (4.0f / float(iConst0));
+	fConst8 = (8.0f / float(iConst0));
 	clear_state_f();
 }
 
@@ -106,26 +106,26 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
-	double 	fSlow0 = (fConst1 * fslider0);
-	double 	fSlow1 = sin(fSlow0);
-	double 	fSlow2 = cos(fSlow0);
-	double 	fSlow3 = (0 - fSlow1);
-	double 	fSlow4 = fslider2;
-	double 	fSlow5 = (0.01 * (fSlow4 * pow(10,(0.05 * fslider1))));
-	double 	fSlow6 = (1 - (0.01 * fSlow4));
+	float 	fSlow0 = (fConst1 * fslider0);
+	float 	fSlow1 = sinf(fSlow0);
+	float 	fSlow2 = cosf(fSlow0);
+	float 	fSlow3 = (0 - fSlow1);
+	float 	fSlow4 = fslider2;
+	float 	fSlow5 = (0.01f * (fSlow4 * powf(10,(0.05f * fslider1))));
+	float 	fSlow6 = (1 - (0.01f * fSlow4));
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
 		fRec1[0] = ((fSlow2 * fRec1[1]) + (fSlow1 * fRec2[1]));
 		fRec2[0] = ((1 + ((fSlow3 * fRec1[1]) + (fSlow2 * fRec2[1]))) - iVec0[1]);
-		double fTemp0 = (628.3185307179587 + (2199.1148575128555 * (1 - fRec1[0])));
-		double fTemp1 = (double)input0[i];
-		double fTemp2 = (fRec6[1] * cos((fConst3 * fTemp0)));
-		fRec6[0] = (0 - (((fConst6 * fRec6[2]) + (fConst5 * fTemp2)) - ((fSlow5 * fTemp1) + (0.5 * fRec0[1]))));
-		double fTemp3 = (fRec5[1] * cos((fConst7 * fTemp0)));
+		float fTemp0 = (628.3185307179587f + (2199.1148575128555f * (1 - fRec1[0])));
+		float fTemp1 = (float)input0[i];
+		float fTemp2 = (fRec6[1] * cosf((fConst3 * fTemp0)));
+		fRec6[0] = (0 - (((fConst6 * fRec6[2]) + (fConst5 * fTemp2)) - ((fSlow5 * fTemp1) + (0.5f * fRec0[1]))));
+		float fTemp3 = (fRec5[1] * cosf((fConst7 * fTemp0)));
 		fRec5[0] = ((fConst5 * (fTemp2 - fTemp3)) + (fRec6[2] + (fConst6 * (fRec6[0] - fRec5[2]))));
-		double fTemp4 = (fRec4[1] * cos((fConst8 * fTemp0)));
+		float fTemp4 = (fRec4[1] * cosf((fConst8 * fTemp0)));
 		fRec4[0] = ((fConst5 * (fTemp3 - fTemp4)) + (fRec5[2] + (fConst6 * (fRec5[0] - fRec4[2]))));
-		double fTemp5 = (fRec3[1] * cos((fConst2 * fTemp0)));
+		float fTemp5 = (fRec3[1] * cosf((fConst2 * fTemp0)));
 		fRec3[0] = ((fConst5 * (fTemp4 - fTemp5)) + (fRec4[2] + (fConst6 * (fRec4[0] - fRec3[2]))));
 		fRec0[0] = ((fConst6 * fRec3[0]) + (fRec3[2] + (fConst5 * fTemp5)));
 		output0[i] = (FAUSTFLOAT)((fSlow6 * fTemp1) - fRec0[0]);
@@ -148,9 +148,9 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("phaser_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
-	reg.registerVar("phaser_mono.level","","S","",&fslider1, 0.0, -6e+01, 1e+01, 0.1);
-	reg.registerVar("phaser_mono.Speed","","S","",&fslider0, 0.5, 0.0, 1e+01, 0.01);
+	reg.registerVar("phaser_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("phaser_mono.level","","S","",&fslider1, 0.0f, -6e+01f, 1e+01f, 0.1f);
+	reg.registerVar("phaser_mono.Speed","","S","",&fslider0, 0.5f, 0.0f, 1e+01f, 0.01f);
 	return 0;
 }
 

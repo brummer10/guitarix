@@ -38,7 +38,7 @@ Dsp::Dsp()
 	: PluginDef() {
 	version = PLUGINDEF_VERSION;
 	flags = 0;
-	id = "Rev.Rocket";
+	id = "rev_rocket";
 	name = N_("Rev.Rocket");
 	groups = 0;
 	description = ""; // description (tooltip)

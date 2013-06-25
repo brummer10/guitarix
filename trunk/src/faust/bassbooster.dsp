@@ -23,5 +23,5 @@ with {
   a0 = 2 * (K*K - 1) / D;
   a1 = (1 - sqrt(2)*K + K*K) / D;
 };
-level = vslider(".bassbooster.Level", 10, 0.5, 20, 0.5) ;
+level = vslider(".bassbooster.Level", 10, 0.5, 20, 0.5) : smooth(0.9999); 
 process = lfboost(120, level);

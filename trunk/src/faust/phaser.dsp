@@ -7,7 +7,7 @@ declare category "Modulation";
 
 
 import("effect.lib");
-import("oscillator.lib");
+//import("oscillator.lib");
 
 vibrato_mono(sections,phase01,fb,width,frqmin,fratio,frqmax,speed) = 
  (+ : seq(i,sections,ap2p(R,th(i)))) ~ *(fb)

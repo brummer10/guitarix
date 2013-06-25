@@ -14,7 +14,7 @@ def build(bld):
            '../DSP/gx_resampler.cc',
            '../DSP/gx_convolver.cc'
            ]
-    incl = ['../faust','./', '../DSP']
+    incl = ['../faust','./', '../DSP', '../DSP/tube_tables']
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')

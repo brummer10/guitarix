@@ -263,6 +263,7 @@ int Vibe::uiloader(const UiBuilder& b) {
         b.create_master_slider(univibe_wet_dry,0);
     }
     b.closeBox();
+    b.openHorizontalBox("");
     if (self.Pstereo) {
 	b.openVerticalBox("");
 	b.openHorizontalBox("");
@@ -285,6 +286,7 @@ int Vibe::uiloader(const UiBuilder& b) {
 	b.closeBox();
 	b.closeBox();
     }
+    b.closeBox();
     return 0;
 }
 

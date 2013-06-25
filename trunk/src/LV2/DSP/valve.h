@@ -64,6 +64,11 @@ struct table1d_imp
 #include "6V6.cc"
 #include "6DJ8.cc"
 #include "6C16.cc"
+#include "6L6CG.cc"
+#include "EL34.cc"
+#include "12AY7.cc"
+#include "JJECC83S.cc"
+#include "JJECC99.cc"
 
 enum {
     TUBE_TABLE_12AX7_68k,
@@ -78,6 +83,16 @@ enum {
     TUBE_TABLE_12AT7_250k,
     TUBE_TABLE_6C16_68k,
     TUBE_TABLE_6C16_250k,
+    TUBE_TABLE_6L6CG_68k,
+    TUBE_TABLE_6L6CG_250k,
+    TUBE_TABLE_EL34_68k,
+    TUBE_TABLE_EL34_250k,
+    TUBE_TABLE_12AY7_68k,
+    TUBE_TABLE_12AY7_250k,
+    TUBE_TABLE_JJECC83S_68k,
+    TUBE_TABLE_JJECC83S_250k,
+    TUBE_TABLE_JJECC99_68k,
+    TUBE_TABLE_JJECC99_250k,
     TUBE_TABLE_SIZE
 };
 
@@ -94,6 +109,16 @@ table1d *tubetab[TUBE_TABLE_SIZE] = {
     &static_cast<table1d&>(tubetable_12AT7[1]),
     &static_cast<table1d&>(tubetable_6C16[0]),
     &static_cast<table1d&>(tubetable_6C16[1]),
+    &static_cast<table1d&>(tubetable_6L6CG[0]),
+    &static_cast<table1d&>(tubetable_6L6CG[1]),
+    &static_cast<table1d&>(tubetable_EL34[0]),
+    &static_cast<table1d&>(tubetable_EL34[1]),
+    &static_cast<table1d&>(tubetable_12AY7[0]),
+    &static_cast<table1d&>(tubetable_12AY7[1]),
+    &static_cast<table1d&>(tubetable_JJECC83S[0]),
+    &static_cast<table1d&>(tubetable_JJECC83S[1]),
+    &static_cast<table1d&>(tubetable_JJECC99[0]),
+    &static_cast<table1d&>(tubetable_JJECC99[1]),
 };
 
 /*
