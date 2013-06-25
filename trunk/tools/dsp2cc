@@ -2,10 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import re, os, sys
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 from subprocess import Popen, PIPE
 from optparse import OptionParser
-
+from collections import OrderedDict
 
 num_re = r"(-?\d*\.?\d*e?[+-]?\d*f?)"
 
@@ -90,7 +93,7 @@ class UIDefs(object):
                 return ""
 
     def __init__(self):
-        self.ui = {}
+        self.ui = OrderedDict()
 
     def add(self, element, key, value):
         try:
@@ -103,7 +106,7 @@ class UIDefs(object):
         return self.ui[element][key]
 
     def has(self, element, key):
-        return self.ui[element].has_key(key)
+        return key in self.ui[element]
 
     def var_filter(self, const=2):
         s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in self.ui.keys()])
@@ -428,13 +431,13 @@ class Parser(object):
         return l
 
     def __init__(self, lines, modname, options):
-        self.lines = lines
+        self.lines = ((line.decode("utf-8") for line in lines))
         self.modname = modname
         self.options = options
         self.toplevel = None
         self.topname = None
         self.name = None
-        self.groups = {}
+        self.groups = OrderedDict()
         self.memlist = []
         self.staticlist = []
         s = {}
@@ -500,7 +503,7 @@ class Parser(object):
                     in_loop = True
                 continue
             if re_m(l):
-                print self.modname, l
+                print("%s %s" % (self.modname, l))
 
     def getNumInputs(self):
         return self.numInputs
@@ -1310,10 +1313,10 @@ class Output(object):
         load_ui = 0
         ui_name = self.fname.replace(".dsp", "_ui.glade")
         if os.path.exists(ui_name):
-            xml = file(ui_name).read()
+            xml = open(ui_name).read()
             found_params = re.findall('<property name="var_id">([^<]*)</property>',xml)
             if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
-                raise SystemExit, 1
+                raise SystemExit(1)
             s = xml.replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"')
             if wrap:
                 fp.write(loadui_glade % s)
@@ -1323,7 +1326,7 @@ class Output(object):
         else:
             ui_name = self.fname.replace(".dsp", "_ui.cc")
             if os.path.exists(ui_name):
-                ccdef = file(ui_name).read()
+                ccdef = open(ui_name).read()
                 re_func_name = r'.*\.create_[a-zA-Z0-9_]+'
                 re_str = r'"([^"]*)'
                 re_param = r'PARAM\(\s*' + re_str
@@ -1331,7 +1334,7 @@ class Output(object):
                 found_params = [v[2] if v[2] else plugin_id + "." + v[1]
                                 for v in re.findall(re_expr,ccdef) if not v[0]]
                 if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
-                    raise SystemExit, 1
+                    raise SystemExit(1)
                 fp.write("\n")
                 fp.write(ccdef)
                 load_ui = 1
@@ -1641,8 +1644,8 @@ def main():
         op.error("exactly one input filename expected\n")
     fname = args[0]
     if not os.path.exists(fname):
-        print "error: can't open '%s'" % fname
-        raise SystemExit, 1
+        print("error: can't open '%s'" % fname)
+        raise SystemExit(1)
     faust_opt = []
     if options.faust:
         faust_opt.append('-double')
@@ -1657,16 +1660,16 @@ def main():
         parser = Parser(faust.stdout,
                         os.path.splitext(os.path.basename(fname))[0],
                         options)
-    except ValueError, e:
+    except ValueError as e:
         if faust.wait() == 0:
-            print e
-        raise SystemExit, 1
+            print(e)
+        raise SystemExit(1)
     if options.oname:
-        outp = file(options.oname, "w")
+        outp = open(options.oname, "w")
     else:
         outp = sys.stdout
     if options.hname:
-        h_outp = file(options.hname, "w")
+        h_outp = open(options.hname, "w")
         h_name = os.path.basename(options.hname)
     else:
         h_outp = h_name = None
