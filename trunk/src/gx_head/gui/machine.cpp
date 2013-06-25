@@ -698,7 +698,11 @@ ConvolverStereoAdapter& GxMachine::get_stereo_convolver() {
  ** GxMachineRemote
  */
 
+#ifdef NDEBUG
+#define START_NOTIFY(m)  { start_call(RPNM_##m)
+#else
 #define START_NOTIFY(m)  { const jsonrpc_method_def& _md = start_call(RPNM_##m)
+#endif
 
 #define SEND()           assert(!_md.has_result); send(); }
 
@@ -1016,8 +1020,12 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 static int socket_get_available_bytes(const Glib::RefPtr<Gio::Socket>& socket) {
     // return socket->get_available_bytes();  // Glib 2.32
     int avail;
+#ifdef NDEBUG
+    ioctl(socket->get_fd(), FIONREAD, &avail);
+#else
     int ret = ioctl(socket->get_fd(), FIONREAD, &avail);
     assert(ret == 0);
+#endif
     return avail;
 }
 
