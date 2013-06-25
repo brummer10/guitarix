@@ -841,6 +841,7 @@ void FloatParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.write_key("upper"); jw.write(upper);
     jw.write_key("step"); jw.write(step);
     jw.write_key("value"); jw.write(*value);
+    jw.write_key("std_value"); jw.write(std_value);
     jw.end_object();
 }
 
@@ -859,7 +860,10 @@ FloatParameter::ParameterV(gx_system::JsonParser& jp)
 	    step = jp.current_value_float();
 	} else if (jp.current_value() == "value") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    set(jp.current_value_float());
+	    *value = jp.current_value_float();
+	} else if (jp.current_value() == "std_value") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    std_value = jp.current_value_float();
 	} else {
 	    gx_system::gx_print_warning(
 		"FloatParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -926,14 +930,13 @@ void FloatParameter::writeJSON(gx_system::JsonWriter& jw) const {
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_float();
-    const float eps = 1e-6;
-    if (json_value < lower-abs(eps*lower) || json_value > upper+abs(eps*upper)) {
+    if (json_value < lower-abs(5*FLT_EPSILON*lower) || json_value > upper+abs(5*FLT_EPSILON*upper)) {
 	range_warning(json_value, lower, upper);
     }
 }
 
 bool FloatParameter::compareJSON_value() {
-    return json_value == *value;
+    return abs(json_value - *value) < 5*FLT_EPSILON;
 }
 
 void FloatParameter::setJSON_value() {
@@ -1037,6 +1040,7 @@ void IntParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.write_key("lower"); jw.write(lower);
     jw.write_key("upper"); jw.write(upper);
     jw.write_key("value"); jw.write(*value);
+    jw.write_key("std_value"); jw.write(std_value);
     jw.end_object();
 }
 
@@ -1052,7 +1056,10 @@ IntParameter::ParameterV(gx_system::JsonParser& jp)
 	    upper = jp.current_value_int();
 	} else if (jp.current_value() == "value") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    set(jp.current_value_int());
+	    *value = jp.current_value_int();
+	} else if (jp.current_value() == "std_value") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    std_value = jp.current_value_int();
 	} else {
 	    gx_system::gx_print_warning(
 		"IntParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1274,6 +1281,7 @@ void BoolParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
     jw.write_key("value"); jw.write(*value);
+    jw.write_key("std_value"); jw.write(std_value);
     jw.end_object();
 }
 
@@ -1283,7 +1291,10 @@ BoolParameter::ParameterV(gx_system::JsonParser& jp)
 	jp.next(gx_system::JsonParser::value_key);
 	if (jp.current_value() == "value") {
 	    jp.next(gx_system::JsonParser::value_number);
-	    set(jp.current_value_int());
+	    *value = jp.current_value_int();
+	} else if (jp.current_value() == "std_value") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    std_value = jp.current_value_int();
 	} else {
 	    gx_system::gx_print_warning(
 		"BoolParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1362,6 +1373,7 @@ void FileParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
     jw.write_key("value"); jw.write(value->get_path());
+    jw.write_key("std_value"); jw.write(std_value->get_path());
     jw.end_object();
 }
 
@@ -1372,6 +1384,9 @@ FileParameter::FileParameter(gx_system::JsonParser& jp)
 	if (jp.current_value() == "value") {
 	    jp.next(gx_system::JsonParser::value_string);
 	    value = Gio::File::create_for_path(jp.current_value());
+	} else if (jp.current_value() == "std_value") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    std_value = Gio::File::create_for_path(jp.current_value());
 	} else {
 	    gx_system::gx_print_warning(
 		"FileParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1480,6 +1495,7 @@ void StringParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
     jw.write_key("value"); jw.write(*value);
+    jw.write_key("std_value"); jw.write(std_value);
     jw.end_object();
 }
 
@@ -1490,6 +1506,9 @@ StringParameter::ParameterV(gx_system::JsonParser& jp)
 	if (jp.current_value() == "value") {
 	    jp.next(gx_system::JsonParser::value_string);
 	    *value = jp.current_value();
+	} else if (jp.current_value() == "std_value") {
+	    jp.next(gx_system::JsonParser::value_string);
+	    std_value = jp.current_value();
 	} else {
 	    gx_system::gx_print_warning(
 		"StringParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1715,17 +1734,20 @@ void ParamMap::insert(Parameter* param) {
 	map<string, Parameter*>::iterator ii = id_map.find(param->id());
 	assert(ii != id_map.end());
 	Parameter *p = ii->second;
+	insert_remove(p,false);
 	id_map.erase(ii);
 	delete p;
     }
     debug_check(unique_id, param);
     id_map.insert(pair<string, Parameter*>(param->id(), param));
+    insert_remove(param,true);
 }
 
 void ParamMap::unregister(Parameter *p) {
     if (!p) {
 	return;
     }
+    insert_remove(p, false);
     id_map.erase(p->id());
     delete p;
 }
@@ -1762,13 +1784,14 @@ static inline bool compare_groups(const std::string& id, const char **groups) {
     return false;
 }
 
-bool ParamMap::unit_has_std_values(Glib::ustring group_id, const char **groups) const {
+bool ParamMap::unit_has_std_values(const PluginDef *pdef) const {
+    std::string group_id(pdef->id);
     group_id += ".";
     std::string on_off = group_id + "on_off";
     std::string pp = group_id + "pp";
     std::string position = group_id + "position";
     for (iterator i = begin(); i != end(); ++i) {
-	if (i->first.compare(0, group_id.size(), group_id) == 0 || compare_groups(i->first, groups)) {
+	if (i->first.compare(0, group_id.size(), group_id) == 0 || compare_groups(i->first, pdef->groups)) {
 	    if (i->second->isInPreset()) {
 		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->stdJSON_value();
@@ -1784,13 +1807,14 @@ bool ParamMap::unit_has_std_values(Glib::ustring group_id, const char **groups) 
 }
 
 // reset all parameters to default settings
-void ParamMap::reset_unit(Glib::ustring group_id, const char **groups) const {
+void ParamMap::reset_unit(const PluginDef *pdef) const {
+    std::string group_id(pdef->id);
     group_id += ".";
     std::string on_off = group_id + "on_off";
     std::string pp = group_id + "pp";
     std::string position = group_id + "position";
     for (iterator i = begin(); i != end(); ++i) {
-        if (i->first.compare(0, group_id.size(), group_id) == 0 || compare_groups(i->first, groups)) {
+        if (i->first.compare(0, group_id.size(), group_id) == 0 || compare_groups(i->first, pdef->groups)) {
 	    if (i->second->isInPreset()) {
 		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->stdJSON_value();

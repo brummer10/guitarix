@@ -540,12 +540,7 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
 
 PluginPresetList::PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap_,
 				   gx_engine::MidiControllerList& mctrl_)
-    : Glib::Object(), filename(fname), pmap(pmap_), mctrl(mctrl_), is(), jp(&is) {
-}
-
-Glib::RefPtr<PluginPresetList> PluginPresetList::create(const std::string& fname, gx_engine::ParamMap& pmap_,
-							gx_engine::MidiControllerList& mctrl_) {
-    return Glib::RefPtr<PluginPresetList>(new PluginPresetList(fname, pmap_, mctrl_));
+    : filename(fname), pmap(pmap_), mctrl(mctrl_), is(), jp(&is) {
 }
 
 bool PluginPresetList::start() {
@@ -1099,13 +1094,37 @@ void GxSettings::loadstate() {
     state_loaded = true;
 }
 
-Glib::RefPtr<PluginPresetList> GxSettings::load_plugin_preset_list(const Glib::ustring& id, bool factory) const {
-    if (factory) {
-	return PluginPresetList::create(options.get_factory_filepath(id), param, mctrl);
-    } else {
-	return PluginPresetList::create(options.get_pluginpreset_filepath(id), param, mctrl);
+void GxSettings::add_plugin_preset_list(gx_preset::PluginPresetList& l,
+					UnitPresetList &presetnames) {
+    if (l.start()) {
+	Glib::ustring name;
+	bool is_set;
+	while (l.next(name, &is_set)) {
+	    presetnames.push_back(PluginPresetEntry(name, is_set));
+	}
     }
 }
+
+void GxSettings::plugin_preset_list_load(const PluginDef *pdef, UnitPresetList &presetnames) {
+    PluginPresetList user(options.get_pluginpreset_filepath(pdef->id, false), param, mctrl);
+    add_plugin_preset_list(user, presetnames);
+    presetnames.push_back(PluginPresetEntry("", false));
+    PluginPresetList factory(options.get_pluginpreset_filepath(pdef->id, true), param, mctrl);
+    add_plugin_preset_list(factory, presetnames);
+}
+
+void GxSettings::plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
+    PluginPresetList(options.get_pluginpreset_filepath(pdef->id, factory), param, mctrl).set(name);
+}
+
+void GxSettings::plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name) {
+    PluginPresetList(options.get_pluginpreset_filepath(pdef->id, false), param, mctrl).save(name, pdef->id, pdef->groups);
+}
+
+void GxSettings::plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name) {
+    PluginPresetList(options.get_pluginpreset_filepath(pdef->id, false), param, mctrl).remove(name);
+}
+
 
 /* ----------------------------------------------------------------*/
 } /* end of gx_preset namespace */

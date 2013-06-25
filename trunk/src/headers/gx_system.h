@@ -389,7 +389,8 @@ public:
     string get_plugin_filepath(const string& basename) const { return plugin_dir + basename; }
     string get_factory_filepath(const string& basename) const { return factory_dir + basename; }
     string get_temp_filepath(const string& basename) const { return temp_dir + basename; }
-    string get_pluginpreset_filepath(const string& id) const { return pluginpreset_dir + id; }
+    string get_pluginpreset_filepath(const string& id, bool factory) const {
+	return (factory ? factory_dir : pluginpreset_dir) + id; }
     const string& get_user_dir() const { return user_dir; }
     const string& get_old_user_dir() const { return old_user_dir; }
     const string& get_plugin_dir() const { return plugin_dir; }

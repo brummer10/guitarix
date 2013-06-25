@@ -80,7 +80,7 @@ void PluginUI::unset_ui_merge_id(Glib::RefPtr<Gtk::UIManager> uimanager) {
 }
 
 void PluginUI::on_plugin_preset_popup() {
-    main.plugin_preset_popup(get_id());
+    main.plugin_preset_popup(plugin->get_pdef());
 }
 
 bool PluginUI::is_registered(gx_engine::GxMachineBase& m, const char *name) {
@@ -549,34 +549,38 @@ public:
 class PluginPresetListWindow: public Gtk::Window {
 private:
     Glib::RefPtr<TextListStore> textliststore;
-    Glib::RefPtr<gx_preset::PluginPresetList> presetlist;
+    PluginPresetPopup& presetlist;
     //
     Gtk::TreeView *treeview;
     Gtk::Button *removebutton;
     void on_remove();
     void on_selection_changed();
     virtual bool on_key_press_event(GdkEventKey *event);
-    static PluginPresetListWindow* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, Glib::RefPtr<gx_preset::PluginPresetList> l);
-    PluginPresetListWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, Glib::RefPtr<gx_preset::PluginPresetList> l);
+    static PluginPresetListWindow* create_from_builder(
+	BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, PluginPresetPopup& p);
+    PluginPresetListWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, PluginPresetPopup& p);
 public:
     ~PluginPresetListWindow();
-    static PluginPresetListWindow *create(const gx_system::CmdlineOptions& options, Glib::RefPtr<gx_preset::PluginPresetList> l);
+    static PluginPresetListWindow *create(const gx_system::CmdlineOptions& options, PluginPresetPopup& p);
     void run();
 };
 
-PluginPresetListWindow *PluginPresetListWindow::create_from_builder(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    return new PluginPresetListWindow(cobject, bld, l);
+PluginPresetListWindow *PluginPresetListWindow::create_from_builder(
+    BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, PluginPresetPopup& p) {
+    return new PluginPresetListWindow(cobject, bld, p);
 }
 
 PluginPresetListWindow::~PluginPresetListWindow() {
 }
 
-PluginPresetListWindow *PluginPresetListWindow::create(const gx_system::CmdlineOptions& options, Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(options.get_builder_filepath("pluginpreset_listwindow.glade"));
+PluginPresetListWindow *PluginPresetListWindow::create(
+    const gx_system::CmdlineOptions& options, PluginPresetPopup& p) {
+    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
+	options.get_builder_filepath("pluginpreset_listwindow.glade"));
     PluginPresetListWindow *w;
     bld->get_toplevel_derived(
 	"PluginPresetListWindow", w,
-	sigc::bind(sigc::ptr_fun(PluginPresetListWindow::create_from_builder), bld, l));
+	sigc::bind(sigc::ptr_fun(PluginPresetListWindow::create_from_builder), bld, sigc::ref(p)));
     return w;
 }
 
@@ -591,13 +595,17 @@ bool PluginPresetListWindow::on_key_press_event(GdkEventKey *event) {
 void PluginPresetListWindow::on_remove() {
     Gtk::TreeIter it = treeview->get_selection()->get_selected();
     if (it) {
-	presetlist->remove(it->get_value(textliststore->col.name));
+	presetlist.get_machine().plugin_preset_list_remove(
+	    presetlist.get_pdef(), it->get_value(textliststore->col.name));
 	textliststore->erase(it);
     }
 }
 
-PluginPresetListWindow::PluginPresetListWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, Glib::RefPtr<gx_preset::PluginPresetList> l)
-    : Gtk::Window(cobject), textliststore(TextListStore::create()), presetlist(l) {
+PluginPresetListWindow::PluginPresetListWindow(
+    BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, PluginPresetPopup& p)
+    : Gtk::Window(cobject),
+      textliststore(TextListStore::create()),
+      presetlist(p) {
     Gtk::Button *b;
     bld->find_widget("closebutton", b);
     b->signal_clicked().connect(
@@ -606,15 +614,15 @@ PluginPresetListWindow::PluginPresetListWindow(BaseObjectType* cobject, Glib::Re
     removebutton->signal_clicked().connect(
 	sigc::mem_fun(*this, &PluginPresetListWindow::on_remove));
     bld->find_widget("treeview", treeview);
-    if (l->start()) {
-	Glib::ustring name;
-	while (l->next(name)) {
-	    textliststore->append()->set_value(textliststore->col.name, name);
+    for (gx_preset::UnitPresetList::const_iterator i = presetlist.begin(); i != presetlist.end(); ++i) {
+	if (i->name.empty()) {
+	    break;
 	}
+	textliststore->append()->set_value(textliststore->col.name, i->name);
     }
     treeview->set_model(textliststore);
+    removebutton->set_sensitive(false);
     Glib::RefPtr<Gtk::TreeSelection> sel = treeview->get_selection();
-    sel->select(textliststore->children().begin());
     sel->signal_changed().connect(
 	sigc::mem_fun(*this, &PluginPresetListWindow::on_selection_changed));
 }
@@ -631,44 +639,51 @@ void PluginPresetListWindow::run() {
 ** PluginPresetPopup
 */
 
-void PluginPresetPopup::set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Glib::ustring name) {
-    l->set(name);
+void PluginPresetPopup::set_plugin_preset(bool factory, const Glib::ustring& name) {
+    machine.plugin_preset_list_set(pdef, factory, name);
 }
 
 void PluginPresetPopup::set_plugin_std_preset() {
-    machine.reset_unit(id);
+    machine.reset_unit(pdef);
 }
 
-void PluginPresetPopup::save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
+void PluginPresetPopup::save_plugin_preset() {
     InputWindow *w = InputWindow::create(machine.get_options(), save_name_default);
     w->run();
     if (!w->get_name().empty()) {
-	l->save(w->get_name(), id, machine.pluginlist_lookup_plugin(id.c_str())->get_pdef()->groups);
+	machine.plugin_preset_list_save(pdef, w->get_name());
     }
     delete w;
 }
 
-void PluginPresetPopup::remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    PluginPresetListWindow *w = PluginPresetListWindow::create(machine.get_options(), l);
+void PluginPresetPopup::remove_plugin_preset() {
+    PluginPresetListWindow *w = PluginPresetListWindow::create(machine.get_options(), *this);
     w->run();
     delete w;
 }
 
-bool PluginPresetPopup::add_plugin_preset_list(Glib::RefPtr<gx_preset::PluginPresetList> l) {
-    if (!l->start()) {
-	return false;
-    }
+bool PluginPresetPopup::add_plugin_preset_list(bool *found) {
+    *found = false;
     bool found_presets = false;
-    Glib::ustring name;
-    bool is_set;
-    while (l->next(name, &is_set)) {
-	found_presets = true;
-	Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(name);
-	if (is_set) {
+    bool factory = false;
+    for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
+	if (i->name.empty()) {
+	    factory = true;
+	    if (found_presets) {
+		append(*manage(new Gtk::SeparatorMenuItem()));
+		*found = true;
+		found_presets = false;
+	    }
+	    continue;
+	} else {
+	    found_presets = true;
+	}
+	Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(i->name);
+	if (i->is_set) {
 	    c->set_active(true);
 	}
 	c->signal_activate().connect(
-	    sigc::bind(sigc::ptr_fun(set_plugin_preset), l, name));
+	    sigc::bind(sigc::mem_fun(this, &PluginPresetPopup::set_plugin_preset), factory, i->name));
 	append(*manage(c));
     }
     return found_presets;
@@ -686,17 +701,18 @@ void PluginPresetPopup::on_selection_done() {
 	    this));
 }
 
-PluginPresetPopup::PluginPresetPopup(const std::string& id_, const gx_engine::GxMachineBase& machine_,
+PluginPresetPopup::PluginPresetPopup(const PluginDef *pdef_, gx_engine::GxMachineBase& machine_,
 				     const Glib::ustring& save_name_default_)
-  : Gtk::Menu(), id(id_), machine(machine_), save_name_default(save_name_default_) {
-    Glib::RefPtr<gx_preset::PluginPresetList> l = machine.load_plugin_preset_list(id, false);
-    bool found_presets = add_plugin_preset_list(l);
-    if (found_presets) {
-	append(*manage(new Gtk::SeparatorMenuItem()));
-    }
-    if (!add_plugin_preset_list(machine.load_plugin_preset_list(id, true))) {
+  : Gtk::Menu(),
+    pdef(pdef_),
+    machine(machine_),
+    save_name_default(save_name_default_),
+    presetnames() {
+    machine.plugin_preset_list_load(pdef, presetnames);
+    bool found_presets;
+    if (!add_plugin_preset_list(&found_presets)) {
 	Gtk::CheckMenuItem *c = new Gtk::CheckMenuItem(_("standard"));
-	if (machine.parameter_unit_has_std_values(id)) {
+	if (machine.parameter_unit_has_std_values(pdef)) {
 	    c->set_active(true);
 	}
 	c->signal_activate().connect(
@@ -707,12 +723,12 @@ PluginPresetPopup::PluginPresetPopup(const std::string& id_, const gx_engine::Gx
     Gtk::MenuItem *mi = new Gtk::MenuItem(_("save..."));
     append(*manage(mi));
     mi->signal_activate().connect(
-	sigc::bind(sigc::mem_fun(this, &PluginPresetPopup::save_plugin_preset),l));
+	sigc::mem_fun(this, &PluginPresetPopup::save_plugin_preset));
     if (found_presets) {
 	mi = new Gtk::MenuItem(_("remove..."));
 	append(*manage(mi));
 	mi->signal_activate().connect(
-	    sigc::bind(sigc::mem_fun(this, &PluginPresetPopup::remove_plugin_preset),l));
+	    sigc::mem_fun(this, &PluginPresetPopup::remove_plugin_preset));
     }
     show_all();
     popup(1, gtk_get_current_event_time());

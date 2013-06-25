@@ -122,12 +122,16 @@ private:
     time_t last_change;
     sigc::connection save_conn;
     std::list<CmdConnection*> connection_list;
+    gx_system::JsonStringWriter *jwc;
     virtual bool on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connection,
 			     const Glib::RefPtr<Glib::Object>& source_object);
     void save_state();
     void remove_connection(CmdConnection* p);
     bool broadcast_listeners(CmdConnection *sender);
     void broadcast(CmdConnection *sender, gx_system::JsonStringWriter& jw);
+    void on_param_insert_remove(gx_engine::Parameter *p, bool insert);
+    void on_param_value_changed(gx_engine::Parameter *p);
+    void connect_value_changed_signal(gx_engine::Parameter *p);
     friend class CmdConnection;
 public:
     MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,

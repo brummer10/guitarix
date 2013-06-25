@@ -104,24 +104,32 @@ public:
     void write_state(gx_system::JsonWriter &jw, bool preserve_preset);
 };
 
-class PluginPresetList: public Glib::Object {
+class PluginPresetList {
 private:
     std::string filename;
     gx_engine::ParamMap& pmap;
     gx_engine::MidiControllerList& mctrl;
     ifstream is;
     gx_system::JsonParser jp;
-    PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap, gx_engine::MidiControllerList& mctrl_);
+private:
+    void write_values(gx_system::JsonWriter& jw, std::string id, const char **groups);
 public:
-    static Glib::RefPtr<PluginPresetList> create(const std::string& fname, gx_engine::ParamMap& pmap,
-						 gx_engine::MidiControllerList& mctrl);
+    PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap, gx_engine::MidiControllerList& mctrl_);
     bool start();
     bool next(Glib::ustring& name, bool *is_set = 0);
     void set(const Glib::ustring& name);
-    void write_values(gx_system::JsonWriter& jw, std::string id, const char **groups);
     void save(const Glib::ustring& name, const std::string& id, const char **groups);
     void remove(const Glib::ustring& name);
 };
+
+class PluginPresetEntry {
+public:
+    Glib::ustring name;
+    bool is_set;
+    PluginPresetEntry(const Glib::ustring& name_, bool is_set_): name(name_), is_set(is_set_) {}
+};
+
+typedef std::vector<PluginPresetEntry> UnitPresetList;
 
 class GxSettings: public sigc::trackable, public gx_system::GxSettingsBase {
 private:
@@ -136,6 +144,7 @@ private:
     gx_engine::StringParameter& preset_parameter;
     gx_engine::StringParameter& bank_parameter;
     UnitRacks rack_units;
+    void add_plugin_preset_list(PluginPresetList& l, UnitPresetList &presetnames);
     void exit_handler(bool otherthread);
     void jack_client_changed();
     string make_state_filename();
@@ -156,7 +165,10 @@ public:
     bool get_auto_save_state() { return no_autosave;}
     void disable_autosave(bool v) { no_autosave = v; }
     void auto_save_state();
-    Glib::RefPtr<PluginPresetList> load_plugin_preset_list(const Glib::ustring& id, bool factory) const;
+    void plugin_preset_list_load(const PluginDef *pdef, UnitPresetList &presetnames);
+    void plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);
+    void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name);
+    void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name);
     void create_default_scratch_preset();
     std::vector<std::string>& get_rack_unit_order(bool stereo) { return stereo ? rack_units.stereo : rack_units.mono; }
     void remove_rack_unit(const std::string& unit, bool stereo);

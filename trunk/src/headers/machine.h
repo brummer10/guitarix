@@ -118,7 +118,10 @@ public:
     virtual void create_default_scratch_preset() = 0;
     virtual void set_statefilename(const std::string& fn) = 0;
     virtual void save_to_state(bool preserve_preset=false) = 0;
-    virtual Glib::RefPtr<gx_preset::PluginPresetList> load_plugin_preset_list(const Glib::ustring& id, bool factory) const = 0;
+    virtual void plugin_preset_list_load(const PluginDef *pdef, gx_preset::UnitPresetList &presetnames) = 0;
+    virtual void plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) = 0;
+    virtual void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name) = 0;
+    virtual void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name) = 0;
     virtual void disable_autosave(bool v) = 0;
     virtual sigc::signal<void>& signal_selection_changed() = 0;
     virtual sigc::signal<void>& signal_presetlist_changed() = 0;
@@ -151,8 +154,8 @@ public:
     virtual void set_init_values() = 0;
     virtual bool parameter_hasId(const char *p) = 0;
     virtual bool parameter_hasId(const std::string& id) = 0;
-    virtual void reset_unit(Glib::ustring group_id) const = 0;
-    virtual bool parameter_unit_has_std_values(Glib::ustring group_id) const = 0;
+    virtual void reset_unit(const PluginDef *pdef) const = 0;
+    virtual bool parameter_unit_has_std_values(const PluginDef *pdef) const = 0;
     virtual void set_parameter_value(const std::string& id, int value) = 0;
     virtual void set_parameter_value(const std::string& id, float value) = 0;
     virtual void set_parameter_value(const std::string& id, bool value) = 0;
@@ -289,7 +292,10 @@ public:
     virtual void create_default_scratch_preset();
     virtual void set_statefilename(const std::string& fn);
     virtual void save_to_state(bool preserve_preset=false);
-    virtual Glib::RefPtr<gx_preset::PluginPresetList> load_plugin_preset_list(const Glib::ustring& id, bool factory) const;
+    virtual void plugin_preset_list_load(const PluginDef *pdef, gx_preset::UnitPresetList &presetnames);
+    virtual void plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);
+    virtual void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name);
+    virtual void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name);
     virtual void disable_autosave(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
@@ -323,8 +329,8 @@ public:
     virtual void set_init_values();
     virtual bool parameter_hasId(const char *p);
     virtual bool parameter_hasId(const std::string& id);
-    virtual void reset_unit(Glib::ustring group_id) const;
-    virtual bool parameter_unit_has_std_values(Glib::ustring group_id) const;
+    virtual void reset_unit(const PluginDef *pdef) const;
+    virtual bool parameter_unit_has_std_values(const PluginDef *pdef) const;
     virtual void set_parameter_value(const std::string& id, int value);
     virtual void set_parameter_value(const std::string& id, bool value);
     virtual void set_parameter_value(const std::string& id, float value);
@@ -467,7 +473,10 @@ public:
     virtual void create_default_scratch_preset();
     virtual void set_statefilename(const std::string& fn);
     virtual void save_to_state(bool preserve_preset=false);
-    virtual Glib::RefPtr<gx_preset::PluginPresetList> load_plugin_preset_list(const Glib::ustring& id, bool factory) const;
+    virtual void plugin_preset_list_load(const PluginDef *pdef, gx_preset::UnitPresetList &presetnames);
+    virtual void plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);
+    virtual void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name);
+    virtual void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name);
     virtual void disable_autosave(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
@@ -501,8 +510,8 @@ public:
     virtual void set_init_values();
     virtual bool parameter_hasId(const char *p);
     virtual bool parameter_hasId(const std::string& id);
-    virtual void reset_unit(Glib::ustring group_id) const;
-    virtual bool parameter_unit_has_std_values(Glib::ustring group_id) const;
+    virtual void reset_unit(const PluginDef *pdef) const;
+    virtual bool parameter_unit_has_std_values(const PluginDef *pdef) const;
     virtual void set_parameter_value(const std::string& id, int value);
     virtual void set_parameter_value(const std::string& id, bool value);
     virtual void set_parameter_value(const std::string& id, float value);

@@ -1609,12 +1609,12 @@ int get_current_workarea_height() {
 }
 #endif
 
-void MainWindow::plugin_preset_popup(const std::string& id) {
-    new PluginPresetPopup(id, machine);
+void MainWindow::plugin_preset_popup(const PluginDef *pdef) {
+    new PluginPresetPopup(pdef, machine);
 }
 
-void MainWindow::plugin_preset_popup(const std::string& id, const Glib::ustring& name) {
-    new PluginPresetPopup(id, machine, name);
+void MainWindow::plugin_preset_popup(const PluginDef *pdef, const Glib::ustring& name) {
+    new PluginPresetPopup(pdef, machine, name);
 }
 
 void MainWindow::clear_box(Gtk::Container& box) {
@@ -1682,7 +1682,7 @@ void JConvPluginUI::on_plugin_preset_popup() {
     if (n != Glib::ustring::npos) {
 	name.erase(n);
     }
-    main.plugin_preset_popup(get_id(), name);
+    main.plugin_preset_popup(plugin->get_pdef(), name);
 }
 
 static gx_engine::LadspaLoader::pluginarray::iterator find_plugin(gx_engine::LadspaLoader::pluginarray& ml, gx_engine::plugdesc *pl) {
@@ -2697,11 +2697,11 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     midi_out_presets_mini->signal_clicked().connect(
 	sigc::bind(
 	    sigc::mem_fun1(this, &MainWindow::plugin_preset_popup),
-	    "midi_out"));
+	    machine.pluginlist_lookup_plugin("midi_out")->get_pdef()));
     midi_out_presets_normal->signal_clicked().connect(
 	sigc::bind(
 	    sigc::mem_fun1(this, &MainWindow::plugin_preset_popup),
-	    "midi_out"));
+	    machine.pluginlist_lookup_plugin("midi_out")->get_pdef()));
     channel1_button->signal_toggled().connect(
 	sigc::bind(
 	    sigc::mem_fun(this, &MainWindow::on_midi_out_channel_toggled),

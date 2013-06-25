@@ -96,6 +96,14 @@ struct CmdConnection::methodnames;
 "pf_insert_after", false
 
 
+/* Unit Presets */
+
+"plugin_preset_list_load", true
+"plugin_preset_list_set", false
+"plugin_preset_list_save", false
+"plugin_preset_list_remove", false
+
+
 /* Effect Plugins */
 
 "pluginlist", true
@@ -126,10 +134,12 @@ struct CmdConnection::methodnames;
 "tuner_used_for_display", false
 "tuner_used_for_livedisplay", false
 
+
 /* Level Meter */
 
 "get_max_input_level", true
 "get_max_output_level", true
+
 
 /* Oscilloscope */
 
@@ -138,7 +148,9 @@ struct CmdConnection::methodnames;
 "clear_oscilloscope_buffer", false
 "get_oscilloscope_info", true
 
+
 /* Direct Guitar Control */
+
 "get_tuner_switcher_active", true
 "tuner_switcher_activate", false
 "tuner_switcher_deactivate", false

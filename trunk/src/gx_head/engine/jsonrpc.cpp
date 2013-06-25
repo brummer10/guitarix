@@ -817,6 +817,21 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.write(serv.jack.get_engine().midiaudiobuffer.jack_load_status());
     }
 
+    FUNCTION(plugin_preset_list_load) {
+	gx_preset::UnitPresetList presetnames;
+	serv.settings.plugin_preset_list_load(
+	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString().c_str())->get_pdef(),
+	    presetnames);
+	jw.begin_array();
+	for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
+	    jw.begin_array();
+	    jw.write(i->name);
+	    jw.write(i->is_set);
+	    jw.end_array();
+	}
+	jw.end_array();
+    }
+
     FUNCTION(queryunit) {
 	if (params.size() != 1) {
 	    throw RpcError(-32602, "Invalid params -- 1 parameter expected");
@@ -990,6 +1005,30 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 
     PROCEDURE(pf_save) {
 	serv.settings.save(*serv.settings.banks.get_file(params[0]->getString()), params[1]->getString());
+    }
+
+    PROCEDURE(plugin_preset_list_set) {
+	gx_system::JsonStringWriter jw;
+	serv.jwc = &jw;
+	send_notify_begin(jw, "set");
+	serv.settings.plugin_preset_list_set(
+	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString().c_str())->get_pdef(),
+	    params[1]->getInt(), params[2]->getString());
+	serv.jwc = 0;
+	send_notify_end(jw, false);
+	serv.broadcast(0, jw);
+    }
+
+    PROCEDURE(plugin_preset_list_save) {
+	serv.settings.plugin_preset_list_save(
+	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString().c_str())->get_pdef(),
+	    params[1]->getString());
+    }
+
+    PROCEDURE(plugin_preset_list_remove) {
+	serv.settings.plugin_preset_list_remove(
+	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString().c_str())->get_pdef(),
+	    params[1]->getString());
     }
 
     PROCEDURE(midi_set_config_mode) {
@@ -1513,13 +1552,68 @@ MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
       oldest_unsaved(0),
       last_change(0),
       save_conn(),
-      connection_list() {
+      connection_list(),
+      jwc(0) {
     add_inet_port(port);
+    gx_engine::ParamMap& pmap = settings.get_param();
+    pmap.signal_insert_remove().connect(
+	sigc::mem_fun(this, &MyService::on_param_insert_remove));
+    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
+	connect_value_changed_signal(i->second);
+    }
 }
 
 MyService::~MyService() {
     for (std::list<CmdConnection*>::iterator i = connection_list.begin(); i != connection_list.end(); ++i) {
 	delete *i;
+    }
+}
+
+void MyService::connect_value_changed_signal(gx_engine::Parameter *p) {
+    if (p->isInt()) {
+	p->getInt().signal_changed().connect(
+	    sigc::hide(
+		sigc::bind(
+		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+    } else if (p->isBool()) {
+	p->getBool().signal_changed().connect(
+	    sigc::hide(
+		sigc::bind(
+		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+    } else if (p->isFloat()) {
+	p->getFloat().signal_changed().connect(
+	    sigc::hide(
+		sigc::bind(
+		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+    } else if (p->isString()) {
+	p->getString().signal_changed().connect(
+	    sigc::hide(
+		sigc::bind(
+		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+    }
+}
+
+void MyService::on_param_insert_remove(gx_engine::Parameter *p, bool inserted) {
+    if (inserted) {
+	connect_value_changed_signal(p);
+    }
+}
+
+void MyService::on_param_value_changed(gx_engine::Parameter *p) {
+    if (!jwc) {
+	return;
+    }
+    jwc->write(p->id());
+    if (p->isInt()) {
+	jwc->write(p->getInt().get_value());
+    } else if (p->isBool()) {
+	jwc->write(p->getBool().get_value());
+    } else if (p->isFloat()) {
+	jwc->write(p->getFloat().get_value());
+    } else if (p->isString()) {
+	jwc->write(p->getString().get_value());
+    } else {
+	assert(false);
     }
 }
 
@@ -1574,4 +1668,21 @@ bool MyService::on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connectio
 	sigc::mem_fun(cc, &CmdConnection::on_data),
 	sock->get_fd(), Glib::IO_IN|Glib::IO_HUP);
     return true;
+}
+
+bool MyService::broadcast_listeners(CmdConnection *sender) {
+    for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
+	if (*p != sender && (*p)->get_parameter_change_notify()) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+void MyService::broadcast(CmdConnection *sender, gx_system::JsonStringWriter& jw) {
+    for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
+	if (*p != sender && (*p)->get_parameter_change_notify()) {
+	    (*p)->send(jw);
+	}
+    }
 }

@@ -635,7 +635,7 @@ void IRWindow::on_preset_popup_clicked() {
 	name.erase(n);
     }
     save_state();
-    new PluginPresetPopup(nchan == 1 ? "jconv_mono" : "jconv", machine, name);
+    new PluginPresetPopup(convolver.plugin.get_pdef(), machine, name);
 }
 
 void IRWindow::on_help_clicked() {

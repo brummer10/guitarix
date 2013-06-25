@@ -469,19 +469,24 @@ public:
 
 class PluginPresetPopup: public Gtk::Menu {
 private:
-    const std::string id;
-    const gx_engine::GxMachineBase& machine;
+    const PluginDef *pdef;
+    gx_engine::GxMachineBase& machine;
     const Glib::ustring save_name_default;
+    gx_preset::UnitPresetList presetnames;
     void set_plugin_std_preset();
-    static void set_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l, Glib::ustring name);
-    bool add_plugin_preset_list(Glib::RefPtr<gx_preset::PluginPresetList> l);
-    void save_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
-    void remove_plugin_preset(Glib::RefPtr<gx_preset::PluginPresetList> l);
+    void set_plugin_preset(bool factory, const Glib::ustring& name);
+    bool add_plugin_preset_list(bool *found);
+    void save_plugin_preset();
+    void remove_plugin_preset();
 protected:
     virtual void on_selection_done();
 public:
-    PluginPresetPopup(const std::string& id, const gx_engine::GxMachineBase& machine,
+    PluginPresetPopup(const PluginDef *pdef, gx_engine::GxMachineBase& machine,
 		      const Glib::ustring& save_name_default = "");
+    gx_preset::UnitPresetList::const_iterator begin() { return presetnames.begin(); }
+    gx_preset::UnitPresetList::const_iterator end() { return presetnames.end(); }
+    const PluginDef *get_pdef() { return pdef; }
+    gx_engine::GxMachineBase& get_machine() { return machine; }
 };
 
 
@@ -771,8 +776,8 @@ public:
     PluginDict::iterator plugins_end() { return plugin_dict.end(); }
     void run();
     gx_system::CmdlineOptions& get_options() { return options; }
-    void plugin_preset_popup(const std::string& id);
-    void plugin_preset_popup(const std::string& id, const Glib::ustring& name);
+    void plugin_preset_popup(const PluginDef *pdef);
+    void plugin_preset_popup(const PluginDef *pdef, const Glib::ustring& name);
     gx_engine::GxMachineBase& get_machine() { return machine; }
     void add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
     void set_rackbox_expansion();

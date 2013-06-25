@@ -430,8 +430,20 @@ void GxMachine::save_to_state(bool preserve_preset) {
     settings.save_to_state(preserve_preset);
 }
 
-Glib::RefPtr<gx_preset::PluginPresetList> GxMachine::load_plugin_preset_list(const Glib::ustring& id, bool factory) const {
-    return settings.load_plugin_preset_list(id, factory);
+void GxMachine::plugin_preset_list_load(const PluginDef *pdef, gx_preset::UnitPresetList &presetnames) {
+    settings.plugin_preset_list_load(pdef, presetnames);
+}
+
+void GxMachine::plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
+    settings.plugin_preset_list_set(pdef, factory, name);
+}
+
+void GxMachine::plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name) {
+    settings.plugin_preset_list_save(pdef, name);
+}
+
+void GxMachine::plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name) {
+    settings.plugin_preset_list_remove(pdef, name);
 }
 
 void GxMachine::disable_autosave(bool v) {
@@ -567,12 +579,12 @@ bool GxMachine::parameter_hasId(const std::string& id) {
     return pmap.hasId(id);
 }
 
-void GxMachine::reset_unit(Glib::ustring group_id) const {
-    pmap.reset_unit(group_id, engine.pluginlist.lookup_plugin(group_id.c_str())->get_pdef()->groups);
+void GxMachine::reset_unit(const PluginDef *pdef) const {
+    pmap.reset_unit(pdef);
 }
 
-bool GxMachine::parameter_unit_has_std_values(Glib::ustring group_id) const {
-    return pmap.unit_has_std_values(group_id, engine.pluginlist.lookup_plugin(group_id.c_str())->get_pdef()->groups);
+bool GxMachine::parameter_unit_has_std_values(const PluginDef *pdef) const {
+    return pmap.unit_has_std_values(pdef);
 }
 
 void GxMachine::set_parameter_value(const std::string& id, int value) {
@@ -1695,11 +1707,44 @@ void GxMachineRemote::save_to_state(bool preserve_preset) {
     cerr << "save_to_state()" << endl;
 }
 
-Glib::RefPtr<gx_preset::PluginPresetList> GxMachineRemote::load_plugin_preset_list(const Glib::ustring& id, bool factory) const {
-    static gx_engine::MidiControllerList m;
-    static std::string fname = "";
-    static Glib::RefPtr<gx_preset::PluginPresetList> p = gx_preset::PluginPresetList::create(fname, const_cast<ParamMap&>(pmap), m);
-    return p;
+void GxMachineRemote::plugin_preset_list_load(const PluginDef *pdef, gx_preset::UnitPresetList &presetnames) {
+    START_CALL(plugin_preset_list_load);
+    jw->write(pdef->id);
+    START_RECEIVE();
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	jp->next(gx_system::JsonParser::begin_array);
+	jp->next(gx_system::JsonParser::value_string);
+	Glib::ustring name = jp->current_value();
+	jp->next(gx_system::JsonParser::value_number);
+	presetnames.push_back(gx_preset::PluginPresetEntry(name, jp->current_value_int()));
+	jp->next(gx_system::JsonParser::end_array);
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    END_RECEIVE();
+}
+
+void GxMachineRemote::plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
+    cerr << "plugin_preset_list_set()" << endl;
+    START_NOTIFY(plugin_preset_list_set);
+    jw->write(pdef->id);
+    jw->write(factory);
+    jw->write(name);
+    SEND();
+}
+
+void GxMachineRemote::plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name) {
+    START_NOTIFY(plugin_preset_list_save);
+    jw->write(pdef->id);
+    jw->write(name);
+    SEND();
+}
+
+void GxMachineRemote::plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name) {
+    START_NOTIFY(plugin_preset_list_remove);
+    jw->write(pdef->id);
+    jw->write(name);
+    SEND();
 }
 
 void GxMachineRemote::disable_autosave(bool v) {
@@ -2047,12 +2092,13 @@ bool GxMachineRemote::parameter_hasId(const std::string& id) {
     return pmap.hasId(id);
 }
 
-void GxMachineRemote::reset_unit(Glib::ustring group_id) const {
-    pmap.reset_unit(group_id, 0);
+void GxMachineRemote::reset_unit(const PluginDef *pdef) const {
+    cerr << "reset_unit()" << endl;
+    pmap.reset_unit(pdef);
 }
 
-bool GxMachineRemote::parameter_unit_has_std_values(Glib::ustring group_id) const {
-    return pmap.unit_has_std_values(group_id, 0);
+bool GxMachineRemote::parameter_unit_has_std_values(const PluginDef *pdef) const {
+    return pmap.unit_has_std_values(pdef);
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, int value) {

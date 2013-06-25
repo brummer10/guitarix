@@ -504,6 +504,7 @@ class ParamMap: boost::noncopyable {
  private:
     map<string, Parameter*> id_map;
     bool replace_mode;
+    sigc::signal<void,Parameter*,bool> insert_remove;
 #ifndef NDEBUG
     void unique_id(Parameter* param);
     void check_id(const string& id);
@@ -532,8 +533,9 @@ class ParamMap: boost::noncopyable {
         return *id_map[p];
     }
     void set_init_values();
-    void reset_unit(Glib::ustring group_id, const char **groups) const;
-    bool unit_has_std_values(Glib::ustring group_id, const char **groups) const;
+    void reset_unit(const PluginDef *pdef) const;
+    bool unit_has_std_values(const PluginDef *pdef) const;
+    sigc::signal<void,Parameter*,bool> signal_insert_remove() { return insert_remove; }
     void unregister(Parameter *p);
     void unregister(const string& id);
     inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std,

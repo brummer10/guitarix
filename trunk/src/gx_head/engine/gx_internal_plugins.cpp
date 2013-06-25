@@ -454,7 +454,7 @@ void ConvolverStereoAdapter::convolver(int count, float *input0, float *input1,
 				 conv_out0, conv_out1, output0, output1);
 	    return;
         }
-	self.engine.overload(EngineControl::ov_Convolver, "jconv");
+	self.engine.overload(EngineControl::ov_Convolver, self.id);
     }
     if (input0 != output0) {
 	memcpy(output0, input0, count * sizeof(float));
@@ -543,7 +543,7 @@ void ConvolverMonoAdapter::convolver(int count, float *input, float *output, Plu
             self.jc_post_mono.compute(count, output, conv_out, output);
 	    return;
         }
-	self.engine.overload(EngineControl::ov_Convolver, "jconv_mono");
+	self.engine.overload(EngineControl::ov_Convolver, self.id);
     }
     if (input != output) {
 	memcpy(output, input, count * sizeof(float));
