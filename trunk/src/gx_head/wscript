@@ -34,6 +34,7 @@ Task.task_type_from_func(
     'gperf',
     gperf2cc,
     color='BLUE',
+    before='cc cxx',
     )
 
 @extension('.gperf_tmpl')
