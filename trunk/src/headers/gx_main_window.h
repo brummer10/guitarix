@@ -522,7 +522,9 @@ struct GxActions {
     Glib::RefPtr<Gtk::ToggleAction> rack_config;
     Glib::RefPtr<Gtk::ToggleAction> live_play;
     Glib::RefPtr<Gtk::ToggleAction> engine_mute;
+    sigc::connection engine_mute_conn;
     Glib::RefPtr<Gtk::ToggleAction> engine_bypass;
+    sigc::connection engine_bypass_conn;
     Glib::RefPtr<Gtk::ToggleAction> jackserverconnection;
     Glib::RefPtr<Gtk::ToggleAction> jackports;
     Glib::RefPtr<Gtk::ToggleAction> midicontroller;

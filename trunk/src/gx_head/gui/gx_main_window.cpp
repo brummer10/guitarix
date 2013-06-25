@@ -1418,13 +1418,13 @@ void MainWindow::create_actions() {
         sigc::mem_fun(*this, &MainWindow::on_miditable_toggle));
 
     actions.engine_mute = Gtk::ToggleAction::create("EngineMute", _("Engine _Mute"));
-    actions.group->add(
-	actions.engine_mute,
+    actions.group->add(actions.engine_mute);
+    actions.engine_mute_conn = actions.engine_mute->signal_toggled().connect(
 	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
 
     actions.engine_bypass = Gtk::ToggleAction::create("EngineBypass", _("Engine _Bypass"));
-    actions.group->add(
-	actions.engine_bypass,
+    actions.group->add(actions.engine_bypass);
+    actions.engine_bypass_conn = actions.engine_bypass->signal_toggled().connect(
 	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
 
     actions.quit = Gtk::Action::create("Quit",_("_Quit"));
@@ -1989,17 +1989,27 @@ void MainWindow::on_jack_client_changed() {
 void MainWindow::on_engine_state_change(gx_engine::GxEngineState state) {
     switch (state) {
     case gx_engine::kEngineOff:
+	actions.engine_mute_conn.block();
 	actions.engine_mute->set_active(true);
+	actions.engine_mute_conn.unblock();
 	status_image->set(pixbuf_off);
 	break;
     case gx_engine::kEngineOn:
+	actions.engine_mute_conn.block();
+	actions.engine_bypass_conn.block();
 	actions.engine_mute->set_active(false);
 	actions.engine_bypass->set_active(false);
+	actions.engine_mute_conn.unblock();
+	actions.engine_bypass_conn.unblock();
 	status_image->set(pixbuf_on);
 	break;
     case gx_engine::kEngineBypass:
+	actions.engine_mute_conn.block();
+	actions.engine_bypass_conn.block();
 	actions.engine_mute->set_active(false);
 	actions.engine_bypass->set_active(true);
+	actions.engine_mute_conn.unblock();
+	actions.engine_bypass_conn.unblock();
 	status_image->set(pixbuf_bypass);
 	break;
     }
