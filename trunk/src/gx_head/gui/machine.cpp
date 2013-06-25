@@ -888,6 +888,22 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	Glib::ustring new_preset = jp->current_value();
 	jp->next(gx_system::JsonParser::end_array);
 	if (new_preset != current_preset || new_bank != current_bank) {
+	    // this update could also be done by the server
+	    START_CALL(get);
+	    for (ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
+		if (i->second->isInPreset()) {
+		    jw->write(i->first);
+		}
+	    }
+	    START_RECEIVE();
+	    jp->next(gx_system::JsonParser::begin_object);
+	    while (jp->peek() != gx_system::JsonParser::end_object) {
+		jp->next(gx_system::JsonParser::value_key);
+		parameter_changed(jp);
+	    }
+	    jp->next(gx_system::JsonParser::end_object);
+	    END_RECEIVE();
+	    //
 	    current_bank = new_bank;
 	    current_preset = new_preset;
 	    selection_changed();
