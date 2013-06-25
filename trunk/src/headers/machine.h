@@ -89,9 +89,6 @@ public:
     virtual gx_system::CmdlineOptions& get_options() const = 0;
     virtual void start_socket(sigc::slot<void> quit_mainloop, int port) = 0;
     virtual sigc::signal<void>& signal_conv_settings_changed(const char *id) = 0;
-    virtual sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& tuner_switcher_signal_display() = 0;
-    virtual sigc::signal<void,TunerSwitcher::SwitcherState>& tuner_switcher_signal_set_state() = 0;
-    virtual sigc::signal<void>& tuner_switcher_signal_selection_done() = 0;
     virtual sigc::signal<void,GxEngineState>& signal_state_change() = 0;
     virtual Glib::Dispatcher& signal_jack_load_change() = 0;
     virtual void tuner_used_for_display(bool on) = 0;
@@ -103,7 +100,11 @@ public:
     // tuner_switcher
     virtual bool get_tuner_switcher_active() = 0;
     virtual void tuner_switcher_activate(bool v) = 0;
-    virtual bool tuner_switcher_deactivate() = 0;
+    virtual void tuner_switcher_deactivate() = 0;
+    virtual void tuner_switcher_toggle(bool v) = 0;
+    virtual sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& tuner_switcher_signal_display() = 0;
+    virtual sigc::signal<void,TunerSwitcher::SwitcherState>& tuner_switcher_signal_set_state() = 0;
+    virtual sigc::signal<void, bool>& tuner_switcher_signal_selection_done() = 0;
     // preset
     virtual bool setting_is_preset() = 0;
     virtual const Glib::ustring& get_current_bank() = 0;
@@ -215,6 +216,7 @@ private:
     ParamMap& pmap;
 private:
     void do_program_change(int pgm);
+    void edge_toggle_tuner(bool v);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
@@ -259,9 +261,6 @@ public:
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, int port);
     virtual sigc::signal<void>& signal_conv_settings_changed(const char *id);
-    virtual sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& tuner_switcher_signal_display();
-    virtual sigc::signal<void,TunerSwitcher::SwitcherState>& tuner_switcher_signal_set_state();
-    virtual sigc::signal<void>& tuner_switcher_signal_selection_done();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
     virtual Glib::Dispatcher& signal_jack_load_change();
     virtual void tuner_used_for_display(bool on);
@@ -272,7 +271,11 @@ public:
     // tuner_switcher
     virtual bool get_tuner_switcher_active();
     virtual void tuner_switcher_activate(bool v);
-    virtual bool tuner_switcher_deactivate();
+    virtual void tuner_switcher_deactivate();
+    virtual void tuner_switcher_toggle(bool v);
+    virtual sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& tuner_switcher_signal_display();
+    virtual sigc::signal<void,TunerSwitcher::SwitcherState>& tuner_switcher_signal_set_state();
+    virtual sigc::signal<void, bool>& tuner_switcher_signal_selection_done();
     // preset
     virtual bool setting_is_preset();
     virtual const Glib::ustring& get_current_bank();
@@ -371,6 +374,9 @@ private:
     sigc::signal<void, unsigned int> oscilloscope_size_change;
     float *oscilloscope_buffer;
     unsigned int oscilloscope_buffer_size;
+    sigc::signal<void,const Glib::ustring&,const Glib::ustring&> tuner_switcher_display;
+    sigc::signal<void,TunerSwitcher::SwitcherState> tuner_switcher_set_state;
+    sigc::signal<void, bool> tuner_switcher_selection_done;
 
 private:
     const jsonrpc_method_def& start_call(jsonrpc_method m_id);
@@ -433,9 +439,6 @@ public:
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, int port);
     virtual sigc::signal<void>& signal_conv_settings_changed(const char *id);
-    virtual sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& tuner_switcher_signal_display();
-    virtual sigc::signal<void,TunerSwitcher::SwitcherState>& tuner_switcher_signal_set_state();
-    virtual sigc::signal<void>& tuner_switcher_signal_selection_done();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
     virtual Glib::Dispatcher& signal_jack_load_change();
     virtual void tuner_used_for_display(bool on);
@@ -446,7 +449,11 @@ public:
     // tuner_switcher
     virtual bool get_tuner_switcher_active();
     virtual void tuner_switcher_activate(bool v);
-    virtual bool tuner_switcher_deactivate();
+    virtual void tuner_switcher_deactivate();
+    virtual void tuner_switcher_toggle(bool v);
+    virtual sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& tuner_switcher_signal_display();
+    virtual sigc::signal<void,TunerSwitcher::SwitcherState>& tuner_switcher_signal_set_state();
+    virtual sigc::signal<void, bool>& tuner_switcher_signal_selection_done();
     // preset
     virtual bool setting_is_preset();
     virtual const Glib::ustring& get_current_bank();

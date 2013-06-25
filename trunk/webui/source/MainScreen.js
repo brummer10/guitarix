@@ -41,7 +41,7 @@ enyo.kind({
 	return true;
     },
     Switch: function(inSender, inEvent) {
-        guitarix.notify('switch',[]);
+        guitarix.notify('tuner_switcher_toggle',[false]);
 	return true;
     },
     showMessage: function(message) {

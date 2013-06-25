@@ -76,29 +76,26 @@ bool TunerSwitcher::display_preset_key(int idx) {
 }
 
 void TunerSwitcher::try_load_preset() {
-    if (state == wait_stop) {
-	switch (last_bank_idx) {
-	case mute_on:    new_engine_state = gx_engine::kEngineOff;    break;
-	case mute_off:   new_engine_state = gx_engine::kEngineOn;     break;
-	case bypass_on:  new_engine_state = gx_engine::kEngineBypass; break;
-	case bypass_off: new_engine_state = gx_engine::kEngineOn;     break;
-	case tuner_on:   new_tuner_active = true;  break;
-	case tuner_off:  new_tuner_active = false; break;
-	default:
-	    Glib::ustring bank = settings.banks.get_name(last_bank_idx);
-	    if (!bank.empty()) {
-		gx_system::PresetFile *f = settings.banks.get_file(bank);
-		if (last_preset_idx < f->size()) {
-		    Glib::ustring preset = f->get_name(last_preset_idx);
-		    if (preset != settings.get_current_name() || bank != settings.get_current_bank()) {
-			settings.load_preset(f, preset);
-		    }
+    switch (last_bank_idx) {
+    case mute_on:    new_engine_state = gx_engine::kEngineOff;    break;
+    case mute_off:   new_engine_state = gx_engine::kEngineOn;     break;
+    case bypass_on:  new_engine_state = gx_engine::kEngineBypass; break;
+    case bypass_off: new_engine_state = gx_engine::kEngineOn;     break;
+    case tuner_on:   new_tuner_active = true;  break;
+    case tuner_off:  new_tuner_active = false; break;
+    default:
+	Glib::ustring bank = settings.banks.get_name(last_bank_idx);
+	if (!bank.empty()) {
+	    gx_system::PresetFile *f = settings.banks.get_file(bank);
+	    if (last_preset_idx < f->size()) {
+		Glib::ustring preset = f->get_name(last_preset_idx);
+		if (preset != settings.get_current_name() || bank != settings.get_current_bank()) {
+		    settings.load_preset(f, preset);
 		}
 	    }
-	    break;
 	}
+	break;
     }
-    selection_done();
 }
 
 void TunerSwitcher::change_state(SwitcherState newstate) {
@@ -163,7 +160,7 @@ bool TunerSwitcher::on_state_timeout() {
     } else {
 	assert(state == wait_stop);
 	try_load_preset();
-	selection_done();
+	deactivate();
     }
     return false;
 }
@@ -233,15 +230,32 @@ void TunerSwitcher::activate(bool tuner_active) {
     }
 }
 
-bool TunerSwitcher::deactivate() {
+void TunerSwitcher::deactivate() {
     if (!get_active()) {
-	return new_tuner_active;
+	return;
     }
     switcher_conn.disconnect();
     timeout_conn.disconnect();
     engine.tuner.used_for_switching(false);
     change_state(normal_mode);
+    if (new_tuner_active && new_engine_state == gx_engine::kEngineOn) {
+	new_engine_state = gx_engine::kEngineBypass;
+    }
     engine.set_state(new_engine_state);
-    selection_done();
-    return new_tuner_active;
+    selection_done(new_tuner_active);
+}
+
+void TunerSwitcher::toggle(bool tuner_active) {
+    if (get_active()) {
+	deactivate();
+    } else {
+	if (tuner_active) {
+	    if (engine.get_state() == gx_engine::kEngineBypass) {
+		engine.set_state(gx_engine::kEngineOn);
+	    }
+	    selection_done(false);
+	} else {
+	    activate(false);
+	}
+    }
 }

@@ -356,10 +356,10 @@ void CmdConnection::write_engine_state(gx_system::JsonWriter& jw, gx_engine::GxE
     jw.write(engine_state_to_string(s));
 }
 
-void CmdConnection::on_selection_done() {
+void CmdConnection::on_selection_done(bool v) {
     gx_system::JsonStringWriter jw;
     send_notify_begin(jw, "show_tuner");
-    jw.write(serv.tuner_switcher.deactivate());
+    jw.write(v);
     send_notify_end(jw);
 }
 
@@ -805,6 +805,10 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.write(serv.jack.get_engine().oscilloscope.get_mul_buffer());
     }
 
+    FUNCTION(get_tuner_switcher_active) {
+	jw.write(serv.tuner_switcher.get_active());
+    }
+
     FUNCTION(jack_cpu_load) {
 	jw.write(serv.jack.get_jcpu_load());
     }
@@ -1093,8 +1097,16 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 	serv.jack.get_engine().check_module_lists();
     }
 
-    PROCEDURE(switch) {
-	serv.on_switcher_toggled(true);
+    PROCEDURE(tuner_switcher_activate) {
+	serv.tuner_switcher.activate(params[0]->getInt());
+    }
+
+    PROCEDURE(tuner_switcher_deactivate) {
+	serv.tuner_switcher.deactivate();
+    }
+
+    PROCEDURE(tuner_switcher_toggle) {
+	serv.tuner_switcher.toggle(params[0]->getInt());
     }
 
     PROCEDURE(shutdown) {
@@ -1492,19 +1504,16 @@ void UiBuilderVirt::load_glade_(const char *data) {
  */
 
 MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
-		     sigc::slot<void> quit_mainloop_, int port)
+		     TunerSwitcher& tunerswitcher_, sigc::slot<void> quit_mainloop_, int port)
     : Gio::SocketService(),
       settings(settings_),
       jack(jack_),
+      tuner_switcher(tunerswitcher_),
       quit_mainloop(quit_mainloop_),
-      tuner_switcher(settings_, jack_.get_engine()),
       oldest_unsaved(0),
       last_change(0),
       save_conn(),
       connection_list() {
-    settings.get_param()["ui.live_play_switcher"].signal_changed_bool().connect(
-	sigc::mem_fun(this, &MyService::on_switcher_toggled));
-    tuner_switcher.signal_selection_done().connect(sigc::mem_fun(this, &MyService::on_selection_done));
     add_inet_port(port);
 }
 
@@ -1565,25 +1574,4 @@ bool MyService::on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connectio
 	sigc::mem_fun(cc, &CmdConnection::on_data),
 	sock->get_fd(), Glib::IO_IN|Glib::IO_HUP);
     return true;
-}
-
-void MyService::on_switcher_toggled(bool v) {
-    if (v) {
-	if (tuner_switcher.get_active()) {
-	    tuner_switcher.deactivate();
-	} else {
-	    tuner_switcher.activate(false);
-	    if (jack.get_engine().tuner.used_for_livedisplay()) {
-		tuner_switcher.deactivate();
-	    }
-	}
-    }
-}
-
-void MyService::on_selection_done() {
-    if (tuner_switcher.deactivate()) {
-	jack.get_engine().set_state(gx_engine::kEngineBypass);
-    } else if (jack.get_engine().get_state() == gx_engine::kEngineBypass) {
-	jack.get_engine().set_state(gx_engine::kEngineOn);
-    }
 }

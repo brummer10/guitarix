@@ -139,6 +139,9 @@ struct CmdConnection::methodnames;
 "get_oscilloscope_info", true
 
 /* Direct Guitar Control */
-"switch", false
+"get_tuner_switcher_active", true
+"tuner_switcher_activate", false
+"tuner_switcher_deactivate", false
+"tuner_switcher_toggle", false
 
 %%

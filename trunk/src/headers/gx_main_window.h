@@ -109,6 +109,7 @@ private:
     bool window_expose_event(GdkEventExpose* event);
     void on_realize();
     void on_engine_state_change(gx_engine::GxEngineState state);
+    void on_selection_done(bool v);
     void on_selection_changed();
     static bool do_action(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
@@ -128,10 +129,8 @@ private:
     static bool on_keyboard_mode_switch(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
-    void on_switcher_toggled(bool v);
     bool pointer_motion(GdkEventMotion* event);
     void display(const Glib::ustring& bank, const Glib::ustring& preset);
-    void set_tuner_switcher_active(bool v);
     void set_display_state(TunerSwitcher::SwitcherState s);
 public:
     Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxMachineBase& machine,

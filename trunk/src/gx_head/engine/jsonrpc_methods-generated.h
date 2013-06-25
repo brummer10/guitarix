@@ -70,7 +70,10 @@ enum jsonrpc_method {
 	RPCM_get_oscilloscope_mul_buffer,
 	RPNM_clear_oscilloscope_buffer,
 	RPCM_get_oscilloscope_info,
-	RPNM_switch,
+	RPCM_get_tuner_switcher_active,
+	RPNM_tuner_switcher_activate,
+	RPNM_tuner_switcher_deactivate,
+	RPNM_tuner_switcher_toggle,
 };
 
 struct jsonrpc_method_def {

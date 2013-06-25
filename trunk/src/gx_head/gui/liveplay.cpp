@@ -157,7 +157,7 @@ bool Liveplay::on_keyboard_toggle_bypass(GtkAccelGroup *accel_group, GObject *ac
 
 bool Liveplay::on_keyboard_mode_switch(GtkAccelGroup *accel_group, GObject *acceleratable,
 				       guint keyval, GdkModifierType modifier, Liveplay& self) {
-    self.set_tuner_switcher_active(!self.machine.get_tuner_switcher_active());
+    self.machine.tuner_switcher_toggle(self.actions.livetuner->get_active());
     return true;
 }
 
@@ -185,29 +185,6 @@ void Liveplay::set_display_state(TunerSwitcher::SwitcherState newstate) {
     liveplay_bank->set_state(st);
     liveplay_preset->set_sensitive(sens);
     liveplay_preset->set_state(st);
-}
-
-void Liveplay::set_tuner_switcher_active(bool v) {
-    if (machine.get_tuner_switcher_active() == v) {
-	return;
-    }
-    if (v) {
-	liveplay_preset->set_sensitive(false);
-	machine.tuner_switcher_activate(actions.livetuner->get_active());
-	actions.livetuner->set_active(false);
-    } else {
-	actions.livetuner->set_active(machine.tuner_switcher_deactivate());
-    }
-}
-
-void Liveplay::on_switcher_toggled(bool v) {
-    if (false) {
-	set_tuner_switcher_active(v);
-    } else {
-	if (v) {
-	    set_tuner_switcher_active(!machine.get_tuner_switcher_active());
-	}
-    }
 }
 
 bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *acceleratable,
@@ -352,6 +329,12 @@ Liveplay::Liveplay(
 	sigc::compose(
 	    sigc::mem_fun(this, &Liveplay::display_tuner),
 	    sigc::mem_fun(actions.livetuner.operator->(), &Gtk::ToggleAction::get_active)));
+    if (actions.livetuner->get_active()) {
+	machine.tuner_used_for_livedisplay(true);
+	display_tuner(true);
+    } else {
+	display_tuner(false);
+    }
     cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.livetuner->gobj()), 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Return, (GdkModifierType)0, (GtkAccelFlags)0, cl);
 
@@ -388,11 +371,12 @@ Liveplay::Liveplay(
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_mode_switch), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_space, (GdkModifierType)0, (GtkAccelFlags)0, cl);
-    machine.signal_parameter_value<bool>("ui.live_play_switcher").connect(
-	sigc::mem_fun(this, &Liveplay::on_switcher_toggled));
-    machine.tuner_switcher_signal_display().connect(sigc::mem_fun(this, &Liveplay::display));
-    machine.tuner_switcher_signal_set_state().connect(sigc::mem_fun(this, &Liveplay::set_display_state));
-    machine.tuner_switcher_signal_selection_done().connect(sigc::mem_fun(this, &Liveplay::on_selection_changed));
+    machine.tuner_switcher_signal_display().connect(
+	sigc::mem_fun(this, &Liveplay::display));
+    machine.tuner_switcher_signal_set_state().connect(
+	sigc::mem_fun(this, &Liveplay::set_display_state));
+    machine.tuner_switcher_signal_selection_done().connect(
+	sigc::mem_fun(this, &Liveplay::on_selection_done));
 
     window->add_accel_group(ag);
 
@@ -436,9 +420,18 @@ void Liveplay::on_engine_state_change(gx_engine::GxEngineState state) {
     }
 }
 
+void Liveplay::on_selection_done(bool v) {
+    keyswitch.deactivate();
+    if (!machine.setting_is_preset()) {
+	display("----","");
+    } else {
+	display(machine.get_current_bank(), machine.get_current_name());
+    }
+    actions.livetuner->set_active(v);
+}
+
 void Liveplay::on_selection_changed() {
     keyswitch.deactivate();
-    set_tuner_switcher_active(false);
     if (!machine.setting_is_preset()) {
 	display("----","");
     } else {
@@ -456,7 +449,7 @@ void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
     } else {
 	midi_conn.disconnect();
 	keyswitch.deactivate();
-	set_tuner_switcher_active(false);
+	machine.tuner_switcher_deactivate();
 	window->hide();
     }
 }

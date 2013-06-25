@@ -98,7 +98,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
 
     pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
-    pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, true, false);
+    pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, false, false);
     pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false);
     pmap.reg_non_midi_par("system.midi_in_preset", (bool*)0, false, false);
     pmap.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
@@ -114,6 +114,9 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 
     engine.controller_map.signal_new_program().connect(
 	sigc::mem_fun(this, &GxMachine::do_program_change));
+    pmap["ui.live_play_switcher"].signal_changed_bool().connect(
+	sigc::mem_fun(this, &GxMachine::edge_toggle_tuner));
+
 }
 
 GxMachine::~GxMachine() {
@@ -123,6 +126,12 @@ GxMachine::~GxMachine() {
 	pmap.dump("json");
     }
 #endif
+}
+
+void GxMachine::edge_toggle_tuner(bool v) {
+    if (v) {
+	tuner_switcher.toggle(engine.tuner.used_for_livedisplay());
+    }
 }
 
 void GxMachine::do_program_change(int pgm) {
@@ -286,7 +295,7 @@ void GxMachine::start_socket(sigc::slot<void> quit_mainloop, int port) {
     if (sock) {
 	return;
     }
-    sock = new MyService(settings, jack, quit_mainloop, port);
+    sock = new MyService(settings, jack, tuner_switcher, quit_mainloop, port);
     sock->start();
 }
 
@@ -306,7 +315,7 @@ sigc::signal<void,TunerSwitcher::SwitcherState>& GxMachine::tuner_switcher_signa
     return tuner_switcher.signal_set_state();
 }
 
-sigc::signal<void>& GxMachine::tuner_switcher_signal_selection_done() {
+sigc::signal<void, bool>& GxMachine::tuner_switcher_signal_selection_done() {
     return tuner_switcher.signal_selection_done();
 }
 
@@ -363,8 +372,12 @@ void GxMachine::tuner_switcher_activate(bool v) {
     tuner_switcher.activate(v);
 }
 
-bool GxMachine::tuner_switcher_deactivate() {
-    return tuner_switcher.deactivate();
+void GxMachine::tuner_switcher_deactivate() {
+    tuner_switcher.deactivate();
+}
+
+void GxMachine::tuner_switcher_toggle(bool v) {
+    tuner_switcher.toggle(v);
 }
 
 // preset
@@ -713,7 +726,10 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       oscilloscope_activation(),
       oscilloscope_size_change(),
       oscilloscope_buffer(0),
-      oscilloscope_buffer_size(0) {
+      oscilloscope_buffer_size(0),
+      tuner_switcher_display(),
+      tuner_switcher_set_state(),
+      tuner_switcher_selection_done() {
     socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
     int flag = 1;
     setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
@@ -954,6 +970,32 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	    oscilloscope_buffer_size = sz;
 	}
 	oscilloscope_size_change(sz);
+    } else if (method == "show_tuner") {
+	jp->next(gx_system::JsonParser::value_number);
+	cerr << "show_tuner(" << jp->current_value_int() << ")" << endl;
+	tuner_switcher_selection_done(jp->current_value_int());
+    } else if (method == "set_display_state") {
+	jp->next(gx_system::JsonParser::value_string);
+	cerr << "set_display_state(" << jp->current_value() << ")" << endl;
+	TunerSwitcher::SwitcherState state = TunerSwitcher::normal_mode;
+	if (jp->current_value() == "normal_mode") {
+	    state = TunerSwitcher::normal_mode;
+	} else if (jp->current_value() == "wait_start") {
+	    state = TunerSwitcher::wait_start;
+	} else if (jp->current_value() == "listening") {
+	    state = TunerSwitcher::listening;
+	} else if (jp->current_value() == "wait_stop") {
+	    state = TunerSwitcher::wait_stop;
+	} else {
+	    assert(false);
+	}
+	tuner_switcher_set_state(state);
+    } else if (method == "display_bank_preset") {
+	jp->next(gx_system::JsonParser::value_string);
+	Glib::ustring bank = jp->current_value();
+	jp->next(gx_system::JsonParser::value_string);
+	cerr << "display_bank_preset(" << bank << ", " << jp->current_value() << ")" << endl;
+	tuner_switcher_display(bank, jp->current_value());
     } else {
 	cerr << "> " << jp->get_string() << endl;
     }
@@ -1473,20 +1515,17 @@ sigc::signal<void>& GxMachineRemote::signal_conv_settings_changed(const char *id
 
 sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& GxMachineRemote::tuner_switcher_signal_display() {
     cerr << "tuner_switcher_signal_display()" << endl;
-    static sigc::signal<void,const Glib::ustring&,const Glib::ustring&> x;
-    return x;
+    return tuner_switcher_display;
 }
 
 sigc::signal<void,TunerSwitcher::SwitcherState>& GxMachineRemote::tuner_switcher_signal_set_state() {
     cerr << "tuner_switcher_signal_set_state()" << endl;
-    static sigc::signal<void,TunerSwitcher::SwitcherState> x;
-    return x;
+    return tuner_switcher_set_state;
 }
 
-sigc::signal<void>& GxMachineRemote::tuner_switcher_signal_selection_done() {
+sigc::signal<void, bool>& GxMachineRemote::tuner_switcher_signal_selection_done() {
     cerr << "tuner_switcher_signal_selection_done()" << endl;
-    static sigc::signal<void> x;
-    return x;
+    return tuner_switcher_selection_done;
 }
 
 sigc::signal<void,GxEngineState>& GxMachineRemote::signal_state_change() {
@@ -1554,16 +1593,30 @@ void GxMachineRemote::insert_rack_unit(const std::string& unit, const std::strin
 // tuner_switcher
 bool GxMachineRemote::get_tuner_switcher_active() {
     cerr << "get_tuner_switcher_active()" << endl;
-    return false;
+    START_CALL(get_tuner_switcher_active);
+    START_RECEIVE(false);
+    return get_bool(jp);
+    END_RECEIVE(return false);
 }
 
 void GxMachineRemote::tuner_switcher_activate(bool v) {
     cerr << "tuner_switcher_activate()" << endl;
+    START_NOTIFY(tuner_switcher_activate);
+    jw->write(v);
+    SEND();
 }
 
-bool GxMachineRemote::tuner_switcher_deactivate() {
+void GxMachineRemote::tuner_switcher_deactivate() {
     cerr << "tuner_switcher_deactivate()" << endl;
-    return false;
+    START_NOTIFY(tuner_switcher_deactivate);
+    SEND();
+}
+
+void GxMachineRemote::tuner_switcher_toggle(bool v) {
+    cerr << "tuner_switcher_toggle()" << endl;
+    START_NOTIFY(tuner_switcher_toggle);
+    jw->write(v);
+    SEND();
 }
 
 // preset

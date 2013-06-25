@@ -92,7 +92,7 @@ private:
     void on_tuner_freq_changed();
     void display(const Glib::ustring& bank, const Glib::ustring& preset);
     void set_display_state(TunerSwitcher::SwitcherState newstate);
-    void on_selection_done();
+    void on_selection_done(bool v);
     void on_presetlist_changed();
     void on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
     void on_midi_changed();
@@ -116,22 +116,22 @@ class MyService: public Gio::SocketService {
 private:
     gx_preset::GxSettings& settings;
     gx_jack::GxJack& jack;
+    TunerSwitcher& tuner_switcher;
     sigc::slot<void> quit_mainloop;
-    TunerSwitcher tuner_switcher;
     time_t oldest_unsaved;
     time_t last_change;
     sigc::connection save_conn;
     std::list<CmdConnection*> connection_list;
     virtual bool on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connection,
 			     const Glib::RefPtr<Glib::Object>& source_object);
-    void on_switcher_toggled(bool v);
-    void on_selection_done();
     void save_state();
     void remove_connection(CmdConnection* p);
+    bool broadcast_listeners(CmdConnection *sender);
+    void broadcast(CmdConnection *sender, gx_system::JsonStringWriter& jw);
     friend class CmdConnection;
 public:
     MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
-	      sigc::slot<void> quit_mainloop_, int port);
+	      TunerSwitcher& tunerswitcher, sigc::slot<void> quit_mainloop_, int port);
     ~MyService();
 };
 
