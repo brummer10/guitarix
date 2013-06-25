@@ -2623,13 +2623,17 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     /*
     ** init jack connection image widget
     */
-    jackd_image->set(pixbuf_jack_disconnected);
-    jackd_image->get_parent()->signal_button_press_event().connect(
-	sigc::bind_return(
-	    sigc::group(
-		sigc::ptr_fun(toggle_action),
-		actions.jackserverconnection),
-	    true));
+    if (jack) {
+	jackd_image->set(pixbuf_jack_disconnected);
+	jackd_image->get_parent()->signal_button_press_event().connect(
+	    sigc::bind_return(
+		sigc::group(
+		    sigc::ptr_fun(toggle_action),
+		    actions.jackserverconnection),
+		true));
+    } else {
+	jackd_image->hide();
+    }
 
     /*
     ** setup racktuner parameter and signals
