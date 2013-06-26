@@ -125,20 +125,20 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case RATIO: 
-		fentry2_ = (float*)data; // , 2.0, 1.0, 2e+01, 0.1 
+	case ATTACK: 
+		fslider0_ = (float*)data; // , 0.002, 0.0, 1.0, 0.001 
 		break;
 	case KNEE: 
 		fentry1_ = (float*)data; // , 3.0, 0.0, 2e+01, 0.1 
 		break;
-	case THRESHOLD: 
-		fentry0_ = (float*)data; // , -2e+01, -96.0, 1e+01, 0.1 
+	case RATIO: 
+		fentry2_ = (float*)data; // , 2.0, 1.0, 2e+01, 0.1 
 		break;
 	case RELEASE: 
 		fslider1_ = (float*)data; // , 0.5, 0.0, 1e+01, 0.01 
 		break;
-	case ATTACK: 
-		fslider0_ = (float*)data; // , 0.002, 0.0, 1.0, 0.001 
+	case THRESHOLD: 
+		fentry0_ = (float*)data; // , -2e+01, -96.0, 1e+01, 0.1 
 		break;
 	default:
 		break;
@@ -163,11 +163,11 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   RATIO, 
-   KNEE, 
-   THRESHOLD, 
-   RELEASE, 
    ATTACK, 
+   KNEE, 
+   RATIO, 
+   RELEASE, 
+   THRESHOLD, 
 } PortIndex;
 */
 

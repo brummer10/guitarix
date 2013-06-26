@@ -136,8 +136,8 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("ts9sim.drive",N_("Drive"),"S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("ts9sim.tone",N_("Tone"),"SL","",&fslider1, 4e+02, 1e+02, 1e+03, 1.03);
 	reg.registerVar("ts9sim.level",N_("Level"),"S","",&fslider0, -16.0, -2e+01, 4.0, 0.1);
+	reg.registerVar("ts9sim.tone",N_("Tone"),"SL","",&fslider1, 4e+02, 1e+02, 1e+03, 1.03);
 	return 0;
 }
 

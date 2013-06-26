@@ -149,11 +149,11 @@ public:
 
 
 static const char* parm_groups[] = {
-	"equalizer2", N_("RM Peaking Equalizer 2"),
-	"equalizer1", N_("RM Peaking Equalizer 1"),
-	"output", N_("Output"),
-	"input", N_("Input"),
 	"decay_times", N_("Decay Times in Bands"),
+	"equalizer1", N_("RM Peaking Equalizer 1"),
+	"equalizer2", N_("RM Peaking Equalizer 2"),
+	"input", N_("Input"),
+	"output", N_("Output"),
 	0
 	};
 
@@ -566,38 +566,38 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case LEVEL: 
-		fslider10_ = (float*)data; // , 0.0, -7e+01, 4e+01, 0.1 
-		break;
-	case EQ2_FREQ: 
-		fslider7_ = (float*)data; // , 315.0, 4e+01, 2.5e+03, 1.0 
-		break;
-	case EQ1_LEVEL: 
-		fslider6_ = (float*)data; // , 0.0, -15.0, 15.0, 0.1 
-		break;
-	case EQ1_FREQ: 
-		fslider5_ = (float*)data; // , 315.0, 4e+01, 2.5e+03, 1.0 
-		break;
-	case IN_DELAY: 
-		fslider4_ = (float*)data; // , 6e+01, 2e+01, 1e+02, 1.0 
-		break;
-	case LOW_RT60: 
-		fslider3_ = (float*)data; // , 3.0, 1.0, 8.0, 0.1 
+	case HF_DAMPING: 
+		fslider1_ = (float*)data; // , 6e+03, 1.5e+03, 2.352e+04, 1.0 
 		break;
 	case LF_X: 
 		fslider2_ = (float*)data; // , 2e+02, 5e+01, 1e+03, 1.0 
 		break;
-	case HF_DAMPING: 
-		fslider1_ = (float*)data; // , 6e+03, 1.5e+03, 2.352e+04, 1.0 
+	case LOW_RT60: 
+		fslider3_ = (float*)data; // , 3.0, 1.0, 8.0, 0.1 
 		break;
 	case MID_RT60: 
 		fslider0_ = (float*)data; // , 2.0, 1.0, 8.0, 0.1 
 		break;
-	case DRY_WET_MIX: 
-		fslider9_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
+	case EQ1_FREQ: 
+		fslider5_ = (float*)data; // , 315.0, 4e+01, 2.5e+03, 1.0 
+		break;
+	case EQ1_LEVEL: 
+		fslider6_ = (float*)data; // , 0.0, -15.0, 15.0, 0.1 
+		break;
+	case EQ2_FREQ: 
+		fslider7_ = (float*)data; // , 315.0, 4e+01, 2.5e+03, 1.0 
 		break;
 	case EQ2_LEVEL: 
 		fslider8_ = (float*)data; // , 0.0, -15.0, 15.0, 0.1 
+		break;
+	case IN_DELAY: 
+		fslider4_ = (float*)data; // , 6e+01, 2e+01, 1e+02, 1.0 
+		break;
+	case DRY_WET_MIX: 
+		fslider9_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
+		break;
+	case LEVEL: 
+		fslider10_ = (float*)data; // , 0.0, -7e+01, 4e+01, 0.1 
 		break;
 	default:
 		break;
@@ -622,17 +622,17 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   LEVEL, 
-   EQ2_FREQ, 
-   EQ1_LEVEL, 
-   EQ1_FREQ, 
-   IN_DELAY, 
-   LOW_RT60, 
-   LF_X, 
    HF_DAMPING, 
+   LF_X, 
+   LOW_RT60, 
    MID_RT60, 
-   DRY_WET_MIX, 
+   EQ1_FREQ, 
+   EQ1_LEVEL, 
+   EQ2_FREQ, 
    EQ2_LEVEL, 
+   IN_DELAY, 
+   DRY_WET_MIX, 
+   LEVEL, 
 } PortIndex;
 */
 

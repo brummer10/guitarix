@@ -98,11 +98,11 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case OUT_MASTER_LADSPA: 
-		fslider1_ = (float*)data; // , 0.0, -2e+01, 2e+01, 0.1 
-		break;
 	case OUT_MASTER: 
 		fslider0_ = (float*)data; // , 0.0, -5e+01, 4.0, 0.1 
+		break;
+	case OUT_MASTER_LADSPA: 
+		fslider1_ = (float*)data; // , 0.0, -2e+01, 2e+01, 0.1 
 		break;
 	default:
 		break;
@@ -127,8 +127,8 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   OUT_MASTER_LADSPA, 
    OUT_MASTER, 
+   OUT_MASTER_LADSPA, 
 } PortIndex;
 */
 

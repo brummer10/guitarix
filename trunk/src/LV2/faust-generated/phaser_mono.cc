@@ -154,14 +154,14 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case WET_DRY: 
-		fslider2_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
+	case SPEED: 
+		fslider0_ = (float*)data; // , 0.5, 0.0, 1e+01, 0.01 
 		break;
 	case LEVEL: 
 		fslider1_ = (float*)data; // , 0.0, -6e+01, 1e+01, 0.1 
 		break;
-	case SPEED: 
-		fslider0_ = (float*)data; // , 0.5, 0.0, 1e+01, 0.01 
+	case WET_DRY: 
+		fslider2_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
 		break;
 	default:
 		break;
@@ -186,9 +186,9 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   WET_DRY, 
-   LEVEL, 
    SPEED, 
+   LEVEL, 
+   WET_DRY, 
 } PortIndex;
 */
 

@@ -274,11 +274,11 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *input1, floa
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("tonemodul.Treble","","S","",&fslider2, 0.0, -5.0, 5.0, 0.01);
-	reg.registerVar("tonemodul.sharper",N_("sharper"),"S","",&fslider3, -2.0, -2.5, 5.0, 0.1);
-	reg.registerVar("tonemodul.ON","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("tonemodul.Bass","","S","",&fslider1, 0.0, -5.0, 5.0, 0.01);
 	reg.registerVar("tonemodul.Middle","","S","",&fslider0, 0.0, -5.0, 5.0, 0.01);
+	reg.registerVar("tonemodul.ON","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("tonemodul.Treble","","S","",&fslider2, 0.0, -5.0, 5.0, 0.01);
+	reg.registerVar("tonemodul.sharper",N_("sharper"),"S","",&fslider3, -2.0, -2.5, 5.0, 0.1);
 	return 0;
 }
 

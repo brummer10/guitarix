@@ -210,37 +210,37 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	// static const value_pair fcheckbox1_values[] = {{"linear"},{"invert"},{0}};
-	case INVERT: 
-		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
-	// static const value_pair fcheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
-	case VIBRATOMODE: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
-	case NOTCHWIDTH: 
-		fslider7_ = (float*)data; // , 1e+03, 1e+01, 5e+03, 1.0 
-		break;
-	case FEEDBACKGAIN: 
-		fslider6_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
-		break;
-	case NOTCHFREQ: 
-		fslider5_ = (float*)data; // , 1.5, 1.1, 4.0, 0.01 
-		break;
 	case MAXNOTCH1FREQ: 
 		fslider4_ = (float*)data; // , 8e+02, 2e+01, 1e+04, 1.0 
 		break;
 	case MINNOTCH1FREQ: 
 		fslider3_ = (float*)data; // , 1e+02, 2e+01, 5e+03, 1.0 
 		break;
+	case NOTCHWIDTH: 
+		fslider7_ = (float*)data; // , 1e+03, 1e+01, 5e+03, 1.0 
+		break;
+	case NOTCHFREQ: 
+		fslider5_ = (float*)data; // , 1.5, 1.1, 4.0, 0.01 
+		break;
 	case SPEED: 
 		fslider2_ = (float*)data; // , 0.5, 0.0, 1e+01, 0.01 
 		break;
-	case LEVEL: 
-		fslider1_ = (float*)data; // , 0.0, -6e+01, 1e+01, 0.1 
+	// static const value_pair fcheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
+	case VIBRATOMODE: 
+		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case DEPTH: 
 		fslider0_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
+		break;
+	case FEEDBACKGAIN: 
+		fslider6_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
+		break;
+	// static const value_pair fcheckbox1_values[] = {{"linear"},{"invert"},{0}};
+	case INVERT: 
+		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case LEVEL: 
+		fslider1_ = (float*)data; // , 0.0, -6e+01, 1e+01, 0.1 
 		break;
 	default:
 		break;
@@ -265,16 +265,16 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   INVERT, 
-   VIBRATOMODE, 
-   NOTCHWIDTH, 
-   FEEDBACKGAIN, 
-   NOTCHFREQ, 
    MAXNOTCH1FREQ, 
    MINNOTCH1FREQ, 
+   NOTCHWIDTH, 
+   NOTCHFREQ, 
    SPEED, 
-   LEVEL, 
+   VIBRATOMODE, 
    DEPTH, 
+   FEEDBACKGAIN, 
+   INVERT, 
+   LEVEL, 
 } PortIndex;
 */
 

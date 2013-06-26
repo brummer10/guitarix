@@ -189,17 +189,17 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("eq.bandwidth1","","S",N_("bandwidth (hz)"),&fslider11, 41.0, 5.0, 2e+04, 1.0);
+	reg.registerVar("eq.bandwidth2","","S",N_("bandwidth (hz)"),&fslider8, 2.2e+02, 5.0, 2e+04, 1.0);
+	reg.registerVar("eq.bandwidth3","","S",N_("bandwidth (hz)"),&fslider5, 8.8e+02, 5.0, 2e+04, 1.0);
+	reg.registerVar("eq.bandwidth4","","S",N_("bandwidth (hz)"),&fslider2, 1.76e+03, 5.0, 2e+04, 1.0);
 	reg.registerVar("eq.level1","","S",N_("gain (dB)"),&fslider10, 0.0, -5e+01, 5e+01, 0.1);
 	reg.registerVar("eq.level2","","S",N_("gain (dB)"),&fslider7, 0.0, -5e+01, 5e+01, 0.1);
-	reg.registerVar("eq.peak2","","S",N_("frequency (hz)"),&fslider6, 4.4e+02, 2e+01, 2.2e+04, 1.0);
-	reg.registerVar("eq.bandwidth3","","S",N_("bandwidth (hz)"),&fslider5, 8.8e+02, 5.0, 2e+04, 1.0);
 	reg.registerVar("eq.level3","","S",N_("gain (dB)"),&fslider4, 0.0, -5e+01, 5e+01, 0.1);
-	reg.registerVar("eq.peak3","","S",N_("frequency (hz)"),&fslider3, 1.76e+03, 2e+01, 2.2e+04, 1.0);
-	reg.registerVar("eq.bandwidth4","","S",N_("bandwidth (hz)"),&fslider2, 1.76e+03, 5.0, 2e+04, 1.0);
 	reg.registerVar("eq.level4","","S",N_("gain (dB)"),&fslider1, 0.0, -5e+01, 5e+01, 0.1);
-	reg.registerVar("eq.peak4","","S",N_("frequency (hz)"),&fslider0, 3.52e+03, 2e+01, 2.2e+04, 1.0);
 	reg.registerVar("eq.peak1","","S",N_("frequency (hz)"),&fslider9, 1.1e+02, 2e+01, 2.2e+04, 1.0);
-	reg.registerVar("eq.bandwidth2","","S",N_("bandwidth (hz)"),&fslider8, 2.2e+02, 5.0, 2e+04, 1.0);
+	reg.registerVar("eq.peak2","","S",N_("frequency (hz)"),&fslider6, 4.4e+02, 2e+01, 2.2e+04, 1.0);
+	reg.registerVar("eq.peak3","","S",N_("frequency (hz)"),&fslider3, 1.76e+03, 2e+01, 2.2e+04, 1.0);
+	reg.registerVar("eq.peak4","","S",N_("frequency (hz)"),&fslider0, 3.52e+03, 2e+01, 2.2e+04, 1.0);
 	return 0;
 }
 

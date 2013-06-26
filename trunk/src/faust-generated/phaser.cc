@@ -183,18 +183,18 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *input1, floa
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	static const value_pair fcheckbox1_values[] = {{"linear"},{"invert"},{0}};
-	reg.registerEnumVar("phaser.invert","","B","",fcheckbox1_values,&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
-	static const value_pair fcheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
-	reg.registerEnumVar("phaser.VibratoMode","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("phaser.Notch width","","S","",&fslider7, 1e+03f, 1e+01f, 5e+03f, 1.0f);
-	reg.registerVar("phaser.feedback gain","","S","",&fslider6, 0.0f, 0.0f, 1.0f, 0.01f);
-	reg.registerVar("phaser.NotchFreq","","S","",&fslider5, 1.5f, 1.1f, 4.0f, 0.01f);
 	reg.registerVar("phaser.MaxNotch1Freq","","S","",&fslider4, 8e+02f, 2e+01f, 1e+04f, 1.0f);
 	reg.registerVar("phaser.MinNotch1Freq","","S","",&fslider3, 1e+02f, 2e+01f, 5e+03f, 1.0f);
+	reg.registerVar("phaser.Notch width","","S","",&fslider7, 1e+03f, 1e+01f, 5e+03f, 1.0f);
+	reg.registerVar("phaser.NotchFreq","","S","",&fslider5, 1.5f, 1.1f, 4.0f, 0.01f);
 	reg.registerVar("phaser.Speed","","S","",&fslider2, 0.5f, 0.0f, 1e+01f, 0.01f);
-	reg.registerVar("phaser.level","","S","",&fslider1, 0.0f, -6e+01f, 1e+01f, 0.1f);
+	static const value_pair fcheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
+	reg.registerEnumVar("phaser.VibratoMode","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("phaser.depth","","S","",&fslider0, 1.0f, 0.0f, 1.0f, 0.01f);
+	reg.registerVar("phaser.feedback gain","","S","",&fslider6, 0.0f, 0.0f, 1.0f, 0.01f);
+	static const value_pair fcheckbox1_values[] = {{"linear"},{"invert"},{0}};
+	reg.registerEnumVar("phaser.invert","","B","",fcheckbox1_values,&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("phaser.level","","S","",&fslider1, 0.0f, -6e+01f, 1e+01f, 0.1f);
 	return 0;
 }
 

@@ -311,6 +311,12 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case FEEDBAC: 
+		fslider0_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
+		break;
+	case FEEDBACK: 
+		fslider2_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
+		break;
 	case LEVEL: 
 		fslider5_ = (float*)data; // , -2e+01, -4e+01, 4.0, 0.1 
 		break;
@@ -320,14 +326,8 @@ void Dsp::connect(uint32_t port,void* data)
 	case TUBE2: 
 		fslider3_ = (float*)data; // , 6.0, -2e+01, 2e+01, 0.1 
 		break;
-	case FEEDBACK: 
-		fslider2_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
-		break;
 	case WET_DRY: 
 		fslider1_ = (float*)data; // , 0.0, -1.0, 1.0, 0.1 
-		break;
-	case FEEDBAC: 
-		fslider0_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
 		break;
 	default:
 		break;
@@ -352,12 +352,12 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
+   FEEDBAC, 
+   FEEDBACK, 
    LEVEL, 
    TUBE1, 
    TUBE2, 
-   FEEDBACK, 
    WET_DRY, 
-   FEEDBAC, 
 } PortIndex;
 */
 

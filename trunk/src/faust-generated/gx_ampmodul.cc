@@ -266,12 +266,12 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *input1, floa
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	reg.registerVar("ampmodul.feedbac","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
+	reg.registerVar("ampmodul.feedback","","S","",&fslider2, 0.0, -1.0, 1.0, 0.01);
 	reg.registerVar("ampmodul.level","","S","",&fslider5, -2e+01, -4e+01, 4.0, 0.1);
 	reg.registerVar("ampmodul.amp2.stage1.tube1","","S","",&fslider4, 6.0, -2e+01, 2e+01, 0.1);
 	reg.registerVar("ampmodul.amp2.stage2.tube2","","S","",&fslider3, 6.0, -2e+01, 2e+01, 0.1);
-	reg.registerVar("ampmodul.feedback","","S","",&fslider2, 0.0, -1.0, 1.0, 0.01);
 	reg.registerVar("ampmodul.wet_dry","","S","",&fslider1, 0.0, -1.0, 1.0, 0.1);
-	reg.registerVar("ampmodul.feedbac","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
 	return 0;
 }
 

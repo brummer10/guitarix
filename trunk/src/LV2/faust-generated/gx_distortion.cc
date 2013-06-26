@@ -392,59 +392,59 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case HIGH_GAIN: 
-		fslider13_ = (float*)data; // , 1e+01, -1e+01, 2e+01, 0.1 
-		break;
-	case HIGH_DRIVE: 
-		fslider12_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
-		break;
-	case MIDDLE_H_GAIN: 
-		fslider11_ = (float*)data; // , 1e+01, -1e+01, 2e+01, 0.1 
-		break;
-	case MIDDLE_H_DRIVE: 
-		fslider10_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
-		break;
-	case ON_OFF: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
-	case SPLIT_MIDDLE_FREQ: 
-		fentry1_ = (float*)data; // , 6.5e+02, 6e+02, 1.25e+03, 1e+01 
-		break;
-	case SPLIT_LOW_FREQ: 
-		fentry0_ = (float*)data; // , 2.5e+02, 2e+01, 6e+02, 1e+01 
-		break;
-	case SPLIT_HIGH_FREQ: 
-		fentry2_ = (float*)data; // , 1.25e+03, 1.25e+03, 1.2e+04, 1e+01 
-		break;
-	case MIDDLE_L_GAIN: 
-		fslider7_ = (float*)data; // , 1e+01, -1e+01, 2e+01, 0.1 
-		break;
-	case LEVEL: 
-		fslider6_ = (float*)data; // , 0.0, 0.0, 0.5, 0.01 
-		break;
 	case DRIVE: 
 		fslider5_ = (float*)data; // , 0.64, 0.0, 1.0, 0.01 
-		break;
-	case MIDDLE_L_DRIVE: 
-		fslider4_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
-		break;
-	case VIBRATO: 
-		fslider3_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
-		break;
-	case TRIGGER: 
-		fslider2_ = (float*)data; // , 0.12, 0.0, 1.0, 0.01 
 		break;
 	case GAIN: 
 		fslider1_ = (float*)data; // , 2.0, -1e+01, 1e+01, 0.1 
 		break;
-	case WET_DRY: 
-		fslider0_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
+	case HIGH_DRIVE: 
+		fslider12_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
+		break;
+	case HIGH_GAIN: 
+		fslider13_ = (float*)data; // , 1e+01, -1e+01, 2e+01, 0.1 
+		break;
+	case LEVEL: 
+		fslider6_ = (float*)data; // , 0.0, 0.0, 0.5, 0.01 
+		break;
+	case LOW_DRIVE: 
+		fslider8_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
 		break;
 	case LOW_GAIN: 
 		fslider9_ = (float*)data; // , 1e+01, -1e+01, 2e+01, 0.1 
 		break;
-	case LOW_DRIVE: 
-		fslider8_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
+	case MIDDLE_H_DRIVE: 
+		fslider10_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
+		break;
+	case MIDDLE_H_GAIN: 
+		fslider11_ = (float*)data; // , 1e+01, -1e+01, 2e+01, 0.1 
+		break;
+	case MIDDLE_L_DRIVE: 
+		fslider4_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
+		break;
+	case MIDDLE_L_GAIN: 
+		fslider7_ = (float*)data; // , 1e+01, -1e+01, 2e+01, 0.1 
+		break;
+	case ON_OFF: 
+		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case SPLIT_HIGH_FREQ: 
+		fentry2_ = (float*)data; // , 1.25e+03, 1.25e+03, 1.2e+04, 1e+01 
+		break;
+	case SPLIT_LOW_FREQ: 
+		fentry0_ = (float*)data; // , 2.5e+02, 2e+01, 6e+02, 1e+01 
+		break;
+	case SPLIT_MIDDLE_FREQ: 
+		fentry1_ = (float*)data; // , 6.5e+02, 6e+02, 1.25e+03, 1e+01 
+		break;
+	case TRIGGER: 
+		fslider2_ = (float*)data; // , 0.12, 0.0, 1.0, 0.01 
+		break;
+	case VIBRATO: 
+		fslider3_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
+		break;
+	case WET_DRY: 
+		fslider0_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
 		break;
 	default:
 		break;
@@ -469,24 +469,24 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   HIGH_GAIN, 
-   HIGH_DRIVE, 
-   MIDDLE_H_GAIN, 
-   MIDDLE_H_DRIVE, 
-   ON_OFF, 
-   SPLIT_MIDDLE_FREQ, 
-   SPLIT_LOW_FREQ, 
-   SPLIT_HIGH_FREQ, 
-   MIDDLE_L_GAIN, 
-   LEVEL, 
    DRIVE, 
-   MIDDLE_L_DRIVE, 
-   VIBRATO, 
-   TRIGGER, 
    GAIN, 
-   WET_DRY, 
-   LOW_GAIN, 
+   HIGH_DRIVE, 
+   HIGH_GAIN, 
+   LEVEL, 
    LOW_DRIVE, 
+   LOW_GAIN, 
+   MIDDLE_H_DRIVE, 
+   MIDDLE_H_GAIN, 
+   MIDDLE_L_DRIVE, 
+   MIDDLE_L_GAIN, 
+   ON_OFF, 
+   SPLIT_HIGH_FREQ, 
+   SPLIT_LOW_FREQ, 
+   SPLIT_MIDDLE_FREQ, 
+   TRIGGER, 
+   VIBRATO, 
+   WET_DRY, 
 } PortIndex;
 */
 

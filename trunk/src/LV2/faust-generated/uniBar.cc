@@ -216,14 +216,14 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case GAIN: 
+		fslider0_ = (float*)data; // , 0.8, 0.0, 1e+01, 0.01 
+		break;
 	case GATE: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case SYNTHFREQ: 
 		fslider1_ = (float*)data; // , 4.4e+02, 2e+01, 2e+04, 1.0 
-		break;
-	case GAIN: 
-		fslider0_ = (float*)data; // , 0.8, 0.0, 1e+01, 0.01 
 		break;
 	default:
 		break;
@@ -248,9 +248,9 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
+   GAIN, 
    GATE, 
    SYNTHFREQ, 
-   GAIN, 
 } PortIndex;
 */
 

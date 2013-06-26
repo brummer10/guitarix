@@ -375,9 +375,6 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case WET_DRY: 
-		fslider0_ = (float*)data; // , 5e+01, 0.0, 1e+02, 1.0 
-		break;
 	case LFOFREQ: 
 		fslider3_ = (float*)data; // , 0.2, 0.0, 5.0, 0.01 
 		break;
@@ -390,6 +387,9 @@ void Dsp::connect(uint32_t port,void* data)
 	// static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	case INVERT: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case WET_DRY: 
+		fslider0_ = (float*)data; // , 5e+01, 0.0, 1e+02, 1.0 
 		break;
 	default:
 		break;
@@ -414,11 +414,11 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   WET_DRY, 
    LFOFREQ, 
    ROOMSIZE, 
    DAMP, 
    INVERT, 
+   WET_DRY, 
 } PortIndex;
 */
 

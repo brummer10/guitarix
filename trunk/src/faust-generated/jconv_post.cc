@@ -97,9 +97,9 @@ void always_inline Dsp::compute(int count, float *input0, float *input1, float *
 int Dsp::register_par(const ParamReg& reg)
 {
 	fslider4_ = reg.registerVar("amp.balance",N_("Balance"),"SA","",&fslider4, 0.0f, -1.0f, 1.0f, 0.1f);
-	reg.registerVar("jconv.gain",N_("Gain"),"S",N_("gain trim for processed signal (unit: dB)"),&fslider3, 0.0f, -2e+01f, 2e+01f, 0.1f);
 	reg.registerVar("jconv.balance",N_("Balance"),"S",N_("left/right trim for processed signal"),&fslider2, 0.0f, -1.0f, 1.0f, 0.1f);
 	reg.registerVar("jconv.diff_delay",N_("Delta Delay"),"S",N_("delay left or right channel by the specified amount (unit: ms)"),&fslider1, 0.0f, -1e+02f, 1e+02f, 0.01f);
+	reg.registerVar("jconv.gain",N_("Gain"),"S",N_("gain trim for processed signal (unit: dB)"),&fslider3, 0.0f, -2e+01f, 2e+01f, 0.1f);
 	reg.registerVar("jconv.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02f, 0.0f, 1e+02f, 1.0f);
 	return 0;
 }

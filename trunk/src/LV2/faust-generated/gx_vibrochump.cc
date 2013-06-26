@@ -357,27 +357,27 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case FEEDBACK: 
-		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+	case GAIN: 
+		fslider4_ = (float*)data; // , 0.0, -2e+01, 2e+01, 0.1 
 		break;
 	// static const value_pair fcheckbox0_values[] = {{"triangle"},{"sine"},{0}};
 	case SINEWAVE: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
-	case GAIN: 
-		fslider4_ = (float*)data; // , 0.0, -2e+01, 2e+01, 0.1 
-		break;
-	case TONE: 
-		fslider3_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
-		break;
 	case VOLUME: 
 		fslider2_ = (float*)data; // , 0.0, -2e+01, 1e+01, 0.1 
+		break;
+	case FEEDBACK: 
+		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case INTENSITY: 
 		fslider1_ = (float*)data; // , 5.0, 0.0, 1e+01, 0.1 
 		break;
 	case SPEED: 
 		fslider0_ = (float*)data; // , 5.0, 0.1, 1e+01, 0.1 
+		break;
+	case TONE: 
+		fslider3_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	default:
 		break;
@@ -402,13 +402,13 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   FEEDBACK, 
-   SINEWAVE, 
    GAIN, 
-   TONE, 
+   SINEWAVE, 
    VOLUME, 
+   FEEDBACK, 
    INTENSITY, 
    SPEED, 
+   TONE, 
 } PortIndex;
 */
 

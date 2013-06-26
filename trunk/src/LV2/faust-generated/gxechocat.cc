@@ -420,14 +420,11 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case HEAD1: 
-		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+	case SUSTAIN: 
+		fslider0_ = (float*)data; // , 0.0, 0.0, 0.95, 0.01 
 		break;
-	case HEAD3: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
-	case HEAD2: 
-		fcheckbox2_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+	case INPUTGAIN: 
+		fslider1_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
 		break;
 	case OUTPUTGAIN: 
 		fslider3_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
@@ -435,11 +432,14 @@ void Dsp::connect(uint32_t port,void* data)
 	case SWELL: 
 		fslider2_ = (float*)data; // , 0.0, 0.0, 1.0, 0.1 
 		break;
-	case INPUTGAIN: 
-		fslider1_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
+	case HEAD1: 
+		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
-	case SUSTAIN: 
-		fslider0_ = (float*)data; // , 0.0, 0.0, 0.95, 0.01 
+	case HEAD2: 
+		fcheckbox2_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case HEAD3: 
+		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	default:
 		break;
@@ -464,13 +464,13 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   HEAD1, 
-   HEAD3, 
-   HEAD2, 
+   SUSTAIN, 
+   INPUTGAIN, 
    OUTPUTGAIN, 
    SWELL, 
-   INPUTGAIN, 
-   SUSTAIN, 
+   HEAD1, 
+   HEAD2, 
+   HEAD3, 
 } PortIndex;
 */
 

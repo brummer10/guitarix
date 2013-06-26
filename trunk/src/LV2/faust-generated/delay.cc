@@ -144,11 +144,11 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case GAIN: 
-		fslider1_ = (float*)data; // , 0.0f, -2e+01f, 2e+01f, 0.1f 
-		break;
 	case DELAY: 
 		fslider0_ = (float*)data; // , 0.0f, 0.0f, 5e+03f, 1e+01f 
+		break;
+	case GAIN: 
+		fslider1_ = (float*)data; // , 0.0f, -2e+01f, 2e+01f, 0.1f 
 		break;
 	default:
 		break;
@@ -173,8 +173,8 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   GAIN, 
    DELAY, 
+   GAIN, 
 } PortIndex;
 */
 

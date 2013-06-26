@@ -114,18 +114,18 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case PEAK: 
-		fslider2_ = (float*)data; // , 1.0, 0.0, 1e+01, 0.2 
-		break;
 	// static const value_pair fcheckbox0_values[] = {{"manual"},{"auto"},{0}};
 	case AUTO_FREQ: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
+	case BANDWIDTH: 
+		fslider0_ = (float*)data; // , 1e+02, 2e+01, 2e+04, 1e+01 
+		break;
 	case FREQ: 
 		fslider1_ = (float*)data; // , 4.4e+02, 2e+01, 1.2e+04, 1e+01 
 		break;
-	case BANDWIDTH: 
-		fslider0_ = (float*)data; // , 1e+02, 2e+01, 2e+04, 1e+01 
+	case PEAK: 
+		fslider2_ = (float*)data; // , 1.0, 0.0, 1e+01, 0.2 
 		break;
 	default:
 		break;
@@ -150,10 +150,10 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   PEAK, 
    AUTO_FREQ, 
-   FREQ, 
    BANDWIDTH, 
+   FREQ, 
+   PEAK, 
 } PortIndex;
 */
 

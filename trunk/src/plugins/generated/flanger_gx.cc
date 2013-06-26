@@ -161,11 +161,11 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("flanger_mono_gx.depth",N_("Depth"),"S","",&fslider5, 0.5, 0.0, 5.0, 0.01);
-	reg.registerVar("flanger_mono_gx.width",N_("Width"),"S","",&fslider4, 5.0, 0.0, 1e+01, 0.01);
-	reg.registerVar("flanger_mono_gx.freq",N_("Speed"),"SL","",&fslider3, 0.2, 0.05, 1e+01, 1.06);
 	reg.registerVar("flanger_mono_gx.feedback",N_("Feedback"),"S","",&fslider2, -0.707, -0.99, 0.99, 0.01);
-	reg.registerVar("flanger_mono_gx.wet",N_("Wet"),"S","",&fslider1, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("flanger_mono_gx.freq",N_("Speed"),"SL","",&fslider3, 0.2, 0.05, 1e+01, 1.06);
 	reg.registerVar("flanger_mono_gx.mix",N_("Mix"),"S","",&fslider0, 0.0, -1.0, 1.0, 0.1);
+	reg.registerVar("flanger_mono_gx.wet",N_("Wet"),"S","",&fslider1, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("flanger_mono_gx.width",N_("Width"),"S","",&fslider4, 5.0, 0.0, 1e+01, 0.01);
 	return 0;
 }
 

@@ -462,11 +462,11 @@ void Dsp::connect(uint32_t port,void* data)
 	case DRIVE: 
 		fslider3_ = (float*)data; // , 0.35, 0.0, 1.0, 0.01 
 		break;
-	case PREGAIN: 
-		fslider2_ = (float*)data; // , -6.0, -2e+01, 2e+01, 0.1 
-		break;
 	case WET_DRY: 
 		fslider1_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
+		break;
+	case PREGAIN: 
+		fslider2_ = (float*)data; // , -6.0, -2e+01, 2e+01, 0.1 
 		break;
 	case GAIN1: 
 		fslider0_ = (float*)data; // , -6.0, -2e+01, 2e+01, 0.1 
@@ -495,8 +495,8 @@ void Dsp::del_instance(PluginLV2 *p)
 typedef enum
 {
    DRIVE, 
-   PREGAIN, 
    WET_DRY, 
+   PREGAIN, 
    GAIN1, 
 } PortIndex;
 */

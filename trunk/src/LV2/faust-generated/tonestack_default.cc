@@ -179,11 +179,11 @@ void Dsp::connect(uint32_t port,void* data)
 	case BASS: 
 		fslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
-	case TREBLE: 
-		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
-		break;
 	case MIDDLE: 
 		fslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		break;
+	case TREBLE: 
+		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	default:
 		break;
@@ -209,8 +209,8 @@ void Dsp::del_instance(PluginLV2 *p)
 typedef enum
 {
    BASS, 
-   TREBLE, 
    MIDDLE, 
+   TREBLE, 
 } PortIndex;
 */
 

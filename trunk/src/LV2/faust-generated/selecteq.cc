@@ -341,95 +341,95 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case QS31_25: 
-		fslider28_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
-		break;
-	case FS31_25: 
-		fslider29_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
-		break;
-	case FS62_5: 
-		fslider26_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
-		break;
-	case FREQ31_25: 
-		fslider27_ = (float*)data; // , 31.0, 2e+01, 2e+04, 1.0 
-		break;
-	case FREQ62_5: 
-		fslider24_ = (float*)data; // , 62.0, 2e+01, 2e+04, 1.0 
-		break;
-	case QS62_5: 
-		fslider25_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
-		break;
 	case QS125: 
 		fslider22_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
-		break;
-	case FS125: 
-		fslider23_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
-		break;
-	case FS250: 
-		fslider20_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
-		break;
-	case FREQ125: 
-		fslider21_ = (float*)data; // , 125.0, 2e+01, 2e+04, 1.0 
-		break;
-	case QS1K: 
-		fslider13_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
-		break;
-	case FREQ1K: 
-		fslider12_ = (float*)data; // , 1e+03, 2e+01, 2e+04, 1.0 
-		break;
-	case FS2K: 
-		fslider11_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
-		break;
-	case QS2K: 
-		fslider10_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
-		break;
-	case FS500: 
-		fslider17_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
-		break;
-	case QS500: 
-		fslider16_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
-		break;
-	case FREQ500: 
-		fslider15_ = (float*)data; // , 5e+02, 2e+01, 2e+04, 1.0 
-		break;
-	case FS1K: 
-		fslider14_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
-		break;
-	case QS250: 
-		fslider19_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
-		break;
-	case FREQ250: 
-		fslider18_ = (float*)data; // , 2.5e+02, 2e+01, 2e+04, 1.0 
-		break;
-	case QS4K: 
-		fslider7_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
-		break;
-	case FREQ4K: 
-		fslider6_ = (float*)data; // , 4e+03, 2e+01, 2e+04, 1.0 
-		break;
-	case FS8K: 
-		fslider5_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
-		break;
-	case QS8K: 
-		fslider4_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
-		break;
-	case FREQ8K: 
-		fslider3_ = (float*)data; // , 8e+03, 2e+01, 2e+04, 1.0 
-		break;
-	case FS16K: 
-		fslider2_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
 		break;
 	case QS16K: 
 		fslider1_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
 		break;
+	case QS1K: 
+		fslider13_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
+		break;
+	case QS250: 
+		fslider19_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
+		break;
+	case QS2K: 
+		fslider10_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
+		break;
+	case QS31_25: 
+		fslider28_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
+		break;
+	case QS4K: 
+		fslider7_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
+		break;
+	case QS500: 
+		fslider16_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
+		break;
+	case QS62_5: 
+		fslider25_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
+		break;
+	case QS8K: 
+		fslider4_ = (float*)data; // , 5e+01, 1.0, 1e+02, 1.0 
+		break;
+	case FREQ125: 
+		fslider21_ = (float*)data; // , 125.0, 2e+01, 2e+04, 1.0 
+		break;
 	case FREQ16K: 
 		fslider0_ = (float*)data; // , 1.6e+04, 2e+01, 2e+04, 1.0 
+		break;
+	case FREQ1K: 
+		fslider12_ = (float*)data; // , 1e+03, 2e+01, 2e+04, 1.0 
+		break;
+	case FREQ250: 
+		fslider18_ = (float*)data; // , 2.5e+02, 2e+01, 2e+04, 1.0 
 		break;
 	case FREQ2K: 
 		fslider9_ = (float*)data; // , 2e+03, 2e+01, 2e+04, 1.0 
 		break;
+	case FREQ31_25: 
+		fslider27_ = (float*)data; // , 31.0, 2e+01, 2e+04, 1.0 
+		break;
+	case FREQ4K: 
+		fslider6_ = (float*)data; // , 4e+03, 2e+01, 2e+04, 1.0 
+		break;
+	case FREQ500: 
+		fslider15_ = (float*)data; // , 5e+02, 2e+01, 2e+04, 1.0 
+		break;
+	case FREQ62_5: 
+		fslider24_ = (float*)data; // , 62.0, 2e+01, 2e+04, 1.0 
+		break;
+	case FREQ8K: 
+		fslider3_ = (float*)data; // , 8e+03, 2e+01, 2e+04, 1.0 
+		break;
+	case FS125: 
+		fslider23_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
+		break;
+	case FS16K: 
+		fslider2_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
+		break;
+	case FS1K: 
+		fslider14_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
+		break;
+	case FS250: 
+		fslider20_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
+		break;
+	case FS2K: 
+		fslider11_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
+		break;
+	case FS31_25: 
+		fslider29_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
+		break;
 	case FS4K: 
 		fslider8_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
+		break;
+	case FS500: 
+		fslider17_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
+		break;
+	case FS62_5: 
+		fslider26_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
+		break;
+	case FS8K: 
+		fslider5_ = (float*)data; // , 0.0, -5e+01, 1e+01, 0.1 
 		break;
 	default:
 		break;
@@ -454,36 +454,36 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   QS31_25, 
-   FS31_25, 
-   FS62_5, 
-   FREQ31_25, 
-   FREQ62_5, 
-   QS62_5, 
    QS125, 
-   FS125, 
-   FS250, 
-   FREQ125, 
-   QS1K, 
-   FREQ1K, 
-   FS2K, 
-   QS2K, 
-   FS500, 
-   QS500, 
-   FREQ500, 
-   FS1K, 
-   QS250, 
-   FREQ250, 
-   QS4K, 
-   FREQ4K, 
-   FS8K, 
-   QS8K, 
-   FREQ8K, 
-   FS16K, 
    QS16K, 
+   QS1K, 
+   QS250, 
+   QS2K, 
+   QS31_25, 
+   QS4K, 
+   QS500, 
+   QS62_5, 
+   QS8K, 
+   FREQ125, 
    FREQ16K, 
+   FREQ1K, 
+   FREQ250, 
    FREQ2K, 
+   FREQ31_25, 
+   FREQ4K, 
+   FREQ500, 
+   FREQ62_5, 
+   FREQ8K, 
+   FS125, 
+   FS16K, 
+   FS1K, 
+   FS250, 
+   FS2K, 
+   FS31_25, 
    FS4K, 
+   FS500, 
+   FS62_5, 
+   FS8K, 
 } PortIndex;
 */
 
