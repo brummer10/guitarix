@@ -888,7 +888,9 @@ void GxMachineRemote::parameter_changed(gx_system::JsonStringParser *jp) {
     } else if (p.isFile()) {
 	cerr << "change file parameter " << p.id() << endl;
     } else if (dynamic_cast<JConvParameter*>(&p) != 0) {
-	dynamic_cast<JConvParameter*>(&p)->readJSON_value(*jp);
+	JConvParameter* pj = dynamic_cast<JConvParameter*>(&p);
+	pj->readJSON_value(*jp);
+	pj->setJSON_value();
     } else {
 	cerr << "change special type parameter " << p.id() << endl;
     }

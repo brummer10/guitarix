@@ -1157,6 +1157,8 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 		    jw.write(v->getInt());
 		} else if (dynamic_cast<JsonString*>(v)) {
 		    jw.write(v->getString());
+		} else if (dynamic_cast<JsonGxJConvSettings*>(v)) {
+		    v->getJConvSettings().writeJSON(jw, 0);
 		}
 	    }
 	    send_notify_end(jw, false);
