@@ -149,6 +149,12 @@ struct CmdConnection::methodnames;
 "get_oscilloscope_info", true
 
 
+/* Convolver */
+
+"reload_impresp_list", false
+"load_impresp_dirs", true
+"read_audio", true
+
 /* Direct Guitar Control */
 
 "get_tuner_switcher_active", true

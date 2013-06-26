@@ -267,6 +267,63 @@ bool PathList::find_dir(std::string* d, const std::string& filename) const {
     return false;
 }
 
+/*****************************************************************
+ ** class DirectoryListing
+ */
+
+IRFileListing::IRFileListing(const std::string& path) {
+    Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(path);
+    if (file->query_exists()) {
+        Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
+              file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
+				       "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
+				       "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
+        Glib::RefPtr<Gio::FileInfo> file_info;
+        while ((file_info = child_enumeration->next_file()) != 0) {
+	    if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-wav") {
+		listing.push_back(
+		    FileName(
+			file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME),
+			file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME)));
+	    }
+        }
+    } else {
+        gx_system::gx_print_error(
+	    "jconvolver",
+	    boost::format(_("Error reading file path %1%")) % path);
+    }
+}
+
+static void list_subdirs(const Glib::RefPtr<Gio::File>& file, std::vector<FileName>& dirs, const Glib::ustring& prefix) {
+    Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
+	file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
+				 "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME);
+    Glib::RefPtr<Gio::FileInfo> file_info;
+    while ((file_info = child_enumeration->next_file()) != 0) {
+	if (file_info->get_file_type() == Gio::FILE_TYPE_DIRECTORY) {
+	    Glib::RefPtr<Gio::File> child = file->get_child(
+		file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME));
+	    dirs.push_back(
+		FileName(
+		    child->get_path(),
+		    prefix+file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME)));
+	    list_subdirs(child, dirs, prefix+"  ");
+	}
+    }
+}
+
+void list_subdirs(PathList pl, std::vector<FileName>& dirs) {
+    for (PathList::iterator i = pl.begin(); i != pl.end(); ++i) {
+	std::string fn = (*i)->get_path();
+	dirs.push_back(FileName(fn, fn));
+	list_subdirs(*i, dirs, "  ");
+    }
+}
+
+/****************************************************************
+ ** class CmdlineOptions
+ */
+
 CmdlineOptions *CmdlineOptions::instance = 0;
 
 static inline const char *shellvar(const char *name) {
@@ -301,6 +358,7 @@ CmdlineOptions::CmdlineOptions()
       old_user_dir(),
       preset_dir(),
       pluginpreset_dir(),
+      user_IR_dir(),
       temp_dir(),
       plugin_dir(),
       sys_IR_dir(GX_SOUND_DIR),
@@ -343,6 +401,7 @@ CmdlineOptions::CmdlineOptions()
     plugin_dir = Glib::build_filename(user_dir, "plugins");
     preset_dir = Glib::build_filename(user_dir, "banks");
     pluginpreset_dir = Glib::build_filename(user_dir, "pluginpresets");
+    user_IR_dir = Glib::build_filename(user_dir, "IR");
     temp_dir = Glib::build_filename(user_dir, "temp");
     const char *tmp = getenv("GUITARIX2JACK_OUTPUTS1");
     if (tmp && *tmp) {
@@ -717,11 +776,12 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(user_dir);
     make_ending_slash(preset_dir);
     make_ending_slash(pluginpreset_dir);
+    make_ending_slash(user_IR_dir);
     make_ending_slash(temp_dir);
     make_ending_slash(plugin_dir);
     make_ending_slash(sys_IR_dir);
 
-    IR_pathlist.add(get_user_dir());
+    IR_pathlist.add(get_user_IR_dir());
     IR_pathlist.add(get_sys_IR_dir());
 
     skin.set_styledir(style_dir);

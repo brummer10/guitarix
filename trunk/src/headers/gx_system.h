@@ -297,6 +297,31 @@ public:
     iterator end() { return dirs.end(); }
 };
 
+
+/*****************************************************************
+ ** class DirectoryListing
+ */
+
+class FileName {
+public:
+    std::string filename;
+    Glib::ustring displayname;
+    FileName(const std::string& filename_, const Glib::ustring& displayname_)
+	: filename(filename_), displayname(displayname_) {}
+};
+
+class IRFileListing {
+public:
+private:
+    std::vector<FileName> listing;
+public:
+    IRFileListing(const std::string& path);
+    ~IRFileListing() {}
+    std::vector<FileName>& get_listing() { return listing; }
+};
+
+void list_subdirs(PathList pl, std::vector<FileName>& dirs);
+
 /****************************************************************
  ** CmdlineParser
  */
@@ -332,6 +357,7 @@ private:
     string old_user_dir;
     string preset_dir;
     string pluginpreset_dir;
+    string user_IR_dir;
     string temp_dir;
     string plugin_dir;
     string sys_IR_dir;
@@ -388,6 +414,7 @@ public:
     string get_preset_filepath(const string& basename) const { return preset_dir + basename; }
     string get_plugin_filepath(const string& basename) const { return plugin_dir + basename; }
     string get_factory_filepath(const string& basename) const { return factory_dir + basename; }
+    string get_user_ir_filepath(const string& basename) const { return user_IR_dir + basename; }
     string get_temp_filepath(const string& basename) const { return temp_dir + basename; }
     string get_pluginpreset_filepath(const string& id, bool factory) const {
 	return (factory ? factory_dir : pluginpreset_dir) + id; }
@@ -396,6 +423,7 @@ public:
     const string& get_plugin_dir() const { return plugin_dir; }
     const string& get_preset_dir() const { return preset_dir; }
     const string& get_pluginpreset_dir() const { return pluginpreset_dir; }
+    const string& get_user_IR_dir() const { return user_IR_dir; }
     const string& get_temp_dir() const { return temp_dir; }
     const string& get_factory_dir() const { return factory_dir; }
     const string& get_sys_IR_dir() const { return sys_IR_dir; }

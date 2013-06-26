@@ -39,6 +39,7 @@ public:
     virtual double getFloat() const;
     virtual int getInt() const;
     virtual const Glib::ustring& getString() const;
+    virtual const gx_engine::GxJConvSettings& getJConvSettings() const;
 };
 
 class JsonArray: public std::vector<JsonValue*> {
@@ -59,6 +60,8 @@ public:
 private:
     MyService& serv;
     Glib::RefPtr<Gio::SocketConnection> connection;
+    std::list<std::string> outgoing;
+    unsigned int current_offset;
     gx_system::JsonStringParser jp;
     bool parameter_change_notify;
     bool midi_config_mode;
@@ -77,8 +80,8 @@ private:
 private:
     void exec(Glib::ustring cmd);
     void call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
-    void notify(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
-    bool request(gx_system::JsonParser& jp, gx_system::JsonWriter& jw, bool batch_start);
+    void notify(gx_system::JsonStringWriter& jw, const methodnames *mn, JsonArray& params);
+    bool request(gx_system::JsonParser& jp, gx_system::JsonStringWriter& jw, bool batch_start);
     void write_error(gx_system::JsonWriter& jw, int code, const char *message);
     void write_error(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { write_error(jw, code, message.c_str()); }
     void error_response(gx_system::JsonWriter& jw, int code, const char *message);
@@ -106,7 +109,8 @@ private:
 public:
     CmdConnection(MyService& serv, const Glib::RefPtr<Gio::SocketConnection>& connection_);
     ~CmdConnection();
-    bool on_data(Glib::IOCondition cond);
+    bool on_data_in(Glib::IOCondition cond);
+    bool on_data_out(Glib::IOCondition cond);
     bool get_parameter_change_notify() { return parameter_change_notify; }
     void send(gx_system::JsonStringWriter& jw);
     friend class UiBuilderVirt;

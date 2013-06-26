@@ -1594,6 +1594,8 @@ void ParamMap::writeJSON(gx_system::JsonWriter& jw) {
 	    jw.write("File");
 	} else if (p->isString()) {
 	    jw.write("String");
+	} else if (dynamic_cast<JConvParameter*>(p) != 0) {
+	    jw.write("JConv");
 	} else {
 #ifndef NDEBUG
 	    cerr << "skipping " << p->id() << endl;
@@ -1623,6 +1625,8 @@ void ParamMap::readJSON(gx_system::JsonParser& jp) {
 	    insert(new FileParameter(jp));
 	} else if (jp.current_value() == "String") {
 	    insert(new StringParameter(jp));
+	} else if (jp.current_value() == "JConv") {
+	    insert(new JConvParameter(jp));
 	} else {
 	    gx_system::gx_print_warning(
 		"ParamMap", Glib::ustring::compose("unknown parameter type: %1", jp.current_value()));

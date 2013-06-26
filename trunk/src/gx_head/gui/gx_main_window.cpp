@@ -1677,7 +1677,10 @@ public:
 };
 
 void JConvPluginUI::on_plugin_preset_popup() {
-    Glib::ustring name = Glib::path_get_basename(main.get_machine().conv_getIRFile(get_id()));
+    gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(
+	&main.get_machine().get_parameter(get_id()));
+    assert(jcp);
+    Glib::ustring name = jcp->get_value().getIRFile();
     Glib::ustring::size_type n = name.find_last_of('.');
     if (n != Glib::ustring::npos) {
 	name.erase(n);

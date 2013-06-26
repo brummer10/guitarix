@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
+ * Copyright (C) 2009, 2010, 2013 Hermann Meyer, James Warden, Andreas Degert
  * Copyright (C) 2011 Pete Shorthose
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,12 +30,21 @@ namespace gx_jconv {
 ** static class variables and functions
 */
 
-IRWindow *IRWindow::create(gx_engine::ConvolverAdapter& convolver,
+IRWindow *IRWindow::create(const std::string& unit_id,
 			   Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine,
 			   Glib::RefPtr<Gtk::AccelGroup> accels, int nchan) {
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
 	machine.get_options().get_builder_filepath(nchan == 1 ? "iredit_mono.glade" : "iredit.glade"), &machine);
-    return new IRWindow(bld, convolver, icon, machine, accels, nchan);
+    Gtk::Widget *w;
+    if (!machine.get_jack()) {
+	bld->find_widget("file_selector_box", w);
+	w->hide();
+	bld->find_widget("dir_combo:rack_button", w);
+	w->show();
+    }
+    gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter(unit_id+".convolver"));
+    assert(jcp);
+    return new IRWindow(bld, jcp, icon, machine, accels, nchan);
 }
 
 /*
@@ -59,6 +68,26 @@ void IRWindow::init_connect() {
     wcombo->signal_changed().connect(
 	sigc::mem_fun(*this, &IRWindow::on_combo_changed));
     wcombo->set_model(model);
+
+    builder->find_widget("dir_combo:rack_button", dircombo);
+    if (dircombo->is_visible()) {
+	Gtk::TreeModelColumnRecord rec;
+	Gtk::TreeModelColumn<std::string> fname_col;
+	rec.add(fname_col);
+	Gtk::TreeModelColumn<Glib::ustring> dname_col;
+	rec.add(dname_col);
+	Glib::RefPtr<Gtk::ListStore> st = Gtk::ListStore::create(rec);
+	std::vector<gx_system::FileName> dirs;
+	machine.load_impresp_dirs(dirs);
+	for (std::vector<gx_system::FileName>::iterator i = dirs.begin(); i != dirs.end(); ++i) {
+	    Gtk::TreeIter j = st->append();
+	    j->set_value(0, i->displayname);
+	    j->set_value(1, i->filename);
+	}
+	dircombo->set_model(st);
+	dircombo->signal_changed().connect(
+	    sigc::mem_fun(*this, &IRWindow::on_dircombo_changed));
+    }
 
     if (nchan != 1) {
 	builder->find_widget("left", wLeft);
@@ -158,7 +187,7 @@ void IRWindow::init_connect() {
 	sigc::mem_fun(this, &IRWindow::on_key_press_event));
 }
 
-IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::ConvolverAdapter& convolver_,
+IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::JConvParameter *jcp_,
 		   Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine_,
 		   Glib::RefPtr<Gtk::AccelGroup> accels, int nchan_)
     : machine(machine_),
@@ -168,7 +197,7 @@ IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::Convol
       audio_buffer(0),
       audio_size(0),
       audio_chan(0),
-      convolver(convolver_),
+      jcp(jcp_),
       gtk_window(0),
       autogain_conn(),
       nchan(nchan_),
@@ -181,8 +210,10 @@ IRWindow::IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld, gx_engine::Convol
     init_connect();
     gtk_window->set_icon(icon);
     gtk_window->add_accel_group(accels);
-    convolver.signal_settings_changed().connect(
+    jcp->signal_changed().connect(
 	sigc::mem_fun(this, &IRWindow::load_state));
+    machine.signal_impresp_list().connect(
+	sigc::mem_fun(this, &IRWindow::on_enumerate));
 
     // reset display
     file_changed("", 0, 0, 0, "");
@@ -244,64 +275,42 @@ void IRWindow::file_changed(Glib::ustring filename, int rate, int length,
     wFilename->set_text(Glib::path_get_dirname(filename));
 }
 
-void IRWindow::load_state() {
-    string path = convolver.getFullIRPath();
+void IRWindow::load_state(const gx_engine::GxJConvSettings* jcs) {
+    string path = jcs->getFullIRPath();
     if (path.empty()) {
 	wIredit->set_ir_data(0, 0, 0, 0);
         return;
     }
-    const gx_engine::GxJConvSettings& jcset = convolver.get_jcset();
     gx_engine::GxJConvSettings jc;
     make_state(jc);
-    if (jc == jcset) {
+    if (jc == *jcs) {
 	return;
     }
     autogain_conn.block();
-    wGain_correction->set_active(jcset.getGainCor());
+    wGain_correction->set_active(jcs->getGainCor());
     autogain_conn.unblock();
-    load_data(path, jcset.getOffset(), jcset.getDelay(), jcset.getLength(), jcset.getGainline());
-    Glib::signal_idle().connect_once(
-	sigc::mem_fun(this, &IRWindow::on_enumerate));
+    load_data(path, jcs->getOffset(), jcs->getDelay(), jcs->getLength(), jcs->getGainline());
+    reload_impresp_list();
 }
 
 Gainline IRWindow::gain0 = Gainline();
 
 bool IRWindow::load_data(Glib::ustring f, int offset, int delay, int length, const Gainline& gain) {
     filename = f;
-    gx_engine::Audiofile audio;
-    if (audio.open_read(filename)) {
-        gx_system::gx_print_error("jconvolver", "Unable to open '" + filename + "'");
-	audio_size = audio_chan = 0;
-        return false;
-    }
-    audio_size = audio.size();
-    audio_chan = audio.chan();
-    const unsigned int limit = 2000000; // arbitrary size limit
-    if (audio_size > limit) {
-        gx_system::gx_print_warning(
-            "jconvolver", (boost::format(_("too many samples (%1%), truncated to %2%"))
-                           % audio_size % limit).str());
-        audio_size = limit;
-    }
-    if (audio_size * audio_chan == 0) {
-        gx_system::gx_print_error("jconvolver", "No samples found");
-        return false;
-    }
-    float *buffer = new float[audio_size*audio_chan];
-    if (audio.read(buffer, audio_size) != static_cast<int>(audio_size)) {
-	delete[] buffer;
-        gx_system::gx_print_error("jconvolver", "Error reading file");
-        return false;
+    int audio_type, audio_form, audio_rate;
+    float *buffer;
+    if (!machine.read_audio(filename, &audio_size, &audio_chan, &audio_type, &audio_form, &audio_rate, &buffer)) {
+	return false;
     }
     Glib::ustring enc;
-    switch (audio.type()) {
+    switch (audio_type) {
     case gx_engine::Audiofile::TYPE_OTHER: enc = "???"; break;
     case gx_engine::Audiofile::TYPE_CAF: enc = "CAF"; break;
     case gx_engine::Audiofile::TYPE_WAV: enc = "WAV"; break;
     case gx_engine::Audiofile::TYPE_AMB: enc = "AMB"; break;
     }
     enc += " ";
-    switch (audio.form()) {
+    switch (audio_form) {
     case gx_engine::Audiofile::FORM_OTHER: enc += "?"; break;
     case gx_engine::Audiofile::FORM_16BIT: enc += "16 bit"; break;
     case gx_engine::Audiofile::FORM_24BIT: enc += "24 bit"; break;
@@ -310,11 +319,11 @@ bool IRWindow::load_data(Glib::ustring f, int offset, int delay, int length, con
     }
     delete[] audio_buffer;
     audio_buffer = buffer;
-    file_changed(filename, audio.rate(), audio_size, audio_chan, enc);
+    file_changed(filename, audio_rate, audio_size, audio_chan, enc);
     if (!length) {
 	length = audio_size;
     }
-    wIredit->set_state(audio_buffer, audio_chan, audio_size, audio.rate(), offset, offset+length, delay-offset, gain);
+    wIredit->set_state(audio_buffer, audio_chan, audio_size, audio_rate, offset, offset+length, delay-offset, gain);
     if (wSum) {
 	wSum->set_active(true);
     }
@@ -370,10 +379,10 @@ void IRWindow::make_state(gx_engine::GxJConvSettings& jc) {
     jc.setGainCor(wGain_correction->get_active());
 }
 
-bool IRWindow::save_state() {
+void IRWindow::save_state() {
     gx_engine::GxJConvSettings jc;
     make_state(jc);
-    return convolver.set(jc);
+    jcp->set(jc);
 }
 
 /**
@@ -386,7 +395,7 @@ void IRWindow::on_combo_changed() {
         Gtk::TreeModel::Row row = *iter;
         if (row) {
             std::string fname = row[columns.filename];
-	    if (fname != convolver.getIRFile()) {
+	    if (fname != jcp->get_value().getIRFile()) {
 		load_data(Glib::build_filename(current_combo_dir, fname));
 		save_state();
             }
@@ -394,13 +403,23 @@ void IRWindow::on_combo_changed() {
     }
 }
 
-// reload the treelist for the combobox
-void IRWindow::on_enumerate() {
-    std::string path = convolver.getIRDir();
+void IRWindow::on_dircombo_changed() {
+    Gtk::TreeModel::iterator iter = dircombo->get_active();
+    if (iter) {
+	std::string dir;
+	iter->get_value(1, dir);
+	if (dir != current_combo_dir) {
+	    machine.reload_impresp_list(dir);
+        }
+    }
+}
+
+void IRWindow::reload_impresp_list() {
+    std::string path = jcp->get_value().getIRDir();
     if (path == "~/") {  // cruft in old files
 	path = getenv("HOME");
     }
-    string irfile = convolver.get_jcset().getIRFile();
+    string irfile = jcp->get_value().getIRFile();
     if (current_combo_dir == path) {
 	Gtk::TreeNodeChildren ch = model->children();
 	for (Gtk::TreeIter i = ch.begin(); i != ch.end(); ++i) {
@@ -410,41 +429,32 @@ void IRWindow::on_enumerate() {
 	}
 	return;
     }
-    // directory changed: reload
+    machine.reload_impresp_list(path);
+}
+
+// reload the treelist for the combobox
+void IRWindow::on_enumerate(const std::string& path, const std::vector<gx_system::FileName>& l) {
+    if (current_combo_dir == path) {
+	return;
+    }
     current_combo_dir = path;
+    string irfile = jcp->get_value().getIRFile();
     model->clear();
-    Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(current_combo_dir);
-    if (file->query_exists()) {
-        Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
-              file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
-				       "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
-				       "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
-        Glib::RefPtr<Gio::FileInfo> file_info;
-        // now populate the model
-	Gtk::TreeIter j;
-	wcombo->unset_model();
-	model->set_sort_column(Gtk::TreeSortable::DEFAULT_UNSORTED_COLUMN_ID, Gtk::SORT_ASCENDING);
-        while ((file_info = child_enumeration->next_file()) != 0) {
-	    if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-wav") {
-		Gtk::TreeIter i = model->append();
-		std::string fname = file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME);
-		Glib::ustring displayname = file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME);
-		i->set_value(columns.displayname, displayname);
-		i->set_value(columns.filename, fname);
-		if (fname == irfile ) {
-		    j = i;
-		}
-	    }
-        }
-	model->set_sort_column(columns.displayname, Gtk::SORT_ASCENDING);
-	wcombo->set_model(model);
-	if (j) {
-	    wcombo->set_active(j);
+    Gtk::TreeIter j;
+    wcombo->unset_model();
+    model->set_sort_column(Gtk::TreeSortable::DEFAULT_UNSORTED_COLUMN_ID, Gtk::SORT_ASCENDING);
+    for (std::vector<gx_system::FileName>::const_iterator f = l.begin(); f != l.end(); ++f) {
+	Gtk::TreeIter i = model->append();
+	i->set_value(columns.displayname, f->displayname);
+	i->set_value(columns.filename, f->filename);
+	if (f->filename == irfile) {
+	    j = i;
 	}
-    } else {
-        gx_system::gx_print_error(
-	    "jconvolver",
-	    boost::format(_("Error reading file path %1%")) % current_combo_dir);
+    }
+    model->set_sort_column(columns.displayname, Gtk::SORT_ASCENDING);
+    wcombo->set_model(model);
+    if (j) {
+	wcombo->set_active(j);
     }
 }
 
@@ -494,10 +504,10 @@ void IRWindow::on_reset_clicked() {
     jc.setGainline(gain0);
     jc.setGain(calc_normalized_gain(0, audio_size, gain0));
     jc.setGainCor(true);
-    convolver.set(jc);
+    jcp->set(jc);
     const char *params[] = {"jconv.balance", "jconv.diff_delay", "jconv.gain", "jconv.wet_dry", 0};
     for (const char **p = params; *p; ++p) {
-	gx_engine::Parameter& pm = convolver.get_parameter_map()[*p];
+	gx_engine::Parameter& pm = machine.get_parameter(*p);
 	pm.stdJSON_value();
 	pm.setJSON_value();
     }
@@ -561,8 +571,7 @@ void IRWindow::on_open() {
     Gtk::RecentManager::get_default()->add_item(d.get_uri(), data);
     load_data(filename);
     save_state();
-    Glib::signal_idle().connect_once(
-	sigc::mem_fun(this, &IRWindow::on_enumerate));
+    reload_impresp_list();
 }
 
 void IRWindow::on_home() {
@@ -606,7 +615,7 @@ void IRWindow::on_ms_length_changed() {
 }
 
 void IRWindow::on_apply_button_clicked() {
-    convolver.plugin.set_on_off(true);
+    machine.pluginlist_lookup_plugin(jcp->id().c_str())->set_on_off(true);
     save_state();
 }
 
@@ -635,7 +644,7 @@ void IRWindow::on_preset_popup_clicked() {
 	name.erase(n);
     }
     save_state();
-    new PluginPresetPopup(convolver.plugin.get_pdef(), machine, name);
+    new PluginPresetPopup(machine.pluginlist_lookup_plugin(jcp->id().c_str())->get_pdef(), machine, name);
 }
 
 void IRWindow::on_help_clicked() {
@@ -658,7 +667,7 @@ void IRWindow::reload_and_show() {
     if (gtk_window->get_visible() && !(gtk_window->get_window()->get_state() & Gdk::WINDOW_STATE_ICONIFIED)) {
 	gtk_window->hide();
     } else {
-	load_state();
+	load_state(&jcp->get_value());
 	gtk_window->present();
     }
 }

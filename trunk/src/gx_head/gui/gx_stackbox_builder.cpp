@@ -278,12 +278,12 @@ void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWind
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
 }
 
-void StackBoxBuilder::set_convolver_filename() {
-    convolver_filename_label.set_label(machine.conv_getIRFile("jconv"));
+void StackBoxBuilder::set_convolver_filename(const gx_engine::GxJConvSettings *jcs) {
+    convolver_filename_label.set_label(jcs->getIRFile());
 }
 
-void StackBoxBuilder::set_convolver_mono_filename() {
-    convolver_mono_filename_label.set_label(machine.conv_getIRFile("jconv_mono"));
+void StackBoxBuilder::set_convolver_mono_filename(const gx_engine::GxJConvSettings *jcs) {
+    convolver_mono_filename_label.set_label(jcs->getIRFile());
 }
 
 void StackBoxBuilder::openSetLabelBox() {
@@ -298,8 +298,10 @@ void StackBoxBuilder::openSetLabelBox() {
     convolver_filename_label.modify_font(font);
     box->pack_start(convolver_filename_label, false, false, 0);
     box->show_all();
-    convolver_filename_label.set_label(machine.conv_getIRFile("jconv"));
-    machine.signal_conv_settings_changed("jconv").connect(
+    gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter("jconv.convolver"));
+    assert(jcp);
+    convolver_filename_label.set_label(jcp->get_value().getIRFile());
+    jcp->signal_changed().connect(
 	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_filename));
     fBox.box_pack_start(*manage(box), false);
     fBox.push(*box);
@@ -317,8 +319,10 @@ void StackBoxBuilder::openSetMonoLabelBox() {
     convolver_mono_filename_label.modify_font(font);
     box->pack_start(convolver_mono_filename_label, true, false, 0);
     box->show_all();
-    convolver_mono_filename_label.set_label(machine.conv_getIRFile("jconv_mono"));
-    machine.signal_conv_settings_changed("jconv_mono").connect(
+    gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter("jconv_mono.convolver"));
+    assert(jcp);
+    convolver_mono_filename_label.set_label(jcp->get_value().getIRFile());
+    jcp->signal_changed().connect(
 	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_mono_filename));
     fBox.box_pack_start(*manage(box));
     fBox.push(*box);

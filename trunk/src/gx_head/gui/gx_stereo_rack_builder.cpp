@@ -279,8 +279,7 @@ void StackBoxBuilder::make_rackbox_tonemodul() {
 }
 
 void StackBoxBuilder::make_rackbox_jconv() {
-    if (!&machine.get_stereo_convolver()) return; //FIXME remote UI doesn't yet support convolver
-    static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(machine.get_stereo_convolver(), window_icon, machine, accels, 2);
+    static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create("jconv", window_icon, machine, accels, 2);
     openHorizontalhideBox("");
 	create_master_slider("jconv.wet_dry", _("Dry/Wet"));
     openSpaceBox("");

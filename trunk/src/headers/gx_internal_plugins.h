@@ -290,9 +290,9 @@ class GxJConvSettings {
 
  public:
     void readJSON(gx_system::JsonParser& jp,
-		  const gx_system::PathList& search_path);
+		  const gx_system::PathList *search_path);
     void writeJSON(gx_system::JsonWriter& w,
-		   const gx_system::PathList& search_path) const;
+		   const gx_system::PathList *search_path) const;
 };
 
 class ConvolverAdapter;
@@ -300,18 +300,22 @@ class ConvolverAdapter;
 template<>
 class ParameterV<GxJConvSettings>: public Parameter {
 private:
+    const gx_system::PathList *searchpath;
     GxJConvSettings json_value;
     GxJConvSettings *value;
     GxJConvSettings std_value;
-    ConvolverAdapter &conv;
+    GxJConvSettings value_storage;
+    sigc::signal<void, const GxJConvSettings*> changed;
 public:
-    ParameterV(const string& id, ConvolverAdapter &conv_, GxJConvSettings *v);
+    ParameterV(const string& id, ConvolverAdapter &conv, GxJConvSettings *v);
+    ParameterV(gx_system::JsonParser& jp);
     ~ParameterV();
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
+    sigc::signal<void, const GxJConvSettings*>& signal_changed() { return changed; }
     static ParameterV<GxJConvSettings> *insert_param(
 	ParamMap &pmap, const string& id, ConvolverAdapter &conv, GxJConvSettings *v);
     bool set(const GxJConvSettings& val) const;
     const GxJConvSettings& get_value() const { return *value; }
-    virtual void *zone();
     virtual void stdJSON_value();
     virtual bool on_off_value();
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
@@ -327,7 +331,7 @@ typedef ParameterV<GxJConvSettings> JConvParameter;
  ** class ConvolverAdapter
  */
 
-class ConvolverAdapter: protected PluginDef {
+class ConvolverAdapter: protected PluginDef, public sigc::trackable {
 protected:
     GxConvolver conv;
     boost::mutex activate_mutex;
@@ -339,7 +343,6 @@ protected:
     bool activated;
     // wrapper for the rack order function pointers
     void change_buffersize(unsigned int size);
-    sigc::signal<void> settings_changed;
     GxJConvSettings jcset;
     JConvParameter *jcp;
 public:
@@ -350,7 +353,6 @@ public:
     ~ConvolverAdapter();
     void restart();
     bool conv_start();
-    inline sigc::signal<void>& signal_settings_changed() { return settings_changed; }
     inline const std::string& getIRFile() const { return jcset.getIRFile(); }
     inline void set_sync(bool val) { conv.set_sync(val); }
     inline std::string getFullIRPath() const { return jcset.getFullIRPath(); }

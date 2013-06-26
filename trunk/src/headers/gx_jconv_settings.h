@@ -43,7 +43,7 @@ class IRWindow: public sigc::trackable {
     float *audio_buffer;
     unsigned int audio_size;
     int audio_chan;
-    gx_engine::ConvolverAdapter& convolver;
+    gx_engine::JConvParameter *jcp;
     Gtk::Window* gtk_window;
     sigc::connection autogain_conn;
     int nchan;
@@ -58,9 +58,9 @@ class IRWindow: public sigc::trackable {
                       int channels, Glib::ustring format);
     static Gainline gain0;
     bool load_data(Glib::ustring filename, int offset = 0, int delay = 0, int length = 0, const Gainline& gain = gain0);
-    void load_state();
+    void load_state(const gx_engine::GxJConvSettings* jcp);
     void make_state(gx_engine::GxJConvSettings& jc);
-    bool save_state();
+    void save_state();
     void set_GainCor();
     double calc_normalized_gain(int offset, int length, const Gainline& points);
     void destroy_self();
@@ -119,11 +119,12 @@ class IRWindow: public sigc::trackable {
     Gtk::Window *wHelp;
 
     void on_preset_popup_clicked();
-    void on_enumerate();
+    void reload_impresp_list();
+    void on_enumerate(const std::string& path, const std::vector<gx_system::FileName>& l);
     bool on_key_press_event(GdkEventKey *event);
 
     void init_connect();
-    IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::ConvolverAdapter &convolver,
+    IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::JConvParameter *jcp,
 	     Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine,
 	     Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
     ~IRWindow();
@@ -139,9 +140,11 @@ class IRWindow: public sigc::trackable {
     Glib::RefPtr<Gtk::TreeStore> model;
     std::string current_combo_dir;
     void on_combo_changed();
+    void on_dircombo_changed();
+    Gtk::ComboBox *dircombo;
 public:
     void reload_and_show();
-    static IRWindow *create(gx_engine::ConvolverAdapter& convolver,
+    static IRWindow *create(const std::string& unit_id,
 			    Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine,
 			    Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
     friend class JConvPopup;
