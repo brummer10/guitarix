@@ -42,6 +42,9 @@ def build(bld):
         'chorus.dsp',
         'stereodelay.dsp',
         'stereoecho.dsp',
+        'phaser_mono.dsp',
+        'phaser.dsp',
+        'crybaby.dsp',
         ]
 
     # activate mem allocation internal double
@@ -55,7 +58,6 @@ def build(bld):
     sources_plugin = [
         'low_high_pass.dsp',
         'selecteq.dsp',
-        'crybaby.dsp',
         'autowah.dsp',
         'gx_distortion.dsp',
         'impulseresponse.dsp',
@@ -65,13 +67,11 @@ def build(bld):
         'freeverb.dsp',
         'biquad.dsp',
         'tremolo.dsp',
-        'phaser_mono.dsp',
         'chorus_mono.dsp',
         'flanger_mono.dsp',
         'gx_feedback.dsp',
         'flanger.dsp',
         'moog.dsp',
-        'phaser.dsp',
         'gx_ampmodul.dsp',
         'tonecontroll.dsp',
         'stereoverb.dsp',
