@@ -78,6 +78,12 @@ class JsonWriter {
     void write(unsigned int i, bool nl = false);
     void write(const char* p, bool nl = false);
     void write(const string& s, bool nl = false) { write(s.c_str(), nl); }
+    void write_kv(const char *key, float v) { write_key(key); write(v, true); }
+    void write_kv(const char *key, double v) { write_key(key); write(v, true); }
+    void write_kv(const char *key, int i) { write_key(key); write(i, true); }
+    void write_kv(const char *key, unsigned int i) { write_key(key); write(i, true); }
+    void write_kv(const char *key, const char* p) { write_key(key); write(p, true); }
+    void write_kv(const char *key, const std::string& s) { write_key(key); write(s, true); }
     void write_lit(const string& s, bool nl = false);
     void begin_object(bool nl = false);
     void end_object(bool nl = false);
@@ -149,6 +155,20 @@ class JsonParser {
         b >> d;
         return d;
     }
+    bool read_kv(const char *key, float& v);
+    bool read_kv(const char *key, double& v);
+    bool read_kv(const char *key, int& i);
+    bool read_kv(const char *key, unsigned int& i);
+    bool read_kv(const char *key, std::string& s);
+    bool read_kv(const char *key, Glib::ustring& s);
+    template<class T> inline bool read_kv(const char *key, T& v) {
+	int i;
+	if (read_kv(key, i)) {
+	    v = static_cast<T>(i);
+	    return true;
+	}
+	return false;
+    }
     void copy_object(JsonWriter& jw);
     void skip_object();
     void throw_unexpected(token expect);
@@ -169,6 +189,14 @@ class JsonParser {
     void read_next();
 };
 
+
+class JsonSubParser: public JsonParser {
+private:
+    streampos position;
+public:
+    JsonSubParser(JsonParser& jp, streampos pos);
+    ~JsonSubParser();
+};
 
 class JsonStringParser: public JsonParser {
 private:

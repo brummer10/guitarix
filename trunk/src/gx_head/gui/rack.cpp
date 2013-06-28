@@ -141,10 +141,10 @@ void PluginUI::display(bool v, bool animate) {
     // builder.
     plugin->set_box_visible(v);
     if (v) {
-	main.get_machine().insert_rack_unit(get_id(), "", get_type() == PLUGIN_TYPE_STEREO);
+	main.get_machine().insert_rack_unit(get_id(), "", get_type());
 	show(animate);
     } else {
-	main.get_machine().remove_rack_unit(get_id(), get_type() == PLUGIN_TYPE_STEREO);
+	main.get_machine().remove_rack_unit(get_id(), get_type());
 	hide(animate);
     }
 }
@@ -1214,8 +1214,8 @@ RackContainer::RackContainer(PluginType tp_, MainWindow& main_)
     show_all();
 }
 
-void RackContainer::unit_order_changed(bool stereo) {
-    if (stereo == (tp == PLUGIN_TYPE_STEREO)) {
+void RackContainer::unit_order_changed(PluginType type) {
+    if (tp == type) {
 	check_order();
     }
 }
@@ -1460,7 +1460,7 @@ void RackContainer::hide_entries() {
 
 void RackContainer::reorder(const std::string& name, unsigned int pos) {
     std::vector<RackBox*> l = get_children();
-    main.get_machine().insert_rack_unit(name, ((pos >= l.size()) ? "" : l[pos]->get_id()), tp == PLUGIN_TYPE_STEREO);
+    main.get_machine().insert_rack_unit(name, ((pos >= l.size()) ? "" : l[pos]->get_id()), tp);
     check_order();
 }
 
@@ -1502,7 +1502,7 @@ void RackContainer::set_config_mode(bool mode) {
 }
 
 void RackContainer::check_order() {
-    const std::vector<std::string>& ol = main.get_machine().get_rack_unit_order(tp == PLUGIN_TYPE_STEREO);
+    const std::vector<std::string>& ol = main.get_machine().get_rack_unit_order(tp);
     bool in_order = true;
     std::set<std::string> unit_set(ol.begin(), ol.end());
     rackbox_list l = get_children();

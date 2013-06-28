@@ -7,7 +7,6 @@
 
 enum jsonrpc_method {
 	RPCM_getversion,
-	RPCM_help,
 	RPNM_shutdown,
 	RPNM_listen,
 	RPNM_unlisten,
@@ -77,6 +76,12 @@ enum jsonrpc_method {
 	RPNM_reload_impresp_list,
 	RPCM_load_impresp_dirs,
 	RPCM_read_audio,
+	RPCM_load_ladspalist,
+	RPCM_ladspaloader_load,
+	RPCM_ladspaloader_get_plugins,
+	RPCM_ladspaloader_update_instance,
+	RPCM_ladspaloader_update_plugins,
+	RPNM_ladspaloader_set_plugins,
 	RPCM_get_tuner_switcher_active,
 	RPNM_tuner_switcher_activate,
 	RPNM_tuner_switcher_deactivate,

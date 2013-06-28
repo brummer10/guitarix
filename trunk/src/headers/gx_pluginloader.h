@@ -74,6 +74,7 @@ public:
     inline int position_weight() { return get_effect_post_pre() ? get_position() : get_position() + POST_WEIGHT; }
     void register_vars(ParamMap& param, EngineControl& seq);
     void copy_position(const Plugin& plugin);
+    friend class PluginListBase;
     friend class PluginList;
     friend void printlist(const char *title, const list<Plugin*>& modules, bool header);
 };
@@ -142,6 +143,8 @@ public:
     void readJSON(gx_system::JsonParser& jp, ParamMap& pmap);
     pluginmap::iterator begin() { return pmap.begin(); }
     pluginmap::iterator end() { return pmap.end(); }
+    int insert_plugin(Plugin *pvars);
+    void delete_module(Plugin *pl);
 };
 
 class PluginList: public PluginListBase {
@@ -155,10 +158,9 @@ public:
     int load_from_path(const string& path, PluginPos pos = PLUGIN_POS_RACK);
     int load_library(const string& path, PluginPos pos = PLUGIN_POS_RACK);
     int add(Plugin *pl, PluginPos pos, int flags);
-    int add(PluginDef *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
+    Plugin *add(PluginDef *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int add(PluginDef **p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
-    void delete_module(Plugin *pl, ParamMap& param, ParameterGroups& groups);
     int check_version(PluginDef *p);
     void registerGroup(PluginDef *pd, ParameterGroups& groups);
     void registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& preg);

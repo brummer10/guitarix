@@ -164,20 +164,15 @@ PresetWindow::~PresetWindow() {
 }
 
 void PresetWindow::on_selection_changed() {
-    Glib::ustring selected_bank;
     Gtk::TreeIter it = bank_treeview->get_selection()->get_selected();
-    if (it) {
-	selected_bank = it->get_value(bank_col.name);
-    }
-    if (selected_bank == machine.get_current_bank()) {
-	Glib::ustring selected_preset;
-	Gtk::TreeIter it = preset_treeview->get_selection()->get_selected();
-	if (it) {
-	    selected_preset = it->get_value(pstore->col.name);
-	}
-	if (selected_preset == machine.get_current_name()) {
-	    gdk_window_invalidate_rect(bank_treeview->get_window()->gobj(), 0, true);
-	    gdk_window_invalidate_rect(preset_treeview->get_window()->gobj(), 0, true);
+    if (it && it->get_value(bank_col.name) == machine.get_current_bank()) {
+	it = preset_treeview->get_selection()->get_selected();
+	if (it && it->get_value(pstore->col.name) == machine.get_current_name()) {
+	    Glib::RefPtr<Gdk::Window> w = bank_treeview->get_window();
+	    if (w) { // might not yet be initialized
+		gdk_window_invalidate_rect(w->gobj(), 0, true);
+		gdk_window_invalidate_rect(preset_treeview->get_window()->gobj(), 0, true);
+	    }
 	    return;
 	}
     }

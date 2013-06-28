@@ -273,27 +273,41 @@ void GxEngine::load_static_plugins() {
 
 void GxEngine::ladspaloader_update_plugins(
     const std::vector<Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-    std::vector<PluginDef*>& pv) {
+    std::vector<Plugin*>& pv) {
     // update engine for plugins to be removed
     update_module_lists();
     mono_chain.release();
     stereo_chain.release();
     // remove plugins
     for (std::vector<Plugin*>::const_iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
-	pluginlist.delete_module(*i, pmap, get_group_table());
+	pluginlist.unregisterPlugin(*i, pmap, get_group_table());
+	pluginlist.delete_module(*i);
     }
     // add new plugins (engine)
-    for (LadspaLoader::pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
+    for (LadspaLoader::pluginarray::const_iterator i = ml.begin(); i != ml.end(); ++i) {
 	if (ladspaloader.find((*i)->UniqueID) == ladspaloader.end()) {
 	    PluginDef *plugin = ladspaloader.create(*i);
 	    if (plugin) {
-		pluginlist.add(plugin);
-		pv.push_back(plugin);
+		Plugin *p = pluginlist.add(plugin);
+		pluginlist.registerPlugin(p, get_param(), get_group_table());
+		plugin->set_samplerate(get_samplerate(), plugin);
+		pv.push_back(p);
 	    }
 	}
     }
     // update ladspaloader with new list
     ladspaloader.set_plugins(ml);
+}
+
+void GxEngine::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) {
+    ladspaloader.update_instance(pdef, pdesc);
+    if (pdef->register_params) {
+	pmap.set_replace_mode(true);
+	gx_engine::ParamRegImpl preg(&pmap);
+	preg.plugin = pdef;
+	pdef->register_params(preg);
+	pmap.set_replace_mode(false);
+    }
 }
 
 } /* end of gx_engine namespace */

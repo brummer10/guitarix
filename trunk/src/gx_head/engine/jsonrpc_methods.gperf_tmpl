@@ -44,7 +44,6 @@ struct CmdConnection::methodnames;
 /* Guitarix Server */
 
 "getversion", true
-"help", true
 "shutdown", false
 "listen", false
 "unlisten", false
@@ -154,6 +153,17 @@ struct CmdConnection::methodnames;
 "reload_impresp_list", false
 "load_impresp_dirs", true
 "read_audio", true
+
+
+/* Ladspa Loader */
+
+"load_ladspalist", true
+"ladspaloader_load", true
+"ladspaloader_get_plugins", true
+"ladspaloader_update_instance", true
+"ladspaloader_update_plugins", true
+"ladspaloader_set_plugins", false
+
 
 /* Direct Guitar Control */
 

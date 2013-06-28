@@ -30,6 +30,16 @@
 
 class MyService;
 
+class SetPosition {
+private:
+    streampos position;
+    gx_system::JsonParser& jp;
+    SetPosition(streampos pos, gx_system::JsonParser& jp_): position(jp_.get_streampos()), jp(jp_) { jp_.set_streampos(pos); }
+public:
+    SetPosition(SetPosition& sp): position(sp.position), jp(sp.jp) {}
+    ~SetPosition() { jp.set_streampos(position); }
+};
+
 class JsonValue {
 protected:
     JsonValue() {}
@@ -39,7 +49,7 @@ public:
     virtual double getFloat() const;
     virtual int getInt() const;
     virtual const Glib::ustring& getString() const;
-    virtual const gx_engine::GxJConvSettings& getJConvSettings() const;
+    virtual gx_system::JsonSubParser getSubParser() const;
 };
 
 class JsonArray: public std::vector<JsonValue*> {
@@ -49,7 +59,6 @@ public:
     JsonValue *operator[](unsigned int i);
     void append(gx_system::JsonParser& jp);
 };
-
 
 class CmdConnection: public sigc::trackable {
 public:
@@ -127,6 +136,8 @@ private:
     sigc::connection save_conn;
     std::list<CmdConnection*> connection_list;
     gx_system::JsonStringWriter *jwc;
+    std::map<std::string,bool> *preg_map;
+private:
     virtual bool on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connection,
 			     const Glib::RefPtr<Glib::Object>& source_object);
     void save_state();
@@ -134,6 +145,7 @@ private:
     bool broadcast_listeners(CmdConnection *sender);
     void broadcast(CmdConnection *sender, gx_system::JsonStringWriter& jw);
     void on_param_insert_remove(gx_engine::Parameter *p, bool insert);
+    void serialize_parameter_change(gx_system::JsonWriter& jw);
     void on_param_value_changed(gx_engine::Parameter *p);
     void connect_value_changed_signal(gx_engine::Parameter *p);
     friend class CmdConnection;

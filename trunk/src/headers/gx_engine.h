@@ -91,7 +91,8 @@ public:
     void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
     void ladspaloader_update_plugins(
 	const std::vector<Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-	std::vector<PluginDef*>& pv);
+	std::vector<Plugin*>& pv);
+    void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc);
 };
 
 /* ------------------------------------------------------------------- */

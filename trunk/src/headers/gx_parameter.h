@@ -61,13 +61,13 @@ class ParameterGroups {
 
     inline string get(const string& id) { return groups[id]; }
     inline string operator[](const string& id) {
-            debug_check(group_exists, id);
-            return groups[id];
-        }
+	debug_check(group_exists, id);
+	return groups[id];
+    }
     inline void insert(const string& id, const string& group) {
-            debug_check(group_is_new, id);
-            groups.insert(pair<string, string>(id, group));
-        }
+	debug_check(group_is_new, id);
+	groups.insert(pair<string, string>(id, group));
+    }
     inline void erase(const string& id) {
 #ifndef NDEBUG // avoid unused variable warning in release mode
 	size_t n = groups.erase(id);
@@ -510,7 +510,7 @@ class ParamMap: boost::noncopyable {
     void check_id(const string& id);
     void check_p(const char *p);
 #endif
-    void insert(Parameter* param); // private so we can make sure parameters are owned
+    Parameter *insert(Parameter* param); // private so we can make sure parameters are owned
 
  public:
     template<class T> friend class ParameterV;
@@ -518,6 +518,8 @@ class ParamMap: boost::noncopyable {
     ~ParamMap();
     void writeJSON(gx_system::JsonWriter& jw);
     void readJSON(gx_system::JsonParser& jp);
+    Parameter *readJSON_one(gx_system::JsonParser& jp);
+    void writeJSON_one(gx_system::JsonWriter& jw, Parameter *p);
     typedef map<string, Parameter*>::const_iterator iterator;
     iterator begin() const { return id_map.begin(); }
     iterator end() const { return id_map.end(); }

@@ -543,6 +543,8 @@ struct paradesc: boost::noncopyable {
     paradesc(): index(), name(), dflt(), low(), up(), step(), tp(), newrow(), has_caption(true), values() {}
     ~paradesc();
     void set_valuelist(const std::vector<std::string>& v);
+    void readJSON(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& jw);
 };
 
 enum quirkflag { need_activate = 1, no_cleanup = 2 };
@@ -561,6 +563,8 @@ struct plugdesc {
     std::vector<paradesc*> names;
     std::string id_str;
     ~plugdesc();
+    void readJSON(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& jw);
 };
 
 class LadspaLoader {
@@ -577,7 +581,7 @@ public:
     bool load(const gx_system::CmdlineOptions& options, pluginarray& p);
     unsigned int size() { return plugins.size(); }
     PluginDef *create(unsigned int idx) { return create(plugins[idx]); }
-    PluginDef *create(plugdesc *p);
+    PluginDef *create(const plugdesc *p);
     pluginarray::iterator begin() { return plugins.begin(); }
     pluginarray::iterator end() { return plugins.end(); }
     pluginarray::iterator find(unsigned long uniqueid);

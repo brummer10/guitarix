@@ -669,21 +669,21 @@ void CmdlineOptions::write_ui_vars() {
     JsonWriter jw(&o);
     try {
 	jw.begin_object(true);
-	jw.write_key("system.mainwin_x"); jw.write(mainwin_x, true);
-	jw.write_key("system.mainwin_y"); jw.write(mainwin_y, true);
-	jw.write_key("system.mainwin_height"); jw.write(mainwin_height, true);
-	jw.write_key("system.mainwin_rack_height"); jw.write(window_height, true);
-	jw.write_key("system.preset_window_height"); jw.write(preset_window_height, true);
-	jw.write_key("system.mul_buffer"); jw.write(mul_buffer, true);
-	jw.write_key("ui.skin_name"); jw.write(skin_name, true);
-	jw.write_key("ui.latency_nowarn"); jw.write(no_warn_latency, true);
-	jw.write_key("system.order_rack_h"); jw.write(system_order_rack_h, true);
-	jw.write_key("system.show_value"); jw.write(system_show_value, true);
-	jw.write_key("system.show_tooltips"); jw.write(system_show_tooltips, true);
-	jw.write_key("system.animations"); jw.write(system_animations, true);
-	jw.write_key("system.show_presets"); jw.write(system_show_presets, true);
-	jw.write_key("system.show_toolbar"); jw.write(system_show_toolbar, true);
-	jw.write_key("system.show_rack"); jw.write(system_show_rack, true);
+	jw.write_kv("system.mainwin_x", mainwin_x);
+	jw.write_kv("system.mainwin_y", mainwin_y);
+	jw.write_kv("system.mainwin_height", mainwin_height);
+	jw.write_kv("system.mainwin_rack_height", window_height);
+	jw.write_kv("system.preset_window_height", preset_window_height);
+	jw.write_kv("system.mul_buffer", mul_buffer);
+	jw.write_kv("ui.skin_name", skin_name);
+	jw.write_kv("ui.latency_nowarn", no_warn_latency);
+	jw.write_kv("system.order_rack_h", system_order_rack_h);
+	jw.write_kv("system.show_value", system_show_value);
+	jw.write_kv("system.show_tooltips", system_show_tooltips);
+	jw.write_kv("system.animations", system_animations);
+	jw.write_kv("system.show_presets", system_show_presets);
+	jw.write_kv("system.show_toolbar", system_show_toolbar);
+	jw.write_kv("system.show_rack", system_show_rack);
 	jw.end_object(true);
 	jw.close();
     } catch (JsonException) {

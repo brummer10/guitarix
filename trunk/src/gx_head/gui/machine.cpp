@@ -157,13 +157,13 @@ GxEngineState GxMachine::get_state() {
     return engine.get_state();
 }
 
-void GxMachine::init_plugin(PluginDef *p) {
-    p->set_samplerate(engine.get_samplerate(), p);
+void GxMachine::load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist) {
+    ladspa::load_ladspalist(options, old_not_found, pluginlist);
 }
 
 void GxMachine::ladspaloader_update_plugins(
     const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-    std::vector<PluginDef*>& pv) {
+    std::vector<Plugin*>& pv) {
     engine.ladspaloader_update_plugins(to_remove, ml, pv);
 }
 
@@ -171,23 +171,14 @@ bool GxMachine::ladspaloader_load(const gx_system::CmdlineOptions& options, Lads
     return engine.ladspaloader.load(options, p);
 }
 
-LadspaLoader::pluginarray::iterator GxMachine::ladspaloader_begin() {
-    return engine.ladspaloader.begin();
-}
-
-LadspaLoader::pluginarray::iterator GxMachine::ladspaloader_end() {
-    return engine.ladspaloader.end();
+void GxMachine::ladspaloader_get_plugins(LadspaLoader::pluginarray& p) {
+    for (LadspaLoader::pluginarray::iterator i = engine.ladspaloader.begin(); i != engine.ladspaloader.end(); ++i) {
+	p.push_back(*i);
+    }
 }
 
 void GxMachine::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) {
-    engine.ladspaloader.update_instance(pdef, pdesc);
-    if (pdef->register_params) {
-	pmap.set_replace_mode(true);
-	gx_engine::ParamRegImpl preg(&pmap);
-	preg.plugin = pdef;
-	pdef->register_params(preg);
-	pmap.set_replace_mode(false);
-    }
+    engine.ladspaloader_update_instance(pdef, pdesc);
 }
 
 Plugin *GxMachine::pluginlist_lookup_plugin(const char *id) const {
@@ -198,20 +189,12 @@ bool GxMachine::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) {
     return builder.load_unit(pdef);
 }
 
-LadspaLoader::pluginarray::iterator GxMachine::ladspaloader_find(unsigned long uniqueid) {
-    return engine.ladspaloader.find(uniqueid);
-}
-
 void GxMachine::ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) {
     engine.ladspaloader.set_plugins(new_plugins);
 }
 
 void GxMachine::pluginlist_append_rack(UiBuilderBase& ui) {
     engine.pluginlist.append_rack(ui);
-}
-
-void GxMachine::pluginlist_registerPlugin(Plugin *pl) {
-    engine.pluginlist.registerPlugin(pl, pmap, gx_engine::get_group_table());
 }
 
 float GxMachine::get_tuner_freq() {
@@ -316,14 +299,14 @@ void GxMachine::tuner_used_for_livedisplay(bool on) {
     engine.tuner.used_for_livedisplay(on);
 }
 
-const std::vector<std::string>& GxMachine::get_rack_unit_order(bool stereo) {
-    return settings.get_rack_unit_order(stereo);
+const std::vector<std::string>& GxMachine::get_rack_unit_order(PluginType type) {
+    return settings.get_rack_unit_order(type == PLUGIN_TYPE_STEREO);
 }
 
-void GxMachine::remove_rack_unit(const std::string& unit, bool stereo) {
-    settings.remove_rack_unit(unit, stereo);
+void GxMachine::remove_rack_unit(const std::string& unit, PluginType type) {
+    settings.remove_rack_unit(unit, type == PLUGIN_TYPE_STEREO);
     /*
-    const std::vector<std::string>& l = GxMachine::get_rack_unit_order(stereo);
+    const std::vector<std::string>& l = GxMachine::get_rack_unit_order(type == PLUGIN_TYPE_STEREO);
     cerr << "RU";
     for (std::vector<std::string>::const_iterator ii = l.begin(); ii != l.end(); ++ii) {
 	cerr << " '" << *ii << "'";
@@ -332,10 +315,10 @@ void GxMachine::remove_rack_unit(const std::string& unit, bool stereo) {
     */
 }
 
-void GxMachine::insert_rack_unit(const std::string& unit, const std::string& before, bool stereo) {
-    settings.insert_rack_unit(unit, before, stereo);
+void GxMachine::insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) {
+    settings.insert_rack_unit(unit, before, type == PLUGIN_TYPE_STEREO);
     /*
-    const std::vector<std::string>& l = GxMachine::get_rack_unit_order(stereo);
+    const std::vector<std::string>& l = GxMachine::get_rack_unit_order(type == PLUGIN_TYPE_STEREO);
     cerr << "IU";
     for (std::vector<std::string>::const_iterator ii = l.begin(); ii != l.end(); ++ii) {
 	cerr << " '" << *ii << "'";
@@ -744,6 +727,7 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     int flag = 1;
     setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
     Glib::RefPtr<Gio::InetAddress> a = Gio::InetAddress::create("127.0.0.1");
+    //Glib::RefPtr<Gio::InetAddress> a = Gio::InetAddress::create("192.168.33.3");
     try {
 	socket->connect(Gio::InetSocketAddress::create(a, 7000));
     } catch (Gio::Error e) {
@@ -964,7 +948,7 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	    l.push_back(jp->current_value());
 	}
 	jp->next(gx_system::JsonParser::end_array);
-	rack_unit_order_changed(stereo);
+	rack_unit_order_changed(stereo ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO);
     } else if (method == "midi_changed") {
 	midi_controller_map.readJSON(*jp, pmap);
 	midi_changed();
@@ -1099,14 +1083,11 @@ bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
 const jsonrpc_method_def& GxMachineRemote::start_call(jsonrpc_method m) {
     const jsonrpc_method_def& md = jsonrpc_method_list[m];
     jw->begin_object();
-    jw->write_key("jsonrpc");
-    jw->write("2.0");
+    jw->write_kv("jsonrpc", "2.0");
     if (md.has_result) {
-	jw->write_key("id");
-	jw->write("1");
+	jw->write_kv("id", "1");
     }
-    jw->write_key("method");
-    jw->write(md.name);
+    jw->write_kv("method", md.name);
     jw->write_key("params");
     jw->begin_array();
     return md;
@@ -1247,49 +1228,131 @@ GxEngineState GxMachineRemote::get_state() {
     END_RECEIVE(return gx_engine::kEngineOff);
 }
 
-void GxMachineRemote::init_plugin(PluginDef *p) {
-    cerr << "init_plugin()" << endl;
-}
-
 
 /*
 ** LadspaLoader
 */
 
+void GxMachineRemote::load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist) {
+    cerr << "load_ladspalist()" << endl;
+    START_CALL(load_ladspalist);
+    START_RECEIVE();
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	jp->next(gx_system::JsonParser::value_number);
+	old_not_found.push_back(jp->current_value_int());
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	pluginlist.push_back(new ladspa::PluginDesc(*jp));
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    END_RECEIVE();
+}
+
 bool GxMachineRemote::ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p) {
     cerr << "ladspaloader_load()" << endl;
+    START_CALL(ladspaloader_load);
+    START_RECEIVE(false);
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	plugdesc *d = new plugdesc();
+	d->readJSON(*jp);
+	p.push_back(d);
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    END_RECEIVE(return false);
     return false;
 }
 
-LadspaLoader::pluginarray::iterator GxMachineRemote::ladspaloader_begin() {
-    cerr << "ladspaloader_begin()" << endl;
-    LadspaLoader::pluginarray p;
-    return p.begin();
-}
-
-LadspaLoader::pluginarray::iterator GxMachineRemote::ladspaloader_end() {
-    cerr << "ladspaloader_end()" << endl;
-    LadspaLoader::pluginarray p;
-    return p.end();
+void GxMachineRemote::ladspaloader_get_plugins(LadspaLoader::pluginarray& p) {
+    cerr << "ladspaloader_get_plugins()" << endl;
+    START_CALL(ladspaloader_get_plugins);
+    START_RECEIVE();
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	plugdesc *d = new plugdesc();
+	d->readJSON(*jp);
+	p.push_back(d);
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    END_RECEIVE();
 }
 
 void GxMachineRemote::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) {
     cerr << "ladspaloader_update_instance()" << endl;
-}
-
-LadspaLoader::pluginarray::iterator GxMachineRemote::ladspaloader_find(unsigned long uniqueid) {
-    LadspaLoader::pluginarray p;
-    return p.begin();
+    START_CALL(ladspaloader_update_instance);
+    jw->write(pdef->id);
+    pdesc->writeJSON(*jw);
+    START_RECEIVE();
+    jp->next(gx_system::JsonParser::begin_array);
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	jp->next(gx_system::JsonParser::value_string);
+	pmap.unregister(jp->current_value());
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    jp->next(gx_system::JsonParser::begin_array);
+    pmap.set_replace_mode(true);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	pmap.readJSON_one(*jp);
+    }
+    pmap.set_replace_mode(false);
+    jp->next(gx_system::JsonParser::end_array);
+    jp->next(gx_system::JsonParser::end_array);
+    END_RECEIVE();
 }
 
 void GxMachineRemote::ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) {
     cerr << "ladspaloader_set_plugins()" << endl;
+    START_NOTIFY(ladspaloader_set_plugins);
+    for (LadspaLoader::pluginarray::iterator i = new_plugins.begin(); i != new_plugins.end(); ++i) {
+	(*i)->writeJSON(*jw);
+    }
+    SEND();
 }
 
 void GxMachineRemote::ladspaloader_update_plugins(
     const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-    std::vector<PluginDef*>& pv) {
+    std::vector<Plugin*>& pv) {
     cerr << "ladspaloader_update_plugins()" << endl;
+    START_CALL(ladspaloader_update_plugins);
+    jw->begin_array();
+    for (std::vector<gx_engine::Plugin*>::const_iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
+	jw->write((*i)->get_pdef()->id);
+    }
+    jw->end_array();
+    jw->begin_array();
+    for (LadspaLoader::pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
+	(*i)->writeJSON(*jw);
+    }
+    jw->end_array();
+    START_RECEIVE();
+    jp->next(gx_system::JsonParser::begin_array);
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	jp->next(gx_system::JsonParser::value_string);
+	pmap.unregister(jp->current_value());
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	pmap.readJSON_one(*jp);
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	Plugin *p = new Plugin(*jp, pmap);
+	pluginlist.insert_plugin(p);
+	pv.push_back(p);
+    }
+    jp->next(gx_system::JsonParser::end_array);
+    jp->next(gx_system::JsonParser::end_array);
+    END_RECEIVE();
+    for (std::vector<Plugin*>::const_iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
+	pluginlist.delete_module(*i);
+    }
 }
 
 /*
@@ -1302,10 +1365,6 @@ Plugin *GxMachineRemote::pluginlist_lookup_plugin(const char *id) const {
 
 void GxMachineRemote::pluginlist_append_rack(UiBuilderBase& ui) {
     pluginlist.append_rack(ui);
-}
-
-void GxMachineRemote::pluginlist_registerPlugin(Plugin *pl) {
-    assert(false);
 }
 
 static const char *next_char_pointer(gx_system::JsonParser *jp) {
@@ -1575,7 +1634,8 @@ void GxMachineRemote::tuner_used_for_livedisplay(bool on) {
     SEND();
 }
 
-const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(bool stereo) {
+const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(PluginType type) {
+    bool stereo = (type == PLUGIN_TYPE_STEREO);
     std::vector<std::string>& l = (stereo ? rack_units.stereo : rack_units.mono);
     l.clear();
     START_CALL(get_rack_unit_order);
@@ -1596,20 +1656,20 @@ const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(bool stereo
     END_RECEIVE(return l);
 }
 
-void GxMachineRemote::remove_rack_unit(const std::string& unit, bool stereo) {
+void GxMachineRemote::remove_rack_unit(const std::string& unit, PluginType type) {
     cerr << "remove_rack_unit()" << endl;
     START_NOTIFY(remove_rack_unit);
     jw->write(unit);
-    jw->write(stereo);
+    jw->write(type == PLUGIN_TYPE_STEREO);
     SEND();
 }
 
-void GxMachineRemote::insert_rack_unit(const std::string& unit, const std::string& before, bool stereo) {
+void GxMachineRemote::insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) {
     cerr << "insert_rack_unit()" << endl;
     START_NOTIFY(insert_rack_unit);
     jw->write(unit);
     jw->write(before);
-    jw->write(stereo);
+    jw->write(type == PLUGIN_TYPE_STEREO);
     SEND();
 }
 

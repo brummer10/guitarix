@@ -142,24 +142,17 @@ void GxJConvSettings::setFullIRPath(string name) {
 void GxJConvSettings::writeJSON(gx_system::JsonWriter& w,
 				const gx_system::PathList *search_path) const {
     w.begin_object(true);
-    w.write_key("jconv.IRFile");
-    w.write(fIRFile, true);
-    w.write_key("jconv.IRDir");
+    w.write_kv("jconv.IRFile", fIRFile);
     string dir = fIRDir;
     if (search_path && search_path->contains(dir)) {
 	dir = "";
     }
-    w.write(dir, true);
-    w.write_key("jconv.Gain");
-    w.write(fGain, true);
-    w.write_key("jconv.GainCor");
-    w.write(fGainCor, true);
-    w.write_key("jconv.Offset");
-    w.write(fOffset, true);
-    w.write_key("jconv.Length");
-    w.write(fLength, true);
-    w.write_key("jconv.Delay");
-    w.write(fDelay, true);
+    w.write_kv("jconv.IRDir", dir);
+    w.write_kv("jconv.Gain", fGain);
+    w.write_kv("jconv.GainCor", fGainCor);
+    w.write_kv("jconv.Offset", fOffset);
+    w.write_kv("jconv.Length", fLength);
+    w.write_kv("jconv.Delay", fDelay);
     w.write_key("jconv.gainline");
     w.begin_array();
     for (unsigned int i = 0; i < gainline.size(); i++) {
@@ -212,27 +205,13 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
     jp.next(gx_system::JsonParser::begin_object);
     do {
         jp.next(gx_system::JsonParser::value_key);
-        if (jp.current_value() == "jconv.IRFile") {
-            jp.next(gx_system::JsonParser::value_string);
-            fIRFile = jp.current_value();
-        } else if (jp.current_value() == "jconv.IRDir") {
-            jp.next(gx_system::JsonParser::value_string);
-            fIRDir = jp.current_value();
-        } else if (jp.current_value() == "jconv.Gain") {
-            jp.next(gx_system::JsonParser::value_number);
-            fGain = jp.current_value_float();
-        } else if (jp.current_value() == "jconv.GainCor") {
-            jp.next(gx_system::JsonParser::value_number);
-            fGainCor = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.Offset") {
-            jp.next(gx_system::JsonParser::value_number);
-            fOffset = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.Length") {
-            jp.next(gx_system::JsonParser::value_number);
-            fLength = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.Delay") {
-            jp.next(gx_system::JsonParser::value_number);
-            fDelay = jp.current_value_int();
+	if (jp.read_kv("jconv.IRFile", fIRFile) ||
+	    jp.read_kv("jconv.IRDir", fIRDir) ||
+	    jp.read_kv("jconv.Gain", fGain) ||
+	    jp.read_kv("jconv.GainCor", fGainCor) ||
+	    jp.read_kv("jconv.Offset", fOffset) ||
+	    jp.read_kv("jconv.Length", fLength) ||
+	    jp.read_kv("jconv.Delay", fDelay)) {
         } else if (jp.current_value() == "jconv.gainline") {
             read_gainline(jp);
         } else if (jp.current_value() == "jconv.favorits") {
@@ -244,7 +223,9 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
     if (!fIRFile.empty() && fIRDir.empty()) {
-	search_path->find_dir(&fIRDir, fIRFile);
+	if (search_path) {
+	    search_path->find_dir(&fIRDir, fIRFile);
+	}
     }
 }
 

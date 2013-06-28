@@ -1705,16 +1705,19 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 	machine.ladspaloader_load(options, ml);
 	// look for removed and changed plugins
 	std::vector<gx_engine::Plugin*> to_remove;
-	for (pluginarray::iterator i = machine.ladspaloader_begin(); i != machine.ladspaloader_end(); ++i) {
+	pluginarray curr_plugins;
+	machine.ladspaloader_get_plugins(curr_plugins);
+	for (pluginarray::iterator i = curr_plugins.begin(); i != curr_plugins.end(); ++i) {
 	    PluginUI *pui = plugin_dict[(*i)->id_str];
 	    pluginarray::iterator j = find_plugin(ml, *i);
 	    if (j == ml.end()) {
 		plugin_dict.remove(pui);
 		pui->unset_ui_merge_id(uimanager);
 		actions.group->remove(pui->get_action());
-		delete pui;
-		machine.set_parameter_value(pui->plugin->id_on_off(), false);
+		pui->plugin->set_on_off(false);
+		machine.remove_rack_unit(pui->get_id(), pui->get_type());
 		to_remove.push_back(pui->plugin);
+		delete pui;
 	    } else {
 		machine.ladspaloader_update_instance(pui->plugin->get_pdef(), *j);
 		pui->update_rackbox();
@@ -1726,19 +1729,11 @@ void MainWindow::on_ladspa_finished(bool reload, bool quit) {
 		}
 	    }
 	}
-	std::vector<PluginUI*> p;
-	gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p);
-	std::vector<PluginDef *> pv;
+	std::vector<gx_engine::Plugin*> pv;
 	machine.ladspaloader_update_plugins(to_remove, ml, pv);
-	// add new plugins (UI)
-	machine.pluginlist_append_rack(builder);
-	std::sort(p.begin(), p.end(), plugins_by_name_less);
-	for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
-	    register_plugin(*v);
-	    machine.pluginlist_registerPlugin((*v)->plugin);
-	}
-	for (std::vector<PluginDef*>::iterator i = pv.begin(); i != pv.end(); ++i) {
-	    machine.init_plugin(*i);
+	for (std::vector<gx_engine::Plugin*>::iterator i = pv.begin(); i != pv.end(); ++i) {
+	    PluginUI *pui = new PluginUI(*this, (*i)->get_pdef()->id, "", "");
+	    register_plugin(pui);
 	}
 	make_icons(true); // re-create all icons, width might have changed
     }
@@ -1760,7 +1755,7 @@ void MainWindow::on_load_ladspa() {
     if (ladspalist_window) {
 	ladspalist_window->present();
     } else {
-	ladspalist_window = new ladspa::PluginDisplay(options, gx_head_icon, sigc::mem_fun(this, &MainWindow::on_ladspa_finished));
+	ladspalist_window = new ladspa::PluginDisplay(machine, gx_head_icon, sigc::mem_fun(this, &MainWindow::on_ladspa_finished));
     }
 }
 

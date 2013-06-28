@@ -26,6 +26,11 @@
 
 namespace gx_gui { class UiBuilderImpl; }
 
+enum PluginType {
+    PLUGIN_TYPE_MONO,
+    PLUGIN_TYPE_STEREO,
+};
+
 namespace gx_engine {
 
 class bank_iterator {
@@ -42,7 +47,7 @@ public:
 
 class GxMachineBase {
 protected:
-    sigc::signal<void, bool> rack_unit_order_changed;
+    sigc::signal<void,PluginType> rack_unit_order_changed;
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> > impresp_list;
 private:
     virtual int _get_parameter_value_int(const std::string& id) = 0;
@@ -59,20 +64,17 @@ public:
     // engine
     virtual void set_state(GxEngineState state) = 0;
     virtual GxEngineState get_state() = 0;
-    virtual void init_plugin(PluginDef *p) = 0;
+    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist) = 0;
     virtual bool ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p) = 0;
-    virtual LadspaLoader::pluginarray::iterator ladspaloader_begin() = 0;
-    virtual LadspaLoader::pluginarray::iterator ladspaloader_end() = 0;
+    virtual void ladspaloader_get_plugins(LadspaLoader::pluginarray& p) = 0;
     virtual void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) = 0;
     virtual void ladspaloader_update_plugins(
 	const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-	std::vector<PluginDef*>& pv) = 0;
+	std::vector<Plugin*>& pv) = 0;
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const = 0;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) = 0;
-    virtual LadspaLoader::pluginarray::iterator ladspaloader_find(unsigned long uniqueid) = 0;
     virtual void ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) = 0;
     virtual void pluginlist_append_rack(UiBuilderBase& ui) = 0;
-    virtual void pluginlist_registerPlugin(Plugin *pl) = 0;
     virtual float get_tuner_freq() = 0;
     virtual void set_oscilloscope_mul_buffer(int a) = 0;
     virtual int get_oscilloscope_mul_buffer() = 0;
@@ -93,12 +95,12 @@ public:
     virtual Glib::Dispatcher& signal_jack_load_change() = 0;
     virtual void tuner_used_for_display(bool on) = 0;
     virtual void tuner_used_for_livedisplay(bool on) = 0;
-    virtual const std::vector<std::string>& get_rack_unit_order(bool stereo) = 0;
-    sigc::signal<void, bool>& signal_rack_unit_order_changed() {
+    virtual const std::vector<std::string>& get_rack_unit_order(PluginType type) = 0;
+    sigc::signal<void,PluginType>& signal_rack_unit_order_changed() {
 	return rack_unit_order_changed;
     }
-    virtual void remove_rack_unit(const std::string& unit, bool stereo) = 0;
-    virtual void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo) = 0;
+    virtual void remove_rack_unit(const std::string& unit, PluginType type) = 0;
+    virtual void insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) = 0;
     // tuner_switcher
     virtual bool get_tuner_switcher_active() = 0;
     virtual void tuner_switcher_activate(bool v) = 0;
@@ -240,20 +242,17 @@ public:
     virtual ~GxMachine();
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
-    virtual void init_plugin(PluginDef *p);
+    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist);
     virtual bool ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p);
-    virtual LadspaLoader::pluginarray::iterator ladspaloader_begin();
-    virtual LadspaLoader::pluginarray::iterator ladspaloader_end();
+    virtual void ladspaloader_get_plugins(LadspaLoader::pluginarray& p);
     virtual void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc);
     virtual void ladspaloader_update_plugins(
 	const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-	std::vector<PluginDef*>& pv);
+	std::vector<Plugin*>& pv);
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
-    virtual LadspaLoader::pluginarray::iterator ladspaloader_find(unsigned long uniqueid);
     virtual void ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
-    virtual void pluginlist_registerPlugin(Plugin *pl);
     virtual float get_tuner_freq();
     virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
@@ -274,9 +273,9 @@ public:
     virtual Glib::Dispatcher& signal_jack_load_change();
     virtual void tuner_used_for_display(bool on);
     virtual void tuner_used_for_livedisplay(bool on);
-    virtual const std::vector<std::string>& get_rack_unit_order(bool stereo);
-    virtual void remove_rack_unit(const std::string& unit, bool stereo);
-    virtual void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo);
+    virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
+    virtual void remove_rack_unit(const std::string& unit, PluginType type);
+    virtual void insert_rack_unit(const std::string& unit, const std::string& before, PluginType type);
     // tuner_switcher
     virtual bool get_tuner_switcher_active();
     virtual void tuner_switcher_activate(bool v);
@@ -421,20 +420,17 @@ public:
     virtual ~GxMachineRemote();
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
-    virtual void init_plugin(PluginDef *p);
+    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist);
     virtual bool ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p);
-    virtual LadspaLoader::pluginarray::iterator ladspaloader_begin();
-    virtual LadspaLoader::pluginarray::iterator ladspaloader_end();
+    virtual void ladspaloader_get_plugins(LadspaLoader::pluginarray& p);
     virtual void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc);
     virtual void ladspaloader_update_plugins(
 	const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-	std::vector<PluginDef*>& pv);
+	std::vector<Plugin*>& pv);
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
-    virtual LadspaLoader::pluginarray::iterator ladspaloader_find(unsigned long uniqueid);
     virtual void ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
-    virtual void pluginlist_registerPlugin(Plugin *pl);
     virtual float get_tuner_freq();
     virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
@@ -455,9 +451,9 @@ public:
     virtual Glib::Dispatcher& signal_jack_load_change();
     virtual void tuner_used_for_display(bool on);
     virtual void tuner_used_for_livedisplay(bool on);
-    virtual const std::vector<std::string>& get_rack_unit_order(bool stereo);
-    virtual void remove_rack_unit(const std::string& unit, bool stereo);
-    virtual void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo);
+    virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
+    virtual void remove_rack_unit(const std::string& unit, PluginType type);
+    virtual void insert_rack_unit(const std::string& unit, const std::string& before, PluginType type);
     // tuner_switcher
     virtual bool get_tuner_switcher_active();
     virtual void tuner_switcher_activate(bool v);

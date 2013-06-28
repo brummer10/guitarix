@@ -457,15 +457,15 @@ void IRWindow::on_enumerate(const std::string& path, const std::vector<gx_system
 	wcombo->set_active(j);
     }
     if (dircombo->is_visible()) {
-    Gtk::TreeNodeChildren ch = dircombo->get_model()->children();
-    for (Gtk::TreeIter di = ch.begin(); di != ch.end(); ++di) {
-	std::string p;
-	di->get_value(1, p);
-	if (p == current_combo_dir) {
-	    dircombo->set_active(di);
-	    break;
+	Gtk::TreeNodeChildren ch = dircombo->get_model()->children();
+	for (Gtk::TreeIter di = ch.begin(); di != ch.end(); ++di) {
+	    std::string p;
+	    di->get_value(1, p);
+	    if (p == current_combo_dir) {
+		dircombo->set_active(di);
+		break;
+	    }
 	}
-    }
     }
 }
 
