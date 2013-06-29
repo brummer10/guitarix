@@ -1496,7 +1496,7 @@ void CmdConnection::send(gx_system::JsonStringWriter& jw) {
 	if (n == len) {
 	    return;
 	}
-	current_offset = max(0, n);
+	current_offset = max<ssize_t>(0, n);
     }
     outgoing.push_back(s);
     Glib::signal_io().connect(
