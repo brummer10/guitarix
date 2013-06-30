@@ -2,7 +2,7 @@
 
 /* ANSI-C code produced by gperf version 3.0.3 */
 /* Command-line: gperf  */
-/* Computed positions: -k'1,6,14,$' */
+/* Computed positions: -k'1,6,$' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
@@ -31,7 +31,7 @@
 #error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
 #endif
 
-/* maximum key range = 148, duplicates = 0 */
+/* maximum key range = 153, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
@@ -45,35 +45,25 @@ hash (register const char *str, register unsigned int len)
 {
   static const unsigned char asso_values[] =
     {
-      151, 151, 151, 151, 151, 151, 151, 151, 151, 151,
-      151, 151, 151, 151, 151, 151, 151, 151, 151, 151,
-      151, 151, 151, 151, 151, 151, 151, 151, 151, 151,
-      151, 151, 151, 151, 151, 151, 151, 151, 151, 151,
-      151, 151, 151, 151, 151, 151, 151, 151, 151, 151,
-      151, 151, 151, 151, 151, 151, 151, 151, 151, 151,
-      151, 151, 151, 151, 151, 151, 151, 151, 151, 151,
-      151, 151, 151, 151, 151, 151, 151, 151, 151, 151,
-      151, 151, 151, 151, 151, 151, 151, 151, 151, 151,
-      151, 151, 151, 151, 151,   0, 151,  25,  30,  45,
-       75,   0, 151,  35,   5,  15,   0,  45,  15,  15,
-       15,  40,  15,   5,   0,   0,   0,  70,  40,  30,
-      151,  10, 151, 151, 151, 151, 151, 151
+      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
+      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
+      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
+      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
+      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
+      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
+      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
+      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
+      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
+      156, 156, 156, 156, 156,  50, 156,  45,  20,  80,
+       25,  10, 156,  10,   0,  20,   0,  35,  25,  65,
+       10,  35,  35,  10,   0,   0,   0,  15,   0,  15,
+      156,  10, 156, 156, 156, 156, 156, 156
     };
   register int hval = len;
 
   switch (hval)
     {
       default:
-        hval += asso_values[(unsigned char)str[13]];
-      /*FALLTHROUGH*/
-      case 13:
-      case 12:
-      case 11:
-      case 10:
-      case 9:
-      case 8:
-      case 7:
-      case 6:
         hval += asso_values[(unsigned char)str[5]];
       /*FALLTHROUGH*/
       case 5:
@@ -98,132 +88,118 @@ in_word_set (register const char *str, register unsigned int len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 80,
+      TOTAL_KEYWORDS = 76,
       MIN_WORD_LENGTH = 3,
-      MAX_WORD_LENGTH = 28,
+      MAX_WORD_LENGTH = 27,
       MIN_HASH_VALUE = 3,
-      MAX_HASH_VALUE = 150
+      MAX_HASH_VALUE = 155
     };
 
   static const struct CmdConnection::methodnames wordlist[] =
     {
       {""}, {""}, {""},
       {"set", RPNM_set},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {"switch_tuner", RPNM_switch_tuner},
+      {"get", RPCM_get},
       {""}, {""}, {""}, {""}, {""},
       {"setpreset", RPNM_setpreset},
-      {""}, {""},
-      {"erase_preset", RPNM_erase_preset},
+      {""}, {""}, {""},
       {"rename_preset", RPCM_rename_preset},
       {"reorder_preset", RPNM_reorder_preset},
-      {""}, {""},
-      {"switch_tuner", RPNM_switch_tuner},
+      {"banks", RPCM_banks},
+      {"remove_rack_unit", RPNM_remove_rack_unit},
+      {"set_oscilloscope_mul_buffer", RPNM_set_oscilloscope_mul_buffer},
       {""},
       {"list", RPCM_list},
+      {"getversion", RPCM_getversion},
       {""},
-      {"tuner_switcher_toggle", RPNM_tuner_switcher_toggle},
+      {"bank_reorder", RPNM_bank_reorder},
+      {"unlisten", RPNM_unlisten},
+      {"queryunit", RPCM_queryunit},
+      {"request_midi_value_update", RPNM_request_midi_value_update},
+      {"insert_rack_unit", RPNM_insert_rack_unit},
+      {"get_oscilloscope_mul_buffer", RPCM_get_oscilloscope_mul_buffer},
+      {""},
+      {"bank_save", RPNM_bank_save},
+      {""},
+      {"bank_remove", RPCM_bank_remove},
       {"presets", RPCM_presets},
+      {"bank_set_flag", RPNM_bank_set_flag},
+      {"reload_impresp_list", RPNM_reload_impresp_list},
+      {"get_tuning", RPCM_get_tuning},
+      {"save_preset", RPNM_save_preset},
+      {"bank_get_contents", RPCM_bank_get_contents},
+      {""},
+      {"get_tuner_freq", RPCM_get_tuner_freq},
+      {"pf_insert_after", RPNM_pf_insert_after},
+      {"listen", RPNM_listen},
+      {"pf_save", RPNM_pf_save},
+      {"shutdown", RPNM_shutdown},
+      {""},
+      {"pluginlist", RPCM_pluginlist},
+      {"rename_bank", RPCM_rename_bank},
+      {"bank_get_filename", RPCM_bank_get_filename},
+      {"parameterlist", RPCM_parameterlist},
+      {"bank_insert_content", RPCM_bank_insert_content},
+      {"get_tuner_switcher_active", RPCM_get_tuner_switcher_active},
+      {"pf_insert_before", RPNM_pf_insert_before},
+      {"load_impresp_dirs", RPCM_load_impresp_dirs},
+      {"setstate", RPNM_setstate},
+      {""},
+      {"load_ladspalist", RPCM_load_ladspalist},
+      {"get_oscilloscope_info", RPCM_get_oscilloscope_info},
+      {"plugin_preset_list_set", RPNM_plugin_preset_list_set},
+      {"get_parameter", RPCM_get_parameter},
+      {""},
+      {"bank_insert_new", RPCM_bank_insert_new},
+      {""},
+      {"erase_preset", RPNM_erase_preset},
+      {"getstate", RPCM_getstate},
+      {"get_rack_unit_order", RPCM_get_rack_unit_order},
+      {"get_jack_load_status", RPCM_get_jack_load_status},
+      {""}, {""},
+      {"plugin_preset_list_save", RPNM_plugin_preset_list_save},
+      {"plugin_load_ui", RPCM_plugin_load_ui},
+      {"plugin_preset_list_remove", RPNM_plugin_preset_list_remove},
+      {"tuner_switcher_toggle", RPNM_tuner_switcher_toggle},
+      {"tuner_used_for_display", RPNM_tuner_used_for_display},
       {"tuner_switcher_activate", RPNM_tuner_switcher_activate},
       {"midi_size", RPCM_midi_size},
       {"tuner_switcher_deactivate", RPNM_tuner_switcher_deactivate},
-      {"save_preset", RPNM_save_preset},
-      {""},
-      {"parameterlist", RPCM_parameterlist},
-      {""},
-      {"pf_insert_after", RPNM_pf_insert_after},
-      {"remove_rack_unit", RPNM_remove_rack_unit},
-      {"tuner_used_for_display", RPNM_tuner_used_for_display},
-      {"setstate", RPNM_setstate},
-      {""},
-      {"banks", RPCM_banks},
       {"tuner_used_for_livedisplay", RPNM_tuner_used_for_livedisplay},
       {""},
-      {"get", RPCM_get},
-      {"bank_save", RPNM_bank_save},
-      {"pluginlist", RPCM_pluginlist},
-      {"bank_remove", RPCM_bank_remove},
-      {"bank_reorder", RPNM_bank_reorder},
-      {""}, {""},
-      {"load_ladspalist", RPCM_load_ladspalist},
-      {"insert_rack_unit", RPNM_insert_rack_unit},
-      {""},
-      {"midi_modifyCurrent", RPNM_midi_modifyCurrent},
-      {""},
-      {"midi_set_config_mode", RPNM_midi_set_config_mode},
-      {"listen", RPNM_listen},
-      {"plugin_preset_list_set", RPNM_plugin_preset_list_set},
-      {"plugin_preset_list_save", RPNM_plugin_preset_list_save},
-      {"midi_set_current_control", RPNM_midi_set_current_control},
-      {"plugin_preset_list_remove", RPNM_plugin_preset_list_remove},
-      {"rename_bank", RPCM_rename_bank},
-      {"save_current", RPNM_save_current},
-      {""},
-      {"convert_preset", RPCM_convert_preset},
-      {"getversion", RPCM_getversion},
-      {""},
-      {"pf_save", RPNM_pf_save},
-      {"shutdown", RPNM_shutdown},
-      {"ladspaloader_set_plugins", RPNM_ladspaloader_set_plugins},
-      {"request_midi_value_update", RPNM_request_midi_value_update},
-      {""},
-      {"set_oscilloscope_mul_buffer", RPNM_set_oscilloscope_mul_buffer},
-      {"getstate", RPCM_getstate},
-      {""},
-      {"clear_oscilloscope_buffer", RPNM_clear_oscilloscope_buffer},
-      {"pf_insert_before", RPNM_pf_insert_before},
-      {""},
-      {"get_parameter", RPCM_get_parameter},
-      {"plugin_load_ui", RPCM_plugin_load_ui},
-      {"read_audio", RPCM_read_audio},
-      {""}, {""},
-      {"bank_set_flag", RPNM_bank_set_flag},
-      {"get_rack_unit_order", RPCM_get_rack_unit_order},
-      {"get_jack_load_status", RPCM_get_jack_load_status},
-      {""},
-      {"bank_get_contents", RPCM_bank_get_contents},
-      {""},
-      {"queryunit", RPCM_queryunit},
-      {"midi_get_config_mode", RPCM_midi_get_config_mode},
-      {""}, {""},
       {"get_midi_controller_map", RPCM_get_midi_controller_map},
       {""},
-      {"bank_insert_new", RPCM_bank_insert_new},
-      {""}, {""},
-      {"unlisten", RPNM_unlisten},
+      {"read_audio", RPCM_read_audio},
+      {""},
+      {"save_current", RPNM_save_current},
+      {"plugin_preset_list_load", RPCM_plugin_preset_list_load},
+      {"convert_preset", RPCM_convert_preset},
+      {"midi_set_config_mode", RPNM_midi_set_config_mode},
+      {""},
+      {"ladspaloader_update_plugins", RPCM_ladspaloader_update_plugins},
+      {"get_bank", RPCM_get_bank},
       {"get_max_input_level", RPCM_get_max_input_level},
       {"get_max_output_level", RPCM_get_max_output_level},
-      {""},
-      {"bank_get_filename", RPCM_bank_get_filename},
-      {""},
-      {"ladspaloader_get_plugins", RPCM_ladspaloader_get_plugins},
-      {""}, {""},
-      {"get_oscilloscope_mul_buffer", RPCM_get_oscilloscope_mul_buffer},
-      {""},
-      {"bank_insert_content", RPCM_bank_insert_content},
       {""}, {""}, {""},
-      {"bank_check_reparse", RPCM_bank_check_reparse},
-      {"reload_impresp_list", RPNM_reload_impresp_list},
-      {"midi_deleteParameter", RPNM_midi_deleteParameter},
-      {""}, {""},
-      {"get_bank", RPCM_get_bank},
       {"pf_append", RPNM_pf_append},
-      {""}, {""}, {""}, {""}, {""}, {""}, {""},
-      {"load_impresp_dirs", RPCM_load_impresp_dirs},
-      {""},
-      {"desc", RPCM_desc},
+      {"midi_get_config_mode", RPCM_midi_get_config_mode},
       {""}, {""}, {""},
-      {"plugin_preset_list_load", RPCM_plugin_preset_list_load},
-      {"get_tuner_freq", RPCM_get_tuner_freq},
-      {"get_tuner_switcher_active", RPCM_get_tuner_switcher_active},
-      {""}, {""},
+      {"desc", RPCM_desc},
+      {"midi_deleteParameter", RPNM_midi_deleteParameter},
+      {""}, {""}, {""},
+      {"midi_set_current_control", RPNM_midi_set_current_control},
+      {""}, {""}, {""},
       {"jack_cpu_load", RPCM_jack_cpu_load},
-      {""}, {""},
-      {"get_oscilloscope_info", RPCM_get_oscilloscope_info},
-      {"ladspaloader_update_plugins", RPCM_ladspaloader_update_plugins},
-      {"ladspaloader_update_instance", RPCM_ladspaloader_update_instance},
-      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
-      {"ladspaloader_load", RPCM_ladspaloader_load},
-      {""}, {""},
-      {"get_tuning", RPCM_get_tuning}
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {"bank_check_reparse", RPCM_bank_check_reparse},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {""},
+      {"midi_modifyCurrent", RPNM_midi_modifyCurrent},
+      {""}, {""}, {""}, {""}, {""}, {""},
+      {"clear_oscilloscope_buffer", RPNM_clear_oscilloscope_buffer}
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
@@ -314,11 +290,7 @@ const jsonrpc_method_def jsonrpc_method_list[] = {
 	{ "load_impresp_dirs", true },
 	{ "read_audio", true },
 	{ "load_ladspalist", true },
-	{ "ladspaloader_load", true },
-	{ "ladspaloader_get_plugins", true },
-	{ "ladspaloader_update_instance", true },
 	{ "ladspaloader_update_plugins", true },
-	{ "ladspaloader_set_plugins", false },
 	{ "get_tuner_switcher_active", true },
 	{ "tuner_switcher_activate", false },
 	{ "tuner_switcher_deactivate", false },

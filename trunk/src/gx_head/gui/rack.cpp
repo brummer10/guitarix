@@ -196,6 +196,10 @@ bool plugins_by_name_less(PluginUI *a, PluginUI *b) {
  ** class PluginDict
  */
 
+void PluginDict::add(PluginUI *p) {
+    insert(pair<std::string, PluginUI*>(p->get_id(), p));
+}
+
 void PluginDict::remove(PluginUI *p) {
     std::map<std::string, PluginUI*>::iterator i = find(p->get_id());
     assert(i != end());

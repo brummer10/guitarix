@@ -399,6 +399,7 @@ int PluginList::check_version(PluginDef *p) {
 
 void PluginListBase::delete_module(Plugin *pl) {
     PluginDef *p = pl->get_pdef();
+    insert_remove(p->id, false);
 #ifndef NDEBUG // avoid unused variable compiler warning
     size_t n = pmap.erase(p->id);
     assert(n == 1);
@@ -414,15 +415,20 @@ void PluginListBase::delete_module(Plugin *pl) {
 }
 
 int PluginListBase::insert_plugin(Plugin *pvars) {
-    PluginDef *p = pvars->get_pdef();
-    pair<pluginmap::iterator,bool> ret = pmap.insert(map_pair(p->id, pvars));
+    const char *id = pvars->get_pdef()->id;
+    pair<pluginmap::iterator,bool> ret = pmap.insert(map_pair(id, pvars));
     if (!ret.second) {
 	gx_system::gx_print_error(
 	    _("Plugin Loader"),
-	    boost::format(_("Plugin '%1%' already exists: skipped")) % p->id);
+	    boost::format(_("Plugin '%1%' already exists: skipped")) % id);
 	return -1;
     }
+    insert_remove(id, true);
     return 0;
+}
+
+void PluginListBase::update_plugin(Plugin *pvars) {
+    pmap[pvars->get_pdef()->id]->set_pdef(pvars->get_pdef());
 }
 
 int PluginList::add_module(Plugin *pvars, PluginPos pos, int flags) {
@@ -663,6 +669,7 @@ void PluginListBase::readJSON(gx_system::JsonParser& jp, ParamMap& param) {
     while (jp.peek() != gx_system::JsonParser::end_array) {
 	Plugin *p = new Plugin(jp, param);
 	pmap.insert(map_pair(p->get_pdef()->id, p));
+	insert_remove(p->get_pdef()->id, true);
     }
     jp.next(gx_system::JsonParser::end_array);
 }

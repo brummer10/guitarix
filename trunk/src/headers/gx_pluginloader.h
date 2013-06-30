@@ -133,6 +133,7 @@ protected:
 	PLUGIN_POS_COUNT		// keep last one
     };
     pluginmap pmap;
+    sigc::signal<void,const char*,bool> insert_remove;
 public:
     PluginListBase();
     ~PluginListBase();
@@ -144,6 +145,7 @@ public:
     pluginmap::iterator begin() { return pmap.begin(); }
     pluginmap::iterator end() { return pmap.end(); }
     int insert_plugin(Plugin *pvars);
+    void update_plugin(Plugin *pvars);
     void delete_module(Plugin *pl);
 };
 
@@ -172,6 +174,7 @@ public:
     void ordered_mono_list(list<Plugin*>& mono, int mode);
     void ordered_stereo_list(list<Plugin*>& stereo, int mode);
     void ordered_list(list<Plugin*>& l, bool stereo, int flagmask, int flagvalue);
+    sigc::signal<void,const char*,bool>& signal_insert_remove() { return insert_remove; }
 #ifndef NDEBUG
     void printlist(bool ordered = true);
 #endif

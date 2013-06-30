@@ -571,14 +571,15 @@ class LadspaLoader {
 public:
     typedef std::vector<plugdesc*> pluginarray;
 private:
+    const gx_system::CmdlineOptions& options;
     pluginarray plugins;
 private:
     void read_module_config(const std::string& filename, plugdesc *p);
-    void read_module_list(const gx_system::CmdlineOptions& options, pluginarray& p);
+    void read_module_list(pluginarray& p);
 public:
     LadspaLoader(const gx_system::CmdlineOptions& options);
     ~LadspaLoader();
-    bool load(const gx_system::CmdlineOptions& options, pluginarray& p);
+    bool load(pluginarray& p);
     unsigned int size() { return plugins.size(); }
     PluginDef *create(unsigned int idx) { return create(plugins[idx]); }
     PluginDef *create(const plugdesc *p);

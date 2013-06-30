@@ -532,6 +532,12 @@ static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& pref
     return false;
 }
 
+void CmdConnection::add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v, std::vector<ChangedPlugin>& vec) {
+    if (pl) {
+	vec.push_back(ChangedPlugin(pl->get_pdef()->id, v));
+    }
+}
+
 #define START_FUNCTION_SWITCH(v)    switch (v) {
 #define FUNCTION(n)                 break; case RPCM_##n:
 #define PROCEDURE(n)                break; case RPNM_##n:
@@ -868,91 +874,45 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.end_array();
     }
 
-    FUNCTION(ladspaloader_load) {
-	gx_engine::LadspaLoader::pluginarray p;
-	serv.jack.get_engine().ladspaloader.load(serv.settings.get_options(), p);
-	jw.begin_array();
-	for (gx_engine::LadspaLoader::pluginarray::iterator i = p.begin(); i != p.end(); ++i) {
-	    (*i)->writeJSON(jw);
-	}
-	jw.end_array();
-    }
-
-    FUNCTION(ladspaloader_get_plugins) {
-	gx_engine::LadspaLoader::pluginarray p;
-	for (gx_engine::LadspaLoader::pluginarray::iterator i = serv.jack.get_engine().ladspaloader.begin(); i != serv.jack.get_engine().ladspaloader.end(); ++i) {
-	    p.push_back(*i);
-	}
-	jw.begin_array();
-	for (gx_engine::LadspaLoader::pluginarray::iterator i = p.begin(); i != p.end(); ++i) {
-	    (*i)->writeJSON(jw);
-	}
-	jw.end_array();
-    }
-
     FUNCTION(ladspaloader_update_plugins) {
-	std::vector<gx_engine::Plugin*> to_remove;
-	gx_engine::LadspaLoader::pluginarray ml;
-	std::vector<gx_engine::Plugin*> pv;
-	{
-	    gx_system::JsonSubParser jps = params[0]->getSubParser();
-	    jps.next(gx_system::JsonParser::begin_array);
-	    while (jps.peek() != gx_system::JsonParser::end_array) {
-		jps.next(gx_system::JsonParser::value_string);
-		to_remove.push_back(serv.jack.get_engine().pluginlist.lookup_plugin(jps.current_value().c_str()));
-	    }
-	    jps.next(gx_system::JsonParser::end_array);
-	}
-	{
-	    gx_system::JsonSubParser jps = params[1]->getSubParser();
-	    jps.next(gx_system::JsonParser::begin_array);
-	    while (jps.peek() != gx_system::JsonParser::end_array) {
-		gx_engine::plugdesc *p = new gx_engine::plugdesc();
-		p->readJSON(jps);
-		ml.push_back(p);
-	    }
-	    jps.next(gx_system::JsonParser::end_array);
-	}
 	serv.preg_map = new std::map<std::string,bool>;
-	serv.jack.get_engine().ladspaloader_update_plugins(to_remove, ml, pv);
+	std::vector<ChangedPlugin> changed_plugins;
+	sigc::signal<void,gx_engine::Plugin*,gx_engine::PluginChange::pc> plugin_changed;
+	plugin_changed.connect(
+	    sigc::bind(sigc::mem_fun(this, &CmdConnection::add_changed_plugin),
+	    	       sigc::ref(changed_plugins)));
+	serv.jack.get_engine().ladspaloader_update_plugins(plugin_changed);
 	jw.begin_array();
 	serv.serialize_parameter_change(jw);
 	jw.begin_array();
-	for (std::vector<gx_engine::Plugin*>::iterator i = pv.begin(); i != pv.end(); ++i) {
-	    (*i)->writeJSON(jw);
+	for (std::vector<ChangedPlugin>::iterator i = changed_plugins.begin(); i != changed_plugins.end(); ++i) {
+	    jw.begin_array();
+	    jw.write(i->status);
+	    if (i->status == gx_engine::PluginChange::remove) {
+		jw.write(i->id);
+	    } else {
+		serv.jack.get_engine().pluginlist.lookup_plugin(i->id.c_str())->writeJSON(jw);
+	    }
+	    jw.end_array();
 	}
 	jw.end_array();
 	jw.end_array();
-	if (!serv.broadcast_listeners(this)) {
+	if (serv.broadcast_listeners(this)) {
 	    gx_system::JsonStringWriter jws;
-	    send_notify_begin(jws, "parameters");
-	    jws.begin_array();
+	    send_notify_begin(jws, "plugins_changed");
 	    serv.serialize_parameter_change(jws);
-	    jws.end_array();
-	    send_notify_end(jws, false);
-	    serv.broadcast(this, jws);
-	}
-	delete serv.preg_map;
-	serv.preg_map = 0;
-    }
-
-    FUNCTION(ladspaloader_update_instance) {
-	gx_engine::GxEngine& engine = serv.jack.get_engine();
-	gx_engine::plugdesc *pdesc = new gx_engine::plugdesc();
-	gx_system::JsonSubParser jps = params[1]->getSubParser();
-	pdesc->readJSON(jps);
-	serv.preg_map = new std::map<std::string,bool>;
-	engine.ladspaloader_update_instance(
-	    engine.pluginlist.lookup_plugin(params[0]->getString().c_str())->get_pdef(),
-	    pdesc);
-	jw.begin_array();
-	serv.serialize_parameter_change(jw);
-	jw.end_array();
-	if (!serv.broadcast_listeners(this)) { // FIXME duplicate, see above
-	    gx_system::JsonStringWriter jws;
-	    send_notify_begin(jws, "parameters");
+	    // updated plugins
 	    jws.begin_array();
-	    serv.serialize_parameter_change(jws);
+	    for (std::vector<ChangedPlugin>::iterator i = changed_plugins.begin(); i != changed_plugins.end(); ++i) {
+		jws.begin_array();
+		jws.write(i->status);
+		if (i->status == gx_engine::PluginChange::remove) {
+		    jws.write(i->id);
+		} else {
+		    serv.jack.get_engine().pluginlist.lookup_plugin(i->id.c_str())->writeJSON(jws);
+		}
+		jws.end_array();
+	    }
 	    jws.end_array();
 	    send_notify_end(jws, false);
 	    serv.broadcast(this, jws);
@@ -1282,19 +1242,6 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	    jw.end_array();
 	}
 	send_notify_end(jw);
-    }
-
-    PROCEDURE(ladspaloader_set_plugins) {
-	gx_engine::LadspaLoader::pluginarray new_plugins;
-	gx_system::JsonSubParser jps = params[0]->getSubParser();
-	jps.next(gx_system::JsonParser::begin_array);
-	while (jps.peek() != gx_system::JsonParser::end_array) {
-	    gx_engine::plugdesc *p = new gx_engine::plugdesc();
-	    p->readJSON(jps);
-	    new_plugins.push_back(p);
-	}
-	jps.next(gx_system::JsonParser::end_array);
-	serv.jack.get_engine().ladspaloader.set_plugins(new_plugins);
     }
 
     PROCEDURE(shutdown) {

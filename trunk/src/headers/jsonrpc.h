@@ -87,6 +87,11 @@ private:
     sigc::connection conn_osc_activation;
     sigc::connection conn_osc_size_changed;
 private:
+    struct ChangedPlugin {
+	std::string id;
+	gx_engine::PluginChange::pc status;
+	ChangedPlugin(const std::string& id_, gx_engine::PluginChange::pc status_): id(id_), status(status_) {}
+    };
     void exec(Glib::ustring cmd);
     void call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
     void notify(gx_system::JsonStringWriter& jw, const methodnames *mn, JsonArray& params);
@@ -97,6 +102,7 @@ private:
     void error_response(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { error_response(jw, code, message.c_str()); }
     void preset_changed();
     void send_rack_changed(bool stereo);
+    void add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v, std::vector<ChangedPlugin>& vec);
     void send_notify_begin(gx_system::JsonStringWriter& jw, const char *method) { jw.send_notify_begin(method); }
     void send_notify_end(gx_system::JsonStringWriter& jw, bool send_out=true);
     void on_engine_state_change(gx_engine::GxEngineState state);

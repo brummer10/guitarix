@@ -49,6 +49,7 @@ class GxMachineBase {
 protected:
     sigc::signal<void,PluginType> rack_unit_order_changed;
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> > impresp_list;
+    sigc::signal<void,Plugin*,PluginChange::pc> plugin_changed;
 private:
     virtual int _get_parameter_value_int(const std::string& id) = 0;
     virtual int _get_parameter_value_bool(const std::string& id) = 0;
@@ -65,15 +66,10 @@ public:
     virtual void set_state(GxEngineState state) = 0;
     virtual GxEngineState get_state() = 0;
     virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist) = 0;
-    virtual bool ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p) = 0;
-    virtual void ladspaloader_get_plugins(LadspaLoader::pluginarray& p) = 0;
-    virtual void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) = 0;
-    virtual void ladspaloader_update_plugins(
-	const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-	std::vector<Plugin*>& pv) = 0;
+    virtual void commit_ladspa_changes() = 0;
+    sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed() { return plugin_changed; }
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const = 0;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) = 0;
-    virtual void ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) = 0;
     virtual void pluginlist_append_rack(UiBuilderBase& ui) = 0;
     virtual float get_tuner_freq() = 0;
     virtual void set_oscilloscope_mul_buffer(int a) = 0;
@@ -243,15 +239,9 @@ public:
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
     virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist);
-    virtual bool ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p);
-    virtual void ladspaloader_get_plugins(LadspaLoader::pluginarray& p);
-    virtual void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc);
-    virtual void ladspaloader_update_plugins(
-	const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-	std::vector<Plugin*>& pv);
+    virtual void commit_ladspa_changes();
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
-    virtual void ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
     virtual float get_tuner_freq();
     virtual void set_oscilloscope_mul_buffer(int a);
@@ -407,6 +397,7 @@ private:
 			  const gx_system::JsonException& e, const char *method=0);
     void throw_error(gx_system::JsonStringParser *jp);
     void param_signal(Parameter *p);
+    void update_plugins(gx_system::JsonParser *jp);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
@@ -421,15 +412,9 @@ public:
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
     virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist);
-    virtual bool ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p);
-    virtual void ladspaloader_get_plugins(LadspaLoader::pluginarray& p);
-    virtual void ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc);
-    virtual void ladspaloader_update_plugins(
-	const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-	std::vector<Plugin*>& pv);
+    virtual void commit_ladspa_changes();
     virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
-    virtual void ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
     virtual float get_tuner_freq();
     virtual void set_oscilloscope_mul_buffer(int a);

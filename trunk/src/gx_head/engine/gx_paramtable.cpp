@@ -1702,11 +1702,12 @@ void Parameter::dump(gx_system::JsonWriter *jw) {
 Parameter *ParamMap::insert(Parameter* param) {
     if (replace_mode) {
 	map<string, Parameter*>::iterator ii = id_map.find(param->id());
-	assert(ii != id_map.end());
-	Parameter *p = ii->second;
-	insert_remove(p,false);
-	id_map.erase(ii);
-	delete p;
+	if (ii != id_map.end()) {
+	    Parameter *p = ii->second;
+	    insert_remove(p,false);
+	    id_map.erase(ii);
+	    delete p;
+	}
     }
     debug_check(unique_id, param);
     id_map.insert(pair<string, Parameter*>(param->id(), param));

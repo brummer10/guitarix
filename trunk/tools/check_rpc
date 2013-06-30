@@ -54,34 +54,47 @@ def read_referenced_methods(fname):
             continue
     return fr
 
+callref_search = re.compile(r'guitarix.call\s*\(\s*("(?P<n1>[^"]+)"|'+"'(?P<n2>[^']+)')").finditer
+notifyref_search = re.compile(r'guitarix.notify\s*\(\s*("(?P<n1>[^"]+)"|'+"'(?P<n2>[^']+)')").finditer
+
+def read_referenced_methods_web(basedir):
+    fw = {}
+    for f in os.listdir(basedir):
+        if not f.endswith(".js"):
+            continue
+        buf = open(os.path.join(basedir,f)).read()
+        for m in callref_search(buf):
+            name = m.group('n1') or m.group('n2')
+            fw[name] = True
+        for m in notifyref_search(buf):
+            name = m.group('n1') or m.group('n2')
+            fw[name] = False
+    return fw
+
+def printlist(title, s):
+    if not s:
+        return
+    print
+    print title
+    for v in s:
+        print " ", v
+
 def main():
     base = os.path.dirname(sys.argv[0])
     def mkp(f):
         return os.path.join(base, "..", f)
     ml = read_method_list(mkp("src/gx_head/engine/jsonrpc_methods.gperf_tmpl"))
     fd = read_defined_methods(mkp("src/gx_head/engine/jsonrpc.cpp"))
-    fr = read_referenced_methods("src/gx_head/gui/machine.cpp")
+    fr = read_referenced_methods(mkp("src/gx_head/gui/machine.cpp"))
+    fw = read_referenced_methods_web(mkp("webui/source"))
 
     assert not (set(fd) - set(ml))
-    assert not (set(fr) - set(ml))
+    assert not ((set(fr) | set(fw)) - set(ml))
 
-    s = set(ml) - set(fr)
-    if s:
-        print "\nfunctions not referenced:"
-        for v in s:
-            print " ", v
-
-    s = set(ml) - set(fd)
-    if s:
-        print "\nfunctions not defined:"
-        for v in s:
-            print " ", v
-
-    s = set(fr) - set(fd)
-    if (s):
-        print "\nfunctions referenced but not defined:"
-        for v in s:
-            print " ", v
+    printlist("function referenced only in webui", set(fw) - set(fr))
+    printlist("functions not referenced:", set(ml) - (set(fr) | set(fw)))
+    printlist("functions not defined:",  set(ml) - set(fd))
+    printlist("functions referenced but not defined:", (set(fr) | set(fw)) - set(fd))
 
 if __name__ == "__main__":
     main()

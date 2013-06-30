@@ -1679,54 +1679,45 @@ void JConvPluginUI::on_plugin_preset_popup() {
     main.plugin_preset_popup(plugin->get_pdef(), name);
 }
 
-static gx_engine::LadspaLoader::pluginarray::iterator find_plugin(gx_engine::LadspaLoader::pluginarray& ml, gx_engine::plugdesc *pl) {
-    for (gx_engine::LadspaLoader::pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
-	if ((*i)->UniqueID == pl->UniqueID) {
-	    return i;
+void MainWindow::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c) {
+    if (!pl) { // end of update sequence
+	make_icons(true); // re-create all icons, width might have changed
+    } else if (c == gx_engine::PluginChange::add) {
+	register_plugin(new PluginUI(*this, pl->get_pdef()->id, "", ""));
+    } else {
+	PluginUI *pui = plugin_dict[pl->get_pdef()->id];
+	if (c == gx_engine::PluginChange::remove) {
+	    plugin_dict.remove(pui);
+	    pui->unset_ui_merge_id(uimanager);
+	    uimanager->ensure_update();
+	    actions.group->remove(pui->get_action());
+	    machine.remove_rack_unit(pui->get_id(), pui->get_type());
+	    std::string group_id = pui->get_category();
+	    delete pui;
+	    Gtk::ToolItemGroup * group = groupmap[group_id];
+	    if (group->get_n_items() == 0) {
+		Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group_id);
+		Glib::RefPtr<Gtk::Action> act = actions.group->get_action(groupname);
+		actions.group->remove(actions.group->get_action(groupname));
+		groupmap.erase(group_id);
+		delete group;
+	    }
+	} else {
+	    assert(c == gx_engine::PluginChange::update || c == gx_engine::PluginChange::update_category);
+	    pui->update_rackbox();
+	    if (c == gx_engine::PluginChange::update_category) {
+		pui->unset_ui_merge_id(uimanager);
+		pui->group = add_plugin_category(pui->get_category());
+		pui->toolitem->reparent(*pui->group);
+		add_plugin_menu_entry(pui);
+	    }
 	}
     }
-    return ml.end();
 }
 
 void MainWindow::on_ladspa_finished(bool reload, bool quit) {
     if (reload) {
-	typedef gx_engine::LadspaLoader::pluginarray pluginarray;
-	pluginarray ml;
-	// load plugindesc list
-	machine.ladspaloader_load(options, ml);
-	// look for removed and changed plugins
-	std::vector<gx_engine::Plugin*> to_remove;
-	pluginarray curr_plugins;
-	machine.ladspaloader_get_plugins(curr_plugins);
-	for (pluginarray::iterator i = curr_plugins.begin(); i != curr_plugins.end(); ++i) {
-	    PluginUI *pui = plugin_dict[(*i)->id_str];
-	    pluginarray::iterator j = find_plugin(ml, *i);
-	    if (j == ml.end()) {
-		plugin_dict.remove(pui);
-		pui->unset_ui_merge_id(uimanager);
-		actions.group->remove(pui->get_action());
-		pui->plugin->set_on_off(false);
-		machine.remove_rack_unit(pui->get_id(), pui->get_type());
-		to_remove.push_back(pui->plugin);
-		delete pui;
-	    } else {
-		machine.ladspaloader_update_instance(pui->plugin->get_pdef(), *j);
-		pui->update_rackbox();
-		if ((*j)->category != (*i)->category) {
-		    pui->unset_ui_merge_id(uimanager);
-		    pui->group = add_plugin_category(pui->get_category());
-		    pui->toolitem->reparent(*pui->group);
-		    add_plugin_menu_entry(pui);
-		}
-	    }
-	}
-	std::vector<gx_engine::Plugin*> pv;
-	machine.ladspaloader_update_plugins(to_remove, ml, pv);
-	for (std::vector<gx_engine::Plugin*>::iterator i = pv.begin(); i != pv.end(); ++i) {
-	    PluginUI *pui = new PluginUI(*this, (*i)->get_pdef()->id, "", "");
-	    register_plugin(pui);
-	}
-	make_icons(true); // re-create all icons, width might have changed
+	machine.commit_ladspa_changes();
     }
     if (quit) {
 	Glib::signal_idle().connect(sigc::mem_fun(this, &MainWindow::delete_ladspalist_window));
@@ -2587,7 +2578,8 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	sigc::mem_fun(*this, &MainWindow::on_engine_state_change));
     machine.signal_jack_load_change().connect(
 	sigc::mem_fun(*this, &MainWindow::overload_status_changed));
-
+    machine.signal_plugin_changed().connect(
+	sigc::mem_fun(this, &MainWindow::on_plugin_changed));
     /*
     ** GxSettings signal connections
     */

@@ -158,11 +158,7 @@ struct CmdConnection::methodnames;
 /* Ladspa Loader */
 
 "load_ladspalist", true
-"ladspaloader_load", true
-"ladspaloader_get_plugins", true
-"ladspaloader_update_instance", true
 "ladspaloader_update_plugins", true
-"ladspaloader_set_plugins", false
 
 
 /* Direct Guitar Control */

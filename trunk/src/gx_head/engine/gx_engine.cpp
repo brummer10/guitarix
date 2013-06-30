@@ -271,17 +271,56 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::mbcs::plugin(),             PLUGIN_POS_RACK);
 }
 
-void GxEngine::ladspaloader_update_plugins(
-    const std::vector<Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-    std::vector<Plugin*>& pv) {
+static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {
+    for (LadspaLoader::pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
+	if ((*i)->UniqueID == pl->UniqueID) {
+	    return i;
+	}
+    }
+    return ml.end();
+}
+
+void GxEngine::ladspaloader_update_plugins(sigc::signal<void,Plugin*,PluginChange::pc>& plugin_changed) {
+    // load plugindesc list
+    LadspaLoader::pluginarray ml;
+    ladspaloader.load(ml);
+    // look for removed and changed plugins
+    std::vector<PluginChange> pv;
+    for (LadspaLoader::pluginarray::iterator i = ladspaloader.begin(); i != ladspaloader.end(); ++i) {
+	Plugin *pl = pluginlist.lookup_plugin((*i)->id_str.c_str());
+	LadspaLoader::pluginarray::iterator j = find_plugin(ml, *i);
+	if (j == ml.end()) {
+	    pl->set_on_off(false);
+	    pv.push_back(PluginChange(pl, PluginChange::remove));
+	} else {
+	    ladspaloader.update_instance(pl->get_pdef(), *j);
+	    if (pl->get_pdef()->register_params) {
+		pmap.set_replace_mode(true);
+		gx_engine::ParamRegImpl preg(&pmap);
+		preg.plugin = pl->get_pdef();
+		pl->get_pdef()->register_params(preg);
+		pmap.set_replace_mode(false);
+	    }
+	    pv.push_back(
+		PluginChange(
+		    pl,
+		    ((*j)->category == (*i)->category ? PluginChange::update : PluginChange::update_category)));
+	}
+    }
+
     // update engine for plugins to be removed
     update_module_lists();
     mono_chain.release();
     stereo_chain.release();
     // remove plugins
-    for (std::vector<Plugin*>::const_iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
-	pluginlist.unregisterPlugin(*i, pmap, get_group_table());
-	pluginlist.delete_module(*i);
+    for (std::vector<PluginChange>::iterator i = pv.begin(); i != pv.end(); ++i) {
+	if (i->status == PluginChange::remove) {
+	    plugin_changed(i->pl, PluginChange::remove);
+	    pluginlist.unregisterPlugin(i->pl, pmap, get_group_table());
+	    pluginlist.delete_module(i->pl);
+	} else if (i->status != PluginChange::add) {
+	    plugin_changed(i->pl, i->status);
+	}
     }
     // add new plugins (engine)
     for (LadspaLoader::pluginarray::const_iterator i = ml.begin(); i != ml.end(); ++i) {
@@ -291,23 +330,13 @@ void GxEngine::ladspaloader_update_plugins(
 		Plugin *p = pluginlist.add(plugin);
 		pluginlist.registerPlugin(p, get_param(), get_group_table());
 		plugin->set_samplerate(get_samplerate(), plugin);
-		pv.push_back(p);
+		plugin_changed(p, PluginChange::add);
 	    }
 	}
     }
     // update ladspaloader with new list
     ladspaloader.set_plugins(ml);
-}
-
-void GxEngine::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) {
-    ladspaloader.update_instance(pdef, pdesc);
-    if (pdef->register_params) {
-	pmap.set_replace_mode(true);
-	gx_engine::ParamRegImpl preg(&pmap);
-	preg.plugin = pdef;
-	pdef->register_params(preg);
-	pmap.set_replace_mode(false);
-    }
+    plugin_changed(0, PluginChange::update);
 }
 
 } /* end of gx_engine namespace */

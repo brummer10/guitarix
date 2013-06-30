@@ -161,24 +161,8 @@ void GxMachine::load_ladspalist(std::vector<unsigned long>& old_not_found, std::
     ladspa::load_ladspalist(options, old_not_found, pluginlist);
 }
 
-void GxMachine::ladspaloader_update_plugins(
-    const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-    std::vector<Plugin*>& pv) {
-    engine.ladspaloader_update_plugins(to_remove, ml, pv);
-}
-
-bool GxMachine::ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p) {
-    return engine.ladspaloader.load(options, p);
-}
-
-void GxMachine::ladspaloader_get_plugins(LadspaLoader::pluginarray& p) {
-    for (LadspaLoader::pluginarray::iterator i = engine.ladspaloader.begin(); i != engine.ladspaloader.end(); ++i) {
-	p.push_back(*i);
-    }
-}
-
-void GxMachine::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) {
-    engine.ladspaloader_update_instance(pdef, pdesc);
+void GxMachine::commit_ladspa_changes() {
+    engine.ladspaloader_update_plugins(plugin_changed);
 }
 
 Plugin *GxMachine::pluginlist_lookup_plugin(const char *id) const {
@@ -187,10 +171,6 @@ Plugin *GxMachine::pluginlist_lookup_plugin(const char *id) const {
 
 bool GxMachine::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) {
     return builder.load_unit(pdef);
-}
-
-void GxMachine::ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) {
-    engine.ladspaloader.set_plugins(new_plugins);
 }
 
 void GxMachine::pluginlist_append_rack(UiBuilderBase& ui) {
@@ -1011,6 +991,8 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	    jp->next(gx_system::JsonParser::end_array);
 	}
 	impresp_list(path, l);
+    } else if (method == "plugins_changed") {
+	update_plugins(jp);
     } else {
 	cerr << "> " << jp->get_string() << endl;
     }
@@ -1251,48 +1233,15 @@ void GxMachineRemote::load_ladspalist(std::vector<unsigned long>& old_not_found,
     END_RECEIVE();
 }
 
-bool GxMachineRemote::ladspaloader_load(const gx_system::CmdlineOptions& options, LadspaLoader::pluginarray& p) {
-    cerr << "ladspaloader_load()" << endl;
-    START_CALL(ladspaloader_load);
-    START_RECEIVE(false);
-    jp->next(gx_system::JsonParser::begin_array);
-    while (jp->peek() != gx_system::JsonParser::end_array) {
-	plugdesc *d = new plugdesc();
-	d->readJSON(*jp);
-	p.push_back(d);
-    }
-    jp->next(gx_system::JsonParser::end_array);
-    END_RECEIVE(return false);
-    return false;
-}
-
-void GxMachineRemote::ladspaloader_get_plugins(LadspaLoader::pluginarray& p) {
-    cerr << "ladspaloader_get_plugins()" << endl;
-    START_CALL(ladspaloader_get_plugins);
-    START_RECEIVE();
-    jp->next(gx_system::JsonParser::begin_array);
-    while (jp->peek() != gx_system::JsonParser::end_array) {
-	plugdesc *d = new plugdesc();
-	d->readJSON(*jp);
-	p.push_back(d);
-    }
-    jp->next(gx_system::JsonParser::end_array);
-    END_RECEIVE();
-}
-
-void GxMachineRemote::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pdesc) {
-    cerr << "ladspaloader_update_instance()" << endl;
-    START_CALL(ladspaloader_update_instance);
-    jw->write(pdef->id);
-    pdesc->writeJSON(*jw);
-    START_RECEIVE();
-    jp->next(gx_system::JsonParser::begin_array);
+void GxMachineRemote::update_plugins(gx_system::JsonParser *jp) {
+    // deleted parameters
     jp->next(gx_system::JsonParser::begin_array);
     while (jp->peek() != gx_system::JsonParser::end_array) {
 	jp->next(gx_system::JsonParser::value_string);
 	pmap.unregister(jp->current_value());
     }
     jp->next(gx_system::JsonParser::end_array);
+    // inserted parameters
     jp->next(gx_system::JsonParser::begin_array);
     pmap.set_replace_mode(true);
     while (jp->peek() != gx_system::JsonParser::end_array) {
@@ -1300,59 +1249,40 @@ void GxMachineRemote::ladspaloader_update_instance(PluginDef *pdef, plugdesc *pd
     }
     pmap.set_replace_mode(false);
     jp->next(gx_system::JsonParser::end_array);
-    jp->next(gx_system::JsonParser::end_array);
-    END_RECEIVE();
-}
-
-void GxMachineRemote::ladspaloader_set_plugins(LadspaLoader::pluginarray& new_plugins) {
-    cerr << "ladspaloader_set_plugins()" << endl;
-    START_NOTIFY(ladspaloader_set_plugins);
-    for (LadspaLoader::pluginarray::iterator i = new_plugins.begin(); i != new_plugins.end(); ++i) {
-	(*i)->writeJSON(*jw);
+    // updated plugins
+    jp->next(gx_system::JsonParser::begin_array);
+    while (jp->peek() != gx_system::JsonParser::end_array) {
+	jp->next(gx_system::JsonParser::begin_array);
+	jp->next(gx_system::JsonParser::value_number);
+	PluginChange::pc c = static_cast<PluginChange::pc>(jp->current_value_int());
+	if (c == PluginChange::remove) {
+	    jp->next(gx_system::JsonParser::value_string);
+	    Plugin *p = pluginlist.lookup_plugin(jp->current_value().c_str());
+	    plugin_changed(p, c);
+	    pluginlist.delete_module(p);
+	} else {
+	    Plugin *p = new Plugin(*jp, pmap);
+	    if (c == PluginChange::add) {
+		pluginlist.insert_plugin(p);
+	    } else {
+		pluginlist.update_plugin(p);
+	    }
+	    plugin_changed(p, c);
+	}
+	jp->next(gx_system::JsonParser::end_array);
     }
-    SEND();
+    jp->next(gx_system::JsonParser::end_array);
+    plugin_changed(0, PluginChange::update);
 }
 
-void GxMachineRemote::ladspaloader_update_plugins(
-    const std::vector<gx_engine::Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-    std::vector<Plugin*>& pv) {
+void GxMachineRemote::commit_ladspa_changes() {
     cerr << "ladspaloader_update_plugins()" << endl;
     START_CALL(ladspaloader_update_plugins);
-    jw->begin_array();
-    for (std::vector<gx_engine::Plugin*>::const_iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
-	jw->write((*i)->get_pdef()->id);
-    }
-    jw->end_array();
-    jw->begin_array();
-    for (LadspaLoader::pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
-	(*i)->writeJSON(*jw);
-    }
-    jw->end_array();
     START_RECEIVE();
     jp->next(gx_system::JsonParser::begin_array);
-    jp->next(gx_system::JsonParser::begin_array);
-    while (jp->peek() != gx_system::JsonParser::end_array) {
-	jp->next(gx_system::JsonParser::value_string);
-	pmap.unregister(jp->current_value());
-    }
-    jp->next(gx_system::JsonParser::end_array);
-    jp->next(gx_system::JsonParser::begin_array);
-    while (jp->peek() != gx_system::JsonParser::end_array) {
-	pmap.readJSON_one(*jp);
-    }
-    jp->next(gx_system::JsonParser::end_array);
-    jp->next(gx_system::JsonParser::begin_array);
-    while (jp->peek() != gx_system::JsonParser::end_array) {
-	Plugin *p = new Plugin(*jp, pmap);
-	pluginlist.insert_plugin(p);
-	pv.push_back(p);
-    }
-    jp->next(gx_system::JsonParser::end_array);
+    update_plugins(jp);
     jp->next(gx_system::JsonParser::end_array);
     END_RECEIVE();
-    for (std::vector<Plugin*>::const_iterator i = to_remove.begin(); i != to_remove.end(); ++i) {
-	pluginlist.delete_module(*i);
-    }
 }
 
 /*

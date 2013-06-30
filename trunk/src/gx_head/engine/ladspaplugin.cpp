@@ -593,9 +593,9 @@ PluginDef *LadspaLoader::create(const plugdesc *p) {
     return LadspaDsp::create(p);
 }
 
-LadspaLoader::LadspaLoader(const gx_system::CmdlineOptions& options)
-    : plugins() {
-    load(options, plugins);
+LadspaLoader::LadspaLoader(const gx_system::CmdlineOptions& options_)
+    : options(options_), plugins() {
+    load(plugins);
 }
 
 LadspaLoader::~LadspaLoader() {
@@ -604,9 +604,9 @@ LadspaLoader::~LadspaLoader() {
     }
 }
 
-bool LadspaLoader::load(const gx_system::CmdlineOptions& options, pluginarray& ml) {
+bool LadspaLoader::load(pluginarray& ml) {
     try {
-	read_module_list(options, ml);
+	read_module_list(ml);
     } catch (JsonException &e) {
 	gx_print_error("ladspaloader",ustring::compose(_("Exception in LADSPA list reader: %1"), e.what()));
 	return false;
@@ -708,7 +708,7 @@ void LadspaLoader::read_module_config(const std::string& filename, plugdesc *p) 
     ifs.close();
 }
 
-void LadspaLoader::read_module_list(const gx_system::CmdlineOptions& options, pluginarray& ml) {
+void LadspaLoader::read_module_list(pluginarray& ml) {
     std::ifstream ifs(options.get_user_filepath("ladspa_defs.js").c_str());
     if (ifs.fail()) {
         return;
