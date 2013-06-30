@@ -541,6 +541,7 @@ void MainWindow::rebuild_preset_menu() {
 	preset_list_menu_bank.clear();
 	preset_list_merge_id = 0;
 	preset_list_actiongroup.reset();
+	uimanager->ensure_update();
     }
     if (!machine.setting_is_preset()) {
 	return;
@@ -551,26 +552,16 @@ void MainWindow::rebuild_preset_menu() {
     }
     preset_list_actiongroup = Gtk::ActionGroup::create("PresetList");
     preset_list_menu_bank = machine.get_current_bank();
-    static int counter = 0;
-    // somewhere part of the menu structure seems to be cached or just
-    // not properly deleted; when reordering presets the menu still shows
-    // the old list (or a reordered list but the key accelerator are still
-    // the old ones). The counter prevents this, but quite possible there
-    // is a memory leak. FIXME
-    Glib::ustring cnt = gx_system::to_string(counter++);
     Glib::ustring s = "<menubar><menu action=\"PresetsMenu\"><menu action=\"PresetListMenu\">";
     int idx = 0;
     for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
-	Glib::ustring actname = "PresetList_" + cnt + i->name;
+	Glib::ustring actname = "PresetList_" + i->name;
 	Glib::RefPtr<Gtk::Action> action = Gtk::Action::create(actname, i->name);
+	preset_list_actiongroup->add(
+	    action, sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
 	if (idx <= 9) {
 	    char c = (idx == 9 ? '0' : '1'+idx);
-	    preset_list_actiongroup->add(
-		action, Gtk::AccelKey(Glib::ustring::compose("%1", c)),
-		sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
-	} else {
-	    preset_list_actiongroup->add(
-		action, sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
+	    Gtk::AccelMap::change_entry(action->get_accel_path(), c, Gdk::ModifierType(0), true);
 	}
 	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
     }
