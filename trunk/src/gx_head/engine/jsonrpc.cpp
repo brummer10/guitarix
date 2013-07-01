@@ -606,7 +606,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     FUNCTION(plugin_load_ui) {
-	PluginDef *pd = serv.jack.get_engine().pluginlist.lookup_plugin(params[0]->getString().c_str())->get_pdef();
+	PluginDef *pd = serv.jack.get_engine().pluginlist.lookup_plugin(params[0]->getString())->get_pdef();
 	if (!pd->load_ui) {
 	    jw.write_null();
 	} else {
@@ -860,18 +860,14 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     FUNCTION(load_ladspalist) {
 	std::vector<unsigned long> old_not_found;
-	std::vector<ladspa::PluginDesc*> pluginlist;
-	ladspa::load_ladspalist(serv.settings.get_options(), old_not_found, pluginlist);
+	ladspa::LadspaPluginList pluginlist;
+	pluginlist.load(serv.settings.get_options(), old_not_found);
 	jw.begin_array();
 	for (std::vector<unsigned long>::iterator i = old_not_found.begin(); i != old_not_found.end(); ++i) {
 	    jw.write(static_cast<unsigned int>(*i));
 	}
 	jw.end_array();
-	jw.begin_array();
-	for (std::vector<ladspa::PluginDesc*>::iterator i = pluginlist.begin(); i != pluginlist.end(); ++i) {
-	    (*i)->serializeJSON(jw);
-	}
-	jw.end_array();
+	pluginlist.writeJSON(jw);
     }
 
     FUNCTION(ladspaloader_update_plugins) {
@@ -891,7 +887,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	    if (i->status == gx_engine::PluginChange::remove) {
 		jw.write(i->id);
 	    } else {
-		serv.jack.get_engine().pluginlist.lookup_plugin(i->id.c_str())->writeJSON(jw);
+		serv.jack.get_engine().pluginlist.lookup_plugin(i->id)->writeJSON(jw);
 	    }
 	    jw.end_array();
 	}
@@ -909,7 +905,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 		if (i->status == gx_engine::PluginChange::remove) {
 		    jws.write(i->id);
 		} else {
-		    serv.jack.get_engine().pluginlist.lookup_plugin(i->id.c_str())->writeJSON(jws);
+		    serv.jack.get_engine().pluginlist.lookup_plugin(i->id)->writeJSON(jws);
 		}
 		jws.end_array();
 	    }
@@ -924,7 +920,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     FUNCTION(plugin_preset_list_load) {
 	gx_preset::UnitPresetList presetnames;
 	serv.settings.plugin_preset_list_load(
-	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString().c_str())->get_pdef(),
+	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString())->get_pdef(),
 	    presetnames);
 	jw.begin_array();
 	for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
@@ -940,7 +936,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	if (params.size() != 1) {
 	    throw RpcError(-32602, "Invalid params -- 1 parameter expected");
 	}
-	gx_engine::Plugin *p = serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString().c_str());
+	gx_engine::Plugin *p = serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString());
 	if (!p) {
 	    throw RpcError(-32602, "Invalid params -- plugin not found");
 	}
@@ -1098,7 +1094,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	serv.jwc = &jw;
 	send_notify_begin(jw, "set");
 	serv.settings.plugin_preset_list_set(
-	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString().c_str())->get_pdef(),
+	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString())->get_pdef(),
 	    params[1]->getInt(), params[2]->getString());
 	serv.jwc = 0;
 	send_notify_end(jw, false);
@@ -1107,13 +1103,13 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(plugin_preset_list_save) {
 	serv.settings.plugin_preset_list_save(
-	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString().c_str())->get_pdef(),
+	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString())->get_pdef(),
 	    params[1]->getString());
     }
 
     PROCEDURE(plugin_preset_list_remove) {
 	serv.settings.plugin_preset_list_remove(
-	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString().c_str())->get_pdef(),
+	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString())->get_pdef(),
 	    params[1]->getString());
     }
 
@@ -1242,6 +1238,13 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	    jw.end_array();
 	}
 	send_notify_end(jw);
+    }
+
+    PROCEDURE(save_ladspalist) {
+	gx_system::JsonSubParser jps = params[0]->getSubParser();
+	ladspa::LadspaPluginList pluginlist;
+	pluginlist.readJSON(jps);
+	pluginlist.save(serv.settings.get_options());
     }
 
     PROCEDURE(shutdown) {

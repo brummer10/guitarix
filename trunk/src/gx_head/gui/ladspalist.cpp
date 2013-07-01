@@ -282,10 +282,6 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
 
 PluginDisplay::~PluginDisplay() {
     delete window;
-    for (std::vector<PluginDesc*>::iterator i = pluginlist.begin(); i != pluginlist.end(); ++i) {
-    //if (pluginlist.size())
-	delete *i;
-    }
 }
 
 static void split(std::vector<ustring>& strvec, const ustring& str) {
@@ -465,8 +461,7 @@ void PluginDisplay::on_delete_changes() {
 	set_title();
     }
     if (!changed) {
-	delete current_plugin->old;
-	current_plugin->old = 0;
+	current_plugin->clear_old();
     }
     current_plugin = 0;
     selection_changed();
@@ -594,59 +589,10 @@ void PluginDisplay::on_apply() {
 
 bool PluginDisplay::do_save() {
     bool changed = check_for_changes();
-    std::string fname = machine.get_options().get_ladspa_config_filename();
-    std::string tfname = fname + ".tmp";
-    ofstream tfile(tfname.c_str());
-    JsonWriter jw(&tfile);
-    jw.begin_array(true);
-    for (std::vector<PluginDesc*>::iterator p = pluginlist.begin(); p != pluginlist.end(); ++p) {
-	if ((*p)->active) {
-	    (*p)->output_entry(jw);
-	}
-    }
-    jw.end_array(true);
-    jw.close();
-    tfile.close();
-    std::vector<std::pair<std::string,std::string> > fl;
-    for (std::vector<PluginDesc*>::iterator p = pluginlist.begin(); p != pluginlist.end(); ++p) {
-	std::string cname = machine.get_options().get_plugin_filepath(
-	    gx_engine::LadspaLoader::get_ladspa_filename((*p)->UniqueID));
-	if ((*p)->active || (*p)->has_settings) {
-	    std::string tcname = cname + ".tmp";
-	    ofstream tcfile(tcname.c_str());
-	    JsonWriter jw2(&tcfile);
-	    (*p)->output(jw2);
-	    jw2.close();
-	    tcfile.close();
-	    fl.push_back(std::pair<std::string,std::string>(tcname, cname));
-	} else {
-	    fl.push_back(std::pair<std::string,std::string>("", cname));
-	}
-    }
-    if (rename(tfname.c_str(), fname.c_str()) != 0) {
-	char buf[100];
-	char *p = strerror_r(errno, buf, sizeof(buf));
-	gx_system::gx_print_error(
-	    "ladspalist",ustring::compose(_("error renaming LADSPA config file '%1': %2\n"), fname, p));
-	return false;
-    }
-    for (std::vector<std::pair<std::string,std::string> >::iterator i = fl.begin(); i != fl.end(); ++i) {
-	if (i->first.empty()) {
-	    unlink(i->second.c_str());
-	} else {
-	    if (rename(i->first.c_str(), i->second.c_str()) != 0) {
-		char buf[100];
-		char *p = strerror_r(errno, buf, sizeof(buf));
-		gx_system::gx_print_error(
-		    "ladspalist",
-		    ustring::compose("error renaming %1 to %2: %3\n", i->first, i->second, p));
-	    }
-	}
-    }
+    machine.save_ladspalist(pluginlist);
     for (std::vector<PluginDesc*>::iterator p = pluginlist.begin(); p != pluginlist.end(); ++p) {
 	(*p)->active_set = (*p)->active;
-	delete (*p)->old;
-	(*p)->old = 0;
+	(*p)->clear_old();
     }
     old_state = 0;
     change_count = 0;
@@ -728,8 +674,7 @@ void PluginDisplay::save_current() {
 	set_title();
     }
     if (!changed) {
-	delete current_plugin->old;
-	current_plugin->old = 0;
+	current_plugin->clear_old();
     }
     current_plugin = 0;
 }
@@ -747,9 +692,7 @@ void PluginDisplay::set_old_state(PluginDesc *p) {
     current_plugin = p;
     old_state = (p->old != 0);
     if (!p->old) {
-	p->old = new PluginDesc(*p);
-	p->old->ctrl_ports.clear();
-	p->old->copy_ports(p);
+	p->set_old();
     }
 }
 

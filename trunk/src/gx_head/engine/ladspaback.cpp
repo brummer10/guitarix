@@ -830,7 +830,8 @@ void PluginDesc::copy_ports(PluginDesc *p) {
     }
 }
 
-static void ladspa_add_plugin(const LADSPA_Descriptor& desc, std::map<unsigned long, PluginDesc*>& d, const std::string& path, int index) {
+//static
+void LadspaPluginList::add_plugin(const LADSPA_Descriptor& desc, pluginmap& d, const std::string& path, int index) {
     for (unsigned int j = 0; j < sizeof(blacklist)/sizeof(blacklist[0]); j++) {
 	if (desc.UniqueID == blacklist[j]) {
 	    return;
@@ -869,7 +870,8 @@ static void ladspa_add_plugin(const LADSPA_Descriptor& desc, std::map<unsigned l
     d[desc.UniqueID] = new PluginDesc(desc, tp, ctrl_ports, path, index);
 }
 
-static void load_ladspa_defs(const std::string& path, std::map<unsigned long, PluginDesc*>& d) {
+//static
+void LadspaPluginList::load_defs(const std::string& path, pluginmap& d) {
     void *handle;
     handle = dlopen(path.c_str(), RTLD_LOCAL|RTLD_NOW);
     if (!handle) {
@@ -892,7 +894,7 @@ static void load_ladspa_defs(const std::string& path, std::map<unsigned long, Pl
 	if (!desc) {
 	    break;
 	}
-	ladspa_add_plugin(*desc, d, path, i);
+	add_plugin(*desc, d, path, i);
 	i += 1;
     }
     dlclose(handle);
@@ -1154,6 +1156,16 @@ void PluginDesc::set_state(const ustring& fname) {
     check_has_settings();
 }
 
+void PluginDesc::set_old() {
+    old = new PluginDesc(*this);
+    old->ctrl_ports.clear();
+    old->copy_ports(this);
+}
+
+/****************************************************************
+ ** class LadspaPluginList
+ */
+
 static struct {
     unsigned long from, to;
 } ranges_1_based[] = {
@@ -1175,8 +1187,9 @@ static bool in_1_based_range(unsigned long uid) {
     return false;
 }
 
-static void set_instances(const char *uri, std::map<unsigned long, PluginDesc*>& d, std::vector<ustring>& label,
-			  std::vector<unsigned long>& not_found, std::set<unsigned long>& seen) {
+//static
+void LadspaPluginList::set_instances(const char *uri, pluginmap& d, std::vector<ustring>& label,
+				     std::vector<unsigned long>& not_found, std::set<unsigned long>& seen) {
     lrdf_uris *uris = lrdf_get_instances(uri);
     if (uris) {
         for (unsigned int i = 0; i < uris->count; ++i) {
@@ -1226,9 +1239,11 @@ static void set_instances(const char *uri, std::map<unsigned long, PluginDesc*>&
     }
 }
 
-static void descend(const char *uri, std::map<unsigned long, PluginDesc*>& d,
-		    std::vector<unsigned long>& not_found, std::set<unsigned long>& seen,
-		    std::vector<ustring>& base) {
+//static
+void LadspaPluginList::descend(const char *uri, pluginmap& d,
+			       std::vector<unsigned long>& not_found,
+			       std::set<unsigned long>& seen,
+			       std::vector<ustring>& base) {
     lrdf_uris *uris = lrdf_get_subclasses(uri);
     if (uris) {
 	for (unsigned int i = 0; i < uris->count; ++i) {
@@ -1246,13 +1261,13 @@ static bool cmp_plugins(const PluginDesc *a, const PluginDesc *b) {
     return ustring(a->Name) < ustring(b->Name);
 }
 
-void load_ladspalist(gx_system::CmdlineOptions& options, std::vector<unsigned long>& old_not_found, std::vector<PluginDesc*>& l) {
+void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<unsigned long>& old_not_found) {
     gx_system::PathList pl("LADSPA_PATH");
     if (!pl.size()) {
         pl.add("/usr/lib/ladspa");
         pl.add("/usr/local/lib/ladspa");
     }
-    std::map<unsigned long, PluginDesc*> d;
+    pluginmap d;
     for (gx_system::PathList::iterator it = pl.begin(); it != pl.end(); ++it) {
         Glib::RefPtr<Gio::File> file = *it;
         if (!file->query_exists()) {
@@ -1271,7 +1286,7 @@ void load_ladspalist(gx_system::CmdlineOptions& options, std::vector<unsigned lo
                     continue;
                 }
 		//printf("opening %s/%s\n", file->get_path().c_str(), nm.c_str());
-		load_ladspa_defs(Glib::build_filename(file->get_path(), nm), d);
+		load_defs(Glib::build_filename(file->get_path(), nm), d);
             }
         }
     }
@@ -1342,7 +1357,7 @@ void load_ladspalist(gx_system::CmdlineOptions& options, std::vector<unsigned lo
 	}
 	is.close();
     }
-    for (std::map<unsigned long, PluginDesc*>::iterator v = d.begin(); v != d.end(); ++v) {
+    for (pluginmap::iterator v = d.begin(); v != d.end(); ++v) {
 	v->second->fixup();
 	std::string s = gx_engine::LadspaLoader::get_ladspa_filename(v->first);
 	std::string fname = options.get_plugin_filepath(s);
@@ -1356,10 +1371,85 @@ void load_ladspalist(gx_system::CmdlineOptions& options, std::vector<unsigned lo
 	    v->second->set_state(fname);
 	}
     }
-    for (std::map<unsigned long, PluginDesc*>::iterator i = d.begin(); i != d.end(); ++i) {
-	l.push_back(i->second);
+    for (pluginmap::iterator i = d.begin(); i != d.end(); ++i) {
+	push_back(i->second);
     }
-    std::sort(l.begin(), l.end(), cmp_plugins);
+    std::sort(begin(), end(), cmp_plugins);
+}
+
+void LadspaPluginList::save(gx_system::CmdlineOptions& options) {
+    std::string fname = options.get_ladspa_config_filename();
+    std::string tfname = fname + ".tmp";
+    ofstream tfile(tfname.c_str());
+    JsonWriter jw(&tfile);
+    jw.begin_array(true);
+    for (std::vector<PluginDesc*>::iterator p = begin(); p != end(); ++p) {
+	if ((*p)->active) {
+	    (*p)->output_entry(jw);
+	}
+    }
+    jw.end_array(true);
+    jw.close();
+    tfile.close();
+    std::vector<std::pair<std::string,std::string> > fl;
+    for (std::vector<PluginDesc*>::iterator p = begin(); p != end(); ++p) {
+	std::string cname = options.get_plugin_filepath(
+	    gx_engine::LadspaLoader::get_ladspa_filename((*p)->UniqueID));
+	if ((*p)->active || (*p)->has_settings) {
+	    std::string tcname = cname + ".tmp";
+	    ofstream tcfile(tcname.c_str());
+	    JsonWriter jw2(&tcfile);
+	    (*p)->output(jw2);
+	    jw2.close();
+	    tcfile.close();
+	    fl.push_back(std::pair<std::string,std::string>(tcname, cname));
+	} else {
+	    fl.push_back(std::pair<std::string,std::string>("", cname));
+	}
+    }
+    if (rename(tfname.c_str(), fname.c_str()) != 0) {
+	char buf[100];
+	char *p = strerror_r(errno, buf, sizeof(buf));
+	gx_system::gx_print_error(
+	    "ladspalist",ustring::compose(_("error renaming LADSPA config file '%1': %2\n"), fname, p));
+	return;
+    }
+    for (std::vector<std::pair<std::string,std::string> >::iterator i = fl.begin(); i != fl.end(); ++i) {
+	if (i->first.empty()) {
+	    unlink(i->second.c_str());
+	} else {
+	    if (rename(i->first.c_str(), i->second.c_str()) != 0) {
+		char buf[100];
+		char *p = strerror_r(errno, buf, sizeof(buf));
+		gx_system::gx_print_error(
+		    "ladspalist",
+		    ustring::compose("error renaming %1 to %2: %3\n", i->first, i->second, p));
+	    }
+	}
+    }
+}
+
+
+void LadspaPluginList::readJSON(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::begin_array);
+    while (jp.peek() != gx_system::JsonParser::end_array) {
+	push_back(new ladspa::PluginDesc(jp));
+    }
+    jp.next(gx_system::JsonParser::end_array);
+}
+
+void LadspaPluginList::writeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_array();
+    for (iterator i = begin(); i != end(); ++i) {
+	(*i)->serializeJSON(jw);
+    }
+    jw.end_array();
+}
+
+LadspaPluginList::~LadspaPluginList() {
+    for (iterator i = begin(); i != end(); ++i) {
+	delete *i;
+    }
 }
 
 } // namespace ladspa

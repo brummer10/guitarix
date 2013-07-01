@@ -125,8 +125,8 @@ typedef PluginDef *(*plugindef_creator)();
 
 class PluginListBase {
 public:
-    typedef pair<const char*, Plugin*> map_pair;
-    typedef map<const char*, Plugin*, stringcomp> pluginmap;
+    typedef pair<const std::string, Plugin*> map_pair;
+    typedef map<const std::string, Plugin*> pluginmap;
 protected:
     enum PluginPosInternal {
 	PLUGIN_POS_RACK_STEREO = PLUGIN_POS_END+1,
@@ -137,8 +137,8 @@ protected:
 public:
     PluginListBase();
     ~PluginListBase();
-    Plugin *find_plugin(const char *id) const;
-    Plugin *lookup_plugin(const char *id) const;
+    Plugin *find_plugin(const std::string& id) const;
+    Plugin *lookup_plugin(const std::string& id) const;
     void append_rack(UiBuilderBase& ui);
     void writeJSON(gx_system::JsonWriter& jw);
     void readJSON(gx_system::JsonParser& jp, ParamMap& pmap);

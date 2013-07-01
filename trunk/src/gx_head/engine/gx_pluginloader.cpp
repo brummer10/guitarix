@@ -144,6 +144,21 @@ Plugin::Plugin(PluginDef *pl)
     set_pdef(pl);
 }
 
+static void delete_plugindef_instance(PluginDef *p) {
+    free((void*)(p->id));
+    free((void*)(p->name));
+    free((void*)(p->description));
+    free((void*)(p->category));
+    free((void*)(p->shortname));
+    if (p->groups) {
+	for (const char **q = p->groups; *q; q++) {
+	    free((void*)(*q));
+	}
+	delete[] p->groups;
+    }
+    delete p;
+}
+
 Plugin::Plugin(gx_system::JsonParser& jp, ParamMap& pmap)
     : pdef(0),
       p_box_visible(0),
@@ -152,6 +167,7 @@ Plugin::Plugin(gx_system::JsonParser& jp, ParamMap& pmap)
       p_position(0),
       p_effect_post_pre(0) {
     PluginDef *p = new PluginDef();
+    p->delete_instance = delete_plugindef_instance;
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
@@ -159,10 +175,10 @@ Plugin::Plugin(gx_system::JsonParser& jp, ParamMap& pmap)
 	    jp.read_kv("flags", p->flags)) {
 	} else if (jp.current_value() == "id") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    p->id = strdup(jp.current_value().c_str()); //FIXME
+	    p->id = strdup(jp.current_value().c_str());
 	} else if (jp.current_value() == "name") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    p->name = strdup(jp.current_value().c_str()); //FIXME
+	    p->name = strdup(jp.current_value().c_str());
 	} else if (jp.current_value() == "groups") {
 	    jp.next(gx_system::JsonParser::begin_array);
 	    std::vector<std::string> v;
@@ -174,18 +190,18 @@ Plugin::Plugin(gx_system::JsonParser& jp, ParamMap& pmap)
 	    const char **pg  = new const char*[v.size()+1];
 	    p->groups = pg;
 	    for (std::vector<std::string>::iterator i = v.begin(); i != v.end(); ++i) {
-		*pg++ = strdup(i->c_str()); //FIXME
+		*pg++ = strdup(i->c_str());
 	    }
 	    *pg++ = 0;
 	} else if (jp.current_value() == "description") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    p->description = strdup(jp.current_value().c_str()); //FIXME
+	    p->description = strdup(jp.current_value().c_str());
 	} else if (jp.current_value() == "category") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    p->category = strdup(jp.current_value().c_str()); //FIXME
+	    p->category = strdup(jp.current_value().c_str());
 	} else if (jp.current_value() == "shortname") {
 	    jp.next(gx_system::JsonParser::value_string);
-	    p->shortname = strdup(jp.current_value().c_str()); //FIXME
+	    p->shortname = strdup(jp.current_value().c_str());
 	}
     }
     jp.next(gx_system::JsonParser::end_object);
@@ -286,17 +302,8 @@ void Plugin::copy_position(const Plugin& plugin) {
  */
 
 PluginListBase::PluginListBase() : pmap() {}
-PluginListBase::~PluginListBase() {}
 
-PluginList::PluginList(EngineControl& seq_)
-    : PluginListBase(), seq(seq_) {
-    plugin_pos[PLUGIN_POS_START]       = -1000;
-    plugin_pos[PLUGIN_POS_RACK]        = 1;
-    plugin_pos[PLUGIN_POS_END]         = 1000;
-    plugin_pos[PLUGIN_POS_RACK_STEREO] = 1;
-};
-
-PluginList::~PluginList() {
+PluginListBase::~PluginListBase() {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); ++p) {
 	PluginDef *pdef = p->second->get_pdef();
 	if (!(pdef->flags & PGNI_NOT_OWN)) {
@@ -308,7 +315,18 @@ PluginList::~PluginList() {
     }
 }
 
-Plugin *PluginListBase::find_plugin(const char *id) const {
+PluginList::PluginList(EngineControl& seq_)
+    : PluginListBase(), seq(seq_) {
+    plugin_pos[PLUGIN_POS_START]       = -1000;
+    plugin_pos[PLUGIN_POS_RACK]        = 1;
+    plugin_pos[PLUGIN_POS_END]         = 1000;
+    plugin_pos[PLUGIN_POS_RACK_STEREO] = 1;
+};
+
+PluginList::~PluginList() {
+}
+
+Plugin *PluginListBase::find_plugin(const std::string& id) const {
     pluginmap::const_iterator p = pmap.find(id);
     if (p == pmap.end()) {
 	return 0;
@@ -316,7 +334,7 @@ Plugin *PluginListBase::find_plugin(const char *id) const {
     return p->second;
 }
 
-Plugin *PluginListBase::lookup_plugin(const char *id) const {
+Plugin *PluginListBase::lookup_plugin(const std::string& id) const {
     Plugin *p = find_plugin(id);
     if (!p) {
 	gx_system::gx_print_fatal(

@@ -549,7 +549,8 @@ struct paradesc: boost::noncopyable {
 
 enum quirkflag { need_activate = 1, no_cleanup = 2 };
 
-struct plugdesc {
+class plugdesc {
+public:
     std::string path;
     unsigned int index;
     unsigned long UniqueID;
@@ -562,7 +563,11 @@ struct plugdesc {
     Glib::ustring master_label;
     std::vector<paradesc*> names;
     std::string id_str;
+private:
+    plugdesc() {}
     ~plugdesc();
+    friend class LadspaLoader;
+public:
     void readJSON(gx_system::JsonParser& jp);
     void writeJSON(gx_system::JsonWriter& jw);
 };
@@ -586,7 +591,7 @@ public:
     pluginarray::iterator begin() { return plugins.begin(); }
     pluginarray::iterator end() { return plugins.end(); }
     pluginarray::iterator find(unsigned long uniqueid);
-    void set_plugins(pluginarray& new_plugins) { plugins = new_plugins; }
+    void set_plugins(pluginarray& new_plugins);
     void update_instance(PluginDef *pdef, plugdesc *pdesc);
     static std::string get_ladspa_filename(unsigned long uid)
 	{ return "ladspa"+gx_system::to_string(uid)+".js"; }

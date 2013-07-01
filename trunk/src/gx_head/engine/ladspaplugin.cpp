@@ -311,6 +311,7 @@ void LadspaDsp::connect(int tp, int i, float *v) {
 
 void LadspaDsp::set_plugdesc(const plugdesc* pd_) {
     pd = pd_;
+    id = pd->id_str.c_str();
     category = pd->category.c_str();
     set_shortname();
 }
@@ -612,6 +613,13 @@ bool LadspaLoader::load(pluginarray& ml) {
 	return false;
     }
     return true;
+}
+
+void LadspaLoader::set_plugins(pluginarray& new_plugins) {
+    for (pluginarray::iterator i = plugins.begin(); i != plugins.end(); ++i) {
+	delete *i;
+    }
+    plugins = new_plugins;
 }
 
 LadspaLoader::pluginarray::iterator LadspaLoader::find(unsigned long uniqueid) {

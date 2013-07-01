@@ -77,6 +77,7 @@ enum jsonrpc_method {
 	RPCM_load_impresp_dirs,
 	RPCM_read_audio,
 	RPCM_load_ladspalist,
+	RPNM_save_ladspalist,
 	RPCM_ladspaloader_update_plugins,
 	RPCM_get_tuner_switcher_active,
 	RPNM_tuner_switcher_activate,

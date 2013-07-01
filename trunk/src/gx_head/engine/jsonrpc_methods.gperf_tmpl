@@ -158,6 +158,7 @@ struct CmdConnection::methodnames;
 /* Ladspa Loader */
 
 "load_ladspalist", true
+"save_ladspalist", false
 "ladspaloader_update_plugins", true
 
 

@@ -65,10 +65,11 @@ public:
     // engine
     virtual void set_state(GxEngineState state) = 0;
     virtual GxEngineState get_state() = 0;
-    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist) = 0;
+    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist) = 0;
+    virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist) = 0;
     virtual void commit_ladspa_changes() = 0;
     sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed() { return plugin_changed; }
-    virtual Plugin *pluginlist_lookup_plugin(const char *id) const = 0;
+    virtual Plugin *pluginlist_lookup_plugin(const std::string& id) const = 0;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) = 0;
     virtual void pluginlist_append_rack(UiBuilderBase& ui) = 0;
     virtual float get_tuner_freq() = 0;
@@ -238,9 +239,10 @@ public:
     virtual ~GxMachine();
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
-    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist);
+    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist);
+    virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist);
     virtual void commit_ladspa_changes();
-    virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
+    virtual Plugin *pluginlist_lookup_plugin(const std::string& id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
     virtual float get_tuner_freq();
@@ -411,9 +413,10 @@ public:
     virtual ~GxMachineRemote();
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
-    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist);
+    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist);
+    virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist);
     virtual void commit_ladspa_changes();
-    virtual Plugin *pluginlist_lookup_plugin(const char *id) const;
+    virtual Plugin *pluginlist_lookup_plugin(const std::string& id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
     virtual float get_tuner_freq();

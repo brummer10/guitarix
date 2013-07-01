@@ -626,7 +626,7 @@ void IRWindow::on_ms_length_changed() {
 }
 
 void IRWindow::on_apply_button_clicked() {
-    machine.pluginlist_lookup_plugin(jcp->id().c_str())->set_on_off(true);
+    machine.pluginlist_lookup_plugin(jcp->id())->set_on_off(true);
     save_state();
 }
 
@@ -655,7 +655,7 @@ void IRWindow::on_preset_popup_clicked() {
 	name.erase(n);
     }
     save_state();
-    new PluginPresetPopup(machine.pluginlist_lookup_plugin(jcp->id().c_str())->get_pdef(), machine, name);
+    new PluginPresetPopup(machine.pluginlist_lookup_plugin(jcp->id())->get_pdef(), machine, name);
 }
 
 void IRWindow::on_help_clicked() {

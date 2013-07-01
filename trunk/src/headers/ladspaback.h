@@ -132,7 +132,6 @@ public:
  */
 
 class PluginDesc {
-private:
 public:
     unsigned long UniqueID;
     Glib::ustring Label;
@@ -168,15 +167,43 @@ public:
     void set_category(const std::vector<Glib::ustring>& s);
     void set_default(int idx, float value, const Glib::ustring& label);
     void set_state(const Glib::ustring& fname);
-public:
+private:
     PluginDesc(const LADSPA_Descriptor& desc, int tp_, std::vector<PortDesc*>& ctrl_ports_, const std::string path_, int index_);
     PluginDesc(gx_system::JsonParser& jp);
     ~PluginDesc();
+    void serializeJSON(gx_system::JsonWriter& jw);
+    friend class LadspaPluginList;
+public:
+    void set_old();
+    void clear_old() { delete old; old = 0; }
     void output_entry(gx_system::JsonWriter& jw);
     void output(gx_system::JsonWriter& jw);
-    void serializeJSON(gx_system::JsonWriter& jw);
 };
 
-void load_ladspalist(gx_system::CmdlineOptions& options, std::vector<unsigned long>& old_not_found, std::vector<PluginDesc*>& l);
+
+/****************************************************************
+ ** class LadspaPluginList
+ */
+
+class LadspaPluginList: private std::vector<PluginDesc*> {
+private:
+    typedef std::map<unsigned long, PluginDesc*> pluginmap;
+    static void add_plugin(const LADSPA_Descriptor& desc, pluginmap& d, const std::string& path, int index);
+    static void load_defs(const std::string& path, pluginmap& d);
+    static void set_instances(const char *uri, pluginmap& d, std::vector<Glib::ustring>& label,
+			      std::vector<unsigned long>& not_found, std::set<unsigned long>& seen);
+    static void descend(const char *uri, pluginmap& d,
+			std::vector<unsigned long>& not_found, std::set<unsigned long>& seen,
+			std::vector<Glib::ustring>& base);
+public:
+    LadspaPluginList(): std::vector<PluginDesc*>() {}
+    ~LadspaPluginList();
+    void readJSON(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& jw);
+    void load(gx_system::CmdlineOptions& options, std::vector<unsigned long>& old_not_found);
+    void save(gx_system::CmdlineOptions& options);
+    using std::vector<PluginDesc*>::begin;
+    using std::vector<PluginDesc*>::end;
+};
 
 } // namespace ladspa

@@ -157,15 +157,19 @@ GxEngineState GxMachine::get_state() {
     return engine.get_state();
 }
 
-void GxMachine::load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist) {
-    ladspa::load_ladspalist(options, old_not_found, pluginlist);
+void GxMachine::load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist) {
+    pluginlist.load(options, old_not_found);
+}
+
+void GxMachine::save_ladspalist(ladspa::LadspaPluginList& pluginlist) {
+    pluginlist.save(options);
 }
 
 void GxMachine::commit_ladspa_changes() {
     engine.ladspaloader_update_plugins(plugin_changed);
 }
 
-Plugin *GxMachine::pluginlist_lookup_plugin(const char *id) const {
+Plugin *GxMachine::pluginlist_lookup_plugin(const std::string& id) const {
     return engine.pluginlist.lookup_plugin(id);
 }
 
@@ -1215,7 +1219,7 @@ GxEngineState GxMachineRemote::get_state() {
 ** LadspaLoader
 */
 
-void GxMachineRemote::load_ladspalist(std::vector<unsigned long>& old_not_found, std::vector<ladspa::PluginDesc*>& pluginlist) {
+void GxMachineRemote::load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist) {
     cerr << "load_ladspalist()" << endl;
     START_CALL(load_ladspalist);
     START_RECEIVE();
@@ -1225,12 +1229,15 @@ void GxMachineRemote::load_ladspalist(std::vector<unsigned long>& old_not_found,
 	old_not_found.push_back(jp->current_value_int());
     }
     jp->next(gx_system::JsonParser::end_array);
-    jp->next(gx_system::JsonParser::begin_array);
-    while (jp->peek() != gx_system::JsonParser::end_array) {
-	pluginlist.push_back(new ladspa::PluginDesc(*jp));
-    }
-    jp->next(gx_system::JsonParser::end_array);
+    pluginlist.readJSON(*jp);
     END_RECEIVE();
+}
+
+void GxMachineRemote::save_ladspalist(ladspa::LadspaPluginList& pluginlist) {
+    cerr << "save_ladspalist()" << endl;
+    START_NOTIFY(save_ladspalist);
+    pluginlist.writeJSON(*jw);
+    SEND();
 }
 
 void GxMachineRemote::update_plugins(gx_system::JsonParser *jp) {
@@ -1257,7 +1264,7 @@ void GxMachineRemote::update_plugins(gx_system::JsonParser *jp) {
 	PluginChange::pc c = static_cast<PluginChange::pc>(jp->current_value_int());
 	if (c == PluginChange::remove) {
 	    jp->next(gx_system::JsonParser::value_string);
-	    Plugin *p = pluginlist.lookup_plugin(jp->current_value().c_str());
+	    Plugin *p = pluginlist.lookup_plugin(jp->current_value());
 	    plugin_changed(p, c);
 	    pluginlist.delete_module(p);
 	} else {
@@ -1289,7 +1296,7 @@ void GxMachineRemote::commit_ladspa_changes() {
 ** PluginList
 */
 
-Plugin *GxMachineRemote::pluginlist_lookup_plugin(const char *id) const {
+Plugin *GxMachineRemote::pluginlist_lookup_plugin(const std::string& id) const {
     return pluginlist.lookup_plugin(id);
 }
 

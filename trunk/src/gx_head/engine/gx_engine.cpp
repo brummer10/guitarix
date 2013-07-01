@@ -287,7 +287,7 @@ void GxEngine::ladspaloader_update_plugins(sigc::signal<void,Plugin*,PluginChang
     // look for removed and changed plugins
     std::vector<PluginChange> pv;
     for (LadspaLoader::pluginarray::iterator i = ladspaloader.begin(); i != ladspaloader.end(); ++i) {
-	Plugin *pl = pluginlist.lookup_plugin((*i)->id_str.c_str());
+	Plugin *pl = pluginlist.lookup_plugin((*i)->id_str);
 	LadspaLoader::pluginarray::iterator j = find_plugin(ml, *i);
 	if (j == ml.end()) {
 	    pl->set_on_off(false);
@@ -318,7 +318,7 @@ void GxEngine::ladspaloader_update_plugins(sigc::signal<void,Plugin*,PluginChang
 	    plugin_changed(i->pl, PluginChange::remove);
 	    pluginlist.unregisterPlugin(i->pl, pmap, get_group_table());
 	    pluginlist.delete_module(i->pl);
-	} else if (i->status != PluginChange::add) {
+	} else {
 	    plugin_changed(i->pl, i->status);
 	}
     }
