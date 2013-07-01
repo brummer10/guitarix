@@ -38,20 +38,10 @@ namespace gx_gui {
 
 /****************************************************************/
 
-GxVBox::GxVBox(): Gtk::VBox(), m_label() {}
-GxVBox::~GxVBox() {}
-
-/****************************************************************/
-
-GxHBox::GxHBox(): Gtk::HBox(), m_label(), m_frame() {}
-GxHBox::~GxHBox() {}
-
-/****************************************************************/
-
 GxPaintBox::GxPaintBox(const char *expose_funk)
-    : Gtk::HBox(false, 0), m_paintbox() {
-    m_paintbox.property_paint_func() = expose_funk;
-    m_paintbox.pack_start(*this);
+    : Gxw::PaintBox(), m_hbox(false, 0) {
+    property_paint_func() = expose_funk;
+    pack_start(m_hbox);
 }
 
 GxPaintBox::~GxPaintBox() {}
@@ -67,12 +57,12 @@ GxEventBox::GxEventBox():
     m_fbox(),
     m_fixedbox(),
     m_label() {
-    m_eventbox.add(*this);
+    m_eventbox.add(m_hbox);
     m_fixedbox.add(m_eventbox);
-    m_hbox.add(m_pbox);
-    m_hbox.pack_start(m_fbox, false, false);
+    add(m_pbox);
+    pack_start(m_fbox, false, false);
     m_fbox.pack_start(m_fixedbox, false, false);
-    m_hbox.add(m_tbox);
+    add(m_tbox);
 }
 
 GxEventBox::~GxEventBox() {}

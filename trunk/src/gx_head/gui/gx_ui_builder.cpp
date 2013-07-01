@@ -126,27 +126,15 @@ void UiBuilderImpl::set_next_flags_(int flags) {
 }
 
 void UiBuilderImpl::create_small_rackknob_(const char *id, const char *label) {
-    if (label) {
-	intf->create_small_rackknob(id, label);
-    } else {
-	intf->create_small_rackknob(id);
-    }
+    intf->create_small_rackknob(id, label);
 }
 
 void UiBuilderImpl::create_small_rackknobr_(const char *id, const char *label) {
-    if (label) {
-	intf->create_small_rackknobr(id, label);
-    } else {
-	intf->create_small_rackknobr(id);
-    }
+    intf->create_small_rackknobr(id, label);
 }
 
 void UiBuilderImpl::create_master_slider_(const char *id, const char *label) {
-    if (label) {
-	intf->create_master_slider(id, label);
-    } else {
-	intf->create_master_slider(id);
-    }
+    intf->create_master_slider(id, label);
 }
 
 void UiBuilderImpl::create_selector_no_caption_(const char *id) {
@@ -166,7 +154,7 @@ void UiBuilderImpl::create_switch_no_caption_(const char *sw_type, const char * 
 }
 
 void UiBuilderImpl::create_switch_(const char *sw_type, const char * id, const char *label) {
-    intf->create_switch(sw_type, id, label, Gtk::POS_TOP);
+    intf->create_v_switch(sw_type, id, label);
 }
 
 void UiBuilderImpl::create_port_display_(const char *id, const char *label) {

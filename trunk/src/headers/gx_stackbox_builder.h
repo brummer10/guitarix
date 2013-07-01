@@ -22,17 +22,6 @@
 
 namespace gx_gui {
 
-class uiToggleButton {
-private:
-    gx_engine::GxMachineBase& machine;
-    const std::string id;
-    Gtk::ToggleButton* fButton;
-public:
-    uiToggleButton(gx_engine::GxMachineBase& machine_, Gtk::ToggleButton* b, const std::string& id_);
-    void toggled();
-    void set_value(bool v);
-};
-
 /****************************************************************/
 
 class WidgetStack {
@@ -43,13 +32,13 @@ public:
     WidgetStack(): stack() {}
     ~WidgetStack() {}
     bool empty() { return stack.empty(); }
-    void push(Gtk::Widget& w) { stack.push_back(&w); }
+    void push(Gtk::Widget *w) { stack.push_back(w); }
     void pop() { return stack.pop_back(); }
-    void container_add(Gtk::Widget& w);
-    void box_pack_start(Gtk::Widget& w, bool expand=true, bool fill=true, int padding=0);
-    void notebook_append_page(Gtk::Widget& w, Gtk::Widget& label);
+    void container_add(Gtk::Widget *w);
+    void box_pack_start(Gtk::Widget *w, bool expand=true, bool fill=true, int padding=0);
+    void notebook_append_page(Gtk::Widget *w, Gtk::Widget *label);
     bool top_is_notebook() { return dynamic_cast<Gtk::Notebook*>(top()) != 0; }
-    void add(Gtk::Widget& w, const char *label=0);
+    Gtk::Widget *add(Gtk::Widget *w, const Glib::ustring& label = Glib::ustring());
 };
 
 class StackBoxBuilder {
@@ -71,21 +60,19 @@ private:
 private:
     void openVerticalMidiBox(const char* label = "");
     // functions used in interfaces
-    void create_master_slider(string id) {
-	addwidget(UiRackMasterRegler::create(machine, new Gxw::HSlider(), id));
-    }
-    void create_master_slider(string id, Glib::ustring(label)) {
-	addwidget(UiRackMasterRegler::create(machine, new Gxw::HSlider(), id, label));
+    void create_master_slider(const std::string& id, const char *label) {
+	UiMasterReglerWithCaption<Gxw::HSlider> *w = new UiMasterReglerWithCaption<Gxw::HSlider>(machine, id);
+	w->set_label(label);
+	addwidget(w);
     }
 
     void closeBox();
     void openSpaceBox(const char* label = "");
 
     void check_set_flags(Gxw::Regler *r);
-    void create_small_rackknob(string id);
-    void create_small_rackknob(string id, Glib::ustring label);
-    void create_small_rackknobr(string id);
-    void create_small_rackknobr(string id, Glib::ustring label);
+    void create_small_rackknob(const std::string& id, const char *label);
+    void create_small_rackknobr(const std::string& id);
+    void create_small_rackknobr(const std::string& id, const char *label);
 
     void openVerticalBox(const char* label = "");
     void openFrameBox(const char* label);
@@ -94,65 +81,47 @@ private:
     void openVerticalHideBox(const char* label = "");
     void openHorizontalhideBox(const char* label = "");
     void openHorizontalTableBox(const char* label);
-    void create_switch_no_caption(const char *sw_type, const string& id) {
+    void create_switch_no_caption(const char *sw_type, const std::string& id) {
 	addwidget(UiSwitch::create(machine, sw_type, id));
     }
-    void create_switch(const char *sw_type, const string& id, const char *label, Gtk::PositionType pos) {
-	if (label) {
-	    addwidget(UiSwitchWithCaption::create(machine, sw_type, id, label, pos));
-	} else {
-	    addwidget(UiSwitchWithCaption::create(machine, sw_type, id, pos));
-	}
+    void create_h_switch(const char *sw_type, const std::string& id, const char *label) {
+	addwidget(UiHSwitchWithCaption::create(machine, sw_type, id, label));
+    }
+    void create_v_switch(const char *sw_type, const std::string& id, const char *label) {
+	addwidget(UiHSwitchWithCaption::create(machine, sw_type, id, label));
     }
     void openpaintampBox(const char* label = "");
-    void create_wheel(string id, bool show_value = false) {
-	addwidget(UiRegler::create(machine, new Gxw::Wheel(), id, show_value));
+    void create_wheel(const std::string& id, bool show_value = false) {
+	addwidget(new UiRegler<Gxw::Wheel>(machine, id, show_value));
     }
     void create_spin_value(const std::string& id, const char *label) {
-	Gtk::Widget *w;
-	Gxw::ValueDisplay *v = new Gxw::ValueDisplay();
-	if (label) {
-	    w = UiRackReglerWithCaption::create(machine, v, id, label);
-	} else {
-	    w = UiRackReglerWithCaption::create(machine, v, id);
-	}
-	v->set_name("show_always");
+	UiDisplayWithCaption<Gxw::ValueDisplay> *w = new UiDisplayWithCaption<Gxw::ValueDisplay>(machine, id);
+	w->set_rack_label(label);
+	w->get_regler()->set_name("show_always");
 	addwidget(w);
     }
-    void create_simple_spin_value(const std::string& id, const char *label = 0) {
-	Gtk::Widget *w;
-	Gxw::SimpleValueDisplay *v = new Gxw::SimpleValueDisplay();
-	if (label) {
-	    w = UiRackReglerWithCaption::create(machine, v, id, label);
-	} else {
-	    w = UiRackRegler::create(machine, v, id);
-	}
-	v->set_name("show_always");
+    void create_simple_spin_value(const std::string& id) {
+	Gxw::SimpleValueDisplay *w = new UiRegler<Gxw::SimpleValueDisplay>(machine, id);
+	w->set_name("show_always");
 	addwidget(w);
     }
-    void create_eq_rackslider_no_caption(string id) {
-	addwidget(UiRackRegler::create(machine, new Gxw::EqSlider(), id));
+    void create_eq_rackslider_no_caption(const std::string& id) {
+	addwidget(new UiRegler<Gxw::EqSlider>(machine, id, true));
     }
-    void create_port_display(string id, const char *label) {
-	if (label) {
-	    if (*label) {
-		addwidget(UiRackReglerWithCaption::create(machine, new Gxw::PortDisplay(), id, label));
-	    } else {
-		addwidget(UiRackRegler::create(machine, new Gxw::PortDisplay(), id));
-	    }
-	} else {
-	    addwidget(UiRackReglerWithCaption::create(machine, new Gxw::PortDisplay(), id));
-	}
+    void create_port_display(const std::string& id, const char *label) {
+	CpBaseCaption *w = new UiReglerWithCaption<Gxw::PortDisplay>(machine, id);
+	w->set_rack_label(label);
+	addwidget(w);
     }
-    void create_selector(string id, const char *widget_name=0);
-    void create_selector_with_caption(string id, const char *label);
+    void create_selector(const std::string& id, const char *widget_name=0);
+    void create_selector_with_caption(const std::string& id, const char *label);
     void openFlipLabelBox(const char* = 0);
     void openVerticalBox1(const char* label = 0);
     void openVerticalBox2(const char* label = 0);
     void openPaintBox2(const char* label = 0);
     void openTabBox(const char* label = 0);
-    void addCheckButton(string id, const char* label = 0);
-    void addNumEntry(string id, const char* label = 0);
+    void addCheckButton(const std::string& id, const char* label = 0);
+    void addNumEntry(const std::string& id, const char* label = 0);
     void addMToggleButton(const std::string& id, const char* label = 0);
     void addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void openSetLabelBox();
@@ -162,10 +131,7 @@ private:
     void set_next_flags(int flags);
 private:
     // functions used indirectly
-    Gtk::Widget*  addWidget(const char* label, Gtk::Widget* w);
     void addwidget(Gtk::Widget *widget);
-    void addCheckButton(const char* label, const char* id);
-    void addNumEntry(const char* label, const char* id, float init, float min, float max, float step);
     friend class UiBuilderImpl;
 public:
     StackBoxBuilder(

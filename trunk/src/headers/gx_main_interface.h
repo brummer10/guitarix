@@ -62,50 +62,118 @@ namespace gx_gui {
 
 /****************************************************************
  **
- ** ---------------- the main GUI class ----------------
- **
  */
 
-class UiRegler: public Gtk::Adjustment {
-private:
-    using Gtk::Adjustment::set_value;
-protected:
+class CpBase {
+public:
     gx_engine::GxMachineBase& machine;
-    gx_engine::FloatParameter& param;
-    Gxw::Regler *m_regler;
+    std::string id;
     bool log_display;
     bool blocked;
-    void on_value_changed();
-    void set_regler_value(float v);
- public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id, bool show_value);
-    UiRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter& param, Gxw::Regler *regler, bool show_value);
-    virtual ~UiRegler();
-    Gtk::Widget *get_widget() { return m_regler; }
+    void on_cp_value_changed(Gxw::ControlParameter& c);
+    void set_cp_value(float v, Gxw::ControlParameter& c);
+public:
+    CpBase(gx_engine::GxMachineBase& machine, const std::string& id);
+    ~CpBase();
+    void init(Gxw::Regler& regler, bool show_value);
 };
 
-/****************************************************************/
-
-class UiSelectorBase {
+class CpBaseCaption: public Gtk::VBox {
 protected:
-    gx_engine::GxMachineBase& machine;
-    const std::string id;
-    Gxw::Selector m_selector;
+    CpBase base;
+    Gtk::Label m_label;
 public:
-    UiSelectorBase(gx_engine::GxMachineBase& machine, const std::string& id);
-    void set_name(const Glib::ustring& n) { m_selector.set_name(n); }
-    virtual Gtk::Widget *get_widget() { return &m_selector; }
+    CpBaseCaption(gx_engine::GxMachineBase& machine, const std::string& id);
+    ~CpBaseCaption();
+    void init(Gxw::Regler& regler, bool show_value);
+    void set_effect_label(const char *label);
+    void set_rack_label(const char *label);
+};
+
+class CpMasterCaption: public Gtk::HBox {
+protected:
+    CpBase base;
+    Gtk::Label m_label;
+public:
+    CpMasterCaption(gx_engine::GxMachineBase& machine, const std::string& id);
+    ~CpMasterCaption();
+    void init(Gxw::Regler& regler);
+    void set_label(const char *label);
+};
+
+class CpBaseCaptionBoxed: public Gtk::VBox {
+protected:
+    CpBase base;
+    Gtk::HBox h_box;
+    Gtk::Label m_label;
+public:
+    CpBaseCaptionBoxed(gx_engine::GxMachineBase& machine, const std::string& id);
+    ~CpBaseCaptionBoxed();
+    void init(Gxw::Regler& regler, bool show_value);
+    void set_rack_label(const char *label);
 };
 
 template <class T>
-class UiSelector: public UiSelectorBase, public Gtk::Adjustment {
+class UiRegler: public T {
+protected:
+    CpBase base;
+public:
+    UiRegler(gx_engine::GxMachineBase& machine, const std::string& id, bool show_value = true)
+	: T(), base(machine, id) { base.init(*this, show_value); }
+};
+
+template <class T>
+class UiReglerWithCaption: public CpBaseCaption {
+protected:
+    T regler;
+public:
+    UiReglerWithCaption(gx_engine::GxMachineBase& machine, const std::string& id)
+	: CpBaseCaption(machine, id), regler() { init(regler, true); }
+    void set_label(const Glib::ustring& label);
+    T *get_regler() { return &regler; }
+};
+
+template <class T>
+class UiMasterReglerWithCaption: public CpMasterCaption {
+protected:
+    T regler;
+public:
+    UiMasterReglerWithCaption(gx_engine::GxMachineBase& machine, const std::string& id)
+	: CpMasterCaption(machine, id), regler() { init(regler); }
+    T *get_regler() { return &regler; }
+};
+
+template<class T>
+class UiDisplayWithCaption: public CpBaseCaptionBoxed {
+protected:
+    T regler;
+public:
+    UiDisplayWithCaption(gx_engine::GxMachineBase& machine, const std::string& id)
+	: CpBaseCaptionBoxed(machine, id), regler() { init(regler, true); }
+    T *get_regler() { return &regler; }
+};
+
+
+/****************************************************************/
+
+class CpSelectorBase {
+public:
+    gx_engine::GxMachineBase& machine;
+    const std::string id;
+public:
+    CpSelectorBase(Gxw::Selector& selector, gx_engine::GxMachineBase& machine, const std::string& id);
+};
+
+template <class T>
+class UiSelector: public Gxw::Selector {
 private:
-    using Gtk::Adjustment::set_value;
+    CpSelectorBase base;
     void set_selector_value(T v);
     void on_value_changed();
 public:
     UiSelector(gx_engine::GxMachineBase& machine, const std::string& id);
     ~UiSelector();
+    void set_name(const Glib::ustring& n) { set_name(n); }
 };
 
 template <class T>
@@ -113,20 +181,19 @@ UiSelector<T>::~UiSelector() {
 }
 
 template <class T>
-class UiSelectorWithCaption: public UiSelector<T> {
+class UiSelectorWithCaption: public Gtk::VBox {
 private:
+    UiSelector<T> m_selector;
     Gtk::Label m_label;
-    Gtk::VBox m_box;
 public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const std::string& id, const char *label);
     UiSelectorWithCaption(gx_engine::GxMachineBase& machine, const std::string& id, const char *label);
     ~UiSelectorWithCaption();
-    virtual Gtk::Widget *get_widget() { return &m_box; }
+    void set_name(const Glib::ustring& n) { m_selector.set_name(n); }
 };
 
 template <class T>
 UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_engine::GxMachineBase& machine, const std::string& id, const char *label)
-    : UiSelector<T>(machine, id) {
+    : Gtk::VBox(), m_selector(machine, id), m_label() {
     if (label) {
 	m_label.set_text(label);
     } else {
@@ -134,96 +201,16 @@ UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_engine::GxMachineBase& machin
     }
     m_label.set_name("rack_label");
     m_label.set_justify(Gtk::JUSTIFY_CENTER);
-    m_box.set_name(id);
-    m_box.pack_start(m_label, Gtk::PACK_SHRINK);
-    m_box.pack_start(UiSelectorBase::m_selector, Gtk::PACK_EXPAND_PADDING);
-    set_accessible(UiSelectorBase::m_selector,m_label);
-    m_box.show_all();
+    set_name(id);
+    pack_start(m_label, Gtk::PACK_SHRINK);
+    pack_start(m_selector, Gtk::PACK_EXPAND_PADDING);
+    set_accessible(m_selector, m_label);
+    show_all();
 }
 
 template <class T>
 UiSelectorWithCaption<T>::~UiSelectorWithCaption() {
 }
-
-/****************************************************************/
-
-class UiReglerWithCaption: public UiRegler {
- private:
-    Gtk::Label m_label;
-    Gtk::VBox m_box;
- public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id, bool show_value);
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id,
-			       const Glib::ustring& label, bool show_value);
-    UiReglerWithCaption(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
-                        const Glib::ustring& label, bool show_value);
-    Gtk::Widget *get_widget() { return &m_box;}
-};
-
-/****************************************************************/
-
-class UiRackReglerWithCaption: public UiRegler {
- private:
-    Gtk::Label m_label;
-    Gtk::VBox m_box;
- public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id);
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id,
-                             const Glib::ustring& label);
-    UiRackReglerWithCaption(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
-                            const Glib::ustring& label);
-    Gtk::Widget *get_widget() { return &m_box;}
-};
-/****************************************************************/
-
-class UiRackMasterRegler: public UiRegler {
- private:
-    Gtk::Label m_label;
-    Gtk::HBox m_box;
- public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id);
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id,
-			       const Glib::ustring& label);
-    UiRackMasterRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
-		       const Glib::ustring& label);
-    Gtk::Widget *get_widget() { return &m_box;}
-};
-
-/****************************************************************/
-
-class UiRackRegler: public UiRegler {
- private:
-    Gtk::Label m_label;
-    Gtk::VBox m_box;
- public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id);
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, Gxw::Regler *regler, const std::string& id,
-                             const Glib::ustring& label);
-    UiRackRegler(gx_engine::GxMachineBase& machine, gx_engine::FloatParameter &param, Gxw::Regler *regler,
-                 const Glib::ustring& label);
-    Gtk::Widget *get_widget() { return &m_box;}
-};
-
-/****************************************************************/
-
-class uiCheckButton {
-private:
-    gx_engine::GxMachineBase& machine;
-    const std::string& id;
-    Gtk::ToggleButton* fButton;
-public:
-    uiCheckButton(gx_engine::GxMachineBase& machine_, const std::string& id_, Gtk::ToggleButton* b)
-	: machine(machine_), id(id_), fButton(b) {
-	fButton->set_active(machine.get_parameter_value<bool>(id));
-	machine.signal_parameter_value<bool>(id).connect(sigc::mem_fun(this, &uiCheckButton::set_value));
-    }
-    void toggled() {
-	machine.set_parameter_value(id, fButton->get_active());
-    }
-    void set_value(bool v) {
-	fButton->set_active(v);
-    }
-};
 
 /****************************************************************/
 
