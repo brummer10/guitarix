@@ -91,6 +91,9 @@ private:
     unsigned int _size;
 };
 
+bool read_audio(const std::string& filename, unsigned int *audio_size, int *audio_chan,
+		int *audio_type, int *audio_form, int *audio_rate, float **buffer);
+
 class GxConvolverBase: protected Convproc {
 protected:
     volatile bool ready;

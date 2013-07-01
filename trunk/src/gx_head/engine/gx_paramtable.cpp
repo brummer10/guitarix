@@ -139,8 +139,7 @@ void MidiStandardControllers::writeJSON(gx_system::JsonWriter& jw) const {
         if (i->second.modified) {
             ostringstream ostr;
             ostr << i->first;
-            jw.write_key(ostr.str());
-            jw.write(i->second.name, true);
+            jw.write_kv(ostr.str().c_str(), i->second.name);
         }
     }
     jw.end_object(true);
@@ -602,13 +601,13 @@ gx_system::JsonParser& Parameter::jp_next(gx_system::JsonParser& jp, const char 
 
 void Parameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
-    jw.write_key("id"); jw.write(_id);
-    jw.write_key("name"); jw.write(_name);
-    jw.write_key("group"); jw.write(_group);
-    jw.write_key("desc"); jw.write(_desc);
-    jw.write_key("v_type"); jw.write(v_type); //FIXME
-    jw.write_key("c_type"); jw.write(c_type); //FIXME
-    jw.write_key("d_flags"); jw.write(d_flags); //FIXME
+    jw.write_kv("id", _id);
+    jw.write_kv("name", _name);
+    jw.write_kv("group", _group);
+    jw.write_kv("desc", _desc);
+    jw.write_kv("v_type", v_type); //FIXME
+    jw.write_kv("c_type", c_type); //FIXME
+    jw.write_kv("d_flags", d_flags); //FIXME
     if (!controllable) {
 	jw.write_key("non_controllable"); jw.write(false);
     }
@@ -635,18 +634,10 @@ Parameter::Parameter(gx_system::JsonParser& jp)
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
-	if (jp.current_value() == "id") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    _id = jp.current_value();
-	} else if (jp.current_value() == "name") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    _name = jp.current_value();
-	} else if (jp.current_value() == "group") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    _group = jp.current_value();
-	} else if (jp.current_value() == "desc") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    _desc = jp.current_value();
+	if (jp.read_kv("id", _id) ||
+	    jp.read_kv("name", _name) ||
+	    jp.read_kv("group", _group) ||
+	    jp.read_kv("desc", _desc)) {
 	} else if (jp.current_value() == "v_type") {
 	    jp.next(gx_system::JsonParser::value_number);
 	    v_type = static_cast<value_type>(jp.current_value_int());
@@ -837,11 +828,11 @@ void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all
 void FloatParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
-    jw.write_key("lower"); jw.write(lower);
-    jw.write_key("upper"); jw.write(upper);
-    jw.write_key("step"); jw.write(step);
-    jw.write_key("value"); jw.write(*value);
-    jw.write_key("std_value"); jw.write(std_value);
+    jw.write_kv("lower", lower);
+    jw.write_kv("upper", upper);
+    jw.write_kv("step", step);
+    jw.write_kv("value", *value);
+    jw.write_kv("std_value", std_value);
     jw.end_object();
 }
 
@@ -849,21 +840,11 @@ FloatParameter::ParameterV(gx_system::JsonParser& jp)
     : Parameter(jp_next(jp, "Parameter")), json_value(0), value(&value_storage), std_value(0), lower(), upper(), step() {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
-	if (jp.current_value() == "lower") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    lower = jp.current_value_float();
-	} else if (jp.current_value() == "upper") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    upper = jp.current_value_float();
-	} else if (jp.current_value() == "step") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    step = jp.current_value_float();
-	} else if (jp.current_value() == "value") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    *value = jp.current_value_float();
-	} else if (jp.current_value() == "std_value") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    std_value = jp.current_value_float();
+	if (jp.read_kv("lower", lower) ||
+	    jp.read_kv("upper", upper) ||
+	    jp.read_kv("step", step) ||
+	    jp.read_kv("value", *value) ||
+	    jp.read_kv("std_value", std_value)) {
 	} else {
 	    gx_system::gx_print_warning(
 		"FloatParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -923,8 +904,7 @@ void FloatParameter::stdJSON_value() {
 }
 
 void FloatParameter::writeJSON(gx_system::JsonWriter& jw) const {
-    jw.write_key(_id.c_str());
-    jw.write(*value);
+    jw.write_kv(_id.c_str(), *value);
 }
 
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -1037,10 +1017,10 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
 void IntParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
-    jw.write_key("lower"); jw.write(lower);
-    jw.write_key("upper"); jw.write(upper);
-    jw.write_key("value"); jw.write(*value);
-    jw.write_key("std_value"); jw.write(std_value);
+    jw.write_kv("lower", lower);
+    jw.write_kv("upper", upper);
+    jw.write_kv("value", *value);
+    jw.write_kv("std_value", std_value);
     jw.end_object();
 }
 
@@ -1048,18 +1028,10 @@ IntParameter::ParameterV(gx_system::JsonParser& jp)
     : Parameter(jp_next(jp, "Parameter")), json_value(0), value(&value_storage), std_value(0), lower(), upper() {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
-	if (jp.current_value() == "lower") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    lower = jp.current_value_int();
-	} else if (jp.current_value() == "upper") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    upper = jp.current_value_int();
-	} else if (jp.current_value() == "value") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    *value = jp.current_value_int();
-	} else if (jp.current_value() == "std_value") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    std_value = jp.current_value_int();
+	if (jp.read_kv("lower", lower) ||
+	    jp.read_kv("upper", upper) ||
+	    jp.read_kv("value", *value) ||
+	    jp.read_kv("std_value", std_value)) {
 	} else {
 	    gx_system::gx_print_warning(
 		"IntParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1123,8 +1095,7 @@ void IntParameter::stdJSON_value() {
 }
 
 void IntParameter::writeJSON(gx_system::JsonWriter& jw) const {
-    jw.write_key(_id.c_str());
-    jw.write(*value);
+    jw.write_kv(_id.c_str(), *value);
 }
 
 void IntParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -1280,8 +1251,8 @@ EnumParameterD::~EnumParameterD() {
 void BoolParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
-    jw.write_key("value"); jw.write(*value);
-    jw.write_key("std_value"); jw.write(std_value);
+    jw.write_kv("value", *value);
+    jw.write_kv("std_value", std_value);
     jw.end_object();
 }
 
@@ -1289,12 +1260,7 @@ BoolParameter::ParameterV(gx_system::JsonParser& jp)
     : Parameter(jp_next(jp, "Parameter")), json_value(0), value(&value_storage), std_value(0) {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
-	if (jp.current_value() == "value") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    *value = jp.current_value_int();
-	} else if (jp.current_value() == "std_value") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    std_value = jp.current_value_int();
+	if (jp.read_kv("value", *value) || jp.read_kv("std_value", std_value)) {
 	} else {
 	    gx_system::gx_print_warning(
 		"BoolParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1346,8 +1312,7 @@ void BoolParameter::stdJSON_value() {
 }
 
 void BoolParameter::writeJSON(gx_system::JsonWriter& jw) const {
-    jw.write_key(_id.c_str());
-    jw.write(*value);
+    jw.write_kv(_id.c_str(), *value);
 }
 
 void BoolParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -1372,8 +1337,8 @@ void BoolParameter::setJSON_value() {
 void FileParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
-    jw.write_key("value"); jw.write(value->get_path());
-    jw.write_key("std_value"); jw.write(std_value->get_path());
+    jw.write_kv("value", value->get_path());
+    jw.write_kv("std_value", std_value->get_path());
     jw.end_object();
 }
 
@@ -1432,8 +1397,7 @@ bool FileParameter::on_off_value() {
 }
 
 void FileParameter::writeJSON(gx_system::JsonWriter& jw) const {
-    jw.write_key(_id.c_str());
-    jw.write(get_path());
+    jw.write_kv(_id.c_str(), get_path());
 }
 
 void FileParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -1494,8 +1458,8 @@ void FileParameter::copy(const string& destination) const {
 void StringParameter::serializeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
     jw.write_key("Parameter"); Parameter::serializeJSON(jw);
-    jw.write_key("value"); jw.write(*value);
-    jw.write_key("std_value"); jw.write(std_value);
+    jw.write_kv("value", *value);
+    jw.write_kv("std_value", std_value);
     jw.end_object();
 }
 
@@ -1503,12 +1467,7 @@ StringParameter::ParameterV(gx_system::JsonParser& jp)
     : Parameter(jp_next(jp, "Parameter")), json_value(""), value(&value_storage), std_value("") {
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
-	if (jp.current_value() == "value") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    *value = jp.current_value();
-	} else if (jp.current_value() == "std_value") {
-	    jp.next(gx_system::JsonParser::value_string);
-	    std_value = jp.current_value();
+	if (jp.read_kv("value", *value) || jp.read_kv("std_value", std_value)) {
 	} else {
 	    gx_system::gx_print_warning(
 		"StringParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1539,8 +1498,7 @@ void StringParameter::stdJSON_value() {
 }
 
 void StringParameter::writeJSON(gx_system::JsonWriter& jw) const {
-    jw.write_key(_id.c_str());
-    jw.write(*value);
+    jw.write_kv(_id.c_str(), *value);
 }
 
 void StringParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -1572,62 +1530,74 @@ ParamMap::~ParamMap() {
     }
 }
 
+void ParamMap::writeJSON_one(gx_system::JsonWriter& jw, Parameter *p) {
+    if (p->isFloat()) {
+	if (p->getControlType() == Parameter::Enum) {
+	    jw.write("FloatEnum");
+	} else {
+	    jw.write("Float");
+	}
+    } else if (p->isInt()) {
+	if (p->getControlType() == Parameter::Enum) {
+	    jw.write("Enum");
+	} else {
+	    jw.write("Int");
+	}
+    } else if (p->isBool()) {
+	jw.write("Bool");
+    } else if (p->isFile()) {
+	jw.write("File");
+    } else if (p->isString()) {
+	jw.write("String");
+    } else if (dynamic_cast<JConvParameter*>(p) != 0) {
+	jw.write("JConv");
+    } else {
+#ifndef NDEBUG
+	cerr << "skipping " << p->id() << endl;
+#endif
+	return;
+    }
+    p->serializeJSON(jw);
+}
+
 void ParamMap::writeJSON(gx_system::JsonWriter& jw) {
     jw.begin_array();
     for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
-	Parameter *p = i->second;
-	if (p->isFloat()) {
-	    if (p->getControlType() == Parameter::Enum) {
-		jw.write("FloatEnum");
-	    } else {
-		jw.write("Float");
-	    }
-	} else if (p->isInt()) {
-	    if (p->getControlType() == Parameter::Enum) {
-		jw.write("Enum");
-	    } else {
-		jw.write("Int");
-	    }
-	} else if (p->isBool()) {
-	    jw.write("Bool");
-	} else if (p->isFile()) {
-	    jw.write("File");
-	} else if (p->isString()) {
-	    jw.write("String");
-	} else {
-#ifndef NDEBUG
-	    cerr << "skipping " << p->id() << endl;
-#endif
-	    continue;
-	}
-	p->serializeJSON(jw);
+	writeJSON_one(jw, i->second);
     }
     jw.end_array();
+}
+
+Parameter *ParamMap::readJSON_one(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::value_string);
+    if (jp.current_value() == "FloatEnum") {
+	return insert(new FloatEnumParameterD(jp));
+    } else if (jp.current_value() == "Float") {
+	return insert(new FloatParameter(jp));
+    } else if (jp.current_value() == "Enum") {
+	return insert(new EnumParameterD(jp));
+    } else if (jp.current_value() == "Int") {
+	return insert(new IntParameter(jp));
+    } else if (jp.current_value() == "Bool") {
+	return insert(new BoolParameter(jp));
+    } else if (jp.current_value() == "File") {
+	return insert(new FileParameter(jp));
+    } else if (jp.current_value() == "String") {
+	return insert(new StringParameter(jp));
+    } else if (jp.current_value() == "JConv") {
+	return insert(new JConvParameter(jp));
+    } else {
+	gx_system::gx_print_warning(
+	    "ParamMap", Glib::ustring::compose("unknown parameter type: %1", jp.current_value()));
+	jp.skip_object();
+	return 0;
+    }
 }
 
 void ParamMap::readJSON(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
-	jp.next(gx_system::JsonParser::value_string);
-	if (jp.current_value() == "FloatEnum") {
-	    insert(new FloatEnumParameterD(jp));
-	} else if (jp.current_value() == "Float") {
-	    insert(new FloatParameter(jp));
-	} else if (jp.current_value() == "Enum") {
-	    insert(new EnumParameterD(jp));
-	} else if (jp.current_value() == "Int") {
-	    insert(new IntParameter(jp));
-	} else if (jp.current_value() == "Bool") {
-	    insert(new BoolParameter(jp));
-	} else if (jp.current_value() == "File") {
-	    insert(new FileParameter(jp));
-	} else if (jp.current_value() == "String") {
-	    insert(new StringParameter(jp));
-	} else {
-	    gx_system::gx_print_warning(
-		"ParamMap", Glib::ustring::compose("unknown parameter type: %1", jp.current_value()));
-	    jp.skip_object();
-	}
+	readJSON_one(jp);
     }
     jp.next(gx_system::JsonParser::end_array);
 }
@@ -1729,18 +1699,20 @@ void Parameter::dump(gx_system::JsonWriter *jw) {
 }
 #endif
 
-void ParamMap::insert(Parameter* param) {
+Parameter *ParamMap::insert(Parameter* param) {
     if (replace_mode) {
 	map<string, Parameter*>::iterator ii = id_map.find(param->id());
-	assert(ii != id_map.end());
-	Parameter *p = ii->second;
-	insert_remove(p,false);
-	id_map.erase(ii);
-	delete p;
+	if (ii != id_map.end()) {
+	    Parameter *p = ii->second;
+	    insert_remove(p,false);
+	    id_map.erase(ii);
+	    delete p;
+	}
     }
     debug_check(unique_id, param);
     id_map.insert(pair<string, Parameter*>(param->id(), param));
     insert_remove(param,true);
+    return param;
 }
 
 void ParamMap::unregister(Parameter *p) {

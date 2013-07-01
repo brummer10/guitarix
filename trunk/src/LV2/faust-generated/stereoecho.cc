@@ -213,24 +213,24 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case LFOFREQ: 
+		fslider1_ = (float*)data; // , 0.2f, 0.0f, 5.0f, 0.01f 
+		break;
 	// static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	case INVERT: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
-	case PERCENT_R: 
-		fslider4_ = (float*)data; // , 0.0f, 0.0f, 1e+02f, 0.1f 
-		break;
-	case TIME_R: 
-		fslider3_ = (float*)data; // , 1.0f, 1.0f, 2e+03f, 1.0f 
-		break;
 	case PERCENT_L: 
 		fslider2_ = (float*)data; // , 0.0f, 0.0f, 1e+02f, 0.1f 
 		break;
-	case LFOFREQ: 
-		fslider1_ = (float*)data; // , 0.2f, 0.0f, 5.0f, 0.01f 
+	case PERCENT_R: 
+		fslider4_ = (float*)data; // , 0.0f, 0.0f, 1e+02f, 0.1f 
 		break;
 	case TIME_L: 
 		fslider0_ = (float*)data; // , 1.0f, 1.0f, 2e+03f, 1.0f 
+		break;
+	case TIME_R: 
+		fslider3_ = (float*)data; // , 1.0f, 1.0f, 2e+03f, 1.0f 
 		break;
 	default:
 		break;
@@ -255,12 +255,12 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   INVERT, 
-   PERCENT_R, 
-   TIME_R, 
-   PERCENT_L, 
    LFOFREQ, 
+   INVERT, 
+   PERCENT_L, 
+   PERCENT_R, 
    TIME_L, 
+   TIME_R, 
 } PortIndex;
 */
 

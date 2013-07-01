@@ -377,7 +377,7 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		fRec0[0] = ((fConst69 * ((fConst12 * fRec1[1]) + (fConst1 * fRec1[0]))) + (fConst3 * fRec0[1]));
 		fRec37[0] = ((fConst7 * (fRec36[1] + fRec36[2])) + (fConst6 * fRec37[1]));
 		fRec36[0] = (Ftube(TUBE_TABLE_6V6_250k, ((fRec37[0] + fTemp13) - 1.130462)) - 112.13878048780487);
-		fRec35[0] = ((fConst3 * fRec35[1]) + (fConst69 * ((fConst12 * fRec36[1]) + (fConst1 * fRec36[0]))));
+		fRec35[0] = ((fConst69 * ((fConst12 * fRec36[1]) + (fConst1 * fRec36[0]))) + (fConst3 * fRec35[1]));
 		output0[i] = (FAUSTFLOAT)(fRec35[0] + fRec0[0]);
 		// post processing
 		fRec35[1] = fRec35[0];
@@ -438,8 +438,8 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 int Dsp::register_par(const ParamReg& reg)
 {
 	fslider3_ = reg.registerVar("gxdistortion.drive","","SA","",&fslider3, 0.35, 0.0, 1.0, 0.01);
-	fslider2_ = reg.registerVar("amp2.stage1.Pregain","","SA","",&fslider2, -6.0, -2e+01, 2e+01, 0.1);
 	fslider1_ = reg.registerVar("gxdistortion.wet_dry","","SA","",&fslider1, 1e+02, 0.0, 1e+02, 1.0);
+	fslider2_ = reg.registerVar("amp2.stage1.Pregain","","SA","",&fslider2, -6.0, -2e+01, 2e+01, 0.1);
 	fslider0_ = reg.registerVar("amp2.stage2.gain1","","SA","",&fslider0, -6.0, -2e+01, 2e+01, 0.1);
 	return 0;
 }

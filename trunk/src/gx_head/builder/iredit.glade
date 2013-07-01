@@ -482,8 +482,8 @@ response file with the
                                         <property name="right_attach">3</property>
                                         <property name="top_attach">4</property>
                                         <property name="bottom_attach">5</property>
-                                        <property name="x_options"></property>
-                                        <property name="y_options"></property>
+                                        <property name="x_options"/>
+                                        <property name="y_options"/>
                                         <property name="y_padding">8</property>
                                       </packing>
                                     </child>
@@ -1148,7 +1148,7 @@ response file with the
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="hbox8">
+                              <object class="GtkHBox" id="file_selector_box">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="spacing">4</property>
@@ -1238,6 +1238,25 @@ it can be mono or stereo
                               </packing>
                             </child>
                             <child>
+                              <object class="GtkComboBox" id="dir_combo:rack_button">
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="cellrenderertext2">
+                                    <property name="ellipsize">end</property>
+                                    <property name="width_chars">60</property>
+                                  </object>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
                               <object class="GtkComboBox" id="file_combo:rack_button">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -1254,7 +1273,7 @@ it can be mono or stereo
                               <packing>
                                 <property name="expand">True</property>
                                 <property name="fill">True</property>
-                                <property name="position">2</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                           </object>

@@ -60,6 +60,12 @@ public:
  ** class GxEngine
  */
 
+struct PluginChange {
+    Plugin *pl;
+    enum pc { remove, update, update_category, add } status;
+    PluginChange(Plugin *pl_, pc status_): pl(pl_), status(status_) {}
+};
+
 class GxEngine: public ModuleSequencer {
 private:
     gx_resample::BufferResampler resamp;
@@ -89,9 +95,7 @@ public:
     GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options);
     ~GxEngine();
     void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
-    void ladspaloader_update_plugins(
-	const std::vector<Plugin*>& to_remove, LadspaLoader::pluginarray& ml,
-	std::vector<PluginDef*>& pv);
+    void ladspaloader_update_plugins(sigc::signal<void,Plugin*,PluginChange::pc>& plugin_changed);
 };
 
 /* ------------------------------------------------------------------- */

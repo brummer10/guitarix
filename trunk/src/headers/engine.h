@@ -81,5 +81,6 @@ using namespace std;
 
 #include "gx_jack.h"
 #include "tunerswitcher.h"
+#include "ladspaback.h"
 
 #endif  // SRC_HEADERS_ENGINE_H_

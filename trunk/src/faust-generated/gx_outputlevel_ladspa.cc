@@ -95,8 +95,8 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *input1, floa
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("amp.out_master_ladspa",N_("Ladspa Level"),"S","",&fslider1, 0.0, -2e+01, 2e+01, 0.1);
 	reg.registerVar("amp.out_master",N_("Level"),"S","",&fslider0, 0.0, -5e+01, 4.0, 0.1);
+	reg.registerVar("amp.out_master_ladspa",N_("Ladspa Level"),"S","",&fslider1, 0.0, -2e+01, 2e+01, 0.1);
 	return 0;
 }
 

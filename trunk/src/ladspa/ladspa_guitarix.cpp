@@ -222,13 +222,13 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 		sl.add(Glib::build_filename(Glib::get_user_config_dir(), "guitarix")); //FIXME
 		sl.add(GX_SOUND_DIR);
 		jcset = new GxJConvSettings();
-		jcset->readJSON(jp, sl);
+		jcset->readJSON(jp, &sl);
 	    } else if (mono_convolver) {
 		gx_system::PathList sl;
 		sl.add(Glib::build_filename(Glib::get_user_config_dir(), "guitarix")); //FIXME
 		sl.add(GX_SOUND_DIR);
 		jcset = new GxJConvSettings();
-		jcset->readJSON(jp, sl);
+		jcset->readJSON(jp, &sl);
 	    } else {
 		jp.skip_object();
 	    }

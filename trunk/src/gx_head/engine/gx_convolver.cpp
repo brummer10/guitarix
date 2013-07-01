@@ -116,6 +116,43 @@ int Audiofile::read(float *data, uint32_t frames) {
     return sf_readf_float(_sndfile, data, frames);
 }
 
+bool read_audio(const std::string& filename, unsigned int *audio_size, int *audio_chan,
+		int *audio_type, int *audio_form, int *audio_rate, float **buffer) {
+    Audiofile audio;
+    if (audio.open_read(filename)) {
+        gx_system::gx_print_error("jconvolver", "Unable to open '" + filename + "'");
+	*audio_size = *audio_chan = *audio_type = *audio_form = *audio_rate = 0;
+	*buffer = 0;
+        return false;
+    }
+    *audio_size = audio.size();
+    *audio_chan = audio.chan();
+    *audio_type = audio.type();
+    *audio_form = audio.form();
+    *audio_rate = audio.rate();
+    const unsigned int limit = 2000000; // arbitrary size limit
+    if (*audio_size > limit) {
+        gx_system::gx_print_warning(
+            "jconvolver", (boost::format(_("too many samples (%1%), truncated to %2%"))
+                           % *audio_size % limit).str());
+        *audio_size = limit;
+    }
+    if (*audio_size * *audio_chan == 0) {
+        gx_system::gx_print_error("jconvolver", "No samples found");
+	*audio_size = *audio_chan = *audio_type = *audio_form = *audio_rate = 0;
+	*buffer = 0;
+        return false;
+    }
+    *buffer = new float[*audio_size * *audio_chan];
+    if (audio.read(*buffer, *audio_size) != static_cast<int>(*audio_size)) {
+	delete[] *buffer;
+        gx_system::gx_print_error("jconvolver", "Error reading file");
+	*audio_size = *audio_chan = *audio_type = *audio_form = *audio_rate = 0;
+	*buffer = 0;
+        return false;
+    }
+    return true;
+}
 
 /****************************************************************
  ** GxConvolverBase

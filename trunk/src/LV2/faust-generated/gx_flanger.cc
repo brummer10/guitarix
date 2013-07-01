@@ -173,20 +173,20 @@ void Dsp::connect(uint32_t port,void* data)
 	case DEPTH: 
 		fslider5_ = (float*)data; // , 0.5, 0.0, 5.0, 0.01 
 		break;
-	case WIDTH: 
-		fslider4_ = (float*)data; // , 5.0, 0.0, 1e+01, 0.01 
+	case FEEDBACK: 
+		fslider2_ = (float*)data; // , -0.707, -0.99, 0.99, 0.01 
 		break;
 	case FREQ: 
 		fslider3_ = (float*)data; // , 0.2, 0.05, 1e+01, 1.06 
 		break;
-	case FEEDBACK: 
-		fslider2_ = (float*)data; // , -0.707, -0.99, 0.99, 0.01 
+	case MIX: 
+		fslider0_ = (float*)data; // , 0.0, -1.0, 1.0, 0.1 
 		break;
 	case WET: 
 		fslider1_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
 		break;
-	case MIX: 
-		fslider0_ = (float*)data; // , 0.0, -1.0, 1.0, 0.1 
+	case WIDTH: 
+		fslider4_ = (float*)data; // , 5.0, 0.0, 1e+01, 0.01 
 		break;
 	default:
 		break;
@@ -212,11 +212,11 @@ void Dsp::del_instance(PluginLV2 *p)
 typedef enum
 {
    DEPTH, 
-   WIDTH, 
-   FREQ, 
    FEEDBACK, 
-   WET, 
+   FREQ, 
    MIX, 
+   WET, 
+   WIDTH, 
 } PortIndex;
 */
 

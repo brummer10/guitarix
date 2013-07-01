@@ -158,8 +158,8 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("delay.gain","","S","",&fslider1, 0.0f, -2e+01f, 2e+01f, 0.1f);
 	reg.registerVar("delay.delay","","S","",&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
+	reg.registerVar("delay.gain","","S","",&fslider1, 0.0f, -2e+01f, 2e+01f, 0.1f);
 	return 0;
 }
 

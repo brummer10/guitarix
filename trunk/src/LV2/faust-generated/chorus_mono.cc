@@ -145,11 +145,11 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case LEVEL: 
-		fslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
-		break;
 	case FREQ: 
 		fslider1_ = (float*)data; // , 2.0, 0.0, 1e+01, 0.01 
+		break;
+	case LEVEL: 
+		fslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case WET_DRY: 
 		fslider0_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
@@ -177,8 +177,8 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   LEVEL, 
    FREQ, 
+   LEVEL, 
    WET_DRY, 
 } PortIndex;
 */

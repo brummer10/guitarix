@@ -284,36 +284,36 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("eqs.Qs31_25","","S","",&fslider28, 5e+01, 1.0, 1e+02, 1.0);
-	reg.registerVar("eqs.freq31_25","","S",N_("Hz"),&fslider29, 31.0, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.freq62_5","","S",N_("Hz"),&fslider26, 62.0, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.fs31_25","","S",N_("gain (dB) at 31.25 Hz"),&fslider27, 0.0, -4e+01, 3e+01, 0.1);
-	reg.registerVar("eqs.fs62_5","","S",N_("gain (dB) at 62.5 Hz"),&fslider24, 0.0, -4e+01, 3e+01, 0.1);
-	reg.registerVar("eqs.Qs62_5","","S","",&fslider25, 5e+01, 1.0, 1e+02, 1.0);
 	reg.registerVar("eqs.Qs125","","S","",&fslider22, 5e+01, 1.0, 1e+02, 1.0);
-	reg.registerVar("eqs.freq125","","S",N_("Hz"),&fslider23, 125.0, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.freq250","","S",N_("Hz"),&fslider20, 2.5e+02, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.fs125","","S",N_("gain (dB) at 125 Hz"),&fslider21, 0.0, -4e+01, 3e+01, 0.1);
-	reg.registerVar("eqs.Qs1k","","S","",&fslider13, 5e+01, 1.0, 1e+02, 1.0);
-	reg.registerVar("eqs.fs1k","","S",N_("gain (dB) at 1 kHz"),&fslider12, 0.0, -4e+01, 3e+01, 0.1);
-	reg.registerVar("eqs.freq2k","","S",N_("Hz"),&fslider11, 2e+03, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.Qs2k","","S","",&fslider10, 5e+01, 1.0, 1e+02, 1.0);
-	reg.registerVar("eqs.freq500","","S",N_("Hz"),&fslider17, 5e+02, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.Qs500","","S","",&fslider16, 5e+01, 1.0, 1e+02, 1.0);
-	reg.registerVar("eqs.fs500","","S",N_("gain (dB) at 500 Hz"),&fslider15, 0.0, -4e+01, 3e+01, 0.1);
-	reg.registerVar("eqs.freq1k","","S",N_("Hz"),&fslider14, 1e+03, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.Qs250","","S","",&fslider19, 5e+01, 1.0, 1e+02, 1.0);
-	reg.registerVar("eqs.fs250","","S",N_("gain (dB) at 250 Hz"),&fslider18, 0.0, -4e+01, 3e+01, 0.1);
-	reg.registerVar("eqs.Qs4k","","S","",&fslider7, 5e+01, 1.0, 1e+02, 1.0);
-	reg.registerVar("eqs.fs4k","","S",N_("gain (dB) at 4 kHz"),&fslider6, 0.0, -4e+01, 3e+01, 0.1);
-	reg.registerVar("eqs.freq8k","","S",N_("Hz"),&fslider5, 8e+03, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.Qs8k","","S","",&fslider4, 5e+01, 1.0, 1e+02, 1.0);
-	reg.registerVar("eqs.fs8k","","S",N_("gain (dB) at 8 kHz"),&fslider3, 0.0, -4e+01, 3e+01, 0.1);
-	reg.registerVar("eqs.freq16k","","S",N_("Hz"),&fslider2, 1.6e+04, 2e+01, 2e+04, 1.0);
 	reg.registerVar("eqs.Qs16k","","S","",&fslider1, 5e+01, 1.0, 1e+02, 1.0);
-	reg.registerVar("eqs.fs16k","","S",N_("gain (dB) at 16 kHz"),&fslider0, 0.0, -4e+01, 3e+01, 0.1);
-	reg.registerVar("eqs.fs2k","","S",N_("gain (dB) at 2 kHz"),&fslider9, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.Qs1k","","S","",&fslider13, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.Qs250","","S","",&fslider19, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.Qs2k","","S","",&fslider10, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.Qs31_25","","S","",&fslider28, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.Qs4k","","S","",&fslider7, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.Qs500","","S","",&fslider16, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.Qs62_5","","S","",&fslider25, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.Qs8k","","S","",&fslider4, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.freq125","","S",N_("Hz"),&fslider23, 125.0, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq16k","","S",N_("Hz"),&fslider2, 1.6e+04, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq1k","","S",N_("Hz"),&fslider14, 1e+03, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq250","","S",N_("Hz"),&fslider20, 2.5e+02, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq2k","","S",N_("Hz"),&fslider11, 2e+03, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq31_25","","S",N_("Hz"),&fslider29, 31.0, 2e+01, 2e+04, 1.0);
 	reg.registerVar("eqs.freq4k","","S",N_("Hz"),&fslider8, 4e+03, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq500","","S",N_("Hz"),&fslider17, 5e+02, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq62_5","","S",N_("Hz"),&fslider26, 62.0, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq8k","","S",N_("Hz"),&fslider5, 8e+03, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.fs125","","S",N_("gain (dB) at 125 Hz"),&fslider21, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.fs16k","","S",N_("gain (dB) at 16 kHz"),&fslider0, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.fs1k","","S",N_("gain (dB) at 1 kHz"),&fslider12, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.fs250","","S",N_("gain (dB) at 250 Hz"),&fslider18, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.fs2k","","S",N_("gain (dB) at 2 kHz"),&fslider9, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.fs31_25","","S",N_("gain (dB) at 31.25 Hz"),&fslider27, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.fs4k","","S",N_("gain (dB) at 4 kHz"),&fslider6, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.fs500","","S",N_("gain (dB) at 500 Hz"),&fslider15, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.fs62_5","","S",N_("gain (dB) at 62.5 Hz"),&fslider24, 0.0, -4e+01, 3e+01, 0.1);
+	reg.registerVar("eqs.fs8k","","S",N_("gain (dB) at 8 kHz"),&fslider3, 0.0, -4e+01, 3e+01, 0.1);
 	return 0;
 }
 

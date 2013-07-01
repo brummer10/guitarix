@@ -149,11 +149,6 @@ public:
 class MainWindow;
 class RackBox;
 
-enum PluginType {
-    PLUGIN_TYPE_MONO,
-    PLUGIN_TYPE_STEREO,
-};
-
 class PluginUI: public sigc::trackable {
 private:
     Gtk::UIManager::ui_merge_id merge_id;
@@ -224,7 +219,7 @@ public:
     PluginDict(): std::map<std::string, PluginUI*>() {}
     ~PluginDict();
     void cleanup();
-    void add(PluginUI *p) { insert(pair<std::string, PluginUI*>(p->get_id(), p)); }
+    void add(PluginUI *p);
     void remove(PluginUI *p);
     PluginUI *operator[](const std::string& s) { return find(s)->second; }
     using std::map<std::string, PluginUI*>::begin;
@@ -370,7 +365,7 @@ private:
     virtual void on_drag_leave(const Glib::RefPtr<Gdk::DragContext>& context, guint timestamp);
     virtual void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     virtual void on_add(Widget* ch);
-    void unit_order_changed(bool stereo);
+    void unit_order_changed(PluginType type);
     void renumber();
     bool scroll_timeout();
     bool scrollother_timeout();
@@ -682,7 +677,7 @@ private:
     void set_animations();
     void move_widget(Gtk::Widget& w, Gtk::Box& b1, Gtk::Box& b2);
     int rackbox_stacked_vertical() const;
- void change_expand(Gtk::Widget& w, bool value);
+    void change_expand(Gtk::Widget& w, bool value);
     void on_dir_changed();
     void on_configure_event(GdkEventConfigure *ev);
     void clear_box(Gtk::Container& box);
@@ -764,6 +759,7 @@ private:
     bool delete_ladspalist_window();
     bool on_quit();
     void amp_controls_visible(Gtk::Range *rr);
+    void on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c);
 public:
     MainWindow(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options, Gtk::Window *splash);
     ~MainWindow();

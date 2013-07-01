@@ -18,6 +18,7 @@
  */
 
 #include "gx_convolver.h"
+#include "gx_compiler.h"
 #include <string.h>
 /****************************************************************
  ** some pieces in this file are copied from jconvolver
@@ -211,7 +212,7 @@ bool GxSimpleConvolver::update(int32_t count, float *impresp, uint32_t imprate)
   return true;
 }
 
-bool GxSimpleConvolver::compute(int32_t count, float* input, float *output)
+bool __rt_func GxSimpleConvolver::compute(int32_t count, float* input, float *output)
 {
   // printf("try run\n");
   if (state() != Convproc::ST_PROC)
@@ -317,7 +318,7 @@ bool GxSimpleConvolver::update_stereo(int32_t count, float *impresp, uint32_t im
   return true;
 }
 
-bool GxSimpleConvolver::compute_stereo(int32_t count, float* input, float* input1, float *output, float *output1)
+bool __rt_func GxSimpleConvolver::compute_stereo(int32_t count, float* input, float* input1, float *output, float *output1)
 {
   // printf("try run\n");
   if (state() != Convproc::ST_PROC)

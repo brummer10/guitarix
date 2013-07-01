@@ -286,20 +286,20 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case TREBLE: 
-		fslider2_ = (float*)data; // , 0.0, -5.0, 5.0, 0.01 
-		break;
-	case SHARPER: 
-		fslider3_ = (float*)data; // , -2.0, -2.5, 5.0, 0.1 
-		break;
-	case ON: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
 	case BASS: 
 		fslider1_ = (float*)data; // , 0.0, -5.0, 5.0, 0.01 
 		break;
 	case MIDDLE: 
 		fslider0_ = (float*)data; // , 0.0, -5.0, 5.0, 0.01 
+		break;
+	case ON: 
+		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case TREBLE: 
+		fslider2_ = (float*)data; // , 0.0, -5.0, 5.0, 0.01 
+		break;
+	case SHARPER: 
+		fslider3_ = (float*)data; // , -2.0, -2.5, 5.0, 0.1 
 		break;
 	default:
 		break;
@@ -324,11 +324,11 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   TREBLE, 
-   SHARPER, 
-   ON, 
    BASS, 
    MIDDLE, 
+   ON, 
+   TREBLE, 
+   SHARPER, 
 } PortIndex;
 */
 

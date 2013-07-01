@@ -47,9 +47,11 @@ def process_gperf_tmpl(self, node):
 
 def build(bld):
     sources_engine = [
+        './engine/gx_pluginloader.cpp',
+        './engine/ladspaplugin.cpp',
+        './engine/ladspaback.cpp',
         './engine/tunerswitcher.cpp',
         './engine/jsonrpc.cpp',
-        './engine/ladspaplugin.cpp',
         './engine/gx_jack.cpp',
         './engine/gx_preset.cpp',
         './engine/gx_json.cpp',
@@ -65,7 +67,6 @@ def build(bld):
         './engine/gx_system.cpp',
         './engine/gx_engine.cpp',
         './engine/gx_engine_midi.cpp',
-        './engine/gx_pluginloader.cpp',
         './engine/jsonrpc_methods.gperf_tmpl',
         ]
 

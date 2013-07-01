@@ -1,0 +1,13 @@
+#! /bin/bash
+
+lv2liste=$(lv2ls |grep guitarix.sourceforge);
+result=$(zenity  --list $lv2liste --column "guitarix LV2 plugs" \
+--width=550 --height=300 --multiple --separator=' ' \
+--window-icon=/usr/share/pixmaps/gx_head.png --title="Guitarix LV2 Starter " \
+--text="select guitarix lv2 plugins to run with jalv.gtk")
+
+# run multiple instances 
+for f in $result
+do
+jalv.gtk $f &
+done

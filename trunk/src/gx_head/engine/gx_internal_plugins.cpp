@@ -140,26 +140,19 @@ void GxJConvSettings::setFullIRPath(string name) {
 }
 
 void GxJConvSettings::writeJSON(gx_system::JsonWriter& w,
-				const gx_system::PathList& search_path) const {
+				const gx_system::PathList *search_path) const {
     w.begin_object(true);
-    w.write_key("jconv.IRFile");
-    w.write(fIRFile, true);
-    w.write_key("jconv.IRDir");
+    w.write_kv("jconv.IRFile", fIRFile);
     string dir = fIRDir;
-    if (search_path.contains(dir)) {
+    if (search_path && search_path->contains(dir)) {
 	dir = "";
     }
-    w.write(dir, true);
-    w.write_key("jconv.Gain");
-    w.write(fGain, true);
-    w.write_key("jconv.GainCor");
-    w.write(fGainCor, true);
-    w.write_key("jconv.Offset");
-    w.write(fOffset, true);
-    w.write_key("jconv.Length");
-    w.write(fLength, true);
-    w.write_key("jconv.Delay");
-    w.write(fDelay, true);
+    w.write_kv("jconv.IRDir", dir);
+    w.write_kv("jconv.Gain", fGain);
+    w.write_kv("jconv.GainCor", fGainCor);
+    w.write_kv("jconv.Offset", fOffset);
+    w.write_kv("jconv.Length", fLength);
+    w.write_kv("jconv.Delay", fDelay);
     w.write_key("jconv.gainline");
     w.begin_array();
     for (unsigned int i = 0; i < gainline.size(); i++) {
@@ -208,31 +201,17 @@ void GxJConvSettings::read_gainline(gx_system::JsonParser& jp) {
 }
 
 void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
-			       const gx_system::PathList& search_path) {
+			       const gx_system::PathList *search_path) {
     jp.next(gx_system::JsonParser::begin_object);
     do {
         jp.next(gx_system::JsonParser::value_key);
-        if (jp.current_value() == "jconv.IRFile") {
-            jp.next(gx_system::JsonParser::value_string);
-            fIRFile = jp.current_value();
-        } else if (jp.current_value() == "jconv.IRDir") {
-            jp.next(gx_system::JsonParser::value_string);
-            fIRDir = jp.current_value();
-        } else if (jp.current_value() == "jconv.Gain") {
-            jp.next(gx_system::JsonParser::value_number);
-            fGain = jp.current_value_float();
-        } else if (jp.current_value() == "jconv.GainCor") {
-            jp.next(gx_system::JsonParser::value_number);
-            fGainCor = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.Offset") {
-            jp.next(gx_system::JsonParser::value_number);
-            fOffset = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.Length") {
-            jp.next(gx_system::JsonParser::value_number);
-            fLength = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.Delay") {
-            jp.next(gx_system::JsonParser::value_number);
-            fDelay = jp.current_value_int();
+	if (jp.read_kv("jconv.IRFile", fIRFile) ||
+	    jp.read_kv("jconv.IRDir", fIRDir) ||
+	    jp.read_kv("jconv.Gain", fGain) ||
+	    jp.read_kv("jconv.GainCor", fGainCor) ||
+	    jp.read_kv("jconv.Offset", fOffset) ||
+	    jp.read_kv("jconv.Length", fLength) ||
+	    jp.read_kv("jconv.Delay", fDelay)) {
         } else if (jp.current_value() == "jconv.gainline") {
             read_gainline(jp);
         } else if (jp.current_value() == "jconv.favorits") {
@@ -244,7 +223,9 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
     if (!fIRFile.empty() && fIRDir.empty()) {
-	search_path.find_dir(&fIRDir, fIRFile);
+	if (search_path) {
+	    search_path->find_dir(&fIRDir, fIRFile);
+	}
     }
 }
 
@@ -253,12 +234,14 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
  ** class JConvParameter
  */
 
-ParameterV<GxJConvSettings>::ParameterV(const string& id, ConvolverAdapter &conv_, GxJConvSettings *v)
+ParameterV<GxJConvSettings>::ParameterV(const string& id, gx_engine::ConvolverAdapter& conv, GxJConvSettings *v)
     : Parameter(id, "", tp_special, None, true, false),
+      searchpath(&conv.get_pathlist()),
       json_value(),
       value(v),
       std_value(),
-      conv(conv_) {
+      value_storage(),
+      changed() {
     std_value.setFullIRPath(Glib::build_filename(conv.get_sys_IR_dir(), "greathall.wav"));
     std_value.fGainCor = true;
     std_value.fGain = 0.598717;
@@ -278,8 +261,33 @@ JConvParameter *JConvParameter::insert_param(
 JConvParameter::~ParameterV() {
 }
 
-void *JConvParameter::zone() {
-    return value;
+JConvParameter::ParameterV(gx_system::JsonParser& jp)
+ : Parameter(jp_next(jp, "Parameter")),
+   searchpath(0),
+   json_value(),
+   value(&value_storage),
+   std_value() {
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.current_value() == "value") {
+	    value->readJSON(jp, searchpath);
+	} else if (jp.current_value() == "std_value") {
+	    std_value.readJSON(jp, searchpath);
+	} else {
+	    gx_system::gx_print_warning(
+		"JConvParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
+	    jp.skip_object();
+	}
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
+
+void JConvParameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.write_key("value"); value->writeJSON(jw, 0);
+    jw.write_key("std_value"); std_value.writeJSON(jw, 0);
+    jw.end_object();
 }
 
 bool JConvParameter::on_off_value() {
@@ -293,11 +301,11 @@ void JConvParameter::stdJSON_value() {
 
 void JConvParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_key(_id.c_str());
-    value->writeJSON(jw, conv.get_pathlist());
+    value->writeJSON(jw, searchpath);
 }
 
 void JConvParameter::readJSON_value(gx_system::JsonParser& jp) {
-    json_value.readJSON(jp, conv.get_pathlist());
+    json_value.readJSON(jp, searchpath);
 }
 
 bool JConvParameter::compareJSON_value() {
@@ -309,8 +317,7 @@ bool JConvParameter::set(const GxJConvSettings& val) const {
 	return false;
     }
     *value = val;
-    conv.restart();
-    conv.signal_settings_changed()();
+    changed(value);
     return true;
 }
 
@@ -338,7 +345,6 @@ ConvolverAdapter::ConvolverAdapter(
       pathlist(pathlist_),
       sys_ir_dir(sys_ir_dir_),
       activated(false),
-      settings_changed(),
       jcset(),
       jcp(0),
       plugin() {
@@ -467,6 +473,9 @@ void ConvolverStereoAdapter::convolver(int count, float *input0, float *input1,
 int ConvolverStereoAdapter::convolver_register(const ParamReg& reg) {
     ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(reg.plugin);
     self.jcp = JConvParameter::insert_param(self.param, "jconv.convolver", self, &self.jcset);
+    self.jcp->signal_changed().connect(
+	sigc::hide(
+	    sigc::mem_fun(self, &ConvolverStereoAdapter::restart)));
     return self.jc_post.register_par(reg);
 }
 
@@ -553,6 +562,9 @@ void ConvolverMonoAdapter::convolver(int count, float *input, float *output, Plu
 int ConvolverMonoAdapter::convolver_register(const ParamReg& reg) {
     ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(reg.plugin);
     self.jcp = JConvParameter::insert_param(self.param, "jconv_mono.convolver", self, &self.jcset);
+    self.jcp->signal_changed().connect(
+	sigc::hide(
+	    sigc::mem_fun(self, &ConvolverMonoAdapter::restart)));
     return self.jc_post_mono.register_par(reg);;
 }
 

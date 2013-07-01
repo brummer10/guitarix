@@ -85,6 +85,16 @@ private:
     virtual int getInt() const;
 };
 
+class JsonObject: public JsonValue {
+private:
+    streampos position;
+    gx_system::JsonParser& jp;
+    JsonObject(gx_system::JsonParser& jp_): JsonValue(), position(jp_.get_streampos()), jp(jp_) {}
+    ~JsonObject() {}
+    friend class JsonArray;
+    virtual gx_system::JsonSubParser getSubParser() const;
+};
+
 JsonArray::~JsonArray() {
     for (iterator i = begin(); i != end(); ++i) {
 	delete *i;
@@ -115,6 +125,9 @@ void JsonArray::append(gx_system::JsonParser& jp) {
 	    b >> f;
 	    push_back(new JsonFloat(f));
 	}
+    } else if (jp.peek() & (gx_system::JsonParser::begin_array|gx_system::JsonParser::begin_object)) {
+	push_back(new JsonObject(jp));
+	jp.skip_object();
     } else {
 	throw gx_system::JsonException("unexpected token");
     }
@@ -132,6 +145,10 @@ const Glib::ustring& JsonValue::getString() const {
     throw RpcError(-32602, "Invalid param -- string expected");
 }
 
+gx_system::JsonSubParser JsonValue::getSubParser() const {
+    throw RpcError(-32602, "Invalid param -- object expected");
+}
+
 double JsonFloat::getFloat() const {
     return value;
 }
@@ -146,6 +163,10 @@ int JsonInt::getInt() const {
 
 const Glib::ustring& JsonString::getString() const {
     return string;
+}
+
+gx_system::JsonSubParser JsonObject::getSubParser() const {
+    return gx_system::JsonSubParser(jp, position);
 }
 
 
@@ -193,6 +214,8 @@ const static int InterfaceVersionMinor = 0;
 CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketConnection>& connection_)
     : serv(serv_),
       connection(connection_),
+      outgoing(),
+      current_offset(0),
       parameter_change_notify(false),
       midi_config_mode(false),
       conn_preset_changed(),
@@ -422,38 +445,28 @@ void CmdConnection::set_display_state(TunerSwitcher::SwitcherState state) {
 
 static void write_plugin_state(gx_system::JsonWriter& jw, gx_engine::Plugin *i) {
     jw.begin_object();
-    jw.write_key("id");
-    jw.write(i->get_pdef()->id);
-    jw.write_key("on_off");
-    jw.write(i->get_on_off());
-    jw.write_key("box_visible");
-    jw.write(i->get_box_visible());
-    jw.write_key("position");
-    jw.write(i->get_position());
-    jw.write_key("post_pre");
-    jw.write(i->get_effect_post_pre());
-    jw.write_key("stereo");
-    jw.write((i->get_pdef()->flags & PGN_STEREO) == PGN_STEREO);
+    jw.write_kv("id", i->get_pdef()->id);
+    jw.write_kv("on_off", i->get_on_off());
+    jw.write_kv("box_visible", i->get_box_visible());
+    jw.write_kv("position", i->get_position());
+    jw.write_kv("post_pre", i->get_effect_post_pre());
+    jw.write_kv("stereo", (i->get_pdef()->flags & PGN_STEREO) == PGN_STEREO);
     const char *p;
     p = i->get_pdef()->category;
     if (p) {
-	jw.write_key("category");
-	jw.write(p);
+	jw.write_kv("category", p);
     }
     p = i->get_pdef()->name;
     if (p) {
-	jw.write_key("name");
-	jw.write(p);
+	jw.write_kv("name", p);
     }
     p = i->get_pdef()->shortname;
     if (p) {
-	jw.write_key("shortname");
-	jw.write(p);
+	jw.write_kv("shortname", p);
     }
     p = i->get_pdef()->description;
     if (p) {
-	jw.write_key("description");
-	jw.write(p);
+	jw.write_kv("description", p);
     }
     jw.end_object();
 }
@@ -461,12 +474,9 @@ static void write_plugin_state(gx_system::JsonWriter& jw, gx_engine::Plugin *i) 
 static void write_parameter_state(gx_system::JsonWriter& jw, const gx_engine::Parameter& p) {
     jw.begin_object();
     if (p.hasRange()) {
-	jw.write_key("lower_bound");
-	jw.write(p.getLowerAsFloat());
-	jw.write_key("upper_bound");
-	jw.write(p.getUpperAsFloat());
-	jw.write_key("step");
-	jw.write(p.getStepAsFloat());
+	jw.write_kv("lower_bound", p.getLowerAsFloat());
+	jw.write_kv("upper_bound", p.getUpperAsFloat());
+	jw.write_kv("step", p.getStepAsFloat());
     }
     const value_pair *pairs = p.getValueNames();
     if (pairs) {
@@ -480,12 +490,9 @@ static void write_parameter_state(gx_system::JsonWriter& jw, const gx_engine::Pa
 	}
 	jw.end_array();
     }
-    jw.write_key("name");
-    jw.write(p.l_name());
-    jw.write_key("group");
-    jw.write(p.l_group());
-    jw.write_key("type");
-    jw.write(p.get_typename());
+    jw.write_kv("name", p.l_name());
+    jw.write_kv("group", p.l_group());
+    jw.write_kv("type", p.get_typename());
     gx_engine::Parameter::ctrl_type t = p.getControlType();
     if (t == gx_engine::Parameter::Continuous) {
 	jw.write_key("ctl_continous");
@@ -525,19 +532,18 @@ static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& pref
     return false;
 }
 
+void CmdConnection::add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v, std::vector<ChangedPlugin>& vec) {
+    if (pl) {
+	vec.push_back(ChangedPlugin(pl->get_pdef()->id, v));
+    }
+}
+
 #define START_FUNCTION_SWITCH(v)    switch (v) {
 #define FUNCTION(n)                 break; case RPCM_##n:
 #define PROCEDURE(n)                break; case RPNM_##n:
 #define END_FUNCTION_SWITCH(s)      break; default: s; }
 
 void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params) {
-    static const char *cmds[] = {
-	"get","set","banks","presets","setpreset","getstate","setstate",
-	"switch_tuner","get_tuning","get_max_input_level","get_max_output_level",
-	"shutdown","stop","rtload","desc","list","get_parameter","help",
-	0
-    };
-
     START_FUNCTION_SWITCH(mn->m_id);
 
     FUNCTION(get) {
@@ -752,10 +758,8 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     FUNCTION(get_tuning) {
 	jw.begin_object();
-	jw.write_key("frequency");
-	jw.write(serv.jack.get_engine().tuner.get_freq());
-	jw.write_key("note");
-	jw.write(serv.jack.get_engine().tuner.get_note());
+	jw.write_kv("frequency", serv.jack.get_engine().tuner.get_freq());
+	jw.write_kv("note", serv.jack.get_engine().tuner.get_note());
 	jw.end_object();
     }
 
@@ -815,6 +819,106 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     FUNCTION(get_jack_load_status) {
 	jw.write(serv.jack.get_engine().midiaudiobuffer.jack_load_status());
+    }
+
+    FUNCTION(load_impresp_dirs) {
+	std::vector<gx_system::FileName> dirs;
+	gx_system::list_subdirs(serv.settings.get_options().get_IR_pathlist(), dirs);
+	jw.begin_array();
+	for (std::vector<gx_system::FileName>::iterator i = dirs.begin(); i != dirs.end(); ++i) {
+	    jw.begin_array();
+	    jw.write(i->filename);
+	    jw.write(i->displayname);
+	    jw.end_array();
+	}
+	jw.end_array();
+    }
+
+    FUNCTION(read_audio) {
+	unsigned int audio_size;
+	int audio_chan, audio_type, audio_form, audio_rate;
+	float *buffer;
+	bool ret = gx_engine::read_audio(params[0]->getString(), &audio_size, &audio_chan,
+					 &audio_type, &audio_form, &audio_rate, &buffer);
+	if (!ret) {
+	    return;
+	}
+	jw.begin_array();
+	jw.write(audio_size);
+	jw.write(audio_chan);
+	jw.write(audio_type);
+	jw.write(audio_form);
+	jw.write(audio_rate);
+	jw.begin_array();
+	for (unsigned int i = 0; i < audio_size*audio_chan; i++) {
+	    jw.write(buffer[i]);
+	}
+	jw.end_array();
+	jw.end_array();
+	delete[] buffer;
+    }
+
+    FUNCTION(load_ladspalist) {
+	std::vector<unsigned long> old_not_found;
+	std::vector<ladspa::PluginDesc*> pluginlist;
+	ladspa::load_ladspalist(serv.settings.get_options(), old_not_found, pluginlist);
+	jw.begin_array();
+	for (std::vector<unsigned long>::iterator i = old_not_found.begin(); i != old_not_found.end(); ++i) {
+	    jw.write(static_cast<unsigned int>(*i));
+	}
+	jw.end_array();
+	jw.begin_array();
+	for (std::vector<ladspa::PluginDesc*>::iterator i = pluginlist.begin(); i != pluginlist.end(); ++i) {
+	    (*i)->serializeJSON(jw);
+	}
+	jw.end_array();
+    }
+
+    FUNCTION(ladspaloader_update_plugins) {
+	serv.preg_map = new std::map<std::string,bool>;
+	std::vector<ChangedPlugin> changed_plugins;
+	sigc::signal<void,gx_engine::Plugin*,gx_engine::PluginChange::pc> plugin_changed;
+	plugin_changed.connect(
+	    sigc::bind(sigc::mem_fun(this, &CmdConnection::add_changed_plugin),
+	    	       sigc::ref(changed_plugins)));
+	serv.jack.get_engine().ladspaloader_update_plugins(plugin_changed);
+	jw.begin_array();
+	serv.serialize_parameter_change(jw);
+	jw.begin_array();
+	for (std::vector<ChangedPlugin>::iterator i = changed_plugins.begin(); i != changed_plugins.end(); ++i) {
+	    jw.begin_array();
+	    jw.write(i->status);
+	    if (i->status == gx_engine::PluginChange::remove) {
+		jw.write(i->id);
+	    } else {
+		serv.jack.get_engine().pluginlist.lookup_plugin(i->id.c_str())->writeJSON(jw);
+	    }
+	    jw.end_array();
+	}
+	jw.end_array();
+	jw.end_array();
+	if (serv.broadcast_listeners(this)) {
+	    gx_system::JsonStringWriter jws;
+	    send_notify_begin(jws, "plugins_changed");
+	    serv.serialize_parameter_change(jws);
+	    // updated plugins
+	    jws.begin_array();
+	    for (std::vector<ChangedPlugin>::iterator i = changed_plugins.begin(); i != changed_plugins.end(); ++i) {
+		jws.begin_array();
+		jws.write(i->status);
+		if (i->status == gx_engine::PluginChange::remove) {
+		    jws.write(i->id);
+		} else {
+		    serv.jack.get_engine().pluginlist.lookup_plugin(i->id.c_str())->writeJSON(jws);
+		}
+		jws.end_array();
+	    }
+	    jws.end_array();
+	    send_notify_end(jws, false);
+	    serv.broadcast(this, jws);
+	}
+	delete serv.preg_map;
+	serv.preg_map = 0;
     }
 
     FUNCTION(plugin_preset_list_load) {
@@ -881,14 +985,6 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.end_array();
     }
 
-    FUNCTION(help) {
-	jw.begin_array();
-	for (const char **p = &cmds[0]; *p; ++p) {
-	    jw.write(*p);
-	}
-	jw.end_array();
-    }
-
     END_FUNCTION_SWITCH(cerr << "Method not found: " << mn->name << endl; assert(false));
 }
 
@@ -914,33 +1010,23 @@ static void save_preset(gx_preset::GxSettings& settings, const Glib::ustring& ba
 }
 
 void CmdConnection::send_rack_changed(bool stereo) {
-    std::string s;
-    for (std::list<CmdConnection*>::iterator p = serv.connection_list.begin(); p != serv.connection_list.end(); ++p) {
-	if (*p == this || !(*p)->parameter_change_notify) {
-	    continue;
-	}
-	if (s.empty()) {
-	    gx_system::JsonStringWriter jw;
-	    send_notify_begin(jw, "rack_units_changed");
-	    std::vector<std::string>& ul = serv.settings.get_rack_unit_order(stereo);
-	    jw.begin_array();
-	    jw.write(stereo);
-	    for (std::vector<std::string>::iterator i = ul.begin(); i != ul.end(); ++i) {
-		jw.write(*i);
-	    }
-	    jw.end_array();
-	    send_notify_end(jw, false);
-	    jw.finish();
-	    s = jw.get_string();
-	}
-	ssize_t n = write((*p)->connection->get_socket()->get_fd(), s.c_str(), s.size());
-	if (n != (ssize_t)s.size()) {
-	    cerr << "short write" << endl;
-	}
+    if (!serv.broadcast_listeners(this)) {
+	return;
     }
+    gx_system::JsonStringWriter jw;
+    send_notify_begin(jw, "rack_units_changed");
+    std::vector<std::string>& ul = serv.settings.get_rack_unit_order(stereo);
+    jw.begin_array();
+    jw.write(stereo);
+    for (std::vector<std::string>::iterator i = ul.begin(); i != ul.end(); ++i) {
+	jw.write(*i);
+    }
+    jw.end_array();
+    send_notify_end(jw, false);
+    serv.broadcast(this, jw);
 }
 
-void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params) {
+void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *mn, JsonArray& params) {
     START_FUNCTION_SWITCH(mn->m_id);
 
     PROCEDURE(insert_rack_unit) {
@@ -1082,40 +1168,35 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 		    p.getFile().set(Gio::File::create_for_path(v->getString()));
 		} else if (p.isString()) {
 		    p.getString().set(v->getString());
+		} else if (dynamic_cast<gx_engine::JConvParameter*>(&p) != 0) {
+		    gx_engine::GxJConvSettings s;
+		    gx_system::JsonSubParser jps = v->getSubParser();
+		    s.readJSON(jps, 0);
+		    dynamic_cast<gx_engine::JConvParameter*>(&p)->set(s);
 		} else {
 		    throw RpcError(-32602, "Invalid param -- unknown variable");
 		}
 		//gx_system::JsonWriter jwd(&cerr); p.dump(&jwd);
 	    }
 	}
-	std::string s;
-
-	for (std::list<CmdConnection*>::iterator p = serv.connection_list.begin(); p != serv.connection_list.end(); ++p) {
-	    if (*p == this || !(*p)->parameter_change_notify) {
-		continue;
-	    }
-	    if (s.empty()) {
-		gx_system::JsonStringWriter jw;
-		send_notify_begin(jw, "set");
-		for (unsigned int i = 0; i < params.size(); i += 2) {
-		    jw.write(params[i]->getString());
-		    JsonValue *v = params[i+1];
-		    if (dynamic_cast<JsonFloat*>(v)) {
-			jw.write(v->getFloat());
-		    } else if (dynamic_cast<JsonInt*>(v)) {
-			jw.write(v->getInt());
-		    } else if (dynamic_cast<JsonString*>(v)) {
-			jw.write(v->getString());
-		    }
+	if (serv.broadcast_listeners(this)) {
+	    gx_system::JsonStringWriter jw;
+	    send_notify_begin(jw, "set");
+	    for (unsigned int i = 0; i < params.size(); i += 2) {
+		jw.write(params[i]->getString());
+		JsonValue *v = params[i+1];
+		if (dynamic_cast<JsonFloat*>(v)) {
+		    jw.write(v->getFloat());
+		} else if (dynamic_cast<JsonInt*>(v)) {
+		    jw.write(v->getInt());
+		} else if (dynamic_cast<JsonString*>(v)) {
+		    jw.write(v->getString());
+		} else if (dynamic_cast<JsonObject*>(v)) {
+		    v->getSubParser().copy_object(jw);
 		}
-		send_notify_end(jw, false);
-		jw.finish();
-		s = jw.get_string();
 	    }
-	    ssize_t n = write((*p)->connection->get_socket()->get_fd(), s.c_str(), s.size());
-	    if (n != (ssize_t)s.size()) {
-		cerr << "short write" << endl;
-	    }
+	    send_notify_end(jw, false);
+	    serv.broadcast(this, jw);
 	}
 	serv.save_state();
     }
@@ -1146,6 +1227,21 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 
     PROCEDURE(tuner_switcher_toggle) {
 	serv.tuner_switcher.toggle(params[0]->getInt());
+    }
+
+    PROCEDURE(reload_impresp_list) {
+	gx_system::JsonStringWriter jw;
+	std::string path = params[0]->getString();
+	gx_system::IRFileListing l(path);
+	send_notify_begin(jw, "impresp_list");
+	jw.write(path);
+	for (std::vector<gx_system::FileName>::iterator i = l.get_listing().begin(); i != l.get_listing().end(); ++i) {
+	    jw.begin_array();
+	    jw.write(i->filename);
+	    jw.write(i->displayname);
+	    jw.end_array();
+	}
+	send_notify_end(jw);
     }
 
     PROCEDURE(shutdown) {
@@ -1199,14 +1295,12 @@ void CmdConnection::notify(gx_system::JsonWriter& jw, const methodnames *mn, Jso
 void CmdConnection::write_error(gx_system::JsonWriter& jw, int code, const char *message) {
     jw.write_key("error");
     jw.begin_object();
-    jw.write_key("code");
-    jw.write(code);
-    jw.write_key("message");
-    jw.write(message);
+    jw.write_kv("code", code);
+    jw.write_kv("message", message);
     jw.end_object();
 }
 
-bool CmdConnection::request(gx_system::JsonParser& jp, gx_system::JsonWriter& jw, bool batch_start) {
+bool CmdConnection::request(gx_system::JsonParser& jp, gx_system::JsonStringWriter& jw, bool batch_start) {
     Glib::ustring method;
     JsonArray params;
     Glib::ustring id;
@@ -1261,10 +1355,8 @@ bool CmdConnection::request(gx_system::JsonParser& jp, gx_system::JsonWriter& jw
 	    jw.begin_array();
 	}
 	jw.begin_object();
-	jw.write_key("jsonrpc");
-	jw.write("2.0");
-	jw.write_key("id");
-	jw.write(id);
+	jw.write_kv("jsonrpc", "2.0");
+	jw.write_kv("id", id);
 	jw.write_key("result");
 	call(jw, p, params);
 	jw.end_object();
@@ -1274,19 +1366,42 @@ bool CmdConnection::request(gx_system::JsonParser& jp, gx_system::JsonWriter& jw
 
 void CmdConnection::error_response(gx_system::JsonWriter& jw, int code, const char *message) {
     jw.begin_object();
-    jw.write_key("jsonrpc");
-    jw.write("2.0");
+    jw.write_kv("jsonrpc", "2.0");
     jw.write_key("id");
     jw.write_null();
     write_error(jw, code, message);
     jw.end_object();
 }
 
-bool CmdConnection::on_data(Glib::IOCondition cond) {
-    if (cond != Glib::IO_IN) {
-	serv.remove_connection(this);
+static bool sendbytes(int fd, const std::string& s, unsigned int *off) {
+    unsigned int len = s.size() - *off;
+    int n = write(fd, s.c_str() + *off, len);
+    if (n <= 0) {
 	return false;
     }
+    len -= n;
+    if (len > 0) {
+	*off += n;
+    } else {
+	*off = 0;
+    }
+    return true;
+}
+
+bool CmdConnection::on_data_out(Glib::IOCondition cond) {
+    int fd = connection->get_socket()->get_fd();
+    while (outgoing.size() > 0) {
+	if (!sendbytes(fd, outgoing.front(), &current_offset)) {
+	    return true;
+	}
+	if (current_offset == 0) {
+	    outgoing.pop_front();
+	}
+    }
+    return false;
+}
+
+bool CmdConnection::on_data_in(Glib::IOCondition cond) {
     Glib::RefPtr<Gio::Socket> sock = connection->get_socket();
     char buf[1000];
     while (true) {
@@ -1321,10 +1436,19 @@ bool CmdConnection::on_data(Glib::IOCondition cond) {
 void CmdConnection::send(gx_system::JsonStringWriter& jw) {
     jw.finish();
     std::string s = jw.get_string();
-    ssize_t n = write(connection->get_socket()->get_fd(), s.c_str(), s.size());
-    if (n != (ssize_t)s.size()) {
-	cerr << "short write" << endl;
+    if (outgoing.size() == 0) {
+	assert(current_offset == 0);
+	ssize_t len = s.size();
+	ssize_t n = write(connection->get_socket()->get_fd(), s.c_str(), len);
+	if (n == len) {
+	    return;
+	}
+	current_offset = max<ssize_t>(0, n);
     }
+    outgoing.push_back(s);
+    Glib::signal_io().connect(
+	sigc::mem_fun(this, &CmdConnection::on_data_out),
+	connection->get_socket()->get_fd(), Glib::IO_OUT);
 }
 
 void CmdConnection::process(gx_system::JsonStringParser& jp) {
@@ -1553,7 +1677,8 @@ MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
       last_change(0),
       save_conn(),
       connection_list(),
-      jwc(0) {
+      jwc(0),
+      preg_map(0) {
     add_inet_port(port);
     gx_engine::ParamMap& pmap = settings.get_param();
     pmap.signal_insert_remove().connect(
@@ -1590,10 +1715,18 @@ void MyService::connect_value_changed_signal(gx_engine::Parameter *p) {
 	    sigc::hide(
 		sigc::bind(
 		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+    } else if (dynamic_cast<gx_engine::JConvParameter*>(p) != 0) {
+	dynamic_cast<gx_engine::JConvParameter*>(p)->signal_changed().connect(
+	    sigc::hide(
+		sigc::bind(
+		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
     }
 }
 
 void MyService::on_param_insert_remove(gx_engine::Parameter *p, bool inserted) {
+    if (preg_map) {
+	(*preg_map)[p->id()] = inserted;
+    }
     if (inserted) {
 	connect_value_changed_signal(p);
     }
@@ -1612,6 +1745,8 @@ void MyService::on_param_value_changed(gx_engine::Parameter *p) {
 	jwc->write(p->getFloat().get_value());
     } else if (p->isString()) {
 	jwc->write(p->getString().get_value());
+    } else if (dynamic_cast<gx_engine::JConvParameter*>(p) != 0) {
+	dynamic_cast<gx_engine::JConvParameter*>(p)->writeJSON(*jwc);
     } else {
 	assert(false);
     }
@@ -1665,9 +1800,26 @@ bool MyService::on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connectio
     int flag = 1;
     setsockopt(sock->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
     Glib::signal_io().connect(
-	sigc::mem_fun(cc, &CmdConnection::on_data),
-	sock->get_fd(), Glib::IO_IN|Glib::IO_HUP);
+	sigc::mem_fun(cc, &CmdConnection::on_data_in),
+	sock->get_fd(), Glib::IO_IN);
     return true;
+}
+
+void MyService::serialize_parameter_change(gx_system::JsonWriter& jw) {
+    jw.begin_array();
+    for (std::map<std::string,bool>::iterator i = preg_map->begin(); i != preg_map->end(); ++i) {
+	if (!i->second) {
+	    jw.write(i->first);
+	}
+    }
+    jw.end_array();
+    jw.begin_array();
+    for (std::map<std::string,bool>::iterator i = preg_map->begin(); i != preg_map->end(); ++i) {
+	if (i->second) {
+	    settings.get_param().writeJSON_one(jw, &settings.get_param()[i->first]);
+	}
+    }
+    jw.end_array();
 }
 
 bool MyService::broadcast_listeners(CmdConnection *sender) {

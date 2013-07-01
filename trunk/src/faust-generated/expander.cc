@@ -113,11 +113,11 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("expander.ratio","","S","",&fentry2, 2.0, 1.0, 2e+01, 0.1);
-	reg.registerVar("expander.knee","","S","",&fentry1, 3.0, 0.0, 2e+01, 0.1);
-	reg.registerVar("expander.threshold","","S","",&fentry0, -4e+01, -96.0, 1e+01, 0.1);
-	reg.registerVar("expander.release","","S","",&fslider1, 0.1, 0.0, 1e+01, 0.01);
 	reg.registerVar("expander.attack","","S","",&fslider0, 0.001, 0.0, 1.0, 0.001);
+	reg.registerVar("expander.knee","","S","",&fentry1, 3.0, 0.0, 2e+01, 0.1);
+	reg.registerVar("expander.ratio","","S","",&fentry2, 2.0, 1.0, 2e+01, 0.1);
+	reg.registerVar("expander.release","","S","",&fslider1, 0.1, 0.0, 1e+01, 0.01);
+	reg.registerVar("expander.threshold","","S","",&fentry0, -4e+01, -96.0, 1e+01, 0.1);
 	return 0;
 }
 

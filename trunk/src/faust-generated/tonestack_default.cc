@@ -180,8 +180,8 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 int Dsp::register_par(const ParamReg& reg)
 {
 	fslider2_ = reg.registerVar("amp.tonestack.Bass","","SA","",&fslider2, 0.5, 0.0, 1.0, 0.01);
-	fslider1_ = reg.registerVar("amp.tonestack.Treble","","SA","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 	fslider0_ = reg.registerVar("amp.tonestack.Middle","","SA","",&fslider0, 0.5, 0.0, 1.0, 0.01);
+	fslider1_ = reg.registerVar("amp.tonestack.Treble","","SA","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 	return 0;
 }
 

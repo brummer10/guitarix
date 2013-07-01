@@ -148,9 +148,9 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("phaser_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("phaser_mono.level","","S","",&fslider1, 0.0f, -6e+01f, 1e+01f, 0.1f);
 	reg.registerVar("phaser_mono.Speed","","S","",&fslider0, 0.5f, 0.0f, 1e+01f, 0.01f);
+	reg.registerVar("phaser_mono.level","","S","",&fslider1, 0.0f, -6e+01f, 1e+01f, 0.1f);
+	reg.registerVar("phaser_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02f, 0.0f, 1e+02f, 1.0f);
 	return 0;
 }
 

@@ -400,7 +400,7 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
             read_parameters(jp, true);
         } else if (jp.current_value() == "jconv") { // for backwards compatibility
 	    jcset = new gx_engine::GxJConvSettings();
-	    jcset->readJSON(jp, opt.get_IR_pathlist());
+	    jcset->readJSON(jp, &opt.get_IR_pathlist());
         } else if (jp.current_value() == "midi_controller") {
             if (use_midi) {
                 m = new gx_engine::ControllerArray();
@@ -1017,6 +1017,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
 	check_create_config_dir(opt.get_pluginpreset_dir());
+	check_create_config_dir(opt.get_user_IR_dir());
 	check_create_config_dir(opt.get_temp_dir());
 	std::string fname = gx_jack::GxJack::get_default_instancename() + statename_postfix;
 	if (access(Glib::build_filename(opt.get_old_user_dir(), fname).c_str(), R_OK) == 0) {
@@ -1046,6 +1047,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
 	check_create_config_dir(opt.get_pluginpreset_dir());
+	check_create_config_dir(opt.get_user_IR_dir());
 	check_create_config_dir(opt.get_temp_dir());
     }
     std::string fname = opt.get_preset_filepath(scratchpad_file);

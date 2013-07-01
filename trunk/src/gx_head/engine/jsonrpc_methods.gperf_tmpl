@@ -44,7 +44,6 @@ struct CmdConnection::methodnames;
 /* Guitarix Server */
 
 "getversion", true
-"help", true
 "shutdown", false
 "listen", false
 "unlisten", false
@@ -147,6 +146,19 @@ struct CmdConnection::methodnames;
 "get_oscilloscope_mul_buffer", true
 "clear_oscilloscope_buffer", false
 "get_oscilloscope_info", true
+
+
+/* Convolver */
+
+"reload_impresp_list", false
+"load_impresp_dirs", true
+"read_audio", true
+
+
+/* Ladspa Loader */
+
+"load_ladspalist", true
+"ladspaloader_update_plugins", true
 
 
 /* Direct Guitar Control */

@@ -29,30 +29,30 @@ private:
 	double 	fConst13;
 	double 	fConst14;
 	double 	fConst15;
-	double 	fConst16;
-	double 	fConst17;
-	double 	fConst18;
 	double 	fVec0[2];
-	double 	fConst19;
+	double 	fConst16;
 	double 	fRec12[2];
 	double 	fRec11[2];
-	double 	fConst20;
-	double 	fConst21;
+	double 	fConst17;
+	double 	fConst18;
 	double 	fRec10[2];
-	double 	fConst22;
-	double 	fConst23;
+	double 	fConst19;
+	double 	fConst20;
 	double 	fRec9[2];
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
+	double 	fConst21;
+	double 	fConst22;
+	double 	fConst23;
 	double 	fConst24;
-	double 	fConst25;
-	double 	fConst26;
-	double 	fConst27;
 	double 	fRec13[2];
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
 	double 	fRec14[2];
 	double 	fVec1[2];
+	double 	fConst25;
+	double 	fConst26;
+	double 	fConst27;
 	double 	fConst28;
 	double 	fRec8[2];
 	double 	fVec2[2];
@@ -171,25 +171,25 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst7 = (1.0 / tan((97.38937226128358 / double(iConst0))));
 	fConst8 = (1 + fConst7);
 	fConst9 = (0 - ((1 - fConst7) / fConst8));
-	fConst10 = (1.0 / tan((20517.741620594938 / double(iConst0))));
+	fConst10 = (1.0 / tan((5830.795965062656 / double(iConst0))));
 	fConst11 = (1 + fConst10);
 	fConst12 = (0 - ((1 - fConst10) / fConst11));
-	fConst13 = (1.0 / tan((5830.795965062656 / double(iConst0))));
+	fConst13 = (1.0 / tan((125.66370614359172 / double(iConst0))));
 	fConst14 = (1 + fConst13);
 	fConst15 = (0 - ((1 - fConst13) / fConst14));
-	fConst16 = (1.0 / tan((125.66370614359172 / double(iConst0))));
-	fConst17 = (1 + fConst16);
-	fConst18 = (0 - ((1 - fConst16) / fConst17));
-	fConst19 = (1.0 / fConst17);
-	fConst20 = (0 - fConst7);
-	fConst21 = (0.025 / fConst8);
-	fConst22 = (0 - fConst13);
-	fConst23 = (1.0 / fConst14);
-	fConst24 = (1.0 / tan((1281.7698026646356 / double(iConst0))));
-	fConst25 = (1 + fConst24);
-	fConst26 = (0 - ((1 - fConst24) / fConst25));
-	fConst27 = (1.0 / fConst25);
-	fConst28 = (1.0 / fConst11);
+	fConst16 = (1.0 / fConst14);
+	fConst17 = (0 - fConst7);
+	fConst18 = (0.025 / fConst8);
+	fConst19 = (0 - fConst10);
+	fConst20 = (1.0 / fConst11);
+	fConst21 = (1.0 / tan((1281.7698026646356 / double(iConst0))));
+	fConst22 = (1 + fConst21);
+	fConst23 = (0 - ((1 - fConst21) / fConst22));
+	fConst24 = (1.0 / fConst22);
+	fConst25 = (1.0 / tan((20517.741620594938 / double(iConst0))));
+	fConst26 = (1 + fConst25);
+	fConst27 = (1.0 / fConst26);
+	fConst28 = (0 - ((1 - fConst25) / fConst26));
 	fConst29 = (1.0 / tan((188.49555921538757 / double(iConst0))));
 	fConst30 = (1 + fConst29);
 	fConst31 = (0 - ((1 - fConst29) / fConst30));
@@ -229,33 +229,33 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		fRec5[0] = (fSlow1 + (0.999 * fRec5[1]));
 		double fTemp0 = (1e-15 + (0.027 * fRec11[1]));
 		fVec0[0] = fTemp0;
-		fRec12[0] = ((fConst19 * (fVec0[0] + fVec0[1])) + (fConst18 * fRec12[1]));
+		fRec12[0] = ((fConst16 * (fVec0[0] + fVec0[1])) + (fConst15 * fRec12[1]));
 		fRec11[0] = (Ftube(TUBE_TABLE_12AX7_68k, (((double)input0[i] + fRec12[0]) - 1.829999999999999)) - 182.22222222222223);
-		fRec10[0] = ((fConst21 * ((fConst20 * fRec11[1]) + (fConst7 * fRec11[0]))) + (fConst9 * fRec10[1]));
-		fRec9[0] = ((fConst23 * ((fConst22 * fRec10[1]) + (fConst13 * fRec10[0]))) + (fConst15 * fRec9[1]));
-		fRec13[0] = ((fConst27 * (fRec10[0] + fRec10[1])) + (fConst26 * fRec13[1]));
+		fRec10[0] = ((fConst18 * ((fConst17 * fRec11[1]) + (fConst7 * fRec11[0]))) + (fConst9 * fRec10[1]));
+		fRec9[0] = ((fConst20 * ((fConst19 * fRec10[1]) + (fConst10 * fRec10[0]))) + (fConst12 * fRec9[1]));
+		fRec13[0] = ((fConst24 * (fRec10[0] + fRec10[1])) + (fConst23 * fRec13[1]));
 		fRec14[0] = (fSlow4 + (0.999 * fRec14[1]));
 		double fTemp1 = (fRec14[0] * ((fSlow3 * fRec13[0]) + (fSlow2 * fRec9[0])));
 		fVec1[0] = fTemp1;
-		fRec8[0] = ((fConst28 * (fVec1[0] + fVec1[1])) + (fConst12 * fRec8[1]));
+		fRec8[0] = ((fConst28 * fRec8[1]) + (fConst27 * (fVec1[0] + fVec1[1])));
 		double fTemp2 = (1e-15 + (0.027 * fRec7[1]));
 		fVec2[0] = fTemp2;
-		fRec15[0] = ((fConst19 * (fVec2[0] + fVec2[1])) + (fConst18 * fRec15[1]));
+		fRec15[0] = ((fConst16 * (fVec2[0] + fVec2[1])) + (fConst15 * fRec15[1]));
 		fRec7[0] = (Ftube(TUBE_TABLE_12AX7_250k, ((fRec15[0] + fRec8[0]) - 1.829999999999999)) - 182.22222222222223);
-		fRec6[0] = ((fConst21 * ((fConst20 * fRec7[1]) + (fConst7 * fRec7[0]))) + (fConst9 * fRec6[1]));
+		fRec6[0] = ((fConst18 * ((fConst17 * fRec7[1]) + (fConst7 * fRec7[0]))) + (fConst9 * fRec6[1]));
 		double fTemp3 = ((fRec6[0] * fRec5[0]) + (fSlow0 * fRec0[1]));
 		double fTemp4 = (1e-15 + (0.00822 * fRec4[1]));
 		fVec3[0] = fTemp4;
 		fRec16[0] = ((fConst32 * (fVec3[0] + fVec3[1])) + (fConst31 * fRec16[1]));
 		fRec4[0] = (Ftube(TUBE_TABLE_6V6_250k, ((fRec16[0] + (fTemp3 * (fTemp3 >= 0.0))) - 1.130461999999999)) - 112.47420924574209);
-		fRec3[0] = ((fConst21 * ((fConst20 * fRec4[1]) + (fConst7 * fRec4[0]))) + (fConst9 * fRec3[1]));
+		fRec3[0] = ((fConst18 * ((fConst17 * fRec4[1]) + (fConst7 * fRec4[0]))) + (fConst9 * fRec3[1]));
 		fRec2[0] = ((fConst33 * (fRec3[0] + fRec3[1])) + (fConst6 * fRec2[1]));
 		fRec1[0] = ((fConst35 * ((fConst34 * fRec2[1]) + (fConst1 * fRec2[0]))) + (fConst3 * fRec1[1]));
 		double fTemp5 = (1e-15 + (0.00818 * fRec20[1]));
 		fVec4[0] = fTemp5;
 		fRec21[0] = ((fConst32 * (fVec4[0] + fVec4[1])) + (fConst31 * fRec21[1]));
 		fRec20[0] = (Ftube(TUBE_TABLE_6V6_250k, ((fRec21[0] + (fTemp3 * (fTemp3 <= 0.0))) - 1.130461999999999)) - 111.80171149144252);
-		fRec19[0] = ((fConst21 * ((fConst20 * fRec20[1]) + (fConst7 * fRec20[0]))) + (fConst9 * fRec19[1]));
+		fRec19[0] = ((fConst18 * ((fConst17 * fRec20[1]) + (fConst7 * fRec20[0]))) + (fConst9 * fRec19[1]));
 		fRec18[0] = ((fConst42 * (fRec19[0] + fRec19[1])) + (fConst41 * fRec18[1]));
 		fRec17[0] = ((fConst44 * ((fConst43 * fRec18[1]) + (fConst36 * fRec18[0]))) + (fConst38 * fRec17[1]));
 		fRec0[0] = (fRec17[0] + (0.98 * fRec1[0]));
@@ -305,17 +305,17 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case FEEDBACK: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
 	case GAIN: 
 		fslider2_ = (float*)data; // , 0.0, -24.0, 1e+01, 0.1 
 		break;
-	case TONE: 
-		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
-		break;
 	case VOLUME: 
 		fslider0_ = (float*)data; // , 0.0, -24.0, 6.0, 0.1 
+		break;
+	case FEEDBACK: 
+		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case TONE: 
+		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	default:
 		break;
@@ -340,10 +340,10 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   FEEDBACK, 
    GAIN, 
-   TONE, 
    VOLUME, 
+   FEEDBACK, 
+   TONE, 
 } PortIndex;
 */
 

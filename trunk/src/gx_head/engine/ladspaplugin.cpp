@@ -155,6 +155,112 @@ inline void LadspaDsp::cleanup() {
     }
 }
 
+void paradesc::readJSON(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::begin_object);
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.read_kv("index", index) ||
+	    jp.read_kv("name", name) ||
+	    jp.read_kv("dflt", dflt) ||
+	    jp.read_kv("low", low) ||
+	    jp.read_kv("up", up) ||
+	    jp.read_kv("step", step) ||
+	    jp.read_kv("tp", tp) ||
+	    jp.read_kv("newrow", newrow) ||
+	    jp.read_kv("has_caption", has_caption)) {
+	} else if (jp.current_value() == "values") {
+	    std::vector<std::string> v;
+	    jp.next(gx_system::JsonParser::begin_array);
+	    while (jp.peek() != gx_system::JsonParser::end_array) {
+		jp.next(gx_system::JsonParser::value_string);
+		v.push_back(jp.current_value());
+	    }
+	    jp.next(gx_system::JsonParser::end_array);
+	    set_valuelist(v);
+	} else {
+	    assert(false);
+	}
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
+
+void paradesc::writeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_kv("index", index);
+    jw.write_kv("name", name);
+    jw.write_kv("dflt", dflt);
+    jw.write_kv("low", low);
+    jw.write_kv("up", up);
+    jw.write_kv("step", step);
+    jw.write_kv("tp", tp);
+    jw.write_kv("newrow", newrow);
+    jw.write_kv("has_caption", has_caption);
+    if (values) {
+	jw.write_key("values");
+	jw.begin_array();
+	for (value_pair *p = values; p->value_id; p++) {
+	    jw.begin_array();
+	    jw.write(p->value_id);
+	    jw.write(p->value_label);
+	    jw.end_array();
+	}
+	jw.end_array();
+    }
+    jw.end_object();
+}
+
+void plugdesc::readJSON(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::begin_object);
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.read_kv("path", path) ||
+	    jp.read_kv("index", index) ||
+	    jp.read_kv("UniqueID", UniqueID) ||
+	    jp.read_kv("Label", Label) ||
+	    jp.read_kv("shortname", shortname) ||
+	    jp.read_kv("category", category) ||
+	    jp.read_kv("quirks", quirks) ||
+	    jp.read_kv("add_wet_dry", add_wet_dry) ||
+	    jp.read_kv("master_idx", master_idx) ||
+	    jp.read_kv("master_label", master_label) ||
+	    jp.read_kv("id_str", id_str)) {
+	} else if (jp.current_value() == "names") {
+	    jp.next(gx_system::JsonParser::begin_array);
+	    while (jp.peek() != gx_system::JsonParser::end_array) {
+		paradesc *p = new paradesc();
+		p->readJSON(jp);
+		names.push_back(p);
+	    }
+	    jp.next(gx_system::JsonParser::end_array);
+	} else {
+	    assert(false);
+	}
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
+
+void plugdesc::writeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_kv("path", path);
+    jw.write_kv("index", index);
+    jw.write_kv("UniqueID", static_cast<unsigned int>(UniqueID));
+    jw.write_kv("Label", Label);
+    jw.write_kv("shortname", shortname);
+    jw.write_kv("category", category);
+    jw.write_kv("quirks", quirks);
+    jw.write_kv("add_wet_dry", add_wet_dry);
+    jw.write_kv("master_idx", master_idx);
+    jw.write_kv("master_label", master_label);
+    jw.write_kv("id_str", id_str);
+    jw.write_key("names");
+    jw.begin_array();
+    for (std::vector<paradesc*>::iterator i = names.begin(); i != names.end(); ++i) {
+	(*i)->writeJSON(jw);
+    }
+    jw.end_array();
+    jw.end_object();
+}
+
 plugdesc::~plugdesc() {
     for (std::vector<paradesc*>::const_iterator it = names.begin(); it != names.end(); ++it) {
 	delete *it;
@@ -483,13 +589,13 @@ void LadspaDsp::del_instance(PluginDef *plugin) {
  ** class LadspaLoader
  */
 
-PluginDef *LadspaLoader::create(plugdesc *p) {
+PluginDef *LadspaLoader::create(const plugdesc *p) {
     return LadspaDsp::create(p);
 }
 
-LadspaLoader::LadspaLoader(const gx_system::CmdlineOptions& options)
-    : plugins() {
-    load(options, plugins);
+LadspaLoader::LadspaLoader(const gx_system::CmdlineOptions& options_)
+    : options(options_), plugins() {
+    load(plugins);
 }
 
 LadspaLoader::~LadspaLoader() {
@@ -498,9 +604,9 @@ LadspaLoader::~LadspaLoader() {
     }
 }
 
-bool LadspaLoader::load(const gx_system::CmdlineOptions& options, pluginarray& ml) {
+bool LadspaLoader::load(pluginarray& ml) {
     try {
-	read_module_list(options, ml);
+	read_module_list(ml);
     } catch (JsonException &e) {
 	gx_print_error("ladspaloader",ustring::compose(_("Exception in LADSPA list reader: %1"), e.what()));
 	return false;
@@ -602,7 +708,7 @@ void LadspaLoader::read_module_config(const std::string& filename, plugdesc *p) 
     ifs.close();
 }
 
-void LadspaLoader::read_module_list(const gx_system::CmdlineOptions& options, pluginarray& ml) {
+void LadspaLoader::read_module_list(pluginarray& ml) {
     std::ifstream ifs(options.get_user_filepath("ladspa_defs.js").c_str());
     if (ifs.fail()) {
         return;

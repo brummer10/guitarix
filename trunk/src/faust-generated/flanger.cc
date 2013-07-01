@@ -143,13 +143,13 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *input1, floa
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	reg.registerVar("flanger.LFO freq","","S","",&fslider2, 0.2, 0.0, 5.0, 0.01);
+	reg.registerVar("flanger.depth","","S","",&fslider5, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("flanger.feedback gain","","S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("flanger.flange delay","","S","",&fslider3, 1e+01, 0.0, 2e+01, 0.01);
+	reg.registerVar("flanger.flange delay offset","","S","",&fslider4, 1.0, 0.0, 2e+01, 0.01);
 	static const value_pair fcheckbox0_values[] = {{"linear"},{"invert"},{0}};
 	reg.registerEnumVar("flanger.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("flanger.depth","","S","",&fslider5, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("flanger.flange delay offset","","S","",&fslider4, 1.0, 0.0, 2e+01, 0.01);
-	reg.registerVar("flanger.flange delay","","S","",&fslider3, 1e+01, 0.0, 2e+01, 0.01);
-	reg.registerVar("flanger.LFO freq","","S","",&fslider2, 0.2, 0.0, 5.0, 0.01);
-	reg.registerVar("flanger.feedback gain","","S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
 	reg.registerVar("flanger.level","","S","",&fslider0, 0.0, -6e+01, 1e+01, 0.1);
 	return 0;
 }

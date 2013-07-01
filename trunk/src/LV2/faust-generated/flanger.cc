@@ -161,24 +161,24 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	// static const value_pair fcheckbox0_values[] = {{"linear"},{"invert"},{0}};
-	case INVERT: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+	case LFOFREQ: 
+		fslider2_ = (float*)data; // , 0.2, 0.0, 5.0, 0.01 
 		break;
 	case DEPTH: 
 		fslider5_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
 		break;
-	case FLANGEDELAYOFFSET: 
-		fslider4_ = (float*)data; // , 1.0, 0.0, 2e+01, 0.01 
+	case FEEDBACKGAIN: 
+		fslider1_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
 		break;
 	case FLANGEDELAY: 
 		fslider3_ = (float*)data; // , 1e+01, 0.0, 2e+01, 0.01 
 		break;
-	case LFOFREQ: 
-		fslider2_ = (float*)data; // , 0.2, 0.0, 5.0, 0.01 
+	case FLANGEDELAYOFFSET: 
+		fslider4_ = (float*)data; // , 1.0, 0.0, 2e+01, 0.01 
 		break;
-	case FEEDBACKGAIN: 
-		fslider1_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
+	// static const value_pair fcheckbox0_values[] = {{"linear"},{"invert"},{0}};
+	case INVERT: 
+		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case LEVEL: 
 		fslider0_ = (float*)data; // , 0.0, -6e+01, 1e+01, 0.1 
@@ -206,12 +206,12 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   INVERT, 
-   DEPTH, 
-   FLANGEDELAYOFFSET, 
-   FLANGEDELAY, 
    LFOFREQ, 
+   DEPTH, 
    FEEDBACKGAIN, 
+   FLANGEDELAY, 
+   FLANGEDELAYOFFSET, 
+   INVERT, 
    LEVEL, 
 } PortIndex;
 */

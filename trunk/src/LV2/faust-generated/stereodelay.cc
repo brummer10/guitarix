@@ -223,24 +223,24 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case LFOFREQ: 
+		fslider0_ = (float*)data; // , 0.2f, 0.0f, 5.0f, 0.01f 
+		break;
 	// static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	case INVERT: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
-	case R_GAIN: 
-		fslider4_ = (float*)data; // , 0.0f, -2e+01f, 2e+01f, 0.1f 
-		break;
-	case R_DELAY: 
-		fslider3_ = (float*)data; // , 0.0f, 0.0f, 5e+03f, 1e+01f 
+	case L_DELAY: 
+		fslider1_ = (float*)data; // , 0.0f, 0.0f, 5e+03f, 1e+01f 
 		break;
 	case L_GAIN: 
 		fslider2_ = (float*)data; // , 0.0f, -2e+01f, 2e+01f, 0.1f 
 		break;
-	case L_DELAY: 
-		fslider1_ = (float*)data; // , 0.0f, 0.0f, 5e+03f, 1e+01f 
+	case R_DELAY: 
+		fslider3_ = (float*)data; // , 0.0f, 0.0f, 5e+03f, 1e+01f 
 		break;
-	case LFOFREQ: 
-		fslider0_ = (float*)data; // , 0.2f, 0.0f, 5.0f, 0.01f 
+	case R_GAIN: 
+		fslider4_ = (float*)data; // , 0.0f, -2e+01f, 2e+01f, 0.1f 
 		break;
 	default:
 		break;
@@ -265,12 +265,12 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   INVERT, 
-   R_GAIN, 
-   R_DELAY, 
-   L_GAIN, 
-   L_DELAY, 
    LFOFREQ, 
+   INVERT, 
+   L_DELAY, 
+   L_GAIN, 
+   R_DELAY, 
+   R_GAIN, 
 } PortIndex;
 */
 

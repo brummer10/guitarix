@@ -363,12 +363,12 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *input1, floa
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("stereoverb.wet_dry",N_("wet/dry"),"S","",&fslider0, 5e+01, 0.0, 1e+02, 1.0);
 	reg.registerVar("stereoverb.LFO freq","","S","",&fslider3, 0.2, 0.0, 5.0, 0.01);
 	reg.registerVar("stereoverb.RoomSize","","S","",&fslider2, 0.5, 0.0, 1.0, 0.025);
 	reg.registerVar("stereoverb.damp","","S","",&fslider1, 0.5, 0.0, 1.0, 0.025);
 	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	reg.registerEnumVar("stereoverb.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("stereoverb.wet_dry",N_("wet/dry"),"S","",&fslider0, 5e+01, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

@@ -19,30 +19,30 @@ private:
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
 	int 	iConst0;
-	double 	fConst1;
-	double 	fRec1[2];
-	double 	fRec2[2];
+	float 	fConst1;
+	float 	fRec1[2];
+	float 	fRec2[2];
 	FAUSTFLOAT 	fslider3;
 	FAUSTFLOAT	*fslider3_;
 	FAUSTFLOAT 	fslider4;
 	FAUSTFLOAT	*fslider4_;
 	FAUSTFLOAT 	fslider5;
 	FAUSTFLOAT	*fslider5_;
-	double 	fConst2;
+	float 	fConst2;
 	FAUSTFLOAT 	fslider6;
 	FAUSTFLOAT	*fslider6_;
 	FAUSTFLOAT 	fslider7;
 	FAUSTFLOAT	*fslider7_;
-	double 	fRec6[3];
-	double 	fRec5[3];
-	double 	fRec4[3];
-	double 	fRec3[3];
-	double 	fRec0[2];
-	double 	fRec11[3];
-	double 	fRec10[3];
-	double 	fRec9[3];
-	double 	fRec8[3];
-	double 	fRec7[2];
+	float 	fRec6[3];
+	float 	fRec5[3];
+	float 	fRec4[3];
+	float 	fRec3[3];
+	float 	fRec0[2];
+	float 	fRec11[3];
+	float 	fRec10[3];
+	float 	fRec9[3];
+	float 	fRec8[3];
+	float 	fRec7[2];
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -103,8 +103,8 @@ inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586 / double(iConst0));
-	fConst2 = (1.0 / double(iConst0));
+	fConst1 = (6.283185307179586f / float(iConst0));
+	fConst2 = (1.0f / float(iConst0));
 	clear_state_f();
 }
 
@@ -125,51 +125,51 @@ void always_inline Dsp::compute(int count, float *input0, float *input1, float *
 #define fslider5 (*fslider5_)
 #define fslider6 (*fslider6_)
 #define fslider7 (*fslider7_)
-	double 	fSlow0 = (0.5 * ((int(fcheckbox0))?2:fslider0));
-	double 	fSlow1 = (1 - fSlow0);
-	double 	fSlow2 = pow(10,(0.05 * fslider1));
-	double 	fSlow3 = ((int(fcheckbox1))?(0 - fSlow0):fSlow0);
-	double 	fSlow4 = (fConst1 * fslider2);
-	double 	fSlow5 = sin(fSlow4);
-	double 	fSlow6 = cos(fSlow4);
-	double 	fSlow7 = (0 - fSlow5);
-	double 	fSlow8 = fslider3;
-	double 	fSlow9 = (6.283185307179586 * fSlow8);
-	double 	fSlow10 = (0.5 * ((6.283185307179586 * max(fSlow8, fslider4)) - fSlow9));
-	double 	fSlow11 = fslider5;
-	double 	fSlow12 = (fConst2 * faustpower<4>(fSlow11));
-	double 	fSlow13 = fslider6;
-	double 	fSlow14 = (fConst2 * fSlow11);
-	double 	fSlow15 = exp((fConst2 * (0 - (3.141592653589793 * fslider7))));
-	double 	fSlow16 = (0 - (2 * fSlow15));
-	double 	fSlow17 = faustpower<2>(fSlow15);
-	double 	fSlow18 = (fConst2 * faustpower<2>(fSlow11));
-	double 	fSlow19 = (fConst2 * faustpower<3>(fSlow11));
+	float 	fSlow0 = (0.5f * ((int(fcheckbox0))?2:fslider0));
+	float 	fSlow1 = (1 - fSlow0);
+	float 	fSlow2 = powf(10,(0.05f * fslider1));
+	float 	fSlow3 = ((int(fcheckbox1))?(0 - fSlow0):fSlow0);
+	float 	fSlow4 = (fConst1 * fslider2);
+	float 	fSlow5 = sinf(fSlow4);
+	float 	fSlow6 = cosf(fSlow4);
+	float 	fSlow7 = (0 - fSlow5);
+	float 	fSlow8 = fslider3;
+	float 	fSlow9 = (6.283185307179586f * fSlow8);
+	float 	fSlow10 = (0.5f * ((6.283185307179586f * max(fSlow8, fslider4)) - fSlow9));
+	float 	fSlow11 = fslider5;
+	float 	fSlow12 = (fConst2 * faustpower<4>(fSlow11));
+	float 	fSlow13 = fslider6;
+	float 	fSlow14 = (fConst2 * fSlow11);
+	float 	fSlow15 = expf((fConst2 * (0 - (3.141592653589793f * fslider7))));
+	float 	fSlow16 = (0 - (2 * fSlow15));
+	float 	fSlow17 = faustpower<2>(fSlow15);
+	float 	fSlow18 = (fConst2 * faustpower<2>(fSlow11));
+	float 	fSlow19 = (fConst2 * faustpower<3>(fSlow11));
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
-		double fTemp0 = (double)input0[i];
+		float fTemp0 = (float)input0[i];
 		fRec1[0] = ((fSlow6 * fRec1[1]) + (fSlow5 * fRec2[1]));
 		fRec2[0] = ((1 + ((fSlow7 * fRec1[1]) + (fSlow6 * fRec2[1]))) - iVec0[1]);
-		double fTemp1 = (fSlow9 + (fSlow10 * (1 - fRec1[0])));
-		double fTemp2 = (fRec6[1] * cos((fSlow14 * fTemp1)));
+		float fTemp1 = (fSlow9 + (fSlow10 * (1 - fRec1[0])));
+		float fTemp2 = (fRec6[1] * cosf((fSlow14 * fTemp1)));
 		fRec6[0] = (0 - (((fSlow17 * fRec6[2]) + (fSlow16 * fTemp2)) - ((fSlow2 * fTemp0) + (fSlow13 * fRec0[1]))));
-		double fTemp3 = (fRec5[1] * cos((fSlow18 * fTemp1)));
+		float fTemp3 = (fRec5[1] * cosf((fSlow18 * fTemp1)));
 		fRec5[0] = ((fSlow16 * (fTemp2 - fTemp3)) + (fRec6[2] + (fSlow17 * (fRec6[0] - fRec5[2]))));
-		double fTemp4 = (fRec4[1] * cos((fSlow19 * fTemp1)));
+		float fTemp4 = (fRec4[1] * cosf((fSlow19 * fTemp1)));
 		fRec4[0] = ((fSlow16 * (fTemp3 - fTemp4)) + (fRec5[2] + (fSlow17 * (fRec5[0] - fRec4[2]))));
-		double fTemp5 = (fRec3[1] * cos((fSlow12 * fTemp1)));
+		float fTemp5 = (fRec3[1] * cosf((fSlow12 * fTemp1)));
 		fRec3[0] = ((fSlow16 * (fTemp4 - fTemp5)) + (fRec4[2] + (fSlow17 * (fRec4[0] - fRec3[2]))));
 		fRec0[0] = ((fSlow17 * fRec3[0]) + (fRec3[2] + (fSlow16 * fTemp5)));
 		output0[i] = (FAUSTFLOAT)((fRec0[0] * fSlow3) + (fSlow2 * (fTemp0 * fSlow1)));
-		double fTemp6 = (double)input1[i];
-		double fTemp7 = (fSlow9 + (fSlow10 * (1 - fRec2[0])));
-		double fTemp8 = (fRec11[1] * cos((fSlow14 * fTemp7)));
+		float fTemp6 = (float)input1[i];
+		float fTemp7 = (fSlow9 + (fSlow10 * (1 - fRec2[0])));
+		float fTemp8 = (fRec11[1] * cosf((fSlow14 * fTemp7)));
 		fRec11[0] = (0 - (((fSlow17 * fRec11[2]) + (fSlow16 * fTemp8)) - ((fSlow2 * fTemp6) + (fSlow13 * fRec7[1]))));
-		double fTemp9 = (fRec10[1] * cos((fSlow18 * fTemp7)));
+		float fTemp9 = (fRec10[1] * cosf((fSlow18 * fTemp7)));
 		fRec10[0] = ((fSlow16 * (fTemp8 - fTemp9)) + (fRec11[2] + (fSlow17 * (fRec11[0] - fRec10[2]))));
-		double fTemp10 = (fRec9[1] * cos((fSlow19 * fTemp7)));
+		float fTemp10 = (fRec9[1] * cosf((fSlow19 * fTemp7)));
 		fRec9[0] = ((fSlow16 * (fTemp9 - fTemp10)) + (fRec10[2] + (fSlow17 * (fRec10[0] - fRec9[2]))));
-		double fTemp11 = (fRec8[1] * cos((fSlow12 * fTemp7)));
+		float fTemp11 = (fRec8[1] * cosf((fSlow12 * fTemp7)));
 		fRec8[0] = ((fSlow16 * (fTemp10 - fTemp11)) + (fRec9[2] + (fSlow17 * (fRec9[0] - fRec8[2]))));
 		fRec7[0] = ((fSlow17 * fRec8[0]) + (fRec8[2] + (fSlow16 * fTemp11)));
 		output1[i] = (FAUSTFLOAT)((fRec7[0] * fSlow3) + (fSlow2 * (fTemp6 * fSlow1)));
@@ -210,37 +210,37 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	// static const value_pair fcheckbox1_values[] = {{"linear"},{"invert"},{0}};
-	case INVERT: 
-		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+	case MAXNOTCH1FREQ: 
+		fslider4_ = (float*)data; // , 8e+02f, 2e+01f, 1e+04f, 1.0f 
+		break;
+	case MINNOTCH1FREQ: 
+		fslider3_ = (float*)data; // , 1e+02f, 2e+01f, 5e+03f, 1.0f 
+		break;
+	case NOTCHWIDTH: 
+		fslider7_ = (float*)data; // , 1e+03f, 1e+01f, 5e+03f, 1.0f 
+		break;
+	case NOTCHFREQ: 
+		fslider5_ = (float*)data; // , 1.5f, 1.1f, 4.0f, 0.01f 
+		break;
+	case SPEED: 
+		fslider2_ = (float*)data; // , 0.5f, 0.0f, 1e+01f, 0.01f 
 		break;
 	// static const value_pair fcheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
 	case VIBRATOMODE: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
-	case NOTCHWIDTH: 
-		fslider7_ = (float*)data; // , 1e+03, 1e+01, 5e+03, 1.0 
+	case DEPTH: 
+		fslider0_ = (float*)data; // , 1.0f, 0.0f, 1.0f, 0.01f 
 		break;
 	case FEEDBACKGAIN: 
-		fslider6_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
+		fslider6_ = (float*)data; // , 0.0f, 0.0f, 1.0f, 0.01f 
 		break;
-	case NOTCHFREQ: 
-		fslider5_ = (float*)data; // , 1.5, 1.1, 4.0, 0.01 
-		break;
-	case MAXNOTCH1FREQ: 
-		fslider4_ = (float*)data; // , 8e+02, 2e+01, 1e+04, 1.0 
-		break;
-	case MINNOTCH1FREQ: 
-		fslider3_ = (float*)data; // , 1e+02, 2e+01, 5e+03, 1.0 
-		break;
-	case SPEED: 
-		fslider2_ = (float*)data; // , 0.5, 0.0, 1e+01, 0.01 
+	// static const value_pair fcheckbox1_values[] = {{"linear"},{"invert"},{0}};
+	case INVERT: 
+		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case LEVEL: 
-		fslider1_ = (float*)data; // , 0.0, -6e+01, 1e+01, 0.1 
-		break;
-	case DEPTH: 
-		fslider0_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
+		fslider1_ = (float*)data; // , 0.0f, -6e+01f, 1e+01f, 0.1f 
 		break;
 	default:
 		break;
@@ -265,16 +265,16 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   INVERT, 
-   VIBRATOMODE, 
-   NOTCHWIDTH, 
-   FEEDBACKGAIN, 
-   NOTCHFREQ, 
    MAXNOTCH1FREQ, 
    MINNOTCH1FREQ, 
+   NOTCHWIDTH, 
+   NOTCHFREQ, 
    SPEED, 
-   LEVEL, 
+   VIBRATOMODE, 
    DEPTH, 
+   FEEDBACKGAIN, 
+   INVERT, 
+   LEVEL, 
 } PortIndex;
 */
 

@@ -198,13 +198,13 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *input1, floa
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	reg.registerVar("stereoecho.LFO freq","","S","",&fslider1, 0.2f, 0.0f, 5.0f, 0.01f);
 	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	reg.registerEnumVar("stereoecho.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("stereoecho.percent_r","","S","",&fslider4, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.time_r","","S","",&fslider3, 1.0f, 1.0f, 2e+03f, 1.0f);
 	reg.registerVar("stereoecho.percent_l","","S","",&fslider2, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.LFO freq","","S","",&fslider1, 0.2f, 0.0f, 5.0f, 0.01f);
+	reg.registerVar("stereoecho.percent_r","","S","",&fslider4, 0.0f, 0.0f, 1e+02f, 0.1f);
 	reg.registerVar("stereoecho.time_l","","S","",&fslider0, 1.0f, 1.0f, 2e+03f, 1.0f);
+	reg.registerVar("stereoecho.time_r","","S","",&fslider3, 1.0f, 1.0f, 2e+03f, 1.0f);
 	return 0;
 }
 

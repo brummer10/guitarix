@@ -141,9 +141,6 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case WET_DRY: 
-		fslider2_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
-		break;
 	// static const value_pair fcheckbox0_values[] = {{"triangle"},{"sine"},{0}};
 	case SINE: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
@@ -153,6 +150,9 @@ void Dsp::connect(uint32_t port,void* data)
 		break;
 	case FREQ: 
 		fslider0_ = (float*)data; // , 5.0, 0.1, 5e+01, 0.1 
+		break;
+	case WET_DRY: 
+		fslider2_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
 		break;
 	default:
 		break;
@@ -177,10 +177,10 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   WET_DRY, 
    SINE, 
    DEPTH, 
    FREQ, 
+   WET_DRY, 
 } PortIndex;
 */
 

@@ -541,6 +541,7 @@ void MainWindow::rebuild_preset_menu() {
 	preset_list_menu_bank.clear();
 	preset_list_merge_id = 0;
 	preset_list_actiongroup.reset();
+	uimanager->ensure_update();
     }
     if (!machine.setting_is_preset()) {
 	return;
@@ -551,26 +552,16 @@ void MainWindow::rebuild_preset_menu() {
     }
     preset_list_actiongroup = Gtk::ActionGroup::create("PresetList");
     preset_list_menu_bank = machine.get_current_bank();
-    static int counter = 0;
-    // somewhere part of the menu structure seems to be cached or just
-    // not properly deleted; when reordering presets the menu still shows
-    // the old list (or a reordered list but the key accelerator are still
-    // the old ones). The counter prevents this, but quite possible there
-    // is a memory leak. FIXME
-    Glib::ustring cnt = gx_system::to_string(counter++);
     Glib::ustring s = "<menubar><menu action=\"PresetsMenu\"><menu action=\"PresetListMenu\">";
     int idx = 0;
     for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
-	Glib::ustring actname = "PresetList_" + cnt + i->name;
+	Glib::ustring actname = "PresetList_" + i->name;
 	Glib::RefPtr<Gtk::Action> action = Gtk::Action::create(actname, i->name);
+	preset_list_actiongroup->add(
+	    action, sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
 	if (idx <= 9) {
 	    char c = (idx == 9 ? '0' : '1'+idx);
-	    preset_list_actiongroup->add(
-		action, Gtk::AccelKey(Glib::ustring::compose("%1", c)),
-		sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
-	} else {
-	    preset_list_actiongroup->add(
-		action, sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
+	    Gtk::AccelMap::change_entry(action->get_accel_path(), c, Gdk::ModifierType(0), true);
 	}
 	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
     }
@@ -1677,7 +1668,10 @@ public:
 };
 
 void JConvPluginUI::on_plugin_preset_popup() {
-    Glib::ustring name = Glib::path_get_basename(main.get_machine().conv_getIRFile(get_id()));
+    gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(
+	&main.get_machine().get_parameter(get_id()));
+    assert(jcp);
+    Glib::ustring name = jcp->get_value().getIRFile();
     Glib::ustring::size_type n = name.find_last_of('.');
     if (n != Glib::ustring::npos) {
 	name.erase(n);
@@ -1685,59 +1679,45 @@ void JConvPluginUI::on_plugin_preset_popup() {
     main.plugin_preset_popup(plugin->get_pdef(), name);
 }
 
-static gx_engine::LadspaLoader::pluginarray::iterator find_plugin(gx_engine::LadspaLoader::pluginarray& ml, gx_engine::plugdesc *pl) {
-    for (gx_engine::LadspaLoader::pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
-	if ((*i)->UniqueID == pl->UniqueID) {
-	    return i;
+void MainWindow::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c) {
+    if (!pl) { // end of update sequence
+	make_icons(true); // re-create all icons, width might have changed
+    } else if (c == gx_engine::PluginChange::add) {
+	register_plugin(new PluginUI(*this, pl->get_pdef()->id, "", ""));
+    } else {
+	PluginUI *pui = plugin_dict[pl->get_pdef()->id];
+	if (c == gx_engine::PluginChange::remove) {
+	    plugin_dict.remove(pui);
+	    pui->unset_ui_merge_id(uimanager);
+	    uimanager->ensure_update();
+	    actions.group->remove(pui->get_action());
+	    machine.remove_rack_unit(pui->get_id(), pui->get_type());
+	    std::string group_id = pui->get_category();
+	    delete pui;
+	    Gtk::ToolItemGroup * group = groupmap[group_id];
+	    if (group->get_n_items() == 0) {
+		Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group_id);
+		Glib::RefPtr<Gtk::Action> act = actions.group->get_action(groupname);
+		actions.group->remove(actions.group->get_action(groupname));
+		groupmap.erase(group_id);
+		delete group;
+	    }
+	} else {
+	    assert(c == gx_engine::PluginChange::update || c == gx_engine::PluginChange::update_category);
+	    pui->update_rackbox();
+	    if (c == gx_engine::PluginChange::update_category) {
+		pui->unset_ui_merge_id(uimanager);
+		pui->group = add_plugin_category(pui->get_category());
+		pui->toolitem->reparent(*pui->group);
+		add_plugin_menu_entry(pui);
+	    }
 	}
     }
-    return ml.end();
 }
 
 void MainWindow::on_ladspa_finished(bool reload, bool quit) {
     if (reload) {
-	typedef gx_engine::LadspaLoader::pluginarray pluginarray;
-	pluginarray ml;
-	// load plugindesc list
-	machine.ladspaloader_load(options, ml);
-	// look for removed and changed plugins
-	std::vector<gx_engine::Plugin*> to_remove;
-	for (pluginarray::iterator i = machine.ladspaloader_begin(); i != machine.ladspaloader_end(); ++i) {
-	    PluginUI *pui = plugin_dict[(*i)->id_str];
-	    pluginarray::iterator j = find_plugin(ml, *i);
-	    if (j == ml.end()) {
-		plugin_dict.remove(pui);
-		pui->unset_ui_merge_id(uimanager);
-		actions.group->remove(pui->get_action());
-		delete pui;
-		machine.set_parameter_value(pui->plugin->id_on_off(), false);
-		to_remove.push_back(pui->plugin);
-	    } else {
-		machine.ladspaloader_update_instance(pui->plugin->get_pdef(), *j);
-		pui->update_rackbox();
-		if ((*j)->category != (*i)->category) {
-		    pui->unset_ui_merge_id(uimanager);
-		    pui->group = add_plugin_category(pui->get_category());
-		    pui->toolitem->reparent(*pui->group);
-		    add_plugin_menu_entry(pui);
-		}
-	    }
-	}
-	std::vector<PluginUI*> p;
-	gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p);
-	std::vector<PluginDef *> pv;
-	machine.ladspaloader_update_plugins(to_remove, ml, pv);
-	// add new plugins (UI)
-	machine.pluginlist_append_rack(builder);
-	std::sort(p.begin(), p.end(), plugins_by_name_less);
-	for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
-	    register_plugin(*v);
-	    machine.pluginlist_registerPlugin((*v)->plugin);
-	}
-	for (std::vector<PluginDef*>::iterator i = pv.begin(); i != pv.end(); ++i) {
-	    machine.init_plugin(*i);
-	}
-	make_icons(true); // re-create all icons, width might have changed
+	machine.commit_ladspa_changes();
     }
     if (quit) {
 	Glib::signal_idle().connect(sigc::mem_fun(this, &MainWindow::delete_ladspalist_window));
@@ -1757,7 +1737,7 @@ void MainWindow::on_load_ladspa() {
     if (ladspalist_window) {
 	ladspalist_window->present();
     } else {
-	ladspalist_window = new ladspa::PluginDisplay(options, gx_head_icon, sigc::mem_fun(this, &MainWindow::on_ladspa_finished));
+	ladspalist_window = new ladspa::PluginDisplay(machine, gx_head_icon, sigc::mem_fun(this, &MainWindow::on_ladspa_finished));
     }
 }
 
@@ -2598,7 +2578,8 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	sigc::mem_fun(*this, &MainWindow::on_engine_state_change));
     machine.signal_jack_load_change().connect(
 	sigc::mem_fun(*this, &MainWindow::overload_status_changed));
-
+    machine.signal_plugin_changed().connect(
+	sigc::mem_fun(this, &MainWindow::on_plugin_changed));
     /*
     ** GxSettings signal connections
     */

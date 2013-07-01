@@ -66,8 +66,8 @@ private:
 
     static const          gboolean homogene = false;
     void loadRackFromGladeData(const char *xmldesc);
-    void set_convolver_filename();
-    void set_convolver_mono_filename();
+    void set_convolver_filename(const gx_engine::GxJConvSettings *jcs);
+    void set_convolver_mono_filename(const gx_engine::GxJConvSettings *jcs);
 private:
     void openVerticalMidiBox(const char* label = "");
     // functions used in interfaces

@@ -499,7 +499,7 @@ void always_inline Dsp::compute(int count, float *input0, float *input1, float *
 		fVec12[0] = fTemp24;
 		fRec50[0] = ((fConst51 * (fVec12[0] + fVec12[1])) + (fConst50 * fRec50[1]));
 		fRec42[0] = (Ftube(TUBE_TABLE_6DJ8_250k, ((fRec50[0] + fRec43[0]) - 0.797042999999999)) - 32.799634146341475);
-		fRec41[0] = ((fConst3 * fRec41[1]) + (fConst43 * ((fConst42 * fRec42[1]) + (fConst1 * fRec42[0]))));
+		fRec41[0] = ((fConst43 * ((fConst42 * fRec42[1]) + (fConst1 * fRec42[0]))) + (fConst3 * fRec41[1]));
 		double fTemp25 = (fTemp16 * fRec41[0]);
 		double fTemp26 = (1e-15 + (fRec13[0] * fRec41[0]));
 		double fTemp27 = (fConst10 * fRec52[1]);
@@ -665,11 +665,11 @@ void Dsp::connect(uint32_t port,void* data)
 	case DRIVE: 
 		fslider3_ = (float*)data; // , 0.35, 0.0, 1.0, 0.01 
 		break;
-	case PREGAIN: 
-		fslider2_ = (float*)data; // , -6.0, -2e+01, 2e+01, 0.1 
-		break;
 	case WET_DRY: 
 		fslider1_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
+		break;
+	case PREGAIN: 
+		fslider2_ = (float*)data; // , -6.0, -2e+01, 2e+01, 0.1 
 		break;
 	case GAIN1: 
 		fslider0_ = (float*)data; // , -6.0, -2e+01, 2e+01, 0.1 
@@ -698,8 +698,8 @@ void Dsp::del_instance(PluginLV2 *p)
 typedef enum
 {
    DRIVE, 
-   PREGAIN, 
    WET_DRY, 
+   PREGAIN, 
    GAIN1, 
 } PortIndex;
 */

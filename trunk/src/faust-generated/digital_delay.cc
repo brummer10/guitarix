@@ -447,16 +447,16 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("dide.level","","S",N_("percentage of the delay gain level"),&fslider7, 5e+01f, 0.0f, 1e+02f, 1.0f);
 	reg.registerVar("dide.bpm",N_("delay (bpm)"),"S",N_("Delay in Beats per Minute"),&fslider6, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
-	static const value_pair fslider5_values[] = {{"Dotted 1/2 note"},{"1/2 note"},{"1/2 note triplets"},{" Dotted 1/4 note"},{"1/4 note"},{"1/4 note triplets"},{"Dotted 1/8 note"},{"1/8 note"},{"1/8 note triplets"},{" Dotted 1/16 note"},{"1/16 note"},{"1/16 note triplets"},{"Dotted 1/32 note"},{"1/32 note"},{"1/32 note triplets"},{" Dotted 1/64 note"},{"1/64 note"},{"1/64 note triplets"},{0}};
-	reg.registerEnumVar("dide.notes",N_("tact"),"S",N_("note setting for bpm"),fslider5_values,&fslider5, 5.0f, 1.0f, 18.0f, 1.0f);
-	static const value_pair fslider4_values[] = {{"plain"},{"presence"},{"tape"},{"tape2"},{0}};
-	reg.registerEnumVar("dide.mode","","S","",fslider4_values,&fslider4, 0.0f, 0.0f, 3.0f, 1.0f);
 	reg.registerVar("dide.feedback","","S",N_("percentage of the feedback level in the delay loop"),&fslider3, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dide.gain","","S",N_("overall gain of the delay line in percent"),&fslider0, 1e+02f, 0.0f, 1.2e+02f, 1.0f);
 	reg.registerVar("dide.highpass",N_("highpass (hz)"),"S",N_("highpass filter frequency in the feddback loop"),&fslider2, 1.2e+02f, 2e+01f, 2e+04f, 1.0f);
 	reg.registerVar("dide.howpass",N_("lowpass (hz)"),"S",N_("lowpass filter frequency in the feddback loop"),&fslider1, 1.2e+04f, 2e+01f, 2e+04f, 1.0f);
-	reg.registerVar("dide.gain","","S",N_("overall gain of the delay line in percent"),&fslider0, 1e+02f, 0.0f, 1.2e+02f, 1.0f);
+	reg.registerVar("dide.level","","S",N_("percentage of the delay gain level"),&fslider7, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	static const value_pair fslider4_values[] = {{"plain"},{"presence"},{"tape"},{"tape2"},{0}};
+	reg.registerEnumVar("dide.mode","","S","",fslider4_values,&fslider4, 0.0f, 0.0f, 3.0f, 1.0f);
+	static const value_pair fslider5_values[] = {{"Dotted 1/2 note"},{"1/2 note"},{"1/2 note triplets"},{" Dotted 1/4 note"},{"1/4 note"},{"1/4 note triplets"},{"Dotted 1/8 note"},{"1/8 note"},{"1/8 note triplets"},{" Dotted 1/16 note"},{"1/16 note"},{"1/16 note triplets"},{"Dotted 1/32 note"},{"1/32 note"},{"1/32 note triplets"},{" Dotted 1/64 note"},{"1/64 note"},{"1/64 note triplets"},{0}};
+	reg.registerEnumVar("dide.notes",N_("tact"),"S",N_("note setting for bpm"),fslider5_values,&fslider5, 5.0f, 1.0f, 18.0f, 1.0f);
 	return 0;
 }
 

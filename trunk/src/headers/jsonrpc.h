@@ -30,6 +30,16 @@
 
 class MyService;
 
+class SetPosition {
+private:
+    streampos position;
+    gx_system::JsonParser& jp;
+    SetPosition(streampos pos, gx_system::JsonParser& jp_): position(jp_.get_streampos()), jp(jp_) { jp_.set_streampos(pos); }
+public:
+    SetPosition(SetPosition& sp): position(sp.position), jp(sp.jp) {}
+    ~SetPosition() { jp.set_streampos(position); }
+};
+
 class JsonValue {
 protected:
     JsonValue() {}
@@ -39,6 +49,7 @@ public:
     virtual double getFloat() const;
     virtual int getInt() const;
     virtual const Glib::ustring& getString() const;
+    virtual gx_system::JsonSubParser getSubParser() const;
 };
 
 class JsonArray: public std::vector<JsonValue*> {
@@ -49,7 +60,6 @@ public:
     void append(gx_system::JsonParser& jp);
 };
 
-
 class CmdConnection: public sigc::trackable {
 public:
     struct methodnames {
@@ -59,6 +69,8 @@ public:
 private:
     MyService& serv;
     Glib::RefPtr<Gio::SocketConnection> connection;
+    std::list<std::string> outgoing;
+    unsigned int current_offset;
     gx_system::JsonStringParser jp;
     bool parameter_change_notify;
     bool midi_config_mode;
@@ -75,16 +87,22 @@ private:
     sigc::connection conn_osc_activation;
     sigc::connection conn_osc_size_changed;
 private:
+    struct ChangedPlugin {
+	std::string id;
+	gx_engine::PluginChange::pc status;
+	ChangedPlugin(const std::string& id_, gx_engine::PluginChange::pc status_): id(id_), status(status_) {}
+    };
     void exec(Glib::ustring cmd);
     void call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
-    void notify(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
-    bool request(gx_system::JsonParser& jp, gx_system::JsonWriter& jw, bool batch_start);
+    void notify(gx_system::JsonStringWriter& jw, const methodnames *mn, JsonArray& params);
+    bool request(gx_system::JsonParser& jp, gx_system::JsonStringWriter& jw, bool batch_start);
     void write_error(gx_system::JsonWriter& jw, int code, const char *message);
     void write_error(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { write_error(jw, code, message.c_str()); }
     void error_response(gx_system::JsonWriter& jw, int code, const char *message);
     void error_response(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { error_response(jw, code, message.c_str()); }
     void preset_changed();
     void send_rack_changed(bool stereo);
+    void add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v, std::vector<ChangedPlugin>& vec);
     void send_notify_begin(gx_system::JsonStringWriter& jw, const char *method) { jw.send_notify_begin(method); }
     void send_notify_end(gx_system::JsonStringWriter& jw, bool send_out=true);
     void on_engine_state_change(gx_engine::GxEngineState state);
@@ -106,7 +124,8 @@ private:
 public:
     CmdConnection(MyService& serv, const Glib::RefPtr<Gio::SocketConnection>& connection_);
     ~CmdConnection();
-    bool on_data(Glib::IOCondition cond);
+    bool on_data_in(Glib::IOCondition cond);
+    bool on_data_out(Glib::IOCondition cond);
     bool get_parameter_change_notify() { return parameter_change_notify; }
     void send(gx_system::JsonStringWriter& jw);
     friend class UiBuilderVirt;
@@ -123,6 +142,8 @@ private:
     sigc::connection save_conn;
     std::list<CmdConnection*> connection_list;
     gx_system::JsonStringWriter *jwc;
+    std::map<std::string,bool> *preg_map;
+private:
     virtual bool on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connection,
 			     const Glib::RefPtr<Glib::Object>& source_object);
     void save_state();
@@ -130,6 +151,7 @@ private:
     bool broadcast_listeners(CmdConnection *sender);
     void broadcast(CmdConnection *sender, gx_system::JsonStringWriter& jw);
     void on_param_insert_remove(gx_engine::Parameter *p, bool insert);
+    void serialize_parameter_change(gx_system::JsonWriter& jw);
     void on_param_value_changed(gx_engine::Parameter *p);
     void connect_value_changed_signal(gx_engine::Parameter *p);
     friend class CmdConnection;

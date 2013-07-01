@@ -484,6 +484,66 @@ JsonParser::token JsonParser::next(token expect) {
     return cur_tok;
 }
 
+bool JsonParser::read_kv(const char *key, float& v) {
+    if (str == key) {
+	next(value_number);
+	v = current_value_float();
+	return true;
+    } else {
+	return false;
+    }
+}
+
+bool JsonParser::read_kv(const char *key, double& v) {
+    if (str == key) {
+	next(value_number);
+	v = current_value_double();
+	return true;
+    } else {
+	return false;
+    }
+}
+
+bool JsonParser::read_kv(const char *key, int& i) {
+    if (str == key) {
+	next(value_number);
+	i = current_value_int();
+	return true;
+    } else {
+	return false;
+    }
+}
+
+bool JsonParser::read_kv(const char *key, unsigned int& i) {
+    if (str == key) {
+	next(value_number);
+	i = current_value_uint();
+	return true;
+    } else {
+	return false;
+    }
+}
+
+bool JsonParser::read_kv(const char *key, string& s) {
+    if (str == key) {
+	next(value_string);
+	s = current_value();
+	return true;
+    } else {
+	return false;
+    }
+}
+
+bool JsonParser::read_kv(const char *key, Glib::ustring& s) {
+    if (str == key) {
+	next(value_string);
+	s = current_value();
+	return true;
+    } else {
+	return false;
+    }
+}
+
 void JsonParser::set_streampos(streampos pos) {
     is->seekg(pos);
     depth = 0;
@@ -533,6 +593,16 @@ void JsonParser::skip_object() {
     } while (curdepth != depth);
 }
 
+JsonSubParser::JsonSubParser(JsonParser& jp, streampos pos)
+    : JsonParser() {
+    set_stream(jp.get_stream());
+    position = get_stream()->tellg();
+    set_streampos(pos);
+}
+
+JsonSubParser::~JsonSubParser() {
+    get_stream()->seekg(position);
+}
 
 /****************************************************************
  ** class SettingsFileHeader

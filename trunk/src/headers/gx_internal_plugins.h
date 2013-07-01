@@ -290,9 +290,9 @@ class GxJConvSettings {
 
  public:
     void readJSON(gx_system::JsonParser& jp,
-		  const gx_system::PathList& search_path);
+		  const gx_system::PathList *search_path);
     void writeJSON(gx_system::JsonWriter& w,
-		   const gx_system::PathList& search_path) const;
+		   const gx_system::PathList *search_path) const;
 };
 
 class ConvolverAdapter;
@@ -300,18 +300,22 @@ class ConvolverAdapter;
 template<>
 class ParameterV<GxJConvSettings>: public Parameter {
 private:
+    const gx_system::PathList *searchpath;
     GxJConvSettings json_value;
     GxJConvSettings *value;
     GxJConvSettings std_value;
-    ConvolverAdapter &conv;
+    GxJConvSettings value_storage;
+    sigc::signal<void, const GxJConvSettings*> changed;
 public:
-    ParameterV(const string& id, ConvolverAdapter &conv_, GxJConvSettings *v);
+    ParameterV(const string& id, ConvolverAdapter &conv, GxJConvSettings *v);
+    ParameterV(gx_system::JsonParser& jp);
     ~ParameterV();
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
+    sigc::signal<void, const GxJConvSettings*>& signal_changed() { return changed; }
     static ParameterV<GxJConvSettings> *insert_param(
 	ParamMap &pmap, const string& id, ConvolverAdapter &conv, GxJConvSettings *v);
     bool set(const GxJConvSettings& val) const;
     const GxJConvSettings& get_value() const { return *value; }
-    virtual void *zone();
     virtual void stdJSON_value();
     virtual bool on_off_value();
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
@@ -327,7 +331,7 @@ typedef ParameterV<GxJConvSettings> JConvParameter;
  ** class ConvolverAdapter
  */
 
-class ConvolverAdapter: protected PluginDef {
+class ConvolverAdapter: protected PluginDef, public sigc::trackable {
 protected:
     GxConvolver conv;
     boost::mutex activate_mutex;
@@ -339,7 +343,6 @@ protected:
     bool activated;
     // wrapper for the rack order function pointers
     void change_buffersize(unsigned int size);
-    sigc::signal<void> settings_changed;
     GxJConvSettings jcset;
     JConvParameter *jcp;
 public:
@@ -350,7 +353,6 @@ public:
     ~ConvolverAdapter();
     void restart();
     bool conv_start();
-    inline sigc::signal<void>& signal_settings_changed() { return settings_changed; }
     inline const std::string& getIRFile() const { return jcset.getIRFile(); }
     inline void set_sync(bool val) { conv.set_sync(val); }
     inline std::string getFullIRPath() const { return jcset.getFullIRPath(); }
@@ -541,6 +543,8 @@ struct paradesc: boost::noncopyable {
     paradesc(): index(), name(), dflt(), low(), up(), step(), tp(), newrow(), has_caption(true), values() {}
     ~paradesc();
     void set_valuelist(const std::vector<std::string>& v);
+    void readJSON(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& jw);
 };
 
 enum quirkflag { need_activate = 1, no_cleanup = 2 };
@@ -559,23 +563,26 @@ struct plugdesc {
     std::vector<paradesc*> names;
     std::string id_str;
     ~plugdesc();
+    void readJSON(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& jw);
 };
 
 class LadspaLoader {
 public:
     typedef std::vector<plugdesc*> pluginarray;
 private:
+    const gx_system::CmdlineOptions& options;
     pluginarray plugins;
 private:
     void read_module_config(const std::string& filename, plugdesc *p);
-    void read_module_list(const gx_system::CmdlineOptions& options, pluginarray& p);
+    void read_module_list(pluginarray& p);
 public:
     LadspaLoader(const gx_system::CmdlineOptions& options);
     ~LadspaLoader();
-    bool load(const gx_system::CmdlineOptions& options, pluginarray& p);
+    bool load(pluginarray& p);
     unsigned int size() { return plugins.size(); }
     PluginDef *create(unsigned int idx) { return create(plugins[idx]); }
-    PluginDef *create(plugdesc *p);
+    PluginDef *create(const plugdesc *p);
     pluginarray::iterator begin() { return plugins.begin(); }
     pluginarray::iterator end() { return plugins.end(); }
     pluginarray::iterator find(unsigned long uniqueid);

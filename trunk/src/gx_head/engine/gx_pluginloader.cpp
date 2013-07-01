@@ -155,12 +155,8 @@ Plugin::Plugin(gx_system::JsonParser& jp, ParamMap& pmap)
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
 	jp.next(gx_system::JsonParser::value_key);
-	if (jp.current_value() == "version") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    p->version = jp.current_value_int();
-	} else if (jp.current_value() == "flags") {
-	    jp.next(gx_system::JsonParser::value_number);
-	    p->flags = jp.current_value_int();
+	if (jp.read_kv("version", p->version) ||
+	    jp.read_kv("flags", p->flags)) {
 	} else if (jp.current_value() == "id") {
 	    jp.next(gx_system::JsonParser::value_string);
 	    p->id = strdup(jp.current_value().c_str()); //FIXME
@@ -210,15 +206,11 @@ Plugin::Plugin(gx_system::JsonParser& jp, ParamMap& pmap)
 
 void Plugin::writeJSON(gx_system::JsonWriter& jw) {
     jw.begin_object();
-    jw.write_key("version");
-    jw.write(pdef->version);
-    jw.write_key("flags");
-    jw.write(pdef->flags); //FIXME
-    jw.write_key("id");
-    jw.write(pdef->id);
+    jw.write_kv("version", pdef->version);
+    jw.write_kv("flags", pdef->flags); //FIXME
+    jw.write_kv("id", pdef->id);
     if (pdef->name) {
-	jw.write_key("name");
-	jw.write(pdef->name);
+	jw.write_kv("name", pdef->name);
     }
     if (pdef->groups) {
 	jw.write_key("groups");
@@ -229,16 +221,13 @@ void Plugin::writeJSON(gx_system::JsonWriter& jw) {
 	jw.end_array();
     }
     if (pdef->description) {
-	jw.write_key("description");
-	jw.write(pdef->description);
+	jw.write_kv("description", pdef->description);
     }
     if (pdef->category) {
-	jw.write_key("category");
-	jw.write(pdef->category);
+	jw.write_kv("category", pdef->category);
     }
     if (pdef->shortname) {
-	jw.write_key("shortname");
-	jw.write(pdef->shortname);
+	jw.write_kv("shortname", pdef->shortname);
     }
     jw.end_object();
 }
@@ -408,9 +397,9 @@ int PluginList::check_version(PluginDef *p) {
     return -1;
 }
 
-void PluginList::delete_module(Plugin *pl, ParamMap& param, ParameterGroups& groups) {
-    unregisterPlugin(pl, param, groups);
+void PluginListBase::delete_module(Plugin *pl) {
     PluginDef *p = pl->get_pdef();
+    insert_remove(p->id, false);
 #ifndef NDEBUG // avoid unused variable compiler warning
     size_t n = pmap.erase(p->id);
     assert(n == 1);
@@ -423,6 +412,23 @@ void PluginList::delete_module(Plugin *pl, ParamMap& param, ParameterGroups& gro
 	}
 	delete pl;
     }
+}
+
+int PluginListBase::insert_plugin(Plugin *pvars) {
+    const char *id = pvars->get_pdef()->id;
+    pair<pluginmap::iterator,bool> ret = pmap.insert(map_pair(id, pvars));
+    if (!ret.second) {
+	gx_system::gx_print_error(
+	    _("Plugin Loader"),
+	    boost::format(_("Plugin '%1%' already exists: skipped")) % id);
+	return -1;
+    }
+    insert_remove(id, true);
+    return 0;
+}
+
+void PluginListBase::update_plugin(Plugin *pvars) {
+    pmap[pvars->get_pdef()->id]->set_pdef(pvars->get_pdef());
 }
 
 int PluginList::add_module(Plugin *pvars, PluginPos pos, int flags) {
@@ -450,12 +456,9 @@ int PluginList::add_module(Plugin *pvars, PluginPos pos, int flags) {
     } else {
 	pvars->pos_tmp = plugin_pos[ipos];
     }
-    pair<pluginmap::iterator,bool> ret = pmap.insert(map_pair(p->id, pvars));
-    if (!ret.second) {
-	gx_system::gx_print_error(
-	    _("Plugin Loader"),
-	    boost::format(_("Plugin '%1%' already exists: skipped")) % p->id);
-	return -1;
+    int ret = insert_plugin(pvars);
+    if (ret != 0) {
+	return ret;
     }
     if (!(p->flags & PGN_ALTERNATIVE)) {
 	// normal case: position will not be set by ModuleSelector
@@ -471,16 +474,17 @@ int PluginList::add(Plugin *pvars, PluginPos pos, int flags) {
     return add_module(pvars, pos, flags|PGNI_NOT_OWN);
 }
 
-int PluginList::add(PluginDef *p, PluginPos pos, int flags) {
+Plugin *PluginList::add(PluginDef *p, PluginPos pos, int flags) {
     if (check_version(p) != 0) {
-	return -1;
+	return 0;
     }
     Plugin *pl = new Plugin(p);
     int ret = add_module(pl, pos, flags);
     if (ret != 0) {
 	delete pl;
+	return 0;
     }
-    return ret;
+    return pl;
 }
 
 int PluginList::add(PluginDef **p, PluginPos pos, int flags) {
@@ -665,6 +669,7 @@ void PluginListBase::readJSON(gx_system::JsonParser& jp, ParamMap& param) {
     while (jp.peek() != gx_system::JsonParser::end_array) {
 	Plugin *p = new Plugin(jp, param);
 	pmap.insert(map_pair(p->get_pdef()->id, p));
+	insert_remove(p->get_pdef()->id, true);
     }
     jp.next(gx_system::JsonParser::end_array);
 }

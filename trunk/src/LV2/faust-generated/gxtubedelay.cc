@@ -280,9 +280,6 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case LEVEL: 
-		fslider3_ = (float*)data; // , 0.0, 0.0, 1e+01, 0.1 
-		break;
 	case DELAY: 
 		fslider2_ = (float*)data; // , 0.0, 0.1, 5e+03, 0.1 
 		break;
@@ -291,6 +288,9 @@ void Dsp::connect(uint32_t port,void* data)
 		break;
 	case GAIN: 
 		fslider0_ = (float*)data; // , 0.0, -3e+01, 6.0, 0.1 
+		break;
+	case LEVEL: 
+		fslider3_ = (float*)data; // , 0.0, 0.0, 1e+01, 0.1 
 		break;
 	default:
 		break;
@@ -315,10 +315,10 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   LEVEL, 
    DELAY, 
    FEEDBACK, 
    GAIN, 
+   LEVEL, 
 } PortIndex;
 */
 
