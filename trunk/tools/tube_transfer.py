@@ -183,7 +183,10 @@ class Circuit(object):
         """
         E1 = Vpk/self.kp*log(1+exp(self.kp*(1/self.mu+Vgk/Vpk)))
         G1 = 2*E1**self.kx/self.kg1*(E1>0.0)*arctan(Vpk/self.kvb)
-        return (G1+exp(self.kx*(log(Vpk/self.mu)+Vgk)))/self.kg2
+	G2 = exp(self.kx*(log(Vpk/self.mu)+Vgk))/self.kg2
+	# Bug : SHP dividing G1 by self.kg2 
+        #return (G1+exp(self.kx*(log(Vpk/self.mu)+Vgk)))/self.kg2
+        return G1+G2
 
     def Ipk_triode_pentode(self, Vgk, Vpk):
         """Koren model of pentode connected as class A triode
