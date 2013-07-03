@@ -94,11 +94,10 @@ class UiHSwitchWithCaption: Gtk::HBox {
  protected:
     UiSwitch *m_switch;
  public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id);
     static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id,
-			       const Glib::ustring& label);
+			       const char *label);
     UiHSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
-			 const Glib::ustring& label);
+			 const char *label);
     ~UiHSwitchWithCaption();
 };
 
@@ -108,11 +107,10 @@ class UiVSwitchWithCaption: Gtk::VBox {
  protected:
     UiSwitch *m_switch;
  public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id);
     static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id,
-			       const Glib::ustring& label);
+			       const char *label);
     UiVSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
-			 const Glib::ustring& label);
+			 const char *label);
     ~UiVSwitchWithCaption();
 };
 

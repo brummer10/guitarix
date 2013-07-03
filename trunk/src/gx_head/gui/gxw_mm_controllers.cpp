@@ -389,16 +389,8 @@ static bool hasId(gx_engine::GxMachineBase& machine, string id) {
 }
 
 Gtk::Widget* UiHSwitchWithCaption::create(
-    gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id) {
-    if (!hasId(machine, id)) {
-        return 0;
-    }
-    return create(machine, sw_type, id, machine.get_parameter(id).l_name());
-}
-
-Gtk::Widget* UiHSwitchWithCaption::create(
     gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id,
-    const Glib::ustring& label) {
+    const char *label) {
     if (!hasId(machine, id)) {
         return 0;
     }
@@ -407,9 +399,9 @@ Gtk::Widget* UiHSwitchWithCaption::create(
 
 UiHSwitchWithCaption::UiHSwitchWithCaption(
     gx_engine::GxMachineBase& machine, const char *sw_type,
-    gx_engine::Parameter &param, const Glib::ustring& label)
+    gx_engine::Parameter &param, const char *label)
     : Gtk::HBox(),
-      m_label(label),
+      m_label(label ? label : param.l_name()),
       m_switch(UiSwitch::create(machine, sw_type, param)) {
     m_label.set_name("rack_label");
     pack_start(m_label, Gtk::PACK_SHRINK);
@@ -420,16 +412,8 @@ UiHSwitchWithCaption::UiHSwitchWithCaption(
 }
 
 Gtk::Widget* UiVSwitchWithCaption::create(
-    gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id) {
-    if (!hasId(machine, id)) {
-        return 0;
-    }
-    return create(machine, sw_type, id, machine.get_parameter(id).l_name());
-}
-
-Gtk::Widget* UiVSwitchWithCaption::create(
     gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id,
-    const Glib::ustring& label) {
+    const char *label) {
     if (!hasId(machine, id)) {
         return 0;
     }
@@ -438,9 +422,9 @@ Gtk::Widget* UiVSwitchWithCaption::create(
 
 UiVSwitchWithCaption::UiVSwitchWithCaption(
     gx_engine::GxMachineBase& machine, const char *sw_type,
-    gx_engine::Parameter &param, const Glib::ustring& label)
+    gx_engine::Parameter &param, const char *label)
     : Gtk::VBox(),
-      m_label(label),
+      m_label(label ? label : param.l_name()),
       m_switch(UiSwitch::create(machine, sw_type, param)) {
     m_label.set_name("rack_label");
     m_label.set_justify(Gtk::JUSTIFY_CENTER);
