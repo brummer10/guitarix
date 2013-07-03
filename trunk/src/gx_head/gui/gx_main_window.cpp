@@ -2786,7 +2786,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     // standard state file (gx_head_rc or similar if -n is used)
     machine.loadstate();
     if (!in_session) {
-	machine.disable_autosave(gx_system::get_options().get_opt_auto_save());
+	machine.disable_autosave(gx_system::get_options().get_opt_save_on_exit());
     }
     if (!connect_jack(true, splash)) {
 	// not connected, must synthesize signal for initialization

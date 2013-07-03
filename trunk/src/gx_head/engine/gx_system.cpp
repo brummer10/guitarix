@@ -374,6 +374,7 @@ CmdlineOptions::CmdlineOptions()
       xrun_watchdog(false),
       lterminal(false),
       a_save(false),
+      auto_save(false),
 #ifndef NDEBUG
       dump_parameter(false),
 #endif
@@ -556,11 +557,16 @@ CmdlineOptions::CmdlineOptions()
     opt_plugin_dir.set_description(_("directory with guitarix plugins (.so files)"));
     opt_plugin_dir.set_arg_description("DIR");
     optgroup_file.add_entry_filename(opt_plugin_dir, plugin_dir);
+    Glib::OptionEntry opt_save_on_exit;
+    opt_save_on_exit.set_short_name('K');
+    opt_save_on_exit.set_long_name("disable-save-on-exit");
+    opt_save_on_exit.set_description(_("disable auto save to state file when quit"));
+    optgroup_file.add_entry(opt_save_on_exit, a_save);
     Glib::OptionEntry opt_auto_save;
-    opt_auto_save.set_short_name('K');
-    opt_auto_save.set_long_name("dissable-auto-save");
-    opt_auto_save.set_description(_("dissable auto save to state file when quit"));
-    optgroup_file.add_entry(opt_auto_save, a_save);
+    opt_auto_save.set_short_name('a');
+    opt_auto_save.set_long_name("auto-save");
+    opt_auto_save.set_description(_("enable auto save (only in server mode)"));
+    optgroup_file.add_entry(opt_auto_save, auto_save);
 
     // DEBUG options
     Glib::OptionEntry opt_builder_dir;

@@ -1776,11 +1776,11 @@ void MyService::remove_connection(CmdConnection *p) {
 
 //FIXME: this belongs into GxSettings
 void MyService::save_state() {
-    if (settings.get_options().get_opt_auto_save()) {
+    if (!settings.get_options().get_opt_autosave()) {
 	return;
     }
-    static const int min_idle = 2;   // seconds; after this idle time save changed state
-    static const int max_delay = 15; // seconds; maximum delay for save changed state
+    static const int min_idle = 10;  // seconds; after this idle time save state
+    static const int max_delay = 30; // seconds; maximum age of unsaved data
     time_t now = time(NULL);
     if (oldest_unsaved == 0) {
 	oldest_unsaved = last_change = now;

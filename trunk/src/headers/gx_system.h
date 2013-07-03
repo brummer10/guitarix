@@ -373,6 +373,7 @@ private:
     bool xrun_watchdog;
     bool lterminal;
     bool a_save;
+    bool auto_save;
     static CmdlineOptions *instance;
     void make_ending_slash(std::string& dirpath);
     std::string get_opskin();
@@ -444,7 +445,8 @@ public:
     const Glib::ustring& get_jack_input() const { return jack_input; }
     const Glib::ustring& get_jack_servername() const { return jack_servername; }
     bool get_jack_noconnect() const { return jack_noconnect; }
-    bool get_opt_auto_save() const { return a_save; }
+    bool get_opt_save_on_exit() const { return a_save; }
+    bool get_opt_autosave() const { return auto_save; }
     const PathList& get_IR_pathlist() const { return IR_pathlist; }
     Glib::ustring get_jack_output(unsigned int n) const;
     int get_idle_thread_timeout() const { return idle_thread_timeout; }
