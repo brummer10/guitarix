@@ -382,7 +382,6 @@ public:
     using PresetFile::has_entry;
     using PresetFile::get_flags;
     using PresetFile::get_type;
-    using PresetFile::get_name;
     using PresetFile::begin;
     using PresetFile::end;
     using PresetFile::is_mutable;
