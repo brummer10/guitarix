@@ -233,6 +233,7 @@ private:
     void do_program_change(int pgm);
     void edge_toggle_tuner(bool v);
     void on_impresp(const std::string& path);
+    void exit_handler(bool otherthread);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);

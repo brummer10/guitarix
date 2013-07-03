@@ -1696,6 +1696,10 @@ MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
 }
 
 MyService::~MyService() {
+    gx_system::JsonStringWriter jws;
+    jws.send_notify_begin("server_shutdown");
+    jws.send_notify_end();
+    broadcast(0, jws);
     for (std::list<CmdConnection*>::iterator i = connection_list.begin(); i != connection_list.end(); ++i) {
 	delete *i;
     }

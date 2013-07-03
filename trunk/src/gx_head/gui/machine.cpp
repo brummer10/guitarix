@@ -253,12 +253,21 @@ gx_system::CmdlineOptions& GxMachine::get_options() const {
     return options;
 }
 
+void GxMachine::exit_handler(bool otherthread) {
+    if (!otherthread) {
+	delete sock;
+	sock = 0;
+    }
+}
+
 void GxMachine::start_socket(sigc::slot<void> quit_mainloop, int port) {
     if (sock) {
 	return;
     }
     sock = new MyService(settings, jack, tuner_switcher, quit_mainloop, &port);
     sock->start();
+    GxExit::get_instance().signal_exit().connect(
+	sigc::mem_fun(*this, &GxMachine::exit_handler));
 #ifdef HAVE_AVAHI
     std::string name = "Guitarix";
     if (jack.get_default_instancename() != jack.get_instancename()) {
@@ -1025,6 +1034,8 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	impresp_list(path, l);
     } else if (method == "plugins_changed") {
 	update_plugins(jp);
+    } else if (method == "server_shutdown") {
+	Gtk::Main::quit();
     } else {
 	cerr << "> " << jp->get_string() << endl;
     }
