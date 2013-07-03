@@ -1033,38 +1033,38 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 static int socket_get_available_bytes(const Glib::RefPtr<Gio::Socket>& socket) {
     // return socket->get_available_bytes();  // Glib 2.32
     int avail;
-#ifdef NDEBUG
     ioctl(socket->get_fd(), FIONREAD, &avail);
-#else
     int ret = ioctl(socket->get_fd(), FIONREAD, &avail);
-    assert(ret == 0);
-#endif
+    if (ret != 0) {
+	return -1;
+    }
     return avail;
 }
 
 bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
-    if (!(cond & Glib::IO_IN)) {
-	return true;
+    if (cond & (Glib::IO_HUP|Glib::IO_ERR|Glib::IO_NVAL)) {
+	socket_error(0);
+	return false;
     }
-    if (socket_get_available_bytes(socket) == 0) {
+    int n = socket_get_available_bytes(socket);
+    if (n == 0) {
 	return true;
+    } else if (n < 0) {
+	socket_error(1);
     }
     char buf[10000];
     gx_system::JsonStringParser *jp = new gx_system::JsonStringParser;
     while (true) {
-	int n;
 	try {
 	    n = socket->receive(buf, sizeof(buf));
-	    if (false && n > 0) {
-		printf(">> %.*s", n, buf);
-		fflush(stdout);
-	    }
 	} catch(Glib::Error e) {
 	    delete jp;
+	    socket_error(2);
 	    return false;
 	}
 	if (n <= 0) {
 	    delete jp;
+	    socket_error(3);
 	    return false;
 	}
 	char *p = buf;
@@ -1082,9 +1082,14 @@ bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
 		    cerr << "JsonException: " << e.what() << ": '" << jp->get_string() << "'" << endl;
 		    assert(false);
 		}
-		if (n == 0 && socket_get_available_bytes(socket) == 0) {
-		    delete jp;
-		    return true;
+		if (n == 0) {
+		    int avail = socket_get_available_bytes(socket);
+		    if (avail == 0) {
+			delete jp;
+			return true;
+		    } else if (avail < 0) {
+			socket_error(4);
+		    }
 		}
 		delete jp;
 		jp = new gx_system::JsonStringParser;
@@ -1111,6 +1116,9 @@ void GxMachineRemote::send() {
     jw->end_array();
     jw->end_object();
     *os << endl;
+    if (os->fail()) {
+	socket_error(5);
+    }
     jw->reset();
 }
 
@@ -1161,7 +1169,14 @@ void GxMachineRemote::throw_error(gx_system::JsonStringParser *jp) {
 	Glib::ustring::compose("RPC error %1 : %2", code, message));
 }
 
-gx_system::JsonStringParser *GxMachineRemote::receive(bool verbose) {
+void GxMachineRemote::socket_error(int loc) {
+    if (!socket->is_closed()) {
+	socket->close();
+    }
+    gx_print_fatal("Network", Glib::ustring::compose("Server has closed connection (%1)", loc));
+}
+
+gx_system::JsonStringParser *GxMachineRemote::receive() {
     char buf[10000];
     bool error = false;
     gx_system::JsonStringParser *jp_ret = 0;
@@ -1171,16 +1186,12 @@ gx_system::JsonStringParser *GxMachineRemote::receive(bool verbose) {
 	    int n;
 	    try {
 		n = socket->receive(buf, sizeof(buf));
-		if (verbose && n > 0) {
-		    printf("## %.*s", n, buf);
-		    fflush(stdout);
-		}
 	    } catch(Glib::Error e) {
-		cerr << "Glib receive error" << endl;
+		cerr << "Glib receive error: " << e.what() << endl;
 		return 0;
 	    }
 	    if (n <= 0) {
-		cerr << "Glib receive error n <= 0" << endl;
+		socket_error(6);
 		return 0;
 	    }
 	    char *p = buf;

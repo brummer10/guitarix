@@ -392,7 +392,8 @@ private:
 private:
     const jsonrpc_method_def& start_call(jsonrpc_method m_id);
     void send();
-    gx_system::JsonStringParser *receive(bool verbose=false);
+    void socket_error(int loc);
+    gx_system::JsonStringParser *receive();
     bool get_bool(gx_system::JsonStringParser *jp);
     bool socket_input_handler(Glib::IOCondition cond);
     void add_idle_handler();
