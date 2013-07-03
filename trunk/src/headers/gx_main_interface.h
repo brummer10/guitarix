@@ -201,7 +201,7 @@ UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_engine::GxMachineBase& machin
     }
     m_label.set_name("rack_label");
     m_label.set_justify(Gtk::JUSTIFY_CENTER);
-    set_name(id);
+    Gtk::VBox::set_name(id);
     pack_start(m_label, Gtk::PACK_SHRINK);
     pack_start(m_selector, Gtk::PACK_EXPAND_PADDING);
     set_accessible(m_selector, m_label);
