@@ -104,12 +104,14 @@ inline void JsonWriter::iminus() {
 }
 
 void JsonWriter::write(float v, bool nl) {
+    assert(!isnan(v));
     komma();
     *os << v;
     snl(nl);
 }
 
 void JsonWriter::write(double v, bool nl) {
+    assert(!isnan(v));
     komma();
     *os << v;
     snl(nl);
