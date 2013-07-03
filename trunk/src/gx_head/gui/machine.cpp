@@ -120,10 +120,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 }
 
 GxMachine::~GxMachine() {
-#ifdef HAVE_AVAHI
-    delete avahi_service;
-#endif
-    delete sock;
+    stop_socket();
 #ifndef NDEBUG
     if (options.dump_parameter) {
 	pmap.dump("json");
@@ -258,6 +255,15 @@ void GxMachine::exit_handler(bool otherthread) {
 	delete sock;
 	sock = 0;
     }
+}
+
+void GxMachine::stop_socket() {
+#ifdef HAVE_AVAHI
+    delete avahi_service;
+    avahi_service = 0;
+#endif
+    delete sock;
+    sock = 0;
 }
 
 void GxMachine::start_socket(sigc::slot<void> quit_mainloop, int port) {
@@ -1579,6 +1585,10 @@ gx_system::CmdlineOptions& GxMachineRemote::get_options() const {
 }
 
 void GxMachineRemote::start_socket(sigc::slot<void> quit_mainloop, int port) {
+    assert(false);
+}
+
+void GxMachineRemote::stop_socket() {
     assert(false);
 }
 

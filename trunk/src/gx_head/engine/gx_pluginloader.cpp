@@ -205,6 +205,7 @@ Plugin::Plugin(gx_system::JsonParser& jp, ParamMap& pmap)
 	}
     }
     jp.next(gx_system::JsonParser::end_object);
+    p->flags &= ~PGNI_UI_REG;
     std::string s = p->id;
     std::string id = "ui."+s;
     if (pmap.hasId(id)) {

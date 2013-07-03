@@ -517,7 +517,6 @@ static void mainFront(int argc, char *argv[]) {
     delete Splash;
     machine.set_init_values();
     gui.run();
-    gx_child_process::childprocs.killall();
 }
 
 static bool is_headless(int argc, char *argv[]) {

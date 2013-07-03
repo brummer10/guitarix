@@ -2408,6 +2408,7 @@ bool MainWindow::on_quit() {
     if (ladspalist_window && !ladspalist_window->check_exit()) {
 	return true;
     }
+    machine.stop_socket();
     Gtk::Main::quit();
     return false;
 }
