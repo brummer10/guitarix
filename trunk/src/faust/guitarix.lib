@@ -274,12 +274,11 @@ eqfilter(Q,F,G)	= TF2(  (1 +  K/Q + K*K) 	/ D,
 						 2 * (K*K - 1) 		/ D,
 						(1 - K/Q + K*K) 	/ D,
 						 2 * (K*K - 1) 		/ D,
-						(1 - V*K/Q + K*K) 	/ D
+						(1 - G*K/Q + K*K) 	/ D
 					 )
 		with {
-				V = db2linear(G);
 				K = tan(PI*F/SR);
-				D = 1 + V*K/Q + K*K;
+				D = 1 + G*K/Q + K*K;
 		};
 
 
