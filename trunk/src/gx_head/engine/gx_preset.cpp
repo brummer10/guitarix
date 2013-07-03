@@ -1083,6 +1083,21 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 
 void GxSettings::loadstate() {
     GxSettingsBase::loadstate();
+#if 0
+    /* This following code is commented out because
+    **
+    ** o its debatable which of state file or scratch preset should have
+    **   priority in case both differ because 2 different instantiations
+    **   accessed the same scratch preset but different statefiles.
+    **
+    ** o if the scratch preset has priority, the autosave function would
+    **   have to save to statefile *and* scratch preset (in case of the
+    **   current preset being a scratch preset).
+    **
+    ** As an aside: load_preset() would have to be changed to not save
+    ** to the scratch preset before loading in the case that this code
+    ** is activated.
+    */
     if (setting_is_preset()) {
 	gx_system::PresetFile *pf = banks.get_file(current_bank);
 	if (pf && pf->get_type() == gx_system::PresetFile::PRESET_SCRATCH) {
@@ -1093,6 +1108,7 @@ void GxSettings::loadstate() {
 	    load_preset(pf, current_name);
 	}
     }
+#endif
     state_loaded = true;
 }
 
