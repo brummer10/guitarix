@@ -74,7 +74,7 @@ static void rt_watchdog_start() {
 	pthread_attr_init(&attr);
 	pthread_t pthr;
 	if (pthread_create(&pthr, &attr, rt_watchdog_run, 0)) {
-	    gx_system::gx_print_error("watchdog", _("can't create thread"));
+	    gx_print_error("watchdog", _("can't create thread"));
 	}
 	pthread_attr_destroy(&attr);
     }
@@ -126,7 +126,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       connection() {
     connection_queue.new_data.connect(sigc::mem_fun(*this, &GxJack::fetch_connection_data));
     client_change_rt.connect(client_change);
-    gx_system::GxExit::get_instance().signal_exit().connect(
+    GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxJack::cleanup_slot));
     rt_watchdog_start();
 }
@@ -164,7 +164,7 @@ void GxJack::read_connections(gx_system::JsonParser& jp) {
         } else if (jp.current_value() == "insert_in") {
             i = &ports.insert_in.conn;
         } else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		_("recall state"),
 		_("unknown jack ports section: ") + jp.current_value());
             jp.skip_object();
@@ -316,12 +316,12 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
     if (!client) {
 	if (!(jackstat & JackServerFailed)) {
 	    if ((jackstat & JackServerError) && (jackopt & JackUseExactName)) {
-		gx_system::gx_print_error(
+		gx_print_error(
 		    _("Jack Init"),
 		    boost::format(_("can't get requested jack instance name '%1%'"))
 		    % client_instance);
 	    } else {
-		gx_system::gx_print_error(
+		gx_print_error(
 		    _("Jack Init"),
 		    _("unknown jack server communication error"));
 	    }
@@ -336,12 +336,12 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
 	usleep(wait_after_connect);
     }
     jack_sr = jack_get_sample_rate(client); // jack sample rate
-    gx_system::gx_print_info(
+    gx_print_info(
 	_("Jack init"),
 	boost::format(_("The jack sample rate is %1%/sec")) % jack_sr);
 
     jack_bs = jack_get_buffer_size(client); // jack buffer size
-    gx_system::gx_print_info(
+    gx_print_info(
 	_("Jack init"),
 	boost::format(_("The jack buffer size is %1%/frames ... "))
 	% jack_bs);
@@ -582,12 +582,12 @@ void GxJack::gx_jack_callbacks() {
     jack_set_process_callback(client, gx_jack_process, this);
     jack_set_process_callback(client_insert, gx_jack_insert_process, this);
     if (jack_activate(client) != 0) {
-        gx_system::gx_print_fatal(
+        gx_print_fatal(
 	    _("Jack Activation"),
 	    string(_("Can't activate JACK gx_amp client")));
     }
     if (jack_activate(client_insert) != 0) {
-        gx_system::gx_print_fatal(_("Jack Activation"),
+        gx_print_fatal(_("Jack Activation"),
                        string(_("Can't activate JACK gx_amp_fx client")));
     }
 }
@@ -678,7 +678,7 @@ PortConnRing::PortConnRing()
       new_data(),
       portchange() {
     if (!ring) {
-	gx_system::gx_print_fatal(
+	gx_print_fatal(
 	    _("Jack init"), _("can't get memory for ringbuffer"));
     }
     jack_ringbuffer_mlock(ring);
@@ -900,7 +900,7 @@ string GxJack::get_uuid_insert() {
 	    client_insert, client_insert_name.c_str());
     } else {
 	assert(false);
-	gx_system::gx_print_error(_("session save"), _("can't get client uuid"));
+	gx_print_error(_("session save"), _("can't get client uuid"));
 	return "";
     }
     string ret(uuid);
@@ -912,7 +912,7 @@ void GxJack::gx_jack_session_callback(jack_session_event_t *event, void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
     jack_session_event_t *np = 0;
     if (!gx_system::atomic_compare_and_exchange(&self.session_event, np, event)) {
-	gx_system::gx_print_error("jack","last session not cleared");
+	gx_print_error("jack","last session not cleared");
 	return;
     }
     self.session();
@@ -922,7 +922,7 @@ void GxJack::gx_jack_session_callback_ins(jack_session_event_t *event, void *arg
     GxJack& self = *static_cast<GxJack*>(arg);
     jack_session_event_t *np = 0;
     if (!gx_system::atomic_compare_and_exchange(&self.session_event_ins, np, event)) {
-	gx_system::gx_print_error("jack","last session not cleared");
+	gx_print_error("jack","last session not cleared");
 	return;
     }
     self.session_ins();

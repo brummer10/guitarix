@@ -288,7 +288,7 @@ IRFileListing::IRFileListing(const std::string& path) {
 	    }
         }
     } else {
-        gx_system::gx_print_error(
+        gx_print_error(
 	    "jconvolver",
 	    boost::format(_("Error reading file path %1%")) % path);
     }
@@ -366,6 +366,7 @@ CmdlineOptions::CmdlineOptions()
       rcset(shellvar("GUITARIX_RC_STYLE")),
       nogui(false),
       rpcport(RPCPORT_DEFAULT),
+      rpcaddress(),
       onlygui(false),
       sporadic_overload(0),
       idle_thread_timeout(0),
@@ -435,6 +436,11 @@ CmdlineOptions::CmdlineOptions()
     opt_rpcport.set_long_name("rpcport");
     opt_rpcport.set_description("start a JSON-RPC server listening on port PORT");
     opt_rpcport.set_arg_description("PORT");
+    Glib::OptionEntry opt_rpchost;
+    opt_rpchost.set_short_name('H');
+    opt_rpchost.set_long_name("rpchost");
+    opt_rpchost.set_description("set hostname to connect to");
+    opt_rpchost.set_arg_description("HOSTNAME");
     Glib::OptionEntry opt_onlygui;
     opt_onlygui.set_short_name('G');
     opt_onlygui.set_long_name("onlygui");
@@ -442,6 +448,7 @@ CmdlineOptions::CmdlineOptions()
     main_group.add_entry(opt_version, version);
     main_group.add_entry(opt_nogui, nogui);
     main_group.add_entry(opt_rpcport, rpcport);
+    main_group.add_entry(opt_rpchost, rpcaddress);
     main_group.add_entry(opt_onlygui, onlygui);
     set_main_group(main_group);
 
@@ -718,12 +725,12 @@ string CmdlineOptions::get_opskin() {
     return opskin;
 }
 
-static void log_terminal(const string& msg, GxMsgType tp, bool plugged) {
+static void log_terminal(const string& msg, GxLogger::MsgType tp, bool plugged) {
     const char *t;
     switch (tp) {
-    case kInfo:    t = "I"; break;
-    case kWarning: t = "W"; break;
-    case kError:   t = "E"; break;
+    case GxLogger::kInfo:    t = "I"; break;
+    case GxLogger::kWarning: t = "W"; break;
+    case GxLogger::kError:   t = "E"; break;
     default:       t = "?"; break;
     }
     if (!plugged) {
@@ -752,7 +759,7 @@ void CmdlineOptions::process(int argc, char** argv) {
     }
 #ifdef NDEBUG
     if (argc > 1) {
-	throw gx_system::GxFatalError(
+	throw GxFatalError(
 	    string("unknown argument on command line: ")+argv[1]);
     }
 #endif
@@ -762,10 +769,10 @@ void CmdlineOptions::process(int argc, char** argv) {
 	    _("-c and -r cannot be used together"));
     }
     if (lterminal) {
-	Logger::get_logger().signal_message().connect(
+	GxLogger::get_logger().signal_message().connect(
 	    sigc::ptr_fun(log_terminal));
 	if (nogui) {
-	    Logger::get_logger().unplug_queue();
+	    GxLogger::get_logger().unplug_queue();
 	}
     }
 
@@ -800,192 +807,6 @@ void CmdlineOptions::process(int argc, char** argv) {
 	    _("main"),
 	    _("Warning --> provided more than 2 output ports, ignoring extra ports"));
     }
-}
-
-
-/****************************************************************
- ** Logging
- */
-
-Logger::Logger()
-    : trackable(),
-      msglist(),
-      msgmutex(),
-      got_new_msg(),
-      ui_thread(),
-      handlers(),
-      queue_all_msgs(true) {
-}
-
-static class LoggerGuard {
-private:
-    Logger *logger_instance;
-public:
-    LoggerGuard() : logger_instance(0) {}
-    ~LoggerGuard() { destroy(); }
-    void create() { logger_instance = new Logger; }
-    void destroy() { if (logger_instance) { delete logger_instance; logger_instance = 0; }}
-    Logger *get() { return logger_instance; }
-} logger_guard;
-
-Logger& Logger::get_logger() {
-    Logger *l = logger_guard.get();
-    if (!l) {
-	logger_guard.create();
-	l = logger_guard.get();
-    }
-    return *l;
-}
-
-void Logger::destroy() {
-    logger_guard.destroy();
-}
-
-Logger::~Logger() {
-    delete got_new_msg;
-}
-
-void Logger::set_ui_thread() {
-    if (ui_thread) {
-	assert(pthread_equal(pthread_self(), ui_thread));
-    } else {
-	got_new_msg = new Glib::Dispatcher;
-	ui_thread = pthread_self();
-	got_new_msg->connect(mem_fun(*this, &Logger::write_queued));
-    }
-}
-
-Logger::msg_signal& Logger::signal_message() {
-    set_ui_thread();
-    return handlers;
-}
-
-void Logger::unplug_queue() {
-    if (!queue_all_msgs) {
-	return;
-    }
-    queue_all_msgs = false;
-    write_queued();
-}
-
-void Logger::write_queued() {
-    if (handlers.empty()) {
-	return;
-    }
-
-    // quick copy list
-    msgmutex.lock();
-    list<logmsg> l = msglist;
-    if (!queue_all_msgs) {
-	msglist.clear();
-    }
-    msgmutex.unlock();
-
-    // feed throught the handler(s)
-    for (list<logmsg>::iterator i = l.begin(); i != l.end(); ++i) {
-	if (queue_all_msgs) {
-	    if (!i->plugged) {
-		handlers(i->msg, i->msgtype, i->plugged);
-		i->plugged = true;
-	    }
-	} else {
-	    handlers(i->msg, i->msgtype, i->plugged);
-	}
-    }
-}
-
-string Logger::format(const char* func, const string& msg) {
-    // timestamp
-    time_t now;
-    time(&now);
-    struct tm *tm_now = localtime(&now);
-    ostringstream msgbuf;
-    msgbuf << "[" << setfill('0')
-           << setw(2) << tm_now->tm_hour << ":"
-           << setw(2) << tm_now->tm_min  << ":"
-           << setw(2) << tm_now->tm_sec  << "]"
-           << "  " << func << "  ***  " << msg;
-    return msgbuf.str();
-}
-
-void Logger::print(const char* func, const string& msg, GxMsgType msgtype) {
-    Logger::print(format(func, msg), msgtype);
-}
-
-void Logger::print(const string& formatted_msg, GxMsgType msgtype) {
-    if (handlers.empty() || !(pthread_equal(pthread_self(), ui_thread))) {
-	boost::mutex::scoped_lock lock(msgmutex);
-	// defer output
-        msglist.push_back(logmsg(formatted_msg, msgtype, false));
-	if (!handlers.empty() && msglist.size() == 1) {
-	    (*got_new_msg)();
-	}
-    } else {
-	write_queued();
-	handlers(formatted_msg, msgtype, false);
-	if (queue_all_msgs) {
-	    msglist.push_back(logmsg(formatted_msg, msgtype, true));
-	}
-    }
-}
-
-/*
-** utility logger functions
-*/
-
-// ---- log message handler
-void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype) {
-    Logger::get_logger().print(func, msg, msgtype);
-}
-
-// warning
-void gx_print_warning(const char* func, const string& msg) {
-    gx_print_logmsg(func, msg, kWarning);
-}
-
-// error
-void gx_print_error(const char* func, const string& msg) {
-    gx_print_logmsg(func, msg, kError);
-}
-
-GxFatalError::~GxFatalError() throw() {
-}
-
-// fatal error
-// - do not use before Gtk::Main() ctor
-// - do not use when main loop is blocked (modal dialog or something)
-//
-void gx_print_fatal(const char* func, const string& msg) {
-    string msgbuf = string(_("fatal system error: ")) + func + "  ***  " + msg + "\n";
-    GxExit::get_instance().fatal_msg(msgbuf);
-}
-
-// info
-void gx_print_info(const char* func, const string& msg) {
-    gx_print_logmsg(func, msg, kInfo);
-}
-
-
-/****************************************************************
- ** class GxExit
- */
-
-GxExit::GxExit(): exit_sig(), ui_thread() {}
-
-GxExit::~GxExit() {}
-
-void GxExit::exit_program(string msg, int errcode) {
-    exit_sig.emit_reverse(pthread_equal(pthread_self(), ui_thread));
-    if (msg.empty()) {
-	msg = "** guitarix exit **";
-    }
-    cerr << msg << endl;
-    _exit(errcode);
-}
-
-GxExit& GxExit::get_instance() {
-    static GxExit instance;
-    return instance;
 }
 
 

@@ -217,6 +217,8 @@ def set_options(opt):
                    help=("option for 'dist' command: git tree-ish to build"
                          " the archive from [Default: %s]" % 'V%s' % VERSION))
 
+    opt.sub_options('src/gx_head');
+
 
 ################################################################
 # waf configure
@@ -662,25 +664,23 @@ def configure(conf):
         conf.define('OS_64_BIT', 1)
     else:
         conf.define('OS_32_BIT', 1)
-    # writing config.h
-    conf.write_config_header('config.h')
 
     if not opt.libdir:
-        conf.define('LIBDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib')))
+        conf.env['LIBDIR'] = os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib'))
     else:
-        conf.define('LIBDIR', opt.libdir)
+        conf.env['LIBDIR'] = opt.libdir
 
-    conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
-    conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
-    conf.define('BIN_NAME', APPNAME)
+    conf.env['BINDIR'] = os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin'))
+    conf.env['DESKAPPS_DIR'] = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications'))
+    conf.env['BIN_NAME'] = APPNAME
 
     conf.env['LV2'] =  opt.build_lv2
     conf.env['NOSSE'] =  opt.dissable_sse
     if opt.build_lv2:
         if opt.lv2dir:
-            conf.define('LV2DIR', opt.lv2dir)
+            conf.env['LV2DIR'] = opt.lv2dir
         else:
-            conf.define('LV2DIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'lv2')) )
+            conf.env['LV2DIR'] = os.path.normpath(os.path.join(conf.env['LIBDIR'], 'lv2'))
 
     conf.env['NEW_LADSPA'] = not opt.no_ladspa and not opt.no_new_ladspa
     conf.env['LADSPA'] = not opt.no_ladspa
@@ -739,6 +739,8 @@ def configure(conf):
         sub_file('./libgxwmm/gxwmm.pc.in', './libgxwmm/gxwmm.pc', (('prefix=/path', 'prefix=%s' % pa), ))
         sub_file('./libgxwmm/gxwmm.pc', './libgxwmm/gxwmm.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
 
+    # writing config.h
+    conf.write_config_header('config.h')
 
     # some output
     print("")
@@ -767,6 +769,7 @@ def configure(conf):
     if opt.faust_options:
         display_msg("Additional faust options", conf.env['FAUST_OPTIONS'], 'CYAN')
     display_feature("Use prebuild gperf files", not conf.env["HAVE_GPERF"])
+    display_feature("Avahi service discovery", conf.env["HAVE_AVAHI"])
     display_feature("Use internal zita-resampler", not conf.env['ZITA_RESAMPLER'])
     if conf.env['CONVOLVER_FFMPEG']:
         display_feature("Use zita-convolver-ffmpeg", True)

@@ -217,7 +217,7 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
         } else if (jp.current_value() == "jconv.favorits") {
             jp.skip_object();
         } else {
-            gx_system::gx_print_warning("jconv settings", "unknown key: " + jp.current_value());
+            gx_print_warning("jconv settings", "unknown key: " + jp.current_value());
             jp.skip_object();
         }
     } while (jp.peek() == gx_system::JsonParser::value_key);
@@ -274,7 +274,7 @@ JConvParameter::ParameterV(gx_system::JsonParser& jp)
 	} else if (jp.current_value() == "std_value") {
 	    std_value.readJSON(jp, searchpath);
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"JConvParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
@@ -405,7 +405,7 @@ bool ConvolverAdapter::conv_start() {
     }
     string path = jcset.getFullIRPath();
     if (path.empty()) {
-        gx_system::gx_print_warning(_("convolver"), _("no impulseresponse file"));
+        gx_print_warning(_("convolver"), _("no impulseresponse file"));
         plugin.set_on_off(false);
         return false;
     }
@@ -511,7 +511,7 @@ int ConvolverStereoAdapter::activate(bool start, PluginDef *p) {
     self.activated = start;
     if (start) {
 	if (self.jc_post.activate(true) != 0) {
-	    gx_system::gx_print_error(_("convolver"), "jconv post activate error?!");
+	    gx_print_error(_("convolver"), "jconv post activate error?!");
 	    return -1;
 	}
 	if (!self.conv_start()) {

@@ -932,7 +932,7 @@ void PresetFile::writeJSON_remote(gx_system::JsonWriter& jw) {
 bool PresetFile::set_factory(const Glib::ustring& name_, const std::string& path) {
     check_mtime(path, mtime);
     if (mtime == 0) {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    _("open factory preset"),
 	    boost::format(_("couldn't open %1%")) % path);
 	return false;
@@ -949,7 +949,7 @@ bool PresetFile::fail() {
     try {
 	reopen();
     } catch (gx_system::JsonException& e) {
-	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	gx_print_error(filename.c_str(), _("parse error"));
 	return true;
     }
     return is->fail();
@@ -979,7 +979,7 @@ bool PresetFile::create_file(const Glib::ustring& name_, const std::string& path
 	header.set_to_current();
 	check_mtime(path, mtime);
     } else {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    _("create preset bank"),
 	    boost::format(_("couldn't create %1%")) % path);
     }
@@ -1008,14 +1008,14 @@ bool PresetFile::readJSON(const std::string& dirpath, JsonParser &jp, bool *mtim
     if (!check_mtime(filename, mtime)) {
 	*mtime_diff = true;
 	if (mtime == 0) {
-	    gx_system::gx_print_error(filename.c_str(), _("not found"));
+	    gx_print_error(filename.c_str(), _("not found"));
 	    return false;
 	}
 	try {
 	    open();
 	} catch (gx_system::JsonException& e) {
 	    set_flag(PRESET_FLAG_INVALID, true);
-	    gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	    gx_print_error(filename.c_str(), _("parse error"));
 	    return false;
 	}
 	set_flag(PRESET_FLAG_INVALID, false);
@@ -1071,7 +1071,7 @@ int PresetFile::size() {
     try {
 	reopen();
     } catch (gx_system::JsonException& e) {
-	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	gx_print_error(filename.c_str(), _("parse error"));
     }
     return entries.size();
 }
@@ -1327,7 +1327,7 @@ PresetFile::iterator PresetFile::begin() {
     try {
 	reopen();
     } catch (gx_system::JsonException& e) {
-	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	gx_print_error(filename.c_str(), _("parse error"));
     }
     return entries.begin();
 }
@@ -1594,7 +1594,7 @@ void PresetBanks::save() {
 void PresetBanks::parse_factory_list(const std::string& path) {
     ifstream is(Glib::build_filename(path, "dirlist.js").c_str());
     if (is.fail()) {
-	gx_system::gx_print_error(_("Presets"), _("factory preset list not found"));
+	gx_print_error(_("Presets"), _("factory preset list not found"));
 	return;
     }
     gx_system::JsonParser jp(&is);
@@ -1616,7 +1616,7 @@ void PresetBanks::parse_factory_list(const std::string& path) {
 		}
 	    } catch (gx_system::JsonException& e) {
 		delete f;
-		gx_system::gx_print_error(fname.c_str(), _("not found or parse error"));
+		gx_print_error(fname.c_str(), _("not found or parse error"));
 	    }
 	    f = 0;
 	    jp.next(gx_system::JsonParser::end_array);
@@ -1633,7 +1633,7 @@ void PresetBanks::parse_factory_list(const std::string& path) {
 void PresetBanks::parse_bank_list(bl_type::iterator pos) {
     ifstream is(filepath.c_str());
     if (is.fail()) {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    _("Presets"), boost::format(_("banks not found: '%1%'")) % filepath);
 	return;
     }
@@ -1655,7 +1655,7 @@ void PresetBanks::parse_bank_list(bl_type::iterator pos) {
 	jp.next(gx_system::JsonParser::end_token);
     } catch (gx_system::JsonException& e) {
 	delete f;
-	gx_system::gx_print_error(filepath.c_str(), _("parse error"));
+	gx_print_error(filepath.c_str(), _("parse error"));
     }
     jp.close();
     is.close();
@@ -1861,7 +1861,7 @@ void GxSettingsBase::set_source_to_state() {
 }
 
 void GxSettingsBase::save_to_state(bool preserve_preset) {
-    gx_system::gx_print_info("write state",boost::format("%2% [%1%]")
+    gx_print_info("write state",boost::format("%2% [%1%]")
 			     % preserve_preset % statefile.get_filename());
     JsonWriter *jw = statefile.create_writer(&preserve_preset);
     state_io->write_state(*jw, preserve_preset);

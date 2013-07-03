@@ -24,7 +24,6 @@
 using gx_system::JsonException;
 using gx_system::JsonParser;
 using gx_system::to_string;
-using gx_system::gx_print_error;
 using Glib::ustring;
 
 namespace gx_engine {

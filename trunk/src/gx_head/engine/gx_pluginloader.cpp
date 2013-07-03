@@ -337,7 +337,7 @@ Plugin *PluginListBase::find_plugin(const std::string& id) const {
 Plugin *PluginListBase::lookup_plugin(const std::string& id) const {
     Plugin *p = find_plugin(id);
     if (!p) {
-	gx_system::gx_print_fatal(
+	gx_print_fatal(
 	    _("lookup plugin"),
 	    boost::format("id not found: %1%") % id);
     }
@@ -347,7 +347,7 @@ Plugin *PluginListBase::lookup_plugin(const std::string& id) const {
 int PluginList::load_library(const string& path, PluginPos pos) {
     void* handle = dlopen(path.c_str(), RTLD_LOCAL|RTLD_NOW);
     if (!handle) {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    _("Plugin Loader"),
 	    boost::format(_("Cannot open library: %1%")) % dlerror());
         return -1;
@@ -356,7 +356,7 @@ int PluginList::load_library(const string& path, PluginPos pos) {
     plugin_inifunc get_gx_plugin = (plugin_inifunc) dlsym(handle, "get_gx_plugin");
     const char *dlsym_error = dlerror();
     if (dlsym_error) {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    _("Plugin Loader"),
 	    boost::format(_("Cannot load symbol 'get_gx_plugin': %1%")) % dlsym_error);
         dlclose(handle);
@@ -374,7 +374,7 @@ int PluginList::load_library(const string& path, PluginPos pos) {
 	}
 	if (!add(p, pos)) {
 	    cnt++;
-	    gx_system::gx_print_info(_("Plugin Loader"), Glib::ustring::compose("loaded[%1]: %2", path, p->id));
+	    gx_print_info(_("Plugin Loader"), Glib::ustring::compose("loaded[%1]: %2", path, p->id));
 	}
     }
     return cnt;
@@ -384,7 +384,7 @@ int PluginList::load_from_path(const string& path, PluginPos pos) {
     DIR *dp;
     struct dirent *dirp;
     if((dp = opendir(path.c_str())) == NULL) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    _("Plugin Loader"),
 	    boost::format(_("Error opening '%1%'")) % path);
         return -1;
@@ -408,7 +408,7 @@ int PluginList::check_version(PluginDef *p) {
 	((p->version & PLUGINDEF_VERMINOR_MASK) <= (PLUGINDEF_VERSION & PLUGINDEF_VERMINOR_MASK))) {
 	return 0;
     }
-    gx_system::gx_print_error(
+    gx_print_error(
 	_("Plugin Loader"),
 	boost::format(_("Plugin '%1%' has wrong version %2$#4x (current version: %3$#4x)"))
 	% p->id % p->version % PLUGINDEF_VERSION);
@@ -436,7 +436,7 @@ int PluginListBase::insert_plugin(Plugin *pvars) {
     const char *id = pvars->get_pdef()->id;
     pair<pluginmap::iterator,bool> ret = pmap.insert(map_pair(id, pvars));
     if (!ret.second) {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    _("Plugin Loader"),
 	    boost::format(_("Plugin '%1%' already exists: skipped")) % id);
 	return -1;

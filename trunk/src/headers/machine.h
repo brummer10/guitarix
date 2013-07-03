@@ -23,6 +23,9 @@
 
 #include <ext/stdio_filebuf.h>
 #include "jsonrpc_methods.h"
+#ifdef HAVE_AVAHI
+#include "avahi_register.h"
+#endif
 
 namespace gx_gui { class UiBuilderImpl; }
 
@@ -222,6 +225,9 @@ private:
     gx_preset::GxSettings settings;
     TunerSwitcher tuner_switcher;
     MyService *sock;
+#ifdef HAVE_AVAHI
+    AvahiService *avahi_service;
+#endif
     ParamMap& pmap;
 private:
     void do_program_change(int pgm);

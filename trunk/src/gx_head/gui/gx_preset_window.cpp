@@ -374,7 +374,7 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
     Glib::ustring src_bank = get_current_bank();
     gx_system::PresetFileGui& pf = *machine.bank_get_file(src_bank);
     if (src_bank == bank) {
-        gx_system::gx_print_error("preset", "can't copy inside the same bank");
+        gx_print_error("preset", "can't copy inside the same bank");
         return;
     }
     Gtk::TreeModel::Path pt;

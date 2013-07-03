@@ -120,7 +120,7 @@ bool read_audio(const std::string& filename, unsigned int *audio_size, int *audi
 		int *audio_type, int *audio_form, int *audio_rate, float **buffer) {
     Audiofile audio;
     if (audio.open_read(filename)) {
-        gx_system::gx_print_error("jconvolver", "Unable to open '" + filename + "'");
+        gx_print_error("jconvolver", "Unable to open '" + filename + "'");
 	*audio_size = *audio_chan = *audio_type = *audio_form = *audio_rate = 0;
 	*buffer = 0;
         return false;
@@ -132,13 +132,13 @@ bool read_audio(const std::string& filename, unsigned int *audio_size, int *audi
     *audio_rate = audio.rate();
     const unsigned int limit = 2000000; // arbitrary size limit
     if (*audio_size > limit) {
-        gx_system::gx_print_warning(
+        gx_print_warning(
             "jconvolver", (boost::format(_("too many samples (%1%), truncated to %2%"))
                            % *audio_size % limit).str());
         *audio_size = limit;
     }
     if (*audio_size * *audio_chan == 0) {
-        gx_system::gx_print_error("jconvolver", "No samples found");
+        gx_print_error("jconvolver", "No samples found");
 	*audio_size = *audio_chan = *audio_type = *audio_form = *audio_rate = 0;
 	*buffer = 0;
         return false;
@@ -146,7 +146,7 @@ bool read_audio(const std::string& filename, unsigned int *audio_size, int *audi
     *buffer = new float[*audio_size * *audio_chan];
     if (audio.read(*buffer, *audio_size) != static_cast<int>(*audio_size)) {
 	delete[] *buffer;
-        gx_system::gx_print_error("jconvolver", "Error reading file");
+        gx_print_error("jconvolver", "Error reading file");
 	*audio_size = *audio_chan = *audio_type = *audio_form = *audio_rate = 0;
 	*buffer = 0;
         return false;
@@ -180,7 +180,7 @@ void GxConvolverBase::adjust_values(
     }
     if (!size) {
         if (offset + length > audio_size) {
-            gx_system::gx_print_warning(
+            gx_print_warning(
                 "convolver",
                 (boost::format("length adjusted (%1% + %2% > %3%")
                  % offset % length % audio_size).str());
@@ -202,7 +202,7 @@ void GxConvolverBase::adjust_values(
         }
         if (length > size - max(delay, ldelay) - offset) {
             length = size - max(delay, ldelay) - offset;
-            gx_system::gx_print_warning("convolver", "data truncated");
+            gx_print_warning("convolver", "data truncated");
         }
         if (!length) {
             length = size - max(delay, ldelay) - offset;
@@ -213,7 +213,7 @@ void GxConvolverBase::adjust_values(
 bool GxConvolverBase::start(int policy, int priority) {
     int rc = start_process(priority, policy);
     if (rc != 0) {
-        gx_system::gx_print_error("convolver", "can't start convolver");
+        gx_print_error("convolver", "can't start convolver");
         return false;
     }
     ready = true;
@@ -275,7 +275,7 @@ bool GxConvolver::read_sndfile(
     
 
     if (offset && audio.seek(offset)) {
-        gx_system::gx_print_error("convolver", "Can't seek to offset");
+        gx_print_error("convolver", "Can't seek to offset");
         audio.close();
         return false;
     }
@@ -283,15 +283,15 @@ bool GxConvolver::read_sndfile(
         buff = new float[BSIZE * audio.chan()];
     } catch(...) {
         audio.close();
-        gx_system::gx_print_error("convolver", "out of memory");
+        gx_print_error("convolver", "out of memory");
         return false;
     }
     if (samplerate != audio.rate()) {
-        gx_system::gx_print_info(
+        gx_print_info(
 	    "convolver", Glib::ustring::compose(
 		_("resampling from %1 to %2"), audio.rate(), samplerate));
         if (!resamp.setup(audio.rate(), samplerate, audio.chan())) {
-            gx_system::gx_print_error("convolver", "resample failure");
+            gx_print_error("convolver", "resample failure");
             assert(false);
 	    return false;
         }
@@ -299,7 +299,7 @@ bool GxConvolver::read_sndfile(
             rbuff = new float[resamp.get_max_out_size(BSIZE)*audio.chan()];
         } catch(...) {
             audio.close();
-            gx_system::gx_print_error("convolver", "out of memory");
+            gx_print_error("convolver", "out of memory");
             return false;
         }
         bufp = rbuff;
@@ -326,7 +326,7 @@ bool GxConvolver::read_sndfile(
         if (length) {
             nfram = audio.read(buff, nfram);
             if (nfram < 0) {
-                gx_system::gx_print_error("convolver", "Error reading file");
+                gx_print_error("convolver", "Error reading file");
                 audio.close();
                 delete[] buff;
                 delete[] rbuff;
@@ -369,7 +369,7 @@ bool GxConvolver::read_sndfile(
                     audio.close();
                     delete[] buff;
                     delete[] rbuff;
-                    gx_system::gx_print_error("convolver", "out of memory");
+                    gx_print_error("convolver", "out of memory");
                     return false;
                 }
                 delay[ichan] += cnt;
@@ -396,11 +396,11 @@ bool GxConvolver::configure(
         return false;
     }
     if (audio.open_read(fname)) {
-        gx_system::gx_print_error("convolver", Glib::ustring::compose("Unable to open '%1'", fname));
+        gx_print_error("convolver", Glib::ustring::compose("Unable to open '%1'", fname));
         return false;
     }
     if (audio.chan() > 2) {
-        gx_system::gx_print_error(
+        gx_print_error(
 	    "convolver",
 	    Glib::ustring::compose("only taking first 2 of %1 channels in impulse response", audio.chan()));
         return false;
@@ -414,7 +414,7 @@ bool GxConvolver::configure(
 	ldelay = round(ldelay * f);
     }
     if (Convproc::configure(2, 2, size, buffersize, bufsize, Convproc::MAXPART)) {
-        gx_system::gx_print_error("convolver", "error in Convproc::configure ");
+        gx_print_error("convolver", "error in Convproc::configure ");
         return false;
     }
 
@@ -459,11 +459,11 @@ bool GxConvolver::configure(string fname, float gain, unsigned int delay, unsign
         return false;
     }
     if (audio.open_read(fname)) {
-        gx_system::gx_print_error("convolver", Glib::ustring::compose("Unable to open '%1'", fname));
+        gx_print_error("convolver", Glib::ustring::compose("Unable to open '%1'", fname));
 	return false;
     }
     if (audio.chan() > 1) {
-        gx_system::gx_print_error(
+        gx_print_error(
 	    "convolver",
 	    Glib::ustring::compose("only taking first channel of %1 channels in impulse response", audio.chan()));
 	return false;
@@ -477,7 +477,7 @@ bool GxConvolver::configure(string fname, float gain, unsigned int delay, unsign
 	delay = round(delay * f);
     }
     if (Convproc::configure(1, 1, size, buffersize, bufsize, Convproc::MAXPART)) {
-        gx_system::gx_print_error("convolver", "error in Convproc::configure ");
+        gx_print_error("convolver", "error in Convproc::configure ");
         return false;
     }
 
@@ -524,10 +524,10 @@ public:
 	    if (!vec) {
 		boost::format msg = boost::format("failed to resample %1% -> %2%") % imprate % samplerate;
 		if (samplerate) {
-		    gx_system::gx_print_error("convolver", msg);
+		    gx_print_error("convolver", msg);
 		} else {
 		    // not need for extra error when no samplerate (probably not connected to jack)
-		    gx_system::gx_print_warning("convolver", msg);
+		    gx_print_warning("convolver", msg);
 		}
 		return 0;
 	    }
@@ -555,11 +555,11 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int imprat
     }
     if (Convproc::configure(1, 1, count, buffersize,
                             bufsize, Convproc::MAXPART)) {
-        gx_system::gx_print_error("convolver", "error in Convproc::configure");
+        gx_print_error("convolver", "error in Convproc::configure");
         return false;
     }
     if (impdata_create(0, 0, 1, impresp, 0, count)) {
-        gx_system::gx_print_error("convolver", "out of memory");
+        gx_print_error("convolver", "out of memory");
         return false;
     }
     return true;
@@ -572,7 +572,7 @@ bool GxSimpleConvolver::update(int count, float *impresp, unsigned int imprate) 
 	return false;
     }
     if (impdata_update(0, 0, 1, impresp, 0, count)) {
-        gx_system::gx_print_error("convolver", "update: internal error");
+        gx_print_error("convolver", "update: internal error");
         return false;
     }
     return true;

@@ -268,9 +268,9 @@ void CmdConnection::listen(const Glib::ustring& tp) {
 	    sigc::mem_fun(this, &CmdConnection::on_presetlist_changed));
     }
     if (all || tp == "logger") {
-	conn_log_message = gx_system::Logger::get_logger().signal_message().connect(
+	conn_log_message = GxLogger::get_logger().signal_message().connect(
 	    sigc::mem_fun(this, &CmdConnection::on_log_message));
-	gx_system::Logger::get_logger().unplug_queue();
+	GxLogger::get_logger().unplug_queue();
     }
     if (all || tp == "midi") {
 	conn_midi_changed = serv.jack.get_engine().controller_map.signal_changed().connect(
@@ -351,12 +351,12 @@ void CmdConnection::on_midi_value_changed(int ctl, int value) {
     send_notify_end(jw);
 }
 
-void CmdConnection::on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged) {
+void CmdConnection::on_log_message(const string& msg, GxLogger::MsgType tp, bool plugged) {
     const char *tpname;
     switch (tp) {
-    case gx_system::kInfo:    tpname = "info"; break;
-    case gx_system::kWarning: tpname = "warning"; break;
-    case gx_system::kError:   tpname = "error"; break;
+    case GxLogger::kInfo:    tpname = "info"; break;
+    case GxLogger::kWarning: tpname = "warning"; break;
+    case GxLogger::kError:   tpname = "error"; break;
     default: tpname = "unknown"; break;
     }
     if (!plugged) {
@@ -1476,7 +1476,7 @@ void CmdConnection::process(gx_system::JsonStringParser& jp) {
 	}
 	send(jw);
     } catch (gx_system::JsonException& e) {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    "JSON-RPC", Glib::ustring::compose("error: %1, request: '%2'",
 					       e.what(), jp.get_string()));
 	gx_system::JsonStringWriter jw;
@@ -1670,7 +1670,7 @@ void UiBuilderVirt::load_glade_(const char *data) {
  */
 
 MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
-		     TunerSwitcher& tunerswitcher_, sigc::slot<void> quit_mainloop_, int port)
+		     TunerSwitcher& tunerswitcher_, sigc::slot<void> quit_mainloop_, int *port)
     : Gio::SocketService(),
       settings(settings_),
       jack(jack_),
@@ -1682,7 +1682,11 @@ MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
       connection_list(),
       jwc(0),
       preg_map(0) {
-    add_inet_port(port);
+    if (*port == 0) {
+	*port = add_any_inet_port();
+    } else {
+	add_inet_port(*port);
+    }
     gx_engine::ParamMap& pmap = settings.get_param();
     pmap.signal_insert_remove().connect(
 	sigc::mem_fun(this, &MyService::on_param_insert_remove));

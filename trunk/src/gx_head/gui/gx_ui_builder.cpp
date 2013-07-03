@@ -38,14 +38,14 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
     GError *err = NULL;
     if (!gtk_builder_add_from_file(builder, fname.c_str(), &err)) {
         g_object_unref(G_OBJECT(builder));
-        gx_system::gx_print_fatal(_("gtk builder"), err->message);
+        gx_print_fatal(_("gtk builder"), err->message);
         g_error_free(err);
         return NULL;
     }
     GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(builder, windowname));
     if (!w) {
         g_object_unref(G_OBJECT(builder));
-        gx_system::gx_print_fatal(_("gtk builder"), string(windowname)+_(" not found in ")+fname);
+        gx_print_fatal(_("gtk builder"), string(windowname)+_(" not found in ")+fname);
         return NULL;
     }
     gtk_builder_connect_signals(builder, 0);
@@ -211,9 +211,9 @@ Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
 	    builder->add_from_file(filename);
 	}
     } catch(const Glib::FileError& ex) {
-        gx_system::gx_print_fatal("FileError", ex.what());
+        gx_print_fatal("FileError", ex.what());
     } catch(const Gtk::BuilderError& ex) {
-        gx_system::gx_print_fatal("Builder Error", ex.what());
+        gx_print_fatal("Builder Error", ex.what());
     }
     if (pmach) {
 	builder->fixup_controlparameters(*pmach);
@@ -228,9 +228,9 @@ Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
     try {
 	builder->add_from_file(filename, object_ids);
     } catch(const Glib::FileError& ex) {
-        gx_system::gx_print_fatal("FileError", ex.what());
+        gx_print_fatal("FileError", ex.what());
     } catch(const Gtk::BuilderError& ex) {
-        gx_system::gx_print_fatal("Builder Error", ex.what());
+        gx_print_fatal("Builder Error", ex.what());
     }
     if (pmach) {
 	builder->fixup_controlparameters(*pmach);
@@ -249,7 +249,7 @@ Glib::RefPtr<GxBuilder> GxBuilder::create_from_string(
 	    builder->add_from_string(buffer);
 	}
     } catch(const Gtk::BuilderError& ex) {
-        gx_system::gx_print_fatal("Builder Error", ex.what());
+        gx_print_fatal("Builder Error", ex.what());
     }
     if (pmach) {
 	builder->fixup_controlparameters(*pmach);
@@ -264,7 +264,7 @@ Glib::RefPtr<GxBuilder> GxBuilder::create_from_string(
     try {
 	builder->add_from_string(buffer, object_ids);
     } catch(const Gtk::BuilderError& ex) {
-        gx_system::gx_print_fatal("Builder Error", ex.what());
+        gx_print_fatal("Builder Error", ex.what());
     }
     if (pmach) {
 	builder->fixup_controlparameters(*pmach);
@@ -377,7 +377,7 @@ static void make_switch_controller(gx_engine::GxMachineBase& machine, Glib::RefP
 	    destroy_with_widget(t, new uiToggle<bool>(machine, t, p.id()));
 	}
     } else {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    "load dialog",
 	    Glib::ustring::compose("Switch Parameter variable %1: type not handled", p.id()));
     }
@@ -407,7 +407,7 @@ static void make_continuous_controller(gx_engine::GxMachineBase& machine, Glib::
 	return;
     }
     if (!p.isFloat()) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    "load dialog",
 	    Glib::ustring::compose("Continuous Parameter variable %1: type not handled", p.id()));
 	return;
@@ -470,7 +470,7 @@ static void make_enum_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr
 	destroy_with_widget(t, new uiSelector<float>(machine, t, p.id()));
 	t->cp_set_value(machine.get_parameter_value<float>(p.id()));
     } else {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    "load dialog",
 	    Glib::ustring::compose("Enum Parameter variable %1: type not handled", p.id()));
     }
@@ -503,7 +503,7 @@ void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine) {
 	    Glib::RefPtr<Gtk::Widget> wd = Glib::RefPtr<Gtk::Widget>::cast_dynamic(w);
 	    wd->set_sensitive(0);
             wd->set_tooltip_text(v);
-            gx_system::gx_print_warning(
+            gx_print_warning(
 		"load dialog",
 		(boost::format("Parameter variable %1% not found") % v).str());
             continue;

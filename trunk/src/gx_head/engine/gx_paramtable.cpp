@@ -185,7 +185,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
     jp.next(gx_system::JsonParser::value_string);
     string id = jp.current_value();
     if (!pmap.hasId(id)) {
-        gx_system::gx_print_warning(_("Midi controller settings"),
+        gx_print_warning(_("Midi controller settings"),
                                     _("unknown parameter: ") + id);
         while (jp.next() != gx_system::JsonParser::end_array);
         return 0;
@@ -251,13 +251,13 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
     assert(jp.peek() == gx_system::JsonParser::end_array);
     while (jp.next() != gx_system::JsonParser::end_array); // be tolerant (non-debug mode)
     if (bad) {
-        gx_system::gx_print_warning(
+        gx_print_warning(
             _("recall MIDI state"),
             _("invalid format, Parameter skipped: ") + id);
         return 0;
     }
     if (chg) {
-        gx_system::gx_print_warning(
+        gx_print_warning(
             _("recall MIDI state"),
             _("Parameter range outside bounds, changed: ") + id);
     }
@@ -544,7 +544,7 @@ ParameterGroups::~ParameterGroups() {
 #ifndef NDEBUG
     for (map<string, bool>::iterator i = used.begin(); i != used.end(); ++i) {
 	if (!i->second) {
-	    gx_system::gx_print_error("Debug Check", "Group not used: " + i->first);
+	    gx_print_error("Debug Check", "Group not used: " + i->first);
 	}
     }
 #endif
@@ -553,7 +553,7 @@ ParameterGroups::~ParameterGroups() {
 #ifndef NDEBUG
 void ParameterGroups::group_exists(const string& id) {
     if (groups.find(id) == groups.end()) {
-	gx_system::gx_print_error("Debug Check", "Group does not exist: " + id);
+	gx_print_error("Debug Check", "Group does not exist: " + id);
     } else {
 	used[id] = true;
     }
@@ -561,7 +561,7 @@ void ParameterGroups::group_exists(const string& id) {
 
 void ParameterGroups::group_is_new(const string& id) {
     if (groups.find(id) != groups.end()) {
-	gx_system::gx_print_error("Debug Check", "Group already exists: " + id);
+	gx_print_error("Debug Check", "Group already exists: " + id);
     }
 }
 
@@ -654,7 +654,7 @@ Parameter::Parameter(gx_system::JsonParser& jp)
 	    jp.next(gx_system::JsonParser::value_number);
 	    save_in_preset = false;
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"Parameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
@@ -683,7 +683,7 @@ static int get_upper(const value_pair *vn) {
 }
 
 void Parameter::range_warning(float value, float lower, float upper) {
-    gx_system::gx_print_warning(
+    gx_print_warning(
 	_("parameter load"),
 	Glib::ustring::compose(_("parameter %1: value %2 out of range [%3, %4]"),
 			       _id, value, lower, upper));
@@ -719,47 +719,47 @@ const value_pair *Parameter::getValueNames() const {
 #ifndef NDEBUG
 void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all) {
     if (p1->_id != p2->_id) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    title, Glib::ustring::compose("Different ID's: %2 / %3",
 					  p1->_id, p2->_id));
     }
     if (p1->_name != p2->_name) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    title, Glib::ustring::compose("[%1]: Different name: %2 / %3",
 					  p1->_id, p1->_name, p2->_name));
     }
     if (p1->_group != p2->_group) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    title, Glib::ustring::compose("[%1]: Different group: %2 / %3",
 					  p1->_id, p1->_group, p2->_group));
     }
     if (p1->_desc != p2->_desc) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    title, Glib::ustring::compose("[%1]: Different desc: %2 / %3",
 					  p1->_id, p1->_desc, p2->_desc));
     }
     if (p1->save_in_preset != p2->save_in_preset) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    title, Glib::ustring::compose("[%1]: save_in_preset different: %2 / %3",
 					  p1->_id, p1->save_in_preset, p2->save_in_preset));
     }
     if (p1->controllable != p2->controllable) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    title, Glib::ustring::compose("[%1]: controllable different: %2 / %3",
 					  p1->_id, p1->controllable, p2->controllable));
     }
     if (p1->used != p2->used) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    title, Glib::ustring::compose("[%1]: used different: %2 / %3",
 					  p1->_id, p1->used, p2->used));
     }
     if (p1->c_type != p2->c_type) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    title, Glib::ustring::compose("[%1]: c_type different: %2 / %3",
 					  p1->_id, p1->c_type, p2->c_type));
     }
     if (p1->v_type != p2->v_type) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    title, Glib::ustring::compose("[%1]: v_type different: %2 / %3",
 					  p1->_id, p1->v_type, p2->v_type));
 	return;
@@ -768,39 +768,39 @@ void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all
 	FloatParameter& f1 = p1->getFloat();
 	FloatParameter& f2 = p2->getFloat();
 	if (f1.value != f2.value) {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		title, Glib::ustring::compose("[%1]: value address different: %2 / %3",
 					      p1->_id, f1.value, f2.value));
 	}
 	if (f1.lower != f2.lower) {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 
 		title, Glib::ustring::compose("[%1]: float lower different: %2 / %3",
 					      p1->_id, f1.lower, f2.lower));
 	}
 	if (f1.upper != f2.upper) {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		title, Glib::ustring::compose("[%1]: float upper different: %2 / %3",
 					      p1->_id, f1.upper, f2.upper));
 	}
 	if (f1.step != f2.step) {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		title, Glib::ustring::compose("[%1]: float step different: %2 / %3",
 					      p1->_id, f1.step, f2.step));
 	}
 	if (f1.std_value != f2.std_value) {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		title, Glib::ustring::compose("[%1]: float std value different: %2 / %3",
 					      p1->_id, f1.std_value, f2.std_value));
 	}
 	if (all) {
 	    if (f1.value != f2.value) {
-		gx_system::gx_print_warning(
+		gx_print_warning(
 		    title, Glib::ustring::compose("[%1]: float value different: %2 / %3",
 						  p1->_id, *f1.value, *f2.value));
 	    }
 	    if (f1.json_value != f2.json_value) {
-		gx_system::gx_print_warning(
+		gx_print_warning(
 		    title, Glib::ustring::compose("[%1]: float json value different: %2 / %3",
 						  p1->_id, f1.json_value, f2.json_value));
 	    }
@@ -846,7 +846,7 @@ FloatParameter::ParameterV(gx_system::JsonParser& jp)
 	    jp.read_kv("value", *value) ||
 	    jp.read_kv("std_value", std_value)) {
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"FloatParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
@@ -1004,7 +1004,7 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.check_expect(gx_system::JsonParser::value_string);
     float n = idx_from_id(jp.current_value());
     if (n < 0) {
-        gx_system::gx_print_warning(
+        gx_print_warning(
             _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
                                % _id % jp.current_value()).str());
         n = lower;
@@ -1033,7 +1033,7 @@ IntParameter::ParameterV(gx_system::JsonParser& jp)
 	    jp.read_kv("value", *value) ||
 	    jp.read_kv("std_value", std_value)) {
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"IntParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
@@ -1169,7 +1169,7 @@ void EnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.check_expect(gx_system::JsonParser::value_string);
     int n = idx_from_id(jp.current_value());
     if (n < 0) {
-        gx_system::gx_print_warning(
+        gx_print_warning(
             _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
                                % _id % jp.current_value()).str());
         n = 0;
@@ -1195,7 +1195,7 @@ void enum_parameter_load_values(gx_system::JsonParser& jp, std::vector<id_label>
 	    }
 	    jp.next(gx_system::JsonParser::end_array);
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"EnumValueNames", Glib::ustring::compose("unknown key: %1", jp.current_value()));
 	    jp.skip_object();
 	}
@@ -1262,7 +1262,7 @@ BoolParameter::ParameterV(gx_system::JsonParser& jp)
 	jp.next(gx_system::JsonParser::value_key);
 	if (jp.read_kv("value", *value) || jp.read_kv("std_value", std_value)) {
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"BoolParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
@@ -1353,7 +1353,7 @@ FileParameter::FileParameter(gx_system::JsonParser& jp)
 	    jp.next(gx_system::JsonParser::value_string);
 	    std_value = Gio::File::create_for_path(jp.current_value());
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"FileParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
@@ -1469,7 +1469,7 @@ StringParameter::ParameterV(gx_system::JsonParser& jp)
 	jp.next(gx_system::JsonParser::value_key);
 	if (jp.read_kv("value", *value) || jp.read_kv("std_value", std_value)) {
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"StringParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
 	    jp.skip_object();
 	}
@@ -1587,7 +1587,7 @@ Parameter *ParamMap::readJSON_one(gx_system::JsonParser& jp) {
     } else if (jp.current_value() == "JConv") {
 	return insert(new JConvParameter(jp));
     } else {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    "ParamMap", Glib::ustring::compose("unknown parameter type: %1", jp.current_value()));
 	jp.skip_object();
 	return 0;
@@ -1605,7 +1605,7 @@ void ParamMap::readJSON(gx_system::JsonParser& jp) {
 #ifndef NDEBUG
 void ParamMap::unique_id(Parameter* param) {
     if (id_map.find(param->id()) != id_map.end()) {
-        gx_system::gx_print_error("Debug Check", "id registered twice: " + param->id());
+        gx_print_error("Debug Check", "id registered twice: " + param->id());
     }
 }
 

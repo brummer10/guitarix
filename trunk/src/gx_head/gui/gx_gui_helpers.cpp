@@ -140,7 +140,7 @@ gint gx_nchoice_dialog_without_entry(
 int gx_message_popup(const char* msg) {
     // check msg validity
     if (!msg) {
-        gx_system::gx_print_warning("Message Popup",
+        gx_print_warning("Message Popup",
                          string(_("warning message does not exist")));
         return -1;
     }

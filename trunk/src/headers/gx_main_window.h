@@ -413,14 +413,14 @@ private:
     Gtk::HButtonBox buttonbox;
     Gtk::ScrolledWindow scrollbox;
     Gtk::TextView tbox;
-    static tab_table tagdefs[gx_system::kMessageTypeCount];
-    Glib::RefPtr<Gtk::TextTag> tags[gx_system::kMessageTypeCount];
+    static tab_table tagdefs[GxLogger::kMessageTypeCount];
+    Glib::RefPtr<Gtk::TextTag> tags[GxLogger::kMessageTypeCount];
     int highest_unseen_msg_level;
     sigc::signal<void> msg_level_changed;
 private:
     bool on_delete_event();
     virtual bool on_key_press_event(GdkEventKey *event);
-    void show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool plugged);
+    void show_msg(string msgbuf, GxLogger::MsgType msgtype, bool plugged);
     virtual void on_show();
     virtual void on_hide();
 public:

@@ -227,7 +227,7 @@ void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
     }
     bld->find_widget("rackbox", w);
     if (!w) {
-        gx_system::gx_print_error("load_ui Error", "can't find widget 'rackbox'");
+        gx_print_error("load_ui Error", "can't find widget 'rackbox'");
 	return;
     }
     fBox.add(w);

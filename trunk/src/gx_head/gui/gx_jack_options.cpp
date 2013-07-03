@@ -121,7 +121,7 @@ void SelectJackControlPgm::on_ok_button() {
     if (n >= 0) {
 	machine.set_parameter_value("ui.jack_starter_idx", n);
     } else {
-	gx_system::gx_print_error("load error", "starter id not found");
+	gx_print_error("load error", "starter id not found");
     }
     machine.set_parameter_value("ui.ask_for_jack_starter", !dontask->get_active());
     close();
@@ -149,7 +149,7 @@ void ReportXrun::run() {
 	return;
     }
     Glib::signal_timeout().connect_once(sigc::mem_fun(*this, &ReportXrun::clear), 100);
-    gx_system::gx_print_warning(
+    gx_print_warning(
 	_("Jack XRun"),
 	(boost::format(_(" delay of at least %1% microsecs"))
 	 % jack->get_last_xrun()).str());
@@ -199,7 +199,7 @@ bool gx_start_jack_dialog(Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
         break;
 
     case GTK_RESPONSE_CANCEL:
-	gx_system::GxExit::get_instance().exit_program();
+	GxExit::get_instance().exit_program();
         break;
 
     default:

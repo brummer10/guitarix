@@ -30,6 +30,11 @@
 #include <string>           // NOLINT
 #include "jsonrpc.h"
 
+#ifdef HAVE_AVAHI
+#include "avahi_discover.h"
+#endif
+
+
 /****************************************************************
  ** class PosixSignals
  **
@@ -98,17 +103,17 @@ void PosixSignals::create_thread() {
 	thread = Glib::Thread::create(
 	    sigc::mem_fun(*this, &PosixSignals::signal_helper_thread), true);
     } catch (Glib::ThreadError& e) {
-	throw gx_system::GxFatalError(
+	throw GxFatalError(
 	    boost::format(_("Thread create failed (signal): %1%")) % e.what());
     }
 }
 
 void PosixSignals::quit_slot() {
-    gx_system::GxExit::get_instance().exit_program();
+    GxExit::get_instance().exit_program();
 }
 
 void PosixSignals::gx_ladi_handler() {
-    gx_system::gx_print_warning(
+    gx_print_warning(
 	_("signal_handler"), _("signal USR1 received, save settings"));
     if (gx_preset::GxSettings::instance) {
 	bool cur_state = gx_preset::GxSettings::instance->get_auto_save_state();
@@ -150,7 +155,7 @@ void PosixSignals::signal_helper_thread() {
 	switch (sig) {
 	case SIGUSR1:
 	    if (gtk_level() < 1) {
-		gx_system::gx_print_info(_("system startup"),
+		gx_print_info(_("system startup"),
 					 _("signal usr1 skipped"));
 		break;
 	    }
@@ -191,7 +196,7 @@ void PosixSignals::signal_helper_thread() {
 		printf("\nquit (%s)\n", signame);
 		Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PosixSignals::quit_slot));
 	    } else {
-		gx_system::GxExit::get_instance().exit_program(
+		GxExit::get_instance().exit_program(
 		    (boost::format("\nQUIT (%1%)\n") % signame).str());
 	    }
 	    seen = true;
@@ -218,7 +223,7 @@ private:
 public:
     ErrorPopup();
     ~ErrorPopup();
-    void on_message(const Glib::ustring& msg, gx_system::GxMsgType tp, bool plugged);
+    void on_message(const Glib::ustring& msg, GxLogger::MsgType tp, bool plugged);
 };
 
 ErrorPopup::ErrorPopup()
@@ -231,11 +236,11 @@ ErrorPopup::~ErrorPopup() {
     delete dialog;
 }
 
-void ErrorPopup::on_message(const Glib::ustring& msg_, gx_system::GxMsgType tp, bool plugged) {
+void ErrorPopup::on_message(const Glib::ustring& msg_, GxLogger::MsgType tp, bool plugged) {
     if (plugged) {
 	return;
     }
-    if (tp == gx_system::kError) {
+    if (tp == GxLogger::kError) {
 	if (active) {
 	    msg += "\n" + msg_;
 	    if (msg.size() > 1000) {
@@ -292,6 +297,7 @@ class GxSplashBox: public Gtk::Window {
  public:
     explicit GxSplashBox();
     ~GxSplashBox();
+    virtual void on_show();
 };
 GxSplashBox::~GxSplashBox() {}
 
@@ -307,6 +313,10 @@ GxSplashBox::GxSplashBox()
     set_position(Gtk::WIN_POS_CENTER );
     set_default_size(280,80);
     show_all();
+}
+
+void GxSplashBox::on_show() {
+    Gtk::Widget::on_show();
     while(Gtk::Main::events_pending())
         Gtk::Main::iteration(false); 
 }
@@ -403,10 +413,10 @@ static void mainGtk(int argc, char *argv[]) {
 #ifdef NDEBUG
     Splash =  new GxSplashBox();
 #endif
-    gx_system::GxExit::get_instance().signal_msg().connect(
+    GxExit::get_instance().signal_msg().connect(
 	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
     ErrorPopup popup;
-    gx_system::Logger::get_logger().signal_message().connect(
+    GxLogger::get_logger().signal_message().connect(
 	sigc::mem_fun(popup, &ErrorPopup::on_message));
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
@@ -455,10 +465,10 @@ static void mainFront(int argc, char *argv[]) {
 #ifdef NDEBUG
     Splash =  new GxSplashBox();
 #endif
-    gx_system::GxExit::get_instance().signal_msg().connect(
+    GxExit::get_instance().signal_msg().connect(
 	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
     ErrorPopup popup;
-    gx_system::Logger::get_logger().signal_message().connect(
+    GxLogger::get_logger().signal_message().connect(
 	sigc::mem_fun(popup, &ErrorPopup::on_message));
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
@@ -474,6 +484,28 @@ static void mainFront(int argc, char *argv[]) {
 	dialog.run();
     }
 
+#ifdef HAVE_AVAHI
+    if (options.get_rpcaddress().empty() && options.get_rpcport() == RPCPORT_DEFAULT) {
+	SelectInstance si(options, Splash);
+	if (Splash) {
+	    Splash->show();
+	}
+	Glib::ustring a;
+	int port;
+	if (!si.get_address_port(a, port)) {
+	    cerr << "Failed to get address" << endl;
+	    return;
+	}
+	options.set_rpcaddress(a);
+	options.set_rpcport(port);
+    }
+#endif // HAVE_AVAHI
+    if (options.get_rpcport() == RPCPORT_DEFAULT) {
+	options.set_rpcport(7000);
+    }
+    if (options.get_rpcaddress().empty()) {
+	options.set_rpcaddress("localhost");
+    }
     gx_engine::GxMachineRemote machine(options);
 
     // ----------------------- init GTK interface----------------------
@@ -535,7 +567,7 @@ int main(int argc, char *argv[]) {
 	cerr << e.what() << endl;
 	cerr << _("use \"guitarix -h\" to get a help text") << endl;
 	return 1;
-    } catch (const gx_system::GxFatalError &e) {
+    } catch (const GxFatalError &e) {
 	cerr << e.what() << endl;
 	return 1;
     } catch (const Glib::Exception &e) {

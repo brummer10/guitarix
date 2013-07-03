@@ -2,11 +2,22 @@
 # encoding: utf-8
 
 import sys, wscript_helper
-import Task, Utils, Logs, os, shutil
+import Task, Utils, Options, Logs, os, shutil
 from TaskGen import extension
 
+def set_options(opt):
+    guitarix_prog = opt.add_option_group("Guitarix Program Options")
+    guitarix_prog.add_option(
+        '--no-avahi', action='store_const', default=False, const=True,
+        help=('Do not build with avahi support for automatic discovery of'
+              ' / connection to Guitarix server instances  [Default: no]'))
+
 def configure(conf):
-    pass
+    if not Options.options.no_avahi:
+        conf.check_cfg(package='avahi-gobject', args='--cflags --libs', uselib_store='AVAHI_GOBJECT', mandatory=1)
+        conf.check_cfg(package='avahi-glib', args='--cflags --libs', uselib_store='AVAHI_GLIB', mandatory=1)
+        conf.check_cfg(package='avahi-client', args='--cflags --libs', uselib_store='AVAHI_CLIENT', mandatory=1)
+        conf.define("HAVE_AVAHI", 1)
 
 def gperf2cc(task):
     out_c = task.outputs[0].bldpath(task.env)
@@ -47,6 +58,7 @@ def process_gperf_tmpl(self, node):
 
 def build(bld):
     sources_engine = [
+        './engine/gx_logging.cpp',
         './engine/gx_pluginloader.cpp',
         './engine/ladspaplugin.cpp',
         './engine/ladspaback.cpp',
@@ -107,10 +119,14 @@ def build(bld):
         './builder/tremolo_ui.glade',
         './builder/pluginpreset_inputwindow.glade',
         './builder/pluginpreset_listwindow.glade',
+        './builder/selectinstance.glade',
         './builder/menudef.xml',
         './builder/accels_rc',
         ]
 
+    if bld.env["HAVE_AVAHI"]:
+        sources_gui.append("gui/avahi_discover.cpp")
+        sources_engine.append("engine/avahi_register.cpp")
     sources = sources_engine + sources_gui
     incl = ['.','./engine','../..','..','../headers','../../libgxwmm','../../libgxw'] # need ".." for config.h
     libpath = []
@@ -119,6 +135,8 @@ def build(bld):
         lib.append('dl')
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
               'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'BOOST_SYSTEM']
+    if bld.env["HAVE_AVAHI"]:
+        uselib += ['AVAHI_GOBJECT', 'AVAHI_GLIB', 'AVAHI_CLIENT']
     uselib_local = []
     wscript_helper.add_zita_convolver(bld, uselib, sources, incl)
     wscript_helper.add_zita_resampler(bld, uselib, sources, incl)

@@ -177,7 +177,7 @@ JackCaptureGui::JackCaptureGui(GxChild *p, GtkCheckMenuItem *i)
 void JackCaptureGui::terminated(bool pgm_found) {
     gtk_check_menu_item_set_active(item, false);
     if (pgm_found) {
-        gx_system::gx_print_info("Jack capture gui", "jack_capture_gui2 terminated");
+        gx_print_info("Jack capture gui", "jack_capture_gui2 terminated");
     } else {
         gx_gui::gx_message_popup(
             "  "
@@ -208,7 +208,7 @@ void JackCaptureGui::start_stop(GtkCheckMenuItem *menuitem, gpointer) {
                 "ERROR [Jack capture gui]\n\n  "
                 "jack_capture_gui2 could not be launched!"
                 );
-            gx_system::gx_print_error("Jack capture gui",
+            gx_print_error("Jack capture gui",
                            string("jack_capture_gui2 could not be launched (fork failed)!"));
             gtk_check_menu_item_set_active(menuitem, FALSE);
         }
@@ -228,9 +228,9 @@ JackCapture::JackCapture(GxChild *p, GtkToggleButton *b)
 void JackCapture::terminated(bool pgm_found) {
     gtk_toggle_button_set_active(button, false);
     if (pgm_found) {
-        gx_system::gx_print_info("Jack Capture", "jack_capture terminated");
+        gx_print_info("Jack Capture", "jack_capture terminated");
     } else {
-        gx_system::gx_print_warning("Record",
+        gx_print_warning("Record",
                          "  WARNING [jack_capture]\n  "
                          "  You need jack_capture >= 0.9.30 by Kjetil S. Matheussen  \n  "
                          "  Please look here\n  "
@@ -274,7 +274,7 @@ list<string> JackCapture::capture_command(int& seq) {
     l.push_back("--hide-buffer-usage"); // add additional option
     size_t i = buf.find_last_of(".");
     if (i == string::npos) {
-        gx_system::gx_print_error("Record", "could not parse cmd file (internal error)");
+        gx_print_error("Record", "could not parse cmd file (internal error)");
         l.clear();
         return l;
     }
@@ -288,7 +288,7 @@ list<string> JackCapture::capture_command(int& seq) {
         }
     }
     if (n == 1000) {
-        gx_system::gx_print_error("Record", "more than 999 capture files in directory?!");
+        gx_print_error("Record", "more than 999 capture files in directory?!");
         l.clear();
         return l;
     }
@@ -311,12 +311,12 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data) {
         GxChild *jack_capture = childprocs.find(app_name);
         if (jack_capture) {
             if (jack_capture->kill()) {
-                gx_system::gx_print_info(
+                gx_print_info(
 		    "Record",
 		    boost::format(" Terminated jack_capture, session file #%1%")
 		    % last_seqno);
             } else {
-                gx_system::gx_print_error(
+                gx_print_error(
 		    "Record", " Sorry, could not stop (Ctrl-C) jack_capture");
             }
         }
@@ -332,7 +332,7 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data) {
         return;
     }
 
-    gx_system::gx_print_info("Record", " Trying to run jack_capture");
+    gx_print_info("Record", " Trying to run jack_capture");
     list<string> capturas = capture_command(last_seqno);
     if (capturas.empty()) {
         gtk_toggle_button_set_active(cap_button, FALSE);
@@ -341,12 +341,12 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data) {
     GxChild *jack_capture = childprocs.launch(app_name, capturas, SIGINT);
     if (!jack_capture) {
         gtk_toggle_button_set_active(cap_button, FALSE);
-        gx_system::gx_print_error("Record",
+        gx_print_error("Record",
                                  "  WARNING [jack_capture]  Sorry, could not start jack_capture");
         return;
     }
     new JackCapture(jack_capture, cap_button);
-    gx_system::gx_print_info(
+    gx_print_info(
 	"Record",
 	boost::format("Started jack_capture, session file #%1%") % last_seqno);
 }
@@ -362,7 +362,7 @@ Meterbridge::Meterbridge(GxChild *p, Glib::RefPtr<Gtk::ToggleAction>& a)
 void Meterbridge::terminated(bool pgm_found) {
     action->set_active(false);
     if (pgm_found) {
-        gx_system::gx_print_info("Meterbridge", "meterbridge terminated");
+        gx_print_info("Meterbridge", "meterbridge terminated");
     } else {
         gx_gui::gx_message_popup(
             "  "
@@ -410,7 +410,7 @@ void Meterbridge::start_stop(Glib::RefPtr<Gtk::ToggleAction>& action, gx_jack::G
                 "WARNING [meterbridge]\n\n  "
                 "meterbridge could not be launched!"
                 );
-            gx_system::gx_print_error("Meterbridge",
+            gx_print_error("Meterbridge",
                            string("meterbridge could not be launched (fork failed)!"));
             action->set_active(false);
         }

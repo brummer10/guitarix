@@ -156,7 +156,7 @@ class Accum {
     void add(int diff);
     int count() const { return n; }
     float mean() const { return sx / n; }
-    float stddev() const { return sqrt((n * sx2 - sx * sx) / (n * (n-1))); }
+    float stddev() const { return std::sqrt((n * sx2 - sx * sx) / (n * (n-1))); }
     float minimum() const { return mn; }
     float maximum() const { return mx; }
 };
@@ -165,8 +165,8 @@ inline void Accum::add(int diff) {
     n += 1;
     sx += diff;
     sx2 += static_cast<float>(diff) * diff;
-    mn = min(mn, diff);
-    mx = max(mx, diff);
+    mn = std::min(mn, diff);
+    mx = std::max(mx, diff);
 }
 
 
@@ -222,7 +222,7 @@ class MeasureThreadsafe {
 /* return time difference in ns, fail if > sec (doesn't fit int 32 bit int) */
 inline int MeasureThreadsafe::ts_diff(const timespec& ts1, const timespec& ts2) {
     time_t df = ts1.tv_sec - ts2.tv_sec;
-    if (abs(df) > 2) {
+    if (std::abs(df) > 2) {
         return -1; // failed
     }
     return df * 1000000000 + (ts1.tv_nsec - ts2.tv_nsec);
@@ -270,11 +270,11 @@ class SkinHandling {
 private:
     Glib::ustring empty;
 public:
-    vector<Glib::ustring>   skin_list;
-    SkinHandling(const string& styledir)
+    std::vector<Glib::ustring>   skin_list;
+    SkinHandling(const std::string& styledir)
 	: skin_list() { set_styledir(styledir); }
-    void set_styledir(const string& styledir);
-    bool is_in_list(const string& name);
+    void set_styledir(const std::string& styledir);
+    bool is_in_list(const std::string& name);
     const Glib::ustring& operator[](unsigned int idx);
     unsigned int index(const Glib::ustring& name);
 };
@@ -289,9 +289,9 @@ private:
     pathlist dirs;
 public:
     PathList(const char *env_name = 0);
-    void add(const string& d) { dirs.push_back(Gio::File::create_for_path(d)); }
-    bool contains(const string& d) const;
-    bool find_dir(string *d, const string& filename) const;
+    void add(const std::string& d) { dirs.push_back(Gio::File::create_for_path(d)); }
+    bool contains(const std::string& d) const;
+    bool find_dir(std::string *d, const std::string& filename) const;
     size_t size() { return dirs.size(); }
     iterator begin() { return dirs.begin(); }
     iterator end() { return dirs.end(); }
@@ -337,34 +337,35 @@ private:
     Glib::OptionGroup optgroup_overload;
     Glib::OptionGroup optgroup_file;
     Glib::OptionGroup optgroup_debug;
-    string path_to_program;
+    std::string path_to_program;
     bool version;
     bool clear;
     Glib::ustring jack_input;
     Glib::ustring jack_midi;
     Glib::ustring jack_instance;
-    vector<Glib::ustring> jack_outputs;
+    std::vector<Glib::ustring> jack_outputs;
     Glib::ustring jack_uuid;
     Glib::ustring jack_uuid2;
     bool jack_noconnect;
     Glib::ustring jack_servername;
-    string load_file;
-    string builder_dir;
-    string style_dir;
-    string factory_dir;
-    string pixmap_dir;
-    string user_dir;
-    string old_user_dir;
-    string preset_dir;
-    string pluginpreset_dir;
-    string user_IR_dir;
-    string temp_dir;
-    string plugin_dir;
-    string sys_IR_dir;
+    std::string load_file;
+    std::string builder_dir;
+    std::string style_dir;
+    std::string factory_dir;
+    std::string pixmap_dir;
+    std::string user_dir;
+    std::string old_user_dir;
+    std::string preset_dir;
+    std::string pluginpreset_dir;
+    std::string user_IR_dir;
+    std::string temp_dir;
+    std::string plugin_dir;
+    std::string sys_IR_dir;
     PathList IR_pathlist;
     Glib::ustring rcset;
     bool nogui;
     int rpcport;
+    Glib::ustring rpcaddress;
     bool onlygui;
     int sporadic_overload;
     int idle_thread_timeout;
@@ -373,8 +374,8 @@ private:
     bool lterminal;
     bool a_save;
     static CmdlineOptions *instance;
-    void make_ending_slash(string& dirpath);
-    string get_opskin();
+    void make_ending_slash(std::string& dirpath);
+    std::string get_opskin();
     void read_ui_vars();
     void write_ui_vars();
     friend CmdlineOptions& get_options();
@@ -406,33 +407,36 @@ public:
     CmdlineOptions();
     ~CmdlineOptions();
     void process(int argc, char** argv);
-    const string& get_path_to_program() const { return path_to_program; }
-    string get_style_filepath(const string& basename) const { return style_dir + basename; }
-    string get_pixmap_filepath(const string& basename) const { return pixmap_dir + basename; }
-    string get_builder_filepath(const string& basename) const { return builder_dir + basename; }
-    string get_user_filepath(const string& basename) const { return user_dir + basename; }
-    string get_preset_filepath(const string& basename) const { return preset_dir + basename; }
-    string get_plugin_filepath(const string& basename) const { return plugin_dir + basename; }
-    string get_factory_filepath(const string& basename) const { return factory_dir + basename; }
-    string get_user_ir_filepath(const string& basename) const { return user_IR_dir + basename; }
-    string get_temp_filepath(const string& basename) const { return temp_dir + basename; }
-    string get_pluginpreset_filepath(const string& id, bool factory) const {
+    const std::string& get_path_to_program() const { return path_to_program; }
+    std::string get_style_filepath(const std::string& basename) const { return style_dir + basename; }
+    std::string get_pixmap_filepath(const std::string& basename) const { return pixmap_dir + basename; }
+    std::string get_builder_filepath(const std::string& basename) const { return builder_dir + basename; }
+    std::string get_user_filepath(const std::string& basename) const { return user_dir + basename; }
+    std::string get_preset_filepath(const std::string& basename) const { return preset_dir + basename; }
+    std::string get_plugin_filepath(const std::string& basename) const { return plugin_dir + basename; }
+    std::string get_factory_filepath(const std::string& basename) const { return factory_dir + basename; }
+    std::string get_user_ir_filepath(const std::string& basename) const { return user_IR_dir + basename; }
+    std::string get_temp_filepath(const std::string& basename) const { return temp_dir + basename; }
+    std::string get_pluginpreset_filepath(const std::string& id, bool factory) const {
 	return (factory ? factory_dir : pluginpreset_dir) + id; }
-    const string& get_user_dir() const { return user_dir; }
-    const string& get_old_user_dir() const { return old_user_dir; }
-    const string& get_plugin_dir() const { return plugin_dir; }
-    const string& get_preset_dir() const { return preset_dir; }
-    const string& get_pluginpreset_dir() const { return pluginpreset_dir; }
-    const string& get_user_IR_dir() const { return user_IR_dir; }
-    const string& get_temp_dir() const { return temp_dir; }
-    const string& get_factory_dir() const { return factory_dir; }
-    const string& get_sys_IR_dir() const { return sys_IR_dir; }
+    const std::string& get_user_dir() const { return user_dir; }
+    const std::string& get_old_user_dir() const { return old_user_dir; }
+    const std::string& get_plugin_dir() const { return plugin_dir; }
+    const std::string& get_preset_dir() const { return preset_dir; }
+    const std::string& get_pluginpreset_dir() const { return pluginpreset_dir; }
+    const std::string& get_user_IR_dir() const { return user_IR_dir; }
+    const std::string& get_temp_dir() const { return temp_dir; }
+    const std::string& get_factory_dir() const { return factory_dir; }
+    const std::string& get_sys_IR_dir() const { return sys_IR_dir; }
     std::string get_ladspa_config_filename() const { return get_user_filepath("ladspa_defs.js"); }
     const Glib::ustring& get_rcset() const { return rcset; }
     bool get_clear_rc() const { return clear; }
     bool get_nogui() const { return nogui; }
     int get_rpcport() const { return rpcport; }
-    const string& get_loadfile() const { return load_file; }
+    void set_rpcport(int port) { rpcport = port; }
+    const Glib::ustring& get_rpcaddress() { return rpcaddress; }
+    void set_rpcaddress(const Glib::ustring& address) { rpcaddress = address; }
+    const std::string& get_loadfile() const { return load_file; }
     const Glib::ustring& get_jack_instancename() const { return jack_instance; }
     const Glib::ustring& get_jack_uuid() const { return jack_uuid; }
     const Glib::ustring& get_jack_uuid2() const { return jack_uuid2; }
@@ -454,109 +458,17 @@ inline CmdlineOptions& get_options() {
     return *CmdlineOptions::instance;
 }
 
-/****************************************************************
- ** Logging
- */
-
-typedef enum {
-    kInfo,
-    kWarning,
-    kError,
-    kMessageTypeCount // just count, must be last
-} GxMsgType;
-
-class Logger: public sigc::trackable {
-private:
-    typedef sigc::signal<void, const string&, GxMsgType, bool> msg_signal;
-    struct logmsg {
-	string msg;
-	GxMsgType msgtype;
-	bool plugged;
-	logmsg(string m, GxMsgType t, bool p): msg(m), msgtype(t), plugged(p) {}
-    };
-    list<logmsg> msglist;
-    boost::mutex msgmutex;
-    Glib::Dispatcher* got_new_msg;
-    pthread_t ui_thread;
-    msg_signal handlers;
-    bool queue_all_msgs;
-    string format(const char* func, const string& msg);
-    void set_ui_thread();
-    Logger();
-    ~Logger();
-    void write_queued();
-    friend class LoggerGuard;
-public:
-    void unplug_queue();
-    msg_signal& signal_message();
-    void print(const char* func, const string& msg, GxMsgType msgtype);
-    void print(const string& formatted_msg, GxMsgType msgtype);
-    static Logger& get_logger();
-    static void destroy();
-};
-
-void  gx_print_logmsg(const char*, const string&, GxMsgType);
-void  gx_print_warning(const char*, const string&);
-inline void gx_print_warning(const char* fnc, const boost::basic_format<char>& msg) {
-    gx_print_warning(fnc, msg.str());
-}
-void  gx_print_error(const char*, const string&);
-inline void gx_print_error(const char* fnc, const boost::basic_format<char>& msg) {
-    gx_print_error(fnc, msg.str());
-}
-void  gx_print_fatal(const char*, const string&);
-inline void gx_print_fatal(const char* fnc, const boost::basic_format<char>& msg) {
-    gx_print_fatal(fnc, msg.str());
-}
-void  gx_print_info(const char*, const string&);
-inline void gx_print_info(const char* fnc, const boost::basic_format<char>& msg) {
-    gx_print_info(fnc, msg.str());
-}
-
-class GxFatalError: public exception {
-private:
-    string msg;
-public:
-    virtual const char* what() const throw() {
-	return msg.c_str();
-    }
-    GxFatalError(string m): msg(m) {}
-    GxFatalError(boost::basic_format<char>& m): msg(m.str()) {}
-    ~GxFatalError() throw();
-};
-
-
-/****************************************************************
- ** class GxExit
- */
-
-class GxExit {
-private:
-    sigc::signal<void, bool> exit_sig;
-    pthread_t ui_thread;
-    sigc::signal<void,string> message;
-public:
-    GxExit();
-    ~GxExit();
-    void set_ui_thread() { ui_thread = pthread_self(); }
-    sigc::signal<void, bool>& signal_exit() { return exit_sig; }
-    sigc::signal<void,string>& signal_msg() { return message; }
-    void exit_program(string msg = "", int errcode = 1);
-    void fatal_msg(const string& msg) { message(msg); exit_program(msg); }
-    static GxExit& get_instance();
-};
-
 
 /****************************************************************
  ** misc function declarations
  */
 
-int  gx_system_call(const string&, bool devnull = false, bool escape = false);
+int  gx_system_call(const std::string&, bool devnull = false, bool escape = false);
 void strip(Glib::ustring& s);
 
 template <class T>
-inline string to_string(const T& t) {
-    stringstream ss;
+inline std::string to_string(const T& t) {
+    std::stringstream ss;
     ss << t;
     return ss.str();
 }

@@ -318,7 +318,7 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
 	    }
 	    std::string s = replaced_id(jp.current_value());
 	    if (s.empty()) {
-		gx_system::gx_print_warning(
+		gx_print_warning(
 		    _("recall settings"),
 		    _("unknown parameter: ")+jp.current_value());
 		jp.skip_object();
@@ -329,19 +329,19 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
 	    p = &param[jp.current_value()];
 	}
         if (!preset and p->isInPreset()) {
-            gx_system::gx_print_warning(
+            gx_print_warning(
 		_("recall settings"),
 		_("preset-parameter ")+p->id()+_(" in settings"));
             jp.skip_object();
             continue;
         } else if (preset and !p->isInPreset()) {
-            gx_system::gx_print_warning(
+            gx_print_warning(
 		_("recall settings"),
 		_("non preset-parameter ")+p->id()+_(" in preset"));
             jp.skip_object();
             continue;
         } else if (!p->isSavable()) {
-            gx_system::gx_print_warning(
+            gx_print_warning(
 		_("recall settings"),
 		_("non savable parameter ")+p->id()+_(" in settings"));
             jp.skip_object();
@@ -412,7 +412,7 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
                 jp.skip_object();
             }
         } else {
-            gx_system::gx_print_warning(
+            gx_print_warning(
 		_("recall settings"),
 		_("unknown preset section: ") + jp.current_value());
 	    jp.skip_object();
@@ -500,7 +500,7 @@ void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFil
 	} else if (jp.current_value() == "jack_connections") {
 	    jack.read_connections(jp);
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		_("recall settings"),
 		_("unknown section: ") + jp.current_value());
 	    jp.skip_object();
@@ -558,7 +558,7 @@ bool PluginPresetList::start() {
 	}
 	jp.next(gx_system::JsonParser::value_number);
     } catch (gx_system::JsonException& e) {
-	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	gx_print_error(filename.c_str(), _("parse error"));
 	return false;
     }
     return true;
@@ -581,7 +581,7 @@ bool PluginPresetList::next(Glib::ustring& name, bool *is_set) {
 	    while (jp.peek() != gx_system::JsonParser::end_object) {
 		jp.next(gx_system::JsonParser::value_key);
 		if (!pmap.hasId(jp.current_value())) {
-		    gx_system::gx_print_warning(
+		    gx_print_warning(
 			_("recall plugin settings"),
 			_("unknown parameter: ")+jp.current_value());
 		    jp.skip_object();
@@ -598,7 +598,7 @@ bool PluginPresetList::next(Glib::ustring& name, bool *is_set) {
 	    jp.skip_object();
 	}
     } catch (gx_system::JsonException& e) {
-	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	gx_print_error(filename.c_str(), _("parse error"));
 	return false;
     }
     return true;
@@ -630,7 +630,7 @@ void PluginPresetList::set(const Glib::ustring& name) {
 	jp.next(gx_system::JsonParser::end_array);
 	jp.next(gx_system::JsonParser::end_token);
     } catch (gx_system::JsonException& e) {
-	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	gx_print_error(filename.c_str(), _("parse error"));
 	return;
     }
     mctrl.remove_controlled_parameters(plist, 0);
@@ -708,18 +708,18 @@ void PluginPresetList::save(const Glib::ustring& name, const std::string& id, co
 	jw.close();
 	os.close();
 	if (!os.good()) {
-	    gx_system::gx_print_error(_("save plugin preset"),
+	    gx_print_error(_("save plugin preset"),
 				      boost::format(_("couldn't write %1%")) % tmpfile);
 	    return;
 	}
 	int rc = rename(tmpfile.c_str(), filename.c_str());
 	if (rc != 0) {
-	    gx_system::gx_print_error(_("save plugin preset"),
+	    gx_print_error(_("save plugin preset"),
 				      boost::format(_("couldn't rename %1% to %2%"))
 				      % tmpfile % filename);
 	}
     } catch (gx_system::JsonException& e) {
-	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	gx_print_error(filename.c_str(), _("parse error"));
     }
 }
 
@@ -748,18 +748,18 @@ void PluginPresetList::remove(const Glib::ustring& name) {
 	jw.close();
 	os.close();
 	if (!os.good()) {
-	    gx_system::gx_print_error(_("save plugin preset"),
+	    gx_print_error(_("save plugin preset"),
 				      boost::format(_("couldn't write %1%")) % tmpfile);
 	    return;
 	}
 	int rc = rename(tmpfile.c_str(), filename.c_str());
 	if (rc != 0) {
-	    gx_system::gx_print_error(_("save plugin preset"),
+	    gx_print_error(_("save plugin preset"),
 				      boost::format(_("couldn't rename %1% to %2%"))
 				      % tmpfile % filename);
 	}
     } catch (gx_system::JsonException& e) {
-	gx_system::gx_print_error(filename.c_str(), _("parse error"));
+	gx_print_error(filename.c_str(), _("parse error"));
     }
 }
 
@@ -793,7 +793,7 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
     banks.parse(opt.get_preset_filepath(bank_list), opt.get_preset_dir(), opt.get_factory_dir(),
 		scratchpad_name, scratchpad_file);
     instance = this;
-    gx_system::GxExit::get_instance().signal_exit().connect(
+    GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxSettings::exit_handler));
     jack.signal_client_change().connect(
 	sigc::mem_fun(*this, &GxSettings::jack_client_changed));
@@ -871,12 +871,12 @@ string GxSettings::make_state_filename() {
 bool GxSettings::check_create_config_dir(const Glib::ustring& dir) {
     if (access((Glib::build_filename(dir, ".")).c_str(), R_OK|W_OK|X_OK) != 0) {
 	if (errno != ENOENT) {
-	    throw gx_system::GxFatalError(
+	    throw GxFatalError(
 		boost::format(_("no read/write access in guitarix config dir '%1%'"))
 		% dir);
 	}
 	if (mkdir(dir.c_str(), 0777) != 0) {
-	    throw gx_system::GxFatalError(
+	    throw GxFatalError(
 		boost::format(_("can't create guitarix config dir '%1%'"))
 		% dir);
 	}
@@ -935,7 +935,7 @@ gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, boo
     try {
 	rem->copy(dest);
     } catch (Gio::Error& e) {
-	gx_system::gx_print_error(e.what().c_str(), _("can't copy to config dir"));
+	gx_print_error(e.what().c_str(), _("can't copy to config dir"));
 	return 0;
     }
     gx_system::PresetFile *f = new gx_system::PresetFile();
@@ -946,7 +946,7 @@ gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, boo
 	try {
 	    dest->remove();
 	} catch (Gio::Error& e) {
-	    gx_system::gx_print_error(e.what().c_str(), _("can't remove copied file!?"));
+	    gx_print_error(e.what().c_str(), _("can't remove copied file!?"));
 	}
 	return 0;
     }
@@ -954,7 +954,7 @@ gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, boo
 	try {
 	    rem->remove();
 	} catch (Gio::Error& e) {
-	    gx_system::gx_print_error(e.what().c_str(), _("can't move; file has been copied"));
+	    gx_print_error(e.what().c_str(), _("can't move; file has been copied"));
 	}
     }
     return f;
@@ -970,7 +970,7 @@ gx_system::PresetFile* GxSettings::bank_insert_content(const Glib::ustring& uri,
 	s->write(content);
 	s->close();
     } catch (Gio::Error& e) {
-	gx_system::gx_print_error(e.what().c_str(), _("can't bank"));
+	gx_print_error(e.what().c_str(), _("can't bank"));
 	return 0;
     }
     gx_system::PresetFile *f = new gx_system::PresetFile();
@@ -981,7 +981,7 @@ gx_system::PresetFile* GxSettings::bank_insert_content(const Glib::ustring& uri,
 	try {
 	    dest->remove();
 	} catch (Gio::Error& e) {
-	    gx_system::gx_print_error(e.what().c_str(), _("can't remove copied file!?"));
+	    gx_print_error(e.what().c_str(), _("can't remove copied file!?"));
 	}
 	return 0;
     }
@@ -1027,7 +1027,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	    try {
 		f->copy(Gio::File::create_for_path(opt.get_user_filepath(fname)));
 	    } catch (Gio::Error& e) {
-		gx_system::gx_print_error(e.what().c_str(), _("can't copy to new config dir"));
+		gx_print_error(e.what().c_str(), _("can't copy to new config dir"));
 	    }
 	}
 	fname = Glib::build_filename(
@@ -1039,7 +1039,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	    try {
 		f->copy(Gio::File::create_for_path(oldpreset));
 	    } catch (Gio::Error& e) {
-		gx_system::gx_print_error(e.what().c_str(), _("can't copy to new config preset dir"));
+		gx_print_error(e.what().c_str(), _("can't copy to new config preset dir"));
 		oldpreset = "";
 	    }
 	}
@@ -1053,7 +1053,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
     std::string fname = opt.get_preset_filepath(scratchpad_file);
     if (access(fname.c_str(), R_OK) != 0) {
 	if (!gx_system::SettingsFileHeader::make_empty_settingsfile(fname)) {
-	    throw gx_system::GxFatalError(
+	    throw GxFatalError(
 		boost::format(_("can't create file in '%1%' !!??")) % opt.get_preset_dir());
 	}
 	*need_new_preset = true;
@@ -1062,7 +1062,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
     if (access(fname.c_str(), R_OK) != 0) {
 	ofstream f(fname.c_str());
 	if (!f.good()) {
-	    throw gx_system::GxFatalError(
+	    throw GxFatalError(
 		boost::format(_("can't create '%1%' in directory '%2%'"))
 		% bank_list % opt.get_preset_dir());
 	}

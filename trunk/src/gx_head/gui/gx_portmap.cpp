@@ -423,7 +423,7 @@ void PortMapWindow::on_cell_toggle(Glib::ustring path, PortSection& p) {
     if (ret != 0) {
         ostringstream buf;
         buf << "couldn't " << (v ? "" : "dis") << "connect " << q2 << " -> " << q1;
-        gx_system::gx_print_error("port connection", buf.str());
+        gx_print_error("port connection", buf.str());
         return;
     }
     (*iter)[columns.connected] = v;

@@ -78,10 +78,10 @@ bool ProcessingChainBase::wait_rt_finished() {
 	    continue;
 	}
 	if (errno == ETIMEDOUT) {
-	    gx_system::gx_print_warning("sem_timedwait", "timeout");
+	    gx_print_warning("sem_timedwait", "timeout");
 	    return false;
 	}
-	gx_system::gx_print_error("sem_timedwait", "unknown error");
+	gx_print_error("sem_timedwait", "unknown error");
 	break;
     }
     return true;
@@ -713,11 +713,11 @@ void ModuleSequencer::check_overload() {
     if (stateflags & SF_OVERLOAD) {
 	set_state(kEngineBypass);
 	check_module_lists();
-	gx_system::gx_print_error(
+	gx_print_error(
 	    "watchdog",
 	    boost::format(_("Overload (%s)")) % gx_system::atomic_get(overload_reason));
     } else {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    "watchdog",
 	    boost::format(_("Overload ignored (%s)")) % gx_system::atomic_get(overload_reason));
     }

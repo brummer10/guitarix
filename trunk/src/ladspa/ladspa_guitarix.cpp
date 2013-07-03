@@ -101,7 +101,7 @@ void ControlParameter::log_assignment(int ctlr, int var, const midi_controller_l
 	}
 	s += p.l_group() + ": " + p.l_name();
     }
-    gx_system::gx_print_info(
+    gx_print_info(
 	_("assign parameter"),
 	boost::format(_("%1% -> controller %2% [%3%]")) % var % ctlr % s);
 }
@@ -204,7 +204,7 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 		jp.next(gx_system::JsonParser::value_key);
 		if (!param.hasId(jp.current_value())) {
 #if 0   // lots of warnings
-		    gx_system::gx_print_warning(
+		    gx_print_warning(
 			_("recall settings"),
 			_("unknown parameter: ")+jp.current_value());
 #endif
@@ -235,7 +235,7 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
         } else if (jp.current_value() == "midi_controller") {
 	    midi_list = control_parameter.readJSON(jp, param);
         } else {
-            gx_system::gx_print_warning(
+            gx_print_warning(
 		_("recall settings"),
 		_("unknown preset section: ") + jp.current_value());
 	    jp.skip_object();
@@ -379,7 +379,7 @@ void LadspaSettings::change_preset_file(const std::string& newfile) {
 	}
 	presetlist_changed();
     } catch(gx_system::JsonException& e) {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    newfile.c_str(), e.what());
     }
 }
@@ -408,7 +408,7 @@ void LadspaSettings::load(int num) {
 	if (idx_in_preset(num-1)) {
 	    load_preset_by_idx(num-1);
 	} else {
-	    gx_system::gx_print_error("preset loader", boost::format("no preset number %1%") % num);
+	    gx_print_error("preset loader", boost::format("no preset number %1%") % num);
 	}
     }
 }
@@ -418,12 +418,12 @@ void LadspaSettings::load(int num) {
 ** misc. definitions
 */
 
-static void log_terminal(const string& msg, gx_system::GxMsgType tp, bool plugged) {
+static void log_terminal(const string& msg, GxLogger::MsgType tp, bool plugged) {
     const char *t;
     switch (tp) {
-    case gx_system::kInfo:    t = "I"; break;
-    case gx_system::kWarning: t = "W"; break;
-    case gx_system::kError:   t = "E"; break;
+    case GxLogger::kInfo:    t = "I"; break;
+    case GxLogger::kWarning: t = "W"; break;
+    case GxLogger::kError:   t = "E"; break;
     default:       t = "?"; break;
     }
     if (!plugged) {
@@ -437,7 +437,7 @@ static void init_logger() {
     if (logger_inited++) {
 	return;
     }
-    gx_system::Logger& log(gx_system::Logger::get_logger());
+    GxLogger& log(GxLogger::get_logger());
     if (log.signal_message().empty()) {
 	log.signal_message().connect(sigc::ptr_fun(log_terminal));
 	log.unplug_queue();
@@ -448,7 +448,7 @@ static void destroy_logger() {
     if (--logger_inited > 0) {
 	return;
     }
-    gx_system::Logger::destroy();
+    GxLogger::destroy();
 }
 
 
@@ -967,7 +967,7 @@ void MonoEngine::bs_changed(unsigned int bs) {
 }
 
 void MonoEngine::overload(OverloadType tp, const char *reason) {
-    gx_system::gx_print_error("overload", reason);
+    gx_print_error("overload", reason);
 }
 
 void MonoEngine::load_static_plugins() {
@@ -1137,7 +1137,7 @@ void LadspaGuitarixMono::activateGuitarix(LADSPA_Handle Instance) {
     bufsize = self.activate(&policy, &prio);
     self.rebuffer.set_bufsize(bufsize);
     self.engine.set_buffersize(bufsize);
-    gx_system::gx_print_info(
+    gx_print_info(
 	"amp activate",
 	boost::format("instance %1%, SR %2%, BS %3%, prio %4%")
 	% Instance % self.engine.get_samplerate() % bufsize % prio);
@@ -1414,7 +1414,7 @@ public:
 };
 
 void StereoEngine::overload(OverloadType tp, const char *reason) {
-    gx_system::gx_print_error("overload", reason);
+    gx_print_error("overload", reason);
 }
 
 void StereoEngine::wait_ramp_down_finished() {
@@ -1658,7 +1658,7 @@ void LadspaGuitarixStereo::activateGuitarix(LADSPA_Handle Instance) {
     bufsize = self.activate(&policy, &prio);
     self.rebuffer.set_bufsize(bufsize);
     self.engine.set_buffersize(bufsize);
-    gx_system::gx_print_info(
+    gx_print_info(
 	"fx activate",
 	boost::format("instance %1%, SR %2%, BS %3%, prio %4%")
 	% Instance % self.engine.get_samplerate() % bufsize % prio);

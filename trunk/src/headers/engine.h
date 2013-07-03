@@ -65,6 +65,7 @@ using namespace std;
 
 /* guitarix declarations */
 #include "gx_plugin.h"
+#include "gx_logging.h"
 #include "gx_system.h"
 #include "gx_parameter.h"
 

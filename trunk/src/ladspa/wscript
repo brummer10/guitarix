@@ -26,6 +26,7 @@ def build(bld):
         '../gx_head/engine/gx_convolver.cpp',
         '../gx_head/engine/gx_resampler.cpp',
         '../gx_head/engine/gx_system.cpp',
+        '../gx_head/engine/gx_logging.cpp',
         '../gx_head/engine/gx_pluginloader.cpp',
         ## lib can't be used (-fPIC)
         '../plugins/zita_rev1.cc',

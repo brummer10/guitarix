@@ -35,7 +35,7 @@ void lock_rt_memory() {
     };
     for (unsigned int i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
 	if (mlock(regions[i].start, regions[i].len) != 0) {
-	    throw gx_system::GxFatalError(
+	    throw GxFatalError(
 		boost::format(_("failed to lock memory: %1%")) % strerror(errno));
 	}
     }
@@ -66,6 +66,9 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 	     engine.controller_map, engine),
     tuner_switcher(settings, engine),
     sock(0),
+#ifdef HAVE_AVAHI
+    avahi_service(0),
+#endif
     pmap(engine.get_param()) {
     engine.set_jack(&jack);
 
@@ -117,6 +120,9 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 }
 
 GxMachine::~GxMachine() {
+#ifdef HAVE_AVAHI
+    delete avahi_service;
+#endif
     delete sock;
 #ifndef NDEBUG
     if (options.dump_parameter) {
@@ -251,8 +257,16 @@ void GxMachine::start_socket(sigc::slot<void> quit_mainloop, int port) {
     if (sock) {
 	return;
     }
-    sock = new MyService(settings, jack, tuner_switcher, quit_mainloop, port);
+    sock = new MyService(settings, jack, tuner_switcher, quit_mainloop, &port);
     sock->start();
+#ifdef HAVE_AVAHI
+    std::string name = "Guitarix";
+    if (jack.get_default_instancename() != jack.get_instancename()) {
+	name += ": " + jack.get_instancename();
+    }
+    avahi_service = new AvahiService;
+    avahi_service->register_service(name, port);
+#endif
 }
 
 sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& GxMachine::tuner_switcher_signal_display() {
@@ -710,12 +724,26 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
     int flag = 1;
     setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
-    Glib::RefPtr<Gio::InetAddress> a = Gio::InetAddress::create("127.0.0.1");
-    //Glib::RefPtr<Gio::InetAddress> a = Gio::InetAddress::create("192.168.33.3");
+    typedef std::vector< Glib::RefPtr<Gio::InetAddress> > adr_list;
+    adr_list al;
     try {
-	socket->connect(Gio::InetSocketAddress::create(a, 7000));
-    } catch (Gio::Error e) {
-	throw e;
+	al = Gio::Resolver::get_default()->lookup_by_name(options.get_rpcaddress());
+    } catch (Glib::Error e) {
+	gx_print_fatal(_("Remote Connection"), e.what());
+    }
+    Glib::ustring msg;
+    bool error = true;
+    for (adr_list::iterator i = al.begin(); i != al.end(); ++i) {
+	try {
+	    socket->connect(Gio::InetSocketAddress::create(*i, options.get_rpcport()));
+	    error = false;
+	} catch (Gio::Error e) {
+	    msg = e.what();
+	    error = true;
+	}
+    }
+    if (error) {
+	gx_print_fatal(_("Remote Connection"), msg);
     }
     socket->set_blocking(true);
     writebuf = new __gnu_cxx::stdio_filebuf<char>(socket->get_fd(), std::ios::out);
@@ -875,14 +903,14 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	engine_state_change(string_to_engine_state(jp->current_value()));
     } else if (method == "message") {
 	jp->next(gx_system::JsonParser::value_string);
-	gx_system::GxMsgType msgtype = gx_system::kError;
+	GxLogger::MsgType msgtype = GxLogger::kError;
 	if (jp->current_value() == "info") {
-	    msgtype = gx_system::kInfo;
+	    msgtype = GxLogger::kInfo;
 	} else if (jp->current_value() == "warning") {
-	    msgtype = gx_system::kWarning;
+	    msgtype = GxLogger::kWarning;
 	}
 	jp->next(gx_system::JsonParser::value_string);
-	gx_system::Logger::get_logger().print(jp->current_value(), msgtype);
+	GxLogger::get_logger().print(jp->current_value(), msgtype);
     } else if (method == "preset_changed") {
 	jp->next();
 	Glib::ustring new_bank = jp->current_value();

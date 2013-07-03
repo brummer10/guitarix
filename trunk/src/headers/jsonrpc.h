@@ -112,7 +112,7 @@ private:
     void set_display_state(TunerSwitcher::SwitcherState newstate);
     void on_selection_done(bool v);
     void on_presetlist_changed();
-    void on_log_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
+    void on_log_message(const string& msg, GxLogger::MsgType tp, bool plugged);
     void on_midi_changed();
     void on_midi_value_changed(int ctl, int value);
     void on_osc_size_changed(unsigned int sz);
@@ -157,7 +157,7 @@ private:
     friend class CmdConnection;
 public:
     MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
-	      TunerSwitcher& tunerswitcher, sigc::slot<void> quit_mainloop_, int port);
+	      TunerSwitcher& tunerswitcher, sigc::slot<void> quit_mainloop_, int *port);
     ~MyService();
 };
 

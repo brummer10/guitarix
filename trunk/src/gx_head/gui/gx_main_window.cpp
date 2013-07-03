@@ -72,7 +72,7 @@ TextLoggingBox::TextLoggingBox()
     tbox.set_indent(0);
 
     Glib::RefPtr<Gtk::TextBuffer> buffer = tbox.get_buffer();
-    for (int i = 0; i < gx_system::kMessageTypeCount; i++) {
+    for (int i = 0; i < GxLogger::kMessageTypeCount; i++) {
 	tags[i] = buffer->create_tag(tagdefs[i].tagname);
 	tags[i]->property_foreground() = tagdefs[i].tag_color;
     }
@@ -89,9 +89,9 @@ TextLoggingBox::TextLoggingBox()
     scrollbox.add(tbox);
     tbox.set_size_request(-1, 50);
     box.show_all();
-    gx_system::Logger::get_logger().signal_message().connect(
+    GxLogger::get_logger().signal_message().connect(
 	sigc::mem_fun(*this, &TextLoggingBox::show_msg));
-    gx_system::Logger::get_logger().unplug_queue();
+    GxLogger::get_logger().unplug_queue();
 }
 
 TextLoggingBox::~TextLoggingBox() {
@@ -106,7 +106,7 @@ bool TextLoggingBox::on_key_press_event(GdkEventKey *event) {
 }
 
 void TextLoggingBox::on_show() {
-    highest_unseen_msg_level = gx_system::kMessageTypeCount;
+    highest_unseen_msg_level = GxLogger::kMessageTypeCount;
     Gtk::Window::on_show();
 }
 
@@ -115,8 +115,8 @@ void TextLoggingBox::on_hide() {
     Gtk::Window::on_hide();
 }
 
-void TextLoggingBox::show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool plugged) {
-    assert(0 <= msgtype && msgtype < gx_system::kMessageTypeCount);
+void TextLoggingBox::show_msg(string msgbuf, GxLogger::MsgType msgtype, bool plugged) {
+    assert(0 <= msgtype && msgtype < GxLogger::kMessageTypeCount);
 
     // retrieve gtk text buffer
     Glib::RefPtr<Gtk::TextBuffer> buffer = tbox.get_buffer();
@@ -334,9 +334,9 @@ void Freezer::freeze_and_size_request(Gtk::Window *w, int width, int height) {
 
 bool Freezer::thaw_timeout() {
 #ifndef NDEBUG
-    gx_system::gx_print_error("freezer", "timeout");
+    gx_print_error("freezer", "timeout");
 #else
-    gx_system::gx_print_warning("freezer", "timeout");
+    gx_print_warning("freezer", "timeout");
 #endif
     if (size_y != -1) {
 	window->set_size_request(-1,-1);
@@ -1176,7 +1176,7 @@ void MainWindow::change_latency(Glib::RefPtr<Gtk::RadioAction> action) {
 	return;
     }
     if (!jack->client) {
-        gx_system::gx_print_error(
+        gx_print_error(
             _("Jack Buffer Size setting"),
             _("we are not a jack gxjack.client, server may be down")
             );
@@ -1192,10 +1192,10 @@ void MainWindow::change_latency(Glib::RefPtr<Gtk::RadioAction> action) {
 		sigc::mem_fun(action.operator->(), &Gtk::RadioAction::set_current_value), jack->get_jack_bs()));
     } else {
         if (jack_set_buffer_size(jack->client, buf_size) != 0)
-            gx_system::gx_print_warning(_("Setting Jack Buffer Size"),
+            gx_print_warning(_("Setting Jack Buffer Size"),
 					_("Could not change latency"));
     }	
-    gx_system::gx_print_info(
+    gx_print_info(
 	_("Jack Buffer Size"),
 	boost::format(_("latency is %1%")) % jack_get_buffer_size(jack->client));
 }
@@ -1243,7 +1243,7 @@ void gx_show_help() {
     gtk_get_current_event_time(), &error);
     if (error)
     {
-        gx_system::gx_print_error("guitarix help",
+        gx_print_error("guitarix help",
 				  _("failed to load online help   "));
         g_error_free(error);
     } 
@@ -1899,7 +1899,7 @@ int MainWindow::start_jack() {
 	}
 	usleep(500000);
     }
-    gx_system::gx_print_error(
+    gx_print_error(
 	_("main"),
 	string(_("I really tried to get jack up and running, sorry ... ")));
     return 0;
@@ -1914,7 +1914,7 @@ bool MainWindow::connect_jack(bool v, Gtk::Window *splash) {
 	return true;
     }
     if (!v) {
-	gx_system::gx_print_error(_("main"), _("can't disconnect jack"));
+	gx_print_error(_("main"), _("can't disconnect jack"));
 	return false;
     }
     bool ask = machine.get_parameter_value<bool>("ui.ask_for_jack_starter");
@@ -1929,7 +1929,7 @@ bool MainWindow::connect_jack(bool v, Gtk::Window *splash) {
 	splash->hide();
     }
     if (!gx_gui::gx_start_jack_dialog(gx_head_icon)) {
-	gx_system::gx_print_warning(_("main"), string(_("Ignoring jackd ...")));
+	gx_print_warning(_("main"), string(_("Ignoring jackd ...")));
 	return false;
     }
     return start_jack() == 1;
@@ -2048,9 +2048,9 @@ bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
 
 void MainWindow::on_msg_level_changed() {
     switch (fLoggingWindow.get_unseen_msg_level()) {
-    case gx_system::kWarning: logstate_image->set(pixbuf_log_yellow); break;
-    case gx_system::kError:   logstate_image->set(pixbuf_log_red); break;
-    default:                  logstate_image->set(pixbuf_log_grey); break;
+    case GxLogger::kWarning: logstate_image->set(pixbuf_log_yellow); break;
+    case GxLogger::kError:   logstate_image->set(pixbuf_log_red); break;
+    default:                 logstate_image->set(pixbuf_log_grey); break;
     }
 }
 
@@ -2230,7 +2230,7 @@ bool MainWindow::survive_jack_shutdown() {
 	    jack->set_jack_down(false);
 	}
 	// let's make sure we get out of here
-	gx_system::gx_print_warning("Jack Shutdown",
+	gx_print_warning("Jack Shutdown",
 				    _("jack has bumped us out!!   "));
 	actions.jackserverconnection->set_active(true);
 	// run only one time whem jackd is running
@@ -2240,7 +2240,7 @@ bool MainWindow::survive_jack_shutdown() {
         // more than once, no harm here
         actions.jackserverconnection->set_active(false);
         jack->set_jack_down(true);
-	gx_system::gx_print_error("Jack Shutdown",
+	gx_print_error("Jack Shutdown",
 				  _("jack has bumped us out!!   "));
     }
     // run as long jackd is down
@@ -2282,7 +2282,7 @@ void MainWindow::jack_session_event() {
     JackSessionEventType tp = event->type;
     if (jack->return_last_session_event() == 0) {
 	if (tp == JackSessionSaveAndQuit) {
-	    gx_system::GxExit::get_instance().exit_program("** session exit **");
+	    GxExit::get_instance().exit_program("** session exit **");
 	}
     }
 }
@@ -2298,7 +2298,7 @@ void MainWindow::jack_session_event_ins() {
     JackSessionEventType tp = event->type;
     if (jack->return_last_session_event_ins() == 0) {
 	if (tp == JackSessionSaveAndQuit) {
-	    gx_system::GxExit::get_instance().exit_program("** session exit **");
+	    GxExit::get_instance().exit_program("** session exit **");
 	}
     }
 }
@@ -2361,7 +2361,7 @@ void MainWindow::hide_extended_settings() {
 
 void MainWindow::run() {
     int port = options.get_rpcport();
-    if (port != RPCPORT_DEFAULT && port != RPCPORT_NONE) {
+    if (machine.get_jack() && port != RPCPORT_DEFAULT && port != RPCPORT_NONE) {
 	machine.start_socket(sigc::ptr_fun(Gtk::Main::quit), port);
 	window->show();
 	Gtk::Main::run();

@@ -144,7 +144,7 @@ ChangeableValues::ChangeableValues(gx_system::JsonParser& jp)
 	    }
 	    jp.next(gx_system::JsonParser::end_object);
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"ladspa::ChangeableValues", Glib::ustring::compose("unknown key: %1", jp.current_value()));
 	    jp.skip_object();
 	}
@@ -222,7 +222,7 @@ PortDesc::PortDesc(gx_system::JsonParser& jp)
 	} else if (jp.current_value() == "user") {
 	    user = ChangeableValues(jp);
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"ladspa::PortDesc", Glib::ustring::compose("unknown key: %1", jp.current_value()));
 	    jp.skip_object();
 	}
@@ -751,7 +751,7 @@ PluginDesc::PluginDesc(gx_system::JsonParser& jp):
 	    }
 	    jp.next(gx_system::JsonParser::end_array);
 	} else {
-	    gx_system::gx_print_warning(
+	    gx_print_warning(
 		"ladspa::PluginDesc", Glib::ustring::compose("unknown key: %1", jp.current_value()));
 	    jp.skip_object();
 	}
@@ -875,7 +875,7 @@ void LadspaPluginList::load_defs(const std::string& path, pluginmap& d) {
     void *handle;
     handle = dlopen(path.c_str(), RTLD_LOCAL|RTLD_NOW);
     if (!handle) {
-	gx_system::gx_print_warning(
+	gx_print_warning(
 	    "ladspalist",
 	    ustring::compose(_("Cannot open plugin: %1\n"), dlerror()));
         return;
@@ -883,7 +883,7 @@ void LadspaPluginList::load_defs(const std::string& path, pluginmap& d) {
     LADSPA_Descriptor_Function ladspa_descriptor = (LADSPA_Descriptor_Function)dlsym(handle, "ladspa_descriptor");
     const char *dlsym_error = dlerror();
     if (dlsym_error) {
-	gx_system::gx_print_warning("ladspalist", dlsym_error);
+	gx_print_warning("ladspalist", dlsym_error);
         dlclose(handle);
         handle = 0;
         return;
@@ -1096,7 +1096,7 @@ void PluginDesc::output_entry(JsonWriter& jw) {
 void PluginDesc::set_state(const ustring& fname) {
     ifstream is(fname.c_str());
     if (is.fail()) {
-	gx_system::gx_print_error("ladspalist", ustring::compose(_("can't open %1"), fname));
+	gx_print_error("ladspalist", ustring::compose(_("can't open %1"), fname));
 	return;
     }
     try {
@@ -1147,7 +1147,7 @@ void PluginDesc::set_state(const ustring& fname) {
 	jp.next(JsonParser::end_token);
 	jp.close();
     } catch(JsonException& e) {
-	gx_system::gx_print_error(
+	gx_print_error(
 	    "ladspalist",
 	    ustring::compose(_("error parsing LADSPA plugin config file %1: %2"), fname, e.what()));
 	return;
@@ -1350,7 +1350,7 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<unsi
 	    }
 	    jp.close();
 	} catch(JsonException& e) {
-	    gx_system::gx_print_error(
+	    gx_print_error(
 		"ladspalist", ustring::compose(
 		    _("error loading ladspa plugin selection data from file %1"),
 		    options.get_ladspa_config_filename()));
@@ -1410,7 +1410,7 @@ void LadspaPluginList::save(gx_system::CmdlineOptions& options) {
     if (rename(tfname.c_str(), fname.c_str()) != 0) {
 	char buf[100];
 	char *p = strerror_r(errno, buf, sizeof(buf));
-	gx_system::gx_print_error(
+	gx_print_error(
 	    "ladspalist",ustring::compose(_("error renaming LADSPA config file '%1': %2\n"), fname, p));
 	return;
     }
@@ -1421,7 +1421,7 @@ void LadspaPluginList::save(gx_system::CmdlineOptions& options) {
 	    if (rename(i->first.c_str(), i->second.c_str()) != 0) {
 		char buf[100];
 		char *p = strerror_r(errno, buf, sizeof(buf));
-		gx_system::gx_print_error(
+		gx_print_error(
 		    "ladspalist",
 		    ustring::compose("error renaming %1 to %2: %3\n", i->first, i->second, p));
 	    }
