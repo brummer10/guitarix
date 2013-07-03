@@ -108,6 +108,7 @@ filterbankN(lfreqs) = filterbankn(3,lfreqs);
 
 //----------distortion---------
 
+/* 2 exp() because of valve.vt */
 val(x) = valve.vt(dist, q(x), x)
 with {
     dist =  40.1;
@@ -169,7 +170,8 @@ dist1(drive,wetdry) =_<:(*(dry): gx_drive(drive)),(*(wetdry) <: (clipit: cubicnl
 	
 	};
 
-dist2(drive,wetdry) =_<:(*(dry): gx_drive(drive)),(*(wetdry):val :distdrive(drive)):>_
+/* 4 exp() because of val */
+dist2(drive,wetdry) =_<:(*(dry): gx_drive(drive)),(*(wetdry) :val :distdrive(drive)):>_
 	with{
 	
 	dry = 1 - wetdry;

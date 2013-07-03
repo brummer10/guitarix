@@ -12,6 +12,11 @@ import("oscillator.lib");
 
 /* vactrol model */
 
+/* transcendental functions in fast signal path:
+** cds: 2 exp() (2 alpha containing each 1 exp())
+** vactrol: 1 exp(), 1 pow(), 1 log()
+*/
+
 R1 = 2700;
 Ra = 1e6;
 Rb = 300;
