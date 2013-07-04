@@ -443,7 +443,7 @@ static void mainGtk(int argc, char *argv[]) {
 #endif
 #endif
     // ----------------------- init GTK interface----------------------
-    MainWindow gui(machine, options, Splash);
+    MainWindow gui(machine, options, Splash, "");
     if (need_new_preset) {
 	gui.create_default_scratch_preset();
     }
@@ -484,6 +484,7 @@ static void mainFront(int argc, char *argv[]) {
 	dialog.run();
     }
 
+    Glib::ustring title;
 #ifdef HAVE_AVAHI
     if (options.get_rpcaddress().empty() && options.get_rpcport() == RPCPORT_DEFAULT) {
 	SelectInstance si(options, Splash);
@@ -492,12 +493,15 @@ static void mainFront(int argc, char *argv[]) {
 	}
 	Glib::ustring a;
 	int port;
-	if (!si.get_address_port(a, port)) {
+	Glib::ustring name;
+	Glib::ustring host;
+	if (!si.get_address_port(a, port, name, host)) {
 	    cerr << "Failed to get address" << endl;
 	    return;
 	}
 	options.set_rpcaddress(a);
 	options.set_rpcport(port);
+	title = Glib::ustring::compose("%1 / %2:%3", name, host, port);
     }
 #endif // HAVE_AVAHI
     if (options.get_rpcport() == RPCPORT_DEFAULT) {
@@ -506,10 +510,13 @@ static void mainFront(int argc, char *argv[]) {
     if (options.get_rpcaddress().empty()) {
 	options.set_rpcaddress("localhost");
     }
+    if (title.empty()) {
+	title = Glib::ustring::compose("%1:%2", options.get_rpcaddress(), options.get_rpcport());
+    }
     gx_engine::GxMachineRemote machine(options);
 
     // ----------------------- init GTK interface----------------------
-    MainWindow gui(machine, options, Splash);
+    MainWindow gui(machine, options, Splash, title);
     if (need_new_preset) {
 	gui.create_default_scratch_preset();
     }

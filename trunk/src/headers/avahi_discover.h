@@ -57,6 +57,8 @@ private:
     bool cache_done;
     AvahiAddress address;
     uint16_t port;
+    Glib::ustring found_name;
+    Glib::ustring found_host;
     static void new_service(
 	GaServiceBrowser *browser, AvahiIfIndex interface, AvahiProtocol protocol,
 	const char *name, const char *type, const char *domain, AvahiLookupResultFlags flags, void *data);
@@ -75,7 +77,7 @@ public:
     sigc::signal<void>& signal_changed() { return changed; }
     void get_service_names(std::vector<Glib::ustring>& r);
     bool invoke_resolver(const Glib::ustring& name);
-    bool get_address_port(Glib::ustring& address, int& port);
+    bool get_address_port(Glib::ustring& address, int& port, Glib::ustring& name, Glib::ustring& host);
 };
 
 class SelectInstance {
@@ -96,7 +98,8 @@ private:
 public:
     SelectInstance(gx_system::CmdlineOptions& options, Gtk::Window  *splash);
     ~SelectInstance();
-    bool get_address_port(Glib::ustring& address, int& port) { return av.get_address_port(address, port); }
+    bool get_address_port(Glib::ustring& address, int& port, Glib::ustring& name, Glib::ustring& host)
+	{ return av.get_address_port(address, port, name, host); }
 };
 
 #endif  // SRC_HEADERS_AVAHI_DISCOVER_H_

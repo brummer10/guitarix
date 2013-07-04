@@ -33,7 +33,9 @@ AvahiBrowser::AvahiBrowser()
       changed(),
       cache_done(false),
       address(),
-      port(0) {
+      port(0),
+      found_name(),
+      found_host() {
     client = ga_client_new(GaClientFlags(0));
     GError *error = 0;
     if (!ga_client_start(client, &error)) {
@@ -63,13 +65,15 @@ static inline std::ostream& operator<<(std::ostream& o, const AvahiBrowser::Entr
     return o;
 }
 
-bool AvahiBrowser::get_address_port(Glib::ustring& address, int& port) {
+bool AvahiBrowser::get_address_port(Glib::ustring& address, int& port, Glib::ustring& name, Glib::ustring& host) {
     AvahiAddress a = AvahiAddress();
     uint16_t p = uint16_t();
     if (resolver && ga_service_resolver_get_address(resolver, &a, &p)) {
 	char buf[AVAHI_ADDRESS_STR_MAX];
 	address = avahi_address_snprint(buf, AVAHI_ADDRESS_STR_MAX, &a);
 	port = p;
+	name = found_name;
+	host = found_host;
 	return true;
     }
     return false;
@@ -160,6 +164,9 @@ void AvahiBrowser::on_found(
     const char *name, const char *type, const char *domain, const char *host_name,
     const AvahiAddress * a, uint16_t port, AvahiStringList * txt,
     AvahiLookupResultFlags flags, void *data) {
+    AvahiBrowser& self = *static_cast<AvahiBrowser*>(data);
+    self.found_name = name;
+    self.found_host = host_name;
     Gtk::Main::quit();
 }
 

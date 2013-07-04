@@ -2425,7 +2425,7 @@ void MainWindow::amp_controls_visible(Gtk::Range *rr) {
 }
 
 MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
-		       Gtk::Window *splash)
+		       Gtk::Window *splash, const Glib::ustring& title)
     : sigc::trackable(),
       options(options_),
       machine(machine_),
@@ -2775,6 +2775,10 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     actions.show_values->set_active(options.system_show_value);
     actions.tooltips->set_active(options.system_show_tooltips);
     actions.animations->set_active(options.system_animations);
+
+    if (!title.empty()) {
+	window->set_title(title);
+    }
 
     /*
     ** Jack client connection and subsequent initalizations
