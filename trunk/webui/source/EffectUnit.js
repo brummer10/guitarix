@@ -52,8 +52,8 @@ enyo.kind({
 		    } else if (o.ctl_enum) {
 			var c = [];
 			var v = o.value[o.id];
-			for (var i = 0; i < o.value_names.length; i++) {
-			    var p = o.value_names[i];
+			for (var j = 0; j < o.value_names.length; j++) {
+			    var p = o.value_names[j];
 			    var s = {content: p[1], key: p[0]};
 			    if (p[0] == v) {
 				s.active = true;
