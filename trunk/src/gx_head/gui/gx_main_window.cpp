@@ -2723,7 +2723,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     /*
     ** setup window initial configuration
     */
-    actions.tuner->set_active(false);
+    tunerbox->set_visible(machine.get_parameter_value<bool>("system.show_tuner"));
     actions.show_plugin_bar->set_active(false);
 
     /*

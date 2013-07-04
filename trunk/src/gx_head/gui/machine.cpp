@@ -2122,7 +2122,7 @@ void GxMachineRemote::set_init_values() {
 	    pj->signal_changed()(&pj->get_value());
 	}
     }
-    selection_changed(); //FIXME
+    selection_changed(); // give preset window a chance to catch up on current preset
     Glib::signal_io().connect(
 	sigc::mem_fun(this, &GxMachineRemote::socket_input_handler),
 	socket->get_fd(), Glib::IO_IN);
