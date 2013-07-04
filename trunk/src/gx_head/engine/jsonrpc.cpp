@@ -371,6 +371,7 @@ void CmdConnection::on_log_message(const string& msg, GxLogger::MsgType tp, bool
 void CmdConnection::send_notify_end(gx_system::JsonStringWriter& jw, bool send_out) {
     jw.send_notify_end();
     if (send_out) {
+	jw.finish();
 	send(jw);
     }
 }
@@ -1129,6 +1130,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	    const Glib::ustring& attr = params[i]->getString();
 	    if (param.hasId(attr)) {
 		gx_engine::Parameter& p = param[attr];
+		p.set_blocked(true);
 		JsonValue *v = params[i+1];
 		if (p.isFloat()) {
 		    p.getFloat().set(v->getFloat());
@@ -1155,7 +1157,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 		} else {
 		    throw RpcError(-32602, "Invalid param -- unknown variable");
 		}
-		//gx_system::JsonWriter jwd(&cerr); p.dump(&jwd);
+		p.set_blocked(false);
 	    }
 	}
 	if (serv.broadcast_listeners(this)) {
@@ -1408,9 +1410,7 @@ bool CmdConnection::on_data_in(Glib::IOCondition cond) {
 	char *p = buf;
 	while (n-- > 0) {
 	    jp.put(*p);
-	    //cerr << *p;
 	    if (*p == '\n') {
-		//cerr << std::flush;
 		process(jp);
 		jp.reset();
 	    }
@@ -1420,7 +1420,6 @@ bool CmdConnection::on_data_in(Glib::IOCondition cond) {
 }
 
 void CmdConnection::send(gx_system::JsonStringWriter& jw) {
-    jw.finish();
     std::string s = jw.get_string();
     if (outgoing.size() == 0) {
 	assert(current_offset == 0);
@@ -1457,6 +1456,7 @@ void CmdConnection::process(gx_system::JsonStringParser& jp) {
 	if (!resp) {
 	    return;
 	}
+	jw.finish();
 	send(jw);
     } catch (gx_system::JsonException& e) {
 	gx_print_error(
@@ -1464,10 +1464,12 @@ void CmdConnection::process(gx_system::JsonStringParser& jp) {
 					       e.what(), jp.get_string()));
 	gx_system::JsonStringWriter jw;
 	error_response(jw, -32700, "Parse Error");
+	jw.finish();
 	send(jw);
     } catch (RpcError& e) {
 	gx_system::JsonStringWriter jw;
 	error_response(jw, e.code, e.message);
+	jw.finish();
 	send(jw);
     }
 }
@@ -1758,7 +1760,9 @@ void MyService::on_param_value_changed(gx_engine::Parameter *p) {
     if (jwc) {
 	jw = jwc;
     } else {
-	cerr << "P " << p->id() << endl;
+	if (p->get_blocked()) {
+	    return;
+	}
 	jwp.send_notify_begin("set");
 	jw = &jwp;
     }
@@ -1862,6 +1866,7 @@ bool MyService::broadcast_listeners(CmdConnection *sender) {
 }
 
 void MyService::broadcast(CmdConnection *sender, gx_system::JsonStringWriter& jw) {
+    jw.finish();
     for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
 	if (*p != sender && (*p)->get_parameter_change_notify()) {
 	    (*p)->send(jw);
