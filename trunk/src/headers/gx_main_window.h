@@ -365,7 +365,7 @@ private:
     virtual void on_drag_leave(const Glib::RefPtr<Gdk::DragContext>& context, guint timestamp);
     virtual void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     virtual void on_add(Widget* ch);
-    void unit_order_changed(PluginType type);
+    void unit_order_changed(bool stereo);
     void renumber();
     bool scroll_timeout();
     bool scrollother_timeout();

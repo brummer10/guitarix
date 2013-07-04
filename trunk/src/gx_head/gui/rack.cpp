@@ -1218,8 +1218,8 @@ RackContainer::RackContainer(PluginType tp_, MainWindow& main_)
     show_all();
 }
 
-void RackContainer::unit_order_changed(PluginType type) {
-    if (tp == type) {
+void RackContainer::unit_order_changed(bool stereo) {
+    if (stereo == (tp == PLUGIN_TYPE_STEREO)) {
 	check_order();
     }
 }

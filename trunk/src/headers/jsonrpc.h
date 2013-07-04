@@ -101,7 +101,6 @@ private:
     void error_response(gx_system::JsonWriter& jw, int code, const char *message);
     void error_response(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { error_response(jw, code, message.c_str()); }
     void preset_changed();
-    void send_rack_changed(bool stereo);
     void add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v, std::vector<ChangedPlugin>& vec);
     void send_notify_begin(gx_system::JsonStringWriter& jw, const char *method) { jw.send_notify_begin(method); }
     void send_notify_end(gx_system::JsonStringWriter& jw, bool send_out=true);
@@ -154,11 +153,13 @@ private:
     void serialize_parameter_change(gx_system::JsonWriter& jw);
     void on_param_value_changed(gx_engine::Parameter *p);
     void connect_value_changed_signal(gx_engine::Parameter *p);
+    void on_rack_unit_changed(bool stereo);
     friend class CmdConnection;
 public:
     MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
 	      TunerSwitcher& tunerswitcher, sigc::slot<void> quit_mainloop_, int *port);
     ~MyService();
+    void send_rack_changed(bool stereo, CmdConnection *cmd);
 };
 
 const char *engine_state_to_string(gx_engine::GxEngineState s);

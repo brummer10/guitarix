@@ -50,7 +50,6 @@ public:
 
 class GxMachineBase {
 protected:
-    sigc::signal<void,PluginType> rack_unit_order_changed;
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> > impresp_list;
     sigc::signal<void,Plugin*,PluginChange::pc> plugin_changed;
 private:
@@ -97,9 +96,7 @@ public:
     virtual void tuner_used_for_display(bool on) = 0;
     virtual void tuner_used_for_livedisplay(bool on) = 0;
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type) = 0;
-    sigc::signal<void,PluginType>& signal_rack_unit_order_changed() {
-	return rack_unit_order_changed;
-    }
+    virtual sigc::signal<void,bool>& signal_rack_unit_order_changed() = 0;
     virtual void remove_rack_unit(const std::string& unit, PluginType type) = 0;
     virtual void insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) = 0;
     // tuner_switcher
@@ -275,6 +272,7 @@ public:
     virtual void tuner_used_for_display(bool on);
     virtual void tuner_used_for_livedisplay(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
+    virtual sigc::signal<void,bool>& signal_rack_unit_order_changed();
     virtual void remove_rack_unit(const std::string& unit, PluginType type);
     virtual void insert_rack_unit(const std::string& unit, const std::string& before, PluginType type);
     // tuner_switcher
@@ -451,6 +449,7 @@ public:
     virtual void tuner_used_for_display(bool on);
     virtual void tuner_used_for_livedisplay(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
+    virtual sigc::signal<void,bool>& signal_rack_unit_order_changed();
     virtual void remove_rack_unit(const std::string& unit, PluginType type);
     virtual void insert_rack_unit(const std::string& unit, const std::string& before, PluginType type);
     // tuner_switcher

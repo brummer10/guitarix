@@ -45,8 +45,7 @@ void lock_rt_memory() {
 namespace gx_engine {
 
 GxMachineBase::GxMachineBase()
-    : rack_unit_order_changed(),
-      impresp_list() {
+    : impresp_list() {
 }
 
 GxMachineBase::~GxMachineBase() {
@@ -316,28 +315,22 @@ const std::vector<std::string>& GxMachine::get_rack_unit_order(PluginType type) 
     return settings.get_rack_unit_order(type == PLUGIN_TYPE_STEREO);
 }
 
+sigc::signal<void,bool>& GxMachine::signal_rack_unit_order_changed() {
+    return settings.signal_rack_unit_order_changed();
+}
+
 void GxMachine::remove_rack_unit(const std::string& unit, PluginType type) {
     settings.remove_rack_unit(unit, type == PLUGIN_TYPE_STEREO);
-    /*
-    const std::vector<std::string>& l = GxMachine::get_rack_unit_order(type == PLUGIN_TYPE_STEREO);
-    cerr << "RU";
-    for (std::vector<std::string>::const_iterator ii = l.begin(); ii != l.end(); ++ii) {
-	cerr << " '" << *ii << "'";
+    if (sock) {
+	sock->send_rack_changed(type == PLUGIN_TYPE_STEREO, 0);
     }
-    cerr << endl;
-    */
 }
 
 void GxMachine::insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) {
     settings.insert_rack_unit(unit, before, type == PLUGIN_TYPE_STEREO);
-    /*
-    const std::vector<std::string>& l = GxMachine::get_rack_unit_order(type == PLUGIN_TYPE_STEREO);
-    cerr << "IU";
-    for (std::vector<std::string>::const_iterator ii = l.begin(); ii != l.end(); ++ii) {
-	cerr << " '" << *ii << "'";
+    if (sock) {
+	sock->send_rack_changed(type == PLUGIN_TYPE_STEREO, 0);
     }
-    cerr << endl;
-    */
 }
 
 // tuner_switcher
@@ -975,7 +968,7 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	    l.push_back(jp->current_value());
 	}
 	jp->next(gx_system::JsonParser::end_array);
-	rack_unit_order_changed(stereo ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO);
+	rack_units.rack_unit_order_changed(stereo);
     } else if (method == "midi_changed") {
 	midi_controller_map.readJSON(*jp, pmap);
 	midi_changed();
@@ -1589,7 +1582,6 @@ void GxMachineRemote::start_socket(sigc::slot<void> quit_mainloop, int port) {
 }
 
 void GxMachineRemote::stop_socket() {
-    assert(false);
 }
 
 sigc::signal<void,const Glib::ustring&,const Glib::ustring&>& GxMachineRemote::tuner_switcher_signal_display() {
@@ -1651,6 +1643,10 @@ const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(PluginType 
     }
     return l;
     END_RECEIVE(return l);
+}
+
+sigc::signal<void,bool>& GxMachineRemote::signal_rack_unit_order_changed() {
+    return rack_units.rack_unit_order_changed;
 }
 
 void GxMachineRemote::remove_rack_unit(const std::string& unit, PluginType type) {

@@ -1005,36 +1005,19 @@ static void save_preset(gx_preset::GxSettings& settings, const Glib::ustring& ba
     settings.save(*pf, preset);
 }
 
-void CmdConnection::send_rack_changed(bool stereo) {
-    if (!serv.broadcast_listeners(this)) {
-	return;
-    }
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "rack_units_changed");
-    std::vector<std::string>& ul = serv.settings.get_rack_unit_order(stereo);
-    jw.begin_array();
-    jw.write(stereo);
-    for (std::vector<std::string>::iterator i = ul.begin(); i != ul.end(); ++i) {
-	jw.write(*i);
-    }
-    jw.end_array();
-    send_notify_end(jw, false);
-    serv.broadcast(this, jw);
-}
-
 void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *mn, JsonArray& params) {
     START_FUNCTION_SWITCH(mn->m_id);
 
     PROCEDURE(insert_rack_unit) {
 	bool stereo = params[2]->getInt();
 	serv.settings.insert_rack_unit(params[0]->getString(), params[1]->getString(), stereo);
-	send_rack_changed(stereo);
+	serv.send_rack_changed(stereo, this);
     }
 
     PROCEDURE(remove_rack_unit) {
 	bool stereo = params[1]->getInt();
 	serv.settings.remove_rack_unit(params[0]->getString(), stereo);
-	send_rack_changed(stereo);
+	serv.send_rack_changed(stereo, this);
     }
 
     PROCEDURE(bank_reorder) {
@@ -1690,6 +1673,8 @@ MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
     gx_engine::ParamMap& pmap = settings.get_param();
     pmap.signal_insert_remove().connect(
 	sigc::mem_fun(this, &MyService::on_param_insert_remove));
+    settings.signal_rack_unit_order_changed().connect(
+	sigc::mem_fun(this, &MyService::on_rack_unit_changed));
     for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
 	connect_value_changed_signal(i->second);
     }
@@ -1703,6 +1688,30 @@ MyService::~MyService() {
     for (std::list<CmdConnection*>::iterator i = connection_list.begin(); i != connection_list.end(); ++i) {
 	delete *i;
     }
+}
+
+void MyService::send_rack_changed(bool stereo, CmdConnection *cmd) {
+    if (cmd) {
+	settings.signal_rack_unit_order_changed()(stereo);
+    }
+    if (!broadcast_listeners(cmd)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("rack_units_changed");
+    std::vector<std::string>& ul = settings.get_rack_unit_order(stereo);
+    jw.begin_array();
+    jw.write(stereo);
+    for (std::vector<std::string>::iterator i = ul.begin(); i != ul.end(); ++i) {
+	jw.write(*i);
+    }
+    jw.end_array();
+    jw.send_notify_end();
+    broadcast(cmd, jw);
+}
+
+void MyService::on_rack_unit_changed(bool stereo) {
+    send_rack_changed(stereo, 0);
 }
 
 void MyService::connect_value_changed_signal(gx_engine::Parameter *p) {
@@ -1744,22 +1753,32 @@ void MyService::on_param_insert_remove(gx_engine::Parameter *p, bool inserted) {
 }
 
 void MyService::on_param_value_changed(gx_engine::Parameter *p) {
-    if (!jwc) {
-	return;
+    gx_system::JsonStringWriter *jw;
+    gx_system::JsonStringWriter jwp;
+    if (jwc) {
+	jw = jwc;
+    } else {
+	cerr << "P " << p->id() << endl;
+	jwp.send_notify_begin("set");
+	jw = &jwp;
     }
-    jwc->write(p->id());
+    jw->write(p->id());
     if (p->isInt()) {
-	jwc->write(p->getInt().get_value());
+	jw->write(p->getInt().get_value());
     } else if (p->isBool()) {
-	jwc->write(p->getBool().get_value());
+	jw->write(p->getBool().get_value());
     } else if (p->isFloat()) {
-	jwc->write(p->getFloat().get_value());
+	jw->write(p->getFloat().get_value());
     } else if (p->isString()) {
-	jwc->write(p->getString().get_value());
+	jw->write(p->getString().get_value());
     } else if (dynamic_cast<gx_engine::JConvParameter*>(p) != 0) {
-	dynamic_cast<gx_engine::JConvParameter*>(p)->writeJSON(*jwc);
+	dynamic_cast<gx_engine::JConvParameter*>(p)->get_value().writeJSON(*jw, 0);
     } else {
 	assert(false);
+    }
+    if (!jwc) {
+	jwp.send_notify_end();
+	broadcast(0, jwp);
     }
 }
 
