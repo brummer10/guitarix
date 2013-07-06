@@ -48,16 +48,16 @@ guitarboost = allpassn(4,(-0.2, 0.3, 0.4, 0.5));
  */
 
 tubeax(preamp,gain1) =  hgroup("stage1", stage1)  :
-                        hgroup("stage2", stage2) : tone :
-                        hgroup("stage3", stage3)
+                        hgroup("stage2", stage2) 
                         with {
     stage1 = tubestage(TB_12AY7_68k,86.0,2700.0,2.775058) : *(preamp):
         lowpass(1,6531.0) : tubestage(TB_12AY7_250k,132.0,1500.0,1.954308); 
-    stage2 = lowpass(1,6531.0) : tubestage(TB_12AY7_250k,194.0,820.0,1.264916) : *(gain1) ; 
-    stage3 = sharper<:(tubestage(TB_EL34_68k,6531.0,820.0,0.965917),
-        tubestage(TB_EL34_250k,6531.0,820.0,0.96475)):> lowpass(1,6531.0) ;
+    stage2 = lowpass(1,6531.0) : tubestage(TB_12AY7_250k,194.0,820.0,1.264916) : *(gain1) : 
+        tone : sharper<:( tubestageP(TB_EL34_68k,484.5,10.0,3.5e3, 680.0,230,15,247981),
+         tubestageP(TB_EL34_250k,484.5,10.0,3.5e3, 680.0,230,15.743945 )):> lowpass(1,6531.0) : *(gain1) ;
 };
-
+ //tubestageP(tb,vplus,divider,Rp,fck,Rk,Vk0)
+ //tubestage(tb,fck,Rk,Vk0)
 process =  overdrive(drive) : tubeax(preamp,gain1) : div_drive with {
     drive = vslider("drive", 1, 1, 20, 0.1);
     div_drive = *((drive*-0.4):db2linear : smoothi(0.999));

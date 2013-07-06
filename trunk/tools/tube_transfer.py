@@ -127,23 +127,9 @@ tubes  = {
 
 class Circuit(object):
 
-    # Parameters for circuit / approximation
-    table_size = 2001
-    Uin_range = (-5.0, 5.0)
-    # This could be user choice
-    Vp = 250
-#    Vp = 300	# Better for output section
-    # For power valves this Rp is too high???
-    Rp  = 100e3
-#    Rp  = 7e3	# Transformer for Pentode around this
-#    Rp  = 3.5e3   # Transformer for triode wired 
-# These values are also not right for po
-    Ri_values = (68e3, 250e3)
-
     # class data
-    used_names = ("mu", "kx", "kg1","kg2", "kp", "kvb")
-    ipk_tab = { "triode": "Ipk_triode", "pentode": "Ipk_triode_pentode", "pentode2": "Ipk_pentode" }
-    Vi = linspace(Uin_range[0],Uin_range[1],table_size)
+    used_names = ("mu", "kx", "kg1","kg2", "kp", "kvb", "Uin_min", "Uin_max", "Vp", "Rp")
+    ipk_tab = { "triode": "Ipk_triode", "pentode": "Ipk_triode_pentode" }
 
     @classmethod
     def help(self):
@@ -154,6 +140,7 @@ class Circuit(object):
     def __init__(self, tube, ipk_func):
         self.tube = tube
         self.ipk_func = ipk_func
+        self.set_param()
         error = False
         if tube not in tubes:
             print "tube '%s' not found" % tube
@@ -170,23 +157,41 @@ class Circuit(object):
         self.Ipk = getattr(self, self.ipk_tab[ipk_func])
         self.FtubeV = vectorize(self.Ftube)
 
+    def set_param(self):
+        # Parameters for circuit / approximation peer tube model
+        if self.ipk_func == "pentode":
+            if self.tube == "EL34":
+                #self.Uin_range = (-20.0, 20.0)
+                self.Uin_min   = -20
+                self.Uin_max   = 20
+                self.Vp        = 495
+                self.Rp        = 3.5e3
+            elif self.tube == "6L6CG":
+                #self.Uin_range = ( -21, 21 )
+                self.Uin_min   = -21
+                self.Uin_max   = 21
+                self.Vp        = 450
+                self.Rp        = 5.0e3
+            elif self.tube == "EL84":
+                #self.Uin_range = ( -10, 10 )
+                self.Uin_min   = -10
+                self.Uin_max   = 10
+                self.Vp        = 370
+                self.Rp        = 3.5e3
+        else: # triode tubes 
+            #self.Uin_range = (-5.0, 5.0)
+            self.Uin_min   = -5
+            self.Uin_max   = 5
+            self.Vp        = 250
+            self.Rp        = 100e3
+        self.table_size = 2001
+        self.Ri_values = (68e3, 250e3)
+        self.Vi = linspace(self.Uin_min,self.Uin_max,self.table_size)
+        
+
     def Igk_Vgk(self, Vgk):
         """gate current as function of gate-kathode voltage"""
         return exp(7.75*Vgk-10.3)
-
-    def Ipk_pentode(self, Vgk, Vpk):
-        """
-        Koren model of Power Pentodes :
-        E1  ={V(2,4)/KP*LOG(1+EXP((1/MU+V(3,4)/V(2,4))*KP))} 
-        G1   ={(PWR(V(7),EX)+PWRS(V(7),EX))/KG1*ATAN(V(1,4)/KVB)}
-        G2   ={(EXP(EX*(LOG((V(2,4)/MU)+V(3,4)))))/KG2}
-        """
-        E1 = Vpk/self.kp*log(1+exp(self.kp*(1/self.mu+Vgk/Vpk)))
-        G1 = 2*E1**self.kx/self.kg1*(E1>0.0)*arctan(Vpk/self.kvb)
-	G2 = exp(self.kx*(log(Vpk/self.mu)+Vgk))/self.kg2
-	# Bug : SHP dividing G1 by self.kg2 
-        #return (G1+exp(self.kx*(log(Vpk/self.mu)+Vgk)))/self.kg2
-        return G1+G2
 
     def Ipk_triode_pentode(self, Vgk, Vpk):
         """Koren model of pentode connected as class A triode
