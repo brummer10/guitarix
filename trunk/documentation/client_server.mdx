@@ -1,0 +1,80 @@
+<!-- -*- mode: markdown; mode: flyspell; ispell-local-dictionary: "american" -*- -->
+#seqdiag default: activation = none; span_height = 5; default_fontsize = 14;
+\page clientserver Client / Server Protocol
+
+The Guitarix engine can act as TCP server using the
+[JSON-RPC 2.0](http://www.jsonrpc.org/specification) format, and the
+Guitarix user interface can connect as a client. The engine can be
+started in a "headless" mode, or include the user interface (called
+"local UI" in the diagrams).
+
+#seqdiag notify {
+   client; server;
+   client -> server [label="rpc notify"];
+}
+
+The client works synchronously, i.e. it waits for the servers answer
+to an JSON-RPC call (blocking the glib main loop):
+
+#seqdiag call {
+   client; server;
+   client -> server [label="rpc call"];
+   ... client waiting ...
+   client <- server [label="rpc answer", leftnote="receive()"];
+}
+
+Server state changes are broadcasted to all clients except the one
+that triggered the state change (this client generally already knows
+the new state). Clients notified of a state change must not reflect
+that change back to the server (otherwise network delays and the
+delayed processing of asynchronous responses in the glib main loop can
+lead to strange effects or endless loops):
+
+#seqdiag notify_state_changed {
+   client; server; local [label="local UI"]; other [label="other clients"];
+   client -> server [label="rpc notify"];
+   other <-- server [label="state change broadcast", note="socket_input_handler()"];
+   local <-- server [label="state change signal"];
+}
+
+The Guitarix UI is constructed on the assumption that requested state
+changes happen synchronously. If the client needs to get information
+about the state change after triggering it, a call should be used
+instead of a notify, and the answer should include that information
+(the answer to the calling client might be sent before notifying other
+clients, the order is unspecified):
+
+#seqdiag call_state_changed {
+   client; server; local [label="local UI"]; other [label="other clients"];
+   client -> server [label="rpc call"];
+   ... client waiting ...
+   other <-- server [label="state change broadcast", note="socket_input_handler()"];
+   local <-- server [label="state change signal"];
+   ... client still waiting ...
+   client <- server [label="answer", leftnote="receive()"];
+}
+
+State changes can also be triggered by the local UI (or from inside the server engine):
+
+#seqdiag local_state_changed {
+   default_fontsize = 12;
+   local [label="local UI"]; server; clients;
+   local -> server [label="function call"];
+   clients <-- server [label="state change broadcast", note="socket_input_handler()"];
+   local <- server [label="function return"];
+}
+
+Asynchronous notifications from the server are stashed away for the
+main glib event loop while waiting for a call answer:
+
+#seqdiag call_state_changed_broadcast {
+   default_fontsize = 12;
+   client; server; local [label="local UI"]; other [label="other clients"];
+   client -> server [label="rpc call"];
+   ... server state change triggered ...
+   local <-- server [label="state change signal"];
+   other <-- server [label="state change broadcast", note="socket_input_handler()"];
+   client <-- server [label="state change broadcast",
+                      leftnote="receive(),\nstash away for\nmain loop handler"];
+   client <- server [label="answer", leftnote="receive()"];
+}
