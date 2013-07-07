@@ -196,7 +196,7 @@ void SkinHandling::set_styledir(const string& style_dir) {
 }
 
 bool SkinHandling::is_in_list(const string& name) {
-    return index(name) == skin_list.size();
+    return index(name) < skin_list.size();
 }
 
 unsigned int SkinHandling::index(const Glib::ustring& name) {

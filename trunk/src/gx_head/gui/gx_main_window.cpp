@@ -2764,7 +2764,12 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     plugin_dict.add(mainamp_plugin);
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     effects_toolpalette->show();
-    set_new_skin(options.skin_name);
+    if (!opt.get_clear_rc()) {
+      set_new_skin(options.skin_name);
+    } else {
+      gtk_rc_parse(
+          (options.get_style_filepath("clear.rc")).c_str());
+    }
 
     // call some action functions to sync state
     // with settings defined in create_actions()
