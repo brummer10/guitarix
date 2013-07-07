@@ -159,25 +159,24 @@ class Circuit(object):
 
     def set_param(self):
         # Parameters for circuit / approximation peer tube model
-        if self.ipk_func == "pentode":
-            if self.tube == "EL34":
-                #self.Uin_range = (-20.0, 20.0)
-                self.Uin_min   = -20
-                self.Uin_max   = 20
-                self.Vp        = 495
-                self.Rp        = 3.5e3
-            elif self.tube == "6L6CG":
-                #self.Uin_range = ( -21, 21 )
-                self.Uin_min   = -21
-                self.Uin_max   = 21
-                self.Vp        = 450
-                self.Rp        = 5.0e3
-            elif self.tube == "EL84":
-                #self.Uin_range = ( -10, 10 )
-                self.Uin_min   = -10
-                self.Uin_max   = 10
-                self.Vp        = 370
-                self.Rp        = 3.5e3
+        if self.tube == "EL34":
+            #self.Uin_range = (-20.0, 20.0)
+            self.Uin_min   = -20
+            self.Uin_max   = 20
+            self.Vp        = 495
+            self.Rp        = 3.5e3
+        elif self.tube == "6L6CG":
+            #self.Uin_range = ( -21, 21 )
+            self.Uin_min   = -21
+            self.Uin_max   = 21
+            self.Vp        = 450
+            self.Rp        = 5.0e3
+        elif self.tube == "EL84":
+            #self.Uin_range = ( -10, 10 )
+            self.Uin_min   = -10
+            self.Uin_max   = 10
+            self.Vp        = 370
+            self.Rp        = 3.5e3
         else: # triode tubes 
             #self.Uin_range = (-5.0, 5.0)
             self.Uin_min   = -5
@@ -330,6 +329,7 @@ class Circuit(object):
         legend()
         axis
         savefig("%s.png" % self.tube)
+        close()
 
 
 def usage():
