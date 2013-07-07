@@ -23,22 +23,13 @@
 #define SRC_HEADERS_JSONRPC_H_
 
 #include "engine.h"
+#include <bitset>
 #include <giomm/init.h>     // NOLINT
 #include <giomm/socketservice.h>
 #include <ext/stdio_filebuf.h>
 #include "jsonrpc_methods.h"
 
-class MyService;
-
-class SetPosition {
-private:
-    streampos position;
-    gx_system::JsonParser& jp;
-    SetPosition(streampos pos, gx_system::JsonParser& jp_): position(jp_.get_streampos()), jp(jp_) { jp_.set_streampos(pos); }
-public:
-    SetPosition(SetPosition& sp): position(sp.position), jp(sp.jp) {}
-    ~SetPosition() { jp.set_streampos(position); }
-};
+class GxService;
 
 class JsonValue {
 protected:
@@ -66,32 +57,42 @@ public:
 	const char *name;
 	jsonrpc_method m_id;
     };
+    enum msg_type {
+	f_preset_changed,
+	f_state_changed,
+	f_freq_changed,
+	f_display,
+	f_display_state,
+	f_selection_done,
+	f_presetlist_changed,
+	f_log_message,
+	f_midi_changed,
+	f_midi_value_changed,
+	f_osc_activation,
+	f_osc_size_changed,
+	f_jack_load_changed,
+	f_parameter_change_notify,
+	f_plugins_changed,
+	f_misc_msg,
+	f_units_changed,
+	END_OF_FLAGS
+    };
 private:
-    MyService& serv;
+    GxService& serv;
     Glib::RefPtr<Gio::SocketConnection> connection;
     std::list<std::string> outgoing;
     unsigned int current_offset;
     gx_system::JsonStringParser jp;
-    bool parameter_change_notify;
     bool midi_config_mode;
-    sigc::connection conn_preset_changed;
-    sigc::connection conn_state_changed;
-    sigc::connection conn_freq_changed;
-    sigc::connection conn_display;
-    sigc::connection conn_display_state;
-    sigc::connection conn_selection_done;
-    sigc::connection conn_presetlist_changed;
-    sigc::connection conn_log_message;
-    sigc::connection conn_midi_changed;
-    sigc::connection conn_midi_value_changed;
-    sigc::connection conn_osc_activation;
-    sigc::connection conn_osc_size_changed;
+    std::bitset<END_OF_FLAGS> flags;
 private:
     struct ChangedPlugin {
 	std::string id;
 	gx_engine::PluginChange::pc status;
 	ChangedPlugin(const std::string& id_, gx_engine::PluginChange::pc status_): id(id_), status(status_) {}
     };
+    bool find_token(const Glib::ustring& token, msg_type *start, msg_type *end);
+    void activate(int n, bool v) { flags.set(n, v); }
     void exec(Glib::ustring cmd);
     void call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
     void notify(gx_system::JsonStringWriter& jw, const methodnames *mn, JsonArray& params);
@@ -100,37 +101,24 @@ private:
     void write_error(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { write_error(jw, code, message.c_str()); }
     void error_response(gx_system::JsonWriter& jw, int code, const char *message);
     void error_response(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { error_response(jw, code, message.c_str()); }
-    void preset_changed();
     void add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v, std::vector<ChangedPlugin>& vec);
     void send_notify_begin(gx_system::JsonStringWriter& jw, const char *method) { jw.send_notify_begin(method); }
     void send_notify_end(gx_system::JsonStringWriter& jw, bool send_out=true);
-    void on_engine_state_change(gx_engine::GxEngineState state);
-    void write_engine_state(gx_system::JsonWriter& jw, gx_engine::GxEngineState s);
-    void on_tuner_freq_changed();
-    void display(const Glib::ustring& bank, const Glib::ustring& preset);
-    void set_display_state(TunerSwitcher::SwitcherState newstate);
-    void on_selection_done(bool v);
-    void on_presetlist_changed();
-    void on_log_message(const string& msg, GxLogger::MsgType tp, bool plugged);
-    void on_midi_changed();
-    void on_midi_value_changed(int ctl, int value);
-    void on_osc_size_changed(unsigned int sz);
-    int on_osc_activation(bool v);
     void listen(const Glib::ustring& tp);
     void unlisten(const Glib::ustring& tp);
     void process(gx_system::JsonStringParser& jp);
 
 public:
-    CmdConnection(MyService& serv, const Glib::RefPtr<Gio::SocketConnection>& connection_);
+    CmdConnection(GxService& serv, const Glib::RefPtr<Gio::SocketConnection>& connection_);
     ~CmdConnection();
     bool on_data_in(Glib::IOCondition cond);
     bool on_data_out(Glib::IOCondition cond);
-    bool get_parameter_change_notify() { return parameter_change_notify; }
     void send(gx_system::JsonStringWriter& jw);
+    bool is_activated(msg_type n) { return flags[n]; }
     friend class UiBuilderVirt;
 };
 
-class MyService: public Gio::SocketService {
+class GxService: public Gio::SocketService {
 private:
     gx_preset::GxSettings& settings;
     gx_jack::GxJack& jack;
@@ -147,18 +135,36 @@ private:
 			     const Glib::RefPtr<Glib::Object>& source_object);
     void save_state();
     void remove_connection(CmdConnection* p);
-    bool broadcast_listeners(CmdConnection *sender);
-    void broadcast(CmdConnection *sender, gx_system::JsonStringWriter& jw);
-    void on_param_insert_remove(gx_engine::Parameter *p, bool insert);
-    void serialize_parameter_change(gx_system::JsonWriter& jw);
-    void on_param_value_changed(gx_engine::Parameter *p);
+    bool broadcast_listeners(CmdConnection::msg_type n, CmdConnection *sender = 0);
+    void broadcast(gx_system::JsonStringWriter& jw, CmdConnection::msg_type n, CmdConnection *sender = 0);
     void connect_value_changed_signal(gx_engine::Parameter *p);
+
+    // message formatting functions
+    void serialize_parameter_change(gx_system::JsonWriter& jw);
+
+    // signal handler
+    void on_param_insert_remove(gx_engine::Parameter *p, bool insert);
+    void on_param_value_changed(gx_engine::Parameter *p);
+    void preset_changed();
+    void on_engine_state_change(gx_engine::GxEngineState state);
+    void on_tuner_freq_changed();
+    void display(const Glib::ustring& bank, const Glib::ustring& preset);
+    void set_display_state(TunerSwitcher::SwitcherState newstate);
+    void on_selection_done(bool v);
+    void on_presetlist_changed();
+    void on_log_message(const string& msg, GxLogger::MsgType tp, bool plugged);
+    void on_midi_changed();
+    void on_midi_value_changed(int ctl, int value);
+    void on_osc_size_changed(unsigned int sz);
+    int on_osc_activation(bool v);
+    void on_jack_load_changed();
     void on_rack_unit_changed(bool stereo);
+
     friend class CmdConnection;
 public:
-    MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
+    GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
 	      TunerSwitcher& tunerswitcher, sigc::slot<void> quit_mainloop_, int *port);
-    ~MyService();
+    ~GxService();
     void send_rack_changed(bool stereo, CmdConnection *cmd);
 };
 

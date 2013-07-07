@@ -739,7 +739,7 @@ private:
     void set_in_session();
     void hide_extended_settings();
     void systray_menu(guint button, guint32 activate_time);
-    void overload_status_changed();
+    void overload_status_changed(gx_engine::MidiAudioBuffer::Load l);
     bool on_window_state_changed(GdkEventWindowState* event);
     bool on_meter_button_release(GdkEventButton* ev);
     void show_selected_preset();

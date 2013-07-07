@@ -52,6 +52,7 @@ class GxMachineBase {
 protected:
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> > impresp_list;
     sigc::signal<void,Plugin*,PluginChange::pc> plugin_changed;
+    sigc::signal<void, MidiAudioBuffer::Load> jack_load_change;
 private:
     virtual int _get_parameter_value_int(const std::string& id) = 0;
     virtual int _get_parameter_value_bool(const std::string& id) = 0;
@@ -85,14 +86,12 @@ public:
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation() = 0;
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change() = 0;
     virtual void maxlevel_get(int channels, float *values) = 0;
-    virtual bool midiaudiobuffer_get_midistat() = 0;
-    virtual MidiAudioBuffer::Load midiaudiobuffer_jack_load_status() = 0;
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) = 0;
     virtual gx_system::CmdlineOptions& get_options() const = 0;
     virtual void start_socket(sigc::slot<void> quit_mainloop, int port) = 0;
     virtual void stop_socket() = 0;
     virtual sigc::signal<void,GxEngineState>& signal_state_change() = 0;
-    virtual Glib::Dispatcher& signal_jack_load_change() = 0;
+    sigc::signal<void,MidiAudioBuffer::Load>& signal_jack_load_change() { return jack_load_change; }
     virtual void tuner_used_for_display(bool on) = 0;
     virtual void tuner_used_for_livedisplay(bool on) = 0;
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type) = 0;
@@ -222,7 +221,7 @@ private:
     gx_jack::GxJack       jack;
     gx_preset::GxSettings settings;
     TunerSwitcher tuner_switcher;
-    MyService *sock;
+    GxService *sock;
 #ifdef HAVE_AVAHI
     AvahiService *avahi_service;
 #endif
@@ -232,6 +231,7 @@ private:
     void edge_toggle_tuner(bool v);
     void on_impresp(const std::string& path);
     void exit_handler(bool otherthread);
+    void on_jack_load_change();
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
@@ -261,14 +261,11 @@ public:
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
     virtual void maxlevel_get(int channels, float *values);
-    virtual bool midiaudiobuffer_get_midistat();
-    virtual MidiAudioBuffer::Load midiaudiobuffer_jack_load_status();
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, int port);
     virtual void stop_socket();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
-    virtual Glib::Dispatcher& signal_jack_load_change();
     virtual void tuner_used_for_display(bool on);
     virtual void tuner_used_for_livedisplay(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
@@ -389,7 +386,6 @@ private:
     sigc::signal<void,const Glib::ustring&,const Glib::ustring&> tuner_switcher_display;
     sigc::signal<void,TunerSwitcher::SwitcherState> tuner_switcher_set_state;
     sigc::signal<void, bool> tuner_switcher_selection_done;
-
 private:
     const jsonrpc_method_def& start_call(jsonrpc_method m_id);
     void send();
@@ -438,14 +434,11 @@ public:
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
     virtual void maxlevel_get(int channels, float *values);
-    virtual bool midiaudiobuffer_get_midistat();
-    virtual MidiAudioBuffer::Load midiaudiobuffer_jack_load_status();
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, int port);
     virtual void stop_socket();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
-    virtual Glib::Dispatcher& signal_jack_load_change();
     virtual void tuner_used_for_display(bool on);
     virtual void tuner_used_for_livedisplay(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);

@@ -81,7 +81,7 @@ void MidiAudioBuffer::fill_buffer(int count, float *input, float*,
     void *buf = self.jack->get_midi_buffer(count);
     if (buf) {
 	float load = self.jack->get_jcpu_load();
-	Load ol = (load < 65.0 ? load_normal : load_over);
+	Load ol = (load < 65.0 ? load_low : load_high);
 	if (self.jack_overload != ol) {
 	    self.jack_overload = ol;
 	    self.overload_change();

@@ -211,25 +211,13 @@ public:
 const static int InterfaceVersionMajor = 1;
 const static int InterfaceVersionMinor = 0;
 
-CmdConnection::CmdConnection(MyService& serv_, const Glib::RefPtr<Gio::SocketConnection>& connection_)
+CmdConnection::CmdConnection(GxService& serv_, const Glib::RefPtr<Gio::SocketConnection>& connection_)
     : serv(serv_),
       connection(connection_),
       outgoing(),
       current_offset(0),
-      parameter_change_notify(false),
       midi_config_mode(false),
-      conn_preset_changed(),
-      conn_state_changed(),
-      conn_freq_changed(),
-      conn_display(),
-      conn_display_state(),
-      conn_selection_done(),
-      conn_presetlist_changed(),
-      conn_log_message(),
-      conn_midi_changed(),
-      conn_midi_value_changed(),
-      conn_osc_activation(),
-      conn_osc_size_changed() {
+      flags() {
     jp.start_parser();
 }
 
@@ -237,134 +225,61 @@ CmdConnection::~CmdConnection() {
     if (midi_config_mode) {
 	serv.jack.get_engine().controller_map.set_config_mode(false, -1);
     }
+    
+}
+
+static struct {
+    const char *token;
+    CmdConnection::msg_type start;
+    CmdConnection::msg_type end;
+} token_range[] = {
+    { "all", (CmdConnection::msg_type)0, (CmdConnection::msg_type)(CmdConnection::END_OF_FLAGS-1) },
+    { "preset", CmdConnection::f_preset_changed, CmdConnection::f_preset_changed },
+    { "state", CmdConnection::f_state_changed, CmdConnection::f_state_changed },
+    { "freq", CmdConnection::f_freq_changed, CmdConnection::f_freq_changed },
+    { "display", CmdConnection::f_display, CmdConnection::f_display_state },
+    { "tuner", CmdConnection::f_selection_done, CmdConnection::f_selection_done },
+    { "presetlist_changed", CmdConnection::f_presetlist_changed, CmdConnection::f_presetlist_changed },
+    { "logger", CmdConnection::f_log_message, CmdConnection::f_log_message },
+    { "midi", CmdConnection::f_midi_changed, CmdConnection::f_midi_value_changed },
+    { "oscilloscope", CmdConnection::f_osc_size_changed, CmdConnection::f_osc_activation },
+    { "jack_load", CmdConnection::f_jack_load_changed, CmdConnection::f_jack_load_changed },
+    { "param", CmdConnection::f_parameter_change_notify, CmdConnection::f_parameter_change_notify },
+    { "plugins_changed", CmdConnection::f_plugins_changed, CmdConnection::f_plugins_changed },
+    { "misc", CmdConnection::f_misc_msg, CmdConnection::f_misc_msg },
+    { "units_changed", CmdConnection::f_units_changed, CmdConnection::f_units_changed },
+};
+
+bool CmdConnection::find_token(const Glib::ustring& token, msg_type *start, msg_type *end) {
+    for (unsigned int i = 0; i < sizeof(token_range) / sizeof(token_range[0]); ++i) {
+	if (token == token_range[i].token) {
+	    *start = token_range[i].start;
+	    *end = token_range[i].end;
+	    return true;
+	}
+    }
+    return false;
 }
 
 void CmdConnection::listen(const Glib::ustring& tp) {
-    bool all = (tp == "all");
-    if (all || tp == "preset") {
-	conn_preset_changed = serv.settings.signal_selection_changed().connect(
-	    sigc::mem_fun(*this, &CmdConnection::preset_changed));
+    msg_type start, end;
+    if (!find_token(tp, &start, &end)) {
+	cerr << "unknown listen token: " << tp << endl;
+	return;
     }
-    if (all || tp == "state") {
-	conn_state_changed = serv.jack.get_engine().signal_state_change().connect(
-	    sigc::mem_fun(*this, &CmdConnection::on_engine_state_change));
-    }
-    if (all || tp == "freq") {
-	conn_freq_changed = serv.jack.get_engine().tuner.signal_freq_changed().connect(
-	    sigc::mem_fun(this, &CmdConnection::on_tuner_freq_changed));
-    }
-    if (all || tp == "display") {
-	conn_display = serv.tuner_switcher.signal_display().connect(
-	    sigc::mem_fun(this, &CmdConnection::display));
-	conn_display_state = serv.tuner_switcher.signal_set_state().connect(
-	    sigc::mem_fun(this, &CmdConnection::set_display_state));
-    }
-    if (all || tp == "tuner") {
-	conn_selection_done = serv.tuner_switcher.signal_selection_done().connect(
-	    sigc::mem_fun(this, &CmdConnection::on_selection_done));
-    }
-    if (all || tp == "presetlist_changed") {
-	conn_presetlist_changed = serv.settings.signal_presetlist_changed().connect(
-	    sigc::mem_fun(this, &CmdConnection::on_presetlist_changed));
-    }
-    if (all || tp == "logger") {
-	conn_log_message = GxLogger::get_logger().signal_message().connect(
-	    sigc::mem_fun(this, &CmdConnection::on_log_message));
-	GxLogger::get_logger().unplug_queue();
-    }
-    if (all || tp == "midi") {
-	conn_midi_changed = serv.jack.get_engine().controller_map.signal_changed().connect(
-	    sigc::mem_fun(this, &CmdConnection::on_midi_changed));
-	conn_midi_value_changed = serv.jack.get_engine().controller_map.signal_midi_value_changed().connect(
-	    sigc::mem_fun(this, &CmdConnection::on_midi_value_changed));
-    }
-    if (all || tp == "oscilloscope") {
-	conn_osc_size_changed = serv.jack.get_engine().oscilloscope.size_change.connect(
-	    sigc::mem_fun(this, &CmdConnection::on_osc_size_changed));
-	conn_osc_activation = serv.jack.get_engine().oscilloscope.activation.connect(
-	    sigc::mem_fun(this, &CmdConnection::on_osc_activation));
-    }
-    if (all || tp == "param") {
-	parameter_change_notify = true;
+    for (int i = start; i <= end; i++) {
+	activate(i, true);
     }
 }
 
 void CmdConnection::unlisten(const Glib::ustring& tp) {
-    bool all = (tp == "all");
-    if (all || tp == "preset") {
-	conn_preset_changed.disconnect();
+    msg_type start, end;
+    if (!find_token(tp, &start, &end)) {
+	cerr << "unknown listen token: " << tp << endl;
+	return;
     }
-    if (all || tp == "state") {
-	conn_state_changed.disconnect();
-    }
-    if (all || tp == "freq") {
-	conn_freq_changed.disconnect();
-    }
-    if (all || tp == "display") {
-	conn_display.disconnect();
-	conn_display_state.disconnect();
-    }
-    if (all || tp == "tuner") {
-	conn_selection_done.disconnect();
-    }
-    if (all || tp == "presetlist_changed") {
-	conn_presetlist_changed.disconnect();
-    }
-    if (all || tp == "logger") {
-	conn_log_message.disconnect();
-    }
-    if (all || tp == "midi") {
-	conn_midi_changed.disconnect();
-	conn_midi_value_changed.disconnect();
-    }
-}
-
-void CmdConnection::on_osc_size_changed(unsigned int sz) {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "osc_size_changed");
-    jw.write(sz);
-    send_notify_end(jw);
-}
-
-int CmdConnection::on_osc_activation(bool start) {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "osc_activation");
-    jw.write(start);
-    send_notify_end(jw);
-    return 0;
-}
-
-void CmdConnection::on_midi_changed() {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "midi_changed");
-    serv.jack.get_engine().controller_map.writeJSON(jw);
-    send_notify_end(jw);
-}
-
-void CmdConnection::on_midi_value_changed(int ctl, int value) {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "midi_value_changed");
-    jw.begin_array();
-    jw.write(ctl);
-    jw.write(value);
-    jw.end_array();
-    send_notify_end(jw);
-}
-
-void CmdConnection::on_log_message(const string& msg, GxLogger::MsgType tp, bool plugged) {
-    const char *tpname;
-    switch (tp) {
-    case GxLogger::kInfo:    tpname = "info"; break;
-    case GxLogger::kWarning: tpname = "warning"; break;
-    case GxLogger::kError:   tpname = "error"; break;
-    default: tpname = "unknown"; break;
-    }
-    if (!plugged) {
-	gx_system::JsonStringWriter jw;
-	send_notify_begin(jw, "message");
-	jw.write(tpname);
-	jw.write(msg);
-	send_notify_end(jw);
+    for (int i = start; i < end; ++i) {
+	activate(i, false);
     }
 }
 
@@ -374,74 +289,6 @@ void CmdConnection::send_notify_end(gx_system::JsonStringWriter& jw, bool send_o
 	jw.finish();
 	send(jw);
     }
-}
-
-void CmdConnection::write_engine_state(gx_system::JsonWriter& jw, gx_engine::GxEngineState s) {
-    jw.write(engine_state_to_string(s));
-}
-
-void CmdConnection::on_selection_done(bool v) {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "show_tuner");
-    jw.write(v);
-    send_notify_end(jw);
-}
-
-void CmdConnection::on_presetlist_changed() {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "presetlist_changed");
-    send_notify_end(jw);
-}
-
-void CmdConnection::on_engine_state_change(gx_engine::GxEngineState state) {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "state_changed");
-    write_engine_state(jw, state);
-    send_notify_end(jw);
-}
-
-void CmdConnection::preset_changed() {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "preset_changed");
-    if (serv.settings.setting_is_preset()) {
-	jw.write(serv.settings.get_current_bank());
-	jw.write(serv.settings.get_current_name());
-    } else {
-	jw.write("");
-	jw.write("");
-    }
-    send_notify_end(jw);
-}
-
-void CmdConnection::on_tuner_freq_changed() {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "tuner_changed");
-    //jw.write_key("frequency");
-    jw.write(serv.jack.get_engine().tuner.get_freq());
-    //jw.write_key("note");
-    jw.write(serv.jack.get_engine().tuner.get_note());
-    send_notify_end(jw);
-}
-
-void CmdConnection::display(const Glib::ustring& bank, const Glib::ustring& preset) {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "display_bank_preset");
-    jw.write(bank);
-    jw.write(preset);
-    send_notify_end(jw);
-}
-
-void CmdConnection::set_display_state(TunerSwitcher::SwitcherState state) {
-    gx_system::JsonStringWriter jw;
-    send_notify_begin(jw, "set_display_state");
-    switch (state) {
-    case TunerSwitcher::normal_mode: jw.write("normal_mode"); break;
-    case TunerSwitcher::wait_start: jw.write("wait_start"); break;
-    case TunerSwitcher::listening: jw.write("listening"); break;
-    case TunerSwitcher::wait_stop: jw.write("wait_stop"); break;
-    default: assert(false); break;
-    }
-    send_notify_end(jw);
 }
 
 static void write_plugin_state(gx_system::JsonWriter& jw, gx_engine::Plugin *i) {
@@ -746,7 +593,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     FUNCTION(getstate) {
 	gx_engine::GxEngineState s = serv.jack.get_engine().get_state();
-	write_engine_state(jw, s);
+	jw.write(engine_state_to_string(s));
     }
 
     FUNCTION(getversion) {
@@ -894,7 +741,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	}
 	jw.end_array();
 	jw.end_array();
-	if (serv.broadcast_listeners(this)) {
+	if (serv.broadcast_listeners(f_plugins_changed, this)) {
 	    gx_system::JsonStringWriter jws;
 	    send_notify_begin(jws, "plugins_changed");
 	    serv.serialize_parameter_change(jws);
@@ -911,8 +758,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 		jws.end_array();
 	    }
 	    jws.end_array();
-	    send_notify_end(jws, false);
-	    serv.broadcast(this, jws);
+	    serv.broadcast(jws, f_plugins_changed, this);
 	}
 	delete serv.preg_map;
 	serv.preg_map = 0;
@@ -1081,8 +927,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString())->get_pdef(),
 	    params[1]->getInt(), params[2]->getString());
 	serv.jwc = 0;
-	send_notify_end(jw, false);
-	serv.broadcast(0, jw);
+	serv.broadcast(jw, f_parameter_change_notify);
     }
 
     PROCEDURE(plugin_preset_list_save) {
@@ -1160,7 +1005,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 		p.set_blocked(false);
 	    }
 	}
-	if (serv.broadcast_listeners(this)) {
+	if (serv.broadcast_listeners(f_parameter_change_notify, this)) {
 	    gx_system::JsonStringWriter jw;
 	    send_notify_begin(jw, "set");
 	    for (unsigned int i = 0; i < params.size(); i += 2) {
@@ -1176,8 +1021,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 		    v->getSubParser().copy_object(jw);
 		}
 	    }
-	    send_notify_end(jw, false);
-	    serv.broadcast(this, jw);
+	    serv.broadcast(jw, f_parameter_change_notify, this);
 	}
 	serv.save_state();
     }
@@ -1651,10 +1495,10 @@ void UiBuilderVirt::load_glade_(const char *data) {
 
 
 /****************************************************************
- ** class MyService
+ ** class GxService
  */
 
-MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
+GxService::GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
 		     TunerSwitcher& tunerswitcher_, sigc::slot<void> quit_mainloop_, int *port)
     : Gio::SocketService(),
       settings(settings_),
@@ -1672,31 +1516,63 @@ MyService::MyService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
     } else {
 	add_inet_port(*port);
     }
+    settings.signal_selection_changed().connect(
+	sigc::mem_fun(*this, &GxService::preset_changed));
+    jack.get_engine().signal_state_change().connect(
+	sigc::mem_fun(*this, &GxService::on_engine_state_change));
+    jack.get_engine().tuner.signal_freq_changed().connect(
+	sigc::mem_fun(this, &GxService::on_tuner_freq_changed));
+    tuner_switcher.signal_display().connect(
+	sigc::mem_fun(this, &GxService::display));
+    tuner_switcher.signal_set_state().connect(
+	sigc::mem_fun(this, &GxService::set_display_state));
+    tuner_switcher.signal_selection_done().connect(
+	sigc::mem_fun(this, &GxService::on_selection_done));
+    settings.signal_presetlist_changed().connect(
+	sigc::mem_fun(this, &GxService::on_presetlist_changed));
+    GxLogger::get_logger().signal_message().connect(
+	sigc::mem_fun(this, &GxService::on_log_message));
+    GxLogger::get_logger().unplug_queue();
+    jack.get_engine().controller_map.signal_changed().connect(
+	sigc::mem_fun(this, &GxService::on_midi_changed));
+    jack.get_engine().controller_map.signal_midi_value_changed().connect(
+	sigc::mem_fun(this, &GxService::on_midi_value_changed));
+    jack.get_engine().oscilloscope.size_change.connect(
+	sigc::mem_fun(this, &GxService::on_osc_size_changed));
+    jack.get_engine().oscilloscope.activation.connect(
+	sigc::mem_fun(this, &GxService::on_osc_activation));
+    jack.get_engine().midiaudiobuffer.signal_jack_load_change().connect(
+	sigc::mem_fun(this, &GxService::on_jack_load_changed));
+    settings.signal_rack_unit_order_changed().connect(
+	sigc::mem_fun(this, &GxService::on_rack_unit_changed));
     gx_engine::ParamMap& pmap = settings.get_param();
     pmap.signal_insert_remove().connect(
-	sigc::mem_fun(this, &MyService::on_param_insert_remove));
-    settings.signal_rack_unit_order_changed().connect(
-	sigc::mem_fun(this, &MyService::on_rack_unit_changed));
+	sigc::mem_fun(this, &GxService::on_param_insert_remove));
     for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
 	connect_value_changed_signal(i->second);
     }
 }
 
-MyService::~MyService() {
+GxService::~GxService() {
     gx_system::JsonStringWriter jws;
     jws.send_notify_begin("server_shutdown");
-    jws.send_notify_end();
-    broadcast(0, jws);
+    broadcast(jws, CmdConnection::f_misc_msg);
     for (std::list<CmdConnection*>::iterator i = connection_list.begin(); i != connection_list.end(); ++i) {
 	delete *i;
     }
 }
 
-void MyService::send_rack_changed(bool stereo, CmdConnection *cmd) {
-    if (cmd) {
-	settings.signal_rack_unit_order_changed()(stereo);
+void GxService::send_rack_changed(bool stereo, CmdConnection *cmd) {
+    static bool rack_unit_change_blocked = false;
+    if (rack_unit_change_blocked) {
+	return;
     }
-    if (!broadcast_listeners(cmd)) {
+    if (cmd) {
+	rack_unit_change_blocked = true;
+	settings.signal_rack_unit_order_changed()(stereo);
+	rack_unit_change_blocked = false;
+    }
+    if (!broadcast_listeners(CmdConnection::f_units_changed, cmd)) {
 	return;
     }
     gx_system::JsonStringWriter jw;
@@ -1708,44 +1584,43 @@ void MyService::send_rack_changed(bool stereo, CmdConnection *cmd) {
 	jw.write(*i);
     }
     jw.end_array();
-    jw.send_notify_end();
-    broadcast(cmd, jw);
+    broadcast(jw, CmdConnection::f_units_changed, cmd);
 }
 
-void MyService::on_rack_unit_changed(bool stereo) {
+void GxService::on_rack_unit_changed(bool stereo) {
     send_rack_changed(stereo, 0);
 }
 
-void MyService::connect_value_changed_signal(gx_engine::Parameter *p) {
+void GxService::connect_value_changed_signal(gx_engine::Parameter *p) {
     if (p->isInt()) {
 	p->getInt().signal_changed().connect(
 	    sigc::hide(
 		sigc::bind(
-		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+		    sigc::mem_fun(this, &GxService::on_param_value_changed), p)));
     } else if (p->isBool()) {
 	p->getBool().signal_changed().connect(
 	    sigc::hide(
 		sigc::bind(
-		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+		    sigc::mem_fun(this, &GxService::on_param_value_changed), p)));
     } else if (p->isFloat()) {
 	p->getFloat().signal_changed().connect(
 	    sigc::hide(
 		sigc::bind(
-		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+		    sigc::mem_fun(this, &GxService::on_param_value_changed), p)));
     } else if (p->isString()) {
 	p->getString().signal_changed().connect(
 	    sigc::hide(
 		sigc::bind(
-		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+		    sigc::mem_fun(this, &GxService::on_param_value_changed), p)));
     } else if (dynamic_cast<gx_engine::JConvParameter*>(p) != 0) {
 	dynamic_cast<gx_engine::JConvParameter*>(p)->signal_changed().connect(
 	    sigc::hide(
 		sigc::bind(
-		    sigc::mem_fun(this, &MyService::on_param_value_changed), p)));
+		    sigc::mem_fun(this, &GxService::on_param_value_changed), p)));
     }
 }
 
-void MyService::on_param_insert_remove(gx_engine::Parameter *p, bool inserted) {
+void GxService::on_param_insert_remove(gx_engine::Parameter *p, bool inserted) {
     if (preg_map) {
 	(*preg_map)[p->id()] = inserted;
     }
@@ -1754,7 +1629,7 @@ void MyService::on_param_insert_remove(gx_engine::Parameter *p, bool inserted) {
     }
 }
 
-void MyService::on_param_value_changed(gx_engine::Parameter *p) {
+void GxService::on_param_value_changed(gx_engine::Parameter *p) {
     gx_system::JsonStringWriter *jw;
     gx_system::JsonStringWriter jwp;
     if (jwc) {
@@ -1781,12 +1656,172 @@ void MyService::on_param_value_changed(gx_engine::Parameter *p) {
 	assert(false);
     }
     if (!jwc) {
-	jwp.send_notify_end();
-	broadcast(0, jwp);
+	broadcast(jwp, CmdConnection::f_parameter_change_notify);
     }
 }
 
-void MyService::remove_connection(CmdConnection *p) {
+void GxService::on_jack_load_changed() {
+    if (!broadcast_listeners(CmdConnection::f_jack_load_changed)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("jack_load_changed");
+    gx_engine::MidiAudioBuffer::Load l = jack.get_engine().midiaudiobuffer.jack_load_status();
+    if (l == gx_engine::MidiAudioBuffer::load_low && !jack.get_engine().midiaudiobuffer.get_midistat()) {
+	l = gx_engine::MidiAudioBuffer::load_high;
+    }
+    jw.write(l);
+    broadcast(jw, CmdConnection::f_jack_load_changed);
+}
+
+void GxService::on_osc_size_changed(unsigned int sz) {
+    if (!broadcast_listeners(CmdConnection::f_osc_size_changed)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("osc_size_changed");
+    jw.write(sz);
+    broadcast(jw, CmdConnection::f_osc_size_changed);
+}
+
+int GxService::on_osc_activation(bool start) {
+    if (!broadcast_listeners(CmdConnection::f_osc_activation)) {
+	return 0;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("osc_activation");
+    jw.write(start);
+    broadcast(jw, CmdConnection::f_osc_activation);
+    return 0;
+}
+
+void GxService::on_midi_changed() {
+    if (!broadcast_listeners(CmdConnection::f_midi_changed)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("midi_changed");
+    jack.get_engine().controller_map.writeJSON(jw);
+    broadcast(jw, CmdConnection::f_midi_changed);
+}
+
+void GxService::on_midi_value_changed(int ctl, int value) {
+    if (!broadcast_listeners(CmdConnection::f_midi_value_changed)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("midi_value_changed");
+    jw.begin_array();
+    jw.write(ctl);
+    jw.write(value);
+    jw.end_array();
+    broadcast(jw, CmdConnection::f_midi_value_changed);
+}
+
+void GxService::on_log_message(const string& msg, GxLogger::MsgType tp, bool plugged) {
+    if (plugged || !broadcast_listeners(CmdConnection::f_log_message)) {
+	return;
+    }
+    const char *tpname;
+    switch (tp) {
+    case GxLogger::kInfo:    tpname = "info"; break;
+    case GxLogger::kWarning: tpname = "warning"; break;
+    case GxLogger::kError:   tpname = "error"; break;
+    default: tpname = "unknown"; break;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("message");
+    jw.write(tpname);
+    jw.write(msg);
+    broadcast(jw, CmdConnection::f_log_message);
+}
+
+void GxService::on_selection_done(bool v) {
+    if (!broadcast_listeners(CmdConnection::f_selection_done)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("show_tuner");
+    jw.write(v);
+    broadcast(jw, CmdConnection::f_selection_done);
+}
+
+void GxService::on_presetlist_changed() {
+    if (!broadcast_listeners(CmdConnection::f_presetlist_changed)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("presetlist_changed");
+    broadcast(jw, CmdConnection::f_presetlist_changed);
+}
+
+void GxService::on_engine_state_change(gx_engine::GxEngineState state) {
+    if (!broadcast_listeners(CmdConnection::f_state_changed)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("state_changed");
+    jw.write(engine_state_to_string(state));
+    broadcast(jw, CmdConnection::f_state_changed);
+}
+
+void GxService::preset_changed() {
+    if (!broadcast_listeners(CmdConnection::f_preset_changed)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("preset_changed");
+    if (settings.setting_is_preset()) {
+	jw.write(settings.get_current_bank());
+	jw.write(settings.get_current_name());
+    } else {
+	jw.write("");
+	jw.write("");
+    }
+    broadcast(jw, CmdConnection::f_preset_changed);
+}
+
+void GxService::on_tuner_freq_changed() {
+    if (!broadcast_listeners(CmdConnection::f_freq_changed)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("tuner_changed");
+    //jw.write_key("frequency");
+    jw.write(jack.get_engine().tuner.get_freq());
+    //jw.write_key("note");
+    jw.write(jack.get_engine().tuner.get_note());
+    broadcast(jw, CmdConnection::f_freq_changed);
+}
+
+void GxService::display(const Glib::ustring& bank, const Glib::ustring& preset) {
+    if (!broadcast_listeners(CmdConnection::f_display)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("display_bank_preset");
+    jw.write(bank);
+    jw.write(preset);
+    broadcast(jw, CmdConnection::f_display);
+}
+
+void GxService::set_display_state(TunerSwitcher::SwitcherState state) {
+    if (!broadcast_listeners(CmdConnection::f_display_state)) {
+	return;
+    }
+    gx_system::JsonStringWriter jw;
+    jw.send_notify_begin("set_display_state");
+    switch (state) {
+    case TunerSwitcher::normal_mode: jw.write("normal_mode"); break;
+    case TunerSwitcher::wait_start: jw.write("wait_start"); break;
+    case TunerSwitcher::listening: jw.write("listening"); break;
+    case TunerSwitcher::wait_stop: jw.write("wait_stop"); break;
+    default: assert(false); break;
+    }
+    broadcast(jw, CmdConnection::f_display_state);
+}
+
+void GxService::remove_connection(CmdConnection *p) {
     for (std::list<CmdConnection*>::iterator i = connection_list.begin(); i != connection_list.end(); ++i) {
 	if (*i == p) {
 	    connection_list.erase(i);
@@ -1798,7 +1833,7 @@ void MyService::remove_connection(CmdConnection *p) {
 }
 
 //FIXME: this belongs into GxSettings
-void MyService::save_state() {
+void GxService::save_state() {
     if (!settings.get_options().get_opt_autosave()) {
 	return;
     }
@@ -1807,7 +1842,7 @@ void MyService::save_state() {
     time_t now = time(NULL);
     if (oldest_unsaved == 0) {
 	oldest_unsaved = last_change = now;
-	save_conn = Glib::signal_timeout().connect(sigc::bind_return(sigc::mem_fun(this, &MyService::save_state),false), 1000*min_idle);
+	save_conn = Glib::signal_timeout().connect(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), 1000*min_idle);
 	return;
     }
     if (now - oldest_unsaved >= max_delay || now - last_change >= min_idle) {
@@ -1821,11 +1856,11 @@ void MyService::save_state() {
 	    oldest_unsaved = now;
 	}
 	save_conn.disconnect();
-	save_conn = Glib::signal_timeout().connect(sigc::bind_return(sigc::mem_fun(this, &MyService::save_state),false), 1000*min_idle);
+	save_conn = Glib::signal_timeout().connect(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), 1000*min_idle);
     }
 }
 
-bool MyService::on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connection,
+bool GxService::on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connection,
 			    const Glib::RefPtr<Glib::Object>& source_object) {
     CmdConnection *cc = new CmdConnection(*this, connection);
     connection_list.push_back(cc);
@@ -1839,7 +1874,7 @@ bool MyService::on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connectio
     return true;
 }
 
-void MyService::serialize_parameter_change(gx_system::JsonWriter& jw) {
+void GxService::serialize_parameter_change(gx_system::JsonWriter& jw) {
     jw.begin_array();
     for (std::map<std::string,bool>::iterator i = preg_map->begin(); i != preg_map->end(); ++i) {
 	if (!i->second) {
@@ -1856,19 +1891,20 @@ void MyService::serialize_parameter_change(gx_system::JsonWriter& jw) {
     jw.end_array();
 }
 
-bool MyService::broadcast_listeners(CmdConnection *sender) {
+bool GxService::broadcast_listeners(CmdConnection::msg_type n, CmdConnection *sender) {
     for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
-	if (*p != sender && (*p)->get_parameter_change_notify()) {
+	if (*p != sender && (*p)->is_activated(n)) {
 	    return true;
 	}
     }
     return false;
 }
 
-void MyService::broadcast(CmdConnection *sender, gx_system::JsonStringWriter& jw) {
+void GxService::broadcast(gx_system::JsonStringWriter& jw, CmdConnection::msg_type n, CmdConnection *sender) {
+    jw.send_notify_end();
     jw.finish();
     for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
-	if (*p != sender && (*p)->get_parameter_change_notify()) {
+	if (*p != sender && (*p)->is_activated(n)) {
 	    (*p)->send(jw);
 	}
     }

@@ -2319,17 +2319,14 @@ void MainWindow::systray_menu(guint button, guint32 activate_time) {
     menu->popup(2, gtk_get_current_event_time());
 }
 
-void MainWindow::overload_status_changed() {
-    switch (machine.midiaudiobuffer_jack_load_status()) {
-    case gx_engine::MidiAudioBuffer::load_off:
-	status_icon->set(gx_head_icon);
+void MainWindow::overload_status_changed(gx_engine::MidiAudioBuffer::Load l) {
+    switch (l) {
+    case gx_engine::MidiAudioBuffer::load_low:
+	status_icon->set(gx_head_midi);
 	break;
-    case gx_engine::MidiAudioBuffer::load_normal:
-	if (machine.midiaudiobuffer_get_midistat()) {
-	    status_icon->set(gx_head_midi);
-	} else {
-	    status_icon->set(gx_head_icon);
-	}
+    case gx_engine::MidiAudioBuffer::load_off:
+    case gx_engine::MidiAudioBuffer::load_high:
+	status_icon->set(gx_head_icon);
 	break;
     case gx_engine::MidiAudioBuffer::load_over:
 	status_icon->set(gx_head_warn);

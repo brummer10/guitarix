@@ -177,7 +177,7 @@ public:
 
 class MidiAudioBuffer: PluginDef {
 public:
-    enum Load { load_off = -1, load_normal = 0, load_over = 1 };
+    enum Load { load_off = -1, load_low = 0, load_high = 1, load_over = 2 };
 private:
     MidiVariables midi;
     gx_engine::TunerAdapter& tuner;
