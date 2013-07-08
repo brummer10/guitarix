@@ -140,9 +140,11 @@ bool PitchTracker::setParameters(int priority, int policy, int sampleRate, int b
 }
 
 void PitchTracker::stop_thread() {
-    pthread_cancel (m_pthr);
-    pthread_join (m_pthr, NULL);
-    m_pthr = 0;
+    if (m_pthr) {
+	pthread_cancel (m_pthr);
+	pthread_join (m_pthr, NULL);
+	m_pthr = 0;
+    }
 }
 
 void PitchTracker::start_thread(int priority, int policy) {
