@@ -154,10 +154,9 @@ private:
 	float n1;
 	float d0;
 	float d1; 
-    } vc[8], vcvo[8], ecvc[8], vevo[8], bootstrap[8];
+    } vc[8], vcvo[8], ecvc[8], vevo[8];
 
     NextValue lfo;
-    unsigned int PLFOtype;
 
     inline float vibefilter(float data, fparams *ftype, int stage);
     void init_vibes(unsigned int samplerate);

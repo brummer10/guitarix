@@ -271,13 +271,13 @@ bool MidiController::set_midi(int n, int last_value) {
 	bool s_n = (2*n > 127);
 	if (!s_o && s_n) {
 	    if (param->on_off_value()) {
-		ret = param->set(0, 127, _lower, _upper);
+		ret = param->midi_set(0, 127, _lower, _upper);
 	    } else {
-		ret = param->set(127, 127, _lower, _upper);
+		ret = param->midi_set(127, 127, _lower, _upper);
 	    }
 	}
     } else {
-	ret = param->set(n, 127, _lower, _upper);
+	ret = param->midi_set(n, 127, _lower, _upper);
     }
     return ret;
 }
@@ -665,7 +665,7 @@ Parameter::Parameter(gx_system::JsonParser& jp)
 Parameter::~Parameter() {
 }
 
-bool Parameter::set(float n, float high, float llimit, float ulimit) {
+bool Parameter::midi_set(float n, float high, float llimit, float ulimit) {
     assert(false);
     return false;
 }
@@ -871,7 +871,7 @@ bool FloatParameter::on_off_value() {
     return *value != 0;
 }
 
-bool FloatParameter::set(float n, float high, float llimit, float ulimit) {
+bool FloatParameter::midi_set(float n, float high, float llimit, float ulimit) {
     float v;
     switch (c_type) {
     case Continuous:
@@ -1063,7 +1063,7 @@ bool IntParameter::on_off_value() {
     return *value != 0;
 }
 
-bool IntParameter::set(float n, float high, float llimit, float ulimit) {
+bool IntParameter::midi_set(float n, float high, float llimit, float ulimit) {
     int v;
     switch (c_type) {
     case Continuous:
@@ -1286,7 +1286,7 @@ bool BoolParameter::on_off_value() {
     return *value;
 }
 
-bool BoolParameter::set(float n, float high, float llimit, float ulimit) {
+bool BoolParameter::midi_set(float n, float high, float llimit, float ulimit) {
     bool v;
     switch (c_type) {
     case Switch:

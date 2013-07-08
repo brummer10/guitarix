@@ -55,8 +55,6 @@ private:
     std::map<Glib::ustring,int> service_names;
     sigc::signal<void> changed;
     bool cache_done;
-    AvahiAddress address;
-    uint16_t port;
     Glib::ustring found_name;
     Glib::ustring found_host;
     static void new_service(

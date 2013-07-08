@@ -265,7 +265,7 @@ bool GxConvolver::read_sndfile(
     Audiofile& audio, int nchan, int samplerate, const float *gain,
     unsigned int *delay, unsigned int offset, unsigned int length,
     const Gainline& points) {
-    unsigned int nfram;
+    int nfram;
     float *buff;
     float *rbuff = 0;
     float *bufp;
@@ -332,7 +332,7 @@ bool GxConvolver::read_sndfile(
                 delete[] rbuff;
                 return false;
             }
-            for (unsigned int ix = 0; ix < nfram; ix++) {
+            for (int ix = 0; ix < nfram; ix++) {
                 if (idx+1 < points.size() && (unsigned int)points[idx].i == offset + ix) {
                     compute_interpolation(fct, gp, idx, points, offset);
                 }

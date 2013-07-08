@@ -32,8 +32,6 @@ AvahiBrowser::AvahiBrowser()
       service_names(),
       changed(),
       cache_done(false),
-      address(),
-      port(0),
       found_name(),
       found_host() {
     client = ga_client_new(GaClientFlags(0));

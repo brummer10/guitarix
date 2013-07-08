@@ -106,7 +106,7 @@ class Parameter: boost::noncopyable {
 public:
     enum ctrl_type { None, Continuous, Switch, Enum };
 private:
-    virtual bool set(float n, float high, float llimit, float ulimit); //RT
+    virtual bool midi_set(float n, float high, float llimit, float ulimit); //RT
     virtual void trigger_changed();
     friend class MidiController;
 protected:
@@ -221,7 +221,7 @@ class ParameterV: public Parameter {
 template<>
 class ParameterV<float>: public Parameter {
 private:
-    virtual bool set(float n, float high, float llimit, float ulimit); //RT
+    virtual bool midi_set(float n, float high, float llimit, float ulimit); //RT
     virtual void trigger_changed();
 protected:
     float json_value;
@@ -282,7 +282,7 @@ public:
 template<>
 class ParameterV<int>: public Parameter {
 private:
-    virtual bool set(float n, float high, float llimit, float ulimit); //RT
+    virtual bool midi_set(float n, float high, float llimit, float ulimit); //RT
     virtual void trigger_changed();
 protected:
     int json_value;
@@ -338,7 +338,7 @@ public:
 template<>
 class ParameterV<bool>: public Parameter {
 private:
-    virtual bool set(float n, float high, float llimit, float ulimit); //RT
+    virtual bool midi_set(float n, float high, float llimit, float ulimit); //RT
     virtual void trigger_changed();
 protected:
     bool json_value;
@@ -669,7 +669,7 @@ class MidiController {
     Parameter& getParameter() const { return *param; }
     static MidiController *readJSON(gx_system::JsonParser& jp, ParamMap& param);
     bool set_midi(int n, int last_value); //RT
-    void set(float v, float high) { param->set(v, high, _lower, _upper); }
+    void set(float v, float high) { param->midi_set(v, high, _lower, _upper); }
     void trigger_changed() { param->trigger_changed(); }
     void writeJSON(gx_system::JsonWriter& jw) const;
 };

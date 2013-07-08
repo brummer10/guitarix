@@ -351,12 +351,12 @@ private:
     bool config_mode;
     int in_drag;
     int child_count;
-    int switch_level;
     std::vector<std::string> targets;
     std::vector<std::string> othertargets;
     sigc::connection highlight_connection;
     sigc::connection autoscroll_connection;
 private:
+    using Gtk::VBox::add;
     bool drag_highlight_expose(GdkEventExpose *event, int y0);
     void find_index(int x, int y, int* len, int *ypos);
     void on_my_remove(Gtk::Widget*);
@@ -418,7 +418,6 @@ private:
     int highest_unseen_msg_level;
     sigc::signal<void> msg_level_changed;
 private:
-    bool on_delete_event();
     virtual bool on_key_press_event(GdkEventKey *event);
     void show_msg(string msgbuf, GxLogger::MsgType msgtype, bool plugged);
     virtual void on_show();

@@ -557,6 +557,7 @@ private:
     //
     Gtk::TreeView *treeview;
     Gtk::Button *removebutton;
+    using Gtk::Window::on_remove;
     void on_remove();
     void on_selection_changed();
     virtual bool on_key_press_event(GdkEventKey *event);
@@ -616,7 +617,7 @@ PluginPresetListWindow::PluginPresetListWindow(
 	sigc::mem_fun(*this, &PluginPresetListWindow::hide));
     bld->find_widget("removebutton", removebutton);
     removebutton->signal_clicked().connect(
-	sigc::mem_fun(*this, &PluginPresetListWindow::on_remove));
+	sigc::mem_fun0(*this, &PluginPresetListWindow::on_remove));
     bld->find_widget("treeview", treeview);
     for (gx_preset::UnitPresetList::const_iterator i = presetlist.begin(); i != presetlist.end(); ++i) {
 	if (i->name.empty()) {
@@ -1184,7 +1185,6 @@ RackContainer::RackContainer(PluginType tp_, MainWindow& main_)
       config_mode(false),
       in_drag(-2),
       child_count(0),
-      switch_level(1),
       targets(),
       othertargets(),
       highlight_connection(),

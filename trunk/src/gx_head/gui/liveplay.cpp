@@ -502,7 +502,6 @@ void Liveplay::on_realize() {
 class MidiControllerDisplay: public Gtk::ProgressBar {
 private:
     int ctr;
-    const gx_engine::midi_controller_list& controller;
 private:
     void midi_value_changed(int ctr, int val);
 public:
@@ -511,7 +510,7 @@ public:
 };
 
 MidiControllerDisplay::MidiControllerDisplay(gx_engine::GxMachineBase& machine, unsigned int n, const gx_engine::midi_controller_list& ctrl, const Glib::ustring& name)
-    : Gtk::ProgressBar(), ctr(n), controller(ctrl) {
+    : Gtk::ProgressBar(), ctr(n) {
     machine.signal_midi_value_changed().connect(
 	sigc::mem_fun(this, &MidiControllerDisplay::midi_value_changed));
     set_size_request(300, 50);
