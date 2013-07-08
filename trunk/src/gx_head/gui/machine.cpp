@@ -177,7 +177,15 @@ void GxMachine::save_ladspalist(ladspa::LadspaPluginList& pluginlist) {
 }
 
 void GxMachine::commit_ladspa_changes() {
-    engine.ladspaloader_update_plugins(plugin_changed);
+    if (sock) {
+	sock->ladspaloader_update_plugins(0, 0);
+    } else {
+	engine.ladspaloader_update_plugins();
+    }
+}
+
+sigc::signal<void,Plugin*,PluginChange::pc>& GxMachine::signal_plugin_changed() {
+    return engine.signal_plugin_changed();
 }
 
 Plugin *GxMachine::pluginlist_lookup_plugin(const std::string& id) const {
@@ -317,7 +325,9 @@ sigc::signal<void,bool>& GxMachine::signal_rack_unit_order_changed() {
 }
 
 void GxMachine::remove_rack_unit(const std::string& unit, PluginType type) {
-    settings.remove_rack_unit(unit, type == PLUGIN_TYPE_STEREO);
+    if (!settings.remove_rack_unit(unit, type == PLUGIN_TYPE_STEREO)) {
+	return;
+    }
     if (sock) {
 	sock->send_rack_changed(type == PLUGIN_TYPE_STEREO, 0);
     }
@@ -1335,6 +1345,11 @@ void GxMachineRemote::commit_ladspa_changes() {
     jp->next(gx_system::JsonParser::end_array);
     END_RECEIVE();
 }
+
+sigc::signal<void,Plugin*,PluginChange::pc>& GxMachineRemote::signal_plugin_changed() {
+    return plugin_changed;
+}
+
 
 /*
 ** PluginList

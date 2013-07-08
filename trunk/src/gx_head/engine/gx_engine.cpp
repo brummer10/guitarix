@@ -113,6 +113,8 @@ static const char* ampstack_groups[] = {
 GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options)
     : ModuleSequencer(),
       resamp(),
+      plugin_changed(),
+      ladspaloader(options),
       controller_map(),
       // ModuleSelector's
       crybaby(
@@ -139,8 +141,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
 		       get_param(), options.get_IR_pathlist(), options.get_sys_IR_dir()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      ladspaloader(options) {
+      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
 	ov_disabled |= ov_Convolver;
@@ -280,7 +281,7 @@ static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray
     return ml.end();
 }
 
-void GxEngine::ladspaloader_update_plugins(sigc::signal<void,Plugin*,PluginChange::pc>& plugin_changed) {
+void GxEngine::ladspaloader_update_plugins() {
     // load plugindesc list
     LadspaLoader::pluginarray ml;
     ladspaloader.load(ml);

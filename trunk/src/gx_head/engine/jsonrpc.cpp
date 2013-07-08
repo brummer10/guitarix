@@ -380,12 +380,6 @@ static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& pref
     return false;
 }
 
-void CmdConnection::add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v, std::vector<ChangedPlugin>& vec) {
-    if (pl) {
-	vec.push_back(ChangedPlugin(pl->get_pdef()->id, v));
-    }
-}
-
 #define START_FUNCTION_SWITCH(v)    switch (v) {
 #define FUNCTION(n)                 break; case RPCM_##n:
 #define PROCEDURE(n)                break; case RPNM_##n:
@@ -719,49 +713,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     FUNCTION(ladspaloader_update_plugins) {
-	serv.preg_map = new std::map<std::string,bool>;
-	std::vector<ChangedPlugin> changed_plugins;
-	sigc::signal<void,gx_engine::Plugin*,gx_engine::PluginChange::pc> plugin_changed;
-	plugin_changed.connect(
-	    sigc::bind(sigc::mem_fun(this, &CmdConnection::add_changed_plugin),
-	    	       sigc::ref(changed_plugins)));
-	serv.jack.get_engine().ladspaloader_update_plugins(plugin_changed);
-	jw.begin_array();
-	serv.serialize_parameter_change(jw);
-	jw.begin_array();
-	for (std::vector<ChangedPlugin>::iterator i = changed_plugins.begin(); i != changed_plugins.end(); ++i) {
-	    jw.begin_array();
-	    jw.write(i->status);
-	    if (i->status == gx_engine::PluginChange::remove) {
-		jw.write(i->id);
-	    } else {
-		serv.jack.get_engine().pluginlist.lookup_plugin(i->id)->writeJSON(jw);
-	    }
-	    jw.end_array();
-	}
-	jw.end_array();
-	jw.end_array();
-	if (serv.broadcast_listeners(f_plugins_changed, this)) {
-	    gx_system::JsonStringWriter jws;
-	    send_notify_begin(jws, "plugins_changed");
-	    serv.serialize_parameter_change(jws);
-	    // updated plugins
-	    jws.begin_array();
-	    for (std::vector<ChangedPlugin>::iterator i = changed_plugins.begin(); i != changed_plugins.end(); ++i) {
-		jws.begin_array();
-		jws.write(i->status);
-		if (i->status == gx_engine::PluginChange::remove) {
-		    jws.write(i->id);
-		} else {
-		    serv.jack.get_engine().pluginlist.lookup_plugin(i->id)->writeJSON(jws);
-		}
-		jws.end_array();
-	    }
-	    jws.end_array();
-	    serv.broadcast(jws, f_plugins_changed, this);
-	}
-	delete serv.preg_map;
-	serv.preg_map = 0;
+	serv.ladspaloader_update_plugins(&jw, this);
     }
 
     FUNCTION(plugin_preset_list_load) {
@@ -863,8 +815,9 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(remove_rack_unit) {
 	bool stereo = params[1]->getInt();
-	serv.settings.remove_rack_unit(params[0]->getString(), stereo);
-	serv.send_rack_changed(stereo, this);
+	if (serv.settings.remove_rack_unit(params[0]->getString(), stereo)) {
+	    serv.send_rack_changed(stereo, this);
+	}
     }
 
     PROCEDURE(bank_reorder) {
@@ -1560,6 +1513,56 @@ GxService::~GxService() {
     for (std::list<CmdConnection*>::iterator i = connection_list.begin(); i != connection_list.end(); ++i) {
 	delete *i;
     }
+}
+
+void GxService::ladspaloader_write_changes(gx_system::JsonWriter& jw, std::vector<ChangedPlugin>& changed_plugins) {
+    serialize_parameter_change(jw);
+    // updated plugins
+    jw.begin_array();
+    for (std::vector<ChangedPlugin>::iterator i = changed_plugins.begin(); i != changed_plugins.end(); ++i) {
+	jw.begin_array();
+	jw.write(i->status);
+	if (i->status == gx_engine::PluginChange::remove) {
+	    jw.write(i->id);
+	} else {
+	    jack.get_engine().pluginlist.lookup_plugin(i->id)->writeJSON(jw);
+	}
+	jw.end_array();
+    }
+    jw.end_array();
+}
+
+//static
+void GxService::add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v, std::vector<ChangedPlugin>& vec) {
+    if (pl) {
+	vec.push_back(ChangedPlugin(pl->get_pdef()->id, v));
+    }
+}
+
+void GxService::ladspaloader_update_plugins(gx_system::JsonWriter *jw, CmdConnection *cmd) {
+    preg_map = new std::map<std::string,bool>;
+    std::vector<ChangedPlugin> changed_plugins;
+    sigc::connection conn = jack.get_engine().signal_plugin_changed().connect(
+	sigc::bind(sigc::ptr_fun(add_changed_plugin), sigc::ref(changed_plugins)));
+    gx_system::JsonStringWriter jwp; /* capture parameter changes and ignore them;
+					they are already sent as part of changed parameter data */
+    jwc = &jwp;
+    jack.get_engine().ladspaloader_update_plugins();
+    jwc = 0;
+    conn.disconnect();
+    if (jw) {
+	jw->begin_array();
+	ladspaloader_write_changes(*jw, changed_plugins);
+	jw->end_array();
+    }
+    if (broadcast_listeners(CmdConnection::f_plugins_changed, cmd)) {
+	gx_system::JsonStringWriter jws;
+	jws.send_notify_begin("plugins_changed");
+	ladspaloader_write_changes(jws, changed_plugins);
+	broadcast(jws, CmdConnection::f_plugins_changed, cmd);
+    }
+    delete preg_map;
+    preg_map = 0;
 }
 
 void GxService::send_rack_changed(bool stereo, CmdConnection *cmd) {

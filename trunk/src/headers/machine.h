@@ -51,7 +51,6 @@ public:
 class GxMachineBase {
 protected:
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> > impresp_list;
-    sigc::signal<void,Plugin*,PluginChange::pc> plugin_changed;
     sigc::signal<void, MidiAudioBuffer::Load> jack_load_change;
 private:
     virtual int _get_parameter_value_int(const std::string& id) = 0;
@@ -71,7 +70,7 @@ public:
     virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist) = 0;
     virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist) = 0;
     virtual void commit_ladspa_changes() = 0;
-    sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed() { return plugin_changed; }
+    virtual sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed() = 0;
     virtual Plugin *pluginlist_lookup_plugin(const std::string& id) const = 0;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) = 0;
     virtual void pluginlist_append_rack(UiBuilderBase& ui) = 0;
@@ -247,6 +246,7 @@ public:
     virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist);
     virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist);
     virtual void commit_ladspa_changes();
+    virtual sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed();
     virtual Plugin *pluginlist_lookup_plugin(const std::string& id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
@@ -386,6 +386,7 @@ private:
     sigc::signal<void,const Glib::ustring&,const Glib::ustring&> tuner_switcher_display;
     sigc::signal<void,TunerSwitcher::SwitcherState> tuner_switcher_set_state;
     sigc::signal<void, bool> tuner_switcher_selection_done;
+    sigc::signal<void,Plugin*,PluginChange::pc> plugin_changed;
 private:
     const jsonrpc_method_def& start_call(jsonrpc_method m_id);
     void send();
@@ -420,6 +421,7 @@ public:
     virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist);
     virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist);
     virtual void commit_ladspa_changes();
+    virtual sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed();
     virtual Plugin *pluginlist_lookup_plugin(const std::string& id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);

@@ -899,12 +899,14 @@ static inline std::vector<std::string>::iterator find_unit(std::vector<std::stri
     return i;
 }
 
-void GxSettings::remove_rack_unit(const std::string& unit, bool stereo) {
+bool GxSettings::remove_rack_unit(const std::string& unit, bool stereo) {
     std::vector<std::string>& r = stereo ? rack_units.stereo : rack_units.mono;
     std::vector<std::string>::iterator i = find_unit(r, unit);
     if (i != r.end()) {
 	r.erase(i);
+	return true;
     }
+    return false;
 }
 
 void GxSettings::insert_rack_unit(const std::string& unit, const std::string& before, bool stereo) {
