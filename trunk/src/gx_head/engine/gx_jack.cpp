@@ -128,7 +128,6 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
     client_change_rt.connect(client_change);
     GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxJack::cleanup_slot));
-    rt_watchdog_start();
 }
 
 GxJack::~GxJack() {
@@ -137,6 +136,9 @@ GxJack::~GxJack() {
 
 void GxJack::rt_watchdog_set_limit(int limit) {
     rt_watchdog_limit = limit;
+    if (limit > 0) {
+	rt_watchdog_start();
+    }
 }
 
 
