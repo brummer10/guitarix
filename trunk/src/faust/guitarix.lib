@@ -282,7 +282,7 @@ eqfilter(Q,F,G)	= TF2(  (1 +  K/Q + K*K) 	/ D,
 		};
 
 
-ifilter(Q,F,G) = eqfilter(Q,F,-G);
+ifilter(Q,F,G) = eqfilter(Q,F,1/G);
 
 
 /****************************************************************
