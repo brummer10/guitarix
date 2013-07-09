@@ -34,7 +34,8 @@ class tube_transfer(gtk.Window):
         self.image.hide()
         self.textview.hide()
         self.resize(550, 200)
-        
+        self.labelvk01.set_text("\n")
+        self.labelaccuracy.set_text("\n")
     
     def set_tube(self):
         tubelist = sorted(tubes.keys())
@@ -50,6 +51,7 @@ class tube_transfer(gtk.Window):
         self.scale2.set_value(c.Rp/1e3)
         self.scale3.set_value(c.Uin_min)
         self.scale4.set_value(c.Uin_max)
+        
     
     def on_tube_changed(self,widget):
         c = Circuit(self.tube.get_active_text(), self.func.get_active_text())
@@ -58,11 +60,17 @@ class tube_transfer(gtk.Window):
         i = 0
         for n in c.used_names:
             tubevalues += " %s: %g " % (n, getattr(c, n))
+            if i == 3:
+                self.Kg2 = "%g" % (getattr(c, n))
             i +=1
             if i>5:
                  break
         self.labeltv.set_text(tubevalues)
-    
+        if self.Kg2 == "0":
+            self.func.set_active(0)
+        else:
+            self.func.set_active(1)
+        
     def set_func(self):
         self.func.append_text("triode")
         self.func.append_text("pentode")
@@ -159,7 +167,7 @@ class tube_transfer(gtk.Window):
         sys.stdout = old_stdout
         output1 = capturer.getvalue().replace('\n','')
         self.labelvk01.set_text("Ri(%s) Rk(%s) vk0(%s) \nRi(%s) Rk(%s) vk0(%s)" % 
-            (self.scale7.get_value(),self.scale5.get_value() ,output, self.scale6.get_value(),self.scale5.get_value() ,output1) )
+            (self.scale6.get_value(),self.scale5.get_value() ,output1, self.scale7.get_value(),self.scale5.get_value() ,output) )
     
     def on_table_progress(self):
         script_dir = sys.path[0]
@@ -220,10 +228,10 @@ class tube_transfer(gtk.Window):
         p.start()
         self.run_table_progress()
     
-    
     def __init__(self, argv):        
         super(tube_transfer, self).__init__()
         self.arg = argv
+        self.Kg2 = "0"
         self.set_default_size(550, 200)
         self.set_border_width(10)
         self.connect("destroy", lambda w: gtk.main_quit())
