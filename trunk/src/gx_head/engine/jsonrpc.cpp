@@ -1085,7 +1085,7 @@ void CmdConnection::write_error(gx_system::JsonWriter& jw, int code, const char 
     jw.end_object();
 }
 
-bool CmdConnection::request(gx_system::JsonParser& jp, gx_system::JsonStringWriter& jw, bool batch_start) {
+bool CmdConnection::request(gx_system::JsonStringParser& jp, gx_system::JsonStringWriter& jw, bool batch_start) {
     Glib::ustring method;
     JsonArray params;
     Glib::ustring id;

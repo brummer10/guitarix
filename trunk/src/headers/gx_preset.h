@@ -44,9 +44,10 @@ public:
 class UnitPosition {
 public:
     bool show;
+    bool visible;
     int position;
     int pp;
-    UnitPosition(): show(false), position(-1), pp(-1) {}
+    UnitPosition(): show(false), visible(false), position(-1), pp(-1) {}
 };
 
 class UnitsCollector {
@@ -54,9 +55,10 @@ private:
     std::map<std::string,UnitPosition> m;
 public:
     void set_show(const std::string& s, bool v) { m[s].show = v; }
+    void set_visible(const std::string& s, bool v) { m[s].visible = v; } // old preset handling
     void set_position(const std::string& s, int v) { m[s].position = v; }
     void set_pp(const std::string& s, bool v) { m[s].pp = v; }
-    void get_list(std::vector<std::string>& l, bool stereo);
+    void get_list(std::vector<std::string>& l, bool stereo, gx_engine::ParamMap& param);
     bool empty() { return m.empty(); }
 };
 
@@ -68,7 +70,6 @@ private:
     gx_system::CmdlineOptions& opt;
     gx_engine::paramlist plist;
     gx_engine::ControllerArray *m;
-    gx_engine::GxJConvSettings *jcset;
     UnitRacks& rack_units;
 private:
     void read_parameters(gx_system::JsonParser &jp, bool preset);

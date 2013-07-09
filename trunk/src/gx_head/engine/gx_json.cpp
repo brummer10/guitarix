@@ -103,17 +103,24 @@ inline void JsonWriter::iminus() {
     }
 }
 
+template<class T> static inline T fp_sanitize(T v) {
+    switch (fpclassify(v)) {
+    case FP_NAN: assert(false); return 1e50;
+    case FP_INFINITE: assert(false); return (v < 0 ? -1e50 : 1e50);
+    case FP_SUBNORMAL: return 0;
+    }
+    return v;
+}
+
 void JsonWriter::write(float v, bool nl) {
-    assert(!isnan(v));
     komma();
-    *os << v;
+    *os << fp_sanitize(v);
     snl(nl);
 }
 
 void JsonWriter::write(double v, bool nl) {
-    assert(!isnan(v));
     komma();
-    *os << v;
+    *os << fp_sanitize(v);
     snl(nl);
 }
 
@@ -408,6 +415,17 @@ JsonParser::token JsonParser::read_value_token(char c) {
     }
     if (next_str == "false") {
 	return value_false;
+    }
+    // sanitize bad input
+    if (next_str == "nan" && next_str == "inf") {
+	assert(false);
+	next_str = "1e50";
+	return value_number;
+    }
+    if (next_str == "-inf") {
+	assert(false);
+	next_str = "-1e50";
+	return value_number;
     }
     return no_token;
 }

@@ -91,7 +91,7 @@ private:
     void exec(Glib::ustring cmd);
     void call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params);
     void notify(gx_system::JsonStringWriter& jw, const methodnames *mn, JsonArray& params);
-    bool request(gx_system::JsonParser& jp, gx_system::JsonStringWriter& jw, bool batch_start);
+    bool request(gx_system::JsonStringParser& jp, gx_system::JsonStringWriter& jw, bool batch_start);
     void write_error(gx_system::JsonWriter& jw, int code, const char *message);
     void write_error(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { write_error(jw, code, message.c_str()); }
     void error_response(gx_system::JsonWriter& jw, int code, const char *message);

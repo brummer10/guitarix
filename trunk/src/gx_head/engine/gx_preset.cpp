@@ -46,7 +46,6 @@ PresetIO::PresetIO(gx_engine::MidiControllerList& mctrl_,
       opt(opt_),
       plist(),
       m(0),
-      jcset(0),
       rack_units(rack_units_) {
 }
 
@@ -58,8 +57,6 @@ void PresetIO::clear() {
     plist.clear();
     delete m;
     m = 0;
-    delete jcset;
-    jcset = 0;
 }
 
 bool PresetIO::midi_in_preset() {
@@ -169,11 +166,41 @@ UnitPositionID::UnitPositionID(const string& id_, const UnitPosition& u)
     weight(position - 1000 * pp) {
 }
 
-void UnitsCollector::get_list(std::vector<std::string>& l, bool stereo) {
+void UnitsCollector::get_list(std::vector<std::string>& l, bool stereo, gx_engine::ParamMap& param) {
     std::vector<UnitPositionID> v;
     for (std::map<std::string,UnitPosition>::iterator i = m.begin(); i != m.end(); ++i) {
+	if (i->first == "jconv" && i->second.position < 0) {
+	    i->second.position = 99; // very old presets
+	    gx_system::JsonStringParser jp;
+	    jp.get_ostream() << i->second.position;
+	    jp.start_parser();
+	    param[i->first+".position"].readJSON_value(jp);
+	}
+	if (i->first == "cab") {
+	    if (i->second.position < 0) {
+		i->second.position = 98; // very old presets
+		gx_system::JsonStringParser jp;
+		jp.get_ostream() << i->second.position;
+		jp.start_parser();
+		param[i->first+".position"].readJSON_value(jp);
+	    }
+	    if (i->second.pp < 0) {
+		i->second.pp = 0;
+		gx_system::JsonStringParser jp;
+		jp.get_ostream() << i->second.pp;
+		jp.start_parser();
+		param[i->first+".pp"].readJSON_value(jp);
+	    }
+	}
 	if (i->second.position >= 0 && i->second.show) {
 	    if ((stereo && i->second.pp < 0) || (!stereo && i->second.pp >= 0)) {
+		if (!i->second.visible) { // make sure ui.XX is set for old presets
+		    i->second.visible = true;
+		    gx_system::JsonStringParser jp;
+		    jp.put('1');
+		    jp.start_parser();
+		    param["ui."+i->first].readJSON_value(jp);
+		}
 		v.push_back(UnitPositionID(i->first, i->second));
 	    }
 	}
@@ -293,7 +320,9 @@ void PresetIO::collectRackOrder(gx_engine::Parameter *p, gx_system::JsonParser &
     const std::string& s = p->id();
     if (startswith(s, 3, "ui.")) {
 	if (jp.current_value_int()) {
-	    u.set_show(s.substr(3), true);
+	    std::string ss = s.substr(3);
+	    u.set_visible(ss, true);
+	    u.set_show(ss, true);
 	}
     } else if (endswith(s, 7, ".on_off")) {
 	if (jp.current_value_int()) {
@@ -351,8 +380,8 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
 	collectRackOrder(p, jp, u);
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
-    u.get_list(rack_units.mono, false);
-    u.get_list(rack_units.stereo, true);
+    u.get_list(rack_units.mono, false, param);
+    u.get_list(rack_units.stereo, true, param);
 }
 
 void PresetIO::write_parameters(gx_system::JsonWriter &w, bool preset) {
@@ -399,8 +428,7 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
         if (jp.current_value() == "engine") {
             read_parameters(jp, true);
         } else if (jp.current_value() == "jconv") { // for backwards compatibility
-	    jcset = new gx_engine::GxJConvSettings();
-	    jcset->readJSON(jp, &opt.get_IR_pathlist());
+	    dynamic_cast<gx_engine::JConvParameter*>(&param["jconv.convolver"])->readJSON_value(jp);
         } else if (jp.current_value() == "midi_controller") {
             if (use_midi) {
                 m = new gx_engine::ControllerArray();
@@ -423,9 +451,6 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
 }
 
 void PresetIO::commit_preset() {
-    if (jcset) {
-	convolver.set(*jcset);
-    }
     for (gx_engine::paramlist::iterator i = plist.begin(); i != plist.end(); ++i) {
         (*i)->setJSON_value();
     }

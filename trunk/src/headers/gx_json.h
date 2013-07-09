@@ -192,7 +192,7 @@ class JsonParser {
 
 class JsonSubParser: public JsonParser {
 private:
-    streampos position;
+    std::streampos position;
 public:
     JsonSubParser(JsonParser& jp, streampos pos);
     ~JsonSubParser();
@@ -200,10 +200,11 @@ public:
 
 class JsonStringParser: public JsonParser {
 private:
-    stringstream stream;
+    std::stringstream stream;
 public:
     JsonStringParser() {}
     void put(char c) { stream.put(c); }
+    std::ostream& get_ostream() { return stream; }
     void start_parser() { stream.seekg(0); set_stream(&stream); }
     std::string get_string() { return stream.str(); }
     void reset() { stream.str(""); JsonParser::reset(); }
