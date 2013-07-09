@@ -578,9 +578,8 @@ ParameterGroups& get_group_table() {
     return groups;
 }
 
-string param_group(const string& id, bool nowarn) {
+string param_group(const string& group_id, bool nowarn) {
     static ParameterGroups& groups = get_group_table();
-    const string& group_id = id.substr(0, id.find_last_of("."));
     if (nowarn) {
         return groups.get(group_id);
     } else {

@@ -751,6 +751,7 @@ private:
     void on_show_midi_out();
     void on_show_midi_out_plug();
     void on_midi_out_channel_toggled(Gtk::RadioButton *rb, Gtk::Container *c);
+    void on_livetuner_toggled();
     Gtk::ToolItemGroup *add_plugin_category(const char *cat, bool collapse = true);
     Glib::ustring add_plugin_menu_entry(PluginUI *pui);
     void register_plugin(PluginUI *pui);

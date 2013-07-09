@@ -88,7 +88,7 @@ in_word_set (register const char *str, register unsigned int len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 77,
+      TOTAL_KEYWORDS = 76,
       MIN_WORD_LENGTH = 3,
       MAX_WORD_LENGTH = 27,
       MIN_HASH_VALUE = 3,
@@ -186,8 +186,7 @@ in_word_set (register const char *str, register unsigned int len)
       {"tuner_switcher_activate", RPNM_tuner_switcher_activate},
       {""},
       {"tuner_switcher_deactivate", RPNM_tuner_switcher_deactivate},
-      {"tuner_used_for_livedisplay", RPNM_tuner_used_for_livedisplay},
-      {""},
+      {""}, {""},
       {"bank_check_reparse", RPCM_bank_check_reparse},
       {""},
       {"bank_insert_new", RPCM_bank_insert_new},
@@ -290,7 +289,6 @@ const jsonrpc_method_def jsonrpc_method_list[] = {
 	{ "get_tuner_freq", true },
 	{ "switch_tuner", false },
 	{ "tuner_used_for_display", false },
-	{ "tuner_used_for_livedisplay", false },
 	{ "get_max_input_level", true },
 	{ "get_max_output_level", true },
 	{ "set_oscilloscope_mul_buffer", false },

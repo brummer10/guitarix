@@ -66,7 +66,6 @@ enum jsonrpc_method {
 	RPCM_get_tuner_freq,
 	RPNM_switch_tuner,
 	RPNM_tuner_used_for_display,
-	RPNM_tuner_used_for_livedisplay,
 	RPCM_get_max_input_level,
 	RPCM_get_max_output_level,
 	RPNM_set_oscilloscope_mul_buffer,

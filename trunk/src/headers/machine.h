@@ -92,7 +92,6 @@ public:
     virtual sigc::signal<void,GxEngineState>& signal_state_change() = 0;
     sigc::signal<void,MidiAudioBuffer::Load>& signal_jack_load_change() { return jack_load_change; }
     virtual void tuner_used_for_display(bool on) = 0;
-    virtual void tuner_used_for_livedisplay(bool on) = 0;
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type) = 0;
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed() = 0;
     virtual void remove_rack_unit(const std::string& unit, PluginType type) = 0;
@@ -267,7 +266,6 @@ public:
     virtual void stop_socket();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
     virtual void tuner_used_for_display(bool on);
-    virtual void tuner_used_for_livedisplay(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed();
     virtual void remove_rack_unit(const std::string& unit, PluginType type);
@@ -442,7 +440,6 @@ public:
     virtual void stop_socket();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
     virtual void tuner_used_for_display(bool on);
-    virtual void tuner_used_for_livedisplay(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed();
     virtual void remove_rack_unit(const std::string& unit, PluginType type);

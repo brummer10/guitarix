@@ -655,7 +655,7 @@ void IRWindow::on_preset_popup_clicked() {
 	name.erase(n);
     }
     save_state();
-    new PluginPresetPopup(machine.pluginlist_lookup_plugin(jcp->id())->get_pdef(), machine, name);
+    new PluginPresetPopup(machine.pluginlist_lookup_plugin(jcp->group_id())->get_pdef(), machine, name);
 }
 
 void IRWindow::on_help_clicked() {

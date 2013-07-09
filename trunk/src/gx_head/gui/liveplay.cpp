@@ -324,17 +324,6 @@ Liveplay::Liveplay(
     cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.live_play->gobj()), 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Escape, (GdkModifierType)0, (GtkAccelFlags)0, cl);
 
-    actions.group->add(
-	actions.livetuner,
-	sigc::compose(
-	    sigc::mem_fun(this, &Liveplay::display_tuner),
-	    sigc::mem_fun(actions.livetuner.operator->(), &Gtk::ToggleAction::get_active)));
-    if (actions.livetuner->get_active()) {
-	machine.tuner_used_for_livedisplay(true);
-	display_tuner(true);
-    } else {
-	display_tuner(false);
-    }
     cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.livetuner->gobj()), 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_Return, (GdkModifierType)0, (GtkAccelFlags)0, cl);
 
@@ -452,6 +441,7 @@ void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
 	machine.tuner_switcher_deactivate();
 	window->hide();
     }
+    actions.livetuner->toggled();
 }
 
 bool Liveplay::window_expose_event(GdkEventExpose *event) {
@@ -484,14 +474,7 @@ void Liveplay::on_background_changed() {
 }
 
 void Liveplay::display_tuner(bool v) {
-    //tuner->set_sensitive(v);
-    Gtk::Widget *p = tuner->get_parent();
-    if (!v) {
-	Gtk::Requisition r;
-	p->size_request(r);
-	p->set_size_request(r.width, r.height);
-	p->queue_draw(); // bug in GxRackTuner? sometimes still visible when tuner was active
-    }
+    tuner->set_sensitive(v);
     tuner->set_visible(v);
 }
 

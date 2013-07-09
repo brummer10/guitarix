@@ -138,7 +138,7 @@ void GxMachine::on_jack_load_change() {
 
 void GxMachine::edge_toggle_tuner(bool v) {
     if (v) {
-	tuner_switcher.toggle(engine.tuner.used_for_livedisplay());
+	tuner_switcher.toggle(engine.tuner.used_for_display());
     }
 }
 
@@ -310,10 +310,6 @@ sigc::signal<void,GxEngineState>& GxMachine::signal_state_change() {
 
 void GxMachine::tuner_used_for_display(bool on) {
     engine.tuner.used_for_display(on);
-}
-
-void GxMachine::tuner_used_for_livedisplay(bool on) {
-    engine.tuner.used_for_livedisplay(on);
 }
 
 const std::vector<std::string>& GxMachine::get_rack_unit_order(PluginType type) {
@@ -1571,12 +1567,6 @@ sigc::signal<void,GxEngineState>& GxMachineRemote::signal_state_change() {
 
 void GxMachineRemote::tuner_used_for_display(bool on) {
     START_NOTIFY(tuner_used_for_display);
-    jw->write(on);
-    SEND();
-}
-
-void GxMachineRemote::tuner_used_for_livedisplay(bool on) {
-    START_NOTIFY(tuner_used_for_livedisplay);
     jw->write(on);
     SEND();
 }

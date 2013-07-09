@@ -64,7 +64,6 @@ G_DEFINE_TYPE(GxRackTuner, gx_rack_tuner, GX_TYPE_TUNER);
 
 static void gx_rack_tuner_map(GtkWidget*);
 static void gx_rack_tuner_unmap(GtkWidget*);
-static gboolean gx_rack_tuner_visibility_notify_event(GtkWidget*, GdkEventVisibility*);
 static void gx_rack_tuner_state_changed(GtkWidget*, GtkStateType);
 static gboolean gx_rack_tuner_freq_poll_handler(gpointer);
 static gboolean gx_rack_tuner_configure_event(GtkWidget*, GdkEventConfigure*);
@@ -82,7 +81,6 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 	widget_class->size_request = gx_rack_tuner_size_request;
 	widget_class->map = gx_rack_tuner_map;
 	widget_class->unmap = gx_rack_tuner_unmap;
-	widget_class->visibility_notify_event = gx_rack_tuner_visibility_notify_event;
 	widget_class->state_changed = gx_rack_tuner_state_changed;
 	widget_class->configure_event = gx_rack_tuner_configure_event;
 	klass->frequency_poll = 0;
@@ -172,11 +170,8 @@ static void gx_rack_tuner_init (GxRackTuner *tuner)
 	tuner->strng = 0;
 	// caculated layout
 	tuner->led_count = 0;
-    tuner->width = 0;
-    tuner->padding = 0;
-
-	// visibility-notify-event event needs BUTTON_MOTION instead of VISIBILITY_NOTIFY??
-	gtk_widget_add_events(GTK_WIDGET(tuner), GDK_BUTTON_MOTION_MASK|GDK_VISIBILITY_NOTIFY_MASK);
+	tuner->width = 0;
+	tuner->padding = 0;
 }
 
 static void gx_rack_tuner_destroy(GtkObject *object)
@@ -448,24 +443,14 @@ static void gx_rack_tuner_check_poll(GxRackTuner *tuner)
 
 static void gx_rack_tuner_map(GtkWidget *widget)
 {
-	gx_rack_tuner_check_poll(GX_RACK_TUNER(widget));
 	GTK_WIDGET_CLASS(gx_rack_tuner_parent_class)->map(widget);
+	gx_rack_tuner_check_poll(GX_RACK_TUNER(widget));
 }
 
 static void gx_rack_tuner_unmap(GtkWidget *widget)
 {
 	GTK_WIDGET_CLASS(gx_rack_tuner_parent_class)->unmap(widget);
 	gx_rack_tuner_remove_handler(GX_RACK_TUNER(widget));
-}
-
-static gboolean gx_rack_tuner_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *ev)
-{
-	if (ev->state == GDK_VISIBILITY_FULLY_OBSCURED) {
-		gx_rack_tuner_remove_handler(GX_RACK_TUNER(widget));
-	} else {
-		gx_rack_tuner_check_poll(GX_RACK_TUNER(widget));
-	}
-	return FALSE;
 }
 
 static void gx_rack_tuner_state_changed(GtkWidget *widget, GtkStateType oldstate)

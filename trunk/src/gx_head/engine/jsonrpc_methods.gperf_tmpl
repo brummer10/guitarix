@@ -131,7 +131,6 @@ struct CmdConnection::methodnames;
 "get_tuner_freq", true
 "switch_tuner", false
 "tuner_used_for_display", false
-"tuner_used_for_livedisplay", false
 
 
 /* Level Meter */

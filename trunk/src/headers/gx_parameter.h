@@ -52,7 +52,7 @@ class ParameterGroups {
     map<string, bool> used;
     void group_exists(const string& id);
     void group_is_new(const string& id);
-    friend string param_group(const string& id, bool nowarn);
+    friend string param_group(const string& group_id, bool nowarn);
 #endif
 
  public:
@@ -83,7 +83,7 @@ class ParameterGroups {
 
 
 ParameterGroups& get_group_table();
-string param_group(const string& id, bool nowarn = false);
+string param_group(const string& group_id, bool nowarn = false);
 
 /****************************************************************
  ** Parameter
@@ -126,12 +126,13 @@ protected:
     void range_warning(float value, float lower, float upper);
     static gx_system::JsonParser& jp_next(gx_system::JsonParser& jp, const char *key);
 public:
+    inline std::string group_id() const { return _id.substr(0, _id.find_last_of(".")); }
     Parameter(const string& id, const string& name, value_type vtp, ctrl_type ctp, bool preset,
               bool ctrl):
 	boost::noncopyable(),
         _id(id),
         _name(name),
-        _group(param_group(id)),
+        _group(param_group(group_id())),
         _desc(),
         v_type(vtp),
         c_type(ctp),

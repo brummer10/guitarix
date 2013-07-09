@@ -991,7 +991,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
     }
 
     PROCEDURE(switch_tuner) {
-	serv.jack.get_engine().tuner.used_for_livedisplay(params[0]->getInt());
+	serv.jack.get_engine().tuner.used_for_display(params[0]->getInt());
 	serv.jack.get_engine().check_module_lists();
     }
 
@@ -1059,10 +1059,6 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(tuner_used_for_display) {
 	serv.jack.get_engine().tuner.used_for_display(params[0]->getInt());
-    }
-
-    PROCEDURE(tuner_used_for_livedisplay) {
-	serv.jack.get_engine().tuner.used_for_livedisplay(params[0]->getInt());
     }
 
     PROCEDURE(clear_oscilloscope_buffer) {

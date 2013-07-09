@@ -463,11 +463,8 @@ void MainWindow::maybe_shrink_horizontally(bool preset_no_rack) {
 
 void MainWindow::on_show_tuner() {
     bool v = actions.tuner->get_active();
-    if (v) {
-	tunerbox->show();
-    } else {
-	tunerbox->hide();
-    }
+    on_livetuner_toggled();
+    tunerbox->set_visible(v);
     update_scrolled_window(*vrack_scrolledbox);
 }
 
@@ -1368,6 +1365,28 @@ void MainWindow::on_midi_out_channel_toggled(Gtk::RadioButton *rb, Gtk::Containe
     c->set_visible(rb->get_active());
 }
 
+void MainWindow::on_livetuner_toggled() {
+    if (actions.livetuner->get_active()) {
+	if (actions.live_play->get_active()) {
+	    live_play->display_tuner(true);
+	    racktuner->set_sensitive(false);
+	    machine.tuner_used_for_display(true);
+	} else {
+	    live_play->display_tuner(false);
+	    if (actions.tuner->get_active()) {
+		racktuner->set_sensitive(true);
+		machine.tuner_used_for_display(true);
+ 	    } else {
+		machine.tuner_used_for_display(false);
+	    }
+	}
+    } else {
+	live_play->display_tuner(false);
+	racktuner->set_sensitive(false);
+	machine.tuner_used_for_display(false);
+    }
+}
+
 void MainWindow::create_actions() {
     gx_jack::GxJack *jack = machine.get_jack();
     actions.group = Gtk::ActionGroup::create("Main");
@@ -1462,6 +1481,9 @@ void MainWindow::create_actions() {
 
     actions.livetuner = UiBoolToggleAction::create(
 	machine, "ui.racktuner", "LiveTuner", "??");
+    actions.group->add(actions.livetuner);
+    actions.livetuner->signal_toggled().connect(
+	sigc::mem_fun(this, &MainWindow::on_livetuner_toggled));
 
     actions.midi_out = UiBoolToggleAction::create(
 	machine, "ui.midi_out", "MidiOut", _("M_idi Out"));
@@ -2721,6 +2743,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     ** setup window initial configuration
     */
     tunerbox->set_visible(machine.get_parameter_value<bool>("system.show_tuner"));
+    racktuner->set_sensitive(machine.get_parameter_value<bool>("ui.racktuner"));
     actions.show_plugin_bar->set_active(false);
 
     /*
@@ -2729,7 +2752,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     live_play = new Liveplay(options, machine, options.get_builder_filepath("mainpanel.glade"), actions);
     setup_tuner(live_play->get_tuner());
     live_play->get_tuner().signal_poll_status_changed().connect(
-	sigc::mem_fun1(machine, &gx_engine::GxMachineBase::tuner_used_for_livedisplay));
+	sigc::mem_fun1(machine, &gx_engine::GxMachineBase::tuner_used_for_display));
 
     /*
     ** init logging window and logstate image widget
