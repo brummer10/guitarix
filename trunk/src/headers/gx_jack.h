@@ -137,7 +137,11 @@ class GxJack: public sigc::trackable {
     string              client_instance;
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
+    Glib::Dispatcher    xrun;
     float               last_xrun;
+    bool                xrun_msg_blocked;
+    void report_xrun_clear();
+    void report_xrun();
     void write_jack_port_connections(
 	gx_system::JsonWriter& w, const char *key, const PortConnection& pc, bool replace=false);
     std::string make_clientvar(const std::string& s);
@@ -177,7 +181,6 @@ public:
     const string&       get_instancename() { return client_instance; }
     string              client_name;
     string              client_insert_name;
-    Glib::Dispatcher    xrun;
     Glib::Dispatcher    session;
     Glib::Dispatcher    session_ins;
     Glib::Dispatcher    shutdown;

@@ -2482,7 +2482,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       pixbuf_log_grey(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_grey.png"))),
       pixbuf_log_yellow(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_yellow.png"))),
       pixbuf_log_red(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_red.png"))),
-      report_xrun(machine),
       in_session(false),
       status_icon(Gtk::StatusIcon::create(gx_head_icon)),
       gx_head_midi(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-midi.png"))),
@@ -2579,7 +2578,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     gx_jack::GxJack::rt_watchdog_set_limit(options.get_idle_thread_timeout());
     gx_jack::GxJack *jack = machine.get_jack();
     if (jack) {
-	jack->xrun.connect(sigc::mem_fun(report_xrun, &gx_gui::ReportXrun::run));
 	jack->shutdown.connect(sigc::mem_fun(*this, &MainWindow::gx_jack_is_down));
 	jack->signal_buffersize_change().connect(
 	    sigc::mem_fun(*this, &MainWindow::set_latency));

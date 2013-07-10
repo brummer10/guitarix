@@ -214,19 +214,6 @@ UiSelectorWithCaption<T>::~UiSelectorWithCaption() {
 
 /****************************************************************/
 
-class ReportXrun {
-private:
-    gx_engine::GxMachineBase& machine;
-    bool blocked;
-    void clear();
-public:
-    ReportXrun(gx_engine::GxMachineBase& machine_)
-	: machine(machine_), blocked(false) {}
-    void run();
-};
-
-/****************************************************************/
-
 struct uiAdjustment: public uiElement {
     gx_engine::GxMachineBase& machine;
     const std::string id;

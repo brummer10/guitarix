@@ -113,13 +113,14 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       client_instance(),
       jack_sr(),
       jack_bs(),
+      xrun(),
       last_xrun(0),
+      xrun_msg_blocked(false),
       ports(),
       client(0),
       client_insert(0),
       client_name(),
       client_insert_name(),
-      xrun(),
       session(),
       session_ins(),
       shutdown(),
@@ -839,6 +840,22 @@ void GxJack::shutdown_callback_client_insert(void *arg) {
 	self.client_change_rt();
     }
     self.gx_jack_shutdown_callback();
+}
+
+void GxJack::report_xrun_clear() {
+    xrun_msg_blocked = false;
+}
+
+void GxJack::report_xrun() {
+    if (xrun_msg_blocked) {
+	return;
+    }
+    xrun_msg_blocked = true;
+    Glib::signal_timeout().connect_once(
+	sigc::mem_fun(this, &GxJack::report_xrun_clear), 100);
+    gx_print_warning(
+	_("Jack XRun"),
+	(boost::format(_(" delay of at least %1% microsecs")) % last_xrun).str());
 }
 
 // ---- jack xrun callback

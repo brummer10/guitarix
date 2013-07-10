@@ -590,7 +590,6 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_grey;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_yellow;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_red;
-    gx_gui::ReportXrun report_xrun;
     bool in_session;
     Glib::RefPtr<Gtk::StatusIcon> status_icon;
     Glib::RefPtr<Gdk::Pixbuf> gx_head_midi;

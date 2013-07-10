@@ -132,30 +132,6 @@ void SelectJackControlPgm::on_cancel_button() {
 }
 
 /****************************************************************
- ** ReportXrun
- */
-
-void ReportXrun::clear() {
-    blocked = false;
-}
-
-void ReportXrun::run() {
-    if (blocked) {
-	return;
-    }
-    blocked = true;
-    gx_jack::GxJack *jack = machine.get_jack();
-    if (!jack) {
-	return;
-    }
-    Glib::signal_timeout().connect_once(sigc::mem_fun(*this, &ReportXrun::clear), 100);
-    gx_print_warning(
-	_("Jack XRun"),
-	(boost::format(_(" delay of at least %1% microsecs"))
-	 % jack->get_last_xrun()).str());
-}
-
-/****************************************************************
  ** Jackstart Dialog
  */
 
