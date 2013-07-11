@@ -247,24 +247,6 @@ void StackBoxBuilder::make_rackbox_IR() {
     closeBox();
 }
 
-void StackBoxBuilder::make_rackbox_compressor() {
-    // ----- the compressor
-    openHorizontalhideBox("");
-    create_master_slider("compressor.ratio", _("ratio"));
-    closeBox();
-    openHorizontalTableBox("");
-    {
-	create_small_rackknob("compressor.knee", _("knee"));
-	create_small_rackknobr("compressor.ratio", _("ratio"));
-	create_small_rackknob("compressor.threshold", _("threshold"));
-
-
-	create_small_rackknob("compressor.attack", _("attack"));
-	create_small_rackknob("compressor.release", _("release"));
-    }
-    closeBox();
-}
-
 void StackBoxBuilder::make_rackbox_peak_eq() {
     // ----- the compressor
     openHorizontalhideBox("");

@@ -181,7 +181,6 @@ void StackBoxBuilder::get_box(const std::string& name, Gtk::Widget*& mainbox, Gt
 	//{ "crybaby", &StackBoxBuilder::make_rackbox_crybaby },
 	//{ "gx_distortion", &StackBoxBuilder::make_rackbox_gx_distortion },
 	{ "IR", &StackBoxBuilder::make_rackbox_IR },
-	{ "compressor", &StackBoxBuilder::make_rackbox_compressor },
 	{ "expander", &StackBoxBuilder::make_rackbox_expander },
 	{ "biquad", &StackBoxBuilder::make_rackbox_biquad },
 	//{ "tremolo", &StackBoxBuilder::make_rackbox_tremolo },
