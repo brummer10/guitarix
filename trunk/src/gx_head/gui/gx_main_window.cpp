@@ -2723,6 +2723,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     gx_gui::connect_midi_controller(status_image->get_parent(), "engine.mute", machine);
     status_image->get_parent()->signal_button_press_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_toggle_mute));
+    on_engine_state_change(machine.get_state());
 
     /*
     ** connect buttons with actions
