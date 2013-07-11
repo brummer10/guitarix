@@ -11,6 +11,9 @@ import("guitarix.lib");
 
 //------------------------- Process --------------------------------
 
+// lower bands (up to 125 Hz) suffer from numerical cancellation
+// when using single precision.
+// vectorization makes code slower (tested on ARM NEON).
 
 process =   ifilter(vslider("Qs31_25", 50, 1, 100, 1),
                     vslider("freq31_25 [tooltip:Hz]",31., 20, 20000, 1),

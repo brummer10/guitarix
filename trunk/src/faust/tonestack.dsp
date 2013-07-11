@@ -1,5 +1,7 @@
 //tonestack selector
 
+// use double precision, single precision suffers from numerical cancellation.
+
 declare id 		"tonestack_imp";
 
 import("filter.lib");
