@@ -143,8 +143,8 @@ void JsonWriter::write_lit(const string& s, bool nl) {
 }
 
 void JsonWriter::write(const char* p, bool nl) {
-    komma();
     if (p) {
+	komma();
 	*os << '"';
 	for (; *p; p++) {
 	    switch (*p) {
