@@ -28,4 +28,4 @@ Map(x) = x * a : max(0) : min(1) ;
 //amp_follower_ud(att,rel) = amp_follower(rel) : smooth(tau2pole(att));
 
 //process(x) = x : _<:*(d),(*(w):*(l) :crybaby(x : Average(1000) : Map)):>_ ;
-process(x) = x : _<:*(d),(*(w):*(l) :a * crybaby(x : amp_follower_ud(0.01,0.1)) + (1.0-a) * x):>_ ;
+process(x) = x : _<:*(d),(*(w):*(l) :a * crybaby(x : amp_follower_ud(0.01,0.1) : min(1)) + (1.0-a) * x):>_ ;
