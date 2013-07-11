@@ -16,99 +16,134 @@ enyo.kind({
 	    return;
 	}
 	guitarix.call(
-	    "queryunit", [this.fxId],
+	    "plugin_load_ui", [this.fxId],
 	    this, function(result) {
-		var name, o, a, i, id, nm, el;
-		var m = this.fxId+"\\.(position|s_h|on_off|pp)$";
-		a = [];
-		if (this.fxId != "ampstack") {
-		    id = this.fxId+".on_off"
-		    o = result[id];
-		    if (o !== undefined) {
-			o.id = id;
-			a.push(o);
-		    }
-		}
-		for (id in result) {
-		    if (id.match(m)) {
-			continue;
-		    }
-		    o = result[id]
-		    o.id = id
-		    a.push(o);
-		}
-		for (i = 0; i < a.length; i++) {
-		    o = a[i];
-		    name = o.name;
-		    if (!name) {
-			name = o.id;
-		    }
-		    nm = "eff_"+o.id;
-		    if (o.ctl_switch) {
-			this.createComponent({
-			    components: [
-				{content: name},
-				{kind: "onyx.ToggleButton",
-				 name: nm,
-				 value: o.value[o.id],
-				 obj: o,
-				}],
-			});
-			el = this.$[nm];
-			this.control_setter[o.id] = enyo.bind(el, el.setValue);
-		    } else if (o.ctl_enum) {
-			var c = [];
-			var v = o.value[o.id];
-			for (var j = 0; j < o.value_names.length; j++) {
-			    var p = o.value_names[j];
-			    var s = {content: p[1], key: p[0]};
-			    if (p[0] == v) {
-				s.active = true;
+		this.uidesc = result;
+		guitarix.call(
+		    "queryunit", [this.fxId],
+		    this, function(result) {
+			var name, o, a, i, id, nm, el;
+			a = [];
+			if (this.fxId != "ampstack") {
+			    id = this.fxId+".on_off"
+			    o = result[id];
+			    if (o !== undefined) {
+				o.id = id;
+				a.push(o);
 			    }
-			    c.push(s);
 			}
-			this.createComponent({
-			    components: [
-				{content: name},
-				{kind: "onyx.PickerDecorator", components: [
-				    {},
-				    {kind: "onyx.Picker",
-				     name: nm,
-				     components: c,
-				     obj: o,
-				     setValue: function(v) {
-					 var cc = this.getClientControls();
-					 for (var i = 0; i < cc.length; i++) {
-					     if (i == v) {
-						 cc[i].setActive(true);
-					     }
-					 }
-				     },
-				    }],
-				}],
-			});
-			el = this.$[nm];
-			this.control_setter[o.id] = enyo.bind(el, el.setValue);
-		    } else {
-			this.createComponent({
-			    components: [
-				{content: name},
-				{kind: "onyx.Slider",
-				 name: nm,
-				 lockBar: true,
-				 tappable: true,
-				 value: o.value[o.id],
-				 min: o.lower_bound,
-				 max: o.upper_bound,
-				 obj: o,
-				}],
-			});
-			el = this.$[nm];
-			this.control_setter[o.id] = enyo.bind(el, el.setValue);
-		    }
-		}
-		this.render();
-		this.setupDone = true;
+			if (this.uidesc === null) {
+			    var m = this.fxId+"\\.(position|s_h|on_off|pp)$";
+			    for (id in result) {
+				if (id.match(m)) {
+				    continue;
+				}
+				o = result[id]
+				o.id = id
+				a.push(o);
+			    }
+			} else {
+			    // skip minibox definition
+			    i = 0;
+			    if (this.uidesc[0][0].match("open")) {
+				var level = 1;
+				for (i = 1; i < this.uidesc.length; i++) {
+				    if (this.uidesc[i][0].match("open")) {
+					level++;
+				    } else if (this.uidesc[i][0] == "closeBox") {
+					if (level == 1) {
+					    break;
+					}
+					level--;
+				    }
+				}
+			    }
+			    // main box
+			    for (; i < this.uidesc.length; i++) {
+				var vec = this.uidesc[i];
+				if (vec[0].match("create_")) {
+				    o = result[vec[1]];
+				    o.id = vec[1];
+				    if (vec.length > 2 && vec[2] !== null) {
+					o.name = vec[2];
+				    }
+				    a.push(o);
+				}
+			    }
+			}
+			for (i = 0; i < a.length; i++) {
+			    o = a[i];
+			    name = o.name;
+			    if (!name) {
+				name = o.id;
+			    }
+			    nm = "eff_"+o.id;
+			    if (o.ctl_switch) {
+				this.createComponent({
+				    components: [
+					{content: name},
+					{kind: "onyx.ToggleButton",
+					 name: nm,
+					 value: o.value[o.id],
+					 obj: o,
+					}],
+				});
+				el = this.$[nm];
+				this.control_setter[o.id] = enyo.bind(el, el.setValue);
+			    } else if (o.ctl_enum) {
+				var c = [];
+				var v = o.value[o.id];
+				for (var j = 0; j < o.value_names.length; j++) {
+				    var p = o.value_names[j];
+				    var s = {content: p[1], key: p[0]};
+				    if (p[0] == v) {
+					s.active = true;
+				    }
+				    c.push(s);
+				}
+				this.createComponent({
+				    components: [
+					{content: name},
+					{kind: "onyx.PickerDecorator", components: [
+					    {},
+					    {kind: "onyx.Picker",
+					     name: nm,
+					     components: c,
+					     obj: o,
+					     setValue: function(v) {
+						 var cc = this.getClientControls();
+						 for (var i = 0; i < cc.length; i++) {
+						     if (i == v) {
+							 cc[i].setActive(true);
+						     }
+						 }
+					     },
+					    }],
+					}],
+				});
+				el = this.$[nm];
+				this.control_setter[o.id] = enyo.bind(el, el.setValue);
+			    } else {
+				this.createComponent({
+				    components: [
+					{content: name},
+					{kind: "onyx.Slider",
+					 name: nm,
+					 lockBar: true,
+					 tappable: true,
+					 value: o.value[o.id],
+					 min: o.lower_bound,
+					 max: o.upper_bound,
+					 obj: o,
+					}],
+				});
+				el = this.$[nm];
+				this.control_setter[o.id] = enyo.bind(el, el.setValue);
+			    }
+			}
+			this.render();
+			this.setupDone = true;
+		    });
 	    });
     },
     setupDone: false,
