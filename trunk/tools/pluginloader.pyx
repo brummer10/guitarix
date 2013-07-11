@@ -1,5 +1,4 @@
 from cython.operator cimport dereference as deref, preincrement as inc
-import numpy as np
 cimport numpy as np
 
 cdef extern from "dlfcn.h":
@@ -29,7 +28,7 @@ cdef extern from "gx_plugin.h":
         char *id
         char *name
         float *var
-        float *uvar
+        int   *ivar
         float val
         float low
         float up
@@ -142,7 +141,8 @@ cdef class Plugin:
         return self.d[key]
 
     cdef get_vp_list(self, Var *p):
-        cdef const_value_pair_ptr vp = p.values
+        # typecast needed because assignment uses variable without const internally (bug?)
+        cdef const_value_pair_ptr vp = <value_pair*>p.values
         if not vp:
             return []
         l = []
@@ -160,11 +160,11 @@ cdef class Plugin:
             raise KeyError("not found: %s" % pname)
         if deref(p).second.var:
             return deref(p).second.var[0]
-        if deref(p).second.uvar:
-            return deref(p).second.uvar[0]
+        if deref(p).second.ivar:
+            return deref(p).second.ivar[0]
         assert(False)
 
-    def __setitem__(self, char* pname, float pval):
+    def __setitem__(self, char* pname, pval):
         cdef variter p = self.varmap[0].find(pname)
         if p == self.varmap[0].end():
             raise KeyError("not found: %s" % pname)
@@ -174,8 +174,8 @@ cdef class Plugin:
                 % (pname, pval, deref(p).second[0].low, deref(p).second[0].up))
         if deref(p).second[0].var:
             deref(p).second[0].var[0] = pval
-        elif deref(p).second[0].uvar:
-            deref(p).second[0].uvar[0] = pval
+        elif deref(p).second[0].ivar:
+            deref(p).second[0].ivar[0] = pval
         else:
             assert(False)
 
@@ -219,24 +219,24 @@ cdef class Plugin:
             raise ValueError("need ndarray")
         if inp.dtype != np.float32:
             raise ValueError("need float32")
-        cdef int count = inp.shape[inp.ndim-1]
+        cdef int count = np.PyArray_SHAPE(inp)[np.PyArray_NDIM(inp)-1]
         cdef timespec t0, t1
         cdef np.ndarray o
         if self.p[0].mono_audio:
-            if not inp.ndim == 1:
+            if not np.PyArray_NDIM(inp) == 1:
                 raise ValueError("need vector")
             o = np.empty(count,dtype=np.float32)
             clock_gettime(CLOCK_MONOTONIC, &t0)
-            self.p[0].mono_audio(count, <floatp>inp.data, <floatp>o.data, self.p)
+            self.p[0].mono_audio(count, <floatp>np.PyArray_DATA(inp), <floatp>np.PyArray_DATA(o), self.p)
             clock_gettime(CLOCK_MONOTONIC, &t1)
         elif self.p[0].stereo_audio:
-            if not (inp.ndim == 2 and inp.shape[1] >= 2):
+            if not (np.PyArray_NDIM(inp) == 2 and np.PyArray_SHAPE(inp)[1] >= 2):
                 raise ValueError("need 2-dim array with at least %d rows" % 2)
             o = np.empty((2,count),dtype=np.float32)
             clock_gettime(CLOCK_MONOTONIC, &t0)
             self.p[0].stereo_audio(
-                count, <floatp>(inp.data), <floatp>(inp.data+inp.strides[0]),
-                <floatp>(o.data), <floatp>(o.data+o.strides[0]), self.p)
+                count, <floatp>np.PyArray_DATA(inp), <floatp>(<char*>np.PyArray_DATA(inp)+np.PyArray_STRIDES(inp)[0]),
+                <floatp>np.PyArray_DATA(o), <floatp>(<char*>np.PyArray_DATA(o)+np.PyArray_STRIDES(o)[0]), self.p)
             clock_gettime(CLOCK_MONOTONIC, &t1)
         else:
             raise ValueError("no process function available")

@@ -19,7 +19,7 @@ For better controlled measurements you can disable frequency scaling
 and set cpu affinity:
 
 $ sudo cpufreq-set -d 800MHz -u 800MHz # or whatever your cpu supports
-$ GUITARIX_MEASURE=1 taskset -c 1 guitarix
+$ GUITARIX_MEASURE=1 taskset -c 0 guitarix
 
 
 2. Formatting of source code

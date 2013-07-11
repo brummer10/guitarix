@@ -5,15 +5,15 @@ struct Var {
     const char *id;
     const char *name;
     float *var;
-    unsigned int *uvar;
+    int *ivar;
     float val;
     float low;
     float up;
     const value_pair *values;
     Var(const char *_id, const char *_name, float *_var, float _val, float _low, float _up)
-	: id(_id), name(_name), var(_var), uvar(0), val(_val), low(_low), up(_up), values(0) { *var = val; }
-    Var(const char *_id, const char *_name, unsigned int *_uvar, int _val, int _low, int _up, const value_pair *_values)
-	: id(_id), name(_name), var(0), uvar(_uvar), val(_val), low(_low), up(_up), values(_values) { *uvar = _val; }
+	: id(_id), name(_name), var(_var), ivar(0), val(_val), low(_low), up(_up), values(0) { *var = val; }
+    Var(const char *_id, const char *_name, int *_ivar, int _val, int _low, int _up, const value_pair *_values)
+	: id(_id), name(_name), var(0), ivar(_ivar), val(_val), low(_low), up(_up), values(_values) { *ivar = _val; }
 };
 
 class VarMap: public std::map<std::string,Var*> {

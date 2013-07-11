@@ -8,5 +8,6 @@ opt="$(python-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
 opt="$opt -shared -fPIC -lrt"
 opt="$opt -Wall -Wno-unused-function -Wno-unused-but-set-variable"
 opt="$opt -I$tooldir -I$instdir/src/headers"
+#opt="$opt -DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION" # activate when cython is updated to new numpy api
 g++ -g $opt "$pl".cpp -o "$pl".so
 rm "$pl".cpp
