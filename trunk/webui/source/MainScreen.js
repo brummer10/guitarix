@@ -261,7 +261,7 @@ enyo.kind({
     display_level: function() {
 	this.timeout_handle = null;
 	guitarix.call(
-	    'get_max_output_level',[],
+	    'get_max_output_level',[2],
 	    this, function(result) {
 		var v = result[0] > result[1] ? result[0] : result[1];
 		if (v >= 1) {

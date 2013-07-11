@@ -37,6 +37,15 @@ enyo.kind({
 	s.setMax(o.upper_bound);
 	s.setValue(o.value[this.eff_value]);
     },
+    addSetter: function(d) {
+	var el;
+	if (this.eff_on_off !== undefined) {
+	    el = this.$.on_off;
+	    d[this.eff_on_off] = enyo.bind(el, el.changeValue);
+	}
+	el = this.$.slider;
+	d[this.eff_value] = enyo.bind(el, el.setValue);
+    },
     effSwitched: function(inSender, inEvent) {
 	guitarix.notify("set", [this.eff_on_off, (inEvent.value ? 1 : 0)]);
     },
@@ -61,6 +70,7 @@ enyo.kind({
 	    {name: "reverb", kind: "gx.SimpleEffectBox", head: "Reverb", eff_on_off: "amp.feed_on_off", eff_value: "amp.wet_dry"},
 	]}
     ],
+    control_setter: {},
     activateDrawer: function() {
         this.$.drawer.setOpen(!this.$.drawer.open);
     },
@@ -79,8 +89,15 @@ enyo.kind({
 	    var c = this.$.drawer.getClientControls();
 	    for (var i = 0; i < c.length; i++) {
 		c[i].setValues(result);
+		c[i].addSetter(this.control_setter);
 	    }
 	});
+    },
+    setParameter: function(param_id, value) {
+	var setter = this.control_setter[param_id];
+	if (setter !== undefined) {
+	    setter(value);
+	}
     },
 });
 
@@ -110,14 +127,14 @@ enyo.kind({
 	    this.addClass("gx-amp-box");
 	}
     },
+    setActive: function (v) {
+	this.$.state.changeValue(v);
+    },
     stateChanged: function(inSender, inEvent) {
 	guitarix.notify("set", [this.fx.id+".on_off", inEvent.value ? 1 : 0]);
     },
     deleteModule: function(inSender, inEvent) {
-	guitarix.notify("set", [this.fx.id+".on_off", 0]);
-	guitarix.notify("set", ["ui."+this.fx.id, 0]);
-	this.fx.on_off = 0;
-	this.fx.box_visible = 0;
+	guitarix.notify("remove_rack_unit", [this.fx.id, (this.stereo ? 1 : 0)]);
 	this.destroy();
     },
     displayUnit: function(inSender, inEvent) {
@@ -146,10 +163,12 @@ enyo.kind({
     sys_loadvar: null,
     stereo: false,
     effects: {},
+    control_setter: {},
     loadEffects: function() {
 	guitarix.call(
 	    "get", [this.sys_loadvar],
 	    this, function(result) {
+		var nm, el;
 		this.effects = {}
 		this.destroyClientControls();
 		var l = result[this.sys_loadvar];
@@ -165,33 +184,24 @@ enyo.kind({
 			this.effects[e.category].push(e);
 		    }
 		    if (e.on_off || e.box_visible) {
-			this.createComponent({kind: "gx.EffectBox",	fx: e});
+			nm = "eff_" + e.id;
+			this.createComponent({kind: "gx.EffectBox", name: nm, fx: e});
+			el = this.$[nm];
+			this.control_setter[e.id+".on_off"] = enyo.bind(el, el.setActive);
 		    }
 		}
 		this.render();
 		this.parent.resized();
 	    });
     },
+    setParameter: function(param_id, value) {
+	var setter = this.control_setter[param_id];
+	if (setter !== undefined) {
+	    setter(value);
+	}
+    },
     insertEffect: function(fx) {
-	var c;
-	var fxId = fx.id;
-	var param = ["ui."+fxId, 1, fxId+".position", 0, fxId+".on_off", 1];
-	if (!this.stereo) {
-	    param.push(fxId+".pp");
-	    param.push("pre");
-	}
-	c = this.getClientControls();
-	for (var i = 0; i < c.length; i++) {
-	    var e = c[i].fx;
-	    if (e === undefined || e.id == "ampstack") {
-		continue;
-	    }
-	    if (this.stereo || e.post_pre == 1) {
-		param.push(e.id+".position");
-		param.push(e.position+1);
-	    }
-	}
-	guitarix.notify("set", param);
+	guitarix.notify("insert_rack_unit", [fx.id, "", (this.stereo ? 1 : 0)]);
 	this.loadEffects();
     },
     checkTap: function(inSender, inEvent) {
@@ -203,41 +213,32 @@ enyo.kind({
 	    return true;
 	}
 	var c = this.getClientControls();
-	var param = [];
-	var before = true;
-	var pp = "pre";
-	var pos = 0;
-	function send_param(id) {
-	    if (id == "ampstack") {
-		pp = "post";
-		pos = 0;
-	    } else {
-		param.push(id+".position");
-		param.push(pos);
-		param.push(id+".pp");
-		param.push(pp);
-	    }
-	    pos += 1;
-	}
+	var state = 0;
+	var before_id = "";
 	for (var i = 0; i < c.length; i++) {
 	    var e = c[i].fx;
 	    if (e === undefined) {
 		continue;
 	    }
+	    if (state == 2) {
+		before_id = e.id;
+		break;
+	    }
 	    if (e.id == this.start_move) {
-		before = false;
+		state = 1;
 		continue;
 	    }
-	    if (before && e.id == inEvent.fxId) {
-		send_param(this.start_move);
-	    }
-	    send_param(e.id);
-	    if (!before && e.id == inEvent.fxId) {
-		send_param(this.start_move);
+	    if (e.id == inEvent.fxId) {
+		if (state == 0) {
+		    before_id = e.id;
+		    break;
+		} else {
+		    state = 2;
+		}
 	    }
 	}
+	guitarix.notify("insert_rack_unit",[this.start_move, before_id, (this.stereo ? 1 : 0)]);
 	this.start_move = "";
-	guitarix.notify("set", param);
 	this.loadEffects();
 	return true;
     },

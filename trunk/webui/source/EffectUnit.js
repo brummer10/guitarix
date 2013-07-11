@@ -9,6 +9,7 @@ enyo.kind({
 	onChanging: "valueChanged",
 	onChange:   "valueChanged",
     },
+    control_setter: {},
     fxIdChanged: function() {
 	this.destroyClientControls();
 	if (!this.fxId) {
@@ -17,14 +18,16 @@ enyo.kind({
 	guitarix.call(
 	    "queryunit", [this.fxId],
 	    this, function(result) {
-		var name, o, a, i, id;
+		var name, o, a, i, id, nm, el;
 		var m = this.fxId+"\\.(position|s_h|on_off|pp)$";
 		a = [];
-		id = this.fxId+".on_off"
-		o = result[id];
-		if (o !== undefined) {
-		    o.id = id;
-		    a.push(o);
+		if (this.fxId != "ampstack") {
+		    id = this.fxId+".on_off"
+		    o = result[id];
+		    if (o !== undefined) {
+			o.id = id;
+			a.push(o);
+		    }
 		}
 		for (id in result) {
 		    if (id.match(m)) {
@@ -40,15 +43,19 @@ enyo.kind({
 		    if (!name) {
 			name = o.id;
 		    }
+		    nm = "eff_"+o.id;
 		    if (o.ctl_switch) {
 			this.createComponent({
 			    components: [
 				{content: name},
 				{kind: "onyx.ToggleButton",
+				 name: nm,
 				 value: o.value[o.id],
 				 obj: o,
 				}],
 			});
+			el = this.$[nm];
+			this.control_setter[o.id] = enyo.bind(el, el.setValue);
 		    } else if (o.ctl_enum) {
 			var c = [];
 			var v = o.value[o.id];
@@ -66,16 +73,28 @@ enyo.kind({
 				{kind: "onyx.PickerDecorator", components: [
 				    {},
 				    {kind: "onyx.Picker",
+				     name: nm,
 				     components: c,
 				     obj: o,
+				     setValue: function(v) {
+					 var cc = this.getClientControls();
+					 for (var i = 0; i < cc.length; i++) {
+					     if (i == v) {
+						 cc[i].setActive(true);
+					     }
+					 }
+				     },
 				    }],
 				}],
 			});
+			el = this.$[nm];
+			this.control_setter[o.id] = enyo.bind(el, el.setValue);
 		    } else {
 			this.createComponent({
 			    components: [
 				{content: name},
 				{kind: "onyx.Slider",
+				 name: nm,
 				 lockBar: true,
 				 tappable: true,
 				 value: o.value[o.id],
@@ -84,6 +103,8 @@ enyo.kind({
 				 obj: o,
 				}],
 			});
+			el = this.$[nm];
+			this.control_setter[o.id] = enyo.bind(el, el.setValue);
 		    }
 		}
 		this.render();
@@ -106,6 +127,12 @@ enyo.kind({
 	}
 	guitarix.notify("set", [o.id, v]);
     },
+    setParameter: function(param_id, value) {
+	var setter = this.control_setter[param_id];
+	if (setter !== undefined) {
+	    setter(value);
+	}
+    }
 });
 
 enyo.kind({
@@ -122,5 +149,8 @@ enyo.kind({
     ],
     setFxId: function(id) {
 	this.$.controls.setFxId(id);
+    },
+    setParameter: function(param_id, value) {
+	this.$.controls.setParameter(param_id, value);
     },
 });

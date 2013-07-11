@@ -230,6 +230,15 @@ enyo.kind({
 		this.$.MainScreen.showMessage(response.params[1]);
 	    }
 	    break;
+	case "set":
+	    for (var i = 0; i < response.params.length; i += 2) {
+		this.$.EffectUnit.setParameter(response.params[i], response.params[i+1]);
+		this.$.EffectScreen.setParameter(response.params[i], response.params[i+1]);
+	    }
+	    break;
+	case "rack_units_changed":
+	    this.$.EffectScreen.rack_units_changed(response.params[0], response.params.slice(1));
+	    break;
 	default:
 	    console.log("unknown notify: ", response);
 	    break;
@@ -246,7 +255,9 @@ enyo.kind({
     guitarixOpen: function(inSender, inEvent) {
 	//this.$.MainScreen.setRepeat(1100);
 	//this.$.MainScreen.$.maxlevel.setRepeat(5000);
-	guitarix.notify("listen",["all"])
+	guitarix.notify("listen", [
+	    "preset","state","freq","display","tuner",
+	    "presetlist_changed","logger","param","units_changed"])
 	guitarix.call(
 	    "getstate",[],
 	    this.$.MainScreen, function(result) {

@@ -808,14 +808,37 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
     START_FUNCTION_SWITCH(mn->m_id);
 
     PROCEDURE(insert_rack_unit) {
+	Glib::ustring unit = params[0]->getString();
+	gx_engine::Plugin *pl = serv.jack.get_engine().pluginlist.find_plugin(unit);
+	if (!pl) {
+	    throw RpcError(-32602, Glib::ustring::compose("Invalid param -- unit %1 unknown", unit));
+	}
 	bool stereo = params[2]->getInt();
-	serv.settings.insert_rack_unit(params[0]->getString(), params[1]->getString(), stereo);
+	serv.settings.insert_rack_unit(unit, params[1]->getString(), stereo);
+	gx_engine::Parameter& p = serv.settings.get_param()[pl->id_box_visible()];
+	p.set_blocked(true);
+	pl->set_box_visible(true);
+	p.set_blocked(false);
 	serv.send_rack_changed(stereo, this);
     }
 
     PROCEDURE(remove_rack_unit) {
+	Glib::ustring unit = params[0]->getString();
+	gx_engine::Plugin *pl = serv.jack.get_engine().pluginlist.find_plugin(unit);
+	if (!pl) {
+	    throw RpcError(-32602, Glib::ustring::compose("Invalid param -- unit %1 unknown", unit));
+	}
 	bool stereo = params[1]->getInt();
 	if (serv.settings.remove_rack_unit(params[0]->getString(), stereo)) {
+	    gx_engine::Parameter *p;
+	    p = &serv.settings.get_param()[pl->id_box_visible()];
+	    p->set_blocked(true);
+	    pl->set_box_visible(false);
+	    p->set_blocked(false);
+	    p = &serv.settings.get_param()[pl->id_on_off()];
+	    p->set_blocked(true);
+	    pl->set_on_off(false);
+	    p->set_blocked(false);
 	    serv.send_rack_changed(stereo, this);
 	}
     }
@@ -1124,24 +1147,24 @@ bool CmdConnection::request(gx_system::JsonStringParser& jp, gx_system::JsonStri
     if (!p) {
 	throw RpcError(-32601, Glib::ustring::compose("Method not found -- '%1'", method));
     }
-    if (id.empty()) {
-	try {
+    try {
+	if (id.empty()) {
 	    notify(jw, p, params);
-	} catch(RpcError& e) {
-	    error_response(jw, e.code, e.message);
+	    return false;
+	} else {
+	    if (batch_start) {
+		jw.begin_array();
+	    }
+	    jw.begin_object();
+	    jw.write_kv("jsonrpc", "2.0");
+	    jw.write_kv("id", id);
+	    jw.write_key("result");
+	    call(jw, p, params);
+	    jw.end_object();
+	    return true;
 	}
-	return false;
-    } else {
-	if (batch_start) {
-	    jw.begin_array();
-	}
-	jw.begin_object();
-	jw.write_kv("jsonrpc", "2.0");
-	jw.write_kv("id", id);
-	jw.write_key("result");
-	call(jw, p, params);
-	jw.end_object();
-	return true;
+    } catch(const RpcError& e) {
+	throw RpcError(e.code, Glib::ustring(p->name) + ": " + e.message);
     }
 }
 

@@ -95,7 +95,7 @@ private:
     void write_error(gx_system::JsonWriter& jw, int code, const char *message);
     void write_error(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { write_error(jw, code, message.c_str()); }
     void error_response(gx_system::JsonWriter& jw, int code, const char *message);
-    void error_response(gx_system::JsonWriter& jw, int code, Glib::ustring& message) { error_response(jw, code, message.c_str()); }
+    void error_response(gx_system::JsonWriter& jw, int code, const Glib::ustring& message) { error_response(jw, code, message.c_str()); }
     void send_notify_begin(gx_system::JsonStringWriter& jw, const char *method) { jw.send_notify_begin(method); }
     void send_notify_end(gx_system::JsonStringWriter& jw, bool send_out=true);
     void listen(const Glib::ustring& tp);

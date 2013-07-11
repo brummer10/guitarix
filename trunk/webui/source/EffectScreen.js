@@ -269,6 +269,13 @@ enyo.kind({
 	s.current_rack.insertEffect(inEvent.fx);
 	s.animateToMin();
     },
+    rack_units_changed: function(stereo, units) {
+	if (stereo == 1) {
+	    this.$.stereo_rack.loadEffects(this.current_preset);
+	} else {
+	    this.$.mono_rack.loadEffects(this.current_preset);
+	}
+    },
     preparePanel: function() {
 	if (!this.current_preset) {
 	    return;
@@ -281,5 +288,10 @@ enyo.kind({
 	    });
 	this.$.mono_rack.loadEffects(this.current_preset);
 	this.$.stereo_rack.loadEffects(this.current_preset);
+    },
+    setParameter: function(param_id, value) {
+	this.$.mono_rack.setParameter(param_id, value);
+	this.$.stereo_rack.setParameter(param_id, value);
+	this.$.fixed.setParameter(param_id, value);
     },
 });
