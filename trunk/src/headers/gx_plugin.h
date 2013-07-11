@@ -68,7 +68,14 @@ struct UiBuilder {
     void (*create_small_rackknobr)(const char *id, const char *label);
     void (*insertSpacer)();
     void (*set_next_flags)(int flags);
-    //FIXME add missing functions
+    void (*openHorizontalTableBox)(const char *label);
+    //FIXME add missing functions.
+    // If possible don't change the order of the current defintion.
+    // new functions need to be added at the following places:
+    //  StackBoxBuilder: decl, real implementation
+    //  UiBuilderImpl: decl, assign to pointer, call real implementation
+    //  UiBuilderVirt: decl, assign to pointer, write json
+    //  GxMachineRemote::load_remote_ui(): call real implementation
 };
 
 /*

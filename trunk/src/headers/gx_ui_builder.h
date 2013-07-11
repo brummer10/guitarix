@@ -208,6 +208,7 @@ protected:
     static void openVerticalBox2_(const char* label);
     static void openHorizontalBox_(const char* label);
     static void openHorizontalhideBox_(const char* label);
+    static void openHorizontalTableBox_(const char* label);
     static void insertSpacer_();
     static void set_next_flags_(int flags);
     static void create_small_rackknob_(const char *id, const char *label);

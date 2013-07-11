@@ -67,6 +67,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     openVerticalBox2 = openVerticalBox2_;
     openHorizontalBox = openHorizontalBox_;
     openHorizontalhideBox = openHorizontalhideBox_;
+    openHorizontalTableBox = openHorizontalTableBox_;
     closeBox = closeBox_;
     load_glade = load_glade_;
     create_master_slider = create_master_slider_;
@@ -110,6 +111,10 @@ void UiBuilderImpl::openVerticalBox2_(const char* label) {
 
 void UiBuilderImpl::openHorizontalhideBox_(const char* label) {
     intf->openHorizontalhideBox(label);
+}
+
+void UiBuilderImpl::openHorizontalTableBox_(const char* label) {
+    intf->openHorizontalTableBox(label);
 }
 
 void UiBuilderImpl::openHorizontalBox_(const char* label) {
