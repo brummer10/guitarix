@@ -160,6 +160,13 @@ def set_options(opt):
                      const=True,
                      help="call faust with --vectorize")
 
+    faust.add_option('--faust-vectorize-float',
+                     action='store_const',
+                     default=False,
+                     const=True,
+                     help=("call faust with --vectorize for sources built"
+                           "in single (float) precision"))
+
     faust.add_option('--faust-options', help="additional faust options")
 
     ladspa = opt.add_option_group("LADSPA Options (installing ladspa modules)")
@@ -409,6 +416,7 @@ def check_faust(conf):
         conf.check_message('faust','version',1,vers)
     conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
     conf.env['FAUST_VECTORIZE'] = Options.options.faust_vectorize
+    conf.env['FAUST_VECTORIZE_FLOAT'] = Options.options.faust_vectorize_float
     conf.env['FAUST_OPTIONS'] = Options.options.faust_options
 
 def check_cloop(conf):
@@ -632,12 +640,19 @@ def configure(conf):
     check_zita_resampler(opt, conf)
     conf.find_program("gperf", var='HAVE_GPERF')
     check_faust(conf)
-    if not conf.env['FAUST']:
+    if conf.env['FAUST']:
+        if Options.options.faust_vectorize and Options.options.faust_vectorize_float:
+            display_msg("configuration error", "conflicting options --faust-vectorize and --faust-vectorize-float", 'RED')
+            sys.exit(1)
+    else:
         if Options.options.faust_float:
             display_msg("configuration error", " can't use --faust-float without faust", 'RED')
             sys.exit(1)
         if Options.options.faust_vectorize:
             display_msg("configuration error", " can't use --faust-vectorize without faust", 'RED')
+            sys.exit(1)
+        if Options.options.faust_vectorize_float:
+            display_msg("configuration error", " can't use --faust-vectorize-float without faust", 'RED')
             sys.exit(1)
         if Options.options.faust_options:
             display_msg("configuration error", " can't use --faust-options without faust", 'RED')
@@ -766,6 +781,8 @@ def configure(conf):
         display_msg("Use faust precision", "single", 'CYAN')
     if opt.faust_vectorize:
         display_msg("call faust with --vectorize", conf.env['FAUST_VECTORIZE'], 'CYAN')
+    if opt.faust_vectorize_float:
+        display_msg("faust vectorize float prec.", conf.env['FAUST_VECTORIZE_FLOAT'], 'CYAN')
     if opt.faust_options:
         display_msg("Additional faust options", conf.env['FAUST_OPTIONS'], 'CYAN')
     display_feature("Use prebuild gperf files", not conf.env["HAVE_GPERF"])

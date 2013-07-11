@@ -61,37 +61,11 @@ def build(bld):
         'autowah.dsp',
         ]
 
-    sources_plugin = [
-        'low_high_pass.dsp',
+    sources_plugin_double = [
         'selecteq.dsp',
-        'gx_distortion.dsp',
-        'impulseresponse.dsp',
-        'compressor.dsp',
-        'expander.dsp',
-        'overdrive.dsp',
-        'freeverb.dsp',
-        'biquad.dsp',
-        'tremolo.dsp',
-        'flanger_mono.dsp',
-        'gx_feedback.dsp',
-        'flanger.dsp',
-        'moog.dsp',
-        'gx_ampmodul.dsp',
-        'tonecontroll.dsp',
-        'stereoverb.dsp',
-        'softclip.dsp',
-        'gx_ampout.dsp',
-        'gx_ampout_ladspa.dsp',
-        'noise_shaper.dsp',
-        'bassbooster.dsp',
-        'gx_outputlevel.dsp',
-        'gx_outputlevel_ladspa.dsp',
-        'gxfeed.dsp',
-        'highbooster.dsp',
-        'peak_eq.dsp',
 
         # tone stacks
-        'tonestack_default.dsp',
+        'tonestack_default.dsp',  # this one also ok in single precision
         'tonestack_bassman.dsp',
         'tonestack_twin.dsp',
         'tonestack_princeton.dsp',
@@ -118,6 +92,35 @@ def build(bld):
         'tonestack_fender_deville.dsp',
         'tonestack_gibsen.dsp',
         'tonestack_engl.dsp',
+        ]
+
+    sources_plugin = [
+        'low_high_pass.dsp',
+        'gx_distortion.dsp',
+        'impulseresponse.dsp',
+        'compressor.dsp',
+        'expander.dsp',
+        'overdrive.dsp',
+        'freeverb.dsp',
+        'biquad.dsp',
+        'tremolo.dsp',
+        'flanger_mono.dsp',
+        'gx_feedback.dsp',
+        'flanger.dsp',
+        'moog.dsp',
+        'gx_ampmodul.dsp',
+        'tonecontroll.dsp',
+        'stereoverb.dsp',
+        'softclip.dsp',
+        'gx_ampout.dsp',
+        'gx_ampout_ladspa.dsp',
+        'noise_shaper.dsp',
+        'bassbooster.dsp',
+        'gx_outputlevel.dsp',
+        'gx_outputlevel_ladspa.dsp',
+        'gxfeed.dsp',
+        'highbooster.dsp',
+        'peak_eq.dsp',
 
         # amps
         'gxamp.dsp',
@@ -145,7 +148,7 @@ def build(bld):
         ]
 
     if bld.env['FAUST']:
-        arg, float_arg = wscript_helper.get_faust_args(bld)
+        arg, float_arg, double_arg = wscript_helper.get_faust_args(bld)
         bld.new_task_gen(
             source = sources,
             proc = "../tools/dsp2cc",
@@ -173,9 +176,15 @@ def build(bld):
             proc = "../tools/dsp2cc",
             proc_args = float_arg+["--init-type=plugin-instance"]
             )
+        bld.new_task_gen(
+            source = sources_plugin_double,
+            proc = "../tools/dsp2cc",
+            proc_args = double_arg+["--init-type=plugin-instance"]
+            )
     else:
         gdir = "../faust-generated/"
-        for s in sources + sources_static + sources_float + sources_plugin_float + sources_plugin:
+        for s in (sources + sources_static + sources_float +
+                  sources_plugin_float + sources_plugin_double + sources_plugin):
             s = s.replace(".dsp",".cc")
             bld(name = "copy-faust-cc",
                 rule = "cp ${SRC} ${TGT}",

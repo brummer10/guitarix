@@ -26,7 +26,7 @@ lib_sources = [ # put in static library linked with guitarix
 
 def build(bld):
     if bld.env['FAUST']:
-        arg, float_arg = wscript_helper.get_faust_args(bld)
+        arg, float_arg, double_arg = wscript_helper.get_faust_args(bld)
         arg += ["--init-type=plugin-instance"]
         bld(name = "dsp2cc sharedlib",
             source = sources,
