@@ -129,6 +129,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
     client_change_rt.connect(client_change);
     GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxJack::cleanup_slot));
+    xrun.connect(sigc::mem_fun(this, &GxJack::report_xrun));
 }
 
 GxJack::~GxJack() {

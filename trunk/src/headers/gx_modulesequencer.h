@@ -50,7 +50,7 @@ private:
     list<Plugin*> to_release;
     int ramp_value; // RT
     int ramp_mode; // RT  should be RampMode, but gcc 4.5 doesn't accept it for g_atomic_int_compare_and_exchange
-    bool stopped;
+    volatile bool stopped;
 protected:
     int steps_up;		// RT; >= 1
     int steps_up_dead;		// RT; >= 0

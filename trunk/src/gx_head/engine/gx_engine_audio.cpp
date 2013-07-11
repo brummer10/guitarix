@@ -659,6 +659,9 @@ void ModuleSequencer::commit_module_lists() {
 int ModuleSequencer::sporadic_interval = 0;
 
 void __rt_func ModuleSequencer::overload(OverloadType tp, const char *reason) {
+    if (!(audio_mode & PGN_MODE_NORMAL)) {
+	return; // no overload message in mute/bypass modes
+    }
     if ((tp & ov_disabled) == ov_XRun) {
 	return; // the xrun should show up in the log anyhow
     }
