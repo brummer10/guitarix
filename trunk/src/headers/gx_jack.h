@@ -146,8 +146,9 @@ class GxJack: public sigc::trackable {
 	gx_system::JsonWriter& w, const char *key, const PortConnection& pc, bool replace=false);
     std::string make_clientvar(const std::string& s);
     std::string replace_clientvar(const std::string& s);
-    bool                gx_jack_init(bool startserver, int wait_after_connect);
-    void                gx_jack_init_port_connection();
+    bool                gx_jack_init(bool startserver, int wait_after_connect,
+				     const gx_system::CmdlineOptions& opt);
+    void                gx_jack_init_port_connection(const gx_system::CmdlineOptions& opt);
     void                gx_jack_callbacks();
     void                gx_jack_cleanup();
     inline void         check_overload();
@@ -171,7 +172,8 @@ public:
     void                set_jack_down(bool v) { jack_is_down = v; }
     void                set_jack_exit(bool v) { jack_is_exit = v; }
 
-    bool                gx_jack_connection(bool connect, bool startserver, int wait_after_connect);
+    bool                gx_jack_connection(bool connect, bool startserver,
+					   int wait_after_connect, const gx_system::CmdlineOptions& opt);
     float               get_last_xrun() { return last_xrun; }
     void*               get_midi_buffer(jack_nframes_t nframes);
 

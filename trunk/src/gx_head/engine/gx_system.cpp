@@ -165,8 +165,7 @@ void add_time_measurement() {
 
 
 /****************************************************************
- ** CmdlineOptions
- ** command line options
+ ** class SkinHandling
  */
 
 void SkinHandling::set_styledir(const string& style_dir) {
@@ -217,6 +216,11 @@ const Glib::ustring& SkinHandling::operator[](unsigned int idx) {
     }
 }
 
+
+/****************************************************************
+ ** class PathList
+ */
+
 PathList::PathList(const char *env_name): dirs() {
     if (!env_name) {
 	return;
@@ -266,6 +270,49 @@ bool PathList::find_dir(std::string* d, const std::string& filename) const {
 	}
     return false;
 }
+
+
+/****************************************************************
+ ** class PrefixConverter
+ */
+
+void PrefixConverter::add(char s, const std::string& d) {
+    assert(s != '%');
+    dirs[s] = (d[d.size()-1] == '/' ? d.substr(0,d.size()-1) : d);
+}
+
+std::string PrefixConverter::replace_symbol(const std::string& dir) const {
+    if (dir.size() < 2 || dir[0] != '%') {
+	return dir;
+    }
+    symbol_path_map::const_iterator i = dirs.find(dir[1]);
+    if (i != dirs.end()) {
+	return Glib::build_filename(i->second, dir.substr(2));
+    }
+    if (dir.compare(0, 2, "%%")) {
+	return dir.substr(1);
+    }
+    return dir;
+}
+
+std::string PrefixConverter::replace_path(const std::string& dir) const {
+    for (symbol_path_map::const_iterator i = dirs.begin(); i != dirs.end(); ++i) {
+	size_t n = i->second.size();
+	if (dir.compare(0, n, i->second) == 0) {
+	    std::string tail = dir.substr(n);
+	    if (Glib::build_filename(i->second, tail) == dir) {
+		std::string sym = "%";
+		sym.push_back(i->first);
+		return sym + tail;
+	    }
+	}
+    }
+    if (dir.size() < 2 || dir[0] != '%') {
+	return dir;
+    }
+    return "%" + dir;
+}
+
 
 /*****************************************************************
  ** class DirectoryListing
@@ -320,11 +367,56 @@ void list_subdirs(PathList pl, std::vector<FileName>& dirs) {
     }
 }
 
+
+/****************************************************************
+ ** class BasicOptions
+ */
+
+BasicOptions *BasicOptions::instance = 0;
+
+BasicOptions::BasicOptions()
+    : user_dir(),
+      user_IR_dir(),
+      sys_IR_dir(GX_SOUND_DIR),
+      IR_pathlist(),
+      IR_prefixmap(),
+    builder_dir(GX_BUILDER_DIR) {
+    user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
+    user_IR_dir = Glib::build_filename(user_dir, "IR");
+
+    make_ending_slash(user_dir);
+    make_ending_slash(user_IR_dir);
+    make_ending_slash(sys_IR_dir);
+    make_ending_slash(builder_dir);
+
+    // for legacy presets
+    IR_pathlist.add(get_user_IR_dir());
+    IR_pathlist.add(get_sys_IR_dir());
+
+    // for current presets
+    IR_prefixmap.add('U', get_user_IR_dir());
+    IR_prefixmap.add('S', get_sys_IR_dir());
+
+    instance = this;
+}
+
+BasicOptions::~BasicOptions() {
+    instance = 0;
+}
+
+void BasicOptions::make_ending_slash(string& dirpath) {
+    if (dirpath.empty()) {
+	return;
+    }
+    if (dirpath[dirpath.size()-1] != '/') {
+	dirpath += "/";
+    }
+}
+
+
 /****************************************************************
  ** class CmdlineOptions
  */
-
-CmdlineOptions *CmdlineOptions::instance = 0;
 
 static inline const char *shellvar(const char *name) {
     const char *p = getenv(name);
@@ -335,7 +427,8 @@ static inline const char *shellvar(const char *name) {
 #define TCLR2(s) TCLR(s), s
 
 CmdlineOptions::CmdlineOptions()
-    : main_group("",""),
+    : BasicOptions(),
+      main_group("",""),
       optgroup_style("style", TCLR2("GTK style configuration options")),
       optgroup_jack("jack", TCLR2("JACK configuration options")),
       optgroup_overload("overload", TCLR2("Switch to bypass mode on overload condition")),
@@ -350,19 +443,14 @@ CmdlineOptions::CmdlineOptions()
       jack_noconnect(false),
       jack_servername(),
       load_file(shellvar("GUITARIX_LOAD_FILE")),
-      builder_dir(GX_BUILDER_DIR),
       style_dir(GX_STYLE_DIR),
       factory_dir(GX_FACTORY_DIR),
       pixmap_dir(GX_PIXMAPS_DIR),
-      user_dir(),
       old_user_dir(),
       preset_dir(),
       pluginpreset_dir(),
-      user_IR_dir(),
       temp_dir(),
       plugin_dir(),
-      sys_IR_dir(GX_SOUND_DIR),
-      IR_pathlist(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
       nogui(false),
       rpcport(RPCPORT_DEFAULT),
@@ -399,12 +487,10 @@ CmdlineOptions::CmdlineOptions()
 	throw GxFatalError(_("no HOME environment variable"));
     }
     old_user_dir = string(home) + "/.gx_head/";
-    user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
-    plugin_dir = Glib::build_filename(user_dir, "plugins");
-    preset_dir = Glib::build_filename(user_dir, "banks");
-    pluginpreset_dir = Glib::build_filename(user_dir, "pluginpresets");
-    user_IR_dir = Glib::build_filename(user_dir, "IR");
-    temp_dir = Glib::build_filename(user_dir, "temp");
+    plugin_dir = Glib::build_filename(get_user_dir(), "plugins");
+    preset_dir = Glib::build_filename(get_user_dir(), "banks");
+    pluginpreset_dir = Glib::build_filename(get_user_dir(), "pluginpresets");
+    temp_dir = Glib::build_filename(get_user_dir(), "temp");
     const char *tmp = getenv("GUITARIX2JACK_OUTPUTS1");
     if (tmp && *tmp) {
 	jack_outputs.push_back(tmp);
@@ -600,17 +686,14 @@ CmdlineOptions::CmdlineOptions()
     add_group(optgroup_overload);
     add_group(optgroup_file);
     add_group(optgroup_debug);
-
-    instance = this;
 }
 
 CmdlineOptions::~CmdlineOptions() {
     write_ui_vars();
-    instance = 0;
 }
 
 void CmdlineOptions::read_ui_vars() {
-    ifstream i(Glib::build_filename(user_dir, "ui_rc").c_str());
+    ifstream i(Glib::build_filename(get_user_dir(), "ui_rc").c_str());
     if (i.fail()) {
 	return;
     }
@@ -675,7 +758,7 @@ void CmdlineOptions::read_ui_vars() {
 }
 
 void CmdlineOptions::write_ui_vars() {
-    ofstream o(Glib::build_filename(user_dir, "ui_rc").c_str());
+    ofstream o(Glib::build_filename(get_user_dir(), "ui_rc").c_str());
     if (o.fail()) {
 	return;
     }
@@ -744,15 +827,6 @@ static void log_terminal(const string& msg, GxLogger::MsgType tp, bool plugged) 
     }
 }
 
-void CmdlineOptions::make_ending_slash(string& dirpath) {
-    if (dirpath.empty()) {
-	return;
-    }
-    if (dirpath[dirpath.size()-1] != '/') {
-	dirpath += "/";
-    }
-}
-
 void CmdlineOptions::process(int argc, char** argv) {
     path_to_program = Gio::File::create_for_path(argv[0])->get_path();
     if (version) {
@@ -786,16 +860,10 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(style_dir);
     make_ending_slash(factory_dir);
     make_ending_slash(pixmap_dir);
-    make_ending_slash(user_dir);
     make_ending_slash(preset_dir);
     make_ending_slash(pluginpreset_dir);
-    make_ending_slash(user_IR_dir);
     make_ending_slash(temp_dir);
     make_ending_slash(plugin_dir);
-    make_ending_slash(sys_IR_dir);
-
-    IR_pathlist.add(get_user_IR_dir());
-    IR_pathlist.add(get_sys_IR_dir());
 
     skin.set_styledir(style_dir);
     if (!rcset.empty()) {

@@ -288,10 +288,8 @@ class GxJConvSettings {
     inline void setGainline(const Gainline& gain) { gainline    = gain; }
 
  public:
-    void readJSON(gx_system::JsonParser& jp,
-		  const gx_system::PathList *search_path);
-    void writeJSON(gx_system::JsonWriter& w,
-		   const gx_system::PathList *search_path) const;
+    void readJSON(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& w) const;
 };
 
 class ConvolverAdapter;
@@ -300,6 +298,7 @@ template<>
 class ParameterV<GxJConvSettings>: public Parameter {
 private:
     const gx_system::PathList *searchpath;
+    const gx_system::PrefixConverter* pfx_conv;
     GxJConvSettings json_value;
     GxJConvSettings *value;
     GxJConvSettings std_value;
@@ -337,8 +336,6 @@ protected:
     EngineControl& engine;
     sigc::slot<void> sync;
     ParamMap& param;
-    const gx_system::PathList& pathlist;
-    std::string sys_ir_dir;
     bool activated;
     // wrapper for the rack order function pointers
     void change_buffersize(unsigned int size);
@@ -347,8 +344,7 @@ protected:
 public:
     Plugin plugin;
 public:
-    ConvolverAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param,
-		     const gx_system::PathList& pathlist, const std::string& sys_ir_dir);
+    ConvolverAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
     ~ConvolverAdapter();
     void restart();
     bool conv_start();
@@ -358,8 +354,6 @@ public:
     inline const std::string& getIRDir() const { return jcset.getIRDir(); }
     bool set(const GxJConvSettings& jcset) const { return jcp->set(jcset); }
     const GxJConvSettings& get_jcset() const { return jcset; }
-    const gx_system::PathList& get_pathlist() const { return pathlist; }
-    const std::string& get_sys_IR_dir() const { return sys_ir_dir; }
     ParamMap& get_parameter_map() const { return param; }
 };
 
@@ -381,8 +375,7 @@ private:
 			  float *output0, float *output1, PluginDef*);
     static int convolver_register(const ParamReg& reg);
 public:
-    ConvolverStereoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param,
-		     const gx_system::PathList& pathlist, const std::string& sys_ir_dir);
+    ConvolverStereoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
     ~ConvolverStereoAdapter();
 };
 
@@ -400,8 +393,7 @@ private:
     static void convolver(int count, float *input, float *output, PluginDef*);
     static int convolver_register(const ParamReg& reg);
 public:
-    ConvolverMonoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param,
-		     const gx_system::PathList& pathlist, const std::string& sys_ir_dir);
+    ConvolverMonoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
     ~ConvolverMonoAdapter();
 };
 

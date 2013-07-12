@@ -193,10 +193,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       midiaudiobuffer(tuner),
       maxlevel(),
       oscilloscope(*this),
-      mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync),
-		     get_param(), options.get_IR_pathlist(), options.get_sys_IR_dir()),
-      stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync),
-		       get_param(), options.get_IR_pathlist(), options.get_sys_IR_dir()),
+      mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), get_param()),
+      stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), get_param()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp) {

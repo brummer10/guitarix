@@ -251,13 +251,9 @@ void Plugin::writeJSON(gx_system::JsonWriter& jw) {
 
 void Plugin::register_vars(ParamMap& param, EngineControl& seq) {
     string s = pdef->id;
-    p_on_off = param.reg_par(s+".on_off",N_("on/off"), (bool*)0, false);
+    p_on_off = param.reg_par(s+".on_off",N_("on/off"), (bool*)0, !(pdef->flags & (PGN_GUI|PGN_ALTERNATIVE)));
     if (!(pdef->load_ui || (pdef->flags & PGN_GUI))) {
 	p_on_off->setSavable(false);
-    }
-    if (!(pdef->flags & (PGN_GUI|PGN_ALTERNATIVE))) {
-	// otherwise would be always off
-	p_on_off->set(true);
     }
     p_on_off->signal_changed_bool().connect(
 	sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
@@ -266,29 +262,31 @@ void Plugin::register_vars(ParamMap& param, EngineControl& seq) {
 	p_box_visible = param.reg_non_midi_par("ui." + s, (bool*)0, true);
 	p_plug_visible = param.reg_non_midi_par(s + ".s_h", (bool*)0, false);
     }
-    p_position = param.reg_non_midi_par(s + ".position", (int*)0, true, 0, 0, 999);
-    set_position(pos_tmp);
-    static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
-    p_effect_post_pre = param.reg_enum_par(s + ".pp", "select", post_pre, (int*)0, 0);
-    p_effect_post_pre->setSavable(false);
-    p_effect_post_pre->set(pdef->flags & PGN_POST ? 0 : 1);
+    p_position = param.reg_non_midi_par(s + ".position", (int*)0, true, pos_tmp, -9999, 9999);
+    int pp = (pdef->flags & PGN_POST ? 0 : 1);
+    bool savable = false;
     if (pdef->flags & PGNI_DYN_POSITION) {
 	// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
 	p_position->signal_changed_int().connect(
 	    sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
 	if (pdef->mono_audio || (pdef->flags & PGN_POST_PRE)) {
 	    if (pdef->flags & PGN_PRE) {
-		p_effect_post_pre->set(1);
+		pp = 1;
 	    } else if (pdef->flags & PGN_POST) {
-		p_effect_post_pre->set(0);
+		pp = 0;
 	    } else {
-		p_effect_post_pre->signal_changed_int().connect(
-		    sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
-		p_effect_post_pre->setSavable(true);
+		savable = true;
 	    }
 	}
     } else {
 	p_position->setSavable(false);
+    }
+    static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
+    p_effect_post_pre = param.reg_enum_par(s + ".pp", "select", post_pre, (int*)0, pp);
+    p_effect_post_pre->setSavable(savable);
+    if (savable) {
+	p_effect_post_pre->signal_changed_int().connect(
+	    sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
     }
 }
 

@@ -298,6 +298,22 @@ public:
 };
 
 
+/****************************************************************/
+
+class PrefixConverter {
+public:
+    typedef std::map<char,std::string> symbol_path_map;
+private:
+    symbol_path_map dirs;
+public:
+    PrefixConverter(): dirs() {}
+    ~PrefixConverter() {}
+    std::string replace_symbol(const std::string& dir) const;
+    std::string replace_path(const std::string& dir) const;
+    void add(char s, const std::string& d);
+};
+
+
 /*****************************************************************
  ** class DirectoryListing
  */
@@ -323,13 +339,41 @@ public:
 void list_subdirs(PathList pl, std::vector<FileName>& dirs);
 
 /****************************************************************
- ** CmdlineParser
+ ** class CmdlineOptions
  */
 
 #define RPCPORT_DEFAULT (-2)
 #define RPCPORT_NONE (-1)
 
-class CmdlineOptions: public Glib::OptionContext, boost::noncopyable {
+class BasicOptions: boost::noncopyable {
+private:
+    std::string user_dir;
+    std::string user_IR_dir;
+    std::string sys_IR_dir;
+    PathList IR_pathlist;
+    PrefixConverter IR_prefixmap;
+    static BasicOptions *instance;
+protected:
+    std::string builder_dir;
+
+private:
+    friend BasicOptions& get_options();
+protected:
+    static void make_ending_slash(std::string& dirpath);
+public:
+    BasicOptions();
+    ~BasicOptions();
+    std::string get_user_filepath(const std::string& basename) const { return user_dir + basename; }
+    std::string get_user_ir_filepath(const std::string& basename) const { return user_IR_dir + basename; }
+    std::string get_builder_filepath(const std::string& basename) const { return builder_dir + basename; }
+    const std::string& get_user_dir() const { return user_dir; }
+    const std::string& get_user_IR_dir() const { return user_IR_dir; }
+    const std::string& get_sys_IR_dir() const { return sys_IR_dir; }
+    const PathList& get_IR_pathlist() const { return IR_pathlist; }
+    const PrefixConverter& get_IR_prefixmap() const { return IR_prefixmap; }
+};
+
+class CmdlineOptions: public BasicOptions, public Glib::OptionContext {
 private:
     Glib::OptionGroup main_group;
     Glib::OptionGroup optgroup_style;
@@ -349,19 +393,14 @@ private:
     bool jack_noconnect;
     Glib::ustring jack_servername;
     std::string load_file;
-    std::string builder_dir;
     std::string style_dir;
     std::string factory_dir;
     std::string pixmap_dir;
-    std::string user_dir;
     std::string old_user_dir;
     std::string preset_dir;
     std::string pluginpreset_dir;
-    std::string user_IR_dir;
     std::string temp_dir;
     std::string plugin_dir;
-    std::string sys_IR_dir;
-    PathList IR_pathlist;
     Glib::ustring rcset;
     bool nogui;
     int rpcport;
@@ -374,12 +413,9 @@ private:
     bool lterminal;
     bool a_save;
     bool auto_save;
-    static CmdlineOptions *instance;
-    void make_ending_slash(std::string& dirpath);
     std::string get_opskin();
     void read_ui_vars();
     void write_ui_vars();
-    friend CmdlineOptions& get_options();
 
 public:
 #ifndef NDEBUG
@@ -411,24 +447,18 @@ public:
     const std::string& get_path_to_program() const { return path_to_program; }
     std::string get_style_filepath(const std::string& basename) const { return style_dir + basename; }
     std::string get_pixmap_filepath(const std::string& basename) const { return pixmap_dir + basename; }
-    std::string get_builder_filepath(const std::string& basename) const { return builder_dir + basename; }
-    std::string get_user_filepath(const std::string& basename) const { return user_dir + basename; }
     std::string get_preset_filepath(const std::string& basename) const { return preset_dir + basename; }
     std::string get_plugin_filepath(const std::string& basename) const { return plugin_dir + basename; }
     std::string get_factory_filepath(const std::string& basename) const { return factory_dir + basename; }
-    std::string get_user_ir_filepath(const std::string& basename) const { return user_IR_dir + basename; }
     std::string get_temp_filepath(const std::string& basename) const { return temp_dir + basename; }
     std::string get_pluginpreset_filepath(const std::string& id, bool factory) const {
 	return (factory ? factory_dir : pluginpreset_dir) + id; }
-    const std::string& get_user_dir() const { return user_dir; }
     const std::string& get_old_user_dir() const { return old_user_dir; }
     const std::string& get_plugin_dir() const { return plugin_dir; }
     const std::string& get_preset_dir() const { return preset_dir; }
     const std::string& get_pluginpreset_dir() const { return pluginpreset_dir; }
-    const std::string& get_user_IR_dir() const { return user_IR_dir; }
     const std::string& get_temp_dir() const { return temp_dir; }
     const std::string& get_factory_dir() const { return factory_dir; }
-    const std::string& get_sys_IR_dir() const { return sys_IR_dir; }
     std::string get_ladspa_config_filename() const { return get_user_filepath("ladspa_defs.js"); }
     const Glib::ustring& get_rcset() const { return rcset; }
     bool get_clear_rc() const { return clear; }
@@ -447,7 +477,6 @@ public:
     bool get_jack_noconnect() const { return jack_noconnect; }
     bool get_opt_save_on_exit() const { return a_save; }
     bool get_opt_autosave() const { return auto_save; }
-    const PathList& get_IR_pathlist() const { return IR_pathlist; }
     Glib::ustring get_jack_output(unsigned int n) const;
     int get_idle_thread_timeout() const { return idle_thread_timeout; }
     int get_sporadic_overload() const { return sporadic_overload; }
@@ -455,9 +484,9 @@ public:
     bool get_convolver_watchdog() const { return convolver_watchdog; }
 };
 
-inline CmdlineOptions& get_options() {
-    assert(CmdlineOptions::instance);
-    return *CmdlineOptions::instance;
+inline BasicOptions& get_options() {
+    assert(BasicOptions::instance);
+    return *BasicOptions::instance;
 }
 
 

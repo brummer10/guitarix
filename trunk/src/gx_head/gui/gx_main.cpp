@@ -377,7 +377,7 @@ static void mainHeadless(int argc, char *argv[]) {
     //	gx_settings.disable_autosave(options.get_opt_auto_save());
     //}
 
-    if (! machine.get_jack()->gx_jack_connection(true, true, 0)) {
+    if (! machine.get_jack()->gx_jack_connection(true, true, 0, options)) {
 	cerr << "can't connect to jack\n";
 	return;
     }

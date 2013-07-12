@@ -849,7 +849,7 @@ void GxMachineRemote::param_signal(Parameter *p) {
     } else if (p->isString()) {
 	jw->write(p->getString().get_value());
     } else if (dynamic_cast<JConvParameter*>(p) != 0) {
-	dynamic_cast<JConvParameter*>(p)->get_value().writeJSON(*jw, 0);
+	dynamic_cast<JConvParameter*>(p)->get_value().writeJSON(*jw);
     } else {
 	assert(false);
     }

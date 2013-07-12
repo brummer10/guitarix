@@ -226,10 +226,9 @@ void GxJack::write_connections(gx_system::JsonWriter& w) {
  */
 
 // ----- pop up a dialog for starting jack
-bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
+bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_system::CmdlineOptions& opt) {
     AVOIDDENORMALS();
     int jackopt = (startserver ? JackNullOption : JackNoStartServer);
-    gx_system::CmdlineOptions& opt = gx_system::get_options();
     client_instance = opt.get_jack_instancename();
     if (client_instance.empty()) {
 	client_instance = get_default_instancename();
@@ -354,7 +353,7 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect) {
     client_change(); // might load port connection definitions
     if (opt.get_jack_uuid().empty() && !opt.get_jack_noconnect()) {
 	// when not loaded by session manager
-	gx_jack_init_port_connection();
+	gx_jack_init_port_connection(opt);
     }
     set_jack_exit(false);
 
@@ -401,12 +400,12 @@ void GxJack::gx_jack_cleanup() {
 }
 
 // ---- Jack server connection / disconnection
-bool GxJack::gx_jack_connection(bool connect, bool startserver, int wait_after_connect) {
+bool GxJack::gx_jack_connection(bool connect, bool startserver, int wait_after_connect, const gx_system::CmdlineOptions& opt) {
     if (connect) {
 	if (client) {
 	    return true;
 	}
-	if (!gx_jack_init(startserver, wait_after_connect)) {
+	if (!gx_jack_init(startserver, wait_after_connect, opt)) {
 	    return false;
 	}
 	engine.check_module_lists();
@@ -452,8 +451,7 @@ std::string GxJack::replace_clientvar(const std::string& s) {
 }
 
 // ----- connect ports if we know them
-void GxJack::gx_jack_init_port_connection() {
-    gx_system::CmdlineOptions& opt = gx_system::get_options();
+void GxJack::gx_jack_init_port_connection(const gx_system::CmdlineOptions& opt) {
     // set autoconnect capture to user capture port
     if (!opt.get_jack_input().empty()) {
         jack_connect(client, opt.get_jack_input().c_str(),

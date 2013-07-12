@@ -989,7 +989,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 		} else if (dynamic_cast<gx_engine::JConvParameter*>(&p) != 0) {
 		    gx_engine::GxJConvSettings s;
 		    gx_system::JsonSubParser jps = v->getSubParser();
-		    s.readJSON(jps, 0);
+		    s.readJSON(jps);
 		    dynamic_cast<gx_engine::JConvParameter*>(&p)->set(s);
 		} else {
 		    throw RpcError(-32602, "Invalid param -- unknown variable");
@@ -1760,7 +1760,7 @@ void GxService::on_param_value_changed(gx_engine::Parameter *p) {
     } else if (p->isString()) {
 	jw->write(p->getString().get_value());
     } else if (dynamic_cast<gx_engine::JConvParameter*>(p) != 0) {
-	dynamic_cast<gx_engine::JConvParameter*>(p)->get_value().writeJSON(*jw, 0);
+	dynamic_cast<gx_engine::JConvParameter*>(p)->get_value().writeJSON(*jw);
     } else {
 	assert(false);
     }

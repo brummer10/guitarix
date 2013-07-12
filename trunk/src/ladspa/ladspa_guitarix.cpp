@@ -43,6 +43,7 @@ using namespace gx_engine;
  *                       GENERAL CLASSES                        *
  ****************************************************************/
 
+
 /****************************************************************
  ** class ControlParameter
  */
@@ -218,17 +219,11 @@ void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
 	    jp.next(gx_system::JsonParser::end_object);
         } else if (jp.current_value() == "jconv") {
 	    if (stereo_convolver) {
-		gx_system::PathList sl;
-		sl.add(Glib::build_filename(Glib::get_user_config_dir(), "guitarix")); //FIXME
-		sl.add(GX_SOUND_DIR);
 		jcset = new GxJConvSettings();
-		jcset->readJSON(jp, &sl);
+		jcset->readJSON(jp);
 	    } else if (mono_convolver) {
-		gx_system::PathList sl;
-		sl.add(Glib::build_filename(Glib::get_user_config_dir(), "guitarix")); //FIXME
-		sl.add(GX_SOUND_DIR);
 		jcset = new GxJConvSettings();
-		jcset->readJSON(jp, &sl);
+		jcset->readJSON(jp);
 	    } else {
 		jp.skip_object();
 	    }
@@ -329,7 +324,7 @@ private:
 public:
     gx_system::PresetFile presetfile;
     LadspaSettings(string sfname, string presname,
-		   ParamMap& param, EngineControl&, ConvolverStereoAdapter*, ConvolverMonoAdapter*, ControlParameter&);
+		   EngineControl&, ConvolverStereoAdapter*, ConvolverMonoAdapter*, ControlParameter&);
     ~LadspaSettings();
     void load(int num);
     bool idx_in_preset(int idx) { return idx >= 0 && idx < presetfile.size(); }
@@ -385,12 +380,13 @@ void LadspaSettings::change_preset_file(const std::string& newfile) {
 }
 
 // seq and cp not yet initialized, only use address!
-LadspaSettings::LadspaSettings(string sfname, string presname, ParamMap& param,
-			       EngineControl& seq, ConvolverStereoAdapter* stereo_convolver, ConvolverMonoAdapter* mono_convolver, ControlParameter& cp)
+LadspaSettings::LadspaSettings(string sfname, string presname, EngineControl& seq,
+			       ConvolverStereoAdapter* stereo_convolver, ConvolverMonoAdapter* mono_convolver,
+			       ControlParameter& cp)
     : GxSettingsBase(seq),
       current_source(state),
-      preset_io(param, stereo_convolver, mono_convolver, cp),
-      state_io(param, stereo_convolver, mono_convolver, cp) {
+      preset_io(seq.get_param(), stereo_convolver, mono_convolver, cp),
+      state_io(seq.get_param(), stereo_convolver, mono_convolver, cp) {
     set_io(&state_io, &preset_io);
     set_statefilename(sfname);
     change_preset_file(presname);
@@ -495,7 +491,6 @@ protected:
     LADSPA_Data * no_rt_mode_port;
     LADSPA_Data * priority_port;
     LADSPA_Data * latency_port;
-    ParamMap param;
     ControlParameter& control_parameter;
     LadspaSettings settings;
     void check_preset();
@@ -539,9 +534,8 @@ LadspaGuitarix::LadspaGuitarix(
       no_rt_mode_port(),
       priority_port(),
       latency_port(),
-      param(),
       control_parameter(cp),
-      settings(get_statefile(), get_presetfile(envvar), param, engine, stereo_convolver, mono_convolver, cp) {
+      settings(get_statefile(), get_presetfile(envvar), engine, stereo_convolver, mono_convolver, cp) {
     PresetLoader::add_instance(this);
 }
 
@@ -724,15 +718,6 @@ void LadspaGuitarix::PresetLoader::remove_instance(LadspaGuitarix* i) {
 }
 
 
-class LadspaPathList: public gx_system::PathList {
-public:
-    inline LadspaPathList() {
-	add(Glib::build_filename(Glib::get_user_config_dir(), "guitarix")); //FIXME
-	add(GX_SOUND_DIR);
-    };
-};
-
-
 /****************************************************************
  *                         MONO Plugin                          *
  ****************************************************************/
@@ -762,7 +747,7 @@ public:
     PreampConvolver preamp;
     ContrastConvolver contrast;
 public:
-    MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::PathList& pathlist);
+    MonoEngine(const string& plugin_dir, ParameterGroups& groups);
     ~MonoEngine();
     virtual void wait_ramp_down_finished();
     virtual bool update_module_lists();
@@ -905,7 +890,7 @@ static const char* ampstack_groups[] = {
     0
 };
 
-MonoEngine::MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::PathList& pathlist)
+MonoEngine::MonoEngine(const string& plugin_dir, ParameterGroups& groups)
     : EngineControl(),
       resamp(),
       // ModuleSelector's
@@ -921,7 +906,7 @@ MonoEngine::MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroup
 	  "tube.select", _("select"), 0, ampstack_groups),
       // internal audio modules
       noisegate(),
-      mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), param, pathlist, ""),
+      mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), get_param()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp) {
@@ -1088,7 +1073,6 @@ private:
 	void set(int cnt, LADSPA_Data *input_buffer, LADSPA_Data *output_buffer);
     };
 
-    LadspaPathList pathlist;
     MonoEngine engine;
     ControlParameter control_parameter;
     ReBuffer rebuffer;
@@ -1111,15 +1095,14 @@ public:
 
 LadspaGuitarixMono::LadspaGuitarixMono(unsigned long sr)
     : LadspaGuitarix(engine, 0, &engine.mono_convolver, control_parameter, "LADSPA_GUITARIX_MONO_PRESET"),
-      pathlist(),
-      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"), param, get_group_table(), pathlist),
+      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"), get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),
-      volume_param(param["amp.out_ladspa"].getFloat()),
+      volume_param(engine.get_param()["amp.out_ladspa"].getFloat()),
       input_buffer(),
       output_buffer() {
-    param.set_init_values();
+    engine.get_param().set_init_values();
     engine.set_samplerate(sr);
 }
 
@@ -1402,7 +1385,7 @@ public:
     StereoModuleChain stereo_chain;
     ConvolverStereoAdapter stereo_convolver;
 public:
-    StereoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::PathList& pathlist);
+    StereoEngine(const string& plugin_dir, ParameterGroups& groups);
     ~StereoEngine();
     virtual void wait_ramp_down_finished();
     virtual bool update_module_lists();
@@ -1478,10 +1461,10 @@ void StereoEngine::set_samplerate(unsigned int samplerate) {
     EngineControl::set_samplerate(samplerate);
 }
 
-StereoEngine::StereoEngine(const string& plugin_dir, ParamMap& param, ParameterGroups& groups, const gx_system::PathList& pathlist)
+StereoEngine::StereoEngine(const string& plugin_dir, ParameterGroups& groups)
     : EngineControl(),
       // internal audio modules
-      stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), param, pathlist, "") {
+      stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), get_param()) {
 
     stereo_convolver.set_sync(true);
 
@@ -1605,7 +1588,6 @@ private:
 		 LADSPA_Data *output_buffer1, LADSPA_Data *output_buffer2);
     };
 
-    LadspaPathList pathlist;
     StereoEngine engine;
     ControlParameter control_parameter;
     ReBuffer rebuffer;
@@ -1630,17 +1612,16 @@ public:
 
 LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
     : LadspaGuitarix(engine, &engine.stereo_convolver, 0, control_parameter, "LADSPA_GUITARIX_STEREO_PRESET"),
-      pathlist(),
-      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"), param, get_group_table(), pathlist),
+      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"), get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),
-      volume_param(param["amp.out_master_ladspa"].getFloat()),
+      volume_param(engine.get_param()["amp.out_master_ladspa"].getFloat()),
       input_buffer1(),
       input_buffer2(),
       output_buffer1(),
       output_buffer2() {
-    param.set_init_values();
+    engine.get_param().set_init_values();
     engine.set_samplerate(sr);
 }
 
@@ -1950,6 +1931,10 @@ LadspaGuitarixStereo::LADSPA::~LADSPA() {
  ** function ladspa_descriptor
  */
 
+static void initBasicOptions() {
+    static gx_system::BasicOptions options;
+}
+
 /* Return a descriptor of the requested plugin type. */
 extern "C" __attribute__ ((visibility ("default")))
 const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) {
@@ -1964,6 +1949,7 @@ const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) {
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 #endif
+	initBasicOptions();
     }
     switch (Index) {
     case 0:

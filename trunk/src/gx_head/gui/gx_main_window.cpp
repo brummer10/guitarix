@@ -1878,7 +1878,7 @@ int MainWindow::start_jack() {
     gx_engine::EnumParameter& jack_starter = machine.get_parameter("ui.jack_starter_idx").getEnum();
     string v_id = jack_starter.get_pair().value_id;
     if (v_id == "autostart") {
-	return jack->gx_jack_connection(true, true, wait_after_connect) ? 1 : 0;
+	return jack->gx_jack_connection(true, true, wait_after_connect, options) ? 1 : 0;
     }
     string cmd;
     if (v_id == "other") {
@@ -1894,7 +1894,7 @@ int MainWindow::start_jack() {
     }
     gx_system::gx_system_call(cmd, true, true);
     for (int i = 0; i < 10; i++) {
-	if (jack->gx_jack_connection(true,false,wait_after_connect)) {
+	if (jack->gx_jack_connection(true,false,wait_after_connect, options)) {
 	    return 1;
 	}
 	usleep(500000);
@@ -1910,7 +1910,7 @@ bool MainWindow::connect_jack(bool v, Gtk::Window *splash) {
     if (!jack) {
 	return false;
     }
-    if (jack->gx_jack_connection(v, false, 0)) {
+    if (jack->gx_jack_connection(v, false, 0, options)) {
 	return true;
     }
     if (!v) {
@@ -2508,8 +2508,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     uimanager->add_ui_from_file(options.get_builder_filepath("menudef.xml"));
 
     // add dynamic submenus
-    gx_system::CmdlineOptions& opt = gx_system::get_options();
-    if (!opt.get_clear_rc()) {
+    if (!options.get_clear_rc()) {
         add_skin_menu();
     }
     add_latency_menu();
@@ -2761,7 +2760,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     plugin_dict.add(mainamp_plugin);
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     effects_toolpalette->show();
-    if (!opt.get_clear_rc()) {
+    if (!options.get_clear_rc()) {
       set_new_skin(options.skin_name);
     } else {
       gtk_rc_parse(
@@ -2793,7 +2792,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     // standard state file (gx_head_rc or similar if -n is used)
     machine.loadstate();
     if (!in_session) {
-	machine.disable_autosave(gx_system::get_options().get_opt_save_on_exit());
+	machine.disable_autosave(options.get_opt_save_on_exit());
     }
     if (!connect_jack(true, splash)) {
 	// not connected, must synthesize signal for initialization
