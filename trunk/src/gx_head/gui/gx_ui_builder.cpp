@@ -120,6 +120,7 @@ void UiBuilderImpl::openHorizontalTableBox_(const char* label) {
 
 void UiBuilderImpl::openHorizontalBox_(const char* label) {
     intf->openHorizontalBox(label);
+}
 
 void UiBuilderImpl::openSpaceBox_(const char* label) {
     intf->openSpaceBox(label);
