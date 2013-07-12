@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Hermann Meyer, James Warden, Andreas Degert, Pete Shorthose
+ * Copyright (C) 2011, 2013 Hermann Meyer, James Warden, Andreas Degert, Pete Shorthose
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,16 +43,36 @@ struct PluginDef;
 #define UI_NUM_POSITION_MASK 0x07
 #define UI_NUM_SHOW_ALWAYS   0x08
 
+// Stock Items for Gxw::Switch
+
+#define sw_led        "led"
+#define sw_switch     "switch"
+#define sw_switchit   "switchit"
+#define sw_minitoggle "minitoggle"
+#define sw_button     "button"
+#define sw_pbutton    "pbutton"
+#define sw_rbutton    "rbutton"
+
+#define UI_FORM_STACK 0x01
+#define UI_FORM_GLADE 0x02
+
 struct UiBuilder {
     PluginDef *plugin;
+    void (*load_glade)(const char *data);
+    void (*load_glade_file)(const char *fname);
     void (*openTabBox)(const char* label);
     void (*openVerticalBox)(const char* label);
     void (*openVerticalBox1)(const char* label);
     void (*openVerticalBox2)(const char* label);
     void (*openHorizontalBox)(const char* label);
     void (*openHorizontalhideBox)(const char* label);
+    void (*openHorizontalTableBox)(const char *label);
+    void (*openFrameBox)(const char *label);
+    void (*openFlipLabelBox)(const char* label);
+    void (*openpaintampBox)(const char* label);
     void (*closeBox)();
-    void (*load_glade)(const char *data);
+    void (*insertSpacer)();
+    void (*set_next_flags)(int flags);
     // methods creating UI elements connected to parameter_id's.
     // the check_parameter function in dsp2cc identifies these
     // functions by the prefix create_ so please stick to this
@@ -66,11 +86,10 @@ struct UiBuilder {
     void (*create_switch)(const char *sw_type,const char * id, const char *label);
     void (*create_selector)(const char *id, const char *label);
     void (*create_small_rackknobr)(const char *id, const char *label);
-    void (*insertSpacer)();
-    void (*set_next_flags)(int flags);
-    void (*openHorizontalTableBox)(const char *label);
-    void (*openSpaceBox)(const char *label);
-    //FIXME add missing functions.
+    void (*create_wheel)(const char *id, const char *label);
+    void (*create_simple_spin_value)(const char *id);
+    void (*create_eq_rackslider_no_caption)(const char *id);
+    // adding additional functions:
     // If possible don't change the order of the current defintion.
     // new functions need to be added at the following places:
     //  StackBoxBuilder: decl, real implementation
@@ -117,7 +136,7 @@ typedef void (*process_mono_audio) (int count, float *input, float *output, Plug
 typedef void (*process_stereo_audio) (int count, float *input1, float *input2,
 				      float *output1, float *output2, PluginDef *plugin);
 typedef int (*registerfunc)(const ParamReg& reg);
-typedef int (*uiloader)(const UiBuilder& builder);
+typedef int (*uiloader)(const UiBuilder& builder, int format);
 typedef void (*deletefunc)(PluginDef *plugin);
 
 enum {
@@ -140,7 +159,7 @@ enum {
 
 #define PLUGINDEF_VERMAJOR_MASK 0xff00
 #define PLUGINDEF_VERMINOR_MASK 0x00ff
-#define PLUGINDEF_VERSION       0x0501
+#define PLUGINDEF_VERSION       0x0600
 
 struct PluginDef {
     int version;	 // = PLUGINDEF_VERSION

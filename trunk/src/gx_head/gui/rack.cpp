@@ -42,11 +42,10 @@
  */
 
 PluginUI::PluginUI(MainWindow& main_, const char *name,
-		   const Glib::ustring& fname_, const Glib::ustring& tooltip_)
+		   const Glib::ustring& tooltip_)
     : merge_id(0),
       action(),
       plugin(main_.get_machine().pluginlist_lookup_plugin(name)),
-      fname(fname_),
       tooltip(tooltip_),
       shortname(),
       icon(),

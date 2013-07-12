@@ -124,14 +124,14 @@ private:
 	double 	fRec45[3];
 	double 	fRec44[3];
 	void clear_state_f();
-	int load_ui_f(const UiBuilder& b);
+	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
 	void init(unsigned int samplingFreq);
 	void compute(int count, float *input0, float *input1, float *output0, float *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static int load_ui_f_static(const UiBuilder& b);
+	static int load_ui_f_static(const UiBuilder& b, int form);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
 	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
@@ -1276,17 +1276,53 @@ const char *Dsp::glade_def = "\
 </interface>\n\
 ";
 
-int Dsp::load_ui_f(const UiBuilder& b)
+inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
-	b.load_glade(glade_def);
-	return 0;
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("zita_rev1" "." p)
+b.openHorizontalhideBox("");
+{
+    b.create_master_slider(PARAM("output.level"), 0);
+}
+b.closeBox();
+b.openVerticalBox("");
+{
+    b.openHorizontalBox("");
+    {
+	b.create_small_rackknob(PARAM("input.in_delay"), 0);
+	b.create_small_rackknob(PARAM("decay_times.lf_x"), 0);
+	b.create_small_rackknob(PARAM("decay_times.low_rt60"), 0);
+	b.create_small_rackknob(PARAM("decay_times.mid_rt60"), 0);
+	b.create_small_rackknob(PARAM("decay_times.hf_damping"), 0);
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+	b.create_small_rackknob(PARAM("equalizer1.eq1_freq"), 0);
+	b.create_small_rackknob(PARAM("equalizer1.eq1_level"), 0);
+	b.create_small_rackknob(PARAM("equalizer2.eq2_freq"), 0);
+	b.create_small_rackknob(PARAM("equalizer2.eq2_level"), 0);
+	b.create_small_rackknob(PARAM("output.dry_wet_mix"), 0);
+	b.create_small_rackknob(PARAM("output.level"), 0);
+    }
+    b.closeBox();
+}
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
+	return -1;
 }
 
-int Dsp::load_ui_f_static(const UiBuilder& b)
+int Dsp::load_ui_f_static(const UiBuilder& b, int form)
 {
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
 }
-
 PluginDef *plugin() {
 	return new Dsp();
 }

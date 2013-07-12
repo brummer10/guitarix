@@ -911,14 +911,14 @@ MonoEngine::MonoEngine(const string& plugin_dir, ParamMap& param, ParameterGroup
       // ModuleSelector's
       crybaby(
 	  *this, "crybaby", N_("Crybaby"), "", builtin_crybaby_plugins,
-	  "crybaby.autowah", _("select"), 0, PGN_POST_PRE),
+	  "crybaby.autowah", _("select"), 0, 0, PGN_POST_PRE),
       tonestack(
 	  *this, "amp.tonestack", N_("Tonestack"), "",
 	  builtin_tonestack_plugins, "amp.tonestack.select",
-	  _("select"), 0, PGN_POST_PRE),
+	  _("select"), 0, 0, PGN_POST_PRE),
       ampstack(
 	  *this, "ampstack", "?Tube", "", builtin_amp_plugins,
-	  "tube.select", _("select"), ampstack_groups),
+	  "tube.select", _("select"), 0, ampstack_groups),
       // internal audio modules
       noisegate(),
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), param, pathlist, ""),

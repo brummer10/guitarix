@@ -238,14 +238,6 @@ struct uiAdjustment: public uiElement {
 
 /****************************************************************/
 
-extern const char *sw_led;
-extern const char *sw_switch;
-extern const char *sw_switchit;
-extern const char *sw_minitoggle;
-extern const char *sw_button;
-extern const char *sw_pbutton;
-extern const char *sw_rbutton;
-
 extern const char *pb_amp_expose;
 extern const char *pb_conv_widget_expose;
 extern const char *pb_upper_widget_expose;

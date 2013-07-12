@@ -367,6 +367,8 @@ class Parser(object):
                     self.shortname = value
                 elif key == "description":
                     self.description = value
+                elif key == "gladefile":
+                    self.gladefile = value
 
     def readIncludes(self, stop_expr):
         stop = re.compile(stop_expr).match
@@ -591,12 +593,33 @@ get_gx_plugin(unsigned int idx, PluginDef **pplugin)
 """
 
 loadui_glade = r"""
+#if %(has_glade_ui)s
 static const char *glade_def = "\
-%s";
+%(glade_ui)s";
 
-static int load_ui(const UiBuilder& b) {
-    b.load_glade(glade_def);
-    return 0;
+#endif
+static int load_ui(const UiBuilder& b, int form) {
+#if %(has_gladefile)s
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file(%(gladefile)s);
+        return 0;
+    }
+#endif
+#if %(has_glade_ui)s
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
+        return 0;
+    }
+#endif
+#if %(has_cc_ui)s
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("%(plugin_id)s" "." p)
+%(cc_ui)s
+#undef PARAM
+        return 0;
+    }
+#endif
+    return -1;
 }
 """
 
@@ -672,25 +695,38 @@ static int register_params(const ParamReg& reg)
 %(register_body)s\
 	return 0;
 }
-#if %(has_cc_ui)s
-int load_ui(const UiBuilder& b) {
-#define PARAM(p) ("%(plugin_id)s" "." p)
-%(cc_ui)s
-#undef PARAM
-    return 0;
-}
+#if %(has_ui)s
 
-#endif
 #if %(has_glade_ui)s
-
 static const char *glade_def = "\\
 %(glade_ui)s";
 
-static int load_ui(const UiBuilder& b) {
-    b.load_glade(glade_def);
-    return 0;
+#endif
+int load_ui(const UiBuilder& b, int form) {
+#if %(has_gladefile)s
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file(%(gladefile)s);
+        return 0;
+    }
+#endif
+#if %(has_glade_ui)s
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
+        return 0;
+    }
+#endif
+#if %(has_cc_ui)s
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("%(plugin_id)s" "." p)
+%(cc_ui)s
+#undef PARAM
+        return 0;
+    }
+#endif
+    return -1;
 }
 #endif
+
 %(groups_define)s\
 
 PluginDef plugindef = {
@@ -760,12 +796,11 @@ public:
 #if %(has_activate)s
 	int activate(bool start);
 #endif
-#if %(has_cc_ui)s
-	int load_ui_f(const UiBuilder& b);
-#endif
+#if %(has_ui)s
+	int load_ui_f(const UiBuilder& b, int form);
 #if %(has_glade_ui)s
-	int load_ui_f(const UiBuilder& b);
 	static const char *glade_def;
+#endif
 #endif
 	void init(unsigned int samplingFreq);
 	void compute(int %(countname)s%(compute_args)s);
@@ -778,11 +813,8 @@ public:
 #if %(has_activate)s
 	static int activate_static(bool start, PluginDef*);
 #endif
-#if %(has_cc_ui)s
-	static int load_ui_f_static(const UiBuilder& b);
-#endif
-#if %(has_glade_ui)s
-	static int load_ui_f_static(const UiBuilder& b);
+#if %(has_ui)s
+	static int load_ui_f_static(const UiBuilder& b, int form);
 #endif
 	static void init_static(unsigned int samplingFreq, PluginDef*);
 	static void compute_static(int %(countname)s%(compute_args)s, PluginDef*);
@@ -929,39 +961,42 @@ int Dsp::register_params_static(const ParamReg& reg)
 }
 
 #endif
-#if %(has_cc_ui)s
-inline int Dsp::load_ui_f(const UiBuilder& b)
-{
-#define PARAM(p) ("%(plugin_id)s" "." p)
-%(cc_ui)s
-#undef PARAM
-	return 0;
-}
-
-#if %(has_plugindef)s
-int Dsp::load_ui_f_static(const UiBuilder& b)
-{
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
-}
-
-#endif
-#endif
+#if %(has_ui)s
 #if %(has_glade_ui)s
 const char *Dsp::glade_def = "\\
 %(glade_ui)s";
 
-int Dsp::load_ui_f(const UiBuilder& b)
+#endif
+inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
-	b.load_glade(glade_def);
-	return 0;
+#if %(has_gladefile)s
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file(%(gladefile)s);
+        return 0;
+    }
+#endif
+#if %(has_glade_ui)s
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
+        return 0;
+    }
+#endif
+#if %(has_cc_ui)s
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("%(plugin_id)s" "." p)
+%(cc_ui)s
+#undef PARAM
+        return 0;
+    }
+#endif
+	return -1;
 }
-
 #if %(has_plugindef)s
-int Dsp::load_ui_f_static(const UiBuilder& b)
-{
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
-}
 
+int Dsp::load_ui_f_static(const UiBuilder& b, int form)
+{
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
+}
 #endif
 #endif
 #if %(has_plugindef)s
@@ -973,9 +1008,9 @@ void Dsp::del_instance(PluginDef *p)
 {
 	delete static_cast<Dsp*>(p);
 }
-
 #endif
 #if %(sharedlib)s
+
 extern "C" __attribute__ ((visibility ("default"))) int
 get_gx_plugin(unsigned int idx, PluginDef **pplugin)
 {
@@ -989,6 +1024,7 @@ get_gx_plugin(unsigned int idx, PluginDef **pplugin)
     return 1;
 }
 #endif
+
 } // end namespace %(namespace)s
 %(end_extra_namespace)s\
 """
@@ -1036,12 +1072,11 @@ public:
 #if %(has_activate)s
 	int activate(bool start);
 #endif
-#if %(has_cc_ui)s
-	int load_ui_f(const UiBuilder& b);
-#endif
+#if %(has_ui)s
+	int load_ui_f(const UiBuilder& b, int form);
 #if %(has_glade_ui)s
-	int load_ui_f(const UiBuilder& b);
 	static const char *glade_def;
+#endif
 #endif
 	void init(uint32_t samplingFreq);
 	void compute(int %(countname)s%(compute_args)s);
@@ -1053,11 +1088,8 @@ public:
 #if %(has_activate)s
 	static int activate_static(bool start, PluginLV2*);
 #endif
-#if %(has_cc_ui)s
-	static int load_ui_f_static(const UiBuilder& b);
-#endif
-#if %(has_glade_ui)s
-	static int load_ui_f_static(const UiBuilder& b);
+#if %(has_ui)s
+	static int load_ui_f_static(const UiBuilder& b, int form);
 #endif
 	static void init_static(uint32_t samplingFreq, PluginLV2*);
 	static void compute_static(int %(countname)s%(compute_args)s, PluginLV2*);
@@ -1204,39 +1236,43 @@ void Dsp::connect_static(uint32_t port,void* data, PluginLV2 *p)
 	static_cast<Dsp*>(p)->connect(port, data);
 }
 
-#endif
 
-#if %(has_cc_ui)s
-inline int Dsp::load_ui_f(const UiBuilder& b)
-{
-#define PARAM(p) ("%(plugin_id)s" "." p)
-%(cc_ui)s
-#undef PARAM
-	return 0;
-}
-
-#if %(has_plugindef)s
-int Dsp::load_ui_f_static(const UiBuilder& b)
-{
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
-}
-
-#endif
 #endif
 #if %(has_glade_ui)s
 const char *Dsp::glade_def = "\\
 %(glade_ui)s";
 
-int Dsp::load_ui_f(const UiBuilder& b)
+#endif
+#if %(has_ui)s
+inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
-	b.load_glade(glade_def);
-	return 0;
+#if %(has_gladefile)s
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file(%(gladefile)s);
+        return 0;
+    }
+#endif
+#if %(has_glade_ui)s
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
+        return 0;
+    }
+#endif
+#if %(has_cc_ui)s
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("%(plugin_id)s" "." p)
+%(cc_ui)s
+#undef PARAM
+        return 0;
+    }
+#endif
+	return -1;
 }
 
 #if %(has_plugindef)s
-int Dsp::load_ui_f_static(const UiBuilder& b)
+int Dsp::load_ui_f_static(const UiBuilder& b, int form)
 {
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
 }
 
 #endif
@@ -1277,6 +1313,51 @@ get_gx_plugin(unsigned int idx, PluginLV2 **pplugin)
 %(end_extra_namespace)s\
 """
 
+
+def preprocess(s, fp, fp_head):
+    depth = 0  # conditional nesting depth
+    truelevel = 0  # last depth where all nested conditions where true
+    impl_seen = False
+    for lno, l in enumerate(s):
+        if l.startswith("#if"):
+            if l.endswith("True\n"):
+                cond = True
+            elif l.endswith("False\n"):
+                cond = False
+            else:
+                assert False, "%d: %s" % (lno+1, l)
+            if l.startswith("#ifnot ") != cond:
+                if truelevel == depth:
+                    truelevel += 1
+            depth += 1
+            continue
+        elif l == "#else\n":
+            if depth == 0:
+                raise SystemExit("template line %d: wrong #else" % (lno+1))
+            if truelevel == depth:
+                truelevel -= 1
+            elif truelevel == depth-1:
+                truelevel = depth
+            continue
+        elif l == "#endif\n":
+            if depth == 0:
+                raise SystemExit("template line %d: unbalanced #if / #endif" % (lno+1))
+            if truelevel == depth:
+                truelevel -= 1
+            depth -= 1
+            continue
+        if l == "#impl\n":
+            impl_seen = True
+            continue
+        if truelevel == depth:
+            if fp_head and not impl_seen:
+                fp_head.write(l)
+            else:
+                fp.write(l)
+    if depth:
+        raise SystemExit("template EOF: unbalanced #if / #endif")
+
+
 class Output(object):
 
     def __init__(self, parser, fname, options):
@@ -1309,35 +1390,44 @@ class Output(object):
             fp.write(plugin_standalone_header)
         self.parser.write(fp, "includes")
 
-    def write_load_ui(self, fp, plugin_id, wrap=True):
+    def write_load_ui(self, fps, fpg, plugin_id, wrap=True):
         load_ui = 0
         ui_name = self.fname.replace(".dsp", "_ui.glade")
+        sg = ""
         if os.path.exists(ui_name):
             xml = open(ui_name).read()
             found_params = re.findall('<property name="var_id">([^<]*)</property>',xml)
             if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
                 raise SystemExit(1)
-            s = xml.replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"')
-            if wrap:
-                fp.write(loadui_glade % s)
-            else:
-                fp.write(s)
-            load_ui = 2
+            sg = xml.replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"')
+            load_ui |= 2
+        ui_name = self.fname.replace(".dsp", "_ui.cc")
+        ccdef = ""
+        if os.path.exists(ui_name):
+            ccdef = open(ui_name).read()
+            re_func_name = r'.*\.create_[a-zA-Z0-9_]+'
+            re_str = r'"([^"]*)'
+            re_param = r'PARAM\(\s*' + re_str
+            re_expr = r'\s*(//)?'+re_func_name+r'\s*\(\s*(?:[a-z_0-9]+\s*,\s*)?(?:'+re_param+'|'+re_str+')'
+            found_params = [v[2] if v[2] else plugin_id + "." + v[1]
+                            for v in re.findall(re_expr,ccdef) if not v[0]]
+            if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
+                raise SystemExit(1)
+            load_ui |= 1
+        if wrap:
+            s = loadui_glade % dict(
+                has_glade_ui = ((load_ui & 2) != 0),
+                glade_ui = sg,
+                has_gladefile = hasattr(self.parser, "gladefile"),
+                gladefile = '"'+getattr(self.parser, "gladefile", "")+'"',
+                has_cc_ui = ((load_ui & 1) != 0),
+                plugin_id = self.parser.toplevel or self.parser.topname,
+                cc_ui = ccdef,
+                )
+            preprocess(StringIO(s), fps, None)
         else:
-            ui_name = self.fname.replace(".dsp", "_ui.cc")
-            if os.path.exists(ui_name):
-                ccdef = open(ui_name).read()
-                re_func_name = r'.*\.create_[a-zA-Z0-9_]+'
-                re_str = r'"([^"]*)'
-                re_param = r'PARAM\(\s*' + re_str
-                re_expr = r'\s*(//)?'+re_func_name+r'\s*\(\s*(?:'+re_param+'|'+re_str+')'
-                found_params = [v[2] if v[2] else plugin_id + "." + v[1]
-                                for v in re.findall(re_expr,ccdef) if not v[0]]
-                if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
-                    raise SystemExit(1)
-                fp.write("\n")
-                fp.write(ccdef)
-                load_ui = 1
+            fpg.write(sg)
+            fps.write(ccdef)
         return load_ui
 
     def write_body_plugin(self, fp):
@@ -1345,7 +1435,7 @@ class Output(object):
         self.parser.ui.write(fp, prefix="reg.")
         fp.write("\treturn 0;\n}\n")
         plugin_id = self.parser.toplevel or self.parser.topname
-        if self.write_load_ui(fp, plugin_id):
+        if self.write_load_ui(fp, None, plugin_id):
             load_ui = "load_ui"
         else:
             load_ui = "0"
@@ -1391,15 +1481,10 @@ class Output(object):
         self.parser.ui.write_port(s, prefix)
         return s.getvalue()
     def gen_load_ui(self, plugin_id):
-        s = StringIO()
-        ret = self.write_load_ui(s, plugin_id, False)
-        if ret == 0:
-            return False, "", False, ""
-        if ret == 1:
-            return True, s.getvalue(), False, ""
-        if ret == 2:
-            return False, "", True, s.getvalue()
-        assert False, str(ret)
+        sg = StringIO()
+        ss = StringIO()
+        ret = self.write_load_ui(ss, sg, plugin_id, False)
+        return (ret & 1 != 0), ss.getvalue(), (ret & 2 != 0), sg.getvalue()
 
     def dsp_initlist(self, has_plugindef, has_lv2):
         if has_lv2:
@@ -1443,6 +1528,8 @@ class Output(object):
             plugin_name = wrap_N_(self.parser.name)
         else:
             plugin_name = '"?%s"' % self.parser.modname
+        has_gladefile = hasattr(self.parser, "gladefile")
+        gladefile = '"'+getattr(self.parser, "gladefile", "")+'"'
         static_decl = "".join(["%s Dsp::%s[%s];\n" % (tp, v, n) for v, tp, n in self.parser.staticlist])
         template = template_plugin if self.options.init_type == "plugin" else template_plugin_instance
         if self.options.init_type == "plugin-lv2":
@@ -1477,8 +1564,11 @@ class Output(object):
             port_head     = self.parser_h_lv2(""),
             has_cc_ui = has_cc_ui,
             has_glade_ui = has_glade_ui,
+            has_gladefile = has_gladefile,
+            has_ui = has_cc_ui or has_glade_ui or has_gladefile,
             cc_ui = cc_ui,
             glade_ui = glade_ui,
+            gladefile = gladefile,
             groups_define =  groups_define,
             plugin_id = plugin_id,
             plugin_name = plugin_name,
@@ -1489,7 +1579,7 @@ class Output(object):
             mono_compute_p = "compute"+ds if self.parser.getNumOutputs() == 1 else "0",
             stereo_compute_p = "compute"+ds if self.parser.getNumOutputs() == 2 else "0",
             activate_p = "activate"+ds if self.has_activate else "0",
-            load_ui_p = "load_ui_f"+ds if has_cc_ui or has_glade_ui else "0",
+            load_ui_p = "load_ui_f"+ds if has_cc_ui or has_glade_ui or has_gladefile else "0",
             clear_state_p = "clear_state_f"+ds if self.state_init else "0",
             has_plugindef = has_plugindef,
             has_lv2 = has_lv2,
@@ -1498,47 +1588,7 @@ class Output(object):
             sharedlib = self.options.template_type == "sharedlib",
             ))
         s.seek(0)
-        depth = 0  # conditional nesting depth
-        truelevel = 0  # last depth where all nested conditions where true
-        impl_seen = False
-        for lno, l in enumerate(s):
-            if l.startswith("#if"):
-                if l.endswith("True\n"):
-                    cond = True
-                elif l.endswith("False\n"):
-                    cond = False
-                else:
-                    assert False, "%d: %s" % (lno+1, l)
-                if l.startswith("#ifnot ") != cond:
-                    if truelevel == depth:
-                        truelevel += 1
-                depth += 1
-                continue
-            elif l == "#else\n":
-                if depth == 0:
-                    raise SystemExit("template line %d: wrong #else" % (lno+1))
-                if truelevel == depth:
-                    truelevel -= 1
-                elif truelevel == depth-1:
-                    truelevel = depth
-                continue
-            elif l == "#endif\n":
-                if depth == 0:
-                    raise SystemExit("template line %d: unbalanced #if / #endif" % (lno+1))
-                if truelevel == depth:
-                    truelevel -= 1
-                depth -= 1
-                continue
-            if l == "#impl\n":
-                impl_seen = True
-                continue
-            if truelevel == depth:
-                if fp_head and not impl_seen:
-                    fp_head.write(l)
-                else:
-                    fp.write(l)
-        if depth:
-            raise SystemExit("template EOF: unbalanced #if / #endif")
+        preprocess(s, fp, fp_head)
 
     def write(self, fp, fp_head, h_name):
         if self.options.init_type in ("plugin", "plugin-instance", "no-init-instance", "plugin-lv2"):

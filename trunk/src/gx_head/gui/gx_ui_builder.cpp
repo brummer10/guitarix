@@ -68,18 +68,24 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     openHorizontalBox = openHorizontalBox_;
     openHorizontalhideBox = openHorizontalhideBox_;
     openHorizontalTableBox = openHorizontalTableBox_;
-    openSpaceBox = openSpaceBox_;
+    openFrameBox = openFrameBox_;
+    openFlipLabelBox = openFlipLabelBox_;
+    openpaintampBox = openpaintampBox_;
     closeBox = closeBox_;
     load_glade = load_glade_;
+    load_glade_file = load_glade_file_;
     create_master_slider = create_master_slider_;
     create_small_rackknob = create_small_rackknob_;
     create_small_rackknobr = create_small_rackknobr_;
     create_spin_value = create_spin_value_;
     create_switch = create_switch_;
     create_switch_no_caption = create_switch_no_caption_;
+    create_wheel = create_wheel_;
     create_selector = create_selector_;
     create_selector_no_caption = create_selector_no_caption_;
     create_port_display = create_port_display_;
+    create_simple_spin_value = create_simple_spin_value_;
+    create_eq_rackslider_no_caption = create_eq_rackslider_no_caption_;
     insertSpacer = insertSpacer_;
     set_next_flags = set_next_flags_;
 };
@@ -90,7 +96,7 @@ bool UiBuilderImpl::load_unit(PluginDef *pd) {
     }
     intf->prepare();
     plugin = pd;
-    pd->load_ui(*this);
+    pd->load_ui(*this, UI_FORM_GLADE|UI_FORM_STACK);
     return true;
 }
 
@@ -122,8 +128,16 @@ void UiBuilderImpl::openHorizontalBox_(const char* label) {
     intf->openHorizontalBox(label);
 }
 
-void UiBuilderImpl::openSpaceBox_(const char* label) {
-    intf->openSpaceBox(label);
+void UiBuilderImpl::openFrameBox_(const char* label) {
+    intf->openFrameBox(label);
+}
+
+void UiBuilderImpl::openFlipLabelBox_(const char* label) {
+    intf->openFlipLabelBox(label);
+}
+
+void UiBuilderImpl::openpaintampBox_(const char* label) {
+    intf->openpaintampBox(label);
 }
 
 void UiBuilderImpl::insertSpacer_() {
@@ -167,8 +181,20 @@ void UiBuilderImpl::create_switch_(const char *sw_type, const char * id, const c
     intf->create_v_switch(sw_type, id, label);
 }
 
+void UiBuilderImpl::create_wheel_(const char * id, const char *label) {
+    intf->create_wheel(id, label);
+}
+
 void UiBuilderImpl::create_port_display_(const char *id, const char *label) {
     intf->create_port_display(id, label);
+}
+
+void UiBuilderImpl::create_simple_spin_value_(const char *id) {
+    intf->create_simple_spin_value(id);
+}
+
+void UiBuilderImpl::create_eq_rackslider_no_caption_(const char *id) {
+    intf->create_eq_rackslider_no_caption(id);
 }
 
 void UiBuilderImpl::closeBox_() {
@@ -179,12 +205,16 @@ void UiBuilderImpl::load_glade_(const char *data) {
     intf->loadRackFromGladeData(data);
 }
 
+void UiBuilderImpl::load_glade_file_(const char *fname) {
+    intf->loadRackFromGladeFile(fname);
+}
+
 bool UiBuilderImpl::load(gx_engine::Plugin *p) {
     PluginDef *pd = p->get_pdef();
     if (!(pd->flags & PGN_GUI) || !(pd->flags & gx_engine::PGNI_DYN_POSITION)) {
 	return false;
     }
-    main.add_plugin(*pluginlist, pd->id, "", "");
+    main.add_plugin(*pluginlist, pd->id, "");
     return true;
 }
 

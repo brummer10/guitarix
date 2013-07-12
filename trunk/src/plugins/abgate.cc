@@ -43,7 +43,7 @@ public:
     static void init(unsigned int samplingFreq, PluginDef *plugin);
     static void process(int count, float *input, float *output, PluginDef *plugin);
     static int registerparam(const ParamReg& reg);
-    static int uiloader(const UiBuilder& builder);
+    static int uiloader(const UiBuilder& builder, int form);
     static void del_instance(PluginDef *plugin);
 };
 
@@ -127,7 +127,10 @@ void Gate::process(int count, float *input, float *output, PluginDef *plugin) {
     }	
 }
 
-int Gate::uiloader(const UiBuilder& b) {
+int Gate::uiloader(const UiBuilder& b, int form) {
+    if (!(form & UI_FORM_STACK)) {
+	return -1;
+    }
     b.openHorizontalhideBox("");
     {
         b.create_master_slider("abgate.threshold",0);

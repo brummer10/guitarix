@@ -6,16 +6,6 @@
 
 namespace gx_gui {
 
-// Stock Items for Gxw::Switch
-
-const char *sw_led =             "led";
-const char *sw_switch =          "switch";
-const char *sw_switchit =        "switchit";
-const char *sw_minitoggle =      "minitoggle";
-const char *sw_button =          "button";
-const char *sw_pbutton =         "pbutton";
-const char *sw_rbutton =         "rbutton";
-
 // Paint Functions for Gxw::PaintBox
 
 const char *pb_amp_expose =                  "amp_expose";
@@ -154,7 +144,6 @@ void StackBoxBuilder::fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox) {
 	minibox = new Gtk::VBox();
 	minibox->show();
 	(*i)->show();
-	//(*i)->reference(); //FIXME can't unmanage widget, reparent unrefs
 	(*i)->reparent(*minibox);
     } else {
 	minibox = 0;
@@ -167,43 +156,11 @@ void StackBoxBuilder::get_box(const std::string& name, Gtk::Widget*& mainbox, Gt
 	void (StackBoxBuilder::*func)();
     } mapping[] = {
 	// mono
-	//{ "ampdetail", &StackBoxBuilder::make_rackbox_ampdetail },
-	{ "overdrive", &StackBoxBuilder::make_rackbox_overdrive },
-	{ "echo", &StackBoxBuilder::make_rackbox_echo },
-	{ "delay", &StackBoxBuilder::make_rackbox_delay },
-	{ "freeverb", &StackBoxBuilder::make_rackbox_freeverb },
 	{ "oscilloscope", &StackBoxBuilder::make_rackbox_oscilloscope },
-	{ "low_highpass", &StackBoxBuilder::make_rackbox_low_highpass },
-	{ "eqs", &StackBoxBuilder::make_rackbox_eqs },
-	{ "eq", &StackBoxBuilder::make_rackbox_peak_eq },
-	{ "dide", &StackBoxBuilder::make_rackbox_digital_delay },
-	{ "didest", &StackBoxBuilder::make_rackbox_digital_delay_st },
-	//{ "crybaby", &StackBoxBuilder::make_rackbox_crybaby },
-	//{ "gx_distortion", &StackBoxBuilder::make_rackbox_gx_distortion },
-	{ "expander", &StackBoxBuilder::make_rackbox_expander },
-	{ "biquad", &StackBoxBuilder::make_rackbox_biquad },
-	//{ "tremolo", &StackBoxBuilder::make_rackbox_tremolo },
-	{ "phaser_mono", &StackBoxBuilder::make_rackbox_phaser_mono },
-	{ "chorus_mono", &StackBoxBuilder::make_rackbox_chorus_mono },
-	{ "flanger_mono", &StackBoxBuilder::make_rackbox_flanger_mono },
-	{ "feedback", &StackBoxBuilder::make_rackbox_feedback },
-	//{ "amp.tonestack", &StackBoxBuilder::make_rackbox_amp_tonestack },
-	{ "cab", &StackBoxBuilder::make_rackbox_cab },
-	{ "pre", &StackBoxBuilder::make_rackbox_pre },
-	{ "highbooster", &StackBoxBuilder::make_rackbox_highbooster },
 	{ "jconv_mono", &StackBoxBuilder::make_rackbox_jconv_mono },
 	{ "midi_out", &StackBoxBuilder::make_rackbox_midi_out },
 	// stereo
-	{ "chorus", &StackBoxBuilder::make_rackbox_chorus },
-	{ "flanger", &StackBoxBuilder::make_rackbox_flanger },
-	{ "phaser", &StackBoxBuilder::make_rackbox_phaser },
-	{ "stereodelay", &StackBoxBuilder::make_rackbox_stereodelay },
-	{ "stereoecho", &StackBoxBuilder::make_rackbox_stereoecho },
-	{ "moog", &StackBoxBuilder::make_rackbox_moog },
-	{ "ampmodul", &StackBoxBuilder::make_rackbox_ampmodul },
-	{ "tonemodul", &StackBoxBuilder::make_rackbox_tonemodul },
 	{ "jconv", &StackBoxBuilder::make_rackbox_jconv },
-	{ "stereoverb", &StackBoxBuilder::make_rackbox_stereoverb }
     };
     mainbox = minibox = 0;
     for (unsigned int i = 0; i < sizeof(mapping) / sizeof(mapping[0]); ++i) {
@@ -215,20 +172,30 @@ void StackBoxBuilder::get_box(const std::string& name, Gtk::Widget*& mainbox, Gt
     }
 }
 
-void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
-    const char *ids[] = { "rackbox", "minibox", 0 };
-    Glib::RefPtr<GxBuilder> bld = GxBuilder::create_from_string(xmldesc, &machine, ids);
-    Gtk::Widget* w;
-    bld->find_widget("minibox", w);
-    if (w) {
-	fBox.add(w);
-    }
-    bld->find_widget("rackbox", w);
-    if (!w) {
+void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
+    if (!bld->has_object("rackbox")) {
         gx_print_error("load_ui Error", "can't find widget 'rackbox'");
 	return;
     }
+    Gtk::Widget* w;
+    if (bld->has_object("minibox")) {
+	bld->find_widget("minibox", w);
+	fBox.add(w);
+    }
+    bld->find_widget("rackbox", w);
     fBox.add(w);
+}
+
+static const char *rackbox_ids[] = { "rackbox", "minibox", 0 };
+
+void StackBoxBuilder::loadRackFromGladeFile(const char *fname) {
+    loadRackFromBuilder(
+	GxBuilder::create_from_file(
+	    machine.get_options().get_builder_filepath(fname), &machine, rackbox_ids));
+}
+
+void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
+    loadRackFromBuilder(GxBuilder::create_from_string(xmldesc, &machine, rackbox_ids));
 }
 
 void StackBoxBuilder::addwidget(Gtk::Widget *widget) {

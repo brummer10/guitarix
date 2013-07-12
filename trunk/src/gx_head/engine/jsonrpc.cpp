@@ -179,6 +179,7 @@ class CmdConnection;
 class UiBuilderVirt: public UiBuilder {
 private:
     static gx_system::JsonWriter *jw;
+    static const gx_system::CmdlineOptions *options;
     static void openTabBox_(const char* label);
     static void openVerticalBox_(const char* label);
     static void openVerticalBox1_(const char* label);
@@ -186,7 +187,9 @@ private:
     static void openHorizontalBox_(const char* label);
     static void openHorizontalhideBox_(const char* label);
     static void openHorizontalTableBox_(const char* label);
-    static void openSpaceBox_(const char* label);
+    static void openFrameBox_(const char* label);
+    static void openFlipLabelBox_(const char* label);
+    static void openpaintampBox_(const char* label);
     static void insertSpacer_();
     static void set_next_flags_(int flags);
     static void create_small_rackknob_(const char *id, const char *label);
@@ -197,11 +200,15 @@ private:
     static void create_spin_value_(const char *id, const char *label);
     static void create_switch_no_caption_(const char *sw_type,const char * id);
     static void create_switch_(const char *sw_type,const char * id, const char *label);
+    static void create_wheel_(const char * id, const char *label);
     static void create_port_display_(const char *id, const char *label);
+    static void create_simple_spin_value_(const char *id);
+    static void create_eq_rackslider_no_caption_(const char *id);
     static void closeBox_();
     static void load_glade_(const char *data);
+    static void load_glade_file_(const char *fname);
 public:
-    UiBuilderVirt(gx_system::JsonWriter *jw, PluginDef *pd);
+    UiBuilderVirt(gx_system::JsonWriter *jw, const gx_system::CmdlineOptions *options, PluginDef *pd);
     ~UiBuilderVirt();
 };
 
@@ -454,9 +461,9 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	if (!pd->load_ui) {
 	    jw.write_null();
 	} else {
-	    UiBuilderVirt bld(&jw, pd);
+	    UiBuilderVirt bld(&jw, &serv.settings.get_options(), pd);
 	    jw.begin_array();
-	    pd->load_ui(bld);
+	    pd->load_ui(bld, params[1]->getInt());
 	    jw.end_array();
 	}
     }
@@ -956,7 +963,14 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 		p.set_blocked(true);
 		JsonValue *v = params[i+1];
 		if (p.isFloat()) {
-		    p.getFloat().set(v->getFloat());
+		    gx_engine::FloatParameter& pf = p.getFloat();
+		    float f;
+		    if (p.getControlType() == gx_engine::Parameter::Enum && dynamic_cast<JsonString*>(v)) {
+			f = pf.idx_from_id(v->getString());
+		    } else {
+			f = v->getFloat();
+		    }
+		    pf.set(f);
 		} else if (p.isInt()) {
 		    gx_engine::IntParameter& pi = p.getInt();
 		    int i;
@@ -1298,11 +1312,13 @@ void CmdConnection::process(gx_system::JsonStringParser& jp) {
  */
 
 gx_system::JsonWriter *UiBuilderVirt::jw = 0;
+const gx_system::CmdlineOptions *UiBuilderVirt::options = 0;
 
-UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, PluginDef *pd)
+UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, const gx_system::CmdlineOptions *options_, PluginDef *pd)
     : UiBuilder() {
     plugin = pd;
     jw = jw_;
+    options = options_;
     openTabBox = openTabBox_;
     openVerticalBox = openVerticalBox_;
     openVerticalBox1 = openVerticalBox1_;
@@ -1310,18 +1326,24 @@ UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, PluginDef *pd)
     openHorizontalBox = openHorizontalBox_;
     openHorizontalhideBox = openHorizontalhideBox_;
     openHorizontalTableBox = openHorizontalTableBox_;
-    openSpaceBox = openSpaceBox_;
+    openFrameBox = openFrameBox_;
+    openFlipLabelBox = openFlipLabelBox_;
+    openpaintampBox = openpaintampBox_;
     closeBox = closeBox_;
     load_glade = load_glade_;
+    load_glade_file = load_glade_file_;
     create_master_slider = create_master_slider_;
     create_small_rackknob = create_small_rackknob_;
     create_small_rackknobr = create_small_rackknobr_;
     create_spin_value = create_spin_value_;
     create_switch = create_switch_;
+    create_wheel = create_wheel_;
     create_switch_no_caption = create_switch_no_caption_;
     create_selector = create_selector_;
     create_selector_no_caption = create_selector_no_caption_;
     create_port_display = create_port_display_;
+    create_simple_spin_value = create_simple_spin_value_;
+    create_eq_rackslider_no_caption = create_eq_rackslider_no_caption_;
     insertSpacer = insertSpacer_;
     set_next_flags = set_next_flags_;
 }
@@ -1371,9 +1393,23 @@ void UiBuilderVirt::openHorizontalTableBox_(const char* label) {
     jw->end_array();
 }
 
-void UiBuilderVirt::openSpaceBox_(const char* label) {
+void UiBuilderVirt::openFrameBox_(const char* label) {
     jw->begin_array();
-    jw->write("openSpaceBox");
+    jw->write("openFrameBox");
+    jw->write(label);
+    jw->end_array();
+}
+
+void UiBuilderVirt::openFlipLabelBox_(const char* label) {
+    jw->begin_array();
+    jw->write("openFlipLabelBox");
+    jw->write(label);
+    jw->end_array();
+}
+
+void UiBuilderVirt::openpaintampBox_(const char* label) {
+    jw->begin_array();
+    jw->write("openpaintampBox");
     jw->write(label);
     jw->end_array();
 }
@@ -1462,11 +1498,33 @@ void UiBuilderVirt::create_switch_(const char *sw_type, const char * id, const c
     jw->end_array();
 }
 
+void UiBuilderVirt::create_wheel_(const char * id, const char *label) {
+    jw->begin_array();
+    jw->write("create_wheel");
+    jw->write(id);
+    jw->write(label);
+    jw->end_array();
+}
+
 void UiBuilderVirt::create_port_display_(const char *id, const char *label) {
     jw->begin_array();
     jw->write("create_port_display");
     jw->write(id);
     jw->write(label);
+    jw->end_array();
+}
+
+void UiBuilderVirt::create_simple_spin_value_(const char *id) {
+    jw->begin_array();
+    jw->write("create_simple_spin_value");
+    jw->write(id);
+    jw->end_array();
+}
+
+void UiBuilderVirt::create_eq_rackslider_no_caption_(const char *id) {
+    jw->begin_array();
+    jw->write("create_eq_rackslider_no_caption");
+    jw->write(id);
     jw->end_array();
 }
 
@@ -1477,6 +1535,17 @@ void UiBuilderVirt::closeBox_() {
 }
 
 void UiBuilderVirt::load_glade_(const char *data) {
+    jw->begin_array();
+    jw->write("load_glade");
+    jw->write(data);
+    jw->end_array();
+}
+
+void UiBuilderVirt::load_glade_file_(const char *fname) {
+    std::string path = options->get_builder_filepath(fname);
+    std::string data(
+	std::istreambuf_iterator<char>(std::ifstream(path.c_str()).rdbuf()),
+	std::istreambuf_iterator<char>());
     jw->begin_array();
     jw->write("load_glade");
     jw->write(data);

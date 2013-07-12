@@ -1356,14 +1356,15 @@ static const std::string next_string(gx_system::JsonParser *jp) {
     return jp->current_value();
 }
 
-int GxMachineRemote::load_remote_ui_static (const UiBuilder& builder) {
+int GxMachineRemote::load_remote_ui_static (const UiBuilder& builder, int form) {
     GxMachineRemote *m = dynamic_cast<GxMachineRemote*>(&static_cast<const gx_gui::UiBuilderImpl*>(&builder)->main.get_machine());
-    return m->load_remote_ui(builder);
+    return m->load_remote_ui(builder, form);
 }
 
-int GxMachineRemote::load_remote_ui(const UiBuilder& builder) {
+int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
     START_CALL(plugin_load_ui);
     jw->write(builder.plugin->id);
+    jw->write(form);
     START_RECEIVE(-1);
     jp->next(gx_system::JsonParser::begin_array);
     while (jp->peek() != gx_system::JsonParser::end_array) {
@@ -1381,10 +1382,12 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder) {
 	    builder.openHorizontalhideBox(next_char_pointer(jp));
 	} else if (jp->current_value() == "openHorizontalTableBox") {
 	    builder.openHorizontalTableBox(next_char_pointer(jp));
-	} else if (jp->current_value() == "openSpaceBox") {
-	    builder.openSpaceBox(next_char_pointer(jp));
-	} else if (jp->current_value() == "openHorizontalBox") {
-	    builder.openHorizontalBox(next_char_pointer(jp));
+	} else if (jp->current_value() == "openFrameBox") {
+	    builder.openFrameBox(next_char_pointer(jp));
+	} else if (jp->current_value() == "openFlipLabelBox") {
+	    builder.openFlipLabelBox(next_char_pointer(jp));
+	} else if (jp->current_value() == "openpaintampBox") {
+	    builder.openpaintampBox(next_char_pointer(jp));
 	} else if (jp->current_value() == "openHorizontalBox") {
 	    builder.openHorizontalBox(next_char_pointer(jp));
 	} else if (jp->current_value() == "insertSpacer") {
@@ -1416,9 +1419,16 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder) {
 	    std::string sw_type = next_char_pointer(jp);
 	    std::string id = next_char_pointer(jp);
 	    builder.create_switch(sw_type.c_str(), id.c_str(), next_char_pointer(jp));
+	} else if (jp->current_value() == "create_wheel") {
+	    std::string id = next_char_pointer(jp);
+	    builder.create_wheel(id.c_str(), next_char_pointer(jp));
 	} else if (jp->current_value() == "create_port_display") {
 	    std::string id = next_char_pointer(jp);
 	    builder.create_port_display(id.c_str(), next_char_pointer(jp));
+	} else if (jp->current_value() == "create_simple_spin_value") {
+	    builder.create_simple_spin_value(next_char_pointer(jp));
+	} else if (jp->current_value() == "create_eq_rackslider_no_caption") {
+	    builder.create_eq_rackslider_no_caption(next_char_pointer(jp));
 	} else if (jp->current_value() == "closeBox") {
 	    builder.closeBox();
 	} else if (jp->current_value() == "load_glade") {

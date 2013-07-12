@@ -50,7 +50,7 @@ public:
     ModuleSelectorFromList(
 	EngineControl& seq, const char* id, const char* name,
 	const char *category, plugindef_creator module_ids[], const char* select_id,
-	const char* select_name, const char** groups = 0, int flags = 0);
+	const char* select_name, uiloader loader, const char** groups = 0, int flags = 0);
     ~ModuleSelectorFromList();
     void set_module();
 };

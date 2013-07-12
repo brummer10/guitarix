@@ -746,6 +746,28 @@ static const float no_sum = 1e10;
 
 #include "faust/cabinet_impulse_former.cc"
 
+static int cab_load_ui(const UiBuilder& builder, int format) {
+    if (!(format & UI_FORM_STACK)) {
+	return -1;
+    }
+    builder.openHorizontalhideBox("");
+    builder.create_selector("cab.select", 0);
+    builder.closeBox();
+    builder.openVerticalBox("");
+    {
+	builder.openHorizontalBox("");
+	{
+	    builder.create_selector("cab.select", 0);
+	    builder.create_small_rackknob("cab.bass", "bass");
+	    builder.create_small_rackknob("cab.treble", "treble");
+	    builder.create_small_rackknobr("cab.Level", "level");
+	}
+	builder.closeBox();
+    }
+    builder.closeBox();
+    return 0;
+}
+
 CabinetConvolver::CabinetConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp):
     BaseConvolver(engine, sync, resamp),
     current_cab(-1),
@@ -766,6 +788,7 @@ CabinetConvolver::CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
     id = "cab";
     name = N_("Cabinet");
     category = N_("Tone control");
+    load_ui = cab_load_ui;
     mono_audio = run_cab_conf;
     register_params = register_cab;
 }
@@ -899,6 +922,28 @@ static PreEntry& getPreEntry(unsigned int n) {
 
 #include "faust/preamp_impulse_former.cc"
 
+static int pre_load_ui(const UiBuilder& builder, int format) {
+    if (!(format & UI_FORM_STACK)) {
+	return -1;
+    }
+    builder.openHorizontalhideBox("");
+    builder.create_selector("pre.select", 0);
+    builder.closeBox();
+    builder.openVerticalBox("");
+    {
+	builder.openHorizontalBox("");
+	{
+	    builder.create_selector("pre.select", 0);
+	    builder.create_small_rackknob("pre.bass", "bass");
+	    builder.create_small_rackknob("pre.treble", "treble");
+	    builder.create_small_rackknobr("pre.Level", "level");
+	}
+	builder.closeBox();
+    }
+    builder.closeBox();
+    return 0;
+}
+
 PreampConvolver::PreampConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp):
     BaseConvolver(engine, sync, resamp),
     current_pre(-1),
@@ -919,6 +964,7 @@ PreampConvolver::PreampConvolver(EngineControl& engine, sigc::slot<void> sync, g
     id = "pre";
     name = N_("Amp impulse");
     category = N_("Tone control");
+    load_ui = pre_load_ui;
     mono_audio = run_pre_conf;
     register_params = register_pre;
 }

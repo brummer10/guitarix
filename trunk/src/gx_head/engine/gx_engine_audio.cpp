@@ -381,13 +381,13 @@ void __rt_func StereoModuleChain::process(int count, float *input1, float *input
 
 
 /****************************************************************
- ** ModuleSelector
+ ** ModuleSelectorFromList
  */
 
 ModuleSelectorFromList::ModuleSelectorFromList(
     EngineControl& seq_, const char* id_, const char* name_,
     const char* category_, plugindef_creator plugins[], const char* select_id_,
-    const char* select_name_, const char** groups_, int flags_)
+    const char* select_name_, uiloader loader, const char** groups_, int flags_)
     : ModuleSelector(seq_),
       PluginDef(),
       selector(0),
@@ -410,6 +410,7 @@ ModuleSelectorFromList::ModuleSelectorFromList(
     category = category_;
     groups = groups_;
     flags = flags_;
+    load_ui = loader;
     plugin = this;
 }
 

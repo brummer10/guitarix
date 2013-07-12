@@ -25,11 +25,13 @@ private:
 	double 	fVec2[2048];
 	double 	fRec3[2];
 	void clear_state_f();
+	int load_ui_f(const UiBuilder& b, int form);
 	void init(unsigned int samplingFreq);
 	void compute(int count, float *input0, float *input1, float *output0, float *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
+	static int load_ui_f_static(const UiBuilder& b, int form);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
 	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
@@ -56,7 +58,7 @@ Dsp::Dsp()
 	set_samplerate = init_static;
 	activate_plugin = 0;
 	register_params = register_params_static;
-	load_ui = 0;
+	load_ui = load_ui_f_static;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
 }
@@ -159,6 +161,62 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
+inline int Dsp::load_ui_f(const UiBuilder& b, int form)
+{
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("flanger" "." p)
+// flanger
+b.openHorizontalhideBox("");
+b.create_master_slider(PARAM("level"), _("level"));
+b.closeBox();
+b.openHorizontalBox("");
+{
+    b.openHorizontalBox("");
+    {
+	b.create_small_rackknobr(PARAM("level"), _("  level  "));
+    }
+    b.closeBox();
+    b.openVerticalBox("");
+    {
+	b.openHorizontalBox("");
+	{
+	    b.create_small_rackknob(PARAM("feedback gain"), _(" feedback "));
+	    b.create_small_rackknob(PARAM("depth"), _("  depth  "));
+	    b.create_small_rackknob(PARAM("flange delay"), _("  delay  "));
+	    b.create_small_rackknob(PARAM("flange delay offset"), _(" delay offset"));
+	    b.create_small_rackknob(PARAM("LFO freq"), _(" LFO "));
+	}
+	b.closeBox();
+	b.insertSpacer();
+	b.openHorizontalBox("");
+	{
+	    b.insertSpacer();
+	    b.create_selector(PARAM("invert"), 0);
+	    b.insertSpacer();
+	    b.insertSpacer();
+	    b.insertSpacer();
+	    b.insertSpacer();
+	    b.insertSpacer();
+	    b.insertSpacer();
+	}
+	b.closeBox();
+	b.openFrameBox("");
+	b.closeBox();
+    }
+    b.closeBox();
+}
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
+	return -1;
+}
+
+int Dsp::load_ui_f_static(const UiBuilder& b, int form)
+{
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
+}
 PluginDef *plugin() {
 	return new Dsp();
 }

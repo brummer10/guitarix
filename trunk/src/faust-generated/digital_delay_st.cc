@@ -150,12 +150,14 @@ private:
 	void mem_free();
 	void clear_state_f();
 	int activate(bool start);
+	int load_ui_f(const UiBuilder& b, int form);
 	void init(unsigned int samplingFreq);
 	void compute(int count, float *input0, float *input1, float *output0, float *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int activate_static(bool start, PluginDef*);
+	static int load_ui_f_static(const UiBuilder& b, int form);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
 	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
@@ -185,7 +187,7 @@ Dsp::Dsp()
 	set_samplerate = init_static;
 	activate_plugin = activate_static;
 	register_params = register_params_static;
-	load_ui = 0;
+	load_ui = load_ui_f_static;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
 }
@@ -592,6 +594,70 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
+inline int Dsp::load_ui_f(const UiBuilder& b, int form)
+{
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("didest" "." p)
+// -----delay
+b.openHorizontalhideBox("");
+b.create_master_slider(PARAM("bpm"), _(" delay (bpm)"));
+b.closeBox();
+b.openVerticalBox("");
+{
+    b.openHorizontalBox("");
+    {
+	b.openVerticalBox("");
+        {
+            b.create_selector(PARAM("notes"), 0);
+            b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
+            b.create_small_rackknob(PARAM("bpm"), _(" delay (bpm)"));
+        }
+        b.closeBox();
+	b.openVerticalBox("");
+        {
+            b.openHorizontalBox("");
+            b.openFrameBox("");
+            b.closeBox();
+            b.create_selector(PARAM("mode"), 0);
+            b.closeBox();
+            b.openHorizontalBox("");
+            {
+                b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
+                b.create_small_rackknob(PARAM("highpass"), _("highpass (hz)"));
+                b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
+                b.create_small_rackknob(PARAM("howpass"), _("howpass (hz)"));
+            }
+            b.closeBox();
+        }
+        b.closeBox();
+        b.openVerticalBox("");
+        {
+            b.create_small_rackknob(PARAM("level"), _("level"));
+            b.create_small_rackknob(PARAM("feedback"), _("feedback"));
+        }
+        b.closeBox();
+        b.openVerticalBox("");
+        {
+            b.create_small_rackknobr(PARAM("gain"), _("amount"));
+            b.openFrameBox("");
+            b.closeBox();
+        }
+        b.closeBox();
+    }
+    b.closeBox();
+}
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
+	return -1;
+}
+
+int Dsp::load_ui_f_static(const UiBuilder& b, int form)
+{
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
+}
 PluginDef *plugin() {
 	return new Dsp();
 }

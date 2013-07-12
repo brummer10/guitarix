@@ -6,11 +6,9 @@ b.openVerticalBox1("");
 {
     b.openHorizontalBox("");
     {
-	b.openSpaceBox("");
-	b.closeBox();
-	b.create_selector(PARAM("auto_freq"));
-	b.openSpaceBox("");
-	b.closeBox();
+	b.insertSpacer();
+	b.create_selector(PARAM("auto_freq"), 0);
+	b.insertSpacer();
 
 	b.openHorizontalTableBox("");
 	{

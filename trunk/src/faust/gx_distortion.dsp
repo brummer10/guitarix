@@ -2,6 +2,7 @@ declare name 		"Multi Band Distortion";
 declare shortname       "Distortion";
 declare category        "Distortion";
 declare groups "resonator[Distortion resonator]";
+declare gladefile       "gx_distortion_ui.glade";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

@@ -156,7 +156,6 @@ private:
     void on_action_toggled();
 public:
     gx_engine::Plugin *plugin;
-    Glib::ustring fname;
     Glib::ustring tooltip;
     const char *shortname;
 
@@ -170,7 +169,7 @@ public:
     bool hidden;
 
     PluginUI(MainWindow& main, const char* id_,
-	     const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
+	     const Glib::ustring& tooltip_="");
     virtual ~PluginUI();
     PluginType get_type() const {
 	return (plugin->get_pdef()->flags & PGN_STEREO) ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO;
@@ -775,7 +774,7 @@ public:
     void plugin_preset_popup(const PluginDef *pdef);
     void plugin_preset_popup(const PluginDef *pdef, const Glib::ustring& name);
     gx_engine::GxMachineBase& get_machine() { return machine; }
-    void add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname_="", const Glib::ustring& tooltip_="");
+    void add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& tooltip_="");
     void set_rackbox_expansion();
     double stop_at_stereo_bottom(double off, double step_size, double pagesize);
     double stop_at_mono_top(double off, double step_size);

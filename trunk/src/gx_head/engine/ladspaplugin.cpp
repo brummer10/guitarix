@@ -39,7 +39,7 @@ private:
     static void stereo_process(int count, float *input1, float *input2, float *output1, float *output2, PluginDef *plugin);
     static int activate(bool start, PluginDef *plugin);
     static int registerparam(const ParamReg& reg);
-    static int uiloader(const UiBuilder& builder);
+    static int uiloader(const UiBuilder& builder, int form);
     static void del_instance(PluginDef *plugin);
     //
     const LADSPA_Descriptor *desc;
@@ -495,28 +495,31 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
     return 0;
 }
 
-int LadspaDsp::uiloader(const UiBuilder& b) {
+int LadspaDsp::uiloader(const UiBuilder& b, int form) {
+    if (!(form & UI_FORM_STACK)) {
+	return -1;
+    }
     LadspaDsp& self = *static_cast<LadspaDsp*>(b.plugin);
     b.openHorizontalhideBox("");
     if (self.pd->master_idx >= 0) {
-    int n = 0;
-    for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
-	if ((n)==self.pd->master_idx) {
-    switch ((*it)->tp) {
-    case tp_enum:
-		b.create_selector_no_caption(self.make_id(*self.pd->names[self.pd->master_idx]).c_str());
-        break;
-    default:
-        const char *p = self.pd->master_label.c_str();
-        if (!*p) {
-            p = 0;
-        }
-        b.create_master_slider(self.make_id(*self.pd->names[self.pd->master_idx]).c_str(), p);
-        break;
-    }
-    }
-    }
+	int n = 0;
+	for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
+	    if ((n)==self.pd->master_idx) {
+		switch ((*it)->tp) {
+		case tp_enum:
+		    b.create_selector_no_caption(self.make_id(*self.pd->names[self.pd->master_idx]).c_str());
+		    break;
+		default:
+		    const char *p = self.pd->master_label.c_str();
+		    if (!*p) {
+			p = 0;
+		    }
+		    b.create_master_slider(self.make_id(*self.pd->names[self.pd->master_idx]).c_str(), p);
+		    break;
+		}
+	    }
 	}
+    }
     b.closeBox();
     b.openVerticalBox("");
     b.openHorizontalBox("");
@@ -573,7 +576,7 @@ int LadspaDsp::uiloader(const UiBuilder& b) {
 	}
     }
     if (self.pd->add_wet_dry) {
-    b.create_small_rackknob(self.idd.c_str(), "dry/wet");
+	b.create_small_rackknob(self.idd.c_str(), "dry/wet");
     }
     b.closeBox();
     b.closeBox();

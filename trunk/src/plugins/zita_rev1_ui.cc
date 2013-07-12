@@ -1,31 +1,28 @@
-int load_ui(const UiBuilder& b) {
-    b.openHorizontalhideBox("");
-    {
-        b.create_master_slider("zita_rev1.output.level");
-    }
-    b.closeBox();
-    b.openVerticalBox("");
-    {
-	b.openHorizontalBox("");
-	{
-	    b.create_small_rackknob("zita_rev1.input.in_delay");
-	    b.create_small_rackknob("zita_rev1.decay_times.lf_x");
-	    b.create_small_rackknob("zita_rev1.decay_times.low_rt60");
-	    b.create_small_rackknob("zita_rev1.decay_times.mid_rt60");
-	    b.create_small_rackknob("zita_rev1.decay_times.hf_damping");
-	}
-	b.closeBox();
-	b.openHorizontalBox("");
-	{
-	    b.create_small_rackknob("zita_rev1.equalizer1.eq1_freq");
-	    b.create_small_rackknob("zita_rev1.equalizer1.eq1_level");
-	    b.create_small_rackknob("zita_rev1.equalizer2.eq2_freq");
-	    b.create_small_rackknob("zita_rev1.equalizer2.eq2_level");
-	    b.create_small_rackknob("zita_rev1.output.dry_wet_mix");
-	    b.create_small_rackknob("zita_rev1.output.level");
-	}
-	b.closeBox();
-    }
-    b.closeBox();
-    return 0;
+b.openHorizontalhideBox("");
+{
+    b.create_master_slider(PARAM("output.level"), 0);
 }
+b.closeBox();
+b.openVerticalBox("");
+{
+    b.openHorizontalBox("");
+    {
+	b.create_small_rackknob(PARAM("input.in_delay"), 0);
+	b.create_small_rackknob(PARAM("decay_times.lf_x"), 0);
+	b.create_small_rackknob(PARAM("decay_times.low_rt60"), 0);
+	b.create_small_rackknob(PARAM("decay_times.mid_rt60"), 0);
+	b.create_small_rackknob(PARAM("decay_times.hf_damping"), 0);
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+	b.create_small_rackknob(PARAM("equalizer1.eq1_freq"), 0);
+	b.create_small_rackknob(PARAM("equalizer1.eq1_level"), 0);
+	b.create_small_rackknob(PARAM("equalizer2.eq2_freq"), 0);
+	b.create_small_rackknob(PARAM("equalizer2.eq2_level"), 0);
+	b.create_small_rackknob(PARAM("output.dry_wet_mix"), 0);
+	b.create_small_rackknob(PARAM("output.level"), 0);
+    }
+    b.closeBox();
+}
+b.closeBox();

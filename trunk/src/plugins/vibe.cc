@@ -123,7 +123,7 @@ public:
     static void process(int count, float * smpsl, float * smpsr, float * efxoutl, float * efxoutr, PluginDef *plugin);
     static void process_mono(int count, float *smps, float *efxout, PluginDef *plugin);
     static int registerparam(const ParamReg& reg);
-    static int uiloader(const UiBuilder& builder);
+    static int uiloader(const UiBuilder& builder, int form);
     static void del_instance(PluginDef *plugin);
 
 private:
@@ -241,7 +241,10 @@ int Vibe::registerparam(const ParamReg& reg) {
     return 0;
 }
 
-int Vibe::uiloader(const UiBuilder& b) {
+int Vibe::uiloader(const UiBuilder& b, int form) {
+    if (!(form & UI_FORM_STACK)) {
+	return -1;
+    }
     Vibe& self = *static_cast<Vibe*>(b.plugin);
     const char *univibe_freq, *univibe_width, *univibe_depth, *univibe_wet_dry, *univibe_fb;
     if (self.Pstereo) {

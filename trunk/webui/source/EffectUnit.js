@@ -16,7 +16,7 @@ enyo.kind({
 	    return;
 	}
 	guitarix.call(
-	    "plugin_load_ui", [this.fxId],
+	    "plugin_load_ui", [this.fxId, 1],
 	    this, function(result) {
 		this.uidesc = result;
 		guitarix.call(

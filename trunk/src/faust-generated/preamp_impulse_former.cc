@@ -86,4 +86,5 @@ int Dsp::register_par(const ParamReg& reg)
 	return 0;
 }
 
+
 } // end namespace preamp_impulse_former

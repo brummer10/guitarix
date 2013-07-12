@@ -86,4 +86,5 @@ int Dsp::register_par(const ParamReg& reg)
 	return 0;
 }
 
+
 } // end namespace cabinet_impulse_former

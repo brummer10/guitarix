@@ -870,6 +870,11 @@ bool FloatParameter::on_off_value() {
     return *value != 0;
 }
 
+float FloatParameter::idx_from_id(string v_id) {
+    assert(false);
+    return 0;
+}
+
 bool FloatParameter::midi_set(float n, float high, float llimit, float ulimit) {
     float v;
     switch (c_type) {

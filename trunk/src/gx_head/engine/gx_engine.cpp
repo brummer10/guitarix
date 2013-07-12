@@ -42,6 +42,37 @@ static plugindef_creator builtin_crybaby_plugins[] = {
     0
 };
 
+static int load_crybaby_ui(const UiBuilder& builder, int format) {
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("crybaby_ui.glade");
+	return 0;
+    }
+    if (format & UI_FORM_STACK) {
+	builder.openHorizontalhideBox("");
+	builder.create_master_slider("crybaby.level", _("  level  "));
+	builder.closeBox();
+	builder.openHorizontalBox("");
+	{
+	    builder.insertSpacer();
+	    builder.create_selector("crybaby.autowah", 0);
+	    builder.insertSpacer();
+	    builder.insertSpacer();
+	    builder.openHorizontalTableBox("");
+	    {
+		builder.create_small_rackknobr("crybaby.wah", _("  wah   "));
+		builder.create_small_rackknob("crybaby.level", _("  level  "));
+		builder.create_small_rackknob("crybaby.wet_dry", _("  dry/wet  "));
+	    }
+	    builder.closeBox();
+	    builder.insertSpacer();
+	}
+	builder.closeBox();
+	return 0;
+    }
+    return -1;
+}
+
+
 static plugindef_creator builtin_tonestack_plugins[] = {
     gx_tonestacks::tonestack_default::plugin,
     gx_tonestacks::tonestack_bassman::plugin,
@@ -72,6 +103,33 @@ static plugindef_creator builtin_tonestack_plugins[] = {
     gx_tonestacks::tonestack_engl::plugin,
     0
 };
+
+static int load_tonestack_ui(const UiBuilder& builder, int format) {
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("amp.tonestack_ui.glade");
+	return 0;
+    }
+    if (format & UI_FORM_STACK) {
+	builder.openHorizontalhideBox("");
+	builder.create_selector("amp.tonestack.select", 0);
+	builder.closeBox();
+	builder.openVerticalBox("");
+	{
+	    builder.openHorizontalBox("");
+	    {
+		builder.create_selector("amp.tonestack.select", 0);
+		builder.create_small_rackknob("amp.tonestack.Bass", _("bass"));
+		builder.create_small_rackknob("amp.tonestack.Middle", _("middle"));
+		builder.create_small_rackknob("amp.tonestack.Treble", _("treble"));
+	    }
+	    builder.closeBox();
+	}
+	builder.closeBox();
+	return 0;
+    }
+    return -1;
+}
+
 
 static plugindef_creator builtin_amp_plugins[] = {
     gx_amps::gxamp::plugin,
@@ -119,14 +177,14 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       // ModuleSelector's
       crybaby(
 	  *this, "crybaby", N_("Crybaby"), N_("Guitar Effects"), builtin_crybaby_plugins,
-	  "crybaby.autowah", _("select"), 0, PGN_POST_PRE),
+	  "crybaby.autowah", _("select"), load_crybaby_ui, 0, PGN_POST_PRE),
       tonestack(
 	  *this, "amp.tonestack", N_("Tonestack"), N_("Tone control"),
 	  builtin_tonestack_plugins, "amp.tonestack.select",
-	  _("select"), 0, PGN_POST_PRE),
+	  _("select"), load_tonestack_ui, 0, PGN_POST_PRE),
       ampstack(
 	  *this, "ampstack", _("Amp"), "", builtin_amp_plugins,
-	  "tube.select", _("select"), ampstack_groups),
+	  "tube.select", _("select"), 0, ampstack_groups),
       // internal audio modules
       noisegate(),
       monomute(),

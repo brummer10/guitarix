@@ -1,5 +1,6 @@
 declare name "Tremolo";
 declare category "Modulation";
+declare gladefile "tremolo_ui.glade";
 
 /*
 ** Model of a vactrol tremolo unit by "transmogrify"

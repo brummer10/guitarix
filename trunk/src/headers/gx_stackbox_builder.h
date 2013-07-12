@@ -55,9 +55,11 @@ private:
 
     static const          gboolean homogene = false;
     void loadRackFromGladeData(const char *xmldesc);
+    void loadRackFromGladeFile(const char *fname);
     void set_convolver_filename(const gx_engine::GxJConvSettings *jcs);
     void set_convolver_mono_filename(const gx_engine::GxJConvSettings *jcs);
 private:
+    void loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld);
     void openVerticalMidiBox(const char* label = "");
     // functions used in interfaces
     void create_master_slider(const std::string& id, const char *label) {
@@ -91,8 +93,10 @@ private:
 	addwidget(UiVSwitchWithCaption::create(machine, sw_type, id, label));
     }
     void openpaintampBox(const char* label = "");
-    void create_wheel(const std::string& id, bool show_value = false) {
-	addwidget(new UiRegler<Gxw::Wheel>(machine, id, show_value));
+    void create_wheel(const std::string& id, const char *label=0) {
+	UiReglerWithCaption<Gxw::Wheel> *w = new UiReglerWithCaption<Gxw::Wheel>(machine, id);
+	w->set_rack_label(label);
+	addwidget(w);
     }
     void create_spin_value(const std::string& id, const char *label) {
 	UiDisplayWithCaption<Gxw::ValueDisplay> *w = new UiDisplayWithCaption<Gxw::ValueDisplay>(machine, id);
@@ -143,43 +147,11 @@ public:
     void prepare();
     void fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
     // mono
-    void make_rackbox_ampdetail();
-    void make_rackbox_overdrive();
-    void make_rackbox_echo();
-    void make_rackbox_delay();
-    void make_rackbox_freeverb();
     void make_rackbox_oscilloscope();
-    void make_rackbox_low_highpass();
-    void make_rackbox_eqs();
-    void make_rackbox_peak_eq();
-    void make_rackbox_digital_delay();
-    void make_rackbox_digital_delay_st();
-    void make_rackbox_crybaby();
-    void make_rackbox_gx_distortion();
-    void make_rackbox_expander();
-    void make_rackbox_biquad();
-    void make_rackbox_tremolo();
-    void make_rackbox_phaser_mono();
-    void make_rackbox_chorus_mono();
-    void make_rackbox_flanger_mono();
-    void make_rackbox_feedback();
-    void make_rackbox_amp_tonestack();
-    void make_rackbox_cab();
-    void make_rackbox_pre();
     void make_rackbox_jconv_mono();
-    void make_rackbox_highbooster();
     void make_rackbox_midi_out();
     // stereo
-    void make_rackbox_chorus();
-    void make_rackbox_flanger();
-    void make_rackbox_phaser();
-    void make_rackbox_stereodelay();
-    void make_rackbox_stereoecho();
-    void make_rackbox_moog();
-    void make_rackbox_ampmodul();
-    void make_rackbox_tonemodul();
     void make_rackbox_jconv();
-    void make_rackbox_stereoverb();
 };
 
 } // end namespace gx_gui

@@ -846,32 +846,10 @@ RackBox *MainWindow::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwid
     return r;
 }
 
-void load_rack_ui(const std::string& fname, gx_engine::GxMachineBase& machine, Gtk::Widget*& mainwidget, Gtk::Widget*& miniwidget) {
-    const char *id_list[] = {"rackbox", "minibox", 0};
-    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(fname, &machine, id_list);
-    bld->get_toplevel("rackbox", mainwidget);
-    miniwidget = 0;
-    if (bld->has_object("minibox")) {
-	bld->get_toplevel("minibox", miniwidget);
-    }
-}
-
 RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate) {
     Gtk::Widget *mainwidget = 0;
     Gtk::Widget *miniwidget = 0;
-    if (!mainwidget && !pl.fname.empty()) {
-	load_rack_ui(pl.fname, machine, mainwidget, miniwidget);
-    }
-    if (!mainwidget) {
-	boxbuilder.get_box(pl.get_id(), mainwidget, miniwidget);
-    }
-    if (!mainwidget) {
-	std::string gladefile = options.get_builder_filepath(
-	    std::string(pl.get_id())+"_ui.glade");
-	if (access(gladefile.c_str(), R_OK) == 0) {
-	    load_rack_ui(gladefile, machine, mainwidget, miniwidget);
-	}
-    }
+    boxbuilder.get_box(pl.get_id(), mainwidget, miniwidget);
     if (!mainwidget) {
 	gx_gui::UiBuilderImpl builder(this, &boxbuilder);
 	
@@ -1684,8 +1662,8 @@ private:
     virtual void on_plugin_preset_popup();
 public:
     JConvPluginUI(MainWindow& main, const char* id,
-		  const Glib::ustring& fname="", const Glib::ustring& tooltip="")
-	: PluginUI(main, id, fname, tooltip) {
+		  const Glib::ustring& tooltip="")
+	: PluginUI(main, id, tooltip) {
     }
 };
 
@@ -1705,7 +1683,7 @@ void MainWindow::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChang
     if (!pl) { // end of update sequence
 	make_icons(true); // re-create all icons, width might have changed
     } else if (c == gx_engine::PluginChange::add) {
-	register_plugin(new PluginUI(*this, pl->get_pdef()->id, "", ""));
+	register_plugin(new PluginUI(*this, pl->get_pdef()->id, ""));
     } else {
 	PluginUI *pui = plugin_dict[pl->get_pdef()->id];
 	if (c == gx_engine::PluginChange::remove) {
@@ -1763,11 +1741,11 @@ void MainWindow::on_load_ladspa() {
     }
 }
 
-void MainWindow::add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& fname, const Glib::ustring& tooltip) {
+void MainWindow::add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& tooltip) {
     if (PluginUI::is_registered(machine, id)) {
 	return;
     }
-    p.push_back(new PluginUI(*this, id, fname, tooltip));
+    p.push_back(new PluginUI(*this, id, tooltip));
 }
 
 #ifdef accel_keys_for_plugins

@@ -396,8 +396,8 @@ private:
     bool idle_notify_handler();
     void handle_notify(gx_system::JsonStringParser *jp);
     void parameter_changed(gx_system::JsonStringParser *jp);
-    static int load_remote_ui_static(const UiBuilder& builder);
-    int load_remote_ui(const UiBuilder& builder);
+    static int load_remote_ui_static(const UiBuilder& builder, int form);
+    int load_remote_ui(const UiBuilder& builder, int form);
     void report_rpc_error(gx_system::JsonStringParser *jp,
 			  const gx_system::JsonException& e, const char *method=0);
     void throw_error(gx_system::JsonStringParser *jp);

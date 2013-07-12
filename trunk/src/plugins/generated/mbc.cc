@@ -89,13 +89,13 @@ private:
 	FAUSTFLOAT 	fslider33;
 	double 	fRec35[2];
 	void clear_state_f();
-	int load_ui_f(const UiBuilder& b);
+	int load_ui_f(const UiBuilder& b, int form);
 	void init(unsigned int samplingFreq);
 	void compute(int count, float *input0, float *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static int load_ui_f_static(const UiBuilder& b);
+	static int load_ui_f_static(const UiBuilder& b, int form);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
 	static void compute_static(int count, float *input0, float *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
@@ -471,10 +471,10 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
-inline int Dsp::load_ui_f(const UiBuilder& b)
+inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
+    if (form & UI_FORM_STACK) {
 #define PARAM(p) ("mbc" "." p)
-
 
 b.openHorizontalhideBox("");
 b.closeBox();
@@ -591,14 +591,15 @@ b.closeBox();
 b.closeBox();
 
 #undef PARAM
-	return 0;
+        return 0;
+    }
+	return -1;
 }
 
-int Dsp::load_ui_f_static(const UiBuilder& b)
+int Dsp::load_ui_f_static(const UiBuilder& b, int form)
 {
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
 }
-
 PluginDef *plugin() {
 	return new Dsp();
 }
