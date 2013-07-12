@@ -203,7 +203,7 @@ def build(bld):
 
 
     if bld.env['FAUST']:
-        arg, float_arg = wscript_helper.get_faust_args(bld)
+        arg, float_arg, double_arg = wscript_helper.get_faust_args(bld)
         bld.new_task_gen(
             source = sources_plugin,
             proc = "../tools/dsp2cc",
