@@ -113,11 +113,12 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		float fTemp1 = fabsf(fTemp0);
 		fRec3[0] = ((fConst3 * fTemp1) + (fConst2 * max(fTemp1, fRec3[1])));
 		fRec2[0] = ((fConst4 * fRec3[0]) + (fConst1 * fRec2[1]));
-		fRec1[0] = ((0.0001000000000000001f * powf(4.0f,fRec2[0])) + (0.999f * fRec1[1]));
-		float fTemp2 = powf(2.0f,(2.3f * fRec2[0]));
-		float fTemp3 = (1 - (fConst6 * (fTemp2 / powf(2.0f,(1.0f + (2.0f * (1.0f - fRec2[0])))))));
-		fRec4[0] = ((0.0010000000000000009f * (0 - (2.0f * (fTemp3 * cosf((fConst5 * fTemp2)))))) + (0.999f * fRec4[1]));
-		fRec5[0] = ((0.0010000000000000009f * faustpower<2>(fTemp3)) + (0.999f * fRec5[1]));
+		float fTemp2 = min((float)1, fRec2[0]);
+		fRec1[0] = ((0.0001000000000000001f * powf(4.0f,fTemp2)) + (0.999f * fRec1[1]));
+		float fTemp3 = powf(2.0f,(2.3f * fTemp2));
+		float fTemp4 = (1 - (fConst6 * (fTemp3 / powf(2.0f,(1.0f + (2.0f * (1.0f - fTemp2)))))));
+		fRec4[0] = ((0.0010000000000000009f * (0 - (2.0f * (fTemp4 * cosf((fConst5 * fTemp3)))))) + (0.999f * fRec4[1]));
+		fRec5[0] = ((0.0010000000000000009f * faustpower<2>(fTemp4)) + (0.999f * fRec5[1]));
 		fRec0[0] = (0 - (((fRec5[0] * fRec0[2]) + (fRec4[0] * fRec0[1])) - (fSlow3 * (fTemp0 * fRec1[0]))));
 		output0[i] = (FAUSTFLOAT)((fSlow1 * (fRec0[0] - fRec0[1])) + (fSlow2 * fTemp0));
 		// post processing

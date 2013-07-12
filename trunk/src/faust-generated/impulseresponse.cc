@@ -17,11 +17,13 @@ private:
 	FAUSTFLOAT 	fslider2;
 	double 	fRec0[3];
 	void clear_state_f();
+	int load_ui_f(const UiBuilder& b);
 	void init(unsigned int samplingFreq);
 	void compute(int count, float *input0, float *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
+	static int load_ui_f_static(const UiBuilder& b);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
 	static void compute_static(int count, float *input0, float *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
@@ -48,7 +50,7 @@ Dsp::Dsp()
 	set_samplerate = init_static;
 	activate_plugin = 0;
 	register_params = register_params_static;
-	load_ui = 0;
+	load_ui = load_ui_f_static;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
 }
@@ -116,6 +118,45 @@ int Dsp::register_par(const ParamReg& reg)
 int Dsp::register_params_static(const ParamReg& reg)
 {
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+inline int Dsp::load_ui_f(const UiBuilder& b)
+{
+#define PARAM(p) ("IR" "." p)
+
+// ----- IR
+b.openHorizontalhideBox("");
+b.create_master_slider(PARAM("peak"), _("peak"));
+b.closeBox();
+b.openVerticalBox1("");
+{
+    b.openHorizontalBox("");
+    {
+	b.openSpaceBox("");
+	b.closeBox();
+	b.create_selector(PARAM("auto_freq"));
+	b.openSpaceBox("");
+	b.closeBox();
+
+	b.openHorizontalTableBox("");
+	{
+	    b.create_small_rackknob(PARAM("freq"), _(" freq "));
+	    b.create_small_rackknob(PARAM("peak"), _(" peak "));
+	    b.create_small_rackknob(PARAM("bandwidth"), _(" bandwidth "));
+	}
+	b.closeBox();
+    }
+    b.closeBox();
+}
+b.closeBox();
+
+#undef PARAM
+	return 0;
+}
+
+int Dsp::load_ui_f_static(const UiBuilder& b)
+{
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
 }
 
 PluginDef *plugin() {

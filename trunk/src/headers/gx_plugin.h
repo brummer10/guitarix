@@ -69,6 +69,7 @@ struct UiBuilder {
     void (*insertSpacer)();
     void (*set_next_flags)(int flags);
     void (*openHorizontalTableBox)(const char *label);
+    void (*openSpaceBox)(const char *label);
     //FIXME add missing functions.
     // If possible don't change the order of the current defintion.
     // new functions need to be added at the following places:

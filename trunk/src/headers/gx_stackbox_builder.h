@@ -156,7 +156,6 @@ public:
     void make_rackbox_digital_delay_st();
     void make_rackbox_crybaby();
     void make_rackbox_gx_distortion();
-    void make_rackbox_IR();
     void make_rackbox_expander();
     void make_rackbox_biquad();
     void make_rackbox_tremolo();

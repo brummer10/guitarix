@@ -1381,6 +1381,8 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder) {
 	    builder.openHorizontalhideBox(next_char_pointer(jp));
 	} else if (jp->current_value() == "openHorizontalTableBox") {
 	    builder.openHorizontalTableBox(next_char_pointer(jp));
+	} else if (jp->current_value() == "openSpaceBox") {
+	    builder.openSpaceBox(next_char_pointer(jp));
 	} else if (jp->current_value() == "openHorizontalBox") {
 	    builder.openHorizontalBox(next_char_pointer(jp));
 	} else if (jp->current_value() == "openHorizontalBox") {

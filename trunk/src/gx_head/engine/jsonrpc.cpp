@@ -186,6 +186,7 @@ private:
     static void openHorizontalBox_(const char* label);
     static void openHorizontalhideBox_(const char* label);
     static void openHorizontalTableBox_(const char* label);
+    static void openSpaceBox_(const char* label);
     static void insertSpacer_();
     static void set_next_flags_(int flags);
     static void create_small_rackknob_(const char *id, const char *label);
@@ -1309,6 +1310,7 @@ UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, PluginDef *pd)
     openHorizontalBox = openHorizontalBox_;
     openHorizontalhideBox = openHorizontalhideBox_;
     openHorizontalTableBox = openHorizontalTableBox_;
+    openSpaceBox = openSpaceBox_;
     closeBox = closeBox_;
     load_glade = load_glade_;
     create_master_slider = create_master_slider_;
@@ -1365,6 +1367,13 @@ void UiBuilderVirt::openHorizontalhideBox_(const char* label) {
 void UiBuilderVirt::openHorizontalTableBox_(const char* label) {
     jw->begin_array();
     jw->write("openHorizontalTableBox");
+    jw->write(label);
+    jw->end_array();
+}
+
+void UiBuilderVirt::openSpaceBox_(const char* label) {
+    jw->begin_array();
+    jw->write("openSpaceBox");
     jw->write(label);
     jw->end_array();
 }

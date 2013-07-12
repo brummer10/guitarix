@@ -219,34 +219,6 @@ void StackBoxBuilder::make_rackbox_gx_distortion() {
     closeBox();
 }
 
-void StackBoxBuilder::make_rackbox_IR() {
-    // ----- IR
-    openHorizontalhideBox("");
-    create_master_slider("IR.peak", _("peak"));
-    closeBox();
-    openVerticalBox1("");
-    {
-	openHorizontalBox("");
-	{
-	    openSpaceBox("");
-	    closeBox();
-	    create_selector("IR.auto_freq");
-	    openSpaceBox("");
-	    closeBox();
-
-	    openHorizontalTableBox("");
-	    {
-		create_small_rackknob("IR.freq", _(" freq "));
-		create_small_rackknob("IR.peak", _(" peak "));
-		create_small_rackknob("IR.bandwidth", _(" bandwidth "));
-	    }
-	    closeBox();
-	}
-	closeBox();
-    }
-    closeBox();
-}
-
 void StackBoxBuilder::make_rackbox_peak_eq() {
     // ----- the compressor
     openHorizontalhideBox("");

@@ -19,11 +19,13 @@ private:
 	double 	fRec0[2];
 	FAUSTFLOAT 	fentry2;
 	void clear_state_f();
+	int load_ui_f(const UiBuilder& b);
 	void init(unsigned int samplingFreq);
 	void compute(int count, float *input0, float *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
+	static int load_ui_f_static(const UiBuilder& b);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
 	static void compute_static(int count, float *input0, float *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
@@ -50,7 +52,7 @@ Dsp::Dsp()
 	set_samplerate = init_static;
 	activate_plugin = 0;
 	register_params = register_params_static;
-	load_ui = 0;
+	load_ui = load_ui_f_static;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
 }
@@ -124,6 +126,34 @@ int Dsp::register_par(const ParamReg& reg)
 int Dsp::register_params_static(const ParamReg& reg)
 {
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+inline int Dsp::load_ui_f(const UiBuilder& b)
+{
+#define PARAM(p) ("compressor" "." p)
+
+// ----- the compressor
+b.openHorizontalhideBox("");
+b.create_master_slider(PARAM("ratio"), N_("ratio"));
+b.closeBox();
+b.openHorizontalTableBox("");
+{
+    b.create_small_rackknob(PARAM("knee"), N_("knee"));
+    b.create_small_rackknobr(PARAM("ratio"), N_("ratio"));
+    b.create_small_rackknob(PARAM("threshold"), N_("threshold"));
+
+    b.create_small_rackknob(PARAM("attack"), N_("attack"));
+    b.create_small_rackknob(PARAM("release"), N_("release"));
+}
+b.closeBox();
+
+#undef PARAM
+	return 0;
+}
+
+int Dsp::load_ui_f_static(const UiBuilder& b)
+{
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
 }
 
 PluginDef *plugin() {
