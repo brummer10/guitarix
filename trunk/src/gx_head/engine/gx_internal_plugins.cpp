@@ -742,13 +742,13 @@ static int cab_load_ui(const UiBuilder& builder, int format) {
 	return -1;
     }
     builder.openHorizontalhideBox("");
-    builder.create_selector("cab.select", 0);
+    builder.create_selector_no_caption("cab.select");
     builder.closeBox();
     builder.openVerticalBox("");
     {
 	builder.openHorizontalBox("");
 	{
-	    builder.create_selector("cab.select", 0);
+	    builder.create_selector_no_caption("cab.select");
 	    builder.create_small_rackknob("cab.bass", "bass");
 	    builder.create_small_rackknob("cab.treble", "treble");
 	    builder.create_small_rackknobr("cab.Level", "level");
@@ -918,13 +918,13 @@ static int pre_load_ui(const UiBuilder& builder, int format) {
 	return -1;
     }
     builder.openHorizontalhideBox("");
-    builder.create_selector("pre.select", 0);
+    builder.create_selector_no_caption("pre.select");
     builder.closeBox();
     builder.openVerticalBox("");
     {
 	builder.openHorizontalBox("");
 	{
-	    builder.create_selector("pre.select", 0);
+	    builder.create_selector_no_caption("pre.select");
 	    builder.create_small_rackknob("pre.bass", "bass");
 	    builder.create_small_rackknob("pre.treble", "treble");
 	    builder.create_small_rackknobr("pre.Level", "level");
