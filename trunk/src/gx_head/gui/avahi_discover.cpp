@@ -37,7 +37,11 @@ AvahiBrowser::AvahiBrowser()
     client = ga_client_new(GaClientFlags(0));
     GError *error = 0;
     if (!ga_client_start(client, &error)) {
-	cerr << "error" << endl;
+	gx_print_fatal(
+	    _("Avahi system error"),
+	    Glib::ustring::compose(
+		_("%1\n\nuse command line arguments --rpchost and/or"
+		  " --rpcport to connect directly"), error->message));
     }
     browser = ga_service_browser_new("_guitarix._tcp");
     ga_service_browser_attach(browser, client, &error);
