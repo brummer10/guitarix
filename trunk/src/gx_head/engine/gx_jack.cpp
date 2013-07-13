@@ -408,7 +408,7 @@ bool GxJack::gx_jack_connection(bool connect, bool startserver, int wait_after_c
 	if (!gx_jack_init(startserver, wait_after_connect, opt)) {
 	    return false;
 	}
-	engine.check_module_lists();
+	engine.set_rack_changed();
 	engine.clear_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
     } else {
 	if (!client) {
