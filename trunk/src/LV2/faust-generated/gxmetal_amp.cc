@@ -258,10 +258,10 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		double fTemp10 = (0.5 * min((double)1, max((double)0, (0.09522902580706599 * fTemp9))));
 		double fTemp11 = (fSlow13 * (fTemp6 * pow(10,(0.05 * (1e+01 + ((fTemp9 * (0 - fTemp10)) / (1 + fTemp10)))))));
 		fRec19[0] = ((fConst30 * (fRec3[1] + fRec3[2])) + (fConst29 * fRec19[1]));
-		fRec3[0] = (Ftube(TUBE_TABLE_EL34_250k, ((fRec19[0] + fTemp11) - 15.743945)) - 244.91822826086957);
+		fRec3[0] = (Ftube(TUBE_TABLE_EL34_250k, ((fRec19[0] + fTemp11) - 15.743945)) - 255.41822826086957);
 		fRec2[0] = ((fConst31 * ((fConst14 * fRec3[1]) + (fConst4 * fRec3[0]))) + (fConst6 * fRec2[1]));
 		fRec22[0] = ((fConst30 * (fRec21[1] + fRec21[2])) + (fConst29 * fRec22[1]));
-		fRec21[0] = (Ftube(TUBE_TABLE_EL34_68k, ((fRec22[0] + fTemp11) - 15.743945)) - 244.91822826086957);
+		fRec21[0] = (Ftube(TUBE_TABLE_EL34_68k, ((fRec22[0] + fTemp11) - 15.743945)) - 255.41822826086957);
 		fRec20[0] = ((fConst31 * ((fConst14 * fRec21[1]) + (fConst4 * fRec21[0]))) + (fConst6 * fRec20[1]));
 		double fTemp12 = (fRec20[0] + fRec2[0]);
 		fVec4[0] = fTemp12;
