@@ -194,7 +194,7 @@ GxExit::GxExit(): exit_sig(), ui_thread() {}
 GxExit::~GxExit() {}
 
 void GxExit::exit_program(std::string msg, int errcode) {
-    exit_sig.emit_reverse(pthread_equal(pthread_self(), ui_thread));
+    exit_sig.emit_reverse(!pthread_equal(pthread_self(), ui_thread));
     if (msg.empty()) {
 	msg = "** guitarix exit **";
     }

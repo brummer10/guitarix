@@ -361,15 +361,26 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
 }
 
 void GxJack::cleanup_slot(bool otherthread) {
-    if (!client || is_jack_down()) {
-	return;
+    if (!otherthread) {
+	gx_jack_cleanup();
+    } else {
+	// called from other thread. Since most cleanup functions are
+	// not thread safe, just do minimal jack cleanup
+	if (client) {
+	    if (!is_jack_down()) {
+		engine.start_ramp_down();
+		engine.wait_ramp_down_finished();
+	    }
+	    jack_deactivate(client);
+	    jack_client_close(client);
+	    client = 0;
+	}
+	if (client_insert) {
+	    jack_deactivate(client_insert);
+	    jack_client_close(client_insert);
+	    client_insert = 0;
+	}
     }
-    engine.start_ramp_down();
-    engine.wait_ramp_down_finished();
-    jack_client_close(client);
-    client = 0;
-    jack_client_close(client_insert);
-    client_insert = 0;
 }
 
 // -----Function that cleans the jack stuff on shutdown

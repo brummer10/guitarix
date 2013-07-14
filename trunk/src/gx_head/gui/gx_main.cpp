@@ -67,6 +67,7 @@ PosixSignals::PosixSignals(bool gui_)
       pthr(),
       gui(gui_),
       exit(false) {
+    GxExit::get_instance().set_ui_thread();
     sigemptyset(&waitset);
     /* ----- block signal USR1 ---------
     ** inherited by all threads which are created later
