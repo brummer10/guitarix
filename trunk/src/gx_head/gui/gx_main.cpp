@@ -352,9 +352,9 @@ static void mainHeadless(int argc, char *argv[]) {
     Glib::init();
     Gio::init();
 
+    PosixSignals posixsig(false); // catch unix signals in special thread
     gx_system::CmdlineOptions options;
     options.parse(argc, argv);
-    PosixSignals posixsig(false); // catch unix signals in special thread
     options.process(argc, argv);
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
@@ -405,8 +405,8 @@ static void mainGtk(int argc, char *argv[]) {
     Glib::init();
     Gxw::init();
 
-    gx_system::CmdlineOptions options;
     PosixSignals posixsig(true); // catch unix signals in special thread
+    gx_system::CmdlineOptions options;
     Gtk::Main main(argc, argv, options);
     options.process(argc, argv);
     GxSplashBox * Splash = NULL;
@@ -457,8 +457,8 @@ static void mainFront(int argc, char *argv[]) {
     Glib::init();
     Gxw::init();
 
-    gx_system::CmdlineOptions options;
     PosixSignals posixsig(true); // catch unix signals in special thread
+    gx_system::CmdlineOptions options;
     Gtk::Main main(argc, argv, options);
     options.process(argc, argv);
     GxSplashBox * Splash = NULL;
