@@ -626,7 +626,7 @@ void IRWindow::on_ms_length_changed() {
 }
 
 void IRWindow::on_apply_button_clicked() {
-    machine.pluginlist_lookup_plugin(jcp->id())->set_on_off(true);
+    machine.pluginlist_lookup_plugin(jcp->group_id())->set_on_off(true);
     save_state();
 }
 
