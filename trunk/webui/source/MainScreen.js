@@ -12,6 +12,8 @@ enyo.kind({
 	    {name: "preset", kind: "gx.SelectButton", onPrepareList: "showPresetList", onSelect: "selectPreset"},
 	    {name: "message", ontap: "messageTap", style: "visibility: hidden; text-align:center", content: "X"},
 	    {name: "maxlevel", kind: "gx.LevelDisplay"},
+	    {name: "outmaster", kind: "gx.SimpleSlider",
+	     onChange: "outmasterChanged", onChanging: "outmasterChanged"},
 	]},
 	{kind: "onyx.MoreToolbar", layoutKind: "FittableColumnsLayout", components:[
 	    {kind: "onyx.Button", content: "Tuner On", ontap: "TunerOn"},
@@ -28,6 +30,11 @@ enyo.kind({
 	    this.$.fullscreen.hide();
 	}
 	this.inherited(arguments);
+	guitarix.call("get_parameter", ["amp.out_master"], this, function(result) {
+	    var o = result["amp.out_master"];
+	    o.id = "amp.out_master";
+	    this.$.outmaster.setRange(o);
+	});
     },
     setStatus: function(stat) {
 	this.$.status.setStatus(stat);
@@ -114,6 +121,14 @@ enyo.kind({
 	return elem.requestFullscreen ||   // W3C incl. Opera
 	elem.webkitRequestFullScreen && ! window.externalHost ||   // not Google Chrome Frame
 	elem.mozRequestFullScreen && ! /Android/.test(window.navigator.userAgent);   // not working in FF17 on TouchPad
+    },
+    outmasterChanged: function(inSender, inEvent) {
+	guitarix.notify("set", ["amp.out_master", inEvent.value]);
+    },
+    setParameter: function(param_id, value) {
+	if (param_id == "amp.out_master") {
+	    this.$.outmaster.setValue(value);
+	}
     },
     toggleFullscreen: function() {
 	var elem = document.documentElement;
@@ -228,8 +243,41 @@ enyo.kind({
 });
 
 enyo.kind({
+    name: "gx.Level",
+    tag: "canvas",
+    published: {
+	value: 0,
+    },
+    valueChanged: function() {
+	this.value = Math.max(0, Math.min(this.value, 1));
+	this.updateBarPosition(this.value);
+    },
+    rendered: function() {
+	this.inherited(arguments);
+	var node = this.hasNode();
+	this.width = node.width;
+	this.height = node.height;
+	this.ctx = node.getContext('2d');
+	this.pat = this.ctx.createLinearGradient(0, 0, node.width, 0);
+	this.pat.addColorStop(0, rgb(222/255.0,222/255.0,13/255.0));
+	this.pat.addColorStop(1, rgb(1.0,0,51/255.0));
+    },
+    updateBarPosition: function(v) {
+	if (this.ctx === undefined) {
+	    return;
+	}
+	var f = this.width * v;
+	this.ctx.fillStyle = this.pat;
+	this.ctx.fillRect(0, 0, f, this.height);
+	this.ctx.fillStyle = rgb(0,0,0);
+	this.ctx.fillRect(f, 0, this.width, this.height);
+    },
+});
+
+enyo.kind({
     name: "gx.LevelDisplay",
     layoutKind: "FittableColumnsLayout",
+    classes: "gx-maxlevel",
     led_hold_count: 10,
     led_left: 0,
     timeout_handle: null,
@@ -238,17 +286,9 @@ enyo.kind({
 	overload: false,
     },
     components:[
-	{name: "bar", kind: "onyx.ProgressBar", style: "height:10px; vertical-align: middle", fit: true, max: 1, showStripes: false },
-	{name: "led", classes: "led", style: "margin-right: 20px"},
+	{name: "bar", kind: "gx.Level", fit: true, showStripes: false },
+	{name: "led", classes: "led"},
     ],
-    create: function() {
-	this.inherited(arguments);
-	// patch buggy function (very small values render in
-	// scientific notation which is not understood by CSS)
-	this.$.bar.updateBarPosition = function(inPercent) {
-	    this.$.bar.applyStyle("width", inPercent.toFixed(2) + "%");
-	};
-    },
     overloadChanged: function(old) {
 	this.$.led.addRemoveClass("led-on", this.overload);
     },
@@ -264,6 +304,7 @@ enyo.kind({
 	    'get_max_output_level',[2],
 	    this, function(result) {
 		var v = result[0] > result[1] ? result[0] : result[1];
+		v = 1+Math.log(Math.max(v, 0.001))/(3*Math.log(10)); // -60dB..0dB -> 0..1
 		if (v >= 1) {
 		    this.led_left = this.led_hold_count;
 		    this.setOverload(true);
@@ -272,7 +313,7 @@ enyo.kind({
 			this.setOverload(false);
 		    }
 		}
-		this.$.bar.setProgress(v);
+		this.$.bar.setValue(v);
 		if (!this.timeout_handle) {
 		    this.timeout_handle = setTimeout(
 			enyo.bind(this, this.display_level), this.repeat);

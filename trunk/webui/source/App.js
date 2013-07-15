@@ -234,6 +234,7 @@ enyo.kind({
 	    for (var i = 0; i < response.params.length; i += 2) {
 		this.$.EffectUnit.setParameter(response.params[i], response.params[i+1]);
 		this.$.EffectScreen.setParameter(response.params[i], response.params[i+1]);
+		this.$.MainScreen.setParameter(response.params[i], response.params[i+1]);
 	    }
 	    break;
 	case "rack_units_changed":

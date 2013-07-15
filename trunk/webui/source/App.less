@@ -25,6 +25,10 @@
     min-width: 80%;
 }
 
+.gx-effect .gx-valueslider {
+    margin-top: 20px;
+}
+
 .gx-effect-box .onyx-icon-button {
     background-color: @onyx-button-background;
 }
@@ -72,16 +76,36 @@
     background-color: green;
 }
 
+.gx-maxlevel {
+    margin-bottom: 50px;
+    margin-left: 20px;
+    height: 5px;
+}
+
+.gx-maxlevel > canvas {
+    vertical-align: middle;
+}
+
 .led {
+    margin-right: 20px;
     width: 15px;
     height: 15px !important;
     border-radius: 50%;
     vertical-align: middle;
-    background-color: black;
-};
+    background-color: grey;
+}
 
 .led-on {
     background-image: -moz-radial-gradient(45% 45% 45deg, circle cover, red 0%, desaturate(yellow, 50%) 100%);
     background-image: -webkit-radial-gradient(45% 45%, circle cover, red, desaturate(yellow, 50%));
     background-image: radial-gradient(45% 45% 45deg, circle cover, red 0%, desaturate(yellow, 50%) 100%);
-};
+}
+
+.gx-valuedisplay {
+    width: 50px;
+    padding: 2px;
+    text-align: right;
+    display: inline-block;
+    background-color: green;
+    margin-right: 10px;
+}

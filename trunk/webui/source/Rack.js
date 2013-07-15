@@ -12,45 +12,39 @@ enyo.kind({
 
 enyo.kind({
     name: "gx.SimpleEffectBox",
-    style: "margin-bottom: 20px",
-    components: [
-	{components:[
-	    {name: "on_off", kind: "gx.ToggleButton", onChange: "effSwitched"},
-	    {name: "head", style: "vertical-align: 0%; margin-left: 20px"},
-	]},
-	{name: "slider", kind: "onyx.Slider", lockBar: true, tappable: true,
-	 onChange: "effValue", onChanging: "effValue" },
+    classes: "gx-effect-box",
+    layoutKind: "FittableColumnsLayout",
+    head: null,
+    eff_on_off: null,
+    eff_value: null,
+    events: {
+	onEffectTapped: "",
+    },
+    components:[
+	{name: "state", kind: "gx.ToggleButton", onChange: "stateChanged"},
+	{name: "name", kind: "onyx.Button", fit: true, ontap: "displayUnit", onhold: "startMove", onup: "checkMoveTap"},
     ],
     create: function() {
 	this.inherited(arguments);
-	this.$.head.setContent(this.head);
+	this.$.name.setContent(this.head);
+    },
+    setActive: function (v) {
+	this.$.state.changeValue(v);
+    },
+    stateChanged: function(inSender, inEvent) {
+	guitarix.notify("set", [this.eff_on_off, inEvent.value ? 1 : 0]);
+    },
+    displayUnit: function(inSender, inEvent) {
+	inEvent.fxId = [this.eff_on_off, this.eff_value];
+	this.doEffectTapped(inEvent);
     },
     setValues: function(d) {
-	if (this.eff_on_off === undefined) {
-	    this.$.on_off.hide();
-	} else {
-	    this.$.on_off.changeValue(d[this.eff_on_off].value[this.eff_on_off]);
-	}
-	var s = this.$.slider;
-	var o = d[this.eff_value];
-	s.setMin(o.lower_bound);
-	s.setMax(o.upper_bound);
-	s.setValue(o.value[this.eff_value]);
+	this.setActive(d[this.eff_on_off].value[this.eff_on_off])
     },
     addSetter: function(d) {
 	var el;
-	if (this.eff_on_off !== undefined) {
-	    el = this.$.on_off;
-	    d[this.eff_on_off] = enyo.bind(el, el.changeValue);
-	}
-	el = this.$.slider;
-	d[this.eff_value] = enyo.bind(el, el.setValue);
-    },
-    effSwitched: function(inSender, inEvent) {
-	guitarix.notify("set", [this.eff_on_off, (inEvent.value ? 1 : 0)]);
-    },
-    effValue: function(inSender, inEvent) {
-	guitarix.notify("set", [this.eff_value, inEvent.value]);
+        el = this.$.state;
+        d[this.eff_on_off] = enyo.bind(el, el.changeValue);
     },
 });
 
@@ -60,7 +54,6 @@ enyo.kind({
 	{content: "Fixed Effects", tag: "h4", ontap: "activateDrawer",
 	 style:"text-align:center; margin-top:10px; margin-bottom:2px"},
 	{name: "drawer", kind: "onyx.Drawer", open: false, components:[
-	    {name: "out_master", kind: "gx.SimpleEffectBox", head: "Master Volume", eff_value: "amp.out_master"},
 	    {name: "noise_gate", kind: "gx.SimpleEffectBox", head: "noise gate", eff_on_off: "noise_gate.on_off", eff_value: "noise_gate.threshold"},
 	    {name: "shaper", kind: "gx.SimpleEffectBox", head: "noise shaper", eff_on_off: "shaper.on_off", eff_value: "shaper.sharper"},
 	    {name: "amp", kind: "gx.SimpleEffectBox", head: "mono level out", eff_on_off: "amp.on_off", eff_value: "amp.out_amp"},
@@ -77,7 +70,6 @@ enyo.kind({
     rendered: function() {
 	this.inherited(arguments);
 	guitarix.call("get_parameter", [
-	    "amp.out_master",
 	    "noise_gate.on_off", "noise_gate.threshold",
 	    "shaper.on_off", "shaper.sharper",
 	    "amp.on_off", "amp.out_amp",
