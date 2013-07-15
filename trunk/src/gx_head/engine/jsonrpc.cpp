@@ -226,7 +226,8 @@ CmdConnection::CmdConnection(GxService& serv_, const Glib::RefPtr<Gio::SocketCon
       outgoing(),
       current_offset(0),
       midi_config_mode(false),
-      flags() {
+      flags(),
+      maxlevel() {
     jp.start_parser();
 }
 
@@ -619,19 +620,17 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     FUNCTION(get_max_output_level) {
-	gx_engine::MaxLevel& m = serv.jack.get_engine().maxlevel;
+	serv.update_maxlevel();
 	unsigned int n = params[0]->getInt();
 	jw.begin_array();
 	for (unsigned int i = 0; i < n; i++) {
-	    float v;
-	    if (i < m.size()) {
-		v = m.get(i);
+	    if (i < gx_engine::MaxLevel::channelcount) {
+		jw.write(maxlevel[i]);
+		maxlevel[i] = 0.0;
 	    } else {
-		v = 0.0;
+		jw.write(0.0);
 	    }
-	    jw.write(v);
 	}
-	m.reset();
 	jw.end_array();
     }
 
@@ -1569,7 +1568,8 @@ GxService::GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
       save_conn(),
       connection_list(),
       jwc(0),
-      preg_map(0) {
+      preg_map(0),
+      maxlevel() {
     if (*port == 0) {
 	*port = add_any_inet_port();
     } else {
@@ -2015,6 +2015,17 @@ void GxService::broadcast(gx_system::JsonStringWriter& jw, CmdConnection::msg_ty
     for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
 	if (*p != sender && (*p)->is_activated(n)) {
 	    (*p)->send(jw);
+	}
+    }
+}
+
+void GxService::update_maxlevel(CmdConnection *curr) {
+    gx_engine::MaxLevel& m = jack.get_engine().maxlevel;
+    for (unsigned int i = 0; i < m.channelcount; i++) {
+	float v = m.get(i);
+	maxlevel[i] = max(maxlevel[i], v);
+	for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
+	    (*p)->update_maxlevel(i, v);
 	}
     }
 }

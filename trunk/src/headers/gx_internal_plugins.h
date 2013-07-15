@@ -46,20 +46,19 @@ public:
 };
 
 class MaxLevel: public PluginDef {
+public:
+    static const unsigned int channelcount = 2;
 private:
-    static float maxlevel[2];
+    static float maxlevel[channelcount];
     static void process(int count, float *input0, float *input1,
 			float *output0, float *output1, PluginDef*);
     static int activate(bool start, PluginDef *plugin);
 public:
-    static unsigned int size() { return sizeof(maxlevel) / sizeof(maxlevel[0]); }
     static float get(unsigned int channel) {
-	assert(channel < size()); return maxlevel[channel];
-    }
-    static void reset() {
-	for (unsigned int i = 0; i < size(); i++) {
-	    maxlevel[i] = 0;
-	}
+	assert(channel < channelcount);
+	float v = maxlevel[channel];
+	maxlevel[channel] = 0;
+	return v;
     }
     MaxLevel();
 };

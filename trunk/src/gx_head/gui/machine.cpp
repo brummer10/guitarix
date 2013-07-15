@@ -241,10 +241,16 @@ sigc::signal<void, unsigned int>& GxMachine::signal_oscilloscope_size_change() {
 }
 
 void GxMachine::maxlevel_get(int channels, float *values) {
-    for (int i = 0; i < channels; i++) {
-	values[i] = engine.maxlevel.get(i);
+    if (sock) {
+	sock->update_maxlevel();
+	for (int i = 0; i < channels; i++) {
+	    values[i] = sock->get_maxlevel(i);
+	}
+    } else {
+	for (int i = 0; i < channels; i++) {
+	    values[i] = engine.maxlevel.get(i);
+	}
     }
-    engine.maxlevel.reset();
 }
 
 void GxMachine::get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) {

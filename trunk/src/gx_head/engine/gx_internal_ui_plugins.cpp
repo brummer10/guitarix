@@ -69,11 +69,12 @@ MaxLevel::MaxLevel()
     activate_plugin = activate;
 }
 
-float MaxLevel::maxlevel[2] = {0};
+float MaxLevel::maxlevel[channelcount] = {0};
 
 void MaxLevel::process(int count, float *input1, float *input2, float*, float*, PluginDef*) {
-    const float *data[2] = {input1, input2};
-    for (int c = 0; c < 2; c++) {
+    const float *data[channelcount] = {input1, input2};
+    assert(channelcount == 2);
+    for (unsigned int c = 0; c < channelcount; c++) {
         float level = 0;
         for (int i = 0; i < count; i++) {
             float t = abs(data[c][i]);
@@ -87,7 +88,9 @@ void MaxLevel::process(int count, float *input1, float *input2, float*, float*, 
 
 int MaxLevel::activate(bool start, PluginDef *plugin) {
     if (!start) {
-	reset();
+	for (unsigned int c = 0; c < channelcount; c++) {
+	    maxlevel[c] = 0;
+	}
     }
     return 0;
 }
