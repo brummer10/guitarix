@@ -3,9 +3,10 @@ enyo.kind({
     tag: "span",
     classes: "gx-valuedisplay",
     setStep: function(v) {
-	var l = String(v).length
-	if (l >= 2) {
-	    l -= 2; // "0.xx"
+	if (v < 1) {
+	    var l = String(v).length - 2; // "0.xx"
+	} else {
+	    l = 0;
 	}
 	this.digits = l;
     },
@@ -77,6 +78,9 @@ enyo.kind({
     published:{
 	fxId: null,
     },
+    events: {
+	onParameterChanged: "",
+    },
     handlers: {
 	onChanging: "valueChanged",
 	onChange:   "valueChanged",
@@ -91,14 +95,15 @@ enyo.kind({
 	    guitarix.call(
 		"get_parameter", this.fxId,
 		this, function(result) {
-		    a = [];
-		    for (var i = 0; i < this.fxId.length; i++) {
-			var id = this.fxId[i];
-			var o = result[id];
-			o.id = id;
-			a.push(o);
+		    var builderlist = [];
+		    builderlist.push(["create_switch", null, this.fxId[0], null]);
+		    for (var i = 1; i < this.fxId.length; i++) {
+			builderlist.push(["create_small_rackknob", this.fxId[i], null]);
 		    }
-		    this.buildDisplay(a);
+		    var b = new UiBuilder();
+		    this.control_setter = {};
+		    b.build(builderlist, result, this, this.control_setter);
+		    this.render();
 		});
 	} else {
 	    guitarix.call(
@@ -108,14 +113,12 @@ enyo.kind({
 		    guitarix.call(
 			"queryunit", [this.fxId],
 			this, function(result) {
-			    var name, o, a, i, id, nm, el;
-			    a = [];
+			    var o, id;
+			    var builderlist = [];
 			    if (this.fxId != "ampstack") {
 				id = this.fxId+".on_off"
-				o = result[id];
-				if (o !== undefined) {
-				    o.id = id;
-				    a.push(o);
+				if (id in result) {
+				    builderlist.push(["create_switch", null, id, "On/Off"]);
 				}
 			    }
 			    if (this.uidesc === null) {
@@ -124,109 +127,25 @@ enyo.kind({
 				    if (id.match(m)) {
 					continue;
 				    }
-				    o = result[id]
-				    o.id = id
-				    a.push(o);
+				    o = result[id];
+				    if (o.ctl_switch) {
+					builderlist.push(["create_switch", null, id, null]);
+				    } else if (o.ctl_enum) {
+					builderlist.push(["create_selector", id, null]);
+				    } else {
+					builderlist.push(["create_small_rackknob", id, null]);
+				    }
 				}
 			    } else {
-				// skip minibox definition
-				i = 0;
-				if (this.uidesc[0][0].match("open")) {
-				    var level = 1;
-				    for (i = 1; i < this.uidesc.length; i++) {
-					if (this.uidesc[i][0].match("open")) {
-					    level++;
-					} else if (this.uidesc[i][0] == "closeBox") {
-					    if (level == 1) {
-						break;
-					    }
-					    level--;
-					}
-				    }
-				}
-				// main box
-				for (; i < this.uidesc.length; i++) {
-				    var vec = this.uidesc[i];
-				    if (vec[0].match("create_")) {
-					o = result[vec[1]];
-					o.id = vec[1];
-					if (vec.length > 2 && vec[2] !== null) {
-					    o.name = vec[2];
-					}
-					a.push(o);
-				    }
-				}
+				builderlist = builderlist.concat(this.uidesc);
 			    }
-			    this.buildDisplay(a);
+			    var b = new UiBuilder();
+			    this.control_setter = {};
+			    b.build(builderlist, result, this, this.control_setter);
+			    this.render();
 			});
 		});
 	}
-    },
-    buildDisplay: function(a) {
-	this.control_setter = {};
-	for (i = 0; i < a.length; i++) {
-	    o = a[i];
-	    name = o.name;
-	    if (!name) {
-		name = o.id;
-	    }
-	    nm = "eff_"+o.id;
-	    if (o.ctl_switch) {
-		this.createComponent({
-		    components: [
-			{content: name},
-			{kind: "onyx.ToggleButton",
-			 name: nm,
-			 value: o.value[o.id],
-			 obj: o,
-			}],
-		});
-		el = this.$[nm];
-		this.control_setter[o.id] = enyo.bind(el, el.setValue);
-	    } else if (o.ctl_enum) {
-		var c = [];
-		var v = o.value[o.id];
-		for (var j = 0; j < o.value_names.length; j++) {
-		    var p = o.value_names[j];
-		    var s = {content: p[1], key: p[0]};
-		    if (p[0] == v) {
-			s.active = true;
-		    }
-		    c.push(s);
-		}
-		this.createComponent({
-		    components: [
-			{content: name},
-			{kind: "onyx.PickerDecorator", components: [
-			    {},
-			    {kind: "onyx.Picker",
-			     name: nm,
-			     components: c,
-			     obj: o,
-			     setValue: function(v) {
-				 var cc = this.getClientControls();
-				 for (var i = 0; i < cc.length; i++) {
-				     if (i == v) {
-					 cc[i].setActive(true);
-				     }
-				 }
-			     },
-			    }],
-			}],
-		});
-		el = this.$[nm];
-		this.control_setter[o.id] = enyo.bind(el, el.setValue);
-	    } else {
-		el = this.createComponent({
-		    kind: "gx.ValueSlider",
-		    name: nm,
-		    varname: name,
-		    obj: o,
-		});
-		this.control_setter[o.id] = enyo.bind(el, el.setValue);
-	    }
-	}
-	this.render();
     },
     valueChanged: function(inSender, inEvent) {
 	var o = inEvent.originator.obj;
@@ -239,8 +158,14 @@ enyo.kind({
 	    v = inEvent.value;
 	}
 	guitarix.notify("set", [o.id, v]);
+	if (o.id.match(/.*\.on_off$/)) { // signaling up only needed for effect on/off atm.
+	    this.doParameterChanged({id: o.id, value: v});
+	}
     },
     setParameter: function(param_id, value) {
+	if (this.control_setter === null) {
+	    return;
+	}
 	var setter = this.control_setter[param_id];
 	if (setter !== undefined) {
 	    setter(value);

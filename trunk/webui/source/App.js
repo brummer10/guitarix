@@ -32,6 +32,9 @@ enyo.kind({
 enyo.kind({
     name: "App",
     kind: "FittableRows",
+    handlers: {
+	onParameterChanged: "parameterChanged",
+    },
     components:[
 	{name: "panels", kind: "enyo.Panels", arrangerKind: "gx.LeftRightArranger",
 	 index: 1, onTransitionStart: "transitionStarted", draggable:true,
@@ -232,9 +235,7 @@ enyo.kind({
 	    break;
 	case "set":
 	    for (var i = 0; i < response.params.length; i += 2) {
-		this.$.EffectUnit.setParameter(response.params[i], response.params[i+1]);
-		this.$.EffectScreen.setParameter(response.params[i], response.params[i+1]);
-		this.$.MainScreen.setParameter(response.params[i], response.params[i+1]);
+		this.setParameter(response.params[i], response.params[i+1]);
 	    }
 	    break;
 	case "rack_units_changed":
@@ -244,6 +245,14 @@ enyo.kind({
 	    console.log("unknown notify: ", response);
 	    break;
 	}
+    },
+    setParameter: function(id, value) {
+	this.$.EffectUnit.setParameter(id, value);
+	this.$.EffectScreen.setParameter(id, value);
+	this.$.MainScreen.setParameter(id, value);
+    },
+    parameterChanged: function(inSender, inEvent) {
+	this.setParameter(inEvent.id, inEvent.value);
     },
     guitarixError: function(inSender, inEvent) {
 	this.$.msg.setContent("Guitarix connection error...\nretrying");

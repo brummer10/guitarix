@@ -19,6 +19,7 @@ enyo.kind({
     eff_value: null,
     events: {
 	onEffectTapped: "",
+	onParameterChanged: "",
     },
     components:[
 	{name: "state", kind: "gx.ToggleButton", onChange: "stateChanged"},
@@ -33,6 +34,7 @@ enyo.kind({
     },
     stateChanged: function(inSender, inEvent) {
 	guitarix.notify("set", [this.eff_on_off, inEvent.value ? 1 : 0]);
+	this.doParameterChanged({id: this.eff_on_off, value: inEvent.value});
     },
     displayUnit: function(inSender, inEvent) {
 	inEvent.fxId = [this.eff_on_off, this.eff_value];
@@ -70,13 +72,13 @@ enyo.kind({
     rendered: function() {
 	this.inherited(arguments);
 	guitarix.call("get_parameter", [
-	    "noise_gate.on_off", "noise_gate.threshold",
-	    "shaper.on_off", "shaper.sharper",
-	    "amp.on_off", "amp.out_amp",
-	    "amp.clip.on_off", "amp.fuzz",
-	    "amp.bass_boost.on_off", "bassbooster.Level",
-	    "con.on_off", "con.Level",
-	    "amp.feed_on_off", "amp.wet_dry",
+	    "noise_gate.on_off",
+	    "shaper.on_off",
+	    "amp.on_off",
+	    "amp.clip.on_off",
+	    "amp.bass_boost.on_off",
+	    "con.on_off",
+	    "amp.feed_on_off",
 	], this, function(result) {
 	    var c = this.$.drawer.getClientControls();
 	    for (var i = 0; i < c.length; i++) {
@@ -101,13 +103,15 @@ enyo.kind({
     events: {
 	onEffectTapped: "",
 	onEffectHold: "",
+	onDeleteModule: "",
+	onParameterChanged: "",
     },
     components:[
 	{name: "state", kind: "gx.ToggleButton", onChange: "stateChanged"},
 	{name: "before", kind: "onyx.Button", showing: false, content: "B", ontap: "insertBefore"},
 	{name: "after", kind: "onyx.Button", showing: false, content: "A", ontap: "insertAfter"},
 	{name: "name", kind: "onyx.Button", fit: true, ontap: "displayUnit", onhold: "startMove", onup: "checkMoveTap"},
-	{name: "del", kind: "onyx.IconButton", style: "height: 32px", src: "assets/remove-icon.png", ontap: "deleteModule"},
+	{name: "del", kind: "onyx.IconButton", style: "height: 32px", src: "assets/remove-icon.png", ontap: "doDeleteModule"},
     ],
     create: function() {
 	this.inherited(arguments);
@@ -123,11 +127,9 @@ enyo.kind({
 	this.$.state.changeValue(v);
     },
     stateChanged: function(inSender, inEvent) {
-	guitarix.notify("set", [this.fx.id+".on_off", inEvent.value ? 1 : 0]);
-    },
-    deleteModule: function(inSender, inEvent) {
-	guitarix.notify("remove_rack_unit", [this.fx.id, (this.stereo ? 1 : 0)]);
-	this.destroy();
+	var id = this.fx.id+".on_off";
+	guitarix.notify("set", [id, inEvent.value ? 1 : 0]);
+	this.doParameterChanged({id: id, value: inEvent.value});
     },
     displayUnit: function(inSender, inEvent) {
 	inEvent.fxId = this.fx.id;
@@ -151,6 +153,7 @@ enyo.kind({
     handlers: {
 	onEffectTapped: "checkTap",
 	onEffectHold: "startMoveEffect",
+	onDeleteModule: "deleteEffect",
     },
     sys_loadvar: null,
     stereo: false,
@@ -191,6 +194,10 @@ enyo.kind({
 	if (setter !== undefined) {
 	    setter(value);
 	}
+    },
+    deleteEffect: function(inSender, inEvent) {
+	guitarix.notify("remove_rack_unit", [inSender.fx.id, (this.stereo ? 1 : 0)]);
+	inSender.destroy();
     },
     insertEffect: function(fx) {
 	guitarix.notify("insert_rack_unit", [fx.id, "", (this.stereo ? 1 : 0)]);

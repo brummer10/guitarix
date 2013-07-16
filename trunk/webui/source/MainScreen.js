@@ -17,7 +17,7 @@ enyo.kind({
 	]},
 	{kind: "onyx.MoreToolbar", layoutKind: "FittableColumnsLayout", components:[
 	    {kind: "onyx.Button", content: "Tuner On", ontap: "TunerOn"},
-	    {kind: "onyx.Button", content: "Switch", ontap: "Switch"},
+	    //{kind: "onyx.Button", content: "Switch", ontap: "Switch"}, // for testing without foot switch
 	    {name: "status", kind: "gx.StatusDisplay"},
 	    {name: "load", kind: "gx.LoadDisplay"},
 	    {name: "fullscreen", kind: "onyx.Button", content: "FS", ontap: "toggleFullscreen"},
