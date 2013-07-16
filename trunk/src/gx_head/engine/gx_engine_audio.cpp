@@ -607,12 +607,26 @@ void ModuleSequencer::set_samplerate(unsigned int samplerate) {
     EngineControl::set_samplerate(samplerate);
 }
 
+bool ModuleSequencer::check_module_lists() {
+    if (mono_chain.check_release()) {
+	mono_chain.release();
+    }
+    if (stereo_chain.check_release()) {
+	stereo_chain.release();
+    }
+    if (get_rack_changed()) {
+	update_module_lists();
+	return mono_chain.check_release() || stereo_chain.check_release();
+    }
+    return false;
+}
+
 void ModuleSequencer::set_rack_changed() {
     if (rack_changed.connected()) {
 	return;
     }
     rack_changed = Glib::signal_idle().connect(
-	sigc::bind_return(sigc::mem_fun(this, &ModuleSequencer::check_module_lists),false));
+	sigc::mem_fun(this, &ModuleSequencer::check_module_lists));
 }
 
 bool ModuleSequencer::prepare_module_lists() {
@@ -620,7 +634,6 @@ bool ModuleSequencer::prepare_module_lists() {
 	(*i)->set_module();
     }
     list<Plugin*> modules;
-    clear_rack_changed();
     pluginlist.ordered_mono_list(modules, audio_mode);
     bool ret_mono = mono_chain.set_plugin_list(modules);
     pluginlist.ordered_stereo_list(modules, audio_mode);

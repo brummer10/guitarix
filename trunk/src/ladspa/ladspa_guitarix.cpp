@@ -767,7 +767,6 @@ bool MonoEngine::prepare_module_lists() {
 	(*i)->set_module();
     }
     list<Plugin*> modules;
-    clear_rack_changed();
     pluginlist.ordered_mono_list(modules, PGN_MODE_NORMAL);
     bool ret_mono = mono_chain.set_plugin_list(modules);
     if (ret_mono) {
@@ -1409,7 +1408,6 @@ bool StereoEngine::prepare_module_lists() {
 	(*i)->set_module();
     }
     list<Plugin*> modules;
-    clear_rack_changed();
     pluginlist.ordered_stereo_list(modules, PGN_MODE_NORMAL);
     bool ret_stereo = stereo_chain.set_plugin_list(modules);
     if (ret_stereo) {

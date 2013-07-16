@@ -337,17 +337,7 @@ public:
     void commit_module_lists();
     virtual void set_rack_changed();
     virtual bool update_module_lists();
-    inline void check_module_lists() {
-	if (mono_chain.check_release()) {
-	    mono_chain.release();
-	}
-	if (stereo_chain.check_release()) {
-	    stereo_chain.release();
-	}
-	if (get_rack_changed()) {
-	    update_module_lists();
-	}
-    }
+    bool check_module_lists();
     virtual void overload(OverloadType tp, const char *reason); // RT
     void set_stateflag(StateFlag flag); // RT
     void clear_stateflag(StateFlag flag); // RT
