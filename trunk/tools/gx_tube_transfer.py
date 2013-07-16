@@ -83,7 +83,7 @@ class tube_transfer(gtk.Window):
         c.Vp           = self.scale1.get_value()
         c.Rp           = self.scale2.get_value()*1e3
         c.Uin_min      = self.scale3.get_value()
-        c.Ui_max       = self.scale4.get_value()
+        c.Uin_max       = self.scale4.get_value()
         c.Vi = linspace(self.scale3.get_value(),self.scale4.get_value(),self.table_size)
     
     def on_accuracy(self, widget):
