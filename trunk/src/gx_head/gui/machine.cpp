@@ -28,7 +28,7 @@ void lock_rt_memory() {
     extern char __rt_data__start[], __rt_data__end[];
     struct {
 	char *start;
-	int len;
+	long len;
     } regions[] = {
 	{ __rt_text__start, __rt_text__end - __rt_text__start },
 	{ __rt_data__start, __rt_data__end - __rt_data__start },
