@@ -93,10 +93,12 @@ TB_JJECC83S_68k  = fconstant(int TUBE_TABLE_JJECC83S_68k,  "valve.h");
 TB_JJECC83S_250k = fconstant(int TUBE_TABLE_JJECC83S_250k, "valve.h");
 TB_JJECC99_68k   = fconstant(int TUBE_TABLE_JJECC83S_68k,  "valve.h");
 TB_JJECC99_250k  = fconstant(int TUBE_TABLE_JJECC83S_250k, "valve.h");
-TB_EL84_68k   = fconstant(int TUBE_TABLE_EL84_68k,   "valve.h");
-TB_EL84_250k  = fconstant(int TUBE_TABLE_EL84_250k,  "valve.h");
-TB_EF86_68k   = fconstant(int TUBE_TABLE_EF86_68k,   "valve.h");
-TB_EF86_250k  = fconstant(int TUBE_TABLE_EF86_250k,  "valve.h");
+TB_EL84_68k      = fconstant(int TUBE_TABLE_EL84_68k,   "valve.h");
+TB_EL84_250k     = fconstant(int TUBE_TABLE_EL84_250k,  "valve.h");
+TB_EF86_68k      = fconstant(int TUBE_TABLE_EF86_68k,   "valve.h");
+TB_EF86_250k     = fconstant(int TUBE_TABLE_EF86_250k,  "valve.h");
+TB_SVEL34_68k    = fconstant(int TUBE_TABLE_SVEL34_68k,   "valve.h");
+TB_SVEL34_250k   = fconstant(int TUBE_TABLE_SVEL34_250k,  "valve.h");
 
 tubestageF(tb,vplus,divider,fck,Rk,Vk0) = +(no_denormal) : tube : hpf with {
     lpfk = lowpass(1,fck);

@@ -71,6 +71,7 @@ struct table1d_imp
 #include "JJECC99.cc"
 #include "EL84.cc"
 #include "EF86.cc"
+#include "SVEL34.cc"
 
 enum {
     TUBE_TABLE_12AX7_68k,
@@ -99,6 +100,8 @@ enum {
     TUBE_TABLE_EL84_250k,
     TUBE_TABLE_EF86_68k,
     TUBE_TABLE_EF86_250k,
+    TUBE_TABLE_SVEL34_68k,
+    TUBE_TABLE_SVEL34_250k,
     TUBE_TABLE_SIZE
 };
 
@@ -129,6 +132,8 @@ table1d *tubetab[TUBE_TABLE_SIZE] = {
     &static_cast<table1d&>(tubetable_EL84[1]),
     &static_cast<table1d&>(tubetable_EF86[0]),
     &static_cast<table1d&>(tubetable_EF86[1]),
+    &static_cast<table1d&>(tubetable_SVEL34[0]),
+    &static_cast<table1d&>(tubetable_SVEL34[1]),
 };
 
 /*

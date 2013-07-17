@@ -177,7 +177,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst24 = (1.0 / fConst22);
 	fConst25 = exp((0 - (2e+02 / double(iConst0))));
 	fConst26 = exp((0 - (0.1 / double(iConst0))));
-	fConst27 = (1.0 / tan((2136.2830044410593 / double(iConst0))));
+	fConst27 = (1.0 / tan((804.247719318987 / double(iConst0))));
 	fConst28 = (1 + fConst27);
 	fConst29 = (0 - ((1 - fConst27) / fConst28));
 	fConst30 = (0.06571428571428571 / fConst28);

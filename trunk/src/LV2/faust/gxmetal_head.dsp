@@ -18,8 +18,8 @@ tubeax(preamp,gain1) =  hgroup("stage1", stage1)  :
         lowpass(1,6531.0) : tubestage(TB_12AX7_250k,132.0,1500.0,1.204285); 
     stage2 = lowpass(1,6531.0) : tubestage(TB_12AX7_250k,194.0,820.0,0.840703)  ; 
     tone = component("bigmuff.dsp").bigmuff ;
-    stage3 =  *(gain1) : _<:(tubestageP(TB_6L6CG_68k,450.0,40.0,5000, 680.0,490.0,20.063657),
-        tubestageP(TB_6L6CG_250k,450.0,40.0,5000, 680.0,490.0,20.063657)):> *(gain1) :lowpass(1,6531.0) ;
+    stage3 =  *(gain1) : _<:(tubestageP(TB_6L6CG_68k,450.0,40.0,5000, 256.0,490.0,20.063657),
+        tubestageP(TB_6L6CG_250k,450.0,40.0,5000, 256.0,490.0,20.063657)):> *(gain1) :lowpass(1,6531.0) ;
 };
  //tubestageP(tb,vplus,divider,Rp,fck,Rk,Vk0)
  //tubestage(tb,fck,Rk,Vk0)
