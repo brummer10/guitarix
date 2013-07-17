@@ -194,11 +194,11 @@ def set_options(opt):
                     type='string',
                     help='LV2 plugin directory [Default: <prefix>/lib/lv2]')
 
-    lv2.add_option('--build-lv2',
+    lv2.add_option('--no-lv2',
                     action='store_const',
                     default=False,
                     const=True,
-                    help=("build with new lv2 plugins (Default no)"))
+                    help=("don't build new lv2 plugins (Default no)"))
 
     lv2.add_option('--lv2-only',
                     action='store_const',
@@ -206,11 +206,11 @@ def set_options(opt):
                     const=True,
                     help=("build only the lv2 plugins (Default no)"))
 
-    lv2.add_option('--dissable-sse',
+    lv2.add_option('--disable-sse',
                     action='store_const',
                     default=False,
                     const=True,
-                    help=("dissable SSE for lv2 plugins (ARM)"))
+                    help=("disable SSE for lv2 plugins (ARM)"))
 
 
     opt.recurse('pygxw')
@@ -550,8 +550,8 @@ write_linguas_file = feature ('intltool_po')(write_linguas_file)
  
 def configure(conf):
     opt = Options.options
-    if opt.dissable_sse and opt.optimization:
-        display_msg("configuration error", " cant use --dissable-sse and --optimization together", 'RED')
+    if opt.disable_sse and opt.optimization:
+        display_msg("configuration error", " cant use --disable-sse and --optimization together", 'RED')
         sys.exit(1)
 
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
@@ -605,7 +605,7 @@ def configure(conf):
     conf.env.append_value('LDFLAGS', opt.ldflags.split())
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
     if opt.lv2_only:
-        opt.build_lv2 = True
+        opt.no_lv2 = False
         opt.no_ladspa = True
         opt.no_new_ladspa = True
         conf.env['NO_MAIN'] = True
@@ -631,7 +631,7 @@ def configure(conf):
         conf.check_cfg(package='libavcodec', args='--cflags --libs', uselib_store='LIBAVCODEC', mandatory=1)
         conf.check_cfg(package='libavutil', args='--cflags --libs', uselib_store='LIBAVUTIL', mandatory=1)
     conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
-    if opt.build_lv2:
+    if not opt.no_lv2:
         conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
 
@@ -664,7 +664,7 @@ def configure(conf):
     # defines for compilation
     gxsharedir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head'))
     conf.define('GX_STYLE_DIR', os.path.join(gxsharedir,'skins'))
-    if opt.build_lv2:
+    if not opt.no_lv2:
         conf.define('GX_LV2_STYLE_DIR', os.path.join(conf.env['GX_STYLE_DIR'],'LV2'))
     conf.define('GX_FACTORY_DIR', os.path.join(gxsharedir,'factorysettings'))
     conf.define('GX_SOUND_DIR', os.path.join(gxsharedir,'sounds'))
@@ -689,9 +689,9 @@ def configure(conf):
     conf.env['DESKAPPS_DIR'] = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications'))
     conf.env['BIN_NAME'] = APPNAME
 
-    conf.env['LV2'] =  opt.build_lv2
-    conf.env['NOSSE'] =  opt.dissable_sse
-    if opt.build_lv2:
+    conf.env['LV2'] =  not opt.no_lv2
+    conf.env['NOSSE'] =  opt.disable_sse
+    if not opt.no_lv2:
         if opt.lv2dir:
             conf.env['LV2DIR'] = opt.lv2dir
         else:
@@ -796,9 +796,9 @@ def configure(conf):
 
     display_feature("build ladspa plugins", conf.env['LADSPA'])
     display_feature("build lv2 plugins", conf.env['LV2'])
-    if opt.build_lv2:
+    if not opt.no_lv2:
         display_feature("SSE2 support found", conf.env['SSE2'])
-        display_feature("SSE2 support dissabled", conf.env['NOSSE'])
+        display_feature("SSE2 support disabled", conf.env['NOSSE'])
     display_feature("skip Python Library Wrapper", not conf.env['GX_PYTHON_WRAPPER'])
     display_feature("use prebuild C++ Library Wrapper", conf.env['USE_GENERATED_CPP'])
     display_feature("skip building shared lib", not conf.env['GX_LIB_SHARED'])
@@ -817,7 +817,7 @@ def configure(conf):
 
     if not opt.no_ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
-    if opt.build_lv2:
+    if not opt.no_lv2:
         display_msg("Install lv2", conf.env['LV2DIR'], 'CYAN')
     if not conf.env['NO_MAIN']:
         display_msg("Guitarix shared files directory", gxsharedir, 'CYAN')
@@ -1008,7 +1008,7 @@ def distcheck(ctx):
     t.close()
     build_path = path
     instdir = tempfile.mkdtemp('.inst', path)
-    cmdargs = [waf,'configure','build','install','uninstall', '--build-lv2', '--destdir='+instdir]
+    cmdargs = [waf,'configure','build','install','uninstall', '--destdir='+instdir]
     print('starting "%s"' % (" ".join(cmdargs)))
     print("")
     ret = Utils.pproc.Popen(cmdargs, cwd=build_path).wait()
