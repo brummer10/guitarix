@@ -71,7 +71,7 @@ enyo.kind({
 	    h = document.location.hostname||'localhost';
 	}
 	if (typeof(p) !== "number" || !(p > 0)) {
-	    p = 8001;
+	    p = 8000;
 	}
 	return {host: h, port: p};
     },

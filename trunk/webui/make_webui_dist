@@ -1,0 +1,21 @@
+#! /bin/bash
+if [ "$1" = "" ]; then
+  echo "usage: $0 <version>"
+  echo "  creates guitarix-webui-<version>.tar.bz2"
+  echo "  the tar file unpacks into guitarix-webui-<version>/"
+  exit 1;
+fi
+set -e
+cd "$(dirname "$0")"
+echo "running deploy:"
+./deploy.sh
+dirname="guitarix-webui-$1"
+filename="$dirname.tar.bz2"
+echo
+echo "building archive: $filename"
+ln -sf ../websockify deploy/
+ln -sf ../README-dist.txt deploy/
+trap 'rm -f "$dirname"' EXIT
+ln -sf deploy "$dirname"
+tar -cjhf "$filename" --exclude lastN "$dirname"
+echo "done"
