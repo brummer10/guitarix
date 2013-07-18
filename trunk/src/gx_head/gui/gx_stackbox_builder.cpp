@@ -130,7 +130,7 @@ void wnotify(gpointer data, GObject *where_the_object_was) {
 
 // check if object will be finalized
 void trace_finalize(Glib::Object *o, int n) {
-    g_object_weak_ref(o->gobj(), wnotify, (gpointer)n);
+    g_object_weak_ref(o->gobj(), wnotify, GINT_TO_POINTER(n));
 }
 #endif
 
