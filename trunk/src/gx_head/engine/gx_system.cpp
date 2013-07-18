@@ -799,8 +799,7 @@ string CmdlineOptions::get_opskin() {
     // initialize number of skins. We just count the number of rc files
     unsigned int n = skin.skin_list.size();
     if (n < 1) {
-        gx_print_error(_("main"), string(_("number of skins is 0")));
-	GxExit::get_instance().exit_program();
+        gx_print_fatal(_("main"), string(_("number of skins is 0")));
     }
 
     // GTK options: rc style (aka skin)
