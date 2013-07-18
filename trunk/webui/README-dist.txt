@@ -22,3 +22,8 @@ guitarix git archive:
 git clone git://git.code.sf.net/p/guitarix/git guitarix-git
 
 commit-id: %C%
+
+This files in this archive are distributed under the terms of the GNU
+General Public License as published by the Free Software Foundation;
+either version 2 of the License, or (at your option) any later
+version.
