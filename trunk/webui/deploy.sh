@@ -1,10 +1,10 @@
 #! /bin/bash
+set -e
 cd `dirname $0`
-counter=deploy/lastN
+ddir=deploy/webui
 bootplate/tools/deploy.sh
-cp -L --remove-destination assets/* bootplate/assets/* deploy/webui/assets
-REV=$(git rev-parse HEAD 2>/dev/null)
-N=1
-[ -e $counter ] && let N=$(< $counter)+1
-sed "s/%N%/$N $REV/" source/manifest.appcache >deploy/webui/manifest.appcache
-echo $N > $counter
+cp -L --remove-destination assets/* $ddir/assets
+FILES=$((cd $ddir && find * -type f ! -name LICENSE\*.txt) | sort)
+pcl() { md5sum source/manifest.appcache && cd $ddir && md5sum -b $FILES; }
+CSUM=$(pcl | md5sum | cut -d' ' -f1)
+eval "echo \"$(cat source/manifest.appcache)\"" >$ddir/manifest.appcache
