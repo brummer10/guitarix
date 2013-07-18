@@ -198,6 +198,7 @@ enyo.kind({
     deleteEffect: function(inSender, inEvent) {
 	guitarix.notify("remove_rack_unit", [inSender.fx.id, (this.stereo ? 1 : 0)]);
 	inSender.destroy();
+	this.loadEffects();
     },
     insertEffect: function(fx) {
 	guitarix.notify("insert_rack_unit", [fx.id, "", (this.stereo ? 1 : 0)]);
