@@ -15,3 +15,10 @@ Getting started:
 
 The included server is not audited for security; don't use it in an
 untrusted environment.
+
+The javascript and CSS files are generated from the code in the
+guitarix git archive:
+
+git clone git://git.code.sf.net/p/guitarix/git guitarix-git
+
+commit-id: %C%

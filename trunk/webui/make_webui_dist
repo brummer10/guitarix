@@ -14,8 +14,9 @@ filename="$dirname.tar.bz2"
 echo
 echo "building archive: $filename"
 ln -sf ../websockify deploy/
-ln -sf ../README-dist.txt deploy/
+REV=$(git rev-parse HEAD 2>/dev/null)
+sed "s/%C%/$REV/" README-dist.txt >deploy/README-dist.txt
 trap 'rm -f "$dirname"' EXIT
 ln -sf deploy "$dirname"
-tar -cjhf "$filename" --exclude lastN "$dirname"
+tar -cjhf "$filename" "$dirname"
 echo "done"
