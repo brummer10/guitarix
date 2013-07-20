@@ -1669,7 +1669,7 @@ public:
 
 void JConvPluginUI::on_plugin_preset_popup() {
     gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(
-	&main.get_machine().get_parameter(get_id()));
+	&main.get_machine().get_parameter(std::string(get_id())+".convolver"));
     assert(jcp);
     Glib::ustring name = jcp->get_value().getIRFile();
     Glib::ustring::size_type n = name.find_last_of('.');
