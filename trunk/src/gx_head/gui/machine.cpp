@@ -35,7 +35,8 @@ void lock_rt_memory() {
     };
     for (unsigned int i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
 	if (mlock(regions[i].start, regions[i].len) != 0) {
-	    throw GxFatalError(
+	    gx_print_error(
+		"system init",
 		boost::format(_("failed to lock memory: %1%")) % strerror(errno));
 	}
     }
