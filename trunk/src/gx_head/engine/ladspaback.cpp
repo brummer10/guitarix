@@ -1411,7 +1411,7 @@ void LadspaPluginList::save(gx_system::CmdlineOptions& options) {
 	char buf[100];
 	char *p = strerror_r(errno, buf, sizeof(buf));
 	gx_print_error(
-	    "ladspalist",ustring::compose(_("error renaming LADSPA config file '%1': %2\n"), fname, p));
+	    "ladspalist",ustring::compose(_("error renaming LADSPA config file '%1': %2"), fname, p));
 	return;
     }
     for (std::vector<std::pair<std::string,std::string> >::iterator i = fl.begin(); i != fl.end(); ++i) {

@@ -2359,7 +2359,7 @@ void MainWindow::hide_extended_settings() {
 void MainWindow::run() {
     int port = options.get_rpcport();
     if (machine.get_jack() && port != RPCPORT_DEFAULT && port != RPCPORT_NONE) {
-	machine.start_socket(sigc::ptr_fun(Gtk::Main::quit), port);
+	machine.start_socket(sigc::ptr_fun(Gtk::Main::quit), options.get_rpcaddress(), port);
 	window->show();
 	Gtk::Main::run();
     } else {

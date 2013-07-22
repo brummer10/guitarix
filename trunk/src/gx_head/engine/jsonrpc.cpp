@@ -19,6 +19,10 @@
 #include "jsonrpc.h"
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#if HAVE_BLUEZ
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/rfcomm.h>
+#endif
 
 #include "jsonrpc_methods.cc"
 
@@ -1557,7 +1561,8 @@ void UiBuilderVirt::load_glade_file_(const char *fname) {
  */
 
 GxService::GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
-		     TunerSwitcher& tunerswitcher_, sigc::slot<void> quit_mainloop_, int *port)
+		     TunerSwitcher& tunerswitcher_, sigc::slot<void> quit_mainloop_,
+		     const Glib::ustring& host, int *port)
     : Gio::SocketService(),
       settings(settings_),
       jack(jack_),
@@ -1574,6 +1579,9 @@ GxService::GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
 	*port = add_any_inet_port();
     } else {
 	add_inet_port(*port);
+    }
+    if (host.compare(0, 3, "BT:") == 0) {
+	create_bluetooth_sockets(host.substr(3));
     }
     settings.signal_selection_changed().connect(
 	sigc::mem_fun(*this, &GxService::preset_changed));
@@ -1620,6 +1628,48 @@ GxService::~GxService() {
 	delete *i;
     }
 }
+
+#if HAVE_BLUEZ
+static Glib::RefPtr<Gio::Socket> GxService::create_on_bluetooth_socket(
+    const Glib::ustring& device, int channel) {
+    sockaddr_rc loc_addr = { 0 };
+    int s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+    loc_addr.rc_family = AF_BLUETOOTH;
+    // bind socket to the first available local bluetooth adapter
+    bdaddr_t bdaddr = {{0, 0, 0, 0, 0, 0}}; //*BDADDR_ANY;
+    loc_addr.rc_bdaddr = bdaddr;
+    loc_addr.rc_channel = (uint8_t)channel;
+    bind(s, (struct sockaddr *)&loc_addr, sizeof(loc_addr));
+    listen(s, 1);
+    return Gio::Socket::create_from_fd(s);
+}
+
+void GxService::create_bluetooth_sockets(const Glib::ustring& host) {
+    int channels = 1;
+    if (host.size() > 3) {
+	channels = host[3] - '0';
+	if (channels < 1) {
+	    channels = 1;
+	} else if (channels > 9) {
+	    channels = 9;
+	}
+	}
+    for (int i = 1; i <= channels; i++) {
+	add_socket(create_one_bluetooth_socket(host.substr(3), i));
+    }
+    gx_print_info(
+	_("server"),
+	Glib::ustring::compose(
+	    _("listening on bluetooth socket (%1 channel)"),
+	    channels));
+}
+#else // !HAVE_BLUEZ
+void GxService::create_bluetooth_sockets(const Glib::ustring& host) {
+    gx_print_fatal(
+	_("server"),
+	_("Bluetooth not available; rebuild Guitarix with Bluetooth support"));
+}
+#endif // HAVE_BLUEZ
 
 void GxService::ladspaloader_write_changes(gx_system::JsonWriter& jw, std::vector<ChangedPlugin>& changed_plugins) {
     serialize_parameter_change(jw);

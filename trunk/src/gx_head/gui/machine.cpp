@@ -22,6 +22,10 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_BLUEZ
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/rfcomm.h>
+#endif
 
 void lock_rt_memory() {
     extern char __rt_text__start[], __rt_text__end[];
@@ -281,21 +285,23 @@ void GxMachine::stop_socket() {
     sock = 0;
 }
 
-void GxMachine::start_socket(sigc::slot<void> quit_mainloop, int port) {
+void GxMachine::start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port) {
     if (sock) {
 	return;
     }
-    sock = new GxService(settings, jack, tuner_switcher, quit_mainloop, &port);
+    sock = new GxService(settings, jack, tuner_switcher, quit_mainloop, host, &port);
     sock->start();
     GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxMachine::exit_handler));
 #ifdef HAVE_AVAHI
-    std::string name = "Guitarix";
-    if (jack.get_default_instancename() != jack.get_instancename()) {
-	name += ": " + jack.get_instancename();
+    if (port > 0) {
+	std::string name = "Guitarix";
+	if (jack.get_default_instancename() != jack.get_instancename()) {
+	    name += ": " + jack.get_instancename();
+	}
+	avahi_service = new AvahiService;
+	avahi_service->register_service(name, port);
     }
-    avahi_service = new AvahiService;
-    avahi_service->register_service(name, port);
 #endif
 }
 
@@ -735,29 +741,10 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       tuner_switcher_display(),
       tuner_switcher_set_state(),
       tuner_switcher_selection_done() {
-    socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
-    int flag = 1;
-    setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
-    typedef std::vector< Glib::RefPtr<Gio::InetAddress> > adr_list;
-    adr_list al;
-    try {
-	al = Gio::Resolver::get_default()->lookup_by_name(options.get_rpcaddress());
-    } catch (Glib::Error e) {
-	gx_print_fatal(_("Remote Connection"), e.what());
-    }
-    Glib::ustring msg;
-    bool error = true;
-    for (adr_list::iterator i = al.begin(); i != al.end(); ++i) {
-	try {
-	    socket->connect(Gio::InetSocketAddress::create(*i, options.get_rpcport()));
-	    error = false;
-	} catch (Gio::Error e) {
-	    msg = e.what();
-	    error = true;
-	}
-    }
-    if (error) {
-	gx_print_fatal(_("Remote Connection"), msg);
+    if (options.get_rpcaddress().compare(0, 3, "BT:") == 0) {
+	create_bluetooth_socket(options.get_rpcaddress().substr(3));
+    } else {
+	create_tcp_socket();
     }
     socket->set_blocking(true);
     writebuf = new __gnu_cxx::stdio_filebuf<char>(socket->get_fd(), std::ios::out);
@@ -839,6 +826,67 @@ inline void debug_trace_param(Parameter *p) {
     cerr << endl;
 }
 #endif
+
+#if HAVE_BLUEZ
+void GxMachineRemote::create_bluetooth_socket(const Glib::ustring& bdaddr) {
+    struct sockaddr_rc addr = { 0 };
+    addr.rc_family = AF_BLUETOOTH;
+    str2ba(bdaddr.c_str(), &addr.rc_bdaddr);
+    int error = EBUSY;
+    for (int channel = 1; channel <= 9; channel++) {
+	addr.rc_channel = (uint8_t)channel;
+	int s = ::socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+	if (connect(s, (const struct sockaddr *)&addr, sizeof(addr)) < 0) {
+	    error = errno;
+	    close(s);
+	    if (error != EBUSY) {
+		break;
+	    }
+	} else {
+	    socket = Gio::Socket::create_from_fd(s);
+	    return;
+	}
+    }
+    char buf[100];
+    throw GxFatalError(
+	Glib::ustring::compose(
+	    _("Remote Connection: cannot connect to bluetooth %1: %2"),
+	    bdaddr, strerror_r(error, buf, sizeof(buf))));
+}
+#else // !HAVE_BLUEZ
+void GxMachineRemote::create_bluetooth_socket(const Glib::ustring& bdaddr) {
+    gx_print_fatal(
+	_("frontend"),
+	_("Bluetooth not available; rebuild Guitarix with Bluetooth support"));
+}
+#endif // HAVE_BLUEZ
+
+void GxMachineRemote::create_tcp_socket() {
+    socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
+    int flag = 1;
+    setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
+    typedef std::vector< Glib::RefPtr<Gio::InetAddress> > adr_list;
+    adr_list al;
+    try {
+	al = Gio::Resolver::get_default()->lookup_by_name(options.get_rpcaddress());
+    } catch (Glib::Error e) {
+	gx_print_fatal(_("Remote Connection"), e.what());
+    }
+    Glib::ustring msg;
+    bool error = true;
+    for (adr_list::iterator i = al.begin(); i != al.end(); ++i) {
+	try {
+	    socket->connect(Gio::InetSocketAddress::create(*i, options.get_rpcport()));
+	    error = false;
+	} catch (Gio::Error e) {
+	    msg = e.what();
+	    error = true;
+	}
+    }
+    if (error) {
+	gx_print_fatal(_("Remote Connection"), msg);
+    }
+}
 
 void GxMachineRemote::param_signal(Parameter *p) {
     debug_trace_param(p);
@@ -1563,7 +1611,7 @@ gx_system::CmdlineOptions& GxMachineRemote::get_options() const {
     return options;
 }
 
-void GxMachineRemote::start_socket(sigc::slot<void> quit_mainloop, int port) {
+void GxMachineRemote::start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port) {
     assert(false);
 }
 

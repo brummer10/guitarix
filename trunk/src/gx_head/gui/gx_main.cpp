@@ -394,7 +394,7 @@ static void mainHeadless(int argc, char *argv[]) {
 	port = 7000;
     }
     if (port != RPCPORT_NONE) {
-	machine.start_socket(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), port);
+	machine.start_socket(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), options.get_rpcaddress(), port);
 	loop->run();
     } else {
 	loop->run();

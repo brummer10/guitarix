@@ -163,12 +163,15 @@ private:
     int on_osc_activation(bool v);
     void on_jack_load_changed();
     void on_rack_unit_changed(bool stereo);
-    static void add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v, std::vector<ChangedPlugin>& vec);
+    static void add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v,
+				   std::vector<ChangedPlugin>& vec);
+    void create_bluetooth_sockets(const Glib::ustring& host);
 
     friend class CmdConnection;
 public:
     GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
-	      TunerSwitcher& tunerswitcher, sigc::slot<void> quit_mainloop_, int *port);
+	      TunerSwitcher& tunerswitcher, sigc::slot<void> quit_mainloop_,
+	      const Glib::ustring& host, int *port);
     ~GxService();
     void send_rack_changed(bool stereo, CmdConnection *cmd);
     void ladspaloader_update_plugins(gx_system::JsonWriter *jw, CmdConnection *cmd);

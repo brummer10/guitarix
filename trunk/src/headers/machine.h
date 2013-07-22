@@ -87,7 +87,7 @@ public:
     virtual void maxlevel_get(int channels, float *values) = 0;
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) = 0;
     virtual gx_system::CmdlineOptions& get_options() const = 0;
-    virtual void start_socket(sigc::slot<void> quit_mainloop, int port) = 0;
+    virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port) = 0;
     virtual void stop_socket() = 0;
     virtual sigc::signal<void,GxEngineState>& signal_state_change() = 0;
     sigc::signal<void,MidiAudioBuffer::Load>& signal_jack_load_change() { return jack_load_change; }
@@ -262,7 +262,7 @@ public:
     virtual void maxlevel_get(int channels, float *values);
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
-    virtual void start_socket(sigc::slot<void> quit_mainloop, int port);
+    virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port);
     virtual void stop_socket();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
     virtual void tuner_used_for_display(bool on);
@@ -403,6 +403,8 @@ private:
     void throw_error(gx_system::JsonStringParser *jp);
     void param_signal(Parameter *p);
     void update_plugins(gx_system::JsonParser *jp);
+    void create_bluetooth_socket(const Glib::ustring& bdaddr);
+    void create_tcp_socket();
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
@@ -436,7 +438,7 @@ public:
     virtual void maxlevel_get(int channels, float *values);
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
-    virtual void start_socket(sigc::slot<void> quit_mainloop, int port);
+    virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port);
     virtual void stop_socket();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
     virtual void tuner_used_for_display(bool on);

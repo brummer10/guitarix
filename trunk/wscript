@@ -787,6 +787,7 @@ def configure(conf):
         display_msg("Additional faust options", conf.env['FAUST_OPTIONS'], 'CYAN')
     display_feature("Use prebuild gperf files", not conf.env["HAVE_GPERF"])
     display_feature("Avahi service discovery", conf.env["HAVE_AVAHI"])
+    display_feature("Bluetooth rfcomm", conf.env["HAVE_BLUEZ"])
     display_feature("Use internal zita-resampler", not conf.env['ZITA_RESAMPLER'])
     if conf.env['CONVOLVER_FFMPEG']:
         display_feature("Use zita-convolver-ffmpeg", True)

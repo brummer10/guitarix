@@ -18,6 +18,7 @@ def configure(conf):
         conf.check_cfg(package='avahi-glib', args='--cflags --libs', uselib_store='AVAHI_GLIB', mandatory=1)
         conf.check_cfg(package='avahi-client', args='--cflags --libs', uselib_store='AVAHI_CLIENT', mandatory=1)
         conf.define("HAVE_AVAHI", 1)
+    conf.check_cfg(package='bluez', args='--cflags --libs', uselib_store='BLUEZ', mandatory=0)
 
 def gperf2cc(task):
     out_c = task.outputs[0].bldpath(task.env)
@@ -137,6 +138,7 @@ def build(bld):
               'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'BOOST_SYSTEM']
     if bld.env["HAVE_AVAHI"]:
         uselib += ['AVAHI_GOBJECT', 'AVAHI_GLIB', 'AVAHI_CLIENT']
+    uselib.append('BLUEZ')
     uselib_local = []
     wscript_helper.add_zita_convolver(bld, uselib, sources, incl)
     wscript_helper.add_zita_resampler(bld, uselib, sources, incl)
