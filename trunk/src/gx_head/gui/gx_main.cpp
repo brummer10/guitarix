@@ -402,11 +402,46 @@ static void mainHeadless(int argc, char *argv[]) {
     gx_child_process::childprocs.killall();
 }
 
+static void exception_handler() {
+    try {
+	throw; // re-throw current exception
+    } catch (const GxFatalError& error) {
+	cerr << error.what() << endl;
+	gx_print_fatal(_("Guitarix fatal error"), error.what());
+    } catch (const Glib::OptionError &error) {
+	cerr << error.what() << endl;
+	cerr << _("use \"guitarix -h\" to get a help text") << endl;
+	gx_print_fatal(_("Guitarix Commandline Option Error"),
+		       Glib::ustring::compose(
+			   "%1\n%2",
+			   error.what(),
+			   _("use \"guitarix -h\" to get a help text")));
+    } catch (const Glib::Error& error) {
+	const GError *perr = error.gobj();
+	Glib::ustring msg = Glib::ustring::compose(
+	    "Glib::Error[%1/%2]: %3",
+	    g_quark_to_string(perr->domain),
+	    perr->code,
+	    (perr->message) ? perr->message : "(null)");
+	cerr << msg << endl;
+	gx_print_fatal(_("Guitarix fatal error"), msg);
+    } catch (const std::exception& except) {
+	Glib::ustring msg = Glib::ustring::compose(
+	    "std::exception: %1", except.what());
+	cerr << msg << endl;
+	gx_print_fatal(_("Guitarix fatal error"), msg);
+    } catch(...) {
+	cerr << _("unknown error") << endl;
+	gx_print_fatal(_("Guitarix fatal error"),_("unknown error"));
+    }
+}
+
 static void mainGtk(int argc, char *argv[]) {
     Glib::init();
     Gxw::init();
 
     PosixSignals posixsig(true); // catch unix signals in special thread
+    Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
     gx_system::CmdlineOptions options;
     Gtk::Main main(argc, argv, options);
     options.process(argc, argv);
@@ -459,6 +494,7 @@ static void mainFront(int argc, char *argv[]) {
     Gxw::init();
 
     PosixSignals posixsig(true); // catch unix signals in special thread
+    Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
     gx_system::CmdlineOptions options;
     Gtk::Main main(argc, argv, options);
     options.process(argc, argv);
@@ -570,16 +606,8 @@ int main(int argc, char *argv[]) {
 	} else {
 	    mainGtk(argc, argv);
 	}
-    } catch (const Glib::OptionError &e) {
-	cerr << e.what() << endl;
-	cerr << _("use \"guitarix -h\" to get a help text") << endl;
-	return 1;
-    } catch (const GxFatalError &e) {
-	cerr << e.what() << endl;
-	return 1;
-    } catch (const Glib::Exception &e) {
-	cerr << "unknown Glib Exception: " << e.what() << endl;
-	return 1;
+    } catch (...) {
+	exception_handler();
     }
     return 0;
 }
