@@ -292,7 +292,7 @@ void CmdConnection::unlisten(const Glib::ustring& tp) {
 	cerr << "unknown listen token: " << tp << endl;
 	return;
     }
-    for (int i = start; i < end; ++i) {
+    for (int i = start; i <= end; i++) {
 	activate(i, false);
     }
 }
