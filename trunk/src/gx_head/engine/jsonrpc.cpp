@@ -1630,7 +1630,7 @@ GxService::~GxService() {
 }
 
 #if HAVE_BLUEZ
-static Glib::RefPtr<Gio::Socket> GxService::create_on_bluetooth_socket(
+static Glib::RefPtr<Gio::Socket> create_one_bluetooth_socket(
     const Glib::ustring& device, int channel) {
     sockaddr_rc loc_addr = { 0 };
     int s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
@@ -1655,7 +1655,7 @@ void GxService::create_bluetooth_sockets(const Glib::ustring& host) {
 	}
 	}
     for (int i = 1; i <= channels; i++) {
-	add_socket(create_one_bluetooth_socket(host.substr(3), i));
+	add_socket(create_one_bluetooth_socket(host, i));
     }
     gx_print_info(
 	_("server"),
