@@ -55,6 +55,10 @@ string GxJack::get_default_instancename() {
 
 static unsigned int rt_watchdog_counter;
 
+#ifndef SCHED_IDLE
+#define SCHED_IDLE SCHED_OTHER  // non-linux systems
+#endif
+
 static void *rt_watchdog_run(void *p) {
     struct sched_param  spar;
     spar.sched_priority = 0;
