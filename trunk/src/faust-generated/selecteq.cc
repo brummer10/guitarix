@@ -301,10 +301,10 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("eqs.freq1k","","S",N_("Hz"),&fslider14, 1e+03, 2e+01, 2e+04, 1.0);
 	reg.registerVar("eqs.freq250","","S",N_("Hz"),&fslider20, 2.5e+02, 2e+01, 2e+04, 1.0);
 	reg.registerVar("eqs.freq2k","","S",N_("Hz"),&fslider11, 2e+03, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.freq31_25","","S",N_("Hz"),&fslider29, 31.0, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq31_25","","S",N_("Hz"),&fslider29, 31.25, 2e+01, 2e+04, 1.0);
 	reg.registerVar("eqs.freq4k","","S",N_("Hz"),&fslider8, 4e+03, 2e+01, 2e+04, 1.0);
 	reg.registerVar("eqs.freq500","","S",N_("Hz"),&fslider17, 5e+02, 2e+01, 2e+04, 1.0);
-	reg.registerVar("eqs.freq62_5","","S",N_("Hz"),&fslider26, 62.0, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq62_5","","S",N_("Hz"),&fslider26, 62.5, 2e+01, 2e+04, 1.0);
 	reg.registerVar("eqs.freq8k","","S",N_("Hz"),&fslider5, 8e+03, 2e+01, 2e+04, 1.0);
 	reg.registerVar("eqs.fs125","","S",N_("gain (dB) at 125 Hz"),&fslider21, 0.0, -4e+01, 3e+01, 0.1);
 	reg.registerVar("eqs.fs16k","","S",N_("gain (dB) at 16 kHz"),&fslider0, 0.0, -4e+01, 3e+01, 0.1);

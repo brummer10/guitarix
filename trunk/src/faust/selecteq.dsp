@@ -16,12 +16,12 @@ import("guitarix.lib");
 // vectorization makes code slower (tested on ARM NEON).
 
 process =   ifilter(vslider("Qs31_25", 50, 1, 100, 1),
-                    vslider("freq31_25 [tooltip:Hz]",31., 20, 20000, 1),
+                    vslider("freq31_25 [tooltip:Hz]",31.25, 20, 20000, 1),
                     vslider("fs31_25[tooltip:gain (dB) at 31.25 Hz]", 0, -40, 30, 0.1)
                       : db2linear : smoothi(0.999))
 
           : ifilter(vslider("Qs62_5", 50, 1, 100, 1),
-                    vslider("freq62_5 [tooltip:Hz]",62., 20, 20000, 1),
+                    vslider("freq62_5 [tooltip:Hz]",62.5, 20, 20000, 1),
                     vslider("fs62_5 [tooltip:gain (dB) at 62.5 Hz]", 0, -40, 30, 0.1)
                       : db2linear : smoothi(0.999))
 
