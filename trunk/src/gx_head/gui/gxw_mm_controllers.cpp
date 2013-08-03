@@ -272,6 +272,7 @@ UiSelector<float>::UiSelector(gx_engine::GxMachineBase& machine_, const std::str
       base(*this, machine_, id_) {
     gx_engine::FloatParameter& param = base.machine.get_parameter(base.id).getFloat();
     cp_configure(param.group(), param.name(), param.getLowerAsFloat(), param.getUpperAsFloat(), param.getStepAsFloat());
+    cp_set_value(base.machine.get_parameter_value<float>(base.id));
     base.machine.signal_parameter_value<float>(base.id).connect(
 	sigc::mem_fun(this, &UiSelector<float>::cp_set_value));
     connect_midi_controller(this, base.id, base.machine);
@@ -298,6 +299,7 @@ UiSelector<int>::UiSelector(gx_engine::GxMachineBase& machine, const std::string
       base(*this, machine, id_) {
     gx_engine::IntParameter& param = machine.get_parameter(base.id).getInt();
     cp_configure(param.group(), param.name(), param.getLowerAsFloat(), param.getUpperAsFloat(), 1);
+    cp_set_value(machine.get_parameter_value<int>(base.id));
     get_adjustment()->signal_value_changed().connect(
 	sigc::mem_fun(this, &UiSelector::on_value_changed));
     base.machine.signal_parameter_value<int>(base.id).connect(
