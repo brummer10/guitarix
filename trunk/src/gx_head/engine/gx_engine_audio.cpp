@@ -686,7 +686,7 @@ void __rt_func ModuleSequencer::overload(OverloadType tp, const char *reason) {
     if (sporadic_interval > 0 && !ignore && (tp & (ov_Convolver|ov_XRun))) {
 	static float last = -sporadic_interval;
 	timespec ts;
-	clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+	clock_gettime(CLOCK_MONOTONIC, &ts);
 	float now = ts.tv_sec + ts.tv_nsec * 1e-9;
 	if (now - last < sporadic_interval) { // max. 1 event every sporadic_interval seconds
 	    last = now;
