@@ -1512,7 +1512,7 @@ class Output(object):
             indent = 1
         plugin_standalone = self.options.template_type in ("staticlib", "sharedlib")
         has_plugindef = self.options.init_type in ("plugin", "plugin-instance", "plugin-lv2")
-        has_lv2 = self.options.init_type in ("plugin-lv2")
+        has_lv2 = (self.options.init_type == "plugin-lv2")
         in_namespace = self.options.in_namespace
         compute_args = ("".join([self.inputdecl % i for i in range(self.parser.getNumInputs())])
                         + "".join([self.outputdecl % i for i in range(self.parser.getNumOutputs())]))
