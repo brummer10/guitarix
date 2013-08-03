@@ -1,4 +1,5 @@
 from cython.operator cimport dereference as deref, preincrement as inc
+import numpy as np
 cimport numpy as np
 
 cdef extern from "dlfcn.h":
@@ -207,7 +208,7 @@ cdef class Plugin:
         if self.p[0].set_samplerate:
             self.p[0].set_samplerate(samplingRate, self.p)
 
-    def compute(self, np.ndarray inp = None):
+    def compute(self, np.ndarray inp not None):
         """execute dsp algorithm
 
         argument: float32 numpy array
@@ -215,11 +216,9 @@ cdef class Plugin:
 
         specify type when creating an array, e.g. zeros(200, dtype=float32)
         """
-        if not isinstance(inp, np.ndarray):
-            raise ValueError("need ndarray")
-        if inp.dtype != np.float32:
+        if np.PyArray_TYPE(inp) != np.NPY_FLOAT32:
             raise ValueError("need float32")
-        cdef int count = np.PyArray_SHAPE(inp)[np.PyArray_NDIM(inp)-1]
+        cdef int count = np.PyArray_DIMS(inp)[np.PyArray_NDIM(inp)-1]
         cdef timespec t0, t1
         cdef np.ndarray o
         if self.p[0].mono_audio:
@@ -230,7 +229,7 @@ cdef class Plugin:
             self.p[0].mono_audio(count, <floatp>np.PyArray_DATA(inp), <floatp>np.PyArray_DATA(o), self.p)
             clock_gettime(CLOCK_MONOTONIC, &t1)
         elif self.p[0].stereo_audio:
-            if not (np.PyArray_NDIM(inp) == 2 and np.PyArray_SHAPE(inp)[1] >= 2):
+            if not (np.PyArray_NDIM(inp) == 2 and np.PyArray_DIMS(inp)[1] >= 2):
                 raise ValueError("need 2-dim array with at least %d rows" % 2)
             o = np.empty((2,count),dtype=np.float32)
             clock_gettime(CLOCK_MONOTONIC, &t0)
