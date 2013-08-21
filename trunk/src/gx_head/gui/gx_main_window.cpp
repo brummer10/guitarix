@@ -1324,7 +1324,7 @@ void MainWindow::on_show_midi_out() {
 	midi_out_box->set_visible(true);
     } else {
 	midi_out_box->set_visible(false);
-	engine.midiaudiobuffer.plugin.on_off = false;
+	machine.pluginlist_lookup_plugin("midi_out")->set_on_off(false);
     }
 #endif
 }
