@@ -1,0 +1,16 @@
+pyjackx.c
+setup.py
+specmatch
+scripts/specmatch
+specmatch/__init__.py
+specmatch/audiofiles.py
+specmatch/calc_splines.py
+specmatch/guitarix.py
+specmatch/jackclients.py
+specmatch/spectrum.py
+specmatch/ui.py
+specmatch.egg-info/PKG-INFO
+specmatch.egg-info/SOURCES.txt
+specmatch.egg-info/dependency_links.txt
+specmatch.egg-info/not-zip-safe
+specmatch.egg-info/top_level.txt

@@ -1,0 +1,14 @@
+Dependencies:
+
+ - python-matplotlib
+ - python-scipy
+ - python-gtk2
+ - optional:
+   - python-audiolab (scikits.audiolab: audio files other than wav)
+   - jack-stdio (recording)
+
+Installation:
+
+sudo ./setup.py install
+
+installs as program "specmatch"
