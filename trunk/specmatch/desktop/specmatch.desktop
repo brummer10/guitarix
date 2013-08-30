@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=specmatch
+#GenericName=Mono Amplifier
+#Comment=Simple mono amplifier simulation
+Exec=specmatch
+#Icon=gx_head
+Categories=AudioVideo;X-Jack;
+Terminal=false
+Type=Application
+MimeType=application/x-specmatch-project
