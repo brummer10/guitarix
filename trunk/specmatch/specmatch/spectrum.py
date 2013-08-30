@@ -264,7 +264,7 @@ class CalcIR(object):
     n = pow2roundup(max(len(a1), len(a2)))
     f1 = fft(a1, n, axis=0)
     f2 = fft(a2, n, axis=0)
-    f3 = mps(f1/f2, sz, 0)
+    f3 = SmoothedIR(f1, f2, cutoff, rate).get_ir(sz)
     ir = real(ifft(f3, axis=0))
     """
 

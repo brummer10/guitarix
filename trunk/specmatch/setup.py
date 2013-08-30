@@ -23,7 +23,7 @@ else:
 #----------------------------------------------------#
 
 
-from setuptools import setup, Extension
+from distutils.core import setup, Extension
 import numpy.distutils
 
 numpy_include_dirs = numpy.distutils.misc_util.get_numpy_include_dirs()
@@ -32,10 +32,13 @@ setup(
     name = "specmatch",
     version = "0.9",
     description = "Calculate an IR to match a spectrum",
-    zip_safe = False,
     packages = ['specmatch'],
     scripts = ['scripts/specmatch'],
-    data_files = [('specmatch', ['specmatch/specmatch.glade'])],
+    package_data = {'specmatch': ['specmatch.glade']},
+    data_files = [('share/applications', ['desktop/specmatch.desktop']),
+                  ('share/mime/packages', ['desktop/specmatch.xml']),
+                  ],
+    install_requires = ['matplotlib','numpy','scipy','scikits.audiolab'],
     ext_modules = [Extension("specmatch.jackx",
                              ["pyjackx.c"],
                              libraries=["jack", "dl"],

@@ -4,7 +4,10 @@
 import numpy as np
 
 try:
-    import audiolabx
+    try:
+        import scikits.audiolab as audiolab
+    except:
+        import audiolab
     wav_format_only = False
     def open_sndfile(name):
         if name.endswith("raw"):

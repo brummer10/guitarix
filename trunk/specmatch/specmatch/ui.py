@@ -31,14 +31,17 @@ class FileDialog(object):
         if self.audio:
             if wav_format_only:
                 f.add_pattern("*.wav")
-                f.set_name("wav files")
+                f.set_name("WAV Files")
             else:
                 f.add_mime_type("audio/*")
                 f.add_pattern("*.raw")
-                f.set_name("audio files")
+                f.set_name("Audio Files")
         else:
-            f.add_pattern("*.js")
-            f.set_name("projects")
+            f.add_pattern("*.specmatch")
+            f.set_name("Project Files")
+        self.w.add_filter(f)
+        f = gtk.FileFilter()
+        f.set_name("All Files")
         self.w.add_filter(f)
         n = self.get_file(self.nr)
         if n:
@@ -171,6 +174,7 @@ class SpecWindow(object):
         self.channel_sum.connect("toggled", self.on_channel, -1)
         self.channel_stereo.connect("toggled", self.on_channel, -2)
         self.jconv_stereo = g("jconv_stereo")
+        self.jconv_stereo.connect("toggled", self.on_convolver_toggled)
         self.channelbox = g("channelbox")
         self.channel_label = g("channel_label")
         self.display_smooth = g("display_smooth")
@@ -187,10 +191,11 @@ class SpecWindow(object):
         self.recording_clipping = None
 
         self.guitarix_dir = os.path.join(glib.get_user_config_dir(), "guitarix")
+        self.guitarix_temp_dir = os.path.join(self.guitarix_dir, "temp")
         self.spec_filename = None
         self.original_sound_filename = None
         self.recorded_guitar_filename = None
-        self.impulse_response_filename = os.path.join(self.guitarix_dir, "temp", "ir.wav")
+        self.impulse_response_filename = os.path.join(self.guitarix_temp_dir, "ir.wav")
         self.original_sound_name.set_text("---")
         self.recorded_guitar_name.set_text("---")
         self.original_sound.connect("clicked", FileDialog(self.set_file, self.get_file, 0, False))
@@ -404,8 +409,8 @@ class SpecWindow(object):
         self.load_startvalues(spec_file)
 
     def load_startvalues(self, spec_file):
-        if os.path.splitext(spec_file)[1] != ".js":
-            spec_file += ".js"
+        if os.path.splitext(spec_file)[1] != ".specmatch":
+            spec_file += ".specmatch"
         initial = not self.spec_filename
         self.spec_filename = spec_file
         g = self.builder.get_object
@@ -422,7 +427,7 @@ class SpecWindow(object):
             if not initial:
                 return
         except ValueError:
-            print "bad spec.js.. skipping"
+            print "bad spec.. skipping"
             if not initial:
                 return
         def set_file(nr, n):
@@ -455,7 +460,7 @@ class SpecWindow(object):
         gpar = d.get("guitarix_settings", {})
         if self.guitarix:
             try:
-                self.guitarix.set_parameters(gpar)
+                self.guitarix.set_parameters(gpar, self.guitarix_temp_dir)
             except ValueError as e:
                 d = gtk.MessageDialog(self.window, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, unicode(e))
                 d.run()
@@ -488,6 +493,9 @@ class SpecWindow(object):
 
     def on_ir_size(self, o):
         self.calc.sz = self.ir_size.get_value_as_int()
+
+    def on_convolver_toggled(self, o):
+        self.calc.a2 = None
 
     def on_ir_cut(self, o):
         self.calc.cutoff = self.ir_cut.get_value()

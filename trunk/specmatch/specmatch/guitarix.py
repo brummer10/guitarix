@@ -125,7 +125,7 @@ class Guitarix(object):
         jname = self.get_jname(stereo)
         self.sock.call("get_rack_unit_order", [int(stereo)])
         units = self.sock.receive().result
-        if jname not in units or units[-1] != jname:
+        if jname not in units: # or units[-1] != jname:
             self.sock.notify("insert_rack_unit", [jname, "", int(stereo)])
         self.set_convolver_state(0, stereo)
         if not stereo:
@@ -154,10 +154,19 @@ class Guitarix(object):
     def get_parameters(self):
         return self.current_params
 
-    def set_parameters(self, d):
+    def set_parameters(self, d, tmpdir):
+        """Send parameters in d to guitarix
+
+        if an IR file is located in tmpdir, the corresponding convolver
+        will be set to off, to avoid trying to use a wrong or non-existing
+        file (used for startup, when the files are not yet created)
+        """
         if d:
             if list(sorted(d.keys())) != self.parameterlist:
                 raise ValueError("Guitarix Settings: list of paramters differ from saved")
+            for n in "jconv", "jconv_mono":
+                if d[n+".convolver"]["jconv.IRDir"] == tmpdir:
+                    d[n+".on_off"] = 0
             l = []
             for p in self.parameterlist:
                 if p == "system.current_preset":

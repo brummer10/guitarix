@@ -1,14 +1,77 @@
+SpecMatch can be used to adapt the sound produced by a Guitarix
+setting to another recorded sound.
+
+It can also be used independently of Guitarix (cf. specmatch --help).
+Then you will need another convolver like the LV2 Convolution Reverb
+to use the produced filter. You can also use just the Python modules
+(e.g. from specmatch import SmoothedIR).
+
+
+Installing:
+----------------
 Dependencies:
-
- - python-matplotlib
- - python-scipy
+ - python2.7
  - python-gtk2
- - optional:
-   - python-audiolab (scikits.audiolab: audio files other than wav)
-   - jack-stdio (recording)
+ - jack-stdio
+ - python-pip
 
-Installation:
+Use "sudo ./install" (or "sudo ./uninstall" to remove the installation)
 
-sudo ./setup.py install
 
-installs as program "specmatch"
+Running:
+----------------
+It should be available from your desktop environment or the command
+line as "specmatch".
+
+
+Usage:
+
+SpecMatch needs jackd, if its not already running use qjackctl (or
+similar) to start jackd.
+
+SpecMatch works with project-files (extension .specmatch). On the
+first start a file selection window will appear enter a project name.
+On subsequent launches the last selected project will be opened
+automatically. You can use the "Change File" button to select another
+project file or create a new one (changes in projects will be
+auto-saved).
+
+Guitarix will be auto-started by SpecMatch (if you start Guitarix
+manually, you need to use the option "-p 7000" so that SpecMatch can
+remote-control it).
+
+Click on "Original Sound" and select a file. Press the play symbol
+(triangle) and set a range (for long sound files it's better to set a
+small range first). The sound snipped should not be much longer than
+10 seconds. For stereo sounds, you can select one of the channels (or
+the sum) or produce a stereo IR.
+
+Use "Recorded File" to select a recording of your Guitar (dry, without
+processing), or just enter a new file name and use the "Record"
+button. The recording will wait (pause symbol) until there is sound
+(red light), and stop when there is at least 1 second of silence (if
+you see a scissor symbol, the input is clipping and you should lower
+the preamp level).
+
+Now select the convolver (amp mono chain or gx stereo chain). The
+stereo convolver can also load mono IR's. If you selected stereo for
+your original sound, the stereo convolver will be used.
+
+After "Generate IR" click the "play" button and "A <-> B" to listen
+and switch between the original sound and your own processed recording.
+
+In addition "Generate IR" sends the IR to Guitarix and activates the
+Convolver, so you can check the sound with your guitar. You can have
+quick cycles of changing Guitarix settings, producing a new IR and
+listening to the sound. An additional (linear) filter in front of the
+convolver does not make much sense, but you can put it in front of a
+distortion unit.
+
+If you change the size of the IR or the FFT cutoff level (below that
+level it's assumed that spectral information is drowned in noise and
+values are interpolated or extrapolated). You can look at the plots to
+find out what changes, but you should also check with your ears...
+
+The "Deploy" button lets you select a name / directory for the
+produced IR. It also sets the filename in the convolver, so you can
+define the setting with the IR included as a new Guitarix preset.
