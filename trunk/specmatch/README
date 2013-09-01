@@ -15,7 +15,12 @@ Dependencies:
  - jack-stdio
  - python-pip
 
-Use "sudo ./install" (or "sudo ./uninstall" to remove the installation)
+Use "sudo ./install" to install under /usr/local (or
+"sudo ./uninstall" to remove the installation).
+
+For other target prefixes (like /usr) use
+"sudo ./setup.py install --prefix=XXX" and consult the install script.
+Undoing the installation needs to be done manually is this case.
 
 
 Running:

@@ -19,7 +19,7 @@ class JackRecord(object):
         s = self.p.stdout.read(self.N*4)
         if not s:
             raise RuntimeError
-        return np.fromstring(s, dtype=np.float32)
+        return np.fromstring(s, dtype=np.float32).reshape((self.N, 1))
 
     @classmethod
     def available(cls):
@@ -39,8 +39,8 @@ class JackRecord(object):
         self.N = 1024
         threshold_in_DB = -40
         hyst_in_DB = -10
-        start_thresh = 10**(threshold_in_DB/10)
-        stop_thresh = 10**((threshold_in_DB+hyst_in_DB)/10)
+        start_thresh = 10**(threshold_in_DB/10) * self.N
+        stop_thresh = 10**((threshold_in_DB+hyst_in_DB)/10) * self.N
         silent_limit = (1.0*self.rate)/self.N # 1 second of silence
         def check():
             while gtk.events_pending():
@@ -51,7 +51,7 @@ class JackRecord(object):
             while True:
                 check()
                 a = self.readbuf()
-                if np.sum(a*a) > start_thresh*self.N:
+                if np.sum(a*a) > start_thresh:
                     break
             if self.notify_start:
                 self.notify_start()
@@ -62,18 +62,15 @@ class JackRecord(object):
                 b = self.readbuf()
                 if self.notify_over and max(abs(b)) > 1.0-1e-4:
                     self.notify_over()
-                if np.sum(b*b) < stop_thresh*self.N:
+                if np.sum(b*b) < stop_thresh:
                     silent_cnt += 1
                     if silent_cnt > silent_limit:
                         break
                 else:
                     silent_cnt = 0
-                a = np.append(a, b)
+                a = np.append(a, b, axis=0)
             self.stop()
-            a = a[:-int((silent_limit-1)*self.N)]
-            r = np.empty((len(a),1))
-            r[:,0] = a
-            return r
+            return a[:-int((silent_limit-1)*self.N)]
         except RuntimeError:
             return None
 

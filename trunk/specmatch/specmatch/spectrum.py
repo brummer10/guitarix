@@ -268,11 +268,12 @@ class CalcIR(object):
     ir = real(ifft(f3, axis=0))
     """
 
-    def __init__(self, status, rate, compute, orig_ir):
+    def __init__(self, status, rate, compute, orig_ir, processed):
         self.status = status
         self.rate = rate
         self.orig_ir = orig_ir
         self.compute = compute
+        self.processed = processed
         self._recorded_sound = None
         self._original_sound_file = None
         self._original_range = (None, None)
@@ -359,9 +360,11 @@ class CalcIR(object):
     def a2(self):
         if self._a2 is None:
             self.status("recording Guitarix output")
-            self.a2 = self.compute(self.recorded_sound)
-            #write_sndfile(self.a2, "proc.flac", self.rate, "pcm24")
-            #self.a2 = self.recorded_sound
+            if self.processed:
+                self.a2 = self.recorded_sound
+            else:
+                self.a2 = self.compute(self.recorded_sound)
+                #write_sndfile(self.a2, "proc.flac", self.rate, "pcm24")
             self.status.clear()
         return self._a2
     @a2.setter

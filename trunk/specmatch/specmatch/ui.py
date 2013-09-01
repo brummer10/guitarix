@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 #
 
-import gtk, glib, os, pkg_resources, json
+import gtk, glib, os, pkg_resources, json, argparse
 import numpy as np
 import numpy.fft as fft
 import matplotlib;
 if matplotlib.get_backend() != "GTKAgg":
     matplotlib.use("GTKAgg")
 import matplotlib.pyplot as plt
-from jackclients import JackRecord, jack_guitarix_processor
+from guitarix import Guitarix
+from jackclients import JackRecord, JackPlayer, jack_guitarix_processor
 from spectrum import CalcIR, fftfreq2, fft2spectrum, SmoothSpectrumSpline, clipdb
 from audiofiles import open_sndfile, write_sndfile, read_sndfile, wav_format_only
 
@@ -95,13 +96,14 @@ def format_time(v):
 
 class SpecWindow(object):
 
-    def __init__(self, guitarix, jackplayer, spec_file, orig_ir,
-                 fixed_samplerate, sound_outfile):
+    def __init__(self, guitarix, jackplayer, args):
         self.guitarix = guitarix
         self.jackplayer = jackplayer
-        self.fixed_samplerate = fixed_samplerate
-        self.sound_outfile = sound_outfile
-        self.orig_ir = orig_ir
+        self.fixed_samplerate = args.samplerate
+        self.sound_outfile = args.soundfile
+        self.orig_ir = args.orig_ir
+        self.processed = args.processed
+        spec_file = args.specfile
         self.builder = gtk.Builder()
         self.builder.add_from_file(
             pkg_resources.resource_filename(__name__, "specmatch.glade"))
@@ -208,7 +210,8 @@ class SpecWindow(object):
         self.last_position = None
         self.timeout_id = None
 
-        self.calc = CalcIR(DisplayStatus(self.status_display), self.get_sample_rate(), self.process_guitarix, self.orig_ir)
+        self.calc = CalcIR(DisplayStatus(self.status_display), self.get_sample_rate(),
+                           self.process_guitarix, self.orig_ir, self.processed)
 
         fn = self.load_global_settings()
         if not spec_file:
@@ -266,6 +269,8 @@ class SpecWindow(object):
             self.recording_status_running(-1)
             self.recorder = None
             if a is not None:
+                if self.processed:
+                    a = self.process_guitarix(a)
                 write_sndfile(a, self.recorded_guitar_filename, rate, "pcm24")
                 self.calc.recorded_sound = a
                 self.set_button_status()
@@ -744,3 +749,27 @@ class SpecWindow(object):
             l[1].set_label("IR right")
         ax.legend(loc='best')
         self.calc.status.clear()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Calculate an IR to match a spectrum')
+    parser.add_argument("specfile", nargs="?", help="project file")
+    parser.add_argument("orig_ir", nargs="?", help="debug: IR to reproduce")
+    parser.add_argument("--no-guitarix", action="store_true",
+                        help="run without connecting to Guitarix")
+    parser.add_argument("--no-jack", action="store_true",
+                        help="run without connecting to jackd, implies --no-guitarix")
+    parser.add_argument("--samplerate", metavar="SR", type=float, default=44100.0,
+                        help="set samplerate (when --no-jack), default: %(default)s")
+    parser.add_argument("-p", "--processed", action="store_true",
+                        help="input file doesn't processing by Guitarix; when Recording"
+                        " capture Guitarix output instead of dry guitar")
+    parser.add_argument("--soundfile", metavar="name",
+                        help="debug: writeout input file convoluted with calculated IR")
+    args = parser.parse_args()
+    jackplayer = None if args.no_jack else JackPlayer()
+    guitarix = None if args.no_guitarix or args.no_jack else Guitarix(jackplayer)
+    matplotlib.interactive(True)
+    SpecWindow(guitarix, jackplayer, args)
+    gtk.main()
