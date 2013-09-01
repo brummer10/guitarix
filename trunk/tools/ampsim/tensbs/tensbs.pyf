@@ -1,0 +1,140 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module tensbs ! in 
+    interface  ! in :tensbs
+        subroutine b1ink(x,nx,fcn,kx,tx,bcoef,work,iflag) ! in :tensbs:b1ink.f
+            real dimension(nx) :: x
+            integer optional,check(len(x)>=nx),depend(x) :: nx=len(x)
+            real dimension(nx) :: fcn
+            integer optional:: kx=4
+            real dimension(nx+kx),optional,intent(out),depend(nx,kx) :: tx
+            real dimension(nx),intent(out),depend(nx) :: bcoef
+            real dimension(nx+2*kx*(nx+1)),intent(hide),depend(nx,kx) :: work
+            integer, optional, intent(in,out) :: iflag=0
+        end subroutine b2ink
+        subroutine b2ink(x,nx,y,ny,fcn,ldf,kx,ky,tx,ty,bcoef,work,iflag) ! in :tensbs:b2ink.f
+            real dimension(nx) :: x
+            integer optional,check(len(x)>=nx),depend(x) :: nx=len(x)
+            real dimension(ny) :: y
+            integer optional,check(len(y)>=ny),depend(y) :: ny=len(y)
+            real dimension(ldf,ny),depend(ny) :: fcn
+            integer optional,check(shape(fcn,0)==ldf),depend(fcn) :: ldf=shape(fcn,0)
+            integer optional:: kx=4
+            integer optional:: ky=4
+            real dimension(nx+kx),optional,intent(out),depend(nx,kx) :: tx
+            real dimension(ny+ky),optional,intent(out),depend(ny,ky) :: ty
+            real dimension(nx,ny),intent(out),depend(nx,ny) :: bcoef
+            real dimension(nx*ny+max(2*kx*(nx+1),2*ky*(ny+1))),intent(hide),depend(nx,ny,kx,ky) :: work
+            integer, optional, intent(in,out) :: iflag=0
+        end subroutine b2ink
+        function b2val(xval,yval,idx,idy,tx,ty,nx,ny,kx,ky,bcoef,work) ! in :tensbs:b2val.f
+            real :: xval
+            real :: yval
+            integer optional :: idx=0
+            integer optional :: idy=0
+            real dimension(nx+kx),depend(nx,kx) :: tx
+            real dimension(ny+ky),depend(ny,ky) :: ty
+            integer optional,check(shape(bcoef,0)==nx),depend(bcoef) :: nx=shape(bcoef,0)
+            integer optional,check(shape(bcoef,1)==ny),depend(bcoef) :: ny=shape(bcoef,1)
+            integer :: kx
+            integer :: ky
+            real dimension(nx,ny) :: bcoef
+            real dimension(3*max(kx,ky)+ky), intent(hide) :: work
+            real :: b2val
+        end function b2val
+        subroutine b3ink(x,nx,y,ny,z,nz,fcn,ldf1,ldf2,kx,ky,kz,tx,ty,tz,bcoef,work,iflag) ! in :tensbs:b3ink.f
+            real dimension(nx) :: x
+            integer optional,check(len(x)>=nx),depend(x) :: nx=len(x)
+            real dimension(ny) :: y
+            integer optional,check(len(y)>=ny),depend(y) :: ny=len(y)
+            real dimension(nz) :: z
+            integer optional,check(len(z)>=nz),depend(z) :: nz=len(z)
+            real dimension(ldf1,ldf2,nz),depend(nz) :: fcn
+            integer optional,check(shape(fcn,0)==ldf1),depend(fcn) :: ldf1=shape(fcn,0)
+            integer optional,check(shape(fcn,1)==ldf2),depend(fcn) :: ldf2=shape(fcn,1)
+            integer optional :: kx=4
+            integer optional :: ky=4
+            integer optional :: kz=4
+            real dimension(nx+kx),optional,intent(out),depend(nx,kx) :: tx
+            real dimension(ny+ky),optional,intent(out),depend(ny,ky) :: ty
+            real dimension(nz+kz),optional,intent(out),depend(nz,kz) :: tz
+            real dimension(nx,ny,nz),intent(out),depend(nx,ny,nz) :: bcoef
+            real dimension(nx*ny*nz + max(2*kx*(nx+1),max(2*ky*(ny+1),2*kz*(nz+1)))),intent(hide) :: work
+            integer, optional, intent(in,out) :: iflag
+        end subroutine b3ink
+        function b3val(xval,yval,zval,idx,idy,idz,tx,ty,tz,nx,ny,nz,kx,ky,kz,bcoef,work) ! in :tensbs:b3val.f
+            real :: xval
+            real :: yval
+            real :: zval
+            integer optional :: idx=0
+            integer optional :: idy=0
+            integer optional :: idz=0
+            real dimension(nx+kx),depend(nx,kx) :: tx
+            real dimension(ny+ky),depend(ny,ky) :: ty
+            real dimension(nz+kz),depend(nz,kz) :: tz
+            integer optional,check(shape(bcoef,0)==nx),depend(bcoef) :: nx=shape(bcoef,0)
+            integer optional,check(shape(bcoef,1)==ny),depend(bcoef) :: ny=shape(bcoef,1)
+            integer optional,check(shape(bcoef,2)==nz),depend(bcoef) :: nz=shape(bcoef,2)
+            integer :: kx
+            integer :: ky
+            integer :: kz
+            real dimension(nx,ny,nz) :: bcoef
+            real dimension(ky*kz+3*max(kx,max(ky,kz))+kz), intent(hide) :: work
+            real :: b3val
+        end function b3val
+        subroutine b4ink(x,nx,y,ny,z,nz,v,nv,fcn,ldf1,ldf2,ldf3,kx,ky,kz,kv,tx,ty,tz,tv,bcoef,work,iflag) ! in b4ink.f
+            real dimension(nx) :: x
+            integer optional,check(len(x)>=nx),depend(x) :: nx=len(x)
+            real dimension(ny) :: y
+            integer optional,check(len(y)>=ny),depend(y) :: ny=len(y)
+            real dimension(nz) :: z
+            integer optional,check(len(z)>=nz),depend(z) :: nz=len(z)
+            real dimension(nv) :: v
+            integer optional,check(len(v)>=nv),depend(v) :: nv=len(v)
+            real dimension(ldf1,ldf2,ldf3,nv),depend(nv) :: fcn
+            integer optional,check(shape(fcn,0)==ldf1),depend(fcn) :: ldf1=shape(fcn,0)
+            integer optional,check(shape(fcn,1)==ldf2),depend(fcn) :: ldf2=shape(fcn,1)
+            integer optional,check(shape(fcn,2)==ldf3),depend(fcn) :: ldf3=shape(fcn,2)
+            integer optional :: kx=4
+            integer optional :: ky=4
+            integer optional :: kz=4
+            integer optional :: kv=4
+            real dimension(nx+kx),optional,intent(out),depend(nx,kx) :: tx
+            real dimension(ny+ky),optional,intent(out),depend(ny,ky) :: ty
+            real dimension(nz+kz),optional,intent(out),depend(nz,kz) :: tz
+            real dimension(nv+kv),optional,intent(out),depend(nv,kv) :: tv
+            real dimension(nx,ny,nz,nv),intent(out),depend(nx,ny,nz,nv) :: bcoef
+            real dimension(nx*ny*nz*nv+max(2*kx*(nx+1),max(2*ky*(ny+1),max(2*kz*(nz+1),2*kv*(nv+1))))),intent(hide) :: work
+            integer, optional, intent(in,out) :: iflag
+        end subroutine b4ink
+        function b4val(xval,yval,zval,vval,idx,idy,idz,idv,tx,ty,tz,tv,nx,ny,nz,nv,kx,ky,kz,kv,bcoef,work) ! in b4val.f
+            real :: xval
+            real :: yval
+            real :: zval
+            real :: vval
+            integer optional :: idx=0
+            integer optional :: idy=0
+            integer optional :: idz=0
+            integer optional :: idv=0
+            real dimension(nx+kx),depend(nx,kx) :: tx
+            real dimension(ny+ky),depend(ny,ky) :: ty
+            real dimension(nz+kz),depend(nz,kz) :: tz
+            real dimension(nv+kv),depend(nv,kv) :: tv
+            integer optional,check(shape(bcoef,0)==nx),depend(bcoef) :: nx=shape(bcoef,0)
+            integer optional,check(shape(bcoef,1)==ny),depend(bcoef) :: ny=shape(bcoef,1)
+            integer optional,check(shape(bcoef,2)==nz),depend(bcoef) :: nz=shape(bcoef,2)
+            integer optional,check(shape(bcoef,3)==nv),depend(bcoef) :: nv=shape(bcoef,3)
+            integer :: kx
+            integer :: ky
+            integer :: kz
+            integer :: kv
+            real dimension(nx,ny,nz,nv) :: bcoef
+            real dimension(ky*kz*kv+kz*kv+3*max(kx,max(ky,max(kz,kv)))), intent(hide) :: work
+            real :: b4val
+        end function b4val
+    end interface 
+end python module tensbs
+
+! This file was auto-generated with f2py (version:1).
+! See http://cens.ioc.ee/projects/f2py2e/
