@@ -16,6 +16,7 @@ struct splinedata {
     int n_output;
     int n_state;
     int (*eval)(splinedata *p, real *x, real *res);
+    const char *func_id;
     static int splev(splinedata *p, real *x, real *res);
     static int splev2(splinedata *p, real *x, real *res);
     static int splev3(splinedata *p, real *x, real *res);

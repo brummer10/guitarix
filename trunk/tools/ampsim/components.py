@@ -1,10 +1,9 @@
-import sys, os
-basepath = os.path.dirname(sys.argv[0])
-sys.path.append(os.path.join(basepath, "circuit"))
-sys.path.append(os.path.join(basepath, "tensbs"))
-import pycircuit, splinetable
+import pycircuit
 
 class tcParams(pycircuit.tcParams):
+
+    comp_id = "tc"
+    comp_name = "single triode"
 
     u0 = (-37, -14, 341, 341-(-14), 341-350)  #Un = 350
 
@@ -36,6 +35,9 @@ class tcParams(pycircuit.tcParams):
 
 
 class ctcParams(pycircuit.ctcParams):
+
+    comp_id = "ct"
+    comp_name = "coupled triodes"
 
     u0 = (-18, 0, 313, 214, 45, 35, 37)
 
@@ -77,22 +79,25 @@ class ctcParams(pycircuit.ctcParams):
 
 class psParams(pycircuit.psParams):
 
+    comp_id = "ps"
+    comp_name = "phasesplitter"
+
     u0 = (-4.99999142644, -4.99999053336, 3.7459813383, 391.962467113,
           3.57356994824, 0.0264493076678, 0.0264491824349, 0.0264496771595,
           354.458081186)
 
     start_grid = (
         (-40.0, 40.0, 30),
-        (-31.0, -30.0, 2),
-        (30.0, 31.0, 2),
-        (0.13, 0.15, 3),
+        (0.0, -34.0, 3),
+        (20.0, 33.0, 2),
+        (0.08, 0.25, 3),
         )
 
     ranges = (
         (slice(-40,40,81j), 3),
-        (slice(-31.2,-30,5j), 3),
-        (slice(30.4,33.0,5j), 3),
-        (slice(0.13,0.18,2j), 2),
+        (slice(-1.0,-36.0,5j), 3),
+        (slice(23.0,35.0,5j), 3),
+        (slice(0.07,0.26,2j), 2),
         )
 
     circuit = dict(
@@ -124,6 +129,9 @@ class psParams(pycircuit.psParams):
 
 class ppgParams(pycircuit.pagParams):
 
+    comp_id = "ppg"
+    comp_name = "poweramp gate"
+
     u0 = (-49.011342155, -93.9168241966, -93.9168241966)
 
     start_grid = (
@@ -132,7 +140,7 @@ class ppgParams(pycircuit.pagParams):
         )
 
     ranges = (
-        (slice(45,395,60j), 3),
+        (slice(45,425,60j), 3),
         (slice(95,445,60j), 3),
         )
 
@@ -147,6 +155,9 @@ class ppgParams(pycircuit.pagParams):
 
 class pppParams(pycircuit.papParams):
 
+    comp_id = "ppp"
+    comp_name = "poweramp plate"
+
     u0 = (-93.9168241966, 400.010411242, 400.010411241, 399.983840905, 399.983840905)
 
     start_grid = (
@@ -156,8 +167,8 @@ class pppParams(pycircuit.papParams):
         )
 
     ranges = (
-        (slice(-260,185,110j), 3),
-        (slice(-168,-51,40j), 3),
+        (slice(-287,185,110j), 3),
+        (slice(-265,-51,40j), 3),
         (slice(302,428,10j), 3),
         )
 
@@ -174,40 +185,3 @@ class pppParams(pycircuit.papParams):
         Ga = 1/1.7e3,
         Gs = 1/1e3,
         )
-
-functions = {
-    "ps":  psParams,
-    "ppg": ppgParams,
-    "ppp": pppParams,
-    "ct":  ctcParams,
-    }
-
-def print_intpp_data(o, f):
-    p = functions[f]
-    if hasattr(p, "init"):
-        p.init()
-    print >>o, "namespace %s {" % f
-    r = splinetable.print_intpp_data(o, "", "", p.func, p.NVALS, *p.ranges)
-    print >>o, "splinedata sd = {"
-    print >>o, "\tx0,"
-    print >>o, "\th,"
-    print >>o, "\tk,"
-    print >>o, "\tn,"
-    print >>o, "\tt,"
-    print >>o, "\tc,"
-    print >>o, "\t%d, /* number of calculated values */" % p.NVALS
-    print >>o, "\t%d, /* number of input values */" % p.N_IN
-    print >>o, "\t%d, /* number of output values */" % p.N_OUT
-    n_state = p.NVALS-p.N_OUT
-    print >>o, "\t%d, /* number of state values */" % n_state
-    n = p.N_IN + n_state
-    print >>o, "\tsplinedata::splev%s," % (n if n > 1 else "")
-    print >>o, "};"
-    print >>o, "}; /* ! namespace %s */" % f
-    return r;
-
-def main():
-    sys.stderr.write("%s\n" % print_intpp_data(sys.stdout, sys.argv[1]))
-
-if __name__ == "__main__":
-    main()

@@ -212,13 +212,37 @@ SplineCalc::~SplineCalc() {
     delete[] temp;
 }
 
+#if 0
+static void report(splinedata *sd, real *t, int i)
+{
+    printf("%s:", sd->func_id);
+    splinedata::retval cl;
+    cl.i = i;
+    for (int n = 0; n < 4; n++) {
+	if (cl.c[n] < 0) {
+	    printf(" %d:L[%g]", n, t[n]);
+	} else if (cl.c[n] > 0) {
+	    printf(" %d:U[%g]", n, t[n]);
+	}
+    }
+    printf("\n");
+}
+
+static inline void check(splinedata *sd, real *t, int i)
+{
+    if (i) report(sd, t, i);
+}
+#else
+#define check(sd, t, i) i
+#endif
+
 void SplineCalc::calc(real *in, real *out)
 {
     for (int i = 0; i < sd->n_input; i++) {
 	temp[i] = in[i];
     }
     real t[sd->m];
-    (*sd->eval)(sd, temp, t);
+    check(sd, temp, (*sd->eval)(sd, temp, t));
     for (int i = 0; i < sd->n_output; i++) {
 	out[i] = t[i];
     }

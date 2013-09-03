@@ -238,6 +238,12 @@ void Amp::reset()
     pt.reset();
 }
 
+void check(const char *id, int i) {
+    if (i) {
+	printf("%s: %08x", id, i);
+    }
+}
+
 inline float Amp::operator()(float v)
 {
     real s[2];
@@ -247,8 +253,8 @@ inline float Amp::operator()(float v)
     real up[2];
     g1.calc(&s[0], &up[0]);
     g2.calc(&s[1], &up[1]);
-    up[1] += up[0];
     real Uout;
+    up[1] += up[0]; // pt spline table expects signal + sum
     pt.calc(up, &Uout);
     return Uout;
 }

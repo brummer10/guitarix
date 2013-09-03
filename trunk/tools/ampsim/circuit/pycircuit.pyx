@@ -156,7 +156,8 @@ class tcParams:
         cdef N_Vector u = N_VNew_Serial(tcNEQ)
         NV_DATA_S(x)[0] = a[0]
         NV_DATA_S(x)[1] = a[1]
-        triodecircuit(x,u)
+        if triodecircuit(x,u):
+            raise ValueError
         NV_DATA_S(x)[0] = NV_DATA_S(u)[1]  # Uk
         tcupdate(u, x)
         ret = [NV_DATA_S(u)[2], NV_DATA_S(x)[0]]
@@ -193,7 +194,8 @@ class ctcParams:
         NV_DATA_S(x)[0] = a[0]
         NV_DATA_S(x)[1] = a[1]
         NV_DATA_S(x)[2] = a[2]
-        coupledtriodecircuit(x,u)
+        if coupledtriodecircuit(x,u):
+            raise ValueError
         NV_DATA_S(x)[0] = NV_DATA_S(u)[1]  # Uk
         NV_DATA_S(x)[1] = NV_DATA_S(u)[2]-NV_DATA_S(u)[3]  # Ua-U2
         ctcupdate(u, x)
@@ -231,7 +233,8 @@ class pagParams:
         cdef int i
         for i in range(2):
             NV_DATA_S(x)[i] = a[i]
-        powerampgate(x,u)
+        if powerampgate(x,u):
+            raise ValueError
         NV_DATA_S(x)[0] = NV_DATA_S(u)[0] - NV_DATA_S(u)[1]  # Uc1 = U0 - U1
         pagupdate(u, x)
         ret = [NV_DATA_S(u)[2], NV_DATA_S(x)[0]]
@@ -263,13 +266,16 @@ class papParams:
 
     @staticmethod
     def func(a):
+        # expects [Ug1, Ug1+Ug2]
+        # returns Ua1 - Ua2
         cdef N_Vector x = N_VNew_Serial(3)
         cdef N_Vector u = N_VNew_Serial(papNEQ)
         cdef int i
         for i in range(3):
             NV_DATA_S(x)[i] = a[i]
         NV_DATA_S(x)[1] -= NV_DATA_S(x)[0]
-        powerampplate(x,u)
+        if powerampplate(x,u):
+            raise ValueError
         # x[0], x[1] still Ug1, Ug2
         NV_DATA_S(x)[2] = NV_DATA_S(u)[2]  # Uc2 = Ud
         papupdate(u, x)
@@ -307,7 +313,8 @@ class psParams:
         cdef int i
         for i in range(4):
             NV_DATA_S(x)[i] = a[i]
-        phasesplittercircuit(x,u)
+        if phasesplittercircuit(x,u):
+            raise ValueError
         NV_DATA_S(x)[0] = NV_DATA_S(u)[0] - NV_DATA_S(u)[1]  # Uc1 = U1 - Ug1
         NV_DATA_S(x)[1] = NV_DATA_S(u)[7] - NV_DATA_S(u)[5]  # Uc2 = Ug2 - U3
         NV_DATA_S(x)[2] = NV_DATA_S(u)[5] - NV_DATA_S(u)[6]  # Uc3 = U3 - U4
