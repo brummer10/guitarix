@@ -1,48 +1,49 @@
-CXXFLAGS=-O2
+CXXFLAGS=-O2 -fPIC -fvisibility=hidden
 #CXXFLAGS=-g
 INTPP_OPT=-msse2 -mfpmath=sse -ffast-math -funsafe-math-optimizations
 
-.PHONY: clean all profopt tensbs
+DSP2CC = ../dsp2cc
 
-#all: tensbs # test client pyamp.so
-all: data.cc
+.PHONY: clean all
+
+all: gxplugins.so
 
 clean:
-	rm -f client.o client intpp.o intpp.gcda amp.o test.o test data.cc pyamp.so pyamp.cpp
-	rm -rf build
+	rm -f gxplugins.so gxplugins_.so data.o intpp.o intpp_.o intpp.gcda intpp_.gcda
+	rm -f gx_poweramp.o gxpoweramp.cc gxpreamp.cc data.cc data.h circuit/pycircuit.so
+	rm -rf circuit/build
+	make -C tensbs clean
 
-pyamp.so: pyamp.pyx intpp.o amp.o data.o
-	@rm -f pyamp.so
-	python setup.py build_ext --inplace
+install: gxplugins.so
+	cp gxplugins.so $(HOME)/.config/guitarix/plugins
 
-RESAMP_D = ~/guitarix/trunk/src/zita-resampler
-RESAMP = $(RESAMP_D)/zita-resampler
-client: client.o intpp.o amp.o data.o $(RESAMP).o
-	$(LINK.cc) $^ -ljack -o $@
+gxplugins.so: gx_poweramp.o intpp.o data.o
+	$(LINK.cc) -shared -Wl,-soname,gxplugins.so -o gxplugins.so $^ -lzita-resampler
 
-client.o: client.cc
-	$(COMPILE.cc) $(CXXFLAGS) -I $(RESAMP_D) $< -o $@
+gx_poweramp.o: gx_poweramp.cpp gxpoweramp.cc gxpreamp.cc data.cc
+	$(COMPILE.cc) $(CXXFLAGS) `pkg-config --cflags glibmm-2.4` -I../../src/headers $< -o $@
 
-test: test.o intpp.o amp.o data.o
-	$(LINK.cc) $^ -lrt -o $@
+gxpoweramp.cc: gxpoweramp.dsp gxpreamp.dsp ../../tools/dsp2cc
+	$(DSP2CC) -i plugin gxpoweramp.dsp > $@
+
+gxpreamp.cc: gxpreamp.dsp ../../tools/dsp2cc
+	$(DSP2CC) -i plugin gxpreamp.dsp > $@
 
 intpp.o: intpp.cc intpp.h Makefile intpp.gcda
 	$(COMPILE.cc) $(CXXFLAGS) $(INTPP_OPT) -fprofile-use $< -o $@
 
-intpp.gcda: test_
-	./test_
+intpp.gcda: gxplugins_.so exercise.py
+	python exercise.py
 	@mv intpp_.gcda intpp.gcda
-
-test_: test.o intpp_.o amp.o data.o
-	$(LINK.cc) -fprofile-arcs $^ -lrt -o $@
 
 intpp_.o: intpp.cc intpp.h Makefile
 	$(COMPILE.cc) $(CXXFLAGS) $(INTPP_OPT) -fprofile-arcs $< -o $@
 
-amp.o: amp.h
+gxplugins_.so: gx_poweramp.o intpp_.o data.o
+	$(LINK.cc) -fprofile-arcs -shared -Wl,-soname,gxplugins_.so -o gxplugins_.so $^ -lzita-resampler
 
-data.cc: gentables.py data.h circuit/pycircuit.so tensbs/tensbs.so
-	python $< >$@
+data.cc: gentables.py circuit/pycircuit.so tensbs/tensbs.so
+	python $< data.cc data.h
 
 circuit/pycircuit.so: circuit/circuit.cc circuit/circuit.hpp circuit/pycircuit.pyx circuit/setup.py
 	cd circuit && rm -f pycircuit.so && python setup.py build_ext --inplace && rm pycircuit.cpp

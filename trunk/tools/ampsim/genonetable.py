@@ -1,4 +1,7 @@
-import sys; sys.path.extend(["circuit","tensbs"])
+import sys, os
+basepath = os.path.dirname(sys.argv[0])
+sys.path.append(os.path.join(basepath, "circuit"))
+sys.path.append(os.path.join(basepath, "tensbs"))
 import pycircuit, splinetable
 
 class tcParams(pycircuit.tcParams):
@@ -183,7 +186,25 @@ def print_intpp_data(o, f):
     p = functions[f]
     if hasattr(p, "init"):
         p.init()
-    return splinetable.print_intpp_data(o, f, "", p.func, p.NVALS, *p.ranges)
+    print >>o, "namespace %s {" % f
+    r = splinetable.print_intpp_data(o, "", "", p.func, p.NVALS, *p.ranges)
+    print >>o, "splinedata sd = {"
+    print >>o, "\tx0,"
+    print >>o, "\th,"
+    print >>o, "\tk,"
+    print >>o, "\tn,"
+    print >>o, "\tt,"
+    print >>o, "\tc,"
+    print >>o, "\t%d, /* number of calculated values */" % p.NVALS
+    print >>o, "\t%d, /* number of input values */" % p.N_IN
+    print >>o, "\t%d, /* number of output values */" % p.N_OUT
+    n_state = p.NVALS-p.N_OUT
+    print >>o, "\t%d, /* number of state values */" % n_state
+    n = p.N_IN + n_state
+    print >>o, "\tsplinedata::splev%s," % (n if n > 1 else "")
+    print >>o, "};"
+    print >>o, "}; /* ! namespace %s */" % f
+    return r;
 
 def main():
     sys.stderr.write("%s\n" % print_intpp_data(sys.stdout, sys.argv[1]))

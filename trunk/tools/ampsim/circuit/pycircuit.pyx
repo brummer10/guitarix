@@ -13,6 +13,8 @@ cdef extern from "circuit.hpp":
     int tcNEQ "TriodeCircuit::NEQ"
     int tcNDIM "TriodeCircuit::NDIM"
     int tcNVALS "TriodeCircuit::NVALS"
+    int tcN_IN "TriodeCircuit::N_IN"
+    int tcN_OUT "TriodeCircuit::N_OUT"
     int triodecircuit "TriodeCircuit::triodecircuit"(N_Vector x, N_Vector u)
     void tcupdate "TriodeCircuit::update"(N_Vector y, N_Vector state)
     int tc_set_range "TriodeCircuit::set_range"(int i, double lower, double upper, int size)
@@ -39,6 +41,8 @@ cdef extern from "circuit.hpp":
     int ctcNEQ "CoupledTriodeCircuit::NEQ"
     int ctcNDIM "CoupledTriodeCircuit::NDIM"
     int ctcNVALS "CoupledTriodeCircuit::NVALS"
+    int ctcN_IN "CoupledTriodeCircuit::N_IN"
+    int ctcN_OUT "CoupledTriodeCircuit::N_OUT"
     double ctc_Gco "CoupledTriodeCircuit::Gco"
     double ctc_Gcf "CoupledTriodeCircuit::Gcf"
     double ctc_mu "CoupledTriodeCircuit::mu"
@@ -67,6 +71,8 @@ cdef extern from "circuit.hpp":
     int pagNEQ "PowerAmpCircuit::NEQ_GATE"
     int pagNDIM "PowerAmpCircuit::NDIM_GATE"
     int pagNVALS "PowerAmpCircuit::NVALS_GATE"
+    int pagN_IN "PowerAmpCircuit::N_IN_GATE"
+    int pagN_OUT "PowerAmpCircuit::N_OUT_GATE"
     double pag_Gco "PowerAmpCircuit::Gco"
     double pag_Gcf "PowerAmpCircuit::Gcf"
     double pag_C1 "PowerAmpCircuit::C1"
@@ -81,6 +87,8 @@ cdef extern from "circuit.hpp":
     int papNEQ "PowerAmpCircuit::NEQ_PLATE"
     int papNDIM "PowerAmpCircuit::NDIM_PLATE"
     int papNVALS "PowerAmpCircuit::NVALS_PLATE"
+    int papN_IN "PowerAmpCircuit::N_IN_PLATE"
+    int papN_OUT "PowerAmpCircuit::N_OUT_PLATE"
     double pap_Kp "PowerAmpCircuit::Kp"
     double pap_mu "PowerAmpCircuit::mu"
     double pap_Ex "PowerAmpCircuit::Ex"
@@ -103,6 +111,8 @@ cdef extern from "circuit.hpp":
     int psNEQ "PhaseSplitterCircuit::NEQ"
     int psNDIM "PhaseSplitterCircuit::NDIM"
     int psNVALS "PhaseSplitterCircuit::NVALS"
+    int psN_IN "PhaseSplitterCircuit::N_IN"
+    int psN_OUT "PhaseSplitterCircuit::N_OUT"
     double ps_Gco "PhaseSplitterCircuit::Gco"
     double ps_Gcf "PhaseSplitterCircuit::Gcf"
     double ps_mu "PhaseSplitterCircuit::mu"
@@ -137,6 +147,8 @@ class tcParams:
     NDIM = tcNDIM
     NEQ = tcNEQ
     NVALS = tcNVALS
+    N_IN = tcN_IN
+    N_OUT = tcN_OUT
 
     @staticmethod
     def func(a):
@@ -171,6 +183,8 @@ class ctcParams:
     NDIM = ctcNDIM
     NEQ = ctcNEQ
     NVALS = ctcNVALS
+    N_IN = ctcN_IN
+    N_OUT = ctcN_OUT
 
     @staticmethod
     def func(a):
@@ -207,6 +221,8 @@ class pagParams:
     NDIM = pagNDIM
     NEQ = pagNEQ
     NVALS = pagNVALS
+    N_IN = pagN_IN
+    N_OUT = pagN_OUT
 
     @staticmethod
     def func(a):
@@ -242,6 +258,8 @@ class papParams:
     NDIM = papNDIM
     NEQ = papNEQ
     NVALS = papNVALS
+    N_IN = papN_IN
+    N_OUT = papN_OUT
 
     @staticmethod
     def func(a):
@@ -279,6 +297,8 @@ class psParams:
     NDIM = psNDIM
     NEQ = psNEQ
     NVALS = psNVALS
+    N_IN = psN_IN
+    N_OUT = psN_OUT
 
     @staticmethod
     def func(a):

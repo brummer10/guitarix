@@ -10,7 +10,7 @@ OPTS=-DF2PY_REPORT_ON_ARRAY_COPY=1
 all: tensbs.so
 
 clean:
-	rm -f tensbs.so
+	rm -f tensbs.so splinetable.pyc
 
 tensbs.so: $(FILES) $(DEPFILES) tensbs.pyf
 	f2py -c $(OPTS) -m tensbs only: $(ONLY) : tensbs.pyf $(FILES) $(DEPFILES)

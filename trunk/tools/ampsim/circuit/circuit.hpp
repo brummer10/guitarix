@@ -9,6 +9,8 @@ namespace TriodeCircuit {
     const int NEQ = 3+2;
     const int NDIM = 2;
     const int NVALS = 2;
+    const int N_IN = 1;
+    const int N_OUT = 1;
     const realtype Un = 350;
     extern realtype Gco;
     extern realtype Gcf;
@@ -36,6 +38,8 @@ namespace CoupledTriodeCircuit {
     const int NEQ = 7;
     const int NDIM = 3;
     const int NVALS = 3;
+    const int N_IN = 1;
+    const int N_OUT = 1;
     extern realtype Gco;
     extern realtype Gcf;
     extern realtype mu;
@@ -68,6 +72,8 @@ namespace PowerAmpCircuit {
     const int NEQ_GATE = 3;
     const int NDIM_GATE = 2;
     const int NVALS_GATE = 2;
+    const int N_IN_GATE = 1;
+    const int N_OUT_GATE = 1;
     int set_range_gate(int i, double lower, double upper, int size);
     void init_gate(realtype u0[NEQ_GATE]);
     int tcGate(N_Vector x, N_Vector u);
@@ -76,6 +82,8 @@ namespace PowerAmpCircuit {
     const int NEQ_PLATE = 5;
     const int NDIM_PLATE = 3;
     const int NVALS_PLATE = 2;
+    const int N_IN_PLATE = 2;
+    const int N_OUT_PLATE = 1;
     int set_range_plate(int i, double lower, double upper, int size);
     void init_plate(realtype u0[NEQ_PLATE]);
     int tcPlate(N_Vector x, N_Vector u);
@@ -111,6 +119,8 @@ namespace PhaseSplitterCircuit {
     const int NEQ = 9;
     const int NDIM = 4;
     const int NVALS = 5;
+    const int N_IN = 1;
+    const int N_OUT = 2;
     int set_range(int i, double lower, double upper, int size);
     void init(realtype u0[NEQ]);
     int tc(N_Vector x, N_Vector u);
