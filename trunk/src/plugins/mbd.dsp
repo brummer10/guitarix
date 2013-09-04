@@ -27,16 +27,16 @@ bandpass3  = lowpass(3,hifr3) : highpass(3,lowfr3);
 bandpass4  = lowpass(3,hifr4) : highpass(3,lowfr4);
 bandpass5  = highpass(3,lowfr5);
 
-drive1     = hslider("Drive1 [tooltip: Amount of distortion]", 0, 0, 1, 0.01):smooth(0.999);
-offset1    = hslider("Offset1 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01):smooth(0.999);
-drive2     = hslider("Drive2 [tooltip: Amount of distortion]", 0, 0, 1, 0.01):smooth(0.999);
-offset2    = hslider("Offset2 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01):smooth(0.999);
-drive3     = hslider("Drive3 [tooltip: Amount of distortion]", 0, 0, 1, 0.01):smooth(0.999);
-offset3    = hslider("Offset3 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01):smooth(0.999);
-drive4     = hslider("Drive4 [tooltip: Amount of distortion]", 0, 0, 1, 0.01):smooth(0.999);
-offset4    = hslider("Offset4 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01):smooth(0.999);
-drive5     = hslider("Drive5 [tooltip: Amount of distortion]", 0, 0, 1, 0.01):smooth(0.999);
-offset5    = hslider("Offset5 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01):smooth(0.999);
+drive1     = hslider("Drive1 [tooltip: Amount of distortion]", 0, 0, 1, 0.01);
+offset1    = hslider("Offset1 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01);
+drive2     = hslider("Drive2 [tooltip: Amount of distortion]", 0, 0, 1, 0.01);
+offset2    = hslider("Offset2 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01);
+drive3     = hslider("Drive3 [tooltip: Amount of distortion]", 0, 0, 1, 0.01);
+offset3    = hslider("Offset3 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01);
+drive4     = hslider("Drive4 [tooltip: Amount of distortion]", 0, 0, 1, 0.01);
+offset4    = hslider("Offset4 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01);
+drive5     = hslider("Drive5 [tooltip: Amount of distortion]", 0, 0, 1, 0.01);
+offset5    = hslider("Offset5 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0.01);
 
 gain1      = vslider("Gain", 0, -40, 4, 0.1) : db2linear : smooth(0.999);
 
