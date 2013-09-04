@@ -21,6 +21,8 @@ feedbackfilter = (_ <: *(b0), (mem : *(b1)) :> + ~ *(a1)) with {
     b1 = (B0 - 2*B1*SR) / a;
 };
 
+Xprocess = PowAmp with { PowAmp = ffunction(float PowAmp(float), <math.h>, ""); };
+
 process = *(pregain) : (- : PowAmp) ~ (feedbackfilter : *(fbgain)) : *(postgain) with {
     PowAmp = ffunction(float PowAmp(float), <math.h>, "");
     pregain =  vslider("Pregain",0,-20,40,0.1) : db2linear : smoothi(0.999); 

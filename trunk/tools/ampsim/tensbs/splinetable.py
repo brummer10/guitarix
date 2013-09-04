@@ -26,16 +26,13 @@ def print_intpp_data(o, tag, prefix, func, nvals, *rgdata):
     float_sz = np.float32().nbytes
     n = len(rgdata)
     ranges = []
-    orders = []
     orderletter = "xyzv"
     orderdict = {}
     for i, (r, k) in enumerate(rgdata):
         ranges.append(r)
-        orders.append(k)
         orderdict["k%s" % orderletter[i]] = k
     print >>o, "%sreal x0%s[%d] = {%s};" % (prefix, tag, n, ", ".join([str(float(v.start)) for v in ranges]))
     print >>o, "%sreal h%s[%d] = {%s};" % (prefix, tag, n, ", ".join([str(float(v.stop-v.start)/(v.step.imag-1)) for v in ranges]))
-    print >>o, "%sint k%s[%d] = {%s};" % (prefix, tag, n, ", ".join([str(v) for v in orders]))
     print >>o, "%sint n%s[%d] = {%s};" % (prefix, tag, n, ", ".join([str(int(v.step.imag)) for v in ranges]))
     sz += (2*int_sz+2*float_sz) * n;
     grd = np.mgrid[ranges]

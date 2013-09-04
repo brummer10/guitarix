@@ -248,8 +248,8 @@ inline float Amp::operator()(float v)
 {
     real s[2];
     ps.calc(&v, s);
-    s[0] *= trim;
-    s[1] *= trim;
+    s[0] = (s[0]-50)*trim+50;
+    s[1] = (s[1]-50)*trim+50;
     real up[2];
     g1.calc(&s[0], &up[0]);
     g2.calc(&s[1], &up[1]);

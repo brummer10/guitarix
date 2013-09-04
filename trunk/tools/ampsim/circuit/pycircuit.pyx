@@ -7,6 +7,7 @@ cdef extern from "circuit.hpp":
     N_Vector N_VNew_Serial(long int vec_length)
     void N_VDestroy_Serial(N_Vector v)
     double *NV_DATA_S(N_Vector v)
+    int NV_LENGTH_S(N_Vector v)
 
     int FS "fs"
 
@@ -79,6 +80,7 @@ cdef extern from "circuit.hpp":
     double pag_G1 "PowerAmpCircuit::G1"
     double pag_Gb "PowerAmpCircuit::Gb"
     double pag_Gg "PowerAmpCircuit::Gg"
+    double pag_Ub "PowerAmpCircuit::Ub"
 
     int powerampplate "PowerAmpCircuit::powerampplate"(N_Vector x, N_Vector u)
     void papupdate "PowerAmpCircuit::updatePlate"(N_Vector y, N_Vector state)
@@ -95,7 +97,6 @@ cdef extern from "circuit.hpp":
     double pap_Kg1 "PowerAmpCircuit::Kg1"
     double pap_Kg2 "PowerAmpCircuit::Kg2"
     double pap_Kvb "PowerAmpCircuit::Kvb"
-    double pap_Ud "PowerAmpCircuit::Ud"
     double pap_Un "PowerAmpCircuit::Un"
     double pap_Gd "PowerAmpCircuit::Gd"
     double pap_C2 "PowerAmpCircuit::C2"
@@ -143,7 +144,31 @@ cdef extern from "circuit.hpp":
 
 fs = FS
 
-class tcParams:
+
+cdef class CalcBase:
+
+    cdef int capture
+
+    def __cinit__(self):
+        self.capture = 0
+        self.u = np.zeros(self.NEQ, dtype=np.float32)
+
+    property capture:
+        def __get__(self):
+            return self.capture
+        def __set__(self, v):
+            self.capture = v
+
+    property values:
+        def __get__(self):
+            return self.u
+
+    cdef store(self, N_Vector *u):
+        for i in range(NV_LENGTH_S(u[0])):
+            self.u[i] = NV_DATA_S(u[0])[i]
+
+
+class tcParams(CalcBase):
     NDIM = tcNDIM
     NEQ = tcNEQ
     NVALS = tcNVALS
@@ -168,7 +193,38 @@ class tcParams:
     @classmethod
     def init(self):
         for k, v in self.circuit.items():
-            globals()["tc_"+k] = v
+            global tc_Gco, tc_Gcf, tc_mu, tc_Ex, tc_Kg1, tc_Kp, tc_Kvb, tc_G1, tc_G2
+            global tc_Gg, tc_Gk, tc_Ga, tc_Gl, tc_Ck
+            if k == "Gco":
+                tc_Gco = v
+            elif k == "Gcf":
+                tc_Gcf = v
+            elif k == "mu":
+                tc_mu = v
+            elif k == "Ex":
+                tc_Ex = v
+            elif k == "Kg1":
+                tc_Kg1 = v
+            elif k == "Kp":
+                tc_Kp = v
+            elif k == "Kvb":
+                tc_Kvb = v
+            elif k == "G1":
+                tc_G1 = v
+            elif k == "G2":
+                tc_G2 = v
+            elif k == "Gg":
+                tc_Gg = v
+            elif k == "Gk":
+                tc_Gk = v
+            elif k == "Ga":
+                tc_Ga = v
+            elif k == "Gl":
+                tc_Gl = v
+            elif k == "Ck":
+                tc_Ck = v
+            else:
+                raise KeyError("unknown %s" % k)
         for i, l in enumerate(self.start_grid):
             if not tc_set_range(i, l[0], l[1], l[2]):
                 raise ValueError("can't set range nr %d" % i)
@@ -180,7 +236,7 @@ class tcParams:
         tc_init(U0)
 
 
-class ctcParams:
+class ctcParams(CalcBase):
     NDIM = ctcNDIM
     NEQ = ctcNEQ
     NVALS = ctcNVALS
@@ -207,7 +263,51 @@ class ctcParams:
     @classmethod
     def init(self):
         for k, v in self.circuit.items():
-            globals()["ctc_"+k] = v
+            global ctc_Gco, ctc_Gcf, ctc_mu, ctc_Ex, ctc_Kg1, ctc_Kp, ctc_Kvb, ctc_Ck
+            global ctc_Ca, ctc_Un, ctc_G1, ctc_G2, ctc_Gg, ctc_Gk, ctc_Ga, ctc_G3
+            global ctc_Gg2, ctc_Gk2, ctc_Ga2, ctc_Gl
+            if k == "Gco":
+                ctc_Gco = v
+            elif k == "Gcf":
+                ctc_Gcf = v
+            elif k == "mu":
+                ctc_mu = v
+            elif k == "Ex":
+                ctc_Ex = v
+            elif k == "Kg1":
+                ctc_Kg1 = v
+            elif k == "Kp":
+                ctc_Kp = v
+            elif k == "Kvb":
+                ctc_Kvb = v
+            elif k == "Ck":
+                ctc_Ck = v
+            elif k == "Ca":
+                ctc_Ca = v
+            elif k == "Un":
+                ctc_Un = v
+            elif k == "G1":
+                ctc_G1 = v
+            elif k == "G2":
+                ctc_G2 = v
+            elif k == "Gg":
+                ctc_Gg = v
+            elif k == "Gk":
+                ctc_Gk = v
+            elif k == "Ga":
+                ctc_Ga = v
+            elif k == "G3":
+                ctc_G3 = v
+            elif k == "Gg2":
+                ctc_Gg2 = v
+            elif k == "Gk2":
+                ctc_Gk2 = v
+            elif k == "Ga2":
+                ctc_Ga2 = v
+            elif k == "Gl":
+                ctc_Gl = v
+            else:
+                raise KeyError("unknown %s" % k)
         for i, l in enumerate(self.start_grid):
             if not ctc_set_range(i, l[0], l[1], l[2]):
                 raise ValueError("can't set range nr %d" % i)
@@ -219,15 +319,14 @@ class ctcParams:
         ctc_init(U0)
 
 
-class pagParams:
+class pagParams(CalcBase):
     NDIM = pagNDIM
     NEQ = pagNEQ
     NVALS = pagNVALS
     N_IN = pagN_IN
     N_OUT = pagN_OUT
 
-    @staticmethod
-    def func(a):
+    def func(self, a):
         cdef N_Vector x = N_VNew_Serial(2)
         cdef N_Vector u = N_VNew_Serial(pagNEQ)
         cdef int i
@@ -237,6 +336,8 @@ class pagParams:
             raise ValueError
         NV_DATA_S(x)[0] = NV_DATA_S(u)[0] - NV_DATA_S(u)[1]  # Uc1 = U0 - U1
         pagupdate(u, x)
+        if self.capture:
+            self.store(u)
         ret = [NV_DATA_S(u)[2], NV_DATA_S(x)[0]]
         N_VDestroy_Serial(x)
         N_VDestroy_Serial(u)
@@ -245,7 +346,23 @@ class pagParams:
     @classmethod
     def init(self):
         for k, v in self.circuit.items():
-            globals()["pag_"+k] = v
+            global pag_Gco, pag_Gcf, pag_C1, pag_G1, pag_Gb, pag_Gg, pag_Ub
+            if k == "Gco":
+                pag_Gco = v
+            elif k == "Gcf":
+                pag_Gcf = v
+            elif k == "C1":
+                pag_C1 = v
+            elif k == "G1":
+                pag_G1 = v
+            elif k == "Gb":
+                pag_Gb = v
+            elif k == "Gg":
+                pag_Gg = v
+            elif k == "Ub":
+                pag_Ub = v
+            else:
+                raise KeyError("unknown %s" % k)
         for i, l in enumerate(self.start_grid):
             if not pag_set_range(i, l[0], l[1], l[2]):
                 raise ValueError("can't set range nr %d" % i)
@@ -257,7 +374,7 @@ class pagParams:
         pag_init(U0)
 
 
-class papParams:
+class papParams(CalcBase):
     NDIM = papNDIM
     NEQ = papNEQ
     NVALS = papNVALS
@@ -287,7 +404,34 @@ class papParams:
     @classmethod
     def init(self):
         for k, v in self.circuit.items():
-            globals()["pap_"+k] = v
+            global pap_Kp, pap_mu, pap_Ex, pap_Kg1, pap_Kg2, pap_Kvb, pap_Un
+            global pap_Gd, pap_C2, pap_Ga, pap_Gs, pap_Gd
+            if k == "Kp":
+                pap_Kp = v
+            elif k == "mu":
+                pap_mu = v
+            elif k == "Ex":
+                pap_Ex = v
+            elif k == "Kg1":
+                pap_Kg1 = v
+            elif k == "Kg2":
+                pap_Kg2 = v
+            elif k == "Kvb":
+                pap_Kvb = v
+            elif k == "Un":
+                pap_Un = v
+            elif k == "Gd":
+                pap_Gd = v
+            elif k == "C2":
+                pap_C2 = v
+            elif k == "Ga":
+                pap_Ga = v
+            elif k == "Gs":
+                pap_Gs = v
+            elif k == "Gd":
+                pap_Gd = v
+            else:
+                raise KeyError("unknown %s" % k)
         for i, l in enumerate(self.start_grid):
             if not pap_set_range(i, l[0], l[1], l[2]):
                 raise ValueError("can't set range nr %d" % i)
@@ -299,7 +443,7 @@ class papParams:
         pap_init(U0)
 
 
-class psParams:
+class psParams(CalcBase):
     NDIM = psNDIM
     NEQ = psNEQ
     NVALS = psNVALS
@@ -327,7 +471,57 @@ class psParams:
     @classmethod
     def init(self):
         for k, v in self.circuit.items():
-            globals()["ps_"+k] = v
+            global ps_Gco, ps_Gcf, ps_mu, ps_Ex, ps_Kg1, ps_Kp, ps_Kvb, ps_C1, ps_C2
+            global ps_C3, ps_Un, ps_G1, ps_Gg1, ps_Gg2, ps_Gk, ps_G2, ps_G3, ps_G4
+            global ps_G5, ps_Ga1, ps_Ga2, ps_Gl1, ps_Gl2
+            if k == "Gco":
+                ps_Gco = v
+            elif k == "Gcf":
+                ps_Gcf = v
+            elif k == "mu":
+                ps_mu = v
+            elif k == "Ex":
+                ps_Ex = v
+            elif k == "Kg1":
+                ps_Kg1 = v
+            elif k == "Kp":
+                ps_Kp = v
+            elif k == "Kvb":
+                ps_Kvb = v
+            elif k == "C1":
+                ps_C1 = v
+            elif k == "C2":
+                ps_C2 = v
+            elif k == "C3":
+                ps_C3 = v
+            elif k == "Un":
+                ps_Un = v
+            elif k == "G1":
+                ps_G1 = v
+            elif k == "Gg1":
+                ps_Gg1 = v
+            elif k == "Gg2":
+                ps_Gg2 = v
+            elif k == "Gk":
+                ps_Gk = v
+            elif k == "G2":
+                ps_G2 = v
+            elif k == "G3":
+                ps_G3 = v
+            elif k == "G4":
+                ps_G4 = v
+            elif k == "G5":
+                ps_G5 = v
+            elif k == "Ga1":
+                ps_Ga1 = v
+            elif k == "Ga2":
+                ps_Ga2 = v
+            elif k == "Gl1":
+                ps_Gl1 = v
+            elif k == "Gl2":
+                ps_Gl2 = v
+            else:
+                raise KeyError("unknown %s" % k)
         for i, l in enumerate(self.start_grid):
             if not ps_set_range(i, l[0], l[1], l[2]):
                 raise ValueError("can't set range nr %d" % i)

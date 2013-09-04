@@ -76,45 +76,6 @@ double Spline::eval(double x)
  * Grid
  */
 
-struct Dim {
-    double lower, upper;
-    int size, stride;
-    inline double point(int i) { return lower + ((upper-lower) / (size-1)) * i; }
-    inline double point(double i) { return lower + ((upper-lower) / (size-1)) * i; }
-    inline void index(double v, int& i, double& w) {
-	w = (v-lower) / (upper-lower) * (size-1);
-	i = static_cast<int>(w);
-	if (i < 0) {
-	    i = 0;
-	    w = 0.0;
-	} else if (i > size-2) {
-	    i = size-2;
-	    w = 1.0;
-	} else {
-	    w -= i;
-	}
-    }
-};
-
-class Grid {
-protected:
-    float *grid;		// ndim-dimensional cube
-    int vals;			// size of cube cell
-    int ndim;			// number of dimensions
-    Dim *dim;			// dimension descriptor
-    double *weight;		// coordinates inside grid cell
-    int *idx;			// index of base point
-    int *idx2;			// running index of neighbor nodes
-    int p2dim;			// 2^ndim
-    double *pts;		// size = p2dim*vals
-    inline float *cell(int *ix);
-    int calc_strides();
-    void fill(int n, int *ix, N_Vector x, N_Vector u0);
-public:
-    Grid(int d, Dim *v, int n);
-    ~Grid();
-};
-
 Grid::Grid(int d, Dim *v, int n)
 {
     vals = n;
@@ -160,24 +121,10 @@ inline float *Grid::cell(int *ix)
  * Cube
  */
 
-typedef int (*vfunc)(N_Vector x, N_Vector u);
-
-class Cube: public Grid {
-private:
-    vfunc func;
-    int mmap_size;
-    void fill(int n, int *ix, N_Vector x, N_Vector u0);
-public:
-    Cube(int d, Dim *v, int n, int *ix, vfunc f, N_Vector u0, const char* fname=0);
-    ~Cube();
-    int calc(N_Vector x, N_Vector u);
-};
-
-Cube::Cube(int d, Dim *v, int n, int *ix, vfunc f, N_Vector u0, const char *fname):
-    Grid(d, v, n)
-{
-    func = f;
-    mmap_size = 0;
+Cube::Cube(int d, Dim *v, int n, int *ix, vfunc f/*ComponentBase& cb_*/, N_Vector u0, const char *fname)
+    : Grid(d, v, n),
+      func(f)/*cb(cb_)*/,
+      mmap_size(0) {
     grid = 0;
     int sz = calc_strides();
     if (fname) {
@@ -185,7 +132,7 @@ Cube::Cube(int d, Dim *v, int n, int *ix, vfunc f, N_Vector u0, const char *fnam
 	if (fd >= 0) {
 	    struct stat attr;
 	    if (fstat(fd, &attr) >= 0) {
-		if (attr.st_size == sz*sizeof(float)) {
+		if (attr.st_size == sz*(int)sizeof(float)) {
 		    void *addr = mmap(0, attr.st_size, PROT_READ, MAP_SHARED, fd, 0);
 		    if (addr != (void*)-1) {
 			grid = static_cast<float*>(addr);
@@ -209,7 +156,7 @@ Cube::Cube(int d, Dim *v, int n, int *ix, vfunc f, N_Vector u0, const char *fnam
 	    if (fd < 0) {
 		fprintf(stderr, "open %s for writing failed\n", fname);
 	    } else {
-		if (write(fd, grid, sz*sizeof(float)) != sz*sizeof(float)) {
+		if (write(fd, grid, sz*sizeof(float)) != sz*(int)sizeof(float)) {
 		    fprintf(stderr, "write to %s failed\n", fname);
 		} else {
 		    printf("written mmap file %s\n", fname);
@@ -240,7 +187,7 @@ void Cube::fill(int n, int *ix, N_Vector x, N_Vector u0)
 	    fill(n-1, ix+1, x, u);
 	} else {
 	    //printf("-> "); N_VPrint_Serial(u); N_VPrint_Serial(x);
-	    func(x, u);
+	    func(x,u);//cb.findzero(x, u);
 	    //printf("<- "); N_VPrint_Serial(u);
 	    float *p = cell(idx);
 	    for (int j = 0; j < vals; j++) {
@@ -285,7 +232,133 @@ int Cube::calc(N_Vector x, N_Vector u)
     for (int i = 0; i < vals; i++) {
 	Ith(u,i) = pts[i];
     }
-    return func(x, u);
+    return func(x,u);//cb.findzero(x, u);
+}
+
+/****************************************************************
+ ** class ComponentBase
+ */
+
+ComponentBase::ComponentBase(int neq, int ndim, int nvals, int n_in, int n_out, int n_params_)
+    : NEQ(neq),
+      NDIM(ndim),
+      NVALS(nvals),
+      N_IN(n_in),
+      N_OUT(n_out),
+      n_params(n_params_),
+      params(new realtype*[n_params_]),
+      param_names(new const char*[n_params_]),
+      in_names(new const char*[n_in]),
+      out_names(new const char*[n_out]),
+      state_names(new const char*[nvals-n_out]),
+      ix(new int[ndim]),
+      ranges(new Dim[ndim]),
+      cube(0),
+      user_data(0) {
+}
+      
+ComponentBase::~ComponentBase() {
+    delete[] params;
+    delete[] param_names;
+    delete[] in_names;
+    delete[] out_names;
+    delete[] state_names;
+    delete[] ix;
+    delete[] ranges;
+    delete cube;
+}
+
+int ComponentBase::set_range(int i, double lower, double upper, int size) {
+    if (i > NDIM) {
+	return 0;
+    }
+    ranges[i].lower = lower;
+    ranges[i].upper = upper;
+    ranges[i].size = size;
+    return 1;
+}
+
+void ComponentBase::init(realtype *u0) {
+    N_Vector u = N_VNew_Serial(NEQ);
+    for (int i = 0; i < NEQ; i++) {
+	Ith(u,i) = u0[i];
+    }
+    delete cube;
+    //cube = new Cube(NDIM, ranges, NEQ, ix, *this, u);
+    N_VDestroy_Serial(u);
+}
+
+//static
+int ComponentBase::sfunc(N_Vector x, N_Vector u, void *data) {
+    ComponentBase *self = static_cast<ComponentBase*>(data);
+    return self->func(x, u, self->user_data);
+}
+
+int ComponentBase::findzero(N_Vector x, N_Vector u) {
+    int flag;
+
+    N_Vector s = N_VNew_Serial(NEQ);
+    if (check_flag((void *)s, "N_VNew_Serial", 0)) return(1);
+    N_VConst_Serial(ONE,s); /* no scaling */
+
+    realtype fnormtol = FTOL;
+    realtype scsteptol = STOL;
+
+    void *kmem = KINCreate();
+    if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
+
+    user_data = NV_DATA_S(x);
+    flag = KINSetUserData(kmem, user_data);
+    if (check_flag(&flag, "KINSetUserData", 1)) return(1);
+
+    // N_Vector c = N_VNew_Serial(NEQ);
+    // if (check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
+    // Ith(c,0) =  ZERO;   /* no constraint on f1 */
+    // Ith(c,1) =  ZERO;   /* no constraint on f2 */
+    // Ith(c,2) =  ZERO;   /* no constraint on f3 */
+    // Ith(c,3) =  ONE;    /* l = Ua - Uk >= 0 */
+    // Ith(c,4) = -ONE;    /* L = Ua - Un <= 0 */
+    // flag = KINSetConstraints(kmem, c);
+    // if (check_flag(&flag, "KINSetConstraints", 1)) return(1);
+    // N_VDestroy_Serial(c);
+
+    flag = KINSetFuncNormTol(kmem, fnormtol);
+    if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
+    flag = KINSetScaledStepTol(kmem, scsteptol);
+    if (check_flag(&flag, "KINSetScaledStepTol", 1)) return(1);
+
+    flag = KINInit(kmem, sfunc, u);
+    if (check_flag(&flag, "KINInit", 1)) return(1);
+
+    /* Call KINDense to specify the linear solver */
+
+    flag = KINDense(kmem, NEQ);
+    if (check_flag(&flag, "KINDense", 1)) return(1);
+
+    //flag = KINSetPrintLevel(kmem, 3); 
+    //if (check_flag(&flag, "KINSetPrintLevel", 1)) return(1);
+
+    int glstr = KIN_NONE;
+    //int glstr = KIN_LINESEARCH;
+    int mset = 1;
+    flag = KINSetMaxSetupCalls(kmem, mset);
+    if (check_flag(&flag, "KINSetMaxSetupCalls", 1)) return(1);
+    flag = KINSol(kmem, u, glstr, s, s);
+    if (flag > 1) {
+	printf("res = %d\n", flag);
+	return 1;
+    }
+    if (check_flag(&flag, "KINSol", 1)) return(1);
+    //PrintFinalStats(kmem);
+
+    N_VDestroy_Serial(s);
+    KINFree(&kmem);
+    user_data = 0;
+    return 0;
+}
+
+int ComponentBase::operator()(N_Vector x, N_Vector u) {
+    return cube->calc(x, u);
 }
 
 /*
@@ -583,15 +656,11 @@ namespace CoupledTriodeCircuit {
 	realtype Ua = fdata[2];
 	realtype U2 = fdata[3];
 	realtype Ug2 = fdata[4];
-	realtype Uk2 = fdata[5];
-	realtype Ua2 = fdata[6];
 	realtype Uc1m = Ith(state,0);
 	realtype Uc2m = Ith(state,1);
 
 	realtype ia1 = Ia(Ug-Uk,Ua-Uk);
 	realtype ig1 = Ig(Ug-Uk);
-	realtype ia2 = Ia(Ug2-Uk2,Ua2-Uk2);
-	realtype ig2 = Ig(Ug2-Uk2);
 	Uc1m = Uc1m - (Uk*Gk-ia1-ig1) / (Ck*fs);
 	Uc2m = Uc2m + ((U2-Ug2)*G3) / (Ca*fs);
 
@@ -701,32 +770,26 @@ namespace CoupledTriodeCircuit {
 
 namespace PowerAmpCircuit {
 
-    static const realtype Gco = RCONST(-0.2);
-    static const realtype Gcf = RCONST(1e-5);
-    static const realtype mu  = RCONST(8.7);
-    static const realtype Ex  = RCONST(1.35);
-    static const realtype Kg1 = RCONST(1460.0);
-    static const realtype Kg2 = RCONST(4500.0);
-    static const realtype Kp  = RCONST(48.0);
-    static const realtype Kvb = RCONST(12.0);
+    realtype Gco = -0.2;
+    realtype Gcf = 1e-5;
+    realtype mu  = 8.7;
+    realtype Ex  = 1.35;
+    realtype Kg1 = 1460.0;
+    realtype Kg2 = 4500.0;
+    realtype Kp  = 48.0;
+    realtype Kvb = 12.0;
 
-    static const realtype R1 = RCONST(30e3);
-    static const realtype Rb = RCONST(220e3);
-    static const realtype Rg = RCONST(5e3);
-    static const realtype Ra = RCONST(1.7e3);
-    static const realtype Rs = RCONST(1e3);
-    static const realtype Rd = RCONST(500e0);
-    static const realtype C1 = RCONST(22e-9);
-    static const realtype C2 = RCONST(100e-6);
-    static const realtype Ub = -RCONST(50);
-    static const realtype Un = RCONST(450);
+    realtype C1 = 22e-9;
+    realtype C2 = 100e-6;
+    realtype Ub = -50;
+    realtype Un = 450;
 
-    static const realtype G1 = RCONST(1/R1);
-    static const realtype Gb = RCONST(1/Rb);
-    static const realtype Gg = RCONST(1/Rg);
-    static const realtype Ga = RCONST(1/Ra);
-    static const realtype Gs = RCONST(1/Rs);
-    static const realtype Gd = RCONST(1/Rd);
+    realtype G1 = 1/30e3;  // 1/R1
+    realtype Gb = 1/220e3; // 1/Rb
+    realtype Gg = 1/5e3;   // 1/Rg
+    realtype Ga = 1/1.7e3; // 1/Ra
+    realtype Gs = 1/1e3;   // 1/Rs
+    realtype Gd = 1/500;   // 1/Rd
 
     inline realtype Ig(realtype Ugk)
     {
@@ -791,7 +854,6 @@ namespace PowerAmpCircuit {
     void updateGate(N_Vector y, N_Vector state)
     {
 	realtype *fdata = NV_DATA_S(y);
-	realtype U0 = fdata[0];
 	realtype U1 = fdata[1];
 	realtype Ug = fdata[2];
 	realtype Uc1m = Ith(state,0);
@@ -1159,15 +1221,11 @@ namespace PhaseSplitterCircuit {
     void update(N_Vector y, N_Vector state)
     {
 	realtype *fdata = NV_DATA_S(y);
-	realtype U1  = fdata[0];
 	realtype Ug1 = fdata[1];
 	realtype Uk  = fdata[2];
-	realtype Ua1 = fdata[3];
 	realtype U2  = fdata[4];
-	realtype U3  = fdata[5];
 	realtype U4  = fdata[6];
 	realtype Ug2 = fdata[7];
-	realtype Ua2 = fdata[8];
 	realtype Uc1m = Ith(state,0);
 	realtype Uc2m = Ith(state,1);
 	realtype Uc3m = Ith(state,2);
@@ -1311,7 +1369,7 @@ int main()
 /* 
  * Print final statistics contained in iopt 
  */
-
+#if 0
 static void PrintFinalStats(void *kmem)
 {
     long int nni, nfe, nje, nfeD;
@@ -1331,6 +1389,7 @@ static void PrintFinalStats(void *kmem)
     printf("  nni = %5ld    nfe  = %5ld \n", nni, nfe);
     printf("  nje = %5ld    nfeD = %5ld \n", nje, nfeD);
 }
+#endif
 
 /*
  * Check function return value...

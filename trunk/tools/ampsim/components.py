@@ -150,6 +150,7 @@ class ppgParams(pycircuit.pagParams):
         C1  = 22e-9,
         G1  = 1/30e3,
         Gg  = 1/5e3,
+        Ub  = -40,
         )
 
 

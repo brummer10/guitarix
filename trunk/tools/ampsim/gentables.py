@@ -20,7 +20,6 @@ def print_intpp_data(p):
     print >>o, "splinedata sd = {"
     print >>o, "\tx0,"
     print >>o, "\th,"
-    print >>o, "\tk,"
     print >>o, "\tn,"
     print >>o, "\tt,"
     print >>o, "\tc,"
@@ -29,13 +28,14 @@ def print_intpp_data(p):
     print >>o, "\t%d, /* number of output values */" % p.N_OUT
     n_state = p.NVALS-p.N_OUT
     print >>o, "\t%d, /* number of state values */" % n_state
-    n = p.N_IN + n_state
-    print >>o, "\tsplinedata::splev%s," % (n if n > 1 else "")
+    s = ",".join([str(row[1]) for row in p.ranges])
+    inst = "splinedata::splev%d<%s>" % (p.N_IN + n_state, s)
+    print >>o, "\t%s," % inst
     print >>o, '\t"%s",' % p.comp_id
     print >>o, "};"
     print >>o, "}; /* ! namespace %s */" % p.comp_id
     o.seek(0)
-    return r, o.read();
+    return r, o.read(), inst;
 
 def print_header_file_start(h):
     print >>h, """\
@@ -86,18 +86,22 @@ components_list = [
 def main():
     if len(sys.argv) > 1:
         o = open(sys.argv[1], "w")
-        h = open(sys.argv[2], "w")
+        inst = open(sys.argv[2], "w")
+        h = open(sys.argv[3], "w")
     else:
         o = sys.stdout
+        inst = sys.stdout
         h = sys.stdout
     pool = mp.Pool(mp.cpu_count())
-    procs = [(c, pool.apply_async(print_intpp_data, [c])) for c in components_list]
+    procs = [(c, pool.apply_async(print_intpp_data, [c()])) for c in components_list]
     print_header_file_start(h)
     sz = print_header(o)
     l = []
+    templ = set()
     for c, p in procs:
-        s, f = p.get()
+        s, f, i = p.get()
         o.write(f)
+        templ.add(i)
         l.append("%s: %d bytes" % (c.comp_name, s))
         sz += s
         print_header_file_entry(h, c.comp_id)
@@ -105,6 +109,8 @@ def main():
     l.append("data size sum: %d bytes" % sz)
     print >>o, "".join(["\n// " + s for s in l])
     print_header_file_end(h)
+    for v in sorted(templ):
+        print >>inst, "template int %s(splinedata *p, real xi[2], real *res);" % v
 
 if __name__ == "__main__":
     main()

@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include "intpp.h"
 
+#include "intpp_inst.cc"
+
 /****************************************************************
  ** fpbspl evaluates the k non-zero b-splines of order k
  ** at t[l] <= x < t[l+1] using the stable recurrence relation
@@ -11,11 +13,11 @@
  ** k: order (2 <= k <= 6)
  ** h[k]: output array
  */
-static void fpbspl(float *t, int k, real x, int l, real *h)
+template<int K> static void fpbspl(float *t, real x, int l, real *h)
 {
-    real hh[k-1];
+    real hh[K-1];
     h[0] = 1;
-    for (int j = 0; j < k-1; j++) {
+    for (int j = 0; j < K-1; j++) {
 	for (int i = 0; i <= j; i++) {
 	    hh[i] = h[i];
 	}
@@ -60,9 +62,14 @@ static inline int find_index(int n, int k, real *x, char* cl)
     }
 }
 
-static inline real linmap(real x, real x0, real step)
+template<int K>
+static inline int forward(int i, splinedata *p, real *xi, real *x, int ll,
+			  splinedata::retval *cl, real *h)
 {
-    return (x - x0) / step;
+    x[i] = (xi[i] - p->x0[i]) / p->step[i];
+    int l = find_index(p->n[i], K, &x[i], &cl->c[i]);
+    fpbspl<K>(p->t[i],x[i],l,h);
+    return ll*p->n[i] + l-K+1;
 }
 
 /****************************************************************
@@ -74,18 +81,18 @@ static inline real linmap(real x, real x0, real step)
  ** x: function argument
  ** res: output array (size m)
  */
-int splinedata::splev(splinedata *p, real *x, real *res)
+template<int K0>
+int splinedata::splev1(splinedata *p, real xi[1], real *res)
 {
-    real h[p->k[0]];
+    real h[K0];
+    real x;
     retval cl;
     cl.i = 0;
-    x[0] = linmap(x[0], p->x0[0], p->step[0]);
-    int l = find_index(p->n[0], p->k[0], &x[0], &cl.c[0]);
-    fpbspl(p->t[0],p->k[0],x[0],l,h);
-    int ll = l-p->k[0]+1;
+    int ll = 0;
+    ll = forward<K0>(0, p, xi, &x, ll, &cl, h);
     for (int i = 0; i < p->m; i++) {
 	real sp = 0;
-	for (int j = 0; j < p->k[0]; j++) {
+	for (int j = 0; j < K0; j++) {
 	    sp += p->c[0][ll+j]*h[j];
 	}
 	res[i] = sp;
@@ -103,6 +110,7 @@ int splinedata::splev(splinedata *p, real *x, real *res)
  ** x: function arguments
  ** res[m]: output array
  */
+template<int K0, int K1>
 int splinedata::splev2(splinedata *p, real xi[2], real *res)
 {
     real h[2][6];
@@ -110,29 +118,26 @@ int splinedata::splev2(splinedata *p, real xi[2], real *res)
     retval cl;
     cl.i = 0;
     int ll = 0;
-    for (int i = 0; i < 2; i++) {
-	x[i] = linmap(xi[i], p->x0[i], p->step[i]);
-	int l = find_index(p->n[i], p->k[i], &x[i], &cl.c[i]);
-	fpbspl(p->t[i],p->k[i],x[i],l,h[i]);
-	ll = ll*p->n[i] + l-p->k[i]+1;
-    }
+    ll = forward<K0>(0, p, xi, x, ll, &cl, h[0]);
+    ll = forward<K1>(1, p, xi, x, ll, &cl, h[1]);
     for (int i = 0; i < p->m; i++) {
 	float *cc = p->c[i];
 	int lc = ll;
 	int j[2];
 	real sp = 0;
-	for (j[0] = 0; j[0] < p->k[0]; j[0]++) {
-	    for (j[1] = 0; j[1] < p->k[1]; j[1]++) {
+	for (j[0] = 0; j[0] < K0; j[0]++) {
+	    for (j[1] = 0; j[1] < K1; j[1]++) {
 		sp += cc[lc]*h[0][j[0]]*h[1][j[1]];
 		lc += 1;
 	    }
-	    lc += p->n[1]-p->k[1];
+	    lc += p->n[1]-K1;
 	}
 	res[i] = sp;
     }
     return cl.i;
 }
 
+template<int K0, int K1, int K2>
 int splinedata::splev3(splinedata *p, real xi[3], real *res)
 {
     real h[3][6];
@@ -140,32 +145,30 @@ int splinedata::splev3(splinedata *p, real xi[3], real *res)
     retval cl;
     cl.i = 0;
     int ll = 0;
-    for (int i = 0; i < 3; i++) {
-	x[i] = linmap(xi[i], p->x0[i], p->step[i]);
-	int l = find_index(p->n[i], p->k[i], &x[i], &cl.c[i]);
-	fpbspl(p->t[i],p->k[i],x[i],l,h[i]);
-	ll = ll*p->n[i] + l-p->k[i]+1;
-    }
+    ll = forward<K0>(0, p, xi, x, ll, &cl, h[0]);
+    ll = forward<K1>(1, p, xi, x, ll, &cl, h[1]);
+    ll = forward<K2>(2, p, xi, x, ll, &cl, h[2]);
     for (int i = 0; i < p->m; i++) {
 	float *cc = p->c[i];
 	int lc = ll;
 	int j[3];
 	real sp = 0;
-	for (j[0] = 0; j[0] < p->k[0]; j[0]++) {
-	    for (j[1] = 0; j[1] < p->k[1]; j[1]++) {
-		for (j[2] = 0; j[2] < p->k[2]; j[2]++) {
+	for (j[0] = 0; j[0] < K0; j[0]++) {
+	    for (j[1] = 0; j[1] < K1; j[1]++) {
+		for (j[2] = 0; j[2] < K2; j[2]++) {
 		    sp += cc[lc]*h[0][j[0]]*h[1][j[1]]*h[2][j[2]];
 		    lc += 1;
 		}
-		lc += p->n[2]-p->k[2];
+		lc += p->n[2]-K2;
 	    }
-	    lc += (p->n[1]-p->k[1])*p->n[2];
+	    lc += (p->n[1]-K1)*p->n[2];
 	}
 	res[i] = sp;
     }
     return cl.i;
 }
 
+template<int K0, int K1, int K2, int K3>
 int splinedata::splev4(splinedata *p, real xi[4], real *res)
 {
     real h[4][6];
@@ -173,29 +176,27 @@ int splinedata::splev4(splinedata *p, real xi[4], real *res)
     retval cl;
     cl.i = 0;
     int ll = 0;
-    for (int i = 0; i < 4; i++) {
-	x[i] = linmap(xi[i], p->x0[i], p->step[i]);
-	int l = find_index(p->n[i], p->k[i], &x[i], &cl.c[i]);
-	fpbspl(p->t[i],p->k[i],x[i],l,h[i]);
-	ll = ll*p->n[i] + l-p->k[i]+1;
-    }
+    ll = forward<K0>(0, p, xi, x, ll, &cl, h[0]);
+    ll = forward<K1>(1, p, xi, x, ll, &cl, h[1]);
+    ll = forward<K2>(2, p, xi, x, ll, &cl, h[2]);
+    ll = forward<K3>(3, p, xi, x, ll, &cl, h[3]);
     for (int i = 0; i < p->m; i++) {
 	float *cc = p->c[i];
 	int lc = ll;
 	int j[4];
 	real sp = 0;
-	for (j[0] = 0; j[0] < p->k[0]; j[0]++) {
-	    for (j[1] = 0; j[1] < p->k[1]; j[1]++) {
-		for (j[2] = 0; j[2] < p->k[2]; j[2]++) {
-		    for (j[3] = 0; j[3] < p->k[3]; j[3]++) {
+	for (j[0] = 0; j[0] < K0; j[0]++) {
+	    for (j[1] = 0; j[1] < K1; j[1]++) {
+		for (j[2] = 0; j[2] < K2; j[2]++) {
+		    for (j[3] = 0; j[3] < K3; j[3]++) {
 			sp += cc[lc]*h[0][j[0]]*h[1][j[1]]*h[2][j[2]]*h[3][j[3]];
 			lc += 1;
 		    }
-		    lc += p->n[3]-p->k[3];
+		    lc += p->n[3]-K3;
 		}
-		lc += (p->n[2]-p->k[2])*p->n[3];
+		lc += (p->n[2]-K2)*p->n[3];
 	    }
-	    lc += (p->n[1]-p->k[1])*p->n[2]*p->n[3];
+	    lc += (p->n[1]-K1)*p->n[2]*p->n[3];
 	}
 	res[i] = sp;
     }
