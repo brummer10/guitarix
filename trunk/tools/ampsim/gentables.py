@@ -1,22 +1,17 @@
 import sys, os, traceback
-basepath = os.path.dirname(sys.argv[0])
-sys.path.append(os.path.join(basepath, "circuit"))
-sys.path.append(os.path.join(basepath, "tensbs"))
-import pycircuit, splinetable, components
+import circuit
+from tensbs import splinetable
 import multiprocessing as mp
 import numpy as np
 from cStringIO import StringIO
 
-def print_intpp_data(p):
+def print_intpp_data(i):
+    p = components_list[i]()
     o = StringIO()
     if hasattr(p, "init"):
         p.init()
     print >>o, "namespace %s {" % p.comp_id
-    try:
-        r = splinetable.print_intpp_data(o, "", "", p.func, p.NVALS, *p.ranges)
-    except Exception:
-        traceback.print_exc()
-        raise
+    r = splinetable.print_intpp_data(o, "", "", p.func, p.N_IN, p.NVALS, *p.ranges)
     print >>o, "splinedata sd = {"
     print >>o, "\tx0,"
     print >>o, "\th,"
@@ -26,16 +21,14 @@ def print_intpp_data(p):
     print >>o, "\t%d, /* number of calculated values */" % p.NVALS
     print >>o, "\t%d, /* number of input values */" % p.N_IN
     print >>o, "\t%d, /* number of output values */" % p.N_OUT
-    n_state = p.NVALS-p.N_OUT
-    print >>o, "\t%d, /* number of state values */" % n_state
-    s = ",".join([str(row[1]) for row in p.ranges])
-    inst = "splinedata::splev%d<%s>" % (p.N_IN + n_state, s)
+    print >>o, "\t%d, /* number of state values */" % (p.NDIM-p.N_IN)
+    inst = "splinedata::splev<%s>" % ",".join([str(row[1]) for row in p.ranges])
     print >>o, "\t%s," % inst
     print >>o, '\t"%s",' % p.comp_id
     print >>o, "};"
     print >>o, "}; /* ! namespace %s */" % p.comp_id
     o.seek(0)
-    return r, o.read(), inst;
+    return r, o.read(), inst, p.comp_name, p.comp_id;
 
 def print_header_file_start(h):
     print >>h, """\
@@ -65,11 +58,12 @@ def print_header_file_entry(h, f):
 def print_header(o):
     print >>o, '#include "intpp.h"'
     print >>o, "namespace AmpData {"
-    b0, b1, a1 = pycircuit.psParams.feedback_coeff(1.0)
-    print >>o, "real b0 = %g;" % b0
-    print >>o, "real b1 = %g;" % b1
-    print >>o, "real a1 = 1 - %g;" % (1 - a1)
-    print >>o, "int fs = %d;" % pycircuit.fs
+    if 0:
+        b0, b1, a1 = circuit.PhaseSplitter().feedback_coeff(1.0)
+        print >>o, "real b0 = %g;" % b0
+        print >>o, "real b1 = %g;" % b1
+        print >>o, "real a1 = 1 - %g;" % (1 - a1)
+    print >>o, "int fs = %d;" % circuit.FS
     return 3 * np.float32().nbytes + np.int32().nbytes
 
 def print_footer(o):
@@ -77,40 +71,59 @@ def print_footer(o):
     return 0
 
 components_list = [
-    components.psParams,
-    components.ppgParams,
-    components.pppParams,
-    components.ctcParams,
+    circuit.PhaseSplitter,
+    circuit.PPGate,
+    circuit.PPPlate,
+    circuit.CoupledTriode,
     ]
 
-def main():
-    if len(sys.argv) > 1:
-        o = open(sys.argv[1], "w")
-        inst = open(sys.argv[2], "w")
-        h = open(sys.argv[3], "w")
-    else:
-        o = sys.stdout
-        inst = sys.stdout
-        h = sys.stdout
+def write_files(o, inst, h):
     pool = mp.Pool(mp.cpu_count())
-    procs = [(c, pool.apply_async(print_intpp_data, [c()])) for c in components_list]
+    if True: # set to False for sequential computation in the current process
+        procs = [pool.apply_async(print_intpp_data, [i]) for i in range(len(components_list))]
+    else:
+        procs = [print_intpp_data(i) for i in range(len(components_list))]
     print_header_file_start(h)
     sz = print_header(o)
     l = []
     templ = set()
-    for c, p in procs:
-        s, f, i = p.get()
+    for p in procs:
+        if hasattr(p, "get"):
+            p = p.get()
+        s, f, i, comp_name, comp_id = p
         o.write(f)
         templ.add(i)
-        l.append("%s: %d bytes" % (c.comp_name, s))
+        l.append("%s: %d bytes" % (comp_name, s))
         sz += s
-        print_header_file_entry(h, c.comp_id)
+        print_header_file_entry(h, comp_id)
     sz += print_footer(o)
     l.append("data size sum: %d bytes" % sz)
     print >>o, "".join(["\n// " + s for s in l])
     print_header_file_end(h)
     for v in sorted(templ):
         print >>inst, "template int %s(splinedata *p, real xi[2], real *res);" % v
+
+def main():
+    if len(sys.argv) > 1:
+        o = open(sys.argv[1], "w")
+        inst = open(sys.argv[2], "w")
+        h = open(sys.argv[3], "w")
+        files = sys.argv[1:4]
+    else:
+        o = sys.stdout
+        inst = sys.stdout
+        h = sys.stdout
+        files = []
+    try:
+        write_files(o, inst, h)
+    except Exception:
+        traceback.print_exc()
+        for f in files:
+            try:
+                os.remove(f)
+            except:
+                pass
+        raise SystemExit(1)
 
 if __name__ == "__main__":
     main()

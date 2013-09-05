@@ -12,7 +12,7 @@ all: gxplugins.so
 clean:
 	rm -f gxplugins.so gxplugins_.so data.o intpp.o intpp_.o intpp.gcda intpp_.gcda
 	rm -f gx_poweramp.o gxpoweramp.cc gxpreamp.cc data.cc intpp_inst.cc data.h
-	rm -f components.pyc circuit/pycircuit.so
+	rm -f circuit/components.pyc circuit/__init__.pyc circuit/pycircuit.so
 	rm -rf circuit/build
 	make -C tensbs clean
 
@@ -44,7 +44,7 @@ intpp_.o: intpp.cc intpp.h Makefile
 gxplugins_.so: gx_poweramp.o intpp_.o data.o
 	$(LINK.cc) -fprofile-arcs -shared -Wl,-soname,gxplugins_.so -o gxplugins_.so $^ -lzita-resampler
 
-data.cc: gentables.py components.py circuit/pycircuit.so tensbs/tensbs.so
+data.cc: gentables.py circuit/components.py circuit/pycircuit.so tensbs/tensbs.so
 	python $< data.cc intpp_inst.cc data.h
 
 circuit/pycircuit.so: circuit/circuit.cc circuit/circuit.hpp circuit/pycircuit.pyx circuit/setup.py

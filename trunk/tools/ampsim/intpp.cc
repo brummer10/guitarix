@@ -82,7 +82,7 @@ static inline int forward(int i, splinedata *p, real *xi, real *x, int ll,
  ** res: output array (size m)
  */
 template<int K0>
-int splinedata::splev1(splinedata *p, real xi[1], real *res)
+int splinedata::splev(splinedata *p, real xi[1], real *res)
 {
     real h[K0];
     real x;
@@ -111,7 +111,7 @@ int splinedata::splev1(splinedata *p, real xi[1], real *res)
  ** res[m]: output array
  */
 template<int K0, int K1>
-int splinedata::splev2(splinedata *p, real xi[2], real *res)
+int splinedata::splev(splinedata *p, real xi[2], real *res)
 {
     real h[2][6];
     real x[2];
@@ -138,7 +138,7 @@ int splinedata::splev2(splinedata *p, real xi[2], real *res)
 }
 
 template<int K0, int K1, int K2>
-int splinedata::splev3(splinedata *p, real xi[3], real *res)
+int splinedata::splev(splinedata *p, real xi[3], real *res)
 {
     real h[3][6];
     real x[3];
@@ -169,7 +169,7 @@ int splinedata::splev3(splinedata *p, real xi[3], real *res)
 }
 
 template<int K0, int K1, int K2, int K3>
-int splinedata::splev4(splinedata *p, real xi[4], real *res)
+int splinedata::splev(splinedata *p, real xi[4], real *res)
 {
     real h[4][6];
     real x[4];

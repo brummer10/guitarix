@@ -1,6 +1,8 @@
-import pycircuit
+from circuit import pycircuit
 
-class tcParams(pycircuit.tcParams):
+FS = pycircuit.fs
+
+class Triode(pycircuit.tcParams):
 
     comp_id = "tc"
     comp_name = "single triode"
@@ -31,10 +33,12 @@ class tcParams(pycircuit.tcParams):
         Gk  = 1/2.7e3,  # 1/Rk
         Ga  = 1/100e3,  # 1/Ra
         Gl  = 1/4e6,    # 1/Rl
+
+        Un = 350,
         )
 
 
-class ctcParams(pycircuit.ctcParams):
+class CoupledTriode(pycircuit.ctcParams):
 
     comp_id = "ct"
     comp_name = "coupled triodes"
@@ -42,13 +46,17 @@ class ctcParams(pycircuit.ctcParams):
     u0 = (-18, 0, 313, 214, 45, 35, 37)
 
     start_grid = (
-        (-20.0, 20.0, 80),
+        (-40.0, 40.0, 120),
         (0.0, 10.0, 30),
-        (100.0, 350.0, 8),
+        (30.0, 350.0, 14),
         )
 
+    @property
+    def operating_point(self):
+        return [2.2423, 266.95][:]
+
     ranges = (
-        (slice(-20,20,161j), 3),
+        (slice(-40,40,161j), 3),
         (slice(0,10,50j), 3),
         (slice(100,350,10j), 3),
         )
@@ -77,7 +85,7 @@ class ctcParams(pycircuit.ctcParams):
         )
 
 
-class psParams(pycircuit.psParams):
+class PhaseSplitter(pycircuit.psParams):
 
     comp_id = "ps"
     comp_name = "phasesplitter"
@@ -87,15 +95,19 @@ class psParams(pycircuit.psParams):
           354.458081186)
 
     start_grid = (
-        (-40.0, 40.0, 30),
-        (0.0, -34.0, 3),
-        (20.0, 33.0, 2),
-        (0.08, 0.25, 3),
+        (-40.0, 40.0, 60),
+        (-36.0, 0.0, 3),
+        (20.0, 35.0, 4),
+        (0.07, 0.25, 3),
         )
+
+    @property
+    def operating_point(self):
+        return [-30.5966, 30.4599, 0.1367][:]
 
     ranges = (
         (slice(-40,40,81j), 3),
-        (slice(-1.0,-36.0,5j), 3),
+        (slice(-36.0,-1.0,5j), 3),
         (slice(23.0,35.0,5j), 3),
         (slice(0.07,0.26,2j), 2),
         )
@@ -127,7 +139,7 @@ class psParams(pycircuit.psParams):
         )
 
 
-class ppgParams(pycircuit.pagParams):
+class PPGate(pycircuit.pagParams):
 
     comp_id = "ppg"
     comp_name = "poweramp gate"
@@ -139,6 +151,10 @@ class ppgParams(pycircuit.pagParams):
         (-70,170,8),
         )
 
+    @property
+    def operating_point(self):
+       return [311.045][:]
+
     ranges = (
         (slice(45,425,60j), 3),
         (slice(95,445,60j), 3),
@@ -149,12 +165,13 @@ class ppgParams(pycircuit.pagParams):
         Gcf = 1e-5,
         C1  = 22e-9,
         G1  = 1/30e3,
+        Gb  = 1/220e3,
         Gg  = 1/5e3,
-        Ub  = -40,
+        Ub  = -50,
         )
 
 
-class pppParams(pycircuit.papParams):
+class PPPlate(pycircuit.papParams):
 
     comp_id = "ppp"
     comp_name = "poweramp plate"
@@ -166,6 +183,10 @@ class pppParams(pycircuit.papParams):
         (-200,200,41),
         (350.0,450.0,2),
         )
+
+    @property
+    def operating_point(self):
+        return [427.582][:]
 
     ranges = (
         (slice(-287,185,110j), 3),

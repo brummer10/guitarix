@@ -16,10 +16,10 @@ struct splinedata {
     int n_state;
     int (*eval)(splinedata *p, real *x, real *res);
     const char *func_id;
-    template<int K0> static int splev1(splinedata *p, real *x, real *res);
-    template<int K0, int K1> static int splev2(splinedata *p, real *x, real *res);
-    template<int K0, int K1, int K2> static int splev3(splinedata *p, real *x, real *res);
-    template<int K0, int K1, int K2, int K3> static int splev4(splinedata *p, real *x, real *res);
+    template<int K0> static int splev(splinedata *p, real *x, real *res);
+    template<int K0, int K1> static int splev(splinedata *p, real *x, real *res);
+    template<int K0, int K1, int K2> static int splev(splinedata *p, real *x, real *res);
+    template<int K0, int K1, int K2, int K3> static int splev(splinedata *p, real *x, real *res);
     union retval {
 	char c[4];
 	int i;

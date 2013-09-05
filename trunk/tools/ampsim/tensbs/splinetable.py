@@ -18,7 +18,7 @@ def print_float_array(o, name, a, prefix):
     print >>o, "};"
     return a.size
 
-def print_intpp_data(o, tag, prefix, func, nvals, *rgdata):
+def print_intpp_data(o, tag, prefix, func, n_in, nvals, *rgdata):
     if prefix:
         prefix += " "
     sz = 0
@@ -42,7 +42,10 @@ def print_intpp_data(o, tag, prefix, func, nvals, *rgdata):
     grd = grd.T
     fnc = np.empty((nvals, numpoints), np.float32)
     for i, p in enumerate(grd):
-        fnc[:,i] = func(p)
+        ain = p[:n_in]
+        state = list(p[n_in:])
+        res = func(p[:n_in], state)
+        fnc[:,i] = res + state
     fnc.shape = (nvals,)+tuple(reversed(grd_shape[1:]))
     fnc = fnc.T
     b_ink = eval("tensbs.b%dink" % n)
