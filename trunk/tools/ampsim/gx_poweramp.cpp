@@ -195,7 +195,6 @@ private:
     SplineCalc g1;
     SplineCalc g2;
     SplineCalc pt;
-    real trim;
     void reset();
     static const real TransN;
     static const real Fdamp;
@@ -204,7 +203,6 @@ public:
     Amp();
     ~Amp();
     float operator()(float v);
-    inline void set_trim(float v) { trim = v; }
 };
 
 static real ps0[] = { -30.5966, 30.4599, 0.1367 };
@@ -216,8 +214,7 @@ Amp::Amp()
     : ps(&AmpData::ps::sd, ps0),
       g1(&AmpData::ppg::sd, g10),
       g2(&AmpData::ppg::sd, g20),
-      pt(&AmpData::ppp::sd, pt0),
-      trim(1.0)
+      pt(&AmpData::ppp::sd, pt0)
 {
     reset();
 }
@@ -248,8 +245,6 @@ inline float Amp::operator()(float v)
 {
     real s[2];
     ps.calc(&v, s);
-    s[0] = (s[0]-50)*trim+50;
-    s[1] = (s[1]-50)*trim+50;
     real up[2];
     g1.calc(&s[0], &up[0]);
     g2.calc(&s[1], &up[1]);
@@ -260,7 +255,6 @@ inline float Amp::operator()(float v)
 }
 
 static Amp PowAmp;
-static float trim_db;
 
 #include "gxpoweramp.cc"
 
@@ -275,7 +269,6 @@ void PAinit(unsigned int samplingFreq, PluginDef*)
 }
 
 void run_poweramp(int count, float* input, float* output, PluginDef *plugin) {
-    PowAmp.set_trim(pow(10, trim_db/20.0));
     float buf[smp.max_out_count(count)];
     int n = smp.up(count, input, buf);
     gxpoweramp::compute(n, buf, buf, plugin);
@@ -285,7 +278,6 @@ void run_poweramp(int count, float* input, float* output, PluginDef *plugin) {
 int poweramp_register(const ParamReg& reg)
 {
     gxpoweramp::register_params(reg);
-    reg.registerVar("gxpoweramp.Trim","","S","",&trim_db, 0, -20, 20, 0.1);
     return 0;
 }
 
@@ -305,7 +297,6 @@ int poweramp_load_ui(const UiBuilder& b, int form) {
 	    b.create_small_rackknob("gxpoweramp.R4", "Presence");
 	    b.create_small_rackknob("gxpoweramp.fbgain", "FeedBack");
 	    b.create_small_rackknob("gxpoweramp.Pregain", "PreGain");
-	    b.create_small_rackknob("gxpoweramp.Trim", "Trim");
 	    b.create_small_rackknob("gxpoweramp.postgain", "PostGain");
 	}
 	b.closeBox();

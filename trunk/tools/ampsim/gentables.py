@@ -20,7 +20,7 @@ def print_intpp_data(i):
     print >>o, "\tc,"
     print >>o, "\t%d, /* number of calculated values */" % p.NVALS
     print >>o, "\t%d, /* number of input values */" % p.N_IN
-    print >>o, "\t%d, /* number of output values */" % p.N_OUT
+    print >>o, "\t%d, /* number of output values */" % (p.NVALS-(p.NDIM-p.N_IN))
     print >>o, "\t%d, /* number of state values */" % (p.NDIM-p.N_IN)
     inst = "splinedata::splev<%s>" % ",".join([str(row[1]) for row in p.ranges])
     print >>o, "\t%s," % inst

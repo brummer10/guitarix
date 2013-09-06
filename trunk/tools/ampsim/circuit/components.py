@@ -96,7 +96,7 @@ class PhaseSplitter(pycircuit.psParams):
 
     start_grid = (
         (-40.0, 40.0, 60),
-        (-36.0, 0.0, 3),
+        (-36.0, 0.0, 4),
         (20.0, 35.0, 4),
         (0.07, 0.25, 3),
         )
@@ -107,8 +107,8 @@ class PhaseSplitter(pycircuit.psParams):
 
     ranges = (
         (slice(-40,40,81j), 3),
-        (slice(-36.0,-1.0,5j), 3),
-        (slice(23.0,35.0,5j), 3),
+        (slice(-36.0,-1.0,30j), 3),
+        (slice(23.0,35.0,8j), 3),
         (slice(0.07,0.26,2j), 2),
         )
 
@@ -167,7 +167,7 @@ class PPGate(pycircuit.pagParams):
         G1  = 1/30e3,
         Gb  = 1/220e3,
         Gg  = 1/5e3,
-        Ub  = -50,
+        Ub  = -48,
         )
 
 

@@ -38,7 +38,7 @@ intpp.gcda: gxplugins_.so exercise.py
 	python exercise.py
 	@mv intpp_.gcda intpp.gcda
 
-intpp_.o: intpp.cc intpp.h Makefile
+intpp_.o: intpp.cc intpp.h intpp_inst.cc Makefile
 	$(COMPILE.cc) $(CXXFLAGS) $(INTPP_OPT) -fprofile-arcs $< -o $@
 
 gxplugins_.so: gx_poweramp.o intpp_.o data.o
