@@ -41,10 +41,10 @@ offset5    = hslider("Offset5 [tooltip: Brings in even harmonics]", 0, 0, 0.5, 0
 gain1      = vslider("Gain", 0, -40, 4, 0.1) : db2linear : smooth(0.999);
 
 process    = _: +(anti_denormal_ac)<: ( dist1s , dist2s , dist3s, dist4s, dist5s) :> *(gain1) with { 
-    dist1s = bandpass1:cubicnl(drive1,offset1);
-    dist2s = bandpass2:cubicnl(drive2,offset2);
-    dist3s = bandpass3:cubicnl(drive3,offset3);
-    dist4s = bandpass4:cubicnl(drive4,offset4);
-    dist5s = bandpass5:cubicnl(drive5,offset5);
+    dist1s = bandpass1:cubicnl_nodc(drive1,offset1);
+    dist2s = bandpass2:cubicnl_nodc(drive2,offset2);
+    dist3s = bandpass3:cubicnl_nodc(drive3,offset3);
+    dist4s = bandpass4:cubicnl_nodc(drive4,offset4);
+    dist5s = bandpass5:cubicnl_nodc(drive5,offset5);
     
 };
