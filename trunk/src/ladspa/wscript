@@ -38,6 +38,8 @@ def build(bld):
         '../plugins/mbcs.cc',
         '../plugins/mbd.cc',
         '../plugins/mbe.cc',
+        '../plugins/mbdel.cc',
+        '../plugins/mbchor.cc',
         ]
     
     src = ['ladspa_guitarix.cpp'] + bsources

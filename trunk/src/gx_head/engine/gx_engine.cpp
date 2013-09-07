@@ -313,6 +313,8 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::mbc::plugin(),              PLUGIN_POS_RACK);
     pl.add(pluginlib::mbd::plugin(),              PLUGIN_POS_RACK);
     pl.add(pluginlib::mbe::plugin(),              PLUGIN_POS_RACK);
+    pl.add(pluginlib::mbdel::plugin(),              PLUGIN_POS_RACK);
+    pl.add(pluginlib::mbchor::plugin(),              PLUGIN_POS_RACK);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
