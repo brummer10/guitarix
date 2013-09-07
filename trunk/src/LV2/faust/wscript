@@ -94,6 +94,9 @@ def build(bld):
         'gx_studiopre_st.dsp',
         'low_high_cut.dsp',
         'uniBar.dsp',
+        'mbd.dsp',
+        'mbdel.dsp',
+        'mbe.dsp',
 
         # tone stacks
         'tonestack_default.dsp',

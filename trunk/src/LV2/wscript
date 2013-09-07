@@ -71,7 +71,10 @@ def dirlist():
         'gxtubetremelo.lv2',
         'gxtubevibrato.lv2',
         'gxtuner.lv2',
-        'gx_zita_rev1.lv2'
+        'gx_zita_rev1.lv2',
+        'gx_mbdistortion.lv2',
+        'gx_mbdelay.lv2',
+        'gx_mbecho.lv2'
 
          ]
 

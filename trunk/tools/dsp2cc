@@ -241,11 +241,15 @@ class Parser(object):
         vr = "([a-zA-Z_][0-9a-zA-Z_]*)"
         sarg = (r"%s,\s*&%s,\s*%s,\s*%s,\s*%s,\s*%s"
                 % (nm, vr, num_re, num_re, num_re, num_re))
+        sargb = (r"%s,\s*&%s,\s*%s,\s*%s"
+                % (nm, vr, num_re, num_re))
         openbox = re.compile(pre+r"open(Horizontal|Vertical)Box\(%s\);" % nm).match
         closebox = re.compile(pre+r"closeBox\(\);").match
         vslider = re.compile(pre+r"addVerticalSlider\(%s\);" % sarg).match
         hslider = re.compile(pre+r"addHorizontalSlider\(%s\);" % sarg).match
         numentry = re.compile(pre+r"addNumEntry\(%s\);" % sarg).match
+        vbargrahp = re.compile(pre+r"addVerticalBargraph\(%s\);" % sargb).match
+        hbargrahp = re.compile(pre+r"addHorizontalBargraph\(%s\);" % sargb).match
         checkbutton = re.compile(pre+r"addCheckButton\(%s,\s*&%s\);" % (nm, vr)).match
         declare = re.compile(pre+r"declare\((?:&%s|0),\s*%s,\s*%s\);" % (vr, nm, nm)).match
         stack = []
@@ -304,6 +308,13 @@ class Parser(object):
                 self.ui.add(vn, "type", "B")
                 self.ui.add(vn, "id", make_name(m.group(1)))
                 self.ui.add(vn, "value", ("0.0","0.0","1.0","1.0"))
+                continue
+            m = vbargrahp(line) or hbargrahp(line) 
+            if m:
+                vn = m.group(2)
+                self.ui.add(vn, "type", "S")
+                self.ui.add(vn, "id", make_name(m.group(1)))
+                self.ui.add(vn, "value", ("-70.0","-70.0","4.0","1.0"))
                 continue
             m = declare(line)
             if m:

@@ -24,6 +24,8 @@ lib_sources = [ # put in static library linked with guitarix
     "mbcs.dsp",
     "mbd.dsp",
     "mbe.dsp",
+    "mbdel.dsp",
+    "mbchor.dsp",
     ]
 
 def build(bld):
