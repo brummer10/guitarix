@@ -1,0 +1,439 @@
+#
+# Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose, Steve Poskitt
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# --------------------------------------------------------------------------
+#
+
+
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+
+<http://guitarix.sourceforge.net#me>
+	a foaf:Person ;
+	foaf:name "Guitarix team" ;
+	foaf:mbox <mailto:brummer@web.de> ;
+	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
+<http://guitarix.sourceforge.net/plugins/gx_mbcompressor_>
+	a doap:Project ;
+	doap:maintainer <http://guitarix.sourceforge.net#me> ;
+	doap:name "Gx_mbcompressor_" .
+
+<http://guitarix.sourceforge.net/plugins/gx_mbcompressor_#_mbcompressor_>
+    a lv2:Plugin ,
+        lv2:EffectPlugin ;
+    doap:maintainer <http://guitarix.sourceforge.net#me> ;
+    doap:name "GxMultiBandCompressor";
+    doap:license <http://opensource.org/licenses/isc> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_mbcompressor_> ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+    
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_mbcompressor_#gui>;
+  
+    lv2:port [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 0 ;
+        lv2:symbol "MODE1" ;
+        lv2:name "MODE1";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:default 1 ;
+        lv2:minimum 1 ;
+        lv2:maximum 3 ;
+        lv2:scalePoint [rdfs:label "Compress"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "Bypass"; rdf:value 2];
+        lv2:scalePoint [rdfs:label "Mute"; rdf:value 3];
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 1 ;
+        lv2:symbol "MODE2" ;
+        lv2:name "MODE2";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:default 1 ;
+        lv2:minimum 1 ;
+        lv2:maximum 3 ;
+        lv2:scalePoint [rdfs:label "Compress"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "Bypass"; rdf:value 2];
+        lv2:scalePoint [rdfs:label "Mute"; rdf:value 3];
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 2 ;
+        lv2:symbol "MODE3" ;
+        lv2:name "MODE3";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:default 1 ;
+        lv2:minimum 1 ;
+        lv2:maximum 3 ;
+        lv2:scalePoint [rdfs:label "Compress"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "Bypass"; rdf:value 2];
+        lv2:scalePoint [rdfs:label "Mute"; rdf:value 3];
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:symbol "MODE4" ;
+        lv2:name "MODE4";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:default 1 ;
+        lv2:minimum 1 ;
+        lv2:maximum 3 ;
+        lv2:scalePoint [rdfs:label "Compress"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "Bypass"; rdf:value 2];
+        lv2:scalePoint [rdfs:label "Mute"; rdf:value 3];
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "MODE5" ;
+        lv2:name "MODE5";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:default 1 ;
+        lv2:minimum 1 ;
+        lv2:maximum 3 ;
+        lv2:scalePoint [rdfs:label "Compress"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "Bypass"; rdf:value 2];
+        lv2:scalePoint [rdfs:label "Mute"; rdf:value 3];
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "MAKEUP1" ;
+        lv2:name "MAKEUP1";
+        lv2:default 13.0 ;
+        lv2:minimum -5e+01 ;
+        lv2:maximum 5e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "MAKEUP2" ;
+        lv2:name "MAKEUP2";
+        lv2:default 13.0 ;
+        lv2:minimum -5e+01 ;
+        lv2:maximum 5e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 7 ;
+        lv2:symbol "MAKEUP3" ;
+        lv2:name "MAKEUP3";
+        lv2:default 13.0 ;
+        lv2:minimum -5e+01 ;
+        lv2:maximum 5e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "MAKEUP4" ;
+        lv2:name "MAKEUP4";
+        lv2:default 13.0 ;
+        lv2:minimum -5e+01 ;
+        lv2:maximum 5e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 9 ;
+        lv2:symbol "MAKEUP5" ;
+        lv2:name "MAKEUP5";
+        lv2:default 13.0 ;
+        lv2:minimum -5e+01 ;
+        lv2:maximum 5e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 10 ;
+        lv2:symbol "MAKEUPTHRESHOLD1" ;
+        lv2:name "MAKEUPTHRESHOLD1";
+        lv2:default 2.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 11 ;
+        lv2:symbol "MAKEUPTHRESHOLD2" ;
+        lv2:name "MAKEUPTHRESHOLD2";
+        lv2:default 2.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 12 ;
+        lv2:symbol "MAKEUPTHRESHOLD3" ;
+        lv2:name "MAKEUPTHRESHOLD3";
+        lv2:default 2.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 13 ;
+        lv2:symbol "MAKEUPTHRESHOLD4" ;
+        lv2:name "MAKEUPTHRESHOLD4";
+        lv2:default 2.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 14 ;
+        lv2:symbol "MAKEUPTHRESHOLD5" ;
+        lv2:name "MAKEUPTHRESHOLD5";
+        lv2:default 2.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 15 ;
+        lv2:symbol "RATIO1" ;
+        lv2:name "RATIO1";
+        lv2:default 13.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 1e+02 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 16 ;
+        lv2:symbol "RATIO2" ;
+        lv2:name "RATIO2";
+        lv2:default 10.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 1e+02 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 17 ;
+        lv2:symbol "RATIO3" ;
+        lv2:name "RATIO3";
+        lv2:default 4.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 1e+02 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 18 ;
+        lv2:symbol "RATIO4" ;
+        lv2:name "RATIO4";
+        lv2:default 8.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 1e+02 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 19 ;
+        lv2:symbol "RATIO5" ;
+        lv2:name "RATIO5";
+        lv2:default 11.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 1e+02 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 20 ;
+        lv2:symbol "ATTACK1" ;
+        lv2:name "ATTACK1";
+        lv2:default 0.012 ;
+        lv2:minimum 0.001 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 21 ;
+        lv2:symbol "ATTACK2" ;
+        lv2:name "ATTACK2";
+        lv2:default 0.012 ;
+        lv2:minimum 0.001 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 22 ;
+        lv2:symbol "ATTACK3" ;
+        lv2:name "ATTACK3";
+        lv2:default 0.012 ;
+        lv2:minimum 0.001 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 23 ;
+        lv2:symbol "ATTACK4" ;
+        lv2:name "ATTACK4";
+        lv2:default 0.012 ;
+        lv2:minimum 0.001 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 24 ;
+        lv2:symbol "ATTACK5" ;
+        lv2:name "ATTACK5";
+        lv2:default 0.012 ;
+        lv2:minimum 0.001 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 25 ;
+        lv2:symbol "RELEASE1" ;
+        lv2:name "RELEASE1";
+        lv2:default 1.25 ;
+        lv2:minimum 0.01 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 26 ;
+        lv2:symbol "RELEASE2" ;
+        lv2:name "RELEASE2";
+        lv2:default 1.25 ;
+        lv2:minimum 0.01 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 27 ;
+        lv2:symbol "RELEASE3" ;
+        lv2:name "RELEASE3";
+        lv2:default 1.25 ;
+        lv2:minimum 0.01 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 28 ;
+        lv2:symbol "RELEASE4" ;
+        lv2:name "RELEASE4";
+        lv2:default 1.25 ;
+        lv2:minimum 0.01 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 29 ;
+        lv2:symbol "RELEASE5" ;
+        lv2:name "RELEASE5";
+        lv2:default 1.25 ;
+        lv2:minimum 0.01 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 30 ;
+        lv2:symbol "CROSSOVER_B1_B2" ;
+        lv2:name "LOW SHELF";
+        lv2:default 8e+01 ;
+        lv2:minimum 2e+01 ;
+        lv2:maximum 2e+04 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 31 ;
+        lv2:symbol "CROSSOVER_B2_B3" ;
+        lv2:name "CROSSOVER_B2_B3";
+        lv2:default 2.1e+02 ;
+        lv2:minimum 2e+01 ;
+        lv2:maximum 2e+04 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 32 ;
+        lv2:symbol "CROSSOVER_B3_B4" ;
+        lv2:name "CROSSOVER_B3_B4";
+        lv2:default 1.7e+03 ;
+        lv2:minimum 2e+01 ;
+        lv2:maximum 2e+04 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 33 ;
+        lv2:symbol "CROSSOVER_B4_B5" ;
+        lv2:name "CROSSOVER_B4_B5";
+        lv2:default 5e+03 ;
+        lv2:minimum 2e+01 ;
+        lv2:maximum 2e+04 ;
+    ] , [
+        a  lv2:ControlPort, lv2:OutputPort ;
+        lv2:index 34 ;
+        lv2:symbol "V1" ;
+        lv2:name "V1";
+        lv2:default 0.0 ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 4.0 ;
+    ] , [
+        a  lv2:ControlPort, lv2:OutputPort ;
+        lv2:index 35 ;
+        lv2:symbol "V2" ;
+        lv2:name "V2";
+        lv2:default 0.0 ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 4.0 ;
+    ] , [
+        a  lv2:ControlPort, lv2:OutputPort ;
+        lv2:index 36 ;
+        lv2:symbol "V3" ;
+        lv2:name "V3";
+        lv2:default 0.0 ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 4.0 ;
+    ] , [
+        a  lv2:ControlPort, lv2:OutputPort ;
+        lv2:index 37 ;
+        lv2:symbol "V4" ;
+        lv2:name "V4";
+        lv2:default 0.0 ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 4.0 ;
+    ] , [
+        a  lv2:ControlPort, lv2:OutputPort ;
+        lv2:index 38 ;
+        lv2:symbol "V5" ;
+        lv2:name "V5";
+        lv2:default 0.0 ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 4.0 ;
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 39 ;
+        lv2:symbol "out" ;
+        lv2:name "Out"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 40 ;
+        lv2:symbol "in" ;
+        lv2:name "In" ;
+    ].
+
+<http://guitarix.sourceforge.net/plugins/gx_mbcompressor_#gui>
+  a guiext:GtkUI;
+  guiext:binary <gx_mbcompressor_gui.so>;
+  guiext:requiredFeature guiext:makeResident .
+  

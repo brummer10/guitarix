@@ -52,6 +52,8 @@ def build(bld):
         'gxtubedelay.dsp',
         'gxtubevibrato.dsp',
         'gxechocat.dsp',
+        'mbdel.dsp',
+        'mbe.dsp',
         
         ]
 
@@ -95,9 +97,8 @@ def build(bld):
         'low_high_cut.dsp',
         'uniBar.dsp',
         'mbd.dsp',
-        'mbdel.dsp',
-        'mbe.dsp',
-
+        'mbc.dsp',
+ 
         # tone stacks
         'tonestack_default.dsp',
         'tonestack_bassman.dsp',

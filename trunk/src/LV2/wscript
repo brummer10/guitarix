@@ -74,7 +74,8 @@ def dirlist():
         'gx_zita_rev1.lv2',
         'gx_mbdistortion.lv2',
         'gx_mbdelay.lv2',
-        'gx_mbecho.lv2'
+        'gx_mbecho.lv2',
+        'gx_mbcompressor.lv2'
 
          ]
 
