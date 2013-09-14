@@ -5,6 +5,6 @@ _GenericName=Mono Amplifier
 _Comment=Simple mono amplifier simulation
 Exec=guitarix
 Icon=gx_head
-Categories=AudioVideo;X-Jack;Midi;X-MIDI;
+Categories=AudioVideo;Audio;X-Jack;Midi;X-MIDI;
 Terminal=false
 Type=Application
