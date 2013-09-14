@@ -99,8 +99,8 @@
         lv2:symbol "GAIN1" ;
         lv2:name "GAIN1";
         lv2:default -1e+01 ;
-        lv2:minimum -2e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -4e+01 ;
+        lv2:maximum 2.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -108,8 +108,8 @@
         lv2:symbol "GAIN2" ;
         lv2:name "GAIN2";
         lv2:default -5.0 ;
-        lv2:minimum -2e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -4e+01 ;
+        lv2:maximum 2.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -117,8 +117,8 @@
         lv2:symbol "GAIN3" ;
         lv2:name "GAIN3";
         lv2:default -2.0 ;
-        lv2:minimum -2e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -4e+01 ;
+        lv2:maximum 2.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -126,8 +126,8 @@
         lv2:symbol "GAIN4" ;
         lv2:name "GAIN4";
         lv2:default 0.0 ;
-        lv2:minimum -2e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -4e+01 ;
+        lv2:maximum 2.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -135,8 +135,8 @@
         lv2:symbol "GAIN5" ;
         lv2:name "GAIN5";
         lv2:default -1e+01 ;
-        lv2:minimum -2e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -4e+01 ;
+        lv2:maximum 2.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;

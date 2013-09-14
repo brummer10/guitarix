@@ -19,7 +19,7 @@ private:
 	FAUSTFLOAT	*fslider1_;
 	double 	fRec3[2];
 	int 	IOTA;
-	double 	fVec1[262144];
+	double *fVec1;
 	double 	fConst3;
 	double 	fConst4;
 	FAUSTFLOAT 	fslider2;
@@ -41,7 +41,7 @@ private:
 	FAUSTFLOAT 	fslider4;
 	FAUSTFLOAT	*fslider4_;
 	double 	fRec13[2];
-	double 	fVec3[262144];
+	double *fVec3;
 	FAUSTFLOAT 	fslider5;
 	FAUSTFLOAT	*fslider5_;
 	double 	fRec14[2];
@@ -60,7 +60,7 @@ private:
 	FAUSTFLOAT 	fslider7;
 	FAUSTFLOAT	*fslider7_;
 	double 	fRec23[2];
-	double 	fVec5[262144];
+	double *fVec5;
 	FAUSTFLOAT 	fslider8;
 	FAUSTFLOAT	*fslider8_;
 	double 	fRec24[2];
@@ -79,7 +79,7 @@ private:
 	FAUSTFLOAT 	fslider10;
 	FAUSTFLOAT	*fslider10_;
 	double 	fRec33[2];
-	double 	fVec7[262144];
+	double *fVec7;
 	FAUSTFLOAT 	fslider11;
 	FAUSTFLOAT	*fslider11_;
 	double 	fRec34[2];
@@ -93,7 +93,7 @@ private:
 	FAUSTFLOAT 	fslider12;
 	FAUSTFLOAT	*fslider12_;
 	double 	fRec41[2];
-	double 	fVec8[262144];
+	double *fVec8;
 	FAUSTFLOAT 	fslider13;
 	FAUSTFLOAT	*fslider13_;
 	double 	fRec42[2];
@@ -102,12 +102,17 @@ private:
 	double 	fRec45[2];
 	FAUSTFLOAT 	fbargraph4;
 	FAUSTFLOAT	*fbargraph4_;
+	bool mem_allocated;
+	void mem_alloc();
+	void mem_free();
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
+	int activate(bool start);
 	void init(uint32_t samplingFreq);
 	void compute(int count, float *input0, float *output0);
 
 	static void clear_state_f_static(PluginLV2*);
+	static int activate_static(bool start, PluginLV2*);
 	static void init_static(uint32_t samplingFreq, PluginLV2*);
 	static void compute_static(int count, float *input0, float *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
@@ -120,14 +125,20 @@ public:
 
 
 Dsp::Dsp()
-	: PluginLV2() {
+	: PluginLV2(),
+	  fVec1(0),
+	  fVec3(0),
+	  fVec5(0),
+	  fVec7(0),
+	  fVec8(0),
+	  mem_allocated(false) {
 	version = PLUGINLV2_VERSION;
 	id = "mbdel";
 	name = N_("MultiBand Delay");
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
-	activate_plugin = 0;
+	activate_plugin = activate_static;
 	connect_ports = connect_static;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
@@ -205,12 +216,49 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst3 = (1e+01 / double(iConst0));
 	fConst4 = (0 - fConst3);
 	iConst5 = (60 * iConst0);
-	clear_state_f();
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+void Dsp::mem_alloc()
+{
+	if (!fVec1) fVec1 = new double[262144];
+	if (!fVec3) fVec3 = new double[262144];
+	if (!fVec5) fVec5 = new double[262144];
+	if (!fVec7) fVec7 = new double[262144];
+	if (!fVec8) fVec8 = new double[262144];
+	mem_allocated = true;
+}
+
+void Dsp::mem_free()
+{
+	mem_allocated = false;
+	if (fVec1) { delete fVec1; fVec1 = 0; }
+	if (fVec3) { delete fVec3; fVec3 = 0; }
+	if (fVec5) { delete fVec5; fVec5 = 0; }
+	if (fVec7) { delete fVec7; fVec7 = 0; }
+	if (fVec8) { delete fVec8; fVec8 = 0; }
+}
+
+int Dsp::activate(bool start)
+{
+	if (start) {
+		if (!mem_allocated) {
+			mem_alloc();
+			clear_state_f();
+		}
+	} else if (mem_allocated) {
+		mem_free();
+	}
+	return 0;
+}
+
+int Dsp::activate_static(bool start, PluginLV2 *p)
+{
+	return static_cast<Dsp*>(p)->activate(start);
 }
 
 void always_inline Dsp::compute(int count, float *input0, float *output0)

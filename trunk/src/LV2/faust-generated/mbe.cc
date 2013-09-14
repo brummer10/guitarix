@@ -28,7 +28,7 @@ private:
 	double 	fRec8[2];
 	double 	fRec7[3];
 	int 	IOTA;
-	double 	fRec1[524288];
+	double *fRec1;
 	FAUSTFLOAT 	fbargraph0;
 	FAUSTFLOAT	*fbargraph0_;
 	FAUSTFLOAT 	fslider3;
@@ -47,7 +47,7 @@ private:
 	double 	fVec1[2];
 	double 	fRec17[2];
 	double 	fRec16[3];
-	double 	fRec10[524288];
+	double *fRec10;
 	FAUSTFLOAT 	fbargraph1;
 	FAUSTFLOAT	*fbargraph1_;
 	FAUSTFLOAT 	fslider6;
@@ -66,7 +66,7 @@ private:
 	double 	fVec2[2];
 	double 	fRec28[2];
 	double 	fRec27[3];
-	double 	fRec21[524288];
+	double *fRec21;
 	FAUSTFLOAT 	fbargraph2;
 	FAUSTFLOAT	*fbargraph2_;
 	FAUSTFLOAT 	fslider9;
@@ -85,7 +85,7 @@ private:
 	double 	fVec3[2];
 	double 	fRec39[2];
 	double 	fRec38[3];
-	double 	fRec32[524288];
+	double *fRec32;
 	FAUSTFLOAT 	fbargraph3;
 	FAUSTFLOAT	*fbargraph3_;
 	FAUSTFLOAT 	fslider12;
@@ -99,15 +99,20 @@ private:
 	double 	fRec48[2];
 	double 	fRec50[2];
 	double 	fRec49[3];
-	double 	fRec43[524288];
+	double *fRec43;
 	FAUSTFLOAT 	fbargraph4;
 	FAUSTFLOAT	*fbargraph4_;
+	bool mem_allocated;
+	void mem_alloc();
+	void mem_free();
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
+	int activate(bool start);
 	void init(uint32_t samplingFreq);
 	void compute(int count, float *input0, float *output0);
 
 	static void clear_state_f_static(PluginLV2*);
+	static int activate_static(bool start, PluginLV2*);
 	static void init_static(uint32_t samplingFreq, PluginLV2*);
 	static void compute_static(int count, float *input0, float *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
@@ -120,14 +125,20 @@ public:
 
 
 Dsp::Dsp()
-	: PluginLV2() {
+	: PluginLV2(),
+	  fRec1(0),
+	  fRec10(0),
+	  fRec21(0),
+	  fRec32(0),
+	  fRec43(0),
+	  mem_allocated(false) {
 	version = PLUGINLV2_VERSION;
 	id = "mbe";
 	name = N_("MultiBand Echo");
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
-	activate_plugin = 0;
+	activate_plugin = activate_static;
 	connect_ports = connect_static;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
@@ -205,12 +216,49 @@ inline void Dsp::init(uint32_t samplingFreq)
 	iConst4 = (60 * iConst0);
 	fConst5 = (3.141592653589793 / double(iConst0));
 	IOTA = 0;
-	clear_state_f();
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+void Dsp::mem_alloc()
+{
+	if (!fRec1) fRec1 = new double[524288];
+	if (!fRec10) fRec10 = new double[524288];
+	if (!fRec21) fRec21 = new double[524288];
+	if (!fRec32) fRec32 = new double[524288];
+	if (!fRec43) fRec43 = new double[524288];
+	mem_allocated = true;
+}
+
+void Dsp::mem_free()
+{
+	mem_allocated = false;
+	if (fRec1) { delete fRec1; fRec1 = 0; }
+	if (fRec10) { delete fRec10; fRec10 = 0; }
+	if (fRec21) { delete fRec21; fRec21 = 0; }
+	if (fRec32) { delete fRec32; fRec32 = 0; }
+	if (fRec43) { delete fRec43; fRec43 = 0; }
+}
+
+int Dsp::activate(bool start)
+{
+	if (start) {
+		if (!mem_allocated) {
+			mem_alloc();
+			clear_state_f();
+		}
+	} else if (mem_allocated) {
+		mem_free();
+	}
+	return 0;
+}
+
+int Dsp::activate_static(bool start, PluginLV2 *p)
+{
+	return static_cast<Dsp*>(p)->activate(start);
 }
 
 void always_inline Dsp::compute(int count, float *input0, float *output0)

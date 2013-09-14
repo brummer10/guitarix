@@ -88,11 +88,11 @@ plug_name(plugname)
   m_fr[6].set_label("BAND PASS");
 
  // make_controller_box(&m_vbox[6], "Gain ", -4e+01, 4.0, 0.1 , GAIN, false);
-  make_controller_box(&m_vbox[1], "GAIN ", -2e+01, 2e+01, 0.1, GAIN1, false);
-  make_controller_box(&m_vbox[2], "GAIN ", -2e+01, 2e+01, 0.1, GAIN2, false);
-  make_controller_box(&m_vbox[3], "GAIN ", -2e+01, 2e+01, 0.1, GAIN3, false);
-  make_controller_box(&m_vbox[4], "GAIN ", -2e+01, 2e+01, 0.1, GAIN4, false);
-  make_controller_box(&m_vbox[5], "GAIN ", -2e+01, 2e+01, 0.1, GAIN5, false);
+  make_controller_box(&m_vbox[1], "GAIN ", -4e+01, 2.0, 0.1, GAIN1, false);
+  make_controller_box(&m_vbox[2], "GAIN ", -4e+01, 2.0, 0.1, GAIN2, false);
+  make_controller_box(&m_vbox[3], "GAIN ", -4e+01, 2.0, 0.1, GAIN3, false);
+  make_controller_box(&m_vbox[4], "GAIN ", -4e+01, 2.0, 0.1, GAIN4, false);
+  make_controller_box(&m_vbox[5], "GAIN ", -4e+01, 2.0, 0.1, GAIN5, false);
 
   // create controllers for port name
   make_controller_box(&m_vbox[1], "BPM", 24.0, 3.6e+02, 1.0, DELAY1, true);
@@ -119,7 +119,7 @@ plug_name(plugname)
   add(m_paintbox[0]);
 
   for (uint32_t i = 0;i<5;i++) {
-    fastmeter[i].set_hold_count(8);
+    fastmeter[i].set_hold_count(12);
     fastmeter[i].set_property("dimen",5);
     m_paintbox[i+1].property_paint_func() = "RackBox_expose";
     m_paintbox[i+1].set_name(plug_name);
@@ -345,7 +345,7 @@ inline double Widget::log_meter (double db)
 
 bool Widget::refresh_meter_level(int m, float new_level) {
 
-    static const float falloff = 87 * 60 * 0.001;
+    static const float falloff = 27 * 60 * 0.0005;
 
     // Note: removed RMS calculation, we will only focus on max peaks
     static float old_peak_db[5] = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY} ;

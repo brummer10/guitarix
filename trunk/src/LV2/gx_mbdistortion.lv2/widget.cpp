@@ -119,7 +119,7 @@ plug_name(plugname)
   add(m_paintbox[0]);
 
   for (uint32_t i = 0;i<5;i++) {
-    fastmeter[i].set_hold_count(8);
+    fastmeter[i].set_hold_count(12);
     fastmeter[i].set_property("dimen",5);
     m_paintbox[i+1].property_paint_func() = "RackBox_expose";
     m_paintbox[i+1].set_name(plug_name);
@@ -287,7 +287,7 @@ void Widget::set_value(uint32_t port_index,
                                     get_controller_by_port(port_index));
     float value = *static_cast<const float*>(buffer);
     if (regler) regler->cp_set_value(value);
-    if (port_index == V1) refresh_meter_level(0,value);
+    else if (port_index == V1) refresh_meter_level(0,value);
     else if (port_index == V2) refresh_meter_level(1,value);
     else if (port_index == V3) refresh_meter_level(2,value);
     else if (port_index == V4) refresh_meter_level(3,value);
@@ -345,7 +345,7 @@ inline double Widget::log_meter (double db)
 
 bool Widget::refresh_meter_level(int m, float new_level) {
 
-    static const float falloff = 87 * 60 * 0.001;
+    static const float falloff = 27 * 60 * 0.0005;
 
     // Note: removed RMS calculation, we will only focus on max peaks
     static float old_peak_db[5] = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY} ;
