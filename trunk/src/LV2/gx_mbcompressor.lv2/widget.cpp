@@ -173,8 +173,7 @@ plug_name(plugname)
   m_fr[3].add(m_lbox[3]);
   m_fr[4].set_label("BAND 5");
   m_fr[4].add(m_lbox[4]);
-//  m_fr[5].set_label("OUT");
-  m_fr[6].set_label("BAND PASS");
+  m_fr[5].set_label("BAND PASS");
 
   // create controllers for port name
 
@@ -222,15 +221,15 @@ plug_name(plugname)
   make_controller_box(&m_vbox[5], "MAKEUP", 
     "Post amplification and threshold", -5e+01, 5e+01, 0.1, MAKEUP5, false);
 
-  make_controller_box(&m_vbox[1], "-THRESHOLD ", 
+  make_controller_box(&m_vbox[1], "THRESHOLD ", 
     "Threshold correction, an anticlip measure", 0.0, 1e+01, 0.1, MAKEUPTHRESHOLD1, false);
-  make_controller_box(&m_vbox[2], "-THRESHOLD ", 
+  make_controller_box(&m_vbox[2], "THRESHOLD ", 
     "Threshold correction, an anticlip measure", 0.0, 1e+01, 0.1, MAKEUPTHRESHOLD2, false);
-  make_controller_box(&m_vbox[3], "-THRESHOLD ", 
+  make_controller_box(&m_vbox[3], "THRESHOLD ", 
     "Threshold correction, an anticlip measure", 0.0, 1e+01, 0.1, MAKEUPTHRESHOLD3, false);
-  make_controller_box(&m_vbox[4], "-THRESHOLD ", 
+  make_controller_box(&m_vbox[4], "THRESHOLD ", 
     "Threshold correction, an anticlip measure", 0.0, 1e+01, 0.1, MAKEUPTHRESHOLD4, false);
-  make_controller_box(&m_vbox[5], "-THRESHOLD ", 
+  make_controller_box(&m_vbox[5], "THRESHOLD ", 
     "Threshold correction, an anticlip measure", 0.0, 1e+01, 0.1, MAKEUPTHRESHOLD5, false);
 
   Glib::ustring modes[] = {"Compress","Bypass","Mute"};  
@@ -242,15 +241,15 @@ plug_name(plugname)
   make_selector(&m_vbox[5],"Compress or Mute the selected band, or Bypass The Compressor", modes, _size, 1.0, 1.0, MODE5);
 
 
-  make_controller_box(&m_vbox[7], "LOW PASS \n  B1><B2", "",
+  make_controller_box(&m_vbox[7], "LOW PASS \n  B1><B2", "Crossfrequency between Band1 and Band2",
     2e+01, 2e+04, 1.08 , CROSSOVER_B1_B2, true);
-  make_controller_box(&m_vbox[8], "CROSSOVER \n   B2><B3", "",
+  make_controller_box(&m_vbox[8], "CROSSOVER \n   B2><B3", "Crossfrequency between Band2 and Band3",
     2e+01, 2e+04, 1.08 , CROSSOVER_B2_B3, true);
-  make_controller_box(&m_vbox[9], "CROSSOVER \n   B3><B4 ", "",
+  make_controller_box(&m_vbox[9], "CROSSOVER \n   B3><B4 ", "Crossfrequency between Band3 and Band4",
     2e+01, 2e+04, 1.08 , CROSSOVER_B3_B4, true);
-  make_controller_box(&m_vbox[10], "HIGH PASS \n  B4><B5", "",
+  make_controller_box(&m_vbox[10], "HIGH PASS \n  B4><B5", "Crossfrequency between Band4 and Band5",
     2e+01, 2e+04, 1.08 , CROSSOVER_B4_B5, true);
-
+  
   // set propertys for the main paintbox holding the skin
   m_paintbox[0].set_border_width(10);
   m_paintbox[0].set_spacing(6);
@@ -259,15 +258,22 @@ plug_name(plugname)
   m_paintbox[0].property_paint_func() = "gxhead_expose";
   add(m_paintbox[0]);
 
+  // set propertys and stack fastmeters
   for (uint32_t i = 0;i<5;i++) {
     fastmeter[i].set_hold_count(12);
     fastmeter[i].set_property("dimen",5);
+    fastmeter[i].set_tooltip_text("Output");
+    fastmeter[i+5].set_hold_count(12);
+    fastmeter[i+5].set_property("dimen",5);
+    fastmeter[i+5].set_tooltip_text("Input");
     m_paintbox[i+1].property_paint_func() = "RackBox_expose";
     m_paintbox[i+1].set_name(plug_name);
     m_paintbox[i+1].set_border_width(5);
+    m_paintbox[i+1].set_spacing(2);
+    m_paintbox[i+1].pack_start(fastmeter[i+5]);
     m_paintbox[i+1].pack_start(fastmeter[i]);
   }
-
+  
   // set a vertical box in the paintbox
   m_vbox[11].set_border_width(14);
   m_vbox[12].set_border_width(14);
@@ -278,8 +284,8 @@ plug_name(plugname)
   m_hbox[0].set_border_width(4);
   m_hbox[0].set_homogeneous(false);
   m_vbox[0].pack_start(m_hbox[0]);
-  m_fr[6].add(m_hbox[1]);
-  m_vbox[0].pack_start(m_fr[6]);
+  m_fr[5].add(m_hbox[1]);
+  m_vbox[0].pack_start(m_fr[5]);
   m_vbox[0].pack_start(m_hbox[2]);
   // put boxed controllers into controller box
   m_hbox[0].pack_start(m_vbox[11], Gtk::PACK_EXPAND_PADDING);
@@ -298,8 +304,6 @@ plug_name(plugname)
   m_hbox[0].pack_start(m_fr[4]);
   m_lbox[4].pack_start(m_vbox[5]);
   m_lbox[4].pack_start(m_paintbox[5],Gtk::PACK_SHRINK);
-//  m_hbox[0].pack_start(m_fr[5]);
-//  m_fr[5].add(m_vbox[6]);
   m_hbox[0].pack_start(m_vbox[12], Gtk::PACK_EXPAND_PADDING);
   // put boxed controllers into controller box
   m_hbox[1].pack_start(m_vbox[13], Gtk::PACK_EXPAND_PADDING);
@@ -307,8 +311,15 @@ plug_name(plugname)
   m_hbox[1].pack_start(m_vbox[8]);
   m_hbox[1].pack_start(m_vbox[9]);
   m_hbox[1].pack_start(m_vbox[10]);
+  m_hbox[1].pack_start(m_vbox[15]);
   m_hbox[1].pack_start(m_vbox[14], Gtk::PACK_EXPAND_PADDING);
-
+  // default disable tooltips
+  gtk_settings_set_long_property(
+        gtk_settings_get_default(), "gtk-enable-tooltips", false, "gx_mbcompressor");
+  make_switch_box(&m_vbox[15], "Tooltips");
+  m_switch.signal_toggled().connect(sigc::mem_fun(
+        *this, &Widget::set_tooltips));
+  
   set_app_paintable(true);
   show_all();
 }
@@ -367,13 +378,6 @@ void Widget::make_controller_box(Gtk::Box *box,
   {
     Gtk::Label* pr = new Gtk::Label(label, 0);
     pr->set_name("amplabel");
-    // use label images instead simple string labes
-    /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-    label_image += "/";
-    label_image += label;
-    label_image += "-label.png";
-    Gtk::Image *pr = new Gtk::Image(label_image);*/
-
     Gtk::VBox* b1 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
     box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
@@ -389,24 +393,14 @@ void Widget::make_controller_box(Gtk::Box *box,
   }
 }
 
-// create stackboxes with switch controller for port name
-void Widget::make_switch_box(Gtk::Box *box,
-                             Glib::ustring label,
-                             PortIndex port_name)
+// create stackboxes with switch controller for internal use only
+void Widget::make_switch_box(Gtk::Box *box, Glib::ustring label)
 {
-  Gxw::Switch *regler = static_cast<Gxw::Switch*>(
-                                    get_controller_by_port(port_name));
+  Gxw::Switch *regler = static_cast<Gxw::Switch*>( &m_switch);
   if (regler)
   {
     Gtk::Label* pr = new Gtk::Label(label, 0);
     pr->set_name("amplabel");
-    // use label images instead simple string labes
-    /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-    label_image += "/"+plug_name+"-";
-    label_image += label;
-    label_image += "-label.png";
-     Gtk::Image *pr = new Gtk::Image(label_image);*/
- 
     regler->cp_configure("switch", label, 0, 1, 1);
     regler->set_name(plug_name);
     regler->set_base_name( "button" );
@@ -416,8 +410,6 @@ void Widget::make_switch_box(Gtk::Box *box,
     box->pack_start(*regler,Gtk::PACK_SHRINK);
     Gtk::VBox* b2 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
-    regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
-        *this, &Widget::on_value_changed), port_name));
   }
 }
 
@@ -437,6 +429,11 @@ void Widget::set_value(uint32_t port_index,
     else if (port_index == V3) refresh_meter_level(2,value);
     else if (port_index == V4) refresh_meter_level(3,value);
     else if (port_index == V5) refresh_meter_level(4,value);
+    else if (port_index == V6) refresh_meter_level(5,value);
+    else if (port_index == V7) refresh_meter_level(6,value);
+    else if (port_index == V8) refresh_meter_level(7,value);
+    else if (port_index == V9) refresh_meter_level(8,value);
+    else if (port_index == V10) refresh_meter_level(9,value);
   }
 }
 
@@ -459,7 +456,6 @@ inline float Widget::power2db(float power) {
 
 inline double Widget::log_meter (double db)
 {
-    // keep log_meter_inv in sync when changing anying!
     gfloat def = 0.0f; /* Meter deflection %age */
 
     if (db < -70.0f) {
@@ -493,7 +489,8 @@ bool Widget::refresh_meter_level(int m, float new_level) {
     static const float falloff = 27 * 60 * 0.0005;
 
     // Note: removed RMS calculation, we will only focus on max peaks
-    static float old_peak_db[5] = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY} ;
+    static float old_peak_db[10] = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,
+                                    -INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY} ;
 
     // calculate peak dB and translate into meter
     float peak_db = -INFINITY;
@@ -507,4 +504,9 @@ bool Widget::refresh_meter_level(int m, float new_level) {
     fastmeter[m].set(log_meter(peak_db));
     old_peak_db[m] = peak_db;
     return true;
+}
+
+void Widget::set_tooltips() {
+    gtk_settings_set_long_property(
+        gtk_settings_get_default(), "gtk-enable-tooltips", m_switch.get_active(), "gx_mbcompressor");
 }

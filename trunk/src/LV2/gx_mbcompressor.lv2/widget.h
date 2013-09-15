@@ -36,6 +36,7 @@ private:
   bool refresh_meter_level(int meter,float new_level);
   inline float power2db(float power);
   inline double log_meter (double db);
+  void set_tooltips();
   void on_value_changed(uint32_t port_index);
 
   void make_controller_box(Gtk::Box *box,
@@ -55,8 +56,7 @@ private:
                      PortIndex port_name);
 
   void make_switch_box(Gtk::Box *box,
-                       Glib::ustring label,
-                       PortIndex port_name);
+                       Glib::ustring label);
 
   void set_value(uint32_t port_index,
                  uint32_t format,
@@ -79,14 +79,15 @@ public:
 
 protected:
   Glib::ustring     plug_name;
-  Gtk::VBox         m_vbox[15];
+  Gtk::VBox         m_vbox[16];
   Gtk::HBox         m_hbox[3];
   Gtk::HBox         m_lbox[5];
-  Gtk::Frame        m_fr[7];
+  Gtk::Frame        m_fr[6];
   
+  Gxw::Switch       m_switch;
   Gxw::Selector     select[5];
   Gxw::SmallKnob    m_smallknob[29];
-  Gxw::FastMeter    fastmeter[5];
+  Gxw::FastMeter    fastmeter[10];
   Gxw::PaintBox     m_paintbox[6];
 };
 

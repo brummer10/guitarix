@@ -73,9 +73,9 @@ void Gx_mbcompressor_GUI::set_knob( Glib::ustring knob)
   addKnob +=  knob;
   addKnob +=  "-middle.png'}}\n"
               "   stock['button_on'] = {{'"
-              "echo-switch_on.png'}}\n"
+              "push-switch-on.png'}}\n"
               "   stock['button_off'] = {{'"
-              "echo-switch_off.png'}}\n"
+              "push-switch-off.png'}}\n"
               " }\n"
               "widget '*.";
   addKnob +=  plug_name;

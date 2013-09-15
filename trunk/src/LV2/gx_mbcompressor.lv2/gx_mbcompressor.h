@@ -68,7 +68,12 @@ typedef enum
    V2, 
    V3, 
    V4, 
-   V5, 
+   V5,
+   V6, 
+   V7, 
+   V8, 
+   V9,
+   V10,
    EFFECTS_OUTPUT,
    EFFECTS_INPUT,
 } PortIndex;
