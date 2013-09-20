@@ -7,6 +7,7 @@ declare description "Multi Band Compressor contributed by kokoko3k";
 import("effect.lib");
 import("filter.lib");
 import("music.lib");
+import("reduce.lib");
 
 vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
 vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi:no]", -70, +5));
@@ -14,7 +15,7 @@ vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
 vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
 vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
 
-envelop         = abs : max ~ (1.0/SR) ; // : max(db2linear(-70)) : linear2db;
+envelop         = abs : max ~ (1.0/SR) : reduce(max,4096) ; // : max(db2linear(-70)) : linear2db;
 
 //Mono 
 process =   _<: ( gcomp1s , gcomp2s , gcomp3s, gcomp4s, gcomp5s) :>_ with { 

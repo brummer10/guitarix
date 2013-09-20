@@ -8,6 +8,7 @@ import("effect.lib");
 import("filter.lib");
 import("music.lib");
 import("math.lib");
+import("reduce.lib");
 
 anti_denormal = pow(10,-20);
 anti_denormal_ac = 1 - 1' : *(anti_denormal) : + ~ *(-1);
@@ -46,7 +47,7 @@ vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[unit:dB]", -70, +5));
 vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[unit:dB]", -70, +5));
 vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[unit:dB]", -70, +5));
 
-envelop         = abs : max ~ (1.0/SR) ; // : max(db2linear(-70)) : linear2db;
+envelop         = abs : max ~ (1.0/SR) : reduce(max,4096)  ; // : max(db2linear(-70)) : linear2db;
 
 process    = _: +(anti_denormal_ac)<: ( dist1s , dist2s , dist3s, dist4s, dist5s) :> *(gain1) with { 
     dist1s = bandpass1:cubicnl_nodc(drive1,offset1):vmeter1;
