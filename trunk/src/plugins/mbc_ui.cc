@@ -111,4 +111,9 @@ b.closeBox();
 
 b.closeBox();
 b.closeBox();
+b.create_simple_meter(PARAM("v1"));
+b.create_simple_meter(PARAM("v2"));
+b.create_simple_meter(PARAM("v3"));
+b.create_simple_meter(PARAM("v4"));
+b.create_simple_meter(PARAM("v5"));
 b.closeBox();

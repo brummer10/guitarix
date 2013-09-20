@@ -66,11 +66,19 @@ with {
 };
 };
 
+vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
+vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi:no]", -70, +5));
+vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
+vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
+vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
+
+envelop         = abs : max ~ (1.0/SR) ; // : max(db2linear(-70)) : linear2db;
+
 process    = _<:( dist1s , dist2s , dist3s, dist4s, dist5s,_) :>_ with { 
-    dist1s = bandpass1:chor(d1,f1,de1,l1);
-    dist2s = bandpass2:chor(d2,f2,de2,l2);
-    dist3s = bandpass3:chor(d3,f3,de3,l3);
-    dist4s = bandpass4:chor(d4,f4,de4,l4);
-    dist5s = bandpass5:chor(d5,f5,de5,l5);
+    dist1s = bandpass1:chor(d1,f1,de1,l1) : vmeter1;
+    dist2s = bandpass2:chor(d2,f2,de2,l2) : vmeter2;
+    dist3s = bandpass3:chor(d3,f3,de3,l3) : vmeter3;
+    dist4s = bandpass4:chor(d4,f4,de4,l4) : vmeter4;
+    dist5s = bandpass5:chor(d5,f5,de5,l5) : vmeter5;
     
 };

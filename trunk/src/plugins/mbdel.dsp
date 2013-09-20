@@ -40,11 +40,19 @@ d5         = tempo(hslider("delay5[tooltip:Delay in Beats per Minute]",150,24,36
 
 del(g,d)   = *(g) : sdelay(N, interp,d) ;
 
+vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
+vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi:no]", -70, +5));
+vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
+vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
+vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
+
+envelop         = abs : max ~ (1.0/SR) ; // : max(db2linear(-70)) : linear2db;
+
 process    = _<: ( dist1s , dist2s , dist3s, dist4s, dist5s,_):>_  with { 
-    dist1s = bandpass1:del(g1,d1);
-    dist2s = bandpass2:del(g2,d2);
-    dist3s = bandpass3:del(g3,d3);
-    dist4s = bandpass4:del(g4,d4);
-    dist5s = bandpass5:del(g5,d5);
+    dist1s = bandpass1:del(g1,d1) : vmeter1;
+    dist2s = bandpass2:del(g2,d2) : vmeter2;
+    dist3s = bandpass3:del(g3,d3) : vmeter3;
+    dist4s = bandpass4:del(g4,d4) : vmeter4;
+    dist5s = bandpass5:del(g5,d5) : vmeter5;
     
 };

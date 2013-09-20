@@ -36,13 +36,21 @@ r4 = hslider("percent4", 20, 0,  100, 0.1)/100.0 : smooth(0.999);
 t5 = tempo(hslider("time5[tooltip:Echo in Beats per Minute]",240,24,360,1));
 r5 = hslider("percent5", 0, 0,  100, 0.1)/100.0 : smooth(0.999);
 
+vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
+vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi:no]", -70, +5));
+vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
+vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
+vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
+
+envelop         = abs : max ~ (1.0/SR) ; // : max(db2linear(-70)) : linear2db;
+
 echo1(t,r)  = +~(sdelay(int(2^18), 100*SR/1000.0, t) * (r));
 
 process    = _<: ( dist1s , dist2s , dist3s, dist4s, dist5s) :>_ with { 
-    dist1s = bandpass1:echo1(t1,r1);
-    dist2s = bandpass2:echo1(t2,r2);
-    dist3s = bandpass3:echo1(t3,r3);
-    dist4s = bandpass4:echo1(t4,r4);
-    dist5s = bandpass5:echo1(t5,r5);
+    dist1s = bandpass1:echo1(t1,r1) : vmeter1 ;
+    dist2s = bandpass2:echo1(t2,r2) : vmeter2;
+    dist3s = bandpass3:echo1(t3,r3) : vmeter3;
+    dist4s = bandpass4:echo1(t4,r4) : vmeter4;
+    dist5s = bandpass5:echo1(t5,r5) : vmeter5;
     
 };

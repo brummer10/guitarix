@@ -310,8 +310,11 @@ void StackBoxBuilder::create_simple_meter(const std::string& id) {
     Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
     fastmeter->set_by_power(0.0001);
-    fastmeter->show();
-    fBox.box_pack_start(manage(fastmeter),false);
+    GxPaintBox *box =  new GxPaintBox(pb_amp_expose);
+    box->set_border_width(2);
+    box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
+    box->show_all();
+    fBox.box_pack_start(manage(box),false);
 }
 
 void StackBoxBuilder::create_selector(const std::string& id, const char *widget_name) {

@@ -8,13 +8,21 @@ import("effect.lib");
 import("filter.lib");
 import("music.lib");
 
+vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
+vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi:no]", -70, +5));
+vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
+vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
+vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
+
+envelop         = abs : max ~ (1.0/SR) ; // : max(db2linear(-70)) : linear2db;
+
 //Mono 
 process =   _<: ( gcomp1s , gcomp2s , gcomp3s, gcomp4s, gcomp5s) :>_ with { 
-gcomp1s = bandpass1:bypass1(bswitch1,compressor_mono(ratio1,-push1,attack1,release1)):*(Makeup1);
-gcomp2s = bandpass2:bypass1(bswitch2,compressor_mono(ratio2,-push2,attack2,release2)):*(Makeup2);
-gcomp3s = bandpass3:bypass1(bswitch3,compressor_mono(ratio3,-push3,attack3,release3)):*(Makeup3);
-gcomp4s = bandpass4:bypass1(bswitch4,compressor_mono(ratio4,-push4,attack4,release4)):*(Makeup4);
-gcomp5s = bandpass5:bypass1(bswitch5,compressor_mono(ratio5,-push5,attack5,release5)):*(Makeup5);
+gcomp1s = bandpass1:bypass1(bswitch1,compressor_mono(ratio1,-push1,attack1,release1)):*(Makeup1) : vmeter1;
+gcomp2s = bandpass2:bypass1(bswitch2,compressor_mono(ratio2,-push2,attack2,release2)):*(Makeup2) : vmeter2;
+gcomp3s = bandpass3:bypass1(bswitch3,compressor_mono(ratio3,-push3,attack3,release3)):*(Makeup3) : vmeter3;
+gcomp4s = bandpass4:bypass1(bswitch4,compressor_mono(ratio4,-push4,attack4,release4)):*(Makeup4) : vmeter4;
+gcomp5s = bandpass5:bypass1(bswitch5,compressor_mono(ratio5,-push5,attack5,release5)):*(Makeup5) : vmeter5;
 };
 
 
