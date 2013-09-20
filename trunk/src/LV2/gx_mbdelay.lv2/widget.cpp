@@ -308,58 +308,7 @@ void Widget::on_value_changed(uint32_t port_index)
   }
 }
 
-inline float Widget::power2db(float power) {
-    return  20.*log10(power);
-}
-
-inline double Widget::log_meter (double db)
-{
-    // keep log_meter_inv in sync when changing anying!
-    gfloat def = 0.0f; /* Meter deflection %age */
-
-    if (db < -70.0f) {
-        def = 0.0f;
-    } else if (db < -60.0f) {
-        def = (db + 70.0f) * 0.25f;
-    } else if (db < -50.0f) {
-        def = (db + 60.0f) * 0.5f + 2.5f;
-    } else if (db < -40.0f) {
-        def = (db + 50.0f) * 0.75f + 7.5f;
-    } else if (db < -30.0f) {
-        def = (db + 40.0f) * 1.5f + 15.0f;
-    } else if (db < -20.0f) {
-        def = (db + 30.0f) * 2.0f + 30.0f;
-    } else if (db < 6.0f) {
-        def = (db + 20.0f) * 2.5f + 50.0f;
-    } else {
-        def = 115.0f;
-    }
-
-    /* 115 is the deflection %age that would be
-       when db=6.0. this is an arbitrary
-       endpoint for our scaling.
-    */
-
-    return def/115.0f;
-}
-
 bool Widget::refresh_meter_level(int m, float new_level) {
-
-    static const float falloff = 27 * 60 * 0.0005;
-
-    // Note: removed RMS calculation, we will only focus on max peaks
-    static float old_peak_db[5] = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY} ;
-
-    // calculate peak dB and translate into meter
-    float peak_db = -INFINITY;
-    if (new_level > 0) {
-        peak_db = power2db(new_level);
-    }
-    // retrieve old meter value and consider falloff
-    if (peak_db < old_peak_db[m]) {
-        peak_db = max(peak_db, old_peak_db[m] - falloff);
-    }
-    fastmeter[m].set(log_meter(peak_db));
-    old_peak_db[m] = peak_db;
-    return true;
+  fastmeter[m].set_by_power(new_level);
+  return true;
 }

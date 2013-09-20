@@ -541,19 +541,19 @@ void Dsp::connect(uint32_t port,void* data)
 		fslider0_ = (float*)data; // , 2.4e+02, 24.0, 3.6e+02, 1.0 
 		break;
 	case V1: 
-		fbargraph4_ = (float*)data; // , -70.0, -70.0, 4.0, 1.0 
+		fbargraph4_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
 		break;
 	case V2: 
-		fbargraph3_ = (float*)data; // , -70.0, -70.0, 4.0, 1.0 
+		fbargraph3_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
 		break;
 	case V3: 
-		fbargraph2_ = (float*)data; // , -70.0, -70.0, 4.0, 1.0 
+		fbargraph2_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
 		break;
 	case V4: 
-		fbargraph1_ = (float*)data; // , -70.0, -70.0, 4.0, 1.0 
+		fbargraph1_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
 		break;
 	case V5: 
-		fbargraph0_ = (float*)data; // , -70.0, -70.0, 4.0, 1.0 
+		fbargraph0_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
 		break;
 	default:
 		break;
