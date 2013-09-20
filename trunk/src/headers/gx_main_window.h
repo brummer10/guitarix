@@ -565,6 +565,7 @@ private:
     RackContainer stereorackcontainer;
     int pre_act;
     bool is_visible;
+   // bool ui_sleep();
     DragIcon *drag_icon;
     Glib::ustring preset_list_menu_bank;
     Gtk::UIManager::ui_merge_id preset_list_merge_id;

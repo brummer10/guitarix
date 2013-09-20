@@ -61,24 +61,24 @@ bandpass4s = (bandpass4,bandpass4);
 bandpass5s = (bandpass5,bandpass5);
 
 ratio1 		= hslider("[9] Ratio1 [tooltip: Compression ratio]",2,1,100,0.1);
-attack1		= hslider("[A] Attack1 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release1 	= hslider("[B] Release1 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack1		= hslider("[A] Attack1 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release1 	= hslider("[B] Release1 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 ratio2 		= hslider("[9] Ratio2 [tooltip: Compression ratio]",2,1,100,0.1);
-attack2		= hslider("[A] Attack2 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release2 	= hslider("[B] Release2 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack2		= hslider("[A] Attack2 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release2 	= hslider("[B] Release2 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 ratio3 		= hslider("[9] Ratio3 [tooltip: Compression ratio]",2,1,100,0.1);
-attack3		= hslider("[A] Attack3 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release3 	= hslider("[B] Release3 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack3		= hslider("[A] Attack3 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release3 	= hslider("[B] Release3 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 ratio4 		= hslider("[9] Ratio4 [tooltip: Compression ratio]",2,1,100,0.1);
-attack4		= hslider("[A] Attack4 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release4 	= hslider("[B] Release4 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack4		= hslider("[A] Attack4 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release4 	= hslider("[B] Release4 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 ratio5 		= hslider("[9] Ratio5 [tooltip: Compression ratio]",2,1,100,0.1);
-attack5		= hslider("[A] Attack5 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release5 	= hslider("[B] Release5 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack5		= hslider("[A] Attack5 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release5 	= hslider("[B] Release5 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 push1 		= hslider("[5] Makeup1 [tooltip: Post amplification and threshold]"   , 13, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
 push2 		= hslider("[5] Makeup2 [tooltip: Post amplification and threshold]"   , 10, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
