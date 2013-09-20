@@ -82,6 +82,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     create_switch_no_caption = create_switch_no_caption_;
     create_wheel = create_wheel_;
     create_selector = create_selector_;
+    create_simple_meter = create_simple_meter_;
     create_selector_no_caption = create_selector_no_caption_;
     create_port_display = create_port_display_;
     create_simple_spin_value = create_simple_spin_value_;
@@ -167,6 +168,10 @@ void UiBuilderImpl::create_selector_no_caption_(const char *id) {
 
 void UiBuilderImpl::create_selector_(const char *id, const char *label) {
     intf->create_selector_with_caption(id, label);
+}
+
+void UiBuilderImpl::create_simple_meter_(const char *id) {
+    intf->create_simple_meter(id);
 }
 
 void UiBuilderImpl::create_spin_value_(const char *id, const char *label) {

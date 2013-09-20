@@ -124,6 +124,7 @@ void gx_fast_meter_init(GxFastMeter* fm)
 	fm->hold_state = 0;
 	fm->current_peak = 0;
 	fm->current_level = 0;
+    fm->old_peak_db =  -INFINITY;
 	gtk_widget_set_events(GTK_WIDGET(fm),
 	                      GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
 }
@@ -339,6 +340,90 @@ void gx_fast_meter_set(GxFastMeter* fm, gdouble lvl)
 	float old_peak  = fm->current_peak;
 
 	lvl = max(0.0, min(1.0, lvl));
+	fm->current_level = lvl;
+
+	if (lvl >= fm->current_peak) {
+	    fm->current_peak = lvl;
+	    fm->hold_state   = fm->hold_cnt;
+	}
+	if (fm->hold_state > 0) {
+	    --fm->hold_state;
+	}
+	if (fm->hold_state == 0) {
+	    fm->current_peak = lvl;
+	}
+	if (fm->current_level == old_level &&
+	    (fm->hold_state == 0 || fm->current_peak  == old_peak)) {
+		return;
+	}
+	GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
+	if (window) {
+		queue_vertical_redraw(fm, window);
+	}
+}
+
+
+
+inline float power2db(float power) {
+    return  20.*log10(power);
+}
+
+inline double log_meter (double db)
+{
+    // keep log_meter_inv in sync when changing anying!
+    gfloat def = 0.0f; /* Meter deflection %age */
+
+    if (db < -70.0f) {
+        def = 0.0f;
+    } else if (db < -60.0f) {
+        def = (db + 70.0f) * 0.25f;
+    } else if (db < -50.0f) {
+        def = (db + 60.0f) * 0.5f + 2.5f;
+    } else if (db < -40.0f) {
+        def = (db + 50.0f) * 0.75f + 7.5f;
+    } else if (db < -30.0f) {
+        def = (db + 40.0f) * 1.5f + 15.0f;
+    } else if (db < -20.0f) {
+        def = (db + 30.0f) * 2.0f + 30.0f;
+    } else if (db < 6.0f) {
+        def = (db + 20.0f) * 2.5f + 50.0f;
+    } else {
+        def = 115.0f;
+    }
+
+    /* 115 is the deflection %age that would be
+       when db=6.0. this is an arbitrary
+       endpoint for our scaling.
+    */
+
+    return def/115.0f;
+}
+
+double meter_level_by_power(GxFastMeter* fm, float new_level) {
+
+    static const float falloff = 27 * 60 * 0.0005;
+
+    // calculate peak dB and translate into meter
+    float peak_db = -INFINITY;
+    if (new_level > 0) {
+        peak_db = power2db(new_level);
+    }
+    // retrieve old meter value and consider falloff
+    if (peak_db < fm->old_peak_db) {
+        peak_db = max(peak_db, fm->old_peak_db - falloff);
+    }
+    fm->old_peak_db = peak_db;
+    return (log_meter(peak_db));
+}
+
+
+/* ------- setting meter level ----------- */
+void gx_fast_meter_set_by_power(GxFastMeter* fm, gdouble lvl)
+{
+	float old_level = fm->current_level;
+	float old_peak  = fm->current_peak;
+
+	lvl = max(0.0, min(1.0, meter_level_by_power(fm,lvl)));
 	fm->current_level = lvl;
 
 	if (lvl >= fm->current_peak) {

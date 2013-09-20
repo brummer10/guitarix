@@ -334,7 +334,7 @@ public:
     virtual void set_parameter_value(const std::string& id, bool value);
     virtual void set_parameter_value(const std::string& id, float value);
     virtual void set_parameter_value(const std::string& id, const std::string& value);
-
+   // bool ui_f_update(const std::string& id, float value);
     // MidiControllerList
     virtual bool midi_get_config_mode(int *ctl = 0);
     virtual void midi_set_config_mode(bool v, int ctl=-1);

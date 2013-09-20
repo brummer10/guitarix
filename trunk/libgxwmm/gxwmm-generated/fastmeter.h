@@ -97,6 +97,8 @@ private:
 	
   void set(double lvl);
 	
+  void set_by_power(double lvl);
+	
   void clear();
 	
   void set_hold_count(int val);

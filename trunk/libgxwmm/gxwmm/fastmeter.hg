@@ -27,6 +27,7 @@ class FastMeter: public Gtk::DrawingArea {
 	public:
 	_CTOR_DEFAULT
 	_WRAP_METHOD(void set(double lvl), gx_fast_meter_set)
+	_WRAP_METHOD(void set_by_power(double lvl), gx_fast_meter_set_by_power)
 	_WRAP_METHOD(void clear(), gx_fast_meter_clear)
 	_WRAP_METHOD(void set_hold_count(int val), gx_fast_meter_set_hold_count)
 	_WRAP_PROPERTY(hold, int)

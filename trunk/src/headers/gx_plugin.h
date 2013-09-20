@@ -85,6 +85,7 @@ struct UiBuilder {
     void (*create_port_display)(const char * id, const char *label);
     void (*create_switch)(const char *sw_type,const char * id, const char *label);
     void (*create_selector)(const char *id, const char *label);
+    void (*create_simple_meter)(const char *id);
     void (*create_small_rackknobr)(const char *id, const char *label);
     void (*create_wheel)(const char *id, const char *label);
     void (*create_simple_spin_value)(const char *id);
@@ -115,6 +116,8 @@ struct ParamReg {
     void (*registerBoolVar)(const char* id, const char* name, const char* tp,
 			    const char* tooltip, bool* var, bool val);
     void (*registerNonMidiVar)(const char * id, bool*var, bool preset, bool nosave);
+    void (*registerNonMidiFloatVar)(const char * id, float *var, bool preset, bool nosave,
+              float val, float low, float up, float step);
     void (*registerEnumVar)(const char *id, const char* name, const char* tp,
 			    const char* tooltip, const value_pair* values, float *var, float val,
 			    float low, float up, float step);

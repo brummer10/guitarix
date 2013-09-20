@@ -295,6 +295,25 @@ void StackBoxBuilder::set_next_flags(int flags) {
     next_flags = flags;
 }
 
+bool StackBoxBuilder::set_simple(Gxw::FastMeter *fastmeter,const std::string id) {
+    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
+    fastmeter->set_by_power(machine.get_parameter_value<float>(id));
+    else
+    fastmeter->set_by_power(0.0001);
+    return true;
+}
+
+void StackBoxBuilder::create_simple_meter(const std::string& id) {
+    Gxw::FastMeter *fastmeter = new Gxw::FastMeter();
+    fastmeter->set_hold_count(5);
+    fastmeter->set_property("dimen",5);
+    Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
+      sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
+    fastmeter->set_by_power(0.0001);
+    fastmeter->show();
+    fBox.box_pack_start(manage(fastmeter),false);
+}
+
 void StackBoxBuilder::create_selector(const std::string& id, const char *widget_name) {
     gx_engine::Parameter& p = machine.get_parameter(id);
     Gxw::Selector *s;

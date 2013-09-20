@@ -581,7 +581,15 @@ void GxMachine::set_parameter_value(const std::string& id, bool value) {
     pmap[id].getBool().set(value);
 }
 
+ //bool GxMachine::ui_f_update(const std::string& id, float value) {
+ //    pmap[id].getFloat().set(value);
+ //    return false;
+ //}
+
 void GxMachine::set_parameter_value(const std::string& id, float value) {
+    // Glib::signal_timeout().connect(
+    //     sigc::bind<const std::string&>(sigc::bind<float>(
+     //    sigc::mem_fun (*this, &GxMachine::ui_f_update),value),id), 20);
     pmap[id].getFloat().set(value);
 }
 
@@ -1464,6 +1472,8 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	} else if (jp->current_value() == "create_selector") {
 	    std::string id = next_string(jp);
 	    builder.create_selector(id.c_str(), next_char_pointer(jp));
+	} else if (jp->current_value() == "create_simple_meter") {
+        builder.create_simple_meter(next_char_pointer(jp));
 	} else if (jp->current_value() == "create_spin_value") {
 	    std::string id = next_char_pointer(jp);
 	    builder.create_spin_value(id.c_str(), next_char_pointer(jp));

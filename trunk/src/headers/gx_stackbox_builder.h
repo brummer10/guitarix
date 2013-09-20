@@ -72,6 +72,8 @@ private:
     void openSpaceBox(const char* label = "");
 
     void check_set_flags(Gxw::Regler *r);
+    void create_simple_meter(const std::string& id);
+    bool set_simple(Gxw::FastMeter *fastmeter, const std::string id);
     void create_small_rackknob(const std::string& id, const char *label);
     void create_small_rackknobr(const std::string& id);
     void create_small_rackknobr(const std::string& id, const char *label);

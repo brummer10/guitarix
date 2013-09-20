@@ -35,6 +35,7 @@ ParamRegImpl::ParamRegImpl(gx_engine::ParamMap* pm): ParamReg() {
     registerVar = registerVar_;
     registerBoolVar = registerBoolVar_;
     registerNonMidiVar = registerNonMidiVar_;
+    registerNonMidiFloatVar = registerNonMidiFloatVar_;
     registerEnumVar = registerEnumVar_;
     registerIEnumVar = registerIEnumVar_;
 }
@@ -124,6 +125,14 @@ void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const cha
 
 void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave) {
     BoolParameter *p = pmap->reg_non_midi_par(id, var, preset);
+    if (nosave) {
+	p->setSavable(false);
+    }
+}
+
+void ParamRegImpl::registerNonMidiFloatVar_(const char * id, float *var, bool preset, bool nosave,
+			       float val, float low, float up, float step) {
+    FloatParameter *p = pmap->reg_non_midi_par(id, var, preset, val, low, up, step);
     if (nosave) {
 	p->setSavable(false);
     }

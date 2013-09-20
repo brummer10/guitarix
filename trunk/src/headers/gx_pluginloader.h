@@ -101,6 +101,8 @@ private:
     static void registerBoolVar_(const char* id, const char* name, const char* tp,
 				 const char* tooltip, bool* var, bool val);
     static void registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave);
+    static void registerNonMidiFloatVar_(const char * id, float *var, bool preset, bool nosave,
+              float val, float low, float up, float step);
     static void registerEnumVar_(const char *id, const char* name, const char* tp,
 				 const char* tooltip, const value_pair* values, float *var, float val,
 				 float low, float up, float step);

@@ -134,6 +134,11 @@ void FastMeter::set(double lvl)
   gx_fast_meter_set(gobj(), lvl); 
 }
 
+void FastMeter::set_by_power(double lvl)
+{
+  gx_fast_meter_set_by_power(gobj(), lvl); 
+}
+
 void FastMeter::clear()
 {
   gx_fast_meter_clear(gobj()); 

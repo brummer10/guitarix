@@ -2356,6 +2356,12 @@ void MainWindow::hide_extended_settings() {
     }
 }
 
+//bool MainWindow::ui_sleep() {
+//    usleep(1900);
+    //cout<<"timeout"<<endl;
+//    return true;
+//}
+
 void MainWindow::run() {
     int port = options.get_rpcport();
     if (machine.get_jack() && port != RPCPORT_DEFAULT && port != RPCPORT_NONE) {
@@ -2364,6 +2370,7 @@ void MainWindow::run() {
 	Gtk::Main::run();
     } else {
 	window->show();
+   // Glib::signal_timeout().connect (mem_fun (*this, &MainWindow::ui_sleep), 2);
 	Gtk::Main::run();
     }
 }

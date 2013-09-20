@@ -52,6 +52,7 @@ struct _GxFastMeter {
 
 	float         current_level;
 	float         current_peak;
+    float         old_peak_db;
 	gint dimen, clr0, clr1, clr2, clr3;
 };
 
@@ -65,6 +66,7 @@ GType gx_fast_meter_get_type(void);
 GtkWidget* gx_fast_meter_new(long hold, gulong dimen, int clr0, int clr1, int clr2, int clr3);
 
 void  gx_fast_meter_set            (GxFastMeter* fastmeter, gdouble lvl);
+void  gx_fast_meter_set_by_power   (GxFastMeter* fastmeter, gdouble lvl);
 void  gx_fast_meter_clear          (GxFastMeter* fastmeter);
 
 void  gx_fast_meter_set_hold_count (GxFastMeter* fastmeter, gint val);

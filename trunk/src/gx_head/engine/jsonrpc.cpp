@@ -201,6 +201,7 @@ private:
     static void create_master_slider_(const char *id, const char *label);
     static void create_selector_no_caption_(const char *id);
     static void create_selector_(const char *id, const char *label);
+    static void create_simple_meter_(const char *id);
     static void create_spin_value_(const char *id, const char *label);
     static void create_switch_no_caption_(const char *sw_type,const char * id);
     static void create_switch_(const char *sw_type,const char * id, const char *label);
@@ -1338,6 +1339,7 @@ UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, const gx_system::Cmdlin
     create_master_slider = create_master_slider_;
     create_small_rackknob = create_small_rackknob_;
     create_small_rackknobr = create_small_rackknobr_;
+    create_simple_meter = create_simple_meter_;
     create_spin_value = create_spin_value_;
     create_switch = create_switch_;
     create_wheel = create_wheel_;
@@ -1473,6 +1475,13 @@ void UiBuilderVirt::create_selector_(const char *id, const char *label) {
     jw->write("create_selector");
     jw->write(id);
     jw->write(label);
+    jw->end_array();
+}
+
+void UiBuilderVirt::create_simple_meter_(const char *id) {
+    jw->begin_array();
+    jw->write("create_simple_meter");
+    jw->write(id);
     jw->end_array();
 }
 
