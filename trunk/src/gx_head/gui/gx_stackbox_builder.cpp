@@ -676,7 +676,7 @@ void StackBoxBuilder::openTabBox(const char* label) {
 }
 
 void StackBoxBuilder::openpaintampBox(const char* label) {
-    GxPaintBox *box =  new GxPaintBox(pb_RackBox_expose);
+    GxPaintBox *box =  new GxPaintBox("rectangle_skin_color_expose");
     box->m_hbox.set_border_width(4);
     box->set_name(label);
     box->set_tooltip_text(label);

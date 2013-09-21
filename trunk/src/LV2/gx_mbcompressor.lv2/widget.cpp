@@ -450,9 +450,8 @@ void Widget::on_value_changed(uint32_t port_index)
   }
 }
 
-bool Widget::refresh_meter_level(int m, float new_level) {
+void Widget::refresh_meter_level(int m, float new_level) {
   fastmeter[m].set_by_power(new_level);
-  return true;
 }
 
 void Widget::set_tooltips() {

@@ -33,7 +33,7 @@ class Widget : public Gtk::HBox
 {
 private:
   Gtk::Widget* get_controller_by_port(uint32_t port_index);
-  bool refresh_meter_level(int meter,float new_level);
+  void refresh_meter_level(int meter,float new_level);
   void set_tooltips();
   void on_value_changed(uint32_t port_index);
 
