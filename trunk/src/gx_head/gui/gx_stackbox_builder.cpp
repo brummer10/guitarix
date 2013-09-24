@@ -426,22 +426,25 @@ void StackBoxBuilder::openVerticalBox1(const char* label) {
 }
 
 void StackBoxBuilder::openVerticalBox2(const char* label) {
-    GxVBox * box =  new GxVBox();
-    box->set_homogeneous(false);
-    box->set_spacing(0);
+    Gtk::VPaned * box =  new Gtk::VPaned();
     box->set_border_width(0);
-
+    GxHBox * pbox =  new GxHBox();
     if (!fBox.top_is_notebook() && label && label[0]) {
-        box->m_label.set_text(label);
-        box->m_label.set_name("rack_label");
-        box->pack_start(box->m_label, false, false, 0 );
-        fBox.box_pack_start(manage(box));
-        box->show();
-        box->m_label.show();
-        fBox.push(box);
-    } else {
-        fBox.push(fBox.add(manage(box), label));
+        pbox->m_label.set_text(label);
+        pbox->m_label.set_name("rack_label");
+        pbox->pack_start(pbox->m_label, false, false, 0 );
     }
+    pbox->set_border_width(0);
+    box->pack1(*Gtk::manage(static_cast<Gtk::Widget*>(pbox)),true,true);
+    GxHBox * hbox =  new GxHBox();
+    hbox->set_homogeneous(false);
+    hbox->set_spacing(0);
+    hbox->set_border_width(0);
+    box->pack2(*Gtk::manage(static_cast<Gtk::Widget*>(hbox)),true,true);
+    box->set_position(200);
+    fBox.box_pack_start(manage(box), false, false, 0);
+    box->show_all();
+    fBox.push(hbox);
 }
 
 void StackBoxBuilder::openFlipLabelBox(const char* label) {
