@@ -37,11 +37,17 @@ class SimpleResampler
 private:
   Resampler r_up, r_down;
   int32_t m_fact;
+  int32_t ratio_a;
+  int32_t ratio_b;
 public:
   SimpleResampler(): r_up(), r_down(), m_fact() {}
   void setup(int32_t sampleRate, uint32_t fact);
-  void up(int32_t count, float *input, float *output);
+  int32_t up(int32_t count, float *input, float *output);
   void down(int32_t count, float *input, float *output);
+  int32_t get_max_out_size(int32_t i_size)
+  {
+    return (i_size * ratio_b) / ratio_a + 1;
+  }
 };
 
 class BufferResampler: Resampler

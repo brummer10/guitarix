@@ -48,6 +48,10 @@ static uint32_t gcd (uint32_t a, uint32_t b)
 
 void SimpleResampler::setup(int32_t sampleRate, uint32_t fact)
 {
+  int32_t d = gcd(sampleRate, sampleRate*fact);
+  ratio_a = sampleRate / d;
+  ratio_b = (sampleRate*fact) / d;
+
   assert(fact <= MAX_UPSAMPLE);
   m_fact = fact;
   const int32_t qual = 16; // resulting in a total delay of 2*qual (0.7ms @44100)
@@ -69,20 +73,23 @@ void SimpleResampler::setup(int32_t sampleRate, uint32_t fact)
   r_down.process();
 }
 
-void SimpleResampler::up(int32_t count, float *input, float *output)
+int32_t SimpleResampler::up(int32_t count, float *input, float *output)
 {
   r_up.inp_count = count;
   r_up.inp_data = input;
-  r_up.out_count = count * m_fact;
+  int m = get_max_out_size(count);
+  r_up.out_count = m;
   r_up.out_data = output;
   r_up.process();
   assert(r_up.inp_count == 0);
-  assert(r_up.out_count == 0);
+  assert(r_up.out_count <= 1);
+  r_down.inp_count = m - r_up.out_count;
+  return r_down.inp_count;
 }
 
 void SimpleResampler::down(int32_t count, float *input, float *output)
 {
-  r_down.inp_count = count * m_fact;
+  //r_down.inp_count = count * m_fact;
   r_down.inp_data = input;
   r_down.out_count = count+1; // +1 == trick to drain input
   r_down.out_data = output;

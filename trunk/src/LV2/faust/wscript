@@ -98,6 +98,8 @@ def build(bld):
         'uniBar.dsp',
         'mbd.dsp',
         'mbc.dsp',
+        'bmfp.dsp',
+        'lowpass_up.dsp',
  
         # tone stacks
         'tonestack_default.dsp',
