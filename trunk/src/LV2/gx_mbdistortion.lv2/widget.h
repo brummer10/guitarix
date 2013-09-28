@@ -78,7 +78,7 @@ public:
 protected:
   Glib::ustring     plug_name;
   Gtk::VBox         m_vbox[15];
-  Gtk::HBox         m_hbox[3];
+  Gtk::HBox         m_hbox[6];
   Gtk::HBox         m_lbox[5];
   Gtk::Frame        m_fr[7];
   

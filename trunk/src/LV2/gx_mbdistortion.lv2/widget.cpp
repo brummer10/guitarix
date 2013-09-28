@@ -137,8 +137,11 @@ plug_name(plugname)
   m_hbox[0].set_border_width(4);
   m_hbox[0].set_homogeneous(false);
   m_vbox[0].pack_start(m_hbox[0]);
+  m_hbox[3].pack_start(m_hbox[4]);
+  m_hbox[3].pack_start(m_fr[6]);
+  m_hbox[3].pack_start(m_hbox[5]);
   m_fr[6].add(m_hbox[1]);
-  m_vbox[0].pack_start(m_fr[6]);
+  m_vbox[0].pack_start(m_hbox[3]);
   m_vbox[0].pack_start(m_hbox[2]);
   // put boxed controllers into controller box
   m_hbox[0].pack_start(m_vbox[11], Gtk::PACK_EXPAND_PADDING);

@@ -174,7 +174,7 @@ void Gx_mbdistortion_GUI::set_plug_name( const char * plugin_uri)
   if (strcmp("http://guitarix.sourceforge.net/plugins/gx_mbdistortion_#_mbdistortion_", plugin_uri) == 0)
     {
       plug_name = "_mbdistortion_";
-      set_knob("nm-knob");
+      //set_knob("nm-knob");
     }
   else
     {
