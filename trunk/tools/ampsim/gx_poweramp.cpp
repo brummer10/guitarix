@@ -96,9 +96,31 @@ namespace gx_engine {
  ** Pre Amp
  */
 
+class preCalc: public SplineCalc {
+public:
+    preCalc(splinedata *sd_, real *s0_): SplineCalc(sd_, s0_) {}
+    void calc(real *in, real *out);
+};
+
+void preCalc::calc(real *in, real *out)
+{
+    temp[0] = in[0] - temp[1];
+    real t[sd->m];
+    for (int i = 0; i < sd->m; i++) {
+	splinecoeffs *p = &sd->sc[i];
+	check(sd, temp, (*p->eval)(p, temp, &t[i]));
+    }
+    for (int i = 0; i < sd->n_output; i++) {
+	out[i] = t[i];
+    }
+    for (int i = 0; i < sd->n_state; i++) {
+	temp[i+sd->n_input] += t[i+sd->n_output];
+    }
+}
+
 class PreAmp {
 private:
-    SplineCalc pre;
+    preCalc pre;
     real Uin;
     static const real TransN;
     static const real Fdamp;
@@ -189,12 +211,82 @@ int preamp_load_ui(const UiBuilder& b, int form) {
  ** Power Amp
  */
 
+class psCalc: public SplineCalc {
+public:
+    psCalc(splinedata *sd_, real *s0_): SplineCalc(sd_, s0_) {}
+    void calc(real *in, real *out);
+};
+
+void psCalc::calc(real *in, real *out)
+{
+    real temp1[3];
+    temp1[0] = in[0] - temp[1];
+    temp1[1] = temp[2];
+    temp1[2] = temp[3];
+    real t[sd->m];
+    for (int i = 0; i < sd->m; i++) {
+	splinecoeffs *p = &sd->sc[i];
+	check(sd, temp1, (*p->eval)(p, temp1, &t[i]));
+    }
+    for (int i = 0; i < sd->n_output; i++) {
+	out[i] = t[i];
+    }
+    for (int i = 0; i < sd->n_state; i++) {
+	temp[i+sd->n_input] += t[i+sd->n_output];
+    }
+}
+
+class gCalc: public SplineCalc {
+public:
+    gCalc(splinedata *sd_, real *s0_): SplineCalc(sd_, s0_) {}
+    void calc(real *in, real *out);
+};
+
+void gCalc::calc(real *in, real *out)
+{
+    for (int i = 0; i < sd->n_input; i++) {
+	temp[i] = in[i];
+    }
+    temp[0] -= temp[1] - 311.045;
+    real t[sd->m];
+    for (int i = 0; i < sd->m; i++) {
+	splinecoeffs *p = &sd->sc[i];
+	check(sd, temp, (*p->eval)(p, temp, &t[i]));
+    }
+    out[0] = t[0];
+    temp[1] += t[1] - 311.045;
+}
+
+class ptCalc: public SplineCalc {
+public:
+    ptCalc(splinedata *sd_, real *s0_): SplineCalc(sd_, s0_) {}
+    void calc(real *in, real *out);
+};
+
+void ptCalc::calc(real *in, real *out)
+{
+    for (int i = 0; i < sd->n_input; i++) {
+	temp[i] = in[i];
+    }
+    real t[sd->m];
+    for (int i = 0; i < sd->m; i++) {
+	splinecoeffs *p = &sd->sc[i];
+	check(sd, temp, (*p->eval)(p, temp, &t[i]));
+    }
+    for (int i = 0; i < sd->n_output; i++) {
+	out[i] = t[i];
+    }
+    for (int i = 0; i < sd->n_state; i++) {
+	temp[i+sd->n_input] += t[i+sd->n_output];
+    }
+}
+
 class Amp {
 private:
-    SplineCalc ps;
-    SplineCalc g1;
-    SplineCalc g2;
-    SplineCalc pt;
+    psCalc ps;
+    gCalc g1;
+    gCalc g2;
+    ptCalc pt;
     void reset();
     static const real TransN;
     static const real Fdamp;
@@ -205,16 +297,16 @@ public:
     float operator()(float v);
 };
 
-static real ps0[] = { -30.5966, 30.4599, 0.1367 };
+static real ps0[] = { -29.77995343, 29.64688073, 0.13308519 };
 static real g10[] = { 311.045 };
 static real g20[] = { 302.032 };
 static real pt0[] = { 427.582 };
 
 Amp::Amp()
-    : ps(&AmpData::ps::sd, ps0),
-      g1(&AmpData::ppg::sd, g10),
-      g2(&AmpData::ppg::sd, g20),
-      pt(&AmpData::ppp::sd, pt0)
+    : ps(&AmpData::ps_jcm800::sd, ps0),
+      g1(&AmpData::ppg_jcm800::sd, g10),
+      g2(&AmpData::ppg_jcm800::sd, g20),
+      pt(&AmpData::ppp_jcm800::sd, pt0)
 {
     reset();
 }
@@ -235,12 +327,6 @@ void Amp::reset()
     pt.reset();
 }
 
-void check(const char *id, int i) {
-    if (i) {
-	printf("%s: %08x", id, i);
-    }
-}
-
 inline float Amp::operator()(float v)
 {
     real s[2];
@@ -249,7 +335,7 @@ inline float Amp::operator()(float v)
     g1.calc(&s[0], &up[0]);
     g2.calc(&s[1], &up[1]);
     real Uout;
-    up[1] += up[0]; // pt spline table expects signal + sum
+    //up[1] += up[0]; // pt spline table expects signal + sum
     pt.calc(up, &Uout);
     return Uout;
 }

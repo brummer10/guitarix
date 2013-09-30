@@ -11,24 +11,25 @@ def print_intpp_data(i):
     if hasattr(p, "init"):
         p.init()
     print >>o, "namespace %s {" % p.comp_id
-    r = splinetable.print_intpp_data(o, "", "", p.func, p.N_IN, p.NVALS, *p.ranges)
+    r, order_tab = splinetable.print_intpp_data(o, "", "", p, p.ranges, p.basegrid)
+    print >>o, "splinecoeffs sc[%d] = {" % p.NVALS
+    f_set = set()
+    for j, row in enumerate(order_tab):
+        inst = "splinedata::splev<%s>" % ",".join([str(v) for v in row if v is not None])
+        f_set.add(inst)
+        print >>o, "\t{x0_%d, xe_%d, hi_%d, n_%d, nmap_%d, map_%d, t_%d, c_%d, %s}," % (j, j, j, j, j, j, j, j, inst)
+    print >>o, "};"
     print >>o, "splinedata sd = {"
-    print >>o, "\tx0,"
-    print >>o, "\th,"
-    print >>o, "\tn,"
-    print >>o, "\tt,"
-    print >>o, "\tc,"
+    print >>o, "\tsc,"
     print >>o, "\t%d, /* number of calculated values */" % p.NVALS
     print >>o, "\t%d, /* number of input values */" % p.N_IN
     print >>o, "\t%d, /* number of output values */" % (p.NVALS-(p.NDIM-p.N_IN))
     print >>o, "\t%d, /* number of state values */" % (p.NDIM-p.N_IN)
-    inst = "splinedata::splev<%s>" % ",".join([str(row[1]) for row in p.ranges])
-    print >>o, "\t%s," % inst
     print >>o, '\t"%s",' % p.comp_id
     print >>o, "};"
     print >>o, "}; /* ! namespace %s */" % p.comp_id
     o.seek(0)
-    return r, o.read(), inst, p.comp_name, p.comp_id;
+    return r, o.read(), f_set, p.comp_name, p.comp_id;
 
 def print_header_file_start(h):
     print >>h, """\
@@ -71,15 +72,15 @@ def print_footer(o):
     return 0
 
 components_list = [
-    circuit.PhaseSplitter,
-    circuit.PPGate,
-    circuit.PPPlate,
+    circuit.PhaseSplitter_JCM800,
+    circuit.PPGate_JCM800,
+    circuit.PPPlate_JCM800,
     circuit.CoupledTriode,
     ]
 
 def write_files(o, inst, h):
-    pool = mp.Pool(mp.cpu_count())
     if True: # set to False for sequential computation in the current process
+        pool = mp.Pool(mp.cpu_count()+1)
         procs = [pool.apply_async(print_intpp_data, [i]) for i in range(len(components_list))]
     else:
         procs = [print_intpp_data(i) for i in range(len(components_list))]
@@ -92,7 +93,7 @@ def write_files(o, inst, h):
             p = p.get()
         s, f, i, comp_name, comp_id = p
         o.write(f)
-        templ.add(i)
+        templ |= i
         l.append("%s: %d bytes" % (comp_name, s))
         sz += s
         print_header_file_entry(h, comp_id)
@@ -101,7 +102,7 @@ def write_files(o, inst, h):
     print >>o, "".join(["\n// " + s for s in l])
     print_header_file_end(h)
     for v in sorted(templ):
-        print >>inst, "template int %s(splinedata *p, real xi[2], real *res);" % v
+        print >>inst, "template int %s(splinecoeffs *p, real xi[2], real *res);" % v
 
 def main():
     if len(sys.argv) > 1:

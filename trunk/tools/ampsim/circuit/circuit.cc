@@ -14,35 +14,13 @@
 #include <sundials/sundials_math.h>
 #include "circuit.hpp"
 
-#define FTOL   RCONST(1.e-7)  /* function tolerance */
-#define STOL   RCONST(1.e-5) /* step tolerance */
+//#define FTOL   RCONST(1.e-7)  /* function tolerance */
+//#define STOL   RCONST(1.e-5) /* step tolerance */
+#define FTOL   RCONST(1.e-11)  /* function tolerance */
+#define STOL   RCONST(1.e-9) /* step tolerance */
 
 #define ZERO   RCONST(0.0)
 #define ONE    RCONST(1.0)
-
-/* 
- * Print final statistics contained in iopt 
- */
-#if 0
-static void PrintFinalStats(void *kmem)
-{
-    long int nni, nfe, nje, nfeD;
-    int flag;
-  
-    flag = KINGetNumNonlinSolvIters(kmem, &nni);
-    check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
-    flag = KINGetNumFuncEvals(kmem, &nfe);
-    check_flag(&flag, "KINGetNumFuncEvals", 1);
-
-    flag = KINDlsGetNumJacEvals(kmem, &nje);
-    check_flag(&flag, "KINDlsGetNumJacEvals", 1);
-    flag = KINDlsGetNumFuncEvals(kmem, &nfeD);
-    check_flag(&flag, "KINDlsGetNumFuncEvals", 1);
-
-    printf("Final Statistics:\n");
-    printf("  nni = %5ld    nfe  = %5ld \n", nni, nfe);
-    printf("  nje = %5ld    nfeD = %5ld \n", nje, nfeD);
-}
 
 static void print_vec(const char *t, N_Vector v) {
     printf("%s =", t);
@@ -51,7 +29,6 @@ static void print_vec(const char *t, N_Vector v) {
     }
     printf("\n");
 }
-#endif
 
 /*
  * Check function return value...
@@ -95,6 +72,30 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
     }
 
     return(0);
+}
+
+/* 
+ * Print final statistics contained in iopt 
+ */
+
+static void PrintFinalStats(void *kmem)
+{
+    long int nni, nfe, nje, nfeD;
+    int flag;
+  
+    flag = KINGetNumNonlinSolvIters(kmem, &nni);
+    check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
+    flag = KINGetNumFuncEvals(kmem, &nfe);
+    check_flag(&flag, "KINGetNumFuncEvals", 1);
+
+    flag = KINDlsGetNumJacEvals(kmem, &nje);
+    check_flag(&flag, "KINDlsGetNumJacEvals", 1);
+    flag = KINDlsGetNumFuncEvals(kmem, &nfeD);
+    check_flag(&flag, "KINDlsGetNumFuncEvals", 1);
+
+    printf("Final Statistics:\n");
+    printf("  nni = %5ld    nfe  = %5ld \n", nni, nfe);
+    printf("  nje = %5ld    nfeD = %5ld \n", nje, nfeD);
 }
 
 
@@ -252,7 +253,7 @@ Cube::~Cube()
     }
 }
 
-void Cube::fill(int n, int *ix, N_Vector x, N_Vector u0)
+int Cube::fill(int n, int *ix, N_Vector x, N_Vector u0)
 {
     N_Vector u = N_VNew_Serial(vals);
     N_VScale_Serial(ONE, u0, u);
@@ -263,7 +264,11 @@ void Cube::fill(int n, int *ix, N_Vector x, N_Vector u0)
 	    fill(n-1, ix+1, x, u);
 	} else {
 	    //printf("-> "); N_VPrint_Serial(u); N_VPrint_Serial(x);
-	    cb.findzero(NV_DATA_S(x), NV_DATA_S(x)+n_in, u);
+	    if (cb.findzero(NV_DATA_S(x), NV_DATA_S(x)+n_in, u)) {
+		print_vec("fill error at", x);
+		N_VDestroy_Serial(u);
+		return 1;
+	    }
 	    //printf("<- "); N_VPrint_Serial(u);
 	    float *p = cell(idx);
 	    for (int j = 0; j < vals; j++) {
@@ -275,9 +280,10 @@ void Cube::fill(int n, int *ix, N_Vector x, N_Vector u0)
 	}
     }
     N_VDestroy_Serial(u);
+    return 0;
 }
 
-int Cube::calc(N_Vector x, N_Vector s, N_Vector u)
+void Cube::startvalue(N_Vector x, N_Vector s, N_Vector u)
 {
     assert(NV_LENGTH_S(x)+NV_LENGTH_S(s) == ndim);
     for (int i = 0; i < NV_LENGTH_S(x); i++) {
@@ -312,6 +318,11 @@ int Cube::calc(N_Vector x, N_Vector s, N_Vector u)
     for (int i = 0; i < vals; i++) {
 	Ith(u,i) = pts[i];
     }
+}
+
+int Cube::calc(N_Vector x, N_Vector s, N_Vector u)
+{
+    startvalue(x, s, u);
     return cb.findzero(NV_DATA_S(x), NV_DATA_S(s), u);
 }
 
@@ -333,6 +344,7 @@ ComponentBase::ComponentBase(int neq, int ndim, int nvals, int n_in, int n_out, 
       state_names(new const char*[nvals-n_out]),
       var_names(new const char*[neq]),
       ix(new int[ndim]),
+      verbose(false),
       ranges(new Dim[ndim]),
       cube(0),
       user_data(),
@@ -374,13 +386,13 @@ int ComponentBase::set_range(int i, double lower, double upper, int size) {
     return 1;
 }
 
-void ComponentBase::init(N_Vector u0) {
+void ComponentBase::init(N_Vector u0, const char* fname) {
     N_Vector u = N_VNew_Serial(NEQ);
     for (int i = 0; i < NEQ; i++) {
 	Ith(u,i) = Ith(u0,i);
     }
     delete cube;
-    cube = new Cube(NDIM, ranges, NEQ, ix, N_IN, *this, u);
+    cube = new Cube(NDIM, ranges, NEQ, ix, N_IN, *this, u, fname);
     N_VDestroy_Serial(u);
 }
 
@@ -403,7 +415,7 @@ int ComponentBase::findzero(realtype *x, realtype *state, N_Vector u) {
     void *kmem = KINCreate();
     if (check_flag((void *)kmem, "KINCreate", 0)) return 1;
 
-    user_data.in = x;
+    user_data.inval = x;
     user_data.state = state;
     flag = KINSetUserData(kmem, this);
     if (check_flag(&flag, "KINSetUserData", 1)) return flag;
@@ -442,13 +454,18 @@ int ComponentBase::findzero(realtype *x, realtype *state, N_Vector u) {
 	return flag;
     }
     if (check_flag(&flag, "KINSol", 1)) return flag;
-    //PrintFinalStats(kmem);
-
+    if (verbose) {
+	PrintFinalStats(kmem);
+    }
     N_VDestroy_Serial(s);
     KINFree(&kmem);
-    user_data.in = 0;
+    user_data.inval = 0;
     user_data.state = 0;
     return 0;
+}
+
+void ComponentBase::startvalue(N_Vector x, N_Vector s, N_Vector u) {
+    cube->startvalue(x, s, u);
 }
 
 int ComponentBase::calc(N_Vector x, N_Vector s, N_Vector u) {
@@ -540,11 +557,11 @@ TriodeCircuit::TriodeCircuit()
 
 void TriodeCircuit::update(N_Vector y, N_Vector x, N_Vector state) {
     realtype *fdata = NV_DATA_S(y);
-    realtype Ug = fdata[0];
+    //realtype Ug = fdata[0];
     realtype Uk = fdata[1];
-    realtype Ua = fdata[2];
+    //realtype Ua = fdata[2];
     realtype Uc1m = Uk;
-    Uc1m = Uc1m - (Uk*Gk - Ia(Ug-Uk,Ua-Uk) - Ig(Ug-Uk)) / (Ck*fs);
+    //Uc1m = Uc1m - (Uk*Gk - Ia(Ug-Uk,Ua-Uk) - Ig(Ug-Uk)) / (Ck*fs);
     Ith(state,0) = Uc1m;
 }
 
@@ -560,7 +577,7 @@ int TriodeCircuit::func(N_Vector u, N_Vector f, UserData *data) {
     realtype L  = udata[4];
     realtype Uc = Uk;
 
-    realtype Uin = data->in[0];
+    realtype Uin = data->inval[0];
     realtype Uc1m = data->state[0];
 
     realtype ia = Ia(Ug-Uk,Ua-Uk);
@@ -610,20 +627,19 @@ CoupledTriodeCircuit::CoupledTriodeCircuit()
 void CoupledTriodeCircuit::update(N_Vector y, N_Vector x, N_Vector state)
 {
     realtype *fdata = NV_DATA_S(y);
-    realtype Ug = fdata[0];
+    //realtype Ug = fdata[0];
     realtype Uk = fdata[1];
     realtype Ua = fdata[2];
     realtype U2 = fdata[3];
-    realtype Ug2 = fdata[4];
+    //realtype Ug2 = fdata[4];
 
     realtype Uc1m = Uk;
     realtype Uc2m = Ua-U2;
 
-    realtype ia1 = Ia(Ug-Uk,Ua-Uk);
-    realtype ig1 = Ig(Ug-Uk);
-    Uc1m = Uc1m - (Uk*Gk-ia1-ig1) / (Ck*fs);
-    Uc2m = Uc2m + ((U2-Ug2)*G3) / (Ca*fs);
-
+    //realtype ia1 = Ia(Ug-Uk,Ua-Uk);
+    //realtype ig1 = Ig(Ug-Uk);
+    //Uc1m = Uc1m - (Uk*Gk-ia1-ig1) / (Ck*fs);
+    //Uc2m = Uc2m + ((U2-Ug2)*G3) / (Ca*fs);
     Ith(state,0) = Uc1m;
     Ith(state,1) = Uc2m;
 }
@@ -643,7 +659,7 @@ int CoupledTriodeCircuit::func(N_Vector u, N_Vector f, UserData *data) {
     realtype Uc1 = Uk;
     realtype Uc2 = Ua-U2;
 
-    realtype Uin = data->in[0];
+    realtype Uin = data->inval[0];
     realtype Uc1m = data->state[0];
     realtype Uc2m = data->state[1];
 
@@ -689,11 +705,10 @@ void PowerAmpGate::update(N_Vector y, N_Vector x, N_Vector state) {
     realtype *fdata = NV_DATA_S(y);
     realtype U0 = fdata[0];
     realtype U1 = fdata[1];
-    realtype Ug = fdata[2];
+    //realtype Ug = fdata[2];
     realtype Uc1m = U0-U1;
 
-    Uc1m = Uc1m + ((U1-Ub)*Gb+(U1-Ug)*Gg)/(C1*fs);
-
+    //Uc1m = Uc1m + ((U1-Ub)*Gb+(U1-Ug)*Gg)/(C1*fs);
     Ith(state,0) = Uc1m;
 }
 
@@ -706,7 +721,7 @@ int PowerAmpGate::func(N_Vector u, N_Vector f, UserData *data) {
     realtype Ug = udata[2];
     realtype Uc1 = U0 - U1;
 
-    realtype Uin = data->in[0];
+    realtype Uin = data->inval[0];
     realtype Uc1m = data->state[0];
 
     fdata[0] = C1*(Uc1-Uc1m)*fs-(Uin-U0)*G1;
@@ -718,7 +733,7 @@ int PowerAmpGate::func(N_Vector u, N_Vector f, UserData *data) {
 
 
 PowerAmpPlate::PowerAmpPlate()
-    : ComponentBase(5, 3, 2, 2, 2, param_off+5),
+    : ComponentBase(5+2, 3, 2, 2, 2, param_off+5),
       C2(params[param_off+0]),
       Gd(params[param_off+1]),
       Ga(params[param_off+2]),
@@ -732,30 +747,37 @@ PowerAmpPlate::PowerAmpPlate()
     set_names(out_names, o_names, N_OUT);
     static const char *s_names[] = { "Uc2m", 0 };
     set_names(state_names, s_names, NVALS-N_OUT);
-    static const char *v_names[] = { "Us1", "Us2", "Ud", "Ua1", "Ua2", 0 };
+    static const char *v_names[] = { "Us1", "Us2", "Ud", "Ua1", "Ua2", "L1", "L2", 0 };
     set_names(var_names, v_names, NEQ);
     ix[0] = 2;
     ix[1] = 1;
     ix[2] = 0;
+    constraints = N_VNew_Serial(NEQ);
+    Ith(constraints,0) =  ZERO;   /* no constraint on f1 */
+    Ith(constraints,1) =  ZERO;   /* no constraint on f2 */
+    Ith(constraints,2) =  ZERO;   /* no constraint on f3 */
+    Ith(constraints,3) =  ZERO;   /* no constraint on f4 */
+    Ith(constraints,4) =  ZERO;   /* no constraint on f5 */
+    Ith(constraints,5) =  ONE;    /* L1 = Us1 - Ud/2 >= 0 */
+    Ith(constraints,6) =  ONE;    /* L2 = Us2 - Ud/2 >= 0 */
 }
 
 void PowerAmpPlate::update(N_Vector y, N_Vector x, N_Vector state) {
     realtype *fdata = NV_DATA_S(y);
-    realtype Us1 = fdata[0];
-    realtype Us2 = fdata[1];
+    //realtype Us1 = fdata[0];
+    //realtype Us2 = fdata[1];
     realtype Ud  = fdata[2];
-    realtype Ua1 = fdata[3];
-    realtype Ua2 = fdata[4];
-    realtype Ug1 = Ith(x,0);
-    realtype Ug2 = Ith(x,1);
+    //realtype Ua1 = fdata[3];
+    //realtype Ua2 = fdata[4];
+    //realtype Ug1 = Ith(x,0);
+    //realtype Ug2 = Ith(x,1);
     realtype Uc2m = Ud;
-    realtype ia1 = Iap(Ug1,Us1,Ua1);
-    realtype is1 = Is(Ug1,Us1);
-    realtype ia2 = Iap(Ug2,Us2,Ua2);
-    realtype is2 = Is(Ug2,Us2);
+    //realtype ia1 = Iap(Ug1,Us1,Ua1);
+    //realtype is1 = Is(Ug1,Us1);
+    //realtype ia2 = Iap(Ug2,Us2,Ua2);
+    //realtype is2 = Is(Ug2,Us2);
 
-    Uc2m = Uc2m + ((Un-Uc2m)*Gd-(ia1+ia2+is1+is2))/(C2*fs);
-
+    //Uc2m = Uc2m + ((Un-Uc2m)*Gd-(ia1+ia2+is1+is2))/(C2*fs);
     Ith(state,0) = Uc2m;
 }
 
@@ -768,10 +790,12 @@ int PowerAmpPlate::func(N_Vector u, N_Vector f, UserData *data) {
     realtype Ud  = udata[2];
     realtype Ua1 = udata[3];
     realtype Ua2 = udata[4];
+    realtype L1  = udata[5];
+    realtype L2  = udata[6];
     realtype Uc2 = Ud;
 
-    realtype Ug1 = data->in[0];
-    realtype Ug2 = data->in[1];
+    realtype Ug1 = data->inval[0];
+    realtype Ug2 = data->inval[1];
     realtype Uc2m = data->state[0];
 
     realtype ia1 = Iap(Ug1,Us1,Ua1);
@@ -783,6 +807,8 @@ int PowerAmpPlate::func(N_Vector u, N_Vector f, UserData *data) {
     fdata[2] = -is1+(Ud-Us1)*Gs;
     fdata[3] = -is2+(Ud-Us2)*Gs;
     fdata[4] = -ia1-ia2-is1-is2+(Un-Ud)*Gd-C2*(Uc2-Uc2m)*fs;
+    fdata[5] = L1 - (Us1 - -Ud);
+    fdata[6] = L2 - (Us2 - -Ud);
 
     return(0);
 }
@@ -827,19 +853,19 @@ void PhaseSplitter::update(N_Vector y, N_Vector x, N_Vector state) {
     realtype *fdata = NV_DATA_S(y);
     realtype U1  = fdata[0];
     realtype Ug1 = fdata[1];
-    realtype Uk  = fdata[2];
-    realtype U2  = fdata[4];
+    //realtype Uk  = fdata[2];
+    //realtype U2  = fdata[4];
     realtype U3  = fdata[5];
     realtype U4  = fdata[6];
     realtype Ug2 = fdata[7];
     realtype Uc1m = U1-Ug1;
     realtype Uc2m = Ug2-U3;
     realtype Uc3m = U3-U4;
-    realtype ig1 = Ig(Ug1-Uk);
-    realtype ig2 = Ig(Ug2-Uk);
-    Uc1m = Uc1m + ((Ug1-U2)*Gg1+ig1) / (C1*fs);
-    Uc2m = Uc2m - ((Ug2-U2)*Gg2+ig2) / (C2*fs);
-    Uc3m = Uc3m + (U4*G4) / (C3*fs);
+    //realtype ig1 = Ig(Ug1-Uk);
+    //realtype ig2 = Ig(Ug2-Uk);
+    //Uc1m = Uc1m + ((Ug1-U2)*Gg1+ig1) / (C1*fs);
+    //Uc2m = Uc2m - ((Ug2-U2)*Gg2+ig2) / (C2*fs);
+    //Uc3m = Uc3m + (U4*G4) / (C3*fs);
     Ith(state,0) = Uc1m;
     Ith(state,1) = Uc2m;
     Ith(state,2) = Uc3m;
@@ -862,7 +888,7 @@ int PhaseSplitter::func(N_Vector u, N_Vector f, UserData *data) {
     realtype Uc2 = Ug2 - U3;
     realtype Uc3 = U3 - U4;
 
-    realtype Uin = data->in[0];
+    realtype Uin = data->inval[0];
     realtype Uc1m = data->state[0];
     realtype Uc2m = data->state[1];
     realtype Uc3m = data->state[2];

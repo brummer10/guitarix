@@ -34,40 +34,38 @@ template<int K> static void fpbspl(float *t, real x, int l, real *h)
 
 /****************************************************************
  ** search for knot interval
- ** n: len(t)-k
+ ** n: len(map)
  ** k: order
  ** returns index l: t[l] <= x < t[l+1]
  */
-static inline int find_index(int n, int k, real *x, char* cl)
+static inline int find_index(int n, int k, real *x, real xi, real x0, real xe, real stepi, char* cl)
 {
-    if (*x < 0) {
-	*cl = -1;
-	*x = 0;
-	return k-1;
-    }
-    if (*x > n-1) {
-	*cl = 1;
-	*x = n-1;
-	return n-1;
-    }
-    *cl = 0;
-    int m = k % 2;
-    int l = static_cast<int>(*x+m/2.0) + (k-m)/2;
-    if (l < k) {
-	return k-1;
-    } else if (l > n-1) {
-	return n-1;
+    int l;
+    if (k % 2) {
+	l = static_cast<int>((xi - x0) * stepi + 0.5);
     } else {
-	return l;
+	l = static_cast<int>((xi - x0) * stepi);
     }
+    if (l < 0) {
+	*cl = -1;
+	*x = x0;
+	return 0;
+    }
+    if (l >= n) {
+	*cl = 1;
+	*x = xe;
+	return n-1;
+    }
+    *x = xi;
+    return l;
 }
 
 template<int K>
-static inline int forward(int i, splinedata *p, real *xi, real *x, int ll,
+static inline int forward(int i, splinecoeffs *p, real *xi, real *x, int ll,
 			  splinedata::retval *cl, real *h)
 {
-    x[i] = (xi[i] - p->x0[i]) / p->step[i];
-    int l = find_index(p->n[i], K, &x[i], &cl->c[i]);
+    int l = p->map[i][find_index(p->nmap[i], K, &x[i], xi[i], p->x0[i], p->xe[i], p->stepi[i], &cl->c[i])];
+    int ii = find_index(p->nmap[i], K, &x[i], xi[i], p->x0[i], p->xe[i], p->stepi[i], &cl->c[i]);
     fpbspl<K>(p->t[i],x[i],l,h);
     return ll*p->n[i] + l-K+1;
 }
@@ -82,7 +80,7 @@ static inline int forward(int i, splinedata *p, real *xi, real *x, int ll,
  ** res: output array (size m)
  */
 template<int K0>
-int splinedata::splev(splinedata *p, real xi[1], real *res)
+int splinedata::splev(splinecoeffs *p, real xi[1], real *res)
 {
     real h[K0];
     real x;
@@ -90,14 +88,11 @@ int splinedata::splev(splinedata *p, real xi[1], real *res)
     cl.i = 0;
     int ll = 0;
     ll = forward<K0>(0, p, xi, &x, ll, &cl, h);
-    for (int i = 0; i < p->m; i++) {
-	real sp = 0;
-	for (int j = 0; j < K0; j++) {
-	    sp += p->c[0][ll+j]*h[j];
-	}
-	res[i] = sp;
-	ll += p->n[0];
+    real sp = 0;
+    for (int j = 0; j < K0; j++) {
+	sp += p->c[0][ll+j]*h[j];
     }
+    *res = sp;
     return cl.i;
 }
 
@@ -111,7 +106,7 @@ int splinedata::splev(splinedata *p, real xi[1], real *res)
  ** res[m]: output array
  */
 template<int K0, int K1>
-int splinedata::splev(splinedata *p, real xi[2], real *res)
+int splinedata::splev(splinecoeffs *p, real xi[2], real *res)
 {
     real h[2][6];
     real x[2];
@@ -120,25 +115,23 @@ int splinedata::splev(splinedata *p, real xi[2], real *res)
     int ll = 0;
     ll = forward<K0>(0, p, xi, x, ll, &cl, h[0]);
     ll = forward<K1>(1, p, xi, x, ll, &cl, h[1]);
-    for (int i = 0; i < p->m; i++) {
-	float *cc = p->c[i];
-	int lc = ll;
-	int j[2];
-	real sp = 0;
-	for (j[0] = 0; j[0] < K0; j[0]++) {
-	    for (j[1] = 0; j[1] < K1; j[1]++) {
-		sp += cc[lc]*h[0][j[0]]*h[1][j[1]];
-		lc += 1;
-	    }
-	    lc += p->n[1]-K1;
+    float *cc = p->c[0];
+    int lc = ll;
+    int j[2];
+    real sp = 0;
+    for (j[0] = 0; j[0] < K0; j[0]++) {
+	for (j[1] = 0; j[1] < K1; j[1]++) {
+	    sp += cc[lc]*h[0][j[0]]*h[1][j[1]];
+	    lc += 1;
 	}
-	res[i] = sp;
+	lc += p->n[1]-K1;
     }
+    *res = sp;
     return cl.i;
 }
 
 template<int K0, int K1, int K2>
-int splinedata::splev(splinedata *p, real xi[3], real *res)
+int splinedata::splev(splinecoeffs *p, real xi[3], real *res)
 {
     real h[3][6];
     real x[3];
@@ -148,28 +141,26 @@ int splinedata::splev(splinedata *p, real xi[3], real *res)
     ll = forward<K0>(0, p, xi, x, ll, &cl, h[0]);
     ll = forward<K1>(1, p, xi, x, ll, &cl, h[1]);
     ll = forward<K2>(2, p, xi, x, ll, &cl, h[2]);
-    for (int i = 0; i < p->m; i++) {
-	float *cc = p->c[i];
-	int lc = ll;
-	int j[3];
-	real sp = 0;
-	for (j[0] = 0; j[0] < K0; j[0]++) {
-	    for (j[1] = 0; j[1] < K1; j[1]++) {
-		for (j[2] = 0; j[2] < K2; j[2]++) {
-		    sp += cc[lc]*h[0][j[0]]*h[1][j[1]]*h[2][j[2]];
-		    lc += 1;
-		}
-		lc += p->n[2]-K2;
+    float *cc = p->c[0];
+    int lc = ll;
+    int j[3];
+    real sp = 0;
+    for (j[0] = 0; j[0] < K0; j[0]++) {
+	for (j[1] = 0; j[1] < K1; j[1]++) {
+	    for (j[2] = 0; j[2] < K2; j[2]++) {
+		sp += cc[lc]*h[0][j[0]]*h[1][j[1]]*h[2][j[2]];
+		lc += 1;
 	    }
-	    lc += (p->n[1]-K1)*p->n[2];
+	    lc += p->n[2]-K2;
 	}
-	res[i] = sp;
+	lc += (p->n[1]-K1)*p->n[2];
     }
+    *res = sp;
     return cl.i;
 }
 
 template<int K0, int K1, int K2, int K3>
-int splinedata::splev(splinedata *p, real xi[4], real *res)
+int splinedata::splev(splinecoeffs *p, real xi[4], real *res)
 {
     real h[4][6];
     real x[4];
@@ -180,26 +171,24 @@ int splinedata::splev(splinedata *p, real xi[4], real *res)
     ll = forward<K1>(1, p, xi, x, ll, &cl, h[1]);
     ll = forward<K2>(2, p, xi, x, ll, &cl, h[2]);
     ll = forward<K3>(3, p, xi, x, ll, &cl, h[3]);
-    for (int i = 0; i < p->m; i++) {
-	float *cc = p->c[i];
-	int lc = ll;
-	int j[4];
-	real sp = 0;
-	for (j[0] = 0; j[0] < K0; j[0]++) {
-	    for (j[1] = 0; j[1] < K1; j[1]++) {
-		for (j[2] = 0; j[2] < K2; j[2]++) {
-		    for (j[3] = 0; j[3] < K3; j[3]++) {
-			sp += cc[lc]*h[0][j[0]]*h[1][j[1]]*h[2][j[2]]*h[3][j[3]];
-			lc += 1;
-		    }
-		    lc += p->n[3]-K3;
+    float *cc = p->c[0];
+    int lc = ll;
+    int j[4];
+    real sp = 0;
+    for (j[0] = 0; j[0] < K0; j[0]++) {
+	for (j[1] = 0; j[1] < K1; j[1]++) {
+	    for (j[2] = 0; j[2] < K2; j[2]++) {
+		for (j[3] = 0; j[3] < K3; j[3]++) {
+		    sp += cc[lc]*h[0][j[0]]*h[1][j[1]]*h[2][j[2]]*h[3][j[3]];
+		    lc += 1;
 		}
-		lc += (p->n[2]-K2)*p->n[3];
+		lc += p->n[3]-K3;
 	    }
-	    lc += (p->n[1]-K1)*p->n[2]*p->n[3];
+	    lc += (p->n[2]-K2)*p->n[3];
 	}
-	res[i] = sp;
+	lc += (p->n[1]-K1)*p->n[2]*p->n[3];
     }
+    *res = sp;
     return cl.i;
 }
 
@@ -213,8 +202,8 @@ SplineCalc::~SplineCalc() {
     delete[] temp;
 }
 
-#if 0
-static void report(splinedata *sd, real *t, int i)
+#ifdef CHECK_BOUNDS
+void report(splinedata *sd, real *t, int i)
 {
     printf("%s:", sd->func_id);
     splinedata::retval cl;
@@ -228,13 +217,6 @@ static void report(splinedata *sd, real *t, int i)
     }
     printf("\n");
 }
-
-static inline void check(splinedata *sd, real *t, int i)
-{
-    if (i) report(sd, t, i);
-}
-#else
-#define check(sd, t, i) i
 #endif
 
 void SplineCalc::calc(real *in, real *out)
@@ -243,7 +225,10 @@ void SplineCalc::calc(real *in, real *out)
 	temp[i] = in[i];
     }
     real t[sd->m];
-    check(sd, temp, (*sd->eval)(sd, temp, t));
+    for (int i = 0; i < sd->m; i++) {
+	splinecoeffs *p = &sd->sc[i];
+	check(sd, temp, (*p->eval)(p, temp, &t[i]));
+    }
     for (int i = 0; i < sd->n_output; i++) {
 	out[i] = t[i];
     }

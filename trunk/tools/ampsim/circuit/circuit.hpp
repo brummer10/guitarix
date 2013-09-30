@@ -5,7 +5,6 @@
 
 const int fs = 96000;
 
-
 struct Dim {
     double lower, upper;
     int size, stride;
@@ -40,7 +39,6 @@ protected:
     double *pts;		// size = p2dim*vals
     inline float *cell(int *ix);
     int calc_strides();
-    void fill(int n, int *ix, N_Vector x, N_Vector u0);
 public:
     Grid(int d, Dim *v, int n);
     ~Grid();
@@ -54,10 +52,11 @@ private:
     ComponentBase& cb;
     int mmap_size;
     int n_in;                   // length of input vector
-    void fill(int n, int *ix, N_Vector x, N_Vector u0);
+    int fill(int n, int *ix, N_Vector x, N_Vector u0);
 public:
     Cube(int d, Dim *v, int n, int *ix, int n_in_, ComponentBase& cb, N_Vector u0, const char* fname=0);
     ~Cube();
+    void startvalue(N_Vector x, N_Vector s, N_Vector u);
     int calc(N_Vector x, N_Vector s, N_Vector u);
 };
 
@@ -77,8 +76,9 @@ public:
     const char **state_names;
     const char **var_names;
     int *ix;
+    bool verbose;
     struct UserData {
-	realtype *in;
+	realtype *inval;
 	realtype *state;
     };
 private:
@@ -110,8 +110,9 @@ public:
     virtual void update(N_Vector y, N_Vector x, N_Vector state) = 0;
     int findzero(realtype *x, realtype *s, N_Vector u);
     int set_range(int i, double lower, double upper, int size);
-    void init(N_Vector u0);
+    void init(N_Vector u0, const char* fname=0);
     int calc(N_Vector x, N_Vector s, N_Vector u);
+    void startvalue(N_Vector x, N_Vector s, N_Vector u);
     ComponentBase(int neq, int ndim, int nvals, int n_in, int n_out, int n_params_);
     virtual ~ComponentBase();
 };

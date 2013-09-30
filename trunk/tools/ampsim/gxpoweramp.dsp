@@ -23,9 +23,9 @@ feedbackfilter = (_ <: *(b0), (mem : *(b1)) :> + ~ *(a1)) with {
 
 Xprocess = PowAmp with { PowAmp = ffunction(float PowAmp(float), <math.h>, ""); };
 
-process = *(pregain) : (- : PowAmp) ~ (feedbackfilter : *(fbgain)) : *(postgain) with {
+process = *(pregain) : (+ : PowAmp) ~ (feedbackfilter : *(-fbgain)) : *(postgain) with {
     PowAmp = ffunction(float PowAmp(float), <math.h>, "");
     pregain =  vslider("Pregain",0,-20,40,0.1) : db2linear : smoothi(0.999); 
     postgain = vslider("postgain", 0, -20.0, 20.0, 0.1) : db2linear : /(450): smoothi(0.999);
-    fbgain = vslider("fbgain", 0, -40.0, 20.0, 0.1) : db2linear : /(15): smoothi(0.999);
+    fbgain = vslider("fbgain", -1, -40.0, 20.0, 0.1) : db2linear : /(15): smoothi(0.999);
 };

@@ -1,6 +1,8 @@
 declare name "PreAmp";
 import("../../src/faust/guitarix.lib");
 
+Xprocess = PreAmp with { PreAmp = ffunction(float PreAmp1(float), <math.h>, ""); };
+
 process =   *(gain1) : PreAmp1 : highpass(1,31.0) : *(2/92)
           : *(gain2) : PreAmp2 : highpass(1,31.0) : *(2/92)
           : *(gain3) : PreAmp3 : highpass(1,31.0) : *(2/92)

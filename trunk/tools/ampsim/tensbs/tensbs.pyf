@@ -12,7 +12,7 @@ python module tensbs ! in
             real dimension(nx),intent(out),depend(nx) :: bcoef
             real dimension(nx+2*kx*(nx+1)),intent(hide),depend(nx,kx) :: work
             integer, optional, intent(in,out) :: iflag=0
-        end subroutine b2ink
+        end subroutine b1ink
         subroutine b2ink(x,nx,y,ny,fcn,ldf,kx,ky,tx,ty,bcoef,work,iflag) ! in :tensbs:b2ink.f
             real dimension(nx) :: x
             integer optional,check(len(x)>=nx),depend(x) :: nx=len(x)
