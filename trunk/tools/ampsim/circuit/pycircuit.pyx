@@ -80,9 +80,12 @@ class ConvergenceError(ValueError):
         self.tag = tag
         t = "%s: " % tag if tag else ""
         v1 = ", ".join((str(v) for v in x))
-        v2 = ", ".join((str(v) for v in s))
+        if s is not None:
+            v2 = "/[%s]" % ", ".join((str(v) for v in s))
+        else:
+            v2 = ""
         ValueError.__init__(
-            self, "%sKINSol error %d at [%s]/[%s]" % (t, err, v1, v2))
+            self, "%sKINSol error %d at [%s]%s" % (t, err, v1, v2))
 
     def __reduce__(self):
         return (ConvergenceError, (self.error, self.x, self.s, self.tag))
@@ -240,42 +243,42 @@ cdef class CalcBase:
     def post_call(self, O, with_state):
         return O
 
-    cdef np.ndarray prepare_input(self, object a, int with_state, int& n_in, int& n_out, int& ndim):
+    cdef np.ndarray prepare_input(self, object a, int with_state, int* n_in, int* n_out, int* ndim):
         cdef np.ndarray A = np.PyArray_FROMANY(a, np.NPY_DOUBLE, 0, 2, np.NPY_ALIGNED)
-        ndim = np.PyArray_NDIM(A)
-        n_in = self.pbase.NDIM if with_state else self.pbase.N_IN
-        n_out = self.pbase.N_OUT
+        ndim[0] = np.PyArray_NDIM(A)
+        n_in[0] = self.pbase.NDIM if with_state else self.pbase.N_IN
+        n_out[0] = self.pbase.N_OUT
         if with_state:
-            n_out += self.pbase.NDIM-self.pbase.N_IN
-        if ndim == 0:
-            if n_in > 1:
+            n_out[0] += self.pbase.NDIM-self.pbase.N_IN
+        if ndim[0] == 0:
+            if n_in[0] > 1:
                 raise ValueError("input array: bad shape")
             A = np.PyArray_Reshape(A, (1, 1))
-            if n_out > 1:
-                ndim = 1
-        elif ndim == 1:
-            if n_in == 1:
+            if n_out[0] > 1:
+                ndim[0] = 1
+        elif ndim[0] == 1:
+            if n_in[0] == 1:
                 A = np.PyArray_Reshape(A, ((np.PyArray_DIM(A, 0), 1)))
-                if n_out > 1:
-                    ndim = 2
-            elif np.PyArray_DIM(A, 0) == n_in:
-                A = np.PyArray_Reshape(A, (1, n_in))
-                if n_out == 1:
-                    ndim = 0
+                if n_out[0] > 1:
+                    ndim[0] = 2
+            elif np.PyArray_DIM(A, 0) == n_in[0]:
+                A = np.PyArray_Reshape(A, (1, n_in[0]))
+                if n_out[0] == 1:
+                    ndim[0] = 0
             else:
                 raise ValueError("input array: bad shape")
         elif np.PyArray_NDIM(A) == 2:
-            if np.PyArray_DIM(A, 1) != n_in:
-                raise ValueError("input array: bad shape %d/%d" % (np.PyArray_DIM(A, 1), n_in))
-            if n_out == 1:
-                ndim = 1
+            if np.PyArray_DIM(A, 1) != n_in[0]:
+                raise ValueError("input array: bad shape %d/%d" % (np.PyArray_DIM(A, 1), n_in[0]))
+            if n_out[0] == 1:
+                ndim[0] = 1
         return A
 
     def __call__(self, a, int with_state=False):
         cdef int ndim = 0
         cdef int n_in = 0
         cdef int n_out = 0
-        cdef np.ndarray A = self.prepare_input(a, with_state, n_in, n_out, ndim)
+        cdef np.ndarray A = self.prepare_input(a, with_state, &n_in, &n_out, &ndim)
         cdef int dim[2]
         dim[0] = np.PyArray_DIM(A, 0)
         dim[1] = n_out
@@ -307,7 +310,7 @@ cdef class CalcBase:
                     NV_DATA_S(self._state)[j] = (<double*>np.PyArray_ITER_DATA(it))[0]
             n = self.pbase.calc(self.inp, self._state, self.outp)
             if n:
-                raise ConvergenceError(n, A[i], self.state, getattr(self,"comp_id",None))
+                raise ConvergenceError(n, A[i], None if with_state else self.state, getattr(self,"comp_id",None))
             if self.capt_len:
                 for j in range(self.capt_len):
                     (<double*>np.PyArray_ITER_DATA(itc))[j] = NV_DATA_S(self.outp)[self.capt_idx[j]]
