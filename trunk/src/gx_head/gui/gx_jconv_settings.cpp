@@ -551,6 +551,7 @@ void IRWindow::on_open() {
     d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
     d.add_shortcut_folder(GX_SOUND_BPA_DIR);
     d.add_shortcut_folder(GX_SOUND_BPB_DIR);
+    d.add_shortcut_folder(string(getenv("HOME")) + string("/.config/guitarix/IR"));
     Gtk::FileFilter wav;
     wav.set_name("WAV Files");
     wav.add_pattern("*.wav");
