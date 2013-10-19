@@ -100,6 +100,7 @@ def build(bld):
         'mbc.dsp',
         'bmfp.dsp',
         'lowpass_up.dsp',
+        'lowpass_down.dsp',
  
         # tone stacks
         'tonestack_default.dsp',
