@@ -41,7 +41,7 @@ cdef rangeerror(int rv, real *Uin, splinedata *p, int n, int k):
             continue
         l.append("%g not in range [%g .. %g] (parameter %d)"
                  % (Uin[i], p.sc[n].x0[i], p.sc[n].xe[i], i+1))
-    raise LookupError("%s/%d: %s" % (p.func_id, n, " / ".join(l)))
+    raise LookupError("%s/%d: %s" % (<char*>(p.func_id), n, " / ".join(l)))
 
 def phasesplitter(Uin):
     assert len(Uin) == 4

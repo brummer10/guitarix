@@ -4,6 +4,124 @@ import numpy as np
 import pylab
 from scipy.interpolate import LSQUnivariateSpline, InterpolatedUnivariateSpline, UnivariateSpline
 
+try:
+    np.pad
+except AttributeError:
+    # copied from newer numpy distribution
+    def _create_vector(vector, pad_tuple, before_val, after_val):
+        vector[:pad_tuple[0]] = before_val
+        if pad_tuple[1] > 0:
+            vector[-pad_tuple[1]:] = after_val
+        return vector
+
+    def _normalize_shape(narray, shape):
+        normshp = None
+        shapelen = len(np.shape(narray))
+        if (isinstance(shape, int)):
+            normshp = ((shape, shape), ) * shapelen
+        elif (isinstance(shape, (tuple, list))
+                and isinstance(shape[0], (tuple, list))
+                and len(shape) == shapelen):
+            normshp = shape
+            for i in normshp:
+                if len(i) != 2:
+                    fmt = "Unable to create correctly shaped tuple from %s"
+                    raise ValueError(fmt % (normshp,))
+        elif (isinstance(shape, (tuple, list))
+                and isinstance(shape[0], (int, float, long))
+                and len(shape) == 1):
+            normshp = ((shape[0], shape[0]), ) * shapelen
+        elif (isinstance(shape, (tuple, list))
+                and isinstance(shape[0], (int, float, long))
+                and len(shape) == 2):
+            normshp = (shape, ) * shapelen
+        if normshp == None:
+            fmt = "Unable to create correctly shaped tuple from %s"
+            raise ValueError(fmt % (shape,))
+        return normshp
+
+    def _validate_lengths(narray, number_elements):
+        shapelen = len(np.shape(narray))
+        normshp = _normalize_shape(narray, number_elements)
+        for i in normshp:
+            if i[0] < 0 or i[1] < 0:
+                fmt ="%s cannot contain negative values."
+                raise ValueError(fmt % (number_elements,))
+        return normshp
+
+    def _constant(vector, pad_tuple, iaxis, kwargs):
+        nconstant = kwargs['constant_values'][iaxis]
+        return _create_vector(vector, pad_tuple, nconstant[0], nconstant[1])
+
+    def pad(array, pad_width, mode=None, **kwargs):
+        narray = np.array(array)
+        pad_width = _validate_lengths(narray, pad_width)
+
+        modefunc = {
+               'constant': _constant,
+               }
+
+        allowedkwargs = {
+               'constant': ['constant_values'],
+                }
+
+        kwdefaults = {
+                'stat_length': None,
+                'constant_values': 0,
+                'end_values': 0,
+                'reflect_type': 'even',
+                }
+
+        if isinstance(mode, str):
+            function = modefunc[mode]
+
+            # Make sure have allowed kwargs appropriate for mode
+            for key in kwargs:
+                if key not in allowedkwargs[mode]:
+                    raise ValueError('%s keyword not in allowed keywords %s' %
+                                      (key, allowedkwargs[mode]))
+
+            # Set kwarg defaults
+            for kw in allowedkwargs[mode]:
+                kwargs.setdefault(kw, kwdefaults[kw])
+
+            # Need to only normalize particular keywords.
+            for i in kwargs:
+                if i == 'stat_length' and kwargs[i]:
+                    kwargs[i] = _validate_lengths(narray, kwargs[i])
+                if i in ['end_values', 'constant_values']:
+                    kwargs[i] = _normalize_shape(narray, kwargs[i])
+        elif mode == None:
+            raise ValueError('Keyword "mode" must be a function or one of %s.' %
+                              (modefunc.keys(),))
+        else:
+            # User supplied function, I hope
+            function = mode
+
+        # Create a new padded array
+        rank = range(len(narray.shape))
+        total_dim_increase = [np.sum(pad_width[i]) for i in rank]
+        offset_slices = [slice(pad_width[i][0],
+                               pad_width[i][0] + narray.shape[i])
+                         for i in rank]
+        new_shape = np.array(narray.shape) + total_dim_increase
+        newmat = np.zeros(new_shape).astype(narray.dtype)
+
+        # Insert the original array into the padded array
+        newmat[offset_slices] = narray
+
+        # This is the core of pad ...
+        for iaxis in rank:
+            np.apply_along_axis(function,
+                                iaxis,
+                                newmat,
+                                pad_width[iaxis],
+                                iaxis,
+                                kwargs)
+        return newmat
+
+    np.pad = pad
+
 ################################################################
 
 class KnotData(object):

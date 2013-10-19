@@ -1,5 +1,5 @@
 import os
-from libc.string cimport const_char, const_uchar, strcmp
+from libc.string cimport const_char, strcmp
 from libc.stdlib cimport malloc, free
 import numpy as np
 cimport numpy as np
@@ -101,8 +101,10 @@ cdef int find_idx(const_char *k, const_char **p, int n):
 cdef to_list(const_char **p, int n):
     cdef int i
     cdef list l = []
+    cdef char *t
     for i in range(n):
-        l.append(p[i])
+        t = <char*>(p[i])
+        l.append(t)
     return l
 
 cdef inline double ts_diff(timespec ts1, timespec ts2):
@@ -185,11 +187,13 @@ cdef class CalcBase:
             return self.capt_vars
         def __set__(self, v):
             cdef int i, j
+            cdef char *t
             if isinstance(v, basestring):
                 v = [v]
             l = []
             for n in v:
-                j = find_idx(n, self.pbase.var_names, self.pbase.NEQ)
+                t = n
+                j = find_idx(t, self.pbase.var_names, self.pbase.NEQ)
                 if j < 0:
                     raise ValueError("not found: %s", n)
                 l.append(j)
@@ -232,7 +236,7 @@ cdef class CalcBase:
         if fname and os.path.exists(fname) and os.stat(fname).st_mtime < os.stat("circuit/components.py").st_mtime:
             print "remove", fname
             os.remove(fname)
-        cdef const_char *_fname = NULL
+        cdef char *_fname = NULL
         if fname:
             _fname = fname
         self.pbase.init(self.outp, _fname)
@@ -279,7 +283,7 @@ cdef class CalcBase:
         cdef int n_in = 0
         cdef int n_out = 0
         cdef np.ndarray A = self.prepare_input(a, with_state, &n_in, &n_out, &ndim)
-        cdef int dim[2]
+        cdef np.npy_intp dim[2]
         dim[0] = np.PyArray_DIM(A, 0)
         dim[1] = n_out
         cdef np.ndarray O = np.PyArray_SimpleNew(2, dim, np.NPY_DOUBLE)
@@ -434,7 +438,7 @@ cdef class CalcBase:
         return ret
 
     def __init__(self):
-        cdef int i
+        cdef np.npy_intp i
         cdef int j
         self.inp = N_VNew_Serial(self.pbase.N_IN)
         self._state = N_VNew_Serial(self.pbase.NDIM-self.pbase.N_IN)

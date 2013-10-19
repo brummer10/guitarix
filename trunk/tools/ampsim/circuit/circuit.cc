@@ -336,12 +336,12 @@ ComponentBase::ComponentBase(int neq, int ndim, int nvals, int n_in, int n_out, 
       NVALS(nvals),
       N_IN(n_in),
       N_OUT(n_out),
-      n_params(n_params_+param_off),
+      n_params(n_params_),
       params(new realtype[n_params_]),
       param_names(new const char*[n_params_]),
       in_names(new const char*[n_in]),
       out_names(new const char*[n_out]),
-      state_names(new const char*[nvals-n_out]),
+      state_names(new const char*[ndim-n_out]),
       var_names(new const char*[neq]),
       ix(new int[ndim]),
       verbose(false),
@@ -542,7 +542,7 @@ TriodeCircuit::TriodeCircuit()
     static const char *o_names[] = { "Ua", 0 };
     set_names(out_names, o_names, N_OUT);
     static const char *s_names[] = { "Uc1m", 0 };
-    set_names(state_names, s_names, NVALS-N_OUT);
+    set_names(state_names, s_names, NDIM-N_IN);
     static const char *v_names[] = { "Ug", "Uk", "Ua", "l", "L", 0 };
     set_names(var_names, v_names, NEQ);
     ix[0] = 1;
@@ -616,7 +616,7 @@ CoupledTriodeCircuit::CoupledTriodeCircuit()
     static const char *o_names[] = { "U2", 0 };
     set_names(out_names, o_names, N_OUT);
     static const char *s_names[] = { "Uc1m", "Uc2m", 0 };
-    set_names(state_names, s_names, NVALS-N_OUT);
+    set_names(state_names, s_names, NDIM-N_IN);
     static const char *v_names[] = { "Ug", "Uk", "Ua", "U2", "Ug2", "Uk2", "Ua2", 0 };
     set_names(var_names, v_names, NEQ);
     ix[0] = 2;
@@ -694,7 +694,7 @@ PowerAmpGate::PowerAmpGate()
     static const char *o_names[] = { "Ug", 0 };
     set_names(out_names, o_names, N_OUT);
     static const char *s_names[] = { "Uc1m", 0 };
-    set_names(state_names, s_names, NVALS-N_OUT);
+    set_names(state_names, s_names, NDIM-N_IN);
     static const char *v_names[] = { "U0", "U1", "Ug", 0 };
     set_names(var_names, v_names, NEQ);
     ix[0] = 1;
@@ -746,7 +746,7 @@ PowerAmpPlate::PowerAmpPlate()
     static const char *o_names[] = { "Ua1", "Ua2", 0 };
     set_names(out_names, o_names, N_OUT);
     static const char *s_names[] = { "Uc2m", 0 };
-    set_names(state_names, s_names, NVALS-N_OUT);
+    set_names(state_names, s_names, NDIM-N_IN);
     static const char *v_names[] = { "Us1", "Us2", "Ud", "Ua1", "Ua2", "L1", "L2", 0 };
     set_names(var_names, v_names, NEQ);
     ix[0] = 2;
@@ -840,7 +840,7 @@ PhaseSplitter::PhaseSplitter()
     static const char *o_names[] = { "Ua1", "Ua2", 0 };
     set_names(out_names, o_names, N_OUT);
     static const char *s_names[] = { "Uc1m", "Uc2m", "Uc3m", 0 };
-    set_names(state_names, s_names, NVALS-N_OUT);
+    set_names(state_names, s_names, NDIM-N_IN);
     static const char *v_names[] = { "U1", "Ug1", "Uk", "Ua1", "U2", "U3", "U4", "Ug2", "Ua2", 0 };
     set_names(var_names, v_names, NEQ);
     ix[0] = 3;

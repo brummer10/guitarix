@@ -46,7 +46,7 @@ intpp_.o: intpp.cc intpp.h intpp_inst.cc Makefile
 gxplugins_.so: gx_poweramp.o intpp_.o data.o
 	$(LINK.cc) -fprofile-arcs -shared -Wl,-soname,gxplugins_.so -o gxplugins_.so $^ -lzita-resampler
 
-data.cc: gentables.py circuit/components.py circuit/pycircuit.so tensbs/tensbs.so tensbs/splinetable.py
+data.cc: gentables.py circuit/components.py circuit/pycircuit.so # tensbs/tensbs.so tensbs/splinetable.py
 	python $< data.cc intpp_inst.cc data.h
 
 circuit/pycircuit.so: circuit/circuit.cc circuit/circuit.hpp circuit/pycircuit.pyx circuit/setup.py

@@ -79,9 +79,9 @@ g1 = Func(cp.PPGate_JCM800, "Ug")
 g2 = Func(cp.PPGate_JCM800)
 pl = Func(cp.PPPlate_JCM800)
 
-freq = 15.0
+freq = 150.0
 timespan = 9/freq
-s = 10*sine(freq)
+s = 0.1*sine(freq)
 y = sp(0.4*pr3(0.4*pr2(0.5*pr1(s))))
 s1 = g1(y[:,0])
 s2 = g2(y[:,1])
