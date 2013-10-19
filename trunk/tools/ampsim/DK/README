@@ -1,0 +1,28 @@
+Warning: experimental/unfinished code, missing documentation...
+
+This directory contains an analog electronic circuit simulator, like
+e.g. Spice but with an emphasis on execution speed. It uses the
+"DK method" and generates/compiles optimized C++ code internally for
+signal calculations.
+
+The simulated circuit is defined by a "netlist", which is easy to
+write manually. Circuit schematics can also be drawn with gschem (part
+of gEDA), then a netlist can be extraced with mk_netlist.py.
+
+TODO: the produced code gets real-time execution speed for simple
+circuits, but for complex circuits the solver for nonlinear equations
+needs to be replaced (by function appromixation tables etc.).
+
+Dependencies:
+ - python-scipy
+ - python-matplotlib  
+ - python-sympy
+ - for internally generated C++ module:
+   - libeigen3-dev
+   - libcminpack-dev
+
+Demo:
+
+"python circ.py", then select e.g. 5 (PushPullTransformer). You can
+disable C code generation by adding option -p (the calculation will be
+about a factor of 100 slower).
