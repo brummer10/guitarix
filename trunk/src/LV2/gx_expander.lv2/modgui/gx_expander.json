@@ -1,0 +1,28 @@
+{
+    "author": "Guitarix", 
+    "color": "red", 
+    "controls": [
+        {
+            "name": "ATTACK", 
+            "symbol": "ATTACK"
+        }, 
+        {
+            "name": "RELEASE", 
+            "symbol": "RELEASE"
+        }, 
+        {
+            "name": "RATIO", 
+            "symbol": "RATIO"
+        }, 
+        {
+            "name": "KNEE", 
+            "symbol": "KNEE"
+        }, 
+        {
+            "name": "THRESHOLD", 
+            "symbol": "THRESHOLD"
+        }
+    ], 
+    "knob": "white", 
+    "label": "Expander"
+}

@@ -68,3 +68,4 @@ def build(bld):
     bld.install_files('${LV2DIR}/gx_mbdelay.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gx_mbdelay.lv2', 'gx_mbdelay.ttl')
 
+    bld.install_files('${LV2DIR}/gx_mbdelay.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)

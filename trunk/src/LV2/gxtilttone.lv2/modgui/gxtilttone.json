@@ -1,0 +1,19 @@
+{
+    "author": "Guitarix", 
+    "color": "orange", 
+    "controls": [
+        {
+            "name": "Drive", 
+            "symbol": "drive"
+        }, 
+        {
+            "name": "Tone", 
+            "symbol": "tone"
+        }, 
+        {
+            "name": "Gain", 
+            "symbol": "gain"
+        }
+    ], 
+    "label": "Tilt Tone"
+}

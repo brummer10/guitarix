@@ -1,0 +1,36 @@
+{
+    "author": "Guitarix", 
+    "color": "white", 
+    "controls": [
+        {
+            "name": "Mode", 
+            "symbol": "mode"
+        }, 
+        {
+            "name": "L Time", 
+            "symbol": "timt_l"
+        }, 
+        {
+            "name": "R Time", 
+            "symbol": "timt_r"
+        }, 
+        {
+            "name": "LFO", 
+            "symbol": "lfo"
+        }, 
+        {
+            "name": "Link (L+R)", 
+            "symbol": "link"
+        }, 
+        {
+            "name": "L Level", 
+            "symbol": "level_l"
+        }, 
+        {
+            "name": "R Level", 
+            "symbol": "level_r"
+        }
+    ], 
+    "knob": "red", 
+    "label": "Stereo Echo"
+}

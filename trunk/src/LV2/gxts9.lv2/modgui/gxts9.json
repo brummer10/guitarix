@@ -1,0 +1,19 @@
+{
+    "author": "Guitarix", 
+    "color": "orange", 
+    "controls": [
+        {
+            "name": "Level", 
+            "symbol": "fslider0_"
+        }, 
+        {
+            "name": "Tone", 
+            "symbol": "fslider1_"
+        }, 
+        {
+            "name": "Drive", 
+            "symbol": "fslider2_"
+        }
+    ], 
+    "label": "Tube Screamer"
+}

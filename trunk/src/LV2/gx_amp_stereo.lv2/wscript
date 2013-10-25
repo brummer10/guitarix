@@ -81,3 +81,4 @@ def build(bld):
     bld.install_files('${LV2DIR}/gx_amp_stereo.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gx_amp_stereo.lv2', 'gx_amp_stereo.ttl')
 
+    bld.install_files('${LV2DIR}/gx_amp_stereo.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)

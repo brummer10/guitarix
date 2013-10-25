@@ -1,0 +1,54 @@
+{
+    "author": "Guitarix", 
+    "controls": [
+        {
+            "name": "PreGain", 
+            "symbol": "PreGain"
+        }, 
+        {
+            "name": "Drive", 
+            "symbol": "Drive"
+        }, 
+        {
+            "name": "Distortion", 
+            "symbol": "Distortion"
+        }, 
+        {
+            "name": "MasterGain", 
+            "symbol": "MasterGain"
+        }, 
+        {
+            "name": "Bass", 
+            "symbol": "Bass"
+        }, 
+        {
+            "name": "Middle", 
+            "symbol": "Middle"
+        }, 
+        {
+            "name": "Treble", 
+            "symbol": "Treble"
+        }, 
+        {
+            "name": "Presence", 
+            "symbol": "Presence"
+        }, 
+        {
+            "name": "Cabinet", 
+            "symbol": "Cabinet"
+        }, 
+        {
+            "name": "Model", 
+            "symbol": "model"
+        }, 
+        {
+            "name": "Tonestack Model", 
+            "symbol": "t_model"
+        }, 
+        {
+            "name": "Cab Model", 
+            "symbol": "c_model"
+        }
+    ], 
+    "label": "Stereo Amp X"
+}

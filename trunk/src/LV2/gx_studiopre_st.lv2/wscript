@@ -68,3 +68,4 @@ def build(bld):
     bld.install_files('${LV2DIR}/gx_studiopre_st.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gx_studiopre_st.lv2', 'gx_studiopre_st.ttl')
 
+    bld.install_files('${LV2DIR}/gx_studiopre_st.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)

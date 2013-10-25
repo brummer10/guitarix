@@ -1,0 +1,121 @@
+<div class="mod-pedal mod-rack-model-001 mod-rack-model-001">
+    <div mod-role="drag-handle" class="mod-drag-handle"></div>
+    <div class="mod-plugin-author"><h1>{{author}}</h1></div>
+    <div class="mod-plugin-name"><h1>{{label}}</h1></div>
+    <div class="mod-control-group clearfix">
+        <div class="mod-switch" mod-role="bypass">
+            <div class="mod-switch-image" mod-role="bypass-light"></div>
+        </div>
+        <div class="mod-separator"></div>
+        {{#controls.0}}
+        <div class="mod-chicken-head">
+            <div class="mod-chicken-head-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
+            <span class="mod-chicken-head-title">{{name}}</span>
+        </div>
+        {{/controls.0}}
+        {{#controls.1}}
+        <div class="mod-chicken-head">
+            <div class="mod-chicken-head-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
+            <span class="mod-chicken-head-title">{{name}}</span>
+        </div>
+        {{/controls.1}}
+        {{#controls.2}}
+        <div class="mod-chicken-head">
+            <div class="mod-chicken-head-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
+            <span class="mod-chicken-head-title">{{name}}</span>
+        </div>
+        {{/controls.2}}
+        {{#controls.3}}
+        <div class="mod-chicken-head">
+            <div class="mod-chicken-head-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
+            <span class="mod-chicken-head-title">{{name}}</span>
+        </div>
+        {{/controls.3}}
+        <div class="mod-separator"></div>
+        {{#controls.4}}
+        <div class="mod-chicken-head">
+            <div class="mod-chicken-head-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
+            <span class="mod-chicken-head-title">{{name}}</span>
+        </div>
+        {{/controls.4}}
+        {{#controls.5}}
+        <div class="mod-chicken-head">
+            <div class="mod-chicken-head-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
+            <span class="mod-chicken-head-title">{{name}}</span>
+        </div>
+        {{/controls.5}}
+        {{#controls.6}}
+        <div class="mod-chicken-head">
+            <div class="mod-chicken-head-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
+            <span class="mod-chicken-head-title">{{name}}</span>
+        </div>
+        {{/controls.6}}
+        {{#controls.7}}
+        <div class="mod-chicken-head">
+            <div class="mod-chicken-head-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
+            <span class="mod-chicken-head-title">{{name}}</span>
+        </div>
+        {{/controls.7}}
+        <div class="mod-separator"></div>
+        {{#controls.8}}
+        <div class="mod-chicken-head">
+            <div class="mod-chicken-head-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
+            <span class="mod-chicken-head-title">{{name}}</span>
+        </div>
+        {{/controls.8}}
+        {{#controls.9}}
+        <div class="mod-enumerated mod-enumerated-1" mod-role="input-control-port" mod-port-symbol="{{symbol}}" mod-widget="custom-select">
+          <div mod-role="input-control-value" mod-port-symbol="{{symbol}}" class="mod-enumerated-selected"></div>
+          <div class="mod-enumerated-list">
+            {{#scalePoints}}
+            <div mod-role="enumeration-option" mod-port-value="{{value}}">{{label}}</div>
+            {{/scalePoints}}
+          </div>
+        </div>
+        {{/controls.9}}
+        {{#controls.10}}
+        <div class="mod-enumerated mod-enumerated-2" mod-role="input-control-port" mod-port-symbol="{{symbol}}" mod-widget="custom-select">
+          <div mod-role="input-control-value" mod-port-symbol="{{symbol}}" class="mod-enumerated-selected"></div>
+          <div class="mod-enumerated-list">
+            {{#scalePoints}}
+            <div mod-role="enumeration-option" mod-port-value="{{value}}">{{label}}</div>
+            {{/scalePoints}}
+          </div>
+        </div>
+        {{/controls.10}}
+        {{#controls.11}}
+        <div class="mod-enumerated mod-enumerated-3" mod-role="input-control-port" mod-port-symbol="{{symbol}}" mod-widget="custom-select">
+          <div mod-role="input-control-value" mod-port-symbol="{{symbol}}" class="mod-enumerated-selected"></div>
+          <div class="mod-enumerated-list">
+            {{#scalePoints}}
+            <div mod-role="enumeration-option" mod-port-value="{{value}}">{{label}}</div>
+            {{/scalePoints}}
+          </div>
+        </div>
+        {{/controls.11}}
+    </div>
+    <div class="mod-pedal-input">
+       {{#effect.ports.audio.input}}
+       <div class="mod-input mod-input-disconnected" title="{{name}}" mod-role="input-audio-port" mod-port-symbol="{{symbol}}">
+           <div class="mod-pedal-input-image"></div>
+       </div>
+       {{/effect.ports.audio.input}}
+        {{#effect.ports.midi.input}}
+        <div class="mod-input mod-input-disconnected" title="{{name}}" mod-role="input-midi-port" mod-port-symbol="{{symbol}}">
+            <div class="mod-pedal-input-image"></div>
+        </div>
+        {{/effect.ports.midi.input}}
+    </div>
+    <div class="mod-pedal-output">
+       {{#effect.ports.audio.output}}
+       <div class="mod-output mod-output-disconnected" title="{{name}}" mod-role="output-audio-port" mod-port-symbol="{{symbol}}">
+           <div class="mod-pedal-output-image"></div>
+       </div>
+       {{/effect.ports.audio.output}}
+        {{#effect.ports.midi.output}}
+        <div class="mod-output mod-output-disconnected" title="{{name}}" mod-role="output-midi-port" mod-port-symbol="{{symbol}}">
+            <div class="mod-pedal-input-image"></div>
+        </div>
+        {{/effect.ports.midi.output}}
+    </div>
+</div>

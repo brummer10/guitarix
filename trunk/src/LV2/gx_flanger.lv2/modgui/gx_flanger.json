@@ -1,0 +1,28 @@
+{
+    "author": "Guitarix", 
+    "color": "purple", 
+    "controls": [
+        {
+            "name": "DEPTH", 
+            "symbol": "depth"
+        }, 
+        {
+            "name": "WIDTH", 
+            "symbol": "width"
+        }, 
+        {
+            "name": "FREQ", 
+            "symbol": "freq"
+        }, 
+        {
+            "name": "FEEDBACK", 
+            "symbol": "feedback"
+        }, 
+        {
+            "name": "MIX", 
+            "symbol": "mix"
+        }
+    ], 
+    "knob": "white", 
+    "label": "Flanger"
+}

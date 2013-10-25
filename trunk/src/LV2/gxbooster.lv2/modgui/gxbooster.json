@@ -1,0 +1,15 @@
+{
+    "author": "Guitarix", 
+    "color": "gray", 
+    "controls": [
+        {
+            "name": "B Level", 
+            "symbol": "fslider1_"
+        }, 
+        {
+            "name": "H Level", 
+            "symbol": "fslider0_"
+        }
+    ], 
+    "label": "Booster"
+}

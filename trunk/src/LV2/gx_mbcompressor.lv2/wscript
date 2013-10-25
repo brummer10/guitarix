@@ -68,3 +68,4 @@ def build(bld):
     bld.install_files('${LV2DIR}/gx_mbcompressor.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gx_mbcompressor.lv2', 'gx_mbcompressor.ttl')
 
+    bld.install_files('${LV2DIR}/gx_mbcompressor.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)

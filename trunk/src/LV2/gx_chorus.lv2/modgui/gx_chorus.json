@@ -1,0 +1,24 @@
+{
+    "author": "Guitarix", 
+    "color": "purple", 
+    "controls": [
+        {
+            "name": "Delay", 
+            "symbol": "delay"
+        }, 
+        {
+            "name": "Depth", 
+            "symbol": "depth"
+        }, 
+        {
+            "name": "Freq", 
+            "symbol": "freq"
+        }, 
+        {
+            "name": "Level", 
+            "symbol": "level"
+        }
+    ], 
+    "knob": "purple", 
+    "label": "Stereo Chorus"
+}

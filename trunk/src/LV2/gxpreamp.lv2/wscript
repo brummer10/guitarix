@@ -70,3 +70,4 @@ def build(bld):
     bld.install_files('${LV2DIR}/gxpreamp.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gxpreamp.lv2', 'gxpreamp.ttl')
 
+    bld.install_files('${LV2DIR}/gxpreamp.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)

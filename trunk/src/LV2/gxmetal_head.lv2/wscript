@@ -77,3 +77,4 @@ def build(bld):
     bld.install_files('${LV2DIR}/gxmetal_head.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gxmetal_head.lv2', 'gxmetal_head.ttl')
 
+    bld.install_files('${LV2DIR}/gxmetal_head.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)

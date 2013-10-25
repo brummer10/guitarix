@@ -1,0 +1,39 @@
+{
+    "author": "Guitarix", 
+    "color": "gray", 
+    "controls": [
+        {
+            "name": "Volume_L", 
+            "symbol": "volume_l"
+        }, 
+        {
+            "name": "Bass_L", 
+            "symbol": "bass_l"
+        }, 
+        {
+            "name": "Middle_L", 
+            "symbol": "middle_l"
+        }, 
+        {
+            "name": "Treble_L", 
+            "symbol": "treble_l"
+        }, 
+        {
+            "name": "Volume_R", 
+            "symbol": "volume_r"
+        }, 
+        {
+            "name": "Bass_L", 
+            "symbol": "bass_l"
+        }, 
+        {
+            "name": "Middle_R", 
+            "symbol": "middle_r"
+        }, 
+        {
+            "name": "Treble_R", 
+            "symbol": "treble_r"
+        }
+    ], 
+    "label": "Stereo Studio Preamp"
+}

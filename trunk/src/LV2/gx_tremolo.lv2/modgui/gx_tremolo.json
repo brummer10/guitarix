@@ -1,0 +1,24 @@
+{
+    "author": "Guitarix", 
+    "color": "purple", 
+    "controls": [
+        {
+            "name": "Freq", 
+            "symbol": "freq"
+        }, 
+        {
+            "name": "Depth", 
+            "symbol": "depth"
+        }, 
+        {
+            "name": "Mode", 
+            "symbol": "mode"
+        }, 
+        {
+            "name": "Dry/Wet", 
+            "symbol": "dry_wet"
+        }
+    ], 
+    "knob": "red", 
+    "label": "Tremolo"
+}

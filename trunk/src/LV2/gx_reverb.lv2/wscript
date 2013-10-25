@@ -68,3 +68,4 @@ def build(bld):
     bld.install_files('${LV2DIR}/gx_reverb.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gx_reverb.lv2', 'gx_reverb.ttl')
 
+    bld.install_files('${LV2DIR}/gx_reverb.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)

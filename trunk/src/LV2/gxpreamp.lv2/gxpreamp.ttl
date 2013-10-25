@@ -29,6 +29,7 @@
 @prefix opt:  <http://lv2plug.in/ns/ext/options#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 @prefix work:  <http://lv2plug.in/ns/ext/worker#> .
+@prefix mod: <http://portalmod.com/ns/modgui#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -132,6 +133,14 @@
         lv2:index 8 ;
         lv2:symbol "in" ;
         lv2:name "In" ;
+    ] ;
+    mod:gui [ 
+        a mod:Gui;
+        mod:resourcesDirectory <modgui>;
+        mod:iconTemplate <modgui/gxpreamp.html>;
+        mod:templateData <modgui/gxpreamp.json>;
+        mod:screenshot <modgui/gxpreamp.png>;
+        mod:thumbnail <modgui/gxpreamp-thumb.png>;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gxpreamp#gui>

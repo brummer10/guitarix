@@ -1,0 +1,22 @@
+{
+    "author": "Guitarix", 
+    "controls": [
+        {
+            "name": "TONE", 
+            "symbol": "TONE"
+        }, 
+        {
+            "name": "DRIVE", 
+            "symbol": "DRIVE"
+        }, 
+        {
+            "name": "PREGAIN", 
+            "symbol": "PREGAIN"
+        }, 
+        {
+            "name": "GAIN1", 
+            "symbol": "GAIN1"
+        }
+    ], 
+    "label": "Metal Head"
+}

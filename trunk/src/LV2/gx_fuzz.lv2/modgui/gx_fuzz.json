@@ -1,0 +1,24 @@
+{
+    "author": "Guitarix", 
+    "color": "orange", 
+    "controls": [
+        {
+            "name": "INPUT", 
+            "symbol": "INPUT"
+        }, 
+        {
+            "name": "DRIVE", 
+            "symbol": "DRIVE"
+        }, 
+        {
+            "name": "TONE", 
+            "symbol": "TONE"
+        }, 
+        {
+            "name": "OUTPUT", 
+            "symbol": "OUTPUT"
+        }
+    ], 
+    "knob": "white", 
+    "label": "Fuzz"
+}

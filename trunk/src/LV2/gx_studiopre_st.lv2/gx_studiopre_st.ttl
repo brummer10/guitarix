@@ -24,6 +24,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix mod: <http://portalmod.com/ns/modgui#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -165,8 +166,15 @@
         lv2:index 13 ;
         lv2:symbol "in1" ;
         lv2:name "In1"
-    ].
-
+    ] ;
+    mod:gui [ 
+        a mod:Gui;
+        mod:resourcesDirectory <modgui>;
+        mod:iconTemplate <modgui/gx_studiopre_st.html>;
+        mod:templateData <modgui/gx_studiopre_st.json>;
+        mod:screenshot <modgui/gx_studiopre_st.png>;
+        mod:thumbnail <modgui/gx_studiopre_st-thumb.png>;
+    ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_studiopre_st#gui>
   a guiext:GtkUI;

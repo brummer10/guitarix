@@ -1,0 +1,24 @@
+{
+    "author": "Guitarix", 
+    "color": "purple", 
+    "controls": [
+        {
+            "name": "Depth", 
+            "symbol": "depth"
+        }, 
+        {
+            "name": "Speed", 
+            "symbol": "speed"
+        }, 
+        {
+            "name": "SineWave", 
+            "symbol": "sinewave"
+        }, 
+        {
+            "name": "Gain", 
+            "symbol": "gain"
+        }
+    ], 
+    "knob": "red", 
+    "label": "Tube Vibrato"
+}

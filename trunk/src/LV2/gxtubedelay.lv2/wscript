@@ -68,3 +68,4 @@ def build(bld):
     bld.install_files('${LV2DIR}/gxtubedelay.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gxtubedelay.lv2', 'gxtubedelay.ttl')
 
+    bld.install_files('${LV2DIR}/gxtubedelay.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
