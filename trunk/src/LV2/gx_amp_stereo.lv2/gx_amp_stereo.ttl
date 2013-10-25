@@ -60,6 +60,9 @@
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_amp_stereo#gui>;
   
+    lv2:minorVersion 28;
+    lv2:microVersion 2;
+
     lv2:port [
         a lv2:InputPort ,
             lv2:ControlPort ;

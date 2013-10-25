@@ -49,6 +49,9 @@
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxtuner#gui>;
   
+    lv2:minorVersion 28;
+    lv2:microVersion 2;
+
     lv2:port  [
         a  lv2:ControlPort, lv2:OutputPort ;
         lv2:index 0 ;
