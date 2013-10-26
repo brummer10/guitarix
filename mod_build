@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+list_bundles() {
+    for lv2 in trunk/src/LV2/*lv2; do echo `basename $lv2`; done
+}
+
+if [ "x${1}x" == "x-lx" ]; then
+    list_bundles
+    exit 0
+fi
+
+if [ "x${LV2_PATH}x" == "xx" ]; then
+    LV2_PATH=~/.lv2/
+fi
+
+cd trunk/
+./waf configure --prefix=/tmp/$$ --lv2-only --lv2dir=$LV2_PATH --includeresampler --convolver-ffmpeg --no-ladspa --cxxflags='-march=native -mfpmath=sse -msse2 -fomit-frame-pointer -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce -pipe'
+
+#./waf configure --lv2-only --lv2dir=$LV2_PATH --prefix=/tmp/
+./waf build
+./waf install
+
+cd ..
