@@ -115,8 +115,8 @@
         lv2:index 6 ;
         lv2:symbol "link" ;
         lv2:name "Link (L+R)";
-        lv2:default 0. ;
-        lv2:minimum 0. ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
         lv2:maximum 1.0 ;
     ] , [
         a lv2:AudioPort ,
