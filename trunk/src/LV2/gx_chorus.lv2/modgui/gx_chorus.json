@@ -3,6 +3,10 @@
     "color": "purple", 
     "controls": [
         {
+            "name": "Level", 
+            "symbol": "level"
+        }, 
+        {
             "name": "Delay", 
             "symbol": "delay"
         }, 
@@ -13,12 +17,8 @@
         {
             "name": "Freq", 
             "symbol": "freq"
-        }, 
-        {
-            "name": "Level", 
-            "symbol": "level"
         }
     ], 
-    "knob": "purple", 
+    "knob": "red", 
     "label": "Stereo Chorus"
 }

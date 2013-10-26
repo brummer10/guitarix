@@ -7,8 +7,8 @@
             "symbol": "mode"
         }, 
         {
-            "name": "L Time", 
-            "symbol": "timt_l"
+            "name": "L Level", 
+            "symbol": "level_l"
         }, 
         {
             "name": "R Time", 
@@ -23,14 +23,14 @@
             "symbol": "link"
         }, 
         {
-            "name": "L Level", 
-            "symbol": "level_l"
+            "name": "L Time", 
+            "symbol": "timt_l"
         }, 
         {
-            "name": "R Level", 
-            "symbol": "level_r"
+            "name": "R Time", 
+            "symbol": "timt_r"
         }
     ], 
-    "knob": "white", 
+    "knob": "red", 
     "label": "Stereo Delay"
 }
