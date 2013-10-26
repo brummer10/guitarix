@@ -59,7 +59,7 @@
     lv2:extensionData work:interface ;
 
     lv2:minorVersion 28;
-    lv2:microVersion 2;
+    lv2:microVersion 3;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_amp#gui>;
   
