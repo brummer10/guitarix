@@ -39,7 +39,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gx_echo_stereo#_echo_stereo>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:DelayPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxEcho-Stereo";
     doap:license <http://opensource.org/licenses/isc> ;

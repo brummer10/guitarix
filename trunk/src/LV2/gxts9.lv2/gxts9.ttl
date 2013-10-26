@@ -39,7 +39,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gxts9#ts9sim>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:DistortionPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxTubeScreamer";
     doap:license <http://opensource.org/licenses/isc> ;

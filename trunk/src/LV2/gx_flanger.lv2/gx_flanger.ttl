@@ -39,7 +39,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gx_flanger#_flanger>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:FlangerPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxFlanger";
     doap:license <http://opensource.org/licenses/isc> ;

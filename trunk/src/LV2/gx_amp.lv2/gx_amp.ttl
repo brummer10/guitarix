@@ -45,7 +45,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gx_amp#GUITARIX>
     a lv2:Plugin ,
-        lv2:AmplifierPlugin ;
+        lv2:SimulatorPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxAmplifier-X";
     doap:license <http://opensource.org/licenses/isc> ;

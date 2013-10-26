@@ -39,7 +39,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gxbooster#booster>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:DynamicsPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxBooster";
     doap:license <http://opensource.org/licenses/isc> ;

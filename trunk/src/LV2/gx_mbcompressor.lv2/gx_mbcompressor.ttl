@@ -38,7 +38,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gx_mbcompressor_#_mbcompressor_>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:CompressorPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxMultiBandCompressor";
     doap:license <http://opensource.org/licenses/isc> ;

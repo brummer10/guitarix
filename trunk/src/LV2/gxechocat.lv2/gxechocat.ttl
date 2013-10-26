@@ -39,7 +39,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gxechocat#echocat>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:DelayPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxEchoCat";
     doap:license <http://opensource.org/licenses/isc> ;

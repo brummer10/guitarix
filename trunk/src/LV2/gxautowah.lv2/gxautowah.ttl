@@ -39,7 +39,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gxautowah#autowah>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:FilterPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxAutoWah";
     doap:license <http://opensource.org/licenses/isc> ;
@@ -67,7 +67,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gxautowah#wah>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:FilterPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxWah";
     doap:license <http://opensource.org/licenses/isc> ;

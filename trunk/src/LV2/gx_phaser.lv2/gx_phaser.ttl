@@ -39,7 +39,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gx_phaser#_phaser>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:PhaserPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxPhaser";
     doap:license <http://opensource.org/licenses/isc> ;

@@ -39,7 +39,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gx_fuzz_#fuzz_>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:DistortionPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxFuzz";
     doap:license <http://opensource.org/licenses/isc> ;

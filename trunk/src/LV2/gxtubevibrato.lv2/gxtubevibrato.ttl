@@ -39,7 +39,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gxtubevibrato#tubevibrato>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:ModulatorPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxTubeVibrato";
     doap:license <http://opensource.org/licenses/isc> ;

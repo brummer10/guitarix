@@ -38,7 +38,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gx_zita_rev1_stereo#_zita_rev1_stereo>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:ReverbPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxZita_rev1-Stereo";
     doap:license <http://opensource.org/licenses/isc> ;

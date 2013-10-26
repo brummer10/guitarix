@@ -38,7 +38,7 @@
 
 <http://guitarix.sourceforge.net/plugins/gx_mbdistortion_#_mbdistortion_>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:DistortionPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
     doap:name "GxMultiBandDistortion";
     doap:license <http://opensource.org/licenses/isc> ;
