@@ -15,7 +15,7 @@ if [ "x${LV2_PATH}x" == "xx" ]; then
 fi
 
 cd trunk/
-./waf configure --prefix=/tmp/$$ --lv2-only --lv2dir=$LV2_PATH --includeresampler --convolver-ffmpeg --no-ladspa --cxxflags='-march=native -mfpmath=sse -msse2 -fomit-frame-pointer -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce -pipe'
+./waf configure --prefix=/tmp/$$ --lv2-only --lv2dir=$LV2_PATH --includeresampler --includeconvolver --no-ladspa --cxxflags='-march=native -mfpmath=sse -msse2 -fomit-frame-pointer -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce -pipe'
 
 #./waf configure --lv2-only --lv2dir=$LV2_PATH --prefix=/tmp/
 ./waf build
