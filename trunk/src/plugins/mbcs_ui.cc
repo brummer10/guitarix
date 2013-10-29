@@ -8,7 +8,7 @@ b.openVerticalBox("");
 b.openTabBox("");
 
 b.openHorizontalBox(N_("Band 1"));
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -29,7 +29,7 @@ b.closeBox();
 b.closeBox();
 
 b.openHorizontalBox(N_("Band 2"));
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -52,7 +52,7 @@ b.closeBox();
 b.closeBox();
 
 b.openHorizontalBox(N_("Band 3"));
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -75,7 +75,7 @@ b.closeBox();
 b.closeBox();
 
 b.openHorizontalBox(N_("Band 4"));
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -98,7 +98,7 @@ b.closeBox();
 b.closeBox();
 
 b.openHorizontalBox(N_("Band 5"));
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);

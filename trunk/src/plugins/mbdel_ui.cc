@@ -9,7 +9,7 @@ b.openTabBox("");
 
 b.openHorizontalBox(N_("Band 1"));
 b.openVerticalBox("");
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
 b.create_small_rackknob(PARAM("delay1"), N_("BPM"));
@@ -24,7 +24,7 @@ b.closeBox();
 
 b.openHorizontalBox(N_("Band 2"));
 b.openVerticalBox("");
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
 b.create_small_rackknob(PARAM("delay2"), N_("BPM"));
@@ -41,7 +41,7 @@ b.closeBox();
 
 b.openHorizontalBox(N_("Band 3"));
 b.openVerticalBox("");
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
 b.create_small_rackknob(PARAM("delay3"), N_("BPM"));
@@ -58,7 +58,7 @@ b.closeBox();
 
 b.openHorizontalBox(N_("Band 4"));
 b.openVerticalBox("");
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
 b.create_small_rackknob(PARAM("delay4"), N_("BPM"));
@@ -75,7 +75,7 @@ b.closeBox();
 
 b.openHorizontalBox(N_("Band 5"));
 b.openVerticalBox("");
-b.openpaintampBox(" ");
+b.openpaintampBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
 b.create_small_rackknob(PARAM("delay5"), N_("BPM"));

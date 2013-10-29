@@ -19,9 +19,9 @@
 enyo.kind({
     name: "gx.SimpleLevelDisplay",
     tag: "span",
-    classes: "gx-valuedisplay",
+    classes: "gx-maxlevel",
     components:[
-	 {kind: "gx.ValueDisplay", name: "display" },
+	// {kind: "gx.ValueDisplay", name: "display" },
     ],
     setStep: function(v) {
     var l = 0.00001;
