@@ -112,6 +112,18 @@ UiBuilder.prototype.create_slider = function(id, label) {
     this.control_setter[id] = enyo.bind(el, el.setValue);
 }
 
+UiBuilder.prototype.create_simple_meter = function(id, label) {
+    if (this.state == 2) { // minibox
+	return;
+    }
+    this.state = 3; // rackbox
+    var o = this.prepare_obj(id);
+    var el = this.owner[this.owner.length-1].createComponent(
+	{kind: "gx.SimpleLevelDisplay", classes: "gx-maxlevel",
+	 varname: this.get_name(label, o.name, id), obj: o});
+    this.control_setter[id] = enyo.bind(el, el.setValue);
+}
+
 UiBuilder.prototype.create_switch = function(sw_type, id, label) {
     if (this.state == 2) { // minibox
 	return;
@@ -185,6 +197,6 @@ UiBuilder.prototype.if_create_port_display = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_spin_value = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_simple_spin_value = UiBuilder.prototype.create_slider; // label === undefined
 UiBuilder.prototype.if_create_eq_rackslider_no_caption = UiBuilder.prototype.create_slider;
-
+UiBuilder.prototype.if_create_simple_meter = UiBuilder.prototype.create_simple_meter; // label === undefined
 // void load_glade(const char *data)        does not happen because we ask for StackBuilder format
 // void load_glade_file(const char *fname)  is transformed to load_glade by the backend

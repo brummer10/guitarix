@@ -17,6 +17,26 @@
  */
 
 enyo.kind({
+    name: "gx.SimpleLevelDisplay",
+    tag: "span",
+    classes: "gx-valuedisplay",
+    components:[
+	 {kind: "gx.ValueDisplay", name: "display" },
+    ],
+    setStep: function(v) {
+    var l = 0.00001;
+	this.digits = l;
+    },
+    valueChanged: function(old, val) {
+	this.$.display.setValue(val);
+    },
+    setValue: function(v) {
+	this.setContent(v.toFixed(this.digits));
+    this.$.display.setValue(v);
+    },
+});
+
+enyo.kind({
     name: "gx.ValueDisplay",
     tag: "span",
     classes: "gx-valuedisplay",
