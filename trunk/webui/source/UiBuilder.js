@@ -49,7 +49,7 @@ UiBuilder.prototype.openBox = function(label) {
 	this.state = 2; // minibox
     }
     var own = this.owner[this.owner.length-1];
-    if (this.state == 2 || label === null || label == "") {
+    if (this.state == 2 || label === null || label == "" || label == "Analyze") {
 	this.owner.push(own);
     } else {
 	var nm = "drawer_" + this.counter++;
