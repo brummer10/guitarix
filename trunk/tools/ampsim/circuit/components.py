@@ -71,8 +71,8 @@ class CoupledTriode(pycircuit.ctcParams):
         return o
 
     basegrid = (
-        #(((331, 4), (4, 4), (10, 4)), pre, post),
-        (((351, 2), (4, 2), (10, 2)), pre, post),
+        (((331, 4), (4, 4), (10, 4)), pre, post),
+        #L(((351, 2), (4, 2), (10, 2)), pre, post),
         (((331, 2), (10, 2), (10, 2)), pre, post, 1e-3),
         (((331, 2), (20, 2), (40, 2)), pre, post, 1e-3),
         )
@@ -239,8 +239,8 @@ class PhaseSplitter_JCM800(pycircuit.psParams):
           354.458081186)
 
     start_grid = (
-        (-70.0, 85.0, 60),
-        (-76.0, 36.0, 25),
+        (-70.0, 105.0, 60),
+        (-76.0, 45.0, 25),
         (25.0, 35.0, 4),
         (0.07, 0.25, 3),
         )
@@ -269,6 +269,8 @@ class PhaseSplitter_JCM800(pycircuit.psParams):
     basegrid = (
         (((301,4), (2,2), (20,4), (2,2)), pre, post, 4e-5),
         (((301,4), (2,2), (30,4), (2,2)), pre, post, 4e-5),
+        #L(((950,2), (2,2), (80,2), (2,2)), pre, post, 4e-5),
+        #L(((1100,2), (2,2), (100,2), (2,2)), pre, post, 4e-5),
         (((600,2), (2,2), (30,2), (2,2)), pre, post, 1e-4),
         (((700,2), (2,2), (50,2), (2,2)), pre, post, 1e-3),
         (((700,2), (2,2), (50,2), (2,2)), pre, post, 1e-3),
@@ -334,7 +336,7 @@ class PPGate_JCM800(pycircuit.pagParams):
         return o
 
     basegrid = (
-        #(((120, 4), (2, 2)), pre_c1, None),
+        #S(((120, 4), (2, 2)), pre_c1, None),
         (((120, 2), (2, 2)), pre_c1, None),
         (((120, 2), (2, 2)), pre_c1, post_c1, 1e-3),
         )
@@ -347,7 +349,7 @@ class PPGate_JCM800(pycircuit.pagParams):
         Gb  = 1/150e3,
         Gg  = 1/5.6e3,
         #Ub  = -57,
-        Ub  = -48,
+        Ub  = -60,
         )
 
 
@@ -394,8 +396,8 @@ class PPPlate_JCM800(pycircuit.papParams):
     #     #(((4, 2), (4, 2), (4, 2)), None, None),
     #     )
     basegrid = (
-        #(((2*110, 4), (2*110, 4), (10, 4)), None, post, 1e-4),
-        (((270, 2), (270, 2), (20, 2)), None, post, 1e-4),
+        (((2*110, 4), (2*110, 4), (10, 4)), None, post, 1e-4),
+        #L(((270, 2), (270, 2), (20, 2)), None, post, 1e-4),
         (((110, 2), (110, 2), (10, 2)), None, post, 1e-3),
         #(((150, 4), (70, 4), (10, 4)), pre_in1, None),
         #(((4, 2), (4, 2), (4, 2)), None, None),

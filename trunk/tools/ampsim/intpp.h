@@ -10,7 +10,7 @@ struct splinecoeffs {
     real *stepi; // 1/h
     int *n;
     int *nmap;
-    unsigned char **map;
+    maptype **map;
     real **t;
     real **c;
     int (*eval)(splinecoeffs *p, real *x, real *res);

@@ -1,5 +1,5 @@
 import sys
-import itertools, fractions
+import itertools, fractions, pickle
 import numpy as np
 import pylab
 from scipy.interpolate import LSQUnivariateSpline, InterpolatedUnivariateSpline, UnivariateSpline
@@ -146,6 +146,22 @@ class KnotData(object):
         k = self.order
         return self.knots[k:-k]
 
+    def get_knot_grid(self):
+        d = self.slice_data
+        k = self.order
+        if k is None:
+            return np.array(((d.stop-d.start)*0.5,))
+        else:
+            a = self.knots[k//2:-k//2].copy()
+            n = d.step.imag
+            if n == 1:
+                n = k
+            h = (d.stop - d.start) / (n - 1)
+            for i in range(k//2):
+                a[i] = d.start + i * h
+                a[-(i+1)] = d.stop - i * h
+            return a
+
     def num_coeffs(self):
         return len(self.knots) - self.order
 
@@ -163,14 +179,39 @@ class TensorSpline(object):
         self.ranges = ranges
         self.basegrid = basegrid
         self.knot_data = np.empty((len(basegrid), len(ranges)), dtype=object)
+        self.get_grid_estimate()
         self.find_knots()
+        self.save_grid_estimate()
+
+    def grid_estimate_fname(self):
+        return "%s_grid.cache" % self.func.comp_id
+
+    def get_grid_estimate(self):
+        try:
+            self.grid_estimate = pickle.load(open(self.grid_estimate_fname()))
+        except (IOError, EOFError):
+            self.grid_estimate = np.empty((len(self.basegrid), len(self.ranges)), dtype=object)
+            for v, g in enumerate(self.basegrid):
+                self.grid_estimate[v][:] = [np.mgrid[slice(r[0], r[1], 0.5j * t[0])] for r, t in zip(self.ranges,g[0])]
+
+    def save_grid_estimate(self):
+        with open(self.grid_estimate_fname(),"w") as f:
+            pickle.dump(self.grid_estimate, f)
+
+    def half_interval(self, d):
+        o = np.empty(2*len(d)-1)
+        o[::2] = d
+        o[1::2] = (d[1:] + d[:-1]) * 0.5
+        return o
 
     def calc_coeffs(self):
         coeff = []
         for v, (g, kdata) in enumerate(zip(self.basegrid, self.knot_data)):
-            ranges = [(slice(r[0], r[1], t[0]*1j) if kd.used() else slice((r[1]-r[0])/2.0,r[1],1j)) for r, t, kd in zip(self.ranges,g[0],kdata)]
-            fnc = self.calc_grid(ranges, g[1], g[2])[v]
-            for n in range(len(ranges)):
+            ranges = [(slice(r[0], r[1], t[0]*1j) if kd.used() else slice((r[0]+r[1])*0.5,r[1],1j)) for r, t, kd in zip(self.ranges,g[0],kdata)]
+            fnc = self.calc_grid(np.mgrid[ranges], g[1], g[2])[v]
+            #coords = [self.half_interval(d) for d in self.grid_estimate[v]]
+            #fnc = self.calc_grid(self.make_grid(coords), g[1], g[2])[v]
+            for n in range(len(self.ranges)):
                 kd = self.knot_data[v,n]
                 if not kd.used():
                     continue
@@ -178,6 +219,7 @@ class TensorSpline(object):
                 s[n] = kd.num_coeffs()
                 out = np.empty(s)
                 s[n] = 1
+                #x = coords[n]
                 x = np.mgrid[ranges[n]]
                 for i in np.ndindex(tuple(s)):
                     i = list(i)
@@ -229,16 +271,27 @@ class TensorSpline(object):
             mx = max(mx, np.amax(abs(ss(x) - f)))
         return mx #/ np.ptp(fnc)
 
-    def calc_grid(self, ranges, pre, post):
-        grd = np.mgrid[ranges]
-        pre_grd = grd.copy()
+    def make_grid(self, coords, sparse=False):
+        if len(coords) == 1:
+            r = coords[0]
+            res = np.empty((1, r.shape[0]))
+            res[0] = r
+        else:
+            r = np.meshgrid(*coords, indexing="ij", sparse=sparse)
+            res = np.empty((len(coords),)+r[0].shape)
+            res[:] = r
+        return res
+
+    def calc_grid(self, grd, pre, post):
+        if post:
+            pre_grd = grd.copy()
         if pre:
             grd = pre(grd)
         grd_shape = grd.shape
         numpoints = np.product(grd_shape[1:])
         grd = grd.reshape(grd_shape[0], numpoints)
         fnc = self.func(grd.T, True).T
-        fnc.shape = (len(self.basegrid),)+tuple(grd_shape[1:])
+        fnc = fnc.reshape((len(self.basegrid),)+tuple(grd_shape[1:]))
         if post:
             fnc = post(pre_grd, fnc)
         return fnc
@@ -309,16 +362,20 @@ class TensorSpline(object):
         for v, g in enumerate(self.basegrid):
             order = [t[1] for t in g[0] if t is not None]
             for n in range(len(self.ranges)):
-                ranges = [slice(r[0], r[1], (2j * t[0] + 1 if i == n else 0.5j * t[0])) for i, (r, t) in enumerate(zip(self.ranges,g[0]))]
-                fnc = self.calc_grid(ranges, g[1], g[2])[v]
+                coords = self.grid_estimate[v].copy()
+                coords[n] = np.mgrid[self.ranges[n][0]:self.ranges[n][1]:g[0][n][0]*2j]
+                #ranges = [slice(r[0], r[1], (2j * t[0] + 1 if i == n else 0.5j * t[0])) for i, (r, t) in enumerate(zip(self.ranges,g[0]))]
+                #fnc = self.calc_grid(np.mgrid[ranges], g[1], g[2])[v]
+                fnc = self.calc_grid(self.make_grid(coords), g[1], g[2])[v]
                 #self.get_support(n, fnc, np.amax(abs(fnc))*(ranges[n].stop-ranges[n].start)/ranges[n].step.imag * 1e-4)
                 ptp = fnc.ptp()
                 if np.amax(fnc.ptp(axis=n)) < 1e-6 * ptp:
                     print "%s[%d,%d]: const: %g" % (self.func.comp_id, v, n, np.amax(fnc.ptp(axis=n)) / ptp)
-                    self.knot_data[v, n] = KnotData(None,None,None,None)
+                    self.knot_data[v, n] = KnotData(None,None,slice(self.ranges[n][0], self.ranges[n][1], 1j),None)
                     continue
                 k = order[n]
-                x = np.mgrid[ranges[n]]
+                #x = np.mgrid[ranges[n]]
+                x = coords[n]
                 rng = slice(self.ranges[n][0], self.ranges[n][1], g[0][n][0]*1j)
                 kn, bbox = self.get_interpolating_knots(np.mgrid[rng], k)
                 #e_max = 1.1 * self.max_df(n, x, kn, bbox, k, fnc)
@@ -329,7 +386,10 @@ class TensorSpline(object):
                 if e_rel is None:
                     #e_rel = 4e-5
                     e_rel = 4e-4
-                e_max = ptp * e_rel
+                if e_rel < 0:
+                    e_max = -e_rel
+                else:
+                    e_max = ptp * e_rel
                 good = kn
                 am = None
                 kn0 = kn
@@ -358,7 +418,8 @@ class TensorSpline(object):
                         break
                     kn = np.append(kn[:,:am],kn[:,am+1:], axis=1)
                 self.knot_data[v, n] = self.mk_result(kn, bbox, k, rng)
-                print "%s[%d,%d]: (%g), %d -> %d" % (self.func.comp_id, v, n, e_max, len(kn0[0]), len(kn[0]))
+                self.grid_estimate[v,n] = self.knot_data[v,n].get_knot_grid()
+                print "%s[%d,%d]: (%g), %d -> %d [%s]" % (self.func.comp_id, v, n, e_max, len(kn0[0]), len(kn[0]), fnc.shape)
                 #print "#", fnc.shape, x.shape, e_max
                 #print kn[:1]
                 #pylab.plot(x, fnc[:,0,:])
@@ -427,13 +488,11 @@ def print_int_array(o, name, a, prefix):
     print >>o, "};"
     return a.size * np.int32().nbytes
 
-def print_char_array(o, name, a, prefix):
-    print >>o, "%sunsigned char %s[%d] = {" % (prefix, name, a.size)
+def print_maptype_array(o, name, a, prefix):
+    print >>o, "%smaptype %s[%d] = {" % (prefix, name, a.size)
     s = "  "
     i = 0
     for v in a.ravel('C'):
-        if v > 255:
-            raise ValueError("value > 255 for unsigned char in %s" % name)
         o.write(s + str(v))
         s = ","
         i += 1
@@ -444,7 +503,7 @@ def print_char_array(o, name, a, prefix):
     align = 4
     return ((a.size + align - 1) // align) * align
 
-def print_intpp_data(o, tag, prefix, func, rgdata, basegrid):
+def print_intpp_data(o, tag, prefix, func, rgdata, basegrid, Spline=TensorSpline):
     if prefix:
         prefix += " "
     sz = 0
@@ -455,8 +514,9 @@ def print_intpp_data(o, tag, prefix, func, rgdata, basegrid):
     #for r, k in rgdata:
     #    ranges.append(r)
     #    orderlist.append(k)
-    spl = TensorSpline(func, rgdata, basegrid)
+    spl = Spline(func, rgdata, basegrid)
     coeffs = spl.calc_coeffs()
+    max_idx = 0
     for iv, val in enumerate(spl.knot_data):
         n = len([v for v in val if v.used()])
         print >>o, "%sreal x0%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(float(r[0])) for r, v in zip(rgdata, val) if v.used()]))
@@ -491,16 +551,17 @@ def print_intpp_data(o, tag, prefix, func, rgdata, basegrid):
             sz += print_float_array(o, t, val[j].knots, prefix)
             a = "a%d_%d%s" % (j, iv, tag)
             ai.append(a)
-            sz += print_char_array(o, a, val[j].mapping, prefix)
+            sz += print_maptype_array(o, a, val[j].mapping, prefix)
         for i in range(1):
             t = "c%d_%d%s" % (i, iv, tag)
             ci.append(t)
             sz += print_float_array(o, t, coeffs[iv], prefix)
-        print >>o, "%sunsigned char *map%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join(ai))
+            max_idx = max(max_idx, len(coeffs[iv])-1)
+        print >>o, "%smaptype *map%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join(ai))
         print >>o, "%sfloat *t%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join(ti))
         print >>o, "%sfloat *c%s_%d[%d] = {%s};" % (prefix, tag, iv, 1, ", ".join(ci))
     sz += (n + len(basegrid)) * float_sz
-    return sz, [[v.order for v in val] for val in spl.knot_data]
+    return sz, [[v.order for v in val] for val in spl.knot_data], max_idx
 
 ################################################################
 

@@ -4,6 +4,7 @@
 #define Ith(v,i)    NV_Ith_S(v,i)   
 
 const int fs = 96000;
+//const int fs = 8*44100;
 
 struct Dim {
     double lower, upper;
@@ -225,6 +226,21 @@ public:
 	*b0 = (B0 + 2*B1*fs) / a;
 	*b1 = (B0 - 2*B1*fs) / a;
     }
+};
+
+
+class PowerAmpPlateTrans: public ComponentBase {
+private:
+    realtype& C2;
+    realtype& Gd; // 1/Rd
+    realtype& Ga; // 1/Ra
+    realtype& Gs; // 1/Rs
+    realtype& Un;
+
+    virtual int func(N_Vector u, N_Vector f, UserData *user_data);
+    virtual void update(N_Vector y, N_Vector x, N_Vector state);
+public:
+    PowerAmpPlateTrans();
 };
 
 

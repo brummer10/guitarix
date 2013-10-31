@@ -1,27 +1,49 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 
-for pyname, package in (
-        ('scipy', 'python-scipy'),
-        ('sympy', 'python-sympy'),
-        ('pylab', 'python-matplotlib'),
-        ):
-    try:
-        __import__(pyname)
-    except ImportError:
-        raise SystemExit("Need module %s (Debian package: %s)" % (pyname, package))
-
 import pylab as pl
 import numpy as np
 from models import *
-import dk_simulator
+
+def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
+    """generate logarithmic sweep signal
+    
+    fmin: start frequency
+    fmax: end frequency
+    rate: sample rate
+    k0: fade in before start of signal (samples)
+    k1: length of signal (samples)
+    k2: fade out after end of signal (samples)
+    dtype: data type of signal
+
+    returns: (logsweep signal, inverse logsweep signal)
+    """
+    s1 = np.empty(k0 + k1 + k2, dtype=dtype)
+    s2 = np.empty_like(s1)
+    b = math.log(fmax / fmin) / k1
+    a = fmin / (b * rate)
+    r = 0.5 * a * (fmax / fmin) * (k1 + 0.5 * (k0 + k2)) / (b * k1)
+    q0 = a * math.exp(-b * k0)
+    for i in range(-k0, k1+k2):
+        if i < 0:
+            g = math.cos(0.5 * math.pi * i / k0)
+        elif i < k1:
+            g = 1.0
+        else:
+            g = math.sin(0.5 * math.pi * (k1 + k2 - i) / k2)
+        q = a * math.exp(b * i)
+        p = q - q0
+        x = g * math.sin(2 * math.pi * (p - math.floor(p)))
+        s1[k0+i] = x
+        s2[-(k0+i+1)] = x * q / r
+    return s1, s2
 
 class Test(object):
     FS = 96000
-    max_error = 1e-8
+    max_error = 1e-7
     result_count = 10
     timespan = 0.01
-    solver_method = None  ## use default
+    solver = None  ## use default
 
     def get_samples(self, data):
         return data[np.array(np.linspace(0, len(data)-1, self.result_count).round(), dtype=int)]
@@ -36,11 +58,13 @@ class Test(object):
     def print_data(self, data):
         print repr(self.get_samples(data))
 
-    def op_signal(self, op=None, samples=None):
+    def op_signal(self, op=None, samples=None, timespan=None):
+        if timespan is None:
+            timespan = self.timespan
         if op is None:
             op = self.V["OP"]
         if samples is None:
-            samples = self.timespan*self.FS
+            samples = timespan*self.FS
         return np.array((op,),dtype=np.float64).repeat(samples, axis=0)
 
     def constant_signal(self, *values):
@@ -49,9 +73,11 @@ class Test(object):
             a[:,i] = v
         return a
 
-    def sine_signal(self, freq, channels=1):
-        a = np.zeros((self.timespan*self.FS, channels))
-        s = np.sin(np.linspace(0, 2*np.pi*freq*self.timespan, self.FS*self.timespan))
+    def sine_signal(self, freq, channels=1, timespan=None):
+        if timespan is None:
+            timespan = self.timespan
+        a = np.zeros((timespan*self.FS, channels))
+        s = np.sin(np.linspace(0, 2*np.pi*freq*timespan, self.FS*timespan))
         for i in range(channels):
             a[:,i] = s
         return a
@@ -65,6 +91,28 @@ class Test(object):
         pl.grid()
         pl.legend(args, loc=loc)
         pl.show()
+
+
+class Pot_test(Test):
+
+    S = ((P(), 1, 2, GND),
+         (IN, 1),
+         (OUT, 2),
+         )
+    V = {P(): 100,
+         }
+
+    timespan = 0.001
+    result_count = 1
+    result = np.array([[5.]])
+
+    def signal(self):
+        return self.constant_signal(10)
+
+    def plot(self, y, labels):
+        x = self.timeline()
+        pl.plot(x, y)
+        self.finish_plot(labels)
 
 
 class Choke_test(Test):
@@ -137,6 +185,7 @@ class Transformer_GC_test(Test): # transformer
         [-0.3746337 ,  1.22787577,  0.39689002],
         [-0.36713395, -0.19608725,  0.19608725]])
 
+    solver = dict(method='hybr')
     freq = 40.
     timespan = 2 / freq
 
@@ -161,7 +210,6 @@ class PushPullTransformer_test(Test): # 2 push-pull pentodes with transformer
          (R("s2"), 4, "Vps"),
          (R("L"), "Vo", GND),
          (Trans_(nw=3), 2, "Vps", "Vps", 5, "Vo", GND),
-         #(R(1),2,"Vps"),(R(2),"Vps",5),
          (IN, "Vin1", "Vin2", "Vps"),
          (OUT, Trans_()('phi',100), Trans_()('v'), Trans_()("W1"), Trans_()("W2")),
          )
@@ -212,9 +260,9 @@ class PushPullTransformer_test(Test): # 2 push-pull pentodes with transformer
        [  1.19796324e+00,   1.43745392e+00,   5.20594452e-02,
          -5.29346715e-02]])
 
-    #FS = 4*Test.FS
     freq = 30.
     timespan = 2 / freq
+    solver = dict(method='hybr')
 
     def signal(self):
         a = 50*self.sine_signal(self.freq, 3)
@@ -227,6 +275,37 @@ class PushPullTransformer_test(Test): # 2 push-pull pentodes with transformer
         x = self.timeline()
         pl.plot(x, y)
         self.finish_plot(labels, timeline=x)
+
+class Tonestack_test(Test):
+    S = ((R(4), 1, 2),
+         (C(1), 1, 3),
+         (C(2), 2, 4),
+         (C(3), 2, 5),
+         (P(3), 6, 5, GND),
+         (P(2), 6, 4),
+         (P(1), 3, 7, 4),
+         (IN, 1),
+         (OUT, 7),
+         )
+    V = {C(1): 0.25e-9,
+         C(2): 20e-9,
+         C(3): 20e-9,
+         P(1): dict(value=250e3, var='t'),
+         P(2): dict(value=1e6, var='l'),
+         P(3): dict(value=25e3, var='m'),
+         R(4): 56e3,
+         "POT": dict(l=0.5, m=0.5, t=0.5),
+         }
+
+    timespan = 0.01
+
+    def signal(self):
+        return self.sine_signal(400)
+
+    def plot(self, y, labels):
+        x = self.timeline()
+        pl.plot(x, y)
+        self.finish_plot(labels)
 
 
 class Resonator_test(Test): # LC-resonator
@@ -315,7 +394,7 @@ class Diode_clipper(Test): # diode clipper
          C(): 3e-7,
          "OP": [0],
          }
-    solver_method = 'lm'
+    solver = dict(method='lm')
 
     result = np.array([[ -1.20000000e+00,   3.98658844e+00,  -8.01341156e-01],
        [ -9.34673367e-01,   1.60606646e+00,  -7.74066721e-01],
@@ -340,7 +419,7 @@ class Diode_clipper(Test): # diode clipper
         self.finish_plot(labels)
 
 
-# class LFO_test(Test): # LFO, fail, finds wrong root (c.f. Mačák thesis)
+# class LFO_test(Test): # LFO, fail, finds wrong roots (c.f. Mačák thesis)
 
 #     OPA_ = OPA
 #     S = ((R(1), "V1", "V2"),
@@ -412,7 +491,6 @@ class InvOpAmp_test(Test): # inverting OPAMP
          }
 
     timespan = 0.01
-    solver_method = 'lm'
 
     result = np.array([[  0.00000000e+00,   0.00000000e+00,   0.00000000e+00],
        [ -4.26797924e+00,  -4.55963690e-05,   4.26788804e+00],
@@ -487,8 +565,10 @@ class WahWah_test(Test): # wah-wah
     def signal(self):
         a = self.op_signal()
         a[:,0] += 0.2*self.sine_signal(555.*1.2)[:,0]
+        #a[:,0] += 2*self.sine_signal(555.*1.0)[:,0]
         return a
 
+    max_error = 5e-7  # presumable due to different numeric implementation of nonlinear vector function
     result = np.array([
         [ -1.11013509e-09],
         [ -5.33823431e-01],
@@ -577,6 +657,9 @@ class Triode1_test(Test): # triode test
         pl.plot(self.get_samples(self.sig), -self.result, "rx")
         self.finish_plot(labels)
 
+Tubes = {
+    "12ax7": dict(mu = 100.0, Ex = 1.4, Kp = 600.0, Kvb = 300.0, Kg1 = 1060.0, Gco = -0.2, Gcf = 1e-5),
+    }
 
 class Triode2_test(Test): # triode test 2
     S = ((Triode(), "Vg", "Va", "Vk"),
@@ -626,67 +709,89 @@ class Triode2_test(Test): # triode test 2
         self.finish_plot(labels, loc="upper center", timeline=self.sig)
 
 
-def main():
-    import sys, argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('test', nargs="*", help='name of test')
-    parser.add_argument('-c', '--check', action='store_true', help='check results of tests')
-    parser.add_argument('-b', '--backward-euler', action='store_true', help='use Backward-Euler integration instead of trapezoidal')
-    parser.add_argument('-p', '--pure-python', action='store_true', help='do not generate C code to speed up calculations')
-    args = parser.parse_args()
-    def is_test(v):
-        return isinstance(v, type) and issubclass(v, Test) and v is not Test
-    g = globals()
-    tests = []
-    for t in args.test:
-        if not (t in g and is_test(g[t])):
-            tt = t + "_test"
-            if not (tt in g and is_test(g[tt])):
-                parser.error("%s is not a test" % t)
-            t = tt
-        tests.append(t)
-    if args.check:
-        if not tests:
-            tests = [k for k, v in g.items() if is_test(v) and hasattr(v, 'result')]
-            tests.sort()
-        mlen = reduce(max, [len(t) for t in tests], 0)
-        for t in tests:
-            v = g[t]()
-            p = dk_simulator.Parser(v.S, v.V, v.FS, v.solver_method, not args.backward_euler, args.pure_python)
-            sys.stdout.write("%-*s: " % (mlen, t))
-            sys.stdout.flush()
-            y = p(v.signal())
-            sys.stdout.write("%s [%.2g]\n" % (v.compare_data(y), p.time_per_sample))
-            #v.print_data(y)
-    else:
-        if not tests:
-            testlist = [k for k, v in g.items() if is_test(v)]
-            testlist.sort()
-            for i, k in enumerate(testlist):
-                if k.endswith("_test"):
-                    k = k[:-5]
-                print "%2d: %s" % (i, k)
-            print
-            try:
-                k = testlist[int(raw_input("Please select: "))]
-            except (ValueError, KeyError):
-                print "not found"
-                raise SystemExit, 1
-            except KeyboardInterrupt:
-                print
-                raise SystemExit, 1
-            tests = [k]
-        for t in tests:
-            v = g[t]()
-            p = dk_simulator.Parser(v.S, v.V, v.FS, v.solver_method, not args.backward_euler, args.pure_python)
-            # if hasattr(p, "c_calc"):
-            #     print p.c_calc(np.array([1.]), np.array([1.,1.]), np.array(()))
-            # else:
-            #     p.x = [1.,1.]
-            #     print p.eval_py(np.matrix([1.])), p.x.T
-            # raise SystemExit
-            y = p(v.signal())
-            v.plot(y, p.out_labels())
+class Preamp_test(Test):
+    S = ((P(6), 8, 9, GND),
+         (V('cc3'), 18),
+         (CC(2), 11, 13),
+         (V('cc2'), 12),
+         (Triode(2), 9, 11, 10),
+         (V('cc1'), 5),
+         (CC(1), 4, 6),
+         (Triode(3), 15, 17, 16),
+         (Triode(1), 2, 4, 3),
+         (C('m3'), 15, 17),
+         (C(7), 14, 15),
+         (C(6), 13, 14),
+         (C('m2'), 9, 11),
+         (C(5), 8, 9),
+         (C(4), 7, 8),
+         (C(3), 6, 7),
+         (C(2), 4, 3),
+         (C(1), 3, GND),
+         (C('m1'), 2, 4),
+         (R(12), 18, 17),
+         (R(11), 16, GND),
+         (R(10), 15, GND),
+         (R(9), 15, 14),
+         (R(7), 10, GND),
+         (R(8), 12, 11),
+         (R(5), 7, 8),
+         (R(4), 5, 4),
+         (R(3), 3, GND),
+         (R(2), 2, 1),
+         (R(1), 1, GND),
+         (OUT, 17),
+         (IN, 1),
+         )
 
-if __name__ == "__main__":
-    main()
+    V = {C('m1'): 2.e-12,
+         C('m2'): 2.e-12,
+         C('m3'): 2.e-12,
+         C(1): 680.e-9,
+         C(2): 100.e-12,
+         C(3): 22.e-9,
+         C(4): 470.e-12,
+         C(5): 1.e-9,
+         C(6): 22.e-9,
+         C(7): 470.e-12,
+         R(1): 1.e6,
+         R(10): 470.e3,
+         R(11): 820.,
+         R(12): 100.e3,
+         R(2): 68.e3,
+         R(3): 2.7e3,
+         R(4): 100.e3,
+         R(5): 470.e3,
+         R(7): 10.e3,
+         R(8): 100.e3,
+         R(9): 470.e3,
+         P(6): 1.e6,
+         Triode(1): Tubes['12ax7'],
+         Triode(2): Tubes['12ax7'],
+         Triode(3): Tubes['12ax7'],
+         V('cc1'): 385.,
+         V('cc2'): 385.,
+         V('cc3'): 385.,
+         }
+
+    result = np.array(
+        [[ 221.71522314],
+         [ 171.55513962],
+         [ 384.87040955],
+         [  87.6985932 ],
+         [ 175.15609089],
+         [ 384.87745145],
+         [  88.35549583],
+         [ 176.31730901],
+         [ 384.87680835],
+         [  88.18246137]])
+
+    timespan = 0.2
+
+    def signal(self):
+        return 0.15*self.sine_signal(150.0)
+
+    def plot(self, y, labels):
+        x = self.timeline()
+        pl.plot(x, y)
+        self.finish_plot(labels)

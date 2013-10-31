@@ -14,6 +14,8 @@
 #include <sundials/sundials_math.h>
 #include "circuit.hpp"
 
+#define DOUBLE_UPDATE false
+
 //#define FTOL   RCONST(1.e-7)  /* function tolerance */
 //#define STOL   RCONST(1.e-5) /* step tolerance */
 #define FTOL   RCONST(1.e-11)  /* function tolerance */
@@ -557,11 +559,13 @@ TriodeCircuit::TriodeCircuit()
 
 void TriodeCircuit::update(N_Vector y, N_Vector x, N_Vector state) {
     realtype *fdata = NV_DATA_S(y);
-    //realtype Ug = fdata[0];
     realtype Uk = fdata[1];
-    //realtype Ua = fdata[2];
     realtype Uc1m = Uk;
-    //Uc1m = Uc1m - (Uk*Gk - Ia(Ug-Uk,Ua-Uk) - Ig(Ug-Uk)) / (Ck*fs);
+    if (DOUBLE_UPDATE) {
+	realtype Ug = fdata[0];
+	realtype Ua = fdata[2];
+	Uc1m = Uc1m - (Uk*Gk - Ia(Ug-Uk,Ua-Uk) - Ig(Ug-Uk)) / (Ck*fs);
+    }
     Ith(state,0) = Uc1m;
 }
 
@@ -627,19 +631,21 @@ CoupledTriodeCircuit::CoupledTriodeCircuit()
 void CoupledTriodeCircuit::update(N_Vector y, N_Vector x, N_Vector state)
 {
     realtype *fdata = NV_DATA_S(y);
-    //realtype Ug = fdata[0];
     realtype Uk = fdata[1];
     realtype Ua = fdata[2];
     realtype U2 = fdata[3];
-    //realtype Ug2 = fdata[4];
 
     realtype Uc1m = Uk;
     realtype Uc2m = Ua-U2;
 
-    //realtype ia1 = Ia(Ug-Uk,Ua-Uk);
-    //realtype ig1 = Ig(Ug-Uk);
-    //Uc1m = Uc1m - (Uk*Gk-ia1-ig1) / (Ck*fs);
-    //Uc2m = Uc2m + ((U2-Ug2)*G3) / (Ca*fs);
+    if (DOUBLE_UPDATE) {
+	realtype Ug = fdata[0];
+	realtype Ug2 = fdata[4];
+	realtype ia1 = Ia(Ug-Uk,Ua-Uk);
+	realtype ig1 = Ig(Ug-Uk);
+	Uc1m = Uc1m - (Uk*Gk-ia1-ig1) / (Ck*fs);
+	Uc2m = Uc2m + ((U2-Ug2)*G3) / (Ca*fs);
+    }
     Ith(state,0) = Uc1m;
     Ith(state,1) = Uc2m;
 }
@@ -705,10 +711,12 @@ void PowerAmpGate::update(N_Vector y, N_Vector x, N_Vector state) {
     realtype *fdata = NV_DATA_S(y);
     realtype U0 = fdata[0];
     realtype U1 = fdata[1];
-    //realtype Ug = fdata[2];
     realtype Uc1m = U0-U1;
 
-    //Uc1m = Uc1m + ((U1-Ub)*Gb+(U1-Ug)*Gg)/(C1*fs);
+    if (DOUBLE_UPDATE) {
+	realtype Ug = fdata[2];
+	Uc1m = Uc1m + ((U1-Ub)*Gb+(U1-Ug)*Gg)/(C1*fs);
+    }
     Ith(state,0) = Uc1m;
 }
 
@@ -764,20 +772,21 @@ PowerAmpPlate::PowerAmpPlate()
 
 void PowerAmpPlate::update(N_Vector y, N_Vector x, N_Vector state) {
     realtype *fdata = NV_DATA_S(y);
-    //realtype Us1 = fdata[0];
-    //realtype Us2 = fdata[1];
     realtype Ud  = fdata[2];
-    //realtype Ua1 = fdata[3];
-    //realtype Ua2 = fdata[4];
-    //realtype Ug1 = Ith(x,0);
-    //realtype Ug2 = Ith(x,1);
     realtype Uc2m = Ud;
-    //realtype ia1 = Iap(Ug1,Us1,Ua1);
-    //realtype is1 = Is(Ug1,Us1);
-    //realtype ia2 = Iap(Ug2,Us2,Ua2);
-    //realtype is2 = Is(Ug2,Us2);
-
-    //Uc2m = Uc2m + ((Un-Uc2m)*Gd-(ia1+ia2+is1+is2))/(C2*fs);
+    if (DOUBLE_UPDATE) {
+	realtype Us1 = fdata[0];
+	realtype Us2 = fdata[1];
+	realtype Ua1 = fdata[3];
+	realtype Ua2 = fdata[4];
+	realtype Ug1 = Ith(x,0);
+	realtype Ug2 = Ith(x,1);
+	realtype ia1 = Iap(Ug1,Us1,Ua1);
+	realtype is1 = Is(Ug1,Us1);
+	realtype ia2 = Iap(Ug2,Us2,Ua2);
+	realtype is2 = Is(Ug2,Us2);
+	Uc2m = Uc2m + ((Un-Uc2m)*Gd-(ia1+ia2+is1+is2))/(C2*fs);
+    }
     Ith(state,0) = Uc2m;
 }
 
@@ -853,19 +862,21 @@ void PhaseSplitter::update(N_Vector y, N_Vector x, N_Vector state) {
     realtype *fdata = NV_DATA_S(y);
     realtype U1  = fdata[0];
     realtype Ug1 = fdata[1];
-    //realtype Uk  = fdata[2];
-    //realtype U2  = fdata[4];
     realtype U3  = fdata[5];
     realtype U4  = fdata[6];
     realtype Ug2 = fdata[7];
     realtype Uc1m = U1-Ug1;
     realtype Uc2m = Ug2-U3;
     realtype Uc3m = U3-U4;
-    //realtype ig1 = Ig(Ug1-Uk);
-    //realtype ig2 = Ig(Ug2-Uk);
-    //Uc1m = Uc1m + ((Ug1-U2)*Gg1+ig1) / (C1*fs);
-    //Uc2m = Uc2m - ((Ug2-U2)*Gg2+ig2) / (C2*fs);
-    //Uc3m = Uc3m + (U4*G4) / (C3*fs);
+    if (DOUBLE_UPDATE) {
+	realtype Uk  = fdata[2];
+	realtype U2  = fdata[4];
+	realtype ig1 = Ig(Ug1-Uk);
+	realtype ig2 = Ig(Ug2-Uk);
+	Uc1m = Uc1m + ((Ug1-U2)*Gg1+ig1) / (C1*fs);
+	Uc2m = Uc2m - ((Ug2-U2)*Gg2+ig2) / (C2*fs);
+	Uc3m = Uc3m + (U4*G4) / (C3*fs);
+    }
     Ith(state,0) = Uc1m;
     Ith(state,1) = Uc2m;
     Ith(state,2) = Uc3m;
@@ -909,6 +920,90 @@ int PhaseSplitter::func(N_Vector u, N_Vector f, UserData *data) {
 
     return(0);
 }
+
+
+PowerAmpPlateTrans::PowerAmpPlateTrans()
+    : ComponentBase(5+2, 3, 2, 2, 2, param_off+5),
+      C2(params[param_off+0]),
+      Gd(params[param_off+1]),
+      Ga(params[param_off+2]),
+      Gs(params[param_off+3]),
+      Un(params[param_off+4]) {
+    const char *p_names[] = { "C2", "Gd", "Ga", "Gs", "Un", 0 };
+    set_names(param_names+param_off, p_names, n_params-param_off);
+    static const char *i_names[] = { "Ug1", "Ug2", 0 };
+    set_names(in_names, i_names, N_IN);
+    static const char *o_names[] = { "Ua1", "Ua2", 0 };
+    set_names(out_names, o_names, N_OUT);
+    static const char *s_names[] = { "Uc2m", 0 };
+    set_names(state_names, s_names, NVALS-N_OUT);
+    static const char *v_names[] = { "Us1", "Us2", "Ud", "Ua1", "Ua2", "L1", "L2", 0 };
+    set_names(var_names, v_names, NEQ);
+    ix[0] = 2;
+    ix[1] = 1;
+    ix[2] = 0;
+    constraints = N_VNew_Serial(NEQ);
+    Ith(constraints,0) =  ZERO;   /* no constraint on f1 */
+    Ith(constraints,1) =  ZERO;   /* no constraint on f2 */
+    Ith(constraints,2) =  ZERO;   /* no constraint on f3 */
+    Ith(constraints,3) =  ZERO;   /* no constraint on f4 */
+    Ith(constraints,4) =  ZERO;   /* no constraint on f5 */
+    Ith(constraints,5) =  ONE;    /* L1 = Us1 - Ud/2 >= 0 */
+    Ith(constraints,6) =  ONE;    /* L2 = Us2 - Ud/2 >= 0 */
+}
+
+void PowerAmpPlateTrans::update(N_Vector y, N_Vector x, N_Vector state) {
+    realtype *fdata = NV_DATA_S(y);
+    realtype Ud  = fdata[2];
+    realtype Uc2m = Ud;
+    if (DOUBLE_UPDATE) {
+	realtype Us1 = fdata[0];
+	realtype Us2 = fdata[1];
+	realtype Ua1 = fdata[3];
+	realtype Ua2 = fdata[4];
+	realtype Ug1 = Ith(x,0);
+	realtype Ug2 = Ith(x,1);
+	realtype ia1 = Iap(Ug1,Us1,Ua1);
+	realtype is1 = Is(Ug1,Us1);
+	realtype ia2 = Iap(Ug2,Us2,Ua2);
+	realtype is2 = Is(Ug2,Us2);
+	Uc2m = Uc2m + ((Un-Uc2m)*Gd-(ia1+ia2+is1+is2))/(C2*fs);
+    }
+    Ith(state,0) = Uc2m;
+}
+
+int PowerAmpPlateTrans::func(N_Vector u, N_Vector f, UserData *data) {
+    realtype *udata = NV_DATA_S(u);
+    realtype *fdata = NV_DATA_S(f);
+
+    realtype Us1 = udata[0];
+    realtype Us2 = udata[1];
+    realtype Ud  = udata[2];
+    realtype Ua1 = udata[3];
+    realtype Ua2 = udata[4];
+    realtype L1  = udata[5];
+    realtype L2  = udata[6];
+    realtype Uc2 = Ud;
+
+    realtype Ug1 = data->inval[0];
+    realtype Ug2 = data->inval[1];
+    realtype Uc2m = data->state[0];
+
+    realtype ia1 = Iap(Ug1,Us1,Ua1);
+    realtype is1 = Is(Ug1,Us1);
+    realtype ia2 = Iap(Ug2,Us2,Ua2);
+    realtype is2 = Is(Ug2,Us2);
+    fdata[0] = -ia1+(Ud-Ua1)*Ga;
+    fdata[1] = -ia2+(Ud-Ua2)*Ga;
+    fdata[2] = -is1+(Ud-Us1)*Gs;
+    fdata[3] = -is2+(Ud-Us2)*Gs;
+    fdata[4] = -ia1-ia2-is1-is2+(Un-Ud)*Gd-C2*(Uc2-Uc2m)*fs;
+    fdata[5] = L1 - (Us1 - -Ud);
+    fdata[6] = L2 - (Us2 - -Ud);
+
+    return(0);
+}
+
 
 /*
  *--------------------------------------------------------------------

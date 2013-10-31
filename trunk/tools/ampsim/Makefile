@@ -1,6 +1,7 @@
 CXXFLAGS=-O2 -fPIC -fvisibility=hidden
 #CXXFLAGS=-g
 INTPP_OPT=-msse2 -mfpmath=sse -ffast-math
+LDFLAGS=-fPIC
 
 DSP2CC = ../dsp2cc
 GXHEAD = ../../src/headers

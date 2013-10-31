@@ -65,7 +65,6 @@ static inline int forward(int i, splinecoeffs *p, real *xi, real *x, int ll,
 			  splinedata::retval *cl, real *h)
 {
     int l = p->map[i][find_index(p->nmap[i], K, &x[i], xi[i], p->x0[i], p->xe[i], p->stepi[i], &cl->c[i])];
-    int ii = find_index(p->nmap[i], K, &x[i], xi[i], p->x0[i], p->xe[i], p->stepi[i], &cl->c[i]);
     fpbspl<K>(p->t[i],x[i],l,h);
     return ll*p->n[i] + l-K+1;
 }
