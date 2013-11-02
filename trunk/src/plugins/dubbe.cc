@@ -368,7 +368,7 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
     if (rplay3 && !RP3) {play3 = 0.0;RP3=true;}
     else if (play3 && RP3) {rplay3 = 0.0;RP3=false;}
     if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
-    else if (play4&& RP4) {rplay4 = 0.0;RP4=false;}
+    else if (play4 && RP4) {rplay4 = 0.0;RP4=false;}
     float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
 	float 	fSlow1 = fslider1;
     record1     = fbargraph0? record1 : 0.0;
@@ -409,13 +409,14 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		int iTemp2 = (4194304 - iRec5[0]);
 		fbargraph0 = iTemp2*fConst2;
         int iTemp3 = fmin(4194304-1, (int)(4194304 - iTemp2));
-		IOTA1 = IOTA1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTA1+1;
-		if (iSlow3 == 1)
+		if (iSlow3 == 1) {
+        IOTA1 = IOTA1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTA1+1;
 		tape1[IOTA1] = fTemp1;
+        }
         if (rplay1) {
         IOTAR1 = IOTAR1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):IOTAR1-1;
         } else {
-        IOTAR1 = IOTA1;
+        IOTAR1 = IOTAR1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTAR1+1;
         }
 		
         float fTemp4 = ((int((fRec1[1] != 0.0f)))?((int(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))))?fRec1[1]:0):((int(((fRec2[1] == 0.0f) & (iTemp3 != iRec3[1]))))?fConst0:((int(((fRec2[1] == 1.0f) & (iTemp3 != iRec4[1]))))?fConst1:0)));
@@ -429,13 +430,14 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		int iTemp6 = (4194304 - iRec10[0]);
 		fbargraph1 = iTemp6*fConst2;
 		int iTemp7 = fmin(4194304-1, (int)(4194304 - iTemp6));
+		if (iSlow6 == 1) {
 		IOTA2 = IOTA2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTA2+1;
-		if (iSlow6 == 1)
 		tape2[IOTA2] = fTemp5;
+        }
 		if (rplay2) {
         IOTAR2 = IOTAR2< (iTemp7 - int(iTemp7*iClips2))? int(iTemp7*iClip2):IOTAR2-1;
         } else {
-        IOTAR2 = IOTA2;
+        IOTAR2 = IOTAR2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTAR2+1;
         }
 		
         float fTemp8 = ((int((fRec6[1] != 0.0f)))?((int(((fRec7[1] > 0.0f) & (fRec7[1] < 1.0f))))?fRec6[1]:0):((int(((fRec7[1] == 0.0f) & (iTemp7 != iRec8[1]))))?fConst0:((int(((fRec7[1] == 1.0f) & (iTemp7 != iRec9[1]))))?fConst1:0)));
@@ -449,13 +451,14 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		int iTemp10 = (4194304 - iRec15[0]);
 		fbargraph2 = iTemp10*fConst2;
 		int iTemp11 = fmin(4194304-1, (int)(4194304 - iTemp10));
+		if (iSlow9 == 1) {
 		IOTA3 = IOTA3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTA3+1;
-		if (iSlow9 == 1)
 		tape3[IOTA3] = fTemp9;
+        }
 		if (rplay3) {
         IOTAR3 = IOTAR3< (iTemp11 - int(iTemp11*iClips3))? int(iTemp11*iClip3):IOTAR3-1;
         } else {
-        IOTAR3 = IOTA3;
+        IOTAR3 = IOTAR3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTAR3+1;
         }
 		
         float fTemp12 = ((int((fRec11[1] != 0.0f)))?((int(((fRec12[1] > 0.0f) & (fRec12[1] < 1.0f))))?fRec11[1]:0):((int(((fRec12[1] == 0.0f) & (iTemp11 != iRec13[1]))))?fConst0:((int(((fRec12[1] == 1.0f) & (iTemp11 != iRec14[1]))))?fConst1:0)));
@@ -469,13 +472,14 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		int iTemp14 = (4194304 - iRec20[0]);
 		fbargraph3 = iTemp14*fConst2;
 		int iTemp15 = fmin(4194304-1, (int)(4194304 - iTemp14));
+		if (iSlow12 == 1) {
 		IOTA4 = IOTA4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTA4+1;
-		if (iSlow12 == 1)
 		tape4[IOTA4] = fTemp13;
+        }
 		if (rplay4) {
         IOTAR4 = IOTAR4< (iTemp15 - int(iTemp15*iClips4))? int(iTemp15*iClip4):IOTAR4-1;
         } else {
-        IOTAR4 = IOTA4;
+        IOTAR4 = IOTAR4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTAR4+1;
         }
 		
         float fTemp16 = ((int((fRec16[1] != 0.0f)))?((int(((fRec17[1] > 0.0f) & (fRec17[1] < 1.0f))))?fRec16[1]:0):((int(((fRec17[1] == 0.0f) & (iTemp15 != iRec18[1]))))?fConst0:((int(((fRec17[1] == 1.0f) & (iTemp15 != iRec19[1]))))?fConst1:0)));
