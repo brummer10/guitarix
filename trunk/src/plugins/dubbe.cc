@@ -94,6 +94,10 @@ private:
 	int 	iRec19[2];
 	float 	fcheckbox11;
 	float 	fslider5;
+	bool save1;
+	bool save2;
+	bool save3;
+	bool save4;
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();
@@ -126,6 +130,10 @@ Dsp::Dsp()
 	  tape2(0),
 	  tape3(0),
 	  tape4(0),
+	  save1(false),
+	  save2(false),
+	  save3(false),
+	  save4(false),
 	  mem_allocated(false) {
 	version = PLUGINDEF_VERSION;
 	flags = 0;
@@ -264,33 +272,46 @@ void Dsp::save_array()
         struct passwd *pw = getpwuid(getuid());
         pPath = pw->pw_dir;
     }
+    if (save1) {
     FILE *pFile  = fopen ((pPath+ "/.config/guitarix/tape1.bin").c_str() , "wb" );
     if (pFile==NULL) {return;} 
     size_t lSize = 4194304 - int(fbargraph0/fConst2);
     size_t result = fwrite (tape1 , sizeof(tape1[0]) , lSize , pFile );
     if (result != lSize) {fputs ("Save tape(1) error\n",stderr);}
     fclose (pFile);
-
+    save1 = false;
+    fputs ("Save tape(1)\n",stderr);
+    }
+    if (save2) {
     FILE *pFile1  = fopen ((pPath+ "/.config/guitarix/tape2.bin").c_str() , "wb" );
     if (pFile1==NULL) {return;} 
-    lSize = 4194304 - int(fbargraph1/fConst2);
-    result = fwrite (tape2 , sizeof(tape2[0]) , lSize , pFile1 );
+    size_t lSize = 4194304 - int(fbargraph1/fConst2);
+    size_t result = fwrite (tape2 , sizeof(tape2[0]) , lSize , pFile1 );
     if (result != lSize) {fputs ("Save tape(2) error\n",stderr);}
     fclose (pFile1);
-
+    save2 = false;
+    fputs ("Save tape(2)\n",stderr);
+    }
+    if (save3) {
     FILE *pFile2  = fopen ((pPath+ "/.config/guitarix/tape3.bin").c_str() , "wb" );
     if (pFile2==NULL) {return;} 
-    lSize = 4194304 - int(fbargraph2/fConst2);
-    result = fwrite (tape3 , sizeof(tape3[0]) , lSize , pFile2 );
+    size_t lSize = 4194304 - int(fbargraph2/fConst2);
+    size_t result = fwrite (tape3 , sizeof(tape3[0]) , lSize , pFile2 );
     if (result != lSize) {fputs ("Save tape(3) error\n",stderr);}
     fclose (pFile2);
-
+    save3 = false;
+    fputs ("Save tape(3)\n",stderr);
+    }
+    if (save4) {
     FILE *pFile3  = fopen ((pPath+ "/.config/guitarix/tape4.bin").c_str() , "wb" );
     if (pFile3==NULL) {return;} 
-    lSize = 4194304 - int(fbargraph3/fConst2);
-    result = fwrite (tape4 , sizeof(tape4[0]) , lSize , pFile3 );
+    size_t lSize = 4194304 - int(fbargraph3/fConst2);
+    size_t result = fwrite (tape4 , sizeof(tape4[0]) , lSize , pFile3 );
     if (result != lSize) {fputs ("Save tape(4) error\n",stderr);}
     fclose (pFile3);
+    save4 = false;
+    fputs ("Save tape(4)\n",stderr);
+    }
 }
 
 int Dsp::activate(bool start)
@@ -315,7 +336,11 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
+	if(fcheckbox0 || fcheckbox1) save1 = true;
+    if(fcheckbox3 || fcheckbox4) save2 = true;
+    if(fcheckbox6 || fcheckbox7) save3 = true;
+    if(fcheckbox9 || fcheckbox10) save4 = true;
+    float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
 	float 	fSlow1 = fslider1;
     fcheckbox0     = fbargraph0? fcheckbox0 : 0.0;
 	fcheckbox3     = fbargraph1? fcheckbox3 : 0.0;
