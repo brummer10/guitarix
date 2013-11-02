@@ -317,6 +317,26 @@ void StackBoxBuilder::create_simple_meter(const std::string& id) {
     fBox.box_pack_start(manage(box),false);
 }
 
+bool StackBoxBuilder::set_engine_value(const std::string id) {
+    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
+      machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id));
+    return true;
+}
+
+void StackBoxBuilder::create_port_display(const std::string& id, const char *label) {
+    CpBaseCaption *w = new UiReglerWithCaption<Gxw::PortDisplay>(machine, id);
+    Glib::signal_timeout().connect(sigc::bind<const std::string>(
+      sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
+	w->set_rack_label(label);
+	addwidget(w);
+}
+
+void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::string& id) {
+	addwidget(UiSwitch::create(machine, sw_type, id));
+    Glib::signal_timeout().connect(sigc::bind<const std::string>(
+      sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
+}
+
 void StackBoxBuilder::create_selector(const std::string& id, const char *widget_name) {
     gx_engine::Parameter& p = machine.get_parameter(id);
     Gxw::Selector *s;

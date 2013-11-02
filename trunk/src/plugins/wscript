@@ -13,9 +13,13 @@ sources = [ # generate .so files that can be loaded by guitarix
 
 lib_csource_defs = [ # put in static library linked with guitarix
     ["vibe.cc", ("plugin_mono", "plugin_stereo")],
+    "dubbe.cc",
     "abgate.cc",
     ]
 
+lib_float_sources = [ # put in static library linked with guitarix
+    #"dubber.dsp",
+    ]
 lib_sources = [ # put in static library linked with guitarix
     "zita_rev1.dsp",
     "ts9sim.dsp",
@@ -43,6 +47,12 @@ def build(bld):
             proc = "../tools/dsp2cc",
             gen_dir_suffix = "/generated",
             proc_args = arg+["--template-type=staticlib","--in-namespace=pluginlib"],
+            )
+        bld(name = "dsp2cc staticlib",
+            source = lib_float_sources,
+            proc = "../tools/dsp2cc",
+            gen_dir_suffix = "/generated",
+            proc_args = float_arg+["--template-type=staticlib","--in-namespace=pluginlib","--init-type=plugin-instance"],
             )
     else:
         gdir = "generated/"

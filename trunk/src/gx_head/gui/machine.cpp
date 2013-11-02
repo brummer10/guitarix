@@ -1467,6 +1467,9 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	} else if (jp->current_value() == "create_master_slider") {
 	    std::string id = next_string(jp);
 	    builder.create_master_slider(id.c_str(), next_char_pointer(jp));
+	} else if (jp->current_value() == "create_h_slider") {
+	    std::string id = next_string(jp);
+	    builder.create_h_slider(id.c_str(), next_char_pointer(jp));
 	} else if (jp->current_value() == "create_selector_no_caption") {
 	    builder.create_selector_no_caption(next_char_pointer(jp));
 	} else if (jp->current_value() == "create_selector") {
@@ -1480,6 +1483,9 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	} else if (jp->current_value() == "create_switch_no_caption") {
 	    std::string sw_type = next_char_pointer(jp);
 	    builder.create_switch_no_caption(sw_type.c_str(), next_char_pointer(jp));
+	} else if (jp->current_value() == "create_feedback_switch") {
+	    std::string sw_type = next_char_pointer(jp);
+	    builder.create_feedback_switch(sw_type.c_str(), next_char_pointer(jp));
 	} else if (jp->current_value() == "create_switch") {
 	    std::string sw_type = next_char_pointer(jp);
 	    std::string id = next_char_pointer(jp);

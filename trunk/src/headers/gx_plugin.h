@@ -78,9 +78,11 @@ struct UiBuilder {
     // functions by the prefix create_ so please stick to this
     // prefix or change the checker
     void (*create_master_slider)(const char *id, const char *label);
+    void (*create_h_slider)(const char *id, const char *label);
     void (*create_small_rackknob)(const char *id, const char *label);
     void (*create_selector_no_caption)(const char *id);
     void (*create_switch_no_caption)(const char *sw_type,const char * id);
+    void (*create_feedback_switch)(const char *sw_type,const char * id);
     void (*create_spin_value)(const char * id, const char *label);
     void (*create_port_display)(const char * id, const char *label);
     void (*create_switch)(const char *sw_type,const char * id, const char *label);

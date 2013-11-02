@@ -309,12 +309,13 @@ void GxEngine::load_static_plugins() {
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&preamp.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::abgate::plugin(),           PLUGIN_POS_RACK);
+    pl.add(pluginlib::dubbe::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::vibe::plugin_mono(),        PLUGIN_POS_RACK);
-    pl.add(pluginlib::mbc::plugin(),              PLUGIN_POS_RACK);
-    pl.add(pluginlib::mbd::plugin(),              PLUGIN_POS_RACK);
-    pl.add(pluginlib::mbe::plugin(),              PLUGIN_POS_RACK);
-    pl.add(pluginlib::mbdel::plugin(),              PLUGIN_POS_RACK);
-    pl.add(pluginlib::mbchor::plugin(),              PLUGIN_POS_RACK);
+    pl.add(pluginlib::mbc::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::mbd::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::mbe::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::mbdel::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::mbchor::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
@@ -329,7 +330,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::stereoverb::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::zita_rev1::plugin(),        PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_stereo(),      PLUGIN_POS_RACK);
-    pl.add(pluginlib::mbcs::plugin(),             PLUGIN_POS_RACK);
+    pl.add(pluginlib::mbcs::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
 }
 
 static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {

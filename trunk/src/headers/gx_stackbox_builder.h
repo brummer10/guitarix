@@ -100,6 +100,11 @@ private:
 	w->set_rack_label(label);
 	addwidget(w);
     }
+    void create_h_slider(const std::string& id, const char *label) {
+	UiReglerWithCaption<Gxw::HSlider> *w = new UiReglerWithCaption<Gxw::HSlider>(machine, id);
+	w->set_rack_label(label);
+	addwidget(w);
+    }
     void create_spin_value(const std::string& id, const char *label) {
 	UiDisplayWithCaption<Gxw::ValueDisplay> *w = new UiDisplayWithCaption<Gxw::ValueDisplay>(machine, id);
 	w->set_rack_label(label);
@@ -114,11 +119,9 @@ private:
     void create_eq_rackslider_no_caption(const std::string& id) {
 	addwidget(new UiRegler<Gxw::EqSlider>(machine, id, true));
     }
-    void create_port_display(const std::string& id, const char *label) {
-	CpBaseCaption *w = new UiReglerWithCaption<Gxw::PortDisplay>(machine, id);
-	w->set_rack_label(label);
-	addwidget(w);
-    }
+    bool set_engine_value(const std::string id);
+    void create_port_display(const std::string& id, const char *label);
+    void create_feedback_switch(const char *sw_type, const std::string& id);
     void create_selector(const std::string& id, const char *widget_name=0);
     void create_selector_with_caption(const std::string& id, const char *label);
     void openFlipLabelBox(const char* = 0);

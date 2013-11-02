@@ -75,11 +75,13 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     load_glade = load_glade_;
     load_glade_file = load_glade_file_;
     create_master_slider = create_master_slider_;
+    create_h_slider = create_h_slider_;
     create_small_rackknob = create_small_rackknob_;
     create_small_rackknobr = create_small_rackknobr_;
     create_spin_value = create_spin_value_;
     create_switch = create_switch_;
     create_switch_no_caption = create_switch_no_caption_;
+    create_feedback_switch = create_feedback_switch_;
     create_wheel = create_wheel_;
     create_selector = create_selector_;
     create_simple_meter = create_simple_meter_;
@@ -162,6 +164,10 @@ void UiBuilderImpl::create_master_slider_(const char *id, const char *label) {
     intf->create_master_slider(id, label);
 }
 
+void UiBuilderImpl::create_h_slider_(const char *id, const char *label) {
+    intf->create_h_slider(id, label);
+}
+
 void UiBuilderImpl::create_selector_no_caption_(const char *id) {
     intf->create_selector(id, "");
 }
@@ -180,6 +186,10 @@ void UiBuilderImpl::create_spin_value_(const char *id, const char *label) {
 
 void UiBuilderImpl::create_switch_no_caption_(const char *sw_type, const char * id) {
     intf->create_switch_no_caption(sw_type, id);
+}
+
+void UiBuilderImpl::create_feedback_switch_(const char *sw_type, const char * id) {
+    intf->create_feedback_switch(sw_type, id);
 }
 
 void UiBuilderImpl::create_switch_(const char *sw_type, const char * id, const char *label) {

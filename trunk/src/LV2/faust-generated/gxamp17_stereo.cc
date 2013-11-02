@@ -562,7 +562,7 @@ void always_inline Dsp::compute(int count, float *input0, float *input1, float *
 		fRec55[0] = (fRec56[0] - (fConst19 * ((fConst17 * fRec55[2]) + (fConst15 * fRec55[1]))));
 		fRec54[0] = ((fConst19 * (((fConst14 * fRec55[0]) + (fConst44 * fRec55[1])) + (fConst14 * fRec55[2]))) - (fConst12 * ((fConst11 * fRec54[2]) + fTemp34)));
 		double fTemp51 = max((double)-1, min((double)1, (fSlow4 * (fRec54[2] + (fConst12 * (fTemp34 + (fConst11 * fRec54[0])))))));
-		fRec67[0] = ((fConst43 * (fVec13[0] + fVec13[1])) + (fConst21 * fRec67[1]));
+		fRec67[0] = ((fConst21 * fRec67[1]) + (fConst43 * (fVec13[0] + fVec13[1])));
 		fRec66[0] = (fRec67[0] - (fConst19 * ((fConst17 * fRec66[2]) + (fConst15 * fRec66[1]))));
 		double fTemp52 = (fRec66[2] + (fRec66[0] + (2 * fRec66[1])));
 		fVec14[0] = fTemp52;
