@@ -39,65 +39,77 @@ private:
 	float 	fclips2;
 	float 	fclips3;
 	float 	fclips4;
-	float 	fcheckbox0;
+	float 	rplay1;
+	float 	rplay2;
+	float 	rplay3;
+	float 	rplay4;
+	float 	record1;
 	int 	iVec0[2];
 	int 	IOTA1;
 	int 	IOTA2;
 	int 	IOTA3;
 	int 	IOTA4;
+	int 	IOTAR1;
+	int 	IOTAR2;
+	int 	IOTAR3;
+	int 	IOTAR4;
 	float *tape1;
 	float 	fConst0;
 	float 	fConst1;
 	float 	fConst2;
-	float 	fcheckbox1;
+	float 	reset1;
 	int 	iRec5[2];
 	float 	fbargraph0;
 	float 	fRec1[2];
 	float 	fRec2[2];
 	int 	iRec3[2];
 	int 	iRec4[2];
-	float 	fcheckbox2;
+	float 	play1;
 	float 	fslider2;
-	float 	fcheckbox3;
+	float 	record2;
 	int 	iVec2[2];
 	float *tape2;
-	float 	fcheckbox4;
+	float 	reset2;
 	int 	iRec10[2];
 	float 	fbargraph1;
 	float 	fRec6[2];
 	float 	fRec7[2];
 	int 	iRec8[2];
 	int 	iRec9[2];
-	float 	fcheckbox5;
+	float 	play2;
 	float 	fslider3;
-	float 	fcheckbox6;
+	float 	record3;
 	int 	iVec4[2];
 	float *tape3;
-	float 	fcheckbox7;
+	float 	reset3;
 	int 	iRec15[2];
 	float 	fbargraph2;
 	float 	fRec11[2];
 	float 	fRec12[2];
 	int 	iRec13[2];
 	int 	iRec14[2];
-	float 	fcheckbox8;
+	float 	play3;
 	float 	fslider4;
-	float 	fcheckbox9;
+	float 	record4;
 	int 	iVec6[2];
 	float *tape4;
-	float 	fcheckbox10;
+	float 	reset4;
 	int 	iRec20[2];
 	float 	fbargraph3;
 	float 	fRec16[2];
 	float 	fRec17[2];
 	int 	iRec18[2];
 	int 	iRec19[2];
-	float 	fcheckbox11;
+	float 	play4;
 	float 	fslider5;
 	bool save1;
 	bool save2;
 	bool save3;
 	bool save4;
+	bool RP1;
+	bool RP2;
+	bool RP3;
+	bool RP4;
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();
@@ -134,6 +146,10 @@ Dsp::Dsp()
 	  save2(false),
 	  save3(false),
 	  save4(false),
+	  RP1(false),
+	  RP2(false),
+	  RP3(false),
+	  RP4(false),
 	  mem_allocated(false) {
 	version = PLUGINDEF_VERSION;
 	flags = 0;
@@ -202,6 +218,10 @@ inline void Dsp::init(unsigned int samplingFreq)
 	IOTA2 = 0;
 	IOTA3 = 0;
 	IOTA4 = 0;
+	IOTAR1 = 0;
+	IOTAR2 = 0;
+	IOTAR3 = 0;
+	IOTAR4 = 0;
 	fConst0 = (1e+01f / float(fmin(192000, fmax(1, fSamplingFreq))));
 	fConst1 = (0 - fConst0);
     fConst2 = (1.0 / float(fmin(192000, fmax(1, fSamplingFreq))));
@@ -337,32 +357,40 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
-	if(fcheckbox0 || fcheckbox1) save1 = true;
-    if(fcheckbox3 || fcheckbox4) save2 = true;
-    if(fcheckbox6 || fcheckbox7) save3 = true;
-    if(fcheckbox9 || fcheckbox10) save4 = true;
+	if(record1 || reset1) save1 = true;
+    if(record2 || reset2) save2 = true;
+    if(record3 || reset3) save3 = true;
+    if(record4 || reset4) save4 = true;
+    if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
+    else if (play1 && RP1) {rplay1 = 0.0;RP1=false;}
+    if (rplay2 && !RP2) {play2 = 0.0;RP2=true;}
+    else if (play2 && RP2) {rplay2 = 0.0;RP2=false;}
+    if (rplay3 && !RP3) {play3 = 0.0;RP3=true;}
+    else if (play3 && RP3) {rplay3 = 0.0;RP3=false;}
+    if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
+    else if (play4&& RP4) {rplay4 = 0.0;RP4=false;}
     float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
 	float 	fSlow1 = fslider1;
-    fcheckbox0     = fbargraph0? fcheckbox0 : 0.0;
-	fcheckbox3     = fbargraph1? fcheckbox3 : 0.0;
-	fcheckbox6     = fbargraph2? fcheckbox6 : 0.0;
-	fcheckbox9     = fbargraph3? fcheckbox9 : 0.0;
-    fcheckbox1     = (fbargraph0 < 4194304*fConst2)? fcheckbox1 : 0.0;
-	fcheckbox4     = (fbargraph1 < 4194304*fConst2)? fcheckbox4 : 0.0;
-	fcheckbox7     = (fbargraph2 < 4194304*fConst2)? fcheckbox7 : 0.0;
-	fcheckbox10    = (fbargraph3 < 4194304*fConst2)? fcheckbox10 : 0.0;
-	int 	iSlow3 = int(fcheckbox0);
-	int 	iSlow4 = int((1 - fcheckbox1));
-	float 	fSlow5 = (((1 - iSlow3) * fslider2) * fcheckbox2);
-	int 	iSlow6 = int(fcheckbox3);
-	int 	iSlow7 = int((1 - fcheckbox4));
-	float 	fSlow8 = (((1 - iSlow6) * fslider3) * fcheckbox5);
-	int 	iSlow9 = int(fcheckbox6);
-	int 	iSlow10 = int((1 - fcheckbox7));
-	float 	fSlow11 = (((1 - iSlow9) * fslider4) * fcheckbox8);
-	int 	iSlow12 = int(fcheckbox9);
-	int 	iSlow13 = int((1 - fcheckbox10));
-	float 	fSlow14 = (((1 - iSlow12) * fslider5) * fcheckbox11);
+    record1     = fbargraph0? record1 : 0.0;
+	record2     = fbargraph1? record2 : 0.0;
+	record3     = fbargraph2? record3 : 0.0;
+	record4     = fbargraph3? record4 : 0.0;
+    reset1     = (fbargraph0 < 4194304*fConst2)? reset1 : 0.0;
+	reset2     = (fbargraph1 < 4194304*fConst2)? reset2 : 0.0;
+	reset3     = (fbargraph2 < 4194304*fConst2)? reset3 : 0.0;
+	reset4    = (fbargraph3 < 4194304*fConst2)? reset4 : 0.0;
+	int 	iSlow3 = int(record1);
+	int 	iSlow4 = int((1 - reset1));
+	float 	fSlow5 = (((1 - iSlow3) * fslider2) * (play1+rplay1));
+	int 	iSlow6 = int(record2);
+	int 	iSlow7 = int((1 - reset2));
+	float 	fSlow8 = (((1 - iSlow6) * fslider3) * (play2+rplay2));
+	int 	iSlow9 = int(record3);
+	int 	iSlow10 = int((1 - reset3));
+	float 	fSlow11 = (((1 - iSlow9) * fslider4) * (play3+rplay3));
+	int 	iSlow12 = int(record4);
+	int 	iSlow13 = int((1 - reset4));
+	float 	fSlow14 = (((1 - iSlow12) * fslider5) * (play4+rplay4));
 	float 	fSlow15 = (0.0001f * fSlow1);
     float   iClip1  = fclip1*0.01;
 	float   iClip2  = fclip2*0.01;
@@ -384,6 +412,11 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		IOTA1 = IOTA1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTA1+1;
 		if (iSlow3 == 1)
 		tape1[IOTA1] = fTemp1;
+        if (rplay1) {
+        IOTAR1 = IOTAR1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):IOTAR1-1;
+        } else {
+        IOTAR1 = IOTA1;
+        }
 		
         float fTemp4 = ((int((fRec1[1] != 0.0f)))?((int(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))))?fRec1[1]:0):((int(((fRec2[1] == 0.0f) & (iTemp3 != iRec3[1]))))?fConst0:((int(((fRec2[1] == 1.0f) & (iTemp3 != iRec4[1]))))?fConst1:0)));
 		fRec1[0] = fTemp4;
@@ -399,6 +432,11 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		IOTA2 = IOTA2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTA2+1;
 		if (iSlow6 == 1)
 		tape2[IOTA2] = fTemp5;
+		if (rplay2) {
+        IOTAR2 = IOTAR2< (iTemp7 - int(iTemp7*iClips2))? int(iTemp7*iClip2):IOTAR2-1;
+        } else {
+        IOTAR2 = IOTA2;
+        }
 		
         float fTemp8 = ((int((fRec6[1] != 0.0f)))?((int(((fRec7[1] > 0.0f) & (fRec7[1] < 1.0f))))?fRec6[1]:0):((int(((fRec7[1] == 0.0f) & (iTemp7 != iRec8[1]))))?fConst0:((int(((fRec7[1] == 1.0f) & (iTemp7 != iRec9[1]))))?fConst1:0)));
 		fRec6[0] = fTemp8;
@@ -414,6 +452,11 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		IOTA3 = IOTA3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTA3+1;
 		if (iSlow9 == 1)
 		tape3[IOTA3] = fTemp9;
+		if (rplay3) {
+        IOTAR3 = IOTAR3< (iTemp11 - int(iTemp11*iClips3))? int(iTemp11*iClip3):IOTAR3-1;
+        } else {
+        IOTAR3 = IOTA3;
+        }
 		
         float fTemp12 = ((int((fRec11[1] != 0.0f)))?((int(((fRec12[1] > 0.0f) & (fRec12[1] < 1.0f))))?fRec11[1]:0):((int(((fRec12[1] == 0.0f) & (iTemp11 != iRec13[1]))))?fConst0:((int(((fRec12[1] == 1.0f) & (iTemp11 != iRec14[1]))))?fConst1:0)));
 		fRec11[0] = fTemp12;
@@ -429,13 +472,18 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		IOTA4 = IOTA4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTA4+1;
 		if (iSlow12 == 1)
 		tape4[IOTA4] = fTemp13;
+		if (rplay4) {
+        IOTAR4 = IOTAR4< (iTemp15 - int(iTemp15*iClips4))? int(iTemp15*iClip4):IOTAR4-1;
+        } else {
+        IOTAR4 = IOTA4;
+        }
 		
         float fTemp16 = ((int((fRec16[1] != 0.0f)))?((int(((fRec17[1] > 0.0f) & (fRec17[1] < 1.0f))))?fRec16[1]:0):((int(((fRec17[1] == 0.0f) & (iTemp15 != iRec18[1]))))?fConst0:((int(((fRec17[1] == 1.0f) & (iTemp15 != iRec19[1]))))?fConst1:0)));
 		fRec16[0] = fTemp16;
 		fRec17[0] = fmax(0.0f, fmin(1.0f, (fRec17[1] + fTemp16)));
 		iRec18[0] = ((int(((fRec17[1] >= 1.0f) & (iRec19[1] != iTemp15))))?iTemp15:iRec18[1]);
 		iRec19[0] = ((int(((fRec17[1] <= 0.0f) & (iRec18[1] != iTemp15))))?iTemp15:iRec19[1]);
-		output0[i] = (float)((fSlow15 * ((fSlow14 * ((fRec17[0] * tape4[IOTA4]) + ((1.0f - fRec17[0]) * tape4[IOTA4]))) + ((fSlow11 * ((fRec12[0] * tape3[IOTA3]) + ((1.0f - fRec12[0]) * tape3[IOTA3]))) + ((fSlow8 * ((fRec7[0] * tape2[IOTA2]) + ((1.0f - fRec7[0]) * tape2[IOTA2]))) + (fSlow5 * ((fRec2[0] * tape1[IOTA1]) + ((1.0f - fRec2[0]) * tape1[IOTA1]))))))) + (fTemp0));
+		output0[i] = (float)((fSlow15 * ((fSlow14 * ((fRec17[0] * tape4[IOTAR4]) + ((1.0f - fRec17[0]) * tape4[IOTAR4]))) + ((fSlow11 * ((fRec12[0] * tape3[IOTAR3]) + ((1.0f - fRec12[0]) * tape3[IOTAR3]))) + ((fSlow8 * ((fRec7[0] * tape2[IOTAR2]) + ((1.0f - fRec7[0]) * tape2[IOTAR2]))) + (fSlow5 * ((fRec2[0] * tape1[IOTAR1]) + ((1.0f - fRec2[0]) * tape1[IOTAR1]))))))) + (fTemp0));
 		// post processing
 		iRec19[1] = iRec19[0];
 		iRec18[1] = iRec18[0];
@@ -490,18 +538,22 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("dubber.level3","","S",N_("percentage of the delay gain level"),&fslider4, 5e+01f, 0.0f, 1e+02f, 1.0f);
 	reg.registerVar("dubber.level4","","S",N_("percentage of the delay gain level"),&fslider5, 5e+01f, 0.0f, 1e+02f, 1.0f);
 	reg.registerVar("dubber.mix","","S",N_("overall gain of the delay line in percent"),&fslider1, 1e+02f, 0.0f, 1.5e+02f, 1.0f);
-	reg.registerVar("dubber.play1","","B",N_("play"),&fcheckbox2, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.play2","","B",N_("play"),&fcheckbox5, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.play3","","B",N_("play"),&fcheckbox8, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.play4","","B",N_("play"),&fcheckbox11, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.rec1","","B",N_("record"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.rec2","","B",N_("record"),&fcheckbox3, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.rec3","","B",N_("record"),&fcheckbox6, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.rec4","","B",N_("record"),&fcheckbox9, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.reset1","","B",N_("erase"),&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.reset2","","B",N_("erase"),&fcheckbox4, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.reset3","","B",N_("erase"),&fcheckbox7, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.reset4","","B",N_("erase"),&fcheckbox10, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.play1","","B",N_("play"),&play1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.play2","","B",N_("play"),&play2, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.play3","","B",N_("play"),&play3, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.play4","","B",N_("play"),&play4, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.rplay1","","B",N_("play reverse"),&rplay1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.rplay2","","B",N_("play reverse"),&rplay2, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.rplay3","","B",N_("play reverse"),&rplay3, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.rplay4","","B",N_("play reverse"),&rplay4, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.rec1","","B",N_("record"),&record1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.rec2","","B",N_("record"),&record2, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.rec3","","B",N_("record"),&record3, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.rec4","","B",N_("record"),&record4, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.reset1","","B",N_("erase"),&reset1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.reset2","","B",N_("erase"),&reset2, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.reset3","","B",N_("erase"),&reset3, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.reset4","","B",N_("erase"),&reset4, 0.0, 0.0, 1.0, 1.0);
 	return 0;
 }
 
@@ -531,7 +583,8 @@ b.create_master_slider(PARAM("clips1"), "cut");
 b.openHorizontalBox("");
 b.insertSpacer();
 b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
-b.create_switch_no_caption(sw_pbutton,PARAM("play1"));
+b.create_feedback_switch(sw_pbutton,PARAM("play1"));
+b.create_feedback_switch(sw_prbutton,PARAM("rplay1"));
 b.create_feedback_switch(sw_button,PARAM("reset1"));
 b.insertSpacer();
 b.create_port_display(PARAM("bar1"), "sec");
@@ -553,7 +606,8 @@ b.create_master_slider(PARAM("clips2"), "cut");
 b.openHorizontalBox("");
 b.insertSpacer();
 b.create_feedback_switch(sw_rbutton,PARAM("rec2"));
-b.create_switch_no_caption(sw_pbutton,PARAM("play2"));
+b.create_feedback_switch(sw_pbutton,PARAM("play2"));
+b.create_feedback_switch(sw_prbutton,PARAM("rplay2"));
 b.create_feedback_switch(sw_button,PARAM("reset2"));
 b.insertSpacer();
 b.create_port_display(PARAM("bar2"), "sec");
@@ -575,7 +629,8 @@ b.create_master_slider(PARAM("clips3"), "cut");
 b.openHorizontalBox("");
 b.insertSpacer();
 b.create_feedback_switch(sw_rbutton,PARAM("rec3"));
-b.create_switch_no_caption(sw_pbutton,PARAM("play3"));
+b.create_feedback_switch(sw_pbutton,PARAM("play3"));
+b.create_feedback_switch(sw_prbutton,PARAM("rplay3"));
 b.create_feedback_switch(sw_button,PARAM("reset3"));
 b.insertSpacer();
 b.create_port_display(PARAM("bar3"), "sec");
@@ -596,7 +651,8 @@ b.create_master_slider(PARAM("clips4"), "cut");
 b.openHorizontalBox("");
 b.insertSpacer();
 b.create_feedback_switch(sw_rbutton,PARAM("rec4"));
-b.create_switch_no_caption(sw_pbutton,PARAM("play4"));
+b.create_feedback_switch(sw_pbutton,PARAM("play4"));
+b.create_feedback_switch(sw_prbutton,PARAM("rplay4"));
 b.create_feedback_switch(sw_button,PARAM("reset4"));
 b.insertSpacer();
 b.create_port_display(PARAM("bar4"), "sec");

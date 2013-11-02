@@ -52,6 +52,7 @@ struct PluginDef;
 #define sw_button     "button"
 #define sw_pbutton    "pbutton"
 #define sw_rbutton    "rbutton"
+#define sw_prbutton    "prbutton"
 
 #define UI_FORM_STACK 0x01
 #define UI_FORM_GLADE 0x02

@@ -47,6 +47,8 @@ static image_entry image_data[] = {
 	{ "pbutton_off", pb_pbutton_off },
 	{ "rbutton_on", pb_rbutton_on },
 	{ "rbutton_off", pb_rbutton_off },
+	{ "prbutton_on", pb_prbutton_on },
+	{ "prbutton_off", pb_prbutton_off },
 	{ "vslider", pb_vslider },
 	{ "wheel_back", pb_wheel_back },
     { "wheel_vertical_back", pb_wheel_vertical_back },
