@@ -154,6 +154,7 @@ Dsp::Dsp()
 }
 
 Dsp::~Dsp() {
+    if (save1 || save2 || save3 || save4) save_array();
 }
 
 inline void Dsp::clear_state_f()
