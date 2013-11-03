@@ -253,42 +253,41 @@ void Dsp::mem_free()
 void Dsp::load_array()
 {
     size_t lSize;
-    size_t result;
-    std::string pPath = getenv ("HOME");
+    std::string pPath = getenv("HOME");
     if (pPath.empty()) {
         struct passwd *pw = getpwuid(getuid());
         pPath = pw->pw_dir;
     }
-    FILE * Tape1 = fopen ((pPath+"/.config/guitarix/tape1.bin").c_str() , "rb" );
+    FILE *Tape1 = fopen((pPath+"/.config/guitarix/tape1.bin").c_str(), "rb");
     if (Tape1!=NULL) { 
-    lSize = 4194304 - int(rectime0/fConst2);
-    result = fread (tape1,sizeof(tape1[0]),lSize,Tape1);
-    if (result == lSize) RecSize1[1] = lSize;
-    fclose (Tape1);
+        lSize = 4194304 - int(rectime0/fConst2);
+        RecSize1[1] = fread(tape1,sizeof(tape1[0]),lSize,Tape1);
+        fclose (Tape1);
+        //fprintf (stderr,"Read tape(1) size: %i\n",RecSize1[1]);
     }
 
-    FILE * Tape2 = fopen ((pPath+"/.config/guitarix/tape2.bin").c_str() , "rb" );
+    FILE *Tape2 = fopen((pPath+"/.config/guitarix/tape2.bin").c_str(), "rb");
     if (Tape2!=NULL) { 
-    lSize = 4194304 - int(rectime1/fConst2);
-    result = fread (tape2,sizeof(tape2[0]),lSize,Tape2);
-    if (result == lSize) RecSize2[1] = lSize;
-    fclose (Tape2);
+        lSize = 4194304 - int(rectime1/fConst2);
+        RecSize2[1] = fread(tape2,sizeof(tape2[0]),lSize,Tape2);
+        fclose (Tape2);
+        //fprintf (stderr,"Read tape(2) size: %i\n",RecSize2[1]);
     }
 
-    FILE * Tape3 = fopen ((pPath+"/.config/guitarix/tape3.bin").c_str() , "rb" );
+    FILE *Tape3 = fopen((pPath+"/.config/guitarix/tape3.bin").c_str(), "rb");
     if (Tape3!=NULL) { 
-    lSize = 4194304 - int(rectime2/fConst2);
-    result = fread (tape3,sizeof(tape3[0]),lSize,Tape3);
-    if (result == lSize) RecSize3[1] = lSize;
-    fclose (Tape3);
+        lSize = 4194304 - int(rectime2/fConst2);
+        RecSize3[1] = fread(tape3,sizeof(tape3[0]),lSize,Tape3);
+        fclose (Tape3);
+        //fprintf (stderr,"Read tape(3) size: %i\n",RecSize3[1]);
     }
 
-    FILE * Tape4 = fopen ((pPath+"/.config/guitarix/tape4.bin").c_str() , "rb" );
+    FILE *Tape4 = fopen((pPath+"/.config/guitarix/tape4.bin").c_str(), "rb");
     if (Tape4!=NULL) {
-    lSize = 4194304 - int(rectime3/fConst2);
-    result = fread (tape4,sizeof(tape4[0]),lSize,Tape4);
-    if (result == lSize) RecSize4[1] = lSize;
-    fclose (Tape4);
+        lSize = 4194304 - int(rectime3/fConst2);
+        RecSize4[1] = fread(tape4,sizeof(tape4[0]),lSize,Tape4);
+        fclose (Tape4);
+        //fprintf (stderr,"Read tape(4) size: %i\n",RecSize4[1]);
     }
 }
 
@@ -302,48 +301,48 @@ void Dsp::save_array()
         pPath = pw->pw_dir;
     }
     if (save1) {
-    FILE *Tape1  = fopen ((pPath+ "/.config/guitarix/tape1.bin").c_str() , "wb" );
-    if (Tape1!=NULL) { 
-    lSize = 4194304 - int(rectime0/fConst2);
-    result = fwrite (tape1 , sizeof(tape1[0]) , lSize , Tape1 );
-    if (result != lSize) {fputs ("Save tape(1) error\n",stderr);}
-    fclose (Tape1);
-    save1 = false;
-    //fputs ("Save tape(1)\n",stderr);
-    }
+        FILE *Tape1 = fopen((pPath+ "/.config/guitarix/tape1.bin").c_str(), "wb");
+        if (Tape1!=NULL) { 
+            lSize = 4194304 - int(rectime0/fConst2);
+            result = fwrite(tape1, sizeof(tape1[0]), lSize, Tape1);
+            if (result != lSize) {fputs("Save tape(1) error\n",stderr);}
+            fclose (Tape1);
+            save1 = false;
+            //fprintf (stderr,"Save tape(1) size: %i\n",result);
+        }
     }
     if (save2) {
-    FILE *Tape2  = fopen ((pPath+ "/.config/guitarix/tape2.bin").c_str() , "wb" );
-    if (Tape2!=NULL) { 
-    lSize = 4194304 - int(rectime1/fConst2);
-    result = fwrite (tape2 , sizeof(tape2[0]) , lSize , Tape2 );
-    if (result != lSize) {fputs ("Save tape(2) error\n",stderr);}
-    fclose (Tape2);
-    save2 = false;
-    //fputs ("Save tape(2)\n",stderr);
-    }
+        FILE *Tape2 = fopen((pPath+"/.config/guitarix/tape2.bin").c_str(), "wb");
+        if (Tape2!=NULL) { 
+            lSize = 4194304 - int(rectime1/fConst2);
+            result = fwrite (tape2, sizeof(tape2[0]), lSize, Tape2);
+            if (result != lSize) {fputs("Save tape(2) error\n",stderr);}
+            fclose (Tape2);
+            save2 = false;
+            //fprintf (stderr,"Save tape(2) size: %i\n",result);
+        }
     }
     if (save3) {
-    FILE *Tape3  = fopen ((pPath+ "/.config/guitarix/tape3.bin").c_str() , "wb" );
-    if (Tape3!=NULL) { 
-    lSize = 4194304 - int(rectime2/fConst2);
-    result = fwrite (tape3 , sizeof(tape3[0]) , lSize , Tape3 );
-    if (result != lSize) {fputs ("Save tape(3) error\n",stderr);}
-    fclose (Tape3);
-    save3 = false;
-    //fputs ("Save tape(3)\n",stderr);
-    }
+        FILE *Tape3 = fopen((pPath+"/.config/guitarix/tape3.bin").c_str(), "wb");
+            if (Tape3!=NULL) { 
+            lSize = 4194304 - int(rectime2/fConst2);
+            result = fwrite(tape3, sizeof(tape3[0]), lSize, Tape3);
+            if (result != lSize) {fputs ("Save tape(3) error\n",stderr);}
+            fclose (Tape3);
+            save3 = false;
+            //fprintf (stderr,"Save tape(3) size: %i\n",result);
+        }
     }
     if (save4) {
-    FILE *Tape4  = fopen ((pPath+ "/.config/guitarix/tape4.bin").c_str() , "wb" );
-    if (Tape4!=NULL) {
-    lSize = 4194304 - int(rectime3/fConst2);
-    result = fwrite (tape4 , sizeof(tape4[0]) , lSize , Tape4 );
-    if (result != lSize) {fputs ("Save tape(4) error\n",stderr);}
-    fclose (Tape4);
-    save4 = false;
-    //fputs ("Save tape(4)\n",stderr);
-    }
+        FILE *Tape4 = fopen((pPath+"/.config/guitarix/tape4.bin").c_str(), "wb");
+        if (Tape4!=NULL) {
+            lSize = 4194304 - int(rectime3/fConst2);
+            result = fwrite(tape4, sizeof(tape4[0]), lSize, Tape4);
+            if (result != lSize) {fputs("Save tape(4) error\n",stderr);}
+            fclose (Tape4);
+            save4 = false;
+            //fprintf (stderr,"Save tape(4) size: %i\n",result);
+        }
     }
 }
 
@@ -369,10 +368,12 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, float *input0, float *output0)
 {
+    // trigger save array on exit
 	if(record1 || reset1) save1 = true;
     if(record2 || reset2) save2 = true;
     if(record3 || reset3) save3 = true;
     if(record4 || reset4) save4 = true;
+    // make play/ reverse play button act as radio button
     if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
     else if (play1 && RP1) {rplay1 = 0.0;RP1=false;}
     if (rplay2 && !RP2) {play2 = 0.0;RP2=true;}
@@ -381,17 +382,20 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
     else if (play3 && RP3) {rplay3 = 0.0;RP3=false;}
     if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
     else if (play4 && RP4) {rplay4 = 0.0;RP4=false;}
-    float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * gain)));
-	float 	fSlow1 = gain_out;
+    // switch off record when buffer is full
     record1     = rectime0? record1 : 0.0;
 	record2     = rectime1? record2 : 0.0;
 	record3     = rectime2? record3 : 0.0;
 	record4     = rectime3? record4 : 0.0;
+    // switch off reset button when buffer is empty 
     reset1     = (rectime0 < 4194304*fConst2)? reset1 : 0.0;
 	reset2     = (rectime1 < 4194304*fConst2)? reset2 : 0.0;
 	reset3     = (rectime2 < 4194304*fConst2)? reset3 : 0.0;
 	reset4    = (rectime3 < 4194304*fConst2)? reset4 : 0.0;
-	int 	iSlow3 = int(record1);
+    // engine var settings
+	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * gain)));
+	float 	fSlow1 = gain_out;
+    int 	iSlow3 = int(record1);
 	int 	iSlow4 = int((1 - reset1));
 	float 	fSlow5 = (((1 - iSlow3) * gain1) * (play1+rplay1));
 	int 	iSlow6 = int(record2);
@@ -412,6 +416,7 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 	float   iClips2  = (100-fclips2)*0.01;
 	float   iClips3  = (100-fclips3)*0.01;
 	float   iClips4  = (100-fclips4)*0.01;
+    // run loop
 	for (int i=0; i<count; i++) {
 		fRec0[0] = (fSlow0 + (0.999f * fRec0[1]));
 		float fTemp0 = ((float)input0[i] * fRec0[0]);
