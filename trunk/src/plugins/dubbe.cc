@@ -263,6 +263,7 @@ void Dsp::load_array()
         lSize = 4194304 - int(rectime0/fConst2);
         RecSize1[1] = fread(tape1,sizeof(tape1[0]),lSize,Tape1);
         fclose (Tape1);
+        IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
         //fprintf (stderr,"Read tape(1) size: %i\n",RecSize1[1]);
     }
 
@@ -271,6 +272,7 @@ void Dsp::load_array()
         lSize = 4194304 - int(rectime1/fConst2);
         RecSize2[1] = fread(tape2,sizeof(tape2[0]),lSize,Tape2);
         fclose (Tape2);
+        IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
         //fprintf (stderr,"Read tape(2) size: %i\n",RecSize2[1]);
     }
 
@@ -279,6 +281,7 @@ void Dsp::load_array()
         lSize = 4194304 - int(rectime2/fConst2);
         RecSize3[1] = fread(tape3,sizeof(tape3[0]),lSize,Tape3);
         fclose (Tape3);
+        IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
         //fprintf (stderr,"Read tape(3) size: %i\n",RecSize3[1]);
     }
 
@@ -287,6 +290,7 @@ void Dsp::load_array()
         lSize = 4194304 - int(rectime3/fConst2);
         RecSize4[1] = fread(tape4,sizeof(tape4[0]),lSize,Tape4);
         fclose (Tape4);
+        IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
         //fprintf (stderr,"Read tape(4) size: %i\n",RecSize4[1]);
     }
 }
@@ -432,7 +436,7 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
         }
         if (rplay1) {
         IOTAR1 = IOTAR1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):IOTAR1-1;
-        } else {
+        } else if (play1) {
         IOTAR1 = IOTAR1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTAR1+1;
         }
 		
@@ -453,7 +457,7 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
         }
 		if (rplay2) {
         IOTAR2 = IOTAR2< (iTemp7 - int(iTemp7*iClips2))? int(iTemp7*iClip2):IOTAR2-1;
-        } else {
+        } else if (play2) {
         IOTAR2 = IOTAR2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTAR2+1;
         }
 		
@@ -474,7 +478,7 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
         }
 		if (rplay3) {
         IOTAR3 = IOTAR3< (iTemp11 - int(iTemp11*iClips3))? int(iTemp11*iClip3):IOTAR3-1;
-        } else {
+        } else if (play3) {
         IOTAR3 = IOTAR3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTAR3+1;
         }
 		
@@ -495,7 +499,7 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
         }
 		if (rplay4) {
         IOTAR4 = IOTAR4< (iTemp15 - int(iTemp15*iClips4))? int(iTemp15*iClip4):IOTAR4-1;
-        } else {
+        } else if (play4) {
         IOTAR4 = IOTAR4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTAR4+1;
         }
 		
