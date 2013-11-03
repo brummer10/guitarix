@@ -30,7 +30,7 @@ selfilter(n)  = _<: a <: b <: c :>_ with {
 tempo2note = ffunction(float B2N(int,float), "beat.h", "");
 
 dide         = _<:*(dry),(*(wet) : digd):>_ with {
-  digd       = (+:_<:_ ,(delayed:*(level)) :>_)~(*(feedback): highpass(2,hifr1):lowpass(2,lofr1) : selfilter(sl)) with {
+  digd       = (+:(delayed:*(level)))~(*(feedback): highpass(2,hifr1):lowpass(2,lofr1) : selfilter(sl)) with {
     sl = hslider("mode[enum:plain|presence|tape|tape2]",0,0,3,1);
     delayed  = sdelay(N, interp, min(2^19,(tempo2note(tact,dbpm)))) with {
       dtime  = hslider("delay[tooltip:Delay Time in ms]", 2500, 0.1, 5000, 0.1)*SR/1000.0;

@@ -28,9 +28,9 @@ namespace dubbe {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	float 	fslider0;
+	float 	gain;
 	float 	fRec0[2];
-	float 	fslider1;
+	float 	gain_out;
 	float 	fclip1;
 	float 	fclip2;
 	float 	fclip3;
@@ -58,50 +58,50 @@ private:
 	float 	fConst1;
 	float 	fConst2;
 	float 	reset1;
-	int 	iRec5[2];
-	float 	fbargraph0;
+	int 	RecSize1[2];
+	float 	rectime0;
 	float 	fRec1[2];
 	float 	fRec2[2];
 	int 	iRec3[2];
 	int 	iRec4[2];
 	float 	play1;
-	float 	fslider2;
+	float 	gain1;
 	float 	record2;
 	int 	iVec2[2];
 	float *tape2;
 	float 	reset2;
-	int 	iRec10[2];
-	float 	fbargraph1;
+	int 	RecSize2[2];
+	float 	rectime1;
 	float 	fRec6[2];
 	float 	fRec7[2];
 	int 	iRec8[2];
 	int 	iRec9[2];
 	float 	play2;
-	float 	fslider3;
+	float 	gain2;
 	float 	record3;
 	int 	iVec4[2];
 	float *tape3;
 	float 	reset3;
-	int 	iRec15[2];
-	float 	fbargraph2;
+	int 	RecSize3[2];
+	float 	rectime2;
 	float 	fRec11[2];
 	float 	fRec12[2];
 	int 	iRec13[2];
 	int 	iRec14[2];
 	float 	play3;
-	float 	fslider4;
+	float 	gain3;
 	float 	record4;
 	int 	iVec6[2];
 	float *tape4;
 	float 	reset4;
-	int 	iRec20[2];
-	float 	fbargraph3;
+	int 	RecSize4[2];
+	float 	rectime3;
 	float 	fRec16[2];
 	float 	fRec17[2];
 	int 	iRec18[2];
 	int 	iRec19[2];
 	float 	play4;
-	float 	fslider5;
+	float 	gain4;
 	bool save1;
 	bool save2;
 	bool save3;
@@ -170,7 +170,7 @@ Dsp::Dsp()
 }
 
 Dsp::~Dsp() {
-    if (save1 || save2 || save3 || save4) save_array();
+    activate(false);
 }
 
 inline void Dsp::clear_state_f()
@@ -178,28 +178,28 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
 	for (int i=0; i<4194304; i++) tape1[i] = 0;
-	for (int i=0; i<2; i++) iRec5[i] = 0;
+	for (int i=0; i<2; i++) RecSize1[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) iRec3[i] = 0;
 	for (int i=0; i<2; i++) iRec4[i] = 0;
 	for (int i=0; i<2; i++) iVec2[i] = 0;
 	for (int i=0; i<4194304; i++) tape2[i] = 0;
-	for (int i=0; i<2; i++) iRec10[i] = 0;
+	for (int i=0; i<2; i++) RecSize2[i] = 0;
 	for (int i=0; i<2; i++) fRec6[i] = 0;
 	for (int i=0; i<2; i++) fRec7[i] = 0;
 	for (int i=0; i<2; i++) iRec8[i] = 0;
 	for (int i=0; i<2; i++) iRec9[i] = 0;
 	for (int i=0; i<2; i++) iVec4[i] = 0;
 	for (int i=0; i<4194304; i++) tape3[i] = 0;
-	for (int i=0; i<2; i++) iRec15[i] = 0;
+	for (int i=0; i<2; i++) RecSize3[i] = 0;
 	for (int i=0; i<2; i++) fRec11[i] = 0;
 	for (int i=0; i<2; i++) fRec12[i] = 0;
 	for (int i=0; i<2; i++) iRec13[i] = 0;
 	for (int i=0; i<2; i++) iRec14[i] = 0;
 	for (int i=0; i<2; i++) iVec6[i] = 0;
 	for (int i=0; i<4194304; i++) tape4[i] = 0;
-	for (int i=0; i<2; i++) iRec20[i] = 0;
+	for (int i=0; i<2; i++) RecSize4[i] = 0;
 	for (int i=0; i<2; i++) fRec16[i] = 0;
 	for (int i=0; i<2; i++) fRec17[i] = 0;
 	for (int i=0; i<2; i++) iRec18[i] = 0;
@@ -252,86 +252,98 @@ void Dsp::mem_free()
 
 void Dsp::load_array()
 {
+    size_t lSize;
+    size_t result;
     std::string pPath = getenv ("HOME");
     if (pPath.empty()) {
         struct passwd *pw = getpwuid(getuid());
         pPath = pw->pw_dir;
     }
-    FILE * pFile = fopen ((pPath+"/.config/guitarix/tape1.bin").c_str() , "rb" );
-    if (pFile==NULL) {return;} 
-    size_t lSize = 4194304 - int(fbargraph0/fConst2);
-    size_t result = fread (tape1,sizeof(tape1[0]),lSize,pFile);
-    if (result == lSize) iRec5[1] = lSize;
-    fclose (pFile);
+    FILE * Tape1 = fopen ((pPath+"/.config/guitarix/tape1.bin").c_str() , "rb" );
+    if (Tape1!=NULL) { 
+    lSize = 4194304 - int(rectime0/fConst2);
+    result = fread (tape1,sizeof(tape1[0]),lSize,Tape1);
+    if (result == lSize) RecSize1[1] = lSize;
+    fclose (Tape1);
+    }
 
-    FILE * pFile1 = fopen ((pPath+"/.config/guitarix/tape2.bin").c_str() , "rb" );
-    if (pFile1==NULL) {return;} 
-    lSize = 4194304 - int(fbargraph1/fConst2);
-    result = fread (tape2,sizeof(tape2[0]),lSize,pFile1);
-    if (result == lSize) iRec10[1] = lSize;
-    fclose (pFile1);
+    FILE * Tape2 = fopen ((pPath+"/.config/guitarix/tape2.bin").c_str() , "rb" );
+    if (Tape2!=NULL) { 
+    lSize = 4194304 - int(rectime1/fConst2);
+    result = fread (tape2,sizeof(tape2[0]),lSize,Tape2);
+    if (result == lSize) RecSize2[1] = lSize;
+    fclose (Tape2);
+    }
 
-    FILE * pFile2 = fopen ((pPath+"/.config/guitarix/tape3.bin").c_str() , "rb" );
-    if (pFile2==NULL) {return;} 
-    lSize = 4194304 - int(fbargraph2/fConst2);
-    result = fread (tape3,sizeof(tape3[0]),lSize,pFile2);
-    if (result == lSize) iRec15[1] = lSize;
-    fclose (pFile2);
+    FILE * Tape3 = fopen ((pPath+"/.config/guitarix/tape3.bin").c_str() , "rb" );
+    if (Tape3!=NULL) { 
+    lSize = 4194304 - int(rectime2/fConst2);
+    result = fread (tape3,sizeof(tape3[0]),lSize,Tape3);
+    if (result == lSize) RecSize3[1] = lSize;
+    fclose (Tape3);
+    }
 
-    FILE * pFile3 = fopen ((pPath+"/.config/guitarix/tape4.bin").c_str() , "rb" );
-    if (pFile3==NULL) {return;} 
-    lSize = 4194304 - int(fbargraph3/fConst2);
-    result = fread (tape4,sizeof(tape4[0]),lSize,pFile3);
-    if (result == lSize) iRec20[1] = lSize;
-    fclose (pFile3);
+    FILE * Tape4 = fopen ((pPath+"/.config/guitarix/tape4.bin").c_str() , "rb" );
+    if (Tape4!=NULL) {
+    lSize = 4194304 - int(rectime3/fConst2);
+    result = fread (tape4,sizeof(tape4[0]),lSize,Tape4);
+    if (result == lSize) RecSize4[1] = lSize;
+    fclose (Tape4);
+    }
 }
 
 void Dsp::save_array()
 {
+    size_t lSize;
+    size_t result;
     std::string pPath = getenv ("HOME");
     if (pPath.empty()) {
         struct passwd *pw = getpwuid(getuid());
         pPath = pw->pw_dir;
     }
     if (save1) {
-    FILE *pFile  = fopen ((pPath+ "/.config/guitarix/tape1.bin").c_str() , "wb" );
-    if (pFile==NULL) {return;} 
-    size_t lSize = 4194304 - int(fbargraph0/fConst2);
-    size_t result = fwrite (tape1 , sizeof(tape1[0]) , lSize , pFile );
+    FILE *Tape1  = fopen ((pPath+ "/.config/guitarix/tape1.bin").c_str() , "wb" );
+    if (Tape1!=NULL) { 
+    lSize = 4194304 - int(rectime0/fConst2);
+    result = fwrite (tape1 , sizeof(tape1[0]) , lSize , Tape1 );
     if (result != lSize) {fputs ("Save tape(1) error\n",stderr);}
-    fclose (pFile);
+    fclose (Tape1);
     save1 = false;
-    fputs ("Save tape(1)\n",stderr);
+    //fputs ("Save tape(1)\n",stderr);
+    }
     }
     if (save2) {
-    FILE *pFile1  = fopen ((pPath+ "/.config/guitarix/tape2.bin").c_str() , "wb" );
-    if (pFile1==NULL) {return;} 
-    size_t lSize = 4194304 - int(fbargraph1/fConst2);
-    size_t result = fwrite (tape2 , sizeof(tape2[0]) , lSize , pFile1 );
+    FILE *Tape2  = fopen ((pPath+ "/.config/guitarix/tape2.bin").c_str() , "wb" );
+    if (Tape2!=NULL) { 
+    lSize = 4194304 - int(rectime1/fConst2);
+    result = fwrite (tape2 , sizeof(tape2[0]) , lSize , Tape2 );
     if (result != lSize) {fputs ("Save tape(2) error\n",stderr);}
-    fclose (pFile1);
+    fclose (Tape2);
     save2 = false;
-    fputs ("Save tape(2)\n",stderr);
+    //fputs ("Save tape(2)\n",stderr);
+    }
     }
     if (save3) {
-    FILE *pFile2  = fopen ((pPath+ "/.config/guitarix/tape3.bin").c_str() , "wb" );
-    if (pFile2==NULL) {return;} 
-    size_t lSize = 4194304 - int(fbargraph2/fConst2);
-    size_t result = fwrite (tape3 , sizeof(tape3[0]) , lSize , pFile2 );
+    FILE *Tape3  = fopen ((pPath+ "/.config/guitarix/tape3.bin").c_str() , "wb" );
+    if (Tape3!=NULL) { 
+    lSize = 4194304 - int(rectime2/fConst2);
+    result = fwrite (tape3 , sizeof(tape3[0]) , lSize , Tape3 );
     if (result != lSize) {fputs ("Save tape(3) error\n",stderr);}
-    fclose (pFile2);
+    fclose (Tape3);
     save3 = false;
-    fputs ("Save tape(3)\n",stderr);
+    //fputs ("Save tape(3)\n",stderr);
+    }
     }
     if (save4) {
-    FILE *pFile3  = fopen ((pPath+ "/.config/guitarix/tape4.bin").c_str() , "wb" );
-    if (pFile3==NULL) {return;} 
-    size_t lSize = 4194304 - int(fbargraph3/fConst2);
-    size_t result = fwrite (tape4 , sizeof(tape4[0]) , lSize , pFile3 );
+    FILE *Tape4  = fopen ((pPath+ "/.config/guitarix/tape4.bin").c_str() , "wb" );
+    if (Tape4!=NULL) {
+    lSize = 4194304 - int(rectime3/fConst2);
+    result = fwrite (tape4 , sizeof(tape4[0]) , lSize , Tape4 );
     if (result != lSize) {fputs ("Save tape(4) error\n",stderr);}
-    fclose (pFile3);
+    fclose (Tape4);
     save4 = false;
-    fputs ("Save tape(4)\n",stderr);
+    //fputs ("Save tape(4)\n",stderr);
+    }
     }
 }
 
@@ -369,28 +381,28 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
     else if (play3 && RP3) {rplay3 = 0.0;RP3=false;}
     if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
     else if (play4 && RP4) {rplay4 = 0.0;RP4=false;}
-    float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
-	float 	fSlow1 = fslider1;
-    record1     = fbargraph0? record1 : 0.0;
-	record2     = fbargraph1? record2 : 0.0;
-	record3     = fbargraph2? record3 : 0.0;
-	record4     = fbargraph3? record4 : 0.0;
-    reset1     = (fbargraph0 < 4194304*fConst2)? reset1 : 0.0;
-	reset2     = (fbargraph1 < 4194304*fConst2)? reset2 : 0.0;
-	reset3     = (fbargraph2 < 4194304*fConst2)? reset3 : 0.0;
-	reset4    = (fbargraph3 < 4194304*fConst2)? reset4 : 0.0;
+    float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * gain)));
+	float 	fSlow1 = gain_out;
+    record1     = rectime0? record1 : 0.0;
+	record2     = rectime1? record2 : 0.0;
+	record3     = rectime2? record3 : 0.0;
+	record4     = rectime3? record4 : 0.0;
+    reset1     = (rectime0 < 4194304*fConst2)? reset1 : 0.0;
+	reset2     = (rectime1 < 4194304*fConst2)? reset2 : 0.0;
+	reset3     = (rectime2 < 4194304*fConst2)? reset3 : 0.0;
+	reset4    = (rectime3 < 4194304*fConst2)? reset4 : 0.0;
 	int 	iSlow3 = int(record1);
 	int 	iSlow4 = int((1 - reset1));
-	float 	fSlow5 = (((1 - iSlow3) * fslider2) * (play1+rplay1));
+	float 	fSlow5 = (((1 - iSlow3) * gain1) * (play1+rplay1));
 	int 	iSlow6 = int(record2);
 	int 	iSlow7 = int((1 - reset2));
-	float 	fSlow8 = (((1 - iSlow6) * fslider3) * (play2+rplay2));
+	float 	fSlow8 = (((1 - iSlow6) * gain2) * (play2+rplay2));
 	int 	iSlow9 = int(record3);
 	int 	iSlow10 = int((1 - reset3));
-	float 	fSlow11 = (((1 - iSlow9) * fslider4) * (play3+rplay3));
+	float 	fSlow11 = (((1 - iSlow9) * gain3) * (play3+rplay3));
 	int 	iSlow12 = int(record4);
 	int 	iSlow13 = int((1 - reset4));
-	float 	fSlow14 = (((1 - iSlow12) * fslider5) * (play4+rplay4));
+	float 	fSlow14 = (((1 - iSlow12) * gain4) * (play4+rplay4));
 	float 	fSlow15 = (0.0001f * fSlow1);
     float   iClip1  = fclip1*0.01;
 	float   iClip2  = fclip2*0.01;
@@ -405,9 +417,9 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		float fTemp0 = ((float)input0[i] * fRec0[0]);
 		iVec0[0] = iSlow3;
 		float fTemp1 = (iSlow3 * fTemp0);
-        iRec5[0] = fmin(4194304, (int)(iSlow4 * (((iSlow3 - iVec0[1]) <= 0) * (iSlow3 + iRec5[1]))));
-		int iTemp2 = (4194304 - iRec5[0]);
-		fbargraph0 = iTemp2*fConst2;
+        RecSize1[0] = fmin(4194304, (int)(iSlow4 * (((iSlow3 - iVec0[1]) <= 0) * (iSlow3 + RecSize1[1]))));
+		int iTemp2 = (4194304 - RecSize1[0]);
+		rectime0 = iTemp2*fConst2;
         int iTemp3 = fmin(4194304-1, (int)(4194304 - iTemp2));
 		if (iSlow3 == 1) {
         IOTA1 = IOTA1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTA1+1;
@@ -426,9 +438,9 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		iRec4[0] = ((int(((fRec2[1] <= 0.0f) & (iRec3[1] != iTemp3))))?iTemp3:iRec4[1]);
 		iVec2[0] = iSlow6;
 		float fTemp5 = (iSlow6 * fTemp0);
-		iRec10[0] = fmin(4194304, (int)(iSlow7 * (((iSlow6 - iVec2[1]) <= 0) * (iSlow6 + iRec10[1]))));
-		int iTemp6 = (4194304 - iRec10[0]);
-		fbargraph1 = iTemp6*fConst2;
+		RecSize2[0] = fmin(4194304, (int)(iSlow7 * (((iSlow6 - iVec2[1]) <= 0) * (iSlow6 + RecSize2[1]))));
+		int iTemp6 = (4194304 - RecSize2[0]);
+		rectime1 = iTemp6*fConst2;
 		int iTemp7 = fmin(4194304-1, (int)(4194304 - iTemp6));
 		if (iSlow6 == 1) {
 		IOTA2 = IOTA2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTA2+1;
@@ -447,9 +459,9 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		iRec9[0] = ((int(((fRec7[1] <= 0.0f) & (iRec8[1] != iTemp7))))?iTemp7:iRec9[1]);
 		iVec4[0] = iSlow9;
 		float fTemp9 = (iSlow9 * fTemp0);
-		iRec15[0] = fmin(4194304, (int)(iSlow10 * (((iSlow9 - iVec4[1]) <= 0) * (iSlow9 + iRec15[1]))));
-		int iTemp10 = (4194304 - iRec15[0]);
-		fbargraph2 = iTemp10*fConst2;
+		RecSize3[0] = fmin(4194304, (int)(iSlow10 * (((iSlow9 - iVec4[1]) <= 0) * (iSlow9 + RecSize3[1]))));
+		int iTemp10 = (4194304 - RecSize3[0]);
+		rectime2 = iTemp10*fConst2;
 		int iTemp11 = fmin(4194304-1, (int)(4194304 - iTemp10));
 		if (iSlow9 == 1) {
 		IOTA3 = IOTA3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTA3+1;
@@ -468,9 +480,9 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		iRec14[0] = ((int(((fRec12[1] <= 0.0f) & (iRec13[1] != iTemp11))))?iTemp11:iRec14[1]);
 		iVec6[0] = iSlow12;
 		float fTemp13 = (iSlow12 * fTemp0);
-		iRec20[0] = fmin(4194304, (int)(iSlow13 * (((iSlow12 - iVec6[1]) <= 0) * (iSlow12 + iRec20[1]))));
-		int iTemp14 = (4194304 - iRec20[0]);
-		fbargraph3 = iTemp14*fConst2;
+		RecSize4[0] = fmin(4194304, (int)(iSlow13 * (((iSlow12 - iVec6[1]) <= 0) * (iSlow12 + RecSize4[1]))));
+		int iTemp14 = (4194304 - RecSize4[0]);
+		rectime3 = iTemp14*fConst2;
 		int iTemp15 = fmin(4194304-1, (int)(4194304 - iTemp14));
 		if (iSlow12 == 1) {
 		IOTA4 = IOTA4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTA4+1;
@@ -493,25 +505,25 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 		iRec18[1] = iRec18[0];
 		fRec17[1] = fRec17[0];
 		fRec16[1] = fRec16[0];
-		iRec20[1] = iRec20[0];
+		RecSize4[1] = RecSize4[0];
 		iVec6[1] = iVec6[0];
 		iRec14[1] = iRec14[0];
 		iRec13[1] = iRec13[0];
 		fRec12[1] = fRec12[0];
 		fRec11[1] = fRec11[0];
-		iRec15[1] = iRec15[0];
+		RecSize3[1] = RecSize3[0];
 		iVec4[1] = iVec4[0];
 		iRec9[1] = iRec9[0];
 		iRec8[1] = iRec8[0];
 		fRec7[1] = fRec7[0];
 		fRec6[1] = fRec6[0];
-		iRec10[1] = iRec10[0];
+		RecSize2[1] = RecSize2[0];
 		iVec2[1] = iVec2[0];
 		iRec4[1] = iRec4[0];
 		iRec3[1] = iRec3[0];
 		fRec2[1] = fRec2[0];
 		fRec1[1] = fRec1[0];
-		iRec5[1] = iRec5[0];
+		RecSize1[1] = RecSize1[0];
 		iVec0[1] = iVec0[0];
 		fRec0[1] = fRec0[0];
 	}
@@ -524,24 +536,24 @@ void __rt_func Dsp::compute_static(int count, float *input0, float *output0, Plu
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("dubber.clip1","","S",N_("percentage of the delay length "),&fclip1, 1e+02f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.clip2","","S",N_("percentage of the delay length "),&fclip2, 1e+02f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.clip3","","S",N_("percentage of the delay length "),&fclip3, 1e+02f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.clip4","","S",N_("percentage of the delay length "),&fclip4, 1e+02f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.clips1","","S",N_("percentage of the delay start "),&fclips1, 0.0f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.clips2","","S",N_("percentage of the delay start "),&fclips2, 0.0f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.clips3","","S",N_("percentage of the delay start "),&fclips3, 0.0f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.clips4","","S",N_("percentage of the delay start "),&fclips4, 0.0f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.bar1","","S",N_("remaining recording time in sec"),&fbargraph0, 0.0, 0.0, 96.0, 1.0);
-	reg.registerVar("dubber.bar2","","S",N_("remaining recording time in sec"),&fbargraph1, 0.0, 0.0, 96.0, 1.0);
-	reg.registerVar("dubber.bar3","","S",N_("remaining recording time in sec"),&fbargraph2, 0.0, 0.0, 96.0, 1.0);
-	reg.registerVar("dubber.bar4","","S",N_("remaining recording time in sec"),&fbargraph3, 0.0, 0.0, 96.0, 1.0);
-	reg.registerVar("dubber.gain","","S",N_("overall gain of the input"),&fslider0, 0.0f, -2e+01f, 12.0f, 0.1f);
-	reg.registerVar("dubber.level1","","S",N_("percentage of the delay gain level"),&fslider2, 5e+01f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.level2","","S",N_("percentage of the delay gain level"),&fslider3, 5e+01f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.level3","","S",N_("percentage of the delay gain level"),&fslider4, 5e+01f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.level4","","S",N_("percentage of the delay gain level"),&fslider5, 5e+01f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.mix","","S",N_("overall gain of the delay line in percent"),&fslider1, 1e+02f, 0.0f, 1.5e+02f, 1.0f);
+	reg.registerVar("dubber.clip1","","S",N_("percentage clip at the delay length "),&fclip1, 1e+02f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.clip2","","S",N_("percentage clip at the delay length "),&fclip2, 1e+02f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.clip3","","S",N_("percentage clip at the delay length "),&fclip3, 1e+02f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.clip4","","S",N_("percentage clip at the delay length "),&fclip4, 1e+02f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.clips1","","S",N_("percentage cut on the delay start "),&fclips1, 0.0f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.clips2","","S",N_("percentage cut on the delay start "),&fclips2, 0.0f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.clips3","","S",N_("percentage cut on the delay start "),&fclips3, 0.0f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.clips4","","S",N_("percentage cut on the delay start "),&fclips4, 0.0f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.bar1","","S",N_("remaining recording time in sec"),&rectime0, 0.0, 0.0, 96.0, 1.0);
+	reg.registerVar("dubber.bar2","","S",N_("remaining recording time in sec"),&rectime1, 0.0, 0.0, 96.0, 1.0);
+	reg.registerVar("dubber.bar3","","S",N_("remaining recording time in sec"),&rectime2, 0.0, 0.0, 96.0, 1.0);
+	reg.registerVar("dubber.bar4","","S",N_("remaining recording time in sec"),&rectime3, 0.0, 0.0, 96.0, 1.0);
+	reg.registerVar("dubber.gain","","S",N_("overall gain_out of the input"),&gain, 0.0f, -2e+01f, 12.0f, 0.1f);
+	reg.registerVar("dubber.level1","","S",N_("percentage of the delay gain_out level"),&gain1, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.level2","","S",N_("percentage of the delay gain_out level"),&gain2, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.level3","","S",N_("percentage of the delay gain_out level"),&gain3, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.level4","","S",N_("percentage of the delay gain_out level"),&gain4, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.mix","","S",N_("overall gain_out of the delay line in percent"),&gain_out, 1e+02f, 0.0f, 1.5e+02f, 1.0f);
 	reg.registerVar("dubber.play1","","B",N_("play"),&play1, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.play2","","B",N_("play"),&play2, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.play3","","B",N_("play"),&play3, 0.0, 0.0, 1.0, 1.0);
@@ -583,7 +595,6 @@ b.openHorizontalBox(N_("Tape 1"));
 b.openpaintampBox("");
 
 b.openVerticalBox("");
-b.create_master_slider(PARAM("clips1"), "cut");
 b.openHorizontalBox("");
 b.insertSpacer();
 b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
@@ -591,9 +602,10 @@ b.create_feedback_switch(sw_pbutton,PARAM("play1"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay1"));
 b.create_feedback_switch(sw_button,PARAM("reset1"));
 b.insertSpacer();
-b.create_port_display(PARAM("bar1"), "sec");
+b.create_port_display(PARAM("bar1"), "buffer");
 b.insertSpacer();
 b.closeBox();
+b.create_master_slider(PARAM("clips1"), "cut");
 b.create_master_slider(PARAM("clip1"), "clip");
 
 b.closeBox();
@@ -605,7 +617,6 @@ b.closeBox();
 b.openHorizontalBox(N_("Tape 2"));
 b.openpaintampBox("");
 b.openVerticalBox("");
-b.create_master_slider(PARAM("clips2"), "cut");
 
 b.openHorizontalBox("");
 b.insertSpacer();
@@ -614,9 +625,10 @@ b.create_feedback_switch(sw_pbutton,PARAM("play2"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay2"));
 b.create_feedback_switch(sw_button,PARAM("reset2"));
 b.insertSpacer();
-b.create_port_display(PARAM("bar2"), "sec");
+b.create_port_display(PARAM("bar2"), "buffer");
 b.insertSpacer();
 b.closeBox();
+b.create_master_slider(PARAM("clips2"), "cut");
 b.create_master_slider(PARAM("clip2"), "clip");
 
 b.closeBox();
@@ -628,7 +640,6 @@ b.closeBox();
 b.openHorizontalBox(N_("Tape 3"));
 b.openpaintampBox("");
 b.openVerticalBox("");
-b.create_master_slider(PARAM("clips3"), "cut");
 
 b.openHorizontalBox("");
 b.insertSpacer();
@@ -637,9 +648,10 @@ b.create_feedback_switch(sw_pbutton,PARAM("play3"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay3"));
 b.create_feedback_switch(sw_button,PARAM("reset3"));
 b.insertSpacer();
-b.create_port_display(PARAM("bar3"), "sec");
+b.create_port_display(PARAM("bar3"), "buffer");
 b.insertSpacer();
 b.closeBox();
+b.create_master_slider(PARAM("clips3"), "cut");
 b.create_master_slider(PARAM("clip3"), "clip");
 
 b.closeBox();
@@ -650,7 +662,6 @@ b.closeBox();
 b.openHorizontalBox(N_("Tape 4"));
 b.openpaintampBox("");
 b.openVerticalBox("");
-b.create_master_slider(PARAM("clips4"), "cut");
 
 b.openHorizontalBox("");
 b.insertSpacer();
@@ -659,9 +670,10 @@ b.create_feedback_switch(sw_pbutton,PARAM("play4"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay4"));
 b.create_feedback_switch(sw_button,PARAM("reset4"));
 b.insertSpacer();
-b.create_port_display(PARAM("bar4"), "sec");
+b.create_port_display(PARAM("bar4"), "buffer");
 b.insertSpacer();
 b.closeBox();
+b.create_master_slider(PARAM("clips4"), "cut");
 b.create_master_slider(PARAM("clip4"), "clip");
 
 b.closeBox();

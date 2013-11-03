@@ -25,7 +25,7 @@ b.openVerticalBox("");
                 b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
                 b.create_small_rackknob(PARAM("highpass"), _("highpass(hz)"));
                 b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
-                b.create_small_rackknob(PARAM("howpass"), _("howpass(hz)"));
+                b.create_small_rackknob(PARAM("howpass"), _("lowpass(hz)"));
             }
             b.closeBox();
         }
