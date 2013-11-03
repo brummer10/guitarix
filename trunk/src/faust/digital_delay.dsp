@@ -49,7 +49,7 @@ Dotted 1/64 note|1/64 note|1/64 note triplets][tooltip:note setting for bpm]",5,
     lofr1    = hslider("howpass [name:lowpass (hz)][tooltip: lowpass filter frequency in the feddback loop]" ,12000 , 20, 20000, 1);
   };
   wet        = vslider("gain[tooltip:overall gain of the delay line in percent]",  100, 0, 120, 1) : /(100);
-  dry        = 1 - wet;
+  dry        = 1 ;
 };
 
 process      = dide;
