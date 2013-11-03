@@ -1,7 +1,9 @@
-guitarix2 (0.29.0git) unstable; urgency=low
-  * git head
+guitarix2 (0.28.3) unstable; urgency=low
+  * MODification (https://github.com/portalmod)
+  * add defines for MOD UI to all LV2 plugs
+  * add a couple of new plugs
   
- -- brummer <brummer-@web.de>  Sat, 20 Apr 2013 21:30:35 +0200 
+ -- brummer <brummer-@web.de>  Sat, 03 Nov 2013 06:30:35 +0200 
 
 guitarix2 (0.25.2) unstable; urgency=low
   * add ts9 tube screamer to lv2.plugs
