@@ -188,7 +188,7 @@ UiBuilder.prototype.create_selector = function(id, label) {
 UiBuilder.prototype.if_create_small_rackknob = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_small_rackknobr = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_master_slider = UiBuilder.prototype.create_slider;
-UiBuilder.prototype.if_create_h_slider = UiBuilder.prototype.create_slider;
+UiBuilder.prototype.if_create_feedback_slider = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_selector_no_caption = UiBuilder.prototype.create_selector; // label === undefined
 UiBuilder.prototype.if_create_selector = UiBuilder.prototype.create_selector;
 UiBuilder.prototype.if_create_switch_no_caption = UiBuilder.prototype.create_switch;  // label === undefined
@@ -196,6 +196,7 @@ UiBuilder.prototype.if_create_feedback_switch = UiBuilder.prototype.create_switc
 UiBuilder.prototype.if_create_switch = UiBuilder.prototype.create_switch;
 UiBuilder.prototype.if_create_wheel = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_port_display = UiBuilder.prototype.create_slider;
+UiBuilder.prototype.if_create_p_display = UiBuilder.prototype.create_simple_meter;
 UiBuilder.prototype.if_create_spin_value = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_simple_spin_value = UiBuilder.prototype.create_slider; // label === undefined
 UiBuilder.prototype.if_create_eq_rackslider_no_caption = UiBuilder.prototype.create_slider;

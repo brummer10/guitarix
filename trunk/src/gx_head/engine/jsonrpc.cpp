@@ -199,7 +199,7 @@ private:
     static void create_small_rackknob_(const char *id, const char *label);
     static void create_small_rackknobr_(const char *id, const char *label);
     static void create_master_slider_(const char *id, const char *label);
-    static void create_h_slider_(const char *id, const char *label);
+    static void create_feedback_slider_(const char *id, const char *label);
     static void create_selector_no_caption_(const char *id);
     static void create_selector_(const char *id, const char *label);
     static void create_simple_meter_(const char *id);
@@ -209,6 +209,7 @@ private:
     static void create_switch_(const char *sw_type,const char * id, const char *label);
     static void create_wheel_(const char * id, const char *label);
     static void create_port_display_(const char *id, const char *label);
+    static void create_p_display_(const char *id);
     static void create_simple_spin_value_(const char *id);
     static void create_eq_rackslider_no_caption_(const char *id);
     static void closeBox_();
@@ -1339,7 +1340,7 @@ UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, const gx_system::Cmdlin
     load_glade = load_glade_;
     load_glade_file = load_glade_file_;
     create_master_slider = create_master_slider_;
-    create_h_slider = create_h_slider_;
+    create_feedback_slider = create_feedback_slider_;
     create_small_rackknob = create_small_rackknob_;
     create_small_rackknobr = create_small_rackknobr_;
     create_simple_meter = create_simple_meter_;
@@ -1351,6 +1352,7 @@ UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, const gx_system::Cmdlin
     create_selector = create_selector_;
     create_selector_no_caption = create_selector_no_caption_;
     create_port_display = create_port_display_;
+    create_p_display = create_p_display_;
     create_simple_spin_value = create_simple_spin_value_;
     create_eq_rackslider_no_caption = create_eq_rackslider_no_caption_;
     insertSpacer = insertSpacer_;
@@ -1459,9 +1461,9 @@ void UiBuilderVirt::create_small_rackknobr_(const char *id, const char *label) {
     jw->end_array();
 }
 
-void UiBuilderVirt::create_h_slider_(const char *id, const char *label) {
+void UiBuilderVirt::create_feedback_slider_(const char *id, const char *label) {
     jw->begin_array();
-    jw->write("create_h_slider");
+    jw->write("create_feedback_slider");
     jw->write(id);
     jw->write(label);
     jw->end_array();
@@ -1543,6 +1545,13 @@ void UiBuilderVirt::create_port_display_(const char *id, const char *label) {
     jw->write("create_port_display");
     jw->write(id);
     jw->write(label);
+    jw->end_array();
+}
+
+void UiBuilderVirt::create_p_display_(const char *id) {
+    jw->begin_array();
+    jw->write("create_p_display");
+    jw->write(id);
     jw->end_array();
 }
 

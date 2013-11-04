@@ -104,6 +104,13 @@ style "guitarix_iredit"
   GxIREdit::gain-line-color = { 0, 60000, 0, 65535 }
 }
 
+style "guitarix_playhead"
+{
+  stock["portdisplay"] = {{"playhead.png"}}
+  GxRegler::show-value = 0
+}
+
+widget "*.playhead" style:highest "guitarix_playhead"
 widget "*.smallbutton" style:highest "guitarix_small_button"
 widget "*.effekt_label" style:highest "guitarix_caption"
 widget "*.filter_box.*.effekt_label" style:highest "guitarix_bold_label"

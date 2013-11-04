@@ -49,6 +49,7 @@ gxstyle_files = [
     'readonly.png',
     'scratch.png',
     'versiondiff.png',
+    'playhead.png',
     ]
 
 def configure(conf):

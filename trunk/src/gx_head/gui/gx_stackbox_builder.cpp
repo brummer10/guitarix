@@ -331,11 +331,34 @@ void StackBoxBuilder::create_port_display(const std::string& id, const char *lab
 	addwidget(w);
 }
 
+void StackBoxBuilder::create_p_display(const std::string& id) {
+    Gxw::PortDisplay *w = new UiRegler<Gxw::PortDisplay>(machine, id);
+    Glib::signal_timeout().connect(sigc::bind<const std::string>(
+      sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
+	w->set_name("playhead");
+	Gtk::EventBox* e_box = new Gtk::EventBox();
+    e_box->set_size_request(-1, 4);
+    e_box->set_border_width(0);
+    e_box->set_visible_window(true);
+    e_box->set_above_child(true);
+    e_box->add(*manage(static_cast<Gtk::Widget*>(w)));
+    addwidget(e_box);
+    e_box->show_all();
+}
+
 void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::string& id) {
 	addwidget(UiSwitch::create(machine, sw_type, id));
     Glib::signal_timeout().connect(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
 }
+
+void StackBoxBuilder::create_feedback_slider(const std::string& id, const char *label) {
+	UiMasterReglerWithCaption<Gxw::HSlider> *w = new UiMasterReglerWithCaption<Gxw::HSlider>(machine, id);
+    Glib::signal_timeout().connect(sigc::bind<const std::string>(
+      sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
+	w->set_label(label);
+	addwidget(w);
+    }
 
 void StackBoxBuilder::create_selector(const std::string& id, const char *widget_name) {
     gx_engine::Parameter& p = machine.get_parameter(id);

@@ -65,6 +65,7 @@ private:
 	int 	iRec3[2];
 	int 	iRec4[2];
 	float 	play1;
+	float 	playh1;
 	float 	gain1;
 	float 	record2;
 	int 	iVec2[2];
@@ -77,6 +78,7 @@ private:
 	int 	iRec8[2];
 	int 	iRec9[2];
 	float 	play2;
+	float 	playh2;
 	float 	gain2;
 	float 	record3;
 	int 	iVec4[2];
@@ -89,6 +91,7 @@ private:
 	int 	iRec13[2];
 	int 	iRec14[2];
 	float 	play3;
+	float 	playh3;
 	float 	gain3;
 	float 	record4;
 	int 	iVec6[2];
@@ -101,6 +104,7 @@ private:
 	int 	iRec18[2];
 	int 	iRec19[2];
 	float 	play4;
+	float 	playh4;
 	float 	gain4;
 	bool save1;
 	bool save2;
@@ -308,8 +312,10 @@ void Dsp::save_array()
         FILE *Tape1 = fopen((pPath+ "/.config/guitarix/tape1.bin").c_str(), "wb");
         if (Tape1!=NULL) { 
             lSize = 4194304 - int(rectime0/fConst2);
-            result = fwrite(tape1, sizeof(tape1[0]), lSize, Tape1);
-            if (result != lSize) {fputs("Save tape(1) error\n",stderr);}
+            if (lSize) {
+                result = fwrite(tape1, sizeof(tape1[0]), lSize, Tape1);
+                if (result != lSize) {fputs("Save tape(1) error\n",stderr);}
+            }
             fclose (Tape1);
             save1 = false;
             //fprintf (stderr,"Save tape(1) size: %i\n",result);
@@ -319,8 +325,10 @@ void Dsp::save_array()
         FILE *Tape2 = fopen((pPath+"/.config/guitarix/tape2.bin").c_str(), "wb");
         if (Tape2!=NULL) { 
             lSize = 4194304 - int(rectime1/fConst2);
-            result = fwrite (tape2, sizeof(tape2[0]), lSize, Tape2);
-            if (result != lSize) {fputs("Save tape(2) error\n",stderr);}
+            if (lSize) {
+                result = fwrite (tape2, sizeof(tape2[0]), lSize, Tape2);
+                if (result != lSize) {fputs("Save tape(2) error\n",stderr);}
+            }
             fclose (Tape2);
             save2 = false;
             //fprintf (stderr,"Save tape(2) size: %i\n",result);
@@ -330,8 +338,10 @@ void Dsp::save_array()
         FILE *Tape3 = fopen((pPath+"/.config/guitarix/tape3.bin").c_str(), "wb");
             if (Tape3!=NULL) { 
             lSize = 4194304 - int(rectime2/fConst2);
-            result = fwrite(tape3, sizeof(tape3[0]), lSize, Tape3);
-            if (result != lSize) {fputs ("Save tape(3) error\n",stderr);}
+            if (lSize) {
+                result = fwrite(tape3, sizeof(tape3[0]), lSize, Tape3);
+                if (result != lSize) {fputs ("Save tape(3) error\n",stderr);}
+            }
             fclose (Tape3);
             save3 = false;
             //fprintf (stderr,"Save tape(3) size: %i\n",result);
@@ -341,8 +351,10 @@ void Dsp::save_array()
         FILE *Tape4 = fopen((pPath+"/.config/guitarix/tape4.bin").c_str(), "wb");
         if (Tape4!=NULL) {
             lSize = 4194304 - int(rectime3/fConst2);
-            result = fwrite(tape4, sizeof(tape4[0]), lSize, Tape4);
-            if (result != lSize) {fputs("Save tape(4) error\n",stderr);}
+            if (lSize) {
+                result = fwrite(tape4, sizeof(tape4[0]), lSize, Tape4);
+                if (result != lSize) {fputs("Save tape(4) error\n",stderr);}
+            }
             fclose (Tape4);
             save4 = false;
             //fprintf (stderr,"Save tape(4) size: %i\n",result);
@@ -378,24 +390,46 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
     if(record3 || reset3) save3 = true;
     if(record4 || reset4) save4 = true;
     // make play/ reverse play button act as radio button
-    if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
+    if (!RecSize1[0]) {play1 = 0.0;rplay1 = 0.0;}
+    else if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
     else if (play1 && RP1) {rplay1 = 0.0;RP1=false;}
-    if (rplay2 && !RP2) {play2 = 0.0;RP2=true;}
+    if (!RecSize2[0]) {play2 = 0.0;rplay2 = 0.0;}
+    else if (rplay2 && !RP2) {play2 = 0.0;RP2=true;}
     else if (play2 && RP2) {rplay2 = 0.0;RP2=false;}
-    if (rplay3 && !RP3) {play3 = 0.0;RP3=true;}
+    if (!RecSize3[0]) {play3 = 0.0;rplay3 = 0.0;}
+    else if (rplay3 && !RP3) {play3 = 0.0;RP3=true;}
     else if (play3 && RP3) {rplay3 = 0.0;RP3=false;}
-    if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
+    if (!RecSize4[0]) {play4 = 0.0;rplay4 = 0.0;}
+    else if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
     else if (play4 && RP4) {rplay4 = 0.0;RP4=false;}
     // switch off record when buffer is full
     record1     = rectime0? record1 : 0.0;
 	record2     = rectime1? record2 : 0.0;
 	record3     = rectime2? record3 : 0.0;
 	record4     = rectime3? record4 : 0.0;
+    // reset clip when reset is pressed
+    fclip1 = reset1? 100.0:fclip1;
+    fclip2 = reset2? 100.0:fclip2;
+    fclip3 = reset3? 100.0:fclip3;
+    fclip4 = reset4? 100.0:fclip4;
+    fclips1 = reset1? 0.0:fclips1;
+    fclips2 = reset2? 0.0:fclips2;
+    fclips3 = reset3? 0.0:fclips3;
+    fclips4 = reset1? 0.0:fclips4;
     // switch off reset button when buffer is empty 
     reset1     = (rectime0 < 4194304*fConst2)? reset1 : 0.0;
 	reset2     = (rectime1 < 4194304*fConst2)? reset2 : 0.0;
 	reset3     = (rectime2 < 4194304*fConst2)? reset3 : 0.0;
-	reset4    = (rectime3 < 4194304*fConst2)? reset4 : 0.0;
+	reset4     = (rectime3 < 4194304*fConst2)? reset4 : 0.0;
+    // set play head position
+    float ph1      = 1.0/(RecSize1[0] * 0.001);
+    playh1 = fmin(1000,fmax(0,float(IOTAR1*ph1)));
+    float ph2      = 1.0/(RecSize2[0] * 0.001);
+    playh2 = fmin(1000,fmax(0,float(IOTAR2*ph2)));
+    float ph3      = 1.0/(RecSize3[0] * 0.001);
+    playh3 = fmin(1000,fmax(0,float(IOTAR3*ph3)));
+    float ph4      = 1.0/(RecSize4[0] * 0.001);
+    playh4 = fmin(1000,fmax(0,float(IOTAR4*ph4)));
     // engine var settings
 	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * gain)));
 	float 	fSlow1 = gain_out;
@@ -557,20 +591,24 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("dubber.bar2","","S",N_("remaining recording time in sec"),&rectime1, 0.0, 0.0, 96.0, 1.0);
 	reg.registerVar("dubber.bar3","","S",N_("remaining recording time in sec"),&rectime2, 0.0, 0.0, 96.0, 1.0);
 	reg.registerVar("dubber.bar4","","S",N_("remaining recording time in sec"),&rectime3, 0.0, 0.0, 96.0, 1.0);
-	reg.registerVar("dubber.gain","","S",N_("overall gain_out of the input"),&gain, 0.0f, -2e+01f, 12.0f, 0.1f);
-	reg.registerVar("dubber.level1","","S",N_("percentage of the delay gain_out level"),&gain1, 5e+01f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.level2","","S",N_("percentage of the delay gain_out level"),&gain2, 5e+01f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.level3","","S",N_("percentage of the delay gain_out level"),&gain3, 5e+01f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.level4","","S",N_("percentage of the delay gain_out level"),&gain4, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.gain","","S",N_("overall gain of the input"),&gain, 0.0f, -2e+01f, 12.0f, 0.1f);
+	reg.registerVar("dubber.level1","","S",N_("percentage of the delay gain level"),&gain1, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.level2","","S",N_("percentage of the delay gain level"),&gain2, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.level3","","S",N_("percentage of the delay gain level"),&gain3, 5e+01f, 0.0f, 1e+02f, 1.0f);
+	reg.registerVar("dubber.level4","","S",N_("percentage of the delay gain level"),&gain4, 5e+01f, 0.0f, 1e+02f, 1.0f);
 	reg.registerVar("dubber.mix","","S",N_("overall gain_out of the delay line in percent"),&gain_out, 1e+02f, 0.0f, 1.5e+02f, 1.0f);
-	reg.registerVar("dubber.play1","","B",N_("play"),&play1, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.play2","","B",N_("play"),&play2, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.play3","","B",N_("play"),&play3, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.play4","","B",N_("play"),&play4, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.play1","","B",N_("play tape 1"),&play1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.play2","","B",N_("play tape 2"),&play2, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.play3","","B",N_("play tape 3"),&play3, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.play4","","B",N_("play tape 4"),&play4, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rplay1","","B",N_("play reverse"),&rplay1, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rplay2","","B",N_("play reverse"),&rplay2, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rplay3","","B",N_("play reverse"),&rplay3, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rplay4","","B",N_("play reverse"),&rplay4, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.playh1","","S",N_("play position"),&playh1, 0.0, 0.0, 1000.0, 1.0);
+	reg.registerVar("dubber.playh2","","S",N_("play position"),&playh2, 0.0, 0.0, 1000.0, 1.0);
+	reg.registerVar("dubber.playh3","","S",N_("play position"),&playh3, 0.0, 0.0, 1000.0, 1.0);
+	reg.registerVar("dubber.playh4","","S",N_("play position"),&playh4, 0.0, 0.0, 1000.0, 1.0);
 	reg.registerVar("dubber.rec1","","B",N_("record"),&record1, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rec2","","B",N_("record"),&record2, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rec3","","B",N_("record"),&record3, 0.0, 0.0, 1.0, 1.0);
@@ -592,7 +630,10 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("dubber" "." p)
 b.openHorizontalhideBox("");
-b.create_master_slider(PARAM("mix"), "Dry/Wet");
+b.create_feedback_switch(sw_pbutton,PARAM("play1"));
+b.create_feedback_switch(sw_pbutton,PARAM("play2"));
+b.create_feedback_switch(sw_pbutton,PARAM("play3"));
+b.create_feedback_switch(sw_pbutton,PARAM("play4"));
 b.closeBox();
 
 b.openHorizontalBox("");
@@ -606,16 +647,24 @@ b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.insertSpacer();
+b.openVerticalBox("");
+b.insertSpacer();
+b.create_p_display(PARAM("playh1"));
+b.insertSpacer();
+b.openHorizontalBox("");
 b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
 b.create_feedback_switch(sw_pbutton,PARAM("play1"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay1"));
 b.create_feedback_switch(sw_button,PARAM("reset1"));
+b.closeBox();
+b.closeBox();
+
 b.insertSpacer();
 b.create_port_display(PARAM("bar1"), "buffer");
 b.insertSpacer();
 b.closeBox();
-b.create_master_slider(PARAM("clips1"), "cut");
-b.create_master_slider(PARAM("clip1"), "clip");
+b.create_feedback_slider(PARAM("clips1"), "cut");
+b.create_feedback_slider(PARAM("clip1"), "clip");
 
 b.closeBox();
 b.create_small_rackknob(PARAM("level1"), "level");
@@ -629,16 +678,23 @@ b.openVerticalBox("");
 
 b.openHorizontalBox("");
 b.insertSpacer();
+b.openVerticalBox("");
+b.insertSpacer();
+b.create_p_display(PARAM("playh2"));
+b.insertSpacer();
+b.openHorizontalBox("");
 b.create_feedback_switch(sw_rbutton,PARAM("rec2"));
 b.create_feedback_switch(sw_pbutton,PARAM("play2"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay2"));
 b.create_feedback_switch(sw_button,PARAM("reset2"));
+b.closeBox();
+b.closeBox();
 b.insertSpacer();
 b.create_port_display(PARAM("bar2"), "buffer");
 b.insertSpacer();
 b.closeBox();
-b.create_master_slider(PARAM("clips2"), "cut");
-b.create_master_slider(PARAM("clip2"), "clip");
+b.create_feedback_slider(PARAM("clips2"), "cut");
+b.create_feedback_slider(PARAM("clip2"), "clip");
 
 b.closeBox();
 
@@ -652,16 +708,23 @@ b.openVerticalBox("");
 
 b.openHorizontalBox("");
 b.insertSpacer();
+b.openVerticalBox("");
+b.insertSpacer();
+b.create_p_display(PARAM("playh3"));
+b.insertSpacer();
+b.openHorizontalBox("");
 b.create_feedback_switch(sw_rbutton,PARAM("rec3"));
 b.create_feedback_switch(sw_pbutton,PARAM("play3"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay3"));
 b.create_feedback_switch(sw_button,PARAM("reset3"));
+b.closeBox();
+b.closeBox();
 b.insertSpacer();
 b.create_port_display(PARAM("bar3"), "buffer");
 b.insertSpacer();
 b.closeBox();
-b.create_master_slider(PARAM("clips3"), "cut");
-b.create_master_slider(PARAM("clip3"), "clip");
+b.create_feedback_slider(PARAM("clips3"), "cut");
+b.create_feedback_slider(PARAM("clip3"), "clip");
 
 b.closeBox();
 b.create_small_rackknob(PARAM("level3"), "level");
@@ -674,16 +737,23 @@ b.openVerticalBox("");
 
 b.openHorizontalBox("");
 b.insertSpacer();
+b.openVerticalBox("");
+b.insertSpacer();
+b.create_p_display(PARAM("playh4"));
+b.insertSpacer();
+b.openHorizontalBox("");
 b.create_feedback_switch(sw_rbutton,PARAM("rec4"));
 b.create_feedback_switch(sw_pbutton,PARAM("play4"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay4"));
 b.create_feedback_switch(sw_button,PARAM("reset4"));
+b.closeBox();
+b.closeBox();
 b.insertSpacer();
 b.create_port_display(PARAM("bar4"), "buffer");
 b.insertSpacer();
 b.closeBox();
-b.create_master_slider(PARAM("clips4"), "cut");
-b.create_master_slider(PARAM("clip4"), "clip");
+b.create_feedback_slider(PARAM("clips4"), "cut");
+b.create_feedback_slider(PARAM("clip4"), "clip");
 
 b.closeBox();
 b.create_small_rackknob(PARAM("level4"), "level");

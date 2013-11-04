@@ -1467,9 +1467,9 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	} else if (jp->current_value() == "create_master_slider") {
 	    std::string id = next_string(jp);
 	    builder.create_master_slider(id.c_str(), next_char_pointer(jp));
-	} else if (jp->current_value() == "create_h_slider") {
+	} else if (jp->current_value() == "create_feedback_slider") {
 	    std::string id = next_string(jp);
-	    builder.create_h_slider(id.c_str(), next_char_pointer(jp));
+	    builder.create_feedback_slider(id.c_str(), next_char_pointer(jp));
 	} else if (jp->current_value() == "create_selector_no_caption") {
 	    builder.create_selector_no_caption(next_char_pointer(jp));
 	} else if (jp->current_value() == "create_selector") {
@@ -1496,6 +1496,8 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	} else if (jp->current_value() == "create_port_display") {
 	    std::string id = next_char_pointer(jp);
 	    builder.create_port_display(id.c_str(), next_char_pointer(jp));
+	} else if (jp->current_value() == "create_p_display") {
+	    builder.create_p_display(next_char_pointer(jp));
 	} else if (jp->current_value() == "create_simple_spin_value") {
 	    builder.create_simple_spin_value(next_char_pointer(jp));
 	} else if (jp->current_value() == "create_eq_rackslider_no_caption") {

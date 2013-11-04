@@ -75,7 +75,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     load_glade = load_glade_;
     load_glade_file = load_glade_file_;
     create_master_slider = create_master_slider_;
-    create_h_slider = create_h_slider_;
+    create_feedback_slider = create_feedback_slider_;
     create_small_rackknob = create_small_rackknob_;
     create_small_rackknobr = create_small_rackknobr_;
     create_spin_value = create_spin_value_;
@@ -87,6 +87,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     create_simple_meter = create_simple_meter_;
     create_selector_no_caption = create_selector_no_caption_;
     create_port_display = create_port_display_;
+    create_p_display = create_p_display_;
     create_simple_spin_value = create_simple_spin_value_;
     create_eq_rackslider_no_caption = create_eq_rackslider_no_caption_;
     insertSpacer = insertSpacer_;
@@ -164,8 +165,8 @@ void UiBuilderImpl::create_master_slider_(const char *id, const char *label) {
     intf->create_master_slider(id, label);
 }
 
-void UiBuilderImpl::create_h_slider_(const char *id, const char *label) {
-    intf->create_h_slider(id, label);
+void UiBuilderImpl::create_feedback_slider_(const char *id, const char *label) {
+    intf->create_feedback_slider(id, label);
 }
 
 void UiBuilderImpl::create_selector_no_caption_(const char *id) {
@@ -202,6 +203,10 @@ void UiBuilderImpl::create_wheel_(const char * id, const char *label) {
 
 void UiBuilderImpl::create_port_display_(const char *id, const char *label) {
     intf->create_port_display(id, label);
+}
+
+void UiBuilderImpl::create_p_display_(const char *id) {
+    intf->create_p_display(id);
 }
 
 void UiBuilderImpl::create_simple_spin_value_(const char *id) {

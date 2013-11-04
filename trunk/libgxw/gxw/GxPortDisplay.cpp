@@ -51,20 +51,26 @@ static void gx_port_display_size_request (GtkWidget *widget, GtkRequisition *req
 	gint display_width;
 	gtk_widget_style_get(widget, "display-width", &display_width, NULL);
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	requisition->height = 12+gdk_pixbuf_get_height(pb);
+	requisition->height = 2+gdk_pixbuf_get_height(pb);
 	requisition->width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
 	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
 	g_object_unref(pb);
 }
 
-static void port_display_expose(
+static void port_display_expose(GdkEventExpose *ev,
 	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image)
 {
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
+    GdkRegion *region;
+	region = gdk_region_rectangle (&widget->allocation);
+	gdk_region_intersect (region, ev->region);
+    gdk_cairo_region (cr, region);
+    cairo_clip (cr);
 	gdk_cairo_set_source_pixbuf(cr, image, rect->x - (rect->width-(gint)sliderstate), rect->y);
 	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
 	cairo_fill(cr);
 	cairo_destroy(cr);
+    gdk_region_destroy (region);
 }
 
 static gboolean gx_port_display_expose(GtkWidget *widget, GdkEventExpose *event)
@@ -78,7 +84,7 @@ static gboolean gx_port_display_expose(GtkWidget *widget, GdkEventExpose *event)
 	image_rect.width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
 	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.width-display_width);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	port_display_expose(widget, &image_rect, sliderstate, pb);
+	port_display_expose(event, widget, &image_rect, sliderstate, pb);
 	_gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
 	g_object_unref(pb);
 	return FALSE;
