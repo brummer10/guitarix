@@ -6,8 +6,6 @@
 #include <cstdlib>
 #include <string>
 #include <cmath>
-#include <pwd.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #define fmax(x, y) (((x) > (y)) ? (x) : (y))
@@ -25,7 +23,7 @@
 namespace pluginlib {
 namespace dubbe {
 
-class Dsp: public PluginDef {
+class LiveLooper: public PluginDef {
 private:
 	int fSamplingFreq;
 	float 	gain;
@@ -134,13 +132,13 @@ private:
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
 public:
-	Dsp();
-	~Dsp();
+	LiveLooper();
+	~LiveLooper();
 };
 
 
 
-Dsp::Dsp()
+LiveLooper::LiveLooper()
 	: PluginDef(),
 	  tape1(0),
 	  tape2(0),
@@ -156,7 +154,7 @@ Dsp::Dsp()
 	  RP4(false),
 	  mem_allocated(false) {
 	version = PLUGINDEF_VERSION;
-	flags = 0;
+	flags = PGN_NO_PRESETS;
 	id = "dubber";
 	name = N_("Dubber");
 	groups = 0;
@@ -173,11 +171,11 @@ Dsp::Dsp()
 	delete_instance = del_instance;
 }
 
-Dsp::~Dsp() {
+LiveLooper::~LiveLooper() {
     activate(false);
 }
 
-inline void Dsp::clear_state_f()
+inline void LiveLooper::clear_state_f()
 {
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
@@ -210,12 +208,12 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) iRec19[i] = 0;
 }
 
-void Dsp::clear_state_f_static(PluginDef *p)
+void LiveLooper::clear_state_f_static(PluginDef *p)
 {
-	static_cast<Dsp*>(p)->clear_state_f();
+	static_cast<LiveLooper*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void LiveLooper::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA1 = 0;
@@ -231,12 +229,12 @@ inline void Dsp::init(unsigned int samplingFreq)
     fConst2 = (1.0 / float(fmin(192000, fmax(1, fSamplingFreq))));
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void LiveLooper::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<LiveLooper*>(p)->init(samplingFreq);
 }
 
-void Dsp::mem_alloc()
+void LiveLooper::mem_alloc()
 {
 	if (!tape1) tape1 = new float[4194304];
 	if (!tape2) tape2 = new float[4194304];
@@ -245,7 +243,7 @@ void Dsp::mem_alloc()
 	mem_allocated = true;
 }
 
-void Dsp::mem_free()
+void LiveLooper::mem_free()
 {
 	mem_allocated = false;
 	if (tape1) { delete tape1; tape1 = 0; }
@@ -254,15 +252,13 @@ void Dsp::mem_free()
 	if (tape4) { delete tape4; tape4 = 0; }
 }
 
-void Dsp::load_array()
+void LiveLooper::load_array()
 {
     size_t lSize;
     std::string pPath = getenv("HOME");
-    if (pPath.empty()) {
-        struct passwd *pw = getpwuid(getuid());
-        pPath = pw->pw_dir;
-    }
-    FILE *Tape1 = fopen((pPath+"/.config/guitarix/tape1.bin").c_str(), "rb");
+    pPath +="/.config/guitarix/";
+
+    FILE *Tape1 = fopen((pPath+"tape1.bin").c_str(), "rb");
     if (Tape1!=NULL) { 
         lSize = 4194304 - int(rectime0/fConst2);
         RecSize1[1] = fread(tape1,sizeof(tape1[0]),lSize,Tape1);
@@ -271,7 +267,7 @@ void Dsp::load_array()
         //fprintf (stderr,"Read tape(1) size: %i\n",RecSize1[1]);
     }
 
-    FILE *Tape2 = fopen((pPath+"/.config/guitarix/tape2.bin").c_str(), "rb");
+    FILE *Tape2 = fopen((pPath+"tape2.bin").c_str(), "rb");
     if (Tape2!=NULL) { 
         lSize = 4194304 - int(rectime1/fConst2);
         RecSize2[1] = fread(tape2,sizeof(tape2[0]),lSize,Tape2);
@@ -280,7 +276,7 @@ void Dsp::load_array()
         //fprintf (stderr,"Read tape(2) size: %i\n",RecSize2[1]);
     }
 
-    FILE *Tape3 = fopen((pPath+"/.config/guitarix/tape3.bin").c_str(), "rb");
+    FILE *Tape3 = fopen((pPath+"tape3.bin").c_str(), "rb");
     if (Tape3!=NULL) { 
         lSize = 4194304 - int(rectime2/fConst2);
         RecSize3[1] = fread(tape3,sizeof(tape3[0]),lSize,Tape3);
@@ -289,7 +285,7 @@ void Dsp::load_array()
         //fprintf (stderr,"Read tape(3) size: %i\n",RecSize3[1]);
     }
 
-    FILE *Tape4 = fopen((pPath+"/.config/guitarix/tape4.bin").c_str(), "rb");
+    FILE *Tape4 = fopen((pPath+"tape4.bin").c_str(), "rb");
     if (Tape4!=NULL) {
         lSize = 4194304 - int(rectime3/fConst2);
         RecSize4[1] = fread(tape4,sizeof(tape4[0]),lSize,Tape4);
@@ -299,17 +295,15 @@ void Dsp::load_array()
     }
 }
 
-void Dsp::save_array()
+void LiveLooper::save_array()
 {
     size_t lSize;
     size_t result;
     std::string pPath = getenv ("HOME");
-    if (pPath.empty()) {
-        struct passwd *pw = getpwuid(getuid());
-        pPath = pw->pw_dir;
-    }
+    pPath +="/.config/guitarix/";
+   
     if (save1) {
-        FILE *Tape1 = fopen((pPath+ "/.config/guitarix/tape1.bin").c_str(), "wb");
+        FILE *Tape1 = fopen((pPath+ "tape1.bin").c_str(), "wb");
         if (Tape1!=NULL) { 
             lSize = 4194304 - int(rectime0/fConst2);
             if (lSize) {
@@ -322,7 +316,7 @@ void Dsp::save_array()
         }
     }
     if (save2) {
-        FILE *Tape2 = fopen((pPath+"/.config/guitarix/tape2.bin").c_str(), "wb");
+        FILE *Tape2 = fopen((pPath+"tape2.bin").c_str(), "wb");
         if (Tape2!=NULL) { 
             lSize = 4194304 - int(rectime1/fConst2);
             if (lSize) {
@@ -335,7 +329,7 @@ void Dsp::save_array()
         }
     }
     if (save3) {
-        FILE *Tape3 = fopen((pPath+"/.config/guitarix/tape3.bin").c_str(), "wb");
+        FILE *Tape3 = fopen((pPath+"tape3.bin").c_str(), "wb");
             if (Tape3!=NULL) { 
             lSize = 4194304 - int(rectime2/fConst2);
             if (lSize) {
@@ -348,7 +342,7 @@ void Dsp::save_array()
         }
     }
     if (save4) {
-        FILE *Tape4 = fopen((pPath+"/.config/guitarix/tape4.bin").c_str(), "wb");
+        FILE *Tape4 = fopen((pPath+"tape4.bin").c_str(), "wb");
         if (Tape4!=NULL) {
             lSize = 4194304 - int(rectime3/fConst2);
             if (lSize) {
@@ -362,7 +356,7 @@ void Dsp::save_array()
     }
 }
 
-int Dsp::activate(bool start)
+int LiveLooper::activate(bool start)
 {
 	if (start) {
 		if (!mem_allocated) {
@@ -377,12 +371,12 @@ int Dsp::activate(bool start)
 	return 0;
 }
 
-int Dsp::activate_static(bool start, PluginDef *p)
+int LiveLooper::activate_static(bool start, PluginDef *p)
 {
-	return static_cast<Dsp*>(p)->activate(start);
+	return static_cast<LiveLooper*>(p)->activate(start);
 }
 
-void always_inline Dsp::compute(int count, float *input0, float *output0)
+void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 {
     // trigger save array on exit
 	if(record1 || reset1) save1 = true;
@@ -390,17 +384,13 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
     if(record3 || reset3) save3 = true;
     if(record4 || reset4) save4 = true;
     // make play/ reverse play button act as radio button
-    if (!RecSize1[0]) {play1 = 0.0;rplay1 = 0.0;}
-    else if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
+    if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
     else if (play1 && RP1) {rplay1 = 0.0;RP1=false;}
-    if (!RecSize2[0]) {play2 = 0.0;rplay2 = 0.0;}
-    else if (rplay2 && !RP2) {play2 = 0.0;RP2=true;}
+    if (rplay2 && !RP2) {play2 = 0.0;RP2=true;}
     else if (play2 && RP2) {rplay2 = 0.0;RP2=false;}
-    if (!RecSize3[0]) {play3 = 0.0;rplay3 = 0.0;}
-    else if (rplay3 && !RP3) {play3 = 0.0;RP3=true;}
+    if (rplay3 && !RP3) {play3 = 0.0;RP3=true;}
     else if (play3 && RP3) {rplay3 = 0.0;RP3=false;}
-    if (!RecSize4[0]) {play4 = 0.0;rplay4 = 0.0;}
-    else if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
+    if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
     else if (play4 && RP4) {rplay4 = 0.0;RP4=false;}
     // switch off record when buffer is full
     record1     = rectime0? record1 : 0.0;
@@ -408,14 +398,10 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 	record3     = rectime2? record3 : 0.0;
 	record4     = rectime3? record4 : 0.0;
     // reset clip when reset is pressed
-    fclip1 = reset1? 100.0:fclip1;
-    fclip2 = reset2? 100.0:fclip2;
-    fclip3 = reset3? 100.0:fclip3;
-    fclip4 = reset4? 100.0:fclip4;
-    fclips1 = reset1? 0.0:fclips1;
-    fclips2 = reset2? 0.0:fclips2;
-    fclips3 = reset3? 0.0:fclips3;
-    fclips4 = reset1? 0.0:fclips4;
+    if (reset1) {fclip1=100.0;fclips1=0.0;}
+    if (reset2) {fclip2=100.0;fclips2=0.0;}
+    if (reset3) {fclip3=100.0;fclips3=0.0;}
+    if (reset4) {fclip4=100.0;fclips4=0.0;}
     // switch off reset button when buffer is empty 
     reset1     = (rectime0 < 4194304*fConst2)? reset1 : 0.0;
 	reset2     = (rectime1 < 4194304*fConst2)? reset2 : 0.0;
@@ -423,13 +409,13 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 	reset4     = (rectime3 < 4194304*fConst2)? reset4 : 0.0;
     // set play head position
     float ph1      = 1.0/(RecSize1[0] * 0.001);
-    playh1 = fmin(1000,fmax(0,float(IOTAR1*ph1)));
+    playh1 = (1-iVec0[0]) * fmin(1000,fmax(0,float(IOTAR1*ph1)));
     float ph2      = 1.0/(RecSize2[0] * 0.001);
-    playh2 = fmin(1000,fmax(0,float(IOTAR2*ph2)));
+    playh2 = (1-iVec2[0]) *  fmin(1000,fmax(0,float(IOTAR2*ph2)));
     float ph3      = 1.0/(RecSize3[0] * 0.001);
-    playh3 = fmin(1000,fmax(0,float(IOTAR3*ph3)));
+    playh3 = (1-iVec4[0]) *  fmin(1000,fmax(0,float(IOTAR3*ph3)));
     float ph4      = 1.0/(RecSize4[0] * 0.001);
-    playh4 = fmin(1000,fmax(0,float(IOTAR4*ph4)));
+    playh4 = (1-iVec6[0]) *  fmin(1000,fmax(0,float(IOTAR4*ph4)));
     // engine var settings
 	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * gain)));
 	float 	fSlow1 = gain_out;
@@ -572,12 +558,12 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 	}
 }
 
-void __rt_func Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+void __rt_func LiveLooper::compute_static(int count, float *input0, float *output0, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->compute(count, input0, output0);
+	static_cast<LiveLooper*>(p)->compute(count, input0, output0);
 }
 
-int Dsp::register_par(const ParamReg& reg)
+int LiveLooper::register_par(const ParamReg& reg)
 {
 	reg.registerVar("dubber.clip1","","S",N_("percentage clip at the delay length "),&fclip1, 1e+02f, 0.0f, 1e+02f, 1.0f);
 	reg.registerVar("dubber.clip2","","S",N_("percentage clip at the delay length "),&fclip2, 1e+02f, 0.0f, 1e+02f, 1.0f);
@@ -620,12 +606,12 @@ int Dsp::register_par(const ParamReg& reg)
 	return 0;
 }
 
-int Dsp::register_params_static(const ParamReg& reg)
+int LiveLooper::register_params_static(const ParamReg& reg)
 {
-	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+	return static_cast<LiveLooper*>(reg.plugin)->register_par(reg);
 }
 
-inline int Dsp::load_ui_f(const UiBuilder& b, int form)
+inline int LiveLooper::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("dubber" "." p)
@@ -649,7 +635,7 @@ b.openHorizontalBox("");
 b.insertSpacer();
 b.openVerticalBox("");
 b.insertSpacer();
-b.create_p_display(PARAM("playh1"));
+b.create_p_display(PARAM("playh1"),PARAM("clips1"),PARAM("clip1"));
 b.insertSpacer();
 b.openHorizontalBox("");
 b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
@@ -680,7 +666,7 @@ b.openHorizontalBox("");
 b.insertSpacer();
 b.openVerticalBox("");
 b.insertSpacer();
-b.create_p_display(PARAM("playh2"));
+b.create_p_display(PARAM("playh2"),PARAM("clips2"),PARAM("clip2"));
 b.insertSpacer();
 b.openHorizontalBox("");
 b.create_feedback_switch(sw_rbutton,PARAM("rec2"));
@@ -710,7 +696,7 @@ b.openHorizontalBox("");
 b.insertSpacer();
 b.openVerticalBox("");
 b.insertSpacer();
-b.create_p_display(PARAM("playh3"));
+b.create_p_display(PARAM("playh3"),PARAM("clips3"),PARAM("clip3"));
 b.insertSpacer();
 b.openHorizontalBox("");
 b.create_feedback_switch(sw_rbutton,PARAM("rec3"));
@@ -739,7 +725,7 @@ b.openHorizontalBox("");
 b.insertSpacer();
 b.openVerticalBox("");
 b.insertSpacer();
-b.create_p_display(PARAM("playh4"));
+b.create_p_display(PARAM("playh4"),PARAM("clips4"),PARAM("clip4"));
 b.insertSpacer();
 b.openHorizontalBox("");
 b.create_feedback_switch(sw_rbutton,PARAM("rec4"));
@@ -771,20 +757,20 @@ b.closeBox();
 	return -1;
 }
 
-int Dsp::load_ui_f_static(const UiBuilder& b, int form)
+int LiveLooper::load_ui_f_static(const UiBuilder& b, int form)
 {
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
+	return static_cast<LiveLooper*>(b.plugin)->load_ui_f(b, form);
 }
 
-void Dsp::del_instance(PluginDef *p)
+void LiveLooper::del_instance(PluginDef *p)
 {
-	delete static_cast<Dsp*>(p);
+	delete static_cast<LiveLooper*>(p);
 }
 
 #if true
 
 PluginDef *plugin() {
-    return new Dsp;
+    return new LiveLooper;
 }
 
 #else
@@ -797,7 +783,7 @@ get_gx_plugin(unsigned int idx, PluginDef **pplugin)
 	return count;
     }
     switch (idx) {
-    case 0: *pplugin = new Dsp; return count;
+    case 0: *pplugin = new LiveLooper; return count;
     default: *pplugin = 0; return -1;
     }
 }

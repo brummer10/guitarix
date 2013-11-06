@@ -94,6 +94,7 @@ protected:
 private:
 
 	public:
+	void set_state(int cutoff_low, int cutoff_high);
 	explicit PortDisplay(Gtk::Adjustment& adjustment);
 	PortDisplay();
 

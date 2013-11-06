@@ -86,7 +86,7 @@ struct UiBuilder {
     void (*create_feedback_switch)(const char *sw_type,const char * id);
     void (*create_spin_value)(const char * id, const char *label);
     void (*create_port_display)(const char * id, const char *label);
-    void (*create_p_display)(const char * id);
+    void (*create_p_display)(const char * id, const char * idl, const char * idh);
     void (*create_switch)(const char *sw_type,const char * id, const char *label);
     void (*create_selector)(const char *id, const char *label);
     void (*create_simple_meter)(const char *id);

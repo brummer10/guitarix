@@ -51,6 +51,11 @@ Gxw::PortDisplay* wrap(GxPortDisplay* object, bool take_copy)
 namespace Gxw
 {
 
+void PortDisplay::set_state(int cutoff_low, int cutoff_high)
+{
+	gx_port_display_set_state(gobj(), cutoff_low, cutoff_high);
+}
+
 
 /* The *_Class implementation: */
 

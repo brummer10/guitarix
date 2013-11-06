@@ -227,7 +227,7 @@ protected:
     static void create_switch_(const char *sw_type,const char * id, const char *label);
     static void create_wheel_(const char * id, const char *label);
     static void create_port_display_(const char *id, const char *label);
-    static void create_p_display_(const char *id);
+    static void create_p_display_(const char *id, const char *idl, const char *idh);
     static void create_simple_spin_value_(const char *id);
     static void create_eq_rackslider_no_caption_(const char *id);
     static void closeBox_();

@@ -331,13 +331,25 @@ void StackBoxBuilder::create_port_display(const std::string& id, const char *lab
 	addwidget(w);
 }
 
-void StackBoxBuilder::create_p_display(const std::string& id) {
+bool StackBoxBuilder::set_pd_value(Gxw::PortDisplay *w, const std::string id, const std::string& idl, const std::string& idh) {
+    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
+      float low = machine.get_parameter_value<float>(idl);
+      float high = 100-machine.get_parameter_value<float>(idh);
+      w->set_state(int(low),int(high));
+      float set = (low + high)*0.001;
+      machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id)+set);
+    }
+    return true;
+}
+    
+void StackBoxBuilder::create_p_display(const std::string& id, const std::string& idl, const std::string& idh) {
     Gxw::PortDisplay *w = new UiRegler<Gxw::PortDisplay>(machine, id);
-    Glib::signal_timeout().connect(sigc::bind<const std::string>(
-      sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
+    Glib::signal_timeout().connect(sigc::bind<Gxw::PortDisplay*>(sigc::bind<const std::string>(
+      sigc::bind<const std::string>(sigc::bind<const std::string>(
+      sigc::mem_fun(*this, &StackBoxBuilder::set_pd_value),idh),idl),id),w ), 60);
 	w->set_name("playhead");
-	Gtk::EventBox* e_box = new Gtk::EventBox();
-    e_box->set_size_request(-1, 4);
+    Gtk::EventBox* e_box = new Gtk::EventBox();
+    e_box->set_size_request(-1, -1);
     e_box->set_border_width(0);
     e_box->set_visible_window(true);
     e_box->set_above_child(true);

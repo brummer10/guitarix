@@ -61,6 +61,7 @@ static void port_display_expose(GdkEventExpose *ev,
 	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image)
 {
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
+    GxPortDisplay *port_display = GX_PORT_DISPLAY(widget);
     GdkRegion *region;
 	region = gdk_region_rectangle (&widget->allocation);
 	gdk_region_intersect (region, ev->region);
@@ -69,6 +70,24 @@ static void port_display_expose(GdkEventExpose *ev,
 	gdk_cairo_set_source_pixbuf(cr, image, rect->x - (rect->width-(gint)sliderstate), rect->y);
 	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
 	cairo_fill(cr);
+    if (port_display->cutoff_low + port_display->cutoff_high) {
+      cairo_set_source_rgba (cr, 0.8, 0.1, 0.1, 0.4);
+      cairo_set_line_width(cr, rect->height);
+      gint low = rect->width * port_display->cutoff_low * 0.01;
+      gint high = (rect->width* port_display->cutoff_high * 0.01)-2;
+      gint lw = rect->height/2;
+      cairo_move_to(cr,rect->x, rect->y+lw);
+      cairo_line_to(cr,rect->x + low, rect->y+lw);
+      cairo_stroke (cr);
+      cairo_move_to(cr,rect->width - high, rect->y+lw);
+      cairo_line_to(cr,rect->width+2, rect->y+lw);
+      cairo_stroke (cr);
+      cairo_set_source_rgba (cr, 0.1, 0.6, 0.1, 0.4);
+      cairo_move_to(cr,rect->x+ low, rect->y+lw);
+      cairo_line_to(cr,rect->width - high, rect->y+lw);
+      cairo_stroke (cr);
+      
+    }
 	cairo_destroy(cr);
     gdk_region_destroy (region);
 }
@@ -101,4 +120,12 @@ static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 static void gx_port_display_init(GxPortDisplay *port_display)
 {
 	gtk_widget_set_name (GTK_WIDGET(port_display),"rack_slider");
+    port_display->cutoff_low = 0;
+    port_display->cutoff_high = 0;
+}
+
+void gx_port_display_set_state(GxPortDisplay *port_display, gint cutoff_low, gint cutoff_high) {
+    g_assert(GX_IS_PORT_DISPLAY(port_display));
+    port_display->cutoff_low = cutoff_low;
+    port_display->cutoff_high = cutoff_high;
 }

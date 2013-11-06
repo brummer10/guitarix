@@ -205,8 +205,8 @@ void UiBuilderImpl::create_port_display_(const char *id, const char *label) {
     intf->create_port_display(id, label);
 }
 
-void UiBuilderImpl::create_p_display_(const char *id) {
-    intf->create_p_display(id);
+void UiBuilderImpl::create_p_display_(const char *id, const char *idl, const char *idh) {
+    intf->create_p_display(id, idl, idh);
 }
 
 void UiBuilderImpl::create_simple_spin_value_(const char *id) {

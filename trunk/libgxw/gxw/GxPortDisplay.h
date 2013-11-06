@@ -36,6 +36,8 @@ typedef struct _GxPortDisplayClass GxPortDisplayClass;
 
 struct _GxPortDisplay {
 	GxVSlider parent;
+	gint cutoff_low;
+	gint cutoff_high;
 };
 
 struct _GxPortDisplayClass {
@@ -44,6 +46,7 @@ struct _GxPortDisplayClass {
 
 GType gx_port_display_get_type(void);
 
+void gx_port_display_set_state(GxPortDisplay *pd, gint cutoff_low, gint cutoff_high);
 G_END_DECLS
 
 #endif /* __GX_PORT_DISPLAY_H__ */

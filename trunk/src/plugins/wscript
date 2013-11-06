@@ -5,6 +5,7 @@ import os, wscript_helper
 
 csources = [ # generate .so files from c sources that can be loaded by guitarix
     # element = name or [name, [lib, ...]]
+    
     ]
 
 sources = [ # generate .so files that can be loaded by guitarix
