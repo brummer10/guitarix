@@ -161,7 +161,7 @@ N 44500 47200 49800 47200 4
 T 44700 47300 5 10 1 1 0 0 1
 netname=4
 }
-C 49000 48900 1 0 0 generic-power.sym
+C 49000 48900 1 0 0 generic-power-1.sym
 {
 T 49200 49100 5 10 0 1 0 0 1
 device=POWER

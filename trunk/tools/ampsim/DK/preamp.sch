@@ -267,7 +267,7 @@ N 45000 46900 43600 46900 4
 T 44700 47000 5 10 1 1 0 0 1
 netname=4
 }
-C 43400 48400 1 0 0 generic-power.sym
+C 43400 48400 1 0 0 generic-power-1.sym
 {
 T 43600 48600 5 10 0 1 0 0 1
 device=POWER
@@ -285,7 +285,7 @@ T 50600 45800 5 10 1 1 0 0 1
 value=12ax7
 }
 N 49200 46900 49200 45600 4
-C 49900 48400 1 0 0 generic-power.sym
+C 49900 48400 1 0 0 generic-power-1.sym
 {
 T 48100 48500 5 10 0 1 0 0 1
 device=POWER
@@ -331,7 +331,7 @@ T 48000 47000 5 10 1 1 0 0 1
 netname=8
 }
 C 44700 43100 1 0 0 gnd-1.sym
-C 54700 48400 1 0 0 generic-power.sym
+C 54700 48400 1 0 0 generic-power-1.sym
 {
 T 54900 48700 5 10 0 1 0 0 1
 device=POWER

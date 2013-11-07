@@ -37,7 +37,7 @@ refdes=Vin
 N 47100 46000 47600 46000 4
 C 48500 43500 1 0 0 gnd-1.sym
 N 49800 47300 48400 47300 4
-C 48200 48800 1 0 0 generic-power.sym
+C 48200 48800 1 0 0 generic-power-1.sym
 {
 T 48400 49000 5 10 0 1 0 0 1
 device=POWER

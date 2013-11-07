@@ -1,17 +1,24 @@
 Warning: experimental/unfinished code, missing documentation...
 
 This directory contains an analog electronic circuit simulator, like
-e.g. Spice but with an emphasis on execution speed. It uses the
-"DK method" and generates/compiles optimized C++ code internally for
-signal calculations.
+e.g. Spice but with an emphasis on automatic code generation for
+realtime execution (which means it can directly generate Guitarix
+modules).
+
+It uses the "DK method" and generates/compiles optimized C++ code
+internally for signal calculations.
 
 The simulated circuit is defined by a "netlist", which is easy to
 write manually. Circuit schematics can also be drawn with gschem (part
-of gEDA), then a netlist can be extraced with mk_netlist.py.
+of gEDA). The gschem files (.sch) in this directory use additional
+symbols which are in the subdirectory gschem-symbols. Before opening
+them with gschem please add a line
 
-TODO: the produced code gets real-time execution speed for simple
-circuits, but for complex circuits the solver for nonlinear equations
-needs to be replaced (by function appromixation tables etc.).
+(component-library "<absolute path to directory gschem-symbols>")
+
+to the file ~/.gEDA/gafrc (of course replace the <...> with the real
+path). (Tip: gschem on Ubuntu 13.4 needs the environment setting
+UBUNTU_MENUPROXY= to have working keyboard shortcuts.)
 
 Dependencies:
  - python-scipy
@@ -20,9 +27,30 @@ Dependencies:
  - for internally generated C++ module:
    - libeigen3-dev
    - libcminpack-dev
+ - to generate symbolic output (e.g. Faust code):
+   - maxima
 
 Demo:
 
 "python circ.py", then select e.g. 5 (PushPullTransformer). You can
 disable C code generation by adding option -p (the calculation will be
 about a factor of 100 slower).
+
+Create a Guitarix module crybaby4 from the schematics in wahwah.sch:
+
+python simu.py --linearize -S wahwah.sch --create-c-module=crybaby4 --c-samplerate=44100
+
+The module is automatically copied to ~/.config/guitarix/plugins, so
+you can just start / restart Guitarix to try out the module (you'll
+find it in the category "External"). It uses the script
+tools/build-cmodule, so maybe you need to tweak the compiler options
+in that script.
+
+Look at the spectrum of the WahWah processing (uses the wahwah circuit
+netlist from circ.py):
+
+python simu.py --linearize WahWah --plot-spectrum --plot-variable=hotpotz
+
+TODO: the produced code gets real-time execution speed for simple
+circuits, but for complex circuits the solver for nonlinear equations
+needs to be replaced (by function appromixation tables etc.).

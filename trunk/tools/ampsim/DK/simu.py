@@ -364,11 +364,27 @@ def generate_faust_module(modname, b, a, potlist, flt):
     pgm = os.path.abspath("../../build-faust")
     os.system("%s -c %s" % (pgm, dspname))
 
+def get_circuit_instance(g, tests, args):
+    if args.schema:
+        class params(object):
+            load_schema = args.schema
+        t = os.path.splitext(os.path.basename(args.schema))[0]
+        v = LoadedSchema(params)
+        return v, t
+    elif args.netlist:
+        class params(object):
+            load_netlist = args.netlist
+        t = os.path.splitext(os.path.basename(args.netlist))[0]
+        v = LoadedSchema(params)
+        return v, t
+    else:
+        t = tests[0]
+        return g[t](), t
+
 def generate_c_module(g, tests, args):
     import dk_templates
     modname = args.create_c_module
-    t = tests[0]
-    v = g[t]()
+    v, t = get_circuit_instance(g, tests, args)
     fs = v.FS
     if args.c_samplerate:
         fs = args.c_samplerate
@@ -425,16 +441,7 @@ def generate_c_module(g, tests, args):
     os.system("%s -c %s" % (pgm, dspname))
 
 def create_filter(g, tests, args):
-    if args.schema:
-        class params(object):
-            load_schema = args.schema
-        v = LoadedSchema(params)
-    elif args.netlist:
-        class params(object):
-            load_netlist = args.netlist
-        v = LoadedSchema(params)
-    else:
-        v = g[tests[0]]()
+    v, t = get_circuit_instance(g, tests, args)
     p = dk_simulator.Parser(v.S, v.V, v.FS, not args.backward_euler, create_filter=True, symbolic=args.filter_symbolic)
     if len(p.get_nonlin_funcs()) > 0:
         if args.filter_symbolic:

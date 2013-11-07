@@ -12,7 +12,7 @@ fi
   exit 1
 }
 set -e
-bname="$(basename "${1%.*}" .dsp)"
+bname="${1%.*}"
 opt="-shared -fPIC -fvisibility=hidden"
 opt="$opt -I$instdir/src/gx_head -I$instdir/src/headers"
 opt="$opt -Wall -g"
