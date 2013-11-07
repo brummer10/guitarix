@@ -1,3 +1,4 @@
+from __future__ import division
 import sympy as sp
 import numpy as np
 import numpy.matlib as ml
@@ -26,10 +27,10 @@ class CodeGenerator(object):
 
     @staticmethod
     def generate_matrix_declaration(name, rows, cols):
-        return "Matrix<double, %d, %d> %s;" % (rows, cols, name)
+        return "Matrix<creal, %d, %d> %s;" % (rows, cols, name)
 
     def generate_global_matrices(self):
-        templ = "static Matrix<double, %(rows)d, %(cols)d> %(matrix_name)s;"
+        templ = "static Matrix<creal, %(rows)d, %(cols)d> %(matrix_name)s;"
         l = []
         for name, shape in self.global_matrices.items():
             l.append("static " + self.generate_matrix_declaration(name, shape[0], shape[1]))
@@ -37,8 +38,8 @@ class CodeGenerator(object):
 
     def generate_const_data(self):
         templ = (
-            "static const double __attribute__((aligned(16))) %(data_name)s[%(rows)d*%(cols)d] = { %(data)s };\n"
-            "static const Map<const Matrix<double, %(rows)d, %(cols)d>, Aligned> %(matrix_name)s(%(data_name)s);\n\n"
+            "static const creal __attribute__((aligned(16))) %(data_name)s[%(rows)d*%(cols)d] = { %(data)s };\n"
+            "static const Map<const Matrix<creal, %(rows)d, %(cols)d>, Aligned> %(matrix_name)s(%(data_name)s);\n\n"
             )
         l = []
         for name, mat in self.const_data_matrices.items():
@@ -117,10 +118,10 @@ class NonlinSolverCodeGen(CodeGenerator):
                 i = self.access_matrix('i'),
                 )
         else:
-            self.d["equation"] = "Mfvec = %(p)s + %(i)s - %(vz)s;" % dict(
+            self.d["equation"] = "Mfvec = %(p)s + %(i)s - Mv;" % dict(
                 p = self.access_matrix('p'),
                 i = self.access_matrix('i'),
-                vz = vz)
+                )
 
         local_matrix_declaration = [];
 
@@ -165,7 +166,7 @@ class NonlinSolverCodeGen(CodeGenerator):
 
 class SimulationCodeGen(CodeGenerator):
 
-    def __init__(self, d, Mp, Mx, Mxc, Mo, Moc, pot_func, Pv, pot_list, Q, Uxl, Uo, Unl, UR, Ucv, Mpc, K):
+    def __init__(self, d, Mp, Mx, Mxc, Mo, Moc, pot_func, Pv, pot_list, pot, Q, Uxl, Uo, Unl, UR, Ucv, Mpc, K):
         CodeGenerator.__init__(self, d)
         self.Mp = Mp
         self.Mx = Mx
@@ -175,6 +176,7 @@ class SimulationCodeGen(CodeGenerator):
         self.pot_func = pot_func
         self.Pv = Pv
         self.pot_list = pot_list
+        self.pot = pot
         self.Q = Q
         self.Uxl = Uxl
         self.Uo = Uo
@@ -239,10 +241,12 @@ class SimulationCodeGen(CodeGenerator):
             self.d["update_pot"] = ""
             self.d["npl"] = 0
             self.d["nonlin_mat_list"] = ""
+            self.d["pot_vars"] = ""
+            self.d["pot"] = ""
         else:
             self.d["nonlin_mat_list"] = ",K,Mp,Mpc"
             local_matrix_declaration = []
-            pot = self.make_symbol_vector('pot', self.d['np'], "(%d)")
+            pot = self.make_symbol_vector('pot', self.d['np'])
             l = []
             for (a, f), p in zip(self.pot_func, self.Pv):
                 s = str(a)
@@ -253,6 +257,8 @@ class SimulationCodeGen(CodeGenerator):
                     i = len(self.pot_list)-1
                 expr = f.subs(a, pot[i]) * p
                 l.append(expr)
+            self.d["pot_vars"] = ",".join(['"%s"' % v for v in self.pot_list])
+            self.d["pot"] = ",".join([str(self.pot.get(v,0.5)) for v in self.pot_list])
             self.d["npl"] = npl = len(self.pot_list)
             nx = self.d["nx"]
             no = self.d["no"]
@@ -262,7 +268,7 @@ class SimulationCodeGen(CodeGenerator):
             lines = []
             lines.append(self.ccode('Rv', l, '(%d)'))
             local_matrix_declaration.append(self.generate_matrix_declaration("Qi", np, np))
-            lines.append("Qi = (%s + Matrix<double, %d, %d>(Rv.asDiagonal())).inverse();" % (self.access_matrix('Q',self.Q, True), np, np))
+            lines.append("Qi = (%s + Matrix<creal, %d, %d>(Rv.asDiagonal())).inverse();" % (self.access_matrix('Q',self.Q, True), np, np))
             if self.matrix_is_identity(self.Uxl):
                 t = "Qi"
             elif self.matrix_is_zero(self.Uxl):

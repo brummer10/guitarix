@@ -1,4 +1,4 @@
-import contextlib
+import contextlib, math
 import numpy as np
 import numpy.core.arrayprint as npap
 
@@ -22,3 +22,58 @@ def printoptions(strip_zeros=True, **kwargs):
     yield
     np.set_printoptions(**original)
     npap.FloatFormat.__call__ = origcall
+
+def pow2roundup(x):
+    "return smallest 2**Y which is >= x (with x < 2**32)"
+    if x <= 0:
+        return 0
+    x -= 1
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+    return x+1;
+
+def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
+    """generate logarithmic sweep signal
+    
+    fmin: start frequency
+    fmax: end frequency
+    rate: sample rate
+    k0: fade in before start of signal (samples)
+    k1: length of signal (samples)
+    k2: fade out after end of signal (samples)
+    dtype: data type of signal
+
+    returns: (logsweep signal, inverse logsweep signal)
+    """
+    s1 = np.empty(k0 + k1 + k2, dtype=dtype)
+    s2 = np.empty_like(s1)
+    b = math.log(fmax / fmin) / k1
+    a = fmin / (b * rate)
+    r = 0.5 * a * (fmax / fmin) * (k1 + 0.5 * (k0 + k2)) / (b * k1)
+    q0 = a * math.exp(-b * k0)
+    for i in range(-k0, k1+k2):
+        if i < 0:
+            g = math.cos(0.5 * math.pi * i / k0)
+        elif i < k1:
+            g = 1.0
+        else:
+            g = math.sin(0.5 * math.pi * (k1 + k2 - i) / k2)
+        q = a * math.exp(b * i)
+        p = q - q0
+        x = g * math.sin(2 * math.pi * (p - math.floor(p)))
+        s1[k0+i] = x
+        s2[-(k0+i+1)] = x * q / r
+    return s1, s2
+
+def fft_convolve(h, xd):
+    n = len(h) + len(xd) - 1
+    n2 = pow2roundup(n)
+    H = np.fft.rfft(h[2:], n2, axis=0)
+    XD = np.fft.rfft(xd, n2, axis=0)
+    if len(XD.shape) == 2 and len(H.shape) == 1:
+        H = H.reshape(len(H), 1)
+    s = np.fft.irfft(H * XD, n2, axis=0)
+    return s[:n]

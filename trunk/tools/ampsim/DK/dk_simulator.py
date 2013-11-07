@@ -1,13 +1,15 @@
+from __future__ import division
 import numpy as np
 import numpy.matlib as ml
 import numpy.linalg as la
 import scipy.optimize as opt
+import scipy.signal as sig
 import sympy as sp
 import sympy.utilities.autowrap as spauto
 import sympy.utilities.codegen as spcode
 import ctypes as ct
 from sympy.printing.ccode import CCodePrinter
-import collections, warnings, tempfile, os, operator, sys, shutil, time, commands, subprocess, math
+import collections, warnings, tempfile, os, operator, sys, shutil, time, commands, subprocess, math, re
 
 import dk_templates
 from models import GND, Out, Node
@@ -43,95 +45,6 @@ def matrix_add(*args):
     else:
         return args[0]
 
-def load_from_shared_lib(fname):
-    if 1:
-        c_real = ct.c_double
-        dtp = np.float64
-    else:
-        c_real = ct.c_float
-        dtp = np.float32
-    def c_arr(n, w=False):
-        flags = ['C']
-        if w:
-            flags.append('W')
-        return np.ctypeslib.ndpointer(dtype=c_real, ndim=1, shape=(n,), flags=flags)
-    def c_mat(w=False):
-        flags = ['C']
-        if w:
-            flags.append('W')
-        return np.ctypeslib.ndpointer(dtype=c_real, ndim=2, flags=flags)
-    c_int_p = ct.POINTER(ct.c_int)
-    c_real_p = ct.POINTER(c_real)
-    lib = ct.cdll.LoadLibrary(fname)
-    c_get_structure = lib.get_structure
-    c_get_structure.restype = None
-    c_get_structure.argtypes = [ct.POINTER(ct.POINTER(ct.c_int)), ct.POINTER(ct.c_char_p)]
-    t = ct.POINTER(ct.c_int)()
-    p = ct.c_char_p();
-    c_get_structure(ct.byref(t), ct.byref(p))
-    nx, ni, nn, no, npl, nni, nno, end = [t[i] for i in range(8)]
-    assert end == -1
-    method = p.value
-    c_calc = lib.calc
-    c_calc.restype = ct.c_int
-    c_calc.argtypes = [c_arr(ni), c_arr(nx), c_arr(nn,True), c_arr(nx,True), c_arr(no,True), c_int_p, c_int_p, c_real_p]
-    c_set_state = lib.set_state
-    c_set_state.restype = None
-    c_set_state.argtypes = [c_arr(nn), c_arr(nx)]
-    c_get_info = lib.get_info
-    c_get_info.restype = None
-    c_get_info.argtypes = [c_arr(nn,True), c_arr(nx, True), c_arr(nni,True), c_arr(nni,True), c_int_p, c_int_p, c_real_p]
-    c_calc_stream = lib.calc_stream
-    c_calc_stream.restype = ct.c_int
-    c_calc_stream.argtypes = [c_mat(), c_mat(True), ct.c_int]
-    c_calc_nonlin = lib.calc_nonlin
-    c_calc_nonlin.restype = ct.c_int
-    c_calc_nonlin.argtypes = [ct.c_int, c_mat(), c_mat(True), c_arr(nn, True), c_int_p, c_int_p, c_real_p]
-    c_calc_pot_update = lib.calc_inv_update
-    c_calc_pot_update.restype = None
-    c_calc_pot_update.argtypes = [c_arr(npl)]
-    info = ct.c_int()
-    nfev = ct.c_int()
-    fnorm = c_real()
-    def calc(u, x, v):
-        u = np.array(u, dtype=dtp)
-        x = np.array(x, dtype=dtp)
-        v = np.array(v, dtype=dtp)
-        x_new = np.zeros(shapes[nx], dtype=dtp)
-        o = np.zeros(shapes[no], dtype=dtp)
-        if c_calc(u, x, v, x_new, o, ct.byref(info), ct.byref(nfev), ct.byref(fnorm)) < 0:
-            if fnorm.value > 1e-7:
-                raise RuntimeError("convergence: method=%s, info=%d, nfev=%d, fnorm=%g"
-                                   % (method, info.value, nfev.value, fnorm.value))
-        return o, x_new, v
-    def calc_stream(u):
-        assert u.shape[1] == ni
-        u = np.array(u, dtype=dtp)
-        o = np.zeros((u.shape[0], no), dtype=dtp)
-        if c_calc_stream(u, o, u.shape[0]) != 0:
-            v, x, minmax, g_info, g_nfev, g_fnorm = get_info()
-            raise ValueError("convergence error: info=%d, nfev=%d, fnorm=%g" % (g_info, g_nfev, g_fnorm))
-        return o
-    def get_info():
-        v = np.zeros(nn, dtype=dtp, order='C')
-        x = np.zeros(nx, dtype=dtp, order='C')
-        minv = np.zeros(nni, dtype=dtp, order='C')
-        maxv = np.zeros(nni, dtype=dtp, order='C')
-        c_get_info(v, x, minv, maxv, ct.byref(info), ct.byref(nfev), ct.byref(fnorm))
-        return v, x, np.vstack((minv, maxv)).T, info.value, nfev.value, fnorm.value
-    def set_state(v, x):
-        v = np.array(v, dtype=dtp)
-        x = np.array(x, dtype=dtp)
-        c_set_state(v, x)
-    def calc_nonlin(p, v):
-        assert p.shape[1] == nni
-        p = np.array(p, dtype=dtp, order='C', copy=False)
-        i = np.zeros((p.shape[0], nno), dtype=dtp, order='C')
-        r = c_calc_nonlin(len(p), p, i, v, ct.byref(info), ct.byref(nfev), ct.byref(fnorm))
-        if r != 0:
-            raise ValueError("convergence error: info=%d, nfev=%d, fnorm=%g" % (info.value, nfev.value, fnorm.value))
-        return i
-    return calc, set_state, get_info, calc_stream, calc_nonlin, c_calc_pot_update
 
 class CythonCodeWrapper(spauto.CodeWrapper):
 
@@ -147,8 +60,23 @@ class CythonCodeWrapper(spauto.CodeWrapper):
         dct = pkgconfig('cminpack','eigen3')
         dct["include_dirs"].append(os.path.abspath(".."))
         l = ["%s=%s" % v for v in dct.items()]
-        l.append("extra_compile_args=['-mavx','-g0','-O2','-ffast-math','-UNDEBUG']")
-        l.append("extra_link_args=['-fPIC','-Wl,--strip-all','-UNDEBUG']")
+        #l.append("extra_compile_args=['-mavx','-g0','-O2','-ffast-math','-UNDEBUG']")
+        #
+        # ffast-math seems to trigger a compiler error on gcc 4.7.3
+        # according to documentation it expands into list of settings, including
+        # funsafe-math-optimizations, which seems to be responsible for the bug.
+        # But funsafe-math-optimizations in turn just expands into another list of
+        # settings. When using the expanded list of settings the bug is gone (?!).
+        fast_math_expand=(
+            #" '-funsafe-math-optimizations',"
+            " '-fno-math-errno',"
+            " '-ffinite-math-only', '-fno-rounding-math',"
+            " '-fno-signaling-nans', '-fcx-limited-range',"
+            " '-fno-signed-zeros', '-fno-trapping-math',"
+            " '-fassociative-math', '-freciprocal-math'"
+            )
+        l.append("extra_compile_args=['-mavx','-g0','-O2',%s,'-UNDEBUG','-Dcreal=%s']" % (fast_math_expand, d["c_real"]))
+        l.append("extra_link_args=['-fPIC','-Wl,--strip-all','-UNDEBUG','-Dcreal=%s']" % d["c_real"])
         l.append("language='c++'")
         d["flags"] = ",\n".join(["    " + v for v in l])
         d["mcount"] = spauto.CodeWrapper._module_counter
@@ -184,7 +112,7 @@ class CythonCodeWrapper(spauto.CodeWrapper):
             self._generate_code()
             self._prepare_files()
             self._process_files(None)
-            return load_from_shared_lib(os.path.join(workdir, self.module_name+".so"))
+            return SimulateC(os.path.join(workdir, self.module_name+".so"))
         finally:
             spauto.CodeWrapper._module_counter +=1
             os.chdir(oldwork)
@@ -192,79 +120,877 @@ class CythonCodeWrapper(spauto.CodeWrapper):
                 shutil.rmtree(workdir)
 
 
-def get_unique_rows(a):
-    """returns unique rows of a 2-dim array
-    """
-    order = np.lexsort(a.T)
-    a = a[order]
-    diff = np.diff(a, axis=0)
-    ui = np.ones(len(a), dtype=bool)
-    ui[1:] = (diff != 0).any(axis=1) 
-    return a[ui]
+class LinearFilter(object):
 
-def get_blockdiag_permutation(B):
-    """returns the permuted index list to transform B to block diagonal form
+    def __init__(self, p, jacobi):
+        self.in_mat = p.N["I"]
+        self.out_mat = p.N["O"]
+        if self.in_mat.shape[0] != 1 or self.out_mat.shape[0] != 1:
+            raise ValueError("linear filter generation only implemented for circuits with one input and one output channel")
+        pot_func = p.get_pot_funcs()
+        Rv = sp.diag(*[1/(f * v) for (a, f), v in zip(pot_func, p.Pv)])
+        Nv = p.N["P"]
+        S = p.S + Nv.T * Rv * Nv
+        if jacobi is not None:
+            S -= p.N["Nr"].T * jacobi * p.N["Nl"]
+        self.S = S
+        ss = set()
+        self.syms = []
+        for a, f in pot_func:
+            if a not in ss:
+                self.syms.append(a)
+                ss.add(a)
+        self.subst_var_default = p.get_variable_defaults()
 
-    B: quadratic (sparse) matrix
-    returns: index permutation (p), block indexlist (bl)
+    def get_s_coeffs(self):
+        s = sp.symbols("s")
+        expr = self.solve(self.S, self.in_mat, self.out_mat)
+        r = [sp.poly(e, s) for e in sp.fraction(expr)]
+        tc = r[1].TC()
+        b_coeffs, b_terms = self.collect_s_coeffs(sp.poly(r[0], s), 'b', tc)
+        a_coeffs, a_terms = self.collect_s_coeffs(sp.poly(r[1], s), 'a', tc)
+        if a_coeffs[0] == -1:
+            a_coeffs *= -1
+            b_coeffs *= -1
+        return b_coeffs, a_coeffs, b_terms / a_terms
 
-    To get the block diagonal matrix A:
-    A = B[p][:,p]
+    def collect_s_coeffs(self, expr, prefix, tc):
+        s = sp.symbols("s")
+        monoms = expr.monoms()
+        max_degree = monoms[0][0]
+        filter_coeffs = np.zeros(max_degree+1, dtype=object)
+        ll = 0
+        for e, i in zip(expr.coeffs(), monoms):
+            i = i[0]
+            if self.syms:
+                # factorize according to variable symbols
+                x = sp.poly(e, self.syms)
+                ss = 0
+                for co, o in zip(x.coeffs(), x.monoms()):
+                    ss += reduce(operator.mul, [pow(y, p) for y, p in zip(self.syms, o)], 1) * (co/tc).simplify()
+            else:
+                ss = e/tc
+            filter_coeffs[i] = ss
+            sym = "%s%d" % (prefix, i)
+            ll += sp.symbols(sym) * pow(s, i)
+        return filter_coeffs, ll
 
-    Permutation matrix:
-    Q = matrix(eye(len(p)))[p]
-    A = Q * B * Q.T
+    def transform_bilinear(self, expr):
+        s = sp.symbols("s")
+        fs = sp.symbols("fs")
+        c = sp.symbols("c")
+        z = sp.symbols("z")
+        b = c*(z-1)/(z+1)
+        r = [sp.poly(e, z) for e in sp.fraction(expr.subs(s, b).ratsimp())]
+        return self.collect_z_symbolic(r[0]), self.collect_z_symbolic(r[1]), 2 * fs
 
-    To permute a list of row or column labels with the matrix:
-    labels_for_A = [labels_for_B[i] for i in p]
+    def collect_z_symbolic(self, expr):
+        c = sp.symbols("c")
+        monoms = expr.monoms()
+        max_degree = monoms[0][0]
+        filter_coeffs = np.zeros(max_degree+1, dtype=object)
+        for e, i in zip(expr.coeffs(), monoms):
+            idx = max_degree - i[0]
+            filter_coeffs[idx] = e
+        return filter_coeffs
 
-    To get the ith block matrix:
-    r = slice(bl[i], bl[i+1])
-    A[r,r]
-    """
-    B = ml.matrix(B, bool)
-    G = B.T * B
-    while True:
-        G1 = G * G
-        if (G1 == G).all():
-            break
-    n = B.shape[0]
-    p = []
-    bl = [0]
-    for row in get_unique_rows(G.A):
-        i = np.nonzero(row)[0]
-        p.extend(i)
-        bl.append(len(p))
-    return p, bl
+    def convert_variable_dict(self, subst_var):
+        d = self.subst_var_default.copy()
+        df = set(subst_var.keys()) - set([str(v) for v in d.keys()])
+        if df:
+            raise ValueError("unknown variable(s): %s" % ", ".join(df))
+        d.update(dict([(sp.symbols(k), v) for k, v in subst_var.items()]))
+        return d
+
+    def get_z_coeffs(self, samplerate=None, subst_var=None):
+        if samplerate is None:
+            c = 2 * sp.symbols("fs")
+        else:
+            c = 2 * samplerate
+        z = sp.symbols("z")
+        b = c*(z-1)/(z+1)
+        expr = self.S.subs(sp.symbols("s"), b)
+        expr = self.solve(expr, self.in_mat, self.out_mat)
+        if subst_var is not None:
+            expr = expr.subs(subst_var)
+            syms = None
+        else:
+            syms = self.syms
+        # divide coeffs by magnitude of trailing denominator coefficient == a1 coefficient of filter
+        lc = sp.poly(sp.fraction(expr)[1], z).LC()
+        lc = lc.subs(self.subst_var_default)
+        if samplerate is None:
+            lc = lc.subs(sp.symbols("fs"), 48000.)
+        r = [sp.poly((e/lc).expand(), z) for e in sp.fraction(expr)]
+        return (self.collect_z_coeffs(r[0], 'b', syms),
+                self.collect_z_coeffs(r[1], 'a', syms))
+
+    def collect_z_coeffs(self, expr, prefix, syms):
+        monoms = expr.monoms()
+        max_degree = monoms[0][0]
+        filter_coeffs = np.zeros(max_degree+1, dtype=object)
+        for e, i in zip(expr.coeffs(), monoms):
+            i = i[0]
+            if syms:
+                # factorize according to variable symbols
+                x = sp.poly(e.expand(), syms)
+                ss = 0
+                for co, o in zip(x.coeffs(), x.monoms()):
+                    ss += reduce(operator.mul, [pow(y, p) for y, p in zip(syms, o)], 1) * co.evalf()
+            else:
+                ss = e.evalf()
+            idx = max_degree-i
+            filter_coeffs[idx] = ss
+        return filter_coeffs
+
+    def coeffs_as_faust_code(self, prefix, coeffs):
+        l = []
+        for i, c in enumerate(coeffs):
+            c = re.sub(r'([a-zA-Z0-9]+)\*\*(\d+)', r'pow(\1,\2)', str(c))
+            l.append('%s%d = %s;' % (prefix, i, c))
+        return l
+
+    def print_coeffs(self, prefix, coeffs):
+        print "\n\n".join(self.coeffs_as_faust_code(prefix, coeffs))
+
+    def spectrum(self, b, a, start_freq=20, stop_freq=10000, fs=48000, nbins=8*1024):
+        b = [float(x) for x in b]
+        a = [float(x) for x in a]
+        w, h = sig.freqz(b, a, nbins)
+        cut = slice(int(round(2 * nbins * start_freq / fs)), int(round(2 * nbins * stop_freq / fs)) + 1)
+        w = (w[cut] * (fs/(2*np.pi)))
+        h = 20*np.log10(abs(h[cut]))
+        return w, h
+
+    def solve(self, S, in_mat, out_mat):
+        v = sp.Matrix(sp.symbols("v:%d" % self.S.shape[0]))
+        p = subprocess.Popen("maxima -b /dev/fd/0 --very-quiet 2>&1 >/dev/null", shell=True,
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        p.stdin.write("stringout(\"/dev/fd/2\",facsum(linsolve([%s], [%s])[%d], s));\n" % (
+            ", ".join(["%s = %s" % e for e in zip(S * v, in_mat)]),
+            ", ".join([str(sym) for sym in v]),
+            np.array(out_mat).nonzero()[1]+1,
+            ))
+        p.stdin.close()
+        expr = p.stdout.read()
+        p.wait()
+        syms = set()
+        for i in S:
+            syms |= i.atoms(sp.Symbol)
+        return eval(expr.split("=",1)[1].rstrip(";\n").replace("^","**"), dict([(str(sym),sym) for sym in syms]))
 
 
-class Nonlin(object):
+class EquationSystem(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, p, jacobi=None, svd_prec=None):
+        if svd_prec is None:
+            svd_prec = math.sqrt(sys.float_info.epsilon)
+        self.J = jacobi
+        self.svd_prec = svd_prec
+        self.make_eq(p)
+
+    @staticmethod
+    def get_unique_rows(a):
+        """returns unique rows of a 2-dim array
+        """
+        order = np.lexsort(a.T)
+        a = a[order]
+        diff = np.diff(a, axis=0)
+        ui = np.ones(len(a), dtype=bool)
+        ui[1:] = (diff != 0).any(axis=1) 
+        return a[ui]
+
+    @staticmethod
+    def get_blockdiag_permutation(B):
+        """returns the permuted index list to transform B to block diagonal form
+
+        B: quadratic (sparse) matrix
+        returns: index permutation (p), block indexlist (bl)
+
+        To get the block diagonal matrix A:
+        A = B[p][:,p]
+
+        Permutation matrix:
+        Q = matrix(eye(len(p)))[p]
+        A = Q * B * Q.T
+
+        To permute a list of row or column labels with the matrix:
+        labels_for_A = [labels_for_B[i] for i in p]
+
+        To get the ith block matrix:
+        r = slice(bl[i], bl[i+1])
+        A[r,r]
+        """
+        B = ml.matrix(B, bool)
+        G = B.T * B
+        while True:
+            G1 = G * G
+            if (G1 == G).all():
+                break
+        n = B.shape[0]
+        p = []
+        bl = [0]
+        for row in get_unique_rows(G.A):
+            i = np.nonzero(row)[0]
+            p.extend(i)
+            bl.append(len(p))
+        return p, bl
+
+    def print_S(self, p):
+        S = p.S
+        with printoptions(linewidth=200):
+            nn = np.get_printoptions()["precision"]+8
+            print "    "+" ".join(["%-*.*s" % (nn, nn, d) for d in p.node_names()])
+            for ss, nn in zip(str(S).split('\n'), p.node_names()):
+                print ss[:-1], "i@%s" % nn
+            print
+            for i, e in enumerate(p.node_names()):
+                l = [p.format_element(v,"X.") for j, v in enumerate(p.element_name['X']) if p.N['Xl'][j, i] != 0]
+                if l:
+                    print "%s <-" % e, ", ".join(l)
+            for i, e in enumerate(p.element_name['X']):
+                l = [v for j, v in enumerate(p.node_names()) if p.N['Xr'][i, j] != 0]
+                if l:
+                    print "d%s/dt <-" % p.format_element(e,"X."), ", ".join(l)
+            print
+            for i, e in enumerate(p.node_names()):
+                l = [p.format_element(v) for j, v in enumerate(p.element_name['N']) if p.N['Nl'][j, i] != 0]
+                if l:
+                    print "%s <-" % e, ", ".join(l)
+            for i, e in enumerate(p.element_name['N']):
+                l = ["f(%s)" % v for j, v in enumerate(p.node_names()) if p.N['Nr'][i, j] != 0]
+                if l:
+                    print "%s =" % p.format_element(e), ", ".join(l)
+            print p.N["Nl"]
+            print p.N["Nr"]
+
+    def make_eq(self, p):
+        self.nx, self.nn, self.ni, self.no, self.np = [len(p.element_name[j]) for j in 'X', 'N', 'I','O','P']
+        self.mp_cols = self.nx + self.ni
+        Nxl, Nxr, Nnl, Nnr, No, Nv, I = [p.N[j] for j in "Xl", "Xr", "Nl", "Nr", "O", "P", "I"]
+        CV = p.ConstVoltages
+        m = p.mm
+        if self.J is not None:
+            Si = (p.S - Nnr.T * self.J * Nnl).I
+            Nnr = ml.zeros((0, Nnr.shape[1]))
+            Nnl = ml.zeros((0, Nnl.shape[1]))
+            CV = ml.zeros((0, CV.shape[1]))
+            self.nn = 0
+        else:
+            Si = p.S.I
+
+        Z = ml.diag(p.Z)
+
+        T = m * Z * Nxl * Si
+        self.A0 = T * Nxr.T - (Z if p.TR else ml.diag((p.Z - 1) / 2.0))
+        self.B0 = T * I.T
+        self.Bc0 = T * CV.T
+        self.C0 = T * Nnr.T
+
+        T = No * Si
+        self.D0 = T * Nxr.T
+        self.E0 = T * I.T
+        self.Ec0 = T * CV.T
+        self.F0 = T * Nnr.T
+
+        T = Nnl * Si
+        self.G0 = T * Nxr.T
+        self.H0 = T * I.T
+        self.Hc0 = T * CV.T
+        self.K0 = T * Nnr.T
+
+        self.make_nonlin_input_trans()
+        self.make_nonlin_output_trans()
+
+        if self.np:
+            # Woodbury Identity: \left(A+UCV \right)^{-1} = A^{-1} - A^{-1}U \left(C^{-1}+VA^{-1}U \right)^{-1} VA^{-1}, 
+            T = Si * Nv.T
+            self.Q = Nv * T
+            self.Uxl = m * Z * Nxl * T
+            self.Uo = No * T
+            self.Unl = Nnl * T
+            T = Si.T * Nv.T
+            self.Uxr = Nxr * T
+            self.Unr = Nnr * T
+            self.Uu = I * T
+            self.Ucv = CV * T
+
+    def make_nonlin_input_trans(self):
+        # find number of linear independent inputs to the nonlinear function
+        if self.G0.shape[0] > 0 and self.np == 0:
+            U0, SV0, V0 = la.svd(np.append(self.G0, self.H0, axis=1), full_matrices=False)
+            SV0 = np.where(SV0 / SV0[0] > self.svd_prec, SV0, 0)
+            self.nni = np.count_nonzero(SV0)
+        else:
+            self.nni = self.nn
+        if self.nni < self.nn:
+            U0 = U0[:,:self.nni]
+            U0H = U0.H
+            self.G0 = U0H * self.G0
+            self.H0 = U0H * self.H0
+            self.U0 = U0
+            self.U0H = U0H
+        else:
+            self.U0 = ml.matrix(np.identity(self.nn))
+
+    def make_nonlin_output_trans(self):
+        # find number of linear independent outputs of the nonlinear function
+        if self.nn == 0 or self.np != 0:
+            self.nno = self.nn
+            self.Mi = ml.matrix(np.identity(self.nn))
+            self.Fo = self.F0
+            self.Co = self.C0
+            return
+        Uo, SVo, Vo = la.svd(np.append(self.F0, self.C0, axis=0), full_matrices=False)
+        SVo = np.where(SVo / SVo[0] > self.svd_prec, SVo, 0)
+        n = np.count_nonzero(SVo)
+        if n < self.nn and n < self.nx + self.no:
+            self.nno = n
+            self.Mi = (np.diag(SVo) * Vo)[:n]
+            self.Fo = Uo[:self.F0.shape[0],:n]
+            self.Co = Uo[self.F0.shape[0]:,:n]
+        elif self.nx + self.no < self.nn:
+            self.nno = self.nx + self.no
+            self.Mi = np.append(self.F0, self.C0, axis=0)
+            self.Fo = np.eye(self.no, self.nno)
+            self.Co = np.eye(self.nx, self.nno, self.nn)
+        else:
+            self.nno = n
+            self.Mi = ml.matrix(np.identity(n))
+            self.Fo = self.F0
+            self.Co = self.C0
+
+
+class Simulate(object):
+
+    def __init__(self, solver=None):
+        if solver is None:
+            self.solver_dict = dict(method = 'hybr')
+        else:
+            self.solver_dict = dict(solver)
+        self.solver_method = self.solver_dict["method"]
+        del self.solver_dict["method"]
+        if self.solver_method in ('hybr', 'lm'):
+            self.solver_dict.setdefault("factor", 1.e2)
+            self.solver_dict.setdefault("xtol", math.sqrt(sys.float_info.epsilon))
+
+
+class SimulatePy(Simulate):
+
+    def __init__(self, eq, parser, solver=None):
+        Simulate.__init__(self, solver)
+        self.eq = eq
+        self.f = parser.get_nonlin_funcs()
+        self.pot_func = parser.get_pot_funcs()
+        self.Pv = parser.Pv
+        self.pot = parser.pot
+        self.out_labels = parser.out_labels()
+        self.v0 = np.zeros(eq.nn)
+        self.x = np.zeros(eq.nx)
+        self.o0 = np.zeros(eq.no)
+        self.CZ = parser.CZ
+        self.op = parser.op
+        self.compile_py_func()
+        self.calc_dc(parser.op)
+        #FIXME:
+        self.pot_list = []
+        for a, f in self.pot_func:
+            s = str(a)
+            if s not in self.pot_list:
+                self.pot_list.append(s)
+
+    def set_variable(self, var, val):
+        self.pot[var] = val
+
+    def calc_Rv(self):
+        n = self.eq.np
+        Rv = ml.matrix(np.zeros((n, n)))
+        for i, ((a, f), p) in enumerate(zip(self.pot_func, self.Pv)):
+            k = str(a)
+            try:
+                v = self.pot[k]
+            except KeyError:
+                v = self.pot[k] = 0.5
+            Rv[i, i] = float(f.n(subs={a: v})) * p
+        return Rv
+
+    def calc_matrixes(self):
+        eq = self.eq
+        if eq.np:
+            Qi = (eq.Q + self.calc_Rv()).I
+            Tx = eq.Uxl * Qi
+            To = eq.Uo * Qi
+            Tn = eq.Unl * Qi
+            return (eq.A0 - Tx * eq.Uxr.T,
+                    eq.B0 - Tx * eq.Uu.T,
+                    eq.Bc0 - Tx * eq.Ucv.T,
+                    eq.C0 - Tx * eq.Unr.T,
+                    eq.D0 - To * eq.Uxr.T,
+                    eq.E0 - To * eq.Uu.T,
+                    eq.Ec0 - To * eq.Ucv.T,
+                    eq.F0 - To * eq.Unr.T,
+                    eq.G0 - Tn * eq.Uxr.T,
+                    eq.H0 - Tn * eq.Uu.T,
+                    eq.Hc0 - Tn * eq.Ucv.T,
+                    eq.K0 - Tn * eq.Unr.T,
+                    )
+        else:
+            return (eq.A0, eq.B0, eq.Bc0, eq.C0,
+                    eq.D0, eq.E0, eq.Ec0, eq.F0,
+                    eq.G0, eq.H0, eq.Hc0, eq.K0,
+                    )
+
+    def calc_dc(self, u):
+        u = ml.matrix(u, dtype=np.float64).T
+        A, B, Bc, C, D, E, Ec, F, G, H, Hc, K = self.calc_matrixes()
+        if A.size == 0:
+            if not len(self.f):
+                self.p0 = ml.matrix(np.zeros((0,1)))
+                return
+            p = H * u + Hc
+            def func(v):
+                v = ml.matrix(v).T
+                r = p + K * self.calc_i(v) - self.CZ * v
+                return r.A[:,0]
+            with warnings.catch_warnings():
+                warnings.filterwarnings(action="error")
+                res = opt.root(func, self.v0, method='lm') ##FIXME
+            if not res.success:
+                raise ValueError(res.message)
+            self.v0 = res.x
+        else:
+            I = ml.eye(len(A))
+            try:
+                Ai = (I - A).I
+            except la.LinAlgError:
+                n = len(self.v0)
+                if self.eq.U0 is not None:
+                    G1 = ml.append(self.eq.U0 * G, A, axis=0)
+                    H1 = ml.append(self.eq.U0 * H, B, axis=0)
+                else:
+                    G1 = ml.append(G, A, axis=0)
+                    H1 = ml.append(H, B, axis=0)
+                Hc1 = ml.append(Hc, Bc, axis=0)
+                K1 = ml.append(K, C, axis=0)
+                CZ1 = ml.matrix(np.diag(np.append(np.diagonal(self.CZ), np.zeros(C.shape[0]))))
+                def func(v):
+                    v = ml.matrix(v).T
+                    return (G1 * v[n:] + H1 * u + Hc1 + K1 * self.calc_i(v) - CZ1 * v).A[:,0]
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(action="error")
+                    res = opt.root(func, np.append(self.v0, self.x), method='lm') ##FIXME
+                if not res.success:
+                    raise ValueError(res.message)
+                self.v0 = res.x[:n]
+                self.x = res.x[n:]
+            else:
+                self.x = matrix_add(Ai * B * u, Ai * Bc)
+                if K.size != 0:
+                    if self.eq.U0 is not None:
+                        T = self.eq.U0 * G * Ai
+                        p = matrix_add(T * B * u, T * Bc, self.eq.U0 * H * u, Hc)
+                    else:
+                        T = G * Ai
+                        p = matrix_add(T * B * u, T * Bc, H * u, Hc)
+                    KK = T * C + K
+                    def func(v):
+                        v = ml.matrix(v).T
+                        r = p + KK * self.calc_i(v) - self.CZ * v
+                        return r.A[:,0]
+                    with warnings.catch_warnings():
+                        warnings.filterwarnings(action="error")
+                        res = opt.root(func, self.v0, method='lm') ##FIXME
+                    if not res.success:
+                        raise ValueError(res.message)
+                    self.v0 = res.x
+                    self.x += Ai * C * self.calc_i(self.v0)
+                self.x = self.x.A[:,0]
+        self.v00 = self.v0
+        self.x0 = self.x
+        #self.p0 = matrix_add(self.pp * G * np.matrix(self.x0).T, self.pp * H * np.matrix(self.op).T)
+        self.p0 = matrix_add(G * np.matrix(self.x0).T, H * np.matrix(self.op).T)
+        self.o0 = matrix_add(D * np.matrix(self.x0).T, E * np.matrix(self.op).T, Ec, F * self.calc_i(self.v0)).A1
+
+    def calc_i(self, v):
+        i = ml.zeros(len(self.ff)).T
+        for n, (f, start, end) in enumerate(self.ff):
+            i[n] = f(*[float(t) for t in v[start:end]])
+        return i
+
+    def nonlin_py(self, p, K, Hc):
+        def func(v):
+            v = ml.matrix(v).T
+            r = p + K * self.calc_i(v) - self.CZ * v
+            return r.A[:,0]
+        p = self.eq.U0 * p + Hc
+        try:
+            with warnings.catch_warnings():
+                warnings.filterwarnings(action="error")
+                res = opt.root(func, self.v0, method=self.solver_method, options=self.solver_dict)
+        except RuntimeWarning as e:
+            raise ValueError(e)
+        if not res.success:
+            raise ValueError(res.message)
+        v = res.x
+        self.v0 = v
+        return self.eq.Mi * self.calc_i(v)
+
+    def compile_py_func(self):
+        self.ff = []
+        if not self.eq.nn:
+            # model is linearized
+            return
+        for j, (expr, vl, base) in enumerate(self.f):
+            self.ff.append((sp.lambdify(vl, expr), base, base+len(vl)))
+
+    def calc_di(self, v, j):
+        i = np.zeros(len(self.f))
+        for n, (f, vl, base) in enumerate(self.f):
+            idx = j - base
+            if idx < 0 or idx >= len(vl):
+                i[n] = 0.
+            else:
+                s = dict([(sym,val) for sym, val in zip(vl, v[base:])])
+                i[n] = f.diff(vl[idx]).subs(s)
+        return i
+
+    def jacobi_numeric(self):
+        J = np.zeros((len(self.f), len(self.v00)))
+        i0 = self.calc_i(self.v00).A1
+        eps = 1e-4
+        for j in range(len(self.v00)):
+            v = self.v00.copy()
+            v[j] += eps
+            J[:, j] = (self.calc_i(v).A1 - i0) / eps
+        return ml.matrix(J)
+
+    def jacobi_symbolic(self):
+        J = np.zeros((len(self.f), len(self.v00)))
+        for j in range(len(self.v00)):
+            J[:, j] = self.calc_di(self.v00, j)
+        return ml.matrix(J)
+
+    jacobi = jacobi_symbolic
+
+    def eval_py(self, v_in):
+        self.x = ml.matrix(self.x).T ##FIXME
+        v_in = ml.matrix(v_in)
+        assert v_in.shape[1] == self.eq.ni
+        y = np.empty((v_in.shape[0], self.eq.no))
+        t1 = time.time()
+        A, B, Bc, C, D, E, Ec, F, G, H, Hc, K = self.calc_matrixes()
+        self.minmax = np.array(((float("inf"), float("-inf")),) * G.shape[0])
+        for n, u in enumerate(v_in):
+            u = ml.matrix(u).T
+            if len(self.v0) == 0:
+                i = ml.matrix(()).T
+            else:
+                try:
+                    p = G * self.x + H * u
+                    self.minmax[:,0] = np.min((self.minmax[:,0], p), axis=0)
+                    self.minmax[:,1] = np.max((self.minmax[:,1], p), axis=0)
+                    i = self.nonlin_py(p, K, Hc)
+                except ValueError as e:
+                    print "##", n
+                    raise
+            y[n,:] = matrix_add(D * self.x, E * u, Ec, F * i).A[:,0]
+            self.x = matrix_add(A * self.x, B * u, Bc, C * i)
+        self.time_per_sample = (time.time() - t1)/(n+1)
+        self.x = self.x.A1 ##FIXME
+        return y
+
+    def __call__(self, v_in):
+        return self.eval_py(v_in)
+
+
+class BuildCModule(Simulate):
+
+    def __init__(self, name, parser, solver, c_tempdir=None, c_verbose=False, c_real="double", extra_sources=None, linearize=False):
+        Simulate.__init__(self, solver)
+        self.name = name
+        self.c_tempdir = c_tempdir
+        self.c_verbose = c_verbose
+        self.c_real = c_real
+        self.extra_sources = extra_sources
+        sim = SimulatePy(EquationSystem(parser), parser, solver)
+        if linearize:
+            J = sim.jacobi()
+            self.v0 = np.zeros(0)
+            self.x0 = np.zeros_like(sim.x)
+            self.p0 = ml.zeros(0)
+            self.o0 = np.zeros_like(sim.o0)
+        else:
+            J = None
+            self.v0, self.x0, self.p0, self.o0 = sim.v0, sim.x, sim.p0, sim.o0
+        self.eq = EquationSystem(parser, J)
+        self.f = parser.get_nonlin_funcs()
+        self.pot_func = parser.get_pot_funcs()
+        self.pot = parser.pot
+        self.CZ = parser.CZ
+        self.Pv = parser.Pv
+        self.out_labels = parser.out_labels()
+        self.pot_list = []
+
+    def get_executor(self):
+        return self.compile_c_func()
+
+    def prepare(self):
+        eq = self.eq
+        d = dict(name=self.name, comment=time.ctime())
+        d["c_real"] = self.c_real
+        for j in "nx", "nn", "ni", "no", "np", "nni", "nno", "mp_cols":
+            d[j] = getattr(eq, j)
+        d["v0_data"] = ",".join([str(j) for j in self.v0])
+        d["x0_data"] = ",".join([str(j) for j in self.x0])
+        d["p0_data"] = ",".join([str(j) for j in self.p0.A1])
+        d["o0_data"] = ",".join([str(j) for j in self.o0])
+        d["out_labels"] = ",".join(['"%s"' % j for j in self.out_labels])
+        d["method"] = method = "linear" if eq.nn == 0 else self.solver_method
+        t = "solver_%s_" % self.solver_method
+        d.update(dict([(t+k, v) for k, v in self.solver_dict.items()]))
+        if method == "table":
+            d["extra_sources"] = self.extra_sources[0]
+            d["extra_code"] = self.extra_sources[1:]
+        else:
+            d["extra_sources"] = ""
+        d["namespace"] = "nonlin"
+        templ_main, templ_nonlin = dk_templates.get_templates(method)
+        if eq.nn > 0:
+            d["nonlin_code"] = templ_nonlin % generate_code.NonlinSolverCodeGen(
+                d, self.f, eq.K0, eq.U0, eq.Hc0, np.diagonal(self.CZ), eq.Mi, len(self.pot_func) == 0).generate()
+        else:
+            d["nonlin_code"] = ""
+        return templ_main, d
+
+    def make_code(self, templ_main, d):
+        eq = self.eq
+        if not hasattr(eq,"Q"):
+            Q = Uxl = Uo = Unl = Ucv = UR = None
+        else:
+            Q = eq.Q
+            Uxl = eq.Uxl
+            Uo = eq.Uo
+            Unl = eq.Unl
+            UR = np.concatenate((eq.Uxr.T, eq.Uu.T, eq.Unr.T), axis=1)
+            Ucv = eq.Ucv.T
+        code = templ_main % generate_code.SimulationCodeGen(
+            d,
+            np.concatenate((eq.G0, eq.H0), axis=1),
+            np.concatenate((eq.A0, eq.B0, eq.Co), axis=1),
+            eq.Bc0,
+            np.concatenate((eq.D0, eq.E0, eq.Fo), axis=1),
+            eq.Ec0,
+            self.pot_func,
+            self.Pv,
+            self.pot_list,
+            self.pot,
+            Q,
+            Uxl,
+            Uo,
+            Unl,
+            UR,
+            Ucv,
+            eq.Hc0,
+            eq.K0
+            ).generate()
+        return code
+
+    def compile_c_func(self):
+        templ_main, d = self.prepare()
+        code = self.make_code(templ_main, d)
+        return CythonCodeWrapper(d, code, self.c_tempdir, self.c_verbose).wrap_code()
+
+
+class SimulateC(object):
+
+    def __init__(self, soname):
+        self.soname = soname
+        self.load_from_shared_lib()
+        self.v0, self.x, self.p0, self.o0 = self.c_get_dc()
+        self.c_set_state(self.v0, self.x)
+        self.c_calc_pot_update(np.array([self.pot[v] for v in self.pot_list], dtype=self.dtp))
+        self.eval = self.eval_c
+        self.nonlin = self.nonlin_c
+
+    def set_variable(self, var, val):
+        assert var in self.pot
+        self.pot[var] = val
+        self.c_calc_pot_update(np.array([self.pot[v] for v in self.pot_list], dtype=self.dtp))
+
+    def nonlin_c(self, p):#, K, Hc): ##FIXME
+        return self.c_calc_nonlin(p, self.v0) ##FIXME
+
+    def eval_c(self, v_in):
+        v_in = np.array(v_in)
+        if v_in.ndim == 1:
+            v_in = v_in.reshape((len(v_in),1))
+        assert v_in.shape[1] == self.ni
+        y = np.empty((v_in.shape[0], self.no))
+        x = self.x
+        v = self.v0
+        t1 = time.time()
+        for n, u in enumerate(v_in):
+            y[n,:], x, v = self.c_calc(u, x, v)
+        self.time_per_sample = (time.time() - t1)/n
+        self.x = x
+        self.v0 = v
+        return y
+
+    def eval_c(self, v_in):
+        self.c_set_state(self.v0, self.x)
+        y = np.empty((v_in.shape[0], self.no))
+        t1 = time.time()
+        y = self.c_calc_stream(v_in)
+        self.time_per_sample = (time.time() - t1)/v_in.shape[0]
+        self.v0, self.x, self.minmax, info, nfev, fnorm = self.c_get_info()
+        return y
+
+    def load_from_shared_lib(self):
+        INTERFACE_VERSION = 1
+        try:
+            lib = ct.cdll.LoadLibrary(self.soname)
+        except OSError as e:
+            raise SystemExit(e)
+        try:
+            version = lib.get_interface_version()
+        except AttributeError:
+            raise SystemExit("%s: bad shared lib, missing get_interface_version" % self.soname)
+        if version != INTERFACE_VERSION:
+            raise SystemExit("interface version %d expected (found: %d)" % (version, INTERFACE_VERSION))
+        c_char_pp = ct.POINTER(ct.c_char_p)
+        c_get_structure = lib.get_structure
+        c_get_structure.restype = None
+        c_get_structure.argtypes = [c_char_pp, ct.POINTER(ct.c_int), ct.POINTER(ct.POINTER(ct.c_int)),
+                                    c_char_pp, ct.POINTER(c_char_pp), ct.POINTER(ct.POINTER(ct.c_double)),
+                                    ct.POINTER(c_char_pp), c_char_pp]
+        nm = ct.c_char_p()
+        sz = ct.c_int()
+        t = ct.POINTER(ct.c_int)()
+        p = ct.c_char_p()
+        plist = c_char_pp()
+        pvals = ct.POINTER(ct.c_double)()
+        ol = c_char_pp()
+        cmt = ct.c_char_p()
+        c_get_structure(ct.byref(nm), ct.byref(sz), ct.byref(t), ct.byref(p),
+                        ct.byref(plist), ct.byref(pvals), ct.byref(ol), ct.byref(cmt))
+        nx, ni, nn, no, npl, nni, nno, end = [t[i] for i in range(8)]
+        if end != -1:
+            raise SystemExit("%s: bad sequence length in get_structure")
+        self.nx, self.ni, self.nn, self.no, self.npl, self.nni, self.nno = nx, ni, nn, no, npl, nni, nno
+        self.name = nm.value
+        self.data_size = sz.value
+        self.method = p.value
+        self.pot_list = [plist[i] for i in range(npl)]
+        self.pot = dict([(plist[i], pvals[i]) for i in range(npl)])
+        self.out_labels = [ol[i] for i in range(no)]
+        self.comment = cmt.value
+        if self.data_size == 8:
+            c_real = ct.c_double
+            self.dtp = np.float64
+        elif self.data_size == 4:
+            c_real = ct.c_float
+            self.dtp = np.float32
+        else:
+            raise ValueError("unknown data size: %d" % self.data_size)
+        def c_arr(n, w=False):
+            flags = ['C']
+            if w:
+                flags.append('W')
+            return np.ctypeslib.ndpointer(dtype=c_real, ndim=1, shape=(n,), flags=flags)
+        def c_mat(w=False):
+            flags = ['C']
+            if w:
+                flags.append('W')
+            return np.ctypeslib.ndpointer(dtype=c_real, ndim=2, flags=flags)
+        c_int_p = ct.POINTER(ct.c_int)
+        c_real_p = ct.POINTER(c_real)
+        c_calc = lib.calc
+        c_calc.restype = ct.c_int
+        c_calc.argtypes = [c_arr(ni), c_arr(nx), c_arr(nn,True), c_arr(nx,True), c_arr(no,True), c_int_p, c_int_p, c_real_p]
+        c_set_state = lib.set_state
+        c_set_state.restype = None
+        c_set_state.argtypes = [c_arr(nn), c_arr(nx)]
+        c_get_info = lib.get_info
+        c_get_info.restype = None
+        c_get_info.argtypes = [c_arr(nn,True), c_arr(nx, True), c_arr(nni,True), c_arr(nni,True), c_int_p, c_int_p, c_real_p]
+        c_calc_stream = lib.calc_stream
+        c_calc_stream.restype = ct.c_int
+        c_calc_stream.argtypes = [c_mat(), c_mat(True), ct.c_int]
+        c_calc_nonlin = lib.calc_nonlin
+        c_calc_nonlin.restype = ct.c_int
+        c_calc_nonlin.argtypes = [ct.c_int, c_mat(), c_mat(True), c_arr(nn, True), c_int_p, c_int_p, c_real_p]
+        c_calc_pot_update = lib.calc_inv_update
+        c_calc_pot_update.restype = None
+        c_calc_pot_update.argtypes = [c_arr(npl)]
+        c_get_dc = lib.get_dc
+        c_get_dc.restype = None
+        c_get_dc.argtypes = [c_arr(nn, True), c_arr(nx, True), c_arr(nni, True), c_arr(no, True)]
+        info = ct.c_int()
+        nfev = ct.c_int()
+        fnorm = c_real()
+        def calc(u, x, v):
+            u = np.array(u, dtype=self.dtp)
+            x = np.array(x, dtype=self.dtp)
+            v = np.array(v, dtype=self.dtp)
+            x_new = np.zeros(shapes[nx], dtype=self.dtp)
+            o = np.zeros(shapes[no], dtype=self.dtp)
+            if c_calc(u, x, v, x_new, o, ct.byref(info), ct.byref(nfev), ct.byref(fnorm)) < 0:
+                if fnorm.value > 1e-7:
+                    raise RuntimeError("convergence: method=%s, info=%d, nfev=%d, fnorm=%g"
+                                       % (method, info.value, nfev.value, fnorm.value))
+            return o, x_new, v
+        def calc_stream(u):
+            assert u.shape[1] == ni
+            u = np.array(u, dtype=self.dtp)
+            o = np.zeros((u.shape[0], no), dtype=self.dtp)
+            if c_calc_stream(u, o, u.shape[0]) != 0:
+                v, x, minmax, g_info, g_nfev, g_fnorm = get_info()
+                raise ValueError("convergence error: info=%d, nfev=%d, fnorm=%g" % (g_info, g_nfev, g_fnorm))
+            return o
+        def get_info():
+            v = np.zeros(nn, dtype=self.dtp, order='C')
+            x = np.zeros(nx, dtype=self.dtp, order='C')
+            minv = np.zeros(nni, dtype=self.dtp, order='C')
+            maxv = np.zeros(nni, dtype=self.dtp, order='C')
+            c_get_info(v, x, minv, maxv, ct.byref(info), ct.byref(nfev), ct.byref(fnorm))
+            return v, x, np.vstack((minv, maxv)).T, info.value, nfev.value, fnorm.value
+        def set_state(v, x):
+            v = np.array(v, dtype=self.dtp)
+            x = np.array(x, dtype=self.dtp)
+            c_set_state(v, x)
+        def calc_nonlin(p, v):
+            assert p.shape[1] == nni
+            p = np.array(p, dtype=self.dtp, order='C', copy=False)
+            i = np.zeros((p.shape[0], nno), dtype=self.dtp, order='C')
+            r = c_calc_nonlin(len(p), p, i, v, ct.byref(info), ct.byref(nfev), ct.byref(fnorm))
+            if r != 0:
+                raise ValueError("convergence error: info=%d, nfev=%d, fnorm=%g" % (info.value, nfev.value, fnorm.value))
+            return i
+        def get_dc():
+            v0 = np.zeros(nn, dtype=self.dtp, order='C')
+            x0 = np.zeros(nx, dtype=self.dtp, order='C')
+            p0 = np.zeros(nni, dtype=self.dtp, order='C')
+            o0 = np.zeros(no, dtype=self.dtp, order='C')
+            c_get_dc(v0, x0, p0, o0)
+            return v0, x0, ml.matrix(p0).T, o0
+        self.c_calc = calc
+        self.c_set_state = set_state
+        self.c_get_info = get_info
+        self.c_calc_stream = calc_stream
+        self.c_calc_nonlin = calc_nonlin
+        self.c_calc_pot_update = c_calc_pot_update
+        self.c_get_dc = get_dc
+
+    def __call__(self, v_in):
+        return self.eval_c(v_in)
 
 
 class Parser(object):
-    def __init__(self, S, V, fs, solver=None, TR=True, pure_python=False, c_tempdir=None, c_verbose=False,
-                 c_debug_load=None, extra_sources=None, symbolic=False):
+    def __init__(self, S, V, fs, TR=True, create_filter=False, symbolic=False):
         self.V = V
         self.fs = fs
-        if solver is None:
-            solver = dict(method = 'hybr')
-        else:
-            solver = dict(solver)
-        self.solver_method = solver["method"]
-        del solver["method"]
-        if self.solver_method in ('hybr', 'lm'):
-            solver.setdefault("factor", 1.e2)
-        self.solver_dict = solver
         self.TR = TR   # True: TR (trapezoidal) integration, False: BE backward euler
         self.mm = 2.0 if TR else 1.0
-        self.c_tempdir = c_tempdir
-        self.c_verbose = c_verbose
-        self.c_debug_load = c_debug_load
-        self.extra_sources = extra_sources
-        self.symbolic = symbolic
         self.nodes = {}
         self.element_name = collections.defaultdict(list)
         tc = self.collect(S)
@@ -279,59 +1005,40 @@ class Parser(object):
         self.CZ = ml.matrix(np.diag(np.ones(tc["N"], dtype=int)))
         self.f = np.array((None,)*tc["N"])
         alpha = self.mm * fs
-        if symbolic:
+        if create_filter or symbolic:
             self.S = sp.Matrix(self.S)
+            alpha = sp.symbols("s")
             for k in self.N.keys():
                 self.N[k] = sp.Matrix(self.N[k])
-            self.Pv = sp.Matrix(self.Pv)
-            alpha = sp.symbols("s")
-            d = {}
-            for k, v in V.items():
-                if isinstance(k, Node):
-                    sym = sp.Symbol(str(k))
-                    if isinstance(v, dict):
-                        v = v.copy()
-                        v["value"] = sym
-                    else:
-                        v = sym
-                    d[k] = v
-            V = d
+            if symbolic:
+                self.Pv = sp.Matrix(self.Pv)
+                d = {}
+                for k, v in V.items():
+                    if isinstance(k, Node):
+                        sym = sp.Symbol(str(k))
+                        if isinstance(v, dict):
+                            v = v.copy()
+                            v["value"] = sym
+                        else:
+                            v = sym
+                        d[k] = v
+                V = d
         for row in S:
             row[0].process(self, [c if isinstance(c, Out) else self.nodes.get(c, -1) for c in row[1:]], V.get(row[0]), alpha)
-        self.v0 = np.zeros(tc["N"])
-        self.x = np.zeros(tc["X"])
         self.pot = V.get("POT", {})
-        self.make_S()
-        self.compile_py_func()
         self.pp = ml.eye(tc["N"])
         #self.pp = self.K.I
         #self.pp = ml.matrix(((1,-0.55,0.9,-0.9),(0,1,0,0),(0,0,1,0),(0,0,0,1)))
         self.op = V.get("OP",[0.]*tc["I"])
-        self.calc_dc(self.op)
-        if not pure_python:
-            self.pot_list = []
-            self.c_calc, self.c_set_state, self.c_get_info, self.c_calc_stream, self.c_calc_nonlin, self.c_calc_pot_update = self.compile_c_func()
-            self.c_calc_pot_update(np.array([self.pot[v] for v in self.pot_list]))
-            self.eval = self.eval_c
-            self.nonlin = self.nonlin_c
-        else:
-            self.eval = self.eval_py
-            self.nonlin = self.nonlin_py
 
-    def __call__(self, v_in):
-        return self.eval(v_in)
+    def get_nonlin_funcs(self):
+        return self.f
 
-    def calc_Rv(self):
-        n = len(self.Pv)
-        Rv = ml.matrix(np.zeros((n, n)))
-        for i, ((a, f), p) in enumerate(zip(self.pot_func, self.Pv)):
-            k = str(a)
-            try:
-                v = self.pot[k]
-            except KeyError:
-                v = self.pot[k] = 0.5
-            Rv[i, i] = float(f.n(subs={a: v})) * p
-        return Rv
+    def get_pot_funcs(self):
+        return self.pot_func
+
+    def get_variable_defaults(self):
+        return dict([(a, self.pot.get(str(a), 0.5)) for a, f in self.pot_func])
 
     def extra_variable_index(self, idx):
         return len(self.nodes) + idx
@@ -403,8 +1110,12 @@ class Parser(object):
         n, d = el
         return "%s%s%s" % (pref, n, d and ("[%s]" % d) or "")
 
-    def show_symbolic(self):
-        c = sp.symbols("c")
+    def show_symbolic(self, symbolic, jacobi=None):
+        if symbolic:
+            c = sp.symbols("c")
+        else:
+            #c = 2 * 48000
+            c = 2 * sp.symbols("fs")
         s = sp.symbols("s")
         v = sp.Matrix(sp.symbols("v:%d" % self.S.shape[0]))
         z = sp.symbols("z")
@@ -412,6 +1123,9 @@ class Parser(object):
         Rv = sp.diag(*[1/(f * p) for (a, f), p in zip(self.pot_func, self.Pv)])
         Nv = self.N["P"]
         SS = self.S + Nv.T * Rv * Nv
+        if jacobi is not None:
+            SS -= self.N["Nr"].T * jacobi * self.N["Nl"]
+        SS = SS.subs(s, b)
         p = subprocess.Popen("maxima -b /dev/fd/0 --very-quiet 2>&1 >/dev/null", shell=True,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         p.stdin.write("stringout(\"/dev/fd/2\",facsum(linsolve([%s], [%s])[%d], s));\n" % (
@@ -427,43 +1141,86 @@ class Parser(object):
         for i in SS:
             syms |= i.atoms(sp.Symbol)
         expr = eval(expr.split("=",1)[1].rstrip(";\n").replace("^","**"), dict([(str(sym),sym) for sym in syms]))
-        r = [sp.poly(e, s) for e in sp.fraction(expr)]
-        c = r[1].TC()
-        r[0] = sp.poly(r[0]/c, s)
-        r[1] = sp.poly(r[1]/c, s)
         ss = set()
         syms = []
         for a, f in self.pot_func:
             if a not in ss:
                 syms.append(a)
                 ss.add(a)
-        def print_c(e, c):
-            ll = 0
-            for e1, i in zip(e.coeffs(), e.monoms()):
-                i = i[0]
-                if syms:
-                    x = sp.poly(e1, syms)
-                    ss = 0
-                    for co, o in zip(x.coeffs(), x.monoms()):
-                        ss += reduce(operator.mul, [pow(y, p) for y, p in zip(syms, o)], 1) * co.simplify()
-                else:
-                    ss = e1
-                sym = "%s%d" % (c, i)
-                print '\n%s = %s' % (sym, ss)
-                ll += sp.symbols(sym) * pow(s, i)
-            return ll
-        e1 = print_c(r[0], 'b')
-        e2 = print_c(r[1], 'a')
-        def print_C(e, cc):
-            c = sp.symbols("c")
-            l = e.monoms()[0]
-            for e1, i in zip(e.coeffs(), e.monoms()):
-                i = l[0]-i[0]
-                sym = "%s%d" % (cc, i)
-                print '\n%s = %s' % (sym, e1)
-        r = [sp.poly(e, z) for e in sp.fraction((e1 / e2).subs(s, b).ratsimp())]
-        e1 = print_C(r[0], 'B')
-        e2 = print_C(r[1], 'A')
+        if symbolic:
+            r = [sp.poly(e, s) for e in sp.fraction(expr)]
+            c = r[1].TC()
+            r[0] = sp.poly(r[0]/c, s)
+            r[1] = sp.poly(r[1]/c, s)
+            def print_c(e, c):
+                ll = 0
+                for e1, i in zip(e.coeffs(), e.monoms()):
+                    i = i[0]
+                    if syms:
+                        x = sp.poly(e1, syms)
+                        ss = 0
+                        for co, o in zip(x.coeffs(), x.monoms()):
+                            if symbolic:
+                                co = co.simplify()
+                            else:
+                                co = co.evalf()
+                            ss += reduce(operator.mul, [pow(y, p) for y, p in zip(syms, o)], 1) * co
+                    else:
+                        ss = e1
+                    sym = "%s%d" % (c, i)
+                    print '\n%s = %s' % (sym, ss)
+                    ll += sp.symbols(sym) * pow(s, i)
+                return ll
+            e1 = print_c(r[0], 'b')
+            e2 = print_c(r[1], 'a')
+            def print_C(e, cc):
+                c = sp.symbols("c")
+                l = e.monoms()[0]
+                for e1, i in zip(e.coeffs(), e.monoms()):
+                    i = l[0]-i[0]
+                    sym = "%s%d" % (cc, i)
+                    print '\n%s = %s' % (sym, e1)
+            r = [sp.poly(e, z) for e in sp.fraction((e1 / e2).subs(s, b).ratsimp())]
+            print_C(r[0], 'B')
+            print_C(r[1], 'A')
+        else:
+            #expr = expr.subs(dict([(a, self.pot.get(str(a), 0.5)) for a, f in self.pot_func]))
+            r = [sp.poly(e, z) for e in sp.fraction(expr)]
+            tc = r[1].LC()
+            #r[0] = sp.poly(r[0]/tc, z)
+            #r[1] = sp.poly(r[1]/tc, z)
+            ss = set()
+            syms = []
+            for a, f in self.pot_func:
+                if a not in ss:
+                    syms.append(a)
+                    ss.add(a)
+            def print_c(e, cc):
+                ll = []
+                l = e.monoms()[0]
+                for e1, i in zip(e.coeffs(), e.monoms()):
+                    i = i[0]
+                    if syms:
+                        x = sp.poly(e1.expand(), syms)
+                        ss = 0
+                        for co, o in zip(x.coeffs(), x.monoms()):
+                            #co = (co / tc).ratsimp()
+                            if symbolic:
+                                co = co.expand().simplify()
+                            else:
+                                co = co.evalf()
+                            ss += reduce(operator.mul, [pow(y, p) for y, p in zip(syms, o)], 1) * co
+                    else:
+                        ss = (e1 / tc).evalf()
+                    sym = "%s%d" % (cc, l[0]-i)
+                    print '\n%s = %s' % (sym, ss)
+                    ll.append(ss)
+                return ll
+            e1 = print_c(r[0], 'b')
+            e2 = print_c(r[1], 'a')
+            return e1, e2
+            #expr = expr.subs(s, b)
+            #print sp.poly(expr.ratsimp(), c)
         raise SystemExit
         # with printoptions(precision=0):
         #     print
@@ -507,198 +1264,11 @@ class Parser(object):
         #     #print [ll[i] for i in p]
         # raise SystemExit
 
-    def make_S(self):
-        Nxl = self.N["Xl"]
-        Nxr = self.N["Xr"]
-        Nnl = self.N["Nl"]
-        Nnr = self.N["Nr"]
-        No = self.N["O"]
-        Nv = self.N["P"]
-        I = self.N["I"]
-        CV = self.ConstVoltages
-        S = self.S
-        m = self.mm
-        if 0:
-            np.set_printoptions(linewidth=200)
-            nn = np.get_printoptions()["precision"]+8
-            print "    "+" ".join(["%-*.*s" % (nn, nn, d) for d in self.node_names()])
-            for ss, nn in zip(str(S).split('\n'), self.node_names()):
-                print ss[:-1], "i@%s" % nn
-            print
-            for i, e in enumerate(self.node_names()):
-                l = [self.format_element(v,"X.") for j, v in enumerate(self.element_name['X']) if self.N['Xl'][j, i] != 0]
-                if l:
-                    print "%s <-" % e, ", ".join(l)
-            for i, e in enumerate(self.element_name['X']):
-                l = [v for j, v in enumerate(self.node_names()) if self.N['Xr'][i, j] != 0]
-                if l:
-                    print "d%s/dt <-" % self.format_element(e,"X."), ", ".join(l)
-            print
-            for i, e in enumerate(self.node_names()):
-                l = [self.format_element(v) for j, v in enumerate(self.element_name['N']) if self.N['Nl'][j, i] != 0]
-                if l:
-                    print "%s <-" % e, ", ".join(l)
-            for i, e in enumerate(self.element_name['N']):
-                l = ["f(%s)" % v for j, v in enumerate(self.node_names()) if self.N['Nr'][i, j] != 0]
-                if l:
-                    print "%s =" % self.format_element(e), ", ".join(l)
-            print self.N["Nl"]
-            print self.N["Nr"]
-            #raise SystemExit
-        if self.symbolic:
-            self.show_symbolic()
-        Si = S.I
-
-        conc = lambda *a: ml.concatenate(a, axis=1)
-        Z = ml.diag(self.Z)
-
-        T = m * Z * Nxl * Si
-        self.A0 = T * Nxr.T - (Z if self.TR else ml.diag((self.Z - 1) / 2.0))
-        self.B0 = T * I.T
-        self.Bc0 = T * CV.T
-        self.C0 = T * Nnr.T
-
-        T = No * Si
-        self.D0 = T * Nxr.T
-        self.E0 = T * I.T
-        self.Ec0 = T * CV.T
-        self.F0 = T * Nnr.T
-
-        T = Nnl * Si
-        self.G0 = T * Nxr.T
-        self.H0 = T * I.T
-        self.Hc0 = T * CV.T
-        self.K0 = T * Nnr.T
-
-        # find number of linear independent outputs of the nonlinear function
-        if self.F0.shape[1] > 0 and len(self.pot_func) == 0:
-            M = np.append(self.F0, self.C0, axis=0)
-            Uo, SVo, Vo = la.svd(M, full_matrices=False)
-            prec = math.sqrt(sys.float_info.epsilon) ##FIXME
-            SVo = np.where(SVo / SVo[0] > prec, SVo, 0)
-            n = np.count_nonzero(SVo)
-            if n < self.K0.shape[0] and n < self.F0.shape[0] + self.C0.shape[0]:
-                self.Mi = (np.diag(SVo) * Vo)[:n]
-                self.Fo = Uo[:self.F0.shape[0],:n]
-                self.Co = Uo[self.F0.shape[0]:,:n]
-            elif self.F0.shape[0] + self.C0.shape[0] < self.K0.shape[0]:
-                self.Mi = np.append(self.F0, self.C0, axis=0)
-                self.Fo = np.eye(self.F0.shape[0],self.Mi.shape[0])
-                self.Co = np.eye(self.C0.shape[0],self.Mi.shape[0],self.F0.shape[1])
-            else:
-                self.Mi = ml.matrix(np.identity(n))
-                self.Fo = self.F0
-                self.Co = self.C0
-        else:
-            self.Mi = ml.matrix(np.identity(self.F0.shape[1]))
-            self.Fo = self.F0
-            self.Co = self.C0
-
-        # find number of linear independent inputs to the nonlinear function
-        if self.G0.shape[0] > 0 and len(self.pot_func) == 0:
-            U0, SV0, V0 = la.svd(np.append(self.G0, self.H0, axis=1), full_matrices=False)
-            prec = math.sqrt(sys.float_info.epsilon) ##FIXME
-            SV0 = np.where(SV0 / SV0[0] > prec, SV0, 0)
-            self.svnz = np.count_nonzero(SV0)
-        else:
-            self.svnz = self.G0.shape[0]
-        if self.svnz < self.G0.shape[0]:
-            U0 = U0[:,:self.svnz]
-            U0H = U0.H
-            self.G0 = U0H * self.G0
-            self.H0 = U0H * self.H0
-            self.U0 = U0
-            self.U0H = U0H
-        else:
-            self.U0 = ml.matrix(np.identity(self.G0.shape[0]))
-
-        if len(self.pot_func):
-            # Woodbury Identity: \left(A+UCV \right)^{-1} = A^{-1} - A^{-1}U \left(C^{-1}+VA^{-1}U \right)^{-1} VA^{-1}, 
-            T = Si * Nv.T
-            self.Q = Nv * T
-            self.Uxl = m * Z * Nxl * T
-            self.Uo = No * T
-            self.Unl = Nnl * T
-            T = Si.T * Nv.T
-            self.Uxr = Nxr * T
-            self.Unr = Nnr * T
-            self.Uu = I * T
-            self.Ucv = CV * T
-
     def node_names(self):
         return [self.format_element(v) for v in self.element_name["S"]+self.element_name["V"]]
 
     def out_labels(self):
         return self.element_name["O"][0][0].conn
-
-    def calc_dc(self, u):
-        u = ml.matrix(u, dtype=np.float64).T
-        A, B, Bc, C, D, E, Ec, F, G, H, Hc, K = self.calc_matrixes()
-        if A.size == 0:
-            if not len(self.f):
-                return
-            p = H * u + Hc
-            def func(v):
-                v = ml.matrix(v).T
-                r = p + K * self.calc_i(v) - self.CZ * v
-                return r.A[:,0]
-            with warnings.catch_warnings():
-                warnings.filterwarnings(action="error")
-                res = opt.root(func, self.v0, method='lm') ##FIXME
-            if not res.success:
-                raise ValueError(res.message)
-            self.v0 = res.x
-        else:
-            I = ml.eye(len(A))
-            try:
-                Ai = (I - A).I
-            except la.LinAlgError:
-                n = len(self.v0)
-                if self.U0 is not None:
-                    G1 = ml.append(self.U0 * G, A, axis=0)
-                    H1 = ml.append(self.U0 * H, B, axis=0)
-                else:
-                    G1 = ml.append(G, A, axis=0)
-                    H1 = ml.append(H, B, axis=0)
-                Hc1 = ml.append(Hc, Bc, axis=0)
-                K1 = ml.append(K, C, axis=0)
-                CZ1 = ml.matrix(np.diag(np.append(np.diagonal(self.CZ), np.zeros(C.shape[0]))))
-                def func(v):
-                    v = ml.matrix(v).T
-                    return (G1 * v[n:] + H1 * u + Hc1 + K1 * self.calc_i(v) - CZ1 * v).A[:,0]
-                with warnings.catch_warnings():
-                    warnings.filterwarnings(action="error")
-                    res = opt.root(func, np.append(self.v0, self.x), method='lm') ##FIXME
-                if not res.success:
-                    raise ValueError(res.message)
-                self.v0 = res.x[:n]
-                self.x = res.x[n:]
-            else:
-                self.x = matrix_add(Ai * B * u, Ai * Bc)
-                if K.size != 0:
-                    if self.U0 is not None:
-                        T = self.U0 * G * Ai
-                        p = matrix_add(T * B * u, T * Bc, self.U0 * H * u, Hc)
-                    else:
-                        T = G * Ai
-                        p = matrix_add(T * B * u, T * Bc, H * u, Hc)
-                    KK = T * C + K
-                    def func(v):
-                        v = ml.matrix(v).T
-                        r = p + KK * self.calc_i(v) - self.CZ * v
-                        return r.A[:,0]
-                    with warnings.catch_warnings():
-                        warnings.filterwarnings(action="error")
-                        res = opt.root(func, self.v0, method='lm') ##FIXME
-                    if not res.success:
-                        raise ValueError(res.message)
-                    self.v0 = res.x
-                    self.x += Ai * C * self.calc_i(self.v0)
-                self.x = self.x.A[:,0]
-        self.v00 = self.v0
-        self.x0 = self.x
-        #self.p0 = matrix_add(self.pp * G * np.matrix(self.x0).T, self.pp * H * np.matrix(self.op).T)
-        self.p0 = matrix_add(G * np.matrix(self.x0).T, H * np.matrix(self.op).T)
 
     def print_matrix(self, A):
         xv = ([v[1] for v in sorted([(i, n) for n, i in self.nodes.items()])]+
@@ -715,117 +1285,6 @@ class Parser(object):
             print "</TR>"
         print "</TABLE>"
         raise SystemExit
-
-    def calc_i(self, v):
-        i = ml.zeros(len(self.f)).T
-        #for n, (f, j) in enumerate(self.f):
-        #    i[n] = f(v[j:])
-        for n, (f, start, end) in enumerate(self.ff):
-            i[n] = f(*[float(t) for t in v[start:end]])
-        return i
-
-    def nonlin_py(self, p, K, Hc):
-        def func(v):
-            v = ml.matrix(v).T
-            r = p + K * self.calc_i(v) - self.CZ * v
-            return r.A[:,0]
-        p = self.U0 * p + Hc
-        try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings(action="error")
-                res = opt.root(func, self.v0, method=self.solver_method, options=self.solver_dict)
-        except RuntimeWarning as e:
-            raise ValueError(e)
-        if not res.success:
-            raise ValueError(res.message)
-        v = res.x
-        self.v0 = v
-        return self.Mi * self.calc_i(v)
-
-    def nonlin_c(self, p):#, K, Hc): ##FIXME
-        return self.c_calc_nonlin(p, self.v0) ##FIXME
-
-    def calc_matrixes(self):
-        if len(self.pot_func):
-            Qi = (self.Q + self.calc_Rv()).I
-            Tx = self.Uxl * Qi
-            To = self.Uo * Qi
-            Tn = self.Unl * Qi
-            #print np.concatenate((self.A0, self.B0, self.C0), axis=1)
-            return (self.A0 - Tx * self.Uxr.T,
-                    self.B0 - Tx * self.Uu.T,
-                    self.Bc0 - Tx * self.Ucv.T,
-                    self.C0 - Tx * self.Unr.T,
-                    self.D0 - To * self.Uxr.T,
-                    self.E0 - To * self.Uu.T,
-                    self.Ec0 - To * self.Ucv.T,
-                    self.F0 - To * self.Unr.T,
-                    self.G0 - Tn * self.Uxr.T,
-                    self.H0 - Tn * self.Uu.T,
-                    self.Hc0 - Tn * self.Ucv.T,
-                    self.K0 - Tn * self.Unr.T,
-                    )
-        else:
-            return (self.A0, self.B0, self.Bc0, self.C0,
-                    self.D0, self.E0, self.Ec0, self.F0,
-                    self.G0, self.H0, self.Hc0, self.K0,
-                    )
-        
-    def eval_py(self, v_in):
-        self.x = ml.matrix(self.x).T ##FIXME
-        v_in = ml.matrix(v_in)
-        assert v_in.shape[1] == len(self.N["I"])
-        y = np.empty((v_in.shape[0], self.N["O"].shape[0]))
-        t1 = time.time()
-        A, B, Bc, C, D, E, Ec, F, G, H, Hc, K = self.calc_matrixes()
-        self.minmax = np.array(((float("inf"), float("-inf")),) * G.shape[0])
-        for n, u in enumerate(v_in):
-            u = ml.matrix(u).T
-            if len(self.v0) == 0:
-                i = ml.matrix(()).T
-            else:
-                try:
-                    p = G * self.x + H * u
-                    self.minmax[:,0] = np.min((self.minmax[:,0], p), axis=0)
-                    self.minmax[:,1] = np.max((self.minmax[:,1], p), axis=0)
-                    i = self.nonlin_py(p, K, Hc)
-                except ValueError as e:
-                    print "##", n
-                    raise
-            y[n,:] = matrix_add(D * self.x, E * u, Ec, F * i).A[:,0]
-            self.x = matrix_add(A * self.x, B * u, Bc, C * i)
-        self.time_per_sample = (time.time() - t1)/(n+1)
-        return y
-
-    def eval_c(self, v_in):
-        v_in = np.array(v_in)
-        if v_in.ndim == 1:
-            v_in = v_in.reshape((len(v_in),1))
-        assert v_in.shape[1] == len(self.N["I"])
-        y = np.empty((v_in.shape[0], self.N["O"].shape[0]))
-        x = self.x
-        v = self.v0
-        t1 = time.time()
-        for n, u in enumerate(v_in):
-            y[n,:], x, v = self.c_calc(u, x, v)
-        self.time_per_sample = (time.time() - t1)/n
-        self.x = x
-        self.v0 = v
-        return y
-
-    def eval_c(self, v_in):
-        self.c_set_state(self.v0, self.x)
-        y = np.empty((v_in.shape[0], self.N["O"].shape[0]))
-        t1 = time.time()
-        y = self.c_calc_stream(v_in)
-        self.time_per_sample = (time.time() - t1)/v_in.shape[0]
-        self.v0, self.x, self.minmax, info, nfev, fnorm = self.c_get_info()
-        return y
-
-    def compile_py_func(self):
-        self.ff = []
-        for j, (expr, vl, base) in enumerate(self.f):
-            self.ff.append((sp.lambdify(vl, expr), base, base+len(vl)))
 
     def generate_c_code(self, d):
         # UNUSED
@@ -861,52 +1320,27 @@ class Parser(object):
         # output
         ccodesum(d, 'o', [sp.Matrix(self.D) * x, sp.Matrix(self.E) * u, sp.Matrix(self.Ec), sp.Matrix(self.F) * i])
 
-    def compile_c_func(self):
-        d = dict([("n%s" % j.lower(), len(self.element_name[j])) for j in 'X', 'N', 'I','O'])
-        d["nni"] = self.svnz
-        d["nno"] = self.Mi.shape[0]
-        d["method"] = "linear" if d["nn"] == 0 else self.solver_method
-        t = "solver_%s_" % self.solver_method
-        d.update(dict([(t+k, v) for k, v in self.solver_dict.items()]))
-        if d["method"] == "table":
-            d["extra_sources"] = self.extra_sources[0]
-            d["extra_code"] = self.extra_sources[1:]
-        else:
-            d["extra_sources"] = ""
-        #self.generate_c_code(d)
-        d["mp_cols"] = d["nx"] + d["ni"]
-        d["namespace"] = "nonlin"
-        templ_main, templ_nonlin = dk_templates.get_templates(d["method"])
-        if d["nn"] > 0:
-            d["nonlin_code"] = templ_nonlin % generate_code.NonlinSolverCodeGen(
-                d, self.f, self.K0, self.U0, self.Hc0, np.diagonal(self.CZ), self.Mi, len(self.pot_func) == 0).generate()
-        else:
-            d["nonlin_code"] = ""
-        if not hasattr(self,"Q"):
-            self.Q=self.Uxl=self.Uo=self.Unl=self.Uxr=Ucv=UR=None
-        else:
-            UR = np.concatenate((self.Uxr.T, self.Uu.T, self.Unr.T), axis=1)
-            Ucv = self.Ucv.T
-        code = templ_main % generate_code.SimulationCodeGen(
-            d,
-            np.concatenate((self.G0, self.H0), axis=1),
-            np.concatenate((self.A0, self.B0, self.Co), axis=1),
-            self.Bc0,
-            np.concatenate((self.D0, self.E0, self.Fo), axis=1),
-            self.Ec0,
-            self.pot_func,
-            self.Pv,
-            self.pot_list,
-            self.Q,
-            self.Uxl,
-            self.Uo,
-            self.Unl,
-            UR,
-            Ucv,
-            self.Hc0,
-            self.K0
-            ).generate()
-        if self.c_debug_load:
-            return load_from_shared_lib(self.c_debug_load)
-        else:
-            return CythonCodeWrapper(d, code, self.c_tempdir, self.c_verbose).wrap_code()
+
+def get_py_executor(S, V, fs, solver=None, TR=True, linearize=False):
+    p = Parser(S, V, fs, TR)
+    sim = SimulatePy(EquationSystem(p), p, solver)
+    if linearize:
+        J = sim.jacobi()
+        sim = SimulatePy(EquationSystem(p, J), p, solver)
+    return sim
+
+def build_c_executor(name, S, V, fs, solver=None, TR=True, c_tempdir=None, c_verbose=False,
+                     c_real="double", extra_sources=None, linearize=False):
+    p = Parser(S, V, fs, TR)
+    return BuildCModule(name, p, solver, c_tempdir, c_verbose, c_real, extra_sources, linearize).get_executor()
+
+def get_executor(name, S, V, fs, solver=None, TR=True, pure_python=True, c_tempdir=None, c_verbose=False,
+                 c_debug_load="", c_real="double", extra_sources=None, linearize=False):
+    if pure_python:
+        return get_py_executor(S, V, fs, solver, TR, linearize)
+    elif c_debug_load:
+        sim = SimulateC(c_debug_load)
+        print "%s/%s: %s[%d], %s, %s" % (sim.name, sim.comment, sim.method, sim.data_size, sim.out_labels, sim.pot_list)
+        return sim
+    else:
+        return build_c_executor(name, S, V, fs, solver, TR, c_tempdir, c_verbose, c_real, extra_sources, linearize)

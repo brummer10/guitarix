@@ -1,5 +1,4 @@
 from __future__ import division
-import math
 import numpy as np
 import sympy as sp
 
@@ -98,6 +97,9 @@ class R(Node):
         p.add_2conn("R", idx, conn)
 
 class P_parallel(Node):
+    # loga value     pot value for var = 0.5
+    # log(16)        20%
+    # 5              ~7.6%
     def __init__(self, n=None):
         Node.__init__(self, "P", n)
     def add_count(self, tc, conn):
@@ -119,24 +121,24 @@ class P_parallel(Node):
         a = sp.symbols(sym)
         v = 1 / val
         # first resistor
-        c = (conn[0], conn[1])
+        c = (conn[0], conn[2])
         idx1 = p.new_row("R", self)
         p.add_S_currents(c, v)
         p.add_2conn("R", idx1, c)
         idx_p1 = p.new_row("P", self)
         p.add_2conn("P", idx_p1, c)
         p.Pv[idx_p1] = val
-        p.pot_func[idx_p1] = (a, (1 - a) / (1 + a))
+        p.pot_func[idx_p1] = (a, a / (2 - a))
         if len(conn) == 3:
             # second resistor
-            c = (conn[1], conn[2])
+            c = (conn[2], conn[1])
             idx2 = p.new_row("R", self)
             p.add_S_currents(c, v)
             p.add_2conn("R", idx2, c)
             idx_p2 = p.new_row("P", self)
             p.add_2conn("P", idx_p2, c)
             p.Pv[idx_p2] = val
-            p.pot_func[idx_p2] = (a, a / (2 - a))
+            p.pot_func[idx_p2] = (a, (1 - a) / (1 + a))
 
 
 class P_single(Node):
@@ -157,18 +159,18 @@ class P_single(Node):
             val = param
         a = sp.symbols(sym)
         # first resistor
-        c = (conn[0], conn[1])
+        c = (conn[0], conn[2])
         idx_p1 = p.new_row("P", self)
         p.add_2conn("P", idx_p1, c)
         p.Pv[idx_p1] = val
-        p.pot_func[idx_p1] = (a, 1 - a)
+        p.pot_func[idx_p1] = (a, a)
         if len(conn) == 3:
             # second resistor
             c = (conn[1], conn[2])
             idx_p2 = p.new_row("P", self)
             p.add_2conn("P", idx_p2, c)
             p.Pv[idx_p2] = val
-            p.pot_func[idx_p2] = (a, a)
+            p.pot_func[idx_p2] = (a, 1 - a)
 
 P = P_parallel
 #P = P_single
@@ -238,18 +240,18 @@ class T(Node):
         tc["N"] += 2
     def process(self, p, conn, param, alpha):
         Is, Bf, Vt, Br = const = sp.symbols("Is,Bf,Vt,Br")
-        v0, v1 = v = sp.symbols("v:2")
-        calc_ib = Is / Bf * (sp.exp((v1-v0)/Vt)-1) + Is/Br * (sp.exp(-v0/Vt)-1)
+        Vbc, Vec = v = sp.symbols("Vbc,Vec")
+        calc_ib = -(Is / Bf * (sp.exp((Vbc-Vec)/Vt)-1) + Is/Br * (sp.exp(Vbc/Vt)-1))
         calc_ib = calc_ib.subs(dict([(k,param[str(k)]) for k in const]))
-        calc_ic = -Is*(sp.exp((v1-v0)/Vt)-1) + Is*(Br-1)/Br * (sp.exp(-v0/Vt)-1)
+        calc_ic = -(-Is*(sp.exp((Vbc-Vec)/Vt)-1) + Is*(Br-1)/Br * (sp.exp(Vbc/Vt)-1))
         calc_ic = calc_ic.subs(dict([(k,param[str(k)]) for k in const]))
         idx1 = p.new_row("N", self, "Ib")
         p.add_2conn("Nl", idx1, (conn[1],conn[0]))
         p.add_2conn("Nr", idx1, (conn[1],conn[0]))
         p.f[idx1] = (calc_ib, v, idx1)
         idx2 = p.new_row("N", self, "Ic")
-        p.add_2conn("Nl", idx2, (conn[1],conn[2]))
-        p.add_2conn("Nr", idx2, (conn[1],conn[2]))
+        p.add_2conn("Nl", idx2, (conn[2],conn[0]))
+        p.add_2conn("Nr", idx2, (conn[2],conn[0]))
         p.f[idx2] = (calc_ic, v, idx1)
 
 class Triode(Node):
@@ -259,15 +261,15 @@ class Triode(Node):
         tc["N"] += 2
     def process(self, p, conn, param, alpha):
         mu, Ex, Kp, Kvb, Kg1, Gco, Gcf = const = sp.symbols("mu,Ex,Kp,Kvb,Kg1,Gco,Gcf")
-        Ugk, Uak = v = sp.symbols("Ugk,Uak")
+        Ugk, Uak = v = sp.symbols("Ugk,Uak", real=True) # "real" needed to get derivative of sign()
         t = Kp*(1/mu+Ugk/sp.sqrt(Kvb+Uak*Uak))
         E1 = Uak/Kp*sp.log(1+sp.exp(t))
         E1_ = Uak/Kp*t
         calc_Ia = sp.Piecewise(
             (0, Uak < 0),
             (0, t < -500),
-            (-pow(E1_,Ex) / Kg1 * 2*(E1_ > 0.0), t > 500),
-            (-pow(E1,Ex) / Kg1 * 2*(E1 > 0.0), True))
+            (-pow(E1_,Ex) / Kg1 * (1+sp.sign(E1_)), t > 500),
+            (-pow(E1,Ex) / Kg1 * (1+sp.sign(E1)), True))
         calc_Ia = calc_Ia.subs(dict([(k,param[str(k)]) for k in const]))
         calc_Ig = sp.Piecewise((0, Ugk < Gco), (-Gcf*pow(Ugk-Gco, 1.5), True))
         calc_Ig = calc_Ig.subs(dict([(k,param[str(k)]) for k in const]))
@@ -466,7 +468,8 @@ class Trans_GC(Node):
             p.add_S(idx, conn[2*i:], 1)
             p.S[idx, end] += param["windings"][i]
         idx = p.new_row("V", self, "phi")
-        p.S[idx, start:end-1] += np.array(param["windings"])
+        for i in range(self.nw):
+            p.S[idx, start+i] += param["windings"][i]
         idx_v = p.new_row("V", self, "v")
         p.S[idx_v, idx_v] += 1
         p.S[idx_v, idx] += alpha

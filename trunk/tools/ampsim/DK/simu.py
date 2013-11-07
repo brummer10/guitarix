@@ -11,14 +11,15 @@ for pyname, package in (
     except ImportError:
         raise SystemExit("Need module %s (Debian package: %s)" % (pyname, package))
 
-import dk_simulator
 import sys; sys.path.extend(["..","../tensbs"]); import gentables, splinetable; from cStringIO import StringIO
-import itertools, fractions, os
+import itertools, fractions, os, argparse, math
 import pylab as pl
 import numpy as np
 from scipy.signal import correlate
-from dk_lib import printoptions
-import circ, models
+import dk_simulator, dk_lib, circ, models
+
+class ArgumentError(ValueError):
+    pass
 
 def calc_grid(func, grd, nvals):
     grd_shape = grd.shape
@@ -187,11 +188,11 @@ class MyTensorSpline(splinetable.TensorSpline):
 class TableGenerator(object):
 
     def __init__(self, v, args, name, param):
-        p = dk_simulator.Parser(v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
-                                c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load)
+        p = dk_simulator.get_executor(name, v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
+                                      c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load)
         a = v.op_signal(timespan=1.02, op=p.op)
         smpl = lambda tm: int(round(tm*v.FS))
-        a[:,0] += param.input_signal.amplitude * circ.genlogsweep(
+        a[:,0] += param.input_signal.amplitude * dk_lib.genlogsweep(
             param.input_signal.startfreq, param.input_signal.stopfreq, v.FS,
             smpl(param.input_signal.pre), smpl(param.input_signal.timespan), smpl(param.input_signal.post))[0]
         ptp = p(a).ptp()
@@ -210,7 +211,7 @@ class TableGenerator(object):
         numpoints = np.product(grd_shape[1:])
         grd = vals.grd.reshape(grd_shape[0], numpoints)
         fnc = vals.values.reshape(nvals, numpoints)
-        with printoptions(precision=2, linewidth=200):
+        with dk_lib.printoptions(precision=2, linewidth=200):
             print "covariance matrix (rows: variables, columns: functions):"
             print np.cov(grd, fnc)[:len(grd),len(grd):]
 
@@ -241,8 +242,8 @@ class TableGenerator(object):
         else:
             c_debug_load = "gencode/dk_sim_0.so"
         extra_sources = (",'data.cc'", ("data.cc", o.getvalue()), ("data.h", h.getvalue()), ("intpp_inst.cc", inst.getvalue()))
-        pt = dk_simulator.Parser(
-            v.S, v.V, v.FS, dict(method="table",name=name,maptype=maptype), not args.backward_euler, args.pure_python,
+        pt = dk_simulator.get_executor(
+            name+"_table", v.S, v.V, v.FS, dict(method="table",name=name,maptype=maptype), not args.backward_euler, args.pure_python,
             "gencode", c_verbose=args.c_verbose, extra_sources=extra_sources, c_debug_load=c_debug_load)
         self.p = p
         self.pt = pt
@@ -311,42 +312,313 @@ class TableGenerator(object):
             print >>inst, "template int %s(splinecoeffs *p, real xi[2], real *res);" % v
         return maptype
 
-def load_schema(params):
-    import mk_netlist
-    v = vars(models)
-    v["Tubes"] = circ.Tubes
-    exec mk_netlist.read_netlist(params.load_schema) in v
-    class LoadedSchema(circ.Test):
-        def __init__(self, v, params):
-            self.S = v["S"]
-            self.V = v["V"]
-            self.V["OP"] = getattr(params, "OP", [0.])
-            if hasattr(params, "test_signal"):
-                if hasattr(params.test_signal, "timespan"):
-                    self.timespan = params.test_signal.timespan
-                def signal():
-                    a = self.op_signal()
-                    a[:,0] += params.test_signal.amplitude * self.sine_signal(params.test_signal.freq)[:,0]
-                    return a
-                setattr(self, "signal", signal)
-    return LoadedSchema(v, params)
+
+class LoadedSchema(circ.Test):
+    def __init__(self, params):
+        v = vars(models)
+        v["Tubes"] = circ.Tubes
+        v["math"] = math
+        if hasattr(params, "load_schema"):
+            import mk_netlist
+            exec mk_netlist.read_netlist(params.load_schema) in v
+        else:
+            with open(params.load_netlist) as f:
+                exec f in v
+        self.S = v["S"]
+        self.V = v["V"]
+        self.V["OP"] = getattr(params, "OP", [0.])
+        if hasattr(params, "test_signal"):
+            if hasattr(params.test_signal, "timespan"):
+                self.timespan = params.test_signal.timespan
+            def signal():
+                a = self.op_signal()
+                a[:,0] += params.test_signal.amplitude * self.sine_signal(params.test_signal.freq)[:,0]
+                return a
+            setattr(self, "signal", signal)
+
+
+def generate_faust_module(modname, b, a, potlist, flt):
+    import dk_templates
+    d = {}
+    if not potlist:
+        d['master'] = ''
+        d['knobs'] = ''
+    else:
+        d['master'] = dk_templates.module_ui_master_template % dict(id=potlist[0][0])
+        d['knobs'] = "\n    ".join([dk_templates.module_ui_knob_template % dict(id=t[0]) for t in potlist])
+    ui = dk_templates.faust_filter_ui_template % d
+    d = {}
+    d['id'] = modname
+    d['name'] = modname
+    d['slider'] = "\n".join([dk_templates.faust_filter_knob_template % dict(id=t[0], name=t[1], loga=t[2], inv=t[3]) for t in potlist])
+    d['b_list'] = ",".join(["b%d/a0" % i for i in range(len(b))])
+    d['a_list'] = ",".join(["a%d/a0" % i for i in range(1,len(a))])
+    d['coeffs'] = "\n\n    ".join(flt.coeffs_as_faust_code('b', b) + flt.coeffs_as_faust_code('a', a))
+    dsp = dk_templates.faust_filter_template % d
+    dspname = "/tmp/%s.dsp" % modname
+    uiname = "/tmp/%s_ui.cc" % modname
+    with open(dspname,"w") as f:
+        f.write(dsp)
+    with open(uiname,"w") as f:
+        f.write(ui)
+    pgm = os.path.abspath("../../build-faust")
+    os.system("%s -c %s" % (pgm, dspname))
+
+def generate_c_module(g, tests, args):
+    import dk_templates
+    modname = args.create_c_module
+    t = tests[0]
+    v = g[t]()
+    fs = v.FS
+    if args.c_samplerate:
+        fs = args.c_samplerate
+    parser = dk_simulator.Parser(v.S, v.V, fs, not args.backward_euler)
+    cmod = dk_simulator.BuildCModule(t, parser, v.solver, c_tempdir=args.c_tempdir, c_verbose=args.c_verbose,
+                                     c_real=("float" if args.c_float else "double"), linearize=args.linearize)
+    templ_main, dk_dict = cmod.prepare()
+    dk_code = cmod.make_code(templ_main, dk_dict)
+    potlist = []
+    for e in set([e[0] for e in parser.element_name["P"]]):
+        t = v.V[e]
+        if not isinstance(t, dict):
+            t = dict(value=t)
+        var = t.get('var')
+        if var is None:
+            var = str(e)+"v"
+        name = t.get('name', var)
+        loga = t.get('a', 0)
+        inv = t.get('inv', 0)
+        potlist.append((var, name, loga, inv))
+    d = {}
+    if not potlist:
+        d['master'] = ''
+        d['knobs'] = ''
+    else:
+        d['master'] = "        "+dk_templates.module_ui_master_template % dict(id=potlist[0][0])
+        d['knobs'] = "\n".join(["        "+dk_templates.module_ui_knob_template % dict(id=t[0]) for t in potlist])
+    d['id'] = modname
+    d['name'] = modname
+    d['dk_code'] = dk_code
+    d['timecst'] = 0.05
+    for k in ('npl', 'ni', 'nx', 'no', 'nn', 'nni', 'nno', 'namespace',
+              'nonlin_mat_list', 'mp_cols', 'gen_mp', 'm_cols', 'gen_xn',
+              'gen_xo'):
+        d[k] = dk_dict[k]
+    d['regs'] = "\n    ".join([dk_templates.c_module_reg_line % dict(id=vv[0],name=vv[1],desc="",varidx=i) for i, vv in enumerate(potlist)])
+    ll = []
+    for i, (var, name, loga, inv) in enumerate(potlist):
+        if loga and inv:
+            ss = "t[%d] = (exp(%s * (1-self.pots[%d])) - 1) / (exp(%s) - 1);" % (i, loga, i, loga)
+        elif loga:
+            ss = "t[%d] = (exp(%s * self.pots[%d]) - 1) / (exp(%s) - 1);" % (i, loga, i, loga)
+        else:
+            ss = "t[%d] = self.pots[%d];" % (i, i)
+        ll.append(ss)
+    s = 0.993;
+    d['calc_pots'] = "\n    ".join(ll)
+    dsp = dk_templates.c_module_template % d
+    dspname = "/tmp/%s.cc" % modname
+    with open(dspname,"w") as f:
+        f.write(dsp)
+    os.environ["CFLAGS"] = "-I/usr/include/cminpack-1 -I/usr/include/eigen3 -Dcreal=float"
+    pgm = os.path.abspath("../../build-cmodule")
+    os.system("%s -c %s" % (pgm, dspname))
+
+def create_filter(g, tests, args):
+    if args.schema:
+        class params(object):
+            load_schema = args.schema
+        v = LoadedSchema(params)
+    elif args.netlist:
+        class params(object):
+            load_netlist = args.netlist
+        v = LoadedSchema(params)
+    else:
+        v = g[tests[0]]()
+    p = dk_simulator.Parser(v.S, v.V, v.FS, not args.backward_euler, create_filter=True, symbolic=args.filter_symbolic)
+    if len(p.get_nonlin_funcs()) > 0:
+        if args.filter_symbolic:
+            raise ArgumentError("ciruit is nonlinear: symbolic formula generation not supported")
+        p1 = dk_simulator.Parser(v.S, v.V, v.FS, not args.backward_euler)
+        sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p1), p1, v.solver)
+        J = sim.jacobi()
+    else:
+        J = None
+    f = dk_simulator.LinearFilter(p, J)
+    if args.filter_symbolic:
+        if args.filter_s_coeffs:
+            b, a, terms = f.get_s_coeffs()
+            f.print_coeffs('b', b)
+            f.print_coeffs('a', a)
+            print "\nH = %s;" % terms
+        else:
+            b, a, terms = f.get_s_coeffs()
+            f.print_coeffs('b', b)
+            f.print_coeffs('a', a)
+            B, A, c = f.transform_bilinear(terms)
+            print "\nc = %s;" % c
+            f.print_coeffs('B', B)
+            f.print_coeffs('A', A)
+    else:
+        if args.filter_variable is None:
+            if args.plot_spectrum:
+                svar = f.convert_variable_dict({})
+            else:
+                svar = None
+        else:
+            try:
+                svar = f.convert_variable_dict(dict([(s, float(vv)) for s, vv in [par.split("=") for par in args.filter_variable if par]]))
+            except ValueError as e:
+                raise ArgumentError(e)
+        if args.filter_samplerate is None:
+            if args.plot_spectrum:
+                samplerate = 48000
+            else:
+                samplerate = None
+        else:
+            samplerate = args.filter_samplerate
+        if args.plot_spectrum and args.plot_variable:
+            pvar = [k for k in svar if args.plot_variable == str(k)]
+            if not pvar:
+                raise ArgumentError("variable %s not found" % args.plot_variable)
+            pvar = pvar[0]
+            del svar[pvar]
+        b, a = f.get_z_coeffs(samplerate=samplerate, subst_var=svar)
+        if args.plot_spectrum:
+            if args.plot_variable:
+                for e in p.element_name["P"]:
+                    t = v.V[e[0]]
+                    var = None
+                    if isinstance(t, dict):
+                        var = t.get("var")
+                    if var is None:
+                        var = "%sv" % e[0]
+                    if var == args.plot_variable:
+                        break
+                else:
+                    raise ArgumentError("variable %s not found" % args.plot_variable)
+                if not isinstance(t, dict):
+                    t = dict(value=t)
+                loga = t.get('a', 0)
+                inv = t.get('inv', 0)
+                for i in range(5):
+                    pot = i/4
+                    lbl = "%s" % pot
+                    if inv:
+                        pot = 1 - pot
+                    if loga:
+                        pot = (math.exp(loga * pot) - 1) / (math.exp(loga) - 1)
+                    w, h = f.spectrum([j.subs(pvar, pot) for j in b], [j.subs(pvar, pot) for j in a], 20, 10000)
+                    pl.semilogx(w, np.where(h < -60, np.nan, h), label=lbl)
+                pl.legend(loc='upper left')
+            else:
+                w, h = f.spectrum(b, a, 20, 10000)
+                pl.semilogx(w, np.where(h < -60, np.nan, h))
+            pl.grid()
+            pl.show()
+        elif args.create_module:
+            l = []
+            for e in set([e[0] for e in p.element_name["P"]]):
+                t = v.V[e]
+                if not isinstance(t, dict):
+                    t = dict(value=t)
+                var = t.get('var')
+                if var is None:
+                    var = str(e)+"v"
+                name = t.get('name', var)
+                loga = t.get('a', 0)
+                inv = t.get('inv', 0)
+                l.append((var, name, loga, inv))
+            generate_faust_module(args.create_module, b, a, l, f)
+        else:
+            f.print_coeffs('b', b)
+            f.print_coeffs('a', a)
+
+def plot_output(g, tests, args):
+    if not tests:
+        testlist = [k for k, v in g.items() if is_test(v)]
+        testlist.sort()
+        for i, k in enumerate(testlist):
+            if k.endswith("_test"):
+                k = k[:-5]
+            print "%2d: %s" % (i, k)
+        print
+        try:
+            k = testlist[int(raw_input("Please select: "))]
+        except (ValueError, KeyError):
+            print "not found"
+            raise SystemExit, 1
+        except KeyboardInterrupt:
+            print
+            raise SystemExit, 1
+        tests = [k]
+    for t in tests:
+        v = g[t]()
+        p = dk_simulator.get_executor(t, v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
+                                      c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load,
+                                      linearize=args.linearize, c_real=("float" if args.c_float else "double"))
+        if args.plot_spectrum:
+            v.plot_spectrum(p, args.plot_variable)
+        else:
+            v.plot(p)
+            if 0:
+                for i, (p0, (s, e)) in enumerate(zip(p.p0, p.minmax)):
+                    print "%d: %g [%g .. %g]" % (i, p0, s, e)
+            if args.print_result:
+                v.print_data(y)
+
 
 def main():
-    import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('test', nargs="*", help='name of test')
-    parser.add_argument('-c', '--check', action='store_true', help='check results of tests')
-    parser.add_argument('-b', '--backward-euler', action='store_true', help='use Backward-Euler integration instead of trapezoidal')
-    parser.add_argument('-p', '--pure-python', action='store_true', help='do not generate C code to speed up calculations')
-    parser.add_argument('-f', '--func', help='function table generation')
-    parser.add_argument('-s', '--show', action='store_true', help='plot nonlinear function')
-    parser.add_argument('-y', '--symbolic', action='store_true', help='show formula for linear circuit')
-    parser.add_argument('-S', '--schema', help='use gschem .sch file as input')
-    parser.add_argument('--print-result', action='store_true', help='print result (to be used as reference)')
-    parser.add_argument('--c-verbose', action='store_true', help='show compiler messages when generating internal module')
-    parser.add_argument('--c-tempdir', help='temp dir for module generation; not removed when finished')
-    parser.add_argument('--c-debug-load', help='load module (generated with --c-tempdir) instead of generating a new one')
-    
+    parser.add_argument('test', nargs="*",
+                        help='name of test')
+    parser.add_argument('-c', '--check', action='store_true',
+                        help='check results of tests')
+    parser.add_argument('-b', '--backward-euler', action='store_true',
+                        help='use Backward-Euler integration instead of trapezoidal')
+    parser.add_argument('-p', '--pure-python', action='store_true',
+                        help='do not generate C code to speed up calculations')
+    parser.add_argument('-f', '--func',
+                        help='function table generation')
+    parser.add_argument('-s', '--show', action='store_true',
+                        help='plot nonlinear function')
+    parser.add_argument('-S', '--schema',
+                        help='use gschem .sch file as input')
+    parser.add_argument('-N', '--netlist',
+                        help='use netlist file as input (TBD: document file format)')
+    parser.add_argument('--linearize', action='store_true',
+                        help='build a linear small signal model')
+    parser.add_argument('-y', '--filter', action='store_true',
+                        help='calculate coefficients for linear filter (small signal model for nonlinear circuits)')
+    parser.add_argument('--plot-spectrum', action='store_true',
+                        help='plot spectrum of curcuit')
+    parser.add_argument('--plot-variable',
+                        help='display a set of curves by sweeping this the pot position for this variable from 0 to 1')
+    parser.add_argument('--filter-s-coeffs', action='store_true',
+                        help='calculate s coefficients (Laplace tranform for analog circuit)')
+    parser.add_argument('--filter-symbolic', action='store_true',
+                        help="use component symbols, don't replace by values (only valid for linear circuits)")
+    parser.add_argument('--filter-samplerate', type=float,
+                        help='sample rate for calculation of filter z coefficients (with this option the symbol fs will be used)')
+    parser.add_argument('--filter-variable', action='append',
+                        help='set a potentiometer variable in the form name=value (can be specified multiple times)')
+    parser.add_argument('--create-module',
+                        help='create a loadable Guitarix module (use with --filter)')
+    parser.add_argument('--print-result', action='store_true',
+                        help='print result (to be used as reference)')
+    parser.add_argument('--c-verbose', action='store_true',
+                        help='show compiler messages when generating internal module')
+    parser.add_argument('--c-tempdir',
+                        help='temp dir for module generation; not removed when finished')
+    parser.add_argument('--c-float', action='store_true',
+                        help='use float instead of double in c module')
+    parser.add_argument('--c-debug-load',
+                        help='load module (generated with --c-tempdir) instead of generating a new one')
+    parser.add_argument('--create-c-module',
+                        help='create a loadable Guitarix module')
+    parser.add_argument('--c-samplerate', type=float,
+                        help='sample rate for calculation of c module)')
+
     args = parser.parse_args()
     def is_test(v):
         return isinstance(v, type) and issubclass(v, circ.Test) and v is not circ.Test
@@ -356,8 +628,6 @@ def main():
         if not (t in g and is_test(g[t])):
             tt = t + "_test"
             if not (tt in g and is_test(g[tt])):
-                if args.symbolic:
-                    continue
                 parser.error("%s is not a test" % t)
             t = tt
         tests.append(t)
@@ -371,18 +641,7 @@ def main():
             sys.stdout.write("%-*s: " % (mlen, nm))
             sys.stdout.flush()
             v = g[t]()
-            try:
-                p = dk_simulator.Parser(v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
-                                        c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load)
-            except Exception as v:
-                raise
-            else:
-                try:
-                    y = p(v.signal())
-                except ValueError as v:
-                    print v
-                else:
-                    sys.stdout.write("%s [%.2g]\n" % (v.compare_data(y), p.time_per_sample))
+            sys.stdout.write("%s\n" % v.check(t, args))
     elif args.func:
         t = os.path.splitext(os.path.basename(args.func))[0]
         class sweep(object):
@@ -403,7 +662,7 @@ def main():
                 self.amplitude *= m
                 return self
             __mul__ = __rmul__
-                
+
         d = dict(sweep=sweep, sine_signal=sine_signal)
         try:
             with open(args.func) as f:
@@ -415,7 +674,7 @@ def main():
         for k, v in d.items():
             if k != 'sweep' and not k.startswith("__"):
                 setattr(params, k, v)
-        v = load_schema(params)
+        v = LoadedSchema(params)
         tg = TableGenerator(v, args, t, params)
         if hasattr(v, "signal"):
             x = v.timeline()
@@ -427,7 +686,7 @@ def main():
             y2 = tg.pt(s)
             pl.plot(x, y2, label="table")
             #
-            #p2 = dk_simulator.Parser(v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
+            #p2 = dk_simulator.get_executor(t+"_table", v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
             #                         c_debug_load="gencode/dk_sim_1.so")
             #y3 = p2(s)
             #pl.plot(x, y3, label="reloaded")
@@ -439,11 +698,11 @@ def main():
     elif args.show:
         t = tests[0]
         v = g[t]()
-        p = dk_simulator.Parser(v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
-                                c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load)
+        p = dk_simulator.get_executor(t, v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
+                                      c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load)
         a = v.op_signal(timespan=1.02)
         smpl = lambda tm: int(round(tm*v.FS))
-        a[:,0] += 2 * genlogsweep(30, 20000, v.FS, smpl(0.01), smpl(1), smpl(0.01))[0]
+        a[:,0] += 2 * dk_lib.genlogsweep(30, 20000, v.FS, smpl(0.01), smpl(1), smpl(0.01))[0]
         ptp = p(a).ptp()
         rng = p.minmax
         ifunc = 3
@@ -495,42 +754,15 @@ def main():
             pl.title("%d, %d" % (j, k))
             pl.grid()
         pl.show()
-    elif args.symbolic:
-        if args.schema:
-            v = load_schema(args.schema)
-        else:
-            v = g[tests[0]]()
-        dk_simulator.Parser(v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
-                            c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load, symbolic=True)
+    elif args.filter:
+        try:
+            create_filter(g, tests, args)
+        except ArgumentError as e:
+            parser.error(e)
+    elif args.create_c_module:
+        generate_c_module(g, tests, args)
     else:
-        if not tests:
-            testlist = [k for k, v in g.items() if is_test(v)]
-            testlist.sort()
-            for i, k in enumerate(testlist):
-                if k.endswith("_test"):
-                    k = k[:-5]
-                print "%2d: %s" % (i, k)
-            print
-            try:
-                k = testlist[int(raw_input("Please select: "))]
-            except (ValueError, KeyError):
-                print "not found"
-                raise SystemExit, 1
-            except KeyboardInterrupt:
-                print
-                raise SystemExit, 1
-            tests = [k]
-        for t in tests:
-            v = g[t]()
-            p = dk_simulator.Parser(v.S, v.V, v.FS, v.solver, not args.backward_euler, args.pure_python,
-                                    c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load)
-            y = p(v.signal())
-            if 0:
-                for i, (p0, (s, e)) in enumerate(zip(p.p0, p.minmax)):
-                    print "%d: %g [%g .. %g]" % (i, p0, s, e)
-            v.plot(y, p.out_labels())
-            if args.print_result:
-                v.print_data(y)
+        plot_output(g, tests, args)
 
 
 if __name__ == "__main__":

@@ -1,42 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 
+import math
 import pylab as pl
 import numpy as np
 from models import *
-
-def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
-    """generate logarithmic sweep signal
-    
-    fmin: start frequency
-    fmax: end frequency
-    rate: sample rate
-    k0: fade in before start of signal (samples)
-    k1: length of signal (samples)
-    k2: fade out after end of signal (samples)
-    dtype: data type of signal
-
-    returns: (logsweep signal, inverse logsweep signal)
-    """
-    s1 = np.empty(k0 + k1 + k2, dtype=dtype)
-    s2 = np.empty_like(s1)
-    b = math.log(fmax / fmin) / k1
-    a = fmin / (b * rate)
-    r = 0.5 * a * (fmax / fmin) * (k1 + 0.5 * (k0 + k2)) / (b * k1)
-    q0 = a * math.exp(-b * k0)
-    for i in range(-k0, k1+k2):
-        if i < 0:
-            g = math.cos(0.5 * math.pi * i / k0)
-        elif i < k1:
-            g = 1.0
-        else:
-            g = math.sin(0.5 * math.pi * (k1 + k2 - i) / k2)
-        q = a * math.exp(b * i)
-        p = q - q0
-        x = g * math.sin(2 * math.pi * (p - math.floor(p)))
-        s1[k0+i] = x
-        s2[-(k0+i+1)] = x * q / r
-    return s1, s2
+import dk_simulator, dk_lib
+from numpy.fft import fftfreq
 
 class Test(object):
     FS = 96000
@@ -51,9 +21,22 @@ class Test(object):
     def compare_data(self, data):
         error = np.max(abs(self.result - self.get_samples(data))) / np.max(abs(data))
         if (error > self.max_error).any():
-            return "Difference = %g (> %g)" % (error, self.max_error)
+            return False, "Difference = %g (> %g)" % (error, self.max_error)
         else:
-            return "OK"
+            return True, "OK"
+
+    def check_signal(self, p):
+        try:
+            y = p(self.signal())
+        except ValueError as v:
+            return False, v
+        else:
+            return self.compare_data(y)
+
+    def check(self, name, args):
+        p = dk_simulator.get_executor(name, self.S, self.V, self.FS, self.solver, not args.backward_euler, args.pure_python,
+                                      c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load)
+        return "%s [%.2g]" % (self.check_signal(p)[1], p.time_per_sample)
 
     def print_data(self, data):
         print repr(self.get_samples(data))
@@ -92,10 +75,46 @@ class Test(object):
         pl.legend(args, loc=loc)
         pl.show()
 
+    def impulse(self, p, magnitude=1e-3):
+        a = self.op_signal(samples=64*1024, op=self.V.get("OP",[0.]))
+        a[0,0] += magnitude
+        return (p(a)-p.o0) / magnitude
+
+    def make_sweep(self, pre=None, span=0.5, post=0.1, magnitude=1e-2, start=20, stop=10000):
+        smpl = lambda tm: int(round(tm*self.FS))
+        if pre is None:
+            pre = span/2
+        s, d = dk_lib.genlogsweep(
+            start, stop, self.FS, smpl(pre), smpl(span), smpl(post))
+        s *= magnitude
+        n = dk_lib.pow2roundup(len(s))
+        d /= np.mean(abs(np.fft.fft(dk_lib.fft_convolve(d, s), n))[n*start/self.FS:n*stop/self.FS])
+        return s, d
+
+    def sweep(self, p, pre=None, span=0.5, post=0.1, magnitude=1e-2, start=20, stop=10000):
+        s, d = self.make_sweep(pre, span, post, magnitude, start, stop)
+        a = self.op_signal(samples=len(s), op=self.V.get("OP",[0.]))
+        a[:,0] += s
+        y = p(a)-p.o0
+        return dk_lib.fft_convolve(d, y[:,0])
+
+    spectrum_signal = impulse
+
+    def plot_spectrum(self, p, plot_variable):
+        y = self.spectrum_signal(p)
+        n = dk_lib.pow2roundup(len(y))
+        cut = slice(n*20.0/self.FS, n*10000.0/self.FS)
+        w = fftfreq(n,1.0/self.FS)[cut]
+        def spec(y):
+            s = 20*np.log10(abs(np.fft.fft(y,n,axis=0)[cut]))
+            return np.where(s > -80, s, np.nan)
+        pl.semilogx(w, spec(y))
+        self.finish_plot(p.out_labels)
+
 
 class Pot_test(Test):
 
-    S = ((P(), 1, 2, GND),
+    S = ((P(), GND, 1, 2),
          (IN, 1),
          (OUT, 2),
          )
@@ -109,10 +128,11 @@ class Pot_test(Test):
     def signal(self):
         return self.constant_signal(10)
 
-    def plot(self, y, labels):
+    def plot(self, p):
         x = self.timeline()
+        y = p(self.signal())
         pl.plot(x, y)
-        self.finish_plot(labels)
+        self.finish_plot(p.out_labels)
 
 
 class Choke_test(Test):
@@ -147,10 +167,11 @@ class Choke_test(Test):
     def signal(self):
         return self.constant_signal(10)
 
-    def plot(self, y, labels):
+    def plot(self, p):
         x = self.timeline()
+        y = p(self.signal())
         pl.plot(x, y)
-        self.finish_plot(labels, timeline=x)
+        self.finish_plot(p.out_labels, timeline=x)
 
 
 class Transformer_GC_test(Test): # transformer
@@ -194,10 +215,27 @@ class Transformer_GC_test(Test): # transformer
         a[:,1] = -a[:,1]
         return a
 
-    def plot(self, y, labels):
+    def plot(self, p):
         x = self.timeline()
+        y = p(self.signal())
         pl.plot(x, y)
-        self.finish_plot(labels, timeline=x)
+        self.finish_plot(p.out_labels, timeline=x)
+
+    def spectrum_signal(self, p):
+        if 0:
+            s, d = self.make_sweep()
+            a = self.op_signal(samples=len(s), op=self.V.get("OP",[0.,0.]))
+            a[:,0] += s
+            a[:,1] -= s
+            y = p(a)-p.o0
+            return dk_lib.fft_convolve(d, y)
+        else:
+            magnitude = 1e-3
+            a = self.op_signal(samples=64*1024, op=self.V.get("OP",[0.,0.]))
+            a[0,0] += magnitude
+            a[0,1] -= magnitude
+            return (p(a)-p.o0) / magnitude
+        
 
 class PushPullTransformer_test(Test): # 2 push-pull pentodes with transformer
     #Trans_ = Trans_F
@@ -262,7 +300,7 @@ class PushPullTransformer_test(Test): # 2 push-pull pentodes with transformer
 
     freq = 30.
     timespan = 2 / freq
-    solver = dict(method='hybr')
+    solver = dict(method='hybr', xtol=1e-8)
 
     def signal(self):
         a = 50*self.sine_signal(self.freq, 3)
@@ -271,42 +309,27 @@ class PushPullTransformer_test(Test): # 2 push-pull pentodes with transformer
         a[:,2] = self.V["OP"][2]
         return a
 
-    def plot(self, y, labels):
+    def plot(self, p):
         x = self.timeline()
+        y = p(self.signal())
         pl.plot(x, y)
-        self.finish_plot(labels, timeline=x)
+        self.finish_plot(p.out_labels, timeline=x)
 
-class Tonestack_test(Test):
-    S = ((R(4), 1, 2),
-         (C(1), 1, 3),
-         (C(2), 2, 4),
-         (C(3), 2, 5),
-         (P(3), 6, 5, GND),
-         (P(2), 6, 4),
-         (P(1), 3, 7, 4),
-         (IN, 1),
-         (OUT, 7),
-         )
-    V = {C(1): 0.25e-9,
-         C(2): 20e-9,
-         C(3): 20e-9,
-         P(1): dict(value=250e3, var='t'),
-         P(2): dict(value=1e6, var='l'),
-         P(3): dict(value=25e3, var='m'),
-         R(4): 56e3,
-         "POT": dict(l=0.5, m=0.5, t=0.5),
-         }
-
-    timespan = 0.01
-
-    def signal(self):
-        return self.sine_signal(400)
-
-    def plot(self, y, labels):
-        x = self.timeline()
-        pl.plot(x, y)
-        self.finish_plot(labels)
-
+    def spectrum_signal(self, p):
+        if 0:
+            s, d = self.make_sweep()
+            a = self.op_signal(samples=len(s), op=self.V["OP"])
+            a[:,0] += s
+            a[:,1] -= s
+            y = p(a)-p.o0
+            return dk_lib.fft_convolve(d, y)
+        else:
+            magnitude = 1e-3
+            a = self.op_signal(samples=64*1024, op=self.V["OP"])
+            a[0,0] += magnitude
+            a[0,1] -= magnitude
+            return (p(a)-p.o0) / magnitude
+        
 
 class Resonator_test(Test): # LC-resonator
     S = ((R(), "V0", "V1"),
@@ -339,10 +362,44 @@ class Resonator_test(Test): # LC-resonator
         res_freq = 1592
         return self.sine_signal(res_freq-200)
 
-    def plot(self, y, labels):
+    def plot(self, p):
         x = self.timeline()
+        y = p(self.signal())
         pl.plot(x, y)
-        self.finish_plot(labels, timeline=x)
+        self.finish_plot(p.out_labels, timeline=x)
+
+
+class Tonestack_test(Test):
+    S = ((R(4), 1, 2),
+         (C(1), 1, 3),
+         (C(2), 2, 4),
+         (C(3), 2, 5),
+         (P(3), GND, 6, 5),
+         (P(2), None, 6, 4),
+         (P(1), 4, 3, 7),
+         (IN, 1),
+         (OUT, 7),
+         )
+    V = {C(1): 0.25e-9,
+         C(2): 20e-9,
+         C(3): 20e-9,
+         P(1): dict(value=250e3, var='t'),
+         P(2): dict(value=1e6, var='l'),
+         P(3): dict(value=25e3, var='m'),
+         R(4): 56e3,
+         "POT": dict(l=0.5, m=0.5, t=0.5),
+         }
+
+    timespan = 0.01
+
+    def signal(self):
+        return self.sine_signal(400)
+
+    def plot(self, p):
+        x = self.timeline()
+        y = p(self.signal())
+        pl.plot(x, y)
+        self.finish_plot(p.out_labels)
 
 
 class Diode_test(Test):
@@ -370,10 +427,11 @@ class Diode_test(Test):
         a[:,0] = self.sig
         return a
 
-    def plot(self, y, labels):
+    def plot(self, p):
+        y = p(self.signal())
         pl.semilogy(self.sig, -y)
         pl.plot(self.get_samples(self.sig), -self.result, "rx")
-        self.finish_plot(labels)
+        self.finish_plot(p.out_labels)
 
 
 class Diode_clipper(Test): # diode clipper
@@ -413,10 +471,11 @@ class Diode_clipper(Test): # diode clipper
         a[:,0] = self.sig
         return a
 
-    def plot(self, y, labels):
+    def plot(self, p):
+        y = p(self.signal())
         pl.plot(self.sig, -y)
         pl.plot(self.get_samples(self.sig), -self.result, "rx")
-        self.finish_plot(labels)
+        self.finish_plot(p.out_labels)
 
 
 # class LFO_test(Test): # LFO, fail, finds wrong roots (c.f. Mačák thesis)
@@ -471,10 +530,11 @@ class LinOpAmp_test(Test): # linear inverting OPAMP
     def signal(self):
         return self.sine_signal(500)
 
-    def plot(self, y, labels):
+    def plot(self, p):
         x = self.timeline()
+        y = p(self.signal())
         pl.plot(x, y)
-        self.finish_plot(labels, timeline=x)
+        self.finish_plot(p.out_labels, timeline=x)
 
 
 class InvOpAmp_test(Test): # inverting OPAMP
@@ -491,6 +551,7 @@ class InvOpAmp_test(Test): # inverting OPAMP
          }
 
     timespan = 0.01
+    solver = dict(method='hybr', factor=0.1)
 
     result = np.array([[  0.00000000e+00,   0.00000000e+00,   0.00000000e+00],
        [ -4.26797924e+00,  -4.55963690e-05,   4.26788804e+00],
@@ -506,22 +567,24 @@ class InvOpAmp_test(Test): # inverting OPAMP
     def signal(self):
         return 12*self.sine_signal(500)
 
-    def plot(self, y, labels):
+    def plot(self, p):
         x = self.timeline()
+        y = p(self.signal())
         pl.plot(x, y)
-        self.finish_plot(labels, timeline=x)
+        self.finish_plot(p.out_labels, timeline=x)
 
 class WahWah_test(Test): # wah-wah
     S = ((R(1), "V1", "V2"),
          (C(1), "V2", "V3"),
-         (T(1), "V3", "V4", "V5"),
+         (T(1), "V4", "V3", "V5"),
          (R(4), "V4", "V6"),
          (L(1), "V6", "V7"),
          (R(7), "V6", "V7"),
          (C(4), "V4", "V8"),
-         (R("va"), "V8", "V9"),
-         (R("vb"), "V9", GND),
-         (T(2), "V10", "V11", "V12"),
+         (P(), GND, "V8", "V9"),
+         #(R("va"), "V8", "V9"),
+         #(R("vb"), "V9", GND),
+         (T(2), "V11", "V10", "V12"),
          (C(5), "V9", "V10"),
          (R(5), "V4", "V10"),
          (R(10), "V13", "V11"),
@@ -532,7 +595,8 @@ class WahWah_test(Test): # wah-wah
          (C(2), "V6", GND),
          (R(8), "V6", GND),
          (R(6), "V7", "V3"),
-         (IN, "V1", "V13"),
+         (V(), "V13"),
+         (IN, "V1"),
          (OUT, "V8"),
          #(OUT, "V4", "V6","V7"),
          )
@@ -547,8 +611,9 @@ class WahWah_test(Test): # wah-wah
          R(8): 82e3,
          R(9): 10e3,
          R(10): 1e3,
-         R("va"): 50e3,
-         R("vb"): 50e3,
+         P(): dict(value=100e3, a=3, inv=1, var='hotpotz', name='Wah'),
+         #R("va"): 50e3,
+         #R("vb"): 50e3,
          C(1): 10e-9,
          C(2): 4.7e-6,
          C(3): 10e-9,
@@ -557,7 +622,9 @@ class WahWah_test(Test): # wah-wah
          L(1): 500e-3,
          T(1): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
          T(2): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
-         "OP": [0, 8.15],
+         V(): 8.15,
+         "OP": [0],
+         "POT": dict(Pv=0.5),
          }
 
     timespan = 0.02
@@ -581,17 +648,89 @@ class WahWah_test(Test): # wah-wah
         [  2.16409909e-01],
         [ -2.21358465e-01]])
 
-    def plot(self, y, labels):
+    def plot(self, p):
         x = self.timeline()
+        y = p(self.signal())
         pl.plot(x, y)
-        self.finish_plot(labels, timeline=x)
+        self.finish_plot(p.out_labels, timeline=x)
+
+    def plot_spectrum(self, p, plot_variable):
+        varlist = []
+        if plot_variable:
+            if plot_variable not in p.pot_list:
+                raise ArgumentError("variable %s not found" % plot_variable)
+            ##hack
+            for k, t in self.V.items():
+                if isinstance(k, P):
+                    if not isinstance(t, dict):
+                        t = dict(value=t)
+                    var = t.get('var')
+                    if var is None:
+                        var = str(k)+'v'
+                    if var == plot_variable:
+                        break
+            loga = t.get('a', 0)
+            inv = t.get('inv', 0)
+            for i in range(5):
+                pot = i/4
+                lbl = "%s" % pot
+                if inv:
+                    pot = 1 - pot
+                if loga:
+                    pot = (math.exp(loga * pot) - 1) / (math.exp(loga) - 1)
+                varlist.append((plot_variable, pot, lbl))
+        else:
+            varlist.append((None, None, p.out_labels))
+        n = None
+        cut = None
+        def spec(y):
+            s = 20*np.log10(abs(np.fft.fft(y,n,axis=0)[cut]))
+            return np.where(s > -80, s, np.nan)
+        labels = []
+        for var, val, lbl in varlist:
+            if var is not None:
+                p.set_variable(var, val)
+            y = self.spectrum_signal(p)
+            if n is None:
+                n = dk_lib.pow2roundup(len(y))
+                cut = slice(n*20.0/self.FS, n*10000.0/self.FS)
+                w = fftfreq(n,1.0/self.FS)[cut]
+            pl.semilogx(w, spec(y))
+            if isinstance(lbl, basestring):
+                labels.append(lbl)
+            else:
+                labels.extend(lbl)
+        self.finish_plot(labels, loc='upper left')
+
+
+class WahWah_ss(WahWah_test): # wah-wah small signal model
+
+    result = np.array([[
+        -0.0733464958196611, 0.377495715981138, -0.790853533144348, 0.855375239025460,
+        -0.495764243831986, 0.141417298177260, -0.0143239803878635],
+        [1.03797367238062, -6.18418431977384, 15.3571719537174, -20.3461464380570,
+         15.1676459322468, -6.03246080051401, 1.00000000000000],
+         ])
+
+    def check(self, name, args):
+        p = dk_simulator.Parser(self.S, self.V, self.FS, not args.backward_euler, create_filter=True, symbolic=False)
+        p1 = dk_simulator.Parser(self.S, self.V, self.FS, not args.backward_euler)
+        sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p1), p1, self.solver)
+        J = sim.jacobi()
+        f = dk_simulator.LinearFilter(p, J)
+        b, a = f.get_z_coeffs(samplerate=48000, subst_var=f.convert_variable_dict({}))
+        res = np.array([[float(v) for v in b],[float(v) for v in a]])
+        if np.allclose(res, self.result):
+            return "Ok"
+        else:
+            return "Fail"
 
 
 class Transistor_test(Test): # transitor test
     S = ((R(1), "Vcc", "Vc"),
          (R(2), "Ve", GND),
          (R(3), "Vi", "Vb"),
-         (T(1), "Vb", "Vc", "Ve"),
+         (T(1), "Vc", "Vb", "Ve"),
          (IN, "Vi", "Vcc"),
          (OUT, "Vi", "Vb", "Vc"),
          )
@@ -620,9 +759,10 @@ class Transistor_test(Test): # transitor test
         a[:,0] += self.sig
         return a
 
-    def plot(self, y, labels):
+    def plot(self, p):
+        y = p(self.signal())
         pl.plot(self.sig, y)
-        self.finish_plot(labels, timeline=self.sig)
+        self.finish_plot(p.out_labels, timeline=self.sig)
 
 
 class Triode1_test(Test): # triode test
@@ -652,10 +792,11 @@ class Triode1_test(Test): # triode test
         a[:,0] += self.sig
         return a
 
-    def plot(self, y, labels):
+    def plot(self, p):
+        y = p(self.signal())
         pl.plot(self.sig, -y)
         pl.plot(self.get_samples(self.sig), -self.result, "rx")
-        self.finish_plot(labels)
+        self.finish_plot(p.out_labels)
 
 Tubes = {
     "12ax7": dict(mu = 100.0, Ex = 1.4, Kp = 600.0, Kvb = 300.0, Kg1 = 1060.0, Gco = -0.2, Gcf = 1e-5),
@@ -704,13 +845,16 @@ class Triode2_test(Test): # triode test 2
         a[:,0] += self.sig
         return a
 
-    def plot(self, y, labels):
+    def plot(self, p):
+        y = p(self.signal())
         pl.plot(self.sig, y)
-        self.finish_plot(labels, loc="upper center", timeline=self.sig)
+        self.finish_plot(p.out_labels, loc="upper center", timeline=self.sig)
 
 
 class Preamp_test(Test):
-    S = ((P(6), 8, 9, GND),
+    S = ((P(6), GND, 8, 9),
+         #(R(61), 8, 9),
+         #(R(62), 9, GND),
          (V('cc3'), 18),
          (CC(2), 11, 13),
          (V('cc2'), 12),
@@ -766,6 +910,8 @@ class Preamp_test(Test):
          R(8): 100.e3,
          R(9): 470.e3,
          P(6): 1.e6,
+         R(61): 0.5e6,
+         R(62): 0.5e6,
          Triode(1): Tubes['12ax7'],
          Triode(2): Tubes['12ax7'],
          Triode(3): Tubes['12ax7'],
@@ -787,11 +933,13 @@ class Preamp_test(Test):
          [  88.18246137]])
 
     timespan = 0.2
+    solver = dict(method='hybr', factor=1e-1)
 
     def signal(self):
         return 0.15*self.sine_signal(150.0)
 
-    def plot(self, y, labels):
+    def plot(self, p):
         x = self.timeline()
+        y = p(self.signal())
         pl.plot(x, y)
-        self.finish_plot(labels)
+        self.finish_plot(p.out_labels, timeline=x)

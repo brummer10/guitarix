@@ -1,3 +1,5 @@
+from __future__ import division
+
 c_template_top = """
 #include <cmath>
 #include <cminpack.h>
@@ -8,44 +10,82 @@ c_template_top = """
 
 using namespace Eigen;
 
-static inline int sign(double v) {
+static inline int sign(creal v) {
     return v < 0 ? -1 : 1;
 }
 
-static Matrix<double, %(nx)d, 1> g_x;
-double g_v_data[%(nn)d];
-static Map<Matrix<double, %(nn)d, 1> >g_v(g_v_data);
-static Array<double, %(nni)d, 1> g_min;
-static Array<double, %(nni)d, 1> g_max;
-static double g_fnorm;
+static Matrix<creal, %(nx)d, 1> g_x;
+creal g_v_data[%(nn)d];
+static Map<Matrix<creal, %(nn)d, 1> >g_v(g_v_data);
+static Array<creal, %(nni)d, 1> g_min;
+static Array<creal, %(nni)d, 1> g_max;
+static creal g_fnorm;
 static int g_info;
 static int g_nfev;
 
-extern "C" void get_structure(int **shapes, const char **method) {
-    static int sz[] = { %(nx)d, %(ni)d, %(nn)d, %(no)d, %(npl)d, %(nni)d, %(nno)d, -1 }; // nx, ni, nn, no, npl, nni, nno, -1
-    static const char *m = "%(method)s";
-    *shapes = sz;
-    *method = m;
+#define INTERFACE_VERSION 1
+
+extern "C" int get_interface_version() {
+    return INTERFACE_VERSION;
 }
 
-extern "C" void get_info(double *v, double *x, double *minval, double *maxval, int *info, int *nfev, double *fnorm) {
-    Map<Matrix<double, %(nn)d, 1> > V(v);
+extern "C" void get_structure(const char **name, int *data_size, const int **shapes,
+                             const char **method, const char ***pot_vars, const double **pot,
+                             const char ***out_labels, const char **comment) {
+    static const char *n = "%(name)s";
+    static int sz[] = { %(nx)d, %(ni)d, %(nn)d, %(no)d, %(npl)d, %(nni)d, %(nno)d, -1 }; // nx, ni, nn, no, npl, nni, nno, -1
+    static const char *m = "%(method)s";
+    static const char *pvars[] = {%(pot_vars)s};
+    static double pvalues[] = {%(pot)s};
+    static const char *ol[] = {%(out_labels)s};
+    static const char *c = "%(comment)s";
+    if (name) *name = n;
+    if (data_size) *data_size = sizeof(creal);
+    if (shapes) *shapes = sz;
+    if (method) *method = m;
+    if (pot_vars) *pot_vars = pvars;
+    if (pot) *pot = pvalues;
+    if (out_labels) *out_labels = ol;
+    if (comment) *comment = c;
+}
+
+extern "C" void get_dc(creal *v0, creal *x0, creal *p0, creal *o0) {
+    static creal v0_data[] = {%(v0_data)s};
+    for (int i = 0; i < %(nn)d; i++) {
+        v0[i] = v0_data[i];
+    }
+    static creal x0_data[] = {%(x0_data)s};
+    for (int i = 0; i < %(nx)d; i++) {
+        x0[i] = x0_data[i];
+    }
+    static creal p0_data[] = {%(p0_data)s};
+    for (int i = 0; i < %(nni)d; i++) {
+        p0[i] = p0_data[i];
+    }
+    static creal o0_data[] = {%(o0_data)s};
+    for (int i = 0; i < %(no)d; i++) {
+        o0[i] = o0_data[i];
+    }
+}
+
+extern "C" void get_info(creal *v, creal *x, creal *minval, creal *maxval, int *info, int *nfev, creal *fnorm) {
+    Map<Matrix<creal, %(nn)d, 1> > V(v);
     V = g_v;
-    Map<Matrix<double, %(nx)d, 1> > X(x);
+    Map<Matrix<creal, %(nx)d, 1> > X(x);
     X = g_x;
-    Map<Matrix<double, %(nni)d, 1> > Mi(minval);
+    Map<Matrix<creal, %(nni)d, 1> > Mi(minval);
     Mi = g_min;
-    Map<Matrix<double, %(nni)d, 1> > Ma(maxval);
+    Map<Matrix<creal, %(nni)d, 1> > Ma(maxval);
     Ma = g_max;
     *info = g_info;
     *nfev = g_nfev;
     *fnorm = g_fnorm;
 }
 
-extern "C" void set_state(double *v, double *x) {
-    Map<Matrix<double, %(nn)d, 1> > V(v);
+extern "C" void set_state(creal *v, creal *x) {
+    Map<Matrix<creal, %(nn)d, 1> > V(v);
     g_v = V;
-    Map<Matrix<double, %(nx)d, 1> > X(x);
+    Map<Matrix<creal, %(nx)d, 1> > X(x);
     g_x = X;
 }
 
@@ -55,12 +95,12 @@ extern "C" void set_state(double *v, double *x) {
 
 %(nonlin_code)s
 
-static Matrix<double, %(nni)d, 1> last_good;
-static Matrix<double, %(nn)d, 1> last_v0;
+static Matrix<creal, %(nni)d, 1> last_good;
+static Matrix<creal, %(nn)d, 1> last_v0;
 
 #if %(nn)d
-int nonlin_homotopy(int n, Matrix<double, %(nni)d, 1>& start, %(namespace)s::nonlin_param& par, Map<Matrix<double, %(nn)d, 1> >& v, int *info, int *nfev, double *fnorm) {
-    Matrix<double, %(nni)d, 1> end = par.p;
+int nonlin_homotopy(int n, Matrix<creal, %(nni)d, 1>& start, %(namespace)s::nonlin_param& par, Map<Matrix<creal, %(nn)d, 1> >& v, int *info, int *nfev, creal *fnorm) {
+    Matrix<creal, %(nni)d, 1> end = par.p;
     for (int j = 1; j <= n; j++) {
         par.p = start + (j * (end - start)) / n;
         int ret = %(namespace)s::nonlin(par, v, info, nfev, fnorm);
@@ -71,7 +111,7 @@ int nonlin_homotopy(int n, Matrix<double, %(nni)d, 1>& start, %(namespace)s::non
     return 0;
 }
 
-static inline int nonlin_solve(%(namespace)s::nonlin_param& par, Map<Matrix<double, %(nn)d, 1> >& v, int *info, int *nfev, double *fnorm) {
+static inline int nonlin_solve(%(namespace)s::nonlin_param& par, Map<Matrix<creal, %(nn)d, 1> >& v, int *info, int *nfev, creal *fnorm) {
     int ret = %(namespace)s::nonlin(par, v, info, nfev, fnorm);
     if (ret != 0) {
         int n = 2;
@@ -93,17 +133,17 @@ static inline int nonlin_solve(%(namespace)s::nonlin_param& par, Map<Matrix<doub
 }
 #endif
 
-extern "C" int calc_nonlin(int n, double *p, double *i, double *v, int *info, int *nfev, double *fnorm) {
+extern "C" int calc_nonlin(int n, creal *p, creal *i, creal *v, int *info, int *nfev, creal *fnorm) {
     int ret = 0;
 #if %(nn)d
-    Matrix<double, %(nni)d, 1> mp;
-    Matrix<double, %(nno)d, 1> mi;
+    Matrix<creal, %(nni)d, 1> mp;
+    Matrix<creal, %(nno)d, 1> mi;
     %(namespace)s::nonlin_param par(mp, mi%(nonlin_mat_list)s);
-    Map<Matrix<double, %(nn)d, 1> >Mv(v);
+    Map<Matrix<creal, %(nn)d, 1> >Mv(v);
     for (int k = 0; k < n; k++) {
-        mp << Map<Matrix<double, %(nni)d, 1> >(p+k*%(nni)d);
+        mp << Map<Matrix<creal, %(nni)d, 1> >(p+k*%(nni)d);
         ret = nonlin_solve(par, Mv, info, nfev, fnorm);
-        Map<Matrix<double, %(nno)d, 1> >(i+k*%(nno)d) << mi;
+        Map<Matrix<creal, %(nno)d, 1> >(i+k*%(nno)d) << mi;
     }
 #else
     *info = 1;
@@ -113,27 +153,27 @@ extern "C" int calc_nonlin(int n, double *p, double *i, double *v, int *info, in
     return ret;
 }
 
-extern "C" void calc_inv_update(const Matrix<double, %(npl)d, 1>& pot) {
+extern "C" void calc_inv_update(const creal *pot) {
     %(update_pot)s
 }
 
-extern "C" int calc_stream(double *u, double *o, int n) {
-    g_min = Matrix<double, %(nni)d, 1>::Constant(HUGE_VAL);
-    g_max = Matrix<double, %(nni)d, 1>::Constant(-HUGE_VAL);
-    g_fnorm = 0;
-    Matrix<double, %(nno)d, 1> mi;
+extern "C" int calc_stream(creal *u, creal *o, int n) {
+    Matrix<creal, %(nno)d, 1> mi;
 #if %(nn)d
-    Matrix<double, %(nni)d, 1> mp;
+    g_min = Matrix<creal, %(nni)d, 1>::Constant(HUGE_VAL);
+    g_max = Matrix<creal, %(nni)d, 1>::Constant(-HUGE_VAL);
+    g_fnorm = 0;
+    Matrix<creal, %(nni)d, 1> mp;
     %(namespace)s::nonlin_param par(mp, mi%(nonlin_mat_list)s);
 #endif
     for (int j = 0; j < n; j++) {
 #if %(nn)d
-        Matrix<double, %(mp_cols)d, 1> dp;
-        dp << g_x, Map<Matrix<double,%(ni)d,1> >(u+j*%(ni)d);
+        Matrix<creal, %(mp_cols)d, 1> dp;
+        dp << g_x, Map<Matrix<creal,%(ni)d,1> >(u+j*%(ni)d);
         %(gen_mp)s
         g_min = g_min.min(mp.array());
         g_max = g_max.max(mp.array());
-        double fnorm;
+        creal fnorm;
         int ret = nonlin_solve(par, g_v, &g_info, &g_nfev, &fnorm);
         if (fnorm > g_fnorm) {
             g_fnorm = fnorm;
@@ -142,37 +182,37 @@ extern "C" int calc_stream(double *u, double *o, int n) {
             return ret;
         }
 #endif
-        Matrix<double, %(m_cols)d, 1> d;
-        d << g_x, Map<Matrix<double,%(ni)d,1> >(u+j*%(ni)d), mi;
-        Matrix<double, %(nx)d, 1>& xn = g_x;
+        Matrix<creal, %(m_cols)d, 1> d;
+        d << g_x, Map<Matrix<creal,%(ni)d,1> >(u+j*%(ni)d), mi;
+        Matrix<creal, %(nx)d, 1>& xn = g_x;
         %(gen_xn)s
-        Map<Matrix<double, %(no)d, 1> > xo(o+%(no)d*j);
+        Map<Matrix<creal, %(no)d, 1> > xo(o+%(no)d*j);
         %(gen_xo)s
     }
     return 0;
 }
 
-extern "C" int calc(double *u, double *x, double *v, double *x_new, double *o, int *info, int *nfev, double *fnorm) {
+extern "C" int calc(creal *u, creal *x, creal *v, creal *x_new, creal *o, int *info, int *nfev, creal *fnorm) {
     int ret = 0;
-    Matrix<double, %(nno)d, 1> mi;
+    Matrix<creal, %(nno)d, 1> mi;
 #if %(nn)d
-    Matrix<double, %(mp_cols)d, 1> dp;
-    dp << Map<Matrix<double,%(nx)d,1> >(x), Map<Matrix<double,%(ni)d,1> >(u);
-    Matrix<double, %(nni)d, 1> mp;
+    Matrix<creal, %(mp_cols)d, 1> dp;
+    dp << Map<Matrix<creal,%(nx)d,1> >(x), Map<Matrix<creal,%(ni)d,1> >(u);
+    Matrix<creal, %(nni)d, 1> mp;
     %(namespace)s::nonlin_param par(mp, mi%(nonlin_mat_list)s);
     %(gen_mp)s
-    Map<Matrix<double, %(nn)d, 1> >Mv(v);
+    Map<Matrix<creal, %(nn)d, 1> >Mv(v);
     ret = %(namespace)s::nonlin(par, Mv, info, nfev, fnorm);
 #else
     *info = 1;
     *nfev = 0;
     *fnorm = 0;
 #endif
-    Matrix<double, %(m_cols)d, 1> d;
-    d << Map<Matrix<double,%(nx)d,1> >(x), Map<Matrix<double,%(ni)d,1> >(u), mi;
-    Map<Matrix<double, %(nx)d, 1> > xn(x_new);
+    Matrix<creal, %(m_cols)d, 1> d;
+    d << Map<Matrix<creal,%(nx)d,1> >(x), Map<Matrix<creal,%(ni)d,1> >(u), mi;
+    Map<Matrix<creal, %(nx)d, 1> > xn(x_new);
     %(gen_xn)s
-    Map<Matrix<double, %(no)d, 1> > xo(o);
+    Map<Matrix<creal, %(no)d, 1> > xo(o);
     %(gen_xo)s
     return ret;
 }
@@ -180,35 +220,35 @@ extern "C" int calc(double *u, double *x, double *v, double *x_new, double *o, i
 
 c_template_struct = """
 struct fcn_param {
-    Matrix<double, %(nn)d, 1>& p;
-    Matrix<double, %(nn)d, 1>& i;
-    Matrix<double, %(nn)d, %(nn)d>& K;
-    inline fcn_param(Matrix<double, %(nn)d, 1>& p_, Matrix<double, %(nn)d, 1>& i_, Matrix<double, %(nn)d, %(nn)d>& K_)
+    Matrix<creal, %(nn)d, 1>& p;
+    Matrix<creal, %(nn)d, 1>& i;
+    Matrix<creal, %(nn)d, %(nn)d>& K;
+    inline fcn_param(Matrix<creal, %(nn)d, 1>& p_, Matrix<creal, %(nn)d, 1>& i_, Matrix<creal, %(nn)d, %(nn)d>& K_)
       : p(p_), i(i_), K(K_) {}
 };
 struct nonlin_param {
-    Matrix<double, %(nni)d, 1>&p;
-    Matrix<double, %(nno)d, 1>& i;
-    Matrix<double, %(nn)d, %(nn)d>& K;
-    Matrix<double, %(nn)d, %(mp_cols)d>& Mp;
-    Matrix<double, %(nni)d, 1>& Mpc;
-    //Matrix<double, %(nno)d, %(nn)d>& Mi;
-    inline nonlin_param(Matrix<double, %(nni)d, 1>& p_, Matrix<double, %(nno)d, 1>& i_, Matrix<double, %(nn)d, %(nn)d>& K_,
-                        Matrix<double, %(nn)d, %(mp_cols)d>& Mp_, Matrix<double, %(nn)d, 1>& Mpc_/*, Matrix<double, %(nno)d, %(nn)d>& Mi_*/)
+    Matrix<creal, %(nni)d, 1>&p;
+    Matrix<creal, %(nno)d, 1>& i;
+    Matrix<creal, %(nn)d, %(nn)d>& K;
+    Matrix<creal, %(nn)d, %(mp_cols)d>& Mp;
+    Matrix<creal, %(nni)d, 1>& Mpc;
+    //Matrix<creal, %(nno)d, %(nn)d>& Mi;
+    inline nonlin_param(Matrix<creal, %(nni)d, 1>& p_, Matrix<creal, %(nno)d, 1>& i_, Matrix<creal, %(nn)d, %(nn)d>& K_,
+                        Matrix<creal, %(nn)d, %(mp_cols)d>& Mp_, Matrix<creal, %(nn)d, 1>& Mpc_/*, Matrix<creal, %(nno)d, %(nn)d>& Mi_*/)
       : p(p_), i(i_), K(K_), Mp(Mp_), Mpc(Mpc_)/*, Mi(Mi_)*/ {}
 };
 """
 
 c_template_struct_const = """
 struct fcn_param {
-    Matrix<double, %(nn)d, 1>& p;
-    Matrix<double, %(nn)d, 1>& i;
-    inline fcn_param(Matrix<double, %(nn)d, 1>& p_, Matrix<double, %(nn)d, 1>& i_): p(p_), i(i_) {}
+    Matrix<creal, %(nn)d, 1>& p;
+    Matrix<creal, %(nn)d, 1>& i;
+    inline fcn_param(Matrix<creal, %(nn)d, 1>& p_, Matrix<creal, %(nn)d, 1>& i_): p(p_), i(i_) {}
 };
 struct nonlin_param {
-    Matrix<double, %(nni)d, 1>& p;
-    Matrix<double, %(nno)d, 1>& i;
-    inline nonlin_param(Matrix<double, %(nni)d, 1>& p_, Matrix<double, %(nno)d, 1>& i_): p(p_), i(i_) {}
+    Matrix<creal, %(nni)d, 1>& p;
+    Matrix<creal, %(nno)d, 1>& i;
+    inline nonlin_param(Matrix<creal, %(nni)d, 1>& p_, Matrix<creal, %(nno)d, 1>& i_): p(p_), i(i_) {}
 };
 """
 
@@ -229,7 +269,7 @@ static int fcn(void *p, int n, const double *v, double *fvec, int iflag ) {
     return 0;
 }
 
-static int nonlin(struct nonlin_param &par, Map<Matrix<double, %(nn)d, 1> >& v, int *info, int *nfev, double *fnorm) {
+static int nonlin(struct nonlin_param &par, Map<Matrix<creal, %(nn)d, 1> >& v, int *info, int *nfev, creal *fnorm) {
     int j, maxfev, ml, mu, mode, nprint, ldfjac, lr;
     double xtol, epsfcn, factor;
     double fvec[%(nn)d], diag[%(nn)d], fjac[%(nn)d*%(nn)d], r[(%(nn)d*(%(nn)d+1))/2], qtf[%(nn)d], wa1[%(nn)d], wa2[%(nn)d], wa3[%(nn)d], wa4[%(nn)d];
@@ -240,7 +280,7 @@ static int nonlin(struct nonlin_param &par, Map<Matrix<double, %(nn)d, 1> >& v, 
     mu = %(nn)d-1; /* unbanded jacobian */
 
     /* parameter */
-    xtol = sqrt(__cminpack_func__(dpmpar)(1));
+    xtol = %(solver_hybr_xtol)s;
     maxfev = 2000;
     epsfcn = 0.;
     mode = 2;  /* explicit variable scaling with diag */
@@ -292,7 +332,7 @@ static int fcn(void *p, int m, int n, const double *v, double *fvec, int iflag )
     return 0;
 }
 
-static int nonlin(struct nonlin_param &par, Map<Matrix<double, %(nn)d, 1> >& v, int *info, int *nfev, double *fnorm) {
+static int nonlin(struct nonlin_param &par, Map<Matrix<creal, %(nn)d, 1> >& v, int *info, int *nfev, creal *fnorm) {
     int j, maxfev, mode, nprint, ldfjac, ipvt[%(nn)d];
     double ftol, xtol, gtol, epsfcn, factor;
     double fvec[%(nn)d], diag[%(nn)d], fjac[%(nn)d*%(nn)d], qtf[%(nn)d], wa1[%(nn)d], wa2[%(nn)d], wa3[%(nn)d], wa4[%(nn)d];
@@ -300,7 +340,7 @@ static int nonlin(struct nonlin_param &par, Map<Matrix<double, %(nn)d, 1> >& v, 
 
     /* parameter */
     ftol = sqrt(__cminpack_func__(dpmpar)(1));
-    xtol = sqrt(__cminpack_func__(dpmpar)(1));
+    xtol = %(solver_lm_xtol)s;
     gtol = 0.;
     maxfev = 2000;
     epsfcn = 0.;
@@ -405,7 +445,7 @@ static inline void check(splinedata *sd, real *t, int i) { if (i) report(sd, t, 
  ** k: order (2 <= k <= 6)
  ** h[k]: output array
  */
-template<int K> static void fpbspl(float *t, real x, int l, real *h)
+template<int K> static void fpbspl(real *t, real x, int l, real *h)
 {
     real hh[K-1];
     h[0] = 1;
@@ -506,7 +546,7 @@ int splinedata::splev(splinecoeffs *p, real xi[2], real *res)
     int ll = 0;
     ll = forward<K0>(0, p, xi, x, ll, &cl, h[0]);
     ll = forward<K1>(1, p, xi, x, ll, &cl, h[1]);
-    float *cc = p->c[0];
+    real *cc = p->c[0];
     int lc = ll;
     int j[2];
     real sp = 0;
@@ -532,7 +572,7 @@ int splinedata::splev(splinecoeffs *p, real xi[3], real *res)
     ll = forward<K0>(0, p, xi, x, ll, &cl, h[0]);
     ll = forward<K1>(1, p, xi, x, ll, &cl, h[1]);
     ll = forward<K2>(2, p, xi, x, ll, &cl, h[2]);
-    float *cc = p->c[0];
+    real *cc = p->c[0];
     int lc = ll;
     int j[3];
     real sp = 0;
@@ -562,7 +602,7 @@ int splinedata::splev(splinecoeffs *p, real xi[4], real *res)
     ll = forward<K1>(1, p, xi, x, ll, &cl, h[1]);
     ll = forward<K2>(2, p, xi, x, ll, &cl, h[2]);
     ll = forward<K3>(3, p, xi, x, ll, &cl, h[3]);
-    float *cc = p->c[0];
+    real *cc = p->c[0];
     int lc = ll;
     int j[4];
     real sp = 0;
@@ -641,16 +681,16 @@ void SplineCalc::reset()
 namespace %(namespace)s {
 %(struct_decl)s
 
-static int nonlin(struct nonlin_param &par, Map<Matrix<double, %(nn)d, 1> >& v, int *info, int *nfev, double *fnorm) {
-    float t[AmpData::%(solver_table_name)s::sd.m];
-    float m[%(nno)d];
-    Map<Matrix<float, %(nni)d, 1> >mp(m);
-    mp = par.p.cast<float>();
+static int nonlin(struct nonlin_param &par, Map<Matrix<creal, %(nn)d, 1> >& v, int *info, int *nfev, creal *fnorm) {
+    real t[AmpData::%(solver_table_name)s::sd.m];
+    real m[%(nno)d];
+    Map<Matrix<real, %(nni)d, 1> >mp(m);
+    mp = par.p.cast<real>();
     for (int j = 0; j < AmpData::%(solver_table_name)s::sd.m; j++) {
         splinecoeffs *pc = &AmpData::%(solver_table_name)s::sd.sc[j];
         check(&AmpData::%(solver_table_name)s::sd, m, (*pc->eval)(pc, m, &t[j]));
     }
-    par.i = Map<Matrix<float, %(nno)d, 1> >(t).cast<double>();
+    par.i = Map<Matrix<real, %(nno)d, 1> >(t).cast<creal>();
     *info = 1;
     *nfev = 0;
     *fnorm = 0;
@@ -680,3 +720,185 @@ def get_setup_template():
 
 def get_templates(method):
     return c_template_top, c_template[method]
+
+faust_filter_template = """
+declare id "%(id)s";
+declare name "%(name)s";
+
+import("filter.lib");
+
+process = iir((%(b_list)s),(%(a_list)s)) with {
+    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = if(b, 1 - x, x);
+    s = 0.993;
+    fs = float(SR);
+
+    %(slider)s
+
+    %(coeffs)s
+};
+"""
+
+faust_filter_knob_template = (
+    '%(id)s = vslider("%(id)s[name:%(name)s]", 0.5, 0, 1, 0.01)'
+    ' : Inverted(%(inv)s) : LogPot(%(loga)s) : smooth(s);')
+
+faust_filter_ui_template = """
+b.openHorizontalhideBox("");
+%(master)s
+b.closeBox();
+b.openHorizontalBox("");
+%(knobs)s
+b.closeBox();
+"""
+
+module_ui_master_template = 'b.create_master_slider(PARAM("%(id)s"), 0);'
+module_ui_knob_template = 'b.create_small_rackknobr(PARAM("%(id)s"), 0);'
+
+c_module_template = """
+#include "gx_plugin.h"
+
+%(dk_code)s
+
+#define N_(x) (x)
+
+class DKPlugin: public PluginDef {
+private:
+    float pots[%(npl)d];
+    float pots_last[%(npl)d];
+    Matrix<float, %(nx)d, 1> x_last;
+public:
+    DKPlugin();
+    static void init(unsigned int samplingFreq, PluginDef *plugin);
+    static void process(int count, float *input, float *output, PluginDef *plugin);
+    static int registerparam(const ParamReg& reg);
+    static int uiloader(const UiBuilder& builder, int form);
+    static void del_instance(PluginDef *plugin);
+};
+
+DKPlugin::DKPlugin():
+    PluginDef() {
+    version = PLUGINDEF_VERSION;
+    id = "%(id)s";
+    name = N_("%(name)s");
+    category = N_("External");
+    mono_audio = process;
+    set_samplerate = init;
+    register_params = registerparam;
+    load_ui = uiloader;
+    delete_instance = del_instance;
+}
+
+#define PARAM(p) ("%(id)s" "." p)
+
+int DKPlugin::registerparam(const ParamReg& reg) {
+    DKPlugin& self = *static_cast<DKPlugin*>(reg.plugin);
+    %(regs)s
+    return 0;
+}
+
+void DKPlugin::init(unsigned int samplingFreq, PluginDef *plugin) {
+    //DKPlugin& self = *static_cast<DKPlugin*>(plugin);
+    //self.sample_rate = samplingFreq;
+    //const double *t;
+    //get_structure(0, 0, 0, 0, 0, &t, 0, 0);
+    //FIXME: overwritten by registration parameters?
+    //for (int i = 0; i < %(npl)d; i++) {
+    //    self.pots[i] = t[i];
+    //}
+}
+
+void DKPlugin::process(int n, float *u, float *o, PluginDef *plugin) {
+#if %(npl)s > 0
+    DKPlugin& self = *static_cast<DKPlugin*>(plugin);
+    float t[%(npl)d];
+    %(calc_pots)s
+#endif
+// start copied and modified code
+    Matrix<creal, %(nno)d, 1> mi;
+#if %(nn)d
+    g_min = Matrix<creal, %(nni)d, 1>::Constant(HUGE_VAL);
+    g_max = Matrix<creal, %(nni)d, 1>::Constant(-HUGE_VAL);
+    g_fnorm = 0;
+    Matrix<creal, %(nni)d, 1> mp;
+    %(namespace)s::nonlin_param par(mp, mi%(nonlin_mat_list)s);
+#endif
+    for (int j = 0; j < n; j++) {
+#if %(npl)s > 0
+        for (int k = 0; k < %(npl)d; k++) {
+            self.pots_last[k] = %(timecst)s * t[k] + (1-%(timecst)s) * self.pots_last[k];
+        }
+        calc_inv_update(self.pots_last);
+#endif
+#if %(nn)d
+        Matrix<creal, %(mp_cols)d, 1> dp;
+        dp << self.x_last, Map<Matrix<creal,%(ni)d,1> >(u+j*%(ni)d);
+        %(gen_mp)s
+        g_min = g_min.min(mp.array());
+        g_max = g_max.max(mp.array());
+        creal fnorm;
+        int ret = nonlin_solve(par, g_v, &g_info, &g_nfev, &fnorm);
+        if (fnorm > g_fnorm) {
+            g_fnorm = fnorm;
+        }
+        if (ret != 0) {
+            return ret;
+        }
+#endif
+        Matrix<creal, %(m_cols)d, 1> d;
+        d << self.x_last, Map<Matrix<creal,%(ni)d,1> >(u+j*%(ni)d), mi;
+        Matrix<creal, %(nx)d, 1>& xn = self.x_last;
+        %(gen_xn)s
+        Map<Matrix<creal, %(no)d, 1> > xo(o+%(no)d*j);
+        %(gen_xo)s
+    }
+// end copied code
+}
+
+int DKPlugin::uiloader(const UiBuilder& b, int form) {
+    if (!(form & UI_FORM_STACK)) {
+	return -1;
+    }
+    b.openHorizontalhideBox("");
+    {
+%(master)s
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+%(knobs)s
+    }
+    b.closeBox();
+    return 0;
+}
+
+void DKPlugin::del_instance(PluginDef *p)
+{
+    delete static_cast<DKPlugin*>(p);
+}
+
+#if false
+
+PluginDef *plugin() {
+    return new DKPlugin;
+}
+
+#else
+
+extern "C" __attribute__ ((visibility ("default"))) int
+get_gx_plugin(unsigned int idx, PluginDef **pplugin)
+{
+    const int count = 1;
+    if (!pplugin) {
+        return count;
+    }
+    switch (idx) {
+    case 0: *pplugin = new DKPlugin; return count;
+    default: *pplugin = 0; return -1;
+    }
+}
+
+#endif
+"""
+
+c_module_reg_line = 'reg.registerVar(PARAM("%(id)s"), N_("%(name)s"), "S", N_("%(desc)s"), &self.pots[%(varidx)d], 0.5, 0, 1, 0.01);'
