@@ -5,16 +5,17 @@ import numpy.linalg as la
 import scipy.optimize as opt
 import scipy.signal as sig
 import sympy as sp
-import sympy.utilities.autowrap as spauto
-import sympy.utilities.codegen as spcode
 import ctypes as ct
-from sympy.printing.ccode import CCodePrinter
 import collections, warnings, tempfile, os, operator, sys, shutil, time, commands, subprocess, math, re
 
-import dk_templates
+import dk_templates, generate_code
 from models import GND, Out, Node
 from dk_lib import printoptions
-import generate_code
+
+################################################################
+# bugfixes
+#
+from sympy.printing.ccode import CCodePrinter
 
 def _print_Piecewise(self, expr):
     # This method is called only for inline if constructs
@@ -31,6 +32,9 @@ def _print_Piecewise(self, expr):
     return "(" + "".join(ecpairs) + last_line + ")"
 
 CCodePrinter._print_Piecewise = _print_Piecewise
+#
+# end bugfixes
+################################################################
 
 def pkgconfig(*packages, **kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
@@ -46,19 +50,25 @@ def matrix_add(*args):
         return args[0]
 
 
-class CythonCodeWrapper(spauto.CodeWrapper):
+class CodeWrapError(Exception): pass
+
+class CodeWrapper(object):
 
     _filename = "dk_code"
     _module_basename = "dk_sim"
+    _module_counter = 0
 
-    def __init__(self, d, code, tempdir=None, verbose=False):
+    def __init__(self, d, code, tempdir=None, verbose=False, flags=[]):
         self.d = d
         self.code = code
         if tempdir is not None:
             tempdir = os.path.abspath(tempdir)
-        spauto.CodeWrapper.__init__(self, None, filepath=tempdir, verbose=verbose)
+        self.filepath = tempdir
+        self.flags = flags
+        self.quiet = not verbose
         dct = pkgconfig('cminpack','eigen3')
         dct["include_dirs"].append(os.path.abspath(".."))
+        dct["include_dirs"].append(os.path.abspath("../../../src/headers"))
         l = ["%s=%s" % v for v in dct.items()]
         #l.append("extra_compile_args=['-mavx','-g0','-O2','-ffast-math','-UNDEBUG']")
         #
@@ -67,6 +77,8 @@ class CythonCodeWrapper(spauto.CodeWrapper):
         # funsafe-math-optimizations, which seems to be responsible for the bug.
         # But funsafe-math-optimizations in turn just expands into another list of
         # settings. When using the expanded list of settings the bug is gone (?!).
+        #
+        # maybe -mavx is the culprit??
         fast_math_expand=(
             #" '-funsafe-math-optimizations',"
             " '-fno-math-errno',"
@@ -75,11 +87,30 @@ class CythonCodeWrapper(spauto.CodeWrapper):
             " '-fno-signed-zeros', '-fno-trapping-math',"
             " '-fassociative-math', '-freciprocal-math'"
             )
-        l.append("extra_compile_args=['-mavx','-g0','-O2',%s,'-UNDEBUG','-Dcreal=%s']" % (fast_math_expand, d["c_real"]))
+        l.append("extra_compile_args=['-g0','-O2',%s,'-UNDEBUG','-Dcreal=%s','-fvisibility=hidden']" % (fast_math_expand, d["c_real"]))
         l.append("extra_link_args=['-fPIC','-Wl,--strip-all','-UNDEBUG','-Dcreal=%s']" % d["c_real"])
         l.append("language='c++'")
         d["flags"] = ",\n".join(["    " + v for v in l])
-        d["mcount"] = spauto.CodeWrapper._module_counter
+        d["mcount"] = CodeWrapper._module_counter
+
+    @property
+    def module_name(self):
+        return "%s_%s" % (self._module_basename, CodeWrapper._module_counter)
+
+    def _process_files(self, routine):
+        command = self.command
+        command.extend(self.flags)
+        null = open(os.devnull, 'w')
+        try:
+            if self.quiet:
+                retcode = subprocess.call(command, stdout=null, stderr=subprocess.STDOUT)
+            else:
+                retcode = subprocess.call(command)
+        except OSError:
+            retcode = 1
+        if retcode:
+            raise CodeWrapError(
+                    "Error while executing command: %s" % " ".join(command))
 
     @property
     def command(self):
@@ -98,9 +129,6 @@ class CythonCodeWrapper(spauto.CodeWrapper):
             for fname, code in self.d["extra_code"]:
                 with open(fname, 'w') as f:
                     f.write(code)
-        if 0:
-            with open('dk_code.h', 'w') as f:
-                f.write(h_template % self.d)
 
     def wrap_code(self):
         workdir = self.filepath or tempfile.mkdtemp("_sympy_compile")
@@ -112,9 +140,10 @@ class CythonCodeWrapper(spauto.CodeWrapper):
             self._generate_code()
             self._prepare_files()
             self._process_files(None)
-            return SimulateC(os.path.join(workdir, self.module_name+".so"))
+            soname = os.path.join(workdir, self.module_name+".so")
+            return soname, SimulateC(soname)
         finally:
-            spauto.CodeWrapper._module_counter +=1
+            CodeWrapper._module_counter +=1
             os.chdir(oldwork)
             if not self.filepath:
                 shutil.rmtree(workdir)
@@ -240,7 +269,7 @@ class LinearFilter(object):
             else:
                 ss = e.evalf()
             idx = max_degree-i
-            filter_coeffs[idx] = ss
+            filter_coeffs[idx] = sp.horner(ss, wrt=(syms or [])+[sp.symbols("fs")])
         return filter_coeffs
 
     def coeffs_as_faust_code(self, prefix, coeffs):
@@ -250,8 +279,8 @@ class LinearFilter(object):
             l.append('%s%d = %s;' % (prefix, i, c))
         return l
 
-    def print_coeffs(self, prefix, coeffs):
-        print "\n\n".join(self.coeffs_as_faust_code(prefix, coeffs))
+    def print_coeffs(self, prefix, coeffs, f=sys.stdout):
+        print >>f, "\n\n".join(self.coeffs_as_faust_code(prefix, coeffs))
 
     def spectrum(self, b, a, start_freq=20, stop_freq=10000, fs=48000, nbins=8*1024):
         b = [float(x) for x in b]
@@ -282,12 +311,16 @@ class LinearFilter(object):
 
 class EquationSystem(object):
 
-    def __init__(self, p, jacobi=None, svd_prec=None):
+    def __init__(self, parser, jacobi_par=None, svd_prec=None):
+        self.parser = parser
         if svd_prec is None:
             svd_prec = math.sqrt(sys.float_info.epsilon)
-        self.J = jacobi
+        self.jacobi_par = jacobi_par
         self.svd_prec = svd_prec
-        self.make_eq(p)
+        self.make_eq(parser)
+
+    def get_parser(self):
+        return self.parser
 
     @staticmethod
     def get_unique_rows(a):
@@ -364,18 +397,35 @@ class EquationSystem(object):
             print p.N["Nl"]
             print p.N["Nr"]
 
+    def get_status(self):
+        return "nx=%d, nni=%d, nn=%d, nno=%d, ni=%d, no=%d, np=%d" % (self.nx, self.nni, self.nn, self.nno, self.ni, self.no, self.np)
+
     def make_eq(self, p):
-        self.nx, self.nn, self.ni, self.no, self.np = [len(p.element_name[j]) for j in 'X', 'N', 'I','O','P']
+        self.nx, self.nn, self.ni, self.no, self.np = [len(p.element_name[j]) for j in 'X', 'N', 'I', 'O', 'P']
         self.mp_cols = self.nx + self.ni
         Nxl, Nxr, Nnl, Nnr, No, Nv, I = [p.N[j] for j in "Xl", "Xr", "Nl", "Nr", "O", "P", "I"]
         CV = p.ConstVoltages
         m = p.mm
-        if self.J is not None:
-            Si = (p.S - Nnr.T * self.J * Nnl).I
-            Nnr = ml.zeros((0, Nnr.shape[1]))
-            Nnl = ml.zeros((0, Nnl.shape[1]))
-            CV = ml.zeros((0, CV.shape[1]))
-            self.nn = 0
+        self.f = p.get_nonlin_funcs()
+        self.CZ = p.CZ
+        if self.jacobi_par is not None:
+            J, Jc, select, unselect = self.jacobi_par
+            Si = (p.S - Nnr[unselect].T * J[unselect][:,unselect] * Nnl[unselect]).I
+            CV = CV + (Nnr[unselect].T * Jc[unselect]).T
+            Nnr = Nnr[select]
+            Nnl = Nnl[select]
+            self.nn = len(select)
+            self.CZ = self.CZ[select][:,select]
+            # rebase base index
+            f = np.zeros(len(self.f), dtype=object)
+            for j, (expr, vl, base) in enumerate(self.f):
+                f[j] = (expr, vl, base-j)
+            f = f[select]
+            self.f = np.zeros(len(f), dtype=object)
+            for j, (expr, vl, base) in enumerate(f):
+                self.f[j] = (expr, vl, base+j)
+            p.f = self.f
+            p.element_name["N"] = np.array(p.element_name["N"])[select]
         else:
             Si = p.S.I
 
@@ -400,7 +450,13 @@ class EquationSystem(object):
         self.K0 = T * Nnr.T
 
         self.make_nonlin_input_trans()
+        #self.nni = self.nn
+        #self.U0 = ml.matrix(np.identity(self.nn))
         self.make_nonlin_output_trans()
+        #self.nno = self.nn
+        #self.Mi = ml.matrix(np.identity(self.nn))
+        #self.Co = self.C0
+        #self.Fo = self.F0
 
         if self.np:
             # Woodbury Identity: \left(A+UCV \right)^{-1} = A^{-1} - A^{-1}U \left(C^{-1}+VA^{-1}U \right)^{-1} VA^{-1}, 
@@ -417,7 +473,7 @@ class EquationSystem(object):
 
     def make_nonlin_input_trans(self):
         # find number of linear independent inputs to the nonlinear function
-        if self.G0.shape[0] > 0 and self.np == 0:
+        if self.G0.shape[0] > 0 and self.G0.shape[1] > 0 and self.np == 0:
             U0, SV0, V0 = la.svd(np.append(self.G0, self.H0, axis=1), full_matrices=False)
             SV0 = np.where(SV0 / SV0[0] > self.svd_prec, SV0, 0)
             self.nni = np.count_nonzero(SV0)
@@ -429,7 +485,6 @@ class EquationSystem(object):
             self.G0 = U0H * self.G0
             self.H0 = U0H * self.H0
             self.U0 = U0
-            self.U0H = U0H
         else:
             self.U0 = ml.matrix(np.identity(self.nn))
 
@@ -463,7 +518,9 @@ class EquationSystem(object):
 
 class Simulate(object):
 
-    def __init__(self, solver=None):
+    def __init__(self, eq, solver):
+        self.eq = eq
+        self.parser = eq.get_parser()
         if solver is None:
             self.solver_dict = dict(method = 'hybr')
         else:
@@ -474,13 +531,23 @@ class Simulate(object):
             self.solver_dict.setdefault("factor", 1.e2)
             self.solver_dict.setdefault("xtol", math.sqrt(sys.float_info.epsilon))
 
+    def get_solver(self):
+        d = self.solver_dict.copy()
+        d["method"] = self.solver_method
+        return d
+
+    def get_eq(self):
+        return self.eq
+
+    def get_parser(self):
+        return self.parser
+
 
 class SimulatePy(Simulate):
 
-    def __init__(self, eq, parser, solver=None):
-        Simulate.__init__(self, solver)
-        self.eq = eq
-        self.f = parser.get_nonlin_funcs()
+    def __init__(self, eq, solver=None):
+        Simulate.__init__(self, eq, solver)
+        parser = eq.get_parser()
         self.pot_func = parser.get_pot_funcs()
         self.Pv = parser.Pv
         self.pot = parser.pot
@@ -488,7 +555,6 @@ class SimulatePy(Simulate):
         self.v0 = np.zeros(eq.nn)
         self.x = np.zeros(eq.nx)
         self.o0 = np.zeros(eq.no)
-        self.CZ = parser.CZ
         self.op = parser.op
         self.compile_py_func()
         self.calc_dc(parser.op)
@@ -544,43 +610,56 @@ class SimulatePy(Simulate):
         u = ml.matrix(u, dtype=np.float64).T
         A, B, Bc, C, D, E, Ec, F, G, H, Hc, K = self.calc_matrixes()
         if A.size == 0:
-            if not len(self.f):
-                self.p0 = ml.matrix(np.zeros((0,1)))
-                return
-            p = H * u + Hc
-            def func(v):
-                v = ml.matrix(v).T
-                r = p + K * self.calc_i(v) - self.CZ * v
-                return r.A[:,0]
-            with warnings.catch_warnings():
-                warnings.filterwarnings(action="error")
-                res = opt.root(func, self.v0, method='lm') ##FIXME
-            if not res.success:
-                raise ValueError(res.message)
-            self.v0 = res.x
+            if len(self.eq.f):
+                p = self.eq.U0 * H * u + Hc
+                def func(v):
+                    v = ml.matrix(v).T
+                    r = p + K * self.calc_i(v) - self.eq.CZ * v
+                    return r.A1
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(action="error")
+                    res = opt.root(func, self.v0, method='lm', options=dict(xtol=1e-13,factor=1e-1)) ##FIXME
+                if not res.success:
+                    raise ValueError(res.message)
+                self.v0 = res.x
         else:
             I = ml.eye(len(A))
             try:
                 Ai = (I - A).I
             except la.LinAlgError:
                 n = len(self.v0)
-                if self.eq.U0 is not None:
-                    G1 = ml.append(self.eq.U0 * G, A, axis=0)
-                    H1 = ml.append(self.eq.U0 * H, B, axis=0)
-                else:
-                    G1 = ml.append(G, A, axis=0)
-                    H1 = ml.append(H, B, axis=0)
+                G1 = ml.append(self.eq.U0 * G, A, axis=0)
+                H1 = ml.append(self.eq.U0 * H, B, axis=0)
                 Hc1 = ml.append(Hc, Bc, axis=0)
                 K1 = ml.append(K, C, axis=0)
-                CZ1 = ml.matrix(np.diag(np.append(np.diagonal(self.CZ), np.zeros(C.shape[0]))))
-                def func(v):
-                    v = ml.matrix(v).T
-                    return (G1 * v[n:] + H1 * u + Hc1 + K1 * self.calc_i(v) - CZ1 * v).A[:,0]
-                with warnings.catch_warnings():
-                    warnings.filterwarnings(action="error")
-                    res = opt.root(func, np.append(self.v0, self.x), method='lm') ##FIXME
-                if not res.success:
-                    raise ValueError(res.message)
+                CZ1 = ml.matrix(np.diag(np.append(np.diagonal(self.eq.CZ), np.ones(C.shape[0]))))
+                v0 = np.append(self.v0, self.x)
+                points = [0, 1]
+                max_iter = 1000
+                for tries in range(max_iter): # use homotopy
+                    fact = points[1]
+                    def func(v):
+                        v = ml.matrix(v).T
+                        return (G1 * v[n:] + H1 * u + Hc1*fact + K1 * self.calc_i(v) - CZ1 * v).A1
+                    try:
+                        with warnings.catch_warnings():
+                            warnings.filterwarnings(action="error")
+                            res = opt.root(func, v0, method='hybr', options=dict(factor=1e-1)) ##FIXME
+                    except RuntimeWarning as e:
+                        success = False
+                        msg = e
+                    else:
+                        success = res.success
+                        msg = res.message
+                    if not success:
+                        points.insert(1, (points[0]+points[1])/2)
+                        continue
+                    if len(points) == 2:
+                        break
+                    v0 = res.x
+                    points = points[1:]
+                else:
+                    raise ValueError("calc_dc: more than %d iterations (list msg: %s)" % (max_iter, msg))
                 self.v0 = res.x[:n]
                 self.x = res.x[n:]
             else:
@@ -595,8 +674,8 @@ class SimulatePy(Simulate):
                     KK = T * C + K
                     def func(v):
                         v = ml.matrix(v).T
-                        r = p + KK * self.calc_i(v) - self.CZ * v
-                        return r.A[:,0]
+                        r = p + KK * self.calc_i(v) - self.eq.CZ * v
+                        return r.A1
                     with warnings.catch_warnings():
                         warnings.filterwarnings(action="error")
                         res = opt.root(func, self.v0, method='lm') ##FIXME
@@ -604,10 +683,9 @@ class SimulatePy(Simulate):
                         raise ValueError(res.message)
                     self.v0 = res.x
                     self.x += Ai * C * self.calc_i(self.v0)
-                self.x = self.x.A[:,0]
+                self.x = self.x.A1
         self.v00 = self.v0
         self.x0 = self.x
-        #self.p0 = matrix_add(self.pp * G * np.matrix(self.x0).T, self.pp * H * np.matrix(self.op).T)
         self.p0 = matrix_add(G * np.matrix(self.x0).T, H * np.matrix(self.op).T)
         self.o0 = matrix_add(D * np.matrix(self.x0).T, E * np.matrix(self.op).T, Ec, F * self.calc_i(self.v0)).A1
 
@@ -620,8 +698,8 @@ class SimulatePy(Simulate):
     def nonlin_py(self, p, K, Hc):
         def func(v):
             v = ml.matrix(v).T
-            r = p + K * self.calc_i(v) - self.CZ * v
-            return r.A[:,0]
+            r = p + K * self.calc_i(v) - self.eq.CZ * v
+            return r.A1
         p = self.eq.U0 * p + Hc
         try:
             with warnings.catch_warnings():
@@ -640,12 +718,12 @@ class SimulatePy(Simulate):
         if not self.eq.nn:
             # model is linearized
             return
-        for j, (expr, vl, base) in enumerate(self.f):
+        for j, (expr, vl, base) in enumerate(self.eq.f):
             self.ff.append((sp.lambdify(vl, expr), base, base+len(vl)))
 
     def calc_di(self, v, j):
-        i = np.zeros(len(self.f))
-        for n, (f, vl, base) in enumerate(self.f):
+        i = np.zeros(len(self.eq.f))
+        for n, (f, vl, base) in enumerate(self.eq.f):
             idx = j - base
             if idx < 0 or idx >= len(vl):
                 i[n] = 0.
@@ -655,7 +733,7 @@ class SimulatePy(Simulate):
         return i
 
     def jacobi_numeric(self):
-        J = np.zeros((len(self.f), len(self.v00)))
+        J = np.zeros((len(self.eq.f), len(self.v00)))
         i0 = self.calc_i(self.v00).A1
         eps = 1e-4
         for j in range(len(self.v00)):
@@ -665,7 +743,7 @@ class SimulatePy(Simulate):
         return ml.matrix(J)
 
     def jacobi_symbolic(self):
-        J = np.zeros((len(self.f), len(self.v00)))
+        J = np.zeros((len(self.eq.f), len(self.v00)))
         for j in range(len(self.v00)):
             J[:, j] = self.calc_di(self.v00, j)
         return ml.matrix(J)
@@ -693,7 +771,7 @@ class SimulatePy(Simulate):
                 except ValueError as e:
                     print "##", n
                     raise
-            y[n,:] = matrix_add(D * self.x, E * u, Ec, F * i).A[:,0]
+            y[n,:] = matrix_add(D * self.x, E * u, Ec, F * i).A1
             self.x = matrix_add(A * self.x, B * u, Bc, C * i)
         self.time_per_sample = (time.time() - t1)/(n+1)
         self.x = self.x.A1 ##FIXME
@@ -703,47 +781,64 @@ class SimulatePy(Simulate):
         return self.eval_py(v_in)
 
 
+class CheckedDict(dict):
+    def __setitem__(self, n, v):
+        assert n not in self
+        return dict.__setitem__(self, n, v)
+
+
 class BuildCModule(Simulate):
 
-    def __init__(self, name, parser, solver, c_tempdir=None, c_verbose=False, c_real="double", extra_sources=None, linearize=False):
-        Simulate.__init__(self, solver)
+    def __init__(self, name, sim, solver=None, c_tempdir=None, c_verbose=False,
+                 c_real="double", extra_sources=None, linearize=False, pre_filter=None):
+        if solver is None:
+            solver = sim.get_solver()
+        Simulate.__init__(self, sim.get_eq(), solver)
         self.name = name
         self.c_tempdir = c_tempdir
         self.c_verbose = c_verbose
         self.c_real = c_real
         self.extra_sources = extra_sources
-        sim = SimulatePy(EquationSystem(parser), parser, solver)
+        self.pre_filter = pre_filter
+        self.eq = sim.get_eq()
+        parser = sim.get_parser()
         if linearize:
+            l = [i for i, e in enumerate(parser.element_name["N"]) if "linearize" not in parser.V[e[0]]]
+            li = [i for i, e in enumerate(parser.element_name["N"]) if "linearize" in parser.V[e[0]]]
             J = sim.jacobi()
-            self.v0 = np.zeros(0)
-            self.x0 = np.zeros_like(sim.x)
-            self.p0 = ml.zeros(0)
-            self.o0 = np.zeros_like(sim.o0)
-        else:
-            J = None
-            self.v0, self.x0, self.p0, self.o0 = sim.v0, sim.x, sim.p0, sim.o0
-        self.eq = EquationSystem(parser, J)
-        self.f = parser.get_nonlin_funcs()
+            Jc = sim.calc_i(sim.v00)
+            par = J, Jc, l, li
+            self.eq = EquationSystem(parser, par)
+            sim = SimulatePy(self.eq, solver)
+        self.v0, self.x0, self.p0, self.o0 = sim.v0, sim.x, sim.p0, sim.o0
+        self.op = parser.op
         self.pot_func = parser.get_pot_funcs()
         self.pot = parser.pot
-        self.CZ = parser.CZ
         self.Pv = parser.Pv
+        self.pot_attr = parser.get_pot_attr()
         self.out_labels = parser.out_labels()
+        #FIXME:
         self.pot_list = []
+        for a, f in self.pot_func:
+            s = str(a)
+            if s not in self.pot_list:
+                self.pot_list.append(s)
 
     def get_executor(self):
-        return self.compile_c_func()
+        return self.compile_c_func().wrap_code()
 
     def prepare(self):
         eq = self.eq
-        d = dict(name=self.name, comment=time.ctime())
+        d = CheckedDict(name=self.name, comment=time.ctime())
         d["c_real"] = self.c_real
         for j in "nx", "nn", "ni", "no", "np", "nni", "nno", "mp_cols":
             d[j] = getattr(eq, j)
+        d["npl"] = len(self.pot_list)
         d["v0_data"] = ",".join([str(j) for j in self.v0])
         d["x0_data"] = ",".join([str(j) for j in self.x0])
         d["p0_data"] = ",".join([str(j) for j in self.p0.A1])
         d["o0_data"] = ",".join([str(j) for j in self.o0])
+        d["op_data"] = ",".join([str(j) for j in self.op])
         d["out_labels"] = ",".join(['"%s"' % j for j in self.out_labels])
         d["method"] = method = "linear" if eq.nn == 0 else self.solver_method
         t = "solver_%s_" % self.solver_method
@@ -756,10 +851,12 @@ class BuildCModule(Simulate):
         d["namespace"] = "nonlin"
         templ_main, templ_nonlin = dk_templates.get_templates(method)
         if eq.nn > 0:
+            dd = d.copy()
             d["nonlin_code"] = templ_nonlin % generate_code.NonlinSolverCodeGen(
-                d, self.f, eq.K0, eq.U0, eq.Hc0, np.diagonal(self.CZ), eq.Mi, len(self.pot_func) == 0).generate()
+                dd, self.eq.f, eq.K0, eq.U0, eq.Hc0, np.diagonal(self.eq.CZ), eq.Mi, len(self.pot_func) == 0).generate()
         else:
             d["nonlin_code"] = ""
+        d["pre_filter"] = self.pre_filter or ""
         return templ_main, d
 
     def make_code(self, templ_main, d):
@@ -775,6 +872,7 @@ class BuildCModule(Simulate):
             Ucv = eq.Ucv.T
         code = templ_main % generate_code.SimulationCodeGen(
             d,
+            self.pot_attr,
             np.concatenate((eq.G0, eq.H0), axis=1),
             np.concatenate((eq.A0, eq.B0, eq.Co), axis=1),
             eq.Bc0,
@@ -798,7 +896,7 @@ class BuildCModule(Simulate):
     def compile_c_func(self):
         templ_main, d = self.prepare()
         code = self.make_code(templ_main, d)
-        return CythonCodeWrapper(d, code, self.c_tempdir, self.c_verbose).wrap_code()
+        return CodeWrapper(d, code, self.c_tempdir, self.c_verbose)
 
 
 class SimulateC(object):
@@ -806,7 +904,9 @@ class SimulateC(object):
     def __init__(self, soname):
         self.soname = soname
         self.load_from_shared_lib()
-        self.v0, self.x, self.p0, self.o0 = self.c_get_dc()
+        self.v0, self.x, self.p0, self.o0, self.op = self.c_get_dc()
+        self.v00 = self.v0
+        self.x0 = self.x
         self.c_set_state(self.v0, self.x)
         self.c_calc_pot_update(np.array([self.pot[v] for v in self.pot_list], dtype=self.dtp))
         self.eval = self.eval_c
@@ -835,6 +935,9 @@ class SimulateC(object):
         self.x = x
         self.v0 = v
         return y
+
+    def reset(self):
+        self.c_set_state(self.v00, self.x0)
 
     def eval_c(self, v_in):
         self.c_set_state(self.v0, self.x)
@@ -924,7 +1027,7 @@ class SimulateC(object):
         c_calc_pot_update.argtypes = [c_arr(npl)]
         c_get_dc = lib.get_dc
         c_get_dc.restype = None
-        c_get_dc.argtypes = [c_arr(nn, True), c_arr(nx, True), c_arr(nni, True), c_arr(no, True)]
+        c_get_dc.argtypes = [c_arr(nn, True), c_arr(nx, True), c_arr(nni, True), c_arr(no, True), c_arr(ni, True)]
         info = ct.c_int()
         nfev = ct.c_int()
         fnorm = c_real()
@@ -959,7 +1062,7 @@ class SimulateC(object):
             x = np.array(x, dtype=self.dtp)
             c_set_state(v, x)
         def calc_nonlin(p, v):
-            assert p.shape[1] == nni
+            assert p.shape[1] == nni+npl, (p.shape[1], nni+npl)
             p = np.array(p, dtype=self.dtp, order='C', copy=False)
             i = np.zeros((p.shape[0], nno), dtype=self.dtp, order='C')
             r = c_calc_nonlin(len(p), p, i, v, ct.byref(info), ct.byref(nfev), ct.byref(fnorm))
@@ -971,8 +1074,9 @@ class SimulateC(object):
             x0 = np.zeros(nx, dtype=self.dtp, order='C')
             p0 = np.zeros(nni, dtype=self.dtp, order='C')
             o0 = np.zeros(no, dtype=self.dtp, order='C')
-            c_get_dc(v0, x0, p0, o0)
-            return v0, x0, ml.matrix(p0).T, o0
+            op = np.zeros(ni, dtype=self.dtp, order='C')
+            c_get_dc(v0, x0, p0, o0, op)
+            return v0, x0, ml.matrix(p0).T, o0, op
         self.c_calc = calc
         self.c_set_state = set_state
         self.c_get_info = get_info
@@ -986,11 +1090,19 @@ class SimulateC(object):
 
 
 class Parser(object):
+    # Nl = incidence matrix denoting the nodes which potentials are controlling the currents
+    # Nr = incidence matrix denoting the nodes where the current flows in (> 0) or out (< 0)
+    #
     def __init__(self, S, V, fs, TR=True, create_filter=False, symbolic=False):
-        self.V = V
         self.fs = fs
         self.TR = TR   # True: TR (trapezoidal) integration, False: BE backward euler
+        self.create_filter = create_filter
+        self.symbolic = symbolic
         self.mm = 2.0 if TR else 1.0
+        self.update(S, V)
+
+    def update(self, S, V):
+        self.V = V
         self.nodes = {}
         self.element_name = collections.defaultdict(list)
         tc = self.collect(S)
@@ -1004,13 +1116,12 @@ class Parser(object):
         self.Z = np.zeros(tc["X"])
         self.CZ = ml.matrix(np.diag(np.ones(tc["N"], dtype=int)))
         self.f = np.array((None,)*tc["N"])
-        alpha = self.mm * fs
-        if create_filter or symbolic:
-            self.S = sp.Matrix(self.S)
+        if self.create_filter or self.symbolic:
             alpha = sp.symbols("s")
+            self.S = sp.Matrix(self.S)
             for k in self.N.keys():
                 self.N[k] = sp.Matrix(self.N[k])
-            if symbolic:
+            if self.symbolic:
                 self.Pv = sp.Matrix(self.Pv)
                 d = {}
                 for k, v in V.items():
@@ -1023,19 +1134,43 @@ class Parser(object):
                             v = sym
                         d[k] = v
                 V = d
+        else:
+            alpha = self.mm * self.fs
         for row in S:
             row[0].process(self, [c if isinstance(c, Out) else self.nodes.get(c, -1) for c in row[1:]], V.get(row[0]), alpha)
         self.pot = V.get("POT", {})
-        self.pp = ml.eye(tc["N"])
-        #self.pp = self.K.I
-        #self.pp = ml.matrix(((1,-0.55,0.9,-0.9),(0,1,0,0),(0,0,1,0),(0,0,0,1)))
         self.op = V.get("OP",[0.]*tc["I"])
+
+    def get_status(self):
+        return ""
+        
+    def matches(self, create_filter, symbolic):
+        return self.create_filter == create_filter and self.symbolic == symbolic
 
     def get_nonlin_funcs(self):
         return self.f
 
     def get_pot_funcs(self):
         return self.pot_func
+
+    def get_pot_attr(self):
+        attrlist = []
+        for e in set([e[0] for e in self.element_name["P"]]):
+            t = self.V[e]
+            if not isinstance(t, dict):
+                t = dict(value=t)
+            var = t.get('var')
+            if var is None:
+                var = str(e)+"v"
+            name = t.get('name', var)
+            loga = t.get('a', 0)
+            inv = t.get('inv', 0)
+            if loga:
+                expr = lambda a: (math.exp(loga * a) - 1) / (math.exp(loga) - 1)
+            else:
+                expr = lambda a: a
+            attrlist.append((var, name, loga, inv, expr))
+        return attrlist
 
     def get_variable_defaults(self):
         return dict([(a, self.pot.get(str(a), 0.5)) for a, f in self.pot_func])
@@ -1044,7 +1179,11 @@ class Parser(object):
         return len(self.nodes) + idx
 
     def extra_variable_by_name(self, tpl):
-        return len(self.nodes) + self.element_name["V"].index(tpl)
+        try:
+            return len(self.nodes) + self.element_name["V"].index(tpl)
+        except ValueError:
+            print "%s not in %s" % (tpl, self.element_name["V"])
+            raise
 
     def collect(self, S):
         tc = collections.Counter()
@@ -1306,11 +1445,11 @@ class Parser(object):
         p = mk_sym('p', 'N')
         # nonlinear function for root-finding
         l = []
-        for n, (expr, vl, base) in enumerate(self.f):
+        for n, (expr, vl, base) in enumerate(self.eq.f):
             for j, e in enumerate(vl):
                 expr = expr.subs(e, v[base+j])
             l.append(expr)
-        ccode(d, 'fvec', sp.Matrix(p) + sp.Matrix(self.K) * sp.Matrix(l) - sp.Matrix(self.CZ) * sp.Matrix(v))
+        ccode(d, 'fvec', sp.Matrix(p) + sp.Matrix(self.K) * sp.Matrix(l) - sp.Matrix(self.eq.CZ) * sp.Matrix(v))
         # "currents"
         ccode(d, 'i', l)
         # p value
@@ -1321,26 +1460,21 @@ class Parser(object):
         ccodesum(d, 'o', [sp.Matrix(self.D) * x, sp.Matrix(self.E) * u, sp.Matrix(self.Ec), sp.Matrix(self.F) * i])
 
 
-def get_py_executor(S, V, fs, solver=None, TR=True, linearize=False):
-    p = Parser(S, V, fs, TR)
-    sim = SimulatePy(EquationSystem(p), p, solver)
+def get_py_executor(parser, solver=None, linearize=False):
+    sim = SimulatePy(EquationSystem(parser), solver)
     if linearize:
         J = sim.jacobi()
-        sim = SimulatePy(EquationSystem(p, J), p, solver)
+        sim = SimulatePy(EquationSystem(parser, J), solver)
     return sim
 
-def build_c_executor(name, S, V, fs, solver=None, TR=True, c_tempdir=None, c_verbose=False,
-                     c_real="double", extra_sources=None, linearize=False):
-    p = Parser(S, V, fs, TR)
-    return BuildCModule(name, p, solver, c_tempdir, c_verbose, c_real, extra_sources, linearize).get_executor()
-
-def get_executor(name, S, V, fs, solver=None, TR=True, pure_python=True, c_tempdir=None, c_verbose=False,
+def get_executor(name, parser, solver=None, pure_python=True, c_tempdir=None, c_verbose=False,
                  c_debug_load="", c_real="double", extra_sources=None, linearize=False):
     if pure_python:
-        return get_py_executor(S, V, fs, solver, TR, linearize)
+        return get_py_executor(parser, solver, linearize)
     elif c_debug_load:
         sim = SimulateC(c_debug_load)
         print "%s/%s: %s[%d], %s, %s" % (sim.name, sim.comment, sim.method, sim.data_size, sim.out_labels, sim.pot_list)
         return sim
     else:
-        return build_c_executor(name, S, V, fs, solver, TR, c_tempdir, c_verbose, c_real, extra_sources, linearize)
+        sim = SimulatePy(EquationSystem(parser), solver)
+        return BuildCModule(name, sim, solver, c_tempdir, c_verbose, c_real, extra_sources, linearize).get_executor()[1]

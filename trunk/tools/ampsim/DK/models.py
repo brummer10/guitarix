@@ -2,12 +2,15 @@ from __future__ import division
 import numpy as np
 import sympy as sp
 
-class GNDclass(object): pass
+class GNDclass(object):
+    def __repr__(self):
+        return "GND"
 GND = GNDclass()
 
 class NODESclass(object):
     def add_count(self, tc, conn): pass
     def process(self, p, conn, param, alpha): pass
+    def __repr__(self): return "NODES"
 NODES = NODESclass()
 
 class Node(object):
@@ -125,7 +128,7 @@ class P_parallel(Node):
         idx1 = p.new_row("R", self)
         p.add_S_currents(c, v)
         p.add_2conn("R", idx1, c)
-        idx_p1 = p.new_row("P", self)
+        idx_p1 = p.new_row("P", self, "+")
         p.add_2conn("P", idx_p1, c)
         p.Pv[idx_p1] = val
         p.pot_func[idx_p1] = (a, a / (2 - a))
@@ -135,7 +138,7 @@ class P_parallel(Node):
             idx2 = p.new_row("R", self)
             p.add_S_currents(c, v)
             p.add_2conn("R", idx2, c)
-            idx_p2 = p.new_row("P", self)
+            idx_p2 = p.new_row("P", self, "-")
             p.add_2conn("P", idx_p2, c)
             p.Pv[idx_p2] = val
             p.pot_func[idx_p2] = (a, (1 - a) / (1 + a))
@@ -160,14 +163,14 @@ class P_single(Node):
         a = sp.symbols(sym)
         # first resistor
         c = (conn[0], conn[2])
-        idx_p1 = p.new_row("P", self)
+        idx_p1 = p.new_row("P", self, "+")
         p.add_2conn("P", idx_p1, c)
         p.Pv[idx_p1] = val
         p.pot_func[idx_p1] = (a, a)
         if len(conn) == 3:
             # second resistor
             c = (conn[1], conn[2])
-            idx_p2 = p.new_row("P", self)
+            idx_p2 = p.new_row("P", self, "-")
             p.add_2conn("P", idx_p2, c)
             p.Pv[idx_p2] = val
             p.pot_func[idx_p2] = (a, 1 - a)
@@ -233,26 +236,50 @@ class D2(Node):
         p.add_2conn("Nr", idx, (conn[0], conn[1]))
         p.f[idx] = (calc, v, idx)
 
+class VCCS(Node):
+    def __init__(self, n=None):
+        Node.__init__(self, "VCCS", n)
+    def add_count(self, tc, conn):
+        pass
+    def process(self, p, conn, param, alpha):
+        dG = param["dG"]
+        i0 = param["i0"]
+        if conn[2] != -1:
+            if conn[0] != -1:
+                p.S[conn[2], conn[0]] += dG
+            if conn[1] != -1:
+                p.S[conn[2], conn[1]] -= dG
+            p.ConstVoltages[0,conn[2]] += i0
+        if conn[3] != -1:
+            if conn[0] != -1:
+                p.S[conn[3], conn[0]] -= dG
+            if conn[1] != -1:
+                p.S[conn[3], conn[1]] += dG
+            p.ConstVoltages[0,conn[3]] -= i0
+
 class T(Node):
     def __init__(self, n=None):
         Node.__init__(self, "T", n)
     def add_count(self, tc, conn):
         tc["N"] += 2
     def process(self, p, conn, param, alpha):
+        # pins are C, B, E (index 0, 1, 2)
+        # Ib and Ie depend on Vbc (1 - 0) and Vbe (1 - 2), Ic = Ib + Ie
+        # 
         Is, Bf, Vt, Br = const = sp.symbols("Is,Bf,Vt,Br")
-        Vbc, Vec = v = sp.symbols("Vbc,Vec")
-        calc_ib = -(Is / Bf * (sp.exp((Vbc-Vec)/Vt)-1) + Is/Br * (sp.exp(Vbc/Vt)-1))
+        Vbc, Vbe = v = sp.symbols("Vbc,Vbe")
+        calc_ib = -(Is / Bf * (sp.exp(Vbe/Vt)-1) + Is/Br * (sp.exp(Vbc/Vt)-1))
         calc_ib = calc_ib.subs(dict([(k,param[str(k)]) for k in const]))
-        calc_ic = -(-Is*(sp.exp((Vbc-Vec)/Vt)-1) + Is*(Br-1)/Br * (sp.exp(Vbc/Vt)-1))
-        calc_ic = calc_ic.subs(dict([(k,param[str(k)]) for k in const]))
+        calc_ie = -(-Is*(sp.exp(Vbe/Vt)-1) + Is*(Br-1)/Br * (sp.exp(Vbc/Vt)-1))
+        calc_ie = calc_ie.subs(dict([(k,param[str(k)]) for k in const]))
         idx1 = p.new_row("N", self, "Ib")
         p.add_2conn("Nl", idx1, (conn[1],conn[0]))
         p.add_2conn("Nr", idx1, (conn[1],conn[0]))
         p.f[idx1] = (calc_ib, v, idx1)
-        idx2 = p.new_row("N", self, "Ic")
-        p.add_2conn("Nl", idx2, (conn[2],conn[0]))
+        idx2 = p.new_row("N", self, "Ie")
+        p.add_2conn("Nl", idx2, (conn[1],conn[2]))
         p.add_2conn("Nr", idx2, (conn[2],conn[0]))
-        p.f[idx2] = (calc_ic, v, idx1)
+        p.f[idx2] = (calc_ie, v, idx1)
 
 class Triode(Node):
     def __init__(self, n=None):
@@ -443,10 +470,10 @@ class Trans_GC(Node):
         tc["V"] += self.nw + 2
         tc["N"] += 1
     def process(self, p, conn, param, alpha):
-        C, a, n = const = sp.symbols("C,a,n")
-        v0, = v = sp.symbols("v:1", seq=True)
+        C, a, o, n = const = sp.symbols("C,a,o,n")
+        v0, = v = sp.symbols("v:1", seq=True, real=True) # "real" needed to get derivative of sign()
         t = v0 / C
-        calc_gc_MMF = -(t + a * pow(abs(t), n) * sp.sign(t))
+        calc_gc_MMF = -(a * pow(abs(t), n) * sp.sign(t)) + o
         calc_gc_MMF = calc_gc_MMF.subs(dict([(k,param[str(k)]) for k in const]))
         # def calc_gc_MMF(v):
         #     v = float(v[0])
@@ -470,6 +497,7 @@ class Trans_GC(Node):
         idx = p.new_row("V", self, "phi")
         for i in range(self.nw):
             p.S[idx, start+i] += param["windings"][i]
+        p.S[idx, end-1] += 1 / param["C"]
         idx_v = p.new_row("V", self, "v")
         p.S[idx_v, idx_v] += 1
         p.S[idx_v, idx] += alpha

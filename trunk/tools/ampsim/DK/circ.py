@@ -34,12 +34,22 @@ class Test(object):
             return self.compare_data(y)
 
     def check(self, name, args):
-        p = dk_simulator.get_executor(name, self.S, self.V, self.FS, self.solver, not args.backward_euler, args.pure_python,
-                                      c_tempdir=args.c_tempdir, c_verbose=args.c_verbose, c_debug_load=args.c_debug_load)
-        return "%s [%.2g]" % (self.check_signal(p)[1], p.time_per_sample)
+        parser = dk_simulator.Parser(self.S, self.V, self.FS, not args.backward_euler)
+        p = dk_simulator.get_executor(
+            name, parser, self.solver, args.pure_python, c_tempdir=args.c_tempdir,
+            c_verbose=args.c_verbose, c_debug_load=args.c_debug_load, linearize=args.linearize)
+        if args.print_result:
+            self.print_data(p(self.signal()), "\nresult = np.")
+            return ""
+        res = self.check_signal(p)  # side-effect: calculate time_per_sample
+        if hasattr(p, "time_per_sample"):
+            s = " [%.2g]" % p.time_per_sample
+        else:
+            s = ""
+        return "%s%s" % (res[1], s)
 
-    def print_data(self, data):
-        print repr(self.get_samples(data))
+    def print_data(self, data, prefix=""):
+        print prefix + repr(self.get_samples(data))
 
     def op_signal(self, op=None, samples=None, timespan=None):
         if timespan is None:
@@ -88,17 +98,21 @@ class Test(object):
             start, stop, self.FS, smpl(pre), smpl(span), smpl(post))
         s *= magnitude
         n = dk_lib.pow2roundup(len(s))
-        d /= np.mean(abs(np.fft.fft(dk_lib.fft_convolve(d, s), n))[n*start/self.FS:n*stop/self.FS])
-        return s, d
+        #d /= np.mean(abs(np.fft.fft(dk_lib.fft_convolve(d, s), n))[n*start/self.FS:n*stop/self.FS])
+        #return s, d
+        return s
 
     def sweep(self, p, pre=None, span=0.5, post=0.1, magnitude=1e-2, start=20, stop=10000):
-        s, d = self.make_sweep(pre, span, post, magnitude, start, stop)
+        #s, d = self.make_sweep(pre, span, post, magnitude, start, stop)
+        s = self.make_sweep(pre, span, post, magnitude, start, stop)
         a = self.op_signal(samples=len(s), op=self.V.get("OP",[0.]))
         a[:,0] += s
         y = p(a)-p.o0
-        return dk_lib.fft_convolve(d, y[:,0])
+        #return dk_lib.fft_convolve(d, y[:,0])
+        return dk_lib.fft_convolve(s, y[:,0], invert=True)
 
-    spectrum_signal = impulse
+    #spectrum_signal = impulse
+    spectrum_signal = sweep
 
     def plot_spectrum(self, p, plot_variable):
         y = self.spectrum_signal(p)
@@ -147,7 +161,7 @@ class Choke_test(Test):
     V = {R(): 100,
          Trans_L(): dict(windings=[100], R = 358.),
          Trans_F(): dict(windings=[100], b = 255., c = 358.),
-         Trans_GC(): dict(windings=[100], C = 3e-3, a = 5, n = 7),
+         Trans_GC(): dict(windings=[100], C = 3e-3, a = 5, o = 0, n = 7),
          "OP": [0],
          }
 
@@ -189,7 +203,7 @@ class Transformer_GC_test(Test): # transformer
     V = {R("p1"): 100,
          R("p2"): 100,
          R("s"): 1e3,
-         Trans_GC(): dict(windings=[100, 100, 100], C=2e-3, a=1e-5, n=25),
+         Trans_GC(): dict(windings=[100, 100, 100], C=2e-3, a=1e-5, o=0, n=25),
          Trans_F(): dict(windings=[100, 100, 100], b = 255., c = 358.),
          Trans_L(): dict(windings=[100, 100, 100], R = 358.),
          }
@@ -270,7 +284,7 @@ class PushPullTransformer_test(Test): # 2 push-pull pentodes with transformer
          R(1): 100,
          R(2): 100,
          Trans_L(nw=3): dict(windings=[1000, 1000, 64], R=358),
-         Trans_GC(nw=3): dict(windings=[100.0, 100.0, 6.4], C=24e-3, a=900, n=7),
+         Trans_GC(nw=3): dict(windings=[100.0, 100.0, 6.4], C=24e-3, a=900, o=0, n=7),
          #Trans_GC(nw=3): dict(windings=[1000, 1000, 64], C=2e-3, a=1e-5, n=25),
          Trans_F(nw=3): dict(windings=[1000, 1000, 64], b = 255., c = 358.),
          "Vps": 394,
@@ -334,7 +348,9 @@ class PushPullTransformer_test(Test): # 2 push-pull pentodes with transformer
 class Resonator_test(Test): # LC-resonator
     S = ((R(), "V0", "V1"),
          (L(),"V0","V1"),
+         #(Trans_GC(nw=1), "V0", "V1"),
          (C(),"V1",GND),
+         #(OUT, "V1",Trans_GC()("phi",1e6)),
          (OUT, "V1"),
          (IN, "V0"),
          )
@@ -342,6 +358,7 @@ class Resonator_test(Test): # LC-resonator
     V = {L(): 1e-3,
          C(): 1e-5,
          R(): 1e+2,
+         Trans_GC(nw=1): dict(windings=[100], C = 1e-3/100**2, a = 5e-1, o = 0, n = 4),
          "OP": [0],
          }
 
@@ -357,7 +374,7 @@ class Resonator_test(Test): # LC-resonator
        [-2.8083471 ]])
 
     timespan = 0.01
-
+    
     def signal(self):
         res_freq = 1592
         return self.sine_signal(res_freq-200)
@@ -551,7 +568,7 @@ class InvOpAmp_test(Test): # inverting OPAMP
          }
 
     timespan = 0.01
-    solver = dict(method='hybr', factor=0.1)
+    solver = dict(method='hybr', xtol=1e-12, factor=1e-1)
 
     result = np.array([[  0.00000000e+00,   0.00000000e+00,   0.00000000e+00],
        [ -4.26797924e+00,  -4.55963690e-05,   4.26788804e+00],
@@ -578,7 +595,6 @@ class WahWah_test(Test): # wah-wah
          (C(1), "V2", "V3"),
          (T(1), "V4", "V3", "V5"),
          (R(4), "V4", "V6"),
-         (L(1), "V6", "V7"),
          (R(7), "V6", "V7"),
          (C(4), "V4", "V8"),
          (P(), GND, "V8", "V9"),
@@ -595,9 +611,15 @@ class WahWah_test(Test): # wah-wah
          (C(2), "V6", GND),
          (R(8), "V6", GND),
          (R(6), "V7", "V3"),
+         #(L(1), "V6", 7),
+         (Trans_GC(1, nw=1), "V6", 7),
+         (R('L'), 7, "V7"),
+         #(Trans_L(1, nw=1), "V6", 7),
          (V(), "V13"),
          (IN, "V1"),
          (OUT, "V8"),
+         #(OUT, "V1","V2","V3","V4","V5","V6","V7","V8","V9","V10","V11","V12","V13"),
+         #(OUT, Trans_GC(1, nw=1)("W1"), Trans_GC(1, nw=1)("phi",1e3)),
          #(OUT, "V4", "V6","V7"),
          )
 
@@ -612,14 +634,17 @@ class WahWah_test(Test): # wah-wah
          R(9): 10e3,
          R(10): 1e3,
          P(): dict(value=100e3, a=3, inv=1, var='hotpotz', name='Wah'),
-         #R("va"): 50e3,
-         #R("vb"): 50e3,
+         R("va"): 50e3,
+         R("vb"): 50e3,
          C(1): 10e-9,
          C(2): 4.7e-6,
          C(3): 10e-9,
          C(4): 220e-9,
          C(5): 220e-9,
          L(1): 500e-3,
+         R('L'): 60.,
+         Trans_GC(1, nw=1): dict(windings=[100], C = 0.5/100**2, a = (4e-3/(0.5/100**2))**7, o = 1e-3, n = 7),
+         Trans_L(1, nw=1): dict(windings=[100], R = 100**2/0.5),
          T(1): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
          T(2): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
          V(): 8.15,
@@ -632,11 +657,11 @@ class WahWah_test(Test): # wah-wah
     def signal(self):
         a = self.op_signal()
         a[:,0] += 0.2*self.sine_signal(555.*1.2)[:,0]
-        #a[:,0] += 2*self.sine_signal(555.*1.0)[:,0]
+        #a[:,0] += 10*self.sine_signal(555.*1.02)[:,0]
         return a
 
     max_error = 5e-7  # presumable due to different numeric implementation of nonlinear vector function
-    result = np.array([
+    result = np.array([ # linear inductivity
         [ -1.11013509e-09],
         [ -5.33823431e-01],
         [  6.98293529e-01],
@@ -647,6 +672,17 @@ class WahWah_test(Test): # wah-wah
         [ -2.60164234e-01],
         [  2.16409909e-01],
         [ -2.21358465e-01]])
+
+    result = np.array([[  3.38299440e-09], # nonlinear inductivity
+       [ -5.05702356e-01],
+       [  6.50565393e-01],
+       [ -4.16306149e-01],
+       [  3.38903677e-01],
+       [ -4.17551679e-01],
+       [  3.81734262e-01],
+       [ -3.11947188e-01],
+       [  2.61606410e-01],
+       [ -2.30657192e-01]])
 
     def plot(self, p):
         x = self.timeline()
@@ -690,7 +726,7 @@ class WahWah_test(Test): # wah-wah
         for var, val, lbl in varlist:
             if var is not None:
                 p.set_variable(var, val)
-            y = self.spectrum_signal(p)
+            y = self.spectrum_signal(p, magnitude=1e-4)
             if n is None:
                 n = dk_lib.pow2roundup(len(y))
                 cut = slice(n*20.0/self.FS, n*10000.0/self.FS)
@@ -705,17 +741,23 @@ class WahWah_test(Test): # wah-wah
 
 class WahWah_ss(WahWah_test): # wah-wah small signal model
 
-    result = np.array([[
-        -0.0733464958196611, 0.377495715981138, -0.790853533144348, 0.855375239025460,
-        -0.495764243831986, 0.141417298177260, -0.0143239803878635],
-        [1.03797367238062, -6.18418431977384, 15.3571719537174, -20.3461464380570,
-         15.1676459322468, -6.03246080051401, 1.00000000000000],
-         ])
+    result = np.array([ # RL = 0
+        [-7.06631563e-02, 3.63685251e-01, -7.61920610e-01, 8.24081826e-01, -4.77626993e-01, 1.36243627e-01, -1.37999458e-02],
+        [ 1.00000000e+00, -5.95793948e+00, 1.47953386e+01, -1.96017943e+01, 1.46127463e+01, -5.81176668e+00, 9.63415573e-01]])
+    result = np.array([ # RL = 60
+        [-7.06620964e-02, 3.63509088e-01, -7.61193126e-01, 8.22912278e-01, -4.76737510e-01, 1.35937831e-01, -1.37664640e-02],
+        [ 1.00000000e+00, -5.95545306e+00, 1.47829908e+01, -1.95772669e+01, 1.45883870e+01, -5.79967105e+00, 9.61013231e-01]])
+
+    def plot(self, p):
+        x = self.timeline()
+        y = p(self.signal())
+        pl.plot(x, y)
+        self.finish_plot(p.out_labels)
 
     def check(self, name, args):
         p = dk_simulator.Parser(self.S, self.V, self.FS, not args.backward_euler, create_filter=True, symbolic=False)
         p1 = dk_simulator.Parser(self.S, self.V, self.FS, not args.backward_euler)
-        sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p1), p1, self.solver)
+        sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p1), self.solver)
         J = sim.jacobi()
         f = dk_simulator.LinearFilter(p, J)
         b, a = f.get_z_coeffs(samplerate=48000, subst_var=f.convert_variable_dict({}))

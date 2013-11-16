@@ -1,6 +1,10 @@
+from __future__ import division
 import contextlib, math
 import numpy as np
 import numpy.core.arrayprint as npap
+
+class CircuitException(Exception):
+    pass
 
 # http://stackoverflow.com/questions/2891790/pretty-printing-of-numpy-array
 @contextlib.contextmanager
@@ -68,12 +72,16 @@ def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
         s2[-(k0+i+1)] = x * q / r
     return s1, s2
 
-def fft_convolve(h, xd):
+def fft_convolve(h, xd, invert=False):
     n = len(h) + len(xd) - 1
     n2 = pow2roundup(n)
     H = np.fft.rfft(h[2:], n2, axis=0)
     XD = np.fft.rfft(xd, n2, axis=0)
     if len(XD.shape) == 2 and len(H.shape) == 1:
         H = H.reshape(len(H), 1)
-    s = np.fft.irfft(H * XD, n2, axis=0)
+    if invert:
+        XD /= H
+    else:
+        XD *= H
+    s = np.fft.irfft(XD, n2, axis=0)
     return s[:n]

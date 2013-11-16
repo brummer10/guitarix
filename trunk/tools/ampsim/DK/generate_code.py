@@ -2,7 +2,7 @@ from __future__ import division
 import sympy as sp
 import numpy as np
 import numpy.matlib as ml
-from dk_templates import c_template_struct_const, c_template_struct
+from dk_templates import c_template_struct_const, c_template_struct, module_ui_master_template, module_ui_knob_template, c_module_reg_line
 
 class CodeGenerator(object):
 
@@ -96,9 +96,9 @@ class NonlinSolverCodeGen(CodeGenerator):
             return "par.%s" % name
 
     def generate(self):
-        self.d["nn"] = nn = self.K.shape[0]
-        self.d["nni"] = nni = self.Mp.shape[1]
-        self.d["nno"] = nno = self.Mi.shape[0]
+        nn = self.d["nn"]   # = self.K.shape[0]
+        nni = self.d["nni"] # = self.Mp.shape[1]
+        nno = self.d["nno"] # = self.Mi.shape[0]
         self.d["have_constant_matrices"] = int(self.have_constant_matrices)
         self.d["struct_decl"] = (c_template_struct_const if self.have_constant_matrices else c_template_struct) % self.d
 
@@ -166,8 +166,9 @@ class NonlinSolverCodeGen(CodeGenerator):
 
 class SimulationCodeGen(CodeGenerator):
 
-    def __init__(self, d, Mp, Mx, Mxc, Mo, Moc, pot_func, Pv, pot_list, pot, Q, Uxl, Uo, Unl, UR, Ucv, Mpc, K):
+    def __init__(self, d, pot_attr, Mp, Mx, Mxc, Mo, Moc, pot_func, Pv, pot_list, pot, Q, Uxl, Uo, Unl, UR, Ucv, Mpc, K):
         CodeGenerator.__init__(self, d)
+        self.pot_attr = pot_attr
         self.Mp = Mp
         self.Mx = Mx
         self.Mxc = Mxc
@@ -201,21 +202,22 @@ class SimulationCodeGen(CodeGenerator):
             self.global_matrices[name] = value.shape
             return name
 
-    def gen_linear_combination(self, resname, varname, mult, mult_data, add=None, add_data=None):
+    def gen_linear_combination(self, resname, varname, mult, mult_data, add=None, add_data=None, cast=None):
         if mult_data.shape[0] == 0:
             if add is None or add_data.shape[0] == 0:
                 return ""
             else:
-                return "%s = %s;" % (resname, self.access_matrix(add, add_data))
-        if not self.matrix_is_identity(mult_data):
-            s = "%s = %s * %s" % (resname, self.access_matrix(mult, mult_data), varname)
+                e = "%s" % self.access_matrix(add, add_data)
         else:
-            s = "%s = %s" % (resname, varname)
-        if add is not None and not self.matrix_is_zero(add_data):
-            s += " + %s;" % self.access_matrix(add, add_data)
-        else:
-            s += ";"
-        return s
+            if not self.matrix_is_identity(mult_data):
+                e = "%s * %s" % (self.access_matrix(mult, mult_data), varname)
+            else:
+                e = "%s" % varname
+            if add is not None and not self.matrix_is_zero(add_data):
+                e += " + %s" % self.access_matrix(add, add_data)
+        if cast is not None:
+            e = "(%s).cast<%s>()" % (e, cast)
+        return "%s = %s;" % (resname, e)
 
     def trans_line(self, res, var, var_data, t, u, u_data):
         s = "%s = %s" % (
@@ -230,16 +232,37 @@ class SimulationCodeGen(CodeGenerator):
             )
 
     def generate(self):
+        if not self.pot_attr:
+            self.d['master'] = ''
+            self.d['knobs'] = ''
+        else:
+            self.d['master'] = "        "+module_ui_master_template % dict(id=self.pot_attr[0][0])
+            self.d['knobs'] = "\n".join(["        "+module_ui_knob_template % dict(id=t[0]) for t in self.pot_attr])
+        self.d['id'] = self.d["name"]
+        self.d['timecst'] = 0.01
+        self.d['regs'] = "\n    ".join([c_module_reg_line % dict(id=vv[0],name=vv[1],desc="",varidx=i) for i, vv in enumerate(self.pot_attr)])
+        ll = []
+        for i, (var, name, loga, inv, expr) in enumerate(self.pot_attr):
+            if loga and inv:
+                ss = "t[%d] = (exp(%s * (1-self.pots[%d])) - 1) / (exp(%s) - 1);" % (i, loga, i, loga)
+            elif loga:
+                ss = "t[%d] = (exp(%s * self.pots[%d]) - 1) / (exp(%s) - 1);" % (i, loga, i, loga)
+            else:
+                ss = "t[%d] = self.pots[%d];" % (i, i)
+            ll.append(ss)
+        s = 0.993;
+        self.d['calc_pots'] = "\n    ".join(ll)
         self.d["gen_mp"] = self.gen_linear_combination('mp', 'dp', 'Mp', self.Mp)
-        self.d["mp_cols"] = mp_cols = self.Mp.shape[1]
+        #mp_cols = self.d["mp_cols"] # = self.Mp.shape[1]
         self.d["gen_xn"] = self.gen_linear_combination('xn', 'd', 'Mx', self.Mx, 'Mxc', self.Mxc)
         self.d["m_cols"] = m_cols = self.Mx.shape[1]
         self.d["gen_xo"] = self.gen_linear_combination('xo', 'd', 'Mo', self.Mo, 'Moc', self.Moc)
+        self.d["gen_xo_float"] = self.gen_linear_combination('xo', 'd', 'Mo', self.Mo, 'Moc', self.Moc, cast="float")
 
-        self.d["np"] = np = len(self.pot_func)
+        #self.d["np"] = np = len(self.pot_func)
         if self.have_constant_matrices:
             self.d["update_pot"] = ""
-            self.d["npl"] = 0
+            #self.d["npl"] = 0
             self.d["nonlin_mat_list"] = ""
             self.d["pot_vars"] = ""
             self.d["pot"] = ""
@@ -259,7 +282,7 @@ class SimulationCodeGen(CodeGenerator):
                 l.append(expr)
             self.d["pot_vars"] = ",".join(['"%s"' % v for v in self.pot_list])
             self.d["pot"] = ",".join([str(self.pot.get(v,0.5)) for v in self.pot_list])
-            self.d["npl"] = npl = len(self.pot_list)
+            #self.d["npl"] = npl = len(self.pot_list)
             nx = self.d["nx"]
             no = self.d["no"]
             np = self.d["np"]
