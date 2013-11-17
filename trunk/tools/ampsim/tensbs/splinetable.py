@@ -122,6 +122,48 @@ except AttributeError:
 
     np.pad = pad
 
+try:
+    np.meshgrid((),(), indexing='ij')
+except TypeError:
+    def numpy_meshgrid(*xi, **kwargs):
+        if len(xi) < 2:
+            msg = 'meshgrid() takes 2 or more arguments (%d given)' % int(len(xi) > 0)
+            raise ValueError(msg)
+
+        args = np.atleast_1d(*xi)
+        ndim = len(args)
+
+        copy_ = kwargs.get('copy', True)
+        sparse = kwargs.get('sparse', False)
+        indexing = kwargs.get('indexing', 'xy')
+        if not indexing in ['xy', 'ij']:
+            raise ValueError("Valid values for `indexing` are 'xy' and 'ij'.")
+
+        s0 = (1,) * ndim
+        output = [x.reshape(s0[:i] + (-1,) + s0[i + 1::]) for i, x in enumerate(args)]
+
+        shape = [x.size for x in output]
+
+        if indexing == 'xy':
+            # switch first and second axis
+            output[0].shape = (1, -1) + (1,)*(ndim - 2)
+            output[1].shape = (-1, 1) + (1,)*(ndim - 2)
+            shape[0], shape[1] = shape[1], shape[0]
+
+        if sparse:
+            if copy_:
+                return [x.copy() for x in output]
+            else:
+                return output
+        else:
+            # Return the full N-D matrix (not only the 1-D vector)
+            if copy_:
+                mult_fact = np.ones(shape, dtype=int)
+                return [x * mult_fact for x in output]
+            else:
+                return np.broadcast_arrays(*output)
+    np.meshgrid = numpy_meshgrid
+
 ################################################################
 
 class KnotData(object):

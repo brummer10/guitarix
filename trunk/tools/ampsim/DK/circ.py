@@ -782,6 +782,7 @@ class Transistor_test(Test): # transitor test
          R(3): 1e6,
          T(1): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
          "OP": [1, 10],
+         "v0": [1, 1],
          }
 
     result = np.array([[  0.00000000e+00,   5.07500000e-09,   1.00000000e+01],

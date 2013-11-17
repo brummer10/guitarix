@@ -45,7 +45,7 @@ class Circuit(object):
 
     have_plot = False
 
-    def __init__(self, FS=96000):
+    def __init__(self, copy_from=None, FS=96000):
         self.tempdir = None
         self.tempdir_keep = False
         self.backward_euler = False
@@ -61,7 +61,13 @@ class Circuit(object):
         self.use_sim = SIM_C
         self._clear_all()
         self._rmtree = shutil.rmtree
-
+        if copy_from is not None:
+            self.backward_euler = copy_from.backward_euler
+            self.solver = copy_from.solver
+            self.FS = copy_from.FS
+            self.S = copy_from.S
+            self.V = copy_from.V
+    
     #
     # internal routines
     #
@@ -180,8 +186,8 @@ class Circuit(object):
             h = StringIO()
             npl = 1 ##FIXME
             class Comp:
-                comp_id = self._get_module_id()+"_table"
-                comp_name = self._get_module_id()+"_table"
+                comp_id = self._get_module_id()
+                comp_name = self._get_module_id()
                 ranges = self.minmax
                 basegrid = [(g, None, None, -e, False) for g, e in zip(self.basegrid, self.E)]
                 NVALS = self.eq.nno
@@ -202,7 +208,7 @@ class Circuit(object):
             self._ensure_basegrid()
             self._ensure_knot_positions()
             self._ensure_table_source()
-            name = self._get_module_id()+"_table"
+            name = self._get_module_id()
             self.table_module, self.sim_table = dk_simulator.BuildCModule(
                 name, self.sim_py, solver=dict(method="table",name=name,maptype=self.maptype),
                 extra_sources=self.table_source, c_tempdir="gencode", c_verbose=self.build_verbose,
@@ -226,7 +232,7 @@ class Circuit(object):
             if symbolic:
                 raise CircuitException("ciruit is nonlinear: symbolic formula generation not supported")
             p = dk_simulator.Parser(self.S, self.V, self.FS, not self.backward_euler)
-            sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p), p, self.solver)
+            sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p), self.solver)
             J = sim.jacobi()
         else:
             J = None

@@ -217,7 +217,11 @@ int calc_stream(creal *u, creal *o, int n) {
         }
 #endif
         Matrix<creal, %(m_cols)d, 1> d;
+#if %(nn)d
         d << g_x, Map<Matrix<creal,%(ni)d,1> >(GET_U), mi;
+#else
+        d << g_x, Map<Matrix<creal,%(ni)d,1> >(GET_U);
+#endif
         Matrix<creal, %(nx)d, 1>& xn = g_x;
         %(gen_xn)s
         Map<Matrix<creal, %(no)d, 1> > xo(o+%(no)d*j);

@@ -12,6 +12,22 @@ import dk_templates, generate_code
 from models import GND, Out, Node
 from dk_lib import printoptions
 
+try:
+    opt.root
+except AttributeError:
+    class RootResult(object):
+        def __init__(self, x, infodict, ier, mesg):
+            self.x = x
+            self.success = (ier == 1)
+            self.status = ier
+            self.message = mesg
+    def opt_root(fun, x0, args=(), method='hybr', jac=None, tol=None, callback=None, options=None):
+        factor = 100
+        if options:
+            factor = options.get("factor", 100)
+        return RootResult(*opt.fsolve(fun, x0, args, jac, full_output=True))
+    opt.root = opt_root
+
 ################################################################
 # bugfixes
 #
@@ -552,7 +568,7 @@ class SimulatePy(Simulate):
         self.Pv = parser.Pv
         self.pot = parser.pot
         self.out_labels = parser.out_labels()
-        self.v0 = np.zeros(eq.nn)
+        self.v0 = parser.V.get("v0", np.zeros(eq.nn))
         self.x = np.zeros(eq.nx)
         self.o0 = np.zeros(eq.no)
         self.op = parser.op
@@ -606,82 +622,70 @@ class SimulatePy(Simulate):
                     eq.G0, eq.H0, eq.Hc0, eq.K0,
                     )
 
+    def solve(self, func, v0):
+        # use homotopy
+        points = [0, 1]
+        max_iter = 1000
+        for tries in range(max_iter):
+            try:
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(action="error")
+                    res = opt.root(func, v0, args=(points[1],), method='hybr')
+            except RuntimeWarning as e:
+                success = False
+                msg = e
+            else:
+                success = res.success
+                msg = res.message
+            if not success:
+                points.insert(1, (points[0]+points[1])/2)
+                continue
+            if len(points) == 2:
+                return res
+            v0 = res.x
+            points = points[1:]
+        raise ValueError("calc_dc: more than %d iterations (list msg: %s)" % (max_iter, msg))
+
     def calc_dc(self, u):
         u = ml.matrix(u, dtype=np.float64).T
         A, B, Bc, C, D, E, Ec, F, G, H, Hc, K = self.calc_matrixes()
         if A.size == 0:
             if len(self.eq.f):
-                p = self.eq.U0 * H * u + Hc
-                def func(v):
+                p = self.eq.U0 * H * u
+                def func(v, fact):
                     v = ml.matrix(v).T
-                    r = p + K * self.calc_i(v) - self.eq.CZ * v
+                    r = p + Hc * fact + K * self.calc_i(v) - self.eq.CZ * v
                     return r.A1
-                with warnings.catch_warnings():
-                    warnings.filterwarnings(action="error")
-                    res = opt.root(func, self.v0, method='lm', options=dict(xtol=1e-13,factor=1e-1)) ##FIXME
-                if not res.success:
-                    raise ValueError(res.message)
-                self.v0 = res.x
+                self.v0 = self.solve(func, self.v0).x
         else:
             I = ml.eye(len(A))
             try:
                 Ai = (I - A).I
             except la.LinAlgError:
-                n = len(self.v0)
                 G1 = ml.append(self.eq.U0 * G, A, axis=0)
                 H1 = ml.append(self.eq.U0 * H, B, axis=0)
                 Hc1 = ml.append(Hc, Bc, axis=0)
                 K1 = ml.append(K, C, axis=0)
                 CZ1 = ml.matrix(np.diag(np.append(np.diagonal(self.eq.CZ), np.ones(C.shape[0]))))
-                v0 = np.append(self.v0, self.x)
-                points = [0, 1]
-                max_iter = 1000
-                for tries in range(max_iter): # use homotopy
-                    fact = points[1]
-                    def func(v):
-                        v = ml.matrix(v).T
-                        return (G1 * v[n:] + H1 * u + Hc1*fact + K1 * self.calc_i(v) - CZ1 * v).A1
-                    try:
-                        with warnings.catch_warnings():
-                            warnings.filterwarnings(action="error")
-                            res = opt.root(func, v0, method='hybr', options=dict(factor=1e-1)) ##FIXME
-                    except RuntimeWarning as e:
-                        success = False
-                        msg = e
-                    else:
-                        success = res.success
-                        msg = res.message
-                    if not success:
-                        points.insert(1, (points[0]+points[1])/2)
-                        continue
-                    if len(points) == 2:
-                        break
-                    v0 = res.x
-                    points = points[1:]
-                else:
-                    raise ValueError("calc_dc: more than %d iterations (list msg: %s)" % (max_iter, msg))
+                n = len(self.v0)
+                def func(v, fact):
+                    v = ml.matrix(v).T
+                    return (G1 * v[n:] + H1 * u + Hc1*fact + K1 * self.calc_i(v) - CZ1 * v).A1
+                res = self.solve(func, np.append(self.v0, self.x))
                 self.v0 = res.x[:n]
                 self.x = res.x[n:]
             else:
                 self.x = matrix_add(Ai * B * u, Ai * Bc)
                 if K.size != 0:
-                    if self.eq.U0 is not None:
-                        T = self.eq.U0 * G * Ai
-                        p = matrix_add(T * B * u, T * Bc, self.eq.U0 * H * u, Hc)
-                    else:
-                        T = G * Ai
-                        p = matrix_add(T * B * u, T * Bc, H * u, Hc)
+                    T = self.eq.U0 * G * Ai
+                    p = matrix_add(T * B * u, self.eq.U0 * H * u)
+                    Hc1 = matrix_add(T * Bc, Hc)
                     KK = T * C + K
-                    def func(v):
+                    def func(v, fact):
                         v = ml.matrix(v).T
-                        r = p + KK * self.calc_i(v) - self.eq.CZ * v
+                        r = p + Hc1 * fact + KK * self.calc_i(v) - self.eq.CZ * v
                         return r.A1
-                    with warnings.catch_warnings():
-                        warnings.filterwarnings(action="error")
-                        res = opt.root(func, self.v0, method='lm') ##FIXME
-                    if not res.success:
-                        raise ValueError(res.message)
-                    self.v0 = res.x
+                    self.v0 = self.solve(func, self.v0).x
                     self.x += Ai * C * self.calc_i(self.v0)
                 self.x = self.x.A1
         self.v00 = self.v0
