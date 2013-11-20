@@ -568,7 +568,7 @@ class InvOpAmp_test(Test): # inverting OPAMP
          }
 
     timespan = 0.01
-    solver = dict(method='hybr', xtol=1e-12, factor=1e-1)
+    solver = dict(method='hybr', factor=1e-1)
 
     result = np.array([[  0.00000000e+00,   0.00000000e+00,   0.00000000e+00],
        [ -4.26797924e+00,  -4.55963690e-05,   4.26788804e+00],
@@ -613,8 +613,8 @@ class WahWah_test(Test): # wah-wah
          (R(6), "V7", "V3"),
          #(L(1), "V6", 7),
          (Trans_GC(1, nw=1), "V6", 7),
-         (R('L'), 7, "V7"),
          #(Trans_L(1, nw=1), "V6", 7),
+         (R('L'), 7, "V7"),
          (V(), "V13"),
          (IN, "V1"),
          (OUT, "V8"),
@@ -643,7 +643,8 @@ class WahWah_test(Test): # wah-wah
          C(5): 220e-9,
          L(1): 500e-3,
          R('L'): 60.,
-         Trans_GC(1, nw=1): dict(windings=[100], C = 0.5/100**2, a = (4e-3/(0.5/100**2))**7, o = 1e-3, n = 7),
+         # a = (4e-3/(0.5/100**2))**7
+         Trans_GC(1, nw=1): dict(windings=[100], C = 0.5/100**2, a = (8287.159*0.5/100)**7*100, o = 1e-3, n = 7),
          Trans_L(1, nw=1): dict(windings=[100], R = 100**2/0.5),
          T(1): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
          T(2): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
@@ -661,17 +662,16 @@ class WahWah_test(Test): # wah-wah
         return a
 
     max_error = 5e-7  # presumable due to different numeric implementation of nonlinear vector function
-    result = np.array([ # linear inductivity
-        [ -1.11013509e-09],
-        [ -5.33823431e-01],
-        [  6.98293529e-01],
-        [ -3.72258478e-01],
-        [  2.72701765e-01],
-        [ -4.33033182e-01],
-        [  3.92585193e-01],
-        [ -2.60164234e-01],
-        [  2.16409909e-01],
-        [ -2.21358465e-01]])
+    result = np.array([[ -1.52955659e-09], # linear inductivity
+       [ -5.05823249e-01],
+       [  6.48561512e-01],
+       [ -4.12448688e-01],
+       [  3.39214923e-01],
+       [ -4.18385401e-01],
+       [  3.80384337e-01],
+       [ -3.10358628e-01],
+       [  2.61649974e-01],
+       [ -2.30510286e-01]])
 
     result = np.array([[  3.38299440e-09], # nonlinear inductivity
        [ -5.05702356e-01],
@@ -976,7 +976,7 @@ class Preamp_test(Test):
          [  88.18246137]])
 
     timespan = 0.2
-    solver = dict(method='hybr', factor=1e-1)
+    solver = dict(method='hybr', xtol=1e-8, factor=1e5)
 
     def signal(self):
         return 0.15*self.sine_signal(150.0)

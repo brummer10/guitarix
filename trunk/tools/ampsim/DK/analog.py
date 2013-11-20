@@ -15,6 +15,11 @@ else:
     get_ipython().set_custom_exc((CircuitException,), _circuit_exception_handler)
 
 
+def check_keywords(fname, kw, *keywords):
+    for k in kw:
+        if k not in keywords:
+            raise CircuitException("%s: unknown keyword '%s'" % (fname, k))
+
 class NonlinComponent(object):
 
     def __init__(self):
@@ -86,6 +91,7 @@ class Circuit(object):
         self.basegrid = None
         self.knot_positions = None
         self.table_source = None
+        self.partition = False
 
     def _clear_all(self):
         self.S = None
@@ -115,12 +121,15 @@ class Circuit(object):
     def _ensure_eq(self):
         if self.eq is None:
             self._ensure_parser()
-            self.eq = dk_simulator.EquationSystem(self.parser)
+            self.eq = dk_simulator.EquationSystem(self.parser, self.partition)
 
     def _ensure_sim_py(self):
         if self.sim_py is None:
             self._ensure_eq()
-            self.sim_py = dk_simulator.SimulatePy(self.eq, self.solver)
+            try:
+                self.sim_py = dk_simulator.SimulatePy(self.eq, self.solver)
+            except dk_simulator.ConvergenceError as e:
+                raise CircuitException(e)
 
     def _ensure_dc_values(self):
         if self.dc_values is None:
@@ -441,7 +450,8 @@ class Circuit(object):
         return self.dc_values
 
     def linearize(self, *elements, **kw):
-        keep_dc = kw['keep_dc'] ##FIXME
+        check_keywords("linearize", kw, "keep_dc")
+        keep_dc = kw.get('keep_dc', len(elements) != 0)
         self._ensure_dc_values()
         el = self._nonlin_function_list(elements)
         J = self.sim_py.jacobi()

@@ -355,16 +355,16 @@ def generate_faust_module(modname, b, a, potlist, flt, pre_filter=None):
     import dk_templates
     d = {}
     if not potlist:
-        d['master'] = ''
-        d['knobs'] = ''
+        d['have_master_slider'] = False
     else:
-        d['master'] = dk_templates.module_ui_master_template % dict(id=potlist[0][0])
-        d['knobs'] = "\n    ".join([dk_templates.module_ui_knob_template % dict(id=t[0]) for t in potlist])
-    ui = dk_templates.faust_filter_ui_template % d
+        d['have_master_slider'] = True
+        d['master_slider_id'] = potlist[0][0]
+    d['knob_ids'] = [t[0] for t in potlist]
+    ui = dk_templates.module_ui_template % d
     d = {}
     d['id'] = modname
     d['name'] = modname
-    d['slider'] = "\n".join([dk_templates.faust_filter_knob_template % dict(id=t[0], name=t[1], loga=t[2], inv=t[3]) for t in potlist])
+    d['sliders'] = [dict(id=t[0], name=t[1], loga=t[2], inv=t[3]) for t in potlist]
     d['pre_filter'] = '_' if pre_filter is None else pre_filter
     d['b_list'] = ",".join(["b%d/a0" % i for i in range(len(b))])
     d['a_list'] = ",".join(["a%d/a0" % i for i in range(1,len(a))])

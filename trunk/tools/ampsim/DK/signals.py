@@ -13,7 +13,7 @@ class GeneratedSignal(object):
         self.generate_spectrum = False
         self.generate_harmonics = False
         self.make_spectrum = self._default_make_spectrum
-        m = [dict(sweep = self._sweep, impulse = self._impulse, time = self._time), numpy]
+        m = [dict(sweep = self._sweep, impulse = self._impulse, time = self._time, null=self._null), numpy]
         self.signal = sympy.lambdify((), func, modules=m)()
         samples = len(self.signal)
         self.input_signal = numpy.array((op,), dtype=numpy.float64).repeat(samples, axis=0)
@@ -106,6 +106,9 @@ class GeneratedSignal(object):
     def _time(self, samples, fs):
         return numpy.linspace(0, samples/fs, samples)
 
+    def _null(self, s):
+        return 0*s
+
     def _default_make_spectrum(self, response):
         n = dk_lib.pow2roundup(len(response))
         return numpy.fft.rfft(response, n, axis=0)
@@ -130,7 +133,7 @@ class Signal(object):
 
     _s_FS, _s_freq, _s_start_freq, _s_stop_freq, _s_sweep_pre, _s_sweep_post, _s_samples = sympy.symbols(
         "FS, freq, start_freq, stop_freq, sweep_pre, sweep_post, samples")
-    _s_sweep, _s_impulse, _s_time = sympy.symbols("sweep,impulse,time", cls=sympy.Function)
+    _s_sweep, _s_impulse, _s_time, _s_null = sympy.symbols("sweep,impulse,time,null", cls=sympy.Function)
     t = sympy.symbols("t")
 
     def __init__(self):
@@ -237,4 +240,6 @@ class Signal(object):
             samples = self._s_FS / _freq ##FIXME
         elif samples is None:
             samples = self._s_FS * self.timespan
+        if isinstance(expr, (int,float)) or not (self.t in expr.atoms() or expr.atoms(self._s_time)):
+            expr += self._s_null(self.t)
         return expr.subs(self.t, self._s_time(samples, self._s_FS))

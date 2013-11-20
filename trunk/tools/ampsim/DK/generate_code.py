@@ -1,8 +1,9 @@
 from __future__ import division
+from collections import OrderedDict
 import sympy as sp
 import numpy as np
 import numpy.matlib as ml
-from dk_templates import c_template_struct_const, c_template_struct, module_ui_master_template, module_ui_knob_template, c_module_reg_line
+import dk_templates
 
 class CodeGenerator(object):
 
@@ -10,6 +11,7 @@ class CodeGenerator(object):
         self.d = d
         self.const_data_matrices = {}
         self.global_matrices = {}
+        self.local_matrix_declaration = OrderedDict();
 
     @staticmethod
     def matrix_is_zero(m):
@@ -26,14 +28,30 @@ class CodeGenerator(object):
         return sp.symbols(['%s%s' % (s, idx % i) for i in range(n)])
 
     @staticmethod
-    def generate_matrix_declaration(name, rows, cols):
-        return "Matrix<creal, %d, %d> %s;" % (rows, cols, name)
+    def generate_matrix_declaration(name, rows, cols, prefix="", Map=None, const=False, datatype="creal"):
+        if const:
+            s = "const "
+        else:
+            s = ""
+        if Map:
+            return "%sMap<%sMatrix<%s, %d, %d> >%s(%s);" % (prefix, s, datatype, rows, cols, name, Map)
+        else:
+            return "%s%sMatrix<%s, %d, %d> %s;" % (prefix, s, datatype, rows, cols, name)
+
+    def declare_local(self, name, rows, cols, Map=None, const=False, datatype="creal"):
+        self.local_matrix_declaration[name] = (rows, cols, Map, const, datatype)
+
+    def generate_local_declarations(self):
+        l = []
+        for name, (rows, cols, Map, const, datatype) in self.local_matrix_declaration.items():
+            l.append(self.generate_matrix_declaration(name, rows, cols, Map=Map, const=const, datatype=datatype))
+        self.local_matrix_declaration.clear()
+        return "\n    ".join(l);
 
     def generate_global_matrices(self):
-        templ = "static Matrix<creal, %(rows)d, %(cols)d> %(matrix_name)s;"
         l = []
         for name, shape in self.global_matrices.items():
-            l.append("static " + self.generate_matrix_declaration(name, shape[0], shape[1]))
+            l.append(self.generate_matrix_declaration(name, shape[0], shape[1], "static "))
         self.d["global_matrices"] = "\n".join(l)
 
     def generate_const_data(self):
@@ -81,54 +99,53 @@ class NonlinSolverCodeGen(CodeGenerator):
         self.CZ = CZ
         self.Mi = Mi
         self.have_constant_matrices = have_constant_matrices
+        self.d["use_blocks"] = False
+        self.d["block_off"] = 0
+        self.g_nn = self.d["nn"]
 
-    def access_matrix(self, name, value=None, const=None):
+    def access_matrix(self, name, value=None, const=None, block=""):
+        if name in self.local_matrix_declaration:
+            return "%s%s" % (name, block)
         if const is None:
             if value is None:
                 const = False
             else:
                 const = self.have_constant_matrices
         if const:
-            if name not in self.const_data_matrices:
+            if value is not None and name not in self.const_data_matrices:
                 self.const_data_matrices[name] = sp.Matrix(value)
-            return name
+            return "%s%s" % (name, block)
         else:
-            return "par.%s" % name
+            return "(*par.%s)%s" % (name, block)
 
-    def generate(self):
-        nn = self.d["nn"]   # = self.K.shape[0]
-        nni = self.d["nni"] # = self.Mp.shape[1]
-        nno = self.d["nno"] # = self.Mi.shape[0]
-        self.d["have_constant_matrices"] = int(self.have_constant_matrices)
-        self.d["struct_decl"] = (c_template_struct_const if self.have_constant_matrices else c_template_struct) % self.d
+    def blockV(self):
+        return ""
 
-        # code for the nonlinear function to be solved:
-        v = self.make_symbol_vector('v', nn)
+    def blockM(self):
+        return ""
+
+    def blockE(self):
+        return ""
+
+    def blockR(self):
+        return ""
+
+    def expr_list(self, v):
         l = []
         for n, (expr, vl, base) in enumerate(self.func):
             for j, e in enumerate(vl):
                 expr = expr.subs(e, v[base+j])
             l.append(expr)
-        self.d['i'] = self.ccode(self.access_matrix('i'), l, '(%d)')
-        self.d['v_list'] = ", ".join(['v[%d]' % i if self.CZ[i] else '0' for i in range(len(self.CZ))])
-        if not self.matrix_is_identity(self.K):
-            self.d["equation"] = "Mfvec = %(p)s + %(K)s * %(i)s - Mv;" % dict(
-                p = self.access_matrix('p'),
-                K = self.access_matrix('K', self.K),
-                i = self.access_matrix('i'),
-                )
-        else:
-            self.d["equation"] = "Mfvec = %(p)s + %(i)s - Mv;" % dict(
-                p = self.access_matrix('p'),
-                i = self.access_matrix('i'),
-                )
+        return l
 
-        local_matrix_declaration = [];
+    def get_v_list(self, v):
+        return ['v[%d]' % i if self.CZ[i] else '0' for i in range(len(self.CZ))]
 
-        # transformation of p
+    def p_transform(self, fcn_p_list):
+        par_p = self.access_matrix('p')
         need_p_var = False
         if not self.matrix_is_identity(self.Mp):
-            s = "%s * %s" % (self.access_matrix('Mp', self.Mp, True), self.access_matrix('p'))
+            s = "%s * %s" % (self.access_matrix('Mp', self.Mp, True), par_p)
             need_p_var = True
         else:
             s = self.access_matrix('p')
@@ -136,19 +153,52 @@ class NonlinSolverCodeGen(CodeGenerator):
             s += " + %s" % self.access_matrix('Mpc', self.Mpc)
             need_p_var = True
         if need_p_var:
-            fcn_p_list = ["p2"]
-            local_matrix_declaration.append(self.generate_matrix_declaration("p2", self.Mp.shape[0], 1))
-            s = "p2 = " + s + ";"
+            self.declare_local("p2", self.g_nn, 1)
+            fcn_p_list.append("p2")
+            s = "p2 = %s;" % s
         else:
-            fcn_p_list = [s]
+            fcn_p_list.append(s)
             s = ""
-        self.d["p_transform"] = s
+        return s
+
+    def generate(self):
+        nn = self.d["nn"]   # = self.K.shape[0]
+        nni = self.d["nni"] # = self.Mp.shape[1]
+        nno = self.d["nno"] # = self.Mi.shape[0]
+        self.d["have_constant_matrices"] = self.have_constant_matrices
+
+        # code for the nonlinear function to be solved:
+        v = self.make_symbol_vector('v', self.g_nn)
+        self.d['i'] = self.ccode(self.access_matrix('i', block=self.blockV()), self.expr_list(v), '(%d)')
+        self.d['v_list'] = ", ".join(self.get_v_list(v))
+        self.declare_local("mv", nn, 1)
+        if not self.matrix_is_identity(self.K):
+            self.d["equation"] = "Mfvec = %(p)s + %(K)s * %(i)s - %(mv)s;" % dict(
+                p = self.access_matrix('p', block=self.blockV()),
+                K = self.access_matrix('K', self.K, block=self.blockM()),
+                i = self.access_matrix('i', block=self.blockV()),
+                mv = self.access_matrix('mv'),
+                )
+        else:
+            self.d["equation"] = "Mfvec = %(p)s + %(i)s - %(mv)s;" % dict(
+                p = self.access_matrix('p', block=self.blockV()),
+                i = self.access_matrix('i', block=self.blockV()),
+                mv = self.access_matrix('mv'),
+                )
+        self.d["fcn_local_matrix_declaration"] = self.generate_local_declarations()
+
+        self.d["v_block"] = self.blockV()
+
+        # transformation of p
+        fcn_p_list = []
+        self.d['par_p'] = self.access_matrix('p', block=self.blockV())
+        self.d["p_transform"] = self.p_transform(fcn_p_list)
 
         # transformation of i
         if not self.matrix_is_identity(self.Mi):
-            local_matrix_declaration.append(self.generate_matrix_declaration("i2", self.Mi.shape[1], 1))
+            self.declare_local("i2", self.Mi.shape[1], 1)
             self.d['i_transform'] = "%(i)s = %(Mi)s * %(i2)s;" % dict(
-                i = self.access_matrix('i'),
+                i = self.access_matrix('i', block=self.blockV()),
                 Mi = self.access_matrix('Mi', self.Mi, True),
                 i2 = 'i2')
             fcn_p_list.append('i2')
@@ -156,13 +206,102 @@ class NonlinSolverCodeGen(CodeGenerator):
             fcn_p_list.append(self.access_matrix('i'))
             self.d['i_transform'] = ""
 
-        if not self.have_constant_matrices:
-            fcn_p_list.append(self.access_matrix('K'))
-        self.d["fcn_p_list"] = ",".join(fcn_p_list)
+        self.d["local_matrix_declaration"] = self.generate_local_declarations()
 
-        self.d["local_matrix_declaration"] = "\n    ".join(local_matrix_declaration)
+        if self.d["use_blocks"]:
+            fcn_p_list.append(self.access_matrix('v'))
+        if not self.have_constant_matrices:
+            fcn_p_list.append(self.access_matrix('K', self.K))
+        self.d["fcn_p_list"] = ",".join(["&%s" % v for v in fcn_p_list])
+
         self.generate_const_data()
+
         return self.d
+
+
+class NonlinSolverCodeGenSF(NonlinSolverCodeGen):
+
+    def __init__(self, d, func, K, Mp, Mpc, CZ, Mi, have_constant_matrices, kslice, kcc):
+        NonlinSolverCodeGen.__init__(self, d, func, K, Mp, Mpc, CZ, Mi, have_constant_matrices)
+        self.kslice = kslice
+        self.kcc = kcc
+        self.d["use_blocks"] = True
+        self.d["block_off"] = self.kslice.start
+
+    def blockV(self):
+        return ".block<%d,%d>(%d,%d)" % (self.kslice.stop - self.kslice.start, 1, self.kslice.start, 0)
+
+    def blockM(self):
+        n = self.kslice.stop - self.kslice.start
+        return ".block<%d,%d>(%d,%d)" % (n, n, self.kslice.start, self.kslice.start)
+
+    def blockE(self):
+        n = self.kslice.stop - self.kslice.start
+        return ".block<%d,%d>(%d,%d)" % (n, self.kcc, self.kslice.start, self.g_nn - self.kcc)
+
+    def blockR(self):
+        return ".block<%d,%d>(%d,%d)" % (self.kcc, self.g_nn, self.g_nn - self.kcc, 0)
+
+    def expr_list(self, v):
+        l = []
+        for n, (expr, vl, base) in enumerate(self.func[self.kslice]):
+            for j, e in enumerate(vl):
+                expr = expr.subs(e, v[base+j-self.kslice.start])
+            l.append(expr)
+        return l
+
+    def get_v_list(self, v):
+        return ['v[%d]' % i if self.CZ[i] else '0' for i in range(self.kslice.stop - self.kslice.start)]
+
+    def p_transform(self, fcn_p_list):
+        fcn_p_list.append(self.access_matrix('p'))
+        return ""
+
+    def generate(self):
+        n = self.kslice.stop - self.kslice.start
+        self.d["nn"] = n
+        self.d["nni"] = n
+        self.d["nno"] = n
+        NonlinSolverCodeGen.generate(self)
+        return self.d
+
+
+class NonlinSolverCodeGenCC(NonlinSolverCodeGen):
+
+    def __init__(self, d, func, K, Mp, Mpc, CZ, Mi, have_constant_matrices, blocklist):
+        NonlinSolverCodeGen.__init__(self, d, func, K, Mp, Mpc, CZ, Mi, have_constant_matrices)
+        self.blocklist = blocklist
+        self.col = self.blocklist[-1].stop
+        self.d["use_blocks"] = True
+        self.d["block_off"] = self.col
+
+    def blockV(self):
+        return ".block<%d,1>(%d,0)" % (self.g_nn - self.col, self.col)
+
+    def generate(self):
+        n = self.g_nn - self.col
+        self.d["nn"] = n
+        self.d["nni"] = n
+        self.d["nno"] = n
+        NonlinSolverCodeGen.generate(self)
+        self.d["nonlin_mat_list"] = self.d["fcn_p_list"] + ", par.Mp, par.Mpc"
+        for d, sl in zip(self.d["blocklist"], self.blocklist):
+            n = sl.stop - sl.start
+            bv = ".block<%s,1>(%s,0)" % (n, sl.start)
+            bm = ".block<%s,%s>(%s,%s)" % (n, n, sl.start, self.col)
+            d["block"] = "%(p)s = (*pp)%(ppb)s + %(K)s * Mv;" % dict(
+                p = self.access_matrix('p', block=bv),
+                ppb = bv,
+                K = self.access_matrix('K', block=bm),
+                )
+        bv = ".block<%s,1>(%s,0)" % (n, self.col)
+        bm = ".block<%s,%s>(%s,%s)" % (n, self.g_nn, self.col, 0)
+        self.d["equation"] = "Mfvec = (*pp)%(ppb)s + %(K)s * %(i)s;" % dict(
+            ppb = bv,
+            K = self.access_matrix('K', block=bm),
+            i = self.access_matrix('i'))
+        return self.d
+
 
 class SimulationCodeGen(CodeGenerator):
 
@@ -232,15 +371,15 @@ class SimulationCodeGen(CodeGenerator):
             )
 
     def generate(self):
-        if not self.pot_attr:
-            self.d['master'] = ''
-            self.d['knobs'] = ''
+        if self.pot_attr:
+            self.d['have_master_slider'] = True
+            self.d['master_slider_id'] = self.pot_attr[0][0]
         else:
-            self.d['master'] = "        "+module_ui_master_template % dict(id=self.pot_attr[0][0])
-            self.d['knobs'] = "\n".join(["        "+module_ui_knob_template % dict(id=t[0]) for t in self.pot_attr])
+            self.d['have_master_slider'] = False
+        self.d['knob_ids'] = [t[0] for t in self.pot_attr]
         self.d['id'] = self.d["name"]
         self.d['timecst'] = 0.01
-        self.d['regs'] = "\n    ".join([c_module_reg_line % dict(id=vv[0],name=vv[1],desc="",varidx=i) for i, vv in enumerate(self.pot_attr)])
+        self.d['regs'] = [dict(id=vv[0],name=vv[1],desc="",varidx=i) for i, vv in enumerate(self.pot_attr)]
         ll = []
         for i, (var, name, loga, inv, expr) in enumerate(self.pot_attr):
             if loga and inv:
@@ -260,15 +399,16 @@ class SimulationCodeGen(CodeGenerator):
         self.d["gen_xo_float"] = self.gen_linear_combination('xo', 'd', 'Mo', self.Mo, 'Moc', self.Moc, cast="float")
 
         #self.d["np"] = np = len(self.pot_func)
+        nonlin_mat_list = ""
+        if "solver" in self.d and "blocklist" in self.d["solver"]:
+            nonlin_mat_list += ", &Mv"
         if self.have_constant_matrices:
             self.d["update_pot"] = ""
             #self.d["npl"] = 0
-            self.d["nonlin_mat_list"] = ""
             self.d["pot_vars"] = ""
             self.d["pot"] = ""
         else:
-            self.d["nonlin_mat_list"] = ",K,Mp,Mpc"
-            local_matrix_declaration = []
+            nonlin_mat_list += ", &K, &Mp, &Mpc"
             pot = self.make_symbol_vector('pot', self.d['np'])
             l = []
             for (a, f), p in zip(self.pot_func, self.Pv):
@@ -287,17 +427,17 @@ class SimulationCodeGen(CodeGenerator):
             no = self.d["no"]
             np = self.d["np"]
             nn = self.d["nn"]
-            local_matrix_declaration.append(self.generate_matrix_declaration("Rv", np, 1))
+            self.declare_local("Rv", np, 1)
             lines = []
             lines.append(self.ccode('Rv', l, '(%d)'))
-            local_matrix_declaration.append(self.generate_matrix_declaration("Qi", np, np))
+            self.declare_local("Qi", np, np)
             lines.append("Qi = (%s + Matrix<creal, %d, %d>(Rv.asDiagonal())).inverse();" % (self.access_matrix('Q',self.Q, True), np, np))
             if self.matrix_is_identity(self.Uxl):
                 t = "Qi"
             elif self.matrix_is_zero(self.Uxl):
                 t = None
             else:
-                local_matrix_declaration.append(self.generate_matrix_declaration("Tx", nx, np))
+                self.declare_local("Tx", nx, np)
                 lines.append("Tx = %s * Qi;" % self.access_matrix('Uxl', self.Uxl, True))
                 t = "Tx"
             lines.append(self.trans_line('Mx', 'Mx0', self.Mx, t, 'UR', self.UR))
@@ -307,7 +447,7 @@ class SimulationCodeGen(CodeGenerator):
             elif self.matrix_is_zero(self.Uo):
                 t = None
             else:
-                local_matrix_declaration.append(self.generate_matrix_declaration("To", no, np))
+                self.declare_local("To", no, np)
                 lines.append("To = %s * Qi;" % self.access_matrix('Uo', self.Uo, True))
                 t = "To"
             lines.append(self.trans_line('Mo', 'Mo0', self.Mo, t, 'UR', self.UR))
@@ -317,13 +457,14 @@ class SimulationCodeGen(CodeGenerator):
             elif  self.matrix_is_zero(self.Unl):
                 t = None
             else:
-                local_matrix_declaration.append(self.generate_matrix_declaration("Tp", nn, np))
+                self.declare_local("Tp", nn, np)
                 lines.append("Tp = %s * Qi;" % self.access_matrix('Unl', self.Unl, True))
                 t = "Tp"
-            lines.append(self.trans_line('Mp', 'Mp0', self.Mp, t, 'UR.block(0, 0, %(np)d, %(mp_cols)d)' % self.d, None))
+            lines.append(self.trans_line('Mp', 'Mp0', self.Mp, t, 'UR.block<%(np)d, %(mp_cols)d>(0, 0)' % self.d, None))
             lines.append(self.trans_line('Mpc', 'Mpc0', self.Mpc, t, 'Ucv', self.Ucv))
-            lines.append(self.trans_line('K', 'K0', self.K, t, 'UR.block(0, %(mp_cols)d, %(np)d, %(m_cols)d-%(mp_cols)d)' % self.d, None))
-            self.d["update_pot"] = "\n    ".join(local_matrix_declaration+lines)
+            lines.append(self.trans_line('K', 'K0', self.K, t, 'UR.block<%(np)d, %(m_cols)d-%(mp_cols)d>(0, %(mp_cols)d)' % self.d, None))
+            self.d["update_pot"] = self.generate_local_declarations()+"\n"+"\n    ".join(lines)
+        self.d["nonlin_mat_list"] = nonlin_mat_list
         self.generate_global_matrices()
         self.generate_const_data()
         return self.d

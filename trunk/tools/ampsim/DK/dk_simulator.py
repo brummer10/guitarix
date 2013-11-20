@@ -24,7 +24,7 @@ except AttributeError:
     def opt_root(fun, x0, args=(), method='hybr', jac=None, tol=None, callback=None, options=None):
         factor = 100
         if options:
-            factor = options.get("factor", 100)
+            factor = options.get("factor", factor)
         return RootResult(*opt.fsolve(fun, x0, args, jac, full_output=True))
     opt.root = opt_root
 
@@ -65,6 +65,7 @@ def matrix_add(*args):
     else:
         return args[0]
 
+class ConvergenceError(Exception): pass
 
 class CodeWrapError(Exception): pass
 
@@ -136,7 +137,7 @@ class CodeWrapper(object):
     def _prepare_files(self):
         # setup.py
         with open('setup.py', 'w') as f:
-            print >> f, dk_templates.get_setup_template() % self.d
+            print >> f, dk_templates.setup_template.render(self.d)
 
     def _generate_code(self):
         with open('dk_code.cpp', 'w') as f:
@@ -327,13 +328,13 @@ class LinearFilter(object):
 
 class EquationSystem(object):
 
-    def __init__(self, parser, jacobi_par=None, svd_prec=None):
+    def __init__(self, parser, jacobi_par=None, partition=False, svd_prec=None):
         self.parser = parser
         if svd_prec is None:
             svd_prec = math.sqrt(sys.float_info.epsilon)
         self.jacobi_par = jacobi_par
         self.svd_prec = svd_prec
-        self.make_eq(parser)
+        self.make_eq(parser, partition)
 
     def get_parser(self):
         return self.parser
@@ -376,14 +377,33 @@ class EquationSystem(object):
             G1 = G * G
             if (G1 == G).all():
                 break
+            G = G1
         n = B.shape[0]
         p = []
         bl = [0]
-        for row in get_unique_rows(G.A):
+        for row in EquationSystem.get_unique_rows(G.A):
             i = np.nonzero(row)[0]
-            p.extend(i)
-            bl.append(len(p))
+            if len(i):
+                p.extend(i)
+                bl.append(len(p))
+        if len(p) != B.shape[0]:
+            p.extend(set(range(B.shape[0])) - set(p))
         return p, bl
+
+    def get_block_indices(self, K):
+        "returns a permutation and a list of component slices"
+        K = K.copy()
+        for j, (expr, vl, base) in enumerate(self.f):
+            K[j, base:base+len(vl)] = 1
+        nz = len(self.CZ)
+        n = np.count_nonzero(self.CZ)
+        if n != nz:
+            pc = np.argsort(self.CZ == 0)
+            K = K[pc][:,pc][:n,:n]
+        p, bl = EquationSystem.get_blockdiag_permutation(K)
+        if n != nz:
+            p = np.append(p, range(n, nz))[pc]
+        return p, [slice(i,j) for i, j in zip(bl[:-1], bl[1:])]
 
     def print_S(self, p):
         S = p.S
@@ -416,7 +436,17 @@ class EquationSystem(object):
     def get_status(self):
         return "nx=%d, nni=%d, nn=%d, nno=%d, ni=%d, no=%d, np=%d" % (self.nx, self.nni, self.nn, self.nno, self.ni, self.no, self.np)
 
-    def make_eq(self, p):
+    @staticmethod
+    def rebase_nonlinear_functions(f, Pn):
+        a = np.zeros(len(f), dtype=object)
+        for j, (expr, vl, base) in enumerate(f):
+            a[j] = (expr, vl, base-j)
+        b = np.zeros(len(f), dtype=object)
+        for j, (expr, vl, base) in enumerate(a[Pn]):
+            b[j] = (expr, vl, base+j)
+        return b
+
+    def make_eq(self, p, partition):
         self.nx, self.nn, self.ni, self.no, self.np = [len(p.element_name[j]) for j in 'X', 'N', 'I', 'O', 'P']
         self.mp_cols = self.nx + self.ni
         Nxl, Nxr, Nnl, Nnr, No, Nv, I = [p.N[j] for j in "Xl", "Xr", "Nl", "Nr", "O", "P", "I"]
@@ -431,22 +461,33 @@ class EquationSystem(object):
             Nnr = Nnr[select]
             Nnl = Nnl[select]
             self.nn = len(select)
-            self.CZ = self.CZ[select][:,select]
-            # rebase base index
-            f = np.zeros(len(self.f), dtype=object)
-            for j, (expr, vl, base) in enumerate(self.f):
-                f[j] = (expr, vl, base-j)
-            f = f[select]
-            self.f = np.zeros(len(f), dtype=object)
-            for j, (expr, vl, base) in enumerate(f):
-                self.f[j] = (expr, vl, base+j)
+            self.CZ = self.CZ[select]
+            self.f = self.rebase_nonlinear_functions(self.f, select)
             p.f = self.f
             p.element_name["N"] = np.array(p.element_name["N"])[select]
         else:
             Si = p.S.I
 
-        Z = ml.diag(p.Z)
+        T = Nnl * Si
+        self.blocklist = ()
+        if self.nn > 0:
+            # permute nonlinear part to make left upper submatrix of K blockdiagonal
+            K = T * Nnr.T
+            Pn, blocklist = self.get_block_indices(K)
+            self.CZ = self.CZ[Pn]
+            self.f = self.rebase_nonlinear_functions(self.f, Pn)
+            Nnl = Nnl[Pn]
+            Nnr = Nnr[Pn]
+            T = Nnl * Si
+            if partition:
+                self.blocklist = blocklist
 
+        self.G0 = T * Nxr.T
+        self.H0 = T * I.T
+        self.Hc0 = T * CV.T
+        self.K0 = T * Nnr.T
+
+        Z = ml.diag(p.Z)
         T = m * Z * Nxl * Si
         self.A0 = T * Nxr.T - (Z if p.TR else ml.diag((p.Z - 1) / 2.0))
         self.B0 = T * I.T
@@ -458,12 +499,6 @@ class EquationSystem(object):
         self.E0 = T * I.T
         self.Ec0 = T * CV.T
         self.F0 = T * Nnr.T
-
-        T = Nnl * Si
-        self.G0 = T * Nxr.T
-        self.H0 = T * I.T
-        self.Hc0 = T * CV.T
-        self.K0 = T * Nnr.T
 
         self.make_nonlin_input_trans()
         #self.nni = self.nn
@@ -606,45 +641,50 @@ class SimulatePy(Simulate):
             return (eq.A0 - Tx * eq.Uxr.T,
                     eq.B0 - Tx * eq.Uu.T,
                     eq.Bc0 - Tx * eq.Ucv.T,
-                    eq.C0 - Tx * eq.Unr.T,
+                    eq.Co - Tx * eq.Unr.T,
                     eq.D0 - To * eq.Uxr.T,
                     eq.E0 - To * eq.Uu.T,
                     eq.Ec0 - To * eq.Ucv.T,
-                    eq.F0 - To * eq.Unr.T,
+                    eq.Fo - To * eq.Unr.T,
                     eq.G0 - Tn * eq.Uxr.T,
                     eq.H0 - Tn * eq.Uu.T,
                     eq.Hc0 - Tn * eq.Ucv.T,
                     eq.K0 - Tn * eq.Unr.T,
                     )
         else:
-            return (eq.A0, eq.B0, eq.Bc0, eq.C0,
-                    eq.D0, eq.E0, eq.Ec0, eq.F0,
+            return (eq.A0, eq.B0, eq.Bc0, eq.Co,
+                    eq.D0, eq.E0, eq.Ec0, eq.Fo,
                     eq.G0, eq.H0, eq.Hc0, eq.K0,
                     )
 
-    def solve(self, func, v0):
+    def solve(self, func, v0, args=(), method='hybr', options=None):
+        try:
+            with warnings.catch_warnings():
+                warnings.filterwarnings(action="error")
+                res = opt.root(func, v0, args=args, method=method, options=options)
+        except RuntimeWarning as e:
+            raise ConvergenceError(e)
+        else:
+            if not res.success:
+                raise ConvergenceError(res.message)
+        return res
+
+    def solve_using_homotopy(self, func, v0, method='hybr', options=None):
         # use homotopy
         points = [0, 1]
         max_iter = 1000
         for tries in range(max_iter):
             try:
-                with warnings.catch_warnings():
-                    warnings.filterwarnings(action="error")
-                    res = opt.root(func, v0, args=(points[1],), method='hybr')
-            except RuntimeWarning as e:
-                success = False
+                res = self.solve(func, v0, args=(points[1],), method=method, options=options)
+            except ConvergenceError as e:
                 msg = e
-            else:
-                success = res.success
-                msg = res.message
-            if not success:
                 points.insert(1, (points[0]+points[1])/2)
                 continue
             if len(points) == 2:
                 return res
             v0 = res.x
             points = points[1:]
-        raise ValueError("calc_dc: more than %d iterations (list msg: %s)" % (max_iter, msg))
+        raise ConvergenceError("calc_dc: more than %d iterations (list msg: %s)" % (max_iter, msg))
 
     def calc_dc(self, u):
         u = ml.matrix(u, dtype=np.float64).T
@@ -653,10 +693,8 @@ class SimulatePy(Simulate):
             if len(self.eq.f):
                 p = self.eq.U0 * H * u
                 def func(v, fact):
-                    v = ml.matrix(v).T
-                    r = p + Hc * fact + K * self.calc_i(v) - self.eq.CZ * v
-                    return r.A1
-                self.v0 = self.solve(func, self.v0).x
+                    return (p + Hc * fact + K * self.calc_i(v) - ml.matrix(self.eq.CZ * v).T).A1
+                self.v0 = self.solve_using_homotopy(func, self.v0).x
         else:
             I = ml.eye(len(A))
             try:
@@ -665,13 +703,12 @@ class SimulatePy(Simulate):
                 G1 = ml.append(self.eq.U0 * G, A, axis=0)
                 H1 = ml.append(self.eq.U0 * H, B, axis=0)
                 Hc1 = ml.append(Hc, Bc, axis=0)
-                K1 = ml.append(K, C, axis=0)
-                CZ1 = ml.matrix(np.diag(np.append(np.diagonal(self.eq.CZ), np.ones(C.shape[0]))))
+                K1 = ml.append(K, C * self.eq.Mi, axis=0)
+                CZ1 = np.diag(np.append(self.eq.CZ, np.ones(K.shape[0])))
                 n = len(self.v0)
                 def func(v, fact):
-                    v = ml.matrix(v).T
-                    return (G1 * v[n:] + H1 * u + Hc1*fact + K1 * self.calc_i(v) - CZ1 * v).A1
-                res = self.solve(func, np.append(self.v0, self.x))
+                    return (G1 * v[n:] + H1 * u + Hc1*fact + K1 * self.calc_i(v) - ml.matrix(CZ1 * v).T).A1
+                res = self.solve_using_homotopy(func, np.append(self.v0, self.x))
                 self.v0 = res.x[:n]
                 self.x = res.x[n:]
             else:
@@ -680,50 +717,58 @@ class SimulatePy(Simulate):
                     T = self.eq.U0 * G * Ai
                     p = matrix_add(T * B * u, self.eq.U0 * H * u)
                     Hc1 = matrix_add(T * Bc, Hc)
-                    KK = T * C + K
+                    KK = T * C * self.eq.Mi + K
                     def func(v, fact):
-                        v = ml.matrix(v).T
-                        r = p + Hc1 * fact + KK * self.calc_i(v) - self.eq.CZ * v
-                        return r.A1
-                    self.v0 = self.solve(func, self.v0).x
-                    self.x += Ai * C * self.calc_i(self.v0)
+                        return (p + Hc1 * fact + KK * self.calc_i(v) - ml.matrix(self.eq.CZ * v).T).A1
+                    self.v0 = self.solve_using_homotopy(func, self.v0).x
+                    self.x += Ai * C * self.eq.Mi * self.calc_i(self.v0)
                 self.x = self.x.A1
         self.v00 = self.v0
         self.x0 = self.x
         self.p0 = matrix_add(G * np.matrix(self.x0).T, H * np.matrix(self.op).T)
-        self.o0 = matrix_add(D * np.matrix(self.x0).T, E * np.matrix(self.op).T, Ec, F * self.calc_i(self.v0)).A1
+        self.o0 = matrix_add(D * np.matrix(self.x0).T, E * np.matrix(self.op).T, Ec, F * self.eq.Mi * self.calc_i(self.v0)).A1
 
     def calc_i(self, v):
         i = ml.zeros(len(self.ff)).T
         for n, (f, start, end) in enumerate(self.ff):
-            i[n] = f(*[float(t) for t in v[start:end]])
+            i[n] = f(*v[start:end])
+        return i
+
+    def solve_one(self, p, K, s):
+        i = ml.zeros((p.shape[0],1))
+        def func(v):
+            for n, (f, start, end) in enumerate(self.ff[s]):
+                i[n] = f(*v[start-s.start:])
+            return (p + K * i - ml.matrix(v).T).A1
+        self.v0[s] = self.solve(func, self.v0[s], method=self.solver_method, options=self.solver_dict).x
         return i
 
     def nonlin_py(self, p, K, Hc):
-        def func(v):
-            v = ml.matrix(v).T
-            r = p + K * self.calc_i(v) - self.eq.CZ * v
-            return r.A1
         p = self.eq.U0 * p + Hc
-        try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings(action="error")
-                res = opt.root(func, self.v0, method=self.solver_method, options=self.solver_dict)
-        except RuntimeWarning as e:
-            raise ValueError(e)
-        if not res.success:
-            raise ValueError(res.message)
-        v = res.x
-        self.v0 = v
-        return self.eq.Mi * self.calc_i(v)
+        i = ml.zeros((self.eq.nn, 1))
+        if len(self.eq.blocklist) > 1:
+            rc = slice(self.eq.blocklist[-1].stop, None)
+            def func(icc):
+                for s in self.eq.blocklist:
+                    k = K[s]
+                    i[s] = self.solve_one(p[s]+k[:,rc].dot(icc).T, k[:,s], s)
+                i[rc] = icc.reshape(len(icc), 1)
+                return (p[rc] + K[rc] * i).A1
+            self.v0[rc] = self.solve(func, self.v0[rc], method=self.solver_method, options=self.solver_dict).x
+        else:
+            def func(v):
+                i[:] = self.calc_i(v)
+                return (p + K * i - ml.matrix(self.eq.CZ * v).T).A1
+            self.v0 = self.solve(func, self.v0, method=self.solver_method, options=self.solver_dict).x
+        return self.eq.Mi * i
 
     def compile_py_func(self):
-        self.ff = []
+        self.ff = np.zeros(len(self.eq.f), dtype=object)
         if not self.eq.nn:
             # model is linearized
             return
         for j, (expr, vl, base) in enumerate(self.eq.f):
-            self.ff.append((sp.lambdify(vl, expr), base, base+len(vl)))
+            self.ff[j] = (sp.lambdify(vl, expr), base, base+len(vl))
 
     def calc_di(self, v, j):
         i = np.zeros(len(self.eq.f))
@@ -845,7 +890,7 @@ class BuildCModule(Simulate):
         d["op_data"] = ",".join([str(j) for j in self.op])
         d["out_labels"] = ",".join(['"%s"' % j for j in self.out_labels])
         d["method"] = method = "linear" if eq.nn == 0 else self.solver_method
-        t = "solver_%s_" % self.solver_method
+        t = "solver_"
         d.update(dict([(t+k, v) for k, v in self.solver_dict.items()]))
         if method == "table":
             d["extra_sources"] = self.extra_sources[0]
@@ -853,17 +898,37 @@ class BuildCModule(Simulate):
         else:
             d["extra_sources"] = ""
         d["namespace"] = "nonlin"
-        templ_main, templ_nonlin = dk_templates.get_templates(method)
+        d["have_constant_matrices"] = (len(self.pot_func) == 0)
         if eq.nn > 0:
-            dd = d.copy()
-            d["nonlin_code"] = templ_nonlin % generate_code.NonlinSolverCodeGen(
-                dd, self.eq.f, eq.K0, eq.U0, eq.Hc0, np.diagonal(self.eq.CZ), eq.Mi, len(self.pot_func) == 0).generate()
+            if len(self.eq.blocklist) > 1:
+                l = []
+                kcc = len(self.eq.blocklist)-1  ##FIXME, wrong when components are connected with more than one edge
+                bl = []
+                for i, s in enumerate(self.eq.blocklist):
+                    cc = d.copy()
+                    ns = "nonlin_%d" % i
+                    bl.append(dict(namespace=ns))
+                    cc["namespace"] = ns
+                    generate_code.NonlinSolverCodeGenSF(
+                        cc, self.eq.f, eq.K0, eq.U0, eq.Hc0, self.eq.CZ, eq.Mi, len(self.pot_func) == 0, s, kcc).generate()
+                    l.append(cc)
+                d["components"] = l
+                dd = d.copy()
+                dd["blocklist"] = bl
+                generate_code.NonlinSolverCodeGenCC(
+                    dd, self.eq.f, eq.K0, eq.U0, eq.Hc0, self.eq.CZ, eq.Mi, len(self.pot_func) == 0, self.eq.blocklist).generate()
+                d["solver"] = dd
+            else:
+                dd = d.copy()
+                d["nonlin_code"] = dk_templates.c_template_nonlin.render(generate_code.NonlinSolverCodeGen(
+                    dd, self.eq.f, eq.K0, eq.U0, eq.Hc0, self.eq.CZ, eq.Mi, len(self.pot_func) == 0).generate())
+                d["solver"] = dd
         else:
             d["nonlin_code"] = ""
         d["pre_filter"] = self.pre_filter or ""
-        return templ_main, d
+        return d
 
-    def make_code(self, templ_main, d):
+    def make_code(self, d):
         eq = self.eq
         if not hasattr(eq,"Q"):
             Q = Uxl = Uo = Unl = Ucv = UR = None
@@ -874,7 +939,7 @@ class BuildCModule(Simulate):
             Unl = eq.Unl
             UR = np.concatenate((eq.Uxr.T, eq.Uu.T, eq.Unr.T), axis=1)
             Ucv = eq.Ucv.T
-        code = templ_main % generate_code.SimulationCodeGen(
+        code = dk_templates.c_template_top.render(generate_code.SimulationCodeGen(
             d,
             self.pot_attr,
             np.concatenate((eq.G0, eq.H0), axis=1),
@@ -894,13 +959,12 @@ class BuildCModule(Simulate):
             Ucv,
             eq.Hc0,
             eq.K0
-            ).generate()
+            ).generate())
         return code
 
     def compile_c_func(self):
-        templ_main, d = self.prepare()
-        code = self.make_code(templ_main, d)
-        return CodeWrapper(d, code, self.c_tempdir, self.c_verbose)
+        d = self.prepare()
+        return CodeWrapper(d, self.make_code(d), self.c_tempdir, self.c_verbose)
 
 
 class SimulateC(object):
@@ -1023,9 +1087,19 @@ class SimulateC(object):
         c_calc_stream = lib.calc_stream
         c_calc_stream.restype = ct.c_int
         c_calc_stream.argtypes = [c_mat(), c_mat(True), ct.c_int]
-        c_calc_nonlin = lib.calc_nonlin
-        c_calc_nonlin.restype = ct.c_int
-        c_calc_nonlin.argtypes = [ct.c_int, c_mat(), c_mat(True), c_arr(nn, True), c_int_p, c_int_p, c_real_p]
+        if nn:
+            c_calc_nonlin = lib.calc_nonlin
+            c_calc_nonlin.restype = ct.c_int
+            c_calc_nonlin.argtypes = [ct.c_int, c_mat(), c_mat(True), c_arr(nn, True), c_int_p, c_int_p, c_real_p]
+            def calc_nonlin(p, v):
+                assert p.shape[1] == nni+npl, (p.shape[1], nni+npl)
+                p = np.array(p, dtype=self.dtp, order='C', copy=False)
+                i = np.zeros((p.shape[0], nno), dtype=self.dtp, order='C')
+                r = c_calc_nonlin(len(p), p, i, v, ct.byref(info), ct.byref(nfev), ct.byref(fnorm))
+                if r != 0:
+                    raise ValueError("convergence error: info=%d, nfev=%d, fnorm=%g" % (info.value, nfev.value, fnorm.value))
+                return i
+            self.c_calc_nonlin = calc_nonlin
         c_calc_pot_update = lib.calc_inv_update
         c_calc_pot_update.restype = None
         c_calc_pot_update.argtypes = [c_arr(npl)]
@@ -1065,14 +1139,6 @@ class SimulateC(object):
             v = np.array(v, dtype=self.dtp)
             x = np.array(x, dtype=self.dtp)
             c_set_state(v, x)
-        def calc_nonlin(p, v):
-            assert p.shape[1] == nni+npl, (p.shape[1], nni+npl)
-            p = np.array(p, dtype=self.dtp, order='C', copy=False)
-            i = np.zeros((p.shape[0], nno), dtype=self.dtp, order='C')
-            r = c_calc_nonlin(len(p), p, i, v, ct.byref(info), ct.byref(nfev), ct.byref(fnorm))
-            if r != 0:
-                raise ValueError("convergence error: info=%d, nfev=%d, fnorm=%g" % (info.value, nfev.value, fnorm.value))
-            return i
         def get_dc():
             v0 = np.zeros(nn, dtype=self.dtp, order='C')
             x0 = np.zeros(nx, dtype=self.dtp, order='C')
@@ -1085,7 +1151,6 @@ class SimulateC(object):
         self.c_set_state = set_state
         self.c_get_info = get_info
         self.c_calc_stream = calc_stream
-        self.c_calc_nonlin = calc_nonlin
         self.c_calc_pot_update = c_calc_pot_update
         self.c_get_dc = get_dc
 
@@ -1118,7 +1183,7 @@ class Parser(object):
         self.pot_func = np.array((None,)*tc["P"])
         self.ConstVoltages = ml.zeros(n)
         self.Z = np.zeros(tc["X"])
-        self.CZ = ml.matrix(np.diag(np.ones(tc["N"], dtype=int)))
+        self.CZ = np.ones(tc["N"], dtype=int)
         self.f = np.array((None,)*tc["N"])
         if self.create_filter or self.symbolic:
             alpha = sp.symbols("s")
@@ -1253,160 +1318,6 @@ class Parser(object):
         n, d = el
         return "%s%s%s" % (pref, n, d and ("[%s]" % d) or "")
 
-    def show_symbolic(self, symbolic, jacobi=None):
-        if symbolic:
-            c = sp.symbols("c")
-        else:
-            #c = 2 * 48000
-            c = 2 * sp.symbols("fs")
-        s = sp.symbols("s")
-        v = sp.Matrix(sp.symbols("v:%d" % self.S.shape[0]))
-        z = sp.symbols("z")
-        b = c*(z-1)/(z+1)
-        Rv = sp.diag(*[1/(f * p) for (a, f), p in zip(self.pot_func, self.Pv)])
-        Nv = self.N["P"]
-        SS = self.S + Nv.T * Rv * Nv
-        if jacobi is not None:
-            SS -= self.N["Nr"].T * jacobi * self.N["Nl"]
-        SS = SS.subs(s, b)
-        p = subprocess.Popen("maxima -b /dev/fd/0 --very-quiet 2>&1 >/dev/null", shell=True,
-                             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        p.stdin.write("stringout(\"/dev/fd/2\",facsum(linsolve([%s], [%s])[%d], s));\n" % (
-            ", ".join(["%s = %s" % ss for ss in zip(SS * v, self.N["I"])]),
-            ", ".join([str(ss) for ss in v]),
-            np.array(self.N["O"]).nonzero()[1]+1,
-            ))
-        p.stdin.close()
-        expr = p.stdout.read()
-        #print expr
-        p.wait()
-        syms = set()
-        for i in SS:
-            syms |= i.atoms(sp.Symbol)
-        expr = eval(expr.split("=",1)[1].rstrip(";\n").replace("^","**"), dict([(str(sym),sym) for sym in syms]))
-        ss = set()
-        syms = []
-        for a, f in self.pot_func:
-            if a not in ss:
-                syms.append(a)
-                ss.add(a)
-        if symbolic:
-            r = [sp.poly(e, s) for e in sp.fraction(expr)]
-            c = r[1].TC()
-            r[0] = sp.poly(r[0]/c, s)
-            r[1] = sp.poly(r[1]/c, s)
-            def print_c(e, c):
-                ll = 0
-                for e1, i in zip(e.coeffs(), e.monoms()):
-                    i = i[0]
-                    if syms:
-                        x = sp.poly(e1, syms)
-                        ss = 0
-                        for co, o in zip(x.coeffs(), x.monoms()):
-                            if symbolic:
-                                co = co.simplify()
-                            else:
-                                co = co.evalf()
-                            ss += reduce(operator.mul, [pow(y, p) for y, p in zip(syms, o)], 1) * co
-                    else:
-                        ss = e1
-                    sym = "%s%d" % (c, i)
-                    print '\n%s = %s' % (sym, ss)
-                    ll += sp.symbols(sym) * pow(s, i)
-                return ll
-            e1 = print_c(r[0], 'b')
-            e2 = print_c(r[1], 'a')
-            def print_C(e, cc):
-                c = sp.symbols("c")
-                l = e.monoms()[0]
-                for e1, i in zip(e.coeffs(), e.monoms()):
-                    i = l[0]-i[0]
-                    sym = "%s%d" % (cc, i)
-                    print '\n%s = %s' % (sym, e1)
-            r = [sp.poly(e, z) for e in sp.fraction((e1 / e2).subs(s, b).ratsimp())]
-            print_C(r[0], 'B')
-            print_C(r[1], 'A')
-        else:
-            #expr = expr.subs(dict([(a, self.pot.get(str(a), 0.5)) for a, f in self.pot_func]))
-            r = [sp.poly(e, z) for e in sp.fraction(expr)]
-            tc = r[1].LC()
-            #r[0] = sp.poly(r[0]/tc, z)
-            #r[1] = sp.poly(r[1]/tc, z)
-            ss = set()
-            syms = []
-            for a, f in self.pot_func:
-                if a not in ss:
-                    syms.append(a)
-                    ss.add(a)
-            def print_c(e, cc):
-                ll = []
-                l = e.monoms()[0]
-                for e1, i in zip(e.coeffs(), e.monoms()):
-                    i = i[0]
-                    if syms:
-                        x = sp.poly(e1.expand(), syms)
-                        ss = 0
-                        for co, o in zip(x.coeffs(), x.monoms()):
-                            #co = (co / tc).ratsimp()
-                            if symbolic:
-                                co = co.expand().simplify()
-                            else:
-                                co = co.evalf()
-                            ss += reduce(operator.mul, [pow(y, p) for y, p in zip(syms, o)], 1) * co
-                    else:
-                        ss = (e1 / tc).evalf()
-                    sym = "%s%d" % (cc, l[0]-i)
-                    print '\n%s = %s' % (sym, ss)
-                    ll.append(ss)
-                return ll
-            e1 = print_c(r[0], 'b')
-            e2 = print_c(r[1], 'a')
-            return e1, e2
-            #expr = expr.subs(s, b)
-            #print sp.poly(expr.ratsimp(), c)
-        raise SystemExit
-        # with printoptions(precision=0):
-        #     print
-        #     l = np.random.permutation(range(self.K.shape[0]))
-        #     K = self.K[l][:,l]
-        #     Z = np.diagonal(self.CZ)[l]
-        #     p1 = range(len(Z))
-        #     n = np.count_nonzero(Z)
-        #     k = n
-        #     for i in range(n):
-        #         if not Z[i]:
-        #             while not Z[k]:
-        #                 k += 1
-        #             t = p1[i]
-        #             p1[i] = p1[k]
-        #             p1[k] = t
-        #             k += 1
-        #     ll = np.array(['A','B','C','D','E','F','G','H'])
-        #     ll = ll[p1]
-        #     Z = Z[p1]
-        #     K = K[p1][:,p1]
-        #     B = K[:n,:n]
-        #     #print Z
-        #     #print ll
-        #     #print B
-        #     p, bl = get_blockdiag_permutation(B)
-        #     ll = [ll[i] for i in p]
-        #     A = B[p][:,p]
-        #     Kn = np.zeros_like(K)
-        #     nn = K.shape[0]-n
-        #     Kn[:n,:n] = A
-        #     Kn[:,n:] = K[:,n:]
-        #     Kn[n:,:] = K[n:,:]
-        #     for i, j in zip(bl[:-1], bl[1:]):
-        #         print Kn[range(i,j)][:,range(i,j)+range(n,Kn.shape[0])]
-        #         print
-        #     print Kn[n:,:]
-        #     #Q = ml.matrix(np.eye(len(p)))[p]
-        #     #print Q * B * Q.T
-        #     #print p
-        #     #print [ll[i] for i in p]
-        # raise SystemExit
-
     def node_names(self):
         return [self.format_element(v) for v in self.element_name["S"]+self.element_name["V"]]
 
@@ -1453,7 +1364,7 @@ class Parser(object):
             for j, e in enumerate(vl):
                 expr = expr.subs(e, v[base+j])
             l.append(expr)
-        ccode(d, 'fvec', sp.Matrix(p) + sp.Matrix(self.K) * sp.Matrix(l) - sp.Matrix(self.eq.CZ) * sp.Matrix(v))
+        ccode(d, 'fvec', sp.Matrix(p) + sp.Matrix(self.K) * sp.Matrix(l) - sp.Matrix(np.diag(self.eq.CZ)) * sp.Matrix(v))
         # "currents"
         ccode(d, 'i', l)
         # p value

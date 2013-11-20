@@ -470,9 +470,19 @@ class Trans_GC(Node):
         tc["V"] += self.nw + 2
         tc["N"] += 1
     def process(self, p, conn, param, alpha):
+        windings = np.array(param["windings"], dtype=np.float64)
+        if self.nw == 1:
+            # avoid some convergence problems by scaling N to 1
+            wind = windings[0]
+            windings /= wind
+            param = dict(C = param["C"] * wind**2,
+                         a = param["a"] * wind**(param["n"]-1),
+                         o = param["o"] * wind**-1,
+                         n = param["n"],
+                         )
         C, a, o, n = const = sp.symbols("C,a,o,n")
-        v0, = v = sp.symbols("v:1", seq=True, real=True) # "real" needed to get derivative of sign()
-        t = v0 / C
+        phi, = v = sp.symbols("phi", seq=True, real=True) # "real" needed to get derivative of sign()
+        t = phi / C
         calc_gc_MMF = -(a * pow(abs(t), n) * sp.sign(t)) + o
         calc_gc_MMF = calc_gc_MMF.subs(dict([(k,param[str(k)]) for k in const]))
         # def calc_gc_MMF(v):
@@ -493,10 +503,10 @@ class Trans_GC(Node):
             s = "W%d" % (i+1)
             idx = p.new_row("V", self, s)
             p.add_S(idx, conn[2*i:], 1)
-            p.S[idx, end] += param["windings"][i]
+            p.S[idx, end] += windings[i]
         idx = p.new_row("V", self, "phi")
         for i in range(self.nw):
-            p.S[idx, start+i] += param["windings"][i]
+            p.S[idx, start+i] += windings[i]
         p.S[idx, end-1] += 1 / param["C"]
         idx_v = p.new_row("V", self, "v")
         p.S[idx_v, idx_v] += 1
@@ -585,4 +595,4 @@ class CC(Node):
         p.add_2conn("Nl", idx, conn)
         p.add_2conn("Nr", idx, conn)
         p.f[idx] = (calc, v, idx)
-        p.CZ[idx, idx] = 0
+        p.CZ[idx] = 0
