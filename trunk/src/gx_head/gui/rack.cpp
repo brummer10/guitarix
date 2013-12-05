@@ -643,19 +643,51 @@ void PluginPresetListWindow::run() {
 ** PluginPresetPopup
 */
 
+bool PluginPresetPopup::set_plugin_state(bool prestate, bool state) {
+    usleep(500);
+    machine.set_parameter_value("dubber.on_off", prestate);
+    usleep(500);
+    machine.set_parameter_value("dubber.on_off", state);
+    return false;
+}
+
 void PluginPresetPopup::set_plugin_preset(bool factory, const Glib::ustring& name) {
+    // load loop file when plugin preset change
+    if(strcmp(pdef->id,"dubber")==0) {
+        bool state = machine.get_parameter_value<bool>("dubber.on_off");
+        machine.set_parameter_value("dubber.on_off", false);
+        machine.set_parameter_value("dubber.filename", name);
+        Glib::signal_idle().connect(sigc::bind<bool>(sigc::bind<bool>(
+        sigc::mem_fun(*this, &PluginPresetPopup::set_plugin_state),state),true));
+    }
     machine.plugin_preset_list_set(pdef, factory, name);
 }
 
 void PluginPresetPopup::set_plugin_std_preset() {
     machine.reset_unit(pdef);
+    // load loop file when plugin preset change
+    if(strcmp(pdef->id,"dubber")==0) {
+        bool state = machine.get_parameter_value<bool>("dubber.on_off");
+        machine.set_parameter_value("dubber.on_off", false);
+        Glib::signal_idle().connect(sigc::bind<bool>(sigc::bind<bool>(
+        sigc::mem_fun(*this, &PluginPresetPopup::set_plugin_state),state),true));
+    }
 }
 
 void PluginPresetPopup::save_plugin_preset() {
     InputWindow *w = InputWindow::create(machine.get_options(), save_name_default);
     w->run();
     if (!w->get_name().empty()) {
-	machine.plugin_preset_list_save(pdef, w->get_name());
+        // save loop file to plugin preset name
+	    if(strcmp(pdef->id,"dubber")==0) {
+            bool state = machine.get_parameter_value<bool>("dubber.on_off");
+            machine.set_parameter_value("dubber.savefile", true);
+            machine.set_parameter_value("dubber.filename", w->get_name());
+            machine.set_parameter_value("dubber.on_off", false);
+            Glib::signal_idle().connect(sigc::bind<bool>(sigc::bind<bool>(
+            sigc::mem_fun(*this, &PluginPresetPopup::set_plugin_state),state),false));
+        }
+        machine.plugin_preset_list_save(pdef, w->get_name());
     }
     delete w;
 }

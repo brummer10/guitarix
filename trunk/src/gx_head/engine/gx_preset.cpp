@@ -1167,6 +1167,16 @@ void GxSettings::plugin_preset_list_save(const PluginDef *pdef, const Glib::ustr
 }
 
 void GxSettings::plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name) {
+    // remove loop files when delete a plugin preset
+    if(strcmp(pdef->id,"dubber")==0) {
+        std::string pPath = getenv("HOME");
+        pPath +="/.config/guitarix/pluginpresets/";
+        pPath += name;
+        std::remove((pPath + "1.wav").c_str());
+        std::remove((pPath + "2.wav").c_str());
+        std::remove((pPath + "3.wav").c_str());
+        std::remove((pPath + "4.wav").c_str());
+    }
     PluginPresetList(options.get_pluginpreset_filepath(pdef->id, false), param, mctrl).remove(name);
 }
 

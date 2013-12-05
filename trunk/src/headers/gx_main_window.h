@@ -471,6 +471,7 @@ private:
     bool add_plugin_preset_list(bool *found);
     void save_plugin_preset();
     void remove_plugin_preset();
+    bool set_plugin_state(bool prestate, bool state);
 protected:
     virtual void on_selection_done();
 public:

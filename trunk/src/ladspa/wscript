@@ -40,7 +40,7 @@ def build(bld):
         '../plugins/mbe.cc',
         '../plugins/mbdel.cc',
         '../plugins/mbchor.cc',
-        '../plugins/dubbe.cc',
+        #'../plugins/dubbe.cc',
         ]
     
     src = ['ladspa_guitarix.cpp'] + bsources

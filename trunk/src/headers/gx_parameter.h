@@ -610,6 +610,11 @@ class ParamMap: boost::noncopyable {
 	insert(p);
 	return p;
     }
+    inline StringParameter *reg_preset_string(const string& id, const string& name, Glib::ustring *var, const string& sv, bool preset=true) {
+	StringParameter *p = new StringParameter(id, name, var, sv, preset);
+	insert(p);
+	return p;
+    }
 
 #ifndef NDEBUG
     void dump(const string& fmt);

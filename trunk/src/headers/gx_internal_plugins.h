@@ -587,4 +587,136 @@ public:
 	{ return "ladspa"+gx_system::to_string(uid)+".js"; }
 };
 
+
+/****************************************************************
+ ** class LiveLooper
+ */
+
+
+class LiveLooper: public PluginDef {
+private:
+	int fSamplingFreq;
+	float 	gain;
+	float 	fRec0[2];
+	float 	gain_out;
+	float 	fclip1;
+	float 	fclip2;
+	float 	fclip3;
+	float 	fclip4;
+	float 	fclips1;
+	float 	fclips2;
+	float 	fclips3;
+	float 	fclips4;
+	float 	fspeed1;
+	float 	fspeed2;
+	float 	fspeed3;
+	float 	fspeed4;
+	float 	rplay1;
+	float 	rplay2;
+	float 	rplay3;
+	float 	rplay4;
+	float 	record1;
+	int 	iVec0[2];
+	int 	IOTA1;
+	int 	IOTA2;
+	int 	IOTA3;
+	int 	IOTA4;
+	float 	IOTAR1;
+	float 	IOTAR2;
+	float 	IOTAR3;
+	float 	IOTAR4;
+	float *tape1;
+	float 	fConst0;
+	float 	fConst1;
+	float 	fConst2;
+	float 	reset1;
+	int 	RecSize1[2];
+	float 	rectime0;
+	float 	fRec1[2];
+	float 	fRec2[2];
+	int 	iRec3[2];
+	int 	iRec4[2];
+	float 	play1;
+	float 	playh1;
+	float 	gain1;
+	float 	record2;
+	int 	iVec2[2];
+	float *tape2;
+	float 	reset2;
+	int 	RecSize2[2];
+	float 	rectime1;
+	float 	fRec6[2];
+	float 	fRec7[2];
+	int 	iRec8[2];
+	int 	iRec9[2];
+	float 	play2;
+	float 	playh2;
+	float 	gain2;
+	float 	record3;
+	int 	iVec4[2];
+	float *tape3;
+	float 	reset3;
+	int 	RecSize3[2];
+	float 	rectime2;
+	float 	fRec11[2];
+	float 	fRec12[2];
+	int 	iRec13[2];
+	int 	iRec14[2];
+	float 	play3;
+	float 	playh3;
+	float 	gain3;
+	float 	record4;
+	int 	iVec6[2];
+	float *tape4;
+	float 	reset4;
+	int 	RecSize4[2];
+	float 	rectime3;
+	float 	fRec16[2];
+	float 	fRec17[2];
+	int 	iRec18[2];
+	int 	iRec19[2];
+	float 	play4;
+	float 	playh4;
+	float 	gain4;
+	bool save1;
+	bool save2;
+	bool save3;
+	bool save4;
+	bool RP1;
+	bool RP2;
+	bool RP3;
+	bool RP4;
+    Glib::ustring preset_name;
+    Glib::ustring cur_name;
+    bool save_p;
+    ParamMap& param;
+	bool mem_allocated;
+	void mem_alloc();
+	void mem_free();
+	void clear_state_f();
+	int activate(bool start);
+	int load_ui_f(const UiBuilder& b, int form);
+	void init(unsigned int samplingFreq);
+	void compute(int count, float *input0, float *output0);
+	int register_par(const ParamReg& reg);
+    void save_array(std::string name);
+    void load_array(std::string name);
+    void save_to_wave(std::string fname, float *tape, float fSize);
+    int load_from_wave(std::string fname, float *tape);
+    void set_p_state();
+    
+	static void clear_state_f_static(PluginDef*);
+	static int activate_static(bool start, PluginDef*);
+	static int load_ui_f_static(const UiBuilder& b, int form);
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count, float *input0, float *output0, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+public:
+    Plugin plugin;
+	LiveLooper(ParamMap& param_);
+	~LiveLooper();
+};
+
+
 } // namespace gx_engine

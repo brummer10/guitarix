@@ -197,7 +197,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), get_param()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp) {
+      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      loop(get_param()) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
 	ov_disabled |= ov_Convolver;
@@ -285,6 +286,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::highbooster::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::selecteq::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&loop.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::ts9sim::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::impulseresponse::plugin(), PLUGIN_POS_RACK, PGN_GUI);
@@ -309,7 +311,7 @@ void GxEngine::load_static_plugins() {
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&preamp.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::abgate::plugin(),           PLUGIN_POS_RACK);
-    pl.add(pluginlib::dubbe::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
+    // pl.add(pluginlib::dubbe::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::vibe::plugin_mono(),        PLUGIN_POS_RACK);
     pl.add(pluginlib::mbc::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbd::plugin(),              PLUGIN_POS_RACK, PGN_GUI);

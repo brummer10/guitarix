@@ -91,6 +91,7 @@ public:
     CabinetConvolver cabinet;
     PreampConvolver preamp;
     ContrastConvolver contrast;
+    LiveLooper loop;
     //
 public:
     GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options);
