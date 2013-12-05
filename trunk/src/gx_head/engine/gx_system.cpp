@@ -451,6 +451,7 @@ CmdlineOptions::CmdlineOptions()
       pluginpreset_dir(),
       temp_dir(),
       plugin_dir(),
+      loop_dir(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
       nogui(false),
       rpcport(RPCPORT_DEFAULT),
@@ -490,6 +491,7 @@ CmdlineOptions::CmdlineOptions()
     plugin_dir = Glib::build_filename(get_user_dir(), "plugins");
     preset_dir = Glib::build_filename(get_user_dir(), "banks");
     pluginpreset_dir = Glib::build_filename(get_user_dir(), "pluginpresets");
+    loop_dir = Glib::build_filename(get_pluginpreset_dir(), "loops");
     temp_dir = Glib::build_filename(get_user_dir(), "temp");
     const char *tmp = getenv("GUITARIX2JACK_OUTPUTS1");
     if (tmp && *tmp) {
@@ -861,6 +863,7 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(pixmap_dir);
     make_ending_slash(preset_dir);
     make_ending_slash(pluginpreset_dir);
+    make_ending_slash(loop_dir);
     make_ending_slash(temp_dir);
     make_ending_slash(plugin_dir);
 

@@ -1281,7 +1281,7 @@ int LiveLooper::load_from_wave(std::string fname, float *tape)
 void LiveLooper::load_array(std::string name)
 {
     std::string pPath = getenv("HOME");
-    pPath +="/.config/guitarix/pluginpresets/";
+    pPath +="/.config/guitarix/pluginpresets/loops/";
     
     RecSize1[1] = load_from_wave(pPath+name+"1.wav", tape1);
     IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
@@ -1318,7 +1318,7 @@ void LiveLooper::save_array(std::string name)
 {
     if (name.compare("tape")==0 || save_p) {
         std::string pPath = getenv ("HOME");
-        pPath +="/.config/guitarix/pluginpresets/";
+        pPath +="/.config/guitarix/pluginpresets/loops/";
         pPath +=name;
        
         if (save1) {

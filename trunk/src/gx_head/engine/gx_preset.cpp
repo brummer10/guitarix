@@ -1044,6 +1044,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
 	check_create_config_dir(opt.get_pluginpreset_dir());
+	check_create_config_dir(opt.get_loop_dir());
 	check_create_config_dir(opt.get_user_IR_dir());
 	check_create_config_dir(opt.get_temp_dir());
 	std::string fname = gx_jack::GxJack::get_default_instancename() + statename_postfix;
@@ -1074,6 +1075,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
 	check_create_config_dir(opt.get_pluginpreset_dir());
+	check_create_config_dir(opt.get_loop_dir());
 	check_create_config_dir(opt.get_user_IR_dir());
 	check_create_config_dir(opt.get_temp_dir());
     }
@@ -1170,7 +1172,7 @@ void GxSettings::plugin_preset_list_remove(const PluginDef *pdef, const Glib::us
     // remove loop files when delete a plugin preset
     if(strcmp(pdef->id,"dubber")==0) {
         std::string pPath = getenv("HOME");
-        pPath +="/.config/guitarix/pluginpresets/";
+        pPath +="/.config/guitarix/pluginpresets/loops/";
         pPath += name;
         std::remove((pPath + "1.wav").c_str());
         std::remove((pPath + "2.wav").c_str());

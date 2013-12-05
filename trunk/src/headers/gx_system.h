@@ -401,6 +401,7 @@ private:
     std::string pluginpreset_dir;
     std::string temp_dir;
     std::string plugin_dir;
+    std::string loop_dir;
     Glib::ustring rcset;
     bool nogui;
     int rpcport;
@@ -457,6 +458,7 @@ public:
     const std::string& get_plugin_dir() const { return plugin_dir; }
     const std::string& get_preset_dir() const { return preset_dir; }
     const std::string& get_pluginpreset_dir() const { return pluginpreset_dir; }
+    const std::string& get_loop_dir() const { return loop_dir; }
     const std::string& get_temp_dir() const { return temp_dir; }
     const std::string& get_factory_dir() const { return factory_dir; }
     std::string get_ladspa_config_filename() const { return get_user_filepath("ladspa_defs.js"); }
