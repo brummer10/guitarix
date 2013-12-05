@@ -910,7 +910,7 @@ MonoEngine::MonoEngine(const string& plugin_dir, ParameterGroups& groups)
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      loop(get_param()) {
+      loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
 
     mono_convolver.set_sync(true);
     cabinet.set_sync(true);

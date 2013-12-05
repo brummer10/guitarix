@@ -198,7 +198,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      loop(get_param()) {
+      loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync)) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
 	ov_disabled |= ov_Convolver;

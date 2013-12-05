@@ -691,7 +691,9 @@ private:
     bool save_p;
     ParamMap& param;
 	bool mem_allocated;
-	void mem_alloc();
+    sigc::slot<void> sync;
+	volatile bool ready;
+    void mem_alloc();
 	void mem_free();
 	void clear_state_f();
 	int activate(bool start);
@@ -714,7 +716,7 @@ private:
 	static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-	LiveLooper(ParamMap& param_);
+	LiveLooper(ParamMap& param_, sigc::slot<void> sync);
 	~LiveLooper();
 };
 

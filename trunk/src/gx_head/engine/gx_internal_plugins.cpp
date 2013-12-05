@@ -1138,7 +1138,7 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
  */
 
 
-LiveLooper::LiveLooper(ParamMap& param_)
+LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_)
 	: PluginDef(),
 	  tape1(0),
 	  tape2(0),
@@ -1157,6 +1157,8 @@ LiveLooper::LiveLooper(ParamMap& param_)
       save_p(false),
       param(param_),
 	  mem_allocated(false),
+      sync(sync_),
+      ready(false),
       plugin() {
     version = PLUGINDEF_VERSION;
 	id = "dubber";
@@ -1246,6 +1248,7 @@ void LiveLooper::mem_alloc()
 	if (!tape3) tape3 = new float[4194304];
 	if (!tape4) tape4 = new float[4194304];
 	mem_allocated = true;
+    ready = true;
 }
 
 void LiveLooper::mem_free()
@@ -1255,6 +1258,7 @@ void LiveLooper::mem_free()
 	if (tape2) { delete tape2; tape2 = 0; }
 	if (tape3) { delete tape3; tape3 = 0; }
 	if (tape4) { delete tape4; tape4 = 0; }
+    ready = false;
 }
 
 int LiveLooper::load_from_wave(std::string fname, float *tape)
@@ -1357,19 +1361,29 @@ int LiveLooper::activate_static(bool start, PluginDef *p)
 }
 
 void LiveLooper::set_p_state() {
-    if(save_p) {
-        save1 = true;
-        save2 = true;
-        save3 = true;
-        save4 = true;
+    if (!preset_name.empty()) {
+        ready = false;
+        sync();
+        activate(true);
+        if(save_p) {
+            save1 = true;
+            save2 = true;
+            save3 = true;
+            save4 = true;
+            cur_name = preset_name;
+           // fprintf (stderr,"save_p: %s\n",cur_name.c_str());
+        }
+        activate(false);
+        activate(true);
+        ready = true;
         save_p = false;
-        cur_name = preset_name;
     }
-    // fprintf (stderr,"set_p_state: %s\n",preset_name.c_str());
+    //fprintf (stderr,"set_p_state: %s\n",preset_name.c_str());
 }
 
 void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 {
+    if (!ready) return;
     // trigger save array on exit
 	if(record1 || reset1) save1 = true;
     if(record2 || reset2) save2 = true;
