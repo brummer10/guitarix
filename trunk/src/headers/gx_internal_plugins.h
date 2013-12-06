@@ -688,6 +688,7 @@ private:
 	bool RP4;
     Glib::ustring preset_name;
     Glib::ustring cur_name;
+    Glib::ustring loop_dir;
     bool save_p;
     ParamMap& param;
 	bool mem_allocated;
@@ -716,7 +717,7 @@ private:
 	static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-	LiveLooper(ParamMap& param_, sigc::slot<void> sync);
+	LiveLooper(ParamMap& param_, sigc::slot<void> sync, const string& loop_dir_);
 	~LiveLooper();
 };
 

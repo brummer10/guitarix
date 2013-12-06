@@ -748,7 +748,7 @@ public:
     ContrastConvolver contrast;
     LiveLooper  loop;
 public:
-    MonoEngine(const string& plugin_dir, ParameterGroups& groups);
+    MonoEngine(const string& plugin_dir, const string& loop_dir, ParameterGroups& groups);
     ~MonoEngine();
     virtual void wait_ramp_down_finished();
     virtual bool update_module_lists();
@@ -890,7 +890,7 @@ static const char* ampstack_groups[] = {
     0
 };
 
-MonoEngine::MonoEngine(const string& plugin_dir, ParameterGroups& groups)
+MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, ParameterGroups& groups)
     : EngineControl(),
       resamp(),
       // ModuleSelector's
@@ -910,7 +910,7 @@ MonoEngine::MonoEngine(const string& plugin_dir, ParameterGroups& groups)
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
+      loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync), loop_dir) {
 
     mono_convolver.set_sync(true);
     cabinet.set_sync(true);
@@ -1101,7 +1101,8 @@ public:
 
 LadspaGuitarixMono::LadspaGuitarixMono(unsigned long sr)
     : LadspaGuitarix(engine, 0, &engine.mono_convolver, control_parameter, "LADSPA_GUITARIX_MONO_PRESET"),
-      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"), get_group_table()),
+      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"),
+       Glib::build_filename(Glib::get_user_config_dir(), "guitarix/pluginpresets/loops/"), get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
       rebuffer(),
       volume_port(),

@@ -1138,7 +1138,7 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
  */
 
 
-LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_)
+LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& loop_dir_)
 	: PluginDef(),
 	  tape1(0),
 	  tape2(0),
@@ -1154,6 +1154,7 @@ LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_)
 	  RP4(false),
       preset_name("tape"),
       cur_name("tape"),
+      loop_dir(loop_dir_),
       save_p(false),
       param(param_),
 	  mem_allocated(false),
@@ -1280,19 +1281,16 @@ int LiveLooper::load_from_wave(std::string fname, float *tape)
 
 void LiveLooper::load_array(std::string name)
 {
-    std::string pPath = getenv("HOME");
-    pPath +="/.config/guitarix/pluginpresets/loops/";
-    
-    RecSize1[1] = load_from_wave(pPath+name+"1.wav", tape1);
+    RecSize1[1] = load_from_wave(loop_dir+name+"1.wav", tape1);
     IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
     
-    RecSize2[1] = load_from_wave(pPath+name+"2.wav", tape2);
+    RecSize2[1] = load_from_wave(loop_dir+name+"2.wav", tape2);
     IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
     
-    RecSize3[1] = load_from_wave(pPath+name+"3.wav", tape3);
+    RecSize3[1] = load_from_wave(loop_dir+name+"3.wav", tape3);
     IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
     
-    RecSize4[1] = load_from_wave(pPath+name+"4.wav", tape4);
+    RecSize4[1] = load_from_wave(loop_dir+name+"4.wav", tape4);
     IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
     
     cur_name = preset_name;
@@ -1317,24 +1315,20 @@ void LiveLooper::save_to_wave(std::string fname, float *tape, float fSize)
 void LiveLooper::save_array(std::string name)
 {
     if (name.compare("tape")==0 || save_p) {
-        std::string pPath = getenv ("HOME");
-        pPath +="/.config/guitarix/pluginpresets/loops/";
-        pPath +=name;
-       
         if (save1) {
-            save_to_wave(pPath+"1.wav",tape1,rectime0);
+            save_to_wave(loop_dir+name+"1.wav",tape1,rectime0);
             save1 = false;
         }
         if (save2) {
-            save_to_wave(pPath+"2.wav",tape2,rectime1);
+            save_to_wave(loop_dir+name+"2.wav",tape2,rectime1);
             save2 = false;
         }
         if (save3) {
-            save_to_wave(pPath+"3.wav",tape3,rectime2);
+            save_to_wave(loop_dir+name+"3.wav",tape3,rectime2);
             save3 = false;
         }
         if (save4) {
-            save_to_wave(pPath+"4.wav",tape4,rectime3);
+            save_to_wave(loop_dir+name+"4.wav",tape4,rectime3);
             save4 = false;
         }
     }

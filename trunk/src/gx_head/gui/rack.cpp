@@ -644,10 +644,6 @@ void PluginPresetListWindow::run() {
 */
 
 void PluginPresetPopup::set_plugin_preset(bool factory, const Glib::ustring& name) {
-    // load loop file when plugin preset change
-    if(strcmp(pdef->id,"dubber")==0) {
-        machine.set_parameter_value("dubber.filename", name);
-    }
     machine.plugin_preset_list_set(pdef, factory, name);
 }
 
