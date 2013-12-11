@@ -15,7 +15,10 @@ def print_intpp_data(i):
     print >>o, "splinecoeffs sc[%d] = {" % p.NVALS
     f_set = set()
     for j, row in enumerate(order_tab):
-        inst = "splinedata::splev<%s>" % ",".join([str(v) for v in row if v is not None])
+        fu = "splev"
+        if row[0][0] == 'pp':
+            fu = "splev_pp"
+        inst = "splinedata::%s<%s>" % (fu, ",".join([str(v[1]) for v in row if v is not None]))
         f_set.add(inst)
         print >>o, "\t{x0_%d, xe_%d, hi_%d, n_%d, nmap_%d, map_%d, t_%d, c_%d, %s}," % (j, j, j, j, j, j, j, j, inst)
     print >>o, "};"
@@ -36,7 +39,9 @@ def print_header_file_start(h):
 #ifndef _DATA_H
 #define _DATA_H 1
 
+#ifndef NO_INTPP_INCLUDES
 #include "intpp.h"
+#endif
 
 namespace AmpData {
     extern real b0;
@@ -57,14 +62,16 @@ def print_header_file_entry(h, f):
     print >>h, "namespace %s { extern splinedata sd; }" % f
 
 def print_header(o):
+    print >>o, '#ifndef NO_INTPP_INCLUDES'
     print >>o, '#include "intpp.h"'
+    print >>o, '#endif'
     print >>o, "namespace AmpData {"
     if 0:
         b0, b1, a1 = circuit.PhaseSplitter().feedback_coeff(1.0)
         print >>o, "real b0 = %g;" % b0
         print >>o, "real b1 = %g;" % b1
         print >>o, "real a1 = 1 - %g;" % (1 - a1)
-    print >>o, "int fs = %d;" % circuit.FS
+    #print >>o, "int fs = %d;" % circuit.FS
     return 3 * np.float32().nbytes + np.int32().nbytes
 
 def print_footer(o):

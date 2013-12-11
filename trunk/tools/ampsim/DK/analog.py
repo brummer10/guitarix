@@ -1,7 +1,7 @@
 from __future__ import division
 import sympy, math, shutil, sys, os, numpy, pylab, warnings, tempfile
 from cStringIO import StringIO
-import dk_simulator, models, circ, mk_netlist, dk_lib, simu, signals
+import dk_simulator, models, circ, mk_netlist, dk_lib, simu, signals, generate_code
 from signals import Signal
 from dk_lib import CircuitException
 
@@ -62,6 +62,7 @@ class Circuit(object):
         self.c_datatype = "double"
         self.table_datatype = "double" #"float"
         self.pre_filter = None
+        self.post_filter = None
         self.FS = FS
         self.use_sim = SIM_C
         self._clear_all()
@@ -91,13 +92,15 @@ class Circuit(object):
         self.basegrid = None
         self.knot_positions = None
         self.table_source = None
-        self.partition = False
 
     def _clear_all(self):
         self.S = None
         self.V = None
         self.loaded_filename = None
         self.parser = None
+        self.max_homotopy_iter = None
+        self.solver_params = None
+        self.partition = False
         self._clear_calculated()
 
     def __del__(self):
@@ -121,7 +124,7 @@ class Circuit(object):
     def _ensure_eq(self):
         if self.eq is None:
             self._ensure_parser()
-            self.eq = dk_simulator.EquationSystem(self.parser, self.partition)
+            self.eq = dk_simulator.EquationSystem(self.parser, partition=self.partition)
 
     def _ensure_sim_py(self):
         if self.sim_py is None:
@@ -141,39 +144,53 @@ class Circuit(object):
             self._ensure_dc_values()
             if self.tempdir is None:
                 self.tempdir = tempfile.mkdtemp("_dk_compile")
-            self.c_module, self.sim_c = dk_simulator.BuildCModule(
+            modc = dk_simulator.BuildCModule(
                 self._get_module_id(), self.sim_py, c_tempdir=self.tempdir,
-                c_verbose=self.build_verbose, c_real=self.c_datatype, pre_filter=self.pre_filter).get_executor()
+                c_verbose=self.build_verbose, c_real=self.c_datatype, pre_filter=self.pre_filter, post_filter=self.post_filter)
+            if self.max_homotopy_iter is not None:
+                modc.max_homotopy_iter = self.max_homotopy_iter
+            if self.solver_params is not None:
+                modc.solver_params = self.solver_params
+            self.c_module, self.sim_c = modc.get_executor()
+
+    def calc_range(self, signal):
+        self._ensure_sim_c()
+        s = self.make_signal_vector(signal)
+        self.ptp = self.sim_c(s.input_signal).ptp()
+        pot_arr = numpy.array([[0., 1.] * len(self.sim_c.pot_list)])
+        if pot_arr.size:
+            self.minmax = numpy.append(pot_arr, self.sim_c.minmax, axis=0)
+        else:
+            self.minmax = self.sim_c.minmax
+        print self.ptp
+        print repr(self.minmax)
 
     def _ensure_range(self):
         if self.minmax is None:
             sig = Signal()
-            signal = self.make_signal_vector(sig(sig.sweep(), timespan=2))
-            self.sim_c.set_variable("hotpotz", 1)
-            self.ptp = self.sim_c(signal.input_signal).ptp()
-            pot_arr = numpy.array([[0., 1.] * len(self.sim_c.pot_list)])
-            self.minmax = numpy.append(pot_arr, self.sim_c.minmax, axis=0)
-            print self.ptp
-            print self.minmax
+            self.calc_range(sig(3*sig.sweep(), timespan=2))
 
     def _ensure_max_error(self):
         if self.E is None:
-            if not self.eq.nno:
+            if not self.sim_c.nno:
                 self.E = [0]
                 return
-            jacobi_estimate_error = 1e-1
-            maxerr = 1e-5
-            J, vals = simu.estimate_max_jacobi(self.sim_c.nonlin, self.minmax, jacobi_estimate_error, self.eq.nno)
-            J = J[:,1:] ##FIXME
+            self._ensure_eq()
+            jacobi_estimate_error = 10#1e-1
+            maxerr = 1e-4
+            J, vals = simu.estimate_max_jacobi(self.sim_c.nonlin, self.minmax, jacobi_estimate_error, self.sim_c.nno)
+            J = J[:,J.shape[1]-J.shape[0]:] ##FIXME
             J = numpy.matrix(J)
-            dv = numpy.amax(numpy.append(abs(self.eq.Fo), abs(self.eq.Fo)*J*abs(self.eq.G0)*abs(self.eq.Co), axis=0), axis=0).A
+            dv = numpy.amax(numpy.append(abs(self.eq.Fo), abs(self.eq.Fo)*J*abs(self.eq.G0)*abs(self.eq.Co), axis=0), axis=0).A1
             self.E = maxerr * self.ptp / numpy.where(dv == 0, 1e-20, dv)
+            print "E =", self.E
 
             grd_shape = vals.grd.shape
             numpoints = numpy.product(grd_shape[1:])
             grd = vals.grd.reshape(grd_shape[0], numpoints)
             fnc = vals.values.reshape(self.eq.nno, numpoints)
             self.cov = numpy.cov(grd, fnc)[:len(grd),len(grd):]
+            print self.cov
 
     def _ensure_basegrid(self):
         if self.basegrid is None:
@@ -186,27 +203,53 @@ class Circuit(object):
 
     def _ensure_table_source(self):
         if self.table_source is None:
-            if self.eq.nno == 0:
-                self.table_source = ()
+            if self.sim_c.nno == 0:
+                self.table_source = {}
                 self.maptype = None
                 return
+            self._ensure_eq()
             o = StringIO()
             inst = StringIO()
             h = StringIO()
-            npl = 1 ##FIXME
-            class Comp:
-                comp_id = self._get_module_id()
-                comp_name = self._get_module_id()
-                ranges = self.minmax
-                basegrid = [(g, None, None, -e, False) for g, e in zip(self.basegrid, self.E)]
-                NVALS = self.eq.nno
-                N_IN = self.eq.nni+npl
-                NDIM = self.eq.nni+npl
-                @staticmethod
-                def __call__(v, with_state):
-                    return self.sim_c.nonlin(v)
-            self.maptype = simu.TableGenerator.write_files(Comp(), o, inst, h)
-            self.table_source = (",'data.cc'", ("data.cc", o.getvalue()), ("data.h", h.getvalue()), ("intpp_inst.cc", inst.getvalue()))
+            npl = self.sim_c.npl
+            tables = []
+            if len(self.sim_c.comp_sz) > 1:
+                j = 0
+                for i, sz in enumerate(self.sim_c.comp_sz):
+                    #sl = [0]+range(j+1, j+1+sz[1])
+                    sl = range(j, j+sz[1]) ##FIXME
+                    class Comp:
+                        comp_id = "nonlin_%d" % i
+                        comp_name = "nonlin_%d" % i
+                        ranges = self.minmax[sl] ##FIXME
+                        basegrid = numpy.array([(g, None, None, -e, True) for g, e in zip(self.basegrid, self.E)])[j:j+sz[1]]
+                        NVALS = sz[2] # nno
+                        N_IN = sz[1]+npl # nni+npl
+                        NDIM = sz[1]+npl # nni+npl
+                        @staticmethod
+                        def __call__(v, with_state):
+                            return self.sim_c.c_calc_comp[i](v)
+                    j += sz[1]
+                    ##FIXME: maptype
+                    self.maptype, spl = simu.TableGenerator.write_files(Comp(), o, inst, h)
+                    c = Comp()
+                    tables.append(spl)
+            else:
+                class Comp:
+                    comp_id = "nonlin"
+                    comp_name = self._get_module_id()
+                    ranges = self.minmax
+                    basegrid = [(g, None, None, -e, False) for g, e in zip(self.basegrid, self.E)]
+                    NVALS = self.eq.nno
+                    N_IN = self.eq.nni+npl
+                    NDIM = self.eq.nni+npl
+                    @staticmethod
+                    def __call__(v, with_state):
+                        return self.sim_c.nonlin(v)
+                self.maptype, spl = simu.TableGenerator.write_files(Comp(), o, inst, h)
+                tables.append(spl)
+            intpp_inst = "\n".join(set(inst.getvalue().split("\n")))
+            self.table_source = dict(data_c=o.getvalue(), data_h=h.getvalue(), intpp_inst=intpp_inst, tables=tables)
 
     def _ensure_sim_table(self):
         if self.sim_table is None:
@@ -218,10 +261,19 @@ class Circuit(object):
             self._ensure_knot_positions()
             self._ensure_table_source()
             name = self._get_module_id()
-            self.table_module, self.sim_table = dk_simulator.BuildCModule(
-                name, self.sim_py, solver=dict(method="table",name=name,maptype=self.maptype),
-                extra_sources=self.table_source, c_tempdir="gencode", c_verbose=self.build_verbose,
-                c_real=self.table_datatype, pre_filter=self.pre_filter).get_executor()
+            self._ensure_sim_py()
+            if self.solver is None:
+                solver = {}
+            else:
+                solver = self.solver.copy()
+            solver["method"] = "table"
+            modc = dk_simulator.BuildCModule(
+                name, self.sim_py, solver=solver,
+                extra_sources=self.table_source, c_tempdir="gencode",
+                c_verbose=self.build_verbose, c_real=self.table_datatype,
+                pre_filter=self.pre_filter, post_filter=self.post_filter)
+            modc.resample = True
+            self.table_module, self.sim_table = modc.get_executor()
 
     def _get_sim(self):
         if self.use_sim == SIM_C:
@@ -379,15 +431,30 @@ class Circuit(object):
         self.c_datatype = "float" if use_float else "double"
 
     def set_solver(self, solver):
-        self.solver = solver
+        self.solver = generate_code.solver_set_defaults(solver)
 
     def load_module(self, filename, clear_all=True):
+        sim_c = dk_simulator.SimulateC(filename)
+        if not clear_all and self.FS != sim_c.fs:
+            raise CircuitException("Samplerate mismatch: %d / %d" % (self.FS, sim_c.FS))
         if clear_all:
             self._clear_all()
-        self.sim_c = dk_simulator.SimulateC(filename)
+            self.FS = sim_c.fs
+        self.sim_c = sim_c
 
     def set_module_id(self, module_id):
         self.module_id = module_id
+
+    def add_element(self, element, connections, value):
+        self._check_netlist()
+        self.S = list(self.S) + [(element,)+tuple(connections)]
+        self.V[element] = value
+        self._clear_calculated()
+        if self.parser is None:
+            self._ensure_parser()
+        else:
+            self.parser.update(self.S, self.V)
+        return
 
     def remove_element(self, element):
         self._check_netlist()
@@ -535,19 +602,31 @@ class Circuit(object):
         self.last_signal = signal
         self.last_output = sim(signal.input_signal)
 
-    def plot(self, label=None, clip=-80, nharmonics=8, spectrum=None):
+    def plot(self, sig=None, label=None, clip=-80, nharmonics=8, spectrum=None, freq_range=None):
+        if sig is not None:
+            self.stream(sig)
         if self.last_output is None:
             raise CircuitException("nothing to plot")
         ls = self.last_signal
+        if freq_range is not None:
+            lower_freq, upper_freq = freq_range
+        else:
+            lower_freq = upper_freq = None
+        if lower_freq is None:
+            lower_freq = ls.start_freq
+        if upper_freq is None:
+            upper_freq = ls.stop_freq
         if  ls.has_harmonics() and nharmonics > 1 and (spectrum is None or spectrum):
             sp = []
             for imp in ls.get_harmonics_responses(self.last_output, nharmonics):
-                sp.append(abs(ls.get_harmonic_spectrum(imp)))
+                if imp.size > 0:
+                    sp.append(abs(ls.get_harmonic_spectrum(imp)))
             Hmax = numpy.amax(abs(sp[0]))*1.2
+            fig, ax = pylab.subplots()
             for i, spec in enumerate(sp):
                 n = 2*len(spec)
-                start = min(round((i+1)*n*ls.start_freq/ls.fs), len(spec))
-                stop = min(round((i+1)*n*ls.stop_freq/ls.fs), len(spec))
+                start = min(round((i+1)*n*lower_freq/ls.fs), len(spec))
+                stop = min(round((i+1)*n*upper_freq/ls.fs), len(spec))
                 cut = slice(start, stop)
                 w = numpy.fft.fftfreq(n,1.0/ls.fs)[cut]
                 s = 20*numpy.log10(abs(spec[cut]))
@@ -555,11 +634,14 @@ class Circuit(object):
                     lbl = "%d, %s" % (i+1, label)
                 else:
                     lbl = "%d" % (i+1)
-                pylab.semilogx(w/(i+1), numpy.where(s > clip, s, numpy.nan), label=lbl)
+                pylab.xlim(left=lower_freq,right=upper_freq)
+                pylab.semilogx(w/(i+1), numpy.where(s > clip, s, numpy.nan), label=lbl, subsx=[2,5])
+                ax.xaxis.set_minor_formatter(pylab.LogFormatter(base=10, labelOnlyBase=False))
+                
         elif (spectrum is None and ls.has_spectrum()) or spectrum:
             h = ls.get_spectrum(self.last_output)
             n = 2*len(h)
-            cut = slice(round(n*ls.start_freq/ls.fs), round(n*ls.stop_freq/ls.fs))
+            cut = slice(round(n*lower_freq/ls.fs), round(n*upper_freq/ls.fs))
             w = numpy.fft.fftfreq(n,1.0/ls.fs)[cut]
             s = 20*numpy.log10(abs(h[cut]))
             pylab.semilogx(w, numpy.where(s > clip, s, numpy.nan), label=label)

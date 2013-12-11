@@ -85,3 +85,18 @@ def fft_convolve(h, xd, invert=False):
         XD *= H
     s = np.fft.irfft(XD, n2, axis=0)
     return s[:n]
+
+def calc_grid(func, grd, nvals):
+    grd_shape = grd.shape
+    numpoints = np.product(grd_shape[1:])
+    grd = grd.reshape(grd_shape[0], numpoints)
+    fnc = func(grd.T).T
+    return fnc.reshape((nvals,)+grd_shape[1:])
+
+def mkgrid(axeslist):
+    if len(axeslist) > 1:
+        grd = np.array(np.meshgrid(*axeslist, indexing='ij'))
+    else:
+        grd = np.empty((1, len(axeslist[0])))
+        grd[0] = axeslist[0]
+    return grd

@@ -71,48 +71,35 @@ class CodeWrapError(Exception): pass
 
 class CodeWrapper(object):
 
-    _filename = "dk_code"
-    _module_basename = "dk_sim"
     _module_counter = 0
 
     def __init__(self, d, code, tempdir=None, verbose=False, flags=[]):
-        self.d = d
         self.code = code
         if tempdir is not None:
             tempdir = os.path.abspath(tempdir)
         self.filepath = tempdir
         self.flags = flags
         self.quiet = not verbose
-        dct = pkgconfig('cminpack','eigen3')
-        dct["include_dirs"].append(os.path.abspath(".."))
-        dct["include_dirs"].append(os.path.abspath("../../../src/headers"))
-        l = ["%s=%s" % v for v in dct.items()]
-        #l.append("extra_compile_args=['-mavx','-g0','-O2','-ffast-math','-UNDEBUG']")
-        #
-        # ffast-math seems to trigger a compiler error on gcc 4.7.3
-        # according to documentation it expands into list of settings, including
-        # funsafe-math-optimizations, which seems to be responsible for the bug.
-        # But funsafe-math-optimizations in turn just expands into another list of
-        # settings. When using the expanded list of settings the bug is gone (?!).
-        #
-        # maybe -mavx is the culprit??
-        fast_math_expand=(
-            #" '-funsafe-math-optimizations',"
-            " '-fno-math-errno',"
-            " '-ffinite-math-only', '-fno-rounding-math',"
-            " '-fno-signaling-nans', '-fcx-limited-range',"
-            " '-fno-signed-zeros', '-fno-trapping-math',"
-            " '-fassociative-math', '-freciprocal-math'"
+        packages = ["eigen3"]
+        if d["method"] in ("hybr", "lm"):
+            packages.append('cminpack')
+        dct = pkgconfig(*packages)
+        libs = dct.get("libraries",[])
+        libs.append("m")
+        if d["resample"]:
+            libs.append("zita-resampler")
+        self.script_dict = dict(
+            includes = " ".join("-I%s" % v for v in dct.get("include_dirs",[])),
+            libraries = " ".join("-l%s" % v for v in set(libs)),
+            #defines = "-Dcreal=%s -DCHECK_BOUNDS" % d["c_real"],
+            defines = "-Dcreal=%s" % d["c_real"],
+            debug = False,
+            sourcename = "%s_%d.cpp" % (d["id"], CodeWrapper._module_counter),
+            soname = "%s_%d.so" % (d["id"], CodeWrapper._module_counter),
+            soname_ = "%s_%d_.so" % (d["id"], CodeWrapper._module_counter),
+            optimize = False,#(d["method"] == "table"),
             )
-        l.append("extra_compile_args=['-g0','-O2',%s,'-UNDEBUG','-Dcreal=%s','-fvisibility=hidden']" % (fast_math_expand, d["c_real"]))
-        l.append("extra_link_args=['-fPIC','-Wl,--strip-all','-UNDEBUG','-Dcreal=%s']" % d["c_real"])
-        l.append("language='c++'")
-        d["flags"] = ",\n".join(["    " + v for v in l])
-        d["mcount"] = CodeWrapper._module_counter
-
-    @property
-    def module_name(self):
-        return "%s_%s" % (self._module_basename, CodeWrapper._module_counter)
+        self.build_script = "./build_script_%d" % CodeWrapper._module_counter
 
     def _process_files(self, routine):
         command = self.command
@@ -131,24 +118,21 @@ class CodeWrapper(object):
 
     @property
     def command(self):
-        command = [sys.executable, "setup.py", "build_ext", "--inplace"]
+        command = [self.build_script]
         return command
 
     def _prepare_files(self):
-        # setup.py
-        with open('setup.py', 'w') as f:
-            print >> f, dk_templates.setup_template.render(self.d)
+        with open(self.build_script, 'w') as f:
+            print >> f, dk_templates.build_script_template.render(self.script_dict)
+            os.fchmod(f.fileno(), 0o777)
+        
 
     def _generate_code(self):
-        with open('dk_code.cpp', 'w') as f:
+        with open(self.script_dict['sourcename'], 'w') as f:
             f.write(self.code)
-        if "extra_code" in self.d:
-            for fname, code in self.d["extra_code"]:
-                with open(fname, 'w') as f:
-                    f.write(code)
 
     def wrap_code(self):
-        workdir = self.filepath or tempfile.mkdtemp("_sympy_compile")
+        workdir = self.filepath or tempfile.mkdtemp("_dk_compile")
         if not os.access(workdir, os.F_OK):
             os.mkdir(workdir)
         oldwork = os.getcwd()
@@ -157,8 +141,8 @@ class CodeWrapper(object):
             self._generate_code()
             self._prepare_files()
             self._process_files(None)
-            soname = os.path.join(workdir, self.module_name+".so")
-            return soname, SimulateC(soname)
+            path = os.path.join(workdir, self.script_dict["soname"])
+            return path, SimulateC(path)
         finally:
             CodeWrapper._module_counter +=1
             os.chdir(oldwork)
@@ -446,6 +430,20 @@ class EquationSystem(object):
             b[j] = (expr, vl, base+j)
         return b
 
+    @staticmethod
+    def decompose(a):
+        U, s, V = la.svd(a)
+        o = np.sqrt(np.sum(s*s) / np.count_nonzero(s))
+        sr = np.where(s, s, o)
+        V1 = ml.diag(sr) * V
+        V1i = (ml.diag(1/sr) * V).T
+        U1 = U * np.diag(np.where(s, 1, 0))
+        if (U1 <= 0).all():
+            U1 = -U1
+            V1 = -V1
+            V1i = -V1i
+        return U1, V1, V1i
+
     def make_eq(self, p, partition):
         self.nx, self.nn, self.ni, self.no, self.np = [len(p.element_name[j]) for j in 'X', 'N', 'I', 'O', 'P']
         self.mp_cols = self.nx + self.ni
@@ -500,15 +498,31 @@ class EquationSystem(object):
         self.Ec0 = T * CV.T
         self.F0 = T * Nnr.T
 
-        self.make_nonlin_input_trans()
-        #self.nni = self.nn
-        #self.U0 = ml.matrix(np.identity(self.nn))
-        self.make_nonlin_output_trans()
-        #self.nno = self.nn
-        #self.Mi = ml.matrix(np.identity(self.nn))
-        #self.Co = self.C0
-        #self.Fo = self.F0
-
+        self.nni = self.nn
+        self.U0 = ml.matrix(np.identity(self.nn))
+        self.nno = self.nn
+        self.Mi = ml.matrix(np.identity(self.nn))
+        self.Co = self.C0
+        self.Fo = self.F0
+        if len(self.blocklist) > 1:
+            end = self.blocklist[-1].stop
+            Kni = ml.identity(self.nn)
+            self.Kl = self.K0[end:,:].copy()
+            self.Kn = np.zeros((end, self.nn-end))
+            for sl in self.blocklist:
+                Ksub = self.K0[end:, sl]
+                if True: ##FIXME make configurable
+                    U, V, Vi = self.decompose(Ksub)
+                    self.Kl[:,sl] = U
+                else:
+                    V = Vi = ml.identity(len(Ksub))
+                self.Kn[sl] = V
+                Kni[sl,sl] = Vi
+            self.Cd = self.C0 * Kni
+            self.Fd = self.F0 * Kni
+        elif True: ##FIXME
+            self.make_nonlin_input_trans()
+            self.make_nonlin_output_trans()
         if self.np:
             # Woodbury Identity: \left(A+UCV \right)^{-1} = A^{-1} - A^{-1}U \left(C^{-1}+VA^{-1}U \right)^{-1} VA^{-1}, 
             T = Si * Nv.T
@@ -574,13 +588,12 @@ class Simulate(object):
         self.parser = eq.get_parser()
         if solver is None:
             self.solver_dict = dict(method = 'hybr')
+        elif isinstance(solver, basestring):
+            self.solver_dict = dict(method = solver)
         else:
             self.solver_dict = dict(solver)
         self.solver_method = self.solver_dict["method"]
         del self.solver_dict["method"]
-        if self.solver_method in ('hybr', 'lm'):
-            self.solver_dict.setdefault("factor", 1.e2)
-            self.solver_dict.setdefault("xtol", math.sqrt(sys.float_info.epsilon))
 
     def get_solver(self):
         d = self.solver_dict.copy()
@@ -684,7 +697,7 @@ class SimulatePy(Simulate):
                 return res
             v0 = res.x
             points = points[1:]
-        raise ConvergenceError("calc_dc: more than %d iterations (list msg: %s)" % (max_iter, msg))
+        raise ConvergenceError("more than %d iterations (list msg: %s)" % (max_iter, msg))
 
     def calc_dc(self, u):
         u = ml.matrix(u, dtype=np.float64).T
@@ -704,10 +717,10 @@ class SimulatePy(Simulate):
                 H1 = ml.append(self.eq.U0 * H, B, axis=0)
                 Hc1 = ml.append(Hc, Bc, axis=0)
                 K1 = ml.append(K, C * self.eq.Mi, axis=0)
-                CZ1 = np.diag(np.append(self.eq.CZ, np.ones(K.shape[0])))
+                CZ1 = np.append(self.eq.CZ, np.ones(len(self.x)))
                 n = len(self.v0)
                 def func(v, fact):
-                    return (G1 * v[n:] + H1 * u + Hc1*fact + K1 * self.calc_i(v) - ml.matrix(CZ1 * v).T).A1
+                    return (G1 * ml.matrix(v[n:]).T + H1 * u + Hc1*fact + K1 * self.calc_i(v) - ml.matrix(CZ1 * v).T).A1
                 res = self.solve_using_homotopy(func, np.append(self.v0, self.x))
                 self.v0 = res.x[:n]
                 self.x = res.x[n:]
@@ -723,10 +736,11 @@ class SimulatePy(Simulate):
                     self.v0 = self.solve_using_homotopy(func, self.v0).x
                     self.x += Ai * C * self.eq.Mi * self.calc_i(self.v0)
                 self.x = self.x.A1
-        self.v00 = self.v0
-        self.x0 = self.x
+        self.v00 = self.v0.copy()
+        self.x0 = self.x.copy()
         self.p0 = matrix_add(G * np.matrix(self.x0).T, H * np.matrix(self.op).T)
         self.o0 = matrix_add(D * np.matrix(self.x0).T, E * np.matrix(self.op).T, Ec, F * self.eq.Mi * self.calc_i(self.v0)).A1
+        self.last_p = self.p0.copy()
 
     def calc_i(self, v):
         i = ml.zeros(len(self.ff)).T
@@ -734,13 +748,17 @@ class SimulatePy(Simulate):
             i[n] = f(*v[start:end])
         return i
 
-    def solve_one(self, p, K, s):
+    def solve_one(self, p, K, s, sm=None, sd=None):
+        if sm is None:
+            sm = self.solver_method
+        if sd is None:
+            sd = self.solver_dict
         i = ml.zeros((p.shape[0],1))
         def func(v):
             for n, (f, start, end) in enumerate(self.ff[s]):
                 i[n] = f(*v[start-s.start:])
             return (p + K * i - ml.matrix(v).T).A1
-        self.v0[s] = self.solve(func, self.v0[s], method=self.solver_method, options=self.solver_dict).x
+        self.v0[s] = self.solve(func, self.v0[s], method=sm, options=sd).x
         return i
 
     def nonlin_py(self, p, K, Hc):
@@ -748,19 +766,31 @@ class SimulatePy(Simulate):
         i = ml.zeros((self.eq.nn, 1))
         if len(self.eq.blocklist) > 1:
             rc = slice(self.eq.blocklist[-1].stop, None)
-            def func(icc):
-                for s in self.eq.blocklist:
+            #sm = ["hybr", "lm", "hybr"]
+            #sd = [dict(), dict(diag=(1e3,1),factor=1e-1), dict()]
+            sm = ["lm", "lm", "lm"]
+            sd = [dict(diag=(1e3,1),factor=1e-1), dict(diag=(1e3,1),factor=1e-1), dict(diag=(1e3,1),factor=1e-1)]
+            def func(icc, fact):
+                #print "*", fact, icc
+                p1 = self.last_p + (p - self.last_p) * fact
+                for j, s in enumerate(self.eq.blocklist):
                     k = K[s]
-                    i[s] = self.solve_one(p[s]+k[:,rc].dot(icc).T, k[:,s], s)
+                    try:
+                        i[s] = self.eq.Kn[s] * self.solve_one(p1[s]+k[:,rc].dot(icc).T, k[:,s], s, sm[j], sd[j])
+                    except ConvergenceError as e:
+                        print "conv error in %d: %s" % (j, e)
+                        raise SystemExit
                 i[rc] = icc.reshape(len(icc), 1)
-                return (p[rc] + K[rc] * i).A1
-            self.v0[rc] = self.solve(func, self.v0[rc], method=self.solver_method, options=self.solver_dict).x
+                return (p1[rc] + self.eq.Kl * i).A1
+            self.v0[rc] = self.solve_using_homotopy(func, self.v0[rc], method=self.solver_method, options=self.solver_dict).x
         else:
             def func(v):
                 i[:] = self.calc_i(v)
                 return (p + K * i - ml.matrix(self.eq.CZ * v).T).A1
             self.v0 = self.solve(func, self.v0, method=self.solver_method, options=self.solver_dict).x
-        return self.eq.Mi * i
+            i = self.eq.Mi * i
+        self.last_p = p
+        return i
 
     def compile_py_func(self):
         self.ff = np.zeros(len(self.eq.f), dtype=object)
@@ -839,7 +869,7 @@ class CheckedDict(dict):
 class BuildCModule(Simulate):
 
     def __init__(self, name, sim, solver=None, c_tempdir=None, c_verbose=False,
-                 c_real="double", extra_sources=None, linearize=False, pre_filter=None):
+                 c_real="double", extra_sources=None, linearize=False, pre_filter=None, post_filter=None):
         if solver is None:
             solver = sim.get_solver()
         Simulate.__init__(self, sim.get_eq(), solver)
@@ -849,6 +879,7 @@ class BuildCModule(Simulate):
         self.c_real = c_real
         self.extra_sources = extra_sources
         self.pre_filter = pre_filter
+        self.post_filter = post_filter
         self.eq = sim.get_eq()
         parser = sim.get_parser()
         if linearize:
@@ -859,13 +890,17 @@ class BuildCModule(Simulate):
             par = J, Jc, l, li
             self.eq = EquationSystem(parser, par)
             sim = SimulatePy(self.eq, solver)
-        self.v0, self.x0, self.p0, self.o0 = sim.v0, sim.x, sim.p0, sim.o0
+        self.v0, self.x0, self.p0, self.o0 = sim.v0, sim.x0, sim.p0, sim.o0
         self.op = parser.op
         self.pot_func = parser.get_pot_funcs()
         self.pot = parser.pot
         self.Pv = parser.Pv
         self.pot_attr = parser.get_pot_attr()
         self.out_labels = parser.out_labels()
+        self.fs = parser.fs
+        self.max_homotopy_iter = 64000
+        self.resample = False
+        self.solver_params = None
         #FIXME:
         self.pot_list = []
         for a, f in self.pot_func:
@@ -876,9 +911,13 @@ class BuildCModule(Simulate):
     def get_executor(self):
         return self.compile_c_func().wrap_code()
 
-    def prepare(self):
+    def compile_c_func(self):
         eq = self.eq
         d = CheckedDict(name=self.name, comment=time.ctime())
+        d["solver_maptype"] = "unsigned short" ##FIXME
+        d["max_homotopy_iter"] = self.max_homotopy_iter
+        d["fs"] = self.fs
+        d["resample"] = self.resample
         d["c_real"] = self.c_real
         for j in "nx", "nn", "ni", "no", "np", "nni", "nno", "mp_cols":
             d[j] = getattr(eq, j)
@@ -890,81 +929,22 @@ class BuildCModule(Simulate):
         d["op_data"] = ",".join([str(j) for j in self.op])
         d["out_labels"] = ",".join(['"%s"' % j for j in self.out_labels])
         d["method"] = method = "linear" if eq.nn == 0 else self.solver_method
-        t = "solver_"
-        d.update(dict([(t+k, v) for k, v in self.solver_dict.items()]))
+        d["pot_vars"] = ",".join(['"%s"' % v for v in self.pot_list])
+        d["pot"] = ",".join([str(self.pot.get(v,0.5)) for v in self.pot_list])
+        d["pre_filter"] = self.pre_filter or ""
+        d["post_filter"] = self.post_filter or ""
+        d['id'] = d["name"]
+        solver = self.solver_dict.copy()
+        solver["method"] = method
         if method == "table":
-            d["extra_sources"] = self.extra_sources[0]
-            d["extra_code"] = self.extra_sources[1:]
+            d["extra_sources"] = self.extra_sources
         else:
             d["extra_sources"] = ""
-        d["namespace"] = "nonlin"
-        d["have_constant_matrices"] = (len(self.pot_func) == 0)
-        if eq.nn > 0:
-            if len(self.eq.blocklist) > 1:
-                l = []
-                kcc = len(self.eq.blocklist)-1  ##FIXME, wrong when components are connected with more than one edge
-                bl = []
-                for i, s in enumerate(self.eq.blocklist):
-                    cc = d.copy()
-                    ns = "nonlin_%d" % i
-                    bl.append(dict(namespace=ns))
-                    cc["namespace"] = ns
-                    generate_code.NonlinSolverCodeGenSF(
-                        cc, self.eq.f, eq.K0, eq.U0, eq.Hc0, self.eq.CZ, eq.Mi, len(self.pot_func) == 0, s, kcc).generate()
-                    l.append(cc)
-                d["components"] = l
-                dd = d.copy()
-                dd["blocklist"] = bl
-                generate_code.NonlinSolverCodeGenCC(
-                    dd, self.eq.f, eq.K0, eq.U0, eq.Hc0, self.eq.CZ, eq.Mi, len(self.pot_func) == 0, self.eq.blocklist).generate()
-                d["solver"] = dd
-            else:
-                dd = d.copy()
-                d["nonlin_code"] = dk_templates.c_template_nonlin.render(generate_code.NonlinSolverCodeGen(
-                    dd, self.eq.f, eq.K0, eq.U0, eq.Hc0, self.eq.CZ, eq.Mi, len(self.pot_func) == 0).generate())
-                d["solver"] = dd
-        else:
-            d["nonlin_code"] = ""
-        d["pre_filter"] = self.pre_filter or ""
-        return d
-
-    def make_code(self, d):
-        eq = self.eq
-        if not hasattr(eq,"Q"):
-            Q = Uxl = Uo = Unl = Ucv = UR = None
-        else:
-            Q = eq.Q
-            Uxl = eq.Uxl
-            Uo = eq.Uo
-            Unl = eq.Unl
-            UR = np.concatenate((eq.Uxr.T, eq.Uu.T, eq.Unr.T), axis=1)
-            Ucv = eq.Ucv.T
-        code = dk_templates.c_template_top.render(generate_code.SimulationCodeGen(
-            d,
-            self.pot_attr,
-            np.concatenate((eq.G0, eq.H0), axis=1),
-            np.concatenate((eq.A0, eq.B0, eq.Co), axis=1),
-            eq.Bc0,
-            np.concatenate((eq.D0, eq.E0, eq.Fo), axis=1),
-            eq.Ec0,
-            self.pot_func,
-            self.Pv,
-            self.pot_list,
-            self.pot,
-            Q,
-            Uxl,
-            Uo,
-            Unl,
-            UR,
-            Ucv,
-            eq.Hc0,
-            eq.K0
-            ).generate())
-        return code
-
-    def compile_c_func(self):
-        d = self.prepare()
-        return CodeWrapper(d, self.make_code(d), self.c_tempdir, self.c_verbose)
+        cg = generate_code.CodeGenerator(
+            self.eq, solver, self.solver_params, self.pot, self.pot_list,
+            self.pot_func, self.pot_attr, self.Pv, self.extra_sources
+            ).generate(d)
+        return CodeWrapper(d, cg, self.c_tempdir, self.c_verbose)
 
 
 class SimulateC(object):
@@ -1009,15 +989,15 @@ class SimulateC(object):
 
     def eval_c(self, v_in):
         self.c_set_state(self.v0, self.x)
-        y = np.empty((v_in.shape[0], self.no))
         t1 = time.time()
-        y = self.c_calc_stream(v_in)
-        self.time_per_sample = (time.time() - t1)/v_in.shape[0]
-        self.v0, self.x, self.minmax, info, nfev, fnorm = self.c_get_info()
-        return y
+        try:
+            return self.c_calc_stream(v_in)
+        finally:
+            self.time_per_sample = (time.time() - t1)/v_in.shape[0]
+            self.v0, self.x, self.minmax, info, nfev, fnorm = self.c_get_info()
 
     def load_from_shared_lib(self):
-        INTERFACE_VERSION = 1
+        INTERFACE_VERSION = 3
         try:
             lib = ct.cdll.LoadLibrary(self.soname)
         except OSError as e:
@@ -1027,29 +1007,33 @@ class SimulateC(object):
         except AttributeError:
             raise SystemExit("%s: bad shared lib, missing get_interface_version" % self.soname)
         if version != INTERFACE_VERSION:
-            raise SystemExit("interface version %d expected (found: %d)" % (version, INTERFACE_VERSION))
+            raise SystemExit("interface version %d expected (found: %d)" % (INTERFACE_VERSION, version))
         c_char_pp = ct.POINTER(ct.c_char_p)
         c_get_structure = lib.get_structure
         c_get_structure.restype = None
-        c_get_structure.argtypes = [c_char_pp, ct.POINTER(ct.c_int), ct.POINTER(ct.POINTER(ct.c_int)),
-                                    c_char_pp, ct.POINTER(c_char_pp), ct.POINTER(ct.POINTER(ct.c_double)),
-                                    ct.POINTER(c_char_pp), c_char_pp]
+        c_get_structure.argtypes = [c_char_pp, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int), ct.POINTER(ct.POINTER(ct.c_int)),
+                                    ct.POINTER(ct.POINTER(ct.c_int)), c_char_pp, ct.POINTER(c_char_pp),
+                                    ct.POINTER(ct.POINTER(ct.c_double)), ct.POINTER(c_char_pp), c_char_pp]
         nm = ct.c_char_p()
         sz = ct.c_int()
+        fs = ct.c_int()
         t = ct.POINTER(ct.c_int)()
+        tc = ct.POINTER(ct.c_int)()
         p = ct.c_char_p()
         plist = c_char_pp()
         pvals = ct.POINTER(ct.c_double)()
         ol = c_char_pp()
         cmt = ct.c_char_p()
-        c_get_structure(ct.byref(nm), ct.byref(sz), ct.byref(t), ct.byref(p),
+        c_get_structure(ct.byref(nm), ct.byref(sz), ct.byref(fs), ct.byref(t), ct.byref(tc), ct.byref(p),
                         ct.byref(plist), ct.byref(pvals), ct.byref(ol), ct.byref(cmt))
-        nx, ni, nn, no, npl, nni, nno, end = [t[i] for i in range(8)]
+        nx, ni, no, npl, nn, nni, nno, nc, end = [t[i] for i in range(9)]
         if end != -1:
             raise SystemExit("%s: bad sequence length in get_structure")
-        self.nx, self.ni, self.nn, self.no, self.npl, self.nni, self.nno = nx, ni, nn, no, npl, nni, nno
+        self.nx, self.ni, self.no, self.npl, self.nn, self.nni, self.nno = nx, ni, no, npl, nn, nni, nno
+        self.comp_sz = comp_sz = np.array([[tc[3*i+j] for j in range(3)] for i in range(nc)])
         self.name = nm.value
         self.data_size = sz.value
+        self.fs = fs.value
         self.method = p.value
         self.pot_list = [plist[i] for i in range(npl)]
         self.pot = dict([(plist[i], pvals[i]) for i in range(npl)])
@@ -1087,6 +1071,9 @@ class SimulateC(object):
         c_calc_stream = lib.calc_stream
         c_calc_stream.restype = ct.c_int
         c_calc_stream.argtypes = [c_mat(), c_mat(True), ct.c_int]
+        info = ct.c_int()
+        nfev = ct.c_int()
+        fnorm = c_real()
         if nn:
             c_calc_nonlin = lib.calc_nonlin
             c_calc_nonlin.restype = ct.c_int
@@ -1100,15 +1087,31 @@ class SimulateC(object):
                     raise ValueError("convergence error: info=%d, nfev=%d, fnorm=%g" % (info.value, nfev.value, fnorm.value))
                 return i
             self.c_calc_nonlin = calc_nonlin
+            def define_func(f, nni, npl, nno):
+                dtp = self.dtp
+                def func(p, v=None):
+                    assert p.shape[1] == nni+npl, (p.shape[1], nni+npl)
+                    if v is None:
+                        v = self.v0
+                    p = np.array(p, dtype=dtp, order='C', copy=False)
+                    i = np.zeros((p.shape[0], nno), dtype=dtp, order='C')
+                    r = f(len(p), p, i, v, ct.byref(info), ct.byref(nfev), ct.byref(fnorm))
+                    if r != 0:
+                        raise ValueError("convergence error: info=%d, nfev=%d, fnorm=%g" % (info.value, nfev.value, fnorm.value))
+                    return i
+                return func
+            self.c_calc_comp = []
+            for i in range(nc):
+                t = getattr(lib, "calc_nonlin_%d" % i)
+                t.restype = ct.c_int
+                t.argtypes = [ct.c_int, c_mat(), c_mat(True), c_arr(nn, True), c_int_p, c_int_p, c_real_p]
+                self.c_calc_comp.append(define_func(t, comp_sz[i][1], npl, comp_sz[i][2]))
         c_calc_pot_update = lib.calc_inv_update
         c_calc_pot_update.restype = None
         c_calc_pot_update.argtypes = [c_arr(npl)]
         c_get_dc = lib.get_dc
         c_get_dc.restype = None
         c_get_dc.argtypes = [c_arr(nn, True), c_arr(nx, True), c_arr(nni, True), c_arr(no, True), c_arr(ni, True)]
-        info = ct.c_int()
-        nfev = ct.c_int()
-        fnorm = c_real()
         def calc(u, x, v):
             u = np.array(u, dtype=self.dtp)
             x = np.array(x, dtype=self.dtp)

@@ -13,7 +13,7 @@ class GeneratedSignal(object):
         self.generate_spectrum = False
         self.generate_harmonics = False
         self.make_spectrum = self._default_make_spectrum
-        m = [dict(sweep = self._sweep, impulse = self._impulse, time = self._time, null=self._null), numpy]
+        m = [dict(sweep = self._sweep, impulse = self._impulse, time = self._time, null=self._null, asin=numpy.arcsin, atan=numpy.arctan), numpy]
         self.signal = sympy.lambdify((), func, modules=m)()
         samples = len(self.signal)
         self.input_signal = numpy.array((op,), dtype=numpy.float64).repeat(samples, axis=0)

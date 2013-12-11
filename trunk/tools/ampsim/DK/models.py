@@ -58,7 +58,7 @@ class Out(object):
         if self.fact != 1.0:
             return "%s*%g" % (self.node, self.fact)
         else:
-            return self.node
+            return repr(self.node)
 
 
 class OutU(Out):

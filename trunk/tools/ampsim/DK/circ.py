@@ -220,7 +220,6 @@ class Transformer_GC_test(Test): # transformer
         [-0.3746337 ,  1.22787577,  0.39689002],
         [-0.36713395, -0.19608725,  0.19608725]])
 
-    solver = dict(method='hybr')
     freq = 40.
     timespan = 2 / freq
 
@@ -314,7 +313,6 @@ class PushPullTransformer_test(Test): # 2 push-pull pentodes with transformer
 
     freq = 30.
     timespan = 2 / freq
-    solver = dict(method='hybr', xtol=1e-8)
 
     def signal(self):
         a = 50*self.sine_signal(self.freq, 3)
@@ -469,7 +467,6 @@ class Diode_clipper(Test): # diode clipper
          C(): 3e-7,
          "OP": [0],
          }
-    solver = dict(method='lm')
 
     result = np.array([[ -1.20000000e+00,   3.98658844e+00,  -8.01341156e-01],
        [ -9.34673367e-01,   1.60606646e+00,  -7.74066721e-01],
@@ -568,7 +565,6 @@ class InvOpAmp_test(Test): # inverting OPAMP
          }
 
     timespan = 0.01
-    solver = dict(method='hybr', factor=1e-1)
 
     result = np.array([[  0.00000000e+00,   0.00000000e+00,   0.00000000e+00],
        [ -4.26797924e+00,  -4.55963690e-05,   4.26788804e+00],
@@ -895,15 +891,17 @@ class Triode2_test(Test): # triode test 2
 
 
 class Preamp_test(Test):
-    S = ((P(6), GND, 8, 9),
-         #(R(61), 8, 9),
-         #(R(62), 9, GND),
+    S = (#(P(6), GND, 8, 9),
+         (R(61), 8, 9),
+         (R(62), 9, GND),
          (V('cc3'), 18),
          (CC(2), 11, 13),
          (V('cc2'), 12),
          (Triode(2), 9, 11, 10),
          (V('cc1'), 5),
          (CC(1), 4, 6),
+         #(R(71), 6, GND),
+         #(R(72), 13, GND),
          (Triode(3), 15, 17, 16),
          (Triode(1), 2, 4, 3),
          (C('m3'), 15, 17),
@@ -927,7 +925,7 @@ class Preamp_test(Test):
          (R(3), 3, GND),
          (R(2), 2, 1),
          (R(1), 1, GND),
-         (OUT, 17),
+         (OUT, Out(17,2.62e-3)),
          (IN, 1),
          )
 
@@ -941,6 +939,8 @@ class Preamp_test(Test):
          C(5): 1.e-9,
          C(6): 22.e-9,
          C(7): 470.e-12,
+         R(71): 1.e12,
+         R(72): 1.e12,
          R(1): 1.e6,
          R(10): 470.e3,
          R(11): 820.,
@@ -963,7 +963,7 @@ class Preamp_test(Test):
          V('cc3'): 385.,
          }
 
-    result = np.array(
+    result = 2.62e-3 * np.array(
         [[ 221.71522314],
          [ 171.55513962],
          [ 384.87040955],
@@ -976,7 +976,6 @@ class Preamp_test(Test):
          [  88.18246137]])
 
     timespan = 0.2
-    solver = dict(method='hybr', xtol=1e-8, factor=1e5)
 
     def signal(self):
         return 0.15*self.sine_signal(150.0)
