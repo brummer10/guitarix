@@ -481,7 +481,7 @@ class NonlinCode(object):
         if self.slicing_cc:
             if self.slicing:
                 of = NonlinFunction(glob, eq.K0, eq.CZ, eq.f, nn, self.slicing, eq.np==0)
-                on = NonlinSolver(base, glob, eq.U0, eq.Hc0, eq.Kn[self.slicing], self.solver_dict, self.slicing, eq.np==0)
+                on = NonlinSolver(base, glob, eq.U0, eq.Hc0, eq.Kn, self.solver_dict, self.slicing, eq.np==0)
                 func_t, solv_t = self.method_templates[self.solver_dict["method"]]
             else:
                 of = NonlinFunctionCC(glob, eq.K0, eq.Kl, eq.CZ, eq.f, nn, eq.blocklist, eq.np==0, self.extra_sources)
@@ -782,7 +782,7 @@ class CodeGenerator(object):
                         nni = sl.stop-sl.start,
                         nno = sl.stop-sl.start,
                         ))
-                    neq = NonlinEq(eq.nn, eq.nni, eq.nno, eq.np, eq.npl, eq.K0, eq.CZ, eq.f, ml.identity(eq.U0.shape[0]), ml.zeros_like(eq.Hc0), eq.Mi, eq.Kn)
+                    neq = NonlinEq(eq.nn, eq.nni, eq.nno, eq.np, eq.npl, eq.K0, eq.CZ, eq.f, ml.identity(eq.U0.shape[0]), ml.zeros_like(eq.Hc0), eq.Mi, eq.Kn[i])
                     if self.solver_dict["method"] == "table":
                         l.append(TableCode(s, neq, sl, sl_cc, "nonlin_%d" % i).generate())
                     else:

@@ -2,10 +2,12 @@ from __future__ import division
 import numpy as np
 import numpy.matlib as ml
 import numpy.linalg as la
+import scipy.linalg as sla
 import scipy.optimize as opt
 import scipy.signal as sig
 import sympy as sp
 import ctypes as ct
+import slicot
 import collections, warnings, tempfile, os, operator, sys, shutil, time, commands, subprocess, math, re
 
 import dk_templates, generate_code
@@ -310,6 +312,33 @@ class LinearFilter(object):
         return eval(expr.split("=",1)[1].rstrip(";\n").replace("^","**"), dict([(str(sym),sym) for sym in syms]))
 
 
+def get_state_transform_X(A, B, C):
+    "calculate balanced state space model realization -- unused"
+    Wc = ml.matrix(sla.solve_discrete_lyapunov(A.A, (B*B.T).A))
+    Wo = ml.matrix(sla.solve_discrete_lyapunov(A.T.A, (C.T*C).A))
+    R = ml.matrix(sla.cholesky(Wo, lower=False))
+    X = R * Wc * R.T
+    U, s, V = sla.svd(X)
+    U = ml.matrix(U)
+    V = ml.matrix(V)
+    lli = np.sqrt(np.sqrt(s))
+    U = R.I * V.T * ml.diag(lli)
+    Ui = ml.diag(1/lli) * V * R
+    return U, Ui
+
+def get_state_transform(A, B, C, tol=0):
+    "calculate balanced reduced state space model realization"
+    # balance matrices
+    A, B, C, maxred, scale = slicot.tb01id('A', A, B, C)
+    # transform to schur form
+    A, B, C, U, WR, WI = slicot.tb01wd(A, B, C)
+    # reduce and balance
+    T, Ti, A, B, C, hsv = slicot.ab09ax('D', 'B', A, B, C, tol=tol)
+    # return transformation matrix (+ inverse) and hankel singular values
+    return (np.matrix(np.diag(scale).dot(U).dot(T)),
+            np.matrix(Ti.dot(U.T).dot(np.diag(1/scale))),
+            hsv)
+
 class EquationSystem(object):
 
     def __init__(self, parser, jacobi_par=None, partition=False, svd_prec=None):
@@ -327,6 +356,8 @@ class EquationSystem(object):
     def get_unique_rows(a):
         """returns unique rows of a 2-dim array
         """
+        if not a.size:
+            return a
         order = np.lexsort(a.T)
         a = a[order]
         diff = np.diff(a, axis=0)
@@ -386,7 +417,7 @@ class EquationSystem(object):
             K = K[pc][:,pc][:n,:n]
         p, bl = EquationSystem.get_blockdiag_permutation(K)
         if n != nz:
-            p = np.append(p, range(n, nz))[pc]
+            p = np.array(pc)[p+range(n, nz)]
         return p, [slice(i,j) for i, j in zip(bl[:-1], bl[1:])]
 
     def print_S(self, p):
@@ -432,7 +463,7 @@ class EquationSystem(object):
 
     @staticmethod
     def decompose(a):
-        U, s, V = la.svd(a)
+        U, s, V = la.svd(a, full_matrices=False)
         o = np.sqrt(np.sum(s*s) / np.count_nonzero(s))
         sr = np.where(s, s, o)
         V1 = ml.diag(sr) * V
@@ -444,9 +475,8 @@ class EquationSystem(object):
             V1i = -V1i
         return U1, V1, V1i
 
-    def make_eq(self, p, partition):
+    def make_eq(self, p, partition, Tx=None, Txi=None):
         self.nx, self.nn, self.ni, self.no, self.np = [len(p.element_name[j]) for j in 'X', 'N', 'I', 'O', 'P']
-        self.mp_cols = self.nx + self.ni
         Nxl, Nxr, Nnl, Nnr, No, Nv, I = [p.N[j] for j in "Xl", "Xr", "Nl", "Nr", "O", "P", "I"]
         CV = p.ConstVoltages
         m = p.mm
@@ -498,6 +528,17 @@ class EquationSystem(object):
         self.Ec0 = T * CV.T
         self.F0 = T * Nnr.T
 
+        if Tx is not None:
+            self.A0 = Txi * self.A0 * Tx
+            self.B0 = Txi * self.B0
+            self.Bc0 = Txi * self.Bc0
+            self.C0 = Txi * self.C0
+            self.D0 = self.D0 * Tx
+            self.G0 = self.G0 * Tx
+            self.nx = self.A0.shape[0]
+
+        self.mp_cols = self.nx + self.ni
+
         self.nni = self.nn
         self.U0 = ml.matrix(np.identity(self.nn))
         self.nno = self.nn
@@ -506,20 +547,25 @@ class EquationSystem(object):
         self.Fo = self.F0
         if len(self.blocklist) > 1:
             end = self.blocklist[-1].stop
-            Kni = ml.identity(self.nn)
             self.Kl = self.K0[end:,:].copy()
-            self.Kn = np.zeros((end, self.nn-end))
-            for sl in self.blocklist:
-                Ksub = self.K0[end:, sl]
-                if True: ##FIXME make configurable
-                    U, V, Vi = self.decompose(Ksub)
-                    self.Kl[:,sl] = U
-                else:
-                    V = Vi = ml.identity(len(Ksub))
-                self.Kn[sl] = V
-                Kni[sl,sl] = Vi
-            self.Cd = self.C0 * Kni
-            self.Fd = self.F0 * Kni
+            if 1:
+                Kni = ml.identity(self.nn)
+                self.Kn = []
+                for sl in self.blocklist:
+                    Ksub = self.K0[end:, sl]
+                    if True: ##FIXME make configurable
+                        U, V, Vi = self.decompose(Ksub)
+                        self.Kl[:,sl] = U
+                    else:
+                        V = Vi = ml.identity(Ksub.shape[1])
+                    self.Kn.append(V)
+                    Kni[sl,sl] = Vi
+                self.Cd = self.C0 * Kni
+                self.Fd = self.F0 * Kni
+            else:
+                self.Kn = [np.identity(sl.stop-sl.start) for sl in self.blocklist]
+                self.Cd = self.C0
+                self.Fd = self.F0
         elif True: ##FIXME
             self.make_nonlin_input_trans()
             self.make_nonlin_output_trans()
@@ -587,17 +633,26 @@ class Simulate(object):
         self.eq = eq
         self.parser = eq.get_parser()
         if solver is None:
-            self.solver_dict = dict(method = 'hybr')
+            self.solver_dict = dict()
         elif isinstance(solver, basestring):
             self.solver_dict = dict(method = solver)
         else:
             self.solver_dict = dict(solver)
-        self.solver_method = self.solver_dict["method"]
-        del self.solver_dict["method"]
+        self.solver_method = self.solver_dict.get("method", 'hybr')
+        self.max_homotopy_iter = self.solver_dict.get("max_homotopy_iter", 1000)
+        try:
+            del self.solver_dict["max_homotopy_iter"]
+        except KeyError:
+            pass
+        try:
+            del self.solver_dict["method"]
+        except KeyError:
+            pass
 
     def get_solver(self):
         d = self.solver_dict.copy()
         d["method"] = self.solver_method
+        d["max_homotopy_iter"] = self.max_homotopy_iter
         return d
 
     def get_eq(self):
@@ -756,7 +811,7 @@ class SimulatePy(Simulate):
         i = ml.zeros((p.shape[0],1))
         def func(v):
             for n, (f, start, end) in enumerate(self.ff[s]):
-                i[n] = f(*v[start-s.start:])
+                i[n] = f(*v[start-s.start:end-s.start])
             return (p + K * i - ml.matrix(v).T).A1
         self.v0[s] = self.solve(func, self.v0[s], method=sm, options=sd).x
         return i
@@ -768,18 +823,21 @@ class SimulatePy(Simulate):
             rc = slice(self.eq.blocklist[-1].stop, None)
             #sm = ["hybr", "lm", "hybr"]
             #sd = [dict(), dict(diag=(1e3,1),factor=1e-1), dict()]
-            sm = ["lm", "lm", "lm"]
-            sd = [dict(diag=(1e3,1),factor=1e-1), dict(diag=(1e3,1),factor=1e-1), dict(diag=(1e3,1),factor=1e-1)]
+            #sm = ["lm", "lm", "lm"]
+            #sd = [dict(diag=(1e3,1),factor=1e-1), dict(diag=(1e3,1),factor=1e-1), dict(diag=(1e3,1),factor=1e-1)]
+            sm = [None,None,None]
+            sd = [None,None,None]
             def func(icc, fact):
                 #print "*", fact, icc
                 p1 = self.last_p + (p - self.last_p) * fact
                 for j, s in enumerate(self.eq.blocklist):
                     k = K[s]
                     try:
-                        i[s] = self.eq.Kn[s] * self.solve_one(p1[s]+k[:,rc].dot(icc).T, k[:,s], s, sm[j], sd[j])
+                        i[s] = self.eq.Kn[j] * self.solve_one(p1[s]+k[:,rc].dot(icc).T, k[:,s], s, sm[j], sd[j])
                     except ConvergenceError as e:
                         print "conv error in %d: %s" % (j, e)
-                        raise SystemExit
+                        raise
+                        #raise SystemExit
                 i[rc] = icc.reshape(len(icc), 1)
                 return (p1[rc] + self.eq.Kl * i).A1
             self.v0[rc] = self.solve_using_homotopy(func, self.v0[rc], method=self.solver_method, options=self.solver_dict).x
@@ -1325,7 +1383,7 @@ class Parser(object):
         return [self.format_element(v) for v in self.element_name["S"]+self.element_name["V"]]
 
     def out_labels(self):
-        return self.element_name["O"][0][0].conn
+        return [str(v) for v in self.element_name["O"][0][0].conn]
 
     def print_matrix(self, A):
         xv = ([v[1] for v in sorted([(i, n) for n, i in self.nodes.items()])]+
