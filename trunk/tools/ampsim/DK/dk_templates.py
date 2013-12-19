@@ -381,7 +381,7 @@ int DKPlugin::registerparam(const ParamReg& reg) {
 
 void DKPlugin::init(unsigned int samplingFreq, PluginDef *plugin) {
 %if (@resample)
-    smp.setup(samplingFreq, 96000);
+    smp.setup(samplingFreq, @fs);
 %end
     //DKPlugin& self = *static_cast<DKPlugin*>(plugin);
     //self.sample_rate = samplingFreq;

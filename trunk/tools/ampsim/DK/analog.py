@@ -519,8 +519,23 @@ class Circuit(object):
     def linearize(self, *elements, **kw):
         check_keywords("linearize", kw, "keep_dc")
         keep_dc = kw.get('keep_dc', len(elements) != 0)
-        self._ensure_dc_values()
+        self._ensure_parser()
         el = self._nonlin_function_list(elements)
+        S = []
+        for e in self.S:
+            if e[0] in el:
+                if isinstance(e[0], models.CC_N):
+                    e = (models.CC_L(e[0].d),) + e[1:]
+                elif isinstance(e[0], (models.Trans_F, models.Trans_GC)):
+                    #FIXME calculate R (Trans_L parameter)
+                    e = (models.Trans_L(e[0].d),) + e[1:]
+            S.append(e)
+        self.S = S
+        self.parser.update(S, self.V)
+        self.eq = None
+        self.sim_py = None
+        self.dc_values = None
+        self._ensure_dc_values()
         J = self.sim_py.jacobi()
         Jc = self.sim_py.calc_i(self.dc_values.v)
         S = []
@@ -646,8 +661,16 @@ class Circuit(object):
             s = 20*numpy.log10(abs(h[cut]))
             pylab.semilogx(w, numpy.where(s > clip, s, numpy.nan), label=label)
         else:
-            pylab.plot(ls.timeline, self.last_output, label=label)
-        pylab.grid()
+            lines = pylab.plot(ls.timeline, self.last_output)
+            if not label:
+                label = self._get_sim().out_labels
+            elif isinstance(label, basestring):
+                l = []
+                for lbl in self._get_sim().out_labels:
+                    l.append(label + "." + lbl)
+                label = l
+            for line, lbl in zip(lines, label):
+                line.set_label(lbl)
         Circuit.have_plot = True
 
     def deploy(self, path=None):
@@ -697,6 +720,8 @@ _create_funcs()
 
 def show_plots():
     if Circuit.have_plot:
+        pylab.grid()
+        pylab.legend()
         pylab.show()
         Circuit.have_plot = False
 

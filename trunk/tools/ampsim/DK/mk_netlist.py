@@ -134,6 +134,21 @@ def read_netlist(fname):
                 sym = mksym(sym, "L")
                 m = re.match("([0-9]*)([muH.]?)([0-9]*)H?$", val)
                 val = m.group(1)+"."+m.group(3)+L_dict[m.group(2)]
+            elif dev == "TRANSFORMER":
+                ##FIXME
+                sym = mksym(sym, "Trans_L")
+                conn = [conn[0], conn[4], conn[4], conn[1], conn[2], conn[3]]
+                vl = {}
+                d = {}
+                for k, v in [v.split("=") for v in val.split(",")]:
+                    if k == "R":
+                        vl[k] = float(v)
+                    elif k.startswith("w"):
+                        d[int(k[1:])] = float(v)
+                    else:
+                        print "warning: unknown parameter %s" % k
+                vl["windings"] = [v[1] for v in sorted(d.items())]
+                val = repr(vl)
             elif dev == "NPN_TRANSISTOR":
                 sym = mksym(sym, "T")
                 if "=" in val:
@@ -145,6 +160,7 @@ def read_netlist(fname):
                 val = "Tubes['%s']" % val
             elif dev == "PENTODE":
                 sym = mksym(sym, "U", "Pentode")
+                conn = [conn[0], conn[1], conn[3], conn[4]]
                 val = "Tubes['%s']" % val
             elif dev == "VARIABLE_RESISTOR":
                 sym = mksym(sym, "P")

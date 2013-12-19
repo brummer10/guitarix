@@ -175,8 +175,34 @@ class P_single(Node):
             p.Pv[idx_p2] = val
             p.pot_func[idx_p2] = (a, 1 - a)
 
+class P_fixed(Node):
+    def __init__(self, n=None):
+        Node.__init__(self, "P", n)
+    def add_count(self, tc, conn):
+        if len(conn) == 3:
+            tc["R"] += 2
+        else:
+            tc["R"] += 1
+    def process(self, p, conn, param, alpha):
+        if isinstance(param, dict):
+            val = param["value"]
+        else:
+            val = param
+        # first resistor
+        c = (conn[0], conn[2])
+        idx_p1 = p.new_row("R", self, "+")
+        p.add_S_currents(conn, 2 / val)
+        p.add_2conn("R", idx_p1, c)
+        if len(conn) == 3:
+            # second resistor
+            c = (conn[1], conn[2])
+            idx_p2 = p.new_row("R", self, "-")
+            p.add_S_currents(conn, 2 / val)
+            p.add_2conn("R", idx_p2, c)
+
 P = P_parallel
 #P = P_single
+#P = P_fixed
 
 class C(Node):
     def __init__(self, n=None):
@@ -350,7 +376,7 @@ class Pentode(Node):
         calc_Ig = calc_Ig.subs(dict([(k,param[str(k)]) for k in const]))
         t = Ug2k / mu + Ug1k
         calc_Is = sp.Piecewise((0, t <= 0), (-sp.exp(Ex*sp.log(t)) / Kg2, True))
-        calc_Is = calc_Ig.subs(dict([(k,param[str(k)]) for k in const]))
+        calc_Is = calc_Is.subs(dict([(k,param[str(k)]) for k in const]))
         # def calc_Ia(v):
         #     Ug1k = float(v[0])
         #     Ug2k = float(v[1])
@@ -385,7 +411,7 @@ class Pentode(Node):
         idx1 = p.new_row("N", self, "Ig")
         p.add_2conn("Nl", idx1, (conn[0],conn[3]))
         p.add_2conn("Nr", idx1, (conn[0],conn[3]))
-        p.f[idx1] = (calc_Ig, v, idx1)
+        p.f[idx1] = (calc_Ig, v[:1], idx1)
         idx2 = p.new_row("N", self, "Is")
         p.add_2conn("Nl", idx2, (conn[1],conn[3]))
         p.add_2conn("Nr", idx2, (conn[1],conn[3]))
@@ -571,7 +597,7 @@ class OPA(Node):
         p.add_conn("Nr", idx, idx_s, 1)
         p.f[idx] = (calc, v, idx)
 
-class CC(Node):
+class CC_L(Node):
     def __init__(self, n=None):
         Node.__init__(self, "CC", n)
     def add_count(self, tc, conn):
@@ -583,7 +609,7 @@ class CC(Node):
         p.S[idx, conn[0]] += 1
         p.S[idx, conn[1]] -= 1
 
-class CC(Node):
+class CC_N(Node):
     def __init__(self, n=None):
         Node.__init__(self, "CC", n)
     def add_count(self, tc, conn):
@@ -596,3 +622,6 @@ class CC(Node):
         p.add_2conn("Nr", idx, conn)
         p.f[idx] = (calc, v, idx)
         p.CZ[idx] = 0
+
+#CC = CC_L
+CC = CC_N
