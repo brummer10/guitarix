@@ -11,8 +11,8 @@
             "symbol": "level_l"
         }, 
         {
-            "name": "R Time", 
-            "symbol": "timt_r"
+            "name": "R Level", 
+            "symbol": "level_r"
         }, 
         {
             "name": "LFO", 
