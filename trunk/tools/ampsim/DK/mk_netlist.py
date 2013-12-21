@@ -184,7 +184,7 @@ def read_netlist(fname):
             rows.append([sym]+conn)
         rows.append(['OUT']+out)
         rows.append(['IN']+inp)
-    return ("S = ((%s),\n     )" % "),\n     (".join([", ".join([v for v in row]) for row in rows]) +
+    return ("S = ((%s),\n     )" % "),\n     (".join([", ".join(["None" if v is None else v for v in row]) for row in rows]) +
             "\n" +
             "V = {%s}" % "".join(['%s: %s,\n     ' % v for v in sorted(values.items())])
             )
