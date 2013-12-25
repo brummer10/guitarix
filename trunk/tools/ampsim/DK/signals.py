@@ -1,6 +1,7 @@
 from __future__ import division
 import sympy, numpy, types, math
 import dk_lib
+import pylab, scipy.signal
 
 class GeneratedSignal(object):
 
@@ -17,16 +18,12 @@ class GeneratedSignal(object):
         self.signal = sympy.lambdify((), func, modules=m)()
         samples = len(self.signal)
         self.input_signal = numpy.array((op,), dtype=numpy.float64).repeat(samples, axis=0)
-        self.input_signal[:,0] = self.signal
+        for i in range(self.input_signal.shape[1]):
+            self.input_signal[:,i] = self.signal
         self.timeline = numpy.linspace(0, samples/fs, samples)
 
-    def _sweep_make_spectrum(self, response):
-        n = dk_lib.pow2roundup(2*len(response)-1)
-        if len(response.shape) == 2 and len(self.signal.shape) == 1:
-            s = self.signal.reshape((len(self.signal), 1))
-        else:
-            s = self.signal
-        return numpy.fft.rfft(response, n, axis=0) / numpy.fft.rfft(s, n, axis=0)
+    def _sweep_make_spectrum(self, response, freqlist, shift=True):
+        return self._sweep_harmonics_responses(response, 1, freqlist, shift)[0]
 
     @staticmethod
     def _fft_convolve(h, xd):
@@ -37,64 +34,51 @@ class GeneratedSignal(object):
         s = numpy.fft.irfft(numpy.fft.rfft(h, np, axis=0) * numpy.fft.rfft(xd, np, axis=0), np, axis=0)
         return s[:n]
 
-    def _sweep_harmonics_responses(self, response, N):
-        dt = numpy.zeros(N-1)
-        for m in range(N-1):
-            dt[m] = int(self.span) * math.log(m+2) / math.log(self.stop_freq / self.start_freq)
+    def _sweep_harmonics_responses(self, response, N, freqlist, shift=True):
         di = self._fft_convolve(self.sweep_inverse_signal, response)  # deconvolved impulse response
-        imp_indices = numpy.zeros(N, dtype=int)  # the indices of each impulse (1st linear, 2nd the first harm. dist. etc.)
-        imp_indices[0] = (len(di) + 1) / 2
-        for n in range(1, N):
-            imp_indices[n] = imp_indices[0] - int(round(dt[n-1]))
-        # next, cut the impulse responses
-        if N > 1:
-            n = imp_indices[0]-imp_indices[1]
-        else:
-            n = len(di)
+        imp_indices = numpy.zeros(N+1, dtype=int)  # the indices of each impulse (1st linear, 2nd the first harm. dist. etc.)
+        imp_indices[0] = len(self.sweep_inverse_signal) - 1
+        for n in range(1, N+1):
+            imp_indices[n] = imp_indices[0] - int(round(math.log(n+1) * self.sweep_rate))
         imps = []
         for n in range(N):
-            dl = 0  # initialization
-            if n < N-1:
-                dl = (imp_indices[n] - imp_indices[n+1]) // 2
-            else:  # n = N-1, final round
-                if n > 0:
-                    dl = (imp_indices[n-1] - imp_indices[n]) // 2
-                else:
-                    dl = imp_indices[0] - 1
+            dl = (imp_indices[n] - imp_indices[n+1]) // 2
             lo = imp_indices[n] - dl  # the low limit where to cut
             hi = imp_indices[n] + dl  # the high limit where to cut
-            #print len(di), lo, hi, hi-lo, len(di[lo:hi]), len(blackman(hi-lo))
             di_w = di[lo:hi]
             win = numpy.blackman(len(di_w))
             if len(di.shape) == 2:
                 win = win.reshape((len(win), 1))
-            imps.append(di_w * win)  # smoothed version
+            di_w *= win  # smoothed version
+            w = freqlist
+            if shift:
+                w = w * (n + 1)
+            h = scipy.signal.freqz(di_w, worN=w)[1]
+            off = imp_indices[n] - lo
+            h *= numpy.exp(off * 1j * freqlist)
+            imps.append(h)
         return imps
-
-    def _sweep_harmonics_spectrum(self, impresp):
-        return numpy.fft.rfft(impresp, dk_lib.pow2roundup(len(impresp)), axis=0)
 
     def _sweep(self, t, start, stop, pre, post, fs):
         self.generate_spectrum = True
         self.generate_harmonics = True
         self.make_spectrum = self._sweep_make_spectrum
         self.make_harmonics_responses = self._sweep_harmonics_responses
-        self.make_harmonics_spectrum = self._sweep_harmonics_spectrum
-        pre = int(round(pre * fs))
         post = int(round(post * fs))
+        if pre < 0:
+            pre = int(round((len(t) - post) * 0.1))
+        else:
+            pre = int(round(pre * fs))
         span = len(t) - (pre + post)
-        self.start_freq = start
-        self.stop_freq = stop
         self.pre = pre
-        self.span = span
         self.post = post
         self.fs = fs
-        sig, self.sweep_inverse_signal = dk_lib.genlogsweep(start, stop, fs, pre, span, post)
+        sig, self.sweep_inverse_signal, self.start, self.stop, self.sweep_rate = \
+          dk_lib.genlogsweep(start, stop, fs, pre, span, post)
         return sig
 
-    def _impulse_make_spectrum(self, response):
-        n = dk_lib.pow2roundup(len(response))
-        return numpy.fft.rfft(response, n, axis=0) / self.signal[0]
+    def _impulse_make_spectrum(self, response, freqlist):
+        return scipy.signal.freqz(response, worN=freqlist)[1]
 
     def _impulse(self, t):
         self.generate_spectrum = True
@@ -116,17 +100,28 @@ class GeneratedSignal(object):
     def has_spectrum(self):
         return self.generate_spectrum
 
-    def get_spectrum(self, response):
-        return self.make_spectrum(response)
+    def get_spectrum(self, response, freqlist, **kw):
+        return self.make_spectrum(response, freqlist, **kw)
 
     def has_harmonics(self):
         return self.generate_harmonics
 
-    def get_harmonics_responses(self, response, N):
-        return self.make_harmonics_responses(response, N)
+    def get_harmonics_responses(self, response, N, freqlist, shift=True):
+        return self.make_harmonics_responses(response, N, freqlist, shift)
 
-    def get_harmonic_spectrum(self, impresp):
-        return self.make_harmonics_spectrum(impresp)
+    def plot_harmonic_spectrum(self, response, nharmonics=6, lower_freq=None, upper_freq=None, plotfunc=None):
+        if lower_freq is None:
+            lower_freq = self.start_freq
+        if upper_freq is None:
+            upper_freq = self.stop_freq
+        if plotfunc is None:
+            plotfunc = pylab.semilogx
+        lines = []
+        freqlist = numpy.logspace(numpy.log10(lower_freq), numpy.log10(upper_freq), 200)
+        for i, h in enumerate(self.get_harmonics_responses(response, nharmonics, 2*numpy.pi*freqlist/self.fs)):
+            if h.size:
+                lines.extend(plotfunc(freqlist, 20 * numpy.log10(abs(h))))
+        return lines
 
 
 class Signal(object):
@@ -136,11 +131,11 @@ class Signal(object):
     _s_sweep, _s_impulse, _s_time, _s_null = sympy.symbols("sweep,impulse,time,null", cls=sympy.Function)
     t = sympy.symbols("t")
 
-    def __init__(self):
+    def __init__(self, timespan=0.01):
         self._freq = 440
         self._start_freq = 20
         self._stop_freq = 10000
-        self._timespan = 0.01
+        self._timespan = timespan
         self._sweep_pre = -1
         self._sweep_post = 0.1
 
@@ -220,7 +215,12 @@ class Signal(object):
     def impulse(self):
         return self._s_impulse(self.t)
 
-    def generate(self, sig, op, fs):
+    def generate(self, sig, fs, op=None, channels=None):
+        if op is None:
+            if channels is None:
+                op = [0]
+            else:
+                op = [0] * channels
         d = {
             self._s_FS: fs,
             self._s_freq: self.freq,

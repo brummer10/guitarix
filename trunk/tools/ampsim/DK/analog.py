@@ -378,7 +378,7 @@ class Circuit(object):
         else:
             self._ensure_parser()
             op = self.parser.op
-        return Signal().generate(signal, op, self.FS)
+        return Signal().generate(signal, self.FS, op)
 
     def print_netlist(self):
         self._check_netlist()
@@ -632,32 +632,18 @@ class Circuit(object):
         if upper_freq is None:
             upper_freq = ls.stop_freq
         if  ls.has_harmonics() and nharmonics > 1 and (spectrum is None or spectrum):
-            sp = []
-            for imp in ls.get_harmonics_responses(self.last_output, nharmonics):
-                if imp.size > 0:
-                    sp.append(abs(ls.get_harmonic_spectrum(imp)))
-            Hmax = numpy.amax(abs(sp[0]))*1.2
-            fig, ax = pylab.subplots()
-            for i, spec in enumerate(sp):
-                n = 2*len(spec)
-                start = min(round((i+1)*n*lower_freq/ls.fs), len(spec))
-                stop = min(round((i+1)*n*upper_freq/ls.fs), len(spec))
-                cut = slice(start, stop)
-                w = numpy.fft.fftfreq(n,1.0/ls.fs)[cut]
-                s = 20*numpy.log10(abs(spec[cut]))
+            lines = ls.plot_harmonic_spectrum(self.last_output, nharmonics=nharmonics, lower_freq=lower_freq, upper_freq=upper_freq)
+            pylab.xlim(left=lower_freq, right=upper_freq)
+            for i, line in enumerate(lines):
                 if label:
-                    lbl = "%d, %s" % (i+1, label)
+                    line.set_label("%d, %s" % (i+1, label))
                 else:
-                    lbl = "%d" % (i+1)
-                pylab.xlim(left=lower_freq,right=upper_freq)
-                pylab.semilogx(w/(i+1), numpy.where(s > clip, s, numpy.nan), label=lbl, subsx=[2,5])
-                ax.xaxis.set_minor_formatter(pylab.LogFormatter(base=10, labelOnlyBase=False))
-                
+                    line.set_label("%d" % i+1)
         elif (spectrum is None and ls.has_spectrum()) or spectrum:
-            h = ls.get_spectrum(self.last_output)
+            w, h = ls.get_spectrum(self.last_output)
             n = 2*len(h)
             cut = slice(round(n*lower_freq/ls.fs), round(n*upper_freq/ls.fs))
-            w = numpy.fft.fftfreq(n,1.0/ls.fs)[cut]
+            w = w[cut]
             s = 20*numpy.log10(abs(h[cut]))
             pylab.semilogx(w, numpy.where(s > clip, s, numpy.nan), label=label)
         else:
@@ -672,6 +658,7 @@ class Circuit(object):
             for line, lbl in zip(lines, label):
                 line.set_label(lbl)
         Circuit.have_plot = True
+        return labels
 
     def deploy(self, path=None):
         sim = self._get_sim()
@@ -718,10 +705,10 @@ def _create_funcs():
             g[v] = getattr(gcircuit, v)
 _create_funcs()
 
-def show_plots():
+def show_plots(loc=None):
     if Circuit.have_plot:
         pylab.grid()
-        pylab.legend()
+        pylab.legend(loc=loc)
         pylab.show()
         Circuit.have_plot = False
 
