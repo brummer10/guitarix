@@ -20,6 +20,17 @@ cdef extern from "time.h":
     int CLOCK_MONOTONIC
     int clock_gettime(clockid_t clk_id, timespec *tp)
 
+DEF UseDouble = False
+
+IF UseDouble:
+    ctypedef double realt
+    np_realt = np.float64
+ELSE:
+    ctypedef float realt
+    np_realt = np.float32
+
+ctypedef realt *realtp
+
 cdef extern from "gx_plugin.h":
     cdef struct value_pair:
         char *value_id
@@ -28,11 +39,11 @@ cdef extern from "gx_plugin.h":
     cppclass Var:
         char *id
         char *name
-        float *var
+        realt *var
         int   *ivar
-        float val
-        float low
-        float up
+        realt val
+        realt low
+        realt up
         value_pair *values
     cppclass string:
         char *c_str()
@@ -53,22 +64,29 @@ cdef extern from "gx_plugin.h":
         PluginDef *plugin
         ParamRegImpl(VarMap *v, PluginDef *p)
     ctypedef int (*registerfunc)(ParamRegImpl& reg)
-    ctypedef void (*process_mono_audio) (int count, float *input, float *output, PluginDef *plugin)
+    ctypedef void (*process_mono_audio) (int count, realt *input, realt *output, PluginDef *plugin)
     ctypedef void (*inifunc)(unsigned int samplingFreq, PluginDef *plugin)
     ctypedef int (*activatefunc)(int start, PluginDef *plugin)
-    ctypedef void (*process_stereo_audio)(int count, float *input1, float *input2,
-                                           float *output1, float *output2, PluginDef *plugin)
+    ctypedef void (*clearstatefunc)(PluginDef *plugin)
+    ctypedef void (*deletefunc)(PluginDef *plugin)
+    ctypedef void (*process_stereo_audio)(int count, realt *input1, realt *input2,
+                                           realt *output1, realt *output2, PluginDef *plugin)
     cppclass PluginDef:
         int version
         int flags
         char* id
         char* name
         char** groups
+        char* decription
+        char* category
+        char* shortname
         registerfunc register_params
         process_mono_audio mono_audio
         process_stereo_audio stereo_audio
         inifunc set_samplerate
         activatefunc activate_plugin
+        clearstatefunc clear_state
+        deletefunc delete_instance
     ctypedef int (*plugin_inifunc)(unsigned int idx, PluginDef **p)
 
 cdef extern from "pluginloader.h":
@@ -78,14 +96,13 @@ cdef inline double ts_diff(timespec ts1, timespec ts2):
     cdef double df = ts1.tv_sec - ts2.tv_sec
     return df * 1e9 + (ts1.tv_nsec - ts2.tv_nsec)
 
-ctypedef float *floatp
-
 cdef class Plugin:
     cdef void *handle
     cdef PluginDef *p
     cdef VarMap *varmap
     cdef dict d
     cdef double time_per_sample
+    cdef int _samplerate
 
     def __cinit__(self, path, unsigned int idx = 0):
         cdef int n
@@ -127,6 +144,7 @@ cdef class Plugin:
                 inc(i)
         self.d = d
         self.time_per_sample = 0
+        self._samplerate = 0
 
     property nanosec_per_sample:
         "time in nanoseconds measured for last compute call"
@@ -200,6 +218,11 @@ cdef class Plugin:
             else:
                 return 0
 
+    property samplerate:
+        "initialized samplerate"
+        def __get__(self):
+            return self._samplerate
+
     def init(self, int samplingRate):
         """argument: sample rate
         must be called before calling compute"""
@@ -207,42 +230,67 @@ cdef class Plugin:
             self.p[0].activate_plugin(True, self.p)
         if self.p[0].set_samplerate:
             self.p[0].set_samplerate(samplingRate, self.p)
+        self._samplerate = samplingRate
 
-    def compute(self, np.ndarray inp not None):
+    def clear_state(self):
+        if self.p[0].clear_state:
+            self.p[0].clear_state(self.p)
+
+    def compute(self, np.ndarray inp_data not None):
         """execute dsp algorithm
 
-        argument: float32 numpy array
+        argument: numpy array
         returns: float32 numpy array
 
         specify type when creating an array, e.g. zeros(200, dtype=float32)
         """
-        if np.PyArray_TYPE(inp) != np.NPY_FLOAT32:
-            raise ValueError("need float32")
+        if not self._samplerate:
+            raise ValueError("Plugin not initialized")
+        cdef int transposed = False
+        if self.p[0].mono_audio:
+            if np.PyArray_NDIM(inp_data) == 2:
+                if np.PyArray_DIMS(inp_data)[0] != 1:
+                    if np.PyArray_DIMS(inp_data)[1] == 1:
+                        transposed = True
+                        inp_data = inp_data.T
+                    else:
+                        raise ValueError("plugin has only channel")
+            elif not np.PyArray_NDIM(inp_data) == 1:
+                raise ValueError("plugin has only channel")
+        elif self.p[0].stereo_audio:
+            if np.PyArray_NDIM(inp_data) != 2:
+                raise ValueError("plugin has 2 channels")
+            if np.PyArray_DIMS(inp_data)[0] != 2 and np.PyArray_DIMS(inp_data)[1] == 2:
+                transposed = True
+                inp_data = inp_data.T
+        else:
+            raise ValueError("no process function available")
+        cdef np.ndarray inp = np.array(inp_data, dtype=np_realt, order='C', copy=False)
         cdef int count = np.PyArray_DIMS(inp)[np.PyArray_NDIM(inp)-1]
         cdef timespec t0, t1
         cdef np.ndarray o
         if self.p[0].mono_audio:
-            if not np.PyArray_NDIM(inp) == 1:
-                raise ValueError("need vector")
-            o = np.empty(count,dtype=np.float32)
+            o = np.empty(count,dtype=np_realt)
             clock_gettime(CLOCK_MONOTONIC, &t0)
-            self.p[0].mono_audio(count, <floatp>np.PyArray_DATA(inp), <floatp>np.PyArray_DATA(o), self.p)
+            self.p[0].mono_audio(count, <realtp>np.PyArray_DATA(inp), <realtp>np.PyArray_DATA(o), self.p)
             clock_gettime(CLOCK_MONOTONIC, &t1)
-        elif self.p[0].stereo_audio:
-            if not (np.PyArray_NDIM(inp) == 2 and np.PyArray_DIMS(inp)[1] >= 2):
-                raise ValueError("need 2-dim array with at least %d rows" % 2)
-            o = np.empty((2,count),dtype=np.float32)
+            if np.PyArray_NDIM(inp_data) == 2:
+                o = o.reshape(1, count)
+        else:
+            o = np.empty((2,count),dtype=np_realt)
             clock_gettime(CLOCK_MONOTONIC, &t0)
             self.p[0].stereo_audio(
-                count, <floatp>np.PyArray_DATA(inp), <floatp>(<char*>np.PyArray_DATA(inp)+np.PyArray_STRIDES(inp)[0]),
-                <floatp>np.PyArray_DATA(o), <floatp>(<char*>np.PyArray_DATA(o)+np.PyArray_STRIDES(o)[0]), self.p)
+                count, <realtp>np.PyArray_DATA(inp), <realtp>(<char*>np.PyArray_DATA(inp)+np.PyArray_STRIDES(inp)[0]),
+                <realtp>np.PyArray_DATA(o), <realtp>(<char*>np.PyArray_DATA(o)+np.PyArray_STRIDES(o)[0]), self.p)
             clock_gettime(CLOCK_MONOTONIC, &t1)
-        else:
-            raise ValueError("no process function available")
         self.time_per_sample = ts_diff(t1,t0)/count
+        if transposed:
+            o = o.T
         return o
 
     def __dealloc__(self):
         del self.varmap
         if self.handle:
+            if self.p:
+                self.p[0].delete_instance(self.p)
             dlclose(self.handle)
