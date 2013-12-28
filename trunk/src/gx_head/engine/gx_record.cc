@@ -86,10 +86,10 @@ inline std::string SCapture::get_ffilename() {
     if (!(stat(pPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
         mkdir(pPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
-    std::string name = is_wav ?  "/guitarix_session0.wav" : "/guitarix_session0.ogg" ;
+    std::string name = is_wav ?  "guitarix_session0.wav" : "guitarix_session0.ogg" ;
     int i = 0;
     while (stat ((pPath+name).c_str(), &buffer) == 0) {
-        name.replace(name.begin()+17,name.end()-4,gx_system::to_string(i)); 
+        name.replace(name.begin()+16,name.end()-4,gx_system::to_string(i)); 
         i+=1;
     }
     return pPath+name;
@@ -99,15 +99,11 @@ void SCapture::disc_stream() {
     for (;;) {
         sem_wait(&m_trig);
         if (!recfile) {
-            std::string fname = get_ffilename();
-            recfile = open_stream(fname);
-            //fprintf(stderr,"open_stream %s\n",fname.c_str());
+            recfile = open_stream(get_ffilename());
         }
         save_to_wave(recfile, tape, savesize);
         filesize +=savesize;
-        //fprintf(stderr,"save_to_wave size : %i  max: %i\n",filesize ,MAXFILESIZE);        
         if ((!keep_stream && recfile) || (filesize >MAXFILESIZE && is_wav)) {
-            //fprintf(stderr,"close_stream \n");
             close_stream(&recfile);
             filesize = 0;
         }
@@ -202,14 +198,12 @@ void SCapture::mem_alloc()
 {
     if (!fRec0) fRec0 = new float[MAXRECSIZE];
     if (!fRec1) fRec1 = new float[MAXRECSIZE];
-    //recfile = open_stream("test.ogg");
     mem_allocated = true;
 }
 
 void SCapture::mem_free()
 {
     mem_allocated = false;
-    //close_stream(recfile);
     if (fRec0) { delete fRec0; fRec0 = 0; }
     if (fRec1) { delete fRec1; fRec1 = 0; }
 }
@@ -239,7 +233,7 @@ void always_inline SCapture::compute(int count, float *input0, float *output0)
     fcheckbox1 = 1-int(fRecb2[0]);
     for (int i=0; i<count; i++) {
         float fTemp0 = (float)input0[i];
-        
+        // check if we run into clipping
         float 	fRec3 = fmax(fConst0, fabsf(fTemp0));
         int iTemp1 = int((iRecb1[1] < 4096));
         fRecb0[0] = ((iTemp1)?fmax(fRecb0[1], fRec3):fRec3);
