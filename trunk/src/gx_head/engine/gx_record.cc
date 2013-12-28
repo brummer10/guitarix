@@ -1,18 +1,33 @@
+/*
+ * Copyright (C) 2013 Hermann Meyer, Andreas Degert
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * --------------------------------------------------------------------------
+ *
+ *
+ *    This is part of the Guitarix Audio Engine
+ *
+ *
+ *
+ * --------------------------------------------------------------------------
+ */
 
-#include <sys/stat.h>
 
-#define fmax(x, y) (((x) > (y)) ? (x) : (y))
-#define fmin(x, y) (((x) < (y)) ? (x) : (y))
 
 #define MAXRECSIZE 131072
 #define MAXFILESIZE INT_MAX-MAXRECSIZE // 2147352576  //2147483648-MAXRECSIZE
-
-template <class T>
-inline std::string to_string(const T& t) {
-    std::stringstream ss;
-    ss << t;
-    return ss.str();
-}
 
 SCapture::SCapture(int channel_)
     : PluginDef(),
@@ -74,7 +89,7 @@ inline std::string SCapture::get_ffilename() {
     std::string name = is_wav ?  "/guitarix_session0.wav" : "/guitarix_session0.ogg" ;
     int i = 0;
     while (stat ((pPath+name).c_str(), &buffer) == 0) {
-        name.replace(name.begin()+17,name.end()-4,to_string(i)); 
+        name.replace(name.begin()+17,name.end()-4,gx_system::to_string(i)); 
         i+=1;
     }
     return pPath+name;
@@ -270,7 +285,7 @@ void always_inline SCapture::compute_st(int count, float *input0, float *input1,
 {
     if (err) fcheckbox0 = 0.0;
     int iSlow0 = int(fcheckbox0);
-    fcheckbox1 = int(fRecb2[0]);
+    fcheckbox1 = 1-int(fRecb2[0]);
     for (int i=0; i<count; i++) {
         float fTemp0 = (float)input0[i];
         float fTemp1 = (float)input1[i];
