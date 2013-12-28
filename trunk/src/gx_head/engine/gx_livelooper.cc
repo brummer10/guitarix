@@ -1,25 +1,32 @@
-// generated from file '../src/plugins/dubber.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+/*
+ * Copyright (C) 2013 Hermann Meyer, Andreas Degert
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * --------------------------------------------------------------------------
+ *
+ *
+ *    This is part of the Guitarix Audio Engine
+ *
+ *
+ *
+ * --------------------------------------------------------------------------
+ */
 
-#include "engine.h"
-
-#define fmax(x, y) (((x) > (y)) ? (x) : (y))
-#define fmin(x, y) (((x) < (y)) ? (x) : (y))
-
-#ifndef N_
-#define N_(String) (String)
-#endif
-#ifndef NC_
-#define NC_(Context, String) (String)
-#endif
-
-#define always_inline inline __attribute__((always_inline))
-namespace gx_engine {
 
 
-namespace dubbe {
-
-LiveLooper::LiveLooper()
+LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& loop_dir_)
 	: PluginDef(),
 	  tape1(0),
 	  tape2(0),
@@ -33,9 +40,16 @@ LiveLooper::LiveLooper()
 	  RP2(false),
 	  RP3(false),
 	  RP4(false),
-	  mem_allocated(false) {
-	version = PLUGINDEF_VERSION;
-	flags = PGN_NO_PRESETS;
+      preset_name("tape"),
+      cur_name("tape"),
+      loop_dir(loop_dir_),
+      save_p(false),
+      param(param_),
+	  mem_allocated(false),
+      sync(sync_),
+      ready(false),
+      plugin() {
+    version = PLUGINDEF_VERSION;
 	id = "dubber";
 	name = N_("Dubber");
 	groups = 0;
@@ -50,6 +64,7 @@ LiveLooper::LiveLooper()
 	load_ui = load_ui_f_static;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
+    plugin = this;
 }
 
 LiveLooper::~LiveLooper() {
@@ -122,10 +137,12 @@ void LiveLooper::mem_alloc()
 	if (!tape3) tape3 = new float[4194304];
 	if (!tape4) tape4 = new float[4194304];
 	mem_allocated = true;
+    ready = true;
 }
 
 void LiveLooper::mem_free()
 {
+    ready = false;
 	mem_allocated = false;
 	if (tape1) { delete tape1; tape1 = 0; }
 	if (tape2) { delete tape2; tape2 = 0; }
@@ -133,7 +150,7 @@ void LiveLooper::mem_free()
 	if (tape4) { delete tape4; tape4 = 0; }
 }
 
-int LiveLooper::load_from_wave(std::string fname, float *t)
+inline int LiveLooper::load_from_wave(std::string fname, float *tape)
 {
     SF_INFO sfinfo;
     int n,f,c;
@@ -144,39 +161,30 @@ int LiveLooper::load_from_wave(std::string fname, float *t)
         f = sfinfo.frames;
         c = sfinfo.channels;
         n = f*c;
-        fSize = sf_read_float(sf,t,n);
+        fSize = sf_read_float(sf,tape,n);
     }
     sf_close(sf);
     return fSize;
 }
 
-void LiveLooper::load_array()
+inline void LiveLooper::load_array(std::string name)
 {
-    std::string pPath = getenv("HOME");
-    if (pPath.empty()) {
-        struct passwd *pw = getpwuid(getuid());
-        pPath = pw->pw_dir;
-    }
-    pPath +="/.config/guitarix/";
-    RecSize1[1] = load_from_wave(pPath+"tape1.wav",tape1);
+    RecSize1[1] = load_from_wave(loop_dir+name+"1.wav", tape1);
     IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
-    //fprintf (stderr,"load tape(1) size: %i\n",RecSize1[1]);
     
-    RecSize2[1] = load_from_wave(pPath+"tape2.wav",tape2);
+    RecSize2[1] = load_from_wave(loop_dir+name+"2.wav", tape2);
     IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
-    //fprintf (stderr,"load tape(2) size: %i\n",RecSize2[1]);
     
-    RecSize3[1] = load_from_wave(pPath+"tape3.wav",tape3);
+    RecSize3[1] = load_from_wave(loop_dir+name+"3.wav", tape3);
     IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
-    //fprintf (stderr,"load tape(3) size: %i\n",RecSize3[1]);
     
-    RecSize4[1] = load_from_wave(pPath+"tape4.wav",tape4);
-    IOTAR3= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
-    //fprintf (stderr,"load tape(4) size: %i\n",RecSize4[1]);
-
+    RecSize4[1] = load_from_wave(loop_dir+name+"4.wav", tape4);
+    IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
+    
+    cur_name = preset_name;
 }
 
-void LiveLooper::save_to_wave(std::string fname, float *tape, size_t fSize)
+inline void LiveLooper::save_to_wave(std::string fname, float *tape, float fSize)
 {
     SF_INFO sfinfo ;
     sfinfo.channels = 1;
@@ -185,44 +193,32 @@ void LiveLooper::save_to_wave(std::string fname, float *tape, size_t fSize)
     
     SNDFILE * sf = sf_open(fname.c_str(), SFM_WRITE, &sfinfo);
     if (sf) {
-        sf_write_float(sf,tape, fSize);
+        size_t lSize = 4194304 - int(fSize/fConst2);
+        sf_write_float(sf,tape, lSize);
         sf_write_sync(sf);
     }
     sf_close(sf);
 }
 
-void LiveLooper::save_array()
+inline void LiveLooper::save_array(std::string name)
 {
-    size_t lSize;
-    std::string pPath = getenv ("HOME");
-    if (pPath.empty()) {
-        struct passwd *pw = getpwuid(getuid());
-        pPath = pw->pw_dir;
-    }
-    pPath +="/.config/guitarix/";
-    if (save1) {
-        lSize = 4194304 - int(rectime0/fConst2);
-        save_to_wave(pPath+"tape1.wav",tape1,lSize);
-        //fprintf (stderr,"Save tape(1) size: %i\n",lSize);
-        save1 = false;
-    }
-    if (save2) {
-        lSize = 4194304 - int(rectime1/fConst2);
-        save_to_wave(pPath+"tape2.wav",tape2,lSize);
-        //fprintf (stderr,"Save tape(2) size: %i\n",lSize);
-        save2 = false;
-    }
-    if (save3) {
-        lSize = 4194304 - int(rectime2/fConst2);
-        save_to_wave(pPath+"tape3.wav",tape3,lSize);
-        //fprintf (stderr,"Save tape(3) size: %i\n",lSize);
-        save3 = false;
-    }
-    if (save4) {
-        lSize = 4194304 - int(rectime3/fConst2);
-        save_to_wave(pPath+"tape4.wav",tape4,lSize);
-       // fprintf (stderr,"Save tape(4) size: %i\n",lSize);
-        save4 = false;
+    if (name.compare("tape")==0 || save_p) {
+        if (save1) {
+            save_to_wave(loop_dir+name+"1.wav",tape1,rectime0);
+            save1 = false;
+        }
+        if (save2) {
+            save_to_wave(loop_dir+name+"2.wav",tape2,rectime1);
+            save2 = false;
+        }
+        if (save3) {
+            save_to_wave(loop_dir+name+"3.wav",tape3,rectime2);
+            save3 = false;
+        }
+        if (save4) {
+            save_to_wave(loop_dir+name+"4.wav",tape4,rectime3);
+            save4 = false;
+        }
     }
 }
 
@@ -232,10 +228,10 @@ int LiveLooper::activate(bool start)
 		if (!mem_allocated) {
 			mem_alloc();
 			clear_state_f();
-            load_array();
+            load_array(preset_name);
 		}
 	} else if (mem_allocated) {
-        save_array();
+        save_array(cur_name);
 		mem_free();
 	}
 	return 0;
@@ -246,25 +242,43 @@ int LiveLooper::activate_static(bool start, PluginDef *p)
 	return static_cast<LiveLooper*>(p)->activate(start);
 }
 
+void LiveLooper::set_p_state() {
+    if (!preset_name.empty()) {
+        ready = false;
+        sync();
+        activate(true);
+        if(save_p) {
+            save1 = true;
+            save2 = true;
+            save3 = true;
+            save4 = true;
+            cur_name = preset_name;
+           // fprintf (stderr,"save_p: %s\n",cur_name.c_str());
+        }
+        activate(false);
+        activate(true);
+        ready = true;
+        save_p = false;
+    }
+    //fprintf (stderr,"set_p_state: %s\n",preset_name.c_str());
+}
+
 void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 {
+    if (!ready) return;
     // trigger save array on exit
 	if(record1 || reset1) save1 = true;
     if(record2 || reset2) save2 = true;
     if(record3 || reset3) save3 = true;
     if(record4 || reset4) save4 = true;
     // make play/ reverse play button act as radio button
-    if (!RecSize1[0]) {play1 = 0.0;rplay1 = 0.0;}
-    else if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
+    if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
     else if (play1 && RP1) {rplay1 = 0.0;RP1=false;}
-    if (!RecSize2[0]) {play2 = 0.0;rplay2 = 0.0;}
-    else if (rplay2 && !RP2) {play2 = 0.0;RP2=true;}
+    if (rplay2 && !RP2) {play2 = 0.0;RP2=true;}
     else if (play2 && RP2) {rplay2 = 0.0;RP2=false;}
-    if (!RecSize3[0]) {play3 = 0.0;rplay3 = 0.0;}
-    else if (rplay3 && !RP3) {play3 = 0.0;RP3=true;}
+    if (rplay3 && !RP3) {play3 = 0.0;RP3=true;}
     else if (play3 && RP3) {rplay3 = 0.0;RP3=false;}
-    if (!RecSize4[0]) {play4 = 0.0;rplay4 = 0.0;}
-    else if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
+    if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
     else if (play4 && RP4) {rplay4 = 0.0;RP4=false;}
     // switch off record when buffer is full
     record1     = rectime0? record1 : 0.0;
@@ -272,14 +286,10 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 	record3     = rectime2? record3 : 0.0;
 	record4     = rectime3? record4 : 0.0;
     // reset clip when reset is pressed
-    fclip1 = reset1? 100.0:fclip1;
-    fclip2 = reset2? 100.0:fclip2;
-    fclip3 = reset3? 100.0:fclip3;
-    fclip4 = reset4? 100.0:fclip4;
-    fclips1 = reset1? 0.0:fclips1;
-    fclips2 = reset2? 0.0:fclips2;
-    fclips3 = reset3? 0.0:fclips3;
-    fclips4 = reset1? 0.0:fclips4;
+    if (reset1) {fclip1=100.0;fclips1=0.0;}
+    if (reset2) {fclip2=100.0;fclips2=0.0;}
+    if (reset3) {fclip3=100.0;fclips3=0.0;}
+    if (reset4) {fclip4=100.0;fclips4=0.0;}
     // switch off reset button when buffer is empty 
     reset1     = (rectime0 < 4194304*fConst2)? reset1 : 0.0;
 	reset2     = (rectime1 < 4194304*fConst2)? reset2 : 0.0;
@@ -287,13 +297,18 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 	reset4     = (rectime3 < 4194304*fConst2)? reset4 : 0.0;
     // set play head position
     float ph1      = 1.0/(RecSize1[0] * 0.001);
-    playh1 = fmin(1000,fmax(0,float(IOTAR1*ph1)));
+    playh1 = (1-iVec0[0]) * fmin(1000,fmax(0,float(IOTAR1*ph1)));
     float ph2      = 1.0/(RecSize2[0] * 0.001);
-    playh2 = fmin(1000,fmax(0,float(IOTAR2*ph2)));
+    playh2 = (1-iVec2[0]) *  fmin(1000,fmax(0,float(IOTAR2*ph2)));
     float ph3      = 1.0/(RecSize3[0] * 0.001);
-    playh3 = fmin(1000,fmax(0,float(IOTAR3*ph3)));
+    playh3 = (1-iVec4[0]) *  fmin(1000,fmax(0,float(IOTAR3*ph3)));
     float ph4      = 1.0/(RecSize4[0] * 0.001);
-    playh4 = fmin(1000,fmax(0,float(IOTAR4*ph4)));
+    playh4 = (1-iVec6[0]) *  fmin(1000,fmax(0,float(IOTAR4*ph4)));
+    // playback speed
+    float speed1 = fspeed1;
+    float speed2 = fspeed2;
+    float speed3 = fspeed3;
+    float speed4 = fspeed4;
     // engine var settings
 	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * gain)));
 	float 	fSlow1 = gain_out;
@@ -333,9 +348,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		tape1[IOTA1] = fTemp1;
         }
         if (rplay1) {
-        IOTAR1 = IOTAR1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):IOTAR1-1;
+        IOTAR1 = IOTAR1-speed1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):(IOTAR1-speed1)-1;
         } else if (play1) {
-        IOTAR1 = IOTAR1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTAR1+1;
+        IOTAR1 = IOTAR1+speed1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):(IOTAR1+speed1)+1;
         }
 		
         float fTemp4 = ((int((fRec1[1] != 0.0f)))?((int(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))))?fRec1[1]:0):((int(((fRec2[1] == 0.0f) & (iTemp3 != iRec3[1]))))?fConst0:((int(((fRec2[1] == 1.0f) & (iTemp3 != iRec4[1]))))?fConst1:0)));
@@ -354,9 +369,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		tape2[IOTA2] = fTemp5;
         }
 		if (rplay2) {
-        IOTAR2 = IOTAR2< (iTemp7 - int(iTemp7*iClips2))? int(iTemp7*iClip2):IOTAR2-1;
+        IOTAR2 = IOTAR2-speed2< (iTemp7 - int(iTemp7*iClips2))? int(iTemp7*iClip2):(IOTAR2-speed2)-1;
         } else if (play2) {
-        IOTAR2 = IOTAR2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTAR2+1;
+        IOTAR2 = IOTAR2+speed2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):(IOTAR2+speed2)+1;
         }
 		
         float fTemp8 = ((int((fRec6[1] != 0.0f)))?((int(((fRec7[1] > 0.0f) & (fRec7[1] < 1.0f))))?fRec6[1]:0):((int(((fRec7[1] == 0.0f) & (iTemp7 != iRec8[1]))))?fConst0:((int(((fRec7[1] == 1.0f) & (iTemp7 != iRec9[1]))))?fConst1:0)));
@@ -375,9 +390,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		tape3[IOTA3] = fTemp9;
         }
 		if (rplay3) {
-        IOTAR3 = IOTAR3< (iTemp11 - int(iTemp11*iClips3))? int(iTemp11*iClip3):IOTAR3-1;
+        IOTAR3 = IOTAR3-speed3< (iTemp11 - int(iTemp11*iClips3))? int(iTemp11*iClip3):(IOTAR3-speed3)-1;
         } else if (play3) {
-        IOTAR3 = IOTAR3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTAR3+1;
+        IOTAR3 = IOTAR3+speed3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):(IOTAR3+speed3)+1;
         }
 		
         float fTemp12 = ((int((fRec11[1] != 0.0f)))?((int(((fRec12[1] > 0.0f) & (fRec12[1] < 1.0f))))?fRec11[1]:0):((int(((fRec12[1] == 0.0f) & (iTemp11 != iRec13[1]))))?fConst0:((int(((fRec12[1] == 1.0f) & (iTemp11 != iRec14[1]))))?fConst1:0)));
@@ -396,9 +411,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		tape4[IOTA4] = fTemp13;
         }
 		if (rplay4) {
-        IOTAR4 = IOTAR4< (iTemp15 - int(iTemp15*iClips4))? int(iTemp15*iClip4):IOTAR4-1;
+        IOTAR4 = IOTAR4-speed4< (iTemp15 - int(iTemp15*iClips4))? int(iTemp15*iClip4):(IOTAR4-speed4)-1;
         } else if (play4) {
-        IOTAR4 = IOTAR4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTAR4+1;
+        IOTAR4 = IOTAR4+speed4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):(IOTAR4+speed4)+1;
         }
 		
         float fTemp16 = ((int((fRec16[1] != 0.0f)))?((int(((fRec17[1] > 0.0f) & (fRec17[1] < 1.0f))))?fRec16[1]:0):((int(((fRec17[1] == 0.0f) & (iTemp15 != iRec18[1]))))?fConst0:((int(((fRec17[1] == 1.0f) & (iTemp15 != iRec19[1]))))?fConst1:0)));
@@ -406,7 +421,7 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		fRec17[0] = fmax(0.0f, fmin(1.0f, (fRec17[1] + fTemp16)));
 		iRec18[0] = ((int(((fRec17[1] >= 1.0f) & (iRec19[1] != iTemp15))))?iTemp15:iRec18[1]);
 		iRec19[0] = ((int(((fRec17[1] <= 0.0f) & (iRec18[1] != iTemp15))))?iTemp15:iRec19[1]);
-		output0[i] = (float)((fSlow15 * ((fSlow14 * ((fRec17[0] * tape4[IOTAR4]) + ((1.0f - fRec17[0]) * tape4[IOTAR4]))) + ((fSlow11 * ((fRec12[0] * tape3[IOTAR3]) + ((1.0f - fRec12[0]) * tape3[IOTAR3]))) + ((fSlow8 * ((fRec7[0] * tape2[IOTAR2]) + ((1.0f - fRec7[0]) * tape2[IOTAR2]))) + (fSlow5 * ((fRec2[0] * tape1[IOTAR1]) + ((1.0f - fRec2[0]) * tape1[IOTAR1]))))))) + (fTemp0));
+		output0[i] = (float)((fSlow15 * ((fSlow14 * ((fRec17[0] * tape4[int(IOTAR4)]) + ((1.0f - fRec17[0]) * tape4[int(IOTAR4)]))) + ((fSlow11 * ((fRec12[0] * tape3[int(IOTAR3)]) + ((1.0f - fRec12[0]) * tape3[int(IOTAR3)]))) + ((fSlow8 * ((fRec7[0] * tape2[int(IOTAR2)]) + ((1.0f - fRec7[0]) * tape2[int(IOTAR2)]))) + (fSlow5 * ((fRec2[0] * tape1[int(IOTAR1)]) + ((1.0f - fRec2[0]) * tape1[int(IOTAR1)]))))))) + (fTemp0));
 		// post processing
 		iRec19[1] = iRec19[0];
 		iRec18[1] = iRec18[0];
@@ -451,10 +466,14 @@ int LiveLooper::register_par(const ParamReg& reg)
 	reg.registerVar("dubber.clips2","","S",N_("percentage cut on the delay start "),&fclips2, 0.0f, 0.0f, 1e+02f, 1.0f);
 	reg.registerVar("dubber.clips3","","S",N_("percentage cut on the delay start "),&fclips3, 0.0f, 0.0f, 1e+02f, 1.0f);
 	reg.registerVar("dubber.clips4","","S",N_("percentage cut on the delay start "),&fclips4, 0.0f, 0.0f, 1e+02f, 1.0f);
-	reg.registerVar("dubber.bar1","","S",N_("remaining recording time in sec"),&rectime0, 0.0, 0.0, 96.0, 1.0);
-	reg.registerVar("dubber.bar2","","S",N_("remaining recording time in sec"),&rectime1, 0.0, 0.0, 96.0, 1.0);
-	reg.registerVar("dubber.bar3","","S",N_("remaining recording time in sec"),&rectime2, 0.0, 0.0, 96.0, 1.0);
-	reg.registerVar("dubber.bar4","","S",N_("remaining recording time in sec"),&rectime3, 0.0, 0.0, 96.0, 1.0);
+	reg.registerVar("dubber.speed1","","S",N_("playback speed "),&fspeed1, 0.0f, -0.9f, 0.9f, 0.01f);
+	reg.registerVar("dubber.speed2","","S",N_("playback speed "),&fspeed2, 0.0f, -0.9f, 0.9f, 0.01f);
+	reg.registerVar("dubber.speed3","","S",N_("playback speed "),&fspeed3, 0.0f, -0.9f, 0.9f, 0.01f);
+	reg.registerVar("dubber.speed4","","S",N_("playback speed "),&fspeed4, 0.0f, -0.9f, 0.9f, 0.01f);
+	reg.registerNonMidiFloatVar("dubber.bar1",&rectime0, false, true, 0.0, 0.0, 96.0, 1.0);
+	reg.registerNonMidiFloatVar("dubber.bar2",&rectime1, false, true, 0.0, 0.0, 96.0, 1.0);
+	reg.registerNonMidiFloatVar("dubber.bar3",&rectime2, false, true, 0.0, 0.0, 96.0, 1.0);
+	reg.registerNonMidiFloatVar("dubber.bar4",&rectime3, false, true, 0.0, 0.0, 96.0, 1.0);
 	reg.registerVar("dubber.gain","","S",N_("overall gain of the input"),&gain, 0.0f, -2e+01f, 12.0f, 0.1f);
 	reg.registerVar("dubber.level1","","S",N_("percentage of the delay gain level"),&gain1, 5e+01f, 0.0f, 1e+02f, 1.0f);
 	reg.registerVar("dubber.level2","","S",N_("percentage of the delay gain level"),&gain2, 5e+01f, 0.0f, 1e+02f, 1.0f);
@@ -469,10 +488,10 @@ int LiveLooper::register_par(const ParamReg& reg)
 	reg.registerVar("dubber.rplay2","","B",N_("play reverse"),&rplay2, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rplay3","","B",N_("play reverse"),&rplay3, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rplay4","","B",N_("play reverse"),&rplay4, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("dubber.playh1","","S",N_("play position"),&playh1, 0.0, 0.0, 1000.0, 1.0);
-	reg.registerVar("dubber.playh2","","S",N_("play position"),&playh2, 0.0, 0.0, 1000.0, 1.0);
-	reg.registerVar("dubber.playh3","","S",N_("play position"),&playh3, 0.0, 0.0, 1000.0, 1.0);
-	reg.registerVar("dubber.playh4","","S",N_("play position"),&playh4, 0.0, 0.0, 1000.0, 1.0);
+	reg.registerNonMidiFloatVar("dubber.playh1",&playh1, false, true, 0.0, 0.0, 1000.0, 1.0);
+	reg.registerNonMidiFloatVar("dubber.playh2",&playh2, false, true, 0.0, 0.0, 1000.0, 1.0);
+	reg.registerNonMidiFloatVar("dubber.playh3",&playh3, false, true, 0.0, 0.0, 1000.0, 1.0);
+	reg.registerNonMidiFloatVar("dubber.playh4",&playh4, false, true, 0.0, 0.0, 1000.0, 1.0);
 	reg.registerVar("dubber.rec1","","B",N_("record"),&record1, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rec2","","B",N_("record"),&record2, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.rec3","","B",N_("record"),&record3, 0.0, 0.0, 1.0, 1.0);
@@ -481,7 +500,11 @@ int LiveLooper::register_par(const ParamReg& reg)
 	reg.registerVar("dubber.reset2","","B",N_("erase"),&reset2, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.reset3","","B",N_("erase"),&reset3, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.reset4","","B",N_("erase"),&reset4, 0.0, 0.0, 1.0, 1.0);
-	return 0;
+    param.reg_non_midi_par("dubber.savefile", &save_p, false);
+    param.reg_preset_string("dubber.filename", "", &preset_name, "tape");
+    param["dubber.filename"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper::set_p_state)));
+    return 0;
 }
 
 int LiveLooper::register_params_static(const ParamReg& reg)
@@ -529,6 +552,7 @@ b.insertSpacer();
 b.closeBox();
 b.create_feedback_slider(PARAM("clips1"), "cut");
 b.create_feedback_slider(PARAM("clip1"), "clip");
+b.create_master_slider(PARAM("speed1"), "speed");
 
 b.closeBox();
 b.create_small_rackknob(PARAM("level1"), "level");
@@ -559,6 +583,7 @@ b.insertSpacer();
 b.closeBox();
 b.create_feedback_slider(PARAM("clips2"), "cut");
 b.create_feedback_slider(PARAM("clip2"), "clip");
+b.create_master_slider(PARAM("speed2"), "speed");
 
 b.closeBox();
 
@@ -589,6 +614,7 @@ b.insertSpacer();
 b.closeBox();
 b.create_feedback_slider(PARAM("clips3"), "cut");
 b.create_feedback_slider(PARAM("clip3"), "clip");
+b.create_master_slider(PARAM("speed3"), "speed");
 
 b.closeBox();
 b.create_small_rackknob(PARAM("level3"), "level");
@@ -618,6 +644,7 @@ b.insertSpacer();
 b.closeBox();
 b.create_feedback_slider(PARAM("clips4"), "cut");
 b.create_feedback_slider(PARAM("clip4"), "clip");
+b.create_master_slider(PARAM("speed4"), "speed");
 
 b.closeBox();
 b.create_small_rackknob(PARAM("level4"), "level");
@@ -644,29 +671,3 @@ void LiveLooper::del_instance(PluginDef *p)
 {
 	delete static_cast<LiveLooper*>(p);
 }
-
-#if true
-
-PluginDef *plugin() {
-    return new LiveLooper;
-}
-
-#else
-
-extern "C" __attribute__ ((visibility ("default"))) int
-get_gx_plugin(unsigned int idx, PluginDef **pplugin)
-{
-    const int count = 1;
-    if (!pplugin) {
-	return count;
-    }
-    switch (idx) {
-    case 0: *pplugin = new LiveLooper; return count;
-    default: *pplugin = 0; return -1;
-    }
-}
-
-#endif
-
-} // end namespace dubber
-} // end namespace gx_engine

@@ -353,36 +353,37 @@ inline int SCapture::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 
-if (channel == 1) {
+        if (channel == 1) {
 #define PARAM(p) ("recorder" "." p)
-b.openHorizontalhideBox("");
-b.create_feedback_switch(sw_rbutton,PARAM("rec"));
+            b.openHorizontalhideBox("");
+            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
 
-b.closeBox();
+            b.closeBox();
 
-b.openHorizontalBox("");
-b.create_feedback_switch(sw_rbutton,PARAM("rec"));
-b.create_feedback_switch(sw_led,PARAM("clip"));
-b.create_selector_no_caption(PARAM("file"));
+            b.openHorizontalBox("");
+            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
+            b.create_feedback_switch(sw_led,PARAM("clip"));
+            b.create_selector_no_caption(PARAM("file"));
 
-b.closeBox();
+            b.closeBox();
 
 #undef PARAM
-} else {
+        } else {
 #define PARAM(p) ("st_recorder" "." p)
-b.openHorizontalhideBox("");
-b.create_feedback_switch(sw_rbutton,PARAM("rec"));
+            b.openHorizontalhideBox("");
+            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
 
-b.closeBox();
+            b.closeBox();
 
-b.openHorizontalBox("");
-b.create_feedback_switch(sw_rbutton,PARAM("rec"));
-b.create_feedback_switch(sw_led,PARAM("clip"));
-b.create_selector_no_caption(PARAM("file"));
+            b.openHorizontalBox("");
+            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
+            b.create_feedback_switch(sw_led,PARAM("clip"));
+            b.create_selector_no_caption(PARAM("file"));
 
-b.closeBox();
+            b.closeBox();
 
-}
+#undef PARAM
+        }
         return 0;
     }
     return -1;
