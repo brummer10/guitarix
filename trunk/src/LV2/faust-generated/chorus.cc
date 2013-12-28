@@ -50,12 +50,12 @@ private:
 	void clear_state_f();
 	int activate(bool start);
 	void init(uint32_t samplingFreq);
-	void compute(int count, float *input0, float *input1, float *output0, float *output1);
+	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 
 	static void clear_state_f_static(PluginLV2*);
 	static int activate_static(bool start, PluginLV2*);
 	static void init_static(uint32_t samplingFreq, PluginLV2*);
-	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginLV2*);
+	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
 public:
@@ -147,7 +147,7 @@ int Dsp::activate_static(bool start, PluginLV2 *p)
 	return static_cast<Dsp*>(p)->activate(start);
 }
 
-void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
@@ -189,7 +189,7 @@ void always_inline Dsp::compute(int count, float *input0, float *input1, float *
 #undef fslider3
 }
 
-void __rt_func Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginLV2 *p)
+void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
 }
