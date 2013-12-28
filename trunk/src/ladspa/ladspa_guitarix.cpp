@@ -747,6 +747,7 @@ public:
     PreampConvolver preamp;
     ContrastConvolver contrast;
     LiveLooper  loop;
+    SCapture record;
 public:
     MonoEngine(const string& plugin_dir, const string& loop_dir, ParameterGroups& groups);
     ~MonoEngine();
@@ -910,7 +911,8 @@ MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, Paramet
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync), loop_dir) {
+      loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync), loop_dir),
+      record(1) {
 
     mono_convolver.set_sync(true);
     cabinet.set_sync(true);
@@ -988,6 +990,7 @@ void MonoEngine::load_static_plugins() {
     pl.add(gx_effects::selecteq::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&loop.plugin,                          PLUGIN_POS_RACK,  PGN_GUI);
+    pl.add(&record.plugin,                      PLUGIN_POS_RACK,  PGN_GUI);
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::ts9sim::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::impulseresponse::plugin(), PLUGIN_POS_RACK, PGN_GUI);
@@ -1391,6 +1394,7 @@ private:
 public:
     StereoModuleChain stereo_chain;
     ConvolverStereoAdapter stereo_convolver;
+    SCapture record_st;
 public:
     StereoEngine(const string& plugin_dir, ParameterGroups& groups);
     ~StereoEngine();
@@ -1470,7 +1474,8 @@ void StereoEngine::set_samplerate(unsigned int samplerate) {
 StereoEngine::StereoEngine(const string& plugin_dir, ParameterGroups& groups)
     : EngineControl(),
       // internal audio modules
-      stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), get_param()) {
+      stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), get_param()),
+      record_st(2) {
 
     stereo_convolver.set_sync(true);
 
@@ -1516,6 +1521,7 @@ void StereoEngine::load_static_plugins() {
     pl.add(gx_effects::tonecontroll::plugin(),    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::digital_delay_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&stereo_convolver.plugin,              PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&record_st.plugin,                   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::stereoverb::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::zita_rev1::plugin(),        PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_stereo(),      PLUGIN_POS_RACK);

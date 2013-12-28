@@ -722,4 +722,67 @@ public:
 };
 
 
+/****************************************************************
+ ** class SCapture
+ */
+
+
+class SCapture: public PluginDef {
+private:
+    SNDFILE *       recfile;
+    int             fSamplingFreq;
+    int             channel;
+    float           fcheckbox0;
+    float           fcheckbox1;
+    float           fformat;
+    int             IOTA;
+    int             iA;
+    int             savesize;
+    int             filesize;
+    float           *fRec0;
+    float           *fRec1;
+    float           *tape;
+    sem_t           m_trig;
+    pthread_t       m_pthr;
+    volatile bool   keep_stream;
+    bool            mem_allocated;
+    bool            is_wav;
+    bool            err;
+    float           fConst0;
+    float           fRecb0[2];
+    int             iRecb1[2];
+    float           fRecb2[2];
+    void        mem_alloc();
+    void        mem_free();
+    void        clear_state_f();
+    int         activate(bool start);
+    int         load_ui_f(const UiBuilder& b, int form);
+    void        init(unsigned int samplingFreq);
+    void        compute(int count, float *input0, float *output0);
+    void        compute_st(int count, float *input0, float *input1, float *output0, float *output1);
+    int         register_par(const ParamReg& reg);
+    void        save_to_wave(SNDFILE * sf, float *tape, int lSize);
+    SNDFILE     *open_stream(std::string fname);
+    void        close_stream(SNDFILE **sf);
+    void        stop_thread();
+    void        start_thread();
+    void        disc_stream();
+    inline std::string get_ffilename(); 
+    
+    static void *run_thread(void* p);
+    static void clear_state_f_static(PluginDef*);
+    static int  activate_static(bool start, PluginDef*);
+    static int  load_ui_f_static(const UiBuilder& b, int form);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    static void compute_static_st(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+    static int  register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Plugin plugin;
+    SCapture(int channel_);
+    ~SCapture();
+};
+
+
 } // namespace gx_engine
