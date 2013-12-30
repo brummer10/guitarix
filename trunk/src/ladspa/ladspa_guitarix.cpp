@@ -912,7 +912,7 @@ MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, Paramet
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync), loop_dir),
-      record(1) {
+      record(*this, 1) {
 
     mono_convolver.set_sync(true);
     cabinet.set_sync(true);
@@ -1475,7 +1475,7 @@ StereoEngine::StereoEngine(const string& plugin_dir, ParameterGroups& groups)
     : EngineControl(),
       // internal audio modules
       stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), get_param()),
-      record_st(2) {
+      record_st(*this, 2) {
 
     stereo_convolver.set_sync(true);
 

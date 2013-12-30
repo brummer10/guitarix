@@ -29,9 +29,10 @@
 #define MAXRECSIZE 131072
 #define MAXFILESIZE INT_MAX-MAXRECSIZE // 2147352576  //2147483648-MAXRECSIZE
 
-SCapture::SCapture(int channel_)
+SCapture::SCapture(EngineControl& engine_, int channel_)
     : PluginDef(),
       recfile(NULL),
+      engine(engine_),
       channel(channel_),
       fRec0(0),
       fRec1(0),
@@ -123,14 +124,13 @@ void SCapture::stop_thread() {
 void SCapture::start_thread() {
     pthread_attr_t      attr;
     struct sched_param  spar;
-    int prio = 0;
-    int priomax = sched_get_priority_max(SCHED_FIFO);
-    if ((priomax/5) > 0) prio = priomax/5;
-    spar.sched_priority = prio;
+    int priority, policy;
+    engine.get_sched_priority(policy, priority, 12);
+    spar.sched_priority = priority;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_JOINABLE );
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+    pthread_attr_setschedpolicy(&attr, policy);
     pthread_attr_setschedparam(&attr, &spar);
     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
     pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
@@ -149,6 +149,7 @@ inline void SCapture::clear_state_f()
     for (int i=0; i<2; i++) fRecb0[i] = 0;
     for (int i=0; i<2; i++) iRecb1[i] = 0;
     for (int i=0; i<2; i++) fRecb2[i] = 0;
+    for (int i=0; i<2; i++) fRecC0[i] = 0;
 }
 
 void SCapture::clear_state_f_static(PluginDef *p)
@@ -231,10 +232,13 @@ void always_inline SCapture::compute(int count, float *input0, float *output0)
     if (err) fcheckbox0 = 0.0;
     int     iSlow0 = int(fcheckbox0);
     fcheckbox1 = 1-int(fRecb2[0]);
+    float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
     for (int i=0; i<count; i++) {
         float fTemp0 = (float)input0[i];
+        fRecC0[0] = (fSlow0 + (0.999f * fRecC0[1]));
+        float fTemp1 = fTemp0 * fRecC0[0];
         // check if we run into clipping
-        float 	fRec3 = fmax(fConst0, fabsf(fTemp0));
+        float 	fRec3 = fmax(fConst0, fabsf(fTemp1));
         int iTemp1 = int((iRecb1[1] < 4096));
         fRecb0[0] = ((iTemp1)?fmax(fRecb0[1], fRec3):fRec3);
         iRecb1[0] = ((iTemp1)?(1 + iRecb1[1]):1);
@@ -242,9 +246,9 @@ void always_inline SCapture::compute(int count, float *input0, float *output0)
         
         if (iSlow0) { //record
             if (iA) {
-                fRec1[IOTA] = fTemp0;
+                fRec1[IOTA] = fTemp1;
             } else {
-                fRec0[IOTA] = fTemp0;
+                fRec0[IOTA] = fTemp1;
             }
             IOTA = (IOTA<MAXRECSIZE-1) ? IOTA+1 : 0; 
             if (!IOTA) { // when buffer is full, flush to stream
@@ -267,6 +271,7 @@ void always_inline SCapture::compute(int count, float *input0, float *output0)
         fRecb2[1] = fRecb2[0];
         iRecb1[1] = iRecb1[0];
         fRecb0[1] = fRecb0[0];
+        fRecC0[1] = fRecC0[0];
     }
 }
 
@@ -280,11 +285,15 @@ void always_inline SCapture::compute_st(int count, float *input0, float *input1,
     if (err) fcheckbox0 = 0.0;
     int iSlow0 = int(fcheckbox0);
     fcheckbox1 = 1-int(fRecb2[0]);
+    float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
     for (int i=0; i<count; i++) {
         float fTemp0 = (float)input0[i];
         float fTemp1 = (float)input1[i];
+        fRecC0[0] = (fSlow0 + (0.999f * fRecC0[1]));
+        float fTemp2 = fTemp0 * fRecC0[0];
+        float fTemp3 = fTemp1 * fRecC0[0];
         // check if we run into clipping
-        float 	fRec3 = fmax(fConst0,fmax(fabsf(fTemp0),fabsf(fTemp1)));
+        float 	fRec3 = fmax(fConst0,fmax(fabsf(fTemp2),fabsf(fTemp3)));
         int iTemp1 = int((iRecb1[1] < 4096));
         fRecb0[0] = ((iTemp1)?fmax(fRecb0[1], fRec3):fRec3);
         iRecb1[0] = ((iTemp1)?(1 + iRecb1[1]):1);
@@ -292,11 +301,11 @@ void always_inline SCapture::compute_st(int count, float *input0, float *input1,
         
         if (iSlow0) { //record
             if (iA) {
-                fRec1[IOTA] = fTemp0;
-                fRec1[IOTA+1] = fTemp1;
+                fRec1[IOTA] = fTemp2;
+                fRec1[IOTA+1] = fTemp3;
             } else {
-                fRec0[IOTA] = fTemp0;
-                fRec0[IOTA+1] = fTemp1;
+                fRec0[IOTA] = fTemp2;
+                fRec0[IOTA+1] = fTemp3;
             }
             IOTA = (IOTA<MAXRECSIZE-2) ? IOTA+2 : 0; 
             if (!IOTA) { // when buffer is full, flush to stream
@@ -320,6 +329,7 @@ void always_inline SCapture::compute_st(int count, float *input0, float *input1,
         fRecb2[1] = fRecb2[0];
         iRecb1[1] = iRecb1[0];
         fRecb0[1] = fRecb0[0];
+        fRecC0[1] = fRecC0[0];
     }
 }
 
@@ -334,10 +344,12 @@ int SCapture::register_par(const ParamReg& reg)
     if (channel == 1) {
     reg.registerEnumVar("recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 1.0, 1.0);
     reg.registerVar("recorder.rec","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("recorder.gain","","S","",&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
     reg.registerNonMidiFloatVar("recorder.clip",&fcheckbox1, false, true, 0.0, 0.0, 1.0, 1.0);
     } else {
     reg.registerEnumVar("st_recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 1.0, 1.0);
     reg.registerVar("st_recorder.rec","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("st_recorder.gain","","S","",&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
     reg.registerNonMidiFloatVar("st_recorder.clip",&fcheckbox1, false, true, 0.0, 0.0, 1.0, 1.0);
     }
     
@@ -361,6 +373,7 @@ inline int SCapture::load_ui_f(const UiBuilder& b, int form)
             b.closeBox();
 
             b.openHorizontalBox("");
+            b.create_small_rackknob(PARAM("gain"), N_("gain(db)"));
             b.create_feedback_switch(sw_rbutton,PARAM("rec"));
             b.create_feedback_switch(sw_led,PARAM("clip"));
             b.create_selector_no_caption(PARAM("file"));
@@ -376,6 +389,7 @@ inline int SCapture::load_ui_f(const UiBuilder& b, int form)
             b.closeBox();
 
             b.openHorizontalBox("");
+            b.create_small_rackknob(PARAM("gain"), N_("gain(db)"));
             b.create_feedback_switch(sw_rbutton,PARAM("rec"));
             b.create_feedback_switch(sw_led,PARAM("clip"));
             b.create_selector_no_caption(PARAM("file"));

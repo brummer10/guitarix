@@ -730,10 +730,13 @@ public:
 class SCapture: public PluginDef {
 private:
     SNDFILE *       recfile;
+    EngineControl&  engine;
     int             fSamplingFreq;
     int             channel;
     float           fcheckbox0;
     float           fcheckbox1;
+    float           fslider0;
+    float           fRecC0[2];
     float           fformat;
     int             IOTA;
     int             iA;
@@ -780,7 +783,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    SCapture(int channel_);
+    SCapture(EngineControl& engine, int channel_);
     ~SCapture();
 };
 
