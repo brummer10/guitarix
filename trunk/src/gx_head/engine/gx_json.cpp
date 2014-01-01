@@ -427,6 +427,11 @@ JsonParser::token JsonParser::read_value_token(char c) {
 	next_str = "-1e50";
 	return value_number;
     }
+    if (next_str == "-nan") {
+	assert(false);
+	next_str = "-1e50";
+	return value_number;
+    }
     return no_token;
 }
 
