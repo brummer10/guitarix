@@ -152,6 +152,7 @@ cdef class Plugin:
             return self.time_per_sample
 
     def keys(self):
+        "List of parameters names"
         return self.d.keys()
 
     def get_var_attr(self, key):
@@ -170,6 +171,7 @@ cdef class Plugin:
         return l
 
     def get_range(self, key):
+        "return (lower,upper) range for parameter name"
         f = self.d[key]
         return (f[2], f[3])
 
