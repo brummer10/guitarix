@@ -179,6 +179,8 @@ class LinearFilter(object):
         expr = self.solve(self.S, self.in_mat, self.out_mat)
         r = [sp.poly(e, s) for e in sp.fraction(expr)]
         tc = r[1].TC()
+        for v in tc.atoms(sp.Symbol):
+            tc = tc.subs(v, 1)
         b_coeffs, b_terms = self.collect_s_coeffs(sp.poly(r[0], s), 'b', tc)
         a_coeffs, a_terms = self.collect_s_coeffs(sp.poly(r[1], s), 'a', tc)
         if a_coeffs[0] == -1:
@@ -234,7 +236,7 @@ class LinearFilter(object):
         d.update(dict([(sp.symbols(k), v) for k, v in subst_var.items()]))
         return d
 
-    def get_z_coeffs(self, samplerate=None, subst_var=None):
+    def get_z_coeffs(self, samplerate=None, subst_var=None, as_expr=True):
         if samplerate is None:
             c = 2 * sp.symbols("fs")
         else:
@@ -254,26 +256,39 @@ class LinearFilter(object):
         if samplerate is None:
             lc = lc.subs(sp.symbols("fs"), 48000.)
         r = [sp.poly((e/lc).expand(), z) for e in sp.fraction(expr)]
-        return (self.collect_z_coeffs(r[0], 'b', syms),
-                self.collect_z_coeffs(r[1], 'a', syms))
+        return (self.collect_z_coeffs(r[0], 'b', syms, as_expr),
+                self.collect_z_coeffs(r[1], 'a', syms, as_expr))
 
-    def collect_z_coeffs(self, expr, prefix, syms):
+    def collect_z_coeffs(self, expr, prefix, syms, as_expr=True):
         monoms = expr.monoms()
-        max_degree = monoms[0][0]
-        filter_coeffs = np.zeros(max_degree+1, dtype=object)
+        if as_expr:
+            max_degree = monoms[0][0]
+            filter_coeffs = np.zeros(max_degree+1, dtype=object)
+        else:
+            l = []
         for e, i in zip(expr.coeffs(), monoms):
             i = i[0]
             if syms:
                 # factorize according to variable symbols
                 x = sp.poly(e.expand(), syms)
-                ss = 0
-                for co, o in zip(x.coeffs(), x.monoms()):
-                    ss += reduce(operator.mul, [pow(y, p) for y, p in zip(syms, o)], 1) * co.evalf()
+                if not as_expr:
+                    l.append(zip(x.monoms(), x.coeffs()))
+                else:
+                    ss = 0
+                    for co, o in zip(x.coeffs(), x.monoms()):
+                        ss += reduce(operator.mul, [pow(y, p) for y, p in zip(syms, o)], 1) * co.evalf()
             else:
-                ss = e.evalf()
-            idx = max_degree-i
-            filter_coeffs[idx] = sp.horner(ss, wrt=(syms or [])+[sp.symbols("fs")])
-        return filter_coeffs
+                if not as_expr:
+                    l.append(((0,), ss))
+                else:
+                    ss = e.evalf()
+            if as_expr:
+                idx = max_degree-i
+                filter_coeffs[idx] = sp.horner(ss, wrt=(syms or [])+[sp.symbols("fs")])
+        if as_expr:
+            return filter_coeffs
+        else:
+            return l, syms
 
     def coeffs_as_faust_code(self, prefix, coeffs):
         l = []
@@ -312,19 +327,20 @@ class LinearFilter(object):
         return eval(expr.split("=",1)[1].rstrip(";\n").replace("^","**"), dict([(str(sym),sym) for sym in syms]))
 
 
-def get_state_transform_X(A, B, C):
-    "calculate balanced state space model realization -- unused"
+def get_state_transform_trace(A, B, C):
+    "return the trace of the gram matrices (sensitivity measure)"
     Wc = ml.matrix(sla.solve_discrete_lyapunov(A.A, (B*B.T).A))
     Wo = ml.matrix(sla.solve_discrete_lyapunov(A.T.A, (C.T*C).A))
-    R = ml.matrix(sla.cholesky(Wo, lower=False))
-    X = R * Wc * R.T
-    U, s, V = sla.svd(X)
-    U = ml.matrix(U)
-    V = ml.matrix(V)
-    lli = np.sqrt(np.sqrt(s))
-    U = R.I * V.T * ml.diag(lli)
-    Ui = ml.diag(1/lli) * V * R
-    return U, Ui
+    #R = ml.matrix(sla.cholesky(Wo, lower=False))
+    #X = R * Wc * R.T
+    #U, s, V = sla.svd(X)
+    #U = ml.matrix(U)
+    #V = ml.matrix(V)
+    #lli = np.sqrt(np.sqrt(s))
+    #U = R.I * V.T * ml.diag(lli)
+    #Ui = ml.diag(1/lli) * V * R
+    #return U, Ui
+    return np.trace(Wc), np.trace(Wo)
 
 def get_state_transform(A, B, C, tol=0):
     "calculate balanced reduced state space model realization"
@@ -484,6 +500,7 @@ class EquationSystem(object):
         self.CZ = p.CZ
         if self.jacobi_par is not None:
             J, Jc, select, unselect = self.jacobi_par
+            self.S = p.S - Nnr[unselect].T * J[unselect][:,unselect] * Nnl[unselect]
             Si = (p.S - Nnr[unselect].T * J[unselect][:,unselect] * Nnl[unselect]).I
             CV = CV + (Nnr[unselect].T * Jc[unselect]).T
             Nnr = Nnr[select]
@@ -494,6 +511,7 @@ class EquationSystem(object):
             p.f = self.f
             p.element_name["N"] = np.array(p.element_name["N"])[select]
         else:
+            self.S = p.S
             Si = p.S.I
 
         T = Nnl * Si
@@ -664,8 +682,9 @@ class Simulate(object):
 
 class SimulatePy(Simulate):
 
-    def __init__(self, eq, solver=None):
+    def __init__(self, eq, solver=None, dc_method="A"):
         Simulate.__init__(self, eq, solver)
+        self.dc_method = dc_method
         parser = eq.get_parser()
         self.pot_func = parser.get_pot_funcs()
         self.Pv = parser.Pv
@@ -676,7 +695,7 @@ class SimulatePy(Simulate):
         self.o0 = np.zeros(eq.no)
         self.op = parser.op
         self.compile_py_func()
-        self.calc_dc(parser.op)
+        self.calc_dc(parser.op, method=dc_method)
         #FIXME:
         self.pot_list = []
         for a, f in self.pot_func:
@@ -725,6 +744,29 @@ class SimulatePy(Simulate):
                     eq.G0, eq.H0, eq.Hc0, eq.K0,
                     )
 
+    def calc_linear_sys_matrices(self, v0=None):
+        eq = self.eq
+        if eq.nn:
+            J = self.jacobi(v0)
+            X = eq.Mi * (np.diag(eq.CZ) - J * eq.K0).I * J * eq.U0
+            # equivalent formula for X:
+            # X = eq.Mi * J * (np.diag(eq.CZ) - eq.K0 * J).I * eq.U0
+            A = eq.A0 + eq.Co * X * eq.G0
+            B = eq.B0 + eq.Co * X * eq.H0
+            D = eq.D0 + eq.Fo * X * eq.G0
+            return A, B, D
+        else:
+            return eq.A0, eq.B0, eq.D0
+
+    def balance_realization(self, tol=None):
+        if self.eq.np:
+            return
+        A, B, D = self.calc_linear_sys_matrices()
+        T, Ti, hsv = get_state_transform(A, B, D, tol=tol)
+        #print tol, T.shape, hsv
+        self.eq.make_eq(self.eq.parser, True, T, Ti)
+        self.calc_dc(self.eq.parser.op, method=self.dc_method)
+
     def solve(self, func, v0, args=(), method='hybr', options=None):
         try:
             with warnings.catch_warnings():
@@ -754,7 +796,7 @@ class SimulatePy(Simulate):
             points = points[1:]
         raise ConvergenceError("more than %d iterations (list msg: %s)" % (max_iter, msg))
 
-    def calc_dc(self, u):
+    def calc_dc(self, u, method="A"):
         u = ml.matrix(u, dtype=np.float64).T
         A, B, Bc, C, D, E, Ec, F, G, H, Hc, K = self.calc_matrixes()
         if A.size == 0:
@@ -765,9 +807,12 @@ class SimulatePy(Simulate):
                 self.v0 = self.solve_using_homotopy(func, self.v0).x
         else:
             I = ml.eye(len(A))
-            try:
-                Ai = (I - A).I
-            except la.LinAlgError:
+            if method == "A":
+                try:
+                    Ai = (I - A).I
+                except la.LinAlgError:
+                    method = "N"
+            if method == "N":
                 G1 = ml.append(self.eq.U0 * G, A, axis=0)
                 H1 = ml.append(self.eq.U0 * H, B, axis=0)
                 Hc1 = ml.append(Hc, Bc, axis=0)
@@ -870,19 +915,23 @@ class SimulatePy(Simulate):
         return i
 
     def jacobi_numeric(self):
-        J = np.zeros((len(self.eq.f), len(self.v00)))
-        i0 = self.calc_i(self.v00).A1
+        if v0 is None:
+            v0 = self.v00
+        J = np.zeros((len(self.eq.f), len(v0)))
+        i0 = self.calc_i(v0).A1
         eps = 1e-4
-        for j in range(len(self.v00)):
-            v = self.v00.copy()
+        for j in range(len(v0)):
+            v = v0.copy()
             v[j] += eps
             J[:, j] = (self.calc_i(v).A1 - i0) / eps
         return ml.matrix(J)
 
-    def jacobi_symbolic(self):
-        J = np.zeros((len(self.eq.f), len(self.v00)))
-        for j in range(len(self.v00)):
-            J[:, j] = self.calc_di(self.v00, j)
+    def jacobi_symbolic(self, v0=None):
+        if v0 is None:
+            v0 = self.v00
+        J = np.zeros((len(self.eq.f), len(v0)))
+        for j in range(len(v0)):
+            J[:, j] = self.calc_di(v0, j)
         return ml.matrix(J)
 
     jacobi = jacobi_symbolic
@@ -922,12 +971,15 @@ class CheckedDict(dict):
     def __setitem__(self, n, v):
         assert n not in self
         return dict.__setitem__(self, n, v)
+    def overwrite(self, n, v):
+        return dict.__setitem__(self, n, v)
 
 
 class BuildCModule(Simulate):
 
     def __init__(self, name, sim, solver=None, c_tempdir=None, c_verbose=False,
-                 c_real="double", extra_sources=None, linearize=False, pre_filter=None, post_filter=None):
+                 c_real="double", extra_sources=None, linearize=False, pre_filter=None,
+                 post_filter=None, generator=None):
         if solver is None:
             solver = sim.get_solver()
         Simulate.__init__(self, sim.get_eq(), solver)
@@ -938,6 +990,9 @@ class BuildCModule(Simulate):
         self.extra_sources = extra_sources
         self.pre_filter = pre_filter
         self.post_filter = post_filter
+        if generator is None:
+            generator = generate_code.CodeGenerator
+        self.generator = generator
         self.eq = sim.get_eq()
         parser = sim.get_parser()
         if linearize:
@@ -998,7 +1053,7 @@ class BuildCModule(Simulate):
             d["extra_sources"] = self.extra_sources
         else:
             d["extra_sources"] = ""
-        cg = generate_code.CodeGenerator(
+        cg = self.generator(
             self.eq, solver, self.solver_params, self.pot, self.pot_list,
             self.pot_func, self.pot_attr, self.Pv, self.extra_sources
             ).generate(d)
@@ -1174,12 +1229,12 @@ class SimulateC(object):
             u = np.array(u, dtype=self.dtp)
             x = np.array(x, dtype=self.dtp)
             v = np.array(v, dtype=self.dtp)
-            x_new = np.zeros(shapes[nx], dtype=self.dtp)
-            o = np.zeros(shapes[no], dtype=self.dtp)
+            x_new = np.zeros(nx, dtype=self.dtp)
+            o = np.zeros(no, dtype=self.dtp)
             if c_calc(u, x, v, x_new, o, ct.byref(info), ct.byref(nfev), ct.byref(fnorm)) < 0:
                 if fnorm.value > 1e-7:
                     raise RuntimeError("convergence: method=%s, info=%d, nfev=%d, fnorm=%g"
-                                       % (method, info.value, nfev.value, fnorm.value))
+                                       % (self.method, info.value, nfev.value, fnorm.value))
             return o, x_new, v
         def calc_stream(u):
             assert u.shape[1] == ni

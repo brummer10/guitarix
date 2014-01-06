@@ -86,9 +86,9 @@ static always_inline int forward(int i, splinecoeffs<M> *p, real *xi, int ll,
  ** x: function argument
  ** res: output array (size m)
  */
-template<typename M>
+template<>
 template<int K0>
-always_inline int splinedata<M>::splev(splinecoeffs<M> *p, real xi[1], real *res)
+always_inline int splinedata<unsigned short>::splev(splinecoeffs<unsigned short> *p, real xi[1], real *res)
 {
     real h[K0];
     retval cl;
@@ -114,6 +114,45 @@ always_inline int splinedata<unsigned short>::splev_pp<4>(splinecoeffs<unsigned 
     treal x = xi[0] - p->t[0][l];
     treal *c = p->c[0] + (l-3)*4;
     *res = ((c[0] * x + c[1]) * x + c[2]) * x + c[3];
+    return cl.i;
+}
+
+template<>
+template<>
+always_inline int splinedata<unsigned char>::splev_pp<4>(splinecoeffs<unsigned char> *p, real xi[1], real *res)
+{
+    retval cl;
+    cl.i = 0;
+    int l = p->map[0][find_index(p->nmap[0], 4, xi[0], p->x0[0], p->xe[0], p->stepi[0], &cl.c[0])];
+    treal x = xi[0] - p->t[0][l];
+    treal *c = p->c[0] + (l-3)*4;
+    *res = ((c[0] * x + c[1]) * x + c[2]) * x + c[3];
+    return cl.i;
+}
+
+template<>
+template<>
+always_inline int splinedata<unsigned short>::splev_pp<2>(splinecoeffs<unsigned short> *p, real xi[1], real *res)
+{
+    retval cl;
+    cl.i = 0;
+    int l = p->map[0][find_index(p->nmap[0], 2, xi[0], p->x0[0], p->xe[0], p->stepi[0], &cl.c[0])];
+    treal x = xi[0] - p->t[0][l];
+    treal *c = p->c[0] + (l-1)*2;
+    *res = c[0] * x + c[1];
+    return cl.i;
+}
+
+template<>
+template<>
+always_inline int splinedata<unsigned char>::splev_pp<2>(splinecoeffs<unsigned char> *p, real xi[1], real *res)
+{
+    retval cl;
+    cl.i = 0;
+    int l = p->map[0][find_index(p->nmap[0], 2, xi[0], p->x0[0], p->xe[0], p->stepi[0], &cl.c[0])];
+    treal x = xi[0] - p->t[0][l];
+    treal *c = p->c[0] + (l-1)*2;
+    *res = c[0] * x + c[1];
     return cl.i;
 }
 

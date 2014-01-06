@@ -149,7 +149,6 @@ void set_state(creal *v, creal *x) {
 
 %if (@method == "table")
 #define real realtype  // real conflicts with Eigen::real of new eigen library version
-typedef @solver_maptype maptype;
 %include ("../intpp.h")
 #define NO_INTPP_INCLUDES
 %include ("../intpp.cc")
@@ -340,9 +339,10 @@ FixedRateResampler smp;
 
 class DKPlugin: public PluginDef {
 private:
-    float pots[@npl];
-    creal pots_last[@npl];
+    float pots[@npl+@add_npl];
+    creal pots_last[@npl+@add_npl];
     Matrix<creal, @nx, 1> x_last;
+    @DKPlugin_fields
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     DKPlugin();
@@ -354,7 +354,7 @@ public:
 };
 
 DKPlugin::DKPlugin():
-    PluginDef(), pots(), pots_last(), x_last() {
+    PluginDef(), pots(), pots_last(), x_last()@DKPlugin_init {
     version = PLUGINDEF_VERSION;
     id = "@id";
     name = N_("@name");
@@ -383,22 +383,19 @@ void DKPlugin::init(unsigned int samplingFreq, PluginDef *plugin) {
 %if (@resample)
     smp.setup(samplingFreq, @fs);
 %end
-    //DKPlugin& self = *static_cast<DKPlugin*>(plugin);
-    //self.sample_rate = samplingFreq;
-    //const double *t;
-    //get_structure(0, 0, 0, 0, 0, &t, 0, 0);
-    //FIXME: overwritten by registration parameters?
-    //for (int i = 0; i < @npl; i++) {
-    //    self.pots[i] = t[i];
-    //}
+%if (@filter_init)
+    DKPlugin& self = *static_cast<DKPlugin*>(plugin);
+    @filter_init
+%end
 }
 
 void DKPlugin::process(int n, float *u, float *o, PluginDef *plugin) {
     DKPlugin& self = *static_cast<DKPlugin*>(plugin);
-%if (@npl)
-    creal t[@npl];
+%if (@npl || @add_npl)
+    creal t[@npl+@add_npl];
     @calc_pots
 %end
+    @process_add
 // start copied and modified code
     Matrix<creal, @nn, 1> mi;
 %if (@nn)
@@ -745,7 +742,7 @@ static inline int nonlin(nonlin_param& par) {
     Map<Matrix<real, @nni+@npl, 1> >mp(m);
     mp << last_pot.cast<real>(), (*par.p)@{blockV}.cast<real>();
     for (int j = 0; j < AmpData::@namespace::sd.m; j++) {
-        splinecoeffs<unsigned short> *pc = &AmpData::@namespace::sd.sc[j];
+        splinecoeffs<AmpData::@namespace::maptype> *pc = &AmpData::@namespace::sd.sc[j];
         check(&AmpData::@namespace::sd, m, (*pc->eval)(pc, m, &t[j]));
     }
     (*par.i)@{blockV} = Map<Matrix<real, @nno, 1> >(t).cast<creal>();

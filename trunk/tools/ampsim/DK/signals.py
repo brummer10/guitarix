@@ -109,15 +109,25 @@ class GeneratedSignal(object):
     def get_harmonics_responses(self, response, N, freqlist, shift=True):
         return self.make_harmonics_responses(response, N, freqlist, shift)
 
-    def plot_harmonic_spectrum(self, response, nharmonics=6, lower_freq=None, upper_freq=None, plotfunc=None):
+    def _plot_setup(self, lower_freq, upper_freq, plotfunc, freqlist):
         if lower_freq is None:
             lower_freq = self.start_freq
         if upper_freq is None:
             upper_freq = self.stop_freq
         if plotfunc is None:
             plotfunc = pylab.semilogx
+        if isinstance(freqlist, int):
+            freqlist = numpy.logspace(numpy.log10(lower_freq), numpy.log10(upper_freq), freqlist)
+        return lower_freq, upper_freq, plotfunc, freqlist
+
+    def plot_spectrum(self, response, lower_freq=None, upper_freq=None, plotfunc=None, freqlist=200):
+        lower_freq, upper_freq, plotfunc, freqlist = self._plot_setup(lower_freq, upper_freq, plotfunc, freqlist)
+        h = self.get_spectrum(response, 2 * numpy.pi * freqlist / self.fs)
+        return plotfunc(freqlist, 20 * numpy.log10(abs(h)))
+
+    def plot_harmonic_spectrum(self, response, nharmonics=6, lower_freq=None, upper_freq=None, plotfunc=None, freqlist=200):
+        lower_freq, upper_freq, plotfunc, freqlist = self._plot_setup(lower_freq, upper_freq, plotfunc, freqlist)
         lines = []
-        freqlist = numpy.logspace(numpy.log10(lower_freq), numpy.log10(upper_freq), 200)
         for i, h in enumerate(self.get_harmonics_responses(response, nharmonics, 2*numpy.pi*freqlist/self.fs)):
             if h.size:
                 lines.extend(plotfunc(freqlist, 20 * numpy.log10(abs(h))))

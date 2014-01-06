@@ -8,6 +8,7 @@ import numpy.linalg as la
 import dk_templates
 from codelib import *
 
+
 def solver_set_defaults(solver_dict=None):
     if solver_dict is None:
         solver_dict = {}
@@ -234,22 +235,26 @@ class NonlinFunctionCC(object):
                     idx = []
                     for sl in self.blocklist:
                         ln = sl.stop - sl.start
-                        for i in range(ln):
-                            idx.append(j)
+                        idx.append(j)
                         j += ln
                     return idx
-                loc.add(MatrixDeclaration('PP1', rows=end, cols=1, array=True))
+                def spliced(n):
+                    for a in range(n):
+                        yield a
+                        yield a+n
+                nn2 = end//2
+                loc.add(MatrixDeclaration('PP1', rows=nn2, cols=1, array=True))
                 l += loc.generate_lines()
                 l.append("PP1 << %s;\n" % ", ".join(["pt(%d)" % i for i in nth(1)]))
-                loc.add(MatrixDeclaration('PP0', rows=end, cols=1, array=True))
+                loc.add(MatrixDeclaration('PP0', rows=nn2, cols=1, array=True))
                 l += loc.generate_lines()
                 l.append("PP0 << %s;\n" % ", ".join(["pt(%d)" % i for i in nth(0)]))
                 l += loc.generate_lines()
-                l.append("pt = (Spm1 * PP1 + Ssm1) * PP1 + Sam1 + ((Spm2 * PP1 + Ssm2) * PP1 + Sam2) * PP0;\n")
+                l.append("pt.head<%d>() = (Spm1 * PP1 + Ssm1) * PP1 + Sam1 + ((Spm2 * PP1 + Ssm2) * PP1 + Sam2) * PP0;\n" % nn2)
                 loc.add(MatrixDeclaration('res', rows=end, cols=1, array=True))
                 l += loc.generate_lines()
-                inp = ["&pt(%d)" % i for i in range(end)]
-                outp = ["&res(%d)" % i for i in range(end)]
+                inp = ["&pt(%d)" % (i//2) for i in range(end)]
+                outp = ["&res(%d)" % i for i in spliced(nn2)]
             else:
                 jj = 0
                 inp = []
@@ -267,11 +272,14 @@ class NonlinFunctionCC(object):
                     fu = "splev"
                     if kn[0].tp == 'pp':
                         fu = "splev_pp"
-                    l.append("splinedata<unsigned short>::%s<%s>(&AmpData::nonlin_%d::sd.sc[%d], %s, %s);\n"
-                             % (fu, ",".join([str(v.get_order()) for v in kn if v.used()]), i, j, inp[jj], outp[jj]))
+                    l.append("splinedata<AmpData::nonlin_%d::maptype>::%s<%s>(&AmpData::nonlin_%d::sd.sc[%d], %s, %s);\n"
+                             % (i, fu, ",".join([str(v.get_order()) for v in kn if v.used()]), i, j, inp[jj], outp[jj]))
                     jj += 1
             if shape_transform:
-                l.append("%s = ((Spm0 * PP1 + Ssm0) * PP1 + Sam0) * res;\n" % VectorAccess('i', param=True, block=V0))
+                l.append("pt.head<%d>() = ((Spm0 * PP1 + Ssm0) * PP1 + Sam0) * res.head<%d>();\n" % (nn2,nn2))
+                l.append("pt.tail<%d>() = ((Spm0 * PP1 + Ssm0) * PP1 + Sam0) * res.tail<%d>();\n" % (nn2,nn2))
+                l.append("%s << %s;\n" % (VectorAccess('i', param=True, block=V0),
+                                          ", ".join(["pt(%d)" % v for v in spliced(nn2)])))
         else:
             loc.add(MatrixDefinition('pp', rows=self.nn, cols=1, pointer=True))
             l += loc.generate_lines()
@@ -731,7 +739,7 @@ class CodeGenerator(object):
         d['calc_pots'] = "\n    ".join(ll)
         return d
 
-    def generate(self, d):
+    def add_dict(self, d):
         eq = self.eq
         if eq.nni:
             for k, v in self.solver_dict.items():
@@ -822,7 +830,14 @@ class CodeGenerator(object):
             d["update_pot"] = ""
         else:
             d.update(UpdateMatrix(glob, eq, self.pot, self.pot_list, self.pot_func, self.Pv).generate())
-            d.update(self.pot_code())
+        d.update(self.pot_code())
         d.update(LinearCode(glob, eq).generate())
         d["global_matrices"] = glob
-        return dk_templates.c_template_top.render(d)
+        d["add_npl"] = 0
+        d["DKPlugin_fields"] = ""
+        d["DKPlugin_init"] = ""
+        d["process_add"] = ""
+        return d
+
+    def generate(self, d):
+        return dk_templates.c_template_top.render(self.add_dict(d))

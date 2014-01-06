@@ -175,12 +175,24 @@ class KnotData(object):
         if order is None:
             self.tp = None
             self.order = None
-        elif isinstance(order, int):
-            self.tp = 's'
-            self.order = order
+            self.bbox = None
         else:
-            self.tp = order[0]
-            self.order = order[1]
+            if isinstance(order, int):
+                self.tp = 's'
+                self.order = order
+            else:
+                self.tp = order[0]
+                self.order = order[1]
+            self.bbox = [self.knots[0], self.knots[-1]]
+
+    def cut_mapping(self):
+        m = self.mapping
+        i0, i1 = np.searchsorted(m, (m[0]+1, m[-1]))
+        i0 -= 1
+        i1 += 1
+        self.bbox[0] += i0 / self.inv_h()
+        self.bbox[1] -= (len(m) - i1) / self.inv_h()
+        self.mapping = m[i0:i1]
 
     def used(self):
         return self.order is not None
@@ -190,7 +202,7 @@ class KnotData(object):
         return (sl.step.imag - 1) / (sl.stop - sl.start)
 
     def count(self):
-        return int(self.slice_data.step.imag)
+        return len(self.mapping) + 1
 
     def get_knots(self):
         k = self.order
@@ -216,7 +228,7 @@ class KnotData(object):
         return len(self.knots) - self.order
 
     def get_bbox(self):
-        return self.knots[0], self.knots[-1]
+        return self.bbox
 
     def get_order(self):
         return self.order
@@ -232,6 +244,15 @@ class TensorSpline(object):
         self.get_grid_estimate()
         self.find_knots()
         self.save_grid_estimate()
+
+    @staticmethod
+    def max_idx_to_maptype(max_idx):
+        if max_idx >= 2**16:
+            return "int"
+        elif max_idx >= 2**8:
+            return "unsigned short"
+        else:
+            return "unsigned char"
 
     def grid_estimate_fname(self):
         return "%s_grid.cache" % self.func.comp_id
@@ -581,11 +602,20 @@ def print_intpp_data(o, tag, prefix, func, rgdata, basegrid, Spline=TensorSpline
     spl = Spline(func, rgdata, basegrid)
     coeffs = spl.calc_coeffs()
     max_idx = 0
+    for iv, val in enumerate(spl.knot_data):
+        for v in val:
+            if not v.used():
+                continue
+            max_idx = max(max_idx, v.mapping[-1])
+    print >>o, "typedef %s maptype;" % Spline.max_idx_to_maptype(max_idx)
     n = 0
     for iv, val in enumerate(spl.knot_data):
-        n = len([v for v in val if v.used()])
-        print >>o, "%sreal x0%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(float(r[0])) for r, v in zip(rgdata, val) if v.used()]))
-        print >>o, "%sreal xe%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(float(r[1])) for r, v in zip(rgdata, val) if v.used()]))
+        for v in val:
+            if v.used():
+                n += 1
+                v.cut_mapping()
+        print >>o, "%sreal x0%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(float(v.get_bbox()[0])) for v in val if v.used()]))
+        print >>o, "%sreal xe%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(float(v.get_bbox()[1])) for v in val if v.used()]))
         print >>o, "%sreal hi%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(v.inv_h()) for v in val if v.used()]))
         print >>o, "%sint k%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(v.get_order()) for v in val if v.used()]))
         print >>o, "%sint nmap%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(v.count()) for v in val if v.used()]))
@@ -622,7 +652,6 @@ def print_intpp_data(o, tag, prefix, func, rgdata, basegrid, Spline=TensorSpline
             t = "c%d_%d%s" % (i, iv, tag)
             ci.append(t)
             sz += print_float_array(o, t, coeffs[iv], prefix)
-            max_idx = max(max_idx, len(coeffs[iv])-1)
         print >>o, "%smaptype *map%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join(ai))
         print >>o, "%s%s *t%s_%d[%d] = {%s};" % (prefix, dtp, tag, iv, n, ", ".join(ti))
         print >>o, "%s%s *c%s_%d[%d] = {%s};" % (prefix, dtp, tag, iv, 1, ", ".join(ci))
