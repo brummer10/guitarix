@@ -79,6 +79,7 @@ PitchTracker::PitchTracker()
     sem_init(&m_trig, 0, 0);
 
     if (!m_buffer || !m_input || !m_fftwBufferTime || !m_fftwBufferFreq) {
+	gx_print_error("PitchTracker", "out of memory");
         error = true;
     }
 }
@@ -130,6 +131,7 @@ bool PitchTracker::setParameters(int priority, int policy, int sampleRate, int b
 
     if (!m_fftwPlanFFT || !m_fftwPlanIFFT) {
         error = true;
+	gx_print_error("PitchTracker", "can't allocate FFTW plan");
         return false;
     }
 
@@ -162,6 +164,15 @@ void PitchTracker::start_thread(int priority, int policy) {
     if (pthread_create(&m_pthr, &attr, static_run,
                        reinterpret_cast<void*>(this))) {
         error = true;
+	if (errno == EPERM) {
+	    gx_print_error(
+		"PitchTracker",
+		_("no permission to create realtime thread - please check your system configuration - tuner not started"));
+	} else {
+	    gx_print_error(
+		"PitchTracker",
+		_("error creating realtime thread - tuner not started"));
+	}
     }
     pthread_attr_destroy(&attr);
 }
