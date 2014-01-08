@@ -336,6 +336,7 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::zita_rev1::plugin(),        PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_stereo(),      PLUGIN_POS_RACK);
     pl.add(pluginlib::mbcs::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::dattorros_progenitor::plugin(),PLUGIN_POS_RACK, PGN_GUI);
 }
 
 static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {

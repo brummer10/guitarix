@@ -34,6 +34,7 @@ src/faust-generated/chorus.cc
 src/faust-generated/chorus_mono.cc
 src/faust-generated/compressor.cc
 src/faust-generated/crybaby.cc
+src/faust-generated/dattorros_progenitor.cc
 src/faust-generated/delay.cc
 src/faust-generated/echo.cc
 src/faust-generated/flanger.cc
