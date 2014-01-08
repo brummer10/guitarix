@@ -43,8 +43,8 @@ Dotted 1/64 note|1/64 note|1/64 note triplets][tooltip:note setting for bpm]",5,
       interp = 100*SR/1000.0;
       N      = int( 2^19 ) ;
     };
-    level    = vslider("level[tooltip:percentage of the delay gain level]", 50, 0, 100, 1)/100 ;
-    feedback = vslider("feedback[tooltip:percentage of the feedback level in the delay loop]", 50, 0, 100, 1)/100 ;
+    level    = vslider("level[tooltip:percentage of the delay gain level]", 50, 1, 100, 1)/100 ;
+    feedback = vslider("feedback[tooltip:percentage of the feedback level in the delay loop]", 50, 1, 100, 1)/100 ;
     hifr1    = hslider("highpass [name:highpass (hz)][tooltip: highpass filter frequency in the feddback loop]" ,120 , 20, 20000, 1);
     lofr1    = hslider("howpass [name:lowpass (hz)][tooltip: lowpass filter frequency in the feddback loop]" ,12000 , 20, 20000, 1);
   };
