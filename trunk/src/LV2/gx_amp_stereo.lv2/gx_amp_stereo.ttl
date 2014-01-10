@@ -63,7 +63,7 @@
     lv2:minorVersion 28;
     lv2:microVersion 3;
 
-rdfs: comment """
+rdfs:comment """
 Stereo version of gx_amp.
 
 This plugin is the combination of guitarix's preamp, tonestack and cabinet, which, in that order, compose the signal path. In the pre-amp part, "PreGain" corresponds to the gain used at the amp input, "Drive" controls the drive, "Distortion" is a blend between clean and distorted sound (lower boundary is all clean, upper boundary all distorted) and "MasterGain" controls the output gain. Mainly, the responsible for the signal distortion are "PreGain" and "Drive" parameters. Besides that, there is a list of possible valve combinations so you can vary your distortion.
