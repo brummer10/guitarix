@@ -92,50 +92,144 @@ cdef inline double ts_diff(timespec ts1, timespec ts2):
 
 ctypedef float *floatp
 
+cdef void *open_ladspa(char *path, LADSPA_Descriptor_Function *ladspa_descriptor):
+    cdef void* handle
+    handle = dlopen(path, RTLD_LOCAL|RTLD_NOW)
+    if not handle:
+        raise RuntimeError("Cannot open plugin: %s [%s]" % (path, dlerror()))
+    ladspa_descriptor[0] = <LADSPA_Descriptor_Function>dlsym(handle, "ladspa_descriptor")
+    cdef char *dlsym_error = dlerror()
+    if dlsym_error:
+        raise RuntimeError("Cannot load symbol 'ladspa_descriptor': %s" % dlsym_error)
+    return handle
+
+def plugin_list(char *path):
+    """lists the LADSPA plugins contained in a share library.
+    
+    argument: path name of the share library
+    returns: list of (UniqueID, Name)
+    """
+    cdef LADSPA_Descriptor_Function ladspa_descriptor
+    cdef void *handle = open_ladspa(path, &ladspa_descriptor)
+    cdef cp_LADSPA_Descriptor desc
+    cdef idx = 0
+    l = []
+    while True:
+        desc = ladspa_descriptor(idx)
+        if not desc:
+            break
+        l.append((desc.UniqueID, desc.Name))
+        idx += 1
+    dlclose(handle)
+    return l
+
+
 cdef class Ladspa:
     cdef cp_LADSPA_Descriptor desc
     cdef void* handle
     cdef LADSPA_Handle instance
     cdef LADSPA_Data *ctrl_ports
     cdef dict ctrl
+    cdef list params
     cdef int num_ctrl
-    cdef int num_inputs
-    cdef int num_outputs
+    cdef int _num_inputs
+    cdef int _num_outputs
     cdef double time_per_sample
+    cdef int _samplerate
 
-    def __cinit__(self, char *path):
-        self.handle = dlopen(path, RTLD_LOCAL|RTLD_NOW)
-        if not self.handle:
-            raise RuntimeError("Cannot open plugin: %s [%s]" % (path, dlerror()))
-        cdef LADSPA_Descriptor_Function ladspa_descriptor = <LADSPA_Descriptor_Function>dlsym(self.handle, "ladspa_descriptor")
-        cdef char *dlsym_error = dlerror()
-        if dlsym_error:
-            raise RuntimeError("Cannot load symbol 'ladspa_descriptor': %s" % dlsym_error)
-        self.desc = ladspa_descriptor(0)
-        self.instance = self.desc[0].instantiate(self.desc, 48000)
+    @staticmethod
+    def open_unique_id(char *path, unsigned long UniqueID):
+        """open a LADSPA plugin by path name and unique id.
+	
+	arguments:
+	  path: path name of share library
+	  UniqueID: id of plugin
+
+	returns: Ladspa instance
+	"""
+        cdef int i
+        for i, (uid, name) in enumerate(plugin_list(path)):
+            if uid == UniqueID:
+                return Ladspa(path, i)
+        raise ValueError("UniqueID %d not found" % UniqueID)
+
+    def __cinit__(self, char *path, unsigned int idx = 0):
+        cdef LADSPA_Descriptor_Function ladspa_descriptor
+        self.handle = open_ladspa(path, &ladspa_descriptor)
+        self.desc = ladspa_descriptor(idx)
         cdef int i
         d = {}
+        self.params = []
         for i in range(self.desc[0].PortCount):
             if self.desc[0].PortDescriptors[i] & LADSPA_PORT_CONTROL:
                 d[self.desc[0].PortNames[i]] = (i, self.num_ctrl)
+                self.params.append(self.desc[0].PortNames[i])
                 self.num_ctrl += 1
             elif self.desc[0].PortDescriptors[i] & LADSPA_PORT_INPUT:
-                self.num_inputs += 1
+                self._num_inputs += 1
             else:
-                self.num_outputs += 1
+                self._num_outputs += 1
         self.ctrl_ports = <LADSPA_Data*>libc.stdlib.calloc(self.num_ctrl, sizeof(LADSPA_Data))
+        self.ctrl = d
+        self.instance = NULL
+        self.time_per_sample = 0
+        self._samplerate = 0
+
+    def init(self, int samplingRate):
+        """argument: sample rate
+        must be called before calling compute"""
+        self.instance = self.desc[0].instantiate(self.desc, samplingRate)
         cdef int n = 0
+        cdef int i
         for i in range(self.desc[0].PortCount):
             if self.desc[0].PortDescriptors[i] & LADSPA_PORT_CONTROL:
                 self.desc[0].connect_port(self.instance, i, &self.ctrl_ports[n])
                 n += 1
-        self.ctrl = d
         self.activate()
+        self._samplerate = samplingRate
+
+    property num_inputs:
+        "number of input channels"
+        def __get__(self):
+            return self._num_inputs
+
+    property num_outputs:
+        "number of output channels"
+        def __get__(self):
+            return self._num_outputs
+
+    property samplerate:
+        "initialized samplerate"
+        def __get__(self):
+            return self._samplerate
+
+    property nanosec_per_sample:
+        "time in nanoseconds measured for last compute call"
+        def __get__(self):
+            return self.time_per_sample
+
+    property UniqueID:
+        "LADSPA UniqueID"
+        def __get__(self):
+            return self.desc.UniqueID
+
+    property Name:
+        "LADSPA Name"
+        def __get__(self):
+            return self.desc.Name
 
     def keys(self):
-        return self.ctrl.keys()
+        "List of LADSPA parameters names (in correct order)"
+        return self.params
+
+    def get_var_attr(self, key):
+        """argument: parameter name
+        returns: name, stdval, lower, upper"""
+        low, up = self.get_range(key)
+        return (key, None, low, up)
 
     def get_range(self, key):
+        "return (lower,upper) range for parameter name"
         cdef int i, n
         i, n = self.get_ctrl_idx(key)
         low = up = None
@@ -171,6 +265,7 @@ cdef class Ladspa:
         self.ctrl_ports[n] = value
 
     def activate(self):
+        "activate LADSPA plugin (called automatically by init())"
         if self.desc[0].activate:
             self.desc[0].activate(self.instance)
 
@@ -186,7 +281,7 @@ cdef class Ladspa:
                 i -= 1
         raise ValueError("audio port not found")
         
-    def compute(self, np.ndarray inp = None):
+    def compute(self, np.ndarray inp_data = None):
         """execute dsp algorithm
 
         argument: 2-dim float32 numpy array with at least num_inputs rows
@@ -197,17 +292,22 @@ cdef class Ladspa:
 
         when num_inputs == 1 you can use a 1-dim array
 
-        specify type when creating an array, e.g. zeros(200, dtype=float32)
+        some other input format will be converted automatically
         """
-        cdef int ni = self.num_inputs
+        if not self.instance:
+            raise ValueError("ladspa plugin not initialized")
+        cdef int ni = self._num_inputs
         cdef int count
-        if ni == 0 and inp is None:
+        cdef np.ndarray inp
+        cdef int transposed = False
+        if ni == 0 and inp_data is None:
             count = self.defsize
+            inp = None
         else:
-            if not isinstance(inp, np.ndarray):
-                raise ValueError("need ndarray")
-            if inp.dtype != np.float32:
-                raise ValueError("need float32")
+            if inp_data.ndim == 2 and inp_data.shape[0] > ni and inp_data.shape[1] == ni:
+                inp_data = inp_data.T
+                transposed = True
+            inp = np.array(inp_data, dtype=np.float32, order='C', copy=False)
             count = inp.shape[inp.ndim-1]
         if ni == 1:
             if not (inp.ndim == 1 or (inp.ndim == 2 and inp.shape[1] >= 1)):
@@ -219,10 +319,13 @@ cdef class Ladspa:
         n = inp.strides[0]
         for i in range(ni):
             self.connect(LADSPA_PORT_INPUT, i, <floatp>(inp.data+i*n))
-        cdef int no = self.num_outputs
+        cdef int no = self._num_outputs
         cdef np.ndarray o
         if no == 1:
-            o = np.empty(count,dtype=np.float32)
+            if inp_data.ndim == 2:
+                o = np.empty((1,count),dtype=np.float32)
+            else:
+                o = np.empty(count,dtype=np.float32)
         else:
             o = np.empty((no,count),dtype=np.float32)
         for i in range(no):
@@ -232,6 +335,8 @@ cdef class Ladspa:
         self.desc[0].run(self.instance, count)
         clock_gettime(CLOCK_MONOTONIC, &t1)
         self.time_per_sample = ts_diff(t1,t0)/count
+        if transposed:
+            o = o.T
         return o
 
     def __dealloc__(self):
@@ -239,3 +344,5 @@ cdef class Ladspa:
             self.desc[0].cleanup(self.instance)
         if self.ctrl_ports:
             libc.stdlib.free(self.ctrl_ports)
+        if self.handle:
+            dlclose(self.handle)

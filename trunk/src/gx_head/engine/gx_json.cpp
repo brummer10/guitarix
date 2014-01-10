@@ -417,12 +417,17 @@ JsonParser::token JsonParser::read_value_token(char c) {
 	return value_false;
     }
     // sanitize bad input
-    if (next_str == "nan" && next_str == "inf") {
+    if (next_str == "nan" || next_str == "inf") {
 	assert(false);
 	next_str = "1e50";
 	return value_number;
     }
-    if (next_str == "-inf") {
+    if (next_str == "-nan" || next_str == "-inf") {
+	assert(false);
+	next_str = "-1e50";
+	return value_number;
+    }
+    if (next_str == "-nan") {
 	assert(false);
 	next_str = "-1e50";
 	return value_number;

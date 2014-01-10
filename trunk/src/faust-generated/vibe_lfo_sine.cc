@@ -26,7 +26,7 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	clear_state_f();
 }
 
-void compute(int count, float *output0, float *output1)
+void compute(int count, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)

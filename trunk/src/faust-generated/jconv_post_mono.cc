@@ -22,7 +22,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	clear_state_f();
 }
 
-void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0)
+void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0)
 {
 	double 	fSlow0 = (0.01 * fslider0);
 	double 	fSlow1 = (1 - fSlow0);

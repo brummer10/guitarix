@@ -58,7 +58,7 @@ int Dsp::activate(bool start)
 	return 0;
 }
 
-void always_inline Dsp::compute(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1)
+void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *input2, FAUSTFLOAT *input3, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 #define fslider4 (*fslider4_)
 	float 	fSlow0 = (0.01f * fslider0);

@@ -39,7 +39,7 @@ def pow2roundup(x):
     x |= x >> 16;
     return x+1;
 
-def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
+def genlogsweepX(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
     """generate logarithmic sweep signal
     
     fmin: start frequency
@@ -56,21 +56,51 @@ def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
     s2 = np.empty_like(s1)
     b = math.log(fmax / fmin) / k1
     a = fmin / (b * rate)
-    r = 0.5 * a * (fmax / fmin) * (k1 + 0.5 * (k0 + k2)) / (b * k1)
     q0 = a * math.exp(-b * k0)
-    for i in range(-k0, k1+k2):
-        if i < 0:
-            g = math.cos(0.5 * math.pi * i / k0)
-        elif i < k1:
-            g = 1.0
-        else:
-            g = math.sin(0.5 * math.pi * (k1 + k2 - i) / k2)
-        q = a * math.exp(b * i)
+    def sweep(t, g=None):
+        q = a * np.exp(b * t)
         p = q - q0
-        x = g * math.sin(2 * math.pi * (p - math.floor(p)))
-        s1[k0+i] = x
-        s2[-(k0+i+1)] = x * q / r
-    return s1, s2
+        x = np.sin(2 * np.pi * (p - np.floor(p)))
+        if g is not None:
+            x *= g
+        return x, x * q
+    if k0:
+        t = np.arange(-k0,0)
+        s1[:k0], s2[:k0] = sweep(t, np.cos(0.5 * np.pi * t / k0))
+    t = np.arange(k1)
+    s1[k0:k0+k1], s2[k0:k0+k1] = sweep(t)
+    if k2:
+        t = np.arange(k1,k1+k2)
+        s1[k0+k1:], s2[k0+k1:] = sweep(t, np.sin(0.5 * np.pi * (k1 + k2 - t) / k2))
+    s2 = s2[::-1] * 4 * b * b
+    return s1, s2, fmin, fmax, k1 / math.log(fmax / fmin)
+
+def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
+    nyq = rate / 2
+    if fmax <= fmin:
+        fmax = nyq
+    p = np.ceil(np.log2(nyq / fmin)) + 1
+    #p1 = np.floor(np.log2(nyq / fmax))
+    p1 = 0
+    ep = 2 ** p
+    fmin = nyq / ep
+    fmax = nyq / (2 ** p1)
+    lep = np.log(ep)
+    L1 = 2 * ep * lep
+    L = np.ceil(k1 / L1) * L1
+    N = np.ceil(L)
+    NN = np.ceil(L - p1 * N / p)
+    epN = 2 ** (p/N)
+    n = np.arange(NN)
+    pp = L / L1 * epN**n
+    s = np.sin(2 * np.pi * pp)
+    #if k0:
+    #    nn = int(round(N/p))
+    #    s[:nn] = s[:nn] * np.hanning(2*nn)[:nn]
+    si = 2/N * lep * s[::-1] / epN**n
+    if p1:
+        si *= 2 ** -p1
+    return s, si, fmin, fmax, N / lep
 
 def fft_convolve(h, xd, invert=False):
     n = len(h) + len(xd) - 1

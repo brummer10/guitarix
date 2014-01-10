@@ -892,9 +892,9 @@ class Triode2_test(Test): # triode test 2
 
 
 class Preamp_test(Test):
-    S = (#(P(6), GND, 8, 9),
-         (R(61), 8, 9),
-         (R(62), 9, GND),
+    S = ((P(6), GND, 8, 9),
+         #(R(61), 8, 9),
+         #(R(62), 9, GND),
          (V('cc3'), 18),
          (CC(2), 11, 13),
          (V('cc2'), 12),

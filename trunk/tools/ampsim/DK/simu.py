@@ -78,7 +78,7 @@ class MyTensorSpline(splinetable.TensorSpline):
         self.coeffs = []
         for i_fnc, (rng, pre, post, err, opt) in enumerate(basegrid):
             len_order = []
-            grd, fnc, axes, axgrids = self.table_approximation(-err, i_fnc, rng)
+            grd, fnc, axes, axgrids = self.table_approximation(err, i_fnc, rng)
             self.coeffs.append(fnc)
             for i, (ax, ag, cg, r) in enumerate(zip(axes, axgrids, func.basegrid[i_fnc][0], rng)):
                 order_type = r[1]
@@ -171,7 +171,10 @@ class MyTensorSpline(splinetable.TensorSpline):
                 s1[i] = slice(None, -1)
                 s2[i] = slice(1, None)
                 fnc_intp = (fnc[s1] + fnc[s2]) * 0.5
-                df = (abs(fnc_intp - fnc2) > prec).any(axis=tuple([k for k in range(n) if k != i]))
+                if callable(prec):
+                    df = prec(fnc_intp, fnc2, self.func.i0).any(axis=tuple([k for k in range(n) if k != i]))
+                else:
+                    df = (abs(fnc_intp - fnc2) > prec).any(axis=tuple([k for k in range(n) if k != i]))
                 k = np.count_nonzero(df)
                 if k == 0:
                     s1[i] = slice(None)
@@ -300,21 +303,31 @@ class TableGenerator(object):
             print np.max(abs(v1.values[i]-v2.values[i]))
 
     @staticmethod
+    def max_idx_to_maptype(max_idx):
+        if max_idx >= 2**16:
+            return "int"
+        elif max_idx >= 2**8:
+            return "unsigned short"
+        else:
+            return "unsigned char"
+
+    @staticmethod
     def print_intpp_data(p):
         o = StringIO()
         print >>o, "namespace %s {" % p.comp_id
         r, max_idx, spl = splinetable.print_intpp_data(o, "", "", p, p.ranges, p.basegrid, MyTensorSpline)
-        print >>o, "splinecoeffs<unsigned short> sc[%d] = {" % p.NVALS
+        maptype = TableGenerator.max_idx_to_maptype(max_idx)
+        print >>o, "splinecoeffs<maptype> sc[%d] = {" % p.NVALS
         f_set = set()
         for j, kn in enumerate(spl.knot_data):
             fu = "splev"
             if kn[0].tp == 'pp':
                 fu = "splev_pp"
-            inst = "splinedata<unsigned short>::%s<%s>" % (fu, ",".join([str(v.get_order()) for v in kn if v.used()]))
-            f_set.add(inst)
+            inst = "splinedata<%s>::%s<%s>" % (maptype, fu, ",".join([str(v.get_order()) for v in kn if v.used()]))
+            f_set.add((inst,maptype))
             print >>o, "\t{x0_%d, xe_%d, hi_%d, k_%d, n_%d, nmap_%d, map_%d, t_%d, c_%d, %s}," % (j, j, j, j, j, j, j, j, j, inst)
         print >>o, "};"
-        print >>o, "splinedata<unsigned short> sd = {"
+        print >>o, "splinedata<maptype> sd = {"
         print >>o, "\tsc,"
         print >>o, "\t%d, /* number of calculated values */" % p.NVALS
         print >>o, "\t%d, /* number of input values */" % p.N_IN
@@ -333,14 +346,8 @@ class TableGenerator(object):
         for p in procs:
             s, f, i, comp_name, comp_id, max_idx, spl = p
             max_idx_all = max(max_idx_all, max_idx)
-        if max_idx >= 2**16:
-            maptype = "int"
-        elif max_idx >= 2**8:
-            maptype = "unsigned short"
-        else:
-            maptype = "unsigned char"
-        maptype = "unsigned short"
-        o.write("typedef %s maptype;\n" % maptype)
+        #maptype = max_idx_to_maptype(max_idx_all)
+        #o.write("typedef %s maptype;\n" % maptype)
         gentables.print_header_file_start(h)
         sz = gentables.print_header(o)
         l = []
@@ -356,7 +363,7 @@ class TableGenerator(object):
         l.append("data size sum: %d bytes" % sz)
         print >>o, "".join(["\n// " + s for s in l])
         gentables.print_header_file_end(h)
-        for v in sorted(templ):
+        for v, maptype in sorted(templ):
             print >>inst, "template int %s(splinecoeffs<%s> *p, real xi[2], real *res);" % (v, maptype)
         return maptype, spl
 

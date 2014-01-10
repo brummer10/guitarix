@@ -26,12 +26,12 @@ private:
 	FAUSTFLOAT 	fcheckbox0;
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
-	void compute(int count, float *input0, float *input1, float *output0, float *output1);
+	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
-	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
 public:
@@ -99,7 +99,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (1 - max((double)0, fSlow0));
@@ -152,7 +152,7 @@ void always_inline Dsp::compute(int count, float *input0, float *input1, float *
 	}
 }
 
-void __rt_func Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
 }

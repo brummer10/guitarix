@@ -152,14 +152,14 @@ private:
 	int activate(bool start);
 	int load_ui_f(const UiBuilder& b, int form);
 	void init(unsigned int samplingFreq);
-	void compute(int count, float *input0, float *input1, float *output0, float *output1);
+	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int activate_static(bool start, PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
-	static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
 public:
@@ -375,7 +375,7 @@ int Dsp::activate_static(bool start, PluginDef *p)
 	return static_cast<Dsp*>(p)->activate(start);
 }
 
-void always_inline Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
+void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 	float 	fSlow0 = tanf((fConst1 * fslider0));
 	float 	fSlow1 = (2 * (1 - (1.0f / faustpower<2>(fSlow0))));
@@ -565,7 +565,7 @@ void always_inline Dsp::compute(int count, float *input0, float *input1, float *
 	}
 }
 
-void __rt_func Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
 }

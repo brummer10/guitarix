@@ -1381,14 +1381,14 @@ class Output(object):
         self.has_activate = len(self.parser.memlist) > 0
         if self.options.vectorize:
             self.countname = "fullcount"
-            self.inputdecl = ", float *inputX%d"
-            self.outputdecl = ", float *outputX%d"
+            self.inputdecl = ", FAUSTFLOAT *inputX%d"
+            self.outputdecl = ", FAUSTFLOAT *outputX%d"
             self.inputcall = ", inputX%d"
             self.outputcall = ", outputX%d"
         else:
             self.countname = "count"
-            self.inputdecl = ", float *input%d"
-            self.outputdecl = ", float *output%d"
+            self.inputdecl = ", FAUSTFLOAT *input%d"
+            self.outputdecl = ", FAUSTFLOAT *output%d"
             self.inputcall = ", input%d"
             self.outputcall = ", output%d"
         s = StringIO()
@@ -1556,7 +1556,7 @@ class Output(object):
             end_extra_namespace = "} // end namespace %s\n" % in_namespace if in_namespace else "",
             has_standalone_header = plugin_standalone,
             includes = self.parser_sect("includes"),
-            namespace = self.parser.modname,
+            namespace = self.parser.modname.replace("-","_"),
             var_decl = self.parser_sect("var-decl", indent=indent) % dd,
             static_decl = static_decl,
             has_activate = self.has_activate,

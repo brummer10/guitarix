@@ -63,9 +63,10 @@ class Circuit(object):
         self.table_datatype = "double" #"float"
         self.pre_filter = None
         self.post_filter = None
+        self.code_generator = None
         self.FS = FS
         self.use_sim = SIM_C
-        self._clear_all()
+        self._clear()
         self._rmtree = shutil.rmtree
         if copy_from is not None:
             self.backward_euler = copy_from.backward_euler
@@ -77,6 +78,14 @@ class Circuit(object):
     #
     # internal routines
     #
+
+    def _clear(self):
+        self.max_homotopy_iter = None
+        self.dc_method = "A"
+        self.sys_reduce_tol = 0
+        self.solver_params = None
+        self.partition = False
+        self._clear_all()
 
     def _clear_calculated(self):
         self.eq = None
@@ -98,9 +107,6 @@ class Circuit(object):
         self.V = None
         self.loaded_filename = None
         self.parser = None
-        self.max_homotopy_iter = None
-        self.solver_params = None
-        self.partition = False
         self._clear_calculated()
 
     def __del__(self):
@@ -130,7 +136,9 @@ class Circuit(object):
         if self.sim_py is None:
             self._ensure_eq()
             try:
-                self.sim_py = dk_simulator.SimulatePy(self.eq, self.solver)
+                self.sim_py = dk_simulator.SimulatePy(self.eq, self.solver, self.dc_method)
+                if self.sys_reduce_tol >= 0:
+                    self.sim_py.balance_realization(self.sys_reduce_tol)
             except dk_simulator.ConvergenceError as e:
                 raise CircuitException(e)
 
@@ -213,6 +221,8 @@ class Circuit(object):
             h = StringIO()
             npl = self.sim_c.npl
             tables = []
+            if not npl:
+                i0v = self.sim_c.nonlin_c(self.sim_c.p0.T)[0]
             if len(self.sim_c.comp_sz) > 1:
                 j = 0
                 for i, sz in enumerate(self.sim_c.comp_sz):
@@ -222,10 +232,12 @@ class Circuit(object):
                         comp_id = "nonlin_%d" % i
                         comp_name = "nonlin_%d" % i
                         ranges = self.minmax[sl] ##FIXME
-                        basegrid = numpy.array([(g, None, None, -e, True) for g, e in zip(self.basegrid, self.E)])[j:j+sz[1]]
+                        basegrid = numpy.array([(g, None, None, e, True) for g, e in zip(self.basegrid, self.E)])[j:j+sz[1]]
                         NVALS = sz[2] # nno
                         N_IN = sz[1]+npl # nni+npl
                         NDIM = sz[1]+npl # nni+npl
+                        if not npl:
+                            i0 = i0v[sl]
                         @staticmethod
                         def __call__(v, with_state):
                             return self.sim_c.c_calc_comp[i](v)
@@ -239,7 +251,7 @@ class Circuit(object):
                     comp_id = "nonlin"
                     comp_name = self._get_module_id()
                     ranges = self.minmax
-                    basegrid = [(g, None, None, -e, False) for g, e in zip(self.basegrid, self.E)]
+                    basegrid = [(g, None, None, e, False) for g, e in zip(self.basegrid, self.E)]
                     NVALS = self.eq.nno
                     N_IN = self.eq.nni+npl
                     NDIM = self.eq.nni+npl
@@ -271,7 +283,8 @@ class Circuit(object):
                 name, self.sim_py, solver=solver,
                 extra_sources=self.table_source, c_tempdir="gencode",
                 c_verbose=self.build_verbose, c_real=self.table_datatype,
-                pre_filter=self.pre_filter, post_filter=self.post_filter)
+                pre_filter=self.pre_filter, post_filter=self.post_filter,
+                generator=self.code_generator)
             modc.resample = True
             self.table_module, self.sim_table = modc.get_executor()
 
@@ -293,7 +306,7 @@ class Circuit(object):
             if symbolic:
                 raise CircuitException("ciruit is nonlinear: symbolic formula generation not supported")
             p = dk_simulator.Parser(self.S, self.V, self.FS, not self.backward_euler)
-            sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p), self.solver)
+            sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p), self.solver, self.dc_method)
             J = sim.jacobi()
         else:
             J = None
@@ -378,7 +391,7 @@ class Circuit(object):
         else:
             self._ensure_parser()
             op = self.parser.op
-        return Signal().generate(signal, op, self.FS)
+        return Signal().generate(signal, self.FS, op)
 
     def print_netlist(self):
         self._check_netlist()
@@ -450,9 +463,7 @@ class Circuit(object):
         self.S = list(self.S) + [(element,)+tuple(connections)]
         self.V[element] = value
         self._clear_calculated()
-        if self.parser is None:
-            self._ensure_parser()
-        else:
+        if self.parser is not None:
             self.parser.update(self.S, self.V)
         return
 
@@ -463,9 +474,7 @@ class Circuit(object):
             if str(row[0]) == element:
                 del self.S[i]
                 self._clear_calculated()
-                if self.parser is None:
-                    self._ensure_parser()
-                else:
+                if self.parser is not None:
                     self.parser.update(self.S, self.V)
                 return
         raise CircuitException("%s not found int netlist" % element)
@@ -502,11 +511,14 @@ class Circuit(object):
             raise CircuitException("target_net %s not found" % target_net)
         if not l:
             raise CircuitException("net %s not found" % net)
+        S = list(self.S)
         for i, j, c in l:
-            self.S[i] = list(self.S[i])
-            self.S[i][j+1] = target_net
+            S[i] = list(S[i])
+            S[i][j+1] = target_net
+        self.S = S
         self._clear_calculated()
-        self.parser.update(self.S, self.V)
+        if self.parser is not None:
+            self.parser.update(self.S, self.V)
 
     def print_func_names(self):
         self._ensure_parser()
@@ -521,7 +533,7 @@ class Circuit(object):
         keep_dc = kw.get('keep_dc', len(elements) != 0)
         self._ensure_parser()
         el = self._nonlin_function_list(elements)
-        S = []
+        S = [tuple([models.NODES]+[v[1] for v in sorted([(v, k) for k, v in self.parser.nodes.items()])])]
         for e in self.S:
             if e[0] in el:
                 if isinstance(e[0], models.CC_N):
@@ -536,6 +548,7 @@ class Circuit(object):
         self.sim_py = None
         self.dc_values = None
         self._ensure_dc_values()
+        el = self._nonlin_function_list(elements)
         J = self.sim_py.jacobi()
         Jc = self.sim_py.calc_i(self.dc_values.v)
         S = []
@@ -616,6 +629,7 @@ class Circuit(object):
         sim = self._get_sim()
         self.last_signal = signal
         self.last_output = sim(signal.input_signal)
+        return self.last_output
 
     def plot(self, sig=None, label=None, clip=-80, nharmonics=8, spectrum=None, freq_range=None):
         if sig is not None:
@@ -632,34 +646,19 @@ class Circuit(object):
         if upper_freq is None:
             upper_freq = ls.stop_freq
         if  ls.has_harmonics() and nharmonics > 1 and (spectrum is None or spectrum):
-            sp = []
-            for imp in ls.get_harmonics_responses(self.last_output, nharmonics):
-                if imp.size > 0:
-                    sp.append(abs(ls.get_harmonic_spectrum(imp)))
-            Hmax = numpy.amax(abs(sp[0]))*1.2
-            fig, ax = pylab.subplots()
-            for i, spec in enumerate(sp):
-                n = 2*len(spec)
-                start = min(round((i+1)*n*lower_freq/ls.fs), len(spec))
-                stop = min(round((i+1)*n*upper_freq/ls.fs), len(spec))
-                cut = slice(start, stop)
-                w = numpy.fft.fftfreq(n,1.0/ls.fs)[cut]
-                s = 20*numpy.log10(abs(spec[cut]))
+            lines = ls.plot_harmonic_spectrum(self.last_output, nharmonics=nharmonics, lower_freq=lower_freq, upper_freq=upper_freq)
+            pylab.xlim(left=lower_freq, right=upper_freq)
+            for i, line in enumerate(lines):
                 if label:
-                    lbl = "%d, %s" % (i+1, label)
+                    line.set_label("%d, %s" % (i+1, label))
                 else:
-                    lbl = "%d" % (i+1)
-                pylab.xlim(left=lower_freq,right=upper_freq)
-                pylab.semilogx(w/(i+1), numpy.where(s > clip, s, numpy.nan), label=lbl, subsx=[2,5])
-                ax.xaxis.set_minor_formatter(pylab.LogFormatter(base=10, labelOnlyBase=False))
-                
+                    line.set_label("%d" % (i+1))
         elif (spectrum is None and ls.has_spectrum()) or spectrum:
-            h = ls.get_spectrum(self.last_output)
-            n = 2*len(h)
-            cut = slice(round(n*lower_freq/ls.fs), round(n*upper_freq/ls.fs))
-            w = numpy.fft.fftfreq(n,1.0/ls.fs)[cut]
-            s = 20*numpy.log10(abs(h[cut]))
-            pylab.semilogx(w, numpy.where(s > clip, s, numpy.nan), label=label)
+            f = numpy.logspace(numpy.log10(lower_freq), numpy.log10(upper_freq), 200)
+            h = ls.get_spectrum(self.last_output, 2*numpy.pi * f / ls.fs)
+            s = 20*numpy.log10(abs(h))
+            pylab.plot(f, numpy.where(s > clip, s, numpy.nan), label=label)
+            pylab.xscale('log')
         else:
             lines = pylab.plot(ls.timeline, self.last_output)
             if not label:
@@ -718,10 +717,10 @@ def _create_funcs():
             g[v] = getattr(gcircuit, v)
 _create_funcs()
 
-def show_plots():
+def show_plots(loc=None):
     if Circuit.have_plot:
         pylab.grid()
-        pylab.legend()
+        pylab.legend(loc=loc)
         pylab.show()
         Circuit.have_plot = False
 

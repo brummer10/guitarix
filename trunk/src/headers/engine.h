@@ -36,6 +36,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <sys/stat.h>
 #include <boost/format.hpp>
 #include <boost/thread/mutex.hpp>
 #include <glibmm/i18n.h>     // NOLINT

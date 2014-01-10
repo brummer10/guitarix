@@ -26,7 +26,7 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	clear_state_f();
 }
 
-void compute(int count, float *output0)
+void compute(int count, FAUSTFLOAT *output0)
 {
 #define fslider0 (*fslider0_)
 	double 	fSlow0 = (fConst0 * fslider0);

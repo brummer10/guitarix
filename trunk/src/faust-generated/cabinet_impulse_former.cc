@@ -31,7 +31,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	clear_state_f();
 }
 
-void always_inline Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)

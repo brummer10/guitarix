@@ -16,7 +16,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 }
 
-void always_inline Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 #define fslider0 (*fslider0_)
 	double 	fSlow0 = fslider0;

@@ -121,6 +121,7 @@ def build(bld):
         'gxfeed.dsp',
         'highbooster.dsp',
         'peak_eq.dsp',
+	'dattorros_progenitor.dsp',
 
         # amps
         'gxamp.dsp',

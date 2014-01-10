@@ -7,26 +7,23 @@ def calc_highpass_f0(c1, c2):
     sig = Signal()
     s = c1.make_signal_vector(sig(0.01*sig.impulse(), timespan=1))
     f0 = numpy.zeros(11)
+    fl = numpy.logspace(numpy.log10(s.start_freq), numpy.log10(s.stop_freq), 200)
+    w = 2 * numpy.pi * fl / s.fs
     for i, hotpotz in enumerate(numpy.linspace(0, 1, 11)):
         c1.set_pot_variable('hotpotz', hotpotz)
         c1.stream(s)
-        h1 = s.get_spectrum(c1.last_output)
+        h1 = s.get_spectrum(c1.last_output[:,0], w)
 
         c2.set_pot_variable('hotpotz', hotpotz)
         c2.stream(s)
-        h2 = s.get_spectrum(c2.last_output)
+        h2 = s.get_spectrum(c2.last_output[:,0], w)
 
-        n = 2*len(h1)
-        cut = slice(round(n*s.start_freq/s.fs), round(n*s.stop_freq/s.fs))
-        w = numpy.fft.fftfreq(n,1.0/s.fs)[cut]
-
-        ydata = numpy.log(abs(h1/h2)[:,0][cut])
-        omega = numpy.linspace(0, numpy.pi, len(h1))[cut]
-        e = numpy.exp(-1j*omega)
+        ydata = numpy.log(abs(h1/h2))
+        e = numpy.exp(-1j*w)
         a1 = -1
         def f(e, a1):
             return numpy.log(abs((1-a1)/2 * (1 - e) / (1 + a1 * e)))
-        res = curve_fit(f, e, ydata, a1, sigma=omega)
+        res = curve_fit(f, e, ydata, a1)
 
         a1 = res[0][0]
         f0[i] = s.fs*(1 + a1)/(numpy.pi*(1 - a1))

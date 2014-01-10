@@ -15,7 +15,7 @@ private:
 public:
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
-	void compute(int count, float *input0, float *input1, float *output0);
+	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 	Dsp();
 	~Dsp();
