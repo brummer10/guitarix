@@ -66,11 +66,11 @@
 rdfs:comment """
 Stereo version of gx_amp.
 
-This plugin is the combination of guitarix's preamp, tonestack and cabinet, which, in that order, compose the signal path. In the pre-amp part, "PreGain" corresponds to the gain used at the amp input, "Drive" controls the drive, "Distortion" is a blend between clean and distorted sound (lower boundary is all clean, upper boundary all distorted) and "MasterGain" controls the output gain. Mainly, the responsible for the signal distortion are "PreGain" and "Drive" parameters. Besides that, there is a list of possible valve combinations so you can vary your distortion.
+This plugin is the combination of guitarix's head, tonestack and cabinet, which, in that order, composes the signal path. In the tube-amp part, "PreGain" corresponds to the gain used at the amp input, "Drive" controls the power amp gain, "Distortion" is a blend between clean and distorted sound (lower boundary is all clean, upper boundary all distorted) and "MasterGain" controls the output gain. Mainly, the responsible for the signal distortion are "PreGain" and "Drive" parameters. Besides that, there is a list of possible valve combinations so you can vary your distortion.
 
 At the Tonestack part, we find a basic equalization set ("Bass", "Middle", "Treble" and "Presence") and a list of tone-responses from a few well-known amps, you can check this list in the link at the end of this description (there might be some version differences).
 
-Finally, at the Cabinet path, we have "Cabinet" , which corresponds to another output gain, it doesn't distort the signal so it can be used as a Master output and there's another list, containing a virtual sound of the cabinet of speakers selected (more details in the link below).
+Finally, at the Cabinet path, we have "Cabinet", which corresponds to another output gain, it doesn't distort the signal so it can be used as a Master output and there's another list, containing a virtual sound of the cabinet of speakers selected (more details in the link below).
 
 Based on: 
 https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=EnhancedUI
