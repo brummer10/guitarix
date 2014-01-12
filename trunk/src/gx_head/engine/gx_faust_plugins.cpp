@@ -118,6 +118,9 @@ namespace gx_effects {
 #include "faust/digital_delay.cc"
 #include "faust/digital_delay_st.cc"
 #include "faust/dattorros_progenitor.cc"
+#include "faust/ring_modulator.cc"
+#include "faust/ring_modulator_st.cc"
+
 }
 
 #include "faust/balance.cc"

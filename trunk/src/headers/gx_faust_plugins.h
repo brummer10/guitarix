@@ -118,6 +118,8 @@ declare(peak_eq)
 declare(digital_delay)
 declare(digital_delay_st)
 declare(dattorros_progenitor)
+declare(ring_modulator)
+declare(ring_modulator_st)
 }
 
 declare(balance)

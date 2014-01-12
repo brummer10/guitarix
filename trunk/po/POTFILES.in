@@ -75,6 +75,8 @@ src/faust-generated/overdrive.cc
 src/faust-generated/phaser.cc
 src/faust-generated/phaser_mono.cc
 src/faust-generated/presence_level.cc
+src/faust-generated/ring_modulator.cc
+src/faust-generated/ring_modulator_st.cc
 src/faust-generated/selecteq.cc
 src/faust-generated/softclip.cc
 src/faust-generated/stereodelay.cc

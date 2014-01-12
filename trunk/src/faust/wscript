@@ -122,6 +122,8 @@ def build(bld):
         'highbooster.dsp',
         'peak_eq.dsp',
 	'dattorros_progenitor.dsp',
+	'ring_modulator.dsp',
+	'ring_modulator_st.dsp',
 
         # amps
         'gxamp.dsp',
