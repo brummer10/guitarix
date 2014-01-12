@@ -72,6 +72,7 @@ src/faust-generated/low_high_pass.cc
 src/faust-generated/moog.cc
 src/faust-generated/noise_shaper.cc
 src/faust-generated/overdrive.cc
+src/faust-generated/panoram_enhancer.cc
 src/faust-generated/phaser.cc
 src/faust-generated/phaser_mono.cc
 src/faust-generated/presence_level.cc

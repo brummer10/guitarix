@@ -124,6 +124,7 @@ def build(bld):
 	'dattorros_progenitor.dsp',
 	'ring_modulator.dsp',
 	'ring_modulator_st.dsp',
+	'panoram_enhancer.dsp',
 
         # amps
         'gxamp.dsp',

@@ -120,6 +120,7 @@ namespace gx_effects {
 #include "faust/dattorros_progenitor.cc"
 #include "faust/ring_modulator.cc"
 #include "faust/ring_modulator_st.cc"
+#include "faust/panoram_enhancer.cc"
 
 }
 
