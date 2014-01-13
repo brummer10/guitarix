@@ -121,6 +121,7 @@ declare(dattorros_progenitor)
 declare(ring_modulator)
 declare(ring_modulator_st)
 declare(panoram_enhancer)
+declare(graphiceq)
 }
 
 declare(balance)

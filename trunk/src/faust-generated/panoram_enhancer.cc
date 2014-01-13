@@ -1,5 +1,5 @@
 // generated from file '../src/faust/panoram_enhancer.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.58 (http://faust.grame.fr)
 
 
 namespace panoram_enhancer {
@@ -127,12 +127,12 @@ Dsp::Dsp()
 	: PluginDef() {
 	version = PLUGINDEF_VERSION;
 	flags = 0;
-	id = "panoram enhancer";
+	id = "panoram_enhancer";
 	name = N_("Panoram enhancer");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = N_("Misc");       // category
-	shortname = "";     // shortname
+	shortname = N_("Panoram");     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;
 	set_samplerate = init_static;
@@ -200,7 +200,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = tan((62831.853071795864 / iConst0));
+	fConst1 = tan((62831.853071795864 / double(iConst0)));
 	fConst2 = (2 * (1 - (1.0 / faustpower<2>(fConst1))));
 	fConst3 = (1.0 / fConst1);
 	fConst4 = (1 + ((fConst3 - 0.5176380902050413) / fConst1));
@@ -209,7 +209,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst7 = (1.0 / (1 + ((1.414213562373095 + fConst3) / fConst1)));
 	fConst8 = (1 + ((fConst3 - 1.9318516525781364) / fConst1));
 	fConst9 = (1.0 / (1 + ((1.9318516525781364 + fConst3) / fConst1)));
-	fConst10 = tan((20106.192982974677 / iConst0));
+	fConst10 = tan((20106.192982974677 / double(iConst0)));
 	fConst11 = (1.0 / faustpower<2>(fConst10));
 	fConst12 = (2 * (1 - fConst11));
 	fConst13 = (1.0 / fConst10);
@@ -222,7 +222,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	IOTA = 0;
 	fConst20 = (0.13999999999999999 * iConst0);
 	fConst21 = (2 * (0 - fConst11));
-	fConst22 = tan((5654.8667764616275 / iConst0));
+	fConst22 = tan((5654.8667764616275 / double(iConst0)));
 	fConst23 = (1.0 / faustpower<2>(fConst22));
 	fConst24 = (2 * (1 - fConst23));
 	fConst25 = (1.0 / fConst22);
@@ -230,7 +230,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst27 = (1.0 / (1 + ((0.7653668647301795 + fConst25) / fConst22)));
 	fConst28 = (1 + ((fConst25 - 1.8477590650225735) / fConst22));
 	fConst29 = (1.0 / (1 + ((fConst25 + 1.8477590650225735) / fConst22)));
-	fConst30 = tan((11309.733552923255 / iConst0));
+	fConst30 = tan((11309.733552923255 / double(iConst0)));
 	fConst31 = (1.0 / faustpower<2>(fConst30));
 	fConst32 = (2 * (1 - fConst31));
 	fConst33 = (1.0 / fConst30);
@@ -250,7 +250,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst47 = (1 + ((fConst25 - 1.9318516525781364) / fConst22));
 	fConst48 = (1.0 / (1 + ((1.9318516525781364 + fConst25) / fConst22)));
 	fConst49 = (2 * (0 - fConst23));
-	fConst50 = (3.141592653589793 / iConst0);
+	fConst50 = (3.141592653589793 / double(iConst0));
 	fConst51 = log10((9 + fConst40));
 	fConst52 = cos((0.246 * iConst0));
 	clear_state_f();
@@ -436,8 +436,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("panoram enhancer.Delay width","","S","",&fslider0, 0.0, 0.0, 1.0, 0.01);
-	reg.registerVar("panoram enhancer.Frequency width","","S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("panoram_enhancer.Delay width","","S","",&fslider0, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("panoram_enhancer.Frequency width","","S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
 	return 0;
 }
 
@@ -449,7 +449,7 @@ int Dsp::register_params_static(const ParamReg& reg)
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
-#define PARAM(p) ("panoram enhancer" "." p)
+#define PARAM(p) ("panoram_enhancer" "." p)
 // ----- panoram enhancer
 b.openHorizontalhideBox("");
 b.closeBox();

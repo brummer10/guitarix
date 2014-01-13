@@ -1,5 +1,6 @@
-declare id   "panoram enhancer";
+declare id   "panoram_enhancer";
 declare name "Panoram enhancer";
+declare shortname "Panoram";
 declare category "Misc";
 
 //------------------------------------

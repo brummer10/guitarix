@@ -1,5 +1,6 @@
-declare id   "ring modulator";
+declare id   "ring_modulator";
 declare name "Ring Modulator Mono";
+declare shortname "Ring Modulator";
 declare category "Modulation";
 
 import("music.lib");

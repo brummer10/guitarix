@@ -1,5 +1,5 @@
 // generated from file '../src/faust/ring_modulator.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.58 (http://faust.grame.fr)
 
 
 namespace ring_modulator {
@@ -56,12 +56,12 @@ Dsp::Dsp()
 	: PluginDef() {
 	version = PLUGINDEF_VERSION;
 	flags = 0;
-	id = "ring modulator";
+	id = "ring_modulator";
 	name = N_("Ring Modulator Mono");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = N_("Modulation");       // category
-	shortname = "";     // shortname
+	shortname = N_("Ring Modulator");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
@@ -121,8 +121,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("ring modulator.dry/wet","","S","",&fslider1, 0.5, 0.0, 1.0, 0.05);
-	reg.registerVar("ring modulator.freq","","S","",&fslider0, 2.4e+02, 1.2e+02, 1.6e+03, 0.5);
+	reg.registerVar("ring_modulator.dry/wet","","S","",&fslider1, 0.5, 0.0, 1.0, 0.05);
+	reg.registerVar("ring_modulator.freq","","S","",&fslider0, 2.4e+02, 1.2e+02, 1.6e+03, 0.5);
 	return 0;
 }
 
@@ -134,7 +134,7 @@ int Dsp::register_params_static(const ParamReg& reg)
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
-#define PARAM(p) ("ring modulator" "." p)
+#define PARAM(p) ("ring_modulator" "." p)
 // ----- ring - modulator
 b.openHorizontalhideBox("");
 b.create_master_slider(PARAM("freq"), "Hz");

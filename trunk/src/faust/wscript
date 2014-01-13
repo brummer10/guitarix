@@ -121,10 +121,11 @@ def build(bld):
         'gxfeed.dsp',
         'highbooster.dsp',
         'peak_eq.dsp',
-	'dattorros_progenitor.dsp',
-	'ring_modulator.dsp',
-	'ring_modulator_st.dsp',
-	'panoram_enhancer.dsp',
+        'dattorros_progenitor.dsp',
+        'ring_modulator.dsp',
+        'ring_modulator_st.dsp',
+        'panoram_enhancer.dsp',
+        'graphiceq.dsp',
 
         # amps
         'gxamp.dsp',

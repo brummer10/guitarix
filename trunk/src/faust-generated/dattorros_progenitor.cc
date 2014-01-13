@@ -1,5 +1,5 @@
 // generated from file '../src/faust/dattorros_progenitor.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.58 (http://faust.grame.fr)
 
 
 namespace dattorros_progenitor {
@@ -105,7 +105,7 @@ Dsp::Dsp()
 	: PluginDef() {
 	version = PLUGINDEF_VERSION;
 	flags = 0;
-	id = "dattorro's progenitor";
+	id = "dattorros_progenitor";
 	name = N_("Plate reverb");
 	groups = 0;
 	description = ""; // description (tooltip)
@@ -292,16 +292,16 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("dattorro's progenitor.bandwidth","","S","",&fslider5, 0.9, 0.1, 0.95, 0.0005);
-	reg.registerVar("dattorro's progenitor.damping","","S","",&fslider1, 0.0005, 0.1, 0.95, 0.0005);
-	reg.registerVar("dattorro's progenitor.decay","","S","",&fslider8, 0.1, 0.0, 0.5, 0.01);
-	reg.registerVar("dattorro's progenitor.decay diff 1","","S","",&fslider2, 0.1, 0.0, 0.7, 0.01);
-	reg.registerVar("dattorro's progenitor.decay diff 2","","S","",&fslider0, 0.1, 0.0, 0.5, 0.01);
-	reg.registerVar("dattorro's progenitor.dry/wet","","S","",&fslider9, 0.5, 0.0, 1.0, 0.05);
-	reg.registerVar("dattorro's progenitor.excursion","","S","",&fslider7, 0.0, 0.0, 16.0, 0.5);
-	reg.registerVar("dattorro's progenitor.input diff 1","","S","",&fslider4, 0.1, 0.0, 0.75, 0.01);
-	reg.registerVar("dattorro's progenitor.input diff 2","","S","",&fslider3, 0.1, 0.0, 0.625, 0.01);
-	reg.registerVar("dattorro's progenitor.predelay ms","","S","",&fslider6, 0.0, 0.0, 2e+02, 1e+01);
+	reg.registerVar("dattorros_progenitor.bandwidth","","S","",&fslider5, 0.9, 0.1, 0.95, 0.0005);
+	reg.registerVar("dattorros_progenitor.damping","","S","",&fslider1, 0.0005, 0.1, 0.95, 0.0005);
+	reg.registerVar("dattorros_progenitor.decay","","S","",&fslider8, 0.1, 0.0, 0.5, 0.01);
+	reg.registerVar("dattorros_progenitor.decay diff 1","","S","",&fslider2, 0.1, 0.0, 0.7, 0.01);
+	reg.registerVar("dattorros_progenitor.decay diff 2","","S","",&fslider0, 0.1, 0.0, 0.5, 0.01);
+	reg.registerVar("dattorros_progenitor.dry/wet","","S","",&fslider9, 0.5, 0.0, 1.0, 0.05);
+	reg.registerVar("dattorros_progenitor.excursion","","S","",&fslider7, 0.0, 0.0, 16.0, 0.5);
+	reg.registerVar("dattorros_progenitor.input diff 1","","S","",&fslider4, 0.1, 0.0, 0.75, 0.01);
+	reg.registerVar("dattorros_progenitor.input diff 2","","S","",&fslider3, 0.1, 0.0, 0.625, 0.01);
+	reg.registerVar("dattorros_progenitor.predelay ms","","S","",&fslider6, 0.0, 0.0, 2e+02, 1e+01);
 	return 0;
 }
 
@@ -313,7 +313,7 @@ int Dsp::register_params_static(const ParamReg& reg)
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
-#define PARAM(p) ("dattorro's progenitor" "." p)
+#define PARAM(p) ("dattorros_progenitor" "." p)
 // dattorros progenitor (Plate reverb)
 
 b.openHorizontalhideBox("");
