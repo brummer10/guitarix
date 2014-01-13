@@ -314,7 +314,7 @@ void GxEngine::load_static_plugins() {
     pl.add(&preamp.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::abgate::plugin(),           PLUGIN_POS_RACK);
     pl.add(gx_effects::ring_modulator::plugin(),  PLUGIN_POS_RACK, PGN_GUI);
-    // pl.add(pluginlib::dubbe::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::graphiceq::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::vibe::plugin_mono(),        PLUGIN_POS_RACK);
     pl.add(pluginlib::mbc::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbd::plugin(),              PLUGIN_POS_RACK, PGN_GUI);

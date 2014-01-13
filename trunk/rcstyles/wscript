@@ -50,6 +50,7 @@ gxstyle_files = [
     'scratch.png',
     'versiondiff.png',
     'playhead.png',
+    'simplelevelslider.png',
     ]
 
 def configure(conf):

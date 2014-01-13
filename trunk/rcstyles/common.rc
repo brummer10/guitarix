@@ -110,6 +110,14 @@ style "guitarix_playhead"
   GxRegler::show-value = 0
 }
 
+style "guitarix_slevel"
+{
+  stock["levelslider"] = {{"simplelevelslider.png"}}
+  GxRegler::show-value = 0
+}
+
+
+widget "*.lmw" style:highest "guitarix_slevel"
 widget "*.playhead" style:highest "guitarix_playhead"
 widget "*.smallbutton" style:highest "guitarix_small_button"
 widget "*.effekt_label" style:highest "guitarix_caption"

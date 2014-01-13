@@ -317,6 +317,23 @@ void StackBoxBuilder::create_simple_meter(const std::string& id) {
     fBox.box_pack_start(manage(box),false);
 }
 
+void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::string& idm) {
+    Gxw::FastMeter *fastmeter = new Gxw::FastMeter();
+    fastmeter->set_hold_count(5);
+    fastmeter->set_property("dimen",5);
+    Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
+      sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
+    fastmeter->set_by_power(0.0001);
+    Gxw::LevelSlider *w = new UiRegler<Gxw::LevelSlider>(machine, idm);
+    w->set_name("lmw");
+    GxPaintBox *box =  new GxPaintBox("simple_level_meter_expose");
+    box->set_border_width(2);
+    box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
+    box->add(*Gtk::manage(static_cast<Gtk::Widget*>(w)));
+    box->show_all();
+    fBox.box_pack_start(manage(box),false);
+}
+
 bool StackBoxBuilder::set_engine_value(const std::string id) {
     if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
       machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id));

@@ -1477,6 +1477,10 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	    builder.create_selector(id.c_str(), next_char_pointer(jp));
 	} else if (jp->current_value() == "create_simple_meter") {
         builder.create_simple_meter(next_char_pointer(jp));
+	} else if (jp->current_value() == "create_simple_c_meter") {
+        std::string id = next_char_pointer(jp);
+	    std::string idl = next_char_pointer(jp);
+	    builder.create_simple_c_meter(id.c_str(),idl.c_str());
 	} else if (jp->current_value() == "create_spin_value") {
 	    std::string id = next_char_pointer(jp);
 	    builder.create_spin_value(id.c_str(), next_char_pointer(jp));
