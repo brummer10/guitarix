@@ -124,14 +124,14 @@ UiBuilder.prototype.create_simple_meter = function(id, label) {
     this.control_setter[id] = enyo.bind(el, el.setValue);
 }
 
-UiBuilder.prototype.create_simple-c_meter = function(id, idl, label) {
+UiBuilder.prototype.create_simple_c_meter = function(id, idl, label) {
     if (this.state == 2) { // minibox
 	return;
     }
     this.state = 3; // rackbox
     var o = this.prepare_obj(id);
     var el = this.owner[this.owner.length-1].createComponent(
-	{kind: "gx.ValueSlider", classes: "gx-maxlevel",
+	{kind: "gx.ValueSlider", classes: "gx-control-slider",
 	 varname: this.get_name(label, o.name, idl), obj: o});
     this.control_setter[idl] = enyo.bind(el, el.setValue);
 }

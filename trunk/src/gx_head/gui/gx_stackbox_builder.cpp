@@ -317,7 +317,7 @@ void StackBoxBuilder::create_simple_meter(const std::string& id) {
     fBox.box_pack_start(manage(box),false);
 }
 
-void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::string& idm) {
+void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::string& idm, const char *label) {
     Gxw::FastMeter *fastmeter = new Gxw::FastMeter();
     fastmeter->set_hold_count(5);
     fastmeter->set_property("dimen",5);
@@ -330,8 +330,26 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     box->set_border_width(2);
     box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
     box->add(*Gtk::manage(static_cast<Gtk::Widget*>(w)));
+    if (label && label[0]) {
+    GxPaintBox *boxv =  new GxPaintBox(pb_rectangle_skin_color_expose);
+    boxv->set_property("orientation",Gtk::ORIENTATION_VERTICAL);
+    boxv->set_homogeneous(false);
+    boxv->set_spacing(0);
+    boxv->set_border_width(4);
+    Gtk::Label *lab = new Gtk::Label(label);
+    Pango::FontDescription font = lab->get_style()->get_font();
+    font.set_size(6*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_BOLD);
+    lab->modify_font(font);
+    lab->set_name("beffekt_label");
+    boxv->add(*manage(lab));
+    boxv->add(*manage(box));
+    boxv->show_all();
+    fBox.box_pack_start(manage(boxv),false);
+    } else {
     box->show_all();
     fBox.box_pack_start(manage(box),false);
+    }
 }
 
 bool StackBoxBuilder::set_engine_value(const std::string id) {

@@ -182,8 +182,8 @@ void UiBuilderImpl::create_simple_meter_(const char *id) {
     intf->create_simple_meter(id);
 }
 
-void UiBuilderImpl::create_simple_c_meter_(const char *id, const char *idl) {
-    intf->create_simple_c_meter(id, idl);
+void UiBuilderImpl::create_simple_c_meter_(const char *id, const char *idl, const char *label) {
+    intf->create_simple_c_meter(id, idl, label);
 }
 
 void UiBuilderImpl::create_spin_value_(const char *id, const char *label) {

@@ -203,7 +203,7 @@ private:
     static void create_selector_no_caption_(const char *id);
     static void create_selector_(const char *id, const char *label);
     static void create_simple_meter_(const char *id);
-    static void create_simple_c_meter_(const char *id,const char *idl);
+    static void create_simple_c_meter_(const char *id,const char *idl, const char *label);
     static void create_spin_value_(const char *id, const char *label);
     static void create_switch_no_caption_(const char *sw_type,const char * id);
     static void create_feedback_switch_(const char *sw_type,const char * id);
@@ -1500,11 +1500,12 @@ void UiBuilderVirt::create_simple_meter_(const char *id) {
     jw->write(id);
     jw->end_array();
 }
-void UiBuilderVirt::create_simple_c_meter_(const char *id, const char *idl) {
+void UiBuilderVirt::create_simple_c_meter_(const char *id, const char *idl, const char *label) {
     jw->begin_array();
     jw->write("create_simple_c_meter");
     jw->write(id);
     jw->write(idl);
+    jw->write(label);
     jw->end_array();
 }
 

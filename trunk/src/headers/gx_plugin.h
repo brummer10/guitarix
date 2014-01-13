@@ -90,7 +90,7 @@ struct UiBuilder {
     void (*create_switch)(const char *sw_type,const char * id, const char *label);
     void (*create_selector)(const char *id, const char *label);
     void (*create_simple_meter)(const char *id);
-    void (*create_simple_c_meter)(const char *id, const char *idl);
+    void (*create_simple_c_meter)(const char *id, const char *idl, const char *label);
     void (*create_small_rackknobr)(const char *id, const char *label);
     void (*create_wheel)(const char *id, const char *label);
     void (*create_simple_spin_value)(const char *id);
