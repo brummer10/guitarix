@@ -15,7 +15,7 @@ process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) w
     pre = dcblockerat(228.105325695);
 
     
-        hotpotz = vslider("hotpotz[name:Wah]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(3) : smooth(s);
+        hotpotz = vslider("hotpotz[name:Wah]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(5) : smooth(s);
     
     b0 = fs*(fs*(fs*(-7.41350388334374e-21*fs - 2.47418541205506e-16) - 3.69672787496925e-13) - 1.8397056665289e-12) + hotpotz*(pow(fs,2)*hotpotz*(fs*(1.96834437163512e-21*fs + 5.48587515516469e-17) + 8.09470493272714e-14) + fs*(fs*(fs*(-1.96653248770188e-21*fs - 5.48942867863191e-17) - 8.21432353321142e-14) - 1.78155704878595e-12));
 
