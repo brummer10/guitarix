@@ -339,11 +339,20 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     Gtk::Label *lab = new Gtk::Label(label);
     Pango::FontDescription font = lab->get_style()->get_font();
     font.set_size(6*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_BOLD);
+    font.set_weight(Pango::WEIGHT_NORMAL);
     lab->modify_font(font);
     lab->set_name("beffekt_label");
     boxv->add(*manage(lab));
-    boxv->add(*manage(box));
+    Gtk::HBox *boxl =  new Gtk::HBox();
+    boxl->set_homogeneous(false);
+    boxl->set_spacing(0);
+    boxl->set_border_width(0);
+    Gtk::HBox *boxr =  new Gtk::HBox();
+    Gtk::HBox *boxs =  new Gtk::HBox();
+    boxl->pack_start(*manage(boxr), Gtk::PACK_EXPAND_WIDGET);
+    boxl->add(*manage(box));
+    boxl->pack_end(*manage(boxs), Gtk::PACK_EXPAND_WIDGET);
+    boxv->add(*manage(boxl));    
     boxv->show_all();
     fBox.box_pack_start(manage(boxv),false);
     } else {

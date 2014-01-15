@@ -502,7 +502,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (1.0 / double(iConst0));
-	fConst2 = tan((98.17477042468103 / double(iConst0)));
+	fConst2 = tan((138.23007675795088 / double(iConst0)));
 	fConst3 = (1.0 / faustpower<2>(fConst2));
 	fConst4 = (2 * (1 - fConst3));
 	fConst5 = (1.0 / fConst2);
@@ -510,7 +510,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst7 = (1.0 / (1 + ((fConst5 + 1.0000000000000004) / fConst2)));
 	fConst8 = (1 + fConst5);
 	fConst9 = (0 - ((1 - fConst5) / fConst8));
-	fConst10 = tan((196.34954084936206 / double(iConst0)));
+	fConst10 = tan((276.46015351590177 / double(iConst0)));
 	fConst11 = (1.0 / faustpower<2>(fConst10));
 	fConst12 = (2 * (1 - fConst11));
 	fConst13 = (1.0 / fConst10);
@@ -519,7 +519,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst16 = (1.0 / fConst15);
 	fConst17 = (1 + fConst13);
 	fConst18 = (0 - ((1 - fConst13) / fConst17));
-	fConst19 = tan((392.6990816987241 / double(iConst0)));
+	fConst19 = tan((556.0618996853934 / double(iConst0)));
 	fConst20 = (1.0 / faustpower<2>(fConst19));
 	fConst21 = (2 * (1 - fConst20));
 	fConst22 = (1.0 / fConst19);
@@ -528,7 +528,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst25 = (1.0 / fConst24);
 	fConst26 = (1 + fConst22);
 	fConst27 = (0 - ((1 - fConst22) / fConst26));
-	fConst28 = tan((785.3981633974482 / double(iConst0)));
+	fConst28 = tan((1112.1237993707869 / double(iConst0)));
 	fConst29 = (1.0 / faustpower<2>(fConst28));
 	fConst30 = (2 * (1 - fConst29));
 	fConst31 = (1.0 / fConst28);
@@ -537,7 +537,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst34 = (1.0 / fConst33);
 	fConst35 = (1 + fConst31);
 	fConst36 = (0 - ((1 - fConst31) / fConst35));
-	fConst37 = tan((1570.7963267948965 / double(iConst0)));
+	fConst37 = tan((2221.1060060879836 / double(iConst0)));
 	fConst38 = (1.0 / faustpower<2>(fConst37));
 	fConst39 = (2 * (1 - fConst38));
 	fConst40 = (1.0 / fConst37);
@@ -546,7 +546,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst43 = (1.0 / fConst42);
 	fConst44 = (1 + fConst40);
 	fConst45 = (0 - ((1 - fConst40) / fConst44));
-	fConst46 = tan((3141.592653589793 / double(iConst0)));
+	fConst46 = tan((4442.212012175967 / double(iConst0)));
 	fConst47 = (1.0 / faustpower<2>(fConst46));
 	fConst48 = (2 * (1 - fConst47));
 	fConst49 = (1.0 / fConst46);
@@ -555,7 +555,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst52 = (1.0 / fConst51);
 	fConst53 = (1 + fConst49);
 	fConst54 = (0 - ((1 - fConst49) / fConst53));
-	fConst55 = tan((6283.185307179586 / double(iConst0)));
+	fConst55 = tan((8884.424024351934 / double(iConst0)));
 	fConst56 = (1.0 / faustpower<2>(fConst55));
 	fConst57 = (2 * (1 - fConst56));
 	fConst58 = (1.0 / fConst55);
@@ -564,7 +564,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst61 = (1.0 / fConst60);
 	fConst62 = (1 + fConst58);
 	fConst63 = (0 - ((1 - fConst58) / fConst62));
-	fConst64 = tan((12566.370614359172 / double(iConst0)));
+	fConst64 = tan((17771.98964135746 / double(iConst0)));
 	fConst65 = (1.0 / faustpower<2>(fConst64));
 	fConst66 = (2 * (1 - fConst65));
 	fConst67 = (1.0 / fConst64);
@@ -573,7 +573,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst70 = (1.0 / fConst69);
 	fConst71 = (1 + fConst67);
 	fConst72 = (0 - ((1 - fConst67) / fConst71));
-	fConst73 = tan((25132.741228718343 / double(iConst0)));
+	fConst73 = tan((35763.890768466204 / double(iConst0)));
 	fConst74 = (1.0 / faustpower<2>(fConst73));
 	fConst75 = (2 * (1 - fConst74));
 	fConst76 = (1.0 / fConst73);
@@ -582,7 +582,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst79 = (1.0 / fConst78);
 	fConst80 = (1 + fConst76);
 	fConst81 = (0 - ((1 - fConst76) / fConst80));
-	fConst82 = tan((50265.48245743669 / double(iConst0)));
+	fConst82 = tan((56894.24295651115 / double(iConst0)));
 	fConst83 = (1.0 / faustpower<2>(fConst82));
 	fConst84 = (2 * (1 - fConst83));
 	fConst85 = (1.0 / fConst82);
@@ -1050,17 +1050,17 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("graphiceq.g10","","S",N_("gain (dB) at 16 kHz"),&fslider9, 0.0, -6e+01, 2e+01, 0.1);
-	reg.registerVar("graphiceq.g11","","S",N_("gain (dB) above 16 kHz"),&fslider10, 0.0, -6e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g10","","S",N_("gain (dB) at 16 kHz"),&fslider9, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g11","","S",N_("gain (dB) above 16 kHz"),&fslider10, 0.0, -3e+01, 2e+01, 0.1);
 	reg.registerVar("graphiceq.g1","","S",N_("gain (dB) below 31.25 Hz"),&fslider1, 0.0, -6e+01, 2e+01, 0.1);
-	reg.registerVar("graphiceq.g2","","S",N_("gain (dB) at 62.5 Hz"),&fslider0, 0.0, -6e+01, 2e+01, 0.1);
-	reg.registerVar("graphiceq.g3","","S",N_("gain (dB) at 125 Hz"),&fslider2, 0.0, -6e+01, 2e+01, 0.1);
-	reg.registerVar("graphiceq.g4","","S",N_("gain (dB) at 250 Hz"),&fslider3, 0.0, -6e+01, 2e+01, 0.1);
-	reg.registerVar("graphiceq.g5","","S",N_("gain (dB) at 500 Hz"),&fslider4, 0.0, -6e+01, 2e+01, 0.1);
-	reg.registerVar("graphiceq.g6","","S",N_("gain (dB) at 1 kHz"),&fslider5, 0.0, -6e+01, 2e+01, 0.1);
-	reg.registerVar("graphiceq.g7","","S",N_("gain (dB) at 2 kHz"),&fslider6, 0.0, -6e+01, 2e+01, 0.1);
-	reg.registerVar("graphiceq.g8","","S",N_("gain (dB) at 4 kHz"),&fslider7, 0.0, -6e+01, 2e+01, 0.1);
-	reg.registerVar("graphiceq.g9","","S",N_("gain (dB) at 8 kHz"),&fslider8, 0.0, -6e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g2","","S",N_("gain (dB) at 62.5 Hz"),&fslider0, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g3","","S",N_("gain (dB) at 125 Hz"),&fslider2, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g4","","S",N_("gain (dB) at 250 Hz"),&fslider3, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g5","","S",N_("gain (dB) at 500 Hz"),&fslider4, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g6","","S",N_("gain (dB) at 1 kHz"),&fslider5, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g7","","S",N_("gain (dB) at 2 kHz"),&fslider6, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g8","","S",N_("gain (dB) at 4 kHz"),&fslider7, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g9","","S",N_("gain (dB) at 8 kHz"),&fslider8, 0.0, -3e+01, 2e+01, 0.1);
 	reg.registerNonMidiFloatVar("graphiceq.v10",&fbargraph9, false, true, -70.0, -70.0, 4.0, 0.00001);
 	reg.registerNonMidiFloatVar("graphiceq.v11",&fbargraph10, false, true, -70.0, -70.0, 4.0, 0.00001);
 	reg.registerNonMidiFloatVar("graphiceq.v1",&fbargraph1, false, true, -70.0, -70.0, 4.0, 0.00001);
@@ -1091,17 +1091,61 @@ b.openHorizontalBox("");
 {
     b.openFrameBox("");
     b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v1"), PARAM("g1"),"<31");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v2"), PARAM("g2"),"62");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v3"), PARAM("g3"),"125");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v4"), PARAM("g4"),"250");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v5"), PARAM("g5"),"500");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v6"), PARAM("g6"),"1k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v7"), PARAM("g7"),"2k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v8"), PARAM("g8"),"4k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v9"), PARAM("g9"),"8k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v10"), PARAM("g10"),"16k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
     b.create_simple_c_meter(PARAM("v11"), PARAM("g11"),"<");
+    }
+    b.closeBox();
     b.openFrameBox("");
     b.closeBox();
 }
