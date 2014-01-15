@@ -90,7 +90,7 @@ cdef extern from "gx_plugin.h":
     ctypedef int (*plugin_inifunc)(unsigned int idx, PluginDef **p)
 
 cdef extern from "pluginloader.h":
-    pass
+    int compare_plugin_version(PluginDef *p)
 
 cdef inline double ts_diff(timespec ts1, timespec ts2):
     cdef double df = ts1.tv_sec - ts2.tv_sec
@@ -128,6 +128,8 @@ cdef class Plugin:
             raise RuntimeError("idx too big (%d > %d)" % (idx, n-1))
         if get_gx_plugin(idx, &self.p) < 0:
             raise RuntimeError("plugin loader error")
+        if not compare_plugin_version(self.p):
+            raise ValueError("bad plugin version 0x%x" % self.p[0].version)
         cdef ParamRegImpl *pr
         cdef variter i
         d = {}

@@ -39,6 +39,8 @@ private:
     static void registerBoolVar_(const char* id, const char* name, const char* tp,
 				 const char* tooltip, bool* var, bool val);
     static void registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave);
+    static void registerNonMidiFloatVar_(const char * id, float *var, bool preset, bool nosave,
+                                         float val, float low, float up, float step);
     static void registerEnumVar_(const char *id, const char* name, const char* tp,
 				 const char* tooltip, const value_pair* values, float *var, float val,
 				 float low, float up, float step);
@@ -58,6 +60,7 @@ ParamRegImpl::ParamRegImpl(VarMap *v, PluginDef *p)
     registerVar = registerVar_;
     registerBoolVar = registerBoolVar_;
     registerNonMidiVar = registerNonMidiVar_;
+    registerNonMidiFloatVar = registerNonMidiFloatVar_;
     registerEnumVar = registerEnumVar_;
     registerIEnumVar = registerIEnumVar_;
 }
@@ -81,6 +84,11 @@ void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, b
     assert(false);
 }
 
+void ParamRegImpl::registerNonMidiFloatVar_(const char * id, float *var, bool preset, bool nosave,
+					    float val, float low, float up, float step) {
+    assert(false);
+}
+
 void ParamRegImpl::registerEnumVar_(const char *id, const char* name, const char* tp,
 				   const char* tooltip, const value_pair* values, float *var, float val,
 				   float low, float up, float step) {
@@ -92,4 +100,8 @@ void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const cha
     int up = -1;
     for (const value_pair* p = values; p->value_id; ++p, ++up);
     vars->insert(std::pair<std::string,Var*>(id, new Var(id,name,var,std,0,up,values)));
+}
+
+bool compare_plugin_version(PluginDef *p) {
+   return p->version == PLUGINDEF_VERSION;
 }
