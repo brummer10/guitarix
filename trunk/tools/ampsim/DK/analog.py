@@ -64,6 +64,8 @@ class Circuit(object):
         self.pre_filter = None
         self.post_filter = None
         self.code_generator = None
+        self.plugindef = None
+        self.build_script = None
         self.FS = FS
         self.use_sim = SIM_C
         self._clear()
@@ -139,6 +141,8 @@ class Circuit(object):
                 self.sim_py = dk_simulator.SimulatePy(self.eq, self.solver, self.dc_method)
                 if self.sys_reduce_tol >= 0:
                     self.sim_py.balance_realization(self.sys_reduce_tol)
+                if isinstance(self.eq.nonlin, dk_simulator.PartitionedNonlinEquations):
+                    self.eq.F, self.eq.C = self.eq.nonlin.decompose_blocks(self.eq.F, self.eq.C)
             except dk_simulator.ConvergenceError as e:
                 raise CircuitException(e)
 
@@ -189,14 +193,14 @@ class Circuit(object):
             J, vals = simu.estimate_max_jacobi(self.sim_c.nonlin, self.minmax, jacobi_estimate_error, self.sim_c.nno)
             J = J[:,J.shape[1]-J.shape[0]:] ##FIXME
             J = numpy.matrix(J)
-            dv = numpy.amax(numpy.append(abs(self.eq.Fo), abs(self.eq.Fo)*J*abs(self.eq.G0)*abs(self.eq.Co), axis=0), axis=0).A1
+            dv = numpy.amax(numpy.append(abs(self.eq.F), abs(self.eq.F)*J*abs(self.eq.G)*abs(self.eq.C), axis=0), axis=0).A1
             self.E = maxerr * self.ptp / numpy.where(dv == 0, 1e-20, dv)
             print "E =", self.E
 
             grd_shape = vals.grd.shape
             numpoints = numpy.product(grd_shape[1:])
             grd = vals.grd.reshape(grd_shape[0], numpoints)
-            fnc = vals.values.reshape(self.eq.nno, numpoints)
+            fnc = vals.values.reshape(self.eq.nonlin.nno, numpoints)
             self.cov = numpy.cov(grd, fnc)[:len(grd),len(grd):]
             print self.cov
 
@@ -252,9 +256,9 @@ class Circuit(object):
                     comp_name = self._get_module_id()
                     ranges = self.minmax
                     basegrid = [(g, None, None, e, False) for g, e in zip(self.basegrid, self.E)]
-                    NVALS = self.eq.nno
-                    N_IN = self.eq.nni+npl
-                    NDIM = self.eq.nni+npl
+                    NVALS = self.eq.nonlin.nno
+                    N_IN = self.eq.nonlin.nni+npl
+                    NDIM = self.eq.nonlin.nni+npl
                     @staticmethod
                     def __call__(v, with_state):
                         return self.sim_c.nonlin(v)
@@ -263,30 +267,37 @@ class Circuit(object):
             intpp_inst = "\n".join(set(inst.getvalue().split("\n")))
             self.table_source = dict(data_c=o.getvalue(), data_h=h.getvalue(), intpp_inst=intpp_inst, tables=tables)
 
+    def _build_sim_table(self, dev_interface=True):
+        self._ensure_sim_c()
+        self.sim_c.reset()
+        self._ensure_range()
+        self._ensure_max_error()
+        self._ensure_basegrid()
+        self._ensure_knot_positions()
+        self._ensure_table_source()
+        name = self._get_module_id()
+        self._ensure_sim_py()
+        if self.solver is None:
+            solver = {}
+        else:
+            solver = self.solver.copy()
+        solver["method"] = "table"
+        modc = dk_simulator.BuildCModule(
+            name, self.sim_py, solver=solver,
+            extra_sources=self.table_source, c_tempdir="gencode",
+            c_verbose=self.build_verbose, c_real=self.table_datatype,
+            pre_filter=self.pre_filter, post_filter=self.post_filter,
+            generator=self.code_generator)
+        modc.dev_interface = dev_interface
+        modc.resample = True
+        modc.build_script = self.build_script
+        if self.plugindef:
+            modc.plugindef = self.plugindef
+        return modc
+
     def _ensure_sim_table(self):
         if self.sim_table is None:
-            self._ensure_sim_c()
-            self.sim_c.reset()
-            self._ensure_range()
-            self._ensure_max_error()
-            self._ensure_basegrid()
-            self._ensure_knot_positions()
-            self._ensure_table_source()
-            name = self._get_module_id()
-            self._ensure_sim_py()
-            if self.solver is None:
-                solver = {}
-            else:
-                solver = self.solver.copy()
-            solver["method"] = "table"
-            modc = dk_simulator.BuildCModule(
-                name, self.sim_py, solver=solver,
-                extra_sources=self.table_source, c_tempdir="gencode",
-                c_verbose=self.build_verbose, c_real=self.table_datatype,
-                pre_filter=self.pre_filter, post_filter=self.post_filter,
-                generator=self.code_generator)
-            modc.resample = True
-            self.table_module, self.sim_table = modc.get_executor()
+            self.table_module, self.sim_table = self._build_sim_table().get_executor()
 
     def _get_sim(self):
         if self.use_sim == SIM_C:
@@ -621,7 +632,10 @@ class Circuit(object):
         b, a = self.sim_filter.get_z_coeffs(samplerate=FS)
         l = self.parser.get_pot_attr()
         m_id = self._get_module_id(module_id)
-        simu.build_faust_module(m_id, b, a, l, self.sim_filter, self.c_datatype, pre_filter)
+        plugindef = self.plugindef
+        if not plugindef:
+            plugindef = PluginDef(m_id)
+        simu.build_faust_module(plugindef, b, a, l, self.sim_filter, self.c_datatype, pre_filter, build_script=self.build_script)
 
     def stream(self, signal):
         if not isinstance(signal, signals.GeneratedSignal):
@@ -671,6 +685,12 @@ class Circuit(object):
             for line, lbl in zip(lines, label):
                 line.set_label(lbl)
         Circuit.have_plot = True
+
+    def build_guitarix_module(self, include_paths=()):
+        modc = self._build_sim_table(dev_interface=False)
+        cw = modc.compile_c_func()
+        cw.script_dict["includes"] += "".join([" -I%s" % os.path.abspath(p) for p in include_paths])
+        cw.wrap_code(load_module=False)
 
     def deploy(self, path=None):
         sim = self._get_sim()
