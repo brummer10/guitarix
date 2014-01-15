@@ -11,19 +11,11 @@ import("math.lib");
 import("reduce.lib");
 
 hifr1      =hslider("crossover_b1_b2 [log][name:Crossover B1-B2 (hz)][tooltip: Crossover bandpass frequency]" ,80 , 20, 20000, 1.08);
-lowfr2     =hifr1;
 hifr2      =hslider("crossover_b2_b3 [log][name:Crossover B2-B3 (hz)][tooltip: Crossover bandpass frequency]",210,20,20000,1.08);
-lowfr3     =hifr2;
 hifr3      =hslider("crossover_b3_b4 [log][name:Crossover B3-B4 (hz)][tooltip: Crossover bandpass frequency]",1700,20,20000,1.08);
-lowfr4     =hifr3;
 hifr4      =hslider("crossover_b4_b5 [log][name:Crossover B4-B5 (hz)][tooltip: Crossover bandpass frequency]",5000,20,20000,1.08);
-lowfr5     =hifr4;
 
-bandpass1  = lowpass(3,hifr1) ;
-bandpass2  = lowpass(3,hifr2) : highpass(3,lowfr2);
-bandpass3  = lowpass(3,hifr3) : highpass(3,lowfr3);
-bandpass4  = lowpass(3,hifr4) : highpass(3,lowfr4);
-bandpass5  = highpass(3,lowfr5);
+geq = filterbank(3, (hifr1,hifr2,hifr3,hifr4));
 
 
 
@@ -75,11 +67,11 @@ vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -0, +1));
 
 envelop         = abs : max ~ (1.0/SR) : reduce(max,4096) ; // : max(db2linear(-70)) : linear2db;
 
-process    = _<:( dist1s , dist2s , dist3s, dist4s, dist5s,_) :>_ with { 
-    dist1s = bandpass1:chor(d1,f1,de1,l1) : vmeter1;
-    dist2s = bandpass2:chor(d2,f2,de2,l2) : vmeter2;
-    dist3s = bandpass3:chor(d3,f3,de3,l3) : vmeter3;
-    dist4s = bandpass4:chor(d4,f4,de4,l4) : vmeter4;
-    dist5s = bandpass5:chor(d5,f5,de5,l5) : vmeter5;
+process    = _<:(geq:( dist5s , dist4s , dist3s, dist2s, dist1s)),_ :>_ with { 
+    dist1s = chor(d1,f1,de1,l1) : vmeter1;
+    dist2s = chor(d2,f2,de2,l2) : vmeter2;
+    dist3s = chor(d3,f3,de3,l3) : vmeter3;
+    dist4s = chor(d4,f4,de4,l4) : vmeter4;
+    dist5s = chor(d5,f5,de5,l5) : vmeter5;
     
 };
