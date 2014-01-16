@@ -6,7 +6,7 @@
         {{#controls.0}}
         <div class="mod-enumerated clearfix" mod-role="input-control-port" mod-port-symbol="{{symbol}}" mod-widget="custom-select">
           <div mod-role="input-control-value" mod-port-symbol="{{symbol}}" class="mod-enumerated-selected"></div>
-          <div class="mod-enumerated-list">
+          <div class="mod-enumerated-list" mod-widget-property="hidden">
             {{#scalePoints}}
             <div mod-role="enumeration-option" mod-port-value="{{value}}">{{label}}</div>
             {{/scalePoints}}
