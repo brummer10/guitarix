@@ -317,6 +317,50 @@ void StackBoxBuilder::create_simple_meter(const std::string& id) {
     fBox.box_pack_start(manage(box),false);
 }
 
+void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::string& idm, const char *label) {
+    Gxw::FastMeter *fastmeter = new Gxw::FastMeter();
+    fastmeter->set_hold_count(5);
+    fastmeter->set_property("dimen",5);
+    Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
+      sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
+    fastmeter->set_by_power(0.0001);
+    Gxw::LevelSlider *w = new UiRegler<Gxw::LevelSlider>(machine, idm);
+    w->set_name("lmw");
+    GxPaintBox *box =  new GxPaintBox("simple_level_meter_expose");
+    box->set_border_width(2);
+    box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
+    box->add(*Gtk::manage(static_cast<Gtk::Widget*>(w)));
+    if (label && label[0]) {
+    GxPaintBox *boxv =  new GxPaintBox(pb_rectangle_skin_color_expose);
+    boxv->set_property("orientation",Gtk::ORIENTATION_VERTICAL);
+    boxv->set_homogeneous(false);
+    boxv->set_spacing(0);
+    boxv->set_border_width(4);
+    Gtk::Label *lab = new Gtk::Label(label);
+    Pango::FontDescription font = lab->get_style()->get_font();
+    font.set_size(6*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_NORMAL);
+    lab->modify_font(font);
+    lab->set_name("beffekt_label");
+    boxv->add(*manage(lab));
+    Gtk::HBox *boxl =  new Gtk::HBox();
+    boxl->set_homogeneous(false);
+    boxl->set_spacing(0);
+    boxl->set_border_width(0);
+    Gtk::HBox *boxr =  new Gtk::HBox();
+    Gtk::HBox *boxs =  new Gtk::HBox();
+    boxl->pack_start(*manage(boxr), Gtk::PACK_EXPAND_WIDGET);
+    boxl->add(*manage(box));
+    boxl->pack_end(*manage(boxs), Gtk::PACK_EXPAND_WIDGET);
+    boxv->add(*manage(boxl));    
+    boxv->show_all();
+    fBox.box_pack_start(manage(boxv),false);
+    } else {
+    box->show_all();
+    fBox.box_pack_start(manage(box),false);
+    }
+}
+
 bool StackBoxBuilder::set_engine_value(const std::string id) {
     if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
       machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id));

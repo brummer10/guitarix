@@ -1,4 +1,4 @@
-declare id  	"dattorro's progenitor";
+declare id  	"dattorros_progenitor";
 declare name "Plate reverb";
 declare category "Reverb";
 

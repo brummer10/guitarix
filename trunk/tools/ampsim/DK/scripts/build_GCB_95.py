@@ -45,9 +45,15 @@ def highpass_as_prefilter(f0, FS):
 
 def build_module(FS, postfix, linear=False):
     c1 = Circuit(FS=FS)
+    c1.build_script = sys.argv[0]
     c1.set_tempdir("gencode")
     c1.keep_tempdir()
-    c1.set_module_id("GCB_95%s" % postfix)
+    mod_id = "GCB_95%s" % postfix
+    c1.set_module_id(mod_id)
+    c1.plugindef = dk_simulator.PluginDef(mod_id)
+    c1.plugindef.name = "GCB 95"
+    c1.plugindef.description = "Linear filter simulating the GCB 95 crybaby circuit"
+    c1.plugindef.category = "Guitar Effects"
     c1.set_netlist(circ.WahWah_test.S, circ.WahWah_test.V)
     c1.linearize(T(1), T(2), keep_dc=False)
     c1.remove_element("C2")
@@ -68,6 +74,6 @@ def build_module(FS, postfix, linear=False):
         c1.deploy(".")
 
 if __name__ == "__main__":
-    build_module(44100, "_32", linear=True)
-    build_module(44100, "_44_32")
-    build_module(48000, "_48_32")
+    build_module(44100, "", linear=True)
+    build_module(44100, "_44")
+    build_module(48000, "_48")

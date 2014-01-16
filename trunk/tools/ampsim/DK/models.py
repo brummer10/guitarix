@@ -22,6 +22,8 @@ class Node(object):
     def __hash__(self):
         return hash((self.nm,self.d))
     def __eq__(self, o):
+        if not isinstance(o, Node):
+            return False
         return self.nm == o.nm and self.d == o.d
     def __call__(self, s, fact=1.0):
         return OutU(self, s, fact)
@@ -245,7 +247,7 @@ class D(Node):
         idx = p.new_row("N", self)
         p.add_2conn("Nl", idx, conn)
         p.add_2conn("Nr", idx, conn)
-        p.f[idx] = (calc, v, idx)
+        p.set_function(idx, calc, v, idx)
 
 class D2(Node):
     def __init__(self, n=None):
@@ -260,7 +262,7 @@ class D2(Node):
         idx = p.new_row("N", self)
         p.add_2conn("Nl", idx, (conn[0], conn[1]))
         p.add_2conn("Nr", idx, (conn[0], conn[1]))
-        p.f[idx] = (calc, v, idx)
+        p.set_function(idx, calc, v, idx)
 
 class VCCS(Node):
     def __init__(self, n=None):
@@ -301,11 +303,11 @@ class T(Node):
         idx1 = p.new_row("N", self, "Ib")
         p.add_2conn("Nl", idx1, (conn[1],conn[0]))
         p.add_2conn("Nr", idx1, (conn[1],conn[0]))
-        p.f[idx1] = (calc_ib, v, idx1)
+        p.set_function(idx1, calc_ib, v, idx1)
         idx2 = p.new_row("N", self, "Ie")
         p.add_2conn("Nl", idx2, (conn[1],conn[2]))
         p.add_2conn("Nr", idx2, (conn[2],conn[0]))
-        p.f[idx2] = (calc_ie, v, idx1)
+        p.set_function(idx2, calc_ie, v, idx1)
 
 class Triode(Node):
     def __init__(self, n=None):
@@ -349,11 +351,11 @@ class Triode(Node):
         idx1 = p.new_row("N", self, "Ig")
         p.add_2conn("Nl", idx1, (conn[0],conn[2]))
         p.add_2conn("Nr", idx1, (conn[0],conn[2]))
-        p.f[idx1] = (calc_Ig, v, idx1)
+        p.set_function(idx1, calc_Ig, v, idx1)
         idx2 = p.new_row("N", self, "Ip")
         p.add_2conn("Nl", idx2, (conn[1],conn[2]))
         p.add_2conn("Nr", idx2, (conn[1],conn[2]))
-        p.f[idx2] = (calc_Ia, v, idx1)
+        p.set_function(idx2, calc_Ia, v, idx1)
 
 class Pentode(Node):
     def __init__(self, n=None):
@@ -369,8 +371,8 @@ class Pentode(Node):
         calc_Ia = sp.Piecewise(
             (0, Ug2k <= 0),
             (0, t < -500),
-            (-pow(E1_,Ex)/Kg1 * 2*(E1_ > 0.0) * sp.atan(Uak/Kvb), t > 500),
-            (-pow(E1,Ex)/Kg1 * 2*(E1 > 0.0) * sp.atan(Uak/Kvb), True))
+            (-pow(E1_,Ex)/Kg1 * (1+sp.sign(E1_)) * sp.atan(Uak/Kvb), t > 500),
+            (-pow(E1,Ex)/Kg1 * (1+sp.sign(E1)) * sp.atan(Uak/Kvb), True))
         calc_Ia = calc_Ia.subs(dict([(k,param[str(k)]) for k in const]))
         calc_Ig = sp.Piecewise((0, Ug1k < Gco), (-Gcf*pow(Ug1k-Gco, 1.5), True))
         calc_Ig = calc_Ig.subs(dict([(k,param[str(k)]) for k in const]))
@@ -411,15 +413,15 @@ class Pentode(Node):
         idx1 = p.new_row("N", self, "Ig")
         p.add_2conn("Nl", idx1, (conn[0],conn[3]))
         p.add_2conn("Nr", idx1, (conn[0],conn[3]))
-        p.f[idx1] = (calc_Ig, v[:1], idx1)
+        p.set_function(idx1, calc_Ig, v[:1], idx1)
         idx2 = p.new_row("N", self, "Is")
         p.add_2conn("Nl", idx2, (conn[1],conn[3]))
         p.add_2conn("Nr", idx2, (conn[1],conn[3]))
-        p.f[idx2] = (calc_Is, v, idx1)
+        p.set_function(idx2, calc_Is, v, idx1)
         idx3 = p.new_row("N", self, "Ip")
         p.add_2conn("Nl", idx3, (conn[2],conn[3]))
         p.add_2conn("Nr", idx3, (conn[2],conn[3]))
-        p.f[idx3] = (calc_Ia, v, idx1)
+        p.set_function(idx3, calc_Ia, v, idx1)
 
 class Trans_L(Node):
     def __init__(self, n=None, nw=3):
@@ -485,7 +487,7 @@ class Trans_F(Node):
         idx = p.new_row("N", self, "phi")
         p.N["Nl"][idx, end-1] = 1
         p.N["Nr"][idx, end-1] = 1
-        p.f[idx] = (calc_frohlich, v, idx)
+        p.set_function(idx, calc_frohlich, v, idx)
 
 class Trans_GC(Node):
     def __init__(self, n=None, nw=3):
@@ -544,7 +546,7 @@ class Trans_GC(Node):
         idx = p.new_row("N", self, "phi")
         p.N["Nl"][idx, end-1] = 1
         p.N["Nr"][idx, end-1] = 1
-        p.f[idx] = (calc_gc_MMF, v, idx)
+        p.set_function(idx, calc_gc_MMF, v, idx)
 
 class V(Node):
     def __init__(self, n=None):
@@ -595,7 +597,7 @@ class OPA(Node):
         p.add_conn("Nl", idx, conn[0], 1)
         p.add_conn("Nl", idx, conn[1], -1)
         p.add_conn("Nr", idx, idx_s, 1)
-        p.f[idx] = (calc, v, idx)
+        p.set_function(idx, calc, v, idx)
 
 class CC_L(Node):
     def __init__(self, n=None):
@@ -620,7 +622,7 @@ class CC_N(Node):
         idx = p.new_row("N", self)
         p.add_2conn("Nl", idx, conn)
         p.add_2conn("Nr", idx, conn)
-        p.f[idx] = (calc, v, idx)
+        p.set_function(idx, calc, v, idx)
         p.CZ[idx] = 0
 
 #CC = CC_L

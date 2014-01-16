@@ -16,6 +16,7 @@ lib_csource_defs = [ # put in static library linked with guitarix
     ["vibe.cc", ("plugin_mono", "plugin_stereo")],
     #"dubbe.cc",
     "abgate.cc",
+    "jcm800pre.cpp",
     ]
 
 lib_float_sources = [ # put in static library linked with guitarix
@@ -31,6 +32,7 @@ lib_sources = [ # put in static library linked with guitarix
     "mbe.dsp",
     "mbdel.dsp",
     "mbchor.dsp",
+    "gcb_95.dsp",
     ]
 
 def build(bld):
@@ -92,6 +94,7 @@ def build(bld):
         bld(features = ['cxx', 'cstaticlib'],
             includes = [".","../headers"],
             source = [s.replace(".dsp",".cc") for s in lib_sources]+lib_csources,
+            uselib = ["EIGEN3"],
             target = "plugins", # (also defines name of task)
             )
     for s in sources:
@@ -123,4 +126,4 @@ def build(bld):
         tsk.env['shlib_PATTERN'] = '%s.so'
 
 def configure(conf):
-    pass
+    conf.check_cfg(package='eigen3', args='--cflags', uselib_store="EIGEN3", mandatory=1)

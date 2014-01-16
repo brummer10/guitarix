@@ -1008,6 +1008,8 @@ void MonoEngine::load_static_plugins() {
     pl.add(gx_effects::gx_feedback::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::peak_eq::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::digital_delay::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::graphiceq::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::ring_modulator::plugin(),  PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&mono_convolver.plugin,                PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
@@ -1526,6 +1528,8 @@ void StereoEngine::load_static_plugins() {
     pl.add(pluginlib::zita_rev1::plugin(),        PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_stereo(),      PLUGIN_POS_RACK);
     pl.add(pluginlib::mbcs::plugin(),             PLUGIN_POS_RACK);
+    pl.add(gx_effects::dattorros_progenitor::plugin(),PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::panoram_enhancer::plugin(),PLUGIN_POS_RACK, PGN_GUI);
 }
 
 

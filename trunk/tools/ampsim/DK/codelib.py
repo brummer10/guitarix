@@ -4,7 +4,7 @@ import numpy as np
 class VariableAccess(object):
 
     def __init__(self, name, param, pointer):
-        if isinstance(name, MatrixDefinition):
+        if isinstance(name, (MatrixDefinition,MatrixDeclaration)):
             self.name = name.name
             self.pointer = name.pointer
         else:

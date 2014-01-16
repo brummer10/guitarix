@@ -629,7 +629,7 @@ class WahWah_test(Test): # wah-wah
          R(8): 82e3,
          R(9): 10e3,
          R(10): 1e3,
-         P(): dict(value=100e3, a=3, inv=1, var='hotpotz', name='Wah'),
+         P(): dict(value=100e3, a=5, inv=1, var='hotpotz', name='Wah'),
          R("va"): 50e3,
          R("vb"): 50e3,
          C(1): 10e-9,

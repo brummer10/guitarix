@@ -93,7 +93,7 @@ class GeneratedSignal(object):
     def _null(self, s):
         return 0*s
 
-    def _default_make_spectrum(self, response):
+    def _default_make_spectrum(self, response, freqlist):
         n = dk_lib.pow2roundup(len(response))
         return numpy.fft.rfft(response, n, axis=0)
 

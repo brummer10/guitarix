@@ -392,7 +392,7 @@ class LoadedSchema(circ.Test):
             setattr(self, "signal", signal)
 
 
-def generate_faust_module(modname, b, a, potlist, flt, pre_filter=None):
+def generate_faust_module(plugindef, b, a, potlist, flt, pre_filter=None, build_script=None):
     import dk_templates
     d = {}
     if not potlist:
@@ -403,8 +403,8 @@ def generate_faust_module(modname, b, a, potlist, flt, pre_filter=None):
     d['knob_ids'] = [t[0] for t in potlist]
     ui = dk_templates.module_ui_template.render(d)
     d = {}
-    d['id'] = modname
-    d['name'] = modname
+    d['plugindef'] = plugindef
+    d['build_script'] = build_script
     d['sliders'] = [dict(id=t[0], name=t[1], loga=t[2], inv=t[3]) for t in potlist]
     d['pre_filter'] = '_' if pre_filter is None else pre_filter
     d['b_list'] = ",".join(["b%d/a0" % i for i in range(len(b))])
@@ -413,8 +413,9 @@ def generate_faust_module(modname, b, a, potlist, flt, pre_filter=None):
     dsp = dk_templates.faust_filter_template.render(d)
     return dsp, ui
 
-def build_faust_module(modname, b, a, potlist, flt, datatype="float", pre_filter=None):
-    dsp, ui = generate_faust_module(modname, b, a, potlist, flt, pre_filter)
+def build_faust_module(plugindef, b, a, potlist, flt, datatype="float", pre_filter=None, build_script=None):
+    dsp, ui = generate_faust_module(plugindef, b, a, potlist, flt, pre_filter, build_script)
+    modname = plugindef.id
     dspname = "/tmp/%s.dsp" % modname
     uiname = "/tmp/%s_ui.cc" % modname
     with open(dspname,"w") as f:
@@ -538,7 +539,7 @@ def create_filter(g, tests, args):
                 loga = t.get('a', 0)
                 inv = t.get('inv', 0)
                 l.append((var, name, loga, inv))
-            build_faust_module(args.create_module, b, a, l, f)
+            build_faust_module(dk_simulator.PluginDef(args.create_module), b, a, l, f)
         else:
             f.print_coeffs('b', b)
             f.print_coeffs('a', a)

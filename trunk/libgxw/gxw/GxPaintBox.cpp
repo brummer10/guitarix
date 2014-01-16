@@ -2516,6 +2516,67 @@ static void level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gdk_region_destroy (region);
 }
 
+static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+	cairo_set_font_size (cr, 7.0);
+
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+2;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-4;
+
+	int  db_points[] = { -50, -40, -30, -20, -10, -3, 0, 4 };
+	char  buf[32];
+
+	cairo_rectangle (cr, x0,y0,rect_width,rect_height+2);
+	cairo_set_source_rgb (cr, 0, 0, 0);
+	cairo_fill (cr);
+
+	cairo_pattern_t*pat = cairo_pattern_create_linear (x0, 0, x0+rect_width, 0);
+	cairo_pattern_add_color_stop_rgba (pat, 0.3, 0.01, 0.01, 0.02, 0.3);
+	cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.2, 0.2, 0.2, 0.3);
+	cairo_pattern_add_color_stop_rgba (pat, 1, 0.01, 0.01, 0.01, 0.3);
+	cairo_set_source (cr, pat);
+	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
+	cairo_fill (cr);
+
+	for (unsigned int i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i)
+	{
+		float fraction = log_meter(db_points[i]);
+		cairo_set_source_rgb (cr, 0.12*i, 1, 0.1);
+
+		cairo_move_to (cr, x0+rect_width*0.2,y0+rect_height - (rect_height * fraction));
+		cairo_line_to (cr, x0+rect_width ,y0+rect_height -  (rect_height * fraction));
+		if (i<6)
+		{
+			snprintf (buf, sizeof (buf), "%d", db_points[i]);
+			cairo_move_to (cr, x0+rect_width*0.32,y0+rect_height - (rect_height * fraction));
+		}
+		else
+		{
+			snprintf (buf, sizeof (buf), " %d", db_points[i]);
+			cairo_move_to (cr, x0+rect_width*0.34,y0+rect_height - (rect_height * fraction));
+		}
+		cairo_show_text (cr, buf);
+	}
+
+	cairo_set_source_rgb (cr, 0.4, 0.8, 0.4);
+	cairo_set_line_width (cr, 0.5);
+	cairo_stroke (cr);
+
+	cairo_pattern_destroy (pat);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+}
+
 static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 {
 	if (strcmp(paint_func, "amp_expose") == 0) {
@@ -2570,6 +2631,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = ir_expose;
 	} else if (strcmp(paint_func, "main_expose") == 0) {
 		paint_box->expose_func = main_expose;
+	} else if (strcmp(paint_func, "simple_level_meter_expose") == 0) {
+	    paint_box->expose_func = simple_level_meter_expose;
 	} else if (strcmp(paint_func, "level_meter_expose") == 0) {
 	    paint_box->expose_func = level_meter_expose;
 	} else if (strcmp(paint_func, "cab_expose") == 0) {

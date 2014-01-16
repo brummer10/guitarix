@@ -30,35 +30,23 @@ bswitch4	= max(0,sel4-1);
 bswitch5	= max(0,sel5-1);
 
 //Stereo 
-process =   (_,_)<: ( gcomp1s , gcomp2s , gcomp3s, gcomp4s, gcomp5s) :>(_,_) with { 
-gcomp1s = bandpass1s:bypass2(bswitch1,compressor_stereo(ratio1,-push1,attack1,release1)):*(Makeup1),*(Makeup1);
-gcomp2s = bandpass2s:bypass2(bswitch2,compressor_stereo(ratio2,-push2,attack2,release2)):*(Makeup2),*(Makeup2);
-gcomp3s = bandpass3s:bypass2(bswitch3,compressor_stereo(ratio3,-push3,attack3,release3)):*(Makeup3),*(Makeup3);
-gcomp4s = bandpass4s:bypass2(bswitch4,compressor_stereo(ratio4,-push4,attack4,release4)):*(Makeup4),*(Makeup4);
-gcomp5s = bandpass5s:bypass2(bswitch5,compressor_stereo(ratio5,-push5,attack5,release5)):*(Makeup5),*(Makeup5);
+process =   (_,_):geqs: ( gcomp5s , gcomp4s , gcomp3s, gcomp2s, gcomp1s) :>(_,_) with { 
+gcomp1s = bypass2(bswitch1,compressor_stereo(ratio1,-push1,attack1,release1)):*(Makeup1),*(Makeup1);
+gcomp2s = bypass2(bswitch2,compressor_stereo(ratio2,-push2,attack2,release2)):*(Makeup2),*(Makeup2);
+gcomp3s = bypass2(bswitch3,compressor_stereo(ratio3,-push3,attack3,release3)):*(Makeup3),*(Makeup3);
+gcomp4s = bypass2(bswitch4,compressor_stereo(ratio4,-push4,attack4,release4)):*(Makeup4),*(Makeup4);
+gcomp5s = bypass2(bswitch5,compressor_stereo(ratio5,-push5,attack5,release5)):*(Makeup5),*(Makeup5);
 };
 
 
 hifr1			=hslider("crossover_b1_b2 [log][name:Crossover B1-B2 (hz)][tooltip: Crossover bandpass frequency]" ,80 , 20, 20000, 1.08);
-lowfr2			=hifr1;
 hifr2			=hslider("crossover_b2_b3 [log][name:Crossover B2-B3 (hz)][tooltip: Crossover bandpass frequency]",210,20,20000,1.08);
-lowfr3			=hifr2;
 hifr3			=hslider("crossover_b3_b4 [log][name:Crossover B3-B4 (hz)][tooltip: Crossover bandpass frequency]",1700,20,20000,1.08);
-lowfr4			=hifr3;
 hifr4			=hslider("crossover_b4_b5 [log][name:Crossover B4-B5 (hz)][tooltip: Crossover bandpass frequency]",5000,20,20000,1.08);
-lowfr5			=hifr4;
 
-bandpass1 	= lowpass(3,hifr1) ;
-bandpass2 	= lowpass(3,hifr2) : highpass(3,lowfr2);
-bandpass3 	= lowpass(3,hifr3) : highpass(3,lowfr3);
-bandpass4 	= lowpass(3,hifr4) : highpass(3,lowfr4);
-bandpass5 	= highpass(3,lowfr5);
-
-bandpass1s = (bandpass1,bandpass1);
-bandpass2s = (bandpass2,bandpass2);
-bandpass3s = (bandpass3,bandpass3);
-bandpass4s = (bandpass4,bandpass4);
-bandpass5s = (bandpass5,bandpass5);
+geq = filterbank(3, (hifr1,hifr2,hifr3,hifr4));
+cross5 =  _,!,!,!,!,_,!,!,!,!,!,_,!,!,!,!,_,!,!,!,!,!,_,!,!,!,!,_,!,!,!,!,!,_,!,!,!,!,_,!,!,!,!,!,_,!,!,!,!,_ ;
+geqs = (geq,geq) <: cross5;
 
 ratio1 		= hslider("[9] Ratio1 [tooltip: Compression ratio]",2,1,100,0.1);
 attack1		= hslider("[A] Attack1 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);

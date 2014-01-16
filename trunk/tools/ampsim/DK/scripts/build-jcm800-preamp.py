@@ -117,10 +117,10 @@ class CompareFilter(object):
 
 
 def calc_shape_transform(fnum, resnum, minmax, c):
-    p0 = np.zeros(c.sim_py.eq.nni)
-    end = c.sim_py.eq.blocklist[-1].stop
-    Kn = np.concatenate(c.sim_py.eq.Kn, axis=0)
-    p0[:end] = ((c.sim_py.p0 + c.sim_py.eq.Hc0)[:6] + Kn * np.matrix(c.sim_py.v00[6:]).T).A1
+    p0 = np.zeros(c.sim_py.eq.nonlin.nni)
+    end = c.sim_py.eq.nonlin.cc_slice.start
+    Kn = np.concatenate([bl.Mi for bl in c.sim_py.eq.nonlin.subblocks], axis=0)
+    p0[:end] = ((c.sim_py.p0 + c.sim_py.eq.nonlin.Hc)[:6] + Kn * np.matrix(c.sim_py.v00[6:]).T).A1
     p0[end:] = c.sim_py.p0[6:].A1
     argstart = fnum*2
     if minmax[argstart+1,0] == minmax[argstart+1,1]:
@@ -232,7 +232,15 @@ sig = Signal()
 sr = sig(20*sig.sine(freq=150), timespan=1)
 s = sig(0.15*sig.sine(freq=150), timespan=0.2)
 c = Circuit(FS=96000)
-c.set_module_id("JCM800Pre")
+mod_id = "JCM800Pre"
+c.set_module_id(mod_id)
+c.plugindef = dk_simulator.PluginDef(mod_id)
+c.plugindef.name = "JCM 800 Preamp"
+c.plugindef.shortname = "JCM800Pre"
+c.plugindef.description = "Simulation of JCM 800 preamp circuit"
+c.plugindef.category = "Distortion"
+c.plugindef.namespace = "jcm800pre"
+c.build_script = sys.argv[0]
 c.set_netlist(circ.Preamp_test.S, circ.Preamp_test.V)
 c.backward_euler = True
 c.partition = True
@@ -278,4 +286,5 @@ if 1:
     c.post_filter = highpass_as_postfilter(20, c.FS)
 
 c.code_generator = CodeGenerator
-c.deploy()
+c.build_guitarix_module(include_paths=["../../../src/headers"])
+#c.deploy()
