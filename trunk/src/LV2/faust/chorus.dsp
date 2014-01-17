@@ -14,10 +14,10 @@ freq	= hslider("freq", 3, 0, 10, 0.01);
 dtime	= hslider("delay", 0.02, 0, 0.2, 0.01);
 depth	= hslider("depth", 0.02, 0, 1, 0.01);
 
-tblosc(n,f,freq,mod)	= (1-d)*rdtable(n,waveform,i&(n-1)) +
-			  d*rdtable(n,waveform,(i+1)&(n-1))
+tblosc(n,f,freq,mod)	= (1-d)*rdtable(n,wform,i&(n-1)) +
+			  d*rdtable(n,wform,(i+1)&(n-1))
 with {
-	waveform 	= time*(2.0*PI)/n : f;
+	wform 	= time*(2.0*PI)/n : f;
 	phase		= freq/SR : (+ : decimal) ~ _;
 	modphase	= decimal(phase+mod/(2*PI))*n;
 	i		= int(floor(modphase));

@@ -40,10 +40,10 @@ f5	= hslider("freq5[tooltip:Beats per Minute]",150,24,360,1)/60;
 d5	= hslider("delay5", 0.10, 0, 0.2, 0.01): smooth(0.999);
 de5	= hslider("depth5", 0.10, 0.01, 1, 0.01)/10;
 
-tblosc(n,f,freq,mod)	= (1-d)*rdtable(n,waveform,i&(n-1)) +
-			  d*rdtable(n,waveform,(i+1)&(n-1))
+tblosc(n,f,freq,mod)	= (1-d)*rdtable(n,wform,i&(n-1)) +
+			  d*rdtable(n,wform,(i+1)&(n-1))
 with {
-	waveform 	= time*(2.0*PI)/n : f;
+	wform 	= time*(2.0*PI)/n : f;
 	phase		= freq/SR : (+ : decimal) ~ _;
 	modphase	= decimal(phase+mod/(2*PI))*n;
 	i		= int(floor(modphase));
