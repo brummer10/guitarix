@@ -350,7 +350,7 @@ void Widget::change_skin(int model)
   rcfile += to_string(model);
   rcfile += ".rc";
   gtk_rc_parse(rcfile.c_str());
-  gtk_rc_reparse_all_for_settings(gtk_settings_get_default(),true);
+  //gtk_rc_reparse_all_for_settings(gtk_settings_get_default(),true);
   Glib::ustring o = "widget \"*." + plug_name + "\" style:highest \"gx_lv2-" + to_string(model) + "\"";
   gtk_rc_parse_string(o.c_str());
   gtk_rc_reset_styles(gtk_settings_get_default());
