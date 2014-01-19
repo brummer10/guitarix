@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import wscript_helper
+import shutil 
 
 def build(bld):
     unused_sources = [
@@ -101,6 +102,7 @@ def build(bld):
         'bmfp.dsp',
         'lowpass_up.dsp',
         'lowpass_down.dsp',
+         'graphiceq.dsp',
  
         # tone stacks
         'tonestack_default.dsp',
@@ -208,11 +210,24 @@ def build(bld):
         'balance.dsp',
         ]
 
+    sources_gx_plugin = [
+
+        # 'graphiceq.dsp',
+        ]
+
 
     if bld.env['FAUST']:
+        for x in sources_gx_plugin:
+            shutil.copy('src/faust/%s' % x, 'src/LV2/faust/%s' % x)
+
         arg, float_arg, double_arg = wscript_helper.get_faust_args(bld)
         bld.new_task_gen(
             source = sources_plugin,
+            proc = "../tools/dsp2cc",
+            proc_args = arg+["--init-type=plugin-lv2"],
+            )
+        bld.new_task_gen(
+            source = sources_gx_plugin,
             proc = "../tools/dsp2cc",
             proc_args = arg+["--init-type=plugin-lv2"],
             )

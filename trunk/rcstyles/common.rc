@@ -114,6 +114,7 @@ style "guitarix_slevel"
 {
   stock["levelslider"] = {{"simplelevelslider.png"}}
   GxRegler::show-value = 0
+  GxLevelSlider::slider--width = 3
 }
 
 
