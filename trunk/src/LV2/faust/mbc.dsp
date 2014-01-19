@@ -9,27 +9,26 @@ import("filter.lib");
 import("music.lib");
 import("reduce.lib");
 
-vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[unit:dB]", -70, +5));
-vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[unit:dB]", -70, +5));
-vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[unit:dB]", -70, +5));
-vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[unit:dB]", -70, +5));
-vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[unit:dB]", -70, +5));
+vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[tooltip:no]", -70, +5));
+vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[tooltip:no]", -70, +5));
+vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[tooltip:no]", -70, +5));
+vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[tooltip:no]", -70, +5));
+vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[tooltip:no]", -70, +5));
+vmeter6(x)		= attach(x, envelop(x) : vbargraph("v6[tooltip:no]", -70, +5));
+vmeter7(x)		= attach(x, envelop(x) : vbargraph("v7[tooltip:no]", -70, +5));
+vmeter8(x)		= attach(x, envelop(x) : vbargraph("v8[tooltip:no]", -70, +5));
+vmeter9(x)		= attach(x, envelop(x) : vbargraph("v9[tooltip:no]", -70, +5));
+vmeter10(x)		= attach(x, envelop(x) : vbargraph("v10[tooltip:no]", -70, +5));
 
-vmeter6(x)		= attach(x, envelop(x) : vbargraph("v6[unit:dB]", -70, +5));
-vmeter7(x)		= attach(x, envelop(x) : vbargraph("v7[unit:dB]", -70, +5));
-vmeter8(x)		= attach(x, envelop(x) : vbargraph("v8[unit:dB]", -70, +5));
-vmeter9(x)		= attach(x, envelop(x) : vbargraph("v9[unit:dB]", -70, +5));
-vmeter10(x)		= attach(x, envelop(x) : vbargraph("v10[unit:dB]", -70, +5));
-
-envelop         = abs : max ~ (1.0/SR) : reduce(max,4096)  ; // : max(db2linear(-70)) : linear2db;
+envelop         = abs : max ~ (1.0/SR) : reduce(max,4096) ; // : max(db2linear(-70)) : linear2db;
 
 //Mono 
-process =   _<: ( gcomp1s , gcomp2s , gcomp3s, gcomp4s, gcomp5s) :>_ with { 
-gcomp1s = bandpass1: vmeter6:bypass1(bswitch1,compressor_mono(ratio1,-push1,attack1,release1)):*(Makeup1): vmeter1;
-gcomp2s = bandpass2: vmeter7:bypass1(bswitch2,compressor_mono(ratio2,-push2,attack2,release2)):*(Makeup2): vmeter2;
-gcomp3s = bandpass3: vmeter8:bypass1(bswitch3,compressor_mono(ratio3,-push3,attack3,release3)):*(Makeup3): vmeter3;
-gcomp4s = bandpass4: vmeter9:bypass1(bswitch4,compressor_mono(ratio4,-push4,attack4,release4)):*(Makeup4): vmeter4;
-gcomp5s = bandpass5: vmeter10:bypass1(bswitch5,compressor_mono(ratio5,-push5,attack5,release5)):*(Makeup5): vmeter5;
+process =   geq : ( gcomp5s , gcomp4s , gcomp3s, gcomp2s, gcomp1s) :>_ with { 
+gcomp1s = vmeter6:bypass1(bswitch1,compressor_mono(ratio1,-push1,attack1,release1)):*(Makeup1) : vmeter1;
+gcomp2s = vmeter7:bypass1(bswitch2,compressor_mono(ratio2,-push2,attack2,release2)):*(Makeup2) : vmeter2;
+gcomp3s = vmeter8:bypass1(bswitch3,compressor_mono(ratio3,-push3,attack3,release3)):*(Makeup3) : vmeter3;
+gcomp4s = vmeter9:bypass1(bswitch4,compressor_mono(ratio4,-push4,attack4,release4)):*(Makeup4) : vmeter4;
+gcomp5s = vmeter10:bypass1(bswitch5,compressor_mono(ratio5,-push5,attack5,release5)):*(Makeup5) : vmeter5;
 };
 
 
@@ -55,39 +54,31 @@ bswitch4	= max(0,sel4-1);
 bswitch5	= max(0,sel5-1);
 
 hifr1			=hslider("crossover_b1_b2 [log][name:Crossover B1-B2 (hz)][tooltip: Crossover bandpass frequency]" ,80 , 20, 20000, 1.08);
-lowfr2			=hifr1;
 hifr2			=hslider("crossover_b2_b3 [log][name:Crossover B2-B3 (hz)][tooltip: Crossover bandpass frequency]",210,20,20000,1.08);
-lowfr3			=hifr2;
 hifr3			=hslider("crossover_b3_b4 [log][name:Crossover B3-B4 (hz)][tooltip: Crossover bandpass frequency]",1700,20,20000,1.08);
-lowfr4			=hifr3;
 hifr4			=hslider("crossover_b4_b5 [log][name:Crossover B4-B5 (hz)][tooltip: Crossover bandpass frequency]",5000,20,20000,1.08);
-lowfr5			=hifr4;
 
-bandpass1 	= lowpass(3,hifr1) ;
-bandpass2 	= lowpass(3,hifr2) : highpass(3,lowfr2);
-bandpass3 	= lowpass(3,hifr3) : highpass(3,lowfr3);
-bandpass4 	= lowpass(3,hifr4) : highpass(3,lowfr4);
-bandpass5 	= highpass(3,lowfr5);
+geq = filterbank(3, (hifr1,hifr2,hifr3,hifr4));
 
 ratio1 		= hslider("[9] Ratio1 [tooltip: Compression ratio]",2,1,100,0.1);
-attack1		= hslider("[A] Attack1 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release1 	= hslider("[B] Release1 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack1		= hslider("[A] Attack1 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release1 	= hslider("[B] Release1 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 ratio2 		= hslider("[9] Ratio2 [tooltip: Compression ratio]",2,1,100,0.1);
-attack2		= hslider("[A] Attack2 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release2 	= hslider("[B] Release2 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack2		= hslider("[A] Attack2 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release2 	= hslider("[B] Release2 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 ratio3 		= hslider("[9] Ratio3 [tooltip: Compression ratio]",2,1,100,0.1);
-attack3		= hslider("[A] Attack3 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release3 	= hslider("[B] Release3 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack3		= hslider("[A] Attack3 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release3 	= hslider("[B] Release3 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 ratio4 		= hslider("[9] Ratio4 [tooltip: Compression ratio]",2,1,100,0.1);
-attack4		= hslider("[A] Attack4 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release4 	= hslider("[B] Release4 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack4		= hslider("[A] Attack4 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release4 	= hslider("[B] Release4 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 ratio5 		= hslider("[9] Ratio5 [tooltip: Compression ratio]",2,1,100,0.1);
-attack5		= hslider("[A] Attack5 [tooltip: Time before the compressor starts to kick in]", 0.012, 0, 1, 0.001);
-release5 	= hslider("[B] Release5 [tooltip: Time before the compressor releases the sound]", 1.25, 0, 10, 0.01);
+attack5		= hslider("[A] Attack5 [tooltip: Time before the compressor starts to kick in]", 0.012, 0.001, 1, 0.001);
+release5 	= hslider("[B] Release5 [tooltip: Time before the compressor releases the sound]", 1.25, 0.01, 10, 0.01);
 
 push1 		= hslider("[5] Makeup1 [tooltip: Post amplification and threshold]"   , 13, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
 push2 		= hslider("[5] Makeup2 [tooltip: Post amplification and threshold]"   , 10, -50, +50, 0.1) ; // threshold-=push ;  makeup+=push
