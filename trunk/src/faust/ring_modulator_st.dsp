@@ -1,4 +1,4 @@
-declare id "ring modulator st";
+declare id "ringModulatorSt";
 declare name "Ring Modulator";
 declare category "Modulation";
 declare description "Ring Modulator Stereo Version";
