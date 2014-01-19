@@ -122,6 +122,7 @@ namespace gx_effects {
 #include "faust/ring_modulator_st.cc"
 #include "faust/panoram_enhancer.cc"
 #include "faust/graphiceq.cc"
+#include "faust/bass_enhancer.cc"
 
 }
 

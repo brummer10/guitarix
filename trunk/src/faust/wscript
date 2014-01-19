@@ -126,6 +126,8 @@ def build(bld):
         'ring_modulator_st.dsp',
         'panoram_enhancer.dsp',
         'graphiceq.dsp',
+	'bass_enhancer.dsp',
+
 
         # amps
         'gxamp.dsp',

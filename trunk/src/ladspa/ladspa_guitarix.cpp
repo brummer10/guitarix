@@ -1530,6 +1530,7 @@ void StereoEngine::load_static_plugins() {
     pl.add(pluginlib::mbcs::plugin(),             PLUGIN_POS_RACK);
     pl.add(gx_effects::dattorros_progenitor::plugin(),PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::panoram_enhancer::plugin(),PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::bass_enhancer::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
 }
 
 

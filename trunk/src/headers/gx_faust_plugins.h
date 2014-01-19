@@ -122,6 +122,7 @@ declare(ring_modulator)
 declare(ring_modulator_st)
 declare(panoram_enhancer)
 declare(graphiceq)
+declare(bass_enhancer)
 }
 
 declare(balance)
