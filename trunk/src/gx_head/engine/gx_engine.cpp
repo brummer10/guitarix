@@ -283,6 +283,7 @@ void GxEngine::load_static_plugins() {
     pl.add(builtin_tonestack_plugins,             PLUGIN_POS_RACK, PGN_ALTERNATIVE);
 
     // mono
+    pl.add(gx_effects::gain::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::low_high_pass::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::highbooster::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::selecteq::plugin(),        PLUGIN_POS_RACK, PGN_GUI);

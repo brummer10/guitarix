@@ -44,6 +44,7 @@ src/faust-generated/expander.cc
 src/faust-generated/flanger.cc
 src/faust-generated/flanger_mono.cc
 src/faust-generated/freeverb.cc
+src/faust-generated/gain.cc
 src/faust-generated/graphiceq.cc
 src/faust-generated/gx_ampmodul.cc
 src/faust-generated/gx_ampout.cc

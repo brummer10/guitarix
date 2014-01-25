@@ -123,6 +123,7 @@ namespace gx_effects {
 #include "faust/panoram_enhancer.cc"
 #include "faust/graphiceq.cc"
 #include "faust/bass_enhancer.cc"
+#include "faust/gain.cc"
 
 }
 
