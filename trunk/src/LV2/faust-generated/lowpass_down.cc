@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/lowpass_down.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace lowpass_down {
@@ -9,22 +9,18 @@ private:
 	uint32_t fSamplingFreq;
 	int 	iConst0;
 	double 	fConst1;
+	double 	fVec0[2];
 	double 	fConst2;
 	double 	fConst3;
 	double 	fConst4;
 	double 	fConst5;
+	double 	fRec5[2];
 	double 	fConst6;
 	double 	fConst7;
 	double 	fConst8;
 	double 	fConst9;
-	double 	fVec0[2];
 	double 	fConst10;
-	double 	fRec5[2];
-	double 	fRec4[3];
-	double 	fConst11;
-	double 	fRec7[2];
-	double 	fRec6[3];
-	double 	fConst12;
+	double 	fRec4[2];
 	double 	fRec0[2];
 	int 	iRec1[2];
 	double 	fRec2[2];
@@ -68,9 +64,7 @@ inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) fVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec5[i] = 0;
-	for (int i=0; i<3; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) fRec7[i] = 0;
-	for (int i=0; i<3; i++) fRec6[i] = 0;
+	for (int i=0; i<2; i++) fRec4[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) iRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
@@ -86,17 +80,15 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (1.0 / double(iConst0));
-	fConst2 = tan((1099.5574287564275 / double(iConst0)));
-	fConst3 = (1.0 / faustpower<2>(fConst2));
-	fConst4 = (2 * (1 - fConst3));
-	fConst5 = (1.0 / fConst2);
-	fConst6 = (1 + ((fConst5 - 1.0000000000000004) / fConst2));
-	fConst7 = (1.0 / (1 + ((1.0000000000000004 + fConst5) / fConst2)));
-	fConst8 = (1 + fConst5);
-	fConst9 = (0 - ((1 - fConst5) / fConst8));
-	fConst10 = (0.5 / fConst8);
-	fConst11 = (0 - fConst5);
-	fConst12 = (2 * (0 - fConst3));
+	fConst2 = (1.0 / tan((17690.308232364125 / double(iConst0))));
+	fConst3 = (1 + fConst2);
+	fConst4 = (1.0 / fConst3);
+	fConst5 = (0 - ((1 - fConst2) / fConst3));
+	fConst6 = (1.0 / tan((251.32741228718345 / double(iConst0))));
+	fConst7 = (0 - fConst6);
+	fConst8 = (1 + fConst6);
+	fConst9 = (1.0 / fConst8);
+	fConst10 = (0 - ((1 - fConst6) / fConst8));
 	clear_state_f();
 }
 
@@ -111,25 +103,20 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
-		fRec5[0] = ((fConst10 * (fVec0[0] + fVec0[1])) + (fConst9 * fRec5[1]));
-		fRec4[0] = (fRec5[0] - (fConst7 * ((fConst6 * fRec4[2]) + (fConst4 * fRec4[1]))));
-		fRec7[0] = ((fConst10 * ((fConst11 * fVec0[1]) + (fConst5 * fVec0[0]))) + (fConst9 * fRec7[1]));
-		fRec6[0] = (fRec7[0] - (fConst7 * ((fConst6 * fRec6[2]) + (fConst4 * fRec6[1]))));
-		double fTemp1 = (fConst7 * ((((fConst3 * fRec6[0]) + (fConst12 * fRec6[1])) + (fConst3 * fRec6[2])) + (1.9952623149688795 * (fRec4[2] + (fRec4[0] + (2 * fRec4[1]))))));
-		double 	fRec3 = max(fConst1, fabs(fTemp1));
-		int iTemp2 = int((iRec1[1] < 4096));
-		fRec0[0] = ((iTemp2)?max(fRec0[1], fRec3):fRec3);
-		iRec1[0] = ((iTemp2)?(1 + iRec1[1]):1);
-		fRec2[0] = ((iTemp2)?fRec2[1]:fRec0[1]);
+		fRec5[0] = ((fConst5 * fRec5[1]) + (fConst4 * (fVec0[0] + fVec0[1])));
+		fRec4[0] = ((fConst10 * fRec4[1]) + (fConst9 * ((fConst6 * fRec5[0]) + (fConst7 * fRec5[1]))));
+		double 	fRec3 = max(fConst1, fabs(fRec4[0]));
+		int iTemp1 = int((iRec1[1] < 4096));
+		fRec0[0] = ((iTemp1)?max(fRec0[1], fRec3):fRec3);
+		iRec1[0] = ((iTemp1)?(1 + iRec1[1]):1);
+		fRec2[0] = ((iTemp1)?fRec2[1]:fRec0[1]);
 		fbargraph0 = fRec2[0];
-		output0[i] = (FAUSTFLOAT)fTemp1;
+		output0[i] = (FAUSTFLOAT)fRec4[0];
 		// post processing
 		fRec2[1] = fRec2[0];
 		iRec1[1] = iRec1[0];
 		fRec0[1] = fRec0[0];
-		fRec6[2] = fRec6[1]; fRec6[1] = fRec6[0];
-		fRec7[1] = fRec7[0];
-		fRec4[2] = fRec4[1]; fRec4[1] = fRec4[0];
+		fRec4[1] = fRec4[0];
 		fRec5[1] = fRec5[0];
 		fVec0[1] = fVec0[0];
 	}
