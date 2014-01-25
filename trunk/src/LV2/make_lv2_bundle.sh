@@ -36,8 +36,18 @@ if [ "$2" = "" ]; then
 else
   bname="$2"
 fi
-rm -rf gx_${bname}.lv2
+
+if [ ! -d gx_${bname}.lv2 ]; then
 mkdir -p gx_${bname}.lv2
+else
+echo "Directory gx_${bname}.lv2 allready exist, should we remove it? Yes/No"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) rm -rf gx_${bname}.lv2; mkdir -p gx_${bname}.lv2; break;;
+        No ) echo "exit"; exit;;
+    esac
+done
+fi
 
 set -e
 "$tooldir"/dsp2cc  --init-type=plugin-lv2  \
@@ -47,8 +57,9 @@ cp -r gx_sceleton.lv2/* gx_${bname}.lv2/
 cd ./gx_${bname}.lv2 && rename 's/sceleton/'${bname}'/g' * && sed -i 's/sceleton/'${bname}'/g' *
 
 cat "$bname.cc" | sed -n '/enum/,/PortIndex/p' |  sed '/enum/d;/PortIndex/d;/{/d;/}/d'>ports
-
 sed -i -e '/EFFECTS_INPUT/r ports' "gx_$bname.h"
 rm -rf ports
+
+echo "Okay, done, you need to add the used ports to gx_$bname.ttl" 
  # TO DO
  # add ports to bname.ttl 
