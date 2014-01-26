@@ -60,5 +60,4 @@
         lv2:index 1 ;
         lv2:symbol "in" ;
         lv2:name "In" ;
-    ].
- 
+    ] 
