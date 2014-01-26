@@ -105,6 +105,24 @@ always_inline int splinedata<unsigned short>::splev(splinecoeffs<unsigned short>
 }
 
 template<>
+template<int K0>
+always_inline int splinedata<unsigned char>::splev(splinecoeffs<unsigned char> *p, real xi[1], real *res)
+{
+    real h[K0];
+    retval cl;
+    cl.i = 0;
+    int ll = 0;
+    ll = forward<K0>(0, p, xi, ll, &cl, h);
+    treal *c = p->c[0]+ll;
+    real sp = 0;
+    for (int j = 0; j < K0; j++) {
+	sp += c[j]*h[j];
+    }
+    *res = sp;
+    return cl.i;
+}
+
+template<>
 template<>
 always_inline int splinedata<unsigned short>::splev_pp<4>(splinecoeffs<unsigned short> *p, real xi[1], real *res)
 {
