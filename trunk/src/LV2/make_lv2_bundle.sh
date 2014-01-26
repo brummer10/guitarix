@@ -75,7 +75,6 @@ do
   do
     if [ -z "${myEnum[0]}" ]; then
       match=0
-      echo "VAR is unset or set to the empty string"
     else
       a=${#myEnum[@]} 
       if (($a==1))
