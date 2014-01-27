@@ -8,7 +8,7 @@ RED="\033[1;31m"
 NONE="\033[0m"
 
 function usage() {
-  echo "usage: make_lv2_bundle {options} <dsp-file> [<plugin class>]"
+  echo "usage: make_lv2_bundle {options} <dsp-file> [<plugin class>] "
   echo "options:"
   echo "    -s:   faust use single precision"
   echo "    -d:   faust use double precision (default)"
@@ -59,19 +59,33 @@ set -e
 "$tooldir"/dsp2cc  --init-type=plugin-lv2  \
   $prec "${faustopt[@]}" -o gx_${bname}.lv2/"$bname.cc" ${faustdir}/"$1"
 
+
+grep 'stereo_audio = 0;' gx_${bname}.lv2/$bname.cc >/dev/null && stereo="false"  || stereo="true"
+
+if [ "$stereo" == "false" ] ; then
 echo "copy gx_sceleton.lv2 to gx_$bname.lv2 and rename/replace strings to $bname"
 cp -r gx_sceleton.lv2/* gx_${bname}.lv2/ 
+j=2
+else
+echo "copy gx_sceleton_stereo.lv2 to gx_$bname.lv2 and rename/replace strings to $bname"
+cp -r gx_sceleton_stereo.lv2/* gx_${bname}.lv2/ 
+j=4
+fi
+
 cd ./gx_${bname}.lv2 && rename 's/sceleton/'${bname}'/g' * && sed -i 's/sceleton/'${bname}'/g' *
 
 echo "grep ports and copy them to  gx_$bname.h"
 cat "$bname.cc" | sed -n '/enum/,/PortIndex/p' |  sed '/enum/d;/PortIndex/d;/{/d;/}/d'>ports
-sed -i -e '/EFFECTS_INPUT/r ports' "gx_$bname.h"
 
+if [ "$stereo" == "false" ] ; then
+sed -i -e '/EFFECTS_INPUT/r ports' "gx_$bname.h"
+else
+sed -i -e '/EFFECTS_INPUT1/r ports' "gx_$bname.h"
+fi
 echo "grep ports values and enums and copy them to gx_$bname.ttl"
 cat "$bname.cc" | sed -n '/data;/{p;g;1!p;};h' | sed 's/ , /\n/;s/.*\n//;s/case//g;s/,/ ;/g;s/://g;s/	 //g;s/  //g;s/ //g;s/$/;/' | sed '$!N;s/\n//'>ports
 cat "$bname.cc" | sed -n '/value_pair/{p;n;1!p;};h' | sed 's/{/\n/;s/.*\n//;s/ , /\n/;s/.*\n//;s/case//g;s/}//g;s/{//g;s/;//g;s/,/ ;/g;s/://g;s/	 //g;s/;0//g;s/  //g;s/ //g;s/$/;/' > enums
 
-j=2;
 match=0
 
 while IFS=$';' read -r -a myPorts
@@ -87,6 +101,8 @@ do
         if [ ${myPorts[4]} == ${myEnum[0]} ]
         then
           match=1
+          sed -i -e "1d" enums
+          sed -i -e "1d" enums
           break
         fi
       else
@@ -100,7 +116,7 @@ do
         done
       fi
     fi
-  sed -i -e "1d" enums
+ # sed -i -e "1d" enums
   done < enums
   echo '      , [
         a lv2:InputPort ,
@@ -121,6 +137,7 @@ do
   fi
   echo -n '    ]'
   j=$[j+1]
+  enum_var1=""
 done < ports >> gx_$bname.ttl
 echo "." >> gx_$bname.ttl
 if [ ! -z "$effect_name" ]; then
