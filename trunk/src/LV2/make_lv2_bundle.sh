@@ -127,8 +127,8 @@ if [ ! -z "$effect_name" ]; then
   sed -i 's/EffectPlugin/'${effect_name}'/g'  gx_$bname.ttl
   echo "set plugin class to $effect_name"
 fi
-#rm -rf ports
-#rm -rf enums
+rm -rf ports
+rm -rf enums
 
 
 echo -e $BLUE"Okay, gx_${bname}.lv2 is done"$NONE
