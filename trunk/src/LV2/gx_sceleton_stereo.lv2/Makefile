@@ -6,12 +6,21 @@
 	else 
 	INSTALL_DIR = ~/.lv2
 	endif
+	
+	ifneq (cat /proc/cpuinfo | grep sse2 >/dev/null,)
+	SSE_CFLAGS = -msse2 -mfpmath=sse
+	else ifneq (cat /proc/cpuinfo | grep sse >/dev/null,)
+	SSE_CFLAGS = -msse -mfpmath=sse
+	else
+	SSE_CFLAGS = ""
+	endif
+	
 	# set bundle name
 	NAME = gx_sceleton
 	BUNDLE = $(NAME).lv2
 	VER = 0.1
 	# set compile flags
-	CXXFLAGS = -I. -I../DSP -Wall -ffast-math 
+	CXXFLAGS = -I. -I../DSP  -O2 -Wall -funroll-loops -ffast-math -fomit-frame-pointer -fstrength-reduce $(SSE_CFLAGS)
 	LDFLAGS = -I. -I../DSP -shared -Llibrary -lc -lm  -fPIC -DPIC  
 	# invoke build files
 	OBJECTS = $(NAME).cpp 

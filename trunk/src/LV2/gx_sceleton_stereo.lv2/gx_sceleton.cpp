@@ -27,6 +27,8 @@
 
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
+namespace sceleton {
+
 class Gx_sceleton_
 {
 private:
@@ -207,6 +209,8 @@ const LV2_Descriptor Gx_sceleton_::descriptor =
   NULL
 };
 
+} // end namespace sceleton
+
 ////////////////////////// LV2 SYMBOL EXPORT ///////////////////////////
 
 extern "C"
@@ -217,7 +221,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &Gx_sceleton_::descriptor;
+      return &sceleton::Gx_sceleton_::descriptor;
     default:
       return NULL;
     }

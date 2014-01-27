@@ -63,13 +63,13 @@ set -e
 grep 'stereo_audio = 0;' gx_${bname}.lv2/$bname.cc >/dev/null && stereo="false"  || stereo="true"
 
 if [ "$stereo" == "false" ] ; then
-echo "copy gx_sceleton.lv2 to gx_$bname.lv2 and rename/replace strings to $bname"
-cp -r gx_sceleton.lv2/* gx_${bname}.lv2/ 
-j=2
+  echo "copy gx_sceleton.lv2 to gx_$bname.lv2 and rename/replace strings to $bname"
+  cp -r gx_sceleton.lv2/* gx_${bname}.lv2/ 
+  j=2
 else
-echo "copy gx_sceleton_stereo.lv2 to gx_$bname.lv2 and rename/replace strings to $bname"
-cp -r gx_sceleton_stereo.lv2/* gx_${bname}.lv2/ 
-j=4
+  echo "copy gx_sceleton_stereo.lv2 to gx_$bname.lv2 and rename/replace strings to $bname"
+  cp -r gx_sceleton_stereo.lv2/* gx_${bname}.lv2/ 
+  j=4
 fi
 
 cd ./gx_${bname}.lv2 && rename 's/sceleton/'${bname}'/g' * && sed -i 's/sceleton/'${bname}'/g' *
@@ -78,9 +78,9 @@ echo "grep ports and copy them to  gx_$bname.h"
 cat "$bname.cc" | sed -n '/enum/,/PortIndex/p' |  sed '/enum/d;/PortIndex/d;/{/d;/}/d'>ports
 
 if [ "$stereo" == "false" ] ; then
-sed -i -e '/EFFECTS_INPUT/r ports' "gx_$bname.h"
+  sed -i -e '/EFFECTS_INPUT/r ports' "gx_$bname.h"
 else
-sed -i -e '/EFFECTS_INPUT1/r ports' "gx_$bname.h"
+  sed -i -e '/EFFECTS_INPUT1/r ports' "gx_$bname.h"
 fi
 echo "grep ports values and enums and copy them to gx_$bname.ttl"
 cat "$bname.cc" | sed -n '/data;/{p;g;1!p;};h' | sed 's/ , /\n/;s/.*\n//;s/case//g;s/,/ ;/g;s/://g;s/	 //g;s/  //g;s/ //g;s/$/;/' | sed '$!N;s/\n//'>ports
@@ -101,8 +101,7 @@ do
         if [ ${myPorts[4]} == ${myEnum[0]} ]
         then
           match=1
-          sed -i -e "1d" enums
-          sed -i -e "1d" enums
+          sed -i -e "1,2d" enums
           break
         fi
       else
