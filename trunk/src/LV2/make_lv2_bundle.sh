@@ -8,7 +8,7 @@ RED="\033[1;31m"
 NONE="\033[0m"
 
 function usage() {
-  echo "usage: make_lv2_bundle {options} <dsp-file> [<module-name>]"
+  echo "usage: make_lv2_bundle {options} <dsp-file> [<plugin class>]"
   echo "options:"
   echo "    -s:   faust use single precision"
   echo "    -d:   faust use double precision (default)"
@@ -38,7 +38,8 @@ shift $(expr $OPTIND - 1)
 if [ "$2" = "" ]; then
   bname="$(basename "$1" .dsp)"
 else
-  bname="$2"
+  bname="$(basename "$1" .dsp)"
+  effect_name="$2"
 fi
 
 if [ ! -d gx_${bname}.lv2 ]; then
@@ -67,8 +68,8 @@ cat "$bname.cc" | sed -n '/enum/,/PortIndex/p' |  sed '/enum/d;/PortIndex/d;/{/d
 sed -i -e '/EFFECTS_INPUT/r ports' "gx_$bname.h"
 
 echo "grep ports values and enums and copy them to gx_$bname.ttl"
-cat "$bname.cc" | sed -n '/data;/{p;g;1!p;};h' | sed 's/ , /\n/;s/.*\n//;s/case//g;s/,/ ;/g;s/://g;s/	 //g;s/$/;/' | sed '$!N;s/\n/ /'>ports
-cat "$bname.cc" | sed -n '/value_pair/{p;n;1!p;};h' | sed 's/{/\n/;s/.*\n//;s/ , /\n/;s/.*\n//;s/case//g;s/}//g;s/{//g;s/;//g;s/,/ ;/g;s/://g;s/	 //g;s/;0//g;s/$/;/' > enums
+cat "$bname.cc" | sed -n '/data;/{p;g;1!p;};h' | sed 's/ , /\n/;s/.*\n//;s/case//g;s/,/ ;/g;s/://g;s/	 //g;s/  //g;s/ //g;s/$/;/' | sed '$!N;s/\n//'>ports
+cat "$bname.cc" | sed -n '/value_pair/{p;n;1!p;};h' | sed 's/{/\n/;s/.*\n//;s/ , /\n/;s/.*\n//;s/case//g;s/}//g;s/{//g;s/;//g;s/,/ ;/g;s/://g;s/	 //g;s/;0//g;s/  //g;s/ //g;s/$/;/' > enums
 
 j=2;
 match=0
@@ -122,8 +123,12 @@ do
   j=$[j+1]
 done < ports >> gx_$bname.ttl
 echo "." >> gx_$bname.ttl
-rm -rf ports
-rm -rf enums
+if [ ! -z "$effect_name" ]; then
+  sed -i 's/EffectPlugin/'${effect_name}'/g'  gx_$bname.ttl
+  echo "set plugin class to $effect_name"
+fi
+#rm -rf ports
+#rm -rf enums
 
 
 echo -e $BLUE"Okay, gx_${bname}.lv2 is done"$NONE
