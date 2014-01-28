@@ -31,7 +31,8 @@ c_template_top = Template("""\
 // DO NOT MODIFY!
 #include <iostream>
 #include <cmath>
-%if (@method == "hybr" || @method == "lm")
+%% %if (@method == "hybr" || @method == "lm")
+%if (@method == "lm")
 #include <cminpack.h>
 %else
 #include <float.h>
@@ -58,6 +59,10 @@ static inline int sign(creal v) {
     return v < 0 ? -1 : 1;
 }
 
+static inline int Heaviside(creal v) {
+    return v < 0 ? 0 : 1;  // Heaviside(0) == 1/2 in sympy but shouldn't matter
+}
+
 static Matrix<creal, @nx, 1> g_x;
 creal g_v_data[@nn];
 static Map<Matrix<creal, @nn, 1> >g_v(g_v_data);
@@ -69,7 +74,7 @@ static creal g_fnorm;
 static Array<creal, @nni, 1> g_min;
 static Array<creal, @nni, 1> g_max;
 
-#define INTERFACE_VERSION 3
+#define INTERFACE_VERSION 4
 
 extern "C" __attribute__ ((visibility ("default")))
 int get_interface_version() {
@@ -77,15 +82,25 @@ int get_interface_version() {
 }
 
 extern "C" __attribute__ ((visibility ("default")))
-void get_structure(const char **name, int *data_size, int *samplerate, const int **shapes, const int (**comp_sz)[3],
-                   const char **method, const char ***pot_vars, const double **pot,
-                   const char ***out_labels, const char **comment) {
+void get_structure(const char **name, int *data_size, int *samplerate, const int **shapes, const int (**comp_sz)[6],
+                   const char ***pins, const char ***comp_names, const char **method, const char ***pot_vars,
+                   const double **pot, const char ***out_labels, const char **comment) {
     static const char *n = "@name";
     static int sz[] = { @nx, @ni, @no, @npl, @nn, @nni, @nno, @nc, -1 }; // nx, ni, no, npl, nn, nni, nno, nc, -1
-    static int nn_sz[][3] = { // component nn, nni, nno
-    %for @c in @components:
-        {@c.nn, @c.nni, @c.nno},
+    static int nn_sz[][6] = { // component v_slice, p_slice, i_slice
+    %for @c in @components:\
+        {@c.v_slice.start, @c.v_slice.stop, @c.p_slice.start, @c.p_slice.stop, @c.i_slice.start, @c.i_slice.stop},
     %end
+    };
+    static const char *nn_name[] = { // component names
+    %for @c in @components:\
+        "@c.name", "@c.namespace",
+    %end 0
+    };
+    static const char *nn_pins[] = { // component pins
+    %for @c in @nlin_elements:\
+        "@c",
+    %end 0
     };
     static const char *m = "@method";
     static const char *pvars[] = {@pot_vars};
@@ -97,6 +112,8 @@ void get_structure(const char **name, int *data_size, int *samplerate, const int
     if (samplerate) *samplerate = @fs;
     if (shapes) *shapes = sz;
     if (comp_sz) *comp_sz = nn_sz;
+    if (pins) *pins = nn_pins;
+    if (comp_names) *comp_names = nn_name;
     if (method) *method = m;
     if (pot_vars) *pot_vars = pvars;
     if (pot) *pot = pvalues;
@@ -165,8 +182,9 @@ void set_state(creal *v, creal *x) {
 }
 %end
 
-%if (@method == "table")
 #define real realtype  // real conflicts with Eigen::real of new eigen library version
+typedef double real;
+%if (@method == "table")
 %include ("../intpp.h")
 #define NO_INTPP_INCLUDES
 %include ("../intpp.cc")
@@ -704,12 +722,13 @@ static int nonlin(struct nonlin_param &par) {
     /**/
 
     @setup
+    @store_p
     @p_transform
 
-    *par.info = hybrdX<2>(fcn, &par, @var_v_ref, fvec, xtol, maxfev, ml, mu, epsfcn,
+    *par.info = hybrdX<@nn>(fcn, &par, @var_v_ref, fvec, xtol, maxfev, ml, mu, epsfcn,
                           diag, mode, factor, nprint, par.nfev, fjac, ldfjac, r, lr,
                           qtf, wa1, wa2, wa3, wa4);
-    *par.fnorm = enorm<2>(fvec);
+    *par.fnorm = enorm<@nn>(fvec);
     @i_transform
     int ret = 0;
     if (*par.info != 1) {
@@ -736,8 +755,6 @@ static inline int nonlin_solve(nonlin_param& par) {
 }
 %end
 } // end namespace @namespace
-
-%parse ("c_template_calc_nonlin")
 """)
 
 c_template_nonlin_solver = Template("""
@@ -797,7 +814,9 @@ static inline int nonlin_solve(nonlin_param& par) {
 %end
 } // end namespace @namespace
 
+%if (@extern_nonlin)
 %parse ("c_template_calc_nonlin")
+%end
 """)
 
 c_template_table = Template("""
@@ -806,12 +825,12 @@ static inline int nonlin(nonlin_param& par) {
     real t[AmpData::@namespace::sd.m];
     real m[@nni+@npl];
     Map<Matrix<real, @nni+@npl, 1> >mp(m);
-    mp << last_pot.cast<real>(), (*par.p)@{blockV}.cast<real>();
+    mp << last_pot.cast<real>(), (*par.p)@{pblockV}.cast<real>();
     for (int j = 0; j < AmpData::@namespace::sd.m; j++) {
         splinecoeffs<AmpData::@namespace::maptype> *pc = &AmpData::@namespace::sd.sc[j];
         check(&AmpData::@namespace::sd, m, (*pc->eval)(pc, m, &t[j]));
     }
-    (*par.i)@{blockV} = Map<Matrix<real, @nno, 1> >(t).cast<creal>();
+    (*par.i)@{iblockV} = Map<Matrix<real, @nno, 1> >(t).cast<creal>();
     return 0;
 }
 
@@ -837,7 +856,7 @@ static inline int nonlin_solve(nonlin_param& par) {
 # maybe -mavx is the culprit (removed for now)??
 #
 build_script_template = Template("""\
-#! /bin/sh
+#! /bin/bash
 cd `dirname $0`
 fname="${1-@sourcename}"
 lname="${2-@soname}"
@@ -846,7 +865,7 @@ mo="-fwrapv -ffast-math -msse2"
 #mo="-fwrapv -fno-math-errno -ffinite-math-only -fno-rounding-math"
 #mo="$mo -fno-signaling-nans -fcx-limited-range -fno-signed-zeros"
 #mo="$mo -fno-trapping-math -fassociative-math -freciprocal-math"
-cc="c++"
+: ${CC:=c++}
 %if (@debug)
 dbg="-g -O2"
 %else
@@ -860,11 +879,11 @@ def="@defines"
 opt="-fno-stack-protector"
 set -e
 %if (@optimize)
-$cc $co $lo $mo $opt -fprofile-arcs $dbg $CFLAGS $def $inc "$fname" -o "$lname_" $libs
+$CC $co $lo $mo $opt -fprofile-arcs $dbg $CFLAGS $def $inc "$fname" -o "$lname_" $libs
 python t.py
-$cc $co $lo $mo $opt -fprofile-use $dbg $CFLAGS $def $inc "$fname" -o "$lname" $libs
+$CC $co $lo $mo $opt -fprofile-use $dbg $CFLAGS $def $inc "$fname" -o "$lname" $libs
 %else
-$cc $co $lo $mo $opt $dbg $CFLAGS $def $inc "$fname" -o "$lname" $libs
+$CC $co $lo $mo $opt $dbg $CFLAGS $def $inc "$fname" -o "$lname" $libs
 %end
 """)
 

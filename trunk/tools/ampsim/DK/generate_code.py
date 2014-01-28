@@ -189,32 +189,36 @@ class NonlinFunctionCC(object):
         neq = self.neq
         have_constant_matrices = (neq.eq.np == 0)
         end = neq.cc_slice.start
-        V0 = slice(0, end)
-        V1 = slice(end, neq.nn)
+        cc = neq.cc_slice.stop - neq.cc_slice.start
+        p0_slice = slice(neq.p_slice.start, neq.p_slice.stop-cc)
+        p1_slice = slice(neq.p_slice.stop-cc, neq.p_slice.stop)
+        i0_slice = slice(neq.i_slice.start, neq.i_slice.stop-cc)
+        i1_slice = slice(neq.i_slice.stop-cc, neq.i_slice.stop)
         M0 = (slice(0, end), slice(end, neq.nn))
         M1 = (slice(end, neq.nn), slice(0, neq.nn))
         loc = Namespace()
         l = []
         loc.add(MatrixDefinition('Mv', value='v', rows=neq.nn-end, cols=1, aligned=False, const=True))
         if self.extra_sources:
-            loc.add(MatrixDefinition('pt', rows=end, cols=1, array=True))
+            loc.add(MatrixDefinition('pt', rows=p0_slice.stop-p0_slice.start, cols=1, array=True))
             pt = VectorAccess('pt')
         else:
             loc.add(MatrixDefinition('pt', rows=neq.nn, cols=1))
-            pt = VectorAccess('pt', block=V0)
+            pt = VectorAccess('pt', block=p0_slice)
         l += loc.generate_lines()
         if have_constant_matrices:
-            self.global_ns.add(MatrixDefinition('Ku', neq.eq.K[M0]))
+            #self.global_ns.add(MatrixDefinition('Ku', neq.eq.K[M0]))
+            self.global_ns.add(MatrixDefinition('Ku', neq.Ku))
             Ku = MatrixAccess('Ku')
         else:
             Ku = MatrixAccess('K', param=True, block=M0, pointer=False)
         l.append("%s = %s + %s * %s;\n" % (
             pt,
-            VectorAccess('p', param=True, block=V0),
+            VectorAccess('p', param=True, block=p0_slice),
             Ku,
             VectorAccess('Mv')))
         if self.extra_sources:
-            shape_transform = self.extra_sources["shape_transform"]
+            shape_transform = self.extra_sources.get("shape_transform", ())
             for mat in shape_transform:
                 self.global_ns.add(mat)
             if shape_transform:
@@ -243,29 +247,44 @@ class NonlinFunctionCC(object):
                 inp = ["&pt(%d)" % (i//2) for i in range(end)]
                 outp = ["&res(%d)" % i for i in spliced(nn2)]
             else:
-                jj = 0
                 inp = []
                 outp = []
-                for i, sl in enumerate(self.blocklist):
+                for bl in neq.subblocks:
                     o = VectorAccess('i', param=True)
-                    for j in range(sl.stop - sl.start):
-                        inp.append("&pt(%d)" % i)
-                        inp.append("&%s(%d)" % (o, jj))
-                        jj += 1
+                    for j in range(bl.i_slice.start, bl.i_slice.stop):
+                        inp.append("&pt(%d)" % bl.p_slice.start)
+                        outp.append("&%s(%d)" % (o, j))
             jj = 0
             tables = self.extra_sources["tables"]
-            for i, bl in enumerate(neq.subblocks):
-                for j, kn in enumerate(tables[i].knot_data):
+            for bl in neq.subblocks:
+                for j, kn in enumerate(tables[bl.namespace].knot_data):
+                    reorder = False
+                    unused = False
+                    ll = []
+                    for i, v in enumerate(kn):
+                        if not v.used():
+                            unused = True
+                        else:
+                            ll.append(i)
+                            if unused:
+                                reorder = True
+                    if reorder:
+                        l.append("{ Array<creal, %d, 1> pt2; pt2 << %s;\n" % (len(ll), ", ".join(["pt(%d)" % (bl.p_slice.start+i) for i in ll])))
+                        inpt = "&pt2(0)"
+                    else:
+                        inpt = inp[jj]
                     fu = "splev"
                     if kn[0].tp == 'pp':
                         fu = "splev_pp"
-                    l.append("splinedata<AmpData::nonlin_%d::maptype>::%s<%s>(&AmpData::nonlin_%d::sd.sc[%d], %s, %s);\n"
-                             % (i, fu, ",".join([str(v.get_order()) for v in kn if v.used()]), i, j, inp[jj], outp[jj]))
+                    l.append("splinedata<AmpData::%s::maptype>::%s<%s>(&AmpData::%s::sd.sc[%d], %s, %s);\n"
+                             % (bl.namespace, fu, ",".join([str(v.get_order()) for v in kn if v.used()]), bl.namespace, j, inpt, outp[jj]))
+                    if reorder:
+                        l.append("}\n")
                     jj += 1
             if shape_transform:
                 l.append("pt.head<%d>() = ((Spm0 * PP1 + Ssm0) * PP1 + Sam0) * res.head<%d>();\n" % (nn2,nn2))
                 l.append("pt.tail<%d>() = ((Spm0 * PP1 + Ssm0) * PP1 + Sam0) * res.tail<%d>();\n" % (nn2,nn2))
-                l.append("%s << %s;\n" % (VectorAccess('i', param=True, block=V0),
+                l.append("%s << %s;\n" % (VectorAccess('i', param=True, block=i0_slice),
                                           ", ".join(["pt(%d)" % v for v in spliced(nn2)])))
         else:
             loc.add(MatrixDefinition('pp', rows=neq.nn, cols=1, pointer=True))
@@ -287,7 +306,7 @@ class NonlinFunctionCC(object):
                 l.append("    return 1;\n")
                 l.append("};\n")
             l.append(restore)
-        l.append("%s = %s;\n" % (VectorAccess('i', param=True, block=V1), VectorAccess('Mv')))
+        l.append("%s = %s;\n" % (VectorAccess('i', param=True, block=i1_slice), VectorAccess('Mv')))
         if have_constant_matrices:
             if M1:
                 self.global_ns.add(MatrixDefinition('Kl', neq.Kl))
@@ -300,9 +319,9 @@ class NonlinFunctionCC(object):
         loc.add(Mfvec)
         l += loc.generate_lines()
         l.append("Mfvec = %(p)s + %(K)s * %(i)s;\n" % dict(
-            p = VectorAccess('p', param=True, block=V1),
+            p = VectorAccess('p', param=True, block=p1_slice),
             K = Kl,
-            i = VectorAccess('i', param=True),
+            i = VectorAccess('i', param=True, block=neq.i_slice),
             ))
         return template.render(dict(expression=join_with_indent(l)))
 
@@ -411,6 +430,8 @@ class NonlinSolverCC(NonlinSolver):
 
     def __init__(self, base, glob, neq, solver_dict):
         NonlinSolver.__init__(self, base, glob, neq, solver_dict)
+        self.input_slice = self.neq.p_slice
+        self.mp_is_ident = True
         self.mi_is_ident = True
 
     def make_var_v_ref(self):
@@ -425,8 +446,8 @@ class NonlinSolverCC(NonlinSolver):
 class NonlinCode(object):
 
     method_templates = {
-        'hybr':   (dk_templates.c_template_nonlin_func_hybr,
-                   dk_templates.c_template_nonlin_solver_hybr),
+        'hybr':   (dk_templates.c_template_nonlin_func_hybrCC,
+                   dk_templates.c_template_nonlin_solver_hybrCC),
         'lm':     (dk_templates.c_template_nonlin_func_lm,
                    dk_templates.c_template_nonlin_solver_lm),
         'hybrCC': (dk_templates.c_template_nonlin_func_hybrCC,
@@ -444,15 +465,19 @@ class NonlinCode(object):
         base = {}
         base["dev_interface"] = d["dev_interface"]
         g_nonlin = neq.eq.nonlin
+        base["extern_nonlin"] = not neq.subblocks or neq is g_nonlin
         base["g_nn"] = g_nonlin.nn
         base["g_nni"] = g_nonlin.nni
         base["g_nno"] = g_nonlin.nno
         base["npl"] = neq.eq.get_npl()
         if neq.nn != g_nonlin.nn:
-            nn = base["nn"] = nni = base["nni"] = nno = base["nno"] = neq.v_slice.stop - neq.v_slice.start
-            self.pblockV = self.blockV = neq.v_slice
-            base["pblockV"] = VectorAccess.block_expr(neq.v_slice.start, neq.v_slice.stop - neq.v_slice.start)
-            base["iblockV"] = VectorAccess.block_expr(neq.v_slice.start, neq.v_slice.stop - neq.v_slice.start)
+            nn = base["nn"] = neq.nn
+            nni = base["nni"] = neq.nni
+            nno = base["nno"] = neq.nno
+            self.blockV = neq.v_slice
+            self.pblockV = neq.p_slice
+            base["pblockV"] = VectorAccess.block_expr(neq.p_slice)
+            base["iblockV"] = VectorAccess.block_expr(neq.i_slice)
         else:
             base["nn"] = nn = neq.nn
             base["nni"] = nni = neq.nni
@@ -460,12 +485,12 @@ class NonlinCode(object):
             self.blockV = None
             if nn != nni:
                 self.pblockV = slice(0, nni)
-                base["pblockV"] = VectorAccess.block_expr(0, nni)
+                base["pblockV"] = VectorAccess.block_expr([0, nni])
             else:
                 self.pblockV = None
                 base["pblockV"] = ""
             if nn != nno:
-                base["iblockV"] = VectorAccess.block_expr(0, nno)
+                base["iblockV"] = VectorAccess.block_expr([0, nno])
             else:
                 base["iblockV"] = ""
         if self.solver_dict:
@@ -564,10 +589,15 @@ class TableCode(object):
         base["g_nno"] = g_nonlin.nno
         base["npl"] = neq.eq.get_npl()
         if neq.v_slice:
-            nn = base["nn"] = nni = base["nni"] = nno = base["nno"] = neq.v_slice.stop - neq.v_slice.start
+            nn = base["nn"] = neq.nn
+            nni = base["nni"] = neq.nni
+            nno = base["nno"] = neq.nno
             self.blockV = neq.v_slice
-            base["blockV"] = base["pblockV"] = base["iblockV"] = VectorAccess.block_expr(
-                neq.v_slice.start, neq.v_slice.stop - neq.v_slice.start)
+            self.pblockV = neq.p_slice
+            self.iblockV = neq.i_slice
+            base["blockV"] = VectorAccess.block_expr(neq.v_slice)
+            base["pblockV"] = VectorAccess.block_expr(neq.p_slice)
+            base["iblockV"] = VectorAccess.block_expr(neq.i_slice)
         else:
             base["nn"] = nn = neq.nn
             base["nni"] = nni = neq.nni
@@ -576,12 +606,12 @@ class TableCode(object):
             base["blockV"] = ""
             if nn != nni:
                 self.pblockV = slice(0, nni)
-                base["pblockV"] = VectorAccess.block_expr(0, nni)
+                base["pblockV"] = VectorAccess.block_expr([0, nni])
             else:
                 self.pblockV = None
                 base["pblockV"] = ""
             if nn != nno:
-                base["iblockV"] = VectorAccess.block_expr(0, nno)
+                base["iblockV"] = VectorAccess.block_expr([0, nno])
             else:
                 base["iblockV"] = ""
         ini = dict(
@@ -598,8 +628,8 @@ class TableCode(object):
         d = base.copy()
         d["namespace"] = neq.namespace
         d["global_data_def"] = self.glob
-        d["par_p"] = VectorAccess("p", param=True, block=self.blockV)
-        d["par_v"] = VectorAccess("v", param=True, block=self.blockV)
+        d["par_p"] = VectorAccess("p", param=True, block=self.pblockV)
+        d["par_v"] = VectorAccess("v", param=True, block=self.iblockV)
         return dk_templates.c_template_table.render(d)
 
 
@@ -815,23 +845,8 @@ class CodeGenerator(object):
     def gen_nonlin(self, nonlin, s, d, complist, code):
         eq = self.eq
         if isinstance(nonlin, dk_simulator.PartitionedNonlinEquations):
-            sl_cc = nonlin.cc_slice
             for i, nlin in enumerate(nonlin.subblocks):
-                sl = nlin.v_slice
-                complist.append(dict(
-                    nn = sl.stop-sl.start,
-                    nni = sl.stop-sl.start,
-                    nno = sl.stop-sl.start,
-                    ))
-                #if self.solver_dict["method"] == "table":
-                #    code.append(TableCode(s, nlin).generate())
-                #else:
-                #    if self.solver_params is None:
-                #        spar = {}
-                #    else:
-                #        spar = self.solver_params[i]
-                #    spar = solver_set_defaults(spar)
-                #    code.append(NonlinCode(s, nlin, spar, None).generate())
+                #spar = solver_set_defaults({} if self.solver_params is None else self.solver_params[i])
                 self.gen_nonlin(nlin, s, d, complist, code)
             if self.solver_dict["method"] == "table":
                 solver = self.solver_dict.copy()
@@ -841,20 +856,19 @@ class CodeGenerator(object):
             code.append(NonlinCode(s, nonlin, solver, self.extra_sources).generate(d))
         elif isinstance(nonlin, dk_simulator.ChainedNonlinEquations):
             for i, nlin in enumerate(nonlin.subblocks):
-                sl = nlin.v_slice
-                complist.append(dict(
-                    nn = sl.stop-sl.start,
-                    nni = sl.stop-sl.start,
-                    nno = sl.stop-sl.start,
-                    ))
-                if self.solver_dict["method"] == "table":
-                    code.append(TableCode(s, nlin).generate(d))
-                else:
-                    spar = solver_set_defaults({} if self.solver_params is None else self.solver_params[i])
-                    code.append(NonlinCode(s, nlin, spar, None).generate(d))
+                #spar = solver_set_defaults({} if self.solver_params is None else self.solver_params[i])
+                self.gen_nonlin(nlin, s, d, complist, code)
             solver = self.solver_dict
             code.append(NonlinChained(s, nonlin).generate(d))
         else:
+            complist.append(dict(
+                name = nonlin.name,
+                namespace = nonlin.namespace,
+                pins = ",".join(dk_simulator.Parser.format_element(v) for v in nonlin.pins),
+                v_slice = nonlin.v_slice,
+                p_slice = nonlin.p_slice,
+                i_slice = nonlin.i_slice,
+                ))
             if self.solver_dict["method"] == "table":
                 code.append(TableCode(s, nonlin).generate(d))
             else:
@@ -907,8 +921,8 @@ class CodeGenerator(object):
             d["nc"] = len(complist)
             d["components"] = complist
             d["nonlin_code"] = "".join(code)
-            if eq.nn != eq.nonlin.nni:
-                d["iblock"] = VectorAccess.block_expr(0, eq.nonlin.nno)
+            if eq.nn != eq.nonlin.nno:
+                d["iblock"] = VectorAccess.block_expr([0, eq.nonlin.nno])
             else:
                 d["iblock"] = ""
         else:

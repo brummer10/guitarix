@@ -77,11 +77,24 @@ class MyTensorSpline(splinetable.TensorSpline):
         #bg = []
         self.coeffs = []
         for i_fnc, (rng, pre, post, err, opt) in enumerate(basegrid):
-            len_order = []
+            #if i_fnc < 3: continue
             grd, fnc, axes, axgrids = self.table_approximation(err, i_fnc, rng)
+            #print fnc.ptp(), grd.shape, fnc.shape, len(axes), axgrids
+            #grd.dump("grd.data")
+            #fnc.dump("fnc.data")
+            #import pickle
+            #pickle.dump(axes, file("axes.data","w"))
+            #raise SystemExit
             self.coeffs.append(fnc)
             for i, (ax, ag, cg, r) in enumerate(zip(axes, axgrids, func.basegrid[i_fnc][0], rng)):
                 order_type = r[1]
+                w = ax[-1]-ax[0]
+                if w == 0:
+                    order_type = None
+                if order_type is not None:
+                    if np.amax(fnc.ptp(axis=i)) < 1e-6 * fnc.ptp():
+                        print "%s[%d,%d]: const: %g" % (func.comp_id, i_fnc, i, np.amax(fnc.ptp(axis=i)) / fnc.ptp())
+                        order_type = None
                 if order_type is not None:
                     if isinstance(order_type, int):
                         tp = 's'
@@ -89,16 +102,12 @@ class MyTensorSpline(splinetable.TensorSpline):
                     else:
                         tp = order_type[0]
                         order = order_type[1]
-                    idx = np.array(np.rint((ax-ax[0])/(ax[-1]-ax[0])*ag), dtype=int)
+                    idx = np.array(np.rint((ax-ax[0])/w * ag), dtype=int)
                     if order > len(ax):
                         order = 2
                     self.knot_data[i_fnc, i] = self.mk_result(idx, ax, order, tp, slice(ax[0], ax[-1], (ag+1)*1j))
                 else:
                     self.knot_data[i_fnc, i] = splinetable.KnotData(None,None,slice(ax[0], ax[-1], 1j),None)
-                len_order.append((ag+1, order))
-            #bg.append([len_order, pre, post, err, opt])
-        #self.basegrid = bg
-        #print bg
 
     @staticmethod
     def fromspline(xk, cvals, order):
@@ -119,9 +128,14 @@ class MyTensorSpline(splinetable.TensorSpline):
             k = [v for v in k if v.used()]
             if len(k) == 1 and k[0].tp == 'pp':
                 if k[0].get_order() == 4:
-                    assert c.shape[-1] == 1
-                    c = self.fromspline(k[0].knots, c[:,0], 3).T
-                    c = c.reshape(len(c)*4,1)
+                    if len(c.shape) == 2:
+                        assert c.shape[-1] == 1, c.shape
+                        c = self.fromspline(k[0].knots, c[:,0], 3).T
+                        c = c.reshape(len(c)*4,1)
+                    else:
+                        assert len(c.shape) == 1
+                        c = self.fromspline(k[0].knots, c, 3).T
+                        c = c.reshape(len(c)*4)
             else:
                 # no other orders implemented
                 k[0].tp = 's'
@@ -140,6 +154,7 @@ class MyTensorSpline(splinetable.TensorSpline):
         return splinetable.KnotData(np.pad(kn, k-1, 'edge'), a, slice(r.start, r.stop, 1+(r.step-1)/f), (tp, k))
 
     def table_approximation(self, prec, i_fnc, rng):
+        #print rng, prec
         def ncalc_grid(grd):
             return self.calc_grid(grd, None, None)[i_fnc]
         n = len(self.ranges)
@@ -172,7 +187,7 @@ class MyTensorSpline(splinetable.TensorSpline):
                 s2[i] = slice(1, None)
                 fnc_intp = (fnc[s1] + fnc[s2]) * 0.5
                 if callable(prec):
-                    df = prec(fnc_intp, fnc2, self.func.i0).any(axis=tuple([k for k in range(n) if k != i]))
+                    df = prec(fnc_intp, fnc2, self.func.i0[i]).any(axis=tuple([k for k in range(n) if k != i]))
                 else:
                     df = (abs(fnc_intp - fnc2) > prec).any(axis=tuple([k for k in range(n) if k != i]))
                 k = np.count_nonzero(df)
@@ -213,8 +228,7 @@ class MyTensorSpline(splinetable.TensorSpline):
                 axes[i] = newax
                 fnc = newfnc
                 grd = newgrd
-                fncd = ncalc_grid(grd)
-            #print "#", i_fnc, axgrids
+            #print "#", i_fnc, fnc.shape, axgrids
             if not inserted:
                 return grd, fnc, axes, axgrids
 

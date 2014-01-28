@@ -66,8 +66,10 @@ class Circuit(object):
         self.code_generator = None
         self.plugindef = None
         self.build_script = None
+        self.resample = True
         self.FS = FS
         self.use_sim = SIM_C
+        self.sig = Signal()
         self._clear()
         self._rmtree = shutil.rmtree
         if copy_from is not None:
@@ -86,7 +88,7 @@ class Circuit(object):
         self.dc_method = "A"
         self.sys_reduce_tol = 0
         self.solver_params = None
-        self.partition = False
+        self.transform_opts = dk_simulator.TransformOptions()
         self._clear_all()
 
     def _clear_calculated(self):
@@ -132,7 +134,7 @@ class Circuit(object):
     def _ensure_eq(self):
         if self.eq is None:
             self._ensure_parser()
-            self.eq = dk_simulator.EquationSystem(self.parser, partition=self.partition)
+            self.eq = dk_simulator.EquationSystem(self.parser, opts=self.transform_opts)
 
     def _ensure_sim_py(self):
         if self.sim_py is None:
@@ -141,7 +143,8 @@ class Circuit(object):
                 self.sim_py = dk_simulator.SimulatePy(self.eq, self.solver, self.dc_method)
                 if self.sys_reduce_tol >= 0:
                     self.sim_py.balance_realization(self.sys_reduce_tol)
-                if isinstance(self.eq.nonlin, dk_simulator.PartitionedNonlinEquations):
+                if (isinstance(self.eq.nonlin, dk_simulator.PartitionedNonlinEquations)
+                    and self.transform_opts.decompose):
                     self.eq.F, self.eq.C = self.eq.nonlin.decompose_blocks(self.eq.F, self.eq.C)
             except dk_simulator.ConvergenceError as e:
                 raise CircuitException(e)
@@ -174,13 +177,12 @@ class Circuit(object):
             self.minmax = numpy.append(pot_arr, self.sim_c.minmax, axis=0)
         else:
             self.minmax = self.sim_c.minmax
-        print self.ptp
-        print repr(self.minmax)
+        #print self.ptp
+        #print repr(self.minmax)
 
     def _ensure_range(self):
         if self.minmax is None:
-            sig = Signal()
-            self.calc_range(sig(3*sig.sweep(), timespan=2))
+            self.calc_range(self.sig(3*self.sig.sweep(), timespan=2))
 
     def _ensure_max_error(self):
         if self.E is None:
@@ -224,35 +226,34 @@ class Circuit(object):
             inst = StringIO()
             h = StringIO()
             npl = self.sim_c.npl
-            tables = []
+            tables = {}
             if not npl:
                 i0v = self.sim_c.nonlin_c(self.sim_c.p0.T)[0]
             if len(self.sim_c.comp_sz) > 1:
-                j = 0
-                for i, sz in enumerate(self.sim_c.comp_sz):
-                    #sl = [0]+range(j+1, j+1+sz[1])
-                    sl = range(j, j+sz[1]) ##FIXME
+                for i, ((v_slice, p_slice, i_slice), ns) in enumerate(zip(self.sim_c.comp_sz, self.sim_c.comp_namespace)):
+                    ##FIXME add np to p_slice
+                    nni = p_slice.stop - p_slice.start
+                    nno = i_slice.stop - i_slice.start
                     class Comp:
-                        comp_id = "nonlin_%d" % i
-                        comp_name = "nonlin_%d" % i
-                        ranges = self.minmax[sl] ##FIXME
-                        basegrid = numpy.array([(g, None, None, e, True) for g, e in zip(self.basegrid, self.E)])[j:j+sz[1]]
-                        NVALS = sz[2] # nno
-                        N_IN = sz[1]+npl # nni+npl
-                        NDIM = sz[1]+npl # nni+npl
+                        comp_id = ns
+                        comp_name = ns
+                        ranges = self.minmax[p_slice] ##FIXME
+                        basegrid = numpy.array([(g, None, None, e, True) for g, e in zip(self.basegrid, self.E)])[i_slice]
+                        NVALS = nno
+                        N_IN = nni+npl
+                        NDIM = nni+npl
                         if not npl:
-                            i0 = i0v[sl]
+                            i0 = i0v[i_slice]
                         @staticmethod
                         def __call__(v, with_state):
                             return self.sim_c.c_calc_comp[i](v)
-                    j += sz[1]
                     ##FIXME: maptype
                     self.maptype, spl = simu.TableGenerator.write_files(Comp(), o, inst, h)
-                    c = Comp()
-                    tables.append(spl)
+                    tables[ns] = spl
             else:
+                ns = "nonlin"
                 class Comp:
-                    comp_id = "nonlin"
+                    comp_id = ns
                     comp_name = self._get_module_id()
                     ranges = self.minmax
                     basegrid = [(g, None, None, e, False) for g, e in zip(self.basegrid, self.E)]
@@ -263,7 +264,7 @@ class Circuit(object):
                     def __call__(v, with_state):
                         return self.sim_c.nonlin(v)
                 self.maptype, spl = simu.TableGenerator.write_files(Comp(), o, inst, h)
-                tables.append(spl)
+                tables[ns] = spl
             intpp_inst = "\n".join(set(inst.getvalue().split("\n")))
             self.table_source = dict(data_c=o.getvalue(), data_h=h.getvalue(), intpp_inst=intpp_inst, tables=tables)
 
@@ -289,7 +290,7 @@ class Circuit(object):
             pre_filter=self.pre_filter, post_filter=self.post_filter,
             generator=self.code_generator)
         modc.dev_interface = dev_interface
-        modc.resample = True
+        modc.resample = self.resample
         modc.build_script = self.build_script
         if self.plugindef:
             modc.plugindef = self.plugindef
@@ -402,18 +403,20 @@ class Circuit(object):
         else:
             self._ensure_parser()
             op = self.parser.op
-        return Signal().generate(signal, self.FS, op)
+        return self.sig.generate(signal, self.FS, op)
 
     def print_netlist(self):
         self._check_netlist()
         for row in self.S:
             print "%s: %s" % (row[0], ", ".join([str(v) for v in row[1:]]))
 
-    def read_gschem(self, filename):
+    def read_gschem(self, filename, defs=None):
         self._clear_all()
-        v = vars(models)
+        v = dict(vars(models))
         v["Tubes"] = circ.Tubes
         v["math"] = math
+        if defs:
+            v.update(defs)
         exec mk_netlist.read_netlist(filename) in v
         self.S = v["S"]
         self.V = v["V"]
@@ -468,6 +471,30 @@ class Circuit(object):
 
     def set_module_id(self, module_id):
         self.module_id = module_id
+
+    def set_in_nets(self, *connections):
+        self._check_netlist()
+        self.S = list(self.S)
+        for i, row in enumerate(self.S):
+            if row[0] == models.IN:
+                self.S[i] = (models.IN,) + tuple(connections)
+                self._clear_calculated()
+                if self.parser is not None:
+                    self.parser.update(self.S, self.V)
+                return
+        assert False
+
+    def set_out_nets(self, *connections):
+        self._check_netlist()
+        self.S = list(self.S)
+        for i, row in enumerate(self.S):
+            if row[0] == models.OUT:
+                self.S[i] = (models.OUT,) + tuple(connections)
+                self._clear_calculated()
+                if self.parser is not None:
+                    self.parser.update(self.S, self.V)
+                return
+        assert False
 
     def add_element(self, element, connections, value):
         self._check_netlist()

@@ -194,6 +194,7 @@ class Signal(object):
     def sine(self, freq=None):
         if freq is None:
             freq = self.freq
+        self.freq = freq
         return sympy.sin(self.t * freq * 2 * sympy.pi)
 
     def triangle(self, freq=None):
@@ -247,7 +248,7 @@ class Signal(object):
         if timespan is not None:
             samples = self._s_FS * timespan
         elif periods is not None:
-            samples = self._s_FS / _freq ##FIXME
+            samples = periods * self._s_FS / self._s_freq ##FIXME
         elif samples is None:
             samples = self._s_FS * self.timespan
         if isinstance(expr, (int,float)) or not (self.t in expr.atoms() or expr.atoms(self._s_time)):

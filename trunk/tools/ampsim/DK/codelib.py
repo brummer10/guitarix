@@ -60,16 +60,17 @@ class VectorAccess(VariableAccess):
         self.block = block
 
     @staticmethod
-    def block_expr(start, ln):
+    def block_expr(block):
+        start = VariableAccess._start(block)
         if start == 0:
-            return ".head<%d>()" % ln
+            return ".head<%d>()" % VariableAccess._len(block)
         else:
-            return ".segment<%d>(%d)" % (ln, start)
+            return ".segment<%d>(%d)" % (VariableAccess._len(block), start)
 
     def __str__(self):
         s = VariableAccess.__str__(self)
         if self.block:
-            s += self.block_expr(self._start(self.block), self._len(self.block))
+            s += self.block_expr(self.block)
         return s
 
 

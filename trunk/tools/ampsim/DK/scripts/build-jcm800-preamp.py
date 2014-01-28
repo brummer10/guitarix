@@ -117,11 +117,7 @@ class CompareFilter(object):
 
 
 def calc_shape_transform(fnum, resnum, minmax, c):
-    p0 = np.zeros(c.sim_py.eq.nonlin.nni)
-    end = c.sim_py.eq.nonlin.cc_slice.start
-    Kn = np.concatenate([bl.Mi for bl in c.sim_py.eq.nonlin.subblocks], axis=0)
-    p0[:end] = ((c.sim_py.p0 + c.sim_py.eq.nonlin.Hc)[:6] + Kn * np.matrix(c.sim_py.v00[6:]).T).A1
-    p0[end:] = c.sim_py.p0[6:].A1
+    p0 = c.sim_py.p0.A1
     argstart = fnum*2
     if minmax[argstart+1,0] == minmax[argstart+1,1]:
         return numpy.array([[0.,0.,0.],[0.,0.,0.],[1.,0.,1.]])
@@ -243,7 +239,8 @@ c.plugindef.namespace = "jcm800pre"
 c.build_script = sys.argv[0]
 c.set_netlist(circ.Preamp_test.S, circ.Preamp_test.V)
 c.backward_euler = True
-c.partition = True
+c.transform_opts.partition = True
+c.transform_opts.decompose = True
 c.sys_reduce_tol = 1e-5
 #c.add_element(R('cc1'), (6, GND), 1e12)
 #c.add_element(R('cc2'), (13, GND), 1e12)
