@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/impulseresponse.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace impulseresponse {
@@ -7,18 +7,18 @@ namespace impulseresponse {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
+	double 	fVec0[3];
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
 	int 	iConst0;
 	double 	fConst1;
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
-	double 	fConst2;
-	double 	fVec0[3];
-	FAUSTFLOAT 	fcheckbox0;
-	FAUSTFLOAT	*fcheckbox0_;
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
+	double 	fConst2;
+	FAUSTFLOAT 	fcheckbox0;
+	FAUSTFLOAT	*fcheckbox0_;
 	double 	fRec0[3];
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -83,16 +83,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
-#define fcheckbox0 (*fcheckbox0_)
 #define fslider2 (*fslider2_)
-	double 	fSlow0 = exp((0 - (fConst1 * fslider0)));
-	double 	fSlow1 = (2 * cos((fConst2 * fslider1)));
-	int 	iSlow2 = int(max((double)0, min((double)1, fcheckbox0)));
-	double 	fSlow3 = (0.5 * (fslider2 * (1 - faustpower<2>(fSlow0))));
+#define fcheckbox0 (*fcheckbox0_)
+	double 	fSlow0 = exp((0 - (fConst1 * double(fslider0))));
+	double 	fSlow1 = (0.5 * (double(fslider1) * (1 - faustpower<2>(fSlow0))));
+	double 	fSlow2 = (2 * cos((fConst2 * double(fslider2))));
+	int 	iSlow3 = int(max((double)0, min((double)1, double(fcheckbox0))));
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
-		fRec0[0] = ((fSlow3 * (fVec0[0] - fVec0[2])) + (fSlow0 * ((fRec0[1] * ((iSlow2)?max(-0.6, min(0.6, fVec0[0])):fSlow1)) - (fSlow0 * fRec0[2]))));
+		fRec0[0] = ((fSlow0 * ((((iSlow3)?max(-0.6, min(0.6, fVec0[0])):fSlow2) * fRec0[1]) - (fSlow0 * fRec0[2]))) + (fSlow1 * (fVec0[0] - fVec0[2])));
 		output0[i] = (FAUSTFLOAT)(fVec0[0] + fRec0[0]);
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
@@ -100,8 +100,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	}
 #undef fslider0
 #undef fslider1
-#undef fcheckbox0
 #undef fslider2
+#undef fcheckbox0
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
@@ -122,10 +122,10 @@ void Dsp::connect(uint32_t port,void* data)
 		fslider0_ = (float*)data; // , 1e+02, 2e+01, 2e+04, 1e+01 
 		break;
 	case FREQ: 
-		fslider1_ = (float*)data; // , 4.4e+02, 2e+01, 1.2e+04, 1e+01 
+		fslider2_ = (float*)data; // , 4.4e+02, 2e+01, 1.2e+04, 1e+01 
 		break;
 	case PEAK: 
-		fslider2_ = (float*)data; // , 1.0, 0.0, 1e+01, 0.2 
+		fslider1_ = (float*)data; // , 1.0, 0.0, 1e+01, 0.2 
 		break;
 	default:
 		break;

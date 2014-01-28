@@ -756,7 +756,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec27[0] = ((iTemp13)?fRec27[1]:fRec25[1]);
 		fbargraph1 = fRec27[0];
 		double fTemp14 = (fConst4 * fRec36[1]);
-		fRec38[0] = ((fConst97 * fRec38[1]) + (fConst96 * ((fConst11 * fVec8[0]) + (fConst105 * fVec8[1]))));
+		fRec38[0] = ((fConst97 * fRec38[1]) + (fConst96 * ((fConst105 * fVec8[1]) + (fConst11 * fVec8[0]))));
 		fRec37[0] = (fRec38[0] - (fConst14 * ((fConst12 * fRec37[2]) + (fConst10 * fRec37[1]))));
 		fRec36[0] = ((fConst14 * (((fConst9 * fRec37[0]) + (fConst106 * fRec37[1])) + (fConst9 * fRec37[2]))) - (fConst104 * ((fConst103 * fRec36[2]) + fTemp14)));
 		fRec39[0] = ((0.999 * fRec39[1]) + fSlow2);

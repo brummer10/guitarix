@@ -1,5 +1,5 @@
 // generated from file '../src/faust/echo.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace echo {
@@ -131,16 +131,16 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	int 	iSlow0 = (int((fConst3 * fslider0)) - 1);
-	float 	fSlow1 = (1.000000000000001e-05f * fslider1);
+	int 	iSlow0 = (int((fConst3 * float(fslider0))) - 1);
+	float 	fSlow1 = (1.000000000000001e-05f * float(fslider1));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = ((int((fRec1[1] != 0.0f)))?((int(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))))?fRec1[1]:0):((int(((fRec2[1] == 0.0f) & (iSlow0 != iRec3[1]))))?fConst1:((int(((fRec2[1] == 1.0f) & (iSlow0 != iRec4[1]))))?fConst2:0)));
 		fRec1[0] = fTemp0;
 		fRec2[0] = max(0.0f, min(1.0f, (fRec2[1] + fTemp0)));
 		iRec3[0] = ((int(((fRec2[1] >= 1.0f) & (iRec4[1] != iSlow0))))?iSlow0:iRec3[1]);
 		iRec4[0] = ((int(((fRec2[1] <= 0.0f) & (iRec3[1] != iSlow0))))?iSlow0:iRec4[1]);
-		fRec5[0] = (fSlow1 + (0.999f * fRec5[1]));
-		fRec0[IOTA&262143] = ((float)input0[i] + (fRec5[0] * ((fRec2[0] * fRec0[(IOTA-int((1 + int((int(iRec4[0]) & 131071)))))&262143]) + ((1.0f - fRec2[0]) * fRec0[(IOTA-int((1 + int((int(iRec3[0]) & 131071)))))&262143]))));
+		fRec5[0] = ((0.999f * fRec5[1]) + fSlow1);
+		fRec0[IOTA&262143] = ((float)input0[i] + (fRec5[0] * (((1.0f - fRec2[0]) * fRec0[(IOTA-int((1 + int((int(iRec3[0]) & 131071)))))&262143]) + (fRec2[0] * fRec0[(IOTA-int((1 + int((int(iRec4[0]) & 131071)))))&262143]))));
 		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&262143];
 		// post processing
 		IOTA = IOTA+1;

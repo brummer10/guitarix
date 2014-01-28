@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/tremolo.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace tremolo {
@@ -97,13 +97,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fcheckbox0 (*fcheckbox0_)
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
-	double 	fSlow0 = fslider0;
+	double 	fSlow0 = double(fslider0);
 	int 	iSlow1 = int((fConst2 / double(fSlow0)));
 	double 	fSlow2 = (1.0 / double(iSlow1));
 	double 	fSlow3 = (fConst3 * fSlow0);
-	int 	iSlow4 = int(fcheckbox0);
-	double 	fSlow5 = fslider1;
-	double 	fSlow6 = fslider2;
+	int 	iSlow4 = int(double(fcheckbox0));
+	double 	fSlow5 = double(fslider1);
+	double 	fSlow6 = double(fslider2);
 	double 	fSlow7 = (27.0 * fSlow6);
 	double 	fSlow8 = (1 - (0.01 * fSlow6));
 	for (int i=0; i<count; i++) {
@@ -111,8 +111,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp0 = (fRec0[1] * (1 - (fConst1 / (fConst1 + (0.06 * exp((0 - (2.4849066497880004 * fRec0[1]))))))));
 		iRec2[0] = ((int((iRec2[1] > 0)))?((2 * (iRec1[1] < iSlow1)) - 1):(1 - (2 * (iRec1[1] > 0))));
 		iRec1[0] = (iRec2[0] + iRec1[1]);
-		fRec5[0] = ((fSlow3 * (0 - fRec3[1])) + fRec5[1]);
-		fRec4[0] = ((1 + ((fSlow3 * fRec5[0]) + fRec4[1])) - iVec0[1]);
+		fRec5[0] = (fRec5[1] + (fSlow3 * (0 - fRec3[1])));
+		fRec4[0] = ((1 + (fRec4[1] + (fSlow3 * fRec5[0]))) - iVec0[1]);
 		fRec3[0] = fRec4[0];
 		fRec0[0] = (fTemp0 + (fConst1 * (pow((1 + (fSlow5 * (((iSlow4)?max((double)0, (0.5 * (1 + fRec3[0]))):(fSlow2 * iRec1[0])) - 1))),1.9) / (fConst1 + (0.06 * exp((0 - (2.4849066497880004 * fTemp0))))))));
 		output0[i] = (FAUSTFLOAT)((double)input0[i] * (fSlow8 + (fSlow7 / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec0[0])))))))));

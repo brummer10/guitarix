@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/freeverb.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace freeverb {
@@ -138,38 +138,38 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
-	double 	fSlow0 = fslider0;
+	double 	fSlow0 = double(fslider0);
 	double 	fSlow1 = (1 - (0.01 * fSlow0));
 	double 	fSlow2 = (fSlow1 + (fSlow0 * (0.00015 + (0.01 * fSlow1))));
-	double 	fSlow3 = fslider1;
+	double 	fSlow3 = double(fslider1);
 	double 	fSlow4 = (1 - fSlow3);
-	double 	fSlow5 = (0.7 + (0.28 * fslider2));
+	double 	fSlow5 = (0.7 + (0.28 * double(fslider2)));
 	double 	fSlow6 = (0.00015 * fSlow0);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec9[0] = ((fSlow4 * fRec8[1]) + (fSlow3 * fRec9[1]));
+		fRec9[0] = ((fSlow3 * fRec9[1]) + (fSlow4 * fRec8[1]));
 		double fTemp1 = (fSlow6 * fTemp0);
 		fVec0[IOTA&2047] = (fTemp1 + (fSlow5 * fRec9[0]));
 		fRec8[0] = fVec0[(IOTA-1640)&2047];
-		fRec11[0] = ((fSlow4 * fRec10[1]) + (fSlow3 * fRec11[1]));
+		fRec11[0] = ((fSlow3 * fRec11[1]) + (fSlow4 * fRec10[1]));
 		fVec1[IOTA&2047] = (fTemp1 + (fSlow5 * fRec11[0]));
 		fRec10[0] = fVec1[(IOTA-1580)&2047];
-		fRec13[0] = ((fSlow4 * fRec12[1]) + (fSlow3 * fRec13[1]));
+		fRec13[0] = ((fSlow3 * fRec13[1]) + (fSlow4 * fRec12[1]));
 		fVec2[IOTA&2047] = (fTemp1 + (fSlow5 * fRec13[0]));
 		fRec12[0] = fVec2[(IOTA-1514)&2047];
-		fRec15[0] = ((fSlow4 * fRec14[1]) + (fSlow3 * fRec15[1]));
+		fRec15[0] = ((fSlow3 * fRec15[1]) + (fSlow4 * fRec14[1]));
 		fVec3[IOTA&2047] = (fTemp1 + (fSlow5 * fRec15[0]));
 		fRec14[0] = fVec3[(IOTA-1445)&2047];
-		fRec17[0] = ((fSlow4 * fRec16[1]) + (fSlow3 * fRec17[1]));
+		fRec17[0] = ((fSlow3 * fRec17[1]) + (fSlow4 * fRec16[1]));
 		fVec4[IOTA&2047] = (fTemp1 + (fSlow5 * fRec17[0]));
 		fRec16[0] = fVec4[(IOTA-1379)&2047];
-		fRec19[0] = ((fSlow4 * fRec18[1]) + (fSlow3 * fRec19[1]));
+		fRec19[0] = ((fSlow3 * fRec19[1]) + (fSlow4 * fRec18[1]));
 		fVec5[IOTA&2047] = (fTemp1 + (fSlow5 * fRec19[0]));
 		fRec18[0] = fVec5[(IOTA-1300)&2047];
-		fRec21[0] = ((fSlow4 * fRec20[1]) + (fSlow3 * fRec21[1]));
+		fRec21[0] = ((fSlow3 * fRec21[1]) + (fSlow4 * fRec20[1]));
 		fVec6[IOTA&2047] = (fTemp1 + (fSlow5 * fRec21[0]));
 		fRec20[0] = fVec6[(IOTA-1211)&2047];
-		fRec23[0] = ((fSlow4 * fRec22[1]) + (fSlow3 * fRec23[1]));
+		fRec23[0] = ((fSlow3 * fRec23[1]) + (fSlow4 * fRec22[1]));
 		fVec7[IOTA&2047] = (fTemp1 + (fSlow5 * fRec23[0]));
 		fRec22[0] = fVec7[(IOTA-1139)&2047];
 		double fTemp2 = (((((((fRec22[0] + fRec20[0]) + fRec18[0]) + fRec16[0]) + fRec14[0]) + fRec12[0]) + fRec10[0]) + fRec8[0]);

@@ -1,5 +1,5 @@
 // generated from file '../src/faust/autowah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace autowah {
@@ -14,16 +14,16 @@ private:
 	int 	iConst0;
 	float 	fConst1;
 	float 	fConst2;
-	float 	fConst3;
 	float 	fRec3[2];
+	float 	fConst3;
 	float 	fConst4;
 	float 	fRec2[2];
 	float 	fRec1[2];
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
 	float 	fConst5;
-	float 	fConst6;
 	float 	fRec4[2];
+	float 	fConst6;
 	float 	fRec5[2];
 	float 	fRec0[3];
 	void clear_state_f();
@@ -85,12 +85,12 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = expf((0 - (1e+02f / float(iConst0))));
-	fConst2 = expf((0 - (1e+01f / float(iConst0))));
-	fConst3 = (1.0f - fConst2);
-	fConst4 = (1.0f - fConst1);
-	fConst5 = (2827.4333882308138f / float(iConst0));
-	fConst6 = (1413.7166941154069f / float(iConst0));
+	fConst1 = expf((0 - (1e+01f / float(iConst0))));
+	fConst2 = (1.0f - fConst1);
+	fConst3 = expf((0 - (1e+02f / float(iConst0))));
+	fConst4 = (1.0f - fConst3);
+	fConst5 = (1413.7166941154069f / float(iConst0));
+	fConst6 = (2827.4333882308138f / float(iConst0));
 	clear_state_f();
 }
 
@@ -104,22 +104,22 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
-	float 	fSlow0 = fslider0;
-	float 	fSlow1 = fslider1;
+	float 	fSlow0 = float(fslider0);
+	float 	fSlow1 = float(fslider1);
 	float 	fSlow2 = ((1.0f - fSlow1) + (1 - (0.01f * fSlow0)));
-	float 	fSlow3 = (0.01f * (fSlow0 * fslider2));
+	float 	fSlow3 = (0.01f * (fSlow0 * float(fslider2)));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		float fTemp1 = fabsf(fTemp0);
-		fRec3[0] = ((fConst3 * fTemp1) + (fConst2 * max(fTemp1, fRec3[1])));
-		fRec2[0] = ((fConst4 * fRec3[0]) + (fConst1 * fRec2[1]));
+		fRec3[0] = ((fConst1 * max(fTemp1, fRec3[1])) + (fConst2 * fTemp1));
+		fRec2[0] = ((fConst3 * fRec2[1]) + (fConst4 * fRec3[0]));
 		float fTemp2 = min((float)1, fRec2[0]);
-		fRec1[0] = ((0.0001000000000000001f * powf(4.0f,fTemp2)) + (0.999f * fRec1[1]));
+		fRec1[0] = ((0.999f * fRec1[1]) + (0.0001000000000000001f * powf(4.0f,fTemp2)));
 		float fTemp3 = powf(2.0f,(2.3f * fTemp2));
-		float fTemp4 = (1 - (fConst6 * (fTemp3 / powf(2.0f,(1.0f + (2.0f * (1.0f - fTemp2)))))));
-		fRec4[0] = ((0.0010000000000000009f * (0 - (2.0f * (fTemp4 * cosf((fConst5 * fTemp3)))))) + (0.999f * fRec4[1]));
-		fRec5[0] = ((0.0010000000000000009f * faustpower<2>(fTemp4)) + (0.999f * fRec5[1]));
-		fRec0[0] = (0 - (((fRec5[0] * fRec0[2]) + (fRec4[0] * fRec0[1])) - (fSlow3 * (fTemp0 * fRec1[0]))));
+		float fTemp4 = (1 - (fConst5 * (fTemp3 / powf(2.0f,(1.0f + (2.0f * (1.0f - fTemp2)))))));
+		fRec4[0] = ((0.999f * fRec4[1]) + (0.0010000000000000009f * faustpower<2>(fTemp4)));
+		fRec5[0] = ((0.999f * fRec5[1]) + (0.0010000000000000009f * (0 - (2.0f * (fTemp4 * cosf((fConst6 * fTemp3)))))));
+		fRec0[0] = (0 - (((fRec5[0] * fRec0[1]) + (fRec4[0] * fRec0[2])) - (fSlow3 * (fTemp0 * fRec1[0]))));
 		output0[i] = (FAUSTFLOAT)((fSlow1 * (fRec0[0] - fRec0[1])) + (fSlow2 * fTemp0));
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];

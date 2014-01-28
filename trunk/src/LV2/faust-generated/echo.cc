@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/echo.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace echo {
@@ -111,8 +111,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
-	int 	iSlow0 = int((1 + int((int((int((fConst0 * fslider0)) - 1)) & 131071))));
-	float 	fSlow1 = (0.01f * fslider1);
+	int 	iSlow0 = int((1 + int((int((int((fConst0 * float(fslider0))) - 1)) & 131071))));
+	float 	fSlow1 = (0.01f * float(fslider1));
 	for (int i=0; i<count; i++) {
 		fRec0[IOTA&262143] = ((float)input0[i] + (fSlow1 * fRec0[(IOTA-iSlow0)&262143]));
 		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&262143];

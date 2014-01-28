@@ -1,5 +1,5 @@
 // generated from file '../src/faust/expander.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace expander {
@@ -88,18 +88,18 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = exp((0 - (fConst3 / max(fConst3, fslider0))));
-	double 	fSlow1 = exp((0 - (fConst3 / max(fConst3, fslider1))));
-	double 	fSlow2 = fentry1;
-	double 	fSlow3 = (fSlow2 + fentry0);
+	double 	fSlow0 = exp((0 - (fConst3 / max(fConst3, double(fslider0)))));
+	double 	fSlow1 = exp((0 - (fConst3 / max(fConst3, double(fslider1)))));
+	double 	fSlow2 = double(fentry1);
+	double 	fSlow3 = (fSlow2 + double(fentry0));
 	double 	fSlow4 = (1.0 / (0.001 + fSlow2));
-	double 	fSlow5 = (fentry2 - 1);
+	double 	fSlow5 = (double(fentry2) - 1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec1[0] = ((fConst2 * fabs(fTemp0)) + (fConst1 * fRec1[1]));
+		fRec1[0] = ((fConst1 * fRec1[1]) + (fConst2 * fabs(fTemp0)));
 		double fTemp1 = max(fRec1[0], fTemp0);
-		double fTemp2 = ((fSlow1 * (fRec0[1] >= fTemp1)) + (fSlow0 * (fRec0[1] < fTemp1)));
-		fRec0[0] = ((fTemp1 * (0 - (fTemp2 - 1))) + (fRec0[1] * fTemp2));
+		double fTemp2 = ((fSlow1 * (fRec0[1] < fTemp1)) + (fSlow0 * (fRec0[1] >= fTemp1)));
+		fRec0[0] = ((fRec0[1] * fTemp2) + (fTemp1 * (0 - (fTemp2 - 1))));
 		double fTemp3 = max((double)0, (fSlow3 - (20 * log10(fRec0[0]))));
 		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * (fTemp3 * (0 - (fSlow5 * min((double)1, max((double)0, (fSlow4 * fTemp3)))))))));
 		// post processing
@@ -115,10 +115,10 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("expander.attack","","S","",&fslider0, 0.001, 0.0, 1.0, 0.001);
+	reg.registerVar("expander.attack","","S","",&fslider1, 0.001, 0.0, 1.0, 0.001);
 	reg.registerVar("expander.knee","","S","",&fentry1, 3.0, 0.0, 2e+01, 0.1);
 	reg.registerVar("expander.ratio","","S","",&fentry2, 2.0, 1.0, 2e+01, 0.1);
-	reg.registerVar("expander.release","","S","",&fslider1, 0.1, 0.0, 1e+01, 0.01);
+	reg.registerVar("expander.release","","S","",&fslider0, 0.1, 0.0, 1e+01, 0.01);
 	reg.registerVar("expander.threshold","","S","",&fentry0, -4e+01, -96.0, 1e+01, 0.1);
 	return 0;
 }

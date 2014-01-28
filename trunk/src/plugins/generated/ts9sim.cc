@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/ts9sim.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -13,18 +13,18 @@ private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
 	double 	fRec0[2];
+	double 	fVec0[2];
 	FAUSTFLOAT 	fslider1;
 	int 	iConst0;
 	double 	fConst1;
-	double 	fVec0[2];
 	double 	fConst2;
 	double 	fConst3;
 	double 	fConst4;
-	FAUSTFLOAT 	fslider2;
 	double 	fConst5;
-	double 	fConst6;
 	double 	fRec2[2];
 	double 	fVec1[2];
+	FAUSTFLOAT 	fslider2;
+	double 	fConst6;
 	double 	fRec1[2];
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -86,12 +86,12 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (3.141592653589793 / double(iConst0));
+	fConst1 = (9.4e-08 * iConst0);
 	fConst2 = (0.00044179999999999995 * iConst0);
 	fConst3 = (1 + fConst2);
-	fConst4 = (0 - ((1 - fConst2) / fConst3));
-	fConst5 = (9.4e-08 * iConst0);
-	fConst6 = (1.0 / fConst3);
+	fConst4 = (1.0 / fConst3);
+	fConst5 = (0 - ((1 - fConst2) / fConst3));
+	fConst6 = (3.141592653589793 / double(iConst0));
 	clear_state_f();
 }
 
@@ -102,22 +102,22 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
-	double 	fSlow1 = (1.0 / tan((fConst1 * fslider1)));
-	double 	fSlow2 = (1 + fSlow1);
-	double 	fSlow3 = (0 - ((1 - fSlow1) / fSlow2));
-	double 	fSlow4 = (fConst5 * ((500000 * fslider2) + 55700));
+	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
+	double 	fSlow1 = (fConst1 * ((500000 * double(fslider1)) + 55700));
+	double 	fSlow2 = (1 - fSlow1);
+	double 	fSlow3 = (1 + fSlow1);
+	double 	fSlow4 = (1.0 / tan((fConst6 * double(fslider2))));
 	double 	fSlow5 = (1 + fSlow4);
-	double 	fSlow6 = (1 - fSlow4);
-	double 	fSlow7 = (1.0 / fSlow2);
+	double 	fSlow6 = (1.0 / fSlow5);
+	double 	fSlow7 = (0 - ((1 - fSlow4) / fSlow5));
 	for (int i=0; i<count; i++) {
-		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
+		fRec0[0] = ((0.999 * fRec0[1]) + fSlow0);
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
-		fRec2[0] = ((fConst6 * ((fSlow6 * fVec0[1]) + (fSlow5 * fVec0[0]))) + (fConst4 * fRec2[1]));
+		fRec2[0] = ((fConst5 * fRec2[1]) + (fConst4 * ((fSlow3 * fVec0[0]) + (fSlow2 * fVec0[1]))));
 		double fTemp1 = (fVec0[0] - ts9nonlin((fRec2[0] - fVec0[0])));
 		fVec1[0] = fTemp1;
-		fRec1[0] = ((fSlow7 * (fVec1[0] + fVec1[1])) + (fSlow3 * fRec1[1]));
+		fRec1[0] = ((fSlow7 * fRec1[1]) + (fSlow6 * (fVec1[0] + fVec1[1])));
 		output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
 		// post processing
 		fRec1[1] = fRec1[0];
@@ -135,9 +135,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("ts9sim.drive",N_("Drive"),"S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("ts9sim.drive",N_("Drive"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 	reg.registerVar("ts9sim.level",N_("Level"),"S","",&fslider0, -16.0, -2e+01, 4.0, 0.1);
-	reg.registerVar("ts9sim.tone",N_("Tone"),"SL","",&fslider1, 4e+02, 1e+02, 1e+03, 1.03);
+	reg.registerVar("ts9sim.tone",N_("Tone"),"SL","",&fslider2, 4e+02, 1e+02, 1e+03, 1.03);
 	return 0;
 }
 

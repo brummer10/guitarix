@@ -77,8 +77,8 @@ def dirlist():
         'gx_mbecho.lv2',
         'gx_mbcompressor.lv2',
         'gx_fuzz.lv2',
-        'gx_graphiceq.lv2'
-
+        'gx_graphiceq.lv2',
+        'gx_gcb_95.lv2'
          ]
 
     return subdirs

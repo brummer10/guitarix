@@ -1,5 +1,5 @@
 // generated from file '../src/faust/stereodelay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace stereodelay {
@@ -154,15 +154,15 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	float 	fSlow0 = (fConst1 * fslider0);
-	float 	fSlow1 = (fConst2 * fslider1);
-	float 	fSlow2 = sinf(fSlow1);
-	float 	fSlow3 = cosf(fSlow1);
-	float 	fSlow4 = (0 - fSlow2);
-	float 	fSlow5 = fcheckbox0;
-	float 	fSlow6 = (0.0010000000000000009f * powf(10,(0.05f * fslider2)));
-	float 	fSlow7 = (fConst1 * fslider3);
-	float 	fSlow8 = (0.0010000000000000009f * powf(10,(0.05f * fslider4)));
+	float 	fSlow0 = (fConst1 * float(fslider0));
+	float 	fSlow1 = (fConst2 * float(fslider1));
+	float 	fSlow2 = cosf(fSlow1);
+	float 	fSlow3 = sinf(fSlow1);
+	float 	fSlow4 = (0 - fSlow3);
+	float 	fSlow5 = float(fcheckbox0);
+	float 	fSlow6 = (0.0010000000000000009f * powf(10,(0.05f * float(fslider2))));
+	float 	fSlow7 = (fConst1 * float(fslider3));
+	float 	fSlow8 = (0.0010000000000000009f * powf(10,(0.05f * float(fslider4))));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		fVec0[IOTA&262143] = fTemp0;
@@ -172,10 +172,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec1[0] = max(0.0f, min(1.0f, (fRec1[1] + fTemp1)));
 		fRec2[0] = ((int(((fRec1[1] >= 1.0f) & (fRec3[1] != fSlow0))))?fSlow0:fRec2[1]);
 		fRec3[0] = ((int(((fRec1[1] <= 0.0f) & (fRec2[1] != fSlow0))))?fSlow0:fRec3[1]);
-		fRec4[0] = ((fSlow3 * fRec4[1]) + (fSlow2 * fRec5[1]));
-		fRec5[0] = ((1 + ((fSlow4 * fRec4[1]) + (fSlow3 * fRec5[1]))) - iVec1[1]);
-		fRec6[0] = (fSlow6 + (0.999f * fRec6[1]));
-		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&262143] + ((fRec6[0] * (1 - (fSlow5 * fRec4[0]))) * ((fRec1[0] * fVec0[(IOTA-int((int(fRec3[0]) & 262143)))&262143]) + ((1.0f - fRec1[0]) * fVec0[(IOTA-int((int(fRec2[0]) & 262143)))&262143]))));
+		fRec4[0] = ((fSlow3 * fRec5[1]) + (fSlow2 * fRec4[1]));
+		fRec5[0] = ((1 + ((fSlow2 * fRec5[1]) + (fSlow4 * fRec4[1]))) - iVec1[1]);
+		fRec6[0] = ((0.999f * fRec6[1]) + fSlow6);
+		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&262143] + ((fRec6[0] * (1 - (fSlow5 * fRec4[0]))) * (((1.0f - fRec1[0]) * fVec0[(IOTA-int((int(fRec2[0]) & 262143)))&262143]) + (fRec1[0] * fVec0[(IOTA-int((int(fRec3[0]) & 262143)))&262143]))));
 		float fTemp2 = (float)input1[i];
 		fVec2[IOTA&262143] = fTemp2;
 		float fTemp3 = ((int((fRec7[1] != 0.0f)))?((int(((fRec8[1] > 0.0f) & (fRec8[1] < 1.0f))))?fRec7[1]:0):((int(((fRec8[1] == 0.0f) & (fSlow7 != fRec9[1]))))?0.0009765625f:((int(((fRec8[1] == 1.0f) & (fSlow7 != fRec10[1]))))?-0.0009765625f:0)));
@@ -183,8 +183,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec8[0] = max(0.0f, min(1.0f, (fRec8[1] + fTemp3)));
 		fRec9[0] = ((int(((fRec8[1] >= 1.0f) & (fRec10[1] != fSlow7))))?fSlow7:fRec9[1]);
 		fRec10[0] = ((int(((fRec8[1] <= 0.0f) & (fRec9[1] != fSlow7))))?fSlow7:fRec10[1]);
-		fRec11[0] = (fSlow8 + (0.999f * fRec11[1]));
-		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec11[0] * ((fRec8[0] * fVec2[(IOTA-int((int(fRec10[0]) & 262143)))&262143]) + ((1.0f - fRec8[0]) * fVec2[(IOTA-int((int(fRec9[0]) & 262143)))&262143]))) * (1 - (fSlow5 * (0 - fRec4[0])))));
+		fRec11[0] = ((0.999f * fRec11[1]) + fSlow8);
+		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec11[0] * (1 - (fSlow5 * (0 - fRec4[0])))) * (((1.0f - fRec8[0]) * fVec2[(IOTA-int((int(fRec9[0]) & 262143)))&262143]) + (fRec8[0] * fVec2[(IOTA-int((int(fRec10[0]) & 262143)))&262143]))));
 		// post processing
 		fRec11[1] = fRec11[0];
 		fRec10[1] = fRec10[0];

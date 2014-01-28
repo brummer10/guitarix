@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxfeed.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace gxfeed {
@@ -7,8 +7,6 @@ namespace gxfeed {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
 	int 	IOTA;
 	double 	fVec0[1024];
 	double 	fRec6[2];
@@ -24,6 +22,8 @@ private:
 	double 	fRec2[2];
 	double 	fVec6[12];
 	double 	fRec0[2];
+	FAUSTFLOAT 	fslider0;
+	FAUSTFLOAT	*fslider0_;
 	FAUSTFLOAT 	fcheckbox0;
 	FAUSTFLOAT	*fcheckbox0_;
 	void connect(uint32_t port,void* data);
@@ -99,10 +99,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 {
 #define fslider0 (*fslider0_)
 #define fcheckbox0 (*fcheckbox0_)
-	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (1 - max((double)0, fSlow0));
-	double 	fSlow2 = (1 - max((double)0, (0 - fSlow0)));
-	int 	iSlow3 = int(fcheckbox0);
+	double 	fSlow0 = double(fslider0);
+	double 	fSlow1 = (1 - max((double)0, (0 - fSlow0)));
+	double 	fSlow2 = (1 - max((double)0, fSlow0));
+	int 	iSlow3 = int(double(fcheckbox0));
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input1[i];
 		double fTemp1 = (0.2 * fTemp0);
@@ -110,7 +110,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fVec0[IOTA&1023] = fTemp2;
 		fRec6[0] = fVec0[(IOTA-901)&1023];
 		double 	fRec7 = fVec0[IOTA&1023];
-		double fTemp3 = (fTemp1 + (0.827 * fRec8[1]));
+		double fTemp3 = ((0.827 * fRec8[1]) + fTemp1);
 		fVec1[IOTA&1023] = fTemp3;
 		fRec8[0] = fVec1[(IOTA-778)&1023];
 		double 	fRec9 = fVec1[IOTA&1023];
@@ -122,19 +122,19 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fVec3[IOTA&2047] = fTemp5;
 		fRec12[0] = fVec3[(IOTA-1123)&2047];
 		double 	fRec13 = fVec3[IOTA&2047];
-		double fTemp6 = ((fRec13 + (fRec11 + (fRec9 + fRec7))) + (0.7 * fRec4[1]));
+		double fTemp6 = ((0.7 * fRec4[1]) + (fRec13 + (fRec11 + (fRec9 + fRec7))));
 		fVec4[IOTA&127] = fTemp6;
 		fRec4[0] = fVec4[(IOTA-124)&127];
 		double 	fRec5 = (0 - (0.7 * fVec4[IOTA&127]));
-		double fTemp7 = ((fRec5 + fRec4[1]) + (0.7 * fRec2[1]));
+		double fTemp7 = (fRec4[1] + (fRec5 + (0.7 * fRec2[1])));
 		fVec5[IOTA&63] = fTemp7;
 		fRec2[0] = fVec5[(IOTA-41)&63];
 		double 	fRec3 = (0 - (0.7 * fVec5[IOTA&63]));
-		double fTemp8 = ((fRec3 + fRec2[1]) + (0.7 * fRec0[1]));
+		double fTemp8 = (fRec2[1] + (fRec3 + (0.7 * fRec0[1])));
 		fVec6[0] = fTemp8;
 		fRec0[0] = fVec6[11];
 		double 	fRec1 = (0 - (0.7 * fVec6[0]));
-		double fTemp9 = ((iSlow3)?((fSlow2 * (fRec1 + fRec0[1])) + (fSlow1 * fTemp0)):(double)input0[i]);
+		double fTemp9 = ((iSlow3)?((fSlow2 * fTemp0) + (fSlow1 * (fRec1 + fRec0[1]))):(double)input0[i]);
 		output0[i] = (FAUSTFLOAT)fTemp9;
 		output1[i] = (FAUSTFLOAT)fTemp9;
 		// post processing

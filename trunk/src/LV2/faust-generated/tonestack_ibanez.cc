@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/tonestack_ibanez.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace tonestack_ibanez {
@@ -80,37 +80,37 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
-	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (4.0108000000000004e-07 * fSlow0);
-	double 	fSlow2 = exp((3.4 * (fslider1 - 1)));
-	double 	fSlow3 = (5.050300000000001e-06 + ((0.00010263250000000001 * fSlow2) + (fSlow0 * (((1.0027e-05 * fSlow2) - 3.5719200000000006e-06) - fSlow1))));
-	double 	fSlow4 = ((9.45e-10 * fSlow2) - (3.78e-11 * fSlow0));
-	double 	fSlow5 = (6.75e-09 * fSlow2);
-	double 	fSlow6 = (2.7e-10 + (fSlow5 + (fSlow0 * (fSlow4 - 2.3219999999999998e-10))));
+	double 	fSlow0 = exp((3.4 * (double(fslider0) - 1)));
+	double 	fSlow1 = double(fslider1);
+	double 	fSlow2 = (4.0108000000000004e-07 * fSlow1);
+	double 	fSlow3 = (((fSlow1 * (((1.0027e-05 * fSlow0) - 3.5719200000000006e-06) - fSlow2)) + (0.00010263250000000001 * fSlow0)) + 5.050300000000001e-06);
+	double 	fSlow4 = (6.75e-09 * fSlow0);
+	double 	fSlow5 = ((9.45e-10 * fSlow0) - (3.78e-11 * fSlow1));
+	double 	fSlow6 = (2.7e-10 + ((fSlow1 * (fSlow5 - 2.3219999999999998e-10)) + fSlow4));
 	double 	fSlow7 = (fConst0 * fSlow6);
-	double 	fSlow8 = (0.0004 * fSlow0);
-	double 	fSlow9 = (0.025067500000000003 * fSlow2);
+	double 	fSlow8 = (0.025067500000000003 * fSlow0);
+	double 	fSlow9 = (0.0004 * fSlow1);
 	double 	fSlow10 = (fConst0 * (0.0150702 + (fSlow9 + fSlow8)));
 	double 	fSlow11 = ((fSlow10 + (fConst1 * (fSlow7 - fSlow3))) - 1);
 	double 	fSlow12 = (fConst2 * fSlow6);
-	double 	fSlow13 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
-	double 	fSlow14 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+	double 	fSlow13 = ((fSlow10 + (fConst1 * (fSlow3 - fSlow12))) - 3);
+	double 	fSlow14 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
 	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
-	double 	fSlow16 = fslider2;
-	double 	fSlow17 = ((fSlow0 * (3.78e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (2.7e-10 - (2.7e-10 * fSlow0)))));
-	double 	fSlow18 = (fConst2 * fSlow17);
-	double 	fSlow19 = (1.0530000000000001e-07 + (((9.45e-07 * fSlow16) + (fSlow0 * (4.2808000000000006e-07 - fSlow1))) + (fSlow2 * (2.6324999999999998e-06 + (1.0027e-05 * fSlow0)))));
-	double 	fSlow20 = (0.0010027 + (fSlow9 + (fSlow8 + (6.75e-05 * fSlow16))));
+	double 	fSlow16 = double(fslider2);
+	double 	fSlow17 = ((((9.45e-07 * fSlow16) + (fSlow1 * (4.2808000000000006e-07 - fSlow2))) + (fSlow0 * (2.6324999999999998e-06 + (1.0027e-05 * fSlow1)))) + 1.0530000000000001e-07);
+	double 	fSlow18 = ((fSlow1 * (3.78e-11 + fSlow5)) + (fSlow16 * (fSlow4 + (2.7e-10 - (2.7e-10 * fSlow1)))));
+	double 	fSlow19 = (fConst0 * fSlow18);
+	double 	fSlow20 = ((fSlow8 + (fSlow9 + (6.75e-05 * fSlow16))) + 0.0010027);
 	double 	fSlow21 = (fConst0 * fSlow20);
-	double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow18)));
-	double 	fSlow23 = (fConst0 * fSlow17);
-	double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow23 - fSlow19)));
+	double 	fSlow22 = (fSlow21 + (fConst1 * (fSlow19 - fSlow17)));
+	double 	fSlow23 = (fConst2 * fSlow18);
+	double 	fSlow24 = (fSlow21 + (fConst1 * (fSlow17 - fSlow23)));
 	double 	fSlow25 = (fConst0 * (0 - fSlow20));
-	double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow19 + fSlow18)));
-	double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow19 + fSlow23)));
+	double 	fSlow26 = (fSlow25 + (fConst1 * (fSlow17 + fSlow23)));
+	double 	fSlow27 = (fSlow25 - (fConst1 * (fSlow17 + fSlow19)));
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((double)input0[i] - (fSlow15 * (((fSlow14 * fRec0[2]) + (fSlow13 * fRec0[1])) + (fSlow11 * fRec0[3]))));
-		output0[i] = (FAUSTFLOAT)(fSlow15 * ((fSlow27 * fRec0[0]) + ((fSlow26 * fRec0[1]) + ((fSlow24 * fRec0[3]) + (fSlow22 * fRec0[2])))));
+		fRec0[0] = ((double)input0[i] - (fSlow15 * (((fSlow14 * fRec0[1]) + (fSlow13 * fRec0[2])) + (fSlow11 * fRec0[3]))));
+		output0[i] = (FAUSTFLOAT)(fSlow15 * ((((fSlow27 * fRec0[0]) + (fSlow26 * fRec0[1])) + (fSlow24 * fRec0[2])) + (fSlow22 * fRec0[3])));
 		// post processing
 		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
 	}
@@ -130,10 +130,10 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case BASS: 
-		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case MIDDLE: 
-		fslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case TREBLE: 
 		fslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 

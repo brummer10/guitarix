@@ -1,5 +1,5 @@
 // generated from file '../src/faust/chorus_mono.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace chorus_mono {
@@ -10,31 +10,31 @@ private:
 	class SIG0 {
 	  private:
 		int 	fSamplingFreq;
-		int 	iRec1[2];
+		int 	iRec0[2];
 	  public:
 		int getNumInputs() 	{ return 0; }
 		int getNumOutputs() 	{ return 1; }
 		void init(int samplingFreq) {
 			fSamplingFreq = samplingFreq;
-			for (int i=0; i<2; i++) iRec1[i] = 0;
+			for (int i=0; i<2; i++) iRec0[i] = 0;
 		}
 		void fill (int count, float output[]) {
 			for (int i=0; i<count; i++) {
-				iRec1[0] = (1 + iRec1[1]);
-				output[i] = sinf((9.587379924285257e-05f * (iRec1[0] - 1)));
+				iRec0[0] = (1 + iRec0[1]);
+				output[i] = sinf((9.587379924285257e-05f * (iRec0[0] - 1)));
 				// post processing
-				iRec1[1] = iRec1[0];
+				iRec0[1] = iRec0[0];
 			}
 		}
 	};
 			FAUSTFLOAT 	fslider0;
 	int 	IOTA;
 	float *fVec0;
+	static float 	ftbl0[65536];
 	FAUSTFLOAT 	fslider1;
 	int 	iConst0;
 	float 	fConst1;
-	float 	fRec0[2];
-	static float 	ftbl0[65536];
+	float 	fRec1[2];
 	float 	fConst2;
 	FAUSTFLOAT 	fslider2;
 	bool mem_allocated;
@@ -90,7 +90,7 @@ Dsp::~Dsp() {
 inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<65536; i++) fVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int i=0; i<2; i++) fRec1[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -147,25 +147,25 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	float 	fSlow0 = (0.01f * fslider0);
+	float 	fSlow0 = (0.01f * float(fslider0));
 	float 	fSlow1 = (fSlow0 + (1 - fSlow0));
-	float 	fSlow2 = (fConst1 * fslider1);
-	float 	fSlow3 = fslider2;
+	float 	fSlow2 = (fConst1 * float(fslider1));
+	float 	fSlow3 = float(fslider2);
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		float fTemp1 = (fSlow0 * fTemp0);
 		fVec0[IOTA&65535] = fTemp1;
-		float fTemp2 = (fSlow2 + fRec0[1]);
-		fRec0[0] = (fTemp2 - floorf(fTemp2));
-		float fTemp3 = (65536 * (fRec0[0] - floorf(fRec0[0])));
+		float fTemp2 = (fSlow2 + fRec1[1]);
+		fRec1[0] = (fTemp2 - floorf(fTemp2));
+		float fTemp3 = (65536 * (fRec1[0] - floorf(fRec1[0])));
 		float fTemp4 = floorf(fTemp3);
 		int iTemp5 = int(fTemp4);
-		float fTemp6 = (fConst2 * (1 + (0.02f * ((ftbl0[((1 + iTemp5) & 65535)] * (fTemp3 - fTemp4)) + (ftbl0[(iTemp5 & 65535)] * ((1 + fTemp4) - fTemp3))))));
+		float fTemp6 = (fConst2 * (1 + (0.02f * ((((1 + fTemp4) - fTemp3) * ftbl0[(iTemp5 & 65535)]) + ((fTemp3 - fTemp4) * ftbl0[((1 + iTemp5) & 65535)])))));
 		int iTemp7 = int(fTemp6);
 		int iTemp8 = (1 + iTemp7);
-		output0[i] = (FAUSTFLOAT)((fSlow3 * (((fTemp6 - iTemp7) * fVec0[(IOTA-int((int(iTemp8) & 65535)))&65535]) + ((iTemp8 - fTemp6) * fVec0[(IOTA-int((iTemp7 & 65535)))&65535]))) + (fSlow1 * fTemp0));
+		output0[i] = (FAUSTFLOAT)((fSlow3 * ((fVec0[(IOTA-int((iTemp7 & 65535)))&65535] * (iTemp8 - fTemp6)) + ((fTemp6 - iTemp7) * fVec0[(IOTA-int((int(iTemp8) & 65535)))&65535]))) + (fSlow1 * fTemp0));
 		// post processing
-		fRec0[1] = fRec0[0];
+		fRec1[1] = fRec1[0];
 		IOTA = IOTA+1;
 	}
 }
