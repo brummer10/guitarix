@@ -39,9 +39,9 @@ real inline enorm(int n, const real *fvec) {
 
 template<int N>
 real enorm2(const real *fvec) {
-    real s;
+    real s = 0;
     for (int i = 0; i < N; i++) {
-	s = fvec[i] * fvec[i];
+	s += fvec[i] * fvec[i];
     }
     return s;
 }
