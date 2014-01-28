@@ -18,6 +18,29 @@ function usage() {
   exit 1
 }
 
+function select_plugin_type() {
+  echo -e $RED'Please select a Plugin type from the list'$NONE
+  select type in "${Plugin_types[@]}" ; do 
+    if [[ $type == "quit" ]]; then
+      break
+    fi
+    echo -e $BLUE"$type"$NONE" selected "
+    effect_name="$type"
+    if [ ! -z "$type" ]; then
+      break;
+    fi
+  done
+}
+
+function check_plugin_type() { 
+  local list name=$1
+  shift
+  for list; do
+    [[ $list == $name ]] && return 0
+  done
+  return 1
+}
+
 function check_dir() {
   if [ ! -d gx_${bname}.lv2 ]; then
     mkdir -p gx_${bname}.lv2
@@ -129,6 +152,51 @@ function byby() {
 and run ./waf build in order to build the plug"$NONE
 }
 
+########################## supported plugin types ######################
+
+Plugin_types=(
+        'DelayPlugin'
+            'ReverbPlugin'
+        'DistortionPlugin'
+            'WaveshaperPlugin'
+        'DynamicsPlugin'
+            'AmplifierPlugin'
+            'CompressorPlugin'
+            'EnvelopePlugin'
+            'ExpanderPlugin'
+            'GatePlugin'
+            'LimiterPlugin'
+        'FilterPlugin'
+            'AllpassPlugin'
+            'BandpassPlugin'
+            'CombPlugin'
+            'EQPlugin'
+               'MultiEQPlugin'
+                'ParaEQPlugin'
+            'HighpassPlugin'
+            'LowpassPlugin'
+        'GeneratorPlugin'
+            'ConstantPlugin'
+            'InstrumentPlugin'
+            'OscillatorPlugin'
+        'ModulatorPlugin'
+            'ChorusPlugin'
+            'FlangerPlugin'
+            'PhaserPlugin'
+        'ReverbPlugin'
+        'SimulatorPlugin'
+            'ReverbPlugin'
+        'SpatialPlugin'
+        'SpectralPlugin'
+            'PitchPlugin'
+        'UtilityPlugin'
+            'AnalyserPlugin'
+            'ConverterPlugin'
+            'FunctionPlugin'
+            'MixerPlugin' )
+
+
+
 ############################# main #####################################
 
 BLUE="\033[1;34m"
@@ -162,6 +230,8 @@ else
   bname="$(basename "$1" .dsp)"
   effect_name="$2"
 fi
+
+check_plugin_type $effect_name "${Plugin_types[@]}" && echo 'ok' || select_plugin_type 
 
 ######################## function calls ################################
 
