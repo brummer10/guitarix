@@ -494,13 +494,12 @@ class Diode_clipper(Test): # diode clipper
 
 # class LFO_test(Test): # LFO, fail, finds wrong roots (c.f. Mačák thesis)
 
-#     OPA_ = OPA
 #     S = ((R(1), "V1", "V2"),
 #          (C(1), "V2", "V3"),
 #          (R(2), "V3", "V4"),
 #          (R(3), "V4", "V1"),
-#          (OPA_(1), GND, "V2", "V3"),# "Vee", "Vcc"),
-#          (OPA_(2), "V4", GND, "V1"),# "Vee", "Vcc"),
+#          (OPA(1), GND, "V2", "V3"),# "Vee", "Vcc"),
+#          (OPA(2), "V4", GND, "V1"),# "Vee", "Vcc"),
 #          #(IN, "Vee", "Vcc"),
 #          (OUT, "V3"),
 #          )
@@ -509,8 +508,8 @@ class Diode_clipper(Test): # diode clipper
 #          R(2): 33e3,
 #          R(3): 47e3,
 #          C(1): 5e-6,
-#          OPA_(1): 1e5,
-#          OPA_(2): 1e5,
+#          OPA(1): 1e5,
+#          OPA(2): 1e5,
 #          "OP": [],
 #          }
 
@@ -518,12 +517,12 @@ class LinOpAmp_test(Test): # linear inverting OPAMP
 
     S = ((R(2), "V-", "Vout"),
          (R(1), GND, "V-"),
-         (OPA_L(), "V+", "V-", "Vout"),
+         (OPA(), "V+", "V-", "Vout"),
          (OUT, "V-", "Vout"),
          (IN, "V+"),
          )
 
-    V = {OPA_L(): 1e5,
+    V = {OPA(): 1e5,
          R(1): 1e3,
          R(2): 1e3,
          }

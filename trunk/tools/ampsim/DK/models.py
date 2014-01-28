@@ -8,7 +8,7 @@ class GNDclass(object):
 GND = GNDclass()
 
 class NODESclass(object):
-    def add_count(self, tc, conn): pass
+    def add_count(self, tc, conn, param): pass
     def process(self, p, conn, param, alpha): pass
     def __repr__(self): return "NODES"
 NODES = NODESclass()
@@ -34,7 +34,7 @@ class Node(object):
 class INclass(Node):
     def __init__(self):
         Node.__init__(self, "IN", None)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         self.conn = conn
         tc["V"] += len(conn)
         tc["I"] = len(conn)
@@ -78,7 +78,7 @@ class OutU(Out):
 class OUTclass(Node):
     def __init__(self):
         Node.__init__(self, "OUT", None)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         self.conn = conn
         tc["O"] += len(conn)
     def process(self, p, conn, param, alpha):
@@ -93,7 +93,7 @@ OUT = OUTclass()
 class R(Node):
     def __init__(self, n=None):
         Node.__init__(self, "R", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["R"] += 1
     def process(self, p, conn, param, alpha):
         idx = p.new_row("R", self)
@@ -107,7 +107,7 @@ class P_parallel(Node):
     # 5              ~7.6%
     def __init__(self, n=None):
         Node.__init__(self, "P", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         if len(conn) == 3:
             tc["R"] += 2
             tc["P"] += 2
@@ -149,7 +149,7 @@ class P_parallel(Node):
 class P_single(Node):
     def __init__(self, n=None):
         Node.__init__(self, "P", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         if len(conn) == 3:
             tc["P"] += 2
         else:
@@ -180,7 +180,7 @@ class P_single(Node):
 class P_fixed(Node):
     def __init__(self, n=None):
         Node.__init__(self, "P", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         if len(conn) == 3:
             tc["R"] += 2
         else:
@@ -209,7 +209,7 @@ P = P_parallel
 class C(Node):
     def __init__(self, n=None):
         Node.__init__(self, "C", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["X"] += 1
     def process(self, p, conn, param, alpha):
         idx = p.new_row("X", self)
@@ -223,7 +223,7 @@ class C(Node):
 class L(Node):
     def __init__(self, n=None):
         Node.__init__(self, "L", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["X"] += 1
     def process(self, p, conn, param, alpha):
         idx = p.new_row("X", self)
@@ -237,7 +237,7 @@ class L(Node):
 class D(Node):
     def __init__(self, n=None):
         Node.__init__(self, "D", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["N"] += 1
     def process(self, p, conn, param, alpha):
         Is, mUt = const = sp.symbols("Is,mUt")
@@ -252,7 +252,7 @@ class D(Node):
 class D2(Node):
     def __init__(self, n=None):
         Node.__init__(self, "D", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["N"] += 1
     def process(self, p, conn, param, alpha):
         Is, mUt = const = sp.symbols("Is,mUt")
@@ -267,7 +267,7 @@ class D2(Node):
 class VCCS(Node):
     def __init__(self, n=None):
         Node.__init__(self, "VCCS", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         pass
     def process(self, p, conn, param, alpha):
         dG = param["dG"]
@@ -288,7 +288,7 @@ class VCCS(Node):
 class T(Node):
     def __init__(self, n=None):
         Node.__init__(self, "T", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["N"] += 2
     def process(self, p, conn, param, alpha):
         # pins are C, B, E (index 0, 1, 2)
@@ -312,7 +312,7 @@ class T(Node):
 class Triode(Node):
     def __init__(self, n=None):
         Node.__init__(self, "Triode", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["N"] += 2
     def process(self, p, conn, param, alpha):
         mu, Ex, Kp, Kvb, Kg1, Gco, Gcf = const = sp.symbols("mu,Ex,Kp,Kvb,Kg1,Gco,Gcf")
@@ -360,7 +360,7 @@ class Triode(Node):
 class Pentode(Node):
     def __init__(self, n=None):
         Node.__init__(self, "Pentode", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["N"] += 3
     def process(self, p, conn, param, alpha):
         mu, Ex, Kp, Kg1, Kg2, Kvb, Gco, Gcf = const = sp.symbols("mu,Ex,Kp,Kg1,Kg2,Kvb,Gco,Gcf")
@@ -368,11 +368,13 @@ class Pentode(Node):
         t = Kp * (1 / mu + Ug1k / Ug2k)
         E1 = Ug2k / Kp * sp.log(1 + sp.exp(t))
         E1_ = Ug2k / Kp * t
+        #sign = sp.sign
+        sign = lambda x: 2 * sp.Heaviside(x) - 1
         calc_Ia = sp.Piecewise(
             (0, Ug2k <= 0),
             (0, t < -500),
-            (-pow(E1_,Ex)/Kg1 * (1+sp.sign(E1_)) * sp.atan(Uak/Kvb), t > 500),
-            (-pow(E1,Ex)/Kg1 * (1+sp.sign(E1)) * sp.atan(Uak/Kvb), True))
+            (-pow(E1_,Ex)/Kg1 * (1+sign(E1_)) * sp.atan(Uak/Kvb), t > 500),
+            (-pow(E1,Ex)/Kg1 * (1+sign(E1)) * sp.atan(Uak/Kvb), True))
         calc_Ia = calc_Ia.subs(dict([(k,param[str(k)]) for k in const]))
         calc_Ig = sp.Piecewise((0, Ug1k < Gco), (-Gcf*pow(Ug1k-Gco, 1.5), True))
         calc_Ig = calc_Ig.subs(dict([(k,param[str(k)]) for k in const]))
@@ -427,7 +429,7 @@ class Trans_L(Node):
     def __init__(self, n=None, nw=3):
         self.nw = nw
         Node.__init__(self, "TL", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["X"] += 1
         tc["V"] += self.nw + 2
     def process(self, p, conn, param, alpha):
@@ -453,7 +455,7 @@ class Trans_F(Node):
     def __init__(self, n=None, nw=3):
         self.nw = nw
         Node.__init__(self, "TF", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["X"] += 1
         tc["V"] += self.nw + 2
         tc["N"] += 1
@@ -493,7 +495,7 @@ class Trans_GC(Node):
     def __init__(self, n=None, nw=3):
         self.nw = nw
         Node.__init__(self, "TG", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["X"] += 1
         tc["V"] += self.nw + 2
         tc["N"] += 1
@@ -551,7 +553,7 @@ class Trans_GC(Node):
 class V(Node):
     def __init__(self, n=None):
         Node.__init__(self, "V", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["V"] += 1
         tc["C"] += 1
     def process(self, p, conn, param, alpha):
@@ -560,49 +562,36 @@ class V(Node):
         p.S[conn[0], idx] += 1
         p.ConstVoltages[0,idx] += param
 
-class OPA_L(Node):
-    def __init__(self, n=None):
-        Node.__init__(self, "OPA_L", n)
-    def add_count(self, tc, conn):
-        tc["V"] += 1
-    def process(self, p, conn, param, alpha):
-        idx = p.new_row("V", self)
-        p.S[idx, conn[2]] += 1
-        p.S[conn[2], idx] += 1
-        p.S[idx, conn[0]] += param
-        p.S[idx, conn[1]] += -param
-
 class OPA(Node):
     def __init__(self, n=None):
-        Node.__init__(self, "OPA", n)
-    def add_count(self, tc, conn):
+        Node.__init__(self, "OPA_L", n)
+    def add_count(self, tc, conn, param):
         tc["V"] += 1
-        tc["N"] += 1
+        if isinstance(param, dict) and "Vcc" in param:
+            tc["N"] += 1
     def process(self, p, conn, param, alpha):
-        Vcc, Vee, A = const = sp.symbols("Vcc,Vee,A")
-        v0, = v = sp.symbols("v:1", seq=True)
-        a = 2*A/(Vcc-Vee)
-        calc = 0.5 * (sp.tanh(a*v0) * (Vcc-Vee) + Vcc + Vee)
-        calc = calc.subs(dict([(k,param[str(k)]) for k in const]))
-        # def calc(v):
-        #     Vcc = 10
-        #     Vee = -10
-        #     A = 1e5
-        #     a = 2*A/(Vcc-Vee)
-        #     return 0.5 * (np.tanh(a*v[0]) * (Vcc-Vee) + Vcc + Vee)
         idx_s = p.new_row("V", self)
         p.S[idx_s, conn[2]] += 1
         p.S[conn[2], idx_s] += 1
-        idx = p.new_row("N", self)
-        p.add_conn("Nl", idx, conn[0], 1)
-        p.add_conn("Nl", idx, conn[1], -1)
-        p.add_conn("Nr", idx, idx_s, 1)
-        p.set_function(idx, calc, v, idx)
+        if isinstance(param, dict) and "Vcc" in param:
+            Vcc, Vee, A = const = sp.symbols("Vcc,Vee,A")
+            v0, = v = sp.symbols("v:1", seq=True)
+            a = 2*A/(Vcc-Vee)
+            calc = 0.5 * (sp.tanh(a*v0) * (Vcc-Vee) + Vcc + Vee)
+            calc = calc.subs(dict([(k,param[str(k)]) for k in const]))
+            idx = p.new_row("N", self)
+            p.add_conn("Nl", idx, conn[0], 1)
+            p.add_conn("Nl", idx, conn[1], -1)
+            p.add_conn("Nr", idx, idx_s, 1)
+            p.set_function(idx, calc, v, idx)
+        else:
+            p.S[idx_s, conn[0]] += param
+            p.S[idx_s, conn[1]] += -param
 
 class CC_L(Node):
     def __init__(self, n=None):
         Node.__init__(self, "CC", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["V"] += 1
     def process(self, p, conn, param, alpha):
         idx = p.new_row("V", self)
@@ -614,7 +603,7 @@ class CC_L(Node):
 class CC_N(Node):
     def __init__(self, n=None):
         Node.__init__(self, "CC", n)
-    def add_count(self, tc, conn):
+    def add_count(self, tc, conn, param):
         tc["N"] += 1
     def process(self, p, conn, param, alpha):
         v0, = v = sp.symbols("v:1", seq=True)

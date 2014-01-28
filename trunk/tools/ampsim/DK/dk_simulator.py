@@ -1528,7 +1528,7 @@ class Parser(object):
         self.V = V
         self.nodes = {}
         self.element_name = collections.defaultdict(list)
-        tc = self.collect(S)
+        tc = self.collect(S, V)
         n = len(self.nodes) + tc["V"]
         self.S = ml.zeros((n,n))
         self.N = dict([(t, ml.zeros((tc[t[0]], n)))
@@ -1617,12 +1617,13 @@ class Parser(object):
             print "%s not in %s" % (tpl, self.element_name["V"])
             raise
 
-    def collect(self, S):
+    def collect(self, S, V):
         tc = collections.Counter()
         l = self.element_name["S"]
         for row in S:
+            e = row[0]
             conn = row[1:]
-            row[0].add_count(tc, conn)
+            e.add_count(tc, conn, V.get(e))
             for s in conn:
                 if s not in self.nodes:
                     if s != GND and not isinstance(s, Out):
