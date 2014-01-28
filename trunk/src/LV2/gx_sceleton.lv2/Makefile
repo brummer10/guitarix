@@ -53,5 +53,5 @@ uninstall :
 	@rm -rf $(INSTALL_DIR)/$(BUNDLE)
 	@echo ". ." $(BLUE)", done"$(NONE)
 
-$(NAME) : ; $(ERR)
+$(NAME) :
 	$(CXX) $(CXXFLAGS) $(OBJECTS) $(LDFLAGS) -o $(NAME).so
