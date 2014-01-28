@@ -22,8 +22,9 @@ R_dict = {
 C_dict = {
     "n" : "e-9",
     "p" : "e-12",
+    "u" : "e-6",
     "." : "e-6",
-    ""  : "",
+    ""  : "e-6",
     }
 
 L_dict = {
@@ -35,8 +36,16 @@ L_dict = {
     }
 
 def resistor_value(val):
-    m = re.match("([0-9]*)([kM.]?)([0-9]*)$", val)
-    return m.group(1)+"."+m.group(3)+R_dict[m.group(2)]
+    m = re.match("(?P<l>[0-9]*)(\\.(?P<t>[0-9]*))?(?P<m>[kM])?$", val)
+    if not m:
+        m = re.match("(?P<l>[0-9]*)(?P<m>[kM.]?)(?P<t>[0-9]*)$", val)
+    return m.group('l') + "." + (m.group('t') or '') + R_dict[m.group('m') or '']
+
+def capacitor_value(val):
+    m = re.match("(?P<l>[0-9]*)(\\.(?P<t>[0-9]*))?(?P<m>[npu])?F?$", val)
+    if not m:
+        m = re.match("(?P<l>[0-9]*)(?P<m>[npu.]?)(?P<t>[0-9]*)$", val)
+    return m.group('l') + "." + (m.group('t') or '') + C_dict[m.group('m') or '']
 
 mag_dict = {
     "M": "e6",
@@ -105,7 +114,7 @@ def read_netlist(fname):
                 if v == "GND":
                     pass
                 elif v.startswith("unnamed_net"):
-                    v = "'p"+v[11:]+"'"
+                    v = "'u"+v[11:]+"'"
                 elif v.startswith("unconnected_"):
                     v = None
                 else:
@@ -120,16 +129,16 @@ def read_netlist(fname):
             if dev == "OUTPUT":
                 out += conn
                 continue
-            if dev == "OPAMP":
+            if dev in ("OPAMP","AOP-Standard"):
                 conn = conn[:2] + conn[4:]
                 sym = mksym(sym, "O", "OPA")
+                val = "Opamps['%s']" % val
             elif dev == "RESISTOR":
                 sym = mksym(sym, "R")
                 val = resistor_value(val)
-            elif dev == "CAPACITOR":
+            elif dev in ("CAPACITOR", "POLARIZED_CAPACITOR"):
                 sym = mksym(sym, "C")
-                m = re.match("([0-9]*)([np.]?)([0-9]*)$", val)
-                val = m.group(1)+"."+m.group(3)+C_dict[m.group(2)]
+                val = capacitor_value(val)
             elif dev == "INDUCTOR":
                 sym = mksym(sym, "L")
                 m = re.match("([0-9]*)([muH.]?)([0-9]*)H?$", val)
@@ -155,6 +164,9 @@ def read_netlist(fname):
                     val = mk_dict(val,Vt=Voltage,Is=Current,Bf=Number,Br=Number)
                 else:
                     val = "Transistors['%s']" % val
+            elif dev == "DIODE":
+                sym = mksym(sym, "D")
+                val = "Diodes['%s']" % val
             elif dev == "TRIODE":
                 sym = mksym(sym, "U", "Triode")
                 val = "Tubes['%s']" % val
@@ -177,6 +189,17 @@ def read_netlist(fname):
                     val = val[:-1]
                 if "." not in val:
                     val += "."
+            elif dev == "VOLTAGE_SOURCE":
+                sym = mksym(sym, "V")
+                if val == "DC":
+                    val = conn[0][1:-1]
+                    conn = conn[1:]
+                if val.endswith("V"):
+                    val = val[:-1]
+                if "." not in val:
+                    val += "."
+            elif dev == "vsin":
+                continue
             else:
                 assert False, dev
             if val is not None:
@@ -184,7 +207,8 @@ def read_netlist(fname):
             rows.append([sym]+conn)
         rows.append(['OUT']+out)
         rows.append(['IN']+inp)
-    return ("S = ((%s),\n     )" % "),\n     (".join([", ".join(["None" if v is None else v for v in row]) for row in rows]) +
+    fmt_row = lambda row: " ".join(["None," if v is None else v+"," for v in row])
+    return ("S = ((%s),\n     )" % "),\n     (".join([fmt_row(row) for row in rows]) +
             "\n" +
             "V = {%s}" % "".join(['%s: %s,\n     ' % v for v in sorted(values.items())])
             )
