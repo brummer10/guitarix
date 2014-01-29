@@ -1,0 +1,15 @@
+{
+    "author": "GUITARIX", 
+    "color": "orange", 
+    "controls": [
+        {
+            "name": "DRIVE", 
+            "symbol": "DRIVE"
+        }, 
+        {
+            "name": "WET_DRY", 
+            "symbol": "WET_DRY"
+        }
+    ], 
+    "label": "Overdrive"
+}

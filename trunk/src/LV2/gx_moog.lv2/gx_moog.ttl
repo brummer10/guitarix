@@ -34,18 +34,18 @@
 	foaf:mbox <mailto:brummer@web.de> ;
 	rdfs:seeAlso <http://guitarix.sourceforge.net> .
 
-<http://guitarix.sourceforge.net/plugins/gx_sceleton_>
+<http://guitarix.sourceforge.net/plugins/gx_moog_>
 	a doap:Project ;
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
-	doap:name "Gx_sceleton_" .
+	doap:name "Gx_moog_" .
 
-<http://guitarix.sourceforge.net/plugins/gx_sceleton_#_sceleton_>
+<http://guitarix.sourceforge.net/plugins/gx_moog_#_moog_>
     a lv2:Plugin ,
-        lv2:EffectPlugin ;
+        lv2:FilterPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "Gxsceleton";
+    doap:name "Gxmoog";
     doap:license <http://opensource.org/licenses/isc> ;
-    lv2:project <http://guitarix.sourceforge.net/plugins/gx_sceleton_> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_moog_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
       
     lv2:minorVersion 28;
@@ -76,3 +76,31 @@
         lv2:symbol "in1" ;
         lv2:name "In1" ;
     ] 
+      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "Q" ;
+        lv2:name "Q" ;
+        lv2:default 1.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 4.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "FR" ;
+        lv2:name "FR" ;
+        lv2:default 3e+03 ;
+        lv2:minimum 4.4e+02 ;
+        lv2:maximum 6e+03 ;
+        units:unit units:hz ;
+    ];
+    mod:gui [
+        a mod:Gui;
+        mod:resourcesDirectory <modgui>;
+        mod:iconTemplate <modgui/icon-gxmoog.html>;
+        mod:templateData <modgui/data-gxmoog.json>;
+        mod:screenshot <modgui/screenshot-gxmoog.png>;
+        mod:thumbnail <modgui/thumb-gxmoog.png>;
+    ] .

@@ -24,6 +24,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix mod: <http://portalmod.com/ns/modgui#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -70,4 +71,12 @@
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
-    ].
+    ];
+    mod:gui [
+        a mod:Gui;
+        mod:resourcesDirectory <modgui>;
+        mod:iconTemplate <modgui/icon-gxgcb95.html>;
+        mod:templateData <modgui/data-gxgcb95.json>;
+        mod:screenshot <modgui/screenshot-gxgcb95.png>;
+        mod:thumbnail <modgui/thumb-gxgcb95.png>;
+    ] .

@@ -1,0 +1,15 @@
+{
+    "author": "GUITARIX", 
+    "color": "yellow", 
+    "controls": [
+        {
+            "name": "Q", 
+            "symbol": "Q"
+        }, 
+        {
+            "name": "FR", 
+            "symbol": "FR"
+        }
+    ], 
+    "label": "Moog"
+}
