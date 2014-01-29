@@ -393,8 +393,9 @@ FixedRateResampler smp;
 %end
 
 class DKPlugin: public PluginDef {
-private:
+public:
     float pots[@npl+@add_npl];
+private:
     creal pots_last[@npl+@add_npl];
     Matrix<creal, @nx, 1> x_last;
     @DKPlugin_fields
@@ -552,6 +553,169 @@ PluginDef *plugin() {
 }
 }}
 %end
+
+%if (@{plugindef.lv2_plugin_type})
+%parse ("lv2_interface")
+%end
+""")
+
+lv2_manifest = Template("""
+\@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+\@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://guitarix.sourceforge.net/plugins/@id#@{plugindef.lv2_versioned_id}>
+    a lv2:Plugin ;
+    lv2:binary <@{plugindef.lv2_versioned_id}.so>  ;
+    rdfs:seeAlso <@{plugindef.lv2_versioned_id}.ttl> .
+""")
+
+lv2_ttl = Template("""
+\@prefix doap: <http://usefulinc.com/ns/doap#> .
+\@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+\@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+\@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+\@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+\@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+
+<http://guitarix.sourceforge.net#devel>
+	a foaf:Group ;
+	foaf:name "Guitarix team" ;
+	foaf:mbox <mailto:guitarix-developer\@lists.sourceforge.net> ;
+	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
+<http://guitarix.sourceforge.net/plugins/@id>
+	a doap:Project ;
+	doap:maintainer <http://guitarix.sourceforge.net#devel> ;
+	doap:name "@{plugindef.name}" .
+
+<http://guitarix.sourceforge.net/plugins/@id#@{plugindef.lv2_versioned_id}>
+    a lv2:Plugin ,
+        lv2:@{plugindef.lv2_plugin_type} ;
+    doap:maintainer <http://guitarix.sourceforge.net#devel> ;
+    doap:name "@{plugindef.name}";
+    doap:license <http://usefulinc.com/doap/licenses/gpl> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/@id> ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+    lv2:minorVersion @{plugindef.lv2_minor_version};
+    lv2:microVersion @{plugindef.lv2_micro_version};
+
+    lv2:port\
+%for @p in @lv2_ports:\
+ [
+        a @{p.type_list} ;
+        lv2:index @{p.index} ;
+        lv2:symbol "@{p.symbol}" ;
+        lv2:name "@{p.name}" ;
+%if (@{p.control_index} >= 0)\
+        lv2:default @{p.default} ;
+        lv2:minimum @{p.minimum} ;
+        lv2:maximum @{p.maximum} ;
+%end
+    ]%if(@velocityHasNext),%end\
+%end.
+""")
+
+lv2_interface = Template("""
+#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
+
+#define LV2_PLUGIN_URI "http://guitarix.sourceforge.net/plugins/@id#@{plugindef.lv2_versioned_id}"
+
+typedef enum {
+%for @p in @lv2_ports:\
+	PORT_@{p.symbol} = @{p.index},
+%end
+} PortIndex;
+
+class LV2_DKPlugin: public DKPlugin {
+public:
+	// Port buffers
+	float* ports[@{lv2_ports.port_count()}];
+public:
+    LV2_DKPlugin(): DKPlugin() {}
+};
+
+static LV2_Handle
+instantiate(const LV2_Descriptor*     descriptor,
+            double                    rate,
+            const char*               bundle_path,
+            const LV2_Feature* const* features)
+{
+    LV2_DKPlugin *p = new LV2_DKPlugin;
+    p->set_samplerate(rate, p);
+    return static_cast<LV2_Handle>(p);
+}
+
+static void
+connect_port(LV2_Handle instance,
+             uint32_t   port,
+             void*      data)
+{
+	static_cast<LV2_DKPlugin*>(instance)->ports[port] = static_cast<float*>(data);
+}
+
+static void
+activate(LV2_Handle instance)
+{
+}
+
+static void
+run(LV2_Handle instance, uint32_t n_samples)
+{
+    LV2_DKPlugin* p = static_cast<LV2_DKPlugin*>(instance);
+
+%for @p in @lv2_ports:\
+%if (@{p.control_index} >= 0)\
+	p->pots[@{p.control_index}] = *(p->ports[@{p.index}]);
+%end
+%end
+%if (@ni == 1 && @no == 1)
+	p->process(n_samples, p->ports[0], p->ports[1], p);
+%else
+	p->process(n_samples, p->ports[0], p->ports[1], p->ports[2], p->ports[3], p);
+%end
+}
+
+static void
+deactivate(LV2_Handle instance)
+{
+}
+
+static void
+cleanup(LV2_Handle instance)
+{
+    LV2_DKPlugin* p = static_cast<LV2_DKPlugin*>(instance);
+    p->delete_instance(p);
+}
+
+static const void*
+extension_data(const char* uri)
+{
+	return NULL;
+}
+
+static const LV2_Descriptor descriptor = {
+	LV2_PLUGIN_URI,
+	instantiate,
+	connect_port,
+	activate,
+	run,
+	deactivate,
+	cleanup,
+	extension_data
+};
+
+LV2_SYMBOL_EXPORT
+extern "C" __attribute__ ((visibility ("default")))
+const LV2_Descriptor*
+lv2_descriptor(uint32_t index)
+{
+	switch (index) {
+	case 0:
+		return &descriptor;
+	default:
+		return NULL;
+	}
+}
 """)
 
 c_template_calc_nonlin = Template("""

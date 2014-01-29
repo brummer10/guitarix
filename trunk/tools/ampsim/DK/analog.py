@@ -730,11 +730,33 @@ class Circuit(object):
         else:
             mod = self.c_module
             s = "C"
-        if path is None:
-            path = os.path.expanduser("~/.config/guitarix/plugins/.")
-        fname = os.path.join(path, self._get_module_id()+".so")
-        shutil.copy(mod, fname)
-        print "%s module copied to '%s'" % (s, fname)
+        if self.plugindef.lv2_plugin_type:
+            def try_mkdir(path):
+                try:
+                    os.mkdir(path)
+                except OSError as e:
+                    if e.errno != 17: # EEXIST
+                        raise
+            vid = self.plugindef.lv2_versioned_id
+            if path is None:
+                path = os.path.expanduser("~/.lv2")
+                try_mkdir(path)
+            path = os.path.join(path, "gx_%s.lv2" % vid)
+            try_mkdir(path)
+            base = os.path.dirname(mod)
+            ttlname = os.path.join(base, vid+".ttl")
+            shutil.copy(ttlname, path)
+            shutil.copy(os.path.join(base, "manifest.ttl"), path)
+            fname = os.path.join(path, vid+".so")
+            s = "LV2 bundle [%s]" % s
+            shutil.copy(mod, fname)
+            print "LV2 bundle [%s module] copied to '%s'" % (s, path)
+        else:
+            if path is None:
+                path = os.path.expanduser("~/.config/guitarix/plugins/.")
+            fname = os.path.join(path, self._get_module_id()+".so")
+            shutil.copy(mod, fname)
+            print "%s module copied to '%s'" % (s, fname)
 
     def set_pot_variable(self, name, val):
         self._get_sim().set_variable(name, val)

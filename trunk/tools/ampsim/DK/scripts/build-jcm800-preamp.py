@@ -236,6 +236,7 @@ c.plugindef.shortname = "JCM800Pre"
 c.plugindef.description = "Simulation of JCM 800 preamp circuit"
 c.plugindef.category = "Distortion"
 c.plugindef.namespace = "jcm800pre"
+c.plugindef.lv2_plugin_type = "SimulatorPlugin"
 c.build_script = sys.argv[0]
 c.set_netlist(circ.Preamp_test.S, circ.Preamp_test.V)
 c.backward_euler = True

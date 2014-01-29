@@ -796,6 +796,60 @@ class NonlinEq(object):
         self.Kn = Kn
 
 
+class LV2_Port_List(object):
+
+    def __init__(self, pot_attr, pot, eq):
+        self.pot_attr = pot_attr
+        self.pot = pot
+        self.ni = eq.ni
+        self.no = eq.no
+
+    def port_count(self):
+        return self.ni + self.no + len(self.pot_attr)
+
+    def __len__(self):
+        return self.ni + self.no + len(self.pot_attr)
+
+    def __iter__(self):
+        idx = 0
+        max_idx = len(self) - 1
+        for i in range(self.ni):
+            yield dict(
+                type_list="lv2:AudioPort , lv2:InputPort",
+                index = idx,
+                symbol = "in%d" % i,
+                name = "In%d" % i,
+                control_index = -1,
+                separator = "," if idx == max_idx else "",
+                )
+            idx += 1
+        for i in range(self.no):
+            yield dict(
+                type_list="lv2:AudioPort , lv2:OutputPort",
+                index = idx,
+                symbol = "out%d" % i,
+                name = "Out%d" % i,
+                control_index = -1,
+                separator = "," if idx == max_idx else "",
+                )
+            idx += 1
+        for i, row in enumerate(self.pot_attr):
+            var = row[0]
+            name = row[1]
+            yield dict(
+                type_list="lv2:InputPort , lv2:ControlPort",
+                index = idx,
+                symbol = var,
+                name = name,
+                default = self.pot.get(var, 0.5),
+                minimum = 0.0,
+                maximum = 1.0,
+                control_index = i,
+                separator = "," if idx == max_idx else "",
+                )
+            idx += 1
+
+
 class CodeGenerator(object):
 
     def __init__(self, eq, solver_dict, solver_params, pot, pot_list, pot_func, pot_attr, Pv, extra_sources):
@@ -941,4 +995,11 @@ class CodeGenerator(object):
         return d
 
     def generate(self, d):
-        return dk_templates.c_template_top.render(self.add_dict(d))
+        d = self.add_dict(d)
+        d["lv2_ports"] = LV2_Port_List(self.pot_attr, self.pot, self.eq)
+        out = dict(c_source = dk_templates.c_template_top.render(d))
+        plugindef = d["plugindef"]
+        if plugindef.lv2_plugin_type:
+            out["manifest.ttl"] = dk_templates.lv2_manifest.render(d)
+            out["%s.ttl" % plugindef.lv2_versioned_id] = dk_templates.lv2_ttl.render(d)
+        return out

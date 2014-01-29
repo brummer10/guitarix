@@ -159,8 +159,11 @@ class CodeWrapper(object):
         
 
     def _generate_code(self):
-        with open(self.script_dict['sourcename'], 'w') as f:
-            f.write(self.code)
+        for fname, content in self.code.items():
+            if fname == "c_source":
+                fname = self.script_dict['sourcename']
+            with open(fname, 'w') as f:
+                f.write(content)
 
     def wrap_code(self, load_module=True):
         workdir = self.filepath or tempfile.mkdtemp("_dk_compile")
@@ -1226,16 +1229,19 @@ class CheckedDict(dict):
     def overwrite(self, n, v):
         return dict.__setitem__(self, n, v)
 
-
 class PluginDef(object):
 
     def __init__(self, id):
-        self._id = id
-        self._name = id
+        self.id = id
+        self.name = id
         self._description = None
-        self._category = "External"
+        self.category = "External"
         self._shortname = None
-        self._namespace = id
+        self.namespace = id
+        self.lv2_plugin_type = None
+        self.lv2_versioned_id = id
+        self.lv2_minor_version = 0
+        self.lv2_micro_version = 0
 
     @staticmethod
     def _lfmt(s):
@@ -1246,39 +1252,11 @@ class PluginDef(object):
         return 'N_("%s")' % s
 
     @property
-    def id(self):
-        return self._id
-    @id.setter
-    def id(self, v):
-        self._id = v
-
-    @property
-    def namespace(self):
-        return self._namespace
-    @namespace.setter
-    def namespace(self, v):
-        self._namespace = v
-
-    @property
-    def name(self):
-        return self._name
-    @name.setter
-    def name(self, v):
-        self._name = v
-
-    @property
     def description(self):
         return self._description or ""
     @description.setter
     def description(self, v):
         self._description = v
-
-    @property
-    def category(self):
-        return self._category
-    @category.setter
-    def category(self, v):
-        self._category = v
 
     @property
     def shortname(self):
@@ -1289,11 +1267,11 @@ class PluginDef(object):
 
     @property
     def s_id(self):
-        return '"%s"' % self._id
+        return '"%s"' % self.id
 
     @property
     def l_name(self):
-        return self._lfmt(self._name)
+        return self._lfmt(self.name)
 
     @property
     def l_description(self):
@@ -1301,7 +1279,7 @@ class PluginDef(object):
 
     @property
     def l_category(self):
-        return self._lfmt(self._category)
+        return self._lfmt(self.category)
 
     @property
     def l_shortname(self):
@@ -1326,7 +1304,6 @@ class BuildCModule(Simulate):
         if generator is None:
             generator = generate_code.CodeGenerator
         self.generator = generator
-        self.eq = sim.get_eq()
         parser = sim.get_parser()
         if linearize:
             l = [i for i, e in enumerate(parser.element_name["N"]) if "linearize" not in parser.V[e[0]]]
