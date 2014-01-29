@@ -15,6 +15,7 @@ function usage() {
   echo "    -d:   faust use double precision (default)"
   echo "    -V:   faust use vectorize"
   echo "    -S x: faust use vector size x"
+  echo "    -p /: path to source file"
   exit 1
 }
 
@@ -24,19 +25,19 @@ function select_plugin_type() {
     if [[ $type == "quit" ]]; then
       break
     fi
-    echo -e $BLUE"$type"$NONE" selected "
+    echo -e "Plugin type "$BLUE"$type"$NONE" selected "
     effect_name="$type"
     if [ ! -z "$type" ]; then
       break;
+    else
+      echo -e $RED"Select a number from the list!"$NONE
     fi
   done
 }
 
 function check_plugin_type() { 
-  local list name=$1
-  shift
-  for list; do
-    [[ $list == $name ]] && return 0
+  for I in "${Plugin_types[@]}"; do
+    [[ $I == $effect_name ]] && return 0
   done
   return 1
 }
@@ -56,14 +57,23 @@ function check_dir() {
 }
 
 function dsptocc() {
+  if [ $extension == "dsp" ] ; then
   echo -e $BLUE"generate $bname.cc and copy to gx_$bname.lv2"$NONE
   set -e
   "$tooldir"/dsp2cc  --init-type=plugin-lv2  \
     $prec "${faustopt[@]}" -o gx_${bname}.lv2/"$bname.cc" ${faustdir}/"$bname.dsp"
+  else
+   echo -e $BLUE"copy $bname.$extension to gx_$bname.lv2/$bname.cc"$NONE
+   cp -r ${faustdir}/"$bname.$extension" gx_${bname}.lv2/"$bname.cc"
+  fi
 }
 
+
 function copy_sceleton() {
-  grep 'stereo_audio = 0;' gx_${bname}.lv2/$bname.cc >/dev/null && stereo="false"  || stereo="true"
+  grep 'stereo_audio' gx_${bname}.lv2/$bname.cc >/dev/null && stereo="true"  || stereo="false"
+  if [ "$stereo" == "true" ] ; then
+    grep 'stereo_audio = 0;' gx_${bname}.lv2/$bname.cc >/dev/null && stereo="false"  || stereo="true"
+  fi
 
   if [ "$stereo" == "false" ] ; then
     echo "copy gx_sceleton.lv2 to gx_$bname.lv2 and rename/replace strings to $bname"
@@ -140,7 +150,7 @@ function make_ttl() {
   echo "." >> gx_$bname.ttl
   if [ ! -z "$effect_name" ]; then
     sed -i 's/EffectPlugin/'${effect_name}'/g'  gx_$bname.ttl
-    echo "set plugin class to $effect_name"
+    echo -e "set plugin class to "$BLUE"$effect_name"$NONE
   fi
   rm -rf ports
   rm -rf enums
@@ -197,7 +207,7 @@ Plugin_types=(
 
 
 
-############################# main #####################################
+###################### global variables ################################
 
 BLUE="\033[1;34m"
 RED="\033[1;31m"
@@ -210,13 +220,16 @@ prec="--double"
 faustopt=()
 copy=0
 
-while getopts sdVS:c OPT; do
+############################# main #####################################
+
+while getopts sdVSp:c OPT; do
   case "$OPT" in
   h) usage;;
   s) prec="--float";;
   d) prec="--double";;
   V) faustopt+=(--vectorize);;
   S) faustopt+=(--add="-vs $OPTARG");;
+  p) faustdir=$OPTARG;;
   c) copy=1;;
   \?) usage;;
   esac
@@ -224,14 +237,33 @@ done
 
 shift $(expr $OPTIND - 1)
 [ "$1" = "" ] && usage
-if [ "$2" = "" ]; then
-  bname="$(basename "$1" .dsp)"
+extension="${1##*.}"
+if [ $extension == "dsp" ] ; then
+  if [ "$2" = "" ]; then
+    bname="$(basename "$1" .dsp)"
+  else
+    bname="$(basename "$1" .dsp)"
+    effect_name="$2"
+  fi
+elif [ $extension == "cc" ] ; then
+  if [ "$2" = "" ]; then
+    bname="$(basename "$1" .cc)"
+  else
+    bname="$(basename "$1" .cc)"
+    effect_name="$2"
+  fi
+elif [ $extension == "cpp" ] ; then
+  if [ "$2" = "" ]; then
+    bname="$(basename "$1" .cpp)"
+  else
+    bname="$(basename "$1" .cpp)"
+    effect_name="$2"
+  fi
 else
-  bname="$(basename "$1" .dsp)"
-  effect_name="$2"
+  echo -e $RED"file extension not supported"$NONE
 fi
 
-check_plugin_type $effect_name "${Plugin_types[@]}" && echo 'ok' || select_plugin_type 
+check_plugin_type && echo -e "Plugin type "$BLUE$effect_name$NONE || select_plugin_type 
 
 ######################## function calls ################################
 
@@ -242,5 +274,6 @@ grep_ports_enums
 make_ttl
 byby
 
-############################ fin #######################################
+############################ EOF #######################################
 
+exit
