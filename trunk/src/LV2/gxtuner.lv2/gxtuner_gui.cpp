@@ -171,8 +171,21 @@ void GxtunerGUI::set_skin()
                  "   GxFastMeter::over       = '#ff0000'\n"
                  " }\n"
                  " class '*GxFastMeter' style:highest 'gx_fastmeter'\n";
+  toparse +=     " style \"gx_";
+  toparse +=     plug_name;
+  toparse +=     "_slevel\"\n"
+                 "{\n"
+                 "stock['levelslider'] = {{'simplelevelslider.png'}}\n"
+                 "GxLevelSlider::slider-width = 3\n"
+                 "GxRegler::show-value = 0\n"
+                 "}\n"
+                 "widget '*.";
+  toparse +=     plug_name;
+  toparse +=     "' style 'gx_";
+  toparse +=     plug_name;
+  toparse +=     "_slevel' ";
 
-toparse +=     "style 'gx_notes_style'\n"
+  toparse +=     "style 'gx_notes_style'\n"
                  "{\n"
 
                  "  bg[ACTIVE] = '#000000'\n"

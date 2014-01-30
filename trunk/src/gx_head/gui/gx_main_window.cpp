@@ -2056,6 +2056,7 @@ void MainWindow::set_tuning(Gxw::RackTuner& tuner) {
     { "Lefty",                "E",  false, {64, 59, 55, 50, 45, 40}}, 
     { "Mandoguitar",          "E",  false, {36, 43, 50, 57, 64, 71}}, 
     { "Rusty Cage",           "E",  false, {35, 45, 50, 55, 59, 64}}, 
+    { "Hardcore",             "C",  false, {36, 43, 48, 53, 57, 58}},    
     };
     int mode = tuner_tuning->get_value();
     tuner.clear_notes();

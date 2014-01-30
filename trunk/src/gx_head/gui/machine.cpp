@@ -102,7 +102,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
         {"Open A Minor7"},{"Open A"},{"C Tuning"},{"C# Tuning"},{"Bb Tuning"},{"A to A (Baritone)"},{"Open Dsus2"},
         {"Open Gsus2"},{"G6"},{"Modal G"},{"Overtone"},{"Pentatonic"},{"Minor Third"},{"Major Third"},{"All Fourths"},
         {"Augmented Fourths"},{"Slow Motion"},{"Admiral"},{"Buzzard"},{"Face"},{"Four and Twenty"},{"Ostrich"},{"Capo 200"},
-        {"Balalaika"},{"Cittern One"},{"Cittern Two"},{"Dobro"},{"Lefty"},{"Mandoguitar"},{"Rusty Cage"}, {0}};
+        {"Balalaika"},{"Cittern One"},{"Cittern Two"},{"Dobro"},{"Lefty"},{"Mandoguitar"},{"Rusty Cage"},{"Hardcore"}, {0}};
     pmap.reg_non_midi_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, false, 0);
     pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
     pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 427, 453, 0.1);
