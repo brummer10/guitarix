@@ -20,6 +20,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">crybaby.wah</property>
+                <property name="show_value">False</property>
                 <property name="label_ref">label4:rack_label</property>
               </object>
               <packing>
