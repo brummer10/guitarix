@@ -95,7 +95,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     gx_engine::get_group_table().insert("racktuner", N_("Rack Tuner"));
     static const value_pair streaming_labels[] = {{"scale"}, {"stream"}, {0}};
     pmap.reg_non_midi_enum_par("racktuner.streaming", "Streaming Mode", streaming_labels, (int*)0, false, 1);
-    static const value_pair tuning_labels[] = {{"(Chromatic)"},{"Standard"}, {"Standard/Es"}, {"Open E"}, {0}};
+    static const value_pair tuning_labels[] = {{"(Chromatic)"},{"Standard"}, {"Standard/Es"}, {"Open E"}, { " C "}, {"Drop C"}, {"Hardcore"}, {" D "},  {"Drop D"}, {"Dsus4"}, {0}};
     pmap.reg_non_midi_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, false, 0);
     pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
     pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 427, 453, 0.1);
