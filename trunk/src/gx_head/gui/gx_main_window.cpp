@@ -2008,9 +2008,11 @@ void MainWindow::set_tuning(Gxw::RackTuner& tuner) {
 	{ " C ",         "C",  false, {36, 41, 46, 51, 55, 60}},    
 	{ "Drop C",      "C",  false, {36, 43, 48, 53, 57, 62}},    
 	{ "Hardcore",    "C",  false, {36, 43, 48, 53, 57, 58}},    
+	{ "Open C",      "C",  false, {36, 43, 48, 55, 60, 64}},    
 	{ " D ",         "D",  false, {38, 43, 48, 53, 57, 62}},    
 	{ "Drop D",      "D",  false, {38, 45, 50, 55, 59, 64}},    
 	{ "Dsus4",       "D",  false, {38, 45, 50, 55, 57, 62}},    
+	{ "Open D",      "D",  false, {38, 45, 50, 54, 57, 62}},    
     };
     int mode = tuner_tuning->get_value();
     tuner.clear_notes();
