@@ -46,7 +46,6 @@ def dirlist():
     subdirs = [
         'gx_amp.lv2',
         'gx_amp_stereo.lv2',
-        'gxautowah.lv2',
         'gxbooster.lv2',
         'gx_chorus.lv2',
         'gx_compressor.lv2',
@@ -80,7 +79,9 @@ def dirlist():
         'gx_graphiceq.lv2',
         'gx_gcb_95.lv2',
         'gx_moog.lv2',
-        'gx_overdrive.lv2'  
+        'gx_overdrive.lv2',  
+        'gx_autowah.lv2',
+        'gx_crybaby.lv2'
          ]
 
     return subdirs
