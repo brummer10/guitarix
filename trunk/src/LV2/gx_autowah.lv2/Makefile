@@ -16,7 +16,7 @@
 	endif
 
 	# set bundle name
-	NAME = gx_crybaby
+	NAME = gx_autowah
 	BUNDLE = $(NAME).lv2
 	VER = 0.1
 	# set compile flags

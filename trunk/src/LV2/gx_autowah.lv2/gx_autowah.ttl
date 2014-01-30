@@ -34,18 +34,18 @@
 	foaf:mbox <mailto:brummer@web.de> ;
 	rdfs:seeAlso <http://guitarix.sourceforge.net> .
 
-<http://guitarix.sourceforge.net/plugins/gx_crybaby_>
+<http://guitarix.sourceforge.net/plugins/gx_autowah_>
 	a doap:Project ;
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
-	doap:name "Gx_crybaby_" .
+	doap:name "Gx_autowah_" .
 
-<http://guitarix.sourceforge.net/plugins/gx_crybaby_#_crybaby_>
+<http://guitarix.sourceforge.net/plugins/gx_autowah_#_autowah_>
     a lv2:Plugin ,
         lv2:FilterPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "Gxcrybaby";
+    doap:name "Gxautowah";
     doap:license <http://opensource.org/licenses/isc> ;
-    lv2:project <http://guitarix.sourceforge.net/plugins/gx_crybaby_> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_autowah_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
       
     lv2:minorVersion 28;
@@ -95,8 +95,8 @@
     mod:gui [
         a mod:Gui;
         mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/icon-gxcrybaby.html>;
-        mod:templateData <modgui/data-gxcrybaby.json>;
-        mod:screenshot <modgui/screenshot-gxcrybaby.png>;
-        mod:thumbnail <modgui/thumb-gxcrybaby.png>;
+        mod:iconTemplate <modgui/icon-gxautowah.html>;
+        mod:templateData <modgui/data-gxautowah.json>;
+        mod:screenshot <modgui/screenshot-gxautowah.png>;
+        mod:thumbnail <modgui/thumb-gxautowah.png>;
     ] .

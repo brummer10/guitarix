@@ -1,0 +1,19 @@
+{
+    "author": "GUITARIX", 
+    "color": "yellow", 
+    "controls": [
+        {
+            "name": "LEVEL", 
+            "symbol": "LEVEL"
+        }, 
+        {
+            "name": "WAH", 
+            "symbol": "WAH"
+        }, 
+        {
+            "name": "WET_DRY", 
+            "symbol": "WET_DRY"
+        }
+    ], 
+    "label": "Autowah"
+}
