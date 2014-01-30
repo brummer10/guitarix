@@ -9,8 +9,9 @@
 ########################## functions ###################################
 
 function usage() {
-  echo "usage: make_lv2_bundle {options} <dsp-file> [<plugin class>] "
+  echo "usage: make_lv2_bundle {options} <cc|cpp|dsp-file> [<plugin class>] "
   echo "options:"
+  echo "    -h:   show this help"
   echo "    -s:   faust use single precision"
   echo "    -d:   faust use double precision (default)"
   echo "    -V:   faust use vectorize"
@@ -19,13 +20,40 @@ function usage() {
   exit 1
 }
 
+function get_basename_ext() {
+case "$extension" in
+  dsp)
+    if [ "$2" = "" ]; then
+      bname="$(basename "$1" .dsp)"
+    else
+      bname="$(basename "$1" .dsp)"
+      effect_name="$2"
+    fi;;
+  cc)
+    if [ "$2" = "" ]; then
+      bname="$(basename "$1" .cc)"
+    else
+      bname="$(basename "$1" .cc)"
+      effect_name="$2"
+    fi;;
+  cpp)
+    if [ "$2" = "" ]; then
+      bname="$(basename "$1" .cpp)"
+    else
+      bname="$(basename "$1" .cpp)"
+      effect_name="$2"
+    fi;;
+  *)
+   echo -e $RED"file extension not supported"$NONE ; usage;;
+esac
+}
+
 function select_plugin_type() {
   echo -e $RED'Please select a Plugin type from the list'$NONE
   select type in "${Plugin_types[@]}" ; do 
     if [[ $type == "quit" ]]; then
       break
     fi
-    echo -e "Plugin type "$BLUE"$type"$NONE" selected "
     effect_name="$type"
     if [ ! -z "$type" ]; then
       break;
@@ -39,7 +67,8 @@ function check_plugin_type() {
   for I in "${Plugin_types[@]}"; do
     [[ $I == $effect_name ]] && return 0
   done
-  return 1
+  select_plugin_type
+  return 0
 }
 
 function check_dir() {
@@ -57,14 +86,18 @@ function check_dir() {
 }
 
 function dsptocc() {
-  if [ $extension == "dsp" ] ; then
-  echo -e $BLUE"generate $bname.cc and copy to gx_$bname.lv2"$NONE
-  set -e
-  "$tooldir"/dsp2cc  --init-type=plugin-lv2  \
-    $prec "${faustopt[@]}" -o gx_${bname}.lv2/"$bname.cc" ${faustdir}/"$bname.dsp"
+  if [ -f ${faustdir}/"$bname.$extension" ] ; then
+    if [ $extension == "dsp" ] ; then
+      echo -e $BLUE"generate $bname.cc and copy to gx_$bname.lv2"$NONE
+      set -e
+      "$tooldir"/dsp2cc  --init-type=plugin-lv2  \
+        $prec "${faustopt[@]}" -o gx_${bname}.lv2/"$bname.cc" ${faustdir}/"$bname.dsp"
+    else
+      echo -e $BLUE"copy $bname.$extension to gx_$bname.lv2/$bname.cc"$NONE
+      cp -r ${faustdir}/"$bname.$extension" gx_${bname}.lv2/"$bname.cc"
+    fi
   else
-   echo -e $BLUE"copy $bname.$extension to gx_$bname.lv2/$bname.cc"$NONE
-   cp -r ${faustdir}/"$bname.$extension" gx_${bname}.lv2/"$bname.cc"
+    echo  -e $RED"error: "${faustdir}/"$bname.$extension not found"$NONE; exit;
   fi
 }
 
@@ -219,10 +252,12 @@ instdir="$tooldir"/.."$(dirname "$0")"
 prec="--double"
 faustopt=()
 copy=0
+bname=""
+effect_name=""
 
 ############################# main #####################################
 
-while getopts sdVSp:c OPT; do
+while getopts hsdVSp:c OPT; do
   case "$OPT" in
   h) usage;;
   s) prec="--float";;
@@ -238,35 +273,11 @@ done
 shift $(expr $OPTIND - 1)
 [ "$1" = "" ] && usage
 extension="${1##*.}"
-if [ $extension == "dsp" ] ; then
-  if [ "$2" = "" ]; then
-    bname="$(basename "$1" .dsp)"
-  else
-    bname="$(basename "$1" .dsp)"
-    effect_name="$2"
-  fi
-elif [ $extension == "cc" ] ; then
-  if [ "$2" = "" ]; then
-    bname="$(basename "$1" .cc)"
-  else
-    bname="$(basename "$1" .cc)"
-    effect_name="$2"
-  fi
-elif [ $extension == "cpp" ] ; then
-  if [ "$2" = "" ]; then
-    bname="$(basename "$1" .cpp)"
-  else
-    bname="$(basename "$1" .cpp)"
-    effect_name="$2"
-  fi
-else
-  echo -e $RED"file extension not supported"$NONE
-fi
-
-check_plugin_type && echo -e "Plugin type "$BLUE$effect_name$NONE || select_plugin_type 
 
 ######################## function calls ################################
 
+get_basename_ext "$1" "$2"
+check_plugin_type && echo -e "Plugin type "$BLUE"$effect_name"$NONE
 check_dir
 dsptocc
 copy_sceleton
