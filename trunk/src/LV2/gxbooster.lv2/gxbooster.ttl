@@ -46,7 +46,6 @@
     lv2:project <http://guitarix.sourceforge.net/plugins/gxbooster> ;
     lv2:optionalFeature lv2:hardRTCapable ;
     
-  guiext:ui <http://guitarix.sourceforge.net/plugins/gxbooster#gui>;
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
@@ -94,10 +93,3 @@
         mod:screenshot <modgui/gxbooster.png>;
         mod:thumbnail <modgui/gxbooster-thumb.png>;
     ] .
-
-
-<http://guitarix.sourceforge.net/plugins/gxbooster#gui>
-  a guiext:GtkUI;
-  guiext:binary <gxbooster_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
-  
