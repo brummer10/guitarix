@@ -1,0 +1,11 @@
+{
+    "author": "Guitarix", 
+    "color": "yellow", 
+    "controls": [
+        {
+            "name": "Wah", 
+            "symbol": "fslider1_"
+        }
+    ], 
+    "label": "Wah"
+}
