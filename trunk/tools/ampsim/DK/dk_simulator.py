@@ -348,6 +348,8 @@ class LinearFilter(object):
         v = sp.Matrix(sp.symbols("v:%d" % self.S.shape[0]))
         p = subprocess.Popen("maxima -b /dev/fd/0 --very-quiet 2>&1 >/dev/null", shell=True,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        if p.poll() is not None:
+            raise RuntimeError("can't start maxima -- please check maxima installation")
         p.stdin.write("stringout(\"/dev/fd/2\",facsum(linsolve([%s], [%s])[%d], s));\n" % (
             ", ".join(["%s = %s" % e for e in zip(S * v, in_mat)]),
             ", ".join([str(sym) for sym in v]),
@@ -359,8 +361,14 @@ class LinearFilter(object):
         syms = set()
         for i in S:
             syms |= i.atoms(sp.Symbol)
-        return eval(expr.split("=",1)[1].rstrip(";\n").replace("^","**"), dict([(str(sym),sym) for sym in syms]))
-
+        e = expr.split("=",1)
+        if len(e) != 2:
+            raise ValueError("unexpected output from maxima: %s..." % expr[:100])
+        e = e[1].rstrip(";\n").replace("^","**")
+        try:
+            return eval(e, dict([(str(sym),sym) for sym in syms]))
+        except Exception as ex:
+            raise ValueError("can't eval maxima expression [%s]:%s..." % (ex, expr[:100]))
 
 def get_state_transform_trace(A, B, C):
     "return the trace of the gram matrices (sensitivity measure)"
