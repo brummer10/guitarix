@@ -45,9 +45,7 @@
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_studiopre> ;
     lv2:optionalFeature lv2:hardRTCapable ;
-    
-  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_studiopre#gui>;
-  
+
     lv2:minorVersion 28;
     lv2:microVersion 3;
 
@@ -123,9 +121,3 @@
         mod:screenshot <modgui/gx_studiopre.png>;
         mod:thumbnail <modgui/gx_studiopre-thumb.png>;
     ] .
-
-<http://guitarix.sourceforge.net/plugins/gx_studiopre#gui>
-  a guiext:GtkUI;
-  guiext:binary <gx_studiopre_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
-  

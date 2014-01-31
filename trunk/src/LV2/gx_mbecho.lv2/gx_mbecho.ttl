@@ -45,8 +45,6 @@
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_mbecho_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
     
-  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_mbecho_#gui>;
-  
     lv2:minorVersion 28;
     lv2:microVersion 3;
 
@@ -233,9 +231,3 @@
         lv2:symbol "in" ;
         lv2:name "In" ;
     ].
-
-<http://guitarix.sourceforge.net/plugins/gx_mbecho_#gui>
-  a guiext:GtkUI;
-  guiext:binary <gx_mbecho_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
-  

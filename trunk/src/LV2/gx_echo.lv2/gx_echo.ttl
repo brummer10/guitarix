@@ -48,8 +48,6 @@
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_echo_stereo> ;
     lv2:optionalFeature lv2:hardRTCapable ;
     
-  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_echo_stereo#gui>;
-  
     lv2:minorVersion 28;
     lv2:microVersion 3;
 
@@ -161,10 +159,3 @@
         mod:screenshot <modgui/gx_echo.png>;
         mod:thumbnail <modgui/gx_echo-thumb.png>;
     ] .
-
-
-<http://guitarix.sourceforge.net/plugins/gx_echo_stereo#gui>
-  a guiext:GtkUI;
-  guiext:binary <gx_echo_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
-  
