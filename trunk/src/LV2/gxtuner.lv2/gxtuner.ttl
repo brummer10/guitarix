@@ -25,7 +25,9 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix ev: <http://lv2plug.in/ns/ext/event#>.
+@prefix midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix urid: <http://lv2plug.in/ns/ext/urid#> .
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -295,12 +297,14 @@
         lv2:minimum 0 ;
         lv2:maximum 1 ;
     ] , [
-        a ev:EventPort, lv2:OutputPort;
-        lv2:index 18;
-        ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
-        lv2:symbol "midi_out";
-        lv2:name "MIDI Out";
-        lv2:portProperty lv2:connectionOptional;
+        a lv2:OutputPort ,
+            atom:AtomPort ;
+        atom:bufferType atom:Sequence ;
+        atom:supports midi:MidiEvent ;
+        lv2:designation lv2:control ;
+        lv2:index 18 ;
+        lv2:symbol "midi_out" ;
+        lv2:name "MIDI Out"
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;

@@ -28,11 +28,11 @@
 #include <lv2/lv2plug.in/ns/ext/buf-size/buf-size.h>
 #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
+#include "lv2/lv2plug.in/ns/ext/atom/util.h"
+#include "lv2/lv2plug.in/ns/ext/midi/midi.h"
 #include <lv2/lv2plug.in/ns/ext/log/log.h>
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
-#include <lv2/lv2plug.in/ns/ext/event/event.h>
-#include <lv2/lv2plug.in/ns/ext/event/event-helpers.h>
-#include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
+#include "lv2/lv2plug.in/ns/ext/atom/forge.h"
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxtuner"
 #define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxtuner#gui"
