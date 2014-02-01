@@ -17,7 +17,6 @@ function usage() {
   echo "    -V:   faust use vectorize"
   echo "    -S x: faust use vector size x"
   echo "    -p /: path to source file"
-  echo "    -c $: color to use in the MOD jason file"
   exit 1
 }
 
@@ -135,87 +134,6 @@ function grep_ports_enums() {
   cat "$bname.cc" | sed -n '/value_pair/{p;n;1!p;};h' | sed 's/{/\n/;s/.*\n//;s/ , /\n/;s/.*\n//;s/case//g;s/}//g;s/{//g;s/;//g;s/,/ ;/g;s/://g;s/	 //g;s/;0//g;s/  //g;s/ //g;s/$/;/' > enums
 }
 
-function make_jason() {
-  echo -e "generate "$BLUE"/modgui/data-gx${bname}.jason"$NONE
-  mkdir -p modgui
-  echo '{
-    "author": "Guitarix", 
-    "color": "'$color'", 
-    "controls": [' > modgui/data-gx${bname}.jason
-  
-  while IFS=$';' read -r -a myPorts; do
-    jports+='        {
-            "name": "'${myPorts[4]}'", 
-            "symbol": "'${myPorts[4]}'"
-        },\n' 
-  done < ports 
-  jports=${jports%%???}
-  echo -e "$jports" >> modgui/data-gx${bname}.jason
-  echo '    ], 
-    "label": "gx'$bname'"
-}' >> modgui/data-gx${bname}.jason
-}
-
-function make_html() {
-  echo -e "generate "$BLUE"/modgui/icon-gx${bname}.html"$NONE
-  if [ "$stereo" == "false" ] ; then
-    j=$[j-2]
-  else
-    j=$[j-4]
-  fi
-  mod_knobs="mod-one-knobs"
-  case "$j" in
-    1) mod_knobs="mod-one-knobs";;
-    2) mod_knobs="mod-two-knobs";;
-    3) mod_knobs="mod-three-knobs";;
-    4) mod_knobs="mod-four-knobs";;
-    5) mod_knobs="mod-five-knobs";;
-    6) mod_knobs="mod-six-knobs";;
-    7) mod_knobs="mod-seven-knobs";;
-    8) mod_knobs="mod-eight-knobs";;
-  esac
-
-echo '<div class="mod-pedal mod-pedal-boxy '${mod_knobs}' mod-{{color}}">
-    <div mod-role="drag-handle" class="mod-drag-handle"></div>
-    <div class="mod-plugin-author"><h1>{{author}}</h1></div>
-    <div class="mod-plugin-name"><h1>{{label}}</h1></div>
-    <div class="mod-light on" mod-role="bypass-light"></div>
-    <div class="mod-control-group clearfix">
-        {{#controls}}
-        <div class="mod-knob">
-            <div class="mod-knob-image" mod-role="input-control-port" mod-port-symbol="{{symbol}}"></div>
-            <span class="mod-knob-title">{{name}}</span>
-        </div>
-        {{/controls}}
-    </div>
-    <div class="mod-footswitch" mod-role="bypass"></div>  
-    <div class="mod-pedal-input">
-        {{#effect.ports.audio.input}}
-        <div class="mod-input mod-input-disconnected" title="{{name}}" mod-role="input-audio-port" mod-port-symbol="{{symbol}}">
-            <div class="mod-pedal-input-image"></div>
-        </div>
-        {{/effect.ports.audio.input}}
-        {{#effect.ports.midi.input}}
-        <div class="mod-input mod-input-disconnected" title="{{name}}" mod-role="input-midi-port" mod-port-symbol="{{symbol}}">
-            <div class="mod-pedal-input-image"></div>
-        </div>
-        {{/effect.ports.midi.input}}
-    </div>
-    <div class="mod-pedal-output">
-        {{#effect.ports.audio.output}}
-        <div class="mod-output mod-output-disconnected" title="{{name}}" mod-role="output-audio-port" mod-port-symbol="{{symbol}}">
-            <div class="mod-pedal-output-image"></div>
-        </div>
-        {{/effect.ports.audio.output}}
-        {{#effect.ports.midi.output}}
-        <div class="mod-output mod-output-disconnected" title="{{name}}" mod-role="output-midi-port" mod-port-symbol="{{symbol}}">
-            <div class="mod-pedal-input-image"></div>
-        </div>
-        {{/effect.ports.midi.output}}
-    </div>
-</div>' > modgui/icon-gx$bname.html
-}
-
 function make_ttl() {
   match=0
 
@@ -272,8 +190,8 @@ function make_ttl() {
         mod:thumbnail <modgui/thumb-gx$bname.png>;
     ]." >> gx_$bname.ttl
   if [ ! -z "$effect_name" ]; then
-    echo -e "set plugin class to "$BLUE"$effect_name"$NONE
     sed -i 's/EffectPlugin/'${effect_name}'/g'  gx_$bname.ttl
+    echo -e "set plugin class to "$BLUE"$effect_name"$NONE
   fi
   rm -rf ports
   rm -rf enums
@@ -344,7 +262,6 @@ faustopt=()
 copy=0
 bname=""
 effect_name=""
-color="yellow"
 
 ############################# main #####################################
 
@@ -356,7 +273,7 @@ while getopts hsdVSp:c OPT; do
   V) faustopt+=(--vectorize);;
   S) faustopt+=(--add="-vs $OPTARG");;
   p) faustdir=$OPTARG;;
-  c) color=$OPTARG;;
+  c) copy=1;;
   \?) usage;;
   esac
 done
@@ -373,9 +290,7 @@ check_dir
 dsptocc
 copy_sceleton
 grep_ports_enums
-make_jason
 make_ttl
-make_html
 byby
 
 ############################ EOF #######################################
