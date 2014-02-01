@@ -100,6 +100,7 @@ protected:
   float                        fallback;
   uint8_t                      data[3];
   size_t                       dat;
+  size_t                       at;
   bool                         noteoff;
   float                        *channel_;
   uint8_t                      channel;
@@ -253,16 +254,16 @@ void Gxtuner::send_midi_data(int count, uint8_t controller,
   data[0] = controller;
   data[1] = note;
   data[2] = velocity; 
-  lv2_atom_forge_set_buffer(&forge,(uint8_t*)MidiOut, MidiOut->atom.size);
-  lv2_atom_forge_sequence_head(&forge, &frame, 0);
-  lv2_atom_forge_frame_time(&forge,0);
-  lv2_atom_forge_raw(&forge,&midiatom,sizeof(LV2_Atom));
+  lv2_atom_forge_frame_time(&forge,count);
+  lv2_atom_forge_raw(&forge,&midiatom,at);
   lv2_atom_forge_raw(&forge,data,dat);
-  lv2_atom_forge_pad(&forge,dat+sizeof(LV2_Atom)); 
+  lv2_atom_forge_pad(&forge,dat+at); 
 }
 
 void Gxtuner::play_midi(tuner& self)
 {
+  lv2_atom_forge_set_buffer(&forge,(uint8_t*)MidiOut, MidiOut->atom.size);
+  lv2_atom_forge_sequence_head(&forge, &frame, 0);
   MaxLevel& lev = *static_cast<MaxLevel*>(vu_adapter);
   level = lev.get_midi_level(lev);
   nolevel = pow(10.,*(nolevel_)*0.05);
@@ -508,6 +509,7 @@ Gxtuner::instantiate(const LV2_Descriptor*     descriptor,
     lv2_atom_forge_init(&self->forge,self->urid_map);
     self->midiatom.type = self->midi_event;
     self->dat = sizeof(self->data);
+    self->at = sizeof(LV2_Atom);
     self->midiatom.size = self->dat;
   }
 
