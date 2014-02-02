@@ -346,29 +346,35 @@ class LinearFilter(object):
 
     def solve(self, S, in_mat, out_mat):
         v = sp.Matrix(sp.symbols("v:%d" % self.S.shape[0]))
-        p = subprocess.Popen("maxima -b /dev/fd/0 --very-quiet 2>&1 >/dev/null", shell=True,
-                             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        if p.poll() is not None:
-            raise RuntimeError("can't start maxima -- please check maxima installation")
-        p.stdin.write("stringout(\"/dev/fd/2\",facsum(linsolve([%s], [%s])[%d], s));\n" % (
-            ", ".join(["%s = %s" % e for e in zip(S * v, in_mat)]),
-            ", ".join([str(sym) for sym in v]),
-            np.array(out_mat).nonzero()[1]+1,
-            ))
-        p.stdin.close()
-        expr = p.stdout.read()
-        p.wait()
+        try:
+            p = subprocess.Popen(("maxima","-b","/dev/fd/0","--very-quiet"),
+                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        except OSError as e:
+            raise RuntimeError(
+                "can't start maxima -- please check maxima installation [%s]" % e)
+        out, expr = p.communicate(
+            "stringout(\"/dev/fd/2\",facsum(linsolve([%s], [%s])[%d], s));\n" % (
+                ", ".join(["%s = %s" % e for e in zip(S * v, in_mat)]),
+                ", ".join([str(sym) for sym in v]),
+                np.array(out_mat).nonzero()[1]+1,
+                ))
+        def maxima_error(s):
+            print out
+            print "----"
+            print "Truncated output: " + expr[:100] + "..."
+            raise ValueError(s)
         syms = set()
         for i in S:
             syms |= i.atoms(sp.Symbol)
         e = expr.split("=",1)
         if len(e) != 2:
-            raise ValueError("unexpected output from maxima: %s..." % expr[:100])
+            maxima_error("unexpected output from maxima")
         e = e[1].rstrip(";\n").replace("^","**")
         try:
             return eval(e, dict([(str(sym),sym) for sym in syms]))
         except Exception as ex:
-            raise ValueError("can't eval maxima expression [%s]:%s..." % (ex, expr[:100]))
+            maxima_error("can't eval maxima output [%s]" % ex)
 
 def get_state_transform_trace(A, B, C):
     "return the trace of the gram matrices (sensitivity measure)"
