@@ -132,7 +132,11 @@ def ab09ax(dico, job, A, B, C, nr=None, tol=0):
     Ti = np.zeros_like(Ar)
     ldti = ct.c_int(Ar.shape[0])
     iwork = np.zeros(Ar.shape[1], dtype=np.int32, order='F')
-    dwork = np.zeros(Ar.size * 5, dtype=np.float64, order='F')
+    n = Ar.shape[0]
+    m = Br.shape[1]
+    p = Cr.shape[0]
+    minsz = max(1,n*(max(n,m,p)+5) + n*(n+1)/2)
+    dwork = np.zeros(minsz * 2, dtype=np.float64, order='F')
     iwarn = ct.c_int()
     info = ct.c_int()
     n = ct.c_int(Ar.shape[0])
