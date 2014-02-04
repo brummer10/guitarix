@@ -124,6 +124,7 @@ namespace gx_effects {
 #include "faust/graphiceq.cc"
 #include "faust/bass_enhancer.cc"
 #include "faust/gain.cc"
+#include "faust/duck_delay.cc"
 
 }
 

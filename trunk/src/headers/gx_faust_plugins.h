@@ -124,6 +124,7 @@ declare(panoram_enhancer)
 declare(graphiceq)
 declare(bass_enhancer)
 declare(gain)
+declare(duck_delay)
 }
 
 declare(balance)
