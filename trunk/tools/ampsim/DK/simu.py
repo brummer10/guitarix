@@ -11,7 +11,7 @@ for pyname, package in (
     except ImportError:
         raise SystemExit("Need module %s (Debian package: %s)" % (pyname, package))
 
-import sys, itertools, fractions, os, argparse, math
+import sys, itertools, fractions, os, argparse, math, logging
 from cStringIO import StringIO
 from scipy.interpolate import LSQUnivariateSpline, PchipInterpolator
 import pylab as pl
@@ -602,12 +602,13 @@ def estimate_max_jacobi(func, ranges, error, nvals):
         J = J1
 
 
-class MyTensorSpline(splinetable.TensorSpline):
+class MyTensorSpline(TensorSpline):
     def __init__(self, func, ranges, basegrid):
         self.func = func
         self.ranges = ranges
         self.basegrid = basegrid
         self.knot_data = np.empty((len(basegrid), len(ranges)), dtype=object)
+        self.logger = logging.getLogger("approx")
         #bg = []
         self.coeffs = []
         for i_fnc, (rng, pre, post, err, opt) in enumerate(basegrid):
@@ -763,8 +764,9 @@ class MyTensorSpline(splinetable.TensorSpline):
                 axes[i] = newax
                 fnc = newfnc
                 grd = newgrd
-            #print "#", i_fnc, fnc.shape, axgrids
+            self.logger.debug("%d, %s, %s" % (i_fnc, fnc.shape, axgrids))
             if not inserted:
+                self.logger.info("%d, %s, %s" % (i_fnc, fnc.shape, axgrids))
                 return grd, fnc, axes, axgrids
 
 

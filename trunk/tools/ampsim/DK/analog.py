@@ -1,9 +1,9 @@
 from __future__ import division
-import sympy, math, shutil, sys, os, numpy, pylab, warnings, tempfile
+import sympy, math, shutil, sys, os, numpy, pylab, warnings, tempfile, logging, argparse
 from cStringIO import StringIO
 import dk_simulator, models, circ, mk_netlist, dk_lib, simu, signals, generate_code
 from signals import Signal
-from dk_lib import CircuitException
+from dk_lib import CircuitException, error
 
 try:
     get_ipython
@@ -215,6 +215,19 @@ class Circuit(object):
         #    xx
         pass
 
+    def _check_basegrid(self, basegrid, ns, nni, npl, nno):
+        if nno != len(basegrid):
+            error("basegrid needs %d rows (found %d)"
+                  % (nno, len(basegrid)), "approx")
+        for i, row in enumerate(basegrid):
+            if nni+npl != len(row):
+                if npl:
+                    t = "%d parameters + %d inputs" % (nni, npl)
+                else:
+                    t = "%d" % nni
+                error("basegrid[%d] has %d elements for function %s, input dimension: %s "
+                      % (i, len(row), ns, t), "approx")
+
     def _ensure_table_source(self):
         if self.table_source is None:
             if self.sim_c.nno == 0:
@@ -234,6 +247,7 @@ class Circuit(object):
                     ##FIXME add np to p_slice
                     nni = p_slice.stop - p_slice.start
                     nno = i_slice.stop - i_slice.start
+                    self._check_basegrid(self.basegrid[i_slice], ns, nni, npl, nno)
                     class Comp:
                         comp_id = ns
                         comp_name = ns
@@ -252,6 +266,7 @@ class Circuit(object):
                     tables[ns] = spl
             else:
                 ns = "nonlin"
+                self._check_basegrid(self.basegrid, ns, self.eq.nonlin.nni, npl, self.eq.nonlin.nno)
                 class Comp:
                     comp_id = ns
                     comp_name = self._get_module_id()
@@ -481,6 +496,7 @@ class Circuit(object):
         for i, row in enumerate(self.S):
             if row[0] == models.IN:
                 self.S[i] = l
+                break
         else:
             self.S.append(l)
         self._clear_calculated()
@@ -730,6 +746,8 @@ class Circuit(object):
         if sim is self.sim_py:
             self._ensure_sim_c()
             sim = self.sim_c
+        if is_test():
+            return
         if sim is self.sim_table:
             mod = self.table_module
             s = "table"
@@ -764,6 +782,38 @@ class Circuit(object):
             shutil.copy(mod, fname)
             print "%s module copied to '%s'" % (s, fname)
 
+    @staticmethod
+    def _get_samples(data, count):
+        return data[numpy.array(numpy.linspace(0, len(data)-1, count).round(), dtype=int)]
+
+    def check_result(self, sig, result, max_error=1e-7, count=None):
+        if not is_test():
+            return True
+        test = get_test()
+        if count is None:
+            if result is None:
+                count = 10
+            else:
+                count = len(result)
+        y = self.stream(sig)
+        samples = self._get_samples(y, count)
+        if test.plot:
+            timeline = self.last_signal.timeline
+            pylab.plot(timeline, y)
+            if result is not None:
+                pylab.plot(self._get_samples(timeline, count), result, "rx")
+            pylab.show()
+        if test.printout:
+            print repr(samples)
+            return True
+        error = numpy.max(abs(result - samples)) / numpy.max(abs(result))
+        if (error > max_error).any():
+            print "%s: Difference = %g (> %g)" % (self._get_module_id(), error, max_error)
+            return False
+        else:
+            print "%s: OK" % self._get_module_id()
+            return True
+        
     def set_pot_variable(self, name, val):
         self._get_sim().set_variable(name, val)
 
@@ -799,130 +849,52 @@ def show_plots(loc=None):
         pylab.show()
         Circuit.have_plot = False
 
-if __name__ == "__main__":
-    c1 = Circuit()
-    c2 = Circuit()
-    c1.set_samplerate(44100)
-    c2.set_samplerate(44100)
-    #c1.read_gschem("wahwah.sch")
-    c2.set_tempdir("gencode")
-    c2.keep_tempdir()
-    #set_module_id("testtest")
-    if 0:
-        S = ((models.NODES, 1, 2),
-             (models.D(), 2, models.GND),
-             (models.R(), 1, 2),
-             (models.V(), 1),
-             #(models.IN, 0),
-             (models.OUT, 1, 2),
-            )
-        V = {models.D(): dict(Is=10e-12, mUt=30e-3),
-             models.R(): 1e3,
-             models.V(): 2,
-             }
-    if 0:
-        S = ((models.NODES, 1, 2, 3, 4),
-             (models.T(), 1, 2, 3),
-             (models.R(1), 4, 2),
-             (models.R(2), 4, 1),
-             (models.R(3), 3, models.GND),
-             (models.V(), 4),
-             (models.OUT, 1, 2, 3, 4, models.V()(None)),
-             )
-        V = {models.T(): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
-             models.R(1): 2e6,
-             models.R(2): 1e3,
-             models.R(3): 1e3,
-             models.V(): 5,
-             }
+INFO = logging.INFO
+DEBUG = logging.DEBUG
 
-    numpy.set_printoptions(linewidth=2000)
-    c1.set_netlist(circ.WahWah_test.S, circ.WahWah_test.V)
-    c2.set_netlist(circ.WahWah_test.S, circ.WahWah_test.V)
-    #c1.set_netlist(S, V)
-    #c2.set_netlist(S, V)
-    #c1.solver = dict(method='lm', factor=1e2)
-    c2.linearize(models.T(1), models.T(2))
-    #c2.linearize(models.T(2))
-    c2.remove_element("C2")
-    c2.remove_element("R8")
-    c2.join_net("V6", models.GND)
-    c2.remove_element("C1")
-    c2.join_net("V3", "V2")
-    c2._ensure_sim_py()
-    #c2.show_status()
-    c1._ensure_sim_py()
-    #c1.show_status()
-    sig = Signal()
-    if True:#False:
-        c2._ensure_sim_c()
-        #c2.deploy(); raise SystemExit
-    else:
-        c2.load_module("./%s.so" % c2._get_module_id(), False)
-    c2.basegrid = [[[64, 4],[64, 4]]]  # no knot optimization
-    #c2.basegrid = [[[128*8, 4],[64*2, 4]]]
-    vv = 0.1
-    #c2.set_use(SIM_TABLE)
-    f0 = 228.606785544
-    w0 = numpy.pi * f0 / c2.FS
-    a1 = (w0 - 1) / (w0 + 1)
-    c2.pre_filter = ("static DTP_U y; {\n"
-                     "            static double xm1;\n"
-                     "            y = GET_U[0] - xm1 + %s * y;\n"
-                     "            xm1 = GET_U[0];\n"
-                     "        }\n"
-                     "#undef GET_U\n"
-                     "#define GET_U (&y)\n"
-                     % a1)
-    if 0:
-        s = c2.make_signal_vector(sig(0.8*sig.sweep(pre=1, post=0.1), timespan=10))
+def set_log_level(lvl, logger=None):
+    logging.getLogger(logger).setLevel(lvl)
 
-        c2.set_use(SIM_C)
-        c2.sim_c.reset()
-        c2.set_pot_variable('hotpotz', vv)
-        c2.stream(s)
-        c2.show_status()
-        c2.plot(clip=-100, nharmonics=1, label="std")
+class TestSettings:
+    active = False
+    plot = False
+    printout = False
 
-        c2.remove_element("C1")
-        c2.join_net("V3", "V2")
-        c2.set_pot_variable('hotpotz', vv)
-        c2.sim_c.reset()
-        c2.stream(s)
-        c2.show_status()
-        #c2.plot(clip=-100, nharmonics=1, label="no C1")
-        from scipy.signal import lfilter
-        t = -0.9685
-        c2.last_output = lfilter((1+t)/2*numpy.array([1, -1]), [1, t], c2.last_output, axis=0)
-        c2.plot(clip=-100, nharmonics=1, label="no C1")
-        if 0:
-            c2.set_pot_variable('hotpotz', 0.0)
-            c2.set_use(SIM_TABLE)
-            c2._ensure_sim_table()
-            c2.sim_table.reset()
-            c2.set_pot_variable('hotpotz', vv)
-            c2.stream(s)
-            c2.plot(clip=-100, nharmonics=8, label="Table")
+_display_traceback = True #False
+_testing = TestSettings
 
-        #sg = sig(0.02*sig.sweep(), timespan=2)
-        #s1 = c1.make_signal_vector(sg)
-        #s2 = c2.make_signal_vector(sg)
-        # for v in numpy.linspace(0,1,5):
-        #     for c, s in (c1, s1), (c2, s2):
-        #         c.set_pot_variable('hotpotz', v)
-        #         c.stream(s)
-        #         c.plot(v)
-    elif 0:
-        freq = 412
-        c2.set_pot_variable('hotpotz', 1)
-        c2.stream(sig(1*sig.sine(freq), timespan=2))
-        c2.plot("0.5/%s" % freq, spectrum=True)
-        c2.set_use(SIM_C)
-        c2.set_pot_variable('hotpotz', 1)
-        c2.stream(sig(1*sig.sine(freq), timespan=2))
-        c2.plot("0.5/%s" % freq, spectrum=True)
-    #pylab.legend(loc="upper left")
-    #deploy("/tmp")
-    #show_plots()
-    c2.set_use(SIM_TABLE)
-    c2.deploy()
+def is_test():
+    return _testing.active
+
+def get_test():
+    return _testing
+
+def display_traceback(v):
+    global _display_traceback
+    _display_traceback = v
+
+def _init():
+    global _testing
+    def _catch_circuit_error(tp, value, traceback):
+        if tp == CircuitException:
+            if _display_traceback:
+                logging.getLogger(value.logger).error(value)
+            else:
+                print "ERROR:%s:%s" % (value.logger or "root", value)
+                return
+        if _excepthook is not None:
+            _excepthook(tp, value, traceback)
+
+    logging.basicConfig()
+    _excepthook = sys.excepthook
+    sys.excepthook = _catch_circuit_error
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test', action='store_true', help='check results of tests')
+    parser.add_argument('--test-plot', action='store_true', help='plot the test-data with markers')
+    parser.add_argument('--test-print', action='store_true', help='print the result array')
+    args = parser.parse_args()
+    _testing.active = args.test or args.test_plot or args.test_print
+    _testing.plot = args.test_plot
+    _testing.printout = args.test_print
+
+_init()

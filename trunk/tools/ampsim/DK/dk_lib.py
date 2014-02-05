@@ -1,10 +1,12 @@
 from __future__ import division
-import contextlib, math
+import contextlib, math, logging
 import numpy as np
 import numpy.core.arrayprint as npap
 
 class CircuitException(Exception):
-    pass
+    def __init__(self, msg, logger=None):
+        Exception.__init__(self, msg)
+        self.logger = logger
 
 # http://stackoverflow.com/questions/2891790/pretty-printing-of-numpy-array
 @contextlib.contextmanager
@@ -130,3 +132,6 @@ def mkgrid(axeslist):
         grd = np.empty((1, len(axeslist[0])))
         grd[0] = axeslist[0]
     return grd
+
+def error(text, logger=None):
+    raise CircuitException(text, logger)
