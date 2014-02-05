@@ -1581,7 +1581,7 @@ class SimulateC(object):
             return o, x_new, v
         def calc_stream(u):
             assert u.shape[1] == ni
-            u = np.array(u, dtype=self.dtp)
+            u = np.array(u, dtype=self.dtp, order="C", copy=False)
             o = np.zeros((u.shape[0], no), dtype=self.dtp)
             if c_calc_stream(u, o, u.shape[0]) != 0:
                 v, x, minmax, g_info, g_nfev, g_fnorm = get_info()

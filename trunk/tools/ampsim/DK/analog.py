@@ -260,6 +260,8 @@ class Circuit(object):
                     NVALS = self.eq.nonlin.nno
                     N_IN = self.eq.nonlin.nni+npl
                     NDIM = self.eq.nonlin.nni+npl
+                    if not npl:
+                        i0 = i0v
                     @staticmethod
                     def __call__(v, with_state):
                         return self.sim_c.nonlin(v)
@@ -475,14 +477,15 @@ class Circuit(object):
     def set_in_nets(self, *connections):
         self._check_netlist()
         self.S = list(self.S)
+        l = (models.IN,) + tuple(connections)
         for i, row in enumerate(self.S):
             if row[0] == models.IN:
-                self.S[i] = (models.IN,) + tuple(connections)
-                self._clear_calculated()
-                if self.parser is not None:
-                    self.parser.update(self.S, self.V)
-                return
-        assert False
+                self.S[i] = l
+        else:
+            self.S.append(l)
+        self._clear_calculated()
+        if self.parser is not None:
+            self.parser.update(self.S, self.V)
 
     def set_out_nets(self, *connections):
         self._check_netlist()
@@ -520,20 +523,23 @@ class Circuit(object):
     def remove_connected(self, net):
         self._check_netlist()
         self.S = list(self.S)
-        comp = set(net)
+        comp = {net}
         found = False
-        while True:
+        last_size = 0
+        while len(comp) > last_size:
+            last_size = len(comp)
             for i, row in enumerate(self.S):
                 for c in row[1:]:
                     if c in comp:
-                        comp |= set(row[1:])
+                        comp |= set([j for j in row[1:] if j != models.GND])
                         del self.S[i]
                         found = True
                         break
         if not found:
             raise CircuitException("net %s not found" % net)
         self._clear_calculated()
-        self.parser.update(self.S, self.V)
+        if self.parser is not None:
+            self.parser.update(self.S, self.V)
 
     def join_net(self, net, target_net):
         self._check_netlist()
