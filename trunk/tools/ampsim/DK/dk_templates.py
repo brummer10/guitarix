@@ -321,7 +321,7 @@ public:
     int up(int count, float *input, float *output);
     void down(float *input, float *output);
     int max_out_count(int in_count) {
-	return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
+        return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
 };
 
 int FixedRateResampler::setup(int _inputRate, int _outputRate)
@@ -330,12 +330,12 @@ int FixedRateResampler::setup(int _inputRate, int _outputRate)
     inputRate = _inputRate;
     outputRate = _outputRate;
     if (inputRate == outputRate) {
-	return 0;
+        return 0;
     }
     // upsampler
     int ret = r_up.setup(inputRate, outputRate, 1, qual);
     if (ret) {
-	return ret;
+        return ret;
     }
     // k == filtlen() == 2 * qual
     // pre-fill with k-1 zeros
@@ -346,7 +346,7 @@ int FixedRateResampler::setup(int _inputRate, int _outputRate)
     // downsampler
     ret = r_down.setup(outputRate, inputRate, 1, qual);
     if (ret) {
-	return ret;
+        return ret;
     }
     // k == filtlen() == 2 * qual * fact
     // pre-fill with k-2 zeros
@@ -360,9 +360,9 @@ int FixedRateResampler::setup(int _inputRate, int _outputRate)
 int FixedRateResampler::up(int count, float *input, float *output)
 {
     if (inputRate == outputRate) {
-	memcpy(output, input, count*sizeof(float));
-	r_down.out_count = count;
-	return count;
+        memcpy(output, input, count*sizeof(float));
+        r_down.out_count = count;
+        return count;
     }
     r_up.inp_count = count;
     r_down.out_count = count+1; // +1 == trick to drain input
@@ -380,8 +380,8 @@ int FixedRateResampler::up(int count, float *input, float *output)
 void FixedRateResampler::down(float *input, float *output)
 {
     if (inputRate == outputRate) {
-	memcpy(output, input, r_down.out_count*sizeof(float));
-	return;
+        memcpy(output, input, r_down.out_count*sizeof(float));
+        return;
     }
     r_down.inp_data = input;
     r_down.out_data = output;
@@ -579,15 +579,15 @@ lv2_ttl = Template("""
 \@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 
 <http://guitarix.sourceforge.net#devel>
-	a foaf:Group ;
-	foaf:name "Guitarix team" ;
-	foaf:mbox <mailto:guitarix-developer\@lists.sourceforge.net> ;
-	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+    a foaf:Group ;
+    foaf:name "Guitarix team" ;
+    foaf:mbox <mailto:guitarix-developer\@lists.sourceforge.net> ;
+    rdfs:seeAlso <http://guitarix.sourceforge.net> .
 
 <http://guitarix.sourceforge.net/plugins/@id>
-	a doap:Project ;
-	doap:maintainer <http://guitarix.sourceforge.net#devel> ;
-	doap:name "@{plugindef.name}" .
+    a doap:Project ;
+    doap:maintainer <http://guitarix.sourceforge.net#devel> ;
+    doap:name "@{plugindef.name}" .
 
 <http://guitarix.sourceforge.net/plugins/@id#@{plugindef.lv2_versioned_id}>
     a lv2:Plugin ,
@@ -623,14 +623,14 @@ lv2_interface = Template("""
 
 typedef enum {
 %for @p in @lv2_ports:\
-	PORT_@{p.symbol} = @{p.index},
+    PORT_@{p.symbol} = @{p.index},
 %end
 } PortIndex;
 
 class LV2_DKPlugin: public DKPlugin {
 public:
-	// Port buffers
-	float* ports[@{lv2_ports.port_count()}];
+    // Port buffers
+    float* ports[@{lv2_ports.port_count()}];
 public:
     LV2_DKPlugin(): DKPlugin() {}
 };
@@ -651,7 +651,7 @@ connect_port(LV2_Handle instance,
              uint32_t   port,
              void*      data)
 {
-	static_cast<LV2_DKPlugin*>(instance)->ports[port] = static_cast<float*>(data);
+    static_cast<LV2_DKPlugin*>(instance)->ports[port] = static_cast<float*>(data);
 }
 
 static void
@@ -666,13 +666,13 @@ run(LV2_Handle instance, uint32_t n_samples)
 
 %for @p in @lv2_ports:\
 %if (@{p.control_index} >= 0)\
-	p->pots[@{p.control_index}] = *(p->ports[@{p.index}]);
+    p->pots[@{p.control_index}] = *(p->ports[@{p.index}]);
 %end
 %end
 %if (@ni == 1 && @no == 1)
-	p->process(n_samples, p->ports[0], p->ports[1], p);
+    p->process(n_samples, p->ports[0], p->ports[1], p);
 %else
-	p->process(n_samples, p->ports[0], p->ports[1], p->ports[2], p->ports[3], p);
+    p->process(n_samples, p->ports[0], p->ports[1], p->ports[2], p->ports[3], p);
 %end
 }
 
@@ -691,18 +691,18 @@ cleanup(LV2_Handle instance)
 static const void*
 extension_data(const char* uri)
 {
-	return NULL;
+    return NULL;
 }
 
 static const LV2_Descriptor descriptor = {
-	LV2_PLUGIN_URI,
-	instantiate,
-	connect_port,
-	activate,
-	run,
-	deactivate,
-	cleanup,
-	extension_data
+    LV2_PLUGIN_URI,
+    instantiate,
+    connect_port,
+    activate,
+    run,
+    deactivate,
+    cleanup,
+    extension_data
 };
 
 LV2_SYMBOL_EXPORT
@@ -710,12 +710,12 @@ extern "C" __attribute__ ((visibility ("default")))
 const LV2_Descriptor*
 lv2_descriptor(uint32_t index)
 {
-	switch (index) {
-	case 0:
-		return &descriptor;
-	default:
-		return NULL;
-	}
+    switch (index) {
+    case 0:
+        return &descriptor;
+    default:
+        return NULL;
+    }
 }
 """)
 
