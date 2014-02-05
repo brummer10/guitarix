@@ -186,9 +186,9 @@ void set_state(creal *v, creal *x) {
 #define real realtype  // real conflicts with Eigen::real of new eigen library version
 typedef double real;
 %if (@method == "table")
-%include ("../intpp.h")
+%include ("intpp.h")
 #define NO_INTPP_INCLUDES
-%include ("../intpp.cc")
+%include ("intpp.cc")
 @extra_sources.intpp_inst
 %%@extra_sources.data_h
 @extra_sources.data_c

@@ -21,10 +21,10 @@ class GeneratedSignal(object):
         else:
             self.signal = self.signal[:,numpy.newaxis]
         samples = len(self.signal)
-        if len(op) != self.input_signal.shape[1]:
+        if len(op) != self.signal.shape[1]:
             raise ValueError(
                 "signal definition error: inconsistent channel count (%d vs. %d in OP definition)"
-                % (self.input_signal.shape[1], len(op)))
+                % (self.signal.shape[1], len(op)))
         self.input_signal = self.signal + numpy.array(op, dtype=numpy.float64)
         self.timeline = numpy.linspace(0, samples/fs, samples)
 
