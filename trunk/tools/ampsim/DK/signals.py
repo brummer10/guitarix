@@ -14,12 +14,18 @@ class GeneratedSignal(object):
         self.generate_spectrum = False
         self.generate_harmonics = False
         self.make_spectrum = self._default_make_spectrum
-        m = [dict(sweep = self._sweep, impulse = self._impulse, time = self._time, null=self._null, asin=numpy.arcsin, atan=numpy.arctan), numpy]
+        m = [dict(sweep = self._sweep, impulse = self._impulse, time = self._time, null=self._null, asin=numpy.arcsin, atan=numpy.arctan, Min=numpy.minimum, Max=numpy.maximum), numpy]
         self.signal = sympy.lambdify((), func, modules=m)()
+        if isinstance(self.signal, tuple):
+            self.signal = numpy.array(self.signal).T
+        else:
+            self.signal = self.signal[:,numpy.newaxis]
         samples = len(self.signal)
-        self.input_signal = numpy.array((op,), dtype=numpy.float64).repeat(samples, axis=0)
-        for i in range(self.input_signal.shape[1]):
-            self.input_signal[:,i] = self.signal
+        if len(op) != self.input_signal.shape[1]:
+            raise ValueError(
+                "signal definition error: inconsistent channel count (%d vs. %d in OP definition)"
+                % (self.input_signal.shape[1], len(op)))
+        self.input_signal = self.signal + numpy.array(op, dtype=numpy.float64)
         self.timeline = numpy.linspace(0, samples/fs, samples)
 
     def _sweep_make_spectrum(self, response, freqlist, shift=True):
@@ -208,7 +214,9 @@ class Signal(object):
         return -2 / sympy.pi * sympy.atan(1/sympy.tan(sympy.pi * self.t))
 
     def square(self, freq=None):
-        return self.triangle(freq).diff()/2
+        if freq is None:
+            freq = self.freq
+        return self.triangle(freq).diff()/(4*freq)
 
     def sweep(self, start_freq=None, stop_freq=None, pre=None, post=None):
         if start_freq is None:
