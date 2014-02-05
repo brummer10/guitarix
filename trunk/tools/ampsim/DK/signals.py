@@ -14,7 +14,9 @@ class GeneratedSignal(object):
         self.generate_spectrum = False
         self.generate_harmonics = False
         self.make_spectrum = self._default_make_spectrum
-        m = [dict(sweep = self._sweep, impulse = self._impulse, time = self._time, null=self._null, asin=numpy.arcsin, atan=numpy.arctan, Min=numpy.minimum, Max=numpy.maximum), numpy]
+        m = [dict(sweep = self._sweep, impulse = self._impulse, time = self._time,
+                  null=self._null, asin=numpy.arcsin, atan=numpy.arctan,
+                  Min=numpy.minimum, Max=numpy.maximum, ramp=self._ramp), numpy]
         self.signal = sympy.lambdify((), func, modules=m)()
         if isinstance(self.signal, tuple):
             self.signal = numpy.array(self.signal).T
@@ -96,6 +98,9 @@ class GeneratedSignal(object):
     def _time(self, samples, fs):
         return numpy.linspace(0, samples/fs, samples)
 
+    def _ramp(self, t):
+        return numpy.linspace(0, 1, len(t))
+
     def _null(self, s):
         return 0*s
 
@@ -144,7 +149,8 @@ class Signal(object):
 
     _s_FS, _s_freq, _s_start_freq, _s_stop_freq, _s_sweep_pre, _s_sweep_post, _s_samples = sympy.symbols(
         "FS, freq, start_freq, stop_freq, sweep_pre, sweep_post, samples")
-    _s_sweep, _s_impulse, _s_time, _s_null = sympy.symbols("sweep,impulse,time,null", cls=sympy.Function)
+    _s_sweep, _s_impulse, _s_time, _s_null, _s_ramp = sympy.symbols(
+        "sweep,impulse,time,null,ramp", cls=sympy.Function)
     t = sympy.symbols("t")
 
     def __init__(self, timespan=0.01):
@@ -230,6 +236,9 @@ class Signal(object):
         if post is None:
             post = self._s_sweep_post
         return self._s_sweep(self.t, start_freq, stop_freq, pre, post, self._s_FS)
+
+    def ramp(self):
+        return self._s_ramp(self.t)
 
     def impulse(self):
         return self._s_impulse(self.t)
