@@ -126,16 +126,17 @@ class MyTensorSpline(splinetable.TensorSpline):
         cf = []
         for c, k in zip(coeffs, self.knot_data):
             k = [v for v in k if v.used()]
-            if len(k) == 1 and k[0].tp == 'pp':
-                if k[0].get_order() == 4:
-                    if len(c.shape) == 2:
-                        assert c.shape[-1] == 1, c.shape
-                        c = self.fromspline(k[0].knots, c[:,0], 3).T
-                        c = c.reshape(len(c)*4,1)
-                    else:
-                        assert len(c.shape) == 1
-                        c = self.fromspline(k[0].knots, c, 3).T
-                        c = c.reshape(len(c)*4)
+            if len(k) == 1 and k[0].tp == 'pp' and k[0].get_order() == 4:
+                if len(c.shape) == 2:
+                    assert c.shape[-1] == 1, c.shape
+                    c = self.fromspline(k[0].knots, c[:,0], 3).T
+                    c = c.reshape(len(c)*4,1)
+                else:
+                    assert len(c.shape) == 1
+                    c = self.fromspline(k[0].knots, c, 3).T
+                    c = c.reshape(len(c)*4)
+            elif k[0].tp == 'h':
+                k[0].tp = 'pp'
             else:
                 # no other orders implemented
                 k[0].tp = 's'

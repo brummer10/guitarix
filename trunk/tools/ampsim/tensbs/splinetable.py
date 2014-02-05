@@ -1,8 +1,9 @@
+from __future__ import division
 import sys, time
 import itertools, fractions, pickle
 import numpy as np
 import pylab
-from scipy.interpolate import LSQUnivariateSpline, InterpolatedUnivariateSpline, UnivariateSpline
+from scipy.interpolate import LSQUnivariateSpline, InterpolatedUnivariateSpline, UnivariateSpline, PchipInterpolator
 
 try:
     np.pad
@@ -233,7 +234,6 @@ class KnotData(object):
     def get_order(self):
         return self.order
 
-
 class TensorSpline(object):
 
     def __init__(self, func, ranges, basegrid):
@@ -269,10 +269,20 @@ class TensorSpline(object):
         with open(self.grid_estimate_fname(),"w") as f:
             pickle.dump(self.grid_estimate, f)
 
-    def half_interval(self, d):
-        o = np.empty(2*len(d)-1)
-        o[::2] = d
-        o[1::2] = (d[1:] + d[:-1]) * 0.5
+    @staticmethod
+    def insert_points(a, n, kd):
+        o = []
+        for x, k in zip(a, kd):
+            if k.tp == 'h':
+                o.append(x)
+                continue
+            i = len(x)
+            b = np.zeros(i + n * (i -  1))
+            b[::n+1] = x
+            for j in range(n):
+                w = (j+1) / (n+1)
+                b[j+1::n+1] = x[:-1] * w + x[1:] * (1-w)
+            o.append(b)
         return o
 
     def calc_coeffs(self):
@@ -281,20 +291,30 @@ class TensorSpline(object):
             coords = []
             for kd in kdata:
                 if kd.used():
-                    k = kd.get_order()
-                    x = kd.knots.copy()
-                    x[:k] = np.linspace(x[0], x[k], k, False)
-                    x[-k:] = np.linspace(x[-(k+1)], x[-1], k, False)
+                    if kd.tp in ('s', 'pp'):
+                        k = kd.get_order()
+                        x = kd.knots.copy()
+                        x[:k] = np.linspace(x[0], x[k], k, False)
+                        x[-k:] = np.linspace(x[-(k+1)], x[-1], k, False)
+                    else:
+                        assert kd.tp == 'h'
+                        k = kd.get_order() - 1
+                        x = kd.knots[k:-k]
                 else:
                     x = kd.get_knot_grid()
                 coords.append(x)
+            add_num_points = 0
+            coords = self.insert_points(coords, add_num_points, self.knot_data[v])
             fnc = self.calc_grid(self.make_grid(coords), g[1], g[2])[v]
             for n in range(len(self.ranges)):
                 kd = self.knot_data[v,n]
                 if not kd.used():
                     continue
                 s = list(fnc.shape)
-                s[n] = kd.num_coeffs()
+                if kd.tp == 'h':
+                    s[n] = 4 * (len(coords[n]) - 1)
+                else:
+                    s[n] = kd.num_coeffs()
                 out = np.empty(s)
                 s[n] = 1
                 x = coords[n]
@@ -304,8 +324,15 @@ class TensorSpline(object):
                 for i in np.ndindex(tuple(s)):
                     i = list(i)
                     i[n] = slice(None)
-                    ss = LSQUnivariateSpline(x, fnc[i], kn, bbox=bb, k=k)
-                    out[i] = ss.get_coeffs()
+                    if kd.tp in ('s', 'pp'):
+                        ss = LSQUnivariateSpline(x, fnc[i], kn, bbox=bb, k=k)
+                        out[i] = ss.get_coeffs()
+                    else:
+                        ss = PchipInterpolator(x, fnc[i])
+                        def mklist(kr):
+                            c = kr.c[:,0]
+                            return [c[3], c[2]-c[3]*(kr.xi[-1]-kr.xi[0]), c[1], c[0]]
+                        out[i] = np.array([mklist(kr) for kr in ss.polynomials]).flat
                 fnc = out
             coeff.append(fnc)
         return coeff
