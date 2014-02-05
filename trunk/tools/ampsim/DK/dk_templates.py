@@ -31,6 +31,7 @@ c_template_top = Template("""\
 // DO NOT MODIFY!
 #include <iostream>
 #include <cmath>
+#include <list>
 %% %if (@method == "hybr" || @method == "lm")
 %if (@method == "lm")
 #include <cminpack.h>
@@ -933,39 +934,37 @@ namespace @namespace {
 static Matrix<creal, @nni, 1> last_good;
 static Matrix<creal, @nn, 1> last_v0;
 
-int nonlin_homotopy(int *n, Matrix<creal, @nni, 1>& start, nonlin_param& par) {
+int nonlin_homotopy(nonlin_param& par, creal f) {
     Matrix<creal, @nni, 1> end = @par_p;
-    for (int j = 1; j <= *n; j++) {
-        @par_p = start + (j * (end - start)) / *n;
-        int ret = nonlin(par);
-        if (ret != 0) {
-            @par_p = end;
-            *n = j;
-            return ret;
-        }
-        last_good = @par_p;
-        last_v0 = @par_v;
-    }
+    @par_p = last_good + (@par_p - last_good) * f;
+    @par_v = last_v0;
+    int ret = nonlin(par);
     @par_p = end;
+    if (ret != 0) {
+        return ret;
+    }
+    last_v0 = @par_v;
     return 0;
 }
 
 static inline int nonlin_solve(nonlin_param& par) {
     int ret = nonlin(par);
     if (ret != 0) {
-        int n = 2;
+        std::list<creal> points;
+        points.push_back(0);
+        points.push_back(1);
         for (int j = 0; j < @solver_max_homotopy_iter; j++) {
-            @par_v = last_v0;
-            int n2 = n;
-            ret = nonlin_homotopy(&n, last_good, par);
-            if (ret == 0) {
+            std::list<creal>::iterator it = points.begin();
+            ++it;
+            ret = nonlin_homotopy(par, *it);
+            if (ret != 0) {
+                points.insert(it, (*points.begin()+*it)/2);
+                continue;
+            }
+            if (points.size() == 2) {
                 break;
             }
-            if (n == 1) {
-                n = n2 * 2;
-            } else {
-                n = 2;
-            }
+            points.erase(points.begin());
         }
         if (ret != 0) {
             return ret;
