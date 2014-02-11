@@ -575,9 +575,10 @@ class NonlinChained(NonlinCode):
 
 class TableCode(object):
 
-    def __init__(self, struct, neq):
+    def __init__(self, struct, neq, extra_sources):
         self.struct = struct
         self.neq = neq
+        self.extra_sources = extra_sources
 
     def generate(self, d):
         neq = self.neq
@@ -630,6 +631,32 @@ class TableCode(object):
         d["global_data_def"] = self.glob
         d["par_p"] = VectorAccess("p", param=True, block=self.pblockV)
         d["par_v"] = VectorAccess("v", param=True, block=self.iblockV)
+        tables = self.extra_sources["tables"]
+        l = []
+        for j, kn in enumerate(tables[neq.namespace].knot_data):
+            reorder = False
+            unused = False
+            fu = "splev"
+            ll = []
+            for i, v in enumerate(kn):
+                if not v.used():
+                    unused = True
+                else:
+                    ll.append(i)
+                    if unused:
+                        reorder = True
+                    if kn[i].tp == 'pp':
+                        fu = "splev_pp"
+            if reorder:
+                l.append("{ Array<creal, %d, 1> pt2; pt2 << %s;\n" % (len(ll), ", ".join(["mp(%d)" % (neq.p_slice.start+i) for i in ll])))
+                inpt = "&pt2(0)"
+            else:
+                inpt = "m"
+            l.append("splinedata<AmpData::%s::maptype>::%s<%s>(&AmpData::%s::sd.sc[%d], %s, &t[%d]);\n"
+                     % (neq.namespace, fu, ",".join([str(v.get_order()) for v in kn if v.used()]), neq.namespace, j, inpt, j))
+            if reorder:
+                l.append("}\n")
+        d["call"] = join_with_indent(l)
         return dk_templates.c_template_table.render(d)
 
 
@@ -880,6 +907,8 @@ class CodeGenerator(object):
                 ss = "t[%d] = (exp(%s * (1-self.pots[%d])) - 1) / (exp(%s) - 1);" % (i, loga, i, loga)
             elif loga:
                 ss = "t[%d] = (exp(%s * self.pots[%d]) - 1) / (exp(%s) - 1);" % (i, loga, i, loga)
+            elif inv:
+                ss = "t[%d] = 1-self.pots[%d];" % (i, i)
             else:
                 ss = "t[%d] = self.pots[%d];" % (i, i)
             ll.append(ss)
@@ -924,7 +953,7 @@ class CodeGenerator(object):
                 i_slice = nonlin.i_slice,
                 ))
             if self.solver_dict["method"] == "table":
-                code.append(TableCode(s, nonlin).generate(d))
+                code.append(TableCode(s, nonlin, self.extra_sources).generate(d))
             else:
                 code.append(NonlinCode(s, nonlin, self.solver_dict, None).generate(d))
 

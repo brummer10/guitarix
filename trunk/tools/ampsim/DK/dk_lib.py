@@ -41,7 +41,7 @@ def pow2roundup(x):
     x |= x >> 16;
     return x+1;
 
-def genlogsweepX(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
+def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
     """generate logarithmic sweep signal
     
     fmin: start frequency
@@ -77,7 +77,7 @@ def genlogsweepX(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
     s2 = s2[::-1] * 4 * b * b
     return s1, s2, fmin, fmax, k1 / math.log(fmax / fmin)
 
-def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
+def expchirp(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
     nyq = rate / 2
     if fmax <= fmin:
         fmax = nyq

@@ -108,7 +108,7 @@ class P_parallel(Node):
     def __init__(self, n=None):
         Node.__init__(self, "P", n)
     def add_count(self, tc, conn, param):
-        if len(conn) == 3:
+        if conn[0] is not None and conn[1] is not None and conn[0] != conn[2] and conn[2] != conn[1]:
             tc["R"] += 2
             tc["P"] += 2
         else:
@@ -126,15 +126,16 @@ class P_parallel(Node):
         a = sp.symbols(sym)
         v = 1 / val
         # first resistor
-        c = (conn[0], conn[2])
-        idx1 = p.new_row("R", self)
-        p.add_S_currents(c, v)
-        p.add_2conn("R", idx1, c)
-        idx_p1 = p.new_row("P", self, "+")
-        p.add_2conn("P", idx_p1, c)
-        p.Pv[idx_p1] = val
-        p.pot_func[idx_p1] = (a, a / (2 - a))
-        if len(conn) == 3:
+        if conn[0] != conn[2] and conn[0] is not None:
+            c = (conn[0], conn[2])
+            idx1 = p.new_row("R", self)
+            p.add_S_currents(c, v)
+            p.add_2conn("R", idx1, c)
+            idx_p1 = p.new_row("P", self, "+")
+            p.add_2conn("P", idx_p1, c)
+            p.Pv[idx_p1] = val
+            p.pot_func[idx_p1] = (a, a / (2 - a))
+        if conn[2] != conn[1] and conn[1] is not None:
             # second resistor
             c = (conn[2], conn[1])
             idx2 = p.new_row("R", self)

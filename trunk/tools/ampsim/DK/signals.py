@@ -14,7 +14,7 @@ class GeneratedSignal(object):
         self.generate_spectrum = False
         self.generate_harmonics = False
         self.make_spectrum = self._default_make_spectrum
-        m = [dict(sweep = self._sweep, impulse = self._impulse, time = self._time,
+        m = [dict(sweep = self._sweep, chirp = self._chirp, impulse = self._impulse, time = self._time,
                   null=self._null, asin=numpy.arcsin, atan=numpy.arctan,
                   Min=numpy.minimum, Max=numpy.maximum, ramp=self._ramp), numpy]
         self.signal = sympy.lambdify((), func, modules=m)()
@@ -43,7 +43,8 @@ class GeneratedSignal(object):
         return s[:n]
 
     def _sweep_harmonics_responses(self, response, N, freqlist, shift=True):
-        di = self._fft_convolve(self.sweep_inverse_signal, response)  # deconvolved impulse response
+        g = self.input_signal.ptp()/2
+        di = self._fft_convolve(self.sweep_inverse_signal, response/g)  # deconvolved impulse response
         imp_indices = numpy.zeros(N+1, dtype=int)  # the indices of each impulse (1st linear, 2nd the first harm. dist. etc.)
         imp_indices[0] = len(self.sweep_inverse_signal) - 1
         for n in range(1, N+1):
@@ -75,8 +76,12 @@ class GeneratedSignal(object):
         post = int(round(post * fs))
         if pre < 0:
             pre = int(round((len(t) - post) * 0.1))
+            if pre < 0:
+                pre = 0
         else:
             pre = int(round(pre * fs))
+        if post >= len(t) - pre:
+            post = int((len(t) - pre) * 0.1)
         span = len(t) - (pre + post)
         self.pre = pre
         self.post = post
@@ -85,8 +90,27 @@ class GeneratedSignal(object):
           dk_lib.genlogsweep(start, stop, fs, pre, span, post)
         return sig
 
+    def _chirp(self, t, start, stop, pre, post, fs):
+        self.generate_spectrum = True
+        self.generate_harmonics = True
+        self.make_spectrum = self._sweep_make_spectrum
+        self.make_harmonics_responses = self._sweep_harmonics_responses
+        post = int(round(post * fs))
+        if pre < 0:
+            pre = int(round((len(t) - post) * 0.1))
+        else:
+            pre = int(round(pre * fs))
+        span = len(t) - (pre + post)
+        self.pre = pre
+        self.post = post
+        self.fs = fs
+        sig, self.sweep_inverse_signal, self.start, self.stop, self.sweep_rate = \
+          dk_lib.expchirp(start, stop, fs, pre, span, post)
+        return sig
+
     def _impulse_make_spectrum(self, response, freqlist):
-        return scipy.signal.freqz(response, worN=freqlist)[1]
+        g = self.input_signal.ptp()/2
+        return scipy.signal.freqz(response/g, worN=freqlist)[1]
 
     def _impulse(self, t):
         self.generate_spectrum = True
@@ -98,8 +122,15 @@ class GeneratedSignal(object):
     def _time(self, samples, fs):
         return numpy.linspace(0, samples/fs, samples)
 
-    def _ramp(self, t):
-        return numpy.linspace(0, 1, len(t))
+    def _ramp(self, t, start, log):
+        if log:
+            if start < 0:
+                start = 0.001
+            return numpy.logspace(numpy.log10(start), 0, len(t))
+        else:
+            if start < 0:
+                start = 0
+            return numpy.linspace(start, 1, len(t))
 
     def _null(self, s):
         return 0*s
@@ -149,8 +180,8 @@ class Signal(object):
 
     _s_FS, _s_freq, _s_start_freq, _s_stop_freq, _s_sweep_pre, _s_sweep_post, _s_samples = sympy.symbols(
         "FS, freq, start_freq, stop_freq, sweep_pre, sweep_post, samples")
-    _s_sweep, _s_impulse, _s_time, _s_null, _s_ramp = sympy.symbols(
-        "sweep,impulse,time,null,ramp", cls=sympy.Function)
+    _s_sweep, _s_chirp, _s_impulse, _s_time, _s_null, _s_ramp = sympy.symbols(
+        "sweep,chirp,impulse,time,null,ramp", cls=sympy.Function)
     t = sympy.symbols("t")
 
     def __init__(self, timespan=0.01):
@@ -237,8 +268,21 @@ class Signal(object):
             post = self._s_sweep_post
         return self._s_sweep(self.t, start_freq, stop_freq, pre, post, self._s_FS)
 
-    def ramp(self):
-        return self._s_ramp(self.t)
+    def chirp(self, start_freq=None, stop_freq=None, pre=None, post=None):
+        if start_freq is None:
+            start_freq = self._s_start_freq
+        if stop_freq is None:
+            stop_freq = self._s_stop_freq
+        if stop_freq is None:
+            stop_freq = self._s_stop_freq
+        if pre is None:
+            pre = self._s_sweep_pre
+        if post is None:
+            post = self._s_sweep_post
+        return self._s_chirp(self.t, start_freq, stop_freq, pre, post, self._s_FS)
+
+    def ramp(self, start=-1, log=False):
+        return self._s_ramp(self.t, start, int(log))
 
     def impulse(self):
         return self._s_impulse(self.t)

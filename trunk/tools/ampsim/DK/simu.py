@@ -611,9 +611,12 @@ class MyTensorSpline(TensorSpline):
         self.logger = logging.getLogger("approx")
         #bg = []
         self.coeffs = []
+        self.axes = []
         for i_fnc, (rng, pre, post, err, opt) in enumerate(basegrid):
             #if i_fnc < 3: continue
             grd, fnc, axes, axgrids = self.table_approximation(err, i_fnc, rng)
+            grd, fnc, axes = self.trim_table(grd, fnc, axes, err, self.func.i0[i_fnc])
+            self.logger.info("%d, %s, %s" % (i_fnc, fnc.shape, axgrids))
             #print fnc.ptp(), grd.shape, fnc.shape, len(axes), axgrids
             #grd.dump("grd.data")
             #fnc.dump("fnc.data")
@@ -621,6 +624,7 @@ class MyTensorSpline(TensorSpline):
             #pickle.dump(axes, file("axes.data","w"))
             #raise SystemExit
             self.coeffs.append(fnc)
+            self.axes.append(axes)
             for i, (ax, ag, cg, r) in enumerate(zip(axes, axgrids, func.basegrid[i_fnc][0], rng)):
                 order_type = r[1]
                 w = ax[-1]-ax[0]
@@ -628,7 +632,9 @@ class MyTensorSpline(TensorSpline):
                     order_type = None
                 if order_type is not None:
                     if np.amax(fnc.ptp(axis=i)) < 1e-6 * fnc.ptp():
-                        print "%s[%d,%d]: const: %g" % (func.comp_id, i_fnc, i, np.amax(fnc.ptp(axis=i)) / fnc.ptp())
+                        self.logger.info(
+                            "%s[%d,%d]: const: %g" %
+                            (func.comp_id, i_fnc, i, np.amax(fnc.ptp(axis=i)) / fnc.ptp()))
                         order_type = None
                 if order_type is not None:
                     if isinstance(order_type, int):
@@ -662,14 +668,10 @@ class MyTensorSpline(TensorSpline):
         for c, k in zip(coeffs, self.knot_data):
             k = [v for v in k if v.used()]
             if len(k) == 1 and k[0].tp == 'pp' and k[0].get_order() == 4:
-                if len(c.shape) == 2:
-                    assert c.shape[-1] == 1, c.shape
-                    c = self.fromspline(k[0].knots, c[:,0], 3).T
-                    c = c.reshape(len(c)*4,1)
-                else:
-                    assert len(c.shape) == 1
-                    c = self.fromspline(k[0].knots, c, 3).T
-                    c = c.reshape(len(c)*4)
+                cs = np.squeeze(c)
+                assert len(cs.shape) == 1
+                cs = self.fromspline(k[0].knots, cs, 3).T
+                c = cs.reshape([len(cs)*4 if s > 1 else 1 for s in c.shape])
             elif k[0].tp == 'h':
                 k[0].tp = 'pp'
             else:
@@ -689,18 +691,99 @@ class MyTensorSpline(TensorSpline):
         a += k-1
         return KnotData(np.pad(kn, k-1, 'edge'), a, slice(r.start, r.stop, 1+(r.step-1)/f), (tp, k))
 
+    def trim_axis_edge(self, i, idx, grd, fnc, axes, prec, i0):
+        a = axes[i]
+        if len(a) <= 2:
+            return grd, fnc, axes
+        if idx < 0:
+            idx += len(a)
+        s1 = [slice(None)] * len(axes)
+        s2 = [slice(None)] * len(axes)
+        s1[i] = idx
+        fv = fnc[s1]
+        s1[i] = idx-1
+        s2[i] = idx+1
+        fi = (fnc[s1] + fnc[s2]) * 0.5
+        if callable(prec):
+            df = prec(fi, fv, i0).any()
+        else:
+            df = (abs(fi - fv) > prec).any()
+        if not df:
+            sl = range(idx) + range(idx+1, len(a))
+            axes[i] = axes[i][sl]
+            s1[i] = sl
+            fnc = fnc[s1]
+            grd = grd[[slice(None)]+s1]
+        return grd, fnc, axes
+        
+    def trim_axis(self, i, idx, grd, fnc, axes, prec, i0):
+        a = axes[i]
+        if len(a) <= 2:
+            return grd, fnc, axes
+        s = [slice(None)] * len(axes)
+        s[i] = slice(idx, -1, 2)
+        fi = fnc[s]
+        s[i] = slice(idx+1, None, 2)
+        fi = (fi + fnc[s]) * 0.5
+        fsl = slice(idx+1, None, 2)
+        s[i] = fsl
+        fv = fnc[s]
+        if callable(prec):
+            df = prec(fi, fv, i0).any(axis=tuple([k for k in range(len(axes)) if k != i]))
+        else:
+            df = (abs(fi - fv) > prec).any(axis=tuple([k for k in range(len(axes)) if k != i]))
+        if not df.all():
+            sl = np.ones(len(a), dtype=bool)
+            sl[fsl] = df
+            axes[i] = axes[i][sl]
+            s[i] = sl
+            fnc = fnc[s]
+            grd = grd[[slice(None)]+s]
+        return grd, fnc, axes
+        
+    def trim_table(self, grd, fnc, axes, prec, i0):
+        for i in range(len(axes)):
+            grd, fnc, axes = self.trim_axis_edge(i, 1, grd, fnc, axes, prec, i0)
+            grd, fnc, axes = self.trim_axis_edge(i, -2, grd, fnc, axes, prec, i0)
+            grd, fnc, axes = self.trim_axis(i, 0, grd, fnc, axes, prec, i0)
+            grd, fnc, axes = self.trim_axis(i, 1, grd, fnc, axes, prec, i0)
+        return grd, fnc, axes
+
+    def approx_one_axis(self, i, n, axes, s1, s2, fnc, ncalc_grid, prec, i0):
+        a = axes[i]
+        if len(a) == 1:
+            return 0, None, None, None, None
+        ax2 = (a[:-1]+a[1:]) * 0.5
+        axeslist = axes[:i] + [ax2] + axes[i+1:]
+        grd2 = dk_lib.mkgrid(axeslist)
+        fnc2 = ncalc_grid(grd2)
+        s1[i] = slice(None, -1)
+        s2[i] = slice(1, None)
+        fnc_intp = (fnc[s1] + fnc[s2]) * 0.5
+        if callable(prec):
+            df = prec(fnc_intp, fnc2, i0).any(axis=tuple([k for k in range(n) if k != i]))
+        else:
+            df = (abs(fnc_intp - fnc2) > prec).any(axis=tuple([k for k in range(n) if k != i]))
+        k = np.count_nonzero(df)
+        if k == 0:
+            s1[i] = slice(None)
+            s2[i] = slice(None)
+        return k, df, ax2, grd2, fnc2
+
     def table_approximation(self, prec, i_fnc, rng):
         #print rng, prec
         def ncalc_grid(grd):
             return self.calc_grid(grd, None, None)[i_fnc]
         n = len(self.ranges)
         axes = []
-        for r, g in zip(self.ranges, rng):
+        axgrids = np.ones(n)
+        start_size = 2
+        for i, (r, g) in enumerate(zip(ranges, rng)):
             if g[1] is None:
                 axes.append(np.array(((r[0]+r[1])*0.5,), dtype=np.float64))
             else:
-                axes.append(np.array((r[0],r[1]), dtype=np.float64))
-        axgrids = np.ones(n)
+                axes.append(np.linspace(r[0], r[1], start_size+1))
+                axgrids[i] = start_size
         grd = dk_lib.mkgrid(axes)
         fnc = ncalc_grid(grd)
         s1 = [slice(None)]*n
@@ -712,26 +795,11 @@ class MyTensorSpline(TensorSpline):
             nn += 1 
             inserted = False
             for i in range(len(axes)):
-                a = axes[i]
-                if len(a) == 1:
-                    continue
-                ax2 = (a[:-1]+a[1:]) * 0.5
-                axeslist = axes[:i] + [ax2] + axes[i+1:]
-                grd2 = dk_lib.mkgrid(axeslist)
-                fnc2 = ncalc_grid(grd2)
-                s1[i] = slice(None, -1)
-                s2[i] = slice(1, None)
-                fnc_intp = (fnc[s1] + fnc[s2]) * 0.5
-                if callable(prec):
-                    df = prec(fnc_intp, fnc2, self.func.i0[i]).any(axis=tuple([k for k in range(n) if k != i]))
-                else:
-                    df = (abs(fnc_intp - fnc2) > prec).any(axis=tuple([k for k in range(n) if k != i]))
-                k = np.count_nonzero(df)
+                k, df, ax2, grd2, fnc2 = self.approx_one_axis(i, n, axes, s1, s2, fnc, ncalc_grid, prec, self.func.i0[i_fnc])
                 if k == 0:
-                    s1[i] = slice(None)
-                    s2[i] = slice(None)
                     continue
                 axgrids[i] *= 2
+                a = axes[i]
                 inserted = True
                 newshape = list(grd.shape)
                 newshape[i+1] += k
@@ -766,7 +834,6 @@ class MyTensorSpline(TensorSpline):
                 grd = newgrd
             self.logger.debug("%d, %s, %s" % (i_fnc, fnc.shape, axgrids))
             if not inserted:
-                self.logger.info("%d, %s, %s" % (i_fnc, fnc.shape, axgrids))
                 return grd, fnc, axes, axgrids
 
 

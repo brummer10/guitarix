@@ -8,7 +8,8 @@ import scipy.signal as sig
 import sympy as sp
 import ctypes as ct
 import slicot
-import collections, warnings, tempfile, os, operator, sys, shutil, time, commands, subprocess, math, re
+import collections, warnings, tempfile, os, operator, sys, shutil, time
+import commands, subprocess, math, re, logging
 
 import dk_templates, generate_code
 from models import GND, Out, Node
@@ -958,7 +959,7 @@ class SimulatePy(Simulate):
                 v = self.pot[k]
             except KeyError:
                 v = self.pot[k] = 0.5
-            Rv[i, i] = float(f.n(subs={a: v})) * p
+            Rv[i, i] = float(f.subs({a: v})) * p
         return Rv
 
     def calc_matrixes(self):
@@ -1007,7 +1008,10 @@ class SimulatePy(Simulate):
             return
         A, B, D = self.calc_linear_sys_matrices()
         T, Ti, hsv = get_state_transform(A, B, D, tol=tol)
-        #print tol, T.shape, hsv
+        logger = logging.getLogger("balance")
+        if T.shape[0] != T.shape[1]:
+            logger.info("reduced system size %d -> %d" % T.shape)
+        logger.debug("HSV = %s" % hsv)
         self.eq.transform_state(T, Ti)
         self.calc_dc(self.eq.parser.op, method=self.dc_method)
 
@@ -1205,7 +1209,7 @@ class SimulatePy(Simulate):
     jacobi = jacobi_symbolic
     #jacobi = jacobi_numeric
 
-    def eval_py(self, v_in):
+    def eval_py(self, v_in, ii=-1):
         self.x = ml.matrix(self.x).T ##FIXME
         v_in = ml.matrix(v_in)
         assert v_in.shape[1] == self.eq.ni
@@ -1232,8 +1236,8 @@ class SimulatePy(Simulate):
         self.x = self.x.A1 ##FIXME
         return y
 
-    def __call__(self, v_in):
-        return self.eval_py(v_in)
+    def __call__(self, v_in, ii=-1):
+        return self.eval_py(v_in, ii)
 
 
 class CheckedDict(dict):
@@ -1349,7 +1353,6 @@ class BuildCModule(Simulate):
         eq = self.eq
         d = CheckedDict(name=self.name, comment=time.ctime())
         d["solver_maptype"] = "unsigned short" ##FIXME
-        d["max_homotopy_iter"] = self.max_homotopy_iter
         d["fs"] = self.fs
         d["resample"] = self.resample
         d["c_real"] = self.c_real
@@ -1377,6 +1380,7 @@ class BuildCModule(Simulate):
         d["dev_interface"] = self.dev_interface
         solver = self.solver_dict.copy()
         solver["method"] = method
+        solver["max_homotopy_iter"] = self.max_homotopy_iter
         if method == "table":
             d["extra_sources"] = self.extra_sources
         else:
@@ -1409,7 +1413,7 @@ class SimulateC(object):
     def nonlin_c(self, p):#, K, Hc): ##FIXME
         return self.c_calc_nonlin(p, self.v0) ##FIXME
 
-    def eval_c(self, v_in):
+    def eval_c(self, v_in, ii=-1):
         v_in = np.array(v_in)
         if v_in.ndim == 1:
             v_in = v_in.reshape((len(v_in),1))
@@ -1426,19 +1430,21 @@ class SimulateC(object):
         return y
 
     def reset(self):
+        self.v0 = self.v00
+        self.x = self.x0
         self.c_set_state(self.v00, self.x0)
 
-    def eval_c(self, v_in):
+    def eval_c(self, v_in, ii=-1):
         self.c_set_state(self.v0, self.x)
         t1 = time.time()
         try:
-            return self.c_calc_stream(v_in)
+            return self.c_calc_stream(v_in, ii)
         finally:
             self.time_per_sample = (time.time() - t1)/v_in.shape[0]
             self.v0, self.x, self.minmax, info, nfev, fnorm = self.c_get_info()
 
     def load_from_shared_lib(self):
-        INTERFACE_VERSION = 4
+        INTERFACE_VERSION = 5
         try:
             lib = ct.cdll.LoadLibrary(self.soname)
         except OSError as e:
@@ -1579,11 +1585,11 @@ class SimulateC(object):
                     raise RuntimeError("convergence: method=%s, info=%d, nfev=%d, fnorm=%g"
                                        % (self.method, info.value, nfev.value, fnorm.value))
             return o, x_new, v
-        def calc_stream(u):
-            assert u.shape[1] == ni
+        def calc_stream(u, ii=-1):
+            assert u.shape[1] == ni + (ii >= 0)
             u = np.array(u, dtype=self.dtp, order="C", copy=False)
             o = np.zeros((u.shape[0], no), dtype=self.dtp)
-            if c_calc_stream(u, o, u.shape[0]) != 0:
+            if c_calc_stream(u, o, u.shape[0], ii) != 0:
                 v, x, minmax, g_info, g_nfev, g_fnorm = get_info()
                 raise ValueError("convergence error: info=%d, nfev=%d, fnorm=%g" % (g_info, g_nfev, g_fnorm))
             return o
@@ -1613,8 +1619,8 @@ class SimulateC(object):
         self.c_calc_pot_update = c_calc_pot_update
         self.c_get_dc = get_dc
 
-    def __call__(self, v_in):
-        return self.eval_c(v_in)
+    def __call__(self, v_in, ii=-1):
+        return self.eval_c(v_in, ii)
 
 
 class Parser(object):
@@ -1664,8 +1670,14 @@ class Parser(object):
                 V = d
         else:
             alpha = self.mm * self.fs
+        def map_conn(c):
+            if isinstance(c, Out):
+                return c
+            if c is None:
+                return None
+            return self.nodes.get(c, -1)
         for row in S:
-            row[0].process(self, [c if isinstance(c, Out) else self.nodes.get(c, -1) for c in row[1:]], V.get(row[0]), alpha)
+            row[0].process(self, [map_conn(c) for c in row[1:]], V.get(row[0]), alpha)
         self.pot = V.get("POT", {})
         self.op = V.get("OP",[0.]*tc["I"])
         self.pot_list = []
@@ -1703,9 +1715,15 @@ class Parser(object):
             loga = t.get('a', 0)
             inv = t.get('inv', 0)
             if loga:
-                expr = lambda a: (math.exp(loga * a) - 1) / (math.exp(loga) - 1)
+                if inv:
+                    expr = lambda a: (math.exp(loga * (1 - a)) - 1) / (math.exp(loga) - 1)
+                else:
+                    expr = lambda a: (math.exp(loga * a) - 1) / (math.exp(loga) - 1)
             else:
-                expr = lambda a: a
+                if inv:
+                    expr = lambda a: 1-a
+                else:
+                    expr = lambda a: a
             attrlist.append((var, name, loga, inv, expr))
         return attrlist
 
@@ -1731,7 +1749,7 @@ class Parser(object):
             e.add_count(tc, conn, V.get(e))
             for s in conn:
                 if s not in self.nodes:
-                    if s != GND and not isinstance(s, Out):
+                    if s != GND and s is not None and not isinstance(s, Out):
                         self.nodes[s] = len(self.nodes)
                         l.append((s,None))
         return tc

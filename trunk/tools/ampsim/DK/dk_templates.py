@@ -75,7 +75,7 @@ static creal g_fnorm;
 static Array<creal, @nni, 1> g_min;
 static Array<creal, @nni, 1> g_max;
 
-#define INTERFACE_VERSION 4
+#define INTERFACE_VERSION 5
 
 extern "C" __attribute__ ((visibility ("default")))
 int get_interface_version() {
@@ -220,7 +220,7 @@ void calc_inv_update(const creal *pot) {
 
 %if (@dev_interface)
 extern "C" __attribute__ ((visibility ("default")))
-int calc_stream(creal *u, creal *o, int n) {
+int calc_stream(creal *u, creal *o, int n, int ii) {
     Matrix<creal, @nn, 1> mi;
 %if (@nn)
     g_min = Matrix<creal, @nni, 1>::Constant(HUGE_VAL);
@@ -235,8 +235,12 @@ int calc_stream(creal *u, creal *o, int n) {
     Matrix<creal, @nn, 1> mp;
     par.p = &mp;
 %end
+    int nu = @ni;
+    if (ii >= 0) {
+        nu += 1;
+    }
     for (int j = 0; j < n; j++) {
-#define GET_U (u+j*@ni)
+#define GET_U (u+j*nu)
 #define DTP_U creal
         @pre_filter
 %if (@nn)
@@ -252,6 +256,9 @@ int calc_stream(creal *u, creal *o, int n) {
         }
         g_min = g_min.min(p_val.array());
         g_max = g_max.max(p_val.array());
+        if (ii >= 0) {
+            mi(ii) += GET_U[@ni];
+        }
 %end
         Matrix<creal, @m_cols, 1> d;
 %if (@nn)
@@ -989,10 +996,7 @@ static inline int nonlin(nonlin_param& par) {
     real m[@nni+@npl];
     Map<Matrix<real, @nni+@npl, 1> >mp(m);
     mp << last_pot.cast<real>(), (*par.p)@{pblockV}.cast<real>();
-    for (int j = 0; j < AmpData::@namespace::sd.m; j++) {
-        splinecoeffs<AmpData::@namespace::maptype> *pc = &AmpData::@namespace::sd.sc[j];
-        check(&AmpData::@namespace::sd, m, (*pc->eval)(pc, m, &t[j]));
-    }
+    @call
     (*par.i)@{iblockV} = Map<Matrix<real, @nno, 1> >(t).cast<creal>();
     return 0;
 }
