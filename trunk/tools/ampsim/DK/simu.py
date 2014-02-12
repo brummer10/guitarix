@@ -13,7 +13,11 @@ for pyname, package in (
 
 import sys, itertools, fractions, os, argparse, math, logging
 from cStringIO import StringIO
-from scipy.interpolate import LSQUnivariateSpline, PchipInterpolator
+from scipy.interpolate import LSQUnivariateSpline
+try:
+    from scipy.interpolate import PchipInterpolator
+except ImportError:
+    print "pchip interpolation not available (scipy version too old)"
 import pylab as pl
 import numpy as np
 from scipy.signal import correlate

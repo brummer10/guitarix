@@ -109,7 +109,7 @@ class GeneratedSignal(object):
         return sig
 
     def _impulse_make_spectrum(self, response, freqlist):
-        g = self.input_signal.ptp()/2
+        g = self.input_signal.ptp()
         return scipy.signal.freqz(response/g, worN=freqlist)[1]
 
     def _impulse(self, t):

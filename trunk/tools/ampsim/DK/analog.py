@@ -16,6 +16,17 @@ else:
     get_ipython().set_custom_exc((CircuitException,), _circuit_exception_handler)
 
 
+def eng_str(x):
+    y = abs(x)
+    exponent = int(math.log10(y))
+    engr_exponent = exponent - exponent % 3
+    y /= 10**engr_exponent
+    if engr_exponent:
+        engr_exponent = 'e' + str(engr_exponent)
+    else:
+        engr_exponent = ''
+    return "%s%g%s" % ('-' if x < 0 else '', y, engr_exponent)
+
 def check_keywords(fname, kw, *keywords):
     for k in kw:
         if k not in keywords:
@@ -476,10 +487,16 @@ class Circuit(object):
     def make_signal_vector(self, signal):
         return self.sig.generate(signal, self.FS, self._get_op())
 
-    def print_netlist(self):
+    def print_netlist(self, values=False):
         self._check_netlist()
         for row in self.S:
             print "%s: %s" % (row[0], ", ".join([str(v) for v in row[1:]]))
+        if values:
+            print
+            for e, v in sorted((str(e), v) for e, v in self.V.items()):
+                if isinstance(v, float):
+                    v = eng_str(v)
+                print "%s = %s" % (e, v)
 
     def read_gschem(self, filename, defs=None):
         self._clear_all()
@@ -926,7 +943,7 @@ _create_funcs()
 
 def show_plots(loc=None):
     if Circuit.have_plot:
-        pylab.grid()
+        pylab.grid(which="both")
         pylab.legend(loc=loc)
         pylab.show()
         Circuit.have_plot = False
