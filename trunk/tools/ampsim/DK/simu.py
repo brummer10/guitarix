@@ -11,13 +11,551 @@ for pyname, package in (
     except ImportError:
         raise SystemExit("Need module %s (Debian package: %s)" % (pyname, package))
 
-import sys; sys.path.extend(["..","../tensbs"]); import gentables, splinetable; from cStringIO import StringIO
-import itertools, fractions, os, argparse, math
+import sys, itertools, fractions, os, argparse, math, logging
+from cStringIO import StringIO
+from scipy.interpolate import LSQUnivariateSpline
+try:
+    from scipy.interpolate import PchipInterpolator
+except ImportError:
+    print "pchip interpolation not available (scipy version too old)"
 import pylab as pl
 import numpy as np
 from scipy.signal import correlate
 from scipy.interpolate import splev
 import dk_simulator, dk_lib, circ, models
+
+
+class KnotData(object):
+
+    def __init__(self, knots, mapping, sl, order):
+        self.knots = knots
+        self.mapping = mapping
+        self.slice_data = sl
+        if order is None:
+            self.tp = None
+            self.order = None
+            self.bbox = None
+        else:
+            if isinstance(order, int):
+                self.tp = 's'
+                self.order = order
+            else:
+                self.tp = order[0]
+                self.order = order[1]
+            self.bbox = [self.knots[0], self.knots[-1]]
+
+    def cut_mapping(self):
+        m = self.mapping
+        i0, i1 = np.searchsorted(m, (m[0]+1, m[-1]))
+        i0 -= 1
+        i1 += 1
+        self.bbox[0] += i0 / self.inv_h()
+        self.bbox[1] -= (len(m) - i1) / self.inv_h()
+        self.mapping = m[i0:i1]
+
+    def used(self):
+        return self.order is not None
+
+    def inv_h(self):
+        sl = self.slice_data
+        return (sl.step.imag - 1) / (sl.stop - sl.start)
+
+    def count(self):
+        return len(self.mapping) + 1
+
+    def get_knots(self):
+        k = self.order
+        return self.knots[k:-k]
+
+    def get_knot_grid(self):
+        d = self.slice_data
+        k = self.order
+        if k is None:
+            return np.array(((d.start+d.stop)*0.5,))
+        else:
+            a = self.knots[k//2:-k//2].copy()
+            n = d.step.imag
+            if n == 1:
+                n = k
+            h = (d.stop - d.start) / (n - 1)
+            for i in range(k//2):
+                a[i] = d.start + i * h
+                a[-(i+1)] = d.stop - i * h
+            return a
+
+    def num_coeffs(self):
+        return len(self.knots) - self.order
+
+    def get_bbox(self):
+        return self.bbox
+
+    def get_order(self):
+        return self.order
+
+class TensorSpline(object):
+
+    def __init__(self, func, ranges, basegrid):
+        self.func = func
+        self.ranges = ranges
+        self.basegrid = basegrid
+        self.knot_data = np.empty((len(basegrid), len(ranges)), dtype=object)
+        self.get_grid_estimate()
+        self.find_knots()
+        self.save_grid_estimate()
+
+    @staticmethod
+    def max_idx_to_maptype(max_idx):
+        if max_idx >= 2**16:
+            return "int"
+        elif max_idx >= 2**8:
+            return "unsigned short"
+        else:
+            return "unsigned char"
+
+    def grid_estimate_fname(self):
+        return "%s_grid.cache" % self.func.comp_id
+
+    def get_grid_estimate(self):
+        try:
+            self.grid_estimate = pickle.load(open(self.grid_estimate_fname()))
+        except (IOError, EOFError):
+            self.grid_estimate = np.empty((len(self.basegrid), len(self.ranges)), dtype=object)
+            for v, g in enumerate(self.basegrid):
+                self.grid_estimate[v][:] = [np.mgrid[slice(r[0], r[1], 0.5j * t[0])] for r, t in zip(self.ranges,g[0])]
+
+    def save_grid_estimate(self):
+        with open(self.grid_estimate_fname(),"w") as f:
+            pickle.dump(self.grid_estimate, f)
+
+    @staticmethod
+    def insert_points(a, n, kd):
+        o = []
+        for x, k in zip(a, kd):
+            if k.tp == 'h':
+                o.append(x)
+                continue
+            i = len(x)
+            b = np.zeros(i + n * (i -  1))
+            b[::n+1] = x
+            for j in range(n):
+                w = (j+1) / (n+1)
+                b[j+1::n+1] = x[:-1] * w + x[1:] * (1-w)
+            o.append(b)
+        return o
+
+    def calc_coeffs(self):
+        coeff = []
+        for v, (g, kdata) in enumerate(zip(self.basegrid, self.knot_data)):
+            coords = []
+            for kd in kdata:
+                if kd.used():
+                    if kd.tp in ('s', 'pp'):
+                        k = kd.get_order()
+                        x = kd.knots.copy()
+                        x[:k] = np.linspace(x[0], x[k], k, False)
+                        x[-k:] = np.linspace(x[-(k+1)], x[-1], k, False)
+                    else:
+                        assert kd.tp == 'h'
+                        k = kd.get_order() - 1
+                        x = kd.knots[k:-k]
+                else:
+                    x = kd.get_knot_grid()
+                coords.append(x)
+            add_num_points = 0
+            coords = self.insert_points(coords, add_num_points, self.knot_data[v])
+            fnc = self.calc_grid(self.make_grid(coords), g[1], g[2])[v]
+            for n in range(len(self.ranges)):
+                kd = self.knot_data[v,n]
+                if not kd.used():
+                    continue
+                s = list(fnc.shape)
+                if kd.tp == 'h':
+                    s[n] = 4 * (len(coords[n]) - 1)
+                else:
+                    s[n] = kd.num_coeffs()
+                out = np.empty(s)
+                s[n] = 1
+                x = coords[n]
+                kn = kd.get_knots()
+                bb = kd.get_bbox()
+                k = kd.get_order() - 1
+                for i in np.ndindex(tuple(s)):
+                    i = list(i)
+                    i[n] = slice(None)
+                    if kd.tp in ('s', 'pp'):
+                        ss = LSQUnivariateSpline(x, fnc[i], kn, bbox=bb, k=k)
+                        out[i] = ss.get_coeffs()
+                    else:
+                        ss = PchipInterpolator(x, fnc[i])
+                        def mklist(kr):
+                            c = kr.c[:,0]
+                            return [c[3], c[2]-c[3]*(kr.xi[-1]-kr.xi[0]), c[1], c[0]]
+                        out[i] = np.array([mklist(kr) for kr in ss.polynomials]).flat
+                fnc = out
+            coeff.append(fnc)
+        return coeff
+
+    @staticmethod
+    def get_interpolating_knots(x, k):
+        x_e = x[-1]
+        x_e += (x_e - x[-2]) * 0.1
+        start = k // 2
+        end = -(k - start)
+        knots = np.zeros((3,len(x)-k))
+        knots[0] = x[start:end]
+        knots[1] = np.arange(start, len(x)+end)
+        if k % 2:
+            knots[0,:-1] += knots[0,1:]
+            knots[0,-1] += x[end]
+            knots[0] *= 0.5
+        return knots, (x[0], x_e)
+
+    @staticmethod
+    def spline_diff(n, x, kn, bbox, k, fnc):
+        s = list(fnc.shape)
+        s[n] = 1
+        out = np.empty_like(fnc)
+        for idx in np.ndindex(tuple(s)):
+            idx = list(idx)
+            idx[n] = slice(None)
+            f = fnc[idx]
+            ss = LSQUnivariateSpline(x, f, kn, bbox=bbox, k=k-1)
+            out[idx] = abs(ss(x) - f)
+        return out
+
+    @staticmethod
+    def max_df(n, x, kn, bbox, k, fnc):
+        s = list(fnc.shape)
+        s[n] = 1
+        mx = 0
+        for idx in np.ndindex(tuple(s)):
+            idx = list(idx)
+            idx[n] = slice(None)
+            f = fnc[idx]
+            ss = LSQUnivariateSpline(x, f, kn, bbox=bbox, k=k-1)
+            mx = max(mx, np.amax(abs(ss(x) - f)))
+        return mx #/ np.ptp(fnc)
+
+    def make_grid(self, coords, sparse=False):
+        if len(coords) == 1:
+            r = coords[0]
+            res = np.empty((1, r.shape[0]))
+            res[0] = r
+        else:
+            r = np.meshgrid(*coords, indexing="ij", sparse=sparse)
+            res = np.empty((len(coords),)+r[0].shape)
+            res[:] = r
+        return res
+
+    def calc_grid(self, grd, pre, post):
+        if post:
+            pre_grd = grd.copy()
+        if pre:
+            grd = pre(grd)
+        grd_shape = grd.shape
+        numpoints = np.product(grd_shape[1:])
+        grd = grd.reshape(grd_shape[0], numpoints)
+        fnc = self.func(grd.T, True).T
+        fnc = fnc.reshape(fnc.shape[:1]+tuple(grd_shape[1:]))
+        if post:
+            fnc = post(pre_grd, fnc)
+        return fnc
+
+    @staticmethod
+    def max_diff(n, kn, pos, val):
+        ki = np.unique(np.digitize(pos, kn), True)[1]
+        idx = [slice(None)]*val.ndim
+        l = []
+        for i, j in itertools.izip_longest(ki, ki[1:]):
+            idx[n] = slice(i, j)
+            l.append(np.amax(val[idx]))
+        a = np.array(l)
+        return a[1:] + a[:-1]
+
+    @staticmethod
+    def mk_result(kn, bbox, k, r):
+        idx = np.zeros(len(kn[1])+2, dtype=np.int32)
+        idx[1:-1] = kn[1]
+        idx[-1] = r.step.imag
+        f = reduce(fractions.gcd, idx)
+        idx /= f
+        a = np.empty(idx[-1], dtype=np.int32)
+        for m, (i, j) in enumerate(itertools.izip_longest(idx[:-1], idx[1:])):
+            a[i:j] = m
+        a += k-1
+        return KnotData(np.pad(kn[0], k, 'constant', constant_values=bbox), a, slice(r.start, r.stop, r.step/f), k)
+
+    def get_support(self, i, fnc, dlim):
+        def apply_subcube(op, a, axis):
+            j = a.shape[axis]
+            return op(np.rollaxis(a, axis, 1).reshape(j, a.size/j), axis=1)
+        dfnc = np.diff(fnc, 1, axis=i)
+        supp1 = apply_subcube(np.amax, abs(dfnc), i) >= dlim
+        nz1 = np.flatnonzero(supp1)
+        d2fnc = np.diff(dfnc, 1, axis=i)
+        d2lim = 1e-7
+        supp2 = apply_subcube(np.amax, abs(d2fnc), i) >= d2lim
+        nz2 = np.flatnonzero(supp2)
+        istart, iend, llim, rlim = None, None, None, None
+        if len(nz1):
+            istart = nz1[0]
+            iend = nz1[-1]
+        if len(nz2):
+            istart = min(istart, nz2[0])
+            iend = max(iend, nz2[-1])
+        if istart < 2:
+            istart = None
+        if iend > d2fnc.shape[i]-1:
+            iend = None
+        if istart:
+            istart -= 1
+            if np.amax(apply_subcube(np.amax, abs(dfnc), i)[:istart]) < dlim:
+                llim = 0
+            else:
+                llim = (np.amin(apply_subcube(np.amin, dfnc, i)[:istart]), np.amax(apply_subcube(np.amax, dfnc, i)[:istart]))
+        if iend:
+            iend += 1
+            if np.amax(apply_subcube(np.amax, abs(dfnc), i)[iend:]) < dlim:
+                rlim = 0
+            else:
+                rlim = (np.amin(apply_subcube(np.amin, dfnc, i)[:iend]), np.amax(apply_subcube(np.amax, dfnc, i)[:iend]))
+                print apply_subcube(np.amax, abs(dfnc), i)[iend:]; print iend, dlim; raise SystemExit
+        print "##", dlim, (istart, iend), (llim, rlim)
+        return (istart, iend), (llim, rlim)
+
+    def find_knots(self):
+        for v, g in enumerate(self.basegrid):
+            order = [t[1] for t in g[0] if t is not None]
+            for n in range(len(self.ranges)):
+                coords = self.grid_estimate[v].copy()
+                coords[n] = np.mgrid[self.ranges[n][0]:self.ranges[n][1]:g[0][n][0]*2j]
+                #ranges = [slice(r[0], r[1], (2j * t[0] + 1 if i == n else 0.5j * t[0])) for i, (r, t) in enumerate(zip(self.ranges,g[0]))]
+                #fnc = self.calc_grid(np.mgrid[ranges], g[1], g[2])[v]
+                fnc = self.calc_grid(self.make_grid(coords), g[1], g[2])[v]
+                #self.get_support(n, fnc, np.amax(abs(fnc))*(ranges[n].stop-ranges[n].start)/ranges[n].step.imag * 1e-4)
+                ptp = fnc.ptp()
+                if np.amax(fnc.ptp(axis=n)) < 1e-6 * ptp and False: ##FIXME
+                    print "%s[%d,%d]: const: %g" % (self.func.comp_id, v, n, np.amax(fnc.ptp(axis=n)) / ptp)
+                    self.knot_data[v, n] = KnotData(None,None,slice(self.ranges[n][0], self.ranges[n][1], 1j),None)
+                    continue
+                k = order[n]
+                #x = np.mgrid[ranges[n]]
+                x = coords[n]
+                rng = slice(self.ranges[n][0], self.ranges[n][1], g[0][n][0]*1j)
+                kn, bbox = self.get_interpolating_knots(np.mgrid[rng], k)
+                #e_max = 1.1 * self.max_df(n, x, kn, bbox, k, fnc)
+                try:
+                    e_rel = g[3]
+                except IndexError:
+                    e_rel = None
+                if e_rel is None:
+                    #e_rel = 4e-5
+                    e_rel = 4e-4
+                if e_rel < 0:
+                    e_max = -e_rel
+                else:
+                    e_max = ptp * e_rel
+                good = kn
+                am = None
+                kn0 = kn
+                try:
+                    opt = g[4]
+                except IndexError:
+                    opt = True
+                while opt:
+                    df = self.spline_diff(n, x, kn[0], bbox, k, fnc)
+                    mx = np.amax(df)
+                    if mx > e_max:
+                        if am is None:
+                            raise ValueError("bad approximation for %s[%d,%d]: %g > %g" % (self.func.comp_id, v, n, mx, e_max))
+                        kn = good
+                        kn[2,am] = 1
+                    else:
+                        good = kn
+                    if False:
+                        xd = np.square(np.diff(ss(kn[:-1], k))).argsort()+1
+                    else:
+                        xd = self.max_diff(n, np.pad(kn[0],(1,0),'constant',constant_values=(x[0],)), x, df).argsort()
+                    for am in xd:
+                        if not kn[2,am]:
+                            break
+                    else:
+                        break
+                    kn = np.append(kn[:,:am],kn[:,am+1:], axis=1)
+                self.knot_data[v, n] = self.mk_result(kn, bbox, k, rng)
+                self.grid_estimate[v,n] = self.knot_data[v,n].get_knot_grid()
+                print "%s[%d,%d]: (%g), %d -> %d [%s]" % (self.func.comp_id, v, n, e_max, len(kn0[0]), len(kn[0]), fnc.shape)
+                #print "#", fnc.shape, x.shape, e_max
+                #print kn[:1]
+                #pylab.plot(x, fnc[:,0,:])
+                #pylab.plot(kn, np.zeros(len(kn)),"x")
+                #pylab.show(); raise SystemExit
+
+
+#dtp = "float"
+#tiny = np.finfo(np.float32).tiny
+dtp = "treal"
+tiny = np.finfo(np.float64).tiny
+
+def print_float_array(o, name, a, prefix):
+    print >>o, "%s%s %s[%d] = {" % (prefix, dtp, name, a.size)
+    s = "  "
+    i = 0
+    a = np.where(abs(a) < 100*tiny, 0, a)
+    for v in a.ravel('C'):
+        o.write(s+repr(float(v)))
+        #o.write(s + "%.8g" % v)
+        s = ","
+        i += 1
+        if i % 10 == 0:
+            print >>o, ","
+            s = "  "
+    print >>o, "};"
+    return a.size * np.float32().nbytes
+
+def print_int_array(o, name, a, prefix):
+    print >>o, "%sint %s[%d] = {" % (prefix, name, a.size)
+    s = "  "
+    i = 0
+    for v in a.ravel('C'):
+        o.write(s + str(v))
+        s = ","
+        i += 1
+        if i % 10 == 0:
+            print >>o, ","
+            s = "  "
+    print >>o, "};"
+    return a.size * np.int32().nbytes
+
+def print_maptype_array(o, name, a, prefix):
+    print >>o, "%smaptype %s[%d] = {" % (prefix, name, a.size)
+    s = "  "
+    i = 0
+    for v in a.ravel('C'):
+        o.write(s + str(v))
+        s = ","
+        i += 1
+        if i % 10 == 0:
+            print >>o, ","
+            s = "  "
+    print >>o, "};"
+    align = 4
+    return ((a.size + align - 1) // align) * align
+
+def print_intpp_data(o, tag, prefix, func, rgdata, basegrid, Spline=TensorSpline):
+    if prefix:
+        prefix += " "
+    sz = 0
+    int_sz = np.int32().nbytes
+    float_sz = np.float32().nbytes
+    #ranges = []
+    #orderlist = []
+    #for r, k in rgdata:
+    #    ranges.append(r)
+    #    orderlist.append(k)
+    spl = Spline(func, rgdata, basegrid)
+    coeffs = spl.calc_coeffs()
+    max_idx = 0
+    for iv, val in enumerate(spl.knot_data):
+        for v in val:
+            if not v.used():
+                continue
+            max_idx = max(max_idx, v.mapping[-1])
+    print >>o, "typedef %s maptype;" % Spline.max_idx_to_maptype(max_idx)
+    n = 0
+    for iv, val in enumerate(spl.knot_data):
+        for v in val:
+            if v.used():
+                n += 1
+                v.cut_mapping()
+        print >>o, "%sreal x0%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(float(v.get_bbox()[0])) for v in val if v.used()]))
+        print >>o, "%sreal xe%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(float(v.get_bbox()[1])) for v in val if v.used()]))
+        print >>o, "%sreal hi%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(v.inv_h()) for v in val if v.used()]))
+        print >>o, "%sint k%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(v.get_order()) for v in val if v.used()]))
+        print >>o, "%sint nmap%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(v.count()) for v in val if v.used()]))
+        print >>o, "%sint n%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join([str(v.num_coeffs()) for v in val if v.used()]))
+        sz += (2*int_sz+2*float_sz) * n;
+        #grd = np.mgrid[ranges]
+        #grd_shape = grd.shape
+        #numpoints = np.product(grd_shape[1:])
+        #grd = grd.reshape(grd_shape[0], numpoints, order='F')
+        #grd = grd.T
+        #fnc = np.array(func(grd, True).T, order='C')
+        #fnc.shape = (nvals,)+tuple(reversed(grd_shape[1:]))
+        #fnc = fnc.T
+        #args = [np.arange(s.step.imag) for s in ranges]
+        ti = []
+        ai = []
+        ci = []
+        #idx = [slice(None)]*n+[0]
+        #fnca = []
+        #for i in range(nvals):
+        #    idx[n] = i
+        #    fnca.append(fnc[idx])
+        #tl, ca = b_ink(args, fnca, orderlist)
+        for j in range(len(val)):
+            if not val[j].used():
+                continue
+            t = "t%d_%d%s" % (j, iv, tag)
+            ti.append(t)
+            sz += print_float_array(o, t, val[j].knots, prefix)
+            a = "a%d_%d%s" % (j, iv, tag)
+            ai.append(a)
+            sz += print_maptype_array(o, a, val[j].mapping, prefix)
+        for i in range(1):
+            t = "c%d_%d%s" % (i, iv, tag)
+            ci.append(t)
+            sz += print_float_array(o, t, coeffs[iv], prefix)
+        print >>o, "%smaptype *map%s_%d[%d] = {%s};" % (prefix, tag, iv, n, ", ".join(ai))
+        print >>o, "%s%s *t%s_%d[%d] = {%s};" % (prefix, dtp, tag, iv, n, ", ".join(ti))
+        print >>o, "%s%s *c%s_%d[%d] = {%s};" % (prefix, dtp, tag, iv, 1, ", ".join(ci))
+    sz += (n + len(basegrid)) * float_sz
+    return sz, max_idx, spl
+
+def print_header_file_start(h):
+    print >>h, """\
+#ifndef _DATA_H
+#define _DATA_H 1
+
+#ifndef NO_INTPP_INCLUDES
+#include "intpp.h"
+#endif
+
+namespace AmpData {
+    extern real b0;
+    extern real b1;
+    extern real a1;
+    extern int fs;
+
+"""
+
+def print_header_file_end(h):
+    print >>h, """\
+}
+
+#endif /* !_DATA_H */
+"""
+
+def print_header_file_entry(h, f):
+    print >>h, "namespace %s { extern splinedata sd; }" % f
+
+def print_header(o):
+    print >>o, '#ifndef NO_INTPP_INCLUDES'
+    print >>o, '#include "intpp.h"'
+    print >>o, '#endif'
+    print >>o, "namespace AmpData {"
+    if 0:
+        b0, b1, a1 = circuit.PhaseSplitter().feedback_coeff(1.0)
+        print >>o, "real b0 = %g;" % b0
+        print >>o, "real b1 = %g;" % b1
+        print >>o, "real a1 = 1 - %g;" % (1 - a1)
+    #print >>o, "int fs = %d;" % circuit.FS
+    return 3 * np.float32().nbytes + np.int32().nbytes
+
+def print_footer(o):
+    print >>o, "} // namespace AmpData"
+    return 0
+
 
 class ArgumentError(ValueError):
     pass
@@ -68,20 +606,42 @@ def estimate_max_jacobi(func, ranges, error, nvals):
         J = J1
 
 
-class MyTensorSpline(splinetable.TensorSpline):
+class MyTensorSpline(TensorSpline):
     def __init__(self, func, ranges, basegrid):
         self.func = func
         self.ranges = ranges
         self.basegrid = basegrid
-        self.knot_data = np.empty((len(basegrid), len(ranges)), dtype=object)
+        self.knot_data = np.empty((len([b for b in basegrid if b[0] is not None]), len(ranges)), dtype=object)
+        self.logger = logging.getLogger("approx")
         #bg = []
         self.coeffs = []
+        self.axes = []
+        kd_idx = 0
         for i_fnc, (rng, pre, post, err, opt) in enumerate(basegrid):
-            len_order = []
+            if rng is None:
+                continue
             grd, fnc, axes, axgrids = self.table_approximation(err, i_fnc, rng)
+            grd, fnc, axes = self.trim_table(grd, fnc, axes, err, self.func.i0[i_fnc])
+            self.logger.info("%d, %s, %s" % (i_fnc, fnc.shape, axgrids))
+            #print fnc.ptp(), grd.shape, fnc.shape, len(axes), axgrids
+            #grd.dump("grd.data")
+            #fnc.dump("fnc.data")
+            #import pickle
+            #pickle.dump(axes, file("axes.data","w"))
+            #raise SystemExit
             self.coeffs.append(fnc)
+            self.axes.append(axes)
             for i, (ax, ag, cg, r) in enumerate(zip(axes, axgrids, func.basegrid[i_fnc][0], rng)):
                 order_type = r[1]
+                w = ax[-1]-ax[0]
+                if w == 0:
+                    order_type = None
+                if order_type is not None:
+                    if np.amax(fnc.ptp(axis=i)) < 1e-6 * fnc.ptp():
+                        self.logger.info(
+                            "%s[%d,%d]: const: %g" %
+                            (func.comp_id, i_fnc, i, np.amax(fnc.ptp(axis=i)) / fnc.ptp()))
+                        order_type = None
                 if order_type is not None:
                     if isinstance(order_type, int):
                         tp = 's'
@@ -89,16 +649,13 @@ class MyTensorSpline(splinetable.TensorSpline):
                     else:
                         tp = order_type[0]
                         order = order_type[1]
-                    idx = np.array(np.rint((ax-ax[0])/(ax[-1]-ax[0])*ag), dtype=int)
+                    idx = np.array(np.rint((ax-ax[0])/w * ag), dtype=int)
                     if order > len(ax):
                         order = 2
-                    self.knot_data[i_fnc, i] = self.mk_result(idx, ax, order, tp, slice(ax[0], ax[-1], (ag+1)*1j))
+                    self.knot_data[kd_idx, i] = self.mk_result(idx, ax, order, tp, slice(ax[0], ax[-1], (ag+1)*1j))
                 else:
-                    self.knot_data[i_fnc, i] = splinetable.KnotData(None,None,slice(ax[0], ax[-1], 1j),None)
-                len_order.append((ag+1, order))
-            #bg.append([len_order, pre, post, err, opt])
-        #self.basegrid = bg
-        #print bg
+                    self.knot_data[kd_idx, i] = KnotData(None,None,slice(ax[0], ax[-1], 1j),None)
+            kd_idx += 1
 
     @staticmethod
     def fromspline(xk, cvals, order):
@@ -113,15 +670,17 @@ class MyTensorSpline(splinetable.TensorSpline):
         return sivals
 
     def calc_coeffs(self):
-        coeffs = splinetable.TensorSpline.calc_coeffs(self)
+        coeffs = TensorSpline.calc_coeffs(self)
         cf = []
         for c, k in zip(coeffs, self.knot_data):
             k = [v for v in k if v.used()]
-            if len(k) == 1 and k[0].tp == 'pp':
-                if k[0].get_order() == 4:
-                    assert c.shape[-1] == 1
-                    c = self.fromspline(k[0].knots, c[:,0], 3).T
-                    c = c.reshape(len(c)*4,1)
+            if len(k) == 1 and k[0].tp == 'pp' and k[0].get_order() == 4:
+                cs = np.squeeze(c)
+                assert len(cs.shape) == 1
+                cs = self.fromspline(k[0].knots, cs, 3).T
+                c = cs.reshape([len(cs)*4 if s > 1 else 1 for s in c.shape])
+            elif k[0].tp == 'h':
+                k[0].tp = 'pp'
             else:
                 # no other orders implemented
                 k[0].tp = 's'
@@ -130,26 +689,108 @@ class MyTensorSpline(splinetable.TensorSpline):
 
     def mk_result(self, idx, kn, k, tp, r):
         if k is None:
-            return splinetable.KnotData(None,None,slice(r.start, r.stop, 1j),None)
+            return KnotData(None,None,slice(r.start, r.stop, 1j),None)
         f = reduce(fractions.gcd, idx)
         idx /= f
         a = np.empty(idx[-1], dtype=np.int32)
         for m, (i, j) in enumerate(itertools.izip_longest(idx[:-1], idx[1:])):
             a[i:j] = m
         a += k-1
-        return splinetable.KnotData(np.pad(kn, k-1, 'edge'), a, slice(r.start, r.stop, 1+(r.step-1)/f), (tp, k))
+        return KnotData(np.pad(kn, k-1, 'edge'), a, slice(r.start, r.stop, 1+(r.step-1)/f), (tp, k))
+
+    def trim_axis_edge(self, i, idx, grd, fnc, axes, prec, i0):
+        a = axes[i]
+        if len(a) <= 2:
+            return grd, fnc, axes
+        if idx < 0:
+            idx += len(a)
+        s1 = [slice(None)] * len(axes)
+        s2 = [slice(None)] * len(axes)
+        s1[i] = idx
+        fv = fnc[s1]
+        s1[i] = idx-1
+        s2[i] = idx+1
+        fi = (fnc[s1] + fnc[s2]) * 0.5
+        if callable(prec):
+            df = prec(fi, fv, i0).any()
+        else:
+            df = (abs(fi - fv) > prec).any()
+        if not df:
+            sl = range(idx) + range(idx+1, len(a))
+            axes[i] = axes[i][sl]
+            s1[i] = sl
+            fnc = fnc[s1]
+            grd = grd[[slice(None)]+s1]
+        return grd, fnc, axes
+        
+    def trim_axis(self, i, idx, grd, fnc, axes, prec, i0):
+        a = axes[i]
+        if len(a) <= 2:
+            return grd, fnc, axes
+        s = [slice(None)] * len(axes)
+        s[i] = slice(idx, -1, 2)
+        fi = fnc[s]
+        s[i] = slice(idx+1, None, 2)
+        fi = (fi + fnc[s]) * 0.5
+        fsl = slice(idx+1, None, 2)
+        s[i] = fsl
+        fv = fnc[s]
+        if callable(prec):
+            df = prec(fi, fv, i0).any(axis=tuple([k for k in range(len(axes)) if k != i]))
+        else:
+            df = (abs(fi - fv) > prec).any(axis=tuple([k for k in range(len(axes)) if k != i]))
+        if not df.all():
+            sl = np.ones(len(a), dtype=bool)
+            sl[fsl] = df
+            axes[i] = axes[i][sl]
+            s[i] = sl
+            fnc = fnc[s]
+            grd = grd[[slice(None)]+s]
+        return grd, fnc, axes
+        
+    def trim_table(self, grd, fnc, axes, prec, i0):
+        for i in range(len(axes)):
+            grd, fnc, axes = self.trim_axis_edge(i, 1, grd, fnc, axes, prec, i0)
+            grd, fnc, axes = self.trim_axis_edge(i, -2, grd, fnc, axes, prec, i0)
+            grd, fnc, axes = self.trim_axis(i, 0, grd, fnc, axes, prec, i0)
+            grd, fnc, axes = self.trim_axis(i, 1, grd, fnc, axes, prec, i0)
+        return grd, fnc, axes
+
+    def approx_one_axis(self, i, n, axes, s1, s2, fnc, ncalc_grid, prec, i0):
+        a = axes[i]
+        if len(a) == 1:
+            return 0, None, None, None, None
+        ax2 = (a[:-1]+a[1:]) * 0.5
+        axeslist = axes[:i] + [ax2] + axes[i+1:]
+        grd2 = dk_lib.mkgrid(axeslist)
+        fnc2 = ncalc_grid(grd2)
+        s1[i] = slice(None, -1)
+        s2[i] = slice(1, None)
+        fnc_intp = (fnc[s1] + fnc[s2]) * 0.5
+        if callable(prec):
+            df = prec(fnc_intp, fnc2, i0).any(axis=tuple([k for k in range(n) if k != i]))
+        else:
+            df = (abs(fnc_intp - fnc2) > prec).any(axis=tuple([k for k in range(n) if k != i]))
+        k = np.count_nonzero(df)
+        if k == 0:
+            s1[i] = slice(None)
+            s2[i] = slice(None)
+        return k, df, ax2, grd2, fnc2
 
     def table_approximation(self, prec, i_fnc, rng):
+        #print rng, prec
         def ncalc_grid(grd):
             return self.calc_grid(grd, None, None)[i_fnc]
         n = len(self.ranges)
         axes = []
-        for r, g in zip(self.ranges, rng):
+        axgrids = np.ones(n)
+        start_size = 2
+        for i, (r, g) in enumerate(zip(ranges, rng)):
             if g[1] is None:
                 axes.append(np.array(((r[0]+r[1])*0.5,), dtype=np.float64))
             else:
-                axes.append(np.array((r[0],r[1]), dtype=np.float64))
-        axgrids = np.ones(n)
+                axes.append(np.linspace(r[0], r[1], start_size+1))
+                axgrids[i] = start_size
         grd = dk_lib.mkgrid(axes)
         fnc = ncalc_grid(grd)
         s1 = [slice(None)]*n
@@ -161,26 +802,11 @@ class MyTensorSpline(splinetable.TensorSpline):
             nn += 1 
             inserted = False
             for i in range(len(axes)):
-                a = axes[i]
-                if len(a) == 1:
-                    continue
-                ax2 = (a[:-1]+a[1:]) * 0.5
-                axeslist = axes[:i] + [ax2] + axes[i+1:]
-                grd2 = dk_lib.mkgrid(axeslist)
-                fnc2 = ncalc_grid(grd2)
-                s1[i] = slice(None, -1)
-                s2[i] = slice(1, None)
-                fnc_intp = (fnc[s1] + fnc[s2]) * 0.5
-                if callable(prec):
-                    df = prec(fnc_intp, fnc2, self.func.i0).any(axis=tuple([k for k in range(n) if k != i]))
-                else:
-                    df = (abs(fnc_intp - fnc2) > prec).any(axis=tuple([k for k in range(n) if k != i]))
-                k = np.count_nonzero(df)
+                k, df, ax2, grd2, fnc2 = self.approx_one_axis(i, n, axes, s1, s2, fnc, ncalc_grid, prec, self.func.i0[i_fnc])
                 if k == 0:
-                    s1[i] = slice(None)
-                    s2[i] = slice(None)
                     continue
                 axgrids[i] *= 2
+                a = axes[i]
                 inserted = True
                 newshape = list(grd.shape)
                 newshape[i+1] += k
@@ -213,8 +839,7 @@ class MyTensorSpline(splinetable.TensorSpline):
                 axes[i] = newax
                 fnc = newfnc
                 grd = newgrd
-                fncd = ncalc_grid(grd)
-            #print "#", i_fnc, axgrids
+            self.logger.debug("%d, %s, %s" % (i_fnc, fnc.shape, axgrids))
             if not inserted:
                 return grd, fnc, axes, axgrids
 
@@ -315,7 +940,7 @@ class TableGenerator(object):
     def print_intpp_data(p):
         o = StringIO()
         print >>o, "namespace %s {" % p.comp_id
-        r, max_idx, spl = splinetable.print_intpp_data(o, "", "", p, p.ranges, p.basegrid, MyTensorSpline)
+        r, max_idx, spl = print_intpp_data(o, "", "", p, p.ranges, p.basegrid, MyTensorSpline)
         maptype = TableGenerator.max_idx_to_maptype(max_idx)
         print >>o, "splinecoeffs<maptype> sc[%d] = {" % p.NVALS
         f_set = set()
@@ -348,8 +973,8 @@ class TableGenerator(object):
             max_idx_all = max(max_idx_all, max_idx)
         #maptype = max_idx_to_maptype(max_idx_all)
         #o.write("typedef %s maptype;\n" % maptype)
-        gentables.print_header_file_start(h)
-        sz = gentables.print_header(o)
+        print_header_file_start(h)
+        sz = print_header(o)
         l = []
         templ = set()
         for p in procs:
@@ -358,11 +983,12 @@ class TableGenerator(object):
             templ |= i
             l.append("%s: %d bytes" % (comp_name, s))
             sz += s
-            gentables.print_header_file_entry(h, comp_id)
-        sz += gentables.print_footer(o)
+            print_header_file_entry(h, comp_id)
+        sz += print_footer(o)
         l.append("data size sum: %d bytes" % sz)
         print >>o, "".join(["\n// " + s for s in l])
-        gentables.print_header_file_end(h)
+        print_header_file_end(h)
+        maptype = "unsigned char"
         for v, maptype in sorted(templ):
             print >>inst, "template int %s(splinecoeffs<%s> *p, real xi[2], real *res);" % (v, maptype)
         return maptype, spl

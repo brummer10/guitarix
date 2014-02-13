@@ -67,7 +67,14 @@ plug_name(plugname)
 {
   // create controllers for port name
   
-  Glib::ustring modes[] = {"(Chromatic)","Standard/E","Standard/Es", "Open E"};  
+  Glib::ustring modes[] = {"(Chromatic)","Standard", "Standard/Es", "Open E", 
+        "Drop D","Half Step Down","Full Step Down","1 and 1/2 Steps Down","Double Drop D","Drop C",
+        "Drop C#","Drop B","Drop A#","Drop A","Open D","Open D Minor", "Open G","Open G Minor",
+        "Open C","Open C#","Open C Minor","Open E7","Open E Minor7","Open G Major7","Open A Minor",
+        "Open A Minor7","Open A","C Tuning","C# Tuning","Bb Tuning","A to A (Baritone)","Open Dsus2",
+        "Open Gsus2","G6","Modal G","Overtone","Pentatonic","Minor Third","Major Third","All Fourths",
+        "Augmented Fourths","Slow Motion","Admiral","Buzzard","Face","Four and Twenty","Ostrich","Capo 200",
+        "Balalaika","Cittern One","Cittern Two","Dobro","Lefty","Mandoguitar","Rusty Cage","Hardcore"};
   static const size_t _size = sizeof(modes) / sizeof(modes[0]);
   make_selector("Tunning Modes", modes, _size, 0, 1.0, TUNEMODE);
   m_vbox8.pack_start(tuner_tuning);
@@ -155,6 +162,7 @@ plug_name(plugname)
   levelslider.set_tooltip_text("Set Note ON level");
   //m_paintbox2.pack_start(levelslider,Gtk::PACK_SHRINK);
   levelslider.set_show_value(false);
+  levelslider.set_name(plug_name);
   fastmeter.set_hold_count(8);
   fastmeter.set_property("dimen",5);
   //m_paintbox.set_size_request( 425, 160 ) ;
@@ -355,9 +363,61 @@ void Widget::set_tuning(float mode_) {
 	bool flat;
 	int notes[6];
     } tuning_tab[] = {
-	{ "Standard",    "E",  false, {40, 45, 50, 55, 59, 64}},
-	{ "Standard/Es", "Es", true,  {39, 44, 49, 54, 58, 63}},
-	{ "Open E",      "E",  false, {40, 47, 52, 56, 59, 64}},
+	{ "Standard",             "E",  false, {40, 45, 50, 55, 59, 64}},
+	{ "Standard/Es",          "Es", true,  {39, 44, 49, 54, 58, 63}},
+	{ "Open E",               "E",  false, {40, 47, 52, 56, 59, 64}},
+    { "Drop D",               "D",  false, {38, 45, 50, 55, 59, 64}}, 
+    { "Half Step Down",       "E",  false, {39, 44, 49, 54, 58, 63}}, 
+    { "Full Step Down",       "D",  false, {38, 43, 48, 53, 57, 62}}, 
+    { "1 and 1/2 Steps Down", "E",  false, {37, 42, 47, 52, 56, 61}}, 
+    { "Double Drop D",        "D",  false, {38, 45, 50, 55, 59, 62}}, 
+    { "Drop C",               "C",  false, {36, 43, 48, 53, 57, 62}}, 
+    { "Drop C#",              "C#", false, {37, 44, 49, 54, 58, 63}}, 
+    { "Drop B",               "B",  false, {35, 42, 47, 52, 56, 61}}, 
+    { "Drop A#",              "A#", false, {34, 41, 46, 51, 55, 60}}, 
+    { "Drop A",               "A",  false, {33, 40, 45, 50, 54, 59}}, 
+    { "Open D",               "D",  false, {38, 45, 50, 54, 57, 62}}, 
+    { "Open D Minor",         "D",  false, {38, 45, 50, 53, 57, 62}}, 
+    { "Open G",               "G",  false, {38, 43, 50, 55, 59, 62}}, 
+    { "Open G Minor",         "G",  false, {38, 43, 50, 55, 58, 62}}, 
+    { "Open C",               "C",  false, {36, 43, 48, 55, 60, 64}}, 
+    { "Open C#",              "C#", false, {37, 42, 59, 52, 56, 61}}, 
+    { "Open C Minor",         "C",  false, {36, 43, 48, 55, 60, 63}}, 
+    { "Open E7",              "E7", false, {40, 44, 50, 52, 59, 64}}, 
+    { "Open E Minor7",        "E",  false, {40, 47, 50, 55, 59, 64}}, 
+    { "Open G Major7",        "G",  false, {38, 43, 50, 54, 59, 62}}, 
+    { "Open A Minor",         "A",  false, {40, 45, 52, 57, 60, 64}}, 
+    { "Open A Minor7",        "A",  false, {40, 45, 52, 55, 60, 64}}, 
+    { "Open A",               "A",  false, {40, 45, 49, 52, 57, 64}}, 
+    { "C Tuning",             "C",  false, {36, 41, 46, 51, 55, 60}}, 
+    { "C# Tuning",            "C#", false, {37, 42, 47, 52, 56, 61}}, 
+    { "Bb Tuning",            "Bb", false, {34, 39, 44, 49, 53, 58}}, 
+    { "A to A (Baritone)",    "A",  false, {33, 38, 43, 48, 52, 57}}, 
+    { "Open Dsus2",           "D",  false, {38, 45, 50, 55, 57, 62}}, 
+    { "Open Gsus2",           "G",  false, {38, 43, 50, 55, 60, 62}}, 
+    { "G6",                   "G6", false, {38, 43, 50, 55, 59, 64}}, 
+    { "Modal G",              "G",  false, {38, 43, 50, 55, 60, 62}}, 
+    { "Overtone",             "E",  false, {48, 52, 55, 58, 60, 62}}, 
+    { "Pentatonic",           "E",  false, {45, 48, 50, 52, 55, 69}}, 
+    { "Minor Third",          "E",  false, {48, 51, 54, 57, 60, 63}}, 
+    { "Major Third",          "E",  false, {48, 52, 56, 60, 64, 68}}, 
+    { "All Fourths",          "E",  false, {40, 45, 50, 55, 60, 65}}, 
+    { "Augmented Fourths",    "E",  false, {36, 42, 48, 54, 60, 66}}, 
+    { "Slow Motion",          "E",  false, {38, 43, 50, 53, 60, 62}}, 
+    { "Admiral",              "E",  false, {36, 43, 50, 55, 59, 60}}, 
+    { "Buzzard",              "E",  false, {36, 41, 48, 55, 58, 65}}, 
+    { "Face",                 "E",  false, {36, 43, 50, 55, 57, 62}}, 
+    { "Four and Twenty",      "E",  false, {38, 45, 50, 50, 57, 62}}, 
+    { "Ostrich",              "E",  false, {38, 50, 50, 50, 62, 62}}, 
+    { "Capo 200",             "E",  false, {36, 43, 50, 51, 62, 63}}, 
+    { "Balalaika",            "E",  false, {40, 45, 50, 52, 52, 57}}, 
+    { "Cittern One",          "E",  false, {36, 41, 48, 55, 60, 62}}, 
+    { "Cittern Two",          "E",  false, {36, 43, 48, 55, 60, 67}}, 
+    { "Dobro",                "E",  false, {43, 47, 50, 55, 59, 62}}, 
+    { "Lefty",                "E",  false, {64, 59, 55, 50, 45, 40}}, 
+    { "Mandoguitar",          "E",  false, {36, 43, 50, 57, 64, 71}}, 
+    { "Rusty Cage",           "E",  false, {35, 45, 50, 55, 59, 64}}, 
+    { "Hardcore",             "C",  false, {36, 43, 48, 53, 57, 58}},    
     };
     int mode = static_cast<int>(mode_);
     m_tuner.clear_notes();

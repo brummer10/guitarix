@@ -1,10 +1,12 @@
 from __future__ import division
-import contextlib, math
+import contextlib, math, logging
 import numpy as np
 import numpy.core.arrayprint as npap
 
 class CircuitException(Exception):
-    pass
+    def __init__(self, msg, logger=None):
+        Exception.__init__(self, msg)
+        self.logger = logger
 
 # http://stackoverflow.com/questions/2891790/pretty-printing-of-numpy-array
 @contextlib.contextmanager
@@ -39,7 +41,7 @@ def pow2roundup(x):
     x |= x >> 16;
     return x+1;
 
-def genlogsweepX(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
+def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
     """generate logarithmic sweep signal
     
     fmin: start frequency
@@ -75,10 +77,12 @@ def genlogsweepX(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
     s2 = s2[::-1] * 4 * b * b
     return s1, s2, fmin, fmax, k1 / math.log(fmax / fmin)
 
-def genlogsweep(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
+def expchirp(fmin, fmax, rate, k0, k1, k2, dtype=np.float64):
     nyq = rate / 2
     if fmax <= fmin:
         fmax = nyq
+    if k1 <= 0:
+        k1 = 1
     p = np.ceil(np.log2(nyq / fmin)) + 1
     #p1 = np.floor(np.log2(nyq / fmax))
     p1 = 0
@@ -130,3 +134,6 @@ def mkgrid(axeslist):
         grd = np.empty((1, len(axeslist[0])))
         grd[0] = axeslist[0]
     return grd
+
+def error(text, logger=None):
+    raise CircuitException(text, logger)

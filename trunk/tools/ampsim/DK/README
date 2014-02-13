@@ -29,6 +29,7 @@ Dependencies:
    - libcminpack-dev
  - to generate symbolic output (e.g. Faust code):
    - maxima
+   - (at least on debian / ubuntu): package maxima-share (add-on packages)
 
 Demo:
 

@@ -952,12 +952,14 @@ class ForDirective(_Element):
             if iterable is None:
                 return
             if hasattr(iterable, 'keys'): iterable = iterable.keys()
-            if not hasattr(iterable, '__getitem__'):
+            try:
+                length = len(iterable)
+            except TypeError:
                 raise ValueError("value for @%s is not iterable in %%for: %s" % (self.loop_var_name, iterable))
             for item in iterable:
                 namespace = LocalNamespace(namespace)
                 namespace['velocityCount'] = counter
-                namespace['velocityHasNext'] = counter < len(iterable)
+                namespace['velocityHasNext'] = counter < length
                 namespace[self.loop_var_name] = item
                 self.block.evaluate(stream, namespace, loader)
                 counter += 1

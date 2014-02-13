@@ -79,13 +79,18 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
+
 class Gxtuner
 {
 protected:
   // MIDI stuff
-  int                          midi_event;
-  LV2_Event_Buffer             *MidiOut;
-  LV2_Event_Iterator           out_iter;
+
+  LV2_URID_Map*                urid_map;
+  LV2_URID                     midi_event;
+  LV2_Atom                     midiatom; 
+  LV2_Atom_Forge               forge;
+  LV2_Atom_Forge_Frame         frame; 
+  LV2_Atom_Sequence*           MidiOut;
   uint8_t                      note;
   float                        fnote;
   uint8_t                      lastnote;
@@ -93,7 +98,9 @@ protected:
   float                        nolevel;
   float                        *nolevel_;
   float                        fallback;
-  uint8_t                      midi_data[3];
+  uint8_t                      data[3];
+  size_t                       dat;
+  size_t                       at;
   bool                         noteoff;
   float                        *channel_;
   uint8_t                      channel;
@@ -168,7 +175,6 @@ public:
 
 // constructor
 Gxtuner::Gxtuner() :
-  midi_event(0),
   MidiOut(NULL),
   note(0),
   lastnote(0),
@@ -244,20 +250,21 @@ void Gxtuner::freq_changed_handler()
 void Gxtuner::send_midi_data(int count, uint8_t controller,
                              uint8_t note, uint8_t velocity)
 {
-  midi_data[0] = controller; // note on/off
-  midi_data[1] = note; // note
-  midi_data[2] = velocity; // velocity
   if(! MidiOut) return;
-	if(!lv2_event_write(&out_iter, count, 0, midi_event, 3, midi_data)) {
-		printf("Error! midi event fail!\n");
-	} 
+  data[0] = controller;
+  data[1] = note;
+  data[2] = velocity; 
+  lv2_atom_forge_frame_time(&forge,count);
+  lv2_atom_forge_raw(&forge,&midiatom,at);
+  lv2_atom_forge_raw(&forge,data,dat);
+  lv2_atom_forge_pad(&forge,dat+at); 
 }
 
 void Gxtuner::play_midi(tuner& self)
 {
+  lv2_atom_forge_set_buffer(&forge,(uint8_t*)MidiOut, MidiOut->atom.size);
+  lv2_atom_forge_sequence_head(&forge, &frame, 0);
   MaxLevel& lev = *static_cast<MaxLevel*>(vu_adapter);
-  lv2_event_begin(&out_iter,MidiOut);  
-  //fnote = self.get_note(self);
   level = lev.get_midi_level(lev);
   nolevel = pow(10.,*(nolevel_)*0.05);
   count_frame++;
@@ -394,7 +401,8 @@ void Gxtuner::connect_mono(uint32_t port,void* data)
       gain_ = static_cast<float*>(data) ;
       break;
     case MIDIOUT: 
-      MidiOut = static_cast<LV2_Event_Buffer*>(data) ;
+      MidiOut = (LV2_Atom_Sequence*)data;
+     // MidiOut =  static_cast<LV2_Atom_Event*>(data); //static_cast<LV2_Event_Buffer*>(data) ;
       break;
     case EFFECTS_OUTPUT:
       output = static_cast<float*>(data);
@@ -454,7 +462,7 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
     if (fastnote > 0) self.set_fast_note(self, true);
     else self.set_fast_note(self, false);
   }
-  if (*(playmidi_) > 0) {
+  if (*(playmidi_) > 0) {      
     verify = *(verify_);
     play_midi(self);
     bow->mono_audio(static_cast<int>(n_samples), input, output, bow);
@@ -483,24 +491,26 @@ Gxtuner::instantiate(const LV2_Descriptor*     descriptor,
 {
   // init the plug-in class
   Gxtuner *self = new Gxtuner();
-  if (!self)
-  {
+  if (!self) {
     return NULL;
   }
-  LV2_URI_Map_Feature *map_feature;
-  for (int32_t i = 0; features[i]; ++i)
-  {
-    if (!strcmp(features[i]->URI, "http://lv2plug.in/ns/ext/uri-map")) 
+
+  for (int32_t i = 0; features[i]; i++) {
+    if (strcmp(features[i]->URI, LV2_URID__map) == 0)
     {
-      map_feature = static_cast<LV2_URI_Map_Feature*>(features[i]->data);
-      self->midi_event = map_feature->uri_to_id(map_feature->callback_data,
-                                "http://lv2plug.in/ns/ext/event",
-                                "http://lv2plug.in/ns/ext/midi#MidiEvent");
+      self->urid_map = (LV2_URID_Map *) features[i]->data;
+      self->midi_event = self->urid_map->map(self->urid_map->handle, LV2_MIDI__MidiEvent);
+      break;
     }
   }
-  if (self->midi_event == 0)
-  {
+  if (self->midi_event == 0) {
     fprintf(stderr, "GxTuner: No MIDI Out support in host...\n");
+  } else {      
+    lv2_atom_forge_init(&self->forge,self->urid_map);
+    self->midiatom.type = self->midi_event;
+    self->dat = sizeof(self->data);
+    self->at = sizeof(LV2_Atom);
+    self->midiatom.size = self->dat;
   }
 
   self->init_dsp_mono((uint32_t)rate);

@@ -31,7 +31,9 @@ c_template_top = Template("""\
 // DO NOT MODIFY!
 #include <iostream>
 #include <cmath>
-%if (@method == "hybr" || @method == "lm")
+#include <list>
+%% %if (@method == "hybr" || @method == "lm")
+%if (@method == "lm")
 #include <cminpack.h>
 %else
 #include <float.h>
@@ -58,6 +60,10 @@ static inline int sign(creal v) {
     return v < 0 ? -1 : 1;
 }
 
+static inline int Heaviside(creal v) {
+    return v < 0 ? 0 : 1;  // Heaviside(0) == 1/2 in sympy but shouldn't matter
+}
+
 static Matrix<creal, @nx, 1> g_x;
 creal g_v_data[@nn];
 static Map<Matrix<creal, @nn, 1> >g_v(g_v_data);
@@ -69,7 +75,7 @@ static creal g_fnorm;
 static Array<creal, @nni, 1> g_min;
 static Array<creal, @nni, 1> g_max;
 
-#define INTERFACE_VERSION 3
+#define INTERFACE_VERSION 5
 
 extern "C" __attribute__ ((visibility ("default")))
 int get_interface_version() {
@@ -77,15 +83,25 @@ int get_interface_version() {
 }
 
 extern "C" __attribute__ ((visibility ("default")))
-void get_structure(const char **name, int *data_size, int *samplerate, const int **shapes, const int (**comp_sz)[3],
-                   const char **method, const char ***pot_vars, const double **pot,
-                   const char ***out_labels, const char **comment) {
+void get_structure(const char **name, int *data_size, int *samplerate, const int **shapes, const int (**comp_sz)[6],
+                   const char ***pins, const char ***comp_names, const char **method, const char ***pot_vars,
+                   const double **pot, const char ***out_labels, const char **comment) {
     static const char *n = "@name";
     static int sz[] = { @nx, @ni, @no, @npl, @nn, @nni, @nno, @nc, -1 }; // nx, ni, no, npl, nn, nni, nno, nc, -1
-    static int nn_sz[][3] = { // component nn, nni, nno
-    %for @c in @components:
-        {@c.nn, @c.nni, @c.nno},
+    static int nn_sz[][6] = { // component v_slice, p_slice, i_slice
+    %for @c in @components:\
+        {@c.v_slice.start, @c.v_slice.stop, @c.p_slice.start, @c.p_slice.stop, @c.i_slice.start, @c.i_slice.stop},
     %end
+    };
+    static const char *nn_name[] = { // component names
+    %for @c in @components:\
+        "@c.name", "@c.namespace",
+    %end 0
+    };
+    static const char *nn_pins[] = { // component pins
+    %for @c in @nlin_elements:\
+        "@c",
+    %end 0
     };
     static const char *m = "@method";
     static const char *pvars[] = {@pot_vars};
@@ -97,6 +113,8 @@ void get_structure(const char **name, int *data_size, int *samplerate, const int
     if (samplerate) *samplerate = @fs;
     if (shapes) *shapes = sz;
     if (comp_sz) *comp_sz = nn_sz;
+    if (pins) *pins = nn_pins;
+    if (comp_names) *comp_names = nn_name;
     if (method) *method = m;
     if (pot_vars) *pot_vars = pvars;
     if (pot) *pot = pvalues;
@@ -165,11 +183,12 @@ void set_state(creal *v, creal *x) {
 }
 %end
 
-%if (@method == "table")
 #define real realtype  // real conflicts with Eigen::real of new eigen library version
-%include ("../intpp.h")
+typedef double real;
+%if (@method == "table")
+%include ("intpp.h")
 #define NO_INTPP_INCLUDES
-%include ("../intpp.cc")
+%include ("intpp.cc")
 @extra_sources.intpp_inst
 %%@extra_sources.data_h
 @extra_sources.data_c
@@ -201,7 +220,7 @@ void calc_inv_update(const creal *pot) {
 
 %if (@dev_interface)
 extern "C" __attribute__ ((visibility ("default")))
-int calc_stream(creal *u, creal *o, int n) {
+int calc_stream(creal *u, creal *o, int n, int ii) {
     Matrix<creal, @nn, 1> mi;
 %if (@nn)
     g_min = Matrix<creal, @nni, 1>::Constant(HUGE_VAL);
@@ -216,8 +235,12 @@ int calc_stream(creal *u, creal *o, int n) {
     Matrix<creal, @nn, 1> mp;
     par.p = &mp;
 %end
+    int nu = @ni;
+    if (ii >= 0) {
+        nu += 1;
+    }
     for (int j = 0; j < n; j++) {
-#define GET_U (u+j*@ni)
+#define GET_U (u+j*nu)
 #define DTP_U creal
         @pre_filter
 %if (@nn)
@@ -233,6 +256,9 @@ int calc_stream(creal *u, creal *o, int n) {
         }
         g_min = g_min.min(p_val.array());
         g_max = g_max.max(p_val.array());
+        if (ii >= 0) {
+            mi(ii) += GET_U[@ni];
+        }
 %end
         Matrix<creal, @m_cols, 1> d;
 %if (@nn)
@@ -302,7 +328,7 @@ public:
     int up(int count, float *input, float *output);
     void down(float *input, float *output);
     int max_out_count(int in_count) {
-	return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
+        return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
 };
 
 int FixedRateResampler::setup(int _inputRate, int _outputRate)
@@ -311,12 +337,12 @@ int FixedRateResampler::setup(int _inputRate, int _outputRate)
     inputRate = _inputRate;
     outputRate = _outputRate;
     if (inputRate == outputRate) {
-	return 0;
+        return 0;
     }
     // upsampler
     int ret = r_up.setup(inputRate, outputRate, 1, qual);
     if (ret) {
-	return ret;
+        return ret;
     }
     // k == filtlen() == 2 * qual
     // pre-fill with k-1 zeros
@@ -327,7 +353,7 @@ int FixedRateResampler::setup(int _inputRate, int _outputRate)
     // downsampler
     ret = r_down.setup(outputRate, inputRate, 1, qual);
     if (ret) {
-	return ret;
+        return ret;
     }
     // k == filtlen() == 2 * qual * fact
     // pre-fill with k-2 zeros
@@ -341,9 +367,9 @@ int FixedRateResampler::setup(int _inputRate, int _outputRate)
 int FixedRateResampler::up(int count, float *input, float *output)
 {
     if (inputRate == outputRate) {
-	memcpy(output, input, count*sizeof(float));
-	r_down.out_count = count;
-	return count;
+        memcpy(output, input, count*sizeof(float));
+        r_down.out_count = count;
+        return count;
     }
     r_up.inp_count = count;
     r_down.out_count = count+1; // +1 == trick to drain input
@@ -361,8 +387,8 @@ int FixedRateResampler::up(int count, float *input, float *output)
 void FixedRateResampler::down(float *input, float *output)
 {
     if (inputRate == outputRate) {
-	memcpy(output, input, r_down.out_count*sizeof(float));
-	return;
+        memcpy(output, input, r_down.out_count*sizeof(float));
+        return;
     }
     r_down.inp_data = input;
     r_down.out_data = output;
@@ -375,8 +401,9 @@ FixedRateResampler smp;
 %end
 
 class DKPlugin: public PluginDef {
-private:
+public:
     float pots[@npl+@add_npl];
+private:
     creal pots_last[@npl+@add_npl];
     Matrix<creal, @nx, 1> x_last;
     @DKPlugin_fields
@@ -534,6 +561,169 @@ PluginDef *plugin() {
 }
 }}
 %end
+
+%if (@{plugindef.lv2_plugin_type})
+%parse ("lv2_interface")
+%end
+""")
+
+lv2_manifest = Template("""
+\@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+\@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://guitarix.sourceforge.net/plugins/@id#@{plugindef.lv2_versioned_id}>
+    a lv2:Plugin ;
+    lv2:binary <@{plugindef.lv2_versioned_id}.so>  ;
+    rdfs:seeAlso <@{plugindef.lv2_versioned_id}.ttl> .
+""")
+
+lv2_ttl = Template("""
+\@prefix doap: <http://usefulinc.com/ns/doap#> .
+\@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+\@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+\@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+\@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+\@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+
+<http://guitarix.sourceforge.net#devel>
+    a foaf:Group ;
+    foaf:name "Guitarix team" ;
+    foaf:mbox <mailto:guitarix-developer\@lists.sourceforge.net> ;
+    rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
+<http://guitarix.sourceforge.net/plugins/@id>
+    a doap:Project ;
+    doap:maintainer <http://guitarix.sourceforge.net#devel> ;
+    doap:name "@{plugindef.name}" .
+
+<http://guitarix.sourceforge.net/plugins/@id#@{plugindef.lv2_versioned_id}>
+    a lv2:Plugin ,
+        lv2:@{plugindef.lv2_plugin_type} ;
+    doap:maintainer <http://guitarix.sourceforge.net#devel> ;
+    doap:name "@{plugindef.name}";
+    doap:license <http://usefulinc.com/doap/licenses/gpl> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/@id> ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+    lv2:minorVersion @{plugindef.lv2_minor_version};
+    lv2:microVersion @{plugindef.lv2_micro_version};
+
+    lv2:port\
+%for @p in @lv2_ports:\
+ [
+        a @{p.type_list} ;
+        lv2:index @{p.index} ;
+        lv2:symbol "@{p.symbol}" ;
+        lv2:name "@{p.name}" ;
+%if (@{p.control_index} >= 0)\
+        lv2:default @{p.default} ;
+        lv2:minimum @{p.minimum} ;
+        lv2:maximum @{p.maximum} ;
+%end
+    ]%if(@velocityHasNext),%end\
+%end.
+""")
+
+lv2_interface = Template("""
+#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
+
+#define LV2_PLUGIN_URI "http://guitarix.sourceforge.net/plugins/@id#@{plugindef.lv2_versioned_id}"
+
+typedef enum {
+%for @p in @lv2_ports:\
+    PORT_@{p.symbol} = @{p.index},
+%end
+} PortIndex;
+
+class LV2_DKPlugin: public DKPlugin {
+public:
+    // Port buffers
+    float* ports[@{lv2_ports.port_count()}];
+public:
+    LV2_DKPlugin(): DKPlugin() {}
+};
+
+static LV2_Handle
+instantiate(const LV2_Descriptor*     descriptor,
+            double                    rate,
+            const char*               bundle_path,
+            const LV2_Feature* const* features)
+{
+    LV2_DKPlugin *p = new LV2_DKPlugin;
+    p->set_samplerate(rate, p);
+    return static_cast<LV2_Handle>(p);
+}
+
+static void
+connect_port(LV2_Handle instance,
+             uint32_t   port,
+             void*      data)
+{
+    static_cast<LV2_DKPlugin*>(instance)->ports[port] = static_cast<float*>(data);
+}
+
+static void
+activate(LV2_Handle instance)
+{
+}
+
+static void
+run(LV2_Handle instance, uint32_t n_samples)
+{
+    LV2_DKPlugin* p = static_cast<LV2_DKPlugin*>(instance);
+
+%for @p in @lv2_ports:\
+%if (@{p.control_index} >= 0)\
+    p->pots[@{p.control_index}] = *(p->ports[@{p.index}]);
+%end
+%end
+%if (@ni == 1 && @no == 1)
+    p->process(n_samples, p->ports[0], p->ports[1], p);
+%else
+    p->process(n_samples, p->ports[0], p->ports[1], p->ports[2], p->ports[3], p);
+%end
+}
+
+static void
+deactivate(LV2_Handle instance)
+{
+}
+
+static void
+cleanup(LV2_Handle instance)
+{
+    LV2_DKPlugin* p = static_cast<LV2_DKPlugin*>(instance);
+    p->delete_instance(p);
+}
+
+static const void*
+extension_data(const char* uri)
+{
+    return NULL;
+}
+
+static const LV2_Descriptor descriptor = {
+    LV2_PLUGIN_URI,
+    instantiate,
+    connect_port,
+    activate,
+    run,
+    deactivate,
+    cleanup,
+    extension_data
+};
+
+LV2_SYMBOL_EXPORT
+extern "C" __attribute__ ((visibility ("default")))
+const LV2_Descriptor*
+lv2_descriptor(uint32_t index)
+{
+    switch (index) {
+    case 0:
+        return &descriptor;
+    default:
+        return NULL;
+    }
+}
 """)
 
 c_template_calc_nonlin = Template("""
@@ -704,12 +894,13 @@ static int nonlin(struct nonlin_param &par) {
     /**/
 
     @setup
+    @store_p
     @p_transform
 
-    *par.info = hybrdX<2>(fcn, &par, @var_v_ref, fvec, xtol, maxfev, ml, mu, epsfcn,
+    *par.info = hybrdX<@nn>(fcn, &par, @var_v_ref, fvec, xtol, maxfev, ml, mu, epsfcn,
                           diag, mode, factor, nprint, par.nfev, fjac, ldfjac, r, lr,
                           qtf, wa1, wa2, wa3, wa4);
-    *par.fnorm = enorm<2>(fvec);
+    *par.fnorm = enorm<@nn>(fvec);
     @i_transform
     int ret = 0;
     if (*par.info != 1) {
@@ -736,8 +927,9 @@ static inline int nonlin_solve(nonlin_param& par) {
 }
 %end
 } // end namespace @namespace
-
+%if (@extern_nonlin)
 %parse ("c_template_calc_nonlin")
+%end
 """)
 
 c_template_nonlin_solver = Template("""
@@ -752,39 +944,37 @@ namespace @namespace {
 static Matrix<creal, @nni, 1> last_good;
 static Matrix<creal, @nn, 1> last_v0;
 
-int nonlin_homotopy(int *n, Matrix<creal, @nni, 1>& start, nonlin_param& par) {
+int nonlin_homotopy(nonlin_param& par, creal f) {
     Matrix<creal, @nni, 1> end = @par_p;
-    for (int j = 1; j <= *n; j++) {
-        @par_p = start + (j * (end - start)) / *n;
-        int ret = nonlin(par);
-        if (ret != 0) {
-            @par_p = end;
-            *n = j;
-            return ret;
-        }
-        last_good = @par_p;
-        last_v0 = @par_v;
-    }
+    @par_p = last_good + (@par_p - last_good) * f;
+    @par_v = last_v0;
+    int ret = nonlin(par);
     @par_p = end;
+    if (ret != 0) {
+        return ret;
+    }
+    last_v0 = @par_v;
     return 0;
 }
 
 static inline int nonlin_solve(nonlin_param& par) {
     int ret = nonlin(par);
     if (ret != 0) {
-        int n = 2;
+        std::list<creal> points;
+        points.push_back(0);
+        points.push_back(1);
         for (int j = 0; j < @solver_max_homotopy_iter; j++) {
-            @par_v = last_v0;
-            int n2 = n;
-            ret = nonlin_homotopy(&n, last_good, par);
-            if (ret == 0) {
+            std::list<creal>::iterator it = points.begin();
+            ++it;
+            ret = nonlin_homotopy(par, *it);
+            if (ret != 0) {
+                points.insert(it, (*points.begin()+*it)/2);
+                continue;
+            }
+            if (points.size() == 2) {
                 break;
             }
-            if (n == 1) {
-                n = n2 * 2;
-            } else {
-                n = 2;
-            }
+            points.erase(points.begin());
         }
         if (ret != 0) {
             return ret;
@@ -797,21 +987,15 @@ static inline int nonlin_solve(nonlin_param& par) {
 %end
 } // end namespace @namespace
 
+%if (@extern_nonlin)
 %parse ("c_template_calc_nonlin")
+%end
 """)
 
 c_template_table = Template("""
 namespace @namespace {
 static inline int nonlin(nonlin_param& par) {
-    real t[AmpData::@namespace::sd.m];
-    real m[@nni+@npl];
-    Map<Matrix<real, @nni+@npl, 1> >mp(m);
-    mp << last_pot.cast<real>(), (*par.p)@{blockV}.cast<real>();
-    for (int j = 0; j < AmpData::@namespace::sd.m; j++) {
-        splinecoeffs<AmpData::@namespace::maptype> *pc = &AmpData::@namespace::sd.sc[j];
-        check(&AmpData::@namespace::sd, m, (*pc->eval)(pc, m, &t[j]));
-    }
-    (*par.i)@{blockV} = Map<Matrix<real, @nno, 1> >(t).cast<creal>();
+    @call
     return 0;
 }
 
@@ -837,7 +1021,7 @@ static inline int nonlin_solve(nonlin_param& par) {
 # maybe -mavx is the culprit (removed for now)??
 #
 build_script_template = Template("""\
-#! /bin/sh
+#! /bin/bash
 cd `dirname $0`
 fname="${1-@sourcename}"
 lname="${2-@soname}"
@@ -846,7 +1030,7 @@ mo="-fwrapv -ffast-math -msse2"
 #mo="-fwrapv -fno-math-errno -ffinite-math-only -fno-rounding-math"
 #mo="$mo -fno-signaling-nans -fcx-limited-range -fno-signed-zeros"
 #mo="$mo -fno-trapping-math -fassociative-math -freciprocal-math"
-cc="c++"
+: ${CC:=c++}
 %if (@debug)
 dbg="-g -O2"
 %else
@@ -860,11 +1044,11 @@ def="@defines"
 opt="-fno-stack-protector"
 set -e
 %if (@optimize)
-$cc $co $lo $mo $opt -fprofile-arcs $dbg $CFLAGS $def $inc "$fname" -o "$lname_" $libs
+$CC $co $lo $mo $opt -fprofile-arcs $dbg $CFLAGS $def $inc "$fname" -o "$lname_" $libs
 python t.py
-$cc $co $lo $mo $opt -fprofile-use $dbg $CFLAGS $def $inc "$fname" -o "$lname" $libs
+$CC $co $lo $mo $opt -fprofile-use $dbg $CFLAGS $def $inc "$fname" -o "$lname" $libs
 %else
-$cc $co $lo $mo $opt $dbg $CFLAGS $def $inc "$fname" -o "$lname" $libs
+$CC $co $lo $mo $opt $dbg $CFLAGS $def $inc "$fname" -o "$lname" $libs
 %end
 """)
 

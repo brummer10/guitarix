@@ -295,6 +295,6 @@ cdef class Plugin:
     def __dealloc__(self):
         del self.varmap
         if self.handle:
-            if self.p:
+            if self.p and self.p[0].delete_instance:
                 self.p[0].delete_instance(self.p)
             dlclose(self.handle)

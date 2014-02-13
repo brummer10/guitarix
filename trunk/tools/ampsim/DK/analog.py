@@ -1,9 +1,10 @@
 from __future__ import division
-import sympy, math, shutil, sys, os, numpy, pylab, warnings, tempfile
+import sympy, math, shutil, sys, os, numpy, pylab, warnings, tempfile, logging, argparse
 from cStringIO import StringIO
 import dk_simulator, models, circ, mk_netlist, dk_lib, simu, signals, generate_code
 from signals import Signal
-from dk_lib import CircuitException
+from dk_lib import CircuitException, error
+import scipy.optimize as opt
 
 try:
     get_ipython
@@ -14,6 +15,17 @@ else:
         print "error:", value
     get_ipython().set_custom_exc((CircuitException,), _circuit_exception_handler)
 
+
+def eng_str(x):
+    y = abs(x)
+    exponent = int(math.log10(y))
+    engr_exponent = exponent - exponent % 3
+    y /= 10**engr_exponent
+    if engr_exponent:
+        engr_exponent = 'e' + str(engr_exponent)
+    else:
+        engr_exponent = ''
+    return "%s%g%s" % ('-' if x < 0 else '', y, engr_exponent)
 
 def check_keywords(fname, kw, *keywords):
     for k in kw:
@@ -66,10 +78,13 @@ class Circuit(object):
         self.code_generator = None
         self.plugindef = None
         self.build_script = None
+        self.resample = True
         self.FS = FS
         self.use_sim = SIM_C
+        self.sig = Signal()
         self._clear()
         self._rmtree = shutil.rmtree
+        self.subcircuits = {}
         if copy_from is not None:
             self.backward_euler = copy_from.backward_euler
             self.solver = copy_from.solver
@@ -86,7 +101,8 @@ class Circuit(object):
         self.dc_method = "A"
         self.sys_reduce_tol = 0
         self.solver_params = None
-        self.partition = False
+        self.grid_error_limit = None
+        self.transform_opts = dk_simulator.TransformOptions()
         self._clear_all()
 
     def _clear_calculated(self):
@@ -103,6 +119,8 @@ class Circuit(object):
         self.basegrid = None
         self.knot_positions = None
         self.table_source = None
+        self.input_amplitude = None
+        self.sensitivity = None
 
     def _clear_all(self):
         self.S = None
@@ -132,7 +150,7 @@ class Circuit(object):
     def _ensure_eq(self):
         if self.eq is None:
             self._ensure_parser()
-            self.eq = dk_simulator.EquationSystem(self.parser, partition=self.partition)
+            self.eq = dk_simulator.EquationSystem(self.parser, opts=self.transform_opts)
 
     def _ensure_sim_py(self):
         if self.sim_py is None:
@@ -141,7 +159,8 @@ class Circuit(object):
                 self.sim_py = dk_simulator.SimulatePy(self.eq, self.solver, self.dc_method)
                 if self.sys_reduce_tol >= 0:
                     self.sim_py.balance_realization(self.sys_reduce_tol)
-                if isinstance(self.eq.nonlin, dk_simulator.PartitionedNonlinEquations):
+                if (isinstance(self.eq.nonlin, dk_simulator.PartitionedNonlinEquations)
+                    and self.transform_opts.decompose):
                     self.eq.F, self.eq.C = self.eq.nonlin.decompose_blocks(self.eq.F, self.eq.C)
             except dk_simulator.ConvergenceError as e:
                 raise CircuitException(e)
@@ -165,53 +184,126 @@ class Circuit(object):
                 modc.solver_params = self.solver_params
             self.c_module, self.sim_c = modc.get_executor()
 
+    def _check_input_amplitude(self):
+        if self.input_amplitude is None:
+            raise CircuitException("please define input_amplitude")
+
     def calc_range(self, signal):
         self._ensure_sim_c()
         s = self.make_signal_vector(signal)
         self.ptp = self.sim_c(s.input_signal).ptp()
-        pot_arr = numpy.array([[0., 1.] * len(self.sim_c.pot_list)])
+        pot_arr = numpy.array([[0., 1.]] * len(self.sim_c.pot_list))
         if pot_arr.size:
             self.minmax = numpy.append(pot_arr, self.sim_c.minmax, axis=0)
         else:
             self.minmax = self.sim_c.minmax
-        print self.ptp
-        print repr(self.minmax)
+        logger = logging.getLogger("range")
+        for i, r in enumerate(self.sim_c.minmax):
+            logger.debug("nonlin range %d: %g .. %g" % (i, r[0], r[1]))
+        #print self.ptp
+        #print repr(self.minmax)
 
     def _ensure_range(self):
         if self.minmax is None:
-            sig = Signal()
-            self.calc_range(sig(3*sig.sweep(), timespan=2))
+            self._check_input_amplitude()
+            self.calc_range(self.sig(self.input_amplitude*self.sig.sweep()))
+
+    def _get_op(self):
+        if self.sim_py:
+            return self.sim_py.op
+        if self.sim_c:
+            return self.sim_c.op
+        else:
+            self._ensure_parser()
+            return self.parser.op
+
+    def _estimate_sensitivity(self, i_ptp, ii):
+        self._check_input_amplitude()
+        s = self.input_amplitude * self.sig.sweep()
+        pert = i_ptp * 1e-7 * self.sig.sine(freq=1000)
+        p = self.sig(sympy.Tuple(s, pert))
+        self.sim_c.reset()
+        ch = len(self._get_op()) + 1
+        signal = self.sig.generate(p, self.FS, channels=ch)
+        out_t = self.sim_c(signal.input_signal, ii)
+        max_pert = max(abs(signal.signal[:,-1]))
+        self.sim_c.reset()
+        signal = self.make_signal_vector(self.sig(s))
+        out_c = self.sim_c(signal.input_signal)
+        df = out_t-out_c
+        err = 2 * max(abs(df)) / out_c.ptp()
+        return err / max_pert
+
+    def _calc_ptp(self, idx):
+        self._ensure_sim_c()
+        self._ensure_range()
+        def calc(sgn):
+            def ff(p):
+                return -sgn * self.sim_c.nonlin_c(p[numpy.newaxis,:])[0,idx]
+            return -sgn * ff(opt.brute(ff, self.minmax, finish=None))
+        return calc(1) - calc(-1)
+
+    def _ensure_sensitivity(self):
+        if self.sensitivity is None:
+            self._ensure_sim_c()
+            self.sensitivity = [self._estimate_sensitivity(self._calc_ptp(i), i)
+                                for i in range(self.sim_c.nno)]
+            logger = logging.getLogger("approx")
+            logger.info("nonlin function sensitivity: %s"
+                        % ", ".join(["%g" % v for v in self.sensitivity]))
 
     def _ensure_max_error(self):
         if self.E is None:
             if not self.sim_c.nno:
-                self.E = [0]
+                self.E = []
                 return
-            self._ensure_eq()
-            jacobi_estimate_error = 10#1e-1
-            maxerr = 1e-4
-            J, vals = simu.estimate_max_jacobi(self.sim_c.nonlin, self.minmax, jacobi_estimate_error, self.sim_c.nno)
-            J = J[:,J.shape[1]-J.shape[0]:] ##FIXME
-            J = numpy.matrix(J)
-            dv = numpy.amax(numpy.append(abs(self.eq.F), abs(self.eq.F)*J*abs(self.eq.G)*abs(self.eq.C), axis=0), axis=0).A1
-            self.E = maxerr * self.ptp / numpy.where(dv == 0, 1e-20, dv)
-            print "E =", self.E
+            self._ensure_sensitivity()
+            lim = self.grid_error_limit
+            if lim is None:
+                lim = 1e-2
+            self.E = [lim / self.sensitivity[i] for i in range(self.sim_c.nno)]
 
-            grd_shape = vals.grd.shape
-            numpoints = numpy.product(grd_shape[1:])
-            grd = vals.grd.reshape(grd_shape[0], numpoints)
-            fnc = vals.values.reshape(self.eq.nonlin.nno, numpoints)
-            self.cov = numpy.cov(grd, fnc)[:len(grd),len(grd):]
-            print self.cov
+            #self._ensure_eq()
+            #jacobi_estimate_error = 10#1e-1
+            #maxerr = 1e-4
+            #J, vals = simu.estimate_max_jacobi(self.sim_c.nonlin, self.minmax, jacobi_estimate_error,# self.sim_c.nno)
+            #J = J[:,J.shape[1]-J.shape[0]:] ##FIXME
+            #J = numpy.matrix(J)
+            #dv = numpy.amax(numpy.append(abs(self.eq.F), abs(self.eq.F)*J*abs(self.eq.G)*abs(self.eq.C), axis=0), axis=0).A1
+            #self.E = maxerr * self.ptp / numpy.where(dv == 0, 1e-20, dv)
+            #print "E =", self.E
+
+            #grd_shape = vals.grd.shape
+            #numpoints = numpy.product(grd_shape[1:])
+            #grd = vals.grd.reshape(grd_shape[0], numpoints)
+            #fnc = vals.values.reshape(self.eq.nonlin.nno, numpoints)
+            #self.cov = numpy.cov(grd, fnc)[:len(grd),len(grd):]
+            #print self.cov
 
     def _ensure_basegrid(self):
         if self.basegrid is None:
-            raise CircuitException("missing base grid values")
+            self._ensure_sim_c()
+            self.basegrid = [[[None,('s',4)]] * (self.sim_c.npl + self.sim_c.nni)] * self.sim_c.nno
 
     def _ensure_knot_positions(self):
         #if self.knot_positions is None:
         #    xx
         pass
+
+    def _check_basegrid(self, basegrid, ns, nni, npl, nno):
+        if nno != len(basegrid):
+            error("basegrid needs %d rows (found %d)"
+                  % (nno, len(basegrid)), "approx")
+        for i, row in enumerate(basegrid):
+            if row is None:
+                continue
+            if nni+npl != len(row):
+                if npl:
+                    t = "%d parameters + %d inputs" % (nni, npl)
+                else:
+                    t = "%d" % nni
+                error("basegrid[%d] has %d elements for function %s, input dimension: %s "
+                      % (i, len(row), ns, t), "approx")
 
     def _ensure_table_source(self):
         if self.table_source is None:
@@ -224,46 +316,46 @@ class Circuit(object):
             inst = StringIO()
             h = StringIO()
             npl = self.sim_c.npl
-            tables = []
-            if not npl:
-                i0v = self.sim_c.nonlin_c(self.sim_c.p0.T)[0]
+            tables = {}
+            i0v = self.sim_c.nonlin_c(numpy.append(numpy.matrix([0.5]*npl),self.sim_c.p0.T,axis=1))[0]
             if len(self.sim_c.comp_sz) > 1:
-                j = 0
-                for i, sz in enumerate(self.sim_c.comp_sz):
-                    #sl = [0]+range(j+1, j+1+sz[1])
-                    sl = range(j, j+sz[1]) ##FIXME
+                for i, ((v_slice, p_slice, i_slice), ns) in enumerate(zip(self.sim_c.comp_sz, self.sim_c.comp_namespace)):
+                    nni = p_slice.stop - p_slice.start
+                    nno = i_slice.stop - i_slice.start
+                    self._check_basegrid(self.basegrid[i_slice], ns, nni, npl, nno)
+                    slc = range(npl) + range(p_slice.start+npl, p_slice.stop+npl)
                     class Comp:
-                        comp_id = "nonlin_%d" % i
-                        comp_name = "nonlin_%d" % i
-                        ranges = self.minmax[sl] ##FIXME
-                        basegrid = numpy.array([(g, None, None, e, True) for g, e in zip(self.basegrid, self.E)])[j:j+sz[1]]
-                        NVALS = sz[2] # nno
-                        N_IN = sz[1]+npl # nni+npl
-                        NDIM = sz[1]+npl # nni+npl
-                        if not npl:
-                            i0 = i0v[sl]
+                        comp_id = ns
+                        comp_name = ns
+                        ranges = self.minmax[slc]
+                        basegrid = numpy.array([(g, None, None, e, True) for g, e in zip(self.basegrid, self.E)])[i_slice]
+                        NVALS = nno
+                        N_IN = nni+npl
+                        NDIM = nni+npl
+                        i0 = i0v[i_slice]
                         @staticmethod
                         def __call__(v, with_state):
                             return self.sim_c.c_calc_comp[i](v)
-                    j += sz[1]
                     ##FIXME: maptype
                     self.maptype, spl = simu.TableGenerator.write_files(Comp(), o, inst, h)
-                    c = Comp()
-                    tables.append(spl)
+                    tables[ns] = spl
             else:
+                ns = "nonlin"
+                self._check_basegrid(self.basegrid, ns, self.eq.nonlin.nni, npl, self.eq.nonlin.nno)
                 class Comp:
-                    comp_id = "nonlin"
+                    comp_id = ns
                     comp_name = self._get_module_id()
                     ranges = self.minmax
                     basegrid = [(g, None, None, e, False) for g, e in zip(self.basegrid, self.E)]
                     NVALS = self.eq.nonlin.nno
                     N_IN = self.eq.nonlin.nni+npl
                     NDIM = self.eq.nonlin.nni+npl
+                    i0 = i0v
                     @staticmethod
                     def __call__(v, with_state):
                         return self.sim_c.nonlin(v)
                 self.maptype, spl = simu.TableGenerator.write_files(Comp(), o, inst, h)
-                tables.append(spl)
+                tables[ns] = spl
             intpp_inst = "\n".join(set(inst.getvalue().split("\n")))
             self.table_source = dict(data_c=o.getvalue(), data_h=h.getvalue(), intpp_inst=intpp_inst, tables=tables)
 
@@ -289,8 +381,10 @@ class Circuit(object):
             pre_filter=self.pre_filter, post_filter=self.post_filter,
             generator=self.code_generator)
         modc.dev_interface = dev_interface
-        modc.resample = True
+        modc.resample = self.resample
         modc.build_script = self.build_script
+        if self.solver_params is not None:
+            modc.solver_params = self.solver_params
         if self.plugindef:
             modc.plugindef = self.plugindef
         return modc
@@ -395,25 +489,26 @@ class Circuit(object):
             print "C Executor: %s, %d" % (self.sim_c.soname, self.sim_c.nx)
 
     def make_signal_vector(self, signal):
-        if self.sim_py:
-            op = self.sim_py.op
-        if self.sim_c:
-            op = self.sim_c.op
-        else:
-            self._ensure_parser()
-            op = self.parser.op
-        return Signal().generate(signal, self.FS, op)
+        return self.sig.generate(signal, self.FS, self._get_op())
 
-    def print_netlist(self):
+    def print_netlist(self, values=False):
         self._check_netlist()
         for row in self.S:
             print "%s: %s" % (row[0], ", ".join([str(v) for v in row[1:]]))
+        if values:
+            print
+            for e, v in sorted((str(e), v) for e, v in self.V.items()):
+                if isinstance(v, float):
+                    v = eng_str(v)
+                print "%s = %s" % (e, v)
 
-    def read_gschem(self, filename):
+    def read_gschem(self, filename, defs=None):
         self._clear_all()
-        v = vars(models)
+        v = dict(vars(models))
         v["Tubes"] = circ.Tubes
         v["math"] = math
+        if defs:
+            v.update(defs)
         exec mk_netlist.read_netlist(filename) in v
         self.S = v["S"]
         self.V = v["V"]
@@ -469,6 +564,34 @@ class Circuit(object):
     def set_module_id(self, module_id):
         self.module_id = module_id
 
+    def set_in_nets(self, *connections):
+        self._check_netlist()
+        self.S = list(self.S)
+        l = (models.IN,) + tuple(connections)
+        for i, row in enumerate(self.S):
+            if row[0] == models.IN:
+                self.S[i] = l
+                break
+        else:
+            self.S.append(l)
+        self._clear_calculated()
+        if self.parser is not None:
+            self.parser.update(self.S, self.V)
+
+    def set_out_nets(self, *connections):
+        self._check_netlist()
+        self.S = list(self.S)
+        l = (models.OUT,) + tuple(connections)
+        for i, row in enumerate(self.S):
+            if row[0] == models.OUT:
+                self.S[i] = l
+                break
+        else:
+            self.S.append(l)
+        self._clear_calculated()
+        if self.parser is not None:
+            self.parser.update(self.S, self.V)
+
     def add_element(self, element, connections, value):
         self._check_netlist()
         self.S = list(self.S) + [(element,)+tuple(connections)]
@@ -490,23 +613,47 @@ class Circuit(object):
                 return
         raise CircuitException("%s not found int netlist" % element)
 
-    def remove_connected(self, net):
+    def remove_connected(self, net, exclude=None):
         self._check_netlist()
         self.S = list(self.S)
-        comp = set(net)
+        comp = {net}
         found = False
-        while True:
+        last_size = 0
+        def excluded_row(row):
+            for c in row[1:]:
+                if c in exclude and str(row[0]) in exclude[c]:
+                    return True
+            return False
+        while len(comp) > last_size:
+            last_size = len(comp)
+            dl =[]
             for i, row in enumerate(self.S):
                 for c in row[1:]:
-                    if c in comp:
-                        comp |= set(row[1:])
-                        del self.S[i]
+                    if c in comp and not excluded_row(row):
+                        comp |= set([j for j in row[1:] if j != models.GND])
+                        dl.append(i)
                         found = True
                         break
+            for i in reversed(dl):
+                del self.S[i]
         if not found:
             raise CircuitException("net %s not found" % net)
         self._clear_calculated()
-        self.parser.update(self.S, self.V)
+        if self.parser is not None:
+            self.parser.update(self.S, self.V)
+
+    def split_circuit(self, parts):
+        for block, (cuts, inputs, outputs) in parts.items():
+            c = Circuit(copy_from=self)
+            for net, els in cuts.items():
+                c.remove_connected(net, exclude=cuts)
+            if inputs:
+                c.set_in_nets(*[p[0] for p in inputs])
+                c.inputs = [p[1] for p in inputs]
+            if outputs:
+                c.set_out_nets(*[p[0] for p in outputs])
+                c.outputs = [p[1] for p in outputs]
+            self.subcircuits[block] = c
 
     def join_net(self, net, target_net):
         self._check_netlist()
@@ -637,12 +784,12 @@ class Circuit(object):
             plugindef = PluginDef(m_id)
         simu.build_faust_module(plugindef, b, a, l, self.sim_filter, self.c_datatype, pre_filter, build_script=self.build_script)
 
-    def stream(self, signal):
+    def stream(self, signal, ii=-1):
         if not isinstance(signal, signals.GeneratedSignal):
             signal = self.make_signal_vector(signal)
         sim = self._get_sim()
         self.last_signal = signal
-        self.last_output = sim(signal.input_signal)
+        self.last_output = sim(signal.input_signal, ii)
         return self.last_output
 
     def plot(self, sig=None, label=None, clip=-80, nharmonics=8, spectrum=None, freq_range=None):
@@ -697,20 +844,81 @@ class Circuit(object):
         if sim is self.sim_py:
             self._ensure_sim_c()
             sim = self.sim_c
+        if is_test():
+            return
         if sim is self.sim_table:
             mod = self.table_module
             s = "table"
         else:
             mod = self.c_module
             s = "C"
-        if path is None:
-            path = os.path.expanduser("~/.config/guitarix/plugins/.")
-        fname = os.path.join(path, self._get_module_id()+".so")
-        shutil.copy(mod, fname)
-        print "%s module copied to '%s'" % (s, fname)
+        if self.plugindef.lv2_plugin_type:
+            def try_mkdir(path):
+                try:
+                    os.mkdir(path)
+                except OSError as e:
+                    if e.errno != 17: # EEXIST
+                        raise
+            vid = self.plugindef.lv2_versioned_id
+            if path is None:
+                path = os.path.expanduser("~/.lv2")
+                try_mkdir(path)
+            path = os.path.join(path, "gx_%s.lv2" % vid)
+            try_mkdir(path)
+            base = os.path.dirname(mod)
+            ttlname = os.path.join(base, vid+".ttl")
+            shutil.copy(ttlname, path)
+            shutil.copy(os.path.join(base, "manifest.ttl"), path)
+            fname = os.path.join(path, vid+".so")
+            s = "LV2 bundle [%s]" % s
+            shutil.copy(mod, fname)
+            print "LV2 bundle [%s module] copied to '%s'" % (s, path)
+        else:
+            if path is None:
+                path = os.path.expanduser("~/.config/guitarix/plugins/.")
+            fname = os.path.join(path, self._get_module_id()+".so")
+            shutil.copy(mod, fname)
+            print "%s module copied to '%s'" % (s, fname)
 
+    @staticmethod
+    def _get_samples(data, count):
+        return data[numpy.array(numpy.linspace(0, len(data)-1, count).round(), dtype=int)]
+
+    def check_result(self, sig, result, max_error=1e-7, count=None):
+        if not is_test():
+            return True
+        test = get_test()
+        if count is None:
+            if result is None:
+                count = 10
+            else:
+                count = len(result)
+        y = self.stream(sig)
+        samples = self._get_samples(y, count)
+        if test.plot:
+            timeline = self.last_signal.timeline
+            pylab.plot(timeline, y)
+            if result is not None:
+                pylab.plot(self._get_samples(timeline, count), result, "rx")
+            pylab.show()
+        if test.printout:
+            print repr(samples)
+            return True
+        error = numpy.max(abs(result - samples)) / numpy.max(abs(result))
+        if (error > max_error).any():
+            print "%s: Difference = %g (> %g)" % (self._get_module_id(), error, max_error)
+            return False
+        else:
+            print "%s: OK" % self._get_module_id()
+            return True
+        
     def set_pot_variable(self, name, val):
         self._get_sim().set_variable(name, val)
+
+    def set_pot_position(self, name, val):
+        self._ensure_parser()
+        expr = dict([(row[0], row[4]) for row in self.parser.get_pot_attr()])[name]
+        self.set_pot_variable(name, expr(val))
 
     def calc_nonlin_range(self, signal):
         pass
@@ -739,135 +947,57 @@ _create_funcs()
 
 def show_plots(loc=None):
     if Circuit.have_plot:
-        pylab.grid()
+        pylab.grid(which="both")
         pylab.legend(loc=loc)
         pylab.show()
         Circuit.have_plot = False
 
-if __name__ == "__main__":
-    c1 = Circuit()
-    c2 = Circuit()
-    c1.set_samplerate(44100)
-    c2.set_samplerate(44100)
-    #c1.read_gschem("wahwah.sch")
-    c2.set_tempdir("gencode")
-    c2.keep_tempdir()
-    #set_module_id("testtest")
-    if 0:
-        S = ((models.NODES, 1, 2),
-             (models.D(), 2, models.GND),
-             (models.R(), 1, 2),
-             (models.V(), 1),
-             #(models.IN, 0),
-             (models.OUT, 1, 2),
-            )
-        V = {models.D(): dict(Is=10e-12, mUt=30e-3),
-             models.R(): 1e3,
-             models.V(): 2,
-             }
-    if 0:
-        S = ((models.NODES, 1, 2, 3, 4),
-             (models.T(), 1, 2, 3),
-             (models.R(1), 4, 2),
-             (models.R(2), 4, 1),
-             (models.R(3), 3, models.GND),
-             (models.V(), 4),
-             (models.OUT, 1, 2, 3, 4, models.V()(None)),
-             )
-        V = {models.T(): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
-             models.R(1): 2e6,
-             models.R(2): 1e3,
-             models.R(3): 1e3,
-             models.V(): 5,
-             }
+INFO = logging.INFO
+DEBUG = logging.DEBUG
 
-    numpy.set_printoptions(linewidth=2000)
-    c1.set_netlist(circ.WahWah_test.S, circ.WahWah_test.V)
-    c2.set_netlist(circ.WahWah_test.S, circ.WahWah_test.V)
-    #c1.set_netlist(S, V)
-    #c2.set_netlist(S, V)
-    #c1.solver = dict(method='lm', factor=1e2)
-    c2.linearize(models.T(1), models.T(2))
-    #c2.linearize(models.T(2))
-    c2.remove_element("C2")
-    c2.remove_element("R8")
-    c2.join_net("V6", models.GND)
-    c2.remove_element("C1")
-    c2.join_net("V3", "V2")
-    c2._ensure_sim_py()
-    #c2.show_status()
-    c1._ensure_sim_py()
-    #c1.show_status()
-    sig = Signal()
-    if True:#False:
-        c2._ensure_sim_c()
-        #c2.deploy(); raise SystemExit
-    else:
-        c2.load_module("./%s.so" % c2._get_module_id(), False)
-    c2.basegrid = [[[64, 4],[64, 4]]]  # no knot optimization
-    #c2.basegrid = [[[128*8, 4],[64*2, 4]]]
-    vv = 0.1
-    #c2.set_use(SIM_TABLE)
-    f0 = 228.606785544
-    w0 = numpy.pi * f0 / c2.FS
-    a1 = (w0 - 1) / (w0 + 1)
-    c2.pre_filter = ("static DTP_U y; {\n"
-                     "            static double xm1;\n"
-                     "            y = GET_U[0] - xm1 + %s * y;\n"
-                     "            xm1 = GET_U[0];\n"
-                     "        }\n"
-                     "#undef GET_U\n"
-                     "#define GET_U (&y)\n"
-                     % a1)
-    if 0:
-        s = c2.make_signal_vector(sig(0.8*sig.sweep(pre=1, post=0.1), timespan=10))
+def set_log_level(lvl, logger=None):
+    logging.getLogger(logger).setLevel(lvl)
 
-        c2.set_use(SIM_C)
-        c2.sim_c.reset()
-        c2.set_pot_variable('hotpotz', vv)
-        c2.stream(s)
-        c2.show_status()
-        c2.plot(clip=-100, nharmonics=1, label="std")
+class TestSettings:
+    active = False
+    plot = False
+    printout = False
 
-        c2.remove_element("C1")
-        c2.join_net("V3", "V2")
-        c2.set_pot_variable('hotpotz', vv)
-        c2.sim_c.reset()
-        c2.stream(s)
-        c2.show_status()
-        #c2.plot(clip=-100, nharmonics=1, label="no C1")
-        from scipy.signal import lfilter
-        t = -0.9685
-        c2.last_output = lfilter((1+t)/2*numpy.array([1, -1]), [1, t], c2.last_output, axis=0)
-        c2.plot(clip=-100, nharmonics=1, label="no C1")
-        if 0:
-            c2.set_pot_variable('hotpotz', 0.0)
-            c2.set_use(SIM_TABLE)
-            c2._ensure_sim_table()
-            c2.sim_table.reset()
-            c2.set_pot_variable('hotpotz', vv)
-            c2.stream(s)
-            c2.plot(clip=-100, nharmonics=8, label="Table")
+_display_traceback = True #False
+_testing = TestSettings
 
-        #sg = sig(0.02*sig.sweep(), timespan=2)
-        #s1 = c1.make_signal_vector(sg)
-        #s2 = c2.make_signal_vector(sg)
-        # for v in numpy.linspace(0,1,5):
-        #     for c, s in (c1, s1), (c2, s2):
-        #         c.set_pot_variable('hotpotz', v)
-        #         c.stream(s)
-        #         c.plot(v)
-    elif 0:
-        freq = 412
-        c2.set_pot_variable('hotpotz', 1)
-        c2.stream(sig(1*sig.sine(freq), timespan=2))
-        c2.plot("0.5/%s" % freq, spectrum=True)
-        c2.set_use(SIM_C)
-        c2.set_pot_variable('hotpotz', 1)
-        c2.stream(sig(1*sig.sine(freq), timespan=2))
-        c2.plot("0.5/%s" % freq, spectrum=True)
-    #pylab.legend(loc="upper left")
-    #deploy("/tmp")
-    #show_plots()
-    c2.set_use(SIM_TABLE)
-    c2.deploy()
+def is_test():
+    return _testing.active
+
+def get_test():
+    return _testing
+
+def display_traceback(v):
+    global _display_traceback
+    _display_traceback = v
+
+def _init():
+    global _testing
+    def _catch_circuit_error(tp, value, traceback):
+        if tp == CircuitException:
+            if _display_traceback:
+                logging.getLogger(value.logger).error(value)
+            else:
+                print "ERROR:%s:%s" % (value.logger or "root", value)
+                return
+        if _excepthook is not None:
+            _excepthook(tp, value, traceback)
+
+    logging.basicConfig()
+    _excepthook = sys.excepthook
+    sys.excepthook = _catch_circuit_error
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test', action='store_true', help='check results of tests')
+    parser.add_argument('--test-plot', action='store_true', help='plot the test-data with markers')
+    parser.add_argument('--test-print', action='store_true', help='print the result array')
+    args = parser.parse_args()
+    _testing.active = args.test or args.test_plot or args.test_print
+    _testing.plot = args.test_plot
+    _testing.printout = args.test_print
+
+_init()

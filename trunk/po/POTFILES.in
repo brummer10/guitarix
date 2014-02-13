@@ -39,6 +39,7 @@ src/faust-generated/dattorros_progenitor.cc
 src/faust-generated/delay.cc
 src/faust-generated/digital_delay.cc
 src/faust-generated/digital_delay_st.cc
+src/faust-generated/duck_delay.cc
 src/faust-generated/echo.cc
 src/faust-generated/expander.cc
 src/faust-generated/flanger.cc
