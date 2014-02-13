@@ -295,6 +295,8 @@ class Circuit(object):
             error("basegrid needs %d rows (found %d)"
                   % (nno, len(basegrid)), "approx")
         for i, row in enumerate(basegrid):
+            if row is None:
+                continue
             if nni+npl != len(row):
                 if npl:
                     t = "%d parameters + %d inputs" % (nni, npl)
@@ -318,14 +320,14 @@ class Circuit(object):
             i0v = self.sim_c.nonlin_c(numpy.append(numpy.matrix([0.5]*npl),self.sim_c.p0.T,axis=1))[0]
             if len(self.sim_c.comp_sz) > 1:
                 for i, ((v_slice, p_slice, i_slice), ns) in enumerate(zip(self.sim_c.comp_sz, self.sim_c.comp_namespace)):
-                    ##FIXME add np to p_slice
                     nni = p_slice.stop - p_slice.start
                     nno = i_slice.stop - i_slice.start
                     self._check_basegrid(self.basegrid[i_slice], ns, nni, npl, nno)
+                    slc = range(npl) + range(p_slice.start+npl, p_slice.stop+npl)
                     class Comp:
                         comp_id = ns
                         comp_name = ns
-                        ranges = self.minmax[p_slice] ##FIXME
+                        ranges = self.minmax[slc]
                         basegrid = numpy.array([(g, None, None, e, True) for g, e in zip(self.basegrid, self.E)])[i_slice]
                         NVALS = nno
                         N_IN = nni+npl
@@ -381,6 +383,8 @@ class Circuit(object):
         modc.dev_interface = dev_interface
         modc.resample = self.resample
         modc.build_script = self.build_script
+        if self.solver_params is not None:
+            modc.solver_params = self.solver_params
         if self.plugindef:
             modc.plugindef = self.plugindef
         return modc

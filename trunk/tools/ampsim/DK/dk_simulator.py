@@ -426,8 +426,6 @@ class NonlinEquations(object):
     def create(eq, K, CZ, v_slice, opts):
         "return a Permution and an instance of NonlinEquations or derived"
         Pn = np.arange(len(CZ))
-        if eq.np:
-            return Pn, NonlinEquations(eq, v_slice)
         # permute nonlinear part to make left upper submatrix of K blockdiagonal
         p, blocklist = NonlinEquations.get_block_indices(K[v_slice][:,v_slice], CZ[v_slice])
         if len(blocklist) > 1:
@@ -1016,6 +1014,9 @@ class SimulatePy(Simulate):
         self.calc_dc(self.eq.parser.op, method=self.dc_method)
 
     def solve(self, func, v0, args=(), method='hybr', options=None):
+        if method == "lm" and "maxfev" in options:
+            options["maxiter"] = options["maxfev"]
+            del options["maxfev"]
         try:
             with warnings.catch_warnings():
                 warnings.filterwarnings(action="error")

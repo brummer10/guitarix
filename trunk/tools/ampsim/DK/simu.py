@@ -611,13 +611,15 @@ class MyTensorSpline(TensorSpline):
         self.func = func
         self.ranges = ranges
         self.basegrid = basegrid
-        self.knot_data = np.empty((len(basegrid), len(ranges)), dtype=object)
+        self.knot_data = np.empty((len([b for b in basegrid if b[0] is not None]), len(ranges)), dtype=object)
         self.logger = logging.getLogger("approx")
         #bg = []
         self.coeffs = []
         self.axes = []
+        kd_idx = 0
         for i_fnc, (rng, pre, post, err, opt) in enumerate(basegrid):
-            #if i_fnc < 3: continue
+            if rng is None:
+                continue
             grd, fnc, axes, axgrids = self.table_approximation(err, i_fnc, rng)
             grd, fnc, axes = self.trim_table(grd, fnc, axes, err, self.func.i0[i_fnc])
             self.logger.info("%d, %s, %s" % (i_fnc, fnc.shape, axgrids))
@@ -650,9 +652,10 @@ class MyTensorSpline(TensorSpline):
                     idx = np.array(np.rint((ax-ax[0])/w * ag), dtype=int)
                     if order > len(ax):
                         order = 2
-                    self.knot_data[i_fnc, i] = self.mk_result(idx, ax, order, tp, slice(ax[0], ax[-1], (ag+1)*1j))
+                    self.knot_data[kd_idx, i] = self.mk_result(idx, ax, order, tp, slice(ax[0], ax[-1], (ag+1)*1j))
                 else:
-                    self.knot_data[i_fnc, i] = KnotData(None,None,slice(ax[0], ax[-1], 1j),None)
+                    self.knot_data[kd_idx, i] = KnotData(None,None,slice(ax[0], ax[-1], 1j),None)
+            kd_idx += 1
 
     @staticmethod
     def fromspline(xk, cvals, order):
@@ -985,6 +988,7 @@ class TableGenerator(object):
         l.append("data size sum: %d bytes" % sz)
         print >>o, "".join(["\n// " + s for s in l])
         print_header_file_end(h)
+        maptype = "unsigned char"
         for v, maptype in sorted(templ):
             print >>inst, "template int %s(splinecoeffs<%s> *p, real xi[2], real *res);" % (v, maptype)
         return maptype, spl

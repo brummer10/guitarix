@@ -560,7 +560,7 @@ class NonlinChained(NonlinCode):
         for nlin in self.neq.subblocks:
             st = nlin.p_slice.start
             if st:
-                l.append("p2.segment<%(ln)d>(%(st)d) += K.block<%(ln)d,%(st)d>(%(st)d,0) * (*par.v).head<%(st)d>();\n"
+                l.append("p2.segment<%(ln)d>(%(st)d) += K.block<%(ln)d,%(st)d>(%(st)d,0) * (*par.i).head<%(st)d>();\n"
                          % dict(ln=nlin.p_slice.stop-st, st=st))
             l.append("ret = %s::nonlin_solve(par);\n" % nlin.namespace)
             l.append("if (ret != 0) {\n")
@@ -580,7 +580,7 @@ class TableCode(object):
         self.neq = neq
         self.extra_sources = extra_sources
 
-    def generate(self, d):
+    def add(self, d):
         neq = self.neq
         base = {}
         base["dev_interface"] = d["dev_interface"]
@@ -589,10 +589,10 @@ class TableCode(object):
         base["g_nni"] = g_nonlin.nni
         base["g_nno"] = g_nonlin.nno
         base["npl"] = neq.eq.get_npl()
+        nn = base["nn"] = neq.nn
+        nni = base["nni"] = neq.nni
+        nno = base["nno"] = neq.nno
         if neq.v_slice:
-            nn = base["nn"] = neq.nn
-            nni = base["nni"] = neq.nni
-            nno = base["nno"] = neq.nno
             self.blockV = neq.v_slice
             self.pblockV = neq.p_slice
             self.iblockV = neq.i_slice
@@ -600,9 +600,6 @@ class TableCode(object):
             base["pblockV"] = VectorAccess.block_expr(neq.p_slice)
             base["iblockV"] = VectorAccess.block_expr(neq.i_slice)
         else:
-            base["nn"] = nn = neq.nn
-            base["nni"] = nni = neq.nni
-            base["nno"] = nno = neq.nno
             self.blockV = None
             base["blockV"] = ""
             if nn != nni:
@@ -631,8 +628,17 @@ class TableCode(object):
         d["global_data_def"] = self.glob
         d["par_p"] = VectorAccess("p", param=True, block=self.pblockV)
         d["par_v"] = VectorAccess("v", param=True, block=self.iblockV)
+        return d
+
+    def generate(self, d):
+        d = self.add(d)
+        neq = self.neq
         tables = self.extra_sources["tables"]
         l = []
+        l.append("real t[AmpData::%(namespace)s::sd.m];\n" % d)
+        l.append("real m[%(nni)d+%(npl)d];\n" % d)
+        l.append("Map<Matrix<real, %(nni)d+%(npl)d, 1> >mp(m);\n" % d)
+        l.append("mp << last_pot.cast<real>(), (*par.p)%(pblockV)s.cast<real>();\n" % d)
         for j, kn in enumerate(tables[neq.namespace].knot_data):
             reorder = False
             unused = False
@@ -648,7 +654,7 @@ class TableCode(object):
                     if kn[i].tp == 'pp':
                         fu = "splev_pp"
             if reorder:
-                l.append("{ Array<creal, %d, 1> pt2; pt2 << %s;\n" % (len(ll), ", ".join(["mp(%d)" % (neq.p_slice.start+i) for i in ll])))
+                l.append("{ Array<creal, %d, 1> pt2; pt2 << %s;\n" % (len(ll), ", ".join(["mp(%d)" % i for i in ll])))
                 inpt = "&pt2(0)"
             else:
                 inpt = "m"
@@ -656,6 +662,7 @@ class TableCode(object):
                      % (neq.namespace, fu, ",".join([str(v.get_order()) for v in kn if v.used()]), neq.namespace, j, inpt, j))
             if reorder:
                 l.append("}\n")
+        l.append("(*par.i)%(iblockV)s = Map<Matrix<real, %(nno)d, 1> >(t).cast<creal>();\n" % d)
         d["call"] = join_with_indent(l)
         return dk_templates.c_template_table.render(d)
 
@@ -952,7 +959,12 @@ class CodeGenerator(object):
                 p_slice = nonlin.p_slice,
                 i_slice = nonlin.i_slice,
                 ))
-            if self.solver_dict["method"] == "table":
+            generator = None
+            if self.solver_params:
+                generator = self.solver_params.get(nonlin.name,{}).get("generator")
+            if generator:
+                code.append(generator(s, nonlin, self.extra_sources, d))
+            elif self.solver_dict["method"] == "table":
                 code.append(TableCode(s, nonlin, self.extra_sources).generate(d))
             else:
                 code.append(NonlinCode(s, nonlin, self.solver_dict, None).generate(d))

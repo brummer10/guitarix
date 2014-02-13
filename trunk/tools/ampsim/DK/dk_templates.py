@@ -927,6 +927,9 @@ static inline int nonlin_solve(nonlin_param& par) {
 }
 %end
 } // end namespace @namespace
+%if (@extern_nonlin)
+%parse ("c_template_calc_nonlin")
+%end
 """)
 
 c_template_nonlin_solver = Template("""
@@ -992,12 +995,7 @@ static inline int nonlin_solve(nonlin_param& par) {
 c_template_table = Template("""
 namespace @namespace {
 static inline int nonlin(nonlin_param& par) {
-    real t[AmpData::@namespace::sd.m];
-    real m[@nni+@npl];
-    Map<Matrix<real, @nni+@npl, 1> >mp(m);
-    mp << last_pot.cast<real>(), (*par.p)@{pblockV}.cast<real>();
     @call
-    (*par.i)@{iblockV} = Map<Matrix<real, @nno, 1> >(t).cast<creal>();
     return 0;
 }
 
