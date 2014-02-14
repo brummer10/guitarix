@@ -800,6 +800,7 @@ bool CabinetConvolver::do_update() {
 	impf.init(cab.ir_sr);
     }
     float cab_irdata_c[cab.ir_count];
+    impf.clear_state_f();
     impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
     while (!conv.checkstate());
     if (configure) {
@@ -814,18 +815,6 @@ bool CabinetConvolver::do_update() {
     update_cabinet();
     update_sum();
     return conv_start();
-}
-
-bool CabinetConvolver::do_only_update() {
-    CabDesc& cab = *getCabEntry(cabinet).data;
-    float cab_irdata_c[cab.ir_count];
-    impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
-
-	if (!conv.update(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
-	    return false;
-	}
-    update_sum();
-    return true;
 }
 
 bool CabinetConvolver::start(bool force) {
@@ -976,6 +965,7 @@ bool PreampConvolver::do_update() {
 	impf.init(pre.ir_sr);
     }
     float pre_irdata_c[pre.ir_count];
+    impf.clear_state_f();
     impf.compute(pre.ir_count,pre.ir_data,pre_irdata_c);
     while (!conv.checkstate());
     if (configure) {
@@ -990,17 +980,6 @@ bool PreampConvolver::do_update() {
     update_preamp();
     update_sum();
     return conv_start();
-}
-
-bool PreampConvolver::do_only_update() {
-    PreDesc& pre = *getPreEntry(preamp).data;
-    float pre_irdata_c[pre.ir_count];
-    impf.compute(pre.ir_count,pre.ir_data,pre_irdata_c);
-	if (!conv.update(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
-	    return false;
-	}
-    update_sum();
-    return true;
 }
 
 bool PreampConvolver::start(bool force) {
@@ -1085,17 +1064,6 @@ bool ContrastConvolver::do_update() {
     }
     update_sum();
     return conv_start();
-}
-
-bool ContrastConvolver::do_only_update() {
-    float contrast_irdata_c[contrast_ir_desc.ir_count];
-    presl.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
-    
-	if (!conv.update(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
-	    return false;
-	}
-    update_sum();
-    return true;
 }
 
 bool ContrastConvolver::start(bool force) {
