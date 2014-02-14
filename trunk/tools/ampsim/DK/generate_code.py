@@ -463,6 +463,7 @@ class NonlinCode(object):
     def setup(self, d):
         neq = self.neq
         base = {}
+        base["v0_guess"] = d["v0_guess"]
         base["dev_interface"] = d["dev_interface"]
         g_nonlin = neq.eq.nonlin
         base["extern_nonlin"] = not neq.subblocks or neq is g_nonlin
@@ -960,8 +961,15 @@ class CodeGenerator(object):
                 i_slice = nonlin.i_slice,
                 ))
             generator = None
+            d.overwrite("v0_guess", "")
             if self.solver_params:
-                generator = self.solver_params.get(nonlin.name,{}).get("generator")
+                try:
+                    sp = self.solver_params[nonlin.name]
+                except KeyError:
+                    pass
+                else:
+                    generator = sp.get("generator")
+                    d.overwrite("v0_guess", sp.get("v0_guess"))
             if generator:
                 code.append(generator(s, nonlin, self.extra_sources, d))
             elif self.solver_dict["method"] == "table":

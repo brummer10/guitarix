@@ -246,8 +246,9 @@ class Circuit(object):
     def _ensure_sensitivity(self):
         if self.sensitivity is None:
             self._ensure_sim_c()
-            self.sensitivity = [self._estimate_sensitivity(self._calc_ptp(i), i)
-                                for i in range(self.sim_c.nno)]
+            self.sensitivity = [
+                self._estimate_sensitivity(self._calc_ptp(i), i) if self.basegrid[i] is not None else 1
+                for i in range(self.sim_c.nno)]
             logger = logging.getLogger("approx")
             logger.info("nonlin function sensitivity: %s"
                         % ", ".join(["%g" % v for v in self.sensitivity]))
@@ -615,6 +616,8 @@ class Circuit(object):
 
     def remove_connected(self, net, exclude=None):
         self._check_netlist()
+        if exclude is None:
+            exclude = {}
         self.S = list(self.S)
         comp = {net}
         found = False

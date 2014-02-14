@@ -315,7 +315,7 @@ class LinearFilter(object):
                         ss += reduce(operator.mul, [pow(y, p) for y, p in zip(syms, o)], 1) * co.evalf()
             else:
                 if not as_expr:
-                    l.append(((0,), ss))
+                    l.append(((0,), e))
                 else:
                     ss = e.evalf()
             if as_expr:
@@ -1014,7 +1014,7 @@ class SimulatePy(Simulate):
         self.calc_dc(self.eq.parser.op, method=self.dc_method)
 
     def solve(self, func, v0, args=(), method='hybr', options=None):
-        if method == "lm" and "maxfev" in options:
+        if method == "lm" and options and "maxfev" in options:
             options["maxiter"] = options["maxfev"]
             del options["maxfev"]
         try:
@@ -1031,7 +1031,7 @@ class SimulatePy(Simulate):
     def solve_using_homotopy(self, func, v0, method='hybr', options=None):
         # use homotopy
         points = [0, 1]
-        max_iter = 1000
+        max_iter = 100
         for tries in range(max_iter):
             try:
                 res = self.solve(func, v0, args=(points[1],), method=method, options=options)
@@ -1375,6 +1375,7 @@ class BuildCModule(Simulate):
         d["pot"] = ",".join([str(self.pot.get(v,0.5)) for v in pot_list])
         d["pre_filter"] = self.pre_filter or ""
         d["post_filter"] = self.post_filter or ""
+        d["post_process"] = ""
         d['id'] = d["name"]
         d['plugindef'] = self.plugindef
         d['build_script'] = self.build_script

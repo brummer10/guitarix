@@ -525,6 +525,7 @@ void DKPlugin::process(int n, float *u, float *o, PluginDef *plugin) {
 %if (@resample)
     smp.down(buf, o);
 %end
+    @post_process
 // end copied code
 }
 
@@ -958,10 +959,12 @@ int nonlin_homotopy(nonlin_param& par, creal f) {
 }
 
 static inline int nonlin_solve(nonlin_param& par) {
+    @v0_guess
     int ret = nonlin(par);
     if (ret != 0) {
         std::list<creal> points;
         points.push_back(0);
+        points.push_back(0.5);
         points.push_back(1);
         for (int j = 0; j < @solver_max_homotopy_iter; j++) {
             std::list<creal>::iterator it = points.begin();
