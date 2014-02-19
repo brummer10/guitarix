@@ -586,6 +586,8 @@ class OPA(Node):
             p.add_conn("Nr", idx, idx_s, 1)
             p.set_function(idx, calc, v, idx)
         else:
+            if isinstance(param, dict):
+                param = param["A"]
             p.S[idx_s, conn[0]] += param
             p.S[idx_s, conn[1]] += -param
 

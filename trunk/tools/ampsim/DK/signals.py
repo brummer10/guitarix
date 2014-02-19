@@ -28,7 +28,7 @@ class GeneratedSignal(object):
                 "signal definition error: inconsistent channel count (%d vs. %d in OP definition)"
                 % (self.signal.shape[1], len(op)))
         self.input_signal = self.signal + numpy.array(op, dtype=numpy.float64)
-        self.timeline = numpy.linspace(0, samples/fs, samples)
+        self.timeline = numpy.linspace(0, samples/fs, samples, endpoint=False)
 
     def _sweep_make_spectrum(self, response, freqlist, shift=True):
         return self._sweep_harmonics_responses(response, 1, freqlist, shift)[0]
@@ -112,11 +112,11 @@ class GeneratedSignal(object):
         g = self.input_signal.ptp()
         return scipy.signal.freqz(response/g, worN=freqlist)[1]
 
-    def _impulse(self, t):
+    def _impulse(self, t, offset):
         self.generate_spectrum = True
         self.make_spectrum = self._impulse_make_spectrum
         a = numpy.zeros_like(t)
-        a[0] = 1
+        a[offset] = 1
         return a
 
     def _time(self, samples, fs):
@@ -175,6 +175,34 @@ class GeneratedSignal(object):
                 lines.extend(plotfunc(freqlist, 20 * numpy.log10(abs(h))))
         return lines
 
+    def plot(self, response, label=None, clip=-80, nharmonics=8, spectrum=None, freq_range=None):
+        if freq_range is not None:
+            lower_freq, upper_freq = freq_range
+        else:
+            lower_freq = upper_freq = None
+        if lower_freq is None:
+            lower_freq = self.start_freq
+        if upper_freq is None:
+            upper_freq = self.stop_freq
+        if  self.has_harmonics() and nharmonics > 1 and (spectrum is None or spectrum):
+            lines = self.plot_harmonic_spectrum(response, nharmonics=nharmonics, lower_freq=lower_freq, upper_freq=upper_freq)
+            pylab.xlim(left=lower_freq, right=upper_freq)
+            for i, line in enumerate(lines):
+                if label:
+                    line.set_label("%d, %s" % (i+1, label))
+                else:
+                    line.set_label("%d" % (i+1))
+            return lines
+        elif (spectrum is None and self.has_spectrum()) or spectrum:
+            f = numpy.logspace(numpy.log10(lower_freq), numpy.log10(upper_freq), 200)
+            h = self.get_spectrum(response, 2*numpy.pi * f / self.fs)
+            s = 20*numpy.log10(abs(h))
+            lines = pylab.plot(f, numpy.where(s > clip, s, numpy.nan), label=label)
+            pylab.xscale('log')
+            return lines
+        else:
+            return pylab.plot(self.timeline, response, label=label)
+
 
 class Signal(object):
 
@@ -191,6 +219,7 @@ class Signal(object):
         self._timespan = timespan
         self._sweep_pre = -1
         self._sweep_post = 0.1
+        self.impulse_offset = 0
 
     @property
     def freq(self):
@@ -285,7 +314,7 @@ class Signal(object):
         return self._s_ramp(self.t, start, int(log))
 
     def impulse(self):
-        return self._s_impulse(self.t)
+        return self._s_impulse(self.t, self.impulse_offset)
 
     def generate(self, sig, fs, op=None, channels=None):
         if op is None:

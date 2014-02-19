@@ -695,6 +695,7 @@ class Circuit(object):
         self._ensure_parser()
         el = self._nonlin_function_list(elements)
         S = [tuple([models.NODES]+[v[1] for v in sorted([(v, k) for k, v in self.parser.nodes.items()])])]
+        V = dict(self.V)
         for e in self.S:
             if e[0] in el:
                 if isinstance(e[0], models.CC_N):
@@ -702,9 +703,14 @@ class Circuit(object):
                 elif isinstance(e[0], (models.Trans_F, models.Trans_GC)):
                     #FIXME calculate R (Trans_L parameter)
                     e = (models.Trans_L(e[0].d),) + e[1:]
+                elif isinstance(e[0], models.OPA):
+                    p = V[e[0]]
+                    if isinstance(p, dict):
+                        p = p["A"]
+                    V[e[0]] = p
             S.append(e)
         self.S = S
-        self.parser.update(S, self.V)
+        self.parser.update(S, V)
         self.eq = None
         self.sim_py = None
         self.dc_values = None
@@ -713,7 +719,6 @@ class Circuit(object):
         J = self.sim_py.jacobi()
         Jc = self.sim_py.calc_i(self.dc_values.v)
         S = []
-        V = dict(self.V)
         Nr = self.parser.N["Nr"]
         Nl = self.parser.N["Nl"]
         nodes = list(sorted(self.parser.nodes.keys(), key=lambda v: self.parser.nodes[v]))
@@ -800,41 +805,16 @@ class Circuit(object):
             self.stream(sig)
         if self.last_output is None:
             raise CircuitException("nothing to plot")
-        ls = self.last_signal
-        if freq_range is not None:
-            lower_freq, upper_freq = freq_range
-        else:
-            lower_freq = upper_freq = None
-        if lower_freq is None:
-            lower_freq = ls.start_freq
-        if upper_freq is None:
-            upper_freq = ls.stop_freq
-        if  ls.has_harmonics() and nharmonics > 1 and (spectrum is None or spectrum):
-            lines = ls.plot_harmonic_spectrum(self.last_output, nharmonics=nharmonics, lower_freq=lower_freq, upper_freq=upper_freq)
-            pylab.xlim(left=lower_freq, right=upper_freq)
-            for i, line in enumerate(lines):
-                if label:
-                    line.set_label("%d, %s" % (i+1, label))
-                else:
-                    line.set_label("%d" % (i+1))
-        elif (spectrum is None and ls.has_spectrum()) or spectrum:
-            f = numpy.logspace(numpy.log10(lower_freq), numpy.log10(upper_freq), 200)
-            h = ls.get_spectrum(self.last_output, 2*numpy.pi * f / ls.fs)
-            s = 20*numpy.log10(abs(h))
-            pylab.plot(f, numpy.where(s > clip, s, numpy.nan), label=label)
-            pylab.xscale('log')
-        else:
-            lines = pylab.plot(ls.timeline, self.last_output)
-            if not label:
-                label = self._get_sim().out_labels
-            elif isinstance(label, basestring):
-                l = []
-                for lbl in self._get_sim().out_labels:
-                    l.append(label + "." + lbl)
-                label = l
-            for line, lbl in zip(lines, label):
-                line.set_label(lbl)
+        lines = self.last_signal.plot(self.last_output, sig, label, clip, nharmonics, spectrum, freq_range)
+        #if label is None:
+        #    label = self._get_sim().out_labels
+        #elif not hasattr(label, "__iter__"):
+        #    l = []
+        #    for lbl in self._get_sim().out_labels:
+        #        l.append("%s.%s" % (label, lbl))
+        #    label = l
         Circuit.have_plot = True
+        return lines
 
     def build_guitarix_module(self, include_paths=()):
         modc = self._build_sim_table(dev_interface=False)
