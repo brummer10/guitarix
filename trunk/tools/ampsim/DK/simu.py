@@ -781,7 +781,8 @@ class MyTensorSpline(TensorSpline):
         #print rng, prec
         def ncalc_grid(grd):
             return self.calc_grid(grd, None, None)[i_fnc]
-        n = len(self.ranges)
+        ranges = self.ranges
+        n = len(ranges)
         axes = []
         axgrids = np.ones(n)
         start_size = 2
