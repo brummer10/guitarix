@@ -129,6 +129,7 @@ def build(bld):
         'bass_enhancer.dsp',
         'gain.dsp',
 		'duck_delay.dsp',
+		'duck_delay_st.dsp',
 
 
         # amps

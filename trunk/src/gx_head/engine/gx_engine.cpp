@@ -322,7 +322,7 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::mbe::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbdel::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbchor::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(pluginlib::jcm800pre::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+    //pl.add(pluginlib::jcm800pre::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::gcb_95::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
     // stereo
@@ -345,6 +345,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::panoram_enhancer::plugin(),PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::bass_enhancer::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::ring_modulator_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(gx_effects::duck_delay_st::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
 }
 
 static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {
