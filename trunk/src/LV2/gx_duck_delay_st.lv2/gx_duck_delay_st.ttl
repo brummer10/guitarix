@@ -1,0 +1,159 @@
+#
+# Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose, Steve Poskitt
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# --------------------------------------------------------------------------
+#
+
+
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix mod: <http://portalmod.com/ns/modgui#>.
+@prefix time: <http://lv2plug.in/ns/ext/time/#>.
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+
+<http://guitarix.sourceforge.net#me>
+	a foaf:Person ;
+	foaf:name "Guitarix team" ;
+	foaf:mbox <mailto:brummer@web.de> ;
+	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
+<http://guitarix.sourceforge.net/plugins/gx_duck_delay_st_>
+	a doap:Project ;
+	doap:maintainer <http://guitarix.sourceforge.net#me> ;
+	doap:name "Gx_duck_delay_st_" .
+
+<http://guitarix.sourceforge.net/plugins/gx_duck_delay_st_#_duck_delay_st_>
+    a lv2:Plugin ,
+        lv2:DelayPlugin ;
+    doap:maintainer <http://guitarix.sourceforge.net#me> ;
+    doap:name "Gxduck_delay_st";
+    doap:license <http://opensource.org/licenses/isc> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_duck_delay_st_> ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+      
+    lv2:minorVersion 28;
+    lv2:microVersion 3;
+
+    lv2:port  [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 0 ;
+        lv2:symbol "out" ;
+        lv2:name "Out"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 1 ;
+        lv2:symbol "in" ;
+        lv2:name "In" ;
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 2 ;
+        lv2:symbol "out1" ;
+        lv2:name "Out1"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 3 ;
+        lv2:symbol "in1" ;
+        lv2:name "In1" ;
+    ] 
+      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "AMOUNT" ;
+        lv2:name "AMOUNT" ;
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 56.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "ATTACK" ;
+        lv2:name "ATTACK" ;
+        lv2:default 0.1 ;
+        lv2:minimum 0.05 ;
+        lv2:maximum 0.5 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "COLORATION" ;
+        lv2:name "COLORATION" ;
+        lv2:default 0.0 ;
+        lv2:minimum -1.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 7 ;
+        lv2:symbol "EFFECT" ;
+        lv2:name "EFFECT" ;
+        lv2:default 0.0 ;
+        lv2:minimum -16.0 ;
+        lv2:maximum 4.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "FEEDBACK" ;
+        lv2:name "FEEDBACK" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 9 ;
+        lv2:symbol "PINGPONG" ;
+        lv2:name "PINGPONG" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 10 ;
+        lv2:symbol "RELEASE" ;
+        lv2:name "RELEASE" ;
+        lv2:default 0.1 ;
+        lv2:minimum 0.05 ;
+        lv2:maximum 2.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 11 ;
+        lv2:symbol "TIME" ;
+        lv2:name "TIME" ;
+        lv2:default 5e+02 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 2e+03 ;
+    ];
+    mod:gui [
+        a mod:Gui;
+        mod:resourcesDirectory <modgui>;
+        mod:iconTemplate <modgui/icon-gxduck_delay_st.html>;
+        mod:templateData <modgui/data-gxduck_delay_st.json>;
+        mod:screenshot <modgui/screenshot-gxduck_delay_st.png>;
+        mod:thumbnail <modgui/thumb-gxduck_delay_st.png>;
+    ].
