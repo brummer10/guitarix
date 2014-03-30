@@ -681,7 +681,7 @@ void Convlevel::cleanup (void)
 
     av_rdft_end (_plan_r2c);
     av_rdft_end (_plan_c2r);
-    free (_freq_data);
+    av_free (_freq_data);
     _plan_r2c = 0;
     _plan_c2r = 0;
     _freq_data = 0;
