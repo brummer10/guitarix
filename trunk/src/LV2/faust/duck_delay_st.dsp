@@ -41,8 +41,8 @@ c_channels_sw_time = 0.1;
 //Funcs
 X = (_,_)<:(!,_,_,!);
 get_delay_length(x) = x*SR:_*0.001;
-coloration_filter(coloration) = _<:(low_shelf5((1 - coloration)*12,440),
-	high_shelf5(coloration*12,880)):>_*db2linear(-15);
+coloration_filter(coloration) = _<:(lowshelf(5,(1 - coloration)*12,440),
+	highshelf(5,coloration*12,880)):>_*db2linear(-15);
 
 pp_delay(time,fb_coef,pp_fb_coef) = _,_*(1 - pp_fb_coef):
 	(_,X,_:(X:(pp_fb_delay(time, fb_coef,pp_fb_coef))),
