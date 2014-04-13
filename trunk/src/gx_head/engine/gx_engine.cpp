@@ -325,6 +325,7 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::jcm800pre::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::gcb_95::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
