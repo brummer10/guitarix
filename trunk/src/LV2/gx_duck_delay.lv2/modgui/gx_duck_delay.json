@@ -1,0 +1,28 @@
+{
+    "author": "Guitarix", 
+    "color": "red", 
+    "controls": [
+        {
+            "name": "AMOUNT", 
+            "symbol": "AMOUNT"
+        }, 
+        {
+            "name": "ATTACK", 
+            "symbol": "ATTACK"
+        }, 
+        {
+            "name": "FEEDBACK", 
+            "symbol": "FEEDBACK"
+        }, 
+        {
+            "name": "RELESE", 
+            "symbol": "RELESE"
+        }, 
+        {
+            "name": "TIME", 
+            "symbol": "TIME"
+        }
+    ], 
+    "knob": "red", 
+    "label": "Ducking delay"
+}

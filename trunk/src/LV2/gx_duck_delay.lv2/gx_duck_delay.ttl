@@ -48,7 +48,9 @@
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_duck_delay_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
       
-    lv2:minorVersion 28;
+	guiext:ui <http://guitarix.sourceforge.net/plugins/gx_duck_delay_#gui>;
+    
+	lv2:minorVersion 28;
     lv2:microVersion 3;
 
     lv2:port  [
@@ -118,3 +120,9 @@
         mod:screenshot <modgui/screenshot-gxduck_delay.png>;
         mod:thumbnail <modgui/thumb-gxduck_delay.png>;
     ].
+
+<http://guitarix.sourceforge.net/plugins/gx_duck_delay_#gui>
+  a guiext:GtkUI;
+  guiext:binary <gx_duck_delay_gui.so>;
+  guiext:requiredFeature guiext:makeResident .
+
