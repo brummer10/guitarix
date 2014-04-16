@@ -132,11 +132,16 @@ void LiveLooper::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void LiveLooper::mem_alloc()
 {
-	if (!tape1) tape1 = new float[4194304];
-	if (!tape2) tape2 = new float[4194304];
-	if (!tape3) tape3 = new float[4194304];
-	if (!tape4) tape4 = new float[4194304];
-	mem_allocated = true;
+    try {
+        if (!tape1) tape1 = new float[4194304];
+        if (!tape2) tape2 = new float[4194304];
+        if (!tape3) tape3 = new float[4194304];
+        if (!tape4) tape4 = new float[4194304];
+        } catch(...) {
+            gx_print_error("dubber", "out of memory");
+            return;
+        }
+    mem_allocated = true;
     ready = true;
 }
 
@@ -265,7 +270,10 @@ void LiveLooper::set_p_state() {
 
 void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 {
-    if (!ready) return;
+    if (!ready) {
+        memcpy(output0, input0, count * sizeof(float));
+        return;
+    }
     // trigger save array on exit
 	if(record1 || reset1) save1 = true;
     if(record2 || reset2) save2 = true;
