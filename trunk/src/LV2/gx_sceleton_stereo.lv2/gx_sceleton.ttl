@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose, Steve Poskitt
+# Copyright (C) 2014 guitarix project MOD project
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
 	foaf:name "Guitarix team" ;
-	foaf:mbox <mailto:brummer@web.de> ;
+	foaf:mbox <mailto:guitarix-developer@lists.sourceforge.net> ;
 	rdfs:seeAlso <http://guitarix.sourceforge.net> .
 
 <http://guitarix.sourceforge.net/plugins/gx_sceleton_>
