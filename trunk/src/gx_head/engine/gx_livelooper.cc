@@ -77,28 +77,28 @@ inline void LiveLooper::clear_state_f()
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
 	for (int i=0; i<4194304; i++) tape1[i] = 0;
-	for (int i=0; i<2; i++) RecSize1[i] = 0;
+	for (int i=0; i<2; i++) RecSize1[i] = 1;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) iRec3[i] = 0;
 	for (int i=0; i<2; i++) iRec4[i] = 0;
 	for (int i=0; i<2; i++) iVec2[i] = 0;
 	for (int i=0; i<4194304; i++) tape2[i] = 0;
-	for (int i=0; i<2; i++) RecSize2[i] = 0;
+	for (int i=0; i<2; i++) RecSize2[i] = 1;
 	for (int i=0; i<2; i++) fRec6[i] = 0;
 	for (int i=0; i<2; i++) fRec7[i] = 0;
 	for (int i=0; i<2; i++) iRec8[i] = 0;
 	for (int i=0; i<2; i++) iRec9[i] = 0;
 	for (int i=0; i<2; i++) iVec4[i] = 0;
 	for (int i=0; i<4194304; i++) tape3[i] = 0;
-	for (int i=0; i<2; i++) RecSize3[i] = 0;
+	for (int i=0; i<2; i++) RecSize3[i] = 1;
 	for (int i=0; i<2; i++) fRec11[i] = 0;
 	for (int i=0; i<2; i++) fRec12[i] = 0;
 	for (int i=0; i<2; i++) iRec13[i] = 0;
 	for (int i=0; i<2; i++) iRec14[i] = 0;
 	for (int i=0; i<2; i++) iVec6[i] = 0;
 	for (int i=0; i<4194304; i++) tape4[i] = 0;
-	for (int i=0; i<2; i++) RecSize4[i] = 0;
+	for (int i=0; i<2; i++) RecSize4[i] = 1;
 	for (int i=0; i<2; i++) fRec16[i] = 0;
 	for (int i=0; i<2; i++) fRec17[i] = 0;
 	for (int i=0; i<2; i++) iRec18[i] = 0;
@@ -174,7 +174,7 @@ inline int LiveLooper::load_from_wave(std::string fname, float *tape)
         fSize = sf_read_float(sf,tape,n);
     }
     sf_close(sf);
-    fprintf (stderr,"LiveLooper::load_from_wave(%s)\n",fname.c_str());
+    fprintf (stderr,"LiveLooper::load_from_wave(%s size = %i)\n",fname.c_str(), fSize);
     return fSize;
 }
 
@@ -182,15 +182,19 @@ inline void LiveLooper::load_array(std::string name)
 {
     RecSize1[1] = load_from_wave(loop_dir+name+"1.wav", tape1);
     IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
+    fprintf (stderr,"LiveLooper::load_array1(%i  )\n", int(IOTAR1));
     
     RecSize2[1] = load_from_wave(loop_dir+name+"2.wav", tape2);
     IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
+    fprintf (stderr,"LiveLooper::load_array2(%i)\n", int(IOTAR2));
     
     RecSize3[1] = load_from_wave(loop_dir+name+"3.wav", tape3);
     IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
+    fprintf (stderr,"LiveLooper::load_array3(%i)\n", int(IOTAR3));
     
     RecSize4[1] = load_from_wave(loop_dir+name+"4.wav", tape4);
     IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
+    fprintf (stderr,"LiveLooper::load_array4(%i)\n", int(IOTAR4));
     
     fprintf (stderr,"LiveLooper::load_array(%s)\n", name.c_str());
     cur_name = preset_name;
