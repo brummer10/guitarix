@@ -65,6 +65,7 @@ LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& l
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
     plugin = this;
+    fprintf (stderr,"LiveLooper::LiveLooper\n");
 }
 
 LiveLooper::~LiveLooper() {
@@ -102,6 +103,7 @@ inline void LiveLooper::clear_state_f()
 	for (int i=0; i<2; i++) fRec17[i] = 0;
 	for (int i=0; i<2; i++) iRec18[i] = 0;
 	for (int i=0; i<2; i++) iRec19[i] = 0;
+    fprintf (stderr,"LiveLooper::clear_state_f()\n");
 }
 
 void LiveLooper::clear_state_f_static(PluginDef *p)
@@ -123,6 +125,7 @@ inline void LiveLooper::init(unsigned int samplingFreq)
 	fConst0 = (1e+01f / float(fmin(192000, fmax(1, fSamplingFreq))));
 	fConst1 = (0 - fConst0);
     fConst2 = (1.0 / float(fmin(192000, fmax(1, fSamplingFreq))));
+    fprintf (stderr,"LiveLooper::init()\n");
 }
 
 void LiveLooper::init_static(unsigned int samplingFreq, PluginDef *p)
@@ -143,6 +146,7 @@ void LiveLooper::mem_alloc()
         }
     mem_allocated = true;
     ready = true;
+    fprintf (stderr,"LiveLooper::mem_alloc()\n");
 }
 
 void LiveLooper::mem_free()
@@ -153,6 +157,7 @@ void LiveLooper::mem_free()
 	if (tape2) { delete tape2; tape2 = 0; }
 	if (tape3) { delete tape3; tape3 = 0; }
 	if (tape4) { delete tape4; tape4 = 0; }
+    fprintf (stderr,"LiveLooper::mem_free()\n");
 }
 
 inline int LiveLooper::load_from_wave(std::string fname, float *tape)
@@ -169,6 +174,7 @@ inline int LiveLooper::load_from_wave(std::string fname, float *tape)
         fSize = sf_read_float(sf,tape,n);
     }
     sf_close(sf);
+    fprintf (stderr,"LiveLooper::load_from_wave(%s)\n",fname.c_str());
     return fSize;
 }
 
@@ -186,6 +192,7 @@ inline void LiveLooper::load_array(std::string name)
     RecSize4[1] = load_from_wave(loop_dir+name+"4.wav", tape4);
     IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
     
+    fprintf (stderr,"LiveLooper::load_array(%s)\n", name.c_str());
     cur_name = preset_name;
 }
 
@@ -202,6 +209,7 @@ inline void LiveLooper::save_to_wave(std::string fname, float *tape, float fSize
         sf_write_float(sf,tape, lSize);
         sf_write_sync(sf);
     }
+    fprintf (stderr,"LiveLooper::save_to_wave(%s)\n",fname.c_str());
     sf_close(sf);
 }
 
@@ -224,6 +232,7 @@ inline void LiveLooper::save_array(std::string name)
             save_to_wave(loop_dir+name+"4.wav",tape4,rectime3);
             save4 = false;
         }
+        fprintf (stderr,"LiveLooper::save_array()\n");
     }
 }
 
@@ -234,10 +243,13 @@ int LiveLooper::activate(bool start)
 			mem_alloc();
 			clear_state_f();
             load_array(preset_name);
+            fprintf (stderr,"LiveLooper::activate(mem_alloc)\n");
+
 		}
 	} else if (mem_allocated) {
         save_array(cur_name);
 		mem_free();
+        fprintf (stderr,"LiveLooper::activate(mem_free)\n");
 	}
 	return 0;
 }
@@ -258,14 +270,14 @@ void LiveLooper::set_p_state() {
             save3 = true;
             save4 = true;
             cur_name = preset_name;
-           // fprintf (stderr,"save_p: %s\n",cur_name.c_str());
+            fprintf (stderr,"save_p: %s\n",cur_name.c_str());
         }
         activate(false);
         activate(true);
         ready = true;
         save_p = false;
     }
-    //fprintf (stderr,"set_p_state: %s\n",preset_name.c_str());
+    fprintf (stderr,"set_p_state: %s\n",preset_name.c_str());
 }
 
 void always_inline LiveLooper::compute(int count, float *input0, float *output0)
