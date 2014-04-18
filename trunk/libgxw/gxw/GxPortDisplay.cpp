@@ -94,18 +94,20 @@ static void port_display_expose(GdkEventExpose *ev,
 
 static gboolean gx_port_display_expose(GtkWidget *widget, GdkEventExpose *event)
 {
-	g_assert(GX_IS_PORT_DISPLAY(widget));
-	gint display_width;
-	GdkRectangle image_rect, value_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	gtk_widget_style_get(widget, "display-width", &display_width, NULL);
-	image_rect.height = gdk_pixbuf_get_height(pb);
-	image_rect.width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
-	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.width-display_width);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	port_display_expose(event, widget, &image_rect, sliderstate, pb);
-	_gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
-	g_object_unref(pb);
+    if (gtk_widget_is_drawable (widget)) {
+	  g_assert(GX_IS_PORT_DISPLAY(widget));
+	  gint display_width;
+	  GdkRectangle image_rect, value_rect;
+	  GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	  gtk_widget_style_get(widget, "display-width", &display_width, NULL);
+	  image_rect.height = gdk_pixbuf_get_height(pb);
+	  image_rect.width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
+	  gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.width-display_width);
+	  _gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+	  port_display_expose(event, widget, &image_rect, sliderstate, pb);
+	  _gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
+	  g_object_unref(pb);
+    }
 	return FALSE;
 }
 
