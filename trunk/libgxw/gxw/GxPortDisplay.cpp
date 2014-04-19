@@ -94,7 +94,7 @@ static void port_display_expose(GdkEventExpose *ev,
 
 static gboolean gx_port_display_expose(GtkWidget *widget, GdkEventExpose *event)
 {
-    if (gtk_widget_is_drawable (widget)) {
+    if (GDK_IS_WINDOW (widget->window)) {
 	  g_assert(GX_IS_PORT_DISPLAY(widget));
 	  gint display_width;
 	  GdkRectangle image_rect, value_rect;
