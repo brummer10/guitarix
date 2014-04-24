@@ -80,6 +80,17 @@ LadspaDsp *LadspaDsp::create(const plugdesc *plug) {
 	return NULL;
     }
     const LADSPA_Descriptor *desc = ladspa_descriptor(plug->index);
+    if (!desc || desc->UniqueID != plug->UniqueID) {
+	for (int i = 0; ; i++) {
+	    desc = ladspa_descriptor(i);
+	    if (!desc) {
+		break;
+	    }
+	    if (desc->UniqueID == plug->UniqueID) {
+		break;
+	    }
+	}
+    }
     if (!desc) {
 	gx_print_error("ladspaloader",ustring::compose(_("Cannot load ladspa descriptor #%1 from %2"), plug->index, plug->path));
 	dlclose(handle);
