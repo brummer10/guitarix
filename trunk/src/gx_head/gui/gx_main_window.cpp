@@ -2087,18 +2087,6 @@ void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::set_tuning), sigc::ref(tuner)));
 }
 
-void MainWindow::set_value_mute(bool v) {
-    if(v) {
-      if (machine.get_state() == gx_engine::kEngineOff) {
-	    machine.set_state(gx_engine::kEngineOn);
-	  } 
-    } else {
-        if (machine.get_state() == gx_engine::kEngineOn) {
-	    machine.set_state(gx_engine::kEngineOff);
-      }
-	}
-}
-
 bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
     if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
 	if (machine.get_state() == gx_engine::kEngineOff) {
@@ -2768,13 +2756,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     status_image->set(pixbuf_on);
     gx_engine::BoolParameter& par = machine.get_parameter("engine.mute").getBool();
     par.setSavable(false);
-
-    bool st = false;
-    if (machine.get_state() == gx_engine::kEngineOn) {
-        st = true;
-    }
-    machine.set_parameter_value("engine.mute", st);
-    
     gx_gui::connect_midi_controller(status_image->get_parent(), "engine.mute", machine);
     status_image->get_parent()->signal_button_press_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_toggle_mute));
@@ -2897,11 +2878,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    sigc::mem_fun(this, &MainWindow::amp_controls_visible),
 	    rr));
     amp_controls_visible(rr);
-    
-    // connect midi handler to mute/unmute engine
-    machine.signal_parameter_value<bool>("engine.mute").connect(
-	sigc::mem_fun(this, &MainWindow::set_value_mute));
-
 }
 
 MainWindow::~MainWindow() {

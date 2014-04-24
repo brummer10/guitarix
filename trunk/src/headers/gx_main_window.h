@@ -722,7 +722,6 @@ private:
     void set_tuning(Gxw::RackTuner& tuner);
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);
-    void set_value_mute(bool v);
     void on_msg_level_changed();
     void on_ampdetail_switch(bool compress, bool setparam);
     void on_show_oscilloscope(bool v);
