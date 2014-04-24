@@ -2754,8 +2754,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     ** init status image widget
     */
     status_image->set(pixbuf_on);
-    gx_engine::BoolParameter& par = machine.get_parameter("engine.mute").getBool();
-    par.setSavable(false);
     gx_gui::connect_midi_controller(status_image->get_parent(), "engine.mute", machine);
     status_image->get_parent()->signal_button_press_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_toggle_mute));
