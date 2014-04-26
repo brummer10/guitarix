@@ -61,6 +61,20 @@ GxMachineBase::~GxMachineBase() {
  ** GxMachine
  */
 
+void set_engine_mute(GxEngineState s, BoolParameter& p) {
+    p.set(s == kEngineOff);
+}
+
+void on_engine_mute_changed(bool s, GxEngine& engine) {
+    if (s) {
+	engine.set_state(kEngineOff);
+    } else {
+	if (engine.get_state() == kEngineOff) {
+	    engine.set_state(kEngineOn);
+	}
+    }
+}
+
 GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     GxMachineBase(),
     options(options_),
@@ -114,7 +128,14 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     pmap.reg_non_midi_par("system.midi_in_preset", (bool*)0, false, false);
     pmap.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
     pmap.reg_par_non_preset("ui.liveplay_background", "?liveplay_background", 0, 0.8, 0.0, 1.0, 0.01);
-    pmap.reg_par("engine.mute", "Mute", 0, false)->setSavable(false);
+    BoolParameter& p = pmap.reg_par(
+	"engine.mute", "Mute", 0, engine.get_state() == gx_engine::kEngineOff
+	)->getBool();
+    p.setSavable(false);
+    engine.signal_state_change().connect(
+	sigc::bind(sigc::ptr_fun(set_engine_mute), sigc::ref(p)));
+    p.signal_changed().connect(
+	sigc::bind(sigc::ptr_fun(on_engine_mute_changed), sigc::ref(engine)));
     pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false);
 
 #ifndef NDEBUG

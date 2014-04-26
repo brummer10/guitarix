@@ -7,11 +7,11 @@ def configure(conf):
     pass
 
 def build(bld):
-    bundle = 'gx_duck_delay_st.lv2'
+    bundle = 'gx_barkgraphiceq.lv2'
     
-    src = ['gx_duck_delay_st.cpp'
+    src = ['gx_barkgraphiceq.cpp'
            ]
-    incl = ['../faust','./', '../DSP']
+    incl = ['../faust', './', '../DSP','../../headers']
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
@@ -24,10 +24,10 @@ def build(bld):
         includes = incl,
         lib = lib,
         uselib = uselib,
-        obj_ext  = '_5.o',
+        obj_ext  = '_14.o',
         cxxflags = cxxflag,
         defines  = ["LV2_SO"],
-        target   = 'gx_duck_delay_st',
+        target   = 'gx_barkgraphiceq',
         source   = src,
         install_path = '${LV2DIR}/%s' % bundle,
         chmod = 0o755,
@@ -56,8 +56,8 @@ def build(bld):
         uselib_local = uselib_local5,
         linkflags = '-Wl,-z,nodelete',
         defines  = ["LV2_GUI"],
-        target   = 'gx_duck_delay_st_gui',
-        source   = 'widget.cpp gx_duck_delay_st_gui.cpp',
+        target   = 'gx_barkgraphiceq_gui',
+        source   = 'widget.cpp gx_barkgraphiceq_gui.cpp',
         install_path = '${LV2DIR}/%s' % bundle,
         chmod = 0o755,
         )
@@ -65,7 +65,7 @@ def build(bld):
 
     
     install_path = '${LV2DIR}/%s' % bundle,
-    bld.install_files('${LV2DIR}/gx_duck_delay_st.lv2', 'manifest.ttl')
-    bld.install_files('${LV2DIR}/gx_duck_delay_st.lv2', 'gx_duck_delay_st.ttl')
+    bld.install_files('${LV2DIR}/gx_barkgraphiceq.lv2', 'manifest.ttl')
+    bld.install_files('${LV2DIR}/gx_barkgraphiceq.lv2', 'gx_barkgraphiceq.ttl')
 
-    bld.install_files('${LV2DIR}/gx_duck_delay_st.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    bld.install_files('${LV2DIR}/gx_barkgraphiceq.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)

@@ -1012,6 +1012,7 @@ void MonoEngine::load_static_plugins() {
     pl.add(gx_effects::graphiceq::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::ring_modulator::plugin(),  PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay::plugin(),      PLUGIN_POS_RACK);
+	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK);
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&mono_convolver.plugin,                PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);

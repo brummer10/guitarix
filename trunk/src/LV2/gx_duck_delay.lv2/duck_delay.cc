@@ -1,7 +1,6 @@
 // generated from file './faust/duck_delay.dsp' by dsp2cc:
 // Code generated with Faust 0.9.46 (http://faust.grame.fr)
 
-
 namespace duck_delay {
 
 class Dsp: public PluginLV2 {

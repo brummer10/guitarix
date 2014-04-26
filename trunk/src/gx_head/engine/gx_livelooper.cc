@@ -132,11 +132,16 @@ void LiveLooper::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void LiveLooper::mem_alloc()
 {
-	if (!tape1) tape1 = new float[4194304];
-	if (!tape2) tape2 = new float[4194304];
-	if (!tape3) tape3 = new float[4194304];
-	if (!tape4) tape4 = new float[4194304];
-	mem_allocated = true;
+    try {
+        if (!tape1) tape1 = new float[4194304];
+        if (!tape2) tape2 = new float[4194304];
+        if (!tape3) tape3 = new float[4194304];
+        if (!tape4) tape4 = new float[4194304];
+        } catch(...) {
+            gx_print_error("dubber", "out of memory");
+            return;
+        }
+    mem_allocated = true;
     ready = true;
 }
 
@@ -265,7 +270,10 @@ void LiveLooper::set_p_state() {
 
 void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 {
-    if (!ready) return;
+    if (!ready) {
+        memcpy(output0, input0, count * sizeof(float));
+        return;
+    }
     // trigger save array on exit
 	if(record1 || reset1) save1 = true;
     if(record2 || reset2) save2 = true;
@@ -296,13 +304,14 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 	reset3     = (rectime2 < 4194304*fConst2)? reset3 : 0.0;
 	reset4     = (rectime3 < 4194304*fConst2)? reset4 : 0.0;
     // set play head position
-    float ph1      = 1.0/(RecSize1[0] * 0.001);
+    
+    float ph1      = RecSize1[0] ? 1.0/(RecSize1[0] * 0.001) : 0.0;
     playh1 = (1-iVec0[0]) * fmin(1000,fmax(0,float(IOTAR1*ph1)));
-    float ph2      = 1.0/(RecSize2[0] * 0.001);
+    float ph2      = RecSize2[0] ? 1.0/(RecSize2[0] * 0.001) : 0.0;
     playh2 = (1-iVec2[0]) *  fmin(1000,fmax(0,float(IOTAR2*ph2)));
-    float ph3      = 1.0/(RecSize3[0] * 0.001);
+    float ph3      = RecSize3[0] ? 1.0/(RecSize3[0] * 0.001) : 0.0;
     playh3 = (1-iVec4[0]) *  fmin(1000,fmax(0,float(IOTAR3*ph3)));
-    float ph4      = 1.0/(RecSize4[0] * 0.001);
+    float ph4      = RecSize4[0] ? 1.0/(RecSize4[0] * 0.001) : 0.0;
     playh4 = (1-iVec6[0]) *  fmin(1000,fmax(0,float(IOTAR4*ph4)));
     // playback speed
     float speed1 = fspeed1;

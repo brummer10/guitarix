@@ -17,6 +17,7 @@ lib_csource_defs = [ # put in static library linked with guitarix
     #"dubbe.cc",
     "abgate.cc",
     "jcm800pre.cpp",
+	"reversedelay.cc",
     ]
 
 lib_float_sources = [ # put in static library linked with guitarix

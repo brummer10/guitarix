@@ -79,7 +79,8 @@ def dirlist():
         'gx_fuzz.lv2',
         'gx_graphiceq.lv2',
 		'gx_duck_delay.lv2',
-		'gx_duck_delay_st.lv2'
+		'gx_duck_delay_st.lv2',
+		'gx_barkgraphiceq.lv2',
 
          ]
 

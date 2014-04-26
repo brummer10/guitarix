@@ -11,7 +11,7 @@ def build(bld):
     
     src = ['gx_duck_delay.cpp'
            ]
-    incl = ['../faust','./', '../DSP']
+    incl = ['../faust-generated','./', '../DSP']
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
@@ -24,7 +24,7 @@ def build(bld):
         includes = incl,
         lib = lib,
         uselib = uselib,
-        obj_ext  = '_14.o',
+        obj_ext  = '_5.o',
         cxxflags = cxxflag,
         defines  = ["LV2_SO"],
         target   = 'gx_duck_delay',
@@ -33,7 +33,37 @@ def build(bld):
         chmod = 0o755,
         )
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
-   
+    
+    uselib_local5 = []
+    libpath5 = []
+    lib5 = []
+    incl5 = ['../../../libgxwmm','../../../libgxw','../']
+    if sys.platform.startswith("linux"):
+        lib5.append('dl')
+    if bld.env["GX_LIB_SHARED"]:
+        lib5 += ['gxwmm','gxw']
+        libpath5 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
+                    bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
+    else:
+        uselib_local5 += ['gxwmm','gxw']
+    
+    lv2_effetcs_gui = bld(
+        features='cxx cshlib ',
+        includes = incl5,
+        lib = lib5,
+        uselib = 'LV2CORE GTKMM',
+        libpath = libpath5,
+        uselib_local = uselib_local5,
+        linkflags = '-Wl,-z,nodelete',
+        defines  = ["LV2_GUI"],
+        target   = 'gx_duck_delay_gui',
+        source   = 'widget.cpp gx_duck_delay_gui.cpp',
+        install_path = '${LV2DIR}/%s' % bundle,
+        chmod = 0o755,
+        )
+    lv2_effetcs_gui.env['shlib_PATTERN'] = '%s.so'
+
+    
     install_path = '${LV2DIR}/%s' % bundle,
     bld.install_files('${LV2DIR}/gx_duck_delay.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gx_duck_delay.lv2', 'gx_duck_delay.ttl')
