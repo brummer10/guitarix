@@ -925,4 +925,77 @@ void strip(Glib::ustring& s) {
     s.erase(s.find_last_not_of(' ')+1);
 }
 
+/*
+** encoding / decoding filenames
+*/
+
+static inline bool check_char(unsigned char c) {
+    static const char *badchars = "/%?*<>\\:#&$'\"(){}[]~;`|.";
+    if (c < 32) {
+	return false;
+    }
+    for (const char *p = badchars; *p; p++) {
+	if (c == *p) {
+	    return false;
+	}
+    }
+    return true;
+}
+
+std::string encode_filename(const std::string& s) {
+   std::string res;
+   res.reserve(s.size());
+   for (unsigned int i = 0; i < s.size(); i++) {
+      unsigned char c = s[i];
+      if (!check_char(c)) {
+	 res.append(1, '%');
+	 static const unsigned char code[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+	 res.append(1, code[c / 16]);
+	 res.append(1, code[c % 16]);
+      } else {
+	 res.append(1, c);
+      }
+   }
+   return res;
+}
+
+static inline bool dct(unsigned char c, int &n) {
+   if (c < '0') {
+      return false;
+   }
+   if (c <= '9') {
+      n = c - '0';
+      return true;
+   }
+   if (c < 'a') {
+      return false;
+   }
+   if (c <= 'f') {
+      n = c - 'a';
+      return true;
+   }
+   return false;
+}
+
+std::string decode_filename(const std::string& s) {
+   std::string res;
+   res.reserve(s.size());
+   for (unsigned int i = 0; i < s.size(); i++) {
+      unsigned char c = s[i];
+      if (c == '%') {
+	 int n1, n2;
+	 if (s.size() - i < 3 || !dct(s[i+1],n1) || !dct(s[i+2],n2)) {
+	    // error, don't do any decoding
+	    return s;
+	 }
+	 res.push_back(n1*16 + n2);
+	 i += 2;
+      } else {
+	 res.push_back(c);
+      }
+   }
+   return res;
+}
+
+
 } /* end of gx_system namespace */

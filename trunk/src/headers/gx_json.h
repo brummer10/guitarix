@@ -449,8 +449,6 @@ public:
     bool has_file(const std::string& file) const;
     bool rename(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
     void reorder(const std::vector<Glib::ustring>& neworder);
-    static std::string encode_filename(const std::string& s);
-    static std::string decode_filename(const std::string& s);
     static void make_valid_utf8(Glib::ustring& s);
     static std::string add_preset_postfix(const std::string& filename);
     static bool strip_preset_postfix(std::string& name);

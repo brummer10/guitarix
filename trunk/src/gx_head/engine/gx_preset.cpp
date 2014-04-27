@@ -948,7 +948,7 @@ Glib::RefPtr<Gio::File> GxSettings::uri_to_name_filename(const Glib::ustring& ur
     Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(uri);
     filename = rem->get_basename();
     banks.strip_preset_postfix(filename);
-    name = banks.decode_filename(filename);
+    name = gx_system::decode_filename(filename);
     banks.make_valid_utf8(name);
     banks.make_bank_unique(name, &filename);
     return rem;

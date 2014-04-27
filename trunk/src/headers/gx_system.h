@@ -506,6 +506,9 @@ inline std::string to_string(const T& t) {
     return ss.str();
 }
 
+std::string encode_filename(const std::string& s);
+std::string decode_filename(const std::string& s);
+
 } /* end of gx_system namespace */
 
 #endif  // SRC_HEADERS_GX_SYSTEM_H_
