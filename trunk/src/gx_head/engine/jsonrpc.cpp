@@ -718,12 +718,12 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     FUNCTION(load_ladspalist) {
-	std::vector<unsigned long> old_not_found;
+	std::vector<std::string> old_not_found;
 	ladspa::LadspaPluginList pluginlist;
 	pluginlist.load(serv.settings.get_options(), old_not_found);
 	jw.begin_array();
-	for (std::vector<unsigned long>::iterator i = old_not_found.begin(); i != old_not_found.end(); ++i) {
-	    jw.write(static_cast<unsigned int>(*i));
+	for (std::vector<std::string>::iterator i = old_not_found.begin(); i != old_not_found.end(); ++i) {
+	    jw.write(*i);
 	}
 	jw.end_array();
 	pluginlist.writeJSON(jw);

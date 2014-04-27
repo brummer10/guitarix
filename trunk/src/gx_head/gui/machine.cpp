@@ -201,7 +201,7 @@ GxEngineState GxMachine::get_state() {
     return engine.get_state();
 }
 
-void GxMachine::load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist) {
+void GxMachine::load_ladspalist(std::vector<std::string>& old_not_found, ladspa::LadspaPluginList& pluginlist) {
     pluginlist.load(options, old_not_found);
 }
 
@@ -1345,13 +1345,13 @@ GxEngineState GxMachineRemote::get_state() {
 ** LadspaLoader
 */
 
-void GxMachineRemote::load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist) {
+void GxMachineRemote::load_ladspalist(std::vector<std::string>& old_not_found, ladspa::LadspaPluginList& pluginlist) {
     START_CALL(load_ladspalist);
     START_RECEIVE();
     jp->next(gx_system::JsonParser::begin_array);
     while (jp->peek() != gx_system::JsonParser::end_array) {
 	jp->next(gx_system::JsonParser::value_number);
-	old_not_found.push_back(jp->current_value_int());
+	old_not_found.push_back(jp->current_value());
     }
     jp->next(gx_system::JsonParser::end_array);
     pluginlist.readJSON(*jp);

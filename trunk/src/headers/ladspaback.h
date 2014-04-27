@@ -148,6 +148,7 @@ public:
     Glib::ustring deduced_category;
     int quirks;
     int quirks_default;
+    bool is_lv2;
     std::string ladspa_category;
     bool active;
     bool active_set;
@@ -169,6 +170,7 @@ public:
     void set_state(const Glib::ustring& fname);
 private:
     PluginDesc(const LADSPA_Descriptor& desc, int tp_, std::vector<PortDesc*>& ctrl_ports_, const std::string path_, int index_);
+    PluginDesc(const LilvPlugin* plugin, int tp_, std::vector<PortDesc*>& ctrl_ports_);
     PluginDesc(gx_system::JsonParser& jp);
     ~PluginDesc();
     void serializeJSON(gx_system::JsonWriter& jw);
@@ -187,7 +189,16 @@ public:
 
 class LadspaPluginList: private std::vector<PluginDesc*> {
 private:
-    typedef std::map<unsigned long, PluginDesc*> pluginmap;
+    typedef std::map<std::string, PluginDesc*> pluginmap;
+    LilvWorld* world;
+    const LilvPlugins* lv2_plugins;
+    LilvNode* lv2_AudioPort;
+    LilvNode* lv2_ControlPort;
+    LilvNode* lv2_InputPort;
+    LilvNode* lv2_OutputPort;
+    LilvNode* lv2_connectionOptional;
+private:
+    static inline std::string make_key(unsigned long unique_id) { return "ladspa://" + gx_system::to_string(unique_id); }
     static void add_plugin(const LADSPA_Descriptor& desc, pluginmap& d, const std::string& path, int index);
     static void load_defs(const std::string& path, pluginmap& d);
     static void set_instances(const char *uri, pluginmap& d, std::vector<Glib::ustring>& label,
@@ -195,12 +206,14 @@ private:
     static void descend(const char *uri, pluginmap& d,
 			std::vector<unsigned long>& not_found, std::set<unsigned long>& seen,
 			std::vector<Glib::ustring>& base);
+    void add_plugin(const LilvPlugin* plugin, pluginmap& d);
+    void lv2_load(pluginmap& d);
 public:
-    LadspaPluginList(): std::vector<PluginDesc*>() {}
+    LadspaPluginList();
     ~LadspaPluginList();
     void readJSON(gx_system::JsonParser& jp);
     void writeJSON(gx_system::JsonWriter& jw);
-    void load(gx_system::CmdlineOptions& options, std::vector<unsigned long>& old_not_found);
+    void load(gx_system::CmdlineOptions& options, std::vector<std::string>& old_not_found);
     void save(gx_system::CmdlineOptions& options);
     using std::vector<PluginDesc*>::begin;
     using std::vector<PluginDesc*>::end;

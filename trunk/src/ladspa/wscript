@@ -50,7 +50,7 @@ def build(bld):
     if sys.platform.startswith("linux"):
         lib.append('dl')
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
-              'GLIBMM', 'GIOMM', 'FFTW3', 'BOOST_SYSTEM']
+              'GLIBMM', 'GIOMM', 'FFTW3', 'BOOST_SYSTEM', 'LILV']
     wscript_helper.add_zita_convolver(bld, uselib, src, incl)
     wscript_helper.add_zita_resampler(bld, uselib, src, incl)
     ladspa_plugin = bld(

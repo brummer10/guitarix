@@ -67,7 +67,7 @@ public:
     // engine
     virtual void set_state(GxEngineState state) = 0;
     virtual GxEngineState get_state() = 0;
-    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist) = 0;
+    virtual void load_ladspalist(std::vector<std::string>& old_not_found, ladspa::LadspaPluginList& pluginlist) = 0;
     virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist) = 0;
     virtual void commit_ladspa_changes() = 0;
     virtual sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed() = 0;
@@ -242,7 +242,7 @@ public:
     virtual ~GxMachine();
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
-    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist);
+    virtual void load_ladspalist(std::vector<std::string>& old_not_found, ladspa::LadspaPluginList& pluginlist);
     virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist);
     virtual void commit_ladspa_changes();
     virtual sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed();
@@ -418,7 +418,7 @@ public:
     virtual ~GxMachineRemote();
     virtual void set_state(GxEngineState state);
     virtual GxEngineState get_state();
-    virtual void load_ladspalist(std::vector<unsigned long>& old_not_found, ladspa::LadspaPluginList& pluginlist);
+    virtual void load_ladspalist(std::vector<std::string>& old_not_found, ladspa::LadspaPluginList& pluginlist);
     virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist);
     virtual void commit_ladspa_changes();
     virtual sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed();

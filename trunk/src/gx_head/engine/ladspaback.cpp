@@ -686,9 +686,24 @@ void PortDesc::set_state(JsonParser& jp, int version) {
 PluginDesc::PluginDesc(const LADSPA_Descriptor& desc, int tp_, std::vector<PortDesc*>& ctrl_ports_, const std::string path_, int index_)
     : UniqueID(desc.UniqueID), Label(desc.Label), Name(desc.Name), shortname(desc.Name), Maker(desc.Maker),
       MasterIdx(-1), MasterLabel(), tp(tp_), ctrl_ports(ctrl_ports_), path(path_), index(index_),
-      category(unknown_category), deduced_category(unknown_category), quirks(), quirks_default(),
+      category(unknown_category), deduced_category(unknown_category), quirks(), quirks_default(), is_lv2(false),
       ladspa_category(), active(false), active_set(false), has_settings(false), add_wet_dry(0), old(0) {
     quirks = quirks_default = quirks_get();
+}
+
+PluginDesc::PluginDesc(const LilvPlugin* plugin, int tp_, std::vector<PortDesc*>& ctrl_ports_)
+    : UniqueID(0), Label(), Name(), shortname(), Maker(),
+      MasterIdx(-1), MasterLabel(), tp(tp_), ctrl_ports(ctrl_ports_),
+      path(lilv_node_as_string(lilv_plugin_get_uri(plugin))), index(0),
+      category(unknown_category), deduced_category(unknown_category), quirks(), quirks_default(), is_lv2(true),
+      ladspa_category(), active(false), active_set(false), has_settings(false), add_wet_dry(0), old(0) {
+    LilvNode* nm = lilv_plugin_get_name(plugin);
+    Glib::ustring s = lilv_node_as_string(nm);
+    Label = s;
+    Name = s;
+    shortname = s;
+    Maker = "";
+    path = lilv_node_as_string(lilv_plugin_get_uri(plugin));
 }
 
 PluginDesc::~PluginDesc() {
@@ -714,6 +729,7 @@ PluginDesc::PluginDesc(gx_system::JsonParser& jp):
     deduced_category(),
     quirks(),
     quirks_default(),
+    is_lv2(),
     ladspa_category(),
     active(),
     active_set(),
@@ -737,6 +753,7 @@ PluginDesc::PluginDesc(gx_system::JsonParser& jp):
 	    jp.read_kv("deduced_category", deduced_category) ||
 	    jp.read_kv("quirks", quirks) ||
 	    jp.read_kv("quirks_default", quirks_default) ||
+	    jp.read_kv("is_lv2", is_lv2) ||
 	    jp.read_kv("ladspa_category", ladspa_category) ||
 	    jp.read_kv("active", active) ||
 	    jp.read_kv("active_set", active_set) ||
@@ -775,6 +792,7 @@ void PluginDesc::serializeJSON(gx_system::JsonWriter& jw) {
     jw.write_kv("deduced_category", deduced_category);
     jw.write_kv("quirks", quirks);
     jw.write_kv("quirks_default", quirks_default);
+    jw.write_kv("is_lv2", is_lv2);
     jw.write_kv("ladspa_category", ladspa_category);
     jw.write_kv("active", active);
     jw.write_kv("active_set", active_set);
@@ -870,7 +888,7 @@ void LadspaPluginList::add_plugin(const LADSPA_Descriptor& desc, pluginmap& d, c
 	}
 	return;
     }
-    d[desc.UniqueID] = new PluginDesc(desc, tp, ctrl_ports, path, index);
+    d[make_key(desc.UniqueID)] = new PluginDesc(desc, tp, ctrl_ports, path, index);
 }
 
 //static
@@ -1077,7 +1095,7 @@ void PluginDesc::output(JsonWriter& jw) {
     jw.write(category);
     jw.write(idx);
     jw.write(sm);
-    jw.write(quirks);
+    jw.write(quirks | (is_lv2 ? gx_engine::is_lv2 : 0));
     jw.write(add_wet_dry);
     jw.begin_array(true);
     for (std::vector<PortDesc*>::iterator p = ctrl_ports.begin(); p != ctrl_ports.end(); ++p) {
@@ -1090,7 +1108,11 @@ void PluginDesc::output(JsonWriter& jw) {
 void PluginDesc::output_entry(JsonWriter& jw) {
     jw.begin_array();
     jw.write(path);
-    jw.write(index);
+    if (is_lv2) {
+	jw.write(-1);
+    } else {
+	jw.write(index);
+    }
     jw.write(uint(UniqueID));
     jw.write(Label);
     jw.end_array(true);
@@ -1120,7 +1142,11 @@ void PluginDesc::set_state(const ustring& fname) {
 	MasterLabel = jp.current_value();
 	jp.next(JsonParser::value_number);
 	quirks = jp.current_value_int();
-    jp.next(JsonParser::value_number);
+	if (quirks & gx_engine::is_lv2) {
+	    quirks &= ~gx_engine::is_lv2;
+	    is_lv2 = true;
+	}
+	jp.next(JsonParser::value_number);
 	add_wet_dry = jp.current_value_int();
 	std::vector<PortDesc*> ports;
 	jp.next(JsonParser::begin_array);
@@ -1181,6 +1207,19 @@ static struct {
     {2021, 2038},
 };
 
+LadspaPluginList::LadspaPluginList()
+    : std::vector<PluginDesc*>(),
+      world(lilv_world_new()),
+      lv2_plugins(),
+      lv2_AudioPort(lilv_new_uri(world, LV2_CORE__AudioPort)),
+      lv2_ControlPort(lilv_new_uri(world, LV2_CORE__ControlPort)),
+      lv2_InputPort(lilv_new_uri(world, LV2_CORE__InputPort)),
+      lv2_OutputPort(lilv_new_uri(world, LV2_CORE__OutputPort)),
+      lv2_connectionOptional(lilv_new_uri(world, LV2_CORE__connectionOptional)) {
+    lilv_world_load_all(world);
+    lv2_plugins = lilv_world_get_all_plugins(world);
+}
+
 static bool in_1_based_range(unsigned long uid) {
     for (unsigned int i = 0; i < sizeof(ranges_1_based)/sizeof(ranges_1_based[0]); ++i) {
         if (uid >= ranges_1_based[i].from && uid <= ranges_1_based[i].to) {
@@ -1197,14 +1236,15 @@ void LadspaPluginList::set_instances(const char *uri, pluginmap& d, std::vector<
     if (uris) {
         for (unsigned int i = 0; i < uris->count; ++i) {
             const char *u = uris->items[i];
-            unsigned long uid = lrdf_get_uid(u);
-            if (d.find(uid) == d.end()) {
+	    unsigned long uid = lrdf_get_uid(u);
+	    std::string uid_key = make_key(uid);
+            if (d.find(uid_key) == d.end()) {
                 not_found.push_back(uid);
                 seen.insert(uid);
                 continue;
 	    }
             if (seen.find(uid) == seen.end()) {
-		PluginDesc *pd = d[uid];
+		PluginDesc *pd = d[uid_key];
                 pd->set_category(label);
 		for (unsigned int n = 0; n < pd->ctrl_ports.size(); n++) {
 		    PortDesc *p = pd->ctrl_ports[n];
@@ -1260,11 +1300,93 @@ void LadspaPluginList::descend(const char *uri, pluginmap& d,
     }
 }
 
+void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d) {
+    int n_in = 0;
+    int n_out = 0;
+    std::vector<PortDesc*> ctrl_ports;
+    int pos = 0;
+    unsigned int num_ports = lilv_plugin_get_num_ports(plugin);
+    for (unsigned int n = 0; n < num_ports; n++) {
+	const LilvPort* port = lilv_plugin_get_port_by_index(plugin, n);
+	if (lilv_port_is_a(plugin, port, lv2_AudioPort)) {
+	    if (lilv_port_is_a(plugin, port, lv2_InputPort)) {
+		n_in += 1;
+	    } else {
+		n_out += 1;
+	    }
+	} else if (lilv_port_is_a(plugin, port, lv2_ControlPort)) {
+	    LADSPA_PortRangeHint hint;
+	    hint.HintDescriptor = 0;
+	    hint.LowerBound = hint.UpperBound = 0;
+	    LilvNode *pdflt, *pmin, *pmax;
+	    lilv_port_get_range(plugin, port, &pdflt, &pmin, &pmax);
+	    if (pmin) {
+		hint.LowerBound = lilv_node_as_float(pmin);
+		hint.HintDescriptor |= LADSPA_HINT_BOUNDED_BELOW;
+		lilv_node_free(pmin);
+	    }
+	    if (pmax) {
+		hint.UpperBound = lilv_node_as_float(pmax);
+		hint.HintDescriptor |= LADSPA_HINT_BOUNDED_ABOVE;
+		lilv_node_free(pmax);
+	    }
+	    LilvNode* nm = lilv_port_get_name(plugin, port);
+	    PortDesc *pdesc = new PortDesc(n, pos, lilv_port_is_a(plugin, port, lv2_OutputPort), lilv_node_as_string(nm), hint);
+	    lilv_node_free(nm);
+	    if (pdflt) {
+		pdesc->factory.set_dflt(lilv_node_as_float(pdflt));
+		lilv_node_free(pdflt);
+	    }
+	    LilvScalePoints* sp = lilv_port_get_scale_points(plugin, port);
+	    int num_sp = lilv_scale_points_size(sp);
+	    if (num_sp > 0) {
+		for (LilvIter* it = lilv_scale_points_begin(sp);
+		     !lilv_scale_points_is_end(sp, it);
+		     it = lilv_scale_points_next(sp, it)) {
+		    const LilvScalePoint* p = lilv_scale_points_get(sp, it);
+		    pdesc->factory.set_enumvalue(
+			lilv_node_as_float(lilv_scale_point_get_value(p)),
+			lilv_node_as_string(lilv_scale_point_get_label(p)));
+		}
+		pdesc->factory.set_tp(tp_enum);
+	    }
+	    lilv_scale_points_free(sp);
+	    ctrl_ports.push_back(pdesc);
+	    pos += 1;
+	} else {
+	    if (!lilv_port_has_property(plugin, port, lv2_connectionOptional)) {
+		n_out = 0; // fail
+		break;
+	    }
+	}
+    }
+    int tp;
+    if (n_in == 1 && n_out == 1) {
+	tp = 0;
+    } else if (n_in == 2 && n_out == 2) {
+	tp = 1;
+    } else {
+	for (std::vector<PortDesc*>::iterator i = ctrl_ports.begin(); i != ctrl_ports.end(); ++i) {
+	    delete *i;
+	}
+	return;
+    }
+    d[lilv_node_as_string(lilv_plugin_get_uri(plugin))] = new PluginDesc(plugin, tp, ctrl_ports);
+}
+
+void LadspaPluginList::lv2_load(pluginmap& d) {
+    for (LilvIter* it = lilv_plugins_begin(lv2_plugins);
+	 !lilv_plugins_is_end(lv2_plugins, it);
+	 it = lilv_plugins_next(lv2_plugins, it)) {
+	add_plugin(lilv_plugins_get(lv2_plugins, it), d);
+    }
+}
+
 static bool cmp_plugins(const PluginDesc *a, const PluginDesc *b) {
     return ustring(a->Name) < ustring(b->Name);
 }
 
-void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<unsigned long>& old_not_found) {
+void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std::string>& old_not_found) {
     gx_system::PathList pl("LADSPA_PATH");
     if (!pl.size()) {
         pl.add("/usr/lib/ladspa");
@@ -1331,6 +1453,8 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<unsi
     freelocale(loc);
     lrdf_cleanup();
 
+    lv2_load(d);
+
     ifstream is(options.get_ladspa_config_filename().c_str());
     if (!is.fail()) {
 	try {
@@ -1339,14 +1463,19 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<unsi
 	    while (jp.peek() == JsonParser::begin_array) {
 		jp.next(JsonParser::begin_array);
 		jp.next(JsonParser::value_string); // path
+		std::string key = jp.current_value();
 		jp.next(JsonParser::value_number); // index
+		int idx = jp.current_value_int();
 		jp.next(JsonParser::value_number); // UniqueID
-		unsigned long uid = jp.current_value_uint();
-		if (d.find(uid) == d.end()) {
-		    old_not_found.push_back(uid);
+		if (idx >= 0) {
+		    unsigned long uid = jp.current_value_uint();
+		    key = make_key(uid);
+		}
+		if (d.find(key) == d.end()) {
+		    old_not_found.push_back(key);
 		} else {
-		    d[uid]->set_active(true);
-		    d[uid]->active_set = true;
+		    d[key]->set_active(true);
+		    d[key]->active_set = true;
 		}
 		jp.next(JsonParser::value_string); // Label
 		jp.next(JsonParser::end_array);
@@ -1362,7 +1491,12 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<unsi
     }
     for (pluginmap::iterator v = d.begin(); v != d.end(); ++v) {
 	v->second->fixup();
-	std::string s = gx_engine::LadspaLoader::get_ladspa_filename(v->first);
+	std::string s;
+	if (v->second->is_lv2) {
+	    s = gx_system::encode_filename(v->second->path) + ".js";
+	} else {
+	    s = gx_engine::LadspaLoader::get_ladspa_filename(v->first);
+	}
 	std::string fname = options.get_plugin_filepath(s);
 	if (access(fname.c_str(), F_OK) != 0) {
 	    fname = options.get_factory_filepath(s);
@@ -1396,8 +1530,10 @@ void LadspaPluginList::save(gx_system::CmdlineOptions& options) {
     tfile.close();
     std::vector<std::pair<std::string,std::string> > fl;
     for (std::vector<PluginDesc*>::iterator p = begin(); p != end(); ++p) {
-	std::string cname = options.get_plugin_filepath(
-	    gx_engine::LadspaLoader::get_ladspa_filename((*p)->UniqueID));
+	std::string sname = ((*p)->is_lv2 ?
+			     gx_system::encode_filename((*p)->path) + ".js" :
+			     gx_engine::LadspaLoader::get_ladspa_filename((*p)->UniqueID));
+	std::string cname = options.get_plugin_filepath(sname);
 	if ((*p)->active || (*p)->has_settings) {
 	    std::string tcname = cname + ".tmp";
 	    ofstream tcfile(tcname.c_str());
@@ -1453,6 +1589,12 @@ LadspaPluginList::~LadspaPluginList() {
     for (iterator i = begin(); i != end(); ++i) {
 	delete *i;
     }
+    lilv_node_free(lv2_AudioPort);
+    lilv_node_free(lv2_ControlPort);
+    lilv_node_free(lv2_InputPort);
+    lilv_node_free(lv2_OutputPort);
+    lilv_node_free(lv2_connectionOptional);
+    lilv_world_free(world);
 }
 
 } // namespace ladspa

@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <lilv/lilv.h>
+
 namespace gx_jack { class GxJack; }
 
 namespace gx_engine {
@@ -534,7 +536,7 @@ struct paradesc: boost::noncopyable {
     void writeJSON(gx_system::JsonWriter& jw);
 };
 
-enum quirkflag { need_activate = 1, no_cleanup = 2 };
+enum quirkflag { need_activate = 1, no_cleanup = 2, is_lv2 = 4 };
 
 class plugdesc {
 public:
@@ -565,6 +567,12 @@ public:
 private:
     const gx_system::CmdlineOptions& options;
     pluginarray plugins;
+    LilvWorld* world;
+    const LilvPlugins* lv2_plugins;
+    LilvNode* lv2_AudioPort;
+    LilvNode* lv2_ControlPort;
+    LilvNode* lv2_InputPort;
+    LilvNode* lv2_OutputPort;
 private:
     void read_module_config(const std::string& filename, plugdesc *p);
     void read_module_list(pluginarray& p);
@@ -577,11 +585,14 @@ public:
     PluginDef *create(const plugdesc *p);
     pluginarray::iterator begin() { return plugins.begin(); }
     pluginarray::iterator end() { return plugins.end(); }
-    pluginarray::iterator find(unsigned long uniqueid);
+    pluginarray::iterator find(plugdesc* desc);
     void set_plugins(pluginarray& new_plugins);
     void update_instance(PluginDef *pdef, plugdesc *pdesc);
     static std::string get_ladspa_filename(unsigned long uid)
 	{ return "ladspa"+gx_system::to_string(uid)+".js"; }
+    static std::string get_ladspa_filename(std::string uid_key)
+	{ return "ladspa"+uid_key.substr(9)+".js"; }
+    friend class Lv2Dsp;
 };
 
 

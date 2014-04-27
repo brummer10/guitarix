@@ -352,8 +352,14 @@ void GxEngine::load_static_plugins() {
 
 static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {
     for (LadspaLoader::pluginarray::iterator i = ml.begin(); i != ml.end(); ++i) {
-	if ((*i)->UniqueID == pl->UniqueID) {
-	    return i;
+	if (pl->quirks & is_lv2) {
+	    if ((*i)->path == pl->path) {
+		return i;
+	    }
+	} else {
+	    if ((*i)->UniqueID == pl->UniqueID) {
+		return i;
+	    }
 	}
     }
     return ml.end();
@@ -403,7 +409,7 @@ void GxEngine::ladspaloader_update_plugins() {
     }
     // add new plugins (engine)
     for (LadspaLoader::pluginarray::const_iterator i = ml.begin(); i != ml.end(); ++i) {
-	if (ladspaloader.find((*i)->UniqueID) == ladspaloader.end()) {
+	if (ladspaloader.find(*i) == ladspaloader.end()) {
 	    PluginDef *plugin = ladspaloader.create(*i);
 	    if (plugin) {
 		Plugin *p = pluginlist.add(plugin);

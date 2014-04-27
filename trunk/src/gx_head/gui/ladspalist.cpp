@@ -78,7 +78,7 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
       on_reordered_conn(), display_type_list(), display_type_list_sr(), output_type_list(),
       finished_callback(finished_callback_)
 {
-    std::vector<unsigned long> old_not_found;
+    std::vector<std::string> old_not_found;
     machine.load_ladspalist(old_not_found, pluginlist);
     bld = gx_gui::GxBuilder::create_from_file(machine.get_options().get_builder_filepath("ladspaliste.glade"));
     bld->get_toplevel("window1", window);
