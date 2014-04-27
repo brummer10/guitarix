@@ -865,6 +865,9 @@ void LadspaPluginList::add_plugin(const LADSPA_Descriptor& desc, pluginmap& d, c
     } else if (n_in == 2 && n_out == 2) {
 	tp = 1;
     } else {
+	for (std::vector<PortDesc*>::iterator i = ctrl_ports.begin(); i != ctrl_ports.end(); ++i) {
+	    delete *i;
+	}
 	return;
     }
     d[desc.UniqueID] = new PluginDesc(desc, tp, ctrl_ports, path, index);
