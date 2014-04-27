@@ -680,7 +680,7 @@ void PluginDisplay::save_current() {
 }
 
 void PluginDisplay::set_title() {
-    ustring t = _("Select LADSPA plugins for Guitarix");
+    ustring t = _("Select LADSPA/LV2 plugins for Guitarix");
     if (change_count) {
 	window->set_title(t + _(" (*changed*)"));
     } else {
@@ -768,7 +768,11 @@ void PluginDisplay::selection_changed() {
     dry_wet_button->set_active(current_plugin->add_wet_dry);
     ladspa_category->set_text(p->ladspa_category);
     ladspa_maker->set_text(p->Maker);
-    ladspa_uniqueid->set_text(ustring::compose("%1: %2[%3]", p->UniqueID, p->path, p->index));
+    if (p->is_lv2) {
+	ladspa_uniqueid->set_text(ustring::compose("LV2: %1", p->path));
+    } else {
+	ladspa_uniqueid->set_text(ustring::compose("%1: %2[%3]", p->UniqueID, p->path, p->index));
+    }
     for (unsigned int i = 0; i < p->ctrl_ports.size(); ++i) {
 	PortDesc *q = p->ctrl_ports[i];
 	Glib::RefPtr<Gtk::ListStore> tls;

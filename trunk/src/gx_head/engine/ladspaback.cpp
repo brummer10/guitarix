@@ -76,6 +76,13 @@ static const char *cat_subst[][2] = {
     {"Distortions", "Distortion"},
     {"Waveshapers", "Distortion"},
     {"Amplifiers", "Distortion"},
+    // added for LV2
+    {"Filter", "Tone control"},
+    {"Distortion", "Distortion"},
+    {"Delay", "Echo / Delay"},
+    {"Modulator", "Modulation"},
+    {"Utility", "Misc"},
+    {"Compressor", "Guitar Effects"},
     {0, 0}
 };
 
@@ -691,19 +698,47 @@ PluginDesc::PluginDesc(const LADSPA_Descriptor& desc, int tp_, std::vector<PortD
     quirks = quirks_default = quirks_get();
 }
 
-PluginDesc::PluginDesc(const LilvPlugin* plugin, int tp_, std::vector<PortDesc*>& ctrl_ports_)
+PluginDesc::PluginDesc(LilvWorld *world, const LilvPlugin* plugin, int tp_, std::vector<PortDesc*>& ctrl_ports_)
     : UniqueID(0), Label(), Name(), shortname(), Maker(),
       MasterIdx(-1), MasterLabel(), tp(tp_), ctrl_ports(ctrl_ports_),
       path(lilv_node_as_string(lilv_plugin_get_uri(plugin))), index(0),
       category(unknown_category), deduced_category(unknown_category), quirks(), quirks_default(), is_lv2(true),
       ladspa_category(), active(false), active_set(false), has_settings(false), add_wet_dry(0), old(0) {
-    LilvNode* nm = lilv_plugin_get_name(plugin);
-    Glib::ustring s = lilv_node_as_string(nm);
+    LilvNode* nd = lilv_plugin_get_name(plugin);
+    Glib::ustring s = lilv_node_as_string(nd);
+    lilv_node_free(nd);
     Label = s;
     Name = s;
     shortname = s;
-    Maker = "";
+    nd = lilv_plugin_get_author_name(plugin);
+    if (!nd) {
+	nd = lilv_plugin_get_project(plugin);
+    }
+    if (nd) {
+	Maker = lilv_node_as_string(nd);
+    } else {
+	Maker = "";
+    }
+    lilv_node_free(nd);
     path = lilv_node_as_string(lilv_plugin_get_uri(plugin));
+    const LilvPluginClass* cls = lilv_plugin_get_class(plugin);
+    if (cls) {
+	std::vector<Glib::ustring> cats;
+	const LilvPluginClasses* pclasses = lilv_world_get_plugin_classes(world);
+	while (true) {
+	    const LilvNode *pn = lilv_plugin_class_get_parent_uri(cls);
+	    if (!pn) {
+		break;
+	    }
+	    const LilvPluginClass* pcls = lilv_plugin_classes_get_by_uri(pclasses, pn);
+	    if (!pcls) {
+		break;
+	    }
+	    cats.insert(cats.begin(), lilv_node_as_string(lilv_plugin_class_get_label(cls)));
+	    cls = pcls;
+	}
+	set_category(cats);
+    }
 }
 
 PluginDesc::~PluginDesc() {
@@ -1371,7 +1406,7 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d) {
 	}
 	return;
     }
-    d[lilv_node_as_string(lilv_plugin_get_uri(plugin))] = new PluginDesc(plugin, tp, ctrl_ports);
+    d[lilv_node_as_string(lilv_plugin_get_uri(plugin))] = new PluginDesc(world, plugin, tp, ctrl_ports);
 }
 
 void LadspaPluginList::lv2_load(pluginmap& d) {

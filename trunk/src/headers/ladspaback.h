@@ -170,7 +170,7 @@ public:
     void set_state(const Glib::ustring& fname);
 private:
     PluginDesc(const LADSPA_Descriptor& desc, int tp_, std::vector<PortDesc*>& ctrl_ports_, const std::string path_, int index_);
-    PluginDesc(const LilvPlugin* plugin, int tp_, std::vector<PortDesc*>& ctrl_ports_);
+    PluginDesc(LilvWorld *world, const LilvPlugin* plugin, int tp_, std::vector<PortDesc*>& ctrl_ports_);
     PluginDesc(gx_system::JsonParser& jp);
     ~PluginDesc();
     void serializeJSON(gx_system::JsonWriter& jw);
