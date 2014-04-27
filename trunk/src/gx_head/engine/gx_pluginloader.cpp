@@ -311,7 +311,7 @@ void Plugin::copy_position(const Plugin& plugin) {
 
 PluginListBase::PluginListBase() : pmap() {}
 
-PluginListBase::~PluginListBase() {
+void PluginListBase::cleanup() {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); ++p) {
 	PluginDef *pdef = p->second->get_pdef();
 	if (!(pdef->flags & PGNI_NOT_OWN)) {
@@ -321,6 +321,11 @@ PluginListBase::~PluginListBase() {
 	    delete p->second;
 	}
     }
+    pmap.clear();
+}
+
+PluginListBase::~PluginListBase() {
+    cleanup();
 }
 
 PluginList::PluginList(EngineControl& seq_)

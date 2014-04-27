@@ -238,6 +238,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
 }
 
 GxEngine::~GxEngine() {
+    pluginlist.cleanup();
 }
 
 void GxEngine::load_static_plugins() {

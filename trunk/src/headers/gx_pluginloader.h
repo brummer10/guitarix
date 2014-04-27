@@ -139,6 +139,7 @@ protected:
 public:
     PluginListBase();
     ~PluginListBase();
+    void cleanup();
     Plugin *find_plugin(const std::string& id) const;
     Plugin *lookup_plugin(const std::string& id) const;
     void append_rack(UiBuilderBase& ui);
