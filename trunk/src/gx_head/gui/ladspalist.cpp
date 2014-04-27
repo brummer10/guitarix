@@ -290,7 +290,7 @@ static void split(std::vector<ustring>& strvec, const ustring& str) {
         size_t end = str.find_first_of(' ', start);
 	size_t len = (end == np) ? np : end - start;
 	if (len > 0) {
-	    strvec.push_back(str.substr(start, len));
+	    strvec.push_back(str.substr(start, len).lowercase());
 	}
 	if (end == np) {
 	    return;
