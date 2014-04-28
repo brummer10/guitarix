@@ -17,10 +17,14 @@
  * --------------------------------------------------------------------------
  */
 
-//#include <zita-resampler/resampler.h>
-//#include <cassert>
+// DEBUG stop programm at Floating point exeption
+//#include <fenv.h>
+
+#include <zita-resampler/resampler.h>
+#include <assert.h>
+
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
-#include "gx_resampler.h"
+//#include "gx_resampler.h"
 #include "gx_common.h"      // faust support and denormal protection (SSE)
 #include "gx_fuzz.h"        // define struct PortIndex
 #include "gx_pluginlv2.h"   // define struct PluginLV2
@@ -30,6 +34,8 @@
 #ifndef __SSE__
 #include "noiser.cc"
 #endif
+
+#define MAX_UPSAMPLE 8
 
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
@@ -46,6 +52,18 @@ private:
 #ifndef __SSE__
   PluginLV2*  wn;
 #endif
+  // resampler
+  Resampler r_up, r_down;
+  int32_t m_fact;
+  int32_t ratio_a;
+  int32_t ratio_b;
+  void setup(int32_t sampleRate, int32_t fact);
+  int32_t up(int32_t count, float *input, float *output);
+  void down(int32_t count, float *input, float *output);
+  int32_t get_max_out_size(int32_t i_size)
+  {
+    return (i_size * ratio_b) / ratio_a + 1;
+  }
   // private functions
   inline void run_dsp_(uint32_t n_samples);
   inline void connect_(uint32_t port,void* data);
@@ -54,7 +72,6 @@ private:
   inline void activate_f();
   inline void clean_up();
   inline void deactivate_f();
-  gx_resample::SimpleResampler resamp;
   
 public:
   // LV2 Descriptor
@@ -78,7 +95,10 @@ Gx_fuzz_::Gx_fuzz_() :
   input(NULL),
   fuzz(bmfp::plugin()),
   pass(lowpass_up::plugin()),
-  passd(lowpass_down::plugin()) {};
+  passd(lowpass_down::plugin()),
+  r_up(),
+  r_down(),
+  m_fact() {};
 
 // destructor
 Gx_fuzz_::~Gx_fuzz_()
@@ -99,12 +119,86 @@ Gx_fuzz_::~Gx_fuzz_()
   passd->delete_instance(passd);
 };
 
+
+static int32_t gcd (int32_t a, int32_t b)
+{
+  if (a == 0) return b;
+  if (b == 0) return a;
+  while (1)
+    {
+      if (a > b)
+        {
+          a = a % b;
+          if (a == 0) return b;
+          if (a == 1) return 1;
+        }
+      else
+        {
+          b = b % a;
+          if (b == 0) return a;
+          if (b == 1) return 1;
+        }
+    }
+  return 1;
+}
+
+void Gx_fuzz_::setup(int32_t sampleRate, int32_t fact)
+{
+  int32_t d = gcd(sampleRate, sampleRate*fact);
+  ratio_a = sampleRate / d;
+  ratio_b = (sampleRate*fact) / d;
+
+  assert(fact <= MAX_UPSAMPLE);
+  m_fact = fact;
+  const int32_t qual = 16; // resulting in a total delay of 2*qual (0.7ms @44100)
+  // upsampler
+  r_up.setup(sampleRate, sampleRate*fact, 1, qual);
+  r_up.inp_count = r_up.inpsize() - 1;
+  r_up.out_count = 1;
+  r_up.inp_data = r_up.out_data = 0;
+  r_up.process();
+  // downsampler
+  r_down.setup(sampleRate*fact, sampleRate, 1, qual);
+  r_down.inp_count = r_down.inpsize() - 1;
+  r_down.out_count = 1;
+  r_down.inp_data = r_down.out_data = 0;
+  r_down.process();
+}
+
+int32_t Gx_fuzz_::up(int32_t count, float *input, float *output)
+{
+  r_up.inp_count = count;
+  r_up.inp_data = input;
+  int m = get_max_out_size(count);
+  r_up.out_count = m;
+  r_up.out_data = output;
+  r_up.process();
+  assert(r_up.inp_count == 0);
+  assert(r_up.out_count <= 1);
+  r_down.inp_count = m - r_up.out_count;
+  return r_down.inp_count;
+}
+
+void Gx_fuzz_::down(int32_t count, float *input, float *output)
+{
+  //r_down.inp_count = count * m_fact;
+  r_down.inp_data = input;
+  r_down.out_count = count+1; // +1 == trick to drain input
+  r_down.out_data = output;
+  r_down.process();
+  assert(r_down.inp_count == 0);
+  assert(r_down.out_count == 1);
+}
+
+
 ///////////////////////// PRIVATE CLASS  FUNCTIONS /////////////////////
 
 void Gx_fuzz_::init_dsp_(uint32_t rate)
 {
+  // DEBUG stop programm at Floating point exeption
+  //feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
   AVOIDDENORMALS(); // init the SSE denormal protection
-  resamp.setup(rate, 4);
+  setup(rate, 4);
   fuzz->set_samplerate(4*rate, fuzz); // init the DSP class
   pass->set_samplerate(rate, pass); // init the DSP class
   passd->set_samplerate(rate, passd); // init the DSP class
@@ -169,10 +263,10 @@ void Gx_fuzz_::run_dsp_(uint32_t n_samples)
   wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
 #endif
   pass->mono_audio(n_samples, input, output, pass);
-  float buf[resamp.get_max_out_size(n_samples)];
-  int n = resamp.up(n_samples, output, buf);
+  float buf[get_max_out_size(n_samples)];
+  int32_t n = up(n_samples, output, buf);
   fuzz->mono_audio(n, buf, buf, fuzz);
-  resamp.down(n_samples,buf, output);
+  down(n_samples,buf, output);
   passd->mono_audio(n_samples, output, output, passd);
 }
 

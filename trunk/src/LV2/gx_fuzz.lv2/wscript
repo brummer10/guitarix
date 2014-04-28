@@ -9,8 +9,7 @@ def configure(conf):
 def build(bld):
     bundle = 'gx_fuzz.lv2'
     
-    src = ['gx_fuzz.cpp',
-           '../DSP/gx_resampler.cc',
+    src = ['gx_fuzz.cpp'
        ]
     incl = ['../faust','./', '../DSP']
     lib = []

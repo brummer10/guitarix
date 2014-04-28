@@ -93,8 +93,8 @@
         lv2:symbol "V1" ;
         lv2:name "V1";
         lv2:default 0.0 ;
-        lv2:minimum -70.0 ;
-        lv2:maximum 4.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.5 ;
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
