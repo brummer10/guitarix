@@ -119,6 +119,8 @@ private:
     Gtk::ComboBox *combobox_mono_stereo;
     Gtk::ToggleButton *selected_only;
     Gtk::ToggleButton *changed_only;
+    Gtk::ToggleButton *ladspa_only;
+    Gtk::ToggleButton *lv2_only;
     Gtk::ToggleButton *show_all;
     Gtk::Box *details_box;
     Gtk::ToggleButton *show_details;

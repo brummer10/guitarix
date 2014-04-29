@@ -92,6 +92,8 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("combobox_mono_stereo", combobox_mono_stereo);
     bld->find_widget("selected_only", selected_only);
     bld->find_widget("changed_only", changed_only);
+    bld->find_widget("ladspa_only", ladspa_only);
+    bld->find_widget("lv2_only", lv2_only);
     bld->find_widget("show_all", show_all);
     bld->find_widget("details_box", details_box);
     bld->find_widget("plugin_name", plugin_name);
@@ -253,6 +255,8 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
 
     selected_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), selected_only));
     changed_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), changed_only));
+    ladspa_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), ladspa_only));
+    lv2_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), lv2_only));
     show_all->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), show_all));
 
     bld->find_widget("combobox_mono_stereo", cb);
@@ -558,17 +562,26 @@ void PluginDisplay::load() {
     int a = combobox_mono_stereo->get_model()->get_path(combobox_mono_stereo->get_active())[0];
     bool s = selected_only->get_active();
     bool c = changed_only->get_active();
+    bool d = ladspa_only->get_active();
+    bool e = lv2_only->get_active();
     plugin_liststore->clear();
     for (std::vector<PluginDesc*>::iterator v = pluginlist.begin(); v != pluginlist.end(); ++v) {
 	if (s && !(*v)->active) {
 	    continue;
 	}
-	if (c && !(*v)->has_settings) {
+	else if (c && !(*v)->has_settings) {
+	    continue;
+	}
+	else if (d && (*v)->is_lv2) {
+	    continue;
+	}
+ 	else if (e && !(*v)->is_lv2) {
 	    continue;
 	}
 	if ((a == 1 && (*v)->tp != 0) || (a == 2 && (*v)->tp != 1)) {
 	    continue;
 	}
+
 	Gtk::TreeIter it = plugin_liststore->append();
 	it->set_value(plugin_liststore->col.name, ustring((*v)->Name));
 	it->set_value(plugin_liststore->col.active, (*v)->active);
