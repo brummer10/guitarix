@@ -50,6 +50,16 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+"The expander is a compressor in reverse. There are two types of expander. In some, signals above the threshold remain at unity gain whereas signals below the threshold are reduced in gain, whereas in others the signal above the threshold also has the gain increased. Therefore you can use an expander as a noise reduction unit. Set the threshold to be just below the level of the player when playing. When the player stops the signal will fall below this threshold and the signal is reduced in gain thus reducing the noise or spill."
+
+*Unofficial documentation
+
+source: http://www.sae.edu/reference_material/audio/pages/Compression.htm
+
+""";
 
     lv2:port  [
         a lv2:InputPort ,

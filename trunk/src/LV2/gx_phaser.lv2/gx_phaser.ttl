@@ -52,6 +52,16 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+"A phaser is an electronic sound processor used to filter a signal by creating a series of peaks and troughs in the frequency spectrum. The position of the peaks and troughs is typically modulated so that they vary over time, creating a sweeping effect. For this purpose, phasers usually include a low-frequency oscillator." Wikipedia
+
+*Unofficial documentation
+
+source: http://en.wikipedia.org/wiki/Phaser_%28effect%29
+
+""";
 
     lv2:port  [
         a lv2:InputPort ,

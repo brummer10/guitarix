@@ -50,6 +50,16 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+"A Reverb simulates the component of sound that results from reflections from surrounding walls or objects. It is in effect a room simulator. Some people think it's just a delay effect with some filters, but it's way more complex than that."
+
+*Unofficial documentation
+
+source: http://audacity.sourceforge.net/manual-1.2/effects_reverb.html
+
+""";
 
     lv2:port  [
         a lv2:InputPort ,

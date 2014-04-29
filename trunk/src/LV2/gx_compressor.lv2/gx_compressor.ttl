@@ -50,6 +50,16 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+"Compression (or more technically Dynamic range compression) is a subtle effect primarily for electric guitar where the highest and lowest points of the sound wave are "limited". This boosts the volume of softer picked notes, while capping the louder ones, giving a more even level of volume. This is frequently used in country music, where fast clean passages can sound uneven unless artificially 'squashed'." Wikipedia
+
+*Unofficial documentation
+
+source: http://en.wikipedia.org/wiki/Compression_%28electric_guitar%29
+
+""";
 
     lv2:port  [
         a lv2:InputPort ,

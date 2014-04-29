@@ -49,6 +49,17 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+"Multiband (also spelled multi-band) compressors can act differently on different frequency bands. The advantage of multiband compression over full-bandwidth (full-band, or single-band) compression is that unneeded audible gain changes or "pumping" in other frequency bands is not caused by changing signal levels in a single frequency band." Wikipedia
+
+*Unofficial documentation
+
+source: http://en.wikipedia.org/wiki/Dynamic_range_compression#Multiband_compression
+
+""";
+
 
     lv2:port [
         a lv2:InputPort ,

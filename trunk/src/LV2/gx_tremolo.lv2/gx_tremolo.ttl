@@ -52,6 +52,16 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+Model of a vactrol tremolo unit by "transmogrify"
+** c.f. http://sourceforge.net/apps/phpbb/guitarix/viewtopic.php?f=7&t=44&p=233&hilit=transmogrifox#p233
+** http://transmogrifox.webs.com/vactrol.m
+
+*Unofficial documentation
+
+""";
 
     lv2:port  [
         a lv2:InputPort ,

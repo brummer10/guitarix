@@ -52,6 +52,16 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+"In music, a chorus effect (sometimes chorusing or chorused effect) occurs when individual sounds with roughly the same timbre and nearly (but never exactly) the same pitch converge and are perceived as one. While similar sounds coming from multiple sources can occur naturally (as in the case of a choir or string orchestra), it can also be simulated using an electronic effects unit or signal processing device." Wikipedia
+
+*Unofficial documentation
+
+source: http://en.wikipedia.org/wiki/Chorus_effect
+
+""";
 
     lv2:port  [
         a lv2:InputPort ,

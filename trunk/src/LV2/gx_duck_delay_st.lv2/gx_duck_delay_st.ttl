@@ -52,6 +52,14 @@
 
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+The delayed signal added to output dependent of input signal amplitude. 
+If the input signal is high. The delayed signall turned off, and vise versa.
+The switching controlled by envelope follower
+
+""";
 
     lv2:port  [
         a lv2:AudioPort ,

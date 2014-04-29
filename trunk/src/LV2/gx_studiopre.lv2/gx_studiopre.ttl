@@ -50,6 +50,16 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+Based on simple Alembic F-2B vstudio preamp
+2 sectionos of 12AX7 together with tonestack and volume
+This is an identical circuit apart from coupling caps whcih could do with filters
+
+*Unofficial documentation
+
+""";
 
     lv2:port [
         a lv2:InputPort ,

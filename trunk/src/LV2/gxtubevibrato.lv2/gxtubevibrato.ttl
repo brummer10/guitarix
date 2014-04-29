@@ -53,6 +53,16 @@
     lv2:minorVersion 28;
     lv2:microVersion 3;
 
+rdfs:comment """
+
+Attempt at a true vibrato
+And it works well!
+Sounds very sweet with tubes wrapped
+
+*Unofficial documentation
+
+""";
+
     lv2:port [
         a lv2:InputPort ,
             lv2:ControlPort ;
