@@ -50,6 +50,14 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+A tape delay simulation plugin.
+
+*Unofficial documentation
+
+""";
 
     lv2:port [
         a lv2:InputPort ,

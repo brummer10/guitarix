@@ -50,6 +50,16 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+Analog wah emulation of the classic Dunlop Crybaby (*), in a auto-wah version.
+
+(*) 'Other product names modeled in this software are trademarks of their respective companies that do not endorse and are not associated or affiliated with MOD.
+Dunlop Crybaby is trademark or trade name of other manufacturer and was used merely to identify the product whose sound was reviewed in the creation of this product.
+All other trademarks are the property of their respective holders.'
+
+""";
 
     lv2:port [
         a lv2:AudioPort ,

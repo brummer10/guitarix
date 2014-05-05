@@ -58,6 +58,15 @@
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxpreamp#gui>;
   
+    lv2:minorVersion 28;
+    lv2:microVersion 3;
+    
+rdfs:comment """
+
+...
+
+""";
+  
     lv2:port [
         a lv2:InputPort ,
             lv2:ControlPort ;

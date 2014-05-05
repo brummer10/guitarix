@@ -52,6 +52,14 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+A stereo echo plugin with independent delay time and delay volume for each channel. It also has a LFO modulator and two modes: linear and pingpong.
+
+*Unofficial documentation
+
+""";
 
     lv2:port [
         a lv2:InputPort ,

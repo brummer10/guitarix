@@ -52,6 +52,12 @@
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxmetal_amp#gui>;
   
+rdfs:comment """
+
+...
+
+""";
+  
     lv2:minorVersion 28;
     lv2:microVersion 3;
 

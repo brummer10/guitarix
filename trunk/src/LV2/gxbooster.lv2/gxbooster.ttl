@@ -50,6 +50,14 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+A 2 band boost plugin. With this plugin you can boost the high and the low frequencies independently.
+
+*Unofficial documentation
+
+""";
 
     lv2:port [
         a lv2:InputPort ,

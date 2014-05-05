@@ -49,6 +49,16 @@
   
     lv2:minorVersion 28;
     lv2:microVersion 3;
+    
+rdfs:comment """
+
+"In the graphic equalizer, the input signal is sent to a bank of filters. Each filter passes the portion of the signal present in its own frequency range or band. The amplitude passed by each filter is adjusted using a slide control to boost or cut frequency components passed by that filter. The vertical position of each slider thus indicates the gain applied at that frequency band, so that the knobs resemble a graph of the equalizer's response plotted versus frequency." Wikipedia
+
+*Unofficial documentation
+
+source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
+
+""";
 
     lv2:port [
         a lv2:InputPort ,
