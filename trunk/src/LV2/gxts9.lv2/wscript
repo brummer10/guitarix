@@ -34,34 +34,35 @@ def build(bld):
         )
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
     
-    uselib_local4 = []
-    libpath4 = []
-    lib4 = []
-    incl4 = ['../../../libgxwmm','../../../libgxw','../']
-    if sys.platform.startswith("linux"):
-        lib4.append('dl')
-    if bld.env["GX_LIB_SHARED"]:
-        lib4 += ['gxwmm','gxw']
-        libpath4 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
-                    bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
-    else:
-        uselib_local4 += ['gxwmm','gxw']
-    
-    lv2_effetcs_gui = bld(
-        features='cxx cshlib ',
-        includes = incl4,
-        lib = lib4,
-        uselib = 'LV2CORE GTKMM',
-        libpath = libpath4,
-        uselib_local = uselib_local4,
-        linkflags = '-Wl,-z,nodelete',
-        defines  = ["LV2_GUI"],
-        target   = 'gxts9_gui',
-        source   = 'widget.cpp gxts9_gui.cpp',
-        install_path = '${LV2DIR}/%s' % bundle,
-        chmod = 0o755,
-        )
-    lv2_effetcs_gui.env['shlib_PATTERN'] = '%s.so'
+    if not bld.env['NOLV2GUI']:
+        uselib_local4 = []
+        libpath4 = []
+        lib4 = []
+        incl4 = ['../../../libgxwmm','../../../libgxw','../']
+        if sys.platform.startswith("linux"):
+            lib4.append('dl')
+        if bld.env["GX_LIB_SHARED"]:
+            lib4 += ['gxwmm','gxw']
+            libpath4 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
+                        bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
+        else:
+            uselib_local4 += ['gxwmm','gxw']
+        
+        lv2_effetcs_gui = bld(
+            features='cxx cshlib ',
+            includes = incl4,
+            lib = lib4,
+            uselib = 'LV2CORE GTKMM',
+            libpath = libpath4,
+            uselib_local = uselib_local4,
+            linkflags = '-Wl,-z,nodelete',
+            defines  = ["LV2_GUI"],
+            target   = 'gxts9_gui',
+            source   = 'widget.cpp gxts9_gui.cpp',
+            install_path = '${LV2DIR}/%s' % bundle,
+            chmod = 0o755,
+            )
+        lv2_effetcs_gui.env['shlib_PATTERN'] = '%s.so'
 
     
     install_path = '${LV2DIR}/%s' % bundle,
