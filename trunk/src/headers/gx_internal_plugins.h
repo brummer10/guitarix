@@ -796,4 +796,89 @@ public:
 };
 
 
+/****************************************************************************
+*
+* NAME: smbPitchShift.cpp
+* VERSION: 1.2
+* HOME URL: http://www.dspdimension.com
+* KNOWN BUGS: none
+* 
+*
+* COPYRIGHT 1999-2009 Stephan M. Bernsee <smb [AT] dspdimension [DOT] com>
+* 
+* Modified for guitarix by Hermann Meyer 2014
+*
+* 						The Wide Open License (WOL)
+*
+* Permission to use, copy, modify, distribute and sell this software and its
+* documentation for any purpose is hereby granted without fee, provided that
+* the above copyright notice and this license appear in all source copies. 
+* THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED WARRANTY OF
+* ANY KIND. See http://www.dspguru.com/wol.htm for more information.
+*
+*****************************************************************************/ 
+
+
+#define M_PI 3.14159265358979323846
+#define MAX_FRAME_LENGTH 8096
+
+class smbPitchShift : public PluginDef {
+private:
+    gx_resample::SimpleResampler resamp;
+    EngineControl&  engine;
+	bool            mem_allocated;
+    sigc::slot<void> sync;
+    float gInFIFO[MAX_FRAME_LENGTH];
+	float gOutFIFO[MAX_FRAME_LENGTH];
+    float *hanning;
+    float *hanningd;
+    float *resampin;
+    float *resampout;
+	float gLastPhase[MAX_FRAME_LENGTH/2+1];
+	float gSumPhase[MAX_FRAME_LENGTH/2+1];
+	float gOutputAccum[2*MAX_FRAME_LENGTH];
+	float gAnaFreq[MAX_FRAME_LENGTH];
+	float gAnaMagn[MAX_FRAME_LENGTH];
+	float gSynFreq[MAX_FRAME_LENGTH];
+	float gSynMagn[MAX_FRAME_LENGTH];
+	float semitones;
+	float octave,a,b,c,d;
+	float wet;
+	float dry;
+    float mpi, mpi1;
+	int   osamp, numSampsToProcess, fftFrameSize, sampleRate ;
+	long  gRover , gInit ;
+	double magn, phase, tmp, window, real, imag;
+	double freqPerBin, freqPerBin1, expct;
+    double fftFrameSize3;
+    double fftFrameSize4;
+    double fftFrameSize16;
+    double osamp1,osamp2;
+	long   i,k, qpd, index, inFifoLatency, stepSize, fftFrameSize2;
+	
+    fftwf_complex fftw_in[MAX_FRAME_LENGTH], fftw_out[MAX_FRAME_LENGTH];
+    fftwf_plan ftPlanForward, ftPlanInverse;
+    
+    inline int load_ui_f(const UiBuilder& b, int form);
+   
+    void mem_alloc();
+	void mem_free();
+	int activate(bool start);
+	bool setParameters( int sampleRate);
+	void PitchShift(int count, float *indata, float *outdata);
+    void change_buffersize(unsigned int size);
+    static int  activate_static(bool start, PluginDef*);
+    static void del_instance(PluginDef *p);
+    static int registerparam(const ParamReg& reg);
+    static int load_ui_f_static(const UiBuilder& b, int form);
+	static void init(unsigned int sampleRate, PluginDef *plugin); 
+    static void compute_static(int count, float *input0, float *output0, PluginDef *p); 
+
+public:
+    Plugin plugin;
+	smbPitchShift(EngineControl& engine, sigc::slot<void> sync);
+	~smbPitchShift();
+};
+
+
 } // namespace gx_engine

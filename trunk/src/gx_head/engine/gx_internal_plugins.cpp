@@ -1102,7 +1102,7 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
 }
 
 /****************************************************************
- ** class LiveLooper
+ ** class smbPitchShift
  */
 
 #include "gx_livelooper.cc"
@@ -1112,5 +1112,370 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
  */
 
 #include "gx_record.cc"
+
+
+/****************************************************************************
+*
+* NAME: smbPitchShift.cpp
+* VERSION: 1.2
+* HOME URL: http://www.dspdimension.com
+* KNOWN BUGS: none
+* 
+*
+* COPYRIGHT 1999-2009 Stephan M. Bernsee <smb [AT] dspdimension [DOT] com>
+* 
+* Modified for guitarix by Hermann Meyer 2014
+*
+* 						The Wide Open License (WOL)
+*
+* Permission to use, copy, modify, distribute and sell this software and its
+* documentation for any purpose is hereby granted without fee, provided that
+* the above copyright notice and this license appear in all source copies. 
+* THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED WARRANTY OF
+* ANY KIND. See http://www.dspguru.com/wol.htm for more information.
+*
+*****************************************************************************/ 
+
+bool smbPitchShift::setParameters(int sampleRate_)
+{
+    numSampsToProcess = int(engine.get_buffersize());
+    fftFrameSize = numSampsToProcess/4;
+    sampleRate = sampleRate_;
+	osamp = 8;
+	osamp1 = 1./osamp;
+    osamp2 = 2.*M_PI*osamp1;
+    mpi = (1./(2.*M_PI)) * osamp;
+    mpi1 = 1./M_PI;
+
+	gRover = false;
+	return true;
+}
+
+smbPitchShift::smbPitchShift(EngineControl& engine_, sigc::slot<void> sync_):
+PluginDef(),
+engine(engine_),
+sync(sync_),
+plugin() 
+{
+	/* set up some handy variables */
+	if (gRover == false) gRover = inFifoLatency;
+    memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gLastPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
+    memset(gSumPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
+    memset(gOutputAccum, 0, 2*MAX_FRAME_LENGTH*sizeof(float));
+    memset(gAnaFreq, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gAnaMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
+    version = PLUGINDEF_VERSION;
+    id = "smbPitchShift";
+    name = N_("Detune");
+    groups = 0;
+	description = N_("detune and pitch shift up"); // description (tooltip)
+	category = N_("Misc");       // category
+    mono_audio = compute_static;
+	stereo_audio = 0;
+    set_samplerate = init;
+	activate_plugin = activate_static;
+    register_params = registerparam;
+    delete_instance = del_instance;
+    load_ui = load_ui_f_static;
+    plugin = this;
+    engine.signal_buffersize_change().connect(
+	sigc::mem_fun(*this, &smbPitchShift::change_buffersize));
+}
+
+void smbPitchShift::init(unsigned int samplingFreq, PluginDef *plugin) {
+    static_cast<smbPitchShift*>(plugin)->setParameters(samplingFreq);
+    
+}
+
+void smbPitchShift::mem_alloc()
+{
+    numSampsToProcess = int(engine.get_buffersize());
+    sampleRate = int(engine.get_samplerate());
+    fftFrameSize = numSampsToProcess/4;
+	fftFrameSize2 = fftFrameSize/2;
+	fftFrameSize16 = fftFrameSize2/24;
+	stepSize = fftFrameSize/osamp;
+	freqPerBin = (double)(sampleRate/4)/(double)fftFrameSize;
+    freqPerBin1 = (1/freqPerBin)*osamp2;
+	expct = 2.*M_PI*(double)stepSize/(double)fftFrameSize;
+	inFifoLatency = fftFrameSize-stepSize;
+    fftFrameSize3 = 2. * (1./ ((double)(fftFrameSize2)*osamp));
+    fftFrameSize4 = 1./(double)fftFrameSize;
+
+    hanning = new float[fftFrameSize];
+    for (k = 0; k < fftFrameSize;k++) {
+        hanning[k] = 0.5*(1-cos(2.*M_PI*(double)k/((double)fftFrameSize)));
+    }
+    hanningd = new float[fftFrameSize];
+    for (k = 0; k < fftFrameSize;k++) {
+        hanningd[k] = 0.5*(1-cos(2.*M_PI*(double)k * fftFrameSize4)) * fftFrameSize3; 
+    }
+    resampin = new float[fftFrameSize];
+    for (k = 0; k < fftFrameSize;k++) {
+        resampin[k] = 0.0; 
+    }
+    resampout = new float[numSampsToProcess];
+    for (k = 0; k < numSampsToProcess;k++) {
+        resampout[k] = 0.0; 
+    }
+    //create FFTW plan
+    ftPlanForward = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_FORWARD, FFTW_MEASURE);
+    ftPlanInverse = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_BACKWARD, FFTW_MEASURE);
+    
+    resamp.setup(sampleRate,4);
+    gRover = false;
+
+    mem_allocated = true;
+}
+
+void smbPitchShift::mem_free()
+{
+	mem_allocated = false;
+	if (hanning) { delete hanning; hanning = 0; }
+	if (hanningd) { delete hanningd; hanningd = 0; }
+	if (resampin) { delete resampin; resampin = 0; }
+	if (resampout) { delete resampout; resampout = 0; }
+    if (ftPlanForward) fftwf_destroy_plan(ftPlanForward);
+    ftPlanForward = 0;
+    if (ftPlanInverse) fftwf_destroy_plan(ftPlanInverse);
+    ftPlanInverse = 0;
+}
+
+
+int smbPitchShift::activate(bool start)
+{
+	if (start) {
+		if (!mem_allocated) {
+			mem_alloc();
+		}
+	} else if (mem_allocated) {
+		mem_free();
+	}
+	return 0;
+}
+
+void smbPitchShift::change_buffersize(unsigned int size)
+{
+	sync();
+    if (mem_allocated) {
+        mem_free();
+        mem_alloc();
+	}
+}
+
+smbPitchShift::~smbPitchShift()
+{
+    fftwf_destroy_plan(ftPlanForward);  
+    fftwf_destroy_plan(ftPlanInverse);  
+    delete hanning;
+    delete hanningd;
+    delete resampin;
+    delete resampout;
+}
+
+// -----------------------------------------------------------------------------------------------------------------
+void __rt_func smbPitchShift::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<smbPitchShift*>(p)->PitchShift(count, input0, output0);
+}
+
+
+void always_inline smbPitchShift::PitchShift(int count, float *indata, float *outdata)
+{
+    if (!mem_allocated) return;
+    resamp.down(fftFrameSize,indata,resampin);
+    double 	fSlow0 = (0.01 * wet);
+    double 	fSlow1 = (0.01 * dry);
+    float tone =12*octave;
+    
+	float pitchShift = pow(2., (semitones+tone)/12.);
+    fftFrameSize16 = (semitones+tone)>0 ? 0 : fftFrameSize2/24;
+	/* main processing loop */
+	for (i = 0; i < fftFrameSize; i++){
+
+		/* As long as we have not yet collected enough data just read in */
+        float fTemp = resampin[i];
+		gInFIFO[gRover] = fTemp;
+		resampin[i] = gOutFIFO[gRover-inFifoLatency];
+		gRover++;
+
+		/* now we have enough data for processing */
+		if (gRover >= fftFrameSize) {
+			gRover = inFifoLatency;
+
+			/* do windowing and re,im interleave */
+			for (k = 0; k < fftFrameSize;k++) {
+                fftw_in[k][0] = gInFIFO[k] * hanning[k];
+                fftw_in[k][1] = 0.0;
+			}
+
+
+			/* ***************** ANALYSIS ******************* */
+			/* do transform */
+            fftwf_execute(ftPlanForward);
+
+			/* this is the analysis step */
+			for (k = 0; k <= fftFrameSize2; k++) {
+
+				/* de-interlace FFT buffer */
+                real = fftw_out[k][0];
+                imag = fftw_out[k][1];
+
+				/* compute magnitude and phase */
+				magn = 2.*sqrt(real*real + imag*imag);
+				phase = atan2(imag,real);
+
+				/* compute phase difference */
+				tmp = phase - gLastPhase[k];
+				gLastPhase[k] = phase;
+
+				/* subtract expected phase difference */
+				tmp -= (double)k*expct;
+
+				/* map delta phase into +/- Pi interval */
+				qpd = tmp*mpi1;
+				if (qpd >= 0) qpd += qpd&1;
+				else qpd -= qpd&1;
+				tmp -= M_PI*(double)qpd;
+
+				/* get deviation from bin frequency from the +/- Pi interval */
+				/* compute the k-th partials' true frequency */
+				tmp = (double)k*freqPerBin + tmp*freqPerBin*mpi;
+
+				/* store magnitude and true frequency in analysis arrays */
+				gAnaMagn[k] = magn;
+				gAnaFreq[k] = tmp;
+
+			}
+
+			/* ***************** PROCESSING ******************* */
+			/* this does the actual pitch shifting */
+			memset(gSynMagn, 0, fftFrameSize*sizeof(float));
+			memset(gSynFreq, 0, fftFrameSize*sizeof(float));
+			for (k = 1; k <= fftFrameSize2-2; k++) { 
+				index = k*pitchShift;
+				if (index <= fftFrameSize2) { 
+                    if (index <= fftFrameSize2*0.20)
+                        gSynMagn[index] += gAnaMagn[k]*a; 
+                    else if (index <= fftFrameSize2*0.45)
+                        gSynMagn[index] += gAnaMagn[k]*b; 
+                    else if (index <= fftFrameSize2*0.667)
+                        gSynMagn[index] += gAnaMagn[k]*c; 
+                    else 
+                        gSynMagn[index] += gAnaMagn[k]*d; 
+                       gSynFreq[index] = gAnaFreq[k] * pitchShift; 
+				} 
+			}
+			
+			/* ***************** SYNTHESIS ******************* */
+			/* this is the synthesis step */
+			for (k = 0; k <= fftFrameSize2; k++) {
+
+				/* get magnitude and true frequency from synthesis arrays */
+				magn = gSynMagn[k];
+				//tmp = gSynFreq[k];
+
+				/* subtract bin mid frequency */
+				/* get bin deviation from freq deviation */
+				/* take osamp into account */
+				/* add the overlap phase advance back in */
+				tmp = ((gSynFreq[k] - (double)k*freqPerBin) * freqPerBin1) + ((double)k*expct);
+
+				/* accumulate delta phase to get bin phase */
+				gSumPhase[k] += tmp;
+				phase = gSumPhase[k];
+                if (magn == 0.0) continue;
+
+				/* get real and imag part and re-interleave */                
+                fftw_in[k][0] = magn * cos (phase);
+                fftw_in[k][1] = magn * sin (phase);
+                
+			} 
+
+			/* do inverse transform */
+            fftwf_execute(ftPlanInverse);
+			/* do windowing and add to output accumulator */ 
+			for(k=0; k < fftFrameSize; k++) {
+				//window = -.5*cos(2.*M_PI*(double)k * fftFrameSize4)+.5;
+                gOutputAccum[k] += hanningd[k] * fftw_out[ k][0] ;
+			}
+			for (k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];
+
+			/* shift accumulator */
+			memmove(gOutputAccum, gOutputAccum+stepSize, fftFrameSize*sizeof(float));
+
+			/* move input FIFO */
+			for (k = 0; k < inFifoLatency; k++) gInFIFO[k] = gInFIFO[k+stepSize];
+		}
+	}
+    resamp.up(fftFrameSize,resampin,resampout);
+    for (i = 0; i < count; i++){
+		outdata[i] = ((fSlow0 * resampout[i]) + (fSlow1 *indata[i]));
+    }
+}
+
+int smbPitchShift::registerparam(const ParamReg& reg) {
+    smbPitchShift& self = *static_cast<smbPitchShift*>(reg.plugin);
+    reg.registerVar("smbPitchShift.semitone", N_("detune"), "S", "", &self.semitones, 0.0, -0.25, 0.25, 0.01);
+	static const value_pair octave_values[] = {{"normal"},{"octave up"},{0}};
+	reg.registerEnumVar("smbPitchShift.octave",N_("add harmonics"),"S",N_("add harmonics"),octave_values,&self.octave, 0.0f, 0.0f, 1.0f, 1.0f);
+    reg.registerVar("smbPitchShift.wet", N_("wet amount"), "S", "", &self.wet, 50.0, 0.0, 100.0, 1);
+    reg.registerVar("smbPitchShift.dry", N_("dry amount"), "S", "", &self.dry, 50.0, 0.0, 100.0, 1);
+    reg.registerVar("smbPitchShift.a", N_("low"), "S", N_("low"), &self.a, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.b", N_("middle low"), "S", N_("middle low"), &self.b, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.c", N_("middle treble"), "S", N_("middle treble"), &self.c, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.d", N_("treble"), "S", N_("treble"), &self.d, 1.0, 0.0, 2.0, 0.01);
+    return 0;
+}
+
+int smbPitchShift::load_ui_f(const UiBuilder& b, int form) {
+    if (form & UI_FORM_STACK) {
+    b.openHorizontalhideBox("");
+    {
+        b.create_master_slider("smbPitchShift.semitone",0);
+    }
+    b.closeBox();
+    b.openVerticalBox("");
+    {
+    b.openHorizontalBox("");
+    {
+    b.create_selector_no_caption("smbPitchShift.octave");
+	b.create_small_rackknob("smbPitchShift.semitone",0);
+	b.create_small_rackknob("smbPitchShift.dry",0);
+	b.create_small_rackknob("smbPitchShift.wet",0);
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_small_rackknob("smbPitchShift.a",0);
+    b.create_small_rackknob("smbPitchShift.b",0);
+    b.create_small_rackknob("smbPitchShift.c",0);
+    b.create_small_rackknob("smbPitchShift.d",0);
+    }
+    b.closeBox();
+    }
+    b.closeBox();
+    return 0;
+    }
+    return -1;
+}
+
+int smbPitchShift::activate_static(bool start, PluginDef *p)
+{
+	return static_cast<smbPitchShift*>(p)->activate(start);
+}
+
+int smbPitchShift::load_ui_f_static(const UiBuilder& b, int form)
+{
+    return static_cast<smbPitchShift*>(b.plugin)->load_ui_f(b, form);
+}
+
+void smbPitchShift::del_instance(PluginDef *p)
+{
+    delete static_cast<smbPitchShift*>(p);
+}
+
 
 } // namespace gx_engine
