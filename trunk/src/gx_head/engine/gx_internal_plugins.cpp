@@ -1146,7 +1146,13 @@ bool smbPitchShift::setParameters(int sampleRate_)
     osamp2 = 2.*M_PI*osamp1;
     mpi = (1./(2.*M_PI)) * osamp;
     mpi1 = 1./M_PI;
-
+	hanning = 0; 
+	hanningd = 0;
+	resampin = 0;
+	resampout = 0;
+    ftPlanForward = 0;
+    ftPlanInverse = 0;
+    mem_allocated = false;
 	gRover = false;
 	return true;
 }
@@ -1237,10 +1243,10 @@ void smbPitchShift::mem_free()
 	if (hanningd) { delete hanningd; hanningd = 0; }
 	if (resampin) { delete resampin; resampin = 0; }
 	if (resampout) { delete resampout; resampout = 0; }
-    if (ftPlanForward) fftwf_destroy_plan(ftPlanForward);
-    ftPlanForward = 0;
-    if (ftPlanInverse) fftwf_destroy_plan(ftPlanInverse);
-    ftPlanInverse = 0;
+    if (ftPlanForward)
+        {fftwf_destroy_plan(ftPlanForward);ftPlanForward = 0; }
+    if (ftPlanInverse) 
+        { fftwf_destroy_plan(ftPlanInverse);ftPlanInverse = 0; }
 }
 
 
@@ -1267,12 +1273,14 @@ void smbPitchShift::change_buffersize(unsigned int size)
 
 smbPitchShift::~smbPitchShift()
 {
-    fftwf_destroy_plan(ftPlanForward);  
-    fftwf_destroy_plan(ftPlanInverse);  
-    delete hanning;
-    delete hanningd;
-    delete resampin;
-    delete resampout;
+	if (hanning) { delete hanning; hanning = 0; }
+	if (hanningd) { delete hanningd; hanningd = 0; }
+	if (resampin) { delete resampin; resampin = 0; }
+	if (resampout) { delete resampout; resampout = 0; }
+    if (ftPlanForward)
+        {fftwf_destroy_plan(ftPlanForward);ftPlanForward = 0; }
+    if (ftPlanInverse)
+        {fftwf_destroy_plan(ftPlanInverse);ftPlanInverse = 0; }
 }
 
 // -----------------------------------------------------------------------------------------------------------------
