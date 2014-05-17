@@ -1140,12 +1140,15 @@ bool smbPitchShift::setParameters(int sampleRate_)
 {
     numSampsToProcess = int(engine.get_buffersize());
     fftFrameSize = numSampsToProcess/4;
-    sampleRate = sampleRate_;
+    sampleRate = int(sampleRate_);
+    assert(sampleRate>0);
 	osamp = 8;
 	osamp1 = 1./osamp;
     osamp2 = 2.*M_PI*osamp1;
     mpi = (1./(2.*M_PI)) * osamp;
     mpi1 = 1./M_PI;
+	fpb = 0; 
+	expect = 0; 
 	hanning = 0; 
 	hanningd = 0;
 	resampin = 0;
@@ -1153,6 +1156,7 @@ bool smbPitchShift::setParameters(int sampleRate_)
 	indata2 = 0;
     ftPlanForward = 0;
     ftPlanInverse = 0;
+    resamp.setup(sampleRate,4);
     mem_allocated = false;
 	gRover = false;
 	return true;
@@ -1200,17 +1204,20 @@ void smbPitchShift::init(unsigned int samplingFreq, PluginDef *plugin) {
 void smbPitchShift::mem_alloc()
 {
     numSampsToProcess = int(engine.get_buffersize());
+    assert(numSampsToProcess>0);
     sampleRate = int(engine.get_samplerate());
-    if (numSampsToProcess < 2048) {
+    assert(sampleRate>0);
+    
+    if (numSampsToProcess <= 2048) {
         fftFrameSize = 512 ; //numSampsToProcess/4;
     } else {
         fftFrameSize = numSampsToProcess/4 ;
     }
 	fftFrameSize2 = fftFrameSize/2;
-	fftFrameSize16 = fftFrameSize2/24;
 	stepSize = fftFrameSize/osamp;
 	freqPerBin = (double)(sampleRate/4)/(double)fftFrameSize;
     freqPerBin1 = (1/freqPerBin)*osamp2;
+    freqPerBin2 = freqPerBin*mpi;
 	expct = 2.*M_PI*(double)stepSize/(double)fftFrameSize;
 	inFifoLatency = fftFrameSize-stepSize;
     fftFrameSize3 = 2. * (1./ ((double)(fftFrameSize2)*osamp));
@@ -1218,36 +1225,56 @@ void smbPitchShift::mem_alloc()
     ai = 0;
     aio = 0;
     ii = 0;
+    memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gLastPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
+    memset(gSumPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
+    memset(gOutputAccum, 0, 2*MAX_FRAME_LENGTH*sizeof(float));
+    memset(gAnaFreq, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gAnaMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
 
-    hanning = new float[fftFrameSize];
-    for (k = 0; k < fftFrameSize;k++) {
-        hanning[k] = 0.5*(1-cos(2.*M_PI*(double)k/((double)fftFrameSize)));
-    }
-    hanningd = new float[fftFrameSize];
-    for (k = 0; k < fftFrameSize;k++) {
-        hanningd[k] = 0.5*(1-cos(2.*M_PI*(double)k * fftFrameSize4)) * fftFrameSize3; 
-    }
-    resampin = new float[fftFrameSize];
-    for (k = 0; k < fftFrameSize;k++) {
-        resampin[k] = 0.0; 
-    }
-    resampin2 = new float[fftFrameSize];
-    for (k = 0; k < fftFrameSize;k++) {
-        resampin2[k] = 0.0; 
-    }
-    resampout = new float[fftFrameSize*4];
-    for (k = 0; k < fftFrameSize*4;k++) {
-        resampout[k] = 0.0; 
-    }
-    indata2 = new float[fftFrameSize*4];
-    for (k = 0; k < fftFrameSize*4;k++) {
-        indata2[k] = 0.0; 
-    }
-    //create FFTW plan
-    ftPlanForward = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_FORWARD, FFTW_MEASURE);
-    ftPlanInverse = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_BACKWARD, FFTW_MEASURE);
+    try {
+        fpb = new float[fftFrameSize2];
+        for (k = 0; k < fftFrameSize2;k++) {
+            fpb[k] = (double)k*freqPerBin;
+        }
+        expect = new float[fftFrameSize2];
+        for (k = 0; k < fftFrameSize2;k++) {
+            expect[k] = (double)k*expct;
+        }
+        hanning = new float[fftFrameSize];
+        for (k = 0; k < fftFrameSize;k++) {
+            hanning[k] = 0.5*(1-cos(2.*M_PI*(double)k/((double)fftFrameSize)));
+        }
+        hanningd = new float[fftFrameSize];
+        for (k = 0; k < fftFrameSize;k++) {
+            hanningd[k] = 0.5*(1-cos(2.*M_PI*(double)k * fftFrameSize4)) * fftFrameSize3; 
+        }
+        resampin = new float[fftFrameSize];
+        for (k = 0; k < fftFrameSize;k++) {
+            resampin[k] = 0.0; 
+        }
+        resampin2 = new float[fftFrameSize];
+        for (k = 0; k < fftFrameSize;k++) {
+            resampin2[k] = 0.0; 
+        }
+        resampout = new float[fftFrameSize*4];
+        for (k = 0; k < fftFrameSize*4;k++) {
+            resampout[k] = 0.0; 
+        }
+        indata2 = new float[fftFrameSize*4];
+        for (k = 0; k < fftFrameSize*4;k++) {
+            indata2[k] = 0.0; 
+        }
+        //create FFTW plan
+        ftPlanForward = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_FORWARD, FFTW_MEASURE);
+        ftPlanInverse = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_BACKWARD, FFTW_MEASURE);
+    } catch(...) {
+            gx_print_error("detune", "cant allocate memory pool");
+            return;
+        }
     
-    resamp.setup(sampleRate,4);
+    
     gRover = 0;
 
     mem_allocated = true;
@@ -1258,6 +1285,8 @@ void smbPitchShift::mem_free()
 {
     ready = false;
 	mem_allocated = false;
+	if (fpb) { delete fpb; fpb = 0; }
+	if (expect) { delete expect; expect = 0; }
 	if (hanning) { delete hanning; hanning = 0; }
 	if (hanningd) { delete hanningd; hanningd = 0; }
 	if (resampin) { delete resampin; resampin = 0; }
@@ -1294,6 +1323,8 @@ void smbPitchShift::change_buffersize(unsigned int size)
 
 smbPitchShift::~smbPitchShift()
 {
+	if (fpb) { delete fpb; fpb = 0; }
+	if (expect) { delete expect; expect = 0; }
 	if (hanning) { delete hanning; hanning = 0; }
 	if (hanningd) { delete hanningd; hanningd = 0; }
 	if (resampin) { delete resampin; resampin = 0; }
@@ -1348,8 +1379,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
           default:
             break;
         }
-        float pitchShift = pow(2., (semitones+tone)/12.);
-        fftFrameSize16 = (semitones+tone)>0 ? 0 : fftFrameSize2/24;
+        float pitchShift = pow(2., (semitones+tone)*0.0833333333);
         /* main processing loop */
         for (i = 0; i < fftFrameSize; i++){
 
@@ -1390,7 +1420,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
                     gLastPhase[k] = phase;
 
                     /* subtract expected phase difference */
-                    tmp -= (double)k*expct;
+                    tmp -= expect[k];
 
                     /* map delta phase into +/- Pi interval */
                     qpd = tmp*mpi1;
@@ -1400,7 +1430,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
 
                     /* get deviation from bin frequency from the +/- Pi interval */
                     /* compute the k-th partials' true frequency */
-                    tmp = (double)k*freqPerBin + tmp*freqPerBin*mpi;
+                    tmp = fpb[k] + tmp*freqPerBin2;
 
                     /* store magnitude and true frequency in analysis arrays */
                     gAnaMagn[k] = magn;
@@ -1439,7 +1469,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
                     /* get bin deviation from freq deviation */
                     /* take osamp into account */
                     /* add the overlap phase advance back in */
-                    tmp = ((gSynFreq[k] - (double)k*freqPerBin) * freqPerBin1) + ((double)k*expct);
+                    tmp = ((gSynFreq[k] - fpb[k]) * freqPerBin1) + expect[k];
 
                     /* accumulate delta phase to get bin phase */
                     gSumPhase[k] += tmp;

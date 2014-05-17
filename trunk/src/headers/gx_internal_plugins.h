@@ -831,6 +831,8 @@ private:
 	volatile bool ready;
     float gInFIFO[MAX_FRAME_LENGTH];
 	float gOutFIFO[MAX_FRAME_LENGTH];
+    float *fpb;
+    float *expect;
     float *hanning;
     float *hanningd;
     float *resampin;
@@ -855,10 +857,9 @@ private:
     int ii;
 	long  gRover , gInit ;
 	double magn, phase, tmp, window, real, imag;
-	double freqPerBin, freqPerBin1, expct;
+	double freqPerBin, freqPerBin1, freqPerBin2, expct;
     double fftFrameSize3;
     double fftFrameSize4;
-    double fftFrameSize16;
     double osamp1,osamp2;
 	long   i,k, qpd, index, inFifoLatency, stepSize, fftFrameSize2;
 	
