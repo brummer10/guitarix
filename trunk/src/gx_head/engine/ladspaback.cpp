@@ -1426,6 +1426,8 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std:
     if (!pl.size()) {
         pl.add("/usr/lib/ladspa");
         pl.add("/usr/local/lib/ladspa");
+        pl.add("/usr/lib64/ladspa");
+        pl.add("/usr/local/lib64/ladspa");
     }
     pluginmap d;
     for (gx_system::PathList::iterator it = pl.begin(); it != pl.end(); ++it) {
