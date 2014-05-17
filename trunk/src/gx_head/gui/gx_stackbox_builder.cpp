@@ -363,10 +363,15 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     }
 }
 
+
 bool StackBoxBuilder::set_engine_value(const std::string id) {
+    if (machine.parameter_hasId(id)) {
     if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
       machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id));
     return true;
+    } else {
+    return false;
+    }
 }
 
 void StackBoxBuilder::create_port_display(const std::string& id, const char *label) {
@@ -378,6 +383,7 @@ void StackBoxBuilder::create_port_display(const std::string& id, const char *lab
 }
 
 bool StackBoxBuilder::set_pd_value(Gxw::PortDisplay *w, const std::string id, const std::string& idl, const std::string& idh) {
+    if (machine.parameter_hasId(id)) {
     if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
       float low = machine.get_parameter_value<float>(idl);
       float high = 100-machine.get_parameter_value<float>(idh);
@@ -386,6 +392,9 @@ bool StackBoxBuilder::set_pd_value(Gxw::PortDisplay *w, const std::string id, co
       machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id)+set);
     }
     return true;
+    } else {
+    return false;
+    }
 }
     
 void StackBoxBuilder::create_p_display(const std::string& id, const std::string& idl, const std::string& idh) {
