@@ -829,7 +829,8 @@ private:
 	bool            mem_allocated;
     sigc::slot<void> sync;
 	volatile bool ready;
-    float gInFIFO[MAX_FRAME_LENGTH];
+    ParamMap& param;
+	float gInFIFO[MAX_FRAME_LENGTH];
 	float gOutFIFO[MAX_FRAME_LENGTH];
     float *fpb;
     float *expect;
@@ -850,6 +851,7 @@ private:
 	float octave,a,b,c,d,l;
 	float wet;
 	float dry;
+	float latency;
     float mpi, mpi1;
 	int   osamp, numSampsToProcess, fftFrameSize, sampleRate ;
     int ai;
@@ -867,6 +869,8 @@ private:
     fftwf_plan ftPlanForward, ftPlanInverse;
     
     inline int load_ui_f(const UiBuilder& b, int form);
+	int register_par(const ParamReg& reg);
+    void change_latency();
    
     void mem_alloc();
 	void mem_free();
@@ -883,7 +887,7 @@ private:
 
 public:
     Plugin plugin;
-	smbPitchShift(EngineControl& engine, sigc::slot<void> sync);
+	smbPitchShift(ParamMap& param_, EngineControl& engine, sigc::slot<void> sync);
 	~smbPitchShift();
 };
 

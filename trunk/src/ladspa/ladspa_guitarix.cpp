@@ -913,7 +913,7 @@ MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, Paramet
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync), loop_dir),
-      record(*this, 1), detune(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
+      record(*this, 1), detune(get_param(), *this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
 
     mono_convolver.set_sync(true);
     cabinet.set_sync(true);

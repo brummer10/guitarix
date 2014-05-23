@@ -1142,35 +1142,34 @@ bool smbPitchShift::setParameters(int sampleRate_)
     fftFrameSize = numSampsToProcess/4;
     sampleRate = int(sampleRate_);
     assert(sampleRate>0);
-	osamp = 8;
-	osamp1 = 1./osamp;
+    osamp = 8;
+    osamp1 = 1./osamp;
     osamp2 = 2.*M_PI*osamp1;
     mpi = (1./(2.*M_PI)) * osamp;
     mpi1 = 1./M_PI;
-	fpb = 0; 
-	expect = 0; 
-	hanning = 0; 
-	hanningd = 0;
-	resampin = 0;
-	resampout = 0;
-	indata2 = 0;
+    fpb = 0; 
+    expect = 0; 
+    hanning = 0; 
+    hanningd = 0;
+    resampin = 0;
+    resampout = 0;
+    indata2 = 0;
     ftPlanForward = 0;
     ftPlanInverse = 0;
     resamp.setup(sampleRate,4);
     mem_allocated = false;
-	gRover = false;
-	return true;
+    gRover = false;
+    return true;
 }
 
-smbPitchShift::smbPitchShift(EngineControl& engine_, sigc::slot<void> sync_):
-PluginDef(),
-engine(engine_),
-sync(sync_),
-ready(false),
-plugin()
-	{
-	/* set up some handy variables */
-	if (gRover == false) gRover = inFifoLatency;
+smbPitchShift::smbPitchShift(ParamMap& param_, EngineControl& engine_, sigc::slot<void> sync_):
+  PluginDef(),
+  engine(engine_),
+  sync(sync_),
+  ready(false),
+  param(param_),
+  plugin() {
+    if (gRover == false) gRover = inFifoLatency;
     memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gLastPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
@@ -1182,18 +1181,18 @@ plugin()
     id = "smbPitchShift";
     name = N_("Detune");
     groups = 0;
-	description = N_("detune and pitch shift up"); // description (tooltip)
-	category = N_("Misc");       // category
+    description = N_("detune and pitch shift up"); // description (tooltip)
+    category = N_("Misc");       // category
     mono_audio = compute_static;
-	stereo_audio = 0;
+    stereo_audio = 0;
     set_samplerate = init;
-	activate_plugin = activate_static;
+    activate_plugin = activate_static;
     register_params = registerparam;
     delete_instance = del_instance;
     load_ui = load_ui_f_static;
     plugin = this;
     engine.signal_buffersize_change().connect(
-	sigc::mem_fun(*this, &smbPitchShift::change_buffersize));
+    sigc::mem_fun(*this, &smbPitchShift::change_buffersize));
 }
 
 void smbPitchShift::init(unsigned int samplingFreq, PluginDef *plugin) {
@@ -1208,18 +1207,35 @@ void smbPitchShift::mem_alloc()
     sampleRate = int(engine.get_samplerate());
     assert(sampleRate>0);
     
-    if (numSampsToProcess <= 2048) {
-        fftFrameSize = 512 ; //numSampsToProcess/4;
-    } else {
-        fftFrameSize = numSampsToProcess/4 ;
+    switch(int(latency)) {
+      case(0):
+        if (numSampsToProcess <= 2048) {
+          fftFrameSize = 512 ; 
+        } else {
+          fftFrameSize = numSampsToProcess*0.25 ;
+        }
+        break;
+      case(1):
+        fftFrameSize = numSampsToProcess;
+        break;
+      case(2):
+        fftFrameSize = numSampsToProcess*0.25;
+        break;
+      default:
+        if (numSampsToProcess <= 2048) {
+          fftFrameSize = 512 ; 
+        } else {
+          fftFrameSize = numSampsToProcess*0.25 ;
+        }
+        break;
     }
-	fftFrameSize2 = fftFrameSize/2;
-	stepSize = fftFrameSize/osamp;
-	freqPerBin = (double)(sampleRate/4)/(double)fftFrameSize;
+    fftFrameSize2 = fftFrameSize/2;
+    stepSize = fftFrameSize/osamp;
+    freqPerBin = (double)(sampleRate/4)/(double)fftFrameSize;
     freqPerBin1 = (1/freqPerBin)*osamp2;
     freqPerBin2 = freqPerBin*mpi;
-	expct = 2.*M_PI*(double)stepSize/(double)fftFrameSize;
-	inFifoLatency = fftFrameSize-stepSize;
+    expct = 2.*M_PI*(double)stepSize/(double)fftFrameSize;
+    inFifoLatency = fftFrameSize-stepSize;
     fftFrameSize3 = 2. * (1./ ((double)(fftFrameSize2)*osamp));
     fftFrameSize4 = 1./(double)fftFrameSize;
     ai = 0;
@@ -1284,15 +1300,15 @@ void smbPitchShift::mem_alloc()
 void smbPitchShift::mem_free()
 {
     ready = false;
-	mem_allocated = false;
-	if (fpb) { delete fpb; fpb = 0; }
-	if (expect) { delete expect; expect = 0; }
-	if (hanning) { delete hanning; hanning = 0; }
-	if (hanningd) { delete hanningd; hanningd = 0; }
-	if (resampin) { delete resampin; resampin = 0; }
-	if (resampin2) { delete resampin2; resampin2 = 0; }
-	if (resampout) { delete resampout; resampout = 0; }
-	if (indata2) { delete indata2; indata2 = 0; }
+    mem_allocated = false;
+    if (fpb) { delete fpb; fpb = 0; }
+    if (expect) { delete expect; expect = 0; }
+    if (hanning) { delete hanning; hanning = 0; }
+    if (hanningd) { delete hanningd; hanningd = 0; }
+    if (resampin) { delete resampin; resampin = 0; }
+    if (resampin2) { delete resampin2; resampin2 = 0; }
+    if (resampout) { delete resampout; resampout = 0; }
+    if (indata2) { delete indata2; indata2 = 0; }
     if (ftPlanForward)
         {fftwf_destroy_plan(ftPlanForward);ftPlanForward = 0; }
     if (ftPlanInverse) 
@@ -1302,35 +1318,44 @@ void smbPitchShift::mem_free()
 
 int smbPitchShift::activate(bool start)
 {
-	if (start) {
-		if (!mem_allocated) {
-			mem_alloc();
-		}
-	} else if (mem_allocated) {
-		mem_free();
-	}
-	return 0;
+    if (start) {
+        if (!mem_allocated) {
+            mem_alloc();
+        }
+    } else if (mem_allocated) {
+        mem_free();
+    }
+    return 0;
 }
 
 void smbPitchShift::change_buffersize(unsigned int size)
 {
-	sync();
+    sync();
     if (mem_allocated) {
         mem_free();
         mem_alloc();
-	}
+    }
+}
+
+void smbPitchShift::change_latency()
+{
+    sync();
+    if (mem_allocated) {
+        mem_free();
+        mem_alloc();
+    }
 }
 
 smbPitchShift::~smbPitchShift()
 {
-	if (fpb) { delete fpb; fpb = 0; }
-	if (expect) { delete expect; expect = 0; }
-	if (hanning) { delete hanning; hanning = 0; }
-	if (hanningd) { delete hanningd; hanningd = 0; }
-	if (resampin) { delete resampin; resampin = 0; }
-	if (resampin2) { delete resampin2; resampin2 = 0; }
-	if (resampout) { delete resampout; resampout = 0; }
-	if (indata2) { delete indata2; indata2 = 0; }
+    if (fpb) { delete fpb; fpb = 0; }
+    if (expect) { delete expect; expect = 0; }
+    if (hanning) { delete hanning; hanning = 0; }
+    if (hanningd) { delete hanningd; hanningd = 0; }
+    if (resampin) { delete resampin; resampin = 0; }
+    if (resampin2) { delete resampin2; resampin2 = 0; }
+    if (resampout) { delete resampout; resampout = 0; }
+    if (indata2) { delete indata2; indata2 = 0; }
     if (ftPlanForward)
         {fftwf_destroy_plan(ftPlanForward);ftPlanForward = 0; }
     if (ftPlanInverse)
@@ -1348,8 +1373,8 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
 {
     if (!ready) return;
     resamp.down(count*0.25,indata,resampin);
-    double 	fSlow0 = (0.01 * wet);
-    double 	fSlow1 = (0.01 * dry);
+    double     fSlow0 = (0.01 * wet);
+    double     fSlow1 = (0.01 * dry);
     
     float tone =0;
 
@@ -1512,21 +1537,29 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
     }
 }
 
+int smbPitchShift::register_par(const ParamReg& reg) 
+{
+    reg.registerVar("smbPitchShift.semitone", N_("detune"), "S", "", &semitones, 0.0, -0.25, 0.25, 0.01);
+    static const value_pair octave_values[] = {{"normal"},{"octave up"},{"octave down"},{0}};
+    reg.registerEnumVar("smbPitchShift.octave",N_("add harmonics"),"S",N_("add harmonics"),octave_values,&octave, 0.0f, 0.0f, 2.0f, 1.0f);
+    static const value_pair latency_values[] = {{"latency "},{"compensate"},{0}};
+    reg.registerEnumVar("smbPitchShift.l",N_("compensate latency"),"S",N_("compensate latency"),latency_values,&l, 0.0f, 0.0f, 1.0f, 1.0f);
+    static const value_pair latency_set[] = {{"high quality"},{"low quality"},{"realtime"},{0}};
+    reg.registerEnumVar("smbPitchShift.latency",N_("latency settings"),"S",N_("latency settings"),latency_set,&latency, 0.0f, 0.0f, 2.0f, 1.0f);
+    reg.registerVar("smbPitchShift.wet", N_("wet amount"), "S", "", &wet, 50.0, 0.0, 100.0, 1);
+    reg.registerVar("smbPitchShift.dry", N_("dry amount"), "S", "", &dry, 50.0, 0.0, 100.0, 1);
+    reg.registerVar("smbPitchShift.a", N_("low"), "S", N_("low"), &a, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.b", N_("middle low"), "S", N_("middle low"), &b, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.c", N_("middle treble"), "S", N_("middle treble"), &c, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.d", N_("treble"), "S", N_("treble"), &d, 1.0, 0.0, 2.0, 0.01);
+    param["smbPitchShift.latency"].signal_changed_float().connect(
+        sigc::hide(sigc::mem_fun(this, &smbPitchShift::change_latency)));
+    return 0;
+}
+
 int smbPitchShift::registerparam(const ParamReg& reg) 
 {
-    smbPitchShift& self = *static_cast<smbPitchShift*>(reg.plugin);
-    reg.registerVar("smbPitchShift.semitone", N_("detune"), "S", "", &self.semitones, 0.0, -0.25, 0.25, 0.01);
-	static const value_pair octave_values[] = {{"normal"},{"octave up"},{"octave down"},{0}};
-	reg.registerEnumVar("smbPitchShift.octave",N_("add harmonics"),"S",N_("add harmonics"),octave_values,&self.octave, 0.0f, 0.0f, 2.0f, 1.0f);
-	static const value_pair latency_values[] = {{"latency "},{"compensate"},{0}};
-	reg.registerEnumVar("smbPitchShift.l",N_("compensate latency"),"S",N_("compensate latency"),latency_values,&self.l, 0.0f, 0.0f, 1.0f, 1.0f);
-    reg.registerVar("smbPitchShift.wet", N_("wet amount"), "S", "", &self.wet, 50.0, 0.0, 100.0, 1);
-    reg.registerVar("smbPitchShift.dry", N_("dry amount"), "S", "", &self.dry, 50.0, 0.0, 100.0, 1);
-    reg.registerVar("smbPitchShift.a", N_("low"), "S", N_("low"), &self.a, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.b", N_("middle low"), "S", N_("middle low"), &self.b, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.c", N_("middle treble"), "S", N_("middle treble"), &self.c, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.d", N_("treble"), "S", N_("treble"), &self.d, 1.0, 0.0, 2.0, 0.01);
-    return 0;
+    return static_cast<smbPitchShift*>(reg.plugin)->register_par(reg);
 }
 
 int smbPitchShift::load_ui_f(const UiBuilder& b, int form) 
@@ -1545,11 +1578,12 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
     {
     b.create_selector_no_caption("smbPitchShift.octave");
     b.create_selector_no_caption("smbPitchShift.l");
+    b.create_selector_no_caption("smbPitchShift.latency");
     }
     b.closeBox();
-	b.create_small_rackknob("smbPitchShift.semitone",0);
-	b.create_small_rackknob("smbPitchShift.dry",0);
-	b.create_small_rackknob("smbPitchShift.wet",0);
+    b.create_small_rackknob("smbPitchShift.semitone",0);
+    b.create_small_rackknob("smbPitchShift.dry",0);
+    b.create_small_rackknob("smbPitchShift.wet",0);
     }
     b.closeBox();
     b.openHorizontalBox("");
@@ -1569,7 +1603,7 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
 
 int smbPitchShift::activate_static(bool start, PluginDef *p)
 {
-	return static_cast<smbPitchShift*>(p)->activate(start);
+    return static_cast<smbPitchShift*>(p)->activate(start);
 }
 
 int smbPitchShift::load_ui_f_static(const UiBuilder& b, int form)
