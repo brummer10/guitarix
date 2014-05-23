@@ -296,11 +296,15 @@ void StackBoxBuilder::set_next_flags(int flags) {
 }
 
 bool StackBoxBuilder::set_simple(Gxw::FastMeter *fastmeter,const std::string id) {
+    if (machine.parameter_hasId(id)) {
     if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
     fastmeter->set_by_power(machine.get_parameter_value<float>(id));
     else
     fastmeter->set_by_power(0.0001);
     return true;
+    } else {
+    return false;
+    }
 }
 
 void StackBoxBuilder::create_simple_meter(const std::string& id) {
