@@ -18,13 +18,14 @@
  */
 
 #include "gx_resampler.h"
+#include <iostream>
 
 namespace gx_resample
 {
 
 // copyed gcd from (zita) resampler.cc to get ratio_a and ratio_b for
 // calculate the correct buffer size resulting from resample
-static uint32_t gcd (uint32_t a, uint32_t b)
+static uint32_t gcd (int32_t a, int32_t b)
 {
   if (a == 0) return b;
   if (b == 0) return a;
@@ -46,8 +47,9 @@ static uint32_t gcd (uint32_t a, uint32_t b)
   return 1;
 }
 
-void SimpleResampler::setup(int32_t sampleRate, uint32_t fact)
+void SimpleResampler::setup(int32_t sampleRate, uint32_t factum)
 {
+  int32_t fact = static_cast<int32_t>(factum);
   int32_t d = gcd(sampleRate, sampleRate*fact);
   ratio_a = sampleRate / d;
   ratio_b = (sampleRate*fact) / d;
@@ -71,6 +73,7 @@ void SimpleResampler::setup(int32_t sampleRate, uint32_t fact)
   r_down.out_count = 1;
   r_down.inp_data = r_down.out_data = 0;
   r_down.process();
+  // std::cout<<"SimpleResampler::setup "<<sampleRate<<" "<<fact<<std::endl;
 }
 
 int32_t SimpleResampler::up(int32_t count, float *input, float *output)
@@ -89,7 +92,7 @@ int32_t SimpleResampler::up(int32_t count, float *input, float *output)
 
 void SimpleResampler::down(int32_t count, float *input, float *output)
 {
-  //r_down.inp_count = count * m_fact;
+  r_down.inp_count = count * m_fact;
   r_down.inp_data = input;
   r_down.out_count = count+1; // +1 == trick to drain input
   r_down.out_data = output;
