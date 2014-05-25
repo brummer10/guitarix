@@ -42,6 +42,7 @@ private:
   float*      latency;
   float       latency_;
   bool        doit;
+  volatile bool mode;
   // pointer to dsp class
   PluginLV2*  detune;
   LV2_URID_Map*                map;
@@ -88,6 +89,7 @@ public:
 Gx_detune_::Gx_detune_() :
   output(NULL),
   input(NULL),
+  mode(false),
   detune(detune::plugin()) {};
 
 // destructor
@@ -105,6 +107,7 @@ Gx_detune_::~Gx_detune_()
 
 void Gx_detune_::do_work_mono()
 {
+    if (mode) detune::smbPitchShift::set_buffersize(detune, bufsize);
     detune::smbPitchShift::change_latency_static(detune);
 }
 void Gx_detune_::init_dsp_(uint32_t rate, uint32_t bufsize_)
@@ -160,6 +163,12 @@ void Gx_detune_::run_dsp_(uint32_t n_samples)
   detune->mono_audio(static_cast<int>(n_samples), input, output, detune);
   if (*(latency) != latency_) {
       latency_ = *(latency) ;
+      mode = false;
+      schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
+  }
+  if (bufsize != n_samples) {
+      bufsize = n_samples;
+      mode = true;
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
   }
 }

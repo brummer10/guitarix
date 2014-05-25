@@ -103,7 +103,7 @@ public:
 bool smbPitchShift::setParameters(int sampleRate_)
 {
    // numSampsToProcess = int(engine.get_buffersize());
-    fftFrameSize = numSampsToProcess/4;
+   //  fftFrameSize = numSampsToProcess/4;
     sampleRate = int(sampleRate_);
     assert(sampleRate>0);
     osamp = 8;
@@ -319,7 +319,7 @@ void __rt_func smbPitchShift::compute_static(int count, float *input0, float *ou
 
 void always_inline smbPitchShift::PitchShift(int count, float *indata, float *outdata)
 {
-    if (!ready || count > numSampsToProcess)  {
+    if (!ready || count != numSampsToProcess)  {
         memcpy(outdata,indata,count*sizeof(float));
         return;
     }
