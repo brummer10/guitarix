@@ -171,7 +171,7 @@ void smbPitchShift::mem_alloc()
         break;
       case(1):
         fftFrameSize = numSampsToProcess;
-        *(latencyr_) = numSampsToProcess*4;
+        *(latencyr_) = numSampsToProcess*3;
         break;
       case(2):
         fftFrameSize = numSampsToProcess*0.25;

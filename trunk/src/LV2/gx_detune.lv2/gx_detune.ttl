@@ -196,7 +196,7 @@ rdfs:comment """
         lv2:ControlPort ;
         lv2:name "latency (samples)" ;
         lv2:index 12 ;
-        lv2:symbol "latency" ;
+        lv2:symbol "latenc" ;
         lv2:minimum 0 ;
         lv2:maximum 2048 ;
         lv2:portProperty lv2:reportsLatency, lv2:integer;

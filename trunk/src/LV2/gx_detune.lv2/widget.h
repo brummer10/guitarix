@@ -77,7 +77,8 @@ public:
 protected:
   Glib::ustring     plug_name;
   Gtk::VBox         m_vbox[11];
-  Gtk::HBox         m_hbox[2];
+  Gtk::HBox         m_hbox;
+  Gtk::Label        m_latencyreport;
 
   Gxw::PaintBox     m_paintbox;
   Gxw::Selector     m_selector[3];

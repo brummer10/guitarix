@@ -99,36 +99,36 @@ plug_name(plugname)
   m_vbox[0].pack_start(m_selector[0]);
   m_vbox[0].pack_start(m_selector[1]);
   m_vbox[0].pack_start(m_selector[2]);
+  m_latencyreport.set_name("amplabel");
+  m_vbox[0].pack_start(m_latencyreport);
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "gxhead_expose";
+  m_paintbox.property_paint_func() = "compressor_expose";
   add(m_paintbox);
   // box for the controllers
-  m_hbox[0].set_spacing(14);
-  m_hbox[1].set_spacing(14);
-  m_hbox[0].set_border_width(44);
-  m_hbox[0].set_homogeneous(false);
+  m_hbox.set_spacing(14);
+  m_hbox.set_border_width(24);
+  m_hbox.set_homogeneous(false);
   // set a vertical box in the paintbox
   m_vbox[8].set_border_width(14);
   m_vbox[10].set_border_width(14);
   m_paintbox.pack_start(m_vbox[9]);
   // and controller box on top
-  m_vbox[9].pack_start(m_hbox[0], Gtk::PACK_SHRINK);
-  m_vbox[9].pack_start(m_hbox[1], Gtk::PACK_SHRINK);
-   // put boxed controllers into controller box
-  m_hbox[1].pack_start(m_vbox[10], Gtk::PACK_EXPAND_PADDING);
-  m_hbox[0].pack_start(m_vbox[0]);
-  m_hbox[0].pack_start(m_vbox[1]);
-  m_hbox[0].pack_start(m_vbox[2]);
-  m_hbox[0].pack_start(m_vbox[3]);
-  m_hbox[1].pack_start(m_vbox[4]);
-  m_hbox[1].pack_start(m_vbox[5]);
-  m_hbox[1].pack_start(m_vbox[6]);
-  m_hbox[1].pack_start(m_vbox[7]);
-  m_hbox[1].pack_start(m_vbox[8], Gtk::PACK_EXPAND_PADDING);
+  m_vbox[9].pack_start(m_hbox, Gtk::PACK_SHRINK);
+  // put boxed controllers into controller box
+  m_hbox.pack_start(m_vbox[10], Gtk::PACK_EXPAND_PADDING);
+  m_hbox.pack_start(m_vbox[0]);
+  m_hbox.pack_start(m_vbox[1]);
+  m_hbox.pack_start(m_vbox[2]);
+  m_hbox.pack_start(m_vbox[3]);
+  m_hbox.pack_start(m_vbox[4]);
+  m_hbox.pack_start(m_vbox[5]);
+  m_hbox.pack_start(m_vbox[6]);
+  m_hbox.pack_start(m_vbox[7]);
+  m_hbox.pack_start(m_vbox[8], Gtk::PACK_EXPAND_PADDING);
 
   // connect expose handler as resize handler
   // m_paintbox.signal_expose_event().connect(
@@ -252,6 +252,13 @@ void Widget::make_switch_box(Gtk::Box *box,
   }
 }
 
+template <class T>
+inline std::string to_string(const T& t) {
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+}
+
 // receive controller value changes from host and set them to controller
 void Widget::set_value(uint32_t port_index,
                        uint32_t format,
@@ -265,6 +272,8 @@ void Widget::set_value(uint32_t port_index,
     if (regler)
     {
       regler->cp_set_value(value);
+    } else if (port_index == LATENCYREPORT) {
+      m_latencyreport.set_text("Latency " +to_string(value));
     }
   }
 }
@@ -279,6 +288,6 @@ void Widget::on_value_changed(uint32_t port_index)
     float value = regler->cp_get_value();
     write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
-  }
+  } 
 }
 
