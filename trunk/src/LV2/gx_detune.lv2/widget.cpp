@@ -87,19 +87,19 @@ plug_name(plugname)
   make_controller_box(&m_vbox[6], "MIDDLETREBLE",  0.0, 2.0, 0.01, MIDDLETREBLE);
   make_controller_box(&m_vbox[7], "TREBLE",  0.0, 2.0, 0.01, TREBLE);
   
-  Glib::ustring octaves[] = {"normal","octave up","octave down"};  
+  Glib::ustring octaves[] = {"no shift","octave up","octave down"};  
   static const size_t _size1 = sizeof(octaves) / sizeof(octaves[0]);
   make_selector("OCTAVE", octaves, _size1, 0, 1.0, OCTAVE);
-  Glib::ustring compensate[] = {"latency ","compensate"};  
+  Glib::ustring compensate[] = {"delay ","compensate"};  
   static const size_t _size2 = sizeof(compensate) / sizeof(compensate[0]);
   make_selector("COMPENSATE", compensate, _size2, 0, 1.0, COMPENSATE);
-  Glib::ustring latency[] = {"high quality","low quality","realtime"};  
+  Glib::ustring latency[] = {"high quality           ","low quality           ","realtime           "};  
   static const size_t _size3 = sizeof(latency) / sizeof(latency[0]);
   make_selector("LATENCY", latency, _size3, 0, 1.0, LATENCY);
   m_vbox[0].pack_start(m_selector[0]);
   m_vbox[0].pack_start(m_selector[1]);
   m_vbox[0].pack_start(m_selector[2]);
-  m_latencyreport.set_name("amplabel");
+  m_latencyreport.set_name("lalabel");
   m_vbox[0].pack_start(m_latencyreport);
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(10);

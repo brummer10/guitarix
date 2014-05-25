@@ -117,6 +117,14 @@ void Gx_detune_GUI::set_skin()
   toparse +=     addKnob;
 
   toparse +=     " widget '*.amplabel' style:highest 'gx_head_expander_box'\n"
+  
+                 "style 'gx_head_latency_box' \n"
+                 " { \n"
+                 "    fg[NORMAL] = '#c0c6d0' \n"
+                 "font_name = 'sans 7.5 ' \n"
+                 " }\n";
+  toparse +=     " widget '*.lalabel' style:highest 'gx_head_latency_box'\n"
+  
                  "widget '*.";
   toparse +=     plug_name;
   toparse +=     "' style 'gx_";
