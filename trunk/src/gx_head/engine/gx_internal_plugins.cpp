@@ -1331,6 +1331,7 @@ int smbPitchShift::activate(bool start)
 void smbPitchShift::change_buffersize(unsigned int size)
 {
     sync();
+    ready = false;
     if (mem_allocated) {
         mem_free();
         mem_alloc();
@@ -1340,6 +1341,7 @@ void smbPitchShift::change_buffersize(unsigned int size)
 void smbPitchShift::change_latency()
 {
     sync();
+    ready = false;
     if (mem_allocated) {
         mem_free();
         mem_alloc();
@@ -1371,7 +1373,12 @@ void __rt_func smbPitchShift::compute_static(int count, float *input0, float *ou
 
 void always_inline smbPitchShift::PitchShift(int count, float *indata, float *outdata)
 {
-    if (!ready) return;
+    
+    if (!ready || count != numSampsToProcess)  {
+        memcpy(outdata,indata,count*sizeof(float));
+        return;
+    }
+    
     resamp.down(count*0.25,indata,resampin);
     double     fSlow0 = (0.01 * wet);
     double     fSlow1 = (0.01 * dry);
