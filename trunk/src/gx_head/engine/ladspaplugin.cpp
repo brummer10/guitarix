@@ -644,6 +644,19 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
 	gx_print_error("lv2loader",ustring::compose(_("Cannot open LV2 plugin: %1"), plug->path));
 	return NULL;
     }
+
+    // check for requested features 
+    LilvNodes* requests = lilv_plugin_get_required_features(plugin);
+	LILV_FOREACH(nodes, f, requests) {
+		const char* uri = lilv_node_as_uri(lilv_nodes_get(requests, f));
+		if (uri) {
+			gx_print_error("lv2loader",ustring::compose(
+            _("Requested feature %1 is not supported,\n"), uri));
+            return NULL;
+		}
+	} 
+	lilv_nodes_free(requests);
+
     int num_inputs = lilv_plugin_get_num_ports_of_class(plugin, loader.lv2_AudioPort, loader.lv2_InputPort, 0);
     int num_outputs = lilv_plugin_get_num_ports_of_class(plugin, loader.lv2_AudioPort, loader.lv2_OutputPort, 0);
     bool mono;
