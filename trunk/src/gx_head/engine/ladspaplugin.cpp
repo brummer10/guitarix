@@ -646,12 +646,15 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
     }
 
     // check for requested features 
-    LilvNodes* requests = lilv_plugin_get_required_features(plugin);
+	LilvNodes* requests = lilv_plugin_get_required_features(plugin);
 	LILV_FOREACH(nodes, f, requests) {
 		const char* uri = lilv_node_as_uri(lilv_nodes_get(requests, f));
 		if (uri) {
-			gx_print_error("lv2loader",ustring::compose(
-            _("Requested feature %1 is not supported,\n"), uri));
+            LilvNode *nm = lilv_plugin_get_name(plugin);
+			gx_print_error("lv2loader::",ustring::compose(
+            _(" %1 \nRequested feature %2 is not supported,\n"),lilv_node_as_string(nm), uri));
+            lilv_nodes_free(requests);
+            lilv_node_free(nm);
             return NULL;
 		}
 	} 
