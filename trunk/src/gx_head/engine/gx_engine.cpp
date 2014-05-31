@@ -374,9 +374,7 @@ void GxEngine::ladspaloader_update_plugins() {
     // look for removed and changed plugins
     std::vector<PluginChange> pv;
     for (LadspaLoader::pluginarray::iterator i = ladspaloader.begin(); i != ladspaloader.end(); ++i) {
-    Plugin *pl = pluginlist.find_plugin((*i)->id_str);
-    if (pl) {
-    // Plugin *pl = pluginlist.lookup_plugin((*i)->id_str);
+	Plugin *pl = pluginlist.lookup_plugin((*i)->id_str);
 	LadspaLoader::pluginarray::iterator j = find_plugin(ml, *i);
 	if (j == ml.end()) {
 	    pl->set_on_off(false);
@@ -395,7 +393,6 @@ void GxEngine::ladspaloader_update_plugins() {
 		    pl,
 		    ((*j)->category == (*i)->category ? PluginChange::update : PluginChange::update_category)));
 	}
-    }
     }
 
     // update engine for plugins to be removed

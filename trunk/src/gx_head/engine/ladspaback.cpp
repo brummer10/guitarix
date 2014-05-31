@@ -1406,6 +1406,19 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d) {
 	}
 	return;
     }
+    
+    // check for requested features 
+	LilvNodes* requests = lilv_plugin_get_required_features(plugin);
+	LILV_FOREACH(nodes, f, requests) {
+		const char* uri = lilv_node_as_uri(lilv_nodes_get(requests, f));
+		if (uri) {
+            lilv_nodes_free(requests);
+           return;
+		}
+	} 
+	lilv_nodes_free(requests);
+
+    
     d[lilv_node_as_string(lilv_plugin_get_uri(plugin))] = new PluginDesc(world, plugin, tp, ctrl_ports);
 }
 
