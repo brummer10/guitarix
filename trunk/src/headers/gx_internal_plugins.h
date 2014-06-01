@@ -874,6 +874,7 @@ private:
    
     void mem_alloc();
 	void mem_free();
+    void clear_state();
 	int activate(bool start);
 	bool setParameters( int sampleRate);
 	void PitchShift(int count, float *indata, float *outdata);

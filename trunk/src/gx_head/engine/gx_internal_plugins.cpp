@@ -1200,6 +1200,55 @@ void smbPitchShift::init(unsigned int samplingFreq, PluginDef *plugin) {
     
 }
 
+void smbPitchShift::clear_state()
+{
+    stepSize = fftFrameSize/osamp;
+    freqPerBin = (double)(sampleRate/4)/(double)fftFrameSize;
+    freqPerBin1 = (1/freqPerBin)*osamp2;
+    freqPerBin2 = freqPerBin*mpi;
+    expct = 2.*M_PI*(double)stepSize/(double)fftFrameSize;
+    inFifoLatency = fftFrameSize-stepSize;
+    fftFrameSize3 = 2. * (1./ ((double)(fftFrameSize2)*osamp));
+    fftFrameSize4 = 1./(double)fftFrameSize;
+    ai = 0;
+    aio = 0;
+    ii = 0;
+    memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gLastPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
+    memset(gSumPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
+    memset(gOutputAccum, 0, 2*MAX_FRAME_LENGTH*sizeof(float));
+    memset(gAnaFreq, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gAnaMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
+    for (k = 0; k < fftFrameSize2;k++) {
+        fpb[k] = (double)k*freqPerBin;
+    }
+    for (k = 0; k < fftFrameSize2;k++) {
+        expect[k] = (double)k*expct;
+    }
+    for (k = 0; k < fftFrameSize;k++) {
+        hanning[k] = 0.5*(1-cos(2.*M_PI*(double)k/((double)fftFrameSize)));
+    }
+    for (k = 0; k < fftFrameSize;k++) {
+        hanningd[k] = 0.5*(1-cos(2.*M_PI*(double)k * fftFrameSize4)) * fftFrameSize3; 
+    }
+    for (k = 0; k < fftFrameSize;k++) {
+        resampin[k] = 0.0; 
+    }
+    for (k = 0; k < fftFrameSize;k++) {
+        resampin2[k] = 0.0; 
+    }
+    for (k = 0; k < fftFrameSize*4;k++) {
+        resampout[k] = 0.0; 
+    }
+    for (k = 0; k < fftFrameSize*4;k++) {
+        indata2[k] = 0.0; 
+    }
+    gRover = inFifoLatency;
+    mem_allocated = true;
+    ready = true;
+}
+
 void smbPitchShift::mem_alloc()
 {
     numSampsToProcess = int(engine.get_buffersize());
@@ -1230,58 +1279,16 @@ void smbPitchShift::mem_alloc()
         break;
     }
     fftFrameSize2 = fftFrameSize/2;
-    stepSize = fftFrameSize/osamp;
-    freqPerBin = (double)(sampleRate/4)/(double)fftFrameSize;
-    freqPerBin1 = (1/freqPerBin)*osamp2;
-    freqPerBin2 = freqPerBin*mpi;
-    expct = 2.*M_PI*(double)stepSize/(double)fftFrameSize;
-    inFifoLatency = fftFrameSize-stepSize;
-    fftFrameSize3 = 2. * (1./ ((double)(fftFrameSize2)*osamp));
-    fftFrameSize4 = 1./(double)fftFrameSize;
-    ai = 0;
-    aio = 0;
-    ii = 0;
-    memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gLastPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
-    memset(gSumPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
-    memset(gOutputAccum, 0, 2*MAX_FRAME_LENGTH*sizeof(float));
-    memset(gAnaFreq, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gAnaMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
 
     try {
         fpb = new float[fftFrameSize2];
-        for (k = 0; k < fftFrameSize2;k++) {
-            fpb[k] = (double)k*freqPerBin;
-        }
         expect = new float[fftFrameSize2];
-        for (k = 0; k < fftFrameSize2;k++) {
-            expect[k] = (double)k*expct;
-        }
         hanning = new float[fftFrameSize];
-        for (k = 0; k < fftFrameSize;k++) {
-            hanning[k] = 0.5*(1-cos(2.*M_PI*(double)k/((double)fftFrameSize)));
-        }
         hanningd = new float[fftFrameSize];
-        for (k = 0; k < fftFrameSize;k++) {
-            hanningd[k] = 0.5*(1-cos(2.*M_PI*(double)k * fftFrameSize4)) * fftFrameSize3; 
-        }
         resampin = new float[fftFrameSize];
-        for (k = 0; k < fftFrameSize;k++) {
-            resampin[k] = 0.0; 
-        }
         resampin2 = new float[fftFrameSize];
-        for (k = 0; k < fftFrameSize;k++) {
-            resampin2[k] = 0.0; 
-        }
         resampout = new float[fftFrameSize*4];
-        for (k = 0; k < fftFrameSize*4;k++) {
-            resampout[k] = 0.0; 
-        }
         indata2 = new float[fftFrameSize*4];
-        for (k = 0; k < fftFrameSize*4;k++) {
-            indata2[k] = 0.0; 
-        }
         //create FFTW plan
         ftPlanForward = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_FORWARD, FFTW_MEASURE);
         ftPlanInverse = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_BACKWARD, FFTW_MEASURE);
@@ -1289,12 +1296,7 @@ void smbPitchShift::mem_alloc()
             gx_print_error("detune", "cant allocate memory pool");
             return;
         }
-    
-    
-    gRover = 0;
-
-    mem_allocated = true;
-    ready = true;
+    clear_state();
 }
 
 void smbPitchShift::mem_free()
@@ -1314,7 +1316,6 @@ void smbPitchShift::mem_free()
     if (ftPlanInverse) 
         { fftwf_destroy_plan(ftPlanInverse);ftPlanInverse = 0; }
 }
-
 
 int smbPitchShift::activate(bool start)
 {

@@ -249,7 +249,7 @@ void smbPitchShift::mem_alloc()
         }
     
     
-    gRover = 0;
+    gRover = inFifoLatency;
 
     mem_allocated = true;
     ready = true;
