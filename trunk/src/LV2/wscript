@@ -82,6 +82,7 @@ def dirlist():
         'gx_duck_delay_st.lv2',
         'gx_barkgraphiceq.lv2',
         'gx_detune.lv2',
+	'gx_shimmizita.lv2',
 
          ]
 
