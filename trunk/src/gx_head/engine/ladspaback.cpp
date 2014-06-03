@@ -1336,6 +1336,18 @@ void LadspaPluginList::descend(const char *uri, pluginmap& d,
 }
 
 void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d) {
+        
+    // check for requested features 
+	LilvNodes* requests = lilv_plugin_get_required_features(plugin);
+	LILV_FOREACH(nodes, f, requests) {
+		const char* uri = lilv_node_as_uri(lilv_nodes_get(requests, f));
+		if (uri) {
+            lilv_nodes_free(requests);
+           return;
+		}
+	} 
+	lilv_nodes_free(requests);
+
     int n_in = 0;
     int n_out = 0;
     std::vector<PortDesc*> ctrl_ports;
@@ -1426,6 +1438,8 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std:
     if (!pl.size()) {
         pl.add("/usr/lib/ladspa");
         pl.add("/usr/local/lib/ladspa");
+        pl.add("/usr/lib64/ladspa");
+        pl.add("/usr/local/lib64/ladspa");
     }
     pluginmap d;
     for (gx_system::PathList::iterator it = pl.begin(); it != pl.end(); ++it) {

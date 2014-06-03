@@ -94,6 +94,7 @@ public:
     LiveLooper loop;
     SCapture record;
     SCapture record_st;
+    smbPitchShift detune;
     //
 public:
     GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options);

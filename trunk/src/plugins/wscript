@@ -91,9 +91,12 @@ def build(bld):
     bld.add_group()
     have_pluginlib = len(lib_sources) != 0
     bld.env["HAVE_PLUGINLIB"] = have_pluginlib
+    incl = [".","../headers"]
+    if not bld.env['ZITA_RESAMPLER']:
+        incl.append('../zita-resampler-1.1.0')
     if have_pluginlib:
         bld(features = ['cxx', 'cstaticlib'],
-            includes = [".","../headers"],
+            includes = incl,
             source = [s.replace(".dsp",".cc") for s in lib_sources]+lib_csources,
             uselib = ["EIGEN3"],
             target = "plugins", # (also defines name of task)

@@ -644,6 +644,7 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
 	gx_print_error("lv2loader",ustring::compose(_("Cannot open LV2 plugin: %1"), plug->path));
 	return NULL;
     }
+
     int num_inputs = lilv_plugin_get_num_ports_of_class(plugin, loader.lv2_AudioPort, loader.lv2_InputPort, 0);
     int num_outputs = lilv_plugin_get_num_ports_of_class(plugin, loader.lv2_AudioPort, loader.lv2_OutputPort, 0);
     bool mono;

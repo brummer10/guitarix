@@ -11,7 +11,9 @@ private:
 	//First elements in both arrays are common gains
 	float* fslider[BARK_NUMBER_OF_BANDS]; 
 	float* fbargraph[BARK_NUMBER_OF_BANDS];
-	orfanidis_eq::eq* p_eq;
+	//EQ's, first used for indication, second - for audio signal processing
+	orfanidis_eq::eq1* p_eq1;
+	orfanidis_eq::eq2* p_eq2;
 	
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -43,7 +45,8 @@ Dsp::Dsp()
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
 	
-	p_eq = NULL;
+	p_eq1 = NULL;
+	p_eq2 = NULL;
 	
 	clear_state_f();
 
@@ -76,8 +79,9 @@ inline void Dsp::init(unsigned int samplingFreq)
 	for (unsigned int i = 0; i < BARK_NUMBER_OF_BANDS; i++)
 		fg.add_band(bark_center_freqs[i], bark_bands_widths[i]);
 		
-	//Create Butterworth EQ object
-	p_eq = new orfanidis_eq::eq(fg, orfanidis_eq::butterworth);
+	//Create Butterworth EQ object's
+	p_eq1 = new orfanidis_eq::eq1(fg, orfanidis_eq::butterworth);
+	p_eq2 = new orfanidis_eq::eq2(fg, orfanidis_eq::butterworth);
 	
 	clear_state_f();
 }
@@ -91,20 +95,26 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	//Set params
 	for(unsigned int j = 0; j < BARK_NUMBER_OF_BANDS; j++) {
-		p_eq->change_band_param_db(j, *fslider[j]);
+		p_eq1->change_band_gain_db(j, *fslider[j]);
+		p_eq2->change_band_gain_db(j, *fslider[j]);
 	}
 	
+	//Process audio
+	double aver_out = 0;
 	for (int i=0; i<count; i++) {
-		//sbs processing, note:p_eq works with doubles
+		double input = input0[i];	
 		double out = 0;
-		for(unsigned int j = 0; j < BARK_NUMBER_OF_BANDS; j++) {
-			double input = input0[i];			
-			double band_out = 0;
-			p_eq->sbs_process_band(j, &input, &band_out);
-			*fbargraph[j] = BARK_NUMBER_OF_BANDS*band_out*band_out;				
-			out += band_out;
-		}
+		p_eq2->sbs_process(&input, &out);
 		output0[i] = out;
+		aver_out += out*out;
+	}
+	
+	//Update bars
+	for(unsigned int j = 0; j < BARK_NUMBER_OF_BANDS; j++) {
+		double input = aver_out/count;
+		double band_out = 0;
+		p_eq1->sbs_process_band(j, &input, &band_out);
+		*fbargraph[j] = BARK_NUMBER_OF_BANDS*band_out*band_out;				
 	}
 }
 
@@ -279,8 +289,9 @@ PluginLV2 *plugin() {
 
 void Dsp::del_instance(PluginLV2 *p)
 {
-	//Delete eq
-	delete static_cast<Dsp*>(p)->p_eq;
+	//Delete eq's
+	delete static_cast<Dsp*>(p)->p_eq1;
+	delete static_cast<Dsp*>(p)->p_eq2;
 	delete static_cast<Dsp*>(p);
 }
 

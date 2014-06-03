@@ -27,7 +27,7 @@ use_2to3 = True
 VERSION='0.30.0git'
 APPNAME='guitarix'
 
-good_faust_versions = ['0.9.46','0.9.55','0.9.58','0.9.65']
+good_faust_versions = ['0.9.58','0.9.65']
 
 g_maxlen = 40 # maximum width of message for 2-column display
 
@@ -199,6 +199,12 @@ def set_options(opt):
                     default=False,
                     const=True,
                     help=("don't build new lv2 plugins (Default no)"))
+
+    lv2.add_option('--no-lv2-gui',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help=("don't build lv2 plugin GUI's (Default no)"))
 
     lv2.add_option('--lv2-only',
                     action='store_const',
@@ -621,10 +627,12 @@ def configure(conf):
 
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
-    conf.check_cfg(package='gtk+-2.0', atleast_version='2.20', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
+    if not opt.lv2_only and not opt.no_lv2_gui:
+        conf.check_cfg(package='gtk+-2.0', atleast_version='2.20', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='glibmm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
-    conf.check_cfg(package='gtkmm-2.4', atleast_version='2.20', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
+    if not opt.lv2_only and not opt.no_lv2_gui:
+        conf.check_cfg(package='gtkmm-2.4', atleast_version='2.20', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
     conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     if opt.convolver_ffmpeg:
@@ -691,6 +699,8 @@ def configure(conf):
     conf.env['BIN_NAME'] = APPNAME
 
     conf.env['LV2'] =  not opt.no_lv2
+    conf.env['LV2ONLY'] =  opt.lv2_only
+    conf.env['NOLV2GUI'] = opt.no_lv2_gui
     conf.env['NOSSE'] =  opt.disable_sse
     if not opt.no_lv2:
         if opt.lv2dir:
@@ -742,18 +752,19 @@ def configure(conf):
         conf.sub_config('src/LV2');
         
         # config subdirs
-    conf.sub_config('pygxw');
-    conf.sub_config('glade-gxw');
-    conf.sub_config('libgxwmm');
-    conf.sub_config('libgxw/gxw');
+    if not opt.lv2_only and not opt.no_lv2_gui:
+        conf.sub_config('pygxw');
+        conf.sub_config('glade-gxw');
+        conf.sub_config('libgxwmm');
+        conf.sub_config('libgxw/gxw');
 
-    conf.sub_config('rcstyles');
-    if conf.env["GX_LIB_DEV"]:
-        pa = conf.env['PREFIX']
-        sub_file('./libgxw/gxw.pc.in', './libgxw/gxw.pc', (('prefix=/path', 'prefix=%s' % pa), ))
-        sub_file('./libgxw/gxw.pc', './libgxw/gxw.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
-        sub_file('./libgxwmm/gxwmm.pc.in', './libgxwmm/gxwmm.pc', (('prefix=/path', 'prefix=%s' % pa), ))
-        sub_file('./libgxwmm/gxwmm.pc', './libgxwmm/gxwmm.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
+        conf.sub_config('rcstyles');
+        if conf.env["GX_LIB_DEV"]:
+            pa = conf.env['PREFIX']
+            sub_file('./libgxw/gxw.pc.in', './libgxw/gxw.pc', (('prefix=/path', 'prefix=%s' % pa), ))
+            sub_file('./libgxw/gxw.pc', './libgxw/gxw.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
+            sub_file('./libgxwmm/gxwmm.pc.in', './libgxwmm/gxwmm.pc', (('prefix=/path', 'prefix=%s' % pa), ))
+            sub_file('./libgxwmm/gxwmm.pc', './libgxwmm/gxwmm.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
 
     # writing config.h
     conf.write_config_header('config.h')
@@ -798,6 +809,7 @@ def configure(conf):
 
     display_feature("build ladspa plugins", conf.env['LADSPA'])
     display_feature("build lv2 plugins", conf.env['LV2'])
+    display_feature("build lv2 plugin GUI's", not conf.env['NOLV2GUI'])
     if not opt.no_lv2:
         display_feature("SSE2 support found", conf.env['SSE2'])
         display_feature("SSE2 support disabled", conf.env['NOSSE'])
@@ -847,11 +859,12 @@ def build(bld):
     # process subfolders from here
     if bld.env["LADSPA"]:
         bld.add_subdirs('ladspa')
-    bld.add_subdirs('libgxw/gxw')
-    bld.add_group()
-    bld.add_subdirs('libgxwmm')
-    bld.add_subdirs('glade-gxw')
-    bld.add_subdirs('pygxw')
+    if not bld.env['LV2ONLY'] and not bld.env['NOLV2GUI']:
+        bld.add_subdirs('libgxw/gxw')
+        bld.add_group()
+        bld.add_subdirs('libgxwmm')
+        bld.add_subdirs('glade-gxw')
+        bld.add_subdirs('pygxw')
     if not bld.env['NO_MAIN']:
         bld.add_subdirs('src/faust')
         bld.add_subdirs('src/plugins')
