@@ -52,9 +52,9 @@
     lv2:microVersion 3;
     
 rdfs:comment """
+A Fuzz Effect
 
-...
-
+*Unofficial documentation
 """;
 
     lv2:port [
