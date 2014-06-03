@@ -59,6 +59,7 @@ Analog wah emulation of the classic Dunlop Crybaby (*), in a auto-wah version.
 Dunlop Crybaby is trademark or trade name of other manufacturer and was used merely to identify the product whose sound was reviewed in the creation of this product.
 All other trademarks are the property of their respective holders.'
 
+*Unofficial documentation
 """;
 
     lv2:port [
