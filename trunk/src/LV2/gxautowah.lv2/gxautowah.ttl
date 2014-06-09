@@ -87,6 +87,17 @@ All other trademarks are the property of their respective holders.'
     
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxautowah#gui>;
   
+rdfs:comment """
+
+Analog wah emulation of the classic Dunlop Crybaby (*).
+
+(*) 'Other product names modeled in this software are trademarks of their respective companies that do not endorse and are not associated or affiliated with MOD.
+Dunlop Crybaby is trademark or trade name of other manufacturer and was used merely to identify the product whose sound was reviewed in the creation of this product.
+All other trademarks are the property of their respective holders.'
+
+*Unofficial documentation
+""";
+  
     lv2:port [
         a lv2:AudioPort ,
             lv2:OutputPort ;
