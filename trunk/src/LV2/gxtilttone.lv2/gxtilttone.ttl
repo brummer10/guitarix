@@ -56,9 +56,9 @@ Simple Tilt tone control
 
 The tilt control imposes a shelving function, which attenuates half of frequency band and augments the other half. In other words, it is special type of a tone control that, unlike the typical tone control that boosts or cuts just the highs or mids or lows, shifts both highs and lows at once. 
 
-source: http://www.tubecad.com/2013/06/blog0266.htm
-
 *Unofficial documentation
+
+source: http://www.tubecad.com/2013/06/blog0266.htm
 """;
 
     lv2:port [
