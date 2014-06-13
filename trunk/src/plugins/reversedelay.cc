@@ -22,6 +22,9 @@ private:
 	//Params buffs
 	float time_old, window_old;
 
+    //Indicator
+    float buf_indication;
+
 	class overlap_window
 	{
 	private:
@@ -132,6 +135,8 @@ ReverseDelay::ReverseDelay():
     feedback_buf = 0;
 	time_old = 0; 
 	window_old = 0;
+
+    buf_indication = 0;
 }
 
 int ReverseDelay::registerparam(const ParamReg& reg) {
@@ -140,6 +145,9 @@ int ReverseDelay::registerparam(const ParamReg& reg) {
     reg.registerVar("reversedelay.feedback", N_("Feedback"), "S", N_("Feedback"), &self.feedback, 0, 0, 1, 0.05);
     reg.registerVar("reversedelay.window", N_("Window (%)"), "S", N_("Crossfade between delayed chunks in percents"), &self.window, 50, 0, 100, 1);
     reg.registerVar("reversedelay.drywet", N_("Dry/Wet"), "S", "Dey/Wet", &self.drywet, 0.5, 0, 1, 0.05);
+
+    reg.registerNonMidiFloatVar("reversedelay.buf_indication",&self.buf_indication, false, true, 0.0, 0.0, 1.0, 0.01);
+
     return 0;
 }
 
@@ -187,11 +195,8 @@ void ReverseDelay::process(int count, float *input, float *output, PluginDef *pl
         float in = input[i];
         float out = 0;
 
-        // Can be added -> //Update tempo led
-        //if(counter < cur_buf_size/4)
-        //    *params[param_tempo_led] = true;
-        //else
-        //    *params[param_tempo_led] = false;
+        //Update indicator
+        self.buf_indication = ((float)self.counter)/self.cur_buf_size;
 
         //Process
         out = reverse_delay_line_impl(in + self.feedback_buf * self.feedback, self.buffer, &self.counter, self.cur_buf_size);
@@ -216,9 +221,17 @@ int ReverseDelay::uiloader(const UiBuilder& b, int form) {
     b.openHorizontalBox("");
     {
 		b.create_small_rackknob("reversedelay.time",0);
-		b.create_small_rackknob("reversedelay.feedback",0);
+
+        b.openVerticalBox("");
+        b.insertSpacer();
+        b.create_port_display("reversedelay.buf_indication", "Buf state");
+        b.insertSpacer();
+        b.closeBox();
+
+        b.create_small_rackknob("reversedelay.feedback",0);
 		b.create_small_rackknob("reversedelay.window",0);
 		b.create_small_rackknobr("reversedelay.drywet",0);
+
     }
     b.closeBox();
     return 0;
