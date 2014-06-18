@@ -29,6 +29,7 @@ src/faust-generated/autowah.cc
 src/faust-generated/balance.cc
 src/faust-generated/bassbooster.cc
 src/faust-generated/bass_enhancer.cc
+src/faust-generated/baxandall.cc
 src/faust-generated/biquad.cc
 src/faust-generated/cabinet_impulse_former.cc
 src/faust-generated/chorus.cc

@@ -130,6 +130,8 @@ def build(bld):
         'gain.dsp',
 		'duck_delay.dsp',
 		'duck_delay_st.dsp',
+        'baxandall.dsp',
+        
 
 
         # amps

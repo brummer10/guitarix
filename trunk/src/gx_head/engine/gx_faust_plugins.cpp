@@ -126,6 +126,7 @@ namespace gx_effects {
 #include "faust/gain.cc"
 #include "faust/duck_delay.cc"
 #include "faust/duck_delay_st.cc"
+#include "faust/baxandall.cc"
 
 }
 
