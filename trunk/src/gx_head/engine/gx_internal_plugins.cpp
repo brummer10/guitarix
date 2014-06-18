@@ -1158,7 +1158,7 @@ bool smbPitchShift::setParameters(int sampleRate_)
     ftPlanInverse = 0;
     resamp.setup(sampleRate,4);
     mem_allocated = false;
-    gRover = false;
+    gRover = inFifoLatency;
     return true;
 }
 
@@ -1169,7 +1169,6 @@ smbPitchShift::smbPitchShift(ParamMap& param_, EngineControl& engine_, sigc::slo
   ready(false),
   param(param_),
   plugin() {
-    if (gRover == false) gRover = inFifoLatency;
     memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gLastPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
@@ -1213,6 +1212,7 @@ void smbPitchShift::clear_state()
     ai = 0;
     aio = 0;
     ii = 0;
+    tone =0;
     memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gLastPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
@@ -1253,10 +1253,11 @@ void smbPitchShift::mem_alloc()
 {
     numSampsToProcess = int(engine.get_buffersize());
     assert(numSampsToProcess>0);
+    numSampsToResamp = numSampsToProcess/4;
     sampleRate = int(engine.get_samplerate());
     assert(sampleRate>0);
     
-    switch(int(latency)) {
+    switch(latency) {
       case(0):
         if (numSampsToProcess <= 2048) {
           fftFrameSize = 512 ; 
@@ -1281,6 +1282,10 @@ void smbPitchShift::mem_alloc()
     fftFrameSize2 = fftFrameSize/2;
 
     try {
+        //create FFTW plan
+        ftPlanForward = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE);
+        ftPlanInverse = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_BACKWARD, FFTW_ESTIMATE);
+        // alloc buffers
         fpb = new float[fftFrameSize2];
         expect = new float[fftFrameSize2];
         hanning = new float[fftFrameSize];
@@ -1289,9 +1294,6 @@ void smbPitchShift::mem_alloc()
         resampin2 = new float[fftFrameSize];
         resampout = new float[fftFrameSize*4];
         indata2 = new float[fftFrameSize*4];
-        //create FFTW plan
-        ftPlanForward = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_FORWARD, FFTW_MEASURE);
-        ftPlanInverse = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_BACKWARD, FFTW_MEASURE);
     } catch(...) {
             gx_print_error("detune", "cant allocate memory pool");
             return;
@@ -1380,11 +1382,9 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
         return;
     }
     
-    resamp.down(count*0.25,indata,resampin);
+    resamp.down(numSampsToResamp,indata,resampin);
     double     fSlow0 = (0.01 * wet);
     double     fSlow1 = (0.01 * dry);
-    
-    float tone =0;
 
     // collect data for latency compensation
     for (i = 0; i < count; i++){
@@ -1392,7 +1392,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
         ii++;
     }
     // collect data for fft
-    for (i = 0; i < count*0.25; i++){
+    for (i = 0; i < numSampsToResamp; i++){
         resampin2[ai] = resampin[i];
         ai++;
     }
@@ -1400,8 +1400,9 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
     if (ai>=fftFrameSize) {
         ai = 0;
         ii = 0;
-        switch(int(octave)) {
+        switch(octave) {
           case(0):
+            tone =0;
             break;
           case(1):
             tone =12;
@@ -1410,6 +1411,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
             tone =-12;
             break;
           default:
+            tone =0;
             break;
         }
         float pitchShift = pow(2., (semitones+tone)*0.0833333333);
@@ -1438,7 +1440,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
                 fftwf_execute(ftPlanForward);
 
                 /* this is the analysis step */
-                for (k = 0; k <= fftFrameSize2; k++) {
+                for (k = 0; k < fftFrameSize2; k++) {
 
                     /* de-interlace FFT buffer */
                     real = fftw_out[k][0];
@@ -1475,14 +1477,14 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
                 /* this does the actual pitch shifting */
                 memset(gSynMagn, 0, fftFrameSize*sizeof(float));
                 memset(gSynFreq, 0, fftFrameSize*sizeof(float));
-                for (k = 1; k <= fftFrameSize2-2; k++) { 
+                for (k = 1; k < fftFrameSize2-2; k++) { 
                     index = k*pitchShift;
-                    if (index <= fftFrameSize2) { 
-                        if (index <= fftFrameSize2*0.20)
+                    if (index < fftFrameSize2) { 
+                        if (index < fftFrameSize2*0.20)
                             gSynMagn[index] += gAnaMagn[k]*a; 
-                        else if (index <= fftFrameSize2*0.45)
+                        else if (index < fftFrameSize2*0.45)
                             gSynMagn[index] += gAnaMagn[k]*b; 
-                        else if (index <= fftFrameSize2*0.667)
+                        else if (index < fftFrameSize2*0.667)
                             gSynMagn[index] += gAnaMagn[k]*c; 
                         else 
                             gSynMagn[index] += gAnaMagn[k]*d; 
@@ -1492,7 +1494,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
                 
                 /* ***************** SYNTHESIS ******************* */
                 /* this is the synthesis step */
-                for (k = 0; k <= fftFrameSize2; k++) {
+                for (k = 0; k < fftFrameSize2; k++) {
 
                     /* get magnitude and true frequency from synthesis arrays */
                     magn = gSynMagn[k];
@@ -1548,19 +1550,19 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
 int smbPitchShift::register_par(const ParamReg& reg) 
 {
     reg.registerVar("smbPitchShift.semitone", N_("detune"), "S", "", &semitones, 0.0, -0.25, 0.25, 0.01);
-    static const value_pair octave_values[] = {{"normal"},{"octave up"},{"octave down"},{0}};
-    reg.registerEnumVar("smbPitchShift.octave",N_("add harmonics"),"S",N_("add harmonics"),octave_values,&octave, 0.0f, 0.0f, 2.0f, 1.0f);
+    static const value_pair octave_values[] = {{"unison"},{"octave up"},{"octave down"},{0}};
+    reg.registerIEnumVar("smbPitchShift.octave",N_("add harmonics"),"B",N_("add harmonics"),octave_values,&octave, 0);
     static const value_pair latency_values[] = {{"latency "},{"compensate"},{0}};
     reg.registerEnumVar("smbPitchShift.l",N_("compensate latency"),"S",N_("compensate latency"),latency_values,&l, 0.0f, 0.0f, 1.0f, 1.0f);
     static const value_pair latency_set[] = {{"high quality"},{"low quality"},{"realtime"},{0}};
-    reg.registerEnumVar("smbPitchShift.latency",N_("latency settings"),"S",N_("latency settings"),latency_set,&latency, 0.0f, 0.0f, 2.0f, 1.0f);
+    reg.registerIEnumVar("smbPitchShift.latency",N_("latency settings"),"B",N_("latency settings"),latency_set,&latency, 0);
     reg.registerVar("smbPitchShift.wet", N_("wet amount"), "S", "", &wet, 50.0, 0.0, 100.0, 1);
     reg.registerVar("smbPitchShift.dry", N_("dry amount"), "S", "", &dry, 50.0, 0.0, 100.0, 1);
     reg.registerVar("smbPitchShift.a", N_("low"), "S", N_("low"), &a, 1.0, 0.0, 2.0, 0.01);
     reg.registerVar("smbPitchShift.b", N_("middle low"), "S", N_("middle low"), &b, 1.0, 0.0, 2.0, 0.01);
     reg.registerVar("smbPitchShift.c", N_("middle treble"), "S", N_("middle treble"), &c, 1.0, 0.0, 2.0, 0.01);
     reg.registerVar("smbPitchShift.d", N_("treble"), "S", N_("treble"), &d, 1.0, 0.0, 2.0, 0.01);
-    param["smbPitchShift.latency"].signal_changed_float().connect(
+    param["smbPitchShift.latency"].signal_changed_int().connect(
         sigc::hide(sigc::mem_fun(this, &smbPitchShift::change_latency)));
     return 0;
 }

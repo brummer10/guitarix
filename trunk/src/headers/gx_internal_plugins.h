@@ -848,12 +848,13 @@ private:
 	float gSynFreq[MAX_FRAME_LENGTH];
 	float gSynMagn[MAX_FRAME_LENGTH];
 	float semitones;
-	float octave,a,b,c,d,l;
+	float a,b,c,d,l;
 	float wet;
 	float dry;
-	float latency;
     float mpi, mpi1;
-	int   osamp, numSampsToProcess, fftFrameSize, sampleRate ;
+    float tone;
+	int   octave, osamp, numSampsToResamp, numSampsToProcess, fftFrameSize, sampleRate ;
+	int latency;
     int ai;
     int aio;
     int ii;
