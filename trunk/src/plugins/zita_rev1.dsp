@@ -53,9 +53,9 @@ with {
 
   eq1_group(x) = fdn_group(hgroup("equalizer1[name:RM Peaking Equalizer 1]", x));
 
-  eq1f = eq1_group(vslider("eq1_freq[name:Freq] [unit:Hz] [style:knob]
+  eq1f = eq1_group(vslider("eq1_freq[name:Freq] [unit:Hz] [style:knob] [log]
        [tooltip: Center-frequency of second-order Regalia-Mitra peaking equalizer section 1]",
-       315, 40, 2500, 1));
+       315, 40, 2500, 1.08));
   
   eq1l = eq1_group(vslider("eq1_level[name:Level] [unit:dB] [style:knob]
        [tooltip: Peak level in dB of second-order Regalia-Mitra peaking equalizer section 1]",
@@ -67,9 +67,9 @@ with {
   
   eq2_group(x) = fdn_group(hgroup("equalizer2[name:RM Peaking Equalizer 2]", x));
 
-  eq2f = eq2_group(vslider("eq2_freq[name:Freq] [unit:Hz] [style:knob]
+  eq2f = eq2_group(vslider("eq2_freq[name:Freq] [unit:Hz] [style:knob] [log]
        [tooltip: Center-frequency of second-order Regalia-Mitra peaking equalizer section 2]",
-       315, 40, 2500, 1));
+       1500, 160, 10000, 1.08));
   
   eq2l = eq2_group(vslider("eq2_level[name:Level] [unit:dB] [style:knob]
        [tooltip: Peak level in dB of second-order Regalia-Mitra peaking equalizer section 2]",
