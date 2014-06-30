@@ -175,13 +175,16 @@ bool gx_start_jack_dialog(Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
         break;
 
     case GTK_RESPONSE_CANCEL:
-	GxExit::get_instance().exit_program();
+    GxExit::get_instance().exit_program();
         break;
 
-    default:
     case GTK_RESPONSE_YES:
         retstat = true;
         break;
+    default:
+        GxExit::get_instance().exit_program();
+        break;
+    
     }
 
     // start jack
