@@ -542,10 +542,10 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("zita_rev1.decay_times.hf_damping",N_("HF Damping"),"S",N_("Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60"),&fslider5, 6e+03, 1.5e+03, 2.352e+04, 1.0);
-	reg.registerVar("zita_rev1.decay_times.lf_x",N_("Freq X"),"S",N_("Crossover frequency (Hz) separating low and middle frequencies"),&fslider2, 2e+02, 5e+01, 1e+03, 1.0);
-	reg.registerVar("zita_rev1.decay_times.low_rt60",N_("Low"),"S",N_("T60 = time (in seconds) to decay 60dB in low-frequency band"),&fslider4, 3.0, 1.0, 8.0, 0.1);
-	reg.registerVar("zita_rev1.decay_times.mid_rt60",N_("Mid"),"S",N_("T60 = time (in seconds) to decay 60dB in middle band"),&fslider3, 2.0, 1.0, 8.0, 0.1);
+	reg.registerVar("zita_rev1.decay_times.hf_damping",N_("HF Damping"),"SL",N_("Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60"),&fslider5, 6e+03, 1.5e+03, 2.352e+04, 1.08);
+	reg.registerVar("zita_rev1.decay_times.lf_x",N_("Freq X"),"SL",N_("Crossover frequency (Hz) separating low and middle frequencies"),&fslider2, 2e+02, 5e+01, 1e+03, 1.08);
+	reg.registerVar("zita_rev1.decay_times.low_rt60",N_("Low"),"SL",N_("T60 = time (in seconds) to decay 60dB in low-frequency band"),&fslider4, 3.0, 1.0, 8.0, 1.08);
+	reg.registerVar("zita_rev1.decay_times.mid_rt60",N_("Mid"),"SL",N_("T60 = time (in seconds) to decay 60dB in middle band"),&fslider3, 2.0, 1.0, 8.0, 1.08);
 	reg.registerVar("zita_rev1.equalizer1.eq1_freq",N_("Freq"),"SL",N_("Center-frequency of second-order Regalia-Mitra peaking equalizer section 1"),&fslider8, 315.0, 4e+01, 2.5e+03, 1.08);
 	reg.registerVar("zita_rev1.equalizer1.eq1_level",N_("Level"),"S",N_("Peak level in dB of second-order Regalia-Mitra peaking equalizer section 1"),&fslider7, 0.0, -15.0, 15.0, 0.1);
 	reg.registerVar("zita_rev1.equalizer2.eq2_freq",N_("Freq"),"SL",N_("Center-frequency of second-order Regalia-Mitra peaking equalizer section 2"),&fslider10, 1.5e+03, 1.6e+02, 1e+04, 1.08);
@@ -748,7 +748,7 @@ const char *Dsp::glade_def = "\
                                   </packing>\n\
                                 </child>\n\
                                 <child>\n\
-                                  <object class=\"GxMiniSlider\" id=\"gxminislider1\">\n\
+                                  <object class=\"GxSmallKnob\" id=\"gxminislider1\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">True</property>\n\
                                     <property name=\"receives_default\">True</property>\n\

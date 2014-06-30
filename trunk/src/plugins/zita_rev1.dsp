@@ -24,21 +24,21 @@ with {
 
   freq_group(x) = fdn_group(hgroup("decay_times[name:Decay Times in Bands]", x));
 
-  f1 = freq_group(vslider("lf_x[name:Freq X] [unit:Hz] [style:knob] 
+  f1 = freq_group(vslider("lf_x[name:Freq X] [unit:Hz] [style:knob] [log]
        [tooltip: Crossover frequency (Hz) separating low and middle frequencies]",
-       200, 50, 1000, 1));
+       200, 50, 1000, 1.08));
 
-  t60dc = freq_group(vslider("low_rt60[name:Low] [unit:s] [style:knob] 
+  t60dc = freq_group(vslider("low_rt60[name:Low] [unit:s] [style:knob] [log]
           [style:knob] [tooltip: T60 = time (in seconds) to decay 60dB in low-frequency band]", 
-	  3, 1, 8, 0.1));
+	  3, 1, 8, 1.08));
 
-  t60m = freq_group(vslider("mid_rt60[name:Mid] [unit:s] [style:knob]
+  t60m = freq_group(vslider("mid_rt60[name:Mid] [unit:s] [style:knob] [log]
           [tooltip: T60 = time (in seconds) to decay 60dB in middle band]", 
-	  2, 1, 8, 0.1));
+	  2, 1, 8, 1.08));
 
-  f2 = freq_group(vslider("hf_damping[name:HF Damping] [unit:Hz] [style:knob]
+  f2 = freq_group(vslider("hf_damping[name:HF Damping] [unit:Hz] [style:knob] [log]
        [tooltip: Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60]",
-       6000, 1500, 0.49*fsmax, 1));
+       6000, 1500, 0.49*fsmax, 1.08));
 
   out_eq = pareq_stereo(eq1f,eq1l,eq1q) : pareq_stereo(eq2f,eq2l,eq2q);
 // Zolzer style peaking eq (not used in zita-rev1) (filter.lib):
