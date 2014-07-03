@@ -23,6 +23,7 @@
 @prefix lv2: <http://lv2plug.in/ns/lv2core#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix log: <http://lv2plug.in/ns/ext/port-props#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 
 <http://guitarix.sourceforge.net#me>
@@ -69,11 +70,12 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 1 ;
+        lv2:portProperty log:logarithmic ;
         lv2:symbol "EQ2_FREQ" ;
         lv2:name "EQ2_FREQ";
-        lv2:default 315.0 ;
-        lv2:minimum 4e+01 ;
-        lv2:maximum 2.5e+03 ;
+        lv2:default 1500 ;
+        lv2:minimum 160 ;
+        lv2:maximum 10000 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -87,6 +89,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
+        lv2:portProperty log:logarithmic ;
         lv2:symbol "EQ1_FREQ" ;
         lv2:name "EQ1_FREQ";
         lv2:default 315.0 ;
@@ -105,6 +108,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 5 ;
+        lv2:portProperty log:logarithmic ;
         lv2:symbol "LOW_RT60" ;
         lv2:name "LOW_RT60";
         lv2:default 3.0 ;
@@ -114,6 +118,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 6 ;
+        lv2:portProperty log:logarithmic ;
         lv2:symbol "LF_X" ;
         lv2:name "LF_X";
         lv2:default 2e+02 ;
@@ -123,6 +128,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 7 ;
+        lv2:portProperty log:logarithmic ;
         lv2:symbol "HF_DAMPING" ;
         lv2:name "HF_DAMPING";
         lv2:default 6e+03 ;
@@ -132,6 +138,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 8 ;
+        lv2:portProperty log:logarithmic ;
         lv2:symbol "MID_RT60" ;
         lv2:name "MID_RT60";
         lv2:default 2.0 ;

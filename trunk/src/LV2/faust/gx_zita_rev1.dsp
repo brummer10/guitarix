@@ -69,7 +69,7 @@ with {
 
   eq2f = eq2_group(vslider("eq2_freq[name:Freq] [unit:Hz] [style:knob]
        [tooltip: Center-frequency of second-order Regalia-Mitra peaking equalizer section 2]",
-       315, 40, 2500, 1));
+       1500, 160, 10000, 1));
   
   eq2l = eq2_group(vslider("eq2_level[name:Level] [unit:dB] [style:knob]
        [tooltip: Peak level in dB of second-order Regalia-Mitra peaking equalizer section 2]",

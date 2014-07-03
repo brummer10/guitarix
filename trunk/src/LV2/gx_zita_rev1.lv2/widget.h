@@ -41,6 +41,12 @@ private:
                            float min, float max,
                            float digits,
                            PortIndex port_name);
+                           
+  void make_log_controller_box(Gtk::Box *box,
+                           Glib::ustring label,
+                           float min, float max,
+                           float digits,
+                           PortIndex port_name);
 
   void make_selector(Glib::ustring label,
                      Glib::ustring tables[],

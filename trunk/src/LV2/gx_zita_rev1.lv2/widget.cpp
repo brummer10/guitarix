@@ -21,7 +21,7 @@
 #include "widget.h"
 
 #include <iostream>
-
+#include <iomanip>
 
 /*    @get controller by port
  *  this function is used by make_selector() make_controller_box()
@@ -73,21 +73,21 @@ plug_name(plugname)
   m_fr1.set_label("EQ2");
   m_fr1.add(m_vbox3);
   make_controller_box(&m_vbox3, "LEVEL",  -1.0, 1.0, 0.01  , EQ2_LEVEL);
-  make_controller_box(&m_vbox3, "FREQ", 4e+01, 2.5e+03, 1.0 , EQ2_FREQ);
+  make_log_controller_box(&m_vbox3, "FREQ",  160, 10000, 1.08 , EQ2_FREQ);
   
   m_fr2.set_label("EQ1");
   m_fr2.add(m_vbox4);
   make_controller_box(&m_vbox4, "LEVEL", -15.0, 15.0, 0.1, EQ1_LEVEL);
-  make_controller_box(&m_vbox4, "FREQ",  4e+01, 2.5e+03, 1.0 , EQ1_FREQ);
+  make_log_controller_box(&m_vbox4, "FREQ",  4e+01, 2.5e+03, 1.08 , EQ1_FREQ);
   
   m_fr3.set_label("Reverb Time T60");
   m_fr3.add(m_hbox1);
   m_hbox1.add(m_vbox5);
   m_hbox1.add(m_vbox6);
-  make_controller_box(&m_vbox5, "LOW",  1.0, 8.0, 0.1, LOW_RT60);
-  make_controller_box(&m_vbox5, "MID",  1.0, 8.0, 0.1 , MID_RT60);
-  make_controller_box(&m_vbox6, "FREQ X", 5e+01, 1e+03, 1.0  , LF_X);
-  make_controller_box(&m_vbox6, "DAMP", 1.5e+03, 2.352e+04, 1.0, HF_DAMPING);
+  make_log_controller_box(&m_vbox5, "LOW",  1.0, 8.0, 1.08, LOW_RT60);
+  make_log_controller_box(&m_vbox5, "MID",  1.0, 8.0, 1.08 , MID_RT60);
+  make_log_controller_box(&m_vbox6, "FREQ X", 5e+01, 1e+03, 1.08  , LF_X);
+  make_log_controller_box(&m_vbox6, "DAMP", 1.5e+03, 2.352e+04, 1.08, HF_DAMPING);
   
   m_fr4.set_label("Output");
   m_fr4.add(m_vbox7);
@@ -170,6 +170,7 @@ void Widget::make_selector(Glib::ustring labela,
     regler->set_has_tooltip();
     regler->set_tooltip_text(labela);
     regler->cp_configure("SELECTOR", labela, min, max, digits);
+    regler->cp_set_var("no_log");
     regler->set_show_value(false);
     regler->set_name(plug_name);
     regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(
@@ -201,7 +202,78 @@ void Widget::make_controller_box(Gtk::Box *box,
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
     box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
     regler->cp_configure("KNOB", label, min, max, digits);
-    regler->set_show_value(false);
+    regler->cp_set_var("no_log");
+    regler->set_show_value(true);
+    regler->set_name(plug_name);
+    box->pack_start(*regler,Gtk::PACK_SHRINK);
+    Gtk::VBox* b2 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(
+           *this, &Widget::on_value_changed), port_name));
+  }
+}
+
+Glib::ustring logarithmic_format_value(double v, int prec) {
+    if (v < -4) {
+	return Glib::ustring::format(std::setprecision(prec+1), pow(10.0,v));
+    } else {
+	return Glib::ustring::format(std::fixed, std::setprecision(prec-floor(v)), pow(10.0,v));
+    }
+}
+
+int logarithmic_input_value(gpointer obj, gpointer nv)
+{
+    GtkEntry *entry = GTK_ENTRY(obj);
+    double *new_val = static_cast<double*>(nv);
+    gchar *err = NULL;
+    *new_val = g_strtod(gtk_entry_get_text(entry), &err);
+    if (*err)
+	return GTK_INPUT_ERROR;
+    else {
+	*new_val = log10(*new_val);
+	return TRUE;
+    }
+}
+
+// create stackboxes with controllers for port name
+void Widget::make_log_controller_box(Gtk::Box *box,
+                                 Glib::ustring label,
+                                 float min, float max,
+                                 float digits,
+                                 PortIndex port_name)
+{
+  Gxw::Regler *regler = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_name));
+  if (regler)
+  {
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
+
+    Gtk::VBox* b1 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
+    
+	double up = log10(max);
+	double step = log10(digits);
+	regler->cp_configure("", label, log10(min), up, step);
+	int prec = 0;
+	float d = log10((digits-1)*max);
+	if (up > 0) {
+	    prec = up;
+	    if (d < 0) {
+		prec -= floor(d);
+	    }
+	} else if (d < 0) {
+	    prec = -floor(d);
+	}
+	regler->signal_format_value().connect(
+	    sigc::bind(
+		sigc::ptr_fun(logarithmic_format_value),
+		prec));
+	regler->signal_input_value().connect(
+	    sigc::ptr_fun(logarithmic_input_value));
+     
+    regler->set_show_value(true);
     regler->set_name(plug_name);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
     Gtk::VBox* b2 = new Gtk::VBox();
@@ -230,6 +302,7 @@ void Widget::make_switch_box(Gtk::Box *box,
      Gtk::Image *pr = new Gtk::Image(label_image);*/
  
     regler->cp_configure("switch", label, 0, 1, 1);
+    regler->cp_set_var("no_log");
     regler->set_name(plug_name);
     regler->set_base_name( "button" );
     Gtk::VBox* b1 = new Gtk::VBox();
@@ -255,7 +328,13 @@ void Widget::set_value(uint32_t port_index,
     if (regler)
     {
       float value = *static_cast<const float*>(buffer);
-      regler->cp_set_value(value);
+      Glib::ustring v = regler->cp_get_var();
+      if (v.empty()) {
+          //fprintf(stderr,"value get %f\n set %f\n",value,log10(value) );
+          regler->cp_set_value(log10(value));
+      } else {
+          regler->cp_set_value(value);
+      }
     }
   }
 }
@@ -268,8 +347,17 @@ void Widget::on_value_changed(uint32_t port_index)
   if (regler)
   {
     float value = regler->cp_get_value();
-    write_function(controller, port_index, sizeof(float), 0,
+    
+    Glib::ustring v = regler->cp_get_var();
+    if (v.empty()) {
+        //fprintf(stderr,"value set %f\n get %f\n",value,pow(10.0,value));
+        value = pow(10.0,value);
+        write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
+    } else {
+       write_function(controller, port_index, sizeof(float), 0,
+                                    static_cast<const void*>(&value));
+    }
   }
 }
 

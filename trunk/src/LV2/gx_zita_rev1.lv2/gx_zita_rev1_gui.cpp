@@ -125,7 +125,7 @@ void Gx_zita_rev1_stereoGUI::set_skin()
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"
-                 " GxRegler::value-border = { 2, 0, 0, 0 }\n"
+                 " GxRegler::value-border = { 6, 6, 3, 3 }\n"
                  " font_name = 'sans 7.5'\n"
                  " xthickness = 10\n"
                  " ythickness = 1\n"
