@@ -1,5 +1,5 @@
 // generated from file '../src/faust/vibe_lfo_sine.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 namespace vibe_lfo_sine {
 static int 	iVec0[2];
@@ -30,19 +30,19 @@ void compute(int count, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
-	double 	fSlow0 = (fConst0 * fslider0);
-	double 	fSlow1 = sin(fSlow0);
-	double 	fSlow2 = cos(fSlow0);
-	double 	fSlow3 = (0 - fSlow1);
-	double 	fSlow4 = (6.283185307179586 * fslider1);
-	double 	fSlow5 = cos(fSlow4);
-	double 	fSlow6 = sin(fSlow4);
+	double 	fSlow0 = (fConst0 * double(fslider0));
+	double 	fSlow1 = cos(fSlow0);
+	double 	fSlow2 = sin(fSlow0);
+	double 	fSlow3 = (0 - fSlow2);
+	double 	fSlow4 = (6.283185307179586 * double(fslider1));
+	double 	fSlow5 = sin(fSlow4);
+	double 	fSlow6 = cos(fSlow4);
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
-		fRec0[0] = ((fSlow2 * fRec0[1]) + (fSlow1 * fRec1[1]));
-		fRec1[0] = ((1 + ((fSlow3 * fRec0[1]) + (fSlow2 * fRec1[1]))) - iVec0[1]);
+		fRec0[0] = ((fSlow2 * fRec1[1]) + (fSlow1 * fRec0[1]));
+		fRec1[0] = ((1 + ((fSlow1 * fRec1[1]) + (fSlow3 * fRec0[1]))) - iVec0[1]);
 		output0[i] = (FAUSTFLOAT)(0.5 * (1 + fRec0[0]));
-		output1[i] = (FAUSTFLOAT)(0.5 * (1 + ((fSlow6 * fRec1[0]) + (fSlow5 * fRec0[0]))));
+		output1[i] = (FAUSTFLOAT)(0.5 * (1 + ((fSlow6 * fRec0[0]) + (fSlow5 * fRec1[0]))));
 		// post processing
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];

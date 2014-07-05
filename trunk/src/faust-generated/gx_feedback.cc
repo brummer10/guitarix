@@ -1,5 +1,5 @@
 // generated from file '../src/faust/gx_feedback.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace gx_feedback {
@@ -75,9 +75,9 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (0.01 * fslider0);
+	double 	fSlow0 = (0.01 * double(fslider0));
 	double 	fSlow1 = (1 - fSlow0);
-	double 	fSlow2 = fslider1;
+	double 	fSlow2 = double(fslider1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fRec0[0] = ((fSlow0 * fTemp0) - (fSlow2 * fRec0[5]));

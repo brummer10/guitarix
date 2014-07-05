@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/compressor.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace compressor {
@@ -90,17 +90,17 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
 #define fentry2 (*fentry2_)
-	double 	fSlow0 = fentry1;
-	double 	fSlow1 = (fSlow0 - fentry0);
-	double 	fSlow2 = exp((0 - (fConst3 / max(fConst3, fslider0))));
-	double 	fSlow3 = exp((0 - (fConst3 / max(fConst3, fslider1))));
+	double 	fSlow0 = double(fentry1);
+	double 	fSlow1 = (fSlow0 - double(fentry0));
+	double 	fSlow2 = exp((0 - (fConst3 / max(fConst3, double(fslider0)))));
+	double 	fSlow3 = exp((0 - (fConst3 / max(fConst3, double(fslider1)))));
 	double 	fSlow4 = (1.0 / (0.001 + fSlow0));
-	double 	fSlow5 = (fentry2 - 1);
+	double 	fSlow5 = (double(fentry2) - 1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec1[0] = ((fConst2 * fabs((fTemp0 + 1e-20))) + (fConst1 * fRec1[1]));
-		double fTemp1 = ((fSlow3 * (fRec0[1] >= fRec1[0])) + (fSlow2 * (fRec0[1] < fRec1[0])));
-		fRec0[0] = ((fRec1[0] * (0 - (fTemp1 - 1))) + (fRec0[1] * fTemp1));
+		fRec1[0] = ((fConst1 * fRec1[1]) + (fConst2 * fabs((fTemp0 + 1e-20))));
+		double fTemp1 = ((fSlow3 * (fRec0[1] < fRec1[0])) + (fSlow2 * (fRec0[1] >= fRec1[0])));
+		fRec0[0] = ((fRec0[1] * fTemp1) + (fRec1[0] * (0 - (fTemp1 - 1))));
 		double fTemp2 = max((double)0, ((20 * log10(fRec0[0])) + fSlow1));
 		double fTemp3 = (fSlow5 * min((double)1, max((double)0, (fSlow4 * fTemp2))));
 		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * ((fTemp2 * (0 - fTemp3)) / (1 + fTemp3)))));
@@ -126,7 +126,7 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case ATTACK: 
-		fslider0_ = (float*)data; // , 0.002, 0.0, 1.0, 0.001 
+		fslider1_ = (float*)data; // , 0.002, 0.0, 1.0, 0.001 
 		break;
 	case KNEE: 
 		fentry1_ = (float*)data; // , 3.0, 0.0, 2e+01, 0.1 
@@ -135,7 +135,7 @@ void Dsp::connect(uint32_t port,void* data)
 		fentry2_ = (float*)data; // , 2.0, 1.0, 2e+01, 0.1 
 		break;
 	case RELEASE: 
-		fslider1_ = (float*)data; // , 0.5, 0.0, 1e+01, 0.01 
+		fslider0_ = (float*)data; // , 0.5, 0.0, 1e+01, 0.01 
 		break;
 	case THRESHOLD: 
 		fentry0_ = (float*)data; // , -2e+01, -96.0, 1e+01, 0.1 

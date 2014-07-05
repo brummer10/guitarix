@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/stereodelay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace stereodelay {
@@ -7,24 +7,24 @@ namespace stereodelay {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	int 	iVec0[2];
+	int 	IOTA;
+	float *fVec0;
+	int 	iVec1[2];
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
 	int 	iConst0;
 	float 	fConst1;
 	float 	fRec0[2];
 	float 	fRec1[2];
-	FAUSTFLOAT 	fcheckbox0;
-	FAUSTFLOAT	*fcheckbox0_;
-	int 	IOTA;
-	float *fVec1;
+	float 	fRec2[2];
+	float 	fRec3[2];
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
 	float 	fConst2;
-	float 	fRec2[2];
-	float 	fRec3[2];
 	float 	fRec4[2];
 	float 	fRec5[2];
+	FAUSTFLOAT 	fcheckbox0;
+	FAUSTFLOAT	*fcheckbox0_;
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
 	float 	fRec6[2];
@@ -62,7 +62,7 @@ public:
 
 Dsp::Dsp()
 	: PluginLV2(),
-	  fVec1(0),
+	  fVec0(0),
 	  fVec2(0),
 	  mem_allocated(false) {
 	version = PLUGINLV2_VERSION;
@@ -82,10 +82,10 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) iVec0[i] = 0;
+	for (int i=0; i<262144; i++) fVec0[i] = 0;
+	for (int i=0; i<2; i++) iVec1[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
-	for (int i=0; i<262144; i++) fVec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
@@ -107,10 +107,10 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586f / float(iConst0));
 	IOTA = 0;
-	fConst2 = (0.001f * iConst0);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (0.001f * iConst0);
+	fConst2 = (6.283185307179586f / float(iConst0));
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
@@ -120,7 +120,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void Dsp::mem_alloc()
 {
-	if (!fVec1) fVec1 = new float[262144];
+	if (!fVec0) fVec0 = new float[262144];
 	if (!fVec2) fVec2 = new float[262144];
 	mem_allocated = true;
 }
@@ -128,7 +128,7 @@ void Dsp::mem_alloc()
 void Dsp::mem_free()
 {
 	mem_allocated = false;
-	if (fVec1) { delete fVec1; fVec1 = 0; }
+	if (fVec0) { delete fVec0; fVec0 = 0; }
 	if (fVec2) { delete fVec2; fVec2 = 0; }
 }
 
@@ -153,33 +153,33 @@ int Dsp::activate_static(bool start, PluginLV2 *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 #define fslider0 (*fslider0_)
-#define fcheckbox0 (*fcheckbox0_)
 #define fslider1 (*fslider1_)
+#define fcheckbox0 (*fcheckbox0_)
 #define fslider2 (*fslider2_)
 #define fslider3 (*fslider3_)
 #define fslider4 (*fslider4_)
-	float 	fSlow0 = (fConst1 * fslider0);
-	float 	fSlow1 = sinf(fSlow0);
-	float 	fSlow2 = cosf(fSlow0);
-	float 	fSlow3 = (0 - fSlow1);
-	float 	fSlow4 = fcheckbox0;
-	float 	fSlow5 = (fConst2 * fslider1);
-	float 	fSlow6 = (0.0010000000000000009f * powf(10,(0.05f * fslider2)));
-	float 	fSlow7 = (fConst2 * fslider3);
-	float 	fSlow8 = (0.0010000000000000009f * powf(10,(0.05f * fslider4)));
+	float 	fSlow0 = (fConst1 * float(fslider0));
+	float 	fSlow1 = (fConst2 * float(fslider1));
+	float 	fSlow2 = cosf(fSlow1);
+	float 	fSlow3 = sinf(fSlow1);
+	float 	fSlow4 = (0 - fSlow3);
+	float 	fSlow5 = float(fcheckbox0);
+	float 	fSlow6 = (0.0010000000000000009f * powf(10,(0.05f * float(fslider2))));
+	float 	fSlow7 = (fConst1 * float(fslider3));
+	float 	fSlow8 = (0.0010000000000000009f * powf(10,(0.05f * float(fslider4))));
 	for (int i=0; i<count; i++) {
-		iVec0[0] = 1;
-		fRec0[0] = ((fSlow2 * fRec0[1]) + (fSlow1 * fRec1[1]));
-		fRec1[0] = ((1 + ((fSlow3 * fRec0[1]) + (fSlow2 * fRec1[1]))) - iVec0[1]);
 		float fTemp0 = (float)input0[i];
-		fVec1[IOTA&262143] = fTemp0;
-		float fTemp1 = ((int((fRec2[1] != 0.0f)))?((int(((fRec3[1] > 0.0f) & (fRec3[1] < 1.0f))))?fRec2[1]:0):((int(((fRec3[1] == 0.0f) & (fSlow5 != fRec4[1]))))?0.0009765625f:((int(((fRec3[1] == 1.0f) & (fSlow5 != fRec5[1]))))?-0.0009765625f:0)));
-		fRec2[0] = fTemp1;
-		fRec3[0] = max(0.0f, min(1.0f, (fRec3[1] + fTemp1)));
-		fRec4[0] = ((int(((fRec3[1] >= 1.0f) & (fRec5[1] != fSlow5))))?fSlow5:fRec4[1]);
-		fRec5[0] = ((int(((fRec3[1] <= 0.0f) & (fRec4[1] != fSlow5))))?fSlow5:fRec5[1]);
-		fRec6[0] = (fSlow6 + (0.999f * fRec6[1]));
-		output0[i] = (FAUSTFLOAT)(fVec1[IOTA&262143] + ((fRec6[0] * ((fRec3[0] * fVec1[(IOTA-int((int(fRec5[0]) & 262143)))&262143]) + ((1.0f - fRec3[0]) * fVec1[(IOTA-int((int(fRec4[0]) & 262143)))&262143]))) * (1 - (fSlow4 * fRec0[0]))));
+		fVec0[IOTA&262143] = fTemp0;
+		iVec1[0] = 1;
+		float fTemp1 = ((int((fRec0[1] != 0.0f)))?((int(((fRec1[1] > 0.0f) & (fRec1[1] < 1.0f))))?fRec0[1]:0):((int(((fRec1[1] == 0.0f) & (fSlow0 != fRec2[1]))))?0.0009765625f:((int(((fRec1[1] == 1.0f) & (fSlow0 != fRec3[1]))))?-0.0009765625f:0)));
+		fRec0[0] = fTemp1;
+		fRec1[0] = max(0.0f, min(1.0f, (fRec1[1] + fTemp1)));
+		fRec2[0] = ((int(((fRec1[1] >= 1.0f) & (fRec3[1] != fSlow0))))?fSlow0:fRec2[1]);
+		fRec3[0] = ((int(((fRec1[1] <= 0.0f) & (fRec2[1] != fSlow0))))?fSlow0:fRec3[1]);
+		fRec4[0] = ((fSlow3 * fRec5[1]) + (fSlow2 * fRec4[1]));
+		fRec5[0] = ((1 + ((fSlow2 * fRec5[1]) + (fSlow4 * fRec4[1]))) - iVec1[1]);
+		fRec6[0] = ((0.999f * fRec6[1]) + fSlow6);
+		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&262143] + ((fRec6[0] * (1 - (fSlow5 * fRec4[0]))) * (((1.0f - fRec1[0]) * fVec0[(IOTA-int((int(fRec2[0]) & 262143)))&262143]) + (fRec1[0] * fVec0[(IOTA-int((int(fRec3[0]) & 262143)))&262143]))));
 		float fTemp2 = (float)input1[i];
 		fVec2[IOTA&262143] = fTemp2;
 		float fTemp3 = ((int((fRec7[1] != 0.0f)))?((int(((fRec8[1] > 0.0f) & (fRec8[1] < 1.0f))))?fRec7[1]:0):((int(((fRec8[1] == 0.0f) & (fSlow7 != fRec9[1]))))?0.0009765625f:((int(((fRec8[1] == 1.0f) & (fSlow7 != fRec10[1]))))?-0.0009765625f:0)));
@@ -187,8 +187,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec8[0] = max(0.0f, min(1.0f, (fRec8[1] + fTemp3)));
 		fRec9[0] = ((int(((fRec8[1] >= 1.0f) & (fRec10[1] != fSlow7))))?fSlow7:fRec9[1]);
 		fRec10[0] = ((int(((fRec8[1] <= 0.0f) & (fRec9[1] != fSlow7))))?fSlow7:fRec10[1]);
-		fRec11[0] = (fSlow8 + (0.999f * fRec11[1]));
-		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec11[0] * ((fRec8[0] * fVec2[(IOTA-int((int(fRec10[0]) & 262143)))&262143]) + ((1.0f - fRec8[0]) * fVec2[(IOTA-int((int(fRec9[0]) & 262143)))&262143]))) * (1 - (fSlow4 * (0 - fRec0[0])))));
+		fRec11[0] = ((0.999f * fRec11[1]) + fSlow8);
+		output1[i] = (FAUSTFLOAT)(fVec2[IOTA&262143] + ((fRec11[0] * (1 - (fSlow5 * (0 - fRec4[0])))) * (((1.0f - fRec8[0]) * fVec2[(IOTA-int((int(fRec9[0]) & 262143)))&262143]) + (fRec8[0] * fVec2[(IOTA-int((int(fRec10[0]) & 262143)))&262143]))));
 		// post processing
 		fRec11[1] = fRec11[0];
 		fRec10[1] = fRec10[0];
@@ -200,14 +200,14 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec4[1] = fRec4[0];
 		fRec3[1] = fRec3[0];
 		fRec2[1] = fRec2[0];
-		IOTA = IOTA+1;
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];
-		iVec0[1] = iVec0[0];
+		iVec1[1] = iVec1[0];
+		IOTA = IOTA+1;
 	}
 #undef fslider0
-#undef fcheckbox0
 #undef fslider1
+#undef fcheckbox0
 #undef fslider2
 #undef fslider3
 #undef fslider4
@@ -224,14 +224,14 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case LFOFREQ: 
-		fslider0_ = (float*)data; // , 0.2f, 0.0f, 5.0f, 0.01f 
+		fslider1_ = (float*)data; // , 0.2f, 0.0f, 5.0f, 0.01f 
 		break;
 	// static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	case INVERT: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case L_DELAY: 
-		fslider1_ = (float*)data; // , 0.0f, 0.0f, 5e+03f, 1e+01f 
+		fslider0_ = (float*)data; // , 0.0f, 0.0f, 5e+03f, 1e+01f 
 		break;
 	case L_GAIN: 
 		fslider2_ = (float*)data; // , 0.0f, -2e+01f, 2e+01f, 0.1f 

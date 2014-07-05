@@ -1,5 +1,5 @@
 // generated from file '../src/faust/selecteq.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace selecteq {
@@ -143,45 +143,45 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
-	double 	fSlow1 = (1.0 / fslider1);
-	double 	fSlow2 = tan((fConst0 * fslider2));
+	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
+	double 	fSlow1 = (1.0 / double(fslider1));
+	double 	fSlow2 = tan((fConst0 * double(fslider2)));
 	double 	fSlow3 = (2 * (faustpower<2>(fSlow2) - 1));
-	double 	fSlow4 = (0.0010000000000000009 * pow(10,(0.05 * fslider3)));
-	double 	fSlow5 = (1.0 / fslider4);
-	double 	fSlow6 = tan((fConst0 * fslider5));
+	double 	fSlow4 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider3))));
+	double 	fSlow5 = (1.0 / double(fslider4));
+	double 	fSlow6 = tan((fConst0 * double(fslider5)));
 	double 	fSlow7 = (2 * (faustpower<2>(fSlow6) - 1));
-	double 	fSlow8 = (0.0010000000000000009 * pow(10,(0.05 * fslider6)));
-	double 	fSlow9 = (1.0 / fslider7);
-	double 	fSlow10 = tan((fConst0 * fslider8));
+	double 	fSlow8 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider6))));
+	double 	fSlow9 = (1.0 / double(fslider7));
+	double 	fSlow10 = tan((fConst0 * double(fslider8)));
 	double 	fSlow11 = (2 * (faustpower<2>(fSlow10) - 1));
-	double 	fSlow12 = (0.0010000000000000009 * pow(10,(0.05 * fslider9)));
-	double 	fSlow13 = (1.0 / fslider10);
-	double 	fSlow14 = tan((fConst0 * fslider11));
+	double 	fSlow12 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider9))));
+	double 	fSlow13 = (1.0 / double(fslider10));
+	double 	fSlow14 = tan((fConst0 * double(fslider11)));
 	double 	fSlow15 = (2 * (faustpower<2>(fSlow14) - 1));
-	double 	fSlow16 = (0.0010000000000000009 * pow(10,(0.05 * fslider12)));
-	double 	fSlow17 = (1.0 / fslider13);
-	double 	fSlow18 = tan((fConst0 * fslider14));
+	double 	fSlow16 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider12))));
+	double 	fSlow17 = (1.0 / double(fslider13));
+	double 	fSlow18 = tan((fConst0 * double(fslider14)));
 	double 	fSlow19 = (2 * (faustpower<2>(fSlow18) - 1));
-	double 	fSlow20 = (0.0010000000000000009 * pow(10,(0.05 * fslider15)));
-	double 	fSlow21 = (1.0 / fslider16);
-	double 	fSlow22 = tan((fConst0 * fslider17));
+	double 	fSlow20 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider15))));
+	double 	fSlow21 = (1.0 / double(fslider16));
+	double 	fSlow22 = tan((fConst0 * double(fslider17)));
 	double 	fSlow23 = (2 * (faustpower<2>(fSlow22) - 1));
-	double 	fSlow24 = (0.0010000000000000009 * pow(10,(0.05 * fslider18)));
-	double 	fSlow25 = (1.0 / fslider19);
-	double 	fSlow26 = tan((fConst0 * fslider20));
+	double 	fSlow24 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider18))));
+	double 	fSlow25 = (1.0 / double(fslider19));
+	double 	fSlow26 = tan((fConst0 * double(fslider20)));
 	double 	fSlow27 = (2 * (faustpower<2>(fSlow26) - 1));
-	double 	fSlow28 = (0.0010000000000000009 * pow(10,(0.05 * fslider21)));
-	double 	fSlow29 = (1.0 / fslider22);
-	double 	fSlow30 = tan((fConst0 * fslider23));
+	double 	fSlow28 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider21))));
+	double 	fSlow29 = (1.0 / double(fslider22));
+	double 	fSlow30 = tan((fConst0 * double(fslider23)));
 	double 	fSlow31 = (2 * (faustpower<2>(fSlow30) - 1));
-	double 	fSlow32 = (0.0010000000000000009 * pow(10,(0.05 * fslider24)));
-	double 	fSlow33 = (1.0 / fslider25);
-	double 	fSlow34 = tan((fConst0 * fslider26));
+	double 	fSlow32 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider24))));
+	double 	fSlow33 = (1.0 / double(fslider25));
+	double 	fSlow34 = tan((fConst0 * double(fslider26)));
 	double 	fSlow35 = (2 * (faustpower<2>(fSlow34) - 1));
-	double 	fSlow36 = (0.0010000000000000009 * pow(10,(0.05 * fslider27)));
-	double 	fSlow37 = (1.0 / fslider28);
-	double 	fSlow38 = tan((fConst0 * fslider29));
+	double 	fSlow36 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider27))));
+	double 	fSlow37 = (1.0 / double(fslider28));
+	double 	fSlow38 = tan((fConst0 * double(fslider29)));
 	double 	fSlow39 = (2 * (faustpower<2>(fSlow38) - 1));
 	double 	fSlow40 = (1 + (fSlow38 * (fSlow38 - fSlow37)));
 	double 	fSlow41 = (1 + (fSlow38 * (fSlow38 + fSlow37)));
@@ -244,16 +244,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp27 = (fSlow37 / fRec18[0]);
 		double fTemp28 = (1 + (fSlow38 * (fSlow38 + fTemp27)));
 		double fTemp29 = (fSlow39 * fRec19[1]);
-		fRec19[0] = ((double)input0[i] - (((fRec19[2] * (1 + (fSlow38 * (fSlow38 - fTemp27)))) + fTemp29) / fTemp28));
-		fRec17[0] = ((((fTemp29 + (fSlow41 * fRec19[0])) + (fSlow40 * fRec19[2])) / fTemp28) - (((fRec17[2] * (1 + (fSlow34 * (fSlow34 - fTemp24)))) + fTemp26) / fTemp25));
-		fRec15[0] = ((((fTemp26 + (fSlow43 * fRec17[0])) + (fSlow42 * fRec17[2])) / fTemp25) - (((fRec15[2] * (1 + (fSlow30 * (fSlow30 - fTemp21)))) + fTemp23) / fTemp22));
-		fRec13[0] = ((((fTemp23 + (fSlow45 * fRec15[0])) + (fSlow44 * fRec15[2])) / fTemp22) - (((fRec13[2] * (1 + (fSlow26 * (fSlow26 - fTemp18)))) + fTemp20) / fTemp19));
-		fRec11[0] = ((((fTemp20 + (fSlow47 * fRec13[0])) + (fSlow46 * fRec13[2])) / fTemp19) - (((fRec11[2] * (1 + (fSlow22 * (fSlow22 - fTemp15)))) + fTemp17) / fTemp16));
-		fRec9[0] = ((((fTemp17 + (fSlow49 * fRec11[0])) + (fSlow48 * fRec11[2])) / fTemp16) - (((fRec9[2] * (1 + (fSlow18 * (fSlow18 - fTemp12)))) + fTemp14) / fTemp13));
-		fRec7[0] = ((((fTemp14 + (fSlow51 * fRec9[0])) + (fSlow50 * fRec9[2])) / fTemp13) - (((fRec7[2] * (1 + (fSlow14 * (fSlow14 - fTemp9)))) + fTemp11) / fTemp10));
-		fRec5[0] = ((((fTemp11 + (fSlow53 * fRec7[0])) + (fSlow52 * fRec7[2])) / fTemp10) - (((fRec5[2] * (1 + (fSlow10 * (fSlow10 - fTemp6)))) + fTemp8) / fTemp7));
-		fRec3[0] = ((((fTemp8 + (fSlow55 * fRec5[0])) + (fSlow54 * fRec5[2])) / fTemp7) - (((fRec3[2] * (1 + (fSlow6 * (fSlow6 - fTemp3)))) + fTemp5) / fTemp4));
-		fRec1[0] = ((((fTemp5 + (fSlow57 * fRec3[0])) + (fSlow56 * fRec3[2])) / fTemp4) - (((fRec1[2] * (1 + (fSlow2 * (fSlow2 - fTemp0)))) + fTemp2) / fTemp1));
+		fRec19[0] = ((double)input0[i] - ((((1 + (fSlow38 * (fSlow38 - fTemp27))) * fRec19[2]) + fTemp29) / fTemp28));
+		fRec17[0] = ((((fTemp29 + (fSlow41 * fRec19[0])) + (fSlow40 * fRec19[2])) / fTemp28) - ((((1 + (fSlow34 * (fSlow34 - fTemp24))) * fRec17[2]) + fTemp26) / fTemp25));
+		fRec15[0] = ((((fTemp26 + (fSlow43 * fRec17[0])) + (fSlow42 * fRec17[2])) / fTemp25) - ((((1 + (fSlow30 * (fSlow30 - fTemp21))) * fRec15[2]) + fTemp23) / fTemp22));
+		fRec13[0] = ((((fTemp23 + (fSlow45 * fRec15[0])) + (fSlow44 * fRec15[2])) / fTemp22) - ((((1 + (fSlow26 * (fSlow26 - fTemp18))) * fRec13[2]) + fTemp20) / fTemp19));
+		fRec11[0] = ((((fTemp20 + (fSlow47 * fRec13[0])) + (fSlow46 * fRec13[2])) / fTemp19) - ((((1 + (fSlow22 * (fSlow22 - fTemp15))) * fRec11[2]) + fTemp17) / fTemp16));
+		fRec9[0] = ((((fTemp17 + (fSlow49 * fRec11[0])) + (fSlow48 * fRec11[2])) / fTemp16) - ((((1 + (fSlow18 * (fSlow18 - fTemp12))) * fRec9[2]) + fTemp14) / fTemp13));
+		fRec7[0] = ((((fTemp14 + (fSlow51 * fRec9[0])) + (fSlow50 * fRec9[2])) / fTemp13) - ((((1 + (fSlow14 * (fSlow14 - fTemp9))) * fRec7[2]) + fTemp11) / fTemp10));
+		fRec5[0] = ((((fTemp11 + (fSlow53 * fRec7[0])) + (fSlow52 * fRec7[2])) / fTemp10) - ((((1 + (fSlow10 * (fSlow10 - fTemp6))) * fRec5[2]) + fTemp8) / fTemp7));
+		fRec3[0] = ((((fTemp8 + (fSlow55 * fRec5[0])) + (fSlow54 * fRec5[2])) / fTemp7) - ((((1 + (fSlow6 * (fSlow6 - fTemp3))) * fRec3[2]) + fTemp5) / fTemp4));
+		fRec1[0] = ((((fTemp5 + (fSlow57 * fRec3[0])) + (fSlow56 * fRec3[2])) / fTemp4) - ((((1 + (fSlow2 * (fSlow2 - fTemp0))) * fRec1[2]) + fTemp2) / fTemp1));
 		output0[i] = (FAUSTFLOAT)(((fTemp2 + (fSlow59 * fRec1[0])) + (fSlow58 * fRec1[2])) / fTemp1);
 		// post processing
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];

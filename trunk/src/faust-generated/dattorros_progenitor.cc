@@ -1,5 +1,5 @@
 // generated from file '../src/faust/dattorros_progenitor.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace dattorros_progenitor {
@@ -29,15 +29,12 @@ private:
 	};
 			FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT 	fslider2;
-	FAUSTFLOAT 	fslider3;
-	FAUSTFLOAT 	fslider4;
-	FAUSTFLOAT 	fslider5;
 	int 	IOTA;
 	double 	fVec0[65536];
-	FAUSTFLOAT 	fslider6;
+	FAUSTFLOAT 	fslider2;
 	int 	iConst0;
 	double 	fConst1;
+	FAUSTFLOAT 	fslider3;
 	double 	fRec17[3];
 	double 	fVec1[1024];
 	int 	iConst2;
@@ -51,16 +48,19 @@ private:
 	double 	fVec4[2048];
 	int 	iConst5;
 	double 	fRec9[2];
+	FAUSTFLOAT 	fslider4;
 	double 	fVec5[8192];
 	static double 	ftbl0[65536];
 	double 	fConst6;
 	double 	fRec19[2];
-	FAUSTFLOAT 	fslider7;
+	FAUSTFLOAT 	fslider5;
 	int 	iConst7;
 	double 	fRec7[2];
 	double 	fRec8[32768];
 	int 	iConst8;
+	FAUSTFLOAT 	fslider6;
 	double 	fRec6[3];
+	FAUSTFLOAT 	fslider7;
 	FAUSTFLOAT 	fslider8;
 	double 	fVec6[16384];
 	int 	iConst9;
@@ -192,76 +192,76 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	double 	fSlow0 = fslider0;
-	double 	fSlow1 = fslider1;
-	double 	fSlow2 = fslider2;
-	double 	fSlow3 = fslider3;
-	double 	fSlow4 = fslider4;
-	double 	fSlow5 = fslider5;
-	double 	fSlow6 = (1 - fSlow5);
-	double 	fSlow7 = (fConst1 * fslider6);
-	int 	iSlow8 = int(fSlow7);
-	int 	iSlow9 = int((iSlow8 & 65535));
-	int 	iSlow10 = (1 + iSlow8);
-	double 	fSlow11 = (iSlow10 - fSlow7);
-	int 	iSlow12 = int((int(iSlow10) & 65535));
-	double 	fSlow13 = (fSlow7 - iSlow8);
-	double 	fSlow14 = (0.5 * fSlow5);
-	double 	fSlow15 = (0.5 * fslider7);
-	double 	fSlow16 = (1 - fSlow1);
-	double 	fSlow17 = fslider8;
-	double 	fSlow18 = fslider9;
+	double 	fSlow0 = double(fslider0);
+	double 	fSlow1 = double(fslider1);
+	double 	fSlow2 = (fConst1 * double(fslider2));
+	int 	iSlow3 = int(fSlow2);
+	int 	iSlow4 = (1 + iSlow3);
+	int 	iSlow5 = int((int(iSlow4) & 65535));
+	double 	fSlow6 = (fSlow2 - iSlow3);
+	int 	iSlow7 = int((iSlow3 & 65535));
+	double 	fSlow8 = (iSlow4 - fSlow2);
+	double 	fSlow9 = double(fslider3);
+	double 	fSlow10 = (0.5 * fSlow9);
+	double 	fSlow11 = (1 - fSlow9);
+	double 	fSlow12 = double(fslider4);
+	double 	fSlow13 = (0.5 * double(fslider5));
+	double 	fSlow14 = double(fslider6);
+	double 	fSlow15 = (1 - fSlow14);
+	double 	fSlow16 = double(fslider7);
+	double 	fSlow17 = double(fslider8);
+	double 	fSlow18 = double(fslider9);
 	double 	fSlow19 = (1 - fSlow18);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input1[i];
 		double fTemp1 = (double)input0[i];
 		double fTemp2 = (fTemp1 + fTemp0);
 		fVec0[IOTA&65535] = fTemp2;
-		fRec17[0] = ((fSlow14 * ((fSlow13 * fVec0[(IOTA-iSlow12)&65535]) + (fSlow11 * fVec0[(IOTA-iSlow9)&65535]))) + (fSlow6 * fRec17[2]));
-		fVec1[IOTA&1023] = (fRec17[0] + (fSlow4 * fRec15[1]));
+		fRec17[0] = ((fSlow11 * fRec17[2]) + (fSlow10 * ((fSlow8 * fVec0[(IOTA-iSlow7)&65535]) + (fSlow6 * fVec0[(IOTA-iSlow5)&65535]))));
+		fVec1[IOTA&1023] = (fRec17[0] + (fSlow1 * fRec15[1]));
 		fRec15[0] = fVec1[(IOTA-iConst2)&1023];
 		double 	fRec16 = (fRec15[1] - fRec17[0]);
-		fVec2[IOTA&1023] = (fRec16 + (fSlow4 * fRec13[1]));
+		fVec2[IOTA&1023] = (fRec16 + (fSlow1 * fRec13[1]));
 		fRec13[0] = fVec2[(IOTA-iConst3)&1023];
 		double 	fRec14 = (fRec13[1] - fRec16);
-		fVec3[IOTA&4095] = (fRec14 + (fSlow3 * fRec11[1]));
+		fVec3[IOTA&4095] = (fRec14 + (fSlow0 * fRec11[1]));
 		fRec11[0] = fVec3[(IOTA-iConst4)&4095];
 		double 	fRec12 = (fRec11[1] - fRec14);
-		fVec4[IOTA&2047] = (fRec12 + (fSlow3 * fRec9[1]));
+		fVec4[IOTA&2047] = (fRec12 + (fSlow0 * fRec9[1]));
 		fRec9[0] = fVec4[(IOTA-iConst5)&2047];
 		double 	fRec10 = (fRec9[1] - fRec12);
 		double fTemp3 = (0.3 * fRec10);
-		double fTemp4 = (fTemp3 + (0.5 * fRec1[1]));
-		double fTemp5 = (fTemp4 + (fSlow2 * fRec7[1]));
+		double fTemp4 = (0.5 * fRec1[1]);
+		double fTemp5 = (fTemp4 + ((fSlow12 * fRec7[1]) + fTemp3));
 		fVec5[IOTA&8191] = fTemp5;
 		double fTemp6 = (fConst6 + fRec19[1]);
 		fRec19[0] = (fTemp6 - floor(fTemp6));
-		double fTemp7 = (fSlow15 * (1 + ftbl0[int((65536.0 * fRec19[0]))]));
+		double fTemp7 = (fSlow13 * (1 + ftbl0[int((65536.0 * fRec19[0]))]));
 		int iTemp8 = int(fTemp7);
-		int iTemp9 = int((iTemp8 & 16));
-		int iTemp10 = (1 + iTemp8);
-		double fTemp11 = (iTemp10 - fTemp7);
-		int iTemp12 = int((int(iTemp10) & 16));
-		double fTemp13 = (fTemp7 - iTemp8);
-		fRec7[0] = ((fTemp13 * fVec5[(IOTA-int((iConst7 + iTemp12)))&8191]) + (fTemp11 * fVec5[(IOTA-int((iConst7 + iTemp9)))&8191]));
-		fRec8[IOTA&32767] = (fRec7[1] - fTemp4);
-		fRec6[0] = ((fSlow16 * fRec8[(IOTA-iConst8)&32767]) + (fSlow1 * fRec6[2]));
-		double fTemp14 = (fSlow17 * fRec6[0]);
-		fVec6[IOTA&16383] = (fTemp14 + (fSlow0 * fRec4[1]));
+		int iTemp9 = (1 + iTemp8);
+		int iTemp10 = int((int(iTemp9) & 16));
+		double fTemp11 = (fTemp7 - iTemp8);
+		double fTemp12 = (iTemp9 - fTemp7);
+		int iTemp13 = int((iTemp8 & 16));
+		fRec7[0] = ((fVec5[(IOTA-int((iConst7 + iTemp13)))&8191] * fTemp12) + (fTemp11 * fVec5[(IOTA-int((iConst7 + iTemp10)))&8191]));
+		fRec8[IOTA&32767] = (fRec7[1] - (fTemp4 + fTemp3));
+		fRec6[0] = ((fSlow14 * fRec6[2]) + (fSlow15 * fRec8[(IOTA-iConst8)&32767]));
+		double fTemp14 = (fSlow16 * fRec6[0]);
+		fVec6[IOTA&16383] = ((fSlow17 * fRec4[1]) + fTemp14);
 		fRec4[0] = fVec6[(IOTA-iConst9)&16383];
 		fRec5[IOTA&32767] = (fRec4[1] - fTemp14);
-		fRec0[0] = (fSlow17 * fRec5[(IOTA-iConst10)&32767]);
-		double fTemp15 = (fTemp3 + (0.5 * fRec0[1]));
-		double fTemp16 = (fTemp15 + (fSlow2 * fRec23[1]));
+		fRec0[0] = (fSlow16 * fRec5[(IOTA-iConst10)&32767]);
+		double fTemp15 = (0.5 * fRec0[1]);
+		double fTemp16 = (fTemp15 + (fTemp3 + (fSlow12 * fRec23[1])));
 		fVec7[IOTA&8191] = fTemp16;
-		fRec23[0] = ((fTemp13 * fVec7[(IOTA-int((iConst11 + iTemp12)))&8191]) + (fTemp11 * fVec7[(IOTA-int((iConst11 + iTemp9)))&8191]));
-		fRec24[IOTA&32767] = (fRec23[1] - fTemp15);
-		fRec22[0] = ((fSlow16 * fRec24[(IOTA-iConst12)&32767]) + (fSlow1 * fRec22[2]));
-		double fTemp17 = (fSlow17 * fRec22[0]);
-		fVec8[IOTA&32767] = (fTemp17 + (fSlow0 * fRec20[1]));
+		fRec23[0] = ((fTemp12 * fVec7[(IOTA-int((iConst11 + iTemp13)))&8191]) + (fTemp11 * fVec7[(IOTA-int((iConst11 + iTemp10)))&8191]));
+		fRec24[IOTA&32767] = (fRec23[1] - (fTemp3 + fTemp15));
+		fRec22[0] = ((fSlow14 * fRec22[2]) + (fSlow15 * fRec24[(IOTA-iConst12)&32767]));
+		double fTemp17 = (fSlow16 * fRec22[0]);
+		fVec8[IOTA&32767] = ((fSlow17 * fRec20[1]) + fTemp17);
 		fRec20[0] = fVec8[(IOTA-iConst13)&32767];
 		fRec21[IOTA&32767] = (fRec20[1] - fTemp17);
-		fRec1[0] = (fSlow17 * fRec21[(IOTA-iConst14)&32767]);
+		fRec1[0] = (fSlow16 * fRec21[(IOTA-iConst14)&32767]);
 		double 	fRec2 = fRec8[(IOTA-0)&32767];
 		double 	fRec3 = fRec24[(IOTA-0)&32767];
 		output0[i] = (FAUSTFLOAT)((fSlow19 * fTemp1) + (fSlow18 * (fRec0[0] + fRec2)));
@@ -292,16 +292,16 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("dattorros_progenitor.bandwidth","","S","",&fslider5, 0.9, 0.1, 0.95, 0.0005);
-	reg.registerVar("dattorros_progenitor.damping","","S","",&fslider1, 0.0005, 0.1, 0.95, 0.0005);
-	reg.registerVar("dattorros_progenitor.decay","","S","",&fslider8, 0.1, 0.0, 0.5, 0.01);
-	reg.registerVar("dattorros_progenitor.decay diff 1","","S","",&fslider2, 0.1, 0.0, 0.7, 0.01);
-	reg.registerVar("dattorros_progenitor.decay diff 2","","S","",&fslider0, 0.1, 0.0, 0.5, 0.01);
+	reg.registerVar("dattorros_progenitor.bandwidth","","S","",&fslider3, 0.9, 0.1, 0.95, 0.0005);
+	reg.registerVar("dattorros_progenitor.damping","","S","",&fslider6, 0.0005, 0.1, 0.95, 0.0005);
+	reg.registerVar("dattorros_progenitor.decay","","S","",&fslider7, 0.1, 0.0, 0.5, 0.01);
+	reg.registerVar("dattorros_progenitor.decay diff 1","","S","",&fslider4, 0.1, 0.0, 0.7, 0.01);
+	reg.registerVar("dattorros_progenitor.decay diff 2","","S","",&fslider8, 0.1, 0.0, 0.5, 0.01);
 	reg.registerVar("dattorros_progenitor.dry/wet","","S","",&fslider9, 0.5, 0.0, 1.0, 0.05);
-	reg.registerVar("dattorros_progenitor.excursion","","S","",&fslider7, 0.0, 0.0, 16.0, 0.5);
-	reg.registerVar("dattorros_progenitor.input diff 1","","S","",&fslider4, 0.1, 0.0, 0.75, 0.01);
-	reg.registerVar("dattorros_progenitor.input diff 2","","S","",&fslider3, 0.1, 0.0, 0.625, 0.01);
-	reg.registerVar("dattorros_progenitor.predelay ms","","S","",&fslider6, 0.0, 0.0, 2e+02, 1e+01);
+	reg.registerVar("dattorros_progenitor.excursion","","S","",&fslider5, 0.0, 0.0, 16.0, 0.5);
+	reg.registerVar("dattorros_progenitor.input diff 1","","S","",&fslider1, 0.1, 0.0, 0.75, 0.01);
+	reg.registerVar("dattorros_progenitor.input diff 2","","S","",&fslider0, 0.1, 0.0, 0.625, 0.01);
+	reg.registerVar("dattorros_progenitor.predelay ms","","S","",&fslider2, 0.0, 0.0, 2e+02, 1e+01);
 	return 0;
 }
 

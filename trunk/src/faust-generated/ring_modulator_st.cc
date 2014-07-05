@@ -1,5 +1,5 @@
 // generated from file '../src/faust/ring_modulator_st.dsp' by dsp2cc:
-// Code generated with Faust 0.9.46 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace ring_modulator_st {
@@ -102,11 +102,11 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	double 	fSlow0 = (fConst0 * fslider0);
-	double 	fSlow1 = fslider1;
+	double 	fSlow0 = (fConst0 * double(fslider0));
+	double 	fSlow1 = double(fslider1);
 	double 	fSlow2 = (1 - fSlow1);
 	for (int i=0; i<count; i++) {
-		double fTemp0 = (fSlow0 + fRec1[1]);
+		double fTemp0 = (fRec1[1] + fSlow0);
 		fRec1[0] = (fTemp0 - floor(fTemp0));
 		double fTemp1 = (fSlow2 + (fSlow1 * ftbl0[int((65536.0 * fRec1[0]))]));
 		output0[i] = (FAUSTFLOAT)((double)input0[i] * fTemp1);

@@ -1,5 +1,5 @@
 // generated from file '../src/faust/flanger_mono.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace flanger_mono {
@@ -8,8 +8,8 @@ class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
-	int 	iVec0[2];
 	FAUSTFLOAT 	fslider1;
+	int 	iVec0[2];
 	int 	IOTA;
 	double 	fVec1[2048];
 	FAUSTFLOAT 	fslider2;
@@ -90,26 +90,26 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (1 - (0.01 * fSlow0));
-	double 	fSlow2 = (0.01 * (fSlow0 * pow(10,(0.05 * fslider1))));
-	double 	fSlow3 = (fConst1 * fslider2);
-	double 	fSlow4 = sin(fSlow3);
-	double 	fSlow5 = cos(fSlow3);
-	double 	fSlow6 = (0 - fSlow4);
+	double 	fSlow0 = double(fslider1);
+	double 	fSlow1 = (0.01 * (fSlow0 * pow(10,(0.05 * double(fslider0)))));
+	double 	fSlow2 = (fConst1 * double(fslider2));
+	double 	fSlow3 = cos(fSlow2);
+	double 	fSlow4 = sin(fSlow2);
+	double 	fSlow5 = (0 - fSlow4);
+	double 	fSlow6 = (1 - (0.01 * fSlow0));
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
+		double fTemp1 = (fSlow1 * fTemp0);
 		iVec0[0] = 1;
-		double fTemp1 = (fSlow2 * fTemp0);
 		double fTemp2 = ((0.5 * fRec0[1]) - fTemp1);
 		fVec1[IOTA&2047] = fTemp2;
-		fRec1[0] = ((fSlow5 * fRec1[1]) + (fSlow4 * fRec2[1]));
-		fRec2[0] = ((1 + ((fSlow6 * fRec1[1]) + (fSlow5 * fRec2[1]))) - iVec0[1]);
+		fRec1[0] = ((fSlow4 * fRec2[1]) + (fSlow3 * fRec1[1]));
+		fRec2[0] = ((1 + ((fSlow3 * fRec2[1]) + (fSlow5 * fRec1[1]))) - iVec0[1]);
 		double fTemp3 = (iConst0 * (0.001 + (0.005 * (1 + fRec1[0]))));
 		int iTemp4 = int(fTemp3);
 		int iTemp5 = (1 + iTemp4);
-		fRec0[0] = (((fTemp3 - iTemp4) * fVec1[(IOTA-int((int(iTemp5) & 2047)))&2047]) + ((iTemp5 - fTemp3) * fVec1[(IOTA-int((iTemp4 & 2047)))&2047]));
-		output0[i] = (FAUSTFLOAT)((0.5 * (fTemp1 - fRec0[0])) + (fSlow1 * fTemp0));
+		fRec0[0] = ((fVec1[(IOTA-int((iTemp4 & 2047)))&2047] * (iTemp5 - fTemp3)) + ((fTemp3 - iTemp4) * fVec1[(IOTA-int((int(iTemp5) & 2047)))&2047]));
+		output0[i] = (FAUSTFLOAT)((fSlow6 * fTemp0) + (0.5 * (fTemp1 - fRec0[0])));
 		// post processing
 		fRec0[1] = fRec0[0];
 		fRec2[1] = fRec2[0];
@@ -127,8 +127,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("flanger_mono.freq","","S","",&fslider2, 0.2, 0.0, 5.0, 0.01);
-	reg.registerVar("flanger_mono.level","","S","",&fslider1, 0.0, -6e+01, 1e+01, 0.1);
-	reg.registerVar("flanger_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("flanger_mono.level","","S","",&fslider0, 0.0, -6e+01, 1e+01, 0.1);
+	reg.registerVar("flanger_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider1, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

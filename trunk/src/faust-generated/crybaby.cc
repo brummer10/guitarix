@@ -1,5 +1,5 @@
 // generated from file '../src/faust/crybaby.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace crybaby {
@@ -11,8 +11,8 @@ private:
 	FAUSTFLOAT	*fslider0_;
 	int 	iConst0;
 	float 	fConst1;
-	float 	fConst2;
 	float 	fRec1[2];
+	float 	fConst2;
 	float 	fRec2[2];
 	float 	fRec3[2];
 	FAUSTFLOAT 	fslider1;
@@ -92,21 +92,21 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
-	float 	fSlow0 = fslider0;
+	float 	fSlow0 = float(fslider0);
 	float 	fSlow1 = powf(2.0f,(2.3f * fSlow0));
 	float 	fSlow2 = (1 - (fConst1 * (fSlow1 / powf(2.0f,(1.0f + (2.0f * (1.0f - fSlow0)))))));
-	float 	fSlow3 = (0.0010000000000000009f * (0 - (2.0f * (cosf((fConst2 * fSlow1)) * fSlow2))));
-	float 	fSlow4 = (0.0010000000000000009f * faustpower<2>(fSlow2));
+	float 	fSlow3 = (0.0010000000000000009f * faustpower<2>(fSlow2));
+	float 	fSlow4 = (0.0010000000000000009f * (0 - (2.0f * (fSlow2 * cosf((fConst2 * fSlow1))))));
 	float 	fSlow5 = (0.0001000000000000001f * powf(4.0f,fSlow0));
-	float 	fSlow6 = fslider2;
-	float 	fSlow7 = (0.01f * (fSlow6 * fslider1));
+	float 	fSlow6 = float(fslider2);
+	float 	fSlow7 = (0.01f * (fSlow6 * float(fslider1)));
 	float 	fSlow8 = (1 - (0.01f * fSlow6));
 	for (int i=0; i<count; i++) {
 		fRec1[0] = (fSlow3 + (0.999f * fRec1[1]));
 		fRec2[0] = (fSlow4 + (0.999f * fRec2[1]));
-		fRec3[0] = (fSlow5 + (0.999f * fRec3[1]));
+		fRec3[0] = ((0.999f * fRec3[1]) + fSlow5);
 		float fTemp0 = (float)input0[i];
-		fRec0[0] = ((fSlow7 * (fTemp0 * fRec3[0])) - (0.996f * ((fRec2[0] * fRec0[2]) + (fRec1[0] * fRec0[1]))));
+		fRec0[0] = ((fSlow7 * (fTemp0 * fRec3[0])) - (0.996f * ((fRec2[0] * fRec0[1]) + (fRec1[0] * fRec0[2]))));
 		output0[i] = (FAUSTFLOAT)((fRec0[0] + (fSlow8 * fTemp0)) - (0.996f * fRec0[1]));
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];

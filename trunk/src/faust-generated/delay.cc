@@ -1,5 +1,5 @@
 // generated from file '../src/faust/delay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace delay {
@@ -131,8 +131,8 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	float 	fSlow0 = (fConst3 * fslider0);
-	float 	fSlow1 = (0.0010000000000000009f * powf(10,(0.05f * fslider1)));
+	float 	fSlow0 = (fConst3 * float(fslider0));
+	float 	fSlow1 = (0.0010000000000000009f * powf(10,(0.05f * float(fslider1))));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		fVec0[IOTA&262143] = fTemp0;
@@ -141,8 +141,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec1[0] = max(0.0f, min(1.0f, (fRec1[1] + fTemp1)));
 		fRec2[0] = ((int(((fRec1[1] >= 1.0f) & (fRec3[1] != fSlow0))))?fSlow0:fRec2[1]);
 		fRec3[0] = ((int(((fRec1[1] <= 0.0f) & (fRec2[1] != fSlow0))))?fSlow0:fRec3[1]);
-		fRec4[0] = (fSlow1 + (0.999f * fRec4[1]));
-		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&262143] + (fRec4[0] * ((fRec1[0] * fVec0[(IOTA-int((int(fRec3[0]) & 262143)))&262143]) + ((1.0f - fRec1[0]) * fVec0[(IOTA-int((int(fRec2[0]) & 262143)))&262143]))));
+		fRec4[0] = ((0.999f * fRec4[1]) + fSlow1);
+		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&262143] + (fRec4[0] * (((1.0f - fRec1[0]) * fVec0[(IOTA-int((int(fRec2[0]) & 262143)))&262143]) + (fRec1[0] * fVec0[(IOTA-int((int(fRec3[0]) & 262143)))&262143]))));
 		// post processing
 		fRec4[1] = fRec4[0];
 		fRec3[1] = fRec3[0];

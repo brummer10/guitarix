@@ -1,5 +1,5 @@
 // generated from file '../src/faust/balance.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace balance {
@@ -74,7 +74,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 #define fslider0 (*fslider0_)
-	double 	fSlow0 = (0.0010000000000000009 * fslider0);
+	double 	fSlow0 = (0.0010000000000000009 * double(fslider0));
 	for (int i=0; i<count; i++) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		output0[i] = (FAUSTFLOAT)((double)input0[i] * (1 - max((double)0, fRec0[0])));

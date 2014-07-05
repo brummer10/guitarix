@@ -1,5 +1,5 @@
 // generated from file '../src/faust/jconv_post.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace jconv_post {
@@ -61,29 +61,29 @@ int Dsp::activate(bool start)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *input2, FAUSTFLOAT *input3, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 #define fslider4 (*fslider4_)
-	float 	fSlow0 = (0.01f * fslider0);
-	float 	fSlow1 = (1 - fSlow0);
-	float 	fSlow2 = (fConst0 * fslider1);
-	float 	fSlow3 = (0.0010000000000000009f * fslider2);
-	float 	fSlow4 = (0.0010000000000000009f * powf(10,(0.05f * fslider3)));
-	float 	fSlow5 = (0.0010000000000000009f * fslider4);
+	float 	fSlow0 = (0.01f * float(fslider0));
+	float 	fSlow1 = (fConst0 * float(fslider1));
+	float 	fSlow2 = (0.0010000000000000009f * float(fslider2));
+	float 	fSlow3 = (0.0010000000000000009f * powf(10,(0.05f * float(fslider3))));
+	float 	fSlow4 = (1 - fSlow0);
+	float 	fSlow5 = (0.0010000000000000009f * float(fslider4));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (fSlow0 * (float)input2[i]);
 		fVec0[IOTA&65535] = fTemp0;
-		fRec0[0] = (fSlow2 + (0.999f * fRec0[1]));
+		fRec0[0] = (fSlow1 + (0.999f * fRec0[1]));
 		float fTemp1 = ((int((fRec0[0] < 0)))?0:fRec0[0]);
 		int iTemp2 = int(fTemp1);
 		int iTemp3 = (1 + iTemp2);
-		fRec1[0] = (fSlow3 + (0.999f * fRec1[1]));
-		fRec2[0] = (fSlow4 + (0.999f * fRec2[1]));
+		fRec1[0] = (fSlow2 + (0.999f * fRec1[1]));
+		fRec2[0] = ((0.999f * fRec2[1]) + fSlow3);
 		fRec3[0] = (fSlow5 + (0.999f * fRec3[1]));
-		output0[i] = (FAUSTFLOAT)((1 - max((float)0, fRec3[0])) * (((fRec2[0] * (1 - max((float)0, fRec1[0]))) * (((fTemp1 - iTemp2) * fVec0[(IOTA-int((int(iTemp3) & 65535)))&65535]) + ((iTemp3 - fTemp1) * fVec0[(IOTA-int((iTemp2 & 65535)))&65535]))) + (fSlow1 * (float)input0[i])));
+		output0[i] = (FAUSTFLOAT)((1 - max((float)0, fRec3[0])) * ((fSlow4 * (float)input0[i]) + ((fRec2[0] * (1 - max((float)0, fRec1[0]))) * ((fVec0[(IOTA-int((iTemp2 & 65535)))&65535] * (iTemp3 - fTemp1)) + ((fTemp1 - iTemp2) * fVec0[(IOTA-int((int(iTemp3) & 65535)))&65535])))));
 		float fTemp4 = (fSlow0 * (float)input3[i]);
 		fVec1[IOTA&65535] = fTemp4;
 		float fTemp5 = ((int((fRec0[0] > 0)))?0:(0 - fRec0[0]));
 		int iTemp6 = int(fTemp5);
 		int iTemp7 = (1 + iTemp6);
-		output1[i] = (FAUSTFLOAT)((1 - max((float)0, (0 - fRec3[0]))) * (((fRec2[0] * (1 - max((float)0, (0 - fRec1[0])))) * (((fTemp5 - iTemp6) * fVec1[(IOTA-int((int(iTemp7) & 65535)))&65535]) + ((iTemp7 - fTemp5) * fVec1[(IOTA-int((iTemp6 & 65535)))&65535]))) + (fSlow1 * (float)input1[i])));
+		output1[i] = (FAUSTFLOAT)((1 - max((float)0, (0 - fRec3[0]))) * ((fSlow4 * (float)input1[i]) + ((fRec2[0] * (1 - max((float)0, (0 - fRec1[0])))) * ((fVec1[(IOTA-int((iTemp6 & 65535)))&65535] * (iTemp7 - fTemp5)) + ((fTemp5 - iTemp6) * fVec1[(IOTA-int((int(iTemp7) & 65535)))&65535])))));
 		// post processing
 		fRec3[1] = fRec3[0];
 		fRec2[1] = fRec2[0];

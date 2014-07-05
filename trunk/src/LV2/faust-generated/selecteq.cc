@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/selecteq.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace selecteq {
@@ -175,64 +175,64 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider27 (*fslider27_)
 #define fslider28 (*fslider28_)
 #define fslider29 (*fslider29_)
-	double 	fSlow0 = tan((fConst0 * fslider0));
+	double 	fSlow0 = tan((fConst0 * double(fslider0)));
 	double 	fSlow1 = (2 * (faustpower<2>(fSlow0) - 1));
-	double 	fSlow2 = fslider1;
-	double 	fSlow3 = (pow(10,(0.05 * (0 - fslider2))) / fSlow2);
+	double 	fSlow2 = double(fslider1);
+	double 	fSlow3 = (pow(10,(0.05 * (0 - double(fslider2)))) / fSlow2);
 	double 	fSlow4 = (1 + (fSlow0 * (fSlow0 - fSlow3)));
 	double 	fSlow5 = (1.0 / (1 + (fSlow0 * (fSlow0 + fSlow3))));
-	double 	fSlow6 = tan((fConst0 * fslider3));
+	double 	fSlow6 = tan((fConst0 * double(fslider3)));
 	double 	fSlow7 = (2 * (faustpower<2>(fSlow6) - 1));
-	double 	fSlow8 = fslider4;
-	double 	fSlow9 = (pow(10,(0.05 * (0 - fslider5))) / fSlow8);
+	double 	fSlow8 = double(fslider4);
+	double 	fSlow9 = (pow(10,(0.05 * (0 - double(fslider5)))) / fSlow8);
 	double 	fSlow10 = (1 + (fSlow6 * (fSlow6 - fSlow9)));
 	double 	fSlow11 = (1.0 / (1 + (fSlow6 * (fSlow6 + fSlow9))));
-	double 	fSlow12 = tan((fConst0 * fslider6));
+	double 	fSlow12 = tan((fConst0 * double(fslider6)));
 	double 	fSlow13 = (2 * (faustpower<2>(fSlow12) - 1));
-	double 	fSlow14 = fslider7;
-	double 	fSlow15 = (pow(10,(0.05 * (0 - fslider8))) / fSlow14);
+	double 	fSlow14 = double(fslider7);
+	double 	fSlow15 = (pow(10,(0.05 * (0 - double(fslider8)))) / fSlow14);
 	double 	fSlow16 = (1 + (fSlow12 * (fSlow12 - fSlow15)));
 	double 	fSlow17 = (1.0 / (1 + (fSlow12 * (fSlow12 + fSlow15))));
-	double 	fSlow18 = tan((fConst0 * fslider9));
+	double 	fSlow18 = tan((fConst0 * double(fslider9)));
 	double 	fSlow19 = (2 * (faustpower<2>(fSlow18) - 1));
-	double 	fSlow20 = fslider10;
-	double 	fSlow21 = (pow(10,(0.05 * (0 - fslider11))) / fSlow20);
+	double 	fSlow20 = double(fslider10);
+	double 	fSlow21 = (pow(10,(0.05 * (0 - double(fslider11)))) / fSlow20);
 	double 	fSlow22 = (1 + (fSlow18 * (fSlow18 - fSlow21)));
 	double 	fSlow23 = (1.0 / (1 + (fSlow18 * (fSlow18 + fSlow21))));
-	double 	fSlow24 = tan((fConst0 * fslider12));
+	double 	fSlow24 = tan((fConst0 * double(fslider12)));
 	double 	fSlow25 = (2 * (faustpower<2>(fSlow24) - 1));
-	double 	fSlow26 = fslider13;
-	double 	fSlow27 = (pow(10,(0.05 * (0 - fslider14))) / fSlow26);
+	double 	fSlow26 = double(fslider13);
+	double 	fSlow27 = (pow(10,(0.05 * (0 - double(fslider14)))) / fSlow26);
 	double 	fSlow28 = (1 + (fSlow24 * (fSlow24 - fSlow27)));
 	double 	fSlow29 = (1.0 / (1 + (fSlow24 * (fSlow24 + fSlow27))));
-	double 	fSlow30 = tan((fConst0 * fslider15));
+	double 	fSlow30 = tan((fConst0 * double(fslider15)));
 	double 	fSlow31 = (2 * (faustpower<2>(fSlow30) - 1));
-	double 	fSlow32 = fslider16;
-	double 	fSlow33 = (pow(10,(0.05 * (0 - fslider17))) / fSlow32);
+	double 	fSlow32 = double(fslider16);
+	double 	fSlow33 = (pow(10,(0.05 * (0 - double(fslider17)))) / fSlow32);
 	double 	fSlow34 = (1 + (fSlow30 * (fSlow30 - fSlow33)));
 	double 	fSlow35 = (1.0 / (1 + (fSlow30 * (fSlow30 + fSlow33))));
-	double 	fSlow36 = tan((fConst0 * fslider18));
+	double 	fSlow36 = tan((fConst0 * double(fslider18)));
 	double 	fSlow37 = (2 * (faustpower<2>(fSlow36) - 1));
-	double 	fSlow38 = fslider19;
-	double 	fSlow39 = (pow(10,(0.05 * (0 - fslider20))) / fSlow38);
+	double 	fSlow38 = double(fslider19);
+	double 	fSlow39 = (pow(10,(0.05 * (0 - double(fslider20)))) / fSlow38);
 	double 	fSlow40 = (1 + (fSlow36 * (fSlow36 - fSlow39)));
 	double 	fSlow41 = (1.0 / (1 + (fSlow36 * (fSlow36 + fSlow39))));
-	double 	fSlow42 = tan((fConst0 * fslider21));
+	double 	fSlow42 = tan((fConst0 * double(fslider21)));
 	double 	fSlow43 = (2 * (faustpower<2>(fSlow42) - 1));
-	double 	fSlow44 = fslider22;
-	double 	fSlow45 = (pow(10,(0.05 * (0 - fslider23))) / fSlow44);
+	double 	fSlow44 = double(fslider22);
+	double 	fSlow45 = (pow(10,(0.05 * (0 - double(fslider23)))) / fSlow44);
 	double 	fSlow46 = (1 + (fSlow42 * (fSlow42 - fSlow45)));
 	double 	fSlow47 = (1.0 / (1 + (fSlow42 * (fSlow42 + fSlow45))));
-	double 	fSlow48 = tan((fConst0 * fslider24));
+	double 	fSlow48 = tan((fConst0 * double(fslider24)));
 	double 	fSlow49 = (2 * (faustpower<2>(fSlow48) - 1));
-	double 	fSlow50 = fslider25;
-	double 	fSlow51 = (pow(10,(0.05 * (0 - fslider26))) / fSlow50);
+	double 	fSlow50 = double(fslider25);
+	double 	fSlow51 = (pow(10,(0.05 * (0 - double(fslider26)))) / fSlow50);
 	double 	fSlow52 = (1 + (fSlow48 * (fSlow48 - fSlow51)));
 	double 	fSlow53 = (1.0 / (1 + (fSlow48 * (fSlow48 + fSlow51))));
-	double 	fSlow54 = tan((fConst0 * fslider27));
+	double 	fSlow54 = tan((fConst0 * double(fslider27)));
 	double 	fSlow55 = (2 * (faustpower<2>(fSlow54) - 1));
-	double 	fSlow56 = fslider28;
-	double 	fSlow57 = (pow(10,(0.05 * (0 - fslider29))) / fSlow56);
+	double 	fSlow56 = double(fslider28);
+	double 	fSlow57 = (pow(10,(0.05 * (0 - double(fslider29)))) / fSlow56);
 	double 	fSlow58 = (1 + (fSlow54 * (fSlow54 - fSlow57)));
 	double 	fSlow59 = (1.0 / (1 + (fSlow54 * (fSlow54 + fSlow57))));
 	double 	fSlow60 = (1.0 / fSlow56);

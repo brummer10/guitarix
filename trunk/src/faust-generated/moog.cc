@@ -1,5 +1,5 @@
 // generated from file '../src/faust/moog.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace moog {
@@ -11,8 +11,8 @@ private:
 	FAUSTFLOAT 	fslider0;
 	double 	fRec1[2];
 	double 	fConst0;
-	FAUSTFLOAT 	fslider1;
 	double 	fRec6[2];
+	FAUSTFLOAT 	fslider1;
 	double 	fRec5[2];
 	double 	fRec4[2];
 	double 	fRec3[2];
@@ -101,8 +101,8 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	double 	fSlow0 = (0.0010000000000000009 * fslider0);
-	double 	fSlow1 = (0 - fslider1);
+	double 	fSlow0 = (0.0010000000000000009 * double(fslider0));
+	double 	fSlow1 = (0 - double(fslider1));
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
 		fRec1[0] = (fSlow0 + (0.999 * fRec1[1]));
@@ -110,13 +110,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp1 = faustpower<4>(fTemp0);
 		double fTemp2 = (1.0 - fTemp0);
 		fRec6[0] = ((1e-20 * (1 - iVec0[1])) - fRec6[1]);
-		fRec5[0] = ((((double)input0[i] + fRec6[0]) + (fSlow1 * fRec0[1])) + (fTemp2 * fRec5[1]));
+		fRec5[0] = ((fSlow1 * fRec0[1]) + (((double)input0[i] + fRec6[0]) + (fTemp2 * fRec5[1])));
 		fRec4[0] = (fRec5[0] + (fTemp2 * fRec4[1]));
 		fRec3[0] = (fRec4[0] + (fTemp2 * fRec3[1]));
-		fRec2[0] = (fRec3[0] + (fTemp2 * fRec2[1]));
+		fRec2[0] = (fRec3[0] + (fRec2[1] * fTemp2));
 		fRec0[0] = (fRec2[0] * fTemp1);
 		output0[i] = (FAUSTFLOAT)fRec0[0];
-		fRec11[0] = ((((double)input1[i] + fRec6[0]) + (fSlow1 * fRec7[1])) + (fTemp2 * fRec11[1]));
+		fRec11[0] = ((fSlow1 * fRec7[1]) + (((double)input1[i] + fRec6[0]) + (fTemp2 * fRec11[1])));
 		fRec10[0] = (fRec11[0] + (fTemp2 * fRec10[1]));
 		fRec9[0] = (fRec10[0] + (fTemp2 * fRec9[1]));
 		fRec8[0] = (fRec9[0] + (fTemp2 * fRec8[1]));

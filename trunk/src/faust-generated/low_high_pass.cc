@@ -1,5 +1,5 @@
 // generated from file '../src/faust/low_high_pass.dsp' by dsp2cc:
-// Code generated with Faust 0.9.58 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace low_high_pass {
@@ -8,12 +8,12 @@ class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
 	int 	iVec0[2];
-	FAUSTFLOAT 	fentry0;
-	double 	fConst0;
-	FAUSTFLOAT 	fentry1;
 	double 	fRec2[2];
 	double 	fVec1[2];
+	FAUSTFLOAT 	fentry0;
+	double 	fConst0;
 	double 	fRec1[2];
+	FAUSTFLOAT 	fentry1;
 	double 	fRec0[2];
 	FAUSTFLOAT 	fcheckbox0;
 	FAUSTFLOAT 	fslider0;
@@ -107,35 +107,35 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (1.0 / tan((fConst0 * fentry0)));
+	double 	fSlow0 = (1.0 / tan((fConst0 * double(fentry0))));
 	double 	fSlow1 = (1 + fSlow0);
-	double 	fSlow2 = (0 - ((1 - fSlow0) / fSlow1));
-	double 	fSlow3 = (1.0 / tan((fConst0 * fentry1)));
-	double 	fSlow4 = (1 + fSlow3);
-	double 	fSlow5 = (0 - ((1 - fSlow3) / fSlow4));
-	double 	fSlow6 = (1.0 / fSlow4);
-	double 	fSlow7 = (0 - fSlow0);
-	double 	fSlow8 = (1.0 / fSlow1);
-	int 	iSlow9 = int(fcheckbox0);
-	double 	fSlow10 = tan((fConst0 * fslider0));
+	double 	fSlow2 = (1.0 / fSlow1);
+	double 	fSlow3 = (0 - ((1 - fSlow0) / fSlow1));
+	double 	fSlow4 = (1.0 / tan((fConst0 * double(fentry1))));
+	double 	fSlow5 = (0 - fSlow4);
+	double 	fSlow6 = (1 + fSlow4);
+	double 	fSlow7 = (1.0 / fSlow6);
+	double 	fSlow8 = (0 - ((1 - fSlow4) / fSlow6));
+	int 	iSlow9 = int(double(fcheckbox0));
+	double 	fSlow10 = tan((fConst0 * double(fslider0)));
 	double 	fSlow11 = (2 * (1 - (1.0 / faustpower<2>(fSlow10))));
 	double 	fSlow12 = (1.0 / fSlow10);
 	double 	fSlow13 = (1 + ((fSlow12 - 0.7653668647301795) / fSlow10));
 	double 	fSlow14 = (1.0 / (1 + ((0.7653668647301795 + fSlow12) / fSlow10)));
 	double 	fSlow15 = (1 + ((fSlow12 - 1.8477590650225735) / fSlow10));
 	double 	fSlow16 = (1.0 / (1 + ((1.8477590650225735 + fSlow12) / fSlow10)));
-	double 	fSlow17 = (fConst0 * fslider1);
+	double 	fSlow17 = (fConst0 * double(fslider1));
 	double 	fSlow18 = (1.0 / (1 + fSlow17));
 	double 	fSlow19 = (1 - fSlow17);
-	int 	iSlow20 = int(fcheckbox1);
+	int 	iSlow20 = int(double(fcheckbox1));
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		iVec0[0] = 1;
 		fRec2[0] = ((1e-20 * (1 - iVec0[1])) - fRec2[1]);
 		double fTemp1 = (fTemp0 + fRec2[0]);
 		fVec1[0] = fTemp1;
-		fRec1[0] = ((fSlow6 * (fVec1[0] + fVec1[1])) + (fSlow5 * fRec1[1]));
-		fRec0[0] = ((fSlow8 * ((fSlow7 * fRec1[1]) + (fSlow0 * fRec1[0]))) + (fSlow2 * fRec0[1]));
+		fRec1[0] = ((fSlow3 * fRec1[1]) + (fSlow2 * (fVec1[0] + fVec1[1])));
+		fRec0[0] = ((fSlow8 * fRec0[1]) + (fSlow7 * ((fSlow4 * fRec1[0]) + (fSlow5 * fRec1[1]))));
 		double fTemp2 = ((iSlow9)?fRec0[0]:fTemp0);
 		double fTemp3 = (fRec2[0] + fTemp2);
 		fVec2[0] = (fSlow18 * fTemp3);
@@ -170,8 +170,8 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("low_high_pass.lhc.high_freq",N_("high freq"),"S",N_("high-freq cutoff Hz"),&fslider0, 5e+03, 1e+03, 1.2e+04, 1e+01);
 	reg.registerVar("low_high_pass.lhc.low_freq",N_("low freq"),"S",N_("low-freq cutoff Hz"),&fslider1, 1.3e+02, 2e+01, 1e+03, 1e+01);
 	reg.registerVar("low_high_pass.lhc.on_off",N_("low highcutoff"),"B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("low_high_pass.lhp.high_freq",N_("high freq"),"S","",&fentry0, 1.3e+02, 2e+01, 7.04e+03, 1e+01);
-	reg.registerVar("low_high_pass.lhp.low_freq",N_("low freq"),"S","",&fentry1, 5e+03, 2e+01, 1.2e+04, 1e+01);
+	reg.registerVar("low_high_pass.lhp.high_freq",N_("high freq"),"S","",&fentry1, 1.3e+02, 2e+01, 7.04e+03, 1e+01);
+	reg.registerVar("low_high_pass.lhp.low_freq",N_("low freq"),"S","",&fentry0, 5e+03, 2e+01, 1.2e+04, 1e+01);
 	reg.registerVar("low_high_pass.lhp.on_off",N_("low highpass"),"B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	return 0;
 }
