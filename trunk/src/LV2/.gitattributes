@@ -2,5 +2,5 @@ newimages/ export-ignore
 gx_sceleton.lv2/ export-ignore
 gx_sceleton_stereo.lv2/ export-ignore
 make_lv2_bundle.sh export-ignore
-gx_jalv_runner export_ignore
+gx_jalv_runner export-ignore
 .gitattributes export-ignore  

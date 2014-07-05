@@ -24,7 +24,7 @@ blddir = 'build'
 use_2to3 = True
 
 # used by waf dist and waf build
-VERSION='0.30.0'
+VERSION='0.31.0git'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.58','0.9.65']
@@ -627,11 +627,11 @@ def configure(conf):
 
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
-    if not opt.lv2_only and not opt.no_lv2_gui:
+    if not (opt.lv2_only and opt.no_lv2_gui):
         conf.check_cfg(package='gtk+-2.0', atleast_version='2.20', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='glibmm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
-    if not opt.lv2_only and not opt.no_lv2_gui:
+    if not (opt.lv2_only and opt.no_lv2_gui):
         conf.check_cfg(package='gtkmm-2.4', atleast_version='2.20', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
     conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
@@ -752,7 +752,7 @@ def configure(conf):
         conf.sub_config('src/LV2');
         
         # config subdirs
-    if not opt.lv2_only and not opt.no_lv2_gui:
+    if not (opt.lv2_only and opt.no_lv2_gui):
         conf.sub_config('pygxw');
         conf.sub_config('glade-gxw');
         conf.sub_config('libgxwmm');
