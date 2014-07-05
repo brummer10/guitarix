@@ -1,7 +1,8 @@
-guitarix2 (0.29.0git) unstable; urgency=low
-  * git head
+guitarix2 (0.30.0) unstable; urgency=low
+  * add LV2 support
+  * fix zita-rev1 control range
   
- -- brummer <brummer-@web.de>  Sat, 03 Nov 2013 06:30:35 +0200 
+ -- brummer <brummer-@web.de>  Sat, 07 Jul 2014 06:30:35 +0200 
 
 guitarix2 (0.28.3) unstable; urgency=low
   * MODification (https://github.com/portalmod)
