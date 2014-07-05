@@ -70,10 +70,25 @@ class tube_transfer(gtk.Window):
             self.func.set_active(0)
         else:
             self.func.set_active(1)
+    
+    def on_type_changed(self,widget):
+        c = Circuit(self.tube.get_active_text(), self.func.get_active_text())
+        self.get_param(c)
+        tubevalues = ""
+        i = 0
+        for n in c.used_names:
+            tubevalues += " %s: %g " % (n, getattr(c, n))
+            if i == 3:
+                self.Kg2 = "%g" % (getattr(c, n))
+            i +=1
+            if i>5:
+                 break
+        self.labeltv.set_text(tubevalues)
         
     def set_func(self):
         self.func.append_text("triode")
         self.func.append_text("pentode")
+        self.func.append_text("pentode2")
         self.func.set_active(0)
     
     def set_param(self, c):
@@ -254,6 +269,7 @@ class tube_transfer(gtk.Window):
         label1 = gtk.Label("Type")
         self.func = gtk.combo_box_new_text()
         self.set_func()
+        self.func.connect("changed", self.on_type_changed)
         
         self.labelvk01 = gtk.Label("\n")
         self.labelvk01.set_selectable(True)

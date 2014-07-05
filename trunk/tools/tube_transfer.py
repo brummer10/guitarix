@@ -71,6 +71,8 @@ from scipy.optimize import newton
 # kp    Affects opration in region of large plate voltage and large negative grid voltage
 # kvb   Knee volts
 #
+
+
 names  = ("mu", "kx", "kg1", "kg2", "kp", "kvb", "ccg", "cpg", "ccp", "rgi")
 factor = ( 1.0,  1.0,   1.0,   1.0,  1.0,   1.0, 1e-12, 1e-12, 1e-12,   1e3)
 tubes  = {
@@ -98,6 +100,7 @@ tubes  = {
     "ECL81T"   : ( 66.3,  1.39, 1400.2,      0,  369.3,   2.5,  3.2,  2.7,   1.8,  2.0),
     "ECL83T"   : (119.1,  1.32,  732.7,      0,  305.2,   1.8,  3.2,  2.7,   1.8,  2.0),
     "ECC83"    : ( 98.1,  1.46, 1734.7,      0,  754.4, 119.9,  2.3,  2.4,   0.9,  2.0),
+    "ECC81"    : ( 77.1,  1.07,  320.1,      0,  231.0, 300.0,  2.3,  2.2,   1.0,  2.0),
     "JJECC81"  : ( 77.1,  1.08,  320.0,      0,  230.0, 300.0,  2.3,  2.2,   1.0,  2.0),
     "JJECC82"  : ( 24.1,  1.25, 1023.1,      0,   65.2, 300.0,  2.3,  2.2,   1.0,  2.0),
     "JJECC83S" : ( 98.3,  1.45, 1722.8,      0,  749.4, 131.2,  2.3,  2.4,   0.9,  2.0),
@@ -129,7 +132,7 @@ class Circuit(object):
 
     # class data
     used_names = ("mu", "kx", "kg1","kg2", "kp", "kvb", "Uin_min", "Uin_max", "Vp", "Rp")
-    ipk_tab = { "triode": "Ipk_triode", "pentode": "Ipk_triode_pentode" }
+    ipk_tab = { "triode": "Ipk_triode", "pentode": "Ipk_triode_pentode" , "pentode2": "Ipk_pentode"}
 
     @classmethod
     def help(self):
@@ -159,19 +162,19 @@ class Circuit(object):
 
     def set_param(self):
         # Parameters for circuit / approximation peer tube model
-        if self.tube == "EL34":
+        if self.tube == "EL34" and self.ipk_func == "pentode":
             #self.Uin_range = (-20.0, 20.0)
             self.Uin_min   = -20
             self.Uin_max   = 20
             self.Vp        = 495
             self.Rp        = 3.5e3
-        elif self.tube == "6L6CG":
+        elif self.tube == "6L6CG" and self.ipk_func == "pentode":
             #self.Uin_range = ( -21, 21 )
             self.Uin_min   = -21
             self.Uin_max   = 21
             self.Vp        = 450
             self.Rp        = 5.0e3
-        elif self.tube == "EL84":
+        elif self.tube == "EL84" and self.ipk_func == "pentode":
             #self.Uin_range = ( -10, 10 )
             self.Uin_min   = -10
             self.Uin_max   = 10
@@ -191,6 +194,16 @@ class Circuit(object):
     def Igk_Vgk(self, Vgk):
         """gate current as function of gate-kathode voltage"""
         return exp(7.75*Vgk-10.3)
+
+    def Ipk_pentode(self, Vgk, Vpk):
+        """
+        E1 ={V(2,4)/KP*LOG(1+EXP((1/MU+V(3,4)/V(2,4))*KP))} ; E1 BREAKS UP LONG EQUATION FOR G1.
+        G1 ={(PWR(V(7),EX)+PWRS(V(7),EX))/KG1*ATAN(V(1,4)/KVB)}
+        G2 ={(EXP(EX*(LOG((V(2,4)/MU)+V(3,4)))))/KG2}
+        """
+        E1 = Vpk/self.kp*log(1+exp(self.kp*(1/self.mu+Vgk/Vpk)))
+        G1 = 2*E1**self.kx/self.kg1*(E1>0.0)*arctan(Vpk/self.kvb)
+        return (G1+exp(self.kx*(log(Vpk/self.mu)+Vgk)))/self.kg2 
 
     def Ipk_triode_pentode(self, Vgk, Vpk):
         """Koren model of pentode connected as class A triode
