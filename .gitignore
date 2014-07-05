@@ -8,5 +8,4 @@ trunk/TAGS
 trunk/webui/build
 trunk/webui/deploy
 trunk/documentation/html
-trunk/src/LV2/newimages
 .dir-locals.el
