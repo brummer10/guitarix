@@ -104,6 +104,7 @@ class SpecWindow(object):
         self.orig_ir = args.orig_ir
         self.processed = args.processed
         spec_file = args.specfile
+        self.set_color()
         self.builder = gtk.Builder()
         self.builder.add_from_file(
             pkg_resources.resource_filename(__name__, "specmatch.glade"))
@@ -408,6 +409,43 @@ class SpecWindow(object):
         with open(os.path.join(self.guitarix_dir, "specmatch.js"),"w") as fp:
             json.dump(d, fp, indent=2, sort_keys=True)
 
+    def set_color(self):
+        gtk.rc_parse_string( """
+        style "specmatchstyle"
+        {
+          GtkButton::default_border = { 0, 0, 0, 0 }
+          GtkButton::default_outside_border = { 0, 0, 0, 0 }
+          GtkButton::button_relief = GTK_RELIEF_NONE
+
+          fg[NORMAL] = { 0.6, 0.6, 0.6 }
+          fg[ACTIVE] = { 1.0, 1.0, 1.0 }
+          fg[PRELIGHT] = { 0.90, 0.90, 0.90 }
+          fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
+          fg[SELECTED] = { 0.70, 0.70, 0.70 }
+
+          bg[NORMAL] = { 0.0, 0.0, 0.0 }
+          bg[PRELIGHT] = "#303084"
+          bg[ACTIVE] = { 0.0, 0.0, 0.0 }
+          bg[INSENSITIVE] = "#c4c0c0"
+          bg[SELECTED] = "#000094"
+
+          text[NORMAL] = { 0.70, 0.70, 0.70 }
+          text[ACTIVE] = { 0.80, 0.80, 0.80 }
+          text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+          text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+          text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+          base[ACTIVE]     = "#272a2f"
+          base[NORMAL]      =  { 0.20, 0.20, 0.20 }
+          base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+          base[INSENSITIVE]  = "#4c5159"
+          base[SELECTED]     = { 0.25, 0.25, 0.25 }
+          font_name = "sans 10"
+        }
+        class "*GtkWidget" style:highest "specmatchstyle"
+        class "*GtkWindow" style:highest "specmatchstyle"
+        """)
+
     def change_file(self, spec_file):
         if self.spec_filename:
             self.save_specfile()
@@ -710,6 +748,7 @@ class SpecWindow(object):
                 f2 = SmoothSpectrumSpline(freq, f2, rate)(x)
         fig = plt.figure("mainplot")
         fig.canvas.set_window_title('Spec - IR Frequency Domain')
+        fig.set_facecolor('black')
         fig.clear()
         ax = fig.add_subplot(111)
         if plot_orig:
@@ -726,6 +765,11 @@ class SpecWindow(object):
         if plot_ir:
             self.plot_fft(ax, ir_fft, rate, color='black', label="IR [%d frames]" % len(self.calc.ir))
         ax.legend(loc='best')
+        ax.set_axis_bgcolor('0.66')
+        ax.xaxis.label.set_color('0.77')
+        ax.tick_params(axis='x', colors='0.77')
+        ax.yaxis.label.set_color('0.77')
+        ax.tick_params(axis='y', colors='0.77')
         self.calc.status.clear()
 
     def on_display_time(self, o):
@@ -735,6 +779,7 @@ class SpecWindow(object):
         x = np.arange(len(f))/self.get_sample_rate()
         fig = plt.figure("mainplot")
         fig.canvas.set_window_title('Spec - IR Time Domain') 
+        fig.set_facecolor('black')
         fig.clear()
         ax = fig.add_subplot(111)
         f = f / np.amax(abs(f))
@@ -748,6 +793,11 @@ class SpecWindow(object):
             l[0].set_label("IR left")
             l[1].set_label("IR right")
         ax.legend(loc='best')
+        ax.set_axis_bgcolor('0.66')
+        ax.xaxis.label.set_color('0.77')
+        ax.tick_params(axis='x', colors='0.77')
+        ax.yaxis.label.set_color('0.77')
+        ax.tick_params(axis='y', colors='0.77')
         self.calc.status.clear()
 
 

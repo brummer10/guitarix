@@ -189,7 +189,7 @@ class Guitarix(object):
         self.current_params = self.read_params()
         return self.current_params != old
 
-    def set_convolver_ir(self, fname, ir=None, gaincor=True):
+    def set_convolver_ir(self, fname, ir=None, gaincor=False):
         if ir is None:
             ir = read_sndfile(open_sndfile(fname), channel=-2)
         stereo = ir.shape[1] == 2
