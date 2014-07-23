@@ -83,7 +83,8 @@ def dirlist():
         'gx_barkgraphiceq.lv2',
         'gx_detune.lv2',
 		'gx_shimmizita.lv2',
-		'gx_switched_tremolo.lv2',						
+		'gx_switched_tremolo.lv2',
+		'gx_room_simulator.lv2',						
          ]
 
     return subdirs
