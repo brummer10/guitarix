@@ -86,6 +86,7 @@ def dirlist():
 		'gx_switched_tremolo.lv2',
 		'gx_room_simulator.lv2',
         'gx_digital_delay.lv2',
+        'gx_digital_delay_st.lv2',
          ]
 
     return subdirs
