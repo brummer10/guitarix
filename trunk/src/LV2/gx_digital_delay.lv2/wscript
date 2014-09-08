@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import sys, os, TaskGen, ctypes, wscript_helper
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bundle = 'gx_digital_delay.lv2'
+    
+    src = ['gx_digital_delay.cpp'
+           ]
+    incl = ['../faust','./', '../DSP']
+    lib = []
+    if sys.platform.startswith("linux"):
+        lib.append('dl')
+    uselib = ['LV2CORE']
+    cxxflag =[]
+    if not bld.env['OPT'] and bld.env['SSE2']:
+        cxxflag = [ "-msse2", "-mfpmath=sse"]
+    lv2_effects = bld(
+        features='cxx cshlib ',
+        includes = incl,
+        lib = lib,
+        uselib = uselib,
+        obj_ext  = '_14.o',
+        cxxflags = cxxflag,
+        defines  = ["LV2_SO"],
+        target   = 'gx_digital_delay',
+        source   = src,
+        install_path = '${LV2DIR}/%s' % bundle,
+        chmod = 0o755,
+        )
+    lv2_effects.env['shlib_PATTERN'] = '%s.so'
+    
+    if not bld.env['NOLV2GUI']:
+        uselib_local5 = []
+        libpath5 = []
+        lib5 = []
+        incl5 = ['../../../libgxwmm','../../../libgxw','../']
+        if sys.platform.startswith("linux"):
+            lib5.append('dl')
+        if bld.env["GX_LIB_SHARED"]:
+            lib5 += ['gxwmm','gxw']
+            libpath5 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
+                        bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
+        else:
+            uselib_local5 += ['gxwmm','gxw']
+        
+        lv2_effetcs_gui = bld(
+            features='cxx cshlib ',
+            includes = incl5,
+            lib = lib5,
+            uselib = 'LV2CORE GTKMM',
+            libpath = libpath5,
+            uselib_local = uselib_local5,
+            linkflags = '-Wl,-z,nodelete',
+            defines  = ["LV2_GUI"],
+            target   = 'gx_digital_delay_gui',
+            source   = 'widget.cpp gx_digital_delay_gui.cpp',
+            install_path = '${LV2DIR}/%s' % bundle,
+            chmod = 0o755,
+            )
+        lv2_effetcs_gui.env['shlib_PATTERN'] = '%s.so'
+   
+    install_path = '${LV2DIR}/%s' % bundle,
+    bld.install_files('${LV2DIR}/gx_digital_delay.lv2', 'manifest.ttl')
+    bld.install_files('${LV2DIR}/gx_digital_delay.lv2', 'gx_digital_delay.ttl')
+
+    bld.install_files('${LV2DIR}/gx_digital_delay.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
