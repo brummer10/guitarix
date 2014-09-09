@@ -27,6 +27,7 @@
 @prefix mod: <http://portalmod.com/ns/modgui#>.
 @prefix time: <http://lv2plug.in/ns/ext/time/#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix log: <http://lv2plug.in/ns/ext/port-props#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -115,6 +116,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 7 ;
+        lv2:portProperty log:logarithmic ;
         lv2:symbol "HIGHPASS" ;
         lv2:name "HIGHPASS" ;
         lv2:default 1.2e+02 ;
@@ -124,6 +126,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 8 ;
+        lv2:portProperty log:logarithmic ;
         lv2:symbol "HOWPASS" ;
         lv2:name "HOWPASS" ;
         lv2:default 1.2e+04 ;

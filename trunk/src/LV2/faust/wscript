@@ -4,6 +4,16 @@
 import wscript_helper
 import shutil 
 
+def copy_file(src_fname, dst_fname):
+
+    f = open(src_fname, 'rU')
+    txt = f.read()
+    f.close()
+
+    f = open(dst_fname, 'w')
+    f.write(txt)
+    f.close()
+
 def build(bld):
     unused_sources = [
         'preamp.dsp',
@@ -103,9 +113,10 @@ def build(bld):
         'lowpass_up.dsp',
         'lowpass_down.dsp',
          'graphiceq.dsp',
-		'duck_delay.dsp',
-	'duck_delay_st.dsp',
- 
+        'duck_delay.dsp',
+        'duck_delay_st.dsp',
+        'cpress.dsp',
+
         # tone stacks
         'tonestack_default.dsp',
         'tonestack_bassman.dsp',

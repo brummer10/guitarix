@@ -21,6 +21,7 @@
 #include "widget.h"
 
 #include <iostream>
+#include <iomanip>
 
 
 /*    @get controller by port
@@ -76,8 +77,8 @@ plug_name(plugname)
   make_controller_box(&m_vbox[1], "BPM",  24.0, 3.6e+02, 1.0 , BPM);
   make_controller_box(&m_vbox[2], "FEEDBACK",  1.0, 1e+02, 1.0 , FEEDBACK);
   make_controller_box(&m_vbox[3], "GAIN", 0.0, 1.2e+02, 1.0 , GAIN);
-  make_controller_box(&m_vbox[4], "HIGHPASS",  2e+01, 2e+04, 1.0 , HIGHPASS);
-  make_controller_box(&m_vbox[5], "LOWPASS", 2e+01, 2e+04, 1.0, HOWPASS);
+  make_log_controller_box(&m_vbox[4], "HIGHPASS",  2e+01, 2e+04, 1.08 , HIGHPASS);
+  make_log_controller_box(&m_vbox[5], "LOWPASS", 2e+01, 2e+04, 1.08, HOWPASS);
   make_controller_box(&m_vbox[6], "LEVEL",  1.0, 1e+02, 1.0, LEVEL);
   
   Glib::ustring modes[] = {"plain","presence","tape","tape2"};  
@@ -100,8 +101,8 @@ plug_name(plugname)
   m_hbox.set_border_width(24);
   m_hbox.set_homogeneous(false);
   // set a vertical box in the paintbox
-  m_vbox[8].set_border_width(14);
-  m_vbox[10].set_border_width(14);
+  m_vbox[8].set_border_width(7);
+  m_vbox[10].set_border_width(7);
   m_paintbox.pack_start(m_vbox[9]);
   // and controller box on top
   m_vbox[9].pack_start(m_hbox, Gtk::PACK_SHRINK);
@@ -109,16 +110,16 @@ plug_name(plugname)
   m_hbox.pack_start(m_vbox[10], Gtk::PACK_EXPAND_PADDING);
   m_hbox.pack_start(m_vbox[0]);
   m_hbox.pack_start(m_vbox[1]);
+  m_hbox.pack_start(m_vbox[6]);
   m_hbox.pack_start(m_vbox[2]);
-  m_hbox.pack_start(m_vbox[3]);
   m_hbox.pack_start(m_vbox[4]);
   m_hbox.pack_start(m_vbox[5]);
-  m_hbox.pack_start(m_vbox[6]);
+  m_hbox.pack_start(m_vbox[3]);
   m_hbox.pack_start(m_vbox[8], Gtk::PACK_EXPAND_PADDING);
 
   // connect expose handler as resize handler
-  m_paintbox.signal_expose_event().connect(
-     sigc::mem_fun(this, &Widget::_expose_event), true);
+  // m_paintbox.signal_expose_event().connect(
+  //    sigc::mem_fun(this, &Widget::_expose_event), true);
 
   set_app_paintable(true);
   show_all();
@@ -165,6 +166,7 @@ void Widget::make_selector(Glib::ustring labela,
     regler->set_has_tooltip();
     regler->set_tooltip_text(labela);
     regler->cp_configure("SELECTOR", labela, min, max, digits);
+    regler->cp_set_var("no_log");
     regler->set_show_value(false);
     regler->set_name(plug_name);
     regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(
@@ -196,6 +198,7 @@ void Widget::make_controller_box(Gtk::Box *box,
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
     box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
     regler->cp_configure("KNOB", label, min, max, digits);
+    regler->cp_set_var("no_log");
     regler->set_show_value(true);
     regler->set_name(plug_name);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
@@ -225,6 +228,7 @@ void Widget::make_switch_box(Gtk::Box *box,
      Gtk::Image *pr = new Gtk::Image(label_image);*/
  
     regler->cp_configure("switch", label, 0, 1, 1);
+    regler->cp_set_var("no_log");
     regler->set_name(plug_name);
     regler->set_base_name( "button" );
     Gtk::VBox* b1 = new Gtk::VBox();
@@ -235,6 +239,76 @@ void Widget::make_switch_box(Gtk::Box *box,
     box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
     regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
         *this, &Widget::on_value_changed), port_name));
+  }
+}
+
+Glib::ustring logarithmic_format_value(double v, int prec) {
+    if (v < -4) {
+	return Glib::ustring::format(std::setprecision(prec+1), pow(10.0,v));
+    } else {
+	return Glib::ustring::format(std::fixed, std::setprecision(prec-floor(v)), pow(10.0,v));
+    }
+}
+
+int logarithmic_input_value(gpointer obj, gpointer nv)
+{
+    GtkEntry *entry = GTK_ENTRY(obj);
+    double *new_val = static_cast<double*>(nv);
+    gchar *err = NULL;
+    *new_val = g_strtod(gtk_entry_get_text(entry), &err);
+    if (*err)
+	return GTK_INPUT_ERROR;
+    else {
+	*new_val = log10(*new_val);
+	return TRUE;
+    }
+}
+
+// create stackboxes with controllers for port name
+void Widget::make_log_controller_box(Gtk::Box *box,
+                                 Glib::ustring label,
+                                 float min, float max,
+                                 float digits,
+                                 PortIndex port_name)
+{
+  Gxw::Regler *regler = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_name));
+  if (regler)
+  {
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
+
+    Gtk::VBox* b1 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
+    
+	double up = log10(max);
+	double step = log10(digits);
+	regler->cp_configure("", label, log10(min), up, step);
+	int prec = 0;
+	float d = log10((digits-1)*max);
+	if (up > 0) {
+	    prec = up;
+	    if (d < 0) {
+		prec -= floor(d);
+	    }
+	} else if (d < 0) {
+	    prec = -floor(d);
+	}
+	regler->signal_format_value().connect(
+	    sigc::bind(
+		sigc::ptr_fun(logarithmic_format_value),
+		prec));
+	regler->signal_input_value().connect(
+	    sigc::ptr_fun(logarithmic_input_value));
+     
+    regler->set_show_value(true);
+    regler->set_name(plug_name);
+    box->pack_start(*regler,Gtk::PACK_SHRINK);
+    Gtk::VBox* b2 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(
+           *this, &Widget::on_value_changed), port_name));
   }
 }
 
@@ -250,7 +324,13 @@ void Widget::set_value(uint32_t port_index,
     float value = *static_cast<const float*>(buffer);
     if (regler)
     {
-      regler->cp_set_value(value);
+      Glib::ustring v = regler->cp_get_var();
+      if (v.empty()) {
+          //fprintf(stderr,"value get %f\n set %f\n",value,log10(value) );
+          regler->cp_set_value(log10(value));
+      } else {
+          regler->cp_set_value(value);
+      }
     }
   }
 }
@@ -263,8 +343,18 @@ void Widget::on_value_changed(uint32_t port_index)
   if (regler)
   {
     float value = regler->cp_get_value();
-    write_function(controller, port_index, sizeof(float), 0,
+    
+    Glib::ustring v = regler->cp_get_var();
+    if (v.empty()) {
+        //fprintf(stderr,"value set %f\n get %f\n",value,pow(10.0,value));
+        value = pow(10.0,value);
+        write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
-  } 
+    } else {
+       write_function(controller, port_index, sizeof(float), 0,
+                                    static_cast<const void*>(&value));
+    }
+   } 
 }
+
 
