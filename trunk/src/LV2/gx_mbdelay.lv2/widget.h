@@ -82,7 +82,7 @@ protected:
   Gtk::HBox         m_lbox[5];
   Gtk::Frame        m_fr[7];
   
-  Gxw::SmallKnob    m_smallknob[16];
+  Gxw::SmallKnob    m_smallknob[21];
   Gxw::FastMeter    fastmeter[5];
   Gxw::PaintBox     m_paintbox[6];
 };

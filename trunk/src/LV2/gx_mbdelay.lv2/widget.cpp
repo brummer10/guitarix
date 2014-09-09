@@ -66,6 +66,16 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &m_smallknob[14];
     case CROSSOVER_B4_B5:
       return &m_smallknob[15];
+    case FEEDBACK1:
+      return &m_smallknob[16];
+    case FEEDBACK2:
+      return &m_smallknob[17];
+    case FEEDBACK3:
+      return &m_smallknob[18];
+    case FEEDBACK4:
+      return &m_smallknob[19];
+    case FEEDBACK5:
+      return &m_smallknob[20];
     default:
       return NULL;
   } 
@@ -93,6 +103,12 @@ plug_name(plugname)
   make_controller_box(&m_vbox[3], "GAIN ", -4e+01, 2.0, 0.1, GAIN3, false);
   make_controller_box(&m_vbox[4], "GAIN ", -4e+01, 2.0, 0.1, GAIN4, false);
   make_controller_box(&m_vbox[5], "GAIN ", -4e+01, 2.0, 0.1, GAIN5, false);
+
+  make_controller_box(&m_vbox[1], "FEEDBACK ", 1.0, 1e+02, 1.0, FEEDBACK1, false);
+  make_controller_box(&m_vbox[2], "FEEDBACK ", 1.0, 1e+02, 1.0, FEEDBACK2, false);
+  make_controller_box(&m_vbox[3], "FEEDBACK ", 1.0, 1e+02, 1.0, FEEDBACK3, false);
+  make_controller_box(&m_vbox[4], "FEEDBACK ", 1.0, 1e+02, 1.0, FEEDBACK4, false);
+  make_controller_box(&m_vbox[5], "FEEDBACK ", 1.0, 1e+02, 1.0, FEEDBACK5, false);
 
   // create controllers for port name
   make_controller_box(&m_vbox[1], "BPM", 24.0, 3.6e+02, 1.0, DELAY1, true);
