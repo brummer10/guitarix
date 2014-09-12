@@ -112,10 +112,9 @@ def build(bld):
         'bmfp.dsp',
         'lowpass_up.dsp',
         'lowpass_down.dsp',
-         'graphiceq.dsp',
+        'graphiceq.dsp',
         'duck_delay.dsp',
         'duck_delay_st.dsp',
-        'cpress.dsp',
 
         # tone stacks
         'tonestack_default.dsp',
