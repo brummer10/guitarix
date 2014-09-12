@@ -138,7 +138,7 @@ void Gx_digital_delay_st_GUI::set_skin()
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"
-                 " GxRegler::value-border = { 6, 6, 3, 3 }\n"
+                 " GxRegler::value-border = { 2, 2, 2, 2 }\n"
                  " font_name = 'sans 7.5'\n"
                  " xthickness = 10\n"
                  " ythickness = 1\n"
