@@ -299,7 +299,7 @@ void LiveLooper::mem_alloc()
         if (!tape3) tape3 = new float[4194304];
         if (!tape4) tape4 = new float[4194304];
         } catch(...) {
-            fprintf("livelooper out of memory");
+            fprintf(stderr, "livelooper out of memory");
             return;
         }
     mem_allocated = true;
