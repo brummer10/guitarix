@@ -1,0 +1,483 @@
+#
+# Copyright (C) 2014 Guitarix project MOD project
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# --------------------------------------------------------------------------
+#
+
+
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix mod: <http://portalmod.com/ns/modgui#>.
+@prefix time: <http://lv2plug.in/ns/ext/time/#>.
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+
+<http://guitarix.sourceforge.net#me>
+	a foaf:Person ;
+	foaf:name "Guitarix team" ;
+	foaf:mbox <mailto:guitarix-developer@lists.sourceforge.net> ;
+	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
+<http://guitarix.sourceforge.net/plugins/gx_livelooper_>
+	a doap:Project ;
+	doap:maintainer <http://guitarix.sourceforge.net#me> ;
+	doap:name "Gx_livelooper_" .
+
+<http://guitarix.sourceforge.net/plugins/gx_livelooper_#_livelooper_>
+    a lv2:Plugin ,
+        lv2:DelayPlugin ;
+    doap:maintainer <http://guitarix.sourceforge.net#me> ;
+    doap:name "Gxlivelooper";
+    doap:license <http://opensource.org/licenses/isc> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_livelooper_> ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+ 
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_livelooper_#gui>;
+      
+    lv2:minorVersion 28;
+    lv2:microVersion 3;
+    
+rdfs:comment """
+
+...
+
+""";
+
+    lv2:port  [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 0 ;
+        lv2:symbol "out" ;
+        lv2:name "Out"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 1 ;
+        lv2:symbol "in" ;
+        lv2:name "In" ;
+    ] 
+      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 2 ;
+        lv2:symbol "clip1" ;
+        lv2:name "clip1" ;
+        lv2:default 1e+02 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:symbol "clip2" ;
+        lv2:name "clip2" ;
+        lv2:default 1e+02 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "clip3" ;
+        lv2:name "clip3" ;
+        lv2:default 1e+02 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "clip4" ;
+        lv2:name "clip4" ;
+        lv2:default 1e+02 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "clips1" ;
+        lv2:name "clips1" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 7 ;
+        lv2:symbol "clips2" ;
+        lv2:name "clips2" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "clips3" ;
+        lv2:name "clips3" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 9 ;
+        lv2:symbol "clips4" ;
+        lv2:name "clips4" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 10 ;
+        lv2:symbol "speed1" ;
+        lv2:name "speed1" ;
+        lv2:default 0.0 ;
+        lv2:minimum -0.9 ;
+        lv2:maximum 0.9 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 11 ;
+        lv2:symbol "speed2" ;
+        lv2:name "speed2" ;
+        lv2:default 0.0 ;
+        lv2:minimum -0.9 ;
+        lv2:maximum 0.9 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 12 ;
+        lv2:symbol "speed3" ;
+        lv2:name "speed3" ;
+        lv2:default 0.0 ;
+        lv2:minimum -0.9 ;
+        lv2:maximum 0.9 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 13 ;
+        lv2:symbol "speed4" ;
+        lv2:name "speed4" ;
+        lv2:default 0.0 ;
+        lv2:minimum -0.9 ;
+        lv2:maximum 0.9 ;
+    ]      , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 14 ;
+        lv2:symbol "bar1" ;
+        lv2:name "bar1" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 96.0 ;
+    ]      , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 15 ;
+        lv2:symbol "bar2" ;
+        lv2:name "bar2" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 96.0 ;
+    ]      , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 16 ;
+        lv2:symbol "bar3" ;
+        lv2:name "bar3" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 96.0 ;
+    ]      , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 17 ;
+        lv2:symbol "bar4" ;
+        lv2:name "bar4" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 96.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 18 ;
+        lv2:symbol "gain" ;
+        lv2:name "gain" ;
+        lv2:default 0.0 ;
+        lv2:minimum -2e+01 ;
+        lv2:maximum 12.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 19 ;
+        lv2:symbol "level1" ;
+        lv2:name "level1" ;
+        lv2:default 5e+01 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 20 ;
+        lv2:symbol "level2" ;
+        lv2:name "level2" ;
+        lv2:default 5e+01 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 21 ;
+        lv2:symbol "level3" ;
+        lv2:name "level3" ;
+        lv2:default 5e+01 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 22 ;
+        lv2:symbol "level4" ;
+        lv2:name "level4" ;
+        lv2:default 5e+01 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 23 ;
+        lv2:symbol "mix" ;
+        lv2:name "mix" ;
+        lv2:default 1e+02 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.5e+02 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:portProperty lv2:integer;
+        lv2:index 24 ;
+        lv2:symbol "play1" ;
+        lv2:name "play1" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 25 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "play2" ;
+        lv2:name "play2" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 26 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "play3" ;
+        lv2:name "play3" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 27 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "play4" ;
+        lv2:name "play4" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 28 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "rplay1" ;
+        lv2:name "rplay1" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 29 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "rplay2" ;
+        lv2:name "rplay2" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 30 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "rplay3" ;
+        lv2:name "rplay3" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 31 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "rplay4" ;
+        lv2:name "rplay4" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 32 ;
+        lv2:symbol "playh1" ;
+        lv2:name "playh1" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1000.0 ;
+    ]      , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 33 ;
+        lv2:symbol "playh2" ;
+        lv2:name "playh2" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1000.0 ;
+    ]      , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 34 ;
+        lv2:symbol "playh3" ;
+        lv2:name "playh3" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1000.0 ;
+    ]      , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 35 ;
+        lv2:symbol "playh4" ;
+        lv2:name "playh4" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1000.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 36 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "rec1" ;
+        lv2:name "rec1" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 37 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "rec2" ;
+        lv2:name "rec2" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 38 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "rec3" ;
+        lv2:name "rec3" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 39 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "rec4" ;
+        lv2:name "rec4" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 40 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "reset1" ;
+        lv2:name "reset1" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 41 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "reset2" ;
+        lv2:name "reset2" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 42 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "reset3" ;
+        lv2:name "reset3" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 43 ;
+        lv2:portProperty lv2:integer;
+        lv2:symbol "reset4" ;
+        lv2:name "reset4" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ];
+    mod:gui [
+        a mod:Gui;
+        mod:resourcesDirectory <modgui>;
+        mod:iconTemplate <modgui/icon-gxlivelooper.html>;
+        mod:templateData <modgui/data-gxlivelooper.json>;
+        mod:screenshot <modgui/screenshot-gxlivelooper.png>;
+        mod:thumbnail <modgui/thumb-gxlivelooper.png>;
+    ].
+    
+<http://guitarix.sourceforge.net/plugins/gx_livelooper_#gui>
+  a guiext:GtkUI;
+  guiext:binary <gx_livelooper_gui.so>;
+  guiext:requiredFeature guiext:makeResident .
+  

@@ -16,7 +16,7 @@ function usage() {
   echo "    -d:   faust use double precision (default)"
   echo "    -V:   faust use vectorize"
   echo "    -S x: faust use vector size x"
-  echo "    -p /: path to source file"
+  echo "    -p /: path/to/source/  sourcefile "
   exit 1
 }
 
@@ -153,6 +153,7 @@ function make_ttl() {
           match=0
           FLOAT=${myPorts[1]}
           i=${FLOAT/\.*}
+          i=${i/e/}
           for (( c=0; c<a; c++ )); do 
             enum_var1+="        lv2:scalePoint [rdfs:label "${myEnum[c]}"; rdf:value "${i}"];\n"
             i=$[i+1]
