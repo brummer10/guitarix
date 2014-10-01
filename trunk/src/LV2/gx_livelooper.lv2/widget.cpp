@@ -176,14 +176,21 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
+  for (uint32_t i = 1;i<5;i++) {
+    m_paintbox[i].property_paint_func() = "RackBox_expose";
+    m_paintbox[i].set_name(plug_name);
+    m_paintbox[i].set_border_width(5);
+    m_paintbox[i].pack_start(m_vbox[i]);
+  }
+
   m_fr[0].set_label("Tape 1");
-  m_fr[0].add(m_vbox[1]);
+  m_fr[0].add(m_paintbox[1]);
   m_fr[1].set_label("Tape 2");
-  m_fr[1].add(m_vbox[2]);
+  m_fr[1].add(m_paintbox[2]);
   m_fr[2].set_label("Tape 3");
-  m_fr[2].add(m_vbox[3]);
+  m_fr[2].add(m_paintbox[3]);
   m_fr[3].set_label("Tape 4");
-  m_fr[3].add(m_vbox[4]);
+  m_fr[3].add(m_paintbox[4]);
   // create controllers for port name
   make_radio_controller_box(&m_vbox[1], "buffer", false,   0.0, 96.0, 1.0 , bar1, reset1, rec1);
   make_radio_controller_box(&m_vbox[2], "buffer",false,   0.0, 96.0, 1.0 , bar2, reset2, rec2);
@@ -242,20 +249,20 @@ plug_name(plugname)
 
  
  // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(10);
-  m_paintbox.set_spacing(6);
-  m_paintbox.set_homogeneous(false);
-  m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "gxhead_expose";
-  add(m_paintbox);
+  m_paintbox[0].set_border_width(4);
+  m_paintbox[0].set_spacing(4);
+  m_paintbox[0].set_homogeneous(false);
+  m_paintbox[0].set_name(plug_name);
+  m_paintbox[0].property_paint_func() = "gxhead_expose";
+  add(m_paintbox[0]);
   // box for the controllers
-  m_hbox[0].set_spacing(14);
-  m_hbox[0].set_border_width(24);
+  m_hbox[0].set_spacing(4);
+  m_hbox[0].set_border_width(4);
   m_hbox[0].set_homogeneous(false);
   // set a vertical box in the paintbox
   m_vbox[6].set_border_width(7);
   m_vbox[7].set_border_width(7);
-  m_paintbox.pack_start(m_vbox[8]);
+  m_paintbox[0].pack_start(m_vbox[8]);
   //
   m_vbox[1].pack_start(m_hbox[1]);
   m_vbox[2].pack_start(m_hbox[2]);
@@ -291,9 +298,9 @@ Widget::~Widget()
 bool Widget::_expose_event(GdkEventExpose *event)
 {
   int x, y, width, height, depth;
-  m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
+  m_paintbox[0].get_window()->get_geometry(x, y, width, height, depth);
   //double_t height = m_paintbox.get_window()->get_height();
-  m_paintbox.set_border_width(height/10);
+  m_paintbox[0].set_border_width(height/10);
   return false;
 }
 

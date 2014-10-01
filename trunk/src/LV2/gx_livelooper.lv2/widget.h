@@ -129,7 +129,7 @@ protected:
   Gtk::HBox         m_hbox[17];
   Gtk::Frame        m_fr[4];
 
-  Gxw::PaintBox     m_paintbox;
+  Gxw::PaintBox     m_paintbox[5];
   Gxw::Switch       m_switch[16];
   Gxw::PortDisplay  m_pdisplay[8];
   Gxw::HSlider      m_slider[16];
