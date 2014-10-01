@@ -35,7 +35,17 @@ private:
   Gtk::Widget* get_controller_by_port(uint32_t port_index);
 
   void on_value_changed(uint32_t port_index);
-  void on_radio_changed(uint32_t port_index,uint32_t port_index1);
+  
+  void on_radio_changed(uint32_t port_index,
+                        uint32_t port_index1);
+                        
+  void on_reset(uint32_t port_index,
+                uint32_t port_index1,
+                uint32_t port_index2);
+                        
+  void on_radio_value_changed(uint32_t port_index,
+                              uint32_t port_index1,
+                              uint32_t port_index2);
 
   void on_portvalue_changed(uint32_t port_index,
                             uint32_t port_index1,
@@ -47,6 +57,15 @@ private:
                            float min, float max,
                            float digits,
                            PortIndex port_name);
+
+  void make_radio_controller_box(Gtk::Box *box,
+                           Glib::ustring label,
+                           bool show_value,
+                           float min, float max,
+                           float digits,
+                           PortIndex port_name,
+                           PortIndex port_name1,
+                           PortIndex port_name2);
 
   void make_portdisplay(Gtk::Box *box,
                            Glib::ustring label,
@@ -65,9 +84,16 @@ private:
   void make_switch_box(Gtk::Box *box,
                        PortIndex port_name,
                        Glib::ustring basename);
+
   void make_radio_switch_box(Gtk::Box *box,
                        PortIndex port_name,
                        PortIndex port_name1,
+                       Glib::ustring basename);
+                       
+  void make_reset_switch_box(Gtk::Box *box,
+                       PortIndex port_name,
+                       PortIndex port_name1,
+                       PortIndex port_name2,
                        Glib::ustring basename);
 
   void make_log_controller_box(Gtk::Box *box,

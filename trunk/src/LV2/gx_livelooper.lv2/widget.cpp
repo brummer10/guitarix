@@ -185,10 +185,10 @@ plug_name(plugname)
   m_fr[3].set_label("Tape 4");
   m_fr[3].add(m_vbox[4]);
   // create controllers for port name
-  make_controller_box(&m_vbox[1], "buffer", false,   0.0, 96.0, 1.0 , bar1);
-  make_controller_box(&m_vbox[2], "buffer",false,   0.0, 96.0, 1.0 , bar2);
-  make_controller_box(&m_vbox[3], "buffer",false,   0.0, 96.0, 1.0 , bar3);
-  make_controller_box(&m_vbox[4], "buffer",false,   0.0, 96.0, 1.0 , bar4);
+  make_radio_controller_box(&m_vbox[1], "buffer", false,   0.0, 96.0, 1.0 , bar1, reset1, rec1);
+  make_radio_controller_box(&m_vbox[2], "buffer",false,   0.0, 96.0, 1.0 , bar2, reset2, rec2);
+  make_radio_controller_box(&m_vbox[3], "buffer",false,   0.0, 96.0, 1.0 , bar3, reset3, rec3);
+  make_radio_controller_box(&m_vbox[4], "buffer",false,   0.0, 96.0, 1.0 , bar4, reset4, rec4);
   make_controller_box(&m_vbox[5], "gain", true, -2e+01f, 12.0f, 0.1f, gain);
   make_controller_box(&m_vbox[1], "gain", true,   0.0f, 1e+02f, 1.0f , level1);
   make_controller_box(&m_vbox[2], "gain", true,   0.0f, 1e+02f, 1.0f , level2);
@@ -231,10 +231,10 @@ plug_name(plugname)
   make_switch_box(&m_hbox[2], rec2, "rbutton");
   make_switch_box(&m_hbox[3], rec3, "rbutton");
   make_switch_box(&m_hbox[4], rec4, "rbutton");
-  make_switch_box(&m_hbox[1], reset1, "button");
-  make_switch_box(&m_hbox[2], reset2, "button");
-  make_switch_box(&m_hbox[3], reset3, "button");
-  make_switch_box(&m_hbox[4], reset4, "button");
+  make_reset_switch_box(&m_hbox[1], reset1, clips1, clip1, "button");
+  make_reset_switch_box(&m_hbox[2], reset2, clips2, clip2, "button");
+  make_reset_switch_box(&m_hbox[3], reset3, clips3, clip3, "button");
+  make_reset_switch_box(&m_hbox[4], reset4, clips4, clip4, "button");
   m_hbox[1].pack_start(m_hbox[9]);
   m_hbox[2].pack_start(m_hbox[10]);
   m_hbox[3].pack_start(m_hbox[11]);
@@ -367,6 +367,68 @@ void Widget::make_controller_box(Gtk::Box *box,
            *this, &Widget::on_value_changed), port_name));
   }
 }
+
+// create stackboxes with controllers for port name
+void Widget::make_radio_controller_box(Gtk::Box *box,
+                                 Glib::ustring label,
+                                 bool show_value,
+                                 float min, float max,
+                                 float digits,
+                                 PortIndex port_name,
+                                 PortIndex port_name1,
+                                 PortIndex port_name2)
+{
+  Gxw::Regler *regler = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_name));
+  if (regler)
+  {
+    // use label images instead simple string labes
+    /*Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    label_image += "/";
+    label_image += label;
+    label_image += "-label.png";
+    Gtk::Image *pr = new Gtk::Image(label_image);*/
+
+    Gtk::VBox* b1 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+    if (!label.empty()) {
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
+    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
+    }
+    regler->cp_configure("KNOB", label, min, max, digits);
+    regler->cp_set_var("no_log");
+    regler->set_show_value(show_value);
+    regler->set_name(plug_name);
+    box->pack_start(*regler,Gtk::PACK_SHRINK);
+    Gtk::VBox* b2 = new Gtk::VBox();
+    box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(
+           *this, &Widget::on_value_changed), port_name));
+    regler->signal_value_changed().connect(sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(
+           *this, &Widget::on_radio_value_changed), port_name), port_name1), port_name2));
+  }
+}
+
+// 
+void Widget::on_radio_value_changed(uint32_t port_index2,
+                                    uint32_t port_index1,
+                                    uint32_t port_index)
+{
+  Gxw::PortDisplay *regler = static_cast<Gxw::PortDisplay*>(
+                                    get_controller_by_port(port_index));
+  Gxw::Regler *regler1 = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_index1));
+  Gxw::Regler *regler2 = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_index2));
+  if (regler)
+  {
+    float value = regler->cp_get_value();
+    if (value > 87) regler1->cp_set_value(0);
+    else if (value == 0) regler2->cp_set_value(0);
+  }
+}
+
 void Widget::make_portdisplay(Gtk::Box *box,
                                  Glib::ustring label,
                                  float min, float max,
@@ -447,6 +509,47 @@ void Widget::make_switch_box(Gtk::Box *box,
     regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
         *this, &Widget::on_value_changed), port_name));
   }
+}
+
+// create stackboxes with switch controller for port name
+void Widget::make_reset_switch_box(Gtk::Box *box,
+                             PortIndex port_name,
+                             PortIndex port_name1,
+                             PortIndex port_name2,
+                             Glib::ustring basename)
+{
+  Gxw::Switch *regler = static_cast<Gxw::Switch*>(
+                                    get_controller_by_port(port_name));
+  if (regler)
+  {
+    regler->cp_configure("switch", "", 0, 1, 1);
+    regler->cp_set_var("no_log");
+    regler->set_name(plug_name);
+    regler->set_base_name( basename );
+    box->pack_start(*regler,Gtk::PACK_SHRINK);
+    regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
+        *this, &Widget::on_value_changed), port_name));
+    regler->signal_toggled().connect(sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(
+        *this, &Widget::on_reset), port_name), port_name1), port_name2));
+  }
+}
+
+void Widget::on_reset(uint32_t port_index2, uint32_t port_index1, uint32_t port_index)
+{
+  Gxw::Regler *regler = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_index));
+  Gxw::Regler *regler1 = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_index1));
+  Gxw::Regler *regler2 = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(port_index2));
+   if (regler)
+  {
+    float value = regler->cp_get_value();
+   if (value>0.) {
+        regler1->cp_set_value(0);
+        regler2->cp_set_value(100);
+    }
+   } 
 }
 
 // create stackboxes with switch controller for port name
