@@ -387,6 +387,8 @@ void Widget::make_radio_controller_box(Gtk::Box *box,
 {
   Gxw::Regler *regler = static_cast<Gxw::Regler*>(
                                     get_controller_by_port(port_name));
+  Gxw::Switch *regler1 = static_cast<Gxw::Switch*>(
+                                    get_controller_by_port(port_name1));
   if (regler)
   {
     // use label images instead simple string labes
@@ -413,6 +415,8 @@ void Widget::make_radio_controller_box(Gtk::Box *box,
     regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(
            *this, &Widget::on_value_changed), port_name));
     regler->signal_value_changed().connect(sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(
+           *this, &Widget::on_radio_value_changed), port_name), port_name1), port_name2));
+    regler1->signal_toggled().connect(sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(
            *this, &Widget::on_radio_value_changed), port_name), port_name1), port_name2));
   }
 }
