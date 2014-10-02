@@ -1,3 +1,11 @@
+guitarix2 (0.31.0) unstable; urgency=low
+  * add GxDigitalDelay.LV2
+  * add GxRoomSimulation.LV2
+  * Add GxLiveLooper.LV2
+  * fix vowel mutation not allowed in preset names
+  
+ -- brummer <brummer-@web.de>  Tue, 02 Nov 2014 06:30:35 +0200 
+
 guitarix2 (0.30.0) unstable; urgency=low
   * add LV2 support
   * fix zita-rev1 control range
