@@ -265,6 +265,7 @@ void GxUiRadioMenu::setup(const Glib::ustring& prefix, const Glib::ustring& post
 		sigc::mem_fun(*this, &GxUiRadioMenu::on_changed));
 	    action = act;
 	}
+    //fprintf(stderr, "%s  \n", p->value_id); 
     }
     s.append(postfix);
     uimanager->add_ui_from_string(s);
@@ -1818,6 +1819,7 @@ Glib::ustring MainWindow::add_plugin_menu_entry(PluginUI *pui) {
     Glib::ustring actionname = Glib::ustring::compose("Plugin_%1", pui->get_id());
     const char *tp = (pui->get_type() == PLUGIN_TYPE_MONO ? "Mono" : "Stereo");
     pui->set_ui_merge_id(uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, tp, groupname, actionname)));
+    //fprintf(stderr, "%s : %s : %s \n", tp, group, pui->get_name());    
     return actionname;
 }
 
@@ -2822,6 +2824,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     } else {
       gtk_rc_parse(
           (options.get_style_filepath("clear.rc")).c_str());
+      make_icons();
     }
 
     // call some action functions to sync state
