@@ -221,6 +221,34 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
     case RESPONSE_DELETE:
         m->machine.midi_deleteParameter(m->param);
         break;
+    case GTK_RESPONSE_HELP:
+        static string midiconnecthelp;
+    if (midiconnecthelp.empty()) {
+        midiconnecthelp +=_("\n     Guitarix:Midi learn \n");
+        midiconnecthelp +=
+            _("    Just move your midi controller to connect it \n"
+   "    with the selected guitarix Controller. \n"
+   "    As soon the Midi Controller is detected,  \n"
+   "    you will see the Controller Number in the   \n"
+   "    Midi Controller Number field. Press 'OK' to connect it,   \n"
+   "    or move a other Midi controller.  \n"
+   "    A exception is the MIDI BEAT CLOCK, \n" 
+   "    which isn't a Controller itself,\n"
+   "    but could be used here to sync BPM controllers    \n"
+   "    with external devices.  \n"
+   "    To use it, you must insert '22' as Midi Controller Number   \n"
+   "      \n"
+   "    The same is true for the MIDI CLOCK start/stop function,    \n"
+   "    which could be used to switch effects on/off.   \n"
+   "    To use it, you must insert '23' as Midi Controller Number.   \n"
+
+          "");
+
+    }
+
+    gx_gui::gx_message_popup(midiconnecthelp.c_str());
+        return;
+        break;
     }
     gtk_widget_destroy(m->dialog);
 }
@@ -359,6 +387,7 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_, gx
     if (nctl == -1) {
         gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), RESPONSE_DELETE, FALSE);
         gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
+        gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_HELP, TRUE);
         gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
     }
     machine.midi_set_config_mode(true, nctl);

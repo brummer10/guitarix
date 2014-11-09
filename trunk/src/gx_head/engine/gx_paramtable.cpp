@@ -61,6 +61,9 @@ static struct midi_std_init {
     {12, "Effect Control 1"},
     {13, "Effect Control 2"},
 
+    {22, "Midi Beat Clock"},
+    {23, "Clock start/stop"},
+
     {32, "Bank Select LSB"},
 
     {64, "Sustain"},
@@ -277,11 +280,32 @@ bool MidiController::set_midi(int n, int last_value) {
 	    }
 	}
     } else {
+        //fprintf(stderr,"%s \n",param->id().c_str());
+        //fprintf(stderr,"%f \n",(127.*log10f(double(n+1.)))/2.1072);
+       // fprintf(stderr,"%f \n",double(n * double(double(n+1.)/128)));
+        
 	ret = param->midi_set(n, 127, _lower, _upper);
     }
     return ret;
 }
 
+bool MidiController::set_bpm(int n, int last_value) {
+    bool ret = false;
+    if (toggle) {
+	bool s_o = (2*last_value > 360);
+	bool s_n = (2*n > 360);
+	if (!s_o && s_n) {
+	    if (param->on_off_value()) {
+		ret = param->midi_set_bpm(0, 360, _lower, _upper);
+	    } else {
+		ret = param->midi_set_bpm(360, 360, _lower, _upper);
+	    }
+	}
+    } else {
+	ret = param->midi_set_bpm(n, 360, _lower, _upper);
+    }
+    return ret;
+}
 
 /****************************************************************
  ** class ControllerArray
@@ -360,6 +384,8 @@ MidiControllerList::MidiControllerList()
       last_midi_control_value(),
       last_midi_control(-2),
       program_change(-1),
+      time0(0),
+      time1(0),
       pgm_chg(),
       changed(),
       new_program(),
@@ -473,6 +499,18 @@ void MidiControllerList::set_ctr_val(int ctr, int val) {
     MidiControllerList::set_last_midi_control_value(ctr, val);
 }
 
+void MidiControllerList::set_bpm_val(unsigned int val) {
+    if (get_config_mode()) {
+        last_midi_control = 22;
+    } else {
+        midi_controller_list& ctr_list = map[22];
+        for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
+            i->set_bpm(val, get_last_midi_control_value(22));
+	}
+    }
+    MidiControllerList::set_last_midi_control_value(22, val);
+}
+
 void MidiControllerList::set_controller_array(const ControllerArray& m) {
     bool mode = get_config_mode();
     if (!mode) {
@@ -513,8 +551,14 @@ void MidiControllerList::remove_controlled_parameters(paramlist& plist,
     }
 }
 
+unsigned int rounded(float f)
+{
+  if (f >= 0x1.0p23) return (unsigned int) f;
+  return (unsigned int) (f + 0.49999997f);
+}
+
 // ----- jack process callback for the midi input
-void MidiControllerList::compute_midi_in(void* midi_input_port_buf) {
+void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
     jack_midi_event_t in_event;
     jack_nframes_t event_count = jack_midi_get_event_count(midi_input_port_buf);
     unsigned int i;
@@ -525,6 +569,37 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf) {
             pgm_chg();
         } else if ((in_event.buffer[0] & 0xf0) == 0xb0) {   // controller
             set_ctr_val(in_event.buffer[1], in_event.buffer[2]);
+        }  else if ((in_event.buffer[0] ) > 0xf0) {   // midi clock
+            if ((in_event.buffer[0] ) == 0xf8) {   // midi beat clock
+                clock_gettime(CLOCK_MONOTONIC, &ts1);
+                gx_jack::GxJack& jack = *static_cast<gx_jack::GxJack*>(arg);
+                double ft = in_event.time;
+                static int sr = jack.get_jack_sr();
+                ft = 1000000000.0/(sr/ft);
+                time0 = (ts1.tv_sec*1000000000.0)+(ts1.tv_nsec)+ft;
+                static int collect = 0;
+                static double bpm = 0.;
+                static double bpm_new = 0;
+                bpm_new = ((1000000000. / (time0-time1) / 24) * 60);
+                bpm += bpm_new;
+                collect+=1;
+                
+                if (collect >= (bpm_new/5)+1) {
+                  bpm = (bpm/collect);
+                  set_bpm_val(rounded(min(360.,max(24.,bpm))));
+                  collect = 1;
+                }
+                time1 = time0;
+            } else if ((in_event.buffer[0] ) == 0xfa) {   // midi clock start
+                set_ctr_val(23, 127);
+            } else if ((in_event.buffer[0] ) == 0xfb) {   // midi beat clock continue
+               //  set_ctr_val(23, 127);
+            }else if ((in_event.buffer[0] ) == 0xfc) {   // midi beat clock stop
+                set_ctr_val(23, 1);
+            }else if ((in_event.buffer[0] ) == 0xf2) {   // midi beat clock position
+              // not implemented 
+              //  set_ctr_val(24,(in_event.buffer[2]<<7) | in_event.buffer[1]);
+            }
         }
     }
 }
@@ -665,6 +740,11 @@ Parameter::~Parameter() {
 }
 
 bool Parameter::midi_set(float n, float high, float llimit, float ulimit) {
+    assert(false);
+    return false;
+}
+
+bool Parameter::midi_set_bpm(float n, float high, float llimit, float ulimit) {
     assert(false);
     return false;
 }
@@ -881,6 +961,34 @@ bool FloatParameter::midi_set(float n, float high, float llimit, float ulimit) {
     case Continuous:
         assert(n >= 0 && n <= high);
         v = llimit + (n / high) * (ulimit - llimit);
+        break;
+    case Switch:
+        v = (2*n > high ? 1.0 : 0.0);
+        break;
+    case Enum:
+        v = lower + min(n, upper-lower);
+        break;
+    default:
+        assert(false);
+        return false;
+    }
+    if (v != *value) {
+	*value = v;
+	return true;
+    }
+    return false;
+}
+
+bool FloatParameter::midi_set_bpm(float n, float high, float llimit, float ulimit) {
+    float v;
+    switch (c_type) {
+    case Continuous:
+        assert(n >= 0 && n <= high);
+        if (high <= ulimit) {
+            v = max(llimit,min(ulimit,n));
+        } else {
+            v = llimit + (n / high) * (ulimit - llimit);
+        }
         break;
     case Switch:
         v = (2*n > high ? 1.0 : 0.0);

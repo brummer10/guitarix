@@ -107,6 +107,7 @@ public:
     enum ctrl_type { None, Continuous, Switch, Enum };
 private:
     virtual bool midi_set(float n, float high, float llimit, float ulimit); //RT
+    virtual bool midi_set_bpm(float n, float high, float llimit, float ulimit); //RT
     virtual void trigger_changed();
     friend class MidiController;
 protected:
@@ -223,6 +224,7 @@ template<>
 class ParameterV<float>: public Parameter {
 private:
     virtual bool midi_set(float n, float high, float llimit, float ulimit); //RT
+    virtual bool midi_set_bpm(float n, float high, float llimit, float ulimit); //RT
     virtual void trigger_changed();
 protected:
     float json_value;
@@ -676,6 +678,7 @@ class MidiController {
     Parameter& getParameter() const { return *param; }
     static MidiController *readJSON(gx_system::JsonParser& jp, ParamMap& param);
     bool set_midi(int n, int last_value); //RT
+    bool set_bpm(int n, int last_value); //RT
     void set(float v, float high) { param->midi_set(v, high, _lower, _upper); }
     void trigger_changed() { param->trigger_changed(); }
     void writeJSON(gx_system::JsonWriter& jw) const;
@@ -706,6 +709,9 @@ private:
     int                    last_midi_control_value[ControllerArray::array_size]; //RT
     int                    last_midi_control; //RT
     volatile gint          program_change; //RT
+    timespec               ts1;
+    double                 time0;
+    double                 time1;
     Glib::Dispatcher       pgm_chg;
     sigc::signal<void>     changed;
     sigc::signal<void,int> new_program;
@@ -722,6 +728,7 @@ public:
     int get_current_control() { return last_midi_control; }
     void set_current_control(int ctl) { last_midi_control = ctl; }
     void set_ctr_val(int ctr, int val); //RT
+    void set_bpm_val(unsigned int val); //RT
     void deleteParameter(Parameter& param);
     void modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
     int param2controller(Parameter& param, const MidiController** p) {
@@ -735,7 +742,7 @@ public:
     void remove_controlled_parameters(paramlist& plist, const ControllerArray *m);
     sigc::signal<void>& signal_changed() { return changed; }
     sigc::signal<void,int>& signal_new_program() { return new_program; }
-    void compute_midi_in(void* midi_input_port_buf);  //RT
+    void compute_midi_in(void* midi_input_port_buf, void *arg);  //RT
     void update_from_controller(int ctr);
     void update_from_controllers();
     sigc::signal<void, int, int>& signal_midi_value_changed() { return midi_value_changed; }
