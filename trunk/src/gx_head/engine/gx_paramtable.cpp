@@ -577,9 +577,13 @@ void MidiControllerList::process_trans(int transport_state) {
         default:
             return;
     }
-    midi_controller_list& ctr_list = map[24];
-    for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
-        i->set_trans(val, get_last_midi_control_value(24));
+    if (get_config_mode()) {
+        last_midi_control = 24;
+    } else {
+        midi_controller_list& ctr_list = map[24];
+        for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
+            i->set_trans(val, get_last_midi_control_value(24));
+        }
     }
     MidiControllerList::set_last_midi_control_value(24, val);
 }
