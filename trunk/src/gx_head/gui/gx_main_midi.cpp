@@ -240,7 +240,10 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
    "      \n"
    "    The same is true for the MIDI CLOCK start/stop function,    \n"
    "    which could be used to switch effects on/off.   \n"
-   "    To use it, you must insert '23' as Midi Controller Number.   \n"
+   "    To use it, you must insert '23' as Midi Controller Number.   \n\n"
+   "    Also Jack Transport is supported and can be used to control    \n"
+   "    switch controllers (on/off) by connect then to    \n"
+   "    Midi Controller Number '24'.    \n"
 
           "");
 

@@ -645,6 +645,7 @@ int __rt_func GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 	if (!self.engine.mono_chain.is_stopped()) {
 	    self.check_overload();
 	}
+	self.transport_state = jack_transport_query (self.client, &self.current);
         // gx_head DSP computing
 	self.engine.mono_chain.process(
 	    nframes,
@@ -656,6 +657,11 @@ int __rt_func GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 	    self.engine.controller_map.compute_midi_in(
 		jack_port_get_buffer(self.ports.midi_input.port, nframes), arg);
 	}
+        // jack transport support
+    if ( self.transport_state != self.old_transport_state) {
+        self.engine.controller_map.process_trans(self.transport_state);
+        self.old_transport_state = self.transport_state;
+    }
     }
     gx_system::measure_pause();
     self.engine.mono_chain.post_rt_finished();

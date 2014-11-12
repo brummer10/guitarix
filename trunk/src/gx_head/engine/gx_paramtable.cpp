@@ -63,6 +63,7 @@ static struct midi_std_init {
 
     {22, "Midi Beat Clock"},
     {23, "Clock start/stop"},
+    {24, "Jack Transport"},
 
     {32, "Bank Select LSB"},
 
@@ -286,6 +287,16 @@ bool MidiController::set_midi(int n, int last_value) {
         
 	ret = param->midi_set(n, 127, _lower, _upper);
     }
+    return ret;
+}
+
+bool MidiController::set_trans(int n, int last_value) {
+    bool ret = false;
+    if (strcmp(param->id().c_str(), "engine.mute")==0) {
+        if ( n == 0) n = 127;
+        else n = 0;
+    } 
+    ret = param->midi_set(n, 127, _lower, _upper);
     return ret;
 }
 
@@ -551,6 +562,28 @@ void MidiControllerList::remove_controlled_parameters(paramlist& plist,
     }
 }
 
+void MidiControllerList::process_trans(int transport_state) {
+    unsigned int val = 0;
+    switch (transport_state) {
+        case JackTransportStopped:
+            val = 0;
+            break;
+        case JackTransportRolling:
+            val = 127;
+            break;
+        case JackTransportStarting:
+            val = 127;
+            break;
+        default:
+            return;
+    }
+    midi_controller_list& ctr_list = map[24];
+    for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
+        i->set_trans(val, get_last_midi_control_value(24));
+    }
+    MidiControllerList::set_last_midi_control_value(24, val);
+}
+
 unsigned int rounded(float f)
 {
   if (f >= 0x1.0p23) return (unsigned int) f;
@@ -569,7 +602,7 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
             pgm_chg();
         } else if ((in_event.buffer[0] & 0xf0) == 0xb0) {   // controller
             set_ctr_val(in_event.buffer[1], in_event.buffer[2]);
-        }  else if ((in_event.buffer[0] ) > 0xf0) {   // midi clock
+        } else if ((in_event.buffer[0] ) > 0xf0) {   // midi clock
             if ((in_event.buffer[0] ) == 0xf8) {   // midi beat clock
                 clock_gettime(CLOCK_MONOTONIC, &ts1);
                 gx_jack::GxJack& jack = *static_cast<gx_jack::GxJack*>(arg);
@@ -594,9 +627,9 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
                 set_ctr_val(23, 127);
             } else if ((in_event.buffer[0] ) == 0xfb) {   // midi beat clock continue
                //  set_ctr_val(23, 127);
-            }else if ((in_event.buffer[0] ) == 0xfc) {   // midi beat clock stop
-                set_ctr_val(23, 1);
-            }else if ((in_event.buffer[0] ) == 0xf2) {   // midi beat clock position
+            } else if ((in_event.buffer[0] ) == 0xfc) {   // midi beat clock stop
+                set_ctr_val(23, 0);
+            } else if ((in_event.buffer[0] ) == 0xf2) {   // midi beat clock position
               // not implemented 
               //  set_ctr_val(24,(in_event.buffer[2]<<7) | in_event.buffer[1]);
             }

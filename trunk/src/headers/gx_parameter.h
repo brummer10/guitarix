@@ -679,6 +679,7 @@ class MidiController {
     static MidiController *readJSON(gx_system::JsonParser& jp, ParamMap& param);
     bool set_midi(int n, int last_value); //RT
     bool set_bpm(int n, int last_value); //RT
+    bool set_trans(int n, int last_value); //RT
     void set(float v, float high) { param->midi_set(v, high, _lower, _upper); }
     void trigger_changed() { param->trigger_changed(); }
     void writeJSON(gx_system::JsonWriter& jw) const;
@@ -743,6 +744,7 @@ public:
     sigc::signal<void>& signal_changed() { return changed; }
     sigc::signal<void,int>& signal_new_program() { return new_program; }
     void compute_midi_in(void* midi_input_port_buf, void *arg);  //RT
+    void process_trans(int transport_state);  //RT
     void update_from_controller(int ctr);
     void update_from_controllers();
     sigc::signal<void, int, int>& signal_midi_value_changed() { return midi_value_changed; }

@@ -158,6 +158,10 @@ class GxJack: public sigc::trackable {
 
     jack_client_t*      client;
     jack_client_t*      client_insert;
+    
+    jack_position_t      current;
+    jack_transport_state_t transport_state;
+    jack_transport_state_t old_transport_state;
 
     jack_nframes_t      get_jack_sr() { return jack_sr; }
     jack_nframes_t      get_jack_bs() { return jack_bs; }
