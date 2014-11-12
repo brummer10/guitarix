@@ -15,7 +15,7 @@ private:
 	float 	fRec2[2];
 	FAUSTFLOAT 	fcheckbox0;
 	FAUSTFLOAT 	fslider1;
-	float 	fConst2;
+	int 	iConst2;
 	float 	fRec3[2];
 	float 	fRec4[2];
 	int 	iRec5[2];
@@ -89,12 +89,12 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) fRec4[i] = 0;
 	for (int i=0; i<2; i++) iRec5[i] = 0;
 	for (int i=0; i<2; i++) iRec6[i] = 0;
-	for (int i=0; i<262144; i++) fRec0[i] = 0;
+	for (int i=0; i<1048576; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) fRec8[i] = 0;
 	for (int i=0; i<2; i++) fRec9[i] = 0;
 	for (int i=0; i<2; i++) iRec10[i] = 0;
 	for (int i=0; i<2; i++) iRec11[i] = 0;
-	for (int i=0; i<262144; i++) fRec7[i] = 0;
+	for (int i=0; i<1048576; i++) fRec7[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -106,8 +106,8 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586f / float(iConst0));
-	fConst2 = (0.001f * iConst0);
+	fConst1 = (0.10471975511965977f / float(iConst0));
+	iConst2 = (60 * iConst0);
 	IOTA = 0;
 }
 
@@ -118,8 +118,8 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void Dsp::mem_alloc()
 {
-	if (!fRec0) fRec0 = new float[262144];
-	if (!fRec7) fRec7 = new float[262144];
+	if (!fRec0) fRec0 = new float[1048576];
+	if (!fRec7) fRec7 = new float[1048576];
 	mem_allocated = true;
 }
 
@@ -155,9 +155,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	float 	fSlow2 = sinf(fSlow0);
 	float 	fSlow3 = (0 - fSlow2);
 	float 	fSlow4 = float(fcheckbox0);
-	int 	iSlow5 = (int((fConst2 * float(fslider1))) - 1);
+	int 	iSlow5 = (int((float(iConst2) / float(fslider1))) - 1);
 	float 	fSlow6 = (0.01f * float(fslider2));
-	int 	iSlow7 = (int((fConst2 * float(fslider3))) - 1);
+	int 	iSlow7 = (int((float(iConst2) / float(fslider3))) - 1);
 	float 	fSlow8 = (0.01f * float(fslider4));
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
@@ -168,15 +168,15 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec4[0] = max(0.0f, min(1.0f, (fRec4[1] + fTemp0)));
 		iRec5[0] = ((int(((fRec4[1] >= 1.0f) & (iRec6[1] != iSlow5))))?iSlow5:iRec5[1]);
 		iRec6[0] = ((int(((fRec4[1] <= 0.0f) & (iRec5[1] != iSlow5))))?iSlow5:iRec6[1]);
-		fRec0[IOTA&262143] = ((float)input0[i] + (fSlow6 * ((((1.0f - fRec4[0]) * fRec0[(IOTA-int((1 + int((int(iRec5[0]) & 131071)))))&262143]) + (fRec4[0] * fRec0[(IOTA-int((1 + int((int(iRec6[0]) & 131071)))))&262143])) * (1 - (fSlow4 * fRec1[0])))));
-		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&262143];
+		fRec0[IOTA&1048575] = ((float)input0[i] + (fSlow6 * ((((1.0f - fRec4[0]) * fRec0[(IOTA-int((1 + int((int(iRec5[0]) & 524287)))))&1048575]) + (fRec4[0] * fRec0[(IOTA-int((1 + int((int(iRec6[0]) & 524287)))))&1048575])) * (1 - (fSlow4 * fRec1[0])))));
+		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&1048575];
 		float fTemp1 = ((int((fRec8[1] != 0.0f)))?((int(((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f))))?fRec8[1]:0):((int(((fRec9[1] == 0.0f) & (iSlow7 != iRec10[1]))))?0.0009765625f:((int(((fRec9[1] == 1.0f) & (iSlow7 != iRec11[1]))))?-0.0009765625f:0)));
 		fRec8[0] = fTemp1;
 		fRec9[0] = max(0.0f, min(1.0f, (fRec9[1] + fTemp1)));
 		iRec10[0] = ((int(((fRec9[1] >= 1.0f) & (iRec11[1] != iSlow7))))?iSlow7:iRec10[1]);
 		iRec11[0] = ((int(((fRec9[1] <= 0.0f) & (iRec10[1] != iSlow7))))?iSlow7:iRec11[1]);
-		fRec7[IOTA&262143] = ((float)input1[i] + (fSlow8 * ((((1.0f - fRec9[0]) * fRec7[(IOTA-int((1 + int((int(iRec10[0]) & 131071)))))&262143]) + (fRec9[0] * fRec7[(IOTA-int((1 + int((int(iRec11[0]) & 131071)))))&262143])) * (1 - (fSlow4 * (0 - fRec1[0]))))));
-		output1[i] = (FAUSTFLOAT)fRec7[(IOTA-0)&262143];
+		fRec7[IOTA&1048575] = ((float)input1[i] + (fSlow8 * ((((1.0f - fRec9[0]) * fRec7[(IOTA-int((1 + int((int(iRec10[0]) & 524287)))))&1048575]) + (fRec9[0] * fRec7[(IOTA-int((1 + int((int(iRec11[0]) & 524287)))))&1048575])) * (1 - (fSlow4 * (0 - fRec1[0]))))));
+		output1[i] = (FAUSTFLOAT)fRec7[(IOTA-0)&1048575];
 		// post processing
 		iRec11[1] = iRec11[0];
 		iRec10[1] = iRec10[0];
@@ -200,13 +200,13 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("stereoecho.LFO freq","","S","",&fslider0, 0.2f, 0.0f, 5.0f, 0.01f);
 	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	reg.registerEnumVar("stereoecho.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("stereoecho.lbpm",N_("time (bpm)"),"S",N_("Echo in Beats per Minute"),&fslider1, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
+	reg.registerVar("stereoecho.lfobpm",N_("LFO freq (bpm)"),"S",N_("LFO in Beats per Minute"),&fslider0, 24.0f, 24.0f, 3.6e+02f, 1.0f);
 	reg.registerVar("stereoecho.percent_l","","S","",&fslider2, 0.0f, 0.0f, 1e+02f, 0.1f);
 	reg.registerVar("stereoecho.percent_r","","S","",&fslider4, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.time_l","","S","",&fslider1, 1.0f, 1.0f, 2e+03f, 1.0f);
-	reg.registerVar("stereoecho.time_r","","S","",&fslider3, 1.0f, 1.0f, 2e+03f, 1.0f);
+	reg.registerVar("stereoecho.rbpm",N_("time (bpm)"),"S",N_("Echo in Beats per Minute"),&fslider3, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
 	return 0;
 }
 
@@ -232,13 +232,13 @@ b.openHorizontalBox("");
     b.closeBox();
     b.openVerticalBox("");
     {
-	b.create_small_rackknob(PARAM("time_l"), _("left time"));
+	b.create_small_rackknob(PARAM("lbpm"), _("left time (bpm)"));
 	b.insertSpacer();
     }
     b.closeBox();
     b.openVerticalBox("");
     {
-	b.create_small_rackknobr(PARAM("LFO freq"), _("LFO"));
+	b.create_small_rackknobr(PARAM("lfobpm"), _("LFO (bpm)"));
 	b.insertSpacer();
 	b.create_selector(PARAM("invert"), 0);
 	b.openFrameBox("");
@@ -253,7 +253,7 @@ b.openHorizontalBox("");
     b.closeBox();
     b.openVerticalBox("");
     {
-	b.create_small_rackknob(PARAM("time_r"), _("right time"));
+	b.create_small_rackknob(PARAM("rbpm"), _("right time (bpm)"));
 	b.insertSpacer();
     }
     b.closeBox();

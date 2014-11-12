@@ -4,17 +4,17 @@ b.closeBox();
 b.openHorizontalBox("");
 {
     b.create_small_rackknob(PARAM("l_gain"), _("left gain"));
-    b.create_small_rackknob(PARAM("l_delay"), _("left delay"));
+    b.create_small_rackknob(PARAM("lbpm"), _("left delay (bpm)"));
     b.openVerticalBox("");
     {
-	b.create_small_rackknobr(PARAM("LFO freq"), _("LFO"));
+	b.create_small_rackknobr(PARAM("lfobpm"), _("LFO (bpm)"));
 	b.insertSpacer();
-	b.create_selector(PARAM("invert"), 0);
+	b.create_selector(PARAM("invert"), _("mode"));
 	b.openFrameBox("");
 	b.closeBox();
     }
     b.closeBox();
     b.create_small_rackknob(PARAM("r_gain"), _("right gain"));
-    b.create_small_rackknob(PARAM("r_delay"), _("right delay"));
+    b.create_small_rackknob(PARAM("rbpm"), _("right delay (bpm)"));
 }
 b.closeBox();

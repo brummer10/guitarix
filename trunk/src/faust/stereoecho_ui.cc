@@ -11,13 +11,13 @@ b.openHorizontalBox("");
     b.closeBox();
     b.openVerticalBox("");
     {
-	b.create_small_rackknob(PARAM("time_l"), _("left time"));
+	b.create_small_rackknob(PARAM("lbpm"), _("left time (bpm)"));
 	b.insertSpacer();
     }
     b.closeBox();
     b.openVerticalBox("");
     {
-	b.create_small_rackknobr(PARAM("LFO freq"), _("LFO"));
+	b.create_small_rackknobr(PARAM("lfobpm"), _("LFO (bpm)"));
 	b.insertSpacer();
 	b.create_selector(PARAM("invert"), 0);
 	b.openFrameBox("");
@@ -32,7 +32,7 @@ b.openHorizontalBox("");
     b.closeBox();
     b.openVerticalBox("");
     {
-	b.create_small_rackknob(PARAM("time_r"), _("right time"));
+	b.create_small_rackknob(PARAM("rbpm"), _("right time (bpm)"));
 	b.insertSpacer();
     }
     b.closeBox();

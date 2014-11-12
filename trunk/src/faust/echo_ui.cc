@@ -6,7 +6,7 @@ b.openVerticalBox("");
 {
     b.openHorizontalTableBox("");
     {
-	b.create_small_rackknobr(PARAM("time"), _("  time  "));
+	b.create_small_rackknobr(PARAM("bpm"), _("  time (bpm) "));
 	b.create_small_rackknob(PARAM("percent"), "    %    ");
     }
     b.closeBox();

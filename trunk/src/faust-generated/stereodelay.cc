@@ -12,7 +12,7 @@ private:
 	int 	iVec1[2];
 	FAUSTFLOAT 	fslider0;
 	int 	iConst0;
-	float 	fConst1;
+	int 	iConst1;
 	float 	fRec0[2];
 	float 	fRec1[2];
 	float 	fRec2[2];
@@ -111,8 +111,8 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (0.001f * iConst0);
-	fConst2 = (6.283185307179586f / float(iConst0));
+	iConst1 = (60 * iConst0);
+	fConst2 = (0.10471975511965977f / float(iConst0));
 }
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
@@ -154,14 +154,14 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	float 	fSlow0 = (fConst1 * float(fslider0));
+	float 	fSlow0 = (float(iConst1) / float(fslider0));
 	float 	fSlow1 = (fConst2 * float(fslider1));
 	float 	fSlow2 = cosf(fSlow1);
 	float 	fSlow3 = sinf(fSlow1);
 	float 	fSlow4 = (0 - fSlow3);
 	float 	fSlow5 = float(fcheckbox0);
 	float 	fSlow6 = (0.0010000000000000009f * powf(10,(0.05f * float(fslider2))));
-	float 	fSlow7 = (fConst1 * float(fslider3));
+	float 	fSlow7 = (float(iConst1) / float(fslider3));
 	float 	fSlow8 = (0.0010000000000000009f * powf(10,(0.05f * float(fslider4))));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
@@ -210,13 +210,13 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("stereodelay.LFO freq","","S","",&fslider1, 0.2f, 0.0f, 5.0f, 0.01f);
 	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	reg.registerEnumVar("stereodelay.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("stereodelay.l_delay","","S","",&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
 	reg.registerVar("stereodelay.l_gain","","S","",&fslider2, 0.0f, -2e+01f, 2e+01f, 0.1f);
-	reg.registerVar("stereodelay.r_delay","","S","",&fslider3, 0.0f, 0.0f, 5e+03f, 1e+01f);
+	reg.registerVar("stereodelay.lbpm",N_("delay (bpm)"),"S",N_("Delay in Beats per Minute"),&fslider0, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
+	reg.registerVar("stereodelay.lfobpm",N_("LFO freq (bpm)"),"S",N_("LFO in Beats per Minute"),&fslider1, 24.0f, 24.0f, 3.6e+02f, 1.0f);
 	reg.registerVar("stereodelay.r_gain","","S","",&fslider4, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	reg.registerVar("stereodelay.rbpm",N_("delay (bpm)"),"S",N_("Delay in Beats per Minute"),&fslider3, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
 	return 0;
 }
 
@@ -235,18 +235,18 @@ b.closeBox();
 b.openHorizontalBox("");
 {
     b.create_small_rackknob(PARAM("l_gain"), _("left gain"));
-    b.create_small_rackknob(PARAM("l_delay"), _("left delay"));
+    b.create_small_rackknob(PARAM("lbpm"), _("left delay (bpm)"));
     b.openVerticalBox("");
     {
-	b.create_small_rackknobr(PARAM("LFO freq"), _("LFO"));
+	b.create_small_rackknobr(PARAM("lfobpm"), _("LFO (bpm)"));
 	b.insertSpacer();
-	b.create_selector(PARAM("invert"), 0);
+	b.create_selector(PARAM("invert"), _("mode"));
 	b.openFrameBox("");
 	b.closeBox();
     }
     b.closeBox();
     b.create_small_rackknob(PARAM("r_gain"), _("right gain"));
-    b.create_small_rackknob(PARAM("r_delay"), _("right delay"));
+    b.create_small_rackknob(PARAM("rbpm"), _("right delay (bpm)"));
 }
 b.closeBox();
 

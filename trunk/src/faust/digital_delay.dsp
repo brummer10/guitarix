@@ -3,7 +3,6 @@ declare name "Digital Delay";
 declare category "Echo / Delay";
 declare description "Digital Delay";
 
-
 import("music.lib");
 import("guitarix.lib");
 import("math.lib");

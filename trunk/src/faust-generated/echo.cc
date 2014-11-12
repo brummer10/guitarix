@@ -11,7 +11,7 @@ private:
 	float 	fConst1;
 	float 	fConst2;
 	FAUSTFLOAT 	fslider0;
-	float 	fConst3;
+	int 	iConst3;
 	float 	fRec1[2];
 	float 	fRec2[2];
 	int 	iRec3[2];
@@ -76,7 +76,7 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) iRec3[i] = 0;
 	for (int i=0; i<2; i++) iRec4[i] = 0;
 	for (int i=0; i<2; i++) fRec5[i] = 0;
-	for (int i=0; i<262144; i++) fRec0[i] = 0;
+	for (int i=0; i<1048576; i++) fRec0[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -90,7 +90,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (1e+01f / float(iConst0));
 	fConst2 = (0 - fConst1);
-	fConst3 = (0.001f * iConst0);
+	iConst3 = (60 * iConst0);
 	IOTA = 0;
 }
 
@@ -101,7 +101,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void Dsp::mem_alloc()
 {
-	if (!fRec0) fRec0 = new float[262144];
+	if (!fRec0) fRec0 = new float[1048576];
 	mem_allocated = true;
 }
 
@@ -131,7 +131,7 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	int 	iSlow0 = (int((fConst3 * float(fslider0))) - 1);
+	int 	iSlow0 = (int((float(iConst3) / float(fslider0))) - 1);
 	float 	fSlow1 = (1.000000000000001e-05f * float(fslider1));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = ((int((fRec1[1] != 0.0f)))?((int(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))))?fRec1[1]:0):((int(((fRec2[1] == 0.0f) & (iSlow0 != iRec3[1]))))?fConst1:((int(((fRec2[1] == 1.0f) & (iSlow0 != iRec4[1]))))?fConst2:0)));
@@ -140,8 +140,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec3[0] = ((int(((fRec2[1] >= 1.0f) & (iRec4[1] != iSlow0))))?iSlow0:iRec3[1]);
 		iRec4[0] = ((int(((fRec2[1] <= 0.0f) & (iRec3[1] != iSlow0))))?iSlow0:iRec4[1]);
 		fRec5[0] = ((0.999f * fRec5[1]) + fSlow1);
-		fRec0[IOTA&262143] = ((float)input0[i] + (fRec5[0] * (((1.0f - fRec2[0]) * fRec0[(IOTA-int((1 + int((int(iRec3[0]) & 131071)))))&262143]) + (fRec2[0] * fRec0[(IOTA-int((1 + int((int(iRec4[0]) & 131071)))))&262143]))));
-		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&262143];
+		fRec0[IOTA&1048575] = ((float)input0[i] + (fRec5[0] * (((1.0f - fRec2[0]) * fRec0[(IOTA-int((1 + int((int(iRec3[0]) & 524287)))))&1048575]) + (fRec2[0] * fRec0[(IOTA-int((1 + int((int(iRec4[0]) & 524287)))))&1048575]))));
+		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&1048575];
 		// post processing
 		IOTA = IOTA+1;
 		fRec5[1] = fRec5[0];
@@ -159,8 +159,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	reg.registerVar("echo.bpm",N_("time (bpm)"),"S",N_("Echo in Beats per Minute"),&fslider0, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
 	reg.registerVar("echo.percent","","S","",&fslider1, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("echo.time","","S","",&fslider0, 1.0f, 1.0f, 2e+03f, 1.0f);
 	return 0;
 }
 
@@ -181,7 +181,7 @@ b.openVerticalBox("");
 {
     b.openHorizontalTableBox("");
     {
-	b.create_small_rackknobr(PARAM("time"), _("  time  "));
+	b.create_small_rackknobr(PARAM("bpm"), _("  time (bpm) "));
 	b.create_small_rackknob(PARAM("percent"), "    %    ");
     }
     b.closeBox();
