@@ -386,6 +386,54 @@ bool ControllerArray::deleteParameter(Parameter& p) {
     return false;
 }
 
+
+/****************************************************************
+ ** class MidiClockToBpm
+ */
+
+
+MidiClockToBpm::MidiClockToBpm()
+    : time1(0),
+      time_diff(0),
+      collect(0),
+      collect_(0),
+      bpm(0),
+      bpm_new(0),
+      ret(false) {}
+
+unsigned int MidiClockToBpm::rounded(float f) {
+    if (f >= 0x1.0p23) return (unsigned int) f;
+    return (unsigned int) (f + 0.49999997f);
+}
+
+bool MidiClockToBpm::time_to_bpm(double time, unsigned int* bpm_) {
+    ret = false;
+    // if time drift to far, reset bpm detection.
+    if ((time-time1)> (1.05*time_diff) || (time-time1)*1.05 < (time_diff)) { 
+        bpm = 0;
+        collect = 0;
+        collect_ = 0;
+    } else {
+        bpm_new = ((1000000000. / (time-time1) / 24) * 60);
+        bpm += bpm_new;
+        collect++;
+        
+        if (collect >= (bpm_new*bpm_new*0.0002)+1) {
+          bpm = (bpm/collect);
+          if (collect_>=2) {
+            (*bpm_) = rounded(min(360.,max(24.,bpm))); 
+            collect_ = 0;
+            ret = true;
+          }
+          collect_++;
+          collect = 1;
+        }
+    }
+    time_diff = time-time1;
+    time1 = time;
+    return ret;
+}
+
 /****************************************************************
  ** class MidiControllerList
  */
@@ -588,49 +636,6 @@ void MidiControllerList::process_trans(int transport_state) {
     }
     MidiControllerList::set_last_midi_control_value(24, val);
 }
-
-MidiClockToBpm::MidiClockToBpm()
-    : time1(0),
-      time_diff(0),
-      collect(0),
-      collect_(0),
-      bpm(0),
-      bpm_new(0),
-      ret(false) {}
-
-unsigned int MidiClockToBpm::rounded(float f) {
-  if (f >= 0x1.0p23) return (unsigned int) f;
-  return (unsigned int) (f + 0.49999997f);
-}
-
-bool MidiClockToBpm::time_to_bpm(double time, unsigned int* bpm_) {
-    ret = false;
-    // if time drift to far, reset bpm detection.
-    if ((time-time1)> (1.05*time_diff) || (time-time1)*1.05 < (time_diff)) { 
-        bpm = 0;
-        collect = 0;
-        collect_ = 0;
-    } else {
-        bpm_new = ((1000000000. / (time-time1) / 24) * 60);
-        bpm += bpm_new;
-        collect++;
-        
-        if (collect >= (bpm_new*bpm_new*0.0002)+1) {
-          bpm = (bpm/collect);
-          if (collect_>=2) {
-            (*bpm_) = rounded(min(360.,max(24.,bpm))); 
-            collect_ = 0;
-            ret = true;
-          }
-          collect_++;
-          collect = 1;
-        }
-    }
-    time_diff = time-time1;
-    time1 = time;
-    return ret;
-}
-    
 
 // ----- jack process callback for the midi input
 void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
