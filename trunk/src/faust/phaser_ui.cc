@@ -19,7 +19,7 @@ b.openHorizontalBox("");
 	    b.create_small_rackknob(PARAM("NotchFreq"), _("freq"));
 	    b.create_small_rackknob(PARAM("MaxNotch1Freq"), _("max Hz"));
 	    b.create_small_rackknob(PARAM("MinNotch1Freq"), _("min Hz"));
-	    b.create_small_rackknob(PARAM("Speed"), _("speed"));
+	    b.create_small_rackknob(PARAM("lfobpm"), _("speed (bpm)"));
 	}
 	b.closeBox();
 	b.insertSpacer();

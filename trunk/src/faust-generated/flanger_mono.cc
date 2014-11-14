@@ -79,7 +79,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586 / double(iConst0));
+	fConst1 = (0.10471975511965977 / double(iConst0));
 	clear_state_f();
 }
 
@@ -126,8 +126,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("flanger_mono.freq","","S","",&fslider2, 0.2, 0.0, 5.0, 0.01);
 	reg.registerVar("flanger_mono.level","","S","",&fslider0, 0.0, -6e+01, 1e+01, 0.1);
+	reg.registerVar("flanger_mono.lfobpm",N_("LFO freq (bpm)"),"S",N_("LFO in Beats per Minute"),&fslider2, 24.0, 24.0, 3.6e+02, 1.0);
 	reg.registerVar("flanger_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider1, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
@@ -149,7 +149,7 @@ b.openVerticalBox("");
     b.openHorizontalBox("");
     {
 	b.create_small_rackknobr(PARAM("level"), _("level"));
-	b.create_small_rackknob(PARAM("freq"), _("speed"));
+	b.create_small_rackknob(PARAM("lfobpm"), _("LFO freq (bpm)"));
 	b.create_small_rackknob(PARAM("wet_dry"), _("dry/wet"));
     }
     b.closeBox();

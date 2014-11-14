@@ -8,7 +8,8 @@ import("effect.lib");
 phaser_monogx = *(level): component("phaser.dsp").phaser_mono(Notches,0,width,frqmin,fratio,frqmax,freq,mdepth,fb,invert)
 with {
   Notches = 4;
-  freq  = hslider("Speed [unit:Hz] ", 0.5, 0, 10, 0.01);
+  //freq  = hslider("Speed [unit:Hz] ", 0.5, 0, 10, 0.01);
+  freq     = hslider("lfobpm[name:Speed (bpm)][tooltip:Speed in Beats per Minute]",30,24,360,1)/60;
   
   depth	 = 1 ;//hslider("depth", 1, 0, 1, 0.01);
   fb	 = 0.5 ;//hslider("feedback gain", 0, 0, 1, 0.01);

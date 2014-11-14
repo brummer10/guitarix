@@ -102,7 +102,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (1.0f / float(iConst0));
-	fConst2 = (6.283185307179586f / float(iConst0));
+	fConst2 = (0.10471975511965977f / float(iConst0));
 	clear_state_f();
 }
 
@@ -189,7 +189,6 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("phaser.MinNotch1Freq","","S","",&fslider5, 1e+02f, 2e+01f, 5e+03f, 1.0f);
 	reg.registerVar("phaser.Notch width","","S","",&fslider3, 1e+03f, 1e+01f, 5e+03f, 1.0f);
 	reg.registerVar("phaser.NotchFreq","","S","",&fslider7, 1.5f, 1.1f, 4.0f, 0.01f);
-	reg.registerVar("phaser.Speed","","S","",&fslider4, 0.5f, 0.0f, 1e+01f, 0.01f);
 	static const value_pair fcheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
 	reg.registerEnumVar("phaser.VibratoMode","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("phaser.depth","","S","",&fslider0, 1.0f, 0.0f, 1.0f, 0.01f);
@@ -197,6 +196,7 @@ int Dsp::register_par(const ParamReg& reg)
 	static const value_pair fcheckbox1_values[] = {{"linear"},{"invert"},{0}};
 	reg.registerEnumVar("phaser.invert","","B","",fcheckbox1_values,&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("phaser.level","","S","",&fslider2, 0.0f, -6e+01f, 1e+01f, 0.1f);
+	reg.registerVar("phaser.lfobpm",N_("Speed (bpm)"),"S",N_("Speed in Beats per Minute"),&fslider4, 3e+01f, 24.0f, 3.6e+02f, 1.0f);
 	return 0;
 }
 
@@ -230,7 +230,7 @@ b.openHorizontalBox("");
 	    b.create_small_rackknob(PARAM("NotchFreq"), _("freq"));
 	    b.create_small_rackknob(PARAM("MaxNotch1Freq"), _("max Hz"));
 	    b.create_small_rackknob(PARAM("MinNotch1Freq"), _("min Hz"));
-	    b.create_small_rackknob(PARAM("Speed"), _("speed"));
+	    b.create_small_rackknob(PARAM("lfobpm"), _("speed (bpm)"));
 	}
 	b.closeBox();
 	b.insertSpacer();

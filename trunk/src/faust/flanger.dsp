@@ -14,7 +14,8 @@ with {
   dmax = 2048;
   dflange = 0.001 * SR * hslider("flange delay [unit:ms]", 10, 0, 20, 0.01);
   odflange = 0.001 * SR * hslider("flange delay offset [unit:ms]", 1, 0, 20, 0.01);
-  freq	 = hslider("LFO freq [unit:Hz]", 0.2, 0, 5, 0.01);
+  //freq	 = hslider("LFO freq [unit:Hz]", 0.2, 0, 5, 0.01);
+  freq     = hslider("lfobpm[name:LFO freq (bpm)][unit:bpm][tooltip:LFO in Beats per Minute]",24,24,360,1)/60;
   depth	 = hslider("depth", 1, 0, 1, 0.01);
   fb	 = hslider("feedback gain", 0, 0, 1, 0.01);
   invert   = checkbox("invert[enum:linear|invert]");

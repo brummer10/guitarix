@@ -17,7 +17,7 @@ b.openHorizontalBox("");
 	    b.create_small_rackknob(PARAM("depth"), _("  depth  "));
 	    b.create_small_rackknob(PARAM("flange delay"), _("  delay  "));
 	    b.create_small_rackknob(PARAM("flange delay offset"), _(" delay offset"));
-	    b.create_small_rackknob(PARAM("LFO freq"), _(" LFO "));
+	    b.create_small_rackknob(PARAM("lfobpm"), _(" LFO freq (bpm)"));
 	}
 	b.closeBox();
 	b.insertSpacer();

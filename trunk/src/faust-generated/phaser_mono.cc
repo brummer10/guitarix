@@ -92,7 +92,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = expf((0 - (3141.592653589793f / float(iConst0))));
 	fConst2 = faustpower<2>(fConst1);
-	fConst3 = (6.283185307179586f / float(iConst0));
+	fConst3 = (0.10471975511965977f / float(iConst0));
 	fConst4 = (2.0f / float(iConst0));
 	fConst5 = (0 - (2 * fConst1));
 	fConst6 = (4.0f / float(iConst0));
@@ -150,8 +150,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("phaser_mono.Speed","","S","",&fslider2, 0.5f, 0.0f, 1e+01f, 0.01f);
 	reg.registerVar("phaser_mono.level","","S","",&fslider0, 0.0f, -6e+01f, 1e+01f, 0.1f);
+	reg.registerVar("phaser_mono.lfobpm",N_("Speed (bpm)"),"S",N_("Speed in Beats per Minute"),&fslider2, 3e+01f, 24.0f, 3.6e+02f, 1.0f);
 	reg.registerVar("phaser_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider1, 1e+02f, 0.0f, 1e+02f, 1.0f);
 	return 0;
 }
@@ -173,7 +173,7 @@ b.openVerticalBox("");
     b.openHorizontalBox("");
     {
 	b.create_small_rackknobr(PARAM("level"), _("level"));
-	b.create_small_rackknob(PARAM("Speed"), _("speed"));
+	b.create_small_rackknob(PARAM("lfobpm"), _("speed (bpm)"));
 	b.create_small_rackknob(PARAM("wet_dry"), _("dry/wet"));
     }
     b.closeBox();

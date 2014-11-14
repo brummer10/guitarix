@@ -6,7 +6,7 @@ b.openVerticalBox("");
     b.openHorizontalBox("");
     {
 	b.create_small_rackknobr(PARAM("level"), _("level"));
-	b.create_small_rackknob(PARAM("Speed"), _("speed"));
+	b.create_small_rackknob(PARAM("lfobpm"), _("speed (bpm)"));
 	b.create_small_rackknob(PARAM("wet_dry"), _("dry/wet"));
     }
     b.closeBox();

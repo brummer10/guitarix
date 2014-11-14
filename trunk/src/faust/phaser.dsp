@@ -46,7 +46,8 @@ phaser_stereo(Notches,width,frqmin,fratio,frqmax,speed,depth,fb,invert)
 phaser_stereogx = *(level),*(level) : phaser_stereo(Notches,width,frqmin,fratio,frqmax,freq,mdepth,fb,invert)
 with {
   Notches = 4;
-  freq  = hslider("Speed [unit:Hz] ", 0.5, 0, 10, 0.01);
+  //freq  = hslider("Speed [unit:Hz] ", 0.5, 0, 10, 0.01);
+  freq     = hslider("lfobpm[name:Speed (bpm)][tooltip:Speed in Beats per Minute]",30,24,360,1)/60;
   
   depth	 = hslider("depth", 1, 0, 1, 0.01);
   fb	 = hslider("feedback gain", 0, 0, 1, 0.01);
