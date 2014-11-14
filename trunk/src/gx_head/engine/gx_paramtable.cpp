@@ -606,7 +606,7 @@ unsigned int MidiClockToBpm::rounded(float f) {
 bool MidiClockToBpm::time_to_bpm(double time, unsigned int* bpm_) {
     ret = false;
     // if time drift to far, reset bpm detection.
-    if ((time-time1)> (1.5*time_diff) || (time-time1)*1.5 < (time_diff)) { 
+    if ((time-time1)> (1.05*time_diff) || (time-time1)*1.05 < (time_diff)) { 
         bpm = 0;
         collect = 0;
         collect_ = 0;
@@ -615,7 +615,7 @@ bool MidiClockToBpm::time_to_bpm(double time, unsigned int* bpm_) {
         bpm += bpm_new;
         collect++;
         
-        if (collect >= (bpm_new/20)+1) {
+        if (collect >= (bpm_new*bpm_new*0.0002)+1) {
           bpm = (bpm/collect);
           if (collect_>=2) {
             (*bpm_) = rounded(min(360.,max(24.,bpm))); 
