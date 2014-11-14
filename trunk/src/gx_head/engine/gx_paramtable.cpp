@@ -615,17 +615,24 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
                 ft = 1000000000.0/(sr/ft);
                 time0 = (ts1.tv_sec*1000000000.0)+(ts1.tv_nsec)+ft;
                 static int collect = 0;
+                static int collect_ = 0;
                 static double bpm = 0.;
                 static double bpm_new = 0;
                 bpm_new = ((1000000000. / (time0-time1) / 24) * 60);
                 bpm += bpm_new;
                 collect+=1;
+                if ((time0-time1)> (1.5*time_diff)) collect_ = 0;
                 
-                if (collect >= (bpm_new/5)+1) {
+                if (collect >= (bpm_new/20)+1) {
                   bpm = (bpm/collect);
-                  set_bpm_val(rounded(min(360.,max(24.,bpm))));
+                  if (collect_>2) {
+                    set_bpm_val(rounded(min(360.,max(24.,bpm))));
+                    collect_ = 0;
+                  }
+                  collect_++;
                   collect = 1;
                 }
+                time_diff = time0-time1;
                 time1 = time0;
             } else if ((in_event.buffer[0] ) == 0xfa) {   // midi clock start
                 set_ctr_val(23, 127);

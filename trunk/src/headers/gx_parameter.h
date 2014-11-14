@@ -713,6 +713,7 @@ private:
     timespec               ts1;
     double                 time0;
     double                 time1;
+    double                 time_diff;
     Glib::Dispatcher       pgm_chg;
     sigc::signal<void>     changed;
     sigc::signal<void,int> new_program;
