@@ -396,7 +396,8 @@ MidiControllerList::MidiControllerList()
       last_midi_control(-2),
       program_change(-1),
       time0(0),
-      time1(0),
+      bpm_(9),
+      mp(),
       pgm_chg(),
       changed(),
       new_program(),
@@ -588,11 +589,48 @@ void MidiControllerList::process_trans(int transport_state) {
     MidiControllerList::set_last_midi_control_value(24, val);
 }
 
-unsigned int rounded(float f)
-{
+MidiClockToBpm::MidiClockToBpm()
+    : time1(0),
+      time_diff(0),
+      collect(0),
+      collect_(0),
+      bpm(0),
+      bpm_new(0),
+      ret(false) {}
+
+unsigned int MidiClockToBpm::rounded(float f) {
   if (f >= 0x1.0p23) return (unsigned int) f;
   return (unsigned int) (f + 0.49999997f);
 }
+
+bool MidiClockToBpm::time_to_bpm(double time, unsigned int* bpm_) {
+    ret = false;
+    // if time drift to far, reset bpm detection.
+    if ((time-time1)> (1.5*time_diff) || (time-time1)*1.5 < (time_diff)) { 
+        bpm = 0;
+        collect = 0;
+        collect_ = 0;
+    } else {
+        bpm_new = ((1000000000. / (time-time1) / 24) * 60);
+        bpm += bpm_new;
+        collect++;
+        
+        if (collect >= (bpm_new/20)+1) {
+          bpm = (bpm/collect);
+          if (collect_>=2) {
+            (*bpm_) = rounded(min(360.,max(24.,bpm))); 
+            collect_ = 0;
+            ret = true;
+          }
+          collect_++;
+          collect = 1;
+        }
+    }
+    time_diff = time-time1;
+    time1 = time;
+    return ret;
+}
+    
 
 // ----- jack process callback for the midi input
 void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
@@ -610,37 +648,19 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
             if ((in_event.buffer[0] ) == 0xf8) {   // midi beat clock
                 clock_gettime(CLOCK_MONOTONIC, &ts1);
                 gx_jack::GxJack& jack = *static_cast<gx_jack::GxJack*>(arg);
-                double ft = in_event.time;
-                static int sr = jack.get_jack_sr();
-                ft = 1000000000.0/(sr/ft);
-                time0 = (ts1.tv_sec*1000000000.0)+(ts1.tv_nsec)+ft;
-                static int collect = 0;
-                static int collect_ = 0;
-                static double bpm = 0.;
-                static double bpm_new = 0;
-                bpm_new = ((1000000000. / (time0-time1) / 24) * 60);
-                bpm += bpm_new;
-                collect+=1;
-                if ((time0-time1)> (1.5*time_diff)) collect_ = 0;
-                
-                if (collect >= (bpm_new/20)+1) {
-                  bpm = (bpm/collect);
-                  if (collect_>2) {
-                    set_bpm_val(rounded(min(360.,max(24.,bpm))));
-                    collect_ = 0;
-                  }
-                  collect_++;
-                  collect = 1;
+                static unsigned int sr = jack.get_jack_sr();
+                time0 = (ts1.tv_sec*1000000000.0)+(ts1.tv_nsec)+
+                        (1000000000.0/(double)(sr/(double)in_event.time));
+                if (mp.time_to_bpm(time0, &bpm_)) {
+                    set_bpm_val(bpm_);
                 }
-                time_diff = time0-time1;
-                time1 = time0;
             } else if ((in_event.buffer[0] ) == 0xfa) {   // midi clock start
                 set_ctr_val(23, 127);
-            } else if ((in_event.buffer[0] ) == 0xfb) {   // midi beat clock continue
+            } else if ((in_event.buffer[0] ) == 0xfb) {   // midi clock continue
                //  set_ctr_val(23, 127);
-            } else if ((in_event.buffer[0] ) == 0xfc) {   // midi beat clock stop
+            } else if ((in_event.buffer[0] ) == 0xfc) {   // midi clock stop
                 set_ctr_val(23, 0);
-            } else if ((in_event.buffer[0] ) == 0xf2) {   // midi beat clock position
+            } else if ((in_event.buffer[0] ) == 0xf2) {   // midi clock position
               // not implemented 
               //  set_ctr_val(24,(in_event.buffer[2]<<7) | in_event.buffer[1]);
             }

@@ -692,6 +692,25 @@ typedef list<MidiController> midi_controller_list;
 ** MidiControllerList
 **/
 
+
+class MidiClockToBpm {
+private:
+    double                 time1;
+    double                 time_diff;
+    int                    collect;
+    int                    collect_;
+    double                 bpm;
+    double                 bpm_new;
+    bool                   ret;
+
+public:
+    MidiClockToBpm();
+    ~MidiClockToBpm() {}
+    unsigned int rounded(float f);
+    bool time_to_bpm(double time, unsigned int* bpm_);
+};
+
+
 class ControllerArray: public vector<midi_controller_list> {
 public:
     enum { array_size = 128 };
@@ -712,8 +731,8 @@ private:
     volatile gint          program_change; //RT
     timespec               ts1;
     double                 time0;
-    double                 time1;
-    double                 time_diff;
+    unsigned int           bpm_;
+    MidiClockToBpm         mp;
     Glib::Dispatcher       pgm_chg;
     sigc::signal<void>     changed;
     sigc::signal<void,int> new_program;
