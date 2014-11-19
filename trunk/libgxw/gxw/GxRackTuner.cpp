@@ -31,7 +31,8 @@ enum {
 	PROP_DISPLAY_FLAT,
 	PROP_STREAMING,
 	PROP_TIMESTEP,
-	PROP_LIMIT_TIMESTEP
+	PROP_LIMIT_TIMESTEP,
+	PROP_TEMPERAMENT
 };
 
 enum {
@@ -122,6 +123,11 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 			"limit-timestep", P_("In-Limit Time Step"),
 			P_("time interval in msec for refreshing the streaming match display"),
 			1, 100, 8, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+	g_object_class_install_property(
+		gobject_class, PROP_TEMPERAMENT, g_param_spec_int (
+			"temperament", P_("Temperament"),
+			P_("Division of the octave into temperament steps"),
+			1, 1000, 50, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	/* new signals */
 	signals[FREQUENCY_POLL] =
 		g_signal_new(I_("frequency-poll"),
@@ -143,6 +149,8 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 
 static const char *note_sharp[] = {"F#","G","G#","A","A#","B","C","C#","D","D#","E","F"};
 static const char *note_flat[] = {"Gb","G","Ab","A","Bb","B","C","Db","D","Eb","E","F"};
+static const char* note_19[19] = {"G","G♯","A♭","A","A♯","B♭","B","B♯","C","C♯","D♭","D","D♯","E♭","E","E♯","F","F♯","G♭"};
+static const char* note_31[31] = {"G♯","A♭","G♯♯","A","B♭♭","A♯","B♭","A♯♯","B","C♭","B♯","C ","D♭♭","C♯","D♭","C♯♯","D","E♭♭","D♯","E♭","D♯♯","E","F♭","E♯","F","G♭♭","F♯","G♭","F♯♯","G","A♭♭"};
 static const char *octave[] = {"0","1","2","3","4","5"," "};
 
 static void gx_rack_tuner_init (GxRackTuner *tuner)
@@ -155,6 +163,7 @@ static void gx_rack_tuner_init (GxRackTuner *tuner)
 	tuner->timestep = 50;
 	tuner->in_limit_timestep = 8;
 	tuner->n_targets = 0;
+	tuner->temperament = 0;
 	// state
 	tuner->pos = 0.0;
 	tuner->in_limit = FALSE;
@@ -167,6 +176,7 @@ static void gx_rack_tuner_init (GxRackTuner *tuner)
 	tuner->in_limit_id = 0;
 	tuner->target_oc = 0;
 	tuner->target_note = 0;
+	tuner->target_temperament = 12;
 	tuner->strng = 0;
 	// caculated layout
 	tuner->led_count = 0;
@@ -231,10 +241,12 @@ void gx_rack_tuner_set_display_flat(GxRackTuner *tuner, gboolean display_flat)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
 	tuner->display_flat = display_flat;
+    if (tuner->temperament == 0) {
         if (display_flat) {
             tuner->note = note_flat;
         } else {
             tuner->note = note_sharp;
+        }
 	}
 	g_object_notify(G_OBJECT(tuner), "display_flat");
 }
@@ -269,6 +281,33 @@ gint gx_rack_tuner_get_limit_timestep(GxRackTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
 	return tuner->in_limit_timestep;
+}
+
+void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
+{
+	g_assert(GX_IS_RACK_TUNER(tuner));
+	tuner->temperament = temperament;
+    if (tuner->temperament == 0) {
+        tuner->target_temperament = 12;
+        if (tuner->display_flat) {
+            tuner->note = note_flat;
+        } else {
+            tuner->note = note_sharp;
+        }
+    } else if (tuner->temperament == 1) {
+        tuner->target_temperament = 19;
+        tuner->note = note_19;
+	} else if (tuner->temperament == 2) {
+        tuner->target_temperament = 31;
+        tuner->note = note_31;
+	}
+	g_object_notify(G_OBJECT(tuner), "temperament");
+}
+
+gint gx_rack_tuner_get_temperament(GxRackTuner *tuner)
+{
+	g_assert(GX_IS_TUNER(tuner));
+	return tuner->temperament;
 }
 
 void gx_rack_tuner_clear_notes(GxRackTuner *tuner)
@@ -319,6 +358,9 @@ static void gx_rack_tuner_set_property(GObject *object, guint prop_id,
 	case PROP_LIMIT_TIMESTEP:
 		gx_rack_tuner_set_limit_timestep(tuner, g_value_get_int(value));
 		break;
+	case PROP_TEMPERAMENT:
+		gx_rack_tuner_set_temperament(tuner, g_value_get_int(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -352,6 +394,9 @@ static void gx_rack_tuner_get_property(GObject *object, guint prop_id,
 	case PROP_LIMIT_TIMESTEP:
 		g_value_set_int(value, tuner->in_limit_timestep);
 		break;
+	case PROP_TEMPERAMENT:
+		g_value_set_int(value, tuner->temperament);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -372,20 +417,20 @@ static void gx_rack_tuner_pitch_to_note(GxRackTuner *tuner, double fnote, int *o
 	if (scale) {
 		*scale = fnote - *note;
 	}
-	*oc = int(round(fnoter/12));
+	*oc = int(round(fnoter/tuner->target_temperament));
 	int octsz = sizeof(octave) / sizeof(octave[0]);
 	if (*oc < 0 || *oc >= octsz) {
 		*oc = octsz - 1;
 	}
-	*note = *note % 12;
+	*note = *note % tuner->target_temperament;
 	if (*note < 0) {
-		*note += 12;
+		*note += tuner->target_temperament;
 	}
 }
 
 static void gx_rack_tuner_calc(GxRackTuner *tuner)
 {
-	double fvis = 12 * (log2(tuner->parent.freq/tuner->parent.reference_pitch) + 4) + 3;
+	double fvis = tuner->target_temperament * (log2(tuner->parent.freq/tuner->parent.reference_pitch) + 4) + 3;
 	gx_rack_tuner_pitch_to_note(tuner, fvis, &tuner->indicate_oc, &tuner->vis, &tuner->scale_val);
 	if (tuner->n_targets == 0) {
 		return;

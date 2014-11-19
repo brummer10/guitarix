@@ -45,6 +45,7 @@ struct _GxRackTuner
 	gint     GSEAL (in_limit_timestep);
 	gint     GSEAL (n_targets);
 	gint     GSEAL (targets)[RACKTUNER_MAXTARGETS];
+	gint     GSEAL (temperament);
 	// state
 	double   GSEAL (pos); // led lighted position
 	gboolean GSEAL (in_limit);
@@ -57,6 +58,7 @@ struct _GxRackTuner
 	guint    GSEAL (in_limit_id);
 	gint     GSEAL (target_oc);
 	gint     GSEAL (target_note);
+	gint     GSEAL (target_temperament);
 	gint     GSEAL (strng);   // number of current string (1 == string with highest pitch)
 	// caculated layout
 	gint    GSEAL (led_count);
@@ -90,6 +92,8 @@ void gx_rack_tuner_set_limit_timestep(GxRackTuner *tuner, gint in_limit_timestep
 gint gx_rack_tuner_get_limit_timestep(GxRackTuner *tuner);
 void gx_rack_tuner_clear_notes(GxRackTuner *tuner);
 gboolean gx_rack_tuner_push_note(GxRackTuner *tuner, gint note);
+void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament);
+gint gx_rack_tuner_get_temperament(GxRackTuner *tuner);
 
 GtkWidget *gx_rack_tuner_new(void);
 

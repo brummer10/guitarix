@@ -40,6 +40,8 @@ class RackTuner: public Gxw::Tuner {
 	_WRAP_METHOD(int get_timestep(), gx_rack_tuner_get_timestep)
 	_WRAP_METHOD(void set_limit_timestep(int), gx_rack_tuner_set_limit_timestep)
 	_WRAP_METHOD(int get_limit_timestep(), gx_rack_tuner_get_limit_timestep)
+	_WRAP_METHOD(void set_temperament(int), gx_rack_tuner_set_temperament)
+	_WRAP_METHOD(int get_temperament(), gx_rack_tuner_get_temperament)
 	_WRAP_METHOD(void clear_notes(), gx_rack_tuner_clear_notes)
 	_WRAP_METHOD(void push_note(int), gx_rack_tuner_push_note)
 	_WRAP_SIGNAL(void frequency_poll(), "frequency-poll")
@@ -51,6 +53,7 @@ class RackTuner: public Gxw::Tuner {
 	_WRAP_PROPERTY(streaming, bool)
 	_WRAP_PROPERTY(timestep, int)
 	_WRAP_PROPERTY(limit_timestep, int)
+	_WRAP_PROPERTY(temperament, int)
 };
 
 } // namespace Gxw

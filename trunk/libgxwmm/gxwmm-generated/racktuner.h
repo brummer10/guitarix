@@ -127,6 +127,10 @@ private:
 	
   int get_limit_timestep();
 	
+  void set_temperament(int p1);
+	
+  int get_temperament();
+	
   void clear_notes();
 	
   void push_note(int p1);
@@ -288,6 +292,25 @@ private:
   Glib::PropertyProxy_ReadOnly< int > property_limit_timestep() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
+	#ifdef GLIBMM_PROPERTIES_ENABLED
+/** time interval in msec for refreshing the streaming display.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy< int > property_temperament() ;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+/** time interval in msec for refreshing the streaming display.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy_ReadOnly< int > property_temperament() const;
+#endif //#GLIBMM_PROPERTIES_ENABLED
 
 };
 

@@ -505,6 +505,7 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("tuner_mode", tuner_mode);
     bld->find_widget("tuner_reference_pitch", tuner_reference_pitch);
     bld->find_widget("tuner_tuning", tuner_tuning);
+    bld->find_widget("tuner_temperament", tuner_temperament);
     bld->find_widget("racktuner", racktuner);
     bld->find_widget("ampdetail_compress:effect_reset", ampdetail_compress);
     bld->find_widget("ampdetail_expand:effect_reset", ampdetail_expand);
@@ -2072,6 +2073,19 @@ void MainWindow::set_tuning(Gxw::RackTuner& tuner) {
     }
 }
 
+void MainWindow::setup_tuner_temperament(Gxw::RackTuner& tuner) {
+    int temperament = tuner_temperament->get_value();
+    if (temperament) {
+        tuner_tuning->set_value(0);
+        tuner.clear_notes();
+        tuner_tuning->set_sensitive(false);
+    } else {
+        tuner_tuning->set_sensitive(true);
+    }
+    tuner.set_temperament(temperament);
+
+}
+
 void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
     tuner.signal_frequency_poll().connect(
 	sigc::compose(
@@ -2087,6 +2101,9 @@ void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
 	    sigc::mem_fun(*tuner_reference_pitch, &Gxw::Wheel::get_value)));
     tuner_tuning->signal_value_changed().connect(
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::set_tuning), sigc::ref(tuner)));
+    tuner_temperament->signal_value_changed().connect(
+        sigc::bind(sigc::mem_fun(*this, &MainWindow::setup_tuner_temperament), sigc::ref(tuner)));
+	
 }
 
 bool MainWindow::on_toggle_mute(GdkEventButton* ev) {

@@ -636,6 +636,7 @@ private:
     Gxw::Selector *tuner_mode;
     Gxw::Wheel *tuner_reference_pitch;
     Gxw::Selector *tuner_tuning;
+    Gxw::Selector *tuner_temperament;
     Gxw::RackTuner *racktuner;
     Gtk::Button *ampdetail_compress;
     Gtk::Button *ampdetail_expand;
@@ -720,6 +721,7 @@ private:
     void on_engine_state_change(gx_engine::GxEngineState state);
     void set_new_skin(const Glib::ustring& skin_name);
     void set_tuning(Gxw::RackTuner& tuner);
+    void setup_tuner_temperament(Gxw::RackTuner& tuner);
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);
     void on_msg_level_changed();

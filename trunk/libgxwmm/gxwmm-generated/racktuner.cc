@@ -327,6 +327,16 @@ int RackTuner::get_limit_timestep()
   return gx_rack_tuner_get_limit_timestep(gobj());
 }
 
+void RackTuner::set_temperament(int p1)
+{
+  gx_rack_tuner_set_temperament(gobj(), p1); 
+}
+
+int RackTuner::get_temperament()
+{
+  return gx_rack_tuner_get_temperament(gobj());
+}
+
 void RackTuner::clear_notes()
 {
   gx_rack_tuner_clear_notes(gobj()); 
@@ -445,6 +455,20 @@ Glib::PropertyProxy< int > RackTuner::property_limit_timestep()
 Glib::PropertyProxy_ReadOnly< int > RackTuner::property_limit_timestep() const
 {
   return Glib::PropertyProxy_ReadOnly< int >(this, "limit-timestep");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy< int > RackTuner::property_temperament() 
+{
+  return Glib::PropertyProxy< int >(this, "temperament");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly< int > RackTuner::property_temperament() const
+{
+  return Glib::PropertyProxy_ReadOnly< int >(this, "temperament");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
