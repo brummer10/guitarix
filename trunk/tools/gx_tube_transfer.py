@@ -179,12 +179,21 @@ class tube_transfer(gtk.Window):
         old_stdout = sys.stdout
         capturer = StringIO.StringIO()
         sys.stdout = capturer
-        args = [1, self.scale5.get_value()*1e3]
+        args = [1, 1.5*1e3]
         c.show_vk0(args)
         sys.stdout = old_stdout
         output1 = capturer.getvalue().replace('\n','')
-        self.labelvk01.set_text("Ri(%s) Rk(%s) vk0(%s) \nRi(%s) Rk(%s) vk0(%s)" % 
-            (self.scale6.get_value(),self.scale5.get_value() ,output1, self.scale7.get_value(),self.scale5.get_value() ,output) )
+        c = Circuit(self.tube.get_active_text(), self.func.get_active_text())
+        self.set_param(c)
+        old_stdout = sys.stdout
+        capturer = StringIO.StringIO()
+        sys.stdout = capturer
+        args = [1, 0.8*1e3]
+        c.show_vk0(args)
+        sys.stdout = old_stdout
+        output2 = capturer.getvalue().replace('\n','')
+        self.labelvk01.set_text("Ri(%s) Rk(%s) vk0(%s)  \nRi(%s) Rk(1.5) vk0(%s)   Ri(%s) Rk(0.8) vk0(%s)" % 
+            (self.scale6.get_value(),self.scale5.get_value() ,output, self.scale7.get_value(), output1, self.scale7.get_value(), output2) )
     
     def on_table_progress(self):
         script_dir = sys.path[0]
