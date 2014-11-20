@@ -88,6 +88,7 @@ def dirlist():
         'gx_digital_delay.lv2',
         'gx_digital_delay_st.lv2',
         'gx_livelooper.lv2',
+        'gx_mbreverb.lv2',
          ]
 
     return subdirs
