@@ -1,3 +1,13 @@
+guitarix2 (0.32.0) unstable; urgency=low
+  * add GxMultiBandReverb.LV2
+  * add 19-TET and 31-TET tuning scale to guitarix and gxtuner.lv2
+  * fix empty effect menu with clear-skin option
+  * add Midi Clock support
+  * add Jack Transport Support
+  * move a couple of Controllers from unit:ms|hz to unit:bpm
+  
+ -- brummer <brummer-@web.de>  Tue, 20 Nov 2014 14:30:35 +0200 
+
 guitarix2 (0.31.0) unstable; urgency=low
   * add GxDigitalDelay.LV2
   * add GxRoomSimulation.LV2
