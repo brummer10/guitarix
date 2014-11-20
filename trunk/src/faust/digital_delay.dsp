@@ -37,7 +37,7 @@ dide         = _<:*(dry),(*(wet) : digd):>_ with {
       tact   = hslider("notes[name:tact][enum:Dotted 1/2 note|1/2 note|1/2 note triplets|
 Dotted 1/4 note|1/4 note|1/4 note triplets|Dotted 1/8 note|1/8 note|1/8 note triplets|
 Dotted 1/16 note|1/16 note|1/16 note triplets|Dotted 1/32 note|1/32 note|1/32 note triplets|
-Dotted 1/64 note|1/64 note|1/64 note triplets][tooltip:note setting for bpm]",5,1,18,1);
+Dotted 1/64 note|1/64 note|1/64 note triplets][tooltip:note setting for bpm]",4,0,17,1);
 
       interp = 100*SR/1000.0;
       N      = int( 2^19 ) ;

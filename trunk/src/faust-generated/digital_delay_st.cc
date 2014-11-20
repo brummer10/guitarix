@@ -583,7 +583,7 @@ int Dsp::register_par(const ParamReg& reg)
 	static const value_pair fslider4_values[] = {{"plain"},{"presence"},{"tape"},{"tape2"},{0}};
 	reg.registerEnumVar("didest.mode","","S","",fslider4_values,&fslider4, 0.0f, 0.0f, 3.0f, 1.0f);
 	static const value_pair fslider5_values[] = {{"Dotted 1/2 note"},{"1/2 note"},{"1/2 note triplets"},{" Dotted 1/4 note"},{"1/4 note"},{"1/4 note triplets"},{"Dotted 1/8 note"},{"1/8 note"},{"1/8 note triplets"},{" Dotted 1/16 note"},{"1/16 note"},{"1/16 note triplets"},{"Dotted 1/32 note"},{"1/32 note"},{"1/32 note triplets"},{" Dotted 1/64 note"},{"1/64 note"},{"1/64 note triplets"},{0}};
-	reg.registerEnumVar("didest.notes",N_("tact"),"S",N_("note setting for bpm"),fslider5_values,&fslider5, 5.0f, 1.0f, 18.0f, 1.0f);
+	reg.registerEnumVar("didest.notes",N_("tact"),"S",N_("note setting for bpm"),fslider5_values,&fslider5, 4.0f, 0.0f, 17.0f, 1.0f);
 	return 0;
 }
 

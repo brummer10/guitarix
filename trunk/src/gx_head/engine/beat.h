@@ -39,60 +39,58 @@
 static double always_inline B2N(int ta, double beat) {
     double beatta = beat;
     switch(ta) {
-      case(0):
-        break;
-      case(1):
+     case(0):
         beatta *=3.0;
         break;
-      case(2):
+      case(1):
         beatta *=2.0;
         break;
-      case(3):
+      case(2):
         beatta *=1.3333;
         break;
-      case(4):
+      case(3):
         beatta *=1.5;
         break;
-      case(5):
+      case(4):
         beatta =beat;
         break;
-      case(6):
+      case(5):
         beatta *=0.6666;
         break;
-      case(7):
+      case(6):
         beatta *=0.75;
         break;
-      case(8):
+      case(7):
         beatta *=0.5;
         break;
-      case(9):
+      case(8):
         beatta *=0.333;
         break;
-      case(10):
+      case(9):
         beatta *=0.45;
         break;
-      case(11):
+      case(10):
         beatta *=0.25;
         break;
-      case(12):
+      case(11):
         beatta *=0.1666;
         break;
-      case(13):
+      case(12):
         beatta *=0.1875;
         break;
-      case(14):
+      case(13):
         beatta *=0.125;
         break;
-      case(15):
+      case(14):
         beatta *=0.083334;
         break;
-      case(16):
+      case(15):
         beatta *=0.09375;
         break;
-      case(17):
+      case(16):
         beatta *=0.0625;
         break;
-      case(18):
+      case(17):
         beatta *=0.041666;
         break;
       default:
