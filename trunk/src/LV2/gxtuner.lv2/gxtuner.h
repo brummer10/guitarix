@@ -43,6 +43,7 @@ typedef enum
   FREQ, 
   REFFREQ,
   TUNEMODE,
+  TEMPERAMENT,
   THRESHOLD,
   MAXL,
   RESET,

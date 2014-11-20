@@ -37,6 +37,8 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &m_bigknob;
     case TUNEMODE:
       return &tuner_tuning;
+    case TEMPERAMENT:
+      return &tuner_temperament;
     case THRESHOLD: 
       return &m_bigknob1;
     case LEVEL: 
@@ -47,7 +49,7 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &m_switch;
     case FASTNOTE: 
       return &m_switch1;
-     case PITCHBEND: 
+    case PITCHBEND: 
       return &m_switch2;
     case SINGLENOTE: 
       return &m_switch3;
@@ -78,6 +80,10 @@ plug_name(plugname)
   static const size_t _size = sizeof(modes) / sizeof(modes[0]);
   make_selector("Tunning Modes", modes, _size, 0, 1.0, TUNEMODE);
   m_vbox8.pack_start(tuner_tuning);
+  Glib::ustring temperament_modes[] = {"12-TET","19-TET", "31-TET"};
+  static const size_t _size2 = sizeof(temperament_modes) / sizeof(modes[0]);
+  make_selector("Tunning Scale", temperament_modes, _size2, 0, 1.0, TEMPERAMENT);
+  m_vbox8.pack_start(tuner_temperament);
   m_vbox8.set_spacing(2);
   make_switch_box(&m_hbox_, "", "FAST DETECTION", FASTNOTE);
   m_vbox8.pack_start(m_vbox4);
@@ -329,6 +335,7 @@ void Widget::set_value(uint32_t port_index,
     if (port_index == FREQ) m_tuner.set_freq(value);
     if (port_index == REFFREQ) m_tuner.set_reference_pitch(value);
     if (port_index == TUNEMODE) set_tuning(value);
+    if (port_index == TEMPERAMENT) set_temperament();
     if (port_index == MAXL) refresh_meter_level(value);
         
   }
@@ -345,6 +352,7 @@ void Widget::on_value_changed(uint32_t port_index)
     write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
     if (port_index == TUNEMODE) set_tuning(value);
+    if (port_index == TEMPERAMENT) set_temperament();
     if (port_index == REFFREQ) m_tuner.set_reference_pitch(value);
   } 
   
@@ -355,6 +363,19 @@ void Widget::on_value_changed(uint32_t port_index)
 }
 
 //////////////////////// Special Stuff for Tuner and VU-Meter //////////
+
+void Widget::set_temperament() {
+    int temperament = tuner_temperament.cp_get_value();
+    if (temperament) {
+        tuner_tuning.cp_set_value(0);
+        m_tuner.clear_notes();
+        tuner_tuning.set_sensitive(false);
+    } else {
+        tuner_tuning.set_sensitive(true);
+    }
+    m_tuner.set_temperament(temperament);
+
+}
 
 void Widget::set_tuning(float mode_) {
     static struct TuningTab {

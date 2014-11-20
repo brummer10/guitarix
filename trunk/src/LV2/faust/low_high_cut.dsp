@@ -7,4 +7,4 @@ import("effect.lib");
 import("guitarix.lib");
 
 
-process = +(anti_denormal_ac) : speakerbp(30.,999.) : highpass(1,100);
+process = +(anti_denormal_ac) : speakerbp(23.,999.);

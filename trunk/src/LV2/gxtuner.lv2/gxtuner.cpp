@@ -445,7 +445,6 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
     if (bpm > 0) frames_period = sample_set/ bpm;
     else frames_period = 0;
   }
-  vu_adapter->mono_audio(static_cast<int>(n_samples), input, input, vu_adapter);
   lhcut->mono_audio(static_cast<int>(n_samples), input, output, lhcut);
   tuner& self = *static_cast<tuner*>(tuner_adapter);
   if (fabs(threshold - *(threshold_))>0.1)
@@ -455,6 +454,7 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
   }
   tuner_adapter->mono_audio(static_cast<int>(n_samples), output, output, tuner_adapter);
   *(freq) = self.get_freq(self);
+  vu_adapter->mono_audio(static_cast<int>(n_samples), output, output, vu_adapter);
 
   // MIDI
   if (fastnote != *(fastnote_)) {

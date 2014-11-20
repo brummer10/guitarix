@@ -40,6 +40,7 @@ private:
 
   void on_value_changed(uint32_t port_index);
   void set_tuning(float value);
+  void set_temperament();
   void make_controller_box(Gtk::Box *box,
                            Glib::ustring label,
                            float min, float max,
@@ -111,6 +112,7 @@ protected:
   Gxw::HSlider      m_bigknob4;
   Gxw::RackTuner    m_tuner;
   Gxw::Selector     tuner_tuning;
+  Gxw::Selector     tuner_temperament;
   Gxw::Selector     select1;
   Gxw::FastMeter    fastmeter;
   Gxw::LevelSlider  levelslider;
