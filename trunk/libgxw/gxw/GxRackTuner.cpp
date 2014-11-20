@@ -147,10 +147,10 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 		             G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
 }
 
-static const char *note_sharp[] = {"F#","G","G#","A","A#","B","C","C#","D","D#","E","F"};
-static const char *note_flat[] = {"Gb","G","Ab","A","Bb","B","C","Db","D","Eb","E","F"};
-static const char* note_19[19] = {"G","G♯","A♭","A","A♯","B♭","B","B♯","C","C♯","D♭","D","D♯","E♭","E","E♯","F","F♯","G♭"};
-static const char* note_31[31] = {"G♯","A♭","G♯♯","A","B♭♭","A♯","B♭","A♯♯","B","C♭","B♯","C ","D♭♭","C♯","D♭","C♯♯","D","E♭♭","D♯","E♭","D♯♯","E","F♭","E♯","F","G♭♭","F♯","G♭","F♯♯","G","A♭♭"};
+static const char *note_sharp[] = {"A","A#","B","C","C#","D","D#","E","F","F#","G","G#"};
+static const char *note_flat[] = {"A","Bb","B","C","Db","D","Eb","E","F","Gb","G","Ab"};
+static const char* note_19[19] = {"A","A♯","B♭","B","B♯","C","C♯","D♭","D","D♯","E♭","E","E♯","F","F♯","G♭","G","G♯","A♭"};
+static const char* note_31[31] = {"A","B♭♭","A♯","B♭","A♯♯","B","C♭","B♯","C ","D♭♭","C♯","D♭","C♯♯","D","E♭♭","D♯","E♭","D♯♯","E","F♭","E♯","F","G♭♭","F♯","G♭","F♯♯","G","A♭♭","G♯","A♭","G♯♯"};
 static const char *octave[] = {"0","1","2","3","4","5"," "};
 
 static void gx_rack_tuner_init (GxRackTuner *tuner)
@@ -322,7 +322,7 @@ gboolean gx_rack_tuner_push_note(GxRackTuner *tuner, gint note)
 	if (tuner->n_targets >= RACKTUNER_MAXTARGETS) {
 		return FALSE;
 	}
-	tuner->targets[tuner->n_targets++] = note - 18;
+	tuner->targets[tuner->n_targets++] = note - 21;
 	return TRUE;
 }
 
@@ -430,7 +430,7 @@ static void gx_rack_tuner_pitch_to_note(GxRackTuner *tuner, double fnote, int *o
 
 static void gx_rack_tuner_calc(GxRackTuner *tuner)
 {
-	double fvis = tuner->target_temperament * (log2(tuner->parent.freq/tuner->parent.reference_pitch) + 4) + 3;
+	double fvis = tuner->target_temperament * (log2(tuner->parent.freq/tuner->parent.reference_pitch) + 4);
 	gx_rack_tuner_pitch_to_note(tuner, fvis, &tuner->indicate_oc, &tuner->vis, &tuner->scale_val);
 	if (tuner->n_targets == 0) {
 		return;
