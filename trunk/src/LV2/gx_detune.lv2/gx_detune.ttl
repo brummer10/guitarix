@@ -201,16 +201,6 @@ rdfs:comment """
         lv2:maximum 4096 ;
         lv2:portProperty lv2:reportsLatency, lv2:integer;
     ] ;
-    
-    
-    mod:gui [
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/icon-gxdetune.html>;
-        mod:templateData <modgui/data-gxdetune.json>;
-        mod:screenshot <modgui/screenshot-gxdetune.png>;
-        mod:thumbnail <modgui/thumb-gxdetune.png>;
-    ].
 
 <http://guitarix.sourceforge.net/plugins/gx_detune_#gui>
   a guiext:GtkUI;

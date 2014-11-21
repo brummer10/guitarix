@@ -134,11 +134,3 @@ rdfs:comment """
         lv2:minimum 0.25 ;
         lv2:maximum 5.0 ;
     ];
-    mod:gui [
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/icon-gxswitched_tremolo.html>;
-        mod:templateData <modgui/data-gxswitched_tremolo.json>;
-        mod:screenshot <modgui/screenshot-gxswitched_tremolo.png>;
-        mod:thumbnail <modgui/thumb-gxswitched_tremolo.png>;
-    ].

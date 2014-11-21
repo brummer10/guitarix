@@ -162,8 +162,8 @@ The switching controlled by envelope follower
     mod:gui [
         a mod:Gui;
         mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/icon-gxduck_delay_st.html>;
-        mod:templateData <modgui/data-gxduck_delay_st.json>;
+        mod:iconTemplate <modgui/gxduck_delay_st.html>;
+        mod:templateData <modgui/gxduck_delay_st.json>;
         mod:screenshot <modgui/screenshot-gxduck_delay_st.png>;
         mod:thumbnail <modgui/thumb-gxduck_delay_st.png>;
     ].

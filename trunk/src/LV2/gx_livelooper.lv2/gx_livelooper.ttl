@@ -467,14 +467,6 @@ rdfs:comment """
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
     ];
-    mod:gui [
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/icon-gxlivelooper.html>;
-        mod:templateData <modgui/data-gxlivelooper.json>;
-        mod:screenshot <modgui/screenshot-gxlivelooper.png>;
-        mod:thumbnail <modgui/thumb-gxlivelooper.png>;
-    ].
     
 <http://guitarix.sourceforge.net/plugins/gx_livelooper_#gui>
   a guiext:GtkUI;

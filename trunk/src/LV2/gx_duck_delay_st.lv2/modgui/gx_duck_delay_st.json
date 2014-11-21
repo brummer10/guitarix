@@ -21,15 +21,15 @@
         {
             "name": "FEEDBACK", 
             "symbol": "FEEDBACK"
-        }
+        },
 		{
             "name": "PINGPONG", 
             "symbol": "PINGPONG"
-        }
+        },
 		{
             "name": "RELEASE", 
             "symbol": "RELEASE"
-        }
+        },
 		{
             "name": "TIME", 
             "symbol": "TIME"

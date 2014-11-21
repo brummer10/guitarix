@@ -188,14 +188,6 @@ rdfs:comment """
         lv2:scalePoint [rdfs:label "1/64notetriplets"; rdf:value 18];
 
     ];
-    mod:gui [
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/icon-gxdigital_delay_st.html>;
-        mod:templateData <modgui/data-gxdigital_delay_st.json>;
-        mod:screenshot <modgui/screenshot-gxdigital_delay_st.png>;
-        mod:thumbnail <modgui/thumb-gxdigital_delay_st.png>;
-    ].
 
 <http://guitarix.sourceforge.net/plugins/gx_digital_delay_st_#gui>
   a guiext:GtkUI;

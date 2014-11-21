@@ -118,14 +118,6 @@ rdfs:comment """
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
     ];
-    mod:gui [
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/icon-gxroom_simulator.html>;
-        mod:templateData <modgui/data-gxroom_simulator.json>;
-        mod:screenshot <modgui/screenshot-gxroom_simulator.png>;
-        mod:thumbnail <modgui/thumb-gxroom_simulator.png>;
-    ].
     
 <http://guitarix.sourceforge.net/plugins/gx_room_simulator_#gui>
   a guiext:GtkUI;
