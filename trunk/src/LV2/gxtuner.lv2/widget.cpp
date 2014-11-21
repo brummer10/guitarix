@@ -365,16 +365,8 @@ void Widget::on_value_changed(uint32_t port_index)
 //////////////////////// Special Stuff for Tuner and VU-Meter //////////
 
 void Widget::set_temperament() {
-    int temperament = tuner_temperament.cp_get_value();
-    if (temperament) {
-        tuner_tuning.cp_set_value(0);
-        m_tuner.clear_notes();
-        tuner_tuning.set_sensitive(false);
-    } else {
-        tuner_tuning.set_sensitive(true);
-    }
-    m_tuner.set_temperament(temperament);
-
+    m_tuner.set_temperament(tuner_temperament.cp_get_value());
+    set_tuning(tuner_tuning.cp_get_value());
 }
 
 void Widget::set_tuning(float mode_) {
@@ -445,7 +437,7 @@ void Widget::set_tuning(float mode_) {
     if (mode > 0) {
 	m_tuner.set_display_flat(tuning_tab[mode-1].flat);
 	for (int i = 0; i < 6; ++i) {
-	    m_tuner.push_note(tuning_tab[mode-1].notes[i]);
+	    m_tuner.push_note(tuning_tab[mode-1].notes[i], 69, 12);
 	}
     } else {
 	m_tuner.set_display_flat(false);

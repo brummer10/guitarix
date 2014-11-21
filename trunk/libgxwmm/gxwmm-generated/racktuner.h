@@ -133,7 +133,7 @@ private:
 	
   void clear_notes();
 	
-  void push_note(int p1);
+  void push_note(int p1, int p2, int p3);
 	
 /**
    * @par Slot Prototype:

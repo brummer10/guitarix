@@ -2066,7 +2066,7 @@ void MainWindow::set_tuning(Gxw::RackTuner& tuner) {
     if (mode > 0) {
 	tuner.set_display_flat(tuning_tab[mode-1].flat);
 	for (int i = 0; i < 6; ++i) {
-	    tuner.push_note(tuning_tab[mode-1].notes[i]);
+	    tuner.push_note(tuning_tab[mode-1].notes[i], 69, 12);
 	}
     } else {
 	tuner.set_display_flat(false);
@@ -2074,15 +2074,8 @@ void MainWindow::set_tuning(Gxw::RackTuner& tuner) {
 }
 
 void MainWindow::setup_tuner_temperament(Gxw::RackTuner& tuner) {
-    int temperament = tuner_temperament->get_value();
-    if (temperament) {
-        tuner_tuning->set_value(0);
-        tuner.clear_notes();
-        tuner_tuning->set_sensitive(false);
-    } else {
-        tuner_tuning->set_sensitive(true);
-    }
-    tuner.set_temperament(temperament);
+    tuner.set_temperament(tuner_temperament->get_value());
+    set_tuning(tuner);
 
 }
 

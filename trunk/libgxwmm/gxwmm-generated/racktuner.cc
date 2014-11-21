@@ -342,9 +342,9 @@ void RackTuner::clear_notes()
   gx_rack_tuner_clear_notes(gobj()); 
 }
 
-void RackTuner::push_note(int p1)
+void RackTuner::push_note(int p1, int p2, int p3)
 {
-  gx_rack_tuner_push_note(gobj(), p1); 
+  gx_rack_tuner_push_note(gobj(), p1, p2, p3); 
 }
 
 

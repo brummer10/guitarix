@@ -91,7 +91,7 @@ gint gx_rack_tuner_get_timestep(GxRackTuner *tuner);
 void gx_rack_tuner_set_limit_timestep(GxRackTuner *tuner, gint in_limit_timestep);
 gint gx_rack_tuner_get_limit_timestep(GxRackTuner *tuner);
 void gx_rack_tuner_clear_notes(GxRackTuner *tuner);
-gboolean gx_rack_tuner_push_note(GxRackTuner *tuner, gint note);
+gboolean gx_rack_tuner_push_note(GxRackTuner *tuner, gint note, gint A, gint TET);
 void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament);
 gint gx_rack_tuner_get_temperament(GxRackTuner *tuner);
 

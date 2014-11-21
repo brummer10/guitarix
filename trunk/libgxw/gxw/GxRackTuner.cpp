@@ -316,13 +316,18 @@ void gx_rack_tuner_clear_notes(GxRackTuner *tuner)
 	tuner->n_targets = 0;
 }
 
-gboolean gx_rack_tuner_push_note(GxRackTuner *tuner, gint note)
+
+
+
+gboolean gx_rack_tuner_push_note(GxRackTuner *tuner, gint note, gint A, gint TET)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
 	if (tuner->n_targets >= RACKTUNER_MAXTARGETS) {
 		return FALSE;
 	}
-	tuner->targets[tuner->n_targets++] = note - 21;
+    double note2freq = 440.00*pow(2.0, double(note-A)/TET);
+    gint freq2note = round(tuner->target_temperament*(log2(note2freq/440.00)+4));
+    tuner->targets[tuner->n_targets++] = freq2note ;
 	return TRUE;
 }
 
