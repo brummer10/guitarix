@@ -185,10 +185,10 @@ function make_ttl() {
     mod:gui [
         a mod:Gui;
         mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/icon-gx$bname.html>;
-        mod:templateData <modgui/data-gx$bname.json>;
-        mod:screenshot <modgui/screenshot-gx$bname.png>;
-        mod:thumbnail <modgui/thumb-gx$bname.png>;
+        mod:iconTemplate <modgui/gx$bname.html>;
+        mod:templateData <modgui/gx$bname.json>;
+        mod:screenshot <modgui/gx$bname.png>;
+        mod:thumbnail <modgui/gx$bname-thumb.png>;
     ]." >> gx_$bname.ttl
   if [ ! -z "$effect_name" ]; then
     sed -i 's/EffectPlugin/'${effect_name}'/g'  gx_$bname.ttl
