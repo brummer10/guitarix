@@ -190,4 +190,4 @@ rdfs:comment """
         lv2:default 2.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 8.0 ;
-    ];
+    ] .

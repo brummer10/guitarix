@@ -187,7 +187,7 @@ rdfs:comment """
         lv2:scalePoint [rdfs:label "1/64note"; rdf:value 17];
         lv2:scalePoint [rdfs:label "1/64notetriplets"; rdf:value 18];
 
-    ];
+    ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_digital_delay_st_#gui>
   a guiext:GtkUI;

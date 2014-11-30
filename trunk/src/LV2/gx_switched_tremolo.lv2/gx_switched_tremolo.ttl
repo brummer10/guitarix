@@ -133,4 +133,4 @@ rdfs:comment """
         lv2:default 1.0 ;
         lv2:minimum 0.25 ;
         lv2:maximum 5.0 ;
-    ];
+    ] .
