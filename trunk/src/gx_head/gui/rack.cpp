@@ -170,8 +170,11 @@ void PluginUI::update_rackbox() {
 	    if (*i == rackbox) {
 		break;
 	    }
+    display(false,false);
 	delete rackbox;
-	rackbox = main.add_rackbox(*this, plugin->get_plug_visible(), n, false);
+    rackbox = 0;
+    display(true,false);
+	//rackbox = main.add_rackbox(*this, plugin->get_plug_visible(), n, false);
     } else {
 	delete rackbox;
 	rackbox = 0;

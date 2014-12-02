@@ -1021,10 +1021,17 @@ bool LadspaLoader::load(pluginarray& ml) {
     return true;
 }
 
-void LadspaLoader::set_plugins(pluginarray& new_plugins) {
+void LadspaLoader::change_plugins(pluginarray& new_plugins) {
     for (pluginarray::iterator i = plugins.begin(); i != plugins.end(); ++i) {
 	delete *i;
     }
+    plugins = new_plugins;
+}
+
+void LadspaLoader::set_plugins(pluginarray& new_plugins) {
+    //for (pluginarray::iterator i = plugins.begin(); i != plugins.end(); ++i) {
+	//delete *i;
+    //}
     plugins = new_plugins;
 }
 

@@ -172,6 +172,7 @@ public:
     void registerPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups);
     void unregisterGroup(PluginDef *pd, ParameterGroups& groups);
     void unregisterParameter(Plugin *pl, ParamMap& param);
+    void rescueParameter(Plugin *pl, ParamMap& param);
     void unregisterPlugin(Plugin *pl, ParamMap& param, ParameterGroups& groups);
     void registerAllPlugins(ParamMap& param, ParameterGroups& groups);
     void ordered_mono_list(list<Plugin*>& mono, int mode);

@@ -585,6 +585,18 @@ void PluginList::unregisterGroup(PluginDef *pd, ParameterGroups& groups) {
     }
 }
 
+void PluginList::rescueParameter(Plugin *pl, ParamMap& param) {
+    PluginDef *pdef = pl->get_pdef();
+    string s = pdef->id;
+    param.unregister(pl->p_on_off);
+    pl->p_on_off = param.reg_par(s+".on_off",N_("on/off"), (bool*)0, !(pdef->flags & (PGN_GUI|PGN_ALTERNATIVE)));
+    if (!(pdef->load_ui || (pdef->flags & PGN_GUI))) {
+        pl->p_on_off->setSavable(false);
+    }
+    pl->p_on_off->signal_changed_bool().connect(
+    sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
+}
+
 void PluginList::registerParameter(Plugin *pl, ParamMap& param, ParamRegImpl& preg) {
     pl->register_vars(param, seq);
     PluginDef *pd = pl->get_pdef();

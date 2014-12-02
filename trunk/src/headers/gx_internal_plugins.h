@@ -587,6 +587,7 @@ public:
     pluginarray::iterator end() { return plugins.end(); }
     pluginarray::iterator find(plugdesc* desc);
     void set_plugins(pluginarray& new_plugins);
+    void change_plugins(pluginarray& new_plugins);
     void update_instance(PluginDef *pdef, plugdesc *pdesc);
     static std::string get_ladspa_filename(unsigned long uid)
 	{ return "ladspa"+gx_system::to_string(uid)+".js"; }

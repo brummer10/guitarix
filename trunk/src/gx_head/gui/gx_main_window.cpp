@@ -1706,7 +1706,10 @@ void MainWindow::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChang
 	    }
 	} else {
 	    assert(c == gx_engine::PluginChange::update || c == gx_engine::PluginChange::update_category);
+        //if (!pui->plugin->get_box_visible())
+        bool state =  pui->plugin->get_on_off();
 	    pui->update_rackbox();
+        pui->plugin->set_on_off(state);
 	    if (c == gx_engine::PluginChange::update_category) {
 		pui->unset_ui_merge_id(uimanager);
 		pui->group = add_plugin_category(pui->get_category());

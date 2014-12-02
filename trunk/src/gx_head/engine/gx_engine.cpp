@@ -385,6 +385,10 @@ void GxEngine::ladspaloader_update_plugins() {
 	    if (pl->get_pdef()->register_params) {
 		pmap.set_replace_mode(true);
 		gx_engine::ParamRegImpl preg(&pmap);
+        // FIXME we need to register on_off parameters new when ui is changed
+        bool state = pl->get_on_off();
+        pluginlist.rescueParameter(pl, pmap);
+        pl->set_on_off(state);
 		preg.plugin = pl->get_pdef();
 		pl->get_pdef()->register_params(preg);
 		pmap.set_replace_mode(false);
