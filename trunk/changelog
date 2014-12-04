@@ -1,3 +1,8 @@
+guitarix2 (0.32.1) unstable; urgency=low
+  * fix LADSPA/LV2 plugin load / unload / UI modification
+  
+ -- brummer <brummer-@web.de>  Tue, 04 Dec 2014 04:30:35 +0200 
+
 guitarix2 (0.32.0) unstable; urgency=low
   * add GxMultiBandReverb.LV2
   * add 19-TET and 31-TET tuning scale to guitarix and gxtuner.lv2
