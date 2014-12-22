@@ -285,7 +285,7 @@ void GxEngine::load_static_plugins() {
     pl.add(builtin_tonestack_plugins,             PLUGIN_POS_RACK, PGN_ALTERNATIVE);
 
     // mono
-    pl.add(gx_effects::gain::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::gain::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::low_high_pass::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::highbooster::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::selecteq::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
@@ -329,7 +329,8 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::gcb_95::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK);
-	pl.add(gx_effects::baxandall::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(gx_effects::baxandall::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(gx_effects::distortion2::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);

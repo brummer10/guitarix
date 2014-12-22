@@ -131,6 +131,7 @@ def build(bld):
 		'duck_delay.dsp',
 		'duck_delay_st.dsp',
         'baxandall.dsp',
+        'distortion2.dsp',
         
 
 

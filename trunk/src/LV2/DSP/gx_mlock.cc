@@ -32,7 +32,7 @@ class GX_LOCK
 public:
   struct rt_lock {
     char *start;
-    int32_t len;
+    long int len;
   };
   static void lock_rt_memory();
   static void unlock_rt_memory();
@@ -45,7 +45,7 @@ void GX_LOCK::lock_rt_memory() {
     { __rt_text__start, __rt_text__end - __rt_text__start },
     { __rt_data__start, __rt_data__end - __rt_data__start },
   };
-  int32_t total_size = 0;
+  long int total_size = 0;
   for (uint32_t i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
     total_size +=regions[i].len;
     if (mlock(regions[i].start, regions[i].len) != 0) {
@@ -53,7 +53,7 @@ void GX_LOCK::lock_rt_memory() {
       return;
     }
   }
-  fprintf(stderr,"mlock %i bytes\n",total_size);
+  fprintf(stderr,"mlock %ld bytes\n",total_size);
 }
 
 void GX_LOCK::unlock_rt_memory() {
@@ -63,7 +63,7 @@ void GX_LOCK::unlock_rt_memory() {
     { __rt_text__start, __rt_text__end - __rt_text__start },
     { __rt_data__start, __rt_data__end - __rt_data__start },
   };
-  int32_t total_size = 0;
+  long int total_size = 0;
   for (uint32_t i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
     total_size +=regions[i].len;
     if (munlock(regions[i].start, regions[i].len) != 0) {
@@ -71,6 +71,6 @@ void GX_LOCK::unlock_rt_memory() {
       return;
     }
   }
-  fprintf(stderr,"munlock %i bytes\n",total_size);
+  fprintf(stderr,"munlock %ld bytes\n",total_size);
 }
 #endif
