@@ -253,6 +253,15 @@ style "gx_dezert_b_style"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			shadow			= IN
+			file			= "gx_dezert_14b.png"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
 	}
 }
 
@@ -482,10 +491,63 @@ engine "pixmap"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			file			= "black2.png"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+        {
+                function = BOX
+                detail = "vscrollbar"
+        }
+        image
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "gx_dezert_14b.png"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "gx_dezert_12b.png"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= ACTIVE
+			shadow			= OUT
+			file			= "gx_dezert_12b.png"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+        image
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			shadow			= IN
+			file			= "gx_dezert_14b.png"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
 	}
 #background rack-window, filechooser and
-	bg[NORMAL] = { 0.8, 0.8, 0.65 }
+	bg[NORMAL]   = { 0.8, 0.8, 0.65 }
 	text[NORMAL] = { 0.20, 0.20, 0.30 }
+    base[NORMAL] = { 0.70, 0.70, 0.70 }
 }
 
 style "gx_dezert_pair_style"
@@ -550,3 +612,4 @@ font_name = "sans Bold 8"
 }
 widget "*.MonoBox.*GtkLabel" style:highest "gx_dezert-rack"
 widget "*.*GtkFrame.*GtkLabel" style:highest "gx_dezert-rack-group"
+widget "*.*GtkToolPalette.*GtkLabel" style:highest "gx_dezert-rack-group"

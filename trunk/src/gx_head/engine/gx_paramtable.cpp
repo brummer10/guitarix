@@ -1093,6 +1093,7 @@ void FloatParameter::readJSON_value(gx_system::JsonParser& jp) {
     json_value = jp.current_value_float();
     if (json_value < lower-abs(5*FLT_EPSILON*lower) || json_value > upper+abs(5*FLT_EPSILON*upper)) {
 	range_warning(json_value, lower, upper);
+	json_value = std_value;
     }
 }
 

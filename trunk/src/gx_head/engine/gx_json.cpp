@@ -387,8 +387,12 @@ string JsonParser::readnumber(char c) {
         switch (c) {
         case '+': case '-': case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9': case 'e': case 'E':
-        case '.':
+        case '.': 
             break;
+        // read denormal value
+        case 'n': case 'a': case 'i': case 'f':		
+			//gx_print_warning("JsonParser", "DENORMAL VALUE DETECTED\n");
+			break;
         default:
             return os.str();
         }
@@ -416,17 +420,6 @@ JsonParser::token JsonParser::read_value_token(char c) {
     }
     if (next_str == "false") {
 	return value_false;
-    }
-    // sanitize bad input
-    if (next_str == "nan" || next_str == "inf") {
-	assert(false);
-	next_str = "1e50";
-	return value_number;
-    }
-    if (next_str == "-nan" || next_str == "-inf") {
-	assert(false);
-	next_str = "-1e50";
-	return value_number;
     }
     return no_token;
 }
@@ -462,7 +455,7 @@ void JsonParser::read_next() {
 
         case '"':
             next_str = readstring();
-            *is >> c;
+             *is >> c;
             if (!is->good())
                 throw JsonExceptionEOF("eof");
             if (c == ':') {
@@ -475,6 +468,11 @@ void JsonParser::read_next() {
 
         case '-': case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
+            next_str = readnumber(c);
+            next_tok = value_number;
+            break;
+        // read denormal value
+		case 'n': case 'a': case 'i': case 'f':
             next_str = readnumber(c);
             next_tok = value_number;
             break;

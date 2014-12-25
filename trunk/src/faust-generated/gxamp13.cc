@@ -386,7 +386,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec30[0] = ((fConst26 * (((fConst21 * fRec31[0]) + (fConst54 * fRec31[1])) + (fConst21 * fRec31[2]))) - (fConst52 * ((fConst51 * fRec30[2]) + fTemp22)));
 		fRec29[0] = ((fRec30[2] + (fConst52 * (fTemp22 + (fConst51 * fRec30[0])))) - (fConst48 * ((fConst47 * fRec29[2]) + fTemp21)));
 		double fTemp23 = max((double)-1, min((double)1, (fSlow7 * (fRec29[2] + (fConst48 * (fTemp21 + (fConst47 * fRec29[0])))))));
-		fRec34[0] = ((fConst46 * fRec34[1]) + (fConst45 * ((fConst55 * fVec3[1]) + (fConst10 * fVec3[0]))));
+		fRec34[0] = ((fConst46 * fRec34[1]) + (fConst45 * ((fConst10 * fVec3[0]) + (fConst55 * fVec3[1]))));
 		fRec33[0] = (fRec34[0] - (fConst12 * ((fConst11 * fRec33[2]) + (fConst9 * fRec33[1]))));
 		double fTemp24 = max((double)-1, min((double)1, (fSlow8 * (((fConst8 * fRec33[0]) + (fConst56 * fRec33[1])) + (fConst8 * fRec33[2])))));
 		double fTemp25 = ((1.584893192 * ((fTemp24 * (1 - (0.3333333333333333 * faustpower<2>(fTemp24)))) + ((fTemp23 * (1 - (0.3333333333333333 * faustpower<2>(fTemp23)))) + (0.8413951417869425 * (fTemp20 * (1 - (0.3333333333333333 * faustpower<2>(fTemp20)))))))) + (1.2589412 * (fTemp18 * (1 - (0.3333333333333333 * faustpower<2>(fTemp18))))));

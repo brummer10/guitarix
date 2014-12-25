@@ -232,6 +232,15 @@ style "b_style"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			shadow			= IN
+			file			= "gx14b.png"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
 	}
 }
 
@@ -454,8 +463,54 @@ style "gx_head_pa_style"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
+		image
+        {
+                function = BOX
+                detail = "vscrollbar"
+        }
+        image
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "cairo2.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "cairo1.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= ACTIVE
+			shadow			= OUT
+			file			= "cairo1.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+        image
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			shadow			= IN
+			file			= "cairo2.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+
 	}
-	bg[NORMAL] = { 0.0, 0.0, 0.0 }
+	bg[NORMAL] 				= { 0.0, 0.0, 0.0 }
+    base[NORMAL]      		= { 0.70, 0.70, 0.70 }
 	
 }
 
@@ -520,3 +575,4 @@ style "gx_head-rack-group"
 }
 widget "*.MonoBox.*GtkLabel" style:highest "gx_head-rack"
 widget "*.*GtkFrame.*GtkLabel" style:highest "gx_head-rack-group"
+widget "*.*GtkToolPalette.*GtkLabel" style:highest "gx_head-rack-group"

@@ -92,7 +92,7 @@ GtkButton::default_outside_border = { 0, 0, 0, 0 }
 GtkButton::button_relief = GTK_RELIEF_NONE
 
 #strings in modules
-fg[NORMAL] = { 0., 0.1, 0. }
+fg[NORMAL] = { 0.7, 0.7, 0.7 }
 fg[ACTIVE] = { 1.0, 1.0, 1.0 }
 fg[PRELIGHT] = { 0.90, 0.90, 0.90 }
 fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
@@ -112,7 +112,7 @@ text[INSENSITIVE] = { 0.80, 0.80, 0.80}
 text[SELECTED] = { 1.0, 1.0, 1.0 }
 
 base[ACTIVE] = "#272a2f"
-base[NORMAL] = { 0.00, 0.70, 0.70 }
+base[NORMAL] = { 0.70, 0.70, 0.70 }
 base[PRELIGHT] = { 0.20, 0.20, 0.20 }
 base[INSENSITIVE] = "#4c5159"
 base[SELECTED] = { 0.25, 0.25, 0.25 }
@@ -235,7 +235,19 @@ file = "gx_green2.jpg"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
+image
+{
+function		= BOX
+recolorable		= TRUE
+shadow			= IN
+file			= "gx_green3.jpg"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
 }
+}
+fg[NORMAL] = { 0.70, 0.70, 0.70 }
+fg[ACTIVE] = "#d6d6d6"
+fg[PRELIGHT] =  { 0.90, 0.90, 0.90 }
 }
 
 style "gxt_barbutton_style"
@@ -244,7 +256,7 @@ style "gxt_barbutton_style"
 bg[ACTIVE] = "#000000"
 bg[PRELIGHT] = { 0.01, 0.01, 0.01 }
 
-fg[NORMAL] = "#f1eded"
+fg[NORMAL] = { 0.90, 0.90, 0.90 }
 fg[ACTIVE] = "#d6d6d6"
 fg[PRELIGHT] =  { 0.90, 0.90, 0.90 }
 }
@@ -460,8 +472,61 @@ file = "gx_green2.jpg"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
+image
+{
+function		= BOX
+recolorable		= TRUE
+file			= "black2.png"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+	function = BOX
+	detail = "vscrollbar"
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+state			= NORMAL
+shadow			= OUT
+file			= "gx_green2.jpg"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+state			= PRELIGHT
+shadow			= OUT
+file			= "gx_green1.jpg"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+state			= ACTIVE
+shadow			= OUT
+file			= "gx_green1.jpg"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+shadow			= IN
+file			= "gx_green2.jpg"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
 }
 bg[NORMAL] = { 0.0, 0.0, 0.0 }
+base[NORMAL] = { 0.70, 0.70, 0.70 }
 
 }
 
@@ -516,7 +581,8 @@ widget "*.rack_button" style:highest "gx2_head_pa_style"
 widget_class "*GtkComboBox*" style:highest "gx2_head_pair_style"
 style "gx2_head_tooltip"
 {
-bg[NORMAL] = { 0.0, 0.9, 0.2 }
+fg[NORMAL] = { 0.6, 0.8, 0.7 }
+bg[NORMAL] = { 0.0, 0.5, 0.2 }
 }
 
 widget "gtk-tooltip" style:highest "gx2_head_tooltip"
@@ -533,3 +599,4 @@ font_name = "sans Bold 8"
 }
 widget "*.MonoBox.*GtkLabel" style:highest "gx2_head-rack"
 widget "*.*GtkFrame.*GtkLabel" style:highest "gx2_head-rack-group"
+widget "*.*GtkToolPalette.*GtkLabel" style:highest "gx2_head-rack-group"

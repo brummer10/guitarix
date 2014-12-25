@@ -89,7 +89,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow0 = exp((3.4 * (double(fslider0) - 1)));
 	double 	fSlow1 = double(fslider1);
 	double 	fSlow2 = (2.2193400000000003e-07 * fSlow1);
-	double 	fSlow3 = (((fSlow1 * (((4.882548000000001e-06 * fSlow0) - 1.964318e-06) - fSlow2)) + (4.9553415999999996e-05 * fSlow0)) + 2.7073879999999998e-06);
+	double 	fSlow3 = (2.7073879999999998e-06 + ((fSlow1 * (((4.882548000000001e-06 * fSlow0) - 1.964318e-06) - fSlow2)) + (4.9553415999999996e-05 * fSlow0)));
 	double 	fSlow4 = (2.3521432000000003e-09 * fSlow0);
 	double 	fSlow5 = ((3.4212992000000004e-10 * fSlow0) - (1.5551360000000004e-11 * fSlow1));
 	double 	fSlow6 = (1.0691560000000001e-10 + ((fSlow1 * (fSlow5 - 9.136424e-11)) + fSlow4));

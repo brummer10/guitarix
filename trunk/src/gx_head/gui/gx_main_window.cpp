@@ -2833,7 +2833,8 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     effects_toolpalette->show();
     if (!options.get_clear_rc()) {
-      set_new_skin(options.skin_name);
+		  //g_object_set (gtk_settings_get_default (),"gtk-theme-name",NULL, NULL);
+          set_new_skin(options.skin_name);
     } else {
       gtk_rc_parse(
           (options.get_style_filepath("clear.rc")).c_str());

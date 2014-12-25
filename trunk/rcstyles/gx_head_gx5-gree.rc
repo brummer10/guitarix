@@ -112,7 +112,7 @@ text[INSENSITIVE] = { 0.80, 0.80, 0.80}
 text[SELECTED] = { 1.0, 1.0, 1.0 }
 
 base[ACTIVE] = "#272a2f"
-base[NORMAL] = { 0.00, 0.70, 0.70 }
+base[NORMAL] = { 0.70, 0.70, 0.70 }
 base[PRELIGHT] = { 0.20, 0.20, 0.20 }
 base[INSENSITIVE] = "#4c5159"
 base[SELECTED] = { 0.25, 0.25, 0.25 }
@@ -236,8 +236,20 @@ file = "cairo2.jpg"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
+image
+{
+function		= BOX
+recolorable		= TRUE
+shadow			= IN
+file			= "black2.png"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
 }
 bg[ACTIVE] = "#43434f"
+fg[NORMAL] = { 0.70, 0.70, 0.70 }
+fg[ACTIVE] = "#d6d6d6"
+fg[PRELIGHT] =  { 0.90, 0.90, 0.90 }
 }
 
 style "gx5_barbutton_style"
@@ -478,8 +490,62 @@ file = "cairo2.jpg"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
+image
+{
+function		= BOX
+recolorable		= TRUE
+file			= "black2.png"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
 }
-bg[NORMAL] = { 0.05, 0.05, 0.05 }
+image
+{
+function = BOX
+detail = "vscrollbar"
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+state			= NORMAL
+shadow			= OUT
+file			= "cairo2.jpg"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+state			= PRELIGHT
+shadow			= OUT
+file			= "cairo1.jpg"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+state			= ACTIVE
+shadow			= OUT
+file			= "cairo1.jpg"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+shadow			= IN
+file			= "cairo2.jpg"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+
+}
+bg[NORMAL] 				= { 0.0, 0.0, 0.0 }
+base[NORMAL]      		= { 0.70, 0.70, 0.70 }
 
 }
 
@@ -544,3 +610,4 @@ font_name = "sans Bold 8"
 }
 widget "*.MonoBox.*GtkLabel" style:highest "gx5_head-rack"
 widget "*.*GtkFrame.*GtkLabel" style:highest "gx5_head-rack-group"
+widget "*.*GtkToolPalette.*GtkLabel" style:highest "gx5_head-rack-group"

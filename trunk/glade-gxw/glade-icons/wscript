@@ -9,6 +9,7 @@ def build(bld):
         "gxiredit.png",
         "gxselector.png",
         "gxsmallknob.png",
+        "gxmediumknob.png",
         "gxpaintbox.png",
         "gxtoggleimage.png",
         "gxfastmeter.png",
@@ -23,6 +24,7 @@ def build(bld):
         "gxvslider.png",
         "gxvaluedisplay.png",
         "gxmeterscale.png",
+        "gxportdisplay.png",
         ]
     j = os.path.join
     icon_dir = os.path.normpath(j(bld.env['SHAREDIR'], 'guitarix','icons'))

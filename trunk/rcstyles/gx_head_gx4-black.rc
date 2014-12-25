@@ -112,7 +112,7 @@ text[INSENSITIVE] = { 0.80, 0.80, 0.80}
 text[SELECTED] = { 1.0, 1.0, 1.0 }
 
 base[ACTIVE] = "#272a2f"
-base[NORMAL] = { 0.00, 0.70, 0.70 }
+base[NORMAL] = { 0.70, 0.70, 0.70 }
 base[PRELIGHT] = { 0.20, 0.20, 0.20 }
 base[INSENSITIVE] = "#4c5159"
 base[SELECTED] = { 0.25, 0.25, 0.25 }
@@ -235,6 +235,15 @@ shadow = OUT
 file = "black2.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
+}
+image
+{
+function		= BOX
+recolorable		= TRUE
+shadow			= IN
+file			= "black2.png"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
 }
 }
 bg[ACTIVE] = "#58b45e"
@@ -464,8 +473,62 @@ file = "black2.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
+image
+{
+function		= BOX
+recolorable		= TRUE
+file			= "black2.png"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
 }
-bg[NORMAL] = { 0.02, 0.05, 0.05 }
+image
+{
+function = BOX
+detail = "vscrollbar"
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+state			= NORMAL
+shadow			= OUT
+file			= "black1.png"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+state			= PRELIGHT
+shadow			= OUT
+file			= "black2.png"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+state			= ACTIVE
+shadow			= OUT
+file			= "black2.png"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+image
+{
+function		= SLIDER
+recolorable		= TRUE
+shadow			= IN
+file			= "black1.png"
+border			= { 0, 0, 0, 0 }
+stretch			= TRUE
+}
+
+}
+bg[NORMAL] 				= { 0.0, 0.0, 0.0 }
+base[NORMAL]      		= { 0.70, 0.70, 0.70 }
 
 }
 
