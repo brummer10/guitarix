@@ -381,6 +381,7 @@ string JsonParser::readstring() {
 
 string JsonParser::readnumber(char c) {
     ostringstream os("");
+    static int count_dn = 0;
     do {
         os << c;
         c = is->peek();
@@ -390,8 +391,12 @@ string JsonParser::readnumber(char c) {
         case '.': 
             break;
         // read denormal value
-        case 'n': case 'a': case 'i': case 'f':		
-			//gx_print_warning("JsonParser", "DENORMAL VALUE DETECTED\n");
+        case 'n': case 'a': case 'i': case 'f':
+			++count_dn;
+			if (count_dn >=3) {
+				gx_print_warning("JsonParser", "DENORMAL VALUE DETECTED");
+				count_dn = 0;
+			}
 			break;
         default:
             return os.str();
