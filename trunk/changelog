@@ -1,3 +1,14 @@
+guitarix2 (0.32.2) unstable; urgency=low
+  * fix some rcstyle bugs for gtk-2.24.25 and maybe fixed for KDE
+  * allow load of preset-files witch contain Denormal Numbers (flush to zero)
+  * add warning when denormal value found in preset file
+  * if parameter is out of range, set it to the default value
+  * add missing Icons to glade-gxw
+  * add wavesharper plugin
+  * use long int to compare regions size in gx_mlock.cc -> (Gcc: 4.9.2)
+  
+ -- brummer <brummer-@web.de>  Tue, 26 Dec 2014 04:30:35 +0200 
+
 guitarix2 (0.32.1) unstable; urgency=low
   * fix LADSPA/LV2 plugin load / unload / UI modification
   
@@ -11,7 +22,7 @@ guitarix2 (0.32.0) unstable; urgency=low
   * add Jack Transport Support
   * move a couple of Controllers from unit:ms|hz to unit:bpm
   
- -- brummer <brummer-@web.de>  Tue, 20 Nov 2014 14:30:35 +0200 
+ -- brummer <brummer-@web.de>  Fri, 20 Nov 2014 14:30:35 +0200 
 
 guitarix2 (0.31.0) unstable; urgency=low
   * add GxDigitalDelay.LV2
