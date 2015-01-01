@@ -196,6 +196,17 @@ base[PRELIGHT] = { 0.20, 0.20, 0.20 }
 base[INSENSITIVE] = "#4c5159"
 base[SELECTED] = { 0.25, 0.25, 0.25 }
 font_name = "sans 9"
+  engine "pixmap" {
+    image 
+      {
+        function        = BOX
+		recolorable     = TRUE
+		shadow			= OUT
+		file            = "menu_green1.jpg"
+		border          = { 2, 2, 2, 2 }
+		stretch         = TRUE
+      }
+  }
 }
 
 widget_class "*GtkMenu*" style:highest "gx2_head-menu"

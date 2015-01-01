@@ -2434,9 +2434,11 @@ void MainWindow::run() {
     if (machine.get_jack() && port != RPCPORT_DEFAULT && port != RPCPORT_NONE) {
 	machine.start_socket(sigc::ptr_fun(Gtk::Main::quit), options.get_rpcaddress(), port);
 	window->show();
+    if (options.get_liveplaygui()) liveplay_button->set_active();
 	Gtk::Main::run();
     } else {
 	window->show();
+    if (options.get_liveplaygui()) liveplay_button->set_active();
    // Glib::signal_timeout().connect (mem_fun (*this, &MainWindow::ui_sleep), 2);
 	Gtk::Main::run();
     }

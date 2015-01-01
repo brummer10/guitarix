@@ -534,11 +534,16 @@ CmdlineOptions::CmdlineOptions()
     opt_onlygui.set_short_name('G');
     opt_onlygui.set_long_name("onlygui");
     opt_onlygui.set_description("start only GUI");
+    Glib::OptionEntry opt_liveplaygui;
+    opt_liveplaygui.set_short_name('L');
+    opt_liveplaygui.set_long_name("liveplaygui");
+    opt_liveplaygui.set_description("start with Live Play GUI");
     main_group.add_entry(opt_version, version);
     main_group.add_entry(opt_nogui, nogui);
     main_group.add_entry(opt_rpcport, rpcport);
     main_group.add_entry(opt_rpchost, rpcaddress);
     main_group.add_entry(opt_onlygui, onlygui);
+    main_group.add_entry(opt_liveplaygui, liveplaygui);
     set_main_group(main_group);
 
     // style options
@@ -849,6 +854,11 @@ void CmdlineOptions::process(int argc, char** argv) {
 	    Glib::OptionError::BAD_VALUE,
 	    _("-c and -r cannot be used together"));
     }
+    if (nogui && liveplaygui) {
+		throw Glib::OptionError(
+	    Glib::OptionError::BAD_VALUE,
+	    _("-N and -L cannot be used together"));
+	}
     if (lterminal) {
 	GxLogger::get_logger().signal_message().connect(
 	    sigc::ptr_fun(log_terminal));

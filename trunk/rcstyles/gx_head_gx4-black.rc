@@ -197,6 +197,17 @@ base[PRELIGHT] = { 0.20, 0.20, 0.20 }
 base[INSENSITIVE] = "#4c5159"
 base[SELECTED] = { 0.25, 0.25, 0.25 }
 font_name = "sans 9"
+  engine "pixmap" {
+    image 
+      {
+        function        = BOX
+		recolorable     = TRUE
+		shadow			= OUT
+		file            = "menu1.jpg"
+		border          = { 2, 2, 2, 2 }
+		stretch         = TRUE
+      }
+  }
 }
 
 widget_class "*GtkMenu*" style:highest "gx4_head-menu"
@@ -246,6 +257,9 @@ border			= { 0, 0, 0, 0 }
 stretch			= TRUE
 }
 }
+fg[NORMAL] = { 0.70, 0.70, 0.70 }
+fg[ACTIVE] = "#d6d6d6"
+fg[PRELIGHT] =  { 0.90, 0.90, 0.90 }
 bg[ACTIVE] = "#58b45e"
 }
 

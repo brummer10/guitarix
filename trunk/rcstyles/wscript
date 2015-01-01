@@ -53,6 +53,8 @@ gxstyle_files = [
     'versiondiff.png',
     'playhead.png',
     'simplelevelslider.png',
+    'menu_green1.jpg',
+    'menu1.jpg',
     ]
 
 def configure(conf):

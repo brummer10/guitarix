@@ -407,6 +407,7 @@ private:
     int rpcport;
     Glib::ustring rpcaddress;
     bool onlygui;
+    bool liveplaygui;
     int sporadic_overload;
     int idle_thread_timeout;
     bool convolver_watchdog;
@@ -465,6 +466,7 @@ public:
     const Glib::ustring& get_rcset() const { return rcset; }
     bool get_clear_rc() const { return clear; }
     bool get_nogui() const { return nogui; }
+    bool get_liveplaygui() const { return liveplaygui; }
     int get_rpcport() const { return rpcport; }
     void set_rpcport(int port) { rpcport = port; }
     const Glib::ustring& get_rpcaddress() { return rpcaddress; }
