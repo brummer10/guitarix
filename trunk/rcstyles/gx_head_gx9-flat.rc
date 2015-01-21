@@ -1,5 +1,5 @@
 #
-# This is the GTK rc style file for gx_head_blue
+# This is the GTK rc style file for gx_head_flat2
 #
 
 include "common.rc"
@@ -9,14 +9,14 @@ style "guitarix_iredit"
   text[NORMAL] = { 0.60, 0.60, 0.60 }
 }
 
-style "gx_head_blue_skin_icons"
+style "gx_head_flat2_skin_icons"
 {
   stock["bigknob"] = {{"tactile_knob_large_151f.png"}}
   stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
   stock["smallknobr"] = {{"tactile_knob_medium_151f.png"}}
 }
 
-class "*GxKnob" style "gx_head_blue_skin_icons"
+class "*GxKnob" style "gx_head_flat2_skin_icons"
 
 style "gx2_head_skin_knob_animation"
 {
@@ -58,23 +58,16 @@ class "*GxToggleImage" style "gx2_head_skin_switch_icons"
 
 
 
-style "gx_head_blue-paintbox"
+style "gx_head_flat2-paintbox"
 {
   GxPaintBox::box-gradient = {
-    { 0, 19661, 19661, 19661, 52428 }, # 0, 0.3, 0.3, 0.3 , 0.8
-	{ 22768, 80, 83, 80, 52428 }, # 0.5, 0.15, 0.15, 0.15, 0.8
-    { 52428, 8, 8, 80, 52428 }, # 0.5, 0.15, 0.15, 0.15, 0.8
-	{ 65536, 4, 4, 4, 62428 }} # 1, 0.1, 0.1, 0.1, 0.8
+    { 0, 19661, 19661, 19661, 52428 }} # 1, 0.1, 0.1, 0.1, 0.8
 	
   GxPaintBox::skin-gradient = {
-    { 65536, 0, 0, 13107, 52428 }, # 1, 0, 0, 0.2, 0.8
-	{ 52428, 0, 0, 0, 52428 }, # 0.8, 0, 0, 0, 0.8
-	{ 13107, 0, 0, 13107, 13107 }} # 0.2, 0, 0, 0.2, 0.2 
+    { 65536, 3107, 3107, 3107, 52428 }} # 0.2, 0, 0, 0.2, 0.2 
 	
   GxPaintBox::rack-gradient = {
-    { 65536, 0, 0, 2768, 52428 }, # 1, 0, 0, 0.2, 0.9
-	{ 52428, 0, 0, 3107, 52428 }, # 0.8, 0, 0, 0, 0.8
-	{ 13107, 0, 0, 0, 42428 }} # 0.2, 0, 0, 0.2, 0.8 
+    { 65536, 2768, 2768, 2768, 52428 }} # 0.2, 0, 0, 0.2, 0.8 
 
   GxPaintBox::width =600
   GxPaintBox::height =180
@@ -83,9 +76,9 @@ style "gx_head_blue-paintbox"
   GxPaintBox::icon-set =7
 }
 
-class "*GxPaintBox" style "gx_head_blue-paintbox"
+class "*GxPaintBox" style "gx_head_flat2-paintbox"
 
-style "gx_head_blue"
+style "gx_head_flat2"
 {
 
 
@@ -123,26 +116,26 @@ style "gx_head_blue"
 }
 
 
-class "*GtkWidget" style:highest "gx_head_blue"
-class "*GtkLabel" style:highest "gx_head_blue"
-class "*GtkHScale" style:highest "gx_head_blue"
-class "*GtkVScale" style:highest "gx_head_blue"
-class "*GtkCheckButton" style:highest "gx_head_blue"
-class "*GtkButton" style:highest "gx_head_blue"
-class "*GtkFrame" style:highest "gx_head_blue"
-class "*GtkExpander" style:highest "gx_head_blue"
-#class "*GtkEventBox" style:highest "gx_head_blue"
+class "*GtkWidget" style:highest "gx_head_flat2"
+class "*GtkLabel" style:highest "gx_head_flat2"
+class "*GtkHScale" style:highest "gx_head_flat2"
+class "*GtkVScale" style:highest "gx_head_flat2"
+class "*GtkCheckButton" style:highest "gx_head_flat2"
+class "*GtkButton" style:highest "gx_head_flat2"
+class "*GtkFrame" style:highest "gx_head_flat2"
+class "*GtkExpander" style:highest "gx_head_flat2"
+#class "*GtkEventBox" style:highest "gx_head_flat2"
 
-style "gx_head_blue-event"
+style "gx_head_flat2-event"
 {
  bg_pixmap[NORMAL] = "gx_steal.png"
 }
-widget "*.osc_box" style:highest "gx_head_blue-event"
-widget "*.main_window" style:highest "gx_head_blue-event"
+widget "*.osc_box" style:highest "gx_head_flat2-event"
+widget "*.main_window" style:highest "gx_head_flat2-event"
 
-style "gx_head_blue-dialog"
+style "gx_head_flat2-dialog"
 {
- bg_pixmap[NORMAL] = "cairo2.jpg"
+ bg_pixmap[NORMAL] = "flat2.png"
 }
 
 style "gx_head_black_box"
@@ -157,34 +150,34 @@ style "gx_head_gree_dark_box"
 }
 widget "*.gree_box" style:highest "gx_head_gree_dark_box"
 
-style "gx_head_blue_dark_box"
+style "gx_head_flat2_dark_box"
 {
  bg[NORMAL] = { 0.1, 0.1, 0.2}
 }
-widget "*.dark_box" style:highest "gx_head_blue_dark_box"
+widget "*.dark_box" style:highest "gx_head_flat2_dark_box"
 
-style "gx_head_blue_darker_box"
+style "gx_head_flat2_darker_box"
 {
  bg[NORMAL] = { 0.05, 0.05, 0.1}
 }
-widget "*.darker_box" style:highest "gx_head_blue_darker_box"
+widget "*.darker_box" style:highest "gx_head_flat2_darker_box"
 
-style "gx_head_blue_amp_selector"
+style "gx_head_flat2_amp_selector"
 {
  fg[NORMAL] = "#737378"
  font_name = "sans 7.5 bold"
 }
-widget "*.amp_selector" style:highest "gx_head_blue_amp_selector"
-#widget_class "GtkDialog*" style:highest "gx_head_blue-dialog"
+widget "*.amp_selector" style:highest "gx_head_flat2_amp_selector"
+#widget_class "GtkDialog*" style:highest "gx_head_flat2-dialog"
 
-style "gx_head_blue-menu"
+style "gx_head_flat2-menu"
 {
   fg[NORMAL] = { 0.80, 0.80, 0.80 }
-  fg[PRELIGHT] = { 0.20, 0.20, 0.20 }
+  fg[PRELIGHT] = { 0.70, 0.70, 0.70 }
   
   bg[NORMAL] = { 0.30, 0.30, 0.30 }
-  bg[PRELIGHT] = { 0.60, 0.60, 0.60 }
-  bg[SELECTED] = { 0.60, 0.60, 0.60 }
+  bg[PRELIGHT] = { 0.20, 0.20, 0.20 }
+  bg[SELECTED] = { 0.10, 0.10, 0.10 }
   
   text[NORMAL] = { 0.50, 0.50, 0.50 }
   text[ACTIVE] = { 0.80, 0.80, 0.80 }
@@ -201,17 +194,17 @@ style "gx_head_blue-menu"
         function        = BOX
 		recolorable     = TRUE
 		shadow			= OUT
-		file            = "menu1.jpg"
+		file            = "flatmenu.png"
 		border          = { 2, 2, 2, 2 }
 		stretch         = TRUE
       }
   }
 }
 
-widget_class "*GtkMenu*" style:highest "gx_head_blue-menu"
-widget_class "*GtkMenuBar*" style:highest "gx_head_blue-menu"
+widget_class "*GtkMenu*" style:highest "gx_head_flat2-menu"
+widget_class "*GtkMenuBar*" style:highest "gx_head_flat2-menu"
 
-style "gx_head_blue_b_style"
+style "gx_head_flat2_b_style"
 {
  	engine "pixmap"
 	{
@@ -221,7 +214,7 @@ style "gx_head_blue_b_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -231,7 +224,7 @@ style "gx_head_blue_b_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "cairo1.jpg"
+			file			= "flat1.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -250,7 +243,7 @@ style "gx_head_blue_b_style"
 			function		= BOX
 			recolorable		= TRUE
 			shadow			= IN
-			file			= "black2.png"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -261,7 +254,7 @@ style "gx_head_blue_b_style"
 	fg[PRELIGHT] =  { 0.90, 0.90, 0.90 }
 }
 
-style "gx_head_blue_c_style"
+style "gx_head_flat2_c_style"
 {
  	engine "pixmap"
 	{
@@ -271,7 +264,7 @@ style "gx_head_blue_c_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -279,7 +272,7 @@ style "gx_head_blue_c_style"
 	}
 }
 
-style "gx_head_blue-l_black"
+style "gx_head_flat2-l_black"
 {
   fg[NORMAL] = 	{ 0., 0., 0. }
   fg[ACTIVE] = { 0.8, 0.8, 0.8 }
@@ -289,9 +282,9 @@ style "gx_head_blue-l_black"
   font_name = "URW Chancery L Medium Italic 12"
 }
 
-style "gx_head_blue-v_black"
+style "gx_head_flat2-v_black"
 {
-  fg[NORMAL] = 	{ 0., 0., 0. }
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
   fg[ACTIVE] = { 0.8, 0.8, 0.8 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
@@ -299,7 +292,7 @@ style "gx_head_blue-v_black"
   font_name = "URW Chancery L Medium Italic 12"
 }
 
-style "gx_head_blue-b_black"
+style "gx_head_flat2-b_black"
 {
   fg[NORMAL] = "#e2dcdc"
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
@@ -309,7 +302,7 @@ style "gx_head_blue-b_black"
   font_name = "sans 9"
 }
 
-style "gx_head_blue-rack"
+style "gx_head_flat2-rack"
 {
   fg[NORMAL] = "#e2dcdc"
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
@@ -319,7 +312,7 @@ style "gx_head_blue-rack"
   font_name = "URW Chancery L Medium Italic 12"
 }
 
-style "gx_head_blue_rack_slider"
+style "gx_head_flat2_rack_slider"
 {
   fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
@@ -329,7 +322,7 @@ style "gx_head_blue_rack_slider"
   font_name = "sans 6"
 }
 
-style "gx_head_blue_barbutton_style"
+style "gx_head_flat2_barbutton_style"
 {
 
   bg[ACTIVE] = "#49495a"
@@ -340,18 +333,18 @@ style "gx_head_blue_barbutton_style"
   fg[PRELIGHT] = "#ede9e9"
 }
 
-widget "*.barbutton" style:highest "gx_head_blue_barbutton_style"
-widget "*.barbuttonlabel" style:highest "gx_head_blue_barbutton_style"
+widget "*.barbutton" style:highest "gx_head_flat2_barbutton_style"
+widget "*.barbuttonlabel" style:highest "gx_head_flat2_barbutton_style"
 
-widget "*.effekt_label" style:highest "gx_head_blue-v_black"
-widget "*.value_label" style:highest "gx_head_blue-l_black"
-widget "*.beffekt_label" style:highest "gx_head_blue-b_black"
-widget "*.rack_label" style:highest "gx_head_blue-rack"
-widget "*.rack_effect_label" style:highest "gx_head_blue-b_black"
-widget "*.rack_slider" style:highest "gx_head_blue_rack_slider"
-widget "*.rack_regler" style:highest "gx_head_blue_rack_slider"
+widget "*.effekt_label" style:highest "gx_head_flat2-v_black"
+widget "*.value_label" style:highest "gx_head_flat2-l_black"
+widget "*.beffekt_label" style:highest "gx_head_flat2-b_black"
+widget "*.rack_label" style:highest "gx_head_flat2-rack"
+widget "*.rack_effect_label" style:highest "gx_head_flat2-b_black"
+widget "*.rack_slider" style:highest "gx_head_flat2_rack_slider"
+widget "*.rack_regler" style:highest "gx_head_flat2_rack_slider"
 
-style "gx_head_blue_h_style"
+style "gx_head_flat2_h_style"
 {
  	engine "pixmap"
 	{
@@ -361,7 +354,7 @@ style "gx_head_blue_h_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -383,14 +376,14 @@ style "gx_head_blue_h_style"
   base[SELECTED]     = { 0.25, 0.25, 0.25 }
 }
 
-class "*GtkHandleBox" style:highest "gx_head_blue_h_style"
-#class "*GtkScrolledWindow" style:highest "gx_head_blue_h_style"
-widget_class "*GtkDialog*" style:highest "gx_head_blue_h_style"
-widget_class "*GtkToggleButton*" style:highest "gx_head_blue_b_style"
-class "*GtkButton" style:highest "gx_head_blue_b_style"
-class "*GtkSpinButton" style:highest "gx_head_blue_c_style"
+class "*GtkHandleBox" style:highest "gx_head_flat2_h_style"
+#class "*GtkScrolledWindow" style:highest "gx_head_flat2_h_style"
+widget_class "*GtkDialog*" style:highest "gx_head_flat2_h_style"
+widget_class "*GtkToggleButton*" style:highest "gx_head_flat2_b_style"
+class "*GtkButton" style:highest "gx_head_flat2_b_style"
+class "*GtkSpinButton" style:highest "gx_head_flat2_c_style"
 
-style "gx_head_blue_tagx_head_blue_b_style"
+style "gx_head_flat2_tagx_head_flat2_b_style"
 {
 
   bg[NORMAL] = { 0.20, 0.20, 0.20 }
@@ -401,9 +394,9 @@ style "gx_head_blue_tagx_head_blue_b_style"
 }
 
 
-widget "*.tab_rack" style:highest "gx_head_blue_tagx_head_blue_b_style"
+widget "*.tab_rack" style:highest "gx_head_flat2_tagx_head_flat2_b_style"
 
-style "gx_head_blue_p_style"
+style "gx_head_flat2_p_style"
 {
  	engine "pixmap"
 	{
@@ -413,7 +406,7 @@ style "gx_head_blue_p_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -423,7 +416,7 @@ style "gx_head_blue_p_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "cairo1.jpg"
+			file			= "flat1.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -433,7 +426,7 @@ style "gx_head_blue_p_style"
 			recolorable		= TRUE
 			state			= INSENSITIVE
 			shadow			= OUT
-			file			= "cairo1.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -446,7 +439,7 @@ style "gx_head_blue_p_style"
 	font_name = "sans 7"
 }
 
-style "gx_head_blue_pa_style"
+style "gx_head_flat2_pa_style"
 {
  	engine "pixmap"
 	{
@@ -456,7 +449,7 @@ style "gx_head_blue_pa_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -466,7 +459,7 @@ style "gx_head_blue_pa_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "cairo1.jpg"
+			file			= "flat1.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -476,7 +469,7 @@ style "gx_head_blue_pa_style"
 			recolorable		= TRUE
 			state			= INSENSITIVE
 			shadow			= OUT
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -484,7 +477,7 @@ style "gx_head_blue_pa_style"
 		{
 			function		= BOX
 			recolorable		= TRUE
-			file			= "black2.png"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -499,7 +492,7 @@ style "gx_head_blue_pa_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -509,7 +502,7 @@ style "gx_head_blue_pa_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "cairo1.jpg"
+			file			= "flat1.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -519,7 +512,7 @@ style "gx_head_blue_pa_style"
 			recolorable		= TRUE
 			state			= ACTIVE
 			shadow			= OUT
-			file			= "cairo1.jpg"
+			file			= "flat1.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -528,19 +521,19 @@ style "gx_head_blue_pa_style"
 			function		= SLIDER
 			recolorable		= TRUE
 			shadow			= IN
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
 
 	}
 	bg[NORMAL] 				= { 0.0, 0.0, 0.0 }
-    base[NORMAL]      		= { 0.70, 0.70, 0.70 }
-	text[NORMAL] = { 0.20, 0.20, 0.20 }
+    base[NORMAL]      		= { 0.50, 0.50, 0.50 }
+	text[NORMAL] = { 0.90, 0.90, 0.90 }
 	
 }
 
-style "gx_head_blue_pair_style"
+style "gx_head_flat2_pair_style"
 {
  	engine "pixmap"
 	{
@@ -550,7 +543,7 @@ style "gx_head_blue_pair_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -560,7 +553,7 @@ style "gx_head_blue_pair_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "cairo1.jpg"
+			file			= "flat1.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -570,7 +563,7 @@ style "gx_head_blue_pair_style"
 			recolorable		= TRUE
 			state			= INSENSITIVE
 			shadow			= OUT
-			file			= "cairo2.jpg"
+			file			= "flat2.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -584,13 +577,13 @@ style "gx_head_blue_pair_style"
 	text[SELECTED] = { 1.0, 1.0, 1.0 }
 }
 
-widget "*.effect_reset" style:highest "gx_head_blue_p_style"
-widget "*.label_reset" style:highest "gx_head_blue_p_style"
-widget_class "*GtkScrolledWindow*" style:highest "gx_head_blue_pa_style"
-widget "*.rack_button" style:highest "gx_head_blue_pa_style"
-widget_class "*GtkComboBox*" style:highest "gx_head_blue_pair_style"
+widget "*.effect_reset" style:highest "gx_head_flat2_p_style"
+widget "*.label_reset" style:highest "gx_head_flat2_p_style"
+widget_class "*GtkScrolledWindow*" style:highest "gx_head_flat2_pa_style"
+widget "*.rack_button" style:highest "gx_head_flat2_pa_style"
+widget_class "*GtkComboBox*" style:highest "gx_head_flat2_pair_style"
 
-style "gx_head_blue-rack-group"
+style "gx_head_flat2-rack-group"
 {
   fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
@@ -600,6 +593,6 @@ style "gx_head_blue-rack-group"
   font_name = "sans Bold 8"
 }
 
-widget "*.MonoBox.*GtkLabel" style:highest "gx_head_blue-rack"
-widget "*.*GtkFrame.*GtkLabel" style:highest "gx_head_blue-rack-group"
-widget "*.*GtkToolPalette.*GtkLabel" style:highest "gx_head_blue-rack-group"
+widget "*.MonoBox.*GtkLabel" style:highest "gx_head_flat2-rack"
+widget "*.*GtkFrame.*GtkLabel" style:highest "gx_head_flat2-rack-group"
+widget "*.*GtkToolPalette.*GtkLabel" style:highest "gx_head_flat2-rack-group"

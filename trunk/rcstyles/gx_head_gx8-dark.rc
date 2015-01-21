@@ -536,6 +536,7 @@ style "gx_head_dark_pa_style"
 	}
 	bg[NORMAL] 				= { 0.0, 0.0, 0.0 }
     base[NORMAL]      		= { 0.70, 0.70, 0.70 }
+	text[NORMAL] = { 0.20, 0.20, 0.20 }
 	
 }
 
