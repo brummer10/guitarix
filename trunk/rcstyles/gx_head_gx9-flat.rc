@@ -11,9 +11,9 @@ style "guitarix_iredit"
 
 style "gx_head_flat2_skin_icons"
 {
-  stock["bigknob"] = {{"tactile_knob_large_151f.png"}}
-  stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
-  stock["smallknobr"] = {{"tactile_knob_medium_151f.png"}}
+  stock["bigknob"] = {{"nk-knob.png"}}
+  stock["smallknob"] = {{"nk-knob-small.png"}}
+  stock["smallknobr"] = {{"nk-knob-middle.png"}}
 }
 
 class "*GxKnob" style "gx_head_flat2_skin_icons"
@@ -173,7 +173,7 @@ widget "*.amp_selector" style:highest "gx_head_flat2_amp_selector"
 style "gx_head_flat2-menu"
 {
   fg[NORMAL] = { 0.80, 0.80, 0.80 }
-  fg[PRELIGHT] = { 0.70, 0.70, 0.70 }
+  fg[PRELIGHT] = { 0.60, 0.70, 0.70 }
   
   bg[NORMAL] = { 0.30, 0.30, 0.30 }
   bg[PRELIGHT] = { 0.20, 0.20, 0.20 }
