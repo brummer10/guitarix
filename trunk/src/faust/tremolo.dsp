@@ -46,8 +46,8 @@ trianglewave(freq) = _ ~ (_ <: _ + hyst) : /(periodsamps) with {
 
 tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
     sine(freq) = (oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy
-    SINE=checkbox("SINE[enum:triangle|sine]");
-    lfo = select2(SINE, trianglewave(freq), sine(freq));
+    SINE=checkbox("SINE[enum:triangle|sine|square]");
+    lfo = select3(SINE, trianglewave(freq), sine(freq), lf_squarewavepos(freq));
 };
 
 wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
