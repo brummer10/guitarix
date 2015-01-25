@@ -83,6 +83,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     close_preset->hide(); // disable (maybe remove later)
 
     bank_treeview->set_model(Gtk::ListStore::create(bank_col));
+    bank_treeview->set_name("PresetView");
     bank_treeview->get_selection()->set_select_function(
 	sigc::mem_fun(*this, &PresetWindow::select_func));
     bank_treeview->set_has_tooltip(true);
@@ -125,6 +126,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     bank_row_del_conn = ls->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_reordered));
 
     preset_treeview->set_model(pstore);
+    preset_treeview->set_name("PresetView");
     preset_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_drag_motion), false);
     preset_treeview->signal_drag_data_get().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_drag_data_get));
     preset_treeview->signal_row_activated().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_row_activated));

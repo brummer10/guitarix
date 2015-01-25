@@ -608,3 +608,13 @@ font_name = "sans Bold 8"
 }
 widget "*.MonoBox.*GtkLabel" style:highest "gx4_head-rack"
 widget "*.*GtkFrame.*GtkLabel" style:highest "gx4_head-rack-group"
+
+style "gx_head_black_preset"
+{
+	bg[NORMAL] 				= { 0.7, 0.7, 0.7 }
+	bg[SELECTED] 			= { 0.1, 0.1, 0.1 }
+    base[NORMAL]      		= { 0.7, 0.7, 0.7 }
+    base[SELECTED]      	= { 0.1, 0.1, 0.1 }
+	text[NORMAL] 			= { 0.2, 0.2, 0.2 }
+}
+widget "*.PresetView" style:highest "gx_head_black_preset"

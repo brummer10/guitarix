@@ -603,3 +603,13 @@ style "gx_head_grass-rack-group"
 widget "*.MonoBox.*GtkLabel" style:highest "gx_head_grass-rack"
 widget "*.*GtkFrame.*GtkLabel" style:highest "gx_head_grass-rack-group"
 widget "*.*GtkToolPalette.*GtkLabel" style:highest "gx_head_grass-rack-group"
+
+style "gx_head_grass_preset"
+{
+	bg[NORMAL] 				= { 0.3, 0.4, 0.4 }
+	bg[SELECTED] 			= { 0.1, 0.1, 0.1 }
+    base[NORMAL]      		= { 0.3, 0.4, 0.4 }
+    base[SELECTED]      	= { 0.1, 0.1, 0.1 }
+	text[NORMAL] 			= { 0.9, 0.9, 0.9 }
+}
+widget "*.PresetView" style:highest "gx_head_grass_preset"
