@@ -538,12 +538,17 @@ CmdlineOptions::CmdlineOptions()
     opt_liveplaygui.set_short_name('L');
     opt_liveplaygui.set_long_name("liveplaygui");
     opt_liveplaygui.set_description("start with Live Play GUI");
+    Glib::OptionEntry opt_mute;
+    opt_mute.set_short_name('M');
+    opt_mute.set_long_name("mute");
+    opt_mute.set_description("start with engine muted");
     main_group.add_entry(opt_version, version);
     main_group.add_entry(opt_nogui, nogui);
     main_group.add_entry(opt_rpcport, rpcport);
     main_group.add_entry(opt_rpchost, rpcaddress);
     main_group.add_entry(opt_onlygui, onlygui);
     main_group.add_entry(opt_liveplaygui, liveplaygui);
+    main_group.add_entry(opt_mute, mute);
     set_main_group(main_group);
 
     // style options

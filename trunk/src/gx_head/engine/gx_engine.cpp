@@ -208,6 +208,9 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
     if (!options.get_xrun_watchdog()) {
 	ov_disabled |= ov_XRun;
     }
+    if (options.get_mute()) {
+	set_state(kEngineOff);;
+    }
 #ifdef USE_MIDI_OUT
     tuner.set_dep_module(&midiaudiobuffer.plugin);
 #endif
