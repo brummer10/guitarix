@@ -422,7 +422,14 @@ Glib::ustring GxMachine::get_bank_name(int n) {
     return settings.banks.get_name(n);
 }
 
+void GxMachine::msend_midi_cc(int cc, int pgn) {
+	jack.send_midi_cc(cc, pgn);
+}
+
 void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
+#ifdef USE_MIDI_CC_OUT
+    msend_midi_cc(0xC0, pf->get_index(name));
+#endif
     settings.load_preset(pf, name);
 }
 
@@ -1788,7 +1795,17 @@ Glib::ustring GxMachineRemote::get_bank_name(int n) {
     return banks.get_name(n);
 }
 
+void GxMachineRemote::msend_midi_cc(int cc, int pgn) {
+	START_NOTIFY(sendcc);
+    jw->write(cc);
+    jw->write(pgn);
+    SEND();
+}
+
 void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
+#ifdef USE_MIDI_CC_OUT
+    msend_midi_cc(0xC0, pf->get_index(name));
+#endif
     START_NOTIFY(setpreset);
     jw->write(pf->get_name());
     jw->write(name);

@@ -240,7 +240,7 @@ b.openHorizontalBox("");
     {
 	b.create_small_rackknobr(PARAM("lfobpm"), _("LFO (bpm)"));
 	b.insertSpacer();
-	b.create_selector(PARAM("invert"), 0);
+	b.create_selector(PARAM("invert"), "invert");
 	b.openFrameBox("");
 	b.closeBox();
     }

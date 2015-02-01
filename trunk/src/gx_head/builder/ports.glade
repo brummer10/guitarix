@@ -1,8 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
   <!-- interface-requires gxwidgets 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkTreeStore" id="treestore1">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore2">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore3">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore4">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore5">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore6">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore7">
+    <columns>
+      <!-- column-name Port -->
+      <column type="gchararray"/>
+      <!-- column-name connected -->
+      <column type="gboolean"/>
+      <!-- column-name client -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
   <object class="GtkDialog" id="PortMapWindow">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">guitarix port connections</property>
@@ -22,7 +92,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -484,6 +553,7 @@
                         <child>
                           <object class="GtkScrolledWindow" id="scrolledwindow5">
                             <property name="height_request">150</property>
+                            <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="hscrollbar_policy">never</property>
                             <property name="vscrollbar_policy">automatic</property>
@@ -547,6 +617,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel" id="label12">
+                            <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">50</property>
@@ -607,75 +678,5 @@
     <action-widgets>
       <action-widget response="0">button1</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkTreeStore" id="treestore1">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore2">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore3">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore4">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore5">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore6">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
-  <object class="GtkTreeStore" id="treestore7">
-    <columns>
-      <!-- column-name Port -->
-      <column type="gchararray"/>
-      <!-- column-name connected -->
-      <column type="gboolean"/>
-      <!-- column-name client -->
-      <column type="gboolean"/>
-    </columns>
   </object>
 </interface>

@@ -7,7 +7,7 @@ b.openVerticalBox1("");
     b.openHorizontalBox("");
     {
 	b.insertSpacer();
-	b.create_selector(PARAM("auto_freq"), 0);
+	b.create_selector(PARAM("auto_freq"), "auto_freq");
 	b.insertSpacer();
 
 	b.openHorizontalTableBox("");

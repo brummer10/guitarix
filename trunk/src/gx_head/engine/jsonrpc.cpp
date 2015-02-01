@@ -1032,6 +1032,10 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	serv.save_state();
     }
 
+    PROCEDURE(sendcc) {
+	serv.jack.send_midi_cc(params[0]->getInt(),params[1]->getInt());
+    }
+
     PROCEDURE(setstate) {
 	serv.jack.get_engine().set_state(string_to_engine_state(params[0]->getString()));
 	serv.jack.get_engine().check_module_lists();

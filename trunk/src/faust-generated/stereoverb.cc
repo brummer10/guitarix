@@ -411,7 +411,7 @@ b.openHorizontalBox("");
     {
 	b.create_small_rackknobr(PARAM("LFO freq"), _("LFO"));
 	b.insertSpacer();
-	b.create_selector(PARAM("invert"), 0);
+	b.create_selector(PARAM("invert"), "invert");
 	b.openFrameBox("");
 	b.closeBox();
     }

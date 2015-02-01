@@ -457,6 +457,7 @@ CmdlineOptions::CmdlineOptions()
       rpcport(RPCPORT_DEFAULT),
       rpcaddress(),
       onlygui(false),
+      liveplaygui(false),
       sporadic_overload(0),
       idle_thread_timeout(0),
       convolver_watchdog(true),

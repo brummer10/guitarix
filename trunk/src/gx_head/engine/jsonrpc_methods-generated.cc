@@ -31,7 +31,7 @@
 #error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
 #endif
 
-/* maximum key range = 153, duplicates = 0 */
+/* maximum key range = 162, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
@@ -45,19 +45,19 @@ hash (register const char *str, register unsigned int len)
 {
   static const unsigned char asso_values[] =
     {
-      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
-      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
-      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
-      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
-      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
-      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
-      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
-      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
-      156, 156, 156, 156, 156, 156, 156, 156, 156, 156,
-      156, 156, 156, 156, 156,  70, 156,  30,  20,  60,
-       25,  10, 156,  10,   0,  55,  30,  15,  25,  50,
-       10,  15,  55,   0,   0,   0,   0, 105,   5,  20,
-      156,  10, 156, 156, 156, 156, 156, 156
+      165, 165, 165, 165, 165, 165, 165, 165, 165, 165,
+      165, 165, 165, 165, 165, 165, 165, 165, 165, 165,
+      165, 165, 165, 165, 165, 165, 165, 165, 165, 165,
+      165, 165, 165, 165, 165, 165, 165, 165, 165, 165,
+      165, 165, 165, 165, 165, 165, 165, 165, 165, 165,
+      165, 165, 165, 165, 165, 165, 165, 165, 165, 165,
+      165, 165, 165, 165, 165, 165, 165, 165, 165, 165,
+      165, 165, 165, 165, 165, 165, 165, 165, 165, 165,
+      165, 165, 165, 165, 165, 165, 165, 165, 165, 165,
+      165, 165, 165, 165, 165,  70, 165,  30,  20,  40,
+       45,  10, 165,  10,   0,  55,  10,  15,  25,  50,
+       10,  15,  55,  30,   0,   0,   0,  65,   0,  30,
+      165,  10, 165, 165, 165, 165, 165, 165
     };
   register int hval = len;
 
@@ -88,11 +88,11 @@ in_word_set (register const char *str, register unsigned int len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 76,
+      TOTAL_KEYWORDS = 77,
       MIN_WORD_LENGTH = 3,
       MAX_WORD_LENGTH = 27,
       MIN_HASH_VALUE = 3,
-      MAX_HASH_VALUE = 155
+      MAX_HASH_VALUE = 164
     };
 
   static const struct CmdConnection::methodnames wordlist[] =
@@ -126,16 +126,15 @@ in_word_set (register const char *str, register unsigned int len)
       {"bank_remove", RPCM_bank_remove},
       {""},
       {"bank_set_flag", RPNM_bank_set_flag},
-      {"reload_impresp_list", RPNM_reload_impresp_list},
-      {""},
+      {""}, {""},
       {"get_oscilloscope_info", RPCM_get_oscilloscope_info},
       {"bank_get_contents", RPCM_bank_get_contents},
       {"setstate", RPNM_setstate},
       {""}, {""},
       {"listen", RPNM_listen},
-      {""},
+      {"save_current", RPNM_save_current},
       {"get_parameter", RPCM_get_parameter},
-      {""},
+      {"convert_preset", RPCM_convert_preset},
       {"read_audio", RPCM_read_audio},
       {""},
       {"bank_get_filename", RPCM_bank_get_filename},
@@ -145,37 +144,35 @@ in_word_set (register const char *str, register unsigned int len)
       {""},
       {"presets", RPCM_presets},
       {"get_bank", RPCM_get_bank},
-      {""},
+      {"reload_impresp_list", RPNM_reload_impresp_list},
       {"load_ladspalist", RPCM_load_ladspalist},
       {"save_preset", RPNM_save_preset},
       {""}, {""},
       {"midi_size", RPCM_midi_size},
       {"pf_insert_after", RPNM_pf_insert_after},
       {"insert_rack_unit", RPNM_insert_rack_unit},
-      {"save_current", RPNM_save_current},
-      {""},
-      {"convert_preset", RPCM_convert_preset},
-      {"pluginlist", RPCM_pluginlist},
-      {""},
       {"pf_save", RPNM_pf_save},
+      {""}, {""},
+      {"pluginlist", RPCM_pluginlist},
+      {""}, {""},
       {"parameterlist", RPCM_parameterlist},
       {""},
       {"midi_set_config_mode", RPNM_midi_set_config_mode},
       {"pf_insert_before", RPNM_pf_insert_before},
       {"ladspaloader_update_plugins", RPCM_ladspaloader_update_plugins},
-      {""},
+      {"unlisten", RPNM_unlisten},
       {"get_max_input_level", RPCM_get_max_input_level},
       {"get_max_output_level", RPCM_get_max_output_level},
-      {""},
+      {"sendcc", RPNM_sendcc},
       {"plugin_preset_list_set", RPNM_plugin_preset_list_set},
-      {""},
+      {"bank_check_reparse", RPCM_bank_check_reparse},
       {"desc", RPCM_desc},
       {"midi_get_config_mode", RPCM_midi_get_config_mode},
       {""},
       {"erase_preset", RPNM_erase_preset},
       {""},
       {"bank_insert_content", RPCM_bank_insert_content},
-      {"midi_deleteParameter", RPNM_midi_deleteParameter},
+      {"get_tuning", RPCM_get_tuning},
       {""},
       {"load_impresp_dirs", RPCM_load_impresp_dirs},
       {"plugin_preset_list_save", RPNM_plugin_preset_list_save},
@@ -184,32 +181,29 @@ in_word_set (register const char *str, register unsigned int len)
       {"tuner_switcher_toggle", RPNM_tuner_switcher_toggle},
       {"tuner_used_for_display", RPNM_tuner_used_for_display},
       {"tuner_switcher_activate", RPNM_tuner_switcher_activate},
-      {""},
+      {"queryunit", RPCM_queryunit},
       {"tuner_switcher_deactivate", RPNM_tuner_switcher_deactivate},
       {""}, {""},
-      {"bank_check_reparse", RPCM_bank_check_reparse},
-      {""},
-      {"bank_insert_new", RPCM_bank_insert_new},
-      {""}, {""},
-      {"plugin_preset_list_load", RPCM_plugin_preset_list_load},
-      {"queryunit", RPCM_queryunit},
-      {""}, {""}, {""},
-      {"midi_modifyCurrent", RPNM_midi_modifyCurrent},
-      {""}, {""}, {""}, {""},
-      {"unlisten", RPNM_unlisten},
-      {""}, {""}, {""}, {""},
       {"jack_cpu_load", RPCM_jack_cpu_load},
-      {"get_tuner_freq", RPCM_get_tuner_freq},
-      {""}, {""}, {""}, {""},
-      {"plugin_load_ui", RPCM_plugin_load_ui},
-      {"get_tuning", RPCM_get_tuning},
-      {""}, {""}, {""}, {""}, {""}, {""}, {""},
-      {"get_midi_controller_map", RPCM_get_midi_controller_map},
-      {"pf_append", RPNM_pf_append},
-      {""}, {""}, {""}, {""}, {""},
+      {""},
       {"get_tuner_switcher_active", RPCM_get_tuner_switcher_active},
       {""}, {""}, {""}, {""},
-      {"clear_oscilloscope_buffer", RPNM_clear_oscilloscope_buffer}
+      {"midi_deleteParameter", RPNM_midi_deleteParameter},
+      {""}, {""},
+      {"midi_modifyCurrent", RPNM_midi_modifyCurrent},
+      {"get_tuner_freq", RPCM_get_tuner_freq},
+      {"bank_insert_new", RPCM_bank_insert_new},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {""}, {""}, {""},
+      {"plugin_preset_list_load", RPCM_plugin_preset_list_load},
+      {"plugin_load_ui", RPCM_plugin_load_ui},
+      {"clear_oscilloscope_buffer", RPNM_clear_oscilloscope_buffer},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {"get_midi_controller_map", RPCM_get_midi_controller_map},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {""}, {""},
+      {"pf_append", RPNM_pf_append}
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
@@ -245,6 +239,7 @@ const jsonrpc_method_def jsonrpc_method_list[] = {
 	{ "list", true },
 	{ "banks", true },
 	{ "setpreset", false },
+	{ "sendcc", false },
 	{ "bank_insert_content", true },
 	{ "bank_insert_new", true },
 	{ "get_bank", true },

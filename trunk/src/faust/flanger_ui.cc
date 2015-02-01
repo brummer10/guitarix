@@ -24,7 +24,7 @@ b.openHorizontalBox("");
 	b.openHorizontalBox("");
 	{
 	    b.insertSpacer();
-	    b.create_selector(PARAM("invert"), 0);
+	    b.create_selector(PARAM("invert"), "invert");
 	    b.insertSpacer();
 	    b.insertSpacer();
 	    b.insertSpacer();

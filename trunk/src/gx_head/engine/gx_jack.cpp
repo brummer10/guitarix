@@ -104,6 +104,9 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       engine(engine_),
       jack_is_down(false),
       jack_is_exit(true),
+      send_cc(false),
+      cc_num(0),
+      pg_num(0),
 #ifdef HAVE_JACK_SESSION
       session_event(0),
       session_event_ins(0),
@@ -401,7 +404,7 @@ void GxJack::gx_jack_cleanup() {
     jack_port_unregister(client, ports.input.port);
     jack_port_unregister(client, ports.midi_input.port);
     jack_port_unregister(client, ports.insert_out.port);
-#ifdef USE_MIDI_OUT
+#if defined(USE_MIDI_OUT) || defined(USE_MIDI_CC_OUT)
     jack_port_unregister(client, ports.midi_output.port);
 #endif
     jack_port_unregister(client_insert, ports.insert_in.port);
@@ -512,7 +515,7 @@ void GxJack::gx_jack_init_port_connection(const gx_system::CmdlineOptions& opt) 
 	}
     }
 
-#ifdef USE_MIDI_OUT
+#if defined(USE_MIDI_OUT) || defined(USE_MIDI_CC_OUT)
     // autoconnect midi output port
     list<string>& lmo = ports.midi_output.conn;
     for (list<string>::iterator i = lmo.begin(); i != lmo.end(); ++i) {
@@ -579,7 +582,7 @@ void GxJack::gx_jack_callbacks() {
 	client, "midi_in_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
     ports.insert_out.port = jack_port_register(
 	client, "out_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
-#ifdef USE_MIDI_OUT
+#if defined(USE_MIDI_OUT) || defined(USE_MIDI_CC_OUT)
     ports.midi_output.port = jack_port_register(
 	client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 #else
@@ -613,6 +616,23 @@ void GxJack::gx_jack_callbacks() {
 /****************************************************************
  ** jack process callbacks
  */
+
+void GxJack::process_midi_cc(void *buf, jack_nframes_t nframes) {
+	// midi CC output processing
+    if (send_cc) {
+		send_cc = false;
+	fprintf(stderr, "send midi_cc \n");
+		unsigned char* midi_send = jack_midi_event_reserve(buf, 0, 2);
+
+		if (midi_send) {
+		    // program value
+		    midi_send[1] =  pg_num;
+		    // controller+ channel
+		    midi_send[0] = cc_num | 0;
+		}
+	}
+ 
+}
 
 // must only be used inside gx_jack_process
 void *GxJack::get_midi_buffer(jack_nframes_t nframes) {
@@ -663,6 +683,10 @@ int __rt_func GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
         self.old_transport_state = self.transport_state;
     }
     }
+    // midi CC output processing
+    void *buf = self.get_midi_buffer(nframes);
+    self.process_midi_cc(buf, nframes);
+
     gx_system::measure_pause();
     self.engine.mono_chain.post_rt_finished();
     return 0;
@@ -785,6 +809,13 @@ void GxJack::gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int c
 /****************************************************************
  ** callbacks: portreg, buffersize, samplerate, shutdown, xrun
  */
+
+void GxJack::send_midi_cc(int _cc, int _pg) {
+	send_cc = true;
+	cc_num = _cc;
+	pg_num = _pg;
+	fprintf(stderr, "send midi %i, %i\n",_cc, _pg);
+}
 
 // ----- fetch available jack ports other than gx_head ports
 // jackd1: RT process thread

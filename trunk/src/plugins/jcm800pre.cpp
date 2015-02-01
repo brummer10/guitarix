@@ -3996,11 +3996,11 @@ int DKPlugin::uiloader(const UiBuilder& b, int form) {
     }
     
 b.openHorizontalhideBox("");
-    b.create_master_slider(PARAM("P6v"), 0);
+    b.create_master_slider(PARAM("P6v"), "Volume");
 b.closeBox();
 b.openHorizontalBox("");
 
-    b.create_small_rackknobr(PARAM("P6v"), 0);
+    b.create_small_rackknobr(PARAM("P6v"), "Volume");
 b.closeBox();
 
     return 0;

@@ -1577,7 +1577,7 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
     if (form & UI_FORM_STACK) {
     b.openHorizontalhideBox("");
     {
-        b.create_master_slider("smbPitchShift.semitone",0);
+        b.create_master_slider("smbPitchShift.semitone","detune");
     }
     b.closeBox();
     b.openVerticalBox("");
@@ -1591,17 +1591,17 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
     b.create_selector_no_caption("smbPitchShift.latency");
     }
     b.closeBox();
-    b.create_small_rackknob("smbPitchShift.semitone",0);
-    b.create_small_rackknob("smbPitchShift.dry",0);
-    b.create_small_rackknob("smbPitchShift.wet",0);
+    b.create_small_rackknob("smbPitchShift.semitone","detune");
+    b.create_small_rackknob("smbPitchShift.dry","dry amount");
+    b.create_small_rackknob("smbPitchShift.wet","wet amount");
     }
     b.closeBox();
     b.openHorizontalBox("");
     {
-    b.create_small_rackknob("smbPitchShift.a",0);
-    b.create_small_rackknob("smbPitchShift.b",0);
-    b.create_small_rackknob("smbPitchShift.c",0);
-    b.create_small_rackknob("smbPitchShift.d",0);
+    b.create_small_rackknob("smbPitchShift.a","low");
+    b.create_small_rackknob("smbPitchShift.b","middle low");
+    b.create_small_rackknob("smbPitchShift.c","middle treble");
+    b.create_small_rackknob("smbPitchShift.d","treble");
     }
     b.closeBox();
     }

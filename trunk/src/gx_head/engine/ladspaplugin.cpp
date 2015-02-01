@@ -523,7 +523,7 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 		default:
 		    const char *p = self.pd->master_label.c_str();
 		    if (!*p) {
-			p = 0;
+			p = "";
 		    }
 		    b.create_master_slider(self.make_id(*self.pd->names[self.pd->master_idx]).c_str(), p);
 		    break;
@@ -540,7 +540,7 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    b.closeBox();
 	    b.openHorizontalBox("");
 	}
-	const char *p = 0;
+	const char *p = self.desc->PortNames[(*it)->index];
 	std::string id = self.make_id(**it);
 	switch ((*it)->tp) {
 	case tp_scale:
@@ -552,7 +552,7 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    break;
 	case tp_toggle:
 	    if ((*it)->has_caption) {
-		b.create_switch("switch",id.c_str(), 0);
+		b.create_switch("switch",id.c_str(), p);
 	    } else {
 		b.create_switch_no_caption("switchit",id.c_str());
 	    }
@@ -565,17 +565,17 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    break;
 	case tp_display_toggle:
 	    if ((*it)->has_caption) {
-		b.create_switch("led",id.c_str(), 0);
+		b.create_switch("led",id.c_str(), p);
 	    } else {
 		b.create_switch_no_caption("led",id.c_str());
 	    }
 	    break;
 	case tp_int:
-	    b.create_spin_value(id.c_str(), 0);
+	    b.create_spin_value(id.c_str(), p);
 	    break;
 	case tp_enum:
 	    if ((*it)->has_caption) {
-		b.create_selector(id.c_str(), 0);
+		b.create_selector(id.c_str(), p);
 	    } else {
 		b.create_selector_no_caption(id.c_str());
 	    }
@@ -898,7 +898,7 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 		default:
 		    const char *p = self.pd->master_label.c_str();
 		    if (!*p) {
-			p = 0;
+			p = "";
 		    }
 		    b.create_master_slider(self.make_id(*self.pd->names[self.pd->master_idx]).c_str(), p);
 		    break;
@@ -915,7 +915,9 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	    b.closeBox();
 	    b.openHorizontalBox("");
 	}
-	const char *p = 0;
+	const LilvPort* port = lilv_plugin_get_port_by_index(self.plugin, (*it)->index);
+	LilvNode* nm_node = lilv_port_get_name(self.plugin, port);
+	const char *p = lilv_node_as_string(nm_node);
 	std::string id = self.make_id(**it);
 	switch ((*it)->tp) {
 	case tp_scale:
@@ -927,7 +929,7 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	    break;
 	case tp_toggle:
 	    if ((*it)->has_caption) {
-		b.create_switch("switch",id.c_str(), 0);
+		b.create_switch("switch",id.c_str(), p);
 	    } else {
 		b.create_switch_no_caption("switchit",id.c_str());
 	    }
@@ -940,17 +942,17 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	    break;
 	case tp_display_toggle:
 	    if ((*it)->has_caption) {
-		b.create_switch("led",id.c_str(), 0);
+		b.create_switch("led",id.c_str(), p);
 	    } else {
 		b.create_switch_no_caption("led",id.c_str());
 	    }
 	    break;
 	case tp_int:
-	    b.create_spin_value(id.c_str(), 0);
+	    b.create_spin_value(id.c_str(), p);
 	    break;
 	case tp_enum:
 	    if ((*it)->has_caption) {
-		b.create_selector(id.c_str(), 0);
+		b.create_selector(id.c_str(), p);
 	    } else {
 		b.create_selector_no_caption(id.c_str());
 	    }
@@ -960,6 +962,7 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	default:
 	    assert(false);
 	}
+	lilv_node_free(nm_node);
     }
     if (self.pd->add_wet_dry) {
 	b.create_small_rackknob(self.idd.c_str(), "dry/wet");

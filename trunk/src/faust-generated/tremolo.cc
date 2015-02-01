@@ -173,7 +173,7 @@ b.openVerticalBox("");
     b.openHorizontalBox("");
     {
 	b.insertSpacer();
-	b.create_selector(PARAM("SINE"), 0);
+	b.create_selector_no_caption(PARAM("SINE"));
 	b.insertSpacer();
 	b.insertSpacer();
 	b.openHorizontalTableBox("");

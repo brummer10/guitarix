@@ -105,6 +105,9 @@ class GxJack: public sigc::trackable {
     gx_engine::GxEngine& engine;
     bool                jack_is_down;
     bool                jack_is_exit;
+    bool                send_cc;
+    int                 cc_num;
+    int                 pg_num;
     static int          gx_jack_srate_callback(jack_nframes_t, void* arg);
     static int          gx_jack_xrun_callback(void* arg);
     static int          gx_jack_buffersize_callback(jack_nframes_t, void* arg);
@@ -180,6 +183,10 @@ public:
 					   int wait_after_connect, const gx_system::CmdlineOptions& opt);
     float               get_last_xrun() { return last_xrun; }
     void*               get_midi_buffer(jack_nframes_t nframes);
+    void                send_midi_cc(int cc_num, int pgm_num);
+    bool                get_send_cc() { return send_cc;}
+    void                set_send_cc(bool set) { send_cc = set;}
+    void                process_midi_cc(void *buf, jack_nframes_t nframes);
 
     void                read_connections(gx_system::JsonParser& jp);
     void                write_connections(gx_system::JsonWriter& w);

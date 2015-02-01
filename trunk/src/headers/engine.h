@@ -56,6 +56,9 @@
 //
 //#define USE_MIDI_OUT
 
+// use MIDI controll out
+#define USE_MIDI_CC_OUT
+
 #ifdef LADSPA_SO
 #define gettext(x) dgettext(GETTEXT_PACKAGE, x)
 #endif

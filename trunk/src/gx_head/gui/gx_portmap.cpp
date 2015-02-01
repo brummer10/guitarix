@@ -536,7 +536,7 @@ void PortMapWindow::load_all() {
     uslp();
     load(3, jack.ports.midi_input.port);
     uslp();
-#ifdef USE_MIDI_OUT
+#if defined(USE_MIDI_OUT) || defined(USE_MIDI_CC_OUT)
     load(4, jack.ports.midi_output.port);
     uslp();
 #endif

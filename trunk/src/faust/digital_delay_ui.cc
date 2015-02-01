@@ -8,7 +8,7 @@ b.openVerticalBox("");
     {
         b.openVerticalBox("");
         {
-            b.create_selector(PARAM("notes"), 0);
+            b.create_selector(PARAM("notes"), "tact");
             b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
             b.create_small_rackknob(PARAM("bpm"), _(" delay (bpm)"));
         }
@@ -18,7 +18,7 @@ b.openVerticalBox("");
             b.openHorizontalBox("");
             b.openFrameBox("");
             b.closeBox();
-            b.create_selector(PARAM("mode"), 0);
+            b.create_selector(PARAM("mode"), "mode");
             b.closeBox();
             b.openHorizontalBox("");
             {
