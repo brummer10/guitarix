@@ -621,7 +621,6 @@ void GxJack::process_midi_cc(void *buf, jack_nframes_t nframes) {
 	// midi CC output processing
     if (send_cc) {
 		send_cc = false;
-	fprintf(stderr, "send midi_cc \n");
 		unsigned char* midi_send = jack_midi_event_reserve(buf, 0, 2);
 
 		if (midi_send) {
@@ -814,7 +813,6 @@ void GxJack::send_midi_cc(int _cc, int _pg) {
 	send_cc = true;
 	cc_num = _cc;
 	pg_num = _pg;
-	fprintf(stderr, "send midi %i, %i\n",_cc, _pg);
 }
 
 // ----- fetch available jack ports other than gx_head ports
