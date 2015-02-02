@@ -879,12 +879,7 @@ def build(bld):
     if not bld.env['NO_MAIN']:
         bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
-        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/funkmuscle.gx', chmod=0o664)
-        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dlp_ae.gx', chmod=0o664)
-        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/zettberlin.gx', chmod=0o664)
-        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/autoandimat.gx', chmod=0o664)
-        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jp_n_o_s.gx', chmod=0o664)
-        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/kokoko3k.gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/brummer.gx', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe_mono', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/flanger_mono_gx', chmod=0o664)
