@@ -397,7 +397,31 @@ style "gx_head_grass_tagx_head_grass_b_style"
   bg[ACTIVE] = { 0.40, 0.40, 0.40 }
   bg[PRELIGHT] = { 0.60, 0.60, 0.60 }
   bg[SELECTED] = { 0.60, 0.60, 0.60 }
-  
+ 
+    engine "pixmap" 
+    {
+		image 
+		{
+			function        = EXTENSION
+			recolorable     = TRUE
+			state           = ACTIVE
+			file            = "grass3.png"
+			border          = { 2, 3, 2, 1 }
+			stretch         = TRUE
+			gap_side        = BOTTOM
+		}
+		image 
+		{
+			function        = EXTENSION
+			recolorable     = TRUE
+			state           = NORMAL
+			file            = "grass2.png"
+			border          = { 2, 3, 2, 0 }
+			stretch         = TRUE
+			gap_side        = BOTTOM
+		}
+    }
+ 
 }
 
 

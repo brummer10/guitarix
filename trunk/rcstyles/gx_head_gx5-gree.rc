@@ -419,6 +419,30 @@ bg[ACTIVE] = { 0.03, 0.04, 0.04 }
 bg[PRELIGHT] = { 0.05, 0.06, 0.06 }
 bg[SELECTED] = { 0.0, 0.0, 0.0 }
 
+engine "pixmap" 
+{
+image 
+{
+function        = EXTENSION
+recolorable     = TRUE
+state           = ACTIVE
+file            = "cairo3.jpg"
+border          = { 2, 3, 2, 1 }
+stretch         = TRUE
+gap_side        = BOTTOM
+}
+image 
+{
+function        = EXTENSION
+recolorable     = TRUE
+state           = NORMAL
+file            = "cairo2.jpg"
+border          = { 2, 3, 2, 0 }
+stretch         = TRUE
+gap_side        = BOTTOM
+}
+}
+
 }
 
 

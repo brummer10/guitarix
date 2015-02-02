@@ -400,6 +400,30 @@ bg[ACTIVE] = { 0.30, 0.40, 0.40 }
 bg[PRELIGHT] = { 0.50, 0.60, 0.60 }
 bg[SELECTED] = { 0.60, 0.60, 0.00 }
 
+engine "pixmap" 
+{
+image 
+{
+function        = EXTENSION
+recolorable     = TRUE
+state           = ACTIVE
+file            = "cairo3.jpg"
+border          = { 2, 3, 2, 1 }
+stretch         = TRUE
+gap_side        = BOTTOM
+}
+image 
+{
+function        = EXTENSION
+recolorable     = TRUE
+state           = NORMAL
+file            = "gx_green2.jpg"
+border          = { 2, 3, 2, 0 }
+stretch         = TRUE
+gap_side        = BOTTOM
+}
+}
+
 }
 
 

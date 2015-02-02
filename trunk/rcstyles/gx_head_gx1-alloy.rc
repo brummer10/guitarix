@@ -395,6 +395,30 @@ style "tab_style"
   bg[ACTIVE] = { 0.40, 0.40, 0.40 }
   bg[PRELIGHT] = { 0.60, 0.60, 0.60 }
   bg[SELECTED] = { 0.60, 0.60, 0.60 }
+
+    engine "pixmap" 
+    {
+		image 
+		{
+			function        = EXTENSION
+			recolorable     = TRUE
+			state           = ACTIVE
+			file            = "cairo3.jpg"
+			border          = { 2, 3, 2, 1 }
+			stretch         = TRUE
+			gap_side        = BOTTOM
+		}
+		image 
+		{
+			function        = EXTENSION
+			recolorable     = TRUE
+			state           = NORMAL
+			file            = "flat2.png"
+			border          = { 2, 3, 2, 0 }
+			stretch         = TRUE
+			gap_side        = BOTTOM
+		}
+    }
   
 }
 

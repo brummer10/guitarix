@@ -198,7 +198,7 @@ void GxMachine::do_program_change(int pgm) {
 }
 
 void GxMachine::set_mute_state(int mute) {
-	if (mute < 64) {
+	if (mute == 0) {
 		engine.set_state(gx_engine::kEngineOn);
 	} else  {
 		engine.set_state(gx_engine::kEngineOff);
