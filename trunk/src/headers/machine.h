@@ -112,9 +112,10 @@ public:
     virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const = 0;
     virtual Glib::ustring get_bank_name(int n) = 0;
     virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) = 0;
-    virtual void msend_midi_cc(int cc, int pgn) = 0;
+    virtual void msend_midi_cc(int cc, int pgn, int bgn, int num) = 0;
     virtual void loadstate() = 0;
     virtual int bank_size() = 0;
+    virtual int current_bank_index() = 0;
     virtual void create_default_scratch_preset() = 0;
     virtual void set_statefilename(const std::string& fn) = 0;
     virtual void save_to_state(bool preserve_preset=false) = 0;
@@ -226,6 +227,7 @@ private:
 #endif
     ParamMap& pmap;
 private:
+    void set_mute_state(int mute);
     void do_program_change(int pgm);
     void edge_toggle_tuner(bool v);
     void on_impresp(const std::string& path);
@@ -287,9 +289,10 @@ public:
     virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const;
     virtual Glib::ustring get_bank_name(int n);
     virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name);
-    virtual void msend_midi_cc(int cc, int pgn);
+    virtual void msend_midi_cc(int cc, int pgn, int bgn, int num);
     virtual void loadstate();
     virtual int bank_size();
+    virtual int current_bank_index();
     virtual void create_default_scratch_preset();
     virtual void set_statefilename(const std::string& fn);
     virtual void save_to_state(bool preserve_preset=false);
@@ -464,9 +467,10 @@ public:
     virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const;
     virtual Glib::ustring get_bank_name(int n);
     virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name);
-    virtual void msend_midi_cc(int cc, int pgn);
+    virtual void msend_midi_cc(int cc, int pgn, int bgn, int num);
     virtual void loadstate();
     virtual int bank_size();
+    virtual int current_bank_index();
     virtual void create_default_scratch_preset();
     virtual void set_statefilename(const std::string& fn);
     virtual void save_to_state(bool preserve_preset=false);

@@ -729,16 +729,20 @@ private:
     int                    last_midi_control_value[ControllerArray::array_size]; //RT
     int                    last_midi_control; //RT
     volatile gint          program_change; //RT
+    volatile gint          mute_change; //RT
     timespec               ts1;
     double                 time0;
     unsigned int           bpm_;
     MidiClockToBpm         mp;
     Glib::Dispatcher       pgm_chg;
+    Glib::Dispatcher       mute_chg;
     sigc::signal<void>     changed;
     sigc::signal<void,int> new_program;
+    sigc::signal<void,int> new_mute_state;
     sigc::signal<void, int, int> midi_value_changed;
 private:
     void               on_pgm_chg();
+    void               on_mute_chg();
     bool check_midi_values();
 public:
     MidiControllerList();
@@ -763,6 +767,7 @@ public:
     void remove_controlled_parameters(paramlist& plist, const ControllerArray *m);
     sigc::signal<void>& signal_changed() { return changed; }
     sigc::signal<void,int>& signal_new_program() { return new_program; }
+    sigc::signal<void,int>& signal_new_mute_state() { return new_mute_state; }
     void compute_midi_in(void* midi_input_port_buf, void *arg);  //RT
     void process_trans(int transport_state);  //RT
     void update_from_controller(int ctr);

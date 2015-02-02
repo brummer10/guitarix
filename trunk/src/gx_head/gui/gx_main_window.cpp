@@ -1979,6 +1979,7 @@ void MainWindow::on_engine_state_change(gx_engine::GxEngineState state) {
 	actions.engine_mute->set_active(true);
 	actions.engine_mute_conn.unblock();
 	status_image->set(pixbuf_off);
+	machine.msend_midi_cc(0xB0,120,127,3);
 	break;
     case gx_engine::kEngineOn:
 	actions.engine_mute_conn.block();
@@ -1988,6 +1989,7 @@ void MainWindow::on_engine_state_change(gx_engine::GxEngineState state) {
 	actions.engine_mute_conn.unblock();
 	actions.engine_bypass_conn.unblock();
 	status_image->set(pixbuf_on);
+	machine.msend_midi_cc(0xB0,120,0,3);
 	break;
     case gx_engine::kEngineBypass:
 	actions.engine_mute_conn.block();

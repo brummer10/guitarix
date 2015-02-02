@@ -105,8 +105,6 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       jack_is_down(false),
       jack_is_exit(true),
       send_cc(false),
-      cc_num(0),
-      pg_num(0),
 #ifdef HAVE_JACK_SESSION
       session_event(0),
       session_event_ins(0),
@@ -617,17 +615,25 @@ void GxJack::gx_jack_callbacks() {
  ** jack process callbacks
  */
 
-void GxJack::process_midi_cc(void *buf, jack_nframes_t nframes) {
+void __rt_func GxJack::process_midi_cc(void *buf, jack_nframes_t nframes) {
 	// midi CC output processing
     if (send_cc) {
 		send_cc = false;
-		unsigned char* midi_send = jack_midi_event_reserve(buf, 0, 2);
+		unsigned char* midi_send = jack_midi_event_reserve(buf, 0, mmessage.me_num);
 
 		if (midi_send) {
-		    // program value
-		    midi_send[1] =  pg_num;
-		    // controller+ channel
-		    midi_send[0] = cc_num | 0;
+			if (mmessage.me_num == 2) {
+				// program value
+				midi_send[1] =  mmessage.pg_num;
+				// controller+ channel
+				midi_send[0] = mmessage.cc_num | 0;
+			} else if (mmessage.me_num == 3) {
+				midi_send[2] =  mmessage.bg_num;
+				// program value
+				midi_send[1] =  mmessage.pg_num;
+				// controller+ channel
+				midi_send[0] = mmessage.cc_num | 0;
+			}
 		}
 	}
  
@@ -809,10 +815,12 @@ void GxJack::gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int c
  ** callbacks: portreg, buffersize, samplerate, shutdown, xrun
  */
 
-void GxJack::send_midi_cc(int _cc, int _pg) {
+void GxJack::send_midi_cc(int _cc, int _pg, int _bgn, int _num) {
 	send_cc = true;
-	cc_num = _cc;
-	pg_num = _pg;
+	mmessage.cc_num = _cc;
+	mmessage.pg_num = _pg;
+	mmessage.bg_num = _bgn;
+	mmessage.me_num = _num;
 }
 
 // ----- fetch available jack ports other than gx_head ports

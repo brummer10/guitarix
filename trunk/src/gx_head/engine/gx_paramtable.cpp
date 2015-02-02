@@ -443,17 +443,21 @@ MidiControllerList::MidiControllerList()
       last_midi_control_value(),
       last_midi_control(-2),
       program_change(-1),
+      mute_change(-1),
       time0(0),
       bpm_(9),
       mp(),
       pgm_chg(),
+      mute_chg(),
       changed(),
       new_program(),
+      new_mute_state(),
       midi_value_changed() {
     for (int i = 0; i < ControllerArray::array_size; ++i) {
 	last_midi_control_value[i] = -1;
     }
     pgm_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_pgm_chg));
+    mute_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_mute_chg));
     Glib::signal_timeout().connect(
 	sigc::mem_fun(this, &MidiControllerList::check_midi_values), 60);
 }
@@ -498,6 +502,14 @@ void MidiControllerList::on_pgm_chg() {
 	pgm = gx_system::atomic_get(program_change);
     } while (!gx_system::atomic_compare_and_exchange(&program_change, pgm, -1));
     new_program(pgm);
+}
+
+void MidiControllerList::on_mute_chg() {
+    int mute;
+    do {
+	mute = gx_system::atomic_get(mute_change);
+    } while (!gx_system::atomic_compare_and_exchange(&mute_change, mute, -1));
+    new_mute_state(mute);
 }
 
 void MidiControllerList::set_config_mode(bool mode, int ctl) {
@@ -648,7 +660,12 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
             gx_system::atomic_set(&program_change, in_event.buffer[1]);
             pgm_chg();
         } else if ((in_event.buffer[0] & 0xf0) == 0xb0) {   // controller
-            set_ctr_val(in_event.buffer[1], in_event.buffer[2]);
+			if (in_event.buffer[1]== 120) { // engine mute by All Sound Off on any midi channel
+				gx_system::atomic_set(&mute_change, in_event.buffer[2]);
+				 mute_chg();
+			} else {
+				set_ctr_val(in_event.buffer[1], in_event.buffer[2]);
+			}
         } else if ((in_event.buffer[0] ) > 0xf0) {   // midi clock
             if ((in_event.buffer[0] ) == 0xf8) {   // midi beat clock
                 clock_gettime(CLOCK_MONOTONIC, &ts1);

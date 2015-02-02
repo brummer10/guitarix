@@ -1033,7 +1033,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
     }
 
     PROCEDURE(sendcc) {
-	serv.jack.send_midi_cc(params[0]->getInt(),params[1]->getInt());
+	serv.jack.send_midi_cc(params[0]->getInt(),params[1]->getInt(),params[2]->getInt(),params[3]->getInt());
     }
 
     PROCEDURE(setstate) {

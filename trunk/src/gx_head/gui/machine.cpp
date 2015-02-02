@@ -148,6 +148,8 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 
     engine.controller_map.signal_new_program().connect(
 	sigc::mem_fun(this, &GxMachine::do_program_change));
+    engine.controller_map.signal_new_mute_state().connect(
+	sigc::mem_fun(this, &GxMachine::set_mute_state));
     pmap["ui.live_play_switcher"].signal_changed_bool().connect(
 	sigc::mem_fun(this, &GxMachine::edge_toggle_tuner));
     engine.midiaudiobuffer.signal_jack_load_change().connect(
@@ -193,6 +195,14 @@ void GxMachine::do_program_change(int pgm) {
     } else if (engine.get_state() == gx_engine::kEngineOn) {
 	engine.set_state(gx_engine::kEngineBypass);
     }
+}
+
+void GxMachine::set_mute_state(int mute) {
+	if (mute < 64) {
+		engine.set_state(gx_engine::kEngineOn);
+	} else  {
+		engine.set_state(gx_engine::kEngineOff);
+	}
 }
 
 void GxMachine::set_state(GxEngineState state) {
@@ -422,15 +432,18 @@ Glib::ustring GxMachine::get_bank_name(int n) {
     return settings.banks.get_name(n);
 }
 
-void GxMachine::msend_midi_cc(int cc, int pgn) {
-	jack.send_midi_cc(cc, pgn);
+void GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
+	jack.send_midi_cc(cc, pgn, bgn, num);
 }
 
 void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
-#ifdef USE_MIDI_CC_OUT
-    msend_midi_cc(0xC0, pf->get_index(name));
-#endif
     settings.load_preset(pf, name);
+#ifdef USE_MIDI_CC_OUT
+   // disabled send midi bank changed for now
+   // msend_midi_cc(0xB0, 32, current_bank_index(),3);
+   // usleep(5000);
+    msend_midi_cc(0xC0, pf->get_index(name),0,2);
+#endif
 }
 
 void GxMachine::loadstate() {
@@ -439,6 +452,10 @@ void GxMachine::loadstate() {
 
 int GxMachine::bank_size() {
     return settings.banks.size();
+}
+
+int GxMachine::current_bank_index() {
+    return settings.banks.get_index(settings.get_current_bank());;
 }
 
 void GxMachine::create_default_scratch_preset() {
@@ -1795,21 +1812,27 @@ Glib::ustring GxMachineRemote::get_bank_name(int n) {
     return banks.get_name(n);
 }
 
-void GxMachineRemote::msend_midi_cc(int cc, int pgn) {
+void GxMachineRemote::msend_midi_cc(int cc, int pgn, int bgn, int num) {
 	START_NOTIFY(sendcc);
     jw->write(cc);
     jw->write(pgn);
+    jw->write(bgn);
+    jw->write(num);
     SEND();
 }
 
 void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
-#ifdef USE_MIDI_CC_OUT
-    msend_midi_cc(0xC0, pf->get_index(name));
-#endif
     START_NOTIFY(setpreset);
     jw->write(pf->get_name());
     jw->write(name);
     SEND();
+#ifdef USE_MIDI_CC_OUT
+   // FIXME current bank is one change behind selected, 
+   // if used here.
+   // msend_midi_cc(0xB0, 32, current_bank_index(),3);
+   // usleep(30000);
+    msend_midi_cc(0xC0, pf->get_index(name),0,2);
+#endif
 }
 
 void GxMachineRemote::loadstate() {
@@ -1818,6 +1841,10 @@ void GxMachineRemote::loadstate() {
 
 int GxMachineRemote::bank_size() {
     return banks.size();
+}
+
+int GxMachineRemote::current_bank_index() {
+    return banks.get_index(get_current_bank());
 }
 
 void GxMachineRemote::create_default_scratch_preset() {
