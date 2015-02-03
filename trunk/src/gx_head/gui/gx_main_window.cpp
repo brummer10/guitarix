@@ -1214,9 +1214,9 @@ void MainWindow::set_latency() {
     else actions.osc_buffer_menu->set_sensitive(true);
 }
 
-void gx_show_help() {
+void show_forum_help() {
     GError *error = NULL;
-    gtk_show_uri(gdk_screen_get_default(), "http://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Main_Page",
+    gtk_show_uri(gdk_screen_get_default(), "http://guitarix.sourceforge.net/forum/",
     gtk_get_current_event_time(), &error);
     if (error)
     {
@@ -1224,7 +1224,10 @@ void gx_show_help() {
 				  _("failed to load online help   "));
         g_error_free(error);
     } 
+}
 
+void gx_show_help() {
+    Glib::signal_idle().connect_once(sigc::ptr_fun( show_forum_help));
 }
 
 // ----menu funktion about
