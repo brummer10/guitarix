@@ -886,6 +886,8 @@ def build(bld):
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jconv', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/mbc', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/mbcs', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/graphiceq', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jconv_mono', chmod=0o664)
         # "greathall.wav" is referenced in the source (keep in sync when changing)
         bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
         bld.install_files(bld.env['GX_SOUND_BPB_DIR'], './IR/BestPlugins_Bands/*', chmod=0o664)

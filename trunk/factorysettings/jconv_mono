@@ -1,0 +1,86 @@
+["gx_plugin_version", 1,
+  "Mesa Boogie Mark V", {
+    "jconv_mono.convolver": {
+      "jconv.IRFile": "Mesa Boogie Mark V.wav",
+      "jconv.IRDir": "%S/amps",
+      "jconv.Gain": 0.498656,
+      "jconv.GainCor": 1,
+      "jconv.Offset": 0,
+      "jconv.Length": 3312,
+      "jconv.Delay": 0,
+      "jconv.gainline": [[0, 0], [3311, 0]]
+    },
+    "jconv_mono.gain": 0,
+    "jconv_mono.wet_dry": 100
+  },
+  "Marshall MG 15", {
+    "jconv_mono.convolver": {
+      "jconv.IRFile": "Marshall MG 15.wav",
+      "jconv.IRDir": "%S/amps",
+      "jconv.Gain": 0.391584,
+      "jconv.GainCor": 1,
+      "jconv.Offset": 0,
+      "jconv.Length": 4465,
+      "jconv.Delay": 0,
+      "jconv.gainline": [[0, 0], [4464, 0]]
+    },
+    "jconv_mono.gain": 0,
+    "jconv_mono.wet_dry": 100
+  },
+  "Krank Krankenstein", {
+    "jconv_mono.convolver": {
+      "jconv.IRFile": "Krank Krankenstein.wav",
+      "jconv.IRDir": "%S/amps",
+      "jconv.Gain": 0.440164,
+      "jconv.GainCor": 1,
+      "jconv.Offset": 0,
+      "jconv.Length": 6844,
+      "jconv.Delay": 0,
+      "jconv.gainline": [[0, 0], [6843, 0]]
+    },
+    "jconv_mono.gain": 0,
+    "jconv_mono.wet_dry": 100
+  },
+  "Engl Special Edition", {
+    "jconv_mono.convolver": {
+      "jconv.IRFile": "Engl Special Edition.wav",
+      "jconv.IRDir": "%S/amps",
+      "jconv.Gain": 0.447935,
+      "jconv.GainCor": 1,
+      "jconv.Offset": 0,
+      "jconv.Length": 9727,
+      "jconv.Delay": 0,
+      "jconv.gainline": [[0, 0], [9726, 0]]
+    },
+    "jconv_mono.gain": 0,
+    "jconv_mono.wet_dry": 100
+  },
+  "Peavey Vypyr 15", {
+    "jconv_mono.convolver": {
+      "jconv.IRFile": "Peavey Vypyr 15.wav",
+      "jconv.IRDir": "%S/amps",
+      "jconv.Gain": 0.46614,
+      "jconv.GainCor": 1,
+      "jconv.Offset": 0,
+      "jconv.Length": 22317,
+      "jconv.Delay": 0,
+      "jconv.gainline": [[0, 0], [22316, 0]]
+    },
+    "jconv_mono.gain": 0,
+    "jconv_mono.wet_dry": 100
+  },
+  "Randall Satan", {
+    "jconv_mono.convolver": {
+      "jconv.IRFile": "Randall Satan.wav",
+      "jconv.IRDir": "%S/amps",
+      "jconv.Gain": 0.434749,
+      "jconv.GainCor": 1,
+      "jconv.Offset": 0,
+      "jconv.Length": 8444,
+      "jconv.Delay": 0,
+      "jconv.gainline": [[0, 0], [8443, 0]]
+    },
+    "jconv_mono.gain": 0,
+    "jconv_mono.wet_dry": 100
+  }
+]

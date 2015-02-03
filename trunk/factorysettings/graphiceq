@@ -1,0 +1,15 @@
+["gx_plugin_version", 1,
+  "drop500", {
+    "graphiceq.g1": -16,
+    "graphiceq.g10": -15,
+    "graphiceq.g11": -23.5,
+    "graphiceq.g2": -7.5,
+    "graphiceq.g3": -2.25,
+    "graphiceq.g4": 0,
+    "graphiceq.g5": -11,
+    "graphiceq.g6": 0,
+    "graphiceq.g7": 0,
+    "graphiceq.g8": 0,
+    "graphiceq.g9": -10.75
+  }
+]
