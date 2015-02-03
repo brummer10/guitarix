@@ -1,3 +1,17 @@
+guitarix2 (0.32.3) unstable; urgency=low
+  * fix some rcstyle bugs for KDE Qtcurve engine
+  * add 2 new rc-styles (flat and green
+  * replace old outdated factory presets 
+  * add some new plugin presets
+  * add jack midi out port to report state (CC messages) and control 
+    multiple instances
+  * set engine.mute to default midi controller 120 (All Sounds Off)
+  * add new command-line options -L start with Live Play GUI
+    and -M start with engine muted
+  * fix some issues with remote control GUI and external plugs (LADSPA, LV2)
+  
+ -- brummer <brummer-@web.de>  Tue, 03 Feb 2015 13:30:35 +0200 
+
 guitarix2 (0.32.2) unstable; urgency=low
   * fix some rcstyle bugs for gtk-2.24.25 and maybe fixed for KDE
   * allow load of preset-files witch contain Denormal Numbers (flush to zero)
