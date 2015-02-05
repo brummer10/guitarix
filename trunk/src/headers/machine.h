@@ -115,7 +115,7 @@ public:
     virtual void msend_midi_cc(int cc, int pgn, int bgn, int num) = 0;
     virtual void loadstate() = 0;
     virtual int bank_size() = 0;
-    virtual int current_bank_index() = 0;
+    virtual int get_bank_index(const Glib::ustring& bank) = 0;
     virtual void create_default_scratch_preset() = 0;
     virtual void set_statefilename(const std::string& fn) = 0;
     virtual void save_to_state(bool preserve_preset=false) = 0;
@@ -226,9 +226,13 @@ private:
     AvahiService *avahi_service;
 #endif
     ParamMap& pmap;
+    Glib::ustring switch_bank;
 private:
+    static gboolean reset_switch_bank(gpointer data);
+    int get_bank_num(Glib::ustring num);
     void set_mute_state(int mute);
     void do_program_change(int pgm);
+    void do_bank_change(int pgm);
     void edge_toggle_tuner(bool v);
     void on_impresp(const std::string& path);
     void exit_handler(bool otherthread);
@@ -292,7 +296,7 @@ public:
     virtual void msend_midi_cc(int cc, int pgn, int bgn, int num);
     virtual void loadstate();
     virtual int bank_size();
-    virtual int current_bank_index();
+    virtual int get_bank_index(const Glib::ustring& bank);
     virtual void create_default_scratch_preset();
     virtual void set_statefilename(const std::string& fn);
     virtual void save_to_state(bool preserve_preset=false);
@@ -470,7 +474,7 @@ public:
     virtual void msend_midi_cc(int cc, int pgn, int bgn, int num);
     virtual void loadstate();
     virtual int bank_size();
-    virtual int current_bank_index();
+    virtual int get_bank_index(const Glib::ustring& bank);
     virtual void create_default_scratch_preset();
     virtual void set_statefilename(const std::string& fn);
     virtual void save_to_state(bool preserve_preset=false);

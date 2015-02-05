@@ -409,6 +409,7 @@ private:
     bool onlygui;
     bool liveplaygui;
     bool mute;
+    Glib::ustring setbank;
     int sporadic_overload;
     int idle_thread_timeout;
     bool convolver_watchdog;
@@ -469,6 +470,7 @@ public:
     bool get_nogui() const { return nogui; }
     bool get_liveplaygui() const { return liveplaygui; }
     bool get_mute() const { return mute; }
+    const Glib::ustring& get_setbank() { return setbank; }
     int get_rpcport() const { return rpcport; }
     void set_rpcport(int port) { rpcport = port; }
     const Glib::ustring& get_rpcaddress() { return rpcaddress; }

@@ -150,10 +150,14 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 	sigc::mem_fun(this, &GxMachine::do_program_change));
     engine.controller_map.signal_new_mute_state().connect(
 	sigc::mem_fun(this, &GxMachine::set_mute_state));
+    engine.controller_map.signal_new_bank().connect(
+	sigc::mem_fun(this, &GxMachine::do_bank_change));
     pmap["ui.live_play_switcher"].signal_changed_bool().connect(
 	sigc::mem_fun(this, &GxMachine::edge_toggle_tuner));
     engine.midiaudiobuffer.signal_jack_load_change().connect(
 	sigc::mem_fun(this, &GxMachine::on_jack_load_change));
+    switch_bank = settings.get_current_bank();
+
 }
 
 GxMachine::~GxMachine() {
@@ -181,20 +185,40 @@ void GxMachine::edge_toggle_tuner(bool v) {
 
 void GxMachine::do_program_change(int pgm) {
     Glib::ustring bank = settings.get_current_bank();
+    if ((bank != switch_bank) && !switch_bank.empty()) {
+        bank = switch_bank;
+	}
     bool in_preset = !bank.empty();
     gx_system::PresetFile *f;
     if (in_preset) {
-	f = settings.banks.get_file(bank);
-	in_preset = pgm < f->size();
+        f = settings.banks.get_file(bank);
+        in_preset = pgm < f->size();
     }
     if (in_preset) {
-	settings.load_preset(f, f->get_name(pgm));
+        settings.load_preset(f, f->get_name(pgm));
+        set_parameter_value("system.current_bank",bank);
 	if (engine.get_state() == gx_engine::kEngineBypass) {
 	    engine.set_state(gx_engine::kEngineOn);
 	}
-    } else if (engine.get_state() == gx_engine::kEngineOn) {
-	engine.set_state(gx_engine::kEngineBypass);
-    }
+    } // do nothing when bank/preset is out of range
+    // else if (engine.get_state() == gx_engine::kEngineOn) {
+	// engine.set_state(gx_engine::kEngineBypass);
+    //}
+}
+
+gboolean GxMachine::reset_switch_bank(gpointer data) {
+	GxMachine *m = reinterpret_cast<GxMachine*>(data);
+	m->switch_bank = m->settings.get_current_bank();
+	return false;
+}
+
+void GxMachine::do_bank_change(int pgm) {
+	if (!get_bank_name(pgm).empty()) {
+		switch_bank = get_bank_name(pgm);
+		g_timeout_add(50,reset_switch_bank,this);
+	} else {
+		switch_bank = settings.get_current_bank();
+	}
 }
 
 void GxMachine::set_mute_state(int mute) {
@@ -432,30 +456,48 @@ Glib::ustring GxMachine::get_bank_name(int n) {
     return settings.banks.get_name(n);
 }
 
+int GxMachine::get_bank_num(Glib::ustring num) {
+    Glib::ustring array = "abcdefghijklmnopqrstuvwxyz" ;
+    int i = 0;
+	for(i=0;i<26;i++) {
+		if(num.compare(array.substr(i,1))==0) break;
+	}
+	return i;
+}
+
 void GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
 	jack.send_midi_cc(cc, pgn, bgn, num);
 }
 
 void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
+    int n = get_bank_index(get_current_bank());
     settings.load_preset(pf, name);
 #ifdef USE_MIDI_CC_OUT
-   // disabled send midi bank changed for now
-   // msend_midi_cc(0xB0, 32, current_bank_index(),3);
-   // usleep(5000);
+    if (get_bank_index(pf->get_name()) != n) {
+        msend_midi_cc(0xB0, 32, get_bank_index(pf->get_name()),3);
+        usleep(5000);
+	}
     msend_midi_cc(0xC0, pf->get_index(name),0,2);
 #endif
 }
 
 void GxMachine::loadstate() {
     settings.loadstate();
+	if (!options.get_setbank().empty()) {
+		Glib::ustring sbank = options.get_setbank();
+		int bl = get_bank_num(sbank.substr(0,1).lowercase());
+		int pgm = max(0,atoi(sbank.substr(2,1).raw().c_str())-1);
+		switch_bank = settings.banks.get_invert_name(bl);
+		do_program_change(pgm);
+    }
 }
 
 int GxMachine::bank_size() {
     return settings.banks.size();
 }
 
-int GxMachine::current_bank_index() {
-    return settings.banks.get_index(settings.get_current_bank());;
+int GxMachine::get_bank_index(const Glib::ustring& bank) {
+    return settings.banks.get_index(bank);
 }
 
 void GxMachine::create_default_scratch_preset() {
@@ -1822,15 +1864,16 @@ void GxMachineRemote::msend_midi_cc(int cc, int pgn, int bgn, int num) {
 }
 
 void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
+    int n = get_bank_index(get_current_bank());
     START_NOTIFY(setpreset);
     jw->write(pf->get_name());
     jw->write(name);
     SEND();
 #ifdef USE_MIDI_CC_OUT
-   // FIXME current bank is one change behind selected, 
-   // if used here.
-   // msend_midi_cc(0xB0, 32, current_bank_index(),3);
-   // usleep(30000);
+    if (get_bank_index(pf->get_name()) != n) {
+        msend_midi_cc(0xB0, 32, get_bank_index(pf->get_name()),3);
+        usleep(30000);
+	}
     msend_midi_cc(0xC0, pf->get_index(name),0,2);
 #endif
 }
@@ -1843,8 +1886,8 @@ int GxMachineRemote::bank_size() {
     return banks.size();
 }
 
-int GxMachineRemote::current_bank_index() {
-    return banks.get_index(get_current_bank());
+int GxMachineRemote::get_bank_index(const Glib::ustring& bank) {
+    return banks.get_index(bank);
 }
 
 void GxMachineRemote::create_default_scratch_preset() {

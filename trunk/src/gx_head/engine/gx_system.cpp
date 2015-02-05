@@ -458,6 +458,8 @@ CmdlineOptions::CmdlineOptions()
       rpcaddress(),
       onlygui(false),
       liveplaygui(false),
+      mute(false),
+      setbank(),
       sporadic_overload(0),
       idle_thread_timeout(0),
       convolver_watchdog(true),
@@ -543,6 +545,11 @@ CmdlineOptions::CmdlineOptions()
     opt_mute.set_short_name('M');
     opt_mute.set_long_name("mute");
     opt_mute.set_description("start with engine muted");
+    Glib::OptionEntry opt_bank;
+    opt_bank.set_short_name('b');
+    opt_bank.set_long_name("bank");
+    opt_bank.set_description("set bank and preset to load at startup");
+    opt_bank.set_arg_description("BANK:PRESET (A:0-Z:9)");
     main_group.add_entry(opt_version, version);
     main_group.add_entry(opt_nogui, nogui);
     main_group.add_entry(opt_rpcport, rpcport);
@@ -550,6 +557,7 @@ CmdlineOptions::CmdlineOptions()
     main_group.add_entry(opt_onlygui, onlygui);
     main_group.add_entry(opt_liveplaygui, liveplaygui);
     main_group.add_entry(opt_mute, mute);
+    main_group.add_entry(opt_bank, setbank);
     set_main_group(main_group);
 
     // style options
@@ -864,6 +872,11 @@ void CmdlineOptions::process(int argc, char** argv) {
 		throw Glib::OptionError(
 	    Glib::OptionError::BAD_VALUE,
 	    _("-N and -L cannot be used together"));
+	}
+    if (onlygui && !setbank.empty()) {
+		throw Glib::OptionError(
+	    Glib::OptionError::BAD_VALUE,
+	    _("-G and -b cannot be used together"));
 	}
     if (lterminal) {
 	GxLogger::get_logger().signal_message().connect(
