@@ -1693,16 +1693,6 @@ Glib::ustring PresetBanks::get_name(int n) {
     return "";
 }
 
-Glib::ustring PresetBanks::get_invert_name(int n) {
-    int in = size() -n -1;
-    for (iterator i = begin(); i != end(); ++i, --in) {
-	if (in == 0) {
-	    return i->get_name();
-	}
-    }
-    return "";
-}
-
 /****************************************************************
  ** class GxSettingsBase
  */

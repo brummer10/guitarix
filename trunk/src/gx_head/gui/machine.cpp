@@ -462,7 +462,7 @@ int GxMachine::get_bank_num(Glib::ustring num) {
 	for(i=0;i<26;i++) {
 		if(num.compare(array.substr(i,1))==0) break;
 	}
-	return i;
+	return bank_size() -i -1;
 }
 
 void GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
@@ -486,8 +486,8 @@ void GxMachine::loadstate() {
 	if (!options.get_setbank().empty()) {
 		Glib::ustring sbank = options.get_setbank();
 		int bl = get_bank_num(sbank.substr(0,1).lowercase());
-		int pgm = max(0,atoi(sbank.substr(2,1).raw().c_str())-1);
-		switch_bank = settings.banks.get_invert_name(bl);
+		int pgm = max(0,atoi(sbank.substr(2,Glib::ustring::npos).raw().c_str())-1);
+		switch_bank = settings.banks.get_name(bl);
 		do_program_change(pgm);
     }
 }

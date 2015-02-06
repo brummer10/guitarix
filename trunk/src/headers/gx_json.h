@@ -444,7 +444,6 @@ public:
     void save();
     int size() { return banklist.size(); }
     Glib::ustring get_name(int n);
-    Glib::ustring get_invert_name(int n);
     void insert(PresetFile* f) { banklist.push_front(f); save(); }
     bool has_entry(const Glib::ustring& bank) const { return get_file(bank) != 0; }
     bool has_file(const std::string& file) const;
