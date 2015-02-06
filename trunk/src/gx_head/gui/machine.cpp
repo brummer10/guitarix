@@ -206,16 +206,15 @@ void GxMachine::do_program_change(int pgm) {
     //}
 }
 
-gboolean GxMachine::reset_switch_bank(gpointer data) {
-	GxMachine *m = reinterpret_cast<GxMachine*>(data);
-	m->switch_bank = m->settings.get_current_bank();
-	return false;
+void GxMachine::reset_switch_bank() {
+	switch_bank = settings.get_current_bank();
 }
 
 void GxMachine::do_bank_change(int pgm) {
 	if (!get_bank_name(pgm).empty()) {
 		switch_bank = get_bank_name(pgm);
-		g_timeout_add(50,reset_switch_bank,this);
+		Glib::signal_timeout().connect_once(
+		    sigc::mem_fun(this,&GxMachine::reset_switch_bank), 50);
 	} else {
 		switch_bank = settings.get_current_bank();
 	}

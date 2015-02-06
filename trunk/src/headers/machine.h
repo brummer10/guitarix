@@ -228,7 +228,7 @@ private:
     ParamMap& pmap;
     Glib::ustring switch_bank;
 private:
-    static gboolean reset_switch_bank(gpointer data);
+    void reset_switch_bank();
     int get_bank_num(Glib::ustring num);
     void set_mute_state(int mute);
     void do_program_change(int pgm);
