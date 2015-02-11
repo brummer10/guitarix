@@ -104,7 +104,6 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       engine(engine_),
       jack_is_down(false),
       jack_is_exit(true),
-      send_cc(false),
 #ifdef HAVE_JACK_SESSION
       session_event(0),
       session_event_ins(0),
@@ -130,6 +129,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       session_ins(),
       shutdown(),
       connection() {
+	for(int i = 0;i<5;i++) mmessage.send_cc[i] = false;
     connection_queue.new_data.connect(sigc::mem_fun(*this, &GxJack::fetch_connection_data));
     client_change_rt.connect(client_change);
     GxExit::get_instance().signal_exit().connect(
@@ -617,26 +617,27 @@ void GxJack::gx_jack_callbacks() {
 
 void __rt_func GxJack::process_midi_cc(void *buf, jack_nframes_t nframes) {
 	// midi CC output processing
-    if (send_cc) {
-		send_cc = false;
-		unsigned char* midi_send = jack_midi_event_reserve(buf, 0, mmessage.me_num);
+	for(int i = 0;i<5;i++) {
+		if (mmessage.send_cc[i]) {
+			unsigned char* midi_send = jack_midi_event_reserve(buf, i, mmessage.me_num[i]);
 
-		if (midi_send) {
-			if (mmessage.me_num == 2) {
-				// program value
-				midi_send[1] =  mmessage.pg_num;
-				// controller+ channel
-				midi_send[0] = mmessage.cc_num | 0;
-			} else if (mmessage.me_num == 3) {
-				midi_send[2] =  mmessage.bg_num;
-				// program value
-				midi_send[1] =  mmessage.pg_num;
-				// controller+ channel
-				midi_send[0] = mmessage.cc_num | 0;
+			if (midi_send) {
+				if (mmessage.me_num[i] == 2) {
+					// program value
+					midi_send[1] =  mmessage.pg_num[i];
+					// controller+ channel
+					midi_send[0] = mmessage.cc_num[i] | 0;
+				} else if (mmessage.me_num[i] == 3) {
+					midi_send[2] =  mmessage.bg_num[i];
+					// program value
+					midi_send[1] =  mmessage.pg_num[i];
+					// controller+ channel
+					midi_send[0] = mmessage.cc_num[i] | 0;
+				}
 			}
+			mmessage.send_cc[i] = false;
 		}
-	}
- 
+    }
 }
 
 // must only be used inside gx_jack_process
@@ -816,11 +817,16 @@ void GxJack::gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int c
  */
 
 void GxJack::send_midi_cc(int _cc, int _pg, int _bgn, int _num) {
-	send_cc = true;
-	mmessage.cc_num = _cc;
-	mmessage.pg_num = _pg;
-	mmessage.bg_num = _bgn;
-	mmessage.me_num = _num;
+	for(int i = 0;i<5;i++) {
+		if (!mmessage.send_cc[i]) {
+			mmessage.send_cc[i] = true;
+			mmessage.cc_num[i] = _cc;
+			mmessage.pg_num[i] = _pg;
+			mmessage.bg_num[i] = _bgn;
+			mmessage.me_num[i] = _num;
+			return;
+		}
+	}
 }
 
 // ----- fetch available jack ports other than gx_head ports

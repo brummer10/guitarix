@@ -474,8 +474,7 @@ void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& n
 #ifdef USE_MIDI_CC_OUT
     if (get_bank_index(pf->get_name()) != n) {
         msend_midi_cc(0xB0, 32, get_bank_index(pf->get_name()),3);
-        usleep(5000);
-	}
+    }
     msend_midi_cc(0xC0, pf->get_index(name),0,2);
 #endif
 }
@@ -1871,8 +1870,7 @@ void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustr
 #ifdef USE_MIDI_CC_OUT
     if (get_bank_index(pf->get_name()) != n) {
         msend_midi_cc(0xB0, 32, get_bank_index(pf->get_name()),3);
-        usleep(30000);
-	}
+    }
     msend_midi_cc(0xC0, pf->get_index(name),0,2);
 #endif
 }
