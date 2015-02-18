@@ -455,7 +455,7 @@
             <property name="can_focus">False</property>
             <property name="top_padding">14</property>
             <property name="bottom_padding">14</property>
-            <property name="right_padding">20</property>
+            <property name="right_padding">35</property>
             <child>
               <object class="GxPaintBox" id="gxpaintbox5">
                 <property name="width_request">47</property>
@@ -666,6 +666,60 @@
                     <property name="n_columns">3</property>
                     <property name="column_spacing">30</property>
                     <property name="row_spacing">4</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                     <child>
                       <placeholder/>
                     </child>
@@ -1744,7 +1798,7 @@
                                             <property name="can_focus">False</property>
                                             <property name="border_width">4</property>
                                             <property name="orientation">vertical</property>
-                                            <property name="paint_func">rectangle_skin_color_expose</property>
+                                            <property name="paint_func">rack_unit_expose</property>
                                             <child>
                                               <object class="GtkHBox" id="hbox2">
                                                 <property name="visible">True</property>
@@ -1757,7 +1811,7 @@
                                                       <object class="GtkLabel" id="label5:rack_effect_label">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="xalign">0</property>
+                                                        <property name="xalign">1</property>
                                                         <property name="label" translatable="yes">&lt;span font="sans bold 7.5"&gt;Tuner&lt;/span&gt;</property>
                                                         <property name="use_markup">True</property>
                                                       </object>
@@ -2403,6 +2457,9 @@
                                                             <property name="top_attach">3</property>
                                                             <property name="bottom_attach">4</property>
                                                             </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
                                                             <placeholder/>

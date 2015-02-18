@@ -757,6 +757,18 @@ PluginPresetPopup::PluginPresetPopup(const PluginDef *pdef_, gx_engine::GxMachin
 Glib::RefPtr<Gtk::SizeGroup> RackBox::szg;
 #endif
 
+void RackBox::set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp) {
+    pb.set_name("rackbox");
+    pb.property_paint_func().set_value("rack_unit_shrink_expose");
+    pb.set_border_width(4);
+}
+
+void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, PluginType tp) {
+    pb.set_name("rackbox");
+    pb.property_paint_func().set_value("rack_unit_expose");
+    pb.set_border_width(4);
+}
+
 void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
     pb.property_paint_func().set_value("rectangle_skin_color_expose");
@@ -766,17 +778,22 @@ void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
 Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort) {
     const char *effect_name = useshort ? plugin.get_shortname() : plugin.get_name();
     Gtk::Label *effect_label = new Gtk::Label(effect_name);
-    effect_label->set_alignment(0, 0.5);
+    effect_label->set_alignment(0.13, 0.5);
     effect_label->set_name("rack_effect_label");
     Pango::FontDescription font_desc = effect_label->get_style()->get_font();
     font_desc.set_size(int(7.5*Pango::SCALE));
     font_desc.set_weight(Pango::WEIGHT_BOLD);
     effect_label->modify_font(font_desc);
     if (plugin.get_type() == PLUGIN_TYPE_STEREO) {
+	Gtk::Alignment *al = new Gtk::Alignment(0, 0, 1.0, 1.0);
+    if (!useshort) al->set_padding(0, 0, 50, 0);
+    Gtk::HBox *hboxl = new Gtk::HBox(false, 4);
 	Gtk::HBox *hbox = new Gtk::HBox(false, 4);
 	Gtk::Image *e = new Gtk::Image(options.get_style_filepath("stereo.png"));
-	hbox->pack_start(*manage(e), Gtk::PACK_SHRINK);
-	hbox->pack_start(*manage(effect_label));
+	hboxl->pack_start(*manage(e), Gtk::PACK_SHRINK);
+	hboxl->pack_start(*manage(effect_label));
+	al->add(*manage(hboxl));
+	hbox->pack_start(*manage(al), Gtk::PACK_SHRINK);
 	hbox->show_all();
 	return hbox;
     } else {
@@ -790,6 +807,7 @@ Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
     Gtk::Button *button = new Gtk::Button();
     button->set_size_request(6,-1);
     button->set_name("effect_reset");
+    button->set_tooltip_text(_("drag n' drop handle"));
     button->set_sensitive(sens);
     al->add(*manage(button));
     return al;
@@ -838,7 +856,7 @@ Gtk::Widget *RackBox::create_icon_widget(const PluginUI& plugin, gx_system::Cmdl
 
 Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options) {
     Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
-    RackBox::set_paintbox(*pb, plugin.get_type());
+    RackBox::set_paintbox_unit_shrink(*pb, plugin.get_type());
     if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
 	pb->property_paint_func().set_value("zac_expose");
     }
@@ -902,7 +920,7 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
 	compress = false;
 	delete_button = false;
     }
-    set_paintbox(mbox, plugin.get_type());
+    set_paintbox_unit_shrink(mbox, plugin.get_type());
     init_dnd();
     minibox = new MiniRackBox(*this, tl.get_options());
     mbox.pack_start(*manage(minibox));
@@ -914,7 +932,7 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     } else {
 	Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
 	pb->show();
-	set_paintbox(*pb, plugin.get_type());
+	set_paintbox_unit(*pb, plugin.get_type());
 	pb->pack_start(*manage(make_full_box(tl.get_options())));
 	pack_start(*manage(pb), Gtk::PACK_SHRINK);
 	fbox = pb;
@@ -1092,14 +1110,16 @@ void RackBox::do_expand() {
 
 Gtk::Button *RackBox::make_expand_button(bool expand) {
     Glib::ustring t;
+    Gtk::Button *b = new Gtk::Button();
     if (expand) {
 	t = "▶";
+	b->set_tooltip_text(_("expand effect unit"));
     } else {
 	t = "▼"; // ▲
+	b->set_tooltip_text(_("shrink effect unit"));
     }
     Gtk::Label *l = new Gtk::Label(t);
     l->set_name("rack_slider");
-    Gtk::Button *b = new Gtk::Button();
     b->set_focus_on_click(false);
     b->add(*manage(l));
     b->set_size_request(20, 15);
@@ -1119,6 +1139,7 @@ Gtk::Button *RackBox::make_preset_button() {
     p->set_can_default(false);
     p->set_can_focus(false);
     p->set_size_request(18,18);
+	p->set_tooltip_text(_("manage effect unit presets"));
     p->signal_clicked().connect(
 	sigc::mem_fun(plugin, &PluginUI::on_plugin_preset_popup));
     return p;
@@ -1148,13 +1169,17 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     box.property_paint_func().set_value("RackBox_expose");
     bx2->pack_start(box);
     Gtk::VBox *vbox = new Gtk::VBox();
+    Gtk::VBox *vboxt = new Gtk::VBox();
+    Gtk::VBox *vboxb = new Gtk::VBox();
+	vbox->pack_start(*manage(vboxt), Gtk::PACK_EXPAND_PADDING);
     vbox->pack_start(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
     if (!(plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
-	vbox->pack_start(*manage(make_preset_button()), Gtk::PACK_EXPAND_PADDING);
+	vbox->pack_start(*manage(make_preset_button()), Gtk::PACK_SHRINK);
     }
-    Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.7);
+	vbox->pack_start(*manage(vboxb), Gtk::PACK_EXPAND_PADDING);
+    Gtk::Alignment *al = new Gtk::Alignment(0, 0, 0.0, 0.7);
     al->add(*manage(vbox));
-    al->set_padding(1, 0, 0, 4);
+    al->set_padding(15, 0, 0, 4);
     bx->pack_end(*manage(al), Gtk::PACK_SHRINK);
     bx->pack_end(*manage(wrap_bar(4, 8)), Gtk::PACK_SHRINK);
     bx->show_all();

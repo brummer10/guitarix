@@ -880,6 +880,8 @@ def build(bld):
         bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/brummer.gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/HarryVH.gx', chmod=0o664)
+        bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/Sonnie_Tele.gx', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/univibe_mono', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/flanger_mono_gx', chmod=0o664)

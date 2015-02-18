@@ -726,6 +726,170 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gdk_region_destroy (region);
 }
 
+static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+1;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-2;
+    
+    double radius = 12.;
+	if (rect_width<12) radius = rect_width;
+	else if (rect_height<12) radius = rect_height;
+	double x1,y1;
+
+	x1=x0+rect_width-2;
+	y1=y0+rect_height-2;
+    x0+=1;
+    y0+=1;
+
+    cairo_pattern_t*pat1;
+	pat1 = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
+	cairo_pattern_add_color_stop_rgba(pat1, 0, 0.3, 0.3, 0.3, 0.49);
+	cairo_pattern_add_color_stop_rgba(pat1, 1, 0.45, 0.45, 0.45, 0.49);
+	cairo_set_source (cr, pat1);
+	//left handle
+	cairo_move_to  (cr, x0, y0 + radius);
+	cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+	cairo_line_to (cr, x0 +50, y0);
+	cairo_line_to (cr, x0 +50, y1);
+	cairo_line_to (cr, x0 + radius, y1);
+	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+	cairo_close_path (cr);
+	cairo_fill (cr);
+	// right handle
+	cairo_set_source (cr, pat1);
+	cairo_move_to (cr, x1 - radius, y0);
+	cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+	cairo_line_to (cr, x1 , y1 - radius);
+	cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+	cairo_line_to (cr, x1 -42, y1);
+	cairo_line_to (cr, x1 -42, y0);
+	cairo_close_path (cr);
+	cairo_fill (cr);
+
+	cairo_pattern_destroy (pat1);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+}
+
+static void rack_unit_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	rectangle_skin_color_expose(wi, ev);
+	rack_handle_expose(wi, ev);
+
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+1;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-2;
+
+	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+				stock_image, 0, 0,
+				x0+3, y0+5, 10,10,
+				GDK_RGB_DITHER_NORMAL, 0, 0);
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+				stock_image, 0, 0,
+				x0+3, y0+rect_height-15, 10,10,
+				GDK_RGB_DITHER_NORMAL, 0, 0);
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+				stock_image, 0, 0,
+				x0+rect_width-16, y0+rect_height-15, 10,10,
+				GDK_RGB_DITHER_NORMAL, 0, 0);
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+				stock_image, 0, 0,
+				x0+rect_width-16, y0+5, 10,10,
+				GDK_RGB_DITHER_NORMAL, 0, 0);
+	g_object_unref(stock_image);
+
+}
+
+static void rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	rectangle_skin_color_expose(wi, ev);
+	rack_handle_expose(wi, ev);
+}
+
+static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	rectangle_skin_color_expose(wi, ev);
+    cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+1;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-2;
+    
+    double radius = 12.;
+	if (rect_width<12) radius = rect_width;
+	else if (rect_height<12) radius = rect_height;
+	double x1,y1;
+
+	x1=x0+rect_width-4;
+	y1=y0+rect_height-4;
+    x0+=2;
+    y0+=2;
+
+    cairo_pattern_t*pat1;
+	pat1 = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
+	//set_box_color(wi, pat1);
+	cairo_pattern_add_color_stop_rgba(pat1, 0, 0.3, 0.3, 0.3, 0.49);
+	cairo_pattern_add_color_stop_rgba(pat1, 1, 0.45, 0.45, 0.45, 0.49);
+	cairo_set_source (cr, pat1);
+	cairo_move_to  (cr, x0, y0 + radius);
+	cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+	cairo_line_to (cr, x0 +30, y0);
+	cairo_line_to (cr, x0 +30, y1);
+	cairo_line_to (cr, x0 + radius, y1);
+	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+	cairo_close_path (cr);
+	cairo_fill (cr);
+	
+	cairo_move_to  (cr, x0+30, y0);
+	cairo_line_to (cr, x1-30 , y0);
+	cairo_line_to (cr, x1-30 , y0+10);
+	cairo_line_to (cr, x1-rect_width/3 , y0+10);
+	cairo_line_to (cr, x0+30 , y0+10);
+	cairo_close_path (cr);
+	cairo_fill (cr);
+
+	cairo_move_to (cr, x1 - radius, y0);
+	cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+	cairo_line_to (cr, x1 , y1 - radius);
+	cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+	cairo_line_to (cr, x1 -30, y1);
+	cairo_line_to (cr, x1 -30, y0);
+	cairo_close_path (cr);
+	cairo_fill (cr);
+	
+	cairo_move_to  (cr, x0+30, y1);
+	cairo_line_to (cr, x1-30 , y1);
+	cairo_line_to (cr, x1-30 , y1-10);
+	cairo_line_to (cr, x0+30 , y1-10);
+	cairo_close_path (cr);
+	cairo_fill (cr);
+
+	cairo_pattern_destroy (pat1);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+}
+
 static void cabinet_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
     int spf;
@@ -2091,7 +2255,7 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
     if (spf == 1000) return;
     if (spf >= 7) {
-        rectangle_skin_color_expose(wi,ev);
+        rack_amp_expose(wi,ev);
         line_expose(wi,ev);
         if ( spf <10) {
         paintbox->gxh_image = gtk_widget_render_icon(wi,"guitarix",(GtkIconSize)-1,NULL);
@@ -2557,6 +2721,12 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = rectangle_expose;
 	} else if (strcmp(paint_func, "rectangle_skin_color_expose") == 0) {
 		paint_box->expose_func = rectangle_skin_color_expose;
+	} else if (strcmp(paint_func, "rack_unit_expose") == 0) {
+		paint_box->expose_func = rack_unit_expose;
+	} else if (strcmp(paint_func, "rack_unit_shrink_expose") == 0) {
+		paint_box->expose_func = rack_unit_shrink_expose;
+	} else if (strcmp(paint_func, "rack_amp_expose") == 0) {
+		paint_box->expose_func = rack_amp_expose;
 	} else if (strcmp(paint_func, "convolver_icon_expose") == 0) {
 		paint_box->expose_func = convolver_icon_expose;
 	} else if (strcmp(paint_func, "AmpBox_expose") == 0) {

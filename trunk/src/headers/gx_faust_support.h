@@ -17,4 +17,4 @@ template <>      inline int faustpower<1>(int x)        {return x;}
 #define NC_(Context, String) (String)
 #endif
 
-#define always_inline inline __attribute__((always_inline))
+#define always_inline inline __attribute__((__always_inline__))
