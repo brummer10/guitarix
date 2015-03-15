@@ -16,7 +16,7 @@ style "gx_head_flat2_skin_icons"
   stock["smallknobr"] = {{"nk-knob-middle.png"}}
 }
 
-class "*GxKnob" style "gx_head_flat2_skin_icons"
+#class "*GxKnob" style "gx_head_flat2_skin_icons"
 
 style "gx2_head_skin_knob_animation"
 {

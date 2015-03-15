@@ -754,8 +754,8 @@ static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
 
     cairo_pattern_t*pat1;
 	pat1 = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
-	cairo_pattern_add_color_stop_rgba(pat1, 0, 0.3, 0.3, 0.3, 0.49);
-	cairo_pattern_add_color_stop_rgba(pat1, 1, 0.45, 0.45, 0.45, 0.49);
+	cairo_pattern_add_color_stop_rgba(pat1, 1, 0.3, 0.3, 0.3, 0.49);
+	cairo_pattern_add_color_stop_rgba(pat1, 0, 0.6, 0.6, 0.6, 0.49);
 	cairo_set_source (cr, pat1);
 	//left handle
 	cairo_move_to  (cr, x0, y0 + radius);
@@ -765,7 +765,11 @@ static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_line_to (cr, x0 + radius, y1);
 	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
 	cairo_close_path (cr);
-	cairo_fill (cr);
+	cairo_fill_preserve (cr);
+	cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.8);
+	cairo_set_line_width (cr, 2.0);
+	cairo_stroke (cr);
+
 	// right handle
 	cairo_set_source (cr, pat1);
 	cairo_move_to (cr, x1 - radius, y0);
@@ -775,7 +779,10 @@ static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_line_to (cr, x1 -42, y1);
 	cairo_line_to (cr, x1 -42, y0);
 	cairo_close_path (cr);
-	cairo_fill (cr);
+	cairo_fill_preserve (cr);
+	cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.7);
+	cairo_set_line_width (cr, 2.0);
+	cairo_stroke (cr);
 
 	cairo_pattern_destroy (pat1);
 	cairo_destroy(cr);
@@ -849,8 +856,8 @@ static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_t*pat1;
 	pat1 = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
 	//set_box_color(wi, pat1);
-	cairo_pattern_add_color_stop_rgba(pat1, 0, 0.3, 0.3, 0.3, 0.49);
-	cairo_pattern_add_color_stop_rgba(pat1, 1, 0.45, 0.45, 0.45, 0.49);
+	cairo_pattern_add_color_stop_rgba(pat1, 1, 0.3, 0.3, 0.3, 0.49);
+	cairo_pattern_add_color_stop_rgba(pat1, 0, 0.6, 0.6, 0.6, 0.49);
 	cairo_set_source (cr, pat1);
 	cairo_move_to  (cr, x0, y0 + radius);
 	cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
@@ -884,6 +891,11 @@ static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_line_to (cr, x0+30 , y1-10);
 	cairo_close_path (cr);
 	cairo_fill (cr);
+	
+	cairo_rectangle(cr,x0+30, y0+10, rect_width-66 , rect_height-26);
+	cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.7);
+	cairo_set_line_width (cr, 2.0);
+	cairo_stroke (cr);
 
 	cairo_pattern_destroy (pat1);
 	cairo_destroy(cr);

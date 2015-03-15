@@ -1,0 +1,150 @@
+#
+# Copyright (C) 2014 Guitarix
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# --------------------------------------------------------------------------
+#
+
+
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix mod: <http://portalmod.com/ns/modgui#>.
+@prefix time: <http://lv2plug.in/ns/ext/time/#>.
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
+@prefix opt:  <http://lv2plug.in/ns/ext/options#> .
+@prefix bufsz: <http://lv2plug.in/ns/ext/buf-size#> .
+
+<http://guitarix.sourceforge.net#me>
+	a foaf:Person ;
+	foaf:name "Guitarix team" ;
+	foaf:mbox <mailto:guitarix-developer@lists.sourceforge.net> ;
+	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
+<http://guitarix.sourceforge.net/plugins/gx_jcm800pre_>
+	a doap:Project ;
+	doap:maintainer <http://guitarix.sourceforge.net#me> ;
+	doap:name "Gx_jcm800pre_" .
+
+<http://guitarix.sourceforge.net/plugins/gx_jcm800pre_#_jcm800pre_>
+    a lv2:Plugin ,
+        lv2:AmplifierPlugin ;
+    doap:maintainer <http://guitarix.sourceforge.net#me> ;
+    doap:name "Gxjcm800pre";
+    doap:license <http://opensource.org/licenses/isc> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_jcm800pre_> ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+    lv2:requiredFeature urid:map ,
+        bufsz:boundedBlockLength ;
+    bufsz:minBlockLength 64 ;
+    bufsz:maxBlockLength 8192 ;
+      
+    lv2:minorVersion 28;
+    lv2:microVersion 3;
+
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_jcm800pre_#gui>;
+    
+rdfs:comment """
+
+...
+
+""";
+
+    lv2:port  [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 0 ;
+        lv2:symbol "out" ;
+        lv2:name "Out"
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 1 ;
+        lv2:symbol "in" ;
+        lv2:name "In" ;
+    ] 
+      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 2 ;
+        lv2:symbol "P6v" ;
+        lv2:name "Pre Amp" ;
+        lv2:default 0.5 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+    ] ,[
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:symbol "Middle" ;
+        lv2:name "Middle";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "Bass" ;
+        lv2:name "Bass";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "Treble" ;
+        lv2:name "Treble";
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "WET_DRY" ;
+        lv2:name "Presence";
+        lv2:default 50.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 7 ;
+        lv2:symbol "GAIN" ;
+        lv2:name "Master Volume";
+        lv2:default 0.0 ;
+        lv2:minimum -20.0 ;
+        lv2:maximum 20.0 ;
+    ] ;
+    mod:gui [
+        a mod:Gui;
+        mod:resourcesDirectory <modgui>;
+        mod:iconTemplate <modgui/gxjcm800pre.html>;
+        mod:templateData <modgui/gxjcm800pre.json>;
+        mod:screenshot <modgui/gxjcm800pre.png>;
+        mod:thumbnail <modgui/gxjcm800pre-thumb.png>;
+    ].
+
+<http://guitarix.sourceforge.net/plugins/gx_jcm800pre_#gui>
+  a guiext:GtkUI;
+  guiext:binary <gx_jcm800pre_gui.so>;
+  guiext:requiredFeature guiext:makeResident;
+    .
