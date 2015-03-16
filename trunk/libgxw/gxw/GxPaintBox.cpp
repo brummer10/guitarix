@@ -656,7 +656,7 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
 	cairo_paint(cr);
 	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    if(spf >= 6 || spf <= 8) {
+    if(spf >= 6 && spf <= 8) {
         GdkPixbuf * stock_image =
             gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
     
@@ -800,21 +800,23 @@ static void rack_unit_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double rect_height = wi->allocation.height-2;
 
 	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
+	double x1 = gdk_pixbuf_get_height(stock_image);
+	double y1 = gdk_pixbuf_get_width(stock_image);
 	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 				stock_image, 0, 0,
-				x0+3, y0+5, 10,10,
+				x0+3, y0+5, x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
 	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 				stock_image, 0, 0,
-				x0+3, y0+rect_height-15, 10,10,
+				x0+3, y0+rect_height-(5+y1), x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
 	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 				stock_image, 0, 0,
-				x0+rect_width-16, y0+rect_height-15, 10,10,
+				x0+rect_width-(6+x1), y0+rect_height-(5+y1), x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
 	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 				stock_image, 0, 0,
-				x0+rect_width-16, y0+5, 10,10,
+				x0+rect_width-(6+x1), y0+5, x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
 	g_object_unref(stock_image);
 
@@ -2279,21 +2281,23 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
         paintbox->gxh_image = NULL;
         }
         GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
+        double x1 = gdk_pixbuf_get_height(stock_image);
+        double y1 = gdk_pixbuf_get_width(stock_image);
         gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 	                stock_image, 0, 0,
-	                x0+5, y0+5, 10,10,
+	                x0+5, y0+5, x1,y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 	                stock_image, 0, 0,
-	                x0+5, y0+rect_height-15, 10,10,
+	                x0+5, y0+rect_height-(5+y1), x1,y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 	                stock_image, 0, 0,
-	                x0+rect_width-15, y0+rect_height-15, 10,10,
+	                x0+rect_width-(5+x1), y0+rect_height-(5+y1), x1,y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
 	                stock_image, 0, 0,
-	                x0+rect_width-15, y0+5, 10,10,
+	                x0+rect_width-(5+x1), y0+5, x1,y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
         g_object_unref(stock_image);
         return;
