@@ -11,6 +11,10 @@ def set_options(opt):
         '--no-avahi', action='store_const', default=False, const=True,
         help=('Do not build with avahi support for automatic discovery of'
               ' / connection to Guitarix server instances  [Default: no]'))
+    guitarix_prog.add_option(
+        '--no-bluez', action='store_const', default=False, const=True,
+        help=('Do not build with bluez support for remote'
+              ' / connection to Guitarix server instances  [Default: no]'))
 
 def configure(conf):
     if not Options.options.no_avahi:
@@ -18,7 +22,8 @@ def configure(conf):
         conf.check_cfg(package='avahi-glib', args='--cflags --libs', uselib_store='AVAHI_GLIB', mandatory=1)
         conf.check_cfg(package='avahi-client', args='--cflags --libs', uselib_store='AVAHI_CLIENT', mandatory=1)
         conf.define("HAVE_AVAHI", 1)
-    conf.check_cfg(package='bluez', args='--cflags --libs', uselib_store='BLUEZ', mandatory=0)
+    if not Options.options.no_bluez:
+        conf.check_cfg(package='bluez', args='--cflags --libs', uselib_store='BLUEZ', mandatory=0)
 
 def gperf2cc(task):
     out_c = task.outputs[0].bldpath(task.env)
