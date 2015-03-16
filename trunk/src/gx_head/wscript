@@ -143,7 +143,8 @@ def build(bld):
               'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'LILV', 'BOOST_SYSTEM']
     if bld.env["HAVE_AVAHI"]:
         uselib += ['AVAHI_GOBJECT', 'AVAHI_GLIB', 'AVAHI_CLIENT']
-    uselib.append('BLUEZ')
+    if bld.env["HAVE_BLUEZ"]:
+        uselib.append('BLUEZ')
     uselib_local = []
     wscript_helper.add_zita_convolver(bld, uselib, sources, incl)
     wscript_helper.add_zita_resampler(bld, uselib, sources, incl)
