@@ -24,7 +24,6 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix mod: <http://portalmod.com/ns/modgui#>.
 @prefix time: <http://lv2plug.in/ns/ext/time/#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 @prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
@@ -133,15 +132,7 @@ rdfs:comment """
         lv2:default 0.0 ;
         lv2:minimum -20.0 ;
         lv2:maximum 20.0 ;
-    ] ;
-    mod:gui [
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/gxjcm800pre.html>;
-        mod:templateData <modgui/gxjcm800pre.json>;
-        mod:screenshot <modgui/gxjcm800pre.png>;
-        mod:thumbnail <modgui/gxjcm800pre-thumb.png>;
-    ].
+    ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_jcm800pre_#gui>
   a guiext:GtkUI;

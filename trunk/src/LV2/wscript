@@ -90,6 +90,7 @@ def dirlist():
         'gx_livelooper.lv2',
         'gx_mbreverb.lv2',
         'gx_jcm800pre.lv2',
+        'gx_cabinet.lv2',
          ]
 
     return subdirs

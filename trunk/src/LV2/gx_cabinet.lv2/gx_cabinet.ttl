@@ -1,0 +1,177 @@
+#
+# Copyright (C) 2012 Hermann Meyer, Andreas Degert, Pete Shorthose, Steve Poskitt
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# --------------------------------------------------------------------------
+#
+
+@prefix pset: <http://lv2plug.in/ns/ext/presets#> .
+@prefix state: <http://lv2plug.in/ns/ext/state#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bufsz: <http://lv2plug.in/ns/ext/buf-size#> .
+@prefix atom:  <http://lv2plug.in/ns/ext/atom#> .
+@prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
+@prefix opt:  <http://lv2plug.in/ns/ext/options#> .
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix work:  <http://lv2plug.in/ns/ext/worker#> .
+
+<http://guitarix.sourceforge.net#me>
+	a foaf:Person ;
+	foaf:name "Guitarix team" ;
+	foaf:mbox <mailto:brummer@web.de> ;
+	rdfs:seeAlso <http://guitarix.sourceforge.net> .
+
+<http://guitarix.sourceforge.net/plugins/gx_cabinet>
+	a doap:Project ;
+	doap:maintainer <http://guitarix.sourceforge.net#me> ;
+	doap:name "GxCabinet" .
+
+<http://guitarix.sourceforge.net/plugins/gx_cabinet#CABINET>
+    a lv2:Plugin ,
+        lv2:SimulatorPlugin ;
+    doap:maintainer <http://guitarix.sourceforge.net#me> ;
+    doap:name "GxCabinet";
+    doap:license <http://opensource.org/licenses/isc> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_cabinet> ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+    lv2:requiredFeature urid:map ,
+        bufsz:boundedBlockLength ,
+        work:schedule ;
+    bufsz:minBlockLength 64 ;
+    bufsz:maxBlockLength 8192 ;
+    lv2:extensionData work:interface ;
+
+    lv2:minorVersion 28;
+    lv2:microVersion 3;
+
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_cabinet#gui>;
+
+rdfs:comment """
+
+""";
+
+    lv2:port  [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 0 ;
+        lv2:symbol "CLevel" ;
+        lv2:name "Cabinet";
+        lv2:default 1.0 ;
+        lv2:minimum 0.5 ;
+        lv2:maximum 5.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 1 ;
+        lv2:symbol "CBass" ;
+        lv2:name "Bass";
+        lv2:default 0.0 ;
+        lv2:minimum -1e+01 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 2 ;
+        lv2:symbol "CTreble" ;
+        lv2:name "Treble";
+        lv2:default 0.0 ;
+        lv2:minimum -1e+01 ;
+        lv2:maximum 1e+01 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:symbol "c_model" ;
+        lv2:name "Cab Model" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 18 ;
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:enumeration ;
+        lv2:scalePoint [rdfs:label "4x12"; rdf:value 0];
+        lv2:scalePoint [rdfs:label "2x12"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "1x12"; rdf:value 2];
+        lv2:scalePoint [rdfs:label "4x10"; rdf:value 3];
+        lv2:scalePoint [rdfs:label "2x10"; rdf:value 4];
+        lv2:scalePoint [rdfs:label "HighGain"; rdf:value 5];
+        lv2:scalePoint [rdfs:label "Twin"; rdf:value 6];
+        lv2:scalePoint [rdfs:label "Bassman"; rdf:value 7];
+        lv2:scalePoint [rdfs:label "Marshall"; rdf:value 8];
+        lv2:scalePoint [rdfs:label "AC30"; rdf:value 9];
+        lv2:scalePoint [rdfs:label "Princeton"; rdf:value 10];
+        lv2:scalePoint [rdfs:label "A2"; rdf:value 11];
+        lv2:scalePoint [rdfs:label "1x15"; rdf:value 12];
+        lv2:scalePoint [rdfs:label "Mesa"; rdf:value 13];
+        lv2:scalePoint [rdfs:label "Briliant"; rdf:value 14];
+        lv2:scalePoint [rdfs:label "Vitalize"; rdf:value 15];
+        lv2:scalePoint [rdfs:label "Charisma"; rdf:value 16];
+        lv2:scalePoint [rdfs:label "1x8"; rdf:value 17];
+        lv2:scalePoint [rdfs:label "Off"; rdf:value 18];
+    ] , [
+        a lv2:InputPort ,
+            atom:AtomPort ;
+        atom:bufferType atom:Sequence ;
+        atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
+        lv2:index 4 ;
+        lv2:symbol "control" ;
+        lv2:name "Control" ;
+    ] , [
+        a lv2:OutputPort ,
+            atom:AtomPort ;
+        atom:bufferType atom:Sequence ;
+        atom:supports <http://lv2plug.in/ns/ext/patch#Message> ;
+        lv2:index 5 ;
+        lv2:symbol "notify" ;
+        lv2:name "Notify" ;
+    ] , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "SCHEDULE" ;
+        lv2:name "SCHEDULE";
+        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:notOnGUI;
+        lv2:default 1.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:AudioPort ,
+            lv2:OutputPort ;
+        lv2:index 7 ;
+        lv2:symbol "out" ;
+        lv2:name "Out" ;
+    ] , [
+        a lv2:AudioPort ,
+            lv2:InputPort ;
+        lv2:index 8 ;
+        lv2:symbol "in" ;
+        lv2:name "in" ;
+    ] .
+
+
+<http://guitarix.sourceforge.net/plugins/gx_cabinet#gui>
+  a guiext:GtkUI;
+  guiext:binary <gx_cabinet_gui.so>;
+  guiext:requiredFeature guiext:makeResident;
+  lv2:extensionData work:interface ;
+  guiext:portNotification [
+        guiext:plugin <http://guitarix.sourceforge.net/plugins/gx_cabinet#GUITARIX>;
+        lv2:symbol "notify" ;
+        guiext:notifyType atom:Blank
+  ] .
