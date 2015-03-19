@@ -8,6 +8,8 @@ style "guitarix_regler"
   GxRegler::value-spacing = 2
   GxRegler::value-border = { 6, 6, 3, 3 }
   font_name = "sans 7.5"
+  GxRegler::value-color = {
+    { 0, 20971, 52428, 10485, 52428 }} 
 }
 
 style "guitarix_value_display"

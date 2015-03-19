@@ -69,7 +69,7 @@ plug_name(plugname)
   make_controller_box(&m_vbox6, "treble", -1e+01, 1e+01, 0.5, CTreble);
 
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(30);
+  m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(12);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
@@ -80,7 +80,7 @@ plug_name(plugname)
   m_hbox_.set_homogeneous(false);
   // this box set space for the upper part of the skin
   m_hbox1_.set_spacing(12);
-  m_hbox1_.set_border_width(65);
+  m_hbox1_.set_border_width(105);
   // set a vertical box in the paintbox
   m_paintbox.pack_start(m_vbox_);
   // and put space box on top
@@ -113,7 +113,7 @@ bool Widget::_expose_event(GdkEventExpose *event)
   int x, y, width, height, depth;
   m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
   //double_t height = m_paintbox.get_window()->get_height();
-  m_paintbox.set_border_width(height/10);
+  m_paintbox.set_border_width(height/20);
   return false;
 }
 

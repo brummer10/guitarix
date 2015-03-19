@@ -171,7 +171,7 @@ rdfs:comment """
   guiext:requiredFeature guiext:makeResident;
   lv2:extensionData work:interface ;
   guiext:portNotification [
-        guiext:plugin <http://guitarix.sourceforge.net/plugins/gx_cabinet#GUITARIX>;
+        guiext:plugin <http://guitarix.sourceforge.net/plugins/gx_cabinet#CABINET>;
         lv2:symbol "notify" ;
         guiext:notifyType atom:Blank
   ] .

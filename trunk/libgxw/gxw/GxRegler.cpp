@@ -23,6 +23,7 @@
 
 #include "GxRegler.h"
 #include "GxControlParameter.h"
+#include "GxGradient.h"
 #include <gdk/gdkkeysyms.h>
 
 #define gtk_widget_get_requisition(w, r) (*r = (w)->requisition)
@@ -372,6 +373,14 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                   P_("Extra space for value display"),
 		                   GTK_TYPE_BORDER,
 		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_install_style_property_parser(
+		widget_class,
+		g_param_spec_boxed("value-color",
+		                   P_("Value color"),
+		                   P_("Color gradient defined as part of skin"),
+		                   GX_TYPE_GRADIENT,
+		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
+		gx_parse_gradient);
 
 	g_object_class_install_property(
 		gobject_class, PROP_SHOW_VALUE,
@@ -915,6 +924,29 @@ static gchar* _gx_regler_format_value(GxRegler *regler, gdouble value)
 	}
 }
 
+
+inline double cairo_clr(guint16 clr)
+{
+	return clr / 65535.0;
+}
+
+// set cairo color related to the used skin
+static void set_value_color(GtkWidget *wi, cairo_t *cr)
+{
+	GxGradient *grad;
+	gtk_widget_style_get(wi, "value-color", &grad, NULL);
+	if (!grad) {
+		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
+		cairo_set_source_rgba(cr,cairo_clr(p2->red),
+			cairo_clr(p2->green), cairo_clr(p2->blue), 0.8);
+		return;
+	}
+	GxGradientElement *el = (GxGradientElement*)grad->colors->data;
+	cairo_set_source_rgba(cr, el->red, el->green, el->blue, el->alpha);
+	gx_gradient_free(grad);
+}
+
+
 static const GtkBorder default_value_border = { 6, 6, 3, 3 };
 
 static void get_value_border(GtkWidget *widget, GtkBorder *value_border)
@@ -1006,7 +1038,7 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	gchar *txt;
 	ensure_digits(regler);
 	txt = _gx_regler_format_value(regler, GTK_RANGE(regler)->adjustment->value);
-    cairo_set_source_rgba (cr, 0.4, 1, 0.2, 0.8);
+	set_value_color(GTK_WIDGET(regler),cr);
     PangoLayout *l = regler->value_layout;
     pango_layout_set_text(l, txt, -1);
     g_free(txt);
@@ -1016,7 +1048,8 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 		(rect->width - logical_rect.width - (2*border_width + border.left + border.right));
     cairo_move_to(cr, x0-1+off, y0+3);
     pango_cairo_show_layout(cr, l);
-
+    
+    cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 }
 

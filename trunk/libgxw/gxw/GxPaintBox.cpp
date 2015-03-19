@@ -739,6 +739,18 @@ static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
 	y1=y0+rect_height-2;
     x0+=1;
     y0+=1;
+    cairo_pattern_t*pat3;
+	pat3 = cairo_pattern_create_linear (x0, y0, x0+50, y0);
+	cairo_pattern_add_color_stop_rgba(pat3, 0, 0.1, 0.1, 0.1, 0.69);
+	cairo_pattern_add_color_stop_rgba(pat3, 0.2, 0.3, 0.3, 0.3, 0.0);
+	cairo_pattern_add_color_stop_rgba(pat3, 0.9, 0.3, 0.3, 0.3, 0.0);
+	cairo_pattern_add_color_stop_rgba(pat3, 1, 0.1, 0.1, 0.1, 0.89);
+    cairo_pattern_t*pat2;
+	pat2 = cairo_pattern_create_linear (x1-42, y0, x1, y0);
+	cairo_pattern_add_color_stop_rgba(pat2, 1, 0.1, 0.1, 0.1, 0.89);
+	cairo_pattern_add_color_stop_rgba(pat2, 0.8, 0.3, 0.3, 0.3, 0.0);
+	cairo_pattern_add_color_stop_rgba(pat2, 0.1, 0.3, 0.3, 0.3, 0.0);
+	cairo_pattern_add_color_stop_rgba(pat2, 0, 0.1, 0.1, 0.1, 0.69);
 
     cairo_pattern_t*pat1;
 	pat1 = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
@@ -754,6 +766,8 @@ static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
 	cairo_close_path (cr);
 	cairo_fill_preserve (cr);
+	cairo_set_source (cr, pat3);
+	cairo_fill_preserve (cr);
 	cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.8);
 	cairo_set_line_width (cr, 2.0);
 	cairo_stroke (cr);
@@ -768,11 +782,16 @@ static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_line_to (cr, x1 -42, y0);
 	cairo_close_path (cr);
 	cairo_fill_preserve (cr);
+	cairo_set_source (cr, pat2);
+	cairo_fill_preserve (cr);
+	
 	cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.7);
 	cairo_set_line_width (cr, 2.0);
 	cairo_stroke (cr);
 
 	cairo_pattern_destroy (pat1);
+	cairo_pattern_destroy (pat2);
+	cairo_pattern_destroy (pat3);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
 }

@@ -65,7 +65,7 @@ void GXPluginGUI::set_knob( Glib::ustring knob)
                " { \n"
                "   stock['bigknob'] = {{'";
   addKnob +=  knob;
-  addKnob +=  ".png'}}\n"
+  addKnob +=  "-middle.png'}}\n"
               "   stock['smallknob'] = {{'";
   addKnob +=  knob;
   addKnob +=  "-small.png'}}\n"
@@ -88,7 +88,7 @@ void GXPluginGUI::set_skin()
   toparse +=     "/'\n";
   toparse +=     " style 'gx_selector'\n"
                  " {\n"
-                 " fg[NORMAL] = 	{ 0.32, 0.8, 0.16 }\n"
+                 " fg[NORMAL] =  { 0.82, 0.5, 0.16 }\n"
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"
@@ -110,7 +110,7 @@ void GXPluginGUI::set_skin()
                  "\n"
                  "style 'gx_head_black_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#afafaf' \n"
+                 "    fg[NORMAL] = { 0.82, 0.5, 0.16 } \n"
                  " }\n";
   toparse +=     addKnob;
 
@@ -128,7 +128,7 @@ void GXPluginGUI::set_plug_name()
 {
   // Here the plugin should have different name for different amp.....
   addKnob = "";
-  plugskin = "amp21.png";
+  plugskin = "amp800.png";
   plug_name = "GXCABINET" ;
   //fprintf(stderr,"%s",plug_name.c_str());
 }
@@ -137,6 +137,7 @@ GtkWidget* GXPluginGUI::make_gui()
 {
   // init the gxwmm library
   Gxw::init();
+  //set_knob("mc-knob");
   set_skin();
   GtkWidget* container = gtk_vbox_new(FALSE, 2);
   widget = new Widget(plug_name);

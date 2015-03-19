@@ -19,8 +19,8 @@
 
 #pragma once
 
-#ifndef SRC_HEADERS_GXAMP_H_
-#define SRC_HEADERS_GXAMP_H_
+#ifndef SRC_HEADERS_GXCAB_H_
+#define SRC_HEADERS_GXCAB_H_
 
 #include <lv2.h>
 #include "lv2/lv2plug.in/ns/ext/state/state.h"
@@ -51,4 +51,4 @@ typedef enum
   AMP_INPUT1,
 } PortIndex;
 
-#endif //SRC_HEADERS_GXAMP_H_
+#endif //SRC_HEADERS_GXCAB_H_
