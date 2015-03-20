@@ -53,7 +53,7 @@ Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(0);
+  m_paintbox.set_border_width(8);
   m_paintbox.set_spacing(0);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
@@ -61,7 +61,7 @@ plug_name(plugname)
   add(m_paintbox);
 
   // 1st wrapper HBox with 3 sections inside
-  m_hbox_.set_spacing(10);
+  m_hbox_.set_spacing(0);
   m_hbox_.set_border_width(0);
   m_hbox_.set_homogeneous(false);
 
@@ -72,9 +72,9 @@ plug_name(plugname)
   m_vbox_.set_border_width(0);
   m_vbox_.set_homogeneous(false);
 
-  m_vbox.set_spacing(40);
-  make_image( &m_vbox, "screwhead", true ) ;
-  make_image( &m_vbox, "screwhead", false ) ;
+  m_vbox.set_spacing(80);
+  make_image( &m_vbox, "screwhead_new", true ) ;
+  make_image( &m_vbox, "screwhead_new", false ) ;
   m_vbox_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
 
   m_hbox_.pack_start(m_vbox_, Gtk::PACK_SHRINK);
@@ -89,7 +89,7 @@ plug_name(plugname)
   m_vbox3_.set_border_width(0);
   m_vbox3_.set_homogeneous(false);
   m_vbox1_.pack_start(m_vbox3_, Gtk::PACK_EXPAND_PADDING);
-	
+    
   // 2 hboxes One for the Channel Labels
   m_hbox3_.set_spacing(40);
   m_hbox3_.set_border_width(0);
@@ -141,16 +141,16 @@ plug_name(plugname)
   m_vbox4_.pack_start(m_hbox2_, Gtk::PACK_EXPAND_PADDING);
   m_vbox1_.pack_start(m_vbox4_, Gtk::PACK_SHRINK);
 
-  m_hbox_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);
+  m_hbox_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_WIDGET);
 
   // Right Screws
   m_vbox2_.set_spacing(0);
   m_vbox2_.set_border_width(0);
   m_vbox2_.set_homogeneous(false);
 
-  m_vbox1.set_spacing(40);
-  make_image( &m_vbox1, "screwhead", true ) ;
-  make_image( &m_vbox1, "screwhead", false ) ;
+  m_vbox1.set_spacing(80);
+  make_image( &m_vbox1, "screwhead_new", true ) ;
+  make_image( &m_vbox1, "screwhead_new", false ) ;
   m_vbox2_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
 
   m_hbox_.pack_start(m_vbox2_, Gtk::PACK_SHRINK);
@@ -177,10 +177,10 @@ Widget::~Widget()
 // to hold controllers in place
 bool Widget::_expose_event(GdkEventExpose *event)
 {
-  int x, y, width, height, depth;
-  m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
+  //int x, y, width, height, depth;
+  //m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
   //double_t height = m_paintbox.get_window()->get_height();
-  m_paintbox.set_border_width(height/10);
+  //m_paintbox.set_border_width(height/10);
   return false;
 }
 
@@ -286,20 +286,20 @@ void Widget::make_switch_box(Gtk::Box *box,
 // Create the Text Labels For Amp
 void Widget::make_image(Gtk::Box *box,Glib::ustring label, bool start )
 {
-	Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-  	label_image += "/";
-  	label_image += label;
-  	label_image += ".png";
-  	Gtk::Image *pr = new Gtk::Image(label_image);
+    Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    label_image += "/";
+    label_image += label;
+    label_image += ".png";
+    Gtk::Image *pr = new Gtk::Image(label_image);
 
 
-	if( start ){
-//		std::cout << "Pack Start "<<label<<std::endl;
-	        box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
-	}else{
-//	       std::cout << "Pack End " << label << std::endl;
-	        box->pack_end( *Gtk::manage(pr),Gtk::PACK_SHRINK);
-	}
+    if( start ){
+//      std::cout << "Pack Start "<<label<<std::endl;
+            box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
+    }else{
+//         std::cout << "Pack End " << label << std::endl;
+            box->pack_end( *Gtk::manage(pr),Gtk::PACK_SHRINK);
+    }
 } 
 
 
@@ -309,20 +309,20 @@ void Widget::make_label(Gtk::Box *box,Glib::ustring label, bool start  )
     Gtk::Label* pr = new Gtk::Label(label, 0);
     pr->set_name("amplabel");
 
-   Gtk::VBox* b1 = new Gtk::VBox();
-   Gtk::VBox* b2 = new Gtk::VBox();
-    		
+   //Gtk::VBox* b1 = new Gtk::VBox();
+   //Gtk::VBox* b2 = new Gtk::VBox();
+            
     if( start ){
-//		std::cout << "Pack Start "<<label<<std::endl;  Gtk::VBox* b1 = new Gtk::VBox();
-	    //box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
-	    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
-	    //box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
-	}else{
-//	       std::cout << "Pack End " << label << std::endl;
-	      // box->pack_end( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
-   		 box->pack_end( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
-   	 	//box->pack_end( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
-	}
+//      std::cout << "Pack Start "<<label<<std::endl;  Gtk::VBox* b1 = new Gtk::VBox();
+        //box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+        box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
+        //box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    }else{
+//         std::cout << "Pack End " << label << std::endl;
+          // box->pack_end( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+         box->pack_end( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
+        //box->pack_end( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    }
 
 } 
 
@@ -359,4 +359,3 @@ void Widget::on_value_changed(uint32_t port_index)
    // check_for_link(port_index, value);
   }
 }
-

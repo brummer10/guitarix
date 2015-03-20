@@ -231,4 +231,3 @@ const LV2UI_Descriptor * lv2ui_descriptor(uint32_t index)
     }
   return descriptors + index;
 }
-

@@ -157,13 +157,13 @@ void gx_studiopre_stGUI::set_plug_name( const char * plugin_uri)
 
   if (strcmp("http://guitarix.sourceforge.net/plugins/gx_studiopre_st#studiopre_st", plugin_uri) == 0)
     {
-      plugskin = "studiopre.png";
+      plugskin = "studiopre_stereo.png";
       plug_name = "studiopre_st";
       set_knob("studiopre-knob");
     }
   else
     {
-      plugskin = "studiopre.png";
+      plugskin = "studiopre_stereo.png";
       plug_name = "studiopre_st";
     }
 }
@@ -231,4 +231,3 @@ const LV2UI_Descriptor * lv2ui_descriptor(uint32_t index)
     }
   return descriptors + index;
 }
-
