@@ -484,7 +484,7 @@ static void mainGtk(int argc, char *argv[]) {
 	gui.create_default_scratch_preset();
     }
     // ----------------------- run GTK main loop ----------------------
-    //delete Splash;
+    delete Splash;
     gui.run();
     gx_child_process::childprocs.killall();
 }
