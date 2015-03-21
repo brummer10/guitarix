@@ -312,7 +312,7 @@ GxSplashBox::GxSplashBox()
     set_decorated(false);
     set_type_hint(Gdk::WINDOW_TYPE_HINT_SPLASHSCREEN);
     set_position(Gtk::WIN_POS_CENTER );
-    set_default_size(280,80);
+    set_default_size(613, 180);
     show_all();
 }
 
@@ -484,7 +484,7 @@ static void mainGtk(int argc, char *argv[]) {
 	gui.create_default_scratch_preset();
     }
     // ----------------------- run GTK main loop ----------------------
-    delete Splash;
+    //delete Splash;
     gui.run();
     gx_child_process::childprocs.killall();
 }
