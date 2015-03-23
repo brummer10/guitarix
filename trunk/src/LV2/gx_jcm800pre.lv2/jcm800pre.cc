@@ -7,7 +7,10 @@
 #include <Eigen/Core>
 
 #include "gx_compiler.h"
+#include "gx_resampler.h"
 #include "gx_pluginlv2.h"
+
+namespace jcm800pre {
 
 using namespace Eigen;
 
@@ -104,6 +107,7 @@ static inline void check(splinedata<M> *sd, creal *t, int i) { if (i) report(sd,
 
 #endif /* !_INTPP_H */
 
+} // end namespace jcm800pre
 #define NO_INTPP_INCLUDES
 #include <cstdio>
 #include <cstdlib>
@@ -112,6 +116,8 @@ static inline void check(splinedata<M> *sd, creal *t, int i) { if (i) report(sd,
 #include "intpp.h"
 #include "intpp_inst.cc"
 #endif
+
+namespace jcm800pre {
 
 #define always_inline inline __attribute__((always_inline))
 
@@ -3750,94 +3756,10 @@ static int nonlin(struct nonlin_param &par) {
 } // end namespace nonlin
 
 
-
-
-
-
-#include <zita-resampler/resampler.h>
-
-class FixedRateResampler {
-private:
-    Resampler r_up, r_down;
-    int inputRate, outputRate;
-    int last_in_count;
-public:
-    int setup(int _inputRate, int _outputRate);
-    int up(int count, float *input, float *output);
-    void down(float *input, float *output);
-    int max_out_count(int in_count) {
-	return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
-};
-
-int FixedRateResampler::setup(int _inputRate, int _outputRate)
-{
-    const int qual = 16; // resulting in a total delay of 2*qual (0.7ms @44100)
-    inputRate = _inputRate;
-    outputRate = _outputRate;
-    if (inputRate == outputRate) {
-	return 0;
-    }
-    // upsampler
-    int ret = r_up.setup(inputRate, outputRate, 1, qual);
-    if (ret) {
-	return ret;
-    }
-    // k == filtlen() == 2 * qual
-    // pre-fill with k-1 zeros
-    r_up.inp_count = r_up.filtlen() - 1;
-    r_up.out_count = 1;
-    r_up.inp_data = r_up.out_data = 0;
-    r_up.process();
-    // downsampler
-    ret = r_down.setup(outputRate, inputRate, 1, qual);
-    if (ret) {
-	return ret;
-    }
-    // k == filtlen() == 2 * qual * fact
-    // pre-fill with k-2 zeros
-    r_down.inp_count = r_down.filtlen() - 2;
-    r_down.out_count = 1;
-    r_down.inp_data = r_down.out_data = 0;
-    r_down.process();
-    return 0;
-}
-
-int FixedRateResampler::up(int count, float *input, float *output)
-{
-    if (inputRate == outputRate) {
-	memcpy(output, input, count*sizeof(float));
-	r_down.out_count = count;
-	return count;
-    }
-    r_up.inp_count = count;
-    r_down.out_count = count+1; // +1 == trick to drain input
-    r_up.inp_data = input;
-    int m = max_out_count(count);
-    r_up.out_count = m;
-    r_up.out_data = output;
-    r_up.process();
-    assert(r_up.inp_count == 0);
-    assert(r_up.out_count <= 1);
-    r_down.inp_count = m - r_up.out_count;
-    return r_down.inp_count;
-}
-
-void FixedRateResampler::down(float *input, float *output)
-{
-    if (inputRate == outputRate) {
-	memcpy(output, input, r_down.out_count*sizeof(float));
-	return;
-    }
-    r_down.inp_data = input;
-    r_down.out_data = output;
-    r_down.process();
-    assert(r_down.inp_count == 0);
-    assert(r_down.out_count == 1);
-}
-
-FixedRateResampler smp;
-
 class DKPlugin: public PluginLV2 {
+protected:
+    gx_resample::FixedRateResampler smp;
+    
 public:
     float pots[0+1];
     float *pots_;
@@ -3907,8 +3829,8 @@ typedef enum
 */
 
 void DKPlugin::init(unsigned int samplingFreq, PluginLV2 *plugin) {
-    smp.setup(samplingFreq, 96000);
     DKPlugin& self = *static_cast<DKPlugin*>(plugin);
+    self.smp.setup(samplingFreq, 96000);
     self.X.setZero();
    self.Y.setZero();
    unsigned int fs = samplingFreq;
@@ -3976,11 +3898,11 @@ void DKPlugin::process(int n, float *u, float *o, PluginLV2 *plugin) {
     Matrix<creal, 8, 1> mp;
     Array<creal, 8, 1> p_val;
     nonlin_param par(&mp, &mi, &g_v, &g_info, &g_nfev, &fnorm, &p_val);
-    float buf[smp.max_out_count(n)];
-    n = smp.up(n, u, buf);
+    float buf[self.smp.max_out_count(n)];
+    n = self.smp.up(n, u, buf);
 #define GET_U (buf+j*1)
-    for (int j = 0; j < n; j++) {
 #define DTP_U float
+    for (int j = 0; j < n; j++) {
         
         Matrix<creal, 8, 1> dp;
         dp << self.x_last, Map<Matrix<float,1,1> >(GET_U).cast<creal>();
@@ -4000,10 +3922,10 @@ void DKPlugin::process(int n, float *u, float *o, PluginLV2 *plugin) {
             buf[j] = y;
         }
 
+    }
 #undef GET_U
 #undef DTP_U
-    }
-    smp.down(buf, o);
+    self.smp.down(buf, o);
 // end copied code
 }
 
@@ -4011,3 +3933,5 @@ void DKPlugin::del_instance(PluginLV2 *p)
 {
 	delete static_cast<DKPlugin*>(p);
 }
+
+} // end namespace jcm800pre

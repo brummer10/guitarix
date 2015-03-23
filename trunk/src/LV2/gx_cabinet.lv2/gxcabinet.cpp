@@ -63,19 +63,11 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
   return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
 }
 
-
 #include "gxcabinet.h"
 #include "gx_resampler.h"
 #include "gx_convolver.h"
-#include "gx_pluginlv2.h"   // define struct PluginLV2
 #include "cabinet_impulse_former.h"
-
-#ifndef __SSE__
-#include "noiser.cc"
-#endif
-
 #include "cab_data_table.cc"
-
 #include "gx_mlock.cc"
 
 ////////////////////////////// MONO ////////////////////////////////////
@@ -88,9 +80,7 @@ private:
   float*                       input;
   uint32_t                     s_rate;
   int32_t                      prio;
-#ifndef __SSE__
-  PluginLV2*                   wn;
-#endif
+
   gx_resample::BufferResampler resamp;
   GxSimpleConvolver            cabconv;
   Impf                         impf;
@@ -251,10 +241,6 @@ void GxCabinet::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
 #ifdef _POSIX_MEMLOCK_RANGE
   GX_LOCK::lock_rt_memory();
 #endif
-#ifndef __SSE__
-  wn = noiser::plugin();
-  wn->set_samplerate(rate, wn);
-#endif
   if (bufsize )
     {
 #ifdef _POSIX_PRIORITY_SCHEDULING
@@ -324,9 +310,6 @@ void GxCabinet::run_dsp_mono(uint32_t n_samples)
 {
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
-#ifndef __SSE__
-  wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
-#endif
   memcpy(output, input, n_samples * sizeof(float));
   // run selected cabinet convolver
   cabconv.run_static(n_samples, &cabconv, output);
@@ -364,9 +347,6 @@ void GxCabinet::clean()
 {
 #ifdef _POSIX_MEMLOCK_RANGE
   GX_LOCK::unlock_rt_memory();
-#endif
-#ifndef __SSE__
-  wn->delete_instance(wn);;
 #endif
 }
 ///////////////////////////// LV2 defines //////////////////////////////
