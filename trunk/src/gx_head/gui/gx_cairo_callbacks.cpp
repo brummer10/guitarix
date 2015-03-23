@@ -1024,31 +1024,24 @@ static const guint8 guitar[] =
   "\377\0\377\377\377\0\377\377\377\0\377\377\377\0\377\377\377\0\377\377"
   "\377\0\377\377\377\0"};
 
-static image_entry image_data[] = {
-    { "guitar", guitar },
-	{ NULL, NULL },
-};
+//static image_entry image_data[] = {
+    //{ "guitar", guitar },
+	//{ NULL, NULL },
+//};
 
 static void render (GtkWidget *wi, cairo_t* cr) {
-    
-    // get widget dimension
     double rect_width  = wi->allocation.width;
 	double rect_height = wi->allocation.height;
     double x0      = wi->allocation.x;
 	double y0      = wi->allocation.y;
     
-    // set transparent operator
     cairo_set_source_rgba (cr, 1.0f, 1.0f, 1.0f, 0.0f);
     cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
     cairo_paint (cr);
     
-    // get image
-    GdkPixbuf *stock_image;
-    image_entry *p = image_data;
     string path = string(GX_PIXMAPS_DIR) + "/Splash.png";
-    
     cairo_surface_t *image = cairo_image_surface_create_from_png(path.c_str());
-    cairo_rectangle(cr, 0, 0, rect_width, rect_height);
+    cairo_rectangle(cr, x0, y0, rect_width, rect_height);
     cairo_set_source_surface(cr, image, 0, 0);
     cairo_paint(cr);
 }

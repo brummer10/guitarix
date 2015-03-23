@@ -51,7 +51,10 @@ G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
 #define get_widget_id3(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id3)
 #define get_cab_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->cab_id)
 #define get_amp_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->amp_id)
-
+#define get_pattern1_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->pattern1_id)
+#define get_pattern2_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->pattern2_id)
+#define get_patternL_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->patternL_id)
+#define get_patternR_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->patternR_id)
 
 static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 {
@@ -68,6 +71,10 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
     klass->widget_id = "gxplate";
     klass->widget_id2 = "gxplate2";
     klass->widget_id3 = "gxplate3";
+    klass->pattern1_id = "pattern1";
+    klass->pattern2_id = "pattern2";
+    klass->patternL_id = "patternL";
+    klass->patternR_id = "patternR";
     klass->cab_id = "texture_cab";
     klass->amp_id = "amp_skin";
 	g_object_class_install_property(
@@ -213,6 +220,53 @@ static void gx_paint_box_init (GxPaintBox *paint_box)
 	paint_box->gxr_image = NULL;
 	paint_box->icon_set = 0;
     paint_box->force_reload = 0;
+    
+    GdkPixbuf * stock_image =
+		gtk_widget_render_icon(GTK_WIDGET(paint_box),
+                               get_pattern1_id(GTK_WIDGET(paint_box)),
+                               (GtkIconSize)-1,
+                               NULL);
+	gint width = gdk_pixbuf_get_width (stock_image);
+	gint height = gdk_pixbuf_get_height (stock_image);
+    paint_box->pattern1 = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    cairo_t * tmp = cairo_create(paint_box->pattern1);
+    gdk_cairo_set_source_pixbuf (tmp, stock_image, 0, 0);
+    cairo_paint(tmp);
+    
+    stock_image = gtk_widget_render_icon(GTK_WIDGET(paint_box),
+                                         get_pattern2_id(GTK_WIDGET(paint_box)),
+                                         (GtkIconSize)-1,
+                                         NULL);
+	width = gdk_pixbuf_get_width (stock_image);
+	height = gdk_pixbuf_get_height (stock_image);
+	paint_box->pattern2 = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    tmp = cairo_create(paint_box->pattern2);
+    gdk_cairo_set_source_pixbuf (tmp, stock_image, 0, 0);
+    cairo_paint(tmp);
+    
+    stock_image = gtk_widget_render_icon(GTK_WIDGET(paint_box),
+                                         get_patternL_id(GTK_WIDGET(paint_box)),
+                                         (GtkIconSize)-1,
+                                         NULL);
+	width = gdk_pixbuf_get_width (stock_image);
+	height = gdk_pixbuf_get_height (stock_image);
+	paint_box->patternL = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    tmp = cairo_create(paint_box->patternL);
+    gdk_cairo_set_source_pixbuf (tmp, stock_image, 0, 0);
+    cairo_paint(tmp);
+    
+    stock_image = gtk_widget_render_icon(GTK_WIDGET(paint_box),
+                                         get_patternR_id(GTK_WIDGET(paint_box)),
+                                         (GtkIconSize)-1,
+                                         NULL);
+	width = gdk_pixbuf_get_width (stock_image);
+	height = gdk_pixbuf_get_height (stock_image);
+	paint_box->patternR = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    tmp = cairo_create(paint_box->patternR);
+    gdk_cairo_set_source_pixbuf (tmp, stock_image, 0, 0);
+    cairo_paint(tmp);
+    
+    g_object_unref(stock_image);
 }
 
 static void gx_paint_box_destroy(GtkObject *object)
@@ -231,6 +285,11 @@ static void gx_paint_box_destroy(GtkObject *object)
 	}
 	paint_box->gxr_image = NULL;
 	GTK_OBJECT_CLASS(gx_paint_box_parent_class)->destroy(object);
+    
+    //if (paint_box->pattern1)
+        //cairo_surface_destroy(paint_box->pattern1);
+    //if (paint_box->pattern2)
+        //cairo_surface_destroy(paint_box->pattern2);
 }
 
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event)
@@ -608,190 +667,101 @@ static void led_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
-    cairo_t *cr;
-    cairo_pattern_t*pat;
-	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
-	gdk_region_intersect (region, ev->region);
-	gdk_cairo_region (cr, region);
-	cairo_clip (cr);
-
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
-    
-    double radius = 12.;
-	if (rect_width<12) radius = rect_width;
-	else if (rect_height<12) radius = rect_height;
-	double x1,y1;
-
-	x1=x0+rect_width-2;
-	y1=y0+rect_height-2;
-    x0+=1;
-    y0+=1;
-    
     int spf;
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-    if (spf == 1000)  {
-        cairo_move_to  (cr, x0, y0 + radius);
-        cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-        cairo_line_to (cr, x1 - radius, y0);
-        cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-        cairo_line_to (cr, x1 , y1 - radius);
-        cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-        cairo_line_to (cr, x0 + radius, y1);
-        cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-        cairo_close_path (cr);
-        cairo_stroke (cr);
-        cairo_destroy(cr);
-        gdk_region_destroy (region);
+    if (spf == 1000)
         return;
-    }
+    GxPaintBox *pb = GX_PAINT_BOX(wi);
+    cairo_t *cr = gdk_cairo_create(wi->window);
+	GdkRegion *region = gdk_region_rectangle(&wi->allocation);
+	gdk_region_intersect(region, ev->region);
+	gdk_cairo_region(cr, region);
+	cairo_clip(cr);
 
-
-	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
-	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
-	cairo_paint(cr);
-	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-	
-	GdkPixbuf * stock_image =
-		gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
-
-	guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
-	gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
-	gint width = gdk_pixbuf_get_width (stock_image);
-	gint height = gdk_pixbuf_get_height (stock_image);
-	cairo_surface_t *s_image =
-		cairo_image_surface_create_for_data
-		(pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
-
-	pat = cairo_pattern_create_for_surface(s_image);
-	cairo_set_source (cr, pat);
+	double x0 = wi->allocation.x;
+	double y0 = wi->allocation.y;
+	double w  = wi->allocation.width;
+	double h  = wi->allocation.height - 3;
+    
+    //cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+	//cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
+	//cairo_paint(cr);
+	//cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    
+    cairo_pattern_t *pat = cairo_pattern_create_for_surface(pb->pattern1);
+	cairo_set_source_surface(cr, pb->pattern1, x0, y0);
 	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
-	
-	cairo_move_to  (cr, x0, y0 + radius);
-	cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-	cairo_line_to (cr, x1 - radius, y0);
-	cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-	cairo_line_to (cr, x1 , y1 - radius);
-	cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-	cairo_line_to (cr, x0 + radius, y1);
-	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-	cairo_close_path (cr);
-	
+    cairo_rectangle(cr, x0, y0, w, h);
 	cairo_fill(cr);
-	g_object_unref(stock_image);
-	cairo_surface_destroy(s_image);
-	
-	pat = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
-    //cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	set_skin_color(wi, pat);
-	cairo_set_source (cr, pat);
     
+    pat = cairo_pattern_create_for_surface(pb->pattern2);
+    cairo_set_source(cr, pat);
+	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+    if (h > 140) {
+        cairo_rectangle(cr, x0, y0 + int(h / 4), w, int(h / 2));
+        cairo_fill(cr);
+    } else if (h > 60) {
+        cairo_rectangle(cr, x0, y0 + int(h / 2), w, int(h / 2));
+        cairo_fill(cr);
+    }
     
-    x1+=2;
-	y1+=2;
-    x0-=1;
-    y0-=1;
-	cairo_move_to  (cr, x0, y0 + radius);
-	cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-	cairo_line_to (cr, x1 - radius, y0);
-	cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-	cairo_line_to (cr, x1 , y1 - radius);
-	cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-	cairo_line_to (cr, x0 + radius, y1);
-	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-	cairo_close_path (cr);
+	pat = cairo_pattern_create_linear (x0, y0, x0, y0 + h);
+	cairo_pattern_add_color_stop_rgba(pat, 0.0, 1.0, 1.0, 1.0, 0.13);
+    cairo_pattern_add_color_stop_rgba(pat, 0.5, 0.5, 0.5, 0.5, 0.0);
+	cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 0.18);
+	cairo_set_source(cr, pat);
+    cairo_rectangle(cr, x0, y0, w, h);
+    cairo_set_operator(cr, CAIRO_OPERATOR_SOFT_LIGHT);
+    cairo_fill_preserve(cr);
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    cairo_fill(cr);
     
-    
-	//cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
-	cairo_fill (cr);
-	cairo_pattern_destroy (pat);
+    cairo_pattern_destroy(pat);
 	cairo_destroy(cr);
-	gdk_region_destroy (region);
+	gdk_region_destroy(region);
 }
 
 static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
-	cairo_t *cr;
-	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	cairo_t *cr = gdk_cairo_create(wi->window);
+    GxPaintBox *pb = GX_PAINT_BOX(wi);
+	GdkRegion *region = gdk_region_rectangle (&wi->allocation);
+    
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	double x0 = wi->allocation.x;
+	double y0 = wi->allocation.y;
+	double w  = wi->allocation.width;
+	double h  = wi->allocation.height - 3;
+    double wl = cairo_image_surface_get_width(pb->patternL);
+    double wr = cairo_image_surface_get_width(pb->patternR);
     
-    double radius = 12.;
-	if (rect_width<12) radius = rect_width;
-	else if (rect_height<12) radius = rect_height;
-	double x1,y1;
-
-	x1=x0+rect_width-2;
-	y1=y0+rect_height-2;
-    x0+=1;
-    y0+=1;
-    cairo_pattern_t*pat3;
-	pat3 = cairo_pattern_create_linear (x0, y0, x0+50, y0);
-	cairo_pattern_add_color_stop_rgba(pat3, 0, 0.1, 0.1, 0.1, 0.69);
-	cairo_pattern_add_color_stop_rgba(pat3, 0.2, 0.3, 0.3, 0.3, 0.0);
-	cairo_pattern_add_color_stop_rgba(pat3, 0.9, 0.3, 0.3, 0.3, 0.0);
-	cairo_pattern_add_color_stop_rgba(pat3, 1, 0.1, 0.1, 0.1, 0.89);
-    cairo_pattern_t*pat2;
-	pat2 = cairo_pattern_create_linear (x1-42, y0, x1, y0);
-	cairo_pattern_add_color_stop_rgba(pat2, 1, 0.1, 0.1, 0.1, 0.89);
-	cairo_pattern_add_color_stop_rgba(pat2, 0.8, 0.3, 0.3, 0.3, 0.0);
-	cairo_pattern_add_color_stop_rgba(pat2, 0.1, 0.3, 0.3, 0.3, 0.0);
-	cairo_pattern_add_color_stop_rgba(pat2, 0, 0.1, 0.1, 0.1, 0.69);
-
-    cairo_pattern_t*pat1;
-	pat1 = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
-	cairo_pattern_add_color_stop_rgba(pat1, 1, 0.3, 0.3, 0.3, 0.49);
-	cairo_pattern_add_color_stop_rgba(pat1, 0, 0.6, 0.6, 0.6, 0.49);
-	cairo_set_source (cr, pat1);
-	//left handle
-	cairo_move_to  (cr, x0, y0 + radius);
-	cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-	cairo_line_to (cr, x0 +50, y0);
-	cairo_line_to (cr, x0 +50, y1);
-	cairo_line_to (cr, x0 + radius, y1);
-	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-	cairo_close_path (cr);
-	cairo_fill_preserve (cr);
-	cairo_set_source (cr, pat3);
-	cairo_fill_preserve (cr);
-	cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.8);
-	cairo_set_line_width (cr, 2.0);
-	cairo_stroke (cr);
-
-	// right handle
-	cairo_set_source (cr, pat1);
-	cairo_move_to (cr, x1 - radius, y0);
-	cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-	cairo_line_to (cr, x1 , y1 - radius);
-	cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-	cairo_line_to (cr, x1 -42, y1);
-	cairo_line_to (cr, x1 -42, y0);
-	cairo_close_path (cr);
-	cairo_fill_preserve (cr);
-	cairo_set_source (cr, pat2);
-	cairo_fill_preserve (cr);
-	
-	cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.7);
-	cairo_set_line_width (cr, 2.0);
-	cairo_stroke (cr);
-
-	cairo_pattern_destroy (pat1);
-	cairo_pattern_destroy (pat2);
-	cairo_pattern_destroy (pat3);
+    // left
+	cairo_set_source_surface(cr, pb->patternL, x0, y0);
+	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+    cairo_rectangle(cr, x0, y0, wl, h);
+	cairo_fill(cr);
+    cairo_rectangle(cr, x0 + wl - 1, y0, 1, h);
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.8);
+    cairo_fill(cr);
+    cairo_rectangle(cr, x0 + wl, y0, 1, h);
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.15);
+    cairo_fill(cr);
+    
+    // right
+	cairo_set_source_surface(cr, pb->patternR, x0 + w - wr, x0);
+	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+    cairo_rectangle(cr, x0 + w - wl, y0, wl, h);
+	cairo_fill(cr);
+    cairo_rectangle(cr, x0 + w - wr - 1, y0, 1, h);
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
+    cairo_fill(cr);
+    cairo_rectangle(cr, x0 + w - wr, y0, 1, h);
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.05);
+    cairo_fill(cr);
+    
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
 }
@@ -801,32 +771,42 @@ static void rack_unit_expose(GtkWidget *wi, GdkEventExpose *ev)
 	rectangle_skin_color_expose(wi, ev);
 	rack_handle_expose(wi, ev);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	double x0 = wi->allocation.x;
+	double y0 = wi->allocation.y;
+	double w  = wi->allocation.width;
+	double h  = wi->allocation.height - 3;
 
 	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
 	double x1 = gdk_pixbuf_get_height(stock_image);
 	double y1 = gdk_pixbuf_get_width(stock_image);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-				stock_image, 0, 0,
-				x0+3, y0+5, x1,y1,
-				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-				stock_image, 0, 0,
-				x0+3, y0+rect_height-(5+y1), x1,y1,
-				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-				stock_image, 0, 0,
-				x0+rect_width-(6+x1), y0+rect_height-(5+y1), x1,y1,
-				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-				stock_image, 0, 0,
-				x0+rect_width-(6+x1), y0+5, x1,y1,
-				GDK_RGB_DITHER_NORMAL, 0, 0);
-	g_object_unref(stock_image);
-
+    if (h > 2 * y1) {
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0, y0, x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0, y0 + h - y1, x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0 + w - x1, y0 + h - y1, x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0 + w - x1, y0, x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+        g_object_unref(stock_image);
+    } else if (h > y1) {
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0, y0 + int(h / 2) - int(y1 / 2), x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0 + w - x1, y0 + int(h / 2) - int(y1 / 2), x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+    }
 }
 
 static void rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
@@ -838,77 +818,77 @@ static void rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
 static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	rectangle_skin_color_expose(wi, ev);
-    cairo_t *cr;
-	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
-	gdk_region_intersect (region, ev->region);
-	gdk_cairo_region (cr, region);
-	cairo_clip (cr);
+    //cairo_t *cr;
+	///* create a cairo context */
+	//cr = gdk_cairo_create(wi->window);
+	//GdkRegion *region;
+	//region = gdk_region_rectangle (&wi->allocation);
+	//gdk_region_intersect (region, ev->region);
+	//gdk_cairo_region (cr, region);
+	//cairo_clip (cr);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	//double x0      = wi->allocation.x+1;
+	//double y0      = wi->allocation.y+1;
+	//double rect_width  = wi->allocation.width-2;
+	//double rect_height = wi->allocation.height-2;
     
-    double radius = 12.;
-	if (rect_width<12) radius = rect_width;
-	else if (rect_height<12) radius = rect_height;
-	double x1,y1;
+    //double radius = 12.;
+	//if (rect_width<12) radius = rect_width;
+	//else if (rect_height<12) radius = rect_height;
+	//double x1,y1;
 
-	x1=x0+rect_width-4;
-	y1=y0+rect_height-4;
-    x0+=2;
-    y0+=2;
+	//x1=x0+rect_width-4;
+	//y1=y0+rect_height-4;
+    //x0+=2;
+    //y0+=2;
 
-    cairo_pattern_t*pat1;
-	pat1 = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
-	//set_box_color(wi, pat1);
-	cairo_pattern_add_color_stop_rgba(pat1, 1, 0.3, 0.3, 0.3, 0.49);
-	cairo_pattern_add_color_stop_rgba(pat1, 0, 0.6, 0.6, 0.6, 0.49);
-	cairo_set_source (cr, pat1);
-	cairo_move_to  (cr, x0, y0 + radius);
-	cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-	cairo_line_to (cr, x0 +30, y0);
-	cairo_line_to (cr, x0 +30, y1);
-	cairo_line_to (cr, x0 + radius, y1);
-	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-	cairo_close_path (cr);
-	cairo_fill (cr);
+    //cairo_pattern_t*pat1;
+	//pat1 = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
+	////set_box_color(wi, pat1);
+	//cairo_pattern_add_color_stop_rgba(pat1, 1, 0.3, 0.3, 0.3, 0.49);
+	//cairo_pattern_add_color_stop_rgba(pat1, 0, 0.6, 0.6, 0.6, 0.49);
+	//cairo_set_source (cr, pat1);
+	//cairo_move_to  (cr, x0, y0 + radius);
+	//cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+	//cairo_line_to (cr, x0 +30, y0);
+	//cairo_line_to (cr, x0 +30, y1);
+	//cairo_line_to (cr, x0 + radius, y1);
+	//cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+	//cairo_close_path (cr);
+	//cairo_fill (cr);
 	
-	cairo_move_to  (cr, x0+30, y0);
-	cairo_line_to (cr, x1-30 , y0);
-	cairo_line_to (cr, x1-30 , y0+10);
-	cairo_line_to (cr, x1-rect_width/3 , y0+10);
-	cairo_line_to (cr, x0+30 , y0+10);
-	cairo_close_path (cr);
-	cairo_fill (cr);
+	//cairo_move_to  (cr, x0+30, y0);
+	//cairo_line_to (cr, x1-30 , y0);
+	//cairo_line_to (cr, x1-30 , y0+10);
+	//cairo_line_to (cr, x1-rect_width/3 , y0+10);
+	//cairo_line_to (cr, x0+30 , y0+10);
+	//cairo_close_path (cr);
+	//cairo_fill (cr);
 
-	cairo_move_to (cr, x1 - radius, y0);
-	cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-	cairo_line_to (cr, x1 , y1 - radius);
-	cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-	cairo_line_to (cr, x1 -30, y1);
-	cairo_line_to (cr, x1 -30, y0);
-	cairo_close_path (cr);
-	cairo_fill (cr);
+	//cairo_move_to (cr, x1 - radius, y0);
+	//cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+	//cairo_line_to (cr, x1 , y1 - radius);
+	//cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+	//cairo_line_to (cr, x1 -30, y1);
+	//cairo_line_to (cr, x1 -30, y0);
+	//cairo_close_path (cr);
+	//cairo_fill (cr);
 	
-	cairo_move_to  (cr, x0+30, y1);
-	cairo_line_to (cr, x1-30 , y1);
-	cairo_line_to (cr, x1-30 , y1-10);
-	cairo_line_to (cr, x0+30 , y1-10);
-	cairo_close_path (cr);
-	cairo_fill (cr);
+	//cairo_move_to  (cr, x0+30, y1);
+	//cairo_line_to (cr, x1-30 , y1);
+	//cairo_line_to (cr, x1-30 , y1-10);
+	//cairo_line_to (cr, x0+30 , y1-10);
+	//cairo_close_path (cr);
+	//cairo_fill (cr);
 	
-	cairo_rectangle(cr,x0+30, y0+10, rect_width-66 , rect_height-26);
-	cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.7);
-	cairo_set_line_width (cr, 2.0);
-	cairo_stroke (cr);
+	//cairo_rectangle(cr,x0+30, y0+10, rect_width-66 , rect_height-26);
+	//cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.7);
+	//cairo_set_line_width (cr, 2.0);
+	//cairo_stroke (cr);
 
-	cairo_pattern_destroy (pat1);
-	cairo_destroy(cr);
-	gdk_region_destroy (region);
+	//cairo_pattern_destroy (pat1);
+	//cairo_destroy(cr);
+	//gdk_region_destroy (region);
 }
 
 static void cabinet_expose(GtkWidget *wi, GdkEventExpose *ev)
@@ -2401,139 +2381,139 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
-    int spf;
-	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-    if (spf == 1000)  return;
-	gint rect_width  = wi->allocation.width-2;
-	gint rect_height = wi->allocation.height-3;
-	if (rect_width <= 0 || rect_height <= 0) {
-	    return;
-	}
-	cairo_t *cr;
-	GxPaintBox *paintbox = GX_PAINT_BOX(wi);
-	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
-	gdk_region_intersect (region, ev->region);
-	gdk_cairo_region (cr, region);
-	cairo_clip (cr);
+    //int spf;
+	//gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    //if (spf == 1000)  return;
+	//gint rect_width  = wi->allocation.width-2;
+	//gint rect_height = wi->allocation.height-3;
+	//if (rect_width <= 0 || rect_height <= 0) {
+	    //return;
+	//}
+	//cairo_t *cr;
+	//GxPaintBox *paintbox = GX_PAINT_BOX(wi);
+	///* create a cairo context */
+	//cr = gdk_cairo_create(wi->window);
+	//GdkRegion *region;
+	//region = gdk_region_rectangle (&wi->allocation);
+	//gdk_region_intersect (region, ev->region);
+	//gdk_cairo_region (cr, region);
+	//cairo_clip (cr);
 	
-	gint x0      = wi->allocation.x+1;
-	gint y0      = wi->allocation.y+1;
+	//gint x0      = wi->allocation.x+1;
+	//gint y0      = wi->allocation.y+1;
 
-	static double ne_w = 0.;
-	if (ne_w != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
-		ne_w = rect_width*rect_height;
-		if (G_IS_OBJECT(paintbox-> gxr_image)) {
-			g_object_unref(paintbox->gxr_image);
-		}
-		GdkPixbuf  *stock_image, *frame;
-		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
-		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
-		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
+	//static double ne_w = 0.;
+	//if (ne_w != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
+		//ne_w = rect_width*rect_height;
+		//if (G_IS_OBJECT(paintbox-> gxr_image)) {
+			//g_object_unref(paintbox->gxr_image);
+		//}
+		//GdkPixbuf  *stock_image, *frame;
+		//stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
+		//double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
+		//double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
 		
-		paintbox->gxr_image = gdk_pixbuf_scale_simple(
-			stock_image, rect_width, rect_height, GDK_INTERP_NEAREST);
-		// upper border
-		frame = gdk_pixbuf_new_subpixbuf(
-			stock_image,24,0,gdk_pixbuf_get_width(stock_image)-48,12);
-		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
-		// under border
-		frame = gdk_pixbuf_new_subpixbuf(
-			stock_image,24,gdk_pixbuf_get_height(stock_image)-12,
-			gdk_pixbuf_get_width(stock_image)-48,12);
-		gdk_pixbuf_scale (
-			frame,paintbox->gxr_image,0,gdk_pixbuf_get_height(paintbox->gxr_image)-12,
-			rect_width,12,0,gdk_pixbuf_get_height(paintbox->gxr_image)-12,
-			scalew,1,GDK_INTERP_BILINEAR);
-		// left border
-		frame = gdk_pixbuf_new_subpixbuf(
-			stock_image,0,24,12,gdk_pixbuf_get_height(stock_image)-48);
-		gdk_pixbuf_scale(
-			frame, paintbox->gxr_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
-		// right border	
-		frame = gdk_pixbuf_new_subpixbuf(
-			stock_image,gdk_pixbuf_get_width(stock_image)-12,
-			24,12,gdk_pixbuf_get_height(stock_image)-48);
-		gdk_pixbuf_scale(
-			frame,paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-12,
-			12,12,rect_height-24,gdk_pixbuf_get_width(paintbox->gxr_image)-12,
-			0,1,scaleh,GDK_INTERP_BILINEAR);
-		//left upper corner
-		frame = gdk_pixbuf_new_subpixbuf(
-			stock_image,0,0,20,20);
-		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
-		//right upper corner
-		frame = gdk_pixbuf_new_subpixbuf(
-			stock_image,gdk_pixbuf_get_width(stock_image)-20,0,20,20);
-		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
-			0,20,20,gdk_pixbuf_get_width(paintbox->gxr_image)-20,0,1,1,
-			GDK_INTERP_BILINEAR);
-		//left under corner
-		frame = gdk_pixbuf_new_subpixbuf(
-			stock_image,0,gdk_pixbuf_get_height(stock_image)-20,20,20);
-		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,0,gdk_pixbuf_get_height(paintbox->gxr_image)-20,
-			20,20,0,gdk_pixbuf_get_height(paintbox->gxr_image)-20,1,1,
-			GDK_INTERP_BILINEAR);
-		//right under corner
-		frame = gdk_pixbuf_new_subpixbuf(
-			stock_image,gdk_pixbuf_get_width(stock_image)-20,
-			gdk_pixbuf_get_height(stock_image)-20,20,20);
-		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
-			gdk_pixbuf_get_height(paintbox->gxr_image)-20,
-			20,20,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
-			gdk_pixbuf_get_height(paintbox->gxr_image)-20,1,1,
-			GDK_INTERP_BILINEAR);
-		g_object_unref(stock_image);
-		g_object_unref(frame);
-	}
+		//paintbox->gxr_image = gdk_pixbuf_scale_simple(
+			//stock_image, rect_width, rect_height, GDK_INTERP_NEAREST);
+		//// upper border
+		//frame = gdk_pixbuf_new_subpixbuf(
+			//stock_image,24,0,gdk_pixbuf_get_width(stock_image)-48,12);
+		//gdk_pixbuf_scale (
+			//frame, paintbox->gxr_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
+		//// under border
+		//frame = gdk_pixbuf_new_subpixbuf(
+			//stock_image,24,gdk_pixbuf_get_height(stock_image)-12,
+			//gdk_pixbuf_get_width(stock_image)-48,12);
+		//gdk_pixbuf_scale (
+			//frame,paintbox->gxr_image,0,gdk_pixbuf_get_height(paintbox->gxr_image)-12,
+			//rect_width,12,0,gdk_pixbuf_get_height(paintbox->gxr_image)-12,
+			//scalew,1,GDK_INTERP_BILINEAR);
+		//// left border
+		//frame = gdk_pixbuf_new_subpixbuf(
+			//stock_image,0,24,12,gdk_pixbuf_get_height(stock_image)-48);
+		//gdk_pixbuf_scale(
+			//frame, paintbox->gxr_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
+		//// right border	
+		//frame = gdk_pixbuf_new_subpixbuf(
+			//stock_image,gdk_pixbuf_get_width(stock_image)-12,
+			//24,12,gdk_pixbuf_get_height(stock_image)-48);
+		//gdk_pixbuf_scale(
+			//frame,paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-12,
+			//12,12,rect_height-24,gdk_pixbuf_get_width(paintbox->gxr_image)-12,
+			//0,1,scaleh,GDK_INTERP_BILINEAR);
+		////left upper corner
+		//frame = gdk_pixbuf_new_subpixbuf(
+			//stock_image,0,0,20,20);
+		//gdk_pixbuf_scale (
+			//frame, paintbox->gxr_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
+		////right upper corner
+		//frame = gdk_pixbuf_new_subpixbuf(
+			//stock_image,gdk_pixbuf_get_width(stock_image)-20,0,20,20);
+		//gdk_pixbuf_scale (
+			//frame, paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
+			//0,20,20,gdk_pixbuf_get_width(paintbox->gxr_image)-20,0,1,1,
+			//GDK_INTERP_BILINEAR);
+		////left under corner
+		//frame = gdk_pixbuf_new_subpixbuf(
+			//stock_image,0,gdk_pixbuf_get_height(stock_image)-20,20,20);
+		//gdk_pixbuf_scale (
+			//frame, paintbox->gxr_image,0,gdk_pixbuf_get_height(paintbox->gxr_image)-20,
+			//20,20,0,gdk_pixbuf_get_height(paintbox->gxr_image)-20,1,1,
+			//GDK_INTERP_BILINEAR);
+		////right under corner
+		//frame = gdk_pixbuf_new_subpixbuf(
+			//stock_image,gdk_pixbuf_get_width(stock_image)-20,
+			//gdk_pixbuf_get_height(stock_image)-20,20,20);
+		//gdk_pixbuf_scale (
+			//frame, paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
+			//gdk_pixbuf_get_height(paintbox->gxr_image)-20,
+			//20,20,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
+			//gdk_pixbuf_get_height(paintbox->gxr_image)-20,1,1,
+			//GDK_INTERP_BILINEAR);
+		//g_object_unref(stock_image);
+		//g_object_unref(frame);
+	//}
 	
-	// draw to display
-	gdk_cairo_set_source_pixbuf (cr, paintbox->gxr_image, x0, y0);
-	cairo_rectangle(cr, x0, y0, rect_width, rect_height);
-	cairo_fill(cr);
+	//// draw to display
+	//gdk_cairo_set_source_pixbuf (cr, paintbox->gxr_image, x0, y0);
+	//cairo_rectangle(cr, x0, y0, rect_width, rect_height);
+	//cairo_fill(cr);
 
-	// base 
-	x0      += 12;
-	y0      += 12;
-	rect_width  -= 24;
-	rect_height -= 24;
+	//// base 
+	//x0      += 12;
+	//y0      += 12;
+	//rect_width  -= 24;
+	//rect_height -= 24;
 	
-	cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_fill (cr);
+	//cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+	//cairo_set_source_rgb (cr, 0, 0, 0);
+	//cairo_fill (cr);
 
-	cairo_pattern_t*pat =
-	cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
-	//cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	set_skin_color(wi, pat);
-	cairo_set_source (cr, pat);
-	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
-	cairo_fill (cr);
+	//cairo_pattern_t*pat =
+	//cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+	////cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	//set_skin_color(wi, pat);
+	//cairo_set_source (cr, pat);
+	//cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
+	//cairo_fill (cr);
 
-	cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
-	cairo_set_line_width(cr, 2.0);
-	cairo_move_to(cr,x0+rect_width-3, y0+3);
-	cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
-	cairo_line_to(cr, x0+2, y0+rect_height-2);
-	cairo_stroke(cr);
+	//cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+	//cairo_set_line_width(cr, 2.0);
+	//cairo_move_to(cr,x0+rect_width-3, y0+3);
+	//cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+	//cairo_line_to(cr, x0+2, y0+rect_height-2);
+	//cairo_stroke(cr);
 
-	cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-	cairo_set_line_width(cr, 2.0);
-	cairo_move_to(cr,x0+3, y0+rect_height-1);
-	cairo_line_to(cr, x0+3, y0+3);
-	cairo_line_to(cr, x0+rect_width-3, y0+3);
-	cairo_stroke(cr);
+	//cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+	//cairo_set_line_width(cr, 2.0);
+	//cairo_move_to(cr,x0+3, y0+rect_height-1);
+	//cairo_line_to(cr, x0+3, y0+3);
+	//cairo_line_to(cr, x0+rect_width-3, y0+3);
+	//cairo_stroke(cr);
 
-	cairo_pattern_destroy (pat);
-	cairo_destroy(cr);
-	gdk_region_destroy (region);                
+	//cairo_pattern_destroy (pat);
+	//cairo_destroy(cr);
+	//gdk_region_destroy (region);                
 }
 
 static void main_expose(GtkWidget *wi, GdkEventExpose *ev)

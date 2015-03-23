@@ -59,7 +59,11 @@ def build_stock_images(bld):
         "guitarix.png",
         "screw.png",
         "knob_medium.png",
-        "amp21.png"
+        "amp21.png",
+        "pattern1.png",
+        "pattern2.png",
+        "patternL.png",
+        "patternR.png"
         ]
 
     bld(name = "img2c",
