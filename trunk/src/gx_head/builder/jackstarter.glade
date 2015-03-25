@@ -43,7 +43,7 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
         <property name="border_width">8</property>
         <property name="orientation">vertical</property>
         <property name="spacing">10</property>
-        <property name="paint_func">rectangle_skin_color_expose</property>
+        <property name="paint_func">box_uni_2_expose</property>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>

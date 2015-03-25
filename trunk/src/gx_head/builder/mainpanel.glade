@@ -10,31 +10,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="border_width">4</property>
-        <property name="paint_func">gxhead_expose</property>
-        <child>
-          <object class="GtkAlignment" id="alignment2">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="left_padding">8</property>
-            <child>
-              <object class="GtkLabel" id="label1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">gx-2</property>
-                <property name="angle">90</property>
-                <attributes>
-                  <attribute name="weight" value="bold"/>
-                  <attribute name="size" value="8192"/>
-                </attributes>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
+        <property name="paint_func">rack_amp_expose</property>
         <child>
           <object class="GtkAlignment" id="alignment3">
             <property name="visible">True</property>
@@ -519,6 +495,7 @@
     </child>
   </object>
   <object class="GtkWindow" id="LivePlay">
+    <property name="name">liveplay</property>
     <property name="app_paintable">True</property>
     <property name="can_focus">False</property>
     <child>
@@ -534,7 +511,6 @@
             <property name="can_focus">False</property>
             <property name="double_buffered">False</property>
             <property name="orientation">vertical</property>
-            <property name="paint_func">rectangle_skin_color_expose</property>
             <child>
               <object class="GtkAlignment" id="alignment10">
                 <property name="visible">True</property>
@@ -1121,7 +1097,6 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Effects</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
                           <attribute name="size" value="8192"/>
                         </attributes>
                       </object>
@@ -1166,9 +1141,8 @@
                       <object class="GtkLabel" id="label6:barbuttonlabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Config Mode</property>
+                        <property name="label" translatable="yes">Order</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
                           <attribute name="size" value="8192"/>
                         </attributes>
                       </object>
@@ -1215,7 +1189,6 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Tuner</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
                           <attribute name="size" value="8192"/>
                         </attributes>
                       </object>
@@ -1260,9 +1233,8 @@
                       <object class="GtkLabel" id="label1:barbuttonlabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Show Rack</property>
+                        <property name="label" translatable="yes">Rack</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
                           <attribute name="size" value="8192"/>
                         </attributes>
                       </object>
@@ -1307,9 +1279,8 @@
                       <object class="GtkLabel" id="label7:barbuttonlabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Horizontal</property>
+                        <property name="label" translatable="yes">Split</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
                           <attribute name="size" value="8192"/>
                         </attributes>
                       </object>
@@ -1357,7 +1328,6 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Fold</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
                           <attribute name="size" value="8192"/>
                         </attributes>
                       </object>
@@ -1405,7 +1375,6 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Expand</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
                           <attribute name="size" value="8192"/>
                         </attributes>
                       </object>
@@ -1450,9 +1419,8 @@
                       <object class="GtkLabel" id="label3:barbuttonlabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Fullscreen</property>
+                        <property name="label" translatable="yes">Live</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
                           <attribute name="size" value="8192"/>
                         </attributes>
                       </object>
@@ -1492,7 +1460,6 @@
                 <child>
                   <object class="GxPaintBox" id="effects_frame_paintbox">
                     <property name="can_focus">False</property>
-                    <property name="border_width">18</property>
                     <property name="paint_func">gxrack_expose</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow1">
@@ -1525,7 +1492,6 @@
                   <object class="GxPaintBox" id="rackcontainer">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="border_width">18</property>
                     <property name="paint_func">gxrack_expose</property>
                     <child>
                       <object class="GtkScrolledWindow" id="vrack_scrolledbox">
@@ -1542,7 +1508,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="orientation">vertical</property>
-                                <property name="paint_func">cab_expose</property>
+                                <property name="paint_func">rack_expose</property>
                                 <child>
                                   <object class="GtkVBox" id="monobox">
                                     <property name="visible">True</property>
@@ -1556,7 +1522,7 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="orientation">vertical</property>
-                                            <property name="paint_func">rectangle_skin_color_expose</property>
+                                            <property name="paint_func">rack_unit_expose</property>
                                             <child>
                                               <object class="GtkHBox" id="ampdetail_mini">
                                                 <property name="can_focus">False</property>
@@ -1626,7 +1592,6 @@
                                                             <property name="xpad">10</property>
                                                             <property name="label" translatable="yes">noise gate</property>
                                                             <attributes>
-                                                            <attribute name="weight" value="bold"/>
                                                             <attribute name="size" value="8192"/>
                                                             </attributes>
                                                           </object>
@@ -1708,7 +1673,6 @@
                                                             <property name="xpad">10</property>
                                                             <property name="label" translatable="yes">noise shaper</property>
                                                             <attributes>
-                                                            <attribute name="weight" value="bold"/>
                                                             <attribute name="size" value="8192"/>
                                                             </attributes>
                                                           </object>
@@ -1790,7 +1754,6 @@
                                                             <property name="xpad">10</property>
                                                             <property name="label" translatable="yes">mono level out</property>
                                                             <attributes>
-                                                            <attribute name="weight" value="bold"/>
                                                             <attribute name="size" value="8192"/>
                                                             </attributes>
                                                           </object>
@@ -1872,7 +1835,6 @@
                                                             <property name="xpad">10</property>
                                                             <property name="label" translatable="yes">clip</property>
                                                             <attributes>
-                                                            <attribute name="weight" value="bold"/>
                                                             <attribute name="size" value="8192"/>
                                                             </attributes>
                                                           </object>
@@ -2012,8 +1974,9 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
                                                         <property name="xalign">1</property>
-                                                        <property name="label" translatable="yes">&lt;span font="sans bold 7.5"&gt;Tuner&lt;/span&gt;</property>
+                                                        <property name="label" translatable="yes">Tuner</property>
                                                         <property name="use_markup">True</property>
+                                                        <property name="name">rack_unit_title</property>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">False</property>
@@ -2232,7 +2195,7 @@
                                             <property name="can_focus">False</property>
                                             <property name="border_width">4</property>
                                             <property name="orientation">vertical</property>
-                                            <property name="paint_func">rectangle_skin_color_expose</property>
+                                            <property name="paint_func">box_uni_2_expose</property>
                                             <child>
                                               <object class="GtkHBox" id="midi_out_mini">
                                                 <property name="can_focus">False</property>
@@ -2292,7 +2255,6 @@
                                                     <property name="can_focus">False</property>
                                                     <property name="label" translatable="yes">Midi Out</property>
                                                     <attributes>
-                                                      <attribute name="weight" value="bold"/>
                                                       <attribute name="size" value="7680"/>
                                                     </attributes>
                                                   </object>
@@ -2426,7 +2388,6 @@
                                                         <property name="can_focus">False</property>
                                                         <property name="label" translatable="yes">Midi Out</property>
                                                         <attributes>
-                                                          <attribute name="weight" value="bold"/>
                                                           <attribute name="size" value="7680"/>
                                                         </attributes>
                                                       </object>
@@ -4188,7 +4149,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="orientation">vertical</property>
-                                <property name="paint_func">cab_expose</property>
+                                <property name="paint_func">rack_expose</property>
                                 <child>
                                   <object class="GtkHBox" id="stereorackcontainerH">
                                     <property name="visible">True</property>
@@ -4252,7 +4213,7 @@
                         <property name="can_focus">False</property>
                         <property name="border_width">8</property>
                         <property name="spacing">10</property>
-                        <property name="paint_func">cab_expose</property>
+                        <property name="paint_func">rack_expose</property>
                         <child>
                           <object class="GtkVBox" id="vbox22">
                             <property name="visible">True</property>
@@ -4330,7 +4291,6 @@
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Preset</property>
                                 <attributes>
-                                  <attribute name="weight" value="bold"/>
                                 </attributes>
                               </object>
                               <packing>
@@ -4529,7 +4489,6 @@
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Bank</property>
                                 <attributes>
-                                  <attribute name="weight" value="bold"/>
                                 </attributes>
                               </object>
                               <packing>
@@ -4597,7 +4556,6 @@
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Preset:</property>
                     <attributes>
-                      <attribute name="weight" value="bold"/>
                       <attribute name="size" value="8192"/>
                     </attributes>
                   </object>

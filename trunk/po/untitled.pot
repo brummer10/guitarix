@@ -999,7 +999,7 @@ msgid "clip"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:24
-msgid "<span font=\"sans bold 7.5\">Tuner</span>"
+msgid "Tuner"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:25

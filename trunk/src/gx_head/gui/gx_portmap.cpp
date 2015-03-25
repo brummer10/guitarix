@@ -579,11 +579,11 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_jack::GxJac
     Gtk::VBox *vbox1;
     bld->find_widget("dialog-vbox1", vbox1);
     vbox1->signal_expose_event().connect(
-	sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox1->gobj()),sigc::_1,(void*)0),false);
+	sigc::group(&gx_cairo::box_uni_2_expose,GTK_WIDGET(vbox1->gobj()),sigc::_1,(void*)0),false);
     Gtk::VBox *vbox2;
     bld->find_widget("dialog-vbox2", vbox2);
     vbox2->signal_expose_event().connect(
-	sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox2->gobj()),sigc::_1,(void*)0),false);
+	sigc::group(&gx_cairo::box_uni_2_expose,GTK_WIDGET(vbox2->gobj()),sigc::_1,(void*)0),false);
     vbox1->set_redraw_on_allocate(true);
     vbox2->set_redraw_on_allocate(true);
     for (int i = 0; i < number_of_ports; ++i) {

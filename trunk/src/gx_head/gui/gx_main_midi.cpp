@@ -164,9 +164,9 @@ MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Gli
     g_signal_connect(GTK_OBJECT(togglebutton), "toggled",
                      G_CALLBACK(toggleButtonSetSwitch), (gpointer)&p);
     g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+                     G_CALLBACK(gx_cairo::box_uni_2_expose), NULL);
     g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox2"),"expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+                     G_CALLBACK(gx_cairo::box_uni_2_expose), NULL);
     selection = gtk_tree_view_get_selection(
         GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1")));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
@@ -384,9 +384,9 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_, gx
     g_signal_connect(dialog, "destroy", G_CALLBACK(midi_destroy_cb), this);
     g_signal_connect(entry_new, "changed", G_CALLBACK(changed_text_handler), this);
     g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+                     G_CALLBACK(gx_cairo::box_uni_2_expose), NULL);
     g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox2"),"expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+                     G_CALLBACK(gx_cairo::box_uni_2_expose), NULL);
     if (nctl == -1) {
         gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), RESPONSE_DELETE, FALSE);
         gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
@@ -400,4 +400,3 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_, gx
     g_object_unref(G_OBJECT(builder));
 }
 } // end namespace
-

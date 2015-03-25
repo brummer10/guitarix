@@ -32,8 +32,8 @@ gboolean conv_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_da
 gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean start_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean splash_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box_uni_2_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+
 }
 #endif  // SRC_HEADERS_GX_CAIRO_CALLBACKS_H_
-

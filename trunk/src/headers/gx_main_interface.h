@@ -242,7 +242,6 @@ extern const char *pb_amp_expose;
 extern const char *pb_conv_widget_expose;
 extern const char *pb_upper_widget_expose;
 extern const char *pb_rectangle_expose;
-extern const char *pb_rectangle_skin_color_expose;
 extern const char *pb_convolver_icon_expose;
 extern const char *pb_AmpBox_expose;
 extern const char *pb_tribal_box_expose;
@@ -294,4 +293,3 @@ inline void connect_midi_controller(Gtk::Widget *w, const std::string& id, gx_en
 } /* end of gx_gui namespace */
 
 #endif  // SRC_HEADERS_GX_MAIN_INTERFACE_H_
-

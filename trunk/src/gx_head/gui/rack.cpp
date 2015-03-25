@@ -771,7 +771,7 @@ void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, PluginType tp) {
 
 void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
-    pb.property_paint_func().set_value("rectangle_skin_color_expose");
+    //pb.property_paint_func().set_value("box_uni_1_expose");
     pb.set_border_width(4);
 }
 
@@ -782,7 +782,7 @@ Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptio
     effect_label->set_name("rack_effect_label");
     Pango::FontDescription font_desc = effect_label->get_style()->get_font();
     font_desc.set_size(int(7.5*Pango::SCALE));
-    font_desc.set_weight(Pango::WEIGHT_BOLD);
+    //font_desc.set_weight(Pango::WEIGHT_BOLD);
     effect_label->modify_font(font_desc);
     if (plugin.get_type() == PLUGIN_TYPE_STEREO) {
 	Gtk::Alignment *al = new Gtk::Alignment(0, 0, 1.0, 1.0);

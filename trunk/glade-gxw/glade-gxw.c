@@ -36,7 +36,7 @@ GType gx_paint_func_get_type(void)
 			{ 1, "conv_widget_expose", "conv_widget_expose" },
 			{ 2, "upper_widget_expose", "upper_widget_expose" },
 			{ 3, "rectangle_expose", "rectangle_expose" },
-			{ 4, "rectangle_skin_color_expose", "rectangle_skin_color_expose" },
+			{ 4, "box_uni_2_expose", "box_uni_2_expose" },
 			{ 5, "convolver_icon_expose", "convolver_icon_expose" },
 			{ 6, "AmpBox_expose", "AmpBox_expose" },
 			{ 7, "tribal_box_expose", "tribal_box_expose" },

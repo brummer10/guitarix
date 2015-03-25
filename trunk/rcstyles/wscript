@@ -50,9 +50,7 @@ gxstyle_files = [
     'gx_steal.png',
     'gx_dark.png',
     'stereo.png',
-    'bypass.svg',
     'factory.png',
-    'mute.svg',
     'readonly.png',
     'scratch.png',
     'versiondiff.png',
@@ -68,6 +66,13 @@ gxstyle_files = [
     'grass3.png',
     'menu1.png',
     'flatmenu.png',
+    'background_green.png',
+    'background_coal.png',
+    'handle_left_coal.png',
+    'handle_right_coal.png',
+    'watermark_coal.png',
+    'live_mute.png',
+    'live_bypass.png'
     ]
 
 def configure(conf):

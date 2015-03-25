@@ -1000,10 +1000,6 @@ msgstr "Effets"
 msgid "Config Mode"
 msgstr "Mode config"
 
-#: ../src/gx_head/builder/mainpanel.glade.h:16
-msgid "Tuner"
-msgstr "Accordeur"
-
 #: ../src/gx_head/builder/mainpanel.glade.h:17
 msgid "Show Rack"
 msgstr "Montrer le rack"
@@ -1033,8 +1029,8 @@ msgid "clip"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:24
-msgid "<span font=\"sans bold 7.5\">Tuner</span>"
-msgstr "<span font=\"sans bold 7.5\">Accordeur</span>"
+msgid "Tuner"
+msgstr "Accordeur"
 
 #: ../src/gx_head/builder/mainpanel.glade.h:25
 #: ../src/gx_head/engine/gx_midi_plugin.cpp:55

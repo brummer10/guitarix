@@ -238,7 +238,7 @@ void StackBoxBuilder::openSetLabelBox() {
     convolver_filename_label.set_name("beffect_label");
     Pango::FontDescription font = convolver_filename_label.get_style()->get_font();
     font.set_size(8*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_BOLD);
+    //font.set_weight(Pango::WEIGHT_BOLD);
     convolver_filename_label.modify_font(font);
     box->pack_start(convolver_filename_label, false, false, 0);
     box->show_all();
@@ -259,7 +259,7 @@ void StackBoxBuilder::openSetMonoLabelBox() {
     convolver_mono_filename_label.set_name("beffect_label");
     Pango::FontDescription font = convolver_mono_filename_label.get_style()->get_font();
     font.set_size(8*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_BOLD);
+    //font.set_weight(Pango::WEIGHT_BOLD);
     convolver_mono_filename_label.modify_font(font);
     box->pack_start(convolver_mono_filename_label, true, false, 0);
     box->show_all();
@@ -585,7 +585,7 @@ void StackBoxBuilder::openFlipLabelBox(const char* label) {
 
         Pango::FontDescription font = hbox->m_label.get_style()->get_font();
         font.set_size(8*Pango::SCALE);
-        font.set_weight(Pango::WEIGHT_BOLD);
+        //font.set_weight(Pango::WEIGHT_BOLD);
         hbox->m_label.modify_font(font);
 
         hbox->add(hbox->m_label);
@@ -669,7 +669,7 @@ void StackBoxBuilder::addMToggleButton(const std::string& id, const char* label_
     uiToggleButton* button = new uiToggleButton(machine, id);
     Gtk::Label* lab = new Gtk::Label(label);
     Pango::FontDescription font = lab->get_style()->get_font();
-    font.set_weight(Pango::WEIGHT_BOLD);
+    //font.set_weight(Pango::WEIGHT_BOLD);
     lab->modify_font(font);
     button->add(*manage(lab));
     button->set_size_request(70, 20);
@@ -793,7 +793,7 @@ void StackBoxBuilder::openTabBox(const char* label) {
 }
 
 void StackBoxBuilder::openpaintampBox(const char* label) {
-    GxPaintBox *box =  new GxPaintBox("rectangle_skin_color_expose");
+    GxPaintBox *box =  new GxPaintBox("box_uni_2_expose");
     box->m_hbox.set_border_width(4);
     box->set_name(label);
     box->set_tooltip_text(label);
@@ -839,7 +839,7 @@ void StackBoxBuilder::openVerticalBox(const char* label) {
         box->m_label.set_name("rack_effect_label");
 	Glib::RefPtr<Gtk::Style> style = box->m_label.get_style();
         style->get_font().set_size(8*Pango::SCALE);
-        style->get_font().set_weight(Pango::WEIGHT_BOLD);
+        //style->get_font().set_weight(Pango::WEIGHT_BOLD);
         box->m_label.modify_font(style->get_font());
         box->pack_start(box->m_label, false, false, 0 );
         fBox.box_pack_start(manage(box), false);

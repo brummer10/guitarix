@@ -1087,38 +1087,38 @@ gboolean splash_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     return FALSE;
 }
 
-gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean box_uni_2_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
-    cairo_t *cr;
-	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
-	gdk_region_intersect (region, ev->region);
-	gdk_cairo_region (cr, region);
-	cairo_clip (cr);
+    //cairo_t *cr;
+	///* create a cairo context */
+	//cr = gdk_cairo_create(wi->window);
+	//GdkRegion *region;
+	//region = gdk_region_rectangle (&wi->allocation);
+	//gdk_region_intersect (region, ev->region);
+	//gdk_cairo_region (cr, region);
+	//cairo_clip (cr);
 
-	double x0      = wi->allocation.x+2;
-	double y0      = wi->allocation.y+2;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	//double x0      = wi->allocation.x+2;
+	//double y0      = wi->allocation.y+2;
+	//double rect_width  = wi->allocation.width-2;
+	//double rect_height = wi->allocation.height-2;
 
-	cairo_rectangle (cr, x0,y0,rect_width,rect_height+1);
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_fill (cr);
+	//cairo_rectangle (cr, x0,y0,rect_width,rect_height+1);
+	//cairo_set_source_rgb (cr, 0, 0, 0);
+	//cairo_fill (cr);
 
-	cairo_pattern_t*pat =
-	cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
-		//cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
-    cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
-	cairo_set_source (cr, pat);
-	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
-	cairo_fill (cr);
+	//cairo_pattern_t*pat =
+	//cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+		////cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	//cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
+    //cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
+	//cairo_set_source (cr, pat);
+	//cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
+	//cairo_fill (cr);
 
-	cairo_pattern_destroy (pat);
-	cairo_destroy(cr);
-	gdk_region_destroy (region);
+	//cairo_pattern_destroy (pat);
+	//cairo_destroy(cr);
+	//gdk_region_destroy (region);
 	return FALSE;
     
 }

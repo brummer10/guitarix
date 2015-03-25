@@ -43,22 +43,13 @@ struct _GxPaintBox {
 	GdkPixbuf *gxr_image;
 	guint GSEAL(icon_set);
     guint GSEAL(force_reload);
-    cairo_surface_t * pattern1, * pattern2, * patternL, * patternR;
 };
 
 struct _GxPaintBoxClass {
 	GtkBoxClass parent_class;
 	const gchar *stock_id;
 	const gchar *main_image_id;
-	const gchar *widget_id;
-	const gchar *widget_id2;
-    const gchar *widget_id3;
-    const gchar *cab_id;
     const gchar *amp_id;
-    const gchar *pattern1_id;
-	const gchar *pattern2_id;
-    const gchar *patternL_id;
-	const gchar *patternR_id;
 };
 
 GType gx_paint_box_get_type(void) G_GNUC_CONST;

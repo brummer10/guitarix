@@ -7,63 +7,90 @@
 style "guitarix_default" {
     font_name = "sans 8"
     
+    GtkScrollbar::has_backward_stepper = 0
+    GtkScrollbar::has_forward_stepper  = 0
+    
     fg[NORMAL]      = { 0.85, 0.85, 0.85 }
     fg[ACTIVE]      = { 1.0, 1.0, 1.0 }
-    fg[PRELIGHT]    = { 1.0, 1.0, 1.0 }
+    fg[PRELIGHT]    = { 0.1, 0.1, 0.1 }
     fg[INSENSITIVE] = { 0.5, 0.5, 0.5 }
     fg[SELECTED]    = { 0.9, 0.9, 0.9 }
     
     bg[NORMAL]      = { 0.13, 0.13, 0.13 }
-    bg[ACTIVE]      = { 0.13, 0.13, 0.13 }
-    bg[PRELIGHT]    = { 0.1, 0.1, 0.1 }
+    bg[ACTIVE]      = { 0.0, 0.0, 0.0 }
+    bg[PRELIGHT]    = { 0.46, 0.56, 0.36 }
     bg[INSENSITIVE] = { 0.2, 0.2, 0.2 }
-    bg[SELECTED]    = { 0.1, 0.1, 0.1 }
+    bg[SELECTED]    = { 0.46, 0.56, 0.36 }
     
     text[NORMAL]      = { 0.99, 0.99, 0.99 }
-    text[ACTIVE]      = { 1.0, 1.0, 1.0 }
+    text[ACTIVE]      = { 0.1, 0.1, 0.1 }
     text[PRELIGHT]    = { 1.0, 1.0, 1.0 }
     text[INSENSITIVE] = { 0.5, 0.5, 0.5 }
-    text[SELECTED]    = { 0.9, 0.9, 0.9 }
+    text[SELECTED]    = { 0.1, 0.1, 0.1 }
     
     base[NORMAL]      = { 0.0, 0.0, 0.0 }
-    base[ACTIVE]      = { 0.0, 0.0, 0.0 }
+    base[ACTIVE]      = { 0.46, 0.56, 0.36 }
     base[PRELIGHT]    = { 0.1, 0.1, 0.1 }
     base[INSENSITIVE] = { 0.2, 0.2, 0.2 }
-    base[SELECTED]    = { 0.1, 0.1, 0.1 }
+    base[SELECTED]    = { 0.46, 0.56, 0.36 }
     
-    #stock["plugins"]    = {{"gx_plugins.png"}}
-    #stock["config"]     = {{"gx_config.png"}}
-    #stock["fold"]       = {{"gx_fold.png"}}
-    #stock["fullscreen"] = {{"gx_fullscreen.png"}}
-    #stock["rack"]       = {{"gx_rack.png"}}
-    #stock["show"]       = {{"gx_show.png"}}
-    #stock["split"]      = {{"gx_split.png"}}
-    #stock["tuner"]      = {{"gx_tuner.png"}}
+    stock["background1"]  = {{"background_green.png"}}
+    stock["background2"]  = {{"background_coal.png"}}
+    stock["handle_left"]  = {{"handle_left_coal.png"}}
+    stock["handle_right"] = {{"handle_right_coal.png"}}
+    stock["watermark"]    = {{"watermark_coal.png"}}
+    stock["live_mute"]    = {{"live_mute.png"}}
+    stock["live_bypass"]  = {{"live_bypass.png"}}
+    stock["screw"]        = {{"screw.png"}}
     
+    engine "clearlooks" {
+        focus_color       = { 0, 0, 0 }
+        contrast          = 0.8
+        menubarstyle      = 0
+        reliefstyle       = 0
+        radius            = 0.0
+        disable_focus     = TRUE
+    }
+    #engine "aurora" {
+        #menubarstyle   = 0
+        #curvature      = 5
+        #arrowsize      = 1
+        #old_arrowstyle = TRUE
+        #animation      = TRUE
+    #}
 }
 
 style "guitarix_scrollbars" {
-    bg[NORMAL]   = { 0.3, 0.3, 0.3 }
+    
+    engine "clearlooks" {
+        scrollbar_color   = "#5a5a5a"
+    }
+    
+    bg[NORMAL]   = { 0.13, 0.13, 0.13 }
     bg[PRELIGHT] = { 0.4, 0.4, 0.4 }
     bg[ACTIVE]   = { 0.4, 0.4, 0.4 }
+    bg[INSENSITIVE] = { 0.3, 0.3, 0.3 }
+    
+    #bg[NORMAL]   = { 0.3, 0.3, 0.3 }
+    #bg[PRELIGHT] = { 0.4, 0.4, 0.4 }
+    #bg[ACTIVE]   = { 0.4, 0.4, 0.4 }
 }
 
 
 
 
+style "guitarix_liveplay" {
+    bg[NORMAL]   = { 0.05, 0.05, 0.05 }
+}
+style "guitarix_liveplay2" {
+    bg[NORMAL]   = { 1.05, 0.05, 0.05 }
+}
+
+widget "*liveplay" style:highest "guitarix_liveplay"
+widget "*liveplay*GxPaintBox" style:highest "guitarix_liveplay2"
 
 
-
-
-
-
-
-
-
-
-widget_class "*" style:highest "guitarix_default"
-
-
+class "GtkWidget" style:highest "guitarix_default"
 
 widget_class "*Scrollbar*" style:highest "guitarix_scrollbars"
 
