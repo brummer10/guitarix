@@ -1039,7 +1039,7 @@ static void render (GtkWidget *wi, cairo_t* cr) {
     cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
     cairo_paint (cr);
     
-    string path = string(GX_PIXMAPS_DIR) + "/Splash.png";
+    string path = string(GX_PIXMAPS_DIR) + "/gx_splash.png";
     cairo_surface_t *image = cairo_image_surface_create_from_png(path.c_str());
     cairo_rectangle(cr, x0, y0, rect_width, rect_height);
     cairo_set_source_surface(cr, image, 0, 0);

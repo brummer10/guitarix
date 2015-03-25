@@ -1,160 +1,235 @@
-style "guitarix_caption"
-{
-  font_name = "sans 8"
+
+
+
+
+
+
+style "guitarix_default" {
+    font_name = "sans 8"
+    
+    fg[NORMAL]      = { 0.85, 0.85, 0.85 }
+    fg[ACTIVE]      = { 1.0, 1.0, 1.0 }
+    fg[PRELIGHT]    = { 1.0, 1.0, 1.0 }
+    fg[INSENSITIVE] = { 0.5, 0.5, 0.5 }
+    fg[SELECTED]    = { 0.9, 0.9, 0.9 }
+    
+    bg[NORMAL]      = { 0.13, 0.13, 0.13 }
+    bg[ACTIVE]      = { 0.13, 0.13, 0.13 }
+    bg[PRELIGHT]    = { 0.1, 0.1, 0.1 }
+    bg[INSENSITIVE] = { 0.2, 0.2, 0.2 }
+    bg[SELECTED]    = { 0.1, 0.1, 0.1 }
+    
+    text[NORMAL]      = { 0.99, 0.99, 0.99 }
+    text[ACTIVE]      = { 1.0, 1.0, 1.0 }
+    text[PRELIGHT]    = { 1.0, 1.0, 1.0 }
+    text[INSENSITIVE] = { 0.5, 0.5, 0.5 }
+    text[SELECTED]    = { 0.9, 0.9, 0.9 }
+    
+    base[NORMAL]      = { 0.0, 0.0, 0.0 }
+    base[ACTIVE]      = { 0.0, 0.0, 0.0 }
+    base[PRELIGHT]    = { 0.1, 0.1, 0.1 }
+    base[INSENSITIVE] = { 0.2, 0.2, 0.2 }
+    base[SELECTED]    = { 0.1, 0.1, 0.1 }
+    
+    #stock["plugins"]    = {{"gx_plugins.png"}}
+    #stock["config"]     = {{"gx_config.png"}}
+    #stock["fold"]       = {{"gx_fold.png"}}
+    #stock["fullscreen"] = {{"gx_fullscreen.png"}}
+    #stock["rack"]       = {{"gx_rack.png"}}
+    #stock["show"]       = {{"gx_show.png"}}
+    #stock["split"]      = {{"gx_split.png"}}
+    #stock["tuner"]      = {{"gx_tuner.png"}}
+    
 }
 
-style "guitarix_regler"
-{
-  GxRegler::value-spacing = 2
-  GxRegler::value-border = { 6, 6, 3, 3 }
-  font_name = "sans 7.5"
-  GxRegler::value-color = {
-    { 0, 20971, 52428, 10485, 52428 }} 
-}
-
-style "guitarix_value_display"
-{
-  GxRegler::value-spacing = 1
-  GxRegler::value-border = { 1, 1, 2, 2 }
-  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
-  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
-  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
-  fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
-  fg[SELECTED] = { 0.8, 0.8, 0.8 }
-  font_name = "sans 7.5"
-}
-
-style "guitarix_switch"
-{
-  xthickness = 0
-  ythickness = 0
-  GtkButton::inner-border = {0, 0, 0, 0}
-  GtkButton::default-border = {0, 0, 0, 0}
-  GtkButton::focus-line-width = 0
-  GtkButton::focus-padding = 0
-  GtkButton::interior-focus = 0
-  GtkButton::child-displacement-x = 0
-  GtkButton::child-displacement-y = 0
-  engine "clearlooks" {
-    #disable_focus = TRUE
-    style = CLASSIC
-  }
-}
-
-style "guitarix_small_button"
-{
-  GtkButton::inner-border = {0, 0, 0, 0}
-  GtkButton::default-border = {0, 0, 0, 0}
-  GtkButton::focus-line-width = 0
-  GtkButton::focus-padding = 0
-  GtkButton::interior-focus = 0
-  GtkButton::inner-spacing = 0
-  GtkButton::child-displacement-x = 0
-  GtkButton::child-displacement-y = 0
-}
-
-style "guitarix_selector"
-{
-  #cairo_set_source_rgba(cr, 0.4, 1, 0.2, 0.8)
-  fg[NORMAL] = 	{ 0.32, 0.8, 0.16 }
-  GtkRange::trough-border = 2
-  GtkRange::stepper-size = 8
-  GtkRange::stepper-spacing = 2
-  GxRegler::value-border = { 2, 0, 0, 0 }
-  font_name = "sans 7.5"
-  xthickness = 10
-  ythickness = 1
-}
-
-style "guitarix_waveview"
-{
-  GxWaveView::box-gradient = {
-    { 26214, 65536, 13107, 0, 52428 }, # 0.4, 1, 0.2, 0, 0.8
-	{ 52428, 13107, 65536, 13107, 52428 }} # 0.8, 0.2, 1, 0.2, 0.8
-
-  fg[NORMAL] = 	{ 0.48, 0.48, 0.12 } # RGBA: 0.8, 0.8, 0.2, 0.6
-  font_name = "sans 6"
-}
-
-style "guitarix_slider"
-{
-  GxRegler::value-border = {0, 0, 0, 0}
-}
-
-style "guitarix_eqslider"
-{
-  font_name = "sans 6"
-}
-
-style "guitarix_bold_label"
-{
-  font_name = "sans bold 8"
-}
-
-style "guitarix_fastmeter"
-{
-  GxFastMeter::clr-bottom = "#003808"
-  GxFastMeter::clr-middle = "#00ff00"
-  GxFastMeter::clr-top    = "#ff0000"
-  GxFastMeter::over       = "#ff0000"
-}
-
-style "guitarix_iredit"
-{
-  GxIREdit::sample-graph-color-out = { 20000, 20000, 20000, 65535 }
-  GxIREdit::shade-alpha = 0.6
-  GxIREdit::gain-line-color = { 0, 60000, 0, 65535 }
-}
-
-style "guitarix_playhead"
-{
-  stock["portdisplay"] = {{"playhead.png"}}
-  GxRegler::show-value = 0
-}
-
-style "guitarix_slevel"
-{
-  stock["levelslider"] = {{"simplelevelslider.png"}}
-  GxRegler::show-value = 0
-  GxLevelSlider::slider--width = 3
+style "guitarix_scrollbars" {
+    bg[NORMAL]   = { 0.3, 0.3, 0.3 }
+    bg[PRELIGHT] = { 0.4, 0.4, 0.4 }
+    bg[ACTIVE]   = { 0.4, 0.4, 0.4 }
 }
 
 
-widget "*.lmw" style:highest "guitarix_slevel"
-widget "*.playhead" style:highest "guitarix_playhead"
-widget "*.smallbutton" style:highest "guitarix_small_button"
-widget "*.effekt_label" style:highest "guitarix_caption"
-widget "*.filter_box.*.effekt_label" style:highest "guitarix_bold_label"
-class "*GxRegler" style:highest "guitarix_regler"
-class "*GxSwitch" style:highest "guitarix_switch"
-class "*GxWaveView" style:highest "guitarix_waveview"
-class "*GxHSlider" style:highest "guitarix_slider"
-class "*GxEQSlider" style:highest "guitarix_eqslider"
-class "*GxSelector" style:highest "guitarix_selector"
-class "*GxFastMeter" style:highest "guitarix_fastmeter"
-class "*GxIREdit" style:highest "guitarix_iredit"
-class "*GxSimpleValueDisplay" style:highest "guitarix_value_display"
 
 
-style "always-show-value"
-{
-  GxRegler::show-value = 1
-}
 
-widget "*.ui.tuner_reference_pitch" style:highest "always-show-value"
-widget "*.amp.out_amp" style:highest "always-show-value"
-widget "*.show_always" style:highest "always-show-value"
-widget "*.midi_out.channel_?.channel" style:highest "always-show-value"
-widget "*.midi_out.channel_?.program" style:highest "always-show-value"
-widget "*.gx_distortion.split_low_freq" style:highest "always-show-value"
-widget "*.gx_distortion.split_middle_freq" style:highest "always-show-value"
-widget "*.gx_distortion.split_high_freq" style:highest "always-show-value"
 
-style "justahack"
-{
-  fg[NORMAL] = {1.0, 1.0, 1.0 }
-  fg[PRELIGHT] = {0.2, 1.0, 0.2 }
-  fg[SELECTED] = {1.0, 0.0, 0.0 }
-  fg[INSENSITIVE] = {0.4, 0.1, 0.1 }
-}
-widget "gtkmm__GtkWindow.gtkmm__GtkEventBox.gtkmm__GxPaintBox.gtkmm__GtkLabel" style:highest "justahack"
+
+
+
+
+
+
+
+
+widget_class "*" style:highest "guitarix_default"
+
+
+
+widget_class "*Scrollbar*" style:highest "guitarix_scrollbars"
+
+
+
+
+
+
+
+#style "guitarix_caption"
+#{
+  #font_name = "sans 8"
+#}
+
+#style "guitarix_regler"
+#{
+  #GxRegler::value-spacing = 2
+  #GxRegler::value-border = { 6, 6, 3, 3 }
+  #font_name = "sans 7.5"
+  #GxRegler::value-color = {
+    #{ 0, 20971, 52428, 10485, 52428 }} 
+#}
+
+#style "guitarix_value_display"
+#{
+  #GxRegler::value-spacing = 1
+  #GxRegler::value-border = { 1, 1, 2, 2 }
+  #fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  #fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  #fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  #fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+  #fg[SELECTED] = { 0.8, 0.8, 0.8 }
+  #font_name = "sans 7.5"
+#}
+
+#style "guitarix_switch"
+#{
+  #xthickness = 0
+  #ythickness = 0
+  #GtkButton::inner-border = {0, 0, 0, 0}
+  #GtkButton::default-border = {0, 0, 0, 0}
+  #GtkButton::focus-line-width = 0
+  #GtkButton::focus-padding = 0
+  #GtkButton::interior-focus = 0
+  #GtkButton::child-displacement-x = 0
+  #GtkButton::child-displacement-y = 0
+  #engine "clearlooks" {
+    ##disable_focus = TRUE
+    #style = CLASSIC
+  #}
+#}
+
+#style "guitarix_small_button"
+#{
+  #GtkButton::inner-border = {0, 0, 0, 0}
+  #GtkButton::default-border = {0, 0, 0, 0}
+  #GtkButton::focus-line-width = 0
+  #GtkButton::focus-padding = 0
+  #GtkButton::interior-focus = 0
+  #GtkButton::inner-spacing = 0
+  #GtkButton::child-displacement-x = 0
+  #GtkButton::child-displacement-y = 0
+#}
+
+#style "guitarix_selector"
+#{
+  ##cairo_set_source_rgba(cr, 0.4, 1, 0.2, 0.8)
+  #fg[NORMAL] = 	{ 0.32, 0.8, 0.16 }
+  #GtkRange::trough-border = 2
+  #GtkRange::stepper-size = 8
+  #GtkRange::stepper-spacing = 2
+  #GxRegler::value-border = { 2, 0, 0, 0 }
+  #font_name = "sans 7.5"
+  #xthickness = 10
+  #ythickness = 1
+#}
+
+#style "guitarix_waveview"
+#{
+  #GxWaveView::box-gradient = {
+    #{ 26214, 65536, 13107, 0, 52428 }, # 0.4, 1, 0.2, 0, 0.8
+	#{ 52428, 13107, 65536, 13107, 52428 }} # 0.8, 0.2, 1, 0.2, 0.8
+
+  #fg[NORMAL] = 	{ 0.48, 0.48, 0.12 } # RGBA: 0.8, 0.8, 0.2, 0.6
+  #font_name = "sans 6"
+#}
+
+#style "guitarix_slider"
+#{
+  #GxRegler::value-border = {0, 0, 0, 0}
+#}
+
+#style "guitarix_eqslider"
+#{
+  #font_name = "sans 6"
+#}
+
+#style "guitarix_bold_label"
+#{
+  #font_name = "sans bold 8"
+#}
+
+#style "guitarix_fastmeter"
+#{
+  #GxFastMeter::clr-bottom = "#003808"
+  #GxFastMeter::clr-middle = "#00ff00"
+  #GxFastMeter::clr-top    = "#ff0000"
+  #GxFastMeter::over       = "#ff0000"
+#}
+
+#style "guitarix_iredit"
+#{
+  #GxIREdit::sample-graph-color-out = { 20000, 20000, 20000, 65535 }
+  #GxIREdit::shade-alpha = 0.6
+  #GxIREdit::gain-line-color = { 0, 60000, 0, 65535 }
+#}
+
+#style "guitarix_playhead"
+#{
+  #stock["portdisplay"] = {{"playhead.png"}}
+  #GxRegler::show-value = 0
+#}
+
+#style "guitarix_slevel"
+#{
+  #stock["levelslider"] = {{"simplelevelslider.png"}}
+  #GxRegler::show-value = 0
+  #GxLevelSlider::slider--width = 3
+#}
+
+
+#widget "*.lmw" style:highest "guitarix_slevel"
+#widget "*.playhead" style:highest "guitarix_playhead"
+#widget "*.smallbutton" style:highest "guitarix_small_button"
+#widget "*.effekt_label" style:highest "guitarix_caption"
+#widget "*.filter_box.*.effekt_label" style:highest "guitarix_bold_label"
+#class "*GxRegler" style:highest "guitarix_regler"
+#class "*GxSwitch" style:highest "guitarix_switch"
+#class "*GxWaveView" style:highest "guitarix_waveview"
+#class "*GxHSlider" style:highest "guitarix_slider"
+#class "*GxEQSlider" style:highest "guitarix_eqslider"
+#class "*GxSelector" style:highest "guitarix_selector"
+#class "*GxFastMeter" style:highest "guitarix_fastmeter"
+#class "*GxIREdit" style:highest "guitarix_iredit"
+#class "*GxSimpleValueDisplay" style:highest "guitarix_value_display"
+
+
+#style "always-show-value"
+#{
+  #GxRegler::show-value = 1
+#}
+
+#widget "*.ui.tuner_reference_pitch" style:highest "always-show-value"
+#widget "*.amp.out_amp" style:highest "always-show-value"
+#widget "*.show_always" style:highest "always-show-value"
+#widget "*.midi_out.channel_?.channel" style:highest "always-show-value"
+#widget "*.midi_out.channel_?.program" style:highest "always-show-value"
+#widget "*.gx_distortion.split_low_freq" style:highest "always-show-value"
+#widget "*.gx_distortion.split_middle_freq" style:highest "always-show-value"
+#widget "*.gx_distortion.split_high_freq" style:highest "always-show-value"
+
+#style "justahack"
+#{
+  #fg[NORMAL] = {1.0, 1.0, 1.0 }
+  #fg[PRELIGHT] = {0.2, 1.0, 0.2 }
+  #fg[SELECTED] = {1.0, 0.0, 0.0 }
+  #fg[INSENSITIVE] = {0.4, 0.1, 0.1 }
+#}
+#widget "gtkmm__GtkWindow.gtkmm__GtkEventBox.gtkmm__GxPaintBox.gtkmm__GtkLabel" style:highest "justahack"

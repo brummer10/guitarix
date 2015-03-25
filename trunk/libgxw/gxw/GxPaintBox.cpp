@@ -706,9 +706,8 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
     }
     
 	pat = cairo_pattern_create_linear (x0, y0, x0, y0 + h);
-	cairo_pattern_add_color_stop_rgba(pat, 0.0, 1.0, 1.0, 1.0, 0.13);
-    cairo_pattern_add_color_stop_rgba(pat, 0.5, 0.5, 0.5, 0.5, 0.0);
-	cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 0.18);
+	cairo_pattern_add_color_stop_rgba(pat, 0.0, 1.0, 1.0, 1.0, 0.08);
+	cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 0.16);
 	cairo_set_source(cr, pat);
     cairo_rectangle(cr, x0, y0, w, h);
     cairo_set_operator(cr, CAIRO_OPERATOR_SOFT_LIGHT);

@@ -1099,14 +1099,38 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label5:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox1230">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Effects</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage" id="image1230">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_plugins.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label5:barbuttonlabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Effects</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="size" value="8192"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1122,14 +1146,38 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label6:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox1231">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Config Mode</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage" id="image1231">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_config.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label6:barbuttonlabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Config Mode</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="size" value="8192"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1145,14 +1193,38 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label4:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox1232">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Tuner</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage" id="image1232">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_tuner.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label4:barbuttonlabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Tuner</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="size" value="8192"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1168,14 +1240,38 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label1:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox1233">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Show Rack</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage" id="image1233">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_rack.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label1:barbuttonlabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Show Rack</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="size" value="8192"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1191,14 +1287,38 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label7:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox1234">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Horizontal</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage" id="image1234">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_split.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label7:barbuttonlabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Horizontal</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="size" value="8192"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1214,11 +1334,39 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkImage" id="image2">
-                    <property name="height_request">10</property>
+                  <object class="GtkHBox" id="hbox1235">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="stock">gtk-remove</property>
+                    <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkImage" id="image2">
+                            <property name="height_request">10</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="pixbuf">gx_fold.png</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                      <child>
+                      <object class="GtkLabel" id="label71:barbuttonlabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Fold</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="size" value="8192"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1234,11 +1382,39 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkImage" id="image1">
-                    <property name="height_request">10</property>
+                  <object class="GtkHBox" id="hbox1236">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="stock">gtk-add</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage" id="image1">
+                        <property name="height_request">10</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_show.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label72:barbuttonlabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Expand</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="size" value="8192"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1254,14 +1430,38 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label3:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox1237">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Live Play</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage" id="image1237">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_fullscreen.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label3:barbuttonlabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Fullscreen</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="size" value="8192"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
