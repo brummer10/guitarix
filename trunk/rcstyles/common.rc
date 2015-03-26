@@ -59,11 +59,13 @@ style "guitarix_default" {
         #animation      = TRUE
     #}
 }
+class "GtkWidget" style:highest "guitarix_default"
+
 
 style "guitarix_scrollbars" {
     
     engine "clearlooks" {
-        scrollbar_color   = "#5a5a5a"
+        scrollbar_color = "#5a5a5a"
     }
     
     bg[NORMAL]   = { 0.13, 0.13, 0.13 }
@@ -75,27 +77,44 @@ style "guitarix_scrollbars" {
     #bg[PRELIGHT] = { 0.4, 0.4, 0.4 }
     #bg[ACTIVE]   = { 0.4, 0.4, 0.4 }
 }
-
-
+widget_class "*Scrollbar*" style:highest "guitarix_scrollbars"
 
 
 style "guitarix_liveplay" {
     bg[NORMAL]   = { 0.05, 0.05, 0.05 }
 }
-style "guitarix_liveplay2" {
-    bg[NORMAL]   = { 1.05, 0.05, 0.05 }
-}
-
 widget "*liveplay" style:highest "guitarix_liveplay"
-widget "*liveplay*GxPaintBox" style:highest "guitarix_liveplay2"
 
 
-class "GtkWidget" style:highest "guitarix_default"
+style "guitarix_rack_button" {
+    fg[NORMAL] = "#ff9000"
+    fg[PRELIGHT] = "#ff9000"
+    bg[NORMAL] = "black"
+    bg[PRELIGHT] = "black"
+}
+widget "*rack_effects*GtkButton*" style:highest "guitarix_rack_button"
 
-widget_class "*Scrollbar*" style:highest "guitarix_scrollbars"
 
 
 
+
+
+
+#buttons in rack devices to drag them
+#widget "*effect_reset" style:highest "guitarix_rack_slider"
+
+
+
+
+
+#preset_pane
+#rack_effects
+    #effect_category
+        #GtkLabel
+    #effect_button
+        #rack_effect_label
+#rack_left
+#rack_right
 
 
 

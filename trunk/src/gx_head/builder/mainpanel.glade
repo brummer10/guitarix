@@ -1461,6 +1461,7 @@
                   <object class="GxPaintBox" id="effects_frame_paintbox">
                     <property name="can_focus">False</property>
                     <property name="paint_func">gxrack_expose</property>
+                    <property name="name">rack_effects</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow1">
                         <property name="visible">True</property>
@@ -1493,6 +1494,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="paint_func">gxrack_expose</property>
+                    <property name="name">rack_left</property>
                     <child>
                       <object class="GtkScrolledWindow" id="vrack_scrolledbox">
                         <property name="height_request">50</property>
@@ -4150,6 +4152,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="paint_func">rack_expose</property>
+                                <property name="name">rack_right</property>
                                 <child>
                                   <object class="GtkHBox" id="stereorackcontainerH">
                                     <property name="visible">True</property>
@@ -4213,7 +4216,7 @@
                         <property name="can_focus">False</property>
                         <property name="border_width">8</property>
                         <property name="spacing">10</property>
-                        <property name="paint_func">rack_expose</property>
+                        <property name="name">preset_pane</property>
                         <child>
                           <object class="GtkVBox" id="vbox22">
                             <property name="visible">True</property>

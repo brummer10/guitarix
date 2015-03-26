@@ -779,26 +779,10 @@ Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptio
     const char *effect_name = useshort ? plugin.get_shortname() : plugin.get_name();
     Gtk::Label *effect_label = new Gtk::Label(effect_name);
     effect_label->set_alignment(0.13, 0.5);
-    effect_label->set_name("rack_effect_label");
-    Pango::FontDescription font_desc = effect_label->get_style()->get_font();
-    font_desc.set_size(int(7.5*Pango::SCALE));
-    //font_desc.set_weight(Pango::WEIGHT_BOLD);
-    effect_label->modify_font(font_desc);
-    if (plugin.get_type() == PLUGIN_TYPE_STEREO) {
-	Gtk::Alignment *al = new Gtk::Alignment(0, 0, 1.0, 1.0);
-    if (!useshort) al->set_padding(0, 0, 50, 0);
-    Gtk::HBox *hboxl = new Gtk::HBox(false, 4);
-	Gtk::HBox *hbox = new Gtk::HBox(false, 4);
-	Gtk::Image *e = new Gtk::Image(options.get_style_filepath("stereo.png"));
-	hboxl->pack_start(*manage(e), Gtk::PACK_SHRINK);
-	hboxl->pack_start(*manage(effect_label));
-	al->add(*manage(hboxl));
-	hbox->pack_start(*manage(al), Gtk::PACK_SHRINK);
-	hbox->show_all();
-	return hbox;
-    } else {
+    effect_label->set_name("effect_label");
+    if (plugin.get_type() == PLUGIN_TYPE_STEREO)
+        effect_label->set_markup("Ꝏ " + effect_label->get_label()); //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
 	return effect_label;
-    }
 }
 
 Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
@@ -806,7 +790,7 @@ Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
     al->set_padding(4, 4, left, right);
     Gtk::Button *button = new Gtk::Button();
     button->set_size_request(6,-1);
-    button->set_name("effect_reset");
+    button->set_name("effect_button");
     button->set_tooltip_text(_("drag n' drop handle"));
     button->set_sensitive(sens);
     al->add(*manage(button));
@@ -1119,11 +1103,10 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
 	b->set_tooltip_text(_("shrink effect unit"));
     }
     Gtk::Label *l = new Gtk::Label(t);
-    l->set_name("rack_slider");
     b->set_focus_on_click(false);
     b->add(*manage(l));
     b->set_size_request(20, 15);
-    b->set_name("effect_reset");
+    b->set_name("effect_category");
     if (expand) {
 	b->signal_clicked().connect(
 	    sigc::mem_fun(*this, &RackBox::do_expand));

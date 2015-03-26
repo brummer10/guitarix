@@ -72,7 +72,8 @@ gxstyle_files = [
     'handle_right_coal.png',
     'watermark_coal.png',
     'live_mute.png',
-    'live_bypass.png'
+    'live_bypass.png',
+    'screw.png',
     ]
 
 def configure(conf):
