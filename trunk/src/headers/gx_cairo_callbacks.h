@@ -31,7 +31,6 @@ namespace gx_cairo
 gboolean conv_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean start_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean splash_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean box_uni_2_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 

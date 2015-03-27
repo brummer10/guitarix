@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+import os, sys, shutil
+import xml.etree.ElementTree as ET
+
+__dir__ = os.path.dirname(os.path.realpath(__file__))
+
+skip_types = [
+    "GtkCellRendererText",
+    "GtkCellRendererPixbuf",
+    "GtkCellRendererToggle",
+    "GtkCellRendererCombo",
+    "GtkTreeViewColumn",
+    "GtkAdjustment",
+    "GtkListStore"
+]
+
+for f in os.listdir(__dir__):
+    if f.split(".")[-1] == "glade":
+        path = os.path.join(__dir__, f);
+        shutil.copy2(path, path + ".bak")
+        tree = ET.parse(path)
+        root = tree.getroot()
+        for o in root.iter('object'):
+            if not 'id' in o.attrib or o.attrib['class'] in skip_types:
+                continue
+            props = o.findall('property')
+            found = False
+            for p in props:
+                if 'name' in p.attrib and p.attrib['name'] == 'name':
+                    p.text = o.attrib['id']
+                    o.insert(0, p)
+                    found = True
+                    break;
+            if not found:
+                p = ET.Element('property', {'name' : 'name'})
+                p.text = o.attrib['id']
+                o.insert(0, p)
+        tree.write(path, 'UTF-8', True)

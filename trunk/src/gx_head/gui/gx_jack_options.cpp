@@ -151,15 +151,15 @@ bool gx_start_jack_dialog(Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
     gint response =
         gx_gui::gx_nchoice_dialog_without_entry(
             _(" Jack Starter "),
-            _("\n                            WARNING                    \n\n"
-	      "   The jack server is not currently running\n"
-	      "   You can choose to activate it or terminate gx_head   \n\n"
-	      "       1) activate jack   \n"
-	      "       2) ignore jack, start gx_head anyway   \n"
-	      "       3) exit gx_head   \n"
+            _("<b>WARNING</b>\n\n"
+	      "No running Jack instance found!\n"
+	      "You can choose to:\n\n"
+	      "    ▸ Activate Jack\n"
+	      "    ▸ Ignore Jack and start Guitarix\n"
+	      "    ▸ Exit Guitarix\n"
 	      "\n"
-	      "   use options menu \"jack startup control\" to\n"
-	      "   set a jack start program\n"),
+	      "Use options menu ▸ \"jack startup control\" to\n"
+	      "set a jack start program"),
             nchoices,
             labels,
             responses,
@@ -191,4 +191,3 @@ bool gx_start_jack_dialog(Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
     return retstat;
 }
 } // end namespace gx_gui
-

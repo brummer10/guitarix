@@ -1262,79 +1262,79 @@ gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
-gboolean start_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
-{
-	cairo_t *cr;
-	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-    GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
-	gdk_region_intersect (region, ev->region);
-	gdk_cairo_region (cr, region);
-	cairo_clip (cr);
+//gboolean start_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+//{
+	//cairo_t *cr;
+	///* create a cairo context */
+	//cr = gdk_cairo_create(wi->window);
+    //GdkRegion *region;
+	//region = gdk_region_rectangle (&wi->allocation);
+	//gdk_region_intersect (region, ev->region);
+	//gdk_cairo_region (cr, region);
+	//cairo_clip (cr);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	//double x0      = wi->allocation.x+1;
+	//double y0      = wi->allocation.y+1;
+	//double rect_width  = wi->allocation.width-2;
+	//double rect_height = wi->allocation.height-2;
 
-    cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
-    cairo_set_source_rgb (cr, 0, 0, 0);
-    cairo_set_line_width(cr, 2.0);
-    cairo_stroke(cr);
+    //cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+    //cairo_set_source_rgb (cr, 0, 0, 0);
+    //cairo_set_line_width(cr, 2.0);
+    //cairo_stroke(cr);
 
-	cairo_pattern_t*pat = cairo_pattern_create_linear (x0, y0+rect_height/2,x0, y0);
-    cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
+	//cairo_pattern_t*pat = cairo_pattern_create_linear (x0, y0+rect_height/2,x0, y0);
+    //cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
     
-    cairo_pattern_add_color_stop_rgba (pat, 0, 0.1, 0.1, 0.2, 0.6);
-    cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
+    //cairo_pattern_add_color_stop_rgba (pat, 0, 0.1, 0.1, 0.2, 0.6);
+    //cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
 
-	cairo_set_source (cr, pat);
-	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
-	cairo_fill (cr);
+	//cairo_set_source (cr, pat);
+	//cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
+	//cairo_fill (cr);
 
-	cairo_rectangle (cr, x0+8,y0+31,rect_width-16,rect_height-75);
-	cairo_set_source_rgb (cr, 0.5, 0.5, 0.5);
-    cairo_set_line_width(cr, 2.0);
-	cairo_stroke_preserve(cr);
-	pat = cairo_pattern_create_linear (x0+8, y0+rect_height/2-37,x0, y0);
-    cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
-    cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
-    cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
-    cairo_set_source (cr, pat);
-	cairo_fill (cr);
+	//cairo_rectangle (cr, x0+8,y0+31,rect_width-16,rect_height-75);
+	//cairo_set_source_rgb (cr, 0.5, 0.5, 0.5);
+    //cairo_set_line_width(cr, 2.0);
+	//cairo_stroke_preserve(cr);
+	//pat = cairo_pattern_create_linear (x0+8, y0+rect_height/2-37,x0, y0);
+    //cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
+    //cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
+    //cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
+    //cairo_set_source (cr, pat);
+	//cairo_fill (cr);
 
-    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+rect_width-3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
-    cairo_line_to(cr, x0+2, y0+rect_height-2);
-    cairo_stroke(cr);
+    //cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    //cairo_set_line_width(cr, 2.0);
+    //cairo_move_to(cr,x0+rect_width-3, y0+3);
+    //cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+    //cairo_line_to(cr, x0+2, y0+rect_height-2);
+    //cairo_stroke(cr);
 
-    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+3, y0+rect_height-1);
-    cairo_line_to(cr, x0+3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+3);
-    cairo_stroke(cr);
+    //cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    //cairo_set_line_width(cr, 2.0);
+    //cairo_move_to(cr,x0+3, y0+rect_height-1);
+    //cairo_line_to(cr, x0+3, y0+3);
+    //cairo_line_to(cr, x0+rect_width-3, y0+3);
+    //cairo_stroke(cr);
 
-    cairo_set_source_rgb(cr,  0.5, 0.5, 0.5);
-    cairo_set_line_width(cr, 1.5);
-    cairo_arc (cr, x0+7, y0+7, 1.5, 0, 2*M_PI);
-    cairo_move_to(cr,x0+rect_width-8, y0+7);
-    cairo_arc (cr, x0+rect_width-7, y0+7, 1.5, 0, 2*M_PI);
-    cairo_move_to(cr,x0+rect_width-7, y0+rect_height-6);
-    cairo_arc (cr, x0+rect_width-7, y0+rect_height-6, 1.5, 0, 2*M_PI);
-    cairo_move_to(cr,x0+7, y0+rect_height-6);
-    cairo_arc (cr, x0+7, y0+rect_height-6, 1.5, 0, 2*M_PI);
-    cairo_stroke_preserve(cr);
-    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-    cairo_fill (cr);
+    //cairo_set_source_rgb(cr,  0.5, 0.5, 0.5);
+    //cairo_set_line_width(cr, 1.5);
+    //cairo_arc (cr, x0+7, y0+7, 1.5, 0, 2*M_PI);
+    //cairo_move_to(cr,x0+rect_width-8, y0+7);
+    //cairo_arc (cr, x0+rect_width-7, y0+7, 1.5, 0, 2*M_PI);
+    //cairo_move_to(cr,x0+rect_width-7, y0+rect_height-6);
+    //cairo_arc (cr, x0+rect_width-7, y0+rect_height-6, 1.5, 0, 2*M_PI);
+    //cairo_move_to(cr,x0+7, y0+rect_height-6);
+    //cairo_arc (cr, x0+7, y0+rect_height-6, 1.5, 0, 2*M_PI);
+    //cairo_stroke_preserve(cr);
+    //cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    //cairo_fill (cr);
 
-    cairo_pattern_destroy (pat);
-	cairo_destroy(cr);
-    gdk_region_destroy (region);
+    //cairo_pattern_destroy (pat);
+	//cairo_destroy(cr);
+    //gdk_region_destroy (region);
 
-	return FALSE;
-}
+	//return FALSE;
+//}
 }

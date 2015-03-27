@@ -1,25 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <interface>
-  <!-- interface-requires gxwidgets 0.0 -->
-  <requires lib="gtk+" version="2.20"/>
-  <!-- interface-naming-policy project-wide -->
+  
+  <requires lib="gtk+" version="2.20" />
+  
   <object class="GtkWindow" id="window1">
-    <property name="can_focus">False</property>
+    <property name="name">window1</property><property name="name">window1</property><property name="name">window1</property><property name="can_focus">False</property>
     <child>
       <object class="GtkHBox" id="rackbox">
-        <property name="visible">True</property>
+        <property name="name">rackbox</property><property name="name">rackbox</property><property name="name">rackbox</property><property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
           <object class="GtkHBox" id="hbox1">
-            <property name="visible">True</property>
+            <property name="name">hbox1</property><property name="name">hbox1</property><property name="name">hbox1</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GxSelector" id="gxselector1">
-                <property name="visible">True</property>
+                <property name="name">gxselector1</property><property name="name">gxselector1</property><property name="name">gxselector1</property><property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">tremolo.SINE</property>
-              </object>
+              <property name="name">gxselector1</property></object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -28,14 +28,14 @@
             </child>
             <child>
               <object class="GtkVBox" id="vbox1">
-                <property name="visible">True</property>
+                <property name="name">vbox1</property><property name="name">vbox1</property><property name="name">vbox1</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="label1:rack_label">
-                    <property name="visible">True</property>
+                    <property name="name">label1:rack_label</property><property name="name">label1:rack_label</property><property name="name">label1:rack_label</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
-                  </object>
+                  <property name="name">label1:rack_label</property></object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
@@ -44,26 +44,26 @@
                 </child>
                 <child>
                   <object class="GxSmallKnobR" id="gxbigknob1">
-                    <property name="visible">True</property>
+                    <property name="name">gxbigknob1</property><property name="name">gxbigknob1</property><property name="name">gxbigknob1</property><property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">tremolo.freq</property>
                     <property name="label_ref">label1:rack_label</property>
-                  </object>
+                  <property name="name">gxbigknob1</property></object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
-              </object>
+              <property name="name">vbox1</property></object>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          </object>
+          <property name="name">hbox1</property></object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">False</property>
@@ -72,14 +72,14 @@
         </child>
         <child>
           <object class="GtkVBox" id="vbox2">
-            <property name="visible">True</property>
+            <property name="name">vbox2</property><property name="name">vbox2</property><property name="name">vbox2</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GtkLabel" id="label2:rack_label">
-                <property name="visible">True</property>
+                <property name="name">label2:rack_label</property><property name="name">label2:rack_label</property><property name="name">label2:rack_label</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">label</property>
-              </object>
+              <property name="name">label2:rack_label</property></object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
@@ -88,19 +88,19 @@
             </child>
             <child>
               <object class="GxSmallKnobR" id="gxbigknob2">
-                <property name="visible">True</property>
+                <property name="name">gxbigknob2</property><property name="name">gxbigknob2</property><property name="name">gxbigknob2</property><property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">tremolo.depth</property>
                 <property name="label_ref">label2:rack_label</property>
-              </object>
+              <property name="name">gxbigknob2</property></object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          </object>
+          <property name="name">vbox2</property></object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
@@ -109,14 +109,14 @@
         </child>
         <child>
           <object class="GtkVBox" id="vbox3">
-            <property name="visible">True</property>
+            <property name="name">vbox3</property><property name="name">vbox3</property><property name="name">vbox3</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GtkLabel" id="label3:rack_label">
-                <property name="visible">True</property>
+                <property name="name">label3:rack_label</property><property name="name">label3:rack_label</property><property name="name">label3:rack_label</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">label</property>
-              </object>
+              <property name="name">label3:rack_label</property></object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
@@ -125,13 +125,13 @@
             </child>
             <child>
               <object class="GxSmallKnob" id="gxsmallknob1">
-                <property name="visible">True</property>
+                <property name="name">gxsmallknob1</property><property name="name">gxsmallknob1</property><property name="name">gxsmallknob1</property><property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">tremolo.wet_dry</property>
                 <property name="show_value">False</property>
                 <property name="label_ref">label3:rack_label</property>
-              </object>
+              <property name="name">gxsmallknob1</property></object>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">False</property>
@@ -140,36 +140,36 @@
             </child>
             <child>
               <object class="GtkHBox" id="hbox2">
-                <property name="visible">True</property>
+                <property name="name">hbox2</property><property name="name">hbox2</property><property name="name">hbox2</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GxValueDisplay" id="gxvaluedisplay1">
-                    <property name="visible">True</property>
+                    <property name="name">gxvaluedisplay1</property><property name="name">gxvaluedisplay1</property><property name="name">gxvaluedisplay1</property><property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">tremolo.wet_dry</property>
-                  </object>
+                  <property name="name">gxvaluedisplay1</property></object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">False</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
-              </object>
+              <property name="name">hbox2</property></object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
             </child>
-          </object>
+          <property name="name">vbox3</property></object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
         </child>
-      </object>
+      <property name="name">rackbox</property></object>
     </child>
-  </object>
+  <property name="name">window1</property></object>
 </interface>

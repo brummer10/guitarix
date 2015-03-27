@@ -1,26 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <interface>
-  <requires lib="gtk+" version="2.20"/>
-  <!-- interface-requires gxwidgets 0.0 -->
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="2.20" />
+  
+  
   <object class="GtkWindow" id="PluginPresetInputWindow">
-    <property name="can_focus">False</property>
+    <property name="name">PluginPresetInputWindow</property><property name="name">PluginPresetInputWindow</property><property name="name">PluginPresetInputWindow</property><property name="can_focus">False</property>
     <property name="window_position">mouse</property>
     <property name="type_hint">dialog</property>
     <child>
       <object class="GxPaintBox" id="gxpaintbox1">
-        <property name="visible">True</property>
+        <property name="name">gxpaintbox1</property><property name="name">gxpaintbox1</property><property name="name">gxpaintbox1</property><property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <property name="paint_func">box_uni_2_expose</property>
         <child>
           <object class="GtkLabel" id="label1">
-            <property name="visible">True</property>
+            <property name="name">label1</property><property name="name">label1</property><property name="name">label1</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="xpad">20</property>
             <property name="ypad">10</property>
             <property name="label" translatable="yes">Save current plugin setting under a name:</property>
-          </object>
+          <property name="name">label1</property></object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
@@ -29,7 +29,7 @@
         </child>
         <child>
           <object class="GtkEntry" id="entry">
-            <property name="visible">True</property>
+            <property name="name">entry</property><property name="name">entry</property><property name="name">entry</property><property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="has_focus">True</property>
             <property name="is_focus">True</property>
@@ -39,7 +39,7 @@
             <property name="secondary_icon_activatable">False</property>
             <property name="primary_icon_sensitive">True</property>
             <property name="secondary_icon_sensitive">True</property>
-          </object>
+          <property name="name">entry</property></object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">False</property>
@@ -48,20 +48,20 @@
         </child>
         <child>
           <object class="GtkHButtonBox" id="hbuttonbox1">
-            <property name="visible">True</property>
+            <property name="name">hbuttonbox1</property><property name="name">hbuttonbox1</property><property name="name">hbuttonbox1</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="spacing">20</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="cancelbutton">
-                <property name="label">gtk-cancel</property>
+                <property name="name">cancelbutton</property><property name="name">cancelbutton</property><property name="name">cancelbutton</property><property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
-              </object>
+              <property name="name">cancelbutton</property></object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -70,7 +70,7 @@
             </child>
             <child>
               <object class="GtkButton" id="okbutton">
-                <property name="label">gtk-ok</property>
+                <property name="name">okbutton</property><property name="name">okbutton</property><property name="name">okbutton</property><property name="label">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -78,21 +78,21 @@
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
-              </object>
+              <property name="name">okbutton</property></object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          </object>
+          <property name="name">hbuttonbox1</property></object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
             <property name="position">2</property>
           </packing>
         </child>
-      </object>
+      <property name="name">gxpaintbox1</property></object>
     </child>
-  </object>
+  <property name="name">PluginPresetInputWindow</property></object>
 </interface>
