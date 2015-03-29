@@ -1017,6 +1017,7 @@ void MonoEngine::load_static_plugins() {
 	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK);
 	pl.add(gx_effects::baxandall::plugin(),      PLUGIN_POS_RACK);
 	pl.add(gx_effects::distortion2::plugin(),      PLUGIN_POS_RACK);
+	pl.add(gx_effects::fuzzface::plugin(),      PLUGIN_POS_RACK);
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&mono_convolver.plugin,                PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);

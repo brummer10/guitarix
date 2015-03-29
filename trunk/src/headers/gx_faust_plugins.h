@@ -128,6 +128,7 @@ declare(duck_delay)
 declare(duck_delay_st)
 declare(baxandall)
 declare(distortion2)
+declare(fuzzface)
 }
 
 declare(balance)

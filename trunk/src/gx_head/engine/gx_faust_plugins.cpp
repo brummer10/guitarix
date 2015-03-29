@@ -128,6 +128,7 @@ namespace gx_effects {
 #include "faust/duck_delay_st.cc"
 #include "faust/baxandall.cc"
 #include "faust/distortion2.cc"
+#include "faust/fuzzface.cc"
 
 }
 

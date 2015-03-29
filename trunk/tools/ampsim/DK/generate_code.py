@@ -967,6 +967,8 @@ class CodeGenerator(object):
                     sp = self.solver_params[nonlin.name]
                 except KeyError:
                     pass
+                except TypeError:
+                    pass
                 else:
                     generator = sp.get("generator")
                     d.overwrite("v0_guess", sp.get("v0_guess"))

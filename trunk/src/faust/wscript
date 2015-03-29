@@ -132,7 +132,8 @@ def build(bld):
 		'duck_delay_st.dsp',
         'baxandall.dsp',
         'distortion2.dsp',
-        
+        'fuzzface.dsp',
+       
 
 
         # amps
