@@ -115,6 +115,7 @@ def build(bld):
         'graphiceq.dsp',
         'duck_delay.dsp',
         'duck_delay_st.dsp',
+        'fuzzface.dsp',
 
         # tone stacks
         'tonestack_default.dsp',

@@ -93,6 +93,7 @@ def dirlist():
         'gx_jcm800pre_st.lv2',
         'gx_cabinet.lv2',
         'gx_vibe.lv2',
+        'gx_fuzzface.lv2',
          ]
 
     return subdirs
