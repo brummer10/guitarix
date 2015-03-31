@@ -36,9 +36,13 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
   switch ((PortIndex)port_index )
   {
     case FUZZ:
-      return &m_bigknob;
+      return &m_bigknob[0];
     case VOLUME:
-      return &m_bigknob1;
+      return &m_bigknob[1];
+    case DRIVE:
+      return &m_bigknob[2];
+    case INPUT:
+      return &m_bigknob[3];
     default:
       return NULL;
   } 
@@ -46,11 +50,13 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 
 Widget::Widget(Glib::ustring plugname):
 plug_name(plugname),
-pir(GX_LV2_STYLE_DIR"/fuzzfacejh2.png")
+pir(GX_LV2_STYLE_DIR"/fuzzfacejfuller.png")
 {
   // create controllers for port name
   make_controller_box(&m_vbox3, "FUZZ", 0, 1, 0.01, FUZZ);
   make_controller_box(&m_vbox2, "VOLUME", 0, 1, 0.01, VOLUME);
+  make_controller_box(&m_vbox4, "DRIVE", 0, 1, 0.01, DRIVE);
+  make_controller_box(&m_vbox5, "INPUT", 0, 1, 0.01, INPUT);
   
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(10);
@@ -60,7 +66,7 @@ pir(GX_LV2_STYLE_DIR"/fuzzfacejh2.png")
   m_paintbox.property_paint_func() = "rack_unit_expose";
   add(m_paintbox);
   // box for the controllers
-  m_hbox_.set_spacing(80);
+  m_hbox_.set_spacing(25);
   m_hbox_.set_border_width(24);
   m_hbox_.set_homogeneous(false);
   // set a vertical box in the paintbox
@@ -74,6 +80,8 @@ pir(GX_LV2_STYLE_DIR"/fuzzfacejh2.png")
   m_vbox_.pack_start(m_hbox_, Gtk::PACK_SHRINK);
    // put boxed controllers into controller box
   m_hbox_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
+  m_hbox_.pack_start(m_vbox5);
+  m_hbox_.pack_start(m_vbox4);
   m_hbox_.pack_start(m_vbox2);
   m_hbox_.pack_start(m_vbox3);
   m_hbox_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
@@ -145,8 +153,8 @@ void Widget::make_controller_box(Gtk::Box *box,
                                     get_controller_by_port(port_name));
   if (regler)
   {
-    // Gtk::Label* pr = new Gtk::Label(label, 0);
-    // pr->set_name("amplabel");
+    //Gtk::Label* pr = new Gtk::Label(label, 0);
+    //pr->set_name("amplabel");
     // use label images instead simple string labes
     Glib::ustring  label_image = GX_LV2_STYLE_DIR;
     label_image += "/";

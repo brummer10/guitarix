@@ -57,7 +57,8 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 }
 
 Widget::Widget(Glib::ustring plugname):
-plug_name(plugname)
+plug_name(plugname),
+pir(GX_LV2_STYLE_DIR"/univibe.png")
 {
   // create controllers for port name
   make_controller_box(&m_vbox2, "WIDTH", 0, 1, 0.01 , WIDTH);
@@ -88,6 +89,9 @@ plug_name(plugname)
   m_vbox1.set_border_width(14);
   m_paintbox.pack_start(m_vbox_);
   // and controller box on top
+  m_vbox_.pack_start(m_hbox1_, Gtk::PACK_SHRINK);
+  m_hbox1_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);
+  m_hbox1_.pack_end(pir, Gtk::PACK_SHRINK);
   m_vbox_.pack_start(m_hbox_, Gtk::PACK_SHRINK);
    // put boxed controllers into controller box
   m_hbox_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);

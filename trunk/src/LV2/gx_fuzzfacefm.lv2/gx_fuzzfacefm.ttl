@@ -34,25 +34,25 @@
 	foaf:mbox <mailto:guitarix-developer@lists.sourceforge.net> ;
 	rdfs:seeAlso <http://guitarix.sourceforge.net> .
 
-<http://guitarix.sourceforge.net/plugins/gx_fuzzface_>
+<http://guitarix.sourceforge.net/plugins/gx_fuzzfacefm_>
 	a doap:Project ;
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
-	doap:name "Gx_fuzzface_" .
+	doap:name "Gx_fuzzfacefm_" .
 
-<http://guitarix.sourceforge.net/plugins/gx_fuzzface_#_fuzzface_>
+<http://guitarix.sourceforge.net/plugins/gx_fuzzfacefm_#_fuzzfacefm_>
     a lv2:Plugin ,
         lv2:DistortionPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxFuzzFaceJH2";
+    doap:name "GxFuzzFaceFuller";
     doap:license <http://opensource.org/licenses/isc> ;
-    lv2:project <http://guitarix.sourceforge.net/plugins/gx_fuzzface_> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_fuzzfacefm_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
       
     lv2:minorVersion 28;
     lv2:microVersion 3;
 
-  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_fuzzface_gui#_fuzzface_>;
-     
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_fuzzfacefm_gui#_fuzzfacefm_>;
+    
 rdfs:comment """
 
 ...
@@ -76,6 +76,15 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 2 ;
+        lv2:symbol "DRIVE" ;
+        lv2:name "DRIVE" ;
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 3 ;
         lv2:symbol "FUZZ" ;
         lv2:name "FUZZ" ;
         lv2:default 0.5 ;
@@ -84,7 +93,16 @@ rdfs:comment """
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 3 ;
+        lv2:index 4 ;
+        lv2:symbol "INPUT" ;
+        lv2:name "INPUT" ;
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
         lv2:symbol "VOLUME" ;
         lv2:name "VOLUME" ;
         lv2:default 0.5 ;
@@ -92,8 +110,8 @@ rdfs:comment """
         lv2:maximum 1.0 ;
     ].
 
-<http://guitarix.sourceforge.net/plugins/gx_fuzzface_gui#_fuzzface_>
+<http://guitarix.sourceforge.net/plugins/gx_fuzzfacefm_gui#_fuzzfacefm_>
   a guiext:GtkUI;
-  guiext:binary <gx_fuzzface_gui.so>;
+  guiext:binary <gx_fuzzfacefm_gui.so>;
   guiext:requiredFeature guiext:makeResident;
   .

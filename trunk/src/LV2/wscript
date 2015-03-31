@@ -94,6 +94,7 @@ def dirlist():
         'gx_cabinet.lv2',
         'gx_vibe.lv2',
         'gx_fuzzface.lv2',
+        'gx_fuzzfacefm.lv2',
          ]
 
     return subdirs

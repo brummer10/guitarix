@@ -24,7 +24,7 @@
 
 #include <gtkmm.h>
 #include <gxwmm.h>
-#include "gx_fuzzface.h"
+#include "gx_fuzzfacefm.h"
 #include "../config.h" // for GX_STYLE_DIR
 // LV2UI stuff
 #include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
@@ -81,13 +81,14 @@ protected:
   Gtk::VBox         m_vbox1;
   Gtk::VBox         m_vbox2;
   Gtk::VBox         m_vbox3;
+  Gtk::VBox         m_vbox4;
+  Gtk::VBox         m_vbox5;
   Gtk::HBox         m_hbox_;
   Gtk::HBox         m_hbox1_;
   Gtk::Image        pir;
 
   Gxw::PaintBox     m_paintbox;
-  Gxw::BigKnob      m_bigknob;
-  Gxw::BigKnob      m_bigknob1;
+  Gxw::BigKnob      m_bigknob[4];
 };
 
 #endif //SRC_HEADERS_WIDGET_H_
