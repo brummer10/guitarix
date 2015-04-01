@@ -13,6 +13,7 @@
 
 // #include the widget headers so that we can call the get_type() static methods:
 #include "bigknob.h"
+#include "midknob.h"
 #include "controlparameter.h"
 #include "eqslider.h"
 #include "fastmeter.h"
@@ -45,6 +46,7 @@ extern "C"
 //Declarations of the *_get_type() functions:
 
 GType gx_big_knob_get_type(void);
+GType gx_mid_knob_get_type(void);
 GType gx_eq_slider_get_type(void);
 GType gx_fast_meter_get_type(void);
 GType gx_hslider_get_type(void);
@@ -80,6 +82,7 @@ namespace Gxw {
 //Declarations of the *_Class::wrap_new() methods, instead of including all the private headers:
 
 class BigKnob_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
+class MidKnob_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class EqSlider_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class FastMeter_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class HSlider_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
@@ -112,6 +115,7 @@ void wrap_init()
 
   // Map gtypes to gtkmm wrapper-creation functions:
   Glib::wrap_register(gx_big_knob_get_type(), &BigKnob_Class::wrap_new);
+  Glib::wrap_register(gx_mid_knob_get_type(), &BigKnob_Class::wrap_new);
   Glib::wrap_register(gx_eq_slider_get_type(), &EqSlider_Class::wrap_new);
   Glib::wrap_register(gx_fast_meter_get_type(), &FastMeter_Class::wrap_new);
   Glib::wrap_register(gx_hslider_get_type(), &HSlider_Class::wrap_new);
@@ -140,6 +144,7 @@ void wrap_init()
 
   // Register the gtkmm gtypes:
   BigKnob::get_type();
+  MidKnob::get_type();
   EqSlider::get_type();
   FastMeter::get_type();
   HSlider::get_type();
@@ -169,4 +174,3 @@ void wrap_init()
 } // wrap_init()
 
 } // Gxw
-

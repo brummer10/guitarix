@@ -1,0 +1,7 @@
+  <object class="GtkWindow" id="PluginPresetInputWindow">
+      <object class="GxPaintBox" id="gxpaintbox1">
+          <object class="GtkLabel" id="label1">
+          <object class="GtkEntry" id="entry">
+          <object class="GtkHButtonBox" id="hbuttonbox1">
+              <object class="GtkButton" id="cancelbutton">
+              <object class="GtkButton" id="okbutton">

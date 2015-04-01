@@ -34,26 +34,26 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
     </data>
   </object>
   <object class="GtkWindow" id="selectjackstarter">
-    <property name="name">selectjackstarter</property><property name="name">selectjackstarter</property><property name="can_focus">False</property>
+    <property name="name">selectjackstarter</property><property name="can_focus">False</property>
     <property name="default_height">250</property>
     <child>
       <object class="GxPaintBox" id="gxpaintbox1">
-        <property name="name">gxpaintbox1</property><property name="name">gxpaintbox1</property><property name="visible">True</property>
+        <property name="name">gxpaintbox1</property><property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="border_width">8</property>
         <property name="orientation">vertical</property>
         <property name="spacing">10</property>
         <child>
           <object class="GtkVBox" id="vbox1">
-            <property name="name">vbox1</property><property name="name">vbox1</property><property name="visible">True</property>
+            <property name="name">vbox1</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="spacing">10</property>
             <child>
               <object class="GtkLabel" id="label1">
-                <property name="name">label1</property><property name="name">label1</property><property name="visible">True</property>
+                <property name="name">label1</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Select the program to start jackd if its not running</property>
-              <property name="name">label1</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -62,11 +62,11 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
             </child>
             <child>
               <object class="GtkHBox" id="hbox2">
-                <property name="name">hbox2</property><property name="name">hbox2</property><property name="visible">True</property>
+                <property name="name">hbox2</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
 		  <object class="GtkComboBox" id="startercombo">
-                    <property name="name">startercombo</property><property name="name">startercombo</property><property name="visible">True</property>
+                    <property name="name">startercombo</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">liststore1</property>
                     <property name="active">0</property>
@@ -78,14 +78,14 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
                         <attribute name="text">0</attribute>
                       </attributes>
                     </child>
-                  <property name="name">startercombo</property></object>
+                  </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">False</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
-              <property name="name">hbox2</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -94,11 +94,11 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
             </child>
             <child>
               <object class="GtkLabel" id="description">
-                <property name="name">description</property><property name="name">description</property><property name="visible">True</property>
+                <property name="name">description</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">label</property>
                 <property name="wrap">True</property>
-              <property name="name">description</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -107,14 +107,14 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
             </child>
             <child>
               <object class="GtkEntry" id="customstarter">
-                <property name="name">customstarter</property><property name="name">customstarter</property><property name="can_focus">True</property>
+                <property name="name">customstarter</property><property name="can_focus">True</property>
                 <property name="invisible_char">●</property>
                 <property name="invisible_char_set">True</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
                 <property name="primary_icon_sensitive">True</property>
                 <property name="secondary_icon_sensitive">True</property>
-              <property name="name">customstarter</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -123,17 +123,17 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
             </child>
             <child>
               <object class="GtkHBox" id="hbox1">
-                <property name="name">hbox1</property><property name="name">hbox1</property><property name="visible">True</property>
+                <property name="name">hbox1</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkCheckButton" id="dontask">
-                    <property name="name">dontask</property><property name="name">dontask</property><property name="label" translatable="yes">don't ask on startup</property>
+                    <property name="name">dontask</property><property name="label" translatable="yes">don't ask on startup</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
-                  <property name="name">dontask</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
@@ -141,7 +141,7 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
                     <property name="position">0</property>
                   </packing>
                 </child>
-              <property name="name">hbox1</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -149,7 +149,7 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
                 <property name="position">4</property>
               </packing>
             </child>
-          <property name="name">vbox1</property></object>
+          </object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
@@ -158,20 +158,20 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
         </child>
         <child>
           <object class="GtkHButtonBox" id="hbuttonbox1">
-            <property name="name">hbuttonbox1</property><property name="name">hbuttonbox1</property><property name="visible">True</property>
+            <property name="name">hbuttonbox1</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="border_width">6</property>
             <property name="spacing">6</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="cancel_button">
-                <property name="name">cancel_button</property><property name="name">cancel_button</property><property name="label">gtk-cancel</property>
+                <property name="name">cancel_button</property><property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
-              <property name="name">cancel_button</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -180,20 +180,20 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
             </child>
             <child>
               <object class="GtkButton" id="ok_button">
-                <property name="name">ok_button</property><property name="name">ok_button</property><property name="label">gtk-ok</property>
+                <property name="name">ok_button</property><property name="label">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
-              <property name="name">ok_button</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          <property name="name">hbuttonbox1</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
@@ -201,7 +201,7 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
             <property name="position">1</property>
           </packing>
         </child>
-      <property name="name">gxpaintbox1</property></object>
+      </object>
     </child>
-  <property name="name">selectjackstarter</property></object>
+  </object>
 </interface>

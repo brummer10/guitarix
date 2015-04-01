@@ -68,6 +68,7 @@ def build(bld):
                "GxWheelVertical.h",
                "GxKnob.h",
                "GxBigKnob.h",
+               "GxMidKnob.h",
                "GxSmallKnob.h",
                "GxSmallKnobR.h",
                "GxHSlider.h",

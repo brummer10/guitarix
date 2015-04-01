@@ -353,4 +353,3 @@ static gboolean gx_knob_button_press (GtkWidget *widget, GdkEventButton *event)
 	}
 	return FALSE;
 }
-

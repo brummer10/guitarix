@@ -38,6 +38,15 @@
    )
   )
 
+(define-function mid_knob_new
+  (c-name "gx_mid_knob_new")
+  (is-constructor-of "GxMidgKnob")
+  (return-type "GtkWidget*")
+  (properties
+   '("adjustment" (optional))
+   )
+  )
+  
 (define-function small_knob_new
   (c-name "gx_small_knob_new")
   (is-constructor-of "GxSmallKnob")

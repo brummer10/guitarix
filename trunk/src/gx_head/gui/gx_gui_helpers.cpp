@@ -94,8 +94,11 @@ gint gx_nchoice_dialog_without_entry(
     GtkWidget* image      = gtk_image_new_from_pixbuf(pb);
     
     gtk_label_set_markup(GTK_LABEL(text_label), msg);
+    GtkWidget * al = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+    gtk_container_add(GTK_CONTAINER(al), text_label);
+    gtk_alignment_set_padding(GTK_ALIGNMENT(al), 10, 10, 10, 10);
+    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), al);
     
-    gtk_container_add_with_properties(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), text_label, "padding", 10, "expand", TRUE, "fill", TRUE, NULL);
     gtk_container_add(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(dialog))), image);
     for (guint i = 0; i < nchoice; i++)
         gtk_dialog_add_button(GTK_DIALOG(dialog), label[i], resp[i]);
@@ -108,7 +111,7 @@ gint gx_nchoice_dialog_without_entry(
 
     gtk_widget_show(text_label);
     gtk_widget_show(image);
-
+    gtk_widget_show(al);
     g_signal_connect(dialog, "map", G_CALLBACK(on_gx_nchoice_map), NULL);
 
     // --- run dialog and check response
@@ -130,32 +133,24 @@ int gx_message_popup(const char* msg) {
     GtkWidget *about;
     GtkWidget *label;
     GtkWidget *ok_button;
-
     about = gtk_dialog_new();
     ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
-
-    label = gtk_label_new(msg);
-
-    GtkStyle *style = gtk_widget_get_style(label);
-
-    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-
-    gtk_widget_modify_font(label, style->font_desc);
-
+    label = gtk_label_new("");
+    gtk_label_set_markup(GTK_LABEL(label), msg);
     gtk_label_set_selectable(GTK_LABEL(label), TRUE);
-
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->vbox), label);
-
-    GTK_BOX(GTK_DIALOG(about)->action_area)->spacing = 3;
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->action_area), ok_button);
-
+    GtkWidget * al = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+    gtk_container_add(GTK_CONTAINER(al), label);
+    gtk_alignment_set_padding(GTK_ALIGNMENT(al), 10, 10, 10, 10);
+    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->vbox), al);
+    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->action_area),
+                                      ok_button);
     g_signal_connect_swapped(ok_button, "clicked",
                               G_CALLBACK(gtk_widget_destroy), about);
 
-    gtk_widget_set_redraw_on_allocate(GTK_WIDGET(GTK_DIALOG(about)->vbox),true);
+    //gtk_widget_set_redraw_on_allocate(GTK_WIDGET(GTK_DIALOG(about)->vbox),true);
     gtk_widget_show(ok_button);
     gtk_widget_show(label);
+    gtk_widget_show(al);
     return gtk_dialog_run (GTK_DIALOG(about));
 }
 

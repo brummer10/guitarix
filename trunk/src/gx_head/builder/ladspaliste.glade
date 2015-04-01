@@ -107,7 +107,7 @@
             <child>
               <placeholder />
             </child>
-          <property name="name">menubox</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
@@ -134,7 +134,7 @@
                         <property name="name">label9</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Show:</property>
-                      <property name="name">label9</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -151,7 +151,7 @@
                         <property name="use_underline">True</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
-                      <property name="name">show_all</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -169,7 +169,7 @@
                             <attribute name="text">0</attribute>
                           </attributes>
                         </child>
-                      <property name="name">combobox_mono_stereo</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -187,7 +187,7 @@
                         <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
-                      <property name="name">ladspa_only</property></object>
+                      </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
@@ -204,7 +204,7 @@
                         <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
-                      <property name="name">lv2_only</property></object>
+                      </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
@@ -221,7 +221,7 @@
                         <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
-                      <property name="name">selected_only</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -238,14 +238,14 @@
                         <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
-                      <property name="name">changed_only</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
                         <property name="position">6</property>
                       </packing>
                     </child>
-                  <property name="name">hbox6</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
@@ -265,7 +265,7 @@
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
-                      <property name="name">select_all</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -280,7 +280,7 @@
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
-                      <property name="name">select_none</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -295,7 +295,7 @@
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
-                      <property name="name">show_details</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -303,7 +303,7 @@
                         <property name="position">2</property>
                       </packing>
                     </child>
-                  <property name="name">hbox2</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
@@ -331,7 +331,7 @@
                                 <attribute name="active">1</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn4</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_ladspa">
@@ -342,11 +342,11 @@
                                 <attribute name="text">0</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_ladspa</property></object>
+                          </object>
                         </child>
-                      <property name="name">treeview1</property></object>
+                      </object>
                     </child>
-                  <property name="name">scrolledwindow1</property></object>
+                  </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
@@ -363,7 +363,7 @@
                         <property name="can_focus">False</property>
                         <property name="xpad">4</property>
                         <property name="label" translatable="yes">strings to search for (use ▼/▲):</property>
-                      <property name="name">label1</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -380,14 +380,14 @@
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
                         <property name="secondary_icon_sensitive">True</property>
-                      <property name="name">search_entry</property></object>
+                      </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
-                  <property name="name">hbox1</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
@@ -409,7 +409,7 @@
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
-                      <property name="name">button_help</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -425,7 +425,7 @@
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
-                      <property name="name">button_cancel</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -440,7 +440,7 @@
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
-                      <property name="name">button_apply</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -455,21 +455,21 @@
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
-                      <property name="name">button_save</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
                         <property name="position">3</property>
                       </packing>
                     </child>
-                  <property name="name">hbuttonbox1</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
                     <property name="position">4</property>
                   </packing>
                 </child>
-              <property name="name">vbox2</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -495,7 +495,7 @@
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Short Name</property>
                         <property name="justify">right</property>
-                      <property name="name">label3</property></object>
+                      </object>
                       <packing>
                         <property name="x_options">GTK_FILL</property>
                         <property name="y_options" />
@@ -507,7 +507,7 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Guitarix Category</property>
-                      <property name="name">label4</property></object>
+                      </object>
                       <packing>
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
@@ -525,7 +525,7 @@
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
                         <property name="secondary_icon_sensitive">True</property>
-                      <property name="name">plugin_name</property></object>
+                      </object>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
@@ -544,7 +544,7 @@
                             <attribute name="text">0</attribute>
                           </attributes>
                         </child>
-                      <property name="name">plugin_category</property></object>
+                      </object>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
@@ -559,7 +559,7 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Plugin Category</property>
-                      <property name="name">label5</property></object>
+                      </object>
                       <packing>
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
@@ -579,7 +579,7 @@
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
                         <property name="secondary_icon_sensitive">True</property>
-                      <property name="name">ladspa_category</property></object>
+                      </object>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
@@ -593,7 +593,7 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Plugin Author</property>
-                      <property name="name">label6</property></object>
+                      </object>
                       <packing>
                         <property name="top_attach">3</property>
                         <property name="bottom_attach">4</property>
@@ -613,7 +613,7 @@
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
                         <property name="secondary_icon_sensitive">True</property>
-                      <property name="name">ladspa_maker</property></object>
+                      </object>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
@@ -627,7 +627,7 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Plugin ID / URI</property>
-                      <property name="name">label7</property></object>
+                      </object>
                       <packing>
                         <property name="top_attach">4</property>
                         <property name="bottom_attach">5</property>
@@ -647,7 +647,7 @@
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
                         <property name="secondary_icon_sensitive">True</property>
-                      <property name="name">ladspa_uniqueid</property></object>
+                      </object>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
@@ -661,7 +661,7 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Master Slider (idx)</property>
-                      <property name="name">label2</property></object>
+                      </object>
                       <packing>
                         <property name="top_attach">5</property>
                         <property name="bottom_attach">6</property>
@@ -683,7 +683,7 @@
                                 <attribute name="text">0</attribute>
                               </attributes>
                             </child>
-                          <property name="name">master_slider_idx</property></object>
+                          </object>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
@@ -700,14 +700,14 @@
                             <property name="secondary_icon_activatable">False</property>
                             <property name="primary_icon_sensitive">True</property>
                             <property name="secondary_icon_sensitive">True</property>
-                          <property name="name">master_slider_name</property></object>
+                          </object>
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
-                      <property name="name">hbox4</property></object>
+                      </object>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
@@ -715,7 +715,7 @@
                         <property name="bottom_attach">6</property>
                       </packing>
                     </child>
-                  <property name="name">table1</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
@@ -734,7 +734,7 @@
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
-                      <property name="name">reset_changes</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -748,7 +748,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
-                      <property name="name">dry_wet_button</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
@@ -761,7 +761,7 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">1</property>
                         <property name="label" translatable="yes">Quirks: </property>
-                      <property name="name">label8</property></object>
+                      </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
@@ -780,14 +780,14 @@
                             <attribute name="text">0</attribute>
                           </attributes>
                         </child>
-                      <property name="name">plugin_quirks</property></object>
+                      </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
                         <property name="position">3</property>
                       </packing>
                     </child>
-                  <property name="name">hbox5</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
@@ -816,7 +816,7 @@
                                 <attribute name="text">0</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_idx</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_name">
@@ -833,7 +833,7 @@
                                 <attribute name="text">1</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_name</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_SR">
@@ -844,7 +844,7 @@
                                 <attribute name="active">10</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_SR</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_dflt">
@@ -858,7 +858,7 @@
                                 <attribute name="text">2</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_dflt</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_low">
@@ -872,7 +872,7 @@
                                 <attribute name="text">3</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_low</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_up">
@@ -886,7 +886,7 @@
                                 <attribute name="text">4</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_up</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_step">
@@ -903,7 +903,7 @@
                                 <attribute name="text">5</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_step</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_caption">
@@ -914,7 +914,7 @@
                                 <attribute name="active">11</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_caption</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_type">
@@ -931,7 +931,7 @@
                                 <attribute name="model">7</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_type</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_newrow">
@@ -943,11 +943,11 @@
                                 <attribute name="active">9</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_newrow</property></object>
+                          </object>
                         </child>
-                      <property name="name">treeview2</property></object>
+                      </object>
                     </child>
-                  <property name="name">scrolledwindow2</property></object>
+                  </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
@@ -975,7 +975,7 @@
                                 <attribute name="text">0</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn3</property></object>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_label">
@@ -988,32 +988,32 @@
                                 <attribute name="text">1</attribute>
                               </attributes>
                             </child>
-                          <property name="name">treeviewcolumn_label</property></object>
+                          </object>
                         </child>
-                      <property name="name">treeview3</property></object>
+                      </object>
                     </child>
-                  <property name="name">scrolledwindow3</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
                     <property name="position">3</property>
                   </packing>
                 </child>
-              <property name="name">details_box</property></object>
+              </object>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          <property name="name">hbox3</property></object>
+          </object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
-      <property name="name">vbox1</property></object>
+      </object>
     </child>
-  <property name="name">window1</property></object>
+  </object>
 </interface>

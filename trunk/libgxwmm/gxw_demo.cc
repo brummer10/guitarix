@@ -5,6 +5,7 @@
 #include <gxwmm/switch.h>
 #include <gxwmm/smallknob.h>
 #include <gxwmm/bigknob.h>
+#include <gxwmm/midknob.h>
 #include <gxwmm/eqslider.h>
 
 class Demo : public Gtk::Window
@@ -25,6 +26,7 @@ protected:
 	Gtk::Adjustment m_adj;
 	Gxw::SmallKnob m_smallknob;
 	Gxw::BigKnob m_bigknob;
+    Gxw::MidKnob m_midknob;
 	Gxw::EqSlider m_eqslider;
 };
 
@@ -39,6 +41,7 @@ Demo::Demo():
 	m_adj(0, -1, 1, 0.01, 0.1),
 	m_smallknob(m_adj),
 	m_bigknob(m_adj),
+    m_midknob(m_adj),
 	m_eqslider(m_adj)
 {
 	m_hbox1.add(m_switch1);

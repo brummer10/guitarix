@@ -5,34 +5,34 @@
 
 
 style "guitarix_default" {
-    font_name = "sans 8"
     
     GtkScrollbar::has_backward_stepper = 0
     GtkScrollbar::has_forward_stepper  = 0
     
     fg[NORMAL]      = { 0.85, 0.85, 0.85 }
     fg[ACTIVE]      = { 1.0, 1.0, 1.0 }
-    fg[PRELIGHT]    = { 0.1, 0.1, 0.1 }
+    fg[PRELIGHT]    = { 1.0, 1.0, 1.0 }
     fg[INSENSITIVE] = { 0.5, 0.5, 0.5 }
     fg[SELECTED]    = { 0.9, 0.9, 0.9 }
     
     bg[NORMAL]      = { 0.13, 0.13, 0.13 }
     bg[ACTIVE]      = { 0.0, 0.0, 0.0 }
-    bg[PRELIGHT]    = { 0.46, 0.56, 0.36 }
+    #bg[PRELIGHT]    = { 0.46, 0.56, 0.36 }
+    bg[PRELIGHT]    = { 0.25, 0.25, 0.25 }
     bg[INSENSITIVE] = { 0.2, 0.2, 0.2 }
-    bg[SELECTED]    = { 0.46, 0.56, 0.36 }
+    bg[SELECTED]    = { 0.25, 0.25, 0.25 }
     
-    text[NORMAL]      = { 0.99, 0.99, 0.99 }
-    text[ACTIVE]      = { 0.1, 0.1, 0.1 }
+    text[NORMAL]      = { 0.9, 0.9, 0.9 }
+    text[ACTIVE]      = "#ff9000"
     text[PRELIGHT]    = { 1.0, 1.0, 1.0 }
     text[INSENSITIVE] = { 0.5, 0.5, 0.5 }
-    text[SELECTED]    = { 0.1, 0.1, 0.1 }
+    text[SELECTED]    = { 1.0, 1.0, 1.0 }
     
     base[NORMAL]      = { 0.0, 0.0, 0.0 }
-    base[ACTIVE]      = { 0.46, 0.56, 0.36 }
+    base[ACTIVE]      = { 0.18, 0.18, 0.18 }
     base[PRELIGHT]    = { 0.1, 0.1, 0.1 }
     base[INSENSITIVE] = { 0.2, 0.2, 0.2 }
-    base[SELECTED]    = { 0.46, 0.56, 0.36 }
+    base[SELECTED]    = { 0.8, 0.18, 0.18 }
     
     stock["background1"]  = {{"background1.png"}}
     stock["background2"]  = {{"background2.png"}}
@@ -91,15 +91,18 @@ widget "*LivePlay*" style:highest "guitarix_liveplay"
 
 style "guitarix_rack_button" {
     fg[NORMAL] = "#ff9000"
-    fg[PRELIGHT] = "#ff9000"
+    fg[PRELIGHT] = "#ffffff"
     bg[NORMAL] = "black"
     bg[PRELIGHT] = "black"
 }
 widget "*effects_toolpalette*GtkButton*" style:highest "guitarix_rack_button"
 
 
-
-
+style "guitarix_rack_label" {
+    font_name = "sans 7.5"
+    fg[NORMAL] = "#333333"
+}
+widget "*rackcontainer*" style:highest "guitarix_rack_label"
 
 
 #buttons in rack devices to drag them

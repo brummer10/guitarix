@@ -12,7 +12,7 @@
       
       <column type="gboolean" />
     </columns>
-  <property name="name">treestore1</property></object>
+  </object>
   <object class="GtkTreeStore" id="treestore2">
     <property name="name">treestore2</property><columns>
       
@@ -22,7 +22,7 @@
       
       <column type="gboolean" />
     </columns>
-  <property name="name">treestore2</property></object>
+  </object>
   <object class="GtkTreeStore" id="treestore3">
     <property name="name">treestore3</property><columns>
       
@@ -32,7 +32,7 @@
       
       <column type="gboolean" />
     </columns>
-  <property name="name">treestore3</property></object>
+  </object>
   <object class="GtkTreeStore" id="treestore4">
     <property name="name">treestore4</property><columns>
       
@@ -42,7 +42,7 @@
       
       <column type="gboolean" />
     </columns>
-  <property name="name">treestore4</property></object>
+  </object>
   <object class="GtkTreeStore" id="treestore5">
     <property name="name">treestore5</property><columns>
       
@@ -52,7 +52,7 @@
       
       <column type="gboolean" />
     </columns>
-  <property name="name">treestore5</property></object>
+  </object>
   <object class="GtkTreeStore" id="treestore6">
     <property name="name">treestore6</property><columns>
       
@@ -62,7 +62,7 @@
       
       <column type="gboolean" />
     </columns>
-  <property name="name">treestore6</property></object>
+  </object>
   <object class="GtkTreeStore" id="treestore7">
     <property name="name">treestore7</property><columns>
       
@@ -72,7 +72,7 @@
       
       <column type="gboolean" />
     </columns>
-  <property name="name">treestore7</property></object>
+  </object>
   <object class="GtkDialog" id="PortMapWindow">
     <property name="name">PortMapWindow</property><property name="can_focus">False</property>
     <property name="title" translatable="yes">guitarix port connections</property>
@@ -93,14 +93,14 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-              <property name="name">button1</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
             </child>
-          <property name="name">dialog-action_area1</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
@@ -156,7 +156,7 @@
                                         <attribute name="active">1</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn1</property></object>
+                                  </object>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn" id="treeviewcolumn2">
@@ -167,11 +167,11 @@
                                         <attribute name="text">0</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn2</property></object>
+                                  </object>
                                 </child>
-                              <property name="name">treeview1</property></object>
+                              </object>
                             </child>
-                          <property name="name">scrolledwindow1</property></object>
+                          </object>
                           <packing>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
@@ -203,7 +203,7 @@
                                         <attribute name="active">1</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn3</property></object>
+                                  </object>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn" id="treeviewcolumn4">
@@ -214,11 +214,11 @@
                                         <attribute name="text">0</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn4</property></object>
+                                  </object>
                                 </child>
-                              <property name="name">treeview2</property></object>
+                              </object>
                             </child>
-                          <property name="name">scrolledwindow2</property></object>
+                          </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
@@ -252,7 +252,7 @@
                                         <attribute name="active">1</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn5</property></object>
+                                  </object>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn" id="treeviewcolumn6">
@@ -263,11 +263,11 @@
                                         <attribute name="text">0</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn6</property></object>
+                                  </object>
                                 </child>
-                              <property name="name">treeview3</property></object>
+                              </object>
                             </child>
-                          <property name="name">scrolledwindow3</property></object>
+                          </object>
                           <packing>
                             <property name="left_attach">2</property>
                             <property name="right_attach">3</property>
@@ -285,7 +285,7 @@
                             <property name="use_markup">True</property>
                             <property name="use_underline">True</property>
                             <property name="mnemonic_widget">treeview1</property>
-                          <property name="name">label8</property></object>
+                          </object>
                           <packing>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options">GTK_FILL</property>
@@ -301,7 +301,7 @@
                             <property name="use_markup">True</property>
                             <property name="use_underline">True</property>
                             <property name="mnemonic_widget">treeview2</property>
-                          <property name="name">label9</property></object>
+                          </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
@@ -319,7 +319,7 @@
                             <property name="use_markup">True</property>
                             <property name="use_underline">True</property>
                             <property name="mnemonic_widget">treeview3</property>
-                          <property name="name">label10</property></object>
+                          </object>
                           <packing>
                             <property name="left_attach">2</property>
                             <property name="right_attach">3</property>
@@ -327,7 +327,7 @@
                             <property name="y_options">GTK_FILL</property>
                           </packing>
                         </child>
-                      <property name="name">table1</property></object>
+                      </object>
                     </child>
                     <child type="tab">
                       <object class="GtkLabel" id="label6">
@@ -337,7 +337,7 @@
                         <property name="label" translatable="yes">&lt;b&gt;_Audio&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                         <property name="use_underline">True</property>
-                      <property name="name">label6</property></object>
+                      </object>
                       <packing>
                         <property name="tab_fill">False</property>
                       </packing>
@@ -375,7 +375,7 @@
                                         <attribute name="active">1</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn13</property></object>
+                                  </object>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn" id="treeviewcolumn14">
@@ -386,11 +386,11 @@
                                         <attribute name="text">0</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn14</property></object>
+                                  </object>
                                 </child>
-                              <property name="name">treeview7</property></object>
+                              </object>
                             </child>
-                          <property name="name">scrolledwindow7</property></object>
+                          </object>
                           <packing>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
@@ -421,7 +421,7 @@
                                         <attribute name="active">1</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn11</property></object>
+                                  </object>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn" id="treeviewcolumn12">
@@ -432,11 +432,11 @@
                                         <attribute name="text">0</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn12</property></object>
+                                  </object>
                                 </child>
-                              <property name="name">treeview6</property></object>
+                              </object>
                             </child>
-                          <property name="name">scrolledwindow6</property></object>
+                          </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
@@ -454,7 +454,7 @@
                             <property name="use_markup">True</property>
                             <property name="use_underline">True</property>
                             <property name="mnemonic_widget">scrolledwindow7</property>
-                          <property name="name">label15</property></object>
+                          </object>
                           <packing>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options">GTK_FILL</property>
@@ -470,7 +470,7 @@
                             <property name="use_markup">True</property>
                             <property name="use_underline">True</property>
                             <property name="mnemonic_widget">scrolledwindow6</property>
-                          <property name="name">label14</property></object>
+                          </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
@@ -478,7 +478,7 @@
                             <property name="y_options">GTK_FILL</property>
                           </packing>
                         </child>
-                      <property name="name">table3</property></object>
+                      </object>
                       <packing>
                         <property name="position">1</property>
                       </packing>
@@ -490,7 +490,7 @@
                         <property name="label" translatable="yes">&lt;b&gt;I_nsert&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                         <property name="use_underline">True</property>
-                      <property name="name">label13</property></object>
+                      </object>
                       <packing>
                         <property name="position">1</property>
                         <property name="tab_fill">False</property>
@@ -529,7 +529,7 @@
                                         <attribute name="active">1</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn7</property></object>
+                                  </object>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn" id="treeviewcolumn8">
@@ -540,11 +540,11 @@
                                         <attribute name="text">0</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn8</property></object>
+                                  </object>
                                 </child>
-                              <property name="name">treeview4</property></object>
+                              </object>
                             </child>
-                          <property name="name">scrolledwindow4</property></object>
+                          </object>
                           <packing>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
@@ -576,7 +576,7 @@
                                         <attribute name="active">1</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn9</property></object>
+                                  </object>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn" id="treeviewcolumn10">
@@ -587,11 +587,11 @@
                                         <attribute name="text">0</attribute>
                                       </attributes>
                                     </child>
-                                  <property name="name">treeviewcolumn10</property></object>
+                                  </object>
                                 </child>
-                              <property name="name">treeview5</property></object>
+                              </object>
                             </child>
-                          <property name="name">scrolledwindow5</property></object>
+                          </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
@@ -609,7 +609,7 @@
                             <property name="use_markup">True</property>
                             <property name="use_underline">True</property>
                             <property name="mnemonic_widget">treeview4</property>
-                          <property name="name">label11</property></object>
+                          </object>
                           <packing>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options">GTK_FILL</property>
@@ -625,7 +625,7 @@
                             <property name="use_markup">True</property>
                             <property name="use_underline">True</property>
                             <property name="mnemonic_widget">treeview5</property>
-                          <property name="name">label12</property></object>
+                          </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
@@ -633,7 +633,7 @@
                             <property name="y_options">GTK_FILL</property>
                           </packing>
                         </child>
-                      <property name="name">table2</property></object>
+                      </object>
                       <packing>
                         <property name="position">2</property>
                       </packing>
@@ -646,37 +646,37 @@
                         <property name="label" translatable="yes">&lt;b&gt;_Midi&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                         <property name="use_underline">True</property>
-                      <property name="name">label7</property></object>
+                      </object>
                       <packing>
                         <property name="position">2</property>
                         <property name="tab_fill">False</property>
                       </packing>
                     </child>
-                  <property name="name">notebook1</property></object>
+                  </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
-              <property name="name">dialog-vbox2</property></object>
+              </object>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
-          <property name="name">gxpaintbox1</property></object>
+          </object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
         </child>
-      <property name="name">dialog-vbox1</property></object>
+      </object>
     </child>
     <action-widgets>
       <action-widget response="0">button1</action-widget>
     </action-widgets>
-  <property name="name">PortMapWindow</property></object>
+  </object>
 </interface>

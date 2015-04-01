@@ -20,6 +20,7 @@
 #define __GXWMM_H__
 
 #include <gxwmm/bigknob.h>
+#include <gxwmm/midknob.h>
 #include <gxwmm/controlparameter.h>
 #include <gxwmm/eqslider.h>
 #include <gxwmm/fastmeter.h>

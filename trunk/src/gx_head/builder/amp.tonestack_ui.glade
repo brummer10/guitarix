@@ -4,18 +4,18 @@
   <requires lib="gtk+" version="2.20" />
   
   <object class="GtkWindow" id="window1">
-    <property name="name">window1</property><property name="name">window1</property><property name="can_focus">False</property>
+    <property name="name">window1</property><property name="can_focus">False</property>
     <child>
       <object class="GtkVBox" id="vbox1">
-        <property name="name">vbox1</property><property name="name">vbox1</property><property name="visible">True</property>
+        <property name="name">vbox1</property><property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
           <object class="GtkHBox" id="minibox">
-            <property name="name">minibox</property><property name="name">minibox</property><property name="visible">True</property>
+            <property name="name">minibox</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GxSelector" id="gxselector2">
-                <property name="name">gxselector2</property><property name="name">gxselector2</property><property name="visible">True</property>
+                <property name="name">gxselector2</property><property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">amp.tonestack.select</property>
@@ -35,11 +35,11 @@
         </child>
         <child>
           <object class="GtkHBox" id="rackbox">
-            <property name="name">rackbox</property><property name="name">rackbox</property><property name="visible">True</property>
+            <property name="name">rackbox</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GxSelector" id="gxselector1">
-                <property name="name">gxselector1</property><property name="name">gxselector1</property><property name="visible">True</property>
+                <property name="name">gxselector1</property><property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">amp.tonestack.select</property>
@@ -52,11 +52,11 @@
             </child>
             <child>
               <object class="GtkVBox" id="vbox2">
-                <property name="name">vbox2</property><property name="name">vbox2</property><property name="visible">True</property>
+                <property name="name">vbox2</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="label1:rack_label">
-                    <property name="name">label1:rack_label</property><property name="name">label1:rack_label</property><property name="visible">True</property>
+                    <property name="name">label1:rack_label</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
                   </object>
@@ -68,7 +68,7 @@
                 </child>
                 <child>
                   <object class="GxSmallKnob" id="gxsmallknob1">
-                    <property name="name">gxsmallknob1</property><property name="name">gxsmallknob1</property><property name="visible">True</property>
+                    <property name="name">gxsmallknob1</property><property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">amp.tonestack.Bass</property>
@@ -89,11 +89,11 @@
             </child>
             <child>
               <object class="GtkVBox" id="vbox3">
-                <property name="name">vbox3</property><property name="name">vbox3</property><property name="visible">True</property>
+                <property name="name">vbox3</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="label2:rack_label">
-                    <property name="name">label2:rack_label</property><property name="name">label2:rack_label</property><property name="visible">True</property>
+                    <property name="name">label2:rack_label</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
                   </object>
@@ -105,7 +105,7 @@
                 </child>
                 <child>
                   <object class="GxSmallKnob" id="gxsmallknob2">
-                    <property name="name">gxsmallknob2</property><property name="name">gxsmallknob2</property><property name="visible">True</property>
+                    <property name="name">gxsmallknob2</property><property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">amp.tonestack.Middle</property>
@@ -126,11 +126,11 @@
             </child>
             <child>
               <object class="GtkVBox" id="vbox4">
-                <property name="name">vbox4</property><property name="name">vbox4</property><property name="visible">True</property>
+                <property name="name">vbox4</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="label3:rack_label">
-                    <property name="name">label3:rack_label</property><property name="name">label3:rack_label</property><property name="visible">True</property>
+                    <property name="name">label3:rack_label</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
                   </object>
@@ -142,7 +142,7 @@
                 </child>
                 <child>
                   <object class="GxSmallKnob" id="gxsmallknob3">
-                    <property name="name">gxsmallknob3</property><property name="name">gxsmallknob3</property><property name="visible">True</property>
+                    <property name="name">gxsmallknob3</property><property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">amp.tonestack.Treble</property>

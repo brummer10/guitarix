@@ -1,0 +1,88 @@
+  <object class="GtkListStore" id="liststore1">
+  <object class="GtkListStore" id="liststore2">
+  <object class="GtkListStore" id="liststore3">
+  <object class="GtkListStore" id="liststore4">
+  <object class="GtkWindow" id="window1">
+      <object class="GtkVBox" id="vbox1">
+          <object class="GtkHBox" id="menubox">
+          <object class="GtkHBox" id="hbox3">
+              <object class="GtkVBox" id="vbox2">
+                  <object class="GtkHBox" id="hbox6">
+                      <object class="GtkLabel" id="label9">
+                      <object class="GtkRadioButton" id="show_all">
+                      <object class="GtkComboBox" id="combobox_mono_stereo">
+                          <object class="GtkCellRendererText" id="cellrenderertext4" />
+                      <object class="GtkRadioButton" id="ladspa_only">
+                      <object class="GtkRadioButton" id="lv2_only">
+                      <object class="GtkRadioButton" id="selected_only">
+                      <object class="GtkRadioButton" id="changed_only">
+                  <object class="GtkHBox" id="hbox2">
+                      <object class="GtkButton" id="select_all">
+                      <object class="GtkButton" id="select_none">
+                      <object class="GtkToggleButton" id="show_details">
+                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                      <object class="GtkTreeView" id="treeview1">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                              <object class="GtkCellRendererToggle" id="cellrenderer_active" />
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_ladspa">
+                              <object class="GtkCellRendererText" id="cellrenderer_ladspa" />
+                  <object class="GtkHBox" id="hbox1">
+                      <object class="GtkLabel" id="label1">
+                      <object class="GtkEntry" id="search_entry">
+                  <object class="GtkHButtonBox" id="hbuttonbox1">
+                      <object class="GtkButton" id="button_help">
+                      <object class="GtkButton" id="button_cancel">
+                      <object class="GtkButton" id="button_apply">
+                      <object class="GtkButton" id="button_save">
+              <object class="GtkVBox" id="details_box">
+                  <object class="GtkTable" id="table1">
+                      <object class="GtkLabel" id="label3">
+                      <object class="GtkLabel" id="label4">
+                      <object class="GtkEntry" id="plugin_name">
+                      <object class="GtkComboBox" id="plugin_category">
+                          <object class="GtkCellRendererText" id="cellrenderer_category" />
+                      <object class="GtkLabel" id="label5">
+                      <object class="GtkEntry" id="ladspa_category">
+                      <object class="GtkLabel" id="label6">
+                      <object class="GtkEntry" id="ladspa_maker">
+                      <object class="GtkLabel" id="label7">
+                      <object class="GtkEntry" id="ladspa_uniqueid">
+                      <object class="GtkLabel" id="label2">
+                      <object class="GtkHBox" id="hbox4">
+                          <object class="GtkComboBox" id="master_slider_idx">
+                              <object class="GtkCellRendererText" id="cellrenderer_master" />
+                          <object class="GtkEntry" id="master_slider_name">
+                  <object class="GtkHBox" id="hbox5">
+                      <object class="GtkButton" id="reset_changes">
+                      <object class="GtkToggleButton" id="dry_wet_button">
+                      <object class="GtkLabel" id="label8">
+                      <object class="GtkComboBox" id="plugin_quirks">
+                          <object class="GtkCellRendererText" id="cellrenderer_quirks" />
+                  <object class="GtkScrolledWindow" id="scrolledwindow2">
+                      <object class="GtkTreeView" id="treeview2">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_idx">
+                              <object class="GtkCellRendererText" id="cellrenderer_idx" />
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_name">
+                              <object class="GtkCellRendererText" id="cellrenderer_name">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_SR">
+                              <object class="GtkCellRendererToggle" id="cellrenderer_SR" />
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_dflt">
+                              <object class="GtkCellRendererText" id="cellrenderer_dflt">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_low">
+                              <object class="GtkCellRendererText" id="cellrenderer_low">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_up">
+                              <object class="GtkCellRendererText" id="cellrenderer_up">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_step">
+                              <object class="GtkCellRendererCombo" id="cellrenderer_step">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_caption">
+                              <object class="GtkCellRendererToggle" id="cellrenderer_caption" />
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_type">
+                              <object class="GtkCellRendererCombo" id="cellrenderer_type">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_newrow">
+                              <object class="GtkCellRendererToggle" id="cellrenderer_newrow" />
+                  <object class="GtkScrolledWindow" id="scrolledwindow3">
+                      <object class="GtkTreeView" id="treeview3">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                              <object class="GtkCellRendererText" id="cellrenderertext3" />
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_label">
+                              <object class="GtkCellRendererText" id="cellrenderer_label">

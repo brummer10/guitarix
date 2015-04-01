@@ -17,6 +17,7 @@
     <glade-widget-class title="EQ Slider" name="GxEQSlider" generic-name="gxeqslider" />
     <glade-widget-class title="Mini Slider" name="GxMiniSlider" generic-name="gxminislider" />
     <glade-widget-class title="Big Knob" name="GxBigKnob" generic-name="gxbigknob" />
+    <glade-widget-class title="Mid Knob" name="GxMidKnob" generic-name="gxmidknob" />
     <glade-widget-class title="Medium Knob" name="GxSmallKnobR" generic-name="gxmediumknob" />
     <glade-widget-class title="Small Knob" name="GxSmallKnob" generic-name="gxsmallknob" />
     <glade-widget-class title="Paint Box" name="GxPaintBox" generic-name="gxpaintbox">
@@ -51,6 +52,7 @@
     <glade-widget-class-ref name="GxEQSlider"/>
     <glade-widget-class-ref name="GxMiniSlider"/>
     <glade-widget-class-ref name="GxBigKnob"/>
+    <glade-widget-class-ref name="GxMidKnob"/>
     <glade-widget-class-ref name="GxSmallKnobR"/>
     <glade-widget-class-ref name="GxSmallKnob"/>
     <glade-widget-class-ref name="GxPaintBox"/>

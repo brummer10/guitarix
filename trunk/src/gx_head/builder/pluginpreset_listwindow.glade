@@ -31,9 +31,9 @@
                     <attribute name="text">0</attribute>
                   </attributes>
                 </child>
-              <property name="name">treeviewcolumn1</property></object>
+              </object>
             </child>
-          <property name="name">treeview</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
@@ -54,7 +54,7 @@
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
-              <property name="name">removebutton</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -69,21 +69,21 @@
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
-              <property name="name">closebutton</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          <property name="name">hbuttonbox2</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
             <property name="position">2</property>
           </packing>
         </child>
-      <property name="name">gxpaintbox2</property></object>
+      </object>
     </child>
-  <property name="name">PluginPresetListWindow</property></object>
+  </object>
 </interface>

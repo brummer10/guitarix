@@ -31,6 +31,7 @@
 #define SRC_HEADERS_GX_MAIN_INTERFACE_H_
 
 #include <gxwmm/bigknob.h>
+#include <gxwmm/midknob.h>
 #include <gxwmm/smallknob.h>
 #include <gxwmm/smallknobr.h>
 #include <gxwmm/wheel.h>

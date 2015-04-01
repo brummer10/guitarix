@@ -1,0 +1,8 @@
+  <object class="GtkWindow" id="PluginPresetListWindow">
+      <object class="GxPaintBox" id="gxpaintbox2">
+          <object class="GtkTreeView" id="treeview">
+              <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                  <object class="GtkCellRendererText" id="cellrenderertext1" />
+          <object class="GtkHButtonBox" id="hbuttonbox2">
+              <object class="GtkButton" id="removebutton">
+              <object class="GtkButton" id="closebutton">

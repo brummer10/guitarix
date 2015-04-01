@@ -1,0 +1,10 @@
+  <object class="GtkDialog" id="SelectInstance">
+      <object class="GtkVBox" id="dialog-vbox1">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
+              <object class="GtkButton" id="cancel">
+              <object class="GtkButton" id="open">
+          <object class="GtkLabel" id="label1">
+          <object class="GtkScrolledWindow" id="scrolledwindow1">
+              <object class="GtkTreeView" id="treeview">
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                      <object class="GtkCellRendererText" id="cellrenderertext1" />

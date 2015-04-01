@@ -41,6 +41,11 @@ style "BigKnob" {
   GxKnob::arc-inset = 2
 }
 
+style "MidKnob" {
+  stock["knob"] = {{"smallknob1.png"}}
+  GxKnob::arc-inset = 2
+}
+
 style "SmallKnob" {
   stock["smallknob"] = {{"smallknob1.png"}}
   GxKnob::arc-inset = 0
@@ -121,6 +126,7 @@ style "BigKnob" {
 }
 
 class "GxBigKnob" style "BigKnob"
+class "GxMidKnob" style "MidKnob"
 class "GxSmallKnob" style "SmallKnob"
 class "GxSwitch" style "Switch"
 class "GxPaintBox" style "PaintBox"

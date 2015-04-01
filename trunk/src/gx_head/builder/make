@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, shutil
+import os, sys, shutil, re
 import xml.etree.ElementTree as ET
 
 __dir__ = os.path.dirname(os.path.realpath(__file__))
@@ -21,15 +21,16 @@ for f in os.listdir(__dir__):
         shutil.copy2(path, path + ".bak")
         tree = ET.parse(path)
         root = tree.getroot()
+        hier = ""
         for o in root.iter('object'):
             if not 'id' in o.attrib or o.attrib['class'] in skip_types:
                 continue
+            hier = "%s%s | %s\n" % (hier, o.attrib['class'], o.attrib['id'])
             props = o.findall('property')
             found = False
             for p in props:
-                if 'name' in p.attrib and p.attrib['name'] == 'name':
+                if 'name' in p.attrib.keys() and p.attrib['name'] == 'name':
                     p.text = o.attrib['id']
-                    o.insert(0, p)
                     found = True
                     break;
             if not found:
@@ -37,3 +38,9 @@ for f in os.listdir(__dir__):
                 p.text = o.attrib['id']
                 o.insert(0, p)
         tree.write(path, 'UTF-8', True)
+        
+        in_  = open(path, "r")
+        out_ = open(path + ".txt", "w")
+        for line in in_:
+            if re.match("(.*)\<object class=(.*)", line):
+                print >> out_, line,

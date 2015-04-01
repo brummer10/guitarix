@@ -1089,25 +1089,12 @@ int MainWindow::gx_wait_latency_warn() {
     warn_dialog.property_destroy_with_parent().set_value(true);
 
     Gtk::VBox box(0, 4);
-    Gtk::Label labelt(_("\nWARNING\n"));
+    Gtk::Label labelt(_("<b>WARNING</b>\n"));
     Gtk::Label labelt1(
-	_("CHANGING THE JACK_BUFFER_SIZE ON THE FLY \n"
-	  "MAY CAUSE UNPREDICTABLE EFFECTS \n"
-	  "TO OTHER RUNNING JACK APPLICATIONS. \n"
-	  "DO YOU WANT TO PROCEED ?"));
-    Gdk::Color colorGreen("#969292");
-    labelt1.modify_fg(Gtk::STATE_NORMAL, colorGreen);
-    Pango::FontDescription font = labelt1.get_style()->get_font();
-    font.set_size(10*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_BOLD);
-    labelt1.modify_font(font);
-
-    Gdk::Color colorWhite("#ffffff");
-    labelt.modify_fg(Gtk::STATE_NORMAL, colorWhite);
-    font = labelt.get_style()->get_font();
-    font.set_size(14*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_BOLD);
-    labelt.modify_font(font);
+	_("Changing the jackd buffer size on the fly \n"
+	  "may cause unpredictable effects \n"
+	  "to other running jack applications. \n"
+	  "Do you want to proced?"));
 
     warn_dialog.add_button(_("Yes"), kChangeLatency);
     warn_dialog.add_button(_("No"),  kKeepLatency);
@@ -1132,13 +1119,6 @@ int MainWindow::gx_wait_latency_warn() {
     box1.add(disable_warn);
     box1.add(labelt2);
     warn_dialog.get_vbox()->add(box);
-
-    labelt2.modify_fg(Gtk::STATE_NORMAL, colorWhite);
-
-    font = labelt2.get_style()->get_font();
-    font.set_size(8*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_NORMAL);
-    labelt2.modify_font(font);
 
     box.show_all();
 
@@ -1233,30 +1213,31 @@ void gx_show_help() {
 void gx_show_about() {
     static string about;
     if (about.empty()) {
-        about +=_("\n Guitarix:gx_head ");
+        about +=_("<b>Guitarix:gx_head</b> (");
         about += GX_VERSION;
         about +=
-            _("\n\n  This Aplication is to a large extent provided"
-            "\n  with the marvelous faust compiler.Yann Orlary"
-            "\n  http://faust.grame.fr/"
-            "\n  A large part is based on the work of Julius Orion Smith"
-            "\n  http://ccrma.stanford.edu/realsimple/faust/"
-            "\n  and Albert Graef\n  http://q-lang.sourceforge.net/examples.html#Faust"
-            "\n\n ");
+            _(")\n\nThis Aplication is to a large extent provided"
+            "\nwith the marvelous faust compiler.Yann Orlary"
+            "\n(http://faust.grame.fr/)"
+            "\n\nA large part is based on the work of Julius Orion Smith"
+            "\n(htttp://ccrma.stanford.edu/realsimple/faust/)"
+            "\nand Albert Graef\n(http://q-lang.sourceforge.net/examples.html#Faust)"
+            "\n\n");
 
         
         about +=
-            _("\n  for impulse response it use zita-convolver "
-            "\n  byFons Adriaensen "
-            "\n  http://www.kokkinizita.net/linuxaudio/index.html "
-            "\n\n  The included IR-files are contributed by "
-            "\n  David Fau Casquel (BESTPLUGINS) "
-            "\n  home: http://www.youtube.com/bestplugins"
-            "\n\n  authors: Hermann Meyer <brummer-@web.de>"
-            "\n  authors: James Warden <warjamy@yahoo.com>"
-            "\n  authors: Andreas Degert <andreas.degert@googlemail.com>    "
-            "\n  authors: Pete Shorthose <pshorthose@gmail.com>    "
-            "\n  home: http://guitarix.sourceforge.net/\n");
+            _("for impulse response it use zita-convolver"
+            "\nby Fons Adriaensen"
+            "\n(http://www.kokkinizita.net/linuxaudio/index.html)"
+            "\n\nThe included IR-files are contributed by"
+            "\nDavid Fau Casquel (BESTPLUGINS)"
+            "\nhome: http://www.youtube.com/bestplugins"
+            "\n\nauthors: Hermann Meyer &lt;brummer-@web.de&gt;"
+            "\nauthors: James Warden &lt;warjamy@yahoo.com&gt;"
+            "\nauthors: Andreas Degert &lt;andreas.degert@googlemail.com&gt;"
+            "\nauthors: Pete Shorthose &lt;pshorthose@gmail.com&gt;"
+            "\nauthors: Markus Schmidt &lt;schmidt@boomshop.net&gt;"
+            "\n\nwebsite: http://guitarix.sourceforge.net/\n");
     }
 
     gx_gui::gx_message_popup(about.c_str());

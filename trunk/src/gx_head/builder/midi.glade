@@ -28,7 +28,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-              <property name="name">button6</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -42,7 +42,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-              <property name="name">button3</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -57,7 +57,7 @@
                 <property name="can_default">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-              <property name="name">button2</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -73,14 +73,14 @@
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-              <property name="name">button1</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">3</property>
               </packing>
             </child>
-          <property name="name">dialog-action_area1</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
@@ -92,7 +92,7 @@
           <object class="GtkLabel" id="zone_name">
             <property name="name">zone_name</property><property name="visible">True</property>
             <property name="can_focus">False</property>
-          <property name="name">zone_name</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
@@ -121,7 +121,7 @@
                     <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">operate a MIDI controller to set the controller number</property>
-                  <property name="name">label1</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
@@ -142,7 +142,7 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Parameter Range</property>
-                      <property name="name">range_label</property></object>
+                      </object>
                       <packing>
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
@@ -156,7 +156,7 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">MIDI Controller Number</property>
-                      <property name="name">label3</property></object>
+                      </object>
                       <packing>
                         <property name="x_options">GTK_FILL</property>
                       </packing>
@@ -178,7 +178,7 @@
                             <property name="primary_icon_sensitive">True</property>
                             <property name="secondary_icon_sensitive">True</property>
                             <property name="numeric">True</property>
-                          <property name="name">lower</property></object>
+                          </object>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
@@ -196,14 +196,14 @@
                             <property name="secondary_icon_activatable">False</property>
                             <property name="primary_icon_sensitive">True</property>
                             <property name="secondary_icon_sensitive">True</property>
-                          <property name="name">upper</property></object>
+                          </object>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
-                      <property name="name">range_box</property></object>
+                      </object>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">3</property>
@@ -226,7 +226,7 @@
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
                         <property name="secondary_icon_sensitive">True</property>
-                      <property name="name">new</property></object>
+                      </object>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
@@ -238,13 +238,13 @@
                         <property name="name">new_desc</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                      <property name="name">new_desc</property></object>
+                      </object>
                       <packing>
                         <property name="left_attach">2</property>
                         <property name="right_attach">3</property>
                       </packing>
                     </child>
-                  <property name="name">table1</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
@@ -259,7 +259,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
-                  <property name="name">use_toggle</property></object>
+                  </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
@@ -283,28 +283,28 @@
                         <attributes>
                           <attribute name="size" value="8192" />
                         </attributes>
-                      <property name="name">desc</property></object>
+                      </object>
                     </child>
                     <child type="label_item">
                       <placeholder />
                     </child>
-                  <property name="name">desc_box</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
                     <property name="position">4</property>
                   </packing>
                 </child>
-              <property name="name">vbox1</property></object>
+              </object>
             </child>
-          <property name="name">alignment2</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
         </child>
-      <property name="name">dialog-vbox1</property></object>
+      </object>
     </child>
     <action-widgets>
       <action-widget response="-11">button6</action-widget>
@@ -312,12 +312,12 @@
       <action-widget response="-6">button2</action-widget>
       <action-widget response="-5">button1</action-widget>
     </action-widgets>
-  <property name="name">MidiConnect</property></object>
+  </object>
   <object class="GtkImage" id="image1">
     <property name="name">image1</property><property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-delete</property>
-  <property name="name">image1</property></object>
+  </object>
   <object class="GtkListStore" id="liststore1">
     <columns>
       
@@ -363,7 +363,7 @@
                 <property name="receives_default">True</property>
                 <property name="image">image1</property>
                 <property name="use_underline">True</property>
-              <property name="name">button4</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -377,14 +377,14 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-              <property name="name">button5</property></object>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          <property name="name">dialog-action_area2</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
@@ -398,7 +398,7 @@
             <property name="can_focus">False</property>
             <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;MIDI Controller&lt;/b&gt;&lt;/big&gt;</property>
             <property name="use_markup">True</property>
-          <property name="name">label2</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
@@ -433,7 +433,7 @@
                         <attribute name="text">0</attribute>
                       </attributes>
                     </child>
-                  <property name="name">treeviewcolumn1</property></object>
+                  </object>
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn2">
@@ -447,7 +447,7 @@
                         <attribute name="text">1</attribute>
                       </attributes>
                     </child>
-                  <property name="name">treeviewcolumn2</property></object>
+                  </object>
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn3">
@@ -461,7 +461,7 @@
                         <attribute name="text">2</attribute>
                       </attributes>
                     </child>
-                  <property name="name">treeviewcolumn3</property></object>
+                  </object>
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn4">
@@ -475,7 +475,7 @@
                         <attribute name="text">3</attribute>
                       </attributes>
                     </child>
-                  <property name="name">treeviewcolumn4</property></object>
+                  </object>
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn7">
@@ -487,7 +487,7 @@
                         <attribute name="text">4</attribute>
                       </attributes>
                     </child>
-                  <property name="name">treeviewcolumn7</property></object>
+                  </object>
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn5">
@@ -501,7 +501,7 @@
                         <attribute name="text">5</attribute>
                       </attributes>
                     </child>
-                  <property name="name">treeviewcolumn5</property></object>
+                  </object>
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn6">
@@ -513,11 +513,11 @@
                         <attribute name="text">6</attribute>
                       </attributes>
                     </child>
-                  <property name="name">treeviewcolumn6</property></object>
+                  </object>
                 </child>
-              <property name="name">treeview1</property></object>
+              </object>
             </child>
-          <property name="name">scroller</property></object>
+          </object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
@@ -538,7 +538,7 @@
                     <property name="name">label4</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Edit a MIDI name to choose you own</property>
-                  <property name="name">label4</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
@@ -559,7 +559,7 @@ MIDI controller settings are always saved and loaded with the
 main session.</property>
                     <property name="use_underline">True</property>
                     <property name="draw_indicator">True</property>
-                  <property name="name">save_controller</property></object>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
@@ -567,20 +567,20 @@ main session.</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
-              <property name="name">hbox1</property></object>
+              </object>
             </child>
-          <property name="name">alignment1</property></object>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">4</property>
           </packing>
         </child>
-      <property name="name">dialog-vbox2</property></object>
+      </object>
     </child>
     <action-widgets>
       <action-widget response="0">button4</action-widget>
       <action-widget response="-7">button5</action-widget>
     </action-widgets>
-  <property name="name">MidiControllerTable</property></object>
+  </object>
 </interface>
