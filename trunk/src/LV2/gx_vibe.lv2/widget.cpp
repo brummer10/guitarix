@@ -63,7 +63,7 @@ pir(GX_LV2_STYLE_DIR"/univibe.png")
   // create controllers for port name
   make_controller_box(&m_vbox2, "WIDTH", 0, 1, 0.01 , WIDTH);
   make_controller_box(&m_vbox3, "DEPTH", 0, 1, 0.01, DEPTH);
-  make_controller_box(&m_vbox4, "WETDRY", 0, 1, 0.01, WETDRY);
+  make_controller_box(&m_vbox4, "DRY/WET", 0, 1, 0.01, WETDRY);
   make_controller_box(&m_vbox5, "TEMPO", 0.1, 1e+01, 0.1, TEMPO);
   make_controller_box(&m_vbox9, "FEEDBACK", 0.1, 1e+01, 0.1, FB);
 
@@ -185,7 +185,7 @@ void Widget::make_controller_box(Gtk::Box *box,
 
     Gtk::VBox* b1 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
-    box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
+    box->pack_end( *Gtk::manage(pr),Gtk::PACK_SHRINK);
     regler->cp_configure("KNOB", label, min, max, digits);
     regler->set_show_value(false);
     regler->set_name(plug_name);
