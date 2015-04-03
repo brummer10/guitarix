@@ -166,7 +166,11 @@ def read_netlist(fname):
                     val = "Transistors['%s']" % val
             elif dev == "DIODE":
                 sym = mksym(sym, "D")
-                val = "Diodes['%s']" % val
+                if "=" in val:
+                    ##FIXME
+                    val = mk_dict(val,Is=Current,mUt=Number)
+                else:
+                    val = "Diodes['%s']" % val
             elif dev == "TRIODE":
                 sym = mksym(sym, "U", "Triode")
                 val = "Tubes['%s']" % val

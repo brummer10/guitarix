@@ -334,7 +334,14 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK);
 	pl.add(gx_effects::baxandall::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::distortion2::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(gx_effects::fuzzface::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(gx_effects::fuzzface::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::fuzzfacefm::plugin(),     PLUGIN_POS_RACK);
+	pl.add(pluginlib::fuzzfacerm::plugin(),     PLUGIN_POS_RACK);
+	pl.add(pluginlib::hornet::plugin(),     PLUGIN_POS_RACK);
+	pl.add(pluginlib::susta::plugin(),     PLUGIN_POS_RACK);
+	pl.add(pluginlib::hfb::plugin(),     PLUGIN_POS_RACK);
+	pl.add(pluginlib::muff::plugin(),     PLUGIN_POS_RACK);
+	pl.add(pluginlib::scream::plugin(),     PLUGIN_POS_RACK);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
