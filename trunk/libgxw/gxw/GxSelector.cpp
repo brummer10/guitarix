@@ -155,27 +155,19 @@ static void gx_selector_get_positions(
 	}
 }
 
-static void gx_selector_draw_arrow(const GdkRectangle *rect, gint yborder, cairo_t *cr, gboolean has_focus)
+static void gx_selector_draw_arrow(const GdkRectangle *rect, gint yborder, cairo_t *cr, GtkWidget * widget, gboolean has_focus)
 {
-	cairo_rectangle(cr, rect->x-1, rect->y, rect->width+1, rect->height-2);
-    cairo_pattern_t*pat =
-		cairo_pattern_create_linear (rect->x-1, rect->y,rect->x+rect->width ,rect->y+ rect->height);
-	cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.3, 0.3);
-	cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
-	cairo_set_source (cr, pat);
-	cairo_fill_preserve(cr);
-    cairo_set_line_width(cr, 1.0);
-    cairo_set_source_rgb(cr, 0., 0., 0.);
-    cairo_stroke(cr);
-    cairo_pattern_destroy (pat);
-	if (has_focus) {
-		cairo_move_to(cr, rect->x, rect->y + rect->height - 1 - yborder);
-		cairo_line_to(cr, rect->x + rect->width / 2.0, rect->y - 1 + yborder);
-		cairo_line_to(cr, rect->x + rect->width, rect->y + rect->height - 1 - yborder);
-        cairo_line_to(cr,rect->x, rect->y + rect->height - 1 - yborder);
-		cairo_set_source_rgb(cr, 0.6, 0.6, 0.6);
-        cairo_fill(cr);
-	}
+	float r, g, b;
+    cairo_move_to(cr, rect->x, rect->y + rect->height - 1 - yborder);
+    cairo_line_to(cr, rect->x + rect->width / 2.0, rect->y - 1 + yborder);
+    cairo_line_to(cr, rect->x + rect->width, rect->y + rect->height - 1 - yborder);
+    cairo_line_to(cr,rect->x, rect->y + rect->height - 1 - yborder);
+    if (has_focus)
+        gx_get_text_color(widget, GTK_STATE_PRELIGHT, &r, &g, &b);
+    else
+        gx_get_text_color(widget, GTK_STATE_NORMAL, &r, &g, &b);
+    cairo_set_source_rgb(cr, r, g, b);
+    cairo_fill(cr);
 }
 
 static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
@@ -184,21 +176,26 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 	GxSelector *selector = GX_SELECTOR(widget);
 	GxSelectorPrivate *priv = selector->priv;
 	int selectorstate = get_selector_state(selector);
+    
 	PangoLayout *layout = gtk_widget_create_pango_layout(widget, NULL);
 	GdkRectangle arrow, text;
 	gint yborder, off_x, off_y;
 	gx_selector_get_positions(widget, &arrow, &yborder, &text, &off_x, &off_y);
 
+    gx_draw_simple_box(widget, event, widget->allocation.x,
+                                      widget->allocation.y + (widget->allocation.height - widget->requisition.height) / 2,
+                                      widget->allocation.width,
+                                      widget->requisition.height);
+    
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	cairo_set_line_width(cr, 2.0);
 
 	cairo_rectangle(cr, text.x, text.y, text.width, text.height);
-	cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
-	cairo_fill_preserve(cr);
-	cairo_set_source_rgb(cr, 0, 0, 0);
-	cairo_stroke(cr);
+    float r, g, b;
+    gx_get_base_color(widget, GTK_STATE_NORMAL, &r, &g, &b);
+	cairo_set_source_rgb(cr, r, g, b);
+	cairo_fill(cr);
 
-	gx_selector_draw_arrow(&arrow, yborder, cr, priv->inside);
+	gx_selector_draw_arrow(&arrow, yborder, cr, widget, priv->inside);
 	cairo_destroy(cr);
 	if (selector->model) {
 		gint x, y;
@@ -228,7 +225,7 @@ static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *even
 	GdkRectangle rect;
 	gint yborder;
 	gx_selector_get_positions(widget, &rect, &yborder, NULL, NULL, NULL);
-	gx_selector_draw_arrow(&rect, yborder, cr, FALSE);
+	gx_selector_draw_arrow(&rect, yborder, cr, widget, FALSE);
 	cairo_destroy(cr);
 	return TRUE;
 }
@@ -242,7 +239,7 @@ static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event
 	GdkRectangle rect;
 	gint yborder;
 	gx_selector_get_positions(widget, &rect, &yborder, NULL, NULL, NULL);
-	gx_selector_draw_arrow(&rect, yborder, cr, TRUE);
+	gx_selector_draw_arrow(&rect, yborder, cr, widget, TRUE);
 	cairo_destroy(cr);
 	return TRUE;
 }

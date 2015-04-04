@@ -74,6 +74,7 @@ def build_stock_images(bld):
 
 def build(bld):
     sources = [
+        'drawingutils.cpp',
         'gxinit.cpp',
         'GxFastMeter.cpp',
         'GxWaveView.cpp',

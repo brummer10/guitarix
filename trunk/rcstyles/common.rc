@@ -100,10 +100,23 @@ widget "*effects_toolpalette*GtkButton*" style:highest "guitarix_rack_button"
 
 style "guitarix_rack_label" {
     font_name = "sans 7.5"
-    fg[NORMAL] = "#333333"
+    #fg[NORMAL] = "#333333"
 }
 widget "*rackcontainer*" style:highest "guitarix_rack_label"
 
+style "guitarix_widgets" {
+    GxRegler::value-border = { 4, 4, 2, 2 } # border around text
+    GxSelector::stepper-spacing = 6 # spacing between arrow and text
+    GxSelector::stepper-size = 8 # arrow size
+    xthickness     = 8 # border left and right
+    ythickness     = 4 # border top and bottom
+    fg[NORMAL]     = "#ff9000" # text color
+    bg[NORMAL]     = "#2f2f2f" # border color
+    base[NORMAL]   = "#000000" # text background
+    text[NORMAL]   = "#ff9000" # arrow normal
+    text[PRELIGHT] = "#ffffff" # arrow highlight
+}
+class "*GxSelector*" style:highest "guitarix_widgets"
 
 #buttons in rack devices to drag them
 #widget "*effect_reset" style:highest "guitarix_rack_slider"
