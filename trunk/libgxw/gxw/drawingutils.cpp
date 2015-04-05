@@ -19,20 +19,14 @@
 #include "drawingutils.h"
 #include <cstring> 
 
-void gx_draw_simple_box (GtkWidget * widget, GdkEventExpose * ev, gint x, gint y, gint w, gint h) {
+void gx_draw_bevel (GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, GdkRegion * region) {
     cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-    GdkRegion *region;
-	region = gdk_region_rectangle (&widget->allocation);
-	gdk_region_intersect (region, ev->region);
-	gdk_cairo_region (cr, region);
-	cairo_clip (cr);
-    
     float r, g, b;
-    gx_get_bg_color(widget, GTK_STATE_NORMAL, &r, &g, &b);
+    _gx_clip_context(widget, region, cr);
+    gx_get_color(widget, type, state, &r, &g, &b);
   
     cairo_pattern_t * pat;
-    gx_draw_rounded_rectangle(cr, x + 1, y + 1, w - 2, h - 2, 10);
-    
+    _gx_create_rectangle(cr, x, y, width, height, rad);
     //pat = cairo_pattern_create_linear (x, y,  x, y + h);
     //cairo_pattern_add_color_stop_rgba(pat, 0, 0, 0, 0, 0.5);
     //cairo_pattern_add_color_stop_rgba(pat, 1, 1, 1, 1, 0.2);
@@ -40,7 +34,7 @@ void gx_draw_simple_box (GtkWidget * widget, GdkEventExpose * ev, gint x, gint y
     cairo_set_line_width(cr, 1);
     cairo_stroke_preserve(cr);
     
-    pat = cairo_pattern_create_linear (x, y,  x, y + h);
+    pat = cairo_pattern_create_linear (x, y,  x, y + height);
     cairo_pattern_add_color_stop_rgb(pat, 0, r * 1.22, g * 1.22, b * 1.22);
     cairo_pattern_add_color_stop_rgb(pat, 1, r / 1.22, r / 1.22, r / 1.22);
     cairo_set_source (cr, pat);
@@ -50,45 +44,75 @@ void gx_draw_simple_box (GtkWidget * widget, GdkEventExpose * ev, gint x, gint y
     cairo_pattern_destroy (pat);
 }
 
-void gx_get_bg_color(GtkWidget * widget, gint state, float * r, float * g, float * b) {
+void gx_draw_rect (GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, GdkRegion * region) {
+    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+    float r, g, b;
+    _gx_clip_context(widget, region, cr);
+    gx_get_color(widget, type, state, &r, &g, &b);
+    
+    _gx_create_rectangle(cr, x, y, width, height, rad);
+	cairo_set_source_rgb(cr, r, g, b);
+	cairo_fill(cr);
+    
+    cairo_destroy(cr);
+}
+
+void gx_get_bg_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
     gx_get_color(widget, "bg", state, r, g, b);
 }
-void gx_get_fg_color(GtkWidget * widget, gint state, float * r, float * g, float * b) {
+void gx_get_fg_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
     gx_get_color(widget, "fg", state, r, g, b);
 }
-void gx_get_base_color(GtkWidget * widget, gint state, float * r, float * g, float * b) {
+void gx_get_base_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
     gx_get_color(widget, "base", state, r, g, b);
 }
-void gx_get_text_color(GtkWidget * widget, gint state, float * r, float * g, float * b) {
+void gx_get_text_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
     gx_get_color(widget, "text", state, r, g, b);
 }
-void gx_get_color(GtkWidget * widget, const gchar * type, gint state, float * r, float * g, float * b) {
+void gx_get_color(GtkWidget * widget, const gchar * type, GtkStateType * state, float * r, float * g, float * b) {
     GdkColor color;
     GtkStyle * style = gtk_widget_get_style (widget);
     if (style != NULL) {
-        color = style->bg[state];
+        GtkStateType s;
+        if (state)
+            s = *state;
+        else
+            s = gtk_widget_get_state(widget);
+        color = style->bg[s];
         if (!strcmp(type, "bg"))
-            color = style->bg[state];
+            color = style->bg[s];
         if (!strcmp(type, "fg"))
-            color = style->fg[state];
+            color = style->fg[s];
         if (!strcmp(type, "base"))
-            color = style->base[state];
+            color = style->base[s];
         if (!strcmp(type, "text"))
-            color = style->text[state];
+            color = style->text[s];
         *r = float(color.red)   / 65535;
         *g = float(color.green) / 65535;
         *b = float(color.blue)  / 65535;
     }
 }
 
-void gx_draw_rounded_rectangle(cairo_t * cr, gint x, gint y, gint w, gint h, gint r) {
-    cairo_move_to(cr,x+r,y);                      // Move to A
-    cairo_line_to(cr,x+w-r,y);                    // Straight line to B
-    cairo_curve_to(cr,x+w,y,x+w,y,x+w,y+r);       // Curve to C, Control points are both at Q
-    cairo_line_to(cr,x+w,y+h-r);                  // Move to D
-    cairo_curve_to(cr,x+w,y+h,x+w,y+h,x+w-r,y+h); // Curve to E
-    cairo_line_to(cr,x+r,y+h);                    // Line to F
-    cairo_curve_to(cr,x,y+h,x,y+h,x,y+h-r);       // Curve to G
-    cairo_line_to(cr,x,y+r);                      // Line to H
-    cairo_curve_to(cr,x,y,x,y,x+r,y);             // Curve to A
+void _gx_clip_context (GtkWidget * widget, GdkRegion *region, cairo_t * cr) {
+    GdkRegion *reg = gdk_region_rectangle(&widget->allocation);
+    if (region)
+        gdk_region_intersect(reg, region);
+	gdk_cairo_region(cr, reg);
+	cairo_clip (cr);
+}
+
+void _gx_create_rectangle(cairo_t * cr, gint x, gint y, gint width, gint height, gint rad) {
+    if (!rad) {
+        cairo_rectangle(cr, x, y, width, height);
+        return;
+    }
+    cairo_move_to(cr,x+rad,y);                      // Move to A
+    cairo_line_to(cr,x+width-rad,y);                    // Straight line to B
+    cairo_curve_to(cr,x+width,y,x+width,y,x+width,y+rad);       // Curve to C, Control points are both at Q
+    cairo_line_to(cr,x+width,y+height-rad);                  // Move to D
+    cairo_curve_to(cr,x+width,y+height,x+width,y+height,x+width-rad,y+height); // Curve to E
+    cairo_line_to(cr,x+rad,y+height);                    // Line to F
+    cairo_curve_to(cr,x,y+height,x,y+height,x,y+height-rad);       // Curve to G
+    cairo_line_to(cr,x,y+rad);                      // Line to H
+    cairo_curve_to(cr,x,y,x,y,x+rad,y);             // Curve to A
 }

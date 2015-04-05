@@ -110,11 +110,14 @@ style "guitarix_widgets" {
     GxSelector::stepper-size = 8 # arrow size
     xthickness     = 8 # border left and right
     ythickness     = 4 # border top and bottom
-    fg[NORMAL]     = "#ff9000" # text color
-    bg[NORMAL]     = "#2f2f2f" # border color
+    fg[NORMAL]     = "#ff9000" # text
+    fg[PRELIGHT]   = "#ffffff" # text hover
+    bg[NORMAL]     = "#2f2f2f" # border
+    bg[PRELIGHT]   = "#2f2f2f" # border hover
     base[NORMAL]   = "#000000" # text background
-    text[NORMAL]   = "#ff9000" # arrow normal
-    text[PRELIGHT] = "#ffffff" # arrow highlight
+    base[PRELIGHT] = "#000000" # text background hover
+    text[NORMAL]   = "#ff9000" # arrow
+    text[PRELIGHT] = "#ffffff" # arrow hover
 }
 class "*GxSelector*" style:highest "guitarix_widgets"
 

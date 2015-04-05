@@ -22,12 +22,16 @@
 
 #include <gtk/gtk.h>
 
-void gx_draw_simple_box (GtkWidget * widget, GdkEventExpose * ev, gint x, gint y, gint w, gint h);
-void gx_draw_rounded_rectangle(cairo_t * cr, gint x, gint y, gint w, gint h, gint r);
-void gx_get_bg_color(GtkWidget * widget, gint state, float * r, float * g, float * b);
-void gx_get_fg_color(GtkWidget * widget, gint state, float * r, float * g, float * b);
-void gx_get_base_color(GtkWidget * widget, gint state, float * r, float * g, float * b);
-void gx_get_text_color(GtkWidget * widget, gint state, float * r, float * g, float * b);
-void gx_get_color(GtkWidget * widget, const gchar * type, gint state, float * r, float * g, float * b);
+void gx_draw_bevel(GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, GdkRegion * region);
+void gx_draw_rect(GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, GdkRegion * region);
+
+void gx_get_bg_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b);
+void gx_get_fg_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b);
+void gx_get_base_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b);
+void gx_get_text_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b);
+void gx_get_color(GtkWidget * widget, const gchar * type, GtkStateType * state, float * r, float * g, float * b);
+
+void _gx_clip_context (GtkWidget * widget, GdkRegion *region, cairo_t * cr);
+void _gx_create_rectangle(cairo_t * cr, gint x, gint y, gint width, gint height, gint rad);
 
 #endif /* __DRAWINGUTILS_H__ */

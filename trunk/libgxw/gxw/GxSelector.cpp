@@ -162,10 +162,7 @@ static void gx_selector_draw_arrow(const GdkRectangle *rect, gint yborder, cairo
     cairo_line_to(cr, rect->x + rect->width / 2.0, rect->y - 1 + yborder);
     cairo_line_to(cr, rect->x + rect->width, rect->y + rect->height - 1 - yborder);
     cairo_line_to(cr,rect->x, rect->y + rect->height - 1 - yborder);
-    if (has_focus)
-        gx_get_text_color(widget, GTK_STATE_PRELIGHT, &r, &g, &b);
-    else
-        gx_get_text_color(widget, GTK_STATE_NORMAL, &r, &g, &b);
+    gx_get_text_color(widget, NULL, &r, &g, &b);
     cairo_set_source_rgb(cr, r, g, b);
     cairo_fill(cr);
 }
@@ -181,20 +178,14 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 	GdkRectangle arrow, text;
 	gint yborder, off_x, off_y;
 	gx_selector_get_positions(widget, &arrow, &yborder, &text, &off_x, &off_y);
-
-    gx_draw_simple_box(widget, event, widget->allocation.x,
+    gx_draw_bevel(widget, "bg", NULL, widget->allocation.x,
                                       widget->allocation.y + (widget->allocation.height - widget->requisition.height) / 2,
                                       widget->allocation.width,
-                                      widget->requisition.height);
+                                      widget->requisition.height, 10,
+                                      event->region);
+    gx_draw_rect(widget, "base", NULL, text.x, text.y, text.width, text.height, 4, event->region);
     
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-
-	cairo_rectangle(cr, text.x, text.y, text.width, text.height);
-    float r, g, b;
-    gx_get_base_color(widget, GTK_STATE_NORMAL, &r, &g, &b);
-	cairo_set_source_rgb(cr, r, g, b);
-	cairo_fill(cr);
-
 	gx_selector_draw_arrow(&arrow, yborder, cr, widget, priv->inside);
 	cairo_destroy(cr);
 	if (selector->model) {
@@ -219,28 +210,16 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	GxSelectorPrivate *priv = GX_SELECTOR(widget)->priv;
-	priv->inside = FALSE;
-	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	GdkRectangle rect;
-	gint yborder;
-	gx_selector_get_positions(widget, &rect, &yborder, NULL, NULL, NULL);
-	gx_selector_draw_arrow(&rect, yborder, cr, widget, FALSE);
-	cairo_destroy(cr);
+    gtk_widget_set_state(widget, GTK_STATE_NORMAL);
+    gtk_widget_queue_draw(widget);
 	return TRUE;
 }
 
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	GxSelectorPrivate *priv = GX_SELECTOR(widget)->priv;
-	priv->inside = TRUE;
-	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	GdkRectangle rect;
-	gint yborder;
-	gx_selector_get_positions(widget, &rect, &yborder, NULL, NULL, NULL);
-	gx_selector_draw_arrow(&rect, yborder, cr, widget, TRUE);
-	cairo_destroy(cr);
+    gtk_widget_set_state(widget, GTK_STATE_PRELIGHT);
+    gtk_widget_queue_draw(widget);
 	return TRUE;
 }
 
