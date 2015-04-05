@@ -164,11 +164,29 @@ def read_netlist(fname):
                     val = mk_dict(val,Vt=Voltage,Is=Current,Bf=Number,Br=Number)
                 else:
                     val = "Transistors['%s']" % val
+            elif dev == "PNP_TRANSISTOR":
+                ##FIXME
+                sym = mksym(sym, "T")
+                if "=" in val:
+                    val = mk_dict(val,Vt=Voltage,Is=Current,Bf=Number,Br=Number)
+                else:
+                    val = "Transistors['%s']" % val
             elif dev == "DIODE":
                 sym = mksym(sym, "D")
                 if "=" in val:
                     ##FIXME
                     val = mk_dict(val,Is=Current,mUt=Number)
+                    #val = mk_dict(val,Is=Current,Rs=Number,Bv=Number)
+                    #Is=Saturation current=mA, RS=Ohmic resistance=Om, BV=Reverse breakdown voltage=V
+                else:
+                    val = "Diodes['%s']" % val
+            elif dev == "DIODE2":
+                sym = mksym(sym, "D2")
+                if "=" in val:
+                    ##FIXME
+                    val = mk_dict(val,Is=Current,mUt=Number)
+                    #val = mk_dict(val,Is=Current,Rs=Number,Bv=Number)
+                    #Is=Saturation current=mA, RS=Ohmic resistance=Om, BV=Reverse breakdown voltage=V
                 else:
                     val = "Diodes['%s']" % val
             elif dev == "TRIODE":
