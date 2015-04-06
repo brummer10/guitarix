@@ -331,17 +331,19 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::jcm800pre::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::gcb_95::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK);
+	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::baxandall::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::distortion2::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::fuzzface::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::fuzzfacefm::plugin(),       PLUGIN_POS_RACK);
-	pl.add(pluginlib::fuzzfacerm::plugin(),       PLUGIN_POS_RACK);
-	pl.add(pluginlib::hornet::plugin(),           PLUGIN_POS_RACK);
-	pl.add(pluginlib::susta::plugin(),            PLUGIN_POS_RACK);
-	pl.add(pluginlib::hfb::plugin(),              PLUGIN_POS_RACK);
-	pl.add(pluginlib::muff::plugin(),             PLUGIN_POS_RACK);
-	pl.add(pluginlib::scream::plugin(),           PLUGIN_POS_RACK);
+	pl.add(pluginlib::fuzzfacefm::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::fuzzfacerm::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::hornet::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::susta::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::hfb::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::muff::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::scream::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::lpbboost::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::foxeylady::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
