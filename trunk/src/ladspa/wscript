@@ -41,8 +41,18 @@ def build(bld):
         '../plugins/mbdel.cc',
         '../plugins/mbchor.cc',
         '../plugins/reversedelay.cc',
-        #'../plugins/dubbe.cc',
-        ]
+        '../plugins/foxeylady.cc',
+        '../plugins/fuzzfacefm.cc',
+        '../plugins/fuzzfacerm.cc',
+        '../plugins/gcb_95.cc',
+        '../plugins/hfb.cc',
+        '../plugins/hogsfoot.cc',
+        '../plugins/hornet.cc',
+        '../plugins/lpbboost.cc',
+        '../plugins/muff.cc',
+        '../plugins/scream.cc',
+        '../plugins/susta.cc',
+       ]
     
     src = ['ladspa_guitarix.cpp'] + bsources
     incl = ['../headers', '..','../gx_head/engine','../plugins','../../libgxwmm','../../libgxw']

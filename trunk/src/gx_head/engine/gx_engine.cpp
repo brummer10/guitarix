@@ -344,6 +344,7 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::scream::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::lpbboost::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::foxeylady::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::hogsfoot::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
