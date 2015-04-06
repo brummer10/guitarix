@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import sys, os, TaskGen, ctypes
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bundle = 'gx_susta.lv2'
+    
+    src = ['gx_susta.cpp'
+           ]
+    incl = ['../faust','./', '../DSP']
+    lib = []
+    if sys.platform.startswith("linux"):
+        lib.append('dl')
+    uselib = ['LV2CORE']
+    cxxflag =[]
+    if not bld.env['OPT'] and bld.env['SSE2']:
+        cxxflag = [ "-msse2", "-mfpmath=sse"]
+    lv2_effects = bld(
+        features='cxx cshlib ',
+        includes = incl,
+        lib = lib,
+        uselib = uselib,
+        obj_ext  = '_14.o',
+        cxxflags = cxxflag,
+        defines  = ["LV2_SO"],
+        target   = 'gx_susta',
+        source   = src,
+        install_path = '${LV2DIR}/%s' % bundle,
+        chmod = 0o755,
+        )
+    lv2_effects.env['shlib_PATTERN'] = '%s.so'
+  
+    if not bld.env['NOLV2GUI']:
+        uselib_local1 = []
+        libpath1 = []
+        lib1 = []
+        incl = ['../../../libgxwmm','../../../libgxw']
+        if sys.platform.startswith("linux"):
+            lib1.append('dl')
+        if bld.env["GX_LIB_SHARED"]:
+            lib1 += ['gxwmm','gxw']
+            libpath1 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
+                        bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
+        else:
+            uselib_local1 += ['gxwmm','gxw']
+        
+        lv2_plugin_gui = bld(
+            features='cxx cshlib ',
+            includes = incl,
+            lib = lib1,
+            uselib = 'LV2CORE GTKMM',
+            libpath = libpath1,
+            uselib_local = uselib_local1,
+            linkflags = '-Wl,-z,nodelete',
+            defines  = ["LV2_GUI"],
+            target   = 'gx_susta_gui',
+            source   = 'widget.cpp gx_susta_gui.cpp',
+            install_path = '${LV2DIR}/%s' % bundle,
+            chmod = 0o755,
+            )
+        lv2_plugin_gui.env['shlib_PATTERN'] = '%s.so'
+   
+    install_path = '${LV2DIR}/%s' % bundle,
+    bld.install_files('${LV2DIR}/gx_susta.lv2', 'manifest.ttl')
+    bld.install_files('${LV2DIR}/gx_susta.lv2', 'gx_susta.ttl')
+
+    bld.install_files('${LV2DIR}/gx_susta.lv2/', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
