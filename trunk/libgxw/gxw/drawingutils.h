@@ -22,8 +22,7 @@
 
 #include <gtk/gtk.h>
 
-void gx_draw_bevel(GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, GdkRegion * region);
-void gx_draw_rect(GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, GdkRegion * region);
+void gx_draw_rect(GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, float bevel, GdkRegion * region);
 
 void gx_get_bg_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b);
 void gx_get_fg_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b);
@@ -31,7 +30,8 @@ void gx_get_base_color(GtkWidget * widget, GtkStateType * state, float * r, floa
 void gx_get_text_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b);
 void gx_get_color(GtkWidget * widget, const gchar * type, GtkStateType * state, float * r, float * g, float * b);
 
-void _gx_clip_context (GtkWidget * widget, GdkRegion *region, cairo_t * cr);
-void _gx_create_rectangle(cairo_t * cr, gint x, gint y, gint width, gint height, gint rad);
+void gx_clip_context(GtkWidget * widget, cairo_t * cr, GdkRegion *region);
+void gx_create_rectangle(cairo_t * cr, gint x, gint y, gint width, gint height, gint rad);
+void gx_bevel(cairo_t * cr, gint x, gint y, gint width, gint height, float bevel);
 
 #endif /* __DRAWINGUTILS_H__ */

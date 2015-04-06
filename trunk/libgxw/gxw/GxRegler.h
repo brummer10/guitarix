@@ -24,6 +24,7 @@ part of guitarix, use  knobs with Gtk
 #define __GX_REGLER_H__
 
 #include <gtk/gtk.h>
+#include "drawingutils.h"
 
 G_BEGIN_DECLS
 

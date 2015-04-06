@@ -353,7 +353,23 @@ static void gx_regler_class_init(GxReglerClass *klass)
 					  G_TYPE_INT, 2,
 					  G_TYPE_POINTER, //FIXME: GtkEntry*, gdouble*
 					  G_TYPE_POINTER);
-
+    
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("border-radius",
+            P_("Border Radius"),
+            P_("The radius of the corners in pixels"),
+            0, 100, 0,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+    
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_float("bevel",
+            P_("Bevel"),
+            P_("The bevel effect"),
+            -1.0, 1.0, 0.0,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+            
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boolean("show-value",
@@ -1006,34 +1022,37 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	double rect_width  =  rect->width - 2 * frm;
 	double rect_height =  rect->height - 2 * frm;
 	gint border_width = 2;
-
-    cairo_rectangle (cr, rect->x,rect->y,rect->width,rect->height);
-    cairo_set_source_rgba(cr, 0, 0, 0, 0.4);
-    cairo_fill (cr);
+    float bevel;
+    gtk_widget_style_get(GTK_WIDGET(regler), "bevel", &bevel, NULL);
+    gx_draw_rect(GTK_WIDGET(regler), "base", NULL, rect->x,rect->y,rect->width,rect->height, -1, 0, NULL);
+    
+    //cairo_rectangle (cr, rect->x,rect->y,rect->width,rect->height);
+    //cairo_set_source_rgba(cr, 0, 0, 0, 0.4);
+    //cairo_fill (cr);
 
     cairo_pattern_t*pat =
 	    cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-    cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
-    cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
-    cairo_set_source (cr, pat);
-    cairo_rectangle (cr, x0+inset,y0+inset,rect_width-2*inset,rect_height-2*inset);
-    cairo_fill (cr);
+    //cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
+    //cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
+    //cairo_set_source (cr, pat);
+    //cairo_rectangle (cr, x0+inset,y0+inset,rect_width-2*inset,rect_height-2*inset);
+    //cairo_fill (cr);
 
-	// line on right and bottom side
-	cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
-	cairo_set_line_width(cr, 2.0);
-	cairo_move_to(cr,x0+rect_width-1-inset, y0+1+inset);
-	cairo_line_to(cr, x0+rect_width-1-inset, y0+rect_height-inset);
-	cairo_line_to(cr, x0+inset, y0+rect_height-inset);
-	cairo_stroke(cr);
+	//// line on right and bottom side
+	//cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+	//cairo_set_line_width(cr, 2.0);
+	//cairo_move_to(cr,x0+rect_width-1-inset, y0+1+inset);
+	//cairo_line_to(cr, x0+rect_width-1-inset, y0+rect_height-inset);
+	//cairo_line_to(cr, x0+inset, y0+rect_height-inset);
+	//cairo_stroke(cr);
 
-	// line on left and top side
-    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+1+inset, y0+rect_height-inset+1);
-    cairo_line_to(cr, x0+1+inset, y0+1+inset);
-    cairo_line_to(cr, x0+rect_width-1-inset, y0+1+inset);
-    cairo_stroke(cr);
+	//// line on left and top side
+    //cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    //cairo_set_line_width(cr, 2.0);
+    //cairo_move_to(cr,x0+1+inset, y0+rect_height-inset+1);
+    //cairo_line_to(cr, x0+1+inset, y0+1+inset);
+    //cairo_line_to(cr, x0+rect_width-1-inset, y0+1+inset);
+    //cairo_stroke(cr);
 
 	gchar *txt;
 	ensure_digits(regler);

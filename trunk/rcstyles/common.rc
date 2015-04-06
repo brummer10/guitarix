@@ -1,9 +1,3 @@
-
-
-
-
-
-
 style "guitarix_default" {
     
     GtkScrollbar::has_backward_stepper = 0
@@ -39,7 +33,6 @@ style "guitarix_default" {
     stock["handle_left"]  = {{"handle_left.png"}}
     stock["handle_right"] = {{"handle_right.png"}}
     stock["watermark"]    = {{"watermark.png"}}
-    stock["live_mute"]    = {{"live_mute.png"}}
     stock["live_mute"]    = {{"live_mute.png"}}
     stock["live_bypass"]  = {{"live_bypass.png"}}
     stock["screw"]        = {{"screw.png"}}
@@ -98,28 +91,35 @@ style "guitarix_rack_button" {
 widget "*effects_toolpalette*GtkButton*" style:highest "guitarix_rack_button"
 
 
-style "guitarix_rack_label" {
-    font_name = "sans 7.5"
-    #fg[NORMAL] = "#333333"
-}
-widget "*rackcontainer*" style:highest "guitarix_rack_label"
-
 style "guitarix_widgets" {
-    GxRegler::value-border = { 4, 4, 2, 2 } # border around text
-    GxSelector::stepper-spacing = 6 # spacing between arrow and text
-    GxSelector::stepper-size = 8 # arrow size
-    xthickness     = 8 # border left and right
-    ythickness     = 4 # border top and bottom
-    fg[NORMAL]     = "#ff9000" # text
-    fg[PRELIGHT]   = "#ffffff" # text hover
-    bg[NORMAL]     = "#2f2f2f" # border
-    bg[PRELIGHT]   = "#2f2f2f" # border hover
-    base[NORMAL]   = "#000000" # text background
-    base[PRELIGHT] = "#000000" # text background hover
-    text[NORMAL]   = "#ff9000" # arrow
-    text[PRELIGHT] = "#ffffff" # arrow hover
+    
+    GxRegler::value-border      = { 4, 4, 2, 2 } # border around text
+    GxRegler::border-radius     = 12
+    GxRegler::bevel             = 0.16
+    GxSelector::stepper-spacing = 6              # spacing between arrow and text
+    GxSelector::stepper-size    = 8              # arrow size
+    
+    xthickness     = 8                           # border left and right
+    ythickness     = 4                           # border top and bottom
+    
+    fg[NORMAL]     = "#ff9000"                   # text
+    fg[PRELIGHT]   = "#ffffff"                   # text hover
+    bg[NORMAL]     = "#2f2f2f"                   # border
+    bg[PRELIGHT]   = "#2f2f2f"                   # border hover
+    base[NORMAL]   = "#000000"                   # text background
+    base[PRELIGHT] = "#000000"                   # text background hover
+    text[NORMAL]   = "#ff9000"                   # arrow
+    text[PRELIGHT] = "#ffffff"                   # arrow hover
 }
-class "*GxSelector*" style:highest "guitarix_widgets"
+class "*GxRegler*" style:highest "guitarix_widgets"
+
+
+style "guitarix_font" {
+    font_name = "Nimbus Sans L Regular Condensed 7.5"
+}
+widget "*.rack_label" style:highest "guitarix_font"
+widget "*Value*" style:highest "guitarix_font"
+
 
 #buttons in rack devices to drag them
 #widget "*effect_reset" style:highest "guitarix_rack_slider"

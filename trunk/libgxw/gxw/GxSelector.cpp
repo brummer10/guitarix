@@ -18,6 +18,7 @@
 
 #include "GxSelector.h"
 #include <string.h>
+#include <algorithm>
 
 #define gtk_widget_get_requisition(w, r) (*r = (w)->requisition)
 
@@ -37,6 +38,7 @@ struct _GxSelectorPrivate
 
 enum {
 	PROP_MODEL = 1,
+    PROP_BORDER_RADIUS
 };
 
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event);
@@ -175,19 +177,35 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 	int selectorstate = get_selector_state(selector);
     
 	PangoLayout *layout = gtk_widget_create_pango_layout(widget, NULL);
+    //printf("%s\n", pango_layout_get_font_description(layout));
 	GdkRectangle arrow, text;
 	gint yborder, off_x, off_y;
 	gx_selector_get_positions(widget, &arrow, &yborder, &text, &off_x, &off_y);
-    gx_draw_bevel(widget, "bg", NULL, widget->allocation.x,
-                                      widget->allocation.y + (widget->allocation.height - widget->requisition.height) / 2,
-                                      widget->allocation.width,
-                                      widget->requisition.height, 10,
-                                      event->region);
-    gx_draw_rect(widget, "base", NULL, text.x, text.y, text.width, text.height, 4, event->region);
+    gint rad;
+    float bevel;
+    gtk_widget_style_get(widget, "border-radius", &rad, "bevel", &bevel, NULL);
     
-	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+    
+    gx_draw_rect(widget, "bg", NULL, widget->allocation.x,
+        widget->allocation.y + (widget->allocation.height - widget->requisition.height) / 2,
+        widget->allocation.width,
+        widget->requisition.height,
+        rad,
+        bevel,
+        event->region);
+               
+    gx_draw_rect(widget, "base", NULL, text.x,
+        text.y,
+        text.width,
+        text.height,
+        std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0),
+        0,
+        event->region);
+        
 	gx_selector_draw_arrow(&arrow, yborder, cr, widget, priv->inside);
 	cairo_destroy(cr);
+    
 	if (selector->model) {
 		gint x, y;
 		PangoRectangle logical;
