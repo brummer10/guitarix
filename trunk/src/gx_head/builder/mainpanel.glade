@@ -212,7 +212,7 @@
         </child>
         <child>
           <object class="GtkAlignment" id="alignment6">
-            <property name="name">alignment6</property><property name="width_request">102</property>
+            <property name="name">alignment6</property><property name="width-request">102</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="yscale">0</property>
@@ -432,8 +432,8 @@
             <property name="right_padding">35</property>
             <child>
               <object class="GxPaintBox" id="gxpaintbox5">
-                <property name="name">gxpaintbox5</property><property name="width_request">47</property>
-                <property name="height_request">135</property>
+                <property name="name">gxpaintbox5</property><property name="width-request">47</property>
+                <property name="height-request">135</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="border_width">3</property>
@@ -673,7 +673,7 @@
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkHBox" id="hbox21">
-                    <property name="name">hbox21</property><property name="height_request">100</property>
+                    <property name="name">hbox21</property><property name="height-request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -711,7 +711,7 @@
             </child>
             <child>
               <object class="GtkAlignment" id="alignment12">
-                <property name="name">alignment12</property><property name="height_request">180</property>
+                <property name="name">alignment12</property><property name="height-request">180</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xscale">0</property>
@@ -1276,7 +1276,7 @@
                     <property name="spacing">5</property>
                         <child>
                           <object class="GtkImage" id="image2">
-                            <property name="name">image2</property><property name="height_request">10</property>
+                            <property name="name">image2</property><property name="height-request">10</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="pixbuf">gx_fold.png</property>
@@ -1319,7 +1319,7 @@
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage" id="image1">
-                        <property name="name">image1</property><property name="height_request">10</property>
+                        <property name="name">image1</property><property name="height-request">10</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="pixbuf">gx_show.png</property>
@@ -1448,7 +1448,7 @@
                     <property name="paint_func">gxrack_expose</property>
                     <child>
                       <object class="GtkScrolledWindow" id="vrack_scrolledbox">
-                        <property name="name">vrack_scrolledbox</property><property name="height_request">50</property>
+                        <property name="name">vrack_scrolledbox</property><property name="height-request">50</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="hscrollbar_policy">never</property>
@@ -1485,8 +1485,8 @@
                                                     <property name="can_focus">False</property>
                                                     <child>
                                                       <object class="GtkButton" id="ampdetail_expand:effect_reset">
-                                                        <property name="name">ampdetail_expand:effect_reset</property><property name="width_request">20</property>
-                                                        <property name="height_request">15</property>
+                                                        <property name="name">ampdetail_expand:effect_reset</property><property name="width-request">20</property>
+                                                        <property name="height-request">15</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">True</property>
@@ -1847,8 +1847,8 @@
                                                         <property name="can_focus">False</property>
                                                         <child>
                                                           <object class="GtkButton" id="ampdetail_compress:effect_reset">
-                                                            <property name="name">ampdetail_compress:effect_reset</property><property name="width_request">20</property>
-                                                            <property name="height_request">15</property>
+                                                            <property name="name">ampdetail_compress:effect_reset</property><property name="width-request">20</property>
+                                                            <property name="height-request">15</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
@@ -1954,7 +1954,7 @@
                                                             <property name="border_width">4</property>
                                                             <child>
                                                             <object class="GtkButton" id="button1:effect_reset">
-                                                            <property name="name">button1:effect_reset</property><property name="width_request">6</property>
+                                                            <property name="name">button1:effect_reset</property><property name="width-request">6</property>
                                                             <property name="visible">True</property>
                                                             <property name="sensitive">False</property>
                                                             <property name="can_focus">True</property>
@@ -2098,7 +2098,7 @@
                                                     <property name="right_padding">32</property>
                                                     <child>
                                                       <object class="GtkButton" id="button2:effect_reset">
-                                                        <property name="name">button2:effect_reset</property><property name="width_request">6</property>
+                                                        <property name="name">button2:effect_reset</property><property name="width-request">6</property>
                                                         <property name="visible">True</property>
                                                         <property name="sensitive">False</property>
                                                         <property name="can_focus">True</property>
@@ -2137,7 +2137,7 @@
                                                 <property name="name">midi_out_mini</property><property name="can_focus">False</property>
                                                 <child>
                                                   <object class="GtkAlignment" id="alignment16">
-                                                    <property name="name">alignment16</property><property name="width_request">35</property>
+                                                    <property name="name">alignment16</property><property name="width-request">35</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <property name="xscale">0</property>
@@ -2171,7 +2171,7 @@
                                                     <property name="right_padding">4</property>
                                                     <child>
                                                       <object class="GtkButton" id="button5:effect_reset">
-                                                        <property name="name">button5:effect_reset</property><property name="width_request">6</property>
+                                                        <property name="name">button5:effect_reset</property><property name="width-request">6</property>
                                                         <property name="visible">True</property>
                                                         <property name="sensitive">False</property>
                                                         <property name="can_focus">True</property>
@@ -2213,8 +2213,8 @@
                                                 </child>
                                                 <child>
                                                   <object class="GtkButton" id="midi_out_presets_mini">
-                                                    <property name="name">midi_out_presets_mini</property><property name="width_request">18</property>
-                                                    <property name="height_request">18</property>
+                                                    <property name="name">midi_out_presets_mini</property><property name="width-request">18</property>
+                                                    <property name="height-request">18</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">True</property>
@@ -2244,7 +2244,7 @@
                                                     <property name="right_padding">4</property>
                                                     <child>
                                                       <object class="GtkButton" id="button5:effect_reset1">
-                                                        <property name="name">button5:effect_reset1</property><property name="width_request">6</property>
+                                                        <property name="name">button5:effect_reset1</property><property name="width-request">6</property>
                                                         <property name="visible">True</property>
                                                         <property name="sensitive">False</property>
                                                         <property name="can_focus">True</property>
@@ -2275,8 +2275,8 @@
                                                         <property name="can_focus">False</property>
                                                         <child>
                                                           <object class="GtkButton" id="midi_out_expand:effect_reset">
-                                                            <property name="name">midi_out_expand:effect_reset</property><property name="width_request">20</property>
-                                                            <property name="height_request">15</property>
+                                                            <property name="name">midi_out_expand:effect_reset</property><property name="width-request">20</property>
+                                                            <property name="height-request">15</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
@@ -2367,7 +2367,7 @@
                                                             <property name="border_width">4</property>
                                                             <child>
                                                             <object class="GtkButton" id="button4:effect_reset">
-                                                            <property name="name">button4:effect_reset</property><property name="width_request">6</property>
+                                                            <property name="name">button4:effect_reset</property><property name="width-request">6</property>
                                                             <property name="visible">True</property>
                                                             <property name="sensitive">False</property>
                                                             <property name="can_focus">True</property>
@@ -3904,7 +3904,7 @@
                                                     <property name="right_padding">8</property>
                                                     <child>
                                                       <object class="GtkButton" id="button3:effect_reset">
-                                                        <property name="name">button3:effect_reset</property><property name="width_request">6</property>
+                                                        <property name="name">button3:effect_reset</property><property name="width-request">6</property>
                                                         <property name="visible">True</property>
                                                         <property name="sensitive">False</property>
                                                         <property name="can_focus">True</property>
@@ -3934,8 +3934,8 @@
                                                         <property name="can_focus">False</property>
                                                         <child>
                                                           <object class="GtkButton" id="midi_out_compress:effect_reset">
-                                                            <property name="name">midi_out_compress:effect_reset</property><property name="width_request">20</property>
-                                                            <property name="height_request">15</property>
+                                                            <property name="name">midi_out_compress:effect_reset</property><property name="width-request">20</property>
+                                                            <property name="height-request">15</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
@@ -3956,8 +3956,8 @@
                                                         </child>
                                                         <child>
                                                           <object class="GtkButton" id="midi_out_presets_normal">
-                                                            <property name="name">midi_out_presets_normal</property><property name="width_request">18</property>
-                                                            <property name="height_request">18</property>
+                                                            <property name="name">midi_out_presets_normal</property><property name="width-request">18</property>
+                                                            <property name="height-request">18</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>

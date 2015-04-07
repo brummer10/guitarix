@@ -22,7 +22,7 @@
     <glade-widget-class title="Small Knob" name="GxSmallKnob" generic-name="gxsmallknob" />
     <glade-widget-class title="Paint Box" name="GxPaintBox" generic-name="gxpaintbox">
       <properties>
-	<property id="paint-func">
+	<property id="paint_func">
 	  <parameter-spec>
 	    <type>GParamEnum</type>
             <value-type>GxPaintFunc</value-type>
