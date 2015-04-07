@@ -93,6 +93,8 @@ widget "*effects_toolpalette*GtkButton*" style:highest "guitarix_rack_button"
 
 style "guitarix_widgets" {
     
+    font_name = "sans 8"
+    
     GxRegler::value-border      = { 4, 4, 2, 2 } # border around text
     GxRegler::border-radius     = 12
     GxRegler::bevel             = 0.16
@@ -116,13 +118,49 @@ class "*GxRegler*" style:highest "guitarix_widgets"
 
 style "guitarix_font" {
     font_name = "Nimbus Sans L Regular Condensed 7.5"
+    fg[NORMAL] = "#222222"
 }
 widget "*.rack_label" style:highest "guitarix_font"
-widget "*Value*" style:highest "guitarix_font"
-
+widget "*Value" style:highest "guitarix_font"
+widget "*ampbox*label" style:highest "guitarix_font"
+widget "*beffekt_label" style:highest "guitarix_font"
 
 #buttons in rack devices to drag them
 #widget "*effect_reset" style:highest "guitarix_rack_slider"
+
+style "guitarix_effect_title" {
+    font_name = "Nimbus Sans L Regular Condensed 10"
+    fg[NORMAL] = "#222222"
+}
+widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
+
+
+
+
+
+#rackcontainer
+    #effects_toolpalette
+    #amp_toplevel_box
+        #rackcontainer
+            #monobox
+                #upper_rackbox
+                #monorackcontainer
+                #stereorackcontainerV
+            #stereorackbox
+                #stereorackcontainerH
+    #preset_scrolledbox
+    
+
+
+
+
+
+#style "guitarix_ampdetail_normal" {
+    #GxPaintBox::paint_func = "box_uni_2_expose"
+#}
+#widget "*ampdetail_normal" style:highest "guitarix_ampdetail_normal"
+
+
 
 
 
@@ -136,6 +174,10 @@ widget "*Value*" style:highest "guitarix_font"
         #rack_effect_label
 #rack_left
 #rack_right
+
+
+
+
 
 
 

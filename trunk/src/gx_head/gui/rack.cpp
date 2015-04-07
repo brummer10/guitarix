@@ -779,9 +779,9 @@ Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptio
     const char *effect_name = useshort ? plugin.get_shortname() : plugin.get_name();
     Gtk::Label *effect_label = new Gtk::Label(effect_name);
     effect_label->set_alignment(0.13, 0.5);
-    effect_label->set_name("effect_label");
+    effect_label->set_name("effect_title");
     if (plugin.get_type() == PLUGIN_TYPE_STEREO)
-        effect_label->set_markup("Ꝏ " + effect_label->get_label()); //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
+        effect_label->set_markup("ꝏ " + effect_label->get_label()); //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
 	return effect_label;
 }
 
