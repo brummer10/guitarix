@@ -32,6 +32,6 @@ void gx_get_color(GtkWidget * widget, const gchar * type, GtkStateType * state, 
 
 void gx_clip_context(GtkWidget * widget, cairo_t * cr, GdkRegion *region);
 void gx_create_rectangle(cairo_t * cr, gint x, gint y, gint width, gint height, gint rad);
-void gx_bevel(cairo_t * cr, gint x, gint y, gint width, gint height, float bevel);
+void gx_bevel(cairo_t * cr, gint x, gint y, gint width, gint height, gint rad, float bevel);
 
 #endif /* __DRAWINGUTILS_H__ */

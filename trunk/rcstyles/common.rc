@@ -3,6 +3,10 @@ style "guitarix_default" {
     GtkScrollbar::has_backward_stepper = 0
     GtkScrollbar::has_forward_stepper  = 0
     
+    GxPaintBox::bevel = 0.11
+    GxPaintBox::inverse = 0
+    GxPaintBox::alternate-box = { 0, 0, 50, 0 }
+    
     fg[NORMAL]      = { 0.85, 0.85, 0.85 }
     fg[ACTIVE]      = { 1.0, 1.0, 1.0 }
     fg[PRELIGHT]    = { 1.0, 1.0, 1.0 }
@@ -55,6 +59,22 @@ style "guitarix_default" {
 }
 class "GtkWidget" style:highest "guitarix_default"
 
+style "guitarix_ampdetails" {
+    GxPaintBox::alternate-box = { 0, 0, 0, 0 }
+    GxPaintBox::inverse = 0
+}
+widget "*ampdetails" style:highest "guitarix_ampdetails"
+
+
+style "rack_devices" {
+    
+}
+class "GxPaintBox" style:highest "rack_devices"
+
+style "guitarix_amp" {
+    GxPaintBox::alternate-box = { 0, 0, 25, 25 }
+}
+widget "*ampbox" style:highest "guitarix_amp"
 
 style "guitarix_scrollbars" {
     
@@ -144,22 +164,13 @@ widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
         #rackcontainer
             #monobox
                 #upper_rackbox
+                    #monoampcontainer:ampdetails
                 #monorackcontainer
                 #stereorackcontainerV
             #stereorackbox
                 #stereorackcontainerH
     #preset_scrolledbox
     
-
-
-
-
-
-#style "guitarix_ampdetail_normal" {
-    #GxPaintBox::paint_func = "box_uni_2_expose"
-#}
-#widget "*ampdetail_normal" style:highest "guitarix_ampdetail_normal"
-
 
 
 

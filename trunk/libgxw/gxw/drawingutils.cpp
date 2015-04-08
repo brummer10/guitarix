@@ -30,7 +30,7 @@ void gx_draw_rect (GtkWidget * widget, const gchar * type, GtkStateType * state,
 	cairo_fill_preserve(cr);
     
     if (bevel)
-        gx_bevel(cr, x, y, width, height, bevel);
+        gx_bevel(cr, x, y, width, height, rad, bevel);
         
     cairo_destroy(cr);
 }
@@ -95,7 +95,11 @@ void gx_create_rectangle (cairo_t * cr, gint x, gint y, gint width, gint height,
     cairo_curve_to(cr,x,y,x,y,x+rad,y);             // Curve to A
 }
 
-void gx_bevel (cairo_t * cr, gint x, gint y, gint width, gint height, float bevel) {
+void gx_bevel (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad, float bevel) {
+    if (bevel == 0)
+        return;
+    cairo_save(cr);
+    gx_create_rectangle(cr, x, y, width, height, rad);
     cairo_pattern_t * pat;
     if (bevel > 0)
         pat = cairo_pattern_create_linear (x, y, x, y + height);
@@ -107,6 +111,7 @@ void gx_bevel (cairo_t * cr, gint x, gint y, gint width, gint height, float beve
     cairo_set_operator(cr, CAIRO_OPERATOR_SOFT_LIGHT);
     cairo_fill_preserve(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    cairo_fill_preserve(cr);
+    cairo_fill(cr);
     cairo_pattern_destroy (pat);
+    cairo_restore(cr);
 }

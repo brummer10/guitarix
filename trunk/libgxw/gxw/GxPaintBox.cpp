@@ -99,6 +99,35 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                    P_("Type of paint function for background"),
 		                    NULL,
 		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_float("bevel",
+            P_("Bevel"),
+            P_("The bevel effect"),
+            -1.0, 1.0, 0.0,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_int("border-radius",
+            P_("Border Radius"),
+            P_("The radius of the corners"),
+            0, 100, 0,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_int("inverse",
+            P_("Inverse"),
+            P_("When drawn by draw_skin, choose if colors are inverted"),
+            0, 1, 0,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_boxed("alternate-box",
+            P_("Alternate Box"),
+            P_("A box definition { left, right, top, bottom } for the alternate color in percent"),
+            GTK_TYPE_BORDER,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+            
 	g_object_class_install_property(
 		gobject_class,PROP_ICON_SET,
 	    g_param_spec_int ("icon-set",
@@ -408,34 +437,41 @@ static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
 	double h  = wi->allocation.height;
     double h_ = h - 4;
     
-    GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb), "background1", (GtkIconSize)-1, NULL);
+    gint inverse;
+    GtkBorder * alt;
+    float bevel;
+    float left, right, top, bottom;
+    
+    gtk_widget_style_get(wi, "inverse", &inverse, "alternate_box", &alt, "bevel", &bevel, NULL);
+    
+    left   = alt->left / 100.;
+    right  = alt->right / 100.;
+    top    = alt->top / 100.;
+    bottom = alt->bottom / 100.;
+    
+    GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb),
+        inverse ? "background2" : "background1", (GtkIconSize)-1, NULL);
 	gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
 	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+    
     cairo_rectangle(cr, x0, y0, w, h_);
 	cairo_fill(cr);
     
-    bg = gtk_widget_render_icon(GTK_WIDGET(pb), "background2", (GtkIconSize)-1, NULL);
-    gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
-    cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
-    if (h > 140) {
-        cairo_rectangle(cr, x0, y0 + int(h_ / 4), w, int(h_ / 2));
-        cairo_fill(cr);
-    } else if (h > 60) {
-        cairo_rectangle(cr, x0, y0 + int(h_ / 2), w, int(h_ / 2) + 1);
+    if (top > 0 or bottom > 0 or left > 0 or right > 0) {
+        bg = gtk_widget_render_icon(GTK_WIDGET(pb),
+            inverse ? "background1" : "background2", (GtkIconSize)-1, NULL);
+        gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
+        cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+        cairo_rectangle(cr, x0 + int(w * left),
+                            y0 + int(h_ * top),
+                            int(w * (1 - right - left)) + 1,
+                            int(h_ * (1 - bottom - top)) + 1);
         cairo_fill(cr);
     }
     
-	cairo_pattern_t * pat = cairo_pattern_create_linear (x0, y0, x0, y0 + h_);
-	cairo_pattern_add_color_stop_rgba(pat, 0.0, 1.0, 1.0, 1.0, 0.08);
-	cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 0.16);
-	cairo_set_source(cr, pat);
-    cairo_rectangle(cr, x0, y0, w, h_);
-    cairo_set_operator(cr, CAIRO_OPERATOR_SOFT_LIGHT);
-    cairo_fill_preserve(cr);
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    cairo_fill(cr);
+    gx_bevel(cr, x0, y0, w, h_, 0, bevel);
     
-    pat = cairo_pattern_create_linear (x0, y0 + h_, x0, y0 + h);
+    cairo_pattern_t * pat = cairo_pattern_create_linear (x0, y0 + h_, x0, y0 + h);
 	cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.8);
 	cairo_pattern_add_color_stop_rgba(pat, 1.0, 0, 0, 0, 0.0);
     cairo_set_source(cr, pat);
