@@ -2796,6 +2796,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = rack_unit_shrink_expose;
 	} else if (strcmp(paint_func, "rack_amp_expose") == 0) {
 		paint_box->expose_func = rack_amp_expose;
+	} else if (strcmp(paint_func, "rack_expose") == 0) {
+	    paint_box->expose_func = rack_expose;
 	}
     
     
