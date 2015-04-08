@@ -441,14 +441,19 @@ static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
     GtkBorder * alt;
     float bevel;
     float left, right, top, bottom;
+    left = right = top = bottom = 0;
     
     gtk_widget_style_get(wi, "inverse", &inverse, "alternate_box", &alt, "bevel", &bevel, NULL);
     
-    left   = alt->left / 100.;
-    right  = alt->right / 100.;
-    top    = alt->top / 100.;
-    bottom = alt->bottom / 100.;
+    if (h > 64) {
+        // only draw alternate color if height > 64 pixels
+        left   = alt->left / 100.;
+        right  = alt->right / 100.;
+        top    = alt->top / 100.;
+        bottom = alt->bottom / 100.;
+    }
     
+    // draw main color
     GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb),
         inverse ? "background2" : "background1", (GtkIconSize)-1, NULL);
 	gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
@@ -457,6 +462,7 @@ static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
     cairo_rectangle(cr, x0, y0, w, h_);
 	cairo_fill(cr);
     
+    // draw alternate color
     if (top > 0 or bottom > 0 or left > 0 or right > 0) {
         bg = gtk_widget_render_icon(GTK_WIDGET(pb),
             inverse ? "background1" : "background2", (GtkIconSize)-1, NULL);
@@ -469,8 +475,10 @@ static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
         cairo_fill(cr);
     }
     
+    // draw bevel
     gx_bevel(cr, x0, y0, w, h_, 0, bevel);
     
+    // draw shadow beneath
     cairo_pattern_t * pat = cairo_pattern_create_linear (x0, y0 + h_, x0, y0 + h);
 	cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.8);
 	cairo_pattern_add_color_stop_rgba(pat, 1.0, 0, 0, 0, 0.0);
@@ -478,6 +486,7 @@ static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
     cairo_rectangle(cr, x0, y0 + h_, w, h - h_);
     cairo_fill(cr);
     
+    // clean up
     cairo_pattern_destroy(pat);
 	cairo_destroy(cr);
 	gdk_region_destroy(region);
