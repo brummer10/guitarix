@@ -30,6 +30,10 @@ const char *pb_eq_expose =                   "eq_expose";
 const char *pb_main_expose =                 "main_expose";
 const char *pb_level_meter_expose =          "level_meter_expose";
 
+const char *pb_rack_expose =                 "rack_expose";
+const char *pb_rack_amp_expose =             "rack_amp_expose";
+const char *pb_rack_unit_expose =            "rack_unit_expose";
+
 
 int precision(double n) {
     if (n < 0.009999)

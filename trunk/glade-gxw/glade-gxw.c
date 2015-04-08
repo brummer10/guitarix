@@ -64,7 +64,7 @@ GType gx_paint_func_get_type(void)
             {28, "rack_expose", "rack_expose" },
             {29, "rack_amp_expose", "rack_amp_expose" },
             {30, "rack_unit_expose", "rack_unit_expose" },
-            {31, "skin_expose", "skin_expose" },
+            {31, "rack_unit_shrink_expose", "rack_unit_shrink_expose" },
             
 			{ 0, NULL, NULL }
 		};

@@ -8,7 +8,7 @@
         <property name="name">amp_background:ampbox</property><property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="border_width">4</property>
-        <property name="paint_func">skin_expose</property>
+        <property name="paint_func">rack_amp_expose</property>
         <child>
           <object class="GtkAlignment" id="alignment3">
             <property name="name">alignment3</property><property name="visible">True</property>

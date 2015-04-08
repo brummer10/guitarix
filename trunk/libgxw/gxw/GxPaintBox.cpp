@@ -445,7 +445,7 @@ static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
     
     gtk_widget_style_get(wi, "inverse", &inverse, "alternate_box", &alt, "bevel", &bevel, NULL);
     
-    if (h > 64) {
+    if (h > 64 and alt) {
         // only draw alternate color if height > 64 pixels
         left   = alt->left / 100.;
         right  = alt->right / 100.;
@@ -720,8 +720,9 @@ static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 
 
-//static void amp_expose(GtkWidget *wi, GdkEventExpose *ev)
-//{
+static void amp_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+    rack_amp_expose(wi, ev);
 	//cairo_t *cr;
 	//cr = gdk_cairo_create(wi->window);
 	//GdkRegion *region;
@@ -768,7 +769,7 @@ static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	//cairo_destroy(cr);
 	//gdk_region_destroy (region);
-//}
+}
 
 static void conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
@@ -2783,7 +2784,7 @@ static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 {
-        
+    //printf("%s\n", paint_func);
     if (strcmp(paint_func, "box_skin_expose") == 0) {
 		paint_box->expose_func = box_skin_expose;
     } else if (strcmp(paint_func, "box_uni_1_expose") == 0) {
@@ -2798,10 +2799,7 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = rack_amp_expose;
 	} else if (strcmp(paint_func, "rack_expose") == 0) {
 	    paint_box->expose_func = rack_expose;
-	}
-    
-    
-	else if (strcmp(paint_func, "conv_widget_expose") == 0) {
+	} else if (strcmp(paint_func, "conv_widget_expose") == 0) {
 		paint_box->expose_func = conv_widget_expose;
 	} else if (strcmp(paint_func, "upper_widget_expose") == 0) {
 		paint_box->expose_func = upper_widget_expose;
@@ -2853,12 +2851,12 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 	    paint_box->expose_func = simple_level_meter_expose;
 	} else if (strcmp(paint_func, "level_meter_expose") == 0) {
 	    paint_box->expose_func = level_meter_expose;
-	} else if (strcmp(paint_func, "rack_expose") == 0) {
-	    paint_box->expose_func = rack_expose;
 	} else if (strcmp(paint_func, "cabinet_expose") == 0) {
 	    paint_box->expose_func = cabinet_expose;
 	} else if (strcmp(paint_func, "amp_skin_expose") == 0) {
 	    paint_box->expose_func = amp_skin_expose;
+	} else if (strcmp(paint_func, "amp_expose") == 0) {
+	    paint_box->expose_func = amp_expose;
 	} else {
 		paint_box->expose_func = 0;
 	}
