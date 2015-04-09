@@ -10,6 +10,6 @@
               <object class="GxSmallKnobR" id="gxbigknob2">
           <object class="GtkVBox" id="vbox3">
               <object class="GtkLabel" id="label3:rack_label">
-              <object class="GxSmallKnob" id="gxsmallknob1">
+              <object class="GxMidKnob" id="gxsmallknob1">
               <object class="GtkHBox" id="hbox2">
                   <object class="GxValueDisplay" id="gxvaluedisplay1">

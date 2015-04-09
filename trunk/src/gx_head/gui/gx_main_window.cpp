@@ -2880,6 +2880,17 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    sigc::mem_fun(this, &MainWindow::amp_controls_visible),
 	    rr));
     amp_controls_visible(rr);
+    
+    GdkPixbuf * pb_ = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "logo", (GtkIconSize)-1, NULL);
+    if (pb_) {
+        logo = gtk_image_new_from_pixbuf(pb_);
+        g_object_unref(pb_);
+    }
+    Gtk::VBox *al;
+    bld->find_widget("vbox_amp_main", al);
+    al->pack_start(*Glib::wrap(logo), FALSE, FALSE);
+    gtk_misc_set_alignment(GTK_MISC(logo), 0.f, 0.f);
+    gtk_widget_show(logo);
 }
 
 MainWindow::~MainWindow() {

@@ -21,6 +21,7 @@
 
 #include <gtk/gtk.h>
 #include "drawingutils.h"
+#include <gtk/gtkbox.h>
 
 G_BEGIN_DECLS
 

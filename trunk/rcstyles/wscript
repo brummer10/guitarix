@@ -44,6 +44,7 @@ gxstyle_files = [
     'live_mute.png',
     'live_bypass.png',
     'screw.png',
+    'logo.png',
     ]
 
 def configure(conf):

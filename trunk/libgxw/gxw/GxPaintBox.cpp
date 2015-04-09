@@ -251,11 +251,6 @@ static void gx_paint_box_destroy(GtkObject *object)
 	}
 	paint_box->gxr_image = NULL;
 	GTK_OBJECT_CLASS(gx_paint_box_parent_class)->destroy(object);
-    
-    //if (paint_box->pattern1)
-        //cairo_surface_destroy(paint_box->pattern1);
-    //if (paint_box->pattern2)
-        //cairo_surface_destroy(paint_box->pattern2);
 }
 
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event)
