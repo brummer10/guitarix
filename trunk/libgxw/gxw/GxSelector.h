@@ -46,6 +46,9 @@ struct _GxSelector
 	GxRegler parent;
 	GxSelectorPrivate *priv;
 	GtkTreeModel *model;
+    GdkPixbuf *icon;
+    gint icon_width;
+    gint icon_height;
 };
 
 struct _GxSelectorClass {

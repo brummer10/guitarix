@@ -1093,19 +1093,18 @@ void RackBox::do_expand() {
 }
 
 Gtk::Button *RackBox::make_expand_button(bool expand) {
-    Glib::ustring t;
+    const gchar *t;
     Gtk::Button *b = new Gtk::Button();
     if (expand) {
-	t = "▶";
+	t = "rack_shrink";
 	b->set_tooltip_text(_("expand effect unit"));
     } else {
-	t = "▼"; // ▲
+	t = "rack_expand";
 	b->set_tooltip_text(_("shrink effect unit"));
     }
-    Gtk::Label *l = new Gtk::Label(t);
+    GtkWidget *l = gtk_image_new_from_stock(t, (GtkIconSize)-1);
     b->set_focus_on_click(false);
-    b->add(*manage(l));
-    b->set_size_request(20, 15);
+    b->add(*Glib::wrap(l));
     b->set_name("effect_category");
     if (expand) {
 	b->signal_clicked().connect(
@@ -1121,7 +1120,6 @@ Gtk::Button *RackBox::make_preset_button() {
     Gtk::Button *p = new Gtk::Button(C_("Preset", "p"));
     p->set_can_default(false);
     p->set_can_focus(false);
-    p->set_size_request(18,18);
 	p->set_tooltip_text(_("manage effect unit presets"));
     p->signal_clicked().connect(
 	sigc::mem_fun(plugin, &PluginUI::on_plugin_preset_popup));

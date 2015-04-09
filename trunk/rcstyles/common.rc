@@ -32,15 +32,20 @@ style "guitarix_default" {
     base[INSENSITIVE] = { 0.2, 0.2, 0.2 }
     base[SELECTED]    = { 0.8, 0.18, 0.18 }
     
-    stock["background1"]  = {{"background1.png"}}
-    stock["background2"]  = {{"background2.png"}}
-    stock["handle_left"]  = {{"handle_left.png"}}
-    stock["handle_right"] = {{"handle_right.png"}}
-    stock["watermark"]    = {{"watermark.png"}}
-    stock["live_mute"]    = {{"live_mute.png"}}
-    stock["live_bypass"]  = {{"live_bypass.png"}}
-    stock["screw"]        = {{"screw.png"}}
-    stock["logo"]         = {{"logo.png"}}
+    stock["background1"]   = {{"background1.png"}}
+    stock["background2"]   = {{"background2.png"}}
+    stock["handle_left"]   = {{"handle_left.png"}}
+    stock["handle_right"]  = {{"handle_right.png"}}
+    stock["watermark"]     = {{"watermark.png"}}
+    stock["live_mute"]     = {{"live_mute.png"}}
+    stock["live_bypass"]   = {{"live_bypass.png"}}
+    stock["screw"]         = {{"screw.png"}}
+    stock["logo"]          = {{"logo.png"}}
+    stock["selector_icon"] = {{"selector_icon.png"}}
+    stock["rack_preset"]   = {{"rack_preset.png"}}
+    stock["rack_power"]    = {{"rack_power.png"}}
+    stock["rack_expand"]   = {{"rack_expand.png"}}
+    stock["rack_shrink"]   = {{"rack_shrink.png"}}
     
     engine "clearlooks" {
         focus_color       = { 0, 0, 0 }
@@ -68,9 +73,9 @@ widget "*ampdetails" style:highest "guitarix_ampdetails"
 
 
 style "rack_devices" {
-    
+    font_name = "sans 9"
 }
-class "GxPaintBox" style:highest "rack_devices"
+class "GxPaintBox*" style:highest "rack_devices"
 
 style "guitarix_amp" {
     GxPaintBox::alternate-box = { 0, 0, 25, 25 }
@@ -120,9 +125,8 @@ style "guitarix_widgets" {
     
     GxRegler::value-border      = { 4, 4, 2, 2 } # border around text
     GxRegler::border-radius     = 12
-    GxRegler::bevel             = 0.16
-    GxSelector::stepper-spacing = 6              # spacing between arrow and text
-    GxSelector::stepper-size    = 8              # arrow size
+    GxRegler::bevel             = 0.12
+    GxSelector::stepper-spacing = 6              # spacing between icon and text box
     
     xthickness     = 8                           # border left and right
     ythickness     = 4                           # border top and bottom
@@ -140,7 +144,7 @@ class "*GxRegler*" style:highest "guitarix_widgets"
 
 
 style "guitarix_font" {
-    font_name = "Nimbus Sans L Regular Condensed 7.5"
+    font_name = "sans 7.5"
     fg[NORMAL] = "#222222"
 }
 widget "*.rack_label" style:highest "guitarix_font"
@@ -152,7 +156,7 @@ widget "*beffekt_label" style:highest "guitarix_font"
 #widget "*effect_reset" style:highest "guitarix_rack_slider"
 
 style "guitarix_effect_title" {
-    font_name = "Nimbus Sans L Regular Condensed 10"
+    font_name = "sans 9"
     fg[NORMAL] = "#222222"
 }
 widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"

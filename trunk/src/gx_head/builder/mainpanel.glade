@@ -865,7 +865,7 @@
                       <object class="GtkLabel" id="label5:barbuttonlabel">
                         <property name="name">label5:barbuttonlabel</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Effects</property>
+                        <property name="label" translatable="yes">Pool</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1131,7 +1131,7 @@
                       <object class="GtkLabel" id="label72:barbuttonlabel">
                         <property name="name">label72:barbuttonlabel</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Expand</property>
+                        <property name="label" translatable="yes">Show</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>

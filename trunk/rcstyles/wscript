@@ -45,6 +45,11 @@ gxstyle_files = [
     'live_bypass.png',
     'screw.png',
     'logo.png',
+    'selector_icon.png',
+    'rack_preset.png',
+    'rack_power.png',
+    'rack_expand.png',
+    'rack_shrink.png',
     ]
 
 def configure(conf):
