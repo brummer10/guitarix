@@ -274,7 +274,7 @@ private:
     int anim_step;
     DragIcon *drag_icon;
     int target_height;
-    Gxw::PaintBox box;
+    Gtk::HBox box;
     bool box_visible;
     Gxw::Switch on_off_switch;
     gx_gui::uiToggle<bool> toggle_on_off;
@@ -283,8 +283,8 @@ private:
     static void set_paintbox_unit(Gxw::PaintBox& pb, PluginType tp);
     static void set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp);
     static Gtk::Widget *make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort=true);
-    static Gtk::Widget *make_bar(int left=4, int right=4, bool sens=false);
-    Gtk::Widget *wrap_bar(int left=4, int right=4, bool sens=false);
+    static Gtk::Widget *make_bar(bool sens=false);
+    Gtk::Widget *wrap_bar(bool sens=false);
     void init_dnd();
     void enable_drag(bool v);
     bool animate_vanish();
@@ -299,7 +299,7 @@ private:
     void set_visibility(bool v);
     Gtk::Button *make_expand_button(bool expand);
     Gtk::Button *make_preset_button();
-    Gtk::HBox *make_full_box(gx_system::CmdlineOptions& options);
+    Gtk::Alignment *make_full_box(gx_system::CmdlineOptions& options);
     Gtk::VBox *switcher_vbox(gx_system::CmdlineOptions& options);
     bool has_delete() const { return delete_button; }
     void do_expand();

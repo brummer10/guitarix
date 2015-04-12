@@ -254,7 +254,6 @@ extern const char *pb_info_box_expose_off;
 extern const char *pb_slooper_expose;
 extern const char *pb_zac_expose;
 extern const char *pb_gxhead_expose;
-extern const char *pb_RackBox_expose;
 extern const char *pb_gxrack_expose;
 extern const char *pb_eq_expose;
 extern const char *pb_main_expose;

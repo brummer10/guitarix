@@ -382,7 +382,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       mb_expand_button(),
       mb_delete_button(),
       preset_button(),
-      on_off_switch("minitoggle"),
+      on_off_switch("switchit"),
       toggle_on_off(rb.main.get_machine(), &on_off_switch, rb.plugin.plugin->id_on_off()) {
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
 	gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off().c_str(), rb.main.get_machine());
@@ -394,40 +394,106 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
     evbox.signal_leave_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_leave_out));
     evbox.signal_enter_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_enter_in));
     add(evbox);
+    
+    Gtk::Alignment *al = new Gtk::Alignment();
+    al->set_padding(0, 4, 0, 0);
+    evbox.add(*manage(al));
+    
     Gtk::HBox *box = new Gtk::HBox();
-    evbox.add(*manage(box));
-    Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 0.0, 0.0);
-    al->add(on_off_switch);
-#ifdef USE_SZG
-    RackBox::szg->add_widget(*al);
-#else
-    al->set_size_request(35, -1);
-#endif
-    box->pack_start(*manage(al), Gtk::PACK_SHRINK);
+    Gtk::HBox *top = new Gtk::HBox();
+    al->add(*manage(box));
+    
+    box->set_spacing(4);
+    
+    top->set_spacing(4);
+    top->set_name("rack_unit_title_bar");
+    
+    box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
+    box->pack_start(*manage(top));
+    box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
+    
+    top->pack_start(on_off_switch, Gtk::PACK_SHRINK);
+
     Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
     szg_label->add_widget(*manage(effect_label));
-    al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
-    al->add(*manage(rb.wrap_bar()));
-    box->pack_start(*manage(al), Gtk::PACK_SHRINK);
-    box->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
-    box->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET, 15);
-    al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
-    Gtk::HBox *hb = new Gtk::HBox();
-    al->add(*manage(hb));
+    top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
+    
+    top->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET);
+    
     mb_expand_button = rb.make_expand_button(true);
-    hb->pack_start(*manage(mb_expand_button), Gtk::PACK_SHRINK);
+    top->pack_end(*manage(mb_expand_button), Gtk::PACK_SHRINK);
+    if (!(rb.plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
+        preset_button = rb.make_preset_button();
+        top->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
+    }
     mb_delete_button = make_delete_button(rb);
     mb_delete_button->set_no_show_all(true);
-    hb->pack_start(*manage(mb_delete_button), Gtk::PACK_SHRINK);
-    al->set_padding(1, 0, 4, 4);
-    pack_end(*manage(al), Gtk::PACK_SHRINK);
-    box->pack_end(*manage(rb.wrap_bar(8)), Gtk::PACK_SHRINK);
-    if (!(rb.plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
-	preset_button = rb.make_preset_button();
-	box->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
-    }
+    top->pack_end(*manage(mb_delete_button), Gtk::PACK_SHRINK);
+    
+    //Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 0.0, 0.0);
+    //al->add(on_off_switch);
+#ifdef USE_SZG
+    RackBox::szg->add_widget(*box);
+#else
+    box->set_size_request(35, -1);
+#endif
+    //box->pack_start(*manage(al), Gtk::PACK_SHRINK);
+    
+    
+    //box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
+    
+    
+    //al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
+    //al->add(*manage(rb.wrap_bar()));
+    //box->pack_start(*manage(al), Gtk::PACK_SHRINK);
+    //box->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
+    //box->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET, 15);
+    //al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
+    //Gtk::HBox *hb = new Gtk::HBox();
+    //al->add(*manage(hb));
+    
+    
+    //al->set_padding(1, 0, 4, 4);
+    //pack_end(*manage(al), Gtk::PACK_SHRINK);
+    //if (!(rb.plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
+	//preset_button = rb.make_preset_button();
+	//box->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
+    //}
     show_all();
 }
+//Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
+    
+    //Gtk::Widget *effect_label = make_label(plugin, options, false);
+    
+    //Gtk::HBox *main   = new Gtk::HBox();
+    //Gtk::VBox *center = new Gtk::VBox();
+    //Gtk::HBox *top    = new Gtk::HBox();
+    
+    //main->set_spacing(4);
+    
+    //center->set_name("rack_unit_center");
+    //center->set_border_width(4);
+    //center->set_spacing(4);
+    //center->pack_start(*manage(top), Gtk::PACK_SHRINK);
+    //center->pack_start(box, Gtk::PACK_EXPAND_WIDGET);
+    
+    //top->set_spacing(4);
+    //top->set_name("rack_unit_title_bar");
+    
+    //top->pack_start(on_off_switch, Gtk::PACK_SHRINK);
+    //top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
+    //top->pack_end(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
+    //if (!(plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS))
+        //top->pack_end(*manage(make_preset_button()), Gtk::PACK_SHRINK);
+    
+    //main->pack_start(*manage(wrap_bar()), Gtk::PACK_SHRINK);
+    //main->pack_start(*manage(center), Gtk::PACK_EXPAND_WIDGET);
+    //main->pack_end(*manage(wrap_bar()), Gtk::PACK_SHRINK);
+    
+    //main->set_name(plugin.get_id());
+    //main->show_all();
+    //return main;
+//}
 
 void MiniRackBox::pack(Gtk::Widget *w) {
     if (w) {
@@ -766,7 +832,7 @@ void RackBox::set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp) {
 void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
     pb.property_paint_func().set_value("rack_unit_expose");
-    pb.set_border_width(4);
+    //pb.set_border_width(4);
 }
 
 void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
@@ -785,13 +851,12 @@ Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptio
 	return effect_label;
 }
 
-Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
+Gtk::Widget *RackBox::make_bar(bool sens) {
     Gtk::Alignment *al = new Gtk::Alignment(0, 0, 1.0, 1.0);
-    al->set_padding(4, 4, left, right);
     Gtk::Button *button = new Gtk::Button();
-    button->set_size_request(6,-1);
-    button->set_name("effect_button");
+    button->set_name("rack_drag_button");
     button->set_tooltip_text(_("drag n' drop handle"));
+    button->set_relief(Gtk::RELIEF_NONE);
     button->set_sensitive(sens);
     al->add(*manage(button));
     return al;
@@ -810,11 +875,11 @@ bool RackBox::on_my_enter_in(GdkEventCrossing *focus) {
     return true;
 }
 
-Gtk::Widget *RackBox::wrap_bar(int left, int right, bool sens) {
+Gtk::Widget *RackBox::wrap_bar(bool sens) {
     Gtk::EventBox *ev = new Gtk::EventBox;
     ev->set_visible_window(false);
     ev->set_above_child(true);
-    ev->add(*manage(make_bar(left, right, sens)));
+    ev->add(*manage(make_bar(sens)));
     ev->signal_leave_notify_event().connect(sigc::mem_fun(*this, &RackBox::on_my_leave_out));
     ev->signal_enter_notify_event().connect(sigc::mem_fun(*this, &RackBox::on_my_enter_in));
     ev->signal_drag_begin().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_begin));
@@ -855,7 +920,6 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     Gtk::Widget *effect_label = RackBox::make_label(plugin, options);
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->set_padding(0,0,4,20);
-    al->add(*manage(RackBox::make_bar(4, 4, true))); // FIXME: fix style and remove sens parameter
     pb->pack_start(*manage(al), Gtk::PACK_SHRINK);
     pb->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
     al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
@@ -1096,10 +1160,10 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
     const gchar *t;
     Gtk::Button *b = new Gtk::Button();
     if (expand) {
-	t = "rack_shrink";
+	t = "rack_expand";
 	b->set_tooltip_text(_("expand effect unit"));
     } else {
-	t = "rack_expand";
+	t = "rack_shrink";
 	b->set_tooltip_text(_("shrink effect unit"));
     }
     GtkWidget *l = gtk_image_new_from_stock(t, (GtkIconSize)-1);
@@ -1117,7 +1181,9 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
 }
 
 Gtk::Button *RackBox::make_preset_button() {
-    Gtk::Button *p = new Gtk::Button(C_("Preset", "p"));
+    Gtk::Button *p = new Gtk::Button();
+    GtkWidget *l = gtk_image_new_from_stock("rack_preset", (GtkIconSize)-1);
+    p->add(*Glib::wrap(l));
     p->set_can_default(false);
     p->set_can_focus(false);
 	p->set_tooltip_text(_("manage effect unit presets"));
@@ -1136,56 +1202,44 @@ void RackBox::pack(Gtk::Widget *main, Gtk::Widget *mini, const Glib::RefPtr<Gtk:
     szg->add_widget(mbox);
 }
 
-Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
-    Gtk::HBox *bx = new Gtk::HBox();
-    Gtk::VBox *vx = new Gtk::VBox();
-    bx->pack_start(*manage(vx));
-    Gtk::Widget *effect_label = make_label(plugin, options, false);
-    vx->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
-    Gtk::HBox *bx2 = new Gtk::HBox();
-    vx->pack_start(*manage(bx2));
-    bx2->pack_start(*manage(switcher_vbox(options)), Gtk::PACK_SHRINK);
-    box.set_name(plugin.get_id());
-    box.set_border_width(4);
-    box.property_paint_func().set_value("RackBox_expose");
-    bx2->pack_start(box);
-    Gtk::VBox *vbox = new Gtk::VBox();
-    Gtk::VBox *vboxt = new Gtk::VBox();
-    Gtk::VBox *vboxb = new Gtk::VBox();
-	vbox->pack_start(*manage(vboxt), Gtk::PACK_EXPAND_PADDING);
-    vbox->pack_start(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
-    if (!(plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
-	vbox->pack_start(*manage(make_preset_button()), Gtk::PACK_SHRINK);
-    }
-	vbox->pack_start(*manage(vboxb), Gtk::PACK_EXPAND_PADDING);
-    Gtk::Alignment *al = new Gtk::Alignment(0, 0, 0.0, 0.7);
-    al->add(*manage(vbox));
-    al->set_padding(15, 0, 0, 4);
-    bx->pack_end(*manage(al), Gtk::PACK_SHRINK);
-    bx->pack_end(*manage(wrap_bar(4, 8)), Gtk::PACK_SHRINK);
-    bx->show_all();
-    return bx;
-}
-
-Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
-    Gtk::VBox *vbox = new Gtk::VBox();
+Gtk::Alignment *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     
-    Gtk::HBox *hbox = new Gtk::HBox();
-    vbox->pack_start(*manage(hbox));
-    Gtk::HBox *hbox2 = new Gtk::HBox();
-    hbox->pack_start(*manage(hbox2), Gtk::PACK_SHRINK);
-    Gtk::VBox *vbox2 = new Gtk::VBox();
-    hbox2->pack_start(*manage(vbox2));
-    hbox2->pack_start(*manage(wrap_bar(4,4)), Gtk::PACK_SHRINK);
-#ifdef USE_SZG
-    szg->add_widget(&on_off_switch);
-#endif
-    Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 0.0, 0.0);
-    al->add(on_off_switch);
-    vbox2->pack_start(*manage(al));
-    return vbox;
+    Gtk::Widget *effect_label = make_label(plugin, options, false);
+    
+    Gtk::HBox *main   = new Gtk::HBox();
+    Gtk::VBox *center = new Gtk::VBox();
+    Gtk::HBox *top    = new Gtk::HBox();
+    
+    Gtk::Alignment *al = new Gtk::Alignment();
+    al->set_padding(0, 4, 0, 0);
+    al->add(*manage(main));
+    
+    main->set_spacing(4);
+    
+    center->set_name("rack_unit_center");
+    center->set_border_width(4);
+    center->set_spacing(4);
+    center->pack_start(*manage(top), Gtk::PACK_SHRINK);
+    center->pack_start(box, Gtk::PACK_EXPAND_WIDGET);
+    
+    top->set_spacing(4);
+    top->set_name("rack_unit_title_bar");
+    
+    top->pack_start(on_off_switch, Gtk::PACK_SHRINK);
+    top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
+    top->pack_end(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
+    if (!(plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS))
+        top->pack_end(*manage(make_preset_button()), Gtk::PACK_SHRINK);
+    
+    main->pack_start(*manage(wrap_bar()), Gtk::PACK_SHRINK);
+    main->pack_start(*manage(center), Gtk::PACK_EXPAND_WIDGET);
+    main->pack_end(*manage(wrap_bar()), Gtk::PACK_SHRINK);
+    
+    main->set_name(plugin.get_id());
+    
+    al->show_all();
+    return al;
 }
-
 
 /****************************************************************
  ** class RackContainer

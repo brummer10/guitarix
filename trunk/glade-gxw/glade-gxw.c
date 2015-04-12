@@ -48,7 +48,6 @@ GType gx_paint_func_get_type(void)
 			{13, "slooper_expose", "slooper_expose" },
 			{14, "zac_expose", "zac expose" },
 			{15, "gxhead_expose", "gxhead_expose" },
-			{16, "RackBox_expose", "RackBox_expose"},
 			{17, "gxrack_expose", "gxrack_expose" },
 			{18, "lhfilter_expose", "lhfilter_expose" },
 			{19, "crybaby_expose", "crybaby_expose" },

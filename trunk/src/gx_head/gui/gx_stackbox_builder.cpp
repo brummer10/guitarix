@@ -24,7 +24,6 @@ const char *pb_info_box_expose_off =         "info_box_expose_off";
 const char *pb_slooper_expose =              "slooper_expose";
 const char *pb_zac_expose =                  "zac_expose";
 const char *pb_gxhead_expose =               "gxhead_expose";
-const char *pb_RackBox_expose =              "RackBox_expose";
 const char *pb_gxrack_expose =               "gxrack_expose";
 const char *pb_eq_expose =                   "eq_expose";
 const char *pb_main_expose =                 "main_expose";

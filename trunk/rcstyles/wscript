@@ -21,8 +21,8 @@ gxstyle_files = [
     'nk-knob.png',
     'nk-knob-small.png',
     'nk-knob-middle.png',
-    'tactile_switchit_off.png',
-    'tactile_switchit_on.png',
+    'switchit_off.png',
+    'switchit_on.png',
     'tactile_wheel_101f.png',
     'tactile_h_wheel_101f.png',
     'tactile_backlit_switchit_off.png',
@@ -47,7 +47,6 @@ gxstyle_files = [
     'logo.png',
     'selector_icon.png',
     'rack_preset.png',
-    'rack_power.png',
     'rack_expand.png',
     'rack_shrink.png',
     ]

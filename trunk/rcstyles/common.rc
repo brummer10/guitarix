@@ -7,6 +7,9 @@ style "guitarix_default" {
     GxPaintBox::inverse = 0
     GxPaintBox::alternate-box = { 0, 0, 60, 0 }
     
+    GtkButton::child-displacement-x = 0
+    GtkButton::child-displacement-y = 0
+    
     fg[NORMAL]      = { 0.85, 0.85, 0.85 }
     fg[ACTIVE]      = { 1.0, 1.0, 1.0 }
     fg[PRELIGHT]    = { 1.0, 1.0, 1.0 }
@@ -32,20 +35,21 @@ style "guitarix_default" {
     base[INSENSITIVE] = { 0.2, 0.2, 0.2 }
     base[SELECTED]    = { 0.8, 0.18, 0.18 }
     
-    stock["background1"]   = {{"background1.png"}}
-    stock["background2"]   = {{"background2.png"}}
-    stock["handle_left"]   = {{"handle_left.png"}}
-    stock["handle_right"]  = {{"handle_right.png"}}
-    stock["watermark"]     = {{"watermark.png"}}
-    stock["live_mute"]     = {{"live_mute.png"}}
-    stock["live_bypass"]   = {{"live_bypass.png"}}
-    stock["screw"]         = {{"screw.png"}}
-    stock["logo"]          = {{"logo.png"}}
-    stock["selector_icon"] = {{"selector_icon.png"}}
-    stock["rack_preset"]   = {{"rack_preset.png"}}
-    stock["rack_power"]    = {{"rack_power.png"}}
-    stock["rack_expand"]   = {{"rack_expand.png"}}
-    stock["rack_shrink"]   = {{"rack_shrink.png"}}
+    stock["background1"]    = {{"background1.png"}}
+    stock["background2"]    = {{"background2.png"}}
+    stock["handle_left"]    = {{"handle_left.png"}}
+    stock["handle_right"]   = {{"handle_right.png"}}
+    stock["watermark"]      = {{"watermark.png"}}
+    stock["live_mute"]      = {{"live_mute.png"}}
+    stock["live_bypass"]    = {{"live_bypass.png"}}
+    stock["screw"]          = {{"screw.png"}}
+    stock["logo"]           = {{"logo.png"}}
+    stock["selector_icon"]  = {{"selector_icon.png"}}
+    stock["rack_preset"]    = {{"rack_preset.png"}}
+    stock["switchit_on"]    = {{"switchit_on.png"}}
+    stock["switchit_off"]   = {{"switchit_off.png"}}
+    stock["rack_expand"]    = {{"rack_expand.png"}}
+    stock["rack_shrink"]    = {{"rack_shrink.png"}}
     
     engine "clearlooks" {
         focus_color       = { 0, 0, 0 }
@@ -54,6 +58,7 @@ style "guitarix_default" {
         reliefstyle       = 0
         radius            = 2.0
         disable_focus     = TRUE
+        style             = INVERTED #CLASSIC GLOSSY GUMMY INVERTED
     }
     #engine "aurora" {
         #menubarstyle   = 0
@@ -65,6 +70,7 @@ style "guitarix_default" {
 }
 class "GtkWidget" style:highest "guitarix_default"
 
+
 style "guitarix_ampdetails" {
     GxPaintBox::alternate-box = { 0, 0, 0, 0 }
     GxPaintBox::inverse = 0
@@ -72,17 +78,24 @@ style "guitarix_ampdetails" {
 widget "*ampdetails" style:highest "guitarix_ampdetails"
 
 
+style "guitarix_amp" {
+    GxPaintBox::alternate-box = { 0, 0, 25, 25 }
+}
+widget "*ampbox" style:highest "guitarix_amp"
+
+
+style "unit_padding" {
+    xthickness = 36
+    ythickness = 36
+}
+widget "*amp_padding" style:highest "unit_padding"
+widget "*rack_padding" style:highest "unit_padding"
+
 style "rack_devices" {
     font_name = "sans 9"
 }
 class "GxPaintBox*" style:highest "rack_devices"
 
-style "guitarix_amp" {
-    GxPaintBox::alternate-box = { 0, 0, 25, 25 }
-    xthickness = 40
-    ythickness = 20
-}
-widget "*ampbox" style:highest "guitarix_amp"
 
 style "guitarix_scrollbars" {
     
@@ -162,6 +175,13 @@ style "guitarix_effect_title" {
 widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
 
 
+style "rack_drag_button" {
+    xthickness = 12
+    ythickness = 0
+}
+widget "*rack_drag_button" style:highest "rack_drag_button"
+
+
 style "guitarix_amp_logo" {
     
 }
@@ -176,6 +196,9 @@ widget "*imageAmpLogo" style:highest "guitarix_amp_logo"
                 #upper_rackbox
                     #monoampcontainer:ampdetails
                 #monorackcontainer
+                    #[unit name]
+                        #rack_unit_center
+                            #rack_unit_title_bar
                 #stereorackcontainerV
             #stereorackbox
                 #stereorackcontainerH

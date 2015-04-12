@@ -67,7 +67,6 @@ static image_entry image_data[] = {
     { "live_bypass", pb_live_bypass },
     { "live_mute", pb_live_mute },
     { "rack_preset", pb_rack_preset },
-    { "rack_power", pb_rack_power },
     { "rack_expand", pb_rack_expand },
     { "rack_shrink", pb_rack_shrink },
     { "selector_icon", pb_selector_icon },

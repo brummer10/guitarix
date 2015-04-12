@@ -365,7 +365,7 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 	GdkRectangle rect;
 
 	switch (event->button) {
-	case 1:  // left button
+	case 3:  // left button
 		if (event->type != GDK_BUTTON_PRESS) {
 			return TRUE;
 		}
@@ -378,7 +378,7 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		}
 		set_value_from_selector_state(GX_SELECTOR(widget), i);
 		break;
-	case 3: // right button show num entry
+	case 1: // right button show num entry
 		rect.width = widget->requisition.width;
 		rect.height = widget->requisition.height;
 		rect.x = widget->allocation.x + (widget->allocation.width - widget->requisition.width) / 2;

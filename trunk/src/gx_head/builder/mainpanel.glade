@@ -12,11 +12,13 @@
         <property name="border_width">5</property>
         <property name="paint_func">rack_amp_expose</property>
         <child>
-          <object class="GtkAlignment" id="alignment3">
-            <property name="name">alignment3</property><property name="visible">True</property>
+          <object class="GtkAlignment" id="amp_padding">
+            <property name="name">amp_padding</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="left_padding">30</property>
             <property name="right_padding">30</property>
+            <property name="top_padding">3</property>
+            <property name="bottom_padding">3</property>
             <child>
               <object class="GtkVBox" id="vbox_amp_main">
                 <property name="name">vbox_amp_main</property><property name="visible">True</property>
@@ -1377,7 +1379,6 @@
                                                             <property name="name">gxpaintbox9</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="border_width">4</property>
-                                                            <property name="paint_func">RackBox_expose</property>
                                                             <child>
                                                             <object class="GxWheel" id="gxwheel5">
                                                             <property name="name">gxwheel5</property><property name="visible">True</property>
@@ -1456,7 +1457,6 @@
                                                             <property name="name">gxpaintbox10</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="border_width">4</property>
-                                                            <property name="paint_func">RackBox_expose</property>
                                                             <child>
                                                             <object class="GxWheel" id="gxwheel6">
                                                             <property name="name">gxwheel6</property><property name="visible">True</property>
@@ -1535,7 +1535,6 @@
                                                             <property name="name">gxpaintbox11</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="border_width">4</property>
-                                                            <property name="paint_func">RackBox_expose</property>
                                                             <child>
                                                             <object class="GxWheel" id="gxwheel7">
                                                             <property name="name">gxwheel7</property><property name="visible">True</property>
@@ -1614,7 +1613,6 @@
                                                             <property name="name">gxpaintbox12</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="border_width">4</property>
-                                                            <property name="paint_func">RackBox_expose</property>
                                                             <child>
                                                             <object class="GxWheel" id="gxwheel8">
                                                             <property name="name">gxwheel8</property><property name="visible">True</property>

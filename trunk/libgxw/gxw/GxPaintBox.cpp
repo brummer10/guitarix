@@ -523,7 +523,7 @@ static void draw_handles (GtkWidget *wi, GdkEventExpose *ev)
 	double x0 = wi->allocation.x;
 	double y0 = wi->allocation.y;
 	double w  = wi->allocation.width;
-	double h  = wi->allocation.height - 3;
+	double h  = wi->allocation.height - 4;
     
     // left
     GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb), "handle_left", (GtkIconSize)-1, NULL);
@@ -1362,103 +1362,6 @@ static void set_rack_color(const gchar * title, cairo_pattern_t *pat)
 	
 }
 */
-static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
-{
-    //int spf;
-	//gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-    //if(spf == 7) return;
-    //if(spf == 1000) return;
-	//cairo_t *cr;
-	//cairo_text_extents_t extents;
-    //cairo_pattern_t*pat;
-
-	///* create a cairo context */
-	//cr = gdk_cairo_create(wi->window);
-	//GdkRegion *region;
-	//region = gdk_region_rectangle (&wi->allocation);
-	//gdk_region_intersect (region, ev->region);
-	//gdk_cairo_region (cr, region);
-	//cairo_clip (cr);
-	//const gchar * title = gtk_widget_get_name(GTK_WIDGET(wi));
-
-	//double x0      = wi->allocation.x;
-	//double y0      = wi->allocation.y;
-	//double rect_width  = wi->allocation.width;
-	//double rect_height = wi->allocation.height;
-	//double x,y;
-
-    //if (spf == 6 || spf == 8) {
-        //if(strcmp(title,"oscilloscope")==0) return;
-        //GdkPixbuf * stock_image;
-        //if (spf == 6) {
-            //stock_image =gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
-        //} else {
-            //stock_image =gtk_widget_render_icon(wi,get_widget_id3(wi),(GtkIconSize)-1,NULL);
-        //}
-        //guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
-        //gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
-        //gint width = gdk_pixbuf_get_width (stock_image);
-        //gint height = gdk_pixbuf_get_height (stock_image);
-        //cairo_surface_t *s_image = cairo_image_surface_create_for_data (pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
-
-        //pat = cairo_pattern_create_for_surface(s_image);
-        //cairo_set_source (cr, pat);
-        //cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
-        
-        //cairo_rectangle(cr,x0+4,y0+4,rect_width-8,rect_height-8);
-        //cairo_fill(cr);
-        //g_object_unref(stock_image);
-        //cairo_surface_destroy(s_image);
-    //}
-
-
-	//cairo_select_font_face (cr, "URW Chancery L", CAIRO_FONT_SLANT_NORMAL,
-                               //CAIRO_FONT_WEIGHT_BOLD);
-	//cairo_set_font_size (cr, rect_width/12);
-	//cairo_text_extents (cr,title , &extents);
-	//x = x0+rect_width/2-extents.width/2 ;
-	//y = y0+rect_height/2+extents.height/2 ;
-	//cairo_move_to(cr,x, y);
-	//cairo_text_path (cr,title);
-	//cairo_set_source_rgba (cr, 0., 0., 0., 0.1);
-	//cairo_fill_preserve (cr);
-	//cairo_set_source_rgba (cr, 0.7, 0.7, 0.7, 0.05);
-    //cairo_stroke (cr);
-
-    //cairo_rectangle (cr, x0,y0,rect_width,rect_height);
-    //cairo_set_line_width(cr, 3.0);
-    //cairo_set_source_rgb (cr, 0, 0, 0);
-    //cairo_stroke (cr);
-    
-	//cairo_rectangle (cr, x0+4,y0+4,rect_width-8,rect_height-8);
-	//pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
-	////set_rack_color(title, pat);
-	//set_box_color(wi, pat);
-	////cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.2, 0.8);
-	////cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-	
-	////cairo_pattern_add_color_stop_rgba (pat, 0.2, 0, 0, 0.2, 0.2);
-	//cairo_set_source (cr, pat);
-	//cairo_fill(cr);
-
-    //cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
-    //cairo_set_line_width(cr, 2.0);
-    //cairo_move_to(cr,x0+rect_width-3, y0+3);
-    //cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
-    //cairo_line_to(cr, x0+2, y0+rect_height-2);
-    //cairo_stroke(cr);
-
-    //cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-    //cairo_set_line_width(cr, 2.0);
-    //cairo_move_to(cr,x0+3, y0+rect_height-1);
-    //cairo_line_to(cr, x0+3, y0+3);
-    //cairo_line_to(cr, x0+rect_width-3, y0+3);
-    //cairo_stroke(cr);
-
-    //cairo_pattern_destroy (pat);
-	//cairo_destroy(cr);
-	//gdk_region_destroy (region);
-}
 
 static void crybaby_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
@@ -2822,8 +2725,6 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = zac_expose;
 	} else if (strcmp(paint_func, "gxhead_expose") == 0) {
 		paint_box->expose_func = gxhead_expose;
-	} else if (strcmp(paint_func, "RackBox_expose") == 0) {
-		paint_box->expose_func = RackBox_expose;
 	} else if (strcmp(paint_func, "gxrack_expose") == 0) {
 		paint_box->expose_func = gxrack_expose;
 	} else if (strcmp(paint_func, "lhfilter_expose") == 0) {

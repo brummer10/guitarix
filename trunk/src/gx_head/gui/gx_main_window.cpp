@@ -25,6 +25,7 @@
 #include <guitarix.h>
 #include <gxw/GxLevelSlider.h>
 #include <gtkmm/accelmap.h>
+#include <gtk/gtk.h>
 #include "jsonrpc.h"
 
 /****************************************************************
@@ -2881,6 +2882,9 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    rr));
     amp_controls_visible(rr);
     
+    /*
+     * Logo image
+     */
     GdkPixbuf * pb_ = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "logo", (GtkIconSize)-1, NULL);
     if (pb_) {
         logo = gtk_image_new_from_pixbuf(pb_);
@@ -2891,6 +2895,15 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     al->pack_start(*Glib::wrap(logo), FALSE, FALSE);
     gtk_misc_set_alignment(GTK_MISC(logo), 0.f, 0.f);
     gtk_widget_show(logo);
+    /*
+     * Amp padding
+     */
+    Gtk::Widget *vbam;
+    bld->find_widget("amp_padding", vbam);
+    GtkWidget *wi = vbam->gobj();
+    printf("%d %d\n", wi->style->xthickness, wi->style->ythickness);
+    //vbam->set_padding(w->style->ythickness, w->style->ythickness,
+                    //w->style->xthickness, w->style->xthickness);
 }
 
 MainWindow::~MainWindow() {
