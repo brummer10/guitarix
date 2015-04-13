@@ -4390,10 +4390,7 @@ to midi controller</property>
                   <object class="GtkImage" id="jackd_image">
                     <property name="name">jackd_image</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="tooltip_text" translatable="yes">jack connection status: click to toggle
-  connected:     green
-  disconnected: red
-</property>
+                    <property name="tooltip_text" translatable="yes">jack connection status: click to toggle</property>
                     <property name="stock">gtk-missing-image</property>
                   </object>
                 </child>
@@ -4415,8 +4412,7 @@ to midi controller</property>
                     <property name="tooltip_text" translatable="yes">status of event log since last view:
   grey:       ok
   yellow:   warnings
-  red:         errors occurred
-</property>
+  red:         errors occurred</property>
                     <property name="xpad">8</property>
                     <property name="stock">gtk-missing-image</property>
                   </object>

@@ -2927,7 +2927,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     Gtk::Widget *vbam;
     bld->find_widget("amp_padding", vbam);
     GtkWidget *wi = vbam->gobj();
-    printf("%d %d\n", wi->style->xthickness, wi->style->ythickness);
+    //printf("%d %d\n", wi->style->xthickness, wi->style->ythickness);
     //vbam->set_padding(w->style->ythickness, w->style->ythickness,
                     //w->style->xthickness, w->style->xthickness);
 }

@@ -530,7 +530,7 @@ void PresetWindow::highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::Tr
     }
     Gtk::CellRendererText *tc = dynamic_cast<Gtk::CellRendererText*>(cell);
     if (machine.setting_is_preset() && t == machine.get_current_bank()) {
-	tc->property_foreground().set_value("#f00");
+    tc->property_foreground().set_value(gdk_color_to_string(&GTK_WIDGET(preset_treeview->gobj())->style->text[GTK_STATE_ACTIVE]));
     } else{
 	tc->property_foreground_set().set_value(false);
     }
@@ -860,8 +860,8 @@ void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iter
     cell->set_property("text", t);
     Gtk::CellRendererText *tc = dynamic_cast<Gtk::CellRendererText*>(cell);
     if (in_current_preset && machine.setting_is_preset() && val == machine.get_current_name()) {
-	tc->property_foreground().set_value("#f00");
-    } else{
+        tc->property_foreground().set_value(gdk_color_to_string(&GTK_WIDGET(preset_treeview->gobj())->style->text[GTK_STATE_ACTIVE]));
+    } else {
 	tc->property_foreground_set().set_value(false);
     }
 }
