@@ -1212,13 +1212,14 @@
               <object class="GtkHBox" id="amp_toplevel_box">
                 <property name="name">amp_toplevel_box</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="border_width">5</property>
                 <child>
                   <object class="GxPaintBox" id="effects_frame_paintbox">
                     <property name="name">effects_frame_paintbox</property><property name="can_focus">False</property>
                     <property name="paint_func">gxrack_expose</property>
                     <child>
-                      <object class="GtkScrolledWindow" id="scrolledwindow1">
-                        <property name="name">scrolledwindow1</property><property name="visible">True</property>
+                      <object class="GtkScrolledWindow" id="scrolledwindow_effects">
+                        <property name="name">scrolledwindow_effects</property><property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="hscrollbar_policy">never</property>
                         <property name="vscrollbar_policy">automatic</property>
@@ -3971,13 +3972,24 @@
                       <object class="GxPaintBox" id="hbox16">
                         <property name="name">hbox16</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="border_width">8</property>
-                        <property name="spacing">10</property>
                         <child>
-                          <object class="GtkVBox" id="vbox22">
-                            <property name="name">vbox22</property><property name="visible">True</property>
+                          <object class="GtkVBox" id="vbox_preset_buttons">
+                            <property name="name">vbox_preset_buttons</property><property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="spacing">5</property>
+                            <property name="border_width">5</property>
+                            <child>
+                              <object class="GtkLabel" id="placeholder">
+                                <property name="name">placeholder</property><property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes"></property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
                             <child>
                               <object class="GtkButton" id="save_preset">
                                 <property name="name">save_preset</property><property name="label" translatable="yes">Save</property>
@@ -3989,7 +4001,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">0</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
@@ -4003,7 +4015,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">1</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                             <child>
@@ -4017,7 +4029,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">2</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                             <child>
@@ -4031,7 +4043,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">3</property>
+                                <property name="position">4</property>
                               </packing>
                             </child>
                           </object>
@@ -4047,7 +4059,8 @@
                             <property name="can_focus">False</property>
                             <property name="n_rows">2</property>
                             <property name="n_columns">3</property>
-                            <property name="column_spacing">20</property>
+                            <property name="column_spacing">5</property>
+                            <property name="row_spacing">5</property>
                             <child>
                               <object class="GtkLabel" id="preset_title">
                                 <property name="name">preset_title</property><property name="visible">True</property>
@@ -4304,8 +4317,8 @@
           <object class="GtkHBox" id="hbox17">
             <property name="name">hbox17</property><property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="border_width">6</property>
-            <property name="spacing">4</property>
+            <property name="border_width">5</property>
+            <property name="spacing">5</property>
             <child>
               <object class="GtkToggleButton" id="presets:barbutton">
                 <property name="name">presets:barbutton</property><property name="visible">True</property>

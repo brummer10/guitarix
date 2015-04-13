@@ -601,6 +601,7 @@ private:
     std::map<Glib::ustring, Gtk::ToolItemGroup*> groupmap;
     ladspa::PluginDisplay *ladspalist_window;
     Glib::RefPtr<Gtk::SizeGroup> szg_rack_units;
+    Glib::RefPtr<Gtk::SizeGroup> szg_left;
 
     // Widget pointers
     Gxw::PaintBox *tunerbox;

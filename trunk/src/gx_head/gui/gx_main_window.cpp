@@ -743,6 +743,8 @@ void MainWindow::on_rack_configuration() {
 
 void MainWindow::on_show_plugin_bar() {
     bool v = options.system_show_toolbar = actions.show_plugin_bar->get_active();
+    Gtk::ScrolledWindow *szsw;
+    bld->find_widget("scrolledwindow_effects", szsw);
     if (v) {
 	actions.show_rack->set_active(true);
     }
@@ -751,6 +753,9 @@ void MainWindow::on_show_plugin_bar() {
 	//update_scrolled_window(*vrack_scrolledbox);
 	//update_scrolled_window(*stereorackbox);
 	maybe_shrink_horizontally();
+    szg_left->remove_widget(*szsw);
+    } else {
+    szg_left->add_widget(*szsw);
     }
 }
 
@@ -2522,7 +2527,8 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       keyswitch(machine, sigc::mem_fun(this, &MainWindow::display_preset_msg)),
       groupmap(),
       ladspalist_window(),
-      szg_rack_units(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)) {
+      szg_rack_units(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)),
+      szg_left(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)) {
     
     
     convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
@@ -2547,7 +2553,25 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
     szg_rack_units->add_widget(*ampdetail_mini);
     szg_rack_units->add_widget(*ampdetail_normal);
-
+    
+    // left size group
+    Gtk::Button *szpo;
+    bld->find_widget("save_preset", szpo);
+    szg_left->add_widget(*szpo);
+    
+    Gtk::Button *szps;
+    bld->find_widget("new_preset_bank", szps);
+    szg_left->add_widget(*szps);
+    
+    Gtk::ToggleButton *szpn;
+    bld->find_widget("organize_presets", szpn);
+    szg_left->add_widget(*szpn);
+    
+    Gtk::ToggleButton *szpb;
+    bld->find_widget("presets:barbutton", szpb);
+    szg_left->add_widget(*szpb);
+    
+    
     // remove marker labels from boxes (used in glade to make display clearer)
     clear_box(*monocontainer);
     clear_box(*stereorackcontainerH);
