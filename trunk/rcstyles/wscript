@@ -14,41 +14,44 @@ gxstyle_files = [
     'gx_head_gx9-grass.rc',
     'common.rc',
     'clear.rc',
-    'knob9.png',
-    'tactile_knob_large_151f.png',
-    'tactile_knob_small_99f.png',
-    'tactile_knob_medium_151f.png',
-    'nk-knob.png',
-    'nk-knob-small.png',
-    'nk-knob-middle.png',
-    'switchit_off.png',
-    'switchit_on.png',
-    'tactile_wheel_101f.png',
-    'tactile_h_wheel_101f.png',
-    'tactile_backlit_switchit_off.png',
-    'tactile_backlit_switchit_on.png',
-    'smallknob9.png',
-    'mittleknob9.png',
-    'stereo.png',
+    
+    
+    # preset tree
     'factory.png',
     'readonly.png',
     'versiondiff.png',
-    'playhead.png',
-    'simplelevelslider.png',
-    'scratch.png',
+    
+    # textures and unit elements
     'background1.png',
     'background2.png',
     'handle_left.png',
     'handle_right.png',
-    'watermark.png',
-    'live_mute.png',
-    'live_bypass.png',
     'screw.png',
     'logo.png',
+    'watermark.png',
+    
+    # live view
+    'live_mute.png',
+    'live_bypass.png',
+    
+    # button icons
+    'switchit_off.png',
+    'switchit_on.png',
     'selector_icon.png',
     'rack_preset.png',
     'rack_expand.png',
     'rack_shrink.png',
+    
+    # icon buttons
+    'gx_on.png',
+    'gx_off.png',
+    'gx_bypass.png',
+    'jackd_on.png',
+    'jackd_off.png',
+    'log_ok.png',
+    'log_error.png',
+    'log_warn.png',
+    
     ]
 
 def configure(conf):

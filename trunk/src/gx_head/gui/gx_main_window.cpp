@@ -2514,14 +2514,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       select_jack_control(0),
       fLoggingWindow(),
       amp_radio_menu(machine_, "tube.select"),
-      pixbuf_on(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_on.png"))),
-      pixbuf_off(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_off.png"))),
-      pixbuf_bypass(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_bypass.png"))),
-      pixbuf_jack_connected(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_on.png"))),
-      pixbuf_jack_disconnected(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("jackd_off.png"))),
-      pixbuf_log_grey(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_grey.png"))),
-      pixbuf_log_yellow(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_yellow.png"))),
-      pixbuf_log_red(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_red.png"))),
       in_session(false),
       status_icon(Gtk::StatusIcon::create(gx_head_icon)),
       gx_head_midi(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-midi.png"))),
@@ -2531,7 +2523,8 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       groupmap(),
       ladspalist_window(),
       szg_rack_units(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)) {
-
+    
+    
     convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
     convolver_mono_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
 
@@ -2754,15 +2747,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    channel3_button, channel3_box));
 
     /*
-    ** init status image widget
-    */
-    status_image->set(pixbuf_on);
-    gx_gui::connect_midi_controller(status_image->get_parent(), "engine.mute", machine);
-    status_image->get_parent()->signal_button_press_event().connect(
-	sigc::mem_fun(*this, &MainWindow::on_toggle_mute));
-    on_engine_state_change(machine.get_state());
-
-    /*
     ** connect buttons with actions
     */
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(show_rack_button->gobj()), GTK_ACTION(actions.show_rack->gobj()));
@@ -2823,12 +2807,30 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     if (!options.get_clear_rc()) {
 		  //g_object_set (gtk_settings_get_default (),"gtk-theme-name",NULL, NULL);
           set_new_skin(options.skin_name);
+        // build icons
+        pixbuf_on                = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "gx_on",     (GtkIconSize)-1, NULL));
+        pixbuf_off               = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "gx_off",    (GtkIconSize)-1, NULL));
+        pixbuf_bypass            = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "gx_bypass", (GtkIconSize)-1, NULL));
+        pixbuf_jack_connected    = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "jackd_on",  (GtkIconSize)-1, NULL));
+        pixbuf_jack_disconnected = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "jackd_off", (GtkIconSize)-1, NULL));
+        pixbuf_log_grey          = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_ok",    (GtkIconSize)-1, NULL));
+        pixbuf_log_yellow        = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_warn",  (GtkIconSize)-1, NULL));
+        pixbuf_log_red           = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_error", (GtkIconSize)-1, NULL));
+    
     } else {
-      gtk_rc_parse(
-          (options.get_style_filepath("clear.rc")).c_str());
+      gtk_rc_parse((options.get_style_filepath("clear.rc")).c_str());
       make_icons();
     }
-
+    
+    /*
+    ** init status image widget
+    */
+    status_image->set(pixbuf_on);
+    gx_gui::connect_midi_controller(status_image->get_parent(), "engine.mute", machine);
+    status_image->get_parent()->signal_button_press_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_toggle_mute));
+    on_engine_state_change(machine.get_state());
+    
     // call some action functions to sync state
     // with settings defined in create_actions()
     actions.rackh->set_active(options.system_order_rack_h);

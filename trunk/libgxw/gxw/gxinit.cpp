@@ -64,12 +64,25 @@ static image_entry image_data[] = {
 	{ "guitarix", pb_guitarix },
     { "screw", pb_screw },
     { "amp_skin", pb_amp21 },
+    
     { "live_bypass", pb_live_bypass },
     { "live_mute", pb_live_mute },
+    
     { "rack_preset", pb_rack_preset },
     { "rack_expand", pb_rack_expand },
     { "rack_shrink", pb_rack_shrink },
     { "selector_icon", pb_selector_icon },
+    
+    { "gx_on.png", pb_gx_on },
+    { "gx_off.png", pb_gx_off },
+    { "gx_bypass.png", pb_gx_bypass },
+    
+    { "jackd_on.png", pb_jackd_on },
+    { "jackd_off.png", pb_jackd_off },
+    
+    { "log_ok.png", pb_log_ok },
+    { "log_error.png", pb_log_error },
+    { "log_warn.png", pb_log_warn },
 	{ NULL, NULL },
 };
 

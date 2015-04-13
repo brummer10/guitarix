@@ -62,6 +62,14 @@ def build_stock_images(bld):
         "rack_expand.png",
         "rack_shrink.png",
         "selector_icon.png",
+        'gx_on.png',
+        'gx_off.png',
+        'gx_bypass.png',
+        'jackd_on.png',
+        'jackd_off.png',
+        'log_ok.png',
+        'log_error.png',
+        'log_warn.png',
         ]
 
     bld(name = "img2c",

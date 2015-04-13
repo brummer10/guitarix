@@ -50,7 +50,15 @@ style "guitarix_default" {
     stock["switchit_off"]   = {{"switchit_off.png"}}
     stock["rack_expand"]    = {{"rack_expand.png"}}
     stock["rack_shrink"]    = {{"rack_shrink.png"}}
-    
+    stock["gx_on"]          = {{"gx_on.png"}}
+    stock["gx_off"]         = {{"gx_off.png"}}
+    stock["gx_bypass"]      = {{"gx_bypass.png"}}
+    stock["jackd_on"]       = {{"jackd_on.png"}}
+    stock["jackd_off"]      = {{"jackd_off.png"}}
+    stock["log_ok"]         = {{"log_ok.png"}}
+    stock["log_error"]      = {{"log_error.png"}}
+    stock["log_warn"]       = {{"log_warn.png"}}
+        
     engine "clearlooks" {
         focus_color       = { 0, 0, 0 }
         contrast          = 0.8
@@ -187,6 +195,11 @@ style "guitarix_amp_logo" {
 }
 widget "*imageAmpLogo" style:highest "guitarix_amp_logo"
 
+
+style "guitarix_center_box" {
+    #bg[NORMAL] = "#292929"
+}
+widget "*rackcontainer*" style:highest "guitarix_center_box"
 
 #rackcontainer
     #effects_toolpalette
