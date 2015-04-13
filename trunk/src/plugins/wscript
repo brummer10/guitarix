@@ -44,6 +44,7 @@ lib_sources = [ # put in static library linked with guitarix
     "foxeylady.dsp",
     "lpbboost.dsp",
     "hogsfoot.dsp",
+    "cstb.dsp",
     ]
 
 def build(bld):
