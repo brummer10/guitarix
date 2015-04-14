@@ -2,55 +2,53 @@
 # encoding: utf-8
 
 gxstyle_files = [
-    'gx_head_gx1-alloy.rc',
-    'gx_head_gx2-emerald.rc',
-    'gx_head_gx3-dezert.rc',
-    'gx_head_gx4-black.rc',
-    'gx_head_gx5-gree.rc',
-    'gx_head_gx6-blue.rc',
-    'gx_head_gx7-blues.rc',
-    'gx_head_gx8-dark.rc',
-    'gx_head_gx9-flat.rc',
-    'gx_head_gx9-grass.rc',
+    #'gx_head_gx1-alloy.rc',
+    #'gx_head_gx2-emerald.rc',
+    #'gx_head_gx3-dezert.rc',
+    #'gx_head_gx4-black.rc',
+    #'gx_head_gx5-gree.rc',
+    #'gx_head_gx6-blue.rc',
+    #'gx_head_gx7-blues.rc',
+    #'gx_head_gx8-dark.rc',
+    #'gx_head_gx9-flat.rc',
+    #'gx_head_gx9-grass.rc',
     'clear.rc',
     'common.rc',
     
+    # preset tree
+    'factory.png',
+    'readonly.png',
+    'versiondiff.png',
+    # textures and unit elements
+    'background1.png',
+    'background2.png',
+    'handle_left.png',
+    'handle_right.png',
+    'screw.png',
+    'logo.png',
+    'watermark.png',
+    # live view
+    'live_mute.png',
+    'live_bypass.png',
+    # button icons
+    'switchit_off.png',
+    'switchit_on.png',
+    'selector_icon.png',
+    'rack_preset.png',
+    'rack_expand.png',
+    'rack_shrink.png',
+    # icon buttons
+    'gx_on.png',
+    'gx_off.png',
+    'gx_bypass.png',
+    'jackd_on.png',
+    'jackd_off.png',
+    'log_ok.png',
+    'log_error.png',
+    'log_warn.png',
+    
     ### DEFAULT THEME
     'gx_head_default.rc',
-    
-    #'gtkrc',
-    ## preset tree
-    #'factory.png',
-    #'readonly.png',
-    #'versiondiff.png',
-    ## textures and unit elements
-    #'background1.png',
-    #'background2.png',
-    #'handle_left.png',
-    #'handle_right.png',
-    #'screw.png',
-    #'logo.png',
-    #'watermark.png',
-    ## live view
-    #'live_mute.png',
-    #'live_bypass.png',
-    ## button icons
-    #'switchit_off.png',
-    #'switchit_on.png',
-    #'selector_icon.png',
-    #'rack_preset.png',
-    #'rack_expand.png',
-    #'rack_shrink.png',
-    ## icon buttons
-    #'gx_on.png',
-    #'gx_off.png',
-    #'gx_bypass.png',
-    #'jackd_on.png',
-    #'jackd_off.png',
-    #'log_ok.png',
-    #'log_error.png',
-    #'log_warn.png',
-    
     ]
 
 default_files = [

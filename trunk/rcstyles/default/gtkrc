@@ -35,29 +35,29 @@ style "guitarix_default" {
     base[INSENSITIVE] = { 0.2, 0.2, 0.2 }
     base[SELECTED]    = { 0.8, 0.18, 0.18 }
     
-    stock["background1"]    = {{"background1.png"}}
-    stock["background2"]    = {{"background2.png"}}
-    stock["handle_left"]    = {{"handle_left.png"}}
-    stock["handle_right"]   = {{"handle_right.png"}}
-    stock["watermark"]      = {{"watermark.png"}}
-    stock["live_mute"]      = {{"live_mute.png"}}
-    stock["live_bypass"]    = {{"live_bypass.png"}}
-    stock["screw"]          = {{"screw.png"}}
-    stock["logo"]           = {{"logo.png"}}
-    stock["selector_icon"]  = {{"selector_icon.png"}}
-    stock["rack_preset"]    = {{"rack_preset.png"}}
-    stock["switchit_on"]    = {{"switchit_on.png"}}
-    stock["switchit_off"]   = {{"switchit_off.png"}}
-    stock["rack_expand"]    = {{"rack_expand.png"}}
-    stock["rack_shrink"]    = {{"rack_shrink.png"}}
-    stock["gx_on"]          = {{"gx_on.png"}}
-    stock["gx_off"]         = {{"gx_off.png"}}
-    stock["gx_bypass"]      = {{"gx_bypass.png"}}
-    stock["jackd_on"]       = {{"jackd_on.png"}}
-    stock["jackd_off"]      = {{"jackd_off.png"}}
-    stock["log_ok"]         = {{"log_ok.png"}}
-    stock["log_error"]      = {{"log_error.png"}}
-    stock["log_warn"]       = {{"log_warn.png"}}
+    stock["background1"]    = {{"default/background1.png"}}
+    stock["background2"]    = {{"default/background2.png"}}
+    stock["handle_left"]    = {{"default/handle_left.png"}}
+    stock["handle_right"]   = {{"default/handle_right.png"}}
+    stock["watermark"]      = {{"default/watermark.png"}}
+    stock["live_mute"]      = {{"default/live_mute.png"}}
+    stock["live_bypass"]    = {{"default/live_bypass.png"}}
+    stock["screw"]          = {{"default/screw.png"}}
+    stock["logo"]           = {{"default/logo.png"}}
+    stock["selector_icon"]  = {{"default/selector_icon.png"}}
+    stock["rack_preset"]    = {{"default/rack_preset.png"}}
+    stock["switchit_on"]    = {{"default/switchit_on.png"}}
+    stock["switchit_off"]   = {{"default/switchit_off.png"}}
+    stock["rack_expand"]    = {{"default/rack_expand.png"}}
+    stock["rack_shrink"]    = {{"default/rack_shrink.png"}}
+    stock["gx_on"]          = {{"default/gx_on.png"}}
+    stock["gx_off"]         = {{"default/gx_off.png"}}
+    stock["gx_bypass"]      = {{"default/gx_bypass.png"}}
+    stock["jackd_on"]       = {{"default/jackd_on.png"}}
+    stock["jackd_off"]      = {{"default/jackd_off.png"}}
+    stock["log_ok"]         = {{"default/log_ok.png"}}
+    stock["log_error"]      = {{"default/log_error.png"}}
+    stock["log_warn"]       = {{"default/log_warn.png"}}
         
     engine "clearlooks" {
         focus_color       = { 0, 0, 0 }
@@ -342,13 +342,13 @@ widget "*rackcontainer*" style:highest "guitarix_center_box"
 
 #style "guitarix_playhead"
 #{
-  #stock["portdisplay"] = {{"playhead.png"}}
+  #stock["portdisplay"] = {{"default/playhead.png"}}
   #GxRegler::show-value = 0
 #}
 
 #style "guitarix_slevel"
 #{
-  #stock["levelslider"] = {{"simplelevelslider.png"}}
+  #stock["levelslider"] = {{"default/simplelevelslider.png"}}
   #GxRegler::show-value = 0
   #GxLevelSlider::slider--width = 3
 #}
