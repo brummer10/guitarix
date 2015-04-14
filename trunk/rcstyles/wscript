@@ -15,10 +15,13 @@ gxstyle_files = [
     'clear.rc',
     'common.rc',
     
+    ### DEFAULT THEME
+    'gx_head_default.rc',
     # preset tree
     'factory.png',
     'readonly.png',
     'versiondiff.png',
+    'scratch.png',
     # textures and unit elements
     'background1.png',
     'background2.png',
@@ -47,49 +50,48 @@ gxstyle_files = [
     'log_error.png',
     'log_warn.png',
     
-    ### DEFAULT THEME
-    'gx_head_default.rc',
     ]
 
-default_files = [
-    ### DEFAULT THEME
-    'default/gtkrc',
-    # preset tree
-    'default/factory.png',
-    'default/readonly.png',
-    'default/versiondiff.png',
-    # textures and unit elements
-    'default/background1.png',
-    'default/background2.png',
-    'default/handle_left.png',
-    'default/handle_right.png',
-    'default/screw.png',
-    'default/logo.png',
-    'default/watermark.png',
-    # live view
-    'default/live_mute.png',
-    'default/live_bypass.png',
-    # button icons
-    'default/switchit_off.png',
-    'default/switchit_on.png',
-    'default/selector_icon.png',
-    'default/rack_preset.png',
-    'default/rack_expand.png',
-    'default/rack_shrink.png',
-    # icon buttons
-    'default/gx_on.png',
-    'default/gx_off.png',
-    'default/gx_bypass.png',
-    'default/jackd_on.png',
-    'default/jackd_off.png',
-    'default/log_ok.png',
-    'default/log_error.png',
-    'default/log_warn.png',
+#default_files = [
+    #### DEFAULT THEME
+    #'default/gtkrc',
+    ## preset tree
+    #'default/factory.png',
+    #'default/readonly.png',
+    #'default/versiondiff.png',
+    #'default/scratch.png',
+    ## textures and unit elements
+    #'default/background1.png',
+    #'default/background2.png',
+    #'default/handle_left.png',
+    #'default/handle_right.png',
+    #'default/screw.png',
+    #'default/logo.png',
+    #'default/watermark.png',
+    ## live view
+    #'default/live_mute.png',
+    #'default/live_bypass.png',
+    ## button icons
+    #'default/switchit_off.png',
+    #'default/switchit_on.png',
+    #'default/selector_icon.png',
+    #'default/rack_preset.png',
+    #'default/rack_expand.png',
+    #'default/rack_shrink.png',
+    ## icon buttons
+    #'default/gx_on.png',
+    #'default/gx_off.png',
+    #'default/gx_bypass.png',
+    #'default/jackd_on.png',
+    #'default/jackd_off.png',
+    #'default/log_ok.png',
+    #'default/log_error.png',
+    #'default/log_warn.png',
     
-    ]
+    #]
 def configure(conf):
     pass
 
 def build(bld):
     bld.install_files(bld.env['GX_STYLE_DIR'], gxstyle_files, chmod=0o644)
-    bld.install_files(bld.env['GX_STYLE_DIR'] + "/default", default_files, chmod=0o644)
+    #bld.install_files(bld.env['GX_STYLE_DIR'] + "/default", default_files, chmod=0o644)
