@@ -1646,6 +1646,15 @@ void MainWindow::make_icons(bool force) {
 	w.hide();
         i->second->hide();
     }
+    // build icons
+    pixbuf_on                = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "gx_on",     (GtkIconSize)-1, NULL));
+    pixbuf_off               = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "gx_off",    (GtkIconSize)-1, NULL));
+    pixbuf_bypass            = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "gx_bypass", (GtkIconSize)-1, NULL));
+    pixbuf_jack_connected    = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "jackd_on",  (GtkIconSize)-1, NULL));
+    pixbuf_jack_disconnected = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "jackd_off", (GtkIconSize)-1, NULL));
+    pixbuf_log_grey          = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_ok",    (GtkIconSize)-1, NULL));
+    pixbuf_log_yellow        = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_warn",  (GtkIconSize)-1, NULL));
+    pixbuf_log_red           = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_error", (GtkIconSize)-1, NULL));
 }
 
 class JConvPluginUI: public PluginUI {
@@ -2831,16 +2840,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     if (!options.get_clear_rc()) {
 		  //g_object_set (gtk_settings_get_default (),"gtk-theme-name",NULL, NULL);
           set_new_skin(options.skin_name);
-        // build icons
-        pixbuf_on                = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "gx_on",     (GtkIconSize)-1, NULL));
-        pixbuf_off               = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "gx_off",    (GtkIconSize)-1, NULL));
-        pixbuf_bypass            = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "gx_bypass", (GtkIconSize)-1, NULL));
-        pixbuf_jack_connected    = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "jackd_on",  (GtkIconSize)-1, NULL));
-        pixbuf_jack_disconnected = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "jackd_off", (GtkIconSize)-1, NULL));
-        pixbuf_log_grey          = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_ok",    (GtkIconSize)-1, NULL));
-        pixbuf_log_yellow        = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_warn",  (GtkIconSize)-1, NULL));
-        pixbuf_log_red           = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_error", (GtkIconSize)-1, NULL));
-    
     } else {
       gtk_rc_parse((options.get_style_filepath("clear.rc")).c_str());
       make_icons();
