@@ -100,7 +100,6 @@ def dirlist():
         'gx_muff.lv2',
         'gx_scream.lv2',
         'gx_susta.lv2',
-        'gx_digda.lv2',
         'gx_cstb.lv2',
          ]
 
