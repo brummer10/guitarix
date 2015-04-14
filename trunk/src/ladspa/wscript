@@ -52,6 +52,7 @@ def build(bld):
         '../plugins/muff.cc',
         '../plugins/scream.cc',
         '../plugins/susta.cc',
+        '../plugins/cstb.cc',
        ]
     
     src = ['ladspa_guitarix.cpp'] + bsources
