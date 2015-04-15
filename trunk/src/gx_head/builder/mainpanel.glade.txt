@@ -109,39 +109,36 @@
                                   <object class="GtkVBox" id="monobox">
                                       <object class="GtkVBox" id="upper_rackbox">
                                           <object class="GxPaintBox" id="monoampcontainer:ampdetails">
-                                              <object class="GtkHBox" id="ampdetail_mini">
+                                              <object class="GtkAlignment" id="details_padding">
                                                   <object class="GtkVBox" id="vbox2">
-                                                      <object class="GtkButton" id="ampdetail_expand:effect_reset">
-                                                          <object class="GtkLabel" id="label6:rack_slider">
-                                              <object class="GtkAlignment" id="ampdetail_normal">
-                                                  <object class="GtkHBox" id="hbox14">
-                                                      <object class="GtkVBox" id="vbox15">
-                                                          <object class="GtkLabel" id="label4:beffekt_label">
-                                                          <object class="GtkHBox" id="hbox11">
+                                                      <object class="GtkHBox" id="ampdetail_mini">
+                                                          <object class="GtkVBox" id="vbox3">
+                                                            <object class="GtkButton" id="ampdetail_expand:effect_reset">
+                                                            <object class="GtkImage" id="image3">
+                                                      <object class="GtkHBox" id="ampdetail_normal">
+                                                          <object class="GtkTable" id="table3">
+                                                            <object class="GtkLabel" id="label4:beffekt_label">
                                                             <object class="GxSwitch" id="gxswitch1">
-                                                            <object class="GxPaintBox" id="gxpaintbox9">
-                                                            <object class="GxWheel" id="gxwheel5">
-                                                      <object class="GtkVBox" id="vbox16">
-                                                          <object class="GtkLabel" id="label5:beffekt_label">
-                                                          <object class="GtkHBox" id="hbox12">
+                                                            <object class="GtkAlignment" id="alignment44">
+                                                            <object class="GxSmallKnobR" id="gxmediumknob3">
+                                                          <object class="GtkTable" id="table4">
+                                                            <object class="GtkLabel" id="label5:beffekt_label">
                                                             <object class="GxSwitch" id="gxswitch4">
-                                                            <object class="GxPaintBox" id="gxpaintbox10">
-                                                            <object class="GxWheel" id="gxwheel6">
-                                                      <object class="GtkVBox" id="vbox17">
-                                                          <object class="GtkLabel" id="label6:beffekt_label">
-                                                          <object class="GtkHBox" id="hbox13">
+                                                            <object class="GtkAlignment" id="alignment1">
+                                                            <object class="GxSmallKnobR" id="gxmediumknob_sharper">
+                                                          <object class="GtkTable" id="table5">
+                                                            <object class="GtkLabel" id="label6:beffekt_label">
                                                             <object class="GxSwitch" id="gxswitch5">
-                                                            <object class="GxPaintBox" id="gxpaintbox11">
-                                                            <object class="GxWheel" id="gxwheel7">
-                                                      <object class="GtkVBox" id="vbox18">
-                                                          <object class="GtkLabel" id="label7:beffekt_label">
-                                                          <object class="GtkHBox" id="hbox15">
+                                                            <object class="GtkAlignment" id="alignment24">
+                                                            <object class="GxSmallKnobR" id="gxmediumknob1">
+                                                          <object class="GtkTable" id="table6">
+                                                            <object class="GtkLabel" id="label7:beffekt_label">
                                                             <object class="GxSwitch" id="gxswitch6">
-                                                            <object class="GxPaintBox" id="gxpaintbox12">
-                                                            <object class="GxWheel" id="gxwheel8">
-                                                      <object class="GtkVBox" id="vbox1">
-                                                          <object class="GtkButton" id="ampdetail_compress:effect_reset">
-                                                            <object class="GtkLabel" id="label7:rack_slider">
+                                                            <object class="GtkAlignment" id="alignment34">
+                                                            <object class="GxSmallKnobR" id="gxmediumknob2">
+                                                          <object class="GtkVBox" id="vbox1">
+                                                            <object class="GtkButton" id="ampdetail_compress:effect_reset">
+                                                            <object class="GtkImage" id="image4">
                                           <object class="GxPaintBox" id="tunerbox">
                                               <object class="GtkAlignment" id="tuner_padding">
                                                   <object class="GtkVBox" id="vbox_tuner_main">

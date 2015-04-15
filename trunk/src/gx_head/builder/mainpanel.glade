@@ -1277,85 +1277,85 @@
                                             <property name="orientation">vertical</property>
                                             <property name="paint_func">rack_unit_expose</property>
                                             <child>
-                                              <object class="GtkHBox" id="ampdetail_mini">
-                                                <property name="name">ampdetail_mini</property><property name="can_focus">False</property>
+                                              <object class="GtkAlignment" id="details_padding">
+                                                <property name="name">details_padding</property><property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="left_padding">32</property>
+                                                <property name="right_padding">32</property>
                                                 <child>
                                                   <object class="GtkVBox" id="vbox2">
                                                     <property name="name">vbox2</property><property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <child>
-                                                      <object class="GtkButton" id="ampdetail_expand:effect_reset">
-                                                        <property name="name">ampdetail_expand:effect_reset</property><property name="width_request">20</property>
-                                                        <property name="height_request">15</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">True</property>
-                                                        <property name="receives_default">True</property>
-                                                        <property name="use_action_appearance">False</property>
+                                                      <object class="GtkHBox" id="ampdetail_mini">
+                                                        <property name="name">ampdetail_mini</property><property name="can_focus">False</property>
+                                                        <property name="border_width">4</property>
                                                         <child>
-                                                          <object class="GtkLabel" id="label6:rack_slider">
-                                                            <property name="name">label6:rack_slider</property><property name="visible">True</property>
+                                                          <object class="GtkVBox" id="vbox3">
+                                                            <property name="name">vbox3</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="label">▶</property>
-                                                          </object>
-                                                        </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="padding">4</property>
-                                                        <property name="position">0</property>
-                                                      </packing>
-                                                    </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">False</property>
-                                                    <property name="padding">8</property>
-                                                    <property name="pack_type">end</property>
-                                                    <property name="position">0</property>
-                                                  </packing>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">True</property>
-                                                <property name="fill">True</property>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkAlignment" id="ampdetail_normal">
-                                                <property name="name">ampdetail_normal</property><property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="top_padding">4</property>
-                                                <property name="bottom_padding">8</property>
-                                                <property name="left_padding">4</property>
-                                                <property name="right_padding">4</property>
-                                                <child>
-                                                  <object class="GtkHBox" id="hbox14">
-                                                    <property name="name">hbox14</property><property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <child>
-                                                      <object class="GtkVBox" id="vbox15">
-                                                        <property name="name">vbox15</property><property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <child>
-                                                          <object class="GtkLabel" id="label4:beffekt_label">
-                                                            <property name="name">label4:beffekt_label</property><property name="visible">True</property>
+                                                            <child>
+                                                            <object class="GtkButton" id="ampdetail_expand:effect_reset">
+                                                            <property name="name">ampdetail_expand:effect_reset</property><property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">True</property>
+                                                            <property name="use_action_appearance">False</property>
+                                                            <child>
+                                                            <object class="GtkImage" id="image3">
+                                                            <property name="name">image3</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">0</property>
-                                                            <property name="xpad">10</property>
-                                                            <property name="label" translatable="yes">Noise Gate</property>
+                                                            <property name="stock">rack_expand</property>
+                                                            <property name="icon-size">1</property>
+                                                            </object>
+                                                            </child>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">0</property>
+                                                            </packing>
+                                                            </child>
                                                           </object>
                                                           <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="pack_type">end</property>
                                                             <property name="position">0</property>
                                                           </packing>
                                                         </child>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">True</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkHBox" id="ampdetail_normal">
+                                                        <property name="name">ampdetail_normal</property><property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="border_width">4</property>
+                                                        <property name="spacing">20</property>
                                                         <child>
-                                                          <object class="GtkHBox" id="hbox11">
-                                                            <property name="name">hbox11</property><property name="visible">True</property>
+                                                          <object class="GtkTable" id="table3">
+                                                            <property name="name">table3</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
+                                                            <property name="n_rows">4</property>
+                                                            <property name="n_columns">2</property>
+                                                            <property name="column_spacing">6</property>
+                                                            <property name="row_spacing">4</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label4:beffekt_label">
+                                                            <property name="name">label4:beffekt_label</property><property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="label" translatable="yes">Noise Gate</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="left_attach">1</property>
+                                                            <property name="right_attach">2</property>
+                                                            </packing>
+                                                            </child>
                                                             <child>
                                                             <object class="GxSwitch" id="gxswitch1">
                                                             <property name="name">gxswitch1</property><property name="visible">True</property>
@@ -1363,76 +1363,74 @@
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <property name="var_id">noise_gate.on_off</property>
-                                                            <property name="base_name">switch</property>
+                                                            <property name="base_name">switch_mid</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
+                                                            <property name="top_attach">2</property>
+                                                            <property name="bottom_attach">3</property>
+                                                            <property name="x_options" />
+                                                            <property name="y_options" />
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GxPaintBox" id="gxpaintbox9">
-                                                            <property name="name">gxpaintbox9</property><property name="visible">True</property>
+                                                            <object class="GtkAlignment" id="alignment44">
+                                                            <property name="name">alignment44</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="border_width">4</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="xscale">0</property>
                                                             <child>
-                                                            <object class="GxWheel" id="gxwheel5">
-                                                            <property name="name">gxwheel5</property><property name="visible">True</property>
+                                                            <object class="GxSmallKnobR" id="gxmediumknob3">
+                                                            <property name="name">gxmediumknob3</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="var_id">noise_gate.threshold</property>
-                                                            <property name="show_value">False</property>
+                                                            <property name="value_position">right</property>
                                                             </object>
-                                                            <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                            </packing>
                                                             </child>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">1</property>
+                                                            <property name="left_attach">1</property>
+                                                            <property name="right_attach">2</property>
+                                                            <property name="top_attach">1</property>
+                                                            <property name="bottom_attach">4</property>
                                                             </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
                                                             </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
-                                                            <property name="position">1</property>
+                                                            <property name="position">0</property>
                                                           </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">0</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkVBox" id="vbox16">
-                                                        <property name="name">vbox16</property><property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
                                                         <child>
-                                                          <object class="GtkLabel" id="label5:beffekt_label">
+                                                          <object class="GtkTable" id="table4">
+                                                            <property name="name">table4</property><property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="n_rows">4</property>
+                                                            <property name="n_columns">2</property>
+                                                            <property name="column_spacing">6</property>
+                                                            <property name="row_spacing">4</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label5:beffekt_label">
                                                             <property name="name">label5:beffekt_label</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="xalign">0</property>
-                                                            <property name="xpad">10</property>
                                                             <property name="label" translatable="yes">Compressor</property>
-                                                          </object>
-                                                          <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkHBox" id="hbox12">
-                                                            <property name="name">hbox12</property><property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="left_attach">1</property>
+                                                            <property name="right_attach">2</property>
+                                                            </packing>
+                                                            </child>
                                                             <child>
                                                             <object class="GxSwitch" id="gxswitch4">
                                                             <property name="name">gxswitch4</property><property name="visible">True</property>
@@ -1440,39 +1438,46 @@
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <property name="var_id">shaper.on_off</property>
-                                                            <property name="base_name">switch</property>
+                                                            <property name="base_name">switch_mid</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
+                                                            <property name="top_attach">2</property>
+                                                            <property name="bottom_attach">3</property>
+                                                            <property name="x_options" />
+                                                            <property name="y_options" />
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GxPaintBox" id="gxpaintbox10">
-                                                            <property name="name">gxpaintbox10</property><property name="visible">True</property>
+                                                            <object class="GtkAlignment" id="alignment1">
+                                                            <property name="name">alignment1</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="border_width">4</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="xscale">0</property>
                                                             <child>
-                                                            <object class="GxWheel" id="gxwheel6">
-                                                            <property name="name">gxwheel6</property><property name="visible">True</property>
+                                                            <object class="GxSmallKnobR" id="gxmediumknob_sharper">
+                                                            <property name="name">gxmediumknob_sharper</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="var_id">shaper.sharper</property>
-                                                            <property name="show_value">False</property>
+                                                            <property name="value_position">right</property>
                                                             </object>
-                                                            <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                            </packing>
                                                             </child>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">1</property>
+                                                            <property name="left_attach">1</property>
+                                                            <property name="right_attach">2</property>
+                                                            <property name="top_attach">1</property>
+                                                            <property name="bottom_attach">4</property>
                                                             </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
                                                             </child>
                                                           </object>
                                                           <packing>
@@ -1481,35 +1486,26 @@
                                                             <property name="position">1</property>
                                                           </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">1</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkVBox" id="vbox17">
-                                                        <property name="name">vbox17</property><property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
                                                         <child>
-                                                          <object class="GtkLabel" id="label6:beffekt_label">
+                                                          <object class="GtkTable" id="table5">
+                                                            <property name="name">table5</property><property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="n_rows">4</property>
+                                                            <property name="n_columns">2</property>
+                                                            <property name="column_spacing">6</property>
+                                                            <property name="row_spacing">4</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label6:beffekt_label">
                                                             <property name="name">label6:beffekt_label</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="xalign">0</property>
-                                                            <property name="xpad">10</property>
                                                             <property name="label" translatable="yes">Mono Level Out</property>
-                                                          </object>
-                                                          <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkHBox" id="hbox13">
-                                                            <property name="name">hbox13</property><property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="left_attach">1</property>
+                                                            <property name="right_attach">2</property>
+                                                            </packing>
+                                                            </child>
                                                             <child>
                                                             <object class="GxSwitch" id="gxswitch5">
                                                             <property name="name">gxswitch5</property><property name="visible">True</property>
@@ -1517,76 +1513,74 @@
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <property name="var_id">amp.on_off</property>
-                                                            <property name="base_name">switch</property>
+                                                            <property name="base_name">switch_mid</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
+                                                            <property name="top_attach">2</property>
+                                                            <property name="bottom_attach">3</property>
+                                                            <property name="x_options" />
+                                                            <property name="y_options" />
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GxPaintBox" id="gxpaintbox11">
-                                                            <property name="name">gxpaintbox11</property><property name="visible">True</property>
+                                                            <object class="GtkAlignment" id="alignment24">
+                                                            <property name="name">alignment24</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="border_width">4</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="xscale">0</property>
                                                             <child>
-                                                            <object class="GxWheel" id="gxwheel7">
-                                                            <property name="name">gxwheel7</property><property name="visible">True</property>
+                                                            <object class="GxSmallKnobR" id="gxmediumknob1">
+                                                            <property name="name">gxmediumknob1</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="var_id">amp.out_amp</property>
-                                                            <property name="value_position">left</property>
+                                                            <property name="value_position">right</property>
                                                             </object>
-                                                            <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                            </packing>
                                                             </child>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">1</property>
+                                                            <property name="left_attach">1</property>
+                                                            <property name="right_attach">2</property>
+                                                            <property name="top_attach">1</property>
+                                                            <property name="bottom_attach">4</property>
                                                             </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
                                                             </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
-                                                            <property name="position">1</property>
+                                                            <property name="position">2</property>
                                                           </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">2</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkVBox" id="vbox18">
-                                                        <property name="name">vbox18</property><property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
                                                         <child>
-                                                          <object class="GtkLabel" id="label7:beffekt_label">
+                                                          <object class="GtkTable" id="table6">
+                                                            <property name="name">table6</property><property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="n_rows">4</property>
+                                                            <property name="n_columns">2</property>
+                                                            <property name="column_spacing">6</property>
+                                                            <property name="row_spacing">4</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label7:beffekt_label">
                                                             <property name="name">label7:beffekt_label</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="xalign">0</property>
-                                                            <property name="xpad">10</property>
                                                             <property name="label" translatable="yes">Clip</property>
-                                                          </object>
-                                                          <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkHBox" id="hbox15">
-                                                            <property name="name">hbox15</property><property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="left_attach">1</property>
+                                                            <property name="right_attach">2</property>
+                                                            </packing>
+                                                            </child>
                                                             <child>
                                                             <object class="GxSwitch" id="gxswitch6">
                                                             <property name="name">gxswitch6</property><property name="visible">True</property>
@@ -1594,97 +1588,101 @@
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <property name="var_id">amp.clip.on_off</property>
-                                                            <property name="base_name">switch</property>
+                                                            <property name="base_name">switch_mid</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
+                                                            <property name="top_attach">2</property>
+                                                            <property name="bottom_attach">3</property>
+                                                            <property name="x_options" />
+                                                            <property name="y_options" />
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GxPaintBox" id="gxpaintbox12">
-                                                            <property name="name">gxpaintbox12</property><property name="visible">True</property>
+                                                            <object class="GtkAlignment" id="alignment34">
+                                                            <property name="name">alignment34</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="border_width">4</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="xscale">0</property>
                                                             <child>
-                                                            <object class="GxWheel" id="gxwheel8">
-                                                            <property name="name">gxwheel8</property><property name="visible">True</property>
+                                                            <object class="GxSmallKnobR" id="gxmediumknob2">
+                                                            <property name="name">gxmediumknob2</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="var_id">amp.fuzz</property>
-                                                            <property name="show_value">False</property>
+                                                            <property name="value_position">right</property>
                                                             </object>
-                                                            <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                            </packing>
                                                             </child>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">1</property>
+                                                            <property name="left_attach">1</property>
+                                                            <property name="right_attach">2</property>
+                                                            <property name="top_attach">1</property>
+                                                            <property name="bottom_attach">4</property>
                                                             </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
+                                                            </child>
+                                                            <child>
+                                                            <placeholder />
                                                             </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
-                                                            <property name="position">1</property>
+                                                            <property name="position">3</property>
                                                           </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">3</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkVBox" id="vbox1">
-                                                        <property name="name">vbox1</property><property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
                                                         <child>
-                                                          <object class="GtkButton" id="ampdetail_compress:effect_reset">
-                                                            <property name="name">ampdetail_compress:effect_reset</property><property name="width_request">20</property>
-                                                            <property name="height_request">15</property>
-                                                            <property name="visible">True</property>
+                                                          <object class="GtkVBox" id="vbox1">
+                                                            <property name="name">vbox1</property><property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkButton" id="ampdetail_compress:effect_reset">
+                                                            <property name="name">ampdetail_compress:effect_reset</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <child>
-                                                            <object class="GtkLabel" id="label7:rack_slider">
-                                                            <property name="name">label7:rack_slider</property><property name="visible">True</property>
+                                                            <object class="GtkImage" id="image4">
+                                                            <property name="name">image4</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="label">▼</property>
+                                                            <property name="stock">rack_shrink</property>
+                                                            <property name="icon-size">1</property>
                                                             </object>
+                                                            </child>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">0</property>
+                                                            </packing>
                                                             </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
-                                                            <property name="padding">1</property>
-                                                            <property name="position">0</property>
+                                                            <property name="pack_type">end</property>
+                                                            <property name="position">4</property>
                                                           </packing>
                                                         </child>
                                                       </object>
                                                       <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="padding">4</property>
-                                                        <property name="pack_type">end</property>
-                                                        <property name="position">4</property>
+                                                        <property name="expand">True</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">1</property>
                                                       </packing>
                                                     </child>
                                                   </object>
                                                 </child>
                                               </object>
                                               <packing>
-                                                <property name="expand">True</property>
-                                                <property name="fill">True</property>
-                                                <property name="position">1</property>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
+                                                <property name="position">0</property>
                                               </packing>
                                             </child>
                                           </object>

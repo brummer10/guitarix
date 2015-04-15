@@ -1666,8 +1666,8 @@ void MainWindow::make_icons(bool force) {
     vbam->set_padding(0, 4, wl, wr);
     bld->find_widget("tuner_padding", vbam);
     vbam->set_padding(0, 4, wl, wr);
-    //bld->find_widget("amp_padding", vbam);
-    //vbam->set_padding(0, 0, wl, wr);
+    bld->find_widget("details_padding", vbam);
+    vbam->set_padding(0, 4, wl, wr);
 }
 
 class JConvPluginUI: public PluginUI {
