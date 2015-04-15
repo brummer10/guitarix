@@ -16,7 +16,7 @@ gxstyle_files = [
     'common.rc',
     
     ### DEFAULT THEME
-    'gx_head_Default.rc',
+    'gx_head_Guitarix.rc',
     # preset tree
     'factory.png',
     'readonly.png',
@@ -65,6 +65,10 @@ gxstyle_files = [
     ###SKY THEME
     'gx_head_Sky.rc',
     'sky.png',
+    
+    ###OLIVE THEME
+    'gx_head_Olive.rc',
+    'olive.png',
     
     ]
 

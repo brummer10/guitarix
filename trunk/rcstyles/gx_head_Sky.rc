@@ -1,4 +1,4 @@
-include "gx_head_Default.rc"
+include "gx_head_Guitarix.rc"
 
 style "guitarix_default" {
     stock["background1"]    = {{"sky.png"}}

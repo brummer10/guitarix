@@ -1,6 +1,6 @@
 include "gx_head_Guitarix.rc"
 
 style "guitarix_default" {
-    stock["background1"]    = {{"copper.png"}}
+    stock["background1"]    = {{"olive.png"}}
 }
 class "GtkWidget" style:highest "guitarix_default"
