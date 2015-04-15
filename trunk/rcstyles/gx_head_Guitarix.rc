@@ -85,14 +85,6 @@ style "guitarix_amp" {
 widget "*ampbox" style:highest "guitarix_amp"
 
 
-style "unit_padding" {
-    xthickness = 36
-    ythickness = 36
-    GtkAlignment::padding-left = 100
-}
-widget "*amp_padding" style:highest "unit_padding"
-#widget "*rack_padding" style:highest "unit_padding"
-
 style "rack_devices" {
     font_name = "sans 9"
 }
@@ -178,7 +170,7 @@ widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
 
 
 style "rack_drag_button" {
-    xthickness = 12
+    xthickness = 11
     ythickness = 0
 }
 widget "*rack_drag_button" style:highest "rack_drag_button"
@@ -194,6 +186,11 @@ style "guitarix_center_box" {
     #bg[NORMAL] = "#292929"
 }
 widget "*rackcontainer*" style:highest "guitarix_center_box"
+
+style "guitarix_tunerbox" {
+    GxPaintBox::alternate-box = { 0, 0, 42, 0 }
+}
+widget "*tunerbox" style:highest "guitarix_tunerbox"
 
 #rackcontainer
     #effects_toolpalette

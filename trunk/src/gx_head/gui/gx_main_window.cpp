@@ -1663,9 +1663,9 @@ void MainWindow::make_icons(bool force) {
     gint wr = gdk_pixbuf_get_width(hanr);
     Gtk::Alignment *vbam;
     bld->find_widget("amp_padding", vbam);
-    vbam->set_padding(0, 0, wl, wr);
-    //bld->find_widget("amp_padding", vbam);
-    //vbam->set_padding(0, 0, wl, wr);
+    vbam->set_padding(0, 4, wl, wr);
+    bld->find_widget("tuner_padding", vbam);
+    vbam->set_padding(0, 4, wl, wr);
     //bld->find_widget("amp_padding", vbam);
     //vbam->set_padding(0, 0, wl, wr);
 }

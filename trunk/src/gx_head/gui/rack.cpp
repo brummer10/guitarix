@@ -1206,10 +1206,14 @@ Gtk::Alignment *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     
     Gtk::Widget *effect_label = make_label(plugin, options, false);
     
+    // overall hbox: drag-button - center vbox - drag button
     Gtk::HBox *main   = new Gtk::HBox();
+    // center vbox containing title bar and widgets
     Gtk::VBox *center = new Gtk::VBox();
+    // title vbox on top
     Gtk::HBox *top    = new Gtk::HBox();
     
+    // spacing for bottom shadow
     Gtk::Alignment *al = new Gtk::Alignment();
     al->set_padding(0, 4, 0, 0);
     al->add(*manage(main));

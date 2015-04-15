@@ -1,6 +1,6 @@
   <object class="GtkWindow" id="AmpContainer">
       <object class="GxPaintBox" id="amp_background:ampbox">
-          <object class="GtkAlignment" id="alignment3">
+          <object class="GtkAlignment" id="amp_padding">
               <object class="GtkVBox" id="vbox_amp_main">
                   <object class="GtkHBox" id="hbox100">
                       <object class="GtkVBox" id="vbox5">
@@ -100,7 +100,7 @@
           <object class="GtkVPaned" id="main_vpaned">
               <object class="GtkHBox" id="amp_toplevel_box">
                   <object class="GxPaintBox" id="effects_frame_paintbox">
-                      <object class="GtkScrolledWindow" id="scrolledwindow1">
+                      <object class="GtkScrolledWindow" id="scrolledwindow_effects">
                           <object class="GtkToolPalette" id="effects_toolpalette">
                   <object class="GxPaintBox" id="rackcontainer">
                       <object class="GtkScrolledWindow" id="vrack_scrolledbox">
@@ -143,24 +143,17 @@
                                                           <object class="GtkButton" id="ampdetail_compress:effect_reset">
                                                             <object class="GtkLabel" id="label7:rack_slider">
                                           <object class="GxPaintBox" id="tunerbox">
-                                              <object class="GtkHBox" id="hbox2">
-                                                  <object class="GtkVBox" id="vbox3">
-                                                      <object class="GtkLabel" id="label5:effect_title">
-                                                      <object class="GtkHBox" id="hbox4">
-                                                          <object class="GtkAlignment" id="alignment1">
-                                                            <object class="GxSwitch" id="tuner_on_off">
-                                                          <object class="GtkHBox" id="hbox10">
-                                                            <object class="GtkButton" id="button1:effect_reset">
-                                                  <object class="GtkAlignment" id="alignment9:RackTuner">
-                                                      <object class="GtkVBox" id="vbox19">
-                                                          <object class="GxRackTuner" id="racktuner">
-                                                          <object class="GtkHBox" id="hbox3">
+                                              <object class="GtkAlignment" id="tuner_padding">
+                                                  <object class="GtkVBox" id="vbox_tuner_main">
+                                                      <object class="GtkHBox" id="hbox_tuner_top">
+                                                          <object class="GxSwitch" id="tuner_on_off">
+                                                          <object class="GtkLabel" id="label5:effect_title">
+                                                          <object class="GtkHBox" id="hbox_tuner_settings">
                                                             <object class="GxSelector" id="tuner_tuning">
                                                             <object class="GxSelector" id="tuner_mode">
                                                             <object class="GxWheel" id="tuner_reference_pitch">
                                                             <object class="GxSelector" id="tuner_temperament">
-                                                  <object class="GtkAlignment" id="alignment8">
-                                                      <object class="GtkButton" id="button2:effect_reset">
+                                                      <object class="GxRackTuner" id="racktuner">
                                           <object class="GxPaintBox" id="midi_out_box">
                                               <object class="GtkHBox" id="midi_out_mini">
                                                   <object class="GtkAlignment" id="alignment16">
@@ -323,7 +316,8 @@
               <object class="GtkScrolledWindow" id="preset_scrolledbox">
                   <object class="GtkViewport" id="viewport3">
                       <object class="GxPaintBox" id="hbox16">
-                          <object class="GtkVBox" id="vbox22">
+                          <object class="GtkVBox" id="vbox_preset_buttons">
+                              <object class="GtkLabel" id="placeholder">
                               <object class="GtkButton" id="save_preset">
                               <object class="GtkButton" id="new_preset_bank">
                               <object class="GtkToggleButton" id="organize_presets">

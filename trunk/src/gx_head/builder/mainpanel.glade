@@ -15,10 +15,10 @@
           <object class="GtkAlignment" id="amp_padding">
             <property name="name">amp_padding</property><property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="left_padding">30</property>
-            <property name="right_padding">30</property>
             <property name="top_padding">3</property>
             <property name="bottom_padding">3</property>
+            <property name="left_padding">30</property>
+            <property name="right_padding">30</property>
             <child>
               <object class="GtkVBox" id="vbox_amp_main">
                 <property name="name">vbox_amp_main</property><property name="visible">True</property>
@@ -1697,51 +1697,33 @@
                                         <child>
                                           <object class="GxPaintBox" id="tunerbox">
                                             <property name="name">tunerbox</property><property name="can_focus">False</property>
-                                            <property name="border_width">4</property>
                                             <property name="orientation">vertical</property>
                                             <property name="paint_func">rack_unit_expose</property>
                                             <child>
-                                              <object class="GtkHBox" id="hbox2">
-                                                <property name="name">hbox2</property><property name="visible">True</property>
+                                              <object class="GtkAlignment" id="tuner_padding">
+                                                <property name="name">tuner_padding</property><property name="visible">True</property>
                                                 <property name="can_focus">False</property>
+                                                <property name="left_padding">32</property>
+                                                <property name="right_padding">32</property>
                                                 <child>
-                                                  <object class="GtkVBox" id="vbox3">
-                                                    <property name="name">vbox3</property><property name="visible">True</property>
+                                                  <object class="GtkVBox" id="vbox_tuner_main">
+                                                    <property name="name">vbox_tuner_main</property><property name="visible">True</property>
                                                     <property name="can_focus">False</property>
+                                                    <property name="border_width">4</property>
+                                                    <property name="spacing">10</property>
                                                     <child>
-                                                      <object class="GtkLabel" id="label5:effect_title">
-                                                        <property name="name">label5:effect_title</property><property name="visible">True</property>
+                                                      <object class="GtkHBox" id="hbox_tuner_top">
+                                                        <property name="name">hbox_tuner_top</property><property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="xalign">1</property>
-                                                        <property name="label" translatable="yes">Tuner</property>
-                                                        <property name="use_markup">True</property>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">0</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkHBox" id="hbox4">
-                                                        <property name="name">hbox4</property><property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
+                                                        <property name="spacing">4</property>
                                                         <child>
-                                                          <object class="GtkAlignment" id="alignment1">
-                                                            <property name="name">alignment1</property><property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
-                                                            <property name="xscale">0</property>
-                                                            <property name="yscale">0</property>
-                                                            <child>
-                                                            <object class="GxSwitch" id="tuner_on_off">
+                                                          <object class="GxSwitch" id="tuner_on_off">
                                                             <property name="name">tuner_on_off</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
                                                             <property name="var_id">ui.racktuner</property>
                                                             <property name="base_name">switch</property>
-                                                            </object>
-                                                            </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">False</property>
@@ -1750,74 +1732,22 @@
                                                           </packing>
                                                         </child>
                                                         <child>
-                                                          <object class="GtkHBox" id="hbox10">
-                                                            <property name="name">hbox10</property><property name="visible">True</property>
+                                                          <object class="GtkLabel" id="label5:effect_title">
+                                                            <property name="name">label5:effect_title</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="border_width">4</property>
-                                                            <child>
-                                                            <object class="GtkButton" id="button1:effect_reset">
-                                                            <property name="name">button1:effect_reset</property><property name="width_request">6</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="sensitive">False</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="expand">False</property>
-                                                            <property name="fill">False</property>
-                                                            <property name="position">0</property>
-                                                            </packing>
-                                                            </child>
-                                                          </object>
-                                                          <packing>
-                                                            <property name="expand">False</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">1</property>
-                                                          </packing>
-                                                        </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">True</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">1</property>
-                                                      </packing>
-                                                    </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">True</property>
-                                                    <property name="position">0</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkAlignment" id="alignment9:RackTuner">
-                                                    <property name="name">alignment9:RackTuner</property><property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="top_padding">4</property>
-                                                    <property name="bottom_padding">4</property>
-                                                    <property name="left_padding">4</property>
-                                                    <property name="right_padding">4</property>
-                                                    <child>
-                                                      <object class="GtkVBox" id="vbox19">
-                                                        <property name="name">vbox19</property><property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="spacing">2</property>
-                                                        <child>
-                                                          <object class="GxRackTuner" id="racktuner">
-                                                            <property name="name">racktuner</property><property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
-                                                            <property name="streaming">True</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="label" translatable="yes">Tuner</property>
+                                                            <property name="use_markup">True</property>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
-                                                            <property name="position">0</property>
+                                                            <property name="position">1</property>
                                                           </packing>
                                                         </child>
                                                         <child>
-                                                          <object class="GtkHBox" id="hbox3">
-                                                            <property name="name">hbox3</property><property name="visible">True</property>
+                                                          <object class="GtkHBox" id="hbox_tuner_settings">
+                                                            <property name="name">hbox_tuner_settings</property><property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="spacing">10</property>
                                                             <child>
@@ -1828,7 +1758,7 @@
                                                             <property name="var_id">racktuner.tuning</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">False</property>
+                                                            <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">0</property>
                                                             </packing>
@@ -1841,7 +1771,7 @@
                                                             <property name="var_id">racktuner.streaming</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">False</property>
+                                                            <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">1</property>
                                                             </packing>
@@ -1855,7 +1785,7 @@
                                                             <property name="value_position">right</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">False</property>
+                                                            <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="pack_type">end</property>
                                                             <property name="position">2</property>
@@ -1876,45 +1806,32 @@
                                                             </child>
                                                           </object>
                                                           <packing>
-                                                            <property name="expand">False</property>
-                                                            <property name="fill">False</property>
-                                                            <property name="position">1</property>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">2</property>
                                                           </packing>
                                                         </child>
                                                       </object>
+                                                      <packing>
+                                                        <property name="expand">True</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
                                                     </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">True</property>
-                                                    <property name="fill">True</property>
-                                                    <property name="position">1</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkAlignment" id="alignment8">
-                                                    <property name="name">alignment8</property><property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="xscale">0</property>
-                                                    <property name="top_padding">4</property>
-                                                    <property name="bottom_padding">4</property>
-                                                    <property name="left_padding">4</property>
-                                                    <property name="right_padding">32</property>
                                                     <child>
-                                                      <object class="GtkButton" id="button2:effect_reset">
-                                                        <property name="name">button2:effect_reset</property><property name="width_request">6</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="sensitive">False</property>
-                                                        <property name="can_focus">True</property>
-                                                        <property name="receives_default">True</property>
-                                                        <property name="use_action_appearance">False</property>
+                                                      <object class="GxRackTuner" id="racktuner">
+                                                        <property name="name">racktuner</property><property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="streaming">True</property>
+                                                        <property name="temperament">0</property>
                                                       </object>
+                                                      <packing>
+                                                        <property name="expand">True</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">1</property>
+                                                      </packing>
                                                     </child>
                                                   </object>
-                                                  <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">False</property>
-                                                    <property name="position">2</property>
-                                                  </packing>
                                                 </child>
                                               </object>
                                               <packing>
@@ -2683,7 +2600,8 @@
                                                             <property name="name">gxswitch12</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_1.auto_pitch</property>
+                                                            <property name="use_action_appearance">False</property>
+                                                            <property name="var_id">midi_out.channel_1.auto_pitch</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
@@ -2905,7 +2823,8 @@
                                                             <property name="name">gxswitch8</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_2.autogain</property>
+                                                            <property name="use_action_appearance">False</property>
+                                                            <property name="var_id">midi_out.channel_2.autogain</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
@@ -3017,7 +2936,8 @@
                                                             <property name="name">gxswitch13</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_2.auto_pitch</property>
+                                                            <property name="use_action_appearance">False</property>
+                                                            <property name="var_id">midi_out.channel_2.auto_pitch</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
@@ -3239,7 +3159,8 @@
                                                             <property name="name">gxswitch14</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_3.autogain</property>
+                                                            <property name="use_action_appearance">False</property>
+                                                            <property name="var_id">midi_out.channel_3.autogain</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
@@ -3351,7 +3272,8 @@
                                                             <property name="name">gxswitch15</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_3.auto_pitch</property>
+                                                            <property name="use_action_appearance">False</property>
+                                                            <property name="var_id">midi_out.channel_3.auto_pitch</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
@@ -3949,13 +3871,12 @@
                           <object class="GtkVBox" id="vbox_preset_buttons">
                             <property name="name">vbox_preset_buttons</property><property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="spacing">5</property>
                             <property name="border_width">5</property>
+                            <property name="spacing">5</property>
                             <child>
                               <object class="GtkLabel" id="placeholder">
                                 <property name="name">placeholder</property><property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes"></property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
