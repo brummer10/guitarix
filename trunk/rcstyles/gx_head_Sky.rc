@@ -1,6 +1,6 @@
+include "gx_head_Default.rc"
+
 style "guitarix_default" {
     stock["background1"]    = {{"sky.png"}}
 }
 class "GtkWidget" style:highest "guitarix_default"
-
-import gx_head_default.rc
