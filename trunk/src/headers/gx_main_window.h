@@ -250,7 +250,7 @@ public:
  ** class RackBox, class MiniRackBox
  */
 
-//#define USE_SZG   // use a SizeGroup instead of predefined width for Gxw::Switch("switchit")
+//#define USE_SZG   // use a SizeGroup instead of predefined width for Gxw::Switch("switch")
 
 class MiniRackBox;
 class RackContainer;

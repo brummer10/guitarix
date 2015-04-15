@@ -91,7 +91,7 @@ response file with the
                                         <property name="use_action_appearance">False</property>
                                         <property name="active">True</property>
                                         <property name="draw_indicator">True</property>
-                                        <property name="base_name">minitoggle</property>
+                                        <property name="base_name">switch_min</property>
                                         <signal handler="on_left" name="toggled" swapped="no" />
                                       </object>
                                       <packing>
@@ -110,7 +110,7 @@ response file with the
                                         <property name="use_action_appearance">False</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">left</property>
-                                        <property name="base_name">minitoggle</property>
+                                        <property name="base_name">switch_min</property>
                                         <signal handler="on_right" name="toggled" swapped="no" />
                                       </object>
                                       <packing>
@@ -129,7 +129,7 @@ response file with the
                                         <property name="use_action_appearance">False</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">left</property>
-                                        <property name="base_name">minitoggle</property>
+                                        <property name="base_name">switch_min</property>
                                         <signal handler="on_sum" name="toggled" swapped="no" />
                                       </object>
                                       <packing>
@@ -182,7 +182,7 @@ response file with the
                                         <property name="use_action_appearance">False</property>
                                         <property name="active">True</property>
                                         <property name="draw_indicator">True</property>
-                                        <property name="base_name">minitoggle</property>
+                                        <property name="base_name">switch_min</property>
                                         <signal handler="on_linear" name="toggled" swapped="no" />
                                       </object>
                                       <packing>
@@ -201,7 +201,7 @@ response file with the
                                         <property name="use_action_appearance">False</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">linear</property>
-                                        <property name="base_name">minitoggle</property>
+                                        <property name="base_name">switch_min</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -837,7 +837,6 @@ response file with the
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="use_action_appearance">False</property>
-                                            <property name="relief">none</property>
                                             <property name="var_id">jconv.on_off</property>
                                             <property name="label_ref">label21</property>
                                             <child>
@@ -860,7 +859,7 @@ response file with the
                                                   <object class="GxToggleImage" id="gxtoggleimage1">
                                                     <property name="name">gxtoggleimage1</property><property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="base_name">switchit</property>
+                                                    <property name="base_name">switch</property>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">True</property>

@@ -33,7 +33,7 @@ protected:
 Demo::Demo():
 	m_vbox(),
 	m_hbox1(),
-	m_switch1("switchit"),
+	m_switch1("switch"),
 	m_switch2("switch"),
 	m_switch3("minitoggle"),
 	m_switch4("led"),

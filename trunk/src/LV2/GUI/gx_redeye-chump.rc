@@ -3,8 +3,8 @@ style "gx_redeye-chump"
 {
   stock["bigknob"] = {{"chump-knob.png"}}
   stock["amp_skin"] = {{"chump.png"}}
-  stock["switchit_on"] = {{"chump-switch_on.png"}}
-  stock["switchit_off"] = {{"chump-switch_off.png"}}
+  stock["switch_on"] = {{"chump-switch_on.png"}}
+  stock["switch_off"] = {{"chump-switch_off.png"}}
   GxPaintBox::icon-set =1
 }
 

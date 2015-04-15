@@ -554,7 +554,7 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    if ((*it)->has_caption) {
 		b.create_switch("switch",id.c_str(), p);
 	    } else {
-		b.create_switch_no_caption("switchit",id.c_str());
+		b.create_switch_no_caption("switch",id.c_str());
 	    }
 	    break;
 	case tp_display:
@@ -931,7 +931,7 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	    if ((*it)->has_caption) {
 		b.create_switch("switch",id.c_str(), p);
 	    } else {
-		b.create_switch_no_caption("switchit",id.c_str());
+		b.create_switch_no_caption("switch",id.c_str());
 	    }
 	    break;
 	case tp_display:

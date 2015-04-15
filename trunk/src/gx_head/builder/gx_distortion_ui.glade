@@ -668,9 +668,8 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="relief">none</property>
                     <property name="var_id">gx_distortion.resonator.on_off</property>
-                    <property name="base_name">switchit</property>
+                    <property name="base_name">switch</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>

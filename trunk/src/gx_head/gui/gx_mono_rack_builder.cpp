@@ -98,7 +98,7 @@ void StackBoxBuilder::make_rackbox_midi_out() {
 	{
 	    openVerticalBox(_("  MIDI out  "));
 	    {
-		create_switch_no_caption(sw_switchit, "midi_out.on_off");
+		create_switch_no_caption(sw_switch, "midi_out.on_off");
 		openFrameBox("");
 		closeBox();
 		openHorizontalBox("");
@@ -218,7 +218,7 @@ void StackBoxBuilder::make_rackbox_midi_out() {
 				closeBox();
 				openHorizontalBox("");
 				{
-				    create_switch_no_caption(sw_switchit, "midi_out.channel_2.on_off");
+				    create_switch_no_caption(sw_switch, "midi_out.channel_2.on_off");
 				    openFrameBox("");
 				    closeBox();
 				    openVerticalBox("");
@@ -282,7 +282,7 @@ void StackBoxBuilder::make_rackbox_midi_out() {
 				closeBox();
 				openHorizontalBox("");
 				{
-				    create_switch_no_caption(sw_switchit, "midi_out.channel_3.on_off");
+				    create_switch_no_caption(sw_switch, "midi_out.channel_3.on_off");
 				    openFrameBox("");
 				    closeBox();
 				    openVerticalBox("");

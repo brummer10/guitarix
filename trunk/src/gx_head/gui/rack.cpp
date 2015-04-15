@@ -382,7 +382,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       mb_expand_button(),
       mb_delete_button(),
       preset_button(),
-      on_off_switch("switchit"),
+      on_off_switch("switch"),
       toggle_on_off(rb.main.get_machine(), &on_off_switch, rb.plugin.plugin->id_on_off()) {
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
 	gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off().c_str(), rb.main.get_machine());
@@ -909,7 +909,7 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
 	pb->property_paint_func().set_value("zac_expose");
     }
-    Gxw::Switch *swtch = new Gxw::Switch("minitoggle");
+    Gxw::Switch *swtch = new Gxw::Switch("switch_min");
     swtch->set_active(plugin.plugin->get_on_off());
 #ifdef USE_SZG
     RackBox::szg->add_widget(*swtch);
@@ -954,7 +954,7 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     : Gtk::VBox(), plugin(plugin_), main(tl), config_mode(false), anim_tag(),
       compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), minibox(0),
       fbox(0), target(), anim_height(0), anim_step(), drag_icon(), target_height(0),
-      box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), on_off_switch("switchit"),
+      box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), on_off_switch("switch"),
       toggle_on_off(tl.get_machine(), &on_off_switch, plugin.plugin->id_on_off()) {
     if (strcmp(plugin.get_id(), "ampstack") != 0) { // FIXME
 	gx_gui::connect_midi_controller(&on_off_switch, plugin.plugin->id_on_off().c_str(), main.get_machine());

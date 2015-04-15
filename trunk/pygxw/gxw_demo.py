@@ -16,10 +16,10 @@ style "ToggleImage" {
   stock["led_off"] = {{"led_off.png"}}
   stock["button_on"] = {{"button_on.png"}}
   stock["button_off"] = {{"button_off.png"}}
-  stock["minitoggle_on"] = {{"minitoggle_on.png"}}
-  stock["minitoggle_off"] = {{"minitoggle_off.png"}}
-  stock["switchit_on"] = {{"switchit_on.png"}}
-  stock["switchit_off"] = {{"switchit_off.png"}}
+  stock["switch_min_on"] = {{"switch_min_on.png"}}
+  stock["switch_min_off"] = {{"switch_min_off.png"}}
+  stock["switch_on"] = {{"switch_on.png"}}
+  stock["switch_off"] = {{"switch_off.png"}}
   stock["switch_on"] = {{"switch_on.png"}}
   stock["switch_off"] = {{"switch_off.png"}}
   GxRadioButton::indicator-size = 10
@@ -167,7 +167,7 @@ def demo(w):
     h.pack_start(r,0,0)
 
     if True:
-        for base in "led", "switch", "switchit", "minitoggle", "button":
+        for base in "led", "switch", "switch", "switch_min", "button":
             b = gxw.Switch(base)
             #b = gxw.ToggleImage()
             #print b.get_has_window()
@@ -245,9 +245,9 @@ def demo(w):
     for i in range(3):
         r = gxw.RadioButton(r)
         #r = gtk.RadioButton(r)
-        #r.props.image = gxw.ToggleImage("minitoggle")
+        #r.props.image = gxw.ToggleImage("switch_min")
         #r.props.draw_indicator = 0
-        r.props.base_name = "minitoggle"
+        r.props.base_name = "switch_min"
         r.set_label("bla %d" % i)
         h.pack_start(r,0,0)
     #print list(r.props)

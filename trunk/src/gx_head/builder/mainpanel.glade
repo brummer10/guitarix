@@ -241,10 +241,9 @@
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
                                     <property name="use_action_appearance">False</property>
-                                    <property name="relief">none</property>
                                     <property name="yalign">0.69999998807907104</property>
                                     <property name="var_id">amp.bass_boost.on_off</property>
-                                    <property name="base_name">minitoggle</property>
+                                    <property name="base_name">switch_min</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -306,10 +305,9 @@
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
                                     <property name="use_action_appearance">False</property>
-                                    <property name="relief">none</property>
                                     <property name="yalign">0.69999998807907104</property>
                                     <property name="var_id">con.on_off</property>
-                                    <property name="base_name">minitoggle</property>
+                                    <property name="base_name">switch_min</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -371,10 +369,9 @@
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
                                     <property name="use_action_appearance">False</property>
-                                    <property name="relief">none</property>
                                     <property name="yalign">0.69999998807907104</property>
                                     <property name="var_id">amp.feed_on_off</property>
-                                    <property name="base_name">minitoggle</property>
+                                    <property name="base_name">switch_min</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1365,9 +1362,8 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">noise_gate.on_off</property>
-                                                            <property name="base_name">switchit</property>
+                                                            <property name="base_name">switch</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -1443,9 +1439,8 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">shaper.on_off</property>
-                                                            <property name="base_name">switchit</property>
+                                                            <property name="base_name">switch</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -1521,9 +1516,8 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">amp.on_off</property>
-                                                            <property name="base_name">switchit</property>
+                                                            <property name="base_name">switch</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -1599,9 +1593,8 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">amp.clip.on_off</property>
-                                                            <property name="base_name">switchit</property>
+                                                            <property name="base_name">switch</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -1745,9 +1738,8 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">ui.racktuner</property>
-                                                            <property name="base_name">switchit</property>
+                                                            <property name="base_name">switch</property>
                                                             </object>
                                                             </child>
                                                           </object>
@@ -1960,9 +1952,8 @@
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">True</property>
                                                         <property name="use_action_appearance">False</property>
-                                                        <property name="relief">none</property>
                                                         <property name="var_id">midi_out.on_off</property>
-                                                        <property name="base_name">minitoggle</property>
+                                                        <property name="base_name">switch_min</property>
                                                       </object>
                                                     </child>
                                                   </object>
@@ -2166,9 +2157,8 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">midi_out.on_off</property>
-                                                            <property name="base_name">switchit</property>
+                                                            <property name="base_name">switch</property>
                                                             </object>
                                                             </child>
                                                           </object>
@@ -2241,7 +2231,6 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">midi_out.channel_2.on_off</property>
                                                             <property name="base_name">switch</property>
                                                             </object>
@@ -2256,7 +2245,6 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">midi_out.channel_3.on_off</property>
                                                             <property name="base_name">switch</property>
                                                             </object>
@@ -2320,7 +2308,6 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">midi_out.midistat1</property>
                                                             <property name="base_name">led</property>
                                                             </object>
@@ -2335,7 +2322,6 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">midi_out.midistat2</property>
                                                             <property name="base_name">led</property>
                                                             </object>
@@ -2352,7 +2338,6 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">midi_out.midistat3</property>
                                                             <property name="base_name">led</property>
                                                             </object>
@@ -2369,7 +2354,6 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">midi_out.midistat</property>
                                                             <property name="base_name">led</property>
                                                             </object>
@@ -2587,9 +2571,8 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
                                                             <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">midi_out.channel_1.autogain</property>
-                                                            <property name="base_name">minitoggle</property>
+                                                            <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -2700,10 +2683,8 @@
                                                             <property name="name">gxswitch12</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
-                                                            <property name="var_id">midi_out.channel_1.auto_pitch</property>
-                                                            <property name="base_name">minitoggle</property>
+                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_1.auto_pitch</property>
+                                                            <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -2924,10 +2905,8 @@
                                                             <property name="name">gxswitch8</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
-                                                            <property name="var_id">midi_out.channel_2.autogain</property>
-                                                            <property name="base_name">minitoggle</property>
+                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_2.autogain</property>
+                                                            <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -3038,10 +3017,8 @@
                                                             <property name="name">gxswitch13</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
-                                                            <property name="var_id">midi_out.channel_2.auto_pitch</property>
-                                                            <property name="base_name">minitoggle</property>
+                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_2.auto_pitch</property>
+                                                            <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -3262,10 +3239,8 @@
                                                             <property name="name">gxswitch14</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
-                                                            <property name="var_id">midi_out.channel_3.autogain</property>
-                                                            <property name="base_name">minitoggle</property>
+                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_3.autogain</property>
+                                                            <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -3376,10 +3351,8 @@
                                                             <property name="name">gxswitch15</property><property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="relief">none</property>
-                                                            <property name="var_id">midi_out.channel_3.auto_pitch</property>
-                                                            <property name="base_name">minitoggle</property>
+                                                            <property name="use_action_appearance">False</property>                                                            <property name="var_id">midi_out.channel_3.auto_pitch</property>
+                                                            <property name="base_name">switch_min</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>

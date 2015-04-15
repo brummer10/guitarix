@@ -56,7 +56,7 @@ static void gx_radio_button_class_init(GxRadioButtonClass *klass)
 
 static void gx_radio_button_init(GxRadioButton *radio_button)
 {
-	radio_button->base_name = g_strdup("switch");
+	radio_button->base_name = g_strdup("switch_min");
 }
 
 static void gx_radio_button_destroy (GtkObject *obj)

@@ -448,7 +448,7 @@ b.openHorizontalBox("");
     {
 	b.create_small_rackknob("gx_distortion.trigger", _("trigger "));
 	b.create_small_rackknob("gx_distortion.vibrato", _(" vibrato "));
-	b.create_switch_no_caption(sw_switchit, "gx_distortion.resonator.on_off");
+	b.create_switch_no_caption(sw_switch, "gx_distortion.resonator.on_off");
     }
     b.closeBox();
 }

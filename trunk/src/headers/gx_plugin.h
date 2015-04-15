@@ -47,8 +47,8 @@ struct PluginDef;
 
 #define sw_led        "led"
 #define sw_switch     "switch"
-#define sw_switchit   "switchit"
-#define sw_minitoggle "minitoggle"
+#define sw_switch_mid "switch_mid"
+#define sw_switch_min "switch_min"
 #define sw_button     "button"
 #define sw_pbutton    "pbutton"
 #define sw_rbutton    "rbutton"

@@ -673,4 +673,3 @@ class BuildContext(Utils.Context):
 	install_as=group_method(install_as)
 	install_files=group_method(install_files)
 	symlink_as=group_method(symlink_as)
-

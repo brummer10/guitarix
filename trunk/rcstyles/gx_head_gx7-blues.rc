@@ -78,8 +78,8 @@ include "common.rc"
 
 #style "gx2_head_skin_switch_icons"
 #{
-#stock["switchit_on"] = {{"tactile_backlit_switchit_on.png"}}
-#stock["switchit_off"] = {{"tactile_backlit_switchit_off.png"}}
+#stock["switch_on"] = {{"tactile_backlit_switch_on.png"}}
+#stock["switch_off"] = {{"tactile_backlit_switch_off.png"}}
 #}
 
 

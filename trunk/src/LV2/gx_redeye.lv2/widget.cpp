@@ -307,7 +307,7 @@ void Widget::make_switch_box(Gtk::Box *box,
   toggle->cp_configure("KNOB", label, min, max, digits);
   toggle->cp_set_value(value);
   toggle->set_name("chump");
-  toggle->set_base_name( "switchit" ) ;
+  toggle->set_base_name( "switch" ) ;
   toggle->set_can_focus( false ) ;
   //  toggle->set_size_request( 60, 60 ) ;
   box->pack_end( *Gtk::manage(pr),false,true); 
