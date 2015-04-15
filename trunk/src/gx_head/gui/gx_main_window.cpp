@@ -1655,6 +1655,19 @@ void MainWindow::make_icons(bool force) {
     pixbuf_log_grey          = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_ok",    (GtkIconSize)-1, NULL));
     pixbuf_log_yellow        = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_warn",  (GtkIconSize)-1, NULL));
     pixbuf_log_red           = Glib::wrap(gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "log_error", (GtkIconSize)-1, NULL));
+
+    // Amp padding
+    GdkPixbuf *hanl = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_left", (GtkIconSize)-1, NULL);
+    GdkPixbuf *hanr = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_right", (GtkIconSize)-1, NULL);
+    gint wl = gdk_pixbuf_get_width(hanl);
+    gint wr = gdk_pixbuf_get_width(hanr);
+    Gtk::Alignment *vbam;
+    bld->find_widget("amp_padding", vbam);
+    vbam->set_padding(0, 0, wl, wr);
+    //bld->find_widget("amp_padding", vbam);
+    //vbam->set_padding(0, 0, wl, wr);
+    //bld->find_widget("amp_padding", vbam);
+    //vbam->set_padding(0, 0, wl, wr);
 }
 
 class JConvPluginUI: public PluginUI {
@@ -2920,15 +2933,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     al->pack_start(*Glib::wrap(logo), FALSE, FALSE);
     gtk_misc_set_alignment(GTK_MISC(logo), 0.f, 0.f);
     gtk_widget_show(logo);
-    /*
-     * Amp padding
-     */
-    Gtk::Widget *vbam;
-    bld->find_widget("amp_padding", vbam);
-    //GtkWidget *wi = vbam->gobj();
-    //printf("%d %d\n", wi->style->xthickness, wi->style->ythickness);
-    //vbam->set_padding(w->style->ythickness, w->style->ythickness,
-                    //w->style->xthickness, w->style->xthickness);
 }
 
 MainWindow::~MainWindow() {

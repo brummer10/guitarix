@@ -88,6 +88,7 @@ widget "*ampbox" style:highest "guitarix_amp"
 style "unit_padding" {
     xthickness = 36
     ythickness = 36
+    GtkAlignment::padding-left = 100
 }
 widget "*amp_padding" style:highest "unit_padding"
 #widget "*rack_padding" style:highest "unit_padding"
