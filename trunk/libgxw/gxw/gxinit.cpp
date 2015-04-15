@@ -65,6 +65,12 @@ static image_entry image_data[] = {
     { "screw", pb_screw },
     { "amp_skin", pb_amp21 },
     
+    { "background1", pb_background1 },
+    { "background2", pb_background2 },
+    { "handle_left", pb_handle_left },
+    { "handle_right", pb_handle_right },
+    { "watermark", pb_watermark },
+    
     { "live_bypass", pb_live_bypass },
     { "live_mute", pb_live_mute },
     
@@ -73,16 +79,16 @@ static image_entry image_data[] = {
     { "rack_shrink", pb_rack_shrink },
     { "selector_icon", pb_selector_icon },
     
-    { "gx_on.png", pb_gx_on },
-    { "gx_off.png", pb_gx_off },
-    { "gx_bypass.png", pb_gx_bypass },
+    { "gx_on", pb_gx_on },
+    { "gx_off", pb_gx_off },
+    { "gx_bypass", pb_gx_bypass },
     
-    { "jackd_on.png", pb_jackd_on },
-    { "jackd_off.png", pb_jackd_off },
+    { "jackd_on", pb_jackd_on },
+    { "jackd_off", pb_jackd_off },
     
-    { "log_ok.png", pb_log_ok },
-    { "log_error.png", pb_log_error },
-    { "log_warn.png", pb_log_warn },
+    { "log_ok", pb_log_ok },
+    { "log_error", pb_log_error },
+    { "log_warn", pb_log_warn },
 	{ NULL, NULL },
 };
 

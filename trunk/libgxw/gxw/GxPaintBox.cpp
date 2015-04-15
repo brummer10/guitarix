@@ -2486,7 +2486,6 @@ static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static void main_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
-	
 	cairo_t *cr;
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);

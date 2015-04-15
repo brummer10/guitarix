@@ -119,7 +119,7 @@ static void get_selector_border(GtkWidget *widget, GtkBorder *selector_border)
 	gtk_widget_style_get(widget, "value-border", &tmp_border, NULL);
 	if (tmp_border) {
 		*selector_border = *tmp_border;
-		gtk_border_free(tmp_border);
+		//gtk_border_free(tmp_border);
 	} else {
 		*selector_border = default_selector_border;
     }
@@ -169,7 +169,6 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
     gx_selector_create_icon(selector);
     
 	PangoLayout *layout = gtk_widget_create_pango_layout(widget, NULL);
-    //printf("%s\n", pango_layout_get_font_description(layout));
 	GdkRectangle arrow, text;
 	gint off_x, off_y;
 	gx_selector_get_positions(widget, &arrow, &text, &off_x, &off_y);
