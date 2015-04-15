@@ -176,7 +176,10 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
     gint rad;
     float bevel;
     gtk_widget_style_get(widget, "border-radius", &rad, "bevel", &bevel, NULL);
-    
+    if (!rad)
+        rad = 0;
+    if (!bevel)
+        bevel = 0;
     cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
     
     gx_draw_rect(widget, "bg", NULL, widget->allocation.x,

@@ -70,6 +70,10 @@ gxstyle_files = [
     'gx_head_Olive.rc',
     'olive.png',
     
+    ###ALUMINIUM THEME
+    'gx_head_Aluminium.rc',
+    'aluminium.png',
+    
     ]
 
 def configure(conf):

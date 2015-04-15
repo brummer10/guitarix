@@ -46,8 +46,8 @@ style "guitarix_default" {
     stock["logo"]           = {{"logo.png"}}
     stock["selector_icon"]  = {{"selector_icon.png"}}
     stock["rack_preset"]    = {{"rack_preset.png"}}
-    stock["switch_on"]    = {{"switch_on.png"}}
-    stock["switch_off"]   = {{"switch_off.png"}}
+    stock["switch_on"]      = {{"switch_on.png"}}
+    stock["switch_off"]     = {{"switch_off.png"}}
     stock["rack_expand"]    = {{"rack_expand.png"}}
     stock["rack_shrink"]    = {{"rack_shrink.png"}}
     stock["gx_on"]          = {{"gx_on.png"}}
@@ -61,10 +61,10 @@ style "guitarix_default" {
         
     engine "clearlooks" {
         focus_color       = { 0, 0, 0 }
-        contrast          = 0.8
+        contrast          = 0.99
         menubarstyle      = 0
         reliefstyle       = 0
-        radius            = 2.0
+        radius            = 0.0
         disable_focus     = TRUE
         style             = INVERTED #CLASSIC GLOSSY GUMMY INVERTED
     }
