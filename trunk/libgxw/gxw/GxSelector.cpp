@@ -180,22 +180,28 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
     if (!bevel)
         bevel = 0;
     cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+    gx_clip_context(widget, cr, event->region);
     
     gx_draw_rect(widget, "bg", NULL, widget->allocation.x,
         widget->allocation.y + (widget->allocation.height - widget->requisition.height) / 2,
         widget->allocation.width,
         widget->requisition.height,
         rad,
-        bevel,
-        event->region);
-               
+        bevel);
+    
+    if (widget->style->ythickness >= 3)
+        gx_draw_inset(widget, text.x, text.y, text.width, text.height,
+            std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0), 1);
+        
     gx_draw_rect(widget, "base", NULL, text.x,
         text.y,
         text.width,
         text.height,
         std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0),
-        0,
-        event->region);
+        0);
+    
+    gx_draw_glass(widget, text.x, text.y, text.width, text.height,
+        std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0));
     
     gdk_cairo_set_source_pixbuf(cr, selector->icon, arrow.x, arrow.y);
     cairo_rectangle(cr, arrow.x, arrow.y, arrow.width, arrow.height);

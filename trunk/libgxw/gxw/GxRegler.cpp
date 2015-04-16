@@ -1008,30 +1008,34 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 		return;
 	}
 	gboolean show_value;
-	gtk_widget_style_get(GTK_WIDGET(regler), "show-value", &show_value, NULL);
+    GtkWidget * widget = GTK_WIDGET(regler);
+	gtk_widget_style_get(widget, "show-value", &show_value, NULL);
 	if (!show_value) {
 		return;
 	}
-	cairo_t *cr = gdk_cairo_create(GTK_WIDGET(regler)->window);
+	cairo_t *cr = gdk_cairo_create(widget->window);
 	GtkBorder border;
-	get_value_border(GTK_WIDGET(regler), &border);
-	gint inset = max(0, min(2, min(min(border.left-4, border.right-4), min(border.top-1, border.bottom-1))));
-	gint frm = inset < 2 ? 0 : 1;
-	double x0 = rect->x + frm;
-	double y0 = rect->y + frm;
-	double rect_width  =  rect->width - 2 * frm;
-	double rect_height =  rect->height - 2 * frm;
+	get_value_border(widget, &border);
+	//gint inset = max(0, min(2, min(min(border.left-4, border.right-4), min(border.top-1, border.bottom-1))));
+	//gint frm = inset < 2 ? 0 : 1;
+	double x0 = rect->x;// + frm;
+	double y0 = rect->y;// + frm;
+	double w  = rect->width;// - 2 * frm;
+	double h  = rect->height;// - 2 * frm;
 	gint border_width = 2;
-    float bevel;
-    gtk_widget_style_get(GTK_WIDGET(regler), "bevel", &bevel, NULL);
-    gx_draw_rect(GTK_WIDGET(regler), "base", NULL, rect->x,rect->y,rect->width,rect->height, -1, 0, NULL);
+    gint rad;
+    gtk_widget_style_get(widget, "border-radius", &rad, NULL);
+    
+    gx_draw_inset(widget, x0, y0, w, h, rad, 2);
+    gx_draw_rect(widget, "base", NULL, x0, y0, w, h, rad, 0);
+    gx_draw_glass(widget, x0, y0, w, h, rad);
     
     //cairo_rectangle (cr, rect->x,rect->y,rect->width,rect->height);
     //cairo_set_source_rgba(cr, 0, 0, 0, 0.4);
     //cairo_fill (cr);
 
     cairo_pattern_t*pat =
-	    cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	    cairo_pattern_create_radial (-50, y0, 5,w-10,  w, 20.0);
     //cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
     //cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
     //cairo_set_source (cr, pat);

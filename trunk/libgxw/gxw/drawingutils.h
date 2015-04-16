@@ -22,7 +22,9 @@
 
 #include <gtk/gtk.h>
 
-void gx_draw_rect(GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, float bevel, GdkRegion * region);
+void gx_draw_rect(GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, float bevel);
+void gx_draw_inset(GtkWidget *widget, gint x, gint y, gint width, gint height, gint rad, gint depth);
+void gx_draw_glass(GtkWidget *widget, gint x, gint y, gint width, gint height, gint rad);
 
 void gx_get_bg_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b);
 void gx_get_fg_color(GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b);

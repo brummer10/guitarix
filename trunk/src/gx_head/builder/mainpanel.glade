@@ -1342,8 +1342,8 @@
                                                             <property name="can_focus">False</property>
                                                             <property name="n_rows">4</property>
                                                             <property name="n_columns">2</property>
-                                                            <property name="column_spacing">6</property>
-                                                            <property name="row_spacing">4</property>
+                                                            <property name="column_spacing">2</property>
+                                                            <property name="row_spacing">2</property>
                                                             <child>
                                                             <object class="GtkLabel" id="label4:beffekt_label">
                                                             <property name="name">label4:beffekt_label</property><property name="visible">True</property>
@@ -1352,7 +1352,7 @@
                                                             <property name="label" translatable="yes">Noise Gate</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">1</property>
+                                                            <property name="left_attach">0</property>
                                                             <property name="right_attach">2</property>
                                                             </packing>
                                                             </child>
@@ -1417,8 +1417,8 @@
                                                             <property name="can_focus">False</property>
                                                             <property name="n_rows">4</property>
                                                             <property name="n_columns">2</property>
-                                                            <property name="column_spacing">6</property>
-                                                            <property name="row_spacing">4</property>
+                                                            <property name="column_spacing">2</property>
+                                                            <property name="row_spacing">2</property>
                                                             <child>
                                                             <object class="GtkLabel" id="label5:beffekt_label">
                                                             <property name="name">label5:beffekt_label</property><property name="visible">True</property>
@@ -1427,7 +1427,7 @@
                                                             <property name="label" translatable="yes">Compressor</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">1</property>
+                                                            <property name="left_attach">0</property>
                                                             <property name="right_attach">2</property>
                                                             </packing>
                                                             </child>
@@ -1492,8 +1492,8 @@
                                                             <property name="can_focus">False</property>
                                                             <property name="n_rows">4</property>
                                                             <property name="n_columns">2</property>
-                                                            <property name="column_spacing">6</property>
-                                                            <property name="row_spacing">4</property>
+                                                            <property name="column_spacing">2</property>
+                                                            <property name="row_spacing">2</property>
                                                             <child>
                                                             <object class="GtkLabel" id="label6:beffekt_label">
                                                             <property name="name">label6:beffekt_label</property><property name="visible">True</property>
@@ -1502,7 +1502,7 @@
                                                             <property name="label" translatable="yes">Mono Level Out</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">1</property>
+                                                            <property name="left_attach">0</property>
                                                             <property name="right_attach">2</property>
                                                             </packing>
                                                             </child>
@@ -1567,8 +1567,8 @@
                                                             <property name="can_focus">False</property>
                                                             <property name="n_rows">4</property>
                                                             <property name="n_columns">2</property>
-                                                            <property name="column_spacing">6</property>
-                                                            <property name="row_spacing">4</property>
+                                                            <property name="column_spacing">2</property>
+                                                            <property name="row_spacing">2</property>
                                                             <child>
                                                             <object class="GtkLabel" id="label7:beffekt_label">
                                                             <property name="name">label7:beffekt_label</property><property name="visible">True</property>
@@ -1577,7 +1577,7 @@
                                                             <property name="label" translatable="yes">Clip</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">1</property>
+                                                            <property name="left_attach">0</property>
                                                             <property name="right_attach">2</property>
                                                             </packing>
                                                             </child>
