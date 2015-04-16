@@ -126,7 +126,7 @@ style "guitarix_rack_button" {
 widget "*effects_toolpalette*GtkButton*" style:highest "guitarix_rack_button"
 
 
-style "guitarix_widgets" {
+style "guitarix_regler" {
     
     font_name = "sans 8"
     
@@ -147,7 +147,7 @@ style "guitarix_widgets" {
     text[NORMAL]   = "#ff9000"                   # arrow
     text[PRELIGHT] = "#ffffff"                   # arrow hover
 }
-class "*GxRegler*" style:highest "guitarix_widgets"
+class "*GxRegler*" style:highest "guitarix_regler"
 
 
 style "guitarix_font" {

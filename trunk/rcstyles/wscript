@@ -74,6 +74,26 @@ gxstyle_files = [
     'gx_head_Aluminium.rc',
     'aluminium.png',
     
+    ###OAK THEME
+    'gx_head_Oak.rc',
+    'oak1.png',
+    'oak2.png',
+    
+    ###BURL THEME
+    'gx_head_Burl.rc',
+    'burl1.png',
+    'burl2.png',
+    
+    ###WHITE OAK THEME
+    'gx_head_White_Oak.rc',
+    'oak_white.png',
+    'oak2.png',
+    
+    ###GUITARIX OAK THEME
+    'gx_head_Guitarix_Oak.rc',
+    'oak_green.png',
+    'oak2.png',
+    
     ]
 
 def configure(conf):

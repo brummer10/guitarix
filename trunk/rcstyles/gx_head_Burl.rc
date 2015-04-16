@@ -1,0 +1,7 @@
+include "gx_head_Guitarix.rc"
+
+style "guitarix_default" {
+    stock["background1"]    = {{"burl1.png"}}
+    stock["background2"]    = {{"burl2.png"}}
+}
+class "GtkWidget" style:highest "guitarix_default"

@@ -22,6 +22,7 @@
 #include "GxLevelSlider.h"
 #include <cmath>
 #include <cstring>
+#include <algorithm>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -669,6 +670,7 @@ static void rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	draw_skin(wi, ev);
 	draw_handles(wi, ev);
+    draw_screws(wi, ev);
 }
 
 static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
