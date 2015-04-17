@@ -54,6 +54,12 @@ gxstyle_files = [
     'log_error.png',
     'log_warn.png',
     
+    # knobs
+    'knob_small.png',
+    'knob_small_r.png',
+    'knob_mid.png',
+    'knob_big.png',
+    
     ###COPPER THEME
     'gx_head_Copper.rc',
     'copper.png',

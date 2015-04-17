@@ -20,6 +20,7 @@
 #define __GX_RACK_TUNER_H__
 
 #include "GxTuner.h"
+#include "drawingutils.h"
 
 G_BEGIN_DECLS
 

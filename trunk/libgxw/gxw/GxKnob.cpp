@@ -73,7 +73,71 @@ static void gx_knob_class_init(GxKnobClass *klass)
 		                    P_("Number of frames in the animation specified by the gtkrc"),
 		                    -1, 250, 0,
 		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
-
+                            
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("x-center",
+		                    P_("X-Center"),
+		                    P_("Horizontal position of the center, -1 for auto."),
+		                    -1, 250, -1,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("y-center",
+		                    P_("Y-Center"),
+		                    P_("Verical position of the center, -1 for auto."),
+		                    -1, 250, -1,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("ring-radius",
+		                    P_("Ring-Radius"),
+		                    P_("Radius of the outer edge of the ring, -1 for max possible."),
+                            -1, 250, -1,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("ring-width",
+		                    P_("Ring-Width"),
+		                    P_("Width of the outer ring"),
+		                    0, 250, 2,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("ring-led-size",
+		                    P_("Ring-LED-Size"),
+		                    P_("Length of one LED in the ring, 0 for seamless ring."),
+		                    0, 250, 3,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("ring-led-distance",
+		                    P_("Ring-LED-Distance"),
+		                    P_("Distance between two LED in the ring"),
+		                    0, 250, 2,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("indicator-radius",
+		                    P_("Indicator-Radius"),
+		                    P_("Radius of the outer edge of the indicator, -1 for half max."),
+		                    -1, 250, -1,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("indicator-width",
+		                    P_("Indicator-Width"),
+		                    P_("Width of the indicator"),
+		                    0, 250, 2,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("indicator-length",
+		                    P_("Indicator-Length"),
+		                    P_("Length of the indicator"),
+		                    0, 250, 5,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+                            
 	g_type_class_add_private(klass, sizeof (GxKnobPrivate));
 }
 
@@ -82,57 +146,85 @@ static void gx_knob_init(GxKnob *knob)
 	knob->priv = G_TYPE_INSTANCE_GET_PRIVATE(knob, GX_TYPE_KNOB, GxKnobPrivate);
 }
 
-void _gx_knob_draw_arc(GtkWidget *widget, cairo_t *cr, GdkRectangle *rect, gdouble knobstate, gboolean has_focus)
-{
-	GdkColor color;
-	int arc_offset;
-	gtk_widget_style_get(widget, "arc-inset", &arc_offset, NULL);
+//void _gx_knob_draw_arc(GtkWidget *widget, cairo_t *cr, GdkRectangle *rect, gdouble knobstate, gboolean has_focus)
+//{
+	//GdkColor color;
+	//int arc_offset;
+	//gtk_widget_style_get(widget, "arc-inset", &arc_offset, NULL);
 
-	if (has_focus) {
-		// linear color change in RGB space from (52480, 0, 5120) to (8448, 46004, 5120)
-		color.red = 52480 - (int)(44032 * knobstate);
-		color.green = (int)(46004 * knobstate);
-		color.blue = 5120;
-	} else {
-		color.red = 5120;
-		color.green = 742;
-		color.blue = 52480;
-	}
-	gdk_cairo_set_source_color(cr, &color);
-	cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
-	cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
-	cairo_set_line_width(cr, 2);
-	double radius = min(rect->width, rect->height) / 2;
-	cairo_arc(cr, rect->x+radius, rect->y+radius, radius-arc_offset, 0, 2*M_PI);
-	cairo_stroke(cr);
-}
+	//if (has_focus) {
+		//// linear color change in RGB space from (52480, 0, 5120) to (8448, 46004, 5120)
+		//color.red = 52480 - (int)(44032 * knobstate);
+		//color.green = (int)(46004 * knobstate);
+		//color.blue = 5120;
+	//} else {
+		//color.red = 5120;
+		//color.green = 742;
+		//color.blue = 52480;
+	//}
+	//gdk_cairo_set_source_color(cr, &color);
+	//cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+	//cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
+	//cairo_set_line_width(cr, 2);
+	//double radius = min(rect->width, rect->height) / 2;
+	//cairo_arc(cr, rect->x+radius, rect->y+radius, radius-arc_offset, 0, 2*M_PI);
+	//cairo_stroke(cr);
+//}
 
 static const double scale_zero = 40 * (M_PI/180); // defines "dead zone" for knobs
 
-void _gx_knob_draw_indicator(cairo_t *cr, GdkRectangle *image_rect, gdouble knobstate)
+void _gx_knob_draw_ring(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_rect, gdouble knobstate)
 {
 	// add a value Indicator around the knob
-	double radius1 = min(image_rect->width, image_rect->height) / 2;
+    gint x0 = image_rect->x;
+    gint y0 = image_rect->y;
+    
+    gint ind_radius, ind_width, ind_length, ring_radius, ring_width;
+    gint ring_led_size, ring_led_distance, x_center, y_center;
+    gtk_widget_style_get(widget, "indicator_radius", &ind_radius, "indicator_width", &ind_width,
+                                 "indicator_length", &ind_length, "ring_radius", &ring_radius,
+                                 "ring_led_distance", &ring_led_distance,
+                                 "ring_width", &ring_width, "ring_led_size", &ring_led_size,
+                                 "x_center", &x_center, "y_center", &y_center, NULL);
+	float r, g, b;
+    gx_get_fg_color(widget, NULL, &r, &g, &b);
+    float r_, g_, b_;
+    GtkStateType state = GTK_STATE_INSENSITIVE;
+    gx_get_fg_color(widget, &state, &r_, &g_, &b_);
+    
+    gint minrad = min(image_rect->width, image_rect->height) / 2;
+    if(x_center < 0)
+        x_center = image_rect->width / 2;
+    if(y_center < 0)
+        y_center = image_rect->height / 2;
+    if(ring_radius < 0)
+        ring_radius = minrad - ring_radius / 2;
+    if(ind_radius < 0)
+        ind_radius = minrad / 2;
+    
 	double angle = scale_zero + knobstate * 2 * (M_PI - scale_zero);
 	double add_angle = 90* (M_PI / 180.);
-	cairo_set_source_rgb(cr,  0.2, 0.8, 0.2);
-	cairo_set_line_width(cr, 4.0);
-	cairo_arc (cr,image_rect->x+radius1,image_rect->y+radius1, radius1*0.8,add_angle+scale_zero,add_angle+angle);
+    
+	if (ring_led_size) {
+        double dashes[] = {double(ring_led_size), double(ring_led_distance)};
+        cairo_set_dash(cr, dashes, sizeof(dashes)/sizeof(dashes[0]), 0);
+    }
+    
+    cairo_set_source_rgb(cr, r_, g_, b_);
+	cairo_set_line_width(cr, ring_width);
+	cairo_arc (cr, x_center + x0, y_center + y0, ring_radius, add_angle + scale_zero, add_angle + 320 * (M_PI/180));
+	cairo_stroke(cr);
+    
+    cairo_set_source_rgb(cr, r, g, b);
+	cairo_arc (cr, x_center + x0, y_center + y0, ring_radius, add_angle + scale_zero, add_angle + angle);
 	cairo_stroke(cr);
 }
 
 void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobstate,
                      GdkPixbuf *knob_image, gint framecount, int has_focus)
 {
-	int findex;
-	double angle = scale_zero + knobstate * 2 * (M_PI - scale_zero);
-	const double pointer_off = 5;
-	double radius = min(image_rect->width-pointer_off, image_rect->height-pointer_off) / 2;
-	double lengh_x = (image_rect->x+radius+pointer_off/2) - radius * sin(angle);
-	double lengh_y = (image_rect->y+radius+pointer_off/2) + radius * cos(angle);
-	double radius1 = min(image_rect->width, image_rect->height) / 2;
-	
 	if (framecount > 1) {
+        int findex;
 		framecount--; // zero based index
 		findex = (int)(framecount * knobstate);
 		cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
@@ -142,27 +234,38 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 		cairo_destroy (cr);
 	}
 	else {
+        double angle = scale_zero + knobstate * 2 * (M_PI - scale_zero);
+        const double pointer_off = 5;
+        double radius = min(image_rect->width-pointer_off, image_rect->height-pointer_off) / 2;
+        double lengh_x = (image_rect->x+radius+pointer_off/2) - radius * sin(angle);
+        double lengh_y = (image_rect->y+radius+pointer_off/2) + radius * cos(angle);
+        double radius1 = min(image_rect->width, image_rect->height) / 2;
+        
 		cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 		if (gtk_widget_has_focus(widget)) {
 			gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
 					image_rect->x, image_rect->y, image_rect->width, image_rect->height);
 		}
-		gdk_cairo_set_source_pixbuf(cr, knob_image, image_rect->x-0.5, image_rect->y-0.5);
+		gdk_cairo_set_source_pixbuf(cr, knob_image, image_rect->x, image_rect->y);
 		cairo_rectangle(cr, image_rect->x, image_rect->y, image_rect->width, image_rect->height);
 		cairo_fill(cr);
-		_gx_knob_draw_indicator(cr, image_rect, knobstate);
-		/** this is to create a pointer rotating on the knob with painting funktions **/
-		cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-		cairo_set_line_width(cr, 5.0);
-		cairo_move_to(cr, image_rect->x+radius1, image_rect->y+radius1);
-		cairo_line_to(cr,lengh_x,lengh_y);
-		cairo_stroke(cr);
-		cairo_set_source_rgb(cr,  0.9, 0.9, 0.9);
-		cairo_set_line_width(cr, 1.0);
-		cairo_move_to(cr, image_rect->x+radius1, image_rect->y+radius1);
-		cairo_line_to(cr,lengh_x,lengh_y);
-		cairo_stroke(cr);
-		_gx_knob_draw_arc(widget, cr, image_rect, knobstate, has_focus);
+        
+        // ring
+		_gx_knob_draw_ring(widget, cr, image_rect, knobstate);
+        
+		// indicator
+		//cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+		//cairo_set_line_width(cr, 5.0);
+		//cairo_move_to(cr, image_rect->x+radius1, image_rect->y+radius1);
+		//cairo_line_to(cr,lengh_x,lengh_y);
+		//cairo_stroke(cr);
+		//cairo_set_source_rgb(cr,  0.9, 0.9, 0.9);
+		//cairo_set_line_width(cr, 1.0);
+		//cairo_move_to(cr, image_rect->x+radius1, image_rect->y+radius1);
+		//cairo_line_to(cr,lengh_x,lengh_y);
+		//cairo_stroke(cr);
+        
+		//_gx_knob_draw_arc(widget, cr, image_rect, knobstate, has_focus);
 		cairo_destroy(cr);
 	}
 

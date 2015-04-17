@@ -58,13 +58,18 @@ style "guitarix_default" {
     stock["log_ok"]         = {{"log_ok.png"}}
     stock["log_error"]      = {{"log_error.png"}}
     stock["log_warn"]       = {{"log_warn.png"}}
-        
+    
+    stock["smallknob"]      = {{"knob_small.png"}}
+    stock["smallknobr"]     = {{"knob_small_r.png"}}
+    stock["midknob"]        = {{"knob_mid.png"}}
+    stock["bigknob"]        = {{"knob_big.png"}}
+  
     engine "clearlooks" {
         focus_color         = { 0, 0, 0 }
         contrast            = 0.99
         menubarstyle        = 0
         reliefstyle         = 0
-        radius              = 0.0
+        radius              = 1.0
         disable_focus       = TRUE
         style               = INVERTED #CLASSIC GLOSSY GUMMY INVERTED
     }
@@ -131,7 +136,7 @@ style "guitarix_regler" {
     font_name = "sans 8"
     
     GxRegler::value-border      = { 4, 4, 2, 2 } # border around text
-    GxRegler::border-radius     = 12
+    GxRegler::border-radius     = 6
     GxRegler::bevel             = 0.12
     GxSelector::stepper-spacing = 6              # spacing between icon and text box
     
@@ -191,6 +196,75 @@ style "guitarix_tunerbox" {
     GxPaintBox::alternate-box = { 0, 0, 42, 0 }
 }
 widget "*tunerbox" style:highest "guitarix_tunerbox"
+
+
+
+### KNOBS ###
+style "guitarix_knobs" {
+    fg[INSENSITIVE] = "#211006"
+}
+class "GxKnob" style:highest "guitarix_knobs"
+
+style "guitarix_small_knob" {
+    GxKnob::x_center          = 18
+    GxKnob::y_center          = 18
+    GxKnob::ring_radius       = 15
+    GxKnob::ring_width        = 2
+    GxKnob::ring_led_size     = 2
+    GxKnob::ring_led_distance = 1
+    GxKnob::indicator_radius  = 6
+    GxKnob::indicator_width   = 1
+    GxKnob::indicator_length  = 3
+}
+widget_class "*GxSmallKnob" style:highest "guitarix_small_knob"
+
+style "guitarix_small_knob_r" {
+    GxKnob::x_center          = 30
+    GxKnob::y_center          = 30
+    GxKnob::ring_radius       = 26
+    GxKnob::ring_width        = 3
+    GxKnob::ring_led_size     = 3
+    GxKnob::ring_led_distance = 3
+    GxKnob::indicator_radius  = 15
+    GxKnob::indicator_width   = 2
+    GxKnob::indicator_length  = 2
+}
+widget_class "*GxSmallKnobR" style:highest "guitarix_small_knob_r"
+
+style "guitarix_mid_knob" {
+    GxKnob::x_center          = 51
+    GxKnob::y_center          = 51
+    GxKnob::ring_radius       = 48
+    GxKnob::ring_width        = 10
+    GxKnob::ring_led_size     = 2
+    GxKnob::ring_led_distance = 2
+    GxKnob::indicator_radius  = 30
+    GxKnob::indicator_width   = 3
+    GxKnob::indicator_length  = 7
+}
+widget_class "*GxMidKnob" style:highest "guitarix_mid_knob"
+
+style "guitarix_big_knob" {
+    GxKnob::x_center          = 72
+    GxKnob::y_center          = 81
+    GxKnob::ring_radius       = 56
+    GxKnob::ring_width        = 2
+    GxKnob::ring_led_size     = 0
+    GxKnob::ring_led_distance = 0
+    GxKnob::indicator_radius  = 48
+    GxKnob::indicator_width   = 2
+    GxKnob::indicator_length  = 5
+}
+widget_class "*GxBigKnob" style:highest "guitarix_big_knob"
+
+
+
+
+
+
+
+
+
 
 #rackcontainer
     #effects_toolpalette

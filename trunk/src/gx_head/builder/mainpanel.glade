@@ -79,7 +79,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GxBigKnob" id="gxbigknob1">
+                                  <object class="GxSmallKnobR" id="gxbigknob1">
                                     <property name="name">gxbigknob1</property><property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
@@ -116,7 +116,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GxBigKnob" id="gxbigknob2">
+                                  <object class="GxSmallKnobR" id="gxbigknob2">
                                     <property name="name">gxbigknob2</property><property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
@@ -152,7 +152,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GxBigKnob" id="gxbigknob3">
+                                  <object class="GxSmallKnobR" id="gxbigknob3">
                                     <property name="name">gxbigknob3</property><property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>

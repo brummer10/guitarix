@@ -628,12 +628,11 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 	if (paint_bg) {
 		cairo_set_source_rgb(cr, 0, 0, 0);
 		cairo_paint(cr);
+        cairo_set_source_rgb(cr,0.1,0.1,0.1);
 		for (int i = 0; i < tuner->led_count; ++i) {
-			cairo_set_source_rgb(cr,0.1,0.1,0.1);
 			cairo_rectangle(cr,tuner->padding+i*led_spacing, led_y0, led_width, led_height);
 			cairo_fill(cr);
 		}
-		cairo_set_source_rgb(cr,0.1,0.1,0.1);
 		gx_rack_tuner_triangle(tuner, cr, tri0, 25, 15, 10);
 		gx_rack_tuner_triangle(tuner, cr, tri1, 25, -15, 10);
 		return;
