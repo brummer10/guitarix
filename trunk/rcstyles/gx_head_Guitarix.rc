@@ -206,12 +206,12 @@ style "guitarix_knobs" {
 class "GxKnob" style:highest "guitarix_knobs"
 
 style "guitarix_small_knob" {
-    GxKnob::x_center          = 18
-    GxKnob::y_center          = 18
-    GxKnob::ring_radius       = 15
+    GxKnob::x_center          = -1
+    GxKnob::y_center          = -1
+    GxKnob::ring_radius       = 12
     GxKnob::ring_width        = 2
     GxKnob::ring_led_size     = 2
-    GxKnob::ring_led_distance = 1
+    GxKnob::ring_led_distance = 2
     GxKnob::indicator_radius  = 6
     GxKnob::indicator_width   = 1
     GxKnob::indicator_length  = 3
@@ -219,23 +219,23 @@ style "guitarix_small_knob" {
 widget_class "*GxSmallKnob" style:highest "guitarix_small_knob"
 
 style "guitarix_small_knob_r" {
-    GxKnob::x_center          = 30
-    GxKnob::y_center          = 30
+    GxKnob::x_center          = -1
+    GxKnob::y_center          = -1
     GxKnob::ring_radius       = 26
     GxKnob::ring_width        = 3
     GxKnob::ring_led_size     = 3
-    GxKnob::ring_led_distance = 3
-    GxKnob::indicator_radius  = 15
-    GxKnob::indicator_width   = 2
-    GxKnob::indicator_length  = 2
+    GxKnob::ring_led_distance = 2
+    GxKnob::indicator_radius  = 12
+    GxKnob::indicator_width   = 3
+    GxKnob::indicator_length  = 3
 }
 widget_class "*GxSmallKnobR" style:highest "guitarix_small_knob_r"
 
 style "guitarix_mid_knob" {
-    GxKnob::x_center          = 51
-    GxKnob::y_center          = 51
-    GxKnob::ring_radius       = 48
-    GxKnob::ring_width        = 10
+    GxKnob::x_center          = -1
+    GxKnob::y_center          = -1
+    GxKnob::ring_radius       = 43
+    GxKnob::ring_width        = 9
     GxKnob::ring_led_size     = 2
     GxKnob::ring_led_distance = 2
     GxKnob::indicator_radius  = 30
@@ -245,15 +245,15 @@ style "guitarix_mid_knob" {
 widget_class "*GxMidKnob" style:highest "guitarix_mid_knob"
 
 style "guitarix_big_knob" {
-    GxKnob::x_center          = 72
-    GxKnob::y_center          = 81
+    GxKnob::x_center          = -1
+    GxKnob::y_center          = -1
     GxKnob::ring_radius       = 56
-    GxKnob::ring_width        = 2
+    GxKnob::ring_width        = 3
     GxKnob::ring_led_size     = 0
     GxKnob::ring_led_distance = 0
-    GxKnob::indicator_radius  = 48
-    GxKnob::indicator_width   = 2
-    GxKnob::indicator_length  = 5
+    GxKnob::indicator_radius  = 46
+    GxKnob::indicator_width   = 3
+    GxKnob::indicator_length  = 6
 }
 widget_class "*GxBigKnob" style:highest "guitarix_big_knob"
 
