@@ -53,7 +53,11 @@ def build(bld):
         '../plugins/scream.cc',
         '../plugins/susta.cc',
         '../plugins/cstb.cc',
-       ]
+        '../plugins/coverd.cc',
+        '../plugins/rangem.cc',
+        '../plugins/ruin.cc',
+        '../plugins/ffreak.cc',
+     ]
     
     src = ['ladspa_guitarix.cpp'] + bsources
     incl = ['../headers', '..','../gx_head/engine','../plugins','../../libgxwmm','../../libgxw']

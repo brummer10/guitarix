@@ -1039,7 +1039,11 @@ void MonoEngine::load_static_plugins() {
     pl.add(pluginlib::mbe::plugin(),              PLUGIN_POS_RACK);
     pl.add(pluginlib::mbdel::plugin(),            PLUGIN_POS_RACK);
     pl.add(pluginlib::mbchor::plugin(),           PLUGIN_POS_RACK);
-    pl.add(pluginlib::cstb::plugin(),           PLUGIN_POS_RACK);
+    pl.add(pluginlib::cstb::plugin(),             PLUGIN_POS_RACK);
+    pl.add(pluginlib::coverd::plugin(),           PLUGIN_POS_RACK);
+    pl.add(pluginlib::rangem::plugin(),           PLUGIN_POS_RACK);
+	pl.add(pluginlib::ruin::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::ffreak::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 }
 
 
