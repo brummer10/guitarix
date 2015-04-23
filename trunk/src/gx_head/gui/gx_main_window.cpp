@@ -2502,7 +2502,7 @@ bool MainWindow::on_quit() {
 void MainWindow::amp_controls_visible(Gtk::Range *rr) {
     //FIXME
     bool v = abs(rr->get_value() - machine.get_parameter("tube.select").getUpperAsFloat()) < 0.5;
-    const char *knobs[] = {"gxbigknob1","gxbigknob2","gxbigknob3"};
+    const char *knobs[] = {"gxmediumknobpregain","gxmediumknobdrive","gxmediumknobdist"};
     for (unsigned int i = 0; i < sizeof(knobs)/sizeof(knobs[0]); ++i) {
 	Gtk::Widget *w;
 	bld->find_widget(knobs[i], w);
@@ -2928,10 +2928,10 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
         logo = gtk_image_new_from_pixbuf(pb_);
         g_object_unref(pb_);
     }
-    Gtk::VBox *al;
-    bld->find_widget("vbox_amp_main", al);
-    al->pack_start(*Glib::wrap(logo), FALSE, FALSE);
-    gtk_misc_set_alignment(GTK_MISC(logo), 0.f, 0.f);
+    Gtk::Table *al;
+    bld->find_widget("tableright", al);
+    al->attach(*Glib::wrap(logo), 0, 1, 0, 1, Gtk::FILL|Gtk::EXPAND, Gtk::FILL, 0, 0);
+    gtk_misc_set_alignment(GTK_MISC(logo), 1.f, 0.f);
     gtk_widget_show(logo);
 }
 

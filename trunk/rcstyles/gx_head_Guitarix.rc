@@ -85,7 +85,7 @@ widget "*ampdetails" style:highest "guitarix_ampdetails"
 
 
 style "guitarix_amp" {
-    GxPaintBox::alternate-box = { 0, 0, 25, 25 }
+    GxPaintBox::alternate-box = { 0, 0, 33, 33 }
 }
 widget "*ampbox" style:highest "guitarix_amp"
 

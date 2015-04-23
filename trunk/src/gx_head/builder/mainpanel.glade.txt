@@ -1,44 +1,40 @@
   <object class="GtkWindow" id="AmpContainer">
       <object class="GxPaintBox" id="amp_background:ampbox">
           <object class="GtkAlignment" id="amp_padding">
-              <object class="GtkVBox" id="vbox_amp_main">
-                  <object class="GtkHBox" id="hbox100">
-                      <object class="GtkVBox" id="vbox5">
-                          <object class="GtkAlignment" id="alignment4">
-                              <object class="GxSelector" id="gxselector1:amp_selector">
-                          <object class="GtkHBox" id="hbox6">
-                              <object class="GtkVBox" id="vbox6">
-                                  <object class="GtkLabel" id="label22:effekt_label">
-                                  <object class="GxBigKnob" id="gxbigknob1">
-                              <object class="GtkVBox" id="vbox7">
-                                  <object class="GtkLabel" id="label3:effekt_label">
-                                  <object class="GxBigKnob" id="gxbigknob2">
-                              <object class="GtkVBox" id="vbox8">
-                                  <object class="GtkLabel" id="label4:effekt_label">
-                                  <object class="GxBigKnob" id="gxbigknob3">
-                              <object class="GtkVBox" id="vbox9">
-                                  <object class="GtkLabel" id="label5:effekt_label">
-                                  <object class="GxBigKnob" id="gxbigknob4">
-                      <object class="GtkVBox" id="vbox10">
-                          <object class="GtkVBox" id="vbox13">
-                              <object class="GtkHBox" id="hbox7">
-                                  <object class="GxSwitch" id="gxswitch1:effekt_label">
-                                  <object class="GtkLabel" id="label6:effekt_label">
-                              <object class="GxWheel" id="gxwheel2">
-                          <object class="GtkVBox" id="vbox12">
-                              <object class="GtkHBox" id="hbox8">
-                                  <object class="GxSwitch" id="gxswitch2">
-                                  <object class="GtkLabel" id="label7:effekt_label">
-                              <object class="GxWheel" id="gxwheel3">
-                          <object class="GtkVBox" id="vbox11">
-                              <object class="GtkHBox" id="hbox9">
-                                  <object class="GxSwitch" id="gxswitch3">
-                                  <object class="GtkLabel" id="label8:effekt_label">
-                              <object class="GxWheel" id="gxwheel4">
-                      <object class="GxPaintBox" id="gxpaintbox5">
+              <object class="GtkHBox" id="hboxmain">
+                  <object class="GtkTable" id="tableleft">
+                      <object class="GtkLabel" id="label22:effekt_label">
+                      <object class="GtkLabel" id="label3:effekt_label">
+                      <object class="GtkLabel" id="label4:effekt_label">
+                      <object class="GtkLabel" id="label5:effekt_label">
+                      <object class="GxSmallKnobR" id="gxmediumknobdrive">
+                      <object class="GxSmallKnobR" id="gxmediumknobgain">
+                      <object class="GxSmallKnobR" id="gxmediumknobdist">
+                      <object class="GxSmallKnobR" id="gxmediumknobpregain">
+                  <object class="GtkTable" id="tablecenter">
+                      <object class="GxSelector" id="gxselector1:amp_selector">
+                      <object class="GtkVBox" id="vboxmeterings">
                           <object class="GxFastMeter" id="fastmeterL">
-                          <object class="GxLevelSlider" id="gxlevelslider1">
                           <object class="GxFastMeter" id="fastmeterR">
+                      <object class="GtkHBox" id="hboxcenter">
+                          <object class="GtkTable" id="tablebassboost">
+                              <object class="GtkHBox" id="hboxbassboost">
+                                  <object class="GtkLabel" id="label6:effekt_label">
+                              <object class="GxSmallKnobR" id="gxmediumknobbassboost">
+                              <object class="GxSwitch" id="gxswitch1:effekt_label">
+                          <object class="GtkTable" id="tablepresence">
+                              <object class="GtkHBox" id="hboxpresence">
+                                  <object class="GtkLabel" id="label7:effekt_label">
+                              <object class="GxSmallKnobR" id="gxmediumknobpresence">
+                              <object class="GxSwitch" id="gxswitch2">
+                          <object class="GtkTable" id="tablereverb">
+                              <object class="GtkHBox" id="hboxreverb">
+                                  <object class="GtkLabel" id="label8:effekt_label">
+                              <object class="GxSmallKnobR" id="gxmediumknobreverb">
+                              <object class="GxSwitch" id="gxswitch3">
+                  <object class="GtkTable" id="tableright">
+                      <object class="GxBigKnob" id="gxbigknob1">
+                      <object class="GtkLabel" id="labelmaster:effekt_label">
   <object class="GtkWindow" id="LivePlay">
       <object class="GtkEventBox" id="liveplay_canvas">
           <object class="GxPaintBox" id="liveplay_paintbox">
@@ -148,7 +144,7 @@
                                                           <object class="GtkHBox" id="hbox_tuner_settings">
                                                             <object class="GxSelector" id="tuner_tuning">
                                                             <object class="GxSelector" id="tuner_mode">
-                                                            <object class="GxWheel" id="tuner_reference_pitch">
+                                                            <object class="GxSmallKnob" id="tuner_reference_pitch">
                                                             <object class="GxSelector" id="tuner_temperament">
                                                       <object class="GxRackTuner" id="racktuner">
                                           <object class="GxPaintBox" id="midi_out_box">
