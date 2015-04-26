@@ -147,7 +147,7 @@ style "guitarix_regler" {
     fg[PRELIGHT]   = "#ffffff"                   # text hover
     bg[NORMAL]     = "#2f2f2f"                   # border
     bg[PRELIGHT]   = "#2f2f2f"                   # border hover
-    base[NORMAL]   = { 0.05, 0.05, 0.05 }                   # text background
+    base[NORMAL]   = { 0.05, 0.05, 0.05 }        # text background
     base[PRELIGHT] = "#000000"                   # text background hover
     text[NORMAL]   = "#ff9000"                   # arrow
     text[PRELIGHT] = "#ffffff"                   # arrow hover
@@ -258,8 +258,27 @@ style "guitarix_big_knob" {
 widget_class "*GxBigKnob" style:highest "guitarix_big_knob"
 
 
-
-
+style "guitarix_fastmeter" {
+    
+    xthickness = 8
+    ythickness = 4
+    
+    bg[NORMAL]     = "#2f2f2f"                   # border
+    bg[PRELIGHT]   = "#2f2f2f"                   # border hover
+    
+    GxFastMeter::clr-bottom    = "#3ab210"
+    GxFastMeter::clr-middle    = "#7ab240"
+    GxFastMeter::clr-top       = "#ffff00"
+    GxFastMeter::over          = "#ff5000"
+    GxFastMeter::mid-pos       = 0.717
+    GxFastMeter::dimen         = 3
+    GxFastMeter::led-border    = 1
+    GxFastMeter::led-width     = 2
+    GxFastMeter::led-height    = 2
+    GxFastMeter::border-radius = 6
+    GxFastMeter::bevel         = 0.12
+}
+widget_class "*GxFastMeter" style:highest "guitarix_fastmeter"
 
 
 

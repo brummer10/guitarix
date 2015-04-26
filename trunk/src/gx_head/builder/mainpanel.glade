@@ -169,7 +169,8 @@
                             <property name="name">fastmeterL</property><property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="hold">20</property>
-                            <property name="dimen">8</property>
+                            <property name="horiz">True</property>
+                            <property name="type">1</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -182,7 +183,8 @@
                             <property name="name">fastmeterR</property><property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="hold">20</property>
-                            <property name="dimen">8</property>
+                            <property name="horiz">True</property>
+                            <property name="type">2</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -1771,7 +1773,7 @@
                                                         <property name="name">racktuner</property><property name="visible">True</property>
                                                         <property name="can_focus">False</property>
                                                         <property name="streaming">True</property>
-                                                        <property name="temperament">0</property>
+                                                        <property name="temperament">1</property>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">True</property>

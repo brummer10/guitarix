@@ -2927,12 +2927,12 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     if (pb_) {
         logo = gtk_image_new_from_pixbuf(pb_);
         g_object_unref(pb_);
+        Gtk::Table *al;
+        bld->find_widget("tableright", al);
+        al->attach(*Glib::wrap(logo), 0, 1, 0, 1, Gtk::FILL|Gtk::EXPAND, Gtk::FILL, 0, 0);
+        gtk_misc_set_alignment(GTK_MISC(logo), 1.f, 0.f);
+        gtk_widget_show(logo);
     }
-    Gtk::Table *al;
-    bld->find_widget("tableright", al);
-    al->attach(*Glib::wrap(logo), 0, 1, 0, 1, Gtk::FILL|Gtk::EXPAND, Gtk::FILL, 0, 0);
-    gtk_misc_set_alignment(GTK_MISC(logo), 1.f, 0.f);
-    gtk_widget_show(logo);
 }
 
 MainWindow::~MainWindow() {
