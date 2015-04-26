@@ -43,13 +43,15 @@
     a lv2:Plugin ,
         lv2:EffectPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "Gxsceleton";
+    doap:name "GxEffectNAME";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_sceleton_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
       
     lv2:minorVersion 28;
     lv2:microVersion 3;
+
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_sceleton_gui#_sceleton_>;
     
 rdfs:comment """
 
