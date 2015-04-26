@@ -266,7 +266,7 @@ b.openHorizontalBox("");
 
     b.create_small_rackknobr(PARAM("Fuzz"), N_("Fuzz"));
 
-    b.create_small_rackknobr(PARAM("Volume"), N_("Fuzz"));
+    b.create_small_rackknobr(PARAM("Volume"), N_("Volume"));
 b.closeBox();
 
 #undef PARAM
