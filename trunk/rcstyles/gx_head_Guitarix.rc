@@ -271,7 +271,7 @@ style "guitarix_fastmeter" {
     GxFastMeter::clr-top       = "#ffff00"
     GxFastMeter::over          = "#ff5000"
     GxFastMeter::mid-pos       = 0.717
-    GxFastMeter::dimen         = 3
+    GxFastMeter::dimen         = 2
     GxFastMeter::led-border    = 1
     GxFastMeter::led-width     = 2
     GxFastMeter::led-height    = 2
