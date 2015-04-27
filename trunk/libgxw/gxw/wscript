@@ -61,6 +61,7 @@ def build_stock_images(bld):
         "handle_left.png",
         "handle_right.png",
         "watermark.png",
+        "insert.png",
         "live_bypass.png",
         "live_mute.png",
         "rack_preset.png",

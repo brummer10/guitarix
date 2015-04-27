@@ -1302,34 +1302,32 @@ bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
 	return false;
     }
     Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
-    cr->set_source_rgb(1.0, 1.0, 1.0);
     int x, y, width, height;
     if (!get_has_window()) {
-	Gtk::Allocation a = get_allocation();
-	x = a.get_x();
-	y = a.get_y();
-	width = a.get_width();
-	height = a.get_height();
+        Gtk::Allocation a = get_allocation();
+        x      = a.get_x();
+        y      = a.get_y();
+        width  = a.get_width();
+        height = a.get_height();
     } else {
         int depth;
         get_window()->get_geometry(x, y, width, height, depth);
-	x = 0;
-	y = 0;
+        x = 0;
+        y = 0;
     }
-    if (y0 < 0) {
-	get_style()->paint_shadow(
-	    get_window(), Gtk::STATE_NORMAL, Gtk::SHADOW_OUT,
-	    Glib::wrap(&event->area), *this, "dnd", x, y, width, height);
-	cr->set_line_width(1.0);
-	cr->rectangle(x + 0.5, y + 0.5, width - 1, height - 1);
-    } else {
-	y0 -= 1;
-	y0 = std::max(y0, y);
-	cr->set_line_width(1.0);
-	cr->move_to(x+0.5, y0+0.5);
-	cr->rel_line_to(width - 1, 0);
+    GdkPixbuf * pb_ = gtk_widget_render_icon(GTK_WIDGET(this->gobj()), "insert", (GtkIconSize)-1, NULL);
+    if (pb_) {
+        cairo_t *cr_ = gdk_cairo_create(unwrap(get_window()));
+        gdk_cairo_set_source_pixbuf(cr_, pb_, x, y);
+        cairo_pattern_set_extend(cairo_get_source(cr_), CAIRO_EXTEND_REPEAT);
+        if (y0 < 0) {
+            cairo_rectangle(cr_, x, y, width, height);
+            cairo_fill(cr_);
+        } else {
+            cairo_rectangle(cr_, x, y0 - 3, width, 2);
+            cairo_fill(cr_);
+        }
     }
-    cr->stroke();
     return false;
 }
 

@@ -30,6 +30,7 @@ gxstyle_files = [
     'screw.png',
     'logo.png',
     'watermark.png',
+    'insert.png',
     # live view
     'live_mute.png',
     'live_bypass.png',

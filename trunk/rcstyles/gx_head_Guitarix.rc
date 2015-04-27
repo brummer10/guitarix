@@ -58,7 +58,7 @@ style "guitarix_default" {
     stock["log_ok"]         = {{"log_ok.png"}}
     stock["log_error"]      = {{"log_error.png"}}
     stock["log_warn"]       = {{"log_warn.png"}}
-    
+    stock["insert"]         = {{"insert.png"}}
     stock["smallknob"]      = {{"knob_small.png"}}
     stock["smallknobr"]     = {{"knob_small_r.png"}}
     stock["midknob"]        = {{"knob_mid.png"}}

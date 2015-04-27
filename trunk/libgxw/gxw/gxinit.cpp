@@ -70,6 +70,7 @@ static image_entry image_data[] = {
     { "handle_left", pb_handle_left },
     { "handle_right", pb_handle_right },
     { "watermark", pb_watermark },
+    { "insert", pb_insert },
     
     { "live_bypass", pb_live_bypass },
     { "live_mute", pb_live_mute },
