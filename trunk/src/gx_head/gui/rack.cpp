@@ -1321,7 +1321,7 @@ bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
         gdk_cairo_set_source_pixbuf(cr_, pb_, x, y);
         cairo_pattern_set_extend(cairo_get_source(cr_), CAIRO_EXTEND_REPEAT);
         if (y0 < 0) {
-            cairo_rectangle(cr_, x, y, width, height);
+            cairo_rectangle(cr_, x, max(0, y), width, height);
             cairo_fill(cr_);
         } else {
             cairo_rectangle(cr_, x, max(0, y0 - 3), width, 2);

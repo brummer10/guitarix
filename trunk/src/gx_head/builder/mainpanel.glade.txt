@@ -114,6 +114,7 @@
                                                           <object class="GtkVBox" id="vbox3">
                                                             <object class="GtkButton" id="ampdetail_expand:effect_reset">
                                                             <object class="GtkImage" id="image3">
+                                                          <object class="GtkLabel" id="labelInOut:effect_title">
                                                       <object class="GtkHBox" id="ampdetail_normal">
                                                           <object class="GtkTable" id="table3">
                                                             <object class="GtkLabel" id="label4:beffekt_label">

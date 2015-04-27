@@ -1330,6 +1330,20 @@
                                                             <property name="position">0</property>
                                                           </packing>
                                                         </child>
+                                                        <child>
+                                                          <object class="GtkLabel" id="labelInOut:effect_title">
+                                                            <property name="name">labelInOut:effect_title</property><property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="label" translatable="yes">Input/Output</property>
+                                                            <property name="use_markup">True</property>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">1</property>
+                                                          </packing>
+                                                        </child>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">True</property>

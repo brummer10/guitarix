@@ -208,12 +208,12 @@ class "GxKnob" style:highest "guitarix_knobs"
 style "guitarix_small_knob" {
     GxKnob::x_center          = -1
     GxKnob::y_center          = -1
-    GxKnob::ring_radius       = 12
+    GxKnob::ring_radius       = 11
     GxKnob::ring_width        = 2
     GxKnob::ring_led_size     = 2
     GxKnob::ring_led_distance = 2
     GxKnob::indicator_radius  = 6
-    GxKnob::indicator_width   = 1
+    GxKnob::indicator_width   = 2
     GxKnob::indicator_length  = 3
 }
 widget_class "*GxSmallKnob" style:highest "guitarix_small_knob"
