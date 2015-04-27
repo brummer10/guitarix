@@ -25,16 +25,16 @@
                 <property name="can_focus">False</property>
                 <property name="spacing">20</property>
                 <child>
-                  <object class="GtkTable" id="tableleft">
-                    <property name="name">tableleft</property><property name="visible">True</property>
+                  <object class="GtkTable" id="tableampleft">
+                    <property name="name">tableampleft</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="n_rows">4</property>
-                    <property name="n_columns">2</property>
+                    <property name="n_columns">3</property>
                     <property name="column_spacing">8</property>
                     <property name="row_spacing">3</property>
                     <child>
-                      <object class="GtkLabel" id="label22:effekt_label">
-                        <property name="name">label22:effekt_label</property><property name="visible">True</property>
+                      <object class="GtkLabel" id="labelpregain:effekt_label">
+                        <property name="name">labelpregain:effekt_label</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Pre Gain</property>
                       </object>
@@ -43,8 +43,8 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label3:effekt_label">
-                        <property name="name">label3:effekt_label</property><property name="visible">True</property>
+                      <object class="GtkLabel" id="labeldrive:effekt_label">
+                        <property name="name">labeldrive:effekt_label</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Drive</property>
                       </object>
@@ -57,8 +57,8 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label4:effekt_label">
-                        <property name="name">label4:effekt_label</property><property name="visible">True</property>
+                      <object class="GtkLabel" id="labeldist:effekt_label">
+                        <property name="name">labeldist:effekt_label</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Clean/Dist</property>
                       </object>
@@ -69,10 +69,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label5:effekt_label">
-                        <property name="name">label5:effekt_label</property><property name="visible">True</property>
+                      <object class="GtkLabel" id="labelgain:effekt_label">
+                        <property name="name">labelgain:effekt_label</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Master gain</property>
+                        <property name="label" translatable="yes">Master Gain</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -136,6 +136,45 @@
                         <property name="bottom_attach">2</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkLabel" id="labeldummy1:effekt_label">
+                        <property name="name">labeldummy1:effekt_label</property><property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                        <property name="y_options">GTK_FILL</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="labelgain2:effekt_label">
+                        <property name="name">labelgain2:effekt_label</property><property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Master Gain</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                        <property name="top_attach">3</property>
+                        <property name="bottom_attach">4</property>
+                        <property name="y_options">GTK_FILL</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GxBigKnob" id="gxbigknobgain">
+                        <property name="name">gxbigknobgain</property><property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="var_id">amp2.stage2.gain1</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">3</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -144,8 +183,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkTable" id="tablecenter">
-                    <property name="name">tablecenter</property><property name="visible">True</property>
+                  <object class="GtkTable" id="tableampcenter">
+                    <property name="name">tableampcenter</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="n_rows">3</property>
                     <property name="row_spacing">16</property>
@@ -221,7 +260,7 @@
                                   <object class="GtkLabel" id="label6:effekt_label">
                                     <property name="name">label6:effekt_label</property><property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes"> Bass boost  </property>
+                                    <property name="label" translatable="yes"> Bass Boost  </property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -419,8 +458,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkTable" id="tableright">
-                    <property name="name">tableright</property><property name="visible">True</property>
+                  <object class="GtkTable" id="tableampright">
+                    <property name="name">tableampright</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="n_rows">3</property>
                     <property name="row_spacing">6</property>
@@ -1243,7 +1282,7 @@
                                             <property name="name">monoampcontainer:ampdetails</property><property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="orientation">vertical</property>
-                                            <property name="paint_func">rack_unit_expose</property>
+                                            <property name="paint_func">rack_amp_expose</property>
                                             <child>
                                               <object class="GtkAlignment" id="details_padding">
                                                 <property name="name">details_padding</property><property name="visible">True</property>
@@ -1648,7 +1687,7 @@
                                           <object class="GxPaintBox" id="tunerbox">
                                             <property name="name">tunerbox</property><property name="can_focus">False</property>
                                             <property name="orientation">vertical</property>
-                                            <property name="paint_func">rack_unit_expose</property>
+                                            <property name="paint_func">rack_amp_expose</property>
                                             <child>
                                               <object class="GtkAlignment" id="tuner_padding">
                                                 <property name="name">tuner_padding</property><property name="visible">True</property>

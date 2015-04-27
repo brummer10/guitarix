@@ -2,16 +2,19 @@
       <object class="GxPaintBox" id="amp_background:ampbox">
           <object class="GtkAlignment" id="amp_padding">
               <object class="GtkHBox" id="hboxmain">
-                  <object class="GtkTable" id="tableleft">
-                      <object class="GtkLabel" id="label22:effekt_label">
-                      <object class="GtkLabel" id="label3:effekt_label">
-                      <object class="GtkLabel" id="label4:effekt_label">
-                      <object class="GtkLabel" id="label5:effekt_label">
+                  <object class="GtkTable" id="tableampleft">
+                      <object class="GtkLabel" id="labelpregain:effekt_label">
+                      <object class="GtkLabel" id="labeldrive:effekt_label">
+                      <object class="GtkLabel" id="labeldist:effekt_label">
+                      <object class="GtkLabel" id="labelgain:effekt_label">
                       <object class="GxSmallKnobR" id="gxmediumknobdrive">
                       <object class="GxSmallKnobR" id="gxmediumknobgain">
                       <object class="GxSmallKnobR" id="gxmediumknobdist">
                       <object class="GxSmallKnobR" id="gxmediumknobpregain">
-                  <object class="GtkTable" id="tablecenter">
+                      <object class="GtkLabel" id="labeldummy1:effekt_label">
+                      <object class="GtkLabel" id="labelgain2:effekt_label">
+                      <object class="GxBigKnob" id="gxbigknobgain">
+                  <object class="GtkTable" id="tableampcenter">
                       <object class="GxSelector" id="gxselector1:amp_selector">
                       <object class="GtkVBox" id="vboxmeterings">
                           <object class="GxFastMeter" id="fastmeterL">
@@ -32,7 +35,7 @@
                                   <object class="GtkLabel" id="label8:effekt_label">
                               <object class="GxSmallKnobR" id="gxmediumknobreverb">
                               <object class="GxSwitch" id="gxswitch3">
-                  <object class="GtkTable" id="tableright">
+                  <object class="GtkTable" id="tableampright">
                       <object class="GxBigKnob" id="gxbigknob1">
                       <object class="GtkLabel" id="labelmaster:effekt_label">
   <object class="GtkWindow" id="LivePlay">

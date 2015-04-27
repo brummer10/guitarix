@@ -2502,11 +2502,17 @@ bool MainWindow::on_quit() {
 void MainWindow::amp_controls_visible(Gtk::Range *rr) {
     //FIXME
     bool v = abs(rr->get_value() - machine.get_parameter("tube.select").getUpperAsFloat()) < 0.5;
-    const char *knobs[] = {"gxmediumknobpregain","gxmediumknobdrive","gxmediumknobdist"};
-    for (unsigned int i = 0; i < sizeof(knobs)/sizeof(knobs[0]); ++i) {
-	Gtk::Widget *w;
-	bld->find_widget(knobs[i], w);
-	w->set_visible(!v);
+    const char *knobs1[] = {"gxmediumknobpregain","gxmediumknobdrive","gxmediumknobdist","gxmediumknobgain", "labelpregain:effekt_label", "labeldrive:effekt_label", "labeldist:effekt_label", "labelgain:effekt_label"};
+    const char *knobs2[] = {"gxbigknobgain", "labelgain2:effekt_label"};
+    for (unsigned int i = 0; i < sizeof(knobs1)/sizeof(knobs1[1]); ++i) {
+        Gtk::Widget *w;
+        bld->find_widget(knobs1[i], w);
+        w->set_visible(!v);
+    }
+    for (unsigned int i = 0; i < sizeof(knobs2)/sizeof(knobs2[1]); ++i) {
+        Gtk::Widget *w;
+        bld->find_widget(knobs2[i], w);
+        w->set_visible(v);
     }
 }
 
@@ -2928,7 +2934,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
         logo = gtk_image_new_from_pixbuf(pb_);
         g_object_unref(pb_);
         Gtk::Table *al;
-        bld->find_widget("tableright", al);
+        bld->find_widget("tableampright", al);
         al->attach(*Glib::wrap(logo), 0, 1, 0, 1, Gtk::FILL|Gtk::EXPAND, Gtk::FILL, 0, 0);
         gtk_misc_set_alignment(GTK_MISC(logo), 1.f, 0.f);
         gtk_widget_show(logo);
