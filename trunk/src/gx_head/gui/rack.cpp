@@ -1324,7 +1324,7 @@ bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
             cairo_rectangle(cr_, x, y, width, height);
             cairo_fill(cr_);
         } else {
-            cairo_rectangle(cr_, x, y0 - 3, width, 2);
+            cairo_rectangle(cr_, x, max(0, y0 - 3), width, 2);
             cairo_fill(cr_);
         }
     }
