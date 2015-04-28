@@ -123,6 +123,7 @@ def build(bld):
         'scream.dsp',
         'susta.dsp',
         'cstb.dsp',
+        'fumaster.dsp',
 
         # tone stacks
         'tonestack_default.dsp',

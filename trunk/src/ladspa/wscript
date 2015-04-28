@@ -57,6 +57,7 @@ def build(bld):
         '../plugins/rangem.cc',
         '../plugins/ruin.cc',
         '../plugins/ffreak.cc',
+        '../plugins/fumaster.cc',
      ]
     
     src = ['ladspa_guitarix.cpp'] + bsources
