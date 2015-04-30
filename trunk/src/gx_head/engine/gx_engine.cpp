@@ -350,7 +350,9 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::rangem::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::ruin::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::ffreak::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::fumaster::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::fumaster::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::fuzzdrive::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::voxwah::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
