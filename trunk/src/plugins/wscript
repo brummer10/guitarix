@@ -52,6 +52,8 @@ lib_sources = [ # put in static library linked with guitarix
     "fumaster.dsp",
     "fuzzdrive.dsp",
     "voxwah.dsp",
+    "dallaswah.dsp",
+    "maestrowah.dsp",
     ]
 
 def build(bld):

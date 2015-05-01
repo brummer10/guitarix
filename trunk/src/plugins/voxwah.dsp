@@ -7,18 +7,24 @@ declare shortname "Vox Wah";
 declare description "Vox Wah V847";
 
 import("filter.lib");
+import("effect.lib");
 
-process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0))):>_ with {
+process(x) = x : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0))):>_ with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
-    pre = _;
+    
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
+    Wah1 = (x : amp_follower_ud(0.01,0.1) : min(1) : max(0.02) );
     
-        Wah = vslider("Wah[name:Wah]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+    Wah2 = vslider("Wah[name:Wah]", 0.5, 0.02, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+    
+    sl = vslider("mode[enum:manual|auto]",0,0,1,1);
+    
+    Wah = select2(sl>0,Wah2,Wah1);
     
     b0 = Wah*(Wah*pow(fs,3)*(fs*(fs*(5.3581264088071e-31*fs + 1.48874673815095e-26) + 2.20774629012815e-23) + 1.52372411622765e-21) + pow(fs,2)*(fs*(fs*(fs*(-5.35111910191404e-31*fs - 1.48995539050572e-26) - 2.24831652271913e-23) - 2.13084338459394e-21) - 4.19202946447508e-20)) + pow(fs,2)*(fs*(fs*(fs*(-3.23177789600593e-30*fs - 1.07008772095285e-25) - 1.60626322047249e-22) - 1.19105605913141e-20) - 5.93495580034508e-20);
 
