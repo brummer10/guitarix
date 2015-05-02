@@ -8,6 +8,7 @@ declare description "Maestro Boomerang  Wah  EG-1";
 
 import("filter.lib");
 import("effect.lib");
+import("oscillator.lib");
 
 process(x) = x : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0))):>_ with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -22,9 +23,13 @@ process(x) = x : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6
 
     Wah2 = vslider("Wah[name:Wah]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
 
-    sl = vslider("mode[enum:manual|auto]",0,0,1,1);
+    sl = vslider("mode[enum:manual|auto|alien]",0,0,1,1);
 
-    Wah = select2(sl>0,Wah2,Wah1);
+    Wah3 = (oscs(freq) + 1) / 2 : min(0.75) : max(0.09) with {
+        freq = vslider("lfobpm[name:Alien Freq][tooltip:LFO in Beats per Minute]",24,24,360,1)/60;
+    }; 
+
+    Wah = select3(sl, Wah1, Wah2, Wah3);
 
     b0 = Wah*(Wah*pow(fs,3)*(fs*(fs*(1.17540074891101e-30*fs + 1.07086033539464e-26) + 3.84214613809295e-23) + 6.72783466104334e-22) + pow(fs,3)*(fs*(fs*(-1.17272340720388e-30*fs - 1.07070902223171e-26) - 3.8421155075404e-23) - 6.72690759164588e-22)) + pow(fs,2)*(fs*(fs*(fs*(-1.51773160849695e-29*fs - 1.7768404223597e-25) - 7.65801073152836e-22) - 2.19849670514246e-20) - 1.50703496407371e-19);
 

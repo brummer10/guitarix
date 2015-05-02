@@ -8,12 +8,14 @@ declare description "Dallas Arbiter Wah";
 
 import("filter.lib");
 import("effect.lib");
+import("oscillator.lib");
 
 process(x) = x  : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0))):>_ with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
+    
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
@@ -21,9 +23,13 @@ process(x) = x  : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b
 
     Wah2 = vslider("Wah[name:Wah]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
 
-    sl = vslider("mode[enum:manual|auto]",0,0,1,1);
+    sl = checkbox("mode[enum:manual|auto|alien]");
 
-    Wah = select2(sl>0,Wah2,Wah1);
+    Wah3 = (oscs(freq) + 1) / 2 : min(1) : max(0.02) with {
+        freq = vslider("lfobpm[name:Alien Freq][tooltip:LFO in Beats per Minute]",24,24,360,1)/60;
+    }; 
+
+    Wah = select3(sl, Wah1, Wah2, Wah3);
 
     b0 = Wah*(Wah*pow(fs,2)*(fs*(fs*(fs*(1.20894405825314e-30*fs + 4.55223559536905e-26) + 6.67221502794578e-23) + 4.60832615818034e-21) - 4.42988173510265e-34) + pow(fs,2)*(fs*(fs*(fs*(-9.90901628275927e-31*fs - 3.74994304179366e-26) - 5.59001169449057e-23) - 5.22251274319268e-21) - 9.86965379369583e-20)) + pow(fs,2)*(fs*(fs*(fs*(-2.95334143650199e-30*fs - 2.39932288230564e-25) - 3.60669905407753e-22) - 2.71762597345689e-20) - 1.62378538408517e-19);
 
