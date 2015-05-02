@@ -352,7 +352,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow1 = (0.007000000000000006 * double(fslider1));
 	double 	fSlow2 = (0.007000000000000006 * pow(10,(0.05 * double(fslider2))));
 	double 	fSlow3 = (0.01 * double(fslider3));
-	double 	fSlow4 = (0.007000000000000006 * double(fslider4));
+	double 	fSlow4 = (0.004073836948085289 * (exp((1 - double(fslider4))) - 1));
 	int 	iSlow5 = int(double(fcheckbox0));
 	double 	fSlow6 = (1 - fSlow3);
 	for (int i=0; i<count; i++) {
@@ -370,7 +370,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec4[0] = ((fConst61 * max(fTemp3, fRec4[1])) + (fConst62 * fTemp3));
 		fRec3[0] = ((fConst63 * fRec3[1]) + (fConst64 * fRec4[0]));
 		fRec8[0] = ((0.993 * fRec8[1]) + fSlow4);
-		double fTemp4 = ((iSlow5==0)? fRec8[0] : ((iSlow5==1)?max(0.09, min(0.9, fRec3[0])):max(0.09, min(0.9, (0.5 * (1 + fRec0[0]))))) );
+		double fTemp4 = ((iSlow5==0)? fRec8[0] : ((iSlow5==1)?max(0.09, min(0.9, fRec3[0])):(1 - max(0.09, min(0.9, (0.5 * (1 + fRec0[0])))))) );
 		double fTemp5 = (8.05126427163433e-17 + (fConst1 * ((fTemp4 * (fConst68 + (fConst66 * fTemp4))) + fConst3)));
 		fRec9[0] = (fTemp2 - (((((((fRec9[1] * (4.8307585629806e-16 + (fConst1 * ((fTemp4 * (fConst98 + (fConst97 * fTemp4))) + fConst96)))) + (fRec9[2] * (1.20768964074515e-15 + (fConst1 * ((fTemp4 * (fConst95 + (fConst94 * fTemp4))) + fConst93))))) + (fRec9[3] * (1.61025285432687e-15 + (fConst16 * ((fTemp4 * (fConst92 + (fConst91 * fTemp4))) + fConst90))))) + (fRec9[4] * (1.20768964074515e-15 + (fConst1 * ((fTemp4 * (fConst89 + (fConst87 * fTemp4))) + fConst85))))) + (fRec9[5] * (4.8307585629806e-16 + (fConst1 * ((fTemp4 * (fConst83 + (fConst81 * fTemp4))) + fConst79))))) + (fRec9[6] * (8.05126427163433e-17 + (fConst1 * ((fTemp4 * (fConst77 + (fConst76 * fTemp4))) + fConst75))))) / fTemp5));
 		output0[i] = (FAUSTFLOAT)((fSlow6 * fTemp1) + (fConst16 * ((((((((fRec9[0] * ((fTemp4 * (fConst122 + (fConst121 * fTemp4))) + fConst120)) + (fRec9[1] * ((fTemp4 * (fConst119 + (fConst118 * fTemp4))) + fConst117))) + (fRec9[2] * ((fTemp4 * (fConst116 + (fConst115 * fTemp4))) + fConst114))) + (fRec9[3] * ((fTemp4 * (fConst113 + (fConst112 * fTemp4))) + fConst111))) + (fRec9[4] * ((fTemp4 * (fConst110 + (fConst108 * fTemp4))) + fConst106))) + (fRec9[5] * ((fTemp4 * (fConst104 + (fConst102 * fTemp4))) + fConst100))) + (fRec9[6] * ((fTemp4 * (fConst74 + (fConst72 * fTemp4))) + fConst70))) / fTemp5)));

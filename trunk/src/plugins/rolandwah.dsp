@@ -66,11 +66,11 @@ wah(x) = x : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,
 
     Wah1 = (x : amp_follower_ud(0.01,0.1) : min(0.9) : max(0.09) );
     
-    Wah2 = vslider("Wah[name:Wah]", 0.5, 0.02, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+    Wah2 = vslider("Wah[name:Wah]", 0.5, 0.02, 1, 0.01) : Inverted(1) : LogPot(1) : smooth(s);
     
     sl = checkbox("mode[enum:manual|auto|alien]");
 
-    Wah3 = (oscs(freq) + 1) / 2 : min(0.9) : max(0.09) with {
+    Wah3 = (oscs(freq) + 1) / 2 : min(0.9) : max(0.09) : Inverted(1) with {
         freq = vslider("lfobpm[name:Alien Freq][tooltip:LFO in Beats per Minute]",24,24,360,1)/60;
     }; 
 

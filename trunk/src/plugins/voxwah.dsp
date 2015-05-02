@@ -19,7 +19,7 @@ process(x) = x : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
-    Wah1 = (x : amp_follower_ud(0.01,0.1) : min(1) : max(0.02) );
+    Wah1 = (x : amp_follower_ud(0.01,0.1) : min(0.98) : max(0.02) : Inverted(1));
     
     Wah2 = vslider("Wah[name:Wah]", 0.5, 0.02, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
     

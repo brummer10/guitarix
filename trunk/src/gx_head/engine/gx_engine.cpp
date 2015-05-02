@@ -353,9 +353,10 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::fumaster::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::fuzzdrive::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::voxwah::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::dallaswah::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::maestrowah::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::rolandwah::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::dallaswah::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::maestrowah::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::rolandwah::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::foxwah::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
