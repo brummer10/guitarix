@@ -23,13 +23,13 @@ process(x) = x : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6
     
     Wah2 = vslider("Wah[name:Wah]", 0.5, 0.02, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
     
-    sl = vslider("mode[enum:manual|auto|alien]",0,0,1,1);
+    sl = checkbox("mode[enum:manual|auto|alien]");
 
     Wah3 = (oscs(freq) + 1) / 2 : min(1) : max(0.02) with {
         freq = vslider("lfobpm[name:Alien Freq][tooltip:LFO in Beats per Minute]",24,24,360,1)/60;
     }; 
 
-    Wah = select3(sl, Wah1, Wah2, Wah3);
+    Wah = select3(sl, Wah2, Wah1, Wah3);
 
     b0 = Wah*(Wah*pow(fs,3)*(fs*(fs*(5.3581264088071e-31*fs + 1.48874673815095e-26) + 2.20774629012815e-23) + 1.52372411622765e-21) + pow(fs,2)*(fs*(fs*(fs*(-5.35111910191404e-31*fs - 1.48995539050572e-26) - 2.24831652271913e-23) - 2.13084338459394e-21) - 4.19202946447508e-20)) + pow(fs,2)*(fs*(fs*(fs*(-3.23177789600593e-30*fs - 1.07008772095285e-25) - 1.60626322047249e-22) - 1.19105605913141e-20) - 5.93495580034508e-20);
 
