@@ -9,6 +9,7 @@ declare description "Vox Wah V847";
 import("filter.lib");
 import("effect.lib");
 import("oscillator.lib");
+import("guitarix.lib");
 
 process(x) = x : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0))):>_ with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -16,17 +17,17 @@ process(x) = x : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6
     s = 0.993;
     fs = float(SR);
     
-    wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+    wet = wah_ctrl.wet_dry;
     dry = 1 - wet;
 
-    Wah1 = (x : amp_follower_ud(0.01,0.1) : min(0.98) : max(0.02) : Inverted(1));
+    Wah1 = (x : amp_follower_ud(0.01,0.1) : min(0.98) : max(0.03) : Inverted(1));
     
-    Wah2 = vslider("Wah[name:Wah]", 0.5, 0.02, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+    Wah2 = wah_ctrl.wah : max(0.03) :  smooth(s);
     
-    sl = checkbox("mode[enum:manual|auto|alien]");
+    sl = wah_ctrl.mode;
 
-    Wah3 = (oscs(freq) + 1) / 2 : min(1) : max(0.02) with {
-        freq = vslider("lfobpm[name:Alien Freq][tooltip:LFO in Beats per Minute]",24,24,360,1)/60;
+    Wah3 = (oscs(freq) + 1) / 2 : min(1) : max(0.03) with {
+        freq = wah_ctrl.freq;
     }; 
 
     Wah = select3(sl, Wah2, Wah1, Wah3);

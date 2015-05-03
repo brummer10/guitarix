@@ -1,10 +1,7 @@
-// generated from file '../src/plugins/voxwah.dsp' by dsp2cc:
+// generated from file '../src/faust/voxwah.dsp' by dsp2cc:
 // Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
-#include "gx_faust_support.h"
-#include "gx_plugin.h"
 
-namespace pluginlib {
 namespace voxwah {
 
 class Dsp: public PluginDef {
@@ -16,6 +13,7 @@ private:
 	double 	fConst2;
 	double 	fConst3;
 	FAUSTFLOAT 	fslider0;
+	FAUSTFLOAT	*fslider0_;
 	double 	fConst4;
 	double 	fRec2[2];
 	double 	fRec1[2];
@@ -27,8 +25,10 @@ private:
 	double 	fConst8;
 	double 	fRec3[2];
 	FAUSTFLOAT 	fslider1;
+	FAUSTFLOAT	*fslider1_;
 	double 	fRec5[2];
-	FAUSTFLOAT 	fcheckbox0;
+	FAUSTFLOAT 	fslider2;
+	FAUSTFLOAT	*fslider2_;
 	double 	fConst9;
 	double 	fConst10;
 	double 	fConst11;
@@ -64,7 +64,8 @@ private:
 	double 	fConst41;
 	double 	fConst42;
 	double 	fConst43;
-	FAUSTFLOAT 	fslider2;
+	FAUSTFLOAT 	fslider3;
+	FAUSTFLOAT	*fslider3_;
 	double 	fRec6[7];
 	double 	fConst44;
 	double 	fConst45;
@@ -91,13 +92,11 @@ private:
 	double 	fConst66;
 	double 	fConst67;
 	void clear_state_f();
-	int load_ui_f(const UiBuilder& b, int form);
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static int load_ui_f_static(const UiBuilder& b, int form);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
@@ -124,7 +123,7 @@ Dsp::Dsp()
 	set_samplerate = init_static;
 	activate_plugin = 0;
 	register_params = register_params_static;
-	load_ui = load_ui_f_static;
+	load_ui = 0;
 	clear_state = clear_state_f_static;
 	delete_instance = del_instance;
 }
@@ -230,10 +229,14 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
+#define fslider0 (*fslider0_)
+#define fslider1 (*fslider1_)
+#define fslider2 (*fslider2_)
+#define fslider3 (*fslider3_)
 	double 	fSlow0 = (fConst4 * double(fslider0));
-	double 	fSlow1 = (0.007000000000000006 * double(fslider1));
-	int 	iSlow2 = int(double(fcheckbox0));
-	double 	fSlow3 = (0.01 * double(fslider2));
+	double 	fSlow1 = (0.007000000000000006 * max(0.03, double(fslider1)));
+	int 	iSlow2 = int(double(fslider2));
+	double 	fSlow3 = (0.01 * double(fslider3));
 	double 	fSlow4 = (1 - fSlow3);
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
@@ -245,7 +248,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec4[0] = ((fConst5 * max(fTemp1, fRec4[1])) + (fConst6 * fTemp1));
 		fRec3[0] = ((fConst7 * fRec3[1]) + (fConst8 * fRec4[0]));
 		fRec5[0] = ((0.993 * fRec5[1]) + fSlow1);
-		double fTemp2 = ((iSlow2==0)? fRec5[0] : ((iSlow2==1)?(1 - max(0.02, min(0.98, fRec3[0]))):max(0.02, min((double)1, (0.5 * (1 + fRec0[0]))))) );
+		double fTemp2 = ((iSlow2==0)? fRec5[0] : ((iSlow2==1)?(1 - max(0.03, min(0.98, fRec3[0]))):max(0.03, min((double)1, (0.5 * (1 + fRec0[0]))))) );
 		double fTemp3 = (1.52500074984081e-16 + (fConst1 * ((fTemp2 * (fConst12 + (fConst10 * fTemp2))) + fConst3)));
 		fRec6[0] = ((fSlow3 * fTemp0) - (((((((fRec6[1] * (9.15000449904488e-16 + (fConst1 * ((fTemp2 * (fConst43 + (fConst42 * fTemp2))) + fConst41)))) + (fRec6[2] * (2.28750112476122e-15 + (fConst1 * ((fTemp2 * (fConst40 + (fConst39 * fTemp2))) + fConst38))))) + (fRec6[3] * (3.05000149968163e-15 + (fConst23 * ((fTemp2 * (fConst37 + (fConst36 * fTemp2))) + fConst35))))) + (fRec6[4] * (2.28750112476122e-15 + (fConst1 * ((fTemp2 * (fConst34 + (fConst32 * fTemp2))) + fConst30))))) + (fRec6[5] * (9.15000449904488e-16 + (fConst1 * ((fTemp2 * (fConst28 + (fConst26 * fTemp2))) + fConst24))))) + (fRec6[6] * (1.52500074984081e-16 + (fConst1 * ((fTemp2 * (fConst21 + (fConst20 * fTemp2))) + fConst19))))) / fTemp3));
 		output0[i] = (FAUSTFLOAT)((fSlow4 * fTemp0) + (fConst23 * ((((((((fRec6[0] * ((fTemp2 * (fConst67 + (fConst66 * fTemp2))) + fConst65)) + (fRec6[1] * ((fTemp2 * (fConst64 + (fConst63 * fTemp2))) + fConst62))) + (fRec6[2] * ((fTemp2 * (fConst61 + (fConst60 * fTemp2))) + fConst59))) + (fRec6[3] * ((fTemp2 * (fConst58 + (fConst57 * fTemp2))) + fConst56))) + (fRec6[4] * ((fTemp2 * (fConst55 + (fConst53 * fTemp2))) + fConst51))) + (fRec6[5] * ((fTemp2 * (fConst49 + (fConst47 * fTemp2))) + fConst45))) + (fRec6[6] * ((fTemp2 * (fConst18 + (fConst16 * fTemp2))) + fConst14))) / fTemp3)));
@@ -259,6 +262,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[1] = fRec2[0];
 		iVec0[1] = iVec0[0];
 	}
+#undef fslider0
+#undef fslider1
+#undef fslider2
+#undef fslider3
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
@@ -268,11 +275,11 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("voxwah.Wah",N_("Wah"),"S","",&fslider1, 0.5, 0.02, 1.0, 0.01);
-	reg.registerVar("voxwah.lfobpm",N_("Alien Freq"),"S",N_("LFO in Beats per Minute"),&fslider0, 24.0, 24.0, 3.6e+02, 1.0);
-	static const value_pair fcheckbox0_values[] = {{"manual"},{"auto"},{"alien"},{0}};
-	reg.registerEnumVar("voxwah.mode","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("voxwah.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
+	fslider1_ = reg.registerVar("wah.Wah","","SA","",&fslider1, 0.0, 0.0, 1.0, 0.01);
+	fslider0_ = reg.registerVar("wah.freq",N_("Alien Freq"),"SA",N_("LFO in Beats per Minute"),&fslider0, 24.0, 24.0, 3.6e+02, 1.0);
+	static const value_pair fslider2_values[] = {{"manual"},{"auto"},{"alien"},{0}};
+	fslider2_ = reg.registerSharedEnumVar("wah.mode","","S","",fslider2_values,&fslider2, 0.0, 0.0, 2.0, 1.0);
+	fslider3_ = reg.registerVar("wah.wet_dry",N_("dry/wet"),"SA","",&fslider3, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 
@@ -281,32 +288,6 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
-inline int Dsp::load_ui_f(const UiBuilder& b, int form)
-{
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("voxwah" "." p)
-
-b.openHorizontalhideBox("");
-    b.create_master_slider(PARAM("Wah"), "Wah");
-b.closeBox();
-b.openHorizontalBox("");
-
-    b.create_selector(PARAM("mode"), "Mode");
-    b.create_small_rackknobr(PARAM("lfobpm"), "Alien Freq");
-    b.create_small_rackknobr(PARAM("Wah"), "Wah");
-    b.create_small_rackknobr(PARAM("wet_dry"), "dry/wet");
-b.closeBox();
-
-#undef PARAM
-        return 0;
-    }
-	return -1;
-}
-
-int Dsp::load_ui_f_static(const UiBuilder& b, int form)
-{
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
-}
 PluginDef *plugin() {
 	return new Dsp();
 }
@@ -317,4 +298,3 @@ void Dsp::del_instance(PluginDef *p)
 }
 
 } // end namespace voxwah
-} // end namespace pluginlib
