@@ -37,6 +37,7 @@ ParamRegImpl::ParamRegImpl(gx_engine::ParamMap* pm): ParamReg() {
     registerNonMidiVar = registerNonMidiVar_;
     registerNonMidiFloatVar = registerNonMidiFloatVar_;
     registerEnumVar = registerEnumVar_;
+    registerSharedEnumVar = registerSharedEnumVar_;
     registerIEnumVar = registerIEnumVar_;
 }
 
@@ -108,6 +109,25 @@ void ParamRegImpl::registerEnumVar_(const char *id, const char* name, const char
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
     }
+}
+
+float *ParamRegImpl::registerSharedEnumVar_(const char *id, const char* name, const char* tp,
+			       const char* tooltip, const value_pair* values, float *var,
+			       float val, float low, float up, float step) {
+    if (!name[0]) {
+        assert(strrchr(id, '.'));
+        name = strrchr(id, '.')+1;
+    }
+    assert(step == 1.0);
+	if (pmap->hasId(id)) {
+	    gx_engine::Parameter& p = (*pmap)[id];
+	    return p.getFloat().value;
+	}
+	gx_engine::Parameter *p = pmap->reg_enum_par(id, name, values, var, val, low);
+    if (tooltip && tooltip[0]) {
+        p->set_desc(tooltip);
+    }
+    return var;
 }
 
 void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const char* tp,

@@ -187,6 +187,13 @@ crybaby_ctrl = environment {
     wet_dry = vslider(".crybaby.wet_dry[name:dry/wet][alias]",  100, 0, 100, 1) : /(100);
 };
 
+wah_ctrl = environment {
+    mode = vslider(".wah.mode[enum:manual|auto|alien][alias]", 0, 0, 2, 1);
+    wah = vslider(".wah.Wah[alias]", 0, 0, 1, 0.01);
+    freq = vslider(".wah.freq[name:Alien Freq][tooltip:LFO in Beats per Minute][alias]",24,24,360,1)/60;
+    wet_dry = vslider(".wah.wet_dry[name:dry/wet][alias]",  100, 0, 100, 1) : /(100);
+};
+
 balance_ctrl = environment {
     bal = vslider(".amp.balance[name:Balance][alias]", 0, -1, 1, 0.1) : smoothi(0.999);
 };

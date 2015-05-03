@@ -106,6 +106,9 @@ private:
     static void registerEnumVar_(const char *id, const char* name, const char* tp,
 				 const char* tooltip, const value_pair* values, float *var, float val,
 				 float low, float up, float step);
+    static float *registerSharedEnumVar_(const char *id, const char* name, const char* tp,
+				 const char* tooltip, const value_pair* values, float *var, float val,
+				 float low, float up, float step);
     static void registerIEnumVar_(const char *id, const char* name, const char* tp,
 				  const char* tooltip, const value_pair* values, int *var, int val);
 public:

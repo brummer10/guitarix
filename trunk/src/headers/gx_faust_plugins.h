@@ -129,6 +129,11 @@ declare(duck_delay_st)
 declare(baxandall)
 declare(distortion2)
 declare(fuzzface)
+declare(colwah)
+declare(dallaswah)
+declare(foxwah)
+declare(maestrowah)
+declare(voxwah)
 }
 
 declare(balance)

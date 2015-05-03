@@ -59,11 +59,7 @@ def build(bld):
         '../plugins/ffreak.cc',
         '../plugins/fumaster.cc',
         '../plugins/fuzzdrive.cc',
-        '../plugins/voxwah.cc',
-        '../plugins/dallaswah.cc',
-        '../plugins/maestrowah.cc',
         '../plugins/rolandwah.cc',
-        '../plugins/foxwah.cc',
     ]
     
     src = ['ladspa_guitarix.cpp'] + bsources

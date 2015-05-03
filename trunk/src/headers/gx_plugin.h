@@ -126,6 +126,9 @@ struct ParamReg {
     void (*registerEnumVar)(const char *id, const char* name, const char* tp,
 			    const char* tooltip, const value_pair* values, float *var, float val,
 			    float low, float up, float step);
+    float *(*registerSharedEnumVar)(const char *id, const char* name, const char* tp,
+			    const char* tooltip, const value_pair* values, float *var, float val,
+			    float low, float up, float step);
     void (*registerIEnumVar)(const char *id, const char* name, const char* tp,
 			     const char* tooltip, const value_pair* values, int *var, int val);
 };

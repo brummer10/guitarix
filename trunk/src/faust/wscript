@@ -133,7 +133,11 @@ def build(bld):
         'baxandall.dsp',
         'distortion2.dsp',
         'fuzzface.dsp',
-       
+        'colwah.dsp',       
+        'dallaswah.dsp',       
+        'foxwah.dsp',       
+        'maestrowah.dsp',       
+        'voxwah.dsp',       
 
 
         # amps
