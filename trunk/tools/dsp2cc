@@ -42,7 +42,7 @@ class UIDefs(object):
                     enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
                     d["ename"] = ename = d["variable"] + "_values"
                     fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
-                    fp.write('\t%(variable)s_ = %(prefix)sregisterSharedEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
+                    fp.write('\t%(variable)s_ = %(prefix)sregisterSharedEnumVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
                 else:
                     fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
             elif "enum" in d:

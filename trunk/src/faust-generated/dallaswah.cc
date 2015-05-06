@@ -278,7 +278,7 @@ int Dsp::register_par(const ParamReg& reg)
 	fslider1_ = reg.registerVar("wah.Wah","","SA","",&fslider1, 0.0, 0.0, 1.0, 0.01);
 	fslider0_ = reg.registerVar("wah.freq",N_("Alien Freq"),"SA",N_("LFO in Beats per Minute"),&fslider0, 24.0, 24.0, 3.6e+02, 1.0);
 	static const value_pair fslider2_values[] = {{"manual"},{"auto"},{"alien"},{0}};
-	fslider2_ = reg.registerSharedEnumVar("wah.mode","","S","",fslider2_values,&fslider2, 0.0, 0.0, 2.0, 1.0);
+	fslider2_ = reg.registerSharedEnumVar("wah.mode","","SA","",fslider2_values,&fslider2, 0.0, 0.0, 2.0, 1.0);
 	fslider3_ = reg.registerVar("wah.wet_dry",N_("dry/wet"),"SA","",&fslider3, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }

@@ -119,10 +119,20 @@ float *ParamRegImpl::registerSharedEnumVar_(const char *id, const char* name, co
         name = strrchr(id, '.')+1;
     }
     assert(step == 1.0);
+    int n = strlen(tp);
+    if (n && tp[n-1] == 'A') {
 	if (pmap->hasId(id)) {
 	    gx_engine::Parameter& p = (*pmap)[id];
+#ifndef NDEBUG
+	    gx_engine::FloatParameter p2(
+		id, name, gx_engine::Parameter::Enum,
+		true, p.getFloat().value, val, low, up, step, true, false);
+	    p2.set_desc(tooltip);
+	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
+#endif
 	    return p.getFloat().value;
 	}
+    }
 	gx_engine::Parameter *p = pmap->reg_enum_par(id, name, values, var, val, low);
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
