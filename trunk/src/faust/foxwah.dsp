@@ -1,10 +1,10 @@
 // generated automatically
 // DO NOT MODIFY!
 declare id "foxwah";
-declare name "Fox Wah";
+declare name "Foxx Wah";
 declare category "Guitar Effects";
-declare shortname "Fox Wah";
-declare description "FoxWah";
+declare shortname "Foxx Wah";
+declare description "Foxx Wah";
 
 import("filter.lib");
 import("effect.lib");

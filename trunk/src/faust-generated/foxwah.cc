@@ -113,11 +113,11 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "foxwah";
-	name = N_("Fox Wah");
+	name = N_("Foxx Wah");
 	groups = 0;
-	description = N_("FoxWah"); // description (tooltip)
+	description = N_("Foxx Wah"); // description (tooltip)
 	category = N_("Guitar Effects");       // category
-	shortname = N_("Fox Wah");     // shortname
+	shortname = N_("Foxx Wah");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;

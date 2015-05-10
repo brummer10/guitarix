@@ -128,16 +128,19 @@ def build(bld):
         'graphiceq.dsp',
         'bass_enhancer.dsp',
         'gain.dsp',
-		'duck_delay.dsp',
-		'duck_delay_st.dsp',
+        'duck_delay.dsp',
+        'duck_delay_st.dsp',
         'baxandall.dsp',
         'distortion2.dsp',
         'fuzzface.dsp',
+        'trbuff.dsp',       
         'colwah.dsp',       
         'dallaswah.dsp',       
         'foxwah.dsp',       
         'maestrowah.dsp',       
         'voxwah.dsp',       
+        'selwah.dsp',       
+        'jenwah.dsp',       
 
 
         # amps

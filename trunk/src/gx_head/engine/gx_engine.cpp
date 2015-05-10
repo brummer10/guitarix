@@ -76,7 +76,9 @@ static plugindef_creator builtin_wah_plugins[] = {
     gx_effects::colwah::plugin,
     gx_effects::dallaswah::plugin,
     gx_effects::foxwah::plugin,
+    gx_effects::jenwah::plugin,
     gx_effects::maestrowah::plugin,
+    gx_effects::selwah::plugin,
     gx_effects::voxwah::plugin,
    0
 };
@@ -384,6 +386,7 @@ void GxEngine::load_static_plugins() {
 	pl.add(gx_effects::baxandall::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::distortion2::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::fuzzface::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(gx_effects::trbuff::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::fuzzfacefm::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::fuzzfacerm::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::hornet::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
