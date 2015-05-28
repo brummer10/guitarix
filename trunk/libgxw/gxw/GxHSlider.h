@@ -36,6 +36,12 @@ typedef struct _GxHSliderClass GxHSliderClass;
 
 struct _GxHSlider {
 	GxRegler parent;
+    GdkPixbuf *image;
+    int slider_width;
+    int width;
+    int height;
+    int hover;
+    GdkRectangle image_rect;
 };
 
 struct _GxHSliderClass {

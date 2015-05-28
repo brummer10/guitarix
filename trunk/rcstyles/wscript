@@ -61,6 +61,10 @@ gxstyle_files = [
     'knob_mid.png',
     'knob_big.png',
     
+    #sliders
+    'vslider.png',
+    'hslider.png',
+    
     ###COPPER THEME
     'gx_head_Copper.rc',
     'copper.png',

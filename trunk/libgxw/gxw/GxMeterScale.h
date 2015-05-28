@@ -33,8 +33,8 @@ G_BEGIN_DECLS
 typedef enum {
 	GX_TICK_LEFT,
 	GX_TICK_RIGHT,
-	GX_TICK_BOTH,
-	GX_TICK_BELOW
+	GX_TICK_TOP,
+	GX_TICK_BOTTOM
 } GxTickPosition;
 
 typedef struct _GxMeterScale GxMeterScale;
@@ -45,6 +45,7 @@ struct _GxMeterScale {
 	GtkWidget parent;
 	GxMeterScalePrivate *priv;
 	GxTickPosition GSEAL (tick_pos);
+    gboolean horiz;
 };
 
 struct _GxMeterScaleClass {

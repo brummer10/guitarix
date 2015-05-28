@@ -63,7 +63,9 @@ style "guitarix_default" {
     stock["smallknobr"]     = {{"knob_small_r.png"}}
     stock["midknob"]        = {{"knob_mid.png"}}
     stock["bigknob"]        = {{"knob_big.png"}}
-  
+    stock["vslider"]        = {{"vslider.png"}}
+    stock["hslider"]        = {{"hslider.png"}}
+    
     engine "clearlooks" {
         focus_color         = { 0, 0, 0 }
         contrast            = 0.99
@@ -281,9 +283,39 @@ style "guitarix_fastmeter" {
 widget_class "*GxFastMeter" style:highest "guitarix_fastmeter"
 
 
+style "guitarix_vslider" {
+    GxVSlider::slider-width = 36
+}
+widget_class "*GxVSlider" style:highest "guitarix_vslider"
+
+style "guitarix_hslider" {
+    GxHSlider::slider-width = 36
+}
+widget_class "*GxHSlider" style:highest "guitarix_hslider"
+
+
+style "guitarix_meter_scale" {
+    xthickness = 8
+    ythickness = 2
+    GxMeterScale::tick-size = 3
+    GxMeterScale::tick-space = 1
+}
+widget_class "*GxMeterScale" style:highest "guitarix_meter_scale"
 
 
 
+
+
+
+
+
+
+style "guitarix_always-show-value"
+{
+    GxRegler::show-value = 1
+}
+widget "*.show_always" style:highest "guitarix_always-show-value"
+widget "*.ui.tuner_reference_pitch" style:highest "guitarix_always-show-value"
 
 #rackcontainer
     #effects_toolpalette

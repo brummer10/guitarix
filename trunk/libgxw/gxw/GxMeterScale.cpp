@@ -42,10 +42,10 @@ GType gx_tick_position_get_type(void)
 	static GType etype = 0;
 	if (G_UNLIKELY(etype == 0)) {
 		static const GEnumValue values[] = {
-			{ GX_TICK_LEFT, "TICK_LEFT", "tick left" },
-			{ GX_TICK_RIGHT,"TICK_RIGHT","tick right"},
-			{ GX_TICK_BOTH, "TICK_BOTH", "tick both" },
-			{ GX_TICK_BELOW,"TICK_BELOW","tick below"},
+			{ GX_TICK_TOP,   "TICK_TOP", "tick top" },
+			{ GX_TICK_BOTTOM,"TICK_BOTTOM", "tick bottom"},
+            { GX_TICK_LEFT,  "TICK_LEFT", "tick left" },
+			{ GX_TICK_RIGHT, "TICK_RIGHT", "tick right"},
 			{ 0, NULL, NULL }
 		};
 		etype = g_enum_register_static (g_intern_static_string ("GxTickPosition"), values);
@@ -106,31 +106,34 @@ static void gx_meter_scale_size_request(GtkWidget* wd, GtkRequisition* req)
 	gint tick_size, tick_space;
 	gtk_widget_style_get(wd, "tick-size", &tick_size, "tick-space", &tick_space, NULL);
 	gint w = 0;
-	gint h = 1;
+	gint h = 0;
+    gboolean d = FALSE;
 	GSList *m;
-	for (m = priv->marks; m; m = m->next) {
-		PangoRectangle logical_rect;
-		GxMeterScaleMark *mark = (GxMeterScaleMark*)(m->data);
-		pango_layout_set_markup (layout, mark->markup, -1);
-		pango_layout_get_pixel_extents (layout, NULL, &logical_rect);
-		if (w < logical_rect.width) {
-			w = logical_rect.width;
-		}
-		h += logical_rect.width;
-	}
+    for (m = priv->marks; m; m = m->next) {
+        d = TRUE;
+        if (m->next and d)
+            continue;
+        PangoRectangle logical_rect;
+        GxMeterScaleMark *mark = (GxMeterScaleMark*)(m->data);
+        pango_layout_set_markup (layout, mark->markup, -1);
+        pango_layout_get_pixel_extents (layout, NULL, &logical_rect);
+        if (meter_scale->tick_pos == GX_TICK_TOP
+        or  meter_scale->tick_pos == GX_TICK_BOTTOM) {
+            w += logical_rect.width;
+            h = logical_rect.height;
+        } else {
+            w = logical_rect.width;
+            h += logical_rect.height;
+        }
+    }
 	g_object_unref(layout);
-	switch (meter_scale->tick_pos) {
-	case GX_TICK_LEFT:
-	case GX_TICK_RIGHT:
-		w += tick_size + 2*tick_space;
-		break;
-	case GX_TICK_BOTH:
-	case GX_TICK_BELOW:
-		w += 2 * (tick_size + tick_space);
-		break;
-	}
-	req->width = w;
-	req->height = h;
+    if (meter_scale->tick_pos == GX_TICK_TOP
+    or  meter_scale->tick_pos == GX_TICK_BOTTOM)
+        h += tick_size + 2 * tick_space;
+    else
+        w += tick_size + 2 * tick_space;
+	req->width  = w + wd->style->xthickness * 2;
+	req->height = h + wd->style->ythickness * 2;
 }
 
 static gint compare_marks(gpointer a, gpointer b)
@@ -251,7 +254,7 @@ static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)
 			cairo_rel_move_to(cr, -(tick_space + logical_rect.width),
 			                  -logical_rect.height/2);
 			break;
-		case GX_TICK_BOTH:
+		case GX_TICK_TOP:
 			cairo_move_to(cr, x0, y);
 			cairo_rel_line_to(cr, tick_size, 0);
 			cairo_move_to(cr, x0 + rect_width, y);
@@ -259,7 +262,7 @@ static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)
 			cairo_move_to(cr, x0 + (rect_width - logical_rect.width + sign_offset) / 2,
 			              y - logical_rect.height/2);
 			break;
-		case GX_TICK_BELOW:
+		case GX_TICK_BOTTOM:
 			cairo_move_to(cr, x0, y);
 			cairo_rel_line_to(cr, rect_width, 0);
 			cairo_move_to(cr, x0 + (rect_width - logical_rect.width + sign_offset) / 2,
