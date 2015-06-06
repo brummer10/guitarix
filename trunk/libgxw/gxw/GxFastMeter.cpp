@@ -400,12 +400,16 @@ void gx_fast_meter_clear(GxFastMeter* fm)
 static void gx_fast_meter_size_request (GtkWidget* wd, GtkRequisition* req)
 {
     GxFastMeter * fm = GX_FAST_METER(wd);
-    int xs = wd->style->xthickness;
-    int ys = wd->style->ythickness;
-    int lw, lh, lb, dim_, dim, tm;
+    int lw, lh, lb, dim_, dim, tm, xs, ys;
     gtk_widget_style_get(wd, "led-width", &lw, "led-height", &lh, "led-border", &lb, "dimen", &dim_, NULL);
     dim = fm->dimen ? fm->dimen : dim_;
-    
+    if (fm->horiz) {
+        xs = wd->style->xthickness;
+        ys = wd->style->ythickness;
+    } else {
+        xs = wd->style->ythickness;
+        ys = wd->style->xthickness;
+    }
     if (!fm->horiz) {
         tm = !fm->type ? 2 * xs : int(1.5 * xs);
         req->width  = lb + dim * (lw + lb) + tm;
@@ -586,14 +590,22 @@ static void request_vertical_meter(GtkWidget *widget)
 		cairo_surface_destroy(fm->surface);
         cairo_surface_destroy(fm->overlay);
 	}
-    int xs = widget->style->xthickness;
-    int ys = widget->style->ythickness;
     int lw, lh, lb, dim_, dim, type, tm, rad;
     float bevel;
     gtk_widget_style_get(widget, "led-width", &lw, "led-height", &lh, "led-border", &lb, "dimen", &dim_, "border-radius", &rad, "bevel", &bevel, NULL);
     dim = fm->dimen ? fm->dimen : dim_;
     type = fm->type;
     bool hrz = fm->horiz;
+    
+    int xs, ys;
+    
+    if (hrz) {
+        xs = widget->style->xthickness;
+        ys = widget->style->ythickness;
+    } else {
+        xs = widget->style->ythickness;
+        ys = widget->style->xthickness;
+    }
     //printf("tw %d th %d tb %d dim %d type %d\n", lw, lh, lb, dim, type);
     
     int width, height;
@@ -654,7 +666,7 @@ static void request_vertical_meter(GtkWidget *widget)
     
     // inner background
     w_ = hrz ? width - 2 * xs : lb + dim * (lw + lb);
-    h_ = hrz ? lb + dim * (lw + lb) : height - 2 * xs;
+    h_ = hrz ? lb + dim * (lw + lb) : height - 2 * ys;
     x_ = xs;
     y_ = ys;
     if (type == 2) {
