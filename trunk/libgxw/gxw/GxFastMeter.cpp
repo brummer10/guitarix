@@ -177,6 +177,7 @@ void gx_fast_meter_init(GxFastMeter* fm)
     fm->old_peak_db =  -INFINITY;
 	gtk_widget_set_events(GTK_WIDGET(fm),
 	                      GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
+    gtk_widget_set_has_window(GTK_WIDGET(fm), FALSE);
     GdkScreen *screen = gdk_screen_get_default();
     GdkColormap *colormap = gdk_screen_get_rgba_colormap(screen);
     if (colormap && gdk_screen_is_composited (screen))
@@ -504,6 +505,8 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
     int hrz    = fm->horiz;
 	int height = cairo_image_surface_get_height(fm->surface);
 	int width  = cairo_image_surface_get_width(fm->surface);
+    int x = wd->allocation.x;
+    int y = wd->allocation.y;
     
     top_of_meter  = (gint) floor (float(hrz ? b.width : b.height) * fm->current_level);
     top_of_meter -= top_of_meter % (lh + lb);
@@ -513,15 +516,18 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
     
 	cairo_t *cr = gdk_cairo_create(GTK_WIDGET(fm)->window);
     
-    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
-    cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
-    cairo_paint(cr);
+    cairo_rectangle(cr, x, y, width, height);
+    cairo_clip(cr);
     
-    cairo_set_source_surface(cr, fm->surface, 0, 0);
-	cairo_rectangle(cr, 0, 0, width, height);
+    //cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+    //cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
+    //cairo_paint(cr);
+    
+    cairo_set_source_surface(cr, fm->surface, x, y);
+	cairo_rectangle(cr, x, y, width, height);
 	cairo_fill(cr);
     
-    cairo_set_source_surface(cr, fm->overlay, 0, 0);
+    cairo_set_source_surface(cr, fm->overlay, x, y);
     cairo_rectangle(cr,
         b.x,
         hrz ? b.y : b.y + b.height - top_of_meter,
@@ -547,7 +553,7 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
             r->y = b.y + b.height - h + h % (lb + lh);
         }
 
-		cairo_set_source_surface(cr, fm->overlay, 0, 0);
+		cairo_set_source_surface(cr, fm->overlay, x, y);
 		cairo_rectangle(cr, r->x, r->y, r->width, r->height);
 		cairo_fill(cr);
 	} else {

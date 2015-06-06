@@ -327,13 +327,13 @@ void StackBoxBuilder::create_simple_meter(const std::string& id) {
 void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::string& idm, const char *label) {
     Gxw::FastMeter *fastmeter = new Gxw::FastMeter();
     fastmeter->set_hold_count(5);
-    fastmeter->set_property("dimen",5);
+    fastmeter->set_property("dimen",2);
     Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
     fastmeter->set_by_power(0.0001);
     Gxw::LevelSlider *w = new UiRegler<Gxw::LevelSlider>(machine, idm);
     w->set_name("lmw");
-    GxPaintBox *box =  new GxPaintBox("simple_level_meter_expose");
+    GxPaintBox *box =  new GxPaintBox(""); // simple_level_meter_expose
     box->set_border_width(2);
     box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
     box->add(*Gtk::manage(static_cast<Gtk::Widget*>(w)));
