@@ -666,7 +666,7 @@ void PluginDisplay::save_current() {
     } else {
 	current_plugin->shortname = s;
     }
-    plugin_category->get_active()->get_value(0, current_plugin->category);
+    plugin_category->get_active()->get_value(1, current_plugin->category);
     plugin_quirks->get_active()->get_value(1, current_plugin->quirks);
     Gtk::TreeIter it = master_slider_idx->get_active();
     if (it) {
@@ -742,7 +742,7 @@ void PluginDisplay::selection_changed() {
     int i = 0;
     for (it = ch.begin(); it != ch.end(); ++it, ++i) {
 	ustring cat;
-	it->get_value(0, cat);
+	it->get_value(1, cat);
 	if (cat == p->category) {
 	    plugin_category->set_active(i);
 	    break;

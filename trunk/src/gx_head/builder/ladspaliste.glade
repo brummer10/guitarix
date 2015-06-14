@@ -23,31 +23,41 @@
     <columns>
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
+      <!-- column-name gchararray2 -->
+      <column type="gchararray"/>
     </columns>
     <data>
       <row>
         <col id="0" translatable="yes">Tone control</col>
+        <col id="1">Tone control</col>
       </row>
       <row>
         <col id="0" translatable="yes">Distortion</col>
+        <col id="1">Distortion</col>
       </row>
       <row>
         <col id="0" translatable="yes">Reverb</col>
+        <col id="1">Reverb</col>
       </row>
       <row>
         <col id="0" translatable="yes">Echo / Delay</col>
+        <col id="1">Echo / Delay</col>
       </row>
       <row>
         <col id="0" translatable="yes">Modulation</col>
+        <col id="1">Modulation</col>
       </row>
       <row>
         <col id="0" translatable="yes">Guitar Effects</col>
+        <col id="1">Guitar Effects</col>
       </row>
       <row>
         <col id="0" translatable="yes">Misc</col>
+        <col id="1">Misc</col>
       </row>
       <row>
         <col id="0" translatable="yes">External</col>
+        <col id="1">External</col>
       </row>
     </data>
   </object>
@@ -147,7 +157,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
@@ -183,7 +192,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
@@ -200,7 +208,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
@@ -217,7 +224,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
@@ -234,7 +240,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">show_all</property>
@@ -263,7 +268,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                       </object>
                       <packing>
@@ -278,7 +282,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                       </object>
                       <packing>
@@ -293,7 +296,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                       </object>
                       <packing>
@@ -732,7 +734,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                       </object>
                       <packing>
@@ -747,7 +748,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
