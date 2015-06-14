@@ -122,6 +122,7 @@ private:
 	float 	fRec31[2];
 	FAUSTFLOAT 	fslider7;
 	float 	fRec0[2];
+	FAUSTFLOAT 	fslider8;
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();
@@ -328,41 +329,44 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	float 	fSlow0 = (0.01f * float(fslider0));
-	float 	fSlow1 = tanf((fConst1 * float(fslider1)));
-	float 	fSlow2 = (2 * (1 - (1.0f / faustpower<2>(fSlow1))));
-	float 	fSlow3 = (1.0f / fSlow1);
-	float 	fSlow4 = (1 + ((fSlow3 - 1.414213562373095f) / fSlow1));
-	float 	fSlow5 = (1 + ((1.414213562373095f + fSlow3) / fSlow1));
-	float 	fSlow6 = (1.0f / fSlow5);
-	float 	fSlow7 = tanf((fConst1 * float(fslider2)));
-	float 	fSlow8 = (1.0f / faustpower<2>(fSlow7));
-	float 	fSlow9 = (2 * (1 - fSlow8));
-	float 	fSlow10 = (1.0f / fSlow7);
-	float 	fSlow11 = (1 + ((fSlow10 - 1.414213562373095f) / fSlow7));
-	float 	fSlow12 = (1.0f / (1 + ((1.414213562373095f + fSlow10) / fSlow7)));
-	float 	fSlow13 = (0.01f * float(fslider3));
-	float 	fSlow14 = (2 * (0 - fSlow8));
-	float 	fSlow15 = (fConst48 / fSlow5);
-	float 	fSlow16 = float(fslider4);
-	int 	iSlow17 = int(min((float)2, max((float)0, fSlow16)));
-	int 	iSlow18 = int(min((float)2, max((float)0, (fSlow16 - 1))));
-	int 	iSlow19 = int(min((float)2, max((float)0, (fSlow16 - 2))));
-	float 	fSlow20 = min(524288.0f, B2N(float(fslider5), (float(iConst77) / float(fslider6))));
-	float 	fSlow21 = (0.01f * float(fslider7));
+	float 	fSlow0 = float(fslider0);
+	float 	fSlow1 = (1.0f - fSlow0);
+	float 	fSlow2 = tanf((fConst1 * float(fslider1)));
+	float 	fSlow3 = (2 * (1 - (1.0f / faustpower<2>(fSlow2))));
+	float 	fSlow4 = (1.0f / fSlow2);
+	float 	fSlow5 = (1 + ((fSlow4 - 1.414213562373095f) / fSlow2));
+	float 	fSlow6 = (1 + ((1.414213562373095f + fSlow4) / fSlow2));
+	float 	fSlow7 = (1.0f / fSlow6);
+	float 	fSlow8 = tanf((fConst1 * float(fslider2)));
+	float 	fSlow9 = (1.0f / faustpower<2>(fSlow8));
+	float 	fSlow10 = (2 * (1 - fSlow9));
+	float 	fSlow11 = (1.0f / fSlow8);
+	float 	fSlow12 = (1 + ((fSlow11 - 1.414213562373095f) / fSlow8));
+	float 	fSlow13 = (1.0f / (1 + ((1.414213562373095f + fSlow11) / fSlow8)));
+	float 	fSlow14 = (0.01f * float(fslider3));
+	float 	fSlow15 = (2 * (0 - fSlow9));
+	float 	fSlow16 = (fConst48 / fSlow6);
+	float 	fSlow17 = float(fslider4);
+	int 	iSlow18 = int(min((float)2, max((float)0, fSlow17)));
+	int 	iSlow19 = int(min((float)2, max((float)0, (fSlow17 - 1))));
+	int 	iSlow20 = int(min((float)2, max((float)0, (fSlow17 - 2))));
+	int 	iSlow21 = int(fSlow0);
+	float 	fSlow22 = min(524288.0f, B2N(float(fslider5), (float(iConst77) / float(fslider6))));
+	float 	fSlow23 = (0.01f * float(fslider7));
+	float 	fSlow24 = (0.01f * float(fslider8));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
-		fRec2[0] = ((fSlow13 * fRec0[1]) - (fSlow12 * ((fSlow11 * fRec2[2]) + (fSlow9 * fRec2[1]))));
-		fRec1[0] = ((fSlow12 * (((fSlow8 * fRec2[0]) + (fSlow14 * fRec2[1])) + (fSlow8 * fRec2[2]))) - (fSlow6 * ((fSlow4 * fRec1[2]) + (fSlow2 * fRec1[1]))));
+		fRec2[0] = ((fSlow14 * fRec0[1]) - (fSlow13 * ((fSlow12 * fRec2[2]) + (fSlow10 * fRec2[1]))));
+		fRec1[0] = ((fSlow13 * (((fSlow9 * fRec2[0]) + (fSlow15 * fRec2[1])) + (fSlow9 * fRec2[2]))) - (fSlow7 * ((fSlow5 * fRec1[2]) + (fSlow3 * fRec1[1]))));
 		float fTemp1 = (fRec1[2] + (fRec1[0] + (2 * fRec1[1])));
-		float fTemp2 = (fSlow6 * fTemp1);
+		float fTemp2 = (fSlow7 * fTemp1);
 		fVec0[0] = fTemp2;
 		float fTemp3 = (fConst9 * fRec5[1]);
 		float fTemp4 = (fConst18 * fRec6[1]);
 		float fTemp5 = (fConst25 * fRec7[1]);
 		float fTemp6 = (fConst32 * fRec8[1]);
 		float fTemp7 = (fConst39 * fRec9[1]);
-		fRec11[0] = ((fConst54 * fRec11[1]) + (fConst53 * ((fSlow15 * fTemp1) + (fConst51 * fVec0[1]))));
+		fRec11[0] = ((fConst54 * fRec11[1]) + (fConst53 * ((fSlow16 * fTemp1) + (fConst51 * fVec0[1]))));
 		fRec10[0] = (fRec11[0] - (fConst50 * ((fConst49 * fRec10[2]) + (fConst47 * fRec10[1]))));
 		fRec9[0] = ((fConst50 * (((fConst46 * fRec10[0]) + (fConst55 * fRec10[1])) + (fConst46 * fRec10[2]))) - (fConst44 * ((fConst43 * fRec9[2]) + fTemp7)));
 		fRec8[0] = ((fConst44 * ((fTemp7 + (fConst58 * fRec9[0])) + (fConst57 * fRec9[2]))) - (fConst37 * ((fConst36 * fRec8[2]) + fTemp6)));
@@ -373,7 +377,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec1[0] = fTemp8;
 		fRec4[0] = ((fConst73 * fRec4[1]) + (fConst72 * (fVec1[0] + fVec1[1])));
 		fRec3[0] = (fRec4[0] - (fConst7 * ((fConst5 * fRec3[2]) + (fConst3 * fRec3[1]))));
-		float fTemp9 = ((iSlow17==0)? fVec0[0] : ((iSlow17==1)?(fConst74 * (fRec3[2] + (fRec3[0] + (2 * fRec3[1])))):fVec0[0]) );
+		float fTemp9 = ((iSlow18==0)? fVec0[0] : ((iSlow18==1)?(fConst74 * (fRec3[2] + (fRec3[0] + (2 * fRec3[1])))):fVec0[0]) );
 		float fTemp10 = (0.1f * fRec12[1]);
 		float fTemp11 = ((0.4f * fRec16[1]) + fTemp10);
 		float fTemp12 = (0.2f * fRec14[1]);
@@ -387,7 +391,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		float 	fRec15 = (0 - (0.2f * (fTemp14 - fTemp10)));
 		fRec12[0] = (fRec15 + fRec14[1]);
 		float 	fRec13 = (0.1f * (fTemp9 - fTemp10));
-		float fTemp15 = ((iSlow18==0)? fTemp9 : ((iSlow18==1)?(fRec13 + fRec12[1]):fTemp9) );
+		float fTemp15 = ((iSlow19==0)? fTemp9 : ((iSlow19==1)?(fRec13 + fRec12[1]):fTemp9) );
 		float fTemp16 = (0.5f * fRec20[1]);
 		float fTemp17 = ((0.4f * fRec22[1]) + fTemp16);
 		float fTemp18 = (0.3f * fRec24[1]);
@@ -400,15 +404,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		float 	fRec23 = (0.4f * (fTemp15 - fTemp17));
 		fRec20[0] = (fRec23 + fRec22[1]);
 		float 	fRec21 = (0.5f * (fTemp15 - fTemp16));
-		float fTemp20 = (((iSlow19==0)? fTemp15 : ((iSlow19==1)?(fRec21 + fRec20[1]):fTemp15) ) + (fSlow0 * fTemp0));
+		float fTemp20 = (((iSlow21)?fRec0[1]:((iSlow20==0)? fTemp15 : ((iSlow20==1)?(fRec21 + fRec20[1]):fTemp15) )) + (fSlow1 * fTemp0));
 		fVec2[IOTA&524287] = fTemp20;
-		float fTemp21 = ((int((fRec28[1] != 0.0f)))?((int(((fRec29[1] > 0.0f) & (fRec29[1] < 1.0f))))?fRec28[1]:0):((int(((fRec29[1] == 0.0f) & (fSlow20 != fRec30[1]))))?fConst75:((int(((fRec29[1] == 1.0f) & (fSlow20 != fRec31[1]))))?fConst76:0)));
+		float fTemp21 = ((int((fRec28[1] != 0.0f)))?((int(((fRec29[1] > 0.0f) & (fRec29[1] < 1.0f))))?fRec28[1]:0):((int(((fRec29[1] == 0.0f) & (fSlow22 != fRec30[1]))))?fConst75:((int(((fRec29[1] == 1.0f) & (fSlow22 != fRec31[1]))))?fConst76:0)));
 		fRec28[0] = fTemp21;
 		fRec29[0] = max(0.0f, min(1.0f, (fRec29[1] + fTemp21)));
-		fRec30[0] = ((int(((fRec29[1] >= 1.0f) & (fRec31[1] != fSlow20))))?fSlow20:fRec30[1]);
-		fRec31[0] = ((int(((fRec29[1] <= 0.0f) & (fRec30[1] != fSlow20))))?fSlow20:fRec31[1]);
-		fRec0[0] = (fSlow21 * (((1.0f - fRec29[0]) * fVec2[(IOTA-int((int(fRec30[0]) & 524287)))&524287]) + (fRec29[0] * fVec2[(IOTA-int((int(fRec31[0]) & 524287)))&524287])));
-		output0[i] = (FAUSTFLOAT)(fTemp0 + fRec0[0]);
+		fRec30[0] = ((int(((fRec29[1] >= 1.0f) & (fRec31[1] != fSlow22))))?fSlow22:fRec30[1]);
+		fRec31[0] = ((int(((fRec29[1] <= 0.0f) & (fRec30[1] != fSlow22))))?fSlow22:fRec31[1]);
+		float fTemp22 = (((1.0f - fRec29[0]) * fVec2[(IOTA-int((int(fRec30[0]) & 524287)))&524287]) + (fRec29[0] * fVec2[(IOTA-int((int(fRec31[0]) & 524287)))&524287]));
+		fRec0[0] = ((iSlow21)?fTemp22:(fSlow23 * fTemp22));
+		output0[i] = (FAUSTFLOAT)(fTemp0 + (fSlow24 * (fRec0[0] + (fSlow0 * fTemp0))));
 		// post processing
 		fRec0[1] = fRec0[0];
 		fRec31[1] = fRec31[0];
@@ -447,9 +452,10 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	reg.registerVar("dide.Freeze","","S",N_("Freeze the current delay"),&fslider0, 0.0f, 0.0f, 1.0f, 1.0f);
 	reg.registerVar("dide.bpm",N_("delay (bpm)"),"S",N_("Delay in Beats per Minute"),&fslider6, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
 	reg.registerVar("dide.feedback","","S",N_("percentage of the feedback level in the delay loop"),&fslider3, 5e+01f, 1.0f, 1e+02f, 1.0f);
-	reg.registerVar("dide.gain","","S",N_("overall gain of the delay line in percent"),&fslider0, 1e+02f, 0.0f, 1.2e+02f, 1.0f);
+	reg.registerVar("dide.gain","","S",N_("overall gain of the delay line in percent"),&fslider8, 1e+02f, 0.0f, 1.2e+02f, 1.0f);
 	reg.registerVar("dide.highpass",N_("highpass (hz)"),"S",N_("highpass filter frequency in the feddback loop"),&fslider2, 1.2e+02f, 2e+01f, 2e+04f, 1.0f);
 	reg.registerVar("dide.howpass",N_("lowpass (hz)"),"S",N_("lowpass filter frequency in the feddback loop"),&fslider1, 1.2e+04f, 2e+01f, 2e+04f, 1.0f);
 	reg.registerVar("dide.level","","S",N_("percentage of the delay gain level"),&fslider7, 5e+01f, 1.0f, 1e+02f, 1.0f);
@@ -512,6 +518,7 @@ b.openVerticalBox("");
             b.create_small_rackknobr(PARAM("gain"), _("amount"));
             b.openFrameBox("");
             b.closeBox();
+            b.create_switch(sw_rbutton,PARAM("Freeze"), _("freeze"));
         }
         b.closeBox();
     }

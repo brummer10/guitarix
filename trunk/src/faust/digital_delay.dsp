@@ -28,9 +28,17 @@ selfilter(n)  = _<: a <: b <: c :>_ with {
 
 tempo2note = ffunction(float B2N(int,float), "beat.h", "");
 
-dide         = _<:*(dry),(*(wet) : digd):>_ with {
-  digd       = (+:(delayed:*(level)))~(*(feedback): highpass(2,hifr1):lowpass(2,lofr1) : selfilter(sl)) with {
-    sl = hslider("mode[enum:plain|presence|tape|tape2]",0,0,3,1);
+dide         = _<:*(dry),(delx(B) : *(wet)):>_ with {
+  B          = hslider("Freeze[tooltip:Freeze the current delay]",0,0,1,1);
+  delx(n)    = _<:(*(1.0-B):digd), *(B):>_;
+
+  digd       = (+:(delayed:lback(B)))~(fback(B)) with {
+    fback(n) = _<:select2(n, feed, freeze):>_;
+    lback(n) = _<:select2(n, *(level), *(1.0)):>_;
+    feed     = *(feedback): highpass(2,hifr1):lowpass(2,lofr1) : selfilter(sl);
+    freeze   = *(1.0);
+    sl       = hslider("mode[enum:plain|presence|tape|tape2]",0,0,3,1);
+
     delayed  = sdelay(N, interp, min(2^19,(tempo2note(tact,dbpm)))) with {
       dtime  = hslider("delay[tooltip:Delay Time in ms]", 2500, 0.1, 5000, 0.1)*SR/1000.0;
       dbpm   = tempo(hslider("bpm[name:delay (bpm)][tooltip:Delay in Beats per Minute]",120,24,360,1));
@@ -42,11 +50,13 @@ Dotted 1/64 note|1/64 note|1/64 note triplets][tooltip:note setting for bpm]",4,
       interp = 100*SR/1000.0;
       N      = int( 2^19 ) ;
     };
+
     level    = vslider("level[tooltip:percentage of the delay gain level]", 50, 1, 100, 1)/100 ;
     feedback = vslider("feedback[tooltip:percentage of the feedback level in the delay loop]", 50, 1, 100, 1)/100 ;
     hifr1    = hslider("highpass [name:highpass (hz)][tooltip: highpass filter frequency in the feddback loop]" ,120 , 20, 20000, 1);
     lofr1    = hslider("howpass [name:lowpass (hz)][tooltip: lowpass filter frequency in the feddback loop]" ,12000 , 20, 20000, 1);
   };
+
   wet        = vslider("gain[tooltip:overall gain of the delay line in percent]",  100, 0, 120, 1) : /(100);
   dry        = 1 ;
 };
