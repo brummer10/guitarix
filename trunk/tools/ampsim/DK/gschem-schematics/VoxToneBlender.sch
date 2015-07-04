@@ -45,7 +45,7 @@ refdes=C4
 T 51100 45700 5 10 0 0 180 0 1
 symversion=0.1
 T 51600 46600 5 10 1 1 180 0 1
-value=0.0033u
+value=0.032u
 }
 C 49900 42500 1 0 0 gnd-1.sym
 C 51300 43700 1 0 0 gnd-1.sym
@@ -79,9 +79,9 @@ refdes=P2
 T 53300 44700 5 10 0 1 270 0 1
 device=VARIABLE_RESISTOR
 T 52700 44600 5 10 1 1 0 0 1
-value=value=300k,var=Volume,inv=1
+value=value=250k,var=Volume,inv=1
 T 52400 45500 5 10 0 0 0 0 2
-comment=300k
+comment=250k
 Log.
 }
 C 49900 44500 1 270 0 resistor-variable-2.sym
@@ -157,7 +157,7 @@ refdes=C2
 T 50700 44700 5 10 0 0 0 0 1
 symversion=0.1
 T 51000 44200 5 10 1 1 0 0 1
-value=25u
+value=10u
 }
 C 52600 43700 1 90 0 resistor-2.sym
 {
@@ -175,7 +175,7 @@ device=RESISTOR
 T 52300 46100 5 10 1 1 180 0 1
 refdes=R8
 T 52000 45700 5 10 1 1 0 0 1
-value=200k
+value=250k
 }
 C 51400 45500 1 90 0 resistor-2.sym
 {

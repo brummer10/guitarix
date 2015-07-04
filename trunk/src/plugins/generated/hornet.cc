@@ -258,7 +258,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp0 = (3.05506357605318e-10 + ((fRec1[0] * (1.30107041069324e-11 + (fConst0 * ((fRec0[0] * (fConst12 + (fConst10 * fRec0[0]))) + fConst8)))) + (fConst0 * ((fRec0[0] * (fConst6 + (fConst4 * fRec0[0]))) + fConst2))));
 		fRec2[0] = ((double)input0[i] - (((((fRec2[1] * (1.22202543042127e-09 + ((fRec1[0] * (5.20428164277295e-11 + (fConst0 * ((fRec0[0] * (fConst55 + (fConst54 * fRec0[0]))) + fConst53)))) + (fConst0 * ((fRec0[0] * (fConst52 + (fConst51 * fRec0[0]))) + fConst50))))) + (fRec2[2] * (1.83303814563191e-09 + ((fRec1[0] * (7.80642246415943e-11 + (fConst32 * (fConst49 + (fRec0[0] * (fConst48 + (fConst47 * fRec0[0]))))))) + (fConst32 * (fConst46 + (fRec0[0] * (fConst45 + (fConst44 * fRec0[0]))))))))) + (fRec2[3] * (1.22202543042127e-09 + ((fRec1[0] * (5.20428164277295e-11 + (fConst0 * ((fRec0[0] * (fConst43 + (fConst41 * fRec0[0]))) + fConst39)))) + (fConst0 * ((fRec0[0] * (fConst37 + (fConst35 * fRec0[0]))) + fConst33)))))) + (fRec2[4] * (3.05506357605318e-10 + ((fRec1[0] * (1.30107041069324e-11 + (fConst0 * ((fRec0[0] * (fConst30 + (fConst29 * fRec0[0]))) + fConst28)))) + (fConst0 * ((fRec0[0] * (fConst27 + (fConst26 * fRec0[0]))) + fConst25)))))) / fTemp0));
 		fRec3[0] = ((0.993 * fRec3[1]) + fSlow2);
-		output0[i] = (FAUSTFLOAT)(fConst32 * ((fRec3[0] * (((((fRec2[0] * (((fConst0 * (fRec0[0] * (fConst81 + (fConst80 * fRec0[0])))) + (fRec1[0] * (fConst79 + (fConst0 * (fRec0[0] * (fConst78 + (fConst77 * fRec0[0]))))))) + fConst76)) + (fConst0 * (fRec2[1] * (((fRec0[0] * (fConst75 + (fConst74 * fRec0[0]))) + (fRec1[0] * (fConst73 + (fRec0[0] * (fConst72 + (fConst71 * fRec0[0])))))) + fConst70)))) + (fRec2[2] * (fConst69 + ((fConst32 * (fRec0[0] * (5.67897381538002e-20 + (0 - (2.02098712291102e-19 * fRec0[0]))))) + (fRec1[0] * (fConst68 + (fConst32 * (fRec0[0] * (1.37193379892063e-17 + (1.73878804643642e-17 * fRec0[0])))))))))) + (fConst0 * (fRec2[3] * (((fRec0[0] * (fConst67 + (fConst65 * fRec0[0]))) + (fRec1[0] * (fConst63 + (fRec0[0] * (fConst61 + (fConst59 * fRec0[0])))))) + fConst57)))) + (fRec2[4] * (((fConst0 * (fRec0[0] * (fConst24 + (fConst22 * fRec0[0])))) + (fRec1[0] * (fConst20 + (fConst0 * (fRec0[0] * (fConst18 + (fConst16 * fRec0[0]))))))) + fConst14)))) / fTemp0));
+		output0[i] = (FAUSTFLOAT)(0.4 * min(0.7514, max(-0.4514, (fConst32 * ((fRec3[0] * (((((fRec2[0] * (((fConst0 * (fRec0[0] * (fConst81 + (fConst80 * fRec0[0])))) + (fRec1[0] * (fConst79 + (fConst0 * (fRec0[0] * (fConst78 + (fConst77 * fRec0[0]))))))) + fConst76)) + (fConst0 * (fRec2[1] * (((fRec0[0] * (fConst75 + (fConst74 * fRec0[0]))) + (fRec1[0] * (fConst73 + (fRec0[0] * (fConst72 + (fConst71 * fRec0[0])))))) + fConst70)))) + (fRec2[2] * (fConst69 + ((fConst32 * (fRec0[0] * (5.67897381538002e-20 + (0 - (2.02098712291102e-19 * fRec0[0]))))) + (fRec1[0] * (fConst68 + (fConst32 * (fRec0[0] * (1.37193379892063e-17 + (1.73878804643642e-17 * fRec0[0])))))))))) + (fConst0 * (fRec2[3] * (((fRec0[0] * (fConst67 + (fConst65 * fRec0[0]))) + (fRec1[0] * (fConst63 + (fRec0[0] * (fConst61 + (fConst59 * fRec0[0])))))) + fConst57)))) + (fRec2[4] * (((fConst0 * (fRec0[0] * (fConst24 + (fConst22 * fRec0[0])))) + (fRec1[0] * (fConst20 + (fConst0 * (fRec0[0] * (fConst18 + (fConst16 * fRec0[0]))))))) + fConst14)))) / fTemp0)))));
 		// post processing
 		fRec3[1] = fRec3[0];
 		for (int i=4; i>0; i--) fRec2[i] = fRec2[i-1];
@@ -275,8 +275,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("hornet.Fuzz",N_("Fuzz"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("hornet.Level",N_("Level"),"S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
 	reg.registerVar("hornet.Sustain",N_("Sustain"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("hornet.Volume",N_("Volume"),"S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
 	return 0;
 }
 
@@ -295,7 +295,7 @@ b.openHorizontalhideBox("");
 b.closeBox();
 b.openHorizontalBox("");
 
-    b.create_small_rackknobr(PARAM("Volume"), N_("Volume"));
+    b.create_small_rackknobr(PARAM("Level"), N_("Level"));
 
     b.create_small_rackknobr(PARAM("Sustain"), N_("Sustain"));
 

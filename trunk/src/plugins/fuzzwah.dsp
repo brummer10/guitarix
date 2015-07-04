@@ -15,7 +15,10 @@ import("filter.lib");
     fs = float(SR);
     s = 0.993;
 
-fuzz = iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
+fuzz = iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clipper with {
+    shape = 10.;
+    atan_v=1.0/atan(shape);
+    clipper(x) = atan_v * atan(x*shape);
 
     Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
     

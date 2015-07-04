@@ -7,14 +7,16 @@ declare description "Hornet simulation";
 
 import("filter.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) with {
+process =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) : clip   with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
     pre = _;
+    a = 1.2715 - Fuzz ;
+    clip(x) = (0.4 * (min(0.7514,max(-0.4514,x))));
 
-    
+
         Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
     
         Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);

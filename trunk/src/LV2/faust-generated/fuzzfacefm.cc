@@ -300,7 +300,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp6 = (4.91364786232388e-13 * fRec3[0]);
 		double fTemp7 = (3.34261759341761e-13 * fRec3[0]);
 		double fTemp8 = (3.38783939446729e-15 * fRec3[0]);
-		output0[i] = (FAUSTFLOAT)(fConst97 * (((((fRec4[0] * ((((fRec1[0] * (((fConst0 * (fRec0[0] * (1.39275733059067e-13 + ((fRec0[0] * (1.4115997476947e-15 + (0 - fTemp3))) - fTemp4)))) + (fConst96 * fRec3[0])) + fConst95)) + (fConst0 * (fRec0[0] * ((fTemp1 + (fRec0[0] * (fTemp2 - 2.07505162911121e-15))) - 2.04735327596828e-13)))) + (fConst94 * fRec3[0])) + fConst93)) + (fRec4[1] * ((((fRec1[0] * (((fConst0 * (fRec0[0] * ((fTemp7 + (fRec0[0] * (fTemp8 - 4.23479924308411e-15))) - 4.17827199177201e-13))) + (fConst92 * fRec3[0])) + fConst91)) + (fConst0 * (fRec0[0] * (6.14205982790485e-13 + ((fRec0[0] * (6.22515488733364e-15 + (0 - fTemp5))) - fTemp6))))) + (fConst90 * fRec3[0])) + fConst89))) + (fRec4[2] * (fConst88 + (((fRec1[0] * (((fConst0 * (fRec0[0] * (4.17827199177201e-13 + ((fRec0[0] * (4.23479924308411e-15 + (0 - fTemp8))) - fTemp7)))) + (fConst86 * fRec3[0])) + fConst84)) + (fConst0 * (fRec0[0] * ((fTemp6 + (fRec0[0] * (fTemp5 - 6.22515488733364e-15))) - 6.14205982790485e-13)))) + (fConst82 * fRec3[0]))))) + (fRec4[3] * ((((fRec1[0] * (fConst32 + ((fConst0 * (fRec0[0] * ((fTemp4 + (fRec0[0] * (fTemp3 - 1.4115997476947e-15))) - 1.39275733059067e-13))) + (fConst30 * fRec3[0])))) + (fConst0 * (fRec0[0] * (2.04735327596828e-13 + ((fRec0[0] * (2.07505162911121e-15 + (0 - fTemp2))) - fTemp1))))) + (fConst28 * fRec3[0])) + fConst26))) / fTemp0));
+		output0[i] = (FAUSTFLOAT)(0.4 * min(0.7514, max(-0.4514, (fConst97 * (((((fRec4[0] * ((((fRec1[0] * (((fConst0 * (fRec0[0] * (1.39275733059067e-13 + ((fRec0[0] * (1.4115997476947e-15 + (0 - fTemp3))) - fTemp4)))) + (fConst96 * fRec3[0])) + fConst95)) + (fConst0 * (fRec0[0] * ((fTemp1 + (fRec0[0] * (fTemp2 - 2.07505162911121e-15))) - 2.04735327596828e-13)))) + (fConst94 * fRec3[0])) + fConst93)) + (fRec4[1] * ((((fRec1[0] * (((fConst0 * (fRec0[0] * ((fTemp7 + (fRec0[0] * (fTemp8 - 4.23479924308411e-15))) - 4.17827199177201e-13))) + (fConst92 * fRec3[0])) + fConst91)) + (fConst0 * (fRec0[0] * (6.14205982790485e-13 + ((fRec0[0] * (6.22515488733364e-15 + (0 - fTemp5))) - fTemp6))))) + (fConst90 * fRec3[0])) + fConst89))) + (fRec4[2] * (fConst88 + (((fRec1[0] * (((fConst0 * (fRec0[0] * (4.17827199177201e-13 + ((fRec0[0] * (4.23479924308411e-15 + (0 - fTemp8))) - fTemp7)))) + (fConst86 * fRec3[0])) + fConst84)) + (fConst0 * (fRec0[0] * ((fTemp6 + (fRec0[0] * (fTemp5 - 6.22515488733364e-15))) - 6.14205982790485e-13)))) + (fConst82 * fRec3[0]))))) + (fRec4[3] * ((((fRec1[0] * (fConst32 + ((fConst0 * (fRec0[0] * ((fTemp4 + (fRec0[0] * (fTemp3 - 1.4115997476947e-15))) - 1.39275733059067e-13))) + (fConst30 * fRec3[0])))) + (fConst0 * (fRec0[0] * (2.04735327596828e-13 + ((fRec0[0] * (2.07505162911121e-15 + (0 - fTemp2))) - fTemp1))))) + (fConst28 * fRec3[0])) + fConst26))) / fTemp0)))));
 		// post processing
 		for (int i=3; i>0; i--) fRec4[i] = fRec4[i-1];
 		fRec3[1] = fRec3[0];
@@ -333,7 +333,7 @@ void Dsp::connect(uint32_t port,void* data)
 	case INPUT: 
 		fslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
-	case VOLUME: 
+	case LEVEL: 
 		fslider3_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	default:
@@ -362,7 +362,7 @@ typedef enum
    DRIVE, 
    FUZZ, 
    INPUT, 
-   VOLUME, 
+   LEVEL, 
 } PortIndex;
 */
 

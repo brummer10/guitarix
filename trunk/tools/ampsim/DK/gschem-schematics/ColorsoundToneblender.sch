@@ -9,9 +9,9 @@ device=NPN_TRANSISTOR
 T 47900 44700 5 10 1 1 0 0 1
 refdes=T2
 T 47500 44300 5 10 0 1 0 0 1
-value=Vt=26mV,Is=20.3fA,Bf=1430,Br=4
+value=Vt=26mV,Is=6.734fA,Bf=416.4,Br=0.7371
 T 48100 44500 5 10 1 1 0 0 1
-model-name=2N5088
+model-name=2N3904
 }
 C 49900 44200 1 0 0 npn-2.sym
 {
@@ -110,9 +110,9 @@ device=NPN_TRANSISTOR
 T 45500 44300 5 10 1 1 0 0 1
 refdes=T1
 T 45100 43800 5 10 0 1 0 0 1
-value=Vt=26mV,Is=20.3fA,Bf=1430,Br=4
+value=Vt=26mV,Is=6.734fA,Bf=416.4,Br=0.7371
 T 45600 44100 5 10 1 1 0 0 1
-model-name=2N5088
+model-name=2N3904
 }
 C 44300 42600 1 90 0 resistor-2.sym
 {

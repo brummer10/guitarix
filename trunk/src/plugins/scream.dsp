@@ -8,12 +8,13 @@ declare description "Screaming Bird";
 
 import("filter.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+process = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) : clip with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
     pre = _;
+    clip(x) = min(0.4514,max(-0.2514,x));
 
     
         Scream = vslider("Scream[name:Scream]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);

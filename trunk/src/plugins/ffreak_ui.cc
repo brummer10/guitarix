@@ -10,6 +10,6 @@ b.openHorizontalBox("");
 
     b.create_small_rackknobr(PARAM("Gate"), "Gate");
 
-    b.create_small_rackknobr(PARAM("Volume"), "Volume");
+    b.create_small_rackknobr(PARAM("Level"), "Level");
     b.create_small_rackknobr(PARAM("wet_dry"), "dry/wet");
 b.closeBox();

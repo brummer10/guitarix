@@ -233,7 +233,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp0 = ((fRec0[0] * ((fConst0 * (fConst6 + (fConst4 * fRec0[0]))) - 3.1163949818756e-12)) + fConst2);
 		fRec1[0] = ((0.993 * fRec1[1]) + fSlow1);
 		fRec2[0] = ((double)input0[i] - (((((((fRec2[1] * ((fRec0[0] * ((fConst0 * (fConst39 + (fConst38 * fRec0[0]))) - 1.86983698912536e-11)) + fConst37)) + (fRec2[2] * ((fRec0[0] * ((fConst0 * (fConst36 + (fConst35 * fRec0[0]))) - 4.6745924728134e-11)) + fConst34))) + (fRec2[3] * ((fRec0[0] * ((fConst19 * (fConst33 + (fConst32 * fRec0[0]))) - 6.23278996375121e-11)) + fConst31))) + (fRec2[4] * ((fRec0[0] * ((fConst0 * (fConst30 + (fConst28 * fRec0[0]))) - 4.6745924728134e-11)) + fConst26))) + (fRec2[5] * ((fRec0[0] * ((fConst0 * (fConst24 + (fConst22 * fRec0[0]))) - 1.86983698912536e-11)) + fConst20))) + (fRec2[6] * ((fRec0[0] * ((fConst0 * (fConst17 + (fConst16 * fRec0[0]))) - 3.1163949818756e-12)) + fConst15))) / fTemp0));
-		output0[i] = (FAUSTFLOAT)(fConst19 * ((((((((fRec2[0] * (((fRec0[0] * (fConst71 + (fConst70 * fRec1[0]))) + (fConst69 * fRec1[0])) + fConst68)) + (fRec2[1] * (((fRec0[0] * (fConst67 + (fConst66 * fRec1[0]))) + (fConst65 * fRec1[0])) + fConst64))) + (fRec2[2] * (((fRec0[0] * (fConst63 + (fConst62 * fRec1[0]))) + (fConst61 * fRec1[0])) + fConst60))) + (fRec2[3] * (((fRec0[0] * (fConst59 + (fConst58 * fRec1[0]))) + (fConst57 * fRec1[0])) + fConst56))) + (fRec2[4] * (((fRec0[0] * (fConst55 + (fConst53 * fRec1[0]))) + (fConst51 * fRec1[0])) + fConst49))) + (fRec2[5] * (((fRec0[0] * (fConst47 + (fConst45 * fRec1[0]))) + (fConst43 * fRec1[0])) + fConst41))) + (fRec2[6] * (((fRec0[0] * (fConst14 + (fConst12 * fRec1[0]))) + (fConst10 * fRec1[0])) + fConst8))) / fTemp0));
+		output0[i] = (FAUSTFLOAT)(0.4 * min(0.7514, max(-0.4514, (fConst19 * ((((((((fRec2[0] * (((fRec0[0] * (fConst71 + (fConst70 * fRec1[0]))) + (fConst69 * fRec1[0])) + fConst68)) + (fRec2[1] * (((fRec0[0] * (fConst67 + (fConst66 * fRec1[0]))) + (fConst65 * fRec1[0])) + fConst64))) + (fRec2[2] * (((fRec0[0] * (fConst63 + (fConst62 * fRec1[0]))) + (fConst61 * fRec1[0])) + fConst60))) + (fRec2[3] * (((fRec0[0] * (fConst59 + (fConst58 * fRec1[0]))) + (fConst57 * fRec1[0])) + fConst56))) + (fRec2[4] * (((fRec0[0] * (fConst55 + (fConst53 * fRec1[0]))) + (fConst51 * fRec1[0])) + fConst49))) + (fRec2[5] * (((fRec0[0] * (fConst47 + (fConst45 * fRec1[0]))) + (fConst43 * fRec1[0])) + fConst41))) + (fRec2[6] * (((fRec0[0] * (fConst14 + (fConst12 * fRec1[0]))) + (fConst10 * fRec1[0])) + fConst8))) / fTemp0)))));
 		// post processing
 		for (int i=6; i>0; i--) fRec2[i] = fRec2[i-1];
 		fRec1[1] = fRec1[0];
@@ -249,7 +249,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("foxeylady.Fuzz",N_("Fuzz"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("foxeylady.Volume",N_("Volume"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("foxeylady.Level",N_("Level"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 	return 0;
 }
 
@@ -268,7 +268,7 @@ b.openHorizontalhideBox("");
 b.closeBox();
 b.openHorizontalBox("");
 
-    b.create_small_rackknobr(PARAM("Volume"), "Volume");
+    b.create_small_rackknobr(PARAM("Level"), "Level");
 
     b.create_small_rackknobr(PARAM("Fuzz"), "Fuzz");
 b.closeBox();

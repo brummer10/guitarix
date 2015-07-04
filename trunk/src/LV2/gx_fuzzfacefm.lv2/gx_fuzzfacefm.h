@@ -35,7 +35,8 @@ typedef enum
    DRIVE, 
    FUZZ, 
    INPUT, 
-   VOLUME, 
+   LEVEL, 
 } PortIndex;
+
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

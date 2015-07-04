@@ -210,7 +210,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp1 = (fConst12 * fRec1[0]);
 		fRec2[0] = ((double)input0[i] - ((((((fRec2[1] * (1.22201390871017e-08 + (fConst0 * ((fRec0[0] * (fConst32 + (fConst31 * fRec0[0]))) + fConst30)))) + (fRec2[2] * (2.44402781742033e-08 + (fConst0 * ((fRec0[0] * (fConst29 + (fConst28 * fRec0[0]))) + fConst27))))) + (fRec2[3] * (2.44402781742033e-08 + (fConst0 * ((fRec0[0] * (fConst26 + (fConst25 * fRec0[0]))) + fConst23))))) + (fRec2[4] * (1.22201390871017e-08 + (fConst0 * ((fRec0[0] * (fConst21 + (fConst20 * fRec0[0]))) + fConst18))))) + (fRec2[5] * (2.44402781742033e-09 + (fConst0 * ((fRec0[0] * (fConst16 + (fConst15 * fRec0[0]))) + fConst14))))) / fTemp0));
 		double fTemp2 = (fConst39 * fRec1[0]);
-		output0[i] = (FAUSTFLOAT)(fConst62 * (((((((fRec2[0] * (fConst38 + ((fConst0 * (fRec0[0] * (fConst61 + ((fRec0[0] * (fConst60 + (fConst59 * fRec1[0]))) + (fConst58 * fRec1[0]))))) + fTemp2))) + (fRec2[1] * (((fConst0 * (fRec0[0] * (((fRec0[0] * (fConst56 + (fConst57 * fRec1[0]))) + (fConst55 * fRec1[0])) + fConst54))) + fTemp1) + fConst13))) + (fRec2[2] * (((fConst0 * (fRec0[0] * (fConst50 + ((fRec0[0] * (fConst53 + (fConst52 * fRec1[0]))) + (fConst51 * fRec1[0]))))) + (fConst48 * fRec1[0])) + fConst49))) + (fRec2[3] * (fConst47 + ((fConst0 * (fRec0[0] * (fConst46 + ((fRec0[0] * (fConst45 + (fConst44 * fRec1[0]))) + (fConst43 * fRec1[0]))))) + (fConst41 * fRec1[0]))))) + (fRec2[4] * (fConst38 + (fTemp2 + (fConst0 * (fRec0[0] * (((fRec0[0] * (fConst37 + (fConst36 * fRec1[0]))) + (fConst34 * fRec1[0])) + fConst35))))))) + (fRec2[5] * (fConst13 + (fTemp1 + (fConst0 * (fRec0[0] * (fConst7 + ((fRec0[0] * (fConst10 + (fConst9 * fRec1[0]))) + (fConst8 * fRec1[0]))))))))) / fTemp0));
+		output0[i] = (FAUSTFLOAT)(0.4 * min(0.7514, max(-0.4514, (fConst62 * (((((((fRec2[0] * (fConst38 + ((fConst0 * (fRec0[0] * (fConst61 + ((fRec0[0] * (fConst60 + (fConst59 * fRec1[0]))) + (fConst58 * fRec1[0]))))) + fTemp2))) + (fRec2[1] * (((fConst0 * (fRec0[0] * (((fRec0[0] * (fConst56 + (fConst57 * fRec1[0]))) + (fConst55 * fRec1[0])) + fConst54))) + fTemp1) + fConst13))) + (fRec2[2] * (((fConst0 * (fRec0[0] * (fConst50 + ((fRec0[0] * (fConst53 + (fConst52 * fRec1[0]))) + (fConst51 * fRec1[0]))))) + (fConst48 * fRec1[0])) + fConst49))) + (fRec2[3] * (fConst47 + ((fConst0 * (fRec0[0] * (fConst46 + ((fRec0[0] * (fConst45 + (fConst44 * fRec1[0]))) + (fConst43 * fRec1[0]))))) + (fConst41 * fRec1[0]))))) + (fRec2[4] * (fConst38 + (fTemp2 + (fConst0 * (fRec0[0] * (((fRec0[0] * (fConst37 + (fConst36 * fRec1[0]))) + (fConst34 * fRec1[0])) + fConst35))))))) + (fRec2[5] * (fConst13 + (fTemp1 + (fConst0 * (fRec0[0] * (fConst7 + ((fRec0[0] * (fConst10 + (fConst9 * fRec1[0]))) + (fConst8 * fRec1[0]))))))))) / fTemp0)))));
 		// post processing
 		for (int i=5; i>0; i--) fRec2[i] = fRec2[i-1];
 		fRec1[1] = fRec1[0];
@@ -233,7 +233,7 @@ void Dsp::connect(uint32_t port,void* data)
 	case FUZZ: 
 		fslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
-	case VOLUME: 
+	case LEVEL: 
 		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	default:
@@ -260,7 +260,7 @@ void Dsp::del_instance(PluginLV2 *p)
 typedef enum
 {
    FUZZ, 
-   VOLUME, 
+   LEVEL, 
 } PortIndex;
 */
 

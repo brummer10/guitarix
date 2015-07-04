@@ -138,7 +138,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = ((fSlow2 * fTemp3) - (((((fRec2[1] * (1.52535259756857e-11 + (fConst0 * ((fRec0[0] * (fConst21 + (fConst20 * fRec0[0]))) + fConst19)))) + (fRec2[2] * (2.28802889635286e-11 + (fConst11 * ((fRec0[0] * (fConst18 + (fConst17 * fRec0[0]))) - 8.14115533996661e-14))))) + (fRec2[3] * (1.52535259756857e-11 + (fConst0 * (fConst16 + (fRec0[0] * (fConst14 + (fConst12 * fRec0[0])))))))) + (fRec2[4] * (3.81338149392143e-12 + (fConst0 * ((fRec0[0] * (fConst9 + (fConst8 * fRec0[0]))) + fConst7))))) / fTemp0));
 		double fTemp4 = (5.01550871014307e-15 * fRec1[0]);
 		double fTemp5 = (fConst0 * (fRec0[0] * (9.42915637506898e-20 + ((9.42915637506898e-17 * fRec1[0]) + (fRec0[0] * ((0 - (9.38711818402692e-19 * fRec1[0])) - 9.38711818402692e-22))))));
-		output0[i] = (FAUSTFLOAT)((fSlow3 * fTemp3) + (fConst22 * ((((((fRec2[0] * ((fTemp1 - fTemp2) - 2.50775435507154e-18)) + (fRec2[1] * (5.01550871014307e-18 + (fTemp4 + fTemp5)))) + (fConst0 * ((fRec0[0] * fRec2[2]) * (((fRec0[0] * (1.40806772760404e-21 + (1.40806772760404e-18 * fRec1[0]))) - (1.41437345626035e-16 * fRec1[0])) - 1.41437345626035e-19)))) + (fRec2[3] * ((fTemp5 - fTemp4) - 5.01550871014307e-18))) + (fRec2[4] * (2.50775435507154e-18 + (fTemp2 + fTemp1)))) / fTemp0)));
+		output0[i] = (FAUSTFLOAT)((fSlow3 * fTemp3) + (0.3 * min(0.7514, max(-0.4514, (fConst22 * ((((((fRec2[0] * ((fTemp1 - fTemp2) - 2.50775435507154e-18)) + (fRec2[1] * (5.01550871014307e-18 + (fTemp4 + fTemp5)))) + (fConst0 * ((fRec0[0] * fRec2[2]) * (((fRec0[0] * (1.40806772760404e-21 + (1.40806772760404e-18 * fRec1[0]))) - (1.41437345626035e-16 * fRec1[0])) - 1.41437345626035e-19)))) + (fRec2[3] * ((fTemp5 - fTemp4) - 5.01550871014307e-18))) + (fRec2[4] * (2.50775435507154e-18 + (fTemp2 + fTemp1)))) / fTemp0))))));
 		// post processing
 		for (int i=4; i>0; i--) fRec2[i] = fRec2[i-1];
 		fRec1[1] = fRec1[0];
@@ -160,9 +160,9 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case ATTACK: 
-		fslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fslider0_ = (float*)data; // , 0.5, 0.0, 0.95, 0.01 
 		break;
-	case VOLUME: 
+	case LEVEL: 
 		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case WET_DRY: 
@@ -192,7 +192,7 @@ void Dsp::del_instance(PluginLV2 *p)
 typedef enum
 {
    ATTACK, 
-   VOLUME, 
+   LEVEL, 
    WET_DRY, 
 } PortIndex;
 */

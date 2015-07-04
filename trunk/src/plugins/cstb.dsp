@@ -8,29 +8,31 @@ declare description "Colorsound Tone Blender";
 
 import("filter.lib");
 
-process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0))):>_ with {
+process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) : clip ):>_ with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
     pre = _;
+
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
+    clip(x) = 0.3 * (min(0.7514,max(-0.4514,x)));
 
-    
-        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+   
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
     
         Attack = vslider("Attack[name:Attack]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
     
-    b0 = Attack*(Attack*(2.34677954600673e-19*Volume*pow(fs,4) + 2.34677954600673e-22*pow(fs,4)) - 2.35728909376724e-17*Volume*pow(fs,4) - 2.35728909376724e-20*pow(fs,4)) - 2.50775435507154e-15*Volume*pow(fs,3) - 2.50775435507154e-18*pow(fs,3);
+    b0 = Attack*(Attack*(2.34677954600673e-19*Level*pow(fs,4) + 2.34677954600673e-22*pow(fs,4)) - 2.35728909376724e-17*Level*pow(fs,4) - 2.35728909376724e-20*pow(fs,4)) - 2.50775435507154e-15*Level*pow(fs,3) - 2.50775435507154e-18*pow(fs,3);
 
-    b1 = Attack*(Attack*(-9.38711818402692e-19*Volume*pow(fs,4) - 9.38711818402692e-22*pow(fs,4)) + 9.42915637506898e-17*Volume*pow(fs,4) + 9.42915637506898e-20*pow(fs,4)) + 5.01550871014307e-15*Volume*pow(fs,3) + 5.01550871014307e-18*pow(fs,3);
+    b1 = Attack*(Attack*(-9.38711818402692e-19*Level*pow(fs,4) - 9.38711818402692e-22*pow(fs,4)) + 9.42915637506898e-17*Level*pow(fs,4) + 9.42915637506898e-20*pow(fs,4)) + 5.01550871014307e-15*Level*pow(fs,3) + 5.01550871014307e-18*pow(fs,3);
 
-    b2 = Attack*(Attack*(1.40806772760404e-18*Volume*pow(fs,4) + 1.40806772760404e-21*pow(fs,4)) - 1.41437345626035e-16*Volume*pow(fs,4) - 1.41437345626035e-19*pow(fs,4));
+    b2 = Attack*(Attack*(1.40806772760404e-18*Level*pow(fs,4) + 1.40806772760404e-21*pow(fs,4)) - 1.41437345626035e-16*Level*pow(fs,4) - 1.41437345626035e-19*pow(fs,4));
 
-    b3 = Attack*(Attack*(-9.38711818402692e-19*Volume*pow(fs,4) - 9.38711818402692e-22*pow(fs,4)) + 9.42915637506898e-17*Volume*pow(fs,4) + 9.42915637506898e-20*pow(fs,4)) - 5.01550871014307e-15*Volume*pow(fs,3) - 5.01550871014307e-18*pow(fs,3);
+    b3 = Attack*(Attack*(-9.38711818402692e-19*Level*pow(fs,4) - 9.38711818402692e-22*pow(fs,4)) + 9.42915637506898e-17*Level*pow(fs,4) + 9.42915637506898e-20*pow(fs,4)) - 5.01550871014307e-15*Level*pow(fs,3) - 5.01550871014307e-18*pow(fs,3);
 
-    b4 = Attack*(Attack*(2.34677954600673e-19*Volume*pow(fs,4) + 2.34677954600673e-22*pow(fs,4)) - 2.35728909376724e-17*Volume*pow(fs,4) - 2.35728909376724e-20*pow(fs,4)) + 2.50775435507154e-15*Volume*pow(fs,3) + 2.50775435507154e-18*pow(fs,3);
+    b4 = Attack*(Attack*(2.34677954600673e-19*Level*pow(fs,4) + 2.34677954600673e-22*pow(fs,4)) - 2.35728909376724e-17*Level*pow(fs,4) - 2.35728909376724e-20*pow(fs,4)) + 2.50775435507154e-15*Level*pow(fs,3) + 2.50775435507154e-18*pow(fs,3);
 
     a0 = Attack*(Attack*fs*(fs*(fs*(-7.13788307669893e-19*fs - 3.81274375281155e-16) - 1.78337596435683e-14) - 3.57720562427687e-14) + fs*(fs*(fs*(7.26395344169953e-19*fs + 3.82634300978431e-16) + 1.78716714442828e-14) + 3.58457860428614e-14)) + fs*(fs*(7.72761004436121e-17*fs + 4.0705776699833e-14) + 1.90124164300881e-12) + 3.81338149392143e-12;
 

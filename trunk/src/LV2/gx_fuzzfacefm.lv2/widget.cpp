@@ -37,7 +37,7 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
   {
     case FUZZ:
       return &m_bigknob[0];
-    case VOLUME:
+    case LEVEL:
       return &m_bigknob[1];
     case DRIVE:
       return &m_bigknob[2];
@@ -54,7 +54,7 @@ pir(GX_LV2_STYLE_DIR"/fuzzfacejfuller.png")
 {
   // create controllers for port name
   make_controller_box(&m_vbox3, "FUZZ", 0, 1, 0.01, FUZZ);
-  make_controller_box(&m_vbox2, "VOLUME", 0, 1, 0.01, VOLUME);
+  make_controller_box(&m_vbox2, "LEVEL", 0, 1, 0.01, LEVEL);
   make_controller_box(&m_vbox4, "DRIVE", 0, 1, 0.01, DRIVE);
   make_controller_box(&m_vbox5, "INPUT", 0, 1, 0.01, INPUT);
   
@@ -153,14 +153,14 @@ void Widget::make_controller_box(Gtk::Box *box,
                                     get_controller_by_port(port_name));
   if (regler)
   {
-    //Gtk::Label* pr = new Gtk::Label(label, 0);
-    //pr->set_name("amplabel");
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
     // use label images instead simple string labes
-    Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-    label_image += "/";
-    label_image += label;
-    label_image += ".png";
-    Gtk::Image *pr = new Gtk::Image(label_image);
+    //Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    //label_image += "/";
+    //label_image += label;
+    //label_image += ".png";
+    //Gtk::Image *pr = new Gtk::Image(label_image);
 
     Gtk::VBox* b1 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);

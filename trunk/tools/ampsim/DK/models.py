@@ -213,9 +213,11 @@ class C(Node):
     def add_count(self, tc, conn, param):
         tc["X"] += 1
     def process(self, p, conn, param, alpha):
+        #print ("C = %s %s" % (param, alpha))
         idx = p.new_row("X", self)
         #param = sp.symbols(str(self))
         value = alpha * param
+        #print ("C value = %s " % value)
         p.add_S_currents(conn, value)
         p.add_2conn("Xl", idx, conn, value)
         p.add_2conn("Xr", idx, conn)
@@ -227,9 +229,12 @@ class L(Node):
     def add_count(self, tc, conn, param):
         tc["X"] += 1
     def process(self, p, conn, param, alpha):
+        #print ("L = %s %s" % (param, alpha))
         idx = p.new_row("X", self)
         #param = sp.symbols(str(self))
+        #value = 1 / (alpha*2 * param)
         value = 1 / (alpha * param)
+        #print ("L value = %s " % value)
         p.add_S_currents(conn, value)
         p.add_2conn("Xl", idx, conn, value)
         p.add_2conn("Xr", idx, conn)
@@ -308,6 +313,30 @@ class T(Node):
         idx2 = p.new_row("N", self, "Ie")
         p.add_2conn("Nl", idx2, (conn[1],conn[2]))
         p.add_2conn("Nr", idx2, (conn[2],conn[0]))
+        p.set_function(idx2, calc_ie, v, idx1)
+
+class Tp(Node):
+    def __init__(self, n=None):
+        Node.__init__(self, "T", n)
+    def add_count(self, tc, conn, param):
+        tc["N"] += 2
+    def process(self, p, conn, param, alpha):
+        # pins are C, B, E (index 0, 1, 2)
+        # Ib and Ie depend on Vbc (1 - 0) and Vbe (1 - 2), Ic = Ie - Ib
+        # 
+        Is, Bf, Vt, Br = const = sp.symbols("Is,Bf,Vt,Br")
+        Vbc, Vbe = v = sp.symbols("Vbc,Vbe")
+        calc_ib = -(Is / Bf * (sp.exp(Vbe/Vt)-1) + Is/Br * (sp.exp(Vbc/Vt)-1))
+        calc_ib = calc_ib.subs(dict([(k,param[str(k)]) for k in const]))
+        calc_ie = -(-Is*(sp.exp(Vbe/Vt)-1) + Is*(Br-1)/Br * (sp.exp(Vbc/Vt)-1))
+        calc_ie = calc_ie.subs(dict([(k,param[str(k)]) for k in const]))
+        idx1 = p.new_row("N", self, "Ib")
+        p.add_2conn("Nl", idx1, (conn[0],conn[1]))
+        p.add_2conn("Nr", idx1, (conn[0],conn[1]))
+        p.set_function(idx1, calc_ib, v, idx1)
+        idx2 = p.new_row("N", self, "Ie")
+        p.add_2conn("Nl", idx2, (conn[2],conn[1]))
+        p.add_2conn("Nr", idx2, (conn[0],conn[2]))
         p.set_function(idx2, calc_ie, v, idx1)
 
 class Triode(Node):

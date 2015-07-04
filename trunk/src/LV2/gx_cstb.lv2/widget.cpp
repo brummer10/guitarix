@@ -37,7 +37,7 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
   {
     case ATTACK:
       return &m_bigknob[0];
-    case VOLUME:
+    case LEVEL:
       return &m_bigknob[1];
     case WET_DRY:
       return &m_bigknob[2];
@@ -53,8 +53,8 @@ logo(plugname)
 {
 
   // create controllers for port name
-  make_controller_box(&m_vboxc[0], "ATTACK", 0.0, 1.0, 0.01, ATTACK);
-  make_controller_box(&m_vboxc[1], "VOLUME", 0.0, 1.0, 0.01, VOLUME);
+  make_controller_box(&m_vboxc[0], "ATTACK", 0.0, 0.95, 0.01, ATTACK);
+  make_controller_box(&m_vboxc[1], "LEVEL", 0.0, 1.0, 0.01, LEVEL);
   make_controller_box(&m_vboxc[2], "WET_DRY", 0.0, 1e+02, 1.0, WET_DRY);
 
   // set propertys for the main paintbox holding the skin

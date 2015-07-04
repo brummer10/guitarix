@@ -29,9 +29,9 @@ device=NPN_TRANSISTOR
 T 45200 44400 5 10 1 1 0 0 1
 refdes=T2
 T 44800 44000 5 10 0 1 0 0 1
-value=Vt=26mV,Is=20.3fA,Bf=1430,Br=4
+value=Vt=26mV,Is=200.01fA,Bf=300,Br=100
 T 45400 44200 5 10 1 1 0 0 1
-model-name=2N5088
+model-name=2SC5994
 }
 C 49500 43900 1 0 0 npn-2.sym
 {
@@ -40,9 +40,9 @@ device=NPN_TRANSISTOR
 T 49800 44300 5 10 1 1 0 0 1
 refdes=T3
 T 49500 43900 5 10 0 1 0 0 1
-value=Vt=26mV,Is=20.3fA,Bf=1430,Br=4
+value=Vt=26mV,Is=200.01fA,Bf=300,Br=100
 T 50100 44100 5 10 1 1 0 0 1
-model-name=2N5088
+model-name=2SC5994
 }
 C 60700 42900 1 270 1 resistor-variable-2.sym
 {
@@ -127,9 +127,9 @@ device=NPN_TRANSISTOR
 T 43400 44600 5 10 1 1 0 0 1
 refdes=T1
 T 43000 44100 5 10 0 1 0 0 1
-value=Vt=26mV,Is=20.3fA,Bf=1430,Br=4
+value=Vt=26mV,Is=200.01fA,Bf=300,Br=100
 T 43500 44400 5 10 1 1 0 0 1
-model-name=2N5088
+model-name=2SC5994
 }
 C 50100 43000 1 90 0 resistor-2.sym
 {
@@ -342,9 +342,9 @@ device=NPN_TRANSISTOR
 T 53200 44200 5 10 1 1 0 0 1
 refdes=T4
 T 52900 43800 5 10 0 1 0 0 1
-value=Vt=26mV,Is=20.3fA,Bf=1430,Br=4
+value=Vt=26mV,Is=375.4fA,Bf=200.8,Br=50
 T 53500 44000 5 10 1 1 0 0 1
-model-name=2N5088
+model-name=2SC3649
 }
 N 52600 43900 52600 45100 4
 C 52700 43000 1 90 0 resistor-2.sym
@@ -374,9 +374,9 @@ device=NPN_TRANSISTOR
 T 55300 44200 5 10 1 1 0 6 1
 refdes=T5
 T 55600 43800 5 10 0 1 0 6 1
-value=Vt=26mV,Is=20.3fA,Bf=1430,Br=4
+value=Vt=26mV,Is=375.4fA,Bf=200.8,Br=50
 T 55000 44000 5 10 1 1 0 6 1
-model-name=2N5088
+model-name=2SC3649
 }
 C 54400 45100 1 90 0 resistor-2.sym
 {

@@ -4,7 +4,7 @@ b.openHorizontalhideBox("");
 b.closeBox();
 b.openHorizontalBox("");
 
-    b.create_small_rackknobr(PARAM("Volume"), N_("Volume"));
+    b.create_small_rackknobr(PARAM("Level"), N_("Level"));
 
     b.create_small_rackknobr(PARAM("Sustain"), N_("Sustain"));
 

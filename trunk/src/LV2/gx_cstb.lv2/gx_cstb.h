@@ -33,8 +33,9 @@ typedef enum
    EFFECTS_OUTPUT,
    EFFECTS_INPUT,
    ATTACK, 
-   VOLUME, 
+   LEVEL, 
    WET_DRY, 
 } PortIndex;
+
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

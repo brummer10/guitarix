@@ -51,9 +51,12 @@ c1.plugindef.category = category
 c1.plugindef.id = module_id
 c1.set_module_id(module_id)
 c1.read_gschem(workfile)
+#c1.linearize("T1", "T2", keep_dc=False)
 print ("build plugin from: %s" % args.input)
 if not prefilter:
     c1.create_faust_module()
+    #dspfile = "./"+module_id+".dsp"
+    #c1.save_faust_code(filename=str(dspfile))
 else:
     c1.create_faust_module(pre_filter=prefilter)
 

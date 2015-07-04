@@ -80,14 +80,14 @@ rdfs:comment """
         lv2:name "ATTACK" ;
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
+        lv2:maximum 0.95 ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
-        lv2:symbol "VOLUME" ;
-        lv2:name "VOLUME" ;
-        lv2:default 0.5 ;
+        lv2:symbol "LEVEL" ;
+        lv2:name "LEVEL" ;
+        lv2:default 0.2 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
     ]      , [

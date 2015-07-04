@@ -36,4 +36,5 @@ typedef enum
    VOLUME, 
 } PortIndex;
 
+
 #endif //SRC_HEADERS_GXEFFECTS_H_

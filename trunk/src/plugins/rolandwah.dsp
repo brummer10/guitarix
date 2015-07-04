@@ -19,7 +19,10 @@ import("oscillator.lib");
     dry = 1 - wet;
     gain = vslider("Gain[name:Gain][tooltip:Gain of the Fuzz Section (dB)]", -12, -40, 4, 0.1) : db2linear : smooth(s);
 
-fuzz = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0,a7/a0,a8/a0)) with {
+fuzz = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0,a7/a0,a8/a0)) : clip with {
+    shape = (1.1 -Fuzz ) * 20.;
+    atan_v=1.0/atan(shape);
+    clip(x) = 0.4 * (min(0.7514,max(-0.4514,x)));
 
 
     Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);

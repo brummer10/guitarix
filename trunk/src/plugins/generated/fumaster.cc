@@ -148,7 +148,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst7 = (1.41775270516311e-29 * fConst0);
 	fConst8 = ((fConst0 * (4.70999825737972e-24 + fConst7)) - 2.59478774349197e-21);
 	fConst9 = (1.41775270516311e-27 * fConst0);
-	fConst10 = ((fConst0 * (4.70999825737972e-22 + fConst9)) - 2.59478774349197e-19);
+	fConst10 = (0.1 * ((fConst0 * (4.70999825737972e-22 + fConst9)) - 2.59478774349197e-19));
 	fConst11 = (0 - (4.71779589725812e-22 + fConst9));
 	fConst12 = (0 - (4.71779589725812e-24 + fConst7));
 	fConst13 = ((fConst0 * (7.52873102578757e-17 + (fConst0 * ((fConst0 * (5.95381363906935e-22 + (fConst0 * (fConst1 - 3.20513868924941e-25)))) - 3.72110810064138e-19)))) - 3.94912717206244e-15);
@@ -179,26 +179,26 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst38 = (8.50651623097868e-29 * fConst0);
 	fConst39 = (5.18957548698393e-21 + (fConst0 * (0 - (1.88399930295189e-23 + fConst38))));
 	fConst40 = (8.50651623097868e-27 * fConst0);
-	fConst41 = (5.18957548698393e-19 + (fConst0 * (0 - (1.88399930295189e-21 + fConst40))));
+	fConst41 = (0.1 * (5.18957548698393e-19 + (fConst0 * (0 - (1.88399930295189e-21 + fConst40)))));
 	fConst42 = (1.88711835890325e-21 + fConst40);
 	fConst43 = (1.88711835890325e-23 + fConst38);
 	fConst44 = (2.12662905774467e-28 * fConst0);
 	fConst45 = (2.59478774349197e-21 + (fConst0 * (2.35499912868986e-23 + fConst44)));
 	fConst46 = (2.12662905774467e-26 * fConst0);
-	fConst47 = (2.59478774349197e-19 + (fConst0 * (2.35499912868986e-21 + fConst46)));
+	fConst47 = (0.1 * (2.59478774349197e-19 + (fConst0 * (2.35499912868986e-21 + fConst46))));
 	fConst48 = (0 - (2.35889794862906e-21 + fConst46));
 	fConst49 = (0 - (2.35889794862906e-23 + fConst44));
 	fConst50 = (0 - (1.03791509739679e-20 + (2.83550541032623e-28 * fConst17)));
-	fConst51 = (0 - (1.03791509739679e-18 + (2.83550541032623e-26 * fConst17)));
+	fConst51 = (0.1 * (0 - (1.03791509739679e-18 + (2.83550541032623e-26 * fConst17))));
 	fConst52 = (2.59478774349197e-21 + (fConst0 * (fConst44 - 2.35499912868986e-23)));
-	fConst53 = (2.59478774349197e-19 + (fConst0 * (fConst46 - 2.35499912868986e-21)));
+	fConst53 = (0.1 * (2.59478774349197e-19 + (fConst0 * (fConst46 - 2.35499912868986e-21))));
 	fConst54 = (2.35889794862906e-21 - fConst46);
 	fConst55 = (2.35889794862906e-23 - fConst44);
 	fConst56 = (5.18957548698393e-21 + (fConst0 * (1.88399930295189e-23 - fConst38)));
-	fConst57 = (5.18957548698393e-19 + (fConst0 * (1.88399930295189e-21 - fConst40)));
+	fConst57 = (0.1 * (5.18957548698393e-19 + (fConst0 * (1.88399930295189e-21 - fConst40))));
 	fConst58 = (fConst40 - 1.88711835890325e-21);
 	fConst59 = (fConst38 - 1.88711835890325e-23);
-	fConst60 = ((fConst0 * (fConst9 - 4.70999825737972e-22)) - 2.59478774349197e-19);
+	fConst60 = (0.1 * ((fConst0 * (fConst9 - 4.70999825737972e-22)) - 2.59478774349197e-19));
 	fConst61 = (4.71779589725812e-22 - fConst9);
 	fConst62 = (4.71779589725812e-24 - fConst7);
 	fConst63 = ((fConst0 * (fConst7 - 4.70999825737972e-24)) - 2.59478774349197e-21);
@@ -223,7 +223,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec1[0] = ((0.993 * fRec1[1]) + fSlow1);
 		double fTemp1 = (double)input0[i];
 		fRec2[0] = ((fSlow2 * fTemp1) - (((((((fRec2[1] * (3.25462422647273e-13 + (fConst0 * ((fRec0[0] * (fConst37 + (fConst36 * fRec0[0]))) + fConst35)))) + (fRec2[2] * (8.13656056618181e-13 + (fConst0 * ((fRec0[0] * (fConst34 + (fConst33 * fRec0[0]))) + fConst32))))) + (fRec2[3] * (1.08487474215758e-12 + (fConst17 * ((fRec0[0] * (fConst31 + (fConst30 * fRec0[0]))) + fConst29))))) + (fRec2[4] * (8.13656056618181e-13 + (fConst0 * ((fRec0[0] * (fConst28 + (fConst26 * fRec0[0]))) + fConst24))))) + (fRec2[5] * (3.25462422647273e-13 + (fConst0 * ((fRec0[0] * (fConst22 + (fConst20 * fRec0[0]))) + fConst18))))) + (fRec2[6] * (5.42437371078787e-14 + (fConst0 * ((fRec0[0] * (fConst15 + (fConst14 * fRec0[0]))) + fConst13))))) / fTemp0));
-		output0[i] = (FAUSTFLOAT)((fSlow3 * fTemp1) + (fConst64 * ((((((((fRec2[0] * (fConst63 + ((fConst0 * (fRec0[0] * (fConst62 + (fConst61 * fRec1[0])))) + (fConst60 * fRec1[0])))) + (fRec2[1] * (((fConst0 * (fRec0[0] * (fConst59 + (fConst58 * fRec1[0])))) + (fConst57 * fRec1[0])) + fConst56))) + (fRec2[2] * (((fConst0 * (fRec0[0] * (fConst55 + (fConst54 * fRec1[0])))) + (fConst53 * fRec1[0])) + fConst52))) + (fRec2[3] * (((fConst17 * (fRec0[0] * (2.83550541032623e-28 + (2.83550541032623e-26 * fRec1[0])))) + (fConst51 * fRec1[0])) + fConst50))) + (fRec2[4] * (((fConst0 * (fRec0[0] * (fConst49 + (fConst48 * fRec1[0])))) + (fConst47 * fRec1[0])) + fConst45))) + (fRec2[5] * (((fConst0 * (fRec0[0] * (fConst43 + (fConst42 * fRec1[0])))) + (fConst41 * fRec1[0])) + fConst39))) + (fRec2[6] * (((fConst0 * (fRec0[0] * (fConst12 + (fConst11 * fRec1[0])))) + (fConst10 * fRec1[0])) + fConst8))) / fTemp0)));
+		output0[i] = (FAUSTFLOAT)((fSlow3 * fTemp1) + (0.4 * min(2.7514, max(-2.4514, (fConst64 * ((((((((fRec2[0] * (fConst63 + ((fConst0 * (fRec0[0] * (fConst62 + (fConst61 * fRec1[0])))) + (fConst60 * fRec1[0])))) + (fRec2[1] * (((fConst0 * (fRec0[0] * (fConst59 + (fConst58 * fRec1[0])))) + (fConst57 * fRec1[0])) + fConst56))) + (fRec2[2] * (((fConst0 * (fRec0[0] * (fConst55 + (fConst54 * fRec1[0])))) + (fConst53 * fRec1[0])) + fConst52))) + (fRec2[3] * (((fConst17 * (fRec0[0] * (2.83550541032623e-28 + (2.83550541032623e-26 * fRec1[0])))) + (fConst51 * fRec1[0])) + fConst50))) + (fRec2[4] * (((fConst0 * (fRec0[0] * (fConst49 + (fConst48 * fRec1[0])))) + (fConst47 * fRec1[0])) + fConst45))) + (fRec2[5] * (((fConst0 * (fRec0[0] * (fConst43 + (fConst42 * fRec1[0])))) + (fConst41 * fRec1[0])) + fConst39))) + (fRec2[6] * (((fConst0 * (fRec0[0] * (fConst12 + (fConst11 * fRec1[0])))) + (fConst10 * fRec1[0])) + fConst8))) / fTemp0))))));
 		// post processing
 		for (int i=6; i>0; i--) fRec2[i] = fRec2[i-1];
 		fRec1[1] = fRec1[0];
@@ -238,8 +238,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("fumaster.Tone",N_("Tone"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("fumaster.Volume",N_("Volume"),"S","",&fslider1, 0.1, 0.0, 1.0, 0.01);
+	reg.registerVar("fumaster.Level",N_("Level"),"S","",&fslider1, 0.1, 0.0, 1.0, 0.01);
+	reg.registerVar("fumaster.Tone",N_("Tone"),"S","",&fslider0, 0.5, 0.0, 0.99, 0.01);
 	reg.registerVar("fumaster.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
@@ -261,7 +261,7 @@ b.openHorizontalBox("");
 
     b.create_small_rackknobr(PARAM("Tone"), "Tone");
 
-    b.create_small_rackknobr(PARAM("Volume"), "Volume");
+    b.create_small_rackknobr(PARAM("Level"), "Level");
     b.create_small_rackknobr(PARAM("wet_dry"), "dry/wet");
 b.closeBox();
 

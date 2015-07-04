@@ -209,7 +209,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = ((fSlow2 * fTemp3) - ((((((fRec2[1] * (1.45128241697796e-10 + ((fRec0[0] * (1.44983258439356e-11 + (fConst0 * (fConst54 + (fConst53 * fRec0[0]))))) + (fConst0 * ((fRec1[0] * ((fRec0[0] * (fConst52 + (fConst51 * fRec0[0]))) + fConst50)) + fConst49))))) + (fRec2[2] * (2.90256483395592e-10 + ((fRec0[0] * (2.89966516878713e-11 + (fConst0 * (fConst48 + (fConst47 * fRec0[0]))))) + (fConst0 * ((fRec1[0] * ((fRec0[0] * (fConst46 + (fConst45 * fRec0[0]))) + fConst44)) + fConst43)))))) + (fRec2[3] * (2.90256483395592e-10 + ((fRec0[0] * (2.89966516878713e-11 + (fConst0 * (fConst42 + (fConst40 * fRec0[0]))))) + (fConst0 * ((fRec1[0] * ((fRec0[0] * (fConst38 + (fConst36 * fRec0[0]))) + fConst34)) + fConst32)))))) + (fRec2[4] * (1.45128241697796e-10 + ((fRec0[0] * (1.44983258439356e-11 + (fConst0 * (fConst30 + (fConst28 * fRec0[0]))))) + (fConst0 * ((fRec1[0] * ((fRec0[0] * (fConst26 + (fConst24 * fRec0[0]))) + fConst22)) + fConst20)))))) + (fRec2[5] * (2.90256483395592e-11 + ((fRec0[0] * (2.89966516878713e-12 + (fConst0 * (fConst18 + (fConst17 * fRec0[0]))))) + (fConst0 * ((fRec1[0] * ((fRec0[0] * (fConst16 + (fConst15 * fRec0[0]))) + fConst14)) + fConst13)))))) / fTemp0));
 		double fTemp4 = (4.66576522119352e-16 + fTemp1);
 		double fTemp5 = (9.33153044238704e-14 * fRec0[0]);
-		output0[i] = (FAUSTFLOAT)((fSlow3 * fTemp3) + (fConst55 * (((((((fRec2[0] * fTemp4) + (fRec2[1] * fTemp2)) + (fRec2[2] * ((0 - fTemp5) - 9.33153044238704e-16))) + (fRec2[3] * (9.33153044238704e-16 + fTemp5))) + (fRec2[4] * fTemp4)) + (fRec2[5] * fTemp2)) / fTemp0)));
+		output0[i] = (FAUSTFLOAT)((fSlow3 * fTemp3) + (0.05 * min(3.7514, max(-3.4514, (fConst55 * (((((((fRec2[0] * fTemp4) + (fRec2[1] * fTemp2)) + (fRec2[2] * ((0 - fTemp5) - 9.33153044238704e-16))) + (fRec2[3] * (9.33153044238704e-16 + fTemp5))) + (fRec2[4] * fTemp4)) + (fRec2[5] * fTemp2)) / fTemp0))))));
 		// post processing
 		for (int i=5; i>0; i--) fRec2[i] = fRec2[i-1];
 		fRec1[1] = fRec1[0];
@@ -225,7 +225,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("ruin.Intensity",N_("Intensity"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("ruin.Volume",N_("Volume"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("ruin.Level",N_("Level"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
 	reg.registerVar("ruin.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
@@ -245,7 +245,7 @@ b.openHorizontalhideBox("");
 b.closeBox();
 b.openHorizontalBox("");
 
-    b.create_small_rackknobr(PARAM("Volume"), "Volume");
+    b.create_small_rackknobr(PARAM("Level"), "Level");
 
     b.create_small_rackknobr(PARAM("Intensity"), "Intensity");
     b.create_small_rackknobr(PARAM("wet_dry"), "dry/wet");
