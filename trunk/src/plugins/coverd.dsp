@@ -18,9 +18,12 @@ import("filter.lib");
     dry = 1 - wet;
 
 
-p1 = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) with {
+
+p1 = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : overdrive with {
 
         Gain = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+    
+    overdrive(x) = (x*(abs(x) + 0.5)/(x*x + (0.5-1)*abs(x) + 1)) * Gain;
     
     b0 = Gain*fs*(fs*(fs*(fs*(3.97647190322603e-27*fs - 4.95880631786145e-19) - 2.12282875792926e-17) - 2.95727845714664e-18) - 2.63401345836477e-31) + fs*(fs*(fs*(fs*(-7.42702058644117e-27*fs + 7.89889133199585e-19) + 3.48875412150739e-17) + 5.04598373508118e-17) + 6.57172990476634e-18);
 

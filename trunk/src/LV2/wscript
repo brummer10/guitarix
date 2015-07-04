@@ -102,7 +102,6 @@ def dirlist():
         'gx_susta.lv2',
         'gx_cstb.lv2',
         'gx_fumaster.lv2',
-        'gx_voxmk1mbr1.lv2',
          ]
 
     return subdirs
