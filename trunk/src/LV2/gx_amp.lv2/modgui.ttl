@@ -1,0 +1,65 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+@prefix ui:     <http://lv2plug.in/ns/extensions/ui#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_amp#GUITARIX>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxamplifier-x.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxamplifier-x.css> ;
+        modgui:screenshot <modgui/screenshot-gxamplifier-x.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxamplifier-x.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Gx Amp X" ;
+        modgui:model "rack" ;
+        modgui:panel "model-001" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "PreGain" ;
+            lv2:name "PreGain" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "Drive" ;
+            lv2:name "Drive" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "Distortion" ;
+            lv2:name "Mix" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "MasterGain" ;
+            lv2:name "MasterGain" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "Bass" ;
+            lv2:name "Bass" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "Middle" ;
+            lv2:name "Middle" ;
+        ] , [
+            lv2:index 6 ;
+            lv2:symbol "Treble" ;
+            lv2:name "Treble" ;
+        ] , [
+            lv2:index 7 ;
+            lv2:symbol "Presence" ;
+            lv2:name "Presence" ;
+        ] , [
+            lv2:index 8 ;
+            lv2:symbol "Cabinet" ;
+            lv2:name "Output" ;
+        ] , [
+            lv2:index 9 ;
+            lv2:symbol "model" ;
+            lv2:name "Model" ;
+        ] , [
+            lv2:index 10 ;
+            lv2:symbol "t_model" ;
+            lv2:name "Tonestack Model" ;
+        ] , [
+            lv2:index 11 ;
+            lv2:symbol "c_model" ;
+            lv2:name "Cab Model" ;
+        ] ;
+    ] .

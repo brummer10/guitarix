@@ -1,6 +1,6 @@
-<div class="mod-pedal mod-rack-model-001 mod-rack-model-001">
+<div class="mod-pedal mod-rack-model-001{{{cns}}}">
     <div mod-role="drag-handle" class="mod-drag-handle"></div>
-    <div class="mod-plugin-author"><h1>{{author}}</h1></div>
+    <div class="mod-plugin-brand"><h1>{{brand}}</h1></div>
     <div class="mod-plugin-name"><h1>{{label}}</h1></div>
     <div class="mod-control-group clearfix">
         <div class="mod-switch" mod-role="bypass">
@@ -66,7 +66,7 @@
         {{#controls.9}}
         <div class="mod-enumerated mod-enumerated-1" mod-role="input-control-port" mod-port-symbol="{{symbol}}" mod-widget="custom-select">
           <div mod-role="input-control-value" mod-port-symbol="{{symbol}}" class="mod-enumerated-selected"></div>
-          <div class="mod-enumerated-list" mod-widget-property="hidden">
+          <div class="mod-enumerated-list">
             {{#scalePoints}}
             <div mod-role="enumeration-option" mod-port-value="{{value}}">{{label}}</div>
             {{/scalePoints}}
@@ -76,7 +76,7 @@
         {{#controls.10}}
         <div class="mod-enumerated mod-enumerated-2" mod-role="input-control-port" mod-port-symbol="{{symbol}}" mod-widget="custom-select">
           <div mod-role="input-control-value" mod-port-symbol="{{symbol}}" class="mod-enumerated-selected"></div>
-          <div class="mod-enumerated-list" mod-widget-property="hidden">
+          <div class="mod-enumerated-list">
             {{#scalePoints}}
             <div mod-role="enumeration-option" mod-port-value="{{value}}">{{label}}</div>
             {{/scalePoints}}
@@ -86,7 +86,7 @@
         {{#controls.11}}
         <div class="mod-enumerated mod-enumerated-3" mod-role="input-control-port" mod-port-symbol="{{symbol}}" mod-widget="custom-select">
           <div mod-role="input-control-value" mod-port-symbol="{{symbol}}" class="mod-enumerated-selected"></div>
-          <div class="mod-enumerated-list" mod-widget-property="hidden">
+          <div class="mod-enumerated-list">
             {{#scalePoints}}
             <div mod-role="enumeration-option" mod-port-value="{{value}}">{{label}}</div>
             {{/scalePoints}}
@@ -114,7 +114,7 @@
        {{/effect.ports.audio.output}}
         {{#effect.ports.midi.output}}
         <div class="mod-output mod-output-disconnected" title="{{name}}" mod-role="output-midi-port" mod-port-symbol="{{symbol}}">
-            <div class="mod-pedal-input-image"></div>
+            <div class="mod-pedal-output-image"></div>
         </div>
         {{/effect.ports.midi.output}}
     </div>
