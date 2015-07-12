@@ -7,7 +7,7 @@ declare shortname "Fuzz Face FM";
 declare description "Micke Fuller Fuzz Face simulation";
 
 import("filter.lib");
-import("guitarix.lib");
+import("trany.lib");
 
 process = iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clip with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -15,7 +15,7 @@ process = iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clip with {
     s = 0.993;
     fs = float(SR);
     pre = _;
-    clip = tubestage(TB_KT88_68k,86.0,2700.0,5.562895) : tubestage(TB_KT88_68k,86.0,2700.0,5.562895) ;
+    clip = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) : tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
    
         Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
     
