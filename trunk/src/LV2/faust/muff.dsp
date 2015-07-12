@@ -7,6 +7,7 @@ declare shortname "Muff";
 declare description "Muff";
 
 import("filter.lib");
+import("guitarix.lib");
 
 process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0)) : clip  with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -15,7 +16,7 @@ process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/
     fs = float(SR);
     pre = _;
     a =   0.4715;
-    clip(x) = (0.4 * (min(0.7514,max(-0.4514,x))));
+    clip = tubestage(TB_7199P_68k,86.0,2700.0,3.571981) : tubestage(TB_7199P_68k,86.0,2700.0,3.571981) : tubestage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 
     
         Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);

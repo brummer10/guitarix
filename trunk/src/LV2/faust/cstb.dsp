@@ -7,6 +7,7 @@ declare shortname "CS Toneblender";
 declare description "Colorsound Tone Blender";
 
 import("filter.lib");
+import("guitarix.lib");
 
 process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) : clip ):>_ with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -16,7 +17,8 @@ process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a
     pre = _;
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
-    clip(x) = 0.3 * (min(0.7514,max(-0.4514,x)));
+    clip = tubestage(TB_KT88_68k,86.0,2700.0,5.562895) : tubestage(TB_KT88_68k,86.0,2700.0,5.562895) ;
+    //clip(x) = 0.3 * (min(0.7514,max(-0.4514,x)));
         
         Level =  vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
     
