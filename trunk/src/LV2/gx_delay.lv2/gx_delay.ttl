@@ -92,7 +92,6 @@ A stereo delay plugin with independent delay time and delay gain for each channe
         lv2:default 1000.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 5000.0 ;
-        lv2:designation  time:beatsPerMinute;
         units:unit units:ms ;
     ] , [
         a lv2:InputPort ,
@@ -112,7 +111,6 @@ A stereo delay plugin with independent delay time and delay gain for each channe
         lv2:default 1000.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 5000.0 ;
-        lv2:designation  time:beatsPerMinute;
         units:unit units:ms ;
     ] , [
         a lv2:InputPort ,

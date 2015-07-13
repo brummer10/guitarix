@@ -91,7 +91,6 @@ Sounds very sweet with tubes wrapped
         lv2:default 0.1 ;
         lv2:minimum 0.1 ;
         lv2:maximum 14.0 ;
-        lv2:designation  time:beatsPerMinute;
         units:unit units:hz ;
     ] , [
         a lv2:InputPort ,

@@ -92,7 +92,6 @@ A stereo echo plugin with independent delay time and delay volume for each chann
         lv2:default 100.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 2000.0 ;
-        lv2:designation  time:beatsPerMinute;
         units:unit units:ms ;
     ] , [
         a lv2:InputPort ,
@@ -112,7 +111,6 @@ A stereo echo plugin with independent delay time and delay volume for each chann
         lv2:default 100.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 2000.0 ;
-        lv2:designation  time:beatsPerMinute;
         units:unit units:ms ;
     ] , [
         a lv2:InputPort ,
