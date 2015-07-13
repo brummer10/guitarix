@@ -24,7 +24,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix mod: <http://portalmod.com/ns/modgui#>.
+@prefix modgui: <http://moddevices.com/ns/modgui#>.
 @prefix time: <http://lv2plug.in/ns/ext/time/#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 

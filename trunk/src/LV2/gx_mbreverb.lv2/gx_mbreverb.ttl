@@ -24,7 +24,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix mod: <http://portalmod.com/ns/modgui#>.
+@prefix modgui: <http://moddevices.com/ns/modgui#>.
 @prefix time: <http://lv2plug.in/ns/ext/time/#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 
@@ -290,13 +290,12 @@ rdfs:comment """
         lv2:minimum 0.0 ;
         lv2:maximum 1e+02 ;
     ];
-    mod:gui [
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/icon-gxmbreverb.html>;
-        mod:templateData <modgui/data-gxmbreverb.json>;
-        mod:screenshot <modgui/screenshot-gxmbreverb.png>;
-        mod:thumbnail <modgui/thumb-gxmbreverb.png>;
+    modgui:gui [
+        modgui:resourcesDirectory <modgui>;
+        modgui:iconTemplate <modgui/icon-gxmbreverb.html>;
+        modgui:templateData <modgui/data-gxmbreverb.json>;
+        modgui:screenshot <modgui/screenshot-gxmbreverb.png>;
+        modgui:thumbnail <modgui/thumb-gxmbreverb.png>;
     ].
 
 

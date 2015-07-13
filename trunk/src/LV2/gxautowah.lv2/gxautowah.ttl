@@ -24,7 +24,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix mod: <http://portalmod.com/ns/modgui#> .
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -120,13 +120,12 @@ All other trademarks are the property of their respective holders.'
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
     ] ;
-    mod:gui [ 
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/gxautowah.html>;
-        mod:templateData <modgui/gxautowah.json>;
-        mod:screenshot <modgui/gxautowah.png>;
-        mod:thumbnail <modgui/gxautowah-thumb.png>;
+    modgui:gui [
+        modgui:resourcesDirectory <modgui>;
+        modgui:iconTemplate <modgui/gxautowah.html>;
+        modgui:templateData <modgui/gxautowah.json>;
+        modgui:screenshot <modgui/gxautowah.png>;
+        modgui:thumbnail <modgui/gxautowah-thumb.png>;
     ] .
 
 
