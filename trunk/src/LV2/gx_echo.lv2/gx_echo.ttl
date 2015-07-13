@@ -26,7 +26,7 @@
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 @prefix modgui: <http://moddevices.com/ns/modgui#> .
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
-@prefix time: <http://lv2plug.in/ns/ext/time/#>.
+@prefix time: <http://lv2plug.in/ns/ext/time#>.
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;

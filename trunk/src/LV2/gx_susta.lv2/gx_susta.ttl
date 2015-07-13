@@ -25,7 +25,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 @prefix modgui: <http://moddevices.com/ns/modgui#>.
-@prefix time: <http://lv2plug.in/ns/ext/time/#>.
+@prefix time: <http://lv2plug.in/ns/ext/time#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 
 <http://guitarix.sourceforge.net#me>
