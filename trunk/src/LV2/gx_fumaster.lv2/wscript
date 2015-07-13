@@ -11,7 +11,7 @@ def build(bld):
     
     src = ['gx_fumaster.cpp'
            ]
-    incl = ['../faust','./', '../DSP']
+    incl = ['../faust','./', '../DSP', '../DSP/tube_tables']
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')

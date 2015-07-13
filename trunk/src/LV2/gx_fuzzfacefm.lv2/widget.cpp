@@ -53,7 +53,7 @@ plug_name(plugname),
 pir(GX_LV2_STYLE_DIR"/fuzzfacejfuller.png")
 {
   // create controllers for port name
-  make_controller_box(&m_vbox3, "FUZZ", 0, 1, 0.01, FUZZ);
+  make_controller_box(&m_vbox3, "FUZZ", 0, 0.99, 0.01, FUZZ);
   make_controller_box(&m_vbox2, "LEVEL", 0, 1, 0.01, LEVEL);
   make_controller_box(&m_vbox4, "DRIVE", 0, 1, 0.01, DRIVE);
   make_controller_box(&m_vbox5, "INPUT", 0, 1, 0.01, INPUT);

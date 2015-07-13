@@ -1,0 +1,23 @@
+
+import("filter.lib");
+
+
+
+// simple triode circuit emulation
+
+Ftrany = ffunction(float Ftrany(int,float), "trany.h", "");
+
+TB_KT88_68k      = fconstant(int TRANY_TABLE_KT88_68k,   "trany.h");
+TB_KT88_250k     = fconstant(int TRANY_TABLE_KT88_250k,  "trany.h");
+TB_7199P_68k      = fconstant(int TRANY_TABLE_7199P_68k,   "trany.h");
+TB_7199P_250k     = fconstant(int TRANY_TABLE_7199P_250k,  "trany.h");
+
+tranystageF(tb,vplus,divider,fck,Rk,Vk0) = trany : hpf with {
+    lpfk = lowpass(1,fck);
+    Rp = 100.0e3;
+    VkC = Vk0 * (Rp/Rk);
+    trany = (+ : -(Vk0) : Ftrany(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);
+    hpf = highpass(1,31.0);
+};
+
+tranystage(tb,fck,Rk,Vk0)  = tranystageF(tb,250.0,40.0,fck,Rk,Vk0);
