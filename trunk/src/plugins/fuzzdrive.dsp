@@ -2,11 +2,12 @@
 // DO NOT MODIFY!
 declare id "fuzzdrive";
 declare name "Fuzz Drive";
-declare category "Distortion";
+declare category "Fuzz";
 declare shortname "Fuzz Drive";
 declare description "Fuzz Distortion";
 
 import("filter.lib");
+import("trany.lib");
 
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = if(b, 1 - x, x);
@@ -21,7 +22,7 @@ import("filter.lib");
 
     Distortion = vslider("Distortion[name:Drive]", 0.5, 0, 0.99, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
 
-    clip(x) = 0.4 * (min(2.7514,max(-2.4514,x)));
+    clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 
 fuzz =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0,a7/a0,a8/a0)) : clip with {
     fs = float(SR);

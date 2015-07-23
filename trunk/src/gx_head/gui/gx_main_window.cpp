@@ -1855,6 +1855,7 @@ void MainWindow::fill_pluginlist() {
     // them first
     add_plugin_category(N_("Tone control"), false);
     add_plugin_category(N_("Distortion"));
+    add_plugin_category(N_("Fuzz"));
     add_plugin_category(N_("Reverb"));
     add_plugin_category(N_("Echo / Delay"));
     add_plugin_category(N_("Modulation"));

@@ -122,7 +122,7 @@ Dsp::Dsp()
 	name = N_("Fuzz Face");
 	groups = 0;
 	description = N_("J Hendrix Fuzz Face simulation"); // description (tooltip)
-	category = N_("Distortion");       // category
+	category = N_("Fuzz");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

@@ -36,6 +36,10 @@
         <col id="1">Distortion</col>
       </row>
       <row>
+        <col id="0" translatable="yes">Fuzz</col>
+        <col id="1">Fuzz</col>
+      </row>
+      <row>
         <col id="0" translatable="yes">Reverb</col>
         <col id="1">Reverb</col>
       </row>

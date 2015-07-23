@@ -126,7 +126,7 @@ Dsp::Dsp()
 	name = N_("Hornet");
 	groups = 0;
 	description = N_("Hornet simulation"); // description (tooltip)
-	category = N_("Distortion");       // category
+	category = N_("Fuzz");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

@@ -2,11 +2,12 @@
 // DO NOT MODIFY!
 declare id "foxeylady";
 declare name "Foxey Lady";
-declare category "Distortion";
+declare category "Fuzz";
 declare shortname "Foxey Lady";
 declare description "Foxey Lady fuzz pedal";
 
 import("filter.lib");
+import("trany.lib");
 
 process =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0)) : clip with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -14,7 +15,7 @@ process =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4
     s = 0.993;
     fs = float(SR);
     pre = _;
-    clip(x) = 0.4 * (min(0.7514,max(-0.4514,x)));
+    clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
     
         Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
     

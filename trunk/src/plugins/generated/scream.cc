@@ -48,7 +48,7 @@ Dsp::Dsp()
 	name = N_("Screaming Bird");
 	groups = 0;
 	description = N_("Screaming Bird"); // description (tooltip)
-	category = N_("Distortion");       // category
+	category = N_("Fuzz");       // category
 	shortname = N_("Scream Bird");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

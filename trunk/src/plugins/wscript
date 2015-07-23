@@ -52,6 +52,8 @@ lib_sources = [ # put in static library linked with guitarix
     "fumaster.dsp",
     "fuzzdrive.dsp",
     "rolandwah.dsp",
+    "astrofuzz.dsp",
+    "buffb.dsp",
     ]
 
 def build(bld):
@@ -112,11 +114,12 @@ def build(bld):
     incl = [".","../headers"]
     if not bld.env['ZITA_RESAMPLER']:
         incl.append('../zita-resampler-1.1.0')
+    
     if have_pluginlib:
         bld(features = ['cxx', 'cstaticlib'],
             includes = incl,
             source = [s.replace(".dsp",".cc") for s in lib_sources]+lib_csources,
-            uselib = ["EIGEN3"],
+            uselib = ["EIGEN3", "tranny"],
             target = "plugins", # (also defines name of task)
             )
     for s in sources:

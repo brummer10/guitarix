@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "scream";
 declare name "Screaming Bird";
-declare category "Distortion";
+declare category "Fuzz";
 declare shortname "Scream Bird";
 declare description "Screaming Bird";
 

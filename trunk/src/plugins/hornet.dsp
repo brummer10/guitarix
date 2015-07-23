@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "hornet";
 declare name "Hornet";
-declare category "Distortion";
+declare category "Fuzz";
 declare description "Hornet simulation";
 
 import("filter.lib");

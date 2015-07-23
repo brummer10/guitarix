@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "fuzzface";
 declare name "Fuzz Face";
-declare category "Distortion";
+declare category "Fuzz";
 declare description "J Hendrix Fuzz Face simulation";
 
 import("filter.lib");
