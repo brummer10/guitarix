@@ -119,7 +119,7 @@ def build(bld):
         bld(features = ['cxx', 'cstaticlib'],
             includes = incl,
             source = [s.replace(".dsp",".cc") for s in lib_sources]+lib_csources,
-            uselib = ["EIGEN3", "tranny"],
+            uselib = ["EIGEN3"],
             target = "plugins", # (also defines name of task)
             )
     for s in sources:
