@@ -338,18 +338,18 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
     box->add(*Gtk::manage(static_cast<Gtk::Widget*>(w)));
     if (label && label[0]) {
-    GxPaintBox *boxv =  new GxPaintBox(pb_eq_expose);
-    boxv->set_property("orientation",Gtk::ORIENTATION_VERTICAL);
-    boxv->set_homogeneous(false);
-    boxv->set_spacing(0);
-    boxv->set_border_width(4);
+    //GxPaintBox *boxv =  new GxPaintBox(pb_eq_expose);
+    //boxv->set_property("orientation",Gtk::ORIENTATION_VERTICAL);
+    //boxv->set_homogeneous(false);
+    //boxv->set_spacing(0);
+    //boxv->set_border_width(4);
     Gtk::Label *lab = new Gtk::Label(label);
     //Pango::FontDescription font = lab->get_style()->get_font();
     //font.set_size(6*Pango::SCALE);
     //font.set_weight(Pango::WEIGHT_NORMAL);
     //lab->modify_font(font);
     lab->set_name("beffekt_label");
-    boxv->add(*manage(lab));
+    //boxv->add(*manage(lab));
     Gtk::VBox *boxvv =  new Gtk::VBox();
     Gtk::HBox *boxl =  new Gtk::HBox();
     boxl->set_homogeneous(false);
@@ -360,7 +360,7 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     boxl->pack_start(*manage(boxr), Gtk::PACK_EXPAND_WIDGET);
     boxl->add(*manage(box));
     boxl->pack_end(*manage(boxs), Gtk::PACK_EXPAND_WIDGET);
-    boxvv->add(*manage(boxv));    
+    boxvv->add(*manage(lab));    
     boxvv->add(*manage(boxl));    
     boxvv->show_all();
     fBox.box_pack_start(manage(boxvv),false);

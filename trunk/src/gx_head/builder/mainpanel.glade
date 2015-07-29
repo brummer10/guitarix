@@ -17,20 +17,20 @@
             <property name="can_focus">False</property>
             <property name="top_padding">3</property>
             <property name="bottom_padding">3</property>
-            <property name="left_padding">30</property>
-            <property name="right_padding">30</property>
+            <property name="left_padding">20</property>
+            <property name="right_padding">20</property>
             <child>
               <object class="GtkHBox" id="hboxmain">
                 <property name="name">hboxmain</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="spacing">20</property>
+                <property name="spacing">5</property>
                 <child>
                   <object class="GtkTable" id="tableampleft">
                     <property name="name">tableampleft</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="n_rows">4</property>
                     <property name="n_columns">3</property>
-                    <property name="column_spacing">8</property>
+                    <property name="column_spacing">3</property>
                     <property name="row_spacing">3</property>
                     <child>
                       <object class="GtkLabel" id="labelpregain:effekt_label">
@@ -86,7 +86,6 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="var_id">gxdistortion.drive</property>
-                        <property name="value_position">right</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -101,7 +100,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="var_id">amp2.stage2.gain1</property>
-                        <property name="value_position">right</property>
+                        <property name="value_position">top</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -116,7 +115,6 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="var_id">gxdistortion.wet_dry</property>
-                        <property name="value_position">left</property>
                       </object>
                       <packing>
                         <property name="top_attach">2</property>
@@ -129,7 +127,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="var_id">amp2.stage1.Pregain</property>
-                        <property name="value_position">left</property>
+                        <property name="value_position">top</property>
                       </object>
                       <packing>
                         <property name="top_attach">1</property>
