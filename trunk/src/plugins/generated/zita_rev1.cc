@@ -448,7 +448,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec30[0] = fVec13[(IOTA-iConst33)&2047];
 		double 	fRec31 = (0 - (0.6 * fVec13[IOTA&2047]));
 		fRec37[0] = ((fSlow5 * fRec37[1]) + (fSlow4 * (fRec5[1] + fRec5[2])));
-		fRec36[0] = ((fSlow72 * fRec36[1]) + (fSlow71 * ((fSlow65 * fRec37[0]) + fRec5[1])));
+		fRec36[0] = ((fSlow72 * fRec36[1]) + (fSlow71 * (fRec5[1] + (fSlow65 * fRec37[0]))));
 		fVec14[IOTA&16383] = (1e-20 + (0.35355339059327373 * fRec36[0]));
 		double fTemp15 = (((0.6 * fRec34[1]) + fVec14[(IOTA-iConst37)&16383]) - fTemp12);
 		fVec15[IOTA&2047] = fTemp15;
