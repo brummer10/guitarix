@@ -206,3 +206,16 @@ vibe_lfo_ctrl = environment {
 vibe_mono_lfo_ctrl = environment {
     freq = vslider(".univibe_mono.freq[name:Tempo][tooltip:LFO frequency (Hz)][alias]", 4.4, 0.1, 10, 0.1) * 16;
 };
+
+/****************************************************************
+** reverb building blocks
+*/
+
+opf(a) = (_+_*(1-a)~@(1)*a); 
+
+allpass(dt,fb) = (+ <:(@(dt):_),*(fb)) ~ *(-fb) : mem,_ : + ;
+allpass_with_fdelay(dt1,coef,dt2,dt2pos) = 
+	(_,_ <: (*(coef),_:+:@(dt1):fdelay(dt2,dt2pos)), -) ~ _ : (!,_);
+
+comb(dt, fb, damp) = (+:@(dt)) ~ (*(1-damp) : (+ ~ *(damp)) : *(fb));
+
