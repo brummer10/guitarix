@@ -1384,6 +1384,16 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d) {
 		pdesc->factory.set_dflt(lilv_node_as_float(pdflt));
 		lilv_node_free(pdflt);
 	    }
+	    LilvNode* is_int = lilv_new_uri(world, LV2_CORE__integer);
+	    if (lilv_port_has_property(plugin, port, is_int)) {
+			pdesc->factory.set_tp(tp_int);
+		}
+	    lilv_node_free(is_int);
+	    LilvNode* is_tog = lilv_new_uri(world, LV2_CORE__toggled);
+	    if (lilv_port_has_property(plugin, port, is_tog)) {
+			pdesc->factory.set_tp(tp_toggle);
+		}
+	    lilv_node_free(is_tog);
 	    LilvScalePoints* sp = lilv_port_get_scale_points(plugin, port);
 	    int num_sp = lilv_scale_points_size(sp);
 	    if (num_sp > 0) {
