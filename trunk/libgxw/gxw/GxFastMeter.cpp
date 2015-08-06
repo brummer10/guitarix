@@ -296,7 +296,7 @@ void gx_fast_meter_set(GxFastMeter* fm, gdouble lvl)
 	    (fm->hold_state == 0 || fm->current_peak  == old_peak)) {
 		return;
 	}
-	GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
+	GdkWindow* window = gtk_widget_get_parent_window(GTK_WIDGET(fm));
 	if (window) {
 		queue_vertical_redraw(fm, window);
 	}
@@ -380,7 +380,7 @@ void gx_fast_meter_set_by_power(GxFastMeter* fm, gdouble lvl)
 	    (fm->hold_state == 0 || fm->current_peak  == old_peak)) {
 		return;
 	}
-	GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
+	GdkWindow* window = gtk_widget_get_parent_window(GTK_WIDGET(fm));
 	if (window) {
 		queue_vertical_redraw(fm, window);
 	}
@@ -427,7 +427,7 @@ void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
 {
     if (!fm->surface)
 		return;
-	
+	GtkWidget *widget = GTK_WIDGET(fm);
 	GdkRectangle rect;
     GdkRectangle b = fm->bar;
 	int lw, lh, lb;
@@ -440,11 +440,12 @@ void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
     new_top -= new_top % (lh + lb);
     if (new_top)
         new_top += (lh + lb);
-	rect.x       = b.x;
+	rect.x       = b.x + widget->allocation.x;
 	rect.width   = hrz ? new_top : b.width;
 	rect.height  = hrz ? b.width : new_top;
 	rect.y       = hrz ? b.y : b.y + b.height - new_top;
-
+    rect.y += widget->allocation.y;
+    
 	if (new_top >= tom) {
         if (hrz) {
             rect.x += tom;
@@ -533,8 +534,8 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
     
     cairo_set_source_surface(cr, fm->overlay, x, y);
     cairo_rectangle(cr,
-        b.x,
-        hrz ? b.y : b.y + b.height - top_of_meter,
+        b.x + x,
+        hrz ? b.y + y : b.y + b.height - top_of_meter + y,
         hrz ? top_of_meter : b.width,
         hrz ? b.height : top_of_meter );
 	cairo_fill(cr);
