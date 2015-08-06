@@ -170,8 +170,8 @@ static gboolean gx_hslider_button_release (GtkWidget *widget, GdkEventButton *ev
 
 static gboolean gx_hslider_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
 {
-    gx_hslider_set_pointer(widget, event);
     g_assert(GX_IS_HSLIDER(widget));
+    gx_hslider_set_pointer(widget, event);
 	if (!gtk_widget_has_grab(widget))
 		return FALSE;
 	gdk_event_request_motions (event);
