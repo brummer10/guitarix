@@ -124,6 +124,9 @@ def build(bld):
         'susta.dsp',
         'cstb.dsp',
         'fumaster.dsp',
+        'hogsfoot.dsp',
+        'mole.dsp',
+        'rangem.dsp',
 
 
         # tone stacks
