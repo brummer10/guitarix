@@ -20,13 +20,14 @@ private:
 	double 	fRec0[2];
 	double 	fConst5;
 	double 	fConst6;
-	double 	fRec4[2];
+	double 	fRec5[2];
 	double 	fConst7;
 	double 	fConst8;
+	double 	fRec4[2];
 	double 	fRec3[2];
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
-	double 	fRec5[2];
+	double 	fRec6[2];
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
 	double 	fConst9;
@@ -66,7 +67,7 @@ private:
 	double 	fConst43;
 	FAUSTFLOAT 	fslider3;
 	FAUSTFLOAT	*fslider3_;
-	double 	fRec6[7];
+	double 	fRec7[7];
 	double 	fConst44;
 	double 	fConst45;
 	double 	fConst46;
@@ -137,10 +138,11 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int i=0; i<2; i++) fRec5[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
-	for (int i=0; i<2; i++) fRec5[i] = 0;
-	for (int i=0; i<7; i++) fRec6[i] = 0;
+	for (int i=0; i<2; i++) fRec6[i] = 0;
+	for (int i=0; i<7; i++) fRec7[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -245,18 +247,20 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec0[0] = fRec1[0];
 		double fTemp0 = (double)input0[i];
 		double fTemp1 = fabs(fTemp0);
-		fRec4[0] = ((fConst5 * max(fTemp1, fRec4[1])) + (fConst6 * fTemp1));
-		fRec3[0] = ((fConst7 * fRec3[1]) + (fConst8 * fRec4[0]));
-		fRec5[0] = ((0.993 * fRec5[1]) + fSlow1);
-		double fTemp2 = ((iSlow2==0)? fRec5[0] : ((iSlow2==1)?(1 - max(0.02, min(0.98, fRec3[0]))):(1 - max(0.02, min(0.98, (0.5 * (1 + fRec0[0])))))) );
+		fRec5[0] = ((fConst5 * max(fTemp1, fRec5[1])) + (fConst6 * fTemp1));
+		fRec4[0] = ((fConst7 * fRec4[1]) + (fConst8 * fRec5[0]));
+		fRec3[0] = ((0.993 * fRec3[1]) + (0.007000000000000006 * (1 - max(0.02, min(0.98, fRec4[0])))));
+		fRec6[0] = ((0.993 * fRec6[1]) + fSlow1);
+		double fTemp2 = ((iSlow2==0)? fRec6[0] : ((iSlow2==1)?fRec3[0]:(1 - max(0.02, min(0.98, (0.5 * (1 + fRec0[0])))))) );
 		double fTemp3 = (1.42315920466468e-16 + (fConst1 * ((fTemp2 * (fConst12 + (fConst10 * fTemp2))) + fConst3)));
-		fRec6[0] = ((fSlow3 * fTemp0) - (((((((fRec6[1] * (8.5389552279881e-16 + (fConst1 * ((fTemp2 * (fConst43 + (fConst42 * fTemp2))) + fConst41)))) + (fRec6[2] * (2.13473880699702e-15 + (fConst1 * ((fTemp2 * (fConst40 + (fConst39 * fTemp2))) + fConst38))))) + (fRec6[3] * (2.84631840932937e-15 + (fConst23 * ((fTemp2 * (fConst37 + (fConst36 * fTemp2))) + fConst35))))) + (fRec6[4] * (2.13473880699702e-15 + (fConst1 * ((fTemp2 * (fConst34 + (fConst32 * fTemp2))) + fConst30))))) + (fRec6[5] * (8.5389552279881e-16 + (fConst1 * ((fTemp2 * (fConst28 + (fConst26 * fTemp2))) + fConst24))))) + (fRec6[6] * (1.42315920466468e-16 + (fConst1 * ((fTemp2 * (fConst21 + (fConst20 * fTemp2))) + fConst19))))) / fTemp3));
-		output0[i] = (FAUSTFLOAT)((fSlow4 * fTemp0) + (fConst23 * ((((((((fRec6[0] * ((fTemp2 * (fConst67 + (fConst66 * fTemp2))) + fConst65)) + (fRec6[1] * ((fTemp2 * (fConst64 + (fConst63 * fTemp2))) + fConst62))) + (fRec6[2] * ((fTemp2 * (fConst61 + (fConst60 * fTemp2))) + fConst59))) + (fRec6[3] * ((fTemp2 * (fConst58 + (fConst57 * fTemp2))) + fConst56))) + (fRec6[4] * ((fTemp2 * (fConst55 + (fConst53 * fTemp2))) + fConst51))) + (fRec6[5] * ((fTemp2 * (fConst49 + (fConst47 * fTemp2))) + fConst45))) + (fRec6[6] * ((fTemp2 * (fConst18 + (fConst16 * fTemp2))) + fConst14))) / fTemp3)));
+		fRec7[0] = ((fSlow3 * fTemp0) - (((((((fRec7[1] * (8.5389552279881e-16 + (fConst1 * ((fTemp2 * (fConst43 + (fConst42 * fTemp2))) + fConst41)))) + (fRec7[2] * (2.13473880699702e-15 + (fConst1 * ((fTemp2 * (fConst40 + (fConst39 * fTemp2))) + fConst38))))) + (fRec7[3] * (2.84631840932937e-15 + (fConst23 * ((fTemp2 * (fConst37 + (fConst36 * fTemp2))) + fConst35))))) + (fRec7[4] * (2.13473880699702e-15 + (fConst1 * ((fTemp2 * (fConst34 + (fConst32 * fTemp2))) + fConst30))))) + (fRec7[5] * (8.5389552279881e-16 + (fConst1 * ((fTemp2 * (fConst28 + (fConst26 * fTemp2))) + fConst24))))) + (fRec7[6] * (1.42315920466468e-16 + (fConst1 * ((fTemp2 * (fConst21 + (fConst20 * fTemp2))) + fConst19))))) / fTemp3));
+		output0[i] = (FAUSTFLOAT)((fSlow4 * fTemp0) + (fConst23 * ((((((((fRec7[0] * ((fTemp2 * (fConst67 + (fConst66 * fTemp2))) + fConst65)) + (fRec7[1] * ((fTemp2 * (fConst64 + (fConst63 * fTemp2))) + fConst62))) + (fRec7[2] * ((fTemp2 * (fConst61 + (fConst60 * fTemp2))) + fConst59))) + (fRec7[3] * ((fTemp2 * (fConst58 + (fConst57 * fTemp2))) + fConst56))) + (fRec7[4] * ((fTemp2 * (fConst55 + (fConst53 * fTemp2))) + fConst51))) + (fRec7[5] * ((fTemp2 * (fConst49 + (fConst47 * fTemp2))) + fConst45))) + (fRec7[6] * ((fTemp2 * (fConst18 + (fConst16 * fTemp2))) + fConst14))) / fTemp3)));
 		// post processing
-		for (int i=6; i>0; i--) fRec6[i] = fRec6[i-1];
-		fRec5[1] = fRec5[0];
+		for (int i=6; i>0; i--) fRec7[i] = fRec7[i-1];
+		fRec6[1] = fRec6[0];
 		fRec3[1] = fRec3[0];
 		fRec4[1] = fRec4[0];
+		fRec5[1] = fRec5[0];
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
 		fRec2[1] = fRec2[0];

@@ -948,7 +948,11 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	    }
 	    break;
 	case tp_int:
-	    b.create_spin_value(id.c_str(), p);
+	    if (((*it)->up - (*it)->low)<200) {
+		    b.create_small_rackknob(id.c_str(), p);
+		} else {
+	        b.create_spin_value(id.c_str(), p);
+	    }
 	    break;
 	case tp_enum:
 	    if ((*it)->has_caption) {

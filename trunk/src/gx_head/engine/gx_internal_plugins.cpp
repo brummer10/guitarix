@@ -1549,7 +1549,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
 
 int smbPitchShift::register_par(const ParamReg& reg) 
 {
-    reg.registerVar("smbPitchShift.semitone", N_("detune"), "S", "", &semitones, 0.0, -0.25, 0.25, 0.01);
+    reg.registerVar("smbPitchShift.semitone", N_("detune"), "S", "", &semitones, 0.0, -12., 12., 1);
     static const value_pair octave_values[] = {{"unison"},{"octave up"},{"octave down"},{0}};
     reg.registerIEnumVar("smbPitchShift.octave",N_("add harmonics"),"B",N_("add harmonics"),octave_values,&octave, 0);
     static const value_pair latency_values[] = {{"latency "},{"compensate"},{0}};

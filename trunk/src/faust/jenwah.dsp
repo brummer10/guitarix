@@ -20,7 +20,7 @@ process(x) = x : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6
     wet = wah_ctrl.wet_dry;
     dry = 1 - wet;
 
-    Wah1 = (x : amp_follower_ud(0.01,0.1) : min(0.99) : max(0.1));
+    Wah1 = (x : amp_follower_ud(0.01,0.1) : min(0.99) : max(0.1)): smooth(s);
     
     Wah2 = wah_ctrl.wah : Inverted(1) :  smooth(s);
     
