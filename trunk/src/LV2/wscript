@@ -106,6 +106,7 @@ def dirlist():
         'gx_mole.lv2',
         'gx_rangem.lv2',
         'gx_hogsfoot.lv2',
+        'gx_wah.lv2',
         ]
 
     return subdirs

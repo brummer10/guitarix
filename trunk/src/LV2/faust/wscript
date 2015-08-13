@@ -127,6 +127,13 @@ def build(bld):
         'hogsfoot.dsp',
         'mole.dsp',
         'rangem.dsp',
+        'colwah.dsp',
+        'dallaswah.dsp',
+        'foxwah.dsp',
+        'jenwah.dsp',
+        'maestrowah.dsp',
+        'selwah.dsp',
+        'voxwah.dsp',
 
 
         # tone stacks
