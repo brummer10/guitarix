@@ -54,6 +54,11 @@ lib_sources = [ # put in static library linked with guitarix
     "rolandwah.dsp",
     "astrofuzz.dsp",
     "buffb.dsp",
+    "eldist.dsp",
+    "mole.dsp",
+    "buzz.dsp",
+    "bfuzz.dsp",
+    "axface.dsp",
     ]
 
 def build(bld):
