@@ -422,7 +422,23 @@ static void gx_rack_tuner_pitch_to_note(GxRackTuner *tuner, double fnote, int *o
 	if (scale) {
 		*scale = fnote - *note;
 	}
-	*oc = int(round(fnoter/tuner->target_temperament));
+	int adju = 3;
+	switch(tuner->target_temperament) {
+	case 12:
+		adju = 3;
+		break;
+	case 19:
+		adju = 6;
+		break;
+	case 31:
+		adju = 9;
+		break;
+		break;
+	default:
+		break;
+	}
+	
+	*oc = int(round((fnoter+adju)/tuner->target_temperament));
 	int octsz = sizeof(octave) / sizeof(octave[0]);
 	if (*oc < 0 || *oc >= octsz) {
 		*oc = octsz - 1;
