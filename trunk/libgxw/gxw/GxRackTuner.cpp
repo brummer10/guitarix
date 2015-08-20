@@ -177,6 +177,7 @@ static void gx_rack_tuner_init (GxRackTuner *tuner)
 	tuner->target_oc = 0;
 	tuner->target_note = 0;
 	tuner->target_temperament = 12;
+	tuner->target_adjust = 3;
 	tuner->strng = 0;
 	// caculated layout
 	tuner->led_count = 0;
@@ -287,6 +288,7 @@ void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
 	tuner->temperament = temperament;
+	tuner->target_adjust = 3;
     if (tuner->temperament == 0) {
         tuner->target_temperament = 12;
         if (tuner->display_flat) {
@@ -296,9 +298,11 @@ void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
         }
     } else if (tuner->temperament == 1) {
         tuner->target_temperament = 19;
+        tuner->target_adjust = 6;
         tuner->note = note_19;
 	} else if (tuner->temperament == 2) {
         tuner->target_temperament = 31;
+        tuner->target_adjust = 9;
         tuner->note = note_31;
 	}
 	g_object_notify(G_OBJECT(tuner), "temperament");
@@ -422,23 +426,8 @@ static void gx_rack_tuner_pitch_to_note(GxRackTuner *tuner, double fnote, int *o
 	if (scale) {
 		*scale = fnote - *note;
 	}
-	int adju = 3;
-	switch(tuner->target_temperament) {
-	case 12:
-		adju = 3;
-		break;
-	case 19:
-		adju = 6;
-		break;
-	case 31:
-		adju = 9;
-		break;
-		break;
-	default:
-		break;
-	}
-	
-	*oc = int(round((fnoter+adju)/tuner->target_temperament));
+
+	*oc = int(round((fnoter+tuner->target_adjust)/tuner->target_temperament));
 	int octsz = sizeof(octave) / sizeof(octave[0]);
 	if (*oc < 0 || *oc >= octsz) {
 		*oc = octsz - 1;
