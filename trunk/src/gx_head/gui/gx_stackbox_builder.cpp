@@ -423,6 +423,64 @@ void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::str
       sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
 }
 
+void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
+    if (machine.parameter_hasId(id)) {
+		if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
+			if (machine.get_parameter_value<float>(id)>0) {
+				machine.set_parameter_value(id,0.0);
+				machine.signal_parameter_value<float>(id)(0.0);
+				Glib::ustring filename = machine.get_parameter_value<string>(idf);
+				Gtk::FileChooserDialog d( "Select loop file");
+				d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+				d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
+				d.add_shortcut_folder(string(getenv("HOME")) + string("/.config/guitarix/pluginpresets/loops"));
+				Gtk::FileFilter wav;
+				wav.set_name("WAV Files");
+				wav.add_mime_type("audio/x-vorbis+ogg");
+				wav.add_mime_type("audio/x-wav");
+				wav.add_pattern("*.ogg");
+				wav.add_pattern("*.wav");
+				wav.add_pattern("*.WAV");
+				wav.add_pattern("*.Wav");
+				d.add_filter(wav);
+				Gtk::FileFilter audio;
+				audio.set_name("Audio Files");
+				audio.add_mime_type("audio/*");
+				d.add_filter(audio);
+				Gtk::FileFilter all;
+				all.add_pattern("*");
+				all.set_name("All Files");
+				d.add_filter(all);
+				if ((filename.find("tape") == Glib::ustring::npos) && (!filename.empty())) {
+					d.set_filename(filename);
+				} else {
+					d.set_current_folder(string(getenv("HOME")) + string("/.config/guitarix/pluginpresets/loops"));
+				}
+				if (d.run() != Gtk::RESPONSE_OK) {
+					return;
+				}
+				filename = d.get_filename();
+				Gtk::RecentManager::Data data;
+				bool result_uncertain;
+				data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);
+				data.app_name = "guitarix";
+				data.groups.push_back("loopfiles");
+				Gtk::RecentManager::get_default()->add_item(d.get_uri(), data);
+				machine.set_parameter_value(idf,filename);
+			}
+		}
+	}
+}
+
+void StackBoxBuilder::create_fload_switch(const char *sw_type, const std::string& id, const std::string& idf) {
+	if (machine.get_jack()) {
+		addwidget(UiSwitch::create(machine, sw_type, id));
+		gx_engine::Parameter& p = machine.get_parameter(id);
+		p.signal_changed_float().connect(sigc::hide(
+			sigc::bind<const std::string>(sigc::bind<const std::string>(sigc::mem_fun(this, &StackBoxBuilder::load_file), idf), id)));
+	}
+}
+
 void StackBoxBuilder::create_feedback_slider(const std::string& id, const char *label) {
 	UiMasterReglerWithCaption<Gxw::HSlider> *w = new UiMasterReglerWithCaption<Gxw::HSlider>(machine, id);
     Glib::signal_timeout().connect(sigc::bind<const std::string>(

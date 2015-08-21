@@ -1584,6 +1584,11 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	} else if (jp->current_value() == "create_feedback_switch") {
 	    std::string sw_type = next_char_pointer(jp);
 	    builder.create_feedback_switch(sw_type.c_str(), next_char_pointer(jp));
+	} else if (jp->current_value() == "create_fload_switch") {
+	    std::string sw_type = next_char_pointer(jp);
+	    std::string id = next_char_pointer(jp);
+	    std::string idf = next_char_pointer(jp);
+	    builder.create_fload_switch(sw_type.c_str(), id.c_str(), idf.c_str());
 	} else if (jp->current_value() == "create_switch") {
 	    std::string sw_type = next_char_pointer(jp);
 	    std::string id = next_char_pointer(jp);

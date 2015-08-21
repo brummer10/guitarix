@@ -624,6 +624,10 @@ private:
 	float 	rplay2;
 	float 	rplay3;
 	float 	rplay4;
+	float 	load1;
+	float 	load2;
+	float 	load3;
+	float 	load4;
 	float 	record1;
 	int 	iVec0[2];
 	int 	IOTA1;
@@ -696,6 +700,10 @@ private:
 	bool RP3;
 	bool RP4;
     Glib::ustring preset_name;
+    Glib::ustring load_file1;
+    Glib::ustring load_file2;
+    Glib::ustring load_file3;
+    Glib::ustring load_file4;
     Glib::ustring cur_name;
     Glib::ustring loop_dir;
     bool save_p;
@@ -716,6 +724,10 @@ private:
     void save_to_wave(std::string fname, float *tape, float fSize);
     int load_from_wave(std::string fname, float *tape);
     void set_p_state();
+    void load_tape1();
+    void load_tape2();
+    void load_tape3();
+    void load_tape4();
     
 	static void clear_state_f_static(PluginDef*);
 	static int activate_static(bool start, PluginDef*);

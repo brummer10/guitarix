@@ -207,6 +207,7 @@ private:
     static void create_spin_value_(const char *id, const char *label);
     static void create_switch_no_caption_(const char *sw_type,const char * id);
     static void create_feedback_switch_(const char *sw_type,const char * id);
+    static void create_fload_switch_(const char *sw_type,const char * id,const char * idf);
     static void create_switch_(const char *sw_type,const char * id, const char *label);
     static void create_wheel_(const char * id, const char *label);
     static void create_port_display_(const char *id, const char *label);
@@ -1361,6 +1362,7 @@ UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, const gx_system::Cmdlin
     create_p_display = create_p_display_;
     create_simple_spin_value = create_simple_spin_value_;
     create_eq_rackslider_no_caption = create_eq_rackslider_no_caption_;
+    create_fload_switch = create_fload_switch_;
     insertSpacer = insertSpacer_;
     set_next_flags = set_next_flags_;
 }
@@ -1534,6 +1536,15 @@ void UiBuilderVirt::create_feedback_switch_(const char *sw_type, const char * id
     jw->write("create_feedback_switch");
     jw->write(sw_type);
     jw->write(id);
+    jw->end_array();
+}
+
+void UiBuilderVirt::create_fload_switch_(const char *sw_type, const char * id, const char * idf) {
+    jw->begin_array();
+    jw->write("create_fload_switch");
+    jw->write(sw_type);
+    jw->write(id);
+    jw->write(idf);
     jw->end_array();
 }
 

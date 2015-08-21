@@ -82,6 +82,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     create_switch = create_switch_;
     create_switch_no_caption = create_switch_no_caption_;
     create_feedback_switch = create_feedback_switch_;
+    create_fload_switch = create_fload_switch_;
     create_wheel = create_wheel_;
     create_selector = create_selector_;
     create_simple_meter = create_simple_meter_;
@@ -196,6 +197,10 @@ void UiBuilderImpl::create_switch_no_caption_(const char *sw_type, const char * 
 
 void UiBuilderImpl::create_feedback_switch_(const char *sw_type, const char * id) {
     intf->create_feedback_switch(sw_type, id);
+}
+
+void UiBuilderImpl::create_fload_switch_(const char *sw_type, const char * id, const char * idf) {
+    intf->create_fload_switch(sw_type, id, idf);
 }
 
 void UiBuilderImpl::create_switch_(const char *sw_type, const char * id, const char *label) {

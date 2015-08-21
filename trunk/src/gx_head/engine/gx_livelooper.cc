@@ -123,6 +123,10 @@ inline void LiveLooper::init(unsigned int samplingFreq)
 	fConst0 = (1e+01f / float(fmin(192000, fmax(1, fSamplingFreq))));
 	fConst1 = (0 - fConst0);
     fConst2 = (1.0 / float(fmin(192000, fmax(1, fSamplingFreq))));
+    load_file1 = "tape1";
+    load_file2 = "tape2";
+    load_file3 = "tape3";
+    load_file4 = "tape4";
 }
 
 void LiveLooper::init_static(unsigned int samplingFreq, PluginDef *p)
@@ -165,7 +169,7 @@ inline int LiveLooper::load_from_wave(std::string fname, float *tape)
     if (sf ) {
         f = sfinfo.frames;
         c = sfinfo.channels;
-        n = f*c;
+        n = min(4194304,f*c);
         fSize = sf_read_float(sf,tape,n);
     }
     sf_close(sf);
@@ -245,6 +249,70 @@ int LiveLooper::activate(bool start)
 int LiveLooper::activate_static(bool start, PluginDef *p)
 {
 	return static_cast<LiveLooper*>(p)->activate(start);
+}
+
+void LiveLooper::load_tape1() {
+    if (!load_file1.empty()) {
+        ready = false;
+        sync();
+        if (cur_name.compare("tape")==0 || save_p) {
+			if (save1) {
+				save_to_wave(loop_dir+cur_name+"1.wav",tape1,rectime0);
+				save1 = false;
+			}
+		}
+        RecSize1[1] = load_from_wave(load_file1, tape1);
+        IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
+        ready = true;
+    }
+}
+
+void LiveLooper::load_tape2() {
+    if (!load_file2.empty()) {
+        ready = false;
+        sync();
+        if (cur_name.compare("tape")==0 || save_p) {
+			if (save2) {
+				save_to_wave(loop_dir+cur_name+"2.wav",tape2,rectime1);
+				save2 = false;
+			}
+		}
+        RecSize2[1] = load_from_wave(load_file2, tape2);
+        IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
+        ready = true;
+    }
+}
+
+void LiveLooper::load_tape3() {
+    if (!load_file3.empty()) {
+        ready = false;
+        sync();
+        if (cur_name.compare("tape")==0 || save_p) {
+			if (save3) {
+				save_to_wave(loop_dir+cur_name+"3.wav",tape3,rectime2);
+				save3 = false;
+			}
+		}
+        RecSize3[1] = load_from_wave(load_file3, tape3);
+        IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
+        ready = true;
+    }
+}
+
+void LiveLooper::load_tape4() {
+    if (!load_file4.empty()) {
+        ready = false;
+        sync();
+        if (cur_name.compare("tape")==0 || save_p) {
+			if (save4) {
+				save_to_wave(loop_dir+cur_name+"4.wav",tape4,rectime3);
+				save4 = false;
+			}
+		}
+        RecSize4[1] = load_from_wave(load_file4, tape4);
+        IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
+        ready = true;
+    }
 }
 
 void LiveLooper::set_p_state() {
@@ -509,10 +577,26 @@ int LiveLooper::register_par(const ParamReg& reg)
 	reg.registerVar("dubber.reset2","","B",N_("erase"),&reset2, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.reset3","","B",N_("erase"),&reset3, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("dubber.reset4","","B",N_("erase"),&reset4, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.load1","","B",N_("import file"),&load1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.load2","","B",N_("import file"),&load2, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.load3","","B",N_("import file"),&load3, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("dubber.load4","","B",N_("import file"),&load4, 0.0, 0.0, 1.0, 1.0);
     param.reg_non_midi_par("dubber.savefile", &save_p, false);
     param.reg_preset_string("dubber.filename", "", &preset_name, "tape");
     param["dubber.filename"].signal_changed_string().connect(
         sigc::hide(sigc::mem_fun(this, &LiveLooper::set_p_state)));
+    param.reg_string("dubber.loadfile1", "", &load_file1, "tape1");
+    param.reg_string("dubber.loadfile2", "", &load_file2, "tape2");
+    param.reg_string("dubber.loadfile3", "", &load_file3, "tape3");
+    param.reg_string("dubber.loadfile4", "", &load_file4, "tape4");
+    param["dubber.loadfile1"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper::load_tape1)));
+    param["dubber.loadfile2"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper::load_tape2)));
+    param["dubber.loadfile3"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper::load_tape3)));
+    param["dubber.loadfile4"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper::load_tape4)));
     return 0;
 }
 
@@ -552,6 +636,7 @@ b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
 b.create_feedback_switch(sw_pbutton,PARAM("play1"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay1"));
 b.create_feedback_switch(sw_button,PARAM("reset1"));
+b.create_fload_switch(sw_fbutton,PARAM("load1"),PARAM("loadfile1"));
 b.closeBox();
 b.closeBox();
 
@@ -584,6 +669,7 @@ b.create_feedback_switch(sw_rbutton,PARAM("rec2"));
 b.create_feedback_switch(sw_pbutton,PARAM("play2"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay2"));
 b.create_feedback_switch(sw_button,PARAM("reset2"));
+b.create_fload_switch(sw_fbutton,PARAM("load2"),PARAM("loadfile2"));
 b.closeBox();
 b.closeBox();
 b.insertSpacer();
@@ -615,6 +701,7 @@ b.create_feedback_switch(sw_rbutton,PARAM("rec3"));
 b.create_feedback_switch(sw_pbutton,PARAM("play3"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay3"));
 b.create_feedback_switch(sw_button,PARAM("reset3"));
+b.create_fload_switch(sw_fbutton,PARAM("load3"),PARAM("loadfile3"));
 b.closeBox();
 b.closeBox();
 b.insertSpacer();
@@ -645,6 +732,7 @@ b.create_feedback_switch(sw_rbutton,PARAM("rec4"));
 b.create_feedback_switch(sw_pbutton,PARAM("play4"));
 b.create_feedback_switch(sw_prbutton,PARAM("rplay4"));
 b.create_feedback_switch(sw_button,PARAM("reset4"));
+b.create_fload_switch(sw_fbutton,PARAM("load4"),PARAM("loadfile4"));
 b.closeBox();
 b.closeBox();
 b.insertSpacer();
