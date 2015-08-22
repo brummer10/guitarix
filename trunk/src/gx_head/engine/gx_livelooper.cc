@@ -170,7 +170,28 @@ inline int LiveLooper::load_from_wave(std::string fname, float *tape)
         f = sfinfo.frames;
         c = sfinfo.channels;
         n = min(4194304,f*c);
-        fSize = sf_read_float(sf,tape,n);
+        if( c==1 ) {
+            fSize = sf_read_float(sf,tape,n);
+            sf_close(sf);
+            return fSize;
+        } else {
+            float *oIn = new float[c * f];
+            sf_read_float(sf, oIn, c * f);
+            memset(tape,0,n*sizeof(float));
+            int i = 0;
+            int p = 0;
+            for(i = 0; i < c *f; i++) {
+                for(int j = 0; j < c; j++)
+                    tape[p] += oIn[i + j];
+                tape[p] /= c;
+                if ( p >= n) break;
+                i++;
+                p++;
+            }
+            delete oIn;
+            sf_close(sf);
+            return p;
+        }
     }
     sf_close(sf);
     return fSize;
@@ -242,6 +263,10 @@ int LiveLooper::activate(bool start)
 	} else if (mem_allocated) {
         save_array(cur_name);
 		mem_free();
+        load_file1 = "tape1";
+        load_file2 = "tape2";
+        load_file3 = "tape3";
+        load_file4 = "tape4";
 	}
 	return 0;
 }
@@ -263,6 +288,7 @@ void LiveLooper::load_tape1() {
 		}
         RecSize1[1] = load_from_wave(load_file1, tape1);
         IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
+        save1 = true;
         ready = true;
     }
 }
@@ -279,6 +305,7 @@ void LiveLooper::load_tape2() {
 		}
         RecSize2[1] = load_from_wave(load_file2, tape2);
         IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
+        save2 = true;
         ready = true;
     }
 }
@@ -295,6 +322,7 @@ void LiveLooper::load_tape3() {
 		}
         RecSize3[1] = load_from_wave(load_file3, tape3);
         IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
+        save3 = true;
         ready = true;
     }
 }
@@ -311,6 +339,7 @@ void LiveLooper::load_tape4() {
 		}
         RecSize4[1] = load_from_wave(load_file4, tape4);
         IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
+        save4 = true;
         ready = true;
     }
 }
@@ -644,9 +673,19 @@ b.insertSpacer();
 b.create_port_display(PARAM("bar1"), "buffer");
 b.insertSpacer();
 b.closeBox();
+
+b.openHorizontalBox("");
+b.insertSpacer();
+b.openVerticalBox("");
+
 b.create_feedback_slider(PARAM("clips1"), "cut");
 b.create_feedback_slider(PARAM("clip1"), "clip");
 b.create_master_slider(PARAM("speed1"), "speed");
+
+b.closeBox();
+b.insertSpacer();
+b.insertSpacer();
+b.closeBox();
 
 b.closeBox();
 b.create_small_rackknob(PARAM("level1"), "level");
@@ -676,9 +715,16 @@ b.insertSpacer();
 b.create_port_display(PARAM("bar2"), "buffer");
 b.insertSpacer();
 b.closeBox();
+b.openHorizontalBox("");
+b.insertSpacer();
+b.openVerticalBox("");
 b.create_feedback_slider(PARAM("clips2"), "cut");
 b.create_feedback_slider(PARAM("clip2"), "clip");
 b.create_master_slider(PARAM("speed2"), "speed");
+b.closeBox();
+b.insertSpacer();
+b.insertSpacer();
+b.closeBox();
 
 b.closeBox();
 
@@ -708,9 +754,16 @@ b.insertSpacer();
 b.create_port_display(PARAM("bar3"), "buffer");
 b.insertSpacer();
 b.closeBox();
+b.openHorizontalBox("");
+b.insertSpacer();
+b.openVerticalBox("");
 b.create_feedback_slider(PARAM("clips3"), "cut");
 b.create_feedback_slider(PARAM("clip3"), "clip");
 b.create_master_slider(PARAM("speed3"), "speed");
+b.closeBox();
+b.insertSpacer();
+b.insertSpacer();
+b.closeBox();
 
 b.closeBox();
 b.create_small_rackknob(PARAM("level3"), "level");
@@ -739,9 +792,16 @@ b.insertSpacer();
 b.create_port_display(PARAM("bar4"), "buffer");
 b.insertSpacer();
 b.closeBox();
+b.openHorizontalBox("");
+b.insertSpacer();
+b.openVerticalBox("");
 b.create_feedback_slider(PARAM("clips4"), "cut");
 b.create_feedback_slider(PARAM("clip4"), "clip");
 b.create_master_slider(PARAM("speed4"), "speed");
+b.closeBox();
+b.insertSpacer();
+b.insertSpacer();
+b.closeBox();
 
 b.closeBox();
 b.create_small_rackknob(PARAM("level4"), "level");
