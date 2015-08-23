@@ -603,6 +603,20 @@ public:
 
 
 class LiveLooper: public PluginDef {
+	
+	
+class FileResampler {
+private:
+    Resampler r_file;
+    int inputRate, outputRate;
+    int last_in_count;
+public:
+    int setup(int _inputRate, int _outputRate);
+    int run(int count, float *input, float *output);
+    int max_out_count(int in_count) {
+	return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
+};
+
 private:
 	int fSamplingFreq;
 	float 	gain;
@@ -711,6 +725,9 @@ private:
 	bool mem_allocated;
     sigc::slot<void> sync;
 	volatile bool ready;
+    FileResampler smp;
+
+    int do_resample(int inrate, int insize, float *input, int maxsize);
     void mem_alloc();
 	void mem_free();
 	void clear_state_f();

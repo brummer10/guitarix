@@ -26,6 +26,47 @@
 
 
 
+int LiveLooper::FileResampler::setup(int _inputRate, int _outputRate)
+{
+    const int qual = 16; 
+    inputRate = _inputRate;
+    outputRate = _outputRate;
+    if (inputRate == outputRate) {
+	return 0;
+    }
+    // resampler
+    int ret = r_file.setup(inputRate, outputRate, 1, qual);
+    if (ret) {
+	return ret;
+    }
+    // k == filtlen() == 2 * qual
+    // pre-fill with k-1 zeros
+    r_file.inp_count = r_file.filtlen() - 1;
+    r_file.out_count = 1;
+    r_file.inp_data = r_file.out_data = 0;
+    r_file.process();
+    return 0;
+}
+
+int LiveLooper::FileResampler::run(int count, float *input, float *output)
+{
+    if (inputRate == outputRate) {
+	memcpy(output, input, count*sizeof(float));
+	return count;
+    }
+    r_file.inp_count = count;
+    r_file.inp_data = input;
+    int m = max_out_count(count);
+    r_file.out_count = m;
+    r_file.out_data = output;
+    r_file.process();
+    assert(r_file.inp_count == 0);
+    assert(r_file.out_count <= 1);
+    return m - r_file.out_count;
+}
+
+
+
 LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& loop_dir_)
 	: PluginDef(),
 	  tape1(0),
@@ -48,6 +89,7 @@ LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& l
 	  mem_allocated(false),
       sync(sync_),
       ready(false),
+      smp(),
       plugin() {
     version = PLUGINDEF_VERSION;
 	id = "dubber";
@@ -153,47 +195,72 @@ void LiveLooper::mem_free()
 {
     ready = false;
 	mem_allocated = false;
-	if (tape1) { delete tape1; tape1 = 0; }
-	if (tape2) { delete tape2; tape2 = 0; }
-	if (tape3) { delete tape3; tape3 = 0; }
-	if (tape4) { delete tape4; tape4 = 0; }
+	if (tape1) { delete[] tape1; tape1 = 0; }
+	if (tape2) { delete[] tape2; tape2 = 0; }
+	if (tape3) { delete[] tape3; tape3 = 0; }
+	if (tape4) { delete[] tape4; tape4 = 0; }
+}
+
+int LiveLooper::do_resample(int inrate, int insize, float *input, int maxsize) {
+    smp.setup(inrate, fSamplingFreq);
+    int out_size = smp.max_out_count(insize);
+    float *getout = 0;
+    try {
+        getout = new float[out_size];
+        } catch(...) {
+            gx_print_error("dubber", "out of memory");
+            return 0;
+        }  
+    smp.run(insize, input, getout);
+    int size =  min(maxsize,out_size);
+    for(int i = 0; i < size; i++) {
+        input[i] = getout[i];
+    }
+    delete[] getout;
+    return size;
 }
 
 inline int LiveLooper::load_from_wave(std::string fname, float *tape)
 {
     SF_INFO sfinfo;
-    int n,f,c;
+    int n,f,c,r;
     int fSize = 0;
     sfinfo.format = 0;
     SNDFILE *sf = sf_open(fname.c_str(),SFM_READ,&sfinfo);
     if (sf ) {
         f = sfinfo.frames;
         c = sfinfo.channels;
+        r = sfinfo.samplerate;
         n = min(4194304,f*c);
         if( c==1 ) {
             fSize = sf_read_float(sf,tape,n);
+            if (r != fSamplingFreq) fSize = do_resample(r, f, tape, n);
             sf_close(sf);
             return fSize;
         } else {
-            float *oIn = new float[c * f];
+            float *oIn = 0;
+            try {
+                oIn = new float[c * f];
+                } catch(...) {
+                    gx_print_error("dubber", "out of memory");
+                    return 0;
+                }
             sf_read_float(sf, oIn, c * f);
             memset(tape,0,n*sizeof(float));
-            int i = 0;
             int p = 0;
-            for(i = 0; i < c *f; i++) {
+            for(int i = 0; i < c *f; i+=c) {
                 for(int j = 0; j < c; j++)
                     tape[p] += oIn[i + j];
                 tape[p] /= c;
                 if ( p >= n) break;
-                i++;
                 p++;
             }
-            delete oIn;
+            delete[] oIn;
+            if (r != fSamplingFreq) p = do_resample(r, p, tape, n);
             sf_close(sf);
             return p;
         }
     }
-    sf_close(sf);
     return fSize;
 }
 
