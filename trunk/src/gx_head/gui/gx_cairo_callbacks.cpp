@@ -1082,12 +1082,14 @@ static void render (GtkWidget *wi, cairo_t* cr) {
 	cairo_set_source_rgb (cr, 0., 0., 0.);
     cairo_stroke (cr);
     // draw image
-    gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	GdkGC *gc = gdk_gc_new(GDK_DRAWABLE(wi->window));
+    gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
 	                stock_image, 0, 0,
 	                x0+20, y0+5, -1,-1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
     
     g_object_unref(stock_image);
+	g_object_unref(gc);
 
 }
 

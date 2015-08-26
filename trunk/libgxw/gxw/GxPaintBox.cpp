@@ -809,23 +809,25 @@ static void rack_unit_expose(GtkWidget *wi, GdkEventExpose *ev)
 	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
 	double x1 = gdk_pixbuf_get_height(stock_image);
 	double y1 = gdk_pixbuf_get_width(stock_image);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	GdkGC *gc = gdk_gc_new(GDK_DRAWABLE(wi->window));
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
 				stock_image, 0, 0,
 				x0+3, y0+5, x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
 				stock_image, 0, 0,
 				x0+3, y0+rect_height-(5+y1), x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
 				stock_image, 0, 0,
 				x0+rect_width-(6+x1), y0+rect_height-(5+y1), x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
 				stock_image, 0, 0,
 				x0+rect_width-(6+x1), y0+5, x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
 	g_object_unref(stock_image);
+	g_object_unref(gc);
 
 }
 

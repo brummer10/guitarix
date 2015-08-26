@@ -237,7 +237,7 @@ int LiveLooper::do_mono(int c, int f, float *oIn, float *tape, int n) {
     return p;
 }
 
-inline int LiveLooper::load_from_wave(std::string fname, float **tape)
+inline int LiveLooper::load_from_wave(std::string fname, float **tape, int tape_size)
 {
     SF_INFO sfinfo;
     int n,f,c,r;
@@ -248,7 +248,7 @@ inline int LiveLooper::load_from_wave(std::string fname, float **tape)
         f = sfinfo.frames;
         c = sfinfo.channels;
         r = sfinfo.samplerate;
-        n = min(4194304,f*c);
+        n = min(tape_size,f*c);
         if( c==1 ) {
             if(f>n) {
                 delete[] *tape;
@@ -298,19 +298,19 @@ inline int LiveLooper::load_from_wave(std::string fname, float **tape)
 
 inline void LiveLooper::load_array(std::string name)
 {
-    RecSize1[1] = load_from_wave(loop_dir+name+"1.wav", &tape1);
+    RecSize1[1] = load_from_wave(loop_dir+name+"1.wav", &tape1, tape1_size);
     tape1_size = max(4194304,RecSize1[1]);
     IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
     
-    RecSize2[1] = load_from_wave(loop_dir+name+"2.wav", &tape2);
+    RecSize2[1] = load_from_wave(loop_dir+name+"2.wav", &tape2, tape2_size);
     tape2_size = max(4194304,RecSize2[1]);
     IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
     
-    RecSize3[1] = load_from_wave(loop_dir+name+"3.wav", &tape3);
+    RecSize3[1] = load_from_wave(loop_dir+name+"3.wav", &tape3, tape3_size);
     tape3_size = max(4194304,RecSize3[1]);
     IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
     
-    RecSize4[1] = load_from_wave(loop_dir+name+"4.wav", &tape4);
+    RecSize4[1] = load_from_wave(loop_dir+name+"4.wav", &tape4, tape4_size);
     tape4_size = max(4194304,RecSize4[1]);
     IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
     
@@ -389,7 +389,7 @@ void LiveLooper::load_tape1() {
                 save1 = false;
             }
         }
-        RecSize1[1] = load_from_wave(load_file1, &tape1);
+        RecSize1[1] = load_from_wave(load_file1, &tape1, tape1_size);
         tape1_size = max(4194304,RecSize1[1]);
         IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
         save1 = true;
@@ -407,7 +407,7 @@ void LiveLooper::load_tape2() {
                 save2 = false;
             }
         }
-        RecSize2[1] = load_from_wave(load_file2, &tape2);
+        RecSize2[1] = load_from_wave(load_file2, &tape2, tape2_size);
         tape2_size = max(4194304,RecSize2[1]);
         IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
         save2 = true;
@@ -425,7 +425,7 @@ void LiveLooper::load_tape3() {
                 save3 = false;
             }
         }
-        RecSize3[1] = load_from_wave(load_file3, &tape3);
+        RecSize3[1] = load_from_wave(load_file3, &tape3, tape3_size);
         tape3_size = max(4194304,RecSize3[1]);
         IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
         save3 = true;
@@ -443,7 +443,7 @@ void LiveLooper::load_tape4() {
                 save4 = false;
             }
         }
-        RecSize4[1] = load_from_wave(load_file4, &tape4);
+        RecSize4[1] = load_from_wave(load_file4, &tape4, tape4_size);
         tape4_size = max(4194304,RecSize4[1]);
         IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
         save4 = true;
@@ -470,6 +470,10 @@ void LiveLooper::set_p_state() {
         save_p = false;
     }
     //fprintf (stderr,"set_p_state: %s\n",preset_name.c_str());
+}
+
+void LiveLooper::play_all_tapes() {
+    play1=play2=play3=play4=play_all;
 }
 
 void always_inline LiveLooper::compute(int count, float *input0, float *output0)
@@ -717,6 +721,9 @@ int LiveLooper::register_par(const ParamReg& reg)
     reg.registerVar("dubber.load2","","B",N_("import file"),&load2, 0.0, 0.0, 1.0, 1.0);
     reg.registerVar("dubber.load3","","B",N_("import file"),&load3, 0.0, 0.0, 1.0, 1.0);
     reg.registerVar("dubber.load4","","B",N_("import file"),&load4, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("dubber.playall","","B",N_("play all tapes "),&play_all, 0.0, 0.0, 1.0, 1.0);
+    param["dubber.playall"].signal_changed_float().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper::play_all_tapes)));
     param.reg_non_midi_par("dubber.savefile", &save_p, false);
     param.reg_preset_string("dubber.filename", "", &preset_name, "tape");
     param["dubber.filename"].signal_changed_string().connect(
@@ -746,10 +753,7 @@ inline int LiveLooper::load_ui_f(const UiBuilder& b, int form)
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("dubber" "." p)
 b.openHorizontalhideBox("");
-b.create_feedback_switch(sw_pbutton,PARAM("play1"));
-b.create_feedback_switch(sw_pbutton,PARAM("play2"));
-b.create_feedback_switch(sw_pbutton,PARAM("play3"));
-b.create_feedback_switch(sw_pbutton,PARAM("play4"));
+b.create_switch_no_caption(sw_pbutton,PARAM("playall"));
 b.closeBox();
 
 b.openHorizontalBox("");

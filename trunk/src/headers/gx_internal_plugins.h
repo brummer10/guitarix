@@ -709,6 +709,7 @@ private:
 	float 	play4;
 	float 	playh4;
 	float 	gain4;
+	float 	play_all;
 	bool save1;
 	bool save2;
 	bool save3;
@@ -733,6 +734,7 @@ private:
 
     int do_resample(int inrate, int insize, float *input, int maxsize);
     int do_mono(int c, int f, float *oIn, float *tape, int n);
+    void play_all_tapes();
     void mem_alloc();
 	void mem_free();
 	void clear_state_f();
@@ -744,7 +746,7 @@ private:
     void save_array(std::string name);
     void load_array(std::string name);
     void save_to_wave(std::string fname, float *tape, float fSize, int tape_size);
-    int load_from_wave(std::string fname, float **tape);
+    int load_from_wave(std::string fname, float **tape, int tape_size);
     void set_p_state();
     void load_tape1();
     void load_tape2();
