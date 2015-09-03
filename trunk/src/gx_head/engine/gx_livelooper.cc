@@ -206,23 +206,23 @@ void LiveLooper::mem_free()
 }
 
 int LiveLooper::do_resample(int inrate, int insize, float *input, int maxsize) {
-    smp.setup(inrate, fSamplingFreq);
-    int out_size = smp.max_out_count(insize);
     float *getout = 0;
     try {
-        getout = new float[out_size];
+        getout = new float[maxsize];
         } catch(...) {
             gx_print_error("dubber", "out of memory");
             return 0;
         }  
     smp.run(insize, input, getout);
     memset(input,0,maxsize*sizeof(float));
-    int size =  min(maxsize,out_size);
-    for(int i = 0; i < size; i++) {
+    for(int i = 0; i < maxsize; i++) {
         input[i] = getout[i];
     }
     delete[] getout;
-    return size;
+    gx_print_info("dubber", Glib::ustring::compose(
+        _("resampling from %1 to %2"), inrate, fSamplingFreq));
+
+    return maxsize;
 }
 
 int LiveLooper::do_mono(int c, int f, float *oIn, float *tape, int n) {
@@ -240,29 +240,37 @@ int LiveLooper::do_mono(int c, int f, float *oIn, float *tape, int n) {
 inline int LiveLooper::load_from_wave(std::string fname, float **tape, int tape_size)
 {
     SF_INFO sfinfo;
-    int n,f,c,r;
+    int n,f,c,r,i;
     int fSize = 0;
+    bool res = false;
     sfinfo.format = 0;
     SNDFILE *sf = sf_open(fname.c_str(),SFM_READ,&sfinfo);
     if (sf ) {
-        f = sfinfo.frames;
+        gx_print_info("dubber", Glib::ustring::compose(
+           _("load file %1 "), fname));
+        f = i = sfinfo.frames;
         c = sfinfo.channels;
         r = sfinfo.samplerate;
         n = min(tape_size,f*c);
         if( c==1 ) {
-            if(f>n) {
+            if (r != fSamplingFreq) {
+                smp.setup(r, fSamplingFreq);
+                i = smp.max_out_count(f);
+                res = true;
+            }
+            if(i>n) {
                 delete[] *tape;
                 *tape = NULL;
                 try {
-                    *tape = new float[f];
+                    *tape = new float[i];
                     } catch(...) {
                     gx_print_error("dubber", "out of memory");
                     return 0;
                     }
-                n=f;
+                n=i;
             }
             fSize = sf_read_float(sf,*tape,n);
-            if (r != fSamplingFreq) fSize = do_resample(r, f, *tape, n);
+            if (res) fSize = do_resample(r, f, *tape, n);
             sf_close(sf);
             return fSize;
         } else if (c>1) {
@@ -273,22 +281,29 @@ inline int LiveLooper::load_from_wave(std::string fname, float **tape, int tape_
                     gx_print_error("dubber", "out of memory");
                     return 0;
                 }
-            if(f>n) {
+            if (r != fSamplingFreq) {
+                smp.setup(r, fSamplingFreq);
+                i = smp.max_out_count(f);
+                res = true;
+            }
+            if(i>n) {
                 delete[] *tape;
                 *tape = NULL;
                 try {
-                    *tape = new float[f];
+                    *tape = new float[i];
                     } catch(...) {
                     gx_print_error("dubber", "out of memory");
                     return 0;
                     }
-                n=f;
+                n=i;
             }
             sf_read_float(sf, oIn, c * f);
             memset(*tape,0,n*sizeof(float));
             int p = do_mono(c, f, oIn, *tape,  n);
+            gx_print_info("dubber", Glib::ustring::compose(
+                _("mix down to mono file %1 "), fname));
             delete[] oIn;
-            if (r != fSamplingFreq) p = do_resample(r, p, *tape, n);
+            if (res) p = do_resample(r, p, *tape, n);
             sf_close(sf);
             return p;
         }
@@ -452,7 +467,7 @@ void LiveLooper::load_tape4() {
 }
 
 void LiveLooper::set_p_state() {
-    if (!preset_name.empty()) {
+    if (!preset_name.empty() && fSamplingFreq != 0) {
         gx_system::atomic_set(&ready,0);
         sync();
         activate(true);
