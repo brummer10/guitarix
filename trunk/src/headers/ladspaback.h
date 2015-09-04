@@ -187,6 +187,16 @@ public:
  ** class LadspaPluginList
  */
 
+struct LV2Preset {
+	std::string sname;
+	std::vector<PortDesc*> ctrl_ports;
+	LilvPlugin* plugin;
+	unsigned int num_ports;
+	std::string cline;
+	bool has_preset;
+};
+
+
 class LadspaPluginList: private std::vector<PluginDesc*> {
 private:
     typedef std::map<std::string, PluginDesc*> pluginmap;
@@ -198,6 +208,11 @@ private:
     LilvNode* lv2_OutputPort;
     LilvNode* lv2_connectionOptional;
 private:
+    static char** uris;
+    static size_t n_uris;
+    static LV2_URID map_uri(LV2_URID_Map_Handle handle, const char* uri);
+    static const char* unmap_uri(LV2_URID_Map_Handle handle, LV2_URID urid);
+    static void get_preset_values(const char* port_symbol, void* user_data, const void* value, uint32_t size, uint32_t type);
     static inline std::string make_key(unsigned long unique_id) { return "ladspa://" + gx_system::to_string(unique_id); }
     static void add_plugin(const LADSPA_Descriptor& desc, pluginmap& d, const std::string& path, int index);
     static void load_defs(const std::string& path, pluginmap& d);
@@ -206,11 +221,13 @@ private:
     static void descend(const char *uri, pluginmap& d,
 			std::vector<unsigned long>& not_found, std::set<unsigned long>& seen,
 			std::vector<Glib::ustring>& base);
-    void add_plugin(const LilvPlugin* plugin, pluginmap& d);
-    void lv2_load(pluginmap& d);
+    void add_plugin(const LilvPlugin* plugin, pluginmap& d, gx_system::CmdlineOptions& options);
+    void lv2_load(pluginmap& d, gx_system::CmdlineOptions& options);
+    void get_presets(LV2Preset *pdata);
 public:
     LadspaPluginList();
     ~LadspaPluginList();
+    LV2Preset pdata;
     void readJSON(gx_system::JsonParser& jp);
     void writeJSON(gx_system::JsonWriter& jw);
     void load(gx_system::CmdlineOptions& options, std::vector<std::string>& old_not_found);

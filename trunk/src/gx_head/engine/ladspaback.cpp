@@ -1335,7 +1335,82 @@ void LadspaPluginList::descend(const char *uri, pluginmap& d,
     }
 }
 
-void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d) {
+
+char** LadspaPluginList::uris = NULL;
+size_t LadspaPluginList::n_uris = 0;
+
+LV2_URID LadspaPluginList::map_uri(LV2_URID_Map_Handle handle, const char* uri) {
+    for (size_t i = 0; i < n_uris; ++i) {
+        if (!strcmp(uris[i], uri)) {
+            return i + 1;
+        }
+    }
+
+    uris = (char**)realloc(uris, ++n_uris * sizeof(char*));
+    uris[n_uris - 1] = const_cast<char*>(uri);
+    return n_uris;
+}
+
+const char* LadspaPluginList::unmap_uri(LV2_URID_Map_Handle handle, LV2_URID urid) {
+    if (urid > 0 && urid <= n_uris) {
+        return uris[urid - 1];
+    }
+    return NULL;
+}
+
+void LadspaPluginList::get_preset_values(const char* port_symbol,
+                                     void*       user_data,
+                                     const void* value,
+                                     uint32_t    size,
+                                     uint32_t    type) {
+    LV2Preset* pdata = (LV2Preset*)user_data;
+    for (unsigned int i=0;i< pdata->num_ports;i++) {
+		const LilvPort* port = lilv_plugin_get_port_by_index(pdata->plugin, i);
+		const char* sym = lilv_node_as_string(lilv_port_get_symbol(pdata->plugin,port));
+		if (strcmp(sym, port_symbol) ==0) {
+			float fvalue = *(const float*)value;
+			Glib::ustring port_id = pdata->sname ;
+			pdata->cline  +=  "    \"lv2_";
+			pdata->cline  +=  port_id ;
+			pdata->cline  +=  "." ;
+			pdata->cline  +=  gx_system::to_string(i) ;
+			pdata->cline  +=  "\": " ;
+			pdata->cline  +=  gx_system::to_string(fvalue);
+			pdata->cline  +=  "\n";
+			
+		}
+	}
+ }
+
+void LadspaPluginList::get_presets(LV2Preset *pdata) {
+	LV2_URID_Map       map           = { NULL, map_uri };
+    //LV2_URID_Unmap     unmap         = { NULL, unmap_uri };
+	pdata->cline  ="[\"gx_plugin_version\", 1,\n";
+	LilvNodes* presets = lilv_plugin_get_related(pdata->plugin,
+      lilv_new_uri(world,LV2_PRESETS__Preset));
+    LILV_FOREACH(nodes, i, presets) {
+        const LilvNode* preset = lilv_nodes_get(presets, i);
+        lilv_world_load_resource(world, preset);
+        LilvNodes* labels = lilv_world_find_nodes(
+          world, preset, lilv_new_uri(world, LILV_NS_RDFS "label"), NULL);
+        if (labels) {
+			const LilvNode* label = lilv_nodes_get_first(labels);
+			if (label) {
+				Glib::ustring set =  lilv_node_as_string(label);
+				pdata->has_preset = true;
+				LilvState* state = lilv_state_new_from_world(world, &map, preset);
+				pdata->cline  +="  \"" + set + "\"" + " {\n";
+				lilv_state_emit_port_values(state, get_preset_values, pdata);
+				lilv_state_free(state);
+				pdata->cline  += "  },\n";
+			}
+		}
+		lilv_nodes_free(labels);
+	}
+	lilv_nodes_free(presets);
+}
+
+void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d, gx_system::CmdlineOptions& options) {
         
     // check for requested features 
 	LilvNodes* requests = lilv_plugin_get_required_features(plugin);
@@ -1428,15 +1503,40 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d) {
 	}
 	return;
     }
-    d[lilv_node_as_string(lilv_plugin_get_uri(plugin))] = new PluginDesc(world, plugin, tp, ctrl_ports);
+    PluginDesc* p = d[lilv_node_as_string(lilv_plugin_get_uri(plugin))] = new PluginDesc(world, plugin, tp, ctrl_ports);
+    pdata.has_preset = false;
+    if (options.reload_lv2_presets) {
+		if (p) {
+			pdata.sname =  gx_system::encode_filename(p->path);
+			pdata.ctrl_ports = ctrl_ports;
+			pdata.num_ports = num_ports;
+			pdata.plugin = const_cast<LilvPlugin*>(plugin);
+			get_presets(&pdata);
+		}
+    }
+
 }
 
-void LadspaPluginList::lv2_load(pluginmap& d) {
+void LadspaPluginList::lv2_load(pluginmap& d, gx_system::CmdlineOptions& options) {
     for (LilvIter* it = lilv_plugins_begin(lv2_plugins);
-	 !lilv_plugins_is_end(lv2_plugins, it);
-	 it = lilv_plugins_next(lv2_plugins, it)) {
-	add_plugin(lilv_plugins_get(lv2_plugins, it), d);
+	  !lilv_plugins_is_end(lv2_plugins, it);
+	  it = lilv_plugins_next(lv2_plugins, it)) {
+		add_plugin(lilv_plugins_get(lv2_plugins, it), d, options);
+		if (options.reload_lv2_presets) {
+			if (pdata.has_preset) {
+				pdata.cline.replace(pdata.cline.end()-2,pdata.cline.end()-1,"");
+				pdata.cline  += "]\n";
+				std::string pfile = options.get_lv2_preset_dir();
+				pfile += "lv2_";
+				pfile += pdata.sname;
+				ofstream os (pfile.c_str());
+				os << pdata.cline;
+				os.close();
+				pdata.has_preset = false;
+			}
+		}
     }
+    options.reload_lv2_presets = false;
 }
 
 static bool cmp_plugins(const PluginDesc *a, const PluginDesc *b) {
@@ -1512,7 +1612,7 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std:
     freelocale(loc);
     lrdf_cleanup();
 
-    lv2_load(d);
+    lv2_load(d, options);
 
     ifstream is(options.get_ladspa_config_filename().c_str());
     if (!is.fail()) {
@@ -1648,6 +1748,7 @@ LadspaPluginList::~LadspaPluginList() {
     for (iterator i = begin(); i != end(); ++i) {
 	delete *i;
     }
+    free(uris);
     lilv_node_free(lv2_AudioPort);
     lilv_node_free(lv2_ControlPort);
     lilv_node_free(lv2_InputPort);

@@ -119,9 +119,9 @@ public:
     PluginPresetList(const std::string& fname, gx_engine::ParamMap& pmap, gx_engine::MidiControllerList& mctrl_);
     bool start();
     bool next(Glib::ustring& name, bool *is_set = 0);
-    void set(const Glib::ustring& name);
+    bool set(const Glib::ustring& name);
     void save(const Glib::ustring& name, const std::string& id, const char **groups);
-    void remove(const Glib::ustring& name);
+    bool remove(const Glib::ustring& name);
 };
 
 class PluginPresetEntry {

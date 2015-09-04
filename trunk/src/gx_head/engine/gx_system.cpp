@@ -449,6 +449,7 @@ CmdlineOptions::CmdlineOptions()
       old_user_dir(),
       preset_dir(),
       pluginpreset_dir(),
+      lv2_preset_dir(),
       temp_dir(),
       plugin_dir(),
       loop_dir(),
@@ -485,7 +486,8 @@ CmdlineOptions::CmdlineOptions()
       system_animations(true),
       system_show_presets(false),
       system_show_toolbar(false),
-      system_show_rack(false) {
+      system_show_rack(false),
+      reload_lv2_presets(true) {
     const char* home = getenv("HOME");
     if (!home) {
 	throw GxFatalError(_("no HOME environment variable"));
@@ -494,6 +496,7 @@ CmdlineOptions::CmdlineOptions()
     plugin_dir = Glib::build_filename(get_user_dir(), "plugins");
     preset_dir = Glib::build_filename(get_user_dir(), "banks");
     pluginpreset_dir = Glib::build_filename(get_user_dir(), "pluginpresets");
+    lv2_preset_dir = Glib::build_filename(get_user_dir(), "pluginpresets/lv2");
     loop_dir = Glib::build_filename(get_pluginpreset_dir(), "loops");
     temp_dir = Glib::build_filename(get_user_dir(), "temp");
     const char *tmp = getenv("GUITARIX2JACK_OUTPUTS1");
@@ -892,6 +895,7 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(pixmap_dir);
     make_ending_slash(preset_dir);
     make_ending_slash(pluginpreset_dir);
+    make_ending_slash(lv2_preset_dir);
     make_ending_slash(loop_dir);
     make_ending_slash(temp_dir);
     make_ending_slash(plugin_dir);
