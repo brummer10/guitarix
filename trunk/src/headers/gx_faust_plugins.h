@@ -137,6 +137,7 @@ declare(maestrowah)
 declare(voxwah)
 declare(selwah)
 declare(jenwah)
+declare(colbwah)
 }
 
 declare(balance)

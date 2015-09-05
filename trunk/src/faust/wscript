@@ -141,6 +141,7 @@ def build(bld):
         'voxwah.dsp',       
         'selwah.dsp',       
         'jenwah.dsp',       
+        'colbwah.dsp',       
 
 
         # amps

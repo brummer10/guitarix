@@ -137,6 +137,7 @@ namespace gx_effects {
 #include "faust/voxwah.cc"
 #include "faust/selwah.cc"
 #include "faust/jenwah.cc"
+#include "faust/colbwah.cc"
 
 }
 
