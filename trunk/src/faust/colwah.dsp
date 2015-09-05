@@ -11,13 +11,14 @@ import("effect.lib");
 import("oscillator.lib");
 import("guitarix.lib");
 
-process(x) = x : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0))):>_ with {
+process(x) = x : _<:*(dry),(*(wet) : pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0))):>_ with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
     wet = wah_ctrl.wet_dry;
     dry = 1 - wet;
+    pre = dcblockerat(228.105325695);
 
     Wah1 = (x : amp_follower_ud(0.01,0.1) : min(1) : max(0.02) ) : smooth(s);
 
