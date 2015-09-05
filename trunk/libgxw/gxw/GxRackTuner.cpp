@@ -150,6 +150,7 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 static const char *note_sharp[] = {"A","A#","B","C","C#","D","D#","E","F","F#","G","G#"};
 static const char *note_flat[] = {"A","Bb","B","C","Db","D","Eb","E","F","Gb","G","Ab"};
 static const char* note_19[19] = {"A","A♯","B♭","B","B♯","C","C♯","D♭","D","D♯","E♭","E","E♯","F","F♯","G♭","G","G♯","A♭"};
+static const char* note_24[24] = {"A","A¼♯","A♯","A¾♯","B","B¼♯","C","C¼♯","C♯","C¾♯","D","D¼♯","D♯","D¾♯","E","E¼♯","F","F¼♯","F♯","F¾♯","G","G¼♯","G♯","G¾♯"};
 static const char* note_31[31] = {"A","B♭♭","A♯","B♭","A♯♯","B","C♭","B♯","C ","D♭♭","C♯","D♭","C♯♯","D","E♭♭","D♯","E♭","D♯♯","E","F♭","E♯","F","G♭♭","F♯","G♭","F♯♯","G","A♭♭","G♯","A♭","G♯♯"};
 static const char *octave[] = {"0","1","2","3","4","5"," "};
 
@@ -300,7 +301,11 @@ void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
         tuner->target_temperament = 19;
         tuner->target_adjust = 6;
         tuner->note = note_19;
-	} else if (tuner->temperament == 2) {
+    } else if (tuner->temperament == 2) {
+        tuner->target_temperament = 24;
+        tuner->target_adjust = 7;
+        tuner->note = note_24;
+	} else if (tuner->temperament == 3) {
         tuner->target_temperament = 31;
         tuner->target_adjust = 9;
         tuner->note = note_31;
