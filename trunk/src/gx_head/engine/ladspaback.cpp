@@ -1382,9 +1382,29 @@ void LadspaPluginList::get_preset_values(const char* port_symbol,
 	}
  }
 
+void LadspaPluginList::set_preset_values(Glib::ustring port_symbol,
+                                     LV2Preset* pdata,
+                                     Glib::ustring value) {
+    for (unsigned int i=0;i< pdata->num_ports;i++) {
+		const LilvPort* port = lilv_plugin_get_port_by_index(pdata->plugin, i);
+		Glib::ustring sym = lilv_node_as_string(lilv_port_get_symbol(pdata->plugin,port));
+		if (sym.compare(port_symbol) ==0) {
+			Glib::ustring port_id = pdata->sname ;
+			pdata->cline  +=  "    \"lv2_";
+			pdata->cline  +=  port_id ;
+			pdata->cline  +=  "." ;
+			pdata->cline  +=  gx_system::to_string(i) ;
+			pdata->cline  +=  "\": " ;
+			pdata->cline  +=  value;
+			pdata->cline  +=  "\n";
+			break;
+		}
+	}
+ }
+
 void LadspaPluginList::get_presets(LV2Preset *pdata) {
 	LV2_URID_Map       map           = { NULL, map_uri };
-    //LV2_URID_Unmap     unmap         = { NULL, unmap_uri };
+    LV2_URID_Unmap     unmap         = { NULL, unmap_uri };
 	pdata->cline  ="[\"gx_plugin_version\", 1,\n";
 	LilvNodes* presets = lilv_plugin_get_related(pdata->plugin,
       lilv_new_uri(world,LV2_PRESETS__Preset));
@@ -1400,7 +1420,31 @@ void LadspaPluginList::get_presets(LV2Preset *pdata) {
 				pdata->has_preset = true;
 				LilvState* state = lilv_state_new_from_world(world, &map, preset);
 				pdata->cline  +="  \"" + set + "\"" + " {\n";
-				lilv_state_emit_port_values(state, get_preset_values, pdata);
+				
+				Glib::ustring stt = lilv_state_to_string(world,&map,&unmap,state,"<>",NULL);
+				std::istringstream stream(stt);
+				std::string st;
+				Glib::ustring symbol = "";
+				Glib::ustring value = "";
+				while (std::getline(stream, st)) {
+					std::size_t found = st.find("lv2:symbol");
+					if(found !=Glib::ustring::npos) {
+						std::size_t found1 = st.find("\"",found)+1;
+						std::size_t found2 = st.find("\"",found1);
+						if(found2 !=Glib::ustring::npos) {
+							symbol = st.substr(found1, (found2-found1));
+						} else {
+							continue;
+						}
+					}
+					found = st.find("pset:value");
+					if(found !=Glib::ustring::npos) {
+						std::size_t found1 = st.find(" ",found)+1;
+						value = st.substr(found1);
+						set_preset_values(symbol,pdata,value);
+					}
+				}
+				//lilv_state_emit_port_values(state, get_preset_values, pdata);
 				lilv_state_free(state);
 				pdata->cline  += "  },\n";
 			}
@@ -1749,6 +1793,7 @@ LadspaPluginList::~LadspaPluginList() {
 	delete *i;
     }
     free(uris);
+    uris = NULL;
     lilv_node_free(lv2_AudioPort);
     lilv_node_free(lv2_ControlPort);
     lilv_node_free(lv2_InputPort);

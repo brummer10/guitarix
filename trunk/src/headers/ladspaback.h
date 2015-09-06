@@ -213,6 +213,7 @@ private:
     static LV2_URID map_uri(LV2_URID_Map_Handle handle, const char* uri);
     static const char* unmap_uri(LV2_URID_Map_Handle handle, LV2_URID urid);
     static void get_preset_values(const char* port_symbol, void* user_data, const void* value, uint32_t size, uint32_t type);
+    static void set_preset_values(Glib::ustring port_symbol, LV2Preset* pdata, Glib::ustring value);
     static inline std::string make_key(unsigned long unique_id) { return "ladspa://" + gx_system::to_string(unique_id); }
     static void add_plugin(const LADSPA_Descriptor& desc, pluginmap& d, const std::string& path, int index);
     static void load_defs(const std::string& path, pluginmap& d);
