@@ -80,7 +80,9 @@ static plugindef_creator builtin_wah_plugins[] = {
     gx_effects::maestrowah::plugin,
     gx_effects::selwah::plugin,
     gx_effects::voxwah::plugin,
+    gx_effects::rolwah::plugin,
     gx_effects::colbwah::plugin,
+    gx_effects::jenbasswah::plugin,
    0
 };
 

@@ -214,7 +214,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider2 (*fslider2_)
 #define fslider3 (*fslider3_)
 	double 	fSlow0 = (fConst4 * double(fslider0));
-	double 	fSlow1 = (0.007000000000000006 * (1 - double(fslider1)));
+	double 	fSlow1 = (4.748558434412966e-05 * (exp((5 * (1 - double(fslider1)))) - 1));
 	int 	iSlow2 = int(double(fslider2));
 	double 	fSlow3 = double(fslider3);
 	double 	fSlow4 = (fConst37 * fSlow3);

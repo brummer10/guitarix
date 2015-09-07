@@ -23,7 +23,7 @@ process(x) = x : _<:*(dry),(*(wet) : pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(
 
     Wah1 = (x : amp_follower_ud(0.01,0.1) : min(0.98) : max(0.03) : Inverted(1)): smooth(s);
     
-    Wah2 = wah_ctrl.wah : max(0.03) :  smooth(s);
+    Wah2 = wah_ctrl.wah : max(0.03)  : LogPot(5) :  smooth(s);
     
     sl = wah_ctrl.mode;
 

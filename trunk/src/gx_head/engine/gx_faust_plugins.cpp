@@ -138,6 +138,8 @@ namespace gx_effects {
 #include "faust/selwah.cc"
 #include "faust/jenwah.cc"
 #include "faust/colbwah.cc"
+#include "faust/rolwah.cc"
+#include "faust/jenbasswah.cc"
 
 }
 

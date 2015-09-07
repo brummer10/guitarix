@@ -138,6 +138,8 @@ declare(voxwah)
 declare(selwah)
 declare(jenwah)
 declare(colbwah)
+declare(rolwah)
+declare(jenbasswah)
 }
 
 declare(balance)
