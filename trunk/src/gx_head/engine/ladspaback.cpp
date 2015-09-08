@@ -1440,8 +1440,12 @@ void LadspaPluginList::get_presets(LV2Preset *pdata) {
 					found = st.find("pset:value");
 					if(found !=Glib::ustring::npos) {
 						std::size_t found1 = st.find(" ",found)+1;
-						value = st.substr(found1);
-						set_preset_values(symbol,pdata,value);
+						if(found1 !=Glib::ustring::npos) {
+							value = st.substr(found1);
+							set_preset_values(symbol,pdata,value);
+						} else {
+							continue;
+						}
 					}
 				}
 				//lilv_state_emit_port_values(state, get_preset_values, pdata);
@@ -1550,7 +1554,7 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d, gx_sys
     PluginDesc* p = d[lilv_node_as_string(lilv_plugin_get_uri(plugin))] = new PluginDesc(world, plugin, tp, ctrl_ports);
     pdata.has_preset = false;
     if (options.reload_lv2_presets) {
-		if (p) {
+		if (p->path.size() != 0) {
 			pdata.sname =  gx_system::encode_filename(p->path);
 			pdata.ctrl_ports = ctrl_ports;
 			pdata.num_ports = num_ports;
@@ -1567,7 +1571,7 @@ void LadspaPluginList::lv2_load(pluginmap& d, gx_system::CmdlineOptions& options
 	  it = lilv_plugins_next(lv2_plugins, it)) {
 		add_plugin(lilv_plugins_get(lv2_plugins, it), d, options);
 		if (options.reload_lv2_presets) {
-			if (pdata.has_preset) {
+			if (pdata.has_preset && pdata.cline.size() != 0) {
 				pdata.cline.replace(pdata.cline.end()-2,pdata.cline.end()-1,"");
 				pdata.cline  += "]\n";
 				std::string pfile = options.get_lv2_preset_dir();
@@ -1576,8 +1580,8 @@ void LadspaPluginList::lv2_load(pluginmap& d, gx_system::CmdlineOptions& options
 				ofstream os (pfile.c_str());
 				os << pdata.cline;
 				os.close();
-				pdata.has_preset = false;
 			}
+			pdata.has_preset = false;
 		}
     }
     options.reload_lv2_presets = false;
