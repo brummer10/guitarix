@@ -217,6 +217,7 @@ private:
   GxSimpleConvolver            ampconv;
   Ampf                         ampf;
   uint32_t                     bufsize;
+  uint32_t                     cur_bufsize;
   LV2_Atom_Sequence*           c_notice;
   LV2_Atom_Sequence*           n_notice;
   float                        *clevel;
@@ -236,6 +237,8 @@ private:
 
   inline bool cab_changed() 
     {return abs(cab - (clevel_ + c_model_)) > 0.1;}
+  inline bool buffsize_changed() 
+    {return abs(bufsize - cur_bufsize) != 0;}
   inline void update_cab() 
     {cab = (clevel_ + c_model_); c_old_model_ = c_model_;}
   inline bool change_cab() 
@@ -305,6 +308,7 @@ GxPluginMono::GxPluginMono() :
   ampconv(GxSimpleConvolver(resamp1)),
   ampf(Ampf()),
   bufsize(0),
+  cur_bufsize(0),
   clevel(NULL),
   clevel_(0),
   cab(0),
@@ -333,6 +337,39 @@ GxPluginMono::~GxPluginMono()
 
 void GxPluginMono::do_work_mono()
 {
+  if (buffsize_changed()) 
+   {
+     bufsize = cur_bufsize;
+     printf("buffersize changed to %u\n",bufsize);
+     if (cabconv.is_runnable())
+        {
+          cabconv.set_not_runnable();
+          cabconv.stop_process();
+        }
+	 cabconv.cleanup();
+     CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
+     cabconv.cab_count = cab.ir_count;
+     cabconv.cab_sr = cab.ir_sr;
+     cabconv.cab_data = cab.ir_data;
+        
+     cabconv.set_samplerate(s_rate);
+     cabconv.set_buffersize(bufsize);
+     cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
+     while (!cabconv.checkstate());
+     if(!cabconv.start(prio, SCHED_FIFO))
+        printf("cabinet convolver update buffersize fail\n");
+     if (ampconv.is_runnable())
+        {
+          ampconv.set_not_runnable();
+          ampconv.stop_process();
+        }
+     ampconv.set_samplerate(s_rate);
+     ampconv.set_buffersize(bufsize);
+     ampconv.configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
+     while (!ampconv.checkstate());
+     if(!ampconv.start(prio, SCHED_FIFO))
+        printf("presence convolver update buffersize fail\n");
+   }
   if (cab_changed())
     {
       if (cabconv.is_runnable())
@@ -490,6 +527,7 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
+  cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
 #ifndef __SSE__
@@ -508,7 +546,7 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
   cabconv.run_static(n_samples, &cabconv, output);
 
   // work ?
-  if (!atomic_get(schedule_wait) && val_changed())
+  if (!atomic_get(schedule_wait) && ( val_changed() || buffsize_changed())) 
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
@@ -622,14 +660,14 @@ LV2_Handle GxPluginMono::instantiate(const LV2_Descriptor*     descriptor,
   if (!self->map)
     {
       fprintf(stderr, "Missing feature uri:map.\n");
-      atomic_set(&self->schedule_wait,1);
-      self->schedule_ok_ = 1.;
+      //atomic_set(&self->schedule_wait,1);
+      //self->schedule_ok_ = 1.;
     }
   else if (!options)
     {
       fprintf(stderr, "Missing feature options.\n");
-      atomic_set(&self->schedule_wait,1);
-      self->schedule_ok_ = 1.;
+      //atomic_set(&self->schedule_wait,1);
+     // self->schedule_ok_ = 1.;
     }
   else
     {
@@ -649,8 +687,8 @@ LV2_Handle GxPluginMono::instantiate(const LV2_Descriptor*     descriptor,
       if (bufsize == 0)
         {
           fprintf(stderr, "No maximum buffer size given.\n");
-          atomic_set(&self->schedule_wait,1);
-          self->schedule_ok_ = 1.;
+          //atomic_set(&self->schedule_wait,1);
+          //self->schedule_ok_ = 1.;
         }
       printf("using block size: %d\n", bufsize);
       self->schedule_ok_ = 0.;
