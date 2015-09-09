@@ -339,30 +339,32 @@ void GxPluginMono::do_work_mono()
 {
   if (buffsize_changed()) 
    {
-     bufsize = cur_bufsize;
      printf("buffersize changed to %u\n",bufsize);
      if (cabconv.is_runnable())
         {
           cabconv.set_not_runnable();
           cabconv.stop_process();
         }
+     if (ampconv.is_runnable())
+        {
+          ampconv.set_not_runnable();
+          ampconv.stop_process();
+        }
+     bufsize = cur_bufsize;
+
 	 cabconv.cleanup();
      CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
      cabconv.cab_count = cab.ir_count;
      cabconv.cab_sr = cab.ir_sr;
      cabconv.cab_data = cab.ir_data;
-        
      cabconv.set_samplerate(s_rate);
      cabconv.set_buffersize(bufsize);
      cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
      while (!cabconv.checkstate());
      if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver update buffersize fail\n");
-     if (ampconv.is_runnable())
-        {
-          ampconv.set_not_runnable();
-          ampconv.stop_process();
-        }
+
+     ampconv.cleanup();
      ampconv.set_samplerate(s_rate);
      ampconv.set_buffersize(bufsize);
      ampconv.configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
