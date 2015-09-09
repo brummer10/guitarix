@@ -346,7 +346,7 @@ void GxPluginStereo::do_work_stereo()
 {
   if (buffsize_changed()) 
    {
-     printf("buffersize changed to %u\n",bufsize);
+     printf("buffersize changed to %u\n",cur_bufsize);
      if (cabconv.is_runnable())
         {
           cabconv.set_not_runnable();
