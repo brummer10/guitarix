@@ -38,7 +38,7 @@ void _gx_draw_inset (cairo_t * cr, gint x, gint y, gint width, gint height, gint
     cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.0, 0.0, 0.0, 0.33);
     cairo_pattern_add_color_stop_rgba(pat, 1.0, 1.0, 1.0, 1.0, 0.1);
     cairo_set_source(cr, pat);
-    gx_create_rectangle(cr, x-depth*0.5, y-depth, width+depth, height+2*depth, rad);
+    gx_create_rectangle(cr, x-depth, y-depth, width+2*depth, height+2*depth, rad);
 	cairo_fill(cr);
 }
 void gx_draw_inset (GtkWidget * widget, gint x, gint y, gint width, gint height, gint rad, gint depth) {

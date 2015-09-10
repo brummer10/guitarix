@@ -34,7 +34,7 @@ static void gx_level_slider_class_init(GxLevelSliderClass *klass)
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
 	widget_class->expose_event = gx_level_slider_expose;
-	widget_class->size_request = gx_level_slider_size_request;
+    widget_class->size_request = gx_level_slider_size_request;
 	widget_class->button_press_event = gx_level_slider_button_press;
 	widget_class->motion_notify_event = gx_level_slider_pointer_motion;
 	widget_class->enter_notify_event = NULL;
@@ -50,41 +50,42 @@ static void gx_level_slider_class_init(GxLevelSliderClass *klass)
 static void gx_level_slider_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
 	g_assert(GX_IS_LEVEL_SLIDER(widget));
+    GxLevelSlider *ls = GX_LEVEL_SLIDER(widget);
 	gint slider_height;
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	requisition->width = gdk_pixbuf_get_width(pb);
-	requisition->height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
+	requisition->width = gdk_pixbuf_get_width(ls->pixbuf);
+	if (requisition->height < slider_height) requisition->height = slider_height;
 	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
-	g_object_unref(pb);
 }
 
 static void level_slider_expose(
-	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image)
+	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate)
 {
+    GxLevelSlider *ls = GX_LEVEL_SLIDER(widget);
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	sliderstate = rect->height * log_meter(adj->value);
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
-	gdk_cairo_set_source_pixbuf(cr, image, rect->x, rect->y - (gint)sliderstate);
-	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
-	cairo_fill(cr);
+	//gdk_cairo_set_source_pixbuf(cr, ls->pixbuf, rect->x, rect->y - (gint)sliderstate);
+	//cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
+	//cairo_fill(cr);
 	cairo_destroy(cr);
 }
 
 static gboolean gx_level_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	g_assert(GX_IS_LEVEL_SLIDER(widget));
+    GxLevelSlider *ls = GX_LEVEL_SLIDER(widget);
 	gint slider_height;
 	GdkRectangle image_rect, value_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
-	image_rect.width = gdk_pixbuf_get_width(pb);
-	image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
-	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.height-slider_height);
+	image_rect.width = widget->allocation.width;
+	image_rect.height = widget->allocation.height;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	level_slider_expose(widget, &image_rect, sliderstate, pb);
+    gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.height);
+	
+	level_slider_expose(widget, &image_rect, sliderstate);
+    
 	_gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
-	g_object_unref(pb);
 	return FALSE;
 }
 
@@ -115,21 +116,15 @@ static double log_meter_inv(double def)
     return 6.0;
 }
 
-static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
-{
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	r->width = gdk_pixbuf_get_width(pb);
-	r->height = gdk_pixbuf_get_height(pb);
-	g_object_unref(pb);
-}
-
 static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
 {
 	GdkRectangle image_rect, value_rect;
+    GxLevelSlider *ls = GX_LEVEL_SLIDER(widget);
 	gint slider_height;
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
-	get_width_height(widget, &image_rect);
-	image_rect.height = (image_rect.height + slider_height) / 2;
+    image_rect.width  = gdk_pixbuf_get_width(ls->pixbuf);
+	image_rect.height = gdk_pixbuf_get_height(ls->pixbuf);
+	image_rect.height  = (image_rect.height + slider_height) / 2;
 	x += widget->allocation.x;
 	y += widget->allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
@@ -192,4 +187,5 @@ static gboolean gx_level_slider_pointer_motion(GtkWidget *widget, GdkEventMotion
 static void gx_level_slider_init(GxLevelSlider *level_slider)
 {
 	gtk_widget_set_name (GTK_WIDGET(level_slider),"rack_slider");
+    level_slider->pixbuf = gtk_widget_render_icon(GTK_WIDGET(level_slider), get_stock_id(GTK_WIDGET(level_slider)), GtkIconSize(-1), NULL);
 }

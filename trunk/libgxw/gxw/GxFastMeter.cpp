@@ -738,8 +738,11 @@ static void request_vertical_meter(GtkWidget *widget)
         cairo_fill(cr);
     }
     
-    _gx_draw_inset(cr, x_, y_, w_, h_, rad, 1);
-    
+    // inset
+    if (hrz)
+        _gx_draw_inset(cr, x_, y_, w_, h_, rad, 1);
+    else
+        _gx_draw_inset(cr, x_ + 1, y_ + 1, w_, h_, rad, 0.5);
     // overlay
     cairo_t *co;
     co = cairo_create(fm->overlay);

@@ -331,7 +331,7 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
     fastmeter->set_by_power(0.0001);
-    Gxw::LevelSlider *w = new UiRegler<Gxw::LevelSlider>(machine, idm);
+    Gxw::VSlider *w = new UiRegler<Gxw::VSlider>(machine, idm);
     w->set_name("lmw");
     GxPaintBox *box =  new GxPaintBox(""); // simple_level_meter_expose
     box->set_border_width(2);

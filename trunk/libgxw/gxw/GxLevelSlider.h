@@ -36,6 +36,7 @@ typedef struct _GxLevelSliderClass GxLevelSliderClass;
 
 struct _GxLevelSlider {
 	GxVSlider parent;
+    GdkPixbuf *pixbuf;
 };
 
 struct _GxLevelSliderClass {

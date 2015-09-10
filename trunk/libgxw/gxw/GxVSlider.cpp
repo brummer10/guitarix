@@ -69,7 +69,7 @@ static gboolean vslider_expose(GtkWidget *widget, GdkEventExpose *event)
     int x = widget->allocation.x;
     int y = widget->allocation.y;
     slider->image_rect.x = slider->image_rect.y = 0;
-    gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->width - slider->slider_height);
+    gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->height - slider->slider_height);
     if (gtk_widget_has_focus(widget)) {
         gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
                         x, y, slider->width, slider->height);
@@ -81,8 +81,8 @@ static gboolean vslider_expose(GtkWidget *widget, GdkEventExpose *event)
 	cairo_fill(cr);
     //slider
     int sy = gtk_widget_get_state(widget) ? slider->slider_height : 0;
-    gdk_cairo_set_source_pixbuf (cr, slider->image, x, y - (slider->height - slstate) - sy);
-    cairo_rectangle(cr, x, y + slstate, slider->slider_height, slider->height);
+    gdk_cairo_set_source_pixbuf (cr, slider->image, x, y - slider->height + ((slider->height - slider->slider_height) - slstate) - sy);
+    cairo_rectangle(cr, x, y + ((slider->height - slider->slider_height) - slstate), slider->width, slider->slider_height);
     cairo_fill(cr);
 	cairo_destroy(cr);
     return FALSE;
@@ -198,6 +198,7 @@ static void gx_vslider_set_pointer (GtkWidget *widget, GdkEventMotion *event)
     GxVSlider *slider = GX_VSLIDER(widget);
     GdkCursor *cur = gdk_cursor_new(GDK_HAND2);
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->height - slider->slider_height);
+    slstate = ((slider->height - slider->slider_height) - slstate);
     if (gtk_widget_get_state(widget) == GTK_STATE_ACTIVE
     or (event and event->y > slstate and event->y < slstate + slider->slider_height))
         gdk_window_set_cursor(GDK_WINDOW(gtk_widget_get_window(widget)), cur);
