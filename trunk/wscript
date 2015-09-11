@@ -638,10 +638,11 @@ def configure(conf):
     if opt.convolver_ffmpeg:
         conf.check_cfg(package='libavcodec', args='--cflags --libs', uselib_store='LIBAVCODEC', mandatory=1)
         conf.check_cfg(package='libavutil', args='--cflags --libs', uselib_store='LIBAVUTIL', mandatory=1)
-    conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
+    if not (opt.lv2_only):
+        conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
+        conf.check(header_name='ladspa.h', mandatory=1)
     if not opt.no_lv2:
         conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
-    conf.check(header_name='ladspa.h', mandatory=1)
     conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
 
     check_boost(conf)
