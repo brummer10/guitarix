@@ -335,7 +335,7 @@ void GxEngine::load_static_plugins() {
     // * fx amp output *
 
     // dynamic rack modules
-    // builtin 
+    // builtin
     pl.add(builtin_crybaby_plugins,               PLUGIN_POS_RACK, PGN_ALTERNATIVE);
     pl.add(builtin_wah_plugins,                   PLUGIN_POS_RACK, PGN_ALTERNATIVE);
     pl.add(builtin_tonestack_plugins,             PLUGIN_POS_RACK, PGN_ALTERNATIVE);
@@ -351,6 +351,7 @@ void GxEngine::load_static_plugins() {
     pl.add(&record.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&detune.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::bitdowner::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::ts9sim::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::impulseresponse::plugin(), PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::compressor::plugin(),      PLUGIN_POS_RACK, PGN_GUI);

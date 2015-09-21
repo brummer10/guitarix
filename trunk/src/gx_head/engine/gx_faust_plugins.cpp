@@ -98,6 +98,7 @@ namespace gx_effects {
 #include "faust/stereoecho.cc"
 #include "faust/noise_shaper.cc"
 #include "faust/gx_distortion.cc"
+#include "faust/bitdowner.cc"
 #include "faust/freeverb.cc"
 #include "faust/impulseresponse.cc"
 #include "faust/chorus.cc"
