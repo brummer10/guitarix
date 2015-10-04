@@ -548,7 +548,7 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
   cabconv.run_static(n_samples, &cabconv, output);
 
   // work ?
-  if (!atomic_get(schedule_wait) && ( val_changed() || buffsize_changed())) 
+  if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed())) 
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);

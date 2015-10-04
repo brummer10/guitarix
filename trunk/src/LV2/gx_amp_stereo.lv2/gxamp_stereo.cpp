@@ -560,7 +560,7 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   cabconv.run_static_stereo(n_samples, &cabconv, output, output1);
 
   // work ?
-  if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed()))
+  if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed() ))
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
