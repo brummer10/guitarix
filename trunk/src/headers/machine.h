@@ -26,6 +26,7 @@
 #ifdef HAVE_AVAHI
 #include "avahi_register.h"
 #endif
+using namespace jspace;
 
 namespace gx_gui { class UiBuilderImpl; }
 

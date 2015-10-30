@@ -24,7 +24,7 @@ blddir = 'build'
 use_2to3 = True
 
 # used by waf dist and waf build
-VERSION='0.33.0'
+VERSION='0.33.0git'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.58','0.9.65']
@@ -63,13 +63,13 @@ def set_options(opt):
 
     comp.add_option('--cxxflags-release',
                     type='string',
-                    default='-O3 -DNDEBUG',
+                    default='-O3 -DNDEBUG -std=c++11',
                     dest='cxxflags_release',
                     help='additional C++ compiler flags for release version (not used if --debug) [Default: %default]')
 
     comp.add_option('--cxxflags-debug',
                     type='string',
-                    default='-O2 -g -fstack-protector-all',
+                    default='-O2 -g -fstack-protector-all -std=c++11',
                     dest='cxxflags_debug',
                     help='additional C++ compiler flags for debug version (only used if --debug) [Default: %default]')
 
@@ -632,7 +632,7 @@ def configure(conf):
         conf.check_cfg(package='gtk+-2.0', atleast_version='2.20', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='glibmm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
-    if not (opt.lv2_only and opt.no_lv2_gui):
+    if not (opt.lv2_only and  opt.no_lv2_gui):
         conf.check_cfg(package='gtkmm-2.4', atleast_version='2.20', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
         conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
@@ -643,6 +643,7 @@ def configure(conf):
         conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
         conf.check(header_name='ladspa.h', mandatory=1)
         conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
+        conf.check_cfg(package='webkit-1.0', args='--cflags --libs', uselib_store='WEBKIT', mandatory=1)
         check_boost(conf)
     conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
 
@@ -860,7 +861,7 @@ def build(bld):
     # process subfolders from here
     if bld.env["LADSPA"]:
         bld.add_subdirs('ladspa')
-    if not bld.env['LV2ONLY'] and not bld.env['NOLV2GUI']:
+    if not (bld.env['LV2ONLY'] and bld.env['NOLV2GUI']):
         bld.add_subdirs('libgxw/gxw')
         bld.add_group()
         bld.add_subdirs('libgxwmm')

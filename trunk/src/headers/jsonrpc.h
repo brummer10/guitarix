@@ -28,7 +28,7 @@
 #include <giomm/socketservice.h>
 #include <ext/stdio_filebuf.h>
 #include "jsonrpc_methods.h"
-
+namespace jspace {
 class GxService;
 
 class JsonValue {
@@ -188,3 +188,4 @@ const char *engine_state_to_string(gx_engine::GxEngineState s);
 gx_engine::GxEngineState string_to_engine_state(const std::string& s);
 
 #endif // SRC_HEADERS_JSONRPC_H_
+}; // end namespace jspace

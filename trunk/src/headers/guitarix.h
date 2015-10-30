@@ -68,6 +68,8 @@
 
 #include "engine.h"
 #include "jsonrpc.h"
+using namespace jspace;
+
 #include "machine.h"
 
 #include "gx_cairo_callbacks.h"

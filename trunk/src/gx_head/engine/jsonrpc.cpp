@@ -25,7 +25,7 @@
 #endif
 
 #include "jsonrpc_methods.cc"
-
+namespace jspace {
 const char *engine_state_to_string(gx_engine::GxEngineState s) {
     switch (s) {
     case gx_engine::kEngineOff: return "stopped";
@@ -2144,3 +2144,4 @@ void GxService::update_maxlevel(CmdConnection *curr) {
 	}
     }
 }
+}; // end namespace jspace

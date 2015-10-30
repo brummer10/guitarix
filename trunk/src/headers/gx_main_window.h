@@ -552,6 +552,7 @@ struct GxActions {
     Glib::RefPtr<Gtk::Action> new_bank;
     Glib::RefPtr<Gtk::Action> save_changes;
     Glib::RefPtr<Gtk::ToggleAction> organize;
+    Glib::RefPtr<Gtk::Action> online_preset_bank;
 };
 
 class MainWindow: public sigc::trackable {
