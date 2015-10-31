@@ -91,6 +91,7 @@ private:
     } cols;
 private:
     void on_response(int response_id);
+    void on_row(const Gtk::TreePath& path, Gtk::TreeViewColumn* column);
     void on_avahi_changed();
     void on_selection_changed();
 public:

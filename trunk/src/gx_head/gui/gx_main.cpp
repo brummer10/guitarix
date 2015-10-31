@@ -281,8 +281,10 @@ void ErrorPopup::show_msg() {
     align->set_padding(50,20,0,10);
     Gtk::VBox *vbox = dynamic_cast<Gtk::VBox *>(dialog->get_child());
     vbox->set_redraw_on_allocate(true);
-    vbox->signal_expose_event().connect(
-	sigc::group(&gx_cairo::error_box_expose,GTK_WIDGET(vbox->gobj()),sigc::_1,(void*)0),false);
+    g_signal_connect(GTK_WIDGET(vbox->gobj()), "expose-event",
+                     G_CALLBACK(gx_cairo::error_box_expose), NULL);
+   // vbox->signal_expose_event().connect(
+	//sigc::group(&gx_cairo::error_box_expose,GTK_WIDGET(vbox->gobj()),sigc::_1,(void*)0),false);
     dialog->set_title(_("GUITARIX ERROR"));
     dialog->signal_response().connect(
 	sigc::mem_fun(*this, &ErrorPopup::on_response));
@@ -306,9 +308,11 @@ GxSplashBox::GxSplashBox()
     : Gtk::Window(Gtk::WINDOW_POPUP) {
     set_redraw_on_allocate(true);
     set_app_paintable();
-    signal_expose_event().connect(
-        sigc::group(&gx_cairo::splash_expose, GTK_WIDGET(gobj()),
-		    sigc::_1, (void*)0), false);
+    g_signal_connect(GTK_WIDGET(gobj()), "expose-event",
+                     G_CALLBACK(gx_cairo::splash_expose), NULL);
+    //signal_expose_event().connect(
+    //    sigc::group(&gx_cairo::splash_expose, GTK_WIDGET(gobj()),
+	//	    sigc::_1, (void*)0), false);
     set_decorated(false);
     set_type_hint(Gdk::WINDOW_TYPE_HINT_SPLASHSCREEN);
     set_position(Gtk::WIN_POS_CENTER );

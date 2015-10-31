@@ -720,6 +720,7 @@ private:
     void on_load_ladspa();
     void delete_select_jack_control();
     void on_log_activate();
+    bool on_log_activated(GdkEventButton* ev);
     void do_program_change(int pgm);
     void on_engine_toggled();
     void on_engine_state_change(gx_engine::GxEngineState state);
@@ -728,6 +729,7 @@ private:
     void setup_tuner_temperament(Gxw::RackTuner& tuner);
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);
+    bool on_jackserverconnection(GdkEventButton* ev);
     void on_msg_level_changed();
     void on_ampdetail_switch(bool compress, bool setparam);
     void on_show_oscilloscope(bool v);

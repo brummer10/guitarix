@@ -1303,6 +1303,23 @@ void MainWindow::on_log_activate() {
         fLoggingWindow.hide();
     }
 }
+// show loggingbox
+bool MainWindow::on_log_activated(GdkEventButton* ev) {
+    if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
+    if (!actions.loggingbox->get_active()) {
+		actions.loggingbox->set_active(true);
+        gint rxorg, ryorg;
+        window->get_position(rxorg, ryorg);
+        fLoggingWindow.move(rxorg+5, ryorg+272);
+        fLoggingWindow.show_all();
+        on_msg_level_changed();
+    } else {
+        fLoggingWindow.hide();
+        actions.loggingbox->set_active(false);
+    }
+	}
+    return true;
+}
 
 void MainWindow::on_engine_toggled() {
     gx_engine::GxEngineState s;
@@ -2119,6 +2136,14 @@ bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
     return true;
 }
 
+bool MainWindow::on_jackserverconnection(GdkEventButton* ev) {
+    if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
+    bool v = actions.jackserverconnection->get_active();
+    actions.jackserverconnection->set_active(!v);
+    }
+    return true;
+}
+
 void MainWindow::on_msg_level_changed() {
     switch (fLoggingWindow.get_unseen_msg_level()) {
     case GxLogger::kWarning: logstate_image->set(pixbuf_log_yellow); break;
@@ -2683,12 +2708,14 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     */
     if (jack) {
 	jackd_image->set(pixbuf_jack_disconnected);
-	jackd_image->get_parent()->signal_button_press_event().connect(
-	    sigc::bind_return(
-		sigc::group(
-		    sigc::ptr_fun(toggle_action),
-		    actions.jackserverconnection),
-		true));
+    jackd_image->get_parent()->signal_button_press_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_jackserverconnection));
+	//jackd_image->get_parent()->signal_button_press_event().connect(
+	//    sigc::bind_return(
+	//	sigc::group(
+	//	    sigc::ptr_fun(toggle_action),
+	//	    actions.jackserverconnection),
+	//	true));
     } else {
 	jackd_image->hide();
     }
@@ -2823,11 +2850,14 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    false));
     on_msg_level_changed();
     logstate_image->get_parent()->signal_button_press_event().connect(
-	sigc::bind_return(
-	    sigc::group(
-		sigc::ptr_fun(toggle_action),
-		actions.loggingbox),
-	    true));
+    sigc::mem_fun(*this, &MainWindow::on_log_activated));
+    
+    //logstate_image->get_parent()->signal_button_press_event().connect(
+	//sigc::bind_return(
+	//    sigc::group(
+	//	sigc::ptr_fun(toggle_action),
+	//	actions.loggingbox),
+	//    true));
 
     /*
     ** load plugin definitions into plugin_dict, add to effects_toolpalette

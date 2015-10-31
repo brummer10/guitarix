@@ -193,7 +193,9 @@ SelectInstance::SelectInstance(gx_system::CmdlineOptions& options, Gtk::Window *
     win->signal_response().connect(sigc::mem_fun(this, &SelectInstance::on_response));
     bld->get_widget("treeview", view);
     view->signal_row_activated().connect(
-	sigc::group(sigc::mem_fun(win, &Gtk::Dialog::response), 1));
+    sigc::mem_fun(this,&SelectInstance::on_row));
+    //view->signal_row_activated().connect(
+	//sigc::group(sigc::mem_fun(win, &Gtk::Dialog::response), 1));
     view->set_model(Gtk::ListStore::create(cols));
     view->get_selection()->set_mode(Gtk::SELECTION_BROWSE);
     view->get_selection()->signal_changed().connect(
@@ -242,6 +244,10 @@ void SelectInstance::on_avahi_changed() {
     }
 }
 
+void SelectInstance::on_row(const Gtk::TreePath& path, Gtk::TreeViewColumn* column) {
+	on_response(1);
+}
+	
 void SelectInstance::on_response(int response_id) {
     if (response_id == 1) {
 	Gtk::TreeIter i = view->get_selection()->get_selected();
