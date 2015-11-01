@@ -53,6 +53,7 @@ struct PluginDef;
 #define sw_pbutton    "pbutton"
 #define sw_rbutton    "rbutton"
 #define sw_prbutton   "prbutton"
+#define sw_fbutton    "fbutton"
 
 #define UI_FORM_STACK 0x01
 #define UI_FORM_GLADE 0x02
@@ -95,6 +96,7 @@ struct UiBuilder {
     void (*create_wheel)(const char *id, const char *label);
     void (*create_simple_spin_value)(const char *id);
     void (*create_eq_rackslider_no_caption)(const char *id);
+    void (*create_fload_switch)(const char *sw_type,const char * id,const char * idf);
     // adding additional functions:
     // If possible don't change the order of the current defintion.
     // new functions need to be added at the following places:
@@ -124,6 +126,9 @@ struct ParamReg {
     void (*registerNonMidiFloatVar)(const char * id, float *var, bool preset, bool nosave,
               float val, float low, float up, float step);
     void (*registerEnumVar)(const char *id, const char* name, const char* tp,
+			    const char* tooltip, const value_pair* values, float *var, float val,
+			    float low, float up, float step);
+    float *(*registerSharedEnumVar)(const char *id, const char* name, const char* tp,
 			    const char* tooltip, const value_pair* values, float *var, float val,
 			    float low, float up, float step);
     void (*registerIEnumVar)(const char *id, const char* name, const char* tp,

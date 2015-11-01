@@ -76,6 +76,7 @@ public:
     MidiControllerList controller_map;
     // ModuleSelector's
     ModuleSelectorFromList crybaby;
+    ModuleSelectorFromList wah;
     ModuleSelectorFromList tonestack;
     ModuleSelectorFromList ampstack;
     // internal audio modules

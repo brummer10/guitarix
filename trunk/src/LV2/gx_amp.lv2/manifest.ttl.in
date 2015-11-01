@@ -23,4 +23,5 @@
 <http://guitarix.sourceforge.net/plugins/gx_amp#GUITARIX>
     a lv2:Plugin ;
     lv2:binary <gx_amp@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_amp.ttl> .
+    rdfs:seeAlso <gx_amp.ttl> ,
+        <modgui.ttl> .

@@ -875,13 +875,22 @@ bool RackBox::on_my_enter_in(GdkEventCrossing *focus) {
     return true;
 }
 
-Gtk::Widget *RackBox::wrap_bar(bool sens) {
+bool RackBox::on_my_button_press(GdkEventButton* ev) {
+    if (ev->type == GDK_2BUTTON_PRESS && ev->button == 1) {
+        plugin.display(false, true);
+    }
+    return true;
+}
+
+
+Gtk::Widget *RackBox::wrap_bar(int left, int right, bool sens) {
     Gtk::EventBox *ev = new Gtk::EventBox;
     ev->set_visible_window(false);
     ev->set_above_child(true);
     ev->add(*manage(make_bar(sens)));
     ev->signal_leave_notify_event().connect(sigc::mem_fun(*this, &RackBox::on_my_leave_out));
     ev->signal_enter_notify_event().connect(sigc::mem_fun(*this, &RackBox::on_my_enter_in));
+    ev->signal_button_press_event().connect(sigc::mem_fun(*this, &RackBox::on_my_button_press));
     ev->signal_drag_begin().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_begin));
     ev->signal_drag_end().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_end));
     ev->signal_drag_data_get().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_data_get));

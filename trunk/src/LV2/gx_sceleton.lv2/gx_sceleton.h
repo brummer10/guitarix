@@ -25,7 +25,7 @@
 #include <lv2.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_sceleton_"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_sceleton_#gui"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_sceleton_gui"
 
 
 typedef enum

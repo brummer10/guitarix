@@ -150,7 +150,9 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 static const char *note_sharp[] = {"A","A#","B","C","C#","D","D#","E","F","F#","G","G#"};
 static const char *note_flat[] = {"A","Bb","B","C","Db","D","Eb","E","F","Gb","G","Ab"};
 static const char* note_19[19] = {"A","A♯","B♭","B","B♯","C","C♯","D♭","D","D♯","E♭","E","E♯","F","F♯","G♭","G","G♯","A♭"};
+static const char* note_24[24] = {"A","A¼♯","A♯","A¾♯","B","B¼♯","C","C¼♯","C♯","C¾♯","D","D¼♯","D♯","D¾♯","E","E¼♯","F","F¼♯","F♯","F¾♯","G","G¼♯","G♯","G¾♯"};
 static const char* note_31[31] = {"A","B♭♭","A♯","B♭","A♯♯","B","C♭","B♯","C ","D♭♭","C♯","D♭","C♯♯","D","E♭♭","D♯","E♭","D♯♯","E","F♭","E♯","F","G♭♭","F♯","G♭","F♯♯","G","A♭♭","G♯","A♭","G♯♯"};
+static const char* note_53[53] = {"la","laa","lo","law","ta","teh","te","tu","tuh","ti","tih","to","taw","da","do","di","daw","ro","rih","ra","ru","ruh","reh","re ","ri","raw","ma","meh","me","mu","muh","mi","maa","mo","maw","fe","fa","fih","fu","fuh","fi","se","suh","su","sih","sol","si","saw","lo","leh","le","lu","luh"};
 static const char *octave[] = {"0","1","2","3","4","5"," "};
 
 static void gx_rack_tuner_init (GxRackTuner *tuner)
@@ -177,6 +179,7 @@ static void gx_rack_tuner_init (GxRackTuner *tuner)
 	tuner->target_oc = 0;
 	tuner->target_note = 0;
 	tuner->target_temperament = 12;
+	tuner->target_adjust = 3;
 	tuner->strng = 0;
 	// caculated layout
 	tuner->led_count = 0;
@@ -287,6 +290,7 @@ void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
 	tuner->temperament = temperament;
+	tuner->target_adjust = 3;
     if (tuner->temperament == 0) {
         tuner->target_temperament = 12;
         if (tuner->display_flat) {
@@ -296,10 +300,20 @@ void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
         }
     } else if (tuner->temperament == 1) {
         tuner->target_temperament = 19;
+        tuner->target_adjust = 6;
         tuner->note = note_19;
-	} else if (tuner->temperament == 2) {
+    } else if (tuner->temperament == 2) {
+        tuner->target_temperament = 24;
+        tuner->target_adjust = 7;
+        tuner->note = note_24;
+	} else if (tuner->temperament == 3) {
         tuner->target_temperament = 31;
+        tuner->target_adjust = 9;
         tuner->note = note_31;
+	} else if (tuner->temperament == 4) {
+        tuner->target_temperament = 53;
+        tuner->target_adjust = 15;
+        tuner->note = note_53;
 	}
 	g_object_notify(G_OBJECT(tuner), "temperament");
 }
@@ -422,7 +436,8 @@ static void gx_rack_tuner_pitch_to_note(GxRackTuner *tuner, double fnote, int *o
 	if (scale) {
 		*scale = fnote - *note;
 	}
-	*oc = int(round(fnoter/tuner->target_temperament));
+
+	*oc = int(round((fnoter+tuner->target_adjust)/tuner->target_temperament));
 	int octsz = sizeof(octave) / sizeof(octave[0]);
 	if (*oc < 0 || *oc >= octsz) {
 		*oc = octsz - 1;
@@ -584,11 +599,11 @@ static void gx_rack_tuner_display_note(GxRackTuner *tuner, cairo_t *cr, double c
 	double pitch_add = fabs(tuner->parent.reference_pitch - 440.00);
 	cairo_set_source_rgba(cr, fabs(scale)+(pitch_add*0.1), 1-(scale*scale+(pitch_add*0.1)), 0.2, 1-fabs(scale));
 	cairo_set_font_size(cr, 18.0);
-	cairo_text_extents(cr, "G", &ex);
+	cairo_text_extents(cr, "M", &ex);
 	double g_height = ex.height;
 	double g_step = ex.x_advance;
 	cairo_set_font_size(cr, 12);
-	cairo_text_extents(cr, "#", &ex);
+	cairo_text_extents(cr, "##", &ex);
 	double sharp_width = ex.width;
 	cairo_set_font_size(cr, 9.0);
 	cairo_text_extents(cr, octave[indicate_oc], &ex_oct);

@@ -31,8 +31,20 @@ class UIDefs(object):
             if "log" in d:
                 d["type"] += "L"
             if "alias" in d:
-                assert "enum" not in d
-                fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+                #assert "enum" not in d
+                if "enum" in d:
+                    def value_pair(s):
+                        m = re.match(r"(.*)\[(.*)\]$", s)
+                        if m:
+                            return '{"%s",%s}' % (m.group(1), wrap_N_(m.group(2)))
+                        else:
+                            return '{"%s"}' % s
+                    enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
+                    d["ename"] = ename = d["variable"] + "_values"
+                    fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
+                    fp.write('\t%(variable)s_ = %(prefix)sregisterSharedEnumVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
+                else:
+                    fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
             elif "enum" in d:
                 def value_pair(s):
                     m = re.match(r"(.*)\[(.*)\]$", s)
@@ -1086,12 +1098,6 @@ public:
 #if %(has_activate)s
 	int activate(bool start);
 #endif
-#if %(has_ui)s
-	int load_ui_f(const UiBuilder& b, int form);
-#if %(has_glade_ui)s
-	static const char *glade_def;
-#endif
-#endif
 	void init(uint32_t samplingFreq);
 	void compute(int %(countname)s%(compute_args)s);
 #if %(has_plugindef)s
@@ -1101,9 +1107,6 @@ public:
 #endif
 #if %(has_activate)s
 	static int activate_static(bool start, PluginLV2*);
-#endif
-#if %(has_ui)s
-	static int load_ui_f_static(const UiBuilder& b, int form);
 #endif
 	static void init_static(uint32_t samplingFreq, PluginLV2*);
 	static void compute_static(int %(countname)s%(compute_args)s, PluginLV2*);
@@ -1251,45 +1254,6 @@ void Dsp::connect_static(uint32_t port,void* data, PluginLV2 *p)
 }
 
 
-#endif
-#if %(has_glade_ui)s
-const char *Dsp::glade_def = "\\
-%(glade_ui)s";
-
-#endif
-#if %(has_ui)s
-inline int Dsp::load_ui_f(const UiBuilder& b, int form)
-{
-#if %(has_gladefile)s
-    if (form & UI_FORM_GLADE) {
-        b.load_glade_file(%(gladefile)s);
-        return 0;
-    }
-#endif
-#if %(has_glade_ui)s
-    if (form & UI_FORM_GLADE) {
-        b.load_glade(glade_def);
-        return 0;
-    }
-#endif
-#if %(has_cc_ui)s
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("%(plugin_id)s" "." p)
-%(cc_ui)s
-#undef PARAM
-        return 0;
-    }
-#endif
-	return -1;
-}
-
-#if %(has_plugindef)s
-int Dsp::load_ui_f_static(const UiBuilder& b, int form)
-{
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
-}
-
-#endif
 #endif
 #if %(has_plugindef)s
 PluginLV2 *plugin() {

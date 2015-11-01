@@ -54,7 +54,7 @@ static int load_crybaby_ui(const UiBuilder& builder, int format) {
 	builder.openHorizontalBox("");
 	{
 	    builder.insertSpacer();
-	    builder.create_selector("crybaby.autowah", 0);
+	    builder.create_selector("crybaby.autowah", _("Mode"));
 	    builder.insertSpacer();
 	    builder.insertSpacer();
 	    builder.openHorizontalTableBox("");
@@ -72,6 +72,54 @@ static int load_crybaby_ui(const UiBuilder& builder, int format) {
     return -1;
 }
 
+static plugindef_creator builtin_wah_plugins[] = {
+    gx_effects::colwah::plugin,
+    gx_effects::dallaswah::plugin,
+    gx_effects::foxwah::plugin,
+    gx_effects::jenwah::plugin,
+    gx_effects::maestrowah::plugin,
+    gx_effects::selwah::plugin,
+    gx_effects::voxwah::plugin,
+    gx_effects::rolwah::plugin,
+    gx_effects::colbwah::plugin,
+    gx_effects::jenbasswah::plugin,
+   0
+};
+
+static int load_wah_ui(const UiBuilder& builder, int format) {
+   // if (format & UI_FORM_GLADE) {
+	//builder.load_glade_file("wah_ui.glade");
+	//return 0;
+   // }
+    if (format & UI_FORM_STACK) {
+	builder.openHorizontalhideBox("");
+	builder.create_master_slider("wah.Wah", _("Wah"));
+	builder.closeBox();
+	builder.openHorizontalBox("");
+	{
+		builder.openVerticalBox("");
+		{
+	    builder.insertSpacer();
+	    builder.create_selector("wah.select", _("Model"));
+	    builder.insertSpacer();
+		builder.create_selector("wah.mode", _("Mode"));
+	    builder.insertSpacer();
+	    }
+	    builder.closeBox();
+	    builder.openHorizontalTableBox("");
+	    {
+		builder.create_small_rackknobr("wah.Wah", _("Wah"));
+		builder.create_small_rackknob("wah.freq", _("Alien Freq"));
+		builder.create_small_rackknob("wah.wet_dry", _("  dry/wet  "));
+	    }
+	    builder.closeBox();
+	    builder.insertSpacer();
+	}
+	builder.closeBox();
+	return 0;
+    }
+    return -1;
+}
 
 static plugindef_creator builtin_tonestack_plugins[] = {
     gx_tonestacks::tonestack_default::plugin,
@@ -178,6 +226,9 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       crybaby(
 	  *this, "crybaby", N_("Crybaby"), N_("Guitar Effects"), builtin_crybaby_plugins,
 	  "crybaby.autowah", _("select"), load_crybaby_ui, 0, PGN_POST_PRE),
+      wah(
+	  *this, "wah", N_("Wah"), N_("Guitar Effects"), builtin_wah_plugins,
+	  "wah.select", _("select"), load_wah_ui, 0, PGN_POST_PRE),
       tonestack(
 	  *this, "amp.tonestack", N_("Tonestack"), N_("Tone control"),
 	  builtin_tonestack_plugins, "amp.tonestack.select",
@@ -231,6 +282,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
     // selector objects to switch "alternative" modules
     add_selector(ampstack);
     add_selector(crybaby);
+    add_selector(wah);
     add_selector(tonestack);
     add_selector(tuner);
 
@@ -283,8 +335,9 @@ void GxEngine::load_static_plugins() {
     // * fx amp output *
 
     // dynamic rack modules
-    // builtin 
+    // builtin
     pl.add(builtin_crybaby_plugins,               PLUGIN_POS_RACK, PGN_ALTERNATIVE);
+    pl.add(builtin_wah_plugins,                   PLUGIN_POS_RACK, PGN_ALTERNATIVE);
     pl.add(builtin_tonestack_plugins,             PLUGIN_POS_RACK, PGN_ALTERNATIVE);
 
     // mono
@@ -293,10 +346,12 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::highbooster::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::selecteq::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&wah.plugin,                           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&loop.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&record.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&detune.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::bitdowner::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::ts9sim::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::impulseresponse::plugin(), PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::compressor::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
@@ -331,9 +386,36 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::jcm800pre::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::gcb_95::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK);
+	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::baxandall::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::distortion2::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(gx_effects::fuzzface::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(gx_effects::trbuff::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::fuzzfacefm::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::fuzzfacerm::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::hornet::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::susta::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::hfb::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::muff::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::scream::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::lpbboost::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::foxeylady::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::hogsfoot::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::cstb::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::coverd::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::rangem::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::ruin::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::ffreak::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::fumaster::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::fuzzdrive::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::rolandwah::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::astrofuzz::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::buffb::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::eldist::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::mole::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::buzz::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::bfuzz::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::axface::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);

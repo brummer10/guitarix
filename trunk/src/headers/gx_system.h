@@ -399,6 +399,7 @@ private:
     std::string old_user_dir;
     std::string preset_dir;
     std::string pluginpreset_dir;
+    std::string lv2_preset_dir;
     std::string temp_dir;
     std::string plugin_dir;
     std::string loop_dir;
@@ -443,6 +444,7 @@ public:
     bool system_show_presets;
     bool system_show_toolbar;
     bool system_show_rack;
+    bool reload_lv2_presets;
 
 public:
     CmdlineOptions();
@@ -457,10 +459,13 @@ public:
     std::string get_temp_filepath(const std::string& basename) const { return temp_dir + basename; }
     std::string get_pluginpreset_filepath(const std::string& id, bool factory) const {
 	return (factory ? factory_dir : pluginpreset_dir) + id; }
+    std::string get_lv2_preset_filepath(const std::string& id) const {
+	return (lv2_preset_dir) + id; }
     const std::string& get_old_user_dir() const { return old_user_dir; }
     const std::string& get_plugin_dir() const { return plugin_dir; }
     const std::string& get_preset_dir() const { return preset_dir; }
     const std::string& get_pluginpreset_dir() const { return pluginpreset_dir; }
+    const std::string& get_lv2_preset_dir() const { return lv2_preset_dir; }
     const std::string& get_loop_dir() const { return loop_dir; }
     const std::string& get_temp_dir() const { return temp_dir; }
     const std::string& get_factory_dir() const { return factory_dir; }

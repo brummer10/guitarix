@@ -98,6 +98,7 @@ namespace gx_effects {
 #include "faust/stereoecho.cc"
 #include "faust/noise_shaper.cc"
 #include "faust/gx_distortion.cc"
+#include "faust/bitdowner.cc"
 #include "faust/freeverb.cc"
 #include "faust/impulseresponse.cc"
 #include "faust/chorus.cc"
@@ -128,6 +129,18 @@ namespace gx_effects {
 #include "faust/duck_delay_st.cc"
 #include "faust/baxandall.cc"
 #include "faust/distortion2.cc"
+#include "faust/fuzzface.cc"
+#include "faust/trbuff.cc"
+#include "faust/colwah.cc"
+#include "faust/dallaswah.cc"
+#include "faust/foxwah.cc"
+#include "faust/maestrowah.cc"
+#include "faust/voxwah.cc"
+#include "faust/selwah.cc"
+#include "faust/jenwah.cc"
+#include "faust/colbwah.cc"
+#include "faust/rolwah.cc"
+#include "faust/jenbasswah.cc"
 
 }
 

@@ -24,8 +24,8 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix mod: <http://portalmod.com/ns/modgui#> .
-@prefix time: <http://lv2plug.in/ns/ext/time/#>.
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix time: <http://lv2plug.in/ns/ext/time#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 
 <http://guitarix.sourceforge.net#me>
@@ -92,7 +92,6 @@ source: http://en.wikipedia.org/wiki/Flanging
         lv2:default 0.2 ;
         lv2:minimum 0.05 ;
         lv2:maximum 10.0 ;
-        lv2:designation  time:beatsPerMinute;
         units:unit units:hz ;
     ] , [
         a lv2:InputPort ,
@@ -134,13 +133,12 @@ source: http://en.wikipedia.org/wiki/Flanging
         lv2:symbol "in" ;
         lv2:name "In" ;
     ] ;
-    mod:gui [ 
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/gx_flanger.html>;
-        mod:templateData <modgui/gx_flanger.json>;
-        mod:screenshot <modgui/gx_flanger.png>;
-        mod:thumbnail <modgui/gx_flanger-thumb.png>;
+    modgui:gui [
+        modgui:resourcesDirectory <modgui>;
+        modgui:iconTemplate <modgui/gx_flanger.html>;
+        modgui:templateData <modgui/gx_flanger.json>;
+        modgui:screenshot <modgui/gx_flanger.png>;
+        modgui:thumbnail <modgui/gx_flanger-thumb.png>;
     ] .
 
 

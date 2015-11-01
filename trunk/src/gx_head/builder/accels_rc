@@ -24,6 +24,7 @@
 (gtk_accel_path "<Actions>/Main/OptionsMenu" "")
 (gtk_accel_path "<Actions>/Main/Organize" "<Control>o")
 (gtk_accel_path "<Actions>/Main/PluginCategory_Distortion" "")
+(gtk_accel_path "<Actions>/Main/PluginCategory_Fuzz" "")
 (gtk_accel_path "<Actions>/Main/PluginCategory_Echo / Delay" "")
 (gtk_accel_path "<Actions>/Main/PluginCategory_External" "")
 (gtk_accel_path "<Actions>/Main/PluginCategory_Guitar Effects" "")

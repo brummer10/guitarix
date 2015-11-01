@@ -629,17 +629,19 @@ bool PluginPresetList::next(Glib::ustring& name, bool *is_set) {
     return true;
 }
 
-void PluginPresetList::set(const Glib::ustring& name) {
+bool PluginPresetList::set(const Glib::ustring& name) {
     gx_engine::paramlist plist;
     if (!start()) {
-	return;
+	return false;
     }
+    bool ret = false;
     try {
 	while (jp.peek() != gx_system::JsonParser::end_array) {
 	    jp.next(gx_system::JsonParser::value_string);
 	    if (jp.current_value() != name) {
 		jp.skip_object();
 	    } else {
+		ret = true;
 		jp.next(gx_system::JsonParser::begin_object);
 		while (jp.peek() != gx_system::JsonParser::end_object) {
 		    jp.next(gx_system::JsonParser::value_key);
@@ -656,12 +658,13 @@ void PluginPresetList::set(const Glib::ustring& name) {
 	jp.next(gx_system::JsonParser::end_token);
     } catch (gx_system::JsonException& e) {
 	gx_print_error(filename.c_str(), _("parse error"));
-	return;
+	return false;
     }
     mctrl.remove_controlled_parameters(plist, 0);
     for (gx_engine::paramlist::iterator i = plist.begin(); i != plist.end(); ++i) {
         (*i)->setJSON_value();
     }
+    return ret;
 }
 
 static const int GX_PLUGIN_VERSION = 1;
@@ -748,44 +751,50 @@ void PluginPresetList::save(const Glib::ustring& name, const std::string& id, co
     }
 }
 
-void PluginPresetList::remove(const Glib::ustring& name) {
-    try {
-	std::string tmpfile(filename + "_tmp");
-	ofstream os(tmpfile.c_str());
-	gx_system::JsonWriter jw(&os);
-	jw.begin_array();
-	jw.write("gx_plugin_version");
-	jw.write(GX_PLUGIN_VERSION, true);
+bool PluginPresetList::remove(const Glib::ustring& name) {
+    bool ret = false;
 	if (start()) {
-	    while (jp.peek() != gx_system::JsonParser::end_array) {
-		jp.next(gx_system::JsonParser::value_string);
-		if (jp.current_value() == name) {
-		    jp.skip_object();
-		} else {
-		    jw.write(jp.current_value());
-		    jp.copy_object(jw);
+		try {
+			std::string tmpfile(filename + "_tmp");
+			ofstream os(tmpfile.c_str());
+			gx_system::JsonWriter jw(&os);
+			jw.begin_array();
+			jw.write("gx_plugin_version");
+			jw.write(GX_PLUGIN_VERSION, true);
+			while (jp.peek() != gx_system::JsonParser::end_array) {
+				jp.next(gx_system::JsonParser::value_string);
+				if (jp.current_value() == name) {
+					jp.skip_object();
+					ret = true;
+				} else {
+					jw.write(jp.current_value());
+					jp.copy_object(jw);
+				}
+			}
+			jp.next(gx_system::JsonParser::end_array);
+			jp.next(gx_system::JsonParser::end_token);
+			jw.end_array(true);
+			jw.close();
+			os.close();
+			if (!os.good()) {
+				gx_print_error(_("remove plugin preset"),
+							  boost::format(_("couldn't write %1%")) % tmpfile);
+				return false;
+			}
+			int rc = rename(tmpfile.c_str(), filename.c_str());
+			if (rc != 0) {
+				gx_print_error(_("remove plugin preset"),
+							  boost::format(_("couldn't rename %1% to %2%"))
+							  % tmpfile % filename);
+				return false;
+			}
+		} catch (gx_system::JsonException& e) {
+			gx_print_error(filename.c_str(), _("parse error"));
 		}
-	    }
-	    jp.next(gx_system::JsonParser::end_array);
-	    jp.next(gx_system::JsonParser::end_token);
+		return ret;
+	} else {
+		return false;
 	}
-	jw.end_array(true);
-	jw.close();
-	os.close();
-	if (!os.good()) {
-	    gx_print_error(_("save plugin preset"),
-				      boost::format(_("couldn't write %1%")) % tmpfile);
-	    return;
-	}
-	int rc = rename(tmpfile.c_str(), filename.c_str());
-	if (rc != 0) {
-	    gx_print_error(_("save plugin preset"),
-				      boost::format(_("couldn't rename %1% to %2%"))
-				      % tmpfile % filename);
-	}
-    } catch (gx_system::JsonException& e) {
-	gx_print_error(filename.c_str(), _("parse error"));
-    }
 }
 
 
@@ -1044,6 +1053,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
 	check_create_config_dir(opt.get_pluginpreset_dir());
+	check_create_config_dir(opt.get_lv2_preset_dir());
 	check_create_config_dir(opt.get_loop_dir());
 	check_create_config_dir(opt.get_user_IR_dir());
 	check_create_config_dir(opt.get_temp_dir());
@@ -1075,6 +1085,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
 	check_create_config_dir(opt.get_preset_dir());
 	check_create_config_dir(opt.get_plugin_dir());
 	check_create_config_dir(opt.get_pluginpreset_dir());
+	check_create_config_dir(opt.get_lv2_preset_dir());
 	check_create_config_dir(opt.get_loop_dir());
 	check_create_config_dir(opt.get_user_IR_dir());
 	check_create_config_dir(opt.get_temp_dir());
@@ -1153,6 +1164,8 @@ void GxSettings::add_plugin_preset_list(gx_preset::PluginPresetList& l,
 }
 
 void GxSettings::plugin_preset_list_load(const PluginDef *pdef, UnitPresetList &presetnames) {
+    PluginPresetList lv2sets(options.get_lv2_preset_filepath(pdef->id), param, mctrl);
+    add_plugin_preset_list(lv2sets, presetnames);
     PluginPresetList user(options.get_pluginpreset_filepath(pdef->id, false), param, mctrl);
     add_plugin_preset_list(user, presetnames);
     presetnames.push_back(PluginPresetEntry("", false));
@@ -1161,7 +1174,8 @@ void GxSettings::plugin_preset_list_load(const PluginDef *pdef, UnitPresetList &
 }
 
 void GxSettings::plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
-    PluginPresetList(options.get_pluginpreset_filepath(pdef->id, factory), param, mctrl).set(name);
+    if (!PluginPresetList(options.get_pluginpreset_filepath(pdef->id, factory), param, mctrl).set(name))
+        PluginPresetList(options.get_lv2_preset_filepath(pdef->id), param, mctrl).set(name);
 }
 
 void GxSettings::plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name) {
@@ -1178,7 +1192,8 @@ void GxSettings::plugin_preset_list_remove(const PluginDef *pdef, const Glib::us
         std::remove((pPath + "3.wav").c_str());
         std::remove((pPath + "4.wav").c_str());
     }
-    PluginPresetList(options.get_pluginpreset_filepath(pdef->id, false), param, mctrl).remove(name);
+    if (!PluginPresetList(options.get_pluginpreset_filepath(pdef->id, false), param, mctrl).remove(name))
+        PluginPresetList(options.get_lv2_preset_filepath(pdef->id), param, mctrl).remove(name);
 }
 
 

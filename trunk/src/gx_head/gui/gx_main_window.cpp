@@ -266,7 +266,7 @@ void GxUiRadioMenu::setup(const Glib::ustring& prefix, const Glib::ustring& post
 		sigc::mem_fun(*this, &GxUiRadioMenu::on_changed));
 	    action = act;
 	}
-    //fprintf(stderr, "%s  \n", p->value_id); 
+    //fprintf(stderr, "%s  \n", p->value_id);
     }
     s.append(postfix);
     uimanager->add_ui_from_string(s);
@@ -907,14 +907,14 @@ void MainWindow::on_preset_action() {
 
 bool MainWindow::on_my_leave_out(GdkEventCrossing *focus) {
     Glib::RefPtr<Gdk::Window> wind = window->get_window();
-    wind->set_cursor(); 
+    wind->set_cursor();
     return true;
 }
 
 bool MainWindow::on_my_enter_in(GdkEventCrossing *focus) {
     Glib::RefPtr<Gdk::Window> wind = window->get_window();
     Gdk::Cursor cursor(Gdk::HAND1);
-    wind->set_cursor(cursor); 
+    wind->set_cursor(cursor);
     return true;
 }
 
@@ -1156,7 +1156,7 @@ void MainWindow::change_latency(Glib::RefPtr<Gtk::RadioAction> action) {
         if (jack_set_buffer_size(jack->client, buf_size) != 0)
             gx_print_warning(_("Setting Jack Buffer Size"),
 					_("Could not change latency"));
-    }	
+    }
     gx_print_info(
 	_("Jack Buffer Size"),
 	boost::format(_("latency is %1%")) % jack_get_buffer_size(jack->client));
@@ -1208,7 +1208,7 @@ void show_forum_help() {
         gx_print_error("guitarix help",
 				  _("failed to load online help   "));
         g_error_free(error);
-    } 
+    }
 }
 
 void gx_show_help() {
@@ -1230,7 +1230,7 @@ void gx_show_about() {
             "\nand Albert Graef\n(http://q-lang.sourceforge.net/examples.html#Faust)"
             "\n\n");
 
-        
+
         about +=
             _("for impulse response it use zita-convolver"
             "\nby Fons Adriaensen"
@@ -1288,6 +1288,23 @@ void MainWindow::on_log_activate() {
     } else {
         fLoggingWindow.hide();
     }
+}
+// show loggingbox
+bool MainWindow::on_log_activated(GdkEventButton* ev) {
+    if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
+    if (!actions.loggingbox->get_active()) {
+		actions.loggingbox->set_active(true);
+        gint rxorg, ryorg;
+        window->get_position(rxorg, ryorg);
+        fLoggingWindow.move(rxorg+5, ryorg+272);
+        fLoggingWindow.show_all();
+        on_msg_level_changed();
+    } else {
+        fLoggingWindow.hide();
+        actions.loggingbox->set_active(false);
+    }
+	}
+    return true;
 }
 
 void MainWindow::on_engine_toggled() {
@@ -1416,7 +1433,7 @@ void MainWindow::create_actions() {
     */
     actions.presets = Gtk::ToggleAction::create(
 	"Presets",_("_Preset Selection"));
-    actions.group->add(actions.presets, 
+    actions.group->add(actions.presets,
 		       sigc::mem_fun(*this, &MainWindow::on_preset_action));
 
     actions.show_plugin_bar = Gtk::ToggleAction::create(
@@ -1834,7 +1851,7 @@ Glib::ustring MainWindow::add_plugin_menu_entry(PluginUI *pui) {
     Glib::ustring actionname = Glib::ustring::compose("Plugin_%1", pui->get_id());
     const char *tp = (pui->get_type() == PLUGIN_TYPE_MONO ? "Mono" : "Stereo");
     pui->set_ui_merge_id(uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, tp, groupname, actionname)));
-    //fprintf(stderr, "%s : %s : %s \n", tp, group, pui->get_name());    
+    //fprintf(stderr, "%s : %s : %s \n", tp, group, pui->get_name());
     return actionname;
 }
 
@@ -1863,6 +1880,7 @@ void MainWindow::fill_pluginlist() {
     // them first
     add_plugin_category(N_("Tone control"), false);
     add_plugin_category(N_("Distortion"));
+    add_plugin_category(N_("Fuzz"));
     add_plugin_category(N_("Reverb"));
     add_plugin_category(N_("Echo / Delay"));
     add_plugin_category(N_("Modulation"));
@@ -2024,58 +2042,58 @@ void MainWindow::set_tuning(Gxw::RackTuner& tuner) {
 	{ "Standard",             "E",  false, {40, 45, 50, 55, 59, 64}},
 	{ "Standard/Es",          "Es", true,  {39, 44, 49, 54, 58, 63}},
 	{ "Open E",               "E",  false, {40, 47, 52, 56, 59, 64}},
-    { "Drop D",               "D",  false, {38, 45, 50, 55, 59, 64}}, 
-    { "Half Step Down",       "E",  false, {39, 44, 49, 54, 58, 63}}, 
-    { "Full Step Down",       "D",  false, {38, 43, 48, 53, 57, 62}}, 
-    { "1 and 1/2 Steps Down", "E",  false, {37, 42, 47, 52, 56, 61}}, 
-    { "Double Drop D",        "D",  false, {38, 45, 50, 55, 59, 62}}, 
-    { "Drop C",               "C",  false, {36, 43, 48, 53, 57, 62}}, 
-    { "Drop C#",              "C#", false, {37, 44, 49, 54, 58, 63}}, 
-    { "Drop B",               "B",  false, {35, 42, 47, 52, 56, 61}}, 
-    { "Drop A#",              "A#", false, {34, 41, 46, 51, 55, 60}}, 
-    { "Drop A",               "A",  false, {33, 40, 45, 50, 54, 59}}, 
-    { "Open D",               "D",  false, {38, 45, 50, 54, 57, 62}}, 
-    { "Open D Minor",         "D",  false, {38, 45, 50, 53, 57, 62}}, 
-    { "Open G",               "G",  false, {38, 43, 50, 55, 59, 62}}, 
-    { "Open G Minor",         "G",  false, {38, 43, 50, 55, 58, 62}}, 
-    { "Open C",               "C",  false, {36, 43, 48, 55, 60, 64}}, 
-    { "Open C#",              "C#", false, {37, 42, 59, 52, 56, 61}}, 
-    { "Open C Minor",         "C",  false, {36, 43, 48, 55, 60, 63}}, 
-    { "Open E7",              "E7", false, {40, 44, 50, 52, 59, 64}}, 
-    { "Open E Minor7",        "E",  false, {40, 47, 50, 55, 59, 64}}, 
-    { "Open G Major7",        "G",  false, {38, 43, 50, 54, 59, 62}}, 
-    { "Open A Minor",         "A",  false, {40, 45, 52, 57, 60, 64}}, 
-    { "Open A Minor7",        "A",  false, {40, 45, 52, 55, 60, 64}}, 
-    { "Open A",               "A",  false, {40, 45, 49, 52, 57, 64}}, 
-    { "C Tuning",             "C",  false, {36, 41, 46, 51, 55, 60}}, 
-    { "C# Tuning",            "C#", false, {37, 42, 47, 52, 56, 61}}, 
-    { "Bb Tuning",            "Bb", false, {34, 39, 44, 49, 53, 58}}, 
-    { "A to A (Baritone)",    "A",  false, {33, 38, 43, 48, 52, 57}}, 
-    { "Open Dsus2",           "D",  false, {38, 45, 50, 55, 57, 62}}, 
-    { "Open Gsus2",           "G",  false, {38, 43, 50, 55, 60, 62}}, 
-    { "G6",                   "G6", false, {38, 43, 50, 55, 59, 64}}, 
-    { "Modal G",              "G",  false, {38, 43, 50, 55, 60, 62}}, 
-    { "Overtone",             "E",  false, {48, 52, 55, 58, 60, 62}}, 
-    { "Pentatonic",           "E",  false, {45, 48, 50, 52, 55, 69}}, 
-    { "Minor Third",          "E",  false, {48, 51, 54, 57, 60, 63}}, 
-    { "Major Third",          "E",  false, {48, 52, 56, 60, 64, 68}}, 
-    { "All Fourths",          "E",  false, {40, 45, 50, 55, 60, 65}}, 
-    { "Augmented Fourths",    "E",  false, {36, 42, 48, 54, 60, 66}}, 
-    { "Slow Motion",          "E",  false, {38, 43, 50, 53, 60, 62}}, 
-    { "Admiral",              "E",  false, {36, 43, 50, 55, 59, 60}}, 
-    { "Buzzard",              "E",  false, {36, 41, 48, 55, 58, 65}}, 
-    { "Face",                 "E",  false, {36, 43, 50, 55, 57, 62}}, 
-    { "Four and Twenty",      "E",  false, {38, 45, 50, 50, 57, 62}}, 
-    { "Ostrich",              "E",  false, {38, 50, 50, 50, 62, 62}}, 
-    { "Capo 200",             "E",  false, {36, 43, 50, 51, 62, 63}}, 
-    { "Balalaika",            "E",  false, {40, 45, 50, 52, 52, 57}}, 
-    { "Cittern One",          "E",  false, {36, 41, 48, 55, 60, 62}}, 
-    { "Cittern Two",          "E",  false, {36, 43, 48, 55, 60, 67}}, 
-    { "Dobro",                "E",  false, {43, 47, 50, 55, 59, 62}}, 
-    { "Lefty",                "E",  false, {64, 59, 55, 50, 45, 40}}, 
-    { "Mandoguitar",          "E",  false, {36, 43, 50, 57, 64, 71}}, 
-    { "Rusty Cage",           "E",  false, {35, 45, 50, 55, 59, 64}}, 
-    { "Hardcore",             "C",  false, {36, 43, 48, 53, 57, 58}},    
+    { "Drop D",               "D",  false, {38, 45, 50, 55, 59, 64}},
+    { "Half Step Down",       "E",  false, {39, 44, 49, 54, 58, 63}},
+    { "Full Step Down",       "D",  false, {38, 43, 48, 53, 57, 62}},
+    { "1 and 1/2 Steps Down", "E",  false, {37, 42, 47, 52, 56, 61}},
+    { "Double Drop D",        "D",  false, {38, 45, 50, 55, 59, 62}},
+    { "Drop C",               "C",  false, {36, 43, 48, 53, 57, 62}},
+    { "Drop C#",              "C#", false, {37, 44, 49, 54, 58, 63}},
+    { "Drop B",               "B",  false, {35, 42, 47, 52, 56, 61}},
+    { "Drop A#",              "A#", false, {34, 41, 46, 51, 55, 60}},
+    { "Drop A",               "A",  false, {33, 40, 45, 50, 54, 59}},
+    { "Open D",               "D",  false, {38, 45, 50, 54, 57, 62}},
+    { "Open D Minor",         "D",  false, {38, 45, 50, 53, 57, 62}},
+    { "Open G",               "G",  false, {38, 43, 50, 55, 59, 62}},
+    { "Open G Minor",         "G",  false, {38, 43, 50, 55, 58, 62}},
+    { "Open C",               "C",  false, {36, 43, 48, 55, 60, 64}},
+    { "Open C#",              "C#", false, {37, 42, 59, 52, 56, 61}},
+    { "Open C Minor",         "C",  false, {36, 43, 48, 55, 60, 63}},
+    { "Open E7",              "E7", false, {40, 44, 50, 52, 59, 64}},
+    { "Open E Minor7",        "E",  false, {40, 47, 50, 55, 59, 64}},
+    { "Open G Major7",        "G",  false, {38, 43, 50, 54, 59, 62}},
+    { "Open A Minor",         "A",  false, {40, 45, 52, 57, 60, 64}},
+    { "Open A Minor7",        "A",  false, {40, 45, 52, 55, 60, 64}},
+    { "Open A",               "A",  false, {40, 45, 49, 52, 57, 64}},
+    { "C Tuning",             "C",  false, {36, 41, 46, 51, 55, 60}},
+    { "C# Tuning",            "C#", false, {37, 42, 47, 52, 56, 61}},
+    { "Bb Tuning",            "Bb", false, {34, 39, 44, 49, 53, 58}},
+    { "A to A (Baritone)",    "A",  false, {33, 38, 43, 48, 52, 57}},
+    { "Open Dsus2",           "D",  false, {38, 45, 50, 55, 57, 62}},
+    { "Open Gsus2",           "G",  false, {38, 43, 50, 55, 60, 62}},
+    { "G6",                   "G6", false, {38, 43, 50, 55, 59, 64}},
+    { "Modal G",              "G",  false, {38, 43, 50, 55, 60, 62}},
+    { "Overtone",             "E",  false, {48, 52, 55, 58, 60, 62}},
+    { "Pentatonic",           "E",  false, {45, 48, 50, 52, 55, 69}},
+    { "Minor Third",          "E",  false, {48, 51, 54, 57, 60, 63}},
+    { "Major Third",          "E",  false, {48, 52, 56, 60, 64, 68}},
+    { "All Fourths",          "E",  false, {40, 45, 50, 55, 60, 65}},
+    { "Augmented Fourths",    "E",  false, {36, 42, 48, 54, 60, 66}},
+    { "Slow Motion",          "E",  false, {38, 43, 50, 53, 60, 62}},
+    { "Admiral",              "E",  false, {36, 43, 50, 55, 59, 60}},
+    { "Buzzard",              "E",  false, {36, 41, 48, 55, 58, 65}},
+    { "Face",                 "E",  false, {36, 43, 50, 55, 57, 62}},
+    { "Four and Twenty",      "E",  false, {38, 45, 50, 50, 57, 62}},
+    { "Ostrich",              "E",  false, {38, 50, 50, 50, 62, 62}},
+    { "Capo 200",             "E",  false, {36, 43, 50, 51, 62, 63}},
+    { "Balalaika",            "E",  false, {40, 45, 50, 52, 52, 57}},
+    { "Cittern One",          "E",  false, {36, 41, 48, 55, 60, 62}},
+    { "Cittern Two",          "E",  false, {36, 43, 48, 55, 60, 67}},
+    { "Dobro",                "E",  false, {43, 47, 50, 55, 59, 62}},
+    { "Lefty",                "E",  false, {64, 59, 55, 50, 45, 40}},
+    { "Mandoguitar",          "E",  false, {36, 43, 50, 57, 64, 71}},
+    { "Rusty Cage",           "E",  false, {35, 45, 50, 55, 59, 64}},
+    { "Hardcore",             "C",  false, {36, 43, 48, 53, 57, 58}},
     };
     int mode = tuner_tuning->get_value();
     tuner.clear_notes();
@@ -2122,6 +2140,14 @@ bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
 	} else {
 	    machine.set_state(gx_engine::kEngineOff);
 	}
+    }
+    return true;
+}
+
+bool MainWindow::on_jackserverconnection(GdkEventButton* ev) {
+    if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
+    bool v = actions.jackserverconnection->get_active();
+    actions.jackserverconnection->set_active(!v);
     }
     return true;
 }
@@ -2200,7 +2226,7 @@ void MainWindow::on_show_oscilloscope(bool v) {
     if (v) {
 	// FIXME G_PRIORITY_DEFAULT_IDLE??
 	Glib::signal_timeout().connect(
-	    sigc::mem_fun(*this, &MainWindow::on_refresh_oscilloscope), 60); 
+	    sigc::mem_fun(*this, &MainWindow::on_refresh_oscilloscope), 60);
     }
 }
 
@@ -2708,12 +2734,14 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     */
     if (jack) {
 	jackd_image->set(pixbuf_jack_disconnected);
-	jackd_image->get_parent()->signal_button_press_event().connect(
-	    sigc::bind_return(
-		sigc::group(
-		    sigc::ptr_fun(toggle_action),
-		    actions.jackserverconnection),
-		true));
+    jackd_image->get_parent()->signal_button_press_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_jackserverconnection));
+	//jackd_image->get_parent()->signal_button_press_event().connect(
+	//    sigc::bind_return(
+	//	sigc::group(
+	//	    sigc::ptr_fun(toggle_action),
+	//	    actions.jackserverconnection),
+	//	true));
     } else {
 	jackd_image->hide();
     }
@@ -2839,11 +2867,14 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    false));
     on_msg_level_changed();
     logstate_image->get_parent()->signal_button_press_event().connect(
-	sigc::bind_return(
-	    sigc::group(
-		sigc::ptr_fun(toggle_action),
-		actions.loggingbox),
-	    true));
+    sigc::mem_fun(*this, &MainWindow::on_log_activated));
+    
+    //logstate_image->get_parent()->signal_button_press_event().connect(
+	//sigc::bind_return(
+	//    sigc::group(
+	//	sigc::ptr_fun(toggle_action),
+	//	actions.loggingbox),
+	//    true));
 
     /*
     ** load plugin definitions into plugin_dict, add to effects_toolpalette

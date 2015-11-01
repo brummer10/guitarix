@@ -34,6 +34,31 @@ lib_sources = [ # put in static library linked with guitarix
     "mbdel.dsp",
     "mbchor.dsp",
     "gcb_95.dsp",
+    "fuzzfacerm.dsp",
+    "fuzzfacefm.dsp",
+    "hfb.dsp",
+    "muff.dsp",
+    "susta.dsp",
+    "scream.dsp",
+    "hornet.dsp",
+    "foxeylady.dsp",
+    "lpbboost.dsp",
+    "hogsfoot.dsp",
+    "cstb.dsp",
+    "coverd.dsp",
+    "rangem.dsp",
+    "ruin.dsp",
+    "ffreak.dsp",
+    "fumaster.dsp",
+    "fuzzdrive.dsp",
+    "rolandwah.dsp",
+    "astrofuzz.dsp",
+    "buffb.dsp",
+    "eldist.dsp",
+    "mole.dsp",
+    "buzz.dsp",
+    "bfuzz.dsp",
+    "axface.dsp",
     ]
 
 def build(bld):
@@ -94,6 +119,7 @@ def build(bld):
     incl = [".","../headers"]
     if not bld.env['ZITA_RESAMPLER']:
         incl.append('../zita-resampler-1.1.0')
+    
     if have_pluginlib:
         bld(features = ['cxx', 'cstaticlib'],
             includes = incl,

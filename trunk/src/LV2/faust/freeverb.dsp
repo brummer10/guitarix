@@ -11,6 +11,8 @@ import("music.lib");
 import("effect.lib"); 
 import("filter.lib");
 
+import("guitarix.lib");
+
 /*-----------------------------------------------
 		freeverb  by "Grame"
   -----------------------------------------------*/
@@ -37,11 +39,6 @@ combfeed 	= roomsizeSlider;
 //wetslider 	= 0.5 + vslider("wet_dry[name:wet/dry]", 0, -0.5, 0.5, 0.1);
 wet_dry = vslider("wet_dry[name:wet/dry]",  50, 0, 100, 1) : /(100);
 dry = 1 - wet_dry;
-
-// Comb and Allpass filters
-
-allpass(dt,fb) = (_,_ <: (*(fb),_:+:@(dt)), -) ~ _ : (!,_);
-comb(dt, fb, damp) = (+:@(dt)) ~ (*(1-damp) : (+ ~ *(damp)) : *(fb));
 
 // Reverb components
 

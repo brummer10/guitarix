@@ -10,6 +10,8 @@ import("music.lib");
 import("math.lib");
 import("reduce.lib");
 
+import("guitarix.lib");
+
 hifr1      =hslider("crossover_b1_b2 [log][name:Crossover B1-B2 (hz)][tooltip: Crossover bandpass frequency]" ,80 , 20, 20000, 1.08);
 hifr2      =hslider("crossover_b2_b3 [log][name:Crossover B2-B3 (hz)][tooltip: Crossover bandpass frequency]",210,20,20000,1.08);
 hifr3      =hslider("crossover_b3_b4 [log][name:Crossover B3-B4 (hz)][tooltip: Crossover bandpass frequency]",1700,20,20000,1.08);
@@ -69,12 +71,6 @@ allpasstuningL1	= 556;
 allpasstuningL2	= 441;
 allpasstuningL3	= 341;
 allpasstuningL4	= 225;
-
-
-// Comb and Allpass filters
-
-allpass(dt,fb) = (_,_ <: (*(fb),_:+:@(dt)), -) ~ _ : (!,_);
-comb(dt, fb, damp) = (+:@(dt)) ~ (*(1-damp) : (+ ~ *(damp)) : *(fb));
 
 // Reverb components
 

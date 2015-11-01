@@ -215,22 +215,22 @@ int ReverseDelay::uiloader(const UiBuilder& b, int form) {
     }
     b.openHorizontalhideBox("");
     {
-        b.create_master_slider("reversedelay.drywet",0);
+        b.create_master_slider("reversedelay.drywet",N_("Dry/Wet"));
     }
     b.closeBox();
     b.openHorizontalBox("");
     {
-		b.create_small_rackknob("reversedelay.time",0);
+		b.create_small_rackknob("reversedelay.time",N_("Time (ms)"));
 
         b.openVerticalBox("");
         b.insertSpacer();
-        b.create_port_display("reversedelay.buf_indication", "Buf state");
+        b.create_port_display("reversedelay.buf_indication", N_("Buf state"));
         b.insertSpacer();
         b.closeBox();
 
-        b.create_small_rackknob("reversedelay.feedback",0);
-		b.create_small_rackknob("reversedelay.window",0);
-		b.create_small_rackknobr("reversedelay.drywet",0);
+        b.create_small_rackknob("reversedelay.feedback",N_("Feedback"));
+		b.create_small_rackknob("reversedelay.window",N_("Window (%)"));
+		b.create_small_rackknobr("reversedelay.drywet",N_("Dry/Wet"));
 
     }
     b.closeBox();

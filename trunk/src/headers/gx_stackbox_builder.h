@@ -117,10 +117,12 @@ private:
     }
     bool set_engine_value(const std::string id);
     bool set_pd_value(Gxw::PortDisplay *w, const std::string id, const std::string& idl, const std::string& idh);
+    void load_file(const std::string& id, const std::string& idf);
     void create_port_display(const std::string& id, const char *label);
     void create_p_display(const std::string& id, const std::string& idl, const std::string& idh);
     void create_feedback_switch(const char *sw_type, const std::string& id);
     void create_feedback_slider(const std::string& id, const char *label);
+    void create_fload_switch(const char *sw_type, const std::string& id, const std::string& idf);
     void create_selector(const std::string& id, const char *widget_name=0);
     void create_selector_with_caption(const std::string& id, const char *label);
     void openFlipLabelBox(const char* = 0);

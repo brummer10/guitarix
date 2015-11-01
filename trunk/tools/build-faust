@@ -43,7 +43,7 @@ opt="$opt -Wall -Wno-unused-function"
 opt="$opt -D_= "
 opt="$opt -O3 -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
 g++ $opt "$bname.cc" -o "$bname.so"
-rm -f "$bname.cc"
+#rm -f "$bname.cc"
 if [ $copy = 1 ]; then
   cp "$bname.so" ~/.config/guitarix/plugins/.
   echo "created and copied $bname.so"

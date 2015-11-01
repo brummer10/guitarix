@@ -992,6 +992,134 @@ static void led_expose(GtkWidget *wi, GdkEventExpose *ev)
 	//cairo_line_to (cr, x1 -30, y0);
 	//cairo_close_path (cr);
 	//cairo_fill (cr);
+
+
+// TODO: here starts a merge conflict while mergin new redesign branch with master
+// everything is just commented.
+
+//<<<<<<< HEAD
+	//cairo_move_to  (cr, x0+30, y1);
+	//cairo_line_to (cr, x1-30 , y1);
+	//cairo_line_to (cr, x1-30 , y1-10);
+	//cairo_line_to (cr, x0+30 , y1-10);
+	//cairo_close_path (cr);
+	//cairo_fill (cr);
+	
+	//cairo_rectangle(cr,x0+30, y0+10, rect_width-66 , rect_height-26);
+	//cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.7);
+	//cairo_set_line_width (cr, 2.0);
+	//cairo_stroke (cr);
+//=======
+	//cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.7);
+	//cairo_set_line_width (cr, 2.0);
+	//cairo_stroke (cr);
+
+	//cairo_pattern_destroy (pat1);
+	//cairo_pattern_destroy (pat2);
+	//cairo_pattern_destroy (pat3);
+	//cairo_destroy(cr);
+	//gdk_region_destroy (region);
+//}
+
+//static void rack_unit_expose(GtkWidget *wi, GdkEventExpose *ev)
+//{
+	//rectangle_skin_color_expose(wi, ev);
+	//rack_handle_expose(wi, ev);
+
+	//double x0      = wi->allocation.x+1;
+	//double y0      = wi->allocation.y+1;
+	//double rect_width  = wi->allocation.width-2;
+	//double rect_height = wi->allocation.height-2;
+
+	//GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
+	//double x1 = gdk_pixbuf_get_height(stock_image);
+	//double y1 = gdk_pixbuf_get_width(stock_image);
+	//GdkGC *gc = gdk_gc_new(GDK_DRAWABLE(wi->window));
+	//gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
+				//stock_image, 0, 0,
+				//x0+3, y0+5, x1,y1,
+				//GDK_RGB_DITHER_NORMAL, 0, 0);
+	//gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
+				//stock_image, 0, 0,
+				//x0+3, y0+rect_height-(5+y1), x1,y1,
+				//GDK_RGB_DITHER_NORMAL, 0, 0);
+	//gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
+				//stock_image, 0, 0,
+				//x0+rect_width-(6+x1), y0+rect_height-(5+y1), x1,y1,
+				//GDK_RGB_DITHER_NORMAL, 0, 0);
+	//gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
+				//stock_image, 0, 0,
+				//x0+rect_width-(6+x1), y0+5, x1,y1,
+				//GDK_RGB_DITHER_NORMAL, 0, 0);
+	//g_object_unref(stock_image);
+	//g_object_unref(gc);
+
+//}
+
+//static void rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
+//{
+	//rectangle_skin_color_expose(wi, ev);
+	//rack_handle_expose(wi, ev);
+//}
+
+//static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
+//{
+	//rectangle_skin_color_expose(wi, ev);
+    //cairo_t *cr;
+	///* create a cairo context */
+	//cr = gdk_cairo_create(wi->window);
+	//GdkRegion *region;
+	//region = gdk_region_rectangle (&wi->allocation);
+	//gdk_region_intersect (region, ev->region);
+	//gdk_cairo_region (cr, region);
+	//cairo_clip (cr);
+
+	//double x0      = wi->allocation.x+1;
+	//double y0      = wi->allocation.y+1;
+	//double rect_width  = wi->allocation.width-2;
+	//double rect_height = wi->allocation.height-2;
+    
+    //double radius = 12.;
+	//if (rect_width<12) radius = rect_width;
+	//else if (rect_height<12) radius = rect_height;
+	//double x1,y1;
+
+	//x1=x0+rect_width-4;
+	//y1=y0+rect_height-4;
+    //x0+=2;
+    //y0+=2;
+
+    //cairo_pattern_t*pat1;
+	//pat1 = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
+	////set_box_color(wi, pat1);
+	//cairo_pattern_add_color_stop_rgba(pat1, 1, 0.3, 0.3, 0.3, 0.49);
+	//cairo_pattern_add_color_stop_rgba(pat1, 0, 0.6, 0.6, 0.6, 0.49);
+	//cairo_set_source (cr, pat1);
+	//cairo_move_to  (cr, x0, y0 + radius);
+	//cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+	//cairo_line_to (cr, x0 +30, y0);
+	//cairo_line_to (cr, x0 +30, y1);
+	//cairo_line_to (cr, x0 + radius, y1);
+	//cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+	//cairo_close_path (cr);
+	//cairo_fill (cr);
+	
+	//cairo_move_to  (cr, x0+30, y0);
+	//cairo_line_to (cr, x1-30 , y0);
+	//cairo_line_to (cr, x1-30 , y0+10);
+	//cairo_line_to (cr, x1-rect_width/3 , y0+10);
+	//cairo_line_to (cr, x0+30 , y0+10);
+	//cairo_close_path (cr);
+	//cairo_fill (cr);
+
+	//cairo_move_to (cr, x1 - radius, y0);
+	//cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+	//cairo_line_to (cr, x1 , y1 - radius);
+	//cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+	//cairo_line_to (cr, x1 -30, y1);
+	//cairo_line_to (cr, x1 -30, y0);
+	//cairo_close_path (cr);
+	//cairo_fill (cr);
 	
 	//cairo_move_to  (cr, x0+30, y1);
 	//cairo_line_to (cr, x1-30 , y1);
@@ -1004,6 +1132,119 @@ static void led_expose(GtkWidget *wi, GdkEventExpose *ev)
 	//cairo_set_source_rgba (cr, 0.1, 0.1, 0.1, 0.7);
 	//cairo_set_line_width (cr, 2.0);
 	//cairo_stroke (cr);
+
+	//cairo_pattern_destroy (pat1);
+	//cairo_destroy(cr);
+	//gdk_region_destroy (region);
+//}
+
+//static void cabinet_expose(GtkWidget *wi, GdkEventExpose *ev)
+//{
+    //int spf;
+	//gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    //if (spf == 1000)  return;
+	//cairo_t *cr;
+    //cairo_pattern_t*pat;
+	///* create a cairo context */
+	//cr = gdk_cairo_create(wi->window);
+	//GdkRegion *region;
+	//region = gdk_region_rectangle (&wi->allocation);
+	//gdk_region_intersect (region, ev->region);
+	//gdk_cairo_region (cr, region);
+	//cairo_clip (cr);
+
+	//double x0      = wi->allocation.x+1;
+	//double y0      = wi->allocation.y+1;
+	//double rect_width  = wi->allocation.width-2;
+	//double rect_height = wi->allocation.height-2;
+    
+    //double radius = 45.;
+	//if (rect_width<45) radius = rect_width;
+	//else if (rect_height<45) radius = rect_height;
+	//double x1,y1;
+
+	//x1=x0+rect_width-2;
+	//y1=y0+rect_height-2;
+    //x0+=1;
+    //y0+=1;
+    
+	//cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+	//cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
+	////cairo_paint(cr);
+	//cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+        //GdkPixbuf * stock_image =
+            //gtk_widget_render_icon(wi,get_widget_id3(wi),(GtkIconSize)-1,NULL);
+    
+        //guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
+        //gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
+        //gint width = gdk_pixbuf_get_width (stock_image);
+        //gint height = gdk_pixbuf_get_height (stock_image);
+        //cairo_surface_t *s_image =
+            //cairo_image_surface_create_for_data
+            //(pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
+
+        //pat = cairo_pattern_create_for_surface(s_image);
+        //cairo_set_source (cr, pat);
+        //cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+        
+        //cairo_move_to  (cr, x0, y0 + radius);
+        //cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+        //cairo_line_to (cr, x1 - radius, y0);
+        //cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+        //cairo_line_to (cr, x1 , y1 - radius);
+        //cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+        //cairo_line_to (cr, x0 + radius, y1);
+        //cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+        //cairo_close_path (cr);
+        
+        //cairo_fill(cr);
+        //g_object_unref(stock_image);
+        //cairo_surface_destroy(s_image);
+        
+    
+	//pat = cairo_pattern_create_linear (x0, y0, x0, y0+rect_height);
+    ////cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	//set_rack_color(wi, pat);
+	//cairo_set_source (cr, pat);
+    
+    
+    //x1+=2;
+	//y1+=2;
+    //x0-=1;
+    //y0-=1;
+	//cairo_move_to  (cr, x0, y0 + radius);
+	//cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+	//cairo_line_to (cr, x1 - radius, y0);
+	//cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+	//cairo_line_to (cr, x1 , y1 - radius);
+	//cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+	//cairo_line_to (cr, x0 + radius, y1);
+	//cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+	//cairo_close_path (cr);
+    
+    
+	////cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
+	//cairo_fill (cr);
+	//cairo_pattern_destroy (pat);
+	//cairo_destroy(cr);
+	//gdk_region_destroy (region);
+//}
+
+//static void cab_expose(GtkWidget *wi, GdkEventExpose *ev)
+//{
+	//int spf;
+	//gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    //if (spf == 1000)  return;
+    //cairo_t *cr;
+    //cairo_pattern_t*pat;
+	///* create a cairo context */
+	//cr = gdk_cairo_create(wi->window);
+	//GdkRegion *region;
+	//region = gdk_region_rectangle (&wi->allocation);
+	//gdk_region_intersect (region, ev->region);
+	//gdk_cairo_region (cr, region);
+	//cairo_clip (cr);
+//>>>>>>> master
 
 	//cairo_pattern_destroy (pat1);
 	//cairo_destroy(cr);

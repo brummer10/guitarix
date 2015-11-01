@@ -20,7 +20,7 @@
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://guitarix.sourceforge.net/plugins/gx_amp#GUITARIX>
+<http://guitarix.sourceforge.net/plugins/gx_cabinet#CABINET>
     a lv2:Plugin ;
-    lv2:binary <gx_amp@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_amp.ttl> .
+    lv2:binary <gx_cabinet@LIB_EXT@>  ;
+    rdfs:seeAlso <gx_cabinet.ttl> .

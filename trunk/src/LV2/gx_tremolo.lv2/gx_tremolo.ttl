@@ -24,8 +24,8 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix mod: <http://portalmod.com/ns/modgui#> .
-@prefix time: <http://lv2plug.in/ns/ext/time/#>.
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix time: <http://lv2plug.in/ns/ext/time#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 
 <http://guitarix.sourceforge.net#me>
@@ -103,7 +103,6 @@ Model of a vactrol tremolo unit by "transmogrify"
         lv2:default 5.0 ;
         lv2:minimum 0.1 ;
         lv2:maximum 50.0 ;
-        lv2:designation  time:beatsPerMinute;
         units:unit units:hz ;
     ] , [
         a lv2:AudioPort ,
@@ -118,13 +117,12 @@ Model of a vactrol tremolo unit by "transmogrify"
         lv2:symbol "in" ;
         lv2:name "In" ;
     ] ;
-    mod:gui [ 
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/gx_tremolo.html>;
-        mod:templateData <modgui/gx_tremolo.json>;
-        mod:screenshot <modgui/gx_tremolo.png>;
-        mod:thumbnail <modgui/gx_tremolo-thumb.png>;
+    modgui:gui [
+        modgui:resourcesDirectory <modgui>;
+        modgui:iconTemplate <modgui/gx_tremolo.html>;
+        modgui:templateData <modgui/gx_tremolo.json>;
+        modgui:screenshot <modgui/gx_tremolo.png>;
+        modgui:thumbnail <modgui/gx_tremolo-thumb.png>;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_tremolo#gui>

@@ -60,6 +60,7 @@ struct _GxRackTuner
 	gint     GSEAL (target_oc);
 	gint     GSEAL (target_note);
 	gint     GSEAL (target_temperament);
+	gint     GSEAL (target_adjust);
 	gint     GSEAL (strng);   // number of current string (1 == string with highest pitch)
 	// caculated layout
 	gint    GSEAL (led_count);

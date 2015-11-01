@@ -293,6 +293,7 @@ private:
     bool animate_create();
     bool on_my_leave_out(GdkEventCrossing *focus);
     bool on_my_enter_in(GdkEventCrossing *focus);
+    bool on_my_button_press(GdkEventButton* ev);
     void on_my_drag_end(const Glib::RefPtr<Gdk::DragContext>& context);
     void on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
     void vis_switch(Gtk::Widget& a, Gtk::Widget& b);
@@ -551,6 +552,7 @@ struct GxActions {
     Glib::RefPtr<Gtk::Action> new_bank;
     Glib::RefPtr<Gtk::Action> save_changes;
     Glib::RefPtr<Gtk::ToggleAction> organize;
+    Glib::RefPtr<Gtk::Action> online_preset_bank;
 };
 
 class MainWindow: public sigc::trackable {
@@ -720,6 +722,7 @@ private:
     void on_load_ladspa();
     void delete_select_jack_control();
     void on_log_activate();
+    bool on_log_activated(GdkEventButton* ev);
     void do_program_change(int pgm);
     void on_engine_toggled();
     void on_engine_state_change(gx_engine::GxEngineState state);
@@ -728,6 +731,7 @@ private:
     void setup_tuner_temperament(Gxw::RackTuner& tuner);
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);
+    bool on_jackserverconnection(GdkEventButton* ev);
     void on_msg_level_changed();
     void on_ampdetail_switch(bool compress, bool setparam);
     void on_show_oscilloscope(bool v);

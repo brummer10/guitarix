@@ -14,7 +14,7 @@ def add_enums(template_name, hashtable_name, header_name):
     hashtable = open(hashtable_name, "w")
     hashtable.write(headline)
     hashtable.flush()
-    gperf = Popen(gperf_program, stdin=PIPE, stdout=hashtable)
+    gperf = Popen([gperf_program, "-L", "C++"], stdin=PIPE, stdout=hashtable)
     enumlist = []
     section = 0
     in_comment = False

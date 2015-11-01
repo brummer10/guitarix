@@ -217,6 +217,7 @@ private:
   GxSimpleConvolver            ampconv;
   Ampf                         ampf;
   uint32_t                     bufsize;
+  uint32_t                     cur_bufsize;
   LV2_Atom_Sequence*           c_notice;
   LV2_Atom_Sequence*           n_notice;
   float                        *clevel;
@@ -236,6 +237,8 @@ private:
   
   bool cab_changed()
     {return abs(cab - (clevel_ + c_model_)) > 0.1;}
+  bool buffsize_changed() 
+    {return abs(bufsize - cur_bufsize) != 0;}
   void update_cab()
     {cab = (clevel_ + c_model_); c_old_model_ = c_model_;}
   bool change_cab()
@@ -310,6 +313,7 @@ GxPluginStereo::GxPluginStereo() :
   ampconv(GxSimpleConvolver(resamp1)),
   ampf(Ampf()),
   bufsize(0),
+  cur_bufsize(0),
   clevel(NULL),
   clevel_(0),
   cab(0),
@@ -340,6 +344,41 @@ GxPluginStereo::~GxPluginStereo()
 
 void GxPluginStereo::do_work_stereo()
 {
+  if (buffsize_changed()) 
+   {
+     printf("buffersize changed to %u\n",cur_bufsize);
+     if (cabconv.is_runnable())
+        {
+          cabconv.set_not_runnable();
+          cabconv.stop_process();
+        }
+     if (ampconv.is_runnable())
+        {
+          ampconv.set_not_runnable();
+          ampconv.stop_process();
+        }
+     bufsize = cur_bufsize;
+
+	 cabconv.cleanup();
+     CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
+     cabconv.cab_count = cab.ir_count;
+     cabconv.cab_sr = cab.ir_sr;
+     cabconv.cab_data = cab.ir_data;       
+     cabconv.set_samplerate(s_rate);
+     cabconv.set_buffersize(bufsize);
+     cabconv.configure_stereo(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
+     while (!cabconv.checkstate());
+     if(!cabconv.start(prio, SCHED_FIFO))
+        printf("cabinet convolver update buffersize fail\n");
+
+     ampconv.cleanup();
+     ampconv.set_samplerate(s_rate);
+     ampconv.set_buffersize(bufsize);
+     ampconv.configure_stereo(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
+     while (!ampconv.checkstate());
+     if(!ampconv.start(prio, SCHED_FIFO))
+        printf("presence convolver update buffersize fail\n");
+   }
   if (cab_changed())
     {
       if (cabconv.is_runnable())
@@ -502,6 +541,7 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
+  cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
 #ifndef __SSE__
@@ -520,7 +560,7 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   cabconv.run_static_stereo(n_samples, &cabconv, output, output1);
 
   // work ?
-  if (!atomic_get(schedule_wait) && val_changed())
+  if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed() ))
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
@@ -636,14 +676,14 @@ GxPluginStereo::instantiate(const LV2_Descriptor*     descriptor,
   if (!self->map)
     {
       fprintf(stderr, "Missing feature uri:map.\n");
-      atomic_set(&self->schedule_wait,1);
-      self->schedule_ok_ = 1;
+      //atomic_set(&self->schedule_wait,1);
+      //self->schedule_ok_ = 1;
     }
   else if (!options)
     {
       fprintf(stderr, "Missing feature options.\n");
-      atomic_set(&self->schedule_wait,1);
-      self->schedule_ok_ = 1;
+      //atomic_set(&self->schedule_wait,1);
+      //self->schedule_ok_ = 1;
     }
   else
     {
@@ -663,8 +703,8 @@ GxPluginStereo::instantiate(const LV2_Descriptor*     descriptor,
       if (bufsize == 0)
         {
           fprintf(stderr, "No maximum buffer size given.\n");
-          atomic_set(&self->schedule_wait,1);
-          self->schedule_ok_ = 1;
+          //atomic_set(&self->schedule_wait,1);
+          //self->schedule_ok_ = 1;
       }
       printf("using block size: %d\n", bufsize);
     }

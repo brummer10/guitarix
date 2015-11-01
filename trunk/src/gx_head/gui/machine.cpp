@@ -118,7 +118,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
         {"Augmented Fourths"},{"Slow Motion"},{"Admiral"},{"Buzzard"},{"Face"},{"Four and Twenty"},{"Ostrich"},{"Capo 200"},
         {"Balalaika"},{"Cittern One"},{"Cittern Two"},{"Dobro"},{"Lefty"},{"Mandoguitar"},{"Rusty Cage"},{"Hardcore"}, {0}};
     pmap.reg_non_midi_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, false, 0);
-    static const value_pair tuning_temperament[] = {{"12-ET"},{"19-ET"},{"31-ET"}, {0}};
+    static const value_pair tuning_temperament[] = {{"12-ET"},{"19-ET"},{"24-ET"},{"31-ET"},{"53-ET"}, {0}};
     pmap.reg_non_midi_enum_par("racktuner.temperament", "Temperament", tuning_temperament, (int*)0, false, 0);
     pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
     pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 427, 453, 0.1);
@@ -1584,6 +1584,11 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	} else if (jp->current_value() == "create_feedback_switch") {
 	    std::string sw_type = next_char_pointer(jp);
 	    builder.create_feedback_switch(sw_type.c_str(), next_char_pointer(jp));
+	} else if (jp->current_value() == "create_fload_switch") {
+	    std::string sw_type = next_char_pointer(jp);
+	    std::string id = next_char_pointer(jp);
+	    std::string idf = next_char_pointer(jp);
+	    builder.create_fload_switch(sw_type.c_str(), id.c_str(), idf.c_str());
 	} else if (jp->current_value() == "create_switch") {
 	    std::string sw_type = next_char_pointer(jp);
 	    std::string id = next_char_pointer(jp);

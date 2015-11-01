@@ -367,6 +367,13 @@ balance_ctrl = environment {
     bal = vslider(".amp.balance[name:Balance][alias]", 0, -1, 1, 0.1) : smoothi(0.999);
 };
 
+wah_ctrl = environment {
+    mode = vslider(".wah.mode[enum:manual|auto|alien][alias]", 0, 0, 2, 1);
+    wah = vslider(".wah.Wah[alias]", 0, 0, 1, 0.01);
+    freq = vslider(".wah.freq[name:Alien Freq][tooltip:LFO in Beats per Minute][alias]",24,24,360,1)/60;
+    wet_dry = vslider(".wah.wet_dry[name:dry/wet][alias]",  100, 0, 100, 1) : /(100);
+};
+
 vibe_lfo_ctrl = environment {
     freq = vslider(".univibe.freq[name:Tempo][tooltip:LFO frequency (Hz)][alias]", 4.4, 0.1, 10, 0.1) * 16;
     phase = vslider(".univibe.stereo[name:St.df][tooltip:LFO phase shift between left and right channels][alias]", 0.11, -0.5, 0.5, 0.01) * 2 * PI;
@@ -375,3 +382,15 @@ vibe_lfo_ctrl = environment {
 vibe_mono_lfo_ctrl = environment {
     freq = vslider(".univibe_mono.freq[name:Tempo][tooltip:LFO frequency (Hz)][alias]", 4.4, 0.1, 10, 0.1) * 16;
 };
+
+/****************************************************************
+** reverb building blocks
+*/
+
+opf(a) = (_+_*(1-a)~@(1)*a); 
+
+allpass(dt,fb) = (+ <:(@(dt):_),*(fb)) ~ *(-fb) : mem,_ : + ;
+allpass_with_fdelay(dt1,coef,dt2,dt2pos) = 
+	(_,_ <: (*(coef),_:+:@(dt1):fdelay(dt2,dt2pos)), -) ~ _ : (!,_);
+
+comb(dt, fb, damp) = (+:@(dt)) ~ (*(1-damp) : (+ ~ *(damp)) : *(fb));

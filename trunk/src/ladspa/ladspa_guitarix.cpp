@@ -738,6 +738,7 @@ public:
     MonoModuleChain mono_chain;  // active modules (amp chain, input to insert output)
     // ModuleSelector's
     ModuleSelectorFromList crybaby;
+    ModuleSelectorFromList wah;
     ModuleSelectorFromList tonestack;
     ModuleSelectorFromList ampstack;
     // internal audio modules
@@ -827,6 +828,17 @@ static plugindef_creator builtin_crybaby_plugins[] = {
     0
 };
 
+static plugindef_creator builtin_wah_plugins[] = {
+    gx_effects::colwah::plugin,
+    gx_effects::dallaswah::plugin,
+    gx_effects::foxwah::plugin,
+    gx_effects::jenwah::plugin,
+    gx_effects::maestrowah::plugin,
+    gx_effects::selwah::plugin,
+    gx_effects::voxwah::plugin,
+   0
+};
+
 static plugindef_creator builtin_tonestack_plugins[] = {
     gx_tonestacks::tonestack_default::plugin,
     gx_tonestacks::tonestack_bassman::plugin,
@@ -899,6 +911,9 @@ MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, Paramet
       crybaby(
 	  *this, "crybaby", N_("Crybaby"), "", builtin_crybaby_plugins,
 	  "crybaby.autowah", _("select"), 0, 0, PGN_POST_PRE),
+      wah(
+	  *this, "wah", N_("Wah"), N_("Guitar Effects"), builtin_wah_plugins,
+	  "wah.select", _("select"), 0, 0, PGN_POST_PRE),
       tonestack(
 	  *this, "amp.tonestack", N_("Tonestack"), "",
 	  builtin_tonestack_plugins, "amp.tonestack.select",
@@ -930,6 +945,7 @@ MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, Paramet
     // selector objects to switch "alternative" modules
     add_selector(ampstack);
     add_selector(crybaby);
+    add_selector(wah);
     add_selector(tonestack);
 
     registerParameter(groups);
@@ -983,17 +999,19 @@ void MonoEngine::load_static_plugins() {
     // dynamic rack modules
     // builtin 
     pl.add(builtin_crybaby_plugins,               PLUGIN_POS_RACK, PGN_ALTERNATIVE);
+    pl.add(builtin_wah_plugins,               PLUGIN_POS_RACK, PGN_ALTERNATIVE);
     pl.add(builtin_tonestack_plugins,             PLUGIN_POS_RACK, PGN_ALTERNATIVE);
 
     // mono
-    pl.add(gx_effects::gain::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::gain::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::low_high_pass::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::highbooster::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::selecteq::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&wah.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&loop.plugin,                          PLUGIN_POS_RACK,  PGN_GUI);
-    pl.add(&record.plugin,                      PLUGIN_POS_RACK,  PGN_GUI);
-    pl.add(&detune.plugin,                      PLUGIN_POS_RACK,  PGN_GUI);
+    pl.add(&record.plugin,                        PLUGIN_POS_RACK,  PGN_GUI);
+    pl.add(&detune.plugin,                        PLUGIN_POS_RACK,  PGN_GUI);
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::ts9sim::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::impulseresponse::plugin(), PLUGIN_POS_RACK, PGN_GUI);
@@ -1011,12 +1029,17 @@ void MonoEngine::load_static_plugins() {
     pl.add(gx_effects::gx_feedback::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::peak_eq::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::digital_delay::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(gx_effects::graphiceq::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::graphiceq::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::ring_modulator::plugin(),  PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay::plugin(),      PLUGIN_POS_RACK);
 	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK);
-	pl.add(gx_effects::baxandall::plugin(),      PLUGIN_POS_RACK);
-	pl.add(gx_effects::distortion2::plugin(),      PLUGIN_POS_RACK);
+	pl.add(gx_effects::baxandall::plugin(),       PLUGIN_POS_RACK);
+	pl.add(gx_effects::distortion2::plugin(),     PLUGIN_POS_RACK);
+	pl.add(gx_effects::fuzzface::plugin(),        PLUGIN_POS_RACK);
+	pl.add(gx_effects::trbuff::plugin(),          PLUGIN_POS_RACK);
+	pl.add(pluginlib::hfb::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::lpbboost::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::hogsfoot::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&mono_convolver.plugin,                PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
@@ -1026,8 +1049,9 @@ void MonoEngine::load_static_plugins() {
     pl.add(pluginlib::mbc::plugin(),              PLUGIN_POS_RACK);
     pl.add(pluginlib::mbd::plugin(),              PLUGIN_POS_RACK);
     pl.add(pluginlib::mbe::plugin(),              PLUGIN_POS_RACK);
-    pl.add(pluginlib::mbdel::plugin(),              PLUGIN_POS_RACK);
-    pl.add(pluginlib::mbchor::plugin(),              PLUGIN_POS_RACK);
+    pl.add(pluginlib::mbdel::plugin(),            PLUGIN_POS_RACK);
+    pl.add(pluginlib::mbchor::plugin(),           PLUGIN_POS_RACK);
+	pl.add(pluginlib::rolandwah::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
 }
 
 

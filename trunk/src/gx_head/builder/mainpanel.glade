@@ -3928,6 +3928,19 @@
                               </packing>
                             </child>
                             <child>
+                              <object class="GtkButton" id="online_preset">
+                                <property name="label" translatable="yes">Online</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">3</property>
+                              </packing>
+                            </child>
+                            <child>
                               <object class="GtkButton" id="close_preset">
                                 <property name="name">close_preset</property><property name="label" translatable="yes">Close</property>
                                 <property name="visible">True</property>

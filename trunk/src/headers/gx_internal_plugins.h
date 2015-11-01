@@ -22,7 +22,11 @@
 
 #pragma once
 
+
 #include <lilv/lilv.h>
+#include "lv2/lv2plug.in/ns/ext/presets/presets.h"
+#include "lv2/lv2plug.in/ns/ext/state/state.h"
+#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 
 namespace gx_jack { class GxJack; }
 
@@ -603,6 +607,20 @@ public:
 
 
 class LiveLooper: public PluginDef {
+	
+	
+class FileResampler {
+private:
+    Resampler r_file;
+    int inputRate, outputRate;
+    int last_in_count;
+public:
+    int setup(int _inputRate, int _outputRate);
+    int run(int count, float *input, float *output);
+    int max_out_count(int in_count) {
+	return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
+};
+
 private:
 	int fSamplingFreq;
 	float 	gain;
@@ -624,6 +642,10 @@ private:
 	float 	rplay2;
 	float 	rplay3;
 	float 	rplay4;
+	float 	load1;
+	float 	load2;
+	float 	load3;
+	float 	load4;
 	float 	record1;
 	int 	iVec0[2];
 	int 	IOTA1;
@@ -635,6 +657,7 @@ private:
 	float 	IOTAR3;
 	float 	IOTAR4;
 	float *tape1;
+	int 	tape1_size;
 	float 	fConst0;
 	float 	fConst1;
 	float 	fConst2;
@@ -651,6 +674,7 @@ private:
 	float 	record2;
 	int 	iVec2[2];
 	float *tape2;
+	int 	tape2_size;
 	float 	reset2;
 	int 	RecSize2[2];
 	float 	rectime1;
@@ -664,6 +688,7 @@ private:
 	float 	record3;
 	int 	iVec4[2];
 	float *tape3;
+	int 	tape3_size;
 	float 	reset3;
 	int 	RecSize3[2];
 	float 	rectime2;
@@ -677,6 +702,7 @@ private:
 	float 	record4;
 	int 	iVec6[2];
 	float *tape4;
+	int 	tape4_size;
 	float 	reset4;
 	int 	RecSize4[2];
 	float 	rectime3;
@@ -687,6 +713,7 @@ private:
 	float 	play4;
 	float 	playh4;
 	float 	gain4;
+	float 	play_all;
 	bool save1;
 	bool save2;
 	bool save3;
@@ -696,13 +723,22 @@ private:
 	bool RP3;
 	bool RP4;
     Glib::ustring preset_name;
+    Glib::ustring load_file1;
+    Glib::ustring load_file2;
+    Glib::ustring load_file3;
+    Glib::ustring load_file4;
     Glib::ustring cur_name;
     Glib::ustring loop_dir;
     bool save_p;
     ParamMap& param;
 	bool mem_allocated;
     sigc::slot<void> sync;
-	volatile bool ready;
+	volatile int ready;
+    FileResampler smp;
+
+    int do_resample(int inrate, int insize, float *input, int maxsize);
+    int do_mono(int c, int f, float *oIn, float *tape, int n);
+    void play_all_tapes();
     void mem_alloc();
 	void mem_free();
 	void clear_state_f();
@@ -713,9 +749,13 @@ private:
 	int register_par(const ParamReg& reg);
     void save_array(std::string name);
     void load_array(std::string name);
-    void save_to_wave(std::string fname, float *tape, float fSize);
-    int load_from_wave(std::string fname, float *tape);
+    void save_to_wave(std::string fname, float *tape, float fSize, int tape_size);
+    int load_from_wave(std::string fname, float **tape, int tape_size);
     void set_p_state();
+    void load_tape1();
+    void load_tape2();
+    void load_tape3();
+    void load_tape4();
     
 	static void clear_state_f_static(PluginDef*);
 	static int activate_static(bool start, PluginDef*);

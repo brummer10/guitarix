@@ -131,7 +131,8 @@ def read_netlist(fname):
                 continue
             if dev in ("OPAMP","AOP-Standard"):
                 conn = conn[:2] + conn[4:]
-                sym = mksym(sym, "O", "OPA")
+                sym = mksym(sym, "U", "OPA")
+                #val = mk_dict(val,Vcc=Voltage,Vee=Voltage,A=Current)
                 val = "Opamps['%s']" % val
             elif dev == "RESISTOR":
                 sym = mksym(sym, "R")
@@ -164,9 +165,31 @@ def read_netlist(fname):
                     val = mk_dict(val,Vt=Voltage,Is=Current,Bf=Number,Br=Number)
                 else:
                     val = "Transistors['%s']" % val
+            elif dev == "PNP_TRANSISTOR":
+                ##FIXME
+                sym = mksym(sym, "Tp")
+                if "=" in val:
+                    val = mk_dict(val,Vt=Voltage,Is=Current,Bf=Number,Br=Number)
+                else:
+                    val = "Transistors['%s']" % val
             elif dev == "DIODE":
                 sym = mksym(sym, "D")
-                val = "Diodes['%s']" % val
+                if "=" in val:
+                    ##FIXME
+                    val = mk_dict(val,Is=Current,mUt=Number)
+                    #val = mk_dict(val,Is=Current,Rs=Number,Bv=Number)
+                    #Is=Saturation current=mA, RS=Ohmic resistance=Om, BV=Reverse breakdown voltage=V
+                else:
+                    val = "Diodes['%s']" % val
+            elif dev == "DIODE2":
+                sym = mksym(sym, "D2")
+                if "=" in val:
+                    ##FIXME
+                    val = mk_dict(val,Is=Current,mUt=Number)
+                    #val = mk_dict(val,Is=Current,Rs=Number,Bv=Number)
+                    #Is=Saturation current=mA, RS=Ohmic resistance=Om, BV=Reverse breakdown voltage=V
+                else:
+                    val = "Diodes['%s']" % val
             elif dev == "TRIODE":
                 sym = mksym(sym, "U", "Triode")
                 val = "Tubes['%s']" % val

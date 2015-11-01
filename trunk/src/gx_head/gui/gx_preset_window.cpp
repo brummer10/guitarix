@@ -81,6 +81,9 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     //actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_presets_close));
     //gtk_activatable_set_related_action(GTK_ACTIVATABLE(close_preset->gobj()), act->gobj());
     close_preset->hide(); // disable (maybe remove later)
+    actions.online_preset_bank = Gtk::Action::create("OnlineBank");
+    actions.group->add(actions.online_preset_bank, sigc::mem_fun(*this, &PresetWindow::on_online_preset));
+    gtk_activatable_set_related_action(GTK_ACTIVATABLE(online_preset->gobj()), actions.online_preset_bank->gobj());
 
     bank_treeview->set_model(Gtk::ListStore::create(bank_col));
     bank_treeview->set_name("PresetView");
@@ -194,6 +197,7 @@ void PresetWindow::load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld) {
     bld->find_widget("save_preset", save_preset);
     bld->find_widget("new_preset_bank", new_preset_bank);
     bld->find_widget("organize_presets", organize_presets);
+    bld->find_widget("online_preset", online_preset);
     bld->find_widget_derived("bank_treeview", bank_treeview, sigc::ptr_fun(MyTreeView::create_from_builder));
     bld->find_widget("bank_cellrenderer", bank_cellrenderer);
     bld->find_widget_derived("preset_treeview", preset_treeview, sigc::ptr_fun(MyTreeView::create_from_builder));
@@ -680,6 +684,87 @@ void PresetWindow::on_new_bank() {
     edit_iter->set_value(bank_col.tp, static_cast<int>(gx_system::PresetFile::PRESET_FILE));
     in_edit = true;
     start_edit(m->get_path(edit_iter), *bank_treeview->get_column(1), *bank_cellrenderer);
+}
+
+
+bool PresetWindow::insertRequested(const char *ur, gpointer data)
+{
+    PresetWindow& self = *reinterpret_cast<PresetWindow*>(data);
+	const char *file_name = strrchr( ur, '/' ) + 1;
+    const gchar* dest = g_strdup_printf("file:///tmp/%s",file_name);
+    //fprintf(stderr,"insert %s\n",dest);
+    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(self.bank_treeview->get_model());
+    gx_system::PresetFileGui *f = self.machine.bank_insert_uri(dest, false);
+    if (f) {
+        Gtk::TreeIter i = ls->prepend();
+        self.set_row_for_presetfile(i,f);
+        self.bank_treeview->set_cursor(ls->get_path(i));
+        self.bank_treeview->get_selection()->select(i);
+    }
+    return TRUE;
+}
+
+void PresetWindow::download_status(GObject* object, GParamSpec* pspec, gpointer data) { 
+    WebKitDownload *download;
+    WebKitDownloadStatus status;
+    const char *uri;
+
+    download = WEBKIT_DOWNLOAD(object);
+    status = webkit_download_get_status(download);
+    uri = webkit_download_get_uri(download);
+
+    switch (status) {
+      case WEBKIT_DOWNLOAD_STATUS_ERROR:
+          gx_print_error(_("Download Status"),
+            boost::format(_("ERROR download %1%")) % uri);
+          break;
+      case WEBKIT_DOWNLOAD_STATUS_CREATED:
+          //printf("download created: %s\n", uri);
+          break;
+      case WEBKIT_DOWNLOAD_STATUS_STARTED:
+          //printf("download started: %s\n", uri);
+          break;
+      case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
+           gx_print_info(_("Download Status"),
+            boost::format(_("download cancelled %1%")) % uri);
+          break;
+      case WEBKIT_DOWNLOAD_STATUS_FINISHED:
+          gx_print_info(_("Download Status"),
+            boost::format(_("download finished %1%")) % uri);
+          insertRequested(uri, data);
+          break;
+      default:
+          g_assert_not_reached();
+    }
+}
+
+bool PresetWindow::downloadRequested(WebKitWebView* webView, WebKitDownload *download, gpointer data)
+{
+    const char *ur = webkit_download_get_uri (download);
+    const char *file_name = strrchr( ur, '/' ) + 1;
+    const gchar* dest = g_strdup_printf("file:///tmp/%s",file_name); 
+    webkit_download_set_destination_uri(download, dest);
+    g_signal_connect(download, "notify::status", G_CALLBACK(download_status), data);
+    return TRUE;
+}
+
+void PresetWindow::show_online_preset() {
+
+  Gtk::Window *window = new Gtk::Window();
+  Gtk::ScrolledWindow *scrollbox = Gtk::manage(new Gtk::ScrolledWindow());
+  scrollbox->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+  window->set_default_size( 400, 400 );
+  WebKitWebView * web_view =  WEBKIT_WEB_VIEW( webkit_web_view_new() );
+
+  scrollbox->add(*Gtk::manage(( Glib::wrap(GTK_WIDGET(web_view )))));
+  window->add(*Gtk::manage(scrollbox));
+  webkit_web_view_load_uri(web_view, "https://musical-artifacts.com/?apps=guitarix");
+  g_signal_connect(G_OBJECT (web_view), "download-requested", G_CALLBACK(downloadRequested), this);
+  window->show_all();
+}
+
+void PresetWindow::on_online_preset() {
+    Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PresetWindow::show_online_preset));
 }
 
 bool PresetWindow::on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {

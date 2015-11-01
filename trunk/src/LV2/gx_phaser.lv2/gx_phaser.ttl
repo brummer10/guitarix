@@ -24,8 +24,8 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix mod: <http://portalmod.com/ns/modgui#> .
-@prefix time: <http://lv2plug.in/ns/ext/time/#>.
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix time: <http://lv2plug.in/ns/ext/time#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 
 <http://guitarix.sourceforge.net#me>
@@ -90,7 +90,6 @@ source: http://en.wikipedia.org/wiki/Phaser_%28effect%29
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 10.0 ;
-        lv2:designation  time:beatsPerMinute;
         units:unit units:hz ;
     ] , [
         a lv2:AudioPort ,
@@ -105,13 +104,12 @@ source: http://en.wikipedia.org/wiki/Phaser_%28effect%29
         lv2:symbol "in" ;
         lv2:name "In" ;
     ] ;
-    mod:gui [ 
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/gx_phaser.html>;
-        mod:templateData <modgui/gx_phaser.json>;
-        mod:screenshot <modgui/gx_phaser.png>;
-        mod:thumbnail <modgui/gx_phaser-thumb.png>;
+    modgui:gui [
+        modgui:resourcesDirectory <modgui>;
+        modgui:iconTemplate <modgui/gx_phaser.html>;
+        modgui:templateData <modgui/gx_phaser.json>;
+        modgui:screenshot <modgui/gx_phaser.png>;
+        modgui:thumbnail <modgui/gx_phaser-thumb.png>;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_phaser#gui>

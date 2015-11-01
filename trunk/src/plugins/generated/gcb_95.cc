@@ -63,6 +63,8 @@ private:
 	double 	fConst45;
 	double 	fConst46;
 	double 	fConst47;
+	FAUSTFLOAT 	fslider1;
+	double 	fRec3[2];
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	void init(unsigned int samplingFreq);
@@ -111,6 +113,7 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) fVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<5; i++) fRec1[i] = 0;
+	for (int i=0; i<2; i++) fRec3[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -180,6 +183,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double 	fSlow0 = (4.748558434412966e-05 * (exp((5 * (1 - double(fslider0)))) - 1));
+	double 	fSlow1 = (0.007000000000000006 * pow(10,(0.05 * double(fslider1))));
 	for (int i=0; i<count; i++) {
 		fRec0[0] = ((0.993 * fRec0[1]) + fSlow0);
 		double fTemp0 = (4.92617764749537e-11 + (fConst1 * (fConst7 + (fRec0[0] * (fConst5 + (fConst3 * fRec0[0]))))));
@@ -187,8 +191,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec0[0] = fTemp1;
 		fRec2[0] = (fConst32 * ((fVec0[0] - fVec0[1]) + (fConst31 * fRec2[1])));
 		fRec1[0] = (fRec2[0] - (((((fRec1[1] * (1.97047105899815e-10 + (fConst1 * (fConst29 + (fRec0[0] * (fConst28 + (fConst27 * fRec0[0]))))))) + (fRec1[2] * (2.95570658849723e-10 + (fConst18 * (fConst26 + (fRec0[0] * (fConst25 + (fConst24 * fRec0[0])))))))) + (fRec1[3] * (1.97047105899815e-10 + (fConst1 * (fConst23 + (fRec0[0] * (fConst21 + (fConst19 * fRec0[0])))))))) + (fRec1[4] * (4.92617764749537e-11 + (fConst1 * (fConst16 + (fRec0[0] * (fConst15 + (fConst14 * fRec0[0])))))))) / fTemp0));
-		output0[i] = (FAUSTFLOAT)(fConst1 * ((((((fRec1[0] * (fConst47 + (fRec0[0] * (fConst46 + (fConst45 * fRec0[0]))))) + (fRec1[1] * (fConst44 + (fRec0[0] * (fConst43 + (fConst42 * fRec0[0])))))) + (fConst1 * (fRec1[2] * (fConst41 + (fRec0[0] * (fConst40 + (fConst39 * fRec0[0]))))))) + (fRec1[3] * (fConst38 + (fRec0[0] * (fConst36 + (fConst34 * fRec0[0])))))) + (fRec1[4] * (fConst13 + (fRec0[0] * (fConst11 + (fConst9 * fRec0[0])))))) / fTemp0));
+		fRec3[0] = ((0.993 * fRec3[1]) + fSlow1);
+		output0[i] = (FAUSTFLOAT)(fConst1 * ((fRec3[0] * (((((fRec1[0] * (fConst47 + (fRec0[0] * (fConst46 + (fConst45 * fRec0[0]))))) + (fRec1[1] * (fConst44 + (fRec0[0] * (fConst43 + (fConst42 * fRec0[0])))))) + (fConst1 * (fRec1[2] * (fConst41 + (fRec0[0] * (fConst40 + (fConst39 * fRec0[0]))))))) + (fRec1[3] * (fConst38 + (fRec0[0] * (fConst36 + (fConst34 * fRec0[0])))))) + (fRec1[4] * (fConst13 + (fRec0[0] * (fConst11 + (fConst9 * fRec0[0]))))))) / fTemp0));
 		// post processing
+		fRec3[1] = fRec3[0];
 		for (int i=4; i>0; i--) fRec1[i] = fRec1[i-1];
 		fRec2[1] = fRec2[0];
 		fVec0[1] = fVec0[0];
@@ -203,6 +209,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	reg.registerVar("GCB_95.Volume","","S","",&fslider1, 0.0, -2e+01, 4.0, 0.1);
 	reg.registerVar("GCB_95.hotpotz",N_("Wah"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
 	return 0;
 }
@@ -221,6 +228,7 @@ b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("hotpotz"), "Wah");
 b.closeBox();
 b.openHorizontalBox("");
+    b.create_small_rackknobr(PARAM("Volume"), "Volume");
 
     b.create_small_rackknobr(PARAM("hotpotz"), "Wah");
 b.closeBox();

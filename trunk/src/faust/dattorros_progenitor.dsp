@@ -11,6 +11,8 @@ declare category "Reverb";
 
 import ("music.lib");
 
+import("guitarix.lib");
+
 //Controls
 max_predelay_ms = 200;
 predelay = hslider("predelay ms", 0, 0, max_predelay_ms, 10);
@@ -26,9 +28,6 @@ dry_wet = hslider("dry/wet", 0.5, 0, 1, 0.05);
 
 //Will be moved to .lib
 X = (_,_)<:(!,_,_,!);
-opf(a) = (_+_*(1-a)~@(1)*a); 
-allpass(dt,fb) = (_,_ <: (*(fb),_:+:@(dt)), -) ~ _ : (!,_);
-allpass_with_fdelay(dt1,coef,dt2,dt2pos) = (_,_ <: (*(coef),_:+:@(dt1):fdelay(dt2,dt2pos)), -) ~ _ : (!,_);
 mixer(c,x0,y0,x1,y1) = sel(c,x0,y0), sel(c,x1,y1)
 	with { 
 			sel(c,x,y) = (1-c)*x + c*y; 

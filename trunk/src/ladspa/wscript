@@ -41,8 +41,12 @@ def build(bld):
         '../plugins/mbdel.cc',
         '../plugins/mbchor.cc',
         '../plugins/reversedelay.cc',
-        #'../plugins/dubbe.cc',
-        ]
+        '../plugins/gcb_95.cc',
+        '../plugins/hfb.cc',
+        '../plugins/hogsfoot.cc',
+        '../plugins/lpbboost.cc',
+        '../plugins/rolandwah.cc',
+    ]
     
     src = ['ladspa_guitarix.cpp'] + bsources
     incl = ['../headers', '..','../gx_head/engine','../plugins','../../libgxwmm','../../libgxw']

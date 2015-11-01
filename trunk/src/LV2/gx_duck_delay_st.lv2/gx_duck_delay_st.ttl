@@ -24,8 +24,8 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix mod: <http://portalmod.com/ns/modgui#>.
-@prefix time: <http://lv2plug.in/ns/ext/time/#>.
+@prefix modgui: <http://moddevices.com/ns/modgui#>.
+@prefix time: <http://lv2plug.in/ns/ext/time#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 
 <http://guitarix.sourceforge.net#me>
@@ -159,13 +159,12 @@ The switching controlled by envelope follower
         lv2:minimum 1.0 ;
         lv2:maximum 2e+03 ;
     ];
-    mod:gui [
-        a mod:Gui;
-        mod:resourcesDirectory <modgui>;
-        mod:iconTemplate <modgui/gxduck_delay_st.html>;
-        mod:templateData <modgui/gxduck_delay_st.json>;
-        mod:screenshot <modgui/screenshot-gxduck_delay_st.png>;
-        mod:thumbnail <modgui/thumb-gxduck_delay_st.png>;
+    modgui:gui [
+        modgui:resourcesDirectory <modgui>;
+        modgui:iconTemplate <modgui/gxduck_delay_st.html>;
+        modgui:templateData <modgui/gxduck_delay_st.json>;
+        modgui:screenshot <modgui/screenshot-gxduck_delay_st.png>;
+        modgui:thumbnail <modgui/thumb-gxduck_delay_st.png>;
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_duck_delay_st_#gui>

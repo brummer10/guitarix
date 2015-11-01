@@ -1,0 +1,204 @@
+/* SKINS */
+.mod-rack-model-001{{{cns}}} {
+    background-image:url(/resources/racks/model-001/model-001.png{{{ns}}});
+    background-position:center center;
+    background-repeat:no-repeat;
+    font-family:Helvetica,Arial,Sans-serif;
+    height:150px;
+    position:relative;
+    width:1000px;
+}
+
+/* THE AUTHOR */
+.mod-rack-model-001{{{cns}}} .mod-plugin-brand h1 {
+    color:#fff;
+    font-size:14px;
+    left:50px;
+    line-height:1;
+    margin:0;
+    position:absolute;
+    top:20px;
+}
+
+/* PLUGIN'S NAME */
+.mod-rack-model-001{{{cns}}} .mod-plugin-name h1 {
+    color:#fff;
+    font-size:18px;
+    left:50px;
+    line-height:1;
+    margin:0;
+    position:absolute;
+    top:40px;
+}
+
+/* INPUT/OUTPUT */
+.mod-rack-model-001{{{cns}}} .mod-pedal-input {
+    top:25px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-pedal-output {
+    top:25px;
+}
+
+/* CONTROLS */
+.mod-rack-model-001{{{cns}}} .mod-control-group {
+    bottom:15px;
+    color:#fff;
+    font-size:10px;
+    height:73px;
+    left:42px;
+    position:absolute;
+    right:42px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-control-group > div {
+    margin-right:4px;
+}
+
+/* SWITCH ON/OFF GENERAL */
+.mod-rack-model-001{{{cns}}} .mod-switch {
+    cursor:pointer;
+    float:left;
+    height:73px;
+    position:relative;
+    width:118px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-switch-image {
+    background-image:url(/resources/switches/switch-001.png{{{ns}}});
+    background-position:-9px 0px;
+    background-repeat:no-repeat;
+    background-size:auto 73px;
+    height:73px;
+    width:73px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-switch-image.on {
+    background-position:-82px 0px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-switch-image.off {
+    background-position:-9px 0px;
+}
+
+/* CHICKEN HEAD */
+.mod-rack-model-001{{{cns}}} .mod-chicken-head {
+    float:left;
+    height:73px;
+    overflow:hidden;
+    position:relative;
+    text-align:center;
+    width:80px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-chicken-head .mod-chicken-head-image {
+    background-image:url(/resources/knobs/chicken-head/_strip.png{{{ns}}});
+    background-position:left 0px;
+    background-repeat:no-repeat;
+    background-size:auto 80px;
+    height:73px;
+    margin-top:3px;
+    position:relative;
+    width:80px;
+    z-index:2;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-chicken-head .mod-chicken-head-title {
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size:10px;
+    font-weight:bold;
+    height:16px;
+    left:0;
+    overflow:hidden;
+    position:absolute;
+    right:0;
+    text-transform:uppercase;
+    top:0;
+    z-index:1;
+}
+
+/* ENUMERATED LIST */
+.mod-rack-model-001{{{cns}}} .mod-enumerated {
+    display:inline-block;
+    overflow:hidden;
+    position:absolute;
+    top:-42px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-enumerated.mod-enumerated-1 {
+    left:135px;
+    width:326px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-enumerated.mod-enumerated-2 {
+    left:476px;
+    width:326px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-enumerated.mod-enumerated-3 {
+    left:820px;
+    width:98px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-enumerated .mod-enumerated-selected {
+    background-color:rgba(255,255,255,.2);
+    background-image:url(/resources/utils/dropdown-arrow-white.png{{{ns}}});
+    background-position:right center;
+    background-repeat:no-repeat;
+    border-radius:4px;
+    box-shadow:inset 1px 1px 5px #000;
+    color:#fff;
+    font-size:14px;
+    height:34px;
+    line-height:2.5;
+    margin-right:8px;
+    overflow:hidden;
+    padding:0 9px;
+}
+
+/* WHEN IS HOVER */
+.mod-rack-model-001{{{cns}}} .mod-enumerated:hover .mod-enumerated-selected {
+    border-radius:4px 4px 0 0;
+}
+
+/* THE LIST OF OPTIONS */
+.mod-rack-model-001{{{cns}}} .mod-enumerated .mod-enumerated-list {
+    display:none;
+    background:rgba(0,0,0,.9);
+    height:85px;
+    overflow:auto;
+    position:relative;
+    z-index:3;
+    font-weight:bold;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-enumerated .mod-enumerated-list > div {
+    padding:3px 9px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-enumerated .mod-enumerated-list > div:hover {
+    background:rgba(255,255,255,.2);
+    cursor:pointer;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-enumerated.mod-enumerated-1:hover .mod-enumerated-list,
+.mod-rack-model-001{{{cns}}} .mod-enumerated.mod-enumerated-2:hover .mod-enumerated-list {
+    width:318px;
+}
+
+.mod-rack-model-001{{{cns}}} .mod-enumerated.mod-enumerated-3:hover .mod-enumerated-list {
+    width:90px;
+}
+
+/* SEPARATOR */
+.mod-rack-model-001{{{cns}}} .mod-separator {
+    background:#bbb;
+    border-color:#000;
+    border-style:solid;
+    border-width:0 1px 0 0;
+    display:inline-block;
+    float:left;
+    height:69px;
+    margin-top:2px;
+    width:1px;
+}

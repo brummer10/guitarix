@@ -41,6 +41,7 @@ b.openVerticalBox("");
             b.create_small_rackknobr(PARAM("gain"), _("amount"));
             b.openFrameBox("");
             b.closeBox();
+            b.create_switch(sw_rbutton,PARAM("Freeze"), _("freeze"));
         }
         b.closeBox();
     }
