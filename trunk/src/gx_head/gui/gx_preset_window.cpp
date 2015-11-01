@@ -715,7 +715,8 @@ void PresetWindow::download_status(GObject* object, GParamSpec* pspec, gpointer 
 
     switch (status) {
       case WEBKIT_DOWNLOAD_STATUS_ERROR:
-          //printf("download error: %s\n", uri);
+          gx_print_error(_("Download Status"),
+            boost::format(_("ERROR download %1%")) % uri);
           break;
       case WEBKIT_DOWNLOAD_STATUS_CREATED:
           //printf("download created: %s\n", uri);
@@ -724,10 +725,12 @@ void PresetWindow::download_status(GObject* object, GParamSpec* pspec, gpointer 
           //printf("download started: %s\n", uri);
           break;
       case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
-          //printf("download cancelled: %s\n", uri);
+           gx_print_info(_("Download Status"),
+            boost::format(_("download cancelled %1%")) % uri);
           break;
       case WEBKIT_DOWNLOAD_STATUS_FINISHED:
-          //printf("download finished!: %s\n", uri);
+          gx_print_info(_("Download Status"),
+            boost::format(_("download finished %1%")) % uri);
           insertRequested(uri, data);
           break;
       default:
@@ -741,7 +744,6 @@ bool PresetWindow::downloadRequested(WebKitWebView* webView, WebKitDownload *dow
     const char *file_name = strrchr( ur, '/' ) + 1;
     const gchar* dest = g_strdup_printf("file:///tmp/%s",file_name); 
     webkit_download_set_destination_uri(download, dest);
-    //fprintf(stderr,"download %s\n",dest);
     g_signal_connect(download, "notify::status", G_CALLBACK(download_status), data);
     return TRUE;
 }

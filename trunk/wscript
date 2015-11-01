@@ -75,7 +75,7 @@ def set_options(opt):
 
     comp.add_option('--cxxflags',
                     type='string',
-                    default='-Wall -Wno-deprecated', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
+                    default='-Wall', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
                     dest='cxxflags',
                     help='C++ base compiler flags [Default: %default]')
 
