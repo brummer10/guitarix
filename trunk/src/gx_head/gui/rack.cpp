@@ -883,7 +883,7 @@ bool RackBox::on_my_button_press(GdkEventButton* ev) {
 }
 
 
-Gtk::Widget *RackBox::wrap_bar(int left, int right, bool sens) {
+Gtk::Widget *RackBox::wrap_bar(bool sens) {
     Gtk::EventBox *ev = new Gtk::EventBox;
     ev->set_visible_window(false);
     ev->set_above_child(true);
