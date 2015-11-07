@@ -1251,8 +1251,11 @@ LadspaPluginList::LadspaPluginList()
       lv2_InputPort(lilv_new_uri(world, LV2_CORE__InputPort)),
       lv2_OutputPort(lilv_new_uri(world, LV2_CORE__OutputPort)),
       lv2_connectionOptional(lilv_new_uri(world, LV2_CORE__connectionOptional)) {
+    LilvNode* false_val = lilv_new_bool(world, false);
+    lilv_world_set_option(world,LILV_OPTION_DYN_MANIFEST, false_val);
     lilv_world_load_all(world);
     lv2_plugins = lilv_world_get_all_plugins(world);
+    lilv_node_free(false_val);
 }
 
 static bool in_1_based_range(unsigned long uid) {
