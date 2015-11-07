@@ -35,14 +35,18 @@
 /* On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
    flags to avoid costly denormals */
 #ifdef __SSE3__
+#ifndef _X86INTRIN_H_INCLUDED
 #include <pmmintrin.h>
+#endif //ndef
 inline void AVOIDDENORMALS()
 {
   _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
   _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 }
 #else
+#ifndef _X86INTRIN_H_INCLUDED
 #include <xmmintrin.h>
+#endif //ndef
 inline void AVOIDDENORMALS()
 {
   _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
