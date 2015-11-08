@@ -344,8 +344,8 @@ void Widget::make_label(Gtk::Box *box,Glib::ustring label, bool start  )
     Gtk::Label* pr = new Gtk::Label(label, 0);
     pr->set_name("amplabel");
 
-   Gtk::VBox* b1 = new Gtk::VBox();
-   Gtk::VBox* b2 = new Gtk::VBox();
+   //Gtk::VBox* b1 = new Gtk::VBox();
+   //Gtk::VBox* b2 = new Gtk::VBox();
     		
     if( start ){
 //		std::cout << "Pack Start "<<label<<std::endl;  Gtk::VBox* b1 = new Gtk::VBox();

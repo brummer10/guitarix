@@ -1045,8 +1045,10 @@ static void render (GtkWidget *wi, cairo_t* cr) {
     // get image
     GdkPixbuf *stock_image;
     image_entry *p = image_data;
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
     stock_image = gdk_pixbuf_new_from_inline(
                 -1,p->icon_data , FALSE, NULL);
+G_GNUC_END_IGNORE_DEPRECATIONS
 
     // draw background
     double radius = 38.;

@@ -25,6 +25,7 @@ part of guitarix, use  knobs with Gtk
 
 #include <gtk/gtk.h>
 #include <glib.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 

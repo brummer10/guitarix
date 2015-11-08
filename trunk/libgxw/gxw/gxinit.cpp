@@ -77,6 +77,7 @@ void gxw_init()
 #if !GLIB_CHECK_VERSION(2, 36, 0) 
 	g_type_init();
 #endif
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	GtkIconFactory *factory = gtk_icon_factory_new();
 	for (image_entry *p = image_data; p->icon_name; p++) {
 		gtk_icon_factory_add(
@@ -87,3 +88,4 @@ void gxw_init()
 	}
 	gtk_icon_factory_add_default(factory);
 }
+G_GNUC_END_IGNORE_DEPRECATIONS
