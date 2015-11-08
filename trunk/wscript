@@ -63,13 +63,13 @@ def set_options(opt):
 
     comp.add_option('--cxxflags-release',
                     type='string',
-                    default='-O3 -DNDEBUG -std=c++11',
+                    default='-O3 -DNDEBUG',
                     dest='cxxflags_release',
                     help='additional C++ compiler flags for release version (not used if --debug) [Default: %default]')
 
     comp.add_option('--cxxflags-debug',
                     type='string',
-                    default='-O2 -g -fstack-protector-all -std=c++11',
+                    default='-O2 -g -fstack-protector-all',
                     dest='cxxflags_debug',
                     help='additional C++ compiler flags for debug version (only used if --debug) [Default: %default]')
 
@@ -78,6 +78,12 @@ def set_options(opt):
                     default='-Wall', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
                     dest='cxxflags',
                     help='C++ base compiler flags [Default: %default]')
+
+    comp.add_option('--disable-cxx11',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help='deselect C++ compiler flag -std=c++11 [Default: False]')
 
     comp.add_option('--ldflags',
                     type='string',
@@ -731,7 +737,10 @@ def configure(conf):
         if conf.env['NOOPT']:
             conf.env['OPT'] = False
             cpu_model = append_optimization_flags(cxxflags)
+    if not opt.disable_cxx11:
+        cxxflags.append ("-std=c++11")
     conf.env['CXXFLAGS'] += cxxflags
+    
 
     if opt.no_desktop_update:
         conf.env["NO_UPDATE_DESKTOP_DATA_BASE"] = True
