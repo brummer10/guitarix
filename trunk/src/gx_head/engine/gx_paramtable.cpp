@@ -505,7 +505,7 @@ void MidiControllerList::on_pgm_chg() {
     do {
 	pgm = gx_system::atomic_get(program_change);
     } while (!gx_system::atomic_compare_and_exchange(&program_change, pgm, -1));
-    new_program(pgm);
+    if (pgm>=0) new_program(pgm);
 }
 
 void MidiControllerList::on_mute_chg() {
@@ -521,7 +521,7 @@ void MidiControllerList::on_bank_chg() {
     do {
 	bk = gx_system::atomic_get(bank_change);
     } while (!gx_system::atomic_compare_and_exchange(&bank_change, bk, -1));
-    new_bank(bk);
+    if (bk>=0) new_bank(bk);
 }
 
 void MidiControllerList::set_config_mode(bool mode, int ctl) {
