@@ -81,10 +81,13 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     //actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_presets_close));
     //gtk_activatable_set_related_action(GTK_ACTIVATABLE(close_preset->gobj()), act->gobj());
     close_preset->hide(); // disable (maybe remove later)
+#ifdef HAVE_WEBKIT
     actions.online_preset_bank = Gtk::Action::create("OnlineBank");
     actions.group->add(actions.online_preset_bank, sigc::mem_fun(*this, &PresetWindow::on_online_preset));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(online_preset->gobj()), actions.online_preset_bank->gobj());
-
+#else
+    online_preset->set_sensitive(false);
+#endif
     bank_treeview->set_model(Gtk::ListStore::create(bank_col));
     bank_treeview->set_name("PresetView");
     bank_treeview->get_selection()->set_select_function(
@@ -686,6 +689,7 @@ void PresetWindow::on_new_bank() {
     start_edit(m->get_path(edit_iter), *bank_treeview->get_column(1), *bank_cellrenderer);
 }
 
+#ifdef HAVE_WEBKIT
 
 bool PresetWindow::insertRequested(const char *ur, gpointer data)
 {
@@ -748,6 +752,31 @@ bool PresetWindow::downloadRequested(WebKitWebView* webView, WebKitDownload *dow
     return TRUE;
 }
 
+bool PresetWindow::uploadRequested(WebKitWebView* webView, WebKitFileChooserRequest *request,gpointer data )
+{
+    Gtk::FileChooserDialog d( "Select upload file");
+    d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+    d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
+    d.add_shortcut_folder(string(getenv("HOME")) + string("/.config/guitarix/bamks"));
+    Gtk::FileFilter banks;
+    banks.set_name("Bank Files");
+    banks.add_pattern("*.gx");
+    d.add_filter(banks);
+    Gtk::FileFilter all;
+    all.add_pattern("*");
+    all.set_name("All Files");
+    d.add_filter(all);
+    d.set_current_folder(string(getenv("HOME")) + string("/.config/guitarix/banks"));
+
+    if (d.run() != Gtk::RESPONSE_OK) {
+        return FALSE;
+    }
+    Glib::ustring  filename = d.get_filename();
+    const gchar*  f[2] = {filename.c_str(),0};
+    webkit_file_chooser_request_select_files (request, f);
+    return TRUE;
+}
+
 void PresetWindow::show_online_preset() {
 
   Gtk::Window *window = new Gtk::Window();
@@ -760,12 +789,15 @@ void PresetWindow::show_online_preset() {
   window->add(*Gtk::manage(scrollbox));
   webkit_web_view_load_uri(web_view, "https://musical-artifacts.com/?apps=guitarix");
   g_signal_connect(G_OBJECT (web_view), "download-requested", G_CALLBACK(downloadRequested), this);
+  g_signal_connect(G_OBJECT (web_view), "run-file-chooser", G_CALLBACK(uploadRequested), this);
   window->show_all();
 }
 
 void PresetWindow::on_online_preset() {
     Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PresetWindow::show_online_preset));
 }
+
+#endif
 
 bool PresetWindow::on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
     Gtk::Widget *source_widget = Gtk::Widget::drag_get_source_widget(context);
