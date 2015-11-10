@@ -1554,60 +1554,76 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	    builder.set_next_flags(jp->current_value_int());
 	} else if (jp->current_value() == "create_small_rackknob") {
 	    std::string id = next_string(jp);
-	    builder.create_small_rackknob(id.c_str(), next_char_pointer(jp));
+	    std::string lab = next_string(jp);
+	    builder.create_small_rackknob(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_small_rackknobr") {
 	    std::string id = next_string(jp);
-	    builder.create_small_rackknobr(id.c_str(), next_char_pointer(jp));
+	    std::string lab = next_string(jp);
+	    builder.create_small_rackknobr(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_master_slider") {
 	    std::string id = next_string(jp);
-	    builder.create_master_slider(id.c_str(), next_char_pointer(jp));
+	    std::string lab = next_string(jp);
+	    builder.create_master_slider(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_feedback_slider") {
 	    std::string id = next_string(jp);
-	    builder.create_feedback_slider(id.c_str(), next_char_pointer(jp));
+	    std::string lab = next_string(jp);
+	    builder.create_feedback_slider(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_selector_no_caption") {
-	    builder.create_selector_no_caption(next_char_pointer(jp));
+	    std::string id = next_string(jp);
+	    builder.create_selector_no_caption(id.c_str());
 	} else if (jp->current_value() == "create_selector") {
 	    std::string id = next_string(jp);
-	    builder.create_selector(id.c_str(), next_char_pointer(jp));
+	    std::string lab = next_string(jp);
+	    builder.create_selector(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_simple_meter") {
-        builder.create_simple_meter(next_char_pointer(jp));
+		std::string id = next_string(jp);
+        builder.create_simple_meter(id.c_str());
 	} else if (jp->current_value() == "create_simple_c_meter") {
-        std::string id = next_char_pointer(jp);
-	    std::string idl = next_char_pointer(jp);
-	    builder.create_simple_c_meter(id.c_str(),idl.c_str(), next_char_pointer(jp));
+        std::string id = next_string(jp);
+	    std::string idl = next_string(jp);
+	    std::string lab = next_string(jp);
+	    builder.create_simple_c_meter(id.c_str(),idl.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_spin_value") {
-	    std::string id = next_char_pointer(jp);
-	    builder.create_spin_value(id.c_str(), next_char_pointer(jp));
+	    std::string id = next_string(jp);
+	    std::string lab = next_string(jp);
+	    builder.create_spin_value(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_switch_no_caption") {
-	    std::string sw_type = next_char_pointer(jp);
-	    builder.create_switch_no_caption(sw_type.c_str(), next_char_pointer(jp));
+	    std::string sw_type = next_string(jp);
+	    std::string id = next_string(jp);
+	    builder.create_switch_no_caption(sw_type.c_str(), id.c_str());
 	} else if (jp->current_value() == "create_feedback_switch") {
-	    std::string sw_type = next_char_pointer(jp);
-	    builder.create_feedback_switch(sw_type.c_str(), next_char_pointer(jp));
+	    std::string sw_type = next_string(jp);
+	    std::string id = next_string(jp);
+	    builder.create_feedback_switch(sw_type.c_str(), id.c_str());
 	} else if (jp->current_value() == "create_fload_switch") {
-	    std::string sw_type = next_char_pointer(jp);
-	    std::string id = next_char_pointer(jp);
-	    std::string idf = next_char_pointer(jp);
+	    std::string sw_type = next_string(jp);
+	    std::string id = next_string(jp);
+	    std::string idf = next_string(jp);
 	    builder.create_fload_switch(sw_type.c_str(), id.c_str(), idf.c_str());
 	} else if (jp->current_value() == "create_switch") {
-	    std::string sw_type = next_char_pointer(jp);
-	    std::string id = next_char_pointer(jp);
-	    builder.create_switch(sw_type.c_str(), id.c_str(), next_char_pointer(jp));
+	    std::string sw_type = next_string(jp);
+	    std::string id = next_string(jp);
+	    std::string lab = next_string(jp);
+	    builder.create_switch(sw_type.c_str(), id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_wheel") {
-	    std::string id = next_char_pointer(jp);
-	    builder.create_wheel(id.c_str(), next_char_pointer(jp));
+	    std::string id = next_string(jp);
+	    std::string lab = next_string(jp);
+	    builder.create_wheel(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_port_display") {
-	    std::string id = next_char_pointer(jp);
-	    builder.create_port_display(id.c_str(), next_char_pointer(jp));
+	    std::string id = next_string(jp);
+	    std::string lab = next_string(jp);
+	    builder.create_port_display(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_p_display") {
-        std::string id = next_char_pointer(jp);
-	    std::string idl = next_char_pointer(jp);
-	    std::string idh = next_char_pointer(jp);
+        std::string id = next_string(jp);
+	    std::string idl = next_string(jp);
+	    std::string idh = next_string(jp);
 	    builder.create_p_display(id.c_str(),idl.c_str(),idh.c_str());
 	} else if (jp->current_value() == "create_simple_spin_value") {
-	    builder.create_simple_spin_value(next_char_pointer(jp));
+		std::string id = next_string(jp);
+	    builder.create_simple_spin_value(id.c_str());
 	} else if (jp->current_value() == "create_eq_rackslider_no_caption") {
-	    builder.create_eq_rackslider_no_caption(next_char_pointer(jp));
+		std::string id = next_string(jp);
+	    builder.create_eq_rackslider_no_caption(id.c_str());
 	} else if (jp->current_value() == "closeBox") {
 	    builder.closeBox();
 	} else if (jp->current_value() == "load_glade") {
