@@ -1473,6 +1473,10 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d, gx_sys
 		}
 	} 
 	lilv_nodes_free(requests);
+	
+	if (strcmp( lilv_node_as_string(lilv_plugin_get_uri(plugin)), "http://gareus.org/oss/lv2/meters#goniometer") == 0) {
+		return;
+	}
 
     int n_in = 0;
     int n_out = 0;
