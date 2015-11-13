@@ -66,6 +66,7 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "gxredeye.h"
 #include "gx_resampler.h"
 #include "gx_convolver.h"
+namespace gx_redeye {
 #include "gx_redeye.h"
 #include "impulse_former.h"
 #include "ampulse_former.h"
@@ -395,6 +396,8 @@ static const LV2_Descriptor descriptor2 =
   NULL
 };
 
+} //end namespace gx_redeye
+
 extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
@@ -403,11 +406,11 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &descriptor;
+      return &gx_redeye::descriptor;
     case 1:
-      return &descriptor1;
+      return &gx_redeye::descriptor1;
     case 2:
-      return &descriptor2;
+      return &gx_redeye::descriptor2;
     default:
       return NULL;
     }

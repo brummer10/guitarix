@@ -39,6 +39,8 @@
 declare(gxmetal_amp);
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
+namespace gx_metal {
+
 class Gxmetal_amp
 {
 private:
@@ -313,7 +315,7 @@ const LV2_Descriptor Gxmetal_amp::descriptor =
   cleanup,
   NULL
 };
-
+} // end namespace gx_metal
 ///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
 
 extern "C"
@@ -324,7 +326,7 @@ lv2_descriptor(uint32_t index)
   switch (index)
     {
     case 0:
-      return &Gxmetal_amp::descriptor;
+      return &gx_metal::Gxmetal_amp::descriptor;
     default:
       return NULL;
     }

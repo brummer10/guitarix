@@ -21,4 +21,6 @@
 
 #include "gxmetal_amp.h"    // typedef enum PortIndex
 #include "gx_pluginlv2.h"   // define struct PluginLV2
+namespace gx_metal {
 #include "gxmetal_amp.cc"   // the dsp class
+} // end namespace gx_metal
