@@ -109,6 +109,9 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("cellrenderer_quirks", cellrenderer_quirks);
 
     set_title();
+    treeview1->set_name("PresetView");
+    treeview2->set_name("PresetView");
+    treeview3->set_name("PresetView");
     actiongroup->add(Gtk::Action::create("FileMenuAction",_("_File")));
     save_action = Gtk::Action::create("SaveAction", _("_Ok"));
     actiongroup->add(save_action, sigc::mem_fun(this, &PluginDisplay::on_save));
