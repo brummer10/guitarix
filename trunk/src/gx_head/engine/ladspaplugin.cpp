@@ -709,6 +709,10 @@ int Lv2Dsp::activate(bool start, PluginDef *plugin) {
     if (start == self.is_activated) {
 	return 0;
     }
+    if (!self.instance) { 
+		gx_print_warning("Lv2Dsp", ustring::compose("cant activate plugin %1", self.pd->path));
+		return 1;
+	}
     self.is_activated = start;
     if (start) {
 	lilv_instance_activate(self.instance);
@@ -762,6 +766,10 @@ void Lv2Dsp::init(unsigned int samplingFreq, PluginDef *pldef) {
 	return;
     }
     self.instance = lilv_plugin_instantiate(self.plugin, samplingFreq, 0);
+    if (!self.instance) { 
+		gx_print_error("Lv2Dsp", ustring::compose("cant init plugin %1", self.pd->path));
+		return;
+	}
     int n = 0;
     for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
 	lilv_instance_connect_port(self.instance, (*it)->index, &self.ports[(*it)->index]);
