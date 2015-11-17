@@ -595,6 +595,7 @@ static void gx_rack_tuner_triangle(GxRackTuner *tuner, cairo_t *cr, double posx,
 
 static void gx_rack_tuner_display_note(GxRackTuner *tuner, cairo_t *cr, double center, double y0, int indicate_oc, int vis, double scale)
 {
+	if (vis > tuner->target_temperament) return;
 	cairo_text_extents_t ex, ex_oct;
 	double pitch_add = fabs(tuner->parent.reference_pitch - 440.00);
 	cairo_set_source_rgba(cr, fabs(scale)+(pitch_add*0.1), 1-(scale*scale+(pitch_add*0.1)), 0.2, 1-fabs(scale));
