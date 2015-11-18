@@ -23,6 +23,6 @@
 <http://guitarix.sourceforge.net/plugins/gx_studiopre#studiopre>
     a lv2:Plugin ;
     lv2:binary <gx_studiopre@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_studiopre.ttl> .
+    rdfs:seeAlso <gx_studiopre.ttl> , <modgui.ttl> .
 
 

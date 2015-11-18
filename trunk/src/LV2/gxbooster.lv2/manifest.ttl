@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gxbooster#booster>
     a lv2:Plugin ;
     lv2:binary <gxbooster.so>  ;
-    rdfs:seeAlso <gxbooster.ttl> .
+    rdfs:seeAlso <gxbooster.ttl> , <modgui.ttl> .

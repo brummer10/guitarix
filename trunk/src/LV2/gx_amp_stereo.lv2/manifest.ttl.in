@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_amp_stereo#GUITARIX_ST>
     a lv2:Plugin ;
     lv2:binary <gx_amp_stereo@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_amp_stereo.ttl> .
+    rdfs:seeAlso <gx_amp_stereo.ttl> , <modgui.ttl> .

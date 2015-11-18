@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_tremolo#_tremolo>
     a lv2:Plugin ;
     lv2:binary <gx_tremolo.so>  ;
-    rdfs:seeAlso <gx_tremolo.ttl> .
+    rdfs:seeAlso <gx_tremolo.ttl> , <modgui.ttl> .

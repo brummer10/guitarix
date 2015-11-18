@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_reverb_stereo#_reverb_stereo>
     a lv2:Plugin ;
     lv2:binary <gx_reverb@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_reverb.ttl> .
+    rdfs:seeAlso <gx_reverb.ttl> , <modgui.ttl> .

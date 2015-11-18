@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gxtubevibrato#tubevibrato>
     a lv2:Plugin ;
     lv2:binary <gxtubevibrato.so>  ;
-    rdfs:seeAlso <gxtubevibrato.ttl> .
+    rdfs:seeAlso <gxtubevibrato.ttl> , <modgui.ttl> .

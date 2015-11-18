@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_scream_#_scream_>
     a lv2:Plugin ;
     lv2:binary <gx_scream.so>  ;
-    rdfs:seeAlso <gx_scream.ttl> .
+    rdfs:seeAlso <gx_scream.ttl> , <modgui.ttl> .

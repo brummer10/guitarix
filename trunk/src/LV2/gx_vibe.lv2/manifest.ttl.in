@@ -23,9 +23,9 @@
 <http://guitarix.sourceforge.net/plugins/gx_vibe_#_vibe_>
     a lv2:Plugin ;
     lv2:binary <gx_vibe@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_vibe.ttl> .
+    rdfs:seeAlso <gx_vibe.ttl> , <modguis.ttl> .
 
 <http://guitarix.sourceforge.net/plugins/gx_vibe_#_vibe_mono>
     a lv2:Plugin ;
     lv2:binary <gx_vibe@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_vibe_mono.ttl> .
+    rdfs:seeAlso <gx_vibe_mono.ttl> , <modguis.ttl> .

@@ -23,14 +23,14 @@
 <http://guitarix.sourceforge.net/plugins/gx_redeye#chump>
     a lv2:Plugin ;
     lv2:binary <gx_redeye@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_redeye.ttl> .
+    rdfs:seeAlso <gx_redeye.ttl> , <modguis.ttl>.
 
 <http://guitarix.sourceforge.net/plugins/gx_redeye#bigchump>
     a lv2:Plugin ;
     lv2:binary <gx_redeye@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_redeye.ttl> .
+    rdfs:seeAlso <gx_redeye.ttl> , <modguis.ttl>.
 
 <http://guitarix.sourceforge.net/plugins/gx_redeye#vibrochump>
     a lv2:Plugin ;
     lv2:binary <gx_redeye@LIB_EXT@>  ;
-    rdfs:seeAlso <gx_redeye.ttl> .
+    rdfs:seeAlso <gx_redeye.ttl> , <modguis.ttl>.

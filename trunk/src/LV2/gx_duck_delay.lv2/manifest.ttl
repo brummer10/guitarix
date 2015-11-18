@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_duck_delay_#_duck_delay_>
     a lv2:Plugin ;
     lv2:binary <gx_duck_delay.so>  ;
-    rdfs:seeAlso <gx_duck_delay.ttl> .
+    rdfs:seeAlso <gx_duck_delay.ttl> , <modgui.ttl> .

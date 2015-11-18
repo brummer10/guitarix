@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_jcm800pre_st#_jcm800pre_st>
     a lv2:Plugin ;
     lv2:binary <gx_jcm800pre_st.so>  ;
-    rdfs:seeAlso <gx_jcm800pre_st.ttl> .
+    rdfs:seeAlso <gx_jcm800pre_st.ttl> , <modgui.ttl> .

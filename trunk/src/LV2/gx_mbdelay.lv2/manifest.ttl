@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_mbdelay_#_mbdelay_>
     a lv2:Plugin ;
     lv2:binary <gx_mbdelay.so>  ;
-    rdfs:seeAlso <gx_mbdelay.ttl> .
+    rdfs:seeAlso <gx_mbdelay.ttl> , <modgui.ttl> .
