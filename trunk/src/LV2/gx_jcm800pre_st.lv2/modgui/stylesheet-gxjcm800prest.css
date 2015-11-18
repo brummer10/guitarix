@@ -1,0 +1,220 @@
+/* SKINS */
+.mod-combo-model-001{{{cns}}} {
+    border-radius: 20px;
+}
+.mod-combo-model-001-0550{{{cns}}} {
+    background-image: url(/resources/combos/model-001/model-0550.png{{{ns}}});
+    background-position: center center;
+    background-repeat: no-repeat;
+    height: 200px;
+    position: relative;
+    width: 550px;
+}
+
+.mod-combo-model-001-0625{{{cns}}} {
+    background-image: url(/resources/combos/model-001/model-0625.png{{{ns}}});
+    background-position: center center;
+    background-repeat: no-repeat;
+    height: 200px;
+    position: relative;
+    width: 625px;
+}
+
+.mod-combo-model-001-0778{{{cns}}} {
+    background-image: url(/resources/combos/model-001/model-0778.png{{{ns}}});
+    background-position: center center;
+    background-repeat: no-repeat;
+    height: 200px;
+    position: relative;
+    width: 778px;
+}
+
+.mod-combo-model-001-0930{{{cns}}} {
+    background-image: url(/resources/combos/model-001/model-0930.png{{{ns}}});
+    background-position: center center;
+    background-repeat: no-repeat;
+    height: 200px;
+    position: relative;
+    width: 930px;
+}
+
+
+/* THE AUTHOR */
+.mod-combo-model-001{{{cns}}} .mod-plugin-brand h1 {
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+    left: 80px;
+    line-height: 1;
+    margin: 0;
+    position: absolute;
+    top: 23px;
+}
+
+/* PLUGIN'S NAME */
+.mod-combo-model-001{{{cns}}} .mod-plugin-name h1 {
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1;
+    margin: 0;
+    position: absolute;
+    right: 80px;
+    top: 23px;
+}
+
+/* CONTROLS */
+.mod-combo-model-001{{{cns}}} .mod-control-group {
+    border-color: #000;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    bottom: 149px;
+    color: #000;
+    font-size: 10px;
+    font-weight: bold;
+    height: 71px;
+    left: 58px;
+    position: absolute;
+    right: 58px;
+    top: 47px;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-control-group > div {
+    margin-right: 2px;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-pedal-input,
+.mod-combo-model-001{{{cns}}} .mod-pedal-output {
+    top: 30px;
+}
+
+/* SWITCH ON/OFF GENERAL */
+.mod-combo-model-001{{{cns}}} .mod-switch {
+    cursor: pointer;
+    float: left;
+    height: 71px;
+    position: relative;
+    width: 130px;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-switch-image {
+    background-image: url(/resources/switches/switch-001.png{{{ns}}});
+    background-position: -9px 0px;
+    background-repeat: no-repeat;
+    background-size: auto 71px;
+    height: 71px;
+    width: 71px;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-switch-image.on {
+    background-position: -80px 0px;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-switch-image.off {
+    background-position: -9px 0px;
+}
+
+/* CHICKEN HEAD */
+.mod-combo-model-001{{{cns}}} .mod-chicken-head {
+    float: left;
+    height: 71px;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    width: 71px;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-chicken-head .mod-chicken-head-image {
+    background-image: url(/resources/knobs/chicken-head/_strip.png{{{ns}}});
+    background-position: left 0px;
+    background-repeat: no-repeat;
+    background-size: auto 71px;
+    height: 71px;
+    margin-top: 3px;
+    position: relative;
+    width: 71px;
+    z-index: 2;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-chicken-head .mod-chicken-head-title {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    height:18px;
+    left: 0;
+    overflow:hidden;
+    position: absolute;
+    right: 0;
+    text-transform: uppercase;
+    top: 0;
+    z-index: 1;
+}
+
+/* ENUMERATED LIST */
+.mod-combo-model-001{{{cns}}} .mod-enumerated {
+    color:#fff;
+    display:inline-block;
+    left:132px;
+    overflow:hidden;
+    position:absolute;
+    top:-27px;
+    width:240px;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-enumerated .mod-enumerated-selected {
+    background-color:rgba(0,0,0,.8);
+    background-image:url(/resources/utils/dropdown-arrow-white.png{{{ns}}});
+    background-position:right center;
+    background-repeat:no-repeat;
+    border-radius:4px;
+    box-shadow:inset 1px 1px 5px #000;
+    color:#fff;
+    font-size:12px;
+    height:24px;
+    line-height:2;
+    margin-right:8px;
+    overflow:hidden;
+    padding:0 9px;
+}
+
+/* WHEN IS HOVER */
+.mod-combo-model-001{{{cns}}} .mod-enumerated:hover .mod-enumerated-selected {
+    border-radius:4px 4px 0 0;
+}
+
+/* THE LIST OF OPTIONS */
+.mod-combo-model-001{{{cns}}} .mod-enumerated .mod-enumerated-list {
+    display:none;
+    font-weight:bold;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-enumerated .mod-enumerated-list > div {
+    padding:3px 9px;
+}
+
+.mod-combo-model-001{{{cns}}} .mod-enumerated .mod-enumerated-list > div:hover {
+    background:rgba(255,255,255,.2);
+    cursor:pointer;
+}
+
+/* WHEN THE LIST IS SHOWING */
+.mod-combo-model-001{{{cns}}} .mod-enumerated .mod-enumerated-list {
+    background:rgba(0,0,0,.9);
+    display:none;
+    height:85px;
+    overflow:auto;
+    position:relative;
+    width:232px;
+    z-index:3;
+}
+
+
+/* SEPARATOR */
+.mod-combo-model-001{{{cns}}} .mod-separator {
+    background: #000;
+    display: inline-block;
+    float: left;
+    height: 69px;
+    margin-top: 2px;
+    width: 1px;
+}

@@ -1,0 +1,385 @@
+/* = CONTAINER
+================================================ */
+.mod-pedal-lata{{{cns}}} {
+    background-position: 0 0;
+    background-repeat:no-repeat;
+    height:514px;
+    position:absolute;
+    width:396px;
+    border-radius: 105px;
+}
+
+/* = PLUGIN'S AUTHOR
+================================================ */
+.mod-pedal-lata{{{cns}}} .mod-plugin-brand {
+    left:30px;
+    position:absolute;
+    right:30px;
+    text-align:center;
+    text-transform:uppercase;
+    top:290px;
+}
+
+.mod-pedal-lata{{{cns}}} .mod-plugin-brand h1 {
+    color:#111;
+    font-family:"Nexa";
+    font-size:32px;
+}
+
+/* = PLUGIN'S NAME
+================================================ */
+.mod-pedal-lata{{{cns}}} .mod-plugin-name {
+    left:30px;
+    overflow:hidden;
+    position:absolute;
+    right:30px;
+    text-align:center;
+    top:330px;
+}
+
+.mod-pedal-lata{{{cns}}} .mod-plugin-name h1 {
+    font-family:"Questrial";
+    font-size:24px;
+    line-height:1;
+}
+
+/* = LIGHT ON/OFF
+================================================ */
+.mod-pedal-lata{{{cns}}} .mod-light {
+    height:32px;
+    left:0;
+    margin:0 auto;
+    position:absolute;
+    right:0;
+    top:250px;
+    width:32px;
+}
+
+/* = FOOTSWITCH
+================================================ */
+.mod-pedal-lata{{{cns}}} .mod-footswitch {
+    background-image:url(/resources/pedals/footswitch.png{{{ns}}});
+    background-position:bottom center;
+    background-repeat:no-repeat;
+    background-size:auto 132px;
+    bottom:66px;
+    cursor:pointer;
+    height:66px;
+    width: 66px;
+    left:13px;
+    margin: auto;
+    position:absolute !important;
+    right:13px;
+    z-index:30;
+}
+.mod-pedal-lata{{{cns}}} .mod-footswitch.on {
+    background-position-y: top !important
+}
+
+/* = INPUTS/OUTPUTS
+================================================ */
+.mod-pedal-lata{{{cns}}} .mod-pedal-input,
+.mod-pedal-lata{{{cns}}} .mod-pedal-output {
+    top:136px;
+}
+
+/* = BACKGROUND IMAGES - Colour of the pedal
+================================================ */
+.mod-pedal-lata{{{cns}}}.mod-yellow { background-image:url(/resources/pedals/lata/yellow.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-pink { background-image:url(/resources/pedals/lata/pink.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-atomic { background-image:url(/resources/pedals/lata/atomic.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-cream { background-image:url(/resources/pedals/lata/cream.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-blue { background-image:url(/resources/pedals/lata/blue.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-che { background-image:url(/resources/pedals/lata/che.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-darkblue { background-image:url(/resources/pedals/lata/darkblue.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-humphreys { background-image:url(/resources/pedals/lata/humphreys.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-camouflage { background-image:url(/resources/pedals/lata/camouflage.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-black { background-image:url(/resources/pedals/lata/black.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-orange { background-image:url(/resources/pedals/lata/orange.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-white { background-image:url(/resources/pedals/lata/white.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-racing { background-image:url(/resources/pedals/lata/racing.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-red { background-image:url(/resources/pedals/lata/red.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-brown { background-image:url(/resources/pedals/lata/brown.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-star { background-image:url(/resources/pedals/lata/star.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-petrol { background-image:url(/resources/pedals/lata/petrol.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-anonymous { background-image:url(/resources/pedals/lata/anonymous.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-cyan { background-image:url(/resources/pedals/lata/cyan.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-gray { background-image:url(/resources/pedals/lata/gray.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-none { background-image:url(/resources/pedals/lata/none.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-skull { background-image:url(/resources/pedals/lata/skull.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-purple { background-image:url(/resources/pedals/lata/purple.png{{{ns}}}); }
+.mod-pedal-lata{{{cns}}}.mod-green { background-image:url(/resources/pedals/lata/green.png{{{ns}}}); }
+
+
+/* = COLORS - Color of the pedals labels
+================================================ */
+.mod-pedal-lata{{{cns}}}.mod-humphreys .mod-enumerated
+{
+    background-image:url(/resources/utils/dropdown-arrow-white.png{{{ns}}});
+}
+.mod-pedal-lata{{{cns}}}.mod-che .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-darkblue .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-camouflage .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-black .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-racing .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-red .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-brown .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-star .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-petrol .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-none .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-skull .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-purple .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-green .mod-enumerated
+{
+    background-image:url(/resources/utils/dropdown-arrow-white.png{{{ns}}});
+}
+.mod-pedal-lata{{{cns}}}.mod-yellow .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-pink .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-cream .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-blue .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-orange .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-white .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-cyan .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-gray .mod-enumerated
+{
+    background-image:url(/resources/utils/dropdown-arrow-black.png{{{ns}}});
+}
+.mod-pedal-lata{{{cns}}}.mod-atomic .mod-enumerated
+{
+    background-image:url(/resources/utils/dropdown-arrow-white.png{{{ns}}});
+}
+.mod-pedal-lata{{{cns}}}.mod-anonymous .mod-enumerated
+{
+    background-image:url(/resources/utils/dropdown-arrow-black.png{{{ns}}});
+}
+.mod-pedal-lata{{{cns}}}.mod-humphreys h1,
+.mod-pedal-lata{{{cns}}}.mod-humphreys .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-humphreys .mod-control-group .mod-knob > span.mod-knob-title
+{
+    color: white;
+}
+.mod-pedal-lata{{{cns}}}.mod-che h1,
+.mod-pedal-lata{{{cns}}}.mod-che .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-che .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-darkblue h1,
+.mod-pedal-lata{{{cns}}}.mod-darkblue .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-darkblue .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-camouflage h1,
+.mod-pedal-lata{{{cns}}}.mod-camouflage .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-camouflage .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-black h1,
+.mod-pedal-lata{{{cns}}}.mod-black .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-black .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-racing h1,
+.mod-pedal-lata{{{cns}}}.mod-racing .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-racing .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-red h1,
+.mod-pedal-lata{{{cns}}}.mod-red .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-red .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-brown h1,
+.mod-pedal-lata{{{cns}}}.mod-brown .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-brown .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-star h1,
+.mod-pedal-lata{{{cns}}}.mod-star .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-star .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-petrol h1,
+.mod-pedal-lata{{{cns}}}.mod-petrol .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-petrol .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-none h1,
+.mod-pedal-lata{{{cns}}}.mod-none .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-none .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-skull h1,
+.mod-pedal-lata{{{cns}}}.mod-skull .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-skull .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-purple h1,
+.mod-pedal-lata{{{cns}}}.mod-purple .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-purple .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-green h1,
+.mod-pedal-lata{{{cns}}}.mod-green .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-green .mod-control-group .mod-knob > span.mod-knob-title
+{
+    color:white;
+}
+.mod-pedal-lata{{{cns}}}.mod-yellow h1,
+.mod-pedal-lata{{{cns}}}.mod-yellow .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-yellow .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-pink h1,
+.mod-pedal-lata{{{cns}}}.mod-pink .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-pink .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-cream h1,
+.mod-pedal-lata{{{cns}}}.mod-cream .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-cream .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-blue h1,
+.mod-pedal-lata{{{cns}}}.mod-blue .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-blue .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-orange h1,
+.mod-pedal-lata{{{cns}}}.mod-orange .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-orange .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-white h1,
+.mod-pedal-lata{{{cns}}}.mod-white .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-white .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-cyan h1,
+.mod-pedal-lata{{{cns}}}.mod-cyan .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-cyan .mod-control-group .mod-knob > span.mod-knob-title,
+.mod-pedal-lata{{{cns}}}.mod-gray h1,
+.mod-pedal-lata{{{cns}}}.mod-gray .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-gray .mod-control-group .mod-knob > span.mod-knob-title
+{
+    color:black;
+}
+.mod-pedal-lata{{{cns}}}.mod-atomic h1,
+.mod-pedal-lata{{{cns}}}.mod-atomic .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-atomic .mod-control-group .mod-knob > span.mod-knob-title
+{
+    color: white;
+}
+.mod-pedal-lata{{{cns}}}.mod-anonymous h1,
+.mod-pedal-lata{{{cns}}}.mod-anonymous .mod-enumerated,
+.mod-pedal-lata{{{cns}}}.mod-anonymous .mod-control-group .mod-knob > span.mod-knob-title
+{
+    color: #c00;
+}
+.mod-pedal-lata{{{cns}}}.mod-atomic .mod-control-group .mod-knob > span.mod-knob-title
+{
+    background: black;
+}
+.mod-pedal-lata{{{cns}}}.mod-humphreys h1
+{
+    border-color:white;
+}
+.mod-pedal-lata{{{cns}}}.mod-che h1,
+.mod-pedal-lata{{{cns}}}.mod-darkblue h1,
+.mod-pedal-lata{{{cns}}}.mod-camouflage h1,
+.mod-pedal-lata{{{cns}}}.mod-black h1,
+.mod-pedal-lata{{{cns}}}.mod-racing h1,
+.mod-pedal-lata{{{cns}}}.mod-red h1,
+.mod-pedal-lata{{{cns}}}.mod-brown h1,
+.mod-pedal-lata{{{cns}}}.mod-star h1,
+.mod-pedal-lata{{{cns}}}.mod-petrol h1,
+.mod-pedal-lata{{{cns}}}.mod-none h1,
+.mod-pedal-lata{{{cns}}}.mod-skull h1,
+.mod-pedal-lata{{{cns}}}.mod-purple h1,
+.mod-pedal-lata{{{cns}}}.mod-green h1
+{
+    border-color:white;
+}
+.mod-pedal-lata{{{cns}}}.mod-yellow h1,
+.mod-pedal-lata{{{cns}}}.mod-pink h1,
+.mod-pedal-lata{{{cns}}}.mod-cream h1,
+.mod-pedal-lata{{{cns}}}.mod-blue h1,
+.mod-pedal-lata{{{cns}}}.mod-orange h1,
+.mod-pedal-lata{{{cns}}}.mod-white h1,
+.mod-pedal-lata{{{cns}}}.mod-cyan h1,
+.mod-pedal-lata{{{cns}}}.mod-gray h1
+{
+    border-color:black;
+}
+
+/* STYLES FOR THE BOXY KNOB */
+
+/* = KNOBS
+================================================ */
+.mod-pedal-lata{{{cns}}} .mod-control-group {
+    height:141px;
+    left:0;
+    position:absolute;
+    right:0;
+    text-align:center;
+    top:36px;
+}
+
+.mod-pedal-lata{{{cns}}} .mod-control-group .mod-knob {
+    display:inline-block;
+    height:100px;
+    position:relative;
+    text-align:center;
+    width:79px;
+}
+
+.mod-pedal-lata{{{cns}}} .mod-control-group .mod-knob .mod-knob-image {
+    background-image:url(/resources/knobs/lata/lata.png{{{ns}}});
+    background-position:left center;
+    background-repeat:no-repeat;
+    background-size:auto 79px;
+    height:79px;
+    position:relative;
+    overflow:hidden;
+    width:79px;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-blue .mod-control-group .mod-knob > span.mod-knob-title {
+    color:black;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-brown .mod-control-group .mod-knob > span.mod-knob-title {
+    color:white;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-cream .mod-control-group .mod-knob > span.mod-knob-title {
+    color:black;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-darkblue .mod-control-group .mod-knob > span.mod-knob-title {
+    color:white;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-gray .mod-control-group .mod-knob > span.mod-knob-title {
+    color:black;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-green .mod-control-group .mod-knob > span.mod-knob-title {
+    color:white;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-orange .mod-control-group .mod-knob > span.mod-knob-title {
+    color:black;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-purple .mod-control-group .mod-knob > span.mod-knob-title {
+    color:white;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-red .mod-control-group .mod-knob > span.mod-knob-title {
+    color:black;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-white .mod-control-group .mod-knob > span.mod-knob-title {
+    color:black;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-yellow .mod-control-group .mod-knob > span.mod-knob-title {
+    color:black;
+}
+
+.mod-pedal-lata{{{cns}}} .mod-control-group .mod-knob > span.mod-knob-title {
+    bottom:6px;
+    display:block;
+    font-size:11px;
+    font-weight:bold;
+    height:11px;
+    left:0;
+    line-height:1;
+    margin:0;
+    overflow:hidden;
+    padding:0;
+    position:absolute;
+    right:0;
+    text-transform:uppercase;
+}
+
+.mod-pedal-lata{{{cns}}} .mod-control-group {
+    margin:20px;
+    position:relative;
+    text-align:center;
+    z-index:30;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-seven-knobs .mod-control-group,
+.mod-pedal-lata{{{cns}}}.mod-eight-knobs .mod-control-group {
+    margin:0 6px;
+}
+
+.mod-pedal-lata{{{cns}}}.mod-seven-knobs .mod-control-group .mod-knob,
+.mod-pedal-lata{{{cns}}}.mod-eight-knobs .mod-control-group .mod-knob {
+    display:inline-block;
+}
