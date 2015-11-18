@@ -16,7 +16,7 @@ TB_SVEL34_250k     = fconstant(int TRANY_TABLE_SVEL34_250k,  "trany.h");
 
 tranystageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : trany : hpf with {
     lpfk = lowpass(1,fck);
-    anti_aliase = lowpass3e(SR/2);
+    anti_aliase = lowpass(3,SR/2.1);
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
     trany = (+ : -(Vk0) : Ftrany(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);
@@ -25,7 +25,7 @@ tranystageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : trany : hpf with {
 
 tranystageB(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : trany : hpf with {
     lpfk = lowpass(1,fck);
-    anti_aliase = lowpass3e(SR/2);
+    anti_aliase = lowpass(3,SR/2.1);
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
     trany = (+ : -(Vk0) : Ftrany(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);

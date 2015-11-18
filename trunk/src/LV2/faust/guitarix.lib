@@ -100,8 +100,9 @@ TB_EF86_250k     = fconstant(int TUBE_TABLE_EF86_250k,  "valve.h");
 TB_SVEL34_68k    = fconstant(int TUBE_TABLE_SVEL34_68k,   "valve.h");
 TB_SVEL34_250k   = fconstant(int TUBE_TABLE_SVEL34_250k,  "valve.h");
 
-tubestageF(tb,vplus,divider,fck,Rk,Vk0) = +(no_denormal) : tube : hpf with {
+tubestageF(tb,vplus,divider,fck,Rk,Vk0) = +(no_denormal) : anti_aliase: tube : hpf with {
     lpfk = lowpass(1,fck);
+    anti_aliase = lowpass(3,SR/2.1);
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
     tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) :+(no_denormal) : lpfk) : /(divider);
@@ -110,8 +111,9 @@ tubestageF(tb,vplus,divider,fck,Rk,Vk0) = +(no_denormal) : tube : hpf with {
 
 // SHP : This version allows user setting of Vplus and Divider
 // Useful as many circuits do not have 100K default here ( marshall preamps, all power tubes etc )
-tubestageP(tb,vplus,divider,Rp,fck,Rk,Vk0) = tube : hpf with {
+tubestageP(tb,vplus,divider,Rp,fck,Rk,Vk0) = anti_aliase : tube : hpf with {
     lpfk = lowpass(1,fck);
+    anti_aliase = lowpass(3,SR/2.1);
     VkC = Vk0 * (Rp/Rk);
     tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);
     hpf = highpass(1,31.0);

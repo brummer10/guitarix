@@ -92,7 +92,7 @@ TB_6C16_250k  = fconstant(int TUBE_TABLE_6C16_250k,  "valve.h");
 
 tubestageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : tube : hpf with {
     lpfk = lowpass(1,fck);
-    anti_aliase = lowpass3e(SR/2);
+    anti_aliase = lowpass(3,SR/2.1);
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
     tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);
