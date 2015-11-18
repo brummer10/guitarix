@@ -87,7 +87,7 @@ rdfs:comment """
         lv2:portProperty lv2:enumeration ;
         lv2:default 0 ;
         lv2:minimum 0 ;
-        lv2:maximum 3 ;
+        lv2:maximum 54 ;
         lv2:scalePoint [rdfs:label "(Chromatic)"; rdf:value 0];
         lv2:scalePoint [rdfs:label "Standard/E"; rdf:value 1];
         lv2:scalePoint [rdfs:label "Standard/Es"; rdf:value 2];
