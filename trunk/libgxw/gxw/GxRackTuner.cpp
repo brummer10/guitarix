@@ -288,34 +288,45 @@ gint gx_rack_tuner_get_limit_timestep(GxRackTuner *tuner)
 
 void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
 {
-	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->temperament = temperament;
-	tuner->target_adjust = 3;
-    if (tuner->temperament == 0) {
+    g_assert(GX_IS_RACK_TUNER(tuner));
+    tuner->temperament = temperament;
+    switch(tuner->temperament) {
+    case  0:
         tuner->target_temperament = 12;
+        tuner->target_adjust = 3;
         if (tuner->display_flat) {
             tuner->note = note_flat;
         } else {
             tuner->note = note_sharp;
         }
-    } else if (tuner->temperament == 1) {
+        break;
+    case 1: 
         tuner->target_temperament = 19;
         tuner->target_adjust = 6;
         tuner->note = note_19;
-    } else if (tuner->temperament == 2) {
+        break;
+    case 2: 
         tuner->target_temperament = 24;
         tuner->target_adjust = 7;
         tuner->note = note_24;
-	} else if (tuner->temperament == 3) {
+        break;
+    case 3: 
         tuner->target_temperament = 31;
         tuner->target_adjust = 9;
         tuner->note = note_31;
-	} else if (tuner->temperament == 4) {
+        break;
+    case 4:
         tuner->target_temperament = 53;
         tuner->target_adjust = 15;
         tuner->note = note_53;
-	}
-	g_object_notify(G_OBJECT(tuner), "temperament");
+        break;
+    default:
+        tuner->target_temperament = 12;
+        tuner->target_adjust = 3;
+        tuner->note = note_sharp;
+        break;
+    }
+    g_object_notify(G_OBJECT(tuner), "temperament");
 }
 
 gint gx_rack_tuner_get_temperament(GxRackTuner *tuner)

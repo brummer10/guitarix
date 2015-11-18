@@ -2152,9 +2152,9 @@ void MainWindow::on_msg_level_changed() {
     }
 }
 
-static void toggle_action(Glib::RefPtr<Gtk::ToggleAction> act) {
-    act->set_active(!act->get_active());
-}
+//static void toggle_action(Glib::RefPtr<Gtk::ToggleAction> act) {
+//    act->set_active(!act->get_active());
+//}
 
 void MainWindow::on_ampdetail_switch(bool compress, bool setparam) {
     if (compress) {

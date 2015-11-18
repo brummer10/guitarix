@@ -1554,6 +1554,14 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d, gx_sys
 	}
 	return;
     }
+    
+    // check if plugin instantiate
+    // LilvInstance* instance = lilv_plugin_instantiate(plugin, 48000, 0);
+    // if (!instance) { 
+    //     return;
+    // }
+    // lilv_instance_free(instance);
+
     PluginDesc* p = d[lilv_node_as_string(lilv_plugin_get_uri(plugin))] = new PluginDesc(world, plugin, tp, ctrl_ports);
     pdata.has_preset = false;
     if (options.reload_lv2_presets) {
