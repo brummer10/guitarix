@@ -212,9 +212,11 @@ vibe_mono_lfo_ctrl = environment {
 ** reverb building blocks
 */
 
-opf(a) = (_+_*(1-a)~@(1)*a); 
+opf(a) = (_+_*(1-a)~@(1)*a);
 
-allpass(dt,fb) = (+ <:(@(dt):_),*(fb)) ~ *(-fb) : mem,_ : + ;
+allpass(dt,fb) = (_,_ <: (*(fb),_:+:@(dt)), -) ~ _ : (!,_);
+
+//allpass(dt,fb) = (+ <:(@(dt):_),*(fb)) ~ *(-fb) : mem,_ : + ;
 allpass_with_fdelay(dt1,coef,dt2,dt2pos) = 
 	(_,_ <: (*(coef),_:+:@(dt1):fdelay(dt2,dt2pos)), -) ~ _ : (!,_);
 
