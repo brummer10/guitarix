@@ -111,9 +111,9 @@ rdfs:comment """
         lv2:index 4 ;
         lv2:symbol "fslider4_" ;
         lv2:name "Presence";
-        lv2:default 0.0 ;
-        lv2:minimum 10.0 ;
-        lv2:maximum 0.01 ;
+        lv2:default 0.01 ;
+        lv2:minimum 0.01 ;
+        lv2:maximum 10.0 ;
     ] ,
      [
         a lv2:InputPort ,
