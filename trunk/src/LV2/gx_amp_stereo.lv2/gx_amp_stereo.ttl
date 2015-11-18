@@ -30,7 +30,6 @@
 @prefix opt:  <http://lv2plug.in/ns/ext/options#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 @prefix work:  <http://lv2plug.in/ns/ext/worker#> .
-@prefix modgui: <http://moddevices.com/ns/modgui#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -308,13 +307,6 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:index 18 ;
         lv2:symbol "in1" ;
         lv2:name "In1" ;
-    ] ;
-    modgui:gui [
-        modgui:resourcesDirectory <modgui>;
-        modgui:iconTemplate <modgui/gx_amp_stereo.html>;
-        modgui:templateData <modgui/gx_amp_stereo.json>;
-        modgui:screenshot <modgui/gx_amp_stereo.png>;
-        modgui:thumbnail <modgui/gx_amp_stereo-thumb.png>;
     ] .
 
 

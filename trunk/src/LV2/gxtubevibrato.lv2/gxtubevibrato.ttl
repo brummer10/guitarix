@@ -24,7 +24,6 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix modgui: <http://moddevices.com/ns/modgui#> .
 @prefix time: <http://lv2plug.in/ns/ext/time#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 
@@ -113,17 +112,9 @@ Sounds very sweet with tubes wrapped
         lv2:index 5 ;
         lv2:symbol "in" ;
         lv2:name "In"
-    ] ;
-    modgui:gui [
-        modgui:resourcesDirectory <modgui>;
-        modgui:iconTemplate <modgui/gxtubevibrato.html>;
-        modgui:templateData <modgui/gxtubevibrato.json>;
-        modgui:screenshot <modgui/gxtubevibrato.png>;
-        modgui:thumbnail <modgui/gxtubevibrato-thumb.png>;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gxtubevibrato#gui>
   a guiext:GtkUI;
   guiext:binary <gxtubevibrato_gui.so>;
   guiext:requiredFeature guiext:makeResident .
-  

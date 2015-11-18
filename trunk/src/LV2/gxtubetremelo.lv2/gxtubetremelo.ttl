@@ -24,7 +24,6 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix modgui: <http://moddevices.com/ns/modgui#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -111,17 +110,9 @@ http://transmogrifox.webs.com/vactrol.m
         lv2:index 5 ;
         lv2:symbol "in" ;
         lv2:name "In"
-    ];
-    modgui:gui [
-        modgui:resourcesDirectory <modgui>;
-        modgui:iconTemplate <modgui/gxtubetremelo.html>;
-        modgui:templateData <modgui/gxtubetremelo.json>;
-        modgui:screenshot <modgui/gxtubetremelo.png>;
-        modgui:thumbnail <modgui/gxtubetremelo-thumb.png>;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gxtubetremelo#gui>
   a guiext:GtkUI;
   guiext:binary <gxtubetremelo_gui.so>;
   guiext:requiredFeature guiext:makeResident .
-  

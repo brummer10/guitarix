@@ -24,7 +24,6 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix modgui: <http://moddevices.com/ns/modgui#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -101,13 +100,6 @@ All other trademarks are the property of their respective holders.'
         lv2:index 4 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ] ;
-    modgui:gui [
-        modgui:resourcesDirectory <modgui>;
-        modgui:iconTemplate <modgui/gxts9.html>;
-        modgui:templateData <modgui/gxts9.json>;
-        modgui:screenshot <modgui/gxts9.png>;
-        modgui:thumbnail <modgui/gxts9-thumb.png>;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gxts9#gui>

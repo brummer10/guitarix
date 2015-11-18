@@ -24,7 +24,6 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix modgui: <http://moddevices.com/ns/modgui#> .
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 @prefix time: <http://lv2plug.in/ns/ext/time#>.
 
@@ -154,13 +153,6 @@ A stereo echo plugin with independent delay time and delay volume for each chann
         lv2:index 10 ;
         lv2:symbol "in1" ;
         lv2:name "In1" ;
-    ] ;
-    modgui:gui [
-        modgui:resourcesDirectory <modgui>;
-        modgui:iconTemplate <modgui/gx_echo.html>;
-        modgui:templateData <modgui/gx_echo.json>;
-        modgui:screenshot <modgui/gx_echo.png>;
-        modgui:thumbnail <modgui/gx_echo-thumb.png>;
     ] .
 
 

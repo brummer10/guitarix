@@ -24,7 +24,6 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix modgui: <http://moddevices.com/ns/modgui#> .
 @prefix time: <http://lv2plug.in/ns/ext/time#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 
@@ -116,17 +115,9 @@ Model of a vactrol tremolo unit by "transmogrify"
         lv2:index 5 ;
         lv2:symbol "in" ;
         lv2:name "In" ;
-    ] ;
-    modgui:gui [
-        modgui:resourcesDirectory <modgui>;
-        modgui:iconTemplate <modgui/gx_tremolo.html>;
-        modgui:templateData <modgui/gx_tremolo.json>;
-        modgui:screenshot <modgui/gx_tremolo.png>;
-        modgui:thumbnail <modgui/gx_tremolo-thumb.png>;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_tremolo#gui>
   a guiext:GtkUI;
   guiext:binary <gx_tremolo_gui.so>;
   guiext:requiredFeature guiext:makeResident .
-  
