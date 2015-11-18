@@ -1,0 +1,38 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_reverb_stereo#_reverb_stereo>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxreverb-stereo.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxreverb-stereo.css> ;
+        modgui:screenshot <modgui/screenshot-gxreverb-stereo.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxreverb-stereo.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Reverb Stereo" ;
+        modgui:model "boxy" ;
+        modgui:panel "5-knobs" ;
+        modgui:color "blue" ;
+        modgui:knob "silver" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "roomsize" ;
+            lv2:name "Roomsize" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "damp" ;
+            lv2:name "Damping" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "dry_wet" ;
+            lv2:name "Mix" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "lfo" ;
+            lv2:name "LFO" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "mode" ;
+            lv2:name "Mode" ;
+        ] ;
+    ] .

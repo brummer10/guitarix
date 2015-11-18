@@ -1,0 +1,26 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_hogsfoot_#_hogsfoot_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxhogsfoot.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxhogsfoot.css> ;
+        modgui:screenshot <modgui/screenshot-gxhogsfoot.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxhogsfoot.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "HogsFoot" ;
+        modgui:model "boxy" ;
+        modgui:panel "2-knobs" ;
+        modgui:color "wood2" ;
+        modgui:knob "black" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "VOLUME" ;
+            lv2:name "VOLUME" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "WET_DRY" ;
+            lv2:name "Mix" ;
+        ] ;
+    ] .

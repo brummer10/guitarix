@@ -1,0 +1,26 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_susta_#_susta_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxsustainer.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxsustainer.css> ;
+        modgui:screenshot <modgui/screenshot-gxsustainer.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxsustainer.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Sustainer" ;
+        modgui:model "boxy" ;
+        modgui:panel "2-knobs" ;
+        modgui:color "slime" ;
+        modgui:knob "bronze" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "SUSTAIN" ;
+            lv2:name "SUSTAIN" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "VOLUME" ;
+            lv2:name "Level" ;
+        ] ;
+    ] .

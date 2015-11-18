@@ -1,0 +1,34 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gxtubetremelo#tubetremelo>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxtubetremelo.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxtubetremelo.css> ;
+        modgui:screenshot <modgui/screenshot-gxtubetremelo.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxtubetremelo.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Tube Tremelo" ;
+        modgui:model "boxy" ;
+        modgui:panel "5-knobs" ;
+        modgui:color "racing" ;
+        modgui:knob "black" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "depth" ;
+            lv2:name "Depth" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "speed" ;
+            lv2:name "Speed" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "gain" ;
+            lv2:name "Level" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "sinewave" ;
+            lv2:name "Wave" ;
+        ] ;
+    ] .

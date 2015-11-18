@@ -1,0 +1,34 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_fuzz_#fuzz_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxfuzz.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxfuzz.css> ;
+        modgui:screenshot <modgui/screenshot-gxfuzz.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxfuzz.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Fuzz" ;
+        modgui:model "boxy" ;
+        modgui:panel "4-knobs" ;
+        modgui:color "black" ;
+        modgui:knob "black" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "OUTPUT" ;
+            lv2:name "OUTPUT" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "TONE" ;
+            lv2:name "TONE" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "DRIVE" ;
+            lv2:name "DRIVE" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "INPUT" ;
+            lv2:name "INPUT" ;
+        ] ;
+    ] .

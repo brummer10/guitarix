@@ -1,0 +1,48 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+###############################################################################
+## START http://guitarix.sourceforge.net/plugins/gxautowah#autowah
+
+<http://guitarix.sourceforge.net/plugins/gxautowah#autowah>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxautowah.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxautowah.css> ;
+        modgui:screenshot <modgui/screenshot-gxautowah.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxautowah.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "GxAutoWah" ;
+        modgui:model "boxy-small" ;
+        modgui:panel "1-footswitch" ;
+        modgui:color "zinc" ;
+    ] .
+
+## END http://guitarix.sourceforge.net/plugins/gxautowah#autowah
+###############################################################################
+
+###############################################################################
+## START http://guitarix.sourceforge.net/plugins/gxautowah#wah
+
+<http://guitarix.sourceforge.net/plugins/gxautowah#wah>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxwah.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxwah.css> ;
+        modgui:screenshot <modgui/screenshot-gxwah.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxwah.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Wah" ;
+        modgui:model "boxy" ;
+        modgui:panel "1-knob" ;
+        modgui:color "warning" ;
+        modgui:knob "bronze" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "fslider1_" ;
+            lv2:name "Wah!" ;
+        ] ;
+    ] .
+
+## END http://guitarix.sourceforge.net/plugins/gxautowah#wah
+###############################################################################

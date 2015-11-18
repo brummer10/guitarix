@@ -1,0 +1,66 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_barkgraphiceq_#_barkgraphiceq_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxbarkgraphiceq.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxbarkgraphiceq.css> ;
+        modgui:screenshot <modgui/screenshot-gxbarkgraphiceq.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxbarkgraphiceq.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Bark Graphic EQ" ;
+        modgui:model "boxy" ;
+        modgui:panel "12-sliders" ;
+        modgui:color "white" ;
+        modgui:knob "silver" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "G1" ;
+            lv2:name "Frq1" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "G2" ;
+            lv2:name "Frq2" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "G3" ;
+            lv2:name "Frq3" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "G4" ;
+            lv2:name "Frq4" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "G5" ;
+            lv2:name "Frq" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "G6" ;
+            lv2:name "Frq6" ;
+        ] , [
+            lv2:index 6 ;
+            lv2:symbol "G7" ;
+            lv2:name "Frq7" ;
+        ] , [
+            lv2:index 7 ;
+            lv2:symbol "G8" ;
+            lv2:name "Frq8" ;
+        ] , [
+            lv2:index 8 ;
+            lv2:symbol "G9" ;
+            lv2:name "Frq9" ;
+        ] , [
+            lv2:index 9 ;
+            lv2:symbol "G10" ;
+            lv2:name "Frq10" ;
+        ] , [
+            lv2:index 10 ;
+            lv2:symbol "G11" ;
+            lv2:name "Frq11" ;
+        ] , [
+            lv2:index 11 ;
+            lv2:symbol "G12" ;
+            lv2:name "Frq12" ;
+        ] ;
+    ] .

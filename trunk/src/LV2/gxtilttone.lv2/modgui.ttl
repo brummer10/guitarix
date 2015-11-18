@@ -1,0 +1,30 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gxtilttone#tilttone>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxtilttone.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxtilttone.css> ;
+        modgui:screenshot <modgui/screenshot-gxtilttone.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxtilttone.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Tilt Tone" ;
+        modgui:model "boxy" ;
+        modgui:panel "3-knobs" ;
+        modgui:color "zinc" ;
+        modgui:knob "aluminium" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "gain" ;
+            lv2:name "Level" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "tone" ;
+            lv2:name "Tone" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "drive" ;
+            lv2:name "Drive" ;
+        ] ;
+    ] .

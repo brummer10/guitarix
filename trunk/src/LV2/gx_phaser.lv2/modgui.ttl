@@ -1,0 +1,30 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_phaser#_phaser>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxphaser.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxphaser.css> ;
+        modgui:screenshot <modgui/screenshot-gxphaser.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxphaser.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Phaser" ;
+        modgui:model "boxy" ;
+        modgui:panel "3-knobs" ;
+        modgui:color "petrol" ;
+        modgui:knob "copper" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "speed" ;
+            lv2:name "Rate" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "level" ;
+            lv2:name "LEVEL" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "dry_wet" ;
+            lv2:name "Mix" ;
+        ] ;
+    ] .

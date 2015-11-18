@@ -1,0 +1,49 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_studiopre_st#studiopre_st>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gx-studio-preamp-stereo.html> ;
+        modgui:stylesheet <modgui/stylesheet-gx-studio-preamp-stereo.css> ;
+        modgui:screenshot <modgui/screenshot-gx-studio-preamp-stereo.png> ;
+        modgui:thumbnail <modgui/thumbnail-gx-studio-preamp-stereo.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Stereo Studio Preamp" ;
+        modgui:model "lata" ;
+        modgui:panel "8-knobs" ;
+        modgui:color "racing" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "bass_l" ;
+            lv2:name "Bass L" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "middle_l" ;
+            lv2:name "Mid L" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "treble_l" ;
+            lv2:name "Treble L" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "bright_l" ;
+            lv2:name "Bright L" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "bass_r" ;
+            lv2:name "Bass R" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "middle_r" ;
+            lv2:name "Mid R" ;
+        ] , [
+            lv2:index 6 ;
+            lv2:symbol "treble_r" ;
+            lv2:name "Treble R" ;
+        ] , [
+            lv2:index 7 ;
+            lv2:symbol "bright_r" ;
+            lv2:name "Bright R" ;
+        ] ;
+    ] .

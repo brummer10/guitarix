@@ -1,0 +1,66 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_shimmizita_#_shimmizita_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxshimmizita.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxshimmizita.css> ;
+        modgui:screenshot <modgui/screenshot-gxshimmizita.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxshimmizita.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Shimmizita" ;
+        modgui:model "boxy" ;
+        modgui:panel "12-sliders" ;
+        modgui:color "wood4" ;
+        modgui:knob "bronze" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "SPEED" ;
+            lv2:name "Rat" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "DEPTH" ;
+            lv2:name "DEP" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "SHIFT" ;
+            lv2:name "SHIFT" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "F1" ;
+            lv2:name "F1" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "F2" ;
+            lv2:name "F2" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "T60DS" ;
+            lv2:name "T60DS" ;
+        ] , [
+            lv2:index 6 ;
+            lv2:symbol "T60M" ;
+            lv2:name "T60M" ;
+        ] , [
+            lv2:index 7 ;
+            lv2:symbol "DRYWET" ;
+            lv2:name "Mix" ;
+        ] , [
+            lv2:index 8 ;
+            lv2:symbol "MODE" ;
+            lv2:name "MOD" ;
+        ] , [
+            lv2:index 9 ;
+            lv2:symbol "CONTROL" ;
+            lv2:name "CON" ;
+        ] , [
+            lv2:index 10 ;
+            lv2:symbol "ENVELOPE" ;
+            lv2:name "ENV" ;
+        ] , [
+            lv2:index 11 ;
+            lv2:symbol "PSDRYWET" ;
+            lv2:name "PSMix" ;
+        ] ;
+    ] .

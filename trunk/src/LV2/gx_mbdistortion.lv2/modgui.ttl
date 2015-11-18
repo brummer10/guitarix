@@ -1,0 +1,74 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_mbdistortion_#_mbdistortion_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxmultibanddistortion.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxmultibanddistortion.css> ;
+        modgui:screenshot <modgui/screenshot-gxmultibanddistortion.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxmultibanddistortion.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "GxMultiBandDisto" ;
+        modgui:model "boxy" ;
+        modgui:panel "8-knobs" ;
+        modgui:color "warning" ;
+        modgui:knob "copper" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "DRIVE1" ;
+            lv2:name "DRIVE 1" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "DRIVE2" ;
+            lv2:name "DRIVE 2" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "DRIVE3" ;
+            lv2:name "DRIVE 3" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "DRIVE4" ;
+            lv2:name "DRIVE 4" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "DRIVE5" ;
+            lv2:name "DRIVE 5" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "OFFSET1" ;
+            lv2:name "OFFSET 1" ;
+        ] , [
+            lv2:index 6 ;
+            lv2:symbol "OFFSET2" ;
+            lv2:name "OFFST 2" ;
+        ] , [
+            lv2:index 7 ;
+            lv2:symbol "OFFSET3" ;
+            lv2:name "OFFST 3" ;
+        ] , [
+            lv2:index 8 ;
+            lv2:symbol "OFFSET4" ;
+            lv2:name "OFFST 4" ;
+        ] , [
+            lv2:index 9 ;
+            lv2:symbol "OFFSET5" ;
+            lv2:name "OFFST 5" ;
+        ] , [
+            lv2:index 10 ;
+            lv2:symbol "CROSSOVER_B1_B2" ;
+            lv2:name "CROSS 1/2" ;
+        ] , [
+            lv2:index 11 ;
+            lv2:symbol "CROSSOVER_B2_B3" ;
+            lv2:name "CROSS 2/3" ;
+        ] , [
+            lv2:index 12 ;
+            lv2:symbol "CROSSOVER_B3_B4" ;
+            lv2:name "CROSS 3/4" ;
+        ] , [
+            lv2:index 13 ;
+            lv2:symbol "CROSSOVER_B4_B5" ;
+            lv2:name "CROSS 4/5" ;
+        ] ;
+    ] .

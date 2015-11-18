@@ -1,0 +1,42 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_flanger#_flanger>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxflanger.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxflanger.css> ;
+        modgui:screenshot <modgui/screenshot-gxflanger.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxflanger.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Flanger" ;
+        modgui:model "boxy" ;
+        modgui:panel "6-knobs" ;
+        modgui:color "slime" ;
+        modgui:knob "purple" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "depth" ;
+            lv2:name "DEPTH" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "freq" ;
+            lv2:name "Rate" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "mix" ;
+            lv2:name "MIX" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "feedback" ;
+            lv2:name "FEEDBACK" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "width" ;
+            lv2:name "WIDTH" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "dry_wet" ;
+            lv2:name "WET" ;
+        ] ;
+    ] .

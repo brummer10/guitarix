@@ -1,0 +1,21 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_livelooper_#_livelooper_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxlivelooper.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxlivelooper.css> ;
+        modgui:screenshot <modgui/screenshot-gxlivelooper.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxlivelooper.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Livelooper" ;
+        modgui:model "boxy-small" ;
+        modgui:panel "1-footswitch" ;
+        modgui:color "wood2" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "mix" ;
+            lv2:name "mix" ;
+        ] ;
+    ] .

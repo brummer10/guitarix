@@ -1,0 +1,40 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_jcm800pre_#_jcm800pre_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxjcm800pre.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxjcm800pre.css> ;
+        modgui:screenshot <modgui/screenshot-gxjcm800pre.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxjcm800pre.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "JCM800 pre" ;
+        modgui:model "combo-model-001" ;
+        modgui:panel "0778" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "P6v" ;
+            lv2:name "Pre Amp" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "Bass" ;
+            lv2:name "Bass" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "Middle" ;
+            lv2:name "Middle" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "Treble" ;
+            lv2:name "Treble" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "WET_DRY" ;
+            lv2:name "Presence" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "GAIN" ;
+            lv2:name "Master Volume" ;
+        ] ;
+    ] .

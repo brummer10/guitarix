@@ -1,0 +1,32 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_cabinet#CABINET>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxcabinet.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxcabinet.css> ;
+        modgui:screenshot <modgui/screenshot-gxcabinet.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxcabinet.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "GxCabinet" ;
+        modgui:model "head-model-001" ;
+        modgui:panel "0550" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "c_model" ;
+            lv2:name "Cab Model" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "CBass" ;
+            lv2:name "Bass" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "CTreble" ;
+            lv2:name "Treble" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "CLevel" ;
+            lv2:name "Cabinet" ;
+        ] ;
+    ] .

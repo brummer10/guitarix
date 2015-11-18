@@ -1,0 +1,26 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_hfb_#_hfb_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxhfbrightener.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxhfbrightener.css> ;
+        modgui:screenshot <modgui/screenshot-gxhfbrightener.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxhfbrightener.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "HF Brightener" ;
+        modgui:model "boxy" ;
+        modgui:panel "2-knobs" ;
+        modgui:color "white" ;
+        modgui:knob "silver" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "INTENSITY" ;
+            lv2:name "INTENSITY" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "VOLUME" ;
+            lv2:name "LEVEL" ;
+        ] ;
+    ] .

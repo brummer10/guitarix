@@ -1,0 +1,38 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_room_simulator_#_room_simulator_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxroomsimulator.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxroomsimulator.css> ;
+        modgui:screenshot <modgui/screenshot-gxroomsimulator.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxroomsimulator.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Room Simulator" ;
+        modgui:model "boxy" ;
+        modgui:panel "5-knobs" ;
+        modgui:color "dots" ;
+        modgui:knob "silver" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "RT" ;
+            lv2:name "Decay" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "ROOMSIZE" ;
+            lv2:name "ROOMSIZE" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "DRYWET" ;
+            lv2:name "Mix" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "PREDELAYMS" ;
+            lv2:name "PREDELAY" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "EFFECT" ;
+            lv2:name "EFFECT" ;
+        ] ;
+    ] .

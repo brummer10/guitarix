@@ -1,0 +1,26 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gxbooster#booster>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxbooster.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxbooster.css> ;
+        modgui:screenshot <modgui/screenshot-gxbooster.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxbooster.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Booster" ;
+        modgui:model "boxy" ;
+        modgui:panel "2-knobs" ;
+        modgui:color "zinc" ;
+        modgui:knob "black" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "fslider0_" ;
+            lv2:name "H Level" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "fslider1_" ;
+            lv2:name "B Level" ;
+        ] ;
+    ] .

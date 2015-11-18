@@ -1,0 +1,38 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_studiopre#studiopre>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gx-alembic-mono.html> ;
+        modgui:stylesheet <modgui/stylesheet-gx-alembic-mono.css> ;
+        modgui:screenshot <modgui/screenshot-gx-alembic-mono.png> ;
+        modgui:thumbnail <modgui/thumbnail-gx-alembic-mono.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Alembic Mono" ;
+        modgui:model "boxy" ;
+        modgui:panel "5-knobs" ;
+        modgui:color "racing" ;
+        modgui:knob "copper" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "bass" ;
+            lv2:name "Bass" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "middle" ;
+            lv2:name "Mid" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "treble" ;
+            lv2:name "Treble" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "bright" ;
+            lv2:name "Bright" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "volume" ;
+            lv2:name "Level" ;
+        ] ;
+    ] .

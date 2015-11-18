@@ -1,0 +1,154 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_mbcompressor_#_mbcompressor_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxmultibandcompressor.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxmultibandcompressor.css> ;
+        modgui:screenshot <modgui/screenshot-gxmultibandcompressor.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxmultibandcompressor.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "GxMultiBandCompr" ;
+        modgui:model "boxy" ;
+        modgui:panel "1-select-3-knobs" ;
+        modgui:color "wood3" ;
+        modgui:knob "black" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "MODE1" ;
+            lv2:name "MODE1" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "MODE2" ;
+            lv2:name "MODE2" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "MODE3" ;
+            lv2:name "MODE3" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "MODE4" ;
+            lv2:name "MODE4" ;
+        ]  , [
+            lv2:index 4 ;
+            lv2:symbol "MODE5" ;
+            lv2:name "MODE5" ;
+        ] , [
+            lv2:index 5;
+            lv2:symbol "MAKEUP1" ;
+            lv2:name "GAIN 1" ;
+        ] , [
+            lv2:index 6;
+            lv2:symbol "MAKEUPTHRESHOLD1" ;
+            lv2:name "Thresh 1" ;
+        ] , [
+            lv2:index 7;
+            lv2:symbol "RATIO1" ;
+            lv2:name "Ratio 1" ;
+        ] , [
+            lv2:index 8;
+            lv2:symbol "ATTACK1" ;
+            lv2:name "Att 1" ;
+        ] , [
+            lv2:index 9;
+            lv2:symbol "RELEASE1" ;
+            lv2:name "Rel 1" ;
+        ] , [
+            lv2:index 10;
+            lv2:symbol "MAKEUP2" ;
+            lv2:name "GAIN 2" ;
+        ] , [
+            lv2:index 11;
+            lv2:symbol "MAKEUPTHRESHOLD2" ;
+            lv2:name "Thresh 2" ;
+        ] , [
+            lv2:index 12;
+            lv2:symbol "RATIO2" ;
+            lv2:name "Ratio 2" ;
+        ] , [
+            lv2:index 13;
+            lv2:symbol "ATTACK2" ;
+            lv2:name "Att 2" ;
+        ] , [
+            lv2:index 15;
+            lv2:symbol "RELEASE2" ;
+            lv2:name "Rel 2" ;
+        ] , [
+            lv2:index 16;
+            lv2:symbol "MAKEUP3" ;
+            lv2:name "GAIN3" ;
+        ] , [
+            lv2:index 17;
+            lv2:symbol "MAKEUPTHRESHOLD3" ;
+            lv2:name "Thresh 3" ;
+        ] , [
+            lv2:index 18;
+            lv2:symbol "RATIO3" ;
+            lv2:name "Ratio 3" ;
+        ] , [
+            lv2:index 19;
+            lv2:symbol "ATTACK3" ;
+            lv2:name "Att 3" ;
+        ] , [
+            lv2:index 20;
+            lv2:symbol "RELEASE3" ;
+            lv2:name "Rel 3" ;
+        ] , [
+            lv2:index 21;
+            lv2:symbol "MAKEUP4" ;
+            lv2:name "GAIN 4" ;
+        ] , [
+            lv2:index 22;
+            lv2:symbol "MAKEUPTHRESHOLD4" ;
+            lv2:name "Thresh 4" ;
+        ] , [
+            lv2:index 23;
+            lv2:symbol "RATIO4" ;
+            lv2:name "Ratio 4" ;
+        ] , [
+            lv2:index 24;
+            lv2:symbol "ATTACK4" ;
+            lv2:name "Att 5" ;
+        ] , [
+            lv2:index 25;
+            lv2:symbol "RELEASE4" ;
+            lv2:name "Rel 4" ;
+        ] , [
+            lv2:index 26;
+            lv2:symbol "MAKEUP5" ;
+            lv2:name "GAIN 5" ;
+        ] , [
+            lv2:index 27;
+            lv2:symbol "MAKEUPTHRESHOLD5" ;
+            lv2:name "Thresh 5" ;
+        ] , [
+            lv2:index 28;
+            lv2:symbol "RATIO5" ;
+            lv2:name "Ratio 5" ;
+        ] , [
+            lv2:index 29;
+            lv2:symbol "ATTACK5" ;
+            lv2:name "Att 5" ;
+        ] , [
+            lv2:index 30;
+            lv2:symbol "RELEASE5" ;
+            lv2:name "Rel 5" ;
+        ] , [
+            lv2:index 31
+            lv2:symbol "CROSSOVER_B1_B2" ;
+            lv2:name "Cross 1/2" ;
+        ] , [
+            lv2:index 32
+            lv2:symbol "CROSSOVER_B2_B3" ;
+            lv2:name "Cross 2/3" ;
+        ] , [
+            lv2:index 33
+            lv2:symbol "CROSSOVER_B3_B4" ;
+            lv2:name "Cross 3/4" ;
+        ] , [
+            lv2:index 34
+            lv2:symbol "CROSSOVER_B4_B5" ;
+            lv2:name "Cross 4/5" ;
+        ] ;
+    ] .

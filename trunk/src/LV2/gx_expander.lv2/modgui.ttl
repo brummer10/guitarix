@@ -1,0 +1,38 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_expander#_expander>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxexpander.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxexpander.css> ;
+        modgui:screenshot <modgui/screenshot-gxexpander.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxexpander.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Expander" ;
+        modgui:model "boxy" ;
+        modgui:panel "5-knobs" ;
+        modgui:color "wood3" ;
+        modgui:knob "black" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "THRESHOLD" ;
+            lv2:name "THRESH" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "RATIO" ;
+            lv2:name "RATIO" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "KNEE" ;
+            lv2:name "KNEE" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "ATTACK" ;
+            lv2:name "ATTACK" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "RELEASE" ;
+            lv2:name "RELEASE" ;
+        ] ;
+    ] .

@@ -1,0 +1,90 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+###############################################################################
+## START http://guitarix.sourceforge.net/plugins/gx_vibe_#_vibe_
+
+<http://guitarix.sourceforge.net/plugins/gx_vibe_#_vibe_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxvibe.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxvibe.css> ;
+        modgui:screenshot <modgui/screenshot-gxvibe.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxvibe.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Vibe" ;
+        modgui:model "boxy" ;
+        modgui:panel "6-knobs" ;
+        modgui:color "green" ;
+        modgui:knob "purple" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "DEPTH" ;
+            lv2:name "DEPTH" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "TEMPO" ;
+            lv2:name "Rate" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "WETDRY" ;
+            lv2:name "Mix" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "WIDTH" ;
+            lv2:name "WIDTH" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "FB" ;
+            lv2:name "Feedback" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "CROSS" ;
+            lv2:name "Xover" ;
+        ] ;
+    ] .
+    
+## END http://guitarix.sourceforge.net/plugins/gx_vibe_#_vibe_
+###############################################################################
+
+###############################################################################
+## START http://guitarix.sourceforge.net/plugins/gx_vibe_#_vibe_mono
+
+<http://guitarix.sourceforge.net/plugins/gx_vibe_#_vibe_mono>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxvibemono.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxvibemono.css> ;
+        modgui:screenshot <modgui/screenshot-gxvibemono.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxvibemono.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Vibe Mono" ;
+        modgui:model "boxy" ;
+        modgui:panel "5-knobs" ;
+        modgui:color "red" ;
+        modgui:knob "blue" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "TEMPO" ;
+            lv2:name "RATE" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "DEPTH" ;
+            lv2:name "DEPTH" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "WETDRY" ;
+            lv2:name "MIX" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "FB" ;
+            lv2:name "Feedback" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "WIDTH" ;
+            lv2:name "WIDTH" ;
+        ] ;
+    ] .
+
+## END http://guitarix.sourceforge.net/plugins/gx_vibe_#_vibe_mono
+###############################################################################

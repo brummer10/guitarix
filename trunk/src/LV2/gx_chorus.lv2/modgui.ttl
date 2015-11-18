@@ -1,0 +1,34 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_chorus_stereo#_chorus_stereo>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxchorus-stereo.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxchorus-stereo.css> ;
+        modgui:screenshot <modgui/screenshot-gxchorus-stereo.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxchorus-stereo.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Chorus Stereo" ;
+        modgui:model "boxy" ;
+        modgui:panel "5-knobs" ;
+        modgui:color "petrol" ;
+        modgui:knob "bronze" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "depth" ;
+            lv2:name "Depth" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "freq" ;
+            lv2:name "Rate" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "delay" ;
+            lv2:name "Delay" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "level" ;
+            lv2:name "Level" ;
+        ] ;
+    ] .

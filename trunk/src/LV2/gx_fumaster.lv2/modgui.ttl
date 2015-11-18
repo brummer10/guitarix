@@ -1,0 +1,30 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_fumaster_#_fumaster_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxfuzzmaster.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxfuzzmaster.css> ;
+        modgui:screenshot <modgui/screenshot-gxfuzzmaster.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxfuzzmaster.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "FuzzMaster" ;
+        modgui:model "boxy" ;
+        modgui:panel "3-knobs" ;
+        modgui:color "black" ;
+        modgui:knob "silver" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "VOLUME" ;
+            lv2:name "VOLUME" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "TONE" ;
+            lv2:name "TONE" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "WET_DRY" ;
+            lv2:name "MIX" ;
+        ] ;
+    ] .

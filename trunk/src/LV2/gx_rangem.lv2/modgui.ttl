@@ -1,0 +1,26 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_rangem_#_rangem_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxrangemaster.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxrangemaster.css> ;
+        modgui:screenshot <modgui/screenshot-gxrangemaster.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxrangemaster.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "RangeMaster" ;
+        modgui:model "boxy" ;
+        modgui:panel "2-knobs" ;
+        modgui:color "gray" ;
+        modgui:knob "black" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "BOOST" ;
+            lv2:name "BOOST" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "WET_DRY" ;
+            lv2:name "MIX" ;
+        ] ;
+    ] .

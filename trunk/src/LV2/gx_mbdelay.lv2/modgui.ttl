@@ -1,0 +1,94 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_mbdelay_#_mbdelay_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxmultibanddelay.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxmultibanddelay.css> ;
+        modgui:screenshot <modgui/screenshot-gxmultibanddelay.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxmultibanddelay.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "GxMultiBandDelay" ;
+        modgui:model "boxy" ;
+        modgui:panel "8-knobs" ;
+        modgui:color "tribal2" ;
+        modgui:knob "bronze" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "DELAY1" ;
+            lv2:name "DELAY 1" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "DELAY2" ;
+            lv2:name "DEL 2" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "DELAY3" ;
+            lv2:name "DEL 3" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "DELAY4" ;
+            lv2:name "DEL 4" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "DELAY5" ;
+            lv2:name "DEL 5" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "FEEDBACK1" ;
+            lv2:name "FeedBack 1" ;
+        ] , [
+            lv2:index 6 ;
+            lv2:symbol "FEEDBACK2" ;
+            lv2:name "FB 2" ;
+        ] , [
+            lv2:index 7 ;
+            lv2:symbol "FEEDBACK3" ;
+            lv2:name "FB 3" ;
+        ] , [
+            lv2:index 8 ;
+            lv2:symbol "FEEDBACK4" ;
+            lv2:name "FB 4" ;
+        ], [
+            lv2:index 9 ;
+            lv2:symbol "FEEDBACK5" ;
+            lv2:name "FB 5" ;
+        ] , [
+            lv2:index 10 ;
+            lv2:symbol "GAIN1" ;
+            lv2:name "LVL 1" ;
+        ], [
+            lv2:index 11 ;
+            lv2:symbol "GAIN2" ;
+            lv2:name "LVL 2" ;
+        ], [
+            lv2:index 12 ;
+            lv2:symbol "GAIN3" ;
+            lv2:name "LVL 3" ;
+        ], [
+            lv2:index 13 ;
+            lv2:symbol "GAIN4" ;
+            lv2:name "LVL 4" ;
+        ], [
+            lv2:index 14 ;
+            lv2:symbol "GAIN5" ;
+            lv2:name "LVL 5" ;
+        ], [
+            lv2:index 15 ;
+            lv2:symbol "CROSSOVER_B1_B2" ;
+            lv2:name "Cross 1/2" ;
+        ], [
+            lv2:index 16 ;
+            lv2:symbol "CROSSOVER_B2_B3" ;
+            lv2:name "Cross 2/3" ;
+        ], [
+            lv2:index 17 ;
+            lv2:symbol "CROSSOVER_B3_B4" ;
+            lv2:name "Cross 3/4" ;
+        ], [
+            lv2:index 18 ;
+            lv2:symbol "CROSSOVER_B4_B5" ;
+            lv2:name "Cross 4/5" ;
+        ];
+    ] .

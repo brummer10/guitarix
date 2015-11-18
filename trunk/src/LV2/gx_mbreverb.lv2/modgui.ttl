@@ -1,0 +1,46 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_mbreverb_#_mbreverb_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxmultibandreverb.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxmultibandreverb.css> ;
+        modgui:screenshot <modgui/screenshot-gxmultibandreverb.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxmultibandreverb.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "MultiBandReverb" ;
+        modgui:model "boxy" ;
+        modgui:panel "7-knobs" ;
+        modgui:color "red" ;
+        modgui:knob "blue" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "ROOMSIZE1" ;
+            lv2:name "SIZE 1" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "ROOMSIZE2" ;
+            lv2:name "SIZE 2" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "ROOMSIZE3" ;
+            lv2:name "SIZE 3" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "ROOMSIZE4" ;
+            lv2:name "SIZE 4" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "ROOMSIZE5" ;
+            lv2:name "SIZE 5" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "CROSSOVER_B1_B2" ;
+            lv2:name "Xover12" ;
+        ] , [
+            lv2:index 6 ;
+            lv2:symbol "CROSSOVER_B2_B3" ;
+            lv2:name "Xover23" ;
+        ] ;
+    ] .

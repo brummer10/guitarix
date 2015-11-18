@@ -1,0 +1,38 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_duck_delay_#_duck_delay_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxduckdelay.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxduckdelay.css> ;
+        modgui:screenshot <modgui/screenshot-gxduckdelay.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxduckdelay.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Duck Delay" ;
+        modgui:model "boxy" ;
+        modgui:panel "5-knobs" ;
+        modgui:color "dots" ;
+        modgui:knob "blue" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "TIME" ;
+            lv2:name "TIME" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "FEEDBACK" ;
+            lv2:name "FEEDBACK" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "AMOUNT" ;
+            lv2:name "DUCK" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "ATTACK" ;
+            lv2:name "ATTACK" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "RELESE" ;
+            lv2:name "RELEASE" ;
+        ] ;
+    ] .

@@ -1,0 +1,22 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_scream_#_scream_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxscreamingbird.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxscreamingbird.css> ;
+        modgui:screenshot <modgui/screenshot-gxscreamingbird.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxscreamingbird.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "ScreamingBird" ;
+        modgui:model "boxy" ;
+        modgui:panel "1-knob" ;
+        modgui:color "dots" ;
+        modgui:knob "copper" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "SCREAM" ;
+            lv2:name "SCREAM" ;
+        ] ;
+    ] .

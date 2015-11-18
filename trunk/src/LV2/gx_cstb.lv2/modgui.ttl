@@ -1,0 +1,30 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_cstb_#_cstb_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxcolorsound-tonebender.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxcolorsound-tonebender.css> ;
+        modgui:screenshot <modgui/screenshot-gxcolorsound-tonebender.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxcolorsound-tonebender.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "ColorSound Tonebender" ;
+        modgui:model "boxy" ;
+        modgui:panel "3-knobs" ;
+        modgui:color "flowerpower" ;
+        modgui:knob "black" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "ATTACK" ;
+            lv2:name "ATTACK" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "LEVEL" ;
+            lv2:name "LEVEL" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "WET_DRY" ;
+            lv2:name "Mix" ;
+        ] ;
+    ] .

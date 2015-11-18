@@ -1,0 +1,46 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_digital_delay_#_digital_delay_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxdigitaldelay.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxdigitaldelay.css> ;
+        modgui:screenshot <modgui/screenshot-gxdigitaldelay.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxdigitaldelay.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Digital Delay" ;
+        modgui:model "boxy" ;
+        modgui:panel "7-knobs" ;
+        modgui:color "tribal2" ;
+        modgui:knob "copper" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "BPM" ;
+            lv2:name "Time" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "FEEDBACK" ;
+            lv2:name "FEEDBACK" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "MODE" ;
+            lv2:name "MODE" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "GAIN" ;
+            lv2:name "Mix" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "NOTES" ;
+            lv2:name "Subdiv" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "HOWPASS" ;
+            lv2:name "LOWPASS" ;
+        ] , [
+            lv2:index 6 ;
+            lv2:symbol "HIGHPASS" ;
+            lv2:name "HIGHPASS" ;
+        ] ;
+    ] .

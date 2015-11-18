@@ -1,0 +1,46 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+
+<http://guitarix.sourceforge.net/plugins/gx_switched_tremolo_#_switched_tremolo_>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/icon-gxswitchedtremolo.html> ;
+        modgui:stylesheet <modgui/stylesheet-gxswitchedtremolo.css> ;
+        modgui:screenshot <modgui/screenshot-gxswitchedtremolo.png> ;
+        modgui:thumbnail <modgui/thumbnail-gxswitchedtremolo.png> ;
+        modgui:brand "Guitarix" ;
+        modgui:label "Switched Tremolo" ;
+        modgui:model "boxy" ;
+        modgui:panel "7-knobs" ;
+        modgui:color "racing" ;
+        modgui:knob "aluminium" ;
+        modgui:port [
+            lv2:index 0 ;
+            lv2:symbol "FREQ0" ;
+            lv2:name "Rate 1" ;
+        ] , [
+            lv2:index 1 ;
+            lv2:symbol "FREQ1" ;
+            lv2:name "Rate 2" ;
+        ] , [
+            lv2:index 2 ;
+            lv2:symbol "FREQ2" ;
+            lv2:name "Rate 3" ;
+        ] , [
+            lv2:index 3 ;
+            lv2:symbol "FREQ3" ;
+            lv2:name "Rate 4" ;
+        ] , [
+            lv2:index 4 ;
+            lv2:symbol "DEPTH" ;
+            lv2:name "DEPTH" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "STEPS" ;
+            lv2:name "STEPS" ;
+        ] , [
+            lv2:index 6 ;
+            lv2:symbol "SWITCHFREQ" ;
+            lv2:name "Switch" ;
+        ] ;
+    ] .
