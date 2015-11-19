@@ -123,13 +123,6 @@ source: http://en.wikipedia.org/wiki/Chorus_effect
         lv2:index 7 ;
         lv2:symbol "in1" ;
         lv2:name "In1" ;
-    ] ;
-    modgui:gui [
-        modgui:resourcesDirectory <modgui>;
-        modgui:iconTemplate <modgui/gx_chorus.html>;
-        modgui:templateData <modgui/gx_chorus.json>;
-        modgui:screenshot <modgui/gx_chorus.png>;
-        modgui:thumbnail <modgui/gx_chorus-thumb.png>;
     ] .
 
 

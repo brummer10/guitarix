@@ -120,13 +120,6 @@ The switching controlled by envelope follower
         lv2:default 5e+02 ;
         lv2:minimum 1.0 ;
         lv2:maximum 2e+03 ;
-    ];
-    modgui:gui [
-        modgui:resourcesDirectory <modgui>;
-        modgui:iconTemplate <modgui/gxduck_delay.html>;
-        modgui:templateData <modgui/gxduck_delay.json>;
-        modgui:screenshot <modgui/screenshot-gxduck_delay.png>;
-        modgui:thumbnail <modgui/thumb-gxduck_delay.png>;
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_duck_delay_#gui>

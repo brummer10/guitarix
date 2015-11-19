@@ -288,13 +288,6 @@ rdfs:comment """
         lv2:default 5e+01 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1e+02 ;
-    ];
-    modgui:gui [
-        modgui:resourcesDirectory <modgui>;
-        modgui:iconTemplate <modgui/icon-gxmbreverb.html>;
-        modgui:templateData <modgui/data-gxmbreverb.json>;
-        modgui:screenshot <modgui/screenshot-gxmbreverb.png>;
-        modgui:thumbnail <modgui/thumb-gxmbreverb.png>;
     ].
 
 
