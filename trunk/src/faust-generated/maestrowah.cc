@@ -246,6 +246,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[1] = fRec2[0];
 		iVec0[1] = iVec0[0];
 	}
+
 #undef fslider0
 #undef fslider1
 #undef fslider2

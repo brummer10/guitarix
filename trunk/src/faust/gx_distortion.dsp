@@ -7,6 +7,7 @@ declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";
 declare copyright 	"(c)brummer 2008";
+declare samplerate "192000";
 
 import("math.lib");
 import("music.lib");
@@ -145,4 +146,4 @@ dry = 1 - wet;
 
 process_dist 		= bypass(switch2, resonator) : +(anti_denormal_ac) : distortion : *(drivegain1) ;
 
-process = _<:*(dry),(*(wet): process_dist):>_;
+process = _<:*(dry),(*(wet): process_dist : lowpass(3,16000)):>_;

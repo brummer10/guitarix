@@ -91,6 +91,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec0[1] = fRec0[0];
 		IOTA = IOTA+1;
 	}
+
 #undef fslider4
 }
 

@@ -1,5 +1,6 @@
 declare id "6V6"; // in amp tube selector
 declare name "6V6";
+declare samplerate "192000";
 
 import("music.lib");
 import("filter.lib");
@@ -54,7 +55,7 @@ tubeax(preamp,gain1) = hgroup("stage1", stage1) :
     
 } ;
 
-process = component("gxdistortion.dsp").dist(drive,wet_dry) : tubeax(preamp,gain1) with {
+process = component("gxdistortion.dsp").dist(drive,wet_dry) : tubeax(preamp,gain1) : lowpass(3,16000) with {
     drive = ampctrl.drive;
     wet_dry = ampctrl.wet_dry;
     preamp = ampctrl.preamp;

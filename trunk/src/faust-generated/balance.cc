@@ -82,6 +82,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		// post processing
 		fRec0[1] = fRec0[0];
 	}
+
 #undef fslider0
 }
 

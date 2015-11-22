@@ -22,6 +22,7 @@
 #pragma once
 
 #include "gx_plugin.h"
+#include "gx_resampler.h"
 
 #define declare(n) namespace n { PluginDef *plugin(); }
 

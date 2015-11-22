@@ -15,7 +15,8 @@ process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a
     s = 0.993;
     fs = float(SR);
     pre = _;
-    clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
+    //clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
+    clip = tranystage(TB_SVEL34_250k,86.0,2700.0,3.571981) : tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
     
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;

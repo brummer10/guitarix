@@ -395,6 +395,8 @@ class Parser(object):
                     self.description = value
                 elif key == "gladefile":
                     self.gladefile = value
+                elif key == "samplerate":
+                    self.oversample = value
 
     def readIncludes(self, stop_expr):
         stop = re.compile(stop_expr).match
@@ -465,6 +467,8 @@ class Parser(object):
         self.toplevel = None
         self.topname = None
         self.name = None
+        self.oversample = None
+        self.has_oversample = False
         self.groups = OrderedDict()
         self.memlist = []
         self.staticlist = []
@@ -495,6 +499,8 @@ class Parser(object):
         else:
             s["compute"] = self.replace_ioref_scalar(self.copy(r"\t}$"))
         self.sections = s
+        if self.oversample is not None:
+            self.has_oversample = True
         if self.topname is None:
             self.topname = self.modname
         # ignore any following definitions of static class members
@@ -509,6 +515,10 @@ class Parser(object):
             if m:
                 g = m.groups()
                 line = "\t%s* %sput%s = &%sputX%s[index];\n" % (g[0],g[1],g[2],g[1],g[2])
+            if self.oversample:
+                line=re.sub("count",'ReCount',line)
+                line=re.sub("input0[i]",'buf[i]',line)
+                line=re.sub("output0[i]",'buf[i]',line)
             l.append(line)
         return l
 
@@ -518,7 +528,11 @@ class Parser(object):
         l = []
         for line in lines:
             if not match(line):
-                l.append(line)
+                if self.oversample:
+                    line=re.sub("count",'ReCount',line)
+                    line=re.sub("input0",'buf',line)
+                    line=re.sub("output0",'buf',line)
+                l.append(line)            
         return l
 
     def checkfor(self, re_exp, sect):
@@ -805,6 +819,10 @@ class Dsp: public PluginDef {
 class Dsp {
 #endif
 private:
+#if %(has_oversample)s
+	gx_resample::FixedRateResampler smp;
+	int samplingFreq;
+#endif
 	int fSamplingFreq;
 %(var_decl)s\
 #if %(has_activate)s
@@ -911,8 +929,15 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 #endif
 #endif
+#if %(has_oversample)s
+inline void Dsp::init(unsigned int RsamplingFreq)
+{
+	samplingFreq = %(oversample)s;
+	smp.setup(RsamplingFreq, samplingFreq);
+#else
 inline void Dsp::init(unsigned int samplingFreq)
 {
+#endif
 %(init_body)s\
 #if %(has_state_no_activate)s
 	clear_state_f();
@@ -963,7 +988,15 @@ int Dsp::activate_static(bool start, PluginDef *p)
 void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 {
 %(defines)s\
+#if %(has_oversample)s
+	float buf[smp.max_out_count(%(countname)s)];
+	int ReCount = smp.up(%(countname)s, input0, buf);
+#endif
 %(compute_body)s\
+#if %(has_oversample)s
+	smp.down(buf, output0);
+#endif
+
 %(undefines)s\
 }
 
@@ -1514,6 +1547,8 @@ class Output(object):
             template = template_plugin_lv2 
         s = StringIO()
         s.write(template % dict(
+            has_oversample = self.parser.has_oversample,
+            oversample = self.parser.oversample,
             filepath = self.fname,
             headline = self.parser.headvers,
             start_extra_namespace = "namespace %s {\n" % in_namespace if in_namespace else "",

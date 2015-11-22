@@ -98,6 +98,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
 		fVec0[2] = fVec0[1]; fVec0[1] = fVec0[0];
 	}
+
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)

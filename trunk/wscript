@@ -713,8 +713,10 @@ def configure(conf):
     if not opt.no_lv2:
         if opt.lv2dir:
             conf.env['LV2DIR'] = opt.lv2dir
+            conf.define('GX_LV2DIR', opt.lv2dir)
         else:
             conf.env['LV2DIR'] = os.path.normpath(os.path.join(conf.env['LIBDIR'], 'lv2'))
+            conf.define('GX_LV2DIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'lv2')))
 
     conf.env['NEW_LADSPA'] = not opt.no_ladspa and not opt.no_new_ladspa
     conf.env['LADSPA'] = not opt.no_ladspa

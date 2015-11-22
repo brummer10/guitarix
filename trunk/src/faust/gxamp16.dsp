@@ -1,5 +1,6 @@
 declare id "pre 12AT7/ push pull 6V6"; // in amp tube selector
 declare name "pre 12AT7/ push pull 6V6";
+declare samplerate "192000";
 
 import("music.lib");
 import("filter.lib");
@@ -21,7 +22,7 @@ gx_drive(drive) = _ <: _ + nonlin(4,4,0.125) * drive * 10 ;
 
 process = hgroup("stage1", stage1) : 
           component("gxdistortion.dsp").dist2(drive,wet_dry) : 
-          hgroup("stage2", stage2)  
+          hgroup("stage2", stage2) : lowpass(3,16000)  
           with {
     drive = ampctrl.drive;
     wet_dry = ampctrl.wet_dry;

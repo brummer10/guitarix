@@ -61,12 +61,15 @@ struct table1d_imp {
  */
 #include "KT88.cc"
 #include "7199P.cc"
+#include "SVEL34t.cc"
 
 enum {
     TRANY_TABLE_KT88_68k,
     TRANY_TABLE_KT88_250k,
     TRANY_TABLE_7199P_68k,
     TRANY_TABLE_7199P_250k,
+    TRANY_TABLE_SVEL34_68k,
+    TRANY_TABLE_SVEL34_250k,
     TRANY_TABLE_SIZE
 };
 
@@ -75,6 +78,8 @@ table1d *tranytab[TRANY_TABLE_SIZE] = {
     &static_cast<table1d&>(tranytable_KT88[1]),
     &static_cast<table1d&>(tranytable_7199P[0]),
     &static_cast<table1d&>(tranytable_7199P[1]),
+    &static_cast<table1d&>(tranytable_SVEL34[0]),
+    &static_cast<table1d&>(tranytable_SVEL34[1]),
 };
 
 /*

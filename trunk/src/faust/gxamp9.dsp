@@ -1,5 +1,6 @@
 declare id "12ax7 feedback"; // in amp tube selector
 declare name "12ax7 feedback";
+declare samplerate "192000";
 
 import("music.lib");
 import("filter.lib");
@@ -36,7 +37,7 @@ tubeax(preamp,gain1) =  hgroup("stage1", stage1) :
 } ;
 
 
-process = val : component("gxdistortion.dsp").dist1(drive,wet_dry) : tubeax(preamp,gain1) with {
+process = val : component("gxdistortion.dsp").dist1(drive,wet_dry) : tubeax(preamp,gain1) : lowpass(3,16000) with {
     drive = ampctrl.drive;
     wet_dry = ampctrl.wet_dry;
     preamp = ampctrl.preamp;

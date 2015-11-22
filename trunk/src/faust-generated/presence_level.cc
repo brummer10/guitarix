@@ -24,6 +24,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<count; i++) {
 		output0[i] = (FAUSTFLOAT)(fSlow1 * (double)input0[i]);
 	}
+
 #undef fslider0
 }
 

@@ -1,5 +1,6 @@
 declare name "Overdrive";
 declare category "Distortion";
+declare samplerate "192000";
 
 import("music.lib");
 import("guitarix.lib");
@@ -13,4 +14,4 @@ dry = 1 - wet;
 overdrive(x) = (x*(abs(x) + drive)/(x*x + (drive-1)*abs(x) + 1)) * f;
 
 
-process =  _<:*(dry),(*(wet) : overdrive):>_;
+process =  _<:*(dry),(*(wet) : overdrive : lowpass(3,16000)):>_;
