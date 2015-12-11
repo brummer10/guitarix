@@ -908,6 +908,7 @@ void RackBox::display(bool v, bool animate) {
 	    hide();
 	}
 	get_parent()->decrement();
+	plugin.update_rackbox();
     }
 }
 
