@@ -142,12 +142,10 @@ void PluginUI::display(bool v, bool animate) {
     plugin->set_box_visible(v);
     if (v) {
 	main.get_machine().insert_rack_unit(get_id(), "", get_type());
-	hidden_by_move = false;
 	hidden = false;
 	show(animate);
     } else {
 	main.get_machine().remove_rack_unit(get_id(), get_type());
-	hidden_by_move = true;
 	hide(animate);
     }
 }
@@ -905,6 +903,8 @@ void RackBox::display(bool v, bool animate) {
 	    show();
 	}
 	get_parent()->increment();
+	plugin.hidden_by_move = false;
+	plugin.toolitem->hide();
     } else {
 	if (animate) {
 	    animate_remove();
@@ -912,6 +912,7 @@ void RackBox::display(bool v, bool animate) {
 	    hide();
 	}
 	get_parent()->decrement();
+	plugin.hidden_by_move = true;
     }
 }
 
@@ -1489,8 +1490,8 @@ void RackContainer::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& 
 
 void RackContainer::show_entries() {
     for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
-    if (!i->second->hidden_by_move) {
 	i->second->hidden = false;
+    if (!i->second->hidden_by_move) {
 	RackBox *r = i->second->rackbox;
 	if (r) {
 	    r->show();
