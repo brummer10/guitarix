@@ -167,6 +167,7 @@ public:
     MainWindow& main;
     RackBox *rackbox;
     bool hidden;
+    bool hidden_by_move;
 
     PluginUI(MainWindow& main, const char* id_,
 	     const Glib::ustring& tooltip_="");
