@@ -465,7 +465,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp24 = (1.0f - fRec29[0]);
 		float fTemp25 = ((fTemp24 * fVec2[(IOTA-iTemp23)&524287]) + (fRec29[0] * fVec2[(IOTA-iTemp22)&524287]));
 		fRec0[0] = ((iSlow21)?fTemp25:(fSlow23 * fTemp25));
-		output0[i] = (FAUSTFLOAT)(fTemp0 + (fSlow24 * (fRec0[0] + (fSlow0 * fTemp0))));
+		output0[i] = (FAUSTFLOAT)(fTemp0 + (fSlow24 * fRec0[0]));
 		float fTemp26 = (float)input1[i];
 		fRec34[0] = ((fSlow14 * fRec32[1]) - (fSlow13 * ((fSlow12 * fRec34[2]) + (fSlow10 * fRec34[1]))));
 		fRec33[0] = ((fSlow13 * (((fSlow9 * fRec34[0]) + (fSlow15 * fRec34[1])) + (fSlow9 * fRec34[2]))) - (fSlow7 * ((fSlow5 * fRec33[2]) + (fSlow3 * fRec33[1]))));
@@ -519,7 +519,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fVec5[IOTA&524287] = fTemp46;
 		float fTemp47 = ((fTemp24 * fVec5[(IOTA-iTemp23)&524287]) + (fRec29[0] * fVec5[(IOTA-iTemp22)&524287]));
 		fRec32[0] = ((iSlow21)?fTemp47:(fSlow23 * fTemp47));
-		output1[i] = (FAUSTFLOAT)(fTemp26 + (fSlow24 * (fRec32[0] + (fSlow0 * fTemp26))));
+		output1[i] = (FAUSTFLOAT)(fTemp26 + (fSlow24 * fRec32[0]));
 		// post processing
 		fRec32[1] = fRec32[0];
 		fRec52[1] = fRec52[0];

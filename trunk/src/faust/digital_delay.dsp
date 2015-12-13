@@ -30,7 +30,7 @@ tempo2note = ffunction(float B2N(int,float), "beat.h", "");
 
 dide         = _<:*(dry),(delx(B) : *(wet)):>_ with {
   B          = hslider("Freeze[tooltip:Freeze the current delay]",0,0,1,1);
-  delx(n)    = _<:(*(1.0-B):digd), *(B):>_;
+  delx(n)    = _<:(*(1.0-B):digd), !:>_;
 
   digd       = (+:(delayed:lback(B)))~(fback(B)) with {
     fback(n) = _<:select2(n, feed, freeze):>_;
