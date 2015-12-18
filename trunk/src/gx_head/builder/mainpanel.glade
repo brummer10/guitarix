@@ -10,7 +10,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="border_width">4</property>
-        <property name="paint_func">gxhead_expose</property>
+        <property name="paint_func">gx_rack_amp_expose</property>
         <child>
           <object class="GtkAlignment" id="alignment2">
             <property name="visible">True</property>
@@ -453,8 +453,8 @@
           <object class="GtkAlignment" id="alignment5">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="top_padding">14</property>
-            <property name="bottom_padding">14</property>
+            <property name="top_padding">16</property>
+            <property name="bottom_padding">16</property>
             <property name="right_padding">35</property>
             <child>
               <object class="GxPaintBox" id="gxpaintbox5">
@@ -936,6 +936,330 @@
                     <child>
                       <placeholder/>
                     </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1099,14 +1423,36 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label5:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Effects</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <child>
+                      <object class="GtkImage" id="image3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_plugins.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label13">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Pool</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1122,14 +1468,36 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label6:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox10">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Config Mode</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <child>
+                      <object class="GtkImage" id="image4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_config.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label14">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Order</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1145,14 +1513,36 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label4:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox45">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Tuner</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <child>
+                      <object class="GtkImage" id="image5">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_tuner.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label15">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Tuner</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1168,14 +1558,36 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label1:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox46">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Show Rack</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <child>
+                      <object class="GtkImage" id="image6">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_rack.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label16">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Rack</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1191,14 +1603,36 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label7:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox47">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Horizontal</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <child>
+                      <object class="GtkImage" id="image7">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_split.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label17">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Split</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1214,11 +1648,36 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkImage" id="image2">
-                    <property name="height_request">10</property>
+                  <object class="GtkHBox" id="hbox48">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="stock">gtk-remove</property>
+                    <child>
+                      <object class="GtkImage" id="image2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_fold.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label18">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Fold</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1234,11 +1693,36 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkImage" id="image1">
-                    <property name="height_request">10</property>
+                  <object class="GtkHBox" id="hbox49">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="stock">gtk-add</property>
+                    <child>
+                      <object class="GtkImage" id="image1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_show.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label19">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Show</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1254,14 +1738,36 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <child>
-                  <object class="GtkLabel" id="label3:barbuttonlabel">
+                  <object class="GtkHBox" id="hbox50">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Live Play</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                      <attribute name="size" value="8192"/>
-                    </attributes>
+                    <child>
+                      <object class="GtkImage" id="image8">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gx_fullscreen.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label20">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Live</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1292,8 +1798,8 @@
                 <child>
                   <object class="GxPaintBox" id="effects_frame_paintbox">
                     <property name="can_focus">False</property>
-                    <property name="border_width">18</property>
-                    <property name="paint_func">gxrack_expose</property>
+                    <property name="border_width">8</property>
+                    <property name="paint_func">rectangle_skin_color_expose</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow1">
                         <property name="visible">True</property>
@@ -1325,8 +1831,8 @@
                   <object class="GxPaintBox" id="rackcontainer">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="border_width">18</property>
-                    <property name="paint_func">gxrack_expose</property>
+                    <property name="border_width">8</property>
+                    <property name="paint_func">rectangle_skin_color_expose</property>
                     <child>
                       <object class="GtkScrolledWindow" id="vrack_scrolledbox">
                         <property name="height_request">50</property>
@@ -1342,7 +1848,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="orientation">vertical</property>
-                                <property name="paint_func">cab_expose</property>
+                                <property name="paint_func">rectangle_skin_color_expose</property>
                                 <child>
                                   <object class="GtkVBox" id="monobox">
                                     <property name="visible">True</property>
@@ -1414,6 +1920,8 @@
                                                   <object class="GtkHBox" id="hbox14">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
+                                                    <property name="border_width">4</property>
+                                                    <property name="spacing">8</property>
                                                     <child>
                                                       <object class="GtkVBox" id="vbox15">
                                                         <property name="visible">True</property>
@@ -1445,7 +1953,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">noise_gate.on_off</property>
                                                             <property name="base_name">switchit</property>
                                                             </object>
@@ -1527,7 +2034,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">shaper.on_off</property>
                                                             <property name="base_name">switchit</property>
                                                             </object>
@@ -1609,7 +2115,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">amp.on_off</property>
                                                             <property name="base_name">switchit</property>
                                                             </object>
@@ -1691,7 +2196,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="relief">none</property>
                                                             <property name="var_id">amp.clip.on_off</property>
                                                             <property name="base_name">switchit</property>
                                                             </object>
@@ -1798,88 +2302,30 @@
                                             <property name="can_focus">False</property>
                                             <property name="border_width">4</property>
                                             <property name="orientation">vertical</property>
-                                            <property name="paint_func">rack_unit_expose</property>
+                                            <property name="paint_func">gx_rack_unit_expose</property>
                                             <child>
                                               <object class="GtkHBox" id="hbox2">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <child>
-                                                  <object class="GtkVBox" id="vbox3">
+                                                  <object class="GtkAlignment" id="alignment1">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
+                                                    <property name="xscale">0</property>
+                                                    <property name="top_padding">4</property>
+                                                    <property name="bottom_padding">4</property>
+                                                    <property name="left_padding">18</property>
+                                                    <property name="right_padding">4</property>
                                                     <child>
-                                                      <object class="GtkLabel" id="label5:rack_effect_label">
+                                                      <object class="GtkButton" id="button1:effect_reset">
+                                                        <property name="width_request">6</property>
                                                         <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="xalign">1</property>
-                                                        <property name="label" translatable="yes">&lt;span font="sans bold 7.5"&gt;Tuner&lt;/span&gt;</property>
-                                                        <property name="use_markup">True</property>
+                                                        <property name="sensitive">False</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="receives_default">True</property>
+                                                        <property name="relief">none</property>
+                                                        <property name="focus_on_click">False</property>
                                                       </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">0</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkHBox" id="hbox4">
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <child>
-                                                          <object class="GtkAlignment" id="alignment1">
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
-                                                            <property name="xscale">0</property>
-                                                            <property name="yscale">0</property>
-                                                            <child>
-                                                            <object class="GxSwitch" id="tuner_on_off">
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="relief">none</property>
-                                                            <property name="var_id">ui.racktuner</property>
-                                                            <property name="base_name">switchit</property>
-                                                            </object>
-                                                            </child>
-                                                          </object>
-                                                          <packing>
-                                                            <property name="expand">False</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkHBox" id="hbox10">
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
-                                                            <property name="border_width">4</property>
-                                                            <child>
-                                                            <object class="GtkButton" id="button1:effect_reset">
-                                                            <property name="width_request">6</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="sensitive">False</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="expand">False</property>
-                                                            <property name="fill">False</property>
-                                                            <property name="position">0</property>
-                                                            </packing>
-                                                            </child>
-                                                          </object>
-                                                          <packing>
-                                                            <property name="expand">False</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">1</property>
-                                                          </packing>
-                                                        </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">True</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">1</property>
-                                                      </packing>
                                                     </child>
                                                   </object>
                                                   <packing>
@@ -1902,10 +2348,56 @@
                                                         <property name="can_focus">False</property>
                                                         <property name="spacing">2</property>
                                                         <child>
-                                                          <object class="GxRackTuner" id="racktuner">
+                                                          <object class="GtkHBox" id="hbox44">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="streaming">True</property>
+                                                            <child>
+                                                            <object class="GxSwitch" id="tuner_on_off">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">True</property>
+                                                            <property name="var_id">ui.racktuner</property>
+                                                            <property name="base_name">switchit</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">0</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label5:rack_effect_label">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="xalign">1</property>
+                                                            <property name="label" translatable="yes">&lt;span font="sans bold 7.5"&gt;Tuner&lt;/span&gt;</property>
+                                                            <property name="use_markup">True</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">1</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment20">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="left_padding">55</property>
+                                                            <property name="right_padding">55</property>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">2</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">True</property>
@@ -1914,23 +2406,22 @@
                                                           </packing>
                                                         </child>
                                                         <child>
+                                                          <object class="GxRackTuner" id="racktuner">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="streaming">True</property>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">1</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
                                                           <object class="GtkHBox" id="hbox3">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="spacing">10</property>
-                                                            <child>
-                                                            <object class="GxSelector" id="tuner_tuning">
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="var_id">racktuner.tuning</property>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="expand">False</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                            </packing>
-                                                            </child>
                                                             <child>
                                                             <object class="GxSelector" id="tuner_mode">
                                                             <property name="visible">True</property>
@@ -1941,22 +2432,20 @@
                                                             <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">True</property>
-                                                            <property name="position">1</property>
+                                                            <property name="position">0</property>
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GxWheel" id="tuner_reference_pitch">
+                                                            <object class="GxSelector" id="tuner_tuning">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="var_id">ui.tuner_reference_pitch</property>
-                                                            <property name="value_position">right</property>
+                                                            <property name="var_id">racktuner.tuning</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">True</property>
-                                                            <property name="pack_type">end</property>
-                                                            <property name="position">2</property>
+                                                            <property name="position">1</property>
                                                             </packing>
                                                             </child>
                                                             <child>
@@ -1969,14 +2458,30 @@
                                                             <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
-                                                            <property name="position">3</property>
+                                                            <property name="position">2</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GxValueDisplay" id="tuner_reference_pitch">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">True</property>
+                                                            <property name="var_id">ui.tuner_reference_pitch</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">4</property>
                                                             </packing>
                                                             </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
-                                                            <property name="position">1</property>
+                                                            <property name="position">2</property>
                                                           </packing>
                                                         </child>
                                                       </object>
@@ -1996,7 +2501,7 @@
                                                     <property name="top_padding">4</property>
                                                     <property name="bottom_padding">4</property>
                                                     <property name="left_padding">4</property>
-                                                    <property name="right_padding">32</property>
+                                                    <property name="right_padding">18</property>
                                                     <child>
                                                       <object class="GtkButton" id="button2:effect_reset">
                                                         <property name="width_request">6</property>
@@ -2004,6 +2509,8 @@
                                                         <property name="sensitive">False</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">True</property>
+                                                        <property name="relief">none</property>
+                                                        <property name="focus_on_click">False</property>
                                                       </object>
                                                     </child>
                                                   </object>
@@ -2457,6 +2964,24 @@
                                                             <property name="top_attach">3</property>
                                                             <property name="bottom_attach">4</property>
                                                             </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
                                                             <placeholder/>

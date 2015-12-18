@@ -24,6 +24,7 @@ part of guitarix, use  knobs with Gtk
 #define __GX_SELECTOR_H__
 
 #include "GxRegler.h"
+#include "drawingutils.h"
 
 G_BEGIN_DECLS
 
@@ -45,6 +46,9 @@ struct _GxSelector
 	GxRegler parent;
 	GxSelectorPrivate *priv;
 	GtkTreeModel *model;
+    GdkPixbuf *icon;
+    gint icon_width;
+    gint icon_height;
 };
 
 struct _GxSelectorClass {

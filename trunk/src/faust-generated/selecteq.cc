@@ -249,7 +249,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec15[0] = ((((fTemp26 + (fSlow43 * fRec17[0])) + (fSlow42 * fRec17[2])) / fTemp25) - ((((1 + (fSlow30 * (fSlow30 - fTemp21))) * fRec15[2]) + fTemp23) / fTemp22));
 		fRec13[0] = ((((fTemp23 + (fSlow45 * fRec15[0])) + (fSlow44 * fRec15[2])) / fTemp22) - ((((1 + (fSlow26 * (fSlow26 - fTemp18))) * fRec13[2]) + fTemp20) / fTemp19));
 		fRec11[0] = ((((fTemp20 + (fSlow47 * fRec13[0])) + (fSlow46 * fRec13[2])) / fTemp19) - ((((1 + (fSlow22 * (fSlow22 - fTemp15))) * fRec11[2]) + fTemp17) / fTemp16));
-		fRec9[0] = ((((fTemp17 + (fSlow49 * fRec11[0])) + (fSlow48 * fRec11[2])) / fTemp16) - ((((1 + (fSlow18 * (fSlow18 - fTemp12))) * fRec9[2]) + fTemp14) / fTemp13));
+		fRec9[0] = ((((fTemp17 + (fSlow49 * fRec11[0])) + (fSlow48 * fRec11[2])) / fTemp16) - (((fRec9[2] * (1 + (fSlow18 * (fSlow18 - fTemp12)))) + fTemp14) / fTemp13));
 		fRec7[0] = ((((fTemp14 + (fSlow51 * fRec9[0])) + (fSlow50 * fRec9[2])) / fTemp13) - ((((1 + (fSlow14 * (fSlow14 - fTemp9))) * fRec7[2]) + fTemp11) / fTemp10));
 		fRec5[0] = ((((fTemp11 + (fSlow53 * fRec7[0])) + (fSlow52 * fRec7[2])) / fTemp10) - ((((1 + (fSlow10 * (fSlow10 - fTemp6))) * fRec5[2]) + fTemp8) / fTemp7));
 		fRec3[0] = ((((fTemp8 + (fSlow55 * fRec5[0])) + (fSlow54 * fRec5[2])) / fTemp7) - ((((1 + (fSlow6 * (fSlow6 - fTemp3))) * fRec3[2]) + fTemp5) / fTemp4));

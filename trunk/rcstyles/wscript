@@ -2,53 +2,16 @@
 # encoding: utf-8
 
 gxstyle_files = [
-    'gx12b.png',
-    'gx14b.png',
-    'gx18.png',
-    'gxhead.png',
-    'gx_green18.png',
-    'gx_black18.png',
-    'gx_gree18.png',
-    'gx_green1.jpg',
-    'gx_green2.jpg',
-    'gx_green3.jpg',
-    'gx_head_gx1-alloy.rc',
-    'gx_head_gx2-emerald.rc',
-    'gx_head_gx3-dezert.rc',
-    'gx_head_gx4-black.rc',
-    'gx_head_gx5-gree.rc',
-    'gx_head_gx6-blue.rc',
-    'gx_head_gx7-blues.rc',
-    'gx_head_gx8-dark.rc',
-    'gx_head_gx9-flat.rc',
-    'gx_head_gx9-grass.rc',
-    'gx-dezert_18.png',
-    'gx_dezert_12b.png',
-    'gx_dezert_14b.png',
-    'common.rc',
+    'gx_head_Guitarix.rc',
+    'background1.png',
+    'background2.png',
+
     'clear.rc',
-    'knob9.png',
     'tactile_knob_large_151f.png',
     'tactile_knob_small_99f.png',
     'tactile_knob_medium_151f.png',
-    'nk-knob.png',
-    'nk-knob-small.png',
-    'nk-knob-middle.png',
-    'tactile_switchit_off.png',
-    'tactile_switchit_on.png',
     'tactile_wheel_101f.png',
-    'tactile_h_wheel_101f.png',
-    'tactile_backlit_switchit_off.png',
-    'tactile_backlit_switchit_on.png',
-    'smallknob9.png',
-    'mittleknob9.png',
-    'cairo1.jpg',
-    'cairo2.jpg',
-    'cairo3.jpg',
-    'black1.png',
-    'black2.png',
-    'gx_steal.png',
-    'gx_dark.png',
+
     'stereo.png',
     'bypass.svg',
     'factory.png',
@@ -58,17 +21,66 @@ gxstyle_files = [
     'versiondiff.png',
     'playhead.png',
     'simplelevelslider.png',
-    'menu_green1.jpg',
-    'menu1.jpg',
-    'flat1.png',
-    'flat2.png',
-    'flat3.png',
-    'grass1.png',
-    'grass2.png',
-    'grass3.png',
-    'menu1.png',
-    'flatmenu.png',
-    ]
+
+    'switch_on.png',
+    'switch_mid_off.png',
+    'switch_mid_on.png',
+    'switch_off.png',
+    'rack_expand.png',
+    'rack_shrink.png',
+    'rack_preset.png',
+    'rack_preset.png',
+    'insert.png',
+
+    # knobs
+    'knob_small.png',
+    'knob_small_r.png',
+    'knob_mid.png',
+    'knob_big.png',
+    
+    ###COPPER THEME
+    'gx_head_Copper.rc',
+    'copper.png',
+    
+    ###LAVENDER THEME
+    'gx_head_Lavender.rc',
+    'lavender.png',
+    
+    ###SKY THEME
+    'gx_head_Sky.rc',
+    'sky.png',
+    
+    ###OLIVE THEME
+    'gx_head_Olive.rc',
+    'olive.png',
+    
+    ###ALUMINIUM THEME
+    'gx_head_Aluminium.rc',
+    'aluminium.png',
+    
+    ###OAK THEME
+    'gx_head_Oak.rc',
+    'oak1.png',
+    'oak2.png',
+    
+    ###BURL THEME
+    'gx_head_Burl.rc',
+    'burl1.png',
+    'burl2.png',
+    
+    ###WHITE OAK THEME
+    'gx_head_White_Oak.rc',
+    'oak_white.png',
+    'oak2.png',
+    
+    ###GUITARIX OAK THEME
+    'gx_head_Guitarix_Oak.rc',
+    'oak_green.png',
+    'oak2.png',
+    
+    ###DARK THEME
+    'gx_head_Dark.rc',
+     ]
 
 def configure(conf):
     pass

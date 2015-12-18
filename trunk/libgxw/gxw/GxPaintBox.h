@@ -20,6 +20,7 @@
 #define __GX_PAINT_BOX_H__
 
 #include <gtk/gtk.h>
+#include "drawingutils.h"
 
 G_BEGIN_DECLS
 

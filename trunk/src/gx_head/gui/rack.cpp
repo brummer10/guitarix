@@ -384,7 +384,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       mb_expand_button(),
       mb_delete_button(),
       preset_button(),
-      on_off_switch("minitoggle"),
+      on_off_switch("switchit"),
       toggle_on_off(rb.main.get_machine(), &on_off_switch, rb.plugin.plugin->id_on_off()) {
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
 	gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off().c_str(), rb.main.get_machine());
@@ -396,38 +396,47 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
     evbox.signal_leave_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_leave_out));
     evbox.signal_enter_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_enter_in));
     add(evbox);
+    
+    Gtk::Alignment *al = new Gtk::Alignment();
+    al->set_padding(0, 4, 4, 0);
+    evbox.add(*manage(al));
+    
     Gtk::HBox *box = new Gtk::HBox();
-    evbox.add(*manage(box));
-    Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 0.0, 0.0);
-    al->add(on_off_switch);
+    Gtk::HBox *top = new Gtk::HBox();
+    al->add(*manage(box));
+    
+    box->set_spacing(4);
+    
+    top->set_spacing(4);
+    top->set_name("rack_unit_title_bar");
+    
+    box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
+    box->pack_start(*manage(top));
+    box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
+    
+    top->pack_start(on_off_switch, Gtk::PACK_SHRINK);
+
+    Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
+    szg_label->add_widget(*manage(effect_label));
+    top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
+    
+    top->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET);
+    
+    mb_expand_button = rb.make_expand_button(true);
+    top->pack_end(*manage(mb_expand_button), Gtk::PACK_SHRINK);
+    if (!(rb.plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
+        preset_button = rb.make_preset_button();
+        top->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
+    }
+    mb_delete_button = make_delete_button(rb);
+    mb_delete_button->set_no_show_all(true);
+    top->pack_end(*manage(mb_delete_button), Gtk::PACK_SHRINK);
+
 #ifdef USE_SZG
     RackBox::szg->add_widget(*al);
 #else
     al->set_size_request(35, -1);
 #endif
-    box->pack_start(*manage(al), Gtk::PACK_SHRINK);
-    Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
-    szg_label->add_widget(*manage(effect_label));
-    al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
-    al->add(*manage(rb.wrap_bar()));
-    box->pack_start(*manage(al), Gtk::PACK_SHRINK);
-    box->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
-    box->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET, 15);
-    al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
-    Gtk::HBox *hb = new Gtk::HBox();
-    al->add(*manage(hb));
-    mb_expand_button = rb.make_expand_button(true);
-    hb->pack_start(*manage(mb_expand_button), Gtk::PACK_SHRINK);
-    mb_delete_button = make_delete_button(rb);
-    mb_delete_button->set_no_show_all(true);
-    hb->pack_start(*manage(mb_delete_button), Gtk::PACK_SHRINK);
-    al->set_padding(1, 0, 4, 4);
-    pack_end(*manage(al), Gtk::PACK_SHRINK);
-    box->pack_end(*manage(rb.wrap_bar(8)), Gtk::PACK_SHRINK);
-    if (!(rb.plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
-	preset_button = rb.make_preset_button();
-	box->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
-    }
     show_all();
 }
 
@@ -761,13 +770,13 @@ Glib::RefPtr<Gtk::SizeGroup> RackBox::szg;
 
 void RackBox::set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
-    pb.property_paint_func().set_value("rack_unit_shrink_expose");
+    pb.property_paint_func().set_value("gx_rack_unit_shrink_expose");
     pb.set_border_width(4);
 }
 
 void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
-    pb.property_paint_func().set_value("rack_unit_expose");
+    pb.property_paint_func().set_value("gx_rack_unit_expose");
     pb.set_border_width(4);
 }
 
@@ -788,7 +797,7 @@ Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptio
     effect_label->modify_font(font_desc);
     if (plugin.get_type() == PLUGIN_TYPE_STEREO) {
 	Gtk::Alignment *al = new Gtk::Alignment(0, 0, 1.0, 1.0);
-    if (!useshort) al->set_padding(0, 0, 50, 0);
+    //if (!useshort) al->set_padding(0, 0, 10, 0);
     Gtk::HBox *hboxl = new Gtk::HBox(false, 4);
 	Gtk::HBox *hbox = new Gtk::HBox(false, 4);
 	Gtk::Image *e = new Gtk::Image(options.get_style_filepath("stereo.png"));
@@ -805,11 +814,12 @@ Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptio
 
 Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
     Gtk::Alignment *al = new Gtk::Alignment(0, 0, 1.0, 1.0);
-    al->set_padding(4, 4, left, right);
+    //al->set_padding(4, 4, left, right);
     Gtk::Button *button = new Gtk::Button();
-    button->set_size_request(6,-1);
-    button->set_name("effect_reset");
+    button->set_size_request(25,-1);
+    //button->set_name("effect_reset");
     button->set_tooltip_text(_("drag n' drop handle"));
+    button->set_relief(Gtk::RELIEF_NONE);
     button->set_sensitive(sens);
     al->add(*manage(button));
     return al;
@@ -871,22 +881,22 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
 	pb->property_paint_func().set_value("zac_expose");
     }
-    Gxw::Switch *swtch = new Gxw::Switch("minitoggle");
-    swtch->set_active(plugin.plugin->get_on_off());
+    //Gxw::Switch *swtch = new Gxw::Switch("switchit");
+    //swtch->set_active(plugin.plugin->get_on_off());
 #ifdef USE_SZG
-    RackBox::szg->add_widget(*swtch);
+    //RackBox::szg->add_widget(*swtch);
 #else
-    swtch->set_size_request(35, -1);
+    //swtch->set_size_request(35, -1);
 #endif
-    pb->pack_start(*manage(swtch), Gtk::PACK_SHRINK);
     Gtk::Widget *effect_label = RackBox::make_label(plugin, options);
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->set_padding(0,0,4,20);
     al->add(*manage(RackBox::make_bar(4, 4, true))); // FIXME: fix style and remove sens parameter
     pb->pack_start(*manage(al), Gtk::PACK_SHRINK);
+    //pb->pack_start(*manage(swtch), Gtk::PACK_SHRINK);
     pb->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
     al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
-    al->set_size_request(50,-1);
+    al->set_size_request(70,30);
     pb->pack_start(*manage(al), Gtk::PACK_SHRINK);
     pb->show_all();
     return pb;
@@ -1123,21 +1133,20 @@ void RackBox::do_expand() {
 }
 
 Gtk::Button *RackBox::make_expand_button(bool expand) {
-    Glib::ustring t;
+    const gchar *t;
     Gtk::Button *b = new Gtk::Button();
+    //b->set_relief(Gtk::RELIEF_NONE);
     if (expand) {
-	t = "▶";
+	t = "rack_expand";
 	b->set_tooltip_text(_("expand effect unit"));
     } else {
-	t = "▼"; // ▲
+	t = "rack_shrink";
 	b->set_tooltip_text(_("shrink effect unit"));
     }
-    Gtk::Label *l = new Gtk::Label(t);
-    l->set_name("rack_slider");
+    GtkWidget *l = gtk_image_new_from_stock(t, (GtkIconSize)-1);
     b->set_focus_on_click(false);
-    b->add(*manage(l));
-    b->set_size_request(20, 15);
-    b->set_name("effect_reset");
+    b->add(*manage(Glib::wrap(l)));
+    b->set_name("effect_category");
     if (expand) {
 	b->signal_clicked().connect(
 	    sigc::mem_fun(*this, &RackBox::do_expand));
@@ -1149,10 +1158,12 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
 }
 
 Gtk::Button *RackBox::make_preset_button() {
-    Gtk::Button *p = new Gtk::Button(C_("Preset", "p"));
+    Gtk::Button *p = new Gtk::Button();
+    //p->set_relief(Gtk::RELIEF_NONE);
+    GtkWidget *l = gtk_image_new_from_stock("rack_preset", (GtkIconSize)-1);
+    p->add(*manage(Glib::wrap(l)));
     p->set_can_default(false);
     p->set_can_focus(false);
-    p->set_size_request(18,18);
 	p->set_tooltip_text(_("manage effect unit presets"));
     p->signal_clicked().connect(
 	sigc::mem_fun(plugin, &PluginUI::on_plugin_preset_popup));
@@ -1171,31 +1182,44 @@ void RackBox::pack(Gtk::Widget *main, Gtk::Widget *mini, const Glib::RefPtr<Gtk:
 
 Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     Gtk::HBox *bx = new Gtk::HBox();
-    Gtk::VBox *vx = new Gtk::VBox();
-    bx->pack_start(*manage(vx));
     Gtk::Widget *effect_label = make_label(plugin, options, false);
-    vx->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
-    Gtk::HBox *bx2 = new Gtk::HBox();
-    vx->pack_start(*manage(bx2));
-    bx2->pack_start(*manage(switcher_vbox(options)), Gtk::PACK_SHRINK);
-    box.set_name(plugin.get_id());
-    box.set_border_width(4);
-    box.property_paint_func().set_value("RackBox_expose");
-    bx2->pack_start(box);
-    Gtk::VBox *vbox = new Gtk::VBox();
-    Gtk::VBox *vboxt = new Gtk::VBox();
-    Gtk::VBox *vboxb = new Gtk::VBox();
-	vbox->pack_start(*manage(vboxt), Gtk::PACK_EXPAND_PADDING);
-    vbox->pack_start(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
-    if (!(plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
-	vbox->pack_start(*manage(make_preset_button()), Gtk::PACK_SHRINK);
-    }
-	vbox->pack_start(*manage(vboxb), Gtk::PACK_EXPAND_PADDING);
-    Gtk::Alignment *al = new Gtk::Alignment(0, 0, 0.0, 0.7);
-    al->add(*manage(vbox));
-    al->set_padding(15, 0, 0, 4);
-    bx->pack_end(*manage(al), Gtk::PACK_SHRINK);
-    bx->pack_end(*manage(wrap_bar(4, 8)), Gtk::PACK_SHRINK);
+    
+    // overall hbox: drag-button - center vbox - drag button
+    Gtk::HBox *main   = new Gtk::HBox();
+    // center vbox containing title bar and widgets
+    Gtk::VBox *center = new Gtk::VBox();
+    // title vbox on top
+    Gtk::HBox *top    = new Gtk::HBox();
+    
+    // spacing for bottom shadow
+    Gtk::Alignment *al = new Gtk::Alignment();
+    al->set_padding(0, 4, 0, 0);
+    al->add(*manage(main));
+    
+    main->set_spacing(4);
+    
+    center->set_name("rack_unit_center");
+    center->set_border_width(4);
+    center->set_spacing(4);
+    center->pack_start(*manage(top), Gtk::PACK_SHRINK);
+    center->pack_start(box, Gtk::PACK_EXPAND_WIDGET);
+    
+    top->set_spacing(4);
+    top->set_name("rack_unit_title_bar");
+    
+    top->pack_start(on_off_switch, Gtk::PACK_SHRINK);
+    top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
+    top->pack_end(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
+    if (!(plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS))
+        top->pack_end(*manage(make_preset_button()), Gtk::PACK_SHRINK);
+    
+    main->pack_start(*manage(wrap_bar()), Gtk::PACK_SHRINK);
+    main->pack_start(*manage(center), Gtk::PACK_EXPAND_WIDGET);
+    main->pack_end(*manage(wrap_bar()), Gtk::PACK_SHRINK);
+    
+    main->set_name(plugin.get_id());
+    bx->pack_start(*manage(al), Gtk::PACK_EXPAND_WIDGET);
+    //al->show_all();
     bx->show_all();
     return bx;
 }
@@ -1277,34 +1301,35 @@ bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
 	return false;
     }
     Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
-    cr->set_source_rgb(1.0, 1.0, 1.0);
     int x, y, width, height;
     if (!get_has_window()) {
-	Gtk::Allocation a = get_allocation();
-	x = a.get_x();
-	y = a.get_y();
-	width = a.get_width();
-	height = a.get_height();
+        Gtk::Allocation a = get_allocation();
+        x      = a.get_x();
+        y      = a.get_y();
+        width  = a.get_width();
+        height = a.get_height();
     } else {
         int depth;
         get_window()->get_geometry(x, y, width, height, depth);
-	x = 0;
-	y = 0;
+        x = 0;
+        y = 0;
     }
-    if (y0 < 0) {
-	get_style()->paint_shadow(
-	    get_window(), Gtk::STATE_NORMAL, Gtk::SHADOW_OUT,
-	    Glib::wrap(&event->area), *this, "dnd", x, y, width, height);
-	cr->set_line_width(1.0);
-	cr->rectangle(x + 0.5, y + 0.5, width - 1, height - 1);
-    } else {
-	y0 -= 1;
-	y0 = std::max(y0, y);
-	cr->set_line_width(1.0);
-	cr->move_to(x+0.5, y0+0.5);
-	cr->rel_line_to(width - 1, 0);
+    GdkPixbuf * pb_ = gtk_widget_render_icon(GTK_WIDGET(this->gobj()), "insert", (GtkIconSize)-1, NULL);
+    if (pb_) {
+        cairo_t *cr_ = gdk_cairo_create(unwrap(get_window()));
+        gdk_cairo_set_source_pixbuf(cr_, pb_, x, y);
+        cairo_pattern_set_extend(cairo_get_source(cr_), CAIRO_EXTEND_REPEAT);
+        if (y0 < 0) {
+            cairo_set_line_width(cr_, 4.0);
+            cairo_rectangle(cr_, x, max(0, y), width, height);
+            cairo_stroke(cr_);
+        } else {
+            cairo_rectangle(cr_, x, max(y, y0 - 3), width, 2);
+            cairo_fill(cr_);
+        }
+        cairo_destroy(cr_);
     }
-    cr->stroke();
+    g_object_unref(pb_);
     return false;
 }
 

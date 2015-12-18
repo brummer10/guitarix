@@ -123,12 +123,12 @@ static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
 	*/
 
 	cairo_set_line_width (crp, 1.5);
-	cairo_set_source_rgba (crp,0.2, 1.0, 0.2, 0.4);
+	cairo_set_source_rgba (crp,1.0, 0.85, 0.0, 0.4);
 	cairo_move_to (crp, 0, 25);
 	cairo_line_to (crp, 280, 25);
 	cairo_stroke (crp);
 
-	cairo_set_source_rgba (crp,0.2, 1.0, 0.2, 0.4);
+	cairo_set_source_rgba (crp,1.0, 0.85, 0.0, 0.4);
 	cairo_rectangle (crp, 0, 0, 280.0, 50.0);
 	cairo_stroke (crp);
 

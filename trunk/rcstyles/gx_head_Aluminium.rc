@@ -1,0 +1,17 @@
+include "gx_head_Guitarix.rc"
+
+style "guitarix_default" {
+    stock["background1"]    = {{"aluminium.png"}}
+}
+
+class "GtkWidget" style:highest "guitarix_default"
+style "guitarix_font" {
+    font_name = "sans bold 7.5"
+    fg[NORMAL] = "#555555"
+}
+widget "*.rack_label" style:highest "guitarix_font"
+widget "*Value" style:highest "guitarix_font"
+widget "*ampbox*label" style:highest "guitarix_font"
+widget "*beffekt_label" style:highest "guitarix_font"
+widget "*rack_effect_label" style:highest "guitarix_font"
+

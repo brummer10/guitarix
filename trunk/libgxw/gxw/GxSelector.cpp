@@ -18,6 +18,7 @@
 
 #include "GxSelector.h"
 #include <string.h>
+#include <algorithm>
 
 #define gtk_widget_get_requisition(w, r) (*r = (w)->requisition)
 
@@ -37,6 +38,7 @@ struct _GxSelectorPrivate
 
 enum {
 	PROP_MODEL = 1,
+    PROP_BORDER_RADIUS
 };
 
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event);
@@ -117,65 +119,44 @@ static void get_selector_border(GtkWidget *widget, GtkBorder *selector_border)
 	gtk_widget_style_get(widget, "value-border", &tmp_border, NULL);
 	if (tmp_border) {
 		*selector_border = *tmp_border;
-		gtk_border_free(tmp_border);
+		//gtk_border_free(tmp_border);
 	} else {
 		*selector_border = default_selector_border;
     }
 }
 
 static void gx_selector_get_positions(
-	GtkWidget *widget, GdkRectangle *arrow, gint *yborder, GdkRectangle *text, gint *off_x, gint *off_y)
+	GtkWidget *widget, GdkRectangle *arrow, GdkRectangle *text, gint *off_x, gint *off_y)
 {
-	gint arrow_width, arrow_height, arrow_sep, border;
 	GtkBorder selector_border;
-	gtk_widget_style_get(widget,
-	                     "trough-border", &border,
-	                     "stepper-size", &arrow_width,
-	                     "stepper-spacing", &arrow_sep,
-	                     NULL);
-	arrow_height = (arrow_width * 3) / 4;
 	get_selector_border(widget, &selector_border);
+    gint iwidth = GX_SELECTOR(widget)->icon_width;
+    gint iheight = GX_SELECTOR(widget)->icon_height;
 	int width = widget->allocation.width; // fill allocated width
 	int height = widget->requisition.height;
-	int x = widget->allocation.x + widget->style->xthickness +(widget->allocation.width - width) / 2;
+	int x = widget->allocation.x + widget->style->xthickness;
 	int y = widget->allocation.y + widget->style->ythickness + (widget->allocation.height - height) / 2;
-	arrow->x = x + width - 2 * widget->style->xthickness - selector_border.right - arrow_width;
+	arrow->x = x + width - 2 * widget->style->xthickness - iwidth;
 	arrow->y = y + selector_border.bottom - widget->style->ythickness +
-		(height - selector_border.bottom - selector_border.top - arrow_height - border) / 2;
-	arrow->width = arrow_width;
-	arrow->height = arrow_height + 2*border;
-	*yborder = border;
+		(height - selector_border.bottom - selector_border.top - iheight) / 2;
+	arrow->width = iwidth;
+	arrow->height = iheight;
 	if (text) {
 		text->x = x;
 		text->y = y;
-		text->width = width - 2 * widget->style->xthickness;
+		text->width = width - 3 * widget->style->xthickness - iwidth;
 		text->height = height - 2 * widget->style->ythickness;
 		*off_x = selector_border.left;
 		*off_y = selector_border.bottom;
 	}
 }
 
-static void gx_selector_draw_arrow(const GdkRectangle *rect, gint yborder, cairo_t *cr, gboolean has_focus)
-{
-	cairo_rectangle(cr, rect->x-1, rect->y, rect->width+1, rect->height-2);
-    cairo_pattern_t*pat =
-		cairo_pattern_create_linear (rect->x-1, rect->y,rect->x+rect->width ,rect->y+ rect->height);
-	cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.3, 0.3);
-	cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
-	cairo_set_source (cr, pat);
-	cairo_fill_preserve(cr);
-    cairo_set_line_width(cr, 1.0);
-    cairo_set_source_rgb(cr, 0., 0., 0.);
-    cairo_stroke(cr);
-    cairo_pattern_destroy (pat);
-	if (has_focus) {
-		cairo_move_to(cr, rect->x, rect->y + rect->height - 1 - yborder);
-		cairo_line_to(cr, rect->x + rect->width / 2.0, rect->y - 1 + yborder);
-		cairo_line_to(cr, rect->x + rect->width, rect->y + rect->height - 1 - yborder);
-        cairo_line_to(cr,rect->x, rect->y + rect->height - 1 - yborder);
-		cairo_set_source_rgb(cr, 0.6, 0.6, 0.6);
-        cairo_fill(cr);
-	}
+static void gx_selector_create_icon(GxSelector *selector) {
+    if (selector->icon)
+        return;
+    selector->icon = gtk_widget_render_icon(GTK_WIDGET(selector), "selector_icon", (GtkIconSize)-1, NULL);
+    selector->icon_width = gdk_pixbuf_get_width(selector->icon);
+    selector->icon_height = gdk_pixbuf_get_height(selector->icon);
 }
 
 static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
@@ -184,22 +165,54 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 	GxSelector *selector = GX_SELECTOR(widget);
 	GxSelectorPrivate *priv = selector->priv;
 	int selectorstate = get_selector_state(selector);
+    
+    gx_selector_create_icon(selector);
+    
 	PangoLayout *layout = gtk_widget_create_pango_layout(widget, NULL);
 	GdkRectangle arrow, text;
-	gint yborder, off_x, off_y;
-	gx_selector_get_positions(widget, &arrow, &yborder, &text, &off_x, &off_y);
-
-	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	cairo_set_line_width(cr, 2.0);
-
-	cairo_rectangle(cr, text.x, text.y, text.width, text.height);
-	cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
-	cairo_fill_preserve(cr);
-	cairo_set_source_rgb(cr, 0, 0, 0);
-	cairo_stroke(cr);
-
-	gx_selector_draw_arrow(&arrow, yborder, cr, priv->inside);
+	gint off_x, off_y;
+	gx_selector_get_positions(widget, &arrow, &text, &off_x, &off_y);
+    gint rad;
+    float bevel;
+    gtk_widget_style_get(widget, "border-radius", &rad, "bevel", &bevel, NULL);
+    if (!rad)
+        rad = 0;
+    if (!bevel)
+        bevel = 0;
+    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+    GdkRegion *reg = gdk_region_rectangle(&widget->allocation);
+    if (event->region)
+        gdk_region_intersect(reg, event->region);
+    gdk_cairo_region(cr, reg);
+    cairo_clip (cr);
+   
+    gx_draw_rect(widget, "bg", NULL, widget->allocation.x,
+        widget->allocation.y + (widget->allocation.height - widget->requisition.height) / 2,
+        widget->allocation.width,
+        widget->requisition.height,
+        rad,
+        bevel);
+    
+    if (widget->style->ythickness >= 3)
+        gx_draw_inset(widget, text.x, text.y, text.width, text.height,
+            std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0), 1);
+        
+    gx_draw_rect(widget, "base", NULL, text.x,
+        text.y,
+        text.width,
+        text.height,
+        std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0),
+        0);
+    
+    gx_draw_glass(widget, text.x, text.y, text.width, text.height,
+        std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0));
+    
+    gdk_cairo_set_source_pixbuf(cr, selector->icon, arrow.x, arrow.y);
+    cairo_rectangle(cr, arrow.x, arrow.y, arrow.width, arrow.height);
+    cairo_fill(cr);
+    
 	cairo_destroy(cr);
+    
 	if (selector->model) {
 		gint x, y;
 		PangoRectangle logical;
@@ -216,34 +229,23 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 		g_free(s);
 	}
 	g_object_unref(layout);
+	gdk_region_destroy(reg);
 	return TRUE;
 }
 
 static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	GxSelectorPrivate *priv = GX_SELECTOR(widget)->priv;
-	priv->inside = FALSE;
-	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	GdkRectangle rect;
-	gint yborder;
-	gx_selector_get_positions(widget, &rect, &yborder, NULL, NULL, NULL);
-	gx_selector_draw_arrow(&rect, yborder, cr, FALSE);
-	cairo_destroy(cr);
+    gtk_widget_set_state(widget, GTK_STATE_NORMAL);
+    gtk_widget_queue_draw(widget);
 	return TRUE;
 }
 
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	GxSelectorPrivate *priv = GX_SELECTOR(widget)->priv;
-	priv->inside = TRUE;
-	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	GdkRectangle rect;
-	gint yborder;
-	gx_selector_get_positions(widget, &rect, &yborder, NULL, NULL, NULL);
-	gx_selector_draw_arrow(&rect, yborder, cr, TRUE);
-	cairo_destroy(cr);
+    gtk_widget_set_state(widget, GTK_STATE_PRELIGHT);
+    gtk_widget_queue_draw(widget);
 	return TRUE;
 }
 
@@ -261,19 +263,16 @@ static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisit
 		return;
 	}
 	GxSelectorPrivate *priv = selector->priv;
+    
+    gx_selector_create_icon(selector);
+    
 	if (priv->req_ok) {
 		gtk_widget_get_child_requisition(widget, requisition);
 	} else {
 		GtkTreeIter iter;
-		gint width = 0;
-		gint height = 0;
-		gint arrow_width, arrow_sep, border;
+		gint width = selector->icon_width;
+		gint height = selector->icon_height;
 		GtkBorder selector_border;
-		gtk_widget_style_get(widget,
-		                     "trough-border", &border,
-		                     "stepper-size", &arrow_width,
-		                     "stepper-spacing", &arrow_sep,
-		                     NULL);
 		get_selector_border(widget, &selector_border);
 		PangoLayout *l = gtk_widget_create_pango_layout(widget, NULL);
 		gboolean found = gtk_tree_model_get_iter_first(selector->model, &iter);
@@ -284,18 +283,15 @@ static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisit
 			pango_layout_set_text(l, s, -1);
 			g_free(s);
 			pango_layout_get_pixel_extents(l, NULL, &logical_rect);
-			if (width < logical_rect.width) {
-				width = logical_rect.width;
-			}
-			if (height < logical_rect.height) {
-				height = logical_rect.height;
-			}
+            width = std::max(logical_rect.width, width);
+            height = std::max(logical_rect.height, height);
 			found = gtk_tree_model_iter_next(selector->model, &iter);
 		}
 		priv->textsize.width = width;
 		priv->textsize.height = height;
-		requisition->width = width + arrow_sep + arrow_width + 2*border +
-			selector_border.left + selector_border.right + 2 * widget->style->xthickness;
+        height = std::max(height, selector->icon_height);
+		requisition->width = width + selector->icon_width +
+			selector_border.left + selector_border.right + 3 * widget->style->xthickness;
 		requisition->height = height + selector_border.top + selector_border.bottom +
 			2 * widget->style->ythickness;
 		priv->req_ok = TRUE;
@@ -412,6 +408,7 @@ static void gx_selector_init(GxSelector *selector)
 	selector->priv = G_TYPE_INSTANCE_GET_PRIVATE(selector, GX_TYPE_SELECTOR, GxSelectorPrivate);
 	gtk_widget_set_has_window(GTK_WIDGET(selector), FALSE);
 	gtk_widget_set_can_focus(GTK_WIDGET(selector), TRUE);
+    selector->icon = NULL;
 }
 
 static void gx_selector_unset_model(GxSelector *selector)

@@ -128,6 +128,14 @@ def build(bld):
         './builder/selectinstance.glade',
         './builder/menudef.xml',
         './builder/accels_rc',
+        './builder/gx_plugins.png',
+        './builder/gx_rack.png',
+        './builder/gx_show.png',
+        './builder/gx_split.png',
+        './builder/gx_tuner.png',
+        './builder/gx_config.png',
+        './builder/gx_fold.png',
+        './builder/gx_fullscreen.png',
         ]
 
     if bld.env["HAVE_AVAHI"]:

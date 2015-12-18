@@ -183,6 +183,9 @@ void SkinHandling::set_styledir(const string& style_dir) {
         if (strncmp(p, "gx_head_", 8) != 0) {
             continue;
         }
+        if (strncmp(p, "gx_head_gx", 10) == 0) {
+            continue;
+        }
         p += 8;
         int n = strlen(p) - 3;
         if (strcmp(p+n, ".rc") != 0) {
@@ -478,7 +481,7 @@ CmdlineOptions::CmdlineOptions()
       window_height(600),
       preset_window_height(220),
       mul_buffer(1),
-      skin_name("gx7-blues"),
+      skin_name("Guitarix"),
       no_warn_latency(false),
       system_order_rack_h(false),
       system_show_value(false),

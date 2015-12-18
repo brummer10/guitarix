@@ -163,6 +163,34 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 				 0,
 		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 
+    gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_float("bevel",
+            P_("Bevel"),
+            P_("The bevel effect"),
+            -1.0, 1.0, 0.0,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_int("border-radius",
+            P_("Border Radius"),
+            P_("The radius of the corners"),
+            0, 100, 0,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_int("inverse",
+            P_("Inverse"),
+            P_("When drawn by draw_skin, choose if colors are inverted"),
+            0, 1, 0,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+    gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_boxed("alternate-box",
+            P_("Alternate Box"),
+            P_("A box definition { left, right, top, bottom } for the alternate color in percent"),
+            GTK_TYPE_BORDER,
+            GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 }
 
 void gx_paint_box_call_paint_func(GxPaintBox *paint_box, GdkEventExpose *event)
@@ -605,6 +633,191 @@ static void led_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
 }
+
+
+
+static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
+{
+    int spf;
+	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    if (spf == 1000)
+        return;
+    GxPaintBox *pb = GX_PAINT_BOX(wi);
+    cairo_t *cr = gdk_cairo_create(wi->window);
+	GdkRegion *region = gdk_region_rectangle(&wi->allocation);
+	gdk_region_intersect(region, ev->region);
+	gdk_cairo_region(cr, region);
+	cairo_clip(cr);
+    
+	double x0 = wi->allocation.x;
+	double y0 = wi->allocation.y;
+	double w  = wi->allocation.width;
+	double h  = wi->allocation.height;
+    double h_ = h - 4;
+    
+    gint inverse;
+    GtkBorder * alt;
+    float bevel;
+    float left, right, top, bottom;
+    left = right = top = bottom = 0;
+    
+    gtk_widget_style_get(wi, "inverse", &inverse, "alternate_box", &alt, "bevel", &bevel, NULL);
+    
+    if (h > 64 and alt) {
+        // only draw alternate color if height > 64 pixels
+        left   = alt->left / 100.;
+        right  = alt->right / 100.;
+        top    = alt->top / 100.;
+        bottom = alt->bottom / 100.;
+    }
+    
+    // draw main color
+    GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb),
+        inverse ? "background2" : "background1", (GtkIconSize)-1, NULL);
+	gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
+	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+    
+    cairo_rectangle(cr, x0, y0, w, h_);
+	cairo_fill(cr);
+    
+    // draw alternate color
+    if (top > 0 or bottom > 0 or left > 0 or right > 0) {
+        bg = gtk_widget_render_icon(GTK_WIDGET(pb),
+            inverse ? "background1" : "background2", (GtkIconSize)-1, NULL);
+        gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
+        cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+        cairo_rectangle(cr, x0 + int(w * left),
+                            y0 + int(h_ * top),
+                            int(w * (1 - right - left)) + 1,
+                            int(h_ * (1 - bottom - top)) + 1);
+        cairo_fill(cr);
+    }
+    
+    // draw bevel
+    gx_bevel(cr, x0, y0, w, h_, 0, bevel);
+    
+    // draw shadow beneath
+    cairo_pattern_t * pat = cairo_pattern_create_linear (x0, y0 + h_, x0, y0 + h);
+	cairo_pattern_add_color_stop_rgba(pat, 0.0, 0, 0, 0, 0.8);
+	cairo_pattern_add_color_stop_rgba(pat, 1.0, 0, 0, 0, 0.0);
+    cairo_set_source(cr, pat);
+    cairo_rectangle(cr, x0, y0 + h_, w, h - h_);
+    cairo_fill(cr);
+    
+    // clean up
+    cairo_pattern_destroy(pat);
+	cairo_destroy(cr);
+	gdk_region_destroy(region);
+    g_object_unref(bg);
+}
+
+static void draw_handles (GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr = gdk_cairo_create(wi->window);
+    GxPaintBox *pb = GX_PAINT_BOX(wi);
+	GdkRegion *region = gdk_region_rectangle (&wi->allocation);
+    
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+
+	double x0 = wi->allocation.x;
+	double y0 = wi->allocation.y;
+	double w  = wi->allocation.width;
+	double h  = wi->allocation.height - 4;
+    
+    // left
+    GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb), "handle_left", (GtkIconSize)-1, NULL);
+    gint wl = gdk_pixbuf_get_width(bg);
+	gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
+	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+    cairo_rectangle(cr, x0, y0, wl, h);
+	cairo_fill(cr);
+    cairo_rectangle(cr, x0 + wl - 1, y0, 1, h);
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.8);
+    cairo_fill(cr);
+    cairo_rectangle(cr, x0 + wl, y0, 1, h);
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.15);
+    cairo_fill(cr);
+    
+    // right
+    bg = gtk_widget_render_icon(GTK_WIDGET(pb), "handle_right", (GtkIconSize)-1, NULL);
+    wl = gdk_pixbuf_get_width(bg);
+	gdk_cairo_set_source_pixbuf(cr, bg, x0 + w - wl, y0);
+	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+    cairo_rectangle(cr, x0 + w - wl, y0, wl, h);
+	cairo_fill(cr);
+    cairo_rectangle(cr, x0 + w - wl - 1, y0, 1, h);
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
+    cairo_fill(cr);
+    cairo_rectangle(cr, x0 + w - wl, y0, 1, h);
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.05);
+    cairo_fill(cr);
+    
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+    g_object_unref(bg);
+}
+
+static void draw_screws (GtkWidget *wi, GdkEventExpose *ev)
+{
+	double x0 = wi->allocation.x;
+	double y0 = wi->allocation.y;
+	double w  = wi->allocation.width;
+	double h  = wi->allocation.height - 3;
+
+	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
+	double x1 = gdk_pixbuf_get_height(stock_image);
+	double y1 = gdk_pixbuf_get_width(stock_image);
+    if (h > 2 * y1) {
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0, y0, x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0, y0 + h - y1, x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0 + w - x1, y0 + h - y1, x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0 + w - x1, y0, x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+    } else if (h > y1) {
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0, y0 + int(h / 2) - int(y1 / 2), x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                    stock_image, 0, 0,
+                    x0 + w - x1, y0 + int(h / 2) - int(y1 / 2), x1, y1,
+                    GDK_RGB_DITHER_NORMAL, 0, 0);
+    }
+    g_object_unref(stock_image);
+}
+
+static void gx_rack_unit_expose (GtkWidget *wi, GdkEventExpose *ev) {
+    draw_skin(wi, ev);
+    draw_handles(wi, ev);
+    draw_screws(wi, ev);
+}
+
+static void gx_rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	draw_skin(wi, ev);
+	draw_handles(wi, ev);
+    draw_screws(wi, ev);
+}
+
+static void gx_rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+    draw_skin(wi, ev);
+    draw_screws(wi, ev);
+}
+
 
 static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
@@ -2647,7 +2860,7 @@ static void level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	for (unsigned int i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i)
 	{
 		float fraction = log_meter(db_points[i]);
-		cairo_set_source_rgb (cr, 0.12*i, 1, 0.1);
+		cairo_set_source_rgb (cr,0.32 + 0.22*i/2,0.5 +  0.1*i/2, 0.1);
 
 		cairo_move_to (cr, x0+rect_width*0.2,y0+rect_height - (rect_height * fraction));
 		cairo_line_to (cr, x0+rect_width*0.8 ,y0+rect_height -  (rect_height * fraction));
@@ -2708,7 +2921,7 @@ static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	for (unsigned int i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i)
 	{
 		float fraction = log_meter(db_points[i]);
-		cairo_set_source_rgb (cr, 0.12*i, 1, 0.1);
+		cairo_set_source_rgb (cr,0.32 + 0.22*i/2,0.5 +  0.1*i/2, 0.1);
 
 		cairo_move_to (cr, x0+rect_width*0.2,y0+rect_height - (rect_height * fraction));
 		cairo_line_to (cr, x0+rect_width ,y0+rect_height -  (rect_height * fraction));
@@ -2804,6 +3017,14 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 	    paint_box->expose_func = cabinet_expose;
 	} else if (strcmp(paint_func, "amp_skin_expose") == 0) {
 	    paint_box->expose_func = amp_skin_expose;
+	} else if (strcmp(paint_func, "gx_rack_unit_expose") == 0) {
+		paint_box->expose_func = gx_rack_unit_expose;
+	} else if (strcmp(paint_func, "gx_rack_unit_shrink_expose") == 0) {
+		paint_box->expose_func = gx_rack_unit_shrink_expose;
+	} else if (strcmp(paint_func, "gx_rack_amp_expose") == 0) {
+		paint_box->expose_func = gx_rack_amp_expose;
+	} else if (strcmp(paint_func, "draw_skin") == 0) {
+		paint_box->expose_func = draw_skin;
 	} else {
 		paint_box->expose_func = 0;
 	}

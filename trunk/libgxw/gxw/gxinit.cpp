@@ -69,6 +69,13 @@ static image_entry image_data[] = {
 	{ "guitarix", pb_guitarix },
     { "screw", pb_screw },
     { "amp_skin", pb_amp21 },
+
+    { "background1", pb_background1 },
+    { "background2", pb_background2 },
+    { "handle_left", pb_handle_left },
+    { "handle_right", pb_handle_right },
+    { "selector_icon", pb_selector_icon },
+    { "insert", pb_insert },
 	{ NULL, NULL },
 };
 

@@ -300,7 +300,7 @@ static gboolean gx_switch_expose(GtkWidget *widget, GdkEventExpose *event)
 
 static void gx_switch_init(GxSwitch *swtch)
 {
-	GTK_BUTTON(swtch)->relief = GTK_RELIEF_NONE;
+	//GTK_BUTTON(swtch)->relief = GTK_RELIEF_NONE;
 }
 
 /****************************************************************

@@ -61,8 +61,15 @@ def build_stock_images(bld):
         "guitarix.png",
         "screw.png",
         "knob_medium.png",
-        "amp21.png"
-        ]
+        "amp21.png",
+
+        "background1.png",
+        "background2.png",
+        "handle_left.png",
+        "handle_right.png",
+        "selector_icon.png",
+        "insert.png"
+       ]
 
     bld(name = "img2c",
         target = "gximages.cc",
@@ -74,6 +81,7 @@ def build_stock_images(bld):
 def build(bld):
     sources = [
         'gxinit.cpp',
+        'drawingutils.cpp',
         'GxFastMeter.cpp',
         'GxWaveView.cpp',
         'GxTuner.cpp',

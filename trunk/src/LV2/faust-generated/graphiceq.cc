@@ -703,7 +703,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec22[0] = (fRec23[0] - (fConst70 * ((fConst68 * fRec22[2]) + (fConst66 * fRec22[1]))));
 		double fTemp1 = (fRec22[2] + (fRec22[0] + (2 * fRec22[1])));
 		fVec1[0] = fTemp1;
-		fRec21[0] = ((fConst76 * fRec21[1]) + (fConst75 * (fVec1[1] + fVec1[0])));
+		fRec21[0] = ((fConst76 * fRec21[1]) + (fConst75 * (fVec1[0] + fVec1[1])));
 		fRec20[0] = (fRec21[0] - (fConst63 * ((fConst61 * fRec20[2]) + (fConst59 * fRec20[1]))));
 		double fTemp2 = (fRec20[2] + (fRec20[0] + (2 * fRec20[1])));
 		fVec2[0] = fTemp2;
@@ -772,7 +772,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec47[0] = ((fConst94 * fRec47[1]) + (fConst93 * ((fConst18 * fVec7[0]) + (fConst109 * fVec7[1]))));
 		fRec46[0] = (fRec47[0] - (fConst21 * ((fConst19 * fRec46[2]) + (fConst17 * fRec46[1]))));
 		fRec45[0] = ((fConst21 * (((fConst16 * fRec46[0]) + (fConst110 * fRec46[1])) + (fConst16 * fRec46[2]))) - (fConst108 * ((fConst107 * fRec45[2]) + fTemp18)));
-		fRec44[0] = ((fRec45[2] + (fConst108 * ((fConst107 * fRec45[0]) + fTemp18))) - (fConst104 * ((fConst103 * fRec44[2]) + fTemp17)));
+		fRec44[0] = ((fRec45[2] + (fConst108 * (fTemp18 + (fConst107 * fRec45[0])))) - (fConst104 * ((fConst103 * fRec44[2]) + fTemp17)));
 		fRec48[0] = ((0.999 * fRec48[1]) + fSlow3);
 		double fTemp19 = (fRec48[0] * (fRec44[2] + (fConst104 * (fTemp17 + (fConst103 * fRec44[0])))));
 		double 	fRec43 = max(fConst1, fabs(fTemp19));
@@ -1112,37 +1112,37 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case G10: 
-		fslider9_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider9_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case G11: 
-		fslider10_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider10_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case G1: 
-		fslider0_ = (float*)data; // , 0.0, -6e+01, 2e+01, 0.1 
+		fslider0_ = (float*)data; // , 0.0, -6e+01, 5.2, 0.1 
 		break;
 	case G2: 
-		fslider1_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider1_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case G3: 
-		fslider2_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider2_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case G4: 
-		fslider3_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider3_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case G5: 
-		fslider4_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider4_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case G6: 
-		fslider5_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider5_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case G7: 
-		fslider6_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider6_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case G8: 
-		fslider7_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider7_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case G9: 
-		fslider8_ = (float*)data; // , 0.0, -3e+01, 2e+01, 0.1 
+		fslider8_ = (float*)data; // , 0.0, -3e+01, 5.2, 0.1 
 		break;
 	case V10: 
 		fbargraph9_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 

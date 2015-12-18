@@ -639,7 +639,7 @@ private:
     Gxw::PaintBox *amp_background;
     Gxw::Switch *tuner_on_off;
     Gxw::Selector *tuner_mode;
-    Gxw::Wheel *tuner_reference_pitch;
+    Gxw::ValueDisplay *tuner_reference_pitch;
     Gxw::Selector *tuner_tuning;
     Gxw::Selector *tuner_temperament;
     Gxw::RackTuner *racktuner;
