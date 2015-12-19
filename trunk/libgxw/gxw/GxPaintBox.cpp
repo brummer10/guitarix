@@ -799,6 +799,36 @@ static void draw_screws (GtkWidget *wi, GdkEventExpose *ev)
     g_object_unref(stock_image);
 }
 
+static void draw_watermark(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t * cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+
+	double x0 = wi->allocation.x;
+	double y0 = wi->allocation.y;
+	double w  = wi->allocation.width;
+	double h  = wi->allocation.height;
+    
+    GdkPixbuf * wm  = gtk_widget_render_icon(wi, "watermark", (GtkIconSize)-1, NULL);
+    gint wwm = gdk_pixbuf_get_width(wm);
+    gint hwm = gdk_pixbuf_get_height(wm);
+    GdkPixbuf * wm_ = gdk_pixbuf_scale_simple(wm, int(wwm * 0.89), int(hwm * 0.9), GDK_INTERP_BILINEAR);
+    gint wwm_ = gdk_pixbuf_get_width(wm_);
+    gint hwm_ = gdk_pixbuf_get_height(wm_);
+    gdk_cairo_set_source_pixbuf(cr, wm_, x0 + w - wwm_ - 10, y0 + h - hwm_ - 10);
+    cairo_rectangle(cr, x0 + w - wwm_ - 10, y0 + h - hwm_ - 10, wwm_, hwm_);
+    cairo_fill(cr);
+    
+    cairo_destroy(cr);
+	gdk_region_destroy (region);
+    g_object_unref(wm);
+    g_object_unref(wm_);
+}
+
 static void gx_rack_unit_expose (GtkWidget *wi, GdkEventExpose *ev) {
     draw_skin(wi, ev);
     draw_handles(wi, ev);
@@ -925,6 +955,11 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	gdk_region_destroy (region);
+}
+
+static void rack_expose (GtkWidget *wi, GdkEventExpose *ev) {
+    rectangle_skin_color_expose(wi, ev);
+    draw_watermark(wi, ev);
 }
 
 static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
@@ -3025,6 +3060,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = gx_rack_amp_expose;
 	} else if (strcmp(paint_func, "draw_skin") == 0) {
 		paint_box->expose_func = draw_skin;
+	} else if (strcmp(paint_func, "rack_expose") == 0) {
+		paint_box->expose_func = rack_expose;
 	} else {
 		paint_box->expose_func = 0;
 	}

@@ -76,6 +76,7 @@ static image_entry image_data[] = {
     { "handle_right", pb_handle_right },
     { "selector_icon", pb_selector_icon },
     { "insert", pb_insert },
+    { "watermark", pb_watermark },
 	{ NULL, NULL },
 };
 

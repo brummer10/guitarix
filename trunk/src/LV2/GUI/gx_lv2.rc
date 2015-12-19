@@ -1,7 +1,0 @@
-#"reset"
-style "gx_lv2"
-{
-  GxPaintBox::force-reload =0
-}
-widget "*.GUITARIXLV2?" style:highest "gx_lv2"
-widget "*.GUITARIXLV21?" style:highest "gx_lv2"

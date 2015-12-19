@@ -415,7 +415,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
     box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
     
     top->pack_start(on_off_switch, Gtk::PACK_SHRINK);
-
+    on_off_switch.set_name("effect_on_off");
     Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
     szg_label->add_widget(*manage(effect_label));
     top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
@@ -1146,7 +1146,7 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
     GtkWidget *l = gtk_image_new_from_stock(t, (GtkIconSize)-1);
     b->set_focus_on_click(false);
     b->add(*manage(Glib::wrap(l)));
-    b->set_name("effect_category");
+    b->set_name("effect_on_off");
     if (expand) {
 	b->signal_clicked().connect(
 	    sigc::mem_fun(*this, &RackBox::do_expand));
@@ -1165,6 +1165,7 @@ Gtk::Button *RackBox::make_preset_button() {
     p->set_can_default(false);
     p->set_can_focus(false);
 	p->set_tooltip_text(_("manage effect unit presets"));
+	p->set_name("effect_on_off");
     p->signal_clicked().connect(
 	sigc::mem_fun(plugin, &PluginUI::on_plugin_preset_popup));
     return p;
@@ -1208,6 +1209,7 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     top->set_name("rack_unit_title_bar");
     
     top->pack_start(on_off_switch, Gtk::PACK_SHRINK);
+    on_off_switch.set_name("effect_on_off");
     top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
     top->pack_end(*manage(make_expand_button(false)), Gtk::PACK_SHRINK);
     if (!(plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS))

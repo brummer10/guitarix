@@ -59,14 +59,15 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
     case CLevel:
       return &m_smallknob4;
     case ALevel:
-      return &m_smallknob5;
+      return &m_bigknob4;
     default:
       return NULL;
   }
 }
 
 Widget::Widget(Glib::ustring plugname):
-plug_name(plugname)
+plug_name(plugname),
+pir(GX_LV2_STYLE_DIR"/logo.png")
 {
 
   // create all selectors
@@ -120,16 +121,18 @@ plug_name(plugname)
   m_paintbox.set_spacing(12);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "amp_skin_expose";
+  m_paintbox.property_paint_func() = "gx_rack_unit_expose";
   add(m_paintbox);
   // box for the controllers
   m_hbox_.set_spacing(12);
   m_hbox_.set_homogeneous(false);
   // this box set space for the upper part of the skin
   m_hbox1_.set_spacing(12);
-  m_hbox1_.set_border_width(65);
+  m_hbox1_.set_border_width(25);
+  m_hbox1_.pack_end(pir, Gtk::PACK_SHRINK);
   // set a vertical box in the paintbox
   m_paintbox.pack_start(m_vbox_);
+  m_vbox_.set_border_width(25);
   // and put space box on top
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
   // and controller box on bottem
@@ -230,14 +233,14 @@ void Widget::make_controller_box(Gtk::Box *box,
                                     get_controller_by_port(port_name));
   if (regler)
   {
-    //Gtk::Label* pr = new Gtk::Label(label, 0);
-    //pr->set_name("amplabel");
+    Gtk::Label* pr = new Gtk::Label(label, 0);
+    pr->set_name("amplabel");
     // use label images instead simple string labes
-    Glib::ustring  label_image = GX_LV2_STYLE_DIR;
-    label_image += "/";
-    label_image += label;
-    label_image += "-label.png";
-    Gtk::Image *pr = new Gtk::Image(label_image);
+    //Glib::ustring  label_image = GX_LV2_STYLE_DIR;
+    //label_image += "/";
+    //label_image += label;
+    //label_image += "-label.png";
+    //Gtk::Image *pr = new Gtk::Image(label_image);
 
     Gtk::VBox* b1 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
@@ -291,7 +294,7 @@ void Widget::set_sensitive_state(float state)
   if (( state > 0) ? (set = false) : (set = true));
   c_selector.set_sensitive(set);
   m_smallknob4.set_sensitive(set);
-  m_smallknob5.set_sensitive(set);
+  m_bigknob4.set_sensitive(set);
 }
 
 // receive controller value changes from host and set them to controller
@@ -307,7 +310,7 @@ void Widget::set_value(uint32_t port_index,
     {
       float value = *static_cast<const float*>(buffer);
       regler->cp_set_value(value);
-      check_for_skin(port_index, static_cast<int>(value));
+     // check_for_skin(port_index, static_cast<int>(value));
     }
     if (port_index == SCHEDULE)
     {
@@ -327,7 +330,7 @@ void Widget::on_value_changed(uint32_t port_index)
     float value = regler->cp_get_value();
     write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
-    check_for_skin(port_index, static_cast<int>(min(tubes_size-1,value)));
+   // check_for_skin(port_index, static_cast<int>(min(tubes_size-1,value)));
   }
 }
 

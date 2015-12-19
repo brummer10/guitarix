@@ -47,8 +47,8 @@ widget "*.lmw" style:highest "guitarix_slevel"
 style "guitarix_waveview"
 {
   GxWaveView::box-gradient = {
-    { 16214, 65536, 13107, 0, 52428 }, # 0.4, 1, 0.2, 0, 0.8
-	{ 52428, 65536, 53107, 0, 52428 }} # 0.8, 0.2, 1, 0.2, 0.8
+    { 16214, 65536, 13107, 0, 32428 }, # 0.4, 1, 0.2, 0, 0.8
+	{ 52428, 65536, 53107, 0, 32428 }} # 0.8, 0.2, 1, 0.2, 0.8
 
   fg[NORMAL] = 	{ 0.48, 0.48, 0.12 } # RGBA: 0.8, 0.8, 0.2, 0.6
   font_name = "sans 6"
@@ -111,6 +111,25 @@ style "guitarix_switch"
 }
 
 class "*GxSwitch" style:highest "guitarix_switch"
+
+style "gx_effect_switch"
+{
+    bg[NORMAL]     = "#7d9c57"
+    bg[ACTIVE]     = "#7e9e59"
+    bg[PRELIGHT]   = "#86a765"
+    
+    engine "clearlooks" {
+        focus_color         = { 0, 0, 0 }
+        contrast            = 0.99
+        menubarstyle        = 0
+        reliefstyle         = 0
+        radius              = 1.0
+        disable_focus       = TRUE
+        style               = INVERTED #CLASSIC GLOSSY GUMMY INVERTED
+    }
+}
+
+widget "*effect_on_off" style:highest "gx_effect_switch"
 
 style "guitarix_default" {
     
@@ -367,8 +386,8 @@ style "guitarix_fastmeter" {
     bg[NORMAL]     = "#2f2f2f"                   # border
     bg[PRELIGHT]   = "#2f2f2f"                   # border hover
     
-    GxFastMeter::clr-bottom    = "#ff9000"
-    GxFastMeter::clr-middle    = "#efff00"
+    GxFastMeter::clr-bottom    = "#b96901"
+    GxFastMeter::clr-middle    = "#d4cd00"
     GxFastMeter::clr-top       = "#ff0500"
     GxFastMeter::over          = "#ff1100"
     GxFastMeter::mid-pos       = 0.717

@@ -2724,6 +2724,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     ** setup racktuner parameter and signals
     */
     setup_tuner(*racktuner);
+    tuner_on_off->set_name("effect_on_off");
     tuner_on_off->signal_toggled().connect(
 	sigc::compose(
 	    sigc::mem_fun(*racktuner, &Gxw::RackTuner::set_sensitive),
@@ -2869,6 +2870,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     PluginUI *mainamp_plugin = new PluginUI(*this, "ampstack");
     plugin_dict.add(mainamp_plugin);
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
+    //effects_toolpalette->set_name("effects_toolpalette");
     effects_toolpalette->show();
     if (!options.get_clear_rc()) {
 		  //g_object_set (gtk_settings_get_default (),"gtk-theme-name",NULL, NULL);

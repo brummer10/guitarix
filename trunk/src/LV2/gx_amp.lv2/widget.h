@@ -100,6 +100,7 @@ protected:
   Gtk::HBox          m_hboxtonestack1;
   Gtk::HBox          m_hboxtonestack2;
   Gtk::HBox          m_hboxtonestack3;
+  Gtk::Image        pir;
 
   Gxw::PaintBox      m_paintbox;
   Gtk::HBox          m_hbox;
@@ -107,11 +108,11 @@ protected:
   Gxw::BigKnob       m_bigknob1;
   Gxw::BigKnob       m_bigknob2;
   Gxw::BigKnob       m_bigknob3;
+  Gxw::BigKnob       m_bigknob4;
   Gxw::SmallKnob     m_smallknob1;
   Gxw::SmallKnob     m_smallknob2;
   Gxw::SmallKnob     m_smallknob3;
   Gxw::SmallKnobR    m_smallknob4;
-  Gxw::SmallKnobR    m_smallknob5;
   Gxw::Selector      m_selector;
   Gxw::Selector      t_selector;
   Gxw::Selector      c_selector;

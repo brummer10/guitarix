@@ -1,5 +1,14 @@
 include "gx_head_Guitarix.rc"
 
+style "gx_effect_switch"
+{
+    bg[NORMAL]     = "#8e719f"
+    bg[ACTIVE]     = "#8e709c"
+    bg[PRELIGHT]   = "#9a79a9"
+}
+
+widget "*effect_on_off" style:highest "gx_effect_switch"
+
 style "guitarix_default" {
     stock["background1"]    = {{"lavender.png"}}
 }
