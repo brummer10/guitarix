@@ -2227,11 +2227,11 @@ void MainWindow::set_waveview_buffer(unsigned int size) {
 }
 
 void MainWindow::on_oscilloscope_post_pre(int post_pre) {
-    if (post_pre) {
-        fWaveView.set_multiplicator(150.,250.);
-    } else {
+   // if (post_pre) {
+   //     fWaveView.set_multiplicator(150.,250.);
+   // } else {
         fWaveView.set_multiplicator(20.,60.);
-    }
+   // }
 }
 
 int MainWindow::on_oscilloscope_activate(bool start) {
