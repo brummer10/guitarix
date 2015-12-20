@@ -134,6 +134,7 @@ def build(bld):
         'maestrowah.dsp',
         'selwah.dsp',
         'voxwah.dsp',
+        'gcb_95.dsp',
 
 
         # tone stacks
