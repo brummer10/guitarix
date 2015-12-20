@@ -283,6 +283,7 @@ void Widget::make_switch_box(Gtk::Box *box,
 
     regler->set_name(plug_name);
     regler->set_base_name( "button" );
+    regler->set_relief(Gtk::RELIEF_NONE);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
 
     // 2nd Label

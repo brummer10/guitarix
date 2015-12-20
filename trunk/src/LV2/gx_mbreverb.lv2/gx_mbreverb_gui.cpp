@@ -115,6 +115,39 @@ void Gx_mbreverb_GUI::set_skin()
                  "font_name = 'sans 7.5 bold' \n"
                  " }\n";
   toparse +=     addKnob;
+  toparse +=     "style 'guitarix_default' {\n"
+    
+                 "    GxPaintBox::bevel                  = 0.11\n"
+                 "    GxPaintBox::inverse                = 0\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 30, 15 }\n"
+
+                 "    fg[NORMAL]              = '#999999'\n"
+                 "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[PRELIGHT]            = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[INSENSITIVE]         = { 0.5, 0.5, 0.5 }\n"
+                 "    fg[SELECTED]            = { 0.9, 0.9, 0.9 }\n"
+    
+                 "    bg[NORMAL]              = { 0.13, 0.13, 0.13 }\n"
+                 "    bg[ACTIVE]              = { 0.0, 0.0, 0.0 }\n"
+                 "    bg[PRELIGHT]            = { 0.25, 0.25, 0.25 }\n"
+                 "    bg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }\n"
+                 "    bg[SELECTED]            = { 0.25, 0.25, 0.25 }\n"
+    
+                 "    text[NORMAL]            = { 0.9, 0.9, 0.9 }\n"
+                 "    text[ACTIVE]            = '#ff9000'\n"
+                 "    text[PRELIGHT]          = { 1.0, 1.0, 1.0 }\n"
+                 "    text[INSENSITIVE]       = { 0.5, 0.5, 0.5 }\n"
+                 "    text[SELECTED]          = { 1.0, 1.0, 1.0 }\n"
+    
+                 "    base[NORMAL]            = { 0.0, 0.0, 0.0 }\n"
+                 "    base[ACTIVE]            = { 0.18, 0.18, 0.18 }\n"
+                 "    base[PRELIGHT]          = { 0.1, 0.1, 0.1 }\n"
+                 "    base[INSENSITIVE]       = { 0.2, 0.2, 0.2 }\n"
+                 "    base[SELECTED]          = { 0.8, 0.18, 0.18 }\n"
+                 "}\n"
+                 "widget '*.";
+  toparse +=     plug_name;
+  toparse +=     "' style:highest 'guitarix_default'\n";
 
   toparse +=     " widget '*.amplabel' style:highest 'gx_head_expander_box'\n"
                  "widget '*.";

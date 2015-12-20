@@ -110,6 +110,61 @@ void Gx_tremoloGUI::set_skin()
                  "font_name = 'sans 7.5 bold' \n"
                  " }\n";
   toparse +=     addKnob;
+  toparse +=     "style 'guitarix_default' {\n"
+    
+                 "    GxPaintBox::bevel                  = 0.11\n"
+                 "    GxPaintBox::inverse                = 0\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 30, 15 }\n"
+
+                 "    fg[NORMAL]              = '#ff9000'\n"
+                 "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[PRELIGHT]            = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[INSENSITIVE]         = { 0.5, 0.5, 0.5 }\n"
+                 "    fg[SELECTED]            = { 0.9, 0.9, 0.9 }\n"
+    
+                 "    bg[NORMAL]              = { 0.13, 0.13, 0.13 }\n"
+                 "    bg[ACTIVE]              = { 0.0, 0.0, 0.0 }\n"
+                 "    bg[PRELIGHT]            = { 0.25, 0.25, 0.25 }\n"
+                 "    bg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }\n"
+                 "    bg[SELECTED]            = { 0.25, 0.25, 0.25 }\n"
+    
+                 "    text[NORMAL]            = { 0.9, 0.9, 0.9 }\n"
+                 "    text[ACTIVE]            = '#ff9000'\n"
+                 "    text[PRELIGHT]          = { 1.0, 1.0, 1.0 }\n"
+                 "    text[INSENSITIVE]       = { 0.5, 0.5, 0.5 }\n"
+                 "    text[SELECTED]          = { 1.0, 1.0, 1.0 }\n"
+    
+                 "    base[NORMAL]            = { 0.0, 0.0, 0.0 }\n"
+                 "    base[ACTIVE]            = { 0.18, 0.18, 0.18 }\n"
+                 "    base[PRELIGHT]          = { 0.1, 0.1, 0.1 }\n"
+                 "    base[INSENSITIVE]       = { 0.2, 0.2, 0.2 }\n"
+                 "    base[SELECTED]          = { 0.8, 0.18, 0.18 }\n"
+                 "}\n"
+                 "widget '*.";
+  toparse +=     plug_name;
+  toparse +=     "' style:highest 'guitarix_default'\n";
+  toparse +=     " style 'gx_selector'\n"
+                 " {\n"
+                 " fg[NORMAL]     = '#ff9000'   \n"
+                 " fg[PRELIGHT]   = '#ffffff'    \n"
+                 " bg[NORMAL]     = '#2f2f2f'     \n"
+                 " bg[PRELIGHT]   = '#2f2f2f'      \n"
+                 " base[NORMAL]   = { 0.05, 0.05, 0.05 } \n"
+                 " base[PRELIGHT] = '#000000'      \n"
+                 " text[NORMAL]   = '#ff9000'     \n"
+                 " text[PRELIGHT] = '#ffffff'    \n"
+                 " GxRegler::value-border      = { 4, 4, 2, 2 } \n"
+                 " GxRegler::border-radius     = 6\n"
+                 " GxRegler::bevel             = 0.12\n"
+                 " GtkRange::trough-border = 2\n"
+                 " GtkRange::stepper-size = 8\n"
+                 " GtkRange::stepper-spacing = 2\n"
+                 " GxRegler::value-border = { 2, 0, 0, 0 }\n"
+                 " font_name = 'sans bold 7.5'\n"
+                 " xthickness = 8\n"
+                 " ythickness = 4\n"
+                 " }\n"
+                 "class '*GxSelector' style:highest 'gx_selector'\n";
 
   toparse +=     " widget '*.amplabel' style:highest 'gx_head_tremolo_box'\n"
                  "widget '*.";

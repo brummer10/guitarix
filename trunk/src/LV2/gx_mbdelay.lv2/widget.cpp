@@ -153,6 +153,7 @@ plug_name(plugname)
   m_hbox[0].set_border_width(4);
   m_hbox[0].set_homogeneous(false);
   m_vbox[0].pack_start(m_hbox[0]);
+  m_vbox[0].set_border_width(24);
   m_fr[6].add(m_hbox[1]);
   m_vbox[0].pack_start(m_fr[6]);
   m_vbox[0].pack_start(m_hbox[2]);

@@ -308,6 +308,7 @@ void Widget::make_switch_box(Gtk::Box *box,
     regler->set_name(plug_name);
     regler->set_base_name( "button" );
     regler->set_can_focus( false ) ;
+    regler->set_relief(Gtk::RELIEF_NONE);
     Gtk::VBox* b1 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
     box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK); 

@@ -108,43 +108,91 @@ void Gx_livelooper_GUI::set_skin()
                  "\n"
                  "style 'gx_head_expander_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#c0c6d0' \n"
+                 "    fg[NORMAL] = '#999999' \n"
                  "font_name = 'sans 7.5 bold' \n"
                  " }\n";
   toparse +=     addKnob;
 
-  toparse +=     " widget '*.amplabel' style:highest 'gx_head_expander_box'\n"
-  
-                 "style 'gx_head_latency_box' \n"
+  toparse +=     "style \"gx_";
+  toparse +=     plug_name;
+  toparse +=     "_dark-paintbox\"\n"
                  " { \n"
-                 "    fg[NORMAL] = '#c0c6d0' \n"
-                 "font_name = 'sans 7.5 ' \n"
+                 "    GxPaintBox::icon-set =9\n"
+                 "    stock['amp_skin'] = {{'";
+  toparse +=     plugskin;
+  toparse +=     "'}}\n"
+                 " }\n"
+                 "\n"
+                 "style 'gx_head_black_box' \n"
+                 " { \n"
+                 "    font_name = 'sans bold 7.5'\n"
+                 "    fg[NORMAL] = '#999999' \n"
                  " }\n";
-  toparse +=     " widget '*.lalabel' style:highest 'gx_head_latency_box'\n"
-  
+  toparse +=     addKnob;
+
+  toparse +=     " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
                  "widget '*.";
   toparse +=     plug_name;
   toparse +=     "' style 'gx_";
   toparse +=     plug_name;
   toparse +=     "_dark-paintbox' ";
-  toparse +=     " style 'gx_selector_";
+
+  toparse +=     "style 'guitarix_default' {\n"
+    
+                 "    GxPaintBox::bevel                  = 0.11\n"
+                 "    GxPaintBox::inverse                = 0\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 30, 15 }\n"
+
+                 "    fg[NORMAL]              = '#999999'\n"
+                 "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[PRELIGHT]            = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[INSENSITIVE]         = { 0.5, 0.5, 0.5 }\n"
+                 "    fg[SELECTED]            = { 0.9, 0.9, 0.9 }\n"
+    
+                 "    bg[NORMAL]              = { 0.13, 0.13, 0.13 }\n"
+                 "    bg[ACTIVE]              = { 0.0, 0.0, 0.0 }\n"
+                 "    bg[PRELIGHT]            = { 0.25, 0.25, 0.25 }\n"
+                 "    bg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }\n"
+                 "    bg[SELECTED]            = { 0.25, 0.25, 0.25 }\n"
+    
+                 "    text[NORMAL]            = '#999999'\n"
+                 "    text[ACTIVE]            = '#999999'\n"
+                 "    text[PRELIGHT]          = { 1.0, 1.0, 1.0 }\n"
+                 "    text[INSENSITIVE]       = { 0.5, 0.5, 0.5 }\n"
+                 "    text[SELECTED]          = { 1.0, 1.0, 1.0 }\n"
+    
+                 "    base[NORMAL]            = { 0.0, 0.0, 0.0 }\n"
+                 "    base[ACTIVE]            = { 0.18, 0.18, 0.18 }\n"
+                 "    base[PRELIGHT]          = { 0.1, 0.1, 0.1 }\n"
+                 "    base[INSENSITIVE]       = { 0.2, 0.2, 0.2 }\n"
+                 "    base[SELECTED]          = { 0.8, 0.18, 0.18 }\n"
+                 "}\n"
+                 "widget '*.";
   toparse +=     plug_name;
-  toparse +=     "'\n"
+  toparse +=     "' style:highest 'guitarix_default'\n";
+  toparse +=     " style 'gx_selector'\n"
                  " {\n"
-                 " fg[NORMAL] = '#c0c6d0'\n"
+                 " fg[NORMAL]     = '#999999'   \n"
+                 " fg[PRELIGHT]   = '#ffffff'    \n"
+                 " bg[NORMAL]     = '#2f2f2f'     \n"
+                 " bg[PRELIGHT]   = '#2f2f2f'      \n"
+                 " base[NORMAL]   = { 0.05, 0.05, 0.05 } \n"
+                 " base[PRELIGHT] = '#000000'      \n"
+                 " text[NORMAL]   = '#999999'     \n"
+                 " text[PRELIGHT] = '#ffffff'    \n"
+                 " GxRegler::value-border      = { 4, 4, 2, 2 } \n"
+                 " GxRegler::border-radius     = 6\n"
+                 " GxRegler::bevel             = 0.12\n"
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"
-                 " GxRegler::value-border = { 2, 2, 2, 2 }\n"
-                 " font_name = 'sans 7.5'\n"
-                 " xthickness = 10\n"
-                 " ythickness = 1\n"
+                 " GxRegler::value-border = { 2, 0, 0, 0 }\n"
+                 " font_name = 'sans bold 7.5'\n"
+                 " xthickness = 8\n"
+                 " ythickness = 4\n"
                  " }\n"
-                 "widget '*.";
-  toparse +=     plug_name;
-  toparse +=     "' style:highest 'gx_selector_";
-  toparse +=     plug_name;
-  toparse +=     "'\n";
+                 "class '*GxSelector' style:highest 'gx_selector'\n";
+
   toparse +=  "style 'gx_switch'\n"
               "{\n"
               "xthickness = 0\n"

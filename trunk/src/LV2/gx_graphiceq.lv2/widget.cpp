@@ -102,6 +102,7 @@ plug_name(plugname)
   m_vbox[11].pack_start(m_hbox[12],Gtk::PACK_EXPAND_WIDGET);
   m_vbox[11].pack_start(m_hbox[11],Gtk::PACK_SHRINK);
   m_hbox[11].set_homogeneous(true);
+  m_hbox[11].set_border_width(15);
   // put boxed controllers into controller box
   for (uint32_t i = 0;i<11;i++) {
     fastmeter[i].set_hold_count(12);

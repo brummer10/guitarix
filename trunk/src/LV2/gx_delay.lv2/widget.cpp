@@ -74,7 +74,7 @@ plug_name(plugname)
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "gxhead_expose";
+  m_paintbox.property_paint_func() = "rack_unit_expose";
   add(m_paintbox);
   // box for the controllers
   m_hbox_.set_spacing(14);
@@ -207,6 +207,7 @@ void Widget::make_switch_box(Gtk::Box *box,
     regler->cp_configure("switch", label, 0, 1, 1);
     regler->set_name(plug_name);
     regler->set_base_name( "button" );
+    regler->set_relief(Gtk::RELIEF_NONE);
     Gtk::VBox* b1 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
     box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK); 

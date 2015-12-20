@@ -249,11 +249,11 @@ plug_name(plugname)
 
  
  // set propertys for the main paintbox holding the skin
-  m_paintbox[0].set_border_width(4);
+  m_paintbox[0].set_border_width(24);
   m_paintbox[0].set_spacing(4);
   m_paintbox[0].set_homogeneous(false);
   m_paintbox[0].set_name(plug_name);
-  m_paintbox[0].property_paint_func() = "gxhead_expose";
+  m_paintbox[0].property_paint_func() = "rack_unit_expose";
   add(m_paintbox[0]);
   // box for the controllers
   m_hbox[0].set_spacing(4);
@@ -516,6 +516,7 @@ void Widget::make_switch_box(Gtk::Box *box,
     regler->cp_set_var("no_log");
     regler->set_name(plug_name);
     regler->set_base_name( basename );
+    regler->set_relief(Gtk::RELIEF_NONE);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
     regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
         *this, &Widget::on_value_changed), port_name));
@@ -537,6 +538,7 @@ void Widget::make_reset_switch_box(Gtk::Box *box,
     regler->cp_set_var("no_log");
     regler->set_name(plug_name);
     regler->set_base_name( basename );
+    regler->set_relief(Gtk::RELIEF_NONE);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
     regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
         *this, &Widget::on_value_changed), port_name));
@@ -577,6 +579,7 @@ void Widget::make_radio_switch_box(Gtk::Box *box,
     regler->cp_set_var("no_log");
     regler->set_name(plug_name);
     regler->set_base_name( basename );
+    regler->set_relief(Gtk::RELIEF_NONE);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
     regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
         *this, &Widget::on_value_changed), port_name));

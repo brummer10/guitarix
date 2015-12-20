@@ -198,6 +198,7 @@ void Widget::make_switch_box(Gtk::Box *box,
     regler->cp_configure("switch", label, 0, 1, 1);
     regler->set_can_focus( false ) ;
 
+    regler->set_relief(Gtk::RELIEF_NONE);
     regler->set_name(plug_name);
     regler->set_base_name( "button" );
     Gtk::VBox* b1 = new Gtk::VBox();
