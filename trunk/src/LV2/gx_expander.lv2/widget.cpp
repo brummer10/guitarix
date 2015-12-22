@@ -61,11 +61,11 @@ plug_name(plugname)
   make_controller_box(&m_vbox6, "ATTACK", 0.0, 1.0, 0.001, ATTACK);
   
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(10);
+  m_paintbox.set_border_width(25);
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "gxhead_expose";
+  m_paintbox.property_paint_func() = "gx_rack_unit_expose";
   add(m_paintbox);
   // box for the controllers
   m_hbox_.set_spacing(14);
@@ -106,7 +106,7 @@ bool Widget::_expose_event(GdkEventExpose *event)
   int x, y, width, height, depth;
   m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
   //double_t height = m_paintbox.get_window()->get_height();
-  m_paintbox.set_border_width(height/20);
+  m_paintbox.set_border_width(height/10);
   return false;
 }
 
@@ -166,7 +166,7 @@ void Widget::make_controller_box(Gtk::Box *box,
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
     box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
     regler->cp_configure("KNOB", label, min, max, digits);
-    regler->set_show_value(false);
+    regler->set_show_value(true);
     regler->set_name(plug_name);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
     Gtk::VBox* b2 = new Gtk::VBox();

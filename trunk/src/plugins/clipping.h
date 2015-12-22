@@ -40,12 +40,13 @@ struct table1dc_imp {
 #include "clipt2.cc"
 #include "clipt3.cc"
 
-table1dc *cliptable[5] = {
+table1dc *cliptable[6] = {
     &static_cast<table1dc&>(clippingtable[0]),
     &static_cast<table1dc&>(clippingtable[1]),
     &static_cast<table1dc&>(clippingtable2[0]),
     &static_cast<table1dc&>(clippingtable2[1]),
     &static_cast<table1dc&>(clippingtable3[0]),
+    &static_cast<table1dc&>(clippingtable3[1]),
 };
 
 static inline double asymclip(double x) {
@@ -68,6 +69,23 @@ static inline double asymclip(double x) {
 
 static inline double opamp(double x) {
 	int table = 4;
+    const table1dc& clip = *cliptable[table];
+    double f = fabs(x);
+    f = (f/(3.0 + f) - clip.low) * clip.istep;
+    int i = static_cast<int>(f);
+    if (i < 0) {
+        f = clip.data[0];
+    } else if (i >= clip.size-1) {
+        f = clip.data[clip.size-1];
+    } else {
+	f -= i;
+	f = clip.data[i]*(1-f) + clip.data[i+1]*f;
+    }
+    return copysign(f, -x);
+}
+
+static inline double opamp2(double x) {
+	int table = 5;
     const table1dc& clip = *cliptable[table];
     double f = fabs(x);
     f = (f/(3.0 + f) - clip.low) * clip.istep;
@@ -117,7 +135,7 @@ static inline double asymhardclip2(double x) {
 	f -= i;
 	f = clip.data[i]*(1-f) + clip.data[i+1]*f;
     }
-    return copysign(f, -x);
+    return copysign(f, x);
 }
 
 }; 

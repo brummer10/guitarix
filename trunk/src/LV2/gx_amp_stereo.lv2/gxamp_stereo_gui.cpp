@@ -91,9 +91,6 @@ void GXPluginGUI::set_skin()
   toparse +=     "_dark-paintbox\"\n"
                  " { \n"
                  "    GxPaintBox::icon-set =9\n"
-                 "    stock['amp_skin'] = {{'";
-  toparse +=     plugskin;
-  toparse +=     "'}}\n"
                  " }\n"
                  "\n"
                  "style 'gx_head_black_box' \n"
@@ -179,7 +176,7 @@ inline std::string t_string(long long _Val)
 void GXPluginGUI::set_plug_name()
 {
   addKnob = "";
-  plugskin = "amp21.png";
+  plugskin = "";
   plug_name = "GUITARIXLV2" + t_string(reinterpret_cast<long long>(this));
 }
 

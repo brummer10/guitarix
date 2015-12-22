@@ -58,11 +58,11 @@ plug_name(plugname)
   make_controller_box(&m_vbox5, "freq", 0.1, 10, 0.01, FREQ);
   
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(10);
+  m_paintbox.set_border_width(25);
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "gxhead_expose";
+  m_paintbox.property_paint_func() = "gx_rack_unit_expose";
   add(m_paintbox);
   // box for the controllers
   m_hbox_.set_spacing(64);

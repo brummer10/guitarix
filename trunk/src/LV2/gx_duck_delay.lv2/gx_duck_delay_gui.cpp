@@ -63,15 +63,21 @@ void Gx_duck_delayGUI::set_knob( Glib::ustring knob)
   addKnob +=  plug_name;
   addKnob +=   "_dark_skin_icons'\n"
                " { \n"
+               "    GxKnob::x_center          = -1\n"
+               "    GxKnob::y_center          = -1\n"
+               "    GxKnob::ring_radius       = 26\n"
+               "    GxKnob::ring_width        = 3\n"
+               "    GxKnob::ring_led_size     = 3\n"
+               "    GxKnob::ring_led_distance = 2\n"
+               "    GxKnob::indicator_radius  = 12\n"
+               "    GxKnob::indicator_width   = 3\n"
+               "    GxKnob::indicator_length  = 3\n"
                "   stock['bigknob'] = {{'";
-  addKnob +=  knob;
-  addKnob +=  ".png'}}\n"
+  addKnob +=  "knob_small_r.png'}}\n"
               "   stock['smallknob'] = {{'";
-  addKnob +=  knob;
-  addKnob +=  "-small.png'}}\n"
+  addKnob +=  "knob_small_r.png'}}\n"
               "   stock['smallknobr'] = {{'";
-  addKnob +=  knob;
-  addKnob +=  "-middle.png'}}\n"
+  addKnob +=  "knob_small_r.png'}}\n"
               "   stock['button_on'] = {{'"
               "echo-switch_on.png'}}\n"
               "   stock['button_off'] = {{'"
@@ -97,59 +103,78 @@ void Gx_duck_delayGUI::set_skin()
   toparse +=     plug_name;
   toparse +=     "_dark-paintbox\"\n"
                  " { \n"
-                 "GxPaintBox::skin-gradient = {\n"
-                 "{ 65536, 0, 0, 13107, 52428 }, \n"
-                 "{ 52428, 0, 0, 0, 52428 },\n"
-                 "{ 13107, 0, 0, 13107, 13107 }}\n"
-                 "    GxPaintBox::icon-set =11\n"
+                 "    GxPaintBox::icon-set =9\n"
                  " }\n"
                  "\n"
-                 "style 'gx_head_duck_delay_box' \n"
+                 "style 'gx_head_black_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#c0c6d0' \n"
-                 "font_name = 'sans 7.5 bold' \n"
+                 "    font_name = 'sans bold 7.5'\n"
+                 "    fg[NORMAL] = '#ff9000' \n"
                  " }\n";
   toparse +=     addKnob;
 
-  toparse +=     " widget '*.amplabel' style:highest 'gx_head_duck_delay_box'\n"
+  toparse +=     " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
                  "widget '*.";
   toparse +=     plug_name;
   toparse +=     "' style 'gx_";
   toparse +=     plug_name;
   toparse +=     "_dark-paintbox' ";
-  toparse +=     " style 'gx_selector_";
+
+  toparse +=     "style 'guitarix_default' {\n"
+    
+                 "    GxPaintBox::bevel                  = 0.11\n"
+                 "    GxPaintBox::inverse                = 0\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 10, 10 }\n"
+
+                 "    fg[NORMAL]              = '#ff9000'\n"
+                 "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[PRELIGHT]            = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[INSENSITIVE]         = { 0.5, 0.5, 0.5 }\n"
+                 "    fg[SELECTED]            = { 0.9, 0.9, 0.9 }\n"
+    
+                 "    bg[NORMAL]              = { 0.13, 0.13, 0.13 }\n"
+                 "    bg[ACTIVE]              = { 0.0, 0.0, 0.0 }\n"
+                 "    bg[PRELIGHT]            = { 0.25, 0.25, 0.25 }\n"
+                 "    bg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }\n"
+                 "    bg[SELECTED]            = { 0.25, 0.25, 0.25 }\n"
+    
+                 "    text[NORMAL]            = { 0.9, 0.9, 0.9 }\n"
+                 "    text[ACTIVE]            = '#ff9000'\n"
+                 "    text[PRELIGHT]          = { 1.0, 1.0, 1.0 }\n"
+                 "    text[INSENSITIVE]       = { 0.5, 0.5, 0.5 }\n"
+                 "    text[SELECTED]          = { 1.0, 1.0, 1.0 }\n"
+    
+                 "    base[NORMAL]            = { 0.0, 0.0, 0.0 }\n"
+                 "    base[ACTIVE]            = { 0.18, 0.18, 0.18 }\n"
+                 "    base[PRELIGHT]          = { 0.1, 0.1, 0.1 }\n"
+                 "    base[INSENSITIVE]       = { 0.2, 0.2, 0.2 }\n"
+                 "    base[SELECTED]          = { 0.8, 0.18, 0.18 }\n"
+                 "}\n"
+                 "widget '*.";
   toparse +=     plug_name;
-  toparse +=     "'\n"
+  toparse +=     "' style:highest 'guitarix_default'\n";
+  toparse +=     " style 'gx_selector'\n"
                  " {\n"
-                 " fg[NORMAL] = '#c0c6d0'\n"
+                 " fg[NORMAL]     = '#ff9000'   \n"
+                 " fg[PRELIGHT]   = '#ffffff'    \n"
+                 " bg[NORMAL]     = '#2f2f2f'     \n"
+                 " bg[PRELIGHT]   = '#2f2f2f'      \n"
+                 " base[NORMAL]   = { 0.05, 0.05, 0.05 } \n"
+                 " base[PRELIGHT] = '#000000'      \n"
+                 " text[NORMAL]   = '#ff9000'     \n"
+                 " text[PRELIGHT] = '#ffffff'    \n"
+                 " GxRegler::value-border      = { 4, 4, 2, 2 } \n"
+                 " GxRegler::border-radius     = 6\n"
+                 " GxRegler::bevel             = 0.12\n"
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"
                  " GxRegler::value-border = { 2, 0, 0, 0 }\n"
-                 " font_name = 'sans 7.5'\n"
-                 " xthickness = 10\n"
-                 " ythickness = 1\n"
+                 " font_name = 'sans bold 7.5'\n"
+                 " xthickness = 8\n"
+                 " ythickness = 4\n"
                  " }\n"
-                 "widget '*.";
-  toparse +=     plug_name;
-  toparse +=     "' style:highest 'gx_selector_";
-  toparse +=     plug_name;
-  toparse +=     "'\n";
-  toparse +=  "style 'gx_switch'\n"
-              "{\n"
-              "xthickness = 0\n"
-              "ythickness = 0\n"
-              "GtkButton::inner-border = {0, 0, 0, 0}\n"
-              "GtkButton::default-border = {0, 0, 0, 0}\n"
-              "GtkButton::focus-line-width = 0\n"
-              "GtkButton::focus-padding = 0\n"
-              "GtkButton::interior-focus = 0\n"
-              "GtkButton::child-displacement-x = 0\n"
-              "GtkButton::child-displacement-y = 0\n"
-              " }\n"
-              "widget '*.";
-  toparse +=  plug_name;
-  toparse +=  "' style:highest 'gx_switch'";
+                 "class '*GxSelector' style:highest 'gx_selector'\n";
 
   gtk_rc_parse_string (toparse.c_str());
 }
@@ -161,7 +186,7 @@ void Gx_duck_delayGUI::set_plug_name( const char * plugin_uri)
   if (strcmp("http://guitarix.sourceforge.net/plugins/gx_duck_delay_#_duck_delay_", plugin_uri) == 0)
     {
       plug_name = "_duck_delay";
-      set_knob("nk-knob");
+      set_knob("");
     }
   else
     {
