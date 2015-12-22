@@ -14,7 +14,9 @@ process = pre : iir((b0/a0,b1/a0),(a1/a0)) : clip with {
     s = 0.993;
     fs = float(SR);
     pre = _;
-    clip(x) = (min(0.4514,max(-0.4514,x)));
+    //clip(x) = (min(0.4514,max(-0.4514,x)));
+    asymclip = ffunction(float asymclip(float), "clipping.h", "");
+    clip = asymclip(_);
 
     
         Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);

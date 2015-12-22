@@ -119,7 +119,7 @@ static void get_selector_border(GtkWidget *widget, GtkBorder *selector_border)
 	gtk_widget_style_get(widget, "value-border", &tmp_border, NULL);
 	if (tmp_border) {
 		*selector_border = *tmp_border;
-		//gtk_border_free(tmp_border);
+		gtk_border_free(tmp_border);
 	} else {
 		*selector_border = default_selector_border;
     }
@@ -419,9 +419,18 @@ static void gx_selector_unset_model(GxSelector *selector)
 	}
 }
 
+static void gx_selector_unset_icon(GxSelector *selector)
+{
+	if (selector->icon) {
+		g_object_unref (selector->icon);
+		selector->icon = NULL;
+	}
+}
+
 static void gx_selector_destroy(GtkObject *object)
 {
 	gx_selector_unset_model(GX_SELECTOR(object));
+	gx_selector_unset_icon(GX_SELECTOR(object));
 	GTK_OBJECT_CLASS(gx_selector_parent_class)->destroy(object);
 }
 

@@ -3,6 +3,7 @@
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
+#include "clipping.h"
 
 namespace pluginlib {
 namespace eldist {
@@ -99,7 +100,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp0 = (fConst4 + (fConst2 * fRec0[0]));
 		double fTemp1 = (8.14686408743197e-08 * fRec0[0]);
 		fRec1[0] = ((double)input0[i] - ((fRec1[1] * (fConst6 + (fConst5 * fRec0[0]))) / fTemp0));
-		output0[i] = (FAUSTFLOAT)min(0.4514, max(-0.4514, (fConst0 * (((fRec1[0] * ((0 - fTemp1) - 0.00018716364572377)) + (fRec1[1] * (0.00018716364572377 + fTemp1))) / fTemp0))));
+		output0[i] = (FAUSTFLOAT)asymclip((fConst0 * (((fRec1[0] * ((0 - fTemp1) - 0.00018716364572377)) + (fRec1[1] * (0.00018716364572377 + fTemp1))) / fTemp0)));
 		// post processing
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];

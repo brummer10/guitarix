@@ -173,6 +173,7 @@ style "guitarix_default" {
     stock["switchit_off"]   = {{"switch_off.png"}}
     stock["minitoggle_on"]  = {{"switch_mid_on.png"}}
     stock["minitoggle_off"] = {{"switch_mid_off.png"}}
+    stock["hslider"]        = {{"hslider.png"}}
     stock["rack_expand"]    = {{"rack_expand.png"}}
     stock["rack_shrink"]    = {{"rack_shrink.png"}}
     stock["insert"]         = {{"insert.png"}}
@@ -406,10 +407,10 @@ style "guitarix_vslider" {
 }
 widget_class "*GxVSlider" style:highest "guitarix_vslider"
 
-#style "guitarix_hslider" {
-#    GxHSlider::slider-width = 36
-#}
-#widget_class "*GxHSlider" style:highest "guitarix_hslider"
+style "guitarix_hslider" {
+    GxHSlider::slider-width = 36
+}
+widget_class "*GxHSlider" style:highest "guitarix_hslider"
 
 
 style "guitarix_meter_scale" {
