@@ -28,6 +28,7 @@
 #include <gxwmm/iredit.h>
 #include <gxwmm/knob.h>
 #include <gxwmm/meterscale.h>
+#include <gxwmm/midknob.h>
 #include <gxwmm/minislider.h>
 #include <gxwmm/paintbox.h>
 #include <gxwmm/radiobutton.h>
