@@ -28,6 +28,7 @@
 #define __GX_FAST_METER_H__
 
 #include <gtk/gtk.h>
+#include "drawingutils.h"
 
 G_BEGIN_DECLS
 
@@ -43,17 +44,19 @@ typedef struct _GxFastMeterClass GxFastMeterClass;
 struct _GxFastMeter {
 	GtkDrawingArea parent;
 
-	GdkPixbuf*    pixbuf;
+	cairo_surface_t *surface, *overlay;
 	gint          top_of_meter;
-	GdkRectangle  last_peak_rect;
-
+	GdkRectangle  last_peak_rect, bar;
+    GtkRequisition* request;
+    
 	int hold_cnt;
 	int hold_state;
 
 	float         current_level;
 	float         current_peak;
     float         old_peak_db;
-	gint dimen, clr0, clr1, clr2, clr3;
+	gint dimen, clr0, clr1, clr2, clr3, type;
+    bool horiz;
 };
 
 struct _GxFastMeterClass {

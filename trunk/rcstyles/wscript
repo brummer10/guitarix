@@ -32,6 +32,9 @@ gxstyle_files = [
     'rack_preset.png',
     'insert.png',
     'hslider.png',
+    'logo.png',
+    'handle_left.png',
+    'handle_right.png',
 
     # knobs
     'knob_small.png',
@@ -72,12 +75,12 @@ gxstyle_files = [
     ###WHITE OAK THEME
     'gx_head_White_Oak.rc',
     'oak_white.png',
-    'oak2.png',
+    #'oak2.png',
     
     ###GUITARIX OAK THEME
     'gx_head_Guitarix_Oak.rc',
     'oak_green.png',
-    'oak2.png',
+    #'oak2.png',
     
     ###DARK THEME
     'gx_head_Dark.rc',

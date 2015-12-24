@@ -2942,7 +2942,10 @@ static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	char  buf[32];
 
 	cairo_rectangle (cr, x0,y0,rect_width,rect_height+2);
-	cairo_set_source_rgb (cr, 0, 0, 0);
+    float r, g, b;
+    gx_get_color(wi, "bg", NULL, &r, &g, &b);
+	cairo_set_source_rgb(cr, r, g, b);
+	//cairo_set_source_rgb (cr, 0, 0, 0);
 	cairo_fill (cr);
 
 	cairo_pattern_t*pat = cairo_pattern_create_linear (x0, 0, x0+rect_width, 0);
@@ -2963,12 +2966,12 @@ static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 		if (i<6)
 		{
 			snprintf (buf, sizeof (buf), "%d", db_points[i]);
-			cairo_move_to (cr, x0+rect_width*0.32,y0+rect_height - (rect_height * fraction));
+			cairo_move_to (cr, x0+rect_width*0.46,y0+rect_height - (rect_height * fraction));
 		}
 		else
 		{
 			snprintf (buf, sizeof (buf), " %d", db_points[i]);
-			cairo_move_to (cr, x0+rect_width*0.34,y0+rect_height - (rect_height * fraction));
+			cairo_move_to (cr, x0+rect_width*0.48,y0+rect_height - (rect_height * fraction));
 		}
 		cairo_show_text (cr, buf);
 	}
@@ -2976,6 +2979,8 @@ static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_set_source_rgb (cr, 0.4, 0.8, 0.4);
 	cairo_set_line_width (cr, 0.5);
 	cairo_stroke (cr);
+    
+    gx_bevel(cr, x0, y0, rect_width, rect_height, 6,0.12 );
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);

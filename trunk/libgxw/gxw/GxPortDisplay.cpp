@@ -74,13 +74,13 @@ static void port_display_expose(GdkEventExpose *ev,
       cairo_set_source_rgba (cr, 0.8, 0.1, 0.1, 0.4);
       cairo_set_line_width(cr, rect->height);
       gint low = rect->width * port_display->cutoff_low * 0.01;
-      gint high = (rect->width* port_display->cutoff_high * 0.01)-2;
+      gint high = (rect->width* port_display->cutoff_high * 0.01)-5;
       gint lw = rect->height/2;
       cairo_move_to(cr,rect->x, rect->y+lw);
       cairo_line_to(cr,rect->x + low, rect->y+lw);
       cairo_stroke (cr);
       cairo_move_to(cr,rect->width - high, rect->y+lw);
-      cairo_line_to(cr,rect->width+2, rect->y+lw);
+      cairo_line_to(cr,rect->width+5, rect->y+lw);
       cairo_stroke (cr);
       cairo_set_source_rgba (cr, 0.1, 0.6, 0.1, 0.4);
       cairo_move_to(cr,rect->x+ low, rect->y+lw);

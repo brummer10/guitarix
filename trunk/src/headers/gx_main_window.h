@@ -662,6 +662,7 @@ private:
     Gtk::Container *channel2_box;
     Gtk::RadioButton *channel3_button;
     Gtk::Container *channel3_box;
+    GtkWidget *logo;
 
 private:
     bool on_my_leave_out(GdkEventCrossing *focus);

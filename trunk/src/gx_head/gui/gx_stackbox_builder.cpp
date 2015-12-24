@@ -324,7 +324,8 @@ void StackBoxBuilder::create_simple_meter(const std::string& id) {
 void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::string& idm, const char *label) {
     Gxw::FastMeter *fastmeter = new Gxw::FastMeter();
     fastmeter->set_hold_count(5);
-    fastmeter->set_property("dimen",5);
+    fastmeter->set_property("dimen",2);
+    fastmeter->set_property("type",0);
     Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
     fastmeter->set_by_power(0.0001);
@@ -418,7 +419,11 @@ void StackBoxBuilder::create_p_display(const std::string& id, const std::string&
 }
 
 void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::string& id) {
-	addwidget(UiSwitch::create(machine, sw_type, id));
+	Gtk::Widget *sw = UiSwitch::create(machine, sw_type, id);
+	Gxw::Switch *regler = static_cast<Gxw::Switch*>(sw);
+	regler->set_relief(Gtk::RELIEF_NONE);
+	regler->set_name("no_dim");
+	addwidget(sw);
     Glib::signal_timeout().connect(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
 }
@@ -474,7 +479,11 @@ void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
 
 void StackBoxBuilder::create_fload_switch(const char *sw_type, const std::string& id, const std::string& idf) {
 	if (machine.get_jack()) {
-		addwidget(UiSwitch::create(machine, sw_type, id));
+		Gtk::Widget *sw = UiSwitch::create(machine, sw_type, id);
+		Gxw::Switch *regler = static_cast<Gxw::Switch*>(sw);
+		regler->set_relief(Gtk::RELIEF_NONE);
+		regler->set_name("no_dim");
+		addwidget(sw);
 		gx_engine::Parameter& p = machine.get_parameter(id);
 		p.signal_changed_float().connect(sigc::hide(
 			sigc::bind<const std::string>(sigc::bind<const std::string>(sigc::mem_fun(this, &StackBoxBuilder::load_file), idf), id)));

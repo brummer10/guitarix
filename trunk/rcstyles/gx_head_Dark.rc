@@ -9,6 +9,22 @@ style "gx_effect_switch"
 
 widget "*effect_on_off" style:highest "gx_effect_switch"
 
+style "guitarix_effect_title" {
+    font_name = "sans bold 7.5"
+    fg[NORMAL] = "#c9d5b9"
+}
+widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
+
+style "guitarix_font" {
+    font_name = "sans bold 7.5"
+    fg[NORMAL] =  "#dadfe1" # "#c9d5b9"  #"#ffffff" #"#222222"
+}
+widget "*.rack_label" style:highest "guitarix_font"
+widget "*Value" style:highest "guitarix_font"
+widget "*ampbox*label" style:highest "guitarix_font"
+widget "*beffekt_label" style:highest "guitarix_font"
+widget "*rack_effect_label" style:highest "guitarix_font"
+
 style "guitarix_default" {
     stock["background1"]    = {{"background2.png"}}
 }

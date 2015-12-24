@@ -1677,6 +1677,21 @@ void MainWindow::make_icons(bool force) {
 	w.hide();
         i->second->hide();
     }
+    
+    // Amp padding
+    GdkPixbuf *hanl = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_left", (GtkIconSize)-1, NULL);
+    GdkPixbuf *hanr = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_right", (GtkIconSize)-1, NULL);
+    gint wl = gdk_pixbuf_get_width(hanl);
+    gint wr = gdk_pixbuf_get_width(hanr);
+    g_object_unref(hanl);
+    g_object_unref(hanr);
+    Gtk::Alignment *vbam;
+    bld->find_widget("amp_padding", vbam);
+    vbam->set_padding(0, 4, wl, wr);
+    bld->find_widget("tuner_padding", vbam);
+    vbam->set_padding(0, 4, wl, wr);
+    bld->find_widget("details_padding", vbam);
+    vbam->set_padding(0, 4, wl, wr);
 }
 
 class JConvPluginUI: public PluginUI {
@@ -2520,11 +2535,17 @@ bool MainWindow::on_quit() {
 void MainWindow::amp_controls_visible(Gtk::Range *rr) {
     //FIXME
     bool v = abs(rr->get_value() - machine.get_parameter("tube.select").getUpperAsFloat()) < 0.5;
-    const char *knobs[] = {"gxbigknob1","gxbigknob2","gxbigknob3"};
-    for (unsigned int i = 0; i < sizeof(knobs)/sizeof(knobs[0]); ++i) {
-	Gtk::Widget *w;
-	bld->find_widget(knobs[i], w);
-	w->set_visible(!v);
+    const char *knobs1[] = {"gxmediumknobpregain","gxmediumknobdrive","gxmediumknobdist","gxmediumknobgain", "labelpregain:effekt_label", "labeldrive:effekt_label", "labeldist:effekt_label", "labelgain:effekt_label"};
+    const char *knobs2[] = {"gxbigknobgain", "labelgain2:effekt_label"};
+    for (unsigned int i = 0; i < sizeof(knobs1)/sizeof(knobs1[1]); ++i) {
+        Gtk::Widget *w;
+        bld->find_widget(knobs1[i], w);
+        w->set_visible(!v);
+    }
+    for (unsigned int i = 0; i < sizeof(knobs2)/sizeof(knobs2[1]); ++i) {
+        Gtk::Widget *w;
+        bld->find_widget(knobs2[i], w);
+        w->set_visible(v);
     }
 }
 
@@ -2933,6 +2954,20 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    sigc::mem_fun(this, &MainWindow::amp_controls_visible),
 	    rr));
     amp_controls_visible(rr);
+
+    /*
+     * Logo image
+     */
+    GdkPixbuf * pb_ = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "logo", (GtkIconSize)-1, NULL);
+    if (pb_) {
+        logo = gtk_image_new_from_pixbuf(pb_);
+        g_object_unref(pb_);
+        Gtk::Table *al;
+        bld->find_widget("tableampright", al);
+        al->attach(*Glib::wrap(logo), 0, 1, 0, 1, Gtk::FILL|Gtk::EXPAND, Gtk::FILL, 0, 0);
+        gtk_misc_set_alignment(GTK_MISC(logo), 1.f, 0.f);
+        gtk_widget_show(logo);
+    }
 }
 
 MainWindow::~MainWindow() {

@@ -782,34 +782,18 @@ void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, PluginType tp) {
 
 void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
-    pb.property_paint_func().set_value("rectangle_skin_color_expose");
+   // pb.property_paint_func().set_value("rectangle_skin_color_expose");
     pb.set_border_width(4);
 }
 
 Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort) {
     const char *effect_name = useshort ? plugin.get_shortname() : plugin.get_name();
     Gtk::Label *effect_label = new Gtk::Label(effect_name);
-    effect_label->set_alignment(0.13, 0.5);
-    effect_label->set_name("rack_effect_label");
-    Pango::FontDescription font_desc = effect_label->get_style()->get_font();
-    font_desc.set_size(int(7.5*Pango::SCALE));
-    font_desc.set_weight(Pango::WEIGHT_BOLD);
-    effect_label->modify_font(font_desc);
-    if (plugin.get_type() == PLUGIN_TYPE_STEREO) {
-	Gtk::Alignment *al = new Gtk::Alignment(0, 0, 1.0, 1.0);
-    //if (!useshort) al->set_padding(0, 0, 10, 0);
-    Gtk::HBox *hboxl = new Gtk::HBox(false, 4);
-	Gtk::HBox *hbox = new Gtk::HBox(false, 4);
-	Gtk::Image *e = new Gtk::Image(options.get_style_filepath("stereo.png"));
-	hboxl->pack_start(*manage(e), Gtk::PACK_SHRINK);
-	hboxl->pack_start(*manage(effect_label));
-	al->add(*manage(hboxl));
-	hbox->pack_start(*manage(al), Gtk::PACK_SHRINK);
-	hbox->show_all();
-	return hbox;
-    } else {
+    effect_label->set_alignment(0.0, 0.5);
+    effect_label->set_name("effect_title");
+    if (plugin.get_type() == PLUGIN_TYPE_STEREO)
+        effect_label->set_markup("◗◖ " + effect_label->get_label()); //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
 	return effect_label;
-    }
 }
 
 Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
@@ -1330,8 +1314,8 @@ bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
             cairo_fill(cr_);
         }
         cairo_destroy(cr_);
+        g_object_unref(pb_);
     }
-    g_object_unref(pb_);
     return false;
 }
 
