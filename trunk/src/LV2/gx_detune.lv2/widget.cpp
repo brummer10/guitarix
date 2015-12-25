@@ -79,7 +79,7 @@ Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
   // create controllers for port name
-  make_controller_box(&m_vbox[1], "DETUNE",  -0.25, 0.25, 0.01, DETUNE);
+  make_controller_box(&m_vbox[1], "DETUNE",  -12.0, 12.0, 0.1, DETUNE);
   make_controller_box(&m_vbox[2], "WET",  0.0, 100.0, 1, WET);
   make_controller_box(&m_vbox[3], "DRY", 0.0, 100.0, 1, DRY);
   make_controller_box(&m_vbox[4], "LOW",  0.0, 2.0, 0.01, LOW);

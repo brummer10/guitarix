@@ -118,17 +118,17 @@ bool smbPitchShift::setParameters(int sampleRate_)
     resampin = 0;
     resampout = 0;
     indata2 = 0;
-    ftPlanForward = 0;
-    ftPlanInverse = 0;
     resamp.setup(sampleRate,4);
-    mem_allocated = false;
     gRover = false;
     return true;
 }
 
 smbPitchShift::smbPitchShift():
   PluginLV2(),
-  ready(false) {
+  mem_allocated(false),
+  ready(false),
+  ftPlanForward(0),
+  ftPlanInverse(0) {
     if (gRover == false) gRover = inFifoLatency;
     memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
@@ -296,18 +296,9 @@ void smbPitchShift::change_latency()
 
 smbPitchShift::~smbPitchShift()
 {
-    if (fpb) { delete fpb; fpb = 0; }
-    if (expect) { delete expect; expect = 0; }
-    if (hanning) { delete hanning; hanning = 0; }
-    if (hanningd) { delete hanningd; hanningd = 0; }
-    if (resampin) { delete resampin; resampin = 0; }
-    if (resampin2) { delete resampin2; resampin2 = 0; }
-    if (resampout) { delete resampout; resampout = 0; }
-    if (indata2) { delete indata2; indata2 = 0; }
-    if (ftPlanForward)
-        {fftwf_destroy_plan(ftPlanForward);ftPlanForward = 0; }
-    if (ftPlanInverse)
-        {fftwf_destroy_plan(ftPlanInverse);ftPlanInverse = 0; }
+    if (mem_allocated) {
+        mem_free();
+    }
 }
 
 // -----------------------------------------------------------------------------------------------------------------
@@ -504,7 +495,7 @@ void smbPitchShift::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case DETUNE: 
-		semitones_ = (float*)data; // , 0.0, -0.25, 0.25, 0.01 
+		semitones_ = (float*)data; // , 0.0, -12.0, 12.0, 0.1 
 		break;
     // static const value_pair octave_values[] = {{"normal"},{"octave up"},{"octave down"},{0}};
 	case OCTAVE: 

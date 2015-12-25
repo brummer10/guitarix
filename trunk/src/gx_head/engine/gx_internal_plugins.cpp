@@ -1154,10 +1154,7 @@ bool smbPitchShift::setParameters(int sampleRate_)
     resampin = 0;
     resampout = 0;
     indata2 = 0;
-    ftPlanForward = 0;
-    ftPlanInverse = 0;
     resamp.setup(sampleRate,4);
-    mem_allocated = false;
     gRover = inFifoLatency;
     return true;
 }
@@ -1165,9 +1162,12 @@ bool smbPitchShift::setParameters(int sampleRate_)
 smbPitchShift::smbPitchShift(ParamMap& param_, EngineControl& engine_, sigc::slot<void> sync_):
   PluginDef(),
   engine(engine_),
+  mem_allocated(false),
   sync(sync_),
   ready(false),
   param(param_),
+  ftPlanForward(0),
+  ftPlanInverse(0),
   plugin() {
     memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
@@ -1540,7 +1540,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
 
 int smbPitchShift::register_par(const ParamReg& reg) 
 {
-    reg.registerVar("smbPitchShift.semitone", N_("detune"), "S", "", &semitones, 0.0, -12., 12., 1);
+    reg.registerVar("smbPitchShift.semitone", N_("detune"), "S", "", &semitones, 0.0, -12., 12., 0.1);
     static const value_pair octave_values[] = {{"unison"},{"octave up"},{"octave down"},{0}};
     reg.registerIEnumVar("smbPitchShift.octave",N_("add harmonics"),"B",N_("add harmonics"),octave_values,&octave, 0);
     static const value_pair latency_values[] = {{"latency "},{"compensate"},{0}};
