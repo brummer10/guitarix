@@ -1353,18 +1353,9 @@ void smbPitchShift::change_latency()
 
 smbPitchShift::~smbPitchShift()
 {
-    if (fpb) { delete fpb; fpb = 0; }
-    if (expect) { delete expect; expect = 0; }
-    if (hanning) { delete hanning; hanning = 0; }
-    if (hanningd) { delete hanningd; hanningd = 0; }
-    if (resampin) { delete resampin; resampin = 0; }
-    if (resampin2) { delete resampin2; resampin2 = 0; }
-    if (resampout) { delete resampout; resampout = 0; }
-    if (indata2) { delete indata2; indata2 = 0; }
-    if (ftPlanForward)
-        {fftwf_destroy_plan(ftPlanForward);ftPlanForward = 0; }
-    if (ftPlanInverse)
-        {fftwf_destroy_plan(ftPlanInverse);ftPlanInverse = 0; }
+    if (mem_allocated) {
+        mem_free();
+    }
 }
 
 // -----------------------------------------------------------------------------------------------------------------
