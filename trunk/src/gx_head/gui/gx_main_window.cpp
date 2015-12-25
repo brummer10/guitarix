@@ -614,7 +614,6 @@ void MainWindow::on_show_rack() {
     }
     bool v = options.system_show_rack = actions.show_rack->get_active();
     actions.rackh->set_sensitive(v);
-    rackcontainer->set_border_width(v ? 8 : 0); //FIXME (just experimental)
     stereorackcontainer.set_visible(v);
     rack_order_h_button->set_visible(v);
     compress_button->set_visible(v);

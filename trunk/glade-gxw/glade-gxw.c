@@ -67,6 +67,9 @@ GType gx_paint_func_get_type(void)
             {32, "gx_rack_unit_shrink_expose", "gx_rack_unit_shrink_expose" },
             {33, "gx_rack_amp_expose", "gx_rack_amp_expose" },
             {34, "draw_skin", "draw_skin" },
+            {35, "box_uni_1_expose", "box_uni_1_expose" },
+            {36, "box_uni_2_expose", "box_uni_2_expose" },
+            {37, "box_skin_expose", "box_skin_expose" },
 			{ 0, NULL, NULL }
 		};
 		etype = g_enum_register_static (g_intern_static_string ("GxPaintFunc"), values);
