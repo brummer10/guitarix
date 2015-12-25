@@ -1234,30 +1234,31 @@ void gx_show_help() {
 void gx_show_about() {
     static string about;
     if (about.empty()) {
-        about +=_("\n Guitarix:gx_head ");
+        about +=_("<b>Guitarix:gx_head</b> (");
         about += GX_VERSION;
         about +=
-            _("\n\n  This Aplication is to a large extent provided"
-            "\n  with the marvelous faust compiler.Yann Orlary"
-            "\n  http://faust.grame.fr/"
-            "\n  A large part is based on the work of Julius Orion Smith"
-            "\n  http://ccrma.stanford.edu/realsimple/faust/"
-            "\n  and Albert Graef\n  http://q-lang.sourceforge.net/examples.html#Faust"
-            "\n\n ");
+            _(")\n\nThis Aplication is to a large extent provided"
+            "\nwith the marvelous faust compiler.Yann Orlary"
+            "\n(http://faust.grame.fr/)"
+            "\n\nA large part is based on the work of Julius Orion Smith"
+            "\n(htttp://ccrma.stanford.edu/realsimple/faust/)"
+            "\nand Albert Graef\n(http://q-lang.sourceforge.net/examples.html#Faust)"
+            "\n\n");
 
 
         about +=
-            _("\n  for impulse response it use zita-convolver "
-            "\n  byFons Adriaensen "
-            "\n  http://www.kokkinizita.net/linuxaudio/index.html "
-            "\n\n  The included IR-files are contributed by "
-            "\n  David Fau Casquel (BESTPLUGINS) "
-            "\n  home: http://www.youtube.com/bestplugins"
-            "\n\n  authors: Hermann Meyer <brummer-@web.de>"
-            "\n  authors: James Warden <warjamy@yahoo.com>"
-            "\n  authors: Andreas Degert <andreas.degert@googlemail.com>    "
-            "\n  authors: Pete Shorthose <pshorthose@gmail.com>    "
-            "\n  home: http://guitarix.sourceforge.net/\n");
+            _("for impulse response it use zita-convolver"
+            "\nby Fons Adriaensen"
+            "\n(http://www.kokkinizita.net/linuxaudio/index.html)"
+            "\n\nThe included IR-files are contributed by"
+            "\nDavid Fau Casquel (BESTPLUGINS)"
+            "\nhome: http://www.youtube.com/bestplugins"
+            "\n\nauthors: Hermann Meyer &lt;brummer-@web.de&gt;"
+            "\nauthors: James Warden &lt;warjamy@yahoo.com&gt;"
+            "\nauthors: Andreas Degert &lt;andreas.degert@googlemail.com&gt;"
+            "\nauthors: Pete Shorthose &lt;pshorthose@gmail.com&gt;"
+            "\nauthors: Markus Schmidt &lt;schmidt@boomshop.net&gt;"
+            "\n\nwebsite: http://guitarix.org/\n");
     }
 
     gx_gui::gx_message_popup(about.c_str());
@@ -1679,13 +1680,12 @@ void MainWindow::make_icons(bool force) {
     }
     
     // Amp padding
-    GdkPixbuf *hanl = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_left", (GtkIconSize)-1, NULL);
-    GdkPixbuf *hanr = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_right", (GtkIconSize)-1, NULL);
+    hanl = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_left", (GtkIconSize)-1, NULL);
+    hanr = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_right", (GtkIconSize)-1, NULL);
     gint wl = gdk_pixbuf_get_width(hanl);
     gint wr = gdk_pixbuf_get_width(hanr);
     g_object_unref(hanl);
     g_object_unref(hanr);
-    Gtk::Alignment *vbam;
     bld->find_widget("amp_padding", vbam);
     vbam->set_padding(0, 4, wl, wr);
     bld->find_widget("tuner_padding", vbam);

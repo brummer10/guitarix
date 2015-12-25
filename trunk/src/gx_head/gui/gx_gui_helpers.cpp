@@ -88,46 +88,30 @@ gint gx_nchoice_dialog_without_entry(
     const gint  resp[],
     const gint default_response,
     Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
-    GtkWidget* dialog   = gtk_dialog_new();
-    GtkWidget* text_label = gtk_label_new(msg);
-    GtkWidget* image   = gtk_image_new_from_pixbuf(gw_ib->gobj());
-
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), text_label);
-
-    GdkColor colorGreen;
-    gdk_color_parse("#e1e1ed", &colorGreen);
-    gtk_widget_modify_fg(text_label, GTK_STATE_NORMAL, &colorGreen);
-
-    GdkColor colorBlack;
-    gdk_color_parse("#10101e", &colorBlack);
-    gtk_widget_modify_bg(dialog, GTK_STATE_NORMAL, &colorBlack);
-    g_signal_connect(GTK_DIALOG(dialog)->vbox, "expose-event",
-                     G_CALLBACK(gx_cairo::start_box_expose), NULL);
-    gtk_widget_set_redraw_on_allocate(GTK_WIDGET(GTK_DIALOG(dialog)->vbox),true);
-    GtkStyle* text_style = gtk_widget_get_style(text_label);
-    pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
-    pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
-
-    gtk_widget_modify_font(text_label, text_style->font_desc);
+    GtkWidget* dialog     = gtk_dialog_new();
+    GtkWidget* text_label = gtk_label_new("");
+    GdkPixbuf *pb         = gdk_pixbuf_scale_simple(gw_ib->gobj(), 64, 64, GDK_INTERP_BILINEAR);
+    GtkWidget* image      = gtk_image_new_from_pixbuf(pb);
+    
+    gtk_label_set_markup(GTK_LABEL(text_label), msg);
+    GtkWidget * al = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+    gtk_container_add(GTK_CONTAINER(al), text_label);
+    gtk_alignment_set_padding(GTK_ALIGNMENT(al), 10, 10, 10, 10);
+    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), al);
+    
     gtk_container_add(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(dialog))), image);
-    for (guint i = 0; i < nchoice; i++) {
-        GtkWidget* button =
-            gtk_dialog_add_button(GTK_DIALOG(dialog), label[i], resp[i]);
-
-        gdk_color_parse("#555555", &colorBlack);
-        gtk_widget_modify_bg(button, GTK_STATE_NORMAL, &colorBlack);
-    }
+    for (guint i = 0; i < nchoice; i++)
+        gtk_dialog_add_button(GTK_DIALOG(dialog), label[i], resp[i]);
 
     // set default
     gtk_dialog_set_has_separator(GTK_DIALOG(dialog), FALSE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
     gtk_window_set_title(GTK_WINDOW(dialog), window_title);
+    gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
 
     gtk_widget_show(text_label);
     gtk_widget_show(image);
-
-    gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
-
+    gtk_widget_show(al);
     g_signal_connect(dialog, "map", G_CALLBACK(on_gx_nchoice_map), NULL);
 
     // --- run dialog and check response
@@ -149,36 +133,25 @@ int gx_message_popup(const char* msg) {
     GtkWidget *about;
     GtkWidget *label;
     GtkWidget *ok_button;
-
     about = gtk_dialog_new();
     ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
-
-    label = gtk_label_new(msg);
-
-    GtkStyle *style = gtk_widget_get_style(label);
-
-    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-
-    gtk_widget_modify_font(label, style->font_desc);
-
+    label = gtk_label_new("");
+    gtk_label_set_markup(GTK_LABEL(label), msg);
     gtk_label_set_selectable(GTK_LABEL(label), TRUE);
-
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->vbox), label);
-
-    GTK_BOX(GTK_DIALOG(about)->action_area)->spacing = 3;
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->action_area), ok_button);
-
+    GtkWidget * al = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+    gtk_container_add(GTK_CONTAINER(al), label);
+    gtk_alignment_set_padding(GTK_ALIGNMENT(al), 10, 10, 10, 10);
+    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->vbox), al);
+    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->action_area),
+                                      ok_button);
     g_signal_connect_swapped(ok_button, "clicked",
                               G_CALLBACK(gtk_widget_destroy), about);
 
-    g_signal_connect(GTK_DIALOG(about)->vbox, "expose-event", G_CALLBACK(gx_cairo::start_box_expose), NULL);
-    gtk_widget_set_redraw_on_allocate(GTK_WIDGET(GTK_DIALOG(about)->vbox),true);
+    //gtk_widget_set_redraw_on_allocate(GTK_WIDGET(GTK_DIALOG(about)->vbox),true);
     gtk_widget_show(ok_button);
     gtk_widget_show(label);
+    gtk_widget_show(al);
     return gtk_dialog_run (GTK_DIALOG(about));
 }
 
 } // end namespace gx_gui
-
-

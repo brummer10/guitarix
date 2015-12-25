@@ -711,6 +711,31 @@ static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
     g_object_unref(bg);
 }
 
+static void draw_tiled (GtkWidget *wi, GdkEventExpose *ev, const gchar * id )
+{
+    cairo_t *cr = gdk_cairo_create(wi->window);
+    GxPaintBox *pb = GX_PAINT_BOX(wi);
+	GdkRegion *region = gdk_region_rectangle (&wi->allocation);
+    
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+    
+    double x0 = wi->allocation.x;
+	double y0 = wi->allocation.y;
+	double w  = wi->allocation.width;
+	double h  = wi->allocation.height;
+    
+    GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb), id, (GtkIconSize)-1, NULL);
+	gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
+	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+    cairo_rectangle(cr, x0, y0, w, h);
+	cairo_fill(cr);
+	cairo_destroy(cr);
+	gdk_region_destroy(region);
+    g_object_unref(bg);
+}
+
 static void draw_handles (GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr = gdk_cairo_create(wi->window);
@@ -827,6 +852,22 @@ static void draw_watermark(GtkWidget *wi, GdkEventExpose *ev)
 	gdk_region_destroy (region);
     g_object_unref(wm);
     g_object_unref(wm_);
+}
+// Expose Callbacks
+
+static void box_skin_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	draw_skin(wi, ev);
+}
+
+static void box_uni_1_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	draw_tiled(wi, ev, "background1");
+}
+
+static void box_uni_2_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	draw_tiled(wi, ev, "background2");
 }
 
 static void gx_rack_unit_expose (GtkWidget *wi, GdkEventExpose *ev) {
@@ -958,7 +999,7 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 }
 
 static void rack_expose (GtkWidget *wi, GdkEventExpose *ev) {
-    rectangle_skin_color_expose(wi, ev);
+    //rectangle_skin_color_expose(wi, ev);
     draw_watermark(wi, ev);
 }
 
@@ -3067,7 +3108,13 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = draw_skin;
 	} else if (strcmp(paint_func, "rack_expose") == 0) {
 		paint_box->expose_func = rack_expose;
-	} else {
+	} else if (strcmp(paint_func, "box_uni_1_expose") == 0) {
+		paint_box->expose_func = box_uni_1_expose;
+    } else if (strcmp(paint_func, "box_uni_2_expose") == 0) {
+		paint_box->expose_func = box_uni_2_expose;
+    } else if (strcmp(paint_func, "box_skin_expose") == 0) {
+		paint_box->expose_func = box_skin_expose;
+    } else {
 		paint_box->expose_func = 0;
 	}
 }
