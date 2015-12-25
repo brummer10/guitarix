@@ -523,7 +523,7 @@
             <property name="can_focus">False</property>
             <property name="double_buffered">False</property>
             <property name="orientation">vertical</property>
-            <property name="paint_func">rack_expose</property>
+            <property name="paint_func">live_box_expose</property>
             <child>
               <object class="GtkAlignment" id="alignment10">
                 <property name="name">alignment10</property><property name="visible">True</property>

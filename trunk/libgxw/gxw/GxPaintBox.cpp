@@ -1003,6 +1003,11 @@ static void rack_expose (GtkWidget *wi, GdkEventExpose *ev) {
     draw_watermark(wi, ev);
 }
 
+static void live_box_expose (GtkWidget *wi, GdkEventExpose *ev) {
+    rectangle_skin_color_expose(wi, ev);
+    draw_watermark(wi, ev);
+}
+
 static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
@@ -3114,6 +3119,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = box_uni_2_expose;
     } else if (strcmp(paint_func, "box_skin_expose") == 0) {
 		paint_box->expose_func = box_skin_expose;
+    } else if (strcmp(paint_func, "live_box_expose") == 0) {
+		paint_box->expose_func = live_box_expose;
     } else {
 		paint_box->expose_func = 0;
 	}
