@@ -272,8 +272,8 @@ void Widget::set_value(uint32_t port_index,
     if (regler)
     {
       regler->cp_set_value(value);
-    } else if (port_index == LATENCYREPORT) {
-      m_latencyreport.set_text("Latency " +to_string(value));
+   // } else if (port_index == LATENCYREPORT) {
+    //  m_latencyreport.set_text("Latency " +to_string(value));
     }
   }
 }

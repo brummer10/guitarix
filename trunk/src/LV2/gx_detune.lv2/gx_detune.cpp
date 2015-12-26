@@ -89,6 +89,8 @@ public:
 Gx_detune_::Gx_detune_() :
   output(NULL),
   input(NULL),
+  latency(NULL),
+  latency_(0),
   mode(false),
   detune(detune::plugin()) {};
 
@@ -213,7 +215,7 @@ Gx_detune_::instantiate(const LV2_Descriptor* descriptor,
       return NULL;
     }
 const LV2_Options_Option* options  = NULL;
-  uint32_t bufsize = 0;
+  uint32_t bufsize_ = 0;
   //printf(" %s\n",descriptor->URI);
 
   for (int32_t i = 0; features[i]; ++i)
@@ -256,18 +258,18 @@ const LV2_Options_Option* options  = NULL;
               o->key == bufsz_max &&
               o->type == atom_Int)
             {
-              bufsize = *(const int32_t*)o->value;
+              bufsize_ = *(const uint32_t*)o->value;
             }
         }
 
-      if (bufsize == 0)
+      if (bufsize_ == 0)
         {
           fprintf(stderr, "No maximum buffer size given.\n");
         }
-      printf("using block size: %d\n", bufsize);
+      printf("using block size: %d\n", bufsize_);
     }
 
-  self->init_dsp_((uint32_t)rate, bufsize);
+  self->init_dsp_((uint32_t)rate, bufsize_);
 
   return (LV2_Handle)self;
 }

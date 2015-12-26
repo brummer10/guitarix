@@ -1369,7 +1369,10 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
 {
     
     if (!ready || count != numSampsToProcess)  {
-        memcpy(outdata,indata,count*sizeof(float));
+        if (indata != outdata)
+        {
+            memcpy(outdata,indata,count*sizeof(float));
+        }
         return;
     }
     

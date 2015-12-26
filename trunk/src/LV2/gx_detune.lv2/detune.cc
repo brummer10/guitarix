@@ -31,6 +31,7 @@ private:
     gx_resample::SimpleResampler resamp;
 	bool            mem_allocated;
 	volatile bool ready;
+	volatile bool run;
 	float gInFIFO[MAX_FRAME_LENGTH];
 	float gOutFIFO[MAX_FRAME_LENGTH];
     float *fpb;
@@ -59,6 +60,7 @@ private:
 	float *dry_;
 	float *latency_;
     float *latencyr_;
+    float latencyr;
     float mpi, mpi1;
 	int   osamp, numSampsToProcess, fftFrameSize, sampleRate ;
     int ai;
@@ -81,6 +83,7 @@ private:
 	void mem_free();
 	int activate(bool start);
 	bool setParameters( int sampleRate);
+	bool sync();
 	void PitchShift(int count, float *indata, float *outdata);
 	void connect(uint32_t port,void* data);
     void setbuffersize(unsigned int size) {numSampsToProcess = size; };
@@ -111,15 +114,8 @@ bool smbPitchShift::setParameters(int sampleRate_)
     osamp2 = 2.*M_PI*osamp1;
     mpi = (1./(2.*M_PI)) * osamp;
     mpi1 = 1./M_PI;
-    fpb = 0; 
-    expect = 0; 
-    hanning = 0; 
-    hanningd = 0;
-    resampin = 0;
-    resampout = 0;
-    indata2 = 0;
     resamp.setup(sampleRate,4);
-    gRover = false;
+    //gRover = false;
     return true;
 }
 
@@ -127,16 +123,21 @@ smbPitchShift::smbPitchShift():
   PluginLV2(),
   mem_allocated(false),
   ready(false),
+  run(false),
+  fpb(NULL),
+  expect(NULL),
+  hanning(NULL),
+  hanningd(NULL),
+  resampin(NULL),
+  resampin2(NULL),
+  resampout(NULL),
+  indata2(NULL),
+  latency_(NULL),
+  latencyr_(NULL),
+  latencyr(0.0),
   ftPlanForward(0),
   ftPlanInverse(0) {
-    if (gRover == false) gRover = inFifoLatency;
-    memset(gInFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gOutFIFO, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gLastPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
-    memset(gSumPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
-    memset(gOutputAccum, 0, 2*MAX_FRAME_LENGTH*sizeof(float));
-    memset(gAnaFreq, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gAnaMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
+    gRover = inFifoLatency;
     version = PLUGINLV2_VERSION;
     id = "smbPitchShift";
     name = N_("Detune");
@@ -153,8 +154,15 @@ void smbPitchShift::init(unsigned int samplingFreq, PluginLV2 *plugin) {
     
 }
 
+bool smbPitchShift::sync()
+{
+    while (run){}
+    return true;
+}
+
 void smbPitchShift::mem_alloc()
 {
+    ready = false;
    // numSampsToProcess = int(engine.get_buffersize());
     assert(numSampsToProcess>0);
     assert(sampleRate>0);
@@ -163,31 +171,49 @@ void smbPitchShift::mem_alloc()
       case(0):
         if (numSampsToProcess <= 2048) {
           fftFrameSize = 512 ;
-          *(latencyr_) = 2048-numSampsToProcess;
+          latencyr = (float)(2048-numSampsToProcess);
         } else {
           fftFrameSize = numSampsToProcess*0.25 ;
-          *(latencyr_) = 0;
+          latencyr = 0.;
         }
         break;
       case(1):
         fftFrameSize = numSampsToProcess;
-        *(latencyr_) = numSampsToProcess*3;
+        latencyr = numSampsToProcess*3;
         break;
       case(2):
-        fftFrameSize = numSampsToProcess*0.25;
-        *(latencyr_) = 0;
+        fftFrameSize = (float)(numSampsToProcess*0.25);
+        latencyr = 0.;
         break;
       default:
         if (numSampsToProcess <= 2048) {
           fftFrameSize = 512 ; 
-          *(latencyr_) = 2048-numSampsToProcess;
+          latencyr = (float)(2048-numSampsToProcess);
         } else {
           fftFrameSize = numSampsToProcess*0.25 ;
-          *(latencyr_) = 0;
+          latencyr = 0.;
         }
         break;
     }
     fftFrameSize2 = fftFrameSize/2;
+
+    try {
+        //create FFTW plan
+        ftPlanForward = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_FORWARD, FFTW_MEASURE);
+        ftPlanInverse = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_BACKWARD, FFTW_MEASURE);
+        fpb = new float[fftFrameSize2];
+        expect = new float[fftFrameSize2];
+        hanning = new float[fftFrameSize];
+        hanningd = new float[fftFrameSize];
+        resampin = new float[fftFrameSize];
+        resampin2 = new float[fftFrameSize];
+        resampout = new float[fftFrameSize*4];
+        indata2 = new float[fftFrameSize*4];
+    } catch(...) {
+            
+            return;
+        }
+    
     stepSize = fftFrameSize/osamp;
     freqPerBin = (double)(sampleRate/4)/(double)fftFrameSize;
     freqPerBin1 = (1/freqPerBin)*osamp2;
@@ -206,49 +232,32 @@ void smbPitchShift::mem_alloc()
     memset(gOutputAccum, 0, 2*MAX_FRAME_LENGTH*sizeof(float));
     memset(gAnaFreq, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gAnaMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
+    
+    for (k = 0; k < fftFrameSize2;k++) {
+        fpb[k] = (double)k*freqPerBin;
+    }
+    for (k = 0; k < fftFrameSize2;k++) {
+        expect[k] = (double)k*expct;
+    }
+    for (k = 0; k < fftFrameSize;k++) {
+        hanning[k] = 0.5*(1-cos(2.*M_PI*(double)k/((double)fftFrameSize)));
+    }
+    for (k = 0; k < fftFrameSize;k++) {
+        hanningd[k] = 0.5*(1-cos(2.*M_PI*(double)k * fftFrameSize4)) * fftFrameSize3; 
+    }
+    for (k = 0; k < fftFrameSize;k++) {
+        resampin[k] = 0.0; 
+    }
+    for (k = 0; k < fftFrameSize;k++) {
+        resampin2[k] = 0.0; 
+    }
+    for (k = 0; k < fftFrameSize*4;k++) {
+        resampout[k] = 0.0; 
+    }
+    for (k = 0; k < fftFrameSize*4;k++) {
+        indata2[k] = 0.0; 
+    }
 
-    try {
-        fpb = new float[fftFrameSize2];
-        for (k = 0; k < fftFrameSize2;k++) {
-            fpb[k] = (double)k*freqPerBin;
-        }
-        expect = new float[fftFrameSize2];
-        for (k = 0; k < fftFrameSize2;k++) {
-            expect[k] = (double)k*expct;
-        }
-        hanning = new float[fftFrameSize];
-        for (k = 0; k < fftFrameSize;k++) {
-            hanning[k] = 0.5*(1-cos(2.*M_PI*(double)k/((double)fftFrameSize)));
-        }
-        hanningd = new float[fftFrameSize];
-        for (k = 0; k < fftFrameSize;k++) {
-            hanningd[k] = 0.5*(1-cos(2.*M_PI*(double)k * fftFrameSize4)) * fftFrameSize3; 
-        }
-        resampin = new float[fftFrameSize];
-        for (k = 0; k < fftFrameSize;k++) {
-            resampin[k] = 0.0; 
-        }
-        resampin2 = new float[fftFrameSize];
-        for (k = 0; k < fftFrameSize;k++) {
-            resampin2[k] = 0.0; 
-        }
-        resampout = new float[fftFrameSize*4];
-        for (k = 0; k < fftFrameSize*4;k++) {
-            resampout[k] = 0.0; 
-        }
-        indata2 = new float[fftFrameSize*4];
-        for (k = 0; k < fftFrameSize*4;k++) {
-            indata2[k] = 0.0; 
-        }
-        //create FFTW plan
-        ftPlanForward = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_FORWARD, FFTW_MEASURE);
-        ftPlanInverse = fftwf_plan_dft_1d(fftFrameSize, fftw_in, fftw_out, FFTW_BACKWARD, FFTW_MEASURE);
-    } catch(...) {
-            
-            return;
-        }
-    
-    
     gRover = inFifoLatency;
 
     mem_allocated = true;
@@ -278,9 +287,13 @@ int smbPitchShift::activate(bool start)
 {
     if (start) {
         if (!mem_allocated) {
+            ready = false;
+            sync();
             mem_alloc();
         }
     } else if (mem_allocated) {
+        ready = false;
+        sync();
         mem_free();
     }
     return 0;
@@ -289,6 +302,8 @@ int smbPitchShift::activate(bool start)
 void smbPitchShift::change_latency()
 {
     if (mem_allocated) {
+        ready = false;
+        sync();
         mem_free();
         mem_alloc();
     }
@@ -310,15 +325,21 @@ void __rt_func smbPitchShift::compute_static(int count, float *input0, float *ou
 
 void always_inline smbPitchShift::PitchShift(int count, float *indata, float *outdata)
 {
+
+    run = true;
     if (!ready || count != numSampsToProcess)  {
-        memcpy(outdata,indata,count*sizeof(float));
+        if (indata != outdata)
+        {
+            memcpy(outdata,indata,count*sizeof(float));
+        }
+        run = false;
         return;
     }
     resamp.down(count*0.25,indata,resampin);
     double     fSlow0 = (0.01 * wet);
     double     fSlow1 = (0.01 * dry);
     
-    float tone =0;
+    float tone =0.;
     
 	semitones = *semitones_;
 	octave = *octave_;
@@ -347,12 +368,13 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
         ii = 0;
         switch(int(octave)) {
           case(0):
+            tone = 0.;
             break;
           case(1):
-            tone =12;
+            tone =12.;
             break;
           case(2):
-            tone =-12;
+            tone =-12.;
             break;
           default:
             break;
@@ -488,6 +510,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
             aio++;
         }
     }
+    run = false;
 }
 
 void smbPitchShift::connect(uint32_t port,void* data)
