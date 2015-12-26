@@ -378,7 +378,7 @@ widget_class "*GxMidKnob" style:highest "guitarix_mid_knob"
 style "guitarix_big_knob" {
     GxKnob::x_center          = -1
     GxKnob::y_center          = -1
-    GxKnob::ring_radius       = 56
+    GxKnob::ring_radius       = 50.5
     GxKnob::ring_width        = 3
     GxKnob::ring_led_size     = 0
     GxKnob::ring_led_distance = 0
