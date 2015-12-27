@@ -2987,12 +2987,10 @@ static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	int  db_points[] = { -50, -40, -30, -20, -10, -3, 0, 4 };
 	char  buf[32];
 
-	cairo_rectangle (cr, x0,y0,rect_width,rect_height+2);
-    float r, g, b;
-    gx_get_color(wi, "bg", NULL, &r, &g, &b);
-	cairo_set_source_rgb(cr, r, g, b);
-	//cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_fill (cr);
+	int rad = 6;
+	gx_draw_inset(wi, x0, y0, rect_width,rect_height, rad, 1);
+    gx_draw_rect(wi, "base", NULL, x0, y0, rect_width,rect_height, rad, 0);
+    gx_draw_glass(wi, x0, y0, rect_width,rect_height, rad);
 
 	cairo_pattern_t*pat = cairo_pattern_create_linear (x0, 0, x0+rect_width, 0);
 	cairo_pattern_add_color_stop_rgba (pat, 0.3, 0.01, 0.01, 0.02, 0.3);
@@ -3025,8 +3023,6 @@ static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_set_source_rgb (cr, 0.4, 0.8, 0.4);
 	cairo_set_line_width (cr, 0.5);
 	cairo_stroke (cr);
-    
-    gx_bevel(cr, x0, y0, rect_width, rect_height, 6,0.12 );
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);

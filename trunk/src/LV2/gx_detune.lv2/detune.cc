@@ -182,7 +182,7 @@ void smbPitchShift::mem_alloc()
         latencyr = numSampsToProcess*3;
         break;
       case(2):
-        fftFrameSize = (float)(numSampsToProcess*0.25);
+        fftFrameSize = numSampsToProcess*0.25;
         latencyr = 0.;
         break;
       default:
@@ -511,6 +511,10 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
         }
     }
     run = false;
+   // FIXME latency report seems to be broken, it produce Xruns on startup
+   // if (*(latencyr_) != latencyr) {
+   //     *(latencyr_) = latencyr;
+   // }
 }
 
 void smbPitchShift::connect(uint32_t port,void* data)

@@ -193,9 +193,10 @@ rdfs:comment """
     ], [
         a lv2:OutputPort,
         lv2:ControlPort ;
+        lv2:designation <http://lv2plug.in/ns/lv2core#latency>;
         lv2:name "latency (samples)" ;
         lv2:index 12 ;
-        lv2:symbol "latenc" ;
+        lv2:symbol "latency" ;
         lv2:minimum 0 ;
         lv2:maximum 4096 ;
         lv2:portProperty lv2:reportsLatency, lv2:integer;

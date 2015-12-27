@@ -1194,7 +1194,7 @@ it can be mono or stereo
         <property name="name">gxpaintbox2</property><property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="border_width">20</property>
-        <property name="paint_func">gxhead_expose</property>
+        <property name="paint_func">box_uni_2_expose</property>
         <child>
           <object class="GtkVBox" id="vbox10">
             <property name="name">vbox10</property><property name="visible">True</property>

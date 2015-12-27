@@ -310,11 +310,12 @@ bool StackBoxBuilder::set_simple(Gxw::FastMeter *fastmeter,const std::string id)
 void StackBoxBuilder::create_simple_meter(const std::string& id) {
     Gxw::FastMeter *fastmeter = new Gxw::FastMeter();
     fastmeter->set_hold_count(5);
-    fastmeter->set_property("dimen",5);
+    fastmeter->set_property("dimen",2);
+    fastmeter->set_property("type",0);
     Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
     fastmeter->set_by_power(0.0001);
-    GxPaintBox *box =  new GxPaintBox(pb_amp_expose);
+    Gtk::HBox *box =  new Gtk::HBox();
     box->set_border_width(2);
     box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
     box->show_all();
@@ -336,7 +337,7 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
     box->add(*Gtk::manage(static_cast<Gtk::Widget*>(w)));
     if (label && label[0]) {
-    GxPaintBox *boxv =  new GxPaintBox(pb_eq_expose);
+    Gtk::HBox *boxv =  new Gtk::HBox();
     boxv->set_property("orientation",Gtk::ORIENTATION_VERTICAL);
     boxv->set_homogeneous(false);
     boxv->set_spacing(0);
@@ -571,10 +572,10 @@ void StackBoxBuilder::addLiveWaveDisplay(const char* label) {
     Gtk::VBox * box1     = new Gtk::VBox(false, 0);
     Gtk::VBox * box2     = new Gtk::VBox(false, 0);
     Gtk::EventBox* e_box = new Gtk::EventBox();
-    g_signal_connect(box->gobj(), "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
-    box->set_size_request(303, 82);
-    e_box->set_size_request(284, 54);
-    box->set_border_width(12);
+    //g_signal_connect(box->gobj(), "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
+    //box->set_size_request(303, 82);
+    e_box->set_size_request(284, 84);
+    //box->set_border_width(12);
     e_box->add(fWaveView);
     box->pack_start(*manage(box1), true, true, 0);
     box->pack_start(*manage(e_box), false, false, 0);
