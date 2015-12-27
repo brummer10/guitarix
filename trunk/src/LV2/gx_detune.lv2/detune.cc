@@ -59,8 +59,8 @@ private:
 	float *wet_;
 	float *dry_;
 	float *latency_;
-    float *latencyr_;
-    float latencyr;
+    uint32_t *latencyr_;
+    uint32_t latencyr;
     float mpi, mpi1;
 	int   osamp, numSampsToProcess, fftFrameSize, sampleRate ;
     int ai;
@@ -171,10 +171,10 @@ void smbPitchShift::mem_alloc()
       case(0):
         if (numSampsToProcess <= 2048) {
           fftFrameSize = 512 ;
-          latencyr = (float)(2048-numSampsToProcess);
+          latencyr = (uint32_t)(2048-numSampsToProcess);
         } else {
           fftFrameSize = numSampsToProcess*0.25 ;
-          latencyr = 0.;
+          latencyr = (uint32_t) 0;
         }
         break;
       case(1):
@@ -183,15 +183,15 @@ void smbPitchShift::mem_alloc()
         break;
       case(2):
         fftFrameSize = numSampsToProcess*0.25;
-        latencyr = 0.;
+        latencyr = (uint32_t) 0;
         break;
       default:
         if (numSampsToProcess <= 2048) {
           fftFrameSize = 512 ; 
-          latencyr = (float)(2048-numSampsToProcess);
+          latencyr = (uint32_t)(2048-numSampsToProcess);
         } else {
           fftFrameSize = numSampsToProcess*0.25 ;
-          latencyr = 0.;
+          latencyr = (uint32_t) 0;
         }
         break;
     }
@@ -555,7 +555,7 @@ void smbPitchShift::connect(uint32_t port,void* data)
 		d_ = (float*)data; // , 1.0, 0.0, 2.0, 0.01 
 		break;
 	case LATENCYREPORT: 
-		latencyr_ = (float*)data; 
+		latencyr_ = (uint32_t*)data; 
 		break;
 	default:
 		break;

@@ -199,6 +199,7 @@ rdfs:comment """
         lv2:symbol "latency" ;
         lv2:minimum 0 ;
         lv2:maximum 4096 ;
+        lv2:portProperty lv2:reportsLatency, lv2:integer;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_detune_#gui>
