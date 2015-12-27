@@ -106,6 +106,7 @@ void Gx_fuzz_stereoGUI::set_skin()
                  "{ 22768, 80, 83, 80, 42428 }, \n"
                  "{ 52428, 8, 8, 80, 32428 }, \n"
                  "{ 65536, 4, 4, 4, 52428 }} \n"
+                 "   base[NORMAL]     = '#000000'      \n"
                  "    GxPaintBox::icon-set =11\n"
                  " }\n"
                  "\n"
@@ -157,10 +158,12 @@ void Gx_fuzz_stereoGUI::set_skin()
   toparse +=  "' style:highest 'gx_switch'";
   toparse +=     "style 'gx_fastmeter'\n"
                  " {\n"
+                 "   base[NORMAL]     = '#000000'      \n"
                  "   GxFastMeter::clr-bottom = '#003808'\n"
                  "   GxFastMeter::clr-middle = '#00ff00'\n"
                  "   GxFastMeter::clr-top    = '#ff0000'\n"
                  "   GxFastMeter::over       = '#ff0000'\n"
+                 "   GxFastMeter::dimen       = 2\n"
                  " }\n"
                  " class '*GxFastMeter' style:highest 'gx_fastmeter'\n";
 

@@ -261,10 +261,12 @@ plug_name(plugname)
   // set propertys and stack fastmeters
   for (uint32_t i = 0;i<5;i++) {
     fastmeter[i].set_hold_count(12);
-    fastmeter[i].set_property("dimen",5);
+    fastmeter[i].set_property("dimen",2);
+    fastmeter[i].set_property("type",0);
     fastmeter[i].set_tooltip_text("Output");
     fastmeter[i+5].set_hold_count(12);
-    fastmeter[i+5].set_property("dimen",5);
+    fastmeter[i+5].set_property("dimen",2);
+    fastmeter[i+5].set_property("type",0);
     fastmeter[i+5].set_tooltip_text("Input");
     m_paintbox[i+1].property_paint_func() = "RackBox_expose";
     m_paintbox[i+1].set_name(plug_name);

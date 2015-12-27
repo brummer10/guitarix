@@ -141,7 +141,7 @@ void Gx_livelooper_GUI::set_skin()
     
                  "    GxPaintBox::bevel                  = 0.11\n"
                  "    GxPaintBox::inverse                = 0\n"
-                 "    GxPaintBox::alternate-box          = { 0, 0, 30, 15 }\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 15, 10 }\n"
 
                  "    fg[NORMAL]              = '#999999'\n"
                  "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"
@@ -170,6 +170,10 @@ void Gx_livelooper_GUI::set_skin()
                  "widget '*.";
   toparse +=     plug_name;
   toparse +=     "' style:highest 'guitarix_default'\n";
+  toparse +=     "style 'guitarix_hslider' {\n"
+                 "    GxHSlider::slider-width = 36\n"
+                 "}\n"
+                 "widget_class '*GxHSlider' style:highest 'guitarix_hslider'\n";
   toparse +=     " style 'gx_selector'\n"
                  " {\n"
                  " fg[NORMAL]     = '#999999'   \n"

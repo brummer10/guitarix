@@ -67,7 +67,8 @@ plug_name(plugname)
   make_controller_box(&m_vbox5, "OUTPUT",5e+01, 1e+02, 1.0 , OUTPUT);
   
   fastmeter.set_hold_count(12);
-  fastmeter.set_property("dimen",5);
+  fastmeter.set_property("dimen",2);
+  fastmeter.set_property("type",0);
   fastmeter.set_tooltip_text("Output");
   m_paintbox[1].property_paint_func() = "RackBox_expose";
   m_paintbox[1].set_name(plug_name);

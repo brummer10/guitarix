@@ -177,7 +177,7 @@ Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
   for (uint32_t i = 1;i<5;i++) {
-    m_paintbox[i].property_paint_func() = "RackBox_expose";
+    m_paintbox[i].property_paint_func() = "box_uni_2_expose";
     m_paintbox[i].set_name(plug_name);
     m_paintbox[i].set_border_width(5);
     m_paintbox[i].pack_start(m_vbox[i]);
@@ -210,14 +210,14 @@ plug_name(plugname)
   make_controller_box(&m_vbox[2], "", false,   0.0f, 1e+02f, 1.0f , clip2);
   make_controller_box(&m_vbox[3], "", false,   0.0f, 1e+02f, 1.0f , clip3);
   make_controller_box(&m_vbox[4], "", false,  0.0f, 1e+02f, 1.0f , clip4);
-  m_vbox[1].pack_start(m_hbox[13]);
-  m_vbox[2].pack_start(m_hbox[14]);
-  m_vbox[3].pack_start(m_hbox[15]);
-  m_vbox[4].pack_start(m_hbox[16]);
   make_controller_box(&m_vbox[1], "", false,   0.0f, 1e+02f, 1.0f , clips1);
   make_controller_box(&m_vbox[2], "", false,   0.0f, 1e+02f, 1.0f , clips2);
   make_controller_box(&m_vbox[3], "", false,   0.0f, 1e+02f, 1.0f , clips3);
   make_controller_box(&m_vbox[4], "", false,   0.0f, 1e+02f, 1.0f , clips4);
+  m_vbox[1].pack_start(m_hbox[13]);
+  m_vbox[2].pack_start(m_hbox[14]);
+  m_vbox[3].pack_start(m_hbox[15]);
+  m_vbox[4].pack_start(m_hbox[16]);
   m_hbox[1].pack_start(m_hbox[5]);
   m_hbox[2].pack_start(m_hbox[6]);
   m_hbox[3].pack_start(m_hbox[7]);
@@ -253,7 +253,7 @@ plug_name(plugname)
   m_paintbox[0].set_spacing(4);
   m_paintbox[0].set_homogeneous(false);
   m_paintbox[0].set_name(plug_name);
-  m_paintbox[0].property_paint_func() = "rack_unit_expose";
+  m_paintbox[0].property_paint_func() = "gx_rack_unit_expose";
   add(m_paintbox[0]);
   // box for the controllers
   m_hbox[0].set_spacing(4);
@@ -469,7 +469,7 @@ void Widget::make_portdisplay(Gtk::Box *box,
     e_box->set_visible_window(true);
     e_box->set_above_child(true);
     e_box->add(*manage(static_cast<Gtk::Widget*>(regler)));
-    box->pack_start(*Gtk::manage(e_box),Gtk::PACK_SHRINK);
+    box->pack_start(*Gtk::manage(e_box));
     Gtk::HBox* b2 = new Gtk::HBox();
     box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
     regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(

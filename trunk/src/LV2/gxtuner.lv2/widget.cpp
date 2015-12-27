@@ -170,7 +170,8 @@ plug_name(plugname)
   levelslider.set_show_value(false);
   levelslider.set_name(plug_name);
   fastmeter.set_hold_count(8);
-  fastmeter.set_property("dimen",5);
+  fastmeter.set_property("dimen",2);
+  fastmeter.set_property("type",0);
   //m_paintbox.set_size_request( 425, 160 ) ;
 
 
@@ -253,15 +254,18 @@ void Widget::make_controller_box(Gtk::Box *box,
     label_image += "-label.png";
     Gtk::Image *pr = new Gtk::Image(label_image);*/
 
+    Gtk::HBox* b = new Gtk::HBox();
     Gtk::VBox* b1 = new Gtk::VBox();
-    box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
+    b->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
     box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK);
     regler->cp_configure("KNOB", label, min, max, digits);
-    //regler->set_show_value(true);
-    regler->set_name("amplabel");
-    box->pack_start(*regler,Gtk::PACK_SHRINK);
+    regler->set_show_value(true);
+    regler->set_name("valuelabel");
+    //regler->set_value_position(Gtk::POS_RIGHT);
+    b->pack_start(*regler,Gtk::PACK_SHRINK);
     Gtk::VBox* b2 = new Gtk::VBox();
-    box->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    b->pack_start( *Gtk::manage(b2), Gtk::PACK_EXPAND_PADDING);
+    box->pack_start( *Gtk::manage(b));
     regler->signal_value_changed().connect(sigc::bind(sigc::mem_fun(
            *this, &Widget::on_value_changed), port_name));
   }

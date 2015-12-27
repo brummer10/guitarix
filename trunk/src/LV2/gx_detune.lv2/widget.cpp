@@ -273,8 +273,8 @@ void Widget::set_value(uint32_t port_index,
     {
       regler->cp_set_value(value);
     // FIXME latency report seems to be broken, it produce Xruns on startup  
-    //} else if (port_index == LATENCYREPORT) {
-    //  m_latencyreport.set_text("Latency " +to_string(value));
+    } else if (port_index == LATENCYREPORT) {
+      m_latencyreport.set_text("Latency " +to_string(value));
     }
   }
 }

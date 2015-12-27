@@ -512,9 +512,9 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
     }
     run = false;
    // FIXME latency report seems to be broken, it produce Xruns on startup
-   // if (*(latencyr_) != latencyr) {
-   //     *(latencyr_) = latencyr;
-   // }
+    if (*(latencyr_) != latencyr) {
+        *(latencyr_) = latencyr;
+    }
 }
 
 void smbPitchShift::connect(uint32_t port,void* data)

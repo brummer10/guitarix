@@ -112,11 +112,21 @@ void GxtunerGUI::set_skin()
                  "{ 52428, 8, 8, 80, 32428 }, \n"
                  "{ 65536, 4, 4, 4, 52428 }} \n"
 
+                 "   base[NORMAL]     = '#000000'      \n"
                  "    GxPaintBox::icon-set =11\n"
                  "    stock['amp_skin'] = {{'";
   toparse +=     plugskin;
   toparse +=     "'}}\n"
                  " }\n";
+  toparse +=     "style 'gx_headvalue_box' \n"
+                 " { \n"
+                 "    fg[NORMAL] = '#ff9000' \n"
+                 "    fg[PRELIGHT] ='#00ffff'\n"
+                 "    base[PRELIGHT] ='#222222'\n"
+                 "    base[NORMAL] ='#000000'\n"
+                 "    font_name = 'sans  7.5' \n"
+                 " }\n";
+  toparse +=     " widget '*.valuelabel' style:highest 'gx_headvalue_box'\n";
   toparse +=     "style 'gx_headtuner_box' \n"
                  " { \n"
                  "    fg[NORMAL] = '#888888' \n"
@@ -165,6 +175,7 @@ void GxtunerGUI::set_skin()
   toparse +=     "'\n";
   toparse +=     "style 'gx_fastmeter'\n"
                  " {\n"
+                 "   base[NORMAL]     = '#000000'      \n"
                  "   GxFastMeter::clr-bottom = '#003808'\n"
                  "   GxFastMeter::clr-middle = '#00ff00'\n"
                  "   GxFastMeter::clr-top    = '#ff0000'\n"
@@ -184,6 +195,10 @@ void GxtunerGUI::set_skin()
   toparse +=     "' style 'gx_";
   toparse +=     plug_name;
   toparse +=     "_slevel' ";
+  toparse +=     "style 'guitarix_hslider' {\n"
+                 "    GxHSlider::slider-width = 36\n"
+                 "}\n"
+                 "widget_class '*GxHSlider' style:highest 'guitarix_hslider'\n";
 
   toparse +=     "style 'guitarix_default' {\n"
     

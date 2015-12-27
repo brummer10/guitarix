@@ -327,6 +327,7 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     fastmeter->set_hold_count(5);
     fastmeter->set_property("dimen",2);
     fastmeter->set_property("type",0);
+    fastmeter->set_name("simplemeter");
     Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
     fastmeter->set_by_power(0.0001);
@@ -337,11 +338,11 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
     box->add(*Gtk::manage(static_cast<Gtk::Widget*>(w)));
     if (label && label[0]) {
-    Gtk::HBox *boxv =  new Gtk::HBox();
-    boxv->set_property("orientation",Gtk::ORIENTATION_VERTICAL);
+    Gtk::VBox *boxv =  new Gtk::VBox();
+    //boxv->set_property("orientation",Gtk::ORIENTATION_VERTICAL);
     boxv->set_homogeneous(false);
     boxv->set_spacing(0);
-    boxv->set_border_width(4);
+   // boxv->set_border_width(4);
     Gtk::Label *lab = new Gtk::Label(label);
     Pango::FontDescription font = lab->get_style()->get_font();
     font.set_size(6*Pango::SCALE);
@@ -349,20 +350,9 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     lab->modify_font(font);
     lab->set_name("beffekt_label");
     boxv->add(*manage(lab));
-    Gtk::VBox *boxvv =  new Gtk::VBox();
-    Gtk::HBox *boxl =  new Gtk::HBox();
-    boxl->set_homogeneous(false);
-    boxl->set_spacing(0);
-    boxl->set_border_width(0);
-    Gtk::HBox *boxr =  new Gtk::HBox();
-    Gtk::HBox *boxs =  new Gtk::HBox();
-    boxl->pack_start(*manage(boxr), Gtk::PACK_EXPAND_WIDGET);
-    boxl->add(*manage(box));
-    boxl->pack_end(*manage(boxs), Gtk::PACK_EXPAND_WIDGET);
-    boxvv->add(*manage(boxv));    
-    boxvv->add(*manage(boxl));    
-    boxvv->show_all();
-    fBox.box_pack_start(manage(boxvv),false);
+    boxv->add(*manage(box));
+    boxv->show_all();
+    fBox.box_pack_start(manage(boxv),false);
     } else {
     box->show_all();
     fBox.box_pack_start(manage(box),false);

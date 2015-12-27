@@ -71,7 +71,9 @@ static gboolean gx_hslider_expose(GtkWidget *widget, GdkEventExpose *event)
     int x = widget->allocation.x;
     int y = widget->allocation.y;
     slider->image_rect.x = slider->image_rect.y = 0;
+	GdkRectangle  value_rect;
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->width - slider->slider_width);
+	_gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect);
 	if (gtk_widget_has_focus(widget)) {
         gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
                         x, y, slider->width, slider->height);
@@ -86,6 +88,7 @@ static gboolean gx_hslider_expose(GtkWidget *widget, GdkEventExpose *event)
     gdk_cairo_set_source_pixbuf (cr, slider->image, x - (slider->width - slstate) - sx, y);
     cairo_rectangle(cr, x + slstate, y, slider->slider_width, slider->height);
     cairo_fill(cr);
+	_gx_regler_display_value(GX_REGLER(widget), &value_rect);
 	cairo_destroy (cr);
 	return FALSE;
 }
