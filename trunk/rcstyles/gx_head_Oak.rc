@@ -1,14 +1,5 @@
 include "gx_head_Guitarix.rc"
 
-style "gx_effect_switch"
-{
-    bg[NORMAL]     = "#8c735c"
-    bg[ACTIVE]     = "#836853"
-    bg[PRELIGHT]   = "#8d765f"
-}
-
-widget "*effect_on_off" style:highest "gx_effect_switch"
-
 style "guitarix_default" {
     stock["background1"]    = {{"oak1.png"}}
     stock["background2"]    = {{"oak2.png"}}

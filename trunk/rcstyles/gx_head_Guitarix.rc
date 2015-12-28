@@ -121,9 +121,9 @@ widget "*.no_dim" style:highest "guitarix_switch_no_dim"
 
 style "gx_effect_switch"
 {
-    bg[NORMAL]     = "#7d9c57"
-    bg[ACTIVE]     = "#7e9e59"
-    bg[PRELIGHT]   = "#86a765"
+    #bg[NORMAL]     = "#7d9c57"
+    #bg[ACTIVE]     = "#7e9e59"
+    #bg[PRELIGHT]   = "#86a765"
     
     engine "clearlooks" {
         focus_color         = { 0, 0, 0 }
@@ -263,7 +263,7 @@ widget "*effects_toolpalette*GtkButton*" style:highest "guitarix_rack_button"
 
 style "guitarix_regler" {
     
-    font_name = "sans 8"
+    font_name = "Roboto Condensed Regular 8"
     
     GxRegler::value-border      = { 4, 4, 2, 2 } # border around text
     GxRegler::border-radius     = 6
@@ -286,7 +286,7 @@ class "*GxRegler*" style:highest "guitarix_regler"
 
 
 style "guitarix_font" {
-    font_name = "sans bold 7.5"
+    font_name = "Roboto Condensed Regular 7"
     fg[NORMAL] =  "#222222" #"#dadfe1" # "#c9d5b9"  #"#ffffff"
 }
 widget "*.rack_label" style:highest "guitarix_font"
@@ -299,7 +299,7 @@ widget "*beffekt_label" style:highest "guitarix_font"
 #widget "*effect_reset" style:highest "guitarix_rack_slider"
 
 style "guitarix_effect_title" {
-    font_name = "sans bold 7.5"
+    font_name = "Roboto Condensed Regular 9"
     fg[NORMAL] = "#222222"
 }
 widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"

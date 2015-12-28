@@ -1,27 +1,7 @@
 include "gx_head_Guitarix.rc"
 
-style "gx_effect_switch"
-{
-    bg[NORMAL]     = "#c5c3c5"
-    bg[ACTIVE]     = "#bfbfbf"
-    bg[PRELIGHT]   = "#d4d4d4"
-}
-
-widget "*effect_on_off" style:highest "gx_effect_switch"
-
 style "guitarix_default" {
     stock["background1"]    = {{"oak_white.png"}}
     stock["background2"]    = {{"oak2.png"}}
 }
 class "GtkWidget" style:highest "guitarix_default"
-
-class "GtkWidget" style:highest "guitarix_default"
-style "guitarix_font" {
-    font_name = "sans bold 7.5"
-    fg[NORMAL] = "#555555"
-}
-widget "*.rack_label" style:highest "guitarix_font"
-widget "*Value" style:highest "guitarix_font"
-widget "*ampbox*label" style:highest "guitarix_font"
-widget "*beffekt_label" style:highest "guitarix_font"
-widget "*rack_effect_label" style:highest "guitarix_font"
