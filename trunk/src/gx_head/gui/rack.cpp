@@ -398,7 +398,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
     add(evbox);
     
     Gtk::Alignment *al = new Gtk::Alignment();
-    al->set_padding(0, 4, 4, 0);
+    al->set_padding(0, 4, 4, 4);
     evbox.add(*manage(al));
     
     Gtk::HBox *box = new Gtk::HBox();
