@@ -398,16 +398,23 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
     add(evbox);
     
     Gtk::Alignment *al = new Gtk::Alignment();
-    al->set_padding(0, 4, 4, 4);
+    al->set_padding(0, 4, 0, 0);
+    al->set_border_width(0);
+    
     evbox.add(*manage(al));
     
     Gtk::HBox *box = new Gtk::HBox();
     Gtk::HBox *top = new Gtk::HBox();
     al->add(*manage(box));
     
-    box->set_spacing(4);
+    this->set_spacing(0);
+    this->set_border_width(0);
+    
+    box->set_spacing(0);
+    box->set_border_width(0);
     
     top->set_spacing(4);
+    top->set_border_width(0);
     top->set_name("rack_unit_title_bar");
     
     box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
@@ -435,7 +442,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
 #ifdef USE_SZG
     RackBox::szg->add_widget(*al);
 #else
-    al->set_size_request(35, -1);
+    al->set_size_request(32, -1);
 #endif
     show_all();
 }
@@ -800,9 +807,9 @@ Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
     Gtk::Alignment *al = new Gtk::Alignment(0, 0, 1.0, 1.0);
     //al->set_padding(4, 4, left, right);
     Gtk::Button *button = new Gtk::Button();
-    button->set_size_request(25,-1);
+    button->set_size_request(32,-1);
     //button->set_name("effect_reset");
-    button->set_tooltip_text(_("drag n' drop handle"));
+    button->set_tooltip_text(_("Drag'n' Drop Handle"));
     button->set_relief(Gtk::RELIEF_NONE);
     button->set_sensitive(sens);
     al->add(*manage(button));
@@ -1181,10 +1188,10 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     al->set_padding(0, 4, 0, 0);
     al->add(*manage(main));
     
-    main->set_spacing(4);
+    main->set_spacing(0);
     
     center->set_name("rack_unit_center");
-    center->set_border_width(4);
+    center->set_border_width(0);
     center->set_spacing(4);
     center->pack_start(*manage(top), Gtk::PACK_SHRINK);
     center->pack_start(box, Gtk::PACK_EXPAND_WIDGET);

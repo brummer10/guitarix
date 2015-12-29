@@ -69,7 +69,7 @@ private:
     }
 
     void closeBox();
-    void openSpaceBox(const char* label = "");
+    void openSpaceBox(const char* label = "", int width = 0);
 
     void check_set_flags(Gxw::Regler *r);
     void create_simple_meter(const std::string& id);

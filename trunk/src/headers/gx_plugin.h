@@ -73,7 +73,7 @@ struct UiBuilder {
     void (*openFlipLabelBox)(const char* label);
     void (*openpaintampBox)(const char* label);
     void (*closeBox)();
-    void (*insertSpacer)();
+    void (*insertSpacer__)(int width);
     void (*set_next_flags)(int flags);
     // methods creating UI elements connected to parameter_id's.
     // the check_parameter function in dsp2cc identifies these
@@ -97,6 +97,7 @@ struct UiBuilder {
     void (*create_simple_spin_value)(const char *id);
     void (*create_eq_rackslider_no_caption)(const char *id);
     void (*create_fload_switch)(const char *sw_type,const char * id,const char * idf);
+    void insertSpacer(int width = 0) const { insertSpacer__(width); }
     // adding additional functions:
     // If possible don't change the order of the current defintion.
     // new functions need to be added at the following places:

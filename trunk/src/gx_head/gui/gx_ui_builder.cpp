@@ -92,8 +92,8 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     create_p_display = create_p_display_;
     create_simple_spin_value = create_simple_spin_value_;
     create_eq_rackslider_no_caption = create_eq_rackslider_no_caption_;
-    insertSpacer = insertSpacer_;
     set_next_flags = set_next_flags_;
+    insertSpacer__ = insertSpacer_;
 };
 
 bool UiBuilderImpl::load_unit(PluginDef *pd) {
@@ -146,8 +146,8 @@ void UiBuilderImpl::openpaintampBox_(const char* label) {
     intf->openpaintampBox(label);
 }
 
-void UiBuilderImpl::insertSpacer_() {
-    intf->openSpaceBox("");
+void UiBuilderImpl::insertSpacer_(int width) {
+    intf->openSpaceBox("", width);
     intf->closeBox();
 }
 
@@ -597,5 +597,3 @@ void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine) {
 }
 
 } /* end of gx_gui namespace */
-
-
