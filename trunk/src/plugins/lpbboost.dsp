@@ -3,7 +3,7 @@
 declare id "lpbboost";
 declare name "LPB-1 Booster";
 declare category "Tone control";
-declare shortname "LPB-1 Booster";
+declare shortname "LPB-1 Boost";
 declare description "LPB-1 Linear Power Booster ";
 
 import("filter.lib");

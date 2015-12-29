@@ -138,11 +138,11 @@ int Gate::uiloader(const UiBuilder& b, int form) {
     b.closeBox();
     b.openHorizontalBox("");
     {
-	b.create_small_rackknob("abgate.threshold",0);
-	b.create_small_rackknob("abgate.attack",0);
-	b.create_small_rackknob("abgate.hold",0);
-	b.create_small_rackknob("abgate.decay",0);
-	b.create_small_rackknob("abgate.gaterange",0);
+	b.create_small_rackknobr("abgate.threshold",0);
+	b.create_small_rackknobr("abgate.attack",0);
+	b.create_small_rackknobr("abgate.hold",0);
+	b.create_small_rackknobr("abgate.decay",0);
+	b.create_small_rackknobr("abgate.gaterange",0);
     }
     b.closeBox();
     return 0;

@@ -3,7 +3,7 @@
 declare id "bfuzz";
 declare name "Bass Fuzz Pedal";
 declare category "Fuzz";
-declare shortname "Bass Fuzz Pedal";
+declare shortname "Bass Fuzz";
 declare description "Bass Fuzz Pedal";
 
 import("filter.lib");

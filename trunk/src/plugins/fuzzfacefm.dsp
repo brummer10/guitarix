@@ -1,10 +1,10 @@
 // generated automatically
 // DO NOT MODIFY!
 declare id "fuzzfacefm";
-declare name "Fuzz Face Fuller";
+declare name "Fuzz Face Mike Fuller";
 declare category "Fuzz";
-declare shortname "Fuzz Face FM";
-declare description "Micke Fuller Fuzz Face simulation";
+declare shortname "FF Fuller";
+declare description "Mike Fuller Fuzz Face simulation";
 
 import("filter.lib");
 import("trany.lib");

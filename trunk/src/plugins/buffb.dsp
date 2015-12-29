@@ -3,7 +3,7 @@
 declare id "buffb";
 declare name "Buffer Booster";
 declare category "Tone control";
-declare shortname "BufferBooster";
+declare shortname "Buffer Boost";
 declare description "Buffer Booster";
 
 import("filter.lib");

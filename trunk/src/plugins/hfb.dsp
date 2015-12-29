@@ -3,7 +3,7 @@
 declare id "hfb";
 declare name "HF Brightener";
 declare category "Tone control";
-declare shortname "HF Brightener";
+declare shortname "HF Brighten";
 declare description "High Frequency Brightener";
 
 import("filter.lib");

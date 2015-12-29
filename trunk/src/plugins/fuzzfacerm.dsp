@@ -1,9 +1,9 @@
 // generated automatically
 // DO NOT MODIFY!
 declare id "fuzzfacerm";
-declare name "Fuzz Face Mayer";
+declare name "Fuzz Face Roger Mayer";
 declare category "Fuzz";
-declare shortname "Fuzz Face RM";
+declare shortname "FF Mayer";
 declare description "Roger Mayer Fuzz Face simulation";
 
 import("filter.lib");

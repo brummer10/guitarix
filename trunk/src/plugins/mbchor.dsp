@@ -1,5 +1,5 @@
 declare id "mbchor";
-declare name "MultiBand Chorus";
+declare name "Multi Band Chorus";
 declare shortname "MB Chorus";
 declare category "Modulation";
 declare description "Multi Band Chorus";

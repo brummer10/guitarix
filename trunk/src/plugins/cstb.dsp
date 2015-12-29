@@ -3,7 +3,7 @@
 declare id "cstbt1";
 declare name "Colorsound Tone Blender";
 declare category "Fuzz";
-declare shortname "CS Toneblender";
+declare shortname "CS Tone";
 declare description "Colorsound Tone Blender";
 
 import("filter.lib");

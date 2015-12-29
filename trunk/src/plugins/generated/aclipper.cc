@@ -208,11 +208,11 @@ b.openHorizontalhideBox("");
 b.create_master_slider(PARAM("drive"), "drive");
 b.closeBox();
 b.openHorizontalBox("");
-b.insertSpacer();
+b.insertSpacer(68);
 b.create_small_rackknobr(PARAM("drive"), "Distortion");
-b.create_small_rackknob(PARAM("tone"), "Filter");
-b.create_small_rackknob(PARAM("level"), "Volume");
-b.insertSpacer();
+b.create_small_rackknobr(PARAM("tone"), "Filter");
+b.create_small_rackknobr(PARAM("level"), "Volume");
+b.insertSpacer(68);
 b.closeBox();
 
 #undef PARAM

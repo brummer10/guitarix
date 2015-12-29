@@ -1,6 +1,6 @@
 declare id "mbc";
 declare name "Multi Band Compressor";
-declare shortname "MB Compressor";
+declare shortname "MB Comp";
 declare category "Guitar Effects";
 declare description "Multi Band Compressor contributed by kokoko3k";
 

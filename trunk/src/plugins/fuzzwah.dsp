@@ -1,9 +1,9 @@
 // generated automatically
 // DO NOT MODIFY!
 declare id "fuzzwah";
-declare name "Wah Face";
+declare name "Fuzz Wah Face";
 declare category "Guitar Effects";
-declare shortname "Wah Face";
+declare shortname "Fuzz Wah";
 declare description "Dallas Arbiter Fuzz Wah Face";
 
 import("filter.lib");

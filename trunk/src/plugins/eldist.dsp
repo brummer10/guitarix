@@ -3,7 +3,7 @@
 declare id "eldist";
 declare name "Electra Distortion";
 declare category "Distortion";
-declare shortname "El.Distortion";
+declare shortname "Electra Dst";
 declare description "Electra Distortion";
 
 import("filter.lib");

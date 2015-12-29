@@ -3,7 +3,7 @@
 declare id "ffreak";
 declare name "Fat Furry Freak";
 declare category "Fuzz";
-declare shortname "Fat Freak";
+declare shortname "Fat FFreak";
 declare description "Extreme Bass Fuzz Monster";
 
 import("filter.lib");
