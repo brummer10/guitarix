@@ -150,7 +150,7 @@ const char *Gate::glade_def = "\
               <object class=\"GtkHBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">22</property>\n\
+                <property name=\"spacing\">32</property>\n\
                 <child>\n\
                   <object class=\"GtkVBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -355,8 +355,37 @@ const char *Gate::glade_def = "\
           <object class=\"GtkHBox\" id=\"minibox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
             <child>\n\
-              <placeholder/>\n\
+              <object class=\"GxHSlider\" id=\"gxhslider1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">True</property>\n\
+                <property name=\"receives_default\">True</property>\n\
+                <property name=\"round_digits\">0</property>\n\
+                <property name=\"var_id\">abgate:threshold</property>\n\
+                <property name=\"show_value\">False</property>\n\
+                <property name=\"value_position\">right</property>\n\
+                <property name=\"value_xalign\">0.52000000000000002</property>\n\
+                <property name=\"label_ref\">label0:rack_label</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"xalign\">0</property>\n\
+                <property name=\"label\" translatable=\"yes\">Threshold</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">1</property>\n\
+              </packing>\n\
             </child>\n\
           </object>\n\
           <packing>\n\
