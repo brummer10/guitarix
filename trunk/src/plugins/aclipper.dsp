@@ -2,6 +2,7 @@ declare id 		"aclipper";
 declare name            "Rat";
 declare category        "Distortion";
 
+
 SR = component("math.lib").SR;
 s = 0.993;
 fs = float(SR);
