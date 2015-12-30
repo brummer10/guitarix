@@ -293,6 +293,7 @@ widget "*.rack_label" style:highest "guitarix_font"
 widget "*Value" style:highest "guitarix_font"
 widget "*ampbox*label" style:highest "guitarix_font"
 widget "*beffekt_label" style:highest "guitarix_font"
+widget "*tab_rack*GtkLabel" style:highest "guitarix_font"
 #widget "*rack_effect_label" style:highest "guitarix_font"
 
 #buttons in rack devices to drag them
@@ -439,9 +440,28 @@ style "guitarix_meter_scale" {
 widget_class "*GxMeterScale" style:highest "guitarix_meter_scale"
 
 
+style "guitarix_notebook" {
+    xthickness = 8
+    ythickness = 2
+    engine "clearlooks" {
+        contrast            = 0.75
+        radius              = 3.0
+        style               = GLOSSY #INVERTED CLASSIC GLOSSY GUMMY
+    }
+}
+widget "*tab_rack" style:highest "guitarix_notebook"
+
+style "guitarix_notebook_buttons" {
+    fg[NORMAL] = "#ff9900"
+    fg[ACTIVE] = "#555555"
+}
+widget "*tab_rack*GtkLabel" style:highest "guitarix_notebook_buttons"
 
 
-
+style "guitarix_notebook_labels" {
+    fg[NORMAL] = "#aaaaaa"
+}
+widget "*tab_rack*label" style:highest "guitarix_notebook_labels"
 
 
 
