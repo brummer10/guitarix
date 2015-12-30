@@ -29,6 +29,7 @@
 #include "regler.h"
 #include "selector.h"
 #include "simplevaluedisplay.h"
+#include "midknob.h"
 #include "smallknob.h"
 #include "smallknobr.h"
 #include "switch.h"
@@ -62,6 +63,7 @@ GType gx_selector_get_type(void);
 GType gx_simple_value_display_get_type(void);
 GType gx_small_knob_get_type(void);
 GType gx_small_knob_r_get_type(void);
+GType gx_mid_knob_get_type(void);
 GType gx_switch_get_type(void);
 GType gx_toggle_image_get_type(void);
 GType gx_tuner_get_type(void);
@@ -97,6 +99,7 @@ class Selector_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class SimpleValueDisplay_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class SmallKnob_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class SmallKnobR_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
+class MidKnob_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class Switch_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class ToggleImage_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class Tuner_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
@@ -129,6 +132,7 @@ void wrap_init()
   Glib::wrap_register(gx_simple_value_display_get_type(), &SimpleValueDisplay_Class::wrap_new);
   Glib::wrap_register(gx_small_knob_get_type(), &SmallKnob_Class::wrap_new);
   Glib::wrap_register(gx_small_knob_r_get_type(), &SmallKnobR_Class::wrap_new);
+  Glib::wrap_register(gx_mid_knob_get_type(), &MidKnob_Class::wrap_new);
   Glib::wrap_register(gx_switch_get_type(), &Switch_Class::wrap_new);
   Glib::wrap_register(gx_toggle_image_get_type(), &ToggleImage_Class::wrap_new);
   Glib::wrap_register(gx_tuner_get_type(), &Tuner_Class::wrap_new);
@@ -157,6 +161,7 @@ void wrap_init()
   SimpleValueDisplay::get_type();
   SmallKnob::get_type();
   SmallKnobR::get_type();
+  MidKnob::get_type();
   Switch::get_type();
   ToggleImage::get_type();
   Tuner::get_type();
@@ -169,4 +174,3 @@ void wrap_init()
 } // wrap_init()
 
 } // Gxw
-

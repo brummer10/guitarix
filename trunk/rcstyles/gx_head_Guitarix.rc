@@ -366,13 +366,13 @@ widget_class "*GxSmallKnobR" style:highest "guitarix_small_knob_r"
 style "guitarix_mid_knob" {
     GxKnob::x_center          = -1
     GxKnob::y_center          = -1
-    GxKnob::ring_radius       = 43
-    GxKnob::ring_width        = 9
+    GxKnob::ring_radius       = 35
+    GxKnob::ring_width        = 6
     GxKnob::ring_led_size     = 2
     GxKnob::ring_led_distance = 2
-    GxKnob::indicator_radius  = 30
-    GxKnob::indicator_width   = 3
-    GxKnob::indicator_length  = 7
+    GxKnob::indicator_radius  = 27
+    GxKnob::indicator_width   = 2
+    GxKnob::indicator_length  = 6
 }
 widget_class "*GxMidKnob" style:highest "guitarix_mid_knob"
 
