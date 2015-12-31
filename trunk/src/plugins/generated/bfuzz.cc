@@ -258,7 +258,7 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("bfuzz.Drive",N_("Drive"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 	reg.registerVar("bfuzz.Level",N_("Level"),"S","",&fslider3, 0.5, 0.0, 1.0, 0.01);
 	reg.registerVar("bfuzz.Thickness",N_("Thickness"),"S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("bfuzz.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("bfuzz.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

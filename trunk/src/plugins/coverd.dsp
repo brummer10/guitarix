@@ -14,7 +14,7 @@ import("filter.lib");
     fs = float(SR);
     pre = _;
     
-    wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+    wet = vslider("wet_dry[name:Wet/Dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
 
@@ -83,4 +83,3 @@ p2 =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0))
 };
 
 process =  _<:*(dry),(*(wet) :p1:p2):>_;
-
