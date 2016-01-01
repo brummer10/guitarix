@@ -224,6 +224,15 @@ def set_options(opt):
                     const=True,
                     help=("disable SSE for lv2 plugins (ARM)"))
 
+    style = opt.add_option_group("Style Options (installing font)")
+    
+    style.add_option('--install-roboto-font',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help=("install the included roboto condensed font"))
+    
+    
 
     opt.recurse('pygxw')
     opt.recurse('glade-gxw')
@@ -404,6 +413,14 @@ def sub_file(src_fname, dst_fname, lst):
     f.write(txt)
     f.close()
 
+def check_roboto_font(conf):
+    if Utils.exec_command("fc-list | grep RobotoCondensed >/dev/null") != 0:
+        conf.font_msg = "\nRobotoCondensed font not found: please install the fonts-roboto package from your distribution (recommended)\nor use --install-roboto-font to install the included roboto font."
+        conf.check_message('font RobotoCondensed','',0)
+        conf.env['FONTMSG'] = True
+    else:
+        conf.check_message('font RobotoCondensed','',1)
+  
 def check_faust(conf):
     if Options.options.no_faust:
         conf.env['FAUST'] = None
@@ -561,6 +578,7 @@ write_linguas_file = feature ('intltool_po')(write_linguas_file)
 #
  
 def configure(conf):
+    conf.font_msg = ""
     opt = Options.options
     if opt.disable_sse and opt.optimization:
         display_msg("configuration error", " cant use --disable-sse and --optimization together", 'RED')
@@ -651,6 +669,9 @@ def configure(conf):
         conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
         conf.check_cfg(package='webkit-1.0', args='--cflags --libs', uselib_store='WEBKIT', mandatory=0, define_name='HAVE_WEBKIT')
         check_boost(conf)
+        if not (opt.install_roboto_font):
+            check_roboto_font(conf)
+
     conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
 
     check_zita_convolver(opt, conf)
@@ -690,6 +711,7 @@ def configure(conf):
     conf.define('GX_BUILDER_DIR', os.path.join(gxsharedir,'builder'))
     conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
+    conf.define('GX_FONTS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'fonts','truetype')))
     conf.define('GX_VERSION', VERSION)
     
     if conf.env.DEST_CPU=='x86_64': 
@@ -724,6 +746,8 @@ def configure(conf):
         else:
             conf.env['LADSPADIR'] = os.path.normpath(os.path.join(
                 conf.env['LIBDIR'], 'ladspa'))
+
+    conf.env['FONT'] = opt.install_roboto_font
 
     # g++ flags
     cxxflags = opt.cxxflags.split()
@@ -840,6 +864,8 @@ def configure(conf):
     if not conf.env['NO_MAIN']:
         display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
     display_msg("Install library", conf.env['LIBDIR'], 'CYAN')
+    if conf.env['FONT']:
+        display_msg("Install font roboto condensed", conf.env['GX_FONTS_DIR'], 'CYAN')
 
     if not opt.no_ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
@@ -850,13 +876,20 @@ def configure(conf):
         display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
     if conf.env['g++']:
        error_msg("ERROR       !!! Compiler version is too old !!!")
-
+    if conf.env['FONTMSG']:
+        display_msg('Font config',conf.font_msg,'RED')
     print_msg("")
 
 
 ################################################################
 # Build / Install
 ################################################################
+
+def install_hook(ctx):
+    try:
+        Utils.exec_command("fc-cache -fv")
+    except:
+        pass
 
 def post(ctx):
     if os.geteuid() == 0:
@@ -867,6 +900,7 @@ def build(bld):
         obj = bld.new_task_gen ('intltool_po')
         obj.podir = 'po'
         obj.appname = APPNAME
+
 
     # process subfolders from here
     if bld.env["LADSPA"]:
@@ -889,6 +923,10 @@ def build(bld):
         bld.add_subdirs('src/LV2')
 
     if not bld.env['NO_MAIN']:
+        if bld.env['FONT']:
+            bld.install_files(os.path.join(bld.env['GX_FONTS_DIR'], 'robotocondensed'), './fonts/*', chmod=0o777)
+            bld.add_post_fun(install_hook)
+
         bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/brummer.gx', chmod=0o664)
@@ -942,6 +980,7 @@ def build(bld):
                     bld.exec_command(["update-desktop-database", Utils.subst_vars("${DATADIR}/applications", bld.env)])
                 except:
                     pass
+
 
     if bld.env["GX_LIB_SHARED"]:
         if not bld.env["NO_LDCONFIG"]:
