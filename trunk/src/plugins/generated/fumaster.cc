@@ -339,16 +339,15 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("fumaster" "." p)
-
 b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("Tone"), "Tone");
 b.closeBox();
 b.openHorizontalBox("");
-
+    b.insertSpacer();
     b.create_small_rackknobr(PARAM("Tone"), "Tone");
-
+    b.create_small_rackknobr(PARAM("wet_dry"), "Dry/Wet");
     b.create_small_rackknobr(PARAM("Level"), "Level");
-    b.create_small_rackknobr(PARAM("wet_dry"), "dry/wet");
+    b.insertSpacer();
 b.closeBox();
 
 #undef PARAM

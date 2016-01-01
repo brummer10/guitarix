@@ -6,5 +6,5 @@ b.openHorizontalBox("");
     b.create_small_rackknobr(PARAM("Tone"), "Tone");
     b.create_small_rackknobr(PARAM("wet_dry"), "Dry/Wet");
     b.create_small_rackknobr(PARAM("Level"), "Level");
-    b.insertSpacer(68);
+    b.insertSpacer();
 b.closeBox();

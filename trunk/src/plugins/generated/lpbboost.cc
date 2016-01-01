@@ -49,7 +49,7 @@ Dsp::Dsp()
 	groups = 0;
 	description = N_("LPB-1 Linear Power Booster "); // description (tooltip)
 	category = N_("Tone control");       // category
-	shortname = N_("LPB-1 Booster");     // shortname
+	shortname = N_("LPB-1 Boost");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
@@ -127,13 +127,15 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("lpbboost" "." p)
-
 b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("Boost"), "Boost");
 b.closeBox();
 b.openHorizontalBox("");
-
+    b.insertSpacer();
+    b.insertSpacer();
+    b.insertSpacer();
     b.create_small_rackknobr(PARAM("Boost"), "Boost");
+    b.insertSpacer();
 b.closeBox();
 
 #undef PARAM

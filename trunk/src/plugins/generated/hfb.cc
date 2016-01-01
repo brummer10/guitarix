@@ -54,7 +54,7 @@ Dsp::Dsp()
 	groups = 0;
 	description = N_("High Frequency Brightener"); // description (tooltip)
 	category = N_("Tone control");       // category
-	shortname = N_("HF Brightener");     // shortname
+	shortname = N_("HF Brighten");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
@@ -141,15 +141,15 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("hfb" "." p)
-
 b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("Volume"), N_("Volume"));
 b.closeBox();
 b.openHorizontalBox("");
-
+    b.insertSpacer();
+    b.insertSpacer();
     b.create_small_rackknobr(PARAM("Volume"), N_("Volume"));
-
     b.create_small_rackknobr(PARAM("Intensity"), N_("Intensity"));
+    b.insertSpacer();
 b.closeBox();
 
 #undef PARAM

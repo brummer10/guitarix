@@ -93,7 +93,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     create_simple_spin_value = create_simple_spin_value_;
     create_eq_rackslider_no_caption = create_eq_rackslider_no_caption_;
     set_next_flags = set_next_flags_;
-    insertSpacer__ = insertSpacer_;
+    insertSpacer = insertSpacer_;
 };
 
 bool UiBuilderImpl::load_unit(PluginDef *pd) {
@@ -146,8 +146,8 @@ void UiBuilderImpl::openpaintampBox_(const char* label) {
     intf->openpaintampBox(label);
 }
 
-void UiBuilderImpl::insertSpacer_(int width) {
-    intf->openSpaceBox("", width);
+void UiBuilderImpl::insertSpacer_() {
+    intf->openSpaceBox("");
     intf->closeBox();
 }
 

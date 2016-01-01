@@ -142,7 +142,7 @@ Dsp::Dsp()
 	groups = 0;
 	description = N_("Multi Band Compressor contributed by kokoko3k"); // description (tooltip)
 	category = N_("Guitar Effects");       // category
-	shortname = N_("MB Compressor");     // shortname
+	shortname = N_("MB Comp");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;

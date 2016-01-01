@@ -136,14 +136,15 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("hogsfoot" "." p)
-
 b.openHorizontalhideBox("");
-    b.create_master_slider(PARAM("wet_dry"), "dry/wet");
+    b.create_master_slider(PARAM("wet_dry"), "Dry/Wet");
 b.closeBox();
 b.openHorizontalBox("");
-
+    b.insertSpacer();
+    b.insertSpacer();
+    b.create_small_rackknobr(PARAM("wet_dry"), "Dry/Wet");
     b.create_small_rackknobr(PARAM("Volume"), "Volume");
-    b.create_small_rackknobr(PARAM("wet_dry"), "dry/wet");
+    b.insertSpacer();
 b.closeBox();
 
 #undef PARAM

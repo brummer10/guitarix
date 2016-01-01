@@ -194,7 +194,7 @@ private:
     static void openFrameBox_(const char* label);
     static void openFlipLabelBox_(const char* label);
     static void openpaintampBox_(const char* label);
-    static void insertSpacer_(int width);
+    static void insertSpacer_();
     static void set_next_flags_(int flags);
     static void create_small_rackknob_(const char *id, const char *label);
     static void create_small_rackknobr_(const char *id, const char *label);
@@ -1363,7 +1363,7 @@ UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, const gx_system::Cmdlin
     create_simple_spin_value = create_simple_spin_value_;
     create_eq_rackslider_no_caption = create_eq_rackslider_no_caption_;
     create_fload_switch = create_fload_switch_;
-    insertSpacer__ = insertSpacer_;
+    insertSpacer = insertSpacer_;
     set_next_flags = set_next_flags_;
 }
 
@@ -1440,7 +1440,7 @@ void UiBuilderVirt::openHorizontalBox_(const char* label) {
     jw->end_array();
 }
 
-void UiBuilderVirt::insertSpacer_(int width) {
+void UiBuilderVirt::insertSpacer_() {
     jw->begin_array();
     jw->write("insertSpacer");
     jw->end_array();

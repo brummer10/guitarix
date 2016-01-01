@@ -223,14 +223,15 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("GCB_95" "." p)
-
 b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("hotpotz"), "Wah");
 b.closeBox();
 b.openHorizontalBox("");
-    b.create_small_rackknobr(PARAM("Volume"), "Volume");
-
+    b.insertSpacer();
+    b.insertSpacer();
     b.create_small_rackknobr(PARAM("hotpotz"), "Wah");
+    b.create_small_rackknobr(PARAM("Volume"), "Volume");
+    b.insertSpacer();
 b.closeBox();
 
 #undef PARAM

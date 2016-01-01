@@ -253,17 +253,15 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("fuzzdrive" "." p)
-
 b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("Level"), "Level");
 b.closeBox();
 b.openHorizontalBox("");
-
-    b.create_small_rackknobr(PARAM("Level"), "Level");
-
+    b.insertSpacer();
     b.create_small_rackknobr(PARAM("Distortion"), "Drive");
-
-    b.create_small_rackknobr(PARAM("wet_dry"), "dry/wet");
+    b.create_small_rackknobr(PARAM("wet_dry"), "Dry/Wet");
+    b.create_small_rackknobr(PARAM("Level"), "Level");
+    b.insertSpacer();
 b.closeBox();
 
 #undef PARAM

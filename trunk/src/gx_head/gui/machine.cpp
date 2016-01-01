@@ -1498,6 +1498,8 @@ void GxMachineRemote::pluginlist_append_rack(UiBuilderBase& ui) {
     pluginlist.append_rack(ui);
 }
 
+/*
+// unused now, 
 static const char *next_char_pointer(gx_system::JsonParser *jp) {
     switch (jp->next()) {
     case gx_system::JsonParser::value_string: return jp->current_value().c_str();
@@ -1505,6 +1507,7 @@ static const char *next_char_pointer(gx_system::JsonParser *jp) {
     default: jp->throw_unexpected(gx_system::JsonParser::value_string); return 0;
     }
 }
+*/
 
 static const std::string next_string(gx_system::JsonParser *jp) {
     if (jp->next() != gx_system::JsonParser::value_string) {
@@ -1528,25 +1531,25 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	jp->next(gx_system::JsonParser::begin_array);
 	jp->next(gx_system::JsonParser::value_string);
 	if (jp->current_value() == "openTabBox") {
-	    builder.openTabBox(next_char_pointer(jp));
+	    builder.openTabBox(next_string(jp).c_str());
 	} else if (jp->current_value() == "openVerticalBox") {
-	    builder.openVerticalBox(next_char_pointer(jp));
+	    builder.openVerticalBox(next_string(jp).c_str());
 	} else if (jp->current_value() == "openVerticalBox1") {
-	    builder.openVerticalBox1(next_char_pointer(jp));
+	    builder.openVerticalBox1(next_string(jp).c_str());
 	} else if (jp->current_value() == "openVerticalBox2") {
-	    builder.openVerticalBox2(next_char_pointer(jp));
+	    builder.openVerticalBox2(next_string(jp).c_str());
 	} else if (jp->current_value() == "openHorizontalhideBox") {
-	    builder.openHorizontalhideBox(next_char_pointer(jp));
+	    builder.openHorizontalhideBox(next_string(jp).c_str());
 	} else if (jp->current_value() == "openHorizontalTableBox") {
-	    builder.openHorizontalTableBox(next_char_pointer(jp));
+	    builder.openHorizontalTableBox(next_string(jp).c_str());
 	} else if (jp->current_value() == "openFrameBox") {
-	    builder.openFrameBox(next_char_pointer(jp));
+	    builder.openFrameBox(next_string(jp).c_str());
 	} else if (jp->current_value() == "openFlipLabelBox") {
-	    builder.openFlipLabelBox(next_char_pointer(jp));
+	    builder.openFlipLabelBox(next_string(jp).c_str());
 	} else if (jp->current_value() == "openpaintampBox") {
-	    builder.openpaintampBox(next_char_pointer(jp));
+	    builder.openpaintampBox(next_string(jp).c_str());
 	} else if (jp->current_value() == "openHorizontalBox") {
-	    builder.openHorizontalBox(next_char_pointer(jp));
+	    builder.openHorizontalBox(next_string(jp).c_str());
 	} else if (jp->current_value() == "insertSpacer") {
 	    builder.insertSpacer();
 	} else if (jp->current_value() == "set_next_flags") {

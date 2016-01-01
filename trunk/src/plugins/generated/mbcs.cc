@@ -144,11 +144,11 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "mbcs";
-	name = N_("Multi Band Compressor stereo");
+	name = N_("Multi Band Compressor Stereo");
 	groups = 0;
 	description = N_("Multi Band Compressor contributed by kokoko3k"); // description (tooltip)
 	category = N_("Guitar Effects");       // category
-	shortname = N_("MB Compressor St");     // shortname
+	shortname = N_("MB Comp St");     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;
 	set_samplerate = init_static;
@@ -656,7 +656,6 @@ b.openVerticalBox("");
 b.openTabBox("");
 
 b.openHorizontalBox(N_("Band 1"));
-b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -674,10 +673,8 @@ b.create_small_rackknob(PARAM("Release1") ,N_("Release"));
 b.closeBox();
 b.closeBox();
 b.closeBox();
-b.closeBox();
 
 b.openHorizontalBox(N_("Band 2"));
-b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -697,10 +694,8 @@ b.create_small_rackknob(PARAM("Release2"), N_("Release"));
 b.closeBox();
 b.closeBox();
 b.closeBox();
-b.closeBox();
 
 b.openHorizontalBox(N_("Band 3"));
-b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -720,10 +715,8 @@ b.create_small_rackknob(PARAM("Release3"), N_("Release"));
 b.closeBox();
 b.closeBox();
 b.closeBox();
-b.closeBox();
 
 b.openHorizontalBox(N_("Band 4"));
-b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -743,10 +736,8 @@ b.create_small_rackknob(PARAM("Release4"), N_("Release"));
 b.closeBox();
 b.closeBox();
 b.closeBox();
-b.closeBox();
 
 b.openHorizontalBox(N_("Band 5"));
-b.openpaintampBox("");
 b.openVerticalBox("");
 b.openHorizontalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -761,7 +752,6 @@ b.create_selector_no_caption(PARAM("Mode5"));
 b.create_small_rackknob(PARAM("Ratio5"), N_("Ratio"));
 b.create_small_rackknob(PARAM("Attack5"), N_("Attack"));
 b.create_small_rackknob(PARAM("Release5"), N_("Release"));
-b.closeBox();
 b.closeBox();
 b.closeBox();
 b.closeBox();

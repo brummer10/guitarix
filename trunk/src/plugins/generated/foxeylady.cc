@@ -350,15 +350,15 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("foxeylady" "." p)
-
 b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("Fuzz"), "Fuzz");
 b.closeBox();
 b.openHorizontalBox("");
-
-    b.create_small_rackknobr(PARAM("Level"), "Level");
-
+    b.insertSpacer();
+    b.insertSpacer();
     b.create_small_rackknobr(PARAM("Fuzz"), "Fuzz");
+    b.create_small_rackknobr(PARAM("Level"), "Level");
+    b.insertSpacer();
 b.closeBox();
 
 #undef PARAM

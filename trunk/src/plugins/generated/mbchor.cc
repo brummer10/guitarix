@@ -147,7 +147,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "mbchor";
-	name = N_("MultiBand Chorus");
+	name = N_("Multi Band Chorus");
 	groups = 0;
 	description = N_("Multi Band Chorus"); // description (tooltip)
 	category = N_("Modulation");       // category
@@ -589,7 +589,7 @@ b.create_small_rackknob(PARAM("depth1"), N_("Depth"));
 b.closeBox();
 b.openVerticalBox("");
 b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("crossover_b1_b2"), N_("Low Shelf (Hz)"));
+b.create_small_rackknob(PARAM("crossover_b1_b2"), N_("High (Hz)"));
 b.closeBox();
 b.closeBox();
 b.closeBox();
@@ -622,6 +622,7 @@ b.closeBox();
 
 b.openHorizontalBox(N_("Band 3"));
 b.openVerticalBox("");
+b.openpaintampBox("");
 b.openHorizontalBox("");
 b.openVerticalBox("");
 b.set_next_flags(UI_NUM_RIGHT);
@@ -640,6 +641,7 @@ b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
 b.create_small_rackknob(PARAM("crossover_b2_b3"), N_("Low (Hz)"));
 b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
 b.create_small_rackknob(PARAM("crossover_b3_b4"), N_("High (hz)"));
+b.closeBox();
 b.closeBox();
 b.closeBox();
 b.closeBox();

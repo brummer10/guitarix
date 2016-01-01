@@ -163,11 +163,11 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "fuzzfacefm";
-	name = N_("Fuzz Face Fuller");
+	name = N_("Fuzz Face Mike Fuller");
 	groups = 0;
-	description = N_("Micke Fuller Fuzz Face simulation"); // description (tooltip)
+	description = N_("Mike Fuller Fuzz Face simulation"); // description (tooltip)
 	category = N_("Fuzz");       // category
-	shortname = N_("Fuzz Face FM");     // shortname
+	shortname = N_("FF Fuller");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
@@ -402,18 +402,14 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("fuzzfacefm" "." p)
-
 b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("Fuzz"), N_("Fuzz"));
 b.closeBox();
 b.openHorizontalBox("");
-
+    b.insertSpacer();
     b.create_small_rackknobr(PARAM("Input"), N_("Input"));
-
     b.create_small_rackknobr(PARAM("Drive"), N_("Drive"));
-
     b.create_small_rackknobr(PARAM("Fuzz"), N_("Fuzz"));
-
     b.create_small_rackknobr(PARAM("Level"), N_("Level"));
 b.closeBox();
 

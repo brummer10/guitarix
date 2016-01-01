@@ -514,13 +514,11 @@ void StackBoxBuilder::create_selector_with_caption(const std::string& id, const 
     addwidget(s);
 }
 
-void StackBoxBuilder::openSpaceBox(const char* label, int width) {
+void StackBoxBuilder::openSpaceBox(const char* label) {
     GxVBox * box =  new GxVBox();
     box->set_homogeneous(true);
     box->set_spacing(2);
     box->set_border_width(4);
-    if (width)
-        box->set_size_request(width, -1);
     box->show_all();
     if (!fBox.top_is_notebook() && label && label[0]) {
         fBox.box_pack_start(manage(box));
