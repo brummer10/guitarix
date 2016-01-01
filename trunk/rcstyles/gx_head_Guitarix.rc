@@ -286,7 +286,7 @@ class "*GxRegler*" style:highest "guitarix_regler"
 
 
 style "guitarix_font" {
-    font_name = "Roboto Condensed Regular 7"
+    font_name = "Roboto Condensed Regular 8"
     fg[NORMAL] =  "#222222" #"#dadfe1" # "#c9d5b9"  #"#ffffff"
 }
 widget "*.rack_label" style:highest "guitarix_font"
@@ -300,7 +300,7 @@ widget "*tab_rack*GtkLabel" style:highest "guitarix_font"
 #widget "*effect_reset" style:highest "guitarix_rack_slider"
 
 style "guitarix_effect_title" {
-    font_name = "Roboto Condensed Regular 9"
+    font_name = "Roboto Condensed Regular 10"
     fg[NORMAL] = "#222222"
 }
 widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
