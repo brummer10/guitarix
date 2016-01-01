@@ -1,9 +1,10 @@
 // generated from file '../src/plugins/dunwah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.55 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
 
+namespace pluginlib {
 namespace dunwah {
 
 class Dsp: public PluginDef {
@@ -14,8 +15,8 @@ private:
 	double 	fConst1;
 	double 	fRec1[2];
 	double 	fConst2;
-	double 	fConst3;
 	double 	fRec2[2];
+	double 	fConst3;
 	double 	fConst4;
 	double 	fRec3[2];
 	double 	fRec0[4];
@@ -27,16 +28,16 @@ private:
 	double 	fConst10;
 	double 	fConst11;
 	void clear_state_f();
-	int load_ui_f(const UiBuilder& b);
+	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
 	void init(unsigned int samplingFreq);
-	void compute(int count, float *input0, float *output0);
+	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static int load_ui_f_static(const UiBuilder& b);
+	static int load_ui_f_static(const UiBuilder& b, int form);
 	static void init_static(unsigned int samplingFreq, PluginDef*);
-	static void compute_static(int count, float *input0, float *output0, PluginDef*);
+	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
 public:
@@ -54,7 +55,7 @@ Dsp::Dsp()
 	name = N_("DunWah");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = "";       // category
+	category = N_("Misc");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
@@ -88,15 +89,15 @@ inline void Dsp::init(unsigned int samplingFreq)
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (0.007000000000000006 * ((iConst0 * (1.73888e-06 - (8.38823e-12 * iConst0))) - 0.193457));
 	fConst2 = (0.5 / double(iConst0));
-	fConst3 = (1.0 / double(iConst0));
-	fConst4 = exp((0 - (1236.9027460477864 / double(iConst0))));
+	fConst3 = exp((0 - (1236.9027460477864 / double(iConst0))));
+	fConst4 = (1.0 / double(iConst0));
 	fConst5 = (1.77528e-06 - (8.52216e-12 * iConst0));
 	fConst6 = (0.879905 + (iConst0 * fConst5));
 	fConst7 = (1.54419e-05 - (6.43963e-11 * iConst0));
 	fConst8 = ((iConst0 * fConst7) - 0.386688);
 	fConst9 = (fConst8 * (0 - (1.00038 * fConst6)));
-	fConst10 = ((fConst8 * fConst6) + (1.00038 * (fConst8 + fConst6)));
-	fConst11 = (0 - ((iConst0 * (fConst7 + fConst5)) + 1.4935970000000003));
+	fConst10 = ((1.00038 * (fConst6 + fConst8)) + (fConst6 * fConst8));
+	fConst11 = (0 - ((iConst0 * (fConst5 + fConst7)) + 1.4935970000000003));
 	clear_state_f();
 }
 
@@ -105,20 +106,20 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 	static_cast<Dsp*>(p)->init(samplingFreq);
 }
 
-void always_inline Dsp::compute(int count, float *input0, float *output0)
+void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = fslider0;
+	double 	fSlow0 = double(fslider0);
 	double 	fSlow1 = (fConst1 * (0 - ((1.0 / ((fSlow0 * (0.270546 + (fSlow0 * ((fSlow0 * (3.64419 + (fSlow0 * ((2.85511 * fSlow0) - 5.20364)))) - 0.86331)))) - 0.814203)) + 0.933975)));
 	double 	fSlow2 = (1973.48 - (double(1000) / ((fSlow0 * (1.9841 + (fSlow0 * (5.76598 + (fSlow0 * ((fSlow0 * (49.9836 + (fSlow0 * ((12.499 * fSlow0) - 40.3658)))) - 28.3434)))))) - 1.6086)));
 	double 	fSlow3 = (1 - (fConst2 * (fSlow2 / (21.9737 + (fSlow0 * ((fSlow0 * (42.2734 + (fSlow0 * ((fSlow0 * (115.375 - (52.3051 * fSlow0))) - 99.7712)))) - 24.555))))));
-	double 	fSlow4 = (0.007000000000000006 * (cos((fConst3 * fSlow2)) * (0 - (2.0 * fSlow3))));
-	double 	fSlow5 = (0.007000000000000006 * faustpower<2>(fSlow3));
+	double 	fSlow4 = (0.007000000000000006 * faustpower<2>(fSlow3));
+	double 	fSlow5 = (0.007000000000000006 * ((0 - (2.0 * fSlow3)) * cos((fConst4 * fSlow2))));
 	for (int i=0; i<count; i++) {
-		fRec1[0] = (fSlow1 + (0.993 * fRec1[1]));
-		fRec2[0] = (fSlow4 + (0.993 * fRec2[1]));
-		fRec3[0] = (fSlow5 + (0.993 * fRec3[1]));
-		fRec0[0] = (0 - (((fRec0[1] * (fRec2[0] - fConst4)) + ((fConst4 * ((0 - fRec3[0]) * fRec0[3])) + (fRec0[2] * (fRec3[0] - (fConst4 * fRec2[0]))))) - ((double)input0[i] * fRec1[0])));
-		output0[i] = (FAUSTFLOAT)((fConst11 * fRec0[1]) + ((fConst10 * fRec0[2]) + (fRec0[0] + (fConst9 * fRec0[3]))));
+		fRec1[0] = ((0.993 * fRec1[1]) + fSlow1);
+		fRec2[0] = ((0.993 * fRec2[1]) + fSlow4);
+		fRec3[0] = ((0.993 * fRec3[1]) + fSlow5);
+		fRec0[0] = (0 - ((((fRec0[1] * (fRec3[0] - fConst3)) + (fRec0[2] * (fRec2[0] - (fConst3 * fRec3[0])))) + (fConst3 * ((0 - fRec2[0]) * fRec0[3]))) - ((double)input0[i] * fRec1[0])));
+		output0[i] = (FAUSTFLOAT)(((fRec0[0] + (fConst11 * fRec0[1])) + (fConst10 * fRec0[2])) + (fConst9 * fRec0[3]));
 		// post processing
 		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
 		fRec3[1] = fRec3[0];
@@ -127,7 +128,7 @@ void always_inline Dsp::compute(int count, float *input0, float *output0)
 	}
 }
 
-void __rt_func Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);
 }
@@ -234,17 +235,19 @@ const char *Dsp::glade_def = "\
 </interface>\n\
 ";
 
-int Dsp::load_ui_f(const UiBuilder& b)
+inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
-	b.load_glade(glade_def);
-	return 0;
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
+        return 0;
+    }
+	return -1;
 }
 
-int Dsp::load_ui_f_static(const UiBuilder& b)
+int Dsp::load_ui_f_static(const UiBuilder& b, int form)
 {
-	return static_cast<Dsp*>(b.plugin)->load_ui_f(b);
+	return static_cast<Dsp*>(b.plugin)->load_ui_f(b, form);
 }
-
 PluginDef *plugin() {
 	return new Dsp();
 }
@@ -254,16 +257,5 @@ void Dsp::del_instance(PluginDef *p)
 	delete static_cast<Dsp*>(p);
 }
 
-extern "C" __attribute__ ((visibility ("default"))) int
-get_gx_plugin(unsigned int idx, PluginDef **pplugin)
-{
-    if (!pplugin) {
-        return 1;
-    }
-    if (idx > 0) {
-        return -1;
-    }
-    *pplugin = new Dsp();
-    return 1;
-}
 } // end namespace dunwah
+} // end namespace pluginlib

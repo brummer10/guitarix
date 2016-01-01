@@ -436,7 +436,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec32[0] = ((fConst12 * (fVec1[0] + fVec1[1])) - (0.8605695850647829 * fRec32[1]));
 		fRec31[0] = (fRec32[0] - ((1.8405051250752198 * fRec31[1]) + (0.8612942439318627 * fRec31[2])));
 		fRec38[0] = ((fConst16 * fRec38[1]) + (fConst15 * (fRec30[1] + fRec30[2])));
-		fRec30[0] = (Ftube(TUBE_TABLE_12AT7_68k, ((fRec38[0] + (0.9254498422517706 * (fRec31[2] + (fRec31[0] + (2.0 * fRec31[1]))))) - 2.617753)) - 153.04618518518518);
+		fRec30[0] = (Ftube(TUBE_TABLE_12AT7_68k, ((fRec38[0] + (0.9254498422517706 * ((fRec31[0] + fRec31[2]) + (2.0 * fRec31[1])))) - 2.617753)) - 153.04618518518518);
 		fRec29[0] = ((fConst21 * fRec29[1]) + (fConst20 * ((fConst17 * fRec30[0]) + (fConst18 * fRec30[1]))));
 		fRec42[0] = ((0.9302847925323914 * (fRec28[1] + fRec28[2])) - (0.8605695850647829 * fRec42[1]));
 		fRec41[0] = (fRec42[0] - ((1.8405051250752198 * fRec41[1]) + (0.8612942439318627 * fRec41[2])));

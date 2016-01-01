@@ -191,12 +191,12 @@ const char *Dsp::glade_def = "\
           <object class=\"GtkHBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
-            <property name=\"spacing\">4</property>\n\
+            <property name=\"spacing\">0</property>\n\
             <child>\n\
               <object class=\"GtkHBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">8</property>\n\
+                <property name=\"spacing\">0</property>\n\
                 <child>\n\
                   <object class=\"GtkVBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -362,7 +362,7 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GxMidKnob\" id=\"gxbigknob5\">\n\
+                      <object class=\"GxSmallKnobR\" id=\"gxbigknob5\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">True</property>\n\
                         <property name=\"receives_default\">True</property>\n\
