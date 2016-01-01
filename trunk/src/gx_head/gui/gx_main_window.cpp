@@ -2136,7 +2136,7 @@ void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::set_tuning), sigc::ref(tuner)));
     tuner_temperament->signal_value_changed().connect(
         sigc::bind(sigc::mem_fun(*this, &MainWindow::setup_tuner_temperament), sigc::ref(tuner)));
-	
+	tuner.set_temperament(tuner_temperament->get_value());
 }
 
 bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
