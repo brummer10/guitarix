@@ -21900,7 +21900,7 @@
        xlink:href="#linearGradient4725"
        id="radialGradient9428"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(-3.1434674,0.71680291,-0.69067766,-3.0288978,1198.2942,981.39888)"
+       gradientTransform="matrix(-2.5447117,0.58026902,-0.55912001,-2.4519649,958.23816,884.62999)"
        cx="346.5"
        cy="255"
        fx="346.5"
@@ -21911,7 +21911,7 @@
        xlink:href="#linearGradient4739"
        id="radialGradient9432"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(3.1380017,0,0,3.1380017,-1152.9176,-338.22827)"
+       gradientTransform="matrix(2.5103999,0,0,2.5103999,-934.73358,-175.90981)"
        cx="346.5"
        cy="255"
        fx="346.5"
@@ -21926,7 +21926,7 @@
        y1="255.52995"
        x2="869"
        y2="271"
-       gradientTransform="matrix(1.875,0,0,1.875,-1689.5,-19.76282)" />
+       gradientTransform="matrix(1.4999993,0,0,1.4999993,-1363.9994,78.862364)" />
     <radialGradient
        inkscape:collect="always"
        xlink:href="#linearGradient4725"
@@ -25129,9 +25129,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.32012791"
-     inkscape:cx="1064.1899"
-     inkscape:cy="1321.9094"
+     inkscape:zoom="14.487335"
+     inkscape:cx="1228.8425"
+     inkscape:cy="573.56096"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -25240,15 +25240,15 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/black.png"
        xlink:href="../../../Graphix/black.png"
-       y="831.36218"
-       x="-1119"
-       id="image4477"
-       height="28"
-       width="612"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
-       inkscape:export-xdpi="180"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="180"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
+       width="612"
+       height="28"
+       id="image4477"
+       x="-1119"
+       y="831.36218" />
     <rect
        style="opacity:0.06666667;fill:url(#linearGradient5994);fill-opacity:1;stroke:none"
        id="rect5992"
@@ -25262,15 +25262,15 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       y="831.36218"
-       x="-1086"
-       id="image4715"
-       height="27.999994"
-       width="545"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
-       inkscape:export-xdpi="180"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="180"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
+       width="545"
+       height="27.999994"
+       id="image4715"
+       x="-1086"
+       y="831.36218" />
     <rect
        ry="0"
        rx="0"
@@ -25286,15 +25286,15 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/black.png"
        xlink:href="../../../Graphix/black.png"
-       width="612"
-       height="73"
-       id="image4471"
-       x="-1119"
-       y="736.36218"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
-       inkscape:export-xdpi="180"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="180"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
+       y="736.36218"
+       x="-1119"
+       id="image4471"
+       height="73"
+       width="612" />
     <rect
        y="831.36218"
        x="-539"
@@ -25318,15 +25318,15 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       width="546"
-       height="45.999992"
-       id="image4713"
-       x="-1086"
-       y="736.36218"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
-       inkscape:export-xdpi="180"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="180"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
+       y="736.36218"
+       x="-1086"
+       id="image4713"
+       height="45.999992"
+       width="546" />
     <rect
        style="opacity:0.16000001;fill:url(#linearGradient4947);fill-opacity:1;stroke:none"
        id="rect4945"
@@ -25352,15 +25352,15 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/black.png"
        xlink:href="../../../Graphix/black.png"
-       y="368.36218"
-       x="-1119"
-       id="image4648"
-       height="179.99998"
-       width="612"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-       inkscape:export-xdpi="90"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="90"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
+       width="612"
+       height="179.99998"
+       id="image4648"
+       x="-1119"
+       y="368.36218" />
     <rect
        y="368.36218"
        x="-539"
@@ -25384,27 +25384,27 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       y="368.36218"
-       x="-1086"
-       id="image4710"
-       height="56"
-       width="546"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-       inkscape:export-xdpi="90"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="90"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
+       width="546"
+       height="56"
+       id="image4710"
+       x="-1086"
+       y="368.36218" />
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       width="546"
-       height="56"
-       id="image4336"
-       x="-1086"
-       y="492.36218"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-       inkscape:export-xdpi="90"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="90"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
+       y="492.36218"
+       x="-1086"
+       id="image4336"
+       height="56"
+       width="546" />
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:Swis721 LtEx BT;-inkscape-font-specification:Swis721 LtEx BT Bold"
@@ -35878,13 +35878,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           y="782.36218"
-           x="-955"
-           id="image5623"
-           height="26"
-           width="26"
+           transform="translate(700,0)"
            mask="url(#mask6947)"
-           transform="translate(700,0)" />
+           width="26"
+           height="26"
+           id="image5623"
+           x="-955"
+           y="782.36218" />
         <circle
            style="opacity:0.30425056;fill:#6ed400;fill-opacity:1;stroke:none"
            id="path5625"
@@ -36086,13 +36086,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           transform="translate(700,0)"
-           mask="url(#mask6947)"
-           width="26"
-           height="26"
-           id="image5695"
+           y="782.36218"
            x="-955"
-           y="782.36218" />
+           id="image5695"
+           height="26"
+           width="26"
+           mask="url(#mask6947)"
+           transform="translate(700,0)" />
         <circle
            transform="matrix(0.64,0,0,0.64,-465.68,626.08217)"
            id="path5698"
@@ -36294,13 +36294,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           y="782.36218"
-           x="-955"
-           id="image5779"
-           height="26"
-           width="26"
+           transform="translate(700,0)"
            mask="url(#mask6947)"
-           transform="translate(700,0)" />
+           width="26"
+           height="26"
+           id="image5779"
+           x="-955"
+           y="782.36218" />
         <circle
            style="opacity:0.30425056;fill:#6ed400;fill-opacity:1;stroke:none"
            id="path5781"
@@ -36502,13 +36502,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           transform="translate(700,0)"
-           mask="url(#mask6947)"
-           width="26"
-           height="26"
-           id="image5842"
+           y="782.36218"
            x="-955"
-           y="782.36218" />
+           id="image5842"
+           height="26"
+           width="26"
+           mask="url(#mask6947)"
+           transform="translate(700,0)" />
         <circle
            transform="matrix(0.64,0,0,0.64,-465.68,626.08217)"
            id="path5844"
@@ -37249,15 +37249,15 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/black.png"
        xlink:href="../../../Graphix/black.png"
-       width="612"
-       height="140"
-       id="image4516"
-       x="-1119"
-       y="549.36218"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-       inkscape:export-xdpi="90"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="90"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
+       y="549.36218"
+       x="-1119"
+       id="image4516"
+       height="140"
+       width="612" />
     <rect
        style="opacity:0.88125;fill:url(#linearGradient4718);fill-opacity:1;stroke:none"
        id="rect4518"
@@ -37281,27 +37281,27 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       width="546"
-       height="47.999992"
-       id="image4522"
-       x="-1086"
-       y="549.36218"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-       inkscape:export-xdpi="90"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="90"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
+       y="549.36218"
+       x="-1086"
+       id="image4522"
+       height="47.999992"
+       width="546" />
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
-       y="642.36218"
-       x="-1086"
-       id="image4524"
-       height="47.000031"
-       width="546"
+       preserveAspectRatio="none"
        inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-       preserveAspectRatio="none" />
+       width="546"
+       height="47.000031"
+       id="image4524"
+       x="-1086"
+       y="642.36218"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <rect
        style="opacity:0.1721519;fill:url(#linearGradient4722);fill-opacity:1;stroke:none"
        id="rect4526"
@@ -37524,13 +37524,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           y="782.36218"
-           x="-955"
-           id="image4808"
-           height="26"
-           width="26"
+           transform="translate(700,0)"
            mask="url(#mask6947)"
-           transform="translate(700,0)" />
+           width="26"
+           height="26"
+           id="image4808"
+           x="-955"
+           y="782.36218" />
         <circle
            style="opacity:0.30425056;fill:#6ed400;fill-opacity:1;stroke:none"
            id="path4810"
@@ -37743,13 +37743,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           transform="translate(700,0)"
-           mask="url(#mask6947)"
-           width="26"
-           height="26"
-           id="image13001"
+           y="782.36218"
            x="-955"
-           y="782.36218" />
+           id="image13001"
+           height="26"
+           width="26"
+           mask="url(#mask6947)"
+           transform="translate(700,0)" />
         <circle
            transform="matrix(0.64,0,0,0.64,-465.68,626.08217)"
            id="path13003"
@@ -37951,13 +37951,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           y="782.36218"
-           x="-955"
-           id="image13405"
-           height="26"
-           width="26"
+           transform="translate(700,0)"
            mask="url(#mask6947)"
-           transform="translate(700,0)" />
+           width="26"
+           height="26"
+           id="image13405"
+           x="-955"
+           y="782.36218" />
         <circle
            style="opacity:0.30425056;fill:#6ed400;fill-opacity:1;stroke:none"
            id="path13407"
@@ -38159,13 +38159,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           transform="translate(700,0)"
-           mask="url(#mask6947)"
-           width="26"
-           height="26"
-           id="image13809"
+           y="782.36218"
            x="-955"
-           y="782.36218" />
+           id="image13809"
+           height="26"
+           width="26"
+           mask="url(#mask6947)"
+           transform="translate(700,0)" />
         <circle
            transform="matrix(0.64,0,0,0.64,-465.68,626.08217)"
            id="path13811"
@@ -38367,13 +38367,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           y="782.36218"
-           x="-955"
-           id="image14213"
-           height="26"
-           width="26"
+           transform="translate(700,0)"
            mask="url(#mask6947)"
-           transform="translate(700,0)" />
+           width="26"
+           height="26"
+           id="image14213"
+           x="-955"
+           y="782.36218" />
         <circle
            style="opacity:0.30425056;fill:#6ed400;fill-opacity:1;stroke:none"
            id="path14215"
@@ -38575,13 +38575,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           transform="translate(700,0)"
-           mask="url(#mask6947)"
-           width="26"
-           height="26"
-           id="image14617"
+           y="782.36218"
            x="-955"
-           y="782.36218" />
+           id="image14617"
+           height="26"
+           width="26"
+           mask="url(#mask6947)"
+           transform="translate(700,0)" />
         <circle
            transform="matrix(0.64,0,0,0.64,-465.68,626.08217)"
            id="path14619"
@@ -38783,13 +38783,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           y="782.36218"
-           x="-955"
-           id="image15021"
-           height="26"
-           width="26"
+           transform="translate(700,0)"
            mask="url(#mask6947)"
-           transform="translate(700,0)" />
+           width="26"
+           height="26"
+           id="image15021"
+           x="-955"
+           y="782.36218" />
         <circle
            style="opacity:0.30425056;fill:#6ed400;fill-opacity:1;stroke:none"
            id="path15023"
@@ -38991,13 +38991,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           transform="translate(700,0)"
-           mask="url(#mask6947)"
-           width="26"
-           height="26"
-           id="image15425"
+           y="782.36218"
            x="-955"
-           y="782.36218" />
+           id="image15425"
+           height="26"
+           width="26"
+           mask="url(#mask6947)"
+           transform="translate(700,0)" />
         <circle
            transform="matrix(0.64,0,0,0.64,-465.68,626.08217)"
            id="path15427"
@@ -39199,13 +39199,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           y="782.36218"
-           x="-955"
-           id="image15829"
-           height="26"
-           width="26"
+           transform="translate(700,0)"
            mask="url(#mask6947)"
-           transform="translate(700,0)" />
+           width="26"
+           height="26"
+           id="image15829"
+           x="-955"
+           y="782.36218" />
         <circle
            style="opacity:0.30425056;fill:#6ed400;fill-opacity:1;stroke:none"
            id="path15831"
@@ -39407,13 +39407,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           transform="translate(700,0)"
-           mask="url(#mask6947)"
-           width="26"
-           height="26"
-           id="image16233"
+           y="782.36218"
            x="-955"
-           y="782.36218" />
+           id="image16233"
+           height="26"
+           width="26"
+           mask="url(#mask6947)"
+           transform="translate(700,0)" />
         <circle
            transform="matrix(0.64,0,0,0.64,-465.68,626.08217)"
            id="path16235"
@@ -44642,15 +44642,15 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/black.png"
        xlink:href="../../../Graphix/black.png"
-       preserveAspectRatio="none"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-       y="277.36218"
-       x="-1119"
-       id="image10405"
+       width="612"
        height="89.999992"
-       width="612" />
+       id="image10405"
+       x="-1119"
+       y="277.36218"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       preserveAspectRatio="none" />
     <rect
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
@@ -44664,15 +44664,15 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       preserveAspectRatio="none"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-       y="277.36218"
-       x="-1085"
-       id="image10409"
+       width="545"
        height="36"
-       width="545" />
+       id="image10409"
+       x="-1085"
+       y="277.36218"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       preserveAspectRatio="none" />
     <rect
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
@@ -44803,11 +44803,11 @@
       <image
          sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/Bildschirmfoto - 28.02.2015 - 02:45:08.png"
          xlink:href="../../../Graphix/Bildschirmfoto - 28.02.2015 - 02:45:08.png"
-         y="742.36218"
-         x="-1067"
-         id="image10402"
+         width="501"
          height="40"
-         width="501" />
+         id="image10402"
+         x="-1067"
+         y="742.36218" />
     </g>
     <path
        inkscape:export-ydpi="90"
@@ -45009,13 +45009,13 @@
         <image
            sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/aluschliff rund.png"
            xlink:href="../../../Graphix/aluschliff rund.png"
-           y="782.36218"
-           x="-955"
-           id="image11673"
-           height="26"
-           width="26"
+           transform="translate(700,0)"
            mask="url(#mask6947)"
-           transform="translate(700,0)" />
+           width="26"
+           height="26"
+           id="image11673"
+           x="-955"
+           y="782.36218" />
         <circle
            r="12.5"
            cy="264.5"
@@ -57285,16 +57285,16 @@
       <image
          sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
          xlink:href="../../../Graphix/green.png"
-         mask="none"
-         width="2026"
-         height="207.79488"
-         id="image22783"
-         x="-1124"
-         y="1356.4647"
-         inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-         inkscape:export-xdpi="90"
+         preserveAspectRatio="none"
          inkscape:export-ydpi="90"
-         preserveAspectRatio="none" />
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
+         y="1356.4647"
+         x="-1124"
+         id="image22783"
+         height="207.79488"
+         width="2026"
+         mask="none" />
     </g>
     <path
        inkscape:export-ydpi="90"
@@ -57335,40 +57335,40 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       preserveAspectRatio="none"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/guitarix/trunk/libgxw/icons/pattern1.png"
-       width="800"
-       height="128"
-       id="image9100"
+       y="534.36218"
        x="-2210"
-       y="534.36218" />
-    <image
-       sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/black.png"
-       xlink:href="../../../Graphix/black.png"
-       style="fill:#76974d;fill-opacity:1"
-       preserveAspectRatio="none"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/black_tile.png"
-       width="800"
+       id="image9100"
        height="128"
-       id="image9102"
-       x="-2199"
-       y="720.36218" />
+       width="800"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/guitarix/trunk/libgxw/icons/pattern1.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       preserveAspectRatio="none" />
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/black.png"
        xlink:href="../../../Graphix/black.png"
-       preserveAspectRatio="none"
-       inkscape:export-ydpi="90"
+       y="720.36218"
+       x="-2199"
+       id="image9102"
+       height="128"
+       width="800"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/black_tile.png"
        inkscape:export-xdpi="90"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
-       y="549.36218"
-       x="-179"
-       id="image9110"
+       inkscape:export-ydpi="90"
+       preserveAspectRatio="none"
+       style="fill:#76974d;fill-opacity:1" />
+    <image
+       sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/black.png"
+       xlink:href="../../../Graphix/black.png"
+       width="612"
        height="140"
-       width="612" />
+       id="image9110"
+       x="-179"
+       y="549.36218"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Design_Head.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       preserveAspectRatio="none" />
     <rect
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
@@ -57429,28 +57429,28 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/black.png"
        xlink:href="../../../Graphix/black.png"
-       y="1118.3622"
-       x="-2220"
-       id="image17647"
-       height="72"
-       width="114"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/black_icon.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
+       style="fill:#76974d;fill-opacity:1"
        preserveAspectRatio="none"
-       style="fill:#76974d;fill-opacity:1" />
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/black_icon.png"
+       width="114"
+       height="72"
+       id="image17647"
+       x="-2220"
+       y="1118.3622" />
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       y="1241.3622"
-       x="-2090"
-       id="image17649"
-       height="11"
-       width="114"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/green_icon.png"
-       inkscape:export-xdpi="90"
+       preserveAspectRatio="none"
        inkscape:export-ydpi="90"
-       preserveAspectRatio="none" />
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/green_icon.png"
+       width="114"
+       height="11"
+       id="image17649"
+       x="-2090"
+       y="1241.3622" />
     <rect
        style="opacity:0.00100002;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="rect10093"
@@ -59157,10 +59157,10 @@
        inkscape:export-xdpi="90"
        inkscape:export-filename="/home/markus/Programmierung/Guitarix/guitarix/trunk/rcstyles/knob_small.png"
        ry="0"
-       y="450.36218"
-       x="-85.000015"
-       height="46.000061"
-       width="46.000019"
+       y="454.36218"
+       x="-81.000031"
+       height="38.000076"
+       width="38.000042"
        id="rect14967"
        style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:0.00100002;fill:#623904;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:6.94899988;marker:none;enable-background:accumulate" />
     <circle
@@ -59168,7 +59168,7 @@
        id="circle9400"
        cx="-62"
        cy="473.36218"
-       r="21"
+       r="17"
        inkscape:export-filename="/home/markus/Programmierung/Guitarix/guitarix/trunk/rcstyles/knob_small.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
@@ -59177,14 +59177,14 @@
        id="circle9402"
        cx="-62"
        cy="473.36218"
-       r="16"
+       r="13.000009"
        inkscape:export-filename="/home/markus/Programmierung/Guitarix/guitarix/trunk/rcstyles/knob_small.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <circle
        style="fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter6997)"
        id="circle9404"
-       transform="matrix(1.0491162,0,0,1.0491162,-427.66612,196.87095)"
+       transform="matrix(0.93754165,0,0,0.93754165,-388.67081,226.38242)"
        cx="349.5"
        cy="264.5"
        r="12.5"
@@ -59192,18 +59192,18 @@
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <circle
-       style="opacity:0.819;fill:url(#radialGradient9432);fill-opacity:1;stroke:none"
+       style="opacity:0.861;fill:url(#radialGradient9432);fill-opacity:1;stroke:none"
        id="circle9408"
        cx="-62"
        cy="473.36218"
-       r="15.000009"
+       r="12"
        inkscape:export-filename="/home/markus/Programmierung/Guitarix/guitarix/trunk/rcstyles/knob_small.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <path
        inkscape:connector-curvature="0"
        style="opacity:0.53921569;fill:url(#linearGradient9443);fill-opacity:1;stroke:none"
-       d="m -62,458.36218 c -8.284275,0 -15,6.71573 -15,15 0,8.28427 6.715725,15 15,15 8.284275,0 15,-6.71573 15,-15 0,-8.28427 -6.715725,-15 -15,-15 z m 0,0.9375 c 7.766512,0 14.0625,6.29599 14.0625,14.0625 0,7.76651 -6.295988,14.0625 -14.0625,14.0625 -7.766512,0 -14.0625,-6.29599 -14.0625,-14.0625 0,-7.76651 6.295988,-14.0625 14.0625,-14.0625 z"
+       d="m -62,461.36219 c -6.627417,0 -11.999994,5.37258 -11.999994,11.99999 0,6.62741 5.372577,11.99999 11.999994,11.99999 6.627417,0 11.999994,-5.37258 11.999994,-11.99999 0,-6.62741 -5.372577,-11.99999 -11.999994,-11.99999 z m 0,0.75 c 6.213207,0 11.249995,5.03678 11.249995,11.24999 0,6.21321 -5.036788,11.24999 -11.249995,11.24999 -6.213207,0 -11.249995,-5.03678 -11.249995,-11.24999 0,-6.21321 5.036788,-11.24999 11.249995,-11.24999 z"
        id="path9418"
        inkscape:export-filename="/home/markus/Programmierung/Guitarix/guitarix/trunk/rcstyles/knob_small.png"
        inkscape:export-xdpi="90"
@@ -59221,15 +59221,15 @@
     <image
        sodipodi:absref="/home/markus/Programmierung/Guitarix/guitarix/trunk/data/../../../Graphix/green.png"
        xlink:href="../../../Graphix/green.png"
-       preserveAspectRatio="none"
-       inkscape:export-ydpi="180"
-       inkscape:export-xdpi="180"
-       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
-       y="876.36218"
-       x="-1086"
-       id="image10369"
+       width="546"
        height="115.99999"
-       width="546" />
+       id="image10369"
+       x="-1086"
+       y="876.36218"
+       inkscape:export-filename="/home/markus/Programmierung/Guitarix/Graphix/Layout.svg.2015_02_21_01_03_48.0.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"
+       preserveAspectRatio="none" />
     <rect
        inkscape:export-ydpi="180"
        inkscape:export-xdpi="180"
