@@ -1,6 +1,7 @@
 *.o
 *.pyc
 *~
+*.bak
 trunk/build/
 trunk/po/LINGUAS
 trunk/.lock-wscript
