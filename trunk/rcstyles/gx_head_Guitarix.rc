@@ -304,9 +304,10 @@ style "guitarix_effect_title" {
     fg[NORMAL] = "#222222"
 }
 widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
-
+widget "*drag_widget*effect_title" style:highest "guitarix_effect_title"
 
 style "rack_drag_button" {
+font_name = "Roboto Condensed Regular 20"
     xthickness = 11
     ythickness = 0
 }

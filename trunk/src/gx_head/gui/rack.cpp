@@ -869,6 +869,7 @@ Gtk::Widget *RackBox::create_icon_widget(const PluginUI& plugin, gx_system::Cmdl
 Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options) {
     Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
     RackBox::set_paintbox_unit_shrink(*pb, plugin.get_type());
+    pb->set_name("drag_widget");
     if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
 	pb->property_paint_func().set_value("zac_expose");
     }
