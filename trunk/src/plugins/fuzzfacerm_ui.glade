@@ -40,7 +40,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="var_id">value1</property>
+                        <property name="var_id">fuzzfacerm.Fuzz</property>
                         <property name="label_ref">label1:rack_label</property>
                       </object>
                       <packing>
@@ -73,11 +73,11 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GxSmallKnobR" id="gxbigknob2">
+                      <object class="GxMidKnob" id="gxbigknob2">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="var_id">value2</property>
+                        <property name="var_id">fuzzfacerm.Level</property>
                         <property name="label_ref">label2:rack_label</property>
                       </object>
                       <packing>
@@ -119,7 +119,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="round_digits">0</property>
-                <property name="var_id">valuemini</property>
+                <property name="var_id">fuzzfacerm.Level</property>
                 <property name="show_value">False</property>
                 <property name="value_position">right</property>
                 <property name="value_xalign">0.52000000000000002</property>
