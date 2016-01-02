@@ -1992,7 +1992,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
                     <child>\n\
-                      <object class=\"GtkLabel\" id=\"label5\">\n\
+                      <object class=\"GtkLabel\" id=\"label5:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
                         <property name=\"xalign\">0</property>\n\
