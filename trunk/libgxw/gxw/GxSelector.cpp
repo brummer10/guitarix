@@ -222,8 +222,8 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
 		pango_layout_set_text(layout, s, -1);
 		pango_layout_get_pixel_extents(layout, NULL, &logical);
-		x = text.x + off_x + (priv->textsize.width - logical.width) / 2;
-		y = text.y + off_y + (priv->textsize.height- logical.height)/ 2;
+		x = text.x + (text.width - logical.width) / 2;
+		y = text.y + off_y + (priv->textsize.height - logical.height)/ 2;
 		gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
 		                 FALSE, NULL, widget, "label", x, y, layout);
 		g_free(s);
