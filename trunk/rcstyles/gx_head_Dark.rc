@@ -1,13 +1,13 @@
 include "gx_head_Guitarix.rc"
 
 style "guitarix_effect_title" {
-    font_name = "Roboto Condensed Regular 9"
+    font_name = "Roboto Condensed Regular 10"
     fg[NORMAL] = "#999999"
 }
 widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
 
 style "guitarix_font" {
-    font_name = "Roboto Condensed Regular 7"
+    font_name = "Roboto Condensed Regular 8"
     fg[NORMAL] =  "#999999"
 }
 widget "*.rack_label" style:highest "guitarix_font"

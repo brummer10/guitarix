@@ -156,12 +156,11 @@ style "guitarix_default" {
     fg[INSENSITIVE]         = { 0.5, 0.5, 0.5 }
     fg[SELECTED]            = { 0.9, 0.9, 0.9 }
     
-    bg[NORMAL]              = { 0.13, 0.13, 0.13 }
+    bg[NORMAL]              = { 0.10, 0.10, 0.10 }
     bg[ACTIVE]              = { 0.0, 0.0, 0.0 }
-    #bg[PRELIGHT]           = { 0.46, 0.56, 0.36 }
     bg[PRELIGHT]            = { 0.25, 0.25, 0.25 }
     bg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }
-    bg[SELECTED]            = { 0.25, 0.25, 0.25 }
+    bg[SELECTED]            = { 0.20, 0.20, 0.20 }
     
     text[NORMAL]            = { 0.9, 0.9, 0.9 }
     text[ACTIVE]            = "#ff9000"
@@ -232,10 +231,10 @@ style "guitarix_scrollbars" {
         scrollbar_color = "#5a5a5a"
     }
     
-    bg[NORMAL]   = { 0.13, 0.13, 0.13 }
-    bg[PRELIGHT] = { 0.4, 0.4, 0.4 }
-    bg[ACTIVE]   = { 0.4, 0.4, 0.4 }
-    bg[INSENSITIVE] = { 0.3, 0.3, 0.3 }
+    bg[NORMAL]   = { 0.10, 0.10, 0.10 }
+    bg[PRELIGHT] = { 0.3, 0.3, 0.3 }
+    bg[ACTIVE]   = { 0.3, 0.3, 0.3 }
+    bg[INSENSITIVE] = { 0.2, 0.2, 0.2 }
 }
 widget_class "*Scrollbar*" style:highest "guitarix_scrollbars"
 
