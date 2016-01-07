@@ -195,7 +195,7 @@ style "guitarix_default" {
     
     engine "clearlooks" {
         focus_color         = { 0, 0, 0 }
-        contrast            = 0.99
+        contrast            = 0.66
         menubarstyle        = 0
         reliefstyle         = 0
         radius              = 1.0
