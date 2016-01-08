@@ -2625,9 +2625,18 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     clear_box(*stereorackcontainerH);
     clear_box(*stereorackcontainerV);
     clear_box(*preset_box_no_rack);
-
+    
+    // create left column for equal width
+    left_column = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+    Gtk::ScrolledWindow *swe;
+    bld->find_widget("scrolledwindow_effects", swe);
+    gtk_size_group_add_widget(left_column, GTK_WIDGET(swe->gobj()));
+    Gtk::Button *pb;
+    bld->find_widget("presets:barbutton", pb);
+    gtk_size_group_add_widget(left_column, GTK_WIDGET(pb->gobj()));
+    
     // preset window also creates some actions
-    preset_window = new PresetWindow(bld, machine, options, actions);
+    preset_window = new PresetWindow(bld, machine, options, actions, left_column);
 
     // create uimanager and load menu
     uimanager = Gtk::UIManager::create();

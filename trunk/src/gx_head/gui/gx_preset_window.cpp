@@ -43,7 +43,7 @@ bool PresetStore::row_draggable_vfunc(const TreeModel::Path& path) const {
 
 
 PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine_,
-			   const gx_system::CmdlineOptions& options_, GxActions& actions_)
+			   const gx_system::CmdlineOptions& options_, GxActions& actions_, GtkSizeGroup *lc)
     : sigc::trackable(),
       machine(machine_),
       actions(actions_),
@@ -166,6 +166,13 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
 	sigc::mem_fun(*this, &PresetWindow::target_drag_data_received));
     machine.signal_selection_changed().connect(
 	sigc::mem_fun(*this, &PresetWindow::on_selection_changed));
+    
+    left_column = lc;
+    gtk_size_group_add_widget(lc, GTK_WIDGET(close_preset->gobj()));
+    gtk_size_group_add_widget(lc, GTK_WIDGET(save_preset->gobj()));
+    gtk_size_group_add_widget(lc, GTK_WIDGET(new_preset_bank->gobj()));
+    gtk_size_group_add_widget(lc, GTK_WIDGET(organize_presets->gobj()));
+    gtk_size_group_add_widget(lc, GTK_WIDGET(online_preset->gobj()));
 }
 
 PresetWindow::~PresetWindow() {

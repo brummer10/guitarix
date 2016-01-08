@@ -773,6 +773,7 @@ private:
     void amp_controls_visible(Gtk::Range *rr);
     void on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c);
 public:
+    GtkSizeGroup *left_column;
     MainWindow(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options,
 	       Gtk::Window *splash, const Glib::ustring& title);
     ~MainWindow();
