@@ -442,7 +442,7 @@ widget_class "*GxMeterScale" style:highest "guitarix_meter_scale"
 
 style "guitarix_notebook" {
     xthickness = 8
-    ythickness = 2
+    ythickness = 5
     engine "clearlooks" {
         contrast            = 0.75
         radius              = 3.0

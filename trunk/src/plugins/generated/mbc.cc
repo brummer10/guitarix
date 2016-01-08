@@ -621,9 +621,9 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkHBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
+                <property name=\"spacing\">8</property>\n\
                 <child>\n\
                   <object class=\"GtkNotebook\" id=\"notebook:tab_rack\">\n\
-                    <property name=\"name\">notebook:tab_rack</property>\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <child>\n\
@@ -783,6 +783,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"n_rows\">2</property>\n\
                             <property name=\"n_columns\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob1\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -1037,6 +1038,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"n_rows\">2</property>\n\
                             <property name=\"n_columns\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob5\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -1315,6 +1317,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"n_rows\">2</property>\n\
                             <property name=\"n_columns\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob9\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -1593,6 +1596,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"n_rows\">2</property>\n\
                             <property name=\"n_columns\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob13\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -1871,6 +1875,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"n_rows\">2</property>\n\
                             <property name=\"n_columns\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob17\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -1942,9 +1947,6 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <placeholder/>\n\
-                            </child>\n\
-                            <child>\n\
                               <object class=\"GtkLabel\" id=\"label_35:rack_label\">\n\
                                 <property name=\"can_focus\">False</property>\n\
                                 <property name=\"xalign\">1</property>\n\
@@ -1956,6 +1958,9 @@ const char *Dsp::glade_def = "\
                                 <property name=\"top_attach\">1</property>\n\
                                 <property name=\"bottom_attach\">2</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
