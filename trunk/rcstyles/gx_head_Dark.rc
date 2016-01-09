@@ -20,3 +20,16 @@ style "guitarix_default" {
     stock["background1"]    = {{"dark.png"}}
 }
 class "GtkWidget" style:highest "guitarix_default"
+
+style "guitarix_notebook" {
+    xthickness = 5
+    ythickness = 5
+    bg[ACTIVE] = { 0.06, 0.06, 0.06 }
+    bg[NORMAL] = { 0.06, 0.06, 0.06 }
+    engine "clearlooks" {
+        contrast            = 0.66
+        radius              = 3.0
+        style               = GLOSSY #INVERTED CLASSIC GLOSSY GUMMY
+    }
+}
+widget "*tab_rack" style:highest "guitarix_notebook"
