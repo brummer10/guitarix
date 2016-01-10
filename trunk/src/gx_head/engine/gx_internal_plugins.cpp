@@ -778,7 +778,7 @@ CabinetConvolver::CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
     cab_names[cab_table_size].value_label = 0;
     id = "cab";
     name = N_("Cabinet");
-    category = N_("Tone control");
+    category = N_("Tone Control");
     load_ui = cab_load_ui;
     mono_audio = run_cab_conf;
     register_params = register_cab;
@@ -943,7 +943,7 @@ PreampConvolver::PreampConvolver(EngineControl& engine, sigc::slot<void> sync, g
     pre_names[pre_table_size].value_label = 0;
     id = "pre";
     name = N_("Amp impulse");
-    category = N_("Tone control");
+    category = N_("Tone Control");
     load_ui = pre_load_ui;
     mono_audio = run_pre_conf;
     register_params = register_pre;

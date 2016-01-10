@@ -54,7 +54,7 @@ Dsp::Dsp()
 	name = N_("HF Brightener");
 	groups = 0;
 	description = N_("High Frequency Brightener"); // description (tooltip)
-	category = N_("Tone control");       // category
+	category = N_("Tone Control");       // category
 	shortname = N_("HF Brighten");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

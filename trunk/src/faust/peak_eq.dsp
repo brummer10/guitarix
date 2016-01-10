@@ -1,6 +1,6 @@
 declare id 		"eq";
 declare name            "Peak EQ";
-declare category        "Tone control";
+declare category        "Tone Control";
 declare license 	"BSD";
 declare copyright 	"(c)GRAME 2006";
 

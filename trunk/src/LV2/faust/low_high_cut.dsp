@@ -1,7 +1,7 @@
 declare id     "low_highcut";
 declare name   "low high cut";
 declare shortname "L/H/Filter";
-declare category "Tone control";
+declare category "Tone Control";
 
 import("effect.lib"); 
 import("guitarix.lib");

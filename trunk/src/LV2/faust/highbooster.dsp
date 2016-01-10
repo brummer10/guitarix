@@ -1,5 +1,5 @@
 declare name   "Treble boost";
-declare category "Tone control";
+declare category "Tone Control";
 
 import("filter.lib");
 

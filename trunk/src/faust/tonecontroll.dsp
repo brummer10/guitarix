@@ -1,6 +1,6 @@
 declare id 		"tonemodul";
 declare name            "3 Band EQ";
-declare category        "Tone control";
+declare category        "Tone Control";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

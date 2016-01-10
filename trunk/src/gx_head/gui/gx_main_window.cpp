@@ -1884,7 +1884,7 @@ void MainWindow::register_plugin(PluginUI *pui) {
 void MainWindow::fill_pluginlist() {
     // define order of categories by registering
     // them first
-    add_plugin_category(N_("Tone control"), false);
+    add_plugin_category(N_("Tone Control"), false);
     add_plugin_category(N_("Distortion"));
     add_plugin_category(N_("Fuzz"));
     add_plugin_category(N_("Reverb"));

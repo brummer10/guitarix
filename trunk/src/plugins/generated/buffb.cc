@@ -80,7 +80,7 @@ Dsp::Dsp()
 	name = N_("Buffer Booster");
 	groups = 0;
 	description = N_("Buffer Booster"); // description (tooltip)
-	category = N_("Tone control");       // category
+	category = N_("Tone Control");       // category
 	shortname = N_("Buffer Boost");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

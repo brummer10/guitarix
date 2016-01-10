@@ -106,7 +106,7 @@ msgstr "Baxendall"
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:781
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:946
 #: ../src/gx_head/gui/gx_main_window.cpp:1873
-msgid "Tone control"
+msgid "Tone Control"
 msgstr "Contrôle de tonalité"
 
 #: ../src/faust-generated/baxandall.cc:310

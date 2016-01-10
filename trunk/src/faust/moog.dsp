@@ -1,6 +1,6 @@
 declare id      "moog";
 declare name    "Moog Filter";
-declare category "Tone control";
+declare category "Tone Control";
 declare license "BSD";
 
 

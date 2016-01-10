@@ -1,6 +1,6 @@
 declare id "graphiceq";
 declare name "Graphic EQ";
-declare category "Tone control";
+declare category "Tone Control";
 declare description "Graphic EQ";
 
 

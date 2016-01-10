@@ -28,8 +28,8 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">Tone control</col>
-        <col id="1">Tone control</col>
+        <col id="0" translatable="yes">Tone Control</col>
+        <col id="1">Tone Control</col>
       </row>
       <row>
         <col id="0" translatable="yes">Distortion</col>

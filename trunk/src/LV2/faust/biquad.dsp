@@ -1,5 +1,5 @@
 declare name "BiQuad Filter";
-declare category "Tone control";
+declare category "Tone Control";
 
 import("music.lib");
 import("filter.lib");

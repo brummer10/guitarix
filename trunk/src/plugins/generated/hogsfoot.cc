@@ -51,7 +51,7 @@ Dsp::Dsp()
 	name = N_("Hogs Foot");
 	groups = 0;
 	description = N_("Hogs Foot Bass Booster"); // description (tooltip)
-	category = N_("Tone control");       // category
+	category = N_("Tone Control");       // category
 	shortname = N_("Hogs Foot");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

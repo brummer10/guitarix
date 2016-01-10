@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "hfb";
 declare name "HF Brightener";
-declare category "Tone control";
+declare category "Tone Control";
 declare shortname "HF Brighten";
 declare description "High Frequency Brightener";
 

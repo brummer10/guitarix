@@ -85,7 +85,7 @@ Dsp::Dsp()
 	name = N_("Scaleable EQ");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = N_("Tone control");       // category
+	category = N_("Tone Control");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

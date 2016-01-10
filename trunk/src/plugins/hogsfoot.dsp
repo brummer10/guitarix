@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "hogsfoot";
 declare name "Hogs Foot";
-declare category "Tone control";
+declare category "Tone Control";
 declare shortname "Hogs Foot";
 declare description "Hogs Foot Bass Booster";
 

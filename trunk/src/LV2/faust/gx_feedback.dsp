@@ -1,6 +1,6 @@
 declare id   "feedback";
 declare name "Feedback";
-declare category "Tone control";
+declare category "Tone Control";
 
 import("guitarix.lib");
 

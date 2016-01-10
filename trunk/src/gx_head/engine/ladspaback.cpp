@@ -64,8 +64,8 @@ static const struct {
 
 static const char *cat_subst[][2] = {
     {"Reverbs", "Reverb"},
-    {"Filters", "Tone control"},
-    {"EQs", "Tone control"},
+    {"Filters", "Tone Control"},
+    {"EQs", "Tone Control"},
     {"Compressors", "Guitar Effects"},
     {"Utilities", "Misc"},
     {"Delays", "Echo / Delay"},
@@ -77,7 +77,7 @@ static const char *cat_subst[][2] = {
     {"Waveshapers", "Distortion"},
     {"Amplifiers", "Distortion"},
     // added for LV2
-    {"Filter", "Tone control"},
+    {"Filter", "Tone Control"},
     {"Distortion", "Distortion"},
     {"Delay", "Echo / Delay"},
     {"Modulator", "Modulation"},

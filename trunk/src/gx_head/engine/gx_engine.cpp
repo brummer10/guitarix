@@ -230,7 +230,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
 	  *this, "wah", N_("Wah"), N_("Guitar Effects"), builtin_wah_plugins,
 	  "wah.select", _("select"), load_wah_ui, 0, PGN_POST_PRE),
       tonestack(
-	  *this, "amp.tonestack", N_("Tonestack"), N_("Tone control"),
+	  *this, "amp.tonestack", N_("Tonestack"), N_("Tone Control"),
 	  builtin_tonestack_plugins, "amp.tonestack.select",
 	  _("select"), load_tonestack_ui, 0, PGN_POST_PRE),
       ampstack(

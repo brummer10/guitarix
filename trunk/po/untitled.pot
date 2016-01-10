@@ -75,7 +75,7 @@ msgstr ""
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:764
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:917
 #: ../src/gx_head/gui/gx_main_window.cpp:1912
-msgid "Tone control"
+msgid "Tone Control"
 msgstr ""
 
 #: ../src/faust-generated/cabinet_impulse_former.cc:84

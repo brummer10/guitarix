@@ -50,7 +50,7 @@ Dsp::Dsp()
 	name = N_("The Mole");
 	groups = 0;
 	description = N_("EHX Mole"); // description (tooltip)
-	category = N_("Tone control");       // category
+	category = N_("Tone Control");       // category
 	shortname = N_("The Mole");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

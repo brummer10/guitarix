@@ -94,7 +94,7 @@ Dsp::Dsp()
 	name = N_("3 Band EQ");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = N_("Tone control");       // category
+	category = N_("Tone Control");       // category
 	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;

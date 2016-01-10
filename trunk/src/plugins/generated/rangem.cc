@@ -73,7 +73,7 @@ Dsp::Dsp()
 	name = N_("Rangemaster");
 	groups = 0;
 	description = N_("High Frequency Booster"); // description (tooltip)
-	category = N_("Tone control");       // category
+	category = N_("Tone Control");       // category
 	shortname = N_("Rangemaster");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

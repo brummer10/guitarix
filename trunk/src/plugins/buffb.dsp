@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "buffb";
 declare name "Buffer Booster";
-declare category "Tone control";
+declare category "Tone Control";
 declare shortname "Buffer Boost";
 declare description "Buffer Booster";
 

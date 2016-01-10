@@ -1,6 +1,6 @@
 declare id "gain";
 declare name "Volume";
-declare category "Tone control";
+declare category "Tone Control";
 declare description "simple volume control";
 
 import("music.lib");

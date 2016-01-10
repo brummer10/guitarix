@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "mole";
 declare name "The Mole";
-declare category "Tone control";
+declare category "Tone Control";
 declare shortname "The Mole";
 declare description "EHX Mole";
 

@@ -49,7 +49,7 @@ Dsp::Dsp()
 	name = N_("LPB-1 Booster");
 	groups = 0;
 	description = N_("LPB-1 Linear Power Booster "); // description (tooltip)
-	category = N_("Tone control");       // category
+	category = N_("Tone Control");       // category
 	shortname = N_("LPB-1 Boost");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;

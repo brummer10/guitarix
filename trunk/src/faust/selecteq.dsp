@@ -1,6 +1,6 @@
 declare id 		"eqs";
 declare name            "Scaleable EQ";
-declare category        "Tone control";
+declare category        "Tone Control";
 declare license 	"BSD";
 declare copyright 	"(c)GRAME 2006";
 

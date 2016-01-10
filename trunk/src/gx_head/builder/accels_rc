@@ -31,7 +31,7 @@
 (gtk_accel_path "<Actions>/Main/PluginCategory_Misc" "")
 (gtk_accel_path "<Actions>/Main/PluginCategory_Modulation" "")
 (gtk_accel_path "<Actions>/Main/PluginCategory_Reverb" "")
-(gtk_accel_path "<Actions>/Main/PluginCategory_Tone control" "")
+(gtk_accel_path "<Actions>/Main/PluginCategory_Tone Control" "")
 (gtk_accel_path "<Actions>/Main/PluginsMenu" "")
 (gtk_accel_path "<Actions>/Main/PresetListMenu" "")
 (gtk_accel_path "<Actions>/Main/Presets" "<Control>x")

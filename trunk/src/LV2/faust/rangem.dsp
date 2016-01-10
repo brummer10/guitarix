@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "rangem";
 declare name "Rangemaster";
-declare category "Tone control";
+declare category "Tone Control";
 declare shortname "Rangemaster";
 declare description "High Frequency Booster";
 

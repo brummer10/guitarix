@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "baxandall";
 declare name "Baxandall";
-declare category "Tone control";
+declare category "Tone Control";
 
 import("filter.lib");
 

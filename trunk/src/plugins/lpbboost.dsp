@@ -2,7 +2,7 @@
 // DO NOT MODIFY!
 declare id "lpbboost";
 declare name "LPB-1 Booster";
-declare category "Tone control";
+declare category "Tone Control";
 declare shortname "LPB-1 Boost";
 declare description "LPB-1 Linear Power Booster ";
 
