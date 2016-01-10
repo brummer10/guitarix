@@ -109,6 +109,7 @@ private:
 	FAUSTFLOAT 	fbargraph4;
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
+	static const char *glade_def;
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
@@ -536,112 +537,978 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
+const char *Dsp::glade_def = "\
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<interface>\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
+  <!-- interface-naming-policy project-wide -->\n\
+  <object class=\"GtkWindow\" id=\"window1\">\n\
+    <property name=\"can_focus\">False</property>\n\
+    <child>\n\
+      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+        <property name=\"visible\">True</property>\n\
+        <property name=\"can_focus\">False</property>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"spacing\">32</property>\n\
+                <child>\n\
+                  <object class=\"GtkNotebook\" id=\"notebook:tab_rack\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"spacing\">4</property>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_81:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">BPM</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob1\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.delay1</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox4\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_91:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob2\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.gain1</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkTable\" id=\"table1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"n_rows\">2</property>\n\
+                            <property name=\"n_columns\">2</property>\n\
+                            <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label_141:rack_label\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"xalign\">1</property>\n\
+                                <property name=\"label\" translatable=\"yes\">High</property>\n\
+                              </object>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnob\" id=\"gxsmallknob2\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">mbdel.crossover_b1_b2</property>\n\
+                                <property name=\"value_position\">right</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">1</property>\n\
+                                <property name=\"right_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                    </child>\n\
+                    <child type=\"tab\">\n\
+                      <object class=\"GtkLabel\" id=\"label1\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">Band 1</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"tab_fill\">False</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox5\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"spacing\">4</property>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox6\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox8\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_8:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">BPM</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob4\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.delay2</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox9\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_9:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob5\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.gain2</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkTable\" id=\"table2\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"n_rows\">2</property>\n\
+                            <property name=\"n_columns\">2</property>\n\
+                            <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label_13:rack_label\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"xalign\">1</property>\n\
+                                <property name=\"label\" translatable=\"yes\">Low</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"bottom_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnob\" id=\"gxsmallknob7\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">mbdel.crossover_b1_b2</property>\n\
+                                <property name=\"value_position\">right</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">1</property>\n\
+                                <property name=\"right_attach\">2</property>\n\
+                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"bottom_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label_14:rack_label\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"xalign\">1</property>\n\
+                                <property name=\"label\" translatable=\"yes\">High</property>\n\
+                              </object>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnob\" id=\"gxsmallknob6\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">mbdel.crossover_b2_b3</property>\n\
+                                <property name=\"value_position\">right</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">1</property>\n\
+                                <property name=\"right_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child type=\"tab\">\n\
+                      <object class=\"GtkLabel\" id=\"label2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">Band 2</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"position\">1</property>\n\
+                        <property name=\"tab_fill\">False</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox7\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"spacing\">4</property>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox8\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox7\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_82:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">BPM</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob7\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.delay3</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox11\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_92:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob8\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.gain3</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkTable\" id=\"table3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"n_rows\">2</property>\n\
+                            <property name=\"n_columns\">2</property>\n\
+                            <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label_132:rack_label\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"xalign\">1</property>\n\
+                                <property name=\"label\" translatable=\"yes\">Low</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"bottom_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnob\" id=\"gxsmallknob3\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">mbdel.crossover_b2_b3</property>\n\
+                                <property name=\"value_position\">right</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">1</property>\n\
+                                <property name=\"right_attach\">2</property>\n\
+                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"bottom_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label_142:rack_label\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"xalign\">1</property>\n\
+                                <property name=\"label\" translatable=\"yes\">High</property>\n\
+                              </object>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnob\" id=\"gxsmallknob4\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">mbdel.crossover_b3_b4</property>\n\
+                                <property name=\"value_position\">right</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">1</property>\n\
+                                <property name=\"right_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"position\">2</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child type=\"tab\">\n\
+                      <object class=\"GtkLabel\" id=\"label3\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">Band 3</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"position\">2</property>\n\
+                        <property name=\"tab_fill\">False</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox9\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"spacing\">4</property>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox10\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox14\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_83:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">BPM</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob10\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.delay4</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox15\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_93:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob11\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.gain4</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkTable\" id=\"table4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"n_rows\">2</property>\n\
+                            <property name=\"n_columns\">2</property>\n\
+                            <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label_133:rack_label\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"xalign\">1</property>\n\
+                                <property name=\"label\" translatable=\"yes\">Low</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"bottom_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnob\" id=\"gxsmallknob5\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">mbdel.crossover_b3_b4</property>\n\
+                                <property name=\"value_position\">right</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">1</property>\n\
+                                <property name=\"right_attach\">2</property>\n\
+                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"bottom_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label_143:rack_label\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"xalign\">1</property>\n\
+                                <property name=\"label\" translatable=\"yes\">High</property>\n\
+                              </object>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnob\" id=\"gxsmallknob8\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">mbdel.crossover_b4_b5</property>\n\
+                                <property name=\"value_position\">right</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">1</property>\n\
+                                <property name=\"right_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"position\">3</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child type=\"tab\">\n\
+                      <object class=\"GtkLabel\" id=\"label4\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">Band 4</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"position\">3</property>\n\
+                        <property name=\"tab_fill\">False</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox11\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"spacing\">4</property>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox12\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox18\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_84:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">BPM</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob13\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.delay5</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox19\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_94:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob14\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"var_id\">mbdel.gain5</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkTable\" id=\"table5\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"n_rows\">2</property>\n\
+                            <property name=\"n_columns\">2</property>\n\
+                            <property name=\"row_spacing\">4</property>\n\
+                            <property name=\"homogeneous\">True</property>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label_134:rack_label\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"xalign\">1</property>\n\
+                                <property name=\"label\" translatable=\"yes\">Low</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"bottom_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnob\" id=\"gxsmallknob9\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">mbdel.crossover_b4_b5</property>\n\
+                                <property name=\"value_position\">right</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">1</property>\n\
+                                <property name=\"right_attach\">2</property>\n\
+                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"bottom_attach\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"position\">4</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child type=\"tab\">\n\
+                      <object class=\"GtkLabel\" id=\"label6\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">Band 5</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"position\">4</property>\n\
+                        <property name=\"tab_fill\">False</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label5:rack_label\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"xalign\">0</property>\n\
+                        <property name=\"label\" translatable=\"yes\">Levels</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox3\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter2\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">2</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">3</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter5\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">4</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">True</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">True</property>\n\
+            <property name=\"position\">0</property>\n\
+          </packing>\n\
+        </child>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"minibox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <placeholder/>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">True</property>\n\
+            <property name=\"position\">1</property>\n\
+          </packing>\n\
+        </child>\n\
+      </object>\n\
+    </child>\n\
+  </object>\n\
+</interface>\n\
+";
+
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("mbdel" "." p)
-
-b.openHorizontalhideBox("");
-b.closeBox();
-
-b.openHorizontalBox("");
-b.openVerticalBox("");
-
-b.openTabBox("");
-
-b.openHorizontalBox(N_("Band 1"));
-b.openVerticalBox("");
-b.openpaintampBox("");
-b.openHorizontalBox("");
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("delay1"), N_("BPM"));
-b.set_next_flags(UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("gain1"), N_("Gain (db)"));
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("crossover_b1_b2"), N_("Low Shelf (Hz)"));
-b.closeBox();
-b.closeBox();
-b.closeBox();
-b.closeBox();
-
-b.openHorizontalBox(N_("Band 2"));
-b.openVerticalBox("");
-b.openpaintampBox("");
-b.openHorizontalBox("");
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("delay2"), N_("BPM"));
-b.set_next_flags(UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("gain2"), N_("Gain (db)"));
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("crossover_b1_b2"), N_("Low (Hz)"));
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("crossover_b2_b3"), N_("High (hz)"));
-b.closeBox();
-b.closeBox();
-b.closeBox();
-b.closeBox();
-
-b.openHorizontalBox(N_("Band 3"));
-b.openVerticalBox("");
-b.openpaintampBox("");
-b.openHorizontalBox("");
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("delay3"), N_("BPM"));
-b.set_next_flags(UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("gain3"), N_("Gain (db)"));
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("crossover_b2_b3"), N_("Low (Hz)"));
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("crossover_b3_b4"), N_("High (hz)"));
-b.closeBox();
-b.closeBox();
-b.closeBox();
-b.closeBox();
-
-b.openHorizontalBox(N_("Band 4"));
-b.openVerticalBox("");
-b.openpaintampBox("");
-b.openHorizontalBox("");
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("delay4"), N_("BPM"));
-b.set_next_flags(UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("gain4"), N_("Gain (db)"));
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("crossover_b3_b4"), N_("Low (Hz)"));
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("crossover_b4_b5"), N_("High (hz)"));
-b.closeBox();
-b.closeBox();
-b.closeBox();
-b.closeBox();
-
-b.openHorizontalBox(N_("Band 5"));
-b.openVerticalBox("");
-b.openpaintampBox("");
-b.openHorizontalBox("");
-b.set_next_flags(UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("delay5"), N_("BPM"));
-b.set_next_flags(UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("gain5"), N_("Gain (db)"));
-b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_RIGHT);
-b.create_small_rackknob(PARAM("crossover_b4_b5"), N_("High Shelf (Hz)"));
-b.closeBox();
-b.closeBox();
-b.closeBox();
-b.closeBox();
-
-b.closeBox();
-b.closeBox();
-b.openVerticalBox2("Analyze");
-b.create_simple_meter(PARAM("v1"));
-b.create_simple_meter(PARAM("v2"));
-b.create_simple_meter(PARAM("v3"));
-b.create_simple_meter(PARAM("v4"));
-b.create_simple_meter(PARAM("v5"));
-b.closeBox();
-b.closeBox();
-
-#undef PARAM
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
         return 0;
     }
 	return -1;
