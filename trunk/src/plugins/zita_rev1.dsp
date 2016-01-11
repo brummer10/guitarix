@@ -18,7 +18,7 @@ with {
 
   in_group(x) = fdn_group(hgroup("input[name:Input]", x));
 
-  rdel = in_group(vslider("in_delay[name:In Delay] [unit:ms] [style:knob] 
+  rdel = in_group(vslider("in_delay[name:Pre Delay] [unit:ms] [style:knob] 
                   [tooltip: Delay in ms before reverberation begins]",
                   60,20,100,1));
 
@@ -36,7 +36,7 @@ with {
           [tooltip: T60 = time (in seconds) to decay 60dB in middle band]", 
 	  2, 1, 8, 1.08));
 
-  f2 = freq_group(vslider("hf_damping[name:HF Damping] [unit:Hz] [style:knob] [log]
+  f2 = freq_group(vslider("hf_damping[name:HF Damp] [unit:Hz] [style:knob] [log]
        [tooltip: Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60]",
        6000, 1500, 0.49*fsmax, 1.08));
 

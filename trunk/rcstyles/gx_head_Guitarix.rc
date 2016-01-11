@@ -295,6 +295,13 @@ widget "*beffekt_label" style:highest "guitarix_font"
 widget "*tab_rack*GtkLabel" style:highest "guitarix_font"
 #widget "*rack_effect_label" style:highest "guitarix_font"
 
+style "guitarix_font_inverse" {
+    font_name = "Roboto Condensed Regular 8"
+    fg[NORMAL] =  "#aaaaaa"
+}
+widget "*rack_label_inverse" style:highest "guitarix_font_inverse"
+
+
 #buttons in rack devices to drag them
 #widget "*effect_reset" style:highest "guitarix_rack_slider"
 
@@ -466,14 +473,33 @@ style "guitarix_notebook_labels" {
 widget "*tab_rack*label" style:highest "guitarix_notebook_labels"
 
 
-
-
-style "guitarix_always-show-value"
-{
-    GxRegler::show-value = 1
+style "guitarix_frame" {
+    bg[NORMAL]              = "#97BB6D"
+    engine "clearlooks" {
+        contrast            = 1.2
+        radius              = 4.0
+        disable_focus       = TRUE
+    }
 }
-widget "*.show_always" style:highest "guitarix_always-show-value"
-widget "*.ui.tuner_reference_pitch" style:highest "guitarix_always-show-value"
+class "*GtkFrame" style:highest "guitarix_frame"
+class "*GtkVSeparator" style:highest "guitarix_frame"
+class "*GtkHSeparator" style:highest "guitarix_frame"
+
+style "guitarix_frame_inversed" {
+    bg[NORMAL]              = "#292727"
+    engine "clearlooks" {
+        contrast            = 1.9
+        radius              = 4.0
+        disable_focus       = TRUE
+    }
+}
+widget "*frame_inversed" style:highest "guitarix_frame_inversed"
+
+
+
+
+
+
 
 #rackcontainer
     #effects_toolpalette

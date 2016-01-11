@@ -16,7 +16,7 @@ import("trany.lib");
     s = 0.993;
     fs = float(SR);
 
-    wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+    wet = vslider("wet_dry[name:Dry/Wet][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
    // gain = vslider("Gain[name:Gain][tooltip:Gain of the Fuzz Section (dB)]", -12, -40, 4, 0.1) : db2linear : smooth(s);
     clip = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) : tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;

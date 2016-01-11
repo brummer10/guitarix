@@ -542,7 +542,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("zita_rev1.decay_times.hf_damping",N_("HF Damping"),"SL",N_("Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60"),&fslider5, 6e+03, 1.5e+03, 2.352e+04, 1.08);
+	reg.registerVar("zita_rev1.decay_times.hf_damping",N_("HF Damp"),"SL",N_("Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60"),&fslider5, 6e+03, 1.5e+03, 2.352e+04, 1.08);
 	reg.registerVar("zita_rev1.decay_times.lf_x",N_("Freq X"),"SL",N_("Crossover frequency (Hz) separating low and middle frequencies"),&fslider2, 2e+02, 5e+01, 1e+03, 1.08);
 	reg.registerVar("zita_rev1.decay_times.low_rt60",N_("Low"),"SL",N_("T60 = time (in seconds) to decay 60dB in low-frequency band"),&fslider4, 3.0, 1.0, 8.0, 1.08);
 	reg.registerVar("zita_rev1.decay_times.mid_rt60",N_("Mid"),"SL",N_("T60 = time (in seconds) to decay 60dB in middle band"),&fslider3, 2.0, 1.0, 8.0, 1.08);
@@ -550,7 +550,7 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("zita_rev1.equalizer1.eq1_level",N_("Level"),"S",N_("Peak level in dB of second-order Regalia-Mitra peaking equalizer section 1"),&fslider7, 0.0, -15.0, 15.0, 0.1);
 	reg.registerVar("zita_rev1.equalizer2.eq2_freq",N_("Freq"),"SL",N_("Center-frequency of second-order Regalia-Mitra peaking equalizer section 2"),&fslider10, 1.5e+03, 1.6e+02, 1e+04, 1.08);
 	reg.registerVar("zita_rev1.equalizer2.eq2_level",N_("Level"),"S",N_("Peak level in dB of second-order Regalia-Mitra peaking equalizer section 2"),&fslider9, 0.0, -15.0, 15.0, 0.1);
-	reg.registerVar("zita_rev1.input.in_delay",N_("In Delay"),"S",N_("Delay in ms before reverberation begins"),&fslider6, 6e+01, 2e+01, 1e+02, 1.0);
+	reg.registerVar("zita_rev1.input.in_delay",N_("Pre Delay"),"S",N_("Delay in ms before reverberation begins"),&fslider6, 6e+01, 2e+01, 1e+02, 1.0);
 	reg.registerVar("zita_rev1.output.dry_wet_mix",N_("Dry/Wet"),"S",N_("-1 = dry, 1 = wet"),&fslider1, 0.0, -1.0, 1.0, 0.01);
 	reg.registerVar("zita_rev1.output.level",N_("Level"),"S",N_("Output scale factor"),&fslider0, 0.0, -7e+01, 4e+01, 0.1);
 	return 0;
@@ -625,74 +625,67 @@ const char *Dsp::glade_def = "\
           <object class=\"GtkVBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">8</property>\n\
             <child>\n\
               <object class=\"GtkHBox\" id=\"hbox2\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <child>\n\
-                  <object class=\"GtkAlignment\" id=\"alignment5\">\n\
-                    <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
-                    <property name=\"yalign\">1</property>\n\
-                    <property name=\"xscale\">0.5</property>\n\
-                    <property name=\"yscale\">0</property>\n\
-                    <property name=\"bottom_padding\">7</property>\n\
-                    <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox7\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <child>\n\
-                          <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"label\">label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">True</property>\n\
-                            <property name=\"position\">0</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GxSmallKnob\" id=\"gxsmallknob1\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"round_digits\">0</property>\n\
-                            <property name=\"var_id\">zita_rev1.input.in_delay</property>\n\
-                            <property name=\"label_ref\">label1:rack_label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">True</property>\n\
-                            <property name=\"position\">1</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                      </object>\n\
-                    </child>\n\
-                  </object>\n\
-                  <packing>\n\
-                    <property name=\"expand\">True</property>\n\
-                    <property name=\"fill\">True</property>\n\
-                    <property name=\"position\">0</property>\n\
-                  </packing>\n\
-                </child>\n\
+                <property name=\"spacing\">4</property>\n\
                 <child>\n\
                   <object class=\"GtkFrame\" id=\"frame4\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
                     <property name=\"label_xalign\">0.5</property>\n\
-                    <property name=\"shadow_type\">out</property>\n\
                     <child>\n\
                       <object class=\"GtkAlignment\" id=\"alignment4\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
+                        <property name=\"top_padding\">5</property>\n\
                         <property name=\"bottom_padding\">5</property>\n\
-                        <property name=\"left_padding\">12</property>\n\
+                        <property name=\"left_padding\">5</property>\n\
+                        <property name=\"right_padding\">5</property>\n\
                         <child>\n\
                           <object class=\"GtkHBox\" id=\"hbox6\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox7\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\">label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob1\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"round_digits\">0</property>\n\
+                                    <property name=\"var_id\">zita_rev1.input.in_delay</property>\n\
+                                    <property name=\"label_ref\">label1:rack_label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
                             <child>\n\
                               <object class=\"GtkVBox\" id=\"vbox9\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -710,7 +703,7 @@ const char *Dsp::glade_def = "\
                                   </packing>\n\
                                 </child>\n\
                                 <child>\n\
-                                  <object class=\"GxSmallKnob\" id=\"gxsmallknob3\">\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob3\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">True</property>\n\
                                     <property name=\"receives_default\">True</property>\n\
@@ -728,7 +721,7 @@ const char *Dsp::glade_def = "\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
                                 <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">0</property>\n\
+                                <property name=\"position\">1</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
@@ -789,7 +782,7 @@ const char *Dsp::glade_def = "\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
                                 <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">1</property>\n\
+                                <property name=\"position\">2</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
@@ -809,7 +802,7 @@ const char *Dsp::glade_def = "\
                                   </packing>\n\
                                 </child>\n\
                                 <child>\n\
-                                  <object class=\"GxSmallKnob\" id=\"gxsmallknob4\">\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob4\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">True</property>\n\
                                     <property name=\"receives_default\">True</property>\n\
@@ -827,27 +820,18 @@ const char *Dsp::glade_def = "\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
                                 <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">2</property>\n\
+                                <property name=\"position\">3</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <object class=\"GtkAlignment\" id=\"alignment7\">\n\
+                              <object class=\"GtkLabel\" id=\"label1\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
-                                <property name=\"xscale\">0</property>\n\
-                                <property name=\"yscale\">0.69999998807907104</property>\n\
-                                <child>\n\
-                                  <object class=\"GtkVSeparator\" id=\"vseparator1\">\n\
-                                    <property name=\"width_request\">10</property>\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
-                                  </object>\n\
-                                </child>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"expand\">False</property>\n\
-                                <property name=\"fill\">False</property>\n\
-                                <property name=\"position\">3</property>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">4</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
@@ -867,7 +851,7 @@ const char *Dsp::glade_def = "\
                                   </packing>\n\
                                 </child>\n\
                                 <child>\n\
-                                  <object class=\"GxSmallKnob\" id=\"gxsmallknob5\">\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob5\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">True</property>\n\
                                     <property name=\"receives_default\">True</property>\n\
@@ -885,7 +869,7 @@ const char *Dsp::glade_def = "\
                               <packing>\n\
                                 <property name=\"expand\">True</property>\n\
                                 <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">4</property>\n\
+                                <property name=\"position\">5</property>\n\
                               </packing>\n\
                             </child>\n\
                           </object>\n\
@@ -893,134 +877,10 @@ const char *Dsp::glade_def = "\
                       </object>\n\
                     </child>\n\
                     <child type=\"label\">\n\
-                      <object class=\"GtkLabel\" id=\"label12\">\n\
+                      <object class=\"GtkLabel\" id=\"label121:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">Reverb Time T60</property>\n\
-                        <property name=\"use_markup\">True</property>\n\
-                      </object>\n\
-                    </child>\n\
-                  </object>\n\
-                  <packing>\n\
-                    <property name=\"expand\">True</property>\n\
-                    <property name=\"fill\">True</property>\n\
-                    <property name=\"position\">1</property>\n\
-                  </packing>\n\
-                </child>\n\
-              </object>\n\
-              <packing>\n\
-                <property name=\"expand\">False</property>\n\
-                <property name=\"fill\">True</property>\n\
-                <property name=\"position\">0</property>\n\
-              </packing>\n\
-            </child>\n\
-            <child>\n\
-              <object class=\"GtkHBox\" id=\"hbox1\">\n\
-                <property name=\"visible\">True</property>\n\
-                <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">2</property>\n\
-                <child>\n\
-                  <object class=\"GtkFrame\" id=\"frame1\">\n\
-                    <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
-                    <property name=\"label_xalign\">0.5</property>\n\
-                    <child>\n\
-                      <object class=\"GtkAlignment\" id=\"alignment1\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"left_padding\">2</property>\n\
-                        <property name=\"right_padding\">2</property>\n\
-                        <child>\n\
-                          <object class=\"GtkHBox\" id=\"hbox3\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <child>\n\
-                              <object class=\"GtkVBox\" id=\"vbox1\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
-                                <child>\n\
-                                  <object class=\"GtkLabel\" id=\"label6:rack_label\">\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"label\">label</property>\n\
-                                  </object>\n\
-                                  <packing>\n\
-                                    <property name=\"expand\">True</property>\n\
-                                    <property name=\"fill\">True</property>\n\
-                                    <property name=\"position\">0</property>\n\
-                                  </packing>\n\
-                                </child>\n\
-                                <child>\n\
-                                  <object class=\"GxSmallKnob\" id=\"gxsmallknob6\">\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">True</property>\n\
-                                    <property name=\"receives_default\">True</property>\n\
-                                    <property name=\"round_digits\">0</property>\n\
-                                    <property name=\"var_id\">zita_rev1.equalizer1.eq1_freq</property>\n\
-                                    <property name=\"label_ref\">label6:rack_label</property>\n\
-                                  </object>\n\
-                                  <packing>\n\
-                                    <property name=\"expand\">True</property>\n\
-                                    <property name=\"fill\">True</property>\n\
-                                    <property name=\"position\">1</property>\n\
-                                  </packing>\n\
-                                </child>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"padding\">2</property>\n\
-                                <property name=\"position\">0</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <object class=\"GtkVBox\" id=\"vbox2\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
-                                <child>\n\
-                                  <object class=\"GtkLabel\" id=\"label7:rack_label\">\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"label\">label</property>\n\
-                                  </object>\n\
-                                  <packing>\n\
-                                    <property name=\"expand\">True</property>\n\
-                                    <property name=\"fill\">True</property>\n\
-                                    <property name=\"position\">0</property>\n\
-                                  </packing>\n\
-                                </child>\n\
-                                <child>\n\
-                                  <object class=\"GxSmallKnob\" id=\"gxsmallknob7\">\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">True</property>\n\
-                                    <property name=\"receives_default\">True</property>\n\
-                                    <property name=\"round_digits\">0</property>\n\
-                                    <property name=\"var_id\">zita_rev1.equalizer1.eq1_level</property>\n\
-                                    <property name=\"label_ref\">label7:rack_label</property>\n\
-                                  </object>\n\
-                                  <packing>\n\
-                                    <property name=\"expand\">True</property>\n\
-                                    <property name=\"fill\">True</property>\n\
-                                    <property name=\"position\">1</property>\n\
-                                  </packing>\n\
-                                </child>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"padding\">2</property>\n\
-                                <property name=\"position\">1</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                          </object>\n\
-                        </child>\n\
-                      </object>\n\
-                    </child>\n\
-                    <child type=\"label\">\n\
-                      <object class=\"GtkLabel\" id=\"label15\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">Eq1</property>\n\
+                        <property name=\"label\" translatable=\"yes\">Reverb</property>\n\
                         <property name=\"use_markup\">True</property>\n\
                       </object>\n\
                     </child>\n\
@@ -1032,118 +892,6 @@ const char *Dsp::glade_def = "\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GtkFrame\" id=\"frame2\">\n\
-                    <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
-                    <property name=\"label_xalign\">0.5</property>\n\
-                    <property name=\"shadow_type\">etched-out</property>\n\
-                    <child>\n\
-                      <object class=\"GtkAlignment\" id=\"alignment2\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"left_padding\">2</property>\n\
-                        <child>\n\
-                          <object class=\"GtkHBox\" id=\"hbox4\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <child>\n\
-                              <object class=\"GtkVBox\" id=\"vbox3\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
-                                <child>\n\
-                                  <object class=\"GtkLabel\" id=\"label8:rack_label\">\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"label\">label</property>\n\
-                                  </object>\n\
-                                  <packing>\n\
-                                    <property name=\"expand\">True</property>\n\
-                                    <property name=\"fill\">True</property>\n\
-                                    <property name=\"position\">0</property>\n\
-                                  </packing>\n\
-                                </child>\n\
-                                <child>\n\
-                                  <object class=\"GxSmallKnob\" id=\"gxsmallknob8\">\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">True</property>\n\
-                                    <property name=\"receives_default\">True</property>\n\
-                                    <property name=\"round_digits\">0</property>\n\
-                                    <property name=\"var_id\">zita_rev1.equalizer2.eq2_freq</property>\n\
-                                    <property name=\"label_ref\">label8:rack_label</property>\n\
-                                  </object>\n\
-                                  <packing>\n\
-                                    <property name=\"expand\">True</property>\n\
-                                    <property name=\"fill\">True</property>\n\
-                                    <property name=\"position\">1</property>\n\
-                                  </packing>\n\
-                                </child>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"padding\">2</property>\n\
-                                <property name=\"position\">0</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <object class=\"GtkVBox\" id=\"vbox4\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
-                                <child>\n\
-                                  <object class=\"GtkLabel\" id=\"label9:rack_label\">\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"label\">label</property>\n\
-                                  </object>\n\
-                                  <packing>\n\
-                                    <property name=\"expand\">True</property>\n\
-                                    <property name=\"fill\">True</property>\n\
-                                    <property name=\"position\">0</property>\n\
-                                  </packing>\n\
-                                </child>\n\
-                                <child>\n\
-                                  <object class=\"GxSmallKnob\" id=\"gxsmallknob9\">\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">True</property>\n\
-                                    <property name=\"receives_default\">True</property>\n\
-                                    <property name=\"round_digits\">0</property>\n\
-                                    <property name=\"var_id\">zita_rev1.equalizer2.eq2_level</property>\n\
-                                    <property name=\"label_ref\">label9:rack_label</property>\n\
-                                  </object>\n\
-                                  <packing>\n\
-                                    <property name=\"expand\">True</property>\n\
-                                    <property name=\"fill\">True</property>\n\
-                                    <property name=\"position\">1</property>\n\
-                                  </packing>\n\
-                                </child>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"padding\">2</property>\n\
-                                <property name=\"position\">1</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                          </object>\n\
-                        </child>\n\
-                      </object>\n\
-                    </child>\n\
-                    <child type=\"label\">\n\
-                      <object class=\"GtkLabel\" id=\"label14\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">Eq2</property>\n\
-                        <property name=\"use_markup\">True</property>\n\
-                      </object>\n\
-                    </child>\n\
-                  </object>\n\
-                  <packing>\n\
-                    <property name=\"expand\">True</property>\n\
-                    <property name=\"fill\">True</property>\n\
-                    <property name=\"position\">1</property>\n\
-                  </packing>\n\
-                </child>\n\
-                <child>\n\
                   <object class=\"GtkFrame\" id=\"frame3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
@@ -1152,9 +900,10 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkAlignment\" id=\"alignment3\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"bottom_padding\">2</property>\n\
-                        <property name=\"left_padding\">2</property>\n\
-                        <property name=\"right_padding\">2</property>\n\
+                        <property name=\"top_padding\">5</property>\n\
+                        <property name=\"bottom_padding\">5</property>\n\
+                        <property name=\"left_padding\">5</property>\n\
+                        <property name=\"right_padding\">5</property>\n\
                         <child>\n\
                           <object class=\"GtkHBox\" id=\"hbox5\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -1176,7 +925,7 @@ const char *Dsp::glade_def = "\
                                   </packing>\n\
                                 </child>\n\
                                 <child>\n\
-                                  <object class=\"GxSmallKnob\" id=\"gxsmallknob10\">\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob10\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">True</property>\n\
                                     <property name=\"receives_default\">True</property>\n\
@@ -1215,7 +964,7 @@ const char *Dsp::glade_def = "\
                                   </packing>\n\
                                 </child>\n\
                                 <child>\n\
-                                  <object class=\"GxSmallKnob\" id=\"gxsmallknob11\">\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob11\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">True</property>\n\
                                     <property name=\"receives_default\">True</property>\n\
@@ -1242,7 +991,7 @@ const char *Dsp::glade_def = "\
                       </object>\n\
                     </child>\n\
                     <child type=\"label\">\n\
-                      <object class=\"GtkLabel\" id=\"label13\">\n\
+                      <object class=\"GtkLabel\" id=\"label13:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
                         <property name=\"label\" translatable=\"yes\">Output</property>\n\
@@ -1253,7 +1002,248 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"expand\">True</property>\n\
                     <property name=\"fill\">True</property>\n\
-                    <property name=\"position\">2</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">True</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"spacing\">2</property>\n\
+                <child>\n\
+                  <object class=\"GtkFrame\" id=\"frame1:frame_inversed\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label_xalign\">0.5</property>\n\
+                    <child>\n\
+                      <object class=\"GtkAlignment\" id=\"alignment1\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"top_padding\">5</property>\n\
+                        <property name=\"bottom_padding\">5</property>\n\
+                        <property name=\"left_padding\">5</property>\n\
+                        <property name=\"right_padding\">5</property>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GtkHBox\" id=\"vbox1\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label6:rack_label_inverse\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\">label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob6\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"round_digits\">0</property>\n\
+                                    <property name=\"var_id\">zita_rev1.equalizer1.eq1_freq</property>\n\
+                                    <property name=\"label_ref\">label6:rack_label_inverse</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"padding\">2</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkHBox\" id=\"vbox2\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label7:rack_label_inverse\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\">label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob7\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"round_digits\">0</property>\n\
+                                    <property name=\"var_id\">zita_rev1.equalizer1.eq1_level</property>\n\
+                                    <property name=\"label_ref\">label7:rack_label_inverse</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"padding\">2</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                        </child>\n\
+                      </object>\n\
+                    </child>\n\
+                    <child type=\"label\">\n\
+                      <object class=\"GtkLabel\" id=\"label15:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">Filter 1</property>\n\
+                        <property name=\"use_markup\">True</property>\n\
+                      </object>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkFrame\" id=\"frame2:frame_inversed\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label_xalign\">0.5</property>\n\
+                    <property name=\"shadow_type\">etched-out</property>\n\
+                    <child>\n\
+                      <object class=\"GtkAlignment\" id=\"alignment2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"top_padding\">5</property>\n\
+                        <property name=\"bottom_padding\">5</property>\n\
+                        <property name=\"left_padding\">5</property>\n\
+                        <property name=\"right_padding\">5</property>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GtkHBox\" id=\"vbox3\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label8:rack_label_inverse\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\">label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob8\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"round_digits\">0</property>\n\
+                                    <property name=\"var_id\">zita_rev1.equalizer2.eq2_freq</property>\n\
+                                    <property name=\"label_ref\">label8:rack_label_inverse</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"padding\">2</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkHBox\" id=\"vbox4\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label9:rack_label_inverse\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\">label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxsmallknob9\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"round_digits\">0</property>\n\
+                                    <property name=\"var_id\">zita_rev1.equalizer2.eq2_level</property>\n\
+                                    <property name=\"label_ref\">label9:rack_label_inverse</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"padding\">2</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                        </child>\n\
+                      </object>\n\
+                    </child>\n\
+                    <child type=\"label\">\n\
+                      <object class=\"GtkLabel\" id=\"label14:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">Filter 2</property>\n\
+                        <property name=\"use_markup\">True</property>\n\
+                      </object>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">1</property>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\
@@ -1280,47 +1270,6 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         b.load_glade(glade_def);
-        return 0;
-    }
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("zita_rev1" "." p)
-b.openHorizontalhideBox("");
-{
-    b.create_master_slider(PARAM("output.level"), "Level");
-}
-b.closeBox();
-b.openVerticalBox("");
-{
-    b.create_small_rackknob(PARAM("input.in_delay"), "In Delay");
-    b.create_small_rackknob(PARAM("output.dry_wet_mix"), "Dry/Wet");
-    b.create_small_rackknob(PARAM("output.level"), "Level");
-
-    b.openHorizontalBox("Reverb Time T60");
-    {
-	b.create_small_rackknob(PARAM("decay_times.lf_x"), "Freq X");
-	b.create_small_rackknob(PARAM("decay_times.low_rt60"), "Low");
-	b.create_small_rackknob(PARAM("decay_times.mid_rt60"), "Mid");
-	b.create_small_rackknob(PARAM("decay_times.hf_damping"), "HF Damping");
-    }
-    b.closeBox();
-
-    b.openHorizontalBox("Eq1");
-    {
-	b.create_small_rackknob(PARAM("equalizer1.eq1_freq"), "Freq");
-	b.create_small_rackknob(PARAM("equalizer1.eq1_level"), "Level");
-    }
-    b.closeBox();
-
-    b.openHorizontalBox("Eq2");
-    {
-	b.create_small_rackknob(PARAM("equalizer2.eq2_freq"), "Freq");
-	b.create_small_rackknob(PARAM("equalizer2.eq2_level"), "Level");
-    }
-    b.closeBox();
-}
-b.closeBox();
-
-#undef PARAM
         return 0;
     }
 	return -1;
