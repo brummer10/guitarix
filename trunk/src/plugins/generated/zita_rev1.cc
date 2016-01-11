@@ -1136,7 +1136,6 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
                     <property name=\"label_xalign\">0.5</property>\n\
-                    <property name=\"shadow_type\">etched-out</property>\n\
                     <child>\n\
                       <object class=\"GtkAlignment\" id=\"alignment2\">\n\
                         <property name=\"visible\">True</property>\n\
