@@ -4,3 +4,15 @@ style "guitarix_default" {
     stock["background1"]    = {{"sky.png"}}
 }
 class "GtkWidget" style:highest "guitarix_default"
+
+style "guitarix_frame" {
+    bg[NORMAL]              = "#70C2DB"
+    engine "clearlooks" {
+        contrast            = 1.2
+        radius              = 4.0
+        disable_focus       = TRUE
+    }
+}
+class "*GtkFrame" style:highest "guitarix_frame"
+class "*GtkVSeparator" style:highest "guitarix_frame"
+class "*GtkHSeparator" style:highest "guitarix_frame"
