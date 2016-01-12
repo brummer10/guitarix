@@ -1,5 +1,6 @@
 declare id   "bassEnhancer";
 declare name "Bass Enhancer";
+declare shortname "BassEnhancer";
 declare category "Misc";
 
 //------------------------------------
@@ -14,7 +15,7 @@ import("effect.lib");
 
 //Controls
 lp_freq = hslider("Frequency",100,60,240,5);
-harmonics_volume = hslider("HarmonicsdB",0, -16, +32, 0.1): db2linear : smooth(0.999);
+harmonics_volume = hslider("HarmonicsdB[name:Harmonics]",0, -16, +32, 0.1): db2linear : smooth(0.999);
 
 //Can be moved to .lib
 X = (_,_)<:(!,_,_,!);
@@ -35,5 +36,3 @@ with {
 	lp_branch = dcblockerat(20) : lowpass(8,lp_freq);
 	be_branch = lowpass(8,lp_freq) : nld1(harm1,harm2) : _*harmonics_volume; 
 };
-
-

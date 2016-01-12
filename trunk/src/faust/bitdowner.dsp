@@ -9,7 +9,7 @@ import("music.lib");  // db2linear
 import("math.lib");   // if
 
 gain =
-	vslider("input_gain[name:Input gain,tooltip:Gain (dB)]", 0, -40, 40, 0.1)
+	vslider("input_gain[name:Input][tooltip:Gain (dB)]", 0, -40, 40, 0.1)
 	: db2linear
 	: smooth(0.999)
 	;
@@ -17,19 +17,19 @@ gain =
 bitLimit = 16;
 
 downbit =
-	vslider("bit_down[name:Bit downing]", bitLimit, 1, bitLimit, 0.1)
+	vslider("bit_down[name:Bit Down]", bitLimit, 1, bitLimit, 0.1)
 	: (2 ^ (_-1))
 	;
 
 downsampling =
 	vslider(
-		"downsampling[name:Downsampling,tooltip:Downsampling (samples to skip count)]",
+		"downsampling[name:Downsampling][tooltip:Downsampling (samples to skip count)]",
 		1, 1, 200, 1)
 	: int
 	;
 
 volume =
-	vslider("volume[name:Volume,tooltip:Volume (dB)]", 0, -90, 12, 0.1)
+	vslider("volume[name:Volume][tooltip:Volume (dB)]", 0, -90, 12, 0.1)
 	: db2linear
 	: smooth(0.999)
 	;

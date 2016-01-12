@@ -46,6 +46,7 @@ private:
 	void clear_state_f();
 	int activate(bool start);
 	int load_ui_f(const UiBuilder& b, int form);
+	static const char *glade_def;
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
@@ -196,10 +197,10 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("chorus.delay","","S","",&fslider2, 0.02f, 0.0f, 0.2f, 0.01f);
-	reg.registerVar("chorus.depth","","S","",&fslider1, 0.02f, 0.0f, 1.0f, 0.01f);
-	reg.registerVar("chorus.freq","","S","",&fslider0, 3.0f, 0.0f, 1e+01f, 0.01f);
-	reg.registerVar("chorus.level","","S","",&fslider3, 0.5f, 0.0f, 1.0f, 0.01f);
+	reg.registerVar("chorus.delay",N_("Delay"),"S","",&fslider2, 0.02f, 0.0f, 0.2f, 0.01f);
+	reg.registerVar("chorus.depth",N_("Depth"),"S","",&fslider1, 0.02f, 0.0f, 1.0f, 0.01f);
+	reg.registerVar("chorus.freq",N_("Freq"),"S","",&fslider0, 3.0f, 0.0f, 1e+01f, 0.01f);
+	reg.registerVar("chorus.level",N_("Level"),"S","",&fslider3, 0.5f, 0.0f, 1.0f, 0.01f);
 	return 0;
 }
 
@@ -208,24 +209,244 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
+const char *Dsp::glade_def = "\
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<interface>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-naming-policy project-wide -->\n\
+  <object class=\"GtkWindow\" id=\"window1\">\n\
+    <property name=\"can_focus\">False</property>\n\
+    <child>\n\
+      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+        <property name=\"visible\">True</property>\n\
+        <property name=\"can_focus\">False</property>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"spacing\">10</property>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxSmallKnobR\" id=\"gxbigknob1\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">chorus.delay</property>\n\
+                        <property name=\"label_ref\">label1:rack_label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxSmallKnobR\" id=\"gxbigknob2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">chorus.depth</property>\n\
+                        <property name=\"label_ref\">label2:rack_label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox4\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label3:rack_label\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxSmallKnobR\" id=\"gxbigknob3\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">chorus.freq</property>\n\
+                        <property name=\"label_ref\">label3:rack_label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">2</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox5\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label4:rack_label\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxMidKnob\" id=\"gxbigknob4\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">chorus.level</property>\n\
+                        <property name=\"label_ref\">label4:rack_label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">3</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"pack_type\">end</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">False</property>\n\
+            <property name=\"position\">0</property>\n\
+          </packing>\n\
+        </child>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"minibox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <object class=\"GxHSlider\" id=\"gxhslider1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">True</property>\n\
+                <property name=\"receives_default\">True</property>\n\
+                <property name=\"round_digits\">0</property>\n\
+                <property name=\"var_id\">chorus.level</property>\n\
+                <property name=\"show_value\">False</property>\n\
+                <property name=\"value_position\">right</property>\n\
+                <property name=\"value_xalign\">0.52000000000000002</property>\n\
+                <property name=\"label_ref\">label0:rack_label</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"xalign\">0</property>\n\
+                <property name=\"label\" translatable=\"yes\">Level</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">1</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">True</property>\n\
+            <property name=\"position\">1</property>\n\
+          </packing>\n\
+        </child>\n\
+      </object>\n\
+    </child>\n\
+  </object>\n\
+</interface>\n\
+";
+
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("chorus" "." p)
-// ----- chorus
-b.openHorizontalhideBox("");
-b.create_master_slider(PARAM("level"), _("level"));
-b.closeBox();
-b.openHorizontalBox("");
-{
-    b.create_small_rackknobr(PARAM("level"), _("  level  "));
-    b.create_small_rackknob(PARAM("delay"), _("  delay  "));
-    b.create_small_rackknob(PARAM("depth"), _("  depth  "));
-    b.create_small_rackknob(PARAM("freq"), _("  freq  "));
-}
-b.closeBox();
-
-#undef PARAM
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
         return 0;
     }
 	return -1;

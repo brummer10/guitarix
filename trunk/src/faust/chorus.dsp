@@ -10,10 +10,10 @@ declare version "1.0";
 import("music.lib");
 import("filter.lib");
 
-level	= hslider("level", 0.5, 0, 1, 0.01);
-freq	= hslider("freq", 3, 0, 10, 0.01);
-dtime	= hslider("delay", 0.02, 0, 0.2, 0.01): smooth(0.999);
-depth	= hslider("depth", 0.02, 0, 1, 0.01);
+level	= hslider("level[name:Level]", 0.5, 0, 1, 0.01);
+freq	= hslider("freq[name:Freq]", 3, 0, 10, 0.01);
+dtime	= hslider("delay[name:Delay]", 0.02, 0, 0.2, 0.01): smooth(0.999);
+depth	= hslider("depth[name:Depth]", 0.02, 0, 1, 0.01);
 
 tblosc(n,f,freq,mod)	= (1-d)*rdtable(n,wform,i&(n-1)) +
 			  d*rdtable(n,wform,(i+1)&(n-1))

@@ -18,16 +18,16 @@ env_group(x)	= vgroup("2-envelop", x);
 gain_group(x)	= vgroup("3-gain", x);
 
 // compressor controls: ratio, threshold and knee size
-ratio		= nentry("ratio", 2, 1, 20, 0.1);
-threshold	= nentry("threshold", -20, -96, 10, 0.1);
-knee		= nentry("knee", 3, 0, 20, 0.1);
+ratio		= nentry("ratio[name:Ratio]", 2, 1, 20, 0.1);
+threshold	= nentry("threshold[name:Threshold]", -20, -96, 10, 0.1);
+knee		= nentry("knee[name:Knee]", 3, 0, 20, 0.1);
 
 // attack and release controls; clamped to a minimum of 1 sample
-attack		= hslider("attack", 0.002, 0, 1, 0.001) : max(1/SR);
-release		= hslider("release", 0.5, 0, 10, 0.01) : max(1/SR);
+attack		= hslider("attack[name:Attack]", 0.002, 0, 1, 0.001) : max(1/SR);
+release		= hslider("release[name:Release]", 0.5, 0, 10, 0.01) : max(1/SR);
 
 // gain controls: make-up gain, compression gain meter
-makeup_gain	= gain_group(hslider("makeup gain", 0, -96, 96, 0.1));
+makeup_gain	= gain_group(hslider("makeup gain[name:Makeup]", 0, -96, 96, 0.1));
 gain(x)		= attach(x, x : gain_group(hbargraph("gain", -96, 0)));
 
 
