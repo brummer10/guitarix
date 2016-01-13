@@ -295,7 +295,7 @@ static void get_image_dimensions(GtkWidget *widget, GdkPixbuf *pb,
 	}
 	if (*frame_count == 0) {// rc directs to assume square frames
 		*frame_count = rect->width / rect->height;
-		rect->width = rect->height;
+		//rect->width = rect->height;
 	}
 }
 
