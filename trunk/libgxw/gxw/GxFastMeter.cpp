@@ -40,7 +40,8 @@ enum {
 	PROP_HOLD = 1,
 	PROP_DIMEN,
     PROP_HORIZ,
-    PROP_TYPE
+    PROP_TYPE,
+	PROP_VAR_ID
 };
 
 static const int min_size = 1;
@@ -74,6 +75,11 @@ void gx_fast_meter_class_init(GxFastMeterClass* klass)
 	gobject_class->set_property = gx_fast_meter_set_property;
 	gobject_class->get_property = gx_fast_meter_get_property;
 
+	g_object_class_install_property (
+		gobject_class, PROP_VAR_ID, g_param_spec_string(
+			"var-id", P_("Variable"),
+			P_("The id of the linked variable"),
+			NULL, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_HOLD, g_param_spec_int(
 			"hold", P_("Hold"),
@@ -213,6 +219,13 @@ static void gx_fast_meter_size_allocate (GtkWidget *widget, GtkAllocation *alloc
 	request_vertical_meter(widget);
 }
 
+static void gx_fast_meter_set_var_id(GxFastMeter *fm, const gchar *str)
+{
+	g_free(fm->var_id);
+	fm->var_id = g_strdup(str ? str : "");
+	g_object_notify(G_OBJECT(fm), "var-id");
+}
+
 static void gx_fast_meter_set_property(GObject *object, guint prop_id,
                                            const GValue *value, GParamSpec *pspec)
 {
@@ -238,6 +251,9 @@ static void gx_fast_meter_set_property(GObject *object, guint prop_id,
 		g_object_notify(object, "type");
 		gtk_widget_queue_resize(GTK_WIDGET(object));
 		break;
+	case PROP_VAR_ID:
+		gx_fast_meter_set_var_id (fm, g_value_get_string (value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -261,6 +277,9 @@ static void gx_fast_meter_get_property(GObject *object, guint prop_id,
 		break;
     case PROP_TYPE:
 		g_value_set_int(value, fm->type);
+		break;
+	case PROP_VAR_ID:
+		g_value_set_string (value, fm->var_id);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

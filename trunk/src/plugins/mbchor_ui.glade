@@ -193,6 +193,12 @@
                             <property name="row_spacing">4</property>
                             <property name="homogeneous">True</property>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <object class="GtkLabel" id="label_141:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -211,12 +217,6 @@
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
                               </packing>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -1152,6 +1152,12 @@
                             <child>
                               <placeholder/>
                             </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1209,6 +1215,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbchor.v1</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1222,6 +1229,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbchor.v2</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1235,6 +1243,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbchor.v3</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1248,6 +1257,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbchor.v4</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1261,6 +1271,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbchor.v5</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>

@@ -182,6 +182,12 @@
                             <property name="row_spacing">4</property>
                             <property name="homogeneous">True</property>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <object class="GxSmallKnob" id="gxsmallknob1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -252,12 +258,6 @@
                                 <property name="left_attach">3</property>
                                 <property name="right_attach">4</property>
                               </packing>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -1274,6 +1274,9 @@
                             <property name="row_spacing">4</property>
                             <property name="homogeneous">True</property>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <object class="GxSmallKnob" id="gxsmallknob17">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -1355,9 +1358,6 @@
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
                               </packing>
-                            </child>
-                            <child>
-                              <placeholder/>
                             </child>
                           </object>
                           <packing>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.20"/>
   <!-- interface-requires gxwidgets 0.0 -->
+  <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
@@ -121,6 +121,12 @@
                             <property name="row_spacing">4</property>
                             <property name="homogeneous">True</property>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <object class="GtkLabel" id="label_141:rack_label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -140,12 +146,6 @@
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
                               </packing>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -800,6 +800,12 @@
                             <child>
                               <placeholder/>
                             </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -857,6 +863,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbe.v1</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -870,6 +877,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbe.v2</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -883,6 +891,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbe.v3</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -896,6 +905,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbe.v4</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -909,6 +919,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbe.v5</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>

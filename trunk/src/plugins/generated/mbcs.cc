@@ -313,8 +313,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double 	fSlow49 = (((1.0 / double(double(fslider8))) - 1.0) * (1.0 - fSlow48));
 	double 	fSlow50 = (0.0010000000000000009 * pow(10,(0.05 * ((fSlow47 - double(fslider9)) * fabs((fSlow40 - 1))))));
 	double 	fSlow51 = fabs((max((double)0, (fSlow39 - 2)) - 1));
-	double 	fSlow52 = (1.0 / (fSlow0 * fSlow11));
-	double 	fSlow53 = (0 - fSlow3);
+	double 	fSlow52 = (0 - fSlow3);
+	double 	fSlow53 = (1.0 / (fSlow0 * fSlow11));
 	double 	fSlow54 = (2 * (0 - fSlow1));
 	double 	fSlow55 = double(fslider10);
 	double 	fSlow56 = max((double)0, (fSlow55 - 1));
@@ -400,7 +400,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp5 = (fRec5[2] + (fRec5[0] + (2 * fRec5[1])));
 		double fTemp6 = (fSlow12 * fTemp5);
 		fVec3[0] = fTemp6;
-		fRec4[0] = ((fSlow38 * fRec4[1]) + (fSlow37 * (fVec3[1] + fVec3[0])));
+		fRec4[0] = ((fSlow38 * fRec4[1]) + (fSlow37 * (fVec3[0] + fVec3[1])));
 		fRec3[0] = (fRec4[0] - (fSlow5 * ((fSlow4 * fRec3[2]) + (fSlow2 * fRec3[1]))));
 		double fTemp7 = (fSlow5 * (fRec3[2] + (fRec3[0] + (2 * fRec3[1]))));
 		double fTemp8 = ((iSlow41)?0:fTemp7);
@@ -431,11 +431,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec0[0] = ((fSlow48 * fRec0[1]) + (fSlow49 * max((fSlow47 + (20 * log10(fRec1[0]))), 0.0)));
 		double fTemp19 = pow(10,(0.05 * fRec0[0]));
 		fRec19[0] = ((0.999 * fRec19[1]) + fSlow50);
-		fRec24[0] = ((fSlow38 * fRec24[1]) + (fSlow37 * ((fSlow53 * fVec3[1]) + (fSlow52 * fTemp5))));
+		fRec24[0] = ((fSlow38 * fRec24[1]) + (fSlow37 * ((fSlow53 * fTemp5) + (fSlow52 * fVec3[1]))));
 		fRec23[0] = (fRec24[0] - (fSlow5 * ((fSlow4 * fRec23[2]) + (fSlow2 * fRec23[1]))));
 		double fTemp20 = (fSlow5 * (((fSlow1 * fRec23[0]) + (fSlow54 * fRec23[1])) + (fSlow1 * fRec23[2])));
 		double fTemp21 = ((iSlow57)?0:fTemp20);
-		fRec26[0] = ((fSlow38 * fRec26[1]) + (fSlow37 * ((fSlow52 * fTemp14) + (fSlow53 * fVec7[1]))));
+		fRec26[0] = ((fSlow38 * fRec26[1]) + (fSlow37 * ((fSlow53 * fTemp14) + (fSlow52 * fVec7[1]))));
 		fRec25[0] = (fRec26[0] - (fSlow5 * ((fSlow4 * fRec25[2]) + (fSlow2 * fRec25[1]))));
 		double fTemp22 = (fSlow5 * (((fSlow1 * fRec25[0]) + (fSlow54 * fRec25[1])) + (fSlow1 * fRec25[2])));
 		double fTemp23 = ((iSlow57)?0:fTemp22);
@@ -828,6 +828,12 @@ const char *Dsp::glade_def = "\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob1\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">True</property>\n\
@@ -898,12 +904,6 @@ const char *Dsp::glade_def = "\
                                 <property name=\"left_attach\">3</property>\n\
                                 <property name=\"right_attach\">4</property>\n\
                               </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -1920,6 +1920,9 @@ const char *Dsp::glade_def = "\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob17\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">True</property>\n\
@@ -2001,9 +2004,6 @@ const char *Dsp::glade_def = "\
                                 <property name=\"top_attach\">1</property>\n\
                                 <property name=\"bottom_attach\">2</property>\n\
                               </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\

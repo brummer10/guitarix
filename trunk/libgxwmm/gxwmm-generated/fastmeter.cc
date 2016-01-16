@@ -178,6 +178,20 @@ Glib::PropertyProxy_ReadOnly< int > FastMeter::property_dimen() const
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy< Glib::ustring > FastMeter::property_var_id() 
+{
+  return Glib::PropertyProxy< Glib::ustring >(this, "var-id");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly< Glib::ustring > FastMeter::property_var_id() const
+{
+  return Glib::PropertyProxy_ReadOnly< Glib::ustring >(this, "var-id");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
 
 } // namespace Gxw
 

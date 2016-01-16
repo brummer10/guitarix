@@ -785,6 +785,12 @@ const char *Dsp::glade_def = "\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob1\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">True</property>\n\
@@ -855,12 +861,6 @@ const char *Dsp::glade_def = "\
                                 <property name=\"left_attach\">3</property>\n\
                                 <property name=\"right_attach\">4</property>\n\
                               </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -1877,6 +1877,9 @@ const char *Dsp::glade_def = "\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob17\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">True</property>\n\
@@ -1959,9 +1962,6 @@ const char *Dsp::glade_def = "\
                                 <property name=\"bottom_attach\">2</property>\n\
                               </packing>\n\
                             </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
-                            </child>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
@@ -2019,6 +2019,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"can_focus\">False</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">mbc.v1</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
@@ -2032,6 +2033,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"can_focus\">False</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">mbc.v2</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
@@ -2045,6 +2047,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"can_focus\">False</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">mbc.v3</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
@@ -2058,6 +2061,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"can_focus\">False</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">mbc.v4</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
@@ -2071,6 +2075,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"can_focus\">False</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">mbc.v5</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\

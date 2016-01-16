@@ -49,6 +49,7 @@ struct _GxFastMeter {
 	GdkRectangle  last_peak_rect, bar;
     GtkRequisition* request;
     
+	gchar *GSEAL(var_id);
 	int hold_cnt;
 	int hold_state;
 

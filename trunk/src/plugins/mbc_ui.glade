@@ -182,6 +182,12 @@
                             <property name="row_spacing">4</property>
                             <property name="homogeneous">True</property>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <object class="GxSmallKnob" id="gxsmallknob1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -252,12 +258,6 @@
                                 <property name="left_attach">3</property>
                                 <property name="right_attach">4</property>
                               </packing>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -1274,6 +1274,9 @@
                             <property name="row_spacing">4</property>
                             <property name="homogeneous">True</property>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <object class="GxSmallKnob" id="gxsmallknob17">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -1356,9 +1359,6 @@
                                 <property name="bottom_attach">2</property>
                               </packing>
                             </child>
-                            <child>
-                              <placeholder/>
-                            </child>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1416,6 +1416,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbc.v1</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1429,6 +1430,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbc.v2</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1442,6 +1444,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbc.v3</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1455,6 +1458,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbc.v4</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1468,6 +1472,7 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbc.v5</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
