@@ -315,7 +315,7 @@ void gx_fast_meter_set(GxFastMeter* fm, gdouble lvl)
 	    (fm->hold_state == 0 || fm->current_peak  == old_peak)) {
 		return;
 	}
-	GdkWindow* window = gtk_widget_get_parent_window(GTK_WIDGET(fm));
+	GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
 	if (window) {
 		queue_vertical_redraw(fm, window);
 	}
@@ -399,7 +399,7 @@ void gx_fast_meter_set_by_power(GxFastMeter* fm, gdouble lvl)
 	    (fm->hold_state == 0 || fm->current_peak  == old_peak)) {
 		return;
 	}
-	GdkWindow* window = gtk_widget_get_parent_window(GTK_WIDGET(fm));
+	GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
 	if (window) {
 		queue_vertical_redraw(fm, window);
 	}
@@ -568,7 +568,7 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 	if (fm->hold_state) {
         GdkRectangle *r = &fm->last_peak_rect;
         
-        r->width  = hrz ? lb + lh : lb + dim * (lw + lb);
+        r->width  = hrz ? lb + lh - (lw + lb) : lb + dim * (lw + lb);
         r->height = hrz ? lb + dim * (lw + lb) : lb + lh;
         
         if (hrz) {

@@ -190,6 +190,7 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
         std::string id;
         bld->find_widget("gxfastmeter1", fastmeter);
         fastmeter->get_property("var_id",id);
+        fastmeter->set_name("simplemeter");
         if (!id.empty())
         Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
         sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
@@ -200,6 +201,7 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
         std::string id;
         bld->find_widget("gxfastmeter2", fastmeter);
         fastmeter->get_property("var_id",id);
+        fastmeter->set_name("simplemeter");
         if (!id.empty())
         Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
         sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
@@ -210,6 +212,7 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
         std::string id;
         bld->find_widget("gxfastmeter3", fastmeter);
         fastmeter->get_property("var_id",id);
+        fastmeter->set_name("simplemeter");
         if (!id.empty())
         Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
         sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
@@ -220,6 +223,7 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
         std::string id;
         bld->find_widget("gxfastmeter4", fastmeter);
         fastmeter->get_property("var_id",id);
+        fastmeter->set_name("simplemeter");
         if (!id.empty())
         Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
         sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
@@ -230,6 +234,7 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
         std::string id;
         bld->find_widget("gxfastmeter5", fastmeter);
         fastmeter->get_property("var_id",id);
+        fastmeter->set_name("simplemeter");
         if (!id.empty())
         Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
         sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);

@@ -13,12 +13,11 @@
           <object class="GtkHBox" id="rackbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="spacing">4</property>
             <child>
               <object class="GtkHBox" id="hbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="spacing">8</property>
+                <property name="spacing">3</property>
                 <child>
                   <object class="GtkNotebook" id="notebook:tab_rack">
                     <property name="visible">True</property>
@@ -27,7 +26,6 @@
                       <object class="GtkHBox" id="hbox2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkHBox" id="hbox4">
                             <property name="visible">True</property>
@@ -241,7 +239,6 @@
                       <object class="GtkHBox" id="hbox5">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkHBox" id="hbox6">
                             <property name="visible">True</property>
@@ -479,7 +476,6 @@
                       <object class="GtkHBox" id="hbox7">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkHBox" id="hbox8">
                             <property name="visible">True</property>
@@ -717,7 +713,6 @@
                       <object class="GtkHBox" id="hbox9">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkHBox" id="hbox10">
                             <property name="visible">True</property>
@@ -955,7 +950,6 @@
                       <object class="GtkHBox" id="hbox11">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkHBox" id="hbox12">
                             <property name="visible">True</property>
@@ -1145,6 +1139,12 @@
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
                               </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
                             </child>
                             <child>
                               <placeholder/>

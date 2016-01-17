@@ -576,12 +576,11 @@ const char *Dsp::glade_def = "\
           <object class=\"GtkHBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
-            <property name=\"spacing\">4</property>\n\
             <child>\n\
               <object class=\"GtkHBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">8</property>\n\
+                <property name=\"spacing\">3</property>\n\
                 <child>\n\
                   <object class=\"GtkNotebook\" id=\"notebook:tab_rack\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -590,7 +589,6 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkHBox\" id=\"hbox2\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkHBox\" id=\"hbox4\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -804,7 +802,6 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkHBox\" id=\"hbox5\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkHBox\" id=\"hbox6\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -1042,7 +1039,6 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkHBox\" id=\"hbox7\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkHBox\" id=\"hbox8\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -1280,7 +1276,6 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkHBox\" id=\"hbox9\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkHBox\" id=\"hbox10\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -1518,7 +1513,6 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkHBox\" id=\"hbox11\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkHBox\" id=\"hbox12\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -1708,6 +1702,12 @@ const char *Dsp::glade_def = "\
                                 <property name=\"top_attach\">1</property>\n\
                                 <property name=\"bottom_attach\">2</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                             <child>\n\
                               <placeholder/>\n\
