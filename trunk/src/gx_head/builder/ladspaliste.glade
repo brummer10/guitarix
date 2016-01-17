@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <interface>
-  <requires lib="gtk+" version="2.24"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="2.24" />
+  
   <object class="GtkListStore" id="liststore1">
     <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
+      
+      <column type="gchararray" />
     </columns>
     <data>
       <row>
@@ -21,10 +21,10 @@
   </object>
   <object class="GtkListStore" id="liststore2">
     <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-      <!-- column-name gchararray2 -->
-      <column type="gchararray"/>
+      
+      <column type="gchararray" />
+      
+      <column type="gchararray" />
     </columns>
     <data>
       <row>
@@ -67,8 +67,8 @@
   </object>
   <object class="GtkListStore" id="liststore3">
     <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
+      
+      <column type="gchararray" />
     </columns>
     <data>
       <row>
@@ -84,10 +84,10 @@
   </object>
   <object class="GtkListStore" id="liststore4">
     <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-      <!-- column-name gint1 -->
-      <column type="gint"/>
+      
+      <column type="gchararray" />
+      
+      <column type="gint" />
     </columns>
     <data>
       <row>
@@ -105,21 +105,21 @@
     </data>
   </object>
   <object class="GtkWindow" id="window1">
-    <property name="can_focus">False</property>
+    <property name="name">window1</property><property name="can_focus">False</property>
     <property name="title" translatable="yes">Select LADSPA/LV2 plugins for Guitarix</property>
     <property name="default_height">600</property>
     <child>
       <object class="GtkVBox" id="vbox1">
-        <property name="visible">True</property>
+        <property name="name">vbox1</property><property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="border_width">4</property>
         <property name="spacing">4</property>
         <child>
           <object class="GtkHBox" id="menubox">
-            <property name="visible">True</property>
+            <property name="name">menubox</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <placeholder/>
+              <placeholder />
             </child>
           </object>
           <packing>
@@ -130,22 +130,22 @@
         </child>
         <child>
           <object class="GtkHBox" id="hbox3">
-            <property name="visible">True</property>
+            <property name="name">hbox3</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GtkVBox" id="vbox2">
-                <property name="visible">True</property>
+                <property name="name">vbox2</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="border_width">4</property>
                 <property name="spacing">4</property>
                 <child>
                   <object class="GtkHBox" id="hbox6">
-                    <property name="visible">True</property>
+                    <property name="name">hbox6</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="spacing">8</property>
                     <child>
                       <object class="GtkLabel" id="label9">
-                        <property name="visible">True</property>
+                        <property name="name">label9</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Show:</property>
                       </object>
@@ -157,7 +157,7 @@
                     </child>
                     <child>
                       <object class="GtkRadioButton" id="show_all">
-                        <property name="label" translatable="yes">A_ll</property>
+                        <property name="name">show_all</property><property name="label" translatable="yes">A_ll</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -173,11 +173,11 @@
                     </child>
                     <child>
                       <object class="GtkComboBox" id="combobox_mono_stereo">
-                        <property name="visible">True</property>
+                        <property name="name">combobox_mono_stereo</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="model">liststore1</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                          <object class="GtkCellRendererText" id="cellrenderertext4" />
                           <attributes>
                             <attribute name="text">0</attribute>
                           </attributes>
@@ -192,7 +192,7 @@
                     </child>
                     <child>
                       <object class="GtkRadioButton" id="ladspa_only">
-                        <property name="label" translatable="yes">Ladspa _only</property>
+                        <property name="name">ladspa_only</property><property name="label" translatable="yes">Ladspa _only</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -208,7 +208,7 @@
                     </child>
                     <child>
                       <object class="GtkRadioButton" id="lv2_only">
-                        <property name="label" translatable="yes">L_V2 only</property>
+                        <property name="name">lv2_only</property><property name="label" translatable="yes">L_V2 only</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -224,7 +224,7 @@
                     </child>
                     <child>
                       <object class="GtkRadioButton" id="selected_only">
-                        <property name="label" translatable="yes">_Selected</property>
+                        <property name="name">selected_only</property><property name="label" translatable="yes">_Selected</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -240,7 +240,7 @@
                     </child>
                     <child>
                       <object class="GtkRadioButton" id="changed_only">
-                        <property name="label" translatable="yes">_Changed</property>
+                        <property name="name">changed_only</property><property name="label" translatable="yes">_Changed</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -263,12 +263,12 @@
                 </child>
                 <child>
                   <object class="GtkHBox" id="hbox2">
-                    <property name="visible">True</property>
+                    <property name="name">hbox2</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="spacing">20</property>
                     <child>
                       <object class="GtkButton" id="select_all">
-                        <property name="label" translatable="yes">Select _All</property>
+                        <property name="name">select_all</property><property name="label" translatable="yes">Select _All</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -282,7 +282,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="select_none">
-                        <property name="label" translatable="yes">Select _None</property>
+                        <property name="name">select_none</property><property name="label" translatable="yes">Select _None</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -296,7 +296,7 @@
                     </child>
                     <child>
                       <object class="GtkToggleButton" id="show_details">
-                        <property name="label" translatable="yes">Show _Details</property>
+                        <property name="name">show_details</property><property name="label" translatable="yes">Show _Details</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -318,13 +318,13 @@
                 </child>
                 <child>
                   <object class="GtkScrolledWindow" id="scrolledwindow1">
-                    <property name="visible">True</property>
+                    <property name="name">scrolledwindow1</property><property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="hscrollbar_policy">automatic</property>
                     <property name="vscrollbar_policy">automatic</property>
                     <child>
                       <object class="GtkTreeView" id="treeview1">
-                        <property name="visible">True</property>
+                        <property name="name">treeview1</property><property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="headers_visible">False</property>
                         <property name="headers_clickable">False</property>
@@ -332,7 +332,7 @@
                           <object class="GtkTreeViewColumn" id="treeviewcolumn4">
                             <property name="title" translatable="yes">column</property>
                             <child>
-                              <object class="GtkCellRendererToggle" id="cellrenderer_active"/>
+                              <object class="GtkCellRendererToggle" id="cellrenderer_active" />
                               <attributes>
                                 <attribute name="active">1</attribute>
                               </attributes>
@@ -343,7 +343,7 @@
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_ladspa">
                             <property name="title" translatable="yes">column</property>
                             <child>
-                              <object class="GtkCellRendererText" id="cellrenderer_ladspa"/>
+                              <object class="GtkCellRendererText" id="cellrenderer_ladspa" />
                               <attributes>
                                 <attribute name="text">0</attribute>
                               </attributes>
@@ -361,11 +361,11 @@
                 </child>
                 <child>
                   <object class="GtkHBox" id="hbox1">
-                    <property name="visible">True</property>
+                    <property name="name">hbox1</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="label1">
-                        <property name="visible">True</property>
+                        <property name="name">label1</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xpad">4</property>
                         <property name="label" translatable="yes">strings to search for (use ▼/▲):</property>
@@ -378,7 +378,7 @@
                     </child>
                     <child>
                       <object class="GtkEntry" id="search_entry">
-                        <property name="visible">True</property>
+                        <property name="name">search_entry</property><property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">●</property>
                         <property name="invisible_char_set">True</property>
@@ -402,14 +402,14 @@
                 </child>
                 <child>
                   <object class="GtkHButtonBox" id="hbuttonbox1">
-                    <property name="visible">True</property>
+                    <property name="name">hbuttonbox1</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="border_width">4</property>
                     <property name="spacing">20</property>
                     <property name="layout_style">end</property>
                     <child>
                       <object class="GtkButton" id="button_help">
-                        <property name="label">gtk-help</property>
+                        <property name="name">button_help</property><property name="label">gtk-help</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -425,7 +425,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="button_cancel">
-                        <property name="label">gtk-cancel</property>
+                        <property name="name">button_cancel</property><property name="label">gtk-cancel</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -440,7 +440,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="button_apply">
-                        <property name="label">gtk-apply</property>
+                        <property name="name">button_apply</property><property name="label">gtk-apply</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -455,7 +455,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="button_save">
-                        <property name="label">gtk-save</property>
+                        <property name="name">button_save</property><property name="label">gtk-save</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -484,19 +484,19 @@
             </child>
             <child>
               <object class="GtkVBox" id="details_box">
-                <property name="can_focus">False</property>
+                <property name="name">details_box</property><property name="can_focus">False</property>
                 <property name="border_width">4</property>
                 <property name="spacing">8</property>
                 <child>
                   <object class="GtkTable" id="table1">
-                    <property name="visible">True</property>
+                    <property name="name">table1</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="n_rows">6</property>
                     <property name="n_columns">2</property>
                     <property name="column_spacing">4</property>
                     <child>
                       <object class="GtkLabel" id="label3">
-                        <property name="visible">True</property>
+                        <property name="name">label3</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Short Name</property>
@@ -504,12 +504,12 @@
                       </object>
                       <packing>
                         <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="y_options" />
                       </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label4">
-                        <property name="visible">True</property>
+                        <property name="name">label4</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Guitarix Category</property>
@@ -518,12 +518,12 @@
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
                         <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="y_options" />
                       </packing>
                     </child>
                     <child>
                       <object class="GtkEntry" id="plugin_name">
-                        <property name="visible">True</property>
+                        <property name="name">plugin_name</property><property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">•</property>
                         <property name="invisible_char_set">True</property>
@@ -535,17 +535,17 @@
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
-                        <property name="y_options"/>
+                        <property name="y_options" />
                       </packing>
                     </child>
                     <child>
                       <object class="GtkComboBox" id="plugin_category">
-                        <property name="visible">True</property>
+                        <property name="name">plugin_category</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="model">liststore2</property>
                         <property name="active">7</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cellrenderer_category"/>
+                          <object class="GtkCellRendererText" id="cellrenderer_category" />
                           <attributes>
                             <attribute name="text">0</attribute>
                           </attributes>
@@ -556,12 +556,12 @@
                         <property name="right_attach">2</property>
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
-                        <property name="y_options"/>
+                        <property name="y_options" />
                       </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label5">
-                        <property name="visible">True</property>
+                        <property name="name">label5</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Plugin Category</property>
@@ -570,12 +570,12 @@
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
                         <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="y_options" />
                       </packing>
                     </child>
                     <child>
                       <object class="GtkEntry" id="ladspa_category">
-                        <property name="visible">True</property>
+                        <property name="name">ladspa_category</property><property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="editable">False</property>
                         <property name="has_frame">False</property>
@@ -595,7 +595,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel" id="label6">
-                        <property name="visible">True</property>
+                        <property name="name">label6</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Plugin Author</property>
@@ -604,12 +604,12 @@
                         <property name="top_attach">3</property>
                         <property name="bottom_attach">4</property>
                         <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="y_options" />
                       </packing>
                     </child>
                     <child>
                       <object class="GtkEntry" id="ladspa_maker">
-                        <property name="visible">True</property>
+                        <property name="name">ladspa_maker</property><property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="editable">False</property>
                         <property name="has_frame">False</property>
@@ -629,7 +629,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel" id="label7">
-                        <property name="visible">True</property>
+                        <property name="name">label7</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Plugin ID / URI</property>
@@ -638,12 +638,12 @@
                         <property name="top_attach">4</property>
                         <property name="bottom_attach">5</property>
                         <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="y_options" />
                       </packing>
                     </child>
                     <child>
                       <object class="GtkEntry" id="ladspa_uniqueid">
-                        <property name="visible">True</property>
+                        <property name="name">ladspa_uniqueid</property><property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="editable">False</property>
                         <property name="has_frame">False</property>
@@ -663,7 +663,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel" id="label2">
-                        <property name="visible">True</property>
+                        <property name="name">label2</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Master Slider (idx)</property>
@@ -672,19 +672,19 @@
                         <property name="top_attach">5</property>
                         <property name="bottom_attach">6</property>
                         <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="y_options" />
                       </packing>
                     </child>
                     <child>
                       <object class="GtkHBox" id="hbox4">
-                        <property name="visible">True</property>
+                        <property name="name">hbox4</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
                           <object class="GtkComboBox" id="master_slider_idx">
-                            <property name="visible">True</property>
+                            <property name="name">master_slider_idx</property><property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkCellRendererText" id="cellrenderer_master"/>
+                              <object class="GtkCellRendererText" id="cellrenderer_master" />
                               <attributes>
                                 <attribute name="text">0</attribute>
                               </attributes>
@@ -698,7 +698,7 @@
                         </child>
                         <child>
                           <object class="GtkEntry" id="master_slider_name">
-                            <property name="visible">True</property>
+                            <property name="name">master_slider_name</property><property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
                             <property name="invisible_char_set">True</property>
@@ -730,11 +730,11 @@
                 </child>
                 <child>
                   <object class="GtkHBox" id="hbox5">
-                    <property name="visible">True</property>
+                    <property name="name">hbox5</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkButton" id="reset_changes">
-                        <property name="label" translatable="yes">_Restore Defaults</property>
+                        <property name="name">reset_changes</property><property name="label" translatable="yes">_Restore Defaults</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -748,7 +748,7 @@
                     </child>
                     <child>
                       <object class="GtkToggleButton" id="dry_wet_button">
-                        <property name="label" translatable="yes">use dry/wet Box</property>
+                        <property name="name">dry_wet_button</property><property name="label" translatable="yes">use dry/wet Box</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -761,7 +761,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel" id="label8">
-                        <property name="visible">True</property>
+                        <property name="name">label8</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">1</property>
                         <property name="label" translatable="yes">Quirks: </property>
@@ -774,12 +774,12 @@
                     </child>
                     <child>
                       <object class="GtkComboBox" id="plugin_quirks">
-                        <property name="visible">True</property>
+                        <property name="name">plugin_quirks</property><property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="model">liststore4</property>
                         <property name="active">0</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cellrenderer_quirks"/>
+                          <object class="GtkCellRendererText" id="cellrenderer_quirks" />
                           <attributes>
                             <attribute name="text">0</attribute>
                           </attributes>
@@ -800,13 +800,13 @@
                 </child>
                 <child>
                   <object class="GtkScrolledWindow" id="scrolledwindow2">
-                    <property name="visible">True</property>
+                    <property name="name">scrolledwindow2</property><property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="hscrollbar_policy">never</property>
                     <property name="vscrollbar_policy">automatic</property>
                     <child>
                       <object class="GtkTreeView" id="treeview2">
-                        <property name="visible">True</property>
+                        <property name="name">treeview2</property><property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="headers_clickable">False</property>
                         <property name="reorderable">True</property>
@@ -815,7 +815,7 @@
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_idx">
                             <property name="title" translatable="yes">Idx</property>
                             <child>
-                              <object class="GtkCellRendererText" id="cellrenderer_idx"/>
+                              <object class="GtkCellRendererText" id="cellrenderer_idx" />
                               <attributes>
                                 <attribute name="text">0</attribute>
                               </attributes>
@@ -843,7 +843,7 @@
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_SR">
                             <property name="title" translatable="yes">SR</property>
                             <child>
-                              <object class="GtkCellRendererToggle" id="cellrenderer_SR"/>
+                              <object class="GtkCellRendererToggle" id="cellrenderer_SR" />
                               <attributes>
                                 <attribute name="active">10</attribute>
                               </attributes>
@@ -913,7 +913,7 @@
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_caption">
                             <property name="title" translatable="yes">C</property>
                             <child>
-                              <object class="GtkCellRendererToggle" id="cellrenderer_caption"/>
+                              <object class="GtkCellRendererToggle" id="cellrenderer_caption" />
                               <attributes>
                                 <attribute name="active">11</attribute>
                               </attributes>
@@ -942,7 +942,7 @@
                             <property name="sizing">autosize</property>
                             <property name="title" translatable="yes">N</property>
                             <child>
-                              <object class="GtkCellRendererToggle" id="cellrenderer_newrow"/>
+                              <object class="GtkCellRendererToggle" id="cellrenderer_newrow" />
                               <attributes>
                                 <attribute name="active">9</attribute>
                               </attributes>
@@ -960,21 +960,21 @@
                 </child>
                 <child>
                   <object class="GtkScrolledWindow" id="scrolledwindow3">
-                    <property name="height_request">150</property>
+                    <property name="name">scrolledwindow3</property><property name="height_request">150</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="hscrollbar_policy">never</property>
                     <property name="vscrollbar_policy">automatic</property>
                     <child>
                       <object class="GtkTreeView" id="treeview3">
-                        <property name="visible">True</property>
+                        <property name="name">treeview3</property><property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="headers_clickable">False</property>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn3">
                             <property name="title" translatable="yes">value</property>
                             <child>
-                              <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                              <object class="GtkCellRendererText" id="cellrenderertext3" />
                               <attributes>
                                 <attribute name="text">0</attribute>
                               </attributes>

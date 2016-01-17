@@ -2,6 +2,7 @@
 *.pyc
 *~
 *.bak
+*.glade.txt
 trunk/build/
 trunk/po/LINGUAS
 trunk/.lock-wscript

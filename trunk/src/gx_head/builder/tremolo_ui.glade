@@ -1,21 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <interface>
-  <!-- interface-requires gxwidgets 0.0 -->
-  <requires lib="gtk+" version="2.20"/>
-  <!-- interface-naming-policy project-wide -->
+  
+  <requires lib="gtk+" version="2.20" />
+  
   <object class="GtkWindow" id="window1">
-    <property name="can_focus">False</property>
+    <property name="name">window1</property><property name="can_focus">False</property>
     <child>
       <object class="GtkHBox" id="rackbox">
-        <property name="visible">True</property>
+        <property name="name">rackbox</property><property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
           <object class="GtkHBox" id="hbox1">
-            <property name="visible">True</property>
+            <property name="name">hbox1</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GxSelector" id="gxselector1">
-                <property name="visible">True</property>
+                <property name="name">gxselector1</property><property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">tremolo.SINE</property>
@@ -28,11 +28,11 @@
             </child>
             <child>
               <object class="GtkVBox" id="vbox1">
-                <property name="visible">True</property>
+                <property name="name">vbox1</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="label1:rack_label">
-                    <property name="visible">True</property>
+                    <property name="name">label1:rack_label</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
                   </object>
@@ -44,7 +44,7 @@
                 </child>
                 <child>
                   <object class="GxSmallKnobR" id="gxbigknob1">
-                    <property name="visible">True</property>
+                    <property name="name">gxbigknob1</property><property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">tremolo.freq</property>
@@ -72,11 +72,11 @@
         </child>
         <child>
           <object class="GtkVBox" id="vbox2">
-            <property name="visible">True</property>
+            <property name="name">vbox2</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GtkLabel" id="label2:rack_label">
-                <property name="visible">True</property>
+                <property name="name">label2:rack_label</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">label</property>
               </object>
@@ -88,7 +88,7 @@
             </child>
             <child>
               <object class="GxSmallKnobR" id="gxbigknob2">
-                <property name="visible">True</property>
+                <property name="name">gxbigknob2</property><property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">tremolo.depth</property>
@@ -109,11 +109,11 @@
         </child>
         <child>
           <object class="GtkVBox" id="vbox3">
-            <property name="visible">True</property>
+            <property name="name">vbox3</property><property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
               <object class="GtkLabel" id="label3:rack_label">
-                <property name="visible">True</property>
+                <property name="name">label3:rack_label</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">label</property>
               </object>
@@ -125,7 +125,7 @@
             </child>
             <child>
               <object class="GxSmallKnob" id="gxsmallknob1">
-                <property name="visible">True</property>
+                <property name="name">gxsmallknob1</property><property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">tremolo.wet_dry</property>
@@ -140,11 +140,11 @@
             </child>
             <child>
               <object class="GtkHBox" id="hbox2">
-                <property name="visible">True</property>
+                <property name="name">hbox2</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GxValueDisplay" id="gxvaluedisplay1">
-                    <property name="visible">True</property>
+                    <property name="name">gxvaluedisplay1</property><property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">tremolo.wet_dry</property>
