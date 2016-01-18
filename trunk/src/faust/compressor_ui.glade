@@ -228,6 +228,7 @@
                         <property name="hold">120</property>
                         <property name="dimen">3</property>
                         <property name="horiz">True</property>
+                        <property name="var_id">compressor.v1</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>

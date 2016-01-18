@@ -9,6 +9,7 @@ declare version "1.0";
 
 import("music.lib");
 import("guitarix.lib");
+import("reduce.lib");
 
 /* Controls. */
 
@@ -73,8 +74,12 @@ with {
 	r	= 1-p+p*ratio;
 };
 
+vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
+
+envelop         = abs : max ~ (1.0/SR) : reduce(max,4096); // : max(db2linear(-70)) : linear2db;
+
 process(x)	= g(x)*x
 with {
 	//g	= env2(x) : compress : gain : +(makeup_gain) : db2linear ;
-	g	= add_dc : env : compress : db2linear ;
+	g	= add_dc : env : compress : vmeter1 : db2linear ;
 };

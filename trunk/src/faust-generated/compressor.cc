@@ -7,17 +7,21 @@ namespace compressor {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fentry0;
-	FAUSTFLOAT 	fentry1;
 	int 	iConst0;
 	double 	fConst1;
+	FAUSTFLOAT 	fentry0;
+	FAUSTFLOAT 	fentry1;
 	double 	fConst2;
-	double 	fRec1[2];
 	double 	fConst3;
+	double 	fRec5[2];
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT 	fslider1;
-	double 	fRec0[2];
+	double 	fRec4[2];
 	FAUSTFLOAT 	fentry2;
+	double 	fRec0[2];
+	int 	iRec1[2];
+	double 	fRec2[2];
+	FAUSTFLOAT 	fbargraph0;
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -63,8 +67,11 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec1[i] = 0;
+	for (int i=0; i<2; i++) fRec5[i] = 0;
+	for (int i=0; i<2; i++) fRec4[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int i=0; i<2; i++) iRec1[i] = 0;
+	for (int i=0; i<2; i++) fRec2[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -76,9 +83,9 @@ inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = exp((0 - (1e+01 / double(iConst0))));
-	fConst2 = (1 - fConst1);
-	fConst3 = (1.0 / double(iConst0));
+	fConst1 = (1.0 / double(iConst0));
+	fConst2 = exp((0 - (1e+01 / double(iConst0))));
+	fConst3 = (1 - fConst2);
 	clear_state_f();
 }
 
@@ -91,21 +98,31 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	double 	fSlow0 = double(fentry1);
 	double 	fSlow1 = (fSlow0 - double(fentry0));
-	double 	fSlow2 = exp((0 - (fConst3 / max(fConst3, double(fslider0)))));
-	double 	fSlow3 = exp((0 - (fConst3 / max(fConst3, double(fslider1)))));
+	double 	fSlow2 = exp((0 - (fConst1 / max(fConst1, double(fslider0)))));
+	double 	fSlow3 = exp((0 - (fConst1 / max(fConst1, double(fslider1)))));
 	double 	fSlow4 = (1.0 / (0.001 + fSlow0));
 	double 	fSlow5 = (double(fentry2) - 1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec1[0] = ((fConst1 * fRec1[1]) + (fConst2 * fabs((fTemp0 + 1e-20))));
-		double fTemp1 = ((fSlow3 * (fRec0[1] < fRec1[0])) + (fSlow2 * (fRec0[1] >= fRec1[0])));
-		fRec0[0] = ((fRec0[1] * fTemp1) + (fRec1[0] * (0 - (fTemp1 - 1))));
-		double fTemp2 = max((double)0, ((20 * log10(fRec0[0])) + fSlow1));
+		fRec5[0] = ((fConst2 * fRec5[1]) + (fConst3 * fabs((fTemp0 + 1e-20))));
+		double fTemp1 = ((fSlow3 * (fRec4[1] < fRec5[0])) + (fSlow2 * (fRec4[1] >= fRec5[0])));
+		fRec4[0] = ((fRec4[1] * fTemp1) + (fRec5[0] * (0 - (fTemp1 - 1))));
+		double fTemp2 = max((double)0, ((20 * log10(fRec4[0])) + fSlow1));
 		double fTemp3 = (fSlow5 * min((double)1, max((double)0, (fSlow4 * fTemp2))));
-		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * ((fTemp2 * (0 - fTemp3)) / (1 + fTemp3)))));
+		double fTemp4 = ((fTemp2 * (0 - fTemp3)) / (1 + fTemp3));
+		double 	fRec3 = max(fConst1, fabs(fTemp4));
+		int iTemp5 = int((iRec1[1] < 4096));
+		fRec0[0] = ((iTemp5)?max(fRec0[1], fRec3):fRec3);
+		iRec1[0] = ((iTemp5)?(1 + iRec1[1]):1);
+		fRec2[0] = ((iTemp5)?fRec2[1]:fRec0[1]);
+		fbargraph0 = fRec2[0];
+		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * fTemp4)));
 		// post processing
+		fRec2[1] = fRec2[0];
+		iRec1[1] = iRec1[0];
 		fRec0[1] = fRec0[0];
-		fRec1[1] = fRec1[0];
+		fRec4[1] = fRec4[0];
+		fRec5[1] = fRec5[0];
 	}
 }
 
@@ -121,6 +138,7 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("compressor.ratio",N_("Ratio"),"S","",&fentry2, 2.0, 1.0, 2e+01, 0.1);
 	reg.registerVar("compressor.release",N_("Release"),"S","",&fslider0, 0.5, 0.0, 1e+01, 0.01);
 	reg.registerVar("compressor.threshold",N_("Threshold"),"S","",&fentry0, -2e+01, -96.0, 1e+01, 0.1);
+	reg.registerNonMidiFloatVar("compressor.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
 	return 0;
 }
 
@@ -360,6 +378,7 @@ const char *Dsp::glade_def = "\
                         <property name=\"hold\">120</property>\n\
                         <property name=\"dimen\">3</property>\n\
                         <property name=\"horiz\">True</property>\n\
+                        <property name=\"var_id\">compressor.v1</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"expand\">True</property>\n\
