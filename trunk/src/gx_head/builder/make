@@ -12,7 +12,8 @@ skip_types = [
     "GtkCellRendererCombo",
     "GtkTreeViewColumn",
     "GtkAdjustment",
-    "GtkListStore"
+    "GtkListStore",
+    "GtkTreeStore"
 ]
 
 for f in os.listdir(__dir__):

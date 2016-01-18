@@ -4,7 +4,7 @@
   <requires lib="gtk+" version="2.16" />
   
   <object class="GtkTreeStore" id="treestore1">
-    <property name="name">treestore1</property><columns>
+    <columns>
       
       <column type="gchararray" />
       
@@ -14,7 +14,7 @@
     </columns>
   </object>
   <object class="GtkTreeStore" id="treestore2">
-    <property name="name">treestore2</property><columns>
+    <columns>
       
       <column type="gchararray" />
       
@@ -24,7 +24,7 @@
     </columns>
   </object>
   <object class="GtkTreeStore" id="treestore3">
-    <property name="name">treestore3</property><columns>
+    <columns>
       
       <column type="gchararray" />
       
@@ -34,7 +34,7 @@
     </columns>
   </object>
   <object class="GtkTreeStore" id="treestore4">
-    <property name="name">treestore4</property><columns>
+    <columns>
       
       <column type="gchararray" />
       
@@ -44,7 +44,7 @@
     </columns>
   </object>
   <object class="GtkTreeStore" id="treestore5">
-    <property name="name">treestore5</property><columns>
+    <columns>
       
       <column type="gchararray" />
       
@@ -54,7 +54,7 @@
     </columns>
   </object>
   <object class="GtkTreeStore" id="treestore6">
-    <property name="name">treestore6</property><columns>
+    <columns>
       
       <column type="gchararray" />
       
@@ -64,7 +64,7 @@
     </columns>
   </object>
   <object class="GtkTreeStore" id="treestore7">
-    <property name="name">treestore7</property><columns>
+    <columns>
       
       <column type="gchararray" />
       
