@@ -185,62 +185,24 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
     bld->find_widget("rackbox", w);
     fBox.add(w);
     
-    if (bld->has_object("gxfastmeter1")) {
-        Gxw::FastMeter *fastmeter;
-        std::string id;
-        bld->find_widget("gxfastmeter1", fastmeter);
-        fastmeter->get_property("var_id",id);
-        fastmeter->set_name("simplemeter");
-        if (!id.empty())
-        Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-        sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
-        fastmeter->set_by_power(0.0001);        
+    // find fastmeters in glade UI's and add a timeout callback to set the levels
+    // fastmeters must have id=gxfastmeterN were N starts with 1
+    std::string id;
+    for (int i = 1; i<12;++i) {
+        Glib::ustring fm = "gxfastmeter" + gx_system::to_string(i);
+        if (bld->has_object(fm)) {
+            Gxw::FastMeter *fastmeter;
+            bld->find_widget(fm, fastmeter);
+            fastmeter->get_property("var_id",id);
+            fastmeter->set_name("simplemeter");
+            if (!id.empty())
+            Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
+            sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
+            fastmeter->set_by_power(0.0001);        
+        } else {
+            break;
+        }
     }
-    if (bld->has_object("gxfastmeter2")) {
-        Gxw::FastMeter *fastmeter;
-        std::string id;
-        bld->find_widget("gxfastmeter2", fastmeter);
-        fastmeter->get_property("var_id",id);
-        fastmeter->set_name("simplemeter");
-        if (!id.empty())
-        Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-        sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
-        fastmeter->set_by_power(0.0001);        
-    }
-    if (bld->has_object("gxfastmeter3")) {
-        Gxw::FastMeter *fastmeter;
-        std::string id;
-        bld->find_widget("gxfastmeter3", fastmeter);
-        fastmeter->get_property("var_id",id);
-        fastmeter->set_name("simplemeter");
-        if (!id.empty())
-        Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-        sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
-        fastmeter->set_by_power(0.0001);        
-    }
-    if (bld->has_object("gxfastmeter4")) {
-        Gxw::FastMeter *fastmeter;
-        std::string id;
-        bld->find_widget("gxfastmeter4", fastmeter);
-        fastmeter->get_property("var_id",id);
-        fastmeter->set_name("simplemeter");
-        if (!id.empty())
-        Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-        sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
-        fastmeter->set_by_power(0.0001);        
-    }
-    if (bld->has_object("gxfastmeter5")) {
-        Gxw::FastMeter *fastmeter;
-        std::string id;
-        bld->find_widget("gxfastmeter5", fastmeter);
-        fastmeter->get_property("var_id",id);
-        fastmeter->set_name("simplemeter");
-        if (!id.empty())
-        Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-        sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
-        fastmeter->set_by_power(0.0001);        
-    }
-   
 }
 
 static const char *rackbox_ids[] = { "rackbox", "minibox", 0 };
