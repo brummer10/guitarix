@@ -563,8 +563,8 @@ int Dsp::register_params_static(const ParamReg& reg)
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
   <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
   <!-- interface-naming-policy project-wide -->\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
@@ -580,7 +580,7 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkHBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">3</property>\n\
+                <property name=\"spacing\">8</property>\n\
                 <child>\n\
                   <object class=\"GtkNotebook\" id=\"notebook:tab_rack\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -754,12 +754,6 @@ const char *Dsp::glade_def = "\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"homogeneous\">True</property>\n\
                             <child>\n\
-                              <placeholder/>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
-                            </child>\n\
-                            <child>\n\
                               <object class=\"GtkLabel\" id=\"label_141:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
@@ -778,6 +772,12 @@ const char *Dsp::glade_def = "\
                                 <property name=\"left_attach\">1</property>\n\
                                 <property name=\"right_attach\">2</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -1702,18 +1702,6 @@ const char *Dsp::glade_def = "\
                                 <property name=\"top_attach\">1</property>\n\
                                 <property name=\"bottom_attach\">2</property>\n\
                               </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
-                            </child>\n\
-                            <child>\n\
-                              <placeholder/>\n\
                             </child>\n\
                             <child>\n\
                               <placeholder/>\n\
