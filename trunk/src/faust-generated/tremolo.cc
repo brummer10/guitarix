@@ -163,36 +163,6 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
         b.load_glade_file("tremolo_ui.glade");
         return 0;
     }
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("tremolo" "." p)
-b.openHorizontalhideBox("");
-b.create_master_slider(PARAM("freq"), _("Freq"));
-b.closeBox();
-b.openVerticalBox("");
-{
-    b.openHorizontalBox("");
-    {
-	b.insertSpacer();
-	b.create_selector_no_caption(PARAM("SINE"));
-	b.insertSpacer();
-	b.insertSpacer();
-	b.openHorizontalTableBox("");
-	{
-	    b.create_small_rackknobr(PARAM("freq"), _("Freq"));
-	    b.insertSpacer();
-	    b.create_small_rackknobr(PARAM("depth"), _("Depth"));
-	    b.insertSpacer();
-	    b.create_small_rackknob(PARAM("wet_dry"), _("dry/wet"));
-	}
-	b.closeBox();
-    }
-    b.closeBox();
-}
-b.closeBox();
-
-#undef PARAM
-        return 0;
-    }
 	return -1;
 }
 
