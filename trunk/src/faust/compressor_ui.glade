@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gxwidgets 0.0 -->
   <requires lib="gtk+" version="2.20"/>
+  <!-- interface-requires gxwidgets 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
@@ -222,13 +222,20 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GxFastMeter" id="gxcompressormeter1">
+                      <object class="GtkEventBox" id="eventbox1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="hold">120</property>
-                        <property name="dimen">3</property>
-                        <property name="horiz">True</property>
-                        <property name="var_id">compressor.v1</property>
+                        <property name="above_child">True</property>
+                        <child>
+                          <object class="GxFastMeter" id="gxcompressormeter1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="hold">120</property>
+                            <property name="dimen">3</property>
+                            <property name="horiz">True</property>
+                            <property name="var_id">compressor.v1</property>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">True</property>

@@ -150,8 +150,8 @@ int Dsp::register_params_static(const ParamReg& reg)
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
   <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
   <!-- interface-naming-policy project-wide -->\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
@@ -372,13 +372,20 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GxFastMeter\" id=\"gxcompressormeter1\">\n\
+                      <object class=\"GtkEventBox\" id=\"eventbox1\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"hold\">120</property>\n\
-                        <property name=\"dimen\">3</property>\n\
-                        <property name=\"horiz\">True</property>\n\
-                        <property name=\"var_id\">expander.v1</property>\n\
+                        <property name=\"above_child\">True</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxcompressormeter1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">120</property>\n\
+                            <property name=\"dimen\">3</property>\n\
+                            <property name=\"horiz\">True</property>\n\
+                            <property name=\"var_id\">expander.v1</property>\n\
+                          </object>\n\
+                        </child>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"expand\">True</property>\n\
