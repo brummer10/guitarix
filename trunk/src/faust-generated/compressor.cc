@@ -372,7 +372,7 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GxFastMeter\" id=\"gxfastmeter1\">\n\
+                      <object class=\"GxFastMeter\" id=\"gxcompressormeter1\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
                         <property name=\"hold\">120</property>\n\

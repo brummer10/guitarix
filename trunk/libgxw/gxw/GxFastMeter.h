@@ -71,6 +71,7 @@ GtkWidget* gx_fast_meter_new(long hold, gulong dimen, int clr0, int clr1, int cl
 
 void  gx_fast_meter_set            (GxFastMeter* fastmeter, gdouble lvl);
 void  gx_fast_meter_set_by_power   (GxFastMeter* fastmeter, gdouble lvl);
+void  gx_fast_meter_set_c_level    (GxFastMeter* fastmeter, gdouble lvl);
 void  gx_fast_meter_clear          (GxFastMeter* fastmeter);
 
 void  gx_fast_meter_set_hold_count (GxFastMeter* fastmeter, gint val);

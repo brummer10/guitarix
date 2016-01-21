@@ -203,6 +203,21 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
             break;
         }
     }
+    for (int i = 1; i<12;++i) {
+        Glib::ustring fm = "gxcompressormeter" + gx_system::to_string(i);
+        if (bld->has_object(fm)) {
+            Gxw::FastMeter *fastmeter;
+            bld->find_widget(fm, fastmeter);
+            fastmeter->get_property("var_id",id);
+            fastmeter->set_name("simplemeter");
+            if (!id.empty())
+            Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
+            sigc::mem_fun(*this, &StackBoxBuilder::set_compressor_level),id), fastmeter), 60);
+            fastmeter->set_c_level(0.0);        
+        } else {
+            break;
+        }
+    }
 }
 
 static const char *rackbox_ids[] = { "rackbox", "minibox", 0 };
@@ -320,6 +335,18 @@ bool StackBoxBuilder::set_simple(Gxw::FastMeter *fastmeter,const std::string id)
     fastmeter->set_by_power(machine.get_parameter_value<float>(id));
     else
     fastmeter->set_by_power(0.0001);
+    return true;
+    } else {
+    return false;
+    }
+}
+
+bool StackBoxBuilder::set_compressor_level(Gxw::FastMeter *fastmeter,const std::string id) {
+    if (machine.parameter_hasId(id)) {
+    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
+    fastmeter->set_c_level(machine.get_parameter_value<float>(id));
+    else
+    fastmeter->set_c_level(0.0);
     return true;
     } else {
     return false;

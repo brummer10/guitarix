@@ -12,6 +12,7 @@ declare author "Albert Graef";
 declare version "1.0";
 
 import("music.lib");
+import("reduce.lib");
 
 /* Controls. */
 
@@ -42,7 +43,11 @@ with {
 	r	= 1-p+p*ratio;
 };
 
+vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
+
+envelop         = abs : max ~ (1.0/SR) : reduce(max,4096); // : max(db2linear(-70)) : linear2db;
+
 process(x)	= (g(x)*x)
 with {
-	g	= env2(x) : expand : db2linear;
+	g	= env2(x) : expand : vmeter1 : db2linear;
 };
