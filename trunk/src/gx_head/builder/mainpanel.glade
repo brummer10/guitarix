@@ -1440,7 +1440,7 @@
                                                         <property name="name">ampdetail_normal</property><property name="visible">True</property>
                                                         <property name="can_focus">False</property>
                                                         <property name="border_width">4</property>
-                                                        <property name="spacing">20</property>
+                                                        <property name="spacing">26</property>
                                                         <child>
                                                           <object class="GtkTable" id="table3">
                                                             <property name="name">table3</property><property name="visible">True</property>
