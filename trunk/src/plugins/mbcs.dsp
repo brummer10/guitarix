@@ -7,6 +7,7 @@ declare description "Multi Band Compressor contributed by kokoko3k";
 import("effect.lib");
 import("filter.lib");
 import("music.lib");
+import("reduce.lib");
 
 sel1         = hslider("Mode1[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
 sel2         = hslider("Mode2[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
@@ -29,13 +30,21 @@ bswitch3	= max(0,sel3-1);
 bswitch4	= max(0,sel4-1);
 bswitch5	= max(0,sel5-1);
 
+vmeter1(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v1[nomidi:no][tooltip: Sum of Band1 ]", -70, +5)),y;
+vmeter2(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v2[nomidi:no][tooltip: Sum of Band2 ]", -70, +5)),y;
+vmeter3(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v3[nomidi:no][tooltip: Sum of Band3 ]", -70, +5)),y;
+vmeter4(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v4[nomidi:no][tooltip: Sum of Band4 ]", -70, +5)),y;
+vmeter5(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v5[nomidi:no][tooltip: Sum of Band5 ]", -70, +5)),y;
+
+envelop         = _ : max ~ (1.0/SR) : reduce(max,4096) : *(0.5); // : max(db2linear(-70)) : linear2db;
+
 //Stereo 
 process =   (_,_):geqs: ( gcomp5s , gcomp4s , gcomp3s, gcomp2s, gcomp1s) :>(_,_) with { 
-gcomp1s = bypass2(bswitch1,compressor_stereo(ratio1,-push1,attack1,release1)):*(Makeup1),*(Makeup1);
-gcomp2s = bypass2(bswitch2,compressor_stereo(ratio2,-push2,attack2,release2)):*(Makeup2),*(Makeup2);
-gcomp3s = bypass2(bswitch3,compressor_stereo(ratio3,-push3,attack3,release3)):*(Makeup3),*(Makeup3);
-gcomp4s = bypass2(bswitch4,compressor_stereo(ratio4,-push4,attack4,release4)):*(Makeup4),*(Makeup4);
-gcomp5s = bypass2(bswitch5,compressor_stereo(ratio5,-push5,attack5,release5)):*(Makeup5),*(Makeup5);
+gcomp1s = bypass2(bswitch1,compressor_stereo(ratio1,-push1,attack1,release1)):*(Makeup1),*(Makeup1) : vmeter1;
+gcomp2s = bypass2(bswitch2,compressor_stereo(ratio2,-push2,attack2,release2)):*(Makeup2),*(Makeup2) : vmeter2;
+gcomp3s = bypass2(bswitch3,compressor_stereo(ratio3,-push3,attack3,release3)):*(Makeup3),*(Makeup3) : vmeter3;
+gcomp4s = bypass2(bswitch4,compressor_stereo(ratio4,-push4,attack4,release4)):*(Makeup4),*(Makeup4) : vmeter4;
+gcomp5s = bypass2(bswitch5,compressor_stereo(ratio5,-push5,attack5,release5)):*(Makeup5),*(Makeup5) : vmeter5;
 };
 
 

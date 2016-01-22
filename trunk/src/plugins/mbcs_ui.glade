@@ -23,11 +23,11 @@
                   <object class="GtkNotebook" id="notebook:tab_rack">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="tab_hborder">0</property>
                     <child>
                       <object class="GtkHBox" id="hbox2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox3">
                             <property name="visible">True</property>
@@ -282,7 +282,6 @@
                       <object class="GtkHBox" id="hbox5">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox7">
                             <property name="visible">True</property>
@@ -561,7 +560,6 @@
                       <object class="GtkHBox" id="hbox7">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox11">
                             <property name="visible">True</property>
@@ -840,7 +838,6 @@
                       <object class="GtkHBox" id="hbox9">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox15">
                             <property name="visible">True</property>
@@ -1119,7 +1116,6 @@
                       <object class="GtkHBox" id="hbox11">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox19">
                             <property name="visible">True</property>
@@ -1414,8 +1410,10 @@
                           <object class="GxFastMeter" id="gxfastmeter1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">Sum of Band1 </property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbcs.v1</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1427,8 +1425,10 @@
                           <object class="GxFastMeter" id="gxfastmeter2">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">Sum of Band2</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbcs.v2</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1440,8 +1440,10 @@
                           <object class="GxFastMeter" id="gxfastmeter3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">Sum of Band3</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbcs.v3</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1453,8 +1455,10 @@
                           <object class="GxFastMeter" id="gxfastmeter4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">Sum of Band4</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbcs.v4</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1466,8 +1470,10 @@
                           <object class="GxFastMeter" id="gxfastmeter5">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">Sum of Band5</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+                            <property name="var_id">mbcs.v5</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>

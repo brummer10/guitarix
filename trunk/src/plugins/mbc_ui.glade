@@ -23,11 +23,11 @@
                   <object class="GtkNotebook" id="notebook:tab_rack">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="tab_hborder">0</property>
                     <child>
                       <object class="GtkHBox" id="hbox2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox3">
                             <property name="visible">True</property>
@@ -282,7 +282,6 @@
                       <object class="GtkHBox" id="hbox5">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox7">
                             <property name="visible">True</property>
@@ -561,7 +560,6 @@
                       <object class="GtkHBox" id="hbox7">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox11">
                             <property name="visible">True</property>
@@ -840,7 +838,6 @@
                       <object class="GtkHBox" id="hbox9">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox15">
                             <property name="visible">True</property>
@@ -1119,7 +1116,6 @@
                       <object class="GtkHBox" id="hbox11">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkVBox" id="vbox19">
                             <property name="visible">True</property>
