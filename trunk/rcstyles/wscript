@@ -13,9 +13,9 @@ gxstyle_files = [
     'tactile_wheel_101f.png',
 
     'stereo.png',
-    'bypass.svg',
+    'live_bypass.png',
     'factory.png',
-    'mute.svg',
+    'live_mute.png',
     'readonly.png',
     'scratch.png',
     'versiondiff.png',

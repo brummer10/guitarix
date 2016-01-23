@@ -18,8 +18,6 @@ style "guitarix-paintbox"
 
   GxPaintBox::width =600
   GxPaintBox::height =180
-  stock["main_image"] = {{"background2.png"}}
-  stock["gxhead"] = {{"background2.png"}}
   GxPaintBox::icon-set =7
 }
 

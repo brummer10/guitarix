@@ -275,25 +275,25 @@ Liveplay::Liveplay(
     Glib::RefPtr<Gdk::Pixbuf> pb;
     try {
       pb = Gdk::Pixbuf::create_from_file(
-	  options.get_style_filepath("bypass.svg"), 300, 150);
+	  options.get_style_filepath("live_bypass.png"));
       bypass_image->set(pb);
     } catch (const Glib::FileError& ex) {
         gx_print_error("liveplay", ex.what());
     } catch (const Gdk::PixbufError& ex) {
         gx_print_error("liveplay", ex.what());
     } catch(...) {
-        gx_print_error("liveplay", "failed to load pixmap bypass.svg");
+        gx_print_error("liveplay", "failed to load pixmap live_bypass.png");
     }
     try {
       pb = Gdk::Pixbuf::create_from_file(
-	  options.get_style_filepath("mute.svg"), 300, 150);
+	  options.get_style_filepath("live_mute.png"));
       mute_image->set(pb);
     } catch (const Glib::FileError& ex) {
         gx_print_error("liveplay", ex.what());
     } catch (const Gdk::PixbufError& ex) {
         gx_print_error("liveplay", ex.what());
     } catch(...) {
-        gx_print_error("liveplay", "failed to load pixmap mute.svg");
+        gx_print_error("liveplay", "failed to load pixmap live_mute.png");
     }   
     use_composite = window->get_display()->supports_composite();
     if (use_composite) {
