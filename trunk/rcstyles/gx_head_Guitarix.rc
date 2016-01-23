@@ -138,15 +138,16 @@ widget "*effect_on_off" style:highest "gx_effect_switch"
 
 style "guitarix_default" {
     
-    GtkScrollbar::has_backward_stepper = 0
-    GtkScrollbar::has_forward_stepper  = 0
+    GtkScrollbar::has_backward_stepper    = 0
+    GtkScrollbar::has_forward_stepper     = 0
+    GtkScrolledWindow::scrollbar_spacing  = 0
     
-    GxPaintBox::bevel                  = 0.11
-    GxPaintBox::inverse                = 0
-    GxPaintBox::alternate-box          = { 0, 0, 60, 0 }
+    GxPaintBox::bevel                     = 0.11
+    GxPaintBox::inverse                   = 0
+    GxPaintBox::alternate-box             = { 0, 0, 60, 0 }
     
-    GtkButton::child-displacement-x    = 0
-    GtkButton::child-displacement-y    = 0
+    GtkButton::child-displacement-x       = 0
+    GtkButton::child-displacement-y       = 0
     
     fg[NORMAL]              = { 0.85, 0.85, 0.85 }
     fg[ACTIVE]              = { 1.0, 1.0, 1.0 }
@@ -228,7 +229,6 @@ style "guitarix_scrollbars" {
     engine "clearlooks" {
         scrollbar_color = "#333333"
     }
-    
     bg[NORMAL]   = { 0.10, 0.10, 0.10 }
     bg[PRELIGHT] = { 0.3, 0.3, 0.3 }
     bg[ACTIVE]   = { 0.3, 0.3, 0.3 }
