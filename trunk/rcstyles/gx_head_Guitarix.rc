@@ -226,7 +226,7 @@ class "GxPaintBox*" style:highest "rack_devices"
 style "guitarix_scrollbars" {
     
     engine "clearlooks" {
-        scrollbar_color = "#5a5a5a"
+        scrollbar_color = "#333333"
     }
     
     bg[NORMAL]   = { 0.10, 0.10, 0.10 }
