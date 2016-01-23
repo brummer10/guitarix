@@ -238,26 +238,12 @@ struct uiAdjustment: public uiElement {
 
 /****************************************************************/
 
-extern const char *pb_amp_expose;
-extern const char *pb_conv_widget_expose;
-extern const char *pb_upper_widget_expose;
-extern const char *pb_rectangle_expose;
+extern const char *pb_gx_rack_amp_expose;
 extern const char *pb_rectangle_skin_color_expose;
-extern const char *pb_convolver_icon_expose;
-extern const char *pb_AmpBox_expose;
-extern const char *pb_tribal_box_expose;
-extern const char *pb_vbox_expose;
-extern const char *pb_filter_box_expose;
-extern const char *pb_plug_box_expose;
-extern const char *pb_info_box_expose_on;
-extern const char *pb_info_box_expose_off;
-extern const char *pb_slooper_expose;
 extern const char *pb_zac_expose;
 extern const char *pb_gxhead_expose;
 extern const char *pb_RackBox_expose;
 extern const char *pb_gxrack_expose;
-extern const char *pb_eq_expose;
-extern const char *pb_main_expose;
 extern const char *pb_level_meter_expose;
 
 bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, const std::string& id);

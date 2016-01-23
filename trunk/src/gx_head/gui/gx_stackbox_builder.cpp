@@ -8,26 +8,12 @@ namespace gx_gui {
 
 // Paint Functions for Gxw::PaintBox
 
-const char *pb_amp_expose =                  "amp_expose";
-const char *pb_conv_widget_expose =          "conv_widget_expose";
-const char *pb_upper_widget_expose =         "upper_widget_expose";
-const char *pb_rectangle_expose =            "rectangle_expose";
+const char *pb_gx_rack_amp_expose =          "gx_rack_amp_expose";
 const char *pb_rectangle_skin_color_expose = "rectangle_skin_color_expose";
-const char *pb_convolver_icon_expose =       "convolver_icon_expose";
-const char *pb_AmpBox_expose =               "AmpBox_expose";
-const char *pb_tribal_box_expose =           "tribal_box_expose";
-const char *pb_vbox_expose =                 "vbox_expose";
-const char *pb_filter_box_expose =           "filter_box_expose";
-const char *pb_plug_box_expose =             "plug_box_expose";
-const char *pb_info_box_expose_on =          "info_box_expose_on";
-const char *pb_info_box_expose_off =         "info_box_expose_off";
-const char *pb_slooper_expose =              "slooper_expose";
 const char *pb_zac_expose =                  "zac_expose";
 const char *pb_gxhead_expose =               "gxhead_expose";
 const char *pb_RackBox_expose =              "RackBox_expose";
 const char *pb_gxrack_expose =               "gxrack_expose";
-const char *pb_eq_expose =                   "eq_expose";
-const char *pb_main_expose =                 "main_expose";
 const char *pb_level_meter_expose =          "level_meter_expose";
 
 

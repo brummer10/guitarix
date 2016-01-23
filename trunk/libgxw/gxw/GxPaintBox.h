@@ -49,11 +49,9 @@ struct _GxPaintBox {
 struct _GxPaintBoxClass {
 	GtkBoxClass parent_class;
 	const gchar *stock_id;
-	const gchar *main_image_id;
 	const gchar *widget_id;
 	const gchar *widget_id2;
     const gchar *widget_id3;
-    const gchar *cab_id;
     const gchar *amp_id;
 };
 
