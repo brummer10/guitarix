@@ -1305,7 +1305,6 @@
                 <child>
                   <object class="GxPaintBox" id="effects_frame_paintbox">
                     <property name="name">effects_frame_paintbox</property><property name="can_focus">False</property>
-                    <property name="paint_func">gxrack_expose</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow_effects">
                         <property name="name">scrolledwindow_effects</property><property name="visible">True</property>
@@ -1337,7 +1336,6 @@
                   <object class="GxPaintBox" id="rackcontainer">
                     <property name="name">rackcontainer</property><property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="paint_func">gxrack_expose</property>
                     <child>
                       <object class="GtkScrolledWindow" id="vrack_scrolledbox">
                         <property name="name">vrack_scrolledbox</property><property name="height_request">50</property>
@@ -1353,7 +1351,6 @@
                                 <property name="name">vbox14</property><property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="orientation">vertical</property>
-                                <property name="paint_func">rack_expose</property>
                                 <child>
                                   <object class="GtkLabel" id="spacer_widget">
                                     <property name="label" translatable="yes"></property>
@@ -3873,7 +3870,6 @@
                                 <property name="name">gxpaintbox1</property><property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="orientation">vertical</property>
-                                <property name="paint_func">rack_expose</property>
                                 <child>
                                   <object class="GtkHBox" id="stereorackcontainerH">
                                     <property name="name">stereorackcontainerH</property><property name="visible">True</property>
