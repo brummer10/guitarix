@@ -35,9 +35,7 @@ class GXPluginGUI
 {
 private:
   Glib::ustring plugskin;
-  Glib::ustring addKnob;
   Glib::ustring plug_name;
-  void set_knob(Glib::ustring knob);
   void set_skin();
   void set_plug_name();
   GtkWidget* make_gui();
@@ -57,29 +55,6 @@ public:
   ~GXPluginGUI () {};
 } ;
 
-void GXPluginGUI::set_knob( Glib::ustring knob)
-{
-  addKnob =   " style 'gx_";
-  addKnob +=  plug_name;
-  addKnob +=   "_dark_skin_icons'\n"
-               " { \n"
-               "   stock['bigknob'] = {{'";
-  addKnob +=  knob;
-  addKnob +=  ".png'}}\n"
-              "   stock['smallknob'] = {{'";
-  addKnob +=  knob;
-  addKnob +=  "-small.png'}}\n"
-              "   stock['smallknobr'] = {{'";
-  addKnob +=  knob;
-  addKnob +=  "-middle.png'}}\n"
-              " }\n"
-              "widget '*.";
-  addKnob +=  plug_name;
-  addKnob +=  "' style 'gx_";
-  addKnob +=  plug_name;
-  addKnob +=  "_dark_skin_icons' ";
-}
-
 void GXPluginGUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
@@ -98,7 +73,6 @@ void GXPluginGUI::set_skin()
                  "    font_name = 'sans bold 7.5'\n"
                  "    fg[NORMAL] = '#ff9000' \n"
                  " }\n";
-  toparse +=     addKnob;
 
   toparse +=     " widget '*.amplabel' style:highest 'gx_head_black_box'\n"
                  "widget '*.";
@@ -162,7 +136,37 @@ void GXPluginGUI::set_skin()
                  " ythickness = 4\n"
                  " }\n"
                  "class '*GxSelector' style:highest 'gx_selector'\n";
+  toparse +=     " style 'guitarix_knobs' {\n"
+                 "    fg[INSENSITIVE] = '#211006'\n"
+                 "}\n"
+                 "class 'GxKnob' style:highest 'guitarix_knobs'\n"
 
+                 "style 'guitarix_small_knob' {\n"
+                 "    GxKnob::x_center          = -1\n"
+                 "    GxKnob::y_center          = -1\n"
+                 "    GxKnob::ring_radius       = 15\n"
+                 "    GxKnob::ring_width        = 2\n"
+                 "    GxKnob::ring_led_size     = 3\n"
+                 "    GxKnob::ring_led_distance = 2\n"
+                 "    GxKnob::indicator_radius  = 11\n"
+                 "    GxKnob::indicator_width   = 2\n"
+                 "    GxKnob::indicator_length  = 5\n"
+                 "}\n"
+                 "widget_class '*GxSmallKnob' style:highest 'guitarix_small_knob'\n"
+
+                 "style 'guitarix_small_knob_r' {\n"
+                 "    GxKnob::x_center          = -1\n"
+                 "    GxKnob::y_center          = -1\n"
+                 "    GxKnob::ring_radius       = 26\n"
+                 "    GxKnob::ring_width        = 3\n"
+                 "    GxKnob::ring_led_size     = 3\n"
+                 "    GxKnob::ring_led_distance = 2\n"
+                 "    GxKnob::indicator_radius  = 12\n"
+                 "    GxKnob::indicator_width   = 3\n"
+                 "    GxKnob::indicator_length  = 3\n"
+                 "}\n"
+                 "widget_class '*GxSmallKnobR' style:highest 'guitarix_small_knob_r'\n"
+              " \n";
   gtk_rc_parse_string (toparse.c_str());
 }
 
@@ -176,7 +180,6 @@ inline std::string t_string(long long _Val)
 void GXPluginGUI::set_plug_name()
 {
   // Here the plugin should have different name for different amp.....
-  addKnob = "";
   plugskin = "";
   plug_name = "GUITARIXLV2" + t_string(reinterpret_cast<long long>(this));
   //fprintf(stderr,"%s",plug_name.c_str());

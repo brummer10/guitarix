@@ -114,7 +114,7 @@ void GxtunerGUI::set_skin()
 
                  "   base[NORMAL]     = '#000000'      \n"
                  "    GxPaintBox::icon-set =11\n"
-                 "    stock['amp_skin'] = {{'";
+                 "    stock['gxhead'] = {{'";
   toparse +=     plugskin;
   toparse +=     "'}}\n"
                  " }\n";

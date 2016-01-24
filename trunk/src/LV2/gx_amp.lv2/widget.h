@@ -104,11 +104,11 @@ protected:
 
   Gxw::PaintBox      m_paintbox;
   Gtk::HBox          m_hbox;
-  Gxw::BigKnob       m_bigknob;
-  Gxw::BigKnob       m_bigknob1;
-  Gxw::BigKnob       m_bigknob2;
-  Gxw::BigKnob       m_bigknob3;
-  Gxw::BigKnob       m_bigknob4;
+  Gxw::SmallKnobR    m_bigknob;
+  Gxw::SmallKnobR    m_bigknob1;
+  Gxw::SmallKnobR    m_bigknob2;
+  Gxw::SmallKnobR    m_bigknob3;
+  Gxw::SmallKnobR    m_bigknob4;
   Gxw::SmallKnob     m_smallknob1;
   Gxw::SmallKnob     m_smallknob2;
   Gxw::SmallKnob     m_smallknob3;

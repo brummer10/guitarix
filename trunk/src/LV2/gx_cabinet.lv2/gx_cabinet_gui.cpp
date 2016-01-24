@@ -91,7 +91,7 @@ void GXPluginGUI::set_skin()
   toparse +=     "_dark-paintbox\"\n"
                  " { \n"
                  "    GxPaintBox::icon-set =9\n"
-                 "    stock['amp_skin'] = {{'";
+                 "    stock['gxhead'] = {{'";
   toparse +=     plugskin;
   toparse +=     "'}}\n"
                  " }\n"
@@ -165,6 +165,23 @@ void GXPluginGUI::set_skin()
                  " ythickness = 4\n"
                  " }\n"
                  "class '*GxSelector' style:highest 'gx_selector'\n";
+  toparse +=     " style 'guitarix_knobs' {\n"
+                 "    fg[INSENSITIVE] = '#211006'\n"
+                 "}\n"
+                 "class 'GxKnob' style:highest 'guitarix_knobs'\n"
+
+                 "style 'guitarix_small_knob' {\n"
+                 "    GxKnob::x_center          = -1\n"
+                 "    GxKnob::y_center          = -1\n"
+                 "    GxKnob::ring_radius       = 15\n"
+                 "    GxKnob::ring_width        = 2\n"
+                 "    GxKnob::ring_led_size     = 3\n"
+                 "    GxKnob::ring_led_distance = 2\n"
+                 "    GxKnob::indicator_radius  = 11\n"
+                 "    GxKnob::indicator_width   = 2\n"
+                 "    GxKnob::indicator_length  = 5\n"
+                 "}\n"
+                 "widget_class '*GxSmallKnob' style:highest 'guitarix_small_knob'\n";
 
   gtk_rc_parse_string (toparse.c_str());
 }

@@ -84,9 +84,9 @@ protected:
   Gtk::VBox          m_vbox7;
 
   Gxw::PaintBox      m_paintbox;
-  Gxw::SmallKnobR     m_smallknob2;
-  Gxw::SmallKnobR     m_smallknob3;
-  Gxw::SmallKnobR    m_smallknob4;
+  Gxw::SmallKnob     m_smallknob2;
+  Gxw::SmallKnob     m_smallknob3;
+  Gxw::SmallKnob    m_smallknob4;
   Gxw::Selector      c_selector;
 };
 
