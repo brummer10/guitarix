@@ -11,12 +11,11 @@ namespace cstb {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
 	int 	iConst0;
 	double 	fConst1;
 	double 	fConst2;
 	double 	fConst3;
-	FAUSTFLOAT 	fslider1;
+	FAUSTFLOAT 	fslider0;
 	double 	fRec8[2];
 	double 	fConst4;
 	double 	fConst5;
@@ -30,7 +29,7 @@ private:
 	double 	fConst13;
 	double 	fConst14;
 	double 	fConst15;
-	FAUSTFLOAT 	fslider2;
+	FAUSTFLOAT 	fslider1;
 	double 	fRec9[2];
 	double 	fConst16;
 	double 	fConst17;
@@ -38,7 +37,7 @@ private:
 	double 	fConst19;
 	double 	fConst20;
 	double 	fConst21;
-	FAUSTFLOAT 	fslider3;
+	FAUSTFLOAT 	fslider2;
 	double 	fRec10[2];
 	double 	fConst22;
 	double 	fConst23;
@@ -125,6 +124,8 @@ private:
 	double 	fConst104;
 	double 	fConst105;
 	double 	fConst106;
+	FAUSTFLOAT 	fslider3;
+	double 	fRec12[2];
 	double 	fRec11[6];
 	double 	fConst107;
 	double 	fConst108;
@@ -218,7 +219,7 @@ private:
 	double 	fConst193;
 	double 	fConst194;
 	double 	fConst195;
-	double 	fRec12[2];
+	double 	fRec13[2];
 	double 	fRec5[3];
 	double 	fConst196;
 	double 	fConst197;
@@ -228,7 +229,7 @@ private:
 	double 	fRec4[2];
 	double 	fRec3[2];
 	double 	fRec2[3];
-	double 	fRec13[2];
+	double 	fRec14[2];
 	double 	fRec1[3];
 	double 	fRec0[2];
 	void clear_state_f();
@@ -279,16 +280,17 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) fRec8[i] = 0;
 	for (int i=0; i<2; i++) fRec9[i] = 0;
 	for (int i=0; i<2; i++) fRec10[i] = 0;
+	for (int i=0; i<2; i++) fRec12[i] = 0;
 	for (int i=0; i<6; i++) fRec11[i] = 0;
 	for (int i=0; i<2; i++) fVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec7[i] = 0;
 	for (int i=0; i<3; i++) fRec6[i] = 0;
-	for (int i=0; i<2; i++) fRec12[i] = 0;
+	for (int i=0; i<2; i++) fRec13[i] = 0;
 	for (int i=0; i<3; i++) fRec5[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 	for (int i=0; i<3; i++) fRec2[i] = 0;
-	for (int i=0; i<2; i++) fRec13[i] = 0;
+	for (int i=0; i<2; i++) fRec14[i] = 0;
 	for (int i=0; i<3; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
@@ -512,44 +514,45 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (0.01 * double(fslider0));
-	double 	fSlow1 = (1 - fSlow0);
-	double 	fSlow2 = (0.007000000000000006 * double(fslider1));
-	double 	fSlow3 = (0.007000000000000006 * double(fslider2));
-	double 	fSlow4 = (0.007000000000000006 * double(fslider3));
+	double 	fSlow0 = (0.007000000000000006 * double(fslider0));
+	double 	fSlow1 = (0.007000000000000006 * double(fslider1));
+	double 	fSlow2 = (0.007000000000000006 * double(fslider2));
+	double 	fSlow3 = (7.000000000000006e-05 * double(fslider3));
 	for (int i=0; i<count; i++) {
-		double fTemp0 = (double)input0[i];
-		fRec8[0] = ((0.993 * fRec8[1]) + fSlow2);
-		fRec9[0] = ((0.993 * fRec9[1]) + fSlow3);
-		double fTemp1 = (2.30862500009197e-13 + ((fRec9[0] * (5.24210944616705e-13 + (fConst1 * (((fRec8[0] * (fConst19 + (fConst17 * fRec8[0]))) + (fRec9[0] * (fConst15 + (fConst1 * (fRec8[0] * (fConst13 + (fConst11 * fRec8[0]))))))) + fConst9)))) + (fConst1 * ((fRec8[0] * (fConst7 + (fConst5 * fRec8[0]))) + fConst3))));
-		fRec10[0] = ((0.993 * fRec10[1]) + fSlow4);
-		fRec11[0] = ((fSlow0 * fTemp0) - ((((((fRec11[1] * (1.15431250004598e-12 + ((fRec9[0] * (2.62105472308353e-12 + (fConst1 * (((fRec8[0] * (fConst106 + (fConst105 * fRec8[0]))) + (fRec9[0] * (fConst104 + (fConst1 * (fRec8[0] * (fConst103 + (fConst102 * fRec8[0]))))))) + fConst101)))) + (fConst1 * ((fRec8[0] * (fConst100 + (fConst99 * fRec8[0]))) + fConst98))))) + (fRec11[2] * (2.30862500009197e-12 + ((fRec9[0] * (5.24210944616705e-12 + (fConst1 * (((fRec8[0] * (fConst97 + (fConst96 * fRec8[0]))) + (fRec9[0] * (fConst95 + (fConst1 * (fRec8[0] * (fConst94 + (fConst93 * fRec8[0]))))))) + fConst92)))) + (fConst1 * ((fRec8[0] * (fConst91 + (fConst90 * fRec8[0]))) + fConst89)))))) + (fRec11[3] * (2.30862500009197e-12 + ((fRec9[0] * (5.24210944616705e-12 + (fConst1 * (((fRec8[0] * (fConst88 + (fConst86 * fRec8[0]))) + (fRec9[0] * (fConst84 + (fConst1 * (fRec8[0] * (fConst82 + (fConst80 * fRec8[0]))))))) + fConst78)))) + (fConst1 * ((fRec8[0] * (fConst76 + (fConst74 * fRec8[0]))) + fConst72)))))) + (fRec11[4] * (1.15431250004598e-12 + ((fRec9[0] * (2.62105472308353e-12 + (fConst1 * (((fRec8[0] * (fConst70 + (fConst68 * fRec8[0]))) + (fRec9[0] * (fConst66 + (fConst1 * (fRec8[0] * (fConst64 + (fConst62 * fRec8[0]))))))) + fConst60)))) + (fConst1 * ((fRec8[0] * (fConst58 + (fConst56 * fRec8[0]))) + fConst54)))))) + (fRec11[5] * (2.30862500009197e-13 + ((fRec9[0] * (5.24210944616705e-13 + (fConst1 * (((fRec8[0] * (fConst52 + (fConst51 * fRec8[0]))) + (fRec9[0] * (fConst50 + (fConst1 * (fRec8[0] * (fConst49 + (fConst48 * fRec8[0]))))))) + fConst47)))) + (fConst1 * ((fRec8[0] * (fConst46 + (fConst45 * fRec8[0]))) + fConst44)))))) / fTemp1));
-		double fTemp2 = (((((((fRec11[0] * ((((fRec9[0] * (fConst190 + ((fConst1 * (fRec8[0] * (fConst189 + ((fRec8[0] * (fConst188 + (fConst187 * fRec10[0]))) + (fConst186 * fRec10[0]))))) + (fConst185 * fRec10[0])))) + (fConst1 * (fRec8[0] * (((fRec8[0] * (fConst184 + (fConst183 * fRec10[0]))) + (fConst182 * fRec10[0])) + fConst181)))) + (fConst180 * fRec10[0])) + fConst179)) + (fRec11[1] * ((((fRec9[0] * (((fConst1 * (fRec8[0] * (((fRec8[0] * (fConst178 + (fConst177 * fRec10[0]))) + (fConst176 * fRec10[0])) + fConst175))) + (fConst174 * fRec10[0])) + fConst173)) + (fConst1 * (fRec8[0] * (((fRec8[0] * (fConst172 + (fConst171 * fRec10[0]))) + (fConst170 * fRec10[0])) + fConst169)))) + (fConst168 * fRec10[0])) + fConst167))) + (fRec11[2] * ((((fRec9[0] * (((fConst1 * (fRec8[0] * (fConst166 + ((fRec8[0] * (fConst165 + (fConst164 * fRec10[0]))) + (fConst163 * fRec10[0]))))) + (fConst162 * fRec10[0])) + fConst161)) + (fConst1 * (fRec8[0] * (((fRec8[0] * (fConst160 + (fConst159 * fRec10[0]))) + (fConst158 * fRec10[0])) + fConst157)))) + (fConst156 * fRec10[0])) + fConst155))) + (fRec11[3] * ((((fRec9[0] * (fConst154 + ((fConst1 * (fRec8[0] * (((fRec8[0] * (fConst152 + (fConst150 * fRec10[0]))) + (fConst148 * fRec10[0])) + fConst146))) + (fConst144 * fRec10[0])))) + (fConst1 * (fRec8[0] * (fConst142 + ((fRec8[0] * (fConst140 + (fConst138 * fRec10[0]))) + (fConst136 * fRec10[0])))))) + (fConst134 * fRec10[0])) + fConst132))) + (fRec11[4] * (fConst130 + (((fRec9[0] * (((fConst1 * (fRec8[0] * (((fRec8[0] * (fConst128 + (fConst126 * fRec10[0]))) + (fConst124 * fRec10[0])) + fConst122))) + (fConst120 * fRec10[0])) + fConst118)) + (fConst1 * (fRec8[0] * (((fRec8[0] * (fConst116 + (fConst114 * fRec10[0]))) + (fConst112 * fRec10[0])) + fConst110)))) + (fConst108 * fRec10[0]))))) + (fRec11[5] * ((((fRec9[0] * (((fConst1 * (fRec8[0] * (((fRec8[0] * (fConst43 + (fConst41 * fRec10[0]))) + (fConst39 * fRec10[0])) + fConst37))) + (fConst35 * fRec10[0])) + fConst33)) + (fConst1 * (fRec8[0] * (fConst31 + ((fRec8[0] * (fConst29 + (fConst27 * fRec10[0]))) + (fConst25 * fRec10[0])))))) + (fConst23 * fRec10[0])) + fConst21))) / fTemp1);
+		fRec8[0] = ((0.993 * fRec8[1]) + fSlow0);
+		fRec9[0] = ((0.993 * fRec9[1]) + fSlow1);
+		double fTemp0 = (2.30862500009197e-13 + ((fRec9[0] * (5.24210944616705e-13 + (fConst1 * (((fRec8[0] * (fConst19 + (fConst17 * fRec8[0]))) + (fRec9[0] * (fConst15 + (fConst1 * (fRec8[0] * (fConst13 + (fConst11 * fRec8[0]))))))) + fConst9)))) + (fConst1 * ((fRec8[0] * (fConst7 + (fConst5 * fRec8[0]))) + fConst3))));
+		fRec10[0] = ((0.993 * fRec10[1]) + fSlow2);
+		fRec12[0] = ((0.993 * fRec12[1]) + fSlow3);
+		double fTemp1 = (double)input0[i];
+		fRec11[0] = ((fTemp1 * fRec12[0]) - ((((((fRec11[1] * (1.15431250004598e-12 + ((fRec9[0] * (2.62105472308353e-12 + (fConst1 * (((fRec8[0] * (fConst106 + (fConst105 * fRec8[0]))) + (fRec9[0] * (fConst104 + (fConst1 * (fRec8[0] * (fConst103 + (fConst102 * fRec8[0]))))))) + fConst101)))) + (fConst1 * ((fRec8[0] * (fConst100 + (fConst99 * fRec8[0]))) + fConst98))))) + (fRec11[2] * (2.30862500009197e-12 + ((fRec9[0] * (5.24210944616705e-12 + (fConst1 * (((fRec8[0] * (fConst97 + (fConst96 * fRec8[0]))) + (fRec9[0] * (fConst95 + (fConst1 * (fRec8[0] * (fConst94 + (fConst93 * fRec8[0]))))))) + fConst92)))) + (fConst1 * ((fRec8[0] * (fConst91 + (fConst90 * fRec8[0]))) + fConst89)))))) + (fRec11[3] * (2.30862500009197e-12 + ((fRec9[0] * (5.24210944616705e-12 + (fConst1 * (((fRec8[0] * (fConst88 + (fConst86 * fRec8[0]))) + (fRec9[0] * (fConst84 + (fConst1 * (fRec8[0] * (fConst82 + (fConst80 * fRec8[0]))))))) + fConst78)))) + (fConst1 * ((fRec8[0] * (fConst76 + (fConst74 * fRec8[0]))) + fConst72)))))) + (fRec11[4] * (1.15431250004598e-12 + ((fRec9[0] * (2.62105472308353e-12 + (fConst1 * (((fRec8[0] * (fConst70 + (fConst68 * fRec8[0]))) + (fRec9[0] * (fConst66 + (fConst1 * (fRec8[0] * (fConst64 + (fConst62 * fRec8[0]))))))) + fConst60)))) + (fConst1 * ((fRec8[0] * (fConst58 + (fConst56 * fRec8[0]))) + fConst54)))))) + (fRec11[5] * (2.30862500009197e-13 + ((fRec9[0] * (5.24210944616705e-13 + (fConst1 * (((fRec8[0] * (fConst52 + (fConst51 * fRec8[0]))) + (fRec9[0] * (fConst50 + (fConst1 * (fRec8[0] * (fConst49 + (fConst48 * fRec8[0]))))))) + fConst47)))) + (fConst1 * ((fRec8[0] * (fConst46 + (fConst45 * fRec8[0]))) + fConst44)))))) / fTemp0));
+		double fTemp2 = (((((((fRec11[0] * ((((fRec9[0] * (fConst190 + ((fConst1 * (fRec8[0] * (fConst189 + ((fRec8[0] * (fConst188 + (fConst187 * fRec10[0]))) + (fConst186 * fRec10[0]))))) + (fConst185 * fRec10[0])))) + (fConst1 * (fRec8[0] * (((fRec8[0] * (fConst184 + (fConst183 * fRec10[0]))) + (fConst182 * fRec10[0])) + fConst181)))) + (fConst180 * fRec10[0])) + fConst179)) + (fRec11[1] * ((((fRec9[0] * (((fConst1 * (fRec8[0] * (((fRec8[0] * (fConst178 + (fConst177 * fRec10[0]))) + (fConst176 * fRec10[0])) + fConst175))) + (fConst174 * fRec10[0])) + fConst173)) + (fConst1 * (fRec8[0] * (((fRec8[0] * (fConst172 + (fConst171 * fRec10[0]))) + (fConst170 * fRec10[0])) + fConst169)))) + (fConst168 * fRec10[0])) + fConst167))) + (fRec11[2] * ((((fRec9[0] * (((fConst1 * (fRec8[0] * (fConst166 + ((fRec8[0] * (fConst165 + (fConst164 * fRec10[0]))) + (fConst163 * fRec10[0]))))) + (fConst162 * fRec10[0])) + fConst161)) + (fConst1 * (fRec8[0] * (((fRec8[0] * (fConst160 + (fConst159 * fRec10[0]))) + (fConst158 * fRec10[0])) + fConst157)))) + (fConst156 * fRec10[0])) + fConst155))) + (fRec11[3] * ((((fRec9[0] * (fConst154 + ((fConst1 * (fRec8[0] * (((fRec8[0] * (fConst152 + (fConst150 * fRec10[0]))) + (fConst148 * fRec10[0])) + fConst146))) + (fConst144 * fRec10[0])))) + (fConst1 * (fRec8[0] * (fConst142 + ((fRec8[0] * (fConst140 + (fConst138 * fRec10[0]))) + (fConst136 * fRec10[0])))))) + (fConst134 * fRec10[0])) + fConst132))) + (fRec11[4] * (fConst130 + (((fRec9[0] * (((fConst1 * (fRec8[0] * (((fRec8[0] * (fConst128 + (fConst126 * fRec10[0]))) + (fConst124 * fRec10[0])) + fConst122))) + (fConst120 * fRec10[0])) + fConst118)) + (fConst1 * (fRec8[0] * (((fRec8[0] * (fConst116 + (fConst114 * fRec10[0]))) + (fConst112 * fRec10[0])) + fConst110)))) + (fConst108 * fRec10[0]))))) + (fRec11[5] * ((((fRec9[0] * (((fConst1 * (fRec8[0] * (((fRec8[0] * (fConst43 + (fConst41 * fRec10[0]))) + (fConst39 * fRec10[0])) + fConst37))) + (fConst35 * fRec10[0])) + fConst33)) + (fConst1 * (fRec8[0] * (fConst31 + ((fRec8[0] * (fConst29 + (fConst27 * fRec10[0]))) + (fConst25 * fRec10[0])))))) + (fConst23 * fRec10[0])) + fConst21))) / fTemp0);
 		fVec0[0] = fTemp2;
 		fRec7[0] = ((fConst191 * (fVec0[0] + fVec0[1])) - (0.8605695850647829 * fRec7[1]));
 		fRec6[0] = (fRec7[0] - ((1.8405051250752198 * fRec6[1]) + (0.8612942439318627 * fRec6[2])));
-		fRec12[0] = ((fConst195 * fRec12[1]) + (fConst194 * (fRec5[1] + fRec5[2])));
-		fRec5[0] = (Ftrany(TRANY_TABLE_KT88_68k, ((fRec12[0] + (0.9254498422517706 * (fRec6[2] + (fRec6[0] + (2.0 * fRec6[1]))))) - 5.562895)) - 43.96685185185183);
+		fRec13[0] = ((fConst195 * fRec13[1]) + (fConst194 * (fRec5[1] + fRec5[2])));
+		fRec5[0] = (Ftrany(TRANY_TABLE_KT88_68k, ((fRec13[0] + (0.9254498422517706 * (fRec6[2] + (fRec6[0] + (2.0 * fRec6[1]))))) - 5.562895)) - 43.96685185185183);
 		fRec4[0] = ((fConst200 * fRec4[1]) + (fConst199 * ((fConst196 * fRec5[0]) + (fConst197 * fRec5[1]))));
 		fRec3[0] = ((0.9302847925323914 * (fRec4[0] + fRec4[1])) - (0.8605695850647829 * fRec3[1]));
 		fRec2[0] = (fRec3[0] - ((1.8405051250752198 * fRec2[1]) + (0.8612942439318627 * fRec2[2])));
-		fRec13[0] = ((fConst195 * fRec13[1]) + (fConst194 * (fRec1[1] + fRec1[2])));
-		fRec1[0] = (Ftrany(TRANY_TABLE_KT88_68k, ((fRec13[0] + (0.9254498422517706 * (fRec2[2] + (fRec2[0] + (2.0 * fRec2[1]))))) - 5.562895)) - 43.96685185185183);
+		fRec14[0] = ((fConst195 * fRec14[1]) + (fConst194 * (fRec1[1] + fRec1[2])));
+		fRec1[0] = (Ftrany(TRANY_TABLE_KT88_68k, ((fRec14[0] + (0.9254498422517706 * (fRec2[2] + (fRec2[0] + (2.0 * fRec2[1]))))) - 5.562895)) - 43.96685185185183);
 		fRec0[0] = ((fConst200 * fRec0[1]) + (fConst199 * ((fConst196 * fRec1[0]) + (fConst197 * fRec1[1]))));
-		output0[i] = (FAUSTFLOAT)(fRec0[0] + (fSlow1 * fTemp0));
+		output0[i] = (FAUSTFLOAT)((fTemp1 * (1 - fRec12[0])) + fRec0[0]);
 		// post processing
 		fRec0[1] = fRec0[0];
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
-		fRec13[1] = fRec13[0];
+		fRec14[1] = fRec14[0];
 		fRec2[2] = fRec2[1]; fRec2[1] = fRec2[0];
 		fRec3[1] = fRec3[0];
 		fRec4[1] = fRec4[0];
 		fRec5[2] = fRec5[1]; fRec5[1] = fRec5[0];
-		fRec12[1] = fRec12[0];
+		fRec13[1] = fRec13[0];
 		fRec6[2] = fRec6[1]; fRec6[1] = fRec6[0];
 		fRec7[1] = fRec7[0];
 		fVec0[1] = fVec0[0];
 		for (int i=5; i>0; i--) fRec11[i] = fRec11[i-1];
+		fRec12[1] = fRec12[0];
 		fRec10[1] = fRec10[0];
 		fRec9[1] = fRec9[0];
 		fRec8[1] = fRec8[0];
@@ -563,10 +566,10 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("cstbt1.Attack",N_("Attack"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("cstbt1.Level",N_("Level"),"S","",&fslider3, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("cstbt1.Tone",N_("Tone"),"S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("cstbt1.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("cstbt1.Attack",N_("Attack"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("cstbt1.Level",N_("Level"),"S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("cstbt1.Tone",N_("Tone"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("cstbt1.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fslider3, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 
