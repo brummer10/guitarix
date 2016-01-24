@@ -234,7 +234,7 @@ void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWind
     font.set_weight(Pango::WEIGHT_NORMAL);
     lab->modify_font(font);
     button->add(*manage(lab));
-    lab->set_name("rack_label");
+    lab->set_name("rack_label_inverse");
     lab->set_padding(5,0);
     fBox.add(manage(button), label);
     lab->show();
@@ -255,7 +255,7 @@ void StackBoxBuilder::openSetLabelBox() {
     box->set_homogeneous(false);
     box->set_spacing(0);
     box->set_border_width(0);
-    convolver_filename_label.set_name("beffect_label");
+    convolver_filename_label.set_name("rack_label");
     Pango::FontDescription font = convolver_filename_label.get_style()->get_font();
     font.set_size(8*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
@@ -276,7 +276,7 @@ void StackBoxBuilder::openSetMonoLabelBox() {
     box->set_homogeneous(false);
     box->set_spacing(0);
     box->set_border_width(0);
-    convolver_mono_filename_label.set_name("beffect_label");
+    convolver_mono_filename_label.set_name("rack_label");
     Pango::FontDescription font = convolver_mono_filename_label.get_style()->get_font();
     font.set_size(8*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
@@ -302,7 +302,7 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
     font.set_weight(Pango::WEIGHT_NORMAL);
     lab->modify_font(font);
     button->add(*manage(lab));
-    lab->set_name("beffekt_label");
+    lab->set_name("rack_label_inverse");
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
     al->add(*manage(button));
     al->show_all();
