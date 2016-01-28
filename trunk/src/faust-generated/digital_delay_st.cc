@@ -152,6 +152,7 @@ private:
 	void clear_state_f();
 	int activate(bool start);
 	int load_ui_f(const UiBuilder& b, int form);
+	static const char *glade_def;
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
@@ -182,7 +183,7 @@ Dsp::Dsp()
 	groups = 0;
 	description = N_("Digital Delay Stereo Version"); // description (tooltip)
 	category = N_("Echo / Delay");       // category
-	shortname = N_("Digital Delay St");     // shortname
+	shortname = N_("Digi Delay S");     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;
 	set_samplerate = init_static;
@@ -581,16 +582,16 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("didest.Freeze","","S",N_("Freeze the current delay"),&fslider0, 0.0f, 0.0f, 1.0f, 1.0f);
-	reg.registerVar("didest.bpm",N_("delay (bpm)"),"S",N_("Delay in Beats per Minute"),&fslider6, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
-	reg.registerVar("didest.feedback","","S",N_("percentage of the feedback level in the delay loop"),&fslider3, 5e+01f, 1.0f, 1e+02f, 1.0f);
-	reg.registerVar("didest.gain","","S",N_("overall gain of the delay line in percent"),&fslider8, 1e+02f, 0.0f, 1.2e+02f, 1.0f);
-	reg.registerVar("didest.highpass",N_("highpass (hz)"),"S",N_("highpass filter frequency in the feddback loop"),&fslider2, 1.2e+02f, 2e+01f, 2e+04f, 1.0f);
-	reg.registerVar("didest.howpass",N_("lowpass (hz)"),"S",N_("lowpass filter frequency in the feddback loop"),&fslider1, 1.2e+04f, 2e+01f, 2e+04f, 1.0f);
-	reg.registerVar("didest.level","","S",N_("percentage of the delay gain level"),&fslider7, 5e+01f, 1.0f, 1e+02f, 1.0f);
+	reg.registerVar("didest.bpm",N_("BPM"),"S",N_("Delay in Beats per Minute"),&fslider6, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
+	reg.registerVar("didest.feedback",N_("Feedback"),"S",N_("Percentage of the feedback level in the delay loop"),&fslider3, 5e+01f, 1.0f, 1e+02f, 1.0f);
+	reg.registerVar("didest.gain",N_("Gain"),"S",N_("Overall gain of the delay line in percent"),&fslider8, 1e+02f, 0.0f, 1.2e+02f, 1.0f);
+	reg.registerVar("didest.highpass",N_("Hipass"),"S",N_("Highpass filter frequency in the feddback loop"),&fslider2, 1.2e+02f, 2e+01f, 2e+04f, 1.0f);
+	reg.registerVar("didest.howpass",N_("Lopass"),"S",N_("Lowpass filter frequency in the feddback loop"),&fslider1, 1.2e+04f, 2e+01f, 2e+04f, 1.0f);
+	reg.registerVar("didest.level",N_("Level"),"S",N_("Percentage of the delay gain level"),&fslider7, 5e+01f, 1.0f, 1e+02f, 1.0f);
 	static const value_pair fslider4_values[] = {{"plain"},{"presence"},{"tape"},{"tape2"},{0}};
-	reg.registerEnumVar("didest.mode","","S","",fslider4_values,&fslider4, 0.0f, 0.0f, 3.0f, 1.0f);
+	reg.registerEnumVar("didest.mode",N_("Mode"),"S","",fslider4_values,&fslider4, 0.0f, 0.0f, 3.0f, 1.0f);
 	static const value_pair fslider5_values[] = {{"Dotted 1/2 note"},{"1/2 note"},{"1/2 note triplets"},{" Dotted 1/4 note"},{"1/4 note"},{"1/4 note triplets"},{"Dotted 1/8 note"},{"1/8 note"},{"1/8 note triplets"},{" Dotted 1/16 note"},{"1/16 note"},{"1/16 note triplets"},{"Dotted 1/32 note"},{"1/32 note"},{"1/32 note triplets"},{" Dotted 1/64 note"},{"1/64 note"},{"1/64 note triplets"},{0}};
-	reg.registerEnumVar("didest.notes",N_("tact"),"S",N_("note setting for bpm"),fslider5_values,&fslider5, 4.0f, 0.0f, 17.0f, 1.0f);
+	reg.registerEnumVar("didest.notes",N_("Notes"),"S",N_("Note setting for bpm"),fslider5_values,&fslider5, 4.0f, 0.0f, 17.0f, 1.0f);
 	return 0;
 }
 
@@ -599,62 +600,472 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
+const char *Dsp::glade_def = "\
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<interface>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-naming-policy project-wide -->\n\
+  <object class=\"GtkWindow\" id=\"window1\">\n\
+    <property name=\"can_focus\">False</property>\n\
+    <child>\n\
+      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+        <property name=\"visible\">True</property>\n\
+        <property name=\"can_focus\">False</property>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <child>\n\
+              <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxMidKnob\" id=\"GxMidKnob1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">didest.bpm</property>\n\
+                    <property name=\"label_ref\">label1:rack_label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">2</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label2\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">3</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">True</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GtkVBox\" id=\"vbox8\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"spacing\">10</property>\n\
+                <child>\n\
+                  <object class=\"GtkHBox\" id=\"hbox1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <child>\n\
+                      <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"label\" translatable=\"yes\">label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxSmallKnobR\" id=\"GxMidKnob2\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">didest.feedback</property>\n\
+                            <property name=\"label_ref\">label2:rack_label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkVBox\" id=\"vbox4\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label3:rack_label\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"label\" translatable=\"yes\">label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxSmallKnobR\" id=\"GxMidKnob3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">didest.level</property>\n\
+                            <property name=\"label_ref\">label3:rack_label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkVBox\" id=\"vbox5\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label4:rack_label\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"label\" translatable=\"yes\">label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxSmallKnobR\" id=\"GxMidKnob4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">didest.highpass</property>\n\
+                            <property name=\"label_ref\">label4:rack_label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">2</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkVBox\" id=\"vbox6\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label5:rack_label\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"label\" translatable=\"yes\">label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxSmallKnobR\" id=\"GxMidKnob5\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">didest.howpass</property>\n\
+                            <property name=\"label_ref\">label5:rack_label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">3</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkTable\" id=\"table1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"n_rows\">2</property>\n\
+                    <property name=\"n_columns\">4</property>\n\
+                    <property name=\"column_spacing\">6</property>\n\
+                    <property name=\"row_spacing\">3</property>\n\
+                    <child>\n\
+                      <object class=\"GxSelector\" id=\"gxselector2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">didest.mode</property>\n\
+                        <property name=\"label_ref\">label21:rack_label_inverse</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">1</property>\n\
+                        <property name=\"right_attach\">2</property>\n\
+                        <property name=\"top_attach\">1</property>\n\
+                        <property name=\"bottom_attach\">2</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label11:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"xalign\">1</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"x_options\">GTK_FILL</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label21:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"xalign\">1</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"top_attach\">1</property>\n\
+                        <property name=\"bottom_attach\">2</property>\n\
+                        <property name=\"x_options\">GTK_FILL</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxSelector\" id=\"gxselector1\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">didest.notes</property>\n\
+                        <property name=\"label_ref\">label11:rack_label_inverse</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">1</property>\n\
+                        <property name=\"right_attach\">4</property>\n\
+                        <property name=\"x_options\">GTK_FILL</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label31:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"xalign\">1</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">2</property>\n\
+                        <property name=\"right_attach\">3</property>\n\
+                        <property name=\"top_attach\">1</property>\n\
+                        <property name=\"bottom_attach\">2</property>\n\
+                        <property name=\"x_options\">GTK_FILL</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxSwitch\" id=\"gxswitch1\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"use_action_appearance\">False</property>\n\
+                        <property name=\"use_stock\">True</property>\n\
+                        <property name=\"var_id\">didest.Freeze</property>\n\
+                        <property name=\"label_ref\">label31:rack_label_inverse</property>\n\
+                        <property name=\"base_name\">frbutton</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">3</property>\n\
+                        <property name=\"right_attach\">4</property>\n\
+                        <property name=\"top_attach\">1</property>\n\
+                        <property name=\"bottom_attach\">2</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">True</property>\n\
+                <property name=\"position\">1</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GtkVBox\" id=\"vbox7\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label6:rack_label1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label6:rack_label\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxMidKnob\" id=\"GxMidKnob6\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">didest.gain</property>\n\
+                    <property name=\"label_ref\">label6:rack_label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">2</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label6:rack_label2\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">3</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">True</property>\n\
+                <property name=\"position\">2</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">False</property>\n\
+            <property name=\"position\">0</property>\n\
+          </packing>\n\
+        </child>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"minibox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <object class=\"GxHSlider\" id=\"gxhslider1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">True</property>\n\
+                <property name=\"receives_default\">True</property>\n\
+                <property name=\"round_digits\">0</property>\n\
+                <property name=\"var_id\">didest.gain</property>\n\
+                <property name=\"show_value\">False</property>\n\
+                <property name=\"value_position\">right</property>\n\
+                <property name=\"value_xalign\">0.52000000000000002</property>\n\
+                <property name=\"label_ref\">label0:rack_label</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"xalign\">0</property>\n\
+                <property name=\"label\" translatable=\"yes\">Amount</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">1</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">True</property>\n\
+            <property name=\"position\">1</property>\n\
+          </packing>\n\
+        </child>\n\
+      </object>\n\
+    </child>\n\
+  </object>\n\
+</interface>\n\
+";
+
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("didest" "." p)
-// -----delay
-b.openHorizontalhideBox("");
-b.create_master_slider(PARAM("bpm"), _(" delay (bpm)"));
-b.closeBox();
-b.openVerticalBox("");
-{
-    b.openHorizontalBox("");
-    {
-	b.openVerticalBox("");
-        {
-            b.create_selector(PARAM("notes"), "tact");
-            b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
-            b.create_small_rackknob(PARAM("bpm"), _(" delay (bpm)"));
-        }
-        b.closeBox();
-	b.openVerticalBox("");
-        {
-            b.openHorizontalBox("");
-            b.openFrameBox("");
-            b.closeBox();
-            b.create_selector(PARAM("mode"), "mode");
-            b.closeBox();
-            b.openHorizontalBox("");
-            {
-                b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
-                b.create_small_rackknob(PARAM("highpass"), _("highpass (hz)"));
-                b.set_next_flags(UI_NUM_SHOW_ALWAYS|UI_NUM_TOP);
-                b.create_small_rackknob(PARAM("howpass"), _("lowpass (hz)"));
-            }
-            b.closeBox();
-        }
-        b.closeBox();
-        b.openVerticalBox("");
-        {
-            b.create_small_rackknob(PARAM("level"), _("level"));
-            b.create_small_rackknob(PARAM("feedback"), _("feedback"));
-        }
-        b.closeBox();
-        b.openVerticalBox("");
-        {
-            b.create_small_rackknobr(PARAM("gain"), _("amount"));
-            b.openFrameBox("");
-            b.closeBox();
-            b.create_switch(sw_rbutton,PARAM("Freeze"), _("freeze"));
-        }
-        b.closeBox();
-    }
-    b.closeBox();
-}
-b.closeBox();
-
-#undef PARAM
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
         return 0;
     }
 	return -1;

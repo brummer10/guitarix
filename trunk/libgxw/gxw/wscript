@@ -50,6 +50,8 @@ def build_stock_images(bld):
         "prbutton_off.png",
         "fbutton_on.png",
         "fbutton_off.png",
+        "frbutton_on.png",
+        "frbutton_off.png",
         "vslider.png",
         "wheel_back.png",
         "wheel_vertical_back.png",
