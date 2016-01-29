@@ -1,5 +1,6 @@
 declare id "dide";
-declare name "Digi Delay";
+declare name "Digital Delay";
+declare shortname "Digi Delay";
 declare category "Echo / Delay";
 declare description "Digital Delay";
 

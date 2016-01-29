@@ -155,11 +155,11 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "dide";
-	name = N_("Digi Delay");
+	name = N_("Digital Delay");
 	groups = 0;
 	description = N_("Digital Delay"); // description (tooltip)
 	category = N_("Echo / Delay");       // category
-	shortname = "";     // shortname
+	shortname = N_("Digi Delay");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
@@ -374,7 +374,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec7[0] = ((fConst37 * ((fTemp6 + (fConst61 * fRec8[0])) + (fConst60 * fRec8[2]))) - (fConst30 * ((fConst29 * fRec7[2]) + fTemp5)));
 		fRec6[0] = ((fConst30 * ((fTemp5 + (fConst64 * fRec7[0])) + (fConst63 * fRec7[2]))) - (fConst23 * ((fConst22 * fRec6[2]) + fTemp4)));
 		fRec5[0] = ((fConst23 * ((fTemp4 + (fConst67 * fRec6[0])) + (fConst66 * fRec6[2]))) - (fConst16 * ((fConst14 * fRec5[2]) + fTemp3)));
-		float fTemp8 = ((fTemp3 + (fConst70 * fRec5[0])) + (fConst69 * fRec5[2]));
+		float fTemp8 = (((fConst70 * fRec5[0]) + fTemp3) + (fConst69 * fRec5[2]));
 		fVec1[0] = fTemp8;
 		fRec4[0] = ((fConst73 * fRec4[1]) + (fConst72 * (fVec1[0] + fVec1[1])));
 		fRec3[0] = (fRec4[0] - (fConst7 * ((fConst5 * fRec3[2]) + (fConst3 * fRec3[1]))));
