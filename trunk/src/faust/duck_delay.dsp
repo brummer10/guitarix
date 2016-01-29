@@ -26,11 +26,11 @@ import("music.lib");
 import("effect.lib");
 
 //Constrols
-p_time = hslider("time", 500, 1, 2000, 1):smooth(tau2pole(0.1));
-p_feedback = hslider("feedback", 0, 0, 1, 0.05);
-p_attack_time = hslider("attack", 0.1, 0.05, 0.5, 0.05);
-p_release_time = hslider("relese", 0.1, 0.05, 2, 0.05);
-p_amount = hslider("amount", 0.5, 0,56, 0.05):db2linear;
+p_time = hslider("time[name:Delay]", 500, 1, 2000, 1):smooth(tau2pole(0.1));
+p_feedback = hslider("feedback[name:Feedback]", 0, 0, 1, 0.05);
+p_attack_time = hslider("attack[name:Attack]", 0.1, 0.05, 0.5, 0.05);
+p_release_time = hslider("relese[name:Release]", 0.1, 0.05, 2, 0.05);
+p_amount = hslider("amount[name:Amount]", 0.5, 0,56, 0.05):db2linear;
 
 //Consts
 c_channels_sw_time = 0.1;
