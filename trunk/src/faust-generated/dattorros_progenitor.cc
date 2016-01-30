@@ -319,14 +319,14 @@ int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("dattorros_progenitor.bandwidth",N_("Bandwidth"),"S","",&fslider4, 0.9, 0.1, 0.95, 0.0005);
 	reg.registerVar("dattorros_progenitor.damping",N_("HF Damp"),"S","",&fslider6, 0.0005, 0.1, 0.95, 0.0005);
+	reg.registerVar("dattorros_progenitor.decay diff 1",N_("Dec Diff 1"),"S","",&fslider0, 0.1, 0.0, 0.7, 0.01);
+	reg.registerVar("dattorros_progenitor.decay diff 2",N_("Dec Diff 2"),"S","",&fslider8, 0.1, 0.0, 0.5, 0.01);
 	reg.registerVar("dattorros_progenitor.decay",N_("Decay"),"S","",&fslider7, 0.1, 0.0, 0.5, 0.01);
-	reg.registerVar("dattorros_progenitor.decay_diffusion1",N_("Dec Diff 1"),"S","",&fslider0, 0.1, 0.0, 0.7, 0.01);
-	reg.registerVar("dattorros_progenitor.decay_diffusion2",N_("Dec Diff 2"),"S","",&fslider8, 0.1, 0.0, 0.5, 0.01);
-	reg.registerVar("dattorros_progenitor.dry_wet",N_("Dry/Wet"),"S","",&fslider9, 0.5, 0.0, 1.0, 0.05);
+	reg.registerVar("dattorros_progenitor.dry/wet",N_("Dry/Wet"),"S","",&fslider9, 0.5, 0.0, 1.0, 0.05);
 	reg.registerVar("dattorros_progenitor.excursion",N_("Excursion"),"S","",&fslider5, 0.0, 0.0, 16.0, 0.5);
-	reg.registerVar("dattorros_progenitor.input_diffusion1",N_("In Diff 1"),"S","",&fslider2, 0.1, 0.0, 0.75, 0.01);
-	reg.registerVar("dattorros_progenitor.input_diffusion2",N_("In Diff 2"),"S","",&fslider1, 0.1, 0.0, 0.625, 0.01);
-	reg.registerVar("dattorros_progenitor.predelay",N_("Predelay"),"S","",&fslider3, 0.0, 0.0, 2e+02, 1e+01);
+	reg.registerVar("dattorros_progenitor.input diff 1",N_("In Diff 1"),"S","",&fslider2, 0.1, 0.0, 0.75, 0.01);
+	reg.registerVar("dattorros_progenitor.input diff 2",N_("In Diff 2"),"S","",&fslider1, 0.1, 0.0, 0.625, 0.01);
+	reg.registerVar("dattorros_progenitor.predelay ms",N_("Predelay"),"S","",&fslider3, 0.0, 0.0, 2e+02, 1e+01);
 	return 0;
 }
 
@@ -481,7 +481,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">True</property>\n\
                             <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.decay_diffusion1</property>\n\
+                            <property name=\"var_id\">dattorros_progenitor.decay diff 1</property>\n\
                             <property name=\"label_ref\">label31:rack_label</property>\n\
                           </object>\n\
                           <packing>\n\
@@ -518,7 +518,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">True</property>\n\
                             <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.decay_diffusion2</property>\n\
+                            <property name=\"var_id\">dattorros_progenitor.decay diff 2</property>\n\
                             <property name=\"label_ref\">label41:rack_label</property>\n\
                           </object>\n\
                           <packing>\n\
@@ -567,7 +567,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">True</property>\n\
                             <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.dry_wet</property>\n\
+                            <property name=\"var_id\">dattorros_progenitor.dry/wet</property>\n\
                             <property name=\"label_ref\">label51:rack_label</property>\n\
                           </object>\n\
                           <packing>\n\
@@ -604,7 +604,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">True</property>\n\
                             <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.predelay</property>\n\
+                            <property name=\"var_id\">dattorros_progenitor.predelay ms</property>\n\
                             <property name=\"label_ref\">label1:rack_label_inverse</property>\n\
                           </object>\n\
                           <packing>\n\
@@ -690,7 +690,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">True</property>\n\
                             <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.input_diffusion1</property>\n\
+                            <property name=\"var_id\">dattorros_progenitor.input diff 1</property>\n\
                             <property name=\"label_ref\">label3:rack_label_inverse</property>\n\
                           </object>\n\
                           <packing>\n\
@@ -727,7 +727,7 @@ const char *Dsp::glade_def = "\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">True</property>\n\
                             <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.input_diffusion2</property>\n\
+                            <property name=\"var_id\">dattorros_progenitor.input diff 2</property>\n\
                             <property name=\"label_ref\">label4:rack_label_inverse</property>\n\
                           </object>\n\
                           <packing>\n\
@@ -836,7 +836,7 @@ const char *Dsp::glade_def = "\
                 <property name=\"can_focus\">True</property>\n\
                 <property name=\"receives_default\">True</property>\n\
                 <property name=\"round_digits\">0</property>\n\
-                <property name=\"var_id\">dattorros_progenitor.dry_wet</property>\n\
+                <property name=\"var_id\">dattorros_progenitor.dry/wet</property>\n\
                 <property name=\"show_value\">False</property>\n\
                 <property name=\"value_position\">right</property>\n\
                 <property name=\"value_xalign\">0.52000000000000002</property>\n\

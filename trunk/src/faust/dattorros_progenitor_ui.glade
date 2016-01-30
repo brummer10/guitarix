@@ -143,7 +143,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="var_id">dattorros_progenitor.decay_diffusion1</property>
+                            <property name="var_id">dattorros_progenitor.decay diff 1</property>
                             <property name="label_ref">label31:rack_label</property>
                           </object>
                           <packing>
@@ -180,7 +180,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="var_id">dattorros_progenitor.decay_diffusion2</property>
+                            <property name="var_id">dattorros_progenitor.decay diff 2</property>
                             <property name="label_ref">label41:rack_label</property>
                           </object>
                           <packing>
@@ -229,7 +229,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="var_id">dattorros_progenitor.dry_wet</property>
+                            <property name="var_id">dattorros_progenitor.dry/wet</property>
                             <property name="label_ref">label51:rack_label</property>
                           </object>
                           <packing>
@@ -266,7 +266,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="var_id">dattorros_progenitor.predelay</property>
+                            <property name="var_id">dattorros_progenitor.predelay ms</property>
                             <property name="label_ref">label1:rack_label_inverse</property>
                           </object>
                           <packing>
@@ -352,7 +352,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="var_id">dattorros_progenitor.input_diffusion1</property>
+                            <property name="var_id">dattorros_progenitor.input diff 1</property>
                             <property name="label_ref">label3:rack_label_inverse</property>
                           </object>
                           <packing>
@@ -389,7 +389,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="var_id">dattorros_progenitor.input_diffusion2</property>
+                            <property name="var_id">dattorros_progenitor.input diff 2</property>
                             <property name="label_ref">label4:rack_label_inverse</property>
                           </object>
                           <packing>
@@ -498,7 +498,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="round_digits">0</property>
-                <property name="var_id">dattorros_progenitor.dry_wet</property>
+                <property name="var_id">dattorros_progenitor.dry/wet</property>
                 <property name="show_value">False</property>
                 <property name="value_position">right</property>
                 <property name="value_xalign">0.52000000000000002</property>
