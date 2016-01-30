@@ -1351,11 +1351,12 @@
                                 <property name="name">vbox14</property><property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="orientation">vertical</property>
+                                <property name="paint_func">rack_expose</property>
                                 <child>
                                   <object class="GtkLabel" id="spacer_widget">
                                     <property name="label" translatable="yes"></property>
                                     <property name="can_focus">false</property>
-                                    <property name="width_request">556</property>
+                                    <property name="width_request">590</property>
                                     <property name="height_request">1</property>
                                     <property name="visible">True</property>
                                   </object>
@@ -3870,6 +3871,7 @@
                                 <property name="name">gxpaintbox1</property><property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="orientation">vertical</property>
+                                <property name="paint_func">rack_expose</property>
                                 <child>
                                   <object class="GtkHBox" id="stereorackcontainerH">
                                     <property name="name">stereorackcontainerH</property><property name="visible">True</property>
