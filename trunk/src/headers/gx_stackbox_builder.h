@@ -90,12 +90,8 @@ private:
     void create_switch_no_caption(const char *sw_type, const std::string& id) {
 	addwidget(UiSwitch::create(machine, sw_type, id));
     }
-    void create_h_switch(const char *sw_type, const std::string& id, const char *label) {
-	addwidget(UiHSwitchWithCaption::create(machine, sw_type, id, label));
-    }
-    void create_v_switch(const char *sw_type, const std::string& id, const char *label) {
-	addwidget(UiVSwitchWithCaption::create(machine, sw_type, id, label));
-    }
+    void create_h_switch(const char *sw_type, const std::string& id, const char *label);
+    void create_v_switch(const char *sw_type, const std::string& id, const char *label);
     void openpaintampBox(const char* label = "");
     void create_wheel(const std::string& id, const char *label=0) {
 	UiReglerWithCaption<Gxw::Wheel> *w = new UiReglerWithCaption<Gxw::Wheel>(machine, id);

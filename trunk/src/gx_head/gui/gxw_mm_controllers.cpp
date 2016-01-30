@@ -177,6 +177,14 @@ void CpBaseCaption::set_rack_label(const char *label) {
     m_label.set_justify(Gtk::JUSTIFY_CENTER);
 }
 
+void CpBaseCaption::set_rack_label_inverse(const char *label) {
+    if (label) {
+	m_label.set_text(label);
+    }
+    m_label.set_name("rack_label_inverse");
+    m_label.set_justify(Gtk::JUSTIFY_CENTER);
+}
+
 CpMasterCaption::CpMasterCaption(
     gx_engine::GxMachineBase& machine_, const std::string& id_)
     : Gtk::HBox(),
@@ -222,7 +230,6 @@ CpBaseCaptionBoxed::~CpBaseCaptionBoxed() {
 void CpBaseCaptionBoxed::init(Gxw::Regler& regler, bool show_value) {
     regler.set_label_ref(&m_label);
     base.init(regler, show_value);
-    m_label.set_name("rack_label");
     m_label.set_justify(Gtk::JUSTIFY_CENTER);
     set_name(base.id);
     pack_start(m_label, Gtk::PACK_SHRINK);
@@ -234,6 +241,14 @@ void CpBaseCaptionBoxed::init(Gxw::Regler& regler, bool show_value) {
 
 void CpBaseCaptionBoxed::set_rack_label(const char *label) {
     if (label) {
+    m_label.set_name("rack_label");
+	m_label.set_text(label);
+    }
+}
+
+void CpBaseCaptionBoxed::set_rack_label_inverse(const char *label) {
+    if (label) {
+    m_label.set_name("rack_label_inverse");
 	m_label.set_text(label);
     }
 }

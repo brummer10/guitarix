@@ -406,7 +406,11 @@ void StackBoxBuilder::create_port_display(const std::string& id, const char *lab
     CpBaseCaption *w = new UiReglerWithCaption<Gxw::PortDisplay>(machine, id);
     Glib::signal_timeout().connect(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
-	w->set_rack_label(label);
+    if (next_flags & UI_LABEL_INVERSE) {
+        w->set_rack_label_inverse(label);
+    } else {
+        w->set_rack_label(label);
+    }
 	addwidget(w);
 }
 
@@ -513,6 +517,24 @@ void StackBoxBuilder::create_fload_switch(const char *sw_type, const std::string
 	}
 }
 
+void StackBoxBuilder::create_h_switch(const char *sw_type, const std::string& id, const char *label) {
+    Gtk::Widget* w = UiHSwitchWithCaption::create(machine, sw_type, id, label);
+    UiHSwitchWithCaption *sw = static_cast<UiHSwitchWithCaption*>(w);
+    if (next_flags & UI_LABEL_INVERSE) {
+        sw->set_rack_label_inverse();
+    }
+    addwidget(w);
+}
+
+void StackBoxBuilder::create_v_switch(const char *sw_type, const std::string& id, const char *label) {
+    Gtk::Widget* w = UiVSwitchWithCaption::create(machine, sw_type, id, label);
+    UiVSwitchWithCaption *sw = static_cast<UiVSwitchWithCaption*>(w);
+    if (next_flags & UI_LABEL_INVERSE) {
+        sw->set_rack_label_inverse();
+    }
+    addwidget(w);
+}
+
 void StackBoxBuilder::create_feedback_slider(const std::string& id, const char *label) {
 	UiMasterReglerWithCaption<Gxw::HSlider> *w = new UiMasterReglerWithCaption<Gxw::HSlider>(machine, id);
     Glib::signal_timeout().connect(sigc::bind<const std::string>(
@@ -539,9 +561,19 @@ void StackBoxBuilder::create_selector_with_caption(const std::string& id, const 
     gx_engine::Parameter& p = machine.get_parameter(id);
     Gtk::VBox *s;
     if (p.isFloat()) {
+        UiSelectorWithCaption<float> *sel;
         s = new UiSelectorWithCaption<float>(machine, id, label);
+        sel = static_cast<UiSelectorWithCaption<float>*>(s);
+        if (next_flags & UI_LABEL_INVERSE) {
+            sel->set_rack_label_inverse();
+        }
     } else {
+        UiSelectorWithCaption<int> *sel;
         s = new UiSelectorWithCaption<int>(machine, id, label);
+        sel = static_cast<UiSelectorWithCaption<int>*>(s);
+        if (next_flags & UI_LABEL_INVERSE) {
+            sel->set_rack_label_inverse();
+        }
     }
     addwidget(s);
 }
@@ -577,14 +609,22 @@ void StackBoxBuilder::check_set_flags(Gxw::Regler *r) {
 
 void StackBoxBuilder::create_small_rackknob(const std::string& id, const char *label) {
     UiReglerWithCaption<Gxw::SmallKnob> *w = new UiReglerWithCaption<Gxw::SmallKnob>(machine, id);
-    w->set_rack_label(label);
+    if (next_flags & UI_LABEL_INVERSE) {
+        w->set_rack_label_inverse(label);
+    } else {
+        w->set_rack_label(label);
+    }
     check_set_flags(w->get_regler());
     addwidget(w);
 }
 
 void StackBoxBuilder::create_small_rackknobr(const std::string& id, const char *label) {
     UiReglerWithCaption<Gxw::SmallKnobR> *w = new UiReglerWithCaption<Gxw::SmallKnobR>(machine, id);
-    w->set_rack_label(label);
+    if (next_flags & UI_LABEL_INVERSE) {
+        w->set_rack_label_inverse(label);
+    } else {
+        w->set_rack_label(label);
+    }
     check_set_flags(w->get_regler());
     addwidget(w);
 }

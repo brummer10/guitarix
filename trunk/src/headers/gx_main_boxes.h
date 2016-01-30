@@ -88,7 +88,7 @@ class UiSwitchBool: public UiSwitch {
 
 // can be done more elegantly when Gtk::Orientable can be used
 
-class UiHSwitchWithCaption: Gtk::HBox {
+class UiHSwitchWithCaption: public Gtk::HBox {
  private:
     Gtk::Label m_label;
  protected:
@@ -98,10 +98,11 @@ class UiHSwitchWithCaption: Gtk::HBox {
 			       const char *label);
     UiHSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
 			 const char *label);
+    void set_rack_label_inverse() {m_label.set_name("rack_label_inverse"); }
     ~UiHSwitchWithCaption();
 };
 
-class UiVSwitchWithCaption: Gtk::VBox {
+class UiVSwitchWithCaption: public Gtk::VBox {
  private:
     Gtk::Label m_label;
  protected:
@@ -111,6 +112,7 @@ class UiVSwitchWithCaption: Gtk::VBox {
 			       const char *label);
     UiVSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
 			 const char *label);
+    void set_rack_label_inverse() {m_label.set_name("rack_label_inverse"); }
     ~UiVSwitchWithCaption();
 };
 

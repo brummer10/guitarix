@@ -42,6 +42,7 @@ struct PluginDef;
 #define UI_NUM_RIGHT         0x07
 #define UI_NUM_POSITION_MASK 0x07
 #define UI_NUM_SHOW_ALWAYS   0x08
+#define UI_LABEL_INVERSE     0x02
 
 // Stock Items for Gxw::Switch
 

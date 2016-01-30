@@ -88,6 +88,7 @@ public:
     void init(Gxw::Regler& regler, bool show_value);
     void set_effect_label(const char *label);
     void set_rack_label(const char *label);
+    void set_rack_label_inverse(const char *label);
 };
 
 class CpMasterCaption: public Gtk::HBox {
@@ -111,6 +112,7 @@ public:
     ~CpBaseCaptionBoxed();
     void init(Gxw::Regler& regler, bool show_value);
     void set_rack_label(const char *label);
+    void set_rack_label_inverse(const char *label);
 };
 
 template <class T>
@@ -189,6 +191,7 @@ public:
     UiSelectorWithCaption(gx_engine::GxMachineBase& machine, const std::string& id, const char *label);
     ~UiSelectorWithCaption();
     void set_name(const Glib::ustring& n) { m_selector.set_name(n); }
+    void set_rack_label_inverse() {m_label.set_name("rack_label_inverse"); }
 };
 
 template <class T>

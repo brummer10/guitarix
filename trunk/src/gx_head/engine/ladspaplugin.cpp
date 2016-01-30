@@ -534,14 +534,26 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
     b.closeBox();
     b.openVerticalBox("");
     b.openHorizontalBox("");
+    int rows = 0;
     int n = 0;
     for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
 	if ((*it)->newrow) {
+	    rows +=1;
+	}
+	}
+    n = 0;
+    int row = 0;
+    for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
+	if ((*it)->newrow) {
+	    row +=1;
 	    b.closeBox();
 	    b.openHorizontalBox("");
 	}
 	const char *p = self.desc->PortNames[(*it)->index];
 	std::string id = self.make_id(**it);
+	if ((row == 1 && rows == 1 ) || (row >1 && rows >1 )) {
+		b.set_next_flags(UI_LABEL_INVERSE);
+    }
 	switch ((*it)->tp) {
 	case tp_scale:
 	case tp_scale_log:
@@ -571,6 +583,9 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    }
 	    break;
 	case tp_int:
+	    if (!(*it)->has_caption) {
+		p = "";
+	    }
 	    b.create_spin_value(id.c_str(), p);
 	    break;
 	case tp_enum:
@@ -917,16 +932,28 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
     b.closeBox();
     b.openVerticalBox("");
     b.openHorizontalBox("");
+    int rows = 0;
     int n = 0;
+    for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
+	if ((*it)->newrow) {
+	    rows +=1;
+	}
+	}
+    n = 0;
+    int row = 0;
     for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
 	if ((*it)->newrow) {
 	    b.closeBox();
 	    b.openHorizontalBox("");
+	    row +=1;
 	}
 	const LilvPort* port = lilv_plugin_get_port_by_index(self.plugin, (*it)->index);
 	LilvNode* nm_node = lilv_port_get_name(self.plugin, port);
 	const char *p = lilv_node_as_string(nm_node);
 	std::string id = self.make_id(**it);
+	if ((row == 1 && rows == 1 ) || (row >1 && rows >1 )) {
+		b.set_next_flags(UI_LABEL_INVERSE);
+	}
 	switch ((*it)->tp) {
 	case tp_scale:
 	case tp_scale_log:
@@ -956,6 +983,9 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	    }
 	    break;
 	case tp_int:
+	    if (!(*it)->has_caption) {
+		p = "";
+	    }
 	    if (((*it)->up - (*it)->low)<200) {
 		    b.create_small_rackknob(id.c_str(), p);
 		} else {
