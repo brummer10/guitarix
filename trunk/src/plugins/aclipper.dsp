@@ -66,7 +66,7 @@ ratdrive = component("filter.lib").iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
 
 process = rat_in : X3 : rat_out : ratdrive : clip : rat_tone : *(gain)  with {
     R1 = 4700;
-    R2 = 1000 + 100000 * drive;
+    R2 = 1000 + 500000 * drive;
     C = 0.047 * 1e-6;
     a1 = (R1 + R2) * C * 2 * SR;
     a2 = R1 * C * 2 * SR;
