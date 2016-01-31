@@ -151,8 +151,8 @@ static const double scale_zero = 40 * (M_PI/180); // defines "dead zone" for kno
 void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_rect, gdouble knobstate)
 {
 	// add a value Indicator around the knob
-    gint x0 = image_rect->x;
-    gint y0 = image_rect->y;
+    gint x0 = 0; //image_rect->x;
+    gint y0 = 0; //image_rect->y;
     
     // style definitions
     gint ind_radius, ind_width, ind_length, ring_radius, ring_width;
@@ -271,11 +271,18 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 			gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
 					image_rect->x, image_rect->y, image_rect->width, image_rect->height);
 		}
-		gdk_cairo_set_source_pixbuf(cr, knob_image, image_rect->x, image_rect->y);
-		cairo_rectangle(cr, image_rect->x, image_rect->y, image_rect->width, image_rect->height);
-		cairo_fill(cr);
+		cairo_surface_t *surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 
+                               image_rect->width, image_rect->height);
+        cairo_t *cr_s = cairo_create(surface);
+		gdk_cairo_set_source_pixbuf(cr_s, knob_image, 0, 0);
+		cairo_rectangle(cr_s, 0, 0, image_rect->width, image_rect->height);
+		cairo_fill(cr_s);
         // shtuff
-		_gx_knob_draw_shtuff(widget, cr, image_rect, knobstate);
+		_gx_knob_draw_shtuff(widget, cr_s, image_rect, knobstate);
+		cairo_set_source_surface(cr, surface, image_rect->x, image_rect->y);
+        cairo_paint(cr);
+        cairo_surface_destroy (surface);
+		cairo_destroy(cr_s);
 		cairo_destroy(cr);
 	}
 
