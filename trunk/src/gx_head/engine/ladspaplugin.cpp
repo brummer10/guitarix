@@ -560,7 +560,7 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    if (!(*it)->has_caption) {
 		p = "";
 	    }
-	    b.create_small_rackknob(id.c_str(), p);
+	    b.create_small_rackknobr(id.c_str(), p);
 	    break;
 	case tp_toggle:
 	    if ((*it)->has_caption) {
@@ -944,6 +944,9 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
     for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
 	if ((*it)->newrow) {
 	    b.closeBox();
+	    b.insertSpacer();
+	    b.insertSpacer();
+	    b.insertSpacer();
 	    b.openHorizontalBox("");
 	    row +=1;
 	}
@@ -960,7 +963,7 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	    if (!(*it)->has_caption) {
 		p = "";
 	    }
-	    b.create_small_rackknob(id.c_str(), p);
+	    b.create_small_rackknobr(id.c_str(), p);
 	    break;
 	case tp_toggle:
 	    if ((*it)->has_caption) {

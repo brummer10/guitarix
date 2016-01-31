@@ -1068,7 +1068,7 @@ void PluginDesc::fixup() {
     for (unsigned int n = 0; n < ctrl_ports.size(); ++n) {
 	bool newrow = false;
 	if (ctrl_ports[n]->get_tp() != tp_none) {
-	    newrow = (i % 4 == 0 && i != 0);
+	    newrow = (i % 6 == 0 && i != 0);
 	    i += 1;
 	}
 	ctrl_ports[n]->fixup(newrow);
