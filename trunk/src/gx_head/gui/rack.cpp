@@ -387,63 +387,92 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       on_off_switch("switchit"),
       toggle_on_off(rb.main.get_machine(), &on_off_switch, rb.plugin.plugin->id_on_off()) {
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
-	gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off().c_str(), rb.main.get_machine());
-    }
-    if (!szg_label) {
-	szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
-    }
-    evbox.set_visible_window(false);
-    evbox.signal_leave_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_leave_out));
-    evbox.signal_enter_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_enter_in));
-    add(evbox);
-    
-    Gtk::Alignment *al = new Gtk::Alignment();
-    al->set_padding(0, 4, 0, 0);
-    al->set_border_width(0);
-    
-    evbox.add(*manage(al));
-    
-    Gtk::HBox *box = new Gtk::HBox();
-    Gtk::HBox *top = new Gtk::HBox();
-    al->add(*manage(box));
-    
-    this->set_spacing(0);
-    this->set_border_width(0);
-    
-    box->set_spacing(0);
-    box->set_border_width(0);
-    
-    top->set_spacing(4);
-    top->set_border_width(0);
-    top->set_name("rack_unit_title_bar");
-    
-    box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
-    box->pack_start(*manage(top));
-    box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
-    
-    top->pack_start(on_off_switch, Gtk::PACK_SHRINK);
-    on_off_switch.set_name("effect_on_off");
-    Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
-    szg_label->add_widget(*manage(effect_label));
-    top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
-    
-    top->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET);
-    
-    mb_expand_button = rb.make_expand_button(true);
-    top->pack_end(*manage(mb_expand_button), Gtk::PACK_SHRINK);
-    if (!(rb.plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
-        preset_button = rb.make_preset_button();
-        top->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
-    }
-    mb_delete_button = make_delete_button(rb);
-    mb_delete_button->set_no_show_all(true);
-    top->pack_end(*manage(mb_delete_button), Gtk::PACK_SHRINK);
+        gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off().c_str(), rb.main.get_machine());
 
+        if (!szg_label) {
+            szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
+        }
+        evbox.set_visible_window(false);
+        evbox.signal_leave_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_leave_out));
+        evbox.signal_enter_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_enter_in));
+        add(evbox);
+    
+        Gtk::Alignment *al = new Gtk::Alignment();
+        al->set_padding(0, 4, 0, 0);
+        al->set_border_width(0);
+    
+        evbox.add(*manage(al));
+    
+        Gtk::HBox *box = new Gtk::HBox();
+        Gtk::HBox *top = new Gtk::HBox();
+        al->add(*manage(box));
+    
+        this->set_spacing(0);
+        this->set_border_width(0);
+    
+        box->set_spacing(0);
+        box->set_border_width(0);
+    
+        top->set_spacing(4);
+        top->set_border_width(0);
+        top->set_name("rack_unit_title_bar");
+    
+        box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
+        box->pack_start(*manage(top));
+        box->pack_start(*manage(rb.wrap_bar()), Gtk::PACK_SHRINK);
+    
+        top->pack_start(on_off_switch, Gtk::PACK_SHRINK);
+        on_off_switch.set_name("effect_on_off");
+        Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
+        szg_label->add_widget(*manage(effect_label));
+        top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
+    
+        top->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET);
+    
+        mb_expand_button = rb.make_expand_button(true);
+        top->pack_end(*manage(mb_expand_button), Gtk::PACK_SHRINK);
+        if (!(rb.plugin.plugin->get_pdef()->flags & PGN_NO_PRESETS)) {
+            preset_button = rb.make_preset_button();
+            top->pack_end(*manage(preset_button), Gtk::PACK_SHRINK);
+        }
+        mb_delete_button = make_delete_button(rb);
+        mb_delete_button->set_no_show_all(true);
+        top->pack_end(*manage(mb_delete_button), Gtk::PACK_SHRINK);
 #ifdef USE_SZG
-    RackBox::szg->add_widget(*al);
+        RackBox::szg->add_widget(*al);
 #else
-    al->set_size_request(32, -1);
+        al->set_size_request(32, -1);
 #endif
+    } else { // special minibox for main amp in config mode
+        if (!szg_label) {
+            szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
+        }
+        evbox.set_visible_window(false);
+        evbox.signal_leave_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_leave_out));
+        evbox.signal_enter_notify_event().connect(sigc::mem_fun(*this, &MiniRackBox::on_my_enter_in));
+        add(evbox);
+
+        Gtk::Alignment *al = new Gtk::Alignment();
+        al->set_padding(0, 4, 0, 0);
+        al->set_border_width(0);
+
+        Gtk::HBox *box = new Gtk::HBox();
+        Gtk::HBox *top = new Gtk::HBox();
+        evbox.add(*manage(box));
+
+        top->set_name("rack_unit_title_bar");
+        Gtk::Widget *effect_label = RackBox::make_label(rb.plugin, options);
+        szg_label->add_widget(*manage(effect_label));
+        top->pack_start(*manage(effect_label), Gtk::PACK_SHRINK);
+        top->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET);
+        box->pack_start(*manage(al), Gtk::PACK_SHRINK);
+        box->pack_start(*manage(top));
+#ifdef USE_SZG
+        RackBox::szg->add_widget(*al);
+#else
+        al->set_size_request(64, 32);
+#endif
+    }
     show_all();
 }
 
@@ -871,7 +900,7 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     RackBox::set_paintbox_unit_shrink(*pb, plugin.get_type());
     pb->set_name("drag_widget");
     if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
-	pb->property_paint_func().set_value("zac_expose");
+	pb->property_paint_func().set_value("gx_rack_amp_expose");
     }
     //Gxw::Switch *swtch = new Gxw::Switch("switchit");
     //swtch->set_active(plugin.plugin->get_on_off());
@@ -944,7 +973,7 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     if (bare) {
 	add(*manage(bare));
 	fbox = bare;
-	mbox.property_paint_func().set_value("zac_expose");
+	mbox.property_paint_func().set_value("gx_rack_amp_expose");
     } else {
 	Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
 	pb->show();
@@ -1079,7 +1108,9 @@ void RackBox::vis_switch(Gtk::Widget& a, Gtk::Widget& b) {
 
 void RackBox::set_visibility(bool v) {
     if (config_mode || get_plug_visible()) {
+	minibox->set_config_mode(false);
 	mbox.set_visible(v);
+	minibox->set_config_mode(config_mode);
     } else {
 	fbox->set_visible(v);
     }
@@ -1098,7 +1129,6 @@ void RackBox::swtch(bool mini) {
 
 void RackBox::set_config_mode(bool mode) {
     config_mode = mode;
-    minibox->set_config_mode(mode);
     if (!can_compress() || !get_plug_visible()) {
 	if (mode) {
 	    vis_switch(*fbox, mbox);
@@ -1106,6 +1136,10 @@ void RackBox::set_config_mode(bool mode) {
 	    vis_switch(mbox, *fbox);
 	}
     }
+    if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
+	return;
+    }
+    minibox->set_config_mode(mode);
     enable_drag(mode);
 }
 
